@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DCCE73C7B
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:09:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C71D073C73
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:09:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388995AbfGXUJX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:09:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48964 "EHLO mail.kernel.org"
+        id S2405279AbfGXUAr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:00:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404989AbfGXUAn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 16:00:43 -0400
+        id S2405276AbfGXUAr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 16:00:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2F62205C9;
-        Wed, 24 Jul 2019 20:00:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 167F1205C9;
+        Wed, 24 Jul 2019 20:00:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998443;
-        bh=f9GvLwt0Ne5glBUpi3HIOx+1C4PY7x9yuu4XeqMRo38=;
+        s=default; t=1563998446;
+        bh=K8tCOehphzHY0IO/sbGLCbhffAbFe0XqUIVhEKI7KQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G004fKzuVSvokJToAe0vq76yHtVvNx2wbvBwo/A/NqceiJZNHXYIJuu+yfC+zdWWh
-         L+UUNTXcTNot/GhD8SUE9iykbBYtMVS5GTOauXmuXhp1yakfL4/F64lMwMWGbwd0Kd
-         Y/8i6vW1VP3jcFAk9R/+KbKg6jK3BCocI8fW805s=
+        b=fLV+/0hCtsFqKYvKJV4PVGkL1pGoJzIpe7WUbvgwJGkPTaghY6mknGKQBrPlZ/2iR
+         n3qdFHQT+qs9phh9SD7N6f4ccsE/Mnmug48jSxwy3x/2vLdxQzkufciTAf3FxJUslr
+         Ip9JJsQurTEE/zmb/9EYv4FDYi386ydnEXSUf1LM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Josef Bacik <jbacik@fb.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.1 367/371] blkcg: update blkcg_print_stat() to handle larger outputs
-Date:   Wed, 24 Jul 2019 21:21:59 +0200
-Message-Id: <20190724191751.893451048@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Josua Mayer <josua@solid-run.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.1 368/371] net: mvmdio: allow up to four clocks to be specified for orion-mdio
+Date:   Wed, 24 Jul 2019 21:22:00 +0200
+Message-Id: <20190724191752.010682758@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -43,44 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Josua Mayer <josua@solid-run.com>
 
-commit f539da82f2158916e154d206054e0efd5df7ab61 upstream.
+commit 4aabed699c400810981d3dda170f05fa4d782905 upstream.
 
-Depending on the number of devices, blkcg stats can go over the
-default seqfile buf size.  seqfile normally retries with a larger
-buffer but since the ->pd_stat() addition, blkcg_print_stat() doesn't
-tell seqfile that overflow has happened and the output gets printed
-truncated.  Fix it by calling seq_commit() w/ -1 on possible
-overflows.
+Allow up to four clocks to be specified and enabled for the orion-mdio
+interface, which are required by the Armada 8k and defined in
+armada-cp110.dtsi.
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Fixes: 903d23f0a354 ("blk-cgroup: allow controllers to output their own stats")
-Cc: stable@vger.kernel.org # v4.19+
-Cc: Josef Bacik <jbacik@fb.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes a hang in probing the mvmdio driver that was encountered on the
+Clearfog GT 8K with all drivers built as modules, but also affects other
+boards such as the MacchiatoBIN.
+
+Cc: stable@vger.kernel.org
+Fixes: 96cb43423822 ("net: mvmdio: allow up to three clocks to be specified for orion-mdio")
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Josua Mayer <josua@solid-run.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk-cgroup.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/marvell/mvmdio.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/block/blk-cgroup.c
-+++ b/block/blk-cgroup.c
-@@ -1005,8 +1005,12 @@ static int blkcg_print_stat(struct seq_f
- 		}
- next:
- 		if (has_stats) {
--			off += scnprintf(buf+off, size-off, "\n");
--			seq_commit(sf, off);
-+			if (off < size - 1) {
-+				off += scnprintf(buf+off, size-off, "\n");
-+				seq_commit(sf, off);
-+			} else {
-+				seq_commit(sf, -1);
-+			}
- 		}
- 	}
+--- a/drivers/net/ethernet/marvell/mvmdio.c
++++ b/drivers/net/ethernet/marvell/mvmdio.c
+@@ -64,7 +64,7 @@
  
+ struct orion_mdio_dev {
+ 	void __iomem *regs;
+-	struct clk *clk[3];
++	struct clk *clk[4];
+ 	/*
+ 	 * If we have access to the error interrupt pin (which is
+ 	 * somewhat misnamed as it not only reflects internal errors
 
 
