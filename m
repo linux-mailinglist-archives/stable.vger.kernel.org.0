@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C902973AF7
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:55:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85FAE73AF2
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:55:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404528AbfGXTzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:55:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39384 "EHLO mail.kernel.org"
+        id S2391931AbfGXTzV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:55:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404523AbfGXTzf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:55:35 -0400
+        id S2391885AbfGXTxZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:53:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA1E4205C9;
-        Wed, 24 Jul 2019 19:55:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13D26205C9;
+        Wed, 24 Jul 2019 19:53:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998134;
-        bh=Qx3p2aY8FmQsvDIKJs05yFhKahVc0zt4Suew8NhSa50=;
+        s=default; t=1563998004;
+        bh=BZ03rb4wgKDrHSygldFT+3+zsCVRtCg95khI63e01/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WIbxuGdyRDmkCHsIs8HlIRxRZCHDSxiL+j/2tHbVv3NRsidOC9nHXqiGgC8GaxULo
-         ovmuEKe3HzLts8eb91ZJnCpBnEF8ob0LFM2ooIlMs7LV3IAeuPr6TgpL3OpKbU6RWT
-         Mgt4hQ3ioqHuOV/90ck7PRJO07vtagyrn15leRRo=
+        b=yVZqZjG2q+4cB0FDKSwrPIOeQlUy5fV3FeC/GGnLvkAKkPClCt0d41kOKeUCBG4zO
+         cinTrhTQ0GiysReq8+2EM+jOUESKbM1NsROxnQWh2UAxASmSkaHEpKbM+YnUcK3BSc
+         +zB+DT2A3Ug/04e/cLvX+SMg78KEiO0VAzHmfrIo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Jo=C3=A3o=20Paulo=20Rechi=20Vita?= <jprvita@endlessm.com>,
+        Jukka Rissanen <jukka.rissanen@linux.intel.com>,
+        Michael Scott <mike@foundries.io>,
+        Josua Mayer <josua.mayer@jm0.eu>,
         Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 206/371] Bluetooth: Add new 13d3:3501 QCA_ROME device
-Date:   Wed, 24 Jul 2019 21:19:18 +0200
-Message-Id: <20190724191740.103605694@linuxfoundation.org>
+Subject: [PATCH 5.1 207/371] Bluetooth: 6lowpan: search for destination address in all peers
+Date:   Wed, 24 Jul 2019 21:19:19 +0200
+Message-Id: <20190724191740.160077036@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -45,37 +47,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 881cec4f6b4da78e54b73c046a60f39315964c7d ]
+[ Upstream commit b188b03270b7f8568fc714101ce82fbf5e811c5a ]
 
-Without the QCA ROME setup routine this adapter fails to establish a SCO
-connection.
+Handle overlooked case where the target address is assigned to a peer
+and neither route nor gateway exist.
 
-T:  Bus=01 Lev=01 Prnt=01 Port=04 Cnt=01 Dev#=  2 Spd=12  MxCh= 0
-D:  Ver= 1.10 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=13d3 ProdID=3501 Rev=00.01
-C:  #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=100mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-I:  If#=0x1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+For one peer, no checks are performed to see if it is meant to receive
+packets for a given address.
 
-Signed-off-by: João Paulo Rechi Vita <jprvita@endlessm.com>
+As soon as there is a second peer however, checks are performed
+to deal with routes and gateways for handling complex setups with
+multiple hops to a target address.
+This logic assumed that no route and no gateway imply that the
+destination address can not be reached, which is false in case of a
+direct peer.
+
+Acked-by: Jukka Rissanen <jukka.rissanen@linux.intel.com>
+Tested-by: Michael Scott <mike@foundries.io>
+Signed-off-by: Josua Mayer <josua.mayer@jm0.eu>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/bluetooth/6lowpan.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index 0e2c86da6479..4c9f11766e82 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -281,6 +281,7 @@ static const struct usb_device_id blacklist_table[] = {
- 	{ USB_DEVICE(0x04ca, 0x301a), .driver_info = BTUSB_QCA_ROME },
- 	{ USB_DEVICE(0x13d3, 0x3491), .driver_info = BTUSB_QCA_ROME },
- 	{ USB_DEVICE(0x13d3, 0x3496), .driver_info = BTUSB_QCA_ROME },
-+	{ USB_DEVICE(0x13d3, 0x3501), .driver_info = BTUSB_QCA_ROME },
+diff --git a/net/bluetooth/6lowpan.c b/net/bluetooth/6lowpan.c
+index a7cd23f00bde..50530561da98 100644
+--- a/net/bluetooth/6lowpan.c
++++ b/net/bluetooth/6lowpan.c
+@@ -187,10 +187,16 @@ static inline struct lowpan_peer *peer_lookup_dst(struct lowpan_btle_dev *dev,
+ 	}
  
- 	/* Broadcom BCM2035 */
- 	{ USB_DEVICE(0x0a5c, 0x2009), .driver_info = BTUSB_BCM92035 },
+ 	if (!rt) {
+-		nexthop = &lowpan_cb(skb)->gw;
+-
+-		if (ipv6_addr_any(nexthop))
+-			return NULL;
++		if (ipv6_addr_any(&lowpan_cb(skb)->gw)) {
++			/* There is neither route nor gateway,
++			 * probably the destination is a direct peer.
++			 */
++			nexthop = daddr;
++		} else {
++			/* There is a known gateway
++			 */
++			nexthop = &lowpan_cb(skb)->gw;
++		}
+ 	} else {
+ 		nexthop = rt6_nexthop(rt, daddr);
+ 
 -- 
 2.20.1
 
