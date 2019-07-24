@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58F5474578
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:43:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF7867457C
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:43:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390981AbfGYFnA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:43:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57950 "EHLO mail.kernel.org"
+        id S2404882AbfGYFnI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:43:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390976AbfGYFm7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:42:59 -0400
+        id S2390992AbfGYFnH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:43:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2469B22C7C;
-        Thu, 25 Jul 2019 05:42:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E46322CD1;
+        Thu, 25 Jul 2019 05:43:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033378;
-        bh=pmkVIllkbG370/6M52zBITjYZF5DFjYWiNDBziqlTIY=;
+        s=default; t=1564033386;
+        bh=vlTIogb9tzHAuBPAyMF4RNDmYm61QUR+7qMqccJAo1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gg2rFVOtLXvOoV+At5d5jQ//Utc9ETEI13DMjZP5ttYeY2WF/iyFVchuqDQONrndY
-         ekBka0RDKMxET0WzoQJsCC9vXV2MRyswep8jGo13H+yKOHS7X6OgmxzMDSDDJ7gmWE
-         4O4ubx27cm1BxlahtorZm+NygLhwFN12YhbRkMJY=
+        b=FfHrpTNjEBP/auz1S6VSMYnovzB7y6l9eYgJQoh+N4qMWMQqowTPsd9vmDsyMHOvy
+         jsAvYfpgFSp+GzXcteBo6Wu0f0l2bxKTMRmhL4l7LN20ODJuRUWBIC+RWyHTqROtpE
+         WKwAWcaE/YKYtvjm+BkT/ALTwbVn9fmXkiF8nE80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.19 187/271] bcache: fix mistaken sysfs entry for io_error counter
-Date:   Wed, 24 Jul 2019 21:20:56 +0200
-Message-Id: <20190724191711.152341158@linuxfoundation.org>
+        stable@vger.kernel.org, XiaoXiao Liu <sliuuxiaonxiao@gmail.com>,
+        Hui Wang <hui.wang@canonical.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.19 190/271] Input: alps - dont handle ALPS cs19 trackpoint-only device
+Date:   Wed, 24 Jul 2019 21:20:59 +0200
+Message-Id: <20190724191711.395880096@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -43,45 +45,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit 5461999848e0462c14f306a62923d22de820a59c upstream.
+commit 7e4935ccc3236751e5fe4bd6846f86e46bb2e427 upstream.
 
-In bch_cached_dev_files[] from driver/md/bcache/sysfs.c, sysfs_errors is
-incorrectly inserted in. The correct entry should be sysfs_io_errors.
+On a latest Lenovo laptop, the trackpoint and 3 buttons below it
+don't work at all, when we move the trackpoint or press those 3
+buttons, the kernel will print out:
+"Rejected trackstick packet from non DualPoint device"
 
-This patch fixes the problem and now I/O errors of cached device can be
-read from /sys/block/bcache<N>/bcache/io_errors.
+This device is identified as an alps touchpad but the packet has
+trackpoint format, so the alps.c drops the packet and prints out
+the message above.
 
-Fixes: c7b7bd07404c5 ("bcache: add io_disable to struct cached_dev")
-Signed-off-by: Coly Li <colyli@suse.de>
+According to XiaoXiao's explanation, this device is named cs19 and
+is trackpoint-only device, its firmware is only for trackpoint, it
+is independent of touchpad and is a device completely different from
+DualPoint ones.
+
+To drive this device with mininal changes to the existing driver, we
+just let the alps driver not handle this device, then the trackpoint.c
+will be the driver of this device if the trackpoint driver is enabled.
+(if not, this device will fallback to a bare PS/2 device)
+
+With the trackpoint.c, this trackpoint and 3 buttons all work well,
+they have all features that the trackpoint should have, like
+scrolling-screen, drag-and-drop and frame-selection.
+
+Signed-off-by: XiaoXiao Liu <sliuuxiaonxiao@gmail.com>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Reviewed-by: Pali Rohár <pali.rohar@gmail.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/bcache/sysfs.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/mouse/alps.c |   32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
---- a/drivers/md/bcache/sysfs.c
-+++ b/drivers/md/bcache/sysfs.c
-@@ -175,7 +175,7 @@ SHOW(__bch_cached_dev)
- 	var_print(writeback_percent);
- 	sysfs_hprint(writeback_rate,
- 		     wb ? atomic_long_read(&dc->writeback_rate.rate) << 9 : 0);
--	sysfs_hprint(io_errors,		atomic_read(&dc->io_errors));
-+	sysfs_printf(io_errors,		"%i", atomic_read(&dc->io_errors));
- 	sysfs_printf(io_error_limit,	"%i", dc->error_limit);
- 	sysfs_printf(io_disable,	"%i", dc->io_disable);
- 	var_print(writeback_rate_update_seconds);
-@@ -426,7 +426,7 @@ static struct attribute *bch_cached_dev_
- 	&sysfs_writeback_rate_p_term_inverse,
- 	&sysfs_writeback_rate_minimum,
- 	&sysfs_writeback_rate_debug,
--	&sysfs_errors,
-+	&sysfs_io_errors,
- 	&sysfs_io_error_limit,
- 	&sysfs_io_disable,
- 	&sysfs_dirty_data,
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -24,6 +24,7 @@
+ 
+ #include "psmouse.h"
+ #include "alps.h"
++#include "trackpoint.h"
+ 
+ /*
+  * Definitions for ALPS version 3 and 4 command mode protocol
+@@ -2864,6 +2865,23 @@ static const struct alps_protocol_info *
+ 	return NULL;
+ }
+ 
++static bool alps_is_cs19_trackpoint(struct psmouse *psmouse)
++{
++	u8 param[2] = { 0 };
++
++	if (ps2_command(&psmouse->ps2dev,
++			param, MAKE_PS2_CMD(0, 2, TP_READ_ID)))
++		return false;
++
++	/*
++	 * param[0] contains the trackpoint device variant_id while
++	 * param[1] contains the firmware_id. So far all alps
++	 * trackpoint-only devices have their variant_ids equal
++	 * TP_VARIANT_ALPS and their firmware_ids are in 0x20~0x2f range.
++	 */
++	return param[0] == TP_VARIANT_ALPS && (param[1] & 0x20);
++}
++
+ static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
+ {
+ 	const struct alps_protocol_info *protocol;
+@@ -3165,6 +3183,20 @@ int alps_detect(struct psmouse *psmouse,
+ 		return error;
+ 
+ 	/*
++	 * ALPS cs19 is a trackpoint-only device, and uses different
++	 * protocol than DualPoint ones, so we return -EINVAL here and let
++	 * trackpoint.c drive this device. If the trackpoint driver is not
++	 * enabled, the device will fall back to a bare PS/2 mouse.
++	 * If ps2_command() fails here, we depend on the immediately
++	 * followed psmouse_reset() to reset the device to normal state.
++	 */
++	if (alps_is_cs19_trackpoint(psmouse)) {
++		psmouse_dbg(psmouse,
++			    "ALPS CS19 trackpoint-only device detected, ignoring\n");
++		return -EINVAL;
++	}
++
++	/*
+ 	 * Reset the device to make sure it is fully operational:
+ 	 * on some laptops, like certain Dell Latitudes, we may
+ 	 * fail to properly detect presence of trackstick if device
 
 
