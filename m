@@ -2,114 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 118077236B
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 02:26:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BCA77236F
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 02:29:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727458AbfGXA0c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jul 2019 20:26:32 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:40060 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726653AbfGXA0c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 20:26:32 -0400
-Received: by mail-wr1-f65.google.com with SMTP id r1so44949175wrl.7
-        for <stable@vger.kernel.org>; Tue, 23 Jul 2019 17:26:30 -0700 (PDT)
+        id S1727779AbfGXA3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jul 2019 20:29:22 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:39689 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726653AbfGXA3W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 20:29:22 -0400
+Received: by mail-pg1-f194.google.com with SMTP id u17so20235352pgi.6;
+        Tue, 23 Jul 2019 17:29:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=oBVqD7dZZI/ONrR86fzHe4wWpuTSMQL0QBdrpHDdbCQ=;
-        b=Dei/tHZiYO5/6StAVNWUU9MOPzARGwzTXHs8ce2u0PoSFkF1Abl9rz4in80PZ3LnFc
-         ee3HFbhvevUm9T9/X2fWvc9e1erNvE8R7n/veI9Q1dEXcfQu6wu40LztPyOovX8za40D
-         Y2Rt+4/U6wHNmiwdAOoVfoN+/ji72nEquXFpK80JdILf5X0d79Vw8jFhZy5OxH5deidQ
-         Q9XwdvlFviGrzT/lB69lE5SL5zLmiYt3ZXK5E78UGlz5PzQ+BcyqLtRoRZ5NmmpkWxbO
-         TVNTffCYcWS/6CzDo5S4t8zqWk6CQLobcVCAGmTUp++lAy1jL3gEVKlU/vl18MYFP9R9
-         LmTQ==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=1TLM1fWUqcrER2t0L87ummZEyYbWAV1rtKQafeYpooE=;
+        b=nJf9WxRXe75IWmsHazxJD31sAxuaGmT72oW49mQaFmQnfetT6QxwEa6S9pxLuHr1Gf
+         PoLK131lVhFIt4+Y2sAufi2CTpIMLqgYywub9CBNi3b25JSrDv6ts3rwCWvgGh93AS5O
+         Y9iJtluwN1fN5NeKMtZ/yCnyDJwUozGLTJLQyX2XkKQ2cAAMPXKXXI7EESN5Yyh92DIw
+         35kR0SyvLkXJOKoVoFfvcT6s6JXZ74O34pU3LoYeFeazQktES98ycalR6TaaAhCUIBWC
+         qfMbpKxpsf5c6uEJLqVc5vz5eHcB8EVKrpIJDVkYZP6fqvTuoqz0Pl3w6j+NK63tSPVw
+         mA/Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=oBVqD7dZZI/ONrR86fzHe4wWpuTSMQL0QBdrpHDdbCQ=;
-        b=OyrAZuakW5CZ4PIOOhmRlRIUSPo0eRO80R+adbWsfMAjHUzhg2ftowACfnJ5Zhigf5
-         TOuNxWxGVkFFre5m4qd0CWdMQnNHMYwg5FmI93I+8UdJdrQoO+X7LwwWMD9H3DlVHgXS
-         zJAjsXekk2lpO1BisC9XtqvRw/6cv4XDxrQ2y14Nz+3SzeKcfAxGowX91A3FvkQhrgTJ
-         yt7hOW+j3ccPfP1Mjk8MEDvT4ij5t6FRHyxBY7T9hFkULH+I5HlZ5VD42B9GerV8t1DX
-         HBOrcvBs66v5i4MS+sIs7l+IPd2nzO0IH4+lGsSA39rT6u74IwhywDeHl3yoaWgXAoDv
-         KlBA==
-X-Gm-Message-State: APjAAAV6eEFXCOoOhg8V+RMsim7bDj2JUnuBPRpDrIRX6Sf3q9ouHwbG
-        LEyYOU0vUz3bpXEjhed40GhzBSUuGYQ=
-X-Google-Smtp-Source: APXvYqzK5o575kAu8XIooBTHZ37xMI9S0xTYdBCfvtST+dGcrMKfdGdu4xVxJhraUYfqkCtUxG2dLA==
-X-Received: by 2002:a5d:6a90:: with SMTP id s16mr28658402wru.288.1563927989971;
-        Tue, 23 Jul 2019 17:26:29 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id 91sm92405151wrp.3.2019.07.23.17.26.29
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 23 Jul 2019 17:26:29 -0700 (PDT)
-Message-ID: <5d37a5b5.1c69fb81.f0936.2e2f@mx.google.com>
-Date:   Tue, 23 Jul 2019 17:26:29 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=1TLM1fWUqcrER2t0L87ummZEyYbWAV1rtKQafeYpooE=;
+        b=em/jOG4IPk+ry3Ddyg88Hs5lFJVXkT8R8TCiuG5KsPbNb8OO+UHvjlzo5dcKQZCX8j
+         GXMDiDPjAPrE73PYP48dpi3PFhDq7BxTnlEXVmcENJwEqgepShh4ftkng90YfecEzqiL
+         O2t7cWgd/n2cc/rFz1Zx9/1oGRyDF4uwxJeIWcEArnjyBJtJkO93C2PWkGAdz1sm0EzU
+         fBVpZLhncmej1QrPQKVfU17+1/La0u6xK1AnOeWLphsv3GDlQzuDxLRX7unzfWxKWi66
+         X9r+8F36+UMwZw9m7pwq4k38bb1QpR+8bdSaZ8Y84QZaxZbVtdluodgsGT1UJ3/+mNul
+         D2tg==
+X-Gm-Message-State: APjAAAUnNkINFlIatKFqCC/d7BER+10Y1MLCP+mXEhy32OHLp6VSbj8k
+        IPRrYHbVWDxh/k3bd8Lwz/l+PvUUt7IAkt5ITnI=
+X-Google-Smtp-Source: APXvYqze1HnNxhdvGGARt1p/RrBlC0fk9XciTNllhwnZU0qPGCW/TQ9g4CTjC5rh+RqP6BFSS8jRuHxoltmvv2nE9FI=
+X-Received: by 2002:a17:90a:360c:: with SMTP id s12mr86039886pjb.30.1563928161588;
+ Tue, 23 Jul 2019 17:29:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.186-76-gf1f6aa1c598f
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y boot: 90 boots: 2 failed,
- 86 passed with 1 offline, 1 conflict (v4.4.186-76-gf1f6aa1c598f)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20190715134655.4076-1-sashal@kernel.org> <20190715134655.4076-39-sashal@kernel.org>
+ <CAN05THSdj8m5g-xG5abYAZ=_PE2xT-RwLtVhKrtxPevJGCSxag@mail.gmail.com>
+In-Reply-To: <CAN05THSdj8m5g-xG5abYAZ=_PE2xT-RwLtVhKrtxPevJGCSxag@mail.gmail.com>
+From:   Steve French <smfrench@gmail.com>
+Date:   Tue, 23 Jul 2019 19:29:10 -0500
+Message-ID: <CAH2r5mu9ncYa1WTHuuMEk3=4TU5-RBH6nBKME4Bm+dntOtORTQ@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.2 039/249] signal/cifs: Fix cifs_put_tcp_session
+ to call send_sig instead of force_sig
+To:     ronnie sahlberg <ronniesahlberg@gmail.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Namjae Jeon <namjae.jeon@samsung.com>,
+        Jeff Layton <jlayton@primarydata.com>,
+        linux-cifs <linux-cifs@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 90 boots: 2 failed, 86 passed with 1 offline, 1=
- conflict (v4.4.186-76-gf1f6aa1c598f)
+Very easy to see what caused the regression with this global change:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.186-76-gf1f6aa1c598f/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.186-76-gf1f6aa1c598f/
+mount (which launches "cifsd" thread to read the socket)
+umount (which kills the "cifsd" thread)
+rmmod   (rmmod now fails since "cifsd" thread is still active)
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.186-76-gf1f6aa1c598f
-Git Commit: f1f6aa1c598f856dbcef9c32a8bc96b7e07b78ba
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 43 unique boards, 20 SoC families, 14 builds out of 190
+mount launches a thread to read from the socket ("cifsd")
+umount is supposed to kill that thread (but with the patch
+"signal/cifs: Fix cifs_put_tcp_session to call send_sig instead of
+force_sig" that no longer works).  So the regression is that after
+unmount you still see the "cifsd" thread, and the reason that cifsd
+thread is still around is that that patch no longer force kills the
+process (see line 2652 of fs/cifs/connect.c) which regresses module
+removal.
 
-Boot Failures Detected:
+-               force_sig(SIGKILL, task);
++               send_sig(SIGKILL, task, 1);
 
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            stih410-b2120: 1 failed lab
+The comment in the changeset indicates "The signal SIGKILL can not be
+ignored" but obviously it can be ignored - at least on 5.3-rc1 it is
+being ignored.
 
-arm64:
-    defconfig:
-        gcc-8:
-            qcom-qdf2400: 1 failed lab
+If send_sig(SIGKILL ...) doesn't work and if force_sig(SIGKILL, task)
+is removed and no longer possible - how do we kill a helper process
+...
 
-Offline Platforms:
+On Tue, Jul 23, 2019 at 6:20 PM ronnie sahlberg
+<ronniesahlberg@gmail.com> wrote:
+>
+> On Tue, Jul 16, 2019 at 1:15 AM Sasha Levin <sashal@kernel.org> wrote:
+> >
+> > From: "Eric W. Biederman" <ebiederm@xmission.com>
+> >
+> > [ Upstream commit 72abe3bcf0911d69b46c1e8bdb5612675e0ac42c ]
+> >
+> > The locking in force_sig_info is not prepared to deal with a task that
+> > exits or execs (as sighand may change).  The is not a locking problem
+> > in force_sig as force_sig is only built to handle synchronous
+> > exceptions.
+> >
+> > Further the function force_sig_info changes the signal state if the
+> > signal is ignored, or blocked or if SIGNAL_UNKILLABLE will prevent the
+> > delivery of the signal.  The signal SIGKILL can not be ignored and can
+> > not be blocked and SIGNAL_UNKILLABLE won't prevent it from being
+> > delivered.
+> >
+> > So using force_sig rather than send_sig for SIGKILL is confusing
+> > and pointless.
+> >
+> > Because it won't impact the sending of the signal and and because
+> > using force_sig is wrong, replace force_sig with send_sig.
+>
+> I think this patch broke the cifs module.
+> The issue is that the use count is now not updated properly and thus
+> it is no longer possible to
+> rmmod the module.
+>
+>
+> >
+> > Cc: Namjae Jeon <namjae.jeon@samsung.com>
+> > Cc: Jeff Layton <jlayton@primarydata.com>
+> > Cc: Steve French <smfrench@gmail.com>
+> > Fixes: a5c3e1c725af ("Revert "cifs: No need to send SIGKILL to demux_thread during umount"")
+> > Fixes: e7ddee9037e7 ("cifs: disable sharing session and tcon and add new TCP sharing code")
+> > Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > ---
+> >  fs/cifs/connect.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+> > index 8dd6637a3cbb..714a359c7c8d 100644
+> > --- a/fs/cifs/connect.c
+> > +++ b/fs/cifs/connect.c
+> > @@ -2631,7 +2631,7 @@ cifs_put_tcp_session(struct TCP_Server_Info *server, int from_reconnect)
+> >
+> >         task = xchg(&server->tsk, NULL);
+> >         if (task)
+> > -               force_sig(SIGKILL, task);
+> > +               send_sig(SIGKILL, task, 1);
+> >  }
+> >
+> >  static struct TCP_Server_Info *
+> > --
+> > 2.20.1
+> >
 
-arm:
 
-    sunxi_defconfig:
-        gcc-8
-            sun7i-a20-bananapi: 1 offline lab
 
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
+-- 
+Thanks,
 
-x86_64:
-    x86_64_defconfig:
-        qemu:
-            lab-drue: PASS (gcc-8)
-            lab-linaro-lkft: PASS (gcc-8)
-            lab-collabora: PASS (gcc-8)
-            lab-baylibre: FAIL (gcc-8)
-            lab-mhart: PASS (gcc-8)
-
----
-For more info write to <info@kernelci.org>
+Steve
