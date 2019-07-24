@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3824573E2C
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:22:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5285073DFE
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:22:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390527AbfGXTnW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:43:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45510 "EHLO mail.kernel.org"
+        id S2390986AbfGXTp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:45:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389600AbfGXTnV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:43:21 -0400
+        id S2390639AbfGXTna (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:43:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CFF72083B;
-        Wed, 24 Jul 2019 19:43:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5AEB2083B;
+        Wed, 24 Jul 2019 19:43:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997401;
-        bh=gpkOniK76Sb8jC7RArcrweh848Ov1osMfJvD3t4jypE=;
+        s=default; t=1563997409;
+        bh=U0o0C1aPAvOjwdQ7vLkMsrXoC/6GvrrOfuqwkwg7ouQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qM+dj3p0udsEzSnWTMbUgKSstdFrtHZMip7imOUNHdupg/k78gkzkCPWc+HBIZckB
-         NcpiOGZVfcnTE+j8xJmbtm/LopUjCyXMaxWnkThb9njLt+WT645gYMqpzGsyvgX5i/
-         XMlKksT0P04z6IzA8BQrQe6ucj4XJ6vWBbm8Zsd4=
+        b=BocpPY/hwziQSb7PqBXSyGjNMqEzOu7jwpXZ2IJhsh/K76vb+1uf5Vs1r9gKsntHd
+         IwbazYT1oWwrRiJsRJv5UJcn8gEoMfEQtVF20e3Vi8etzpE4/IQcakY/Khw7yNS1tA
+         PrruL/1FfP7GcHP9aUXpU2RDo2XJ5gLFhFvVlT1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Surabhi Vishnoi <svishnoi@codeaurora.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 011/371] ath10k: Do not send probe response template for mesh
-Date:   Wed, 24 Jul 2019 21:16:03 +0200
-Message-Id: <20190724191725.353275865@linuxfoundation.org>
+Subject: [PATCH 5.1 014/371] ath10k: Fix the wrong value of enums for wmi tlv stats id
+Date:   Wed, 24 Jul 2019 21:16:06 +0200
+Message-Id: <20190724191725.567381815@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -44,41 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 97354f2c432788e3163134df6bb144f4b6289d87 ]
+[ Upstream commit 9280f4fc06f44d0b4dc9e831f72d97b3d7cd35d3 ]
 
-Currently mac80211 do not support probe response template for
-mesh point. When WMI_SERVICE_BEACON_OFFLOAD is enabled, host
-driver tries to configure probe response template for mesh, but
-it fails because the interface type is not NL80211_IFTYPE_AP but
-NL80211_IFTYPE_MESH_POINT.
+The enum value for WMI_TLV_STAT_PDEV, WMI_TLV_STAT_VDEV
+and WMI_TLV_STAT_PEER is wrong, due to which the vdev stats
+are not received from firmware in wmi_update_stats event.
 
-To avoid this failure, skip sending probe response template to
-firmware for mesh point.
+Fix the enum values for above stats to receive all stats
+from firmware in WMI_TLV_UPDATE_STATS_EVENTID.
 
-Tested HW: WCN3990/QCA6174/QCA9984
+Tested HW: WCN3990
+Tested FW: WLAN.HL.3.1-00784-QCAHLSWMTPLZ-1
 
+Fixes: f40a307eb92c ("ath10k: Fill rx duration for each peer in fw_stats for WCN3990)
 Signed-off-by: Surabhi Vishnoi <svishnoi@codeaurora.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/mac.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/wireless/ath/ath10k/wmi.h | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index e8997e22ceec..b500fd427595 100644
---- a/drivers/net/wireless/ath/ath10k/mac.c
-+++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -1630,6 +1630,10 @@ static int ath10k_mac_setup_prb_tmpl(struct ath10k_vif *arvif)
- 	if (arvif->vdev_type != WMI_VDEV_TYPE_AP)
- 		return 0;
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.h b/drivers/net/wireless/ath/ath10k/wmi.h
+index e1c40bb69932..12f57f9adbba 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.h
++++ b/drivers/net/wireless/ath/ath10k/wmi.h
+@@ -4535,9 +4535,10 @@ enum wmi_10_4_stats_id {
+ };
  
-+	 /* For mesh, probe response and beacon share the same template */
-+	if (ieee80211_vif_is_mesh(vif))
-+		return 0;
-+
- 	prb = ieee80211_proberesp_get(hw, vif);
- 	if (!prb) {
- 		ath10k_warn(ar, "failed to get probe resp template from mac80211\n");
+ enum wmi_tlv_stats_id {
+-	WMI_TLV_STAT_PDEV	= BIT(0),
+-	WMI_TLV_STAT_VDEV	= BIT(1),
+-	WMI_TLV_STAT_PEER	= BIT(2),
++	WMI_TLV_STAT_PEER	= BIT(0),
++	WMI_TLV_STAT_AP		= BIT(1),
++	WMI_TLV_STAT_PDEV	= BIT(2),
++	WMI_TLV_STAT_VDEV	= BIT(3),
+ 	WMI_TLV_STAT_PEER_EXTD  = BIT(10),
+ };
+ 
 -- 
 2.20.1
 
