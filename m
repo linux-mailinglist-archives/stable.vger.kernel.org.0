@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F396273F62
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:32:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B95F373F66
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:32:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387722AbfGXT23 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:28:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46708 "EHLO mail.kernel.org"
+        id S1728936AbfGXT2q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:28:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388332AbfGXT20 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:28:26 -0400
+        id S1728886AbfGXT2q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:28:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C43921951;
-        Wed, 24 Jul 2019 19:28:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46EF721951;
+        Wed, 24 Jul 2019 19:28:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996505;
-        bh=q/PP4wEmBuwNZos+xIzrwifTyzw3b6/QtHSmRi3p/48=;
+        s=default; t=1563996525;
+        bh=9T3ggQroFXS+ozFglygL7PVZfvxOBqLm3bkcwDSiRos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KgZ0HbQCAw37ygQVk+0tjKnRnn3JPZ0gu2JeFCD6Vu/Ev0uLJLZqgVgg13aOML8x/
-         /bNQvGLIbBqPtuYgh1k0CjO3D2fx/v+36m0Kd2ioTrXC1FAMFOPGuRJqeK3XWepZcY
-         ZNxK7orAFCDzb1PhClJDoBiOuaS0NZe0rOG323jk=
+        b=Fq39ZxkryQRgm1CwOnDeXJb+4KAd0c3uZtH2THMxwYS4dU4KutakBk6PprZVyLnEY
+         pQTtoypUKIqIaPLGblUQqHN+9I1litX7h3N5Vyt9PCPmoLLORKSZV4ZUljIJMHRJvU
+         vjAgLeI3oZssJ8hlMZHbRd4tZ/4MJF1HL1nkFjTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        Doug Ledford <dledford@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 118/413] ipoib: correcly show a VF hardware address
-Date:   Wed, 24 Jul 2019 21:16:49 +0200
-Message-Id: <20190724191743.712150851@linuxfoundation.org>
+Subject: [PATCH 5.2 120/413] tools build: Fix the zstd test in the test-all.c common case feature test
+Date:   Wed, 24 Jul 2019 21:16:51 +0200
+Message-Id: <20190724191743.821939385@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -45,55 +47,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 64d701c608fea362881e823b666327f5d28d7ffd ]
+[ Upstream commit 3469fa84c1631face938efc42b3f488a2c2504e0 ]
 
-in the case of IPoIB with SRIOV enabled hardware
-ip link show command incorrecly prints
-0 instead of a VF hardware address.
+We were renanimg 'main' to 'main_zstd' but then using 'main_libzstd();'
+in the main() for test-all.c, causing this:
 
-Before:
-11: ib1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 2044 qdisc pfifo_fast
-state UP mode DEFAULT group default qlen 256
-    link/infiniband
-80:00:00:66:fe:80:00:00:00:00:00:00:24:8a:07:03:00:a4:3e:7c brd
-00:ff:ff:ff:ff:12:40:1b:ff:ff:00:00:00:00:00:00:ff:ff:ff:ff
-    vf 0 MAC 00:00:00:00:00:00, spoof checking off, link-state disable,
-trust off, query_rss off
-...
-After:
-11: ib1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 2044 qdisc pfifo_fast
-state UP mode DEFAULT group default qlen 256
-    link/infiniband
-80:00:00:66:fe:80:00:00:00:00:00:00:24:8a:07:03:00:a4:3e:7c brd
-00:ff:ff:ff:ff:12:40:1b:ff:ff:00:00:00:00:00:00:ff:ff:ff:ff
-    vf 0     link/infiniband
-80:00:00:66:fe:80:00:00:00:00:00:00:24:8a:07:03:00:a4:3e:7c brd
-00:ff:ff:ff:ff:12:40:1b:ff:ff:00:00:00:00:00:00:ff:ff:ff:ff, spoof
-checking off, link-state disable, trust off, query_rss off
+  $ cat /tmp/build/perf/feature/test-all.make.output
+  test-all.c: In function ‘main’:
+  test-all.c:236:2: error: implicit declaration of function ‘main_test_libzstd’; did you mean ‘main_test_zstd’? [-Werror=implicit-function-declaration]
+    main_test_libzstd();
+    ^~~~~~~~~~~~~~~~~
+    main_test_zstd
+  cc1: all warnings being treated as errors
+  $
 
-v1->v2: just copy an address without modifing ifla_vf_mac
-v2->v3: update the changelog
+I.e. what was supposed to be the fast path feature test was _always_
+failing, duh, fix it.
 
-Signed-off-by: Denis Kirjanov <kda@linux-powerpc.org>
-Acked-by: Doug Ledford <dledford@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
+Fixes: 3b1c5d965971 ("tools build: Implement libzstd feature check, LIBZSTD_DIR and NO_LIBZSTD defines")
+Link: https://lkml.kernel.org/n/tip-ma4abk0utroiw4mwpmvnjlru@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/ipoib/ipoib_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/build/feature/test-all.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/ulp/ipoib/ipoib_main.c b/drivers/infiniband/ulp/ipoib/ipoib_main.c
-index 9b5e11d3fb85..04ea7db08e87 100644
---- a/drivers/infiniband/ulp/ipoib/ipoib_main.c
-+++ b/drivers/infiniband/ulp/ipoib/ipoib_main.c
-@@ -1998,6 +1998,7 @@ static int ipoib_get_vf_config(struct net_device *dev, int vf,
- 		return err;
+diff --git a/tools/build/feature/test-all.c b/tools/build/feature/test-all.c
+index a59c53705093..939ac2fcc783 100644
+--- a/tools/build/feature/test-all.c
++++ b/tools/build/feature/test-all.c
+@@ -182,7 +182,7 @@
+ # include "test-disassembler-four-args.c"
+ #undef main
  
- 	ivf->vf = vf;
-+	memcpy(ivf->mac, dev->dev_addr, dev->addr_len);
+-#define main main_test_zstd
++#define main main_test_libzstd
+ # include "test-libzstd.c"
+ #undef main
  
- 	return 0;
- }
 -- 
 2.20.1
 
