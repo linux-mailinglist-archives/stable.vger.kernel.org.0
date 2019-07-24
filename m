@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18DD273AB5
+	by mail.lfdr.de (Postfix) with ESMTP id EB9E273AB7
 	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:54:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403993AbfGXTw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:52:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35148 "EHLO mail.kernel.org"
+        id S2404166AbfGXTxB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:53:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403987AbfGXTw6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:52:58 -0400
+        id S2403987AbfGXTxB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:53:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAC2E205C9;
-        Wed, 24 Jul 2019 19:52:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1ACF92147A;
+        Wed, 24 Jul 2019 19:52:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997977;
-        bh=HVHYAs4JnrwG5NegSRAus12ZMc46mWLCWSvnS4Pd7pM=;
+        s=default; t=1563997980;
+        bh=RlQJatymJknKgDfH2LtMV3XQ0Z9dCXzF9ohGYJt0MH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LiqTvsgZ7rORjzjkuYsuqqpSmLiSxEiFVMljCG8PQHpTID8iIdWWeNC8g6GnDXyK8
-         Q6WhUeVBygbKNUOz+PcxnqjhiBe1syejcQ2V1n4bOxgJ99P1qMpv3tJuafBovm6Pz8
-         kdYdAAwMyO7pc02e2WHLyDJHdrzpLpjni7w8eh/A=
+        b=EikreH8F2YPSX+SiT4sqjZlJL86o+BFAhpjPyMOla5sdtSN6RJ8ZoZYLcTWp1mPXP
+         jSKKQWUWgXLMzWZNw6oTNh0Vu1qftZG1nh9t6fZdQjppce+4KTLpMJvJwq1nmlFNYn
+         an5VTGENF1NYap3HhU5krXjSFGzyiOFNt6qF3/VE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomas Bortoli <tomasbortoli@gmail.com>,
-        syzbot+98162c885993b72f19c4@syzkaller.appspotmail.com,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jo=C3=A3o=20Paulo=20Rechi=20Vita?= <jprvita@endlessm.com>,
         Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 204/371] Bluetooth: hci_bcsp: Fix memory leak in rx_skb
-Date:   Wed, 24 Jul 2019 21:19:16 +0200
-Message-Id: <20190724191739.985714808@linuxfoundation.org>
+Subject: [PATCH 5.1 205/371] Bluetooth: Add new 13d3:3491 QCA_ROME device
+Date:   Wed, 24 Jul 2019 21:19:17 +0200
+Message-Id: <20190724191740.045670596@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -45,37 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4ce9146e0370fcd573f0372d9b4e5a211112567c ]
+[ Upstream commit 44d34af2e4cfd0c5357182f8b43f3e0a1fe30a2e ]
 
-Syzkaller found that it is possible to provoke a memory leak by
-never freeing rx_skb in struct bcsp_struct.
+Without the QCA ROME setup routine this adapter fails to establish a SCO
+connection.
 
-Fix by freeing in bcsp_close()
+T:  Bus=01 Lev=01 Prnt=01 Port=08 Cnt=01 Dev#=  2 Spd=12  MxCh= 0
+D:  Ver= 1.10 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=13d3 ProdID=3491 Rev=00.01
+C:  #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=100mA
+I:  If#=0x0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+I:  If#=0x1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
 
-Signed-off-by: Tomas Bortoli <tomasbortoli@gmail.com>
-Reported-by: syzbot+98162c885993b72f19c4@syzkaller.appspotmail.com
+Signed-off-by: João Paulo Rechi Vita <jprvita@endlessm.com>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_bcsp.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/bluetooth/btusb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/bluetooth/hci_bcsp.c b/drivers/bluetooth/hci_bcsp.c
-index 1a7f0c82fb36..66fe1e6dc631 100644
---- a/drivers/bluetooth/hci_bcsp.c
-+++ b/drivers/bluetooth/hci_bcsp.c
-@@ -759,6 +759,11 @@ static int bcsp_close(struct hci_uart *hu)
- 	skb_queue_purge(&bcsp->rel);
- 	skb_queue_purge(&bcsp->unrel);
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index 7db48ae65cd2..0e2c86da6479 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -279,6 +279,7 @@ static const struct usb_device_id blacklist_table[] = {
+ 	{ USB_DEVICE(0x04ca, 0x3015), .driver_info = BTUSB_QCA_ROME },
+ 	{ USB_DEVICE(0x04ca, 0x3016), .driver_info = BTUSB_QCA_ROME },
+ 	{ USB_DEVICE(0x04ca, 0x301a), .driver_info = BTUSB_QCA_ROME },
++	{ USB_DEVICE(0x13d3, 0x3491), .driver_info = BTUSB_QCA_ROME },
+ 	{ USB_DEVICE(0x13d3, 0x3496), .driver_info = BTUSB_QCA_ROME },
  
-+	if (bcsp->rx_skb) {
-+		kfree_skb(bcsp->rx_skb);
-+		bcsp->rx_skb = NULL;
-+	}
-+
- 	kfree(bcsp);
- 	return 0;
- }
+ 	/* Broadcom BCM2035 */
 -- 
 2.20.1
 
