@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C64173EB2
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:26:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF2D073EB1
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:26:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389001AbfGXTgm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:36:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36512 "EHLO mail.kernel.org"
+        id S2388845AbfGXTgr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:36:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389335AbfGXTgl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:36:41 -0400
+        id S2389131AbfGXTgq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:36:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1177F214AF;
-        Wed, 24 Jul 2019 19:36:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4CA1214AF;
+        Wed, 24 Jul 2019 19:36:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997001;
-        bh=PEi2GMxy1WhnxhrKDoRAkYCwvjG2K+359OY+tDPNug4=;
+        s=default; t=1563997005;
+        bh=UxYvXnkdRDbNmoHxr3kNaNh8LHIa6c+iKXd+dyTranE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u/TPcz7w9QG1wvfo2B8NGjJ6AdSrgcoUOXyZH7protYWkpBgYOxKTsVT9MLkKuLcp
-         EHnEqbrcGSmoudca6Pqogf6YijTh/XUDIPXuPz4URWYKtg79h9EZsUmDjOvC7QRi9s
-         9XO56j6icjC1DlpFOKtHfSlveWikMP4cA1Fu8Jok=
+        b=ZuJxCnlNO1Mc3HlImkA2KcWx5mWDRgfSkxqGMILkpf3mRcykDj5Hqw7R49WxR/SId
+         J+oZ070sIa6dXtkTPC1BLdhLWntW1DnVuYJODaxg7bNhIGAMi1vKWjraz86zO80Y1O
+         QAj2gDfq1QyBVQ9BdcnRkemBR/splZZKN7OMYV50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Black <dankamongmen@gmail.com>,
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.2 288/413] Input: synaptics - whitelist Lenovo T580 SMBus intertouch
-Date:   Wed, 24 Jul 2019 21:19:39 +0200
-Message-Id: <20190724191756.859421785@linuxfoundation.org>
+Subject: [PATCH 5.2 289/413] Input: alps - fix a mismatch between a condition check and its comment
+Date:   Wed, 24 Jul 2019 21:19:40 +0200
+Message-Id: <20190724191756.923211294@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -43,32 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Black <dankamongmen@gmail.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit 1976d7d200c5a32e72293a2ada36b7b7c9d6dd6e upstream.
+commit 771a081e44a9baa1991ef011cc453ef425591740 upstream.
 
-Adds the Lenovo T580 to the SMBus intertouch list for Synaptics
-touchpads. I've tested with this for a week now, and it seems a great
-improvement. It's also nice to have the complaint gone from dmesg.
+In the function alps_is_cs19_trackpoint(), we check if the param[1] is
+in the 0x20~0x2f range, but the code we wrote for this checking is not
+correct:
+(param[1] & 0x20) does not mean param[1] is in the range of 0x20~0x2f,
+it also means the param[1] is in the range of 0x30~0x3f, 0x60~0x6f...
 
-Signed-off-by: Nick Black <dankamongmen@gmail.com>
+Now fix it with a new condition checking ((param[1] & 0xf0) == 0x20).
+
+Fixes: 7e4935ccc323 ("Input: alps - don't handle ALPS cs19 trackpoint-only device")
 Cc: stable@vger.kernel.org
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/mouse/synaptics.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/mouse/alps.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -176,6 +176,7 @@ static const char * const smbus_pnp_ids[
- 	"LEN0093", /* T480 */
- 	"LEN0096", /* X280 */
- 	"LEN0097", /* X280 -> ALPS trackpoint */
-+	"LEN009b", /* T580 */
- 	"LEN200f", /* T450s */
- 	"LEN2054", /* E480 */
- 	"LEN2055", /* E580 */
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -2876,7 +2876,7 @@ static bool alps_is_cs19_trackpoint(stru
+ 	 * trackpoint-only devices have their variant_ids equal
+ 	 * TP_VARIANT_ALPS and their firmware_ids are in 0x20~0x2f range.
+ 	 */
+-	return param[0] == TP_VARIANT_ALPS && (param[1] & 0x20);
++	return param[0] == TP_VARIANT_ALPS && ((param[1] & 0xf0) == 0x20);
+ }
+ 
+ static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
 
 
