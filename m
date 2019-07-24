@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7C32747AB
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 09:01:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C5A0747B4
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 09:02:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729194AbfGYHBL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 03:01:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34198 "EHLO mail.kernel.org"
+        id S1728944AbfGYHBq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 03:01:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725808AbfGYHBK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 03:01:10 -0400
+        id S1728097AbfGYHBq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 03:01:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 348012070B;
-        Thu, 25 Jul 2019 07:01:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1389920657;
+        Thu, 25 Jul 2019 07:01:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564038069;
-        bh=86HcYU9n0mFTGn6uNTIrrfgOLIWTZfG6iObg0q1mcx8=;
+        s=default; t=1564038105;
+        bh=8YVVh3ZDx+QV67v4bqCdoi+CmlKP9V6fZTVJvPaXQ2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cePPolY7UxQpBhZF3A4pxWoR4DEAj9TOgo09xWL4qYU0P1YcYfN0FIjWq6KD6MeaO
-         HT+URvLxe4C3Ehahsb7McKVQ/La4nnrZ6GrKOAxWHXxTYWMTEoKxUu4Z4zMOrgqu0o
-         a7yxCoeiIQjMb1U62hD02dWnSIKiR5ve66tamdiE=
+        b=wdkD2FJ0eB9OcUMyhApkr9aH9MnvQXUOyzOQUVT5rDPdKcg98ibM3uMIl8TQzUi3s
+         ElgUsWy6g/kI02Ocio2kvD69iggEuMPwAAOvKMwHIZwSiy6i5kTx4j+1AddeJNU3TE
+         IljsxcYHKl1oM+8RrpI2aMs5Wo9boqa8YY2DK3Yc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -38,12 +38,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Vince Weaver <vincent.weaver@maine.edu>,
         Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 5.2 354/413] perf/x86/intel: Fix spurious NMI on fixed counter
-Date:   Wed, 24 Jul 2019 21:20:45 +0200
-Message-Id: <20190724191801.057976495@linuxfoundation.org>
+Subject: [PATCH 5.1 322/371] perf/x86/intel: Fix spurious NMI on fixed counter
+Date:   Wed, 24 Jul 2019 21:21:14 +0200
+Message-Id: <20190724191748.152212146@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
-References: <20190724191735.096702571@linuxfoundation.org>
+In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
+References: <20190724191724.382593077@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -105,7 +105,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/x86/events/intel/core.c
 +++ b/arch/x86/events/intel/core.c
-@@ -2161,12 +2161,10 @@ static void intel_pmu_disable_event(stru
+@@ -2092,12 +2092,10 @@ static void intel_pmu_disable_event(stru
  	cpuc->intel_ctrl_host_mask &= ~(1ull << hwc->idx);
  	cpuc->intel_cp_status &= ~(1ull << hwc->idx);
  
