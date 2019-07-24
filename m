@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 64B2273F5F
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:32:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 930B473F37
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:32:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728954AbfGXT3T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:29:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48436 "EHLO mail.kernel.org"
+        id S2387993AbfGXT3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:29:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728552AbfGXT3S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:29:18 -0400
+        id S2387978AbfGXT3v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:29:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BE8120659;
-        Wed, 24 Jul 2019 19:29:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B008A229FA;
+        Wed, 24 Jul 2019 19:29:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996557;
-        bh=9Pt7VSf7Y+EbxOQtUc7WMxkJU/adgdCjXxViKqeXkv0=;
+        s=default; t=1563996590;
+        bh=1IhLdSTJ384CIEvJIEt8sq+hnX1k7Ne5k/kgyLm0Ezg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MZy3MTtDu637Br45f34WkUg8bwVkddz6YTiQMXj6YBkgQtMDa5YUzhiXEjsl2ZoJm
-         oUg9UYDqOIXgAxFQFcZvm/ZiknQCYUTe++e4/RN3FJ+2U7NWkwH1Bw8VDbNhQqC0n7
-         KgERPHPZBDUovhEe+Evl4KfaqYLrXjihNLAU9qII=
+        b=X7FIN5LMjLLgKnwzNYEGEbv3aMOtYKLPfTuLuj7uN+dZRk+PpnpOW7xTxi1UTBbr+
+         3yo3UuCQWidP3fXaEtq90Zc4X2t3pXbeoTQtn173g5t4ndxBGsmdn0EcHDBFND/CFY
+         qk1hq7ePKi5vlSzh5KE3LxsC+k2Nl91wFhFwXerw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 121/413] bpf: fix callees pruning callers
-Date:   Wed, 24 Jul 2019 21:16:52 +0200
-Message-Id: <20190724191743.873298644@linuxfoundation.org>
+Subject: [PATCH 5.2 122/413] perf build: Handle slang being in /usr/include and in /usr/include/slang/
+Date:   Wed, 24 Jul 2019 21:16:53 +0200
+Message-Id: <20190724191743.928000697@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -44,60 +47,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit eea1c227b9e9bad295e8ef984004a9acf12bb68c ]
+[ Upstream commit 78d6ccce03e86de34c7000bcada493ed0679e350 ]
 
-The commit 7640ead93924 partially resolved the issue of callees
-incorrectly pruning the callers.
-With introduction of bounded loops and jmps_processed heuristic
-single verifier state may contain multiple branches and calls.
-It's possible that new verifier state (for future pruning) will be
-allocated inside callee. Then callee will exit (still within the same
-verifier state). It will go back to the caller and there R6-R9 registers
-will be read and will trigger mark_reg_read. But the reg->live for all frames
-but the top frame is not set to LIVE_NONE. Hence mark_reg_read will fail
-to propagate liveness into parent and future walking will incorrectly
-conclude that the states are equivalent because LIVE_READ is not set.
-In other words the rule for parent/live should be:
-whenever register parentage chain is set the reg->live should be set to LIVE_NONE.
-is_state_visited logic already follows this rule for spilled registers.
+In some distros slang.h may be in a /usr/include 'slang' subdir, so use
+the if slang is not explicitely disabled (by using NO_SLANG=1) and its
+feature test for the common case (having /usr/include/slang.h) failed,
+use the results for the test that checks if it is in slang/slang.h.
 
-Fixes: 7640ead93924 ("bpf: verifier: make sure callees don't prune with caller differences")
-Fixes: f4d7e40a5b71 ("bpf: introduce function calls (verification)")
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Change the only file in perf that includes slang.h to use
+HAVE_SLANG_INCLUDE_SUBDIR and forget about this for good.
+
+On a rhel6 system now we have:
+
+  $ /tmp/build/perf/perf -vv | grep slang
+                libslang: [ on  ]  # HAVE_SLANG_SUPPORT
+  $ ldd /tmp/build/perf/perf | grep libslang
+  	libslang.so.2 => /usr/lib64/libslang.so.2 (0x00007fa2d5a8d000)
+  $ grep slang /tmp/build/perf/FEATURE-DUMP
+  feature-libslang=0
+  feature-libslang-include-subdir=1
+  $ cat /etc/redhat-release
+  CentOS release 6.10 (Final)
+  $
+
+While on fedora:29:
+
+  $ /tmp/build/perf/perf -vv | grep slang
+                libslang: [ on  ]  # HAVE_SLANG_SUPPORT
+  $ ldd /tmp/build/perf/perf | grep slang
+  	libslang.so.2 => /lib64/libslang.so.2 (0x00007f8eb11a7000)
+  $ grep slang /tmp/build/perf/FEATURE-DUMP
+  feature-libslang=1
+  feature-libslang-include-subdir=1
+  $
+  $ cat /etc/fedora-release
+  Fedora release 29 (Twenty Nine)
+  $
+
+The feature-libslang-include-subdir=1 line is because the 'gettid()'
+test was added to test-all.c as the new glibc has an implementation for
+that, so we soon should have it not failing, i.e. should be the common
+case soon. Perhaps I should move it out till it becomes the norm...
+
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Fixes: 1955c8cf5e26 ("perf tools: Don't hardcode host include path for libslang")
+Link: https://lkml.kernel.org/n/tip-bkgtpsu3uit821fuwsdhj9gd@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ tools/perf/Makefile.config | 11 ++++++++---
+ tools/perf/ui/libslang.h   |  5 +++++
+ 2 files changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index a5c369e60343..11528bdaa9dc 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -6456,17 +6456,18 @@ static int is_state_visited(struct bpf_verifier_env *env, int insn_idx)
- 	 * the state of the call instruction (with WRITTEN set), and r0 comes
- 	 * from callee with its full parentage chain, anyway.
- 	 */
--	for (j = 0; j <= cur->curframe; j++)
--		for (i = j < cur->curframe ? BPF_REG_6 : 0; i < BPF_REG_FP; i++)
--			cur->frame[j]->regs[i].parent = &new->frame[j]->regs[i];
- 	/* clear write marks in current state: the writes we did are not writes
- 	 * our child did, so they don't screen off its reads from us.
- 	 * (There are no read marks in current state, because reads always mark
- 	 * their parent and current state never has children yet.  Only
- 	 * explored_states can get read marks.)
- 	 */
--	for (i = 0; i < BPF_REG_FP; i++)
--		cur->frame[cur->curframe]->regs[i].live = REG_LIVE_NONE;
-+	for (j = 0; j <= cur->curframe; j++) {
-+		for (i = j < cur->curframe ? BPF_REG_6 : 0; i < BPF_REG_FP; i++)
-+			cur->frame[j]->regs[i].parent = &new->frame[j]->regs[i];
-+		for (i = 0; i < BPF_REG_FP; i++)
-+			cur->frame[j]->regs[i].live = REG_LIVE_NONE;
-+	}
+diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
+index 85fbcd265351..17b81bc403e4 100644
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -637,9 +637,14 @@ endif
  
- 	/* all stack frames are accessible from callee, clear them all */
- 	for (j = 0; j <= cur->curframe; j++) {
+ ifndef NO_SLANG
+   ifneq ($(feature-libslang), 1)
+-    msg := $(warning slang not found, disables TUI support. Please install slang-devel, libslang-dev or libslang2-dev);
+-    NO_SLANG := 1
+-  else
++    ifneq ($(feature-libslang-include-subdir), 1)
++      msg := $(warning slang not found, disables TUI support. Please install slang-devel, libslang-dev or libslang2-dev);
++      NO_SLANG := 1
++    else
++      CFLAGS += -DHAVE_SLANG_INCLUDE_SUBDIR
++    endif
++  endif
++  ifndef NO_SLANG
+     # Fedora has /usr/include/slang/slang.h, but ubuntu /usr/include/slang.h
+     CFLAGS += -I/usr/include/slang
+     CFLAGS += -DHAVE_SLANG_SUPPORT
+diff --git a/tools/perf/ui/libslang.h b/tools/perf/ui/libslang.h
+index c0686cda39a5..991e692b9b46 100644
+--- a/tools/perf/ui/libslang.h
++++ b/tools/perf/ui/libslang.h
+@@ -10,7 +10,12 @@
+ #ifndef HAVE_LONG_LONG
+ #define HAVE_LONG_LONG __GLIBC_HAVE_LONG_LONG
+ #endif
++
++#ifdef HAVE_SLANG_INCLUDE_SUBDIR
++#include <slang/slang.h>
++#else
+ #include <slang.h>
++#endif
+ 
+ #if SLANG_VERSION < 20104
+ #define slsmg_printf(msg, args...) \
 -- 
 2.20.1
 
