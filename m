@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CD207464E
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:51:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3495474652
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:51:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390927AbfGYFmo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:42:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57680 "EHLO mail.kernel.org"
+        id S1726431AbfGYFua (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:50:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390887AbfGYFmn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:42:43 -0400
+        id S2404219AbfGYFmz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:42:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A38D121850;
-        Thu, 25 Jul 2019 05:42:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9485E21850;
+        Thu, 25 Jul 2019 05:42:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033363;
-        bh=r662jml85MiQMgRGSEkOVO10RYOobqyOSejyrb8hO7I=;
+        s=default; t=1564033375;
+        bh=QtlBSosPIGx7NyC+f4ToTQU3coh+S8xMK3YXpkL+5Qc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tTdzPUvrHGzh1PKYjiFIfL1KSKAe8If1EM6lk7j4NzLjOzlcJKeF1L5hRi87VTWAk
-         okUXOD39RFhQTM0LGRx0/UQTKvFrDebDPlmE6v1lq/jNueSkzYO5NMv1hc1zRknwLU
-         xXKAyM2sv7kRnEIR10zEk4ItBeR11Dih5rG9UGgY=
+        b=0MuuolXLHYctp+EGHlGKSpRFhnMNKWd3d+HIXmkMBOWzCRoEEEJRR7OCgC8IGVYbg
+         cPMiwrBkaydyJOJJyLdyH1CSzldmaQsOFkNCBhJ73rYEPr0PUrpvqTpiOSYolze94A
+         Our5yB9ul5pyqwwQ06P+wcub9PP3jDGC7f09N4T4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yong Li <mr.liyong@qq.com>,
-        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.19 183/271] Revert "bcache: set CACHE_SET_IO_DISABLE in bch_cached_dev_error()"
-Date:   Wed, 24 Jul 2019 21:20:52 +0200
-Message-Id: <20190724191710.824018675@linuxfoundation.org>
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Jens Axboe <axboe@kernel.dk>,
+        Thorsten Knabe <linux@thorsten-knabe.de>
+Subject: [PATCH 4.19 186/271] bcache: ignore read-ahead request failure on backing device
+Date:   Wed, 24 Jul 2019 21:20:55 +0200
+Message-Id: <20190724191711.066876047@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -45,63 +46,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Coly Li <colyli@suse.de>
 
-commit 695277f16b3a102fcc22c97fdf2de77c7b19f0b3 upstream.
+commit 578df99b1b0531d19af956530fe4da63d01a1604 upstream.
 
-This reverts commit 6147305c73e4511ca1a975b766b97a779d442567.
+When md raid device (e.g. raid456) is used as backing device, read-ahead
+requests on a degrading and recovering md raid device might be failured
+immediately by md raid code, but indeed this md raid array can still be
+read or write for normal I/O requests. Therefore such failed read-ahead
+request are not real hardware failure. Further more, after degrading and
+recovering accomplished, read-ahead requests will be handled by md raid
+array again.
 
-Although this patch helps the failed bcache device to stop faster when
-too many I/O errors detected on corresponding cached device, setting
-CACHE_SET_IO_DISABLE bit to cache set c->flags was not a good idea. This
-operation will disable all I/Os on cache set, which means other attached
-bcache devices won't work neither.
+For such condition, I/O failures of read-ahead requests don't indicate
+real health status (because normal I/O still be served), they should not
+be counted into I/O error counter dc->io_errors.
 
-Without this patch, the failed bcache device can also be stopped
-eventually if internal I/O accomplished (e.g. writeback). Therefore here
-I revert it.
+Since there is no simple way to detect whether the backing divice is a
+md raid device, this patch simply ignores I/O failures for read-ahead
+bios on backing device, to avoid bogus backing device failure on a
+degrading md raid array.
 
-Fixes: 6147305c73e4 ("bcache: set CACHE_SET_IO_DISABLE in bch_cached_dev_error()")
-Reported-by: Yong Li <mr.liyong@qq.com>
+Suggested-and-tested-by: Thorsten Knabe <linux@thorsten-knabe.de>
 Signed-off-by: Coly Li <colyli@suse.de>
 Cc: stable@vger.kernel.org
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/bcache/super.c |   17 -----------------
- 1 file changed, 17 deletions(-)
+ drivers/md/bcache/io.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -1423,8 +1423,6 @@ int bch_flash_dev_create(struct cache_se
+--- a/drivers/md/bcache/io.c
++++ b/drivers/md/bcache/io.c
+@@ -58,6 +58,18 @@ void bch_count_backing_io_errors(struct
  
- bool bch_cached_dev_error(struct cached_dev *dc)
- {
--	struct cache_set *c;
--
- 	if (!dc || test_bit(BCACHE_DEV_CLOSING, &dc->disk.flags))
- 		return false;
+ 	WARN_ONCE(!dc, "NULL pointer of struct cached_dev");
  
-@@ -1435,21 +1433,6 @@ bool bch_cached_dev_error(struct cached_
- 	pr_err("stop %s: too many IO errors on backing device %s\n",
- 		dc->disk.disk->disk_name, dc->backing_dev_name);
- 
--	/*
--	 * If the cached device is still attached to a cache set,
--	 * even dc->io_disable is true and no more I/O requests
--	 * accepted, cache device internal I/O (writeback scan or
--	 * garbage collection) may still prevent bcache device from
--	 * being stopped. So here CACHE_SET_IO_DISABLE should be
--	 * set to c->flags too, to make the internal I/O to cache
--	 * device rejected and stopped immediately.
--	 * If c is NULL, that means the bcache device is not attached
--	 * to any cache set, then no CACHE_SET_IO_DISABLE bit to set.
--	 */
--	c = dc->disk.c;
--	if (c && test_and_set_bit(CACHE_SET_IO_DISABLE, &c->flags))
--		pr_info("CACHE_SET_IO_DISABLE already set");
--
- 	bcache_device_stop(&dc->disk);
- 	return true;
- }
++	/*
++	 * Read-ahead requests on a degrading and recovering md raid
++	 * (e.g. raid6) device might be failured immediately by md
++	 * raid code, which is not a real hardware media failure. So
++	 * we shouldn't count failed REQ_RAHEAD bio to dc->io_errors.
++	 */
++	if (bio->bi_opf & REQ_RAHEAD) {
++		pr_warn_ratelimited("%s: Read-ahead I/O failed on backing device, ignore",
++				    dc->backing_dev_name);
++		return;
++	}
++
+ 	errors = atomic_add_return(1, &dc->io_errors);
+ 	if (errors < dc->error_limit)
+ 		pr_err("%s: IO error on backing device, unrecoverable",
 
 
