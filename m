@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 743C973B1A
+	by mail.lfdr.de (Postfix) with ESMTP id DDD6073B1B
 	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:58:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404708AbfGXT4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2404017AbfGXT4u (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 24 Jul 2019 15:56:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41466 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404706AbfGXT4p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:56:45 -0400
+        id S2404404AbfGXT4s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:56:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F7CE205C9;
-        Wed, 24 Jul 2019 19:56:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0A3021873;
+        Wed, 24 Jul 2019 19:56:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998204;
-        bh=hHoy37aCFdmmPLY5kqzFHCwHE1tIq9qSaOS1bN6/aj8=;
+        s=default; t=1563998207;
+        bh=dW9JTn8nEaaE0+3GmnwWqHXGXU+tjSb0jTUMRVNkOfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ou7vLlD71VDBIJv8Yhwze2L+FnylZlQr0RKt74y7XSEfbJseW2paaS5EPmqThWeN3
-         PND7C/lkapKeZbu5YqnSHfSYM9Nw9u2+qLHEppFBrd/ecKVbJyQnhythCXNPfN8M9z
-         1VysL8fR6GBXoqn/bctyiXrOvhtgxyTjjl198pGE=
+        b=SQJwLEtYGm2dRoY6veUq8qgmRb0E4sCzfXEYWwyTucMLOeJZQMIducQa8qUscuCuV
+         dMOl74pPwU9ufDaEedhMpOXm+0UZ46LwoEHG6Q30lWOat8Sy1g7aB1frAsTVJ/BOSy
+         NCEK0shqXmOhcXaleOzluHiObrJeL714mrbMUndU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.1 282/371] SUNRPC: Ensure the bvecs are reset when we re-encode the RPC request
-Date:   Wed, 24 Jul 2019 21:20:34 +0200
-Message-Id: <20190724191745.495058345@linuxfoundation.org>
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.1 283/371] lib/scatterlist: Fix mapping iterator when sg->offset is greater than PAGE_SIZE
+Date:   Wed, 24 Jul 2019 21:20:35 +0200
+Message-Id: <20190724191745.573167231@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -43,63 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 75369089820473eac45e9ddd970081901a373c08 upstream.
+commit aeb87246537a83c2aff482f3f34a2e0991e02cbc upstream.
 
-The bvec tracks the list of pages, so if the number of pages changes
-due to a re-encode, we need to reset the bvec as well.
+All mapping iterator logic is based on the assumption that sg->offset
+is always lower than PAGE_SIZE.
 
-Fixes: 277e4ab7d530 ("SUNRPC: Simplify TCP receive code by switching...")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Cc: stable@vger.kernel.org # v4.20+
+But there are situations where sg->offset is such that the SG item
+is on the second page. In that case sg_copy_to_buffer() fails
+properly copying the data into the buffer. One of the reason is
+that the data will be outside the kmapped area used to access that
+data.
+
+This patch fixes the issue by adjusting the mapping iterator
+offset and pgoffset fields such that offset is always lower than
+PAGE_SIZE.
+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Fixes: 4225fc8555a9 ("lib/scatterlist: use page iterator in the mapping iterator")
+Cc: stable@vger.kernel.org
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sunrpc/clnt.c     |    3 +--
- net/sunrpc/xprt.c     |    2 ++
- net/sunrpc/xprtsock.c |    1 +
- 3 files changed, 4 insertions(+), 2 deletions(-)
+ lib/scatterlist.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -1767,6 +1767,7 @@ rpc_xdr_encode(struct rpc_task *task)
- 	req->rq_snd_buf.head[0].iov_len = 0;
- 	xdr_init_encode(&xdr, &req->rq_snd_buf,
- 			req->rq_snd_buf.head[0].iov_base, req);
-+	xdr_free_bvec(&req->rq_snd_buf);
- 	if (rpc_encode_header(task, &xdr))
- 		return;
- 
-@@ -1799,8 +1800,6 @@ call_encode(struct rpc_task *task)
- 			rpc_exit(task, task->tk_status);
- 		}
- 		return;
--	} else {
--		xprt_request_prepare(task->tk_rqstp);
- 	}
- 
- 	/* Add task to reply queue before transmission to avoid races */
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -1006,6 +1006,8 @@ xprt_request_enqueue_receive(struct rpc_
- 
- 	if (!xprt_request_need_enqueue_receive(task, req))
- 		return;
-+
-+	xprt_request_prepare(task->tk_rqstp);
- 	spin_lock(&xprt->queue_lock);
- 
- 	/* Update the softirq receive buffer */
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -909,6 +909,7 @@ static int xs_nospace(struct rpc_rqst *r
- static void
- xs_stream_prepare_request(struct rpc_rqst *req)
+--- a/lib/scatterlist.c
++++ b/lib/scatterlist.c
+@@ -678,17 +678,18 @@ static bool sg_miter_get_next_page(struc
  {
-+	xdr_free_bvec(&req->rq_rcv_buf);
- 	req->rq_task->tk_status = xdr_alloc_bvec(&req->rq_rcv_buf, GFP_KERNEL);
- }
+ 	if (!miter->__remaining) {
+ 		struct scatterlist *sg;
+-		unsigned long pgoffset;
  
+ 		if (!__sg_page_iter_next(&miter->piter))
+ 			return false;
+ 
+ 		sg = miter->piter.sg;
+-		pgoffset = miter->piter.sg_pgoffset;
+ 
+-		miter->__offset = pgoffset ? 0 : sg->offset;
++		miter->__offset = miter->piter.sg_pgoffset ? 0 : sg->offset;
++		miter->piter.sg_pgoffset += miter->__offset >> PAGE_SHIFT;
++		miter->__offset &= PAGE_SIZE - 1;
+ 		miter->__remaining = sg->offset + sg->length -
+-				(pgoffset << PAGE_SHIFT) - miter->__offset;
++				     (miter->piter.sg_pgoffset << PAGE_SHIFT) -
++				     miter->__offset;
+ 		miter->__remaining = min_t(unsigned long, miter->__remaining,
+ 					   PAGE_SIZE - miter->__offset);
+ 	}
 
 
