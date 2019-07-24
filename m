@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28ABF73DC1
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:19:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0808573DC3
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:19:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403762AbfGXTrX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:47:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54042 "EHLO mail.kernel.org"
+        id S2388682AbfGXUTm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:19:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403760AbfGXTrX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:47:23 -0400
+        id S2391253AbfGXTr2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:47:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B8EDF21873;
-        Wed, 24 Jul 2019 19:47:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DC8022ADF;
+        Wed, 24 Jul 2019 19:47:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997642;
-        bh=lXXnpOqxF3yooX1d6MJK2g5s/7yolpgObylZ1e7N5BY=;
+        s=default; t=1563997647;
+        bh=s4j3znAHQSb74ZAzQTuLPhO4osgwDYcDc+vpVhZJa/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BtWLHIfaiIGbxt21x3pr2ghyVusUi0ReP55jROrBkPe4aSMiCUA3JDq3K+/9cg5E4
-         MhOxlvgLIviqH+6RTpVSxo+qw0T/CLqCJR8rVRblv0yJmbxicFjZD1GnRnE6XfYcc/
-         yPSqnwDkaS2XRDOJLSvt/orhukSwOKKJJBf17X70=
+        b=d7oGicoabhv2+URqdqk07pNbhKN/RQ+wdy7/eShA0a8GoAPCuM/xpI0iHuha98plI
+         B2hW/9KmEd1jYuoovxaKPOvAc3TBQEq4WeoJvsUEKFOWEIeuy4tIa1wYFRDdH4C3+m
+         v3tJM0T6fUaLbRbqs1LhGpDMchhvMSD6Axqg96Rg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,9 +31,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Huazhong Tan <tanhuazhong@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 094/371] net: hns3: fix for dereferencing before null checking
-Date:   Wed, 24 Jul 2019 21:17:26 +0200
-Message-Id: <20190724191731.900065038@linuxfoundation.org>
+Subject: [PATCH 5.1 096/371] net: hns3: delay ring buffer clearing during reset
+Date:   Wed, 24 Jul 2019 21:17:28 +0200
+Message-Id: <20190724191732.061027864@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -46,53 +46,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 757188005f905664b0186b88cf26a7e844190a63 ]
+[ Upstream commit 3a30964a2eef6aabd3ab18b979ea0eacf1147731 ]
 
-The netdev is dereferenced before null checking in the function
-hns3_setup_tc.
+The driver may not be able to disable the ring through firmware
+when downing the netdev during reset process, which may cause
+hardware accessing freed buffer problem.
 
-This patch moves the dereferencing after the null checking.
+This patch delays the ring buffer clearing to reset uninit
+process because hardware will not access the ring buffer after
+hardware reset is completed.
 
-Fixes: 76ad4f0ee747 ("net: hns3: Add support of HNS3 Ethernet Driver for hip08 SoC")
-
+Fixes: bb6b94a896d4 ("net: hns3: Add reset interface implementation in client")
 Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
 Signed-off-by: Peng Li <lipeng321@huawei.com>
 Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ .../net/ethernet/hisilicon/hns3/hns3_enet.c   | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index cac17152157d..6afdd376bc03 100644
+index 6afdd376bc03..7e7c10513d2c 100644
 --- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
 +++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -1497,12 +1497,12 @@ static void hns3_nic_get_stats64(struct net_device *netdev,
- static int hns3_setup_tc(struct net_device *netdev, void *type_data)
- {
- 	struct tc_mqprio_qopt_offload *mqprio_qopt = type_data;
--	struct hnae3_handle *h = hns3_get_handle(netdev);
--	struct hnae3_knic_private_info *kinfo = &h->kinfo;
- 	u8 *prio_tc = mqprio_qopt->qopt.prio_tc_map;
-+	struct hnae3_knic_private_info *kinfo;
- 	u8 tc = mqprio_qopt->qopt.num_tc;
- 	u16 mode = mqprio_qopt->mode;
- 	u8 hw = mqprio_qopt->qopt.hw;
-+	struct hnae3_handle *h;
+@@ -28,7 +28,7 @@
+ #define hns3_tx_bd_count(S)	DIV_ROUND_UP(S, HNS3_MAX_BD_SIZE)
  
- 	if (!((hw == TC_MQPRIO_HW_OFFLOAD_TCS &&
- 	       mode == TC_MQPRIO_MODE_CHANNEL) || (!hw && tc == 0)))
-@@ -1514,6 +1514,9 @@ static int hns3_setup_tc(struct net_device *netdev, void *type_data)
- 	if (!netdev)
- 		return -EINVAL;
+ static void hns3_clear_all_ring(struct hnae3_handle *h);
+-static void hns3_force_clear_all_rx_ring(struct hnae3_handle *h);
++static void hns3_force_clear_all_ring(struct hnae3_handle *h);
+ static void hns3_remove_hw_addr(struct net_device *netdev);
  
-+	h = hns3_get_handle(netdev);
-+	kinfo = &h->kinfo;
-+
- 	return (kinfo->dcb_ops && kinfo->dcb_ops->setup_tc) ?
- 		kinfo->dcb_ops->setup_tc(h, tc, prio_tc) : -EOPNOTSUPP;
+ static const char hns3_driver_name[] = "hns3";
+@@ -484,7 +484,12 @@ static void hns3_nic_net_down(struct net_device *netdev)
+ 	/* free irq resources */
+ 	hns3_nic_uninit_irq(priv);
+ 
+-	hns3_clear_all_ring(priv->ae_handle);
++	/* delay ring buffer clearing to hns3_reset_notify_uninit_enet
++	 * during reset process, because driver may not be able
++	 * to disable the ring through firmware when downing the netdev.
++	 */
++	if (!hns3_nic_resetting(netdev))
++		hns3_clear_all_ring(priv->ae_handle);
  }
+ 
+ static int hns3_nic_net_stop(struct net_device *netdev)
+@@ -3737,7 +3742,7 @@ static void hns3_client_uninit(struct hnae3_handle *handle, bool reset)
+ 
+ 	hns3_del_all_fd_rules(netdev, true);
+ 
+-	hns3_force_clear_all_rx_ring(handle);
++	hns3_force_clear_all_ring(handle);
+ 
+ 	hns3_uninit_phy(netdev);
+ 
+@@ -3909,7 +3914,7 @@ static void hns3_force_clear_rx_ring(struct hns3_enet_ring *ring)
+ 	}
+ }
+ 
+-static void hns3_force_clear_all_rx_ring(struct hnae3_handle *h)
++static void hns3_force_clear_all_ring(struct hnae3_handle *h)
+ {
+ 	struct net_device *ndev = h->kinfo.netdev;
+ 	struct hns3_nic_priv *priv = netdev_priv(ndev);
+@@ -3917,6 +3922,9 @@ static void hns3_force_clear_all_rx_ring(struct hnae3_handle *h)
+ 	u32 i;
+ 
+ 	for (i = 0; i < h->kinfo.num_tqps; i++) {
++		ring = priv->ring_data[i].ring;
++		hns3_clear_tx_ring(ring);
++
+ 		ring = priv->ring_data[i + h->kinfo.num_tqps].ring;
+ 		hns3_force_clear_rx_ring(ring);
+ 	}
+@@ -4145,7 +4153,8 @@ static int hns3_reset_notify_uninit_enet(struct hnae3_handle *handle)
+ 		return 0;
+ 	}
+ 
+-	hns3_force_clear_all_rx_ring(handle);
++	hns3_clear_all_ring(handle);
++	hns3_force_clear_all_ring(handle);
+ 
+ 	hns3_nic_uninit_vector_data(priv);
+ 
 -- 
 2.20.1
 
