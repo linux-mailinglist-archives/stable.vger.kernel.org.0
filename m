@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE407745DA
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:47:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5393674682
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:53:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391511AbfGYFq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:46:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34866 "EHLO mail.kernel.org"
+        id S2404296AbfGYFkK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:40:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391505AbfGYFq7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:46:59 -0400
+        id S2404269AbfGYFkF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:40:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEFA42147A;
-        Thu, 25 Jul 2019 05:46:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0482F22C97;
+        Thu, 25 Jul 2019 05:40:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033618;
-        bh=gr+fh92xGUPJDzZvbxxX5CaJ2QI9hu3dRDLsBqNr1g0=;
+        s=default; t=1564033204;
+        bh=djMy0ZkF1cNdzzJkInuRNcFK9iveLhe5RDIiDs8gmkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kKxpZ74hSrxRBGYhUsD9NdPZwteDg/l+JeP2r+AlTyEofxrxQkvSkQkAOG1LKPNWX
-         gY2UQia/WFQ14Jz3ebjFfstcrP4d3lZv7BPjjZlo0gci0rOs2G+P73lSzUP1Br5gKn
-         Rw/gFBubUdefqGjDpJsz/F2SeryUkXKLYEZXQnt8=
+        b=o56kGNCiHeAUCGrnkqOKdKyOhgHRiGhoK8e9h5/OEaWVT70ELg0kuQXhBDfAmUVo0
+         J5SghAuk3rHB7k+xgM8PjS11wmLeAA19h7iBMZdXiAayoxTDMWRTW2GIlMpiHxPlU3
+         9L96mfaP3DBWZdXMWg+NzRTN3YdtO7lV3YA1Tusg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 271/271] dm bufio: fix deadlock with loop device
-Date:   Wed, 24 Jul 2019 21:22:20 +0200
-Message-Id: <20190724191718.479146711@linuxfoundation.org>
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>, acme@kernel.org,
+        eranian@google.com, Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 078/271] perf/x86/intel/uncore: Handle invalid event coding for free-running counter
+Date:   Wed, 24 Jul 2019 21:19:07 +0200
+Message-Id: <20190724191701.880558315@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -43,47 +47,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junxiao Bi <junxiao.bi@oracle.com>
+[ Upstream commit 543ac280b3576c0009e8c0fcd4d6bfc9978d7bd0 ]
 
-commit bd293d071ffe65e645b4d8104f9d8fe15ea13862 upstream.
+Counting with invalid event coding for free-running counter may cause
+OOPs, e.g. uncore_iio_free_running_0/event=1/.
 
-When thin-volume is built on loop device, if available memory is low,
-the following deadlock can be triggered:
+Current code only validate the event with free-running event format,
+event=0xff,umask=0xXY. Non-free-running event format never be checked
+for the PMU with free-running counters.
 
-One process P1 allocates memory with GFP_FS flag, direct alloc fails,
-memory reclaim invokes memory shrinker in dm_bufio, dm_bufio_shrink_scan()
-runs, mutex dm_bufio_client->lock is acquired, then P1 waits for dm_buffer
-IO to complete in __try_evict_buffer().
+Add generic hw_config() to check and reject the invalid event coding
+for free-running PMU.
 
-But this IO may never complete if issued to an underlying loop device
-that forwards it using direct-IO, which allocates memory using
-GFP_KERNEL (see: do_blockdev_direct_IO()).  If allocation fails, memory
-reclaim will invoke memory shrinker in dm_bufio, dm_bufio_shrink_scan()
-will be invoked, and since the mutex is already held by P1 the loop
-thread will hang, and IO will never complete.  Resulting in ABBA
-deadlock.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: acme@kernel.org
+Cc: eranian@google.com
+Fixes: 0f519f0352e3 ("perf/x86/intel/uncore: Support IIO free-running counters on SKX")
+Link: https://lkml.kernel.org/r/1556672028-119221-2-git-send-email-kan.liang@linux.intel.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-bufio.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ arch/x86/events/intel/uncore.h       | 10 ++++++++++
+ arch/x86/events/intel/uncore_snbep.c |  1 +
+ 2 files changed, 11 insertions(+)
 
---- a/drivers/md/dm-bufio.c
-+++ b/drivers/md/dm-bufio.c
-@@ -1602,9 +1602,7 @@ dm_bufio_shrink_scan(struct shrinker *sh
- 	unsigned long freed;
+diff --git a/arch/x86/events/intel/uncore.h b/arch/x86/events/intel/uncore.h
+index cc6dd4f78158..42fa3974c421 100644
+--- a/arch/x86/events/intel/uncore.h
++++ b/arch/x86/events/intel/uncore.h
+@@ -402,6 +402,16 @@ static inline bool is_freerunning_event(struct perf_event *event)
+ 	       (((cfg >> 8) & 0xff) >= UNCORE_FREERUNNING_UMASK_START);
+ }
  
- 	c = container_of(shrink, struct dm_bufio_client, shrinker);
--	if (sc->gfp_mask & __GFP_FS)
--		dm_bufio_lock(c);
--	else if (!dm_bufio_trylock(c))
-+	if (!dm_bufio_trylock(c))
- 		return SHRINK_STOP;
++/* Check and reject invalid config */
++static inline int uncore_freerunning_hw_config(struct intel_uncore_box *box,
++					       struct perf_event *event)
++{
++	if (is_freerunning_event(event))
++		return 0;
++
++	return -EINVAL;
++}
++
+ static inline void uncore_disable_box(struct intel_uncore_box *box)
+ {
+ 	if (box->pmu->type->ops->disable_box)
+diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
+index b10e04387f38..8e4e8e423839 100644
+--- a/arch/x86/events/intel/uncore_snbep.c
++++ b/arch/x86/events/intel/uncore_snbep.c
+@@ -3585,6 +3585,7 @@ static struct uncore_event_desc skx_uncore_iio_freerunning_events[] = {
  
- 	freed  = __scan(c, sc->nr_to_scan, sc->gfp_mask);
+ static struct intel_uncore_ops skx_uncore_iio_freerunning_ops = {
+ 	.read_counter		= uncore_msr_read_counter,
++	.hw_config		= uncore_freerunning_hw_config,
+ };
+ 
+ static struct attribute *skx_uncore_iio_freerunning_formats_attr[] = {
+-- 
+2.20.1
+
 
 
