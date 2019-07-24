@@ -2,45 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77B317398E
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:41:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA9FC7399B
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:42:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390176AbfGXTlY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:41:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42732 "EHLO mail.kernel.org"
+        id S2390264AbfGXTlw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:41:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390138AbfGXTlX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:41:23 -0400
+        id S2390226AbfGXTlv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:41:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC528204FD;
-        Wed, 24 Jul 2019 19:41:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D3B322ADC;
+        Wed, 24 Jul 2019 19:41:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997282;
-        bh=2JuZ68chLQHkmtttpPeLALXBf11PAatz+Tf3pJxTQ94=;
+        s=default; t=1563997310;
+        bh=qNSDS/2ZUqdhaF11qha9ikyFePudgmOBzxEyE29dK0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TMDwk2ry4sGbtTBIbb7HG3aPclrDi1xt3IOGXlzJ27SXxpJzVU0Z2GiUUHz7YJnHQ
-         4vKbFeaCVC2/gaeUenc1CtiHu4K8RZfr9W7cNQZkqyeqUS25meFi9dKn0p9mHguF3s
-         l+3vWXliAgb2y4ZR0TrRtrTbCFpEE9T3QEJaywLA=
+        b=tpcuYYl9fzn5uqPy4HR39XHQF6WZbS3Dqm8E0Grpfsz+9aDJiiLiaAjdAtPnq/UGO
+         iRyEXwS4QEaMDqlQM6a8FHV+nVbPF+ELDokyIGuNRajpudO0iIt1eUw/RBJUaGUl/M
+         Tb2W1b0JGYuI+xzr1LUjK1wBylJd/4UZOKe65yFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Harkes <jaharkes@cs.cmu.edu>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Colin Ian King <colin.king@canonical.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        David Howells <dhowells@redhat.com>,
-        Fabian Frederick <fabf@skynet.be>,
-        Mikko Rapeli <mikko.rapeli@iki.fi>,
-        Sam Protsenko <semen.protsenko@linaro.org>,
-        Yann Droneaud <ydroneaud@opteya.com>,
-        Zhouyang Jia <jiazhouyang09@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.2 380/413] coda: pass the host file in vma->vm_file on mmap
-Date:   Wed, 24 Jul 2019 21:21:11 +0200
-Message-Id: <20190724191802.307793799@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
+        Rolf Eike Beer <eike-kernel@sf-tec.de>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.2 385/413] parisc: Avoid kernel panic triggered by invalid kprobe
+Date:   Wed, 24 Jul 2019 21:21:16 +0200
+Message-Id: <20190724191802.546609801@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -53,167 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+From: Helge Deller <deller@gmx.de>
 
-commit 7fa0a1da3dadfd9216df7745a1331fdaa0940d1c upstream.
+commit 59a783dbc0d5fd6792aabff933055373b6dcbf2a upstream.
 
-Patch series "Coda updates".
+When running gdb I was able to trigger this kernel panic:
 
-The following patch series is a collection of various fixes for Coda,
-most of which were collected from linux-fsdevel or linux-kernel but
-which have as yet not found their way upstream.
+ Kernel Fault: Code=26 (Data memory access rights trap) at addr 0000000000000060
+ CPU: 0 PID: 1401 Comm: gdb-crash Not tainted 5.2.0-rc7-64bit+ #1053
 
-This patch (of 22):
+      YZrvWESTHLNXBCVMcbcbcbcbOGFRQPDI
+ PSW: 00001000000001000000000000001111 Not tainted
+ r00-03  000000000804000f 0000000040dee1a0 0000000040c78cf0 00000000b8d50160
+ r04-07  0000000040d2b1a0 000000004360a098 00000000bbbe87b8 0000000000000003
+ r08-11  00000000fac20a70 00000000fac24160 00000000fac1bbe0 0000000000000000
+ r12-15  00000000fabfb79a 00000000fac244a4 0000000000010000 0000000000000001
+ r16-19  00000000bbbe87b8 00000000f8f02910 0000000000010034 0000000000000000
+ r20-23  00000000fac24630 00000000fac24630 000000006474e552 00000000fac1aa52
+ r24-27  0000000000000028 00000000bbbe87b8 00000000bbbe87b8 0000000040d2b1a0
+ r28-31  0000000000000000 00000000b8d501c0 00000000b8d501f0 0000000003424000
+ sr00-03  0000000000423000 0000000000000000 0000000000000000 0000000000423000
+ sr04-07  0000000000000000 0000000000000000 0000000000000000 0000000000000000
 
-Various file systems expect that vma->vm_file points at their own file
-handle, several use file_inode(vma->vm_file) to get at their inode or
-use vma->vm_file->private_data.  However the way Coda wrapped mmap on a
-host file broke this assumption, vm_file was still pointing at the Coda
-file and the host file systems would scribble over Coda's inode and
-private file data.
+ IASQ: 0000000000000000 0000000000000000 IAOQ: 0000000040c78cf0 0000000040c78cf4
+  IIR: 539f00c0    ISR: 0000000000000000  IOR: 0000000000000060
+  CPU:        0   CR30: 00000000b8d50000 CR31: 00000000d22345e2
+  ORIG_R28: 0000000040250798
+  IAOQ[0]: parisc_kprobe_ss_handler+0x58/0x170
+  IAOQ[1]: parisc_kprobe_ss_handler+0x5c/0x170
+  RP(r2): parisc_kprobe_ss_handler+0x58/0x170
+ Backtrace:
+  [<0000000040206ff8>] handle_interruption+0x178/0xbb8
+ Kernel panic - not syncing: Kernel Fault
 
-This patch fixes the incorrect expectation and wraps vm_ops->open and
-vm_ops->close to allow Coda to track when the vm_area_struct is
-destroyed so we still release the reference on the Coda file handle at
-the right time.
+Avoid this panic by checking the return value of kprobe_running() and
+skip kprobe if none is currently active.
 
-Link: http://lkml.kernel.org/r/0e850c6e59c0b147dc2dcd51a3af004c948c3697.1558117389.git.jaharkes@cs.cmu.edu
-Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Colin Ian King <colin.king@canonical.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Fabian Frederick <fabf@skynet.be>
-Cc: Mikko Rapeli <mikko.rapeli@iki.fi>
-Cc: Sam Protsenko <semen.protsenko@linaro.org>
-Cc: Yann Droneaud <ydroneaud@opteya.com>
-Cc: Zhouyang Jia <jiazhouyang09@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: <stable@vger.kernel.org> # v5.2
+Acked-by: Sven Schnelle <svens@stackframe.org>
+Tested-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/coda/file.c |   70 +++++++++++++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 68 insertions(+), 2 deletions(-)
+ arch/parisc/kernel/kprobes.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/coda/file.c
-+++ b/fs/coda/file.c
-@@ -27,6 +27,13 @@
- #include "coda_linux.h"
- #include "coda_int.h"
+--- a/arch/parisc/kernel/kprobes.c
++++ b/arch/parisc/kernel/kprobes.c
+@@ -133,6 +133,9 @@ int __kprobes parisc_kprobe_ss_handler(s
+ 	struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
+ 	struct kprobe *p = kprobe_running();
  
-+struct coda_vm_ops {
-+	atomic_t refcnt;
-+	struct file *coda_file;
-+	const struct vm_operations_struct *host_vm_ops;
-+	struct vm_operations_struct vm_ops;
-+};
++	if (!p)
++		return 0;
 +
- static ssize_t
- coda_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
- {
-@@ -61,6 +68,34 @@ coda_file_write_iter(struct kiocb *iocb,
- 	return ret;
- }
+ 	if (regs->iaoq[0] != (unsigned long)p->ainsn.insn+4)
+ 		return 0;
  
-+static void
-+coda_vm_open(struct vm_area_struct *vma)
-+{
-+	struct coda_vm_ops *cvm_ops =
-+		container_of(vma->vm_ops, struct coda_vm_ops, vm_ops);
-+
-+	atomic_inc(&cvm_ops->refcnt);
-+
-+	if (cvm_ops->host_vm_ops && cvm_ops->host_vm_ops->open)
-+		cvm_ops->host_vm_ops->open(vma);
-+}
-+
-+static void
-+coda_vm_close(struct vm_area_struct *vma)
-+{
-+	struct coda_vm_ops *cvm_ops =
-+		container_of(vma->vm_ops, struct coda_vm_ops, vm_ops);
-+
-+	if (cvm_ops->host_vm_ops && cvm_ops->host_vm_ops->close)
-+		cvm_ops->host_vm_ops->close(vma);
-+
-+	if (atomic_dec_and_test(&cvm_ops->refcnt)) {
-+		vma->vm_ops = cvm_ops->host_vm_ops;
-+		fput(cvm_ops->coda_file);
-+		kfree(cvm_ops);
-+	}
-+}
-+
- static int
- coda_file_mmap(struct file *coda_file, struct vm_area_struct *vma)
- {
-@@ -68,6 +103,8 @@ coda_file_mmap(struct file *coda_file, s
- 	struct coda_inode_info *cii;
- 	struct file *host_file;
- 	struct inode *coda_inode, *host_inode;
-+	struct coda_vm_ops *cvm_ops;
-+	int ret;
- 
- 	cfi = CODA_FTOC(coda_file);
- 	BUG_ON(!cfi || cfi->cfi_magic != CODA_MAGIC);
-@@ -76,6 +113,13 @@ coda_file_mmap(struct file *coda_file, s
- 	if (!host_file->f_op->mmap)
- 		return -ENODEV;
- 
-+	if (WARN_ON(coda_file != vma->vm_file))
-+		return -EIO;
-+
-+	cvm_ops = kmalloc(sizeof(struct coda_vm_ops), GFP_KERNEL);
-+	if (!cvm_ops)
-+		return -ENOMEM;
-+
- 	coda_inode = file_inode(coda_file);
- 	host_inode = file_inode(host_file);
- 
-@@ -89,6 +133,7 @@ coda_file_mmap(struct file *coda_file, s
- 	 * the container file on us! */
- 	else if (coda_inode->i_mapping != host_inode->i_mapping) {
- 		spin_unlock(&cii->c_lock);
-+		kfree(cvm_ops);
- 		return -EBUSY;
- 	}
- 
-@@ -97,7 +142,29 @@ coda_file_mmap(struct file *coda_file, s
- 	cfi->cfi_mapcount++;
- 	spin_unlock(&cii->c_lock);
- 
--	return call_mmap(host_file, vma);
-+	vma->vm_file = get_file(host_file);
-+	ret = call_mmap(vma->vm_file, vma);
-+
-+	if (ret) {
-+		/* if call_mmap fails, our caller will put coda_file so we
-+		 * should drop the reference to the host_file that we got.
-+		 */
-+		fput(host_file);
-+		kfree(cvm_ops);
-+	} else {
-+		/* here we add redirects for the open/close vm_operations */
-+		cvm_ops->host_vm_ops = vma->vm_ops;
-+		if (vma->vm_ops)
-+			cvm_ops->vm_ops = *vma->vm_ops;
-+
-+		cvm_ops->vm_ops.open = coda_vm_open;
-+		cvm_ops->vm_ops.close = coda_vm_close;
-+		cvm_ops->coda_file = coda_file;
-+		atomic_set(&cvm_ops->refcnt, 1);
-+
-+		vma->vm_ops = &cvm_ops->vm_ops;
-+	}
-+	return ret;
- }
- 
- int coda_open(struct inode *coda_inode, struct file *coda_file)
-@@ -207,4 +274,3 @@ const struct file_operations coda_file_o
- 	.fsync		= coda_fsync,
- 	.splice_read	= generic_file_splice_read,
- };
--
 
 
