@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 198CC73C78
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:09:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A3E873C72
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:09:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392384AbfGXUJR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:09:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49234 "EHLO mail.kernel.org"
+        id S2405325AbfGXUBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:01:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404932AbfGXUAx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 16:00:53 -0400
+        id S2405317AbfGXUBC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 16:01:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36B30205C9;
-        Wed, 24 Jul 2019 20:00:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9C69206BA;
+        Wed, 24 Jul 2019 20:01:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998452;
-        bh=GxwN1mmkCycNO3fHNV+ZrdYXA6d6xmqH0Z4BO14KspE=;
+        s=default; t=1563998461;
+        bh=TpOGltvQUnJRPxFY3KeVJnxJ/YWgGmP7oCbsg8kOBm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tUP2sQSfY6PbRFU0hoGEWTxM2JRLfDV+9OhFHI+mw31+yzd59HtWCjMVgBlysPAYH
-         OLBlOTPLRw0o4rkS6xzzC5CB+7POtBR4sXTpFp2lJ20+CsT089XOfi7xd6KtjUrFJ4
-         1E3fWHun/Do2FV+IVH4wLkxTy4294/3Iha3mH6WE=
+        b=dPbwKkqLsBTV817q/e2bQiFdfcYVGSm4WY8xlqnRy40g9JVD1C/i6N6ncmSJdzzrk
+         Lja/eXtbsV/TXm1yF/V5p8CNgOzI13ybsQu4PKnzqCCMHU9isSwccumnUn37GUED9q
+         /La83ByLFTXGR3sdOtku2Gv6PuS3OcJiUj1Kp09U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Drew Davenport <ddavenport@chromium.org>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
         Andrew Morton <akpm@linux-foundation.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Borislav Petkov <bp@suse.de>, Toshi Kani <toshi.kani@hpe.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Ingo Molnar <mingo@kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.1 343/371] include/asm-generic/bug.h: fix "cut here" for WARN_ON for __WARN_TAINT architectures
-Date:   Wed, 24 Jul 2019 21:21:35 +0200
-Message-Id: <20190724191749.483685257@linuxfoundation.org>
+Subject: [PATCH 5.1 344/371] resource: fix locking in find_next_iomem_res()
+Date:   Wed, 24 Jul 2019 21:21:36 +0200
+Message-Id: <20190724191749.558873757@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -45,43 +50,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Drew Davenport <ddavenport@chromium.org>
+From: Nadav Amit <namit@vmware.com>
 
-commit 6b15f678fb7d5ef54e089e6ace72f007fe6e9895 upstream.
+commit 49f17c26c123b60fd1c74629eef077740d16ffc2 upstream.
 
-For architectures using __WARN_TAINT, the WARN_ON macro did not print
-out the "cut here" string.  The other WARN_XXX macros would print "cut
-here" inside __warn_printk, which is not called for WARN_ON since it
-doesn't have a message to print.
+Since resources can be removed, locking should ensure that the resource
+is not removed while accessing it.  However, find_next_iomem_res() does
+not hold the lock while copying the data of the resource.
 
-Link: http://lkml.kernel.org/r/20190624154831.163888-1-ddavenport@chromium.org
-Fixes: a7bed27af194 ("bug: fix "cut here" location for __WARN_TAINT architectures")
-Signed-off-by: Drew Davenport <ddavenport@chromium.org>
-Acked-by: Kees Cook <keescook@chromium.org>
-Tested-by: Kees Cook <keescook@chromium.org>
+Keep holding the lock while the data is copied.  While at it, change the
+return value to a more informative value.  It is disregarded by the
+callers.
+
+[akpm@linux-foundation.org: fix find_next_iomem_res() documentation]
+Link: http://lkml.kernel.org/r/20190613045903.4922-2-namit@vmware.com
+Fixes: ff3cc952d3f00 ("resource: Add remove_resource interface")
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Toshi Kani <toshi.kani@hpe.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Ingo Molnar <mingo@kernel.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/asm-generic/bug.h |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ kernel/resource.c |   20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
---- a/include/asm-generic/bug.h
-+++ b/include/asm-generic/bug.h
-@@ -104,8 +104,10 @@ extern void warn_slowpath_null(const cha
- 	warn_slowpath_fmt_taint(__FILE__, __LINE__, taint, arg)
- #else
- extern __printf(1, 2) void __warn_printk(const char *fmt, ...);
--#define __WARN()		__WARN_TAINT(TAINT_WARN)
--#define __WARN_printf(arg...)	do { __warn_printk(arg); __WARN(); } while (0)
-+#define __WARN() do { \
-+	printk(KERN_WARNING CUT_HERE); __WARN_TAINT(TAINT_WARN); \
-+} while (0)
-+#define __WARN_printf(arg...)	__WARN_printf_taint(TAINT_WARN, arg)
- #define __WARN_printf_taint(taint, arg...)				\
- 	do { __warn_printk(arg); __WARN_TAINT(taint); } while (0)
- #endif
+--- a/kernel/resource.c
++++ b/kernel/resource.c
+@@ -325,7 +325,7 @@ EXPORT_SYMBOL(release_resource);
+  *
+  * If a resource is found, returns 0 and @*res is overwritten with the part
+  * of the resource that's within [@start..@end]; if none is found, returns
+- * -1 or -EINVAL for other invalid parameters.
++ * -ENODEV.  Returns -EINVAL for invalid parameters.
+  *
+  * This function walks the whole tree and not just first level children
+  * unless @first_lvl is true.
+@@ -364,16 +364,16 @@ static int find_next_iomem_res(resource_
+ 			break;
+ 	}
+ 
+-	read_unlock(&resource_lock);
+-	if (!p)
+-		return -1;
++	if (p) {
++		/* copy data */
++		res->start = max(start, p->start);
++		res->end = min(end, p->end);
++		res->flags = p->flags;
++		res->desc = p->desc;
++	}
+ 
+-	/* copy data */
+-	res->start = max(start, p->start);
+-	res->end = min(end, p->end);
+-	res->flags = p->flags;
+-	res->desc = p->desc;
+-	return 0;
++	read_unlock(&resource_lock);
++	return p ? 0 : -ENODEV;
+ }
+ 
+ static int __walk_iomem_res_desc(resource_size_t start, resource_size_t end,
 
 
