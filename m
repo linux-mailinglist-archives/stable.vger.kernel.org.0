@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88C9874661
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:51:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1416274649
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:51:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404776AbfGYFl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:41:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56794 "EHLO mail.kernel.org"
+        id S2390802AbfGYFmW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:42:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404736AbfGYFl4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:41:56 -0400
+        id S2390822AbfGYFmV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:42:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30DA32075C;
-        Thu, 25 Jul 2019 05:41:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D63422BF3;
+        Thu, 25 Jul 2019 05:42:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033315;
-        bh=2IhI4awjb8zpSmskBquFUnv/YYu8RV4VS6osttvV4k8=;
+        s=default; t=1564033340;
+        bh=LOARK0T404+azY1suHxq6Tt9I+LxkICd8FbLI+35sfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CrvFskvZB+qqK4UF4/C+GVaUCXZk7eOs1zHtMSH0aHXf324uj4DgWOckt0ncxvnMv
-         2igbMjkd6Tr+Y4S+HfVagfRbpLwnvh3kFwln1mzV2W1VsjCxZzcTJaQaH9YzyC5zfT
-         b50IK11AQjZEH8k71VVkXC8+DBAo0AsEgTfnuBUU=
+        b=ews6soD0xNoxh++YCH0hLvlPuG7LRgDRkHVx2uYkUk4EtaPT737v7zqCIEmKxazmG
+         +Z+2706XQibs+CxQ5HVOBWlGkvDInj+DY3ZeHQGBLmWxmWA9almUCZpON8DabUjZvY
+         41k+KStn/QU6ZKo1rVsg2VXj7oW8Cp6P5UrCvopw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.19 164/271] xen: let alloc_xenballooned_pages() fail if not enough memory free
-Date:   Wed, 24 Jul 2019 21:20:33 +0200
-Message-Id: <20190724191709.210896989@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Schmitz <schmitzmic@gmail.com>,
+        Finn Thain <fthain@telegraphics.com.au>,
+        Stan Johnson <userm57@yahoo.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 167/271] Revert "scsi: ncr5380: Increase register polling limit"
+Date:   Wed, 24 Jul 2019 21:20:36 +0200
+Message-Id: <20190724191709.484438228@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -42,70 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-commit a1078e821b605813b63bf6bca414a85f804d5c66 upstream.
+commit 25fcf94a2fa89dd3e73e965ebb0b38a2a4f72aa4 upstream.
 
-Instead of trying to allocate pages with GFP_USER in
-add_ballooned_pages() check the available free memory via
-si_mem_available(). GFP_USER is far less limiting memory exhaustion
-than the test via si_mem_available().
+This reverts commit 4822827a69d7cd3bc5a07b7637484ebd2cf88db6.
 
-This will avoid dom0 running out of memory due to excessive foreign
-page mappings especially on ARM and on x86 in PVH mode, as those don't
-have a pre-ballooned area which can be used for foreign mappings.
+The purpose of that commit was to suppress a timeout warning message which
+appeared to be caused by target latency. But suppressing the warning is
+undesirable as the warning may indicate a messed up transfer count.
 
-As the normal ballooning suffers from the same problem don't balloon
-down more than si_mem_available() pages in one iteration. At the same
-time limit the default maximum number of retries.
+Another problem with that commit is that 15 ms is too long to keep
+interrupts disabled as interrupt latency can cause system clock drift and
+other problems.
 
-This is part of XSA-300.
-
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Cc: Michael Schmitz <schmitzmic@gmail.com>
+Cc: stable@vger.kernel.org
+Fixes: 4822827a69d7 ("scsi: ncr5380: Increase register polling limit")
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Tested-by: Stan Johnson <userm57@yahoo.com>
+Tested-by: Michael Schmitz <schmitzmic@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/balloon.c |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/scsi/NCR5380.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/xen/balloon.c
-+++ b/drivers/xen/balloon.c
-@@ -527,8 +527,15 @@ static void balloon_process(struct work_
- 				state = reserve_additional_memory();
- 		}
+--- a/drivers/scsi/NCR5380.h
++++ b/drivers/scsi/NCR5380.h
+@@ -235,7 +235,7 @@ struct NCR5380_cmd {
+ #define NCR5380_PIO_CHUNK_SIZE		256
  
--		if (credit < 0)
--			state = decrease_reservation(-credit, GFP_BALLOON);
-+		if (credit < 0) {
-+			long n_pages;
-+
-+			n_pages = min(-credit, si_mem_available());
-+			state = decrease_reservation(n_pages, GFP_BALLOON);
-+			if (state == BP_DONE && n_pages != -credit &&
-+			    n_pages < totalreserve_pages)
-+				state = BP_EAGAIN;
-+		}
+ /* Time limit (ms) to poll registers when IRQs are disabled, e.g. during PDMA */
+-#define NCR5380_REG_POLL_TIME		15
++#define NCR5380_REG_POLL_TIME		10
  
- 		state = update_schedule(state);
- 
-@@ -567,6 +574,9 @@ static int add_ballooned_pages(int nr_pa
- 		}
- 	}
- 
-+	if (si_mem_available() < nr_pages)
-+		return -ENOMEM;
-+
- 	st = decrease_reservation(nr_pages, GFP_USER);
- 	if (st != BP_DONE)
- 		return -ENOMEM;
-@@ -696,7 +706,7 @@ static int __init balloon_init(void)
- 	balloon_stats.schedule_delay = 1;
- 	balloon_stats.max_schedule_delay = 32;
- 	balloon_stats.retry_count = 1;
--	balloon_stats.max_retry_count = RETRY_UNLIMITED;
-+	balloon_stats.max_retry_count = 4;
- 
- #ifdef CONFIG_XEN_BALLOON_MEMORY_HOTPLUG
- 	set_online_page_callback(&xen_online_page);
+ static inline struct scsi_cmnd *NCR5380_to_scmd(struct NCR5380_cmd *ncmd_ptr)
+ {
 
 
