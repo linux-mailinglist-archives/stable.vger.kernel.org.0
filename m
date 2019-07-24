@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AADD73EBC
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:27:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BC7B73EBB
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:27:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389086AbfGXTgN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:36:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35836 "EHLO mail.kernel.org"
+        id S2389301AbfGXTgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:36:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389289AbfGXTgN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:36:13 -0400
+        id S2389297AbfGXTgP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:36:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C50A229F3;
-        Wed, 24 Jul 2019 19:36:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEA462238C;
+        Wed, 24 Jul 2019 19:36:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996971;
-        bh=OR9DaQIEQw3qnxF0j8VZbZv+NIuXumN8R7MCJwQNeYg=;
+        s=default; t=1563996974;
+        bh=RZF6pczoDE+ECSyhSrsIvaMiv8QM8pyPTvmmdIM9CMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sOA6/cgTVIS1yciJgCOt/qBTs+TpsIo2R3Vv/eim8PnmJ/VWqPqJzURXOFSZgT3Eb
-         pB79rosTu7HsoaWeXz91bOkmfM58U8m0iFmPx4PjgECDwK2M2ZyDwqePrU4K6Tuf7t
-         rrYGNKBh0YBOKedAUDvVgDOtLASNnVS/sSU/01rk=
+        b=OFyuJvVjjssT11vyS/J/Gi8l6qCf1Ig0RmJswkPVwOmBSvsjr0cztsiY3Lk1XXw/8
+         BmV0+RVpgz92tNHu+ZrDYsChL3QHWOvHfpyFoBevYJ7D6BeCX9/MScCFZBqRWQTRsQ
+         3hudJOScEsdCxmi5qm8ipv4RThngqbLPA8WznWe4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aurelien Aptel <aaptel@suse.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.2 279/413] CIFS: fix deadlock in cached root handling
-Date:   Wed, 24 Jul 2019 21:19:30 +0200
-Message-Id: <20190724191756.262519456@linuxfoundation.org>
+        stable@vger.kernel.org, Yong Li <mr.liyong@qq.com>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.2 280/413] Revert "bcache: set CACHE_SET_IO_DISABLE in bch_cached_dev_error()"
+Date:   Wed, 24 Jul 2019 21:19:31 +0200
+Message-Id: <20190724191756.325326548@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -44,91 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aurelien Aptel <aaptel@suse.com>
+From: Coly Li <colyli@suse.de>
 
-commit 7e5a70ad88b1e6f6d9b934b2efb41afff496820f upstream.
+commit 695277f16b3a102fcc22c97fdf2de77c7b19f0b3 upstream.
 
-Prevent deadlock between open_shroot() and
-cifs_mark_open_files_invalid() by releasing the lock before entering
-SMB2_open, taking it again after and checking if we still need to use
-the result.
+This reverts commit 6147305c73e4511ca1a975b766b97a779d442567.
 
-Link: https://lore.kernel.org/linux-cifs/684ed01c-cbca-2716-bc28-b0a59a0f8521@prodrive-technologies.com/T/#u
-Fixes: 3d4ef9a15343 ("smb3: fix redundant opens on root")
-Signed-off-by: Aurelien Aptel <aaptel@suse.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-CC: Stable <stable@vger.kernel.org>
+Although this patch helps the failed bcache device to stop faster when
+too many I/O errors detected on corresponding cached device, setting
+CACHE_SET_IO_DISABLE bit to cache set c->flags was not a good idea. This
+operation will disable all I/Os on cache set, which means other attached
+bcache devices won't work neither.
+
+Without this patch, the failed bcache device can also be stopped
+eventually if internal I/O accomplished (e.g. writeback). Therefore here
+I revert it.
+
+Fixes: 6147305c73e4 ("bcache: set CACHE_SET_IO_DISABLE in bch_cached_dev_error()")
+Reported-by: Yong Li <mr.liyong@qq.com>
+Signed-off-by: Coly Li <colyli@suse.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/smb2ops.c |   46 +++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 45 insertions(+), 1 deletion(-)
+ drivers/md/bcache/super.c |   17 -----------------
+ 1 file changed, 17 deletions(-)
 
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -694,8 +694,51 @@ int open_shroot(unsigned int xid, struct
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -1437,8 +1437,6 @@ int bch_flash_dev_create(struct cache_se
  
- 	smb2_set_related(&rqst[1]);
+ bool bch_cached_dev_error(struct cached_dev *dc)
+ {
+-	struct cache_set *c;
+-
+ 	if (!dc || test_bit(BCACHE_DEV_CLOSING, &dc->disk.flags))
+ 		return false;
  
-+	/*
-+	 * We do not hold the lock for the open because in case
-+	 * SMB2_open needs to reconnect, it will end up calling
-+	 * cifs_mark_open_files_invalid() which takes the lock again
-+	 * thus causing a deadlock
-+	 */
-+
-+	mutex_unlock(&tcon->crfid.fid_mutex);
- 	rc = compound_send_recv(xid, ses, flags, 2, rqst,
- 				resp_buftype, rsp_iov);
-+	mutex_lock(&tcon->crfid.fid_mutex);
-+
-+	/*
-+	 * Now we need to check again as the cached root might have
-+	 * been successfully re-opened from a concurrent process
-+	 */
-+
-+	if (tcon->crfid.is_valid) {
-+		/* work was already done */
-+
-+		/* stash fids for close() later */
-+		struct cifs_fid fid = {
-+			.persistent_fid = pfid->persistent_fid,
-+			.volatile_fid = pfid->volatile_fid,
-+		};
-+
-+		/*
-+		 * caller expects this func to set pfid to a valid
-+		 * cached root, so we copy the existing one and get a
-+		 * reference.
-+		 */
-+		memcpy(pfid, tcon->crfid.fid, sizeof(*pfid));
-+		kref_get(&tcon->crfid.refcount);
-+
-+		mutex_unlock(&tcon->crfid.fid_mutex);
-+
-+		if (rc == 0) {
-+			/* close extra handle outside of crit sec */
-+			SMB2_close(xid, tcon, fid.persistent_fid, fid.volatile_fid);
-+		}
-+		goto oshr_free;
-+	}
-+
-+	/* Cached root is still invalid, continue normaly */
-+
- 	if (rc)
- 		goto oshr_exit;
+@@ -1449,21 +1447,6 @@ bool bch_cached_dev_error(struct cached_
+ 	pr_err("stop %s: too many IO errors on backing device %s\n",
+ 		dc->disk.disk->disk_name, dc->backing_dev_name);
  
-@@ -729,8 +772,9 @@ int open_shroot(unsigned int xid, struct
- 				(char *)&tcon->crfid.file_all_info))
- 		tcon->crfid.file_all_info_is_valid = 1;
- 
-- oshr_exit:
-+oshr_exit:
- 	mutex_unlock(&tcon->crfid.fid_mutex);
-+oshr_free:
- 	SMB2_open_free(&rqst[0]);
- 	SMB2_query_info_free(&rqst[1]);
- 	free_rsp_buf(resp_buftype[0], rsp_iov[0].iov_base);
+-	/*
+-	 * If the cached device is still attached to a cache set,
+-	 * even dc->io_disable is true and no more I/O requests
+-	 * accepted, cache device internal I/O (writeback scan or
+-	 * garbage collection) may still prevent bcache device from
+-	 * being stopped. So here CACHE_SET_IO_DISABLE should be
+-	 * set to c->flags too, to make the internal I/O to cache
+-	 * device rejected and stopped immediately.
+-	 * If c is NULL, that means the bcache device is not attached
+-	 * to any cache set, then no CACHE_SET_IO_DISABLE bit to set.
+-	 */
+-	c = dc->disk.c;
+-	if (c && test_and_set_bit(CACHE_SET_IO_DISABLE, &c->flags))
+-		pr_info("CACHE_SET_IO_DISABLE already set");
+-
+ 	bcache_device_stop(&dc->disk);
+ 	return true;
+ }
 
 
