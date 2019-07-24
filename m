@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E75E73972
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:40:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A53973976
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:40:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389493AbfGXTkR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:40:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41452 "EHLO mail.kernel.org"
+        id S2387860AbfGXTk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:40:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389987AbfGXTkQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:40:16 -0400
+        id S2390010AbfGXTkY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:40:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2B0C217D4;
-        Wed, 24 Jul 2019 19:40:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFBD8214AF;
+        Wed, 24 Jul 2019 19:40:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997215;
-        bh=wNsbrJXxDr9cPrwlcNPrlMohbHVPT8bw/5Q5c+XgghM=;
+        s=default; t=1563997223;
+        bh=c/YUiKX7SRfLLU+Th0LnAaFxq3iMI4jBQ6r9jQYjmKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i1Rlxd0wxNqXKpVBeT54arvchC15aZsjJ5oMCCNmb569II0Cnir29ydF7ywT0bap6
-         scNFIKEhoiQr4BEjnOjPtlYVaEt+Wl6Gp9fh1FTd3TEScXXX3QG3H2KvBOo/cy2ruY
-         1ki+MA5Yh7zkNkKdMpDQyrqJEzAI0FOOOYQrVlew=
+        b=Qn4+dm48ocb+KjqQnVDq9yHvQj4dF287lHwvHNycqSQTKm3r76VG8VN6Xl3oK4sNh
+         GDZy2/+eUX6DUeh3y0Rf5a1lVuVhFeWiD+r0oFZE7vXm8zPxFtPkqQ6MSbzZmv0AsU
+         yUQhuH7rN4CNVxVJhocapTrtzIlOrpEGNquFoUyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.2 361/413] RDMA/srp: Accept again source addresses that do not have a port number
-Date:   Wed, 24 Jul 2019 21:20:52 +0200
-Message-Id: <20190724191801.384912472@linuxfoundation.org>
+        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Michael Kelley <mikelley@microsoft.com>
+Subject: [PATCH 5.2 364/413] PCI: hv: Fix a use-after-free bug in hv_eject_device_work()
+Date:   Wed, 24 Jul 2019 21:20:55 +0200
+Message-Id: <20190724191801.511334259@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -43,89 +44,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Dexuan Cui <decui@microsoft.com>
 
-commit bcef5b7215681250c4bf8961dfe15e9e4fef97d0 upstream.
+commit 4df591b20b80cb77920953812d894db259d85bd7 upstream.
 
-The function srp_parse_in() is used both for parsing source address
-specifications and for target address specifications. Target addresses
-must have a port number. Having to specify a port number for source
-addresses is inconvenient. Make sure that srp_parse_in() supports again
-parsing addresses with no port number.
+Fix a use-after-free in hv_eject_device_work().
 
-Cc: <stable@vger.kernel.org>
-Fixes: c62adb7def71 ("IB/srp: Fix IPv6 address parsing")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 05f151a73ec2 ("PCI: hv: Fix a memory leak in hv_eject_device_work()")
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/ulp/srp/ib_srp.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ drivers/pci/controller/pci-hyperv.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/drivers/infiniband/ulp/srp/ib_srp.c
-+++ b/drivers/infiniband/ulp/srp/ib_srp.c
-@@ -3483,13 +3483,14 @@ static const match_table_t srp_opt_token
-  * @net:	   [in]  Network namespace.
-  * @sa:		   [out] Address family, IP address and port number.
-  * @addr_port_str: [in]  IP address and port number.
-+ * @has_port:	   [out] Whether or not @addr_port_str includes a port number.
-  *
-  * Parse the following address formats:
-  * - IPv4: <ip_address>:<port>, e.g. 1.2.3.4:5.
-  * - IPv6: \[<ipv6_address>\]:<port>, e.g. [1::2:3%4]:5.
-  */
- static int srp_parse_in(struct net *net, struct sockaddr_storage *sa,
--			const char *addr_port_str)
-+			const char *addr_port_str, bool *has_port)
+--- a/drivers/pci/controller/pci-hyperv.c
++++ b/drivers/pci/controller/pci-hyperv.c
+@@ -1875,6 +1875,7 @@ static void hv_pci_devices_present(struc
+ static void hv_eject_device_work(struct work_struct *work)
  {
- 	char *addr_end, *addr = kstrdup(addr_port_str, GFP_KERNEL);
- 	char *port_str;
-@@ -3498,9 +3499,12 @@ static int srp_parse_in(struct net *net,
- 	if (!addr)
- 		return -ENOMEM;
- 	port_str = strrchr(addr, ':');
--	if (!port_str)
--		return -EINVAL;
--	*port_str++ = '\0';
-+	if (port_str && strchr(port_str, ']'))
-+		port_str = NULL;
-+	if (port_str)
-+		*port_str++ = '\0';
-+	if (has_port)
-+		*has_port = port_str != NULL;
- 	ret = inet_pton_with_scope(net, AF_INET, addr, port_str, sa);
- 	if (ret && addr[0]) {
- 		addr_end = addr + strlen(addr) - 1;
-@@ -3522,6 +3526,7 @@ static int srp_parse_options(struct net
- 	char *p;
- 	substring_t args[MAX_OPT_ARGS];
- 	unsigned long long ull;
-+	bool has_port;
- 	int opt_mask = 0;
- 	int token;
- 	int ret = -EINVAL;
-@@ -3620,7 +3625,8 @@ static int srp_parse_options(struct net
- 				ret = -ENOMEM;
- 				goto out;
- 			}
--			ret = srp_parse_in(net, &target->rdma_cm.src.ss, p);
-+			ret = srp_parse_in(net, &target->rdma_cm.src.ss, p,
-+					   NULL);
- 			if (ret < 0) {
- 				pr_warn("bad source parameter '%s'\n", p);
- 				kfree(p);
-@@ -3636,7 +3642,10 @@ static int srp_parse_options(struct net
- 				ret = -ENOMEM;
- 				goto out;
- 			}
--			ret = srp_parse_in(net, &target->rdma_cm.dst.ss, p);
-+			ret = srp_parse_in(net, &target->rdma_cm.dst.ss, p,
-+					   &has_port);
-+			if (!has_port)
-+				ret = -EINVAL;
- 			if (ret < 0) {
- 				pr_warn("bad dest parameter '%s'\n", p);
- 				kfree(p);
+ 	struct pci_eject_response *ejct_pkt;
++	struct hv_pcibus_device *hbus;
+ 	struct hv_pci_dev *hpdev;
+ 	struct pci_dev *pdev;
+ 	unsigned long flags;
+@@ -1885,6 +1886,7 @@ static void hv_eject_device_work(struct
+ 	} ctxt;
+ 
+ 	hpdev = container_of(work, struct hv_pci_dev, wrk);
++	hbus = hpdev->hbus;
+ 
+ 	WARN_ON(hpdev->state != hv_pcichild_ejecting);
+ 
+@@ -1895,8 +1897,7 @@ static void hv_eject_device_work(struct
+ 	 * because hbus->pci_bus may not exist yet.
+ 	 */
+ 	wslot = wslot_to_devfn(hpdev->desc.win_slot.slot);
+-	pdev = pci_get_domain_bus_and_slot(hpdev->hbus->sysdata.domain, 0,
+-					   wslot);
++	pdev = pci_get_domain_bus_and_slot(hbus->sysdata.domain, 0, wslot);
+ 	if (pdev) {
+ 		pci_lock_rescan_remove();
+ 		pci_stop_and_remove_bus_device(pdev);
+@@ -1904,9 +1905,9 @@ static void hv_eject_device_work(struct
+ 		pci_unlock_rescan_remove();
+ 	}
+ 
+-	spin_lock_irqsave(&hpdev->hbus->device_list_lock, flags);
++	spin_lock_irqsave(&hbus->device_list_lock, flags);
+ 	list_del(&hpdev->list_entry);
+-	spin_unlock_irqrestore(&hpdev->hbus->device_list_lock, flags);
++	spin_unlock_irqrestore(&hbus->device_list_lock, flags);
+ 
+ 	if (hpdev->pci_slot)
+ 		pci_destroy_slot(hpdev->pci_slot);
+@@ -1915,7 +1916,7 @@ static void hv_eject_device_work(struct
+ 	ejct_pkt = (struct pci_eject_response *)&ctxt.pkt.message;
+ 	ejct_pkt->message_type.type = PCI_EJECTION_COMPLETE;
+ 	ejct_pkt->wslot.slot = hpdev->desc.win_slot.slot;
+-	vmbus_sendpacket(hpdev->hbus->hdev->channel, ejct_pkt,
++	vmbus_sendpacket(hbus->hdev->channel, ejct_pkt,
+ 			 sizeof(*ejct_pkt), (unsigned long)&ctxt.pkt,
+ 			 VM_PKT_DATA_INBAND, 0);
+ 
+@@ -1924,7 +1925,9 @@ static void hv_eject_device_work(struct
+ 	/* For the two refs got in new_pcichild_device() */
+ 	put_pcichild(hpdev);
+ 	put_pcichild(hpdev);
+-	put_hvpcibus(hpdev->hbus);
++	/* hpdev has been freed. Do not use it any more. */
++
++	put_hvpcibus(hbus);
+ }
+ 
+ /**
 
 
