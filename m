@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60ECE73FD6
+	by mail.lfdr.de (Postfix) with ESMTP id D01AD73FD7
 	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:36:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728276AbfGXTZX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:25:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42112 "EHLO mail.kernel.org"
+        id S1729181AbfGXTZY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:25:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387457AbfGXTZV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:25:21 -0400
+        id S1728162AbfGXTZX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:25:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9961B218F0;
-        Wed, 24 Jul 2019 19:25:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E181218F0;
+        Wed, 24 Jul 2019 19:25:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996320;
-        bh=cLC6eobQ7ccRRPRMEuTAVpbeWaKEhD+lUdbOVj0J1j0=;
+        s=default; t=1563996322;
+        bh=AHGkYwUFFFPf7Dj2D4wc3lGnKJts8mpM6fWbta8L218=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FnfrizsTe1REQ8/gXIWvpVvEYj2DqyjC67bPJlwtgdPqr3qiN7o2u/5HW5fBzQJyk
-         pIoYFDf4aPkm6wxDi9jVFt9vtUiCqqzcuJrkJWp4KFwSeKiAR/2m2+yEldgs1SKrDC
-         skONDTDORiEAx1Ii4f01353qBuJei5UCXZfpM/F4=
+        b=q7Vaq/Uq7hklLG8Fr7a2UhADJI5lJonDVwiPPqxFx6wv8Z2m2HEdvSaoFl+5kmccA
+         SQfIeNeYQv/Ozsb3w8tZNAC7tEyzdOPn8SpSKvWt/76QMEWHmZJSVtnVyPoITdx/B0
+         J23xDwXUnmwJisgvtPh+tt1Taode/ygtl8ZRMhrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
+        Marek Lindner <mareklindner@neomailbox.ch>,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 055/413] tua6100: Avoid build warnings.
-Date:   Wed, 24 Jul 2019 21:15:46 +0200
-Message-Id: <20190724191739.335066837@linuxfoundation.org>
+Subject: [PATCH 5.2 056/413] batman-adv: Fix duplicated OGMs on NETDEV_UP
+Date:   Wed, 24 Jul 2019 21:15:47 +0200
+Message-Id: <20190724191739.379821121@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -43,89 +47,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 621ccc6cc5f8d6730b740d31d4818227866c93c9 ]
+[ Upstream commit 9e6b5648bbc4cd48fab62cecbb81e9cc3c6e7e88 ]
 
-Rename _P to _P_VAL and _R to _R_VAL to avoid global
-namespace conflicts:
+The state of slave interfaces are handled differently depending on whether
+the interface is up or not. All active interfaces (IFF_UP) will transmit
+OGMs. But for B.A.T.M.A.N. IV, also non-active interfaces are scheduling
+(low TTL) OGMs on active interfaces. The code which setups and schedules
+the OGMs must therefore already be called when the interfaces gets added as
+slave interface and the transmit function must then check whether it has to
+send out the OGM or not on the specific slave interface.
 
-drivers/media/dvb-frontends/tua6100.c: In function ‘tua6100_set_params’:
-drivers/media/dvb-frontends/tua6100.c:79: warning: "_P" redefined
- #define _P 32
+But the commit f0d97253fb5f ("batman-adv: remove ogm_emit and ogm_schedule
+API calls") moved the setup code from the enable function to the activate
+function. The latter is called either when the added slave was already up
+when batadv_hardif_enable_interface processed the new interface or when a
+NETDEV_UP event was received for this slave interfac. As result, each
+NETDEV_UP would schedule a new OGM worker for the interface and thus OGMs
+would be send a lot more than expected.
 
-In file included from ./include/acpi/platform/aclinux.h:54,
-                 from ./include/acpi/platform/acenv.h:152,
-                 from ./include/acpi/acpi.h:22,
-                 from ./include/linux/acpi.h:34,
-                 from ./include/linux/i2c.h:17,
-                 from drivers/media/dvb-frontends/tua6100.h:30,
-                 from drivers/media/dvb-frontends/tua6100.c:32:
-./include/linux/ctype.h:14: note: this is the location of the previous definition
- #define _P 0x10 /* punct */
-
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: f0d97253fb5f ("batman-adv: remove ogm_emit and ogm_schedule API calls")
+Reported-by: Linus Lüssing <linus.luessing@c0d3.blue>
+Tested-by: Linus Lüssing <linus.luessing@c0d3.blue>
+Acked-by: Marek Lindner <mareklindner@neomailbox.ch>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/tua6100.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ net/batman-adv/bat_iv_ogm.c     | 4 ++--
+ net/batman-adv/hard-interface.c | 3 +++
+ net/batman-adv/types.h          | 3 +++
+ 3 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/tua6100.c b/drivers/media/dvb-frontends/tua6100.c
-index f7c3e6be8e4d..2483f614d0e7 100644
---- a/drivers/media/dvb-frontends/tua6100.c
-+++ b/drivers/media/dvb-frontends/tua6100.c
-@@ -67,8 +67,8 @@ static int tua6100_set_params(struct dvb_frontend *fe)
- 	struct i2c_msg msg1 = { .addr = priv->i2c_address, .flags = 0, .buf = reg1, .len = 4 };
- 	struct i2c_msg msg2 = { .addr = priv->i2c_address, .flags = 0, .buf = reg2, .len = 3 };
+diff --git a/net/batman-adv/bat_iv_ogm.c b/net/batman-adv/bat_iv_ogm.c
+index bd4138ddf7e0..240ed70912d6 100644
+--- a/net/batman-adv/bat_iv_ogm.c
++++ b/net/batman-adv/bat_iv_ogm.c
+@@ -2337,7 +2337,7 @@ batadv_iv_ogm_neigh_is_sob(struct batadv_neigh_node *neigh1,
+ 	return ret;
+ }
  
--#define _R 4
--#define _P 32
-+#define _R_VAL 4
-+#define _P_VAL 32
- #define _ri 4000000
+-static void batadv_iv_iface_activate(struct batadv_hard_iface *hard_iface)
++static void batadv_iv_iface_enabled(struct batadv_hard_iface *hard_iface)
+ {
+ 	/* begin scheduling originator messages on that interface */
+ 	batadv_iv_ogm_schedule(hard_iface);
+@@ -2683,8 +2683,8 @@ static void batadv_iv_gw_dump(struct sk_buff *msg, struct netlink_callback *cb,
+ static struct batadv_algo_ops batadv_batman_iv __read_mostly = {
+ 	.name = "BATMAN_IV",
+ 	.iface = {
+-		.activate = batadv_iv_iface_activate,
+ 		.enable = batadv_iv_ogm_iface_enable,
++		.enabled = batadv_iv_iface_enabled,
+ 		.disable = batadv_iv_ogm_iface_disable,
+ 		.update_mac = batadv_iv_ogm_iface_update_mac,
+ 		.primary_set = batadv_iv_ogm_primary_iface_set,
+diff --git a/net/batman-adv/hard-interface.c b/net/batman-adv/hard-interface.c
+index 79d1731b8306..3719cfd026f0 100644
+--- a/net/batman-adv/hard-interface.c
++++ b/net/batman-adv/hard-interface.c
+@@ -795,6 +795,9 @@ int batadv_hardif_enable_interface(struct batadv_hard_iface *hard_iface,
  
- 	// setup register 0
-@@ -83,14 +83,14 @@ static int tua6100_set_params(struct dvb_frontend *fe)
- 	else
- 		reg1[1] = 0x0c;
+ 	batadv_hardif_recalc_extra_skbroom(soft_iface);
  
--	if (_P == 64)
-+	if (_P_VAL == 64)
- 		reg1[1] |= 0x40;
- 	if (c->frequency >= 1525000)
- 		reg1[1] |= 0x80;
++	if (bat_priv->algo_ops->iface.enabled)
++		bat_priv->algo_ops->iface.enabled(hard_iface);
++
+ out:
+ 	return 0;
  
- 	// register 2
--	reg2[1] = (_R >> 8) & 0x03;
--	reg2[2] = _R;
-+	reg2[1] = (_R_VAL >> 8) & 0x03;
-+	reg2[2] = _R_VAL;
- 	if (c->frequency < 1455000)
- 		reg2[1] |= 0x1c;
- 	else if (c->frequency < 1630000)
-@@ -102,18 +102,18 @@ static int tua6100_set_params(struct dvb_frontend *fe)
- 	 * The N divisor ratio (note: c->frequency is in kHz, but we
- 	 * need it in Hz)
- 	 */
--	prediv = (c->frequency * _R) / (_ri / 1000);
--	div = prediv / _P;
-+	prediv = (c->frequency * _R_VAL) / (_ri / 1000);
-+	div = prediv / _P_VAL;
- 	reg1[1] |= (div >> 9) & 0x03;
- 	reg1[2] = div >> 1;
- 	reg1[3] = (div << 7);
--	priv->frequency = ((div * _P) * (_ri / 1000)) / _R;
-+	priv->frequency = ((div * _P_VAL) * (_ri / 1000)) / _R_VAL;
+diff --git a/net/batman-adv/types.h b/net/batman-adv/types.h
+index 74b644738a36..e0b25104cbfa 100644
+--- a/net/batman-adv/types.h
++++ b/net/batman-adv/types.h
+@@ -2129,6 +2129,9 @@ struct batadv_algo_iface_ops {
+ 	/** @enable: init routing info when hard-interface is enabled */
+ 	int (*enable)(struct batadv_hard_iface *hard_iface);
  
- 	// Finally, calculate and store the value for A
--	reg1[3] |= (prediv - (div*_P)) & 0x7f;
-+	reg1[3] |= (prediv - (div*_P_VAL)) & 0x7f;
++	/** @enabled: notification when hard-interface was enabled (optional) */
++	void (*enabled)(struct batadv_hard_iface *hard_iface);
++
+ 	/** @disable: de-init routing info when hard-interface is disabled */
+ 	void (*disable)(struct batadv_hard_iface *hard_iface);
  
--#undef _R
--#undef _P
-+#undef _R_VAL
-+#undef _P_VAL
- #undef _ri
- 
- 	if (fe->ops.i2c_gate_ctrl)
 -- 
 2.20.1
 
