@@ -2,80 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4724172838
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 08:29:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB01A72856
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 08:35:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725899AbfGXG3J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 02:29:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39552 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725870AbfGXG3J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 02:29:09 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98AF1218DA;
-        Wed, 24 Jul 2019 06:29:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563949749;
-        bh=X3nxKCNfdD0lLhL4VaMbjI82mxOi5YsL2BdBUB7PXfc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Ia/h8K9bQmR91vtH03cL9qwrjaUYgV6tHF/jXmZTRsM310/Qu4K2coGuxtCifgUvk
-         eIW51YSyh45RSNp6n/TLMvaqR4ZHqq5isjGGWb4jjeix6aKGY8HnjlZrc5oOp4QN96
-         ZfLgZaUz9VWmzJTA/J8AMfEMjenuM8eLGZP9v5tE=
-Date:   Wed, 24 Jul 2019 08:29:06 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Thomas Backlund <tmb@mageia.org>
-Cc:     Johannes Thumshirn <jthumshirn@suse.de>, dsterba@suse.com,
-        nborisov@suse.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] btrfs: correctly validate compression
- type" failed to apply to 5.1-stable tree
-Message-ID: <20190724062906.GA19622@kroah.com>
-References: <156388330112473@kroah.com>
- <20190723121955.GE3997@x250.microfocus.com>
- <20190723122817.GB11835@kroah.com>
- <7b2be0ce-1dbf-3579-0d6c-764c6c6da7fe@mageia.org>
+        id S1726130AbfGXGfB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 02:35:01 -0400
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:44339 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725900AbfGXGfB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 02:35:01 -0400
+Received: by mail-pf1-f194.google.com with SMTP id t16so20376476pfe.11;
+        Tue, 23 Jul 2019 23:35:00 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=UIc+sGFrUq7b/rZz1VSObEDqL5JaiIGysAR5vDj6tl0=;
+        b=m9HXistGgqARorUww5a3WlemXpE24rwkdJkxB6P3xPNr56yMk5y9IS32XxKMgkSEUP
+         Cn94VUUZxJv46OjuNJZCb9tKQylDWCUCAj1t843D+fSzPAVYP4yNM4/aThpkbrN1d8Dw
+         d26vvQ8JCx3Q6M65DczuZ6l83vckXbGFoQyw0VCeUzfyrdP71kzSKxfDLSTQxHSqd+cY
+         mLCqGJ2r979NYpsvqKNjwLM3jHMo4jcpJUA1aIxPhfMfVyefe4sjI/OLRtz6mQTIB/yD
+         l93fOfa+da1z/nEpndO+4SWTqWu93pRyjw/MXlUU01DfG2B6KfuBuQQUgUueuwTMAENK
+         8hnA==
+X-Gm-Message-State: APjAAAUwOuPSglcLNfQK9xtYIjcEcdNuX3lvMCM5iT1a5XS9ajl82CiV
+        vG8UHlmtXGsJ9ciOVwL2nVQ=
+X-Google-Smtp-Source: APXvYqydZF6/W7yFxLtsdUSh392mpvbMfWpsdkmgKzL+TvOOYyQX7aUVPH0thpkr24kv+d2a47rhBw==
+X-Received: by 2002:a63:360d:: with SMTP id d13mr79931641pga.80.1563950100230;
+        Tue, 23 Jul 2019 23:35:00 -0700 (PDT)
+Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
+        by smtp.gmail.com with ESMTPSA id i14sm72646774pfk.0.2019.07.23.23.34.58
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Tue, 23 Jul 2019 23:34:59 -0700 (PDT)
+Received: by 42.do-not-panic.com (Postfix, from userid 1000)
+        id 69589402A1; Wed, 24 Jul 2019 06:34:58 +0000 (UTC)
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     linux-xfs@vger.kernel.org, Alexander.Levin@microsoft.com
+Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org,
+        amir73il@gmail.com, Luis Chamberlain <mcgrof@kernel.org>
+Subject: [PATCH 0/6] xfs: stable fixes for v4.19.y - circa v4.19.60
+Date:   Wed, 24 Jul 2019 06:34:45 +0000
+Message-Id: <20190724063451.26190-1-mcgrof@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7b2be0ce-1dbf-3579-0d6c-764c6c6da7fe@mageia.org>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 24, 2019 at 01:31:46AM +0300, Thomas Backlund wrote:
-> Den 23-07-2019 kl. 15:28, skrev Greg KH:
-> > On Tue, Jul 23, 2019 at 02:19:55PM +0200, Johannes Thumshirn wrote:
-> > > Hi Greg,
-> > > 
-> > > please try the following:
-> > > 
-> > > >From 9afa2d46ecb511259130eb51b4ab1feb1055d961 Mon Sep 17 00:00:00 2001
-> > > From: Johannes Thumshirn <jthumshirn@suse.de>
-> > > Date: Thu, 6 Jun 2019 12:07:15 +0200
-> > > Subject: [PATCH] btrfs: correctly validate compression type
-> > > 
-> > > (commit aa53e3bfac7205fb3a8815ac1c937fd6ed01b41e upstream)
-> > 
-> > Worked for 5.1.y and 4.19.y, but not for the older ones.
-> > 
-> 
-> It applies to 5.1 but it does not build:
-> 
-> + /usr/bin/make -O -j12 ARCH=x86_64 -s all
-> fs/btrfs/props.c: In function 'prop_compression_validate':
-> fs/btrfs/props.c:369:6: error: implicit declaration of function
-> 'btrfs_compression_is_valid_type'; did you mean
-> 'btrfs_compress_is_valid_type'? [-Werror=implicit-function-declaration]
->   if (btrfs_compression_is_valid_type(value, len))
->       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->       btrfs_compress_is_valid_type
-> cc1: some warnings being treated as errors
+Sasha,
 
-Yes, now dropped from 5.1 and 4.19 trees.
+you merged my last set of XFS fixes. I asked for one patch to not be
+merged yet as one issue was not yet properly fixed. After some further
+review I have identified commits which do fix the kernel crash reported
+on kz#204223 [0] with generic/388, this patch set applies on top of the
+last one I sent you.
 
-thanks,
+These commits do quite a bit of code refactoring, and the actual fix
+lies hidden in the last commit by Darrick. Due to the amount of changes
+trying to extract the fix is riskier than just carring the code
+refactoring. If we're OK with the code refactor for stable, its my
+recommendation we keep the changes to match more with upstream and
+benefit from other fixes. The code refactoring was merged on v4.20 and
+Darrick's fix is the only fix upstream since the code was merged.
 
-greg k-h
+If others disagree with this approach please speak up.
+
+I've run a full set of fstests against the following sections 12 times and
+have found no regressions against the baseline:
+
+xfs
+xfs_logdev
+xfs_nocrc_512
+xfs_nocrc
+xfs_realtimedev
+xfs_reflink_1024
+xfs_reflink_dev
+
+Review from others is appreciated.
+
+[0] https://bugzilla.kernel.org/show_bug.cgi?id=204223
+
+Allison Henderson (4):
+  xfs: Move fs/xfs/xfs_attr.h to fs/xfs/libxfs/xfs_attr.h
+  xfs: Add helper function xfs_attr_try_sf_addname
+  xfs: Add attibute set and helper functions
+  xfs: Add attibute remove and helper functions
+
+Brian Foster (1):
+  xfs: don't trip over uninitialized buffer on extent read of corrupted
+    inode
+
+Darrick J. Wong (1):
+  xfs: always rejoin held resources during defer roll
+
+ fs/xfs/libxfs/xfs_attr.c       | 231 ++++++++++++++++++---------------
+ fs/xfs/{ => libxfs}/xfs_attr.h |   2 +
+ fs/xfs/libxfs/xfs_bmap.c       |  54 +++++---
+ fs/xfs/libxfs/xfs_bmap.h       |   1 +
+ fs/xfs/libxfs/xfs_defer.c      |  14 +-
+ fs/xfs/xfs_dquot.c             |  17 +--
+ 6 files changed, 183 insertions(+), 136 deletions(-)
+ rename fs/xfs/{ => libxfs}/xfs_attr.h (98%)
+
+-- 
+2.18.0
+
