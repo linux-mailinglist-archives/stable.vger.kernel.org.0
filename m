@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B65D7381B
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:26:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 670AE73856
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:28:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727716AbfGXT0I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:26:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43026 "EHLO mail.kernel.org"
+        id S1727211AbfGXT23 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:28:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729237AbfGXT0F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:26:05 -0400
+        id S1726945AbfGXT22 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:28:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00FB9229F3;
-        Wed, 24 Jul 2019 19:26:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4E00218EA;
+        Wed, 24 Jul 2019 19:28:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996364;
-        bh=MuhfelxcmbCiTTD2VipqvDgEGlVm0CqNvPtkciZU6mo=;
+        s=default; t=1563996508;
+        bh=FAp8BHi41ahHVD5BxDfomx6u7dX+39EQJwlU0Df/+OQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ILw7qa4uvFNDV/ShvVpoPtWhhfOrZ9PwzGWyjZyEB3HZYBdb92LUrMeePafpifXy8
-         G5RKsgw+b0OvAJ32qCZyCS3HkvUwHOCP2dQwR7kmrN6SrvZSGwTJxk72db6dkwGYUW
-         1b20Ic2+Imst76NOXP9EOcm3i1B4hUcyzErz14hs=
+        b=T20nrUaDEI/KrSaUU7LFaD0OcsCi3h56oSgoK/BTOGOVoL/BfghG/rrLA4ekwVLNS
+         fWcs8+b+xmQk+qtYfKsfW2wHjbqZDUYBG83F6weGrXkwjv+iKzJGxCLgbIVjYY9nVt
+         Ich9gKCLvL/ZOsLER/argo5u9juX4FTFbLRJ5Lxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Biao Huang <biao.huang@mediatek.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.vnet.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 070/413] net: stmmac: modify default value of tx-frames
-Date:   Wed, 24 Jul 2019 21:16:01 +0200
-Message-Id: <20190724191740.130758883@linuxfoundation.org>
+Subject: [PATCH 5.2 080/413] perf test 6: Fix missing kvm module load for s390
+Date:   Wed, 24 Jul 2019 21:16:11 +0200
+Message-Id: <20190724191740.836121591@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -44,47 +47,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d2facb4b3983425f6776c24dd678a82dbe673773 ]
+[ Upstream commit 53fe307dfd309e425b171f6272d64296a54f4dff ]
 
-the default value of tx-frames is 25, it's too late when
-passing tstamp to stack, then the ptp4l will fail:
+Command
 
-ptp4l -i eth0 -f gPTP.cfg -m
-ptp4l: selected /dev/ptp0 as PTP clock
-ptp4l: port 1: INITIALIZING to LISTENING on INITIALIZE
-ptp4l: port 0: INITIALIZING to LISTENING on INITIALIZE
-ptp4l: port 1: link up
-ptp4l: timed out while polling for tx timestamp
-ptp4l: increasing tx_timestamp_timeout may correct this issue,
-       but it is likely caused by a driver bug
-ptp4l: port 1: send peer delay response failed
-ptp4l: port 1: LISTENING to FAULTY on FAULT_DETECTED (FT_UNSPECIFIED)
+   # perf test -Fv 6
 
-ptp4l tests pass when changing the tx-frames from 25 to 1 with
-ethtool -C option.
-It should be fine to set tx-frames default value to 1, so ptp4l will pass
-by default.
+fails with error
 
-Signed-off-by: Biao Huang <biao.huang@mediatek.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+   running test 100 'kvm-s390:kvm_s390_create_vm' failed to parse
+    event 'kvm-s390:kvm_s390_create_vm', err -1, str 'unknown tracepoint'
+    event syntax error: 'kvm-s390:kvm_s390_create_vm'
+                         \___ unknown tracepoint
+
+when the kvm module is not loaded or not built in.
+
+Fix this by adding a valid function which tests if the module
+is loaded. Loaded modules (or builtin KVM support) have a
+directory named
+  /sys/kernel/debug/tracing/events/kvm-s390
+for this tracepoint.
+
+Check for existence of this directory.
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Link: http://lkml.kernel.org/r/20190604053504.43073-1-tmricht@linux.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/common.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/tests/parse-events.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/common.h b/drivers/net/ethernet/stmicro/stmmac/common.h
-index ceb0d23f5041..c265cc5770e8 100644
---- a/drivers/net/ethernet/stmicro/stmmac/common.h
-+++ b/drivers/net/ethernet/stmicro/stmmac/common.h
-@@ -251,7 +251,7 @@ struct stmmac_safety_stats {
- #define STMMAC_COAL_TX_TIMER	1000
- #define STMMAC_MAX_COAL_TX_TICK	100000
- #define STMMAC_TX_MAX_FRAMES	256
--#define STMMAC_TX_FRAMES	25
-+#define STMMAC_TX_FRAMES	1
+diff --git a/tools/perf/tests/parse-events.c b/tools/perf/tests/parse-events.c
+index 4a69c07f4101..8f3c80e13584 100644
+--- a/tools/perf/tests/parse-events.c
++++ b/tools/perf/tests/parse-events.c
+@@ -18,6 +18,32 @@
+ #define PERF_TP_SAMPLE_TYPE (PERF_SAMPLE_RAW | PERF_SAMPLE_TIME | \
+ 			     PERF_SAMPLE_CPU | PERF_SAMPLE_PERIOD)
  
- /* Packets types */
- enum packets_types {
++#if defined(__s390x__)
++/* Return true if kvm module is available and loaded. Test this
++ * and retun success when trace point kvm_s390_create_vm
++ * exists. Otherwise this test always fails.
++ */
++static bool kvm_s390_create_vm_valid(void)
++{
++	char *eventfile;
++	bool rc = false;
++
++	eventfile = get_events_file("kvm-s390");
++
++	if (eventfile) {
++		DIR *mydir = opendir(eventfile);
++
++		if (mydir) {
++			rc = true;
++			closedir(mydir);
++		}
++		put_events_file(eventfile);
++	}
++
++	return rc;
++}
++#endif
++
+ static int test__checkevent_tracepoint(struct perf_evlist *evlist)
+ {
+ 	struct perf_evsel *evsel = perf_evlist__first(evlist);
+@@ -1642,6 +1668,7 @@ static struct evlist_test test__events[] = {
+ 	{
+ 		.name  = "kvm-s390:kvm_s390_create_vm",
+ 		.check = test__checkevent_tracepoint,
++		.valid = kvm_s390_create_vm_valid,
+ 		.id    = 100,
+ 	},
+ #endif
 -- 
 2.20.1
 
