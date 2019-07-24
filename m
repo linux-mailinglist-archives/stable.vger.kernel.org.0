@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 062B173F35
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:31:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1D3573F26
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:30:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388501AbfGXUat (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:30:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52406 "EHLO mail.kernel.org"
+        id S2388842AbfGXUaT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:30:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388479AbfGXTb1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:31:27 -0400
+        id S2388578AbfGXTcA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:32:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40C9221951;
-        Wed, 24 Jul 2019 19:31:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9F4120659;
+        Wed, 24 Jul 2019 19:31:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996686;
-        bh=IwmdfIkC2MqFSmTk8Jj9ODAe/YIn4lBeiRKZeC1gaSk=;
+        s=default; t=1563996719;
+        bh=itHkwzy14prMZAQ3zT5j6ipj75mgLGxrkFLJacMNN9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bj6MDSt+DP6fD3Op5WbKktvuWvDQRKUaXaatIShNZ4yQPgzSFeqth6EmbvefhOo/7
-         TrCXG2AEX8eL8ini3txrnff4stg/lsh97xvrlyVN5YpSHjJZo4I4JWJ44L85kJgtD5
-         SE+U9j2LRwmrwYjoE/Y0Pu1uDq8cr2YhTjMhjGac=
+        b=h9PnxGZyEuh2XPnHEdNpqHtklBFOQnegu3LO7q2asbAJCvHDGQSjmSnRyPDdkc0mz
+         PmnODB22faZ6e3b045VDn4xOPds/H8A5GmXR0/B7ZkbKfQZuyjTZPgpITjYLjFz0m4
+         MeCNtxWbsc6Spl9zo+2OYN41unpw1jBb8J6IcYM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 165/413] ASoC: Intel: hdac_hdmi: Set ops to NULL on remove
-Date:   Wed, 24 Jul 2019 21:17:36 +0200
-Message-Id: <20190724191746.841668644@linuxfoundation.org>
+        "Srivatsa S. Bhat (VMware)" <srivatsa@csail.mit.edu>,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 166/413] block, bfq: fix rq_in_driver check in bfq_update_inject_limit
+Date:   Wed, 24 Jul 2019 21:17:37 +0200
+Message-Id: <20190724191746.906791848@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -47,38 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0f6ff78540bd1b4df1e0f17806b0ce2e1dff0d78 ]
+[ Upstream commit db599f9ed9bd31b018b6c48ad7c6b21d5b790ecf ]
 
-When we unload Skylake driver we may end up calling
-hdac_component_master_unbind(), it uses acomp->audio_ops, which we set
-in hdmi_codec_probe(), so we need to set it to NULL in hdmi_codec_remove(),
-otherwise we will dereference no longer existing pointer.
+One of the cases where the parameters for injection may be updated is
+when there are no more in-flight I/O requests. The number of in-flight
+requests is stored in the field bfqd->rq_in_driver of the descriptor
+bfqd of the device. So, the controlled condition is
+bfqd->rq_in_driver == 0.
 
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Unfortunately, this is wrong because, the instruction that checks this
+condition is in the code path that handles the completion of a
+request, and, in particular, the instruction is executed before
+bfqd->rq_in_driver is decremented in such a code path.
+
+This commit fixes this issue by just replacing 0 with 1 in the
+comparison.
+
+Reported-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+Tested-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/hdac_hdmi.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ block/bfq-iosched.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/hdac_hdmi.c b/sound/soc/codecs/hdac_hdmi.c
-index 1f57126708e7..c9f9820968bb 100644
---- a/sound/soc/codecs/hdac_hdmi.c
-+++ b/sound/soc/codecs/hdac_hdmi.c
-@@ -1859,6 +1859,12 @@ static void hdmi_codec_remove(struct snd_soc_component *component)
- {
- 	struct hdac_hdmi_priv *hdmi = snd_soc_component_get_drvdata(component);
- 	struct hdac_device *hdev = hdmi->hdev;
-+	int ret;
-+
-+	ret = snd_hdac_acomp_register_notifier(hdev->bus, NULL);
-+	if (ret < 0)
-+		dev_err(&hdev->dev, "notifier unregister failed: err: %d\n",
-+				ret);
- 
- 	pm_runtime_disable(&hdev->dev);
- }
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index e5db3856b194..404e776aa36d 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -5398,8 +5398,14 @@ static void bfq_update_inject_limit(struct bfq_data *bfqd,
+ 	 * total service time, and there seem to be the right
+ 	 * conditions to do it, or we can lower the last base value
+ 	 * computed.
++	 *
++	 * NOTE: (bfqd->rq_in_driver == 1) means that there is no I/O
++	 * request in flight, because this function is in the code
++	 * path that handles the completion of a request of bfqq, and,
++	 * in particular, this function is executed before
++	 * bfqd->rq_in_driver is decremented in such a code path.
+ 	 */
+-	if ((bfqq->last_serv_time_ns == 0 && bfqd->rq_in_driver == 0) ||
++	if ((bfqq->last_serv_time_ns == 0 && bfqd->rq_in_driver == 1) ||
+ 	    tot_time_ns < bfqq->last_serv_time_ns) {
+ 		bfqq->last_serv_time_ns = tot_time_ns;
+ 		/*
 -- 
 2.20.1
 
