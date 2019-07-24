@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7485D73B62
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:59:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C86AD73B65
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:59:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404637AbfGXT7i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:59:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47012 "EHLO mail.kernel.org"
+        id S2404658AbfGXT7o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:59:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404970AbfGXT7i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:59:38 -0400
+        id S2405017AbfGXT7o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:59:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DB45205C9;
-        Wed, 24 Jul 2019 19:59:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54855205C9;
+        Wed, 24 Jul 2019 19:59:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998377;
-        bh=vaGTw2L81uR3hwqmzcmPxcKE27JUanNfv+iSftbEI+I=;
+        s=default; t=1563998383;
+        bh=cD9rrDxEyc0yZkzD6bSEDLpUywUmGpNUOh7GXJ8xpX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bL9VygOj6GMB3IBI6TwduNs1h51xgG0qZfV64DUPcfQE+pv3zn+qgcdP7JObQGftz
-         ww9m/eLowrbrbww4sr3uG7kmGgIbFGfBAzSAK5LdrJOC52lzWSaQX1ybz5QMA1lGSL
-         iAmkLkmkeIz5k7/+MwUDiyYROpnOYyGBaUDJSKe0=
+        b=TUERDJqGXVAoYzfMjVYmfOllo8UBBDp1ZGcwLmr2gCyRVjaPUJ2CVYG4MN4TQ62BC
+         52wu7lgOTwGkzkhGmY/qWhf0kh6MgwyWt4EedgNyM9qN8cyYjaB7pHmtEOatTeBKcG
+         BW0JsYxiikKaICVcK6R/RKzlWXkMKBQUBfISkZGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Suraj Jitindar Singh <sjitindarsingh@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.1 303/371] KVM: PPC: Book3S HV: Clear pending decrementer exceptions on nested guest entry
-Date:   Wed, 24 Jul 2019 21:20:55 +0200
-Message-Id: <20190724191747.042278669@linuxfoundation.org>
+        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
+        Like Xu <like.xu@linux.intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.1 305/371] KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
+Date:   Wed, 24 Jul 2019 21:20:57 +0200
+Message-Id: <20190724191747.164107064@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -44,60 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suraj Jitindar Singh <sjitindarsingh@gmail.com>
+From: Like Xu <like.xu@linux.intel.com>
 
-commit 3c25ab35fbc8526ac0c9b298e8a78e7ad7a55479 upstream.
+commit 6fc3977ccc5d3c22e851f2dce2d3ce2a0a843842 upstream.
 
-If we enter an L1 guest with a pending decrementer exception then this
-is cleared on guest exit if the guest has writtien a positive value
-into the decrementer (indicating that it handled the decrementer
-exception) since there is no other way to detect that the guest has
-handled the pending exception and that it should be dequeued. In the
-event that the L1 guest tries to run a nested (L2) guest immediately
-after this and the L2 guest decrementer is negative (which is loaded
-by L1 before making the H_ENTER_NESTED hcall), then the pending
-decrementer exception isn't cleared and the L2 entry is blocked since
-L1 has a pending exception, even though L1 may have already handled
-the exception and written a positive value for it's decrementer. This
-results in a loop of L1 trying to enter the L2 guest and L0 blocking
-the entry since L1 has an interrupt pending with the outcome being
-that L2 never gets to run and hangs.
+If a perf_event creation fails due to any reason of the host perf
+subsystem, it has no chance to log the corresponding event for guest
+which may cause abnormal sampling data in guest result. In debug mode,
+this message helps to understand the state of vPMC and we may not
+limit the number of occurrences but not in a spamming style.
 
-Fix this by clearing any pending decrementer exceptions when L1 makes
-the H_ENTER_NESTED hcall since it won't do this if it's decrementer
-has gone negative, and anyway it's decrementer has been communicated
-to L0 in the hdec_expires field and L0 will return control to L1 when
-this goes negative by delivering an H_DECREMENTER exception.
-
-Fixes: 95a6432ce903 ("KVM: PPC: Book3S HV: Streamlined guest entry/exit path on P9 for radix guests")
-Cc: stable@vger.kernel.org # v4.20+
-Signed-off-by: Suraj Jitindar Singh <sjitindarsingh@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Suggested-by: Joe Perches <joe@perches.com>
+Signed-off-by: Like Xu <like.xu@linux.intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kvm/book3s_hv.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ arch/x86/kvm/pmu.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -4084,8 +4084,15 @@ int kvmhv_run_single_vcpu(struct kvm_run
+--- a/arch/x86/kvm/pmu.c
++++ b/arch/x86/kvm/pmu.c
+@@ -131,8 +131,8 @@ static void pmc_reprogram_counter(struct
+ 						 intr ? kvm_perf_overflow_intr :
+ 						 kvm_perf_overflow, pmc);
+ 	if (IS_ERR(event)) {
+-		printk_once("kvm_pmu: event creation failed %ld\n",
+-			    PTR_ERR(event));
++		pr_debug_ratelimited("kvm_pmu: event creation failed %ld for pmc->idx = %d\n",
++			    PTR_ERR(event), pmc->idx);
+ 		return;
+ 	}
  
- 	preempt_enable();
- 
--	/* cancel pending decrementer exception if DEC is now positive */
--	if (get_tb() < vcpu->arch.dec_expires && kvmppc_core_pending_dec(vcpu))
-+	/*
-+	 * cancel pending decrementer exception if DEC is now positive, or if
-+	 * entering a nested guest in which case the decrementer is now owned
-+	 * by L2 and the L1 decrementer is provided in hdec_expires
-+	 */
-+	if (kvmppc_core_pending_dec(vcpu) &&
-+			((get_tb() < vcpu->arch.dec_expires) ||
-+			 (trap == BOOK3S_INTERRUPT_SYSCALL &&
-+			  kvmppc_get_gpr(vcpu, 3) == H_ENTER_NESTED)))
- 		kvmppc_core_dequeue_dec(vcpu);
- 
- 	trace_kvm_guest_exit(vcpu);
 
 
