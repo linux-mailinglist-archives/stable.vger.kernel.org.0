@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 55ED873F5D
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:32:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0BDC73F5A
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:32:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729288AbfGXUcK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:32:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48524 "EHLO mail.kernel.org"
+        id S1728970AbfGXUcD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:32:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388232AbfGXT3U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:29:20 -0400
+        id S2388361AbfGXT31 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:29:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00DBA229F4;
-        Wed, 24 Jul 2019 19:29:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 084B6229F4;
+        Wed, 24 Jul 2019 19:29:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996560;
-        bh=QtkRpwKIMS1MM1vlmnVIMgdWiexO38FlHliCMnS6Akc=;
+        s=default; t=1563996566;
+        bh=xPh9hZ4D2KzU9QsTw+RRvyIX/frDF/JzpZJPjwEQ9Ks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a7z/0nLqQpT+cQLZiqoLzBQqjMf1O1E1EKPsIZKoUyrW/ElFUAsWd+39scZ0rkdbc
-         QwAXib0wnafG1WacLFaDx//gk3JJHjk3aLsPD2m2FRMcmQw0xbFukepuREs15pyA5+
-         rLWyJcBAtanpVR0D2NtQoKciq0JCDm2sdvDPaiEE=
+        b=ueqD7TUyI5w4pHXmZUyTWpHegp0a6OhwycOTCRFzAW/XQlQqC87Qk7JaNR/qHR3NH
+         tTxEhc4odE9P2j0x5zVDT4CnUCUIyVyjekXfQDFP7z2BSdqf+Da6kfb49Kl/81j0zR
+         crOWPk8BQpPJUvlpkKLRdMGCoE7Yp7ev2qKSAapo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 139/413] media: staging: davinci: fix memory leaks and check for allocation failure
-Date:   Wed, 24 Jul 2019 21:17:10 +0200
-Message-Id: <20190724191744.967613995@linuxfoundation.org>
+Subject: [PATCH 5.2 141/413] media: s5p-mfc: Make additional clocks optional
+Date:   Wed, 24 Jul 2019 21:17:12 +0200
+Message-Id: <20190724191745.084539991@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -45,72 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a84e355ecd3ed9759d7aaa40170aab78e2a68a06 ]
+[ Upstream commit e08efef8fe7db87206314c19b341612c719f891a ]
 
-There are three error return paths that don't kfree params causing a
-memory leak.  Fix this by adding an error return path that kfree's
-params before returning.  Also add a check to see params failed to
-be allocated.
+Since the beginning the second clock ('special', 'sclk') was optional and
+it is not available on some variants of Exynos SoCs (i.e. Exynos5420 with
+v7 of MFC hardware).
 
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+However commit 1bce6fb3edf1 ("[media] s5p-mfc: Rework clock handling")
+made handling of all specified clocks mandatory. This patch restores
+original behavior of the driver and fixes its operation on
+Exynos5420 SoCs.
+
+Fixes: 1bce6fb3edf1 ("[media] s5p-mfc: Rework clock handling")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/davinci_vpfe/dm365_ipipe.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/media/platform/s5p-mfc/s5p_mfc_pm.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/staging/media/davinci_vpfe/dm365_ipipe.c b/drivers/staging/media/davinci_vpfe/dm365_ipipe.c
-index 30e2edc0cec5..b88855c7ffe8 100644
---- a/drivers/staging/media/davinci_vpfe/dm365_ipipe.c
-+++ b/drivers/staging/media/davinci_vpfe/dm365_ipipe.c
-@@ -1251,10 +1251,10 @@ static int ipipe_s_config(struct v4l2_subdev *sd, struct vpfe_ipipe_config *cfg)
- 	struct vpfe_ipipe_device *ipipe = v4l2_get_subdevdata(sd);
- 	unsigned int i;
- 	int rval = 0;
-+	struct ipipe_module_params *params;
- 
- 	for (i = 0; i < ARRAY_SIZE(ipipe_modules); i++) {
- 		const struct ipipe_module_if *module_if;
--		struct ipipe_module_params *params;
- 		void *from, *to;
- 		size_t size;
- 
-@@ -1265,25 +1265,30 @@ static int ipipe_s_config(struct v4l2_subdev *sd, struct vpfe_ipipe_config *cfg)
- 		from = *(void **)((void *)cfg + module_if->config_offset);
- 
- 		params = kmalloc(sizeof(*params), GFP_KERNEL);
-+		if (!params)
-+			return -ENOMEM;
- 		to = (void *)params + module_if->param_offset;
- 		size = module_if->param_size;
- 
- 		if (to && from && size) {
- 			if (copy_from_user(to, (void __user *)from, size)) {
- 				rval = -EFAULT;
--				break;
-+				goto error_free;
- 			}
- 			rval = module_if->set(ipipe, to);
- 			if (rval)
--				goto error;
-+				goto error_free;
- 		} else if (to && !from && size) {
- 			rval = module_if->set(ipipe, NULL);
- 			if (rval)
--				goto error;
-+				goto error_free;
- 		}
- 		kfree(params);
- 	}
--error:
-+	return rval;
-+
-+error_free:
-+	kfree(params);
- 	return rval;
- }
- 
+diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c b/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c
+index 2e62f8721fa5..7d52431c2c83 100644
+--- a/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c
++++ b/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c
+@@ -34,6 +34,11 @@ int s5p_mfc_init_pm(struct s5p_mfc_dev *dev)
+ 	for (i = 0; i < pm->num_clocks; i++) {
+ 		pm->clocks[i] = devm_clk_get(pm->device, pm->clk_names[i]);
+ 		if (IS_ERR(pm->clocks[i])) {
++			/* additional clocks are optional */
++			if (i && PTR_ERR(pm->clocks[i]) == -ENOENT) {
++				pm->clocks[i] = NULL;
++				continue;
++			}
+ 			mfc_err("Failed to get clock: %s\n",
+ 				pm->clk_names[i]);
+ 			return PTR_ERR(pm->clocks[i]);
 -- 
 2.20.1
 
