@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9CA373EA4
+	by mail.lfdr.de (Postfix) with ESMTP id 6DD2173EA2
 	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:26:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389495AbfGXThi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:37:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37834 "EHLO mail.kernel.org"
+        id S2389199AbfGXU0S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:26:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389493AbfGXThh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:37:37 -0400
+        id S2388024AbfGXThn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:37:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A6B8214AF;
-        Wed, 24 Jul 2019 19:37:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05ED9214AF;
+        Wed, 24 Jul 2019 19:37:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997057;
-        bh=4eUvF33BJGJmLIcTfsllVxlZ1WR6hcuXpNWqFJYb9Xg=;
+        s=default; t=1563997062;
+        bh=sV39wD+/l0rQLdQ+sWqLjjPoyVdWcxDGkpRKscVQDg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LPF+vJFbP3+Np21HzXy9jBj29Rq91r65zOYt3c8yb0+44QviQ6NX4C2OKTnfqaRha
-         YybWN7XKJn5xep7H+Qg5hMzB8nnGIlOeHYF44cuQQTUz1RWj/mko248M1eI2jfGIdm
-         /9hpZO7WEOQ9hC9PHFj+9jPOFL/yHcwOvLeg8qbI=
+        b=DWtsN/bSGGqdH/kR0e1EQb1BOPB0+/pYqDXuC5n9PVEQqwK0sVnrLPwUe3pAZQTn0
+         nnmx0DB+j2AY5Vz2ebXTxi5PYqyxVo2TZaM7R0aGwAiFpOR8oJ8g5Vmx8XZu4BZmE0
+         1k53wEO38c+uJcMqOangsELn1ew0TlZNu3xbz9tw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.2 307/413] pnfs: Fix a problem where we gratuitously start doing I/O through the MDS
-Date:   Wed, 24 Jul 2019 21:19:58 +0200
-Message-Id: <20190724191757.731577559@linuxfoundation.org>
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.2 309/413] lib/scatterlist: Fix mapping iterator when sg->offset is greater than PAGE_SIZE
+Date:   Wed, 24 Jul 2019 21:20:00 +0200
+Message-Id: <20190724191757.864545880@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -43,33 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 58bbeab425c6c5e318f5b6ae31d351331ddfb34b upstream.
+commit aeb87246537a83c2aff482f3f34a2e0991e02cbc upstream.
 
-If the client has to stop in pnfs_update_layout() to wait for another
-layoutget to complete, it currently exits and defaults to I/O through
-the MDS if the layoutget was successful.
+All mapping iterator logic is based on the assumption that sg->offset
+is always lower than PAGE_SIZE.
 
-Fixes: d03360aaf5cc ("pNFS: Ensure we return the error if someone kills...")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Cc: stable@vger.kernel.org # v4.20+
+But there are situations where sg->offset is such that the SG item
+is on the second page. In that case sg_copy_to_buffer() fails
+properly copying the data into the buffer. One of the reason is
+that the data will be outside the kmapped area used to access that
+data.
+
+This patch fixes the issue by adjusting the mapping iterator
+offset and pgoffset fields such that offset is always lower than
+PAGE_SIZE.
+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Fixes: 4225fc8555a9 ("lib/scatterlist: use page iterator in the mapping iterator")
+Cc: stable@vger.kernel.org
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/pnfs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/scatterlist.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -1890,7 +1890,7 @@ lookup_again:
- 		spin_unlock(&ino->i_lock);
- 		lseg = ERR_PTR(wait_var_event_killable(&lo->plh_outstanding,
- 					!atomic_read(&lo->plh_outstanding)));
--		if (IS_ERR(lseg) || !list_empty(&lo->plh_segs))
-+		if (IS_ERR(lseg))
- 			goto out_put_layout_hdr;
- 		pnfs_put_layout_hdr(lo);
- 		goto lookup_again;
+--- a/lib/scatterlist.c
++++ b/lib/scatterlist.c
+@@ -676,17 +676,18 @@ static bool sg_miter_get_next_page(struc
+ {
+ 	if (!miter->__remaining) {
+ 		struct scatterlist *sg;
+-		unsigned long pgoffset;
+ 
+ 		if (!__sg_page_iter_next(&miter->piter))
+ 			return false;
+ 
+ 		sg = miter->piter.sg;
+-		pgoffset = miter->piter.sg_pgoffset;
+ 
+-		miter->__offset = pgoffset ? 0 : sg->offset;
++		miter->__offset = miter->piter.sg_pgoffset ? 0 : sg->offset;
++		miter->piter.sg_pgoffset += miter->__offset >> PAGE_SHIFT;
++		miter->__offset &= PAGE_SIZE - 1;
+ 		miter->__remaining = sg->offset + sg->length -
+-				(pgoffset << PAGE_SHIFT) - miter->__offset;
++				     (miter->piter.sg_pgoffset << PAGE_SHIFT) -
++				     miter->__offset;
+ 		miter->__remaining = min_t(unsigned long, miter->__remaining,
+ 					   PAGE_SIZE - miter->__offset);
+ 	}
 
 
