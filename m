@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4888B73F0C
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:29:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2557073F04
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:29:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388019AbfGXTdI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:33:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54746 "EHLO mail.kernel.org"
+        id S2388653AbfGXU3T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:29:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388778AbfGXTdI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:33:08 -0400
+        id S2388794AbfGXTdL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:33:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9D6D20659;
-        Wed, 24 Jul 2019 19:33:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28740229F3;
+        Wed, 24 Jul 2019 19:33:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996787;
-        bh=RDAwFYFk700LNDIbZGyjr6fi+Bo0kEjzccYSW1lisUY=;
+        s=default; t=1563996790;
+        bh=rabk5HJpjleC/RCsRwYf0b5VguYCDz59AVw06qg5qRE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S4b2BJjQmRdY4d0avbNeEvUtWJKRtjhBqUzE6BQy4x2d1TpJjWPTWaFM81zGBuKZM
-         NfghgyYyk2BKWK3obgbSPqgpCfstRh1HsM2fu1azLHJ470RZMMBl5tSXY4TcAvBd8x
-         OCm3VOcJYEB4EQ1MerfOqI4Iijo/HfBuv8WhWBzE=
+        b=GD6qD68/9lEittBg0u2aP4Z+Erg06p3iz0rlIb7ls5T/o6V5twSXMUuiVJrNkeP3x
+         foU9O6eMu5cZSpp5TDMqzvSannHW0FSpMxjuYiIsSEIwRzI7RuLfiWPGrzSAZuZgcA
+         FiWVn4AiZp98DnDZud9h3CZFBaDYsISef6gC20Bw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
+        Yonghong Song <yhs@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 217/413] rxrpc: Fix oops in tracepoint
-Date:   Wed, 24 Jul 2019 21:18:28 +0200
-Message-Id: <20190724191750.157542573@linuxfoundation.org>
+Subject: [PATCH 5.2 218/413] libbpf: fix GCC8 warning for strncpy
+Date:   Wed, 24 Jul 2019 21:18:29 +0200
+Message-Id: <20190724191750.274281968@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -45,104 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 99f0eae653b2db64917d0b58099eb51e300b311d ]
+[ Upstream commit cdfc7f888c2a355b01308e97c6df108f1c2b64e8 ]
 
-If the rxrpc_eproto tracepoint is enabled, an oops will be cause by the
-trace line that rxrpc_extract_header() tries to emit when a protocol error
-occurs (typically because the packet is short) because the call argument is
-NULL.
+GCC8 started emitting warning about using strncpy with number of bytes
+exactly equal destination size, which is generally unsafe, as can lead
+to non-zero terminated string being copied. Use IFNAMSIZ - 1 as number
+of bytes to ensure name is always zero-terminated.
 
-Fix this by using ?: to assume 0 as the debug_id if call is NULL.
-
-This can then be induced by:
-
-	echo -e '\0\0\0\0\0\0\0\0' | ncat -4u --send-only <addr> 20001
-
-where addr has the following program running on it:
-
-	#include <stdio.h>
-	#include <stdlib.h>
-	#include <string.h>
-	#include <unistd.h>
-	#include <sys/socket.h>
-	#include <arpa/inet.h>
-	#include <linux/rxrpc.h>
-	int main(void)
-	{
-		struct sockaddr_rxrpc srx;
-		int fd;
-		memset(&srx, 0, sizeof(srx));
-		srx.srx_family			= AF_RXRPC;
-		srx.srx_service			= 0;
-		srx.transport_type		= AF_INET;
-		srx.transport_len		= sizeof(srx.transport.sin);
-		srx.transport.sin.sin_family	= AF_INET;
-		srx.transport.sin.sin_port	= htons(0x4e21);
-		fd = socket(AF_RXRPC, SOCK_DGRAM, AF_INET6);
-		bind(fd, (struct sockaddr *)&srx, sizeof(srx));
-		sleep(20);
-		return 0;
-	}
-
-It results in the following oops.
-
-	BUG: kernel NULL pointer dereference, address: 0000000000000340
-	#PF: supervisor read access in kernel mode
-	#PF: error_code(0x0000) - not-present page
-	...
-	RIP: 0010:trace_event_raw_event_rxrpc_rx_eproto+0x47/0xac
-	...
-	Call Trace:
-	 <IRQ>
-	 rxrpc_extract_header+0x86/0x171
-	 ? rcu_read_lock_sched_held+0x5d/0x63
-	 ? rxrpc_new_skb+0xd4/0x109
-	 rxrpc_input_packet+0xef/0x14fc
-	 ? rxrpc_input_data+0x986/0x986
-	 udp_queue_rcv_one_skb+0xbf/0x3d0
-	 udp_unicast_rcv_skb.isra.8+0x64/0x71
-	 ip_protocol_deliver_rcu+0xe4/0x1b4
-	 ip_local_deliver+0xf0/0x154
-	 __netif_receive_skb_one_core+0x50/0x6c
-	 netif_receive_skb_internal+0x26b/0x2e9
-	 napi_gro_receive+0xf8/0x1da
-	 rtl8169_poll+0x303/0x4c4
-	 net_rx_action+0x10e/0x333
-	 __do_softirq+0x1a5/0x38f
-	 irq_exit+0x54/0xc4
-	 do_IRQ+0xda/0xf8
-	 common_interrupt+0xf/0xf
-	 </IRQ>
-	 ...
-	 ? cpuidle_enter_state+0x23c/0x34d
-	 cpuidle_enter+0x2a/0x36
-	 do_idle+0x163/0x1ea
-	 cpu_startup_entry+0x1d/0x1f
-	 start_secondary+0x157/0x172
-	 secondary_startup_64+0xa4/0xb0
-
-Fixes: a25e21f0bcd2 ("rxrpc, afs: Use debug_ids rather than pointers in traces")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+Cc: Magnus Karlsson <magnus.karlsson@intel.com>
+Acked-by: Yonghong Song <yhs@fb.com>
+Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/rxrpc.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/lib/bpf/xsk.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/trace/events/rxrpc.h b/include/trace/events/rxrpc.h
-index d85816878a52..cc1d060cbf13 100644
---- a/include/trace/events/rxrpc.h
-+++ b/include/trace/events/rxrpc.h
-@@ -1379,7 +1379,7 @@ TRACE_EVENT(rxrpc_rx_eproto,
- 			     ),
+diff --git a/tools/lib/bpf/xsk.c b/tools/lib/bpf/xsk.c
+index 38667b62f1fe..8a7a05bc657d 100644
+--- a/tools/lib/bpf/xsk.c
++++ b/tools/lib/bpf/xsk.c
+@@ -337,7 +337,8 @@ static int xsk_get_max_queues(struct xsk_socket *xsk)
  
- 	    TP_fast_assign(
--		    __entry->call = call->debug_id;
-+		    __entry->call = call ? call->debug_id : 0;
- 		    __entry->serial = serial;
- 		    __entry->why = why;
- 			   ),
+ 	channels.cmd = ETHTOOL_GCHANNELS;
+ 	ifr.ifr_data = (void *)&channels;
+-	strncpy(ifr.ifr_name, xsk->ifname, IFNAMSIZ);
++	strncpy(ifr.ifr_name, xsk->ifname, IFNAMSIZ - 1);
++	ifr.ifr_name[IFNAMSIZ - 1] = '\0';
+ 	err = ioctl(fd, SIOCETHTOOL, &ifr);
+ 	if (err && errno != EOPNOTSUPP) {
+ 		ret = -errno;
 -- 
 2.20.1
 
