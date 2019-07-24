@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 962BA73E03
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:22:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2731373DEC
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:21:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390805AbfGXUVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:21:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49644 "EHLO mail.kernel.org"
+        id S2389021AbfGXUVC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:21:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391006AbfGXTpd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:45:33 -0400
+        id S2390710AbfGXTph (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:45:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDAA821873;
-        Wed, 24 Jul 2019 19:45:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 697C022ADA;
+        Wed, 24 Jul 2019 19:45:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997532;
-        bh=Pq/gww4pZIJwwKlkUf5BoPLMSs2MPmp2kPctMV9N1/E=;
+        s=default; t=1563997535;
+        bh=OIVXwS+9TKqu37YILl0lRlx1HwLymD0o7YMXtu2Wyg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l19YFC6EKvnPTChE7+CbFtE6bw1BJ4Nh4KsNnHyjbry8N4Ch/hvgS0so43W1IIQhu
-         WTxJVRY8KPlWZJb9Uf/AHfjJPgOuq2MnPjF2zSX5iSyScbYlNPJFAbFODKSSDUfUXd
-         I6yo7TwqsD2ac3RGSvFp6RgyUOdgg56LFmV7pThY=
+        b=Iyb4oeQauNACeexSK+DB3wEMQvOPfk7txFZSHozcrI3ymvWSrzAgMJwFJl0piIMy9
+         pBKBEc4etxvvDFAaa2e6k5XclKvdTgzhFjWBrDti+DoBiGeY/0ZnhdzILJaehG1nCU
+         5CiL7+sWncEuSJmyZ4MEIR2i3YcRCwdAx+8kvUFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hans.verkuil@cisco.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Weihang Li <liweihang@hisilicon.com>,
+        Peng Li <lipeng321@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 056/371] media: wl128x: Fix some error handling in fm_v4l2_init_video_device()
-Date:   Wed, 24 Jul 2019 21:16:48 +0200
-Message-Id: <20190724191729.040101491@linuxfoundation.org>
+Subject: [PATCH 5.1 057/371] net: hns3: add a check to pointer in error_detected and slot_reset
+Date:   Wed, 24 Jul 2019 21:16:49 +0200
+Message-Id: <20190724191729.133382704@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -46,98 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 69fbb3f47327d959830c94bf31893972b8c8f700 ]
+[ Upstream commit 661262bc3e0ecc9a1aed39c6b2a99766da2c22e2 ]
 
-X-Originating-IP: [10.175.113.25]
-X-CFilter-Loop: Reflected
-The fm_v4l2_init_video_device() forget to unregister v4l2/video device
-in the error path, it could lead to UAF issue, eg,
+If we add a VF without loading hclgevf.ko and then there is a RAS error
+occurs, PCIe AER will call error_detected and slot_reset of all functions,
+and will get a NULL pointer when we check ad_dev->ops->handle_hw_ras_error.
+This will cause a call trace and failures on handling of follow-up RAS
+errors.
 
-  BUG: KASAN: use-after-free in atomic64_read include/asm-generic/atomic-instrumented.h:836 [inline]
-  BUG: KASAN: use-after-free in atomic_long_read include/asm-generic/atomic-long.h:28 [inline]
-  BUG: KASAN: use-after-free in __mutex_unlock_slowpath+0x92/0x690 kernel/locking/mutex.c:1206
-  Read of size 8 at addr ffff8881e84a7c70 by task v4l_id/3659
+This patch check ae_dev and ad_dev->ops at first to solve above issues.
 
-  CPU: 1 PID: 3659 Comm: v4l_id Not tainted 5.1.0 #8
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-  Call Trace:
-   __dump_stack lib/dump_stack.c:77 [inline]
-   dump_stack+0xa9/0x10e lib/dump_stack.c:113
-   print_address_description+0x65/0x270 mm/kasan/report.c:187
-   kasan_report+0x149/0x18d mm/kasan/report.c:317
-   atomic64_read include/asm-generic/atomic-instrumented.h:836 [inline]
-   atomic_long_read include/asm-generic/atomic-long.h:28 [inline]
-   __mutex_unlock_slowpath+0x92/0x690 kernel/locking/mutex.c:1206
-   fm_v4l2_fops_open+0xac/0x120 [fm_drv]
-   v4l2_open+0x191/0x390 [videodev]
-   chrdev_open+0x20d/0x570 fs/char_dev.c:417
-   do_dentry_open+0x700/0xf30 fs/open.c:777
-   do_last fs/namei.c:3416 [inline]
-   path_openat+0x7c4/0x2a90 fs/namei.c:3532
-   do_filp_open+0x1a5/0x2b0 fs/namei.c:3563
-   do_sys_open+0x302/0x490 fs/open.c:1069
-   do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  RIP: 0033:0x7f8180c17c8e
-  ...
-  Allocated by task 3642:
-   set_track mm/kasan/common.c:87 [inline]
-   __kasan_kmalloc.constprop.3+0xa0/0xd0 mm/kasan/common.c:497
-   fm_drv_init+0x13/0x1000 [fm_drv]
-   do_one_initcall+0xbc/0x47d init/main.c:901
-   do_init_module+0x1b5/0x547 kernel/module.c:3456
-   load_module+0x6405/0x8c10 kernel/module.c:3804
-   __do_sys_finit_module+0x162/0x190 kernel/module.c:3898
-   do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-  Freed by task 3642:
-   set_track mm/kasan/common.c:87 [inline]
-   __kasan_slab_free+0x130/0x180 mm/kasan/common.c:459
-   slab_free_hook mm/slub.c:1429 [inline]
-   slab_free_freelist_hook mm/slub.c:1456 [inline]
-   slab_free mm/slub.c:3003 [inline]
-   kfree+0xe1/0x270 mm/slub.c:3958
-   fm_drv_init+0x1e6/0x1000 [fm_drv]
-   do_one_initcall+0xbc/0x47d init/main.c:901
-   do_init_module+0x1b5/0x547 kernel/module.c:3456
-   load_module+0x6405/0x8c10 kernel/module.c:3804
-   __do_sys_finit_module+0x162/0x190 kernel/module.c:3898
-   do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Add relevant unregister functions to fix it.
-
-Cc: Hans Verkuil <hans.verkuil@cisco.com>
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Weihang Li <liweihang@hisilicon.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/radio/wl128x/fmdrv_v4l2.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/radio/wl128x/fmdrv_v4l2.c b/drivers/media/radio/wl128x/fmdrv_v4l2.c
-index e25fd4d4d280..a1eaea19a81c 100644
---- a/drivers/media/radio/wl128x/fmdrv_v4l2.c
-+++ b/drivers/media/radio/wl128x/fmdrv_v4l2.c
-@@ -550,6 +550,7 @@ int fm_v4l2_init_video_device(struct fmdev *fmdev, int radio_nr)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 5e41ed4954f9..cac17152157d 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -1847,9 +1847,9 @@ static pci_ers_result_t hns3_error_detected(struct pci_dev *pdev,
+ 	if (state == pci_channel_io_perm_failure)
+ 		return PCI_ERS_RESULT_DISCONNECT;
  
- 	/* Register with V4L2 subsystem as RADIO device */
- 	if (video_register_device(&gradio_dev, VFL_TYPE_RADIO, radio_nr)) {
-+		v4l2_device_unregister(&fmdev->v4l2_dev);
- 		fmerr("Could not register video device\n");
- 		return -ENOMEM;
- 	}
-@@ -563,6 +564,8 @@ int fm_v4l2_init_video_device(struct fmdev *fmdev, int radio_nr)
- 	if (ret < 0) {
- 		fmerr("(fmdev): Can't init ctrl handler\n");
- 		v4l2_ctrl_handler_free(&fmdev->ctrl_handler);
-+		video_unregister_device(fmdev->radio_dev);
-+		v4l2_device_unregister(&fmdev->v4l2_dev);
- 		return -EBUSY;
+-	if (!ae_dev) {
++	if (!ae_dev || !ae_dev->ops) {
+ 		dev_err(&pdev->dev,
+-			"Can't recover - error happened during device init\n");
++			"Can't recover - error happened before device initialized\n");
+ 		return PCI_ERS_RESULT_NONE;
  	}
  
+@@ -1868,6 +1868,9 @@ static pci_ers_result_t hns3_slot_reset(struct pci_dev *pdev)
+ 
+ 	dev_info(dev, "requesting reset due to PCI error\n");
+ 
++	if (!ae_dev || !ae_dev->ops)
++		return PCI_ERS_RESULT_NONE;
++
+ 	/* request the reset */
+ 	if (ae_dev->ops->reset_event) {
+ 		if (!ae_dev->override_pci_need_reset)
 -- 
 2.20.1
 
