@@ -2,119 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39FAD7420B
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 01:27:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23D2974220
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 01:34:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729763AbfGXX1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 19:27:24 -0400
-Received: from hqemgate15.nvidia.com ([216.228.121.64]:3101 "EHLO
-        hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729877AbfGXX1V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 19:27:21 -0400
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqemgate15.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5d38e95f0002>; Wed, 24 Jul 2019 16:27:27 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Wed, 24 Jul 2019 16:27:20 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Wed, 24 Jul 2019 16:27:20 -0700
-Received: from HQMAIL102.nvidia.com (172.18.146.10) by HQMAIL101.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 24 Jul
- 2019 23:27:20 +0000
-Received: from HQMAIL101.nvidia.com (172.20.187.10) by HQMAIL102.nvidia.com
- (172.18.146.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 24 Jul
- 2019 23:27:15 +0000
-Received: from hqnvemgw01.nvidia.com (172.20.150.20) by HQMAIL101.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Wed, 24 Jul 2019 23:27:16 +0000
-Received: from rcampbell-dev.nvidia.com (Not Verified[10.110.48.66]) by hqnvemgw01.nvidia.com with Trustwave SEG (v7,5,8,10121)
-        id <B5d38e9530000>; Wed, 24 Jul 2019 16:27:15 -0700
-From:   Ralph Campbell <rcampbell@nvidia.com>
-To:     <linux-mm@kvack.org>
-CC:     <linux-kernel@vger.kernel.org>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        John Hubbard <jhubbard@nvidia.com>, <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH v3 3/3] mm/hmm: Fix bad subpage pointer in try_to_unmap_one
-Date:   Wed, 24 Jul 2019 16:27:00 -0700
-Message-ID: <20190724232700.23327-4-rcampbell@nvidia.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190724232700.23327-1-rcampbell@nvidia.com>
-References: <20190724232700.23327-1-rcampbell@nvidia.com>
+        id S1728561AbfGXXeO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 19:34:14 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:46556 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726308AbfGXXeO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 19:34:14 -0400
+Received: by mail-wr1-f67.google.com with SMTP id z1so48666027wru.13
+        for <stable@vger.kernel.org>; Wed, 24 Jul 2019 16:34:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
+         :references:subject:to:from:cc;
+        bh=gJesdbZbbF3sI0aCILTJoTvpe7qNeUt3yyP5yfvb9A8=;
+        b=wvwSNP7N1qONlRZmeQLBdvc6hHpKfdFRTRbDuKX/tLt5MZyQP+UArDZZAbhBrm5hi/
+         g6pPi6uMS8njINXsko9cPIQ0CqQX17nN7okDCUFCBLVo7kCsJl4Go4E0UPkD5TuYUfm7
+         ZHjDyRJEm51mTDJHgu9DImQL1+P3u8KlXxZ50+jozZLaAh9lYrH8Rfw/Y4fEuY6C/Fya
+         A2N32VO8ojHo5tQswIPwaFQkj9CgfaemSBFHxuTJMUViaNP8zUu2GwFEU28JP7q748+z
+         eFJpofCGFCLy5dy5d3gXoKoTOTEVEHNlNyJyuqlX5GI1Nb1KPfaX96ugaoanSvST2Ez1
+         setQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
+        bh=gJesdbZbbF3sI0aCILTJoTvpe7qNeUt3yyP5yfvb9A8=;
+        b=uPJWru12I43jXNwk8gew3snRIEDPolkdNHKsNaKfKurKoxr9Klzlm2voZRjDryz4s1
+         rXr35cIXn1McRFf+3ny4tTxHi9tL1GiCuSiLXME85iwOI+Cmw8MjIVqyRbCzt+V4aUE+
+         5Ro6zFY7VKr6UPRfmCZ6U4O0A0jBjSF1K+d0xJqMWED9pFNM0vq/zP2nwmPe9Exu1wrr
+         0kmryRgndirJQpzOgA4Lrsr5Q+V7+hcmiR38vXKGhUEabnZioSe/efxmXRT9fw1kIMjG
+         1fMA8J45/fsxkx4c3FvXztSk8qlxm5QGI+oSeqhvKUfJCD6Z8Lbuc7OCAnplEtAB/gTE
+         gZvw==
+X-Gm-Message-State: APjAAAXDPe4YCzguBvg0kDAdN+nIf8oCFK4WYsvYZoPVoJvv+NHwChhv
+        /BEN8SMe5FbOSHAR/MWDi9/3ZSlP0Qs=
+X-Google-Smtp-Source: APXvYqwbu/1onZwQ2Smw+4QpNUT8HGel/X/7kSj1fzh1T6toHjGecjxKxhAC8wreUB59uHJiXbT28Q==
+X-Received: by 2002:adf:ec8e:: with SMTP id z14mr49218393wrn.269.1564011251851;
+        Wed, 24 Jul 2019 16:34:11 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id t140sm43179218wmt.0.2019.07.24.16.34.10
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 24 Jul 2019 16:34:11 -0700 (PDT)
+Message-ID: <5d38eaf3.1c69fb81.f02b8.079f@mx.google.com>
+Date:   Wed, 24 Jul 2019 16:34:11 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-NVConfidentiality: public
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1564010847; bh=aE9jvpYovWbAuB2E+N8tRNTGgKOEO3ZSK7JOHwBAVAQ=;
-        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
-         In-Reply-To:References:MIME-Version:X-NVConfidentiality:
-         Content-Type:Content-Transfer-Encoding;
-        b=IhtEE+3R5QhqFa2KEziinP9eneZiPUTOmHuX3Sno5dk2gEzneBtRMuE8WEt2lHLaE
-         AbaDZ5iX+QdPmQeebfejcPvuZ4D41S1xhiA4BLii6pTJSgMWdXUcWW5CrPQsupLeco
-         WBFf8AmzolDvoi5goY2JR1CweNtxSz6XR7Uv3XX+852s/f3+eqUPQ8jEJVd0GHsU6l
-         vxxT9YQ/FXsRyf5nVged5cLxXEImsR4cR31dJ1aHACQ5222keRwpvpiR+DC0o1NuR1
-         aTwHQdshh/APUALxv1ugMrYoF3O96zNWbpTodlMK2Kie1c1L6Vmuk5NhiwgwJp1xYB
-         K6yWPNzPEp/LA==
+X-Kernelci-Kernel: v5.1.19-372-g7da17d99564d
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.1.y
+In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
+References: <20190724191724.382593077@linuxfoundation.org>
+Subject: Re: [PATCH 5.1 000/371] 5.1.20-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When migrating an anonymous private page to a ZONE_DEVICE private page,
-the source page->mapping and page->index fields are copied to the
-destination ZONE_DEVICE struct page and the page_mapcount() is increased.
-This is so rmap_walk() can be used to unmap and migrate the page back to
-system memory. However, try_to_unmap_one() computes the subpage pointer
-from a swap pte which computes an invalid page pointer and a kernel panic
-results such as:
+stable-rc/linux-5.1.y boot: 137 boots: 2 failed, 134 passed with 1 offline =
+(v5.1.19-372-g7da17d99564d)
 
-BUG: unable to handle page fault for address: ffffea1fffffffc8
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.1.y/kernel/v5.1.19-372-g7da17d99564d/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.1.y=
+/kernel/v5.1.19-372-g7da17d99564d/
 
-Currently, only single pages can be migrated to device private memory so
-no subpage computation is needed and it can be set to "page".
+Tree: stable-rc
+Branch: linux-5.1.y
+Git Describe: v5.1.19-372-g7da17d99564d
+Git Commit: 7da17d99564d84f797e66a578ec5fb34f43fa58f
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 79 unique boards, 27 SoC families, 17 builds out of 209
 
-Fixes: a5430dda8a3a1c ("mm/migrate: support un-addressable ZONE_DEVICE page=
- in migration")
-Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
-Cc: "J=C3=A9r=C3=B4me Glisse" <jglisse@redhat.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Boot Failures Detected:
+
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            bcm4708-smartrg-sr400ac: 1 failed lab
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxl-s905x-nexbox-a95x: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            meson-gxbb-odroidc2: 1 offline lab
+
 ---
- mm/rmap.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/mm/rmap.c b/mm/rmap.c
-index e5dfe2ae6b0d..003377e24232 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -1475,7 +1475,15 @@ static bool try_to_unmap_one(struct page *page, stru=
-ct vm_area_struct *vma,
- 			/*
- 			 * No need to invalidate here it will synchronize on
- 			 * against the special swap migration pte.
-+			 *
-+			 * The assignment to subpage above was computed from a
-+			 * swap PTE which results in an invalid pointer.
-+			 * Since only PAGE_SIZE pages can currently be
-+			 * migrated, just set it to page. This will need to be
-+			 * changed when hugepage migrations to device private
-+			 * memory are supported.
- 			 */
-+			subpage =3D page;
- 			goto discard;
- 		}
-=20
---=20
-2.20.1
-
+For more info write to <info@kernelci.org>
