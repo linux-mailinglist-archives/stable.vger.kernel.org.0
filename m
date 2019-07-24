@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5557773D1F
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:15:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F217B73D1C
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:15:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404358AbfGXTya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:54:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37446 "EHLO mail.kernel.org"
+        id S2404382AbfGXTyf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:54:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404350AbfGXTy3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:54:29 -0400
+        id S2404376AbfGXTyf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:54:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 009582147A;
-        Wed, 24 Jul 2019 19:54:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B546217D4;
+        Wed, 24 Jul 2019 19:54:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998068;
-        bh=lednPcTVqVhtLN1g1Rjm601tmhqmTC7Osfas59sjvOc=;
+        s=default; t=1563998074;
+        bh=tyCuVIh9UnQ8Z+dDbE+wB4ERdPppX5Lf7LU9UoT+0uQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1GHI14UhJxtnfyN8YzyRyfz+x0zMT4cGndgohzlCYehuofDG1ZyN54zKCDHDEPLlg
-         dCRHS5TdaUkCbN9+1Nv6qToF7mtbTbyo9NCXhUEjLsoO1Qqv37/G4/GmFukP1y43ID
-         mLpzisyRoux/HEfVjQpnbABB69Y7cZanonKjpAJk=
+        b=09sRRPong+JVI44iAOudwnBd9WNBJgQPfd6BgEDsEK7cNsjCD+nb0qdZc+m0WmZea
+         FTj1Zv+MYEzq8DOylevzCHkB3sDj+Cz2lNCCbuj/nMZsGGI5Tma0rGi9quCRIkp+kE
+         VpOzyKRSPTrSA9Hj6G1qyJp2tc92unIRfuMnX33Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>,
-        Jens Remus <jremus@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.1 235/371] scsi: zfcp: fix request object use-after-free in send path causing wrong traces
-Date:   Wed, 24 Jul 2019 21:19:47 +0200
-Message-Id: <20190724191742.246326310@linuxfoundation.org>
+Subject: [PATCH 5.1 236/371] scsi: megaraid_sas: Fix calculation of target ID
+Date:   Wed, 24 Jul 2019 21:19:48 +0200
+Message-Id: <20190724191742.343945789@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -45,88 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Block <bblock@linux.ibm.com>
+From: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
 
-commit 106d45f350c7cac876844dc685845cba4ffdb70b upstream.
+commit c8f96df5b8e633056b7ebf5d52a9d6fb1b156ce3 upstream.
 
-When tracing instances where we open and close WKA ports, we also pass the
-request-ID of the respective FSF command.
+In megasas_get_target_prop(), driver is incorrectly calculating the target
+ID for devices with channel 1 and 3.  Due to this, firmware will either
+fail the command (if there is no device with the target id sent from
+driver) or could return the properties for a target which was not
+intended.  Devices could end up with the wrong queue depth due to this.
 
-But after successfully sending the FSF command we must not use the
-request-object anymore, as this might result in an use-after-free (see
-"zfcp: fix request object use-after-free in send path causing seqno
-errors" ).
+Fix target id calculation for channel 1 and 3.
 
-To fix this add a new variable that caches the request-ID before sending
-the request. This won't change during the hand-off to the FCP channel,
-and so it's safe to trace this cached request-ID later, instead of using
-the request object.
-
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
-Fixes: d27a7cb91960 ("zfcp: trace on request for open and close of WKA port")
-Cc: <stable@vger.kernel.org> #2.6.38+
-Reviewed-by: Steffen Maier <maier@linux.ibm.com>
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+Fixes: 96188a89cc6d ("scsi: megaraid_sas: NVME interface target prop added")
+Cc: stable@vger.kernel.org
+Signed-off-by: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/s390/scsi/zfcp_fsf.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/scsi/megaraid/megaraid_sas_base.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -1627,6 +1627,7 @@ int zfcp_fsf_open_wka_port(struct zfcp_f
- {
- 	struct zfcp_qdio *qdio = wka_port->adapter->qdio;
- 	struct zfcp_fsf_req *req;
-+	unsigned long req_id = 0;
- 	int retval = -EIO;
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -6168,7 +6168,8 @@ megasas_get_target_prop(struct megasas_i
+ 	int ret;
+ 	struct megasas_cmd *cmd;
+ 	struct megasas_dcmd_frame *dcmd;
+-	u16 targetId = (sdev->channel % 2) + sdev->id;
++	u16 targetId = ((sdev->channel % 2) * MEGASAS_MAX_DEV_PER_CHANNEL) +
++			sdev->id;
  
- 	spin_lock_irq(&qdio->req_q_lock);
-@@ -1649,6 +1650,8 @@ int zfcp_fsf_open_wka_port(struct zfcp_f
- 	hton24(req->qtcb->bottom.support.d_id, wka_port->d_id);
- 	req->data = wka_port;
- 
-+	req_id = req->req_id;
-+
- 	zfcp_fsf_start_timer(req, ZFCP_FSF_REQUEST_TIMEOUT);
- 	retval = zfcp_fsf_req_send(req);
- 	if (retval)
-@@ -1657,7 +1660,7 @@ int zfcp_fsf_open_wka_port(struct zfcp_f
- out:
- 	spin_unlock_irq(&qdio->req_q_lock);
- 	if (!retval)
--		zfcp_dbf_rec_run_wka("fsowp_1", wka_port, req->req_id);
-+		zfcp_dbf_rec_run_wka("fsowp_1", wka_port, req_id);
- 	return retval;
- }
- 
-@@ -1683,6 +1686,7 @@ int zfcp_fsf_close_wka_port(struct zfcp_
- {
- 	struct zfcp_qdio *qdio = wka_port->adapter->qdio;
- 	struct zfcp_fsf_req *req;
-+	unsigned long req_id = 0;
- 	int retval = -EIO;
- 
- 	spin_lock_irq(&qdio->req_q_lock);
-@@ -1705,6 +1709,8 @@ int zfcp_fsf_close_wka_port(struct zfcp_
- 	req->data = wka_port;
- 	req->qtcb->header.port_handle = wka_port->handle;
- 
-+	req_id = req->req_id;
-+
- 	zfcp_fsf_start_timer(req, ZFCP_FSF_REQUEST_TIMEOUT);
- 	retval = zfcp_fsf_req_send(req);
- 	if (retval)
-@@ -1713,7 +1719,7 @@ int zfcp_fsf_close_wka_port(struct zfcp_
- out:
- 	spin_unlock_irq(&qdio->req_q_lock);
- 	if (!retval)
--		zfcp_dbf_rec_run_wka("fscwp_1", wka_port, req->req_id);
-+		zfcp_dbf_rec_run_wka("fscwp_1", wka_port, req_id);
- 	return retval;
- }
+ 	cmd = megasas_get_cmd(instance);
  
 
 
