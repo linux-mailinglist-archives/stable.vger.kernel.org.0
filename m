@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C75D4738FA
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:35:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F88C73902
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:35:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389196AbfGXTfX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:35:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60064 "EHLO mail.kernel.org"
+        id S2388756AbfGXTfw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:35:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389195AbfGXTfX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:35:23 -0400
+        id S2388935AbfGXTfv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:35:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C97B20659;
-        Wed, 24 Jul 2019 19:35:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 669BE20659;
+        Wed, 24 Jul 2019 19:35:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996922;
-        bh=EHcCKHRk1eOz+b0bwItEjZPMk5Rvwz+Yhh/TuND2V/4=;
+        s=default; t=1563996950;
+        bh=EBqIx6Rp6CJbAxEr1+pNpmdrN3ibDpdhEdKnevF9rF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JzWkfbU/qHk+plhqJQyXSotj36WByvz+AvMxC9SV3tpFoFsecEfnUZR7rJfL+vNoR
-         sCqUe4u1bmsKRhFYUgsuHZFE+2wiv+LLRpiArbwGpjq7+hAtosHilJHjmctFN9p4lZ
-         2olAQ/MEBkfae3AD3Qv+EaoJmz9m9qTWz0j+E9B0=
+        b=fzJRdhcSFEvqacvc4ujT4eQNgxkAdnOZOaTSlBf5M9/p3omp2uRA78ux9avFJKPc8
+         CXlaeqKs6sHmJ5pAs1Z+XXjwy/Oml/3BCKb1MvDKt5LGDmQ7SE8Oepb9eMWCm1I/+G
+         65znbdXON/eDj2ZRxf0cPolj1+x9nOWmJKHH0FRI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
-        Eric Biggers <ebiggers@google.com>,
+        stable@vger.kernel.org, Gary R Hook <gary.hook@amd.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.2 263/413] crypto: ghash - fix unaligned memory access in ghash_setkey()
-Date:   Wed, 24 Jul 2019 21:19:14 +0200
-Message-Id: <20190724191754.964857112@linuxfoundation.org>
+Subject: [PATCH 5.2 272/413] crypto: ccp - memset structure fields to zero before reuse
+Date:   Wed, 24 Jul 2019 21:19:23 +0200
+Message-Id: <20190724191755.698741421@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -44,57 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Hook, Gary <Gary.Hook@amd.com>
 
-commit 5c6bc4dfa515738149998bb0db2481a4fdead979 upstream.
+commit 20e833dc36355ed642d00067641a679c618303fa upstream.
 
-Changing ghash_mod_init() to be subsys_initcall made it start running
-before the alignment fault handler has been installed on ARM.  In kernel
-builds where the keys in the ghash test vectors happened to be
-misaligned in the kernel image, this exposed the longstanding bug that
-ghash_setkey() is incorrectly casting the key buffer (which can have any
-alignment) to be128 for passing to gf128mul_init_4k_lle().
+The AES GCM function reuses an 'op' data structure, which members
+contain values that must be cleared for each (re)use.
 
-Fix this by memcpy()ing the key to a temporary buffer.
+This fix resolves a crypto self-test failure:
+alg: aead: gcm-aes-ccp encryption test failed (wrong result) on test vector 2, cfg="two even aligned splits"
 
-Don't fix it by setting an alignmask on the algorithm instead because
-that would unnecessarily force alignment of the data too.
-
-Fixes: 2cdc6899a88e ("crypto: ghash - Add GHASH digest algorithm for GCM")
-Reported-by: Peter Robinson <pbrobinson@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Tested-by: Peter Robinson <pbrobinson@gmail.com>
+Fixes: 36cf515b9bbe ("crypto: ccp - Enable support for AES GCM on v5 CCPs")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Gary R Hook <gary.hook@amd.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- crypto/ghash-generic.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/crypto/ccp/ccp-ops.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/crypto/ghash-generic.c
-+++ b/crypto/ghash-generic.c
-@@ -31,6 +31,7 @@ static int ghash_setkey(struct crypto_sh
- 			const u8 *key, unsigned int keylen)
- {
- 	struct ghash_ctx *ctx = crypto_shash_ctx(tfm);
-+	be128 k;
+--- a/drivers/crypto/ccp/ccp-ops.c
++++ b/drivers/crypto/ccp/ccp-ops.c
+@@ -622,6 +622,7 @@ static int ccp_run_aes_gcm_cmd(struct cc
  
- 	if (keylen != GHASH_BLOCK_SIZE) {
- 		crypto_shash_set_flags(tfm, CRYPTO_TFM_RES_BAD_KEY_LEN);
-@@ -39,7 +40,12 @@ static int ghash_setkey(struct crypto_sh
+ 	unsigned long long *final;
+ 	unsigned int dm_offset;
++	unsigned int jobid;
+ 	unsigned int ilen;
+ 	bool in_place = true; /* Default value */
+ 	int ret;
+@@ -660,9 +661,11 @@ static int ccp_run_aes_gcm_cmd(struct cc
+ 		p_tag = scatterwalk_ffwd(sg_tag, p_inp, ilen);
+ 	}
  
- 	if (ctx->gf128)
- 		gf128mul_free_4k(ctx->gf128);
--	ctx->gf128 = gf128mul_init_4k_lle((be128 *)key);
++	jobid = CCP_NEW_JOBID(cmd_q->ccp);
 +
-+	BUILD_BUG_ON(sizeof(k) != GHASH_BLOCK_SIZE);
-+	memcpy(&k, key, GHASH_BLOCK_SIZE); /* avoid violating alignment rules */
-+	ctx->gf128 = gf128mul_init_4k_lle(&k);
-+	memzero_explicit(&k, GHASH_BLOCK_SIZE);
-+
- 	if (!ctx->gf128)
- 		return -ENOMEM;
+ 	memset(&op, 0, sizeof(op));
+ 	op.cmd_q = cmd_q;
+-	op.jobid = CCP_NEW_JOBID(cmd_q->ccp);
++	op.jobid = jobid;
+ 	op.sb_key = cmd_q->sb_key; /* Pre-allocated */
+ 	op.sb_ctx = cmd_q->sb_ctx; /* Pre-allocated */
+ 	op.init = 1;
+@@ -813,6 +816,13 @@ static int ccp_run_aes_gcm_cmd(struct cc
+ 	final[0] = cpu_to_be64(aes->aad_len * 8);
+ 	final[1] = cpu_to_be64(ilen * 8);
  
++	memset(&op, 0, sizeof(op));
++	op.cmd_q = cmd_q;
++	op.jobid = jobid;
++	op.sb_key = cmd_q->sb_key; /* Pre-allocated */
++	op.sb_ctx = cmd_q->sb_ctx; /* Pre-allocated */
++	op.init = 1;
++	op.u.aes.type = aes->type;
+ 	op.u.aes.mode = CCP_AES_MODE_GHASH;
+ 	op.u.aes.action = CCP_AES_GHASHFINAL;
+ 	op.src.type = CCP_MEMTYPE_SYSTEM;
 
 
