@@ -2,71 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C45067294E
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 09:52:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9520C72B04
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 11:03:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725883AbfGXHwq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 03:52:46 -0400
-Received: from mail-lj1-f182.google.com ([209.85.208.182]:39793 "EHLO
-        mail-lj1-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725826AbfGXHwq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 03:52:46 -0400
-Received: by mail-lj1-f182.google.com with SMTP id v18so43531571ljh.6
-        for <stable@vger.kernel.org>; Wed, 24 Jul 2019 00:52:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=TcViZhHesHKkWwq0liIXgZOEqVRP8g68ct9Q5F8kIGs=;
-        b=ghJ+IZQURlIR7oaHsY+6YpwYXTKQ6BBvYxaDmrxupBNuNZSJLAtBwkXdJdzw1NfWYw
-         IhAyci95IYaLW8zKU+u9yoMIDXSOY9qwn+9YlUM+2ufdKR919e881F3G3touCd1ICt54
-         ucOdm1nzC0HTdLRJFySLw/O8xgZnq1OJqKojCQy0mbGL4N99VXALyEVwh8qbpZC4akdL
-         D/whu71ShygfzudVyn9BNnYJsklFt6aXH7ohR3RE09sgx7IqrpfYGnSzujgmWA2Jp///
-         yM8ZvRtswEhOn7uLiHxfIvs1HGsuMhVxlyFqNkEE6JpPoAn2qwY5Me9pCpidITsmtvJz
-         w3sA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=TcViZhHesHKkWwq0liIXgZOEqVRP8g68ct9Q5F8kIGs=;
-        b=U2BxPqSHkpFAMFfgxqGnBjOrukXbls5rsbJ4Cw1zrWJa23UOufKRmcV1qDy3fC+fC2
-         80OPx+vSW2zlkTG1VTL25EHmUmtaDJ5vDoo4fbRaEfJ06OEqmYwck1gqRt18KHOZKUPB
-         fUqIeoXrDTE563ms35yiCZs3GRGUE6LFX3SKq1mJpYgxsCWhU2IOan2VWHSjpnYHDQ1c
-         Jx2HGzjqiUkE80H4tA7/SLwY+5NJWRLbE5guN1hsIBIKpWCN4nXOWFmGqgJN08LvgLL5
-         Ft2yZ8hkG/8jjgjylnheh4XkuZ7YFKEtMa/cyKmrVMRsN+Rkp8LkkGl7xRduBah+KII7
-         pDyw==
-X-Gm-Message-State: APjAAAXZ0C5A1QCWhq+65nHEkEOOPLdag2IfOpnYYtnUI3yv81hujrgw
-        snoL0vkgA20FX9LpK81ct/svEBACSe4kOk/VY4u0ewA8CYY=
-X-Google-Smtp-Source: APXvYqxXDKHKVHnBerN2mEgFUHW/Jh8Lk6sZdC1yK4vmvzE+5pPnNRGwEwPGijjjdeoOsETepiqBp09KA8n3rAfuY3k=
-X-Received: by 2002:a2e:6e0c:: with SMTP id j12mr41814717ljc.123.1563954764047;
- Wed, 24 Jul 2019 00:52:44 -0700 (PDT)
+        id S1726099AbfGXJDh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 05:03:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49284 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726070AbfGXJDh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 05:03:37 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D4DE2189F;
+        Wed, 24 Jul 2019 09:03:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1563959016;
+        bh=ZMuVhEy5eiKMhvpbRZK1g6QBsE1C0jFMHoo3S//3MAY=;
+        h=Subject:To:From:Date:From;
+        b=GzsAfFM1qUUQQq6XcjVF9EXRmyxhwa3191+5hnV8Y/cP5jbr+WC+wwJwljlVVEDzW
+         hwZftZll6tosHjVtziOA3Jn9fWRUxpN4L+scIhEzH4Mv261ZA7E1p4hA528C5SYiJr
+         O9kshjygVvhwRg2YWWZfWEbNlfkF1S/YtZYE5S+Q=
+Subject: patch "binder: prevent transactions to context manager from its own process." added to char-misc-linus
+To:     hridya@google.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, tkjos@google.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 24 Jul 2019 11:03:26 +0200
+Message-ID: <15639590066949@kroah.com>
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 24 Jul 2019 13:22:33 +0530
-Message-ID: <CA+G9fYt3sCcazODJodtrJUsLDKusaMx1NWeM03hyrgcSVGUM8Q@mail.gmail.com>
-Subject: stable-rc 4.14: i386 and armv7 builds failed
-To:     linux- stable <stable@vger.kernel.org>, jthumshirn@suse.de,
-        dsterba@suse.com, nborisov@suse.com,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     lkft-triage@lists.linaro.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable rc 4.14 stable rc i386 and armv7 builds failed due to below error.
 
-fs/btrfs/file.c: In function 'btrfs_punch_hole':
-fs/btrfs/file.c:2787:27: error: invalid initializer
-   struct timespec64 now = current_time(inode);
-                           ^~~~~~~~~~~~
-fs/btrfs/file.c:2790:18: error: incompatible types when assigning to
-type 'struct timespec' from type 'struct timespec64'
-   inode->i_mtime = now;
-                   ^
-fs/btrfs/file.c:2791:18: error: incompatible types when assigning to
-type 'struct timespec' from type 'struct timespec64'
-   inode->i_ctime = now;
-                  ^
+This is a note to let you know that I've just added the patch titled
 
-Best regards
-Naresh Kamboju
+    binder: prevent transactions to context manager from its own process.
+
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 49ed96943a8e0c62cc5a9b0a6cfc88be87d1fcec Mon Sep 17 00:00:00 2001
+From: Hridya Valsaraju <hridya@google.com>
+Date: Mon, 15 Jul 2019 12:18:04 -0700
+Subject: binder: prevent transactions to context manager from its own process.
+
+Currently, a transaction to context manager from its own process
+is prevented by checking if its binder_proc struct is the same as
+that of the sender. However, this would not catch cases where the
+process opens the binder device again and uses the new fd to send
+a transaction to the context manager.
+
+Reported-by: syzbot+8b3c354d33c4ac78bfad@syzkaller.appspotmail.com
+Signed-off-by: Hridya Valsaraju <hridya@google.com>
+Acked-by: Todd Kjos <tkjos@google.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20190715191804.112933-1-hridya@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/android/binder.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+index 5bde08603fbc..dc1c83eafc22 100644
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -2988,7 +2988,7 @@ static void binder_transaction(struct binder_proc *proc,
+ 			else
+ 				return_error = BR_DEAD_REPLY;
+ 			mutex_unlock(&context->context_mgr_node_lock);
+-			if (target_node && target_proc == proc) {
++			if (target_node && target_proc->pid == proc->pid) {
+ 				binder_user_error("%d:%d got transaction to context manager from process owning it\n",
+ 						  proc->pid, thread->pid);
+ 				return_error = BR_FAILED_REPLY;
+-- 
+2.22.0
+
+
