@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B72A7739F5
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:45:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA0D8739C5
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:43:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390543AbfGXTp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:45:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45700 "EHLO mail.kernel.org"
+        id S2390023AbfGXTnm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:43:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390561AbfGXTn1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:43:27 -0400
+        id S2389783AbfGXTnm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:43:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CEAF5229F4;
-        Wed, 24 Jul 2019 19:43:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E12602083B;
+        Wed, 24 Jul 2019 19:43:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997406;
-        bh=HIyOUkl8aruwst0Ro1rhXSFBk9+dSt6xQjm3eGBrcqk=;
+        s=default; t=1563997421;
+        bh=w7nWYzjqEuQ8ULKO5ztdyA3UpMxJqPyn49Fi+kuKWD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OtoBKrViaVEesuWbB4ZIYYW0YhxDQO4PV07mYoYys13qMiV0Jv+S+IrwbcRDj0ppw
-         /lk7qjqqdfmrdM+/+c1psIm2y97v3qxZH8TgOsyf/vbs9jjpj1x0v/J/zdCjF5MSC7
-         PG5IJ1pMaIadb4m2tRN3EWDKR9jwitObsHAddTtA=
+        b=NYOjsqtn+KSN8IzOq49pxo/Bu8/sTdVCVPTdVH2nhcS3o2br/AJ52aCOfEbgA02WC
+         wrZd0X7fcbYZc0wzEDUHKfbaqEawqqr/NwZN7xYdpAlBkmc0h4Xxh+xH8Drh8OoBg5
+         R/Fna+SBh/Fs+40SM5ZzG6Ma+C6dZTt57eOh5sSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Schumacher <timschumi@gmx.de>,
+        stable@vger.kernel.org, Maya Erez <merez@codeaurora.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 013/371] ath9k: Check for errors when reading SREV register
-Date:   Wed, 24 Jul 2019 21:16:05 +0200
-Message-Id: <20190724191725.492273334@linuxfoundation.org>
+Subject: [PATCH 5.1 018/371] wil6210: fix spurious interrupts in 3-msi
+Date:   Wed, 24 Jul 2019 21:16:10 +0200
+Message-Id: <20190724191725.869975532@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -44,119 +44,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2f90c7e5d09437a4d8d5546feaae9f1cf48cfbe1 ]
+[ Upstream commit e10b0eddd5235aa5aef4e40b970e34e735611a80 ]
 
-Right now, if an error is encountered during the SREV register
-read (i.e. an EIO in ath9k_regread()), that error code gets
-passed all the way to __ath9k_hw_init(), where it is visible
-during the "Chip rev not supported" message.
+Interrupt is set in ICM (ICR & ~IMV) rising trigger.
+As the driver masks the IRQ after clearing it, there can
+be a race where an additional spurious interrupt is triggered
+when the driver unmask the IRQ.
+This can happen in case HW triggers an interrupt after the clear
+and before the mask.
 
-    ath9k_htc 1-1.4:1.0: ath9k_htc: HTC initialized with 33 credits
-    ath: phy2: Mac Chip Rev 0x0f.3 is not supported by this driver
-    ath: phy2: Unable to initialize hardware; initialization status: -95
-    ath: phy2: Unable to initialize hardware; initialization status: -95
-    ath9k_htc: Failed to initialize the device
+To prevent the second spurious interrupt the driver needs to mask the
+IRQ before reading and clearing it.
 
-Check for -EIO explicitly in ath9k_hw_read_revisions() and return
-a boolean based on the success of the operation. Check for that in
-__ath9k_hw_init() and abort with a more debugging-friendly message
-if reading the revisions wasn't successful.
-
-    ath9k_htc 1-1.4:1.0: ath9k_htc: HTC initialized with 33 credits
-    ath: phy2: Failed to read SREV register
-    ath: phy2: Could not read hardware revision
-    ath: phy2: Unable to initialize hardware; initialization status: -95
-    ath: phy2: Unable to initialize hardware; initialization status: -95
-    ath9k_htc: Failed to initialize the device
-
-This helps when debugging by directly showing the first point of
-failure and it could prevent possible errors if a 0x0f.3 revision
-is ever supported.
-
-Signed-off-by: Tim Schumacher <timschumi@gmx.de>
+Signed-off-by: Maya Erez <merez@codeaurora.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/hw.c | 32 +++++++++++++++++++++--------
- 1 file changed, 23 insertions(+), 9 deletions(-)
+ drivers/net/wireless/ath/wil6210/interrupt.c | 65 ++++++++++++--------
+ 1 file changed, 40 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/hw.c b/drivers/net/wireless/ath/ath9k/hw.c
-index 8581d917635a..b6773d613f0c 100644
---- a/drivers/net/wireless/ath/ath9k/hw.c
-+++ b/drivers/net/wireless/ath/ath9k/hw.c
-@@ -252,8 +252,9 @@ void ath9k_hw_get_channel_centers(struct ath_hw *ah,
- /* Chip Revisions */
- /******************/
- 
--static void ath9k_hw_read_revisions(struct ath_hw *ah)
-+static bool ath9k_hw_read_revisions(struct ath_hw *ah)
+diff --git a/drivers/net/wireless/ath/wil6210/interrupt.c b/drivers/net/wireless/ath/wil6210/interrupt.c
+index e41ba24011d8..b00a13d6d530 100644
+--- a/drivers/net/wireless/ath/wil6210/interrupt.c
++++ b/drivers/net/wireless/ath/wil6210/interrupt.c
+@@ -296,21 +296,24 @@ void wil_configure_interrupt_moderation(struct wil6210_priv *wil)
+ static irqreturn_t wil6210_irq_rx(int irq, void *cookie)
  {
-+	u32 srev;
- 	u32 val;
+ 	struct wil6210_priv *wil = cookie;
+-	u32 isr = wil_ioread32_and_clear(wil->csr +
+-					 HOSTADDR(RGF_DMA_EP_RX_ICR) +
+-					 offsetof(struct RGF_ICR, ICR));
++	u32 isr;
+ 	bool need_unmask = true;
  
- 	if (ah->get_mac_revision)
-@@ -269,25 +270,33 @@ static void ath9k_hw_read_revisions(struct ath_hw *ah)
- 			val = REG_READ(ah, AR_SREV);
- 			ah->hw_version.macRev = MS(val, AR_SREV_REVISION2);
- 		}
--		return;
-+		return true;
- 	case AR9300_DEVID_AR9340:
- 		ah->hw_version.macVersion = AR_SREV_VERSION_9340;
--		return;
-+		return true;
- 	case AR9300_DEVID_QCA955X:
- 		ah->hw_version.macVersion = AR_SREV_VERSION_9550;
--		return;
-+		return true;
- 	case AR9300_DEVID_AR953X:
- 		ah->hw_version.macVersion = AR_SREV_VERSION_9531;
--		return;
-+		return true;
- 	case AR9300_DEVID_QCA956X:
- 		ah->hw_version.macVersion = AR_SREV_VERSION_9561;
--		return;
-+		return true;
++	wil6210_mask_irq_rx(wil);
++
++	isr = wil_ioread32_and_clear(wil->csr +
++				     HOSTADDR(RGF_DMA_EP_RX_ICR) +
++				     offsetof(struct RGF_ICR, ICR));
++
+ 	trace_wil6210_irq_rx(isr);
+ 	wil_dbg_irq(wil, "ISR RX 0x%08x\n", isr);
+ 
+ 	if (unlikely(!isr)) {
+ 		wil_err_ratelimited(wil, "spurious IRQ: RX\n");
++		wil6210_unmask_irq_rx(wil);
+ 		return IRQ_NONE;
  	}
  
--	val = REG_READ(ah, AR_SREV) & AR_SREV_ID;
-+	srev = REG_READ(ah, AR_SREV);
-+
-+	if (srev == -EIO) {
-+		ath_err(ath9k_hw_common(ah),
-+			"Failed to read SREV register");
-+		return false;
-+	}
-+
-+	val = srev & AR_SREV_ID;
+-	wil6210_mask_irq_rx(wil);
+-
+ 	/* RX_DONE and RX_HTRSH interrupts are the same if interrupt
+ 	 * moderation is not used. Interrupt moderation may cause RX
+ 	 * buffer overflow while RX_DONE is delayed. The required
+@@ -355,21 +358,24 @@ static irqreturn_t wil6210_irq_rx(int irq, void *cookie)
+ static irqreturn_t wil6210_irq_rx_edma(int irq, void *cookie)
+ {
+ 	struct wil6210_priv *wil = cookie;
+-	u32 isr = wil_ioread32_and_clear(wil->csr +
+-					 HOSTADDR(RGF_INT_GEN_RX_ICR) +
+-					 offsetof(struct RGF_ICR, ICR));
++	u32 isr;
+ 	bool need_unmask = true;
  
- 	if (val == 0xFF) {
--		val = REG_READ(ah, AR_SREV);
-+		val = srev;
- 		ah->hw_version.macVersion =
- 			(val & AR_SREV_VERSION2) >> AR_SREV_TYPE2_S;
- 		ah->hw_version.macRev = MS(val, AR_SREV_REVISION2);
-@@ -306,6 +315,8 @@ static void ath9k_hw_read_revisions(struct ath_hw *ah)
- 		if (ah->hw_version.macVersion == AR_SREV_VERSION_5416_PCIE)
- 			ah->is_pciexpress = true;
++	wil6210_mask_irq_rx_edma(wil);
++
++	isr = wil_ioread32_and_clear(wil->csr +
++				     HOSTADDR(RGF_INT_GEN_RX_ICR) +
++				     offsetof(struct RGF_ICR, ICR));
++
+ 	trace_wil6210_irq_rx(isr);
+ 	wil_dbg_irq(wil, "ISR RX 0x%08x\n", isr);
+ 
+ 	if (unlikely(!isr)) {
+ 		wil_err(wil, "spurious IRQ: RX\n");
++		wil6210_unmask_irq_rx_edma(wil);
+ 		return IRQ_NONE;
  	}
+ 
+-	wil6210_mask_irq_rx_edma(wil);
+-
+ 	if (likely(isr & BIT_RX_STATUS_IRQ)) {
+ 		wil_dbg_irq(wil, "RX status ring\n");
+ 		isr &= ~BIT_RX_STATUS_IRQ;
+@@ -403,21 +409,24 @@ static irqreturn_t wil6210_irq_rx_edma(int irq, void *cookie)
+ static irqreturn_t wil6210_irq_tx_edma(int irq, void *cookie)
+ {
+ 	struct wil6210_priv *wil = cookie;
+-	u32 isr = wil_ioread32_and_clear(wil->csr +
+-					 HOSTADDR(RGF_INT_GEN_TX_ICR) +
+-					 offsetof(struct RGF_ICR, ICR));
++	u32 isr;
+ 	bool need_unmask = true;
+ 
++	wil6210_mask_irq_tx_edma(wil);
 +
-+	return true;
- }
++	isr = wil_ioread32_and_clear(wil->csr +
++				     HOSTADDR(RGF_INT_GEN_TX_ICR) +
++				     offsetof(struct RGF_ICR, ICR));
++
+ 	trace_wil6210_irq_tx(isr);
+ 	wil_dbg_irq(wil, "ISR TX 0x%08x\n", isr);
  
- /************************************/
-@@ -559,7 +570,10 @@ static int __ath9k_hw_init(struct ath_hw *ah)
- 	struct ath_common *common = ath9k_hw_common(ah);
- 	int r = 0;
+ 	if (unlikely(!isr)) {
+ 		wil_err(wil, "spurious IRQ: TX\n");
++		wil6210_unmask_irq_tx_edma(wil);
+ 		return IRQ_NONE;
+ 	}
  
--	ath9k_hw_read_revisions(ah);
-+	if (!ath9k_hw_read_revisions(ah)) {
-+		ath_err(common, "Could not read hardware revisions");
-+		return -EOPNOTSUPP;
-+	}
+-	wil6210_mask_irq_tx_edma(wil);
+-
+ 	if (likely(isr & BIT_TX_STATUS_IRQ)) {
+ 		wil_dbg_irq(wil, "TX status ring\n");
+ 		isr &= ~BIT_TX_STATUS_IRQ;
+@@ -446,21 +455,24 @@ static irqreturn_t wil6210_irq_tx_edma(int irq, void *cookie)
+ static irqreturn_t wil6210_irq_tx(int irq, void *cookie)
+ {
+ 	struct wil6210_priv *wil = cookie;
+-	u32 isr = wil_ioread32_and_clear(wil->csr +
+-					 HOSTADDR(RGF_DMA_EP_TX_ICR) +
+-					 offsetof(struct RGF_ICR, ICR));
++	u32 isr;
+ 	bool need_unmask = true;
  
- 	switch (ah->hw_version.macVersion) {
- 	case AR_SREV_VERSION_5416_PCI:
++	wil6210_mask_irq_tx(wil);
++
++	isr = wil_ioread32_and_clear(wil->csr +
++				     HOSTADDR(RGF_DMA_EP_TX_ICR) +
++				     offsetof(struct RGF_ICR, ICR));
++
+ 	trace_wil6210_irq_tx(isr);
+ 	wil_dbg_irq(wil, "ISR TX 0x%08x\n", isr);
+ 
+ 	if (unlikely(!isr)) {
+ 		wil_err_ratelimited(wil, "spurious IRQ: TX\n");
++		wil6210_unmask_irq_tx(wil);
+ 		return IRQ_NONE;
+ 	}
+ 
+-	wil6210_mask_irq_tx(wil);
+-
+ 	if (likely(isr & BIT_DMA_EP_TX_ICR_TX_DONE)) {
+ 		wil_dbg_irq(wil, "TX done\n");
+ 		isr &= ~BIT_DMA_EP_TX_ICR_TX_DONE;
+@@ -532,20 +544,23 @@ static bool wil_validate_mbox_regs(struct wil6210_priv *wil)
+ static irqreturn_t wil6210_irq_misc(int irq, void *cookie)
+ {
+ 	struct wil6210_priv *wil = cookie;
+-	u32 isr = wil_ioread32_and_clear(wil->csr +
+-					 HOSTADDR(RGF_DMA_EP_MISC_ICR) +
+-					 offsetof(struct RGF_ICR, ICR));
++	u32 isr;
++
++	wil6210_mask_irq_misc(wil, false);
++
++	isr = wil_ioread32_and_clear(wil->csr +
++				     HOSTADDR(RGF_DMA_EP_MISC_ICR) +
++				     offsetof(struct RGF_ICR, ICR));
+ 
+ 	trace_wil6210_irq_misc(isr);
+ 	wil_dbg_irq(wil, "ISR MISC 0x%08x\n", isr);
+ 
+ 	if (!isr) {
+ 		wil_err(wil, "spurious IRQ: MISC\n");
++		wil6210_unmask_irq_misc(wil, false);
+ 		return IRQ_NONE;
+ 	}
+ 
+-	wil6210_mask_irq_misc(wil, false);
+-
+ 	if (isr & ISR_MISC_FW_ERROR) {
+ 		u32 fw_assert_code = wil_r(wil, wil->rgf_fw_assert_code_addr);
+ 		u32 ucode_assert_code =
 -- 
 2.20.1
 
