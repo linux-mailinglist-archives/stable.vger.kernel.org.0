@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3735973D47
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:16:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 748EA73D5F
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:16:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404082AbfGXTwM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:52:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33810 "EHLO mail.kernel.org"
+        id S2404404AbfGXUQd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:16:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404095AbfGXTwL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:52:11 -0400
+        id S2391623AbfGXTvL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:51:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55A5A205C9;
-        Wed, 24 Jul 2019 19:52:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44A8621873;
+        Wed, 24 Jul 2019 19:51:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997930;
-        bh=6+Wdk9P84D5keGPfCrFXElQqbeYWyusl5dcj9PAplls=;
+        s=default; t=1563997870;
+        bh=eoUuKILwWbW58gWvO2lTHtVKNhTV3/Qr2k/LLV33VJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WdlDNtydXlYNOIpE0mpM6LrOddEm+qpwJ35keLkErL2HR8XPgRstJq6vnOl4OqVKL
-         WTXLSiTuUHBCEZBKbLtRPrLCIONE2eU6Jg0a7pW6DIt38CQRagI4L9mVwlstUqBWDu
-         87K2dun5JtDp9tZlkjc1QVEJg04+381pLaenE7Hg=
+        b=LvzAzSfp9hIbG+YUYQ0jmM+1AP8LLQ9zd906wCSHQtRy7mOVpOKlpanPykIfiPu2p
+         JmwU4EKgxr/x6HpS+Ox5JrHEoqFvuosGQ1hktP6VMu0S+3WIjEMKBGdlhotU1gQ9q4
+         YkIhXhxV+RpFVq3QYR5Qb27nLEe1b0BqZ7gj27No=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zefir Kurtisi <zefir.kurtisi@neratec.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Yonglong Liu <liuyonglong@huawei.com>,
+        Peng Li <lipeng321@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 165/371] ath9k: correctly handle short radar pulses
-Date:   Wed, 24 Jul 2019 21:18:37 +0200
-Message-Id: <20190724191737.611582326@linuxfoundation.org>
+Subject: [PATCH 5.1 173/371] net: hns3: fix a -Wformat-nonliteral compile warning
+Date:   Wed, 24 Jul 2019 21:18:45 +0200
+Message-Id: <20190724191738.278440034@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -44,56 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit df5c4150501ee7e86383be88f6490d970adcf157 ]
+[ Upstream commit 18d219b783da61a6cc77581f55fc4af2fa16bc36 ]
 
-In commit 3c0efb745a17 ("ath9k: discard undersized packets")
-the lower bound of RX packets was set to 10 (min ACK size) to
-filter those that would otherwise be treated as invalid at
-mac80211.
+When setting -Wformat=2, there is a compiler warning like this:
 
-Alas, short radar pulses are reported as PHY_ERROR frames
-with length set to 3. Therefore their detection stopped
-working after that commit.
+hclge_main.c:xxx:x: warning: format not a string literal and no
+format arguments [-Wformat-nonliteral]
+strs[i].desc);
+^~~~
 
-NOTE: ath9k drivers built thereafter will not pass DFS
-certification.
+This patch adds missing format parameter "%s" to snprintf() to
+fix it.
 
-This extends the criteria for short packets to explicitly
-handle PHY_ERROR frames.
-
-Fixes: 3c0efb745a17 ("ath9k: discard undersized packets")
-Signed-off-by: Zefir Kurtisi <zefir.kurtisi@neratec.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: 46a3df9f9718 ("Add HNS3 Acceleration Engine & Compatibility Layer Support")
+Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/recv.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/recv.c b/drivers/net/wireless/ath/ath9k/recv.c
-index 4e97f7f3b2a3..06e660858766 100644
---- a/drivers/net/wireless/ath/ath9k/recv.c
-+++ b/drivers/net/wireless/ath/ath9k/recv.c
-@@ -815,6 +815,7 @@ static int ath9k_rx_skb_preprocess(struct ath_softc *sc,
- 	struct ath_common *common = ath9k_hw_common(ah);
- 	struct ieee80211_hdr *hdr;
- 	bool discard_current = sc->rx.discard_next;
-+	bool is_phyerr;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 6d4d5a470163..563eefa20003 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -550,8 +550,7 @@ static u8 *hclge_comm_get_strings(u32 stringset,
+ 		return buff;
  
- 	/*
- 	 * Discard corrupt descriptors which are marked in
-@@ -827,8 +828,11 @@ static int ath9k_rx_skb_preprocess(struct ath_softc *sc,
- 
- 	/*
- 	 * Discard zero-length packets and packets smaller than an ACK
-+	 * which are not PHY_ERROR (short radar pulses have a length of 3)
- 	 */
--	if (rx_stats->rs_datalen < 10) {
-+	is_phyerr = rx_stats->rs_status & ATH9K_RXERR_PHY;
-+	if (!rx_stats->rs_datalen ||
-+	    (rx_stats->rs_datalen < 10 && !is_phyerr)) {
- 		RX_STAT_INC(sc, rx_len_err);
- 		goto corrupt;
+ 	for (i = 0; i < size; i++) {
+-		snprintf(buff, ETH_GSTRING_LEN,
+-			 strs[i].desc);
++		snprintf(buff, ETH_GSTRING_LEN, "%s", strs[i].desc);
+ 		buff = buff + ETH_GSTRING_LEN;
  	}
+ 
 -- 
 2.20.1
 
