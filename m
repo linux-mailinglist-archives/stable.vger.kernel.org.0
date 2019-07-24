@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9528F74515
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:39:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 092187451A
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:39:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390704AbfGYFjB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:39:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53154 "EHLO mail.kernel.org"
+        id S2404008AbfGYFjS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:39:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390700AbfGYFjB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:39:01 -0400
+        id S2404024AbfGYFjR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:39:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E3A322BED;
-        Thu, 25 Jul 2019 05:39:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 032DB22BEB;
+        Thu, 25 Jul 2019 05:39:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033141;
-        bh=nMAiRQ2qtq+po1IeB674G/1Z8jRuLXjdvLiH7LdFvag=;
+        s=default; t=1564033156;
+        bh=ce7fbfmn7WPQZrn4iqFLfyd9W3lCC9lNzm8irjVWqL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TEmGffMAzm9008MPUNLHkqykQX4uRavffISTeQC1Cnfc1gQEFGHOAp8CUKi2fNCrj
-         vROzP/y5oh1KHJMAxMfpz1t6RBxC9QT4icMOFMwyrJ6Yy9L4q2ZmSv5uAfOxCA1q9m
-         Hya7K0jIsQx4yS6knvB+9dgbtzSHW/OykFB+idOI=
+        b=j6a2PUk0+0IZJg7x9omC8EZBApbdJ64IrL/H+kYKG4W8g6YBQaVy5TvW6VG5rDBkf
+         52AfyTDVDoB7muyIcb826szbLQD9NJZ5oDag7wjplZyhlyVVfN3GCifljyMlrK9PB0
+         32VeGVx/SFo87pzFhsk15cRJMER/eJDhyzAqdDZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        stable@vger.kernel.org, Claire Chang <tientzu@chromium.org>,
+        Brian Norris <briannorris@chromium.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 106/271] mt7601u: do not schedule rx_tasklet when the device has been disconnected
-Date:   Wed, 24 Jul 2019 21:19:35 +0200
-Message-Id: <20190724191704.293662744@linuxfoundation.org>
+Subject: [PATCH 4.19 110/271] ath10k: add missing error handling
+Date:   Wed, 24 Jul 2019 21:19:39 +0200
+Message-Id: <20190724191704.631736716@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -44,111 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4079e8ccabc3b6d1b503f2376123cb515d14921f ]
+[ Upstream commit 4b553f3ca4cbde67399aa3a756c37eb92145b8a1 ]
 
-Do not schedule rx_tasklet when the usb dongle is disconnected.
-Moreover do not grub rx_lock in mt7601u_kill_rx since usb_poison_urb
-can run concurrently with urb completion and we can unlink urbs from rx
-ring in any order.
-This patch fixes the common kernel warning reported when
-the device is removed.
+In function ath10k_sdio_mbox_rx_alloc() [sdio.c],
+ath10k_sdio_mbox_alloc_rx_pkt() is called without handling the error cases.
+This will make the driver think the allocation for skb is successful and
+try to access the skb. If we enable failslab, system will easily crash with
+NULL pointer dereferencing.
 
-[   24.921354] usb 3-14: USB disconnect, device number 7
-[   24.921593] ------------[ cut here ]------------
-[   24.921594] RX urb mismatch
-[   24.921675] WARNING: CPU: 4 PID: 163 at drivers/net/wireless/mediatek/mt7601u/dma.c:200 mt7601u_complete_rx+0xcb/0xd0 [mt7601u]
-[   24.921769] CPU: 4 PID: 163 Comm: kworker/4:2 Tainted: G           OE     4.19.31-041931-generic #201903231635
-[   24.921770] Hardware name: To Be Filled By O.E.M. To Be Filled By O.E.M./Z97 Extreme4, BIOS P1.30 05/23/2014
-[   24.921782] Workqueue: usb_hub_wq hub_event
-[   24.921797] RIP: 0010:mt7601u_complete_rx+0xcb/0xd0 [mt7601u]
-[   24.921800] RSP: 0018:ffff9bd9cfd03d08 EFLAGS: 00010086
-[   24.921802] RAX: 0000000000000000 RBX: ffff9bd9bf043540 RCX: 0000000000000006
-[   24.921803] RDX: 0000000000000007 RSI: 0000000000000096 RDI: ffff9bd9cfd16420
-[   24.921804] RBP: ffff9bd9cfd03d28 R08: 0000000000000002 R09: 00000000000003a8
-[   24.921805] R10: 0000002f485fca34 R11: 0000000000000000 R12: ffff9bd9bf043c1c
-[   24.921806] R13: ffff9bd9c62fa3c0 R14: 0000000000000082 R15: 0000000000000000
-[   24.921807] FS:  0000000000000000(0000) GS:ffff9bd9cfd00000(0000) knlGS:0000000000000000
-[   24.921808] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   24.921808] CR2: 00007fb2648b0000 CR3: 0000000142c0a004 CR4: 00000000001606e0
-[   24.921809] Call Trace:
-[   24.921812]  <IRQ>
-[   24.921819]  __usb_hcd_giveback_urb+0x8b/0x140
-[   24.921821]  usb_hcd_giveback_urb+0xca/0xe0
-[   24.921828]  xhci_giveback_urb_in_irq.isra.42+0x82/0xf0
-[   24.921834]  handle_cmd_completion+0xe02/0x10d0
-[   24.921837]  xhci_irq+0x274/0x4a0
-[   24.921838]  xhci_msi_irq+0x11/0x20
-[   24.921851]  __handle_irq_event_percpu+0x44/0x190
-[   24.921856]  handle_irq_event_percpu+0x32/0x80
-[   24.921861]  handle_irq_event+0x3b/0x5a
-[   24.921867]  handle_edge_irq+0x80/0x190
-[   24.921874]  handle_irq+0x20/0x30
-[   24.921889]  do_IRQ+0x4e/0xe0
-[   24.921891]  common_interrupt+0xf/0xf
-[   24.921892]  </IRQ>
-[   24.921900] RIP: 0010:usb_hcd_flush_endpoint+0x78/0x180
-[   24.921354] usb 3-14: USB disconnect, device number 7
+Call trace of CONFIG_FAILSLAB:
+ath10k_sdio_irq_handler+0x570/0xa88 [ath10k_sdio]
+process_sdio_pending_irqs+0x4c/0x174
+sdio_run_irqs+0x3c/0x64
+sdio_irq_work+0x1c/0x28
 
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Fixes: d96db25d2025 ("ath10k: add initial SDIO support")
+Signed-off-by: Claire Chang <tientzu@chromium.org>
+Reviewed-by: Brian Norris <briannorris@chromium.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt7601u/dma.c | 33 +++++++++++----------
- 1 file changed, 18 insertions(+), 15 deletions(-)
+ drivers/net/wireless/ath/ath10k/sdio.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt7601u/dma.c b/drivers/net/wireless/mediatek/mt7601u/dma.c
-index 7f3e3983b781..bc36712cfffc 100644
---- a/drivers/net/wireless/mediatek/mt7601u/dma.c
-+++ b/drivers/net/wireless/mediatek/mt7601u/dma.c
-@@ -193,10 +193,23 @@ static void mt7601u_complete_rx(struct urb *urb)
- 	struct mt7601u_rx_queue *q = &dev->rx_q;
- 	unsigned long flags;
+diff --git a/drivers/net/wireless/ath/ath10k/sdio.c b/drivers/net/wireless/ath/ath10k/sdio.c
+index 7f61591ce0de..cb527a21f1ac 100644
+--- a/drivers/net/wireless/ath/ath10k/sdio.c
++++ b/drivers/net/wireless/ath/ath10k/sdio.c
+@@ -613,6 +613,10 @@ static int ath10k_sdio_mbox_rx_alloc(struct ath10k *ar,
+ 						    full_len,
+ 						    last_in_bundle,
+ 						    last_in_bundle);
++		if (ret) {
++			ath10k_warn(ar, "alloc_rx_pkt error %d\n", ret);
++			goto err;
++		}
+ 	}
  
--	spin_lock_irqsave(&dev->rx_lock, flags);
-+	/* do no schedule rx tasklet if urb has been unlinked
-+	 * or the device has been removed
-+	 */
-+	switch (urb->status) {
-+	case -ECONNRESET:
-+	case -ESHUTDOWN:
-+	case -ENOENT:
-+		return;
-+	default:
-+		dev_err_ratelimited(dev->dev, "rx urb failed: %d\n",
-+				    urb->status);
-+		/* fall through */
-+	case 0:
-+		break;
-+	}
- 
--	if (mt7601u_urb_has_error(urb))
--		dev_err(dev->dev, "Error: RX urb failed:%d\n", urb->status);
-+	spin_lock_irqsave(&dev->rx_lock, flags);
- 	if (WARN_ONCE(q->e[q->end].urb != urb, "RX urb mismatch"))
- 		goto out;
- 
-@@ -363,19 +376,9 @@ int mt7601u_dma_enqueue_tx(struct mt7601u_dev *dev, struct sk_buff *skb,
- static void mt7601u_kill_rx(struct mt7601u_dev *dev)
- {
- 	int i;
--	unsigned long flags;
- 
--	spin_lock_irqsave(&dev->rx_lock, flags);
--
--	for (i = 0; i < dev->rx_q.entries; i++) {
--		int next = dev->rx_q.end;
--
--		spin_unlock_irqrestore(&dev->rx_lock, flags);
--		usb_poison_urb(dev->rx_q.e[next].urb);
--		spin_lock_irqsave(&dev->rx_lock, flags);
--	}
--
--	spin_unlock_irqrestore(&dev->rx_lock, flags);
-+	for (i = 0; i < dev->rx_q.entries; i++)
-+		usb_poison_urb(dev->rx_q.e[i].urb);
- }
- 
- static int mt7601u_submit_rx_buf(struct mt7601u_dev *dev,
+ 	ar_sdio->n_rx_pkts = i;
 -- 
 2.20.1
 
