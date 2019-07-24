@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C701C73A7A
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:50:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9501073A93
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:51:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403838AbfGXTue (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:50:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59334 "EHLO mail.kernel.org"
+        id S2391665AbfGXTvk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:51:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391602AbfGXTud (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:50:33 -0400
+        id S2391664AbfGXTvj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:51:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5DA620665;
-        Wed, 24 Jul 2019 19:50:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42F6320665;
+        Wed, 24 Jul 2019 19:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997832;
-        bh=rxnY3wrfDDLzY2Euytksiym4+Ent8PQJYLcAuC5pEYg=;
+        s=default; t=1563997898;
+        bh=CsWXcgn08I4mWMWGsG8L3PA7QZFTJ2l3Vf4NjxU9boE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mlZH9PZ7vgFfuDXPcz0IOFy6b49nWhGfIkV1DhFRFe/tEXfLTuAKpsgfR1Vt0fZIG
-         GnArtGzv3h1nw27l8JOpdTHlqqCuB2bxoL0vQ3tb+6I3eiDl5IJ/yTnMy9A9pop6id
-         H3ZhW0Bkc60wElMc6d7lyo8OXsF05lhgI+Fg4OUI=
+        b=w794YpKV44rPL4BlCcSAUz1g4MqVfj2SdSkZiWBK+XYiAc4U5yDNmP3lbJ0LLneha
+         ZVI7H4ydo3v542yebOq7kB7/mVX3ML/Q1has/EjgEcPfXY04Kh2zqzci9vrFILZFsS
+         SWKKxI6hOVaVmkCNtcvfRcBgkjR1Zqb0laxSICd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ferdinand Blomqvist <ferdinand.blomqvist@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 157/371] rslib: Fix decoding of shortened codes
-Date:   Wed, 24 Jul 2019 21:18:29 +0200
-Message-Id: <20190724191737.003107560@linuxfoundation.org>
+Subject: [PATCH 5.1 164/371] crypto: asymmetric_keys - select CRYPTO_HASH where needed
+Date:   Wed, 24 Jul 2019 21:18:36 +0200
+Message-Id: <20190724191737.533236529@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -45,42 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2034a42d1747fc1e1eeef2c6f1789c4d0762cb9c ]
+[ Upstream commit 90acc0653d2bee203174e66d519fbaaa513502de ]
 
-The decoding of shortenend codes is broken. It only works as expected if
-there are no erasures.
+Build testing with some core crypto options disabled revealed
+a few modules that are missing CRYPTO_HASH:
 
-When decoding with erasures, Lambda (the error and erasure locator
-polynomial) is initialized from the given erasure positions. The pad
-parameter is not accounted for by the initialisation code, and hence
-Lambda is initialized from incorrect erasure positions.
+crypto/asymmetric_keys/x509_public_key.o: In function `x509_get_sig_params':
+x509_public_key.c:(.text+0x4c7): undefined reference to `crypto_alloc_shash'
+x509_public_key.c:(.text+0x5e5): undefined reference to `crypto_shash_digest'
+crypto/asymmetric_keys/pkcs7_verify.o: In function `pkcs7_digest.isra.0':
+pkcs7_verify.c:(.text+0xab): undefined reference to `crypto_alloc_shash'
+pkcs7_verify.c:(.text+0x1b2): undefined reference to `crypto_shash_digest'
+pkcs7_verify.c:(.text+0x3c1): undefined reference to `crypto_shash_update'
+pkcs7_verify.c:(.text+0x411): undefined reference to `crypto_shash_finup'
 
-The fix is to adjust the erasure positions by the supplied pad.
+This normally doesn't show up in randconfig tests because there is
+a large number of other options that select CRYPTO_HASH.
 
-Signed-off-by: Ferdinand Blomqvist <ferdinand.blomqvist@gmail.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20190620141039.9874-3-ferdinand.blomqvist@gmail.com
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/reed_solomon/decode_rs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ crypto/asymmetric_keys/Kconfig | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/lib/reed_solomon/decode_rs.c b/lib/reed_solomon/decode_rs.c
-index 1db74eb098d0..3313bf944ff1 100644
---- a/lib/reed_solomon/decode_rs.c
-+++ b/lib/reed_solomon/decode_rs.c
-@@ -99,9 +99,9 @@
- 	if (no_eras > 0) {
- 		/* Init lambda to be the erasure locator polynomial */
- 		lambda[1] = alpha_to[rs_modnn(rs,
--					      prim * (nn - 1 - eras_pos[0]))];
-+					prim * (nn - 1 - (eras_pos[0] + pad)))];
- 		for (i = 1; i < no_eras; i++) {
--			u = rs_modnn(rs, prim * (nn - 1 - eras_pos[i]));
-+			u = rs_modnn(rs, prim * (nn - 1 - (eras_pos[i] + pad)));
- 			for (j = i + 1; j > 0; j--) {
- 				tmp = index_of[lambda[j - 1]];
- 				if (tmp != nn) {
+diff --git a/crypto/asymmetric_keys/Kconfig b/crypto/asymmetric_keys/Kconfig
+index be70ca6c85d3..1f1f004dc757 100644
+--- a/crypto/asymmetric_keys/Kconfig
++++ b/crypto/asymmetric_keys/Kconfig
+@@ -15,6 +15,7 @@ config ASYMMETRIC_PUBLIC_KEY_SUBTYPE
+ 	select MPILIB
+ 	select CRYPTO_HASH_INFO
+ 	select CRYPTO_AKCIPHER
++	select CRYPTO_HASH
+ 	help
+ 	  This option provides support for asymmetric public key type handling.
+ 	  If signature generation and/or verification are to be used,
+@@ -65,6 +66,7 @@ config TPM_KEY_PARSER
+ config PKCS7_MESSAGE_PARSER
+ 	tristate "PKCS#7 message parser"
+ 	depends on X509_CERTIFICATE_PARSER
++	select CRYPTO_HASH
+ 	select ASN1
+ 	select OID_REGISTRY
+ 	help
+@@ -87,6 +89,7 @@ config SIGNED_PE_FILE_VERIFICATION
+ 	bool "Support for PE file signature verification"
+ 	depends on PKCS7_MESSAGE_PARSER=y
+ 	depends on SYSTEM_DATA_VERIFICATION
++	select CRYPTO_HASH
+ 	select ASN1
+ 	select OID_REGISTRY
+ 	help
 -- 
 2.20.1
 
