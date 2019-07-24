@@ -2,82 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1356073378
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 18:15:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B94F73379
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 18:15:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728643AbfGXQPi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 12:15:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40688 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727644AbfGXQPi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 12:15:38 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18AD921850;
-        Wed, 24 Jul 2019 16:15:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563984937;
-        bh=jqxKoel7Q9DfU2jsQOBR45VvoowBEop1EXLXgnqk4OY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qPRB0cU7r0j2Ejk3/ScsW6c5KOfX5ti64VCoMZ+w8Grl91tJtri95MBOPusnkMIe4
-         /luSnF4DFHMoHoMsvxlAU3VCSdmq8lY1/MMx2F+NET3J4Or2Qqdk+UmmwiflX93mJn
-         GNL3bD+5ridjDiNuKPs9UlUSTbcUCmBogii6uYoU=
-Date:   Wed, 24 Jul 2019 18:15:34 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Cc:     stable <stable@vger.kernel.org>
+        id S1727644AbfGXQP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 12:15:56 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:43513 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726614AbfGXQPz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 12:15:55 -0400
+Received: by mail-pg1-f193.google.com with SMTP id f25so21459242pgv.10
+        for <stable@vger.kernel.org>; Wed, 24 Jul 2019 09:15:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=2/X8d+N2SL13GFtWKeqQ/BIm7RYLDW1CqQYyQJCUeBc=;
+        b=efx2kjDpxdBQWRKbLrNffdIQYUrkv28DbY7Z53o5yLK6VSIdho9LeF+wFcir2Ioa1T
+         N6LYYjvskqj+ZeeZMTG4RArk3YHUwfUN2t8SM1n4m49RQG8KY/4/md8HH44KIDZ/iO1D
+         zJk/fA8h/DSB0/fHo+HNsfnHLAWRdq4QwOqHKwFlbo4vvMbTIw0HeYlLwtR2wtdgn1DJ
+         Rfcu3e6QvnZKaVTtXNiMInpUGtISSyw8uy24ZeBpXdw+n29uU3MDqEmiXWh7z+8/PpRc
+         e2pjft1iYwVag1TzTNgW+hzXDDyriT1iHix1/Lyj4oRh5xWbH2gPWk4tRaqkWNBIzDKE
+         DiUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=2/X8d+N2SL13GFtWKeqQ/BIm7RYLDW1CqQYyQJCUeBc=;
+        b=ZIe05Uc4Ov1clLg7Wj/ImrAoNK4Wp9MMroF/Egfy0gSeDy5hcTAzHyyWb8Qe6SfE79
+         l0bTFINIUWiNxNpDbrZXX+/A5DtKAhWrVriZ4vmkCgDwRmoTwoXWv0z5xiUiAEbkGhnL
+         LR0YOmZWN2xdI2ft0ssrwaMPM42eGySo0YgIn2EMpDtCuG2VS0WqkedlU9UPSSwmGGXW
+         G+KcLYGKYYnpEH1mZ5WvfbF60dFkiNS+w8yBvr3p5xtY0yGmgBIpMashMRW5UbQo1HM1
+         SFp2VLieXOjjZcGXE+0SHT14F6VmpDhTm3eSyFI+pEBOBcVB66CmDWKU3hcw4rm5CXX5
+         DGxA==
+X-Gm-Message-State: APjAAAXEFAKbpL5QFIoiCo/j506YxeSmi9r1oLZoDf0XGXhW0rcskP+Y
+        OhTPEFJmuzIznNivhpkBanUj0bqP
+X-Google-Smtp-Source: APXvYqwAAAVn7bbYOiHCK3C1lzVwORIxvse5pNvNuxBOZ+eVRWuQFQ+QAshg5rsbetOaOS21bQLscg==
+X-Received: by 2002:a63:f304:: with SMTP id l4mr81335670pgh.66.1563984954844;
+        Wed, 24 Jul 2019 09:15:54 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id y12sm55412970pfn.187.2019.07.24.09.15.53
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 24 Jul 2019 09:15:54 -0700 (PDT)
 Subject: Re: btrfs related build failures in stable queues
-Message-ID: <20190724161534.GA10454@kroah.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable <stable@vger.kernel.org>
 References: <d32a9740-c5cf-8c91-fd39-ba8f0499541d@roeck-us.net>
- <20190724154039.GB3050@kroah.com>
+ <20190724154008.GA3050@kroah.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <6db43a01-2d84-9bda-4856-e5ee10120ca2@roeck-us.net>
+Date:   Wed, 24 Jul 2019 09:15:52 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190724154039.GB3050@kroah.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <20190724154008.GA3050@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 24, 2019 at 05:40:39PM +0200, Greg Kroah-Hartman wrote:
+On 7/24/19 8:40 AM, Greg Kroah-Hartman wrote:
 > On Wed, Jul 24, 2019 at 08:07:50AM -0700, Guenter Roeck wrote:
-> > v4.9.y to v5.1.y:
-> > 
-> > fs/btrfs/file.c: In function 'btrfs_punch_hole':
-> > fs/btrfs/file.c:2787:27: error: invalid initializer
-> >    struct timespec64 now = current_time(inode);
-> >                            ^~~~~~~~~~~~
-> > fs/btrfs/file.c:2790:18: error: incompatible types when assigning to type 'struct timespec' from type 'struct timespec64'
+>> v4.9.y to v5.1.y:
+>>
+>> fs/btrfs/file.c: In function 'btrfs_punch_hole':
+>> fs/btrfs/file.c:2787:27: error: invalid initializer
+>>     struct timespec64 now = current_time(inode);
+>>                             ^~~~~~~~~~~~
+>> fs/btrfs/file.c:2790:18: error: incompatible types when assigning to type 'struct timespec' from type 'struct timespec64'
 > 
-> Oops, no, this looks like a 32bit issue, let me dig into that...
+> This was reported, only seems to show up on arm64, right?
+> 
 
-Ok, this makes no sense.
+ From the 4.9.y build:
 
-A few lines above this we do:
-	inode->i_mtime = inode->i_ctime = current_time(inode);
+Failed builds:
+	arm:allmodconfig
+	i386:allyesconfig
+	i386:allmodconfig
+	m68k:allmodconfig
+	mips:allmodconfig
+	parisc:allmodconfig
+	xtensa:allmodconfig
 
-And here we are now doing:
-	struct timespec64 now = current_time(inode);
+It also affects various qemu builds, such as malta_defconfig, with btrfs enabled.
+It looks like it may affect all 32-bit builds with btrfs enabled. I _don't_ see
+this problem with arm64, actually.
 
-	inode_inc_iversion(inode);
-	inode->i_mtime = now;
-	inode->i_ctime = now;
+>> v4.19.y, v5.1.y:
+>>
+>> fs/btrfs/props.c: In function 'prop_compression_validate':
+>> fs/btrfs/props.c:369:6: error: implicit declaration of function 'btrfs_compression_is_valid_type'
+>>
+>> My apologies for the noise if this has already been reported/fixed.
+> 
+> Odd, I thought I fixed that, maybe I need to push out an updated git
+> tree, sorry about that.
+> 
 
+It is reported with v4.19.60-243-gb06e2890aa3d and v5.1.19-346-ge63e6fbad916.
 
-And current_time() is defined as:
-	extern struct timespec64 current_time(struct inode *inode);
+No worries if it is already fixed.
 
-
-I have no idea what is going on :(
-
-This is caused by Felipe's patch: 179006688a7e ("Btrfs: add missing
-inode version, ctime and mtime updates when punching hole").  Felipe,
-any ideas?
-
-thanks,
-
-greg k-h
+Guenter
