@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6683673C62
+	by mail.lfdr.de (Postfix) with ESMTP id DE7A273C63
 	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:09:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392259AbfGXUB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:01:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51254 "EHLO mail.kernel.org"
+        id S2388658AbfGXUCC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:02:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392243AbfGXUB6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 16:01:58 -0400
+        id S2392243AbfGXUCA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 16:02:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 199882147A;
-        Wed, 24 Jul 2019 20:01:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF8312147A;
+        Wed, 24 Jul 2019 20:01:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998517;
-        bh=bL8YoDvzPS1ySbiik56MM80M7obDeHxRCnzY3CCkZnE=;
+        s=default; t=1563998520;
+        bh=K/9hXdjdLbOyie9sfKfu0UVL4P5uobe5o3tW4w9bU4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yiKrGUi9QvfwBpGATtimXdPQ0gK1Q09rcUJqh8vqhjJhXVXhojeqfpOqWQ9NM5eP/
-         EKaEJj1Pb6QXLbrj8kl1IhPwexkmusW30u6LMkj0NMOEzYKPHamc90isrqm+rAKdLK
-         Baw1pIQTD1cN+Q9WdGnOxE0Z/aU2WCBMXwizDdm8=
+        b=RIgRhUDbrQpDY9uEj3eLwrvx2KOyRiQNWDKLM87gT68yViq1GLlGkuAYbivhSk4dn
+         gDtocvmhlZ/0pZ4VHkKSguzL8oNRtGN6JvkB9h3bUigw+TXWQN7lH29aSOZEhtAT/j
+         Jle2/9XX5LK14sTS1xdplyfj5G/LD4WafbvCx2ug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jungo Lin <jungo.lin@mediatek.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Jose Abreu <joabreu@synopsys.com>,
+        Joao Pinto <jpinto@synopsys.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 021/271] media: media_device_enum_links32: clean a reserved field
-Date:   Wed, 24 Jul 2019 21:18:10 +0200
-Message-Id: <20190724191657.052337810@linuxfoundation.org>
+Subject: [PATCH 4.19 022/271] net: stmmac: dwmac1000: Clear unused address entries
+Date:   Wed, 24 Jul 2019 21:18:11 +0200
+Message-Id: <20190724191657.127273187@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -44,53 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f49308878d7202e07d8761238e01bd0e5fce2750 ]
+[ Upstream commit 9463c445590091202659cdfdd44b236acadfbd84 ]
 
-In v4l2-compliance utility, test MEDIA_IOC_ENUM_ENTITIES
-will check whether reserved field of media_links_enum filled
-with zero.
+In case we don't use a given address entry we need to clear it because
+it could contain previous values that are no longer valid.
 
-However, for 32 bit program, the reserved field is missing
-copy from kernel space to user space in media_device_enum_links32
-function.
+Found out while running stmmac selftests.
 
-This patch adds the cleaning a reserved field logic in
-media_device_enum_links32 function.
-
-Signed-off-by: Jungo Lin <jungo.lin@mediatek.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Jose Abreu <joabreu@synopsys.com>
+Cc: Joao Pinto <jpinto@synopsys.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Giuseppe Cavallaro <peppe.cavallaro@st.com>
+Cc: Alexandre Torgue <alexandre.torgue@st.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/media-device.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/media/media-device.c b/drivers/media/media-device.c
-index 3bae24b15eaa..ba344e6f0139 100644
---- a/drivers/media/media-device.c
-+++ b/drivers/media/media-device.c
-@@ -487,6 +487,7 @@ static long media_device_enum_links32(struct media_device *mdev,
- {
- 	struct media_links_enum links;
- 	compat_uptr_t pads_ptr, links_ptr;
-+	int ret;
- 
- 	memset(&links, 0, sizeof(links));
- 
-@@ -498,7 +499,13 @@ static long media_device_enum_links32(struct media_device *mdev,
- 	links.pads = compat_ptr(pads_ptr);
- 	links.links = compat_ptr(links_ptr);
- 
--	return media_device_enum_links(mdev, &links);
-+	ret = media_device_enum_links(mdev, &links);
-+	if (ret)
-+		return ret;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c
+index 0877bde6e860..21d131347e2e 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c
+@@ -216,6 +216,12 @@ static void dwmac1000_set_filter(struct mac_device_info *hw,
+ 					    GMAC_ADDR_LOW(reg));
+ 			reg++;
+ 		}
 +
-+	memset(ulinks->reserved, 0, sizeof(ulinks->reserved));
-+
-+	return 0;
- }
++		while (reg <= perfect_addr_number) {
++			writel(0, ioaddr + GMAC_ADDR_HIGH(reg));
++			writel(0, ioaddr + GMAC_ADDR_LOW(reg));
++			reg++;
++		}
+ 	}
  
- #define MEDIA_IOC_ENUM_LINKS32		_IOWR('|', 0x02, struct media_links_enum32)
+ #ifdef FRAME_FILTER_DEBUG
 -- 
 2.20.1
 
