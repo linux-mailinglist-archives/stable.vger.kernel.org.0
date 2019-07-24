@@ -2,111 +2,234 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1507574078
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:56:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DDB17407D
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:57:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727055AbfGXUz7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:55:59 -0400
-Received: from mail-io1-f67.google.com ([209.85.166.67]:38950 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727000AbfGXUz7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 16:55:59 -0400
-Received: by mail-io1-f67.google.com with SMTP id f4so92579094ioh.6
-        for <stable@vger.kernel.org>; Wed, 24 Jul 2019 13:55:58 -0700 (PDT)
+        id S1726687AbfGXU47 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:56:59 -0400
+Received: from mail-ed1-f68.google.com ([209.85.208.68]:36027 "EHLO
+        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726591AbfGXU47 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 16:56:59 -0400
+Received: by mail-ed1-f68.google.com with SMTP id k21so48304144edq.3
+        for <stable@vger.kernel.org>; Wed, 24 Jul 2019 13:56:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=uKJBy2iaUBCua8Sau5lsnnlge7l0Cz16fffzcwsA5cs=;
-        b=v1fdWobTFZAmP2WoM31GjI+NFuvU3O+BPgFxE3fw8z8pQsD9+1tkE0+CpxhE/J10A6
-         28yp+dIM/1fRnlYIzs2C3XP/KGUhcXYDV8rgL445AjvxSYq7tMtGs4ZyUFpB6oup2aCt
-         oJh4M2T9NjdDtCXHBigCMF1YJMngAGz/6Erv97zTxjzmopH91PASt66xjGxRlwCqzKqv
-         O5hsPLtvwD71rKMyHdC4hixA83PUlj7VAp/nnziSpyJQYsVgY0KxLEdAcrPbDlkEKaCg
-         DNC9TGigoDYwq0u4fhUgPSZOHprHAmwPBxU5a3+nvtYbBoqtM2+KdG9QeFgql9y2+Jcy
-         2sIg==
+        d=tessares-net.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=o8iLxgrlWg6R9CoefzAOFblGGjqYLC5hmE3t7zd1t6A=;
+        b=LuK8wAHybDwx+Iypz/UjnJNHAFZZGsbVzb6b8hfZ8ERvhzduHEFHJC3nZ76bsgfbDQ
+         hzGrPy12NijjOfh/2kgdHHJ7J6vfLBaVEp+rID4WJiB2swmpgIg7V8jnvcroMEPfV+g8
+         flFFhMudWmGJe2rvYGrTKwD9L0+EDDhgPfU3d0VpmHoCLjBC1QF9QsA2Y2oB7mCYMSKZ
+         qgRymgsuzLUB/TxEykXZAyF/GojU6czCdkM76nFZ2R5o3iLK/reoLzdKIEhs5GzAy+ZA
+         ulaOuDv10809fIH6KwF9Hd5lLc2a9/xpscty8UG+W+uJOzvXhNy1BJBkdcFfRHFTlu9Q
+         yzog==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=uKJBy2iaUBCua8Sau5lsnnlge7l0Cz16fffzcwsA5cs=;
-        b=sVcqM/AotK9pTpPyQFn3/5/eTCPwEIaP0UD8t+Vp3yOA7/FrSSrsW6wZC63VvvYWMk
-         A8PijxhkGJJWZQH5avJU1rMY/y1URsXNg09kuhO0aeDzbUP8nRyiCqWI/5jTGmukZhPf
-         D/RPcICA8sGntlbnJoPEE2Ccz6eqem/1LiI+Y0+mD7GeQHZkfw/z41D/GtrV0vuN7ogc
-         PGzdOdPNe3MtlGTX9JC+FSX96YZu1+kZjJCbpYGScqSeRnK+CswbvEy6ipBQDpVHqGmc
-         bFVm0/QWrNBnVAVX+I0g9Gcgc7tEpLOs2qLsXRYOLLT30YjfQELDM2oMUZkNophnUGCX
-         RwnA==
-X-Gm-Message-State: APjAAAV6YfXaSDjAb8XfpV/0I/Lz0Ur36lilyGdVqBGXEux/SaY13UUR
-        3Lupbs1fERonJZgzbzQ4O8WUC+BNLrJt2E6o/I+N/A==
-X-Google-Smtp-Source: APXvYqzve52LHf2o7jPgYP//tdTSzSHvLil6UKvRYwnN3fvVdWkAv5jWj/kufB/dVFJ4NBLhutNrhg0E1wEwNxqpbwM=
-X-Received: by 2002:a6b:ec06:: with SMTP id c6mr79740045ioh.198.1564001758141;
- Wed, 24 Jul 2019 13:55:58 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=o8iLxgrlWg6R9CoefzAOFblGGjqYLC5hmE3t7zd1t6A=;
+        b=LHMonCVy0KjvdgBglHtFG24zCymemv2x1YlQ9ZhcNplGtvIYA63wGo4xyyGjeWTv0G
+         7cFRIDPpYFdcm/+JLCsT3JYha2BsEOXamj8V9iI0slVOFpRrFE/WYoJLRI20T4mQW8eI
+         DCqPg3v3RArIbkYiJqAPLyWSg1QNWicjmqPY6uovIAG+Hb5nWZvWs5Yy5JOpiUXr/4aF
+         tYw/o7sVfqae/MTl6CKZYYdnawZ4cdxIj2GWYzCe2WlQFGIGXeAOZPL1IQ9IQWErpkk+
+         sd2J5TXLMANv/M2rC8xnZcolBoThfZr+FkNLy1io3qqn6j1dPcaML3Vb6kDoSrq5ruXM
+         TSBw==
+X-Gm-Message-State: APjAAAVVp4nOVRpNNDBtATaOdPsFUlFJv9NUOMLhQus0XA9PeKqRvf+n
+        6RaUoIhKiTgZr7pObQCe7+bzenOrze8=
+X-Google-Smtp-Source: APXvYqzrQwtKzXP/JRKRpOgQ//QDvTIKVB1bwtNwOdqRwfgDVLJ1bGypvBYK2cU4Q17VuVMg0tl9gw==
+X-Received: by 2002:a50:f599:: with SMTP id u25mr75183574edm.195.1564001816744;
+        Wed, 24 Jul 2019 13:56:56 -0700 (PDT)
+Received: from tsr-vdi-mbaerts.nix.tessares.net (static.23.216.130.94.clients.your-server.de. [94.130.216.23])
+        by smtp.gmail.com with ESMTPSA id g18sm9358317ejo.3.2019.07.24.13.56.56
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Wed, 24 Jul 2019 13:56:56 -0700 (PDT)
+From:   Matthieu Baerts <matthieu.baerts@tessares.net>
+To:     stable@vger.kernel.org
+Cc:     asmadeus@codewreck.org, sashal@kernel.org,
+        Matthieu Baerts <matthieu.baerts@tessares.net>
+Subject: [PATCH 0/3] Backport request for v4.14 to fix KASAN issues
+Date:   Wed, 24 Jul 2019 22:55:54 +0200
+Message-Id: <20190724205557.30913-1-matthieu.baerts@tessares.net>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-References: <20190723212418.36379-1-ndesaulniers@google.com> <alpine.DEB.2.21.1907241231480.1972@nanos.tec.linutronix.de>
-In-Reply-To: <alpine.DEB.2.21.1907241231480.1972@nanos.tec.linutronix.de>
-From:   Vaibhav Rustagi <vaibhavrustagi@google.com>
-Date:   Wed, 24 Jul 2019 13:55:47 -0700
-Message-ID: <CAMVonLgwzj2vjKtgXJG2=U04-w+29TZhgykeNYRbWTT55wtNMg@mail.gmail.com>
-Subject: Re: [PATCH v3 1/2] x86/purgatory: do not use __builtin_memcpy and __builtin_memset
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        yamada.masahiro@socionext.com, stable@vger.kernel.org,
-        Manoj Gupta <manojgupta@google.com>,
-        Alistair Delva <adelva@google.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        Enrico Weigelt <info@metux.net>,
-        Allison Randal <allison@lohutok.net>,
-        Uros Bizjak <ubizjak@gmail.com>,
-        Chao Fan <fanc.fnst@cn.fujitsu.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Alexios Zavras <alexios.zavras@intel.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 24, 2019 at 3:33 AM Thomas Gleixner <tglx@linutronix.de> wrote:
->
-> On Tue, 23 Jul 2019, Nick Desaulniers wrote:
-> > Instead, reuse an implementation from arch/x86/boot/compressed/string.c
-> > if we define warn as a symbol. Also, Clang may lower memcmp's that
-> > compare against 0 to bcmp's, so add a small definition, too. See also:
-> > commit 5f074f3e192f ("lib/string.c: implement a basic bcmp")
-> >
-> > Cc: stable@vger.kernel.org
-> > Fixes: 8fc5b4d4121c ("purgatory: core purgatory functionality")
-> > Link: https://bugs.chromium.org/p/chromium/issues/detail?id=984056
-> > Reported-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
-> > Debugged-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
-> > Debugged-by: Manoj Gupta <manojgupta@google.com>
-> > Suggested-by: Alistair Delva <adelva@google.com>
-> > Signed-off-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
-> > Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
->
-> That SOB chain is weird. Is Vaibhav the author?
->
-No, Nick Desaulniers is the author of v3.
+Hello,
 
-> > +/*
-> > + * Clang may lower `memcmp == 0` to `bcmp == 0`.
-> > + */
-> > +int bcmp(const void *s1, const void *s2, size_t len) {
-> > +     return memcmp(s1, s2, len);
-> > +}
->
-> foo()
-> {
-> }
->
-> please.
->
-> Thanks,
->
->         tglx
-Thanks,
-Vaibhav
+First, thank you for maintaining the stable branches!
+
+When testing our MPTCP out-of-tree kernel[1] with KASAN last week-end,
+we saw some new warnings, always the same trace and looking like that:
+
+
+[   16.464577] ==================================================================
+[   16.465448] BUG: KASAN: slab-out-of-bounds in strscpy+0x49d/0x590
+[   16.466171] Read of size 8 at addr ffff88803525f788 by task confd/330
+[   16.467114]
+[   16.467313] CPU: 0 PID: 330 Comm: confd Not tainted 4.14.133-mptcp+ #2
+[   16.468071] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.5.1 01/01/2011
+[   16.469016] Call Trace:
+[   16.469318]  dump_stack+0xa6/0x12e
+[   16.469721]  ? _atomic_dec_and_lock+0x1b2/0x1b2
+[   16.470255]  ? radix_tree_lookup+0x10/0x10
+[   16.470764]  ? strscpy+0x49d/0x590
+[   16.471299]  print_address_description+0xa1/0x330
+[   16.471918]  ? strscpy+0x49d/0x590
+[   16.472321]  kasan_report+0x23f/0x350
+[   16.472751]  strscpy+0x49d/0x590
+[   16.473135]  ? strncpy+0xd0/0xd0
+[   16.473518]  p9dirent_read+0x26b/0x510
+[   16.473977]  ? unwind_next_frame+0xc97/0x1eb0
+[   16.474481]  ? p9stat_read+0x440/0x440
+[   16.474945]  ? entry_SYSCALL_64_after_hwframe+0x3d/0xa2
+[   16.475543]  ? rcutorture_record_progress+0x10/0x10
+[   16.476123]  ? kernel_text_address+0x111/0x120
+[   16.476656]  ? __kernel_text_address+0xe/0x30
+[   16.477273]  v9fs_dir_readdir_dotl+0x340/0x5b0
+[   16.477900]  ? kasan_slab_free+0x12d/0x1a0
+[   16.478377]  ? v9fs_dir_readdir+0x810/0x810
+[   16.478887]  ? new_slab+0x29f/0x3b0
+[   16.479298]  ? iterate_fd+0x300/0x300
+[   16.479728]  ? do_filp_open+0x24a/0x3b0
+[   16.480177]  ? SyS_getcwd+0x3b7/0x9f0
+[   16.480626]  ? may_open_dev+0xc0/0xc0
+[   16.481056]  ? get_unused_fd_flags+0x180/0x180
+[   16.481643]  ? __up.isra.0+0x230/0x230
+[   16.482195]  ? __fdget_pos+0x105/0x170
+[   16.482658]  ? iterate_dir+0x171/0x5b0
+[   16.483097]  iterate_dir+0x171/0x5b0
+[   16.483518]  SyS_getdents+0x1dc/0x3a0
+[   16.483968]  ? SyS_old_readdir+0x200/0x200
+[   16.484444]  ? SyS_write+0x1c0/0x270
+[   16.484875]  ? fillonedir+0x1a0/0x1a0
+[   16.485315]  ? SyS_old_readdir+0x200/0x200
+[   16.485791]  ? do_syscall_64+0x259/0xa90
+[   16.486258]  do_syscall_64+0x259/0xa90
+[   16.486715]  ? syscall_return_slowpath+0x340/0x340
+[   16.487320]  ? do_page_fault+0x11f/0x400
+[   16.487849]  ? __do_page_fault+0xe00/0xe00
+[   16.488305]  ? __hrtick_start+0x2f0/0x2f0
+[   16.488752]  ? __switch_to_asm+0x31/0x60
+[   16.489189]  ? __switch_to_asm+0x31/0x60
+[   16.489626]  ? __switch_to_asm+0x25/0x60
+[   16.490063]  ? __switch_to_asm+0x31/0x60
+[   16.490500]  ? __switch_to_asm+0x31/0x60
+[   16.490940]  ? __switch_to_asm+0x31/0x60
+[   16.491377]  ? __switch_to_asm+0x25/0x60
+[   16.491820]  ? __switch_to_asm+0x31/0x60
+[   16.492305]  ? __switch_to_asm+0x31/0x60
+[   16.492769]  ? __switch_to_asm+0x31/0x60
+[   16.493306]  ? __switch_to_asm+0x31/0x60
+[   16.493917]  ? __switch_to_asm+0x31/0x60
+[   16.494402]  ? __switch_to_asm+0x25/0x60
+[   16.494859]  ? __switch_to_asm+0x31/0x60
+[   16.495344]  ? __switch_to_asm+0x31/0x60
+[   16.495798]  ? __switch_to_asm+0x31/0x60
+[   16.496283]  entry_SYSCALL_64_after_hwframe+0x3d/0xa2
+[   16.496885] RIP: 0033:0x7f0bd5b26855
+[   16.497313] RSP: 002b:00007f0bd69d4d60 EFLAGS: 00000246 ORIG_RAX: 000000000000004e
+[   16.498387] RAX: ffffffffffffffda RBX: 00007f0bb800a910 RCX: 00007f0bd5b26855
+[   16.499221] RDX: 0000000000008000 RSI: 00007f0bb800a910 RDI: 000000000000002c
+[   16.500102] RBP: 00007f0bb800a910 R08: 00007f0bd69d4e10 R09: 0000000000008030
+[   16.500942] R10: 0000000000000076 R11: 0000000000000246 R12: ffffffffffffff70
+[   16.501780] R13: 0000000000000002 R14: 00007f0bb80008d0 R15: 000000000129cb44
+[   16.502641]
+[   16.502819] Allocated by task 330:
+[   16.503230]  kasan_kmalloc+0xe4/0x170
+[   16.503799]  __kmalloc+0xdd/0x1c0
+[   16.504259]  p9pdu_readf+0xbb8/0x2940
+[   16.504707]  p9dirent_read+0x174/0x510
+[   16.505154]  v9fs_dir_readdir_dotl+0x340/0x5b0
+[   16.505694]  iterate_dir+0x171/0x5b0
+[   16.506122]  SyS_getdents+0x1dc/0x3a0
+[   16.506573]  do_syscall_64+0x259/0xa90
+[   16.507031]  entry_SYSCALL_64_after_hwframe+0x3d/0xa2
+[   16.507633]
+[   16.507804] Freed by task 322:
+[   16.508178]  kasan_slab_free+0xac/0x1a0
+[   16.508741]  kfree+0xcd/0x1e0
+[   16.509194]  p9stat_free+0x32/0x200
+[   16.509633]  v9fs_vfs_get_link+0x173/0x230
+[   16.510118]  ovl_get_link+0x52/0x80
+[   16.510538]  trailing_symlink+0x42c/0x5f0
+[   16.511034]  path_lookupat+0x1b4/0xc30
+[   16.511481]  filename_lookup+0x237/0x470
+[   16.511955]  vfs_statx+0xb0/0x120
+[   16.512358]  SyS_newstat+0x70/0xc0
+[   16.512759]  do_syscall_64+0x259/0xa90
+[   16.513205]  entry_SYSCALL_64_after_hwframe+0x3d/0xa2
+[   16.513807]
+[   16.514041] The buggy address belongs to the object at ffff88803525f780
+[   16.514041]  which belongs to the cache kmalloc-16 of size 16
+[   16.515645] The buggy address is located 8 bytes inside of
+[   16.515645]  16-byte region [ffff88803525f780, ffff88803525f790)
+[   16.516997] The buggy address belongs to the page:
+[   16.517563] page:ffff88803f5407c0 count:1 mapcount:0 mapping:   (null) index:0x0
+[   16.518504] flags: 0xc80000000100(slab)
+[   16.519103] raw: 0000c80000000100 0000000000000000 0000000000000000 0000000180800080
+[   16.520066] raw: ffff88803f4fa900 0000000800000008 ffff888035c01b40 0000000000000000
+[   16.520981] page dumped because: kasan: bad access detected
+[   16.521647]
+[   16.521818] Memory state around the buggy address:
+[   16.522413]  ffff88803525f680: fb fb fc fc fb fb fc fc fb fb fc fc fb fb fc fc
+[   16.523258]  ffff88803525f700: fb fb fc fc fb fb fc fc fb fb fc fc fb fb fc fc
+[   16.524118] >ffff88803525f780: 00 02 fc fc fb fb fc fc fb fb fc fc fb fb fc fc
+[   16.525093]                       ^
+[   16.525591]  ffff88803525f800: fb fb fc fc fb fb fc fc fb fb fc fc fb fb fc fc
+[   16.526471]  ffff88803525f880: fb fb fc fc fb fb fc fc fb fb fc fc fb fb fc fc
+[   16.527323] ==================================================================
+
+
+We are running tests in different KVMs and using 9P for the root RO
+partition and others for a shared file system between VMs and the host:
+
+    mount -t 9p outshare  "${MOUNT_DIR}/overlay/out" -o trans=virtio,version=9p2000.L,access=0,rw
+
+Our out-of-tree kernel does not modify the FS part, nor net/9p.
+
+With Dominique from v9fs project, we analysed the issue[2]. At the end,
+it is confirmed that this KASAN warning is not related to our MPTCP
+modifications but due to a recent change in the v4.14 stable branch:
+84693d060965 (9p: p9dirent_read: check network-provided name length).
+
+In this change backported by Sasha, strcpy() has been replaced by
+strscpy(). This is known to cause KASAN false-positives, see:
+1a3241ff10d0 (lib/strscpy: Shut up KASAN false-positives in strscpy()).
+Note that this commit depends on the two parent ones.
+
+Could it then be possible to also backport these three commits please?
+
+The three commits apply without any issues. I followed the documention
+to propose these three commits to stable, the Option 3.
+Just for me for next time: is it easier for you to propose the patches
+like I did or to only mention the SHA from Linus GIT tree?
+
+- 1a3241ff10d0 (lib/strscpy: Shut up KASAN false-positives in strscpy())
+- 7f1e541fc8d5 (compiler.h: Add read_word_at_a_time() function.)
+- bdb5ac801af3 (compiler.h, kasan: Avoid duplicating __read_once_size_nocheck())
+
+Cheers,
+Matt
+
+[1] https://github.com/multipath-tcp/mptcp/
+[2] https://sourceforge.net/p/v9fs/mailman/message/36718122/
+
+Andrey Ryabinin (3):
+  compiler.h, kasan: Avoid duplicating __read_once_size_nocheck()
+  compiler.h: Add read_word_at_a_time() function.
+  lib/strscpy: Shut up KASAN false-positives in strscpy()
+
+ include/linux/compiler.h | 22 ++++++++++++++--------
+ lib/string.c             |  2 +-
+ 2 files changed, 15 insertions(+), 9 deletions(-)
+
+Cc: Dominique Martinet <asmadeus@codewreck.org>
+Cc: Sasha Levin <sashal@kernel.org>
+-- 
+2.20.1
+
