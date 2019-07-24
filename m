@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A310B73B0D
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:58:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 032A373B12
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:58:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404620AbfGXT4U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:56:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40620 "EHLO mail.kernel.org"
+        id S2404417AbfGXT4f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:56:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404219AbfGXT4U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:56:20 -0400
+        id S2404665AbfGXT4e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:56:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7654A205C9;
-        Wed, 24 Jul 2019 19:56:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22100205C9;
+        Wed, 24 Jul 2019 19:56:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998180;
-        bh=RekJmt4P3VwYWask21t40jH6pmqmpa2CiSzNj2xKwLo=;
+        s=default; t=1563998193;
+        bh=IeMzUgMGWVlPFr67rKvsWjISAkhMqwgjj9A+p2SJj5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pjzgw5AncFRsGR7mmcmrPyF7A7DlbEMUwYE0+Jhv5a1srJvLzWoHdmbVudz2E19cc
-         T+HcF4HUOMpj7/4VlMugG6ZxnR204+aQ+2VhMZtQAIgyHifE5CfTayxlmCiUSQ21QN
-         oFKodmk49/h8pbiCErq+ho8RECx600FKjexfLhwo=
+        b=1b/sw2PI6C9056qt7QFBFJ2HMflbLjAJLkFCFyarq0Ud++7wHiQIqrLSxzAFuC9L/
+         Rr9aF5MFS8vyUoHE6QxJiZV7cP6D7jjKiUlu22X2/Z+6TotuQ+z3dEUW7RSEyBOCG9
+         oct7T6VBUR1Z0FC0L7v9h0evToqrfkkfi9hojIwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>
-Subject: [PATCH 5.1 274/371] iwlwifi: mvm: delay GTK setting in FW in AP mode
-Date:   Wed, 24 Jul 2019 21:20:26 +0200
-Message-Id: <20190724191744.956439706@linuxfoundation.org>
+        stable@vger.kernel.org, Max Kellermann <mk@cm4all.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.1 279/371] Revert "NFS: readdirplus optimization by cache mechanism" (memleak)
+Date:   Wed, 24 Jul 2019 21:20:31 +0200
+Message-Id: <20190724191745.273825673@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -43,150 +43,288 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Max Kellermann <mk@cm4all.com>
 
-commit c56e00a3feaee2b46b7d33875fb7f52efd30241f upstream.
+commit db531db951f950b86d274cc8ed7b21b9e2240036 upstream.
 
-In AP (and IBSS) mode, we can only set GTKs to firmware after we have
-sent down the multicast station, but this we can only do after we've
-enabled beaconing, etc.
+This reverts commit be4c2d4723a4a637f0d1b4f7c66447141a4b3564.
 
-However, during rfkill exit, hostapd will configure the keys before
-starting the AP, and cfg80211/mac80211 accept it happily.
+That commit caused a severe memory leak in nfs_readdir_make_qstr().
 
-On earlier devices, this didn't bother us as GTK TX wasn't really
-handled in firmware, we just put the key material into the TX cmd
-and thus it only mattered when we actually transmitted a frame.
+When listing a directory with more than 100 files (this is how many
+struct nfs_cache_array_entry elements fit in one 4kB page), all
+allocated file name strings past those 100 leak.
 
-On newer devices, however, the firmware needs to track all of this
-and that doesn't work if we add the key before the (multicast) sta
-it belongs to.
+The root of the leakage is that those string pointers are managed in
+pages which are never linked into the page cache.
 
-To fix this, keep a list of keys to add during AP enable, and call
-the function there.
+fs/nfs/dir.c puts pages into the page cache by calling
+read_cache_page(); the callback function nfs_readdir_filler() will
+then fill the given page struct which was passed to it, which is
+already linked in the page cache (by do_read_cache_page() calling
+add_to_page_cache_lru()).
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Commit be4c2d4723a4 added another (local) array of allocated pages, to
+be filled with more data, instead of discarding excess items received
+from the NFS server.  Those additional pages can be used by the next
+nfs_readdir_filler() call (from within the same nfs_readdir() call).
+
+The leak happens when some of those additional pages are never used
+(copied to the page cache using copy_highpage()).  The pages will be
+freed by nfs_readdir_free_pages(), but their contents will not.  The
+commit did not invoke nfs_readdir_clear_array() (and doing so would
+have been dangerous, because it did not track which of those pages
+were already copied to the page cache, risking double free bugs).
+
+How to reproduce the leak:
+
+- Use a kernel with CONFIG_SLUB_DEBUG_ON.
+
+- Create a directory on a NFS mount with more than 100 files with
+  names long enough to use the "kmalloc-32" slab (so we can easily
+  look up the allocation counts):
+
+  for i in `seq 110`; do touch ${i}_0123456789abcdef; done
+
+- Drop all caches:
+
+  echo 3 >/proc/sys/vm/drop_caches
+
+- Check the allocation counter:
+
+  grep nfs_readdir /sys/kernel/slab/kmalloc-32/alloc_calls
+  30564391 nfs_readdir_add_to_array+0x73/0xd0 age=534558/4791307/6540952 pid=370-1048386 cpus=0-47 nodes=0-1
+
+- Request a directory listing and check the allocation counters again:
+
+  ls
+  [...]
+  grep nfs_readdir /sys/kernel/slab/kmalloc-32/alloc_calls
+  30564511 nfs_readdir_add_to_array+0x73/0xd0 age=207/4792999/6542663 pid=370-1048386 cpus=0-47 nodes=0-1
+
+There are now 120 new allocations.
+
+- Drop all caches and check the counters again:
+
+  echo 3 >/proc/sys/vm/drop_caches
+  grep nfs_readdir /sys/kernel/slab/kmalloc-32/alloc_calls
+  30564401 nfs_readdir_add_to_array+0x73/0xd0 age=735/4793524/6543176 pid=370-1048386 cpus=0-47 nodes=0-1
+
+110 allocations are gone, but 10 have leaked and will never be freed.
+
+Unhelpfully, those allocations are explicitly excluded from KMEMLEAK,
+that's why my initial attempts with KMEMLEAK were not successful:
+
+	/*
+	 * Avoid a kmemleak false positive. The pointer to the name is stored
+	 * in a page cache page which kmemleak does not scan.
+	 */
+	kmemleak_not_leak(string->name);
+
+It would be possible to solve this bug without reverting the whole
+commit:
+
+- keep track of which pages were not used, and call
+  nfs_readdir_clear_array() on them, or
+- manually link those pages into the page cache
+
+But for now I have decided to just revert the commit, because the real
+fix would require complex considerations, risking more dangerous
+(crash) bugs, which may seem unsuitable for the stable branches.
+
+Signed-off-by: Max Kellermann <mk@cm4all.com>
+Cc: stable@vger.kernel.org # v5.1+
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c |   53 +++++++++++++++++++++-
- drivers/net/wireless/intel/iwlwifi/mvm/mvm.h      |    3 +
- 2 files changed, 54 insertions(+), 2 deletions(-)
+ fs/nfs/dir.c      |   90 +++---------------------------------------------------
+ fs/nfs/internal.h |    3 -
+ 2 files changed, 7 insertions(+), 86 deletions(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-@@ -207,6 +207,12 @@ static const struct cfg80211_pmsr_capabi
- 	},
+--- a/fs/nfs/dir.c
++++ b/fs/nfs/dir.c
+@@ -139,19 +139,12 @@ struct nfs_cache_array {
+ 	struct nfs_cache_array_entry array[0];
  };
  
-+static int iwl_mvm_mac_set_key(struct ieee80211_hw *hw,
-+			       enum set_key_cmd cmd,
-+			       struct ieee80211_vif *vif,
-+			       struct ieee80211_sta *sta,
-+			       struct ieee80211_key_conf *key);
-+
- void iwl_mvm_ref(struct iwl_mvm *mvm, enum iwl_mvm_ref_type ref_type)
- {
- 	if (!iwl_mvm_is_d0i3_supported(mvm))
-@@ -2535,7 +2541,7 @@ static int iwl_mvm_start_ap_ibss(struct
- {
- 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
- 	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
--	int ret;
-+	int ret, i;
+-struct readdirvec {
+-	unsigned long nr;
+-	unsigned long index;
+-	struct page *pages[NFS_MAX_READDIR_RAPAGES];
+-};
+-
+ typedef int (*decode_dirent_t)(struct xdr_stream *, struct nfs_entry *, bool);
+ typedef struct {
+ 	struct file	*file;
+ 	struct page	*page;
+ 	struct dir_context *ctx;
+ 	unsigned long	page_index;
+-	struct readdirvec pvec;
+ 	u64		*dir_cookie;
+ 	u64		last_cookie;
+ 	loff_t		current_index;
+@@ -531,10 +524,6 @@ int nfs_readdir_page_filler(nfs_readdir_
+ 	struct nfs_cache_array *array;
+ 	unsigned int count = 0;
+ 	int status;
+-	int max_rapages = NFS_MAX_READDIR_RAPAGES;
+-
+-	desc->pvec.index = desc->page_index;
+-	desc->pvec.nr = 0;
  
- 	/*
- 	 * iwl_mvm_mac_ctxt_add() might read directly from the device
-@@ -2609,6 +2615,20 @@ static int iwl_mvm_start_ap_ibss(struct
- 	/* must be set before quota calculations */
- 	mvmvif->ap_ibss_active = true;
+ 	scratch = alloc_page(GFP_KERNEL);
+ 	if (scratch == NULL)
+@@ -559,40 +548,20 @@ int nfs_readdir_page_filler(nfs_readdir_
+ 		if (desc->plus)
+ 			nfs_prime_dcache(file_dentry(desc->file), entry);
  
-+	/* send all the early keys to the device now */
-+	for (i = 0; i < ARRAY_SIZE(mvmvif->ap_early_keys); i++) {
-+		struct ieee80211_key_conf *key = mvmvif->ap_early_keys[i];
-+
-+		if (!key)
-+			continue;
-+
-+		mvmvif->ap_early_keys[i] = NULL;
-+
-+		ret = iwl_mvm_mac_set_key(hw, SET_KEY, vif, NULL, key);
-+		if (ret)
-+			goto out_quota_failed;
-+	}
-+
- 	if (vif->type == NL80211_IFTYPE_AP && !vif->p2p) {
- 		iwl_mvm_vif_set_low_latency(mvmvif, true,
- 					    LOW_LATENCY_VIF_TYPE);
-@@ -3378,11 +3398,12 @@ static int iwl_mvm_mac_set_key(struct ie
- 			       struct ieee80211_sta *sta,
- 			       struct ieee80211_key_conf *key)
- {
-+	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
- 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
- 	struct iwl_mvm_sta *mvmsta;
- 	struct iwl_mvm_key_pn *ptk_pn;
- 	int keyidx = key->keyidx;
--	int ret;
-+	int ret, i;
- 	u8 key_offset;
- 
- 	if (iwlwifi_mod_params.swcrypto) {
-@@ -3455,6 +3476,22 @@ static int iwl_mvm_mac_set_key(struct ie
- 				key->hw_key_idx = STA_KEY_IDX_INVALID;
- 				break;
- 			}
-+
-+			if (!mvmvif->ap_ibss_active) {
-+				for (i = 0;
-+				     i < ARRAY_SIZE(mvmvif->ap_early_keys);
-+				     i++) {
-+					if (!mvmvif->ap_early_keys[i]) {
-+						mvmvif->ap_early_keys[i] = key;
-+						break;
-+					}
-+				}
-+
-+				if (i >= ARRAY_SIZE(mvmvif->ap_early_keys))
-+					ret = -ENOSPC;
-+
-+				break;
-+			}
- 		}
- 
- 		/* During FW restart, in order to restore the state as it was,
-@@ -3523,6 +3560,18 @@ static int iwl_mvm_mac_set_key(struct ie
- 
- 		break;
- 	case DISABLE_KEY:
-+		ret = -ENOENT;
-+		for (i = 0; i < ARRAY_SIZE(mvmvif->ap_early_keys); i++) {
-+			if (mvmvif->ap_early_keys[i] == key) {
-+				mvmvif->ap_early_keys[i] = NULL;
-+				ret = 0;
-+			}
-+		}
-+
-+		/* found in pending list - don't do anything else */
-+		if (ret == 0)
-+			break;
-+
- 		if (key->hw_key_idx == STA_KEY_IDX_INVALID) {
- 			ret = 0;
+-		status = nfs_readdir_add_to_array(entry, desc->pvec.pages[desc->pvec.nr]);
+-		if (status == -ENOSPC) {
+-			desc->pvec.nr++;
+-			if (desc->pvec.nr == max_rapages)
+-				break;
+-			status = nfs_readdir_add_to_array(entry, desc->pvec.pages[desc->pvec.nr]);
+-		}
++		status = nfs_readdir_add_to_array(entry, page);
+ 		if (status != 0)
  			break;
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-@@ -498,6 +498,9 @@ struct iwl_mvm_vif {
- 	netdev_features_t features;
+ 	} while (!entry->eof);
  
- 	struct iwl_probe_resp_data __rcu *probe_resp_data;
-+
-+	/* we can only have 2 GTK + 2 IGTK active at a time */
-+	struct ieee80211_key_conf *ap_early_keys[4];
- };
+-	/*
+-	 * page and desc->pvec.pages[0] are valid, don't need to check
+-	 * whether or not to be NULL.
+-	 */
+-	copy_highpage(page, desc->pvec.pages[0]);
+-
+ out_nopages:
+ 	if (count == 0 || (status == -EBADCOOKIE && entry->eof != 0)) {
+-		array = kmap_atomic(desc->pvec.pages[desc->pvec.nr]);
++		array = kmap(page);
+ 		array->eof_index = array->size;
+ 		status = 0;
+-		kunmap_atomic(array);
++		kunmap(page);
+ 	}
  
- static inline struct iwl_mvm_vif *
+ 	put_page(scratch);
+-
+-	/*
+-	 * desc->pvec.nr > 0 means at least one page was completely filled,
+-	 * we should return -ENOSPC. Otherwise function
+-	 * nfs_readdir_xdr_to_array will enter infinite loop.
+-	 */
+-	if (desc->pvec.nr > 0)
+-		return -ENOSPC;
+ 	return status;
+ }
+ 
+@@ -626,24 +595,6 @@ out_freepages:
+ 	return -ENOMEM;
+ }
+ 
+-/*
+- * nfs_readdir_rapages_init initialize rapages by nfs_cache_array structure.
+- */
+-static
+-void nfs_readdir_rapages_init(nfs_readdir_descriptor_t *desc)
+-{
+-	struct nfs_cache_array *array;
+-	int max_rapages = NFS_MAX_READDIR_RAPAGES;
+-	int index;
+-
+-	for (index = 0; index < max_rapages; index++) {
+-		array = kmap_atomic(desc->pvec.pages[index]);
+-		memset(array, 0, sizeof(struct nfs_cache_array));
+-		array->eof_index = -1;
+-		kunmap_atomic(array);
+-	}
+-}
+-
+ static
+ int nfs_readdir_xdr_to_array(nfs_readdir_descriptor_t *desc, struct page *page, struct inode *inode)
+ {
+@@ -654,12 +605,6 @@ int nfs_readdir_xdr_to_array(nfs_readdir
+ 	int status = -ENOMEM;
+ 	unsigned int array_size = ARRAY_SIZE(pages);
+ 
+-	/*
+-	 * This means we hit readdir rdpages miss, the preallocated rdpages
+-	 * are useless, the preallocate rdpages should be reinitialized.
+-	 */
+-	nfs_readdir_rapages_init(desc);
+-
+ 	entry.prev_cookie = 0;
+ 	entry.cookie = desc->last_cookie;
+ 	entry.eof = 0;
+@@ -719,24 +664,9 @@ int nfs_readdir_filler(nfs_readdir_descr
+ 	struct inode	*inode = file_inode(desc->file);
+ 	int ret;
+ 
+-	/*
+-	 * If desc->page_index in range desc->pvec.index and
+-	 * desc->pvec.index + desc->pvec.nr, we get readdir cache hit.
+-	 */
+-	if (desc->page_index >= desc->pvec.index &&
+-		desc->page_index < (desc->pvec.index + desc->pvec.nr)) {
+-		/*
+-		 * page and desc->pvec.pages[x] are valid, don't need to check
+-		 * whether or not to be NULL.
+-		 */
+-		copy_highpage(page, desc->pvec.pages[desc->page_index - desc->pvec.index]);
+-		ret = 0;
+-	} else {
+-		ret = nfs_readdir_xdr_to_array(desc, page, inode);
+-		if (ret < 0)
+-			goto error;
+-	}
+-
++	ret = nfs_readdir_xdr_to_array(desc, page, inode);
++	if (ret < 0)
++		goto error;
+ 	SetPageUptodate(page);
+ 
+ 	if (invalidate_inode_pages2_range(inode->i_mapping, page->index + 1, -1) < 0) {
+@@ -901,7 +831,6 @@ static int nfs_readdir(struct file *file
+ 			*desc = &my_desc;
+ 	struct nfs_open_dir_context *dir_ctx = file->private_data;
+ 	int res = 0;
+-	int max_rapages = NFS_MAX_READDIR_RAPAGES;
+ 
+ 	dfprintk(FILE, "NFS: readdir(%pD2) starting at cookie %llu\n",
+ 			file, (long long)ctx->pos);
+@@ -921,12 +850,6 @@ static int nfs_readdir(struct file *file
+ 	desc->decode = NFS_PROTO(inode)->decode_dirent;
+ 	desc->plus = nfs_use_readdirplus(inode, ctx);
+ 
+-	res = nfs_readdir_alloc_pages(desc->pvec.pages, max_rapages);
+-	if (res < 0)
+-		return -ENOMEM;
+-
+-	nfs_readdir_rapages_init(desc);
+-
+ 	if (ctx->pos == 0 || nfs_attribute_cache_expired(inode))
+ 		res = nfs_revalidate_mapping(inode, file->f_mapping);
+ 	if (res < 0)
+@@ -962,7 +885,6 @@ static int nfs_readdir(struct file *file
+ 			break;
+ 	} while (!desc->eof);
+ out:
+-	nfs_readdir_free_pages(desc->pvec.pages, max_rapages);
+ 	if (res > 0)
+ 		res = 0;
+ 	dfprintk(FILE, "NFS: readdir(%pD2) returns %d\n", file, res);
+--- a/fs/nfs/internal.h
++++ b/fs/nfs/internal.h
+@@ -69,8 +69,7 @@ struct nfs_clone_mount {
+  * Maximum number of pages that readdir can use for creating
+  * a vmapped array of pages.
+  */
+-#define NFS_MAX_READDIR_PAGES 64
+-#define NFS_MAX_READDIR_RAPAGES 8
++#define NFS_MAX_READDIR_PAGES 8
+ 
+ struct nfs_client_initdata {
+ 	unsigned long init_flags;
 
 
