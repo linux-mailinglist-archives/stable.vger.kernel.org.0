@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7DE274672
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:51:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D07A74669
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:51:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404427AbfGYFkl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:40:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55276 "EHLO mail.kernel.org"
+        id S2404557AbfGYFlM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:41:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404441AbfGYFkk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:40:40 -0400
+        id S2404534AbfGYFlL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:41:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 596F822C7E;
-        Thu, 25 Jul 2019 05:40:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF92F22BF3;
+        Thu, 25 Jul 2019 05:41:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033238;
-        bh=Y8WUEhQn0k7TWCAwZuojivPDaxPrDTep2jcfuzRy2ok=;
+        s=default; t=1564033270;
+        bh=01qyR8q1qcmNZMZN8DfT208IbnjjFId6g0x+quyxSl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LQU2QSWbaboPRWYsimc2AX7N0cerQxmgb2ACath/w4wCqC5DsQNw1CP964ahiv6kE
-         r4xINr7YlAScUWKPOi5tD9g5S+CpSaToh6DKMf1qlv2YSAkgfoAE7uMFfF0nna5kBW
-         +eWZzkhcwAEec73TrysM0wTIoDGLk+Ev2F5F2fU8=
+        b=qTxHTKF3g4YikHCqUmfQ3FGT7ShBeqvlWP6HhZFOdnB0hv0td/r/ydXj4KbIuLncf
+         tCaDvwdimttCKLyFjFnBL93+J+E7NuBvMLJ3KVTLZL0tta+U6yPTy913somWEUM98s
+         Iuh0r/S5ITWj88DlI1YCBIE/1es+EHH2PrnusUFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Eiichi Tsukata <devel@etsukata.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 123/271] EDAC: Fix global-out-of-bounds write when setting edac_mc_poll_msec
-Date:   Wed, 24 Jul 2019 21:19:52 +0200
-Message-Id: <20190724191705.821431745@linuxfoundation.org>
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 124/271] bcache: check CACHE_SET_IO_DISABLE in allocator code
+Date:   Wed, 24 Jul 2019 21:19:53 +0200
+Message-Id: <20190724191705.898378775@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -45,157 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d8655e7630dafa88bc37f101640e39c736399771 ]
+[ Upstream commit e775339e1ae1205b47d94881db124c11385e597c ]
 
-Commit 9da21b1509d8 ("EDAC: Poll timeout cannot be zero, p2") assumes
-edac_mc_poll_msec to be unsigned long, but the type of the variable still
-remained as int. Setting edac_mc_poll_msec can trigger out-of-bounds
-write.
+If CACHE_SET_IO_DISABLE of a cache set flag is set by too many I/O
+errors, currently allocator routines can still continue allocate
+space which may introduce inconsistent metadata state.
 
-Reproducer:
+This patch checkes CACHE_SET_IO_DISABLE bit in following allocator
+routines,
+- bch_bucket_alloc()
+- __bch_bucket_alloc_set()
+Once CACHE_SET_IO_DISABLE is set on cache set, the allocator routines
+may reject allocation request earlier to avoid potential inconsistent
+metadata.
 
-  # echo 1001 > /sys/module/edac_core/parameters/edac_mc_poll_msec
-
-KASAN report:
-
-  BUG: KASAN: global-out-of-bounds in edac_set_poll_msec+0x140/0x150
-  Write of size 8 at addr ffffffffb91b2d00 by task bash/1996
-
-  CPU: 1 PID: 1996 Comm: bash Not tainted 5.2.0-rc6+ #23
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-2.fc30 04/01/2014
-  Call Trace:
-   dump_stack+0xca/0x13e
-   print_address_description.cold+0x5/0x246
-   __kasan_report.cold+0x75/0x9a
-   ? edac_set_poll_msec+0x140/0x150
-   kasan_report+0xe/0x20
-   edac_set_poll_msec+0x140/0x150
-   ? dimmdev_location_show+0x30/0x30
-   ? vfs_lock_file+0xe0/0xe0
-   ? _raw_spin_lock+0x87/0xe0
-   param_attr_store+0x1b5/0x310
-   ? param_array_set+0x4f0/0x4f0
-   module_attr_store+0x58/0x80
-   ? module_attr_show+0x80/0x80
-   sysfs_kf_write+0x13d/0x1a0
-   kernfs_fop_write+0x2bc/0x460
-   ? sysfs_kf_bin_read+0x270/0x270
-   ? kernfs_notify+0x1f0/0x1f0
-   __vfs_write+0x81/0x100
-   vfs_write+0x1e1/0x560
-   ksys_write+0x126/0x250
-   ? __ia32_sys_read+0xb0/0xb0
-   ? do_syscall_64+0x1f/0x390
-   do_syscall_64+0xc1/0x390
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  RIP: 0033:0x7fa7caa5e970
-  Code: 73 01 c3 48 8b 0d 28 d5 2b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 0f 1f 44 00 00 83 3d 99 2d 2c 00 00 75 10 b8 01 00 00 00 04
-  RSP: 002b:00007fff6acfdfe8 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-  RAX: ffffffffffffffda RBX: 0000000000000005 RCX: 00007fa7caa5e970
-  RDX: 0000000000000005 RSI: 0000000000e95c08 RDI: 0000000000000001
-  RBP: 0000000000e95c08 R08: 00007fa7cad1e760 R09: 00007fa7cb36a700
-  R10: 0000000000000073 R11: 0000000000000246 R12: 0000000000000005
-  R13: 0000000000000001 R14: 00007fa7cad1d600 R15: 0000000000000005
-
-  The buggy address belongs to the variable:
-   edac_mc_poll_msec+0x0/0x40
-
-  Memory state around the buggy address:
-   ffffffffb91b2c00: 00 00 00 00 fa fa fa fa 00 00 00 00 fa fa fa fa
-   ffffffffb91b2c80: 00 00 00 00 fa fa fa fa 00 00 00 00 fa fa fa fa
-  >ffffffffb91b2d00: 04 fa fa fa fa fa fa fa 04 fa fa fa fa fa fa fa
-                     ^
-   ffffffffb91b2d80: 04 fa fa fa fa fa fa fa 00 00 00 00 00 00 00 00
-   ffffffffb91b2e00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-Fix it by changing the type of edac_mc_poll_msec to unsigned int.
-The reason why this patch adopts unsigned int rather than unsigned long
-is msecs_to_jiffies() assumes arg to be unsigned int. We can avoid
-integer conversion bugs and unsigned int will be large enough for
-edac_mc_poll_msec.
-
-Reviewed-by: James Morse <james.morse@arm.com>
-Fixes: 9da21b1509d8 ("EDAC: Poll timeout cannot be zero, p2")
-Signed-off-by: Eiichi Tsukata <devel@etsukata.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/edac_mc_sysfs.c | 16 ++++++++--------
- drivers/edac/edac_module.h   |  2 +-
- 2 files changed, 9 insertions(+), 9 deletions(-)
+ drivers/md/bcache/alloc.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/edac/edac_mc_sysfs.c b/drivers/edac/edac_mc_sysfs.c
-index e50610b5bd06..d4545a9222a0 100644
---- a/drivers/edac/edac_mc_sysfs.c
-+++ b/drivers/edac/edac_mc_sysfs.c
-@@ -26,7 +26,7 @@
- static int edac_mc_log_ue = 1;
- static int edac_mc_log_ce = 1;
- static int edac_mc_panic_on_ue;
--static int edac_mc_poll_msec = 1000;
-+static unsigned int edac_mc_poll_msec = 1000;
+diff --git a/drivers/md/bcache/alloc.c b/drivers/md/bcache/alloc.c
+index de85b3af3b39..9c3beb1e382b 100644
+--- a/drivers/md/bcache/alloc.c
++++ b/drivers/md/bcache/alloc.c
+@@ -393,6 +393,11 @@ long bch_bucket_alloc(struct cache *ca, unsigned int reserve, bool wait)
+ 	struct bucket *b;
+ 	long r;
  
- /* Getter functions for above */
- int edac_mc_get_log_ue(void)
-@@ -45,30 +45,30 @@ int edac_mc_get_panic_on_ue(void)
- }
- 
- /* this is temporary */
--int edac_mc_get_poll_msec(void)
-+unsigned int edac_mc_get_poll_msec(void)
++
++	/* No allocation if CACHE_SET_IO_DISABLE bit is set */
++	if (unlikely(test_bit(CACHE_SET_IO_DISABLE, &ca->set->flags)))
++		return -1;
++
+ 	/* fastpath */
+ 	if (fifo_pop(&ca->free[RESERVE_NONE], r) ||
+ 	    fifo_pop(&ca->free[reserve], r))
+@@ -484,6 +489,10 @@ int __bch_bucket_alloc_set(struct cache_set *c, unsigned int reserve,
  {
- 	return edac_mc_poll_msec;
- }
+ 	int i;
  
- static int edac_set_poll_msec(const char *val, const struct kernel_param *kp)
- {
--	unsigned long l;
-+	unsigned int i;
- 	int ret;
++	/* No allocation if CACHE_SET_IO_DISABLE bit is set */
++	if (unlikely(test_bit(CACHE_SET_IO_DISABLE, &c->flags)))
++		return -1;
++
+ 	lockdep_assert_held(&c->bucket_lock);
+ 	BUG_ON(!n || n > c->caches_loaded || n > 8);
  
- 	if (!val)
- 		return -EINVAL;
- 
--	ret = kstrtoul(val, 0, &l);
-+	ret = kstrtouint(val, 0, &i);
- 	if (ret)
- 		return ret;
- 
--	if (l < 1000)
-+	if (i < 1000)
- 		return -EINVAL;
- 
--	*((unsigned long *)kp->arg) = l;
-+	*((unsigned int *)kp->arg) = i;
- 
- 	/* notify edac_mc engine to reset the poll period */
--	edac_mc_reset_delay_period(l);
-+	edac_mc_reset_delay_period(i);
- 
- 	return 0;
- }
-@@ -82,7 +82,7 @@ MODULE_PARM_DESC(edac_mc_log_ue,
- module_param(edac_mc_log_ce, int, 0644);
- MODULE_PARM_DESC(edac_mc_log_ce,
- 		 "Log correctable error to console: 0=off 1=on");
--module_param_call(edac_mc_poll_msec, edac_set_poll_msec, param_get_int,
-+module_param_call(edac_mc_poll_msec, edac_set_poll_msec, param_get_uint,
- 		  &edac_mc_poll_msec, 0644);
- MODULE_PARM_DESC(edac_mc_poll_msec, "Polling period in milliseconds");
- 
-diff --git a/drivers/edac/edac_module.h b/drivers/edac/edac_module.h
-index dec88dcea036..c9f0e73872a6 100644
---- a/drivers/edac/edac_module.h
-+++ b/drivers/edac/edac_module.h
-@@ -36,7 +36,7 @@ extern int edac_mc_get_log_ue(void);
- extern int edac_mc_get_log_ce(void);
- extern int edac_mc_get_panic_on_ue(void);
- extern int edac_get_poll_msec(void);
--extern int edac_mc_get_poll_msec(void);
-+extern unsigned int edac_mc_get_poll_msec(void);
- 
- unsigned edac_dimm_info_location(struct dimm_info *dimm, char *buf,
- 				 unsigned len);
 -- 
 2.20.1
 
