@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 351897452A
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:39:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EFFE74511
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:38:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404184AbfGYFjv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:39:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54156 "EHLO mail.kernel.org"
+        id S2403966AbfGYFiy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:38:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404180AbfGYFju (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:39:50 -0400
+        id S2403951AbfGYFix (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:38:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A86F22C7C;
-        Thu, 25 Jul 2019 05:39:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A0E722BEB;
+        Thu, 25 Jul 2019 05:38:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033190;
-        bh=PEofQeh1xLeuSIEsoTeLSK3obeB2xLua1eztJzQA6fs=;
+        s=default; t=1564033133;
+        bh=5Z8GRTxUALK9SVeDf92V2DCm5ShnexJ5W1GDoGweZnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aei5qrvExoUzwO43EqIX0fd1MiJTIglyL+o4bdvPYQcl5SJJ3PKQzGjYladnNH2PO
-         QPUItJ/hqKs3xorizOVc5ViptTdjW/zo8OOt/n7Yd9YBTQiog60MmVEZHqOg5h404X
-         ebZtnVN56vyI1FGEN3xrzUBP3pO1UPLGfc01EZ3M=
+        b=bpwYrk39/mW7jrgDndqgLoBMSIjpsE9002GvgoWD/IVXh/dEN6MU9vmuscVaEYi8e
+         5EZurmcKh3DIbfCN2zWvWONc3p84dXwrbcSnsGXcXu4z2GeSK245b73wTycKSzUeuN
+         aXEQ0yg5l7Bs9Wj0Z4VOZzDGOAR/9WaHkgWR7fH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Borislav Petkov <bp@suse.de>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Pu Wen <puwen@hygon.cn>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
+        stable@vger.kernel.org, Keith Pyle <kpyle@austin.rr.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 083/271] x86/cacheinfo: Fix a -Wtype-limits warning
-Date:   Wed, 24 Jul 2019 21:19:12 +0200
-Message-Id: <20190724191702.299978898@linuxfoundation.org>
+Subject: [PATCH 4.19 103/271] media: hdpvr: fix locking and a missing msleep
+Date:   Wed, 24 Jul 2019 21:19:32 +0200
+Message-Id: <20190724191704.048747870@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -51,51 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1b7aebf0487613033aff26420e32fa2076d52846 ]
+[ Upstream commit 6bc5a4a1927556ff9adce1aa95ea408c95453225 ]
 
-cpuinfo_x86.x86_model is an unsigned type, so comparing against zero
-will generate a compilation warning:
+This driver has three locking issues:
 
-  arch/x86/kernel/cpu/cacheinfo.c: In function 'cacheinfo_amd_init_llc_id':
-  arch/x86/kernel/cpu/cacheinfo.c:662:19: warning: comparison is always true \
-    due to limited range of data type [-Wtype-limits]
+- The wait_event_interruptible() condition calls hdpvr_get_next_buffer(dev)
+  which uses a mutex, which is not allowed. Rewrite with list_empty_careful()
+  that doesn't need locking.
 
-Remove the unnecessary lower bound check.
+- In hdpvr_read() the call to hdpvr_stop_streaming() didn't lock io_mutex,
+  but it should have since stop_streaming expects that.
 
- [ bp: Massage. ]
+- In hdpvr_device_release() io_mutex was locked when calling flush_work(),
+  but there it shouldn't take that mutex since the work done by flush_work()
+  also wants to lock that mutex.
 
-Fixes: 68091ee7ac3c ("x86/CPU/AMD: Calculate last level cache ID from number of sharing threads")
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Cc: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Pu Wen <puwen@hygon.cn>
-Cc: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/1560954773-11967-1-git-send-email-cai@lca.pw
+There are also two other changes (suggested by Keith):
+
+- msecs_to_jiffies(4000); (a NOP) should have been msleep(4000).
+- Change v4l2_dbg to v4l2_info to always log if streaming had to be restarted.
+
+Reported-by: Keith Pyle <kpyle@austin.rr.com>
+Suggested-by: Keith Pyle <kpyle@austin.rr.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/cacheinfo.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/media/usb/hdpvr/hdpvr-video.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/cacheinfo.c b/arch/x86/kernel/cpu/cacheinfo.c
-index 0c5fcbd998cf..9d863e8f9b3f 100644
---- a/arch/x86/kernel/cpu/cacheinfo.c
-+++ b/arch/x86/kernel/cpu/cacheinfo.c
-@@ -651,8 +651,7 @@ void cacheinfo_amd_init_llc_id(struct cpuinfo_x86 *c, int cpu, u8 node_id)
- 	if (c->x86 < 0x17) {
- 		/* LLC is at the node level. */
- 		per_cpu(cpu_llc_id, cpu) = node_id;
--	} else if (c->x86 == 0x17 &&
--		   c->x86_model >= 0 && c->x86_model <= 0x1F) {
-+	} else if (c->x86 == 0x17 && c->x86_model <= 0x1F) {
- 		/*
- 		 * LLC is at the core complex level.
- 		 * Core complex ID is ApicId[3] for these processors.
+diff --git a/drivers/media/usb/hdpvr/hdpvr-video.c b/drivers/media/usb/hdpvr/hdpvr-video.c
+index 1b89c77bad66..0615996572e4 100644
+--- a/drivers/media/usb/hdpvr/hdpvr-video.c
++++ b/drivers/media/usb/hdpvr/hdpvr-video.c
+@@ -439,7 +439,7 @@ static ssize_t hdpvr_read(struct file *file, char __user *buffer, size_t count,
+ 	/* wait for the first buffer */
+ 	if (!(file->f_flags & O_NONBLOCK)) {
+ 		if (wait_event_interruptible(dev->wait_data,
+-					     hdpvr_get_next_buffer(dev)))
++					     !list_empty_careful(&dev->rec_buff_list)))
+ 			return -ERESTARTSYS;
+ 	}
+ 
+@@ -465,10 +465,17 @@ static ssize_t hdpvr_read(struct file *file, char __user *buffer, size_t count,
+ 				goto err;
+ 			}
+ 			if (!err) {
+-				v4l2_dbg(MSG_INFO, hdpvr_debug, &dev->v4l2_dev,
+-					"timeout: restart streaming\n");
++				v4l2_info(&dev->v4l2_dev,
++					  "timeout: restart streaming\n");
++				mutex_lock(&dev->io_mutex);
+ 				hdpvr_stop_streaming(dev);
+-				msecs_to_jiffies(4000);
++				mutex_unlock(&dev->io_mutex);
++				/*
++				 * The FW needs about 4 seconds after streaming
++				 * stopped before it is ready to restart
++				 * streaming.
++				 */
++				msleep(4000);
+ 				err = hdpvr_start_streaming(dev);
+ 				if (err) {
+ 					ret = err;
+@@ -1133,9 +1140,7 @@ static void hdpvr_device_release(struct video_device *vdev)
+ 	struct hdpvr_device *dev = video_get_drvdata(vdev);
+ 
+ 	hdpvr_delete(dev);
+-	mutex_lock(&dev->io_mutex);
+ 	flush_work(&dev->worker);
+-	mutex_unlock(&dev->io_mutex);
+ 
+ 	v4l2_device_unregister(&dev->v4l2_dev);
+ 	v4l2_ctrl_handler_free(&dev->hdl);
 -- 
 2.20.1
 
