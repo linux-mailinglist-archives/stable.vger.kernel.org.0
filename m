@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E305B73FC9
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:35:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8226073FB7
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:34:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388361AbfGXUfL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:35:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43086 "EHLO mail.kernel.org"
+        id S1726148AbfGXT0W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:26:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388078AbfGXT0I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:26:08 -0400
+        id S1729239AbfGXT0V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:26:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53238229F3;
-        Wed, 24 Jul 2019 19:26:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90757218EA;
+        Wed, 24 Jul 2019 19:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996367;
-        bh=35gqSgFFgFhclDpTnJY/MV9ueyv3aP4Lk8CgSO14UvE=;
+        s=default; t=1563996381;
+        bh=G8ZzqByk5C6VfeVvnonFakvbAuQMGMSo714V6d3WMa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hid31+SYBCS8doNcjfrdI+eaXDSmc4NjpCfNXN/l2UN97unZLeWD+XczcPqsP4yBj
-         QF3LWvWvMh3RSezrkOP85gmZiORH9F5/nDd7lFz32mdmrXjnMyMvHOIVCbVJls7zoD
-         DuM9+ZeEhcCweNtbXTKWg0eAUNPKJFS4xX24gQss=
+        b=DAKPxmtqQeEGUdRULwcw2/XQvE6X3LjRpHqWaBc/gOA0tzqh4NW8MF8zeMNTdON3R
+         /OPBZDjQ9EBUfbYbUxRRjoQ7Ss1+sQhko34C0UyIq1UfSjPrZeOsnyTILJX4xOEOAB
+         +CBrthvCQ90B1auytiEzVVuXDblyH98g0cShaGf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
+        stable@vger.kernel.org, Ariel Elior <ariel.elior@marvell.com>,
+        Denis Bolotin <denis.bolotin@marvell.com>,
+        Michal Kalderon <michal.kalderon@marvell.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 035/413] net: hns3: fix for FEC configuration
-Date:   Wed, 24 Jul 2019 21:15:26 +0200
-Message-Id: <20190724191738.128109214@linuxfoundation.org>
+Subject: [PATCH 5.2 036/413] qed: Set the doorbell address correctly
+Date:   Wed, 24 Jul 2019 21:15:27 +0200
+Message-Id: <20190724191738.201049416@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -45,46 +46,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f438bfe9d4fe2e491505abfbf04d7c506e00d146 ]
+[ Upstream commit 8366d520019f366fabd6c7a13032bdcd837e18d4 ]
 
-The FEC capbility may be changed with port speed changes. Driver
-needs to read the active FEC mode, and update FEC capability
-when port speed changes.
+In 100g mode the doorbell bar is united for both engines. Set
+the correct offset in the hwfn so that the doorbell returned
+for RoCE is in the affined hwfn.
 
-Fixes: 7e6ec9148a1d ("net: hns3: add support for FEC encoding control")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: Ariel Elior <ariel.elior@marvell.com>
+Signed-off-by: Denis Bolotin <denis.bolotin@marvell.com>
+Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/ethernet/qlogic/qed/qed_dev.c  | 29 ++++++++++++++--------
+ drivers/net/ethernet/qlogic/qed/qed_rdma.c |  2 +-
+ 2 files changed, 19 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index d3b1f8cb1155..4d9bcad26f06 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -2508,6 +2508,9 @@ static void hclge_update_link_status(struct hclge_dev *hdev)
- 
- static void hclge_update_port_capability(struct hclge_mac *mac)
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_dev.c b/drivers/net/ethernet/qlogic/qed/qed_dev.c
+index fccdb06fc5c5..8c40739e0d1b 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_dev.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_dev.c
+@@ -3443,6 +3443,7 @@ static void qed_nvm_info_free(struct qed_hwfn *p_hwfn)
+ static int qed_hw_prepare_single(struct qed_hwfn *p_hwfn,
+ 				 void __iomem *p_regview,
+ 				 void __iomem *p_doorbells,
++				 u64 db_phys_addr,
+ 				 enum qed_pci_personality personality)
  {
-+	/* update fec ability by speed */
-+	hclge_convert_setting_fec(mac);
+ 	struct qed_dev *cdev = p_hwfn->cdev;
+@@ -3451,6 +3452,7 @@ static int qed_hw_prepare_single(struct qed_hwfn *p_hwfn,
+ 	/* Split PCI bars evenly between hwfns */
+ 	p_hwfn->regview = p_regview;
+ 	p_hwfn->doorbells = p_doorbells;
++	p_hwfn->db_phys_addr = db_phys_addr;
+ 
+ 	if (IS_VF(p_hwfn->cdev))
+ 		return qed_vf_hw_prepare(p_hwfn);
+@@ -3546,7 +3548,9 @@ int qed_hw_prepare(struct qed_dev *cdev,
+ 	/* Initialize the first hwfn - will learn number of hwfns */
+ 	rc = qed_hw_prepare_single(p_hwfn,
+ 				   cdev->regview,
+-				   cdev->doorbells, personality);
++				   cdev->doorbells,
++				   cdev->db_phys_addr,
++				   personality);
+ 	if (rc)
+ 		return rc;
+ 
+@@ -3555,22 +3559,25 @@ int qed_hw_prepare(struct qed_dev *cdev,
+ 	/* Initialize the rest of the hwfns */
+ 	if (cdev->num_hwfns > 1) {
+ 		void __iomem *p_regview, *p_doorbell;
+-		u8 __iomem *addr;
++		u64 db_phys_addr;
++		u32 offset;
+ 
+ 		/* adjust bar offset for second engine */
+-		addr = cdev->regview +
+-		       qed_hw_bar_size(p_hwfn, p_hwfn->p_main_ptt,
+-				       BAR_ID_0) / 2;
+-		p_regview = addr;
++		offset = qed_hw_bar_size(p_hwfn, p_hwfn->p_main_ptt,
++					 BAR_ID_0) / 2;
++		p_regview = cdev->regview + offset;
+ 
+-		addr = cdev->doorbells +
+-		       qed_hw_bar_size(p_hwfn, p_hwfn->p_main_ptt,
+-				       BAR_ID_1) / 2;
+-		p_doorbell = addr;
++		offset = qed_hw_bar_size(p_hwfn, p_hwfn->p_main_ptt,
++					 BAR_ID_1) / 2;
 +
- 	/* firmware can not identify back plane type, the media type
- 	 * read from configuration can help deal it
- 	 */
-@@ -2580,6 +2583,10 @@ static int hclge_get_sfp_info(struct hclge_dev *hdev, struct hclge_mac *mac)
- 		mac->speed_ability = le32_to_cpu(resp->speed_ability);
- 		mac->autoneg = resp->autoneg;
- 		mac->support_autoneg = resp->autoneg_ability;
-+		if (!resp->active_fec)
-+			mac->fec_mode = 0;
-+		else
-+			mac->fec_mode = BIT(resp->active_fec);
- 	} else {
- 		mac->speed_type = QUERY_SFP_SPEED;
- 	}
++		p_doorbell = cdev->doorbells + offset;
++
++		db_phys_addr = cdev->db_phys_addr + offset;
+ 
+ 		/* prepare second hw function */
+ 		rc = qed_hw_prepare_single(&cdev->hwfns[1], p_regview,
+-					   p_doorbell, personality);
++					   p_doorbell, db_phys_addr,
++					   personality);
+ 
+ 		/* in case of error, need to free the previously
+ 		 * initiliazed hwfn 0.
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_rdma.c b/drivers/net/ethernet/qlogic/qed/qed_rdma.c
+index 7873d6dfd91f..13802b825d65 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_rdma.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_rdma.c
+@@ -803,7 +803,7 @@ static int qed_rdma_add_user(void *rdma_cxt,
+ 				     dpi_start_offset +
+ 				     ((out_params->dpi) * p_hwfn->dpi_size));
+ 
+-	out_params->dpi_phys_addr = p_hwfn->cdev->db_phys_addr +
++	out_params->dpi_phys_addr = p_hwfn->db_phys_addr +
+ 				    dpi_start_offset +
+ 				    ((out_params->dpi) * p_hwfn->dpi_size);
+ 
 -- 
 2.20.1
 
