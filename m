@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9056174547
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:41:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E391A7454A
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:41:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390730AbfGYFky (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:40:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55582 "EHLO mail.kernel.org"
+        id S2390769AbfGYFlC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:41:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390726AbfGYFky (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:40:54 -0400
+        id S2390756AbfGYFk6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:40:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54DEF22BF5;
-        Thu, 25 Jul 2019 05:40:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BCAF22C7D;
+        Thu, 25 Jul 2019 05:40:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033252;
-        bh=khUxIk4oDYzshN3jMswBbEz9tHCV5yR1/rfKNuNPkY4=;
+        s=default; t=1564033258;
+        bh=8ZDc2A+eJYtSwTH+qWvv5n5v6BuqQPfzwEJCxmqGHRE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u8My4vJFB/ApOUyShYkxyv3pnqHP96oKVbKx1K6KHwehyL8ZKmC3aGWdkTvAmXkaU
-         13++/uyXrkEcL8iPw8p75Upz0e15PAmS3xPhHAZt7ZW5dyQgWh3M4aO545O7HiFdwr
-         Kh07boRWEi5dQQMAHfomjW34pKKN9Ku5U8wMev1k=
+        b=kuq6+0+ePl+WyJenxKO2KNePe7T714QQiTWNTWTk/7kr2jSix3rDqnQLapxdflW65
+         UQQlLkOguxxYTKXXtHULu3VQASBqXvd+S01qj87CGPATNy/OKIKXu+e95KYdD4cZ3c
+         nuWG2noUF9y8TnILifrpE3z5TrVf8DEXE2DZNCyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Quentin Monnet <quentin.monnet@netronome.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jo=C3=A3o=20Paulo=20Rechi=20Vita?= <jprvita@endlessm.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 145/271] tools: bpftool: Fix json dump crash on powerpc
-Date:   Wed, 24 Jul 2019 21:20:14 +0200
-Message-Id: <20190724191707.620171659@linuxfoundation.org>
+Subject: [PATCH 4.19 147/271] Bluetooth: Add new 13d3:3491 QCA_ROME device
+Date:   Wed, 24 Jul 2019 21:20:16 +0200
+Message-Id: <20190724191707.780822044@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -47,89 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit aa52bcbe0e72fac36b1862db08b9c09c4caefae3 ]
+[ Upstream commit 44d34af2e4cfd0c5357182f8b43f3e0a1fe30a2e ]
 
-Michael reported crash with by bpf program in json mode on powerpc:
+Without the QCA ROME setup routine this adapter fails to establish a SCO
+connection.
 
-  # bpftool prog -p dump jited id 14
-  [{
-        "name": "0xd00000000a9aa760",
-        "insns": [{
-                "pc": "0x0",
-                "operation": "nop",
-                "operands": [null
-                ]
-            },{
-                "pc": "0x4",
-                "operation": "nop",
-                "operands": [null
-                ]
-            },{
-                "pc": "0x8",
-                "operation": "mflr",
-  Segmentation fault (core dumped)
+T:  Bus=01 Lev=01 Prnt=01 Port=08 Cnt=01 Dev#=  2 Spd=12  MxCh= 0
+D:  Ver= 1.10 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=13d3 ProdID=3491 Rev=00.01
+C:  #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=100mA
+I:  If#=0x0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+I:  If#=0x1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
 
-The code is assuming char pointers in format, which is not always
-true at least for powerpc. Fixing this by dumping the whole string
-into buffer based on its format.
-
-Please note that libopcodes code does not check return values from
-fprintf callback, but as per Jakub suggestion returning -1 on allocation
-failure so we do the best effort to propagate the error.
-
-Fixes: 107f041212c1 ("tools: bpftool: add JSON output for `bpftool prog dump jited *` command")
-Reported-by: Michael Petlan <mpetlan@redhat.com>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Reviewed-by: Quentin Monnet <quentin.monnet@netronome.com>
-Reviewed-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: João Paulo Rechi Vita <jprvita@endlessm.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/bpftool/jit_disasm.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/bluetooth/btusb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/bpf/bpftool/jit_disasm.c b/tools/bpf/bpftool/jit_disasm.c
-index 87439320ef70..73d7252729fa 100644
---- a/tools/bpf/bpftool/jit_disasm.c
-+++ b/tools/bpf/bpftool/jit_disasm.c
-@@ -10,6 +10,8 @@
-  * Licensed under the GNU General Public License, version 2.0 (GPLv2)
-  */
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index 40a4f95f6178..f494fa30a912 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -277,6 +277,7 @@ static const struct usb_device_id blacklist_table[] = {
+ 	{ USB_DEVICE(0x04ca, 0x3015), .driver_info = BTUSB_QCA_ROME },
+ 	{ USB_DEVICE(0x04ca, 0x3016), .driver_info = BTUSB_QCA_ROME },
+ 	{ USB_DEVICE(0x04ca, 0x301a), .driver_info = BTUSB_QCA_ROME },
++	{ USB_DEVICE(0x13d3, 0x3491), .driver_info = BTUSB_QCA_ROME },
+ 	{ USB_DEVICE(0x13d3, 0x3496), .driver_info = BTUSB_QCA_ROME },
  
-+#define _GNU_SOURCE
-+#include <stdio.h>
- #include <stdarg.h>
- #include <stdint.h>
- #include <stdio.h>
-@@ -51,11 +53,13 @@ static int fprintf_json(void *out, const char *fmt, ...)
- 	char *s;
- 
- 	va_start(ap, fmt);
-+	if (vasprintf(&s, fmt, ap) < 0)
-+		return -1;
-+	va_end(ap);
-+
- 	if (!oper_count) {
- 		int i;
- 
--		s = va_arg(ap, char *);
--
- 		/* Strip trailing spaces */
- 		i = strlen(s) - 1;
- 		while (s[i] == ' ')
-@@ -68,11 +72,10 @@ static int fprintf_json(void *out, const char *fmt, ...)
- 	} else if (!strcmp(fmt, ",")) {
- 		   /* Skip */
- 	} else {
--		s = va_arg(ap, char *);
- 		jsonw_string(json_wtr, s);
- 		oper_count++;
- 	}
--	va_end(ap);
-+	free(s);
- 	return 0;
- }
- 
+ 	/* Broadcom BCM2035 */
 -- 
 2.20.1
 
