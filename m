@@ -2,96 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EEBE72B62
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 11:30:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3630B72C5E
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 12:33:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726539AbfGXJaO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 05:30:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32874 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726508AbfGXJaO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 05:30:14 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2EA120651;
-        Wed, 24 Jul 2019 09:30:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563960613;
-        bh=OLsO9KPj67EElynhoyp9rMfM4E4/2pZmSbjpsE4eraU=;
-        h=Subject:To:From:Date:From;
-        b=LOZ4BharS0ahBNacO8sT72AmZFnE7SC5THQ3KSbpwl+VpFjDHVDOMVN2HVWwsm5FF
-         QO8c8XcQKEW1vQboGu3hMVKw7cbxjO/ObkUx07nXF3gYD/ZI8dRgi+cThj8QLJs9qb
-         cIBEIXyXPjAzJJ7la7e5bafmXzgqXXZQ4AmLjN/o=
-Subject: patch "fpga-manager: altera-ps-spi: Fix build error" added to char-misc-linus
-To:     yuehaibing@huawei.com, gregkh@linuxfoundation.org,
-        hulkci@huawei.com, mdf@kernel.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 24 Jul 2019 11:30:10 +0200
-Message-ID: <1563960610105237@kroah.com>
+        id S1726636AbfGXKdO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 06:33:14 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:43563 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726203AbfGXKdO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 06:33:14 -0400
+Received: from [5.158.153.52] (helo=nanos.tec.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tglx@linutronix.de>)
+        id 1hqEa0-0004EB-AS; Wed, 24 Jul 2019 12:33:04 +0200
+Date:   Wed, 24 Jul 2019 12:33:03 +0200 (CEST)
+From:   Thomas Gleixner <tglx@linutronix.de>
+To:     Nick Desaulniers <ndesaulniers@google.com>
+cc:     mingo@redhat.com, bp@alien8.de, peterz@infradead.org,
+        clang-built-linux@googlegroups.com, linux-kernel@vger.kernel.org,
+        yamada.masahiro@socionext.com, stable@vger.kernel.org,
+        Vaibhav Rustagi <vaibhavrustagi@google.com>,
+        Manoj Gupta <manojgupta@google.com>,
+        Alistair Delva <adelva@google.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
+        Enrico Weigelt <info@metux.net>,
+        Allison Randal <allison@lohutok.net>,
+        Uros Bizjak <ubizjak@gmail.com>,
+        Chao Fan <fanc.fnst@cn.fujitsu.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Alexios Zavras <alexios.zavras@intel.com>
+Subject: Re: [PATCH v3 1/2] x86/purgatory: do not use __builtin_memcpy and
+ __builtin_memset
+In-Reply-To: <20190723212418.36379-1-ndesaulniers@google.com>
+Message-ID: <alpine.DEB.2.21.1907241231480.1972@nanos.tec.linutronix.de>
+References: <20190723212418.36379-1-ndesaulniers@google.com>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, 23 Jul 2019, Nick Desaulniers wrote:
+> Instead, reuse an implementation from arch/x86/boot/compressed/string.c
+> if we define warn as a symbol. Also, Clang may lower memcmp's that
+> compare against 0 to bcmp's, so add a small definition, too. See also:
+> commit 5f074f3e192f ("lib/string.c: implement a basic bcmp")
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 8fc5b4d4121c ("purgatory: core purgatory functionality")
+> Link: https://bugs.chromium.org/p/chromium/issues/detail?id=984056
+> Reported-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
+> Debugged-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
+> Debugged-by: Manoj Gupta <manojgupta@google.com>
+> Suggested-by: Alistair Delva <adelva@google.com>
+> Signed-off-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
+> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 
-This is a note to let you know that I've just added the patch titled
+That SOB chain is weird. Is Vaibhav the author?
 
-    fpga-manager: altera-ps-spi: Fix build error
+> +/*
+> + * Clang may lower `memcmp == 0` to `bcmp == 0`.
+> + */
+> +int bcmp(const void *s1, const void *s2, size_t len) {
+> +	return memcmp(s1, s2, len);
+> +}
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
+foo()
+{
+}
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+please.
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+Thanks,
 
-If you have any questions about this process, please let me know.
-
-
-From 3d139703d397f6281368047ba7ad1c8bf95aa8ab Mon Sep 17 00:00:00 2001
-From: YueHaibing <yuehaibing@huawei.com>
-Date: Mon, 8 Jul 2019 15:13:56 +0800
-Subject: fpga-manager: altera-ps-spi: Fix build error
-
-If BITREVERSE is m and FPGA_MGR_ALTERA_PS_SPI is y,
-build fails:
-
-drivers/fpga/altera-ps-spi.o: In function `altera_ps_write':
-altera-ps-spi.c:(.text+0x4ec): undefined reference to `byte_rev_table'
-
-Select BITREVERSE to fix this.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: fcfe18f885f6 ("fpga-manager: altera-ps-spi: use bitrev8x4")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Moritz Fischer <mdf@kernel.org>
-Link: https://lore.kernel.org/r/20190708071356.50928-1-yuehaibing@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/fpga/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/fpga/Kconfig b/drivers/fpga/Kconfig
-index 474f304ec109..cdd4f73b4869 100644
---- a/drivers/fpga/Kconfig
-+++ b/drivers/fpga/Kconfig
-@@ -40,6 +40,7 @@ config ALTERA_PR_IP_CORE_PLAT
- config FPGA_MGR_ALTERA_PS_SPI
- 	tristate "Altera FPGA Passive Serial over SPI"
- 	depends on SPI
-+	select BITREVERSE
- 	help
- 	  FPGA manager driver support for Altera Arria/Cyclone/Stratix
- 	  using the passive serial interface over SPI.
--- 
-2.22.0
-
-
+	tglx
