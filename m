@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 69D0C74622
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:49:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18B477456B
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:42:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391211AbfGYFoY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:44:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59408 "EHLO mail.kernel.org"
+        id S2390831AbfGYFm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:42:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391230AbfGYFoT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:44:19 -0400
+        id S2390847AbfGYFm1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:42:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 085A122BF5;
-        Thu, 25 Jul 2019 05:44:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A67022BEB;
+        Thu, 25 Jul 2019 05:42:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033458;
-        bh=YeaONwwOYtzz3Ca9+yCTMwQL28bim9Ud+LLFomi6VwM=;
+        s=default; t=1564033346;
+        bh=hw2uRw21RGEKo558VPfLuqeeQP2hTeyB602HS4SPkQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P8/OwJQGkYmo+EL+OtoO7i+6O9Eq985kWgCsg5tOf9yYof6so7lFdtrZUFJA798fO
-         j24Wk1M8Q0E30b7fMxzsyz38z9uTEG+L2+qLrUKOlaEgbrHmHBeOTxGhk2R0COb/RO
-         lrjSKATaMgfPqH3+7AhzeCh6V7XmIdbOB8vJq0pE=
+        b=YlDUBWafiGjv97ZuXeotIDflPkulIv5r8eXl4BQbzqRtCouiQzG9O5GeFjysHxE05
+         eHc5VcSPWg6MxyJ977bozYJdWS+p9l6DVpawK0GRreX/WgJrnTIQdkpqP4wn9WR565
+         sqTZL7Yi1NiwNmT18t2yZeR5yNcLl4Ito+WSWDrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Elena Petrova <lenaptr@google.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        stable@vger.kernel.org, Christian Lamparter <chunkeey@gmail.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 175/271] crypto: arm64/sha2-ce - correct digest for empty data in finup
-Date:   Wed, 24 Jul 2019 21:20:44 +0200
-Message-Id: <20190724191710.171073562@linuxfoundation.org>
+Subject: [PATCH 4.19 177/271] crypto: crypto4xx - fix AES CTR blocksize value
+Date:   Wed, 24 Jul 2019 21:20:46 +0200
+Message-Id: <20190724191710.320031701@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -44,41 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Elena Petrova <lenaptr@google.com>
+From: Christian Lamparter <chunkeey@gmail.com>
 
-commit 6bd934de1e393466b319d29c4427598fda096c57 upstream.
+commit bfa2ba7d9e6b20aca82b99e6842fe18842ae3a0f upstream.
 
-The sha256-ce finup implementation for ARM64 produces wrong digest
-for empty input (len=0). Expected: the actual digest, result: initial
-value of SHA internal state. The error is in sha256_ce_finup:
-for empty data `finalize` will be 1, so the code is relying on
-sha2_ce_transform to make the final round. However, in
-sha256_base_do_update, the block function will not be called when
-len == 0.
+This patch fixes a issue with crypto4xx's ctr(aes) that was
+discovered by libcapi's kcapi-enc-test.sh test.
 
-Fix it by setting finalize to 0 if data is empty.
+The some of the ctr(aes) encryptions test were failing on the
+non-power-of-two test:
 
-Fixes: 03802f6a80b3a ("crypto: arm64/sha2-ce - move SHA-224/256 ARMv8 implementation to base layer")
+kcapi-enc - Error: encryption failed with error 0
+kcapi-enc - Error: decryption failed with error 0
+[FAILED: 32-bit - 5.1.0-rc1+] 15 bytes: STDIN / STDOUT enc test (128 bits):
+original file (1d100e..cc96184c) and generated file (e3b0c442..1b7852b855)
+[FAILED: 32-bit - 5.1.0-rc1+] 15 bytes: STDIN / STDOUT enc test (128 bits)
+(openssl generated CT): original file (e3b0..5) and generated file (3..8e)
+[PASSED: 32-bit - 5.1.0-rc1+] 15 bytes: STDIN / STDOUT enc test (128 bits)
+(openssl generated PT)
+[FAILED: 32-bit - 5.1.0-rc1+] 15 bytes: STDIN / STDOUT enc test (password):
+original file (1d1..84c) and generated file (e3b..852b855)
+
+But the 16, 32, 512, 65536 tests always worked.
+
+Thankfully, this isn't a hidden hardware problem like previously,
+instead this turned out to be a copy and paste issue.
+
+With this patch, all the tests are passing with and
+kcapi-enc-test.sh gives crypto4xx's a clean bill of health:
+ "Number of failures: 0" :).
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Elena Petrova <lenaptr@google.com>
-Reviewed-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Fixes: 98e87e3d933b ("crypto: crypto4xx - add aes-ctr support")
+Fixes: f2a13e7cba9e ("crypto: crypto4xx - enable AES RFC3686, ECB, CFB and OFB offloads")
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/crypto/sha2-ce-glue.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/amcc/crypto4xx_core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/crypto/sha2-ce-glue.c
-+++ b/arch/arm64/crypto/sha2-ce-glue.c
-@@ -59,7 +59,7 @@ static int sha256_ce_finup(struct shash_
- 			   unsigned int len, u8 *out)
- {
- 	struct sha256_ce_state *sctx = shash_desc_ctx(desc);
--	bool finalize = !sctx->sst.count && !(len % SHA256_BLOCK_SIZE);
-+	bool finalize = !sctx->sst.count && !(len % SHA256_BLOCK_SIZE) && len;
- 
- 	if (!may_use_simd()) {
- 		if (len)
+--- a/drivers/crypto/amcc/crypto4xx_core.c
++++ b/drivers/crypto/amcc/crypto4xx_core.c
+@@ -1186,7 +1186,7 @@ static struct crypto4xx_alg_common crypt
+ 			.cra_flags = CRYPTO_ALG_NEED_FALLBACK |
+ 				CRYPTO_ALG_ASYNC |
+ 				CRYPTO_ALG_KERN_DRIVER_ONLY,
+-			.cra_blocksize = AES_BLOCK_SIZE,
++			.cra_blocksize = 1,
+ 			.cra_ctxsize = sizeof(struct crypto4xx_ctx),
+ 			.cra_module = THIS_MODULE,
+ 		},
+@@ -1206,7 +1206,7 @@ static struct crypto4xx_alg_common crypt
+ 			.cra_priority = CRYPTO4XX_CRYPTO_PRIORITY,
+ 			.cra_flags = CRYPTO_ALG_ASYNC |
+ 				CRYPTO_ALG_KERN_DRIVER_ONLY,
+-			.cra_blocksize = AES_BLOCK_SIZE,
++			.cra_blocksize = 1,
+ 			.cra_ctxsize = sizeof(struct crypto4xx_ctx),
+ 			.cra_module = THIS_MODULE,
+ 		},
 
 
