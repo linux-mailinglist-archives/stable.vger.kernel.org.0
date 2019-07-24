@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F5FA73C10
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:06:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E521C73B8E
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:01:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392765AbfGXUF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:05:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57830 "EHLO mail.kernel.org"
+        id S2405390AbfGXUBS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:01:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392760AbfGXUF4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 16:05:56 -0400
+        id S2405386AbfGXUBS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 16:01:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8078120665;
-        Wed, 24 Jul 2019 20:05:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8223422ADC;
+        Wed, 24 Jul 2019 20:01:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998755;
-        bh=OhSZtjLvVeSkSEdAXWuZWyJWeCmDNXA06ipGKmFqN5E=;
+        s=default; t=1563998478;
+        bh=8hB8GEYwwsBCWI9E/TaVGO1DZZahcDjnJqvJxAcZX8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TngG7Rz3RHaZjA5XqV4+rztlb/OIbrJm+X/M6g1Yf0coE1gxGoSrC2RkuYLA0yJmn
-         cIQQvia1n6oOI6PGZT/zoM0WpGdS4gwsmpd4UQ7YiQZDTAabzn3TSyxn2Phe9N1HAo
-         5knNayRBm4Ywj308Ra3PQu3t9oGcZoBQ07AztqCY=
+        b=Ef/xdnOETZK0rDfRw+Lvb/cqI+hnue1Axo+frqMu4haWZi1mwFI+PabInvv92Q06r
+         3cJmq9SZTyNjWw1nd57lpVsuajK/vojBf+FWRHmr/RCFg12tr+pagd1NK7Sp34bsf5
+         KSpAjP4TVIGQteurjcTG90Hl8cUA9zIIGDe9LOp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@collabora.com>,
-        Helen Koike <helen.koike@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 102/271] media: vimc: cap: check v4l2_fill_pixfmt return value
-Date:   Wed, 24 Jul 2019 21:19:31 +0200
-Message-Id: <20190724191703.965148109@linuxfoundation.org>
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.1 340/371] mm/nvdimm: add is_ioremap_addr and use that to check ioremap address
+Date:   Wed, 24 Jul 2019 21:21:32 +0200
+Message-Id: <20190724191749.276584347@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
-References: <20190724191655.268628197@linuxfoundation.org>
+In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
+References: <20190724191724.382593077@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,46 +46,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 77ae46e11df5c96bb4582633851f838f5d954df4 ]
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-v4l2_fill_pixfmt() returns -EINVAL if the pixelformat used as parameter is
-invalid or if the user is trying to use a multiplanar format with the
-singleplanar API. Currently, the vimc_cap_try_fmt_vid_cap() returns such
-value, but vimc_cap_s_fmt_vid_cap() is ignoring it. Fix that and returns
-an error value if vimc_cap_try_fmt_vid_cap() has failed.
+commit 9bd3bb6703d8c0a5fb8aec8e3287bd55b7341dcd upstream.
 
-Signed-off-by: André Almeida <andrealmeid@collabora.com>
-Suggested-by: Helen Koike <helen.koike@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Architectures like powerpc use different address range to map ioremap
+and vmalloc range.  The memunmap() check used by the nvdimm layer was
+wrongly using is_vmalloc_addr() to check for ioremap range which fails
+for ppc64.  This result in ppc64 not freeing the ioremap mapping.  The
+side effect of this is an unbind failure during module unload with
+papr_scm nvdimm driver
+
+Link: http://lkml.kernel.org/r/20190701134038.14165-1-aneesh.kumar@linux.ibm.com
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Fixes: b5beae5e224f ("powerpc/pseries: Add driver for PAPR SCM regions")
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/media/platform/vimc/vimc-capture.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/powerpc/include/asm/pgtable.h |   14 ++++++++++++++
+ include/linux/mm.h                 |    5 +++++
+ kernel/iomem.c                     |    2 +-
+ 3 files changed, 20 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/vimc/vimc-capture.c b/drivers/media/platform/vimc/vimc-capture.c
-index 65d657daf66f..8e014cc485f0 100644
---- a/drivers/media/platform/vimc/vimc-capture.c
-+++ b/drivers/media/platform/vimc/vimc-capture.c
-@@ -132,12 +132,15 @@ static int vimc_cap_s_fmt_vid_cap(struct file *file, void *priv,
- 				  struct v4l2_format *f)
+--- a/arch/powerpc/include/asm/pgtable.h
++++ b/arch/powerpc/include/asm/pgtable.h
+@@ -137,6 +137,20 @@ static inline void pte_frag_set(mm_conte
+ }
+ #endif
+ 
++#ifdef CONFIG_PPC64
++#define is_ioremap_addr is_ioremap_addr
++static inline bool is_ioremap_addr(const void *x)
++{
++#ifdef CONFIG_MMU
++	unsigned long addr = (unsigned long)x;
++
++	return addr >= IOREMAP_BASE && addr < IOREMAP_END;
++#else
++	return false;
++#endif
++}
++#endif /* CONFIG_PPC64 */
++
+ #endif /* __ASSEMBLY__ */
+ 
+ #endif /* _ASM_POWERPC_PGTABLE_H */
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -590,6 +590,11 @@ static inline bool is_vmalloc_addr(const
+ 	return false;
+ #endif
+ }
++
++#ifndef is_ioremap_addr
++#define is_ioremap_addr(x) is_vmalloc_addr(x)
++#endif
++
+ #ifdef CONFIG_MMU
+ extern int is_vmalloc_or_module_addr(const void *x);
+ #else
+--- a/kernel/iomem.c
++++ b/kernel/iomem.c
+@@ -121,7 +121,7 @@ EXPORT_SYMBOL(memremap);
+ 
+ void memunmap(void *addr)
  {
- 	struct vimc_cap_device *vcap = video_drvdata(file);
-+	int ret;
- 
- 	/* Do not change the format while stream is on */
- 	if (vb2_is_busy(&vcap->queue))
- 		return -EBUSY;
- 
--	vimc_cap_try_fmt_vid_cap(file, priv, f);
-+	ret = vimc_cap_try_fmt_vid_cap(file, priv, f);
-+	if (ret)
-+		return ret;
- 
- 	dev_dbg(vcap->dev, "%s: format update: "
- 		"old:%dx%d (0x%x, %d, %d, %d, %d) "
--- 
-2.20.1
-
+-	if (is_vmalloc_addr(addr))
++	if (is_ioremap_addr(addr))
+ 		iounmap((void __iomem *) addr);
+ }
+ EXPORT_SYMBOL(memunmap);
 
 
