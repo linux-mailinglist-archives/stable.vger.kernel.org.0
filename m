@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A431C73D67
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:16:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E92A73D02
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:14:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403918AbfGXTut (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:50:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59672 "EHLO mail.kernel.org"
+        id S2391808AbfGXTzV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:55:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391237AbfGXTuq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:50:46 -0400
+        id S2391809AbfGXTxW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:53:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27E6C21873;
-        Wed, 24 Jul 2019 19:50:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 689A1205C9;
+        Wed, 24 Jul 2019 19:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997845;
-        bh=h46tTBy1jDObjGMx8TOvjf/Yq0nJPoA42gT/VMcxr+Y=;
+        s=default; t=1563998001;
+        bh=oVO4OIooG09V32BefcY6Qz8jrnLQLyos9B1fipRdE9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FaYYX3IUv5Y/L7guG99t1aqHZrslxf5NSGMyyz7QujBaVTd+loL/XWnAP5FEdHvyi
-         UMdeP2epCukoUXLbR4flLfGVM2ibOQdzp8mOIV7gsaIwo4MXyW92JIDdUxOzSyi07E
-         Xiq33mTL1hVRu12LZ5LI0DNj42eGwB3cIDbCNM+Y=
+        b=0L0JL93t/n6m4CzY6MaEebdPYu5zhJReIOalK3BjT3AG+ocw46ZZVvZgMderY+uqg
+         7EZhxZctP0oK9GZXE10B7j+msYlReYJPuI+PLoi+t1UZYGUk5O8XHBtTmYeq4u0iZU
+         DHV5Yws626Za3j3MJWLZEB1fmkAPxDza7Cn/vSFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianbo Liu <jianbol@mellanox.com>,
-        Oz Shlomo <ozsh@mellanox.com>,
-        Eli Britstein <elibr@mellanox.com>,
-        Roi Dayan <roid@mellanox.com>, Mark Bloch <markb@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
+        stable@vger.kernel.org,
+        "Mauro S. M. Rodrigues" <maurosr@linux.vnet.ibm.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 161/371] net/mlx5: Get vport ACL namespace by vport index
-Date:   Wed, 24 Jul 2019 21:18:33 +0200
-Message-Id: <20190724191737.286066789@linuxfoundation.org>
+Subject: [PATCH 5.1 162/371] ixgbe: Check DDM existence in transceiver before access
+Date:   Wed, 24 Jul 2019 21:18:34 +0200
+Message-Id: <20190724191737.366675467@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -47,47 +47,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f53297d67800feb5fafd94abd926c889aefee690 ]
+[ Upstream commit 655c91414579d7bb115a4f7898ee726fc18e0984 ]
 
-The ingress and egress ACL root namespaces are created per vport and
-stored into arrays. However, the vport number is not the same as the
-index. Passing the array index, instead of vport number, to get the
-correct ingress and egress acl namespace.
+Some transceivers may comply with SFF-8472 but not implement the Digital
+Diagnostic Monitoring (DDM) interface described in it. The existence of
+such area is specified by bit 6 of byte 92, set to 1 if implemented.
 
-Fixes: 9b93ab981e3b ("net/mlx5: Separate ingress/egress namespaces for each vport")
-Signed-off-by: Jianbo Liu <jianbol@mellanox.com>
-Reviewed-by: Oz Shlomo <ozsh@mellanox.com>
-Reviewed-by: Eli Britstein <elibr@mellanox.com>
-Reviewed-by: Roi Dayan <roid@mellanox.com>
-Reviewed-by: Mark Bloch <markb@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Currently, due to not checking this bit ixgbe fails trying to read SFP
+module's eeprom with the follow message:
+
+ethtool -m enP51p1s0f0
+Cannot get Module EEPROM data: Input/output error
+
+Because it fails to read the additional 256 bytes in which it was assumed
+to exist the DDM data.
+
+This issue was noticed using a Mellanox Passive DAC PN 01FT738. The eeprom
+data was confirmed by Mellanox as correct and present in other Passive
+DACs in from other manufacturers.
+
+Signed-off-by: "Mauro S. M. Rodrigues" <maurosr@linux.vnet.ibm.com>
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/eswitch.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c | 3 ++-
+ drivers/net/ethernet/intel/ixgbe/ixgbe_phy.h     | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-index 8a67fd197b79..16ed6ebd31ee 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-@@ -950,7 +950,7 @@ static int esw_vport_enable_egress_acl(struct mlx5_eswitch *esw,
- 		  vport->vport, MLX5_CAP_ESW_EGRESS_ACL(dev, log_max_ft_size));
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c
+index acba067cc15a..7c52ae8ac005 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c
+@@ -3226,7 +3226,8 @@ static int ixgbe_get_module_info(struct net_device *dev,
+ 		page_swap = true;
+ 	}
  
- 	root_ns = mlx5_get_flow_vport_acl_namespace(dev, MLX5_FLOW_NAMESPACE_ESW_EGRESS,
--						    vport->vport);
-+			mlx5_eswitch_vport_num_to_index(esw, vport->vport));
- 	if (!root_ns) {
- 		esw_warn(dev, "Failed to get E-Switch egress flow namespace for vport (%d)\n", vport->vport);
- 		return -EOPNOTSUPP;
-@@ -1068,7 +1068,7 @@ static int esw_vport_enable_ingress_acl(struct mlx5_eswitch *esw,
- 		  vport->vport, MLX5_CAP_ESW_INGRESS_ACL(dev, log_max_ft_size));
- 
- 	root_ns = mlx5_get_flow_vport_acl_namespace(dev, MLX5_FLOW_NAMESPACE_ESW_INGRESS,
--						    vport->vport);
-+			mlx5_eswitch_vport_num_to_index(esw, vport->vport));
- 	if (!root_ns) {
- 		esw_warn(dev, "Failed to get E-Switch ingress flow namespace for vport (%d)\n", vport->vport);
- 		return -EOPNOTSUPP;
+-	if (sff8472_rev == IXGBE_SFF_SFF_8472_UNSUP || page_swap) {
++	if (sff8472_rev == IXGBE_SFF_SFF_8472_UNSUP || page_swap ||
++	    !(addr_mode & IXGBE_SFF_DDM_IMPLEMENTED)) {
+ 		/* We have a SFP, but it does not support SFF-8472 */
+ 		modinfo->type = ETH_MODULE_SFF_8079;
+ 		modinfo->eeprom_len = ETH_MODULE_SFF_8079_LEN;
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_phy.h b/drivers/net/ethernet/intel/ixgbe/ixgbe_phy.h
+index 214b01085718..6544c4539c0d 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_phy.h
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_phy.h
+@@ -45,6 +45,7 @@
+ #define IXGBE_SFF_SOFT_RS_SELECT_10G		0x8
+ #define IXGBE_SFF_SOFT_RS_SELECT_1G		0x0
+ #define IXGBE_SFF_ADDRESSING_MODE		0x4
++#define IXGBE_SFF_DDM_IMPLEMENTED		0x40
+ #define IXGBE_SFF_QSFP_DA_ACTIVE_CABLE		0x1
+ #define IXGBE_SFF_QSFP_DA_PASSIVE_CABLE		0x8
+ #define IXGBE_SFF_QSFP_CONNECTOR_NOT_SEPARABLE	0x23
 -- 
 2.20.1
 
