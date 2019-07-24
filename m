@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D01AD73FD7
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:36:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE89573FD9
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:36:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729181AbfGXTZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:25:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42164 "EHLO mail.kernel.org"
+        id S2388325AbfGXUfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:35:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728162AbfGXTZX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:25:23 -0400
+        id S2388058AbfGXTZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:25:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E181218F0;
-        Wed, 24 Jul 2019 19:25:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E91CB229ED;
+        Wed, 24 Jul 2019 19:25:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996322;
-        bh=AHGkYwUFFFPf7Dj2D4wc3lGnKJts8mpM6fWbta8L218=;
+        s=default; t=1563996339;
+        bh=7x5uqPwcLPoDTZF6cLw3c7iz9svtdhqhoJcH03CK8ZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q7Vaq/Uq7hklLG8Fr7a2UhADJI5lJonDVwiPPqxFx6wv8Z2m2HEdvSaoFl+5kmccA
-         SQfIeNeYQv/Ozsb3w8tZNAC7tEyzdOPn8SpSKvWt/76QMEWHmZJSVtnVyPoITdx/B0
-         J23xDwXUnmwJisgvtPh+tt1Taode/ygtl8ZRMhrk=
+        b=qubO+LVUIUht3XqNhA4aBwYzWpxqocfoSNTblT+nnRr/yfw9ZBpXzcF7/j8Wb60bS
+         ohjK7Tc61KosQoUClHCMBoRztI9fJZzhNlEVVPPG7aGUMTboJUSR+301KICzS2jmFQ
+         oA14lZZrbv0HK86e9ABF+ONALJ1pGGTkDfufpG44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
-        Marek Lindner <mareklindner@neomailbox.ch>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
+        stable@vger.kernel.org, Weihang Li <liweihang@hisilicon.com>,
+        Peng Li <lipeng321@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 056/413] batman-adv: Fix duplicated OGMs on NETDEV_UP
-Date:   Wed, 24 Jul 2019 21:15:47 +0200
-Message-Id: <20190724191739.379821121@linuxfoundation.org>
+Subject: [PATCH 5.2 061/413] net: hns3: add a check to pointer in error_detected and slot_reset
+Date:   Wed, 24 Jul 2019 21:15:52 +0200
+Message-Id: <20190724191739.647808700@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -47,88 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9e6b5648bbc4cd48fab62cecbb81e9cc3c6e7e88 ]
+[ Upstream commit 661262bc3e0ecc9a1aed39c6b2a99766da2c22e2 ]
 
-The state of slave interfaces are handled differently depending on whether
-the interface is up or not. All active interfaces (IFF_UP) will transmit
-OGMs. But for B.A.T.M.A.N. IV, also non-active interfaces are scheduling
-(low TTL) OGMs on active interfaces. The code which setups and schedules
-the OGMs must therefore already be called when the interfaces gets added as
-slave interface and the transmit function must then check whether it has to
-send out the OGM or not on the specific slave interface.
+If we add a VF without loading hclgevf.ko and then there is a RAS error
+occurs, PCIe AER will call error_detected and slot_reset of all functions,
+and will get a NULL pointer when we check ad_dev->ops->handle_hw_ras_error.
+This will cause a call trace and failures on handling of follow-up RAS
+errors.
 
-But the commit f0d97253fb5f ("batman-adv: remove ogm_emit and ogm_schedule
-API calls") moved the setup code from the enable function to the activate
-function. The latter is called either when the added slave was already up
-when batadv_hardif_enable_interface processed the new interface or when a
-NETDEV_UP event was received for this slave interfac. As result, each
-NETDEV_UP would schedule a new OGM worker for the interface and thus OGMs
-would be send a lot more than expected.
+This patch check ae_dev and ad_dev->ops at first to solve above issues.
 
-Fixes: f0d97253fb5f ("batman-adv: remove ogm_emit and ogm_schedule API calls")
-Reported-by: Linus Lüssing <linus.luessing@c0d3.blue>
-Tested-by: Linus Lüssing <linus.luessing@c0d3.blue>
-Acked-by: Marek Lindner <mareklindner@neomailbox.ch>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Weihang Li <liweihang@hisilicon.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bat_iv_ogm.c     | 4 ++--
- net/batman-adv/hard-interface.c | 3 +++
- net/batman-adv/types.h          | 3 +++
- 3 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/net/batman-adv/bat_iv_ogm.c b/net/batman-adv/bat_iv_ogm.c
-index bd4138ddf7e0..240ed70912d6 100644
---- a/net/batman-adv/bat_iv_ogm.c
-+++ b/net/batman-adv/bat_iv_ogm.c
-@@ -2337,7 +2337,7 @@ batadv_iv_ogm_neigh_is_sob(struct batadv_neigh_node *neigh1,
- 	return ret;
- }
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index cd59c0cc636a..5611b990ac34 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -1916,9 +1916,9 @@ static pci_ers_result_t hns3_error_detected(struct pci_dev *pdev,
+ 	if (state == pci_channel_io_perm_failure)
+ 		return PCI_ERS_RESULT_DISCONNECT;
  
--static void batadv_iv_iface_activate(struct batadv_hard_iface *hard_iface)
-+static void batadv_iv_iface_enabled(struct batadv_hard_iface *hard_iface)
- {
- 	/* begin scheduling originator messages on that interface */
- 	batadv_iv_ogm_schedule(hard_iface);
-@@ -2683,8 +2683,8 @@ static void batadv_iv_gw_dump(struct sk_buff *msg, struct netlink_callback *cb,
- static struct batadv_algo_ops batadv_batman_iv __read_mostly = {
- 	.name = "BATMAN_IV",
- 	.iface = {
--		.activate = batadv_iv_iface_activate,
- 		.enable = batadv_iv_ogm_iface_enable,
-+		.enabled = batadv_iv_iface_enabled,
- 		.disable = batadv_iv_ogm_iface_disable,
- 		.update_mac = batadv_iv_ogm_iface_update_mac,
- 		.primary_set = batadv_iv_ogm_primary_iface_set,
-diff --git a/net/batman-adv/hard-interface.c b/net/batman-adv/hard-interface.c
-index 79d1731b8306..3719cfd026f0 100644
---- a/net/batman-adv/hard-interface.c
-+++ b/net/batman-adv/hard-interface.c
-@@ -795,6 +795,9 @@ int batadv_hardif_enable_interface(struct batadv_hard_iface *hard_iface,
+-	if (!ae_dev) {
++	if (!ae_dev || !ae_dev->ops) {
+ 		dev_err(&pdev->dev,
+-			"Can't recover - error happened during device init\n");
++			"Can't recover - error happened before device initialized\n");
+ 		return PCI_ERS_RESULT_NONE;
+ 	}
  
- 	batadv_hardif_recalc_extra_skbroom(soft_iface);
+@@ -1937,6 +1937,9 @@ static pci_ers_result_t hns3_slot_reset(struct pci_dev *pdev)
  
-+	if (bat_priv->algo_ops->iface.enabled)
-+		bat_priv->algo_ops->iface.enabled(hard_iface);
+ 	dev_info(dev, "requesting reset due to PCI error\n");
+ 
++	if (!ae_dev || !ae_dev->ops)
++		return PCI_ERS_RESULT_NONE;
 +
- out:
- 	return 0;
- 
-diff --git a/net/batman-adv/types.h b/net/batman-adv/types.h
-index 74b644738a36..e0b25104cbfa 100644
---- a/net/batman-adv/types.h
-+++ b/net/batman-adv/types.h
-@@ -2129,6 +2129,9 @@ struct batadv_algo_iface_ops {
- 	/** @enable: init routing info when hard-interface is enabled */
- 	int (*enable)(struct batadv_hard_iface *hard_iface);
- 
-+	/** @enabled: notification when hard-interface was enabled (optional) */
-+	void (*enabled)(struct batadv_hard_iface *hard_iface);
-+
- 	/** @disable: de-init routing info when hard-interface is disabled */
- 	void (*disable)(struct batadv_hard_iface *hard_iface);
- 
+ 	/* request the reset */
+ 	if (ae_dev->ops->reset_event) {
+ 		if (!ae_dev->override_pci_need_reset)
 -- 
 2.20.1
 
