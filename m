@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8792274533
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:40:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37AEF7455B
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:41:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404287AbfGYFkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:40:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54582 "EHLO mail.kernel.org"
+        id S2404699AbfGYFlp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:41:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404285AbfGYFkI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:40:08 -0400
+        id S2404736AbfGYFlo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:41:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1783922C7D;
-        Thu, 25 Jul 2019 05:40:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C02622C7D;
+        Thu, 25 Jul 2019 05:41:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033207;
-        bh=ecra6NhndktQb1ABtB6XprMkB2KL9fmxi/wiwOzJF8M=;
+        s=default; t=1564033304;
+        bh=n0MQC/8XsC7homZ2nSmclkxOg6rP27Bzh8F2sa/T2tI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S4CfKy6Ir/4+69EGMalCCapXCOHjePHXymLeYdHJjmAx/GLqeifukSnbkIj3aB5oN
-         G0sAlghhsMH3/BbcLx78fPDx3kMyWGeIkoIDKSMCwVisLj6yr8tOfI/dnSbRQt7Il4
-         WW8Kn1cancgkoxUjN9Yys0lhhosNA/lxQtGvSO4o=
+        b=YkObk3HUyyw+AS8cK5o41rINz6BgyHFVBVcNfhJbiucKtCgP68CnPacd9EHa0GotE
+         EfNWhkhyVOPqY89iqynLkKYZiCxMvZDcaW1txEcajqUUsLPzhTHuH8DSzX4B8FbSfs
+         KssShOBIMrVEJ+La9ZNxYuE/CMgcGMSObfLZiLjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ahmad Masri <amasri@codeaurora.org>,
-        Maya Erez <merez@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 122/271] wil6210: drop old event after wmi_call timeout
-Date:   Wed, 24 Jul 2019 21:19:51 +0200
-Message-Id: <20190724191705.729673847@linuxfoundation.org>
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 125/271] bcache: check CACHE_SET_IO_DISABLE bit in bch_journal()
+Date:   Wed, 24 Jul 2019 21:19:54 +0200
+Message-Id: <20190724191705.986718330@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -45,54 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1a276003111c0404f6bfeffe924c5a21f482428b ]
+[ Upstream commit 383ff2183ad16a8842d1fbd9dd3e1cbd66813e64 ]
 
-This change fixes a rare race condition of handling WMI events after
-wmi_call expires.
+When too many I/O errors happen on cache set and CACHE_SET_IO_DISABLE
+bit is set, bch_journal() may continue to work because the journaling
+bkey might be still in write set yet. The caller of bch_journal() may
+believe the journal still work but the truth is in-memory journal write
+set won't be written into cache device any more. This behavior may
+introduce potential inconsistent metadata status.
 
-wmi_recv_cmd immediately handles an event when reply_buf is defined and
-a wmi_call is waiting for the event.
-However, in case the wmi_call has already timed-out, there will be no
-waiting/running wmi_call and the event will be queued in WMI queue and
-will be handled later in wmi_event_handle.
-Meanwhile, a new similar wmi_call for the same command and event may
-be issued. In this case, when handling the queued event we got WARN_ON
-printed.
+This patch checks CACHE_SET_IO_DISABLE bit at the head of bch_journal(),
+if the bit is set, bch_journal() returns NULL immediately to notice
+caller to know journal does not work.
 
-Fixing this case as a valid timeout and drop the unexpected event.
-
-Signed-off-by: Ahmad Masri <amasri@codeaurora.org>
-Signed-off-by: Maya Erez <merez@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/wil6210/wmi.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/md/bcache/journal.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/wil6210/wmi.c b/drivers/net/wireless/ath/wil6210/wmi.c
-index 6e3b3031f29b..2010f771478d 100644
---- a/drivers/net/wireless/ath/wil6210/wmi.c
-+++ b/drivers/net/wireless/ath/wil6210/wmi.c
-@@ -2816,7 +2816,18 @@ static void wmi_event_handle(struct wil6210_priv *wil,
- 		/* check if someone waits for this event */
- 		if (wil->reply_id && wil->reply_id == id &&
- 		    wil->reply_mid == mid) {
--			WARN_ON(wil->reply_buf);
-+			if (wil->reply_buf) {
-+				/* event received while wmi_call is waiting
-+				 * with a buffer. Such event should be handled
-+				 * in wmi_recv_cmd function. Handling the event
-+				 * here means a previous wmi_call was timeout.
-+				 * Drop the event and do not handle it.
-+				 */
-+				wil_err(wil,
-+					"Old event (%d, %s) while wmi_call is waiting. Drop it and Continue waiting\n",
-+					id, eventid2name(id));
-+				return;
-+			}
+diff --git a/drivers/md/bcache/journal.c b/drivers/md/bcache/journal.c
+index f880e5eba8dd..8d4d63b51553 100644
+--- a/drivers/md/bcache/journal.c
++++ b/drivers/md/bcache/journal.c
+@@ -810,6 +810,10 @@ atomic_t *bch_journal(struct cache_set *c,
+ 	struct journal_write *w;
+ 	atomic_t *ret;
  
- 			wmi_evt_call_handler(vif, id, evt_data,
- 					     len - sizeof(*wmi));
++	/* No journaling if CACHE_SET_IO_DISABLE set already */
++	if (unlikely(test_bit(CACHE_SET_IO_DISABLE, &c->flags)))
++		return NULL;
++
+ 	if (!CACHE_SYNC(&c->sb))
+ 		return NULL;
+ 
 -- 
 2.20.1
 
