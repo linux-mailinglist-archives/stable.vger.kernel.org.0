@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1381673F6B
+	by mail.lfdr.de (Postfix) with ESMTP id 870D273F6C
 	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:32:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729305AbfGXT3A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:29:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47804 "EHLO mail.kernel.org"
+        id S2387825AbfGXT3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:29:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729072AbfGXT3A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:29:00 -0400
+        id S2387803AbfGXT3G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:29:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 413FD22ADB;
-        Wed, 24 Jul 2019 19:28:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0C6B229F3;
+        Wed, 24 Jul 2019 19:29:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996539;
-        bh=n+KGSrXWUISdL/JRNN9XQlyEeqoBeEVYJjtR3aFNUcA=;
+        s=default; t=1563996545;
+        bh=n+HJGhy/XIG9zr8J9IigWldNrdf5da/92E9wKCkztKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YuePSJNUtTHiqhQuF83koAKUzUR1drMqB45Yx2R5pogPDx0/zqv7WOyvy0uoX2gBS
-         BeyHb7aDoV2rxuGNEO2T44a9a/ONvn7tTYDi87yawaWlTtZRxRQf52Kl9WXVFJZV74
-         CwBFjwrQm6Oal4UFypELxDSHAlht2U66cAmMtfQI=
+        b=q/FtDNta1sJbp2J2x+XnCiHpef9W1cWAVZ6jNb8Dw+1cCaqdb63FRzFe1hACNOAx0
+         7pjTs3EMUeI80Dc1z/3wIoIeyCsSsiakFXr6eeokymy9a/VskPWZJHESv5b7hLrtMa
+         BMgLhifZ2jwr6jVaR5ZwZtIZXtuYXsVCqz4O8SpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 133/413] nvme-pci: set the errno on ctrl state change error
-Date:   Wed, 24 Jul 2019 21:17:04 +0200
-Message-Id: <20190724191744.540068803@linuxfoundation.org>
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        =?UTF-8?q?Matias=20Bj=C3=B8rling?= <mb@lightnvm.io>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 135/413] lightnvm: fix uninitialized pointer in nvm_remove_tgt()
+Date:   Wed, 24 Jul 2019 21:17:06 +0200
+Message-Id: <20190724191744.666619139@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -44,52 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e71afda49335620e3d9adf56015676db33a3bd86 ]
+[ Upstream commit 2f5af4ab7de14bd35f3435e6a47300276bbb6c17 ]
 
-This patch removes the confusing assignment of the variable result at
-the time of declaration and sets the value in error cases next to the
-places where the actual error is happening.
+With gcc 4.1:
 
-Here we also set the result value to -ENODEV when we fail at the final
-ctrl state transition in nvme_reset_work(). Without this assignment
-result will hold 0 from nvme_setup_io_queue() and on failure 0 will be
-passed to he nvme_remove_dead_ctrl() from final state transition.
+    drivers/lightnvm/core.c: In function ‘nvm_remove_tgt’:
+    drivers/lightnvm/core.c:510: warning: ‘t’ is used uninitialized in this function
 
-Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Indeed, if no NVM devices have been registered, t will be an
+uninitialized pointer, and may be dereferenced later.  A call to
+nvm_remove_tgt() can be triggered from userspace by issuing the
+NVM_DEV_REMOVE ioctl on the lightnvm control device.
+
+Fix this by preinitializing t to NULL.
+
+Fixes: 843f2edbdde085b4 ("lightnvm: do not remove instance under global lock")
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Matias Bjørling <mb@lightnvm.io>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/lightnvm/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 385ba7a1e23b..544d095d44e5 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -2480,11 +2480,13 @@ static void nvme_reset_work(struct work_struct *work)
- 	struct nvme_dev *dev =
- 		container_of(work, struct nvme_dev, ctrl.reset_work);
- 	bool was_suspend = !!(dev->ctrl.ctrl_config & NVME_CC_SHN_NORMAL);
--	int result = -ENODEV;
-+	int result;
- 	enum nvme_ctrl_state new_state = NVME_CTRL_LIVE;
+diff --git a/drivers/lightnvm/core.c b/drivers/lightnvm/core.c
+index 7d555b110ecd..a600934fdd9c 100644
+--- a/drivers/lightnvm/core.c
++++ b/drivers/lightnvm/core.c
+@@ -478,7 +478,7 @@ static void __nvm_remove_target(struct nvm_target *t, bool graceful)
+  */
+ static int nvm_remove_tgt(struct nvm_ioctl_remove *remove)
+ {
+-	struct nvm_target *t;
++	struct nvm_target *t = NULL;
+ 	struct nvm_dev *dev;
  
--	if (WARN_ON(dev->ctrl.state != NVME_CTRL_RESETTING))
-+	if (WARN_ON(dev->ctrl.state != NVME_CTRL_RESETTING)) {
-+		result = -ENODEV;
- 		goto out;
-+	}
- 
- 	/*
- 	 * If we're called to reset a live controller first shut it down before
-@@ -2589,6 +2591,7 @@ static void nvme_reset_work(struct work_struct *work)
- 	if (!nvme_change_ctrl_state(&dev->ctrl, new_state)) {
- 		dev_warn(dev->ctrl.device,
- 			"failed to mark controller state %d\n", new_state);
-+		result = -ENODEV;
- 		goto out;
- 	}
- 
+ 	down_read(&nvm_lock);
 -- 
 2.20.1
 
