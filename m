@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B3FE73C6E
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:09:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75C5573B8D
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:01:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405357AbfGXUBM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:01:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49750 "EHLO mail.kernel.org"
+        id S2405371AbfGXUBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:01:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405350AbfGXUBK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 16:01:10 -0400
+        id S2405360AbfGXUBN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 16:01:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC535205C9;
-        Wed, 24 Jul 2019 20:01:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73597206BA;
+        Wed, 24 Jul 2019 20:01:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998469;
-        bh=kEHKA4EUTrNeERxwRQ+APkr3hFEhUC2gW5svMuPHzJY=;
+        s=default; t=1563998471;
+        bh=jzbZqHBVRXZiqnxEGm7vZE5GcK2Hnq/boLbxtVC6yGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vWBORWmwSPoDt54kkpUD+iTsDXiAPO254V3nTPGcYpxDdkUjG7W2PAlzfLCitT2dH
-         8vlhV6HqyWTpfmWX8RRBQQ0n6MNmlnperE6L3E0ycSef9B+m2ZOQLPCFfnjyO+r3D0
-         g0C2cmtw9eCrQz39BZu9d1lzlseyb2/syVzu7wpg=
+        b=pt3OxYLHlKzxKtn+T7Qx56kT/CIbYUYEXQCHCYTJHmBrJfZGR1IZmXqXSP+qK9aOZ
+         kYDu2kyuu8XFhMR3nfDvL1vYQPCecIyi27ZCV9bN++DmYFhj7RgEB7+nZxZ8GN/ZXz
+         bVLunFnnLHQGxJ1zWJJE1kPn8ZvyDfSLfEQQlM+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rolf Eike Beer <eike-kernel@sf-tec.de>,
+        stable@vger.kernel.org, Jeroen Roovers <jer@gentoo.org>,
+        Rolf Eike Beer <eike-kernel@sf-tec.de>,
         Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.1 347/371] parisc: Ensure userspace privilege for ptraced processes in regset functions
-Date:   Wed, 24 Jul 2019 21:21:39 +0200
-Message-Id: <20190724191749.824479528@linuxfoundation.org>
+Subject: [PATCH 5.1 348/371] parisc: Fix kernel panic due invalid values in IAOQ0 or IAOQ1
+Date:   Wed, 24 Jul 2019 21:21:40 +0200
+Message-Id: <20190724191749.917694361@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -45,7 +46,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Helge Deller <deller@gmx.de>
 
-commit 34c32fc603311a72cb558e5e337555434f64c27b upstream.
+commit 10835c854685393a921b68f529bf740fa7c9984d upstream.
 
 On parisc the privilege level of a process is stored in the lowest two bits of
 the instruction pointers (IAOQ0 and IAOQ1). On Linux we use privilege level 0
@@ -53,31 +54,74 @@ for the kernel and privilege level 3 for user-space. So userspace should not be
 allowed to modify IAOQ0 or IAOQ1 of a ptraced process to change it's privilege
 level to e.g. 0 to try to gain kernel privileges.
 
-This patch prevents such modifications in the regset support functions by
-always setting the two lowest bits to one (which relates to privilege level 3
-for user-space) if IAOQ0 or IAOQ1 are modified via ptrace regset calls.
+This patch prevents such modifications by always setting the two lowest bits to
+one (which relates to privilege level 3 for user-space) if IAOQ0 or IAOQ1 are
+modified via ptrace calls in the native and compat ptrace paths.
 
 Link: https://bugs.gentoo.org/481768
-Cc: <stable@vger.kernel.org> # v4.7+
+Reported-by: Jeroen Roovers <jer@gentoo.org>
+Cc: <stable@vger.kernel.org>
 Tested-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/parisc/kernel/ptrace.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/parisc/kernel/ptrace.c |   28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
 
 --- a/arch/parisc/kernel/ptrace.c
 +++ b/arch/parisc/kernel/ptrace.c
-@@ -496,7 +496,8 @@ static void set_reg(struct pt_regs *regs
- 			return;
- 	case RI(iaoq[0]):
- 	case RI(iaoq[1]):
--			regs->iaoq[num - RI(iaoq[0])] = val;
-+			/* set 2 lowest bits to ensure userspace privilege: */
-+			regs->iaoq[num - RI(iaoq[0])] = val | 3;
- 			return;
- 	case RI(sar):	regs->sar = val;
- 			return;
+@@ -167,6 +167,9 @@ long arch_ptrace(struct task_struct *chi
+ 		if ((addr & (sizeof(unsigned long)-1)) ||
+ 		     addr >= sizeof(struct pt_regs))
+ 			break;
++		if (addr == PT_IAOQ0 || addr == PT_IAOQ1) {
++			data |= 3; /* ensure userspace privilege */
++		}
+ 		if ((addr >= PT_GR1 && addr <= PT_GR31) ||
+ 				addr == PT_IAOQ0 || addr == PT_IAOQ1 ||
+ 				(addr >= PT_FR0 && addr <= PT_FR31 + 4) ||
+@@ -228,16 +231,18 @@ long arch_ptrace(struct task_struct *chi
+ 
+ static compat_ulong_t translate_usr_offset(compat_ulong_t offset)
+ {
+-	if (offset < 0)
+-		return sizeof(struct pt_regs);
+-	else if (offset <= 32*4)	/* gr[0..31] */
+-		return offset * 2 + 4;
+-	else if (offset <= 32*4+32*8)	/* gr[0..31] + fr[0..31] */
+-		return offset + 32*4;
+-	else if (offset < sizeof(struct pt_regs)/2 + 32*4)
+-		return offset * 2 + 4 - 32*8;
++	compat_ulong_t pos;
++
++	if (offset < 32*4)	/* gr[0..31] */
++		pos = offset * 2 + 4;
++	else if (offset < 32*4+32*8)	/* fr[0] ... fr[31] */
++		pos = (offset - 32*4) + PT_FR0;
++	else if (offset < sizeof(struct pt_regs)/2 + 32*4) /* sr[0] ... ipsw */
++		pos = (offset - 32*4 - 32*8) * 2 + PT_SR0 + 4;
+ 	else
+-		return sizeof(struct pt_regs);
++		pos = sizeof(struct pt_regs);
++
++	return pos;
+ }
+ 
+ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
+@@ -281,9 +286,12 @@ long compat_arch_ptrace(struct task_stru
+ 			addr = translate_usr_offset(addr);
+ 			if (addr >= sizeof(struct pt_regs))
+ 				break;
++			if (addr == PT_IAOQ0+4 || addr == PT_IAOQ1+4) {
++				data |= 3; /* ensure userspace privilege */
++			}
+ 			if (addr >= PT_FR0 && addr <= PT_FR31 + 4) {
+ 				/* Special case, fp regs are 64 bits anyway */
+-				*(__u64 *) ((char *) task_regs(child) + addr) = data;
++				*(__u32 *) ((char *) task_regs(child) + addr) = data;
+ 				ret = 0;
+ 			}
+ 			else if ((addr >= PT_GR1+4 && addr <= PT_GR31+4) ||
 
 
