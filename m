@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B95F373F66
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:32:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64B2273F5F
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:32:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728936AbfGXT2q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:28:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47324 "EHLO mail.kernel.org"
+        id S1728954AbfGXT3T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:29:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728886AbfGXT2q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:28:46 -0400
+        id S1728552AbfGXT3S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:29:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46EF721951;
-        Wed, 24 Jul 2019 19:28:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BE8120659;
+        Wed, 24 Jul 2019 19:29:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996525;
-        bh=9T3ggQroFXS+ozFglygL7PVZfvxOBqLm3bkcwDSiRos=;
+        s=default; t=1563996557;
+        bh=9Pt7VSf7Y+EbxOQtUc7WMxkJU/adgdCjXxViKqeXkv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fq39ZxkryQRgm1CwOnDeXJb+4KAd0c3uZtH2THMxwYS4dU4KutakBk6PprZVyLnEY
-         pQTtoypUKIqIaPLGblUQqHN+9I1litX7h3N5Vyt9PCPmoLLORKSZV4ZUljIJMHRJvU
-         vjAgLeI3oZssJ8hlMZHbRd4tZ/4MJF1HL1nkFjTA=
+        b=MZy3MTtDu637Br45f34WkUg8bwVkddz6YTiQMXj6YBkgQtMDa5YUzhiXEjsl2ZoJm
+         oUg9UYDqOIXgAxFQFcZvm/ZiknQCYUTe++e4/RN3FJ+2U7NWkwH1Bw8VDbNhQqC0n7
+         KgERPHPZBDUovhEe+Evl4KfaqYLrXjihNLAU9qII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 120/413] tools build: Fix the zstd test in the test-all.c common case feature test
-Date:   Wed, 24 Jul 2019 21:16:51 +0200
-Message-Id: <20190724191743.821939385@linuxfoundation.org>
+Subject: [PATCH 5.2 121/413] bpf: fix callees pruning callers
+Date:   Wed, 24 Jul 2019 21:16:52 +0200
+Message-Id: <20190724191743.873298644@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -47,48 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3469fa84c1631face938efc42b3f488a2c2504e0 ]
+[ Upstream commit eea1c227b9e9bad295e8ef984004a9acf12bb68c ]
 
-We were renanimg 'main' to 'main_zstd' but then using 'main_libzstd();'
-in the main() for test-all.c, causing this:
+The commit 7640ead93924 partially resolved the issue of callees
+incorrectly pruning the callers.
+With introduction of bounded loops and jmps_processed heuristic
+single verifier state may contain multiple branches and calls.
+It's possible that new verifier state (for future pruning) will be
+allocated inside callee. Then callee will exit (still within the same
+verifier state). It will go back to the caller and there R6-R9 registers
+will be read and will trigger mark_reg_read. But the reg->live for all frames
+but the top frame is not set to LIVE_NONE. Hence mark_reg_read will fail
+to propagate liveness into parent and future walking will incorrectly
+conclude that the states are equivalent because LIVE_READ is not set.
+In other words the rule for parent/live should be:
+whenever register parentage chain is set the reg->live should be set to LIVE_NONE.
+is_state_visited logic already follows this rule for spilled registers.
 
-  $ cat /tmp/build/perf/feature/test-all.make.output
-  test-all.c: In function ‘main’:
-  test-all.c:236:2: error: implicit declaration of function ‘main_test_libzstd’; did you mean ‘main_test_zstd’? [-Werror=implicit-function-declaration]
-    main_test_libzstd();
-    ^~~~~~~~~~~~~~~~~
-    main_test_zstd
-  cc1: all warnings being treated as errors
-  $
-
-I.e. what was supposed to be the fast path feature test was _always_
-failing, duh, fix it.
-
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
-Fixes: 3b1c5d965971 ("tools build: Implement libzstd feature check, LIBZSTD_DIR and NO_LIBZSTD defines")
-Link: https://lkml.kernel.org/n/tip-ma4abk0utroiw4mwpmvnjlru@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 7640ead93924 ("bpf: verifier: make sure callees don't prune with caller differences")
+Fixes: f4d7e40a5b71 ("bpf: introduce function calls (verification)")
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/build/feature/test-all.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/bpf/verifier.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/tools/build/feature/test-all.c b/tools/build/feature/test-all.c
-index a59c53705093..939ac2fcc783 100644
---- a/tools/build/feature/test-all.c
-+++ b/tools/build/feature/test-all.c
-@@ -182,7 +182,7 @@
- # include "test-disassembler-four-args.c"
- #undef main
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index a5c369e60343..11528bdaa9dc 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -6456,17 +6456,18 @@ static int is_state_visited(struct bpf_verifier_env *env, int insn_idx)
+ 	 * the state of the call instruction (with WRITTEN set), and r0 comes
+ 	 * from callee with its full parentage chain, anyway.
+ 	 */
+-	for (j = 0; j <= cur->curframe; j++)
+-		for (i = j < cur->curframe ? BPF_REG_6 : 0; i < BPF_REG_FP; i++)
+-			cur->frame[j]->regs[i].parent = &new->frame[j]->regs[i];
+ 	/* clear write marks in current state: the writes we did are not writes
+ 	 * our child did, so they don't screen off its reads from us.
+ 	 * (There are no read marks in current state, because reads always mark
+ 	 * their parent and current state never has children yet.  Only
+ 	 * explored_states can get read marks.)
+ 	 */
+-	for (i = 0; i < BPF_REG_FP; i++)
+-		cur->frame[cur->curframe]->regs[i].live = REG_LIVE_NONE;
++	for (j = 0; j <= cur->curframe; j++) {
++		for (i = j < cur->curframe ? BPF_REG_6 : 0; i < BPF_REG_FP; i++)
++			cur->frame[j]->regs[i].parent = &new->frame[j]->regs[i];
++		for (i = 0; i < BPF_REG_FP; i++)
++			cur->frame[j]->regs[i].live = REG_LIVE_NONE;
++	}
  
--#define main main_test_zstd
-+#define main main_test_libzstd
- # include "test-libzstd.c"
- #undef main
- 
+ 	/* all stack frames are accessible from callee, clear them all */
+ 	for (j = 0; j <= cur->curframe; j++) {
 -- 
 2.20.1
 
