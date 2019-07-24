@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62F1073A22
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:47:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55F6D73A24
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:47:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728570AbfGXTrC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:47:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53400 "EHLO mail.kernel.org"
+        id S2388903AbfGXTrK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:47:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728309AbfGXTrA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:47:00 -0400
+        id S2390871AbfGXTrI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:47:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA00322ADB;
-        Wed, 24 Jul 2019 19:46:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8DE622BE8;
+        Wed, 24 Jul 2019 19:47:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997620;
-        bh=i18rj119Nttz0NHuwhWTC1GnCe6rScxI4Sng1VPQJEc=;
+        s=default; t=1563997628;
+        bh=1d6+62kb1Pf/ZAwkeN74tfLs5AAmRHl8t/OHbwtkFGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L+cCoGfusgToq7g6a99P+YMRg6oFIWni5XTvtlE0xyVNLpHX3gdzKQMDIEWaXJhIB
-         KwDRbVdcQ2uWqjy1JK6sav9SAn+f/4QeXwPRp9NP1dLCsPIVArPN6aYYetYoWtQp8z
-         WLJoS+KPyeLvRoUKej3O55uoHzfBgX9J/YtVDoE8=
+        b=JCLMCxED3auCihoi/uvOPgzUOGMg1F3BDYELEq4TiQGYA6NVwzVQTxHb6DVn4cHf3
+         +JPKgdYEkqiJsAASa94YNLPppWPrNHTPDkHcpRbZ4LOgs//Pth+vcrUP4z0uJVt3JV
+         SMx3jeUTQo93anpEINT9MZtUtrGdtEgVeW75jbMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kir Kolyshkin <kir@sacred.ru>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
+        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 087/371] selinux: fix empty write to keycreate file
-Date:   Wed, 24 Jul 2019 21:17:19 +0200
-Message-Id: <20190724191731.391270221@linuxfoundation.org>
+Subject: [PATCH 5.1 090/371] ASoC: meson: axg-tdm: fix sample clock inversion
+Date:   Wed, 24 Jul 2019 21:17:22 +0200
+Message-Id: <20190724191731.605563200@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -45,51 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 464c258aa45b09f16aa0f05847ed8895873262d9 ]
+[ Upstream commit cb36ff785e868992e96e8b9e5a0c2822b680a9e2 ]
 
-When sid == 0 (we are resetting keycreate_sid to the default value), we
-should skip the KEY__CREATE check.
+The content of SND_SOC_DAIFMT_FORMAT_MASK is a number, not a bitfield,
+so the test to check if the format is i2s is wrong. Because of this the
+clock setting may be wrong. For example, the sample clock gets inverted
+in DSP B mode, when it should not.
 
-Before this patch, doing a zero-sized write to /proc/self/keycreate
-would check if the current task can create unlabeled keys (which would
-usually fail with -EACCESS and generate an AVC). Now it skips the check
-and correctly sets the task's keycreate_sid to 0.
+Fix the lrclk invert helper function
 
-Bug report: https://bugzilla.redhat.com/show_bug.cgi?id=1719067
-
-Tested using the reproducer from the report above.
-
-Fixes: 4eb582cf1fbd ("[PATCH] keys: add a way to store the appropriate context for newly-created keys")
-Reported-by: Kir Kolyshkin <kir@sacred.ru>
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Fixes: 1a11d88f499c ("ASoC: meson: add tdm formatter base driver")
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/hooks.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ sound/soc/meson/axg-tdm.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 614bc753822c..bf37bdce9918 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -6269,11 +6269,12 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
- 	} else if (!strcmp(name, "fscreate")) {
- 		tsec->create_sid = sid;
- 	} else if (!strcmp(name, "keycreate")) {
--		error = avc_has_perm(&selinux_state,
--				     mysid, sid, SECCLASS_KEY, KEY__CREATE,
--				     NULL);
--		if (error)
--			goto abort_change;
-+		if (sid) {
-+			error = avc_has_perm(&selinux_state, mysid, sid,
-+					     SECCLASS_KEY, KEY__CREATE, NULL);
-+			if (error)
-+				goto abort_change;
-+		}
- 		tsec->keycreate_sid = sid;
- 	} else if (!strcmp(name, "sockcreate")) {
- 		tsec->sockcreate_sid = sid;
+diff --git a/sound/soc/meson/axg-tdm.h b/sound/soc/meson/axg-tdm.h
+index e578b6f40a07..5774ce0916d4 100644
+--- a/sound/soc/meson/axg-tdm.h
++++ b/sound/soc/meson/axg-tdm.h
+@@ -40,7 +40,7 @@ struct axg_tdm_iface {
+ 
+ static inline bool axg_tdm_lrclk_invert(unsigned int fmt)
+ {
+-	return (fmt & SND_SOC_DAIFMT_I2S) ^
++	return ((fmt & SND_SOC_DAIFMT_FORMAT_MASK) == SND_SOC_DAIFMT_I2S) ^
+ 		!!(fmt & (SND_SOC_DAIFMT_IB_IF | SND_SOC_DAIFMT_NB_IF));
+ }
+ 
 -- 
 2.20.1
 
