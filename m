@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BE8F73A67
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:49:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02A357397E
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:40:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403976AbfGXTtp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:49:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58054 "EHLO mail.kernel.org"
+        id S2389795AbfGXTko (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:40:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403969AbfGXTtp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:49:45 -0400
+        id S2390066AbfGXTkn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:40:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0385C20659;
-        Wed, 24 Jul 2019 19:49:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B969217D4;
+        Wed, 24 Jul 2019 19:40:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997784;
-        bh=RfBtalWbLtfdUt0VeTLFEqSiZ0jrGFv7K98R4eoDWwI=;
+        s=default; t=1563997241;
+        bh=H/DCJBNmixnAmgd2Ovp34xVh7UujKloaqaqF0z11Czc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vDeU89urXA2l8T590JfdBkYLAaWm/F2BxW6Pq7wKZnrjVOoTQ/k/jOMi3HOPw1OGj
-         gixzJDwjTNPtD9Zuzm3AbQh5tShZm9To45qZa92k1huxa3TxNwxE+ndvYL/Qk7xqwW
-         TsJVB7lbDzMjPIyud1w1xqAmTSqgilwWVRaFsVlg=
+        b=C4rIQ18R9/HriRvY1eRBtc9fwxZC8/a0vidjvbelJaf13GJjkrSwI6ZgsGVM1pC+F
+         ZlCb6EYjsreVqQSSJ/UVSLL4j8fe+rRbc6khxWLjOEr0QgeeJc1oxiULGX4NKhNxbh
+         w3wknCITu/eM+Tmsas/cYVNBMe4PozxN/47oCZaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 142/371] mt7601u: do not schedule rx_tasklet when the device has been disconnected
-Date:   Wed, 24 Jul 2019 21:18:14 +0200
-Message-Id: <20190724191735.705613959@linuxfoundation.org>
+        stable@vger.kernel.org, Vitor Soares <vitor.soares@synopsys.com>,
+        Boris Brezillon <bbrezillon@kernel.org>,
+        Boris Brezillon <boris.brezillon@collabora.com>
+Subject: [PATCH 5.2 343/413] i3c: fix i2c and i3c scl rate by bus mode
+Date:   Wed, 24 Jul 2019 21:20:34 +0200
+Message-Id: <20190724191800.360399753@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
-References: <20190724191724.382593077@linuxfoundation.org>
+In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
+References: <20190724191735.096702571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,113 +44,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4079e8ccabc3b6d1b503f2376123cb515d14921f ]
+From: Vitor Soares <Vitor.Soares@synopsys.com>
 
-Do not schedule rx_tasklet when the usb dongle is disconnected.
-Moreover do not grub rx_lock in mt7601u_kill_rx since usb_poison_urb
-can run concurrently with urb completion and we can unlink urbs from rx
-ring in any order.
-This patch fixes the common kernel warning reported when
-the device is removed.
+commit ecc8fb54bd443bf69996d9d5ddb8d90a50f14936 upstream.
 
-[   24.921354] usb 3-14: USB disconnect, device number 7
-[   24.921593] ------------[ cut here ]------------
-[   24.921594] RX urb mismatch
-[   24.921675] WARNING: CPU: 4 PID: 163 at drivers/net/wireless/mediatek/mt7601u/dma.c:200 mt7601u_complete_rx+0xcb/0xd0 [mt7601u]
-[   24.921769] CPU: 4 PID: 163 Comm: kworker/4:2 Tainted: G           OE     4.19.31-041931-generic #201903231635
-[   24.921770] Hardware name: To Be Filled By O.E.M. To Be Filled By O.E.M./Z97 Extreme4, BIOS P1.30 05/23/2014
-[   24.921782] Workqueue: usb_hub_wq hub_event
-[   24.921797] RIP: 0010:mt7601u_complete_rx+0xcb/0xd0 [mt7601u]
-[   24.921800] RSP: 0018:ffff9bd9cfd03d08 EFLAGS: 00010086
-[   24.921802] RAX: 0000000000000000 RBX: ffff9bd9bf043540 RCX: 0000000000000006
-[   24.921803] RDX: 0000000000000007 RSI: 0000000000000096 RDI: ffff9bd9cfd16420
-[   24.921804] RBP: ffff9bd9cfd03d28 R08: 0000000000000002 R09: 00000000000003a8
-[   24.921805] R10: 0000002f485fca34 R11: 0000000000000000 R12: ffff9bd9bf043c1c
-[   24.921806] R13: ffff9bd9c62fa3c0 R14: 0000000000000082 R15: 0000000000000000
-[   24.921807] FS:  0000000000000000(0000) GS:ffff9bd9cfd00000(0000) knlGS:0000000000000000
-[   24.921808] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   24.921808] CR2: 00007fb2648b0000 CR3: 0000000142c0a004 CR4: 00000000001606e0
-[   24.921809] Call Trace:
-[   24.921812]  <IRQ>
-[   24.921819]  __usb_hcd_giveback_urb+0x8b/0x140
-[   24.921821]  usb_hcd_giveback_urb+0xca/0xe0
-[   24.921828]  xhci_giveback_urb_in_irq.isra.42+0x82/0xf0
-[   24.921834]  handle_cmd_completion+0xe02/0x10d0
-[   24.921837]  xhci_irq+0x274/0x4a0
-[   24.921838]  xhci_msi_irq+0x11/0x20
-[   24.921851]  __handle_irq_event_percpu+0x44/0x190
-[   24.921856]  handle_irq_event_percpu+0x32/0x80
-[   24.921861]  handle_irq_event+0x3b/0x5a
-[   24.921867]  handle_edge_irq+0x80/0x190
-[   24.921874]  handle_irq+0x20/0x30
-[   24.921889]  do_IRQ+0x4e/0xe0
-[   24.921891]  common_interrupt+0xf/0xf
-[   24.921892]  </IRQ>
-[   24.921900] RIP: 0010:usb_hcd_flush_endpoint+0x78/0x180
-[   24.921354] usb 3-14: USB disconnect, device number 7
+Currently the I3C framework limits SCL frequency to FM speed when
+dealing with a mixed slow bus, even if all I2C devices are FM+ capable.
 
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The core was also not accounting for I3C speed limitations when
+operating in mixed slow mode and was erroneously using FM+ speed as the
+max I2C speed when operating in mixed fast mode.
+
+Fixes: 3a379bbcea0a ("i3c: Add core I3C infrastructure")
+Signed-off-by: Vitor Soares <vitor.soares@synopsys.com>
+Cc: Boris Brezillon <bbrezillon@kernel.org>
+Cc: <stable@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wireless/mediatek/mt7601u/dma.c | 33 +++++++++++----------
- 1 file changed, 18 insertions(+), 15 deletions(-)
+ drivers/i3c/master.c |   51 ++++++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 38 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt7601u/dma.c b/drivers/net/wireless/mediatek/mt7601u/dma.c
-index f7edeffb2b19..134f8a5bb5d4 100644
---- a/drivers/net/wireless/mediatek/mt7601u/dma.c
-+++ b/drivers/net/wireless/mediatek/mt7601u/dma.c
-@@ -193,10 +193,23 @@ static void mt7601u_complete_rx(struct urb *urb)
- 	struct mt7601u_rx_queue *q = &dev->rx_q;
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&dev->rx_lock, flags);
-+	/* do no schedule rx tasklet if urb has been unlinked
-+	 * or the device has been removed
-+	 */
-+	switch (urb->status) {
-+	case -ECONNRESET:
-+	case -ESHUTDOWN:
-+	case -ENOENT:
-+		return;
-+	default:
-+		dev_err_ratelimited(dev->dev, "rx urb failed: %d\n",
-+				    urb->status);
-+		/* fall through */
-+	case 0:
-+		break;
-+	}
- 
--	if (mt7601u_urb_has_error(urb))
--		dev_err(dev->dev, "Error: RX urb failed:%d\n", urb->status);
-+	spin_lock_irqsave(&dev->rx_lock, flags);
- 	if (WARN_ONCE(q->e[q->end].urb != urb, "RX urb mismatch"))
- 		goto out;
- 
-@@ -363,19 +376,9 @@ int mt7601u_dma_enqueue_tx(struct mt7601u_dev *dev, struct sk_buff *skb,
- static void mt7601u_kill_rx(struct mt7601u_dev *dev)
- {
- 	int i;
--	unsigned long flags;
- 
--	spin_lock_irqsave(&dev->rx_lock, flags);
--
--	for (i = 0; i < dev->rx_q.entries; i++) {
--		int next = dev->rx_q.end;
--
--		spin_unlock_irqrestore(&dev->rx_lock, flags);
--		usb_poison_urb(dev->rx_q.e[next].urb);
--		spin_lock_irqsave(&dev->rx_lock, flags);
--	}
--
--	spin_unlock_irqrestore(&dev->rx_lock, flags);
-+	for (i = 0; i < dev->rx_q.entries; i++)
-+		usb_poison_urb(dev->rx_q.e[i].urb);
+--- a/drivers/i3c/master.c
++++ b/drivers/i3c/master.c
+@@ -91,6 +91,12 @@ void i3c_bus_normaluse_unlock(struct i3c
+ 	up_read(&bus->lock);
  }
  
- static int mt7601u_submit_rx_buf(struct mt7601u_dev *dev,
--- 
-2.20.1
-
++static struct i3c_master_controller *
++i3c_bus_to_i3c_master(struct i3c_bus *i3cbus)
++{
++	return container_of(i3cbus, struct i3c_master_controller, bus);
++}
++
+ static struct i3c_master_controller *dev_to_i3cmaster(struct device *dev)
+ {
+ 	return container_of(dev, struct i3c_master_controller, dev);
+@@ -565,20 +571,38 @@ static const struct device_type i3c_mast
+ 	.groups	= i3c_masterdev_groups,
+ };
+ 
+-int i3c_bus_set_mode(struct i3c_bus *i3cbus, enum i3c_bus_mode mode)
++int i3c_bus_set_mode(struct i3c_bus *i3cbus, enum i3c_bus_mode mode,
++		     unsigned long max_i2c_scl_rate)
+ {
+-	i3cbus->mode = mode;
++	struct i3c_master_controller *master = i3c_bus_to_i3c_master(i3cbus);
+ 
+-	if (!i3cbus->scl_rate.i3c)
+-		i3cbus->scl_rate.i3c = I3C_BUS_TYP_I3C_SCL_RATE;
++	i3cbus->mode = mode;
+ 
+-	if (!i3cbus->scl_rate.i2c) {
+-		if (i3cbus->mode == I3C_BUS_MODE_MIXED_SLOW)
+-			i3cbus->scl_rate.i2c = I3C_BUS_I2C_FM_SCL_RATE;
+-		else
+-			i3cbus->scl_rate.i2c = I3C_BUS_I2C_FM_PLUS_SCL_RATE;
++	switch (i3cbus->mode) {
++	case I3C_BUS_MODE_PURE:
++		if (!i3cbus->scl_rate.i3c)
++			i3cbus->scl_rate.i3c = I3C_BUS_TYP_I3C_SCL_RATE;
++		break;
++	case I3C_BUS_MODE_MIXED_FAST:
++		if (!i3cbus->scl_rate.i3c)
++			i3cbus->scl_rate.i3c = I3C_BUS_TYP_I3C_SCL_RATE;
++		if (!i3cbus->scl_rate.i2c)
++			i3cbus->scl_rate.i2c = max_i2c_scl_rate;
++		break;
++	case I3C_BUS_MODE_MIXED_SLOW:
++		if (!i3cbus->scl_rate.i2c)
++			i3cbus->scl_rate.i2c = max_i2c_scl_rate;
++		if (!i3cbus->scl_rate.i3c ||
++		    i3cbus->scl_rate.i3c > i3cbus->scl_rate.i2c)
++			i3cbus->scl_rate.i3c = i3cbus->scl_rate.i2c;
++		break;
++	default:
++		return -EINVAL;
+ 	}
+ 
++	dev_dbg(&master->dev, "i2c-scl = %ld Hz i3c-scl = %ld Hz\n",
++		i3cbus->scl_rate.i2c, i3cbus->scl_rate.i3c);
++
+ 	/*
+ 	 * I3C/I2C frequency may have been overridden, check that user-provided
+ 	 * values are not exceeding max possible frequency.
+@@ -1966,9 +1990,6 @@ of_i3c_master_add_i2c_boardinfo(struct i
+ 	/* LVR is encoded in reg[2]. */
+ 	boardinfo->lvr = reg[2];
+ 
+-	if (boardinfo->lvr & I3C_LVR_I2C_FM_MODE)
+-		master->bus.scl_rate.i2c = I3C_BUS_I2C_FM_SCL_RATE;
+-
+ 	list_add_tail(&boardinfo->node, &master->boardinfo.i2c);
+ 	of_node_get(node);
+ 
+@@ -2417,6 +2438,7 @@ int i3c_master_register(struct i3c_maste
+ 			const struct i3c_master_controller_ops *ops,
+ 			bool secondary)
+ {
++	unsigned long i2c_scl_rate = I3C_BUS_I2C_FM_PLUS_SCL_RATE;
+ 	struct i3c_bus *i3cbus = i3c_master_get_bus(master);
+ 	enum i3c_bus_mode mode = I3C_BUS_MODE_PURE;
+ 	struct i2c_dev_boardinfo *i2cbi;
+@@ -2466,9 +2488,12 @@ int i3c_master_register(struct i3c_maste
+ 			ret = -EINVAL;
+ 			goto err_put_dev;
+ 		}
++
++		if (i2cbi->lvr & I3C_LVR_I2C_FM_MODE)
++			i2c_scl_rate = I3C_BUS_I2C_FM_SCL_RATE;
+ 	}
+ 
+-	ret = i3c_bus_set_mode(i3cbus, mode);
++	ret = i3c_bus_set_mode(i3cbus, mode, i2c_scl_rate);
+ 	if (ret)
+ 		goto err_put_dev;
+ 
 
 
