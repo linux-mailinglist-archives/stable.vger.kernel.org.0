@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FF7573E48
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:23:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D08C73E44
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:23:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388998AbfGXUXl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:23:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44238 "EHLO mail.kernel.org"
+        id S2390379AbfGXTmg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:42:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387897AbfGXTmb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:42:31 -0400
+        id S2388827AbfGXTmg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:42:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31FEB22ADA;
-        Wed, 24 Jul 2019 19:42:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6AADF20665;
+        Wed, 24 Jul 2019 19:42:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997350;
-        bh=ikudbIaHF+TQIA27wylt1DWHxq8QWyo2t/AkcsVrBNg=;
+        s=default; t=1563997355;
+        bh=K8tCOehphzHY0IO/sbGLCbhffAbFe0XqUIVhEKI7KQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PhIrYAVlS4FckuEqxmc0B6Gp1R6WOqOpNRoe6ixbeMGHX7BKpTFKsEVP6vs8/ERjl
-         2xhKMm/sowi3qXob8nN5orbHde9tjPzDWcmeH6kwme1/Ds4UtQsFqXTGzAMuBtLV55
-         5x3ClijA+UWZ47QwcRCgOB43y39mnmiZaugB0Ywk=
+        b=k/edPh/QdDfLkeSqGD7kh4pHO3aj/ufpYgkxPaCVPahVz1ovBQ6YYn6nP24UZIPt2
+         RTRRxjD0RK/3LcjI8a2yr4+wMx0gV16BfxjjM3lKcVOliWEYBcBEMxpjBhXJpliagZ
+         uu5+ZVAHWqIj/QVQyheUh2iV8yQ+xGDBXwdadROA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Josef Bacik <jbacik@fb.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.2 406/413] blk-iolatency: clear use_delay when io.latency is set to zero
-Date:   Wed, 24 Jul 2019 21:21:37 +0200
-Message-Id: <20190724191803.688554541@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Josua Mayer <josua@solid-run.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.2 408/413] net: mvmdio: allow up to four clocks to be specified for orion-mdio
+Date:   Wed, 24 Jul 2019 21:21:39 +0200
+Message-Id: <20190724191803.769784497@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -43,39 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Josua Mayer <josua@solid-run.com>
 
-commit 5de0073fcd50cc1f150895a7bb04d3cf8067b1d7 upstream.
+commit 4aabed699c400810981d3dda170f05fa4d782905 upstream.
 
-If use_delay was non-zero when the latency target of a cgroup was set
-to zero, it will stay stuck until io.latency is enabled on the cgroup
-again.  This keeps readahead disabled for the cgroup impacting
-performance negatively.
+Allow up to four clocks to be specified and enabled for the orion-mdio
+interface, which are required by the Armada 8k and defined in
+armada-cp110.dtsi.
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Cc: Josef Bacik <jbacik@fb.com>
-Fixes: d70675121546 ("block: introduce blk-iolatency io controller")
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes a hang in probing the mvmdio driver that was encountered on the
+Clearfog GT 8K with all drivers built as modules, but also affects other
+boards such as the MacchiatoBIN.
+
+Cc: stable@vger.kernel.org
+Fixes: 96cb43423822 ("net: mvmdio: allow up to three clocks to be specified for orion-mdio")
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Josua Mayer <josua@solid-run.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk-iolatency.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/mvmdio.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/block/blk-iolatency.c
-+++ b/block/blk-iolatency.c
-@@ -759,8 +759,10 @@ static int iolatency_set_min_lat_nsec(st
+--- a/drivers/net/ethernet/marvell/mvmdio.c
++++ b/drivers/net/ethernet/marvell/mvmdio.c
+@@ -64,7 +64,7 @@
  
- 	if (!oldval && val)
- 		return 1;
--	if (oldval && !val)
-+	if (oldval && !val) {
-+		blkcg_clear_delay(blkg);
- 		return -1;
-+	}
- 	return 0;
- }
- 
+ struct orion_mdio_dev {
+ 	void __iomem *regs;
+-	struct clk *clk[3];
++	struct clk *clk[4];
+ 	/*
+ 	 * If we have access to the error interrupt pin (which is
+ 	 * somewhat misnamed as it not only reflects internal errors
 
 
