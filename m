@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AE0373F69
+	by mail.lfdr.de (Postfix) with ESMTP id 940FB73F6A
 	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:32:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387688AbfGXT2z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:28:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47632 "EHLO mail.kernel.org"
+        id S1728848AbfGXT27 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:28:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387658AbfGXT2y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:28:54 -0400
+        id S2387658AbfGXT26 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:28:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11D4B21951;
-        Wed, 24 Jul 2019 19:28:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A03D6229FA;
+        Wed, 24 Jul 2019 19:28:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996534;
-        bh=HbCgqF6bGb1VpavFzRsrl9BDL729eKpjMkUS1uh2Qt4=;
+        s=default; t=1563996537;
+        bh=kiF7LpIZs7E8hkOpmeu+j/x0mZ6sFmbjCc3yKNlnRJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yIGo9BXA+BhGjxWN2kTrRkHSDgU4tQefygU9fkyUVLn5l0yTrKPiKXel8DyQvFoUX
-         fjgOnf8kv07EaSeT9mgR7kl9a95xVg9Y+Mw0A0+O1Mue4G+gu1X/FzA5iRt6pmgsko
-         KjAL6NSg6y7tiXXPFheGlzlRLB/f+h6PrvFjS4tQ=
+        b=W7HHe5AMXL7fWusW600rywxtkepFp/Zs4Hkn2YuJ8nc2zxj5fC4O7xaSoW/cVNBRe
+         JX6JE0cftZQMTsPKDSClrMKNQhhk9JAymhocis8yKHccTWkoQNXADFHBlOcuIoIBvm
+         3BrLp6C5nUnUVlTlBEPlHFKR15X3nAsEfm/ma01s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anton Eidelman <anton@lightbitslabs.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
+        stable@vger.kernel.org, Minwoo Im <minwoo.im.dev@gmail.com>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
         Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 131/413] nvme: fix possible io failures when removing multipathed ns
-Date:   Wed, 24 Jul 2019 21:17:02 +0200
-Message-Id: <20190724191744.423076284@linuxfoundation.org>
+Subject: [PATCH 5.2 132/413] nvme-pci: properly report state change failure in nvme_reset_work
+Date:   Wed, 24 Jul 2019 21:17:03 +0200
+Message-Id: <20190724191744.482131840@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -44,67 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2181e455612a8db2761eabbf126640552a451e96 ]
+[ Upstream commit cee6c269b016ba89c62e34d6bccb103ee2c7de4f ]
 
-When a shared namespace is removed, we call blk_cleanup_queue()
-when the device can still be accessed as the current path and this can
-result in submission to a dying queue. Hence, direct_make_request()
-called by our mpath device may fail (propagating the failure to userspace).
-Instead, we want to failover this I/O to a different path if one exists.
-Thus, before we cleanup the request queue, we make sure that the device is
-cleared from the current path nor it can be selected again as such.
+If the state change to NVME_CTRL_CONNECTING fails, the dmesg is going to
+be like:
 
-Fix this by:
-- clear the ns from the head->list and synchronize rcu to make sure there is
-  no concurrent path search that restores it as the current path
-- clear the mpath current path in order to trigger a subsequent path search
-  and sync srcu to wait for any ongoing request submissions
-- safely continue to namespace removal and blk_cleanup_queue
+  [  293.689160] nvme nvme0: failed to mark controller CONNECTING
+  [  293.689160] nvme nvme0: Removing after probe failure status: 0
 
-Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Even it prints the first line to indicate the situation, the second line
+is not proper because the status is 0 which means normally success of
+the previous operation.
+
+This patch makes it indicate the proper error value when it fails.
+  [   25.932367] nvme nvme0: failed to mark controller CONNECTING
+  [   25.932369] nvme nvme0: Removing after probe failure status: -16
+
+This situation is able to be easily reproduced by:
+  root@target:~# rmmod nvme && modprobe nvme && rmmod nvme
+
+Signed-off-by: Minwoo Im <minwoo.im.dev@gmail.com>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/nvme/host/pci.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 120fb593d1da..22c68e3b71d5 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3344,6 +3344,14 @@ static void nvme_ns_remove(struct nvme_ns *ns)
- 		return;
- 
- 	nvme_fault_inject_fini(ns);
-+
-+	mutex_lock(&ns->ctrl->subsys->lock);
-+	list_del_rcu(&ns->siblings);
-+	mutex_unlock(&ns->ctrl->subsys->lock);
-+	synchronize_rcu(); /* guarantee not available in head->list */
-+	nvme_mpath_clear_current_path(ns);
-+	synchronize_srcu(&ns->head->srcu); /* wait for concurrent submissions */
-+
- 	if (ns->disk && ns->disk->flags & GENHD_FL_UP) {
- 		del_gendisk(ns->disk);
- 		blk_cleanup_queue(ns->queue);
-@@ -3351,16 +3359,10 @@ static void nvme_ns_remove(struct nvme_ns *ns)
- 			blk_integrity_unregister(ns->disk);
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 524d6bd6d095..385ba7a1e23b 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -2528,6 +2528,7 @@ static void nvme_reset_work(struct work_struct *work)
+ 	if (!nvme_change_ctrl_state(&dev->ctrl, NVME_CTRL_CONNECTING)) {
+ 		dev_warn(dev->ctrl.device,
+ 			"failed to mark controller CONNECTING\n");
++		result = -EBUSY;
+ 		goto out;
  	}
  
--	mutex_lock(&ns->ctrl->subsys->lock);
--	list_del_rcu(&ns->siblings);
--	nvme_mpath_clear_current_path(ns);
--	mutex_unlock(&ns->ctrl->subsys->lock);
--
- 	down_write(&ns->ctrl->namespaces_rwsem);
- 	list_del_init(&ns->list);
- 	up_write(&ns->ctrl->namespaces_rwsem);
- 
--	synchronize_srcu(&ns->head->srcu);
- 	nvme_mpath_check_last_path(ns);
- 	nvme_put_ns(ns);
- }
 -- 
 2.20.1
 
