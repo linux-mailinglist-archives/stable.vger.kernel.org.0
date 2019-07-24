@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80E8E737F3
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:24:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AAD373801
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:25:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727193AbfGXTYc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:24:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40784 "EHLO mail.kernel.org"
+        id S1728165AbfGXTZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:25:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729056AbfGXTYb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:24:31 -0400
+        id S1729140AbfGXTZG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:25:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DD0522387;
-        Wed, 24 Jul 2019 19:24:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6D0C218EA;
+        Wed, 24 Jul 2019 19:25:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996270;
-        bh=/m+OpmSi6461DEttxrd1JK+QUeBO2w8QPWSmaVlv9LE=;
+        s=default; t=1563996305;
+        bh=vkubnwGwqggu4gM/JSBjnWe2XoZHpeGUfBMr8usYZYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lNL7ToT6nIm2yvcR8GOvvohsgvlrrSk6Ub0PNkViwYD+zP8kTdIakLibDhhvpPuf+
-         pEZNHkUcBEWk7+wqom0DKSW1LmACckyvsnvMHSw3BjjTECqwECBRfPhWTyYax0iqgj
-         acpc4sCKeqh/b45DPWBOW7Ievytkxt8lTDUsxpIk=
+        b=FMA5qvigGfmQXY2lPXg44Yy25mn/bWtRPNAPD1ALMt65PCDoGubW7bjBdNwvyk5n9
+         GskZE1IK6DLpI+edncshMz99AyFYRxyFC4M76DqVT+tVKeJidnnH+xF1RawRFCDvTA
+         XjWqhpGCmmdDp64/AMEtZWf+OyBRo5LN3/PUe4M0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
-        Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org,
+        Maxime Chevallier <maxime.chevallier@bootlin.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 032/413] ice: Fix couple of issues in ice_vsi_release
-Date:   Wed, 24 Jul 2019 21:15:23 +0200
-Message-Id: <20190724191737.862012030@linuxfoundation.org>
+Subject: [PATCH 5.2 033/413] net: mvpp2: cls: Extract the RSS context when parsing the ethtool rule
+Date:   Wed, 24 Jul 2019 21:15:24 +0200
+Message-Id: <20190724191737.956580831@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -46,98 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit aa6ccf3f2d7042f94c4e91538956ce7051e7856e ]
+[ Upstream commit c561da68038a738f30eca21456534c2d1872d13d ]
 
-Currently the driver is calling ice_napi_del() and then
-unregister_netdev(). The call to unregister_netdev() will result in a
-call to ice_stop() and then ice_vsi_close(). This is where we call
-napi_disable() for all the MSI-X vectors. This flow is reversed so make
-the changes to ensure napi_disable() happens prior to napi_del().
+ethtool_rx_flow_rule_create takes into parameter the ethtool flow spec,
+which doesn't contain the rss context id. We therefore need to extract
+it ourself before parsing the ethtool rule.
 
-Before calling napi_del() and free_netdev() make sure
-unregister_netdev() was called. This is done by making sure the
-__ICE_DOWN bit is set in the vsi->state for the interested VSI.
+The FLOW_RSS flag is only set in info->fs.flow_type, and not
+info->flow_type.
 
-Signed-off-by: Brett Creeley <brett.creeley@intel.com>
-Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Maxime Chevallier <maxime.chevallier@bootlin.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice.h      |  1 -
- drivers/net/ethernet/intel/ice/ice_lib.c  | 24 ++++++++++++-----------
- drivers/net/ethernet/intel/ice/ice_main.c |  2 +-
- 3 files changed, 14 insertions(+), 13 deletions(-)
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice.h b/drivers/net/ethernet/intel/ice/ice.h
-index 792e6e42030e..754c7080c3fc 100644
---- a/drivers/net/ethernet/intel/ice/ice.h
-+++ b/drivers/net/ethernet/intel/ice/ice.h
-@@ -451,7 +451,6 @@ int ice_set_rss(struct ice_vsi *vsi, u8 *seed, u8 *lut, u16 lut_size);
- int ice_get_rss(struct ice_vsi *vsi, u8 *seed, u8 *lut, u16 lut_size);
- void ice_fill_rss_lut(u8 *lut, u16 rss_table_size, u16 rss_size);
- void ice_print_link_msg(struct ice_vsi *vsi, bool isup);
--void ice_napi_del(struct ice_vsi *vsi);
- #ifdef CONFIG_DCB
- int ice_pf_ena_all_vsi(struct ice_pf *pf, bool locked);
- void ice_pf_dis_all_vsi(struct ice_pf *pf, bool locked);
-diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
-index fbf1eba0cc2a..f14fa51cc704 100644
---- a/drivers/net/ethernet/intel/ice/ice_lib.c
-+++ b/drivers/net/ethernet/intel/ice/ice_lib.c
-@@ -2754,19 +2754,14 @@ int ice_vsi_release(struct ice_vsi *vsi)
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c
+index a57d17ab91f0..fb06c0aa620a 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c
+@@ -1242,6 +1242,12 @@ int mvpp2_ethtool_cls_rule_ins(struct mvpp2_port *port,
  
- 	if (vsi->type == ICE_VSI_VF)
- 		vf = &pf->vf[vsi->vf_id];
--	/* do not unregister and free netdevs while driver is in the reset
--	 * recovery pending state. Since reset/rebuild happens through PF
--	 * service task workqueue, its not a good idea to unregister netdev
--	 * that is associated to the PF that is running the work queue items
--	 * currently. This is done to avoid check_flush_dependency() warning
--	 * on this wq
-+	/* do not unregister while driver is in the reset recovery pending
-+	 * state. Since reset/rebuild happens through PF service task workqueue,
-+	 * it's not a good idea to unregister netdev that is associated to the
-+	 * PF that is running the work queue items currently. This is done to
-+	 * avoid check_flush_dependency() warning on this wq
- 	 */
--	if (vsi->netdev && !ice_is_reset_in_progress(pf->state)) {
--		ice_napi_del(vsi);
-+	if (vsi->netdev && !ice_is_reset_in_progress(pf->state))
- 		unregister_netdev(vsi->netdev);
--		free_netdev(vsi->netdev);
--		vsi->netdev = NULL;
--	}
+ 	input.fs = &info->fs;
  
- 	if (test_bit(ICE_FLAG_RSS_ENA, pf->flags))
- 		ice_rss_clean(vsi);
-@@ -2799,6 +2794,13 @@ int ice_vsi_release(struct ice_vsi *vsi)
- 	ice_rm_vsi_lan_cfg(vsi->port_info, vsi->idx);
- 	ice_vsi_delete(vsi);
- 	ice_vsi_free_q_vectors(vsi);
++	/* We need to manually set the rss_ctx, since this info isn't present
++	 * in info->fs
++	 */
++	if (info->fs.flow_type & FLOW_RSS)
++		input.rss_ctx = info->rss_context;
 +
-+	/* make sure unregister_netdev() was called by checking __ICE_DOWN */
-+	if (vsi->netdev && test_bit(__ICE_DOWN, vsi->state)) {
-+		free_netdev(vsi->netdev);
-+		vsi->netdev = NULL;
-+	}
-+
- 	ice_vsi_clear_rings(vsi);
- 
- 	ice_vsi_put_qs(vsi);
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index 7843abf4d44d..dbf3d39ad8b1 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -1667,7 +1667,7 @@ static int ice_req_irq_msix_misc(struct ice_pf *pf)
-  * ice_napi_del - Remove NAPI handler for the VSI
-  * @vsi: VSI for which NAPI handler is to be removed
-  */
--void ice_napi_del(struct ice_vsi *vsi)
-+static void ice_napi_del(struct ice_vsi *vsi)
- {
- 	int v_idx;
- 
+ 	ethtool_rule = ethtool_rx_flow_rule_create(&input);
+ 	if (IS_ERR(ethtool_rule)) {
+ 		ret = PTR_ERR(ethtool_rule);
 -- 
 2.20.1
 
