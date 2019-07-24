@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E28373B46
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:59:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C79B73B4A
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:59:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404492AbfGXT6U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:58:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44728 "EHLO mail.kernel.org"
+        id S2391935AbfGXT6f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:58:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404931AbfGXT6T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:58:19 -0400
+        id S2405088AbfGXT6d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:58:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BBBB4214AF;
-        Wed, 24 Jul 2019 19:58:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B49D206BA;
+        Wed, 24 Jul 2019 19:58:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998298;
-        bh=jCXGdMDV83SSi0RMcl/cTH0AX2saeysAkpPWqNnn6r8=;
+        s=default; t=1563998312;
+        bh=umCl6dFR14+uVHcFjKurp7A+kE3J7+NoohuECceKeLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2WXehhtQkuoPdzw/j/dQbSQebKs+B351qQzO70uj/MqHsIIS1PD8j1/GD5nxesWpm
-         4aZU5EIC9LpiFjDf6tlYsh1aMcXq4zHyN4gVdgEr8VJ9G+MR7XCyPWiS5Ywo7d4oVE
-         C8fF8UYokWozQEa78TyTeRm4be/GtK7sz0/t/4AI=
+        b=pr3kAImsnppfwqfLAbLS6ZT+kQc1vHvq02/l7g1lrwHadbmKlXVtpcJ9MG0gdaLg3
+         Gujvftm1f7Iw4WazJv+A0LjSOUv6NdvSXwjaGygMRV7+z75HzqTBhI58eQb8331T8J
+         toOhD218u2Bsgwb1wIAGLI33WkYVVm4hnNH0qzKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masato Suzuki <masato.suzuki@wdc.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.1 316/371] dm zoned: fix zone state management race
-Date:   Wed, 24 Jul 2019 21:21:08 +0200
-Message-Id: <20190724191747.805533618@linuxfoundation.org>
+        stable@vger.kernel.org, Cfir Cohen <cfir@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.1 321/371] x86/boot: Fix memory leak in default_get_smp_config()
+Date:   Wed, 24 Jul 2019 21:21:13 +0200
+Message-Id: <20190724191748.088772676@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -44,130 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: David Rientjes <rientjes@google.com>
 
-commit 3b8cafdd5436f9298b3bf6eb831df5eef5ee82b6 upstream.
+commit e74bd96989dd42a51a73eddb4a5510a6f5e42ac3 upstream.
 
-dm-zoned uses the zone flag DMZ_ACTIVE to indicate that a zone of the
-backend device is being actively read or written and so cannot be
-reclaimed. This flag is set as long as the zone atomic reference
-counter is not 0. When this atomic is decremented and reaches 0 (e.g.
-on BIO completion), the active flag is cleared and set again whenever
-the zone is reused and BIO issued with the atomic counter incremented.
-These 2 operations (atomic inc/dec and flag set/clear) are however not
-always executed atomically under the target metadata mutex lock and
-this causes the warning:
+When default_get_smp_config() is called with early == 1 and mpf->feature1
+is non-zero, mpf is leaked because the return path does not do
+early_memunmap().
 
-WARN_ON(!test_bit(DMZ_ACTIVE, &zone->flags));
+Fix this and share a common exit routine.
 
-in dmz_deactivate_zone() to be displayed. This problem is regularly
-triggered with xfstests generic/209, generic/300, generic/451 and
-xfs/077 with XFS being used as the file system on the dm-zoned target
-device. Similarly, xfstests ext4/303, ext4/304, generic/209 and
-generic/300 trigger the warning with ext4 use.
-
-This problem can be easily fixed by simply removing the DMZ_ACTIVE flag
-and managing the "ACTIVE" state by directly looking at the reference
-counter value. To do so, the functions dmz_activate_zone() and
-dmz_deactivate_zone() are changed to inline functions respectively
-calling atomic_inc() and atomic_dec(), while the dmz_is_active() macro
-is changed to an inline function calling atomic_read().
-
-Fixes: 3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
+Fixes: 5997efb96756 ("x86/boot: Use memremap() to map the MPF and MPC data")
+Reported-by: Cfir Cohen <cfir@google.com>
+Signed-off-by: David Rientjes <rientjes@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
-Reported-by: Masato Suzuki <masato.suzuki@wdc.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Link: https://lkml.kernel.org/r/alpine.DEB.2.21.1907091942570.28240@chino.kir.corp.google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-zoned-metadata.c |   24 ------------------------
- drivers/md/dm-zoned.h          |   28 ++++++++++++++++++++++++----
- 2 files changed, 24 insertions(+), 28 deletions(-)
+ arch/x86/kernel/mpparse.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
---- a/drivers/md/dm-zoned-metadata.c
-+++ b/drivers/md/dm-zoned-metadata.c
-@@ -1594,30 +1594,6 @@ struct dm_zone *dmz_get_zone_for_reclaim
+--- a/arch/x86/kernel/mpparse.c
++++ b/arch/x86/kernel/mpparse.c
+@@ -546,17 +546,15 @@ void __init default_get_smp_config(unsig
+ 			 * local APIC has default address
+ 			 */
+ 			mp_lapic_addr = APIC_DEFAULT_PHYS_BASE;
+-			return;
++			goto out;
+ 		}
+ 
+ 		pr_info("Default MP configuration #%d\n", mpf->feature1);
+ 		construct_default_ISA_mptable(mpf->feature1);
+ 
+ 	} else if (mpf->physptr) {
+-		if (check_physptr(mpf, early)) {
+-			early_memunmap(mpf, sizeof(*mpf));
+-			return;
+-		}
++		if (check_physptr(mpf, early))
++			goto out;
+ 	} else
+ 		BUG();
+ 
+@@ -565,7 +563,7 @@ void __init default_get_smp_config(unsig
+ 	/*
+ 	 * Only use the first configuration found.
+ 	 */
+-
++out:
+ 	early_memunmap(mpf, sizeof(*mpf));
  }
  
- /*
-- * Activate a zone (increment its reference count).
-- */
--void dmz_activate_zone(struct dm_zone *zone)
--{
--	set_bit(DMZ_ACTIVE, &zone->flags);
--	atomic_inc(&zone->refcount);
--}
--
--/*
-- * Deactivate a zone. This decrement the zone reference counter
-- * and clears the active state of the zone once the count reaches 0,
-- * indicating that all BIOs to the zone have completed. Returns
-- * true if the zone was deactivated.
-- */
--void dmz_deactivate_zone(struct dm_zone *zone)
--{
--	if (atomic_dec_and_test(&zone->refcount)) {
--		WARN_ON(!test_bit(DMZ_ACTIVE, &zone->flags));
--		clear_bit_unlock(DMZ_ACTIVE, &zone->flags);
--		smp_mb__after_atomic();
--	}
--}
--
--/*
-  * Get the zone mapping a chunk, if the chunk is mapped already.
-  * If no mapping exist and the operation is WRITE, a zone is
-  * allocated and used to map the chunk.
---- a/drivers/md/dm-zoned.h
-+++ b/drivers/md/dm-zoned.h
-@@ -115,7 +115,6 @@ enum {
- 	DMZ_BUF,
- 
- 	/* Zone internal state */
--	DMZ_ACTIVE,
- 	DMZ_RECLAIM,
- 	DMZ_SEQ_WRITE_ERR,
- };
-@@ -128,7 +127,6 @@ enum {
- #define dmz_is_empty(z)		((z)->wp_block == 0)
- #define dmz_is_offline(z)	test_bit(DMZ_OFFLINE, &(z)->flags)
- #define dmz_is_readonly(z)	test_bit(DMZ_READ_ONLY, &(z)->flags)
--#define dmz_is_active(z)	test_bit(DMZ_ACTIVE, &(z)->flags)
- #define dmz_in_reclaim(z)	test_bit(DMZ_RECLAIM, &(z)->flags)
- #define dmz_seq_write_err(z)	test_bit(DMZ_SEQ_WRITE_ERR, &(z)->flags)
- 
-@@ -188,8 +186,30 @@ void dmz_unmap_zone(struct dmz_metadata
- unsigned int dmz_nr_rnd_zones(struct dmz_metadata *zmd);
- unsigned int dmz_nr_unmap_rnd_zones(struct dmz_metadata *zmd);
- 
--void dmz_activate_zone(struct dm_zone *zone);
--void dmz_deactivate_zone(struct dm_zone *zone);
-+/*
-+ * Activate a zone (increment its reference count).
-+ */
-+static inline void dmz_activate_zone(struct dm_zone *zone)
-+{
-+	atomic_inc(&zone->refcount);
-+}
-+
-+/*
-+ * Deactivate a zone. This decrement the zone reference counter
-+ * indicating that all BIOs to the zone have completed when the count is 0.
-+ */
-+static inline void dmz_deactivate_zone(struct dm_zone *zone)
-+{
-+	atomic_dec(&zone->refcount);
-+}
-+
-+/*
-+ * Test if a zone is active, that is, has a refcount > 0.
-+ */
-+static inline bool dmz_is_active(struct dm_zone *zone)
-+{
-+	return atomic_read(&zone->refcount);
-+}
- 
- int dmz_lock_zone_reclaim(struct dm_zone *zone);
- void dmz_unlock_zone_reclaim(struct dm_zone *zone);
 
 
