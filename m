@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39B3673AB3
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:54:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18DD273AB5
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:54:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391798AbfGXTww (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:52:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35004 "EHLO mail.kernel.org"
+        id S2403993AbfGXTw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:52:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391050AbfGXTww (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:52:52 -0400
+        id S2403987AbfGXTw6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:52:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8AFAD205C9;
-        Wed, 24 Jul 2019 19:52:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAC2E205C9;
+        Wed, 24 Jul 2019 19:52:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997972;
-        bh=mbPk2HYDPeEsqzfKlvsQzbO5jzfxoumrkDwmAC+k018=;
+        s=default; t=1563997977;
+        bh=HVHYAs4JnrwG5NegSRAus12ZMc46mWLCWSvnS4Pd7pM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZM5T1YuV5Y5PxTU5l2dJWJoLvcE5kv4vuiBjthrQNllZMCGmDLWw0qk6vH2cxOTA1
-         N4jdXxOwW8dJ/JPBgang6P9xYJ9IYBQoIl8ttbKDZrdsN+mEg7oJrMU5cegX2nvXg2
-         hobW1zKHOpNV3fFuAh7PLd8mKhAO+Jvk8lMyjryM=
+        b=LiqTvsgZ7rORjzjkuYsuqqpSmLiSxEiFVMljCG8PQHpTID8iIdWWeNC8g6GnDXyK8
+         Q6WhUeVBygbKNUOz+PcxnqjhiBe1syejcQ2V1n4bOxgJ99P1qMpv3tJuafBovm6Pz8
+         kdYdAAwMyO7pc02e2WHLyDJHdrzpLpjni7w8eh/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
-        Peng Li <lipeng321@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Tomas Bortoli <tomasbortoli@gmail.com>,
+        syzbot+98162c885993b72f19c4@syzkaller.appspotmail.com,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 203/371] net: hns3: enable broadcast promisc mode when initializing VF
-Date:   Wed, 24 Jul 2019 21:19:15 +0200
-Message-Id: <20190724191739.931089032@linuxfoundation.org>
+Subject: [PATCH 5.1 204/371] Bluetooth: hci_bcsp: Fix memory leak in rx_skb
+Date:   Wed, 24 Jul 2019 21:19:16 +0200
+Message-Id: <20190724191739.985714808@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -46,57 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2d5066fc175ea77a733d84df9ef414b34f311641 ]
+[ Upstream commit 4ce9146e0370fcd573f0372d9b4e5a211112567c ]
 
-For revision 0x20, the broadcast promisc is enabled by firmware,
-it's unnecessary to enable it when initializing VF.
+Syzkaller found that it is possible to provoke a memory leak by
+never freeing rx_skb in struct bcsp_struct.
 
-For revision 0x21, it's necessary to enable broadcast promisc mode
-when initializing or re-initializing VF, otherwise, it will be
-unable to send and receive promisc packets.
+Fix by freeing in bcsp_close()
 
-Fixes: f01f5559cac8 ("net: hns3: don't allow vf to enable promisc mode")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Peng Li <lipeng321@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Tomas Bortoli <tomasbortoli@gmail.com>
+Reported-by: syzbot+98162c885993b72f19c4@syzkaller.appspotmail.com
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c  | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/bluetooth/hci_bcsp.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-index 8dd7fef863f6..d7a15d5b6b61 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-@@ -2425,6 +2425,12 @@ static int hclgevf_reset_hdev(struct hclgevf_dev *hdev)
- 		return ret;
- 	}
+diff --git a/drivers/bluetooth/hci_bcsp.c b/drivers/bluetooth/hci_bcsp.c
+index 1a7f0c82fb36..66fe1e6dc631 100644
+--- a/drivers/bluetooth/hci_bcsp.c
++++ b/drivers/bluetooth/hci_bcsp.c
+@@ -759,6 +759,11 @@ static int bcsp_close(struct hci_uart *hu)
+ 	skb_queue_purge(&bcsp->rel);
+ 	skb_queue_purge(&bcsp->unrel);
  
-+	if (pdev->revision >= 0x21) {
-+		ret = hclgevf_set_promisc_mode(hdev, true);
-+		if (ret)
-+			return ret;
++	if (bcsp->rx_skb) {
++		kfree_skb(bcsp->rx_skb);
++		bcsp->rx_skb = NULL;
 +	}
 +
- 	dev_info(&hdev->pdev->dev, "Reset done\n");
- 
+ 	kfree(bcsp);
  	return 0;
-@@ -2504,9 +2510,11 @@ static int hclgevf_init_hdev(struct hclgevf_dev *hdev)
- 	 * firmware makes sure broadcast packets can be accepted.
- 	 * For revision 0x21, default to enable broadcast promisc mode.
- 	 */
--	ret = hclgevf_set_promisc_mode(hdev, true);
--	if (ret)
--		goto err_config;
-+	if (pdev->revision >= 0x21) {
-+		ret = hclgevf_set_promisc_mode(hdev, true);
-+		if (ret)
-+			goto err_config;
-+	}
- 
- 	/* Initialize RSS for this VF */
- 	ret = hclgevf_rss_init_hw(hdev);
+ }
 -- 
 2.20.1
 
