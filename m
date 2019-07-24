@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A31E973D91
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:18:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8159273D95
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:18:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391521AbfGXTt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:49:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57572 "EHLO mail.kernel.org"
+        id S2391066AbfGXTtd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:49:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391234AbfGXTt0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:49:26 -0400
+        id S2391534AbfGXTtc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:49:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B18F020665;
-        Wed, 24 Jul 2019 19:49:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9BAD205C9;
+        Wed, 24 Jul 2019 19:49:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997765;
-        bh=yL+KvxT1tNhcgqkhv++XfEEuUzH9j4v+N/fbQYIOX4c=;
+        s=default; t=1563997771;
+        bh=aQtz8Xi7ImXOGjaoYE7o1JBarrm7WLfR2oS70q+ToZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zh97Spk+jyxp1k/Qsm9KZ0HcTED+bb+PCrwChhf8bf4fxhmLlB+hfbV312sdYLAKY
-         +qr3lnXthPLz7d/9du/nIXyWraENk/ONCyfaO/ETt21JvfE7xKXO6EFfz0eIPHAuha
-         4BAI9+niGNPKSzTyU795L+L4GXjER3DOFPO4RMpI=
+        b=2lZUU3N0jFJQc+XZ2FQkes5v7K24yQCUpwdxZVCMSRR14e/p1uSj8OUh7SscUkXfO
+         pElOzbRV2YP0+1xCAjS/qhhwmHr7WaKl4Otssp0YPCeyzSCOOIoeklC4ZCHcg7I19l
+         LY2Q25VkKSL+uOiVZnv88mb2jMm3EuVUzIVBi7ak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 136/371] media: coda: fix last buffer handling in V4L2_ENC_CMD_STOP
-Date:   Wed, 24 Jul 2019 21:18:08 +0200
-Message-Id: <20190724191735.187565291@linuxfoundation.org>
+Subject: [PATCH 5.1 137/371] media: coda: increment sequence offset for the last returned frame
+Date:   Wed, 24 Jul 2019 21:18:09 +0200
+Message-Id: <20190724191735.268472168@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -47,44 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f3775f89852d167990b0d718587774cf00d22ac2 ]
+[ Upstream commit b3b7d96817cdb8b6fc353867705275dce8f41ccc ]
 
-coda_encoder_cmd() is racy, as the last scheduled picture run worker can
-still be in-flight while the ENC_CMD_STOP command is issued. Depending
-on the exact timing the sequence numbers might already be changed, but
-the last buffer might not have been put on the destination queue yet.
+If no more frames are decoded in bitstream end mode, and a previously
+decoded frame has been returned, the firmware still increments the frame
+number. To avoid a sequence number mismatch after decoder restart,
+increment the sequence_offset correction parameter.
 
-In this case the current implementation would prematurely wake the
-destination queue with last_buffer_dequeued=true, causing userspace to
-call streamoff before the last buffer is handled.
-
-Close this race window by synchronizing with the pic_run_worker before
-doing the sequence check.
-
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-[l.stach@pengutronix.de: switch to flush_work, reword commit message]
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
 Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/coda/coda-common.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/platform/coda/coda-bit.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/platform/coda/coda-common.c b/drivers/media/platform/coda/coda-common.c
-index fa0b22fb7991..9bf2116ffc76 100644
---- a/drivers/media/platform/coda/coda-common.c
-+++ b/drivers/media/platform/coda/coda-common.c
-@@ -1007,6 +1007,8 @@ static int coda_encoder_cmd(struct file *file, void *fh,
- 	/* Set the stream-end flag on this context */
- 	ctx->bit_stream_param |= CODA_BIT_STREAM_END_FLAG;
- 
-+	flush_work(&ctx->pic_run_work);
-+
- 	/* If there is no buffer in flight, wake up */
- 	if (!ctx->streamon_out || ctx->qsequence == ctx->osequence) {
- 		dst_vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx,
+diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
+index 5eb93ac060d5..8648a6bd8809 100644
+--- a/drivers/media/platform/coda/coda-bit.c
++++ b/drivers/media/platform/coda/coda-bit.c
+@@ -2151,6 +2151,9 @@ static void coda_finish_decode(struct coda_ctx *ctx)
+ 		else if (ctx->display_idx < 0)
+ 			ctx->hold = true;
+ 	} else if (decoded_idx == -2) {
++		if (ctx->display_idx >= 0 &&
++		    ctx->display_idx < ctx->num_internal_frames)
++			ctx->sequence_offset++;
+ 		/* no frame was decoded, we still return remaining buffers */
+ 	} else if (decoded_idx < 0 || decoded_idx >= ctx->num_internal_frames) {
+ 		v4l2_err(&dev->v4l2_dev,
 -- 
 2.20.1
 
