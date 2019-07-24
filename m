@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A3E873C72
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:09:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0B7273C71
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:09:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405325AbfGXUBD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:01:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49472 "EHLO mail.kernel.org"
+        id S2405331AbfGXUBG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:01:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405317AbfGXUBC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 16:01:02 -0400
+        id S2405328AbfGXUBE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 16:01:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9C69206BA;
-        Wed, 24 Jul 2019 20:01:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 921D9205C9;
+        Wed, 24 Jul 2019 20:01:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998461;
-        bh=TpOGltvQUnJRPxFY3KeVJnxJ/YWgGmP7oCbsg8kOBm0=;
+        s=default; t=1563998464;
+        bh=KO1mmfrXB/4Qi6kQgaa12CkoQHiEMULINy7lqSaWw2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dPbwKkqLsBTV817q/e2bQiFdfcYVGSm4WY8xlqnRy40g9JVD1C/i6N6ncmSJdzzrk
-         Lja/eXtbsV/TXm1yF/V5p8CNgOzI13ybsQu4PKnzqCCMHU9isSwccumnUn37GUED9q
-         /La83ByLFTXGR3sdOtku2Gv6PuS3OcJiUj1Kp09U=
+        b=fbrbQmZPxJEHNQC0+bducLxv9X5adm2K4mWHN0sO11NSMj3S5tfXgsv+8fg3RwSgF
+         p5hW7We75zU1/p+LEo7hP+ODIho1C7ujienEP7Dnl4EvBl6hbYi6wTGLbwVl9T1Ifw
+         QyLpb2LLVaIUsu5fV02QmMuCBEXpmId/yZFYAtJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Borislav Petkov <bp@suse.de>, Toshi Kani <toshi.kani@hpe.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.1 344/371] resource: fix locking in find_next_iomem_res()
-Date:   Wed, 24 Jul 2019 21:21:36 +0200
-Message-Id: <20190724191749.558873757@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Chinner <david@fromorbit.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Brian Foster <bfoster@redhat.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 345/371] xfs: abort unaligned nowait directio early
+Date:   Wed, 24 Jul 2019 21:21:37 +0200
+Message-Id: <20190724191749.638151167@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -50,75 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+[ Upstream commit 1fdeaea4d92c69fb9f871a787af6ad00f32eeea7 ]
 
-commit 49f17c26c123b60fd1c74629eef077740d16ffc2 upstream.
+Dave Chinner noticed that xfs_file_dio_aio_write returns EAGAIN without
+dropping the IOLOCK when its deciding not to wait, which means that we
+leak the IOLOCK there.  Since we now make unaligned directio always
+wait, we have the opportunity to bail out before trying to take the
+lock, which should reduce the overhead of this never-gonna-work case
+considerably while also solving the dropped lock problem.
 
-Since resources can be removed, locking should ensure that the resource
-is not removed while accessing it.  However, find_next_iomem_res() does
-not hold the lock while copying the data of the resource.
-
-Keep holding the lock while the data is copied.  While at it, change the
-return value to a more informative value.  It is disregarded by the
-callers.
-
-[akpm@linux-foundation.org: fix find_next_iomem_res() documentation]
-Link: http://lkml.kernel.org/r/20190613045903.4922-2-namit@vmware.com
-Fixes: ff3cc952d3f00 ("resource: Add remove_resource interface")
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Toshi Kani <toshi.kani@hpe.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Dave Chinner <david@fromorbit.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/resource.c |   20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ fs/xfs/xfs_file.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/kernel/resource.c
-+++ b/kernel/resource.c
-@@ -325,7 +325,7 @@ EXPORT_SYMBOL(release_resource);
-  *
-  * If a resource is found, returns 0 and @*res is overwritten with the part
-  * of the resource that's within [@start..@end]; if none is found, returns
-- * -1 or -EINVAL for other invalid parameters.
-+ * -ENODEV.  Returns -EINVAL for invalid parameters.
-  *
-  * This function walks the whole tree and not just first level children
-  * unless @first_lvl is true.
-@@ -364,16 +364,16 @@ static int find_next_iomem_res(resource_
- 			break;
+diff --git a/fs/xfs/xfs_file.c b/fs/xfs/xfs_file.c
+index a7ceae90110e..76748255f843 100644
+--- a/fs/xfs/xfs_file.c
++++ b/fs/xfs/xfs_file.c
+@@ -517,6 +517,9 @@ xfs_file_dio_aio_write(
  	}
  
--	read_unlock(&resource_lock);
--	if (!p)
--		return -1;
-+	if (p) {
-+		/* copy data */
-+		res->start = max(start, p->start);
-+		res->end = min(end, p->end);
-+		res->flags = p->flags;
-+		res->desc = p->desc;
-+	}
- 
--	/* copy data */
--	res->start = max(start, p->start);
--	res->end = min(end, p->end);
--	res->flags = p->flags;
--	res->desc = p->desc;
--	return 0;
-+	read_unlock(&resource_lock);
-+	return p ? 0 : -ENODEV;
- }
- 
- static int __walk_iomem_res_desc(resource_size_t start, resource_size_t end,
+ 	if (iocb->ki_flags & IOCB_NOWAIT) {
++		/* unaligned dio always waits, bail */
++		if (unaligned_io)
++			return -EAGAIN;
+ 		if (!xfs_ilock_nowait(ip, iolock))
+ 			return -EAGAIN;
+ 	} else {
+@@ -536,9 +539,6 @@ xfs_file_dio_aio_write(
+ 	 * xfs_file_aio_write_checks() for other reasons.
+ 	 */
+ 	if (unaligned_io) {
+-		/* unaligned dio always waits, bail */
+-		if (iocb->ki_flags & IOCB_NOWAIT)
+-			return -EAGAIN;
+ 		inode_dio_wait(inode);
+ 	} else if (iolock == XFS_IOLOCK_EXCL) {
+ 		xfs_ilock_demote(ip, XFS_IOLOCK_EXCL);
+-- 
+2.20.1
+
 
 
