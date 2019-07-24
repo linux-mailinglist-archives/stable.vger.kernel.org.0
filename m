@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F3D573D07
+	by mail.lfdr.de (Postfix) with ESMTP id BDB9373D08
 	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:14:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404231AbfGXTzr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:55:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39614 "EHLO mail.kernel.org"
+        id S2404557AbfGXTzu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:55:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391743AbfGXTzo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:55:44 -0400
+        id S2404552AbfGXTzu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:55:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5421205C9;
-        Wed, 24 Jul 2019 19:55:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC02D205C9;
+        Wed, 24 Jul 2019 19:55:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998143;
-        bh=OgzOyEycRsQ5tZXTbgiVPzNADZxiQiXmkuy7t8sX45E=;
+        s=default; t=1563998149;
+        bh=+BKNhstZkIim4IgI8aZWRD5EJTEYYGqYqAS97BenvGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qgge97N5DnfMrzcxoPrLPXH5FvrB17Q6P1mTN/ZFsLcWhI+Tok5qojbrBmFA4Y+Il
-         obbwEl/QXT2CPAsic7Cq5FCBBMF4FThVrcnyZNdrMJRf8vgu1UBbuSvywjLmhrUXhA
-         63PWofvwHCxJeB2vq9fv9QMrMrs/FSIIdPyOYLSs=
+        b=JvxSsMzTfn1FAvygZ4vCN/mgyE5JZhBPyEoDaLRzTLv+snnUJhx1wVzaLnPRpEk38
+         EIUZqGYosP1x+sHjcX32Hmr9yF3634BbPsem3GEnv2+E7Ib0HMQJHYm2lDDFSxJYXK
+         joWSDhp1rIEwds2F3eaJpqvw+KIxqW7c3qwyLKZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grant Hernandez <granthernandez@google.com>,
+        stable@vger.kernel.org, Nick Black <dankamongmen@gmail.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.1 262/371] Input: gtco - bounds check collection indent level
-Date:   Wed, 24 Jul 2019 21:20:14 +0200
-Message-Id: <20190724191744.165701375@linuxfoundation.org>
+Subject: [PATCH 5.1 264/371] Input: synaptics - whitelist Lenovo T580 SMBus intertouch
+Date:   Wed, 24 Jul 2019 21:20:16 +0200
+Message-Id: <20190724191744.278851843@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -44,79 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grant Hernandez <granthernandez@google.com>
+From: Nick Black <dankamongmen@gmail.com>
 
-commit 2a017fd82c5402b3c8df5e3d6e5165d9e6147dc1 upstream.
+commit 1976d7d200c5a32e72293a2ada36b7b7c9d6dd6e upstream.
 
-The GTCO tablet input driver configures itself from an HID report sent
-via USB during the initial enumeration process. Some debugging messages
-are generated during the parsing. A debugging message indentation
-counter is not bounds checked, leading to the ability for a specially
-crafted HID report to cause '-' and null bytes be written past the end
-of the indentation array. As long as the kernel has CONFIG_DYNAMIC_DEBUG
-enabled, this code will not be optimized out.  This was discovered
-during code review after a previous syzkaller bug was found in this
-driver.
+Adds the Lenovo T580 to the SMBus intertouch list for Synaptics
+touchpads. I've tested with this for a week now, and it seems a great
+improvement. It's also nice to have the complaint gone from dmesg.
 
-Signed-off-by: Grant Hernandez <granthernandez@google.com>
+Signed-off-by: Nick Black <dankamongmen@gmail.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/tablet/gtco.c |   20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+ drivers/input/mouse/synaptics.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/input/tablet/gtco.c
-+++ b/drivers/input/tablet/gtco.c
-@@ -78,6 +78,7 @@ Scott Hill shill@gtcocalcomp.com
- 
- /* Max size of a single report */
- #define REPORT_MAX_SIZE       10
-+#define MAX_COLLECTION_LEVELS  10
- 
- 
- /* Bitmask whether pen is in range */
-@@ -223,8 +224,7 @@ static void parse_hid_report_descriptor(
- 	char  maintype = 'x';
- 	char  globtype[12];
- 	int   indent = 0;
--	char  indentstr[10] = "";
--
-+	char  indentstr[MAX_COLLECTION_LEVELS + 1] = { 0 };
- 
- 	dev_dbg(ddev, "======>>>>>>PARSE<<<<<<======\n");
- 
-@@ -350,6 +350,13 @@ static void parse_hid_report_descriptor(
- 			case TAG_MAIN_COL_START:
- 				maintype = 'S';
- 
-+				if (indent == MAX_COLLECTION_LEVELS) {
-+					dev_err(ddev, "Collection level %d would exceed limit of %d\n",
-+						indent + 1,
-+						MAX_COLLECTION_LEVELS);
-+					break;
-+				}
-+
- 				if (data == 0) {
- 					dev_dbg(ddev, "======>>>>>> Physical\n");
- 					strcpy(globtype, "Physical");
-@@ -369,8 +376,15 @@ static void parse_hid_report_descriptor(
- 				break;
- 
- 			case TAG_MAIN_COL_END:
--				dev_dbg(ddev, "<<<<<<======\n");
- 				maintype = 'E';
-+
-+				if (indent == 0) {
-+					dev_err(ddev, "Collection level already at zero\n");
-+					break;
-+				}
-+
-+				dev_dbg(ddev, "<<<<<<======\n");
-+
- 				indent--;
- 				for (x = 0; x < indent; x++)
- 					indentstr[x] = '-';
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -179,6 +179,7 @@ static const char * const smbus_pnp_ids[
+ 	"LEN0093", /* T480 */
+ 	"LEN0096", /* X280 */
+ 	"LEN0097", /* X280 -> ALPS trackpoint */
++	"LEN009b", /* T580 */
+ 	"LEN200f", /* T450s */
+ 	"LEN2054", /* E480 */
+ 	"LEN2055", /* E580 */
 
 
