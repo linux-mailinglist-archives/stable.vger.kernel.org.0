@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4084373C74
+	by mail.lfdr.de (Postfix) with ESMTP id B898A73C75
 	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:09:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405457AbfGXUCT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:02:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51844 "EHLO mail.kernel.org"
+        id S2388550AbfGXUIY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:08:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405476AbfGXUCR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 16:02:17 -0400
+        id S2405489AbfGXUCV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 16:02:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FD2C21852;
-        Wed, 24 Jul 2019 20:02:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34D6B214AF;
+        Wed, 24 Jul 2019 20:02:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998537;
-        bh=gsVvVrHzhywaogbME/AfJMRvHeOAHCD//6i2FkoVmSY=;
+        s=default; t=1563998540;
+        bh=n6jo13Xzf1F/u/wDvFxu1/huCHM/JnEWMVmTrCAzpu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jt6dAAfuN8eUsWBMqkIn8NrB6wdGz/1uXPcW4MCfyr859WvT4ouRyZR0qJNh21FmZ
-         eW+zK2mDbCdoywWDgU92X+kjfRegeDzKnBv+PA47BrAk2MosaHB4gSqoMOXwhXqvy8
-         j023WZltKrgZCkrf9hU1Khz3C99+70K4xGLwTgMs=
+        b=z/D0k9a/dRqsP/pi+0PfNUCt8mBJVWHesHgmgXh20tYHG+ZdhF0ELl+L+1bPTlQlf
+         /ergPE3OsHzN6KKWxHM9enPj7JGEKWix70KuZYIZm5FnjS8SgSuhx1W7tEInWZM3q5
+         YoxzW9AQ1mlPAozCvqbXY2c08EcQSYT2TJJp/jwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anirudh Gupta <anirudh.gupta@sophos.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Chandan Rajendra <chandan@linux.ibm.com>,
+        Eric Biggers <ebiggers@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 028/271] xfrm: Fix xfrm sel prefix length validation
-Date:   Wed, 24 Jul 2019 21:18:17 +0200
-Message-Id: <20190724191657.603786090@linuxfoundation.org>
+Subject: [PATCH 4.19 029/271] fscrypt: clean up some BUG_ON()s in block encryption/decryption
+Date:   Wed, 24 Jul 2019 21:18:18 +0200
+Message-Id: <20190724191657.682862679@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -45,54 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b38ff4075a80b4da5cb2202d7965332ca0efb213 ]
+[ Upstream commit eeacfdc68a104967162dfcba60f53f6f5b62a334 ]
 
-Family of src/dst can be different from family of selector src/dst.
-Use xfrm selector family to validate address prefix length,
-while verifying new sa from userspace.
+Replace some BUG_ON()s with WARN_ON_ONCE() and returning an error code,
+and move the check for len divisible by FS_CRYPTO_BLOCK_SIZE into
+fscrypt_crypt_block() so that it's done for both encryption and
+decryption, not just encryption.
 
-Validated patch with this command:
-ip xfrm state add src 1.1.6.1 dst 1.1.6.2 proto esp spi 4260196 \
-reqid 20004 mode tunnel aead "rfc4106(gcm(aes))" \
-0x1111016400000000000000000000000044440001 128 \
-sel src 1011:1:4::2/128 sel dst 1021:1:4::2/128 dev Port5
-
-Fixes: 07bf7908950a ("xfrm: Validate address prefix lengths in the xfrm selector.")
-Signed-off-by: Anirudh Gupta <anirudh.gupta@sophos.com>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Reviewed-by: Chandan Rajendra <chandan@linux.ibm.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_user.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ fs/crypto/crypto.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-index 2122f89f6155..d80d54e663c0 100644
---- a/net/xfrm/xfrm_user.c
-+++ b/net/xfrm/xfrm_user.c
-@@ -150,6 +150,22 @@ static int verify_newsa_info(struct xfrm_usersa_info *p,
+diff --git a/fs/crypto/crypto.c b/fs/crypto/crypto.c
+index 0f46cf550907..c83ddff3ff4a 100644
+--- a/fs/crypto/crypto.c
++++ b/fs/crypto/crypto.c
+@@ -149,7 +149,10 @@ int fscrypt_do_page_crypto(const struct inode *inode, fscrypt_direction_t rw,
+ 	struct crypto_skcipher *tfm = ci->ci_ctfm;
+ 	int res = 0;
  
- 	err = -EINVAL;
- 	switch (p->family) {
-+	case AF_INET:
-+		break;
-+
-+	case AF_INET6:
-+#if IS_ENABLED(CONFIG_IPV6)
-+		break;
-+#else
-+		err = -EAFNOSUPPORT;
-+		goto out;
-+#endif
-+
-+	default:
-+		goto out;
-+	}
-+
-+	switch (p->sel.family) {
- 	case AF_INET:
- 		if (p->sel.prefixlen_d > 32 || p->sel.prefixlen_s > 32)
- 			goto out;
+-	BUG_ON(len == 0);
++	if (WARN_ON_ONCE(len <= 0))
++		return -EINVAL;
++	if (WARN_ON_ONCE(len % FS_CRYPTO_BLOCK_SIZE != 0))
++		return -EINVAL;
+ 
+ 	BUILD_BUG_ON(sizeof(iv) != FS_IV_SIZE);
+ 	BUILD_BUG_ON(AES_BLOCK_SIZE != FS_IV_SIZE);
+@@ -241,8 +244,6 @@ struct page *fscrypt_encrypt_page(const struct inode *inode,
+ 	struct page *ciphertext_page = page;
+ 	int err;
+ 
+-	BUG_ON(len % FS_CRYPTO_BLOCK_SIZE != 0);
+-
+ 	if (inode->i_sb->s_cop->flags & FS_CFLG_OWN_PAGES) {
+ 		/* with inplace-encryption we just encrypt the page */
+ 		err = fscrypt_do_page_crypto(inode, FS_ENCRYPT, lblk_num, page,
+@@ -254,7 +255,8 @@ struct page *fscrypt_encrypt_page(const struct inode *inode,
+ 		return ciphertext_page;
+ 	}
+ 
+-	BUG_ON(!PageLocked(page));
++	if (WARN_ON_ONCE(!PageLocked(page)))
++		return ERR_PTR(-EINVAL);
+ 
+ 	ctx = fscrypt_get_ctx(inode, gfp_flags);
+ 	if (IS_ERR(ctx))
+@@ -302,8 +304,9 @@ EXPORT_SYMBOL(fscrypt_encrypt_page);
+ int fscrypt_decrypt_page(const struct inode *inode, struct page *page,
+ 			unsigned int len, unsigned int offs, u64 lblk_num)
+ {
+-	if (!(inode->i_sb->s_cop->flags & FS_CFLG_OWN_PAGES))
+-		BUG_ON(!PageLocked(page));
++	if (WARN_ON_ONCE(!PageLocked(page) &&
++			 !(inode->i_sb->s_cop->flags & FS_CFLG_OWN_PAGES)))
++		return -EINVAL;
+ 
+ 	return fscrypt_do_page_crypto(inode, FS_DECRYPT, lblk_num, page, page,
+ 				      len, offs, GFP_NOFS);
 -- 
 2.20.1
 
