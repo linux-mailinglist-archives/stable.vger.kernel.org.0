@@ -2,142 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7C0172F33
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 14:51:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0CFA72F6B
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 15:03:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726029AbfGXMvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 08:51:07 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:43148 "EHLO
-        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725776AbfGXMvH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 08:51:07 -0400
-Received: from [192.168.4.242] (helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1hqGjX-0007C6-5M; Wed, 24 Jul 2019 13:51:03 +0100
-Received: from ben by deadeye with local (Exim 4.92)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1hqGjW-0003X1-VM; Wed, 24 Jul 2019 13:51:02 +0100
-Message-ID: <0f96662a082d664137b59c99c35ec53502af0e2f.camel@decadent.org.uk>
-Subject: Linux 3.16.71
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        torvalds@linux-foundation.org, Jiri Slaby <jslaby@suse.cz>,
-        stable@vger.kernel.org
-Cc:     lwn@lwn.net
-Date:   Wed, 24 Jul 2019 13:51:02 +0100
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-0LS3j1Q5BMWzPz041AlG"
-User-Agent: Evolution 3.30.5-1.1 
+        id S1727387AbfGXNDf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 09:03:35 -0400
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:40539 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727337AbfGXNDb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 09:03:31 -0400
+Received: from heimdall.vpn.pengutronix.de ([2001:67c:670:205:1d::14] helo=blackshift.org)
+        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1hqGvW-0006gK-67; Wed, 24 Jul 2019 15:03:26 +0200
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     netdev@vger.kernel.org
+Cc:     davem@davemloft.net, linux-can@vger.kernel.org,
+        kernel@pengutronix.de,
+        Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 2/7] can: rcar_canfd: fix possible IRQ storm on high load
+Date:   Wed, 24 Jul 2019 15:03:17 +0200
+Message-Id: <20190724130322.31702-3-mkl@pengutronix.de>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190724130322.31702-1-mkl@pengutronix.de>
+References: <20190724130322.31702-1-mkl@pengutronix.de>
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 192.168.4.242
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:205:1d::14
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
 
---=-0LS3j1Q5BMWzPz041AlG
-Content-Type: multipart/mixed; boundary="=-8KywcB3WfJcNrADA1MEG"
+We have observed rcar_canfd driver entering IRQ storm under high load,
+with following scenario:
+- rcar_canfd_global_interrupt() in entered due to Rx available,
+- napi_schedule_prep() is called, and sets NAPIF_STATE_SCHED in state
+- Rx fifo interrupts are masked,
+- rcar_canfd_global_interrupt() is entered again, this time due to
+  error interrupt (e.g. due to overflow),
+- since scheduled napi poller has not yet executed, condition for calling
+  napi_schedule_prep() from rcar_canfd_global_interrupt() remains true,
+  thus napi_schedule_prep() gets called and sets NAPIF_STATE_MISSED flag
+  in state,
+- later, napi poller function rcar_canfd_rx_poll() gets executed, and
+  calls napi_complete_done(),
+- due to NAPIF_STATE_MISSED flag in state, this call does not clear
+  NAPIF_STATE_SCHED flag from state,
+- on return from napi_complete_done(), rcar_canfd_rx_poll() unmasks Rx
+  interrutps,
+- Rx interrupt happens, rcar_canfd_global_interrupt() gets called
+  and calls napi_schedule_prep(),
+- since NAPIF_STATE_SCHED is set in state at this time, this call
+  returns false,
+- due to that false return, rcar_canfd_global_interrupt() returns
+  without masking Rx interrupt
+- and this results into IRQ storm: unmasked Rx interrupt happens again
+  and again is misprocessed in the same way.
 
+This patch fixes that scenario by unmasking Rx interrupts only when
+napi_complete_done() returns true, which means it has cleared
+NAPIF_STATE_SCHED in state.
 
---=-8KywcB3WfJcNrADA1MEG
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Fixes: dd3bd23eb438 ("can: rcar_canfd: Add Renesas R-Car CAN FD driver")
+Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+---
+ drivers/net/can/rcar/rcar_canfd.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-I'm announcing the release of the 3.16.71 kernel.
-
-All users of the 3.16 kernel series should upgrade.
-
-The updated 3.16.y git tree can be found at:
-        https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
-.git linux-3.16.y
-and can be browsed at the normal kernel.org git web browser:
-        https://git.kernel.org/?p=3Dlinux/kernel/git/stable/linux-stable.gi=
-t
-
-The diff from 3.16.70 is attached to this message.
-
-Ben.
-
-------------
-
- Makefile        | 2 +-
- kernel/ptrace.c | 4 +---
- 2 files changed, 2 insertions(+), 4 deletions(-)
-
-Ben Hutchings (1):
-      Linux 3.16.71
-
-Jann Horn (1):
-      ptrace: Fix ->ptracer_cred handling for PTRACE_TRACEME
-
---=20
-Ben Hutchings
-compatible: Gracefully accepts erroneous data from any source
-
-
-
---=-8KywcB3WfJcNrADA1MEG
-Content-Type: text/x-diff; charset="UTF-8"; name="linux-3.16.71.patch"
-Content-Disposition: attachment; filename="linux-3.16.71.patch"
-Content-Transfer-Encoding: quoted-printable
-
-diff --git a/Makefile b/Makefile
-index 9e2a3acb26cf..c2c6a3580e8a 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,6 +1,6 @@
- VERSION =3D 3
- PATCHLEVEL =3D 16
--SUBLEVEL =3D 70
-+SUBLEVEL =3D 71
- EXTRAVERSION =3D
- NAME =3D Museum of Fishiegoodies
-=20
-diff --git a/kernel/ptrace.c b/kernel/ptrace.c
-index 694e650e962d..22beef3e2160 100644
---- a/kernel/ptrace.c
-+++ b/kernel/ptrace.c
-@@ -80,9 +80,7 @@ void __ptrace_link(struct task_struct *child, struct task=
-_struct *new_parent,
-  */
- static void ptrace_link(struct task_struct *child, struct task_struct *new=
-_parent)
- {
--	rcu_read_lock();
--	__ptrace_link(child, new_parent, __task_cred(new_parent));
--	rcu_read_unlock();
-+	__ptrace_link(child, new_parent, current_cred());
+diff --git a/drivers/net/can/rcar/rcar_canfd.c b/drivers/net/can/rcar/rcar_canfd.c
+index 05410008aa6b..de34a4b82d4a 100644
+--- a/drivers/net/can/rcar/rcar_canfd.c
++++ b/drivers/net/can/rcar/rcar_canfd.c
+@@ -1508,10 +1508,11 @@ static int rcar_canfd_rx_poll(struct napi_struct *napi, int quota)
+ 
+ 	/* All packets processed */
+ 	if (num_pkts < quota) {
+-		napi_complete_done(napi, num_pkts);
+-		/* Enable Rx FIFO interrupts */
+-		rcar_canfd_set_bit(priv->base, RCANFD_RFCC(ridx),
+-				   RCANFD_RFCC_RFIE);
++		if (napi_complete_done(napi, num_pkts)) {
++			/* Enable Rx FIFO interrupts */
++			rcar_canfd_set_bit(priv->base, RCANFD_RFCC(ridx),
++					   RCANFD_RFCC_RFIE);
++		}
+ 	}
+ 	return num_pkts;
  }
-=20
- /**
-=0D
---=-8KywcB3WfJcNrADA1MEG--
+-- 
+2.20.1
 
---=-0LS3j1Q5BMWzPz041AlG
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl04VDYACgkQ57/I7JWG
-EQmotw/+NRhlDG9wBun8zSv+THx66WJRVainNbWWZB5W40DnFr7yiITiuJLmFnay
-9I4b+TP3HKzUDz4zy8GJNAxd5b+N0eyfpvTPcVj78fPz1jp9NKMJb9utq2leyzQq
-Cg5+I2NycaCLVuf6OowiYsTKgryLVViJ6TJgHsXkfTHdEmZiBWpQ5qk1S6ROm7Sz
-TB8n1JxGjGAHp1f/mgz5i3XAjWtDeuCFT3OZjqrnOZ0nUFb37F658MiOcpazPu3p
-vWaluFbmgzmXtzqQB14jSxTx1jTtJqXz6XX51kkJ4r9B0rG724aZ+dlb66ngm0He
-3s+050vRMqfMkdtn5UShOmCAGFCiS2ntVSv/olYoWHkJ5Vb+BkJyDoVy1KPZxTHD
-8eGPxMPzluuEaNaHkosOFK6fxSJv6/0XfCmYuqBpdyNt7YETlNRlwDCAH5xgEU8I
-q3CuwEbgaA0BYrOS+Z0X2pmHkTfBrp9icfIxUka1AL3d+UJ3hrPecKSdSJEVXckG
-YPyJrhqQQINODWiEwTSFc8FSa85riQvaR0rWDdF6mES9JYOHgmkxEzobJnmzs3gr
-7CUg9yn/zz78PKbr8MpzFf1OxgUALlWvpZOfxBMuvQYJOxm9FJApqes4Ta+32JBd
-ywK6sm+mkkN+udpk7zN5H9Z4jKo+02IMxsQ6hE9cbxjtf4elTf8=
-=GKAq
------END PGP SIGNATURE-----
-
---=-0LS3j1Q5BMWzPz041AlG--
