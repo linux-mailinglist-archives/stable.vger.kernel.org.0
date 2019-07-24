@@ -2,78 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE7C373271
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 17:07:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 864877329D
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 17:20:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727296AbfGXPHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 11:07:54 -0400
-Received: from mail-pl1-f171.google.com ([209.85.214.171]:40649 "EHLO
-        mail-pl1-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725870AbfGXPHx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 11:07:53 -0400
-Received: by mail-pl1-f171.google.com with SMTP id a93so22081586pla.7
-        for <stable@vger.kernel.org>; Wed, 24 Jul 2019 08:07:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:to:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=ZoLM8AowjBuoDXcLW7/NNFOEe/9fQ2ptWjq0pAGp7Rk=;
-        b=iWoN772tj9rq10Ruk0+3sxXeS06XyCHux5clwxcimagQHDriepkGyYVDvUXz3bDYhz
-         mi2JaSD0eJGEZzCpaeFVdJ1JORF9iYY8qDeriwSQTCZL/PqER47QYq8kc70xdQunWgcO
-         f+cTsXEqcaLALYIkJF0G3g9fHPZeXMKp+cLZ/fUHfxu18Nul6+cIgsC9RhqaYitFu8Ep
-         mrvzOQ9WjhzJjLoRs9N+uXjy1mNFCCuXKAYJ85mpShEDeMqDPs3oa/mQD7Y7AVVkDWM0
-         jU9vc492T5hQPRblNXo0Qk3HYr6fYQZ9mqFSnCF5sHPjI6TaMtF2qvHiaodxxAVPco0l
-         O/qA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:to:from:subject:message-id:date
-         :user-agent:mime-version:content-language:content-transfer-encoding;
-        bh=ZoLM8AowjBuoDXcLW7/NNFOEe/9fQ2ptWjq0pAGp7Rk=;
-        b=XaOBhfbiMTAyx5OQ0hZNFJKkV7BZmizYbqW3JspTcRnE1BiIAh300u+nLPhtZSnLQY
-         EUtyyOIb6ITG7XY4cAdsRBwCQm+THS7YJ9KuIxdPgWojEEEepPrA8nRgHXeCoshklpUe
-         AoxyyqaAw4R1R+shm7RZB4QzPVlb88vcJsxQLoMEym+p+n9jzdbvrd01iuE0N6inaKES
-         C/NDWJeWzX4BeQOLZrmA9hpWEzPTUwFl8oNGmB6gHw+Coiso+MzF39TBoZ3s3erSsKxb
-         lGV44aZS/1GFkZ24Kxc9dMZ7wZp3wI7+fHwzXzn1aInBP3eyzV1+bqDysspWxexQkRd9
-         FOOA==
-X-Gm-Message-State: APjAAAU57lNkMhTIsUlM4RipBTyIVQtwllblyoAWiTmYYSrP49KLjvm9
-        xGFZ9ee1fZkm0swz6B1WJTvOVpXs
-X-Google-Smtp-Source: APXvYqy2PTdG5Z0Le0fCyx+/tyxX+bGu13EsUbnSJe47NI8nMA0AL1CapPxFGsfPdu9mp+j6TeWvrg==
-X-Received: by 2002:a17:902:bf09:: with SMTP id bi9mr80928228plb.143.1563980872916;
-        Wed, 24 Jul 2019 08:07:52 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id c130sm45292537pfc.184.2019.07.24.08.07.51
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 24 Jul 2019 08:07:51 -0700 (PDT)
-To:     stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Subject: btrfs related build failures in stable queues
-Message-ID: <d32a9740-c5cf-8c91-fd39-ba8f0499541d@roeck-us.net>
-Date:   Wed, 24 Jul 2019 08:07:50 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S2387503AbfGXPUG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 11:20:06 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:33574 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725870AbfGXPUG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 11:20:06 -0400
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: gtucker)
+        with ESMTPSA id AF18728B4E7
+From:   Guillaume Tucker <guillaume.tucker@collabora.com>
+To:     Hans Verkuil <hans.verkuil@cisco.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc:     linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel@collabora.com,
+        Guillaume Tucker <guillaume.tucker@collabora.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] media: vivid: fix device init when no_error_inj=1 and fb disabled
+Date:   Wed, 24 Jul 2019 16:19:22 +0100
+Message-Id: <20190724151922.11124-1-guillaume.tucker@collabora.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-v4.9.y to v5.1.y:
+Add an extra condition to add the video output control class when the
+device has some hdmi outputs defined.  This is required to then always
+be able to add the display present control, which is enabled when
+there are some hdmi outputs.
 
-fs/btrfs/file.c: In function 'btrfs_punch_hole':
-fs/btrfs/file.c:2787:27: error: invalid initializer
-    struct timespec64 now = current_time(inode);
-                            ^~~~~~~~~~~~
-fs/btrfs/file.c:2790:18: error: incompatible types when assigning to type 'struct timespec' from type 'struct timespec64'
+This fixes the corner case where no_error_inj is enabled and the
+device has no frame buffer but some hdmi outputs, as otherwise the
+video output control class would be added anyway.  Without this fix,
+the sanity checks fail in v4l2_ctrl_new() as name is NULL.
 
-v4.19.y, v5.1.y:
+Fixes: c533435ffb91 ("media: vivid: add display present control")
+Cc: stable@vger.kernel.org
+Signed-off-by: Guillaume Tucker <guillaume.tucker@collabora.com>
+---
+ drivers/media/platform/vivid/vivid-ctrls.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-fs/btrfs/props.c: In function 'prop_compression_validate':
-fs/btrfs/props.c:369:6: error: implicit declaration of function 'btrfs_compression_is_valid_type'
+diff --git a/drivers/media/platform/vivid/vivid-ctrls.c b/drivers/media/platform/vivid/vivid-ctrls.c
+index 3e916c8befb7..7a52f585cab7 100644
+--- a/drivers/media/platform/vivid/vivid-ctrls.c
++++ b/drivers/media/platform/vivid/vivid-ctrls.c
+@@ -1473,7 +1473,7 @@ int vivid_create_controls(struct vivid_dev *dev, bool show_ccs_cap,
+ 	v4l2_ctrl_handler_init(hdl_vid_cap, 55);
+ 	v4l2_ctrl_new_custom(hdl_vid_cap, &vivid_ctrl_class, NULL);
+ 	v4l2_ctrl_handler_init(hdl_vid_out, 26);
+-	if (!no_error_inj || dev->has_fb)
++	if (!no_error_inj || dev->has_fb || dev->num_hdmi_outputs)
+ 		v4l2_ctrl_new_custom(hdl_vid_out, &vivid_ctrl_class, NULL);
+ 	v4l2_ctrl_handler_init(hdl_vbi_cap, 21);
+ 	v4l2_ctrl_new_custom(hdl_vbi_cap, &vivid_ctrl_class, NULL);
+-- 
+2.20.1
 
-My apologies for the noise if this has already been reported/fixed.
-
-Guenter
