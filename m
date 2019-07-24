@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2038273CFC
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:14:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1329D73CFE
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:14:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391586AbfGXTzL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:55:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38588 "EHLO mail.kernel.org"
+        id S2391679AbfGXTzN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:55:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391367AbfGXTzK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:55:10 -0400
+        id S2391635AbfGXTzM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:55:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E53F5214AF;
-        Wed, 24 Jul 2019 19:55:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A39E3205C9;
+        Wed, 24 Jul 2019 19:55:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998109;
-        bh=+Ga5K/f+pRdkb2gp/U/LGh9PolMPyPkzOhCb/+ZfqSA=;
+        s=default; t=1563998112;
+        bh=zQcjsPz9w6oUvjkZNUWQFrnvNiX/hs4lk5lTh3MC5KQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d/XjIuazF3gQ7jAd5sDf+oGANWvbugVl3vs1uDxpBPfUfWXYSygWErMbbk4zydOSf
-         0Crkh7jkzN/OIKgCkh22y3Jr+5vnvEkvv0yot/XK1chhsM2p+Qa3diT+4SUmHAQF21
-         jZcc3qcotnSaOHTDX5ORThgP9TiSVuQm6az5zaRc=
+        b=aJF0fg2FUx5LluiJN8KhL8Dqt1Rgzv4HTEQPxRHPlBS4BhYXN23119zUeq7rvHmhM
+         jxmLGzrWyNqhutY/dB5g8J5hPBHVvOEvy7vQ+pDpBL4M53p/wlHsyx6uS4NE8xrU69
+         GfAYO+4Y4k8oqndOKXy/vAFkH99HK/f2DEJ2+3YM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@kernel.org>,
-        Christian Lamparter <chunkeey@gmail.com>,
+        stable@vger.kernel.org, Gary R Hook <gary.hook@amd.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.1 247/371] crypto: crypto4xx - block ciphers should only accept complete blocks
-Date:   Wed, 24 Jul 2019 21:19:59 +0200
-Message-Id: <20190724191743.301193295@linuxfoundation.org>
+Subject: [PATCH 5.1 248/371] crypto: ccp - memset structure fields to zero before reuse
+Date:   Wed, 24 Jul 2019 21:20:00 +0200
+Message-Id: <20190724191743.363479510@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -44,177 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lamparter <chunkeey@gmail.com>
+From: Hook, Gary <Gary.Hook@amd.com>
 
-commit 0f7a81374060828280fcfdfbaa162cb559017f9f upstream.
+commit 20e833dc36355ed642d00067641a679c618303fa upstream.
 
-The hardware automatically zero pads incomplete block ciphers
-blocks without raising any errors. This is a screw-up. This
-was noticed by CONFIG_CRYPTO_MANAGER_EXTRA_TESTS tests that
-sent a incomplete blocks and expect them to fail.
+The AES GCM function reuses an 'op' data structure, which members
+contain values that must be cleared for each (re)use.
 
-This fixes:
-cbc-aes-ppc4xx encryption unexpectedly succeeded on test vector
-"random: len=2409 klen=32"; expected_error=-22, cfg="random:
-may_sleep use_digest src_divs=[96.90%@+2295, 2.34%@+4066,
-0.32%@alignmask+12, 0.34%@+4087, 0.9%@alignmask+1787, 0.1%@+3767]
-iv_offset=6"
+This fix resolves a crypto self-test failure:
+alg: aead: gcm-aes-ccp encryption test failed (wrong result) on test vector 2, cfg="two even aligned splits"
 
-ecb-aes-ppc4xx encryption unexpectedly succeeded on test vector
-"random: len=1011 klen=32"; expected_error=-22, cfg="random:
-may_sleep use_digest src_divs=[100.0%@alignmask+20]
-dst_divs=[3.12%@+3001, 96.88%@+4070]"
-
-Cc: Eric Biggers <ebiggers@kernel.org>
-Cc: stable@vger.kernel.org [4.19, 5.0 and 5.1]
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Fixes: 36cf515b9bbe ("crypto: ccp - Enable support for AES GCM on v5 CCPs")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Gary R Hook <gary.hook@amd.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/amcc/crypto4xx_alg.c  |   36 ++++++++++++++++++++++++-----------
- drivers/crypto/amcc/crypto4xx_core.c |   16 +++++++--------
- drivers/crypto/amcc/crypto4xx_core.h |   10 +++++----
- 3 files changed, 39 insertions(+), 23 deletions(-)
+ drivers/crypto/ccp/ccp-ops.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/crypto/amcc/crypto4xx_alg.c
-+++ b/drivers/crypto/amcc/crypto4xx_alg.c
-@@ -76,12 +76,16 @@ static void set_dynamic_sa_command_1(str
- }
+--- a/drivers/crypto/ccp/ccp-ops.c
++++ b/drivers/crypto/ccp/ccp-ops.c
+@@ -625,6 +625,7 @@ static int ccp_run_aes_gcm_cmd(struct cc
  
- static inline int crypto4xx_crypt(struct skcipher_request *req,
--				  const unsigned int ivlen, bool decrypt)
-+				  const unsigned int ivlen, bool decrypt,
-+				  bool check_blocksize)
- {
- 	struct crypto_skcipher *cipher = crypto_skcipher_reqtfm(req);
- 	struct crypto4xx_ctx *ctx = crypto_skcipher_ctx(cipher);
- 	__le32 iv[AES_IV_SIZE];
- 
-+	if (check_blocksize && !IS_ALIGNED(req->cryptlen, AES_BLOCK_SIZE))
-+		return -EINVAL;
-+
- 	if (ivlen)
- 		crypto4xx_memcpy_to_le32(iv, req->iv, ivlen);
- 
-@@ -90,24 +94,34 @@ static inline int crypto4xx_crypt(struct
- 		ctx->sa_len, 0, NULL);
- }
- 
--int crypto4xx_encrypt_noiv(struct skcipher_request *req)
-+int crypto4xx_encrypt_noiv_block(struct skcipher_request *req)
-+{
-+	return crypto4xx_crypt(req, 0, false, true);
-+}
-+
-+int crypto4xx_encrypt_iv_stream(struct skcipher_request *req)
-+{
-+	return crypto4xx_crypt(req, AES_IV_SIZE, false, false);
-+}
-+
-+int crypto4xx_decrypt_noiv_block(struct skcipher_request *req)
- {
--	return crypto4xx_crypt(req, 0, false);
-+	return crypto4xx_crypt(req, 0, true, true);
- }
- 
--int crypto4xx_encrypt_iv(struct skcipher_request *req)
-+int crypto4xx_decrypt_iv_stream(struct skcipher_request *req)
- {
--	return crypto4xx_crypt(req, AES_IV_SIZE, false);
-+	return crypto4xx_crypt(req, AES_IV_SIZE, true, false);
- }
- 
--int crypto4xx_decrypt_noiv(struct skcipher_request *req)
-+int crypto4xx_encrypt_iv_block(struct skcipher_request *req)
- {
--	return crypto4xx_crypt(req, 0, true);
-+	return crypto4xx_crypt(req, AES_IV_SIZE, false, true);
- }
- 
--int crypto4xx_decrypt_iv(struct skcipher_request *req)
-+int crypto4xx_decrypt_iv_block(struct skcipher_request *req)
- {
--	return crypto4xx_crypt(req, AES_IV_SIZE, true);
-+	return crypto4xx_crypt(req, AES_IV_SIZE, true, true);
- }
- 
- /**
-@@ -278,8 +292,8 @@ crypto4xx_ctr_crypt(struct skcipher_requ
- 		return ret;
+ 	unsigned long long *final;
+ 	unsigned int dm_offset;
++	unsigned int jobid;
+ 	unsigned int ilen;
+ 	bool in_place = true; /* Default value */
+ 	int ret;
+@@ -663,9 +664,11 @@ static int ccp_run_aes_gcm_cmd(struct cc
+ 		p_tag = scatterwalk_ffwd(sg_tag, p_inp, ilen);
  	}
  
--	return encrypt ? crypto4xx_encrypt_iv(req)
--		       : crypto4xx_decrypt_iv(req);
-+	return encrypt ? crypto4xx_encrypt_iv_stream(req)
-+		       : crypto4xx_decrypt_iv_stream(req);
- }
++	jobid = CCP_NEW_JOBID(cmd_q->ccp);
++
+ 	memset(&op, 0, sizeof(op));
+ 	op.cmd_q = cmd_q;
+-	op.jobid = CCP_NEW_JOBID(cmd_q->ccp);
++	op.jobid = jobid;
+ 	op.sb_key = cmd_q->sb_key; /* Pre-allocated */
+ 	op.sb_ctx = cmd_q->sb_ctx; /* Pre-allocated */
+ 	op.init = 1;
+@@ -816,6 +819,13 @@ static int ccp_run_aes_gcm_cmd(struct cc
+ 	final[0] = cpu_to_be64(aes->aad_len * 8);
+ 	final[1] = cpu_to_be64(ilen * 8);
  
- static int crypto4xx_sk_setup_fallback(struct crypto4xx_ctx *ctx,
---- a/drivers/crypto/amcc/crypto4xx_core.c
-+++ b/drivers/crypto/amcc/crypto4xx_core.c
-@@ -1226,8 +1226,8 @@ static struct crypto4xx_alg_common crypt
- 		.max_keysize = AES_MAX_KEY_SIZE,
- 		.ivsize	= AES_IV_SIZE,
- 		.setkey = crypto4xx_setkey_aes_cbc,
--		.encrypt = crypto4xx_encrypt_iv,
--		.decrypt = crypto4xx_decrypt_iv,
-+		.encrypt = crypto4xx_encrypt_iv_block,
-+		.decrypt = crypto4xx_decrypt_iv_block,
- 		.init = crypto4xx_sk_init,
- 		.exit = crypto4xx_sk_exit,
- 	} },
-@@ -1246,8 +1246,8 @@ static struct crypto4xx_alg_common crypt
- 		.max_keysize = AES_MAX_KEY_SIZE,
- 		.ivsize	= AES_IV_SIZE,
- 		.setkey	= crypto4xx_setkey_aes_cfb,
--		.encrypt = crypto4xx_encrypt_iv,
--		.decrypt = crypto4xx_decrypt_iv,
-+		.encrypt = crypto4xx_encrypt_iv_stream,
-+		.decrypt = crypto4xx_decrypt_iv_stream,
- 		.init = crypto4xx_sk_init,
- 		.exit = crypto4xx_sk_exit,
- 	} },
-@@ -1306,8 +1306,8 @@ static struct crypto4xx_alg_common crypt
- 		.min_keysize = AES_MIN_KEY_SIZE,
- 		.max_keysize = AES_MAX_KEY_SIZE,
- 		.setkey	= crypto4xx_setkey_aes_ecb,
--		.encrypt = crypto4xx_encrypt_noiv,
--		.decrypt = crypto4xx_decrypt_noiv,
-+		.encrypt = crypto4xx_encrypt_noiv_block,
-+		.decrypt = crypto4xx_decrypt_noiv_block,
- 		.init = crypto4xx_sk_init,
- 		.exit = crypto4xx_sk_exit,
- 	} },
-@@ -1326,8 +1326,8 @@ static struct crypto4xx_alg_common crypt
- 		.max_keysize = AES_MAX_KEY_SIZE,
- 		.ivsize	= AES_IV_SIZE,
- 		.setkey	= crypto4xx_setkey_aes_ofb,
--		.encrypt = crypto4xx_encrypt_iv,
--		.decrypt = crypto4xx_decrypt_iv,
-+		.encrypt = crypto4xx_encrypt_iv_stream,
-+		.decrypt = crypto4xx_decrypt_iv_stream,
- 		.init = crypto4xx_sk_init,
- 		.exit = crypto4xx_sk_exit,
- 	} },
---- a/drivers/crypto/amcc/crypto4xx_core.h
-+++ b/drivers/crypto/amcc/crypto4xx_core.h
-@@ -183,10 +183,12 @@ int crypto4xx_setkey_rfc3686(struct cryp
- 			     const u8 *key, unsigned int keylen);
- int crypto4xx_encrypt_ctr(struct skcipher_request *req);
- int crypto4xx_decrypt_ctr(struct skcipher_request *req);
--int crypto4xx_encrypt_iv(struct skcipher_request *req);
--int crypto4xx_decrypt_iv(struct skcipher_request *req);
--int crypto4xx_encrypt_noiv(struct skcipher_request *req);
--int crypto4xx_decrypt_noiv(struct skcipher_request *req);
-+int crypto4xx_encrypt_iv_stream(struct skcipher_request *req);
-+int crypto4xx_decrypt_iv_stream(struct skcipher_request *req);
-+int crypto4xx_encrypt_iv_block(struct skcipher_request *req);
-+int crypto4xx_decrypt_iv_block(struct skcipher_request *req);
-+int crypto4xx_encrypt_noiv_block(struct skcipher_request *req);
-+int crypto4xx_decrypt_noiv_block(struct skcipher_request *req);
- int crypto4xx_rfc3686_encrypt(struct skcipher_request *req);
- int crypto4xx_rfc3686_decrypt(struct skcipher_request *req);
- int crypto4xx_sha1_alg_init(struct crypto_tfm *tfm);
++	memset(&op, 0, sizeof(op));
++	op.cmd_q = cmd_q;
++	op.jobid = jobid;
++	op.sb_key = cmd_q->sb_key; /* Pre-allocated */
++	op.sb_ctx = cmd_q->sb_ctx; /* Pre-allocated */
++	op.init = 1;
++	op.u.aes.type = aes->type;
+ 	op.u.aes.mode = CCP_AES_MODE_GHASH;
+ 	op.u.aes.action = CCP_AES_GHASHFINAL;
+ 	op.src.type = CCP_MEMTYPE_SYSTEM;
 
 
