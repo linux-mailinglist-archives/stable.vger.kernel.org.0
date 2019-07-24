@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29FFC73E12
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:22:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 057F873DE1
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:21:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390781AbfGXToP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:44:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47030 "EHLO mail.kernel.org"
+        id S2388413AbfGXTpq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:45:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390770AbfGXToO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:44:14 -0400
+        id S2390581AbfGXTpp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:45:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61B2A214AF;
-        Wed, 24 Jul 2019 19:44:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 594B22083B;
+        Wed, 24 Jul 2019 19:45:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997453;
-        bh=G5+9tOKfggG9ArmxDYJRKpm1HlpZ+AmbuewaNhRrSb8=;
+        s=default; t=1563997544;
+        bh=VmdVzvNLDWTZS6jg+c0EZupz56i7q1ENXH+Qqd8hAjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jmcAVLyrdAfVEhIotQ520ZMjcvKd12oD9YkuHmzGlM24ODNGPJ8795XE8IbLCJVtY
-         bUpAYgTe3I14c5eBvXbaIy8pnIwdNYEHmEwbKBVBikbdpLSYuX5EpHh1Fj57eVftMY
-         E8xh7c38n5cBrNTIvvPWZcSA6N8pi5v4g2mFU8q8=
+        b=jkAhoKc2KOuhdnhzm4ybglgf+Uq8NSVIhrUzF5tn0vxmqmIBlsIivHTwpxYT107tu
+         XNQHGneh+ulYVcB4VnxVGqj8qy9QBYSI05XabtXrOcykmYgYhB4cIFt13mfpYhGJ66
+         ipRIjoHW2gXdja04C2nGbUjl5EVNi620bmmVX+Fk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jungo Lin <jungo.lin@mediatek.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Jose Abreu <joabreu@synopsys.com>,
+        Joao Pinto <jpinto@synopsys.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 029/371] media: media_device_enum_links32: clean a reserved field
-Date:   Wed, 24 Jul 2019 21:16:21 +0200
-Message-Id: <20190724191726.684945920@linuxfoundation.org>
+Subject: [PATCH 5.1 033/371] net: stmmac: dwmac4/5: Clear unused address entries
+Date:   Wed, 24 Jul 2019 21:16:25 +0200
+Message-Id: <20190724191727.003720273@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -44,53 +47,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f49308878d7202e07d8761238e01bd0e5fce2750 ]
+[ Upstream commit 0620ec6c62a5a07625b65f699adc5d1b90394ee6 ]
 
-In v4l2-compliance utility, test MEDIA_IOC_ENUM_ENTITIES
-will check whether reserved field of media_links_enum filled
-with zero.
+In case we don't use a given address entry we need to clear it because
+it could contain previous values that are no longer valid.
 
-However, for 32 bit program, the reserved field is missing
-copy from kernel space to user space in media_device_enum_links32
-function.
+Found out while running stmmac selftests.
 
-This patch adds the cleaning a reserved field logic in
-media_device_enum_links32 function.
-
-Signed-off-by: Jungo Lin <jungo.lin@mediatek.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Jose Abreu <joabreu@synopsys.com>
+Cc: Joao Pinto <jpinto@synopsys.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Giuseppe Cavallaro <peppe.cavallaro@st.com>
+Cc: Alexandre Torgue <alexandre.torgue@st.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/media-device.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/media-device.c b/drivers/media/media-device.c
-index b8ec88612df7..6893843edada 100644
---- a/drivers/media/media-device.c
-+++ b/drivers/media/media-device.c
-@@ -502,6 +502,7 @@ static long media_device_enum_links32(struct media_device *mdev,
- {
- 	struct media_links_enum links;
- 	compat_uptr_t pads_ptr, links_ptr;
-+	int ret;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+index 7e5d5db0d516..a2f3db39221e 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+@@ -444,14 +444,20 @@ static void dwmac4_set_filter(struct mac_device_info *hw,
+ 		 * are required
+ 		 */
+ 		value |= GMAC_PACKET_FILTER_PR;
+-	} else if (!netdev_uc_empty(dev)) {
+-		int reg = 1;
++	} else {
+ 		struct netdev_hw_addr *ha;
++		int reg = 1;
  
- 	memset(&links, 0, sizeof(links));
- 
-@@ -513,7 +514,13 @@ static long media_device_enum_links32(struct media_device *mdev,
- 	links.pads = compat_ptr(pads_ptr);
- 	links.links = compat_ptr(links_ptr);
- 
--	return media_device_enum_links(mdev, &links);
-+	ret = media_device_enum_links(mdev, &links);
-+	if (ret)
-+		return ret;
+ 		netdev_for_each_uc_addr(ha, dev) {
+ 			dwmac4_set_umac_addr(hw, ha->addr, reg);
+ 			reg++;
+ 		}
 +
-+	memset(ulinks->reserved, 0, sizeof(ulinks->reserved));
-+
-+	return 0;
- }
++		while (reg <= GMAC_MAX_PERFECT_ADDRESSES) {
++			writel(0, ioaddr + GMAC_ADDR_HIGH(reg));
++			writel(0, ioaddr + GMAC_ADDR_LOW(reg));
++			reg++;
++		}
+ 	}
  
- #define MEDIA_IOC_ENUM_LINKS32		_IOWR('|', 0x02, struct media_links_enum32)
+ 	writel(value, ioaddr + GMAC_PACKET_FILTER);
 -- 
 2.20.1
 
