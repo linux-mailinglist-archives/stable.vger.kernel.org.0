@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A0D573DF6
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:21:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0404A73DF9
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:22:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390927AbfGXTpI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:45:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48512 "EHLO mail.kernel.org"
+        id S2389966AbfGXTpU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:45:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390385AbfGXTpI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:45:08 -0400
+        id S2390955AbfGXTpT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:45:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5F4B21873;
-        Wed, 24 Jul 2019 19:45:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21A66214AF;
+        Wed, 24 Jul 2019 19:45:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997507;
-        bh=9VSPAULSkYkmOOckj8slrEPHJhxuOoc1hLA0TxgAhFw=;
+        s=default; t=1563997518;
+        bh=Y1zAGay3jd5KEF4g9LhG4qBCznX9Lm/z+6299vg+c1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e58VWOOEaaAeb2SdIPZABL57C4h61IO5xb5XHlKu3+rPa0z3AaWrLnzGdcWeXx7zv
-         yQZ8LfYfFCUEJ0oMOSZN9Q9mEINVIfEzfdK4gho56VMBe5tyrOtQTDH7mnpzckguzN
-         FGXTY4FoNf6rfzl5uuJMjlaZG5/3aEBbERqArYIU=
+        b=f38EpKniPyexfYU5AoxSOGerAMAqk6nFdYfITjhl4gtcrigi8jGF8DbNybi2c4Fmm
+         CPGq/F0CJdrsWi8B9A4QUDq1/RAMFCgHEWTSaXlp3qudyBHksiXXnHrdFUGRp6glNS
+         D4nXJblRgaYbYsehHXT39sTGOaorTY6K8l/yHOjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shailendra Verma <shailendra.v@samsung.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 048/371] media: staging: media: davinci_vpfe: - Fix for memory leak if decoder initialization fails.
-Date:   Wed, 24 Jul 2019 21:16:40 +0200
-Message-Id: <20190724191728.315814670@linuxfoundation.org>
+Subject: [PATCH 5.1 051/371] crypto: talitos - Align SEC1 accesses to 32 bits boundaries.
+Date:   Wed, 24 Jul 2019 21:16:43 +0200
+Message-Id: <20190724191728.553343881@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -45,33 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6995a659101bd4effa41cebb067f9dc18d77520d ]
+[ Upstream commit c9cca7034b34a2d82e9a03b757de2485c294851c ]
 
-Fix to avoid possible memory leak if the decoder initialization
-got failed.Free the allocated memory for file handle object
-before return in case decoder initialization fails.
+The MPC885 reference manual states:
 
-Signed-off-by: Shailendra Verma <shailendra.v@samsung.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+SEC Lite-initiated 8xx writes can occur only on 32-bit-word boundaries, but
+reads can occur on any byte boundary. Writing back a header read from a
+non-32-bit-word boundary will yield unpredictable results.
+
+In order to ensure that, cra_alignmask is set to 3 for SEC1.
+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Fixes: 9c4a79653b35 ("crypto: talitos - Freescale integrated security engine (SEC) driver")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/davinci_vpfe/vpfe_video.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/crypto/talitos.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/davinci_vpfe/vpfe_video.c b/drivers/staging/media/davinci_vpfe/vpfe_video.c
-index 510202a3b091..84cca18e3e9d 100644
---- a/drivers/staging/media/davinci_vpfe/vpfe_video.c
-+++ b/drivers/staging/media/davinci_vpfe/vpfe_video.c
-@@ -419,6 +419,9 @@ static int vpfe_open(struct file *file)
- 	/* If decoder is not initialized. initialize it */
- 	if (!video->initialized && vpfe_update_pipe_state(video)) {
- 		mutex_unlock(&video->lock);
-+		v4l2_fh_del(&handle->vfh);
-+		v4l2_fh_exit(&handle->vfh);
-+		kfree(handle);
- 		return -ENODEV;
- 	}
- 	/* Increment device users counter */
+diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
+index 657cf739ee40..82d3625667cd 100644
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -3192,7 +3192,10 @@ static struct talitos_crypto_alg *talitos_alg_alloc(struct device *dev,
+ 		alg->cra_priority = t_alg->algt.priority;
+ 	else
+ 		alg->cra_priority = TALITOS_CRA_PRIORITY;
+-	alg->cra_alignmask = 0;
++	if (has_ftr_sec1(priv))
++		alg->cra_alignmask = 3;
++	else
++		alg->cra_alignmask = 0;
+ 	alg->cra_ctxsize = sizeof(struct talitos_ctx);
+ 	alg->cra_flags |= CRYPTO_ALG_KERN_DRIVER_ONLY;
+ 
 -- 
 2.20.1
 
