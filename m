@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E12773F6E
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:32:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F79D73FA7
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:34:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729021AbfGXUcf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:32:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47204 "EHLO mail.kernel.org"
+        id S1729259AbfGXT0l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:26:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726931AbfGXT2n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:28:43 -0400
+        id S1729252AbfGXT0k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:26:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5B70229F4;
-        Wed, 24 Jul 2019 19:28:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5850D2238C;
+        Wed, 24 Jul 2019 19:26:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996522;
-        bh=pJA0dcm5ZHMDCaDP8sQtXRZlZVJ0fE0QiDNBOeUdFEY=;
+        s=default; t=1563996399;
+        bh=kRG4d6d5TG/mBD8Z0zXw5vqsmv4xOfEV6e8qfpaQqGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hqs/86D00m79MY/EcIkUn6px0LsuiYP8BxWJ4AI+ztOsnUURbi1FXI+/Ux9R/3dxW
-         ipMqr+Kn3mvEbNu9CVPk1NiAzcZuTmZS4PsfZuRgDCgLrxendu7iMrIbptHD8ZCRv2
-         9f4/cScb4V5Sr1uGMLKJkdDEoTQIXa8DYoDgG77c=
+        b=rQVcscQ2iJBTsHIbXAnazGKzoscxk6rol+Fie6a5EiY+vDzTGAfqqcJUiDKyDrvy1
+         T7l4F0oYrpQr+X+xMmAz8xg+xQt3klADFc76TCT+7kP7258x3mzCxx+i3ZNXnf/C/C
+         IkzvbbW7/nmqzm5MkUzlAa6URVJLlix3bekUNw5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
-        Tony Luck <tony.luck@intel.com>,
-        linux-edac <linux-edac@vger.kernel.org>,
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Robert Hancock <hancock@sedsystems.ca>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 075/413] RAS/CEC: Fix pfn insertion
-Date:   Wed, 24 Jul 2019 21:16:06 +0200
-Message-Id: <20190724191740.470997080@linuxfoundation.org>
+Subject: [PATCH 5.2 076/413] net: sfp: add mutex to prevent concurrent state checks
+Date:   Wed, 24 Jul 2019 21:16:07 +0200
+Message-Id: <20190724191740.547246074@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -45,54 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6d8e294bf5f0e85c34e8b14b064e2965f53f38b0 ]
+[ Upstream commit 2158e856f56bb762ef90f3ec244d41a519826f75 ]
 
-When inserting random PFNs for debugging the CEC through
-(debugfs)/ras/cec/pfn, depending on the return value of pfn_set(),
-multiple values get inserted per a single write.
+sfp_check_state can potentially be called by both a threaded IRQ handler
+and delayed work. If it is concurrently called, it could result in
+incorrect state management. Add a st_mutex to protect the state - this
+lock gets taken outside of code that checks and handle state changes, and
+the existing sm_mutex nests inside of it.
 
-That is because simple_attr_write() interprets a retval of 0 as
-success and claims the whole input. However, pfn_set() returns the
-cec_add_elem() value, which, if > 0 and smaller than the whole input
-length, makes glibc continue issuing the write syscall until there's
-input left:
-
-  pfn_set
-  simple_attr_write
-  debugfs_attr_write
-  full_proxy_write
-  vfs_write
-  ksys_write
-  do_syscall_64
-  entry_SYSCALL_64_after_hwframe
-
-leading to those repeated calls.
-
-Return 0 to fix that.
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: linux-edac <linux-edac@vger.kernel.org>
+Suggested-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Robert Hancock <hancock@sedsystems.ca>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ras/cec.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/phy/sfp.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/ras/cec.c b/drivers/ras/cec.c
-index 673f8a128397..f5795adc5a6e 100644
---- a/drivers/ras/cec.c
-+++ b/drivers/ras/cec.c
-@@ -369,7 +369,9 @@ static int pfn_set(void *data, u64 val)
- {
- 	*(u64 *)data = val;
+diff --git a/drivers/net/phy/sfp.c b/drivers/net/phy/sfp.c
+index 71812be0ac64..b6efd2d41dce 100644
+--- a/drivers/net/phy/sfp.c
++++ b/drivers/net/phy/sfp.c
+@@ -186,10 +186,11 @@ struct sfp {
+ 	struct gpio_desc *gpio[GPIO_MAX];
  
--	return cec_add_elem(val);
-+	cec_add_elem(val);
-+
-+	return 0;
+ 	bool attached;
++	struct mutex st_mutex;			/* Protects state */
+ 	unsigned int state;
+ 	struct delayed_work poll;
+ 	struct delayed_work timeout;
+-	struct mutex sm_mutex;
++	struct mutex sm_mutex;			/* Protects state machine */
+ 	unsigned char sm_mod_state;
+ 	unsigned char sm_dev_state;
+ 	unsigned short sm_state;
+@@ -1719,6 +1720,7 @@ static void sfp_check_state(struct sfp *sfp)
+ {
+ 	unsigned int state, i, changed;
+ 
++	mutex_lock(&sfp->st_mutex);
+ 	state = sfp_get_state(sfp);
+ 	changed = state ^ sfp->state;
+ 	changed &= SFP_F_PRESENT | SFP_F_LOS | SFP_F_TX_FAULT;
+@@ -1744,6 +1746,7 @@ static void sfp_check_state(struct sfp *sfp)
+ 		sfp_sm_event(sfp, state & SFP_F_LOS ?
+ 				SFP_E_LOS_HIGH : SFP_E_LOS_LOW);
+ 	rtnl_unlock();
++	mutex_unlock(&sfp->st_mutex);
  }
  
- DEFINE_DEBUGFS_ATTRIBUTE(pfn_ops, u64_get, pfn_set, "0x%llx\n");
+ static irqreturn_t sfp_irq(int irq, void *data)
+@@ -1774,6 +1777,7 @@ static struct sfp *sfp_alloc(struct device *dev)
+ 	sfp->dev = dev;
+ 
+ 	mutex_init(&sfp->sm_mutex);
++	mutex_init(&sfp->st_mutex);
+ 	INIT_DELAYED_WORK(&sfp->poll, sfp_poll);
+ 	INIT_DELAYED_WORK(&sfp->timeout, sfp_timeout);
+ 
 -- 
 2.20.1
 
