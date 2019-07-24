@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 23CE173F36
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:32:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39A8373F54
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:32:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729355AbfGXT3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:29:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49226 "EHLO mail.kernel.org"
+        id S2388686AbfGXUbv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:31:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729049AbfGXT3m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:29:42 -0400
+        id S1729354AbfGXT3p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:29:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D651522ADA;
-        Wed, 24 Jul 2019 19:29:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66100229FA;
+        Wed, 24 Jul 2019 19:29:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996582;
-        bh=hH3OD1I2+8UPX765o8lm5X+iCCRRXeoTuVL7zMeLBrg=;
+        s=default; t=1563996584;
+        bh=qrB5kfjoyVh2sPmkyHE/OtAOTCt8vxYhmexMrBsbF6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QCzjq0eNZ4Y5OGJnX7DmtpEntzBmeK0VsC0WLXBgpVAPpJi2Ll3Szr6+7f6aIfeYo
-         xsg6TkKkZdfauB3wPcD1q45jHLw0qWApxNvqJkXLfKyWnbalmdGRZ3mjFfII9AV3uZ
-         r9mhrCCD/xFg46dxkGwoQUsK8kfLRLMvV0obLz3U=
+        b=dzNpB8x2eyNOfpsz/I4oWkFAVTSAzlKw8KwdVVCcC3OB49rX8vVYg7ZbPp5iVzfj1
+         gitnbAOFTJpfm9m+6OnqI11JbyIIE6n4K0xjF/X1/3IozT1Np5ViLWy6+UGE/DcLkc
+         TgsmHZLY4sT+pwUDVR4nYqjxW4X5buYH0WmM5ZOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Graeme Gregory <graeme.gregory@linaro.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 146/413] ASoC: soc-core: call snd_soc_unbind_card() under mutex_lock;
-Date:   Wed, 24 Jul 2019 21:17:17 +0200
-Message-Id: <20190724191745.389752092@linuxfoundation.org>
+Subject: [PATCH 5.2 147/413] acpi/arm64: ignore 5.1 FADTs that are reported as 5.0
+Date:   Wed, 24 Jul 2019 21:17:18 +0200
+Message-Id: <20190724191745.459972974@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -45,80 +49,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b545542a0b866f7975254e41c595836e9bc0ff2f ]
+[ Upstream commit 2af22f3ec3ca452f1e79b967f634708ff01ced8a ]
 
-commit 34ac3c3eb8f0c07 ("ASoC: core: lock client_mutex while removing
-link components") added mutex_lock() at soc_remove_link_components().
+Some Qualcomm Snapdragon based laptops built to run Microsoft Windows
+are clearly ACPI 5.1 based, given that that is the first ACPI revision
+that supports ARM, and introduced the FADT 'arm_boot_flags' field,
+which has a non-zero field on those systems.
 
-Is is called from snd_soc_unbind_card()
+So in these cases, infer from the ARM boot flags that the FADT must be
+5.1 or later, and treat it as 5.1.
 
-	snd_soc_unbind_card()
-=>		soc_remove_link_components()
-		soc_cleanup_card_resources()
-			soc_remove_dai_links()
-=>				soc_remove_link_components()
-
-And, there are 2 way to call it.
-
-(1)
-	snd_soc_unregister_component()
-**		mutex_lock()
-			snd_soc_component_del_unlocked()
-=>				snd_soc_unbind_card()
-**		mutex_unlock()
-
-(2)
-	snd_soc_unregister_card()
-=>		snd_soc_unbind_card()
-
-(1) case is already using mutex_lock() when it calles
-snd_soc_unbind_card(), thus, we will get lockdep warning.
-
-commit 495f926c68ddb90 ("ASoC: core: Fix deadlock in
-snd_soc_instantiate_card()") tried to fixup it, but still not
-enough. We still have lockdep warning when we try unbind/bind.
-
-We need mutex_lock() under snd_soc_unregister_card()
-instead of snd_remove_link_components()/snd_soc_unbind_card().
-
-Fixes: 34ac3c3eb8f0c07 ("ASoC: core: lock client_mutex while removing link components")
-Fixes: 495f926c68ddb90 ("ASoC: core: Fix deadlock in snd_soc_instantiate_card()")
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Acked-by: Sudeep Holla <sudeep.holla@arm.com>
+Tested-by: Lee Jones <lee.jones@linaro.org>
+Reviewed-by: Graeme Gregory <graeme.gregory@linaro.org>
+Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Hanjun Guo <guohanjun@huawei.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/acpi.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index 41c0cfaf2db5..9138fcb15cd3 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -2837,14 +2837,12 @@ static void snd_soc_unbind_card(struct snd_soc_card *card, bool unregister)
- 		snd_soc_dapm_shutdown(card);
- 		snd_soc_flush_all_delayed_work(card);
+diff --git a/arch/arm64/kernel/acpi.c b/arch/arm64/kernel/acpi.c
+index 2804330c95dc..3a58e9db5cfe 100644
+--- a/arch/arm64/kernel/acpi.c
++++ b/arch/arm64/kernel/acpi.c
+@@ -152,10 +152,14 @@ static int __init acpi_fadt_sanity_check(void)
+ 	 */
+ 	if (table->revision < 5 ||
+ 	   (table->revision == 5 && fadt->minor_revision < 1)) {
+-		pr_err("Unsupported FADT revision %d.%d, should be 5.1+\n",
++		pr_err(FW_BUG "Unsupported FADT revision %d.%d, should be 5.1+\n",
+ 		       table->revision, fadt->minor_revision);
+-		ret = -EINVAL;
+-		goto out;
++
++		if (!fadt->arm_boot_flags) {
++			ret = -EINVAL;
++			goto out;
++		}
++		pr_err("FADT has ARM boot flags set, assuming 5.1\n");
+ 	}
  
--		mutex_lock(&client_mutex);
- 		/* remove all components used by DAI links on this card */
- 		for_each_comp_order(order) {
- 			for_each_card_rtds(card, rtd) {
- 				soc_remove_link_components(card, rtd, order);
- 			}
- 		}
--		mutex_unlock(&client_mutex);
- 
- 		soc_cleanup_card_resources(card);
- 		if (!unregister)
-@@ -2863,7 +2861,9 @@ static void snd_soc_unbind_card(struct snd_soc_card *card, bool unregister)
-  */
- int snd_soc_unregister_card(struct snd_soc_card *card)
- {
-+	mutex_lock(&client_mutex);
- 	snd_soc_unbind_card(card, true);
-+	mutex_unlock(&client_mutex);
- 	dev_dbg(card->dev, "ASoC: Unregistered card '%s'\n", card->name);
- 
- 	return 0;
+ 	if (!(fadt->flags & ACPI_FADT_HW_REDUCED)) {
 -- 
 2.20.1
 
