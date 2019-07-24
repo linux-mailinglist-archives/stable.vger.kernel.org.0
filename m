@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A4BB731A1
+	by mail.lfdr.de (Postfix) with ESMTP id F285B731A3
 	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 16:29:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387455AbfGXO25 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1725870AbfGXO25 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 24 Jul 2019 10:28:57 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:37589 "EHLO
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:49527 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727294AbfGXO24 (ORCPT
+        by vger.kernel.org with ESMTP id S1727273AbfGXO24 (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 10:28:56 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 39F1B21F85;
-        Wed, 24 Jul 2019 10:28:53 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 4852321443;
+        Wed, 24 Jul 2019 10:28:54 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 24 Jul 2019 10:28:53 -0400
+  by compute6.internal (MEProxy); Wed, 24 Jul 2019 10:28:54 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=oYXwuK
-        9k0rev+So7KAxyA4Lmx5nb1u2u5cA3e8KT1cI=; b=K+KHGyKYJYmHWtGy4FSKhr
-        xekCgva/fANPLNEFSKMbcCwNWIK5UJoq4UdvvLCp+sJRXRH88cJGmhD9xyt0O6dv
-        /aTV7eeRIAZlMFOiDRpIyvT19zwksp+472Mb7CPY0Kw8osTds17yCU3lHncGKaXX
-        ctkuxOBdV+wE08DeUi54JeiC0pPii5p7iiKfpwszisjS6hYNKlsew0NoWGUqltz/
-        PrtsMthtsUUFI9Co6/Qomp5d9KkwEtKQP/rkze5rZ9g73gfOfg77Z9O1uIdEHMVB
-        uhfdNTvGiwCx7zXdNP29dkTXnQZ2sryZ9RfjejnNurVV+niwaqf9nWV4CAFKDm6w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=0Zm4jI
+        LMIZacKKhOc9FNjGShqj14FkmEqOmrYinX7Os=; b=OIp+H3rHDw60Y/9KZMniVp
+        o+7ntHhwT3AfAvnY1TlZ+h4gM4sMrs268cosKpoKA5P/cDDseR9VE1rKrHgtMpOC
+        asuoBk7ENJQRMSmlusx82YvfUVIG/lv4FUgFsGOky/QK7gCNJ8eAEqmHjnzUuCse
+        mCH5FG1nMKFvr5eW5r8jcxqV1j30O282hI7qzH+zGRiTbg08USq4NZZ06jlwcgw0
+        jOzJCy1fjJyFtat91xoM50lbyR5szNzmqETDApZI3aQgmG76m6owQwbam0mJsBKn
+        QWctlf2fEMNdMitCk9ciD7yG1JGiiPuVAZ1adS3MEngfQ/dygujEK8q7ZidSW/nw
         ==
-X-ME-Sender: <xms:JGs4XefMt5xIOcaLFjb_R6A-_9Y_nvb77QCmxZtmIAexKYbW97zCdw>
+X-ME-Sender: <xms:Jms4XRLMLXTB3hL7wURPNIUmEhGPfRp_-pvG29TTSBfEgkQBDKNg0g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrkedtgdejudcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
     hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:JGs4XYVZCVY_VFlX8SNl-vrkpQzqL9P0Hmg12COZMdOsscwXimOlvg>
-    <xmx:JGs4XW-wOWzzl8Q8_MAYJvvJxbSGWrK1sA0HwJiPAy-EicOZ3MO95A>
-    <xmx:JGs4XSh5Ln7tH3l2sJQWHFrVcLbSArn5ATqD2f9Bw5ooeJDwPVRXlg>
-    <xmx:JWs4XWT6Jd6P3qbPwx_PRBoCtXkLjDN6B-rHPHCgG4igsCeDdYJ5nw>
+X-ME-Proxy: <xmx:Jms4XWcq-oOILsui-j1kFGohXWbCjzm6wD_N8u_d_6d7LDrsz2gLJg>
+    <xmx:Jms4XWFX1lzhv3lFZBKu68-4ErEJPa9b_J7a8JDhIFdVvDycS8CmHA>
+    <xmx:Jms4XZ96-GDYwQlRhPlrfl5RTnueaAkVJgVjZ3vP7tqxUyCRVj1CjQ>
+    <xmx:Jms4XQGty1l6we45Mhe_W1-EAf00iehmUy7nwsYWlHnmSGzQ5_IYIg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id CDAD08005B;
-        Wed, 24 Jul 2019 10:28:51 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] sd_zbc: Fix report zones buffer allocation" failed to apply to 5.2-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id AAC1E80064;
+        Wed, 24 Jul 2019 10:28:53 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] sd_zbc: Fix report zones buffer allocation" failed to apply to 5.1-stable tree
 To:     damien.lemoal@wdc.com, axboe@kernel.dk, hch@lst.de,
         martin.petersen@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 24 Jul 2019 16:24:11 +0200
-Message-ID: <15639782515728@kroah.com>
+Date:   Wed, 24 Jul 2019 16:24:12 +0200
+Message-ID: <15639782522644@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.2-stable tree.
+The patch below does not apply to the 5.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
