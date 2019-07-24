@@ -2,227 +2,228 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D190372799
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 07:51:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D811D72814
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 08:13:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726186AbfGXFvw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 01:51:52 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:49867 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725870AbfGXFvv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 01:51:51 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 6543B2216E;
-        Wed, 24 Jul 2019 01:51:50 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Wed, 24 Jul 2019 01:51:50 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=rwo27S
-        zMBzafVgymq5AAg1c6fowwqw+QZp7zq8qUAr8=; b=0izP0USE98lqeNTU/k3BEJ
-        6uRgZspBPvUZBW20XoEDGMyfmucqrD4jNGl0JDR6qqyPZ6d1qgXEgrx0hyEg1M/f
-        vFKpiQwmoQt+TJiWaz3ayh4UJj8XhvrW9arQk4XfQDoqeNi/08WEnb4FBDX++ih8
-        YtdT/CN9gZG8OotxlgE+NCV3uz/L2aiQXPd27l1X8WVmHkm4U7kG/7gUUu5SOlRv
-        ToHJdyGUDxvZ2YAgwYMQUWQQXSVr4fGiAO9/jpZxJry3JBDE3RP4eAMD8Igpv1qP
-        YuoKxtEMTM4m3rrhuiRufUEji/ZxYKrRdHN+Z6+db4MO72m6Dqoavarx53hskreA
-        ==
-X-ME-Sender: <xms:9fE3XTZFsG73uL0x7HC6aMnjhdewrlAzw8ukNKRH2JxXuAvpuj7y4A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrjeelgddutddtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:9fE3XbV5ygrkr41C5JiW_TK3LWvC24b5TLpvDBx2IbS9xkarRoF4eA>
-    <xmx:9fE3XX5bAkjcKh3XqhH3b80XQugX35l6JnRm7AZfAgAZdZWivwfuEg>
-    <xmx:9fE3XWjb8D6SN1M8n_JSibR-4SP42EGVG6gvw2qkocf1HV6ZsR-aqg>
-    <xmx:9vE3XX13_ZvhBEi-bLOkk27mAy082kkdLCCpMOJ4b77D_T_KCHc1rg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5026D38008F;
-        Wed, 24 Jul 2019 01:51:49 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: correctly validate compression type" failed to apply to 4.19-stable tree
-To:     jthumshirn@suse.de, dsterba@suse.com, nborisov@suse.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 24 Jul 2019 07:51:47 +0200
-Message-ID: <156394750765209@kroah.com>
+        id S1726240AbfGXGNp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 02:13:45 -0400
+Received: from mail-vs1-f66.google.com ([209.85.217.66]:40340 "EHLO
+        mail-vs1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726203AbfGXGNp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 02:13:45 -0400
+Received: by mail-vs1-f66.google.com with SMTP id a186so28976566vsd.7
+        for <stable@vger.kernel.org>; Tue, 23 Jul 2019 23:13:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=endlessm-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=tpQ7KjGA9rveTFum7LugjFyj9R3ZDuR92fvMjPflPJo=;
+        b=WLIcZPB0RGHF3y22J9RiUYiYwmhaqQoxsIaLYlvO91IA7hBpXI5LSnqRKeYQIwWtgj
+         9oPXzNVcgMAt5pt6o7kf4mMEsQhYDl7VhrKavAzTm8ndZ+2LAqhnpLc5InNjptsQ9HvV
+         +Yh7Cz0lliq+zSDEVk/UxdO1rO/NkW5Uc1NDEZ58IsgSDmy0NhC2nThnW4a8+KEX7qh5
+         5Rw6H3+OwBr8HrSGJvm5GvFeebSZ/+L1ELYCRED7FnQOM8QDQeVjCZAMio9kyzgghIJI
+         XfI3CNpgl5GxT0khY4jQQOVoIzma4hHiMsYz/27wS0nKtQqjY/mh0g7H+5tYbxq7eWBK
+         LOmg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=tpQ7KjGA9rveTFum7LugjFyj9R3ZDuR92fvMjPflPJo=;
+        b=Hmf+yTgbu0piSMb+HxbhhcY5qxoPfVtiqGHCB5Ys3z8GEmIc0Q2+oogQYuhqqQjES+
+         VCsqCyhGug67gC939f75BSaYFkDnBsxzQFUWQ9jT0O1Dzg2npY96FYG2eohT4FWBi6LF
+         SlHvL32YOIJMoJXSjWBQr2ub2BRQEMIoeCiZAc7YH7QlfdykbGyRKG6AQ2ogEpzQCuuA
+         S0btpeWqQMnJe8VyGmMvq4+YDrsIzgM7w1Br7XBOylll7O9QDwMZqOQYfrgbV3LPaeBY
+         sJTMJE8CU9jOZ6oGJPCgvx/TCOvHjh6jpRBpV1KuBSjU+ktr+1f2vMgQbYdHQanK/bYn
+         +hEg==
+X-Gm-Message-State: APjAAAVtpsaMyIykHuP4iDA78zvnwz3KGNiVI6aQhdv0pD266YHfJEaz
+        xWrHO9YTivDIGWGvvLnw/d24CIFxK3jdFwjNLcYxPQ==
+X-Google-Smtp-Source: APXvYqzdt5e7MQUrV3m0zT2VF6TxbA+RfwZiiMGBr+kbwUgoC0bLitbTQYwZ19uZZ92CFZuSd02w4DN7V8nzv1tws9U=
+X-Received: by 2002:a67:d990:: with SMTP id u16mr51326288vsj.95.1563948823620;
+ Tue, 23 Jul 2019 23:13:43 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <CAPpJ_edDcaBq+0DocPmS-yYM10B4MkWvBn=f6wwbYdqzSGmp_g@mail.gmail.com>
+ <20190711052427.5582-1-jian-hong@endlessm.com> <CAPpJ_edQRMiBcdB-dTxhti8nK0eX4GPRUOgimzWW1JC3ZZjRHw@mail.gmail.com>
+In-Reply-To: <CAPpJ_edQRMiBcdB-dTxhti8nK0eX4GPRUOgimzWW1JC3ZZjRHw@mail.gmail.com>
+From:   Jian-Hong Pan <jian-hong@endlessm.com>
+Date:   Wed, 24 Jul 2019 14:13:06 +0800
+Message-ID: <CAPpJ_efEZxBSwzKvYvhTYT5EUn9hxuGabdG8wkahF8Uex+P9Zw@mail.gmail.com>
+Subject: Re: [PATCH v4 1/2] rtw88: pci: Rearrange the memory usage for skb in
+ RX ISR
+To:     Yan-Hsuan Chuang <yhchuang@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        David Laight <David.Laight@aculab.com>,
+        Christoph Hellwig <hch@infradead.org>
+Cc:     linux-wireless@vger.kernel.org,
+        Linux Netdev List <netdev@vger.kernel.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        Linux Upstreaming Team <linux@endlessm.com>,
+        Daniel Drake <drake@endlessm.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Jian-Hong Pan <jian-hong@endlessm.com> =E6=96=BC 2019=E5=B9=B47=E6=9C=8811=
+=E6=97=A5 =E9=80=B1=E5=9B=9B =E4=B8=8B=E5=8D=881:28=E5=AF=AB=E9=81=93=EF=BC=
+=9A
+>
+> Jian-Hong Pan <jian-hong@endlessm.com> =E6=96=BC 2019=E5=B9=B47=E6=9C=881=
+1=E6=97=A5 =E9=80=B1=E5=9B=9B =E4=B8=8B=E5=8D=881:25=E5=AF=AB=E9=81=93=EF=
+=BC=9A
+> >
+> > Testing with RTL8822BE hardware, when available memory is low, we
+> > frequently see a kernel panic and system freeze.
+> >
+> > First, rtw_pci_rx_isr encounters a memory allocation failure (trimmed):
+> >
+> > rx routine starvation
+> > WARNING: CPU: 7 PID: 9871 at drivers/net/wireless/realtek/rtw88/pci.c:8=
+22 rtw_pci_rx_isr.constprop.25+0x35a/0x370 [rtwpci]
+> > [ 2356.580313] RIP: 0010:rtw_pci_rx_isr.constprop.25+0x35a/0x370 [rtwpc=
+i]
+> >
+> > Then we see a variety of different error conditions and kernel panics,
+> > such as this one (trimmed):
+> >
+> > rtw_pci 0000:02:00.0: pci bus timeout, check dma status
+> > skbuff: skb_over_panic: text:00000000091b6e66 len:415 put:415 head:0000=
+0000d2880c6f data:000000007a02b1ea tail:0x1df end:0xc0 dev:<NULL>
+> > ------------[ cut here ]------------
+> > kernel BUG at net/core/skbuff.c:105!
+> > invalid opcode: 0000 [#1] SMP NOPTI
+> > RIP: 0010:skb_panic+0x43/0x45
+> >
+> > When skb allocation fails and the "rx routine starvation" is hit, the
+> > function returns immediately without updating the RX ring. At this
+> > point, the RX ring may continue referencing an old skb which was alread=
+y
+> > handed off to ieee80211_rx_irqsafe(). When it comes to be used again,
+> > bad things happen.
+> >
+> > This patch allocates a new, data-sized skb first in RX ISR. After
+> > copying the data in, we pass it to the upper layers. However, if skb
+> > allocation fails, we effectively drop the frame. In both cases, the
+> > original, full size ring skb is reused.
+> >
+> > In addition, to fixing the kernel crash, the RX routine should now
+> > generally behave better under low memory conditions.
+> >
+> > Buglink: https://bugzilla.kernel.org/show_bug.cgi?id=3D204053
+> > Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
+> > Cc: <stable@vger.kernel.org>
+> > ---
+>
+> Sorry, I forget to place the version difference here.
+>
+> v2:
+>  - Allocate new data-sized skb and put data into it, then pass it to
+>    mac80211. Reuse the original skb in RX ring by DMA sync.
+>  - Modify the commit message.
+>  - Introduce following [PATCH v3 2/2] rtw88: pci: Use DMA sync instead
+>    of remapping in RX ISR.
+>
+> v3:
+>  - Same as v2.
+>
+> v4:
+>  - Fix comment: allocate a new skb for this frame, discard the frame
+> if none available
+>
+> >  drivers/net/wireless/realtek/rtw88/pci.c | 49 +++++++++++-------------
+> >  1 file changed, 22 insertions(+), 27 deletions(-)
+> >
+> > diff --git a/drivers/net/wireless/realtek/rtw88/pci.c b/drivers/net/wir=
+eless/realtek/rtw88/pci.c
+> > index cfe05ba7280d..c415f5e94fed 100644
+> > --- a/drivers/net/wireless/realtek/rtw88/pci.c
+> > +++ b/drivers/net/wireless/realtek/rtw88/pci.c
+> > @@ -763,6 +763,7 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev, =
+struct rtw_pci *rtwpci,
+> >         u32 pkt_offset;
+> >         u32 pkt_desc_sz =3D chip->rx_pkt_desc_sz;
+> >         u32 buf_desc_sz =3D chip->rx_buf_desc_sz;
+> > +       u32 new_len;
+> >         u8 *rx_desc;
+> >         dma_addr_t dma;
+> >
+> > @@ -790,40 +791,34 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev=
+, struct rtw_pci *rtwpci,
+> >                 pkt_offset =3D pkt_desc_sz + pkt_stat.drv_info_sz +
+> >                              pkt_stat.shift;
+> >
+> > -               if (pkt_stat.is_c2h) {
+> > -                       /* keep rx_desc, halmac needs it */
+> > -                       skb_put(skb, pkt_stat.pkt_len + pkt_offset);
+> > +               /* allocate a new skb for this frame,
+> > +                * discard the frame if none available
+> > +                */
+> > +               new_len =3D pkt_stat.pkt_len + pkt_offset;
+> > +               new =3D dev_alloc_skb(new_len);
+> > +               if (WARN_ONCE(!new, "rx routine starvation\n"))
+> > +                       goto next_rp;
+> > +
+> > +               /* put the DMA data including rx_desc from phy to new s=
+kb */
+> > +               skb_put_data(new, skb->data, new_len);
+> >
+> > -                       /* pass offset for further operation */
+> > -                       *((u32 *)skb->cb) =3D pkt_offset;
+> > -                       skb_queue_tail(&rtwdev->c2h_queue, skb);
+> > +               if (pkt_stat.is_c2h) {
+> > +                        /* pass rx_desc & offset for further operation=
+ */
+> > +                       *((u32 *)new->cb) =3D pkt_offset;
+> > +                       skb_queue_tail(&rtwdev->c2h_queue, new);
+> >                         ieee80211_queue_work(rtwdev->hw, &rtwdev->c2h_w=
+ork);
+> >                 } else {
+> > -                       /* remove rx_desc, maybe use skb_pull? */
+> > -                       skb_put(skb, pkt_stat.pkt_len);
+> > -                       skb_reserve(skb, pkt_offset);
+> > -
+> > -                       /* alloc a smaller skb to mac80211 */
+> > -                       new =3D dev_alloc_skb(pkt_stat.pkt_len);
+> > -                       if (!new) {
+> > -                               new =3D skb;
+> > -                       } else {
+> > -                               skb_put_data(new, skb->data, skb->len);
+> > -                               dev_kfree_skb_any(skb);
+> > -                       }
+> > -                       /* TODO: merge into rx.c */
+> > -                       rtw_rx_stats(rtwdev, pkt_stat.vif, skb);
+> > +                       /* remove rx_desc */
+> > +                       skb_pull(new, pkt_offset);
+> > +
+> > +                       rtw_rx_stats(rtwdev, pkt_stat.vif, new);
+> >                         memcpy(new->cb, &rx_status, sizeof(rx_status));
+> >                         ieee80211_rx_irqsafe(rtwdev->hw, new);
+> >                 }
+> >
+> > -               /* skb delivered to mac80211, alloc a new one in rx rin=
+g */
+> > -               new =3D dev_alloc_skb(RTK_PCI_RX_BUF_SIZE);
+> > -               if (WARN(!new, "rx routine starvation\n"))
+> > -                       return;
+> > -
+> > -               ring->buf[cur_rp] =3D new;
+> > -               rtw_pci_reset_rx_desc(rtwdev, new, ring, cur_rp, buf_de=
+sc_sz);
+> > +next_rp:
+> > +               /* new skb delivered to mac80211, re-enable original sk=
+b DMA */
+> > +               rtw_pci_reset_rx_desc(rtwdev, skb, ring, cur_rp, buf_de=
+sc_sz);
+> >
+> >                 /* host read next element in ring */
+> >                 if (++cur_rp >=3D ring->r.len)
+> > --
+> > 2.22.0
+> >
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Gentle ping!  Any comment for this patch set (v4) will be appreciated.
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From aa53e3bfac7205fb3a8815ac1c937fd6ed01b41e Mon Sep 17 00:00:00 2001
-From: Johannes Thumshirn <jthumshirn@suse.de>
-Date: Thu, 6 Jun 2019 12:07:15 +0200
-Subject: [PATCH] btrfs: correctly validate compression type
-
-Nikolay reported the following KASAN splat when running btrfs/048:
-
-[ 1843.470920] ==================================================================
-[ 1843.471971] BUG: KASAN: slab-out-of-bounds in strncmp+0x66/0xb0
-[ 1843.472775] Read of size 1 at addr ffff888111e369e2 by task btrfs/3979
-
-[ 1843.473904] CPU: 3 PID: 3979 Comm: btrfs Not tainted 5.2.0-rc3-default #536
-[ 1843.475009] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-[ 1843.476322] Call Trace:
-[ 1843.476674]  dump_stack+0x7c/0xbb
-[ 1843.477132]  ? strncmp+0x66/0xb0
-[ 1843.477587]  print_address_description+0x114/0x320
-[ 1843.478256]  ? strncmp+0x66/0xb0
-[ 1843.478740]  ? strncmp+0x66/0xb0
-[ 1843.479185]  __kasan_report+0x14e/0x192
-[ 1843.479759]  ? strncmp+0x66/0xb0
-[ 1843.480209]  kasan_report+0xe/0x20
-[ 1843.480679]  strncmp+0x66/0xb0
-[ 1843.481105]  prop_compression_validate+0x24/0x70
-[ 1843.481798]  btrfs_xattr_handler_set_prop+0x65/0x160
-[ 1843.482509]  __vfs_setxattr+0x71/0x90
-[ 1843.483012]  __vfs_setxattr_noperm+0x84/0x130
-[ 1843.483606]  vfs_setxattr+0xac/0xb0
-[ 1843.484085]  setxattr+0x18c/0x230
-[ 1843.484546]  ? vfs_setxattr+0xb0/0xb0
-[ 1843.485048]  ? __mod_node_page_state+0x1f/0xa0
-[ 1843.485672]  ? _raw_spin_unlock+0x24/0x40
-[ 1843.486233]  ? __handle_mm_fault+0x988/0x1290
-[ 1843.486823]  ? lock_acquire+0xb4/0x1e0
-[ 1843.487330]  ? lock_acquire+0xb4/0x1e0
-[ 1843.487842]  ? mnt_want_write_file+0x3c/0x80
-[ 1843.488442]  ? debug_lockdep_rcu_enabled+0x22/0x40
-[ 1843.489089]  ? rcu_sync_lockdep_assert+0xe/0x70
-[ 1843.489707]  ? __sb_start_write+0x158/0x200
-[ 1843.490278]  ? mnt_want_write_file+0x3c/0x80
-[ 1843.490855]  ? __mnt_want_write+0x98/0xe0
-[ 1843.491397]  __x64_sys_fsetxattr+0xba/0xe0
-[ 1843.492201]  ? trace_hardirqs_off_thunk+0x1a/0x1c
-[ 1843.493201]  do_syscall_64+0x6c/0x230
-[ 1843.493988]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-[ 1843.495041] RIP: 0033:0x7fa7a8a7707a
-[ 1843.495819] Code: 48 8b 0d 21 de 2b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 be 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d ee dd 2b 00 f7 d8 64 89 01 48
-[ 1843.499203] RSP: 002b:00007ffcb73bca38 EFLAGS: 00000202 ORIG_RAX: 00000000000000be
-[ 1843.500210] RAX: ffffffffffffffda RBX: 00007ffcb73bda9d RCX: 00007fa7a8a7707a
-[ 1843.501170] RDX: 00007ffcb73bda9d RSI: 00000000006dc050 RDI: 0000000000000003
-[ 1843.502152] RBP: 00000000006dc050 R08: 0000000000000000 R09: 0000000000000000
-[ 1843.503109] R10: 0000000000000002 R11: 0000000000000202 R12: 00007ffcb73bda91
-[ 1843.504055] R13: 0000000000000003 R14: 00007ffcb73bda82 R15: ffffffffffffffff
-
-[ 1843.505268] Allocated by task 3979:
-[ 1843.505771]  save_stack+0x19/0x80
-[ 1843.506211]  __kasan_kmalloc.constprop.5+0xa0/0xd0
-[ 1843.506836]  setxattr+0xeb/0x230
-[ 1843.507264]  __x64_sys_fsetxattr+0xba/0xe0
-[ 1843.507886]  do_syscall_64+0x6c/0x230
-[ 1843.508429]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-[ 1843.509558] Freed by task 0:
-[ 1843.510188] (stack is not available)
-
-[ 1843.511309] The buggy address belongs to the object at ffff888111e369e0
-                which belongs to the cache kmalloc-8 of size 8
-[ 1843.514095] The buggy address is located 2 bytes inside of
-                8-byte region [ffff888111e369e0, ffff888111e369e8)
-[ 1843.516524] The buggy address belongs to the page:
-[ 1843.517561] page:ffff88813f478d80 refcount:1 mapcount:0 mapping:ffff88811940c300 index:0xffff888111e373b8 compound_mapcount: 0
-[ 1843.519993] flags: 0x4404000010200(slab|head)
-[ 1843.520951] raw: 0004404000010200 ffff88813f48b008 ffff888119403d50 ffff88811940c300
-[ 1843.522616] raw: ffff888111e373b8 000000000016000f 00000001ffffffff 0000000000000000
-[ 1843.524281] page dumped because: kasan: bad access detected
-
-[ 1843.525936] Memory state around the buggy address:
-[ 1843.526975]  ffff888111e36880: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[ 1843.528479]  ffff888111e36900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[ 1843.530138] >ffff888111e36980: fc fc fc fc fc fc fc fc fc fc fc fc 02 fc fc fc
-[ 1843.531877]                                                        ^
-[ 1843.533287]  ffff888111e36a00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[ 1843.534874]  ffff888111e36a80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[ 1843.536468] ==================================================================
-
-This is caused by supplying a too short compression value ('lz') in the
-test-case and comparing it to 'lzo' with strncmp() and a length of 3.
-strncmp() read past the 'lz' when looking for the 'o' and thus caused an
-out-of-bounds read.
-
-Introduce a new check 'btrfs_compress_is_valid_type()' which not only
-checks the user-supplied value against known compression types, but also
-employs checks for too short values.
-
-Reported-by: Nikolay Borisov <nborisov@suse.com>
-Fixes: 272e5326c783 ("btrfs: prop: fix vanished compression property after failed set")
-CC: stable@vger.kernel.org # 5.1+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/compression.c b/fs/btrfs/compression.c
-index 66e21a4e9ea2..db41315f11eb 100644
---- a/fs/btrfs/compression.c
-+++ b/fs/btrfs/compression.c
-@@ -43,6 +43,22 @@ const char* btrfs_compress_type2str(enum btrfs_compression_type type)
- 	return NULL;
- }
- 
-+bool btrfs_compress_is_valid_type(const char *str, size_t len)
-+{
-+	int i;
-+
-+	for (i = 1; i < ARRAY_SIZE(btrfs_compress_types); i++) {
-+		size_t comp_len = strlen(btrfs_compress_types[i]);
-+
-+		if (len < comp_len)
-+			continue;
-+
-+		if (!strncmp(btrfs_compress_types[i], str, comp_len))
-+			return true;
-+	}
-+	return false;
-+}
-+
- static int btrfs_decompress_bio(struct compressed_bio *cb);
- 
- static inline int compressed_bio_size(struct btrfs_fs_info *fs_info,
-diff --git a/fs/btrfs/compression.h b/fs/btrfs/compression.h
-index 191e5f4e3523..2035b8eb1290 100644
---- a/fs/btrfs/compression.h
-+++ b/fs/btrfs/compression.h
-@@ -173,6 +173,7 @@ extern const struct btrfs_compress_op btrfs_lzo_compress;
- extern const struct btrfs_compress_op btrfs_zstd_compress;
- 
- const char* btrfs_compress_type2str(enum btrfs_compression_type type);
-+bool btrfs_compress_is_valid_type(const char *str, size_t len);
- 
- int btrfs_compress_heuristic(struct inode *inode, u64 start, u64 end);
- 
-diff --git a/fs/btrfs/props.c b/fs/btrfs/props.c
-index a9e2e66152ee..af109c0ba720 100644
---- a/fs/btrfs/props.c
-+++ b/fs/btrfs/props.c
-@@ -257,11 +257,7 @@ static int prop_compression_validate(const char *value, size_t len)
- 	if (!value)
- 		return 0;
- 
--	if (!strncmp("lzo", value, 3))
--		return 0;
--	else if (!strncmp("zlib", value, 4))
--		return 0;
--	else if (!strncmp("zstd", value, 4))
-+	if (btrfs_compress_is_valid_type(value, len))
- 		return 0;
- 
- 	return -EINVAL;
-
+Jian-Hong Pan
