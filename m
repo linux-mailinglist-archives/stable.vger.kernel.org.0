@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AAD373801
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:25:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E8CD7382A
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:26:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728165AbfGXTZG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:25:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41654 "EHLO mail.kernel.org"
+        id S2387509AbfGXT0c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:26:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729140AbfGXTZG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:25:06 -0400
+        id S1728452AbfGXT01 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:26:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6D0C218EA;
-        Wed, 24 Jul 2019 19:25:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 827DA20659;
+        Wed, 24 Jul 2019 19:26:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996305;
-        bh=vkubnwGwqggu4gM/JSBjnWe2XoZHpeGUfBMr8usYZYs=;
+        s=default; t=1563996387;
+        bh=CURt+DNmqAriFInCae09vldP6AQePfsWc1X55YjCn6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FMA5qvigGfmQXY2lPXg44Yy25mn/bWtRPNAPD1ALMt65PCDoGubW7bjBdNwvyk5n9
-         GskZE1IK6DLpI+edncshMz99AyFYRxyFC4M76DqVT+tVKeJidnnH+xF1RawRFCDvTA
-         XjWqhpGCmmdDp64/AMEtZWf+OyBRo5LN3/PUe4M0=
+        b=ra8zpzPKHu9IeoJS+ErcyPEEgYCoMO7MHnw5vx2vRemYHZYWq1v9sr2k6jnwXUaAt
+         YWuJBZyzyOfMMcEc2IodAqvogHgdmQjwVucOfopcKPNYbDfLlIrukH3XseSX8zNbQk
+         zdrAwReuFnYC/MmBG+QoewIZsvTw/womk5Od54zs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maxime Chevallier <maxime.chevallier@bootlin.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Namjae Jeon <namjae.jeon@samsung.com>,
+        Jeff Layton <jlayton@primarydata.com>,
+        Steve French <smfrench@gmail.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 033/413] net: mvpp2: cls: Extract the RSS context when parsing the ethtool rule
-Date:   Wed, 24 Jul 2019 21:15:24 +0200
-Message-Id: <20190724191737.956580831@linuxfoundation.org>
+Subject: [PATCH 5.2 038/413] signal/cifs: Fix cifs_put_tcp_session to call send_sig instead of force_sig
+Date:   Wed, 24 Jul 2019 21:15:29 +0200
+Message-Id: <20190724191738.345725184@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -45,39 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c561da68038a738f30eca21456534c2d1872d13d ]
+[ Upstream commit 72abe3bcf0911d69b46c1e8bdb5612675e0ac42c ]
 
-ethtool_rx_flow_rule_create takes into parameter the ethtool flow spec,
-which doesn't contain the rss context id. We therefore need to extract
-it ourself before parsing the ethtool rule.
+The locking in force_sig_info is not prepared to deal with a task that
+exits or execs (as sighand may change).  The is not a locking problem
+in force_sig as force_sig is only built to handle synchronous
+exceptions.
 
-The FLOW_RSS flag is only set in info->fs.flow_type, and not
-info->flow_type.
+Further the function force_sig_info changes the signal state if the
+signal is ignored, or blocked or if SIGNAL_UNKILLABLE will prevent the
+delivery of the signal.  The signal SIGKILL can not be ignored and can
+not be blocked and SIGNAL_UNKILLABLE won't prevent it from being
+delivered.
 
-Signed-off-by: Maxime Chevallier <maxime.chevallier@bootlin.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+So using force_sig rather than send_sig for SIGKILL is confusing
+and pointless.
+
+Because it won't impact the sending of the signal and and because
+using force_sig is wrong, replace force_sig with send_sig.
+
+Cc: Namjae Jeon <namjae.jeon@samsung.com>
+Cc: Jeff Layton <jlayton@primarydata.com>
+Cc: Steve French <smfrench@gmail.com>
+Fixes: a5c3e1c725af ("Revert "cifs: No need to send SIGKILL to demux_thread during umount"")
+Fixes: e7ddee9037e7 ("cifs: disable sharing session and tcon and add new TCP sharing code")
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/cifs/connect.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c
-index a57d17ab91f0..fb06c0aa620a 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c
-@@ -1242,6 +1242,12 @@ int mvpp2_ethtool_cls_rule_ins(struct mvpp2_port *port,
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index 8dd6637a3cbb..714a359c7c8d 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -2631,7 +2631,7 @@ cifs_put_tcp_session(struct TCP_Server_Info *server, int from_reconnect)
  
- 	input.fs = &info->fs;
+ 	task = xchg(&server->tsk, NULL);
+ 	if (task)
+-		force_sig(SIGKILL, task);
++		send_sig(SIGKILL, task, 1);
+ }
  
-+	/* We need to manually set the rss_ctx, since this info isn't present
-+	 * in info->fs
-+	 */
-+	if (info->fs.flow_type & FLOW_RSS)
-+		input.rss_ctx = info->rss_context;
-+
- 	ethtool_rule = ethtool_rx_flow_rule_create(&input);
- 	if (IS_ERR(ethtool_rule)) {
- 		ret = PTR_ERR(ethtool_rule);
+ static struct TCP_Server_Info *
 -- 
 2.20.1
 
