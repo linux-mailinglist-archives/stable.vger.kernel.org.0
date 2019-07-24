@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA88C73C6A
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:09:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2840573B9C
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:01:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387941AbfGXUIr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:08:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50696 "EHLO mail.kernel.org"
+        id S2392296AbfGXUBl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:01:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392090AbfGXUBi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 16:01:38 -0400
+        id S2392295AbfGXUBk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 16:01:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FF3521852;
-        Wed, 24 Jul 2019 20:01:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BD8F205C9;
+        Wed, 24 Jul 2019 20:01:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998497;
-        bh=F6pGKXthEOlJuWDsVRH/bpa9bLWLbmO/grk/l3FiRUQ=;
+        s=default; t=1563998500;
+        bh=E06qOU/TbsjBXHsCMeVvt2IuRjYwXwW1DtBuGYA5hP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sYP7ssWsce7UZf3MZ1vqB2JjFAYk8MzTS2RoQ3plVUkV9L1L0xJITfLGNjlmImD40
-         H1VRnxMtL61dw1/1uyOF3y4zydoBYuXpp8ZY3V0qZ/brirFJhoQ1jNUze2ul1TEoW0
-         /bpD/98p/eWoF8rfGem/yuiwEZk6uOBWoI8aVGhA=
+        b=ilyGfFNtFyC+y8KsL/iuk2ue9tnDaKeEGL7Kc1fI2IxGhKU06nNJnolwAzSdlCMyZ
+         m2PZjLLMNNqF4uZA//oJpdi0528yqaoqRKSi4qVSWB03QLz5myXoOQ7ZScp9/tdPF3
+         +ZbyoFuCxsEdcfu8hQeslt6G36DrUs2henMfQMcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        syzbot+26ec41e9f788b3eba396@syzkaller.appspotmail.com,
-        Sean Young <sean@mess.org>,
+        stable@vger.kernel.org,
+        Javier Martinez Canillas <javier@dowhile0.org>,
+        Daniel Gomez <dagmcr@gmail.com>, Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 015/271] media: dvb: usb: fix use after free in dvb_usb_device_exit
-Date:   Wed, 24 Jul 2019 21:18:04 +0200
-Message-Id: <20190724191656.565132068@linuxfoundation.org>
+Subject: [PATCH 4.19 016/271] media: spi: IR LED: add missing of table registration
+Date:   Wed, 24 Jul 2019 21:18:05 +0200
+Message-Id: <20190724191656.642644086@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -46,42 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6cf97230cd5f36b7665099083272595c55d72be7 ]
+[ Upstream commit 24e4cf770371df6ad49ed873f21618d9878f64c8 ]
 
-dvb_usb_device_exit() frees and uses the device name in that order.
-Fix by storing the name in a buffer before freeing it.
+MODULE_DEVICE_TABLE(of, <of_match_table> should be called to complete DT
+OF mathing mechanism and register it.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Reported-by: syzbot+26ec41e9f788b3eba396@syzkaller.appspotmail.com
+Before this patch:
+modinfo drivers/media/rc/ir-spi.ko  | grep alias
+
+After this patch:
+modinfo drivers/media/rc/ir-spi.ko  | grep alias
+alias:          of:N*T*Cir-spi-ledC*
+alias:          of:N*T*Cir-spi-led
+
+Reported-by: Javier Martinez Canillas <javier@dowhile0.org>
+Signed-off-by: Daniel Gomez <dagmcr@gmail.com>
 Signed-off-by: Sean Young <sean@mess.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/dvb-usb-init.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/media/rc/ir-spi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/usb/dvb-usb/dvb-usb-init.c b/drivers/media/usb/dvb-usb/dvb-usb-init.c
-index 40ca4eafb137..39ac22486bcd 100644
---- a/drivers/media/usb/dvb-usb/dvb-usb-init.c
-+++ b/drivers/media/usb/dvb-usb/dvb-usb-init.c
-@@ -287,12 +287,15 @@ EXPORT_SYMBOL(dvb_usb_device_init);
- void dvb_usb_device_exit(struct usb_interface *intf)
- {
- 	struct dvb_usb_device *d = usb_get_intfdata(intf);
--	const char *name = "generic DVB-USB module";
-+	const char *default_name = "generic DVB-USB module";
-+	char name[40];
+diff --git a/drivers/media/rc/ir-spi.c b/drivers/media/rc/ir-spi.c
+index 66334e8d63ba..c58f2d38a458 100644
+--- a/drivers/media/rc/ir-spi.c
++++ b/drivers/media/rc/ir-spi.c
+@@ -161,6 +161,7 @@ static const struct of_device_id ir_spi_of_match[] = {
+ 	{ .compatible = "ir-spi-led" },
+ 	{},
+ };
++MODULE_DEVICE_TABLE(of, ir_spi_of_match);
  
- 	usb_set_intfdata(intf, NULL);
- 	if (d != NULL && d->desc != NULL) {
--		name = d->desc->name;
-+		strscpy(name, d->desc->name, sizeof(name));
- 		dvb_usb_exit(d);
-+	} else {
-+		strscpy(name, default_name, sizeof(name));
- 	}
- 	info("%s successfully deinitialized and disconnected.", name);
- 
+ static struct spi_driver ir_spi_driver = {
+ 	.probe = ir_spi_probe,
 -- 
 2.20.1
 
