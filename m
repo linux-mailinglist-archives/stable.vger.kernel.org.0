@@ -2,90 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B78E67356A
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 19:27:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6350735B0
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 19:39:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728308AbfGXR1p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 13:27:45 -0400
-Received: from mga14.intel.com ([192.55.52.115]:33862 "EHLO mga14.intel.com"
+        id S1725826AbfGXRjz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 13:39:55 -0400
+Received: from mga12.intel.com ([192.55.52.136]:34362 "EHLO mga12.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728300AbfGXR1o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 13:27:44 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
+        id S1726323AbfGXRjz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 13:39:55 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
 X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 24 Jul 2019 10:27:43 -0700
-X-ExtLoop1: 1
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 24 Jul 2019 10:39:54 -0700
 X-IronPort-AV: E=Sophos;i="5.64,303,1559545200"; 
-   d="scan'208";a="174952744"
-Received: from fmsmsx106.amr.corp.intel.com ([10.18.124.204])
-  by orsmga006.jf.intel.com with ESMTP; 24 Jul 2019 10:27:43 -0700
-Received: from fmsmsx119.amr.corp.intel.com (10.18.124.207) by
- FMSMSX106.amr.corp.intel.com (10.18.124.204) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Wed, 24 Jul 2019 10:27:43 -0700
-Received: from fmsmsx117.amr.corp.intel.com ([169.254.3.88]) by
- FMSMSX119.amr.corp.intel.com ([169.254.14.143]) with mapi id 14.03.0439.000;
- Wed, 24 Jul 2019 10:27:42 -0700
-From:   "Souza, Jose" <jose.souza@intel.com>
-To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "Pandiyan, Dhinakaran" <dhinakaran.pandiyan@intel.com>
-CC:     "sashal@kernel.org" <sashal@kernel.org>,
-        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
+   d="scan'208";a="172375593"
+Received: from rdvivi-losangeles.jf.intel.com (HELO intel.com) ([10.7.196.65])
+  by orsmga003-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 24 Jul 2019 10:39:54 -0700
+Date:   Wed, 24 Jul 2019 10:40:29 -0700
+From:   Rodrigo Vivi <rodrigo.vivi@intel.com>
+To:     "Souza, Jose" <jose.souza@intel.com>
+Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "Pandiyan, Dhinakaran" <dhinakaran.pandiyan@intel.com>,
+        "sashal@kernel.org" <sashal@kernel.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>
-Subject: Re: [PATCH stable v5.2] drm/i915/vbt: Fix VBT parsing for the PSR
- section
-Thread-Topic: [PATCH stable v5.2] drm/i915/vbt: Fix VBT parsing for the PSR
- section
-Thread-Index: AQHVQONsXO34TlSG+0SkyFodNctzFabaJCaAgABZngA=
-Date:   Wed, 24 Jul 2019 17:27:42 +0000
-Message-ID: <05339e812e35a4cf1811f26a06bd5a4d1d652407.camel@intel.com>
+        Jani Nikula <jani.nikula@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Subject: Re: [Intel-gfx] [PATCH stable v5.2] drm/i915/vbt: Fix VBT parsing
+ for the PSR section
+Message-ID: <20190724174029.GC30776@intel.com>
 References: <20190719004526.B0CC521850@mail.kernel.org>
-         <20190722231325.16615-1-dhinakaran.pandiyan@intel.com>
-         <20190724120657.GG3244@kroah.com>
-In-Reply-To: <20190724120657.GG3244@kroah.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.121.193.213]
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <28BC2974802650438AF6F53CFF819321@intel.com>
-Content-Transfer-Encoding: base64
+ <20190722231325.16615-1-dhinakaran.pandiyan@intel.com>
+ <20190724120657.GG3244@kroah.com>
+ <05339e812e35a4cf1811f26a06bd5a4d1d652407.camel@intel.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <05339e812e35a4cf1811f26a06bd5a4d1d652407.camel@intel.com>
+User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gV2VkLCAyMDE5LTA3LTI0IGF0IDE0OjA2ICswMjAwLCBHcmVnIEtIIHdyb3RlOg0KPiBPbiBN
-b24sIEp1bCAyMiwgMjAxOSBhdCAwNDoxMzoyNVBNIC0wNzAwLCBEaGluYWthcmFuIFBhbmRpeWFu
-IHdyb3RlOg0KPiA+IEEgc2luZ2xlIDMyLWJpdCBQU1IyIHRyYWluaW5nIHBhdHRlcm4gZmllbGQg
-Zm9sbG93cyB0aGUgc2l4dGVlbg0KPiA+IGVsZW1lbnQNCj4gPiBhcnJheSBvZiBQU1IgdGFibGUg
-ZW50cmllcyBpbiB0aGUgVkJUIHNwZWMuIEJ1dCwgd2UgaW5jb3JyZWN0bHkNCj4gPiBkZWZpbmUN
-Cj4gPiB0aGlzIFBTUjIgZmllbGQgZm9yIGVhY2ggb2YgdGhlIFBTUiB0YWJsZSBlbnRyaWVzLiBB
-cyBhIHJlc3VsdCwgdGhlDQo+ID4gUFNSMQ0KPiA+IHRyYWluaW5nIHBhdHRlcm4gZHVyYXRpb24g
-Zm9yIGFueSBwYW5lbF90eXBlICE9IDAgd2lsbCBiZSBwYXJzZWQNCj4gPiBpbmNvcnJlY3RseS4g
-U2Vjb25kbHksIFBTUjIgdHJhaW5pbmcgcGF0dGVybiBkdXJhdGlvbnMgZm9yIFZCVHMNCj4gPiB3
-aXRoIGJkYg0KPiA+IHZlcnNpb24gPj0gMjI2IHdpbGwgYWxzbyBiZSB3cm9uZy4NCj4gPiANCj4g
-PiBDYzogUm9kcmlnbyBWaXZpIDxyb2RyaWdvLnZpdmlAaW50ZWwuY29tPg0KPiA+IENjOiBKb3PD
-qSBSb2JlcnRvIGRlIFNvdXphIDxqb3NlLnNvdXphQGludGVsLmNvbT4NCj4gPiBDYzogc3RhYmxl
-QHZnZXIua2VybmVsLm9yZw0KPiA+IENjOiBzdGFibGVAdmdlci5rZXJuZWwub3JnICN2NS4yDQo+
-ID4gRml4ZXM6IDg4YTBkOTYwNmFmZiAoImRybS9pOTE1L3ZidDogUGFyc2UgYW5kIHVzZSB0aGUg
-bmV3IGZpZWxkDQo+ID4gd2l0aCBQU1IyIFRQMi8zIHdha2V1cCB0aW1lIikNCj4gPiBCdWd6aWxs
-YTogaHR0cHM6Ly9idWdzLmZyZWVkZXNrdG9wLm9yZy9zaG93X2J1Zy5jZ2k/aWQ9MTExMDg4DQo+
-ID4gQnVnemlsbGE6IGh0dHBzOi8vYnVnemlsbGEua2VybmVsLm9yZy9zaG93X2J1Zy5jZ2k/aWQ9
-MjA0MTgzDQo+ID4gU2lnbmVkLW9mZi1ieTogRGhpbmFrYXJhbiBQYW5kaXlhbiA8ZGhpbmFrYXJh
-bi5wYW5kaXlhbkBpbnRlbC5jb20+DQo+ID4gUmV2aWV3ZWQtYnk6IFZpbGxlIFN5cmrDpGzDpCA8
-dmlsbGUuc3lyamFsYUBsaW51eC5pbnRlbC5jb20+DQo+ID4gUmV2aWV3ZWQtYnk6IEpvc8OpIFJv
-YmVydG8gZGUgU291emEgPGpvc2Uuc291emFAaW50ZWwuY29tPg0KPiA+IEFja2VkLWJ5OiBSb2Ry
-aWdvIFZpdmkgPHJvZHJpZ28udml2aUBpbnRlbC5jb20+DQo+ID4gVGVzdGVkLWJ5OiBGcmFuw6dv
-aXMgR3VlcnJheiA8a3Vicmlja0BmZ3Y2Lm5ldD4NCj4gPiBTaWduZWQtb2ZmLWJ5OiBSb2RyaWdv
-IFZpdmkgPHJvZHJpZ28udml2aUBpbnRlbC5jb20+DQo+ID4gTGluazogDQo+ID4gaHR0cHM6Ly9w
-YXRjaHdvcmsuZnJlZWRlc2t0b3Aub3JnL3BhdGNoL21zZ2lkLzIwMTkwNzE3MjIzNDUxLjI1OTUt
-MS1kaGluYWthcmFuLnBhbmRpeWFuQGludGVsLmNvbQ0KPiA+IChjaGVycnkgcGlja2VkIGZyb20g
-Y29tbWl0DQo+ID4gYjVlYTljOTMzNzAwN2Q2ZTcwMDI4MGM4YTYwYjRlMTBkMDcwZmI1MykNCj4g
-DQo+IFRoZXJlIGlzIG5vIHN1Y2ggY29tbWl0IGluIExpbnVzJ3Mga2VybmVsIHRyZWUgOigNCj4g
-DQoNCkl0IGlzIHN0aWxsIG9uIGRybS1pbnRlbC9kcm0taW50ZWwtbmV4dC1xdWV1ZWQgLQ0Kc3No
-Oi8vZ2l0LmZyZWVkZXNrdG9wLm9yZy9naXQvZHJtLWludGVsDQoNClJvZHJpZ28gZG8geW91IGtu
-b3cgd2hlbiBpcyB0aGUgbmV4dCBwdWxsLXJlcXVlc3QgdG8gTGludXM/DQo=
+On Wed, Jul 24, 2019 at 05:27:42PM +0000, Souza, Jose wrote:
+> On Wed, 2019-07-24 at 14:06 +0200, Greg KH wrote:
+> > On Mon, Jul 22, 2019 at 04:13:25PM -0700, Dhinakaran Pandiyan wrote:
+> > > A single 32-bit PSR2 training pattern field follows the sixteen
+> > > element
+> > > array of PSR table entries in the VBT spec. But, we incorrectly
+> > > define
+> > > this PSR2 field for each of the PSR table entries. As a result, the
+> > > PSR1
+> > > training pattern duration for any panel_type != 0 will be parsed
+> > > incorrectly. Secondly, PSR2 training pattern durations for VBTs
+> > > with bdb
+> > > version >= 226 will also be wrong.
+> > > 
+> > > Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> > > Cc: José Roberto de Souza <jose.souza@intel.com>
+> > > Cc: stable@vger.kernel.org
+> > > Cc: stable@vger.kernel.org #v5.2
+> > > Fixes: 88a0d9606aff ("drm/i915/vbt: Parse and use the new field
+> > > with PSR2 TP2/3 wakeup time")
+> > > Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111088
+> > > Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204183
+> > > Signed-off-by: Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>
+> > > Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > > Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
+> > > Acked-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> > > Tested-by: François Guerraz <kubrick@fgv6.net>
+> > > Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> > > Link: 
+> > > https://patchwork.freedesktop.org/patch/msgid/20190717223451.2595-1-dhinakaran.pandiyan@intel.com
+> > > (cherry picked from commit
+> > > b5ea9c9337007d6e700280c8a60b4e10d070fb53)
+> > 
+> > There is no such commit in Linus's kernel tree :(
+
+not yet... It is queued for 5.3 on drm-intel-next-queued.
+
+This line is automatically added by "dim" tool when
+cherry-picking queued stuff for our drm-intel fixes branches.
+
+> > 
+> 
+> It is still on drm-intel/drm-intel-next-queued -
+> ssh://git.freedesktop.org/git/drm-intel
+> 
+> Rodrigo do you know when is the next pull-request to Linus?
+
+I will start doing the pull requests to Dave and Daniel soon,
+but this doesn't reach Linus tree before next merge window.
+
+Eventually it will be there.
+
+If this is a blocker fell free to remove the line and merge the
+patch please, because this fix very critical issue that impact users.
+So we can continue the discussion in parallel on how to handle
+commit links like this in a better way.
+
+Thanks,
+Rodrigo.
+
+> _______________________________________________
+> Intel-gfx mailing list
+> Intel-gfx@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
