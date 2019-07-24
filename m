@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A999F74582
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:44:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70B1174627
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:49:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389224AbfGYFn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:43:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58368 "EHLO mail.kernel.org"
+        id S2391131AbfGYFn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:43:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391026AbfGYFnZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:43:25 -0400
+        id S2391125AbfGYFn4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:43:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D8F321850;
-        Thu, 25 Jul 2019 05:43:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 491A222BF5;
+        Thu, 25 Jul 2019 05:43:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033404;
-        bh=8jquslMfJrHO/u6zdtWiaDegJLVLe+UUycpnduUcL5Y=;
+        s=default; t=1564033435;
+        bh=UuliqgOTkTmntToZ81rjcCYcGZUswTVPwrY3Yz1BCyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TZpYrFa6lYhRgHYh5MrTGT8JtN421NJZgMEzKJxM5BwyIbmm2srY3pxbVOxmGLPuw
-         b7InzmvOgBcDAdhKbcXGl/yZawOT45D1dEkwjosykaXfHuxgWYD3KHsicOKBo9cd4y
-         LcjLjOSbVkiekdTDnQH44nbog941dBQdKh0kGWf8=
+        b=LRVBcNrMZAGfibLqHm+R4+D3bTyQRFP65wKCakL3sT6wyqWDx7DkDXOzAdZnZWNOZ
+         5P02VfNAcOTXh+/4ETA2O6JImgTojip9Ve5STWbAkMsPpQyzeiW0b9E3YFZGT1OPcb
+         OO5+GQYjWsMnN8Yvd53xuFNiWp7Wm4NZt/YaMSic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
+        stable@vger.kernel.org, Michael Schmitz <schmitzmic@gmail.com>,
+        Finn Thain <fthain@telegraphics.com.au>,
+        Stan Johnson <userm57@yahoo.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 169/271] scsi: megaraid_sas: Fix calculation of target ID
-Date:   Wed, 24 Jul 2019 21:20:38 +0200
-Message-Id: <20190724191709.649278970@linuxfoundation.org>
+Subject: [PATCH 4.19 170/271] scsi: mac_scsi: Increase PIO/PDMA transfer length threshold
+Date:   Wed, 24 Jul 2019 21:20:39 +0200
+Message-Id: <20190724191709.747624205@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -44,39 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-commit c8f96df5b8e633056b7ebf5d52a9d6fb1b156ce3 upstream.
+commit 7398cee4c3e6aea1ba07a6449e5533ecd0b92cdd upstream.
 
-In megasas_get_target_prop(), driver is incorrectly calculating the target
-ID for devices with channel 1 and 3.  Due to this, firmware will either
-fail the command (if there is no device with the target id sent from
-driver) or could return the properties for a target which was not
-intended.  Devices could end up with the wrong queue depth due to this.
+Some targets introduce delays when handshaking the response to certain
+commands. For example, a disk may send a 96-byte response to an INQUIRY
+command (or a 24-byte response to a MODE SENSE command) too slowly.
 
-Fix target id calculation for channel 1 and 3.
+Apparently the first 12 or 14 bytes are handshaked okay but then the system
+bus error timeout is reached while transferring the next word.
 
-Fixes: 96188a89cc6d ("scsi: megaraid_sas: NVME interface target prop added")
-Cc: stable@vger.kernel.org
-Signed-off-by: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
+Since the scsi bus phase hasn't changed, the driver then sets the target
+borken flag to prevent further PDMA transfers. The driver also logs the
+warning, "switching to slow handshake".
+
+Raise the PDMA threshold to 512 bytes so that PIO transfers will be used
+for these commands. This default is sufficiently low that PDMA will still
+be used for READ and WRITE commands.
+
+The existing threshold (16 bytes) was chosen more or less at random.
+However, best performance requires the threshold to be as low as possible.
+Those systems that don't need the PIO workaround at all may benefit from
+mac_scsi.setup_use_pdma=1
+
+Cc: Michael Schmitz <schmitzmic@gmail.com>
+Cc: stable@vger.kernel.org # v4.14+
+Fixes: 3a0f64bfa907 ("mac_scsi: Fix pseudo DMA implementation")
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Tested-by: Stan Johnson <userm57@yahoo.com>
+Tested-by: Michael Schmitz <schmitzmic@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/megaraid/megaraid_sas_base.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/mac_scsi.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/scsi/megaraid/megaraid_sas_base.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -5862,7 +5862,8 @@ megasas_get_target_prop(struct megasas_i
- 	int ret;
- 	struct megasas_cmd *cmd;
- 	struct megasas_dcmd_frame *dcmd;
--	u16 targetId = (sdev->channel % 2) + sdev->id;
-+	u16 targetId = ((sdev->channel % 2) * MEGASAS_MAX_DEV_PER_CHANNEL) +
-+			sdev->id;
+--- a/drivers/scsi/mac_scsi.c
++++ b/drivers/scsi/mac_scsi.c
+@@ -52,7 +52,7 @@ static int setup_cmd_per_lun = -1;
+ module_param(setup_cmd_per_lun, int, 0);
+ static int setup_sg_tablesize = -1;
+ module_param(setup_sg_tablesize, int, 0);
+-static int setup_use_pdma = -1;
++static int setup_use_pdma = 512;
+ module_param(setup_use_pdma, int, 0);
+ static int setup_hostid = -1;
+ module_param(setup_hostid, int, 0);
+@@ -305,7 +305,7 @@ static int macscsi_dma_xfer_len(struct N
+                                 struct scsi_cmnd *cmd)
+ {
+ 	if (hostdata->flags & FLAG_NO_PSEUDO_DMA ||
+-	    cmd->SCp.this_residual < 16)
++	    cmd->SCp.this_residual < setup_use_pdma)
+ 		return 0;
  
- 	cmd = megasas_get_cmd(instance);
- 
+ 	return cmd->SCp.this_residual;
 
 
