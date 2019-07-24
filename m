@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA36673A78
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:50:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C701C73A7A
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:50:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391580AbfGXTu0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:50:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59118 "EHLO mail.kernel.org"
+        id S2403838AbfGXTue (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:50:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403826AbfGXTuY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:50:24 -0400
+        id S2391602AbfGXTud (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:50:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDDDA20659;
-        Wed, 24 Jul 2019 19:50:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5DA620665;
+        Wed, 24 Jul 2019 19:50:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997824;
-        bh=VG4bOefSbu9JU1+/k2ddiRZLki9YxON5ve0MJmluFIs=;
+        s=default; t=1563997832;
+        bh=rxnY3wrfDDLzY2Euytksiym4+Ent8PQJYLcAuC5pEYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DgM7GY3SFhY6+e30J1rHc4QdYgJb9IUd9fceSu8EL9Q6E9Q54scDwTlVDi5b8eXJJ
-         +h++KPpTPjXxeiaO4z/l9Hc49LlQYkthgs2ny1Xp4YiGCuxdw6Zhhs1M6+lzu8YN+T
-         0yfU7jSgFc0X5pAoYUy9A4E3QGpW84lBAsgaSHpQ=
+        b=mlZH9PZ7vgFfuDXPcz0IOFy6b49nWhGfIkV1DhFRFe/tEXfLTuAKpsgfR1Vt0fZIG
+         GnArtGzv3h1nw27l8JOpdTHlqqCuB2bxoL0vQ3tb+6I3eiDl5IJ/yTnMy9A9pop6id
+         H3ZhW0Bkc60wElMc6d7lyo8OXsF05lhgI+Fg4OUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Felix Kaechele <felix@kaechele.ca>,
+        stable@vger.kernel.org,
+        Ferdinand Blomqvist <ferdinand.blomqvist@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 155/371] netfilter: ctnetlink: Fix regression in conntrack entry deletion
-Date:   Wed, 24 Jul 2019 21:18:27 +0200
-Message-Id: <20190724191736.848545063@linuxfoundation.org>
+Subject: [PATCH 5.1 157/371] rslib: Fix decoding of shortened codes
+Date:   Wed, 24 Jul 2019 21:18:29 +0200
+Message-Id: <20190724191737.003107560@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -44,62 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e7600865db32b69deb0109b8254244dca592adcf ]
+[ Upstream commit 2034a42d1747fc1e1eeef2c6f1789c4d0762cb9c ]
 
-Commit f8e608982022 ("netfilter: ctnetlink: Resolve conntrack
-L3-protocol flush regression") introduced a regression in which deletion
-of conntrack entries would fail because the L3 protocol information
-is replaced by AF_UNSPEC. As a result the search for the entry to be
-deleted would turn up empty due to the tuple used to perform the search
-is now different from the tuple used to initially set up the entry.
+The decoding of shortenend codes is broken. It only works as expected if
+there are no erasures.
 
-For flushing the conntrack table we do however want to keep the option
-for nfgenmsg->version to have a non-zero value to allow for newer
-user-space tools to request treatment under the new behavior. With that
-it is possible to independently flush tables for a defined L3 protocol.
-This was introduced with the enhancements in in commit 59c08c69c278
-("netfilter: ctnetlink: Support L3 protocol-filter on flush").
+When decoding with erasures, Lambda (the error and erasure locator
+polynomial) is initialized from the given erasure positions. The pad
+parameter is not accounted for by the initialisation code, and hence
+Lambda is initialized from incorrect erasure positions.
 
-Older user-space tools will retain the behavior of flushing all tables
-regardless of defined L3 protocol.
+The fix is to adjust the erasure positions by the supplied pad.
 
-Fixes: f8e608982022 ("netfilter: ctnetlink: Resolve conntrack L3-protocol flush regression")
-Suggested-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Felix Kaechele <felix@kaechele.ca>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Ferdinand Blomqvist <ferdinand.blomqvist@gmail.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20190620141039.9874-3-ferdinand.blomqvist@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_netlink.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ lib/reed_solomon/decode_rs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index d2715b4d2e72..061bdab37b1a 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -1254,7 +1254,6 @@ static int ctnetlink_del_conntrack(struct net *net, struct sock *ctnl,
- 	struct nf_conntrack_tuple tuple;
- 	struct nf_conn *ct;
- 	struct nfgenmsg *nfmsg = nlmsg_data(nlh);
--	u_int8_t u3 = nfmsg->version ? nfmsg->nfgen_family : AF_UNSPEC;
- 	struct nf_conntrack_zone zone;
- 	int err;
- 
-@@ -1264,11 +1263,13 @@ static int ctnetlink_del_conntrack(struct net *net, struct sock *ctnl,
- 
- 	if (cda[CTA_TUPLE_ORIG])
- 		err = ctnetlink_parse_tuple(cda, &tuple, CTA_TUPLE_ORIG,
--					    u3, &zone);
-+					    nfmsg->nfgen_family, &zone);
- 	else if (cda[CTA_TUPLE_REPLY])
- 		err = ctnetlink_parse_tuple(cda, &tuple, CTA_TUPLE_REPLY,
--					    u3, &zone);
-+					    nfmsg->nfgen_family, &zone);
- 	else {
-+		u_int8_t u3 = nfmsg->version ? nfmsg->nfgen_family : AF_UNSPEC;
-+
- 		return ctnetlink_flush_conntrack(net, cda,
- 						 NETLINK_CB(skb).portid,
- 						 nlmsg_report(nlh), u3);
+diff --git a/lib/reed_solomon/decode_rs.c b/lib/reed_solomon/decode_rs.c
+index 1db74eb098d0..3313bf944ff1 100644
+--- a/lib/reed_solomon/decode_rs.c
++++ b/lib/reed_solomon/decode_rs.c
+@@ -99,9 +99,9 @@
+ 	if (no_eras > 0) {
+ 		/* Init lambda to be the erasure locator polynomial */
+ 		lambda[1] = alpha_to[rs_modnn(rs,
+-					      prim * (nn - 1 - eras_pos[0]))];
++					prim * (nn - 1 - (eras_pos[0] + pad)))];
+ 		for (i = 1; i < no_eras; i++) {
+-			u = rs_modnn(rs, prim * (nn - 1 - eras_pos[i]));
++			u = rs_modnn(rs, prim * (nn - 1 - (eras_pos[i] + pad)));
+ 			for (j = i + 1; j > 0; j--) {
+ 				tmp = index_of[lambda[j - 1]];
+ 				if (tmp != nn) {
 -- 
 2.20.1
 
