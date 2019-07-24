@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B46E873831
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:26:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E0B373833
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:26:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726578AbfGXT0v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:26:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44114 "EHLO mail.kernel.org"
+        id S1727512AbfGXT0z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:26:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728311AbfGXT0r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:26:47 -0400
+        id S1729278AbfGXT0x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:26:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD6E620659;
-        Wed, 24 Jul 2019 19:26:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D55E520659;
+        Wed, 24 Jul 2019 19:26:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996406;
-        bh=0jHS02wZa9wVuR13i1CdLpOqDgULccldyt3jhXAkxFU=;
+        s=default; t=1563996412;
+        bh=00Oip0XXbWSFeDOhJsm+ouVfEBA36IUzYI9gXjf5nGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EU4EB/bU3VTnUSosMZBaSJ5eJyQblkdqNP5C34FjeYqrV3xvI1Z3cgoNATuaE+ywQ
-         H83jQuvlPIZ8vZ2sArgR8OTPkvOITGp9bmaxgwrKyTDckM5YpQI0cLcXTWK/jaGEZg
-         uL69/cc0dDjwd3vM8E6XAVvXkhmeX13vgSA6Zbv8=
+        b=A0buvTSZ76wG1vYC3EntNZoFQ3M1vpCeTROzcrKhCmF8rGgsXXtw8VG4tNB089bx4
+         kLh6dZcXp8Jn6BUG6G+HCx8cvTT+XNi4f17ela9WGXW5JGgQay5YLhfU4zoj8/waaf
+         /Nld6yQlEdCEmsepWsSq1/2IiTI4Gkkb5Y7SGYc4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 086/413] iommu: Fix a leak in iommu_insert_resv_region
-Date:   Wed, 24 Jul 2019 21:16:17 +0200
-Message-Id: <20190724191741.256407487@linuxfoundation.org>
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 088/413] gpio: omap: ensure irq is enabled before wakeup
+Date:   Wed, 24 Jul 2019 21:16:19 +0200
+Message-Id: <20190724191741.377378001@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -43,56 +46,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ad0834dedaa15c3a176f783c0373f836e44b4700 ]
+[ Upstream commit c859e0d479b3b4f6132fc12637c51e01492f31f6 ]
 
-In case we expand an existing region, we unlink
-this latter and insert the larger one. In
-that case we should free the original region after
-the insertion. Also we can immediately return.
+Documentation states:
 
-Fixes: 6c65fb318e8b ("iommu: iommu_get_group_resv_regions")
+  NOTE: There must be a correlation between the wake-up enable and
+  interrupt-enable registers. If a GPIO pin has a wake-up configured
+  on it, it must also have the corresponding interrupt enabled (on
+  one of the two interrupt lines).
 
-Signed-off-by: Eric Auger <eric.auger@redhat.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Ensure that this condition is always satisfied by enabling the detection
+events after enabling the interrupt, and disabling the detection before
+disabling the interrupt.  This ensures interrupt/wakeup events can not
+happen until both the wakeup and interrupt enables correlate.
+
+If we do any clearing, clear between the interrupt enable/disable and
+trigger setting.
+
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Tested-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/iommu.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/gpio/gpio-omap.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 9f0a2844371c..30db41e9f15c 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -225,18 +225,21 @@ static int iommu_insert_resv_region(struct iommu_resv_region *new,
- 			pos = pos->next;
- 		} else if ((start >= a) && (end <= b)) {
- 			if (new->type == type)
--				goto done;
-+				return 0;
- 			else
- 				pos = pos->next;
- 		} else {
- 			if (new->type == type) {
- 				phys_addr_t new_start = min(a, start);
- 				phys_addr_t new_end = max(b, end);
-+				int ret;
+diff --git a/drivers/gpio/gpio-omap.c b/drivers/gpio/gpio-omap.c
+index 7632c98aa3a4..746aa9caf934 100644
+--- a/drivers/gpio/gpio-omap.c
++++ b/drivers/gpio/gpio-omap.c
+@@ -829,9 +829,9 @@ static void omap_gpio_irq_shutdown(struct irq_data *d)
  
- 				list_del(&entry->list);
- 				entry->start = new_start;
- 				entry->length = new_end - new_start + 1;
--				iommu_insert_resv_region(entry, regions);
-+				ret = iommu_insert_resv_region(entry, regions);
-+				kfree(entry);
-+				return ret;
- 			} else {
- 				pos = pos->next;
- 			}
-@@ -249,7 +252,6 @@ static int iommu_insert_resv_region(struct iommu_resv_region *new,
- 		return -ENOMEM;
+ 	raw_spin_lock_irqsave(&bank->lock, flags);
+ 	bank->irq_usage &= ~(BIT(offset));
+-	omap_set_gpio_irqenable(bank, offset, 0);
+-	omap_clear_gpio_irqstatus(bank, offset);
+ 	omap_set_gpio_triggering(bank, offset, IRQ_TYPE_NONE);
++	omap_clear_gpio_irqstatus(bank, offset);
++	omap_set_gpio_irqenable(bank, offset, 0);
+ 	if (!LINE_USED(bank->mod_usage, offset))
+ 		omap_clear_gpio_debounce(bank, offset);
+ 	omap_disable_gpio_module(bank, offset);
+@@ -867,8 +867,8 @@ static void omap_gpio_mask_irq(struct irq_data *d)
+ 	unsigned long flags;
  
- 	list_add_tail(&region->list, pos);
--done:
- 	return 0;
+ 	raw_spin_lock_irqsave(&bank->lock, flags);
+-	omap_set_gpio_irqenable(bank, offset, 0);
+ 	omap_set_gpio_triggering(bank, offset, IRQ_TYPE_NONE);
++	omap_set_gpio_irqenable(bank, offset, 0);
+ 	raw_spin_unlock_irqrestore(&bank->lock, flags);
+ }
+ 
+@@ -880,9 +880,6 @@ static void omap_gpio_unmask_irq(struct irq_data *d)
+ 	unsigned long flags;
+ 
+ 	raw_spin_lock_irqsave(&bank->lock, flags);
+-	if (trigger)
+-		omap_set_gpio_triggering(bank, offset, trigger);
+-
+ 	omap_set_gpio_irqenable(bank, offset, 1);
+ 
+ 	/*
+@@ -890,9 +887,13 @@ static void omap_gpio_unmask_irq(struct irq_data *d)
+ 	 * is cleared, thus after the handler has run. OMAP4 needs this done
+ 	 * after enabing the interrupt to clear the wakeup status.
+ 	 */
+-	if (bank->level_mask & BIT(offset))
++	if (bank->regs->leveldetect0 && bank->regs->wkup_en &&
++	    trigger & (IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW))
+ 		omap_clear_gpio_irqstatus(bank, offset);
+ 
++	if (trigger)
++		omap_set_gpio_triggering(bank, offset, trigger);
++
+ 	raw_spin_unlock_irqrestore(&bank->lock, flags);
  }
  
 -- 
