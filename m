@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A578745AA
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:46:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB79274614
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:49:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391286AbfGYFpB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:45:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60364 "EHLO mail.kernel.org"
+        id S2405073AbfGYFpF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:45:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405073AbfGYFpA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:45:00 -0400
+        id S2405083AbfGYFpD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:45:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4AC222BF3;
-        Thu, 25 Jul 2019 05:44:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7866922CB8;
+        Thu, 25 Jul 2019 05:45:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033500;
-        bh=rSQIDqx6bYk3cIJwTB9cVyystl35fMsUeCj5TL2P0Wc=;
+        s=default; t=1564033503;
+        bh=hdPiwWOIh86sapnLw0u7XiSoH7Kj3zi5jtTPZLDP9H0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OXiYZAzGMr51ygejusoRO6dS8QLj+TMacPks2auguC0g0+ohUI3GReuorvJNLfDhY
-         qjwmb456WnDhD4bJRWPUpwQmoHX9+lZ3ZLPyko/ukiY35saJmAv09EC5IyhSw87RQi
-         iDRSFc+vlbhcNnPX+U3Y9w8/+LuPh1DWXu7F/aqE=
+        b=1t6jvnpVxzGIRwt2wJYbSmBcqdB0wPhGqZudihKryKeEKUD8/vVY2JFXlr/jPecYM
+         ZgfiUCIZAEPDHTO9/EFJILfnaVcD9nnrV6nBarxVj1kh/enCb7nw/47NzTtg94alAd
+         SbIfGFn5yScJ0tmXOoH7GokS29aZ4CH2WE1yO/9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.19 230/271] PCI: Do not poll for PME if the device is in D3cold
-Date:   Wed, 24 Jul 2019 21:21:39 +0200
-Message-Id: <20190724191714.869916035@linuxfoundation.org>
+        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@linaro.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Stanimir Varbanov <svarbanov@mm-sol.com>
+Subject: [PATCH 4.19 231/271] PCI: qcom: Ensure that PERST is asserted for at least 100 ms
+Date:   Wed, 24 Jul 2019 21:21:40 +0200
+Message-Id: <20190724191714.957798561@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -45,56 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Niklas Cassel <niklas.cassel@linaro.org>
 
-commit 000dd5316e1c756a1c028f22e01d06a38249dd4d upstream.
+commit 64adde31c8e996a6db6f7a1a4131180e363aa9f2 upstream.
 
-PME polling does not take into account that a device that is directly
-connected to the host bridge may go into D3cold as well. This leads to a
-situation where the PME poll thread reads from a config space of a
-device that is in D3cold and gets incorrect information because the
-config space is not accessible.
+Currently, there is only a 1 ms sleep after asserting PERST.
 
-Here is an example from Intel Ice Lake system where two PCIe root ports
-are in D3cold (I've instrumented the kernel to log the PMCSR register
-contents):
+Reading the datasheets for different endpoints, some require PERST to be
+asserted for 10 ms in order for the endpoint to perform a reset, others
+require it to be asserted for 50 ms.
 
-  [   62.971442] pcieport 0000:00:07.1: Check PME status, PMCSR=0xffff
-  [   62.971504] pcieport 0000:00:07.0: Check PME status, PMCSR=0xffff
+Several SoCs using this driver uses PCIe Mini Card, where we don't know
+what endpoint will be plugged in.
 
-Since 0xffff is interpreted so that PME is pending, the root ports will
-be runtime resumed. This repeats over and over again essentially
-blocking all runtime power management.
+The PCI Express Card Electromechanical Specification r2.0, section
+2.2, "PERST# Signal" specifies:
 
-Prevent this from happening by checking whether the device is in D3cold
-before its PME status is read.
+"On power up, the deassertion of PERST# is delayed 100 ms (TPVPERL) from
+the power rails achieving specified operating limits."
 
-Fixes: 71a83bd727cc ("PCI/PM: add runtime PM support to PCIe port")
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Lukas Wunner <lukas@wunner.de>
-Cc: 3.6+ <stable@vger.kernel.org> # v3.6+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Add a sleep of 100 ms before deasserting PERST, in order to ensure that
+we are compliant with the spec.
+
+Fixes: 82a823833f4e ("PCI: qcom: Add Qualcomm PCIe controller driver")
+Signed-off-by: Niklas Cassel <niklas.cassel@linaro.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Stanimir Varbanov <svarbanov@mm-sol.com>
+Cc: stable@vger.kernel.org # 4.5+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/pci.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/pci/controller/dwc/pcie-qcom.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -2004,6 +2004,13 @@ static void pci_pme_list_scan(struct wor
- 			 */
- 			if (bridge && bridge->current_state != PCI_D0)
- 				continue;
-+			/*
-+			 * If the device is in D3cold it should not be
-+			 * polled either.
-+			 */
-+			if (pme_dev->dev->current_state == PCI_D3cold)
-+				continue;
-+
- 			pci_pme_wakeup(pme_dev->dev, NULL);
- 		} else {
- 			list_del(&pme_dev->list);
+--- a/drivers/pci/controller/dwc/pcie-qcom.c
++++ b/drivers/pci/controller/dwc/pcie-qcom.c
+@@ -178,6 +178,8 @@ static void qcom_ep_reset_assert(struct
+ 
+ static void qcom_ep_reset_deassert(struct qcom_pcie *pcie)
+ {
++	/* Ensure that PERST has been asserted for at least 100 ms */
++	msleep(100);
+ 	gpiod_set_value_cansleep(pcie->reset, 0);
+ 	usleep_range(PERST_DELAY_US, PERST_DELAY_US + 500);
+ }
 
 
