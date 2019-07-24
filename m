@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E2B673B30
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:58:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94A6873AFA
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:55:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391280AbfGXT5k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:57:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43262 "EHLO mail.kernel.org"
+        id S2391950AbfGXTzl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:55:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392042AbfGXT5j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:57:39 -0400
+        id S2391806AbfGXTzk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:55:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBE63206BA;
-        Wed, 24 Jul 2019 19:57:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B9A9214AF;
+        Wed, 24 Jul 2019 19:55:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998258;
-        bh=rWfuZLF5n7eXxel3NqYl7t1FcRCZ3izVzeftLrha4Io=;
+        s=default; t=1563998139;
+        bh=gQ0sO9cXgN/kznbncuXVuL2Tn5qrJBMk4NT5njuP8Pc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KKJm9IFvs/IhzvlEkEzXfikdxWKbdfAZbEUkqwRgKRib2VKxsuorZ2lMzZWj41dvs
-         zRoxgSfRgH+nBJOpWcTWOzo59fdiXIui1D3JU2So62JXeUKyJgp366XpmUS5IPc1/8
-         X2cMUk5nVyCTVXC5rABBJbWrFdLRzs4hnIl5Wi/Y=
+        b=h00aSE9aB37eJYkIKiqKHUEzmef6/Rp3f/sGBNJTQBeCiGudaZK9KUXGJc1uuY5qa
+         QL4/cpydREPr5BXEFBX7e2JeD7EMau3MuBjBPMQssKpCl8MvTSJ4O3eCGnpgWu8Jbp
+         q/eQ0FpGDxr24r1oMKFhmxk/C3B7BAvOTdgTFsOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Coly Li <colyli@suse.de>,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.1 260/371] bcache: fix mistaken sysfs entry for io_error counter
-Date:   Wed, 24 Jul 2019 21:20:12 +0200
-Message-Id: <20190724191744.052523503@linuxfoundation.org>
+Subject: [PATCH 5.1 261/371] bcache: destroy dc->writeback_write_wq if failed to create dc->writeback_thread
+Date:   Wed, 24 Jul 2019 21:20:13 +0200
+Message-Id: <20190724191744.106352084@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -45,43 +45,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Coly Li <colyli@suse.de>
 
-commit 5461999848e0462c14f306a62923d22de820a59c upstream.
+commit f54d801dda14942dbefa00541d10603015b7859c upstream.
 
-In bch_cached_dev_files[] from driver/md/bcache/sysfs.c, sysfs_errors is
-incorrectly inserted in. The correct entry should be sysfs_io_errors.
+Commit 9baf30972b55 ("bcache: fix for gc and write-back race") added a
+new work queue dc->writeback_write_wq, but forgot to destroy it in the
+error condition when creating dc->writeback_thread failed.
 
-This patch fixes the problem and now I/O errors of cached device can be
-read from /sys/block/bcache<N>/bcache/io_errors.
+This patch destroys dc->writeback_write_wq if kthread_create() returns
+error pointer to dc->writeback_thread, then a memory leak is avoided.
 
-Fixes: c7b7bd07404c5 ("bcache: add io_disable to struct cached_dev")
+Fixes: 9baf30972b55 ("bcache: fix for gc and write-back race")
 Signed-off-by: Coly Li <colyli@suse.de>
 Cc: stable@vger.kernel.org
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/bcache/sysfs.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/md/bcache/writeback.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/md/bcache/sysfs.c
-+++ b/drivers/md/bcache/sysfs.c
-@@ -180,7 +180,7 @@ SHOW(__bch_cached_dev)
- 	var_print(writeback_percent);
- 	sysfs_hprint(writeback_rate,
- 		     wb ? atomic_long_read(&dc->writeback_rate.rate) << 9 : 0);
--	sysfs_hprint(io_errors,		atomic_read(&dc->io_errors));
-+	sysfs_printf(io_errors,		"%i", atomic_read(&dc->io_errors));
- 	sysfs_printf(io_error_limit,	"%i", dc->error_limit);
- 	sysfs_printf(io_disable,	"%i", dc->io_disable);
- 	var_print(writeback_rate_update_seconds);
-@@ -464,7 +464,7 @@ static struct attribute *bch_cached_dev_
- 	&sysfs_writeback_rate_p_term_inverse,
- 	&sysfs_writeback_rate_minimum,
- 	&sysfs_writeback_rate_debug,
--	&sysfs_errors,
-+	&sysfs_io_errors,
- 	&sysfs_io_error_limit,
- 	&sysfs_io_disable,
- 	&sysfs_dirty_data,
+--- a/drivers/md/bcache/writeback.c
++++ b/drivers/md/bcache/writeback.c
+@@ -834,6 +834,7 @@ int bch_cached_dev_writeback_start(struc
+ 					      "bcache_writeback");
+ 	if (IS_ERR(dc->writeback_thread)) {
+ 		cached_dev_put(dc);
++		destroy_workqueue(dc->writeback_write_wq);
+ 		return PTR_ERR(dc->writeback_thread);
+ 	}
+ 	dc->writeback_running = true;
 
 
