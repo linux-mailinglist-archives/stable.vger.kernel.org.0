@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DBC974630
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:49:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A999F74582
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:44:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726388AbfGYFt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:49:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59478 "EHLO mail.kernel.org"
+        id S2389224AbfGYFn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:43:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391245AbfGYFoX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:44:23 -0400
+        id S2391026AbfGYFnZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:43:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A837221880;
-        Thu, 25 Jul 2019 05:44:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D8F321850;
+        Thu, 25 Jul 2019 05:43:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033462;
-        bh=D1K8Ip+UqvaY6ipT/LuQzAQY4HCUQRu+dh6QqBx6EYc=;
+        s=default; t=1564033404;
+        bh=8jquslMfJrHO/u6zdtWiaDegJLVLe+UUycpnduUcL5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uF7jgyeTAwHGOeaQw805ST86LMc8WZnOqP+HEyq4LAeqR+ZGODkCcUUVUVBZOigBR
-         tADlPRu74utcblj3YaMWEU6PhugUQ+UPoj1eSPICn34ro8XPCXXiocT51TsmmLUNKa
-         HiM2ezkcMn7d002EWPYBnYvJx7fTKNHHybKGxJLE=
+        b=TZpYrFa6lYhRgHYh5MrTGT8JtN421NJZgMEzKJxM5BwyIbmm2srY3pxbVOxmGLPuw
+         b7InzmvOgBcDAdhKbcXGl/yZawOT45D1dEkwjosykaXfHuxgWYD3KHsicOKBo9cd4y
+         LcjLjOSbVkiekdTDnQH44nbog941dBQdKh0kGWf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Schmitz <schmitzmic@gmail.com>,
-        Finn Thain <fthain@telegraphics.com.au>,
-        Stan Johnson <userm57@yahoo.com>,
+        stable@vger.kernel.org,
+        Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 166/271] scsi: NCR5380: Always re-enable reselection interrupt
-Date:   Wed, 24 Jul 2019 21:20:35 +0200
-Message-Id: <20190724191709.396504053@linuxfoundation.org>
+Subject: [PATCH 4.19 169/271] scsi: megaraid_sas: Fix calculation of target ID
+Date:   Wed, 24 Jul 2019 21:20:38 +0200
+Message-Id: <20190724191709.649278970@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -45,93 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@telegraphics.com.au>
+From: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
 
-commit 57f31326518e98ee4cabf9a04efe00ed57c54147 upstream.
+commit c8f96df5b8e633056b7ebf5d52a9d6fb1b156ce3 upstream.
 
-The reselection interrupt gets disabled during selection and must be
-re-enabled when hostdata->connected becomes NULL. If it isn't re-enabled a
-disconnected command may time-out or the target may wedge the bus while
-trying to reselect the host. This can happen after a command is aborted.
+In megasas_get_target_prop(), driver is incorrectly calculating the target
+ID for devices with channel 1 and 3.  Due to this, firmware will either
+fail the command (if there is no device with the target id sent from
+driver) or could return the properties for a target which was not
+intended.  Devices could end up with the wrong queue depth due to this.
 
-Fix this by enabling the reselection interrupt in NCR5380_main() after
-calls to NCR5380_select() and NCR5380_information_transfer() return.
+Fix target id calculation for channel 1 and 3.
 
-Cc: Michael Schmitz <schmitzmic@gmail.com>
-Cc: stable@vger.kernel.org # v4.9+
-Fixes: 8b00c3d5d40d ("ncr5380: Implement new eh_abort_handler")
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-Tested-by: Stan Johnson <userm57@yahoo.com>
-Tested-by: Michael Schmitz <schmitzmic@gmail.com>
+Fixes: 96188a89cc6d ("scsi: megaraid_sas: NVME interface target prop added")
+Cc: stable@vger.kernel.org
+Signed-off-by: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/NCR5380.c |   12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ drivers/scsi/megaraid/megaraid_sas_base.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/NCR5380.c
-+++ b/drivers/scsi/NCR5380.c
-@@ -710,6 +710,8 @@ static void NCR5380_main(struct work_str
- 			NCR5380_information_transfer(instance);
- 			done = 0;
- 		}
-+		if (!hostdata->connected)
-+			NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
- 		spin_unlock_irq(&hostdata->lock);
- 		if (!done)
- 			cond_resched();
-@@ -1106,8 +1108,6 @@ static struct scsi_cmnd *NCR5380_select(
- 		spin_lock_irq(&hostdata->lock);
- 		NCR5380_write(INITIATOR_COMMAND_REG, ICR_BASE);
- 		NCR5380_reselect(instance);
--		if (!hostdata->connected)
--			NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
- 		shost_printk(KERN_ERR, instance, "reselection after won arbitration?\n");
- 		goto out;
- 	}
-@@ -1115,7 +1115,6 @@ static struct scsi_cmnd *NCR5380_select(
- 	if (err < 0) {
- 		spin_lock_irq(&hostdata->lock);
- 		NCR5380_write(INITIATOR_COMMAND_REG, ICR_BASE);
--		NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -5862,7 +5862,8 @@ megasas_get_target_prop(struct megasas_i
+ 	int ret;
+ 	struct megasas_cmd *cmd;
+ 	struct megasas_dcmd_frame *dcmd;
+-	u16 targetId = (sdev->channel % 2) + sdev->id;
++	u16 targetId = ((sdev->channel % 2) * MEGASAS_MAX_DEV_PER_CHANNEL) +
++			sdev->id;
  
- 		/* Can't touch cmd if it has been reclaimed by the scsi ML */
- 		if (!hostdata->selecting)
-@@ -1153,7 +1152,6 @@ static struct scsi_cmnd *NCR5380_select(
- 	if (err < 0) {
- 		shost_printk(KERN_ERR, instance, "select: REQ timeout\n");
- 		NCR5380_write(INITIATOR_COMMAND_REG, ICR_BASE);
--		NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
- 		goto out;
- 	}
- 	if (!hostdata->selecting) {
-@@ -1820,9 +1818,6 @@ static void NCR5380_information_transfer
- 					 */
- 					NCR5380_write(TARGET_COMMAND_REG, 0);
+ 	cmd = megasas_get_cmd(instance);
  
--					/* Enable reselect interrupts */
--					NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
--
- 					maybe_release_dma_irq(instance);
- 					return;
- 				case MESSAGE_REJECT:
-@@ -1854,8 +1849,6 @@ static void NCR5380_information_transfer
- 					 */
- 					NCR5380_write(TARGET_COMMAND_REG, 0);
- 
--					/* Enable reselect interrupts */
--					NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
- #ifdef SUN3_SCSI_VME
- 					dregs->csr |= CSR_DMA_ENABLE;
- #endif
-@@ -1957,7 +1950,6 @@ static void NCR5380_information_transfer
- 					cmd->result = DID_ERROR << 16;
- 					complete_cmd(instance, cmd);
- 					maybe_release_dma_irq(instance);
--					NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
- 					return;
- 				}
- 				msgout = NOP;
 
 
