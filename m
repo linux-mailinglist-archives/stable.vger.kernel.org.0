@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D2CE673D7E
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:17:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C498373D78
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:17:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728871AbfGXURf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:17:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58572 "EHLO mail.kernel.org"
+        id S2388923AbfGXURY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:17:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728467AbfGXTuF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:50:05 -0400
+        id S1729137AbfGXTuN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:50:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C031205C9;
-        Wed, 24 Jul 2019 19:50:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA7B7205C9;
+        Wed, 24 Jul 2019 19:50:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997803;
-        bh=zYbnSIlh1CYPwa/rYl08boDxb02DeloIueOXb7BDvdY=;
+        s=default; t=1563997812;
+        bh=s0/aSiakoN1afCX/3HrsVhB1VWD5uK6b+N50eKLyzdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cK1NseNCFMEZ5k2ono6U74DYzh7BYcZsyvy/7IeupQCn7t0bUvNfawrYXQe8qoOGS
-         3oxAxdfUjFqNZsqRt9mPOYpE4BUMTNbuuKzop46PXgxSYqbU2orqG2izfAiYmljvO1
-         j1e2SDIsorBGrfwi/ZS5O//IpaGHZDnI6AreK6MI=
+        b=feBtSjrZ7F3wH7DjRcDYIV5e5jEUN7KcIUzS5EBvaOGNzojX9cdCwWrfsPEhbiFgr
+         HJ3B4XJ+HFZJUHyC63W9gbV4GZC0/l2C1FNuGGFv1elUzeiFpFONZh82+sUW7iwfAb
+         OLE/DIchIhT0ehpqID5HwqklyYcISXH/O2Z41RXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqing Pan <miaoqing@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Peter De Schrijver <pdeschrijver@nvidia.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 148/371] ath10k: fix PCIE device wake up failed
-Date:   Wed, 24 Jul 2019 21:18:20 +0200
-Message-Id: <20190724191736.291919930@linuxfoundation.org>
+Subject: [PATCH 5.1 151/371] clocksource/drivers/tegra: Release all IRQs on request_irq() error
+Date:   Wed, 24 Jul 2019 21:18:23 +0200
+Message-Id: <20190724191736.545955774@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -44,47 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 011d4111c8c602ea829fa4917af1818eb0500a90 ]
+[ Upstream commit 7a3916706e858ad0bc3b5629c68168e1449de26a ]
 
-Observed PCIE device wake up failed after ~120 iterations of
-soft-reboot test. The error message is
-"ath10k_pci 0000:01:00.0: failed to wake up device : -110"
+Release all requested IRQ's on the request error to properly clean up
+allocated resources.
 
-The call trace as below:
-ath10k_pci_probe -> ath10k_pci_force_wake -> ath10k_pci_wake_wait ->
-ath10k_pci_is_awake
-
-Once trigger the device to wake up, we will continuously check the RTC
-state until it returns RTC_STATE_V_ON or timeout.
-
-But for QCA99x0 chips, we use wrong value for RTC_STATE_V_ON.
-Occasionally, we get 0x7 on the fist read, we thought as a failure
-case, but actually is the right value, also verified with the spec.
-So fix the issue by changing RTC_STATE_V_ON from 0x5 to 0x7, passed
-~2000 iterations.
-
-Tested HW: QCA9984
-
-Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Acked-By: Peter De Schrijver <pdeschrijver@nvidia.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/hw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clocksource/timer-tegra20.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/hw.c b/drivers/net/wireless/ath/ath10k/hw.c
-index ad082b7d7643..b242085c3c16 100644
---- a/drivers/net/wireless/ath/ath10k/hw.c
-+++ b/drivers/net/wireless/ath/ath10k/hw.c
-@@ -158,7 +158,7 @@ const struct ath10k_hw_values qca6174_values = {
- };
+diff --git a/drivers/clocksource/timer-tegra20.c b/drivers/clocksource/timer-tegra20.c
+index fdb3d795a409..cc18bb135a17 100644
+--- a/drivers/clocksource/timer-tegra20.c
++++ b/drivers/clocksource/timer-tegra20.c
+@@ -310,7 +310,7 @@ static int __init tegra_init_timer(struct device_node *np)
+ 			pr_err("%s: can't map IRQ for CPU%d\n",
+ 			       __func__, cpu);
+ 			ret = -EINVAL;
+-			goto out;
++			goto out_irq;
+ 		}
  
- const struct ath10k_hw_values qca99x0_values = {
--	.rtc_state_val_on		= 5,
-+	.rtc_state_val_on		= 7,
- 	.ce_count			= 12,
- 	.msi_assign_ce_max		= 12,
- 	.num_target_ce_config_wlan	= 10,
+ 		irq_set_status_flags(cpu_to->clkevt.irq, IRQ_NOAUTOEN);
+@@ -320,7 +320,8 @@ static int __init tegra_init_timer(struct device_node *np)
+ 		if (ret) {
+ 			pr_err("%s: cannot setup irq %d for CPU%d\n",
+ 				__func__, cpu_to->clkevt.irq, cpu);
+-			ret = -EINVAL;
++			irq_dispose_mapping(cpu_to->clkevt.irq);
++			cpu_to->clkevt.irq = 0;
+ 			goto out_irq;
+ 		}
+ 	}
 -- 
 2.20.1
 
