@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A191F73C3B
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:07:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AD9873BD7
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:04:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392431AbfGXUHT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:07:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54944 "EHLO mail.kernel.org"
+        id S2392452AbfGXUEK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:04:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388200AbfGXUEF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 16:04:05 -0400
+        id S2392456AbfGXUEI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 16:04:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90462206BA;
-        Wed, 24 Jul 2019 20:04:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 496A32147A;
+        Wed, 24 Jul 2019 20:04:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998644;
-        bh=FseExNQ32xhK79d3eEXl5HTDqbLRl4K50b1utmIFb+Y=;
+        s=default; t=1563998647;
+        bh=lgxI0LR00qRyA3YaGTN518XuZEY2K4RnWD2AbaPaGdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jZhNoHepiiAD1Nh3XMEcks4Yzto2I4smiRmqZEHbnPwr3qzdmdGiu7gnWJROteKOP
-         m/UqUAPkz0bu6AW2kluQY2ifP0ux65tPURqJZjXzxDfzDtA6dPGyz4ptdWay+xTvtG
-         ZpBvQlpY7riifAcKh9zw1eaVcxwKhZ8jSS4h4C6E=
+        b=I5yq8Uw50EIAxughepC+xf74JxhFPogfo7Y+9EhQLajk8yk8PQXLPID71rEqUX4G/
+         NMjMmDRe3Jj0EAJjw4oAuLPzeiaih2lv1DFe6PtxB8H6RclycMugRiSWt4Jj/F81G9
+         P6ADdWTQqald252A2tT7C4oP/Uc7f/JEFWcZEZlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Kir Kolyshkin <kir@sacred.ru>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 065/271] media: s5p-mfc: fix reading min scratch buffer size on MFC v6/v7
-Date:   Wed, 24 Jul 2019 21:18:54 +0200
-Message-Id: <20190724191700.760650475@linuxfoundation.org>
+Subject: [PATCH 4.19 066/271] selinux: fix empty write to keycreate file
+Date:   Wed, 24 Jul 2019 21:18:55 +0200
+Message-Id: <20190724191700.851717639@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -46,72 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit be22203aec440c1761ce8542c2636ac6c8951e3a ]
+[ Upstream commit 464c258aa45b09f16aa0f05847ed8895873262d9 ]
 
-MFC v6 and v7 has no register to read min scratch buffer size, so it has
-to be read conditionally only if hardware supports it. This fixes following
-NULL pointer exception on SoCs with MFC v6/v7:
+When sid == 0 (we are resetting keycreate_sid to the default value), we
+should skip the KEY__CREATE check.
 
-8<--- cut here ---
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-pgd = f25837f9
-[00000000] *pgd=bd93d835
-Internal error: Oops: 17 [#1] PREEMPT SMP ARM
-Modules linked in: btmrvl_sdio btmrvl bluetooth mwifiex_sdio mwifiex ecdh_generic ecc
-Hardware name: SAMSUNG EXYNOS (Flattened Device Tree)
-PC is at s5p_mfc_get_min_scratch_buf_size+0x30/0x3c
-LR is at s5p_mfc_get_min_scratch_buf_size+0x28/0x3c
-...
-[<c074f998>] (s5p_mfc_get_min_scratch_buf_size) from [<c0745bc0>] (s5p_mfc_irq+0x814/0xa5c)
-[<c0745bc0>] (s5p_mfc_irq) from [<c019a218>] (__handle_irq_event_percpu+0x64/0x3f8)
-[<c019a218>] (__handle_irq_event_percpu) from [<c019a5d8>] (handle_irq_event_percpu+0x2c/0x7c)
-[<c019a5d8>] (handle_irq_event_percpu) from [<c019a660>] (handle_irq_event+0x38/0x5c)
-[<c019a660>] (handle_irq_event) from [<c019ebc4>] (handle_fasteoi_irq+0xc4/0x180)
-[<c019ebc4>] (handle_fasteoi_irq) from [<c0199270>] (generic_handle_irq+0x24/0x34)
-[<c0199270>] (generic_handle_irq) from [<c0199888>] (__handle_domain_irq+0x7c/0xec)
-[<c0199888>] (__handle_domain_irq) from [<c04ac298>] (gic_handle_irq+0x58/0x9c)
-[<c04ac298>] (gic_handle_irq) from [<c0101ab0>] (__irq_svc+0x70/0xb0)
-Exception stack(0xe73ddc60 to 0xe73ddca8)
-...
-[<c0101ab0>] (__irq_svc) from [<c01967d8>] (console_unlock+0x5a8/0x6a8)
-[<c01967d8>] (console_unlock) from [<c01981d0>] (vprintk_emit+0x118/0x2d8)
-[<c01981d0>] (vprintk_emit) from [<c01983b0>] (vprintk_default+0x20/0x28)
-[<c01983b0>] (vprintk_default) from [<c01989b4>] (printk+0x30/0x54)
-[<c01989b4>] (printk) from [<c07500b8>] (s5p_mfc_init_decode_v6+0x1d4/0x284)
-[<c07500b8>] (s5p_mfc_init_decode_v6) from [<c07230d0>] (vb2_start_streaming+0x24/0x150)
-[<c07230d0>] (vb2_start_streaming) from [<c0724e4c>] (vb2_core_streamon+0x11c/0x15c)
-[<c0724e4c>] (vb2_core_streamon) from [<c07478b8>] (vidioc_streamon+0x64/0xa0)
-[<c07478b8>] (vidioc_streamon) from [<c0709640>] (__video_do_ioctl+0x28c/0x45c)
-[<c0709640>] (__video_do_ioctl) from [<c0709bc8>] (video_usercopy+0x260/0x8a4)
-[<c0709bc8>] (video_usercopy) from [<c02b3820>] (do_vfs_ioctl+0xb0/0x9fc)
-[<c02b3820>] (do_vfs_ioctl) from [<c02b41a0>] (ksys_ioctl+0x34/0x58)
-[<c02b41a0>] (ksys_ioctl) from [<c0101000>] (ret_fast_syscall+0x0/0x28)
-Exception stack(0xe73ddfa8 to 0xe73ddff0)
-...
----[ end trace 376cf5ba6e0bee93 ]---
+Before this patch, doing a zero-sized write to /proc/self/keycreate
+would check if the current task can create unlabeled keys (which would
+usually fail with -EACCESS and generate an AVC). Now it skips the check
+and correctly sets the task's keycreate_sid to 0.
 
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Bug report: https://bugzilla.redhat.com/show_bug.cgi?id=1719067
+
+Tested using the reproducer from the report above.
+
+Fixes: 4eb582cf1fbd ("[PATCH] keys: add a way to store the appropriate context for newly-created keys")
+Reported-by: Kir Kolyshkin <kir@sacred.ru>
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-mfc/s5p_mfc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ security/selinux/hooks.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc.c b/drivers/media/platform/s5p-mfc/s5p_mfc.c
-index ca11f8a7569d..4b8516c35bc2 100644
---- a/drivers/media/platform/s5p-mfc/s5p_mfc.c
-+++ b/drivers/media/platform/s5p-mfc/s5p_mfc.c
-@@ -527,7 +527,8 @@ static void s5p_mfc_handle_seq_done(struct s5p_mfc_ctx *ctx,
- 				dev);
- 		ctx->mv_count = s5p_mfc_hw_call(dev->mfc_ops, get_mv_count,
- 				dev);
--		ctx->scratch_buf_size = s5p_mfc_hw_call(dev->mfc_ops,
-+		if (FW_HAS_E_MIN_SCRATCH_BUF(dev))
-+			ctx->scratch_buf_size = s5p_mfc_hw_call(dev->mfc_ops,
- 						get_min_scratch_buf_size, dev);
- 		if (ctx->img_width == 0 || ctx->img_height == 0)
- 			ctx->state = MFCINST_ERROR;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 70bad15ed7a0..109ab510bdb1 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -6550,11 +6550,12 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
+ 	} else if (!strcmp(name, "fscreate")) {
+ 		tsec->create_sid = sid;
+ 	} else if (!strcmp(name, "keycreate")) {
+-		error = avc_has_perm(&selinux_state,
+-				     mysid, sid, SECCLASS_KEY, KEY__CREATE,
+-				     NULL);
+-		if (error)
+-			goto abort_change;
++		if (sid) {
++			error = avc_has_perm(&selinux_state, mysid, sid,
++					     SECCLASS_KEY, KEY__CREATE, NULL);
++			if (error)
++				goto abort_change;
++		}
+ 		tsec->keycreate_sid = sid;
+ 	} else if (!strcmp(name, "sockcreate")) {
+ 		tsec->sockcreate_sid = sid;
 -- 
 2.20.1
 
