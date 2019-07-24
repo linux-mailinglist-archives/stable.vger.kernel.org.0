@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B457673DF0
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:21:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAE1973DF2
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:21:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390863AbfGXTot (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:44:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47718 "EHLO mail.kernel.org"
+        id S2389690AbfGXTo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:44:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390418AbfGXTot (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:44:49 -0400
+        id S2390889AbfGXToz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:44:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D96721873;
-        Wed, 24 Jul 2019 19:44:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C2E621873;
+        Wed, 24 Jul 2019 19:44:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997488;
-        bh=JnyVDG7l+ThDACkoABHvrNtBVYPbsm5B3IEOwH/xkVQ=;
+        s=default; t=1563997494;
+        bh=mm/PfVfhNXWDgJjmOdg7XAugS3uuvEgt/qKNVlnf1UI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p4ZhVxGbni0ng1ZHiYD3reS9vzMPVcl6SniIemXIP9ct88LR6wiMUtNXTELCs7386
-         wJCjQvVhINTDonfEyvp6mFrZYFE8QIV6+uG35HaBZzZqUGKwYtA+dX5r+O7AcJjNn1
-         5pHvsu4YAr9oxfzRrx4fFrDc+U1yFvWlXrZ4sJ9A=
+        b=Duu7mK1xZDtCHl+qXihCNcxtS73uoCiFLAavbp1aBFUtVD3Ye5JiN0jBqNXFJkxYO
+         kps9oN8jVNhF2AB9hun7w+fwrpwLJmduVlzuq3I8dzvreGTFSOV6/BDyrLPmy3/k6D
+         oP5b490MFG1s767NYqCrJoREwhlTr87QTxyvM7X0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Sumit Gupta <sumitg@nvidia.com>,
+        stable@vger.kernel.org,
+        syzbot+66010012fd4c531a1a96@syzkaller.appspotmail.com,
+        Vandana BN <bnvandana@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 042/371] media: v4l2-core: fix use-after-free error
-Date:   Wed, 24 Jul 2019 21:16:34 +0200
-Message-Id: <20190724191727.751154929@linuxfoundation.org>
+Subject: [PATCH 5.1 044/371] media: usb:zr364xx:Fix KASAN:null-ptr-deref Read in zr364xx_vidioc_querycap
+Date:   Wed, 24 Jul 2019 21:16:36 +0200
+Message-Id: <20190724191727.968390543@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -45,89 +47,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3e0f724346e96daae7792262c6767449795ac3b5 ]
+[ Upstream commit 5d2e73a5f80a5b5aff3caf1ec6d39b5b3f54b26e ]
 
-Fixing use-after-free within __v4l2_ctrl_handler_setup().
-Memory is being freed with kfree(new_ref) for duplicate
-control reference entry but ctrl->cluster pointer is still
-referring to freed duplicate entry resulting in error on
-access. Change done to update cluster pointer only when new
-control reference is added.
+SyzKaller hit the null pointer deref while reading from uninitialized
+udev->product in zr364xx_vidioc_querycap().
 
- ==================================================================
- BUG: KASAN: use-after-free in __v4l2_ctrl_handler_setup+0x388/0x428
- Read of size 8 at addr ffffffc324e78618 by task systemd-udevd/312
+==================================================================
+BUG: KASAN: null-ptr-deref in read_word_at_a_time+0xe/0x20
+include/linux/compiler.h:274
+Read of size 1 at addr 0000000000000000 by task v4l_id/5287
 
- Allocated by task 312:
+CPU: 1 PID: 5287 Comm: v4l_id Not tainted 5.1.0-rc3-319004-g43151d6 #6
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+Google 01/01/2011
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0xe8/0x16e lib/dump_stack.c:113
+  kasan_report.cold+0x5/0x3c mm/kasan/report.c:321
+  read_word_at_a_time+0xe/0x20 include/linux/compiler.h:274
+  strscpy+0x8a/0x280 lib/string.c:207
+  zr364xx_vidioc_querycap+0xb5/0x210 drivers/media/usb/zr364xx/zr364xx.c:706
+  v4l_querycap+0x12b/0x340 drivers/media/v4l2-core/v4l2-ioctl.c:1062
+  __video_do_ioctl+0x5bb/0xb40 drivers/media/v4l2-core/v4l2-ioctl.c:2874
+  video_usercopy+0x44e/0xf00 drivers/media/v4l2-core/v4l2-ioctl.c:3056
+  v4l2_ioctl+0x14e/0x1a0 drivers/media/v4l2-core/v4l2-dev.c:364
+  vfs_ioctl fs/ioctl.c:46 [inline]
+  file_ioctl fs/ioctl.c:509 [inline]
+  do_vfs_ioctl+0xced/0x12f0 fs/ioctl.c:696
+  ksys_ioctl+0xa0/0xc0 fs/ioctl.c:713
+  __do_sys_ioctl fs/ioctl.c:720 [inline]
+  __se_sys_ioctl fs/ioctl.c:718 [inline]
+  __x64_sys_ioctl+0x74/0xb0 fs/ioctl.c:718
+  do_syscall_64+0xcf/0x4f0 arch/x86/entry/common.c:290
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x7f3b56d8b347
+Code: 90 90 90 48 8b 05 f1 fa 2a 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff
+ff c3 90 90 90 90 90 90 90 90 90 90 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff
+ff 73 01 c3 48 8b 0d c1 fa 2a 00 31 d2 48 29 c2 64
+RSP: 002b:00007ffe005d5d68 EFLAGS: 00000202 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f3b56d8b347
+RDX: 00007ffe005d5d70 RSI: 0000000080685600 RDI: 0000000000000003
+RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000202 R12: 0000000000400884
+R13: 00007ffe005d5ec0 R14: 0000000000000000 R15: 0000000000000000
+==================================================================
 
- Freed by task 312:
+For this device udev->product is not initialized and accessing it causes a NULL pointer deref.
 
- The buggy address belongs to the object at ffffffc324e78600
-  which belongs to the cache kmalloc-64 of size 64
- The buggy address is located 24 bytes inside of
-  64-byte region [ffffffc324e78600, ffffffc324e78640)
- The buggy address belongs to the page:
- page:ffffffbf0c939e00 count:1 mapcount:0 mapping:
-					(null) index:0xffffffc324e78f80
- flags: 0x4000000000000100(slab)
- raw: 4000000000000100 0000000000000000 ffffffc324e78f80 000000018020001a
- raw: 0000000000000000 0000000100000001 ffffffc37040fb80 0000000000000000
- page dumped because: kasan: bad access detected
+The fix is to check for NULL before strscpy() and copy empty string, if
+product is NULL
 
- Memory state around the buggy address:
-  ffffffc324e78500: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
-  ffffffc324e78580: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
- >ffffffc324e78600: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
-                             ^
-  ffffffc324e78680: 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc fc
-  ffffffc324e78700: 00 00 00 00 00 fc fc fc fc fc fc fc fc fc fc fc
- ==================================================================
-
-Suggested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Sumit Gupta <sumitg@nvidia.com>
+Reported-by: syzbot+66010012fd4c531a1a96@syzkaller.appspotmail.com
+Signed-off-by: Vandana BN <bnvandana@gmail.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-ctrls.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/media/usb/zr364xx/zr364xx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/v4l2-core/v4l2-ctrls.c b/drivers/media/v4l2-core/v4l2-ctrls.c
-index 54d66dbc2a31..fd18923ccc14 100644
---- a/drivers/media/v4l2-core/v4l2-ctrls.c
-+++ b/drivers/media/v4l2-core/v4l2-ctrls.c
-@@ -2148,15 +2148,6 @@ static int handler_new_ref(struct v4l2_ctrl_handler *hdl,
- 	if (size_extra_req)
- 		new_ref->p_req.p = &new_ref[1];
+diff --git a/drivers/media/usb/zr364xx/zr364xx.c b/drivers/media/usb/zr364xx/zr364xx.c
+index 96fee8d5b865..cd2bc9ed0cd9 100644
+--- a/drivers/media/usb/zr364xx/zr364xx.c
++++ b/drivers/media/usb/zr364xx/zr364xx.c
+@@ -703,7 +703,8 @@ static int zr364xx_vidioc_querycap(struct file *file, void *priv,
+ 	struct zr364xx_camera *cam = video_drvdata(file);
  
--	if (ctrl->handler == hdl) {
--		/* By default each control starts in a cluster of its own.
--		   new_ref->ctrl is basically a cluster array with one
--		   element, so that's perfect to use as the cluster pointer.
--		   But only do this for the handler that owns the control. */
--		ctrl->cluster = &new_ref->ctrl;
--		ctrl->ncontrols = 1;
--	}
--
- 	INIT_LIST_HEAD(&new_ref->node);
- 
- 	mutex_lock(hdl->lock);
-@@ -2189,6 +2180,15 @@ static int handler_new_ref(struct v4l2_ctrl_handler *hdl,
- 	hdl->buckets[bucket] = new_ref;
- 	if (ctrl_ref)
- 		*ctrl_ref = new_ref;
-+	if (ctrl->handler == hdl) {
-+		/* By default each control starts in a cluster of its own.
-+		 * new_ref->ctrl is basically a cluster array with one
-+		 * element, so that's perfect to use as the cluster pointer.
-+		 * But only do this for the handler that owns the control.
-+		 */
-+		ctrl->cluster = &new_ref->ctrl;
-+		ctrl->ncontrols = 1;
-+	}
- 
- unlock:
- 	mutex_unlock(hdl->lock);
+ 	strscpy(cap->driver, DRIVER_DESC, sizeof(cap->driver));
+-	strscpy(cap->card, cam->udev->product, sizeof(cap->card));
++	if (cam->udev->product)
++		strscpy(cap->card, cam->udev->product, sizeof(cap->card));
+ 	strscpy(cap->bus_info, dev_name(&cam->udev->dev),
+ 		sizeof(cap->bus_info));
+ 	cap->device_caps = V4L2_CAP_VIDEO_CAPTURE |
 -- 
 2.20.1
 
