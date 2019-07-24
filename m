@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B2D573879
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:30:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 648097387C
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:30:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728983AbfGXT3s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:29:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49356 "EHLO mail.kernel.org"
+        id S1726930AbfGXT36 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:29:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729049AbfGXT3s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:29:48 -0400
+        id S2387710AbfGXT34 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:29:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F70A20659;
-        Wed, 24 Jul 2019 19:29:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF7EA218EA;
+        Wed, 24 Jul 2019 19:29:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996587;
-        bh=rwpYAFFP66pvd1T+pqBLTPqnTByuUEyJCshjGZGVTyM=;
+        s=default; t=1563996595;
+        bh=I0o8rgjdf/CKbZPEcGONjiJMIlSNADY6jq0VB+sJe5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wUsh1C4JmvNDkHRLyZK/MRwSGdC7hLz890c6LprFz5nPdPz6K4QZqlGErm7D7+tJu
-         FGwMtEqsfGGKY+ctyHuoaYirqpCkHeUus1AwCGbSYcBDdR92eWGoTpwlI1nfK+27Vd
-         TcbwrMJ/4KsWjWdIKoOoRDhjAONOz8cv2hbiQf1Q=
+        b=mjfPA3N+vpBlA1WZPo2J+/Dlipih1Ai3ubfTICDBQZsa73MjtxWLzRIU7pVNovk3D
+         WQiJzg9CY/dYsYiX5M5LLmw4mD260K0WOZUQPbwiP+0NBiKbpWX5RUKsQFuICef+l+
+         yvSoN1SPpgeJkYRi2K1hWa1AQ7eSDolScyrhpzHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 148/413] media: coda: fix mpeg2 sequence number handling
-Date:   Wed, 24 Jul 2019 21:17:19 +0200
-Message-Id: <20190724191745.532716587@linuxfoundation.org>
+Subject: [PATCH 5.2 150/413] media: coda: increment sequence offset for the last returned frame
+Date:   Wed, 24 Jul 2019 21:17:21 +0200
+Message-Id: <20190724191745.685642935@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -45,44 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 56d159a4ec6d8da7313aac6fcbb95d8fffe689ba ]
+[ Upstream commit b3b7d96817cdb8b6fc353867705275dce8f41ccc ]
 
-Sequence number handling assumed that the BIT processor frame number
-starts counting at 1, but this is not true for the MPEG-2 decoder,
-which starts at 0. Fix the sequence counter offset detection to handle
-this.
+If no more frames are decoded in bitstream end mode, and a previously
+decoded frame has been returned, the firmware still increments the frame
+number. To avoid a sequence number mismatch after decoder restart,
+increment the sequence_offset correction parameter.
 
 Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/coda/coda-bit.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/media/platform/coda/coda-bit.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
-index 976f6aa69f41..1eeed34f300d 100644
+index 1eeed34f300d..8c9743e067cf 100644
 --- a/drivers/media/platform/coda/coda-bit.c
 +++ b/drivers/media/platform/coda/coda-bit.c
-@@ -1739,6 +1739,7 @@ static int __coda_start_decoding(struct coda_ctx *ctx)
- 		v4l2_err(&dev->v4l2_dev, "CODA_COMMAND_SEQ_INIT timeout\n");
- 		return ret;
- 	}
-+	ctx->sequence_offset = ~0U;
- 	ctx->initialized = 1;
- 
- 	/* Update kfifo out pointer from coda bitstream read pointer */
-@@ -2151,7 +2152,9 @@ static void coda_finish_decode(struct coda_ctx *ctx)
+@@ -2147,6 +2147,9 @@ static void coda_finish_decode(struct coda_ctx *ctx)
+ 		else if (ctx->display_idx < 0)
+ 			ctx->hold = true;
+ 	} else if (decoded_idx == -2) {
++		if (ctx->display_idx >= 0 &&
++		    ctx->display_idx < ctx->num_internal_frames)
++			ctx->sequence_offset++;
+ 		/* no frame was decoded, we still return remaining buffers */
+ 	} else if (decoded_idx < 0 || decoded_idx >= ctx->num_internal_frames) {
  		v4l2_err(&dev->v4l2_dev,
- 			 "decoded frame index out of range: %d\n", decoded_idx);
- 	} else {
--		val = coda_read(dev, CODA_RET_DEC_PIC_FRAME_NUM) - 1;
-+		val = coda_read(dev, CODA_RET_DEC_PIC_FRAME_NUM);
-+		if (ctx->sequence_offset == -1)
-+			ctx->sequence_offset = val;
- 		val -= ctx->sequence_offset;
- 		spin_lock(&ctx->buffer_meta_lock);
- 		if (!list_empty(&ctx->buffer_meta_list)) {
 -- 
 2.20.1
 
