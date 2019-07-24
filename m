@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E85D5747A6
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 09:01:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3734747AD
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 09:01:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726479AbfGYHBF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 03:01:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34104 "EHLO mail.kernel.org"
+        id S1729422AbfGYHBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 03:01:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725808AbfGYHBF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 03:01:05 -0400
+        id S1725808AbfGYHBN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 03:01:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0371B2070B;
-        Thu, 25 Jul 2019 07:01:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3E5C22ADA;
+        Thu, 25 Jul 2019 07:01:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564038064;
-        bh=4CfUye+GgQ2gJMBez5GCw03r+W5Lg5lhKAG1QSnvLsg=;
+        s=default; t=1564038073;
+        bh=fjKgVFMcK5w1eyT/mAWetn3wCytD8sHInZNTX6Y66tU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sz7jyTkEKYHv9cAcxBMbDFFyk9Vg7lLKUrhtVicOoAyf4BGFbsS/HFB2Myr8wSoMF
-         5oqAHUWN2+iGkSUd5Lw79E78S5Ske2mbT72gE6QBSKdw0pR9diYO/7hsuH0cdYXarb
-         RCpSgpzFhVg7o+BA2oee+4hDc8kzfv779bED68OA=
+        b=OEVoZJpTByFDU9meO4RD4IOdTvUBonk0eWQ3zOPmsihwRmRTGLWb1teptSfi+lvOO
+         G8XTB8W3CSVae2/kzKHn5ShapvA2uuB6tLmK8zuqjqynmdPw0f6BrGZTgXIZX6ZPl+
+         2ZDD3XMOVT0JU2ys8frKCydWLgNvtaivwK0dV2Dg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mukesh Ojha <mojha@codeaurora.org>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 024/413] media: vpss: fix a potential NULL pointer dereference
-Date:   Wed, 24 Jul 2019 21:15:15 +0200
-Message-Id: <20190724191737.185755747@linuxfoundation.org>
+Subject: [PATCH 5.1 028/371] media: vpss: fix a potential NULL pointer dereference
+Date:   Wed, 24 Jul 2019 21:16:20 +0200
+Message-Id: <20190724191726.605678666@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
-References: <20190724191735.096702571@linuxfoundation.org>
+In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
+References: <20190724191724.382593077@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,10 +61,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+)
 
 diff --git a/drivers/media/platform/davinci/vpss.c b/drivers/media/platform/davinci/vpss.c
-index 3f079ac1b080..be91b0c7d20b 100644
+index 19cf6853411e..89a86c19579b 100644
 --- a/drivers/media/platform/davinci/vpss.c
 +++ b/drivers/media/platform/davinci/vpss.c
-@@ -509,6 +509,11 @@ static int __init vpss_init(void)
+@@ -518,6 +518,11 @@ static int __init vpss_init(void)
  		return -EBUSY;
  
  	oper_cfg.vpss_regs_base2 = ioremap(VPSS_CLK_CTRL, 4);
