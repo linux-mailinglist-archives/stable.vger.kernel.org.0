@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B1AA7468B
+	by mail.lfdr.de (Postfix) with ESMTP id D476F7468C
 	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:53:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390686AbfGYFjA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:39:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53094 "EHLO mail.kernel.org"
+        id S2403932AbfGYFjF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:39:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390670AbfGYFi7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:38:59 -0400
+        id S2390711AbfGYFjE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:39:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D001D22BEB;
-        Thu, 25 Jul 2019 05:38:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D7CA22BEB;
+        Thu, 25 Jul 2019 05:39:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033138;
-        bh=h+kyfekLQOXDkRchEEawfPWP62nwihVO5AUNjmjhppk=;
+        s=default; t=1564033143;
+        bh=w4us00/9sn9R8EktR5DtQjHif2aVMiSmqh/+yBf/PJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QwDslVICf6Jn2/5aA6Re01mcpuAuuO7PyL2HdDS+6YRG9TZxqkADoD0Z7fOeDDK2f
-         0FMobIiYBIy8lbvVY/gXiJQtXlXYljDxxMFDqTjQtkBkPZNtq3Iczoz+xIYovX/ire
-         Q/ofaiBAgYl/O9O+gd09sCcRTVmeNbYiH0xzC2yI=
+        b=b029vZod3uhea48W3YnVmeW9DpaUXry3ImwzceEgHVeWRr+C+Y4VMNMLEB7PM8qSp
+         Ot3A/KmuzUcdSCN31QDzuv12Y1EBzl/gv+sFU+d8YWE7kJFVh4yieYjaXy28R3eJTD
+         Wz0biX+raRHEElmjtvE7p501HgeWha97Oe65DzBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+1fcc5ef45175fc774231@syzkaller.appspotmail.com,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, Borislav Petkov <bp@alien8.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 105/271] rtlwifi: rtl8192cu: fix error handle when usb probe failed
-Date:   Wed, 24 Jul 2019 21:19:34 +0200
-Message-Id: <20190724191704.204853234@linuxfoundation.org>
+Subject: [PATCH 4.19 107/271] x86/build: Add set -e to mkcapflags.sh to delete broken capflags.c
+Date:   Wed, 24 Jul 2019 21:19:36 +0200
+Message-Id: <20190724191704.370118560@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -47,102 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6c0ed66f1a5b84e2a812c7c2d6571a5621bf3396 ]
+[ Upstream commit bc53d3d777f81385c1bb08b07bd1c06450ecc2c1 ]
 
-rtl_usb_probe() must do error handle rtl_deinit_core() only if
-rtl_init_core() is done, otherwise goto error_out2.
+Without 'set -e', shell scripts continue running even after any
+error occurs. The missed 'set -e' is a typical bug in shell scripting.
 
-| usb 1-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
-| rtl_usb: reg 0xf0, usbctrl_vendorreq TimeOut! status:0xffffffb9 value=0x0
-| rtl8192cu: Chip version 0x10
-| rtl_usb: reg 0xa, usbctrl_vendorreq TimeOut! status:0xffffffb9 value=0x0
-| rtl_usb: Too few input end points found
-| INFO: trying to register non-static key.
-| the code is fine but needs lockdep annotation.
-| turning off the locking correctness validator.
-| CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.1.0-rc4-319354-g9a33b36 #3
-| Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-| Google 01/01/2011
-| Workqueue: usb_hub_wq hub_event
-| Call Trace:
-|   __dump_stack lib/dump_stack.c:77 [inline]
-|   dump_stack+0xe8/0x16e lib/dump_stack.c:113
-|   assign_lock_key kernel/locking/lockdep.c:786 [inline]
-|   register_lock_class+0x11b8/0x1250 kernel/locking/lockdep.c:1095
-|   __lock_acquire+0xfb/0x37c0 kernel/locking/lockdep.c:3582
-|   lock_acquire+0x10d/0x2f0 kernel/locking/lockdep.c:4211
-|   __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
-|   _raw_spin_lock_irqsave+0x44/0x60 kernel/locking/spinlock.c:152
-|   rtl_c2hcmd_launcher+0xd1/0x390
-| drivers/net/wireless/realtek/rtlwifi/base.c:2344
-|   rtl_deinit_core+0x25/0x2d0 drivers/net/wireless/realtek/rtlwifi/base.c:574
-|   rtl_usb_probe.cold+0x861/0xa70
-| drivers/net/wireless/realtek/rtlwifi/usb.c:1093
-|   usb_probe_interface+0x31d/0x820 drivers/usb/core/driver.c:361
-|   really_probe+0x2da/0xb10 drivers/base/dd.c:509
-|   driver_probe_device+0x21d/0x350 drivers/base/dd.c:671
-|   __device_attach_driver+0x1d8/0x290 drivers/base/dd.c:778
-|   bus_for_each_drv+0x163/0x1e0 drivers/base/bus.c:454
-|   __device_attach+0x223/0x3a0 drivers/base/dd.c:844
-|   bus_probe_device+0x1f1/0x2a0 drivers/base/bus.c:514
-|   device_add+0xad2/0x16e0 drivers/base/core.c:2106
-|   usb_set_configuration+0xdf7/0x1740 drivers/usb/core/message.c:2021
-|   generic_probe+0xa2/0xda drivers/usb/core/generic.c:210
-|   usb_probe_device+0xc0/0x150 drivers/usb/core/driver.c:266
-|   really_probe+0x2da/0xb10 drivers/base/dd.c:509
-|   driver_probe_device+0x21d/0x350 drivers/base/dd.c:671
-|   __device_attach_driver+0x1d8/0x290 drivers/base/dd.c:778
-|   bus_for_each_drv+0x163/0x1e0 drivers/base/bus.c:454
-|   __device_attach+0x223/0x3a0 drivers/base/dd.c:844
-|   bus_probe_device+0x1f1/0x2a0 drivers/base/bus.c:514
-|   device_add+0xad2/0x16e0 drivers/base/core.c:2106
-|   usb_new_device.cold+0x537/0xccf drivers/usb/core/hub.c:2534
-|   hub_port_connect drivers/usb/core/hub.c:5089 [inline]
-|   hub_port_connect_change drivers/usb/core/hub.c:5204 [inline]
-|   port_event drivers/usb/core/hub.c:5350 [inline]
-|   hub_event+0x138e/0x3b00 drivers/usb/core/hub.c:5432
-|   process_one_work+0x90f/0x1580 kernel/workqueue.c:2269
-|   worker_thread+0x9b/0xe20 kernel/workqueue.c:2415
-|   kthread+0x313/0x420 kernel/kthread.c:253
-|   ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:352
+For example, when a disk space shortage occurs while this script is
+running, it actually ends up with generating a truncated capflags.c.
 
-Reported-by: syzbot+1fcc5ef45175fc774231@syzkaller.appspotmail.com
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Yet, mkcapflags.sh continues running and exits with 0. So, the build
+system assumes it has succeeded.
+
+It will not be re-generated in the next invocation of Make since its
+timestamp is newer than that of any of the source files.
+
+Add 'set -e' so that any error in this script is caught and propagated
+to the build system.
+
+Since 9c2af1c7377a ("kbuild: add .DELETE_ON_ERROR special target"),
+make automatically deletes the target on any failure. So, the broken
+capflags.c will be deleted automatically.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Link: https://lkml.kernel.org/r/20190625072622.17679-1-yamada.masahiro@socionext.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/usb.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/mkcapflags.sh | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/usb.c b/drivers/net/wireless/realtek/rtlwifi/usb.c
-index 2ac5004d7a40..5adb939afee8 100644
---- a/drivers/net/wireless/realtek/rtlwifi/usb.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/usb.c
-@@ -1081,13 +1081,13 @@ int rtl_usb_probe(struct usb_interface *intf,
- 	rtlpriv->cfg->ops->read_eeprom_info(hw);
- 	err = _rtl_usb_init(hw);
- 	if (err)
--		goto error_out;
-+		goto error_out2;
- 	rtl_usb_init_sw(hw);
- 	/* Init mac80211 sw */
- 	err = rtl_init_core(hw);
- 	if (err) {
- 		pr_err("Can't allocate sw for mac80211\n");
--		goto error_out;
-+		goto error_out2;
- 	}
- 	if (rtlpriv->cfg->ops->init_sw_vars(hw)) {
- 		pr_err("Can't init_sw_vars\n");
-@@ -1108,6 +1108,7 @@ int rtl_usb_probe(struct usb_interface *intf,
+diff --git a/arch/x86/kernel/cpu/mkcapflags.sh b/arch/x86/kernel/cpu/mkcapflags.sh
+index d0dfb892c72f..aed45b8895d5 100644
+--- a/arch/x86/kernel/cpu/mkcapflags.sh
++++ b/arch/x86/kernel/cpu/mkcapflags.sh
+@@ -4,6 +4,8 @@
+ # Generate the x86_cap/bug_flags[] arrays from include/asm/cpufeatures.h
+ #
  
- error_out:
- 	rtl_deinit_core(hw);
-+error_out2:
- 	_rtl_usb_io_handler_release(hw);
- 	usb_put_dev(udev);
- 	complete(&rtlpriv->firmware_loading_complete);
++set -e
++
+ IN=$1
+ OUT=$2
+ 
 -- 
 2.20.1
 
