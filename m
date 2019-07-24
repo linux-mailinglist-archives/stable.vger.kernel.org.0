@@ -2,37 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EFC1E73A0B
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:46:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D039873A0F
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:46:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403747AbfGXTqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:46:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51714 "EHLO mail.kernel.org"
+        id S2387568AbfGXTqe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:46:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391063AbfGXTqY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:46:24 -0400
+        id S2390824AbfGXTqa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:46:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D235C205C9;
-        Wed, 24 Jul 2019 19:46:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 04872205C9;
+        Wed, 24 Jul 2019 19:46:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997583;
-        bh=kRG4d6d5TG/mBD8Z0zXw5vqsmv4xOfEV6e8qfpaQqGU=;
+        s=default; t=1563997589;
+        bh=ZSl1scnxr/Ellro7+dGi0kPGRZ6BnpwAw0+kHm4KKkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bH2wWPsbuJNPSQ1GUnmHhBv+qrOBKcCpWBnKj10fNw2KJIcntL8iX2LrfCBAaDluu
-         y3zw/L5NzoSJ+cRmlBrhW7rtkRo23KINDk1aYCf1vypAGXfNRAqPCcE67LhDl07lWa
-         MPq40iWOUAe71mw4nho+7NuwQGAPoNARQW73kniE=
+        b=JvfNNv0z16/vENz2ibl/ZOa5Uxz+j7I4m0ICe7sgd/u7lL76rdTumcgEKHOm0oBn9
+         ahjSVKRwRB+Gu3FDV20ao+j/8RGrNCrMBb16DxMJfUOZUoP9greTO2Oj3M2+dU4MYk
+         6pvxGETySG3Uvkwv0p8WUUxM+D6lGBgYErmN6OPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Robert Hancock <hancock@sedsystems.ca>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Leo Yan <leo.yan@linaro.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Suzuki Poulouse <suzuki.poulose@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 071/371] net: sfp: add mutex to prevent concurrent state checks
-Date:   Wed, 24 Jul 2019 21:17:03 +0200
-Message-Id: <20190724191730.234005812@linuxfoundation.org>
+Subject: [PATCH 5.1 073/371] perf cs-etm: Properly set the value of old and head in snapshot mode
+Date:   Wed, 24 Jul 2019 21:17:05 +0200
+Message-Id: <20190724191730.366091567@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -45,62 +51,202 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2158e856f56bb762ef90f3ec244d41a519826f75 ]
+[ Upstream commit e45c48a9a4d20ebc7b639a62c3ef8f4b08007027 ]
 
-sfp_check_state can potentially be called by both a threaded IRQ handler
-and delayed work. If it is concurrently called, it could result in
-incorrect state management. Add a st_mutex to protect the state - this
-lock gets taken outside of code that checks and handle state changes, and
-the existing sm_mutex nests inside of it.
+This patch adds the necessary intelligence to properly compute the value
+of 'old' and 'head' when operating in snapshot mode.  That way we can
+get the latest information in the AUX buffer and be compatible with the
+generic AUX ring buffer mechanic.
 
-Suggested-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Robert Hancock <hancock@sedsystems.ca>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Tester notes:
+
+> Leo, have you had the chance to test/review this one? Suzuki?
+
+Sure.  I applied this patch on the perf/core branch (with latest
+commit 3e4fbf36c1e3 'perf augmented_raw_syscalls: Move reading
+filename to the loop') and passed testing with below steps:
+
+  # perf record -e cs_etm/@tmc_etr0/ -S -m,64 --per-thread ./sort &
+  [1] 19097
+  Bubble sorting array of 30000 elements
+
+  # kill -USR2 19097
+  # kill -USR2 19097
+  # kill -USR2 19097
+  [ perf record: Woken up 4 times to write data ]
+  [ perf record: Captured and wrote 0.753 MB perf.data ]
+
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Tested-by: Leo Yan <leo.yan@linaro.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Link: http://lkml.kernel.org/r/20190605161633.12245-1-mathieu.poirier@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/sfp.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ tools/perf/arch/arm/util/cs-etm.c | 127 +++++++++++++++++++++++++++++-
+ 1 file changed, 123 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/phy/sfp.c b/drivers/net/phy/sfp.c
-index 71812be0ac64..b6efd2d41dce 100644
---- a/drivers/net/phy/sfp.c
-+++ b/drivers/net/phy/sfp.c
-@@ -186,10 +186,11 @@ struct sfp {
- 	struct gpio_desc *gpio[GPIO_MAX];
- 
- 	bool attached;
-+	struct mutex st_mutex;			/* Protects state */
- 	unsigned int state;
- 	struct delayed_work poll;
- 	struct delayed_work timeout;
--	struct mutex sm_mutex;
-+	struct mutex sm_mutex;			/* Protects state machine */
- 	unsigned char sm_mod_state;
- 	unsigned char sm_dev_state;
- 	unsigned short sm_state;
-@@ -1719,6 +1720,7 @@ static void sfp_check_state(struct sfp *sfp)
- {
- 	unsigned int state, i, changed;
- 
-+	mutex_lock(&sfp->st_mutex);
- 	state = sfp_get_state(sfp);
- 	changed = state ^ sfp->state;
- 	changed &= SFP_F_PRESENT | SFP_F_LOS | SFP_F_TX_FAULT;
-@@ -1744,6 +1746,7 @@ static void sfp_check_state(struct sfp *sfp)
- 		sfp_sm_event(sfp, state & SFP_F_LOS ?
- 				SFP_E_LOS_HIGH : SFP_E_LOS_LOW);
- 	rtnl_unlock();
-+	mutex_unlock(&sfp->st_mutex);
+diff --git a/tools/perf/arch/arm/util/cs-etm.c b/tools/perf/arch/arm/util/cs-etm.c
+index 911426721170..0a278bbcaba6 100644
+--- a/tools/perf/arch/arm/util/cs-etm.c
++++ b/tools/perf/arch/arm/util/cs-etm.c
+@@ -31,6 +31,8 @@ struct cs_etm_recording {
+ 	struct auxtrace_record	itr;
+ 	struct perf_pmu		*cs_etm_pmu;
+ 	struct perf_evlist	*evlist;
++	int			wrapped_cnt;
++	bool			*wrapped;
+ 	bool			snapshot_mode;
+ 	size_t			snapshot_size;
+ };
+@@ -536,16 +538,131 @@ static int cs_etm_info_fill(struct auxtrace_record *itr,
+ 	return 0;
  }
  
- static irqreturn_t sfp_irq(int irq, void *data)
-@@ -1774,6 +1777,7 @@ static struct sfp *sfp_alloc(struct device *dev)
- 	sfp->dev = dev;
+-static int cs_etm_find_snapshot(struct auxtrace_record *itr __maybe_unused,
++static int cs_etm_alloc_wrapped_array(struct cs_etm_recording *ptr, int idx)
++{
++	bool *wrapped;
++	int cnt = ptr->wrapped_cnt;
++
++	/* Make @ptr->wrapped as big as @idx */
++	while (cnt <= idx)
++		cnt++;
++
++	/*
++	 * Free'ed in cs_etm_recording_free().  Using realloc() to avoid
++	 * cross compilation problems where the host's system supports
++	 * reallocarray() but not the target.
++	 */
++	wrapped = realloc(ptr->wrapped, cnt * sizeof(bool));
++	if (!wrapped)
++		return -ENOMEM;
++
++	wrapped[cnt - 1] = false;
++	ptr->wrapped_cnt = cnt;
++	ptr->wrapped = wrapped;
++
++	return 0;
++}
++
++static bool cs_etm_buffer_has_wrapped(unsigned char *buffer,
++				      size_t buffer_size, u64 head)
++{
++	u64 i, watermark;
++	u64 *buf = (u64 *)buffer;
++	size_t buf_size = buffer_size;
++
++	/*
++	 * We want to look the very last 512 byte (chosen arbitrarily) in
++	 * the ring buffer.
++	 */
++	watermark = buf_size - 512;
++
++	/*
++	 * @head is continuously increasing - if its value is equal or greater
++	 * than the size of the ring buffer, it has wrapped around.
++	 */
++	if (head >= buffer_size)
++		return true;
++
++	/*
++	 * The value of @head is somewhere within the size of the ring buffer.
++	 * This can be that there hasn't been enough data to fill the ring
++	 * buffer yet or the trace time was so long that @head has numerically
++	 * wrapped around.  To find we need to check if we have data at the very
++	 * end of the ring buffer.  We can reliably do this because mmap'ed
++	 * pages are zeroed out and there is a fresh mapping with every new
++	 * session.
++	 */
++
++	/* @head is less than 512 byte from the end of the ring buffer */
++	if (head > watermark)
++		watermark = head;
++
++	/*
++	 * Speed things up by using 64 bit transactions (see "u64 *buf" above)
++	 */
++	watermark >>= 3;
++	buf_size >>= 3;
++
++	/*
++	 * If we find trace data at the end of the ring buffer, @head has
++	 * been there and has numerically wrapped around at least once.
++	 */
++	for (i = watermark; i < buf_size; i++)
++		if (buf[i])
++			return true;
++
++	return false;
++}
++
++static int cs_etm_find_snapshot(struct auxtrace_record *itr,
+ 				int idx, struct auxtrace_mmap *mm,
+-				unsigned char *data __maybe_unused,
++				unsigned char *data,
+ 				u64 *head, u64 *old)
+ {
++	int err;
++	bool wrapped;
++	struct cs_etm_recording *ptr =
++			container_of(itr, struct cs_etm_recording, itr);
++
++	/*
++	 * Allocate memory to keep track of wrapping if this is the first
++	 * time we deal with this *mm.
++	 */
++	if (idx >= ptr->wrapped_cnt) {
++		err = cs_etm_alloc_wrapped_array(ptr, idx);
++		if (err)
++			return err;
++	}
++
++	/*
++	 * Check to see if *head has wrapped around.  If it hasn't only the
++	 * amount of data between *head and *old is snapshot'ed to avoid
++	 * bloating the perf.data file with zeros.  But as soon as *head has
++	 * wrapped around the entire size of the AUX ring buffer it taken.
++	 */
++	wrapped = ptr->wrapped[idx];
++	if (!wrapped && cs_etm_buffer_has_wrapped(data, mm->len, *head)) {
++		wrapped = true;
++		ptr->wrapped[idx] = true;
++	}
++
+ 	pr_debug3("%s: mmap index %d old head %zu new head %zu size %zu\n",
+ 		  __func__, idx, (size_t)*old, (size_t)*head, mm->len);
  
- 	mutex_init(&sfp->sm_mutex);
-+	mutex_init(&sfp->st_mutex);
- 	INIT_DELAYED_WORK(&sfp->poll, sfp_poll);
- 	INIT_DELAYED_WORK(&sfp->timeout, sfp_timeout);
+-	*old = *head;
+-	*head += mm->len;
++	/* No wrap has occurred, we can just use *head and *old. */
++	if (!wrapped)
++		return 0;
++
++	/*
++	 * *head has wrapped around - adjust *head and *old to pickup the
++	 * entire content of the AUX buffer.
++	 */
++	if (*head >= mm->len) {
++		*old = *head - mm->len;
++	} else {
++		*head += mm->len;
++		*old = *head - mm->len;
++	}
+ 
+ 	return 0;
+ }
+@@ -586,6 +703,8 @@ static void cs_etm_recording_free(struct auxtrace_record *itr)
+ {
+ 	struct cs_etm_recording *ptr =
+ 			container_of(itr, struct cs_etm_recording, itr);
++
++	zfree(&ptr->wrapped);
+ 	free(ptr);
+ }
  
 -- 
 2.20.1
