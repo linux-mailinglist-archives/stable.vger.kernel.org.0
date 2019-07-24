@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD94A73C42
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:07:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BBA273BD2
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:03:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392355AbfGXUHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:07:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54568 "EHLO mail.kernel.org"
+        id S2392316AbfGXUDy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:03:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392398AbfGXUDv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 16:03:51 -0400
+        id S2392411AbfGXUDy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 16:03:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0306820665;
-        Wed, 24 Jul 2019 20:03:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A01D6206BA;
+        Wed, 24 Jul 2019 20:03:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998630;
-        bh=XqNTJ6gJjakadmsSqjLeH2NXZj7sjsHmv1w8+jLZtzY=;
+        s=default; t=1563998633;
+        bh=hysILLiMFNV30I4LobGeU/j6HhW22UqMhZCInxUglhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ehnYqNT4hPkwPUn7fgAzD5p65rBqjYH7Bj4Hz/eI+BcGeV5Sb2NmtJCXdhOoLSjMf
-         G+T36C8FAMTgMdMukmOoawnBfK4E5pphZ6bsMK4KnKamVwwJh0NpdT1EgXxflql36Z
-         GfSDAynRWrODHWBvG12gf3Vp60kpue2F9vTnqCeQ=
+        b=JTpSKhfWK3QibrC3TPlqjXQaYXJYek+G5QwVJSYzvY6NXy3pL/iuO2Eh/onxypK27
+         0qk8WGkXPdWa3002i/RZ0E2gQOUW4BFTrhoWNQ9gQS/VKcL7XP+VRS0JLLsV3H0CKJ
+         WJNKl+NK2IDVpqJsRjn1jVdce3Fj5JloX8v+72q4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 060/271] iommu: Fix a leak in iommu_insert_resv_region
-Date:   Wed, 24 Jul 2019 21:18:49 +0200
-Message-Id: <20190724191700.310720499@linuxfoundation.org>
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 061/271] gpio: omap: fix lack of irqstatus_raw0 for OMAP4
+Date:   Wed, 24 Jul 2019 21:18:50 +0200
+Message-Id: <20190724191700.414102486@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -43,58 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ad0834dedaa15c3a176f783c0373f836e44b4700 ]
+[ Upstream commit 64ea3e9094a1f13b96c33244a3fb3a0f45690bd2 ]
 
-In case we expand an existing region, we unlink
-this latter and insert the larger one. In
-that case we should free the original region after
-the insertion. Also we can immediately return.
+Commit 384ebe1c2849 ("gpio/omap: Add DT support to GPIO driver") added
+the register definition tables to the gpio-omap driver. Subsequently to
+that commit, commit 4e962e8998cc ("gpio/omap: remove cpu_is_omapxxxx()
+checks from *_runtime_resume()") added definitions for irqstatus_raw*
+registers to the legacy OMAP4 definitions, but missed the DT
+definitions.
 
-Fixes: 6c65fb318e8b ("iommu: iommu_get_group_resv_regions")
+This causes an unintentional change of behaviour for the 1.101 errata
+workaround on OMAP4 platforms. Fix this oversight.
 
-Signed-off-by: Eric Auger <eric.auger@redhat.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: 4e962e8998cc ("gpio/omap: remove cpu_is_omapxxxx() checks from *_runtime_resume()")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Tested-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/iommu.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/gpio/gpio-omap.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 8c15c5980299..bc14825edc9c 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -211,18 +211,21 @@ static int iommu_insert_resv_region(struct iommu_resv_region *new,
- 			pos = pos->next;
- 		} else if ((start >= a) && (end <= b)) {
- 			if (new->type == type)
--				goto done;
-+				return 0;
- 			else
- 				pos = pos->next;
- 		} else {
- 			if (new->type == type) {
- 				phys_addr_t new_start = min(a, start);
- 				phys_addr_t new_end = max(b, end);
-+				int ret;
- 
- 				list_del(&entry->list);
- 				entry->start = new_start;
- 				entry->length = new_end - new_start + 1;
--				iommu_insert_resv_region(entry, regions);
-+				ret = iommu_insert_resv_region(entry, regions);
-+				kfree(entry);
-+				return ret;
- 			} else {
- 				pos = pos->next;
- 			}
-@@ -235,7 +238,6 @@ static int iommu_insert_resv_region(struct iommu_resv_region *new,
- 		return -ENOMEM;
- 
- 	list_add_tail(&region->list, pos);
--done:
- 	return 0;
- }
- 
+diff --git a/drivers/gpio/gpio-omap.c b/drivers/gpio/gpio-omap.c
+index 6fa430d98517..9254bcf7f647 100644
+--- a/drivers/gpio/gpio-omap.c
++++ b/drivers/gpio/gpio-omap.c
+@@ -1687,6 +1687,8 @@ static struct omap_gpio_reg_offs omap4_gpio_regs = {
+ 	.clr_dataout =		OMAP4_GPIO_CLEARDATAOUT,
+ 	.irqstatus =		OMAP4_GPIO_IRQSTATUS0,
+ 	.irqstatus2 =		OMAP4_GPIO_IRQSTATUS1,
++	.irqstatus_raw0 =	OMAP4_GPIO_IRQSTATUSRAW0,
++	.irqstatus_raw1 =	OMAP4_GPIO_IRQSTATUSRAW1,
+ 	.irqenable =		OMAP4_GPIO_IRQSTATUSSET0,
+ 	.irqenable2 =		OMAP4_GPIO_IRQSTATUSSET1,
+ 	.set_irqenable =	OMAP4_GPIO_IRQSTATUSSET0,
 -- 
 2.20.1
 
