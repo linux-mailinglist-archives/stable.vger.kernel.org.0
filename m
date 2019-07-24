@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D9B973AA3
+	by mail.lfdr.de (Postfix) with ESMTP id B75D373AA4
 	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:54:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404114AbfGXTwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:52:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33890 "EHLO mail.kernel.org"
+        id S2404120AbfGXTwS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:52:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404107AbfGXTwP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:52:15 -0400
+        id S2404116AbfGXTwS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:52:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1D652147A;
-        Wed, 24 Jul 2019 19:52:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E04C205C9;
+        Wed, 24 Jul 2019 19:52:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997933;
-        bh=LtA1RB9Bg1G5SyqVDN+x6J+YySV0lxzHatCV6C1Neug=;
+        s=default; t=1563997937;
+        bh=8BQOTuIw7lc2OCfIx4b+UjJgllDVu7q1Kxjvkr9eHtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Ac6XwSMvjFaGWLOjlSyBTDCu6LwJqDBYk672n1F2GA9zzLR4od94hOcxyFW130NW
-         O2C291NFkrkqBVgMt1W2lx/xaCmw/Rtk4sxCFVSnNQAC3BnYXRc5lq6qyCTHxMVICU
-         iGPf9yh8K8/pO1fdP+iK+4bMZ8dbIjYLXTzJv/YE=
+        b=XbJUrfe62qR8l4DeVosBOZegLaVJvGMGi+j+8lC1b5+Fhzf2HV61vQZatvUWCbaHc
+         t4T9oOJ0Turf/QfnTTOMcHub219CIY0aYXaZEPaNT9+J8lXBbpq5wDz2XQfF/tx8ED
+         LceZ5jBOSD1TrfYdLh0nR1Io79AS+xKGA0sfA/5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>,
-        Taehee Yoo <ap420073@gmail.com>,
+        stable@vger.kernel.org,
+        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
+        "Guilherme G. Piccoli" <gpiccoli@canonical.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 192/371] vxlan: do not destroy fdb if register_netdevice() is failed
-Date:   Wed, 24 Jul 2019 21:19:04 +0200
-Message-Id: <20190724191739.360882915@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>,
+        Przemyslaw Hausman <przemyslaw.hausman@canonical.com>
+Subject: [PATCH 5.1 193/371] bnx2x: Prevent ptp_task to be rescheduled indefinitely
+Date:   Wed, 24 Jul 2019 21:19:05 +0200
+Message-Id: <20190724191739.408374701@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -45,157 +47,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7c31e54aeee517d1318dfc0bde9fa7de75893dc6 ]
+[ Upstream commit 3c91f25c2f72ba6001775a5932857c1d2131c531 ]
 
-__vxlan_dev_create() destroys FDB using specific pointer which indicates
-a fdb when error occurs.
-But that pointer should not be used when register_netdevice() fails because
-register_netdevice() internally destroys fdb when error occurs.
+Currently bnx2x ptp worker tries to read a register with timestamp
+information in case of TX packet timestamping and in case it fails,
+the routine reschedules itself indefinitely. This was reported as a
+kworker always at 100% of CPU usage, which was narrowed down to be
+bnx2x ptp_task.
 
-This patch makes vxlan_fdb_create() to do not link fdb entry to vxlan dev
-internally.
-Instead, a new function vxlan_fdb_insert() is added to link fdb to vxlan
-dev.
+By following the ioctl handler, we could narrow down the problem to
+an NTP tool (chrony) requesting HW timestamping from bnx2x NIC with
+RX filter zeroed; this isn't reproducible for example with ptp4l
+(from linuxptp) since this tool requests a supported RX filter.
+It seems NIC FW timestamp mechanism cannot work well with
+RX_FILTER_NONE - driver's PTP filter init routine skips a register
+write to the adapter if there's not a supported filter request.
 
-vxlan_fdb_insert() is called after calling register_netdevice().
-This routine can avoid situation that ->ndo_uninit() destroys fdb entry
-in error path of register_netdevice().
-Hence, error path of __vxlan_dev_create() routine can have an opportunity
-to destroy default fdb entry by hand.
+This patch addresses the problem of bnx2x ptp thread's everlasting
+reschedule by retrying the register read 10 times; between the read
+attempts the thread sleeps for an increasing amount of time starting
+in 1ms to give FW some time to perform the timestamping. If it still
+fails after all retries, we bail out in order to prevent an unbound
+resource consumption from bnx2x.
 
-Test command
-    ip link add bonding_masters type vxlan id 0 group 239.1.1.1 \
-	    dev enp0s9 dstport 4789
+The patch also adds an ethtool statistic for accounting the skipped
+TX timestamp packets and it reduces the priority of timestamping
+error messages to prevent log flooding. The code was tested using
+both linuxptp and chrony.
 
-Splat looks like:
-[  213.392816] kasan: GPF could be caused by NULL-ptr deref or user memory access
-[  213.401257] general protection fault: 0000 [#1] SMP DEBUG_PAGEALLOC KASAN PTI
-[  213.402178] CPU: 0 PID: 1414 Comm: ip Not tainted 5.2.0-rc5+ #256
-[  213.402178] RIP: 0010:vxlan_fdb_destroy+0x120/0x220 [vxlan]
-[  213.402178] Code: df 48 8b 2b 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 06 01 00 00 4c 8b 63 08 48 b8 00 00 00 00 00 fc d
-[  213.402178] RSP: 0018:ffff88810cb9f0a0 EFLAGS: 00010202
-[  213.402178] RAX: dffffc0000000000 RBX: ffff888101d4a8c8 RCX: 0000000000000000
-[  213.402178] RDX: 1bd5a00000000040 RSI: ffff888101d4a8c8 RDI: ffff888101d4a8d0
-[  213.402178] RBP: 0000000000000000 R08: fffffbfff22b72d9 R09: 0000000000000000
-[  213.402178] R10: 00000000ffffffef R11: 0000000000000000 R12: dead000000000200
-[  213.402178] R13: ffff88810cb9f1f8 R14: ffff88810efccda0 R15: ffff88810efccda0
-[  213.402178] FS:  00007f7f6621a0c0(0000) GS:ffff88811b000000(0000) knlGS:0000000000000000
-[  213.402178] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  213.402178] CR2: 000055746f0807d0 CR3: 00000001123e0000 CR4: 00000000001006f0
-[  213.402178] Call Trace:
-[  213.402178]  __vxlan_dev_create+0x3a9/0x7d0 [vxlan]
-[  213.402178]  ? vxlan_changelink+0x740/0x740 [vxlan]
-[  213.402178]  ? rcu_read_unlock+0x60/0x60 [vxlan]
-[  213.402178]  ? __kasan_kmalloc.constprop.3+0xa0/0xd0
-[  213.402178]  vxlan_newlink+0x8d/0xc0 [vxlan]
-[  213.402178]  ? __vxlan_dev_create+0x7d0/0x7d0 [vxlan]
-[  213.554119]  ? __netlink_ns_capable+0xc3/0xf0
-[  213.554119]  __rtnl_newlink+0xb75/0x1180
-[  213.554119]  ? rtnl_link_unregister+0x230/0x230
-[ ... ]
-
-Fixes: 0241b836732f ("vxlan: fix default fdb entry netlink notify ordering during netdev create")
-Suggested-by: Roopa Prabhu <roopa@cumulusnetworks.com>
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Acked-by: Roopa Prabhu <roopa@cumulusnetworks.com>
+Reported-and-tested-by: Przemyslaw Hausman <przemyslaw.hausman@canonical.com>
+Suggested-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@canonical.com>
+Acked-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vxlan.c | 37 +++++++++++++++++++++++++++----------
- 1 file changed, 27 insertions(+), 10 deletions(-)
+ .../net/ethernet/broadcom/bnx2x/bnx2x_cmn.c   |  5 ++-
+ .../ethernet/broadcom/bnx2x/bnx2x_ethtool.c   |  4 ++-
+ .../net/ethernet/broadcom/bnx2x/bnx2x_main.c  | 33 ++++++++++++++-----
+ .../net/ethernet/broadcom/bnx2x/bnx2x_stats.h |  3 ++
+ 4 files changed, 34 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index 38ecb66fb3e9..82c25f07261f 100644
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -806,6 +806,14 @@ static struct vxlan_fdb *vxlan_fdb_alloc(struct vxlan_dev *vxlan,
- 	return f;
- }
+diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
+index ecb1bd7eb508..78a01880931c 100644
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
+@@ -3858,9 +3858,12 @@ netdev_tx_t bnx2x_start_xmit(struct sk_buff *skb, struct net_device *dev)
  
-+static void vxlan_fdb_insert(struct vxlan_dev *vxlan, const u8 *mac,
-+			     __be32 src_vni, struct vxlan_fdb *f)
-+{
-+	++vxlan->addrcnt;
-+	hlist_add_head_rcu(&f->hlist,
-+			   vxlan_fdb_head(vxlan, mac, src_vni));
-+}
+ 	if (unlikely(skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP)) {
+ 		if (!(bp->flags & TX_TIMESTAMPING_EN)) {
++			bp->eth_stats.ptp_skip_tx_ts++;
+ 			BNX2X_ERR("Tx timestamping was not enabled, this packet will not be timestamped\n");
+ 		} else if (bp->ptp_tx_skb) {
+-			BNX2X_ERR("The device supports only a single outstanding packet to timestamp, this packet will not be timestamped\n");
++			bp->eth_stats.ptp_skip_tx_ts++;
++			netdev_err_once(bp->dev,
++					"Device supports only a single outstanding packet to timestamp, this packet won't be timestamped\n");
+ 		} else {
+ 			skb_shinfo(skb)->tx_flags |= SKBTX_IN_PROGRESS;
+ 			/* schedule check for Tx timestamp */
+diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_ethtool.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_ethtool.c
+index 59f227fcc68b..0e1b884a5344 100644
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_ethtool.c
+@@ -182,7 +182,9 @@ static const struct {
+ 	{ STATS_OFFSET32(driver_filtered_tx_pkt),
+ 				4, false, "driver_filtered_tx_pkt" },
+ 	{ STATS_OFFSET32(eee_tx_lpi),
+-				4, true, "Tx LPI entry count"}
++				4, true, "Tx LPI entry count"},
++	{ STATS_OFFSET32(ptp_skip_tx_ts),
++				4, false, "ptp_skipped_tx_tstamp" },
+ };
+ 
+ #define BNX2X_NUM_STATS		ARRAY_SIZE(bnx2x_stats_arr)
+diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
+index 626b491f7674..7a075f1f1242 100644
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
+@@ -15243,11 +15243,24 @@ static void bnx2x_ptp_task(struct work_struct *work)
+ 	u32 val_seq;
+ 	u64 timestamp, ns;
+ 	struct skb_shared_hwtstamps shhwtstamps;
++	bool bail = true;
++	int i;
 +
- static int vxlan_fdb_create(struct vxlan_dev *vxlan,
- 			    const u8 *mac, union vxlan_addr *ip,
- 			    __u16 state, __be16 port, __be32 src_vni,
-@@ -831,18 +839,13 @@ static int vxlan_fdb_create(struct vxlan_dev *vxlan,
- 		return rc;
- 	}
- 
--	++vxlan->addrcnt;
--	hlist_add_head_rcu(&f->hlist,
--			   vxlan_fdb_head(vxlan, mac, src_vni));
--
- 	*fdb = f;
- 
- 	return 0;
- }
- 
--static void vxlan_fdb_free(struct rcu_head *head)
-+static void __vxlan_fdb_free(struct vxlan_fdb *f)
- {
--	struct vxlan_fdb *f = container_of(head, struct vxlan_fdb, rcu);
- 	struct vxlan_rdst *rd, *nd;
- 
- 	list_for_each_entry_safe(rd, nd, &f->remotes, list) {
-@@ -852,6 +855,13 @@ static void vxlan_fdb_free(struct rcu_head *head)
- 	kfree(f);
- }
- 
-+static void vxlan_fdb_free(struct rcu_head *head)
-+{
-+	struct vxlan_fdb *f = container_of(head, struct vxlan_fdb, rcu);
-+
-+	__vxlan_fdb_free(f);
-+}
-+
- static void vxlan_fdb_destroy(struct vxlan_dev *vxlan, struct vxlan_fdb *f,
- 			      bool do_notify, bool swdev_notify)
- {
-@@ -979,6 +989,7 @@ static int vxlan_fdb_update_create(struct vxlan_dev *vxlan,
- 	if (rc < 0)
- 		return rc;
- 
-+	vxlan_fdb_insert(vxlan, mac, src_vni, f);
- 	rc = vxlan_fdb_notify(vxlan, f, first_remote_rtnl(f), RTM_NEWNEIGH,
- 			      swdev_notify, extack);
- 	if (rc)
-@@ -3573,12 +3584,17 @@ static int __vxlan_dev_create(struct net *net, struct net_device *dev,
- 	if (err)
- 		goto errout;
- 
--	/* notify default fdb entry */
- 	if (f) {
-+		vxlan_fdb_insert(vxlan, all_zeros_mac,
-+				 vxlan->default_dst.remote_vni, f);
-+
-+		/* notify default fdb entry */
- 		err = vxlan_fdb_notify(vxlan, f, first_remote_rtnl(f),
- 				       RTM_NEWNEIGH, true, extack);
--		if (err)
--			goto errout;
-+		if (err) {
-+			vxlan_fdb_destroy(vxlan, f, false, false);
-+			goto unregister;
++	/* FW may take a while to complete timestamping; try a bit and if it's
++	 * still not complete, may indicate an error state - bail out then.
++	 */
++	for (i = 0; i < 10; i++) {
++		/* Read Tx timestamp registers */
++		val_seq = REG_RD(bp, port ? NIG_REG_P1_TLLH_PTP_BUF_SEQID :
++				 NIG_REG_P0_TLLH_PTP_BUF_SEQID);
++		if (val_seq & 0x10000) {
++			bail = false;
++			break;
 +		}
- 	}
++		msleep(1 << i);
++	}
  
- 	list_add(&vxlan->next, &vn->vxlan_list);
-@@ -3590,7 +3606,8 @@ static int __vxlan_dev_create(struct net *net, struct net_device *dev,
- 	 * destroy the entry by hand here.
- 	 */
- 	if (f)
--		vxlan_fdb_destroy(vxlan, f, false, false);
-+		__vxlan_fdb_free(f);
-+unregister:
- 	if (unregister)
- 		unregister_netdevice(dev);
- 	return err;
+-	/* Read Tx timestamp registers */
+-	val_seq = REG_RD(bp, port ? NIG_REG_P1_TLLH_PTP_BUF_SEQID :
+-			 NIG_REG_P0_TLLH_PTP_BUF_SEQID);
+-	if (val_seq & 0x10000) {
++	if (!bail) {
+ 		/* There is a valid timestamp value */
+ 		timestamp = REG_RD(bp, port ? NIG_REG_P1_TLLH_PTP_BUF_TS_MSB :
+ 				   NIG_REG_P0_TLLH_PTP_BUF_TS_MSB);
+@@ -15262,16 +15275,18 @@ static void bnx2x_ptp_task(struct work_struct *work)
+ 		memset(&shhwtstamps, 0, sizeof(shhwtstamps));
+ 		shhwtstamps.hwtstamp = ns_to_ktime(ns);
+ 		skb_tstamp_tx(bp->ptp_tx_skb, &shhwtstamps);
+-		dev_kfree_skb_any(bp->ptp_tx_skb);
+-		bp->ptp_tx_skb = NULL;
+ 
+ 		DP(BNX2X_MSG_PTP, "Tx timestamp, timestamp cycles = %llu, ns = %llu\n",
+ 		   timestamp, ns);
+ 	} else {
+-		DP(BNX2X_MSG_PTP, "There is no valid Tx timestamp yet\n");
+-		/* Reschedule to keep checking for a valid timestamp value */
+-		schedule_work(&bp->ptp_task);
++		DP(BNX2X_MSG_PTP,
++		   "Tx timestamp is not recorded (register read=%u)\n",
++		   val_seq);
++		bp->eth_stats.ptp_skip_tx_ts++;
+ 	}
++
++	dev_kfree_skb_any(bp->ptp_tx_skb);
++	bp->ptp_tx_skb = NULL;
+ }
+ 
+ void bnx2x_set_rx_ts(struct bnx2x *bp, struct sk_buff *skb)
+diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_stats.h b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_stats.h
+index b2644ed13d06..d55e63692cf3 100644
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_stats.h
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_stats.h
+@@ -207,6 +207,9 @@ struct bnx2x_eth_stats {
+ 	u32 driver_filtered_tx_pkt;
+ 	/* src: Clear-on-Read register; Will not survive PMF Migration */
+ 	u32 eee_tx_lpi;
++
++	/* PTP */
++	u32 ptp_skip_tx_ts;
+ };
+ 
+ struct bnx2x_eth_q_stats {
 -- 
 2.20.1
 
