@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4649737F9
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:24:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0708E7380B
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:25:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729113AbfGXTYn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:24:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41144 "EHLO mail.kernel.org"
+        id S1728048AbfGXTZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:25:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729117AbfGXTYn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:24:43 -0400
+        id S2388018AbfGXTZ0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:25:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF48622387;
-        Wed, 24 Jul 2019 19:24:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E95CC218EA;
+        Wed, 24 Jul 2019 19:25:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996282;
-        bh=DPOVhRsbmHAQ4KoD6mYmKHtyVkRPraFZzcol/yanGqQ=;
+        s=default; t=1563996325;
+        bh=GtY/ehgO9a1bN/wHlEAsLrQwZtlxUmFrhVSLJG+yw0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zcD5Vd2qubpSRZi12GIQOF4s7qjfApxiKecfFB/IHxV9dx2JNec192mycOchoTWhk
-         fLRgNS/8Bth5gwsFOv3eg4JwuXPhVFexSCJte37SnNomDL32u5Bv56q8Iw19MXNkuW
-         ZmBgGdEvoMd6pL2L6MDYw2o58GCBSrtKZRo2E2Mw=
+        b=PZ2TRATfhB4nBCQNODCbwSM8Z6XddMknc9e/bcZ+Q/Mc6vRj2b0BNByIPAv+WWdiA
+         T5TNaHR73sdjSPyMFEg8JvelLCrgvT/gbgaRxuQBD68eJl6mMV2UMCNzPvHGtkVsnV
+         pFoF4HU8anIYmBH+Fgkh4XL/l+HyK7sDKA2Htaso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+66010012fd4c531a1a96@syzkaller.appspotmail.com,
-        Vandana BN <bnvandana@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Imre Deak <imre.deak@intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will.deacon@arm.com>,
+        ville.syrjala@linux.intel.com, Ingo Molnar <mingo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 044/413] media: usb:zr364xx:Fix KASAN:null-ptr-deref Read in zr364xx_vidioc_querycap
-Date:   Wed, 24 Jul 2019 21:15:35 +0200
-Message-Id: <20190724191738.724233368@linuxfoundation.org>
+Subject: [PATCH 5.2 057/413] locking/lockdep: Fix OOO unlock when hlocks need merging
+Date:   Wed, 24 Jul 2019 21:15:48 +0200
+Message-Id: <20190724191739.427731078@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -47,79 +48,232 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5d2e73a5f80a5b5aff3caf1ec6d39b5b3f54b26e ]
+[ Upstream commit 8c8889d8eaf4501ae4aaf870b6f8f55db5d5109a ]
 
-SyzKaller hit the null pointer deref while reading from uninitialized
-udev->product in zr364xx_vidioc_querycap().
+The sequence
 
-==================================================================
-BUG: KASAN: null-ptr-deref in read_word_at_a_time+0xe/0x20
-include/linux/compiler.h:274
-Read of size 1 at addr 0000000000000000 by task v4l_id/5287
+	static DEFINE_WW_CLASS(test_ww_class);
 
-CPU: 1 PID: 5287 Comm: v4l_id Not tainted 5.1.0-rc3-319004-g43151d6 #6
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-Google 01/01/2011
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0xe8/0x16e lib/dump_stack.c:113
-  kasan_report.cold+0x5/0x3c mm/kasan/report.c:321
-  read_word_at_a_time+0xe/0x20 include/linux/compiler.h:274
-  strscpy+0x8a/0x280 lib/string.c:207
-  zr364xx_vidioc_querycap+0xb5/0x210 drivers/media/usb/zr364xx/zr364xx.c:706
-  v4l_querycap+0x12b/0x340 drivers/media/v4l2-core/v4l2-ioctl.c:1062
-  __video_do_ioctl+0x5bb/0xb40 drivers/media/v4l2-core/v4l2-ioctl.c:2874
-  video_usercopy+0x44e/0xf00 drivers/media/v4l2-core/v4l2-ioctl.c:3056
-  v4l2_ioctl+0x14e/0x1a0 drivers/media/v4l2-core/v4l2-dev.c:364
-  vfs_ioctl fs/ioctl.c:46 [inline]
-  file_ioctl fs/ioctl.c:509 [inline]
-  do_vfs_ioctl+0xced/0x12f0 fs/ioctl.c:696
-  ksys_ioctl+0xa0/0xc0 fs/ioctl.c:713
-  __do_sys_ioctl fs/ioctl.c:720 [inline]
-  __se_sys_ioctl fs/ioctl.c:718 [inline]
-  __x64_sys_ioctl+0x74/0xb0 fs/ioctl.c:718
-  do_syscall_64+0xcf/0x4f0 arch/x86/entry/common.c:290
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x7f3b56d8b347
-Code: 90 90 90 48 8b 05 f1 fa 2a 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff
-ff c3 90 90 90 90 90 90 90 90 90 90 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff
-ff 73 01 c3 48 8b 0d c1 fa 2a 00 31 d2 48 29 c2 64
-RSP: 002b:00007ffe005d5d68 EFLAGS: 00000202 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f3b56d8b347
-RDX: 00007ffe005d5d70 RSI: 0000000080685600 RDI: 0000000000000003
-RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000202 R12: 0000000000400884
-R13: 00007ffe005d5ec0 R14: 0000000000000000 R15: 0000000000000000
-==================================================================
+	struct ww_acquire_ctx ww_ctx;
+	struct ww_mutex ww_lock_a;
+	struct ww_mutex ww_lock_b;
+	struct mutex lock_c;
+	struct mutex lock_d;
 
-For this device udev->product is not initialized and accessing it causes a NULL pointer deref.
+	ww_acquire_init(&ww_ctx, &test_ww_class);
 
-The fix is to check for NULL before strscpy() and copy empty string, if
-product is NULL
+	ww_mutex_init(&ww_lock_a, &test_ww_class);
+	ww_mutex_init(&ww_lock_b, &test_ww_class);
 
-Reported-by: syzbot+66010012fd4c531a1a96@syzkaller.appspotmail.com
-Signed-off-by: Vandana BN <bnvandana@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+	mutex_init(&lock_c);
+
+	ww_mutex_lock(&ww_lock_a, &ww_ctx);
+
+	mutex_lock(&lock_c);
+
+	ww_mutex_lock(&ww_lock_b, &ww_ctx);
+
+	mutex_unlock(&lock_c);		(*)
+
+	ww_mutex_unlock(&ww_lock_b);
+	ww_mutex_unlock(&ww_lock_a);
+
+	ww_acquire_fini(&ww_ctx);
+
+triggers the following WARN in __lock_release() when doing the unlock at *:
+
+	DEBUG_LOCKS_WARN_ON(curr->lockdep_depth != depth - 1);
+
+The problem is that the WARN check doesn't take into account the merging
+of ww_lock_a and ww_lock_b which results in decreasing curr->lockdep_depth
+by 2 not only 1.
+
+Note that the following sequence doesn't trigger the WARN, since there
+won't be any hlock merging.
+
+	ww_acquire_init(&ww_ctx, &test_ww_class);
+
+	ww_mutex_init(&ww_lock_a, &test_ww_class);
+	ww_mutex_init(&ww_lock_b, &test_ww_class);
+
+	mutex_init(&lock_c);
+	mutex_init(&lock_d);
+
+	ww_mutex_lock(&ww_lock_a, &ww_ctx);
+
+	mutex_lock(&lock_c);
+	mutex_lock(&lock_d);
+
+	ww_mutex_lock(&ww_lock_b, &ww_ctx);
+
+	mutex_unlock(&lock_d);
+
+	ww_mutex_unlock(&ww_lock_b);
+	ww_mutex_unlock(&ww_lock_a);
+
+	mutex_unlock(&lock_c);
+
+	ww_acquire_fini(&ww_ctx);
+
+In general both of the above two sequences are valid and shouldn't
+trigger any lockdep warning.
+
+Fix this by taking the decrement due to the hlock merging into account
+during lock release and hlock class re-setting. Merging can't happen
+during lock downgrading since there won't be a new possibility to merge
+hlocks in that case, so add a WARN if merging still happens then.
+
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: ville.syrjala@linux.intel.com
+Link: https://lkml.kernel.org/r/20190524201509.9199-1-imre.deak@intel.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/zr364xx/zr364xx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/locking/lockdep.c | 41 ++++++++++++++++++++++++++++------------
+ 1 file changed, 29 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/media/usb/zr364xx/zr364xx.c b/drivers/media/usb/zr364xx/zr364xx.c
-index 37a7992585df..48803eb773ed 100644
---- a/drivers/media/usb/zr364xx/zr364xx.c
-+++ b/drivers/media/usb/zr364xx/zr364xx.c
-@@ -694,7 +694,8 @@ static int zr364xx_vidioc_querycap(struct file *file, void *priv,
- 	struct zr364xx_camera *cam = video_drvdata(file);
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index c47788fa85f9..82361e1bce0f 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -3715,7 +3715,7 @@ static int __lock_acquire(struct lockdep_map *lock, unsigned int subclass,
+ 				hlock->references = 2;
+ 			}
  
- 	strscpy(cap->driver, DRIVER_DESC, sizeof(cap->driver));
--	strscpy(cap->card, cam->udev->product, sizeof(cap->card));
-+	if (cam->udev->product)
-+		strscpy(cap->card, cam->udev->product, sizeof(cap->card));
- 	strscpy(cap->bus_info, dev_name(&cam->udev->dev),
- 		sizeof(cap->bus_info));
- 	cap->device_caps = V4L2_CAP_VIDEO_CAPTURE |
+-			return 1;
++			return 2;
+ 		}
+ 	}
+ 
+@@ -3921,22 +3921,33 @@ static struct held_lock *find_held_lock(struct task_struct *curr,
+ }
+ 
+ static int reacquire_held_locks(struct task_struct *curr, unsigned int depth,
+-			      int idx)
++				int idx, unsigned int *merged)
+ {
+ 	struct held_lock *hlock;
++	int first_idx = idx;
+ 
+ 	if (DEBUG_LOCKS_WARN_ON(!irqs_disabled()))
+ 		return 0;
+ 
+ 	for (hlock = curr->held_locks + idx; idx < depth; idx++, hlock++) {
+-		if (!__lock_acquire(hlock->instance,
++		switch (__lock_acquire(hlock->instance,
+ 				    hlock_class(hlock)->subclass,
+ 				    hlock->trylock,
+ 				    hlock->read, hlock->check,
+ 				    hlock->hardirqs_off,
+ 				    hlock->nest_lock, hlock->acquire_ip,
+-				    hlock->references, hlock->pin_count))
++				    hlock->references, hlock->pin_count)) {
++		case 0:
+ 			return 1;
++		case 1:
++			break;
++		case 2:
++			*merged += (idx == first_idx);
++			break;
++		default:
++			WARN_ON(1);
++			return 0;
++		}
+ 	}
+ 	return 0;
+ }
+@@ -3947,9 +3958,9 @@ __lock_set_class(struct lockdep_map *lock, const char *name,
+ 		 unsigned long ip)
+ {
+ 	struct task_struct *curr = current;
++	unsigned int depth, merged = 0;
+ 	struct held_lock *hlock;
+ 	struct lock_class *class;
+-	unsigned int depth;
+ 	int i;
+ 
+ 	if (unlikely(!debug_locks))
+@@ -3974,14 +3985,14 @@ __lock_set_class(struct lockdep_map *lock, const char *name,
+ 	curr->lockdep_depth = i;
+ 	curr->curr_chain_key = hlock->prev_chain_key;
+ 
+-	if (reacquire_held_locks(curr, depth, i))
++	if (reacquire_held_locks(curr, depth, i, &merged))
+ 		return 0;
+ 
+ 	/*
+ 	 * I took it apart and put it back together again, except now I have
+ 	 * these 'spare' parts.. where shall I put them.
+ 	 */
+-	if (DEBUG_LOCKS_WARN_ON(curr->lockdep_depth != depth))
++	if (DEBUG_LOCKS_WARN_ON(curr->lockdep_depth != depth - merged))
+ 		return 0;
+ 	return 1;
+ }
+@@ -3989,8 +4000,8 @@ __lock_set_class(struct lockdep_map *lock, const char *name,
+ static int __lock_downgrade(struct lockdep_map *lock, unsigned long ip)
+ {
+ 	struct task_struct *curr = current;
++	unsigned int depth, merged = 0;
+ 	struct held_lock *hlock;
+-	unsigned int depth;
+ 	int i;
+ 
+ 	if (unlikely(!debug_locks))
+@@ -4015,7 +4026,11 @@ static int __lock_downgrade(struct lockdep_map *lock, unsigned long ip)
+ 	hlock->read = 1;
+ 	hlock->acquire_ip = ip;
+ 
+-	if (reacquire_held_locks(curr, depth, i))
++	if (reacquire_held_locks(curr, depth, i, &merged))
++		return 0;
++
++	/* Merging can't happen with unchanged classes.. */
++	if (DEBUG_LOCKS_WARN_ON(merged))
+ 		return 0;
+ 
+ 	/*
+@@ -4024,6 +4039,7 @@ static int __lock_downgrade(struct lockdep_map *lock, unsigned long ip)
+ 	 */
+ 	if (DEBUG_LOCKS_WARN_ON(curr->lockdep_depth != depth))
+ 		return 0;
++
+ 	return 1;
+ }
+ 
+@@ -4038,8 +4054,8 @@ static int
+ __lock_release(struct lockdep_map *lock, int nested, unsigned long ip)
+ {
+ 	struct task_struct *curr = current;
++	unsigned int depth, merged = 1;
+ 	struct held_lock *hlock;
+-	unsigned int depth;
+ 	int i;
+ 
+ 	if (unlikely(!debug_locks))
+@@ -4094,14 +4110,15 @@ __lock_release(struct lockdep_map *lock, int nested, unsigned long ip)
+ 	if (i == depth-1)
+ 		return 1;
+ 
+-	if (reacquire_held_locks(curr, depth, i + 1))
++	if (reacquire_held_locks(curr, depth, i + 1, &merged))
+ 		return 0;
+ 
+ 	/*
+ 	 * We had N bottles of beer on the wall, we drank one, but now
+ 	 * there's not N-1 bottles of beer left on the wall...
++	 * Pouring two of the bottles together is acceptable.
+ 	 */
+-	DEBUG_LOCKS_WARN_ON(curr->lockdep_depth != depth-1);
++	DEBUG_LOCKS_WARN_ON(curr->lockdep_depth != depth - merged);
+ 
+ 	/*
+ 	 * Since reacquire_held_locks() would have called check_chain_key()
 -- 
 2.20.1
 
