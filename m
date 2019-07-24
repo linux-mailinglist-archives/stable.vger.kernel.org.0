@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0109773B7E
+	by mail.lfdr.de (Postfix) with ESMTP id 668B473B7F
 	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:00:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405261AbfGXUAj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2405107AbfGXUAj (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 24 Jul 2019 16:00:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48756 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392090AbfGXUAg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 16:00:36 -0400
+        id S2405236AbfGXUAi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 16:00:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4B4D20665;
-        Wed, 24 Jul 2019 20:00:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37AB1206BA;
+        Wed, 24 Jul 2019 20:00:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998435;
-        bh=gG5VG+XTA+OvFdThQtGJX+ybh7CaLGuD16nQ0MQYCwA=;
+        s=default; t=1563998437;
+        bh=LnJ/zuDzd0vpU1UgBAZNCiNM5VuklKsneqiGYSo0EL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AiteBe3EsEqj8HSo3EBzZ8ot7srsuFnzA6OUFNPqROy0YnE8nee1C6K80iOKGS72b
-         AgdZATnkATteNodVc6LMnEjKYl0wyuLx3IzTjN+GoNysDe6J0E2FIMjJhQupOPosgy
-         TbN4Ihf6qtUinI3lvqKwAakfqFCiKrAFj2Kk9JLg=
+        b=y9eOyaqCVD0t67RxnLXi5aMUFYZS6tgMM7wiWstpGiC4jwY41Zqc1bn8qaX4W+KPC
+         hac1irij0SJAKAmt3do5ZuA5t+dmFD+RmXkwXekg8Mqj+yy+f26KPZpTGQlRUkDzRu
+         G5V1ws68Jp+h6F9Oti+ZU1CuRXfW+50V0gpoIrkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.1 364/371] blk-throttle: fix zero wait time for iops throttled group
-Date:   Wed, 24 Jul 2019 21:21:56 +0200
-Message-Id: <20190724191751.569452425@linuxfoundation.org>
+        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.1 365/371] clk: imx: imx8mm: correct audio_pll2_clk to audio_pll2_out
+Date:   Wed, 24 Jul 2019 21:21:57 +0200
+Message-Id: <20190724191751.675122633@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -44,46 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+From: Peng Fan <peng.fan@nxp.com>
 
-commit 3a10f999ffd464d01c5a05592a15470a3c4bbc36 upstream.
+commit 5b933e28d8b1fbdc7fbac4bfc569f3b152c3dd59 upstream.
 
-After commit 991f61fe7e1d ("Blk-throttle: reduce tail io latency when
-iops limit is enforced") wait time could be zero even if group is
-throttled and cannot issue requests right now. As a result
-throtl_select_dispatch() turns into busy-loop under irq-safe queue
-spinlock.
+There is no audio_pll2_clk registered, it should be audio_pll2_out.
 
-Fix is simple: always round up target time to the next throttle slice.
-
-Fixes: 991f61fe7e1d ("Blk-throttle: reduce tail io latency when iops limit is enforced")
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: <stable@vger.kernel.org>
+Fixes: ba5625c3e272 ("clk: imx: Add clock driver support for imx8mm")
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk-throttle.c |    9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ drivers/clk/imx/clk-imx8mm.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/block/blk-throttle.c
-+++ b/block/blk-throttle.c
-@@ -881,13 +881,10 @@ static bool tg_with_in_iops_limit(struct
- 	unsigned long jiffy_elapsed, jiffy_wait, jiffy_elapsed_rnd;
- 	u64 tmp;
+--- a/drivers/clk/imx/clk-imx8mm.c
++++ b/drivers/clk/imx/clk-imx8mm.c
+@@ -325,7 +325,7 @@ static const char *imx8mm_dsi_dbi_sels[]
+ 					    "sys_pll2_1000m", "sys_pll3_out", "audio_pll2_out", "video_pll1_out", };
  
--	jiffy_elapsed = jiffy_elapsed_rnd = jiffies - tg->slice_start[rw];
-+	jiffy_elapsed = jiffies - tg->slice_start[rw];
+ static const char *imx8mm_usdhc3_sels[] = {"osc_24m", "sys_pll1_400m", "sys_pll1_800m", "sys_pll2_500m",
+-					   "sys_pll3_out", "sys_pll1_266m", "audio_pll2_clk", "sys_pll1_100m", };
++					   "sys_pll3_out", "sys_pll1_266m", "audio_pll2_out", "sys_pll1_100m", };
  
--	/* Slice has just started. Consider one slice interval */
--	if (!jiffy_elapsed)
--		jiffy_elapsed_rnd = tg->td->throtl_slice;
--
--	jiffy_elapsed_rnd = roundup(jiffy_elapsed_rnd, tg->td->throtl_slice);
-+	/* Round up to the next throttle slice, wait time must be nonzero */
-+	jiffy_elapsed_rnd = roundup(jiffy_elapsed + 1, tg->td->throtl_slice);
+ static const char *imx8mm_csi1_core_sels[] = {"osc_24m", "sys_pll1_266m", "sys_pll2_250m", "sys_pll1_800m",
+ 					      "sys_pll2_1000m", "sys_pll3_out", "audio_pll2_out", "video_pll1_out", };
+@@ -361,11 +361,11 @@ static const char *imx8mm_pdm_sels[] = {
+ 					"sys_pll2_1000m", "sys_pll3_out", "clk_ext3", "audio_pll2_out", };
  
- 	/*
- 	 * jiffy_elapsed_rnd should not be a big value as minimum iops can be
+ static const char *imx8mm_vpu_h1_sels[] = {"osc_24m", "vpu_pll_out", "sys_pll1_800m", "sys_pll2_1000m",
+-					   "audio_pll2_clk", "sys_pll2_125m", "sys_pll3_clk", "audio_pll1_out", };
++					   "audio_pll2_out", "sys_pll2_125m", "sys_pll3_clk", "audio_pll1_out", };
+ 
+ static const char *imx8mm_dram_core_sels[] = {"dram_pll_out", "dram_alt_root", };
+ 
+-static const char *imx8mm_clko1_sels[] = {"osc_24m", "sys_pll1_800m", "osc_27m", "sys_pll1_200m", "audio_pll2_clk",
++static const char *imx8mm_clko1_sels[] = {"osc_24m", "sys_pll1_800m", "osc_27m", "sys_pll1_200m", "audio_pll2_out",
+ 					 "vpu_pll", "sys_pll1_80m", };
+ 
+ static struct clk *clks[IMX8MM_CLK_END];
 
 
