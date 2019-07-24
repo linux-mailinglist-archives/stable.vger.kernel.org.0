@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF8CB73F83
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:33:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90FAA73F7A
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:33:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388173AbfGXT2J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:28:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46280 "EHLO mail.kernel.org"
+        id S2388194AbfGXT2M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:28:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728906AbfGXT2J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:28:09 -0400
+        id S2387564AbfGXT2M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:28:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DEF9D218EA;
-        Wed, 24 Jul 2019 19:28:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E82121951;
+        Wed, 24 Jul 2019 19:28:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996488;
-        bh=9199/2c0C0Q/3wQySMZfVrJHSf8dw7tU+Zrq49t6lHc=;
+        s=default; t=1563996490;
+        bh=pOCUmSmq9JI+C32yE8DmJOiiIfpXoiolRStGBUkbEGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LE90IFfBXB0kpk0ZMf9RODCs5YR3jyHsDtyOhCRVLditTwTADJ5rb66BfZbR1Q4cf
-         y8keMlrVlkHvD38OaRPDPW7ogahSSuKNwkJm/Ud4Nh0aj/axRXZUkJ3B+4/MWIvrNY
-         FnHZxbc7JbPTM/zpLPAT/8GeGIqiet2U+UJCZg40=
+        b=vQHd3++iRnA42QVonmzy1MfqaoZn+AEoH7eSLvPiavikldzVSIrJXsz5Yjv98g+Wc
+         rkmhZH6CESn2TPe3m2a3nOP779HZxAdIVASXT+ybs+Tnti4TAVy8rlAl2IrX0JkziB
+         dxbtiGsSE/EzzWtRIxckyeUsRQCo4OeqK0eCwhtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        James Morris <jamorris@linux.microsoft.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 113/413] integrity: Fix __integrity_init_keyring() section mismatch
-Date:   Wed, 24 Jul 2019 21:16:44 +0200
-Message-Id: <20190724191743.405361665@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 114/413] x86/atomic: Fix smp_mb__{before,after}_atomic()
+Date:   Wed, 24 Jul 2019 21:16:45 +0200
+Message-Id: <20190724191743.477040643@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -46,47 +46,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8c655784e2cf59cb6140759b8b546d98261d1ad9 ]
+[ Upstream commit 69d927bba39517d0980462efc051875b7f4db185 ]
 
-With gcc-4.6.3:
+Recent probing at the Linux Kernel Memory Model uncovered a
+'surprise'. Strongly ordered architectures where the atomic RmW
+primitive implies full memory ordering and
+smp_mb__{before,after}_atomic() are a simple barrier() (such as x86)
+fail for:
 
-    WARNING: vmlinux.o(.text.unlikely+0x24c64): Section mismatch in reference from the function __integrity_init_keyring() to the function .init.text:set_platform_trusted_keys()
-    The function __integrity_init_keyring() references
-    the function __init set_platform_trusted_keys().
-    This is often because __integrity_init_keyring lacks a __init
-    annotation or the annotation of set_platform_trusted_keys is wrong.
+	*x = 1;
+	atomic_inc(u);
+	smp_mb__after_atomic();
+	r0 = *y;
 
-Indeed, if the compiler decides not to inline __integrity_init_keyring(),
-a warning is issued.
+Because, while the atomic_inc() implies memory order, it
+(surprisingly) does not provide a compiler barrier. This then allows
+the compiler to re-order like so:
 
-Fix this by adding the missing __init annotation.
+	atomic_inc(u);
+	*x = 1;
+	smp_mb__after_atomic();
+	r0 = *y;
 
-Fixes: 9dc92c45177ab70e ("integrity: Define a trusted platform keyring")
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Reviewed-by: Nayna Jain <nayna@linux.ibm.com>
-Reviewed-by: James Morris <jamorris@linux.microsoft.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Which the CPU is then allowed to re-order (under TSO rules) like:
+
+	atomic_inc(u);
+	r0 = *y;
+	*x = 1;
+
+And this very much was not intended. Therefore strengthen the atomic
+RmW ops to include a compiler barrier.
+
+NOTE: atomic_{or,and,xor} and the bitops already had the compiler
+barrier.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/digsig.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ Documentation/atomic_t.txt         | 3 +++
+ arch/x86/include/asm/atomic.h      | 8 ++++----
+ arch/x86/include/asm/atomic64_64.h | 8 ++++----
+ arch/x86/include/asm/barrier.h     | 4 ++--
+ 4 files changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/security/integrity/digsig.c b/security/integrity/digsig.c
-index 4582bc26770a..868ade3e8970 100644
---- a/security/integrity/digsig.c
-+++ b/security/integrity/digsig.c
-@@ -69,8 +69,9 @@ int integrity_digsig_verify(const unsigned int id, const char *sig, int siglen,
- 	return -EOPNOTSUPP;
+diff --git a/Documentation/atomic_t.txt b/Documentation/atomic_t.txt
+index dca3fb0554db..65bb09a29324 100644
+--- a/Documentation/atomic_t.txt
++++ b/Documentation/atomic_t.txt
+@@ -194,6 +194,9 @@ These helper barriers exist because architectures have varying implicit
+ ordering on their SMP atomic primitives. For example our TSO architectures
+ provide full ordered atomics and these barriers are no-ops.
+ 
++NOTE: when the atomic RmW ops are fully ordered, they should also imply a
++compiler barrier.
++
+ Thus:
+ 
+   atomic_fetch_add();
+diff --git a/arch/x86/include/asm/atomic.h b/arch/x86/include/asm/atomic.h
+index ea3d95275b43..115127c7ad28 100644
+--- a/arch/x86/include/asm/atomic.h
++++ b/arch/x86/include/asm/atomic.h
+@@ -54,7 +54,7 @@ static __always_inline void arch_atomic_add(int i, atomic_t *v)
+ {
+ 	asm volatile(LOCK_PREFIX "addl %1,%0"
+ 		     : "+m" (v->counter)
+-		     : "ir" (i));
++		     : "ir" (i) : "memory");
  }
  
--static int __integrity_init_keyring(const unsigned int id, key_perm_t perm,
--				    struct key_restriction *restriction)
-+static int __init __integrity_init_keyring(const unsigned int id,
-+					   key_perm_t perm,
-+					   struct key_restriction *restriction)
+ /**
+@@ -68,7 +68,7 @@ static __always_inline void arch_atomic_sub(int i, atomic_t *v)
  {
- 	const struct cred *cred = current_cred();
- 	int err = 0;
+ 	asm volatile(LOCK_PREFIX "subl %1,%0"
+ 		     : "+m" (v->counter)
+-		     : "ir" (i));
++		     : "ir" (i) : "memory");
+ }
+ 
+ /**
+@@ -95,7 +95,7 @@ static __always_inline bool arch_atomic_sub_and_test(int i, atomic_t *v)
+ static __always_inline void arch_atomic_inc(atomic_t *v)
+ {
+ 	asm volatile(LOCK_PREFIX "incl %0"
+-		     : "+m" (v->counter));
++		     : "+m" (v->counter) :: "memory");
+ }
+ #define arch_atomic_inc arch_atomic_inc
+ 
+@@ -108,7 +108,7 @@ static __always_inline void arch_atomic_inc(atomic_t *v)
+ static __always_inline void arch_atomic_dec(atomic_t *v)
+ {
+ 	asm volatile(LOCK_PREFIX "decl %0"
+-		     : "+m" (v->counter));
++		     : "+m" (v->counter) :: "memory");
+ }
+ #define arch_atomic_dec arch_atomic_dec
+ 
+diff --git a/arch/x86/include/asm/atomic64_64.h b/arch/x86/include/asm/atomic64_64.h
+index dadc20adba21..5e86c0d68ac1 100644
+--- a/arch/x86/include/asm/atomic64_64.h
++++ b/arch/x86/include/asm/atomic64_64.h
+@@ -45,7 +45,7 @@ static __always_inline void arch_atomic64_add(long i, atomic64_t *v)
+ {
+ 	asm volatile(LOCK_PREFIX "addq %1,%0"
+ 		     : "=m" (v->counter)
+-		     : "er" (i), "m" (v->counter));
++		     : "er" (i), "m" (v->counter) : "memory");
+ }
+ 
+ /**
+@@ -59,7 +59,7 @@ static inline void arch_atomic64_sub(long i, atomic64_t *v)
+ {
+ 	asm volatile(LOCK_PREFIX "subq %1,%0"
+ 		     : "=m" (v->counter)
+-		     : "er" (i), "m" (v->counter));
++		     : "er" (i), "m" (v->counter) : "memory");
+ }
+ 
+ /**
+@@ -87,7 +87,7 @@ static __always_inline void arch_atomic64_inc(atomic64_t *v)
+ {
+ 	asm volatile(LOCK_PREFIX "incq %0"
+ 		     : "=m" (v->counter)
+-		     : "m" (v->counter));
++		     : "m" (v->counter) : "memory");
+ }
+ #define arch_atomic64_inc arch_atomic64_inc
+ 
+@@ -101,7 +101,7 @@ static __always_inline void arch_atomic64_dec(atomic64_t *v)
+ {
+ 	asm volatile(LOCK_PREFIX "decq %0"
+ 		     : "=m" (v->counter)
+-		     : "m" (v->counter));
++		     : "m" (v->counter) : "memory");
+ }
+ #define arch_atomic64_dec arch_atomic64_dec
+ 
+diff --git a/arch/x86/include/asm/barrier.h b/arch/x86/include/asm/barrier.h
+index 14de0432d288..84f848c2541a 100644
+--- a/arch/x86/include/asm/barrier.h
++++ b/arch/x86/include/asm/barrier.h
+@@ -80,8 +80,8 @@ do {									\
+ })
+ 
+ /* Atomic operations are already serializing on x86 */
+-#define __smp_mb__before_atomic()	barrier()
+-#define __smp_mb__after_atomic()	barrier()
++#define __smp_mb__before_atomic()	do { } while (0)
++#define __smp_mb__after_atomic()	do { } while (0)
+ 
+ #include <asm-generic/barrier.h>
+ 
 -- 
 2.20.1
 
