@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18779739A1
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:42:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60C4A739A8
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:42:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387854AbfGXTmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:42:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43646 "EHLO mail.kernel.org"
+        id S2390364AbfGXTm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:42:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726837AbfGXTmF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:42:05 -0400
+        id S2390360AbfGXTm0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:42:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E518022AEC;
-        Wed, 24 Jul 2019 19:42:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBB1522ADA;
+        Wed, 24 Jul 2019 19:42:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997324;
-        bh=Zui+Y95a8U24rYFho+CbP5JtAUkVNJtHI9RDcy+HTvI=;
+        s=default; t=1563997345;
+        bh=gG5VG+XTA+OvFdThQtGJX+ybh7CaLGuD16nQ0MQYCwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JZZ2d+IqEh15/UKYJfYdqUr33DW0HrgFfzYDhq0afSxWDS7ia7c9fEmfsx3slxnXv
-         ImiF5kQ1BTE9WzHagLPfmsboqpTZKIgVS9rd86tMbYNfBGuR5UeWO0DO4Mr0ZnQxQW
-         EhHH+8Fwr+OM0r0VE3s2DC/bWo+uC5Y8uvdAY4q4=
+        b=aDq6jt3oCnlroS+TBZR7PWQuBEv8D78cVE/GpOI5I7Yxduc4Bcwy51NzQgXxjS4Pm
+         jDRbMAg1kmMc4Qj0/MBA7wy8QESpIecZz0jflSTomPhfyHOZpB7r3LHmjS+JuHe0jq
+         GSAB2VIYZdnNVujn6EEOlylQOoV0xD1F36F2Hc4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Weixiong Liao <liaoweixiong@allwinnertech.com>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.2 398/413] mtd: spinand: read returns badly if the last page has bitflips
-Date:   Wed, 24 Jul 2019 21:21:29 +0200
-Message-Id: <20190724191803.377727180@linuxfoundation.org>
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.2 404/413] blk-throttle: fix zero wait time for iops throttled group
+Date:   Wed, 24 Jul 2019 21:21:35 +0200
+Message-Id: <20190724191803.609411516@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -46,42 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: liaoweixiong <liaoweixiong@allwinnertech.com>
+From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
 
-commit b83408b580eccf8d2797cd6cb9ae42c2a28656a7 upstream.
+commit 3a10f999ffd464d01c5a05592a15470a3c4bbc36 upstream.
 
-In case of the last page containing bitflips (ret > 0),
-spinand_mtd_read() will return that number of bitflips for the last
-page while it should instead return max_bitflips like it does when the
-last page read returns with 0.
+After commit 991f61fe7e1d ("Blk-throttle: reduce tail io latency when
+iops limit is enforced") wait time could be zero even if group is
+throttled and cannot issue requests right now. As a result
+throtl_select_dispatch() turns into busy-loop under irq-safe queue
+spinlock.
 
-Signed-off-by: Weixiong Liao <liaoweixiong@allwinnertech.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Reviewed-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Cc: stable@vger.kernel.org
-Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NANDs")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Fix is simple: always round up target time to the next throttle slice.
+
+Fixes: 991f61fe7e1d ("Blk-throttle: reduce tail io latency when iops limit is enforced")
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/spi/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/blk-throttle.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
---- a/drivers/mtd/nand/spi/core.c
-+++ b/drivers/mtd/nand/spi/core.c
-@@ -511,12 +511,12 @@ static int spinand_mtd_read(struct mtd_i
- 		if (ret == -EBADMSG) {
- 			ecc_failed = true;
- 			mtd->ecc_stats.failed++;
--			ret = 0;
- 		} else {
- 			mtd->ecc_stats.corrected += ret;
- 			max_bitflips = max_t(unsigned int, max_bitflips, ret);
- 		}
+--- a/block/blk-throttle.c
++++ b/block/blk-throttle.c
+@@ -881,13 +881,10 @@ static bool tg_with_in_iops_limit(struct
+ 	unsigned long jiffy_elapsed, jiffy_wait, jiffy_elapsed_rnd;
+ 	u64 tmp;
  
-+		ret = 0;
- 		ops->retlen += iter.req.datalen;
- 		ops->oobretlen += iter.req.ooblen;
- 	}
+-	jiffy_elapsed = jiffy_elapsed_rnd = jiffies - tg->slice_start[rw];
++	jiffy_elapsed = jiffies - tg->slice_start[rw];
+ 
+-	/* Slice has just started. Consider one slice interval */
+-	if (!jiffy_elapsed)
+-		jiffy_elapsed_rnd = tg->td->throtl_slice;
+-
+-	jiffy_elapsed_rnd = roundup(jiffy_elapsed_rnd, tg->td->throtl_slice);
++	/* Round up to the next throttle slice, wait time must be nonzero */
++	jiffy_elapsed_rnd = roundup(jiffy_elapsed + 1, tg->td->throtl_slice);
+ 
+ 	/*
+ 	 * jiffy_elapsed_rnd should not be a big value as minimum iops can be
 
 
