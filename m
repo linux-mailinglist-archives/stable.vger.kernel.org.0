@@ -2,138 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E19772B58
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 11:27:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BBBE72B5D
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 11:28:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726070AbfGXJ16 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 05:27:58 -0400
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:33363 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725955AbfGXJ16 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 05:27:58 -0400
-Received: by mail-lf1-f66.google.com with SMTP id x3so31553700lfc.0;
-        Wed, 24 Jul 2019 02:27:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=/lxoFTV2NP07iGG4lrW/6fB0F5OOcDNXPeCFzJNVz7Q=;
-        b=L8Kx6mdNwCiNdks/Ub1/XRaxPlBWUyUA6Z7rOLPfTJv3ob+28AWMKZOeaulfXRDStb
-         580dKVEKg5WA3d9k9xXFv8ksCo5tm5FPTFpkinNvmJA0h7++UKQt8gvTdQ5Wn95V6tDC
-         PTt0au5EZ3nPeVlKH49pqPWLytt9k5oW4RWTBE/FdITkrhEsenT6ApGSeO8efK8RU0uf
-         tBbI9QEL7Ie8n3bkSGLVIfVOknRxHYkaOQ0KSPjT2hEgQn2tgXfKEMeCx90myDYuGTLg
-         l6UP5Qv+b3VvSwj5lB1Uq9XhDBQN6xLkLKlg0eEWr0Wx7kol8EOTOCYwnEXMp6qOO5Dy
-         13ig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=/lxoFTV2NP07iGG4lrW/6fB0F5OOcDNXPeCFzJNVz7Q=;
-        b=r+qKAEKTePxh4nDY/v05i1Rg7tdXW7ylFSwusiV+KtBz7Hu66qb30EdBfRqRWPm7RP
-         w2bs2PSmDEV/ZEX9fm8tpX0279wQ7+6rjacQ2HdcZVw8TZMqjrLWtHIY2sFVkOVA6fvy
-         dRwe80o8OGUureCq4vS/U3lzXrq3aBcB5Sug/CLRuvJCZhUxqCZiz8uvyY61+iMhHrY/
-         u1bN80Vbysy+BGI63BU9PibELtI3I5q4UhtLQz06wfTDP5SiR7fpwdRT5X4KUIkjl4ly
-         p6bwG4kmloKHOOiVX77pdqZfURBQ/zXC0wTK4ZmaeshXiH4TiS4Xfm46PughzXjdV+/W
-         kJjQ==
-X-Gm-Message-State: APjAAAVjrr0QbHtGrKeK510qoaSWmSj5/vCTkav0EB87SOuYbOxVD5lv
-        1cC5zz4K5uy1hdCKQKIRXGJ0oFO1
-X-Google-Smtp-Source: APXvYqxkdfUPCviiU+7pkuJRFja9wGYPlnRqvkcXlLqCZbpgvZrsXKxAar2CS3a4ltu5Twt5BsrlMA==
-X-Received: by 2002:ac2:5dfb:: with SMTP id z27mr37827658lfq.128.1563960475646;
-        Wed, 24 Jul 2019 02:27:55 -0700 (PDT)
-Received: from [192.168.2.145] (ppp91-78-220-99.pppoe.mtu-net.ru. [91.78.220.99])
-        by smtp.googlemail.com with ESMTPSA id z22sm8561005ljz.20.2019.07.24.02.27.54
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 24 Jul 2019 02:27:54 -0700 (PDT)
-Subject: Re: [PATCH v3] drm/tegra: sor: Enable HDA interrupts at plug-in
-To:     Viswanath L <viswanathl@nvidia.com>, thierry.reding@gmail.com,
-        jonathanh@nvidia.com
-Cc:     airlied@linux.ie, daniel@ffwll.ch, dri-devel@lists.freedesktop.org,
-        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <1563885610-27198-1-git-send-email-viswanathl@nvidia.com>
-From:   Dmitry Osipenko <digetx@gmail.com>
-Message-ID: <0ba35efb-44ec-d56c-b559-59f1daa3e6e4@gmail.com>
-Date:   Wed, 24 Jul 2019 12:27:53 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+        id S1726613AbfGXJ22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 05:28:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60390 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725955AbfGXJ22 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 05:28:28 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30ADB20651;
+        Wed, 24 Jul 2019 09:28:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1563960507;
+        bh=3qW2Wj/6EalUBF3ENChGWZva0DzQ8E7KPFlNgQ8Eh6I=;
+        h=Subject:To:From:Date:From;
+        b=Ty23ZXnhfU6KBRNcTQIRH6gjrHyP28OGv6h17y4DnB2BQPKWIBlYgpZynbuVi59ih
+         TgVqtfkY5P7u2OpnvFxhfEhZk8iKeuET10R9J0MTB6Ee62nim55VGlQmq3V5cgP1WX
+         P7LRuHbff+P+JsgOXzksO/myYEU4tDILv6X+xUGo=
+Subject: patch "mei: me: add mule creek canyon (EHL) device ids" added to char-misc-linus
+To:     alexander.usyskin@intel.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, tomas.winkler@intel.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 24 Jul 2019 11:28:25 +0200
+Message-ID: <1563960505179217@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <1563885610-27198-1-git-send-email-viswanathl@nvidia.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-23.07.2019 15:40, Viswanath L пишет:
-> HDMI plugout calls runtime suspend, which clears interrupt registers
-> and causes audio functionality to break on subsequent plug-in; setting
-> interrupt registers in sor_audio_prepare() solves the issue.
-> 
-> Signed-off-by: Viswanath L <viswanathl@nvidia.com>
 
-Yours signed-off-by always should be the last line of the commit's
-message because the text below it belongs to a person who applies this
-patch, Thierry in this case. This is not a big deal at all and Thierry
-could make a fixup while applying the patch if will deem that as necessary.
+This is a note to let you know that I've just added the patch titled
 
-Secondly, there is no need to add "stable@vger.kernel.org" to the
-email's recipients because the patch will flow into stable kernel
-versions from the mainline once it will get applied. That happens based
-on the stable tag presence, hence it's enough to add the 'Cc' tag to the
-commit's message in order to get patch backported.
+    mei: me: add mule creek canyon (EHL) device ids
 
-Lastly, next time please add everyone to the email's recipients whom
-you're expecting to get a reply. Otherwise there is a chance that patch
-will be left unnoticed.
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-linus branch.
 
-Everything else looks good to me, thanks!
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-> Fixes: 8e2988a76c26 ("drm/tegra: sor: Support for audio over HDMI")
-> Cc: <stable@vger.kernel.org>
-> ---
->  drivers/gpu/drm/tegra/sor.c | 18 +++++++++---------
->  1 file changed, 9 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/tegra/sor.c b/drivers/gpu/drm/tegra/sor.c
-> index 5be5a08..0470cfe 100644
-> --- a/drivers/gpu/drm/tegra/sor.c
-> +++ b/drivers/gpu/drm/tegra/sor.c
-> @@ -2164,6 +2164,15 @@ static void tegra_sor_audio_prepare(struct tegra_sor *sor)
->  
->  	value = SOR_AUDIO_HDA_PRESENSE_ELDV | SOR_AUDIO_HDA_PRESENSE_PD;
->  	tegra_sor_writel(sor, value, SOR_AUDIO_HDA_PRESENSE);
-> +
-> +	/*
-> +	 * Enable and unmask the HDA codec SCRATCH0 register interrupt. This
-> +	 * is used for interoperability between the HDA codec driver and the
-> +	 * HDMI/DP driver.
-> +	 */
-> +	value = SOR_INT_CODEC_SCRATCH1 | SOR_INT_CODEC_SCRATCH0;
-> +	tegra_sor_writel(sor, value, SOR_INT_ENABLE);
-> +	tegra_sor_writel(sor, value, SOR_INT_MASK);
->  }
->  
->  static void tegra_sor_audio_unprepare(struct tegra_sor *sor)
-> @@ -2913,15 +2922,6 @@ static int tegra_sor_init(struct host1x_client *client)
->  	if (err < 0)
->  		return err;
->  
-> -	/*
-> -	 * Enable and unmask the HDA codec SCRATCH0 register interrupt. This
-> -	 * is used for interoperability between the HDA codec driver and the
-> -	 * HDMI/DP driver.
-> -	 */
-> -	value = SOR_INT_CODEC_SCRATCH1 | SOR_INT_CODEC_SCRATCH0;
-> -	tegra_sor_writel(sor, value, SOR_INT_ENABLE);
-> -	tegra_sor_writel(sor, value, SOR_INT_MASK);
-> -
->  	return 0;
->  }
->  
-> 
+If you have any questions about this process, please let me know.
+
+
+From 1be8624a0cbef720e8da39a15971e01abffc865b Mon Sep 17 00:00:00 2001
+From: Alexander Usyskin <alexander.usyskin@intel.com>
+Date: Fri, 12 Jul 2019 12:58:14 +0300
+Subject: mei: me: add mule creek canyon (EHL) device ids
+
+Add Mule Creek Canyon (PCH) MEI device ids for Elkhart Lake (EHL) Platform.
+
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20190712095814.20746-1-tomas.winkler@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/misc/mei/hw-me-regs.h | 3 +++
+ drivers/misc/mei/pci-me.c     | 3 +++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/drivers/misc/mei/hw-me-regs.h b/drivers/misc/mei/hw-me-regs.h
+index d74b182e19f3..6c0173772162 100644
+--- a/drivers/misc/mei/hw-me-regs.h
++++ b/drivers/misc/mei/hw-me-regs.h
+@@ -81,6 +81,9 @@
+ 
+ #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
+ 
++#define MEI_DEV_ID_MCC        0x4B70  /* Mule Creek Canyon (EHL) */
++#define MEI_DEV_ID_MCC_4      0x4B75  /* Mule Creek Canyon 4 (EHL) */
++
+ /*
+  * MEI HW Section
+  */
+diff --git a/drivers/misc/mei/pci-me.c b/drivers/misc/mei/pci-me.c
+index 7a2b3545a7f9..57cb68f5cc64 100644
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -98,6 +98,9 @@ static const struct pci_device_id mei_me_pci_tbl[] = {
+ 
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_LP, MEI_ME_PCH12_CFG)},
+ 
++	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC, MEI_ME_PCH12_CFG)},
++	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC_4, MEI_ME_PCH8_CFG)},
++
+ 	/* required last entry */
+ 	{0, }
+ };
+-- 
+2.22.0
+
 
