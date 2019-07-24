@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD8CA73C48
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:07:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51D0A73C47
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:07:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404964AbfGXUDN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:03:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53442 "EHLO mail.kernel.org"
+        id S2405667AbfGXUDP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:03:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405667AbfGXUDM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 16:03:12 -0400
+        id S2405671AbfGXUDO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 16:03:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACB6F21849;
-        Wed, 24 Jul 2019 20:03:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4015421855;
+        Wed, 24 Jul 2019 20:03:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998591;
-        bh=S9pmwfBwKCdO+faNScla/A28byuGNNJX1zxAbgxu2oM=;
+        s=default; t=1563998593;
+        bh=CUFy3C9Z/A2fczkvATMxwxsaOE2qdkjLu551AQQj3pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EO//nRr5ZWryKEzeEQ9CpcwlBlWWynzoCT5zYByPUkfxQxoBAiJ5gLNI40DXMusz3
-         xbi546egQFtiK/m7/zht9S2U0p+yo1tESaNiF9f5IcgzxqGF690dXxoGgi+nokrKui
-         SHRWKakmtFo0R3igoyzQqpYm2uNBSQlk9O2XOIV8=
+        b=Ron5FtvYL8zSCRxY1E5VKwaX4r2CFCD/VhqGoj6fa3EFLMDJhoIUfRmSMEh1VYgsf
+         sdjLZKLRYcUfjkbLrcj2QE8MmZfYigbY9EXGS/7Mo6GIP8jqurWq+RQU8ZtD35dRaI
+         qh4a9cT0C/jYmAFNKMesYhGZoEKRFvYIeNJTq848=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Antoine Tenart <antoine.tenart@bootlin.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 047/271] crypto: inside-secure - do not rely on the hardware last bit for result descriptors
-Date:   Wed, 24 Jul 2019 21:18:36 +0200
-Message-Id: <20190724191659.188550068@linuxfoundation.org>
+Subject: [PATCH 4.19 048/271] net: fec: Do not use netdev messages too early
+Date:   Wed, 24 Jul 2019 21:18:37 +0200
+Message-Id: <20190724191659.279669709@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -45,126 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 89332590427235680236b9470e851afc49b3caa1 ]
+[ Upstream commit a19a0582363b9a5f8ba812f34f1b8df394898780 ]
 
-When performing a transformation the hardware is given result
-descriptors to save the result data. Those result descriptors are
-batched using a 'first' and a 'last' bit. There are cases were more
-descriptors than needed are given to the engine, leading to the engine
-only using some of them, and not setting the last bit on the last
-descriptor we gave. This causes issues were the driver and the hardware
-aren't in sync anymore about the number of result descriptors given (as
-the driver do not give a pool of descriptor to use for any
-transformation, but a pool of descriptors to use *per* transformation).
+When a valid MAC address is not found the current messages
+are shown:
 
-This patch fixes it by attaching the number of given result descriptors
-to the requests, and by using this number instead of the 'last' bit
-found on the descriptors to process them.
+fec 2188000.ethernet (unnamed net_device) (uninitialized): Invalid MAC address: 00:00:00:00:00:00
+fec 2188000.ethernet (unnamed net_device) (uninitialized): Using random MAC address: aa:9f:25:eb:7e:aa
 
-Signed-off-by: Antoine Tenart <antoine.tenart@bootlin.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Since the network device has not been registered at this point, it is better
+to use dev_err()/dev_info() instead, which will provide cleaner log
+messages like these:
+
+fec 2188000.ethernet: Invalid MAC address: 00:00:00:00:00:00
+fec 2188000.ethernet: Using random MAC address: aa:9f:25:eb:7e:aa
+
+Tested on a imx6dl-pico-pi board.
+
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../crypto/inside-secure/safexcel_cipher.c    | 24 ++++++++++++++-----
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/freescale/fec_main.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/inside-secure/safexcel_cipher.c b/drivers/crypto/inside-secure/safexcel_cipher.c
-index 3aef1d43e435..42a3830fbd19 100644
---- a/drivers/crypto/inside-secure/safexcel_cipher.c
-+++ b/drivers/crypto/inside-secure/safexcel_cipher.c
-@@ -51,6 +51,8 @@ struct safexcel_cipher_ctx {
- 
- struct safexcel_cipher_req {
- 	enum safexcel_cipher_direction direction;
-+	/* Number of result descriptors associated to the request */
-+	unsigned int rdescs;
- 	bool needs_inv;
- };
- 
-@@ -333,7 +335,10 @@ static int safexcel_handle_req_result(struct safexcel_crypto_priv *priv, int rin
- 
- 	*ret = 0;
- 
--	do {
-+	if (unlikely(!sreq->rdescs))
-+		return 0;
-+
-+	while (sreq->rdescs--) {
- 		rdesc = safexcel_ring_next_rptr(priv, &priv->ring[ring].rdr);
- 		if (IS_ERR(rdesc)) {
- 			dev_err(priv->dev,
-@@ -346,7 +351,7 @@ static int safexcel_handle_req_result(struct safexcel_crypto_priv *priv, int rin
- 			*ret = safexcel_rdesc_check_errors(priv, rdesc);
- 
- 		ndesc++;
--	} while (!rdesc->last_seg);
-+	}
- 
- 	safexcel_complete(priv, ring);
- 
-@@ -501,6 +506,7 @@ static int safexcel_send_req(struct crypto_async_request *base, int ring,
- static int safexcel_handle_inv_result(struct safexcel_crypto_priv *priv,
- 				      int ring,
- 				      struct crypto_async_request *base,
-+				      struct safexcel_cipher_req *sreq,
- 				      bool *should_complete, int *ret)
- {
- 	struct safexcel_cipher_ctx *ctx = crypto_tfm_ctx(base->tfm);
-@@ -509,7 +515,10 @@ static int safexcel_handle_inv_result(struct safexcel_crypto_priv *priv,
- 
- 	*ret = 0;
- 
--	do {
-+	if (unlikely(!sreq->rdescs))
-+		return 0;
-+
-+	while (sreq->rdescs--) {
- 		rdesc = safexcel_ring_next_rptr(priv, &priv->ring[ring].rdr);
- 		if (IS_ERR(rdesc)) {
- 			dev_err(priv->dev,
-@@ -522,7 +531,7 @@ static int safexcel_handle_inv_result(struct safexcel_crypto_priv *priv,
- 			*ret = safexcel_rdesc_check_errors(priv, rdesc);
- 
- 		ndesc++;
--	} while (!rdesc->last_seg);
-+	}
- 
- 	safexcel_complete(priv, ring);
- 
-@@ -564,7 +573,7 @@ static int safexcel_skcipher_handle_result(struct safexcel_crypto_priv *priv,
- 
- 	if (sreq->needs_inv) {
- 		sreq->needs_inv = false;
--		err = safexcel_handle_inv_result(priv, ring, async,
-+		err = safexcel_handle_inv_result(priv, ring, async, sreq,
- 						 should_complete, ret);
- 	} else {
- 		err = safexcel_handle_req_result(priv, ring, async, req->src,
-@@ -587,7 +596,7 @@ static int safexcel_aead_handle_result(struct safexcel_crypto_priv *priv,
- 
- 	if (sreq->needs_inv) {
- 		sreq->needs_inv = false;
--		err = safexcel_handle_inv_result(priv, ring, async,
-+		err = safexcel_handle_inv_result(priv, ring, async, sreq,
- 						 should_complete, ret);
- 	} else {
- 		err = safexcel_handle_req_result(priv, ring, async, req->src,
-@@ -633,6 +642,8 @@ static int safexcel_skcipher_send(struct crypto_async_request *async, int ring,
- 		ret = safexcel_send_req(async, ring, sreq, req->src,
- 					req->dst, req->cryptlen, 0, 0, req->iv,
- 					commands, results);
-+
-+	sreq->rdescs = *results;
- 	return ret;
- }
- 
-@@ -655,6 +666,7 @@ static int safexcel_aead_send(struct crypto_async_request *async, int ring,
- 					req->cryptlen, req->assoclen,
- 					crypto_aead_authsize(tfm), req->iv,
- 					commands, results);
-+	sreq->rdescs = *results;
- 	return ret;
- }
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index bf715a367273..4cf80de4c471 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -1689,10 +1689,10 @@ static void fec_get_mac(struct net_device *ndev)
+ 	 */
+ 	if (!is_valid_ether_addr(iap)) {
+ 		/* Report it and use a random ethernet address instead */
+-		netdev_err(ndev, "Invalid MAC address: %pM\n", iap);
++		dev_err(&fep->pdev->dev, "Invalid MAC address: %pM\n", iap);
+ 		eth_hw_addr_random(ndev);
+-		netdev_info(ndev, "Using random MAC address: %pM\n",
+-			    ndev->dev_addr);
++		dev_info(&fep->pdev->dev, "Using random MAC address: %pM\n",
++			 ndev->dev_addr);
+ 		return;
+ 	}
  
 -- 
 2.20.1
