@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4772573830
+	by mail.lfdr.de (Postfix) with ESMTP id B46E873831
 	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:26:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728558AbfGXT0q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:26:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44030 "EHLO mail.kernel.org"
+        id S1726578AbfGXT0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:26:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729264AbfGXT0n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:26:43 -0400
+        id S1728311AbfGXT0r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:26:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9B5F217F4;
-        Wed, 24 Jul 2019 19:26:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD6E620659;
+        Wed, 24 Jul 2019 19:26:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996402;
-        bh=b26i91qnV1HcaUOk5k98IK9ko4CSBg96gdIpaFL6q6o=;
+        s=default; t=1563996406;
+        bh=0jHS02wZa9wVuR13i1CdLpOqDgULccldyt3jhXAkxFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1iu/9UlNYsavAUXkipvKqKFTd3cKlNtuIhr7fTEh2A5Gf5KQN4SFDXYhX/7kiZHXU
-         p1eXO+N50i4vs0qpbGWATsPVcbsy12mdiFUvVyX6MSRbtI5KYPA/fuoW8MTA2wdqn/
-         prfkc7Wl4rZlXn9LnwArnC9yY2LoiwZ7GKna2Ico=
+        b=EU4EB/bU3VTnUSosMZBaSJ5eJyQblkdqNP5C34FjeYqrV3xvI1Z3cgoNATuaE+ywQ
+         H83jQuvlPIZ8vZ2sArgR8OTPkvOITGp9bmaxgwrKyTDckM5YpQI0cLcXTWK/jaGEZg
+         uL69/cc0dDjwd3vM8E6XAVvXkhmeX13vgSA6Zbv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 085/413] media: fdp1: Support M3N and E3 platforms
-Date:   Wed, 24 Jul 2019 21:16:16 +0200
-Message-Id: <20190724191741.192032793@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 086/413] iommu: Fix a leak in iommu_insert_resv_region
+Date:   Wed, 24 Jul 2019 21:16:17 +0200
+Message-Id: <20190724191741.256407487@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -46,49 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4e8c120de9268fc26f583268b9d22e7d37c4595f ]
+[ Upstream commit ad0834dedaa15c3a176f783c0373f836e44b4700 ]
 
-New Gen3 R-Car platforms incorporate the FDP1 with an updated version
-register. No code change is required to support these targets, but they
-will currently report an error stating that the device can not be
-identified.
+In case we expand an existing region, we unlink
+this latter and insert the larger one. In
+that case we should free the original region after
+the insertion. Also we can immediately return.
 
-Update the driver to match against the new device types.
+Fixes: 6c65fb318e8b ("iommu: iommu_get_group_resv_regions")
 
-Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rcar_fdp1.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/iommu/iommu.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/platform/rcar_fdp1.c b/drivers/media/platform/rcar_fdp1.c
-index 6a90bc4c476e..b8615a288e2b 100644
---- a/drivers/media/platform/rcar_fdp1.c
-+++ b/drivers/media/platform/rcar_fdp1.c
-@@ -257,6 +257,8 @@ MODULE_PARM_DESC(debug, "activate debug info");
- #define FD1_IP_H3_ES1			0x02010101
- #define FD1_IP_M3W			0x02010202
- #define FD1_IP_H3			0x02010203
-+#define FD1_IP_M3N			0x02010204
-+#define FD1_IP_E3			0x02010205
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 9f0a2844371c..30db41e9f15c 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -225,18 +225,21 @@ static int iommu_insert_resv_region(struct iommu_resv_region *new,
+ 			pos = pos->next;
+ 		} else if ((start >= a) && (end <= b)) {
+ 			if (new->type == type)
+-				goto done;
++				return 0;
+ 			else
+ 				pos = pos->next;
+ 		} else {
+ 			if (new->type == type) {
+ 				phys_addr_t new_start = min(a, start);
+ 				phys_addr_t new_end = max(b, end);
++				int ret;
  
- /* LUTs */
- #define FD1_LUT_DIF_ADJ			0x1000
-@@ -2365,6 +2367,12 @@ static int fdp1_probe(struct platform_device *pdev)
- 	case FD1_IP_H3:
- 		dprintk(fdp1, "FDP1 Version R-Car H3\n");
- 		break;
-+	case FD1_IP_M3N:
-+		dprintk(fdp1, "FDP1 Version R-Car M3N\n");
-+		break;
-+	case FD1_IP_E3:
-+		dprintk(fdp1, "FDP1 Version R-Car E3\n");
-+		break;
- 	default:
- 		dev_err(fdp1->dev, "FDP1 Unidentifiable (0x%08x)\n",
- 			hw_version);
+ 				list_del(&entry->list);
+ 				entry->start = new_start;
+ 				entry->length = new_end - new_start + 1;
+-				iommu_insert_resv_region(entry, regions);
++				ret = iommu_insert_resv_region(entry, regions);
++				kfree(entry);
++				return ret;
+ 			} else {
+ 				pos = pos->next;
+ 			}
+@@ -249,7 +252,6 @@ static int iommu_insert_resv_region(struct iommu_resv_region *new,
+ 		return -ENOMEM;
+ 
+ 	list_add_tail(&region->list, pos);
+-done:
+ 	return 0;
+ }
+ 
 -- 
 2.20.1
 
