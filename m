@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8307373E79
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:25:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDDCA73E72
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:25:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389176AbfGXUZH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:25:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40944 "EHLO mail.kernel.org"
+        id S2390230AbfGXUZC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:25:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389695AbfGXTjv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:39:51 -0400
+        id S2389643AbfGXTkI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:40:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 609A721873;
-        Wed, 24 Jul 2019 19:39:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7071214AF;
+        Wed, 24 Jul 2019 19:40:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997190;
-        bh=umCl6dFR14+uVHcFjKurp7A+kE3J7+NoohuECceKeLg=;
+        s=default; t=1563997207;
+        bh=XBgt7Fj0ubdFgRqz02xDbvSPfb5+ZUmGEzZj4Ph1/5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wfCUX/8Fb4uh/bpedZ1uI7k73csc1HZiO6CgH4mG7tdu8S0tQMaNxPS/SPPrLbt5L
-         h47rZQzVOv7FA46En2Gqj7Fn3uu2KnBzsRHHKJeKPlkB2earPOCdqOTw2yur5bMxGG
-         Qa/eTLQD9GV1jHNGFJ1Tj5S7zv5Y4qrkpO10Zfn0=
+        b=IyHd+57VREtcuc8H6k7xmno5KByG6ll2EAeQKyooe7LTajlc1/H/Wra4BCMrUCR4s
+         r5vrAiRgW0hEHu0DZbLrGx5LKKrFGe+Rd6bIuPJLqbCEuMe/brMGUbra+ShrzioOFu
+         4KxiCOjuTrMQaIwFSXrjUUYKKtoCSobefv2P+U3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cfir Cohen <cfir@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.2 353/413] x86/boot: Fix memory leak in default_get_smp_config()
-Date:   Wed, 24 Jul 2019 21:20:44 +0200
-Message-Id: <20190724191801.004339877@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.2 359/413] block: Allow mapping of vmalloc-ed buffers
+Date:   Wed, 24 Jul 2019 21:20:50 +0200
+Message-Id: <20190724191801.296880852@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -44,59 +47,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Rientjes <rientjes@google.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
 
-commit e74bd96989dd42a51a73eddb4a5510a6f5e42ac3 upstream.
+commit b4c5875d36178e8df409bdce232f270cac89fafe upstream.
 
-When default_get_smp_config() is called with early == 1 and mpf->feature1
-is non-zero, mpf is leaked because the return path does not do
-early_memunmap().
+To allow the SCSI subsystem scsi_execute_req() function to issue
+requests using large buffers that are better allocated with vmalloc()
+rather than kmalloc(), modify bio_map_kern() to allow passing a buffer
+allocated with vmalloc().
 
-Fix this and share a common exit routine.
+To do so, detect vmalloc-ed buffers using is_vmalloc_addr(). For
+vmalloc-ed buffers, flush the buffer using flush_kernel_vmap_range(),
+use vmalloc_to_page() instead of virt_to_page() to obtain the pages of
+the buffer, and invalidate the buffer addresses with
+invalidate_kernel_vmap_range() on completion of read BIOs. This last
+point is executed using the function bio_invalidate_vmalloc_pages()
+which is defined only if the architecture defines
+ARCH_HAS_FLUSH_KERNEL_DCACHE_PAGE, that is, if the architecture
+actually needs the invalidation done.
 
-Fixes: 5997efb96756 ("x86/boot: Use memremap() to map the MPF and MPC data")
-Reported-by: Cfir Cohen <cfir@google.com>
-Signed-off-by: David Rientjes <rientjes@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Fixes: 515ce6061312 ("scsi: sd_zbc: Fix sd_zbc_report_zones() buffer allocation")
+Fixes: e76239a3748c ("block: add a report_zones method")
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/alpine.DEB.2.21.1907091942570.28240@chino.kir.corp.google.com
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/mpparse.c |   10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ block/bio.c |   28 +++++++++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/mpparse.c
-+++ b/arch/x86/kernel/mpparse.c
-@@ -546,17 +546,15 @@ void __init default_get_smp_config(unsig
- 			 * local APIC has default address
- 			 */
- 			mp_lapic_addr = APIC_DEFAULT_PHYS_BASE;
--			return;
-+			goto out;
- 		}
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -16,6 +16,7 @@
+ #include <linux/workqueue.h>
+ #include <linux/cgroup.h>
+ #include <linux/blk-cgroup.h>
++#include <linux/highmem.h>
  
- 		pr_info("Default MP configuration #%d\n", mpf->feature1);
- 		construct_default_ISA_mptable(mpf->feature1);
- 
- 	} else if (mpf->physptr) {
--		if (check_physptr(mpf, early)) {
--			early_memunmap(mpf, sizeof(*mpf));
--			return;
--		}
-+		if (check_physptr(mpf, early))
-+			goto out;
- 	} else
- 		BUG();
- 
-@@ -565,7 +563,7 @@ void __init default_get_smp_config(unsig
- 	/*
- 	 * Only use the first configuration found.
- 	 */
--
-+out:
- 	early_memunmap(mpf, sizeof(*mpf));
+ #include <trace/events/block.h>
+ #include "blk.h"
+@@ -1479,8 +1480,22 @@ void bio_unmap_user(struct bio *bio)
+ 	bio_put(bio);
  }
  
++static void bio_invalidate_vmalloc_pages(struct bio *bio)
++{
++#ifdef ARCH_HAS_FLUSH_KERNEL_DCACHE_PAGE
++	if (bio->bi_private && !op_is_write(bio_op(bio))) {
++		unsigned long i, len = 0;
++
++		for (i = 0; i < bio->bi_vcnt; i++)
++			len += bio->bi_io_vec[i].bv_len;
++		invalidate_kernel_vmap_range(bio->bi_private, len);
++	}
++#endif
++}
++
+ static void bio_map_kern_endio(struct bio *bio)
+ {
++	bio_invalidate_vmalloc_pages(bio);
+ 	bio_put(bio);
+ }
+ 
+@@ -1501,6 +1516,8 @@ struct bio *bio_map_kern(struct request_
+ 	unsigned long end = (kaddr + len + PAGE_SIZE - 1) >> PAGE_SHIFT;
+ 	unsigned long start = kaddr >> PAGE_SHIFT;
+ 	const int nr_pages = end - start;
++	bool is_vmalloc = is_vmalloc_addr(data);
++	struct page *page;
+ 	int offset, i;
+ 	struct bio *bio;
+ 
+@@ -1508,6 +1525,11 @@ struct bio *bio_map_kern(struct request_
+ 	if (!bio)
+ 		return ERR_PTR(-ENOMEM);
+ 
++	if (is_vmalloc) {
++		flush_kernel_vmap_range(data, len);
++		bio->bi_private = data;
++	}
++
+ 	offset = offset_in_page(kaddr);
+ 	for (i = 0; i < nr_pages; i++) {
+ 		unsigned int bytes = PAGE_SIZE - offset;
+@@ -1518,7 +1540,11 @@ struct bio *bio_map_kern(struct request_
+ 		if (bytes > len)
+ 			bytes = len;
+ 
+-		if (bio_add_pc_page(q, bio, virt_to_page(data), bytes,
++		if (!is_vmalloc)
++			page = virt_to_page(data);
++		else
++			page = vmalloc_to_page(data);
++		if (bio_add_pc_page(q, bio, page, bytes,
+ 				    offset) < bytes) {
+ 			/* we don't support partial mappings */
+ 			bio_put(bio);
 
 
