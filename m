@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85FAE73AF2
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:55:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5AA273AD9
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:55:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391931AbfGXTzV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:55:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35788 "EHLO mail.kernel.org"
+        id S2404350AbfGXTyd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:54:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391885AbfGXTxZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:53:25 -0400
+        id S2404369AbfGXTyd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:54:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13D26205C9;
-        Wed, 24 Jul 2019 19:53:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CB0520665;
+        Wed, 24 Jul 2019 19:54:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998004;
-        bh=BZ03rb4wgKDrHSygldFT+3+zsCVRtCg95khI63e01/c=;
+        s=default; t=1563998071;
+        bh=3wEy0eQE3mYuym3yN5JDT7B+2H6vcXNHpCc7LbT+U4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yVZqZjG2q+4cB0FDKSwrPIOeQlUy5fV3FeC/GGnLvkAKkPClCt0d41kOKeUCBG4zO
-         cinTrhTQ0GiysReq8+2EM+jOUESKbM1NsROxnQWh2UAxASmSkaHEpKbM+YnUcK3BSc
-         +zB+DT2A3Ug/04e/cLvX+SMg78KEiO0VAzHmfrIo=
+        b=zRdrdcWN5bhIpM3kGncs27jSSB/xwy7h+EsBjV0bz2BDaVi5fxg1e/CmjDnJmG1pO
+         GVNvO5/s2oRsoB5knTrtd5RC1khQ5X+KFkg4EYXSsDknCitFYV6+yDNni71E/9jzbK
+         EoX2wmX3ysMculsDHjRMtxFa3rpwbr151rRcxYgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jukka Rissanen <jukka.rissanen@linux.intel.com>,
-        Michael Scott <mike@foundries.io>,
-        Josua Mayer <josua.mayer@jm0.eu>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        Seeteena Thoufeek <s1seetee@linux.vnet.ibm.com>,
+        Kim Phillips <kim.phillips@amd.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Michael Petlan <mpetlan@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sandipan Das <sandipan@linux.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 207/371] Bluetooth: 6lowpan: search for destination address in all peers
-Date:   Wed, 24 Jul 2019 21:19:19 +0200
-Message-Id: <20190724191740.160077036@linuxfoundation.org>
+Subject: [PATCH 5.1 209/371] perf tests: Fix record+probe_libc_inet_pton.sh for powerpc64
+Date:   Wed, 24 Jul 2019 21:19:21 +0200
+Message-Id: <20190724191740.290737574@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -47,55 +53,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b188b03270b7f8568fc714101ce82fbf5e811c5a ]
+[ Upstream commit bff5a556c149804de29347a88a884d25e4e4e3a2 ]
 
-Handle overlooked case where the target address is assigned to a peer
-and neither route nor gateway exist.
+'probe libc's inet_pton & backtrace it with ping' testcase sometimes
+fails on powerpc because distro ping binary does not have symbol
+information and thus it prints "[unknown]" function name in the
+backtrace.
 
-For one peer, no checks are performed to see if it is meant to receive
-packets for a given address.
+Accept "[unknown]" as valid function name for powerpc as well.
 
-As soon as there is a second peer however, checks are performed
-to deal with routes and gateways for handling complex setups with
-multiple hops to a target address.
-This logic assumed that no route and no gateway imply that the
-destination address can not be reached, which is false in case of a
-direct peer.
+ # perf test -v "probe libc's inet_pton & backtrace it with ping"
 
-Acked-by: Jukka Rissanen <jukka.rissanen@linux.intel.com>
-Tested-by: Michael Scott <mike@foundries.io>
-Signed-off-by: Josua Mayer <josua.mayer@jm0.eu>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Before:
+
+  59: probe libc's inet_pton & backtrace it with ping       :
+  --- start ---
+  test child forked, pid 79695
+  ping 79718 [077] 96483.787025: probe_libc:inet_pton: (7fff83a754c8)
+  7fff83a754c8 __GI___inet_pton+0x8 (/usr/lib64/power9/libc-2.28.so)
+  7fff83a2b7a0 gaih_inet.constprop.7+0x1020
+  (/usr/lib64/power9/libc-2.28.so)
+  7fff83a2c170 getaddrinfo+0x160 (/usr/lib64/power9/libc-2.28.so)
+  1171830f4 [unknown] (/usr/bin/ping)
+  FAIL: expected backtrace entry
+  ".*\+0x[[:xdigit:]]+[[:space:]]\(.*/bin/ping.*\)$"
+  got "1171830f4 [unknown] (/usr/bin/ping)"
+  test child finished with -1
+  ---- end ----
+  probe libc's inet_pton & backtrace it with ping: FAILED!
+
+After:
+
+  59: probe libc's inet_pton & backtrace it with ping       :
+  --- start ---
+  test child forked, pid 79085
+  ping 79108 [045] 96400.214177: probe_libc:inet_pton: (7fffbb9654c8)
+  7fffbb9654c8 __GI___inet_pton+0x8 (/usr/lib64/power9/libc-2.28.so)
+  7fffbb91b7a0 gaih_inet.constprop.7+0x1020
+  (/usr/lib64/power9/libc-2.28.so)
+  7fffbb91c170 getaddrinfo+0x160 (/usr/lib64/power9/libc-2.28.so)
+  132e830f4 [unknown] (/usr/bin/ping)
+  test child finished with 0
+  ---- end ----
+  probe libc's inet_pton & backtrace it with ping: Ok
+
+Signed-off-by: Seeteena Thoufeek <s1seetee@linux.vnet.ibm.com>
+Reviewed-by: Kim Phillips <kim.phillips@amd.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Hendrik Brueckner <brueckner@linux.ibm.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Sandipan Das <sandipan@linux.ibm.com>
+Fixes: 1632936480a5 ("perf tests: Fix record+probe_libc_inet_pton.sh without ping's debuginfo")
+Link: http://lkml.kernel.org/r/1561630614-3216-1-git-send-email-s1seetee@linux.vnet.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/6lowpan.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ tools/perf/tests/shell/record+probe_libc_inet_pton.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/6lowpan.c b/net/bluetooth/6lowpan.c
-index a7cd23f00bde..50530561da98 100644
---- a/net/bluetooth/6lowpan.c
-+++ b/net/bluetooth/6lowpan.c
-@@ -187,10 +187,16 @@ static inline struct lowpan_peer *peer_lookup_dst(struct lowpan_btle_dev *dev,
- 	}
- 
- 	if (!rt) {
--		nexthop = &lowpan_cb(skb)->gw;
--
--		if (ipv6_addr_any(nexthop))
--			return NULL;
-+		if (ipv6_addr_any(&lowpan_cb(skb)->gw)) {
-+			/* There is neither route nor gateway,
-+			 * probably the destination is a direct peer.
-+			 */
-+			nexthop = daddr;
-+		} else {
-+			/* There is a known gateway
-+			 */
-+			nexthop = &lowpan_cb(skb)->gw;
-+		}
- 	} else {
- 		nexthop = rt6_nexthop(rt, daddr);
- 
+diff --git a/tools/perf/tests/shell/record+probe_libc_inet_pton.sh b/tools/perf/tests/shell/record+probe_libc_inet_pton.sh
+index 61c9f8fc6fa1..58a99a292930 100755
+--- a/tools/perf/tests/shell/record+probe_libc_inet_pton.sh
++++ b/tools/perf/tests/shell/record+probe_libc_inet_pton.sh
+@@ -44,7 +44,7 @@ trace_libc_inet_pton_backtrace() {
+ 		eventattr='max-stack=4'
+ 		echo "gaih_inet.*\+0x[[:xdigit:]]+[[:space:]]\($libc\)$" >> $expected
+ 		echo "getaddrinfo\+0x[[:xdigit:]]+[[:space:]]\($libc\)$" >> $expected
+-		echo ".*\+0x[[:xdigit:]]+[[:space:]]\(.*/bin/ping.*\)$" >> $expected
++		echo ".*(\+0x[[:xdigit:]]+|\[unknown\])[[:space:]]\(.*/bin/ping.*\)$" >> $expected
+ 		;;
+ 	*)
+ 		eventattr='max-stack=3'
 -- 
 2.20.1
 
