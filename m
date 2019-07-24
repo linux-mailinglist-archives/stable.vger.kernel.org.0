@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 685487382C
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:26:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB4D6737F4
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:24:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387399AbfGXT0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:26:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43792 "EHLO mail.kernel.org"
+        id S2387958AbfGXTYe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:24:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388101AbfGXT0e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:26:34 -0400
+        id S2387949AbfGXTYe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:24:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E401B229F3;
-        Wed, 24 Jul 2019 19:26:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D65FD21951;
+        Wed, 24 Jul 2019 19:24:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996393;
-        bh=sz2ZYePl3x0TRaJajIi2pFcuuEW6vMkb+ikfHr5szMg=;
+        s=default; t=1563996273;
+        bh=z4Oacyr6gfrrDcPTUMschTDgCCpcNUMEoJIVQ8Kzt/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QFOXLq4FjhZoR+3bR8kZgPv/ouyjX/in8sfpfMDgIvohj3GXCkYo7+jF4rkF1mFth
-         fQ6AZ9gcWkuSmWF78+b6T/E88ANevZ51heXZywM/hXTNxBFx5g+TMEsD6RTQgjmI35
-         6aeikknn0QQGQ2vBCiwYvyWaKz+17gmblhz+lTPM=
+        b=rFAsKYgmrsx686CSJ+sa/8nq+QzBK0eBleNXIUic47JNkZh9/QqUfFTcWeoX26mKi
+         fhpqKGb0op4m3XMHvzbXYjitFPTozuTaq389wD7B90eamxq0u1hNKJyKaYucJofec6
+         ADUH6NigAWifrIAJ2Kv2jcxQHwkBAFBF9FCQ9iIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anirudh Gupta <anirudh.gupta@sophos.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 040/413] xfrm: Fix xfrm sel prefix length validation
-Date:   Wed, 24 Jul 2019 21:15:31 +0200
-Message-Id: <20190724191738.472275619@linuxfoundation.org>
+Subject: [PATCH 5.2 041/413] media: vim2m: fix two double-free issues
+Date:   Wed, 24 Jul 2019 21:15:32 +0200
+Message-Id: <20190724191738.538383857@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -45,54 +48,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b38ff4075a80b4da5cb2202d7965332ca0efb213 ]
+[ Upstream commit 20059cbbf981ca954be56f7963ae494d18e2dda1 ]
 
-Family of src/dst can be different from family of selector src/dst.
-Use xfrm selector family to validate address prefix length,
-while verifying new sa from userspace.
+vim2m_device_release() will be called by video_unregister_device() to release
+various objects.
 
-Validated patch with this command:
-ip xfrm state add src 1.1.6.1 dst 1.1.6.2 proto esp spi 4260196 \
-reqid 20004 mode tunnel aead "rfc4106(gcm(aes))" \
-0x1111016400000000000000000000000044440001 128 \
-sel src 1011:1:4::2/128 sel dst 1021:1:4::2/128 dev Port5
+There are two double-free issue,
+1. dev->m2m_dev will be freed twice in error_m2m path/vim2m_device_release
+2. the error_v4l2 and error_free path in vim2m_probe() will release
+   same objects, since vim2m_device_release has done.
 
-Fixes: 07bf7908950a ("xfrm: Validate address prefix lengths in the xfrm selector.")
-Signed-off-by: Anirudh Gupta <anirudh.gupta@sophos.com>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: ea6c7e34f3b2 ("media: vim2m: replace devm_kzalloc by kzalloc")
+
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_user.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/media/platform/vim2m.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-index 173477211e40..76ad7e201626 100644
---- a/net/xfrm/xfrm_user.c
-+++ b/net/xfrm/xfrm_user.c
-@@ -151,6 +151,22 @@ static int verify_newsa_info(struct xfrm_usersa_info *p,
+diff --git a/drivers/media/platform/vim2m.c b/drivers/media/platform/vim2m.c
+index 243c82b5d537..acd3bd48c7e2 100644
+--- a/drivers/media/platform/vim2m.c
++++ b/drivers/media/platform/vim2m.c
+@@ -1359,7 +1359,7 @@ static int vim2m_probe(struct platform_device *pdev)
+ 						 MEDIA_ENT_F_PROC_VIDEO_SCALER);
+ 	if (ret) {
+ 		v4l2_err(&dev->v4l2_dev, "Failed to init mem2mem media controller\n");
+-		goto error_m2m;
++		goto error_dev;
+ 	}
  
- 	err = -EINVAL;
- 	switch (p->family) {
-+	case AF_INET:
-+		break;
-+
-+	case AF_INET6:
-+#if IS_ENABLED(CONFIG_IPV6)
-+		break;
-+#else
-+		err = -EAFNOSUPPORT;
-+		goto out;
-+#endif
-+
-+	default:
-+		goto out;
-+	}
-+
-+	switch (p->sel.family) {
- 	case AF_INET:
- 		if (p->sel.prefixlen_d > 32 || p->sel.prefixlen_s > 32)
- 			goto out;
+ 	ret = media_device_register(&dev->mdev);
+@@ -1373,11 +1373,11 @@ static int vim2m_probe(struct platform_device *pdev)
+ #ifdef CONFIG_MEDIA_CONTROLLER
+ error_m2m_mc:
+ 	v4l2_m2m_unregister_media_controller(dev->m2m_dev);
+-error_m2m:
+-	v4l2_m2m_release(dev->m2m_dev);
+ #endif
+ error_dev:
+ 	video_unregister_device(&dev->vfd);
++	/* vim2m_device_release called by video_unregister_device to release various objects */
++	return ret;
+ error_v4l2:
+ 	v4l2_device_unregister(&dev->v4l2_dev);
+ error_free:
 -- 
 2.20.1
 
