@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B81773E56
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:24:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AA9E73E78
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:25:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390241AbfGXTlq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:41:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43142 "EHLO mail.kernel.org"
+        id S2389723AbfGXTjs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:39:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390226AbfGXTlm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:41:42 -0400
+        id S2387968AbfGXTjp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:39:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D5A5214AF;
-        Wed, 24 Jul 2019 19:41:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DCBD21873;
+        Wed, 24 Jul 2019 19:39:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997301;
-        bh=cJGPPwvohhhVopNYChrAOsqs2ZfI/dVS+Y4AyOu40ss=;
+        s=default; t=1563997184;
+        bh=7o9Xv4v/8OR4iBMokihUSGoUMDyYGMEQWGUjEZbY+mM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gcpbOx15+tuIqoxF9GcalK+DhGjsO0MD48Ba/+V6C/BRJvWFRblY5HWd28bp3Cq3R
-         OEtiOvVKJS0ieh+39saIiM75sI0TefqsyrKNLATwyo1iiFUOOxz5PH0bz9OBktJZ0x
-         Yab5SE4FyQP7BfRm3YpzHeVZ8YQ7472sKUX8Eqe0=
+        b=FNrWeM5EljRSuKjkz1X+ZtNXQsyXqSOYCOpf5/i7Rh+ptFlF/azK2F/6SqgRHFLlW
+         IMDybr+b/+hmGg9Gt3EBJnwE6XHQdSS+H1jfiC+PfakF5TvBaDFpUkz+KaTGOzOVgQ
+         RQaRKVV7KccH1qzYUnkIlp20OVBJoga0X8lIktME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 5.2 348/413] xen/events: fix binding user event channels to cpus
-Date:   Wed, 24 Jul 2019 21:20:39 +0200
-Message-Id: <20190724191800.730319300@linuxfoundation.org>
+        stable@vger.kernel.org, Soeren Moch <smoch@web.de>,
+        Stanislaw Gruszka <sgruszka@redhat.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.2 351/413] rt2x00usb: fix rx queue hang
+Date:   Wed, 24 Jul 2019 21:20:42 +0200
+Message-Id: <20190724191800.898100343@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -43,93 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Soeren Moch <smoch@web.de>
 
-commit bce5963bcb4f9934faa52be323994511d59fd13c upstream.
+commit 41a531ffa4c5aeb062f892227c00fabb3b4a9c91 upstream.
 
-When binding an interdomain event channel to a vcpu via
-IOCTL_EVTCHN_BIND_INTERDOMAIN not only the event channel needs to be
-bound, but the affinity of the associated IRQi must be changed, too.
-Otherwise the IRQ and the event channel won't be moved to another vcpu
-in case the original vcpu they were bound to is going offline.
+Since commit ed194d136769 ("usb: core: remove local_irq_save() around
+ ->complete() handler") the handler rt2x00usb_interrupt_rxdone() is
+not running with interrupts disabled anymore. So this completion handler
+is not guaranteed to run completely before workqueue processing starts
+for the same queue entry.
+Be sure to set all other flags in the entry correctly before marking
+this entry ready for workqueue processing. This way we cannot miss error
+conditions that need to be signalled from the completion handler to the
+worker thread.
+Note that rt2x00usb_work_rxdone() processes all available entries, not
+only such for which queue_work() was called.
 
-Cc: <stable@vger.kernel.org> # 4.13
-Fixes: c48f64ab472389df ("xen-evtchn: Bind dyn evtchn:qemu-dm interrupt to next online VCPU")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+This patch is similar to what commit df71c9cfceea ("rt2x00: fix order
+of entry flags modification") did for TX processing.
+
+This fixes a regression on a RT5370 based wifi stick in AP mode, which
+suddenly stopped data transmission after some period of heavy load. Also
+stopping the hanging hostapd resulted in the error message "ieee80211
+phy0: rt2x00queue_flush_queue: Warning - Queue 14 failed to flush".
+Other operation modes are probably affected as well, this just was
+the used testcase.
+
+Fixes: ed194d136769 ("usb: core: remove local_irq_save() around ->complete() handler")
+Cc: stable@vger.kernel.org # 4.20+
+Signed-off-by: Soeren Moch <smoch@web.de>
+Acked-by: Stanislaw Gruszka <sgruszka@redhat.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/events/events_base.c |   12 ++++++++++--
- drivers/xen/evtchn.c             |    2 +-
- include/xen/events.h             |    3 ++-
- 3 files changed, 13 insertions(+), 4 deletions(-)
+ drivers/net/wireless/ralink/rt2x00/rt2x00usb.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -1294,7 +1294,7 @@ void rebind_evtchn_irq(int evtchn, int i
- }
+--- a/drivers/net/wireless/ralink/rt2x00/rt2x00usb.c
++++ b/drivers/net/wireless/ralink/rt2x00/rt2x00usb.c
+@@ -372,15 +372,10 @@ static void rt2x00usb_interrupt_rxdone(s
+ 	struct queue_entry *entry = (struct queue_entry *)urb->context;
+ 	struct rt2x00_dev *rt2x00dev = entry->queue->rt2x00dev;
  
- /* Rebind an evtchn so that it gets delivered to a specific cpu */
--int xen_rebind_evtchn_to_cpu(int evtchn, unsigned tcpu)
-+static int xen_rebind_evtchn_to_cpu(int evtchn, unsigned int tcpu)
- {
- 	struct evtchn_bind_vcpu bind_vcpu;
- 	int masked;
-@@ -1328,7 +1328,6 @@ int xen_rebind_evtchn_to_cpu(int evtchn,
+-	if (!test_and_clear_bit(ENTRY_OWNER_DEVICE_DATA, &entry->flags))
++	if (!test_bit(ENTRY_OWNER_DEVICE_DATA, &entry->flags))
+ 		return;
  
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(xen_rebind_evtchn_to_cpu);
+ 	/*
+-	 * Report the frame as DMA done
+-	 */
+-	rt2x00lib_dmadone(entry);
+-
+-	/*
+ 	 * Check if the received data is simply too small
+ 	 * to be actually valid, or if the urb is signaling
+ 	 * a problem.
+@@ -389,6 +384,11 @@ static void rt2x00usb_interrupt_rxdone(s
+ 		set_bit(ENTRY_DATA_IO_FAILED, &entry->flags);
  
- static int set_affinity_irq(struct irq_data *data, const struct cpumask *dest,
- 			    bool force)
-@@ -1342,6 +1341,15 @@ static int set_affinity_irq(struct irq_d
- 	return ret;
- }
- 
-+/* To be called with desc->lock held. */
-+int xen_set_affinity_evtchn(struct irq_desc *desc, unsigned int tcpu)
-+{
-+	struct irq_data *d = irq_desc_get_irq_data(desc);
+ 	/*
++	 * Report the frame as DMA done
++	 */
++	rt2x00lib_dmadone(entry);
 +
-+	return set_affinity_irq(d, cpumask_of(tcpu), false);
-+}
-+EXPORT_SYMBOL_GPL(xen_set_affinity_evtchn);
-+
- static void enable_dynirq(struct irq_data *data)
- {
- 	int evtchn = evtchn_from_irq(data->irq);
---- a/drivers/xen/evtchn.c
-+++ b/drivers/xen/evtchn.c
-@@ -447,7 +447,7 @@ static void evtchn_bind_interdom_next_vc
- 	this_cpu_write(bind_last_selected_cpu, selected_cpu);
- 
- 	/* unmask expects irqs to be disabled */
--	xen_rebind_evtchn_to_cpu(evtchn, selected_cpu);
-+	xen_set_affinity_evtchn(desc, selected_cpu);
- 	raw_spin_unlock_irqrestore(&desc->lock, flags);
- }
- 
---- a/include/xen/events.h
-+++ b/include/xen/events.h
-@@ -3,6 +3,7 @@
- #define _XEN_EVENTS_H
- 
- #include <linux/interrupt.h>
-+#include <linux/irq.h>
- #ifdef CONFIG_PCI_MSI
- #include <linux/msi.h>
- #endif
-@@ -59,7 +60,7 @@ void evtchn_put(unsigned int evtchn);
- 
- void xen_send_IPI_one(unsigned int cpu, enum ipi_vector vector);
- void rebind_evtchn_irq(int evtchn, int irq);
--int xen_rebind_evtchn_to_cpu(int evtchn, unsigned tcpu);
-+int xen_set_affinity_evtchn(struct irq_desc *desc, unsigned int tcpu);
- 
- static inline void notify_remote_via_evtchn(int port)
- {
++	/*
+ 	 * Schedule the delayed work for reading the RX status
+ 	 * from the device.
+ 	 */
 
 
