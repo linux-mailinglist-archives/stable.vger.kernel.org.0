@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FAA673D52
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:16:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66DFB73D8C
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:18:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391604AbfGXTvE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:51:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60172 "EHLO mail.kernel.org"
+        id S2391457AbfGXTs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:48:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391471AbfGXTvD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:51:03 -0400
+        id S2391449AbfGXTs5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:48:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 659A022ADA;
-        Wed, 24 Jul 2019 19:51:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5463021873;
+        Wed, 24 Jul 2019 19:48:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997862;
-        bh=5sL5sNipRlKuOhvsrpXGDhQ+5j45f7ZCdwTRlXdn5II=;
+        s=default; t=1563997736;
+        bh=S2yVBSm7lPNPpaNzZD2l8y2LHg6bt6MXEaEhLxtaK6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mDvyyy1vUoH9ej0MEAiCt3kF672T2Pd0i7Bliq4VzO8+ay+VJSfkMn2eJ5m5XOx3g
-         /0j63NrLW+Zb72/g6FBNQ6UPn2MPdp6Hp1ETO2j1nlgJ25CJArF5WfcPyJAQEcBpqh
-         s/Vq4PXBsaXeYEiRvDQBqIH9+45WpS3/0BWOxTho=
+        b=o1MIu9+zyB0MVTaunhXEAZklsuyNFwHuNjmYAVjgMTm7f8REfkhIBHMgvupddmqSz
+         9B3bDuxS0Gra3UiI8eqrtSVfRsNKW96VST6Ou5CkAcVLHSP9BWQEqnKMXG06LTwWb8
+         khbOaNKOvfsYQNDaOr7DVjcT3oSUlm+W5oOAKRUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 117/371] spi: fix ctrl->num_chipselect constraint
-Date:   Wed, 24 Jul 2019 21:17:49 +0200
-Message-Id: <20190724191733.628145439@linuxfoundation.org>
+Subject: [PATCH 5.1 118/371] EDAC/sysfs: Drop device references properly
+Date:   Wed, 24 Jul 2019 21:17:50 +0200
+Message-Id: <20190724191733.704401710@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -45,63 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f9481b08220d7dc1ff21e296a330ee8b721b44e4 ]
+[ Upstream commit 7adc05d2dc3af95e4e1534841d58f736262142cd ]
 
-at91sam9g25ek showed the following error at probe:
-atmel_spi f0000000.spi: Using dma0chan2 (tx) and dma0chan3 (rx)
-for DMA transfers
-atmel_spi: probe of f0000000.spi failed with error -22
+Do put_device() if device_add() fails.
 
-Commit 0a919ae49223 ("spi: Don't call spi_get_gpio_descs() before device name is set")
-moved the calling of spi_get_gpio_descs() after ctrl->dev is set,
-but didn't move the !ctrl->num_chipselect check. When there are
-chip selects in the device tree, the spi-atmel driver lets the
-SPI core discover them when registering the SPI master.
-The ctrl->num_chipselect is thus expected to be set by
-spi_get_gpio_descs().
+ [ bp: do device_del() for the successfully created devices in
+   edac_create_csrow_objects(), on the unwind path. ]
 
-Move the !ctlr->num_chipselect after spi_get_gpio_descs() as it was
-before the aforementioned commit. While touching this block, get rid
-of the explicit comparison with 0 and update the commenting style.
-
-Fixes: 0a919ae49223 ("spi: Don't call spi_get_gpio_descs() before device name is set")
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg KH <gregkh@linuxfoundation.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20190427214925.GE16338@kroah.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/edac/edac_mc_sysfs.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index a83fcddf1dad..7f6fb383d7a7 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -2281,11 +2281,6 @@ int spi_register_controller(struct spi_controller *ctlr)
- 	if (status)
- 		return status;
- 
--	/* even if it's just one always-selected device, there must
--	 * be at least one chipselect
--	 */
--	if (ctlr->num_chipselect == 0)
--		return -EINVAL;
- 	if (ctlr->bus_num >= 0) {
- 		/* devices with a fixed bus num must check-in with the num */
- 		mutex_lock(&board_lock);
-@@ -2356,6 +2351,13 @@ int spi_register_controller(struct spi_controller *ctlr)
- 		}
+diff --git a/drivers/edac/edac_mc_sysfs.c b/drivers/edac/edac_mc_sysfs.c
+index 464174685589..bf9273437e3f 100644
+--- a/drivers/edac/edac_mc_sysfs.c
++++ b/drivers/edac/edac_mc_sysfs.c
+@@ -443,7 +443,8 @@ static int edac_create_csrow_objects(struct mem_ctl_info *mci)
+ 		csrow = mci->csrows[i];
+ 		if (!nr_pages_per_csrow(csrow))
+ 			continue;
+-		put_device(&mci->csrows[i]->dev);
++
++		device_del(&mci->csrows[i]->dev);
  	}
  
-+	/*
-+	 * Even if it's just one always-selected device, there must
-+	 * be at least one chipselect.
-+	 */
-+	if (!ctlr->num_chipselect)
-+		return -EINVAL;
-+
- 	status = device_add(&ctlr->dev);
- 	if (status < 0) {
- 		/* free bus id */
+ 	return err;
+@@ -645,9 +646,11 @@ static int edac_create_dimm_object(struct mem_ctl_info *mci,
+ 	dev_set_drvdata(&dimm->dev, dimm);
+ 	pm_runtime_forbid(&mci->dev);
+ 
+-	err =  device_add(&dimm->dev);
++	err = device_add(&dimm->dev);
++	if (err)
++		put_device(&dimm->dev);
+ 
+-	edac_dbg(0, "creating rank/dimm device %s\n", dev_name(&dimm->dev));
++	edac_dbg(0, "created rank/dimm device %s\n", dev_name(&dimm->dev));
+ 
+ 	return err;
+ }
+@@ -928,6 +931,7 @@ int edac_create_sysfs_mci_device(struct mem_ctl_info *mci,
+ 	err = device_add(&mci->dev);
+ 	if (err < 0) {
+ 		edac_dbg(1, "failure: create device %s\n", dev_name(&mci->dev));
++		put_device(&mci->dev);
+ 		goto out;
+ 	}
+ 
 -- 
 2.20.1
 
