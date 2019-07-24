@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 358A274605
+	by mail.lfdr.de (Postfix) with ESMTP id A4FD374606
 	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:48:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391315AbfGYFpn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:45:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33096 "EHLO mail.kernel.org"
+        id S2405250AbfGYFpr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:45:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391343AbfGYFpn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:45:43 -0400
+        id S2405248AbfGYFpq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:45:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70CCA22BEB;
-        Thu, 25 Jul 2019 05:45:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8AB0C22BEB;
+        Thu, 25 Jul 2019 05:45:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033541;
-        bh=BfcvyyEqgZ0haWLW3WSXCjTmnYLZA2nFFR5ItJSZOOE=;
+        s=default; t=1564033545;
+        bh=IU+gfeR+aLvaSZLrw3bgYBQUZrP95fI/FfqM3PaKlpA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B3qGXY9CoNx1/1cX9Yg71greW16GmCcpYRCIT32DHOP9ufpP+gnuRiR/qZzx4OrrH
-         /MHaTHS8FSMT768S9W/2mzCx5yq9lvHQv9+pGUcsVlrOtoG/AOXtIYtDHRXYeJjEf/
-         pvBYhb99XFTjoUWMc9FPZ+s4JQeKFwbMtipYMAGg=
+        b=Sv1WponBClx90xJIOvlpkoUmHjEOGNWBQpAAJRA+Y79YOyE4XKA6W0s4fM7NNd8XF
+         Y6lhfbc6IpgbTQhFNp0JvxIjFentWVwaUmMIDQ3L9SODYcvwbuj+WDN16LGJEQjySg
+         U7iDnR+fIsZ9uryty9r03uwXV6WixRC4svoxl0CQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Chinner <dchinner@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
+        stable@vger.kernel.org,
         "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Amir Goldstein <amir73il@gmail.com>,
         Luis Chamberlain <mcgrof@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 243/271] xfs: flush removing page cache in xfs_reflink_remap_prep
-Date:   Wed, 24 Jul 2019 21:21:52 +0200
-Message-Id: <20190724191716.000899611@linuxfoundation.org>
+Subject: [PATCH 4.19 244/271] xfs: dont overflow xattr listent buffer
+Date:   Wed, 24 Jul 2019 21:21:53 +0200
+Message-Id: <20190724191716.093741873@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -46,100 +47,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 2c307174ab77e34645e75e12827646e044d273c3 upstream.
+commit 3b50086f0c0d78c144d9483fa292c1509c931b70 upstream.
 
-On a sub-page block size filesystem, fsx is failing with a data
-corruption after a series of operations involving copying a file
-with the destination offset beyond EOF of the destination of the file:
+For VFS listxattr calls, xfs_xattr_put_listent calls
+__xfs_xattr_put_listent twice if it sees an attribute
+"trusted.SGI_ACL_FILE": once for that name, and again for
+"system.posix_acl_access".  Unfortunately, if we happen to run out of
+buffer space while emitting the first name, we set count to -1 (so that
+we can feed ERANGE to the caller).  The second invocation doesn't check that
+the context parameters make sense and overwrites the byte before the
+buffer, triggering a KASAN report:
 
-8093(157 mod 256): TRUNCATE DOWN        from 0x7a120 to 0x50000 ******WWWW
-8094(158 mod 256): INSERT 0x25000 thru 0x25fff  (0x1000 bytes)
-8095(159 mod 256): COPY 0x18000 thru 0x1afff    (0x3000 bytes) to 0x2f400
-8096(160 mod 256): WRITE    0x5da00 thru 0x651ff        (0x7800 bytes) HOLE
-8097(161 mod 256): COPY 0x2000 thru 0x5fff      (0x4000 bytes) to 0x6fc00
+==================================================================
+BUG: KASAN: slab-out-of-bounds in strncpy+0xb3/0xd0
+Write of size 1 at addr ffff88807fbd317f by task syz/1113
 
-The second copy here is beyond EOF, and it is to sub-page (4k) but
-block aligned (1k) offset. The clone runs the EOF zeroing, landing
-in a pre-existing post-eof delalloc extent. This zeroes the post-eof
-extents in the page cache just fine, dirtying the pages correctly.
+CPU: 3 PID: 1113 Comm: syz Not tainted 5.0.0-rc6-xfsx #rc6
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.10.2-1ubuntu1 04/01/2014
+Call Trace:
+ dump_stack+0xcc/0x180
+ print_address_description+0x6c/0x23c
+ kasan_report.cold.3+0x1c/0x35
+ strncpy+0xb3/0xd0
+ __xfs_xattr_put_listent+0x1a9/0x2c0 [xfs]
+ xfs_attr_list_int_ilocked+0x11af/0x1800 [xfs]
+ xfs_attr_list_int+0x20c/0x2e0 [xfs]
+ xfs_vn_listxattr+0x225/0x320 [xfs]
+ listxattr+0x11f/0x1b0
+ path_listxattr+0xbd/0x130
+ do_syscall_64+0x139/0x560
 
-The problem is that xfs_reflink_remap_prep() now truncates the page
-cache over the range that it is copying it to, and rounds that down
-to cover the entire start page. This removes the dirty page over the
-delalloc extent from the page cache without having written it back.
-Hence later, when the page cache is flushed, the page at offset
-0x6f000 has not been written back and hence exposes stale data,
-which fsx trips over less than 10 operations later.
+While we're at it we add an assert to the other put_listent to avoid
+this sort of thing ever happening to the attrlist_by_handle code.
 
-Fix this by changing xfs_reflink_remap_prep() to use
-xfs_flush_unmap_range().
-
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Suggested-by: Amir Goldstein <amir73il@gmail.com>
+Reviewed-by: Amir Goldstein <amir73il@gmail.com>
 Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_bmap_util.c |  2 +-
- fs/xfs/xfs_bmap_util.h |  2 ++
- fs/xfs/xfs_reflink.c   | 17 +++++++++++++----
- 3 files changed, 16 insertions(+), 5 deletions(-)
+ fs/xfs/xfs_attr_list.c | 1 +
+ fs/xfs/xfs_xattr.c     | 3 +++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/fs/xfs/xfs_bmap_util.c b/fs/xfs/xfs_bmap_util.c
-index 211b06e4702e..41ad9eaab6ce 100644
---- a/fs/xfs/xfs_bmap_util.c
-+++ b/fs/xfs/xfs_bmap_util.c
-@@ -1080,7 +1080,7 @@ xfs_adjust_extent_unmap_boundaries(
- 	return 0;
- }
+diff --git a/fs/xfs/xfs_attr_list.c b/fs/xfs/xfs_attr_list.c
+index a58034049995..3d213a7394c5 100644
+--- a/fs/xfs/xfs_attr_list.c
++++ b/fs/xfs/xfs_attr_list.c
+@@ -555,6 +555,7 @@ xfs_attr_put_listent(
+ 	attrlist_ent_t *aep;
+ 	int arraytop;
  
--static int
-+int
- xfs_flush_unmap_range(
- 	struct xfs_inode	*ip,
- 	xfs_off_t		offset,
-diff --git a/fs/xfs/xfs_bmap_util.h b/fs/xfs/xfs_bmap_util.h
-index 87363d136bb6..9c73d012f56a 100644
---- a/fs/xfs/xfs_bmap_util.h
-+++ b/fs/xfs/xfs_bmap_util.h
-@@ -76,6 +76,8 @@ int	xfs_swap_extents(struct xfs_inode *ip, struct xfs_inode *tip,
- xfs_daddr_t xfs_fsb_to_db(struct xfs_inode *ip, xfs_fsblock_t fsb);
++	ASSERT(!context->seen_enough);
+ 	ASSERT(!(context->flags & ATTR_KERNOVAL));
+ 	ASSERT(context->count >= 0);
+ 	ASSERT(context->count < (ATTR_MAX_VALUELEN/8));
+diff --git a/fs/xfs/xfs_xattr.c b/fs/xfs/xfs_xattr.c
+index 63ee1d5bf1d7..9a63016009a1 100644
+--- a/fs/xfs/xfs_xattr.c
++++ b/fs/xfs/xfs_xattr.c
+@@ -129,6 +129,9 @@ __xfs_xattr_put_listent(
+ 	char *offset;
+ 	int arraytop;
  
- xfs_extnum_t xfs_bmap_count_leaves(struct xfs_ifork *ifp, xfs_filblks_t *count);
-+int   xfs_flush_unmap_range(struct xfs_inode *ip, xfs_off_t offset,
-+			    xfs_off_t len);
- int xfs_bmap_count_blocks(struct xfs_trans *tp, struct xfs_inode *ip,
- 			  int whichfork, xfs_extnum_t *nextents,
- 			  xfs_filblks_t *count);
-diff --git a/fs/xfs/xfs_reflink.c b/fs/xfs/xfs_reflink.c
-index 38ea08a3dd1d..f3c393f309e1 100644
---- a/fs/xfs/xfs_reflink.c
-+++ b/fs/xfs/xfs_reflink.c
-@@ -1368,10 +1368,19 @@ xfs_reflink_remap_prep(
- 	if (ret)
- 		goto out_unlock;
++	if (context->count < 0 || context->seen_enough)
++		return;
++
+ 	if (!context->alist)
+ 		goto compute_size;
  
--	/* Zap any page cache for the destination file's range. */
--	truncate_inode_pages_range(&inode_out->i_data,
--			round_down(pos_out, PAGE_SIZE),
--			round_up(pos_out + *len, PAGE_SIZE) - 1);
-+	/*
-+	 * If pos_out > EOF, we may have dirtied blocks between EOF and
-+	 * pos_out. In that case, we need to extend the flush and unmap to cover
-+	 * from EOF to the end of the copy length.
-+	 */
-+	if (pos_out > XFS_ISIZE(dest)) {
-+		loff_t	flen = *len + (pos_out - XFS_ISIZE(dest));
-+		ret = xfs_flush_unmap_range(dest, XFS_ISIZE(dest), flen);
-+	} else {
-+		ret = xfs_flush_unmap_range(dest, pos_out, *len);
-+	}
-+	if (ret)
-+		goto out_unlock;
- 
- 	/* If we're altering the file contents... */
- 	if (!is_dedupe) {
 -- 
 2.20.1
 
