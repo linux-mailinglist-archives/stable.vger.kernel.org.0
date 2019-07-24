@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A67174602
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:48:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D83B74600
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:48:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391357AbfGYFpz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:45:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33376 "EHLO mail.kernel.org"
+        id S2391383AbfGYFp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:45:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387470AbfGYFpy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:45:54 -0400
+        id S2387470AbfGYFp6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:45:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4165521850;
-        Thu, 25 Jul 2019 05:45:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0201A21850;
+        Thu, 25 Jul 2019 05:45:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033553;
-        bh=J7andB2/FvMjqKSofEQTJjA8xw4+etPlg/dUUrjmMiY=;
+        s=default; t=1564033557;
+        bh=bNKytZT2cjYnW3sutO9HlwN3gWCgRB7yjKRzehU6Ras=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kuTG3WPQqYGD7QketuVug8lngHVSELygDjUKbpepj+NTLo1VCGbOwtSNU8Tkr+B2d
-         08eUPQKrxYh7PIQjufuxNFtaBb8d6+tsb9AGtNIGEk90ZibmTxVeRdYYfSLkNBlGs3
-         RLoVkCY6d8YIKhRq1JL/BAQ2gJYTl8kICEue4rsk=
+        b=mMjufr/EGcqTwUXjBQpfzqRwg73HENiZgelvR2Ic+VU+wSVBHX/0scdB4WRYa8KWr
+         u8oyS6PiXlK3hIM5iM09WbjcUzPfRcE4rf+xHtDogJ6R5fg/Q30grjjDNJxIgJEqBd
+         jJJlj15I98PW58O+cedbfzvMA/6M+w4FAIB1OKyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, "Luis R. Rodriguez" <mcgrof@kernel.org>,
         "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Dave Chinner <dchinner@redhat.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 247/271] xfs: reserve blocks for ifree transaction during log recovery
-Date:   Wed, 24 Jul 2019 21:21:56 +0200
-Message-Id: <20190724191716.361251878@linuxfoundation.org>
+Subject: [PATCH 4.19 248/271] xfs: fix reporting supported extra file attributes for statx()
+Date:   Wed, 24 Jul 2019 21:21:57 +0200
+Message-Id: <20190724191716.449656898@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -48,61 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 15a268d9f263ed3a0601a1296568241a5a3da7aa upstream.
+commit 1b9598c8fb9965fff901c4caa21fed9644c34df3 upstream.
 
-Log recovery frees all the inodes stored in the unlinked list, which can
-cause expansion of the free inode btree.  The ifree code skips block
-reservations if it thinks there's a per-AG space reservation, but we
-don't set up the reservation until after log recovery, which means that
-a finobt expansion blows up in xfs_trans_mod_sb when we exceed the
-transaction's block reservation.
+statx(2) notes that any attribute that is not indicated as supported by
+stx_attributes_mask has no usable value. Commit 5f955f26f3d42d ("xfs: report
+crtime and attribute flags to statx") added support for informing userspace
+of extra file attributes but forgot to list these flags as supported
+making reporting them rather useless for the pedantic userspace author.
 
-To fix this, we set the "no finobt reservation" flag to true when we
-create the xfs_mount and only set it to false if we confirm that every
-AG had enough free space to put aside for the finobt.
+$ git describe --contains 5f955f26f3d42d04aba65590a32eb70eedb7f37d
+v4.11-rc6~5^2^2~2
 
+Fixes: 5f955f26f3d42d ("xfs: report crtime and attribute flags to statx")
+Signed-off-by: Luis R. Rodriguez <mcgrof@kernel.org>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+[darrick: add a comment reminding people to keep attributes_mask up to date]
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Suggested-by: Amir Goldstein <amir73il@gmail.com>
-Reviewed-by: Amir Goldstein <amir73il@gmail.com>
 Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_fsops.c | 1 +
- fs/xfs/xfs_super.c | 7 +++++++
- 2 files changed, 8 insertions(+)
+ fs/xfs/xfs_iops.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/fs/xfs/xfs_fsops.c b/fs/xfs/xfs_fsops.c
-index 7c00b8bedfe3..09fd602507ef 100644
---- a/fs/xfs/xfs_fsops.c
-+++ b/fs/xfs/xfs_fsops.c
-@@ -534,6 +534,7 @@ xfs_fs_reserve_ag_blocks(
- 	int			error = 0;
- 	int			err2;
+diff --git a/fs/xfs/xfs_iops.c b/fs/xfs/xfs_iops.c
+index 1efef69a7f1c..74047bd0c1ae 100644
+--- a/fs/xfs/xfs_iops.c
++++ b/fs/xfs/xfs_iops.c
+@@ -531,6 +531,10 @@ xfs_vn_getattr(
+ 		}
+ 	}
  
-+	mp->m_finobt_nores = false;
- 	for (agno = 0; agno < mp->m_sb.sb_agcount; agno++) {
- 		pag = xfs_perag_get(mp, agno);
- 		err2 = xfs_ag_resv_init(pag, NULL);
-diff --git a/fs/xfs/xfs_super.c b/fs/xfs/xfs_super.c
-index 207ee302b1bb..dce8114e3198 100644
---- a/fs/xfs/xfs_super.c
-+++ b/fs/xfs/xfs_super.c
-@@ -1561,6 +1561,13 @@ xfs_mount_alloc(
- 	INIT_DELAYED_WORK(&mp->m_eofblocks_work, xfs_eofblocks_worker);
- 	INIT_DELAYED_WORK(&mp->m_cowblocks_work, xfs_cowblocks_worker);
- 	mp->m_kobj.kobject.kset = xfs_kset;
 +	/*
-+	 * We don't create the finobt per-ag space reservation until after log
-+	 * recovery, so we must set this to true so that an ifree transaction
-+	 * started during log recovery will not depend on space reservations
-+	 * for finobt expansion.
++	 * Note: If you add another clause to set an attribute flag, please
++	 * update attributes_mask below.
 +	 */
-+	mp->m_finobt_nores = true;
- 	return mp;
- }
+ 	if (ip->i_d.di_flags & XFS_DIFLAG_IMMUTABLE)
+ 		stat->attributes |= STATX_ATTR_IMMUTABLE;
+ 	if (ip->i_d.di_flags & XFS_DIFLAG_APPEND)
+@@ -538,6 +542,10 @@ xfs_vn_getattr(
+ 	if (ip->i_d.di_flags & XFS_DIFLAG_NODUMP)
+ 		stat->attributes |= STATX_ATTR_NODUMP;
  
++	stat->attributes_mask |= (STATX_ATTR_IMMUTABLE |
++				  STATX_ATTR_APPEND |
++				  STATX_ATTR_NODUMP);
++
+ 	switch (inode->i_mode & S_IFMT) {
+ 	case S_IFBLK:
+ 	case S_IFCHR:
 -- 
 2.20.1
 
