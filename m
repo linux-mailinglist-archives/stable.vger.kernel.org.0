@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE71F73E80
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:25:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD50973E32
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:23:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389109AbfGXUXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:23:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44976 "EHLO mail.kernel.org"
+        id S2388853AbfGXTnI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:43:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390455AbfGXTnB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:43:01 -0400
+        id S2390462AbfGXTnH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:43:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D975217D4;
-        Wed, 24 Jul 2019 19:43:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E11A229F4;
+        Wed, 24 Jul 2019 19:43:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997381;
-        bh=VltBhbdy74LnTiTl4GmMoLuBwsHAQoHiannhCfbtOuc=;
+        s=default; t=1563997386;
+        bh=IzjadQGVOj+uXoZGqo4UPhonMgPcLs056rrdRIz1HRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZV0qC7SCOrMi4MzSdUXa1jdfmfhdzMfjYRPyjl975k9s6dF3O/vv2wjBT7uWl06+Q
-         UIQKenXUAmCeqJhZKhmg3NBWhEQahEKmPa8WGKnl3RL3y3h4P/1q8e4KlZc7ODeOdI
-         TBBSLLa16Ip82mC5SWB4fCC8zxwEXigX/uHsDEjU=
+        b=DbcsDlF82X71CWOnH686LbT5SaJbSQSdjyWNKiq8bUvPW1GvSklqiejtswtvPvjx0
+         +iz3AdS13dSx0/cV1Z3rIxuj/mia7xKYRPLQ3Y6jb/lRgY8zC/hpIeqVqxuHZcT2e+
+         ersnMy4VP9L5nSi7V0sanSSNupkI3MvABYQpg9xc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
-        Alexey Kardashevskiy <aik@ozlabs.ru>,
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.2 390/413] powerpc/powernv/npu: Fix reference leak
-Date:   Wed, 24 Jul 2019 21:21:21 +0200
-Message-Id: <20190724191802.795248602@linuxfoundation.org>
+Subject: [PATCH 5.2 392/413] powerpc/powernv: Fix stale iommu table base after VFIO
+Date:   Wed, 24 Jul 2019 21:21:23 +0200
+Message-Id: <20190724191802.899562363@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -44,70 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kurz <groug@kaod.org>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-commit 02c5f5394918b9b47ff4357b1b18335768cd867d upstream.
+commit 5636427d087a55842c1a199dfb839e6545d30e5d upstream.
 
-Since 902bdc57451c, get_pci_dev() calls pci_get_domain_bus_and_slot(). This
-has the effect of incrementing the reference count of the PCI device, as
-explained in drivers/pci/search.c:
+The powernv platform uses @dma_iommu_ops for non-bypass DMA. These ops
+need an iommu_table pointer which is stored in
+dev->archdata.iommu_table_base. It is initialized during
+pcibios_setup_device() which handles boot time devices. However when a
+device is taken from the system in order to pass it through, the
+default IOMMU table is destroyed but the pointer in a device is not
+updated; also when a device is returned back to the system, a new
+table pointer is not stored in dev->archdata.iommu_table_base either.
+So when a just returned device tries using IOMMU, it crashes on
+accessing stale iommu_table or its members.
 
- * Given a PCI domain, bus, and slot/function number, the desired PCI
- * device is located in the list of PCI devices. If the device is
- * found, its reference count is increased and this function returns a
- * pointer to its data structure.  The caller must decrement the
- * reference count by calling pci_dev_put().  If no device is found,
- * %NULL is returned.
+This calls set_iommu_table_base() when the default window is created.
+Note it used to be there before but was wrongly removed (see "fixes").
+It did not appear before as these days most devices simply use bypass.
 
-Nothing was done to call pci_dev_put() and the reference count of GPU and
-NPU PCI devices rockets up.
+This adds set_iommu_table_base(NULL) when a device is taken from the
+system to make it clear that IOMMU DMA cannot be used past that point.
 
-A natural way to fix this would be to teach the callers about the change,
-so that they call pci_dev_put() when done with the pointer. This turns
-out to be quite intrusive, as it affects many paths in npu-dma.c,
-pci-ioda.c and vfio_pci_nvlink2.c. Also, the issue appeared in 4.16 and
-some affected code got moved around since then: it would be problematic
-to backport the fix to stable releases.
-
-All that code never cared for reference counting anyway. Call pci_dev_put()
-from get_pci_dev() to revert to the previous behavior.
-
-Fixes: 902bdc57451c ("powerpc/powernv/idoa: Remove unnecessary pcidev from pci_dn")
-Cc: stable@vger.kernel.org # v4.16
-Signed-off-by: Greg Kurz <groug@kaod.org>
-Reviewed-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Fixes: c4e9d3c1e65a ("powerpc/powernv/pseries: Rework device adding to IOMMU groups")
+Cc: stable@vger.kernel.org # v5.0+
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/platforms/powernv/npu-dma.c |   15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ arch/powerpc/platforms/powernv/pci-ioda.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/arch/powerpc/platforms/powernv/npu-dma.c
-+++ b/arch/powerpc/platforms/powernv/npu-dma.c
-@@ -28,9 +28,22 @@ static DEFINE_SPINLOCK(npu_context_lock)
- static struct pci_dev *get_pci_dev(struct device_node *dn)
- {
- 	struct pci_dn *pdn = PCI_DN(dn);
-+	struct pci_dev *pdev;
+--- a/arch/powerpc/platforms/powernv/pci-ioda.c
++++ b/arch/powerpc/platforms/powernv/pci-ioda.c
+@@ -2456,6 +2456,14 @@ static long pnv_pci_ioda2_setup_default_
+ 	if (!pnv_iommu_bypass_disabled)
+ 		pnv_pci_ioda2_set_bypass(pe, true);
  
--	return pci_get_domain_bus_and_slot(pci_domain_nr(pdn->phb->bus),
-+	pdev = pci_get_domain_bus_and_slot(pci_domain_nr(pdn->phb->bus),
- 					   pdn->busno, pdn->devfn);
-+
 +	/*
-+	 * pci_get_domain_bus_and_slot() increased the reference count of
-+	 * the PCI device, but callers don't need that actually as the PE
-+	 * already holds a reference to the device. Since callers aren't
-+	 * aware of the reference count change, call pci_dev_put() now to
-+	 * avoid leaks.
++	 * Set table base for the case of IOMMU DMA use. Usually this is done
++	 * from dma_dev_setup() which is not called when a device is returned
++	 * from VFIO so do it here.
 +	 */
-+	if (pdev)
-+		pci_dev_put(pdev);
++	if (pe->pdev)
++		set_iommu_table_base(&pe->pdev->dev, tbl);
 +
-+	return pdev;
+ 	return 0;
  }
  
- /* Given a NPU device get the associated PCI device. */
+@@ -2543,6 +2551,8 @@ static void pnv_ioda2_take_ownership(str
+ 	pnv_pci_ioda2_unset_window(&pe->table_group, 0);
+ 	if (pe->pbus)
+ 		pnv_ioda_setup_bus_dma(pe, pe->pbus);
++	else if (pe->pdev)
++		set_iommu_table_base(&pe->pdev->dev, NULL);
+ 	iommu_tce_table_put(tbl);
+ }
+ 
 
 
