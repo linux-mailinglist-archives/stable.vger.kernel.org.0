@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4F7673E11
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:22:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29FFC73E12
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:22:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390126AbfGXToO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:44:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46788 "EHLO mail.kernel.org"
+        id S2390781AbfGXToP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:44:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390320AbfGXToG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:44:06 -0400
+        id S2390770AbfGXToO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:44:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8221F214AF;
-        Wed, 24 Jul 2019 19:44:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61B2A214AF;
+        Wed, 24 Jul 2019 19:44:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997446;
-        bh=iEVO7Mwyc+/zRoAVdOtOLYrlhRjUey94vRhKWeoQyZM=;
+        s=default; t=1563997453;
+        bh=G5+9tOKfggG9ArmxDYJRKpm1HlpZ+AmbuewaNhRrSb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZYvwzu/riL4cnSy4pITpsYXOo0AriGigCYvwpW/wfrUxk0LFFXUcGoLNUUst6JtTB
-         TBXy9aeQUSfLbneeuUjee247/TyJllyut3KBrV+MsIXIEuPz9AdbxZX2XL/cuuGbne
-         B684+8cD9XEwjZkbVtaCkezlzOeGxxnnneW0ymgA=
+        b=jmcAVLyrdAfVEhIotQ520ZMjcvKd12oD9YkuHmzGlM24ODNGPJ8795XE8IbLCJVtY
+         bUpAYgTe3I14c5eBvXbaIy8pnIwdNYEHmEwbKBVBikbdpLSYuX5EpHh1Fj57eVftMY
+         E8xh7c38n5cBrNTIvvPWZcSA6N8pi5v4g2mFU8q8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenyou Yang <wenyou.yang@microchip.com>,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Akinobu Mita <akinobu.mita@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        stable@vger.kernel.org, Jungo Lin <jungo.lin@mediatek.com>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 026/371] media: ov7740: avoid invalid framesize setting
-Date:   Wed, 24 Jul 2019 21:16:18 +0200
-Message-Id: <20190724191726.462702834@linuxfoundation.org>
+Subject: [PATCH 5.1 029/371] media: media_device_enum_links32: clean a reserved field
+Date:   Wed, 24 Jul 2019 21:16:21 +0200
+Message-Id: <20190724191726.684945920@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -47,41 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6e4ab830ac6d6a0d7cd7f87dc5d6536369bf24a8 ]
+[ Upstream commit f49308878d7202e07d8761238e01bd0e5fce2750 ]
 
-If the requested framesize by VIDIOC_SUBDEV_S_FMT is larger than supported
-framesizes, it causes an out of bounds array access and the resulting
-framesize is unexpected.
+In v4l2-compliance utility, test MEDIA_IOC_ENUM_ENTITIES
+will check whether reserved field of media_links_enum filled
+with zero.
 
-Avoid out of bounds array access and select the default framesize.
+However, for 32 bit program, the reserved field is missing
+copy from kernel space to user space in media_device_enum_links32
+function.
 
-Cc: Wenyou Yang <wenyou.yang@microchip.com>
-Cc: Eugen Hristev <eugen.hristev@microchip.com>
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+This patch adds the cleaning a reserved field logic in
+media_device_enum_links32 function.
+
+Signed-off-by: Jungo Lin <jungo.lin@mediatek.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov7740.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/media/media-device.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/i2c/ov7740.c b/drivers/media/i2c/ov7740.c
-index dfece91ce96b..8207e7cf9923 100644
---- a/drivers/media/i2c/ov7740.c
-+++ b/drivers/media/i2c/ov7740.c
-@@ -761,7 +761,11 @@ static int ov7740_try_fmt_internal(struct v4l2_subdev *sd,
+diff --git a/drivers/media/media-device.c b/drivers/media/media-device.c
+index b8ec88612df7..6893843edada 100644
+--- a/drivers/media/media-device.c
++++ b/drivers/media/media-device.c
+@@ -502,6 +502,7 @@ static long media_device_enum_links32(struct media_device *mdev,
+ {
+ 	struct media_links_enum links;
+ 	compat_uptr_t pads_ptr, links_ptr;
++	int ret;
  
- 		fsize++;
- 	}
--
-+	if (i >= ARRAY_SIZE(ov7740_framesizes)) {
-+		fsize = &ov7740_framesizes[0];
-+		fmt->width = fsize->width;
-+		fmt->height = fsize->height;
-+	}
- 	if (ret_frmsize != NULL)
- 		*ret_frmsize = fsize;
+ 	memset(&links, 0, sizeof(links));
  
+@@ -513,7 +514,13 @@ static long media_device_enum_links32(struct media_device *mdev,
+ 	links.pads = compat_ptr(pads_ptr);
+ 	links.links = compat_ptr(links_ptr);
+ 
+-	return media_device_enum_links(mdev, &links);
++	ret = media_device_enum_links(mdev, &links);
++	if (ret)
++		return ret;
++
++	memset(ulinks->reserved, 0, sizeof(ulinks->reserved));
++
++	return 0;
+ }
+ 
+ #define MEDIA_IOC_ENUM_LINKS32		_IOWR('|', 0x02, struct media_links_enum32)
 -- 
 2.20.1
 
