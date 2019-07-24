@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 275E57398C
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:41:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77B317398E
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:41:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390160AbfGXTlR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:41:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42580 "EHLO mail.kernel.org"
+        id S2390176AbfGXTlY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:41:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390138AbfGXTlR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:41:17 -0400
+        id S2390138AbfGXTlX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:41:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0544622BEA;
-        Wed, 24 Jul 2019 19:41:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC528204FD;
+        Wed, 24 Jul 2019 19:41:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997276;
-        bh=m/TcuuKzU220TiJSgXTGr3A15gmnjrA9g4FvnmRYxz8=;
+        s=default; t=1563997282;
+        bh=2JuZ68chLQHkmtttpPeLALXBf11PAatz+Tf3pJxTQ94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2V4ridoekXOhTGSKjsvYAwZJGDpX7cZplLs4hH85a2U8ugo6g4jrio25vqVU0AANH
-         8pb5WHHGL758h5QVBsLQhsMRt2WlNAbkwkCWEASjl8Dz3qpCcZVWg0CBpU9GIaLcqx
-         Jc0bEGMWyi3M2cevXbIJ6y5O1hzWVu1VFV85v6X0=
+        b=TMDwk2ry4sGbtTBIbb7HG3aPclrDi1xt3IOGXlzJ27SXxpJzVU0Z2GiUUHz7YJnHQ
+         4vKbFeaCVC2/gaeUenc1CtiHu4K8RZfr9W7cNQZkqyeqUS25meFi9dKn0p9mHguF3s
+         l+3vWXliAgb2y4ZR0TrRtrTbCFpEE9T3QEJaywLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Henry Burns <henryburns@google.com>,
-        Vitaly Wool <vitalywool@gmail.com>,
-        David Rientjes <rientjes@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Vitaly Vul <vitaly.vul@sony.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Xidong Wang <wangxidong_97@163.com>,
-        Jonathan Adams <jwadams@google.com>,
+        stable@vger.kernel.org, Jan Harkes <jaharkes@cs.cmu.edu>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Colin Ian King <colin.king@canonical.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        David Howells <dhowells@redhat.com>,
+        Fabian Frederick <fabf@skynet.be>,
+        Mikko Rapeli <mikko.rapeli@iki.fi>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Yann Droneaud <ydroneaud@opteya.com>,
+        Zhouyang Jia <jiazhouyang09@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.2 379/413] mm/z3fold.c: lock z3fold page before __SetPageMovable()
-Date:   Wed, 24 Jul 2019 21:21:10 +0200
-Message-Id: <20190724191802.255562204@linuxfoundation.org>
+Subject: [PATCH 5.2 380/413] coda: pass the host file in vma->vm_file on mmap
+Date:   Wed, 24 Jul 2019 21:21:11 +0200
+Message-Id: <20190724191802.307793799@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -51,62 +53,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Henry Burns <henryburns@google.com>
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 
-commit 810481a246089117d98e3373a3cb735c3efc1f90 upstream.
+commit 7fa0a1da3dadfd9216df7745a1331fdaa0940d1c upstream.
 
-Following zsmalloc.c's example we call trylock_page() and unlock_page().
-Also make z3fold_page_migrate() assert that newpage is passed in locked,
-as per the documentation.
+Patch series "Coda updates".
 
-[akpm@linux-foundation.org: fix trylock_page return value test, per Shakeel]
-Link: http://lkml.kernel.org/r/20190702005122.41036-1-henryburns@google.com
-Link: http://lkml.kernel.org/r/20190702233538.52793-1-henryburns@google.com
-Signed-off-by: Henry Burns <henryburns@google.com>
-Suggested-by: Vitaly Wool <vitalywool@gmail.com>
-Acked-by: Vitaly Wool <vitalywool@gmail.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Cc: Vitaly Vul <vitaly.vul@sony.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Xidong Wang <wangxidong_97@163.com>
-Cc: Jonathan Adams <jwadams@google.com>
+The following patch series is a collection of various fixes for Coda,
+most of which were collected from linux-fsdevel or linux-kernel but
+which have as yet not found their way upstream.
+
+This patch (of 22):
+
+Various file systems expect that vma->vm_file points at their own file
+handle, several use file_inode(vma->vm_file) to get at their inode or
+use vma->vm_file->private_data.  However the way Coda wrapped mmap on a
+host file broke this assumption, vm_file was still pointing at the Coda
+file and the host file systems would scribble over Coda's inode and
+private file data.
+
+This patch fixes the incorrect expectation and wraps vm_ops->open and
+vm_ops->close to allow Coda to track when the vm_area_struct is
+destroyed so we still release the reference on the Coda file handle at
+the right time.
+
+Link: http://lkml.kernel.org/r/0e850c6e59c0b147dc2dcd51a3af004c948c3697.1558117389.git.jaharkes@cs.cmu.edu
+Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Colin Ian King <colin.king@canonical.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Fabian Frederick <fabf@skynet.be>
+Cc: Mikko Rapeli <mikko.rapeli@iki.fi>
+Cc: Sam Protsenko <semen.protsenko@linaro.org>
+Cc: Yann Droneaud <ydroneaud@opteya.com>
+Cc: Zhouyang Jia <jiazhouyang09@gmail.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/z3fold.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ fs/coda/file.c |   70 +++++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 68 insertions(+), 2 deletions(-)
 
---- a/mm/z3fold.c
-+++ b/mm/z3fold.c
-@@ -924,7 +924,16 @@ retry:
- 		set_bit(PAGE_HEADLESS, &page->private);
- 		goto headless;
- 	}
--	__SetPageMovable(page, pool->inode->i_mapping);
-+	if (can_sleep) {
-+		lock_page(page);
-+		__SetPageMovable(page, pool->inode->i_mapping);
-+		unlock_page(page);
-+	} else {
-+		if (trylock_page(page)) {
-+			__SetPageMovable(page, pool->inode->i_mapping);
-+			unlock_page(page);
-+		}
+--- a/fs/coda/file.c
++++ b/fs/coda/file.c
+@@ -27,6 +27,13 @@
+ #include "coda_linux.h"
+ #include "coda_int.h"
+ 
++struct coda_vm_ops {
++	atomic_t refcnt;
++	struct file *coda_file;
++	const struct vm_operations_struct *host_vm_ops;
++	struct vm_operations_struct vm_ops;
++};
++
+ static ssize_t
+ coda_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ {
+@@ -61,6 +68,34 @@ coda_file_write_iter(struct kiocb *iocb,
+ 	return ret;
+ }
+ 
++static void
++coda_vm_open(struct vm_area_struct *vma)
++{
++	struct coda_vm_ops *cvm_ops =
++		container_of(vma->vm_ops, struct coda_vm_ops, vm_ops);
++
++	atomic_inc(&cvm_ops->refcnt);
++
++	if (cvm_ops->host_vm_ops && cvm_ops->host_vm_ops->open)
++		cvm_ops->host_vm_ops->open(vma);
++}
++
++static void
++coda_vm_close(struct vm_area_struct *vma)
++{
++	struct coda_vm_ops *cvm_ops =
++		container_of(vma->vm_ops, struct coda_vm_ops, vm_ops);
++
++	if (cvm_ops->host_vm_ops && cvm_ops->host_vm_ops->close)
++		cvm_ops->host_vm_ops->close(vma);
++
++	if (atomic_dec_and_test(&cvm_ops->refcnt)) {
++		vma->vm_ops = cvm_ops->host_vm_ops;
++		fput(cvm_ops->coda_file);
++		kfree(cvm_ops);
 +	}
- 	z3fold_page_lock(zhdr);
++}
++
+ static int
+ coda_file_mmap(struct file *coda_file, struct vm_area_struct *vma)
+ {
+@@ -68,6 +103,8 @@ coda_file_mmap(struct file *coda_file, s
+ 	struct coda_inode_info *cii;
+ 	struct file *host_file;
+ 	struct inode *coda_inode, *host_inode;
++	struct coda_vm_ops *cvm_ops;
++	int ret;
  
- found:
-@@ -1331,6 +1340,7 @@ static int z3fold_page_migrate(struct ad
+ 	cfi = CODA_FTOC(coda_file);
+ 	BUG_ON(!cfi || cfi->cfi_magic != CODA_MAGIC);
+@@ -76,6 +113,13 @@ coda_file_mmap(struct file *coda_file, s
+ 	if (!host_file->f_op->mmap)
+ 		return -ENODEV;
  
- 	VM_BUG_ON_PAGE(!PageMovable(page), page);
- 	VM_BUG_ON_PAGE(!PageIsolated(page), page);
-+	VM_BUG_ON_PAGE(!PageLocked(newpage), newpage);
++	if (WARN_ON(coda_file != vma->vm_file))
++		return -EIO;
++
++	cvm_ops = kmalloc(sizeof(struct coda_vm_ops), GFP_KERNEL);
++	if (!cvm_ops)
++		return -ENOMEM;
++
+ 	coda_inode = file_inode(coda_file);
+ 	host_inode = file_inode(host_file);
  
- 	zhdr = page_address(page);
- 	pool = zhdr_to_pool(zhdr);
+@@ -89,6 +133,7 @@ coda_file_mmap(struct file *coda_file, s
+ 	 * the container file on us! */
+ 	else if (coda_inode->i_mapping != host_inode->i_mapping) {
+ 		spin_unlock(&cii->c_lock);
++		kfree(cvm_ops);
+ 		return -EBUSY;
+ 	}
+ 
+@@ -97,7 +142,29 @@ coda_file_mmap(struct file *coda_file, s
+ 	cfi->cfi_mapcount++;
+ 	spin_unlock(&cii->c_lock);
+ 
+-	return call_mmap(host_file, vma);
++	vma->vm_file = get_file(host_file);
++	ret = call_mmap(vma->vm_file, vma);
++
++	if (ret) {
++		/* if call_mmap fails, our caller will put coda_file so we
++		 * should drop the reference to the host_file that we got.
++		 */
++		fput(host_file);
++		kfree(cvm_ops);
++	} else {
++		/* here we add redirects for the open/close vm_operations */
++		cvm_ops->host_vm_ops = vma->vm_ops;
++		if (vma->vm_ops)
++			cvm_ops->vm_ops = *vma->vm_ops;
++
++		cvm_ops->vm_ops.open = coda_vm_open;
++		cvm_ops->vm_ops.close = coda_vm_close;
++		cvm_ops->coda_file = coda_file;
++		atomic_set(&cvm_ops->refcnt, 1);
++
++		vma->vm_ops = &cvm_ops->vm_ops;
++	}
++	return ret;
+ }
+ 
+ int coda_open(struct inode *coda_inode, struct file *coda_file)
+@@ -207,4 +274,3 @@ const struct file_operations coda_file_o
+ 	.fsync		= coda_fsync,
+ 	.splice_read	= generic_file_splice_read,
+ };
+-
 
 
