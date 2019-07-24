@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1416274649
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:51:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D55C67464F
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:51:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390802AbfGYFmW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:42:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57250 "EHLO mail.kernel.org"
+        id S2404308AbfGYFmz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:42:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390822AbfGYFmV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:42:21 -0400
+        id S2390967AbfGYFmx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:42:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D63422BF3;
-        Thu, 25 Jul 2019 05:42:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE2B721880;
+        Thu, 25 Jul 2019 05:42:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033340;
-        bh=LOARK0T404+azY1suHxq6Tt9I+LxkICd8FbLI+35sfo=;
+        s=default; t=1564033372;
+        bh=7qHMARGZqYN8XVCRyjerYdEwNpm0JOUaZFtCVUzQbSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ews6soD0xNoxh++YCH0hLvlPuG7LRgDRkHVx2uYkUk4EtaPT737v7zqCIEmKxazmG
-         +Z+2706XQibs+CxQ5HVOBWlGkvDInj+DY3ZeHQGBLmWxmWA9almUCZpON8DabUjZvY
-         41k+KStn/QU6ZKo1rVsg2VXj7oW8Cp6P5UrCvopw=
+        b=avWUmPqnNlJdR+Mo99DcdRo23WgUiA48JlHCj32LaCmjJRbPQwp9hgSSZh5Xaw7dy
+         OLyxfkw6wWtBepaWqa7VgGrzGUdpNFhXmHF2thrKyJ1nAK8Ow6ex/4RZK+DJf13K3O
+         yK44zOY83MleuA/ud7d5S3Oje0yAc5M0cJeemoqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Schmitz <schmitzmic@gmail.com>,
-        Finn Thain <fthain@telegraphics.com.au>,
-        Stan Johnson <userm57@yahoo.com>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Hannes Reinecke <hare@suse.com>,
+        "Ewan D. Milne" <emilne@redhat.com>,
+        Ming Lei <ming.lei@redhat.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 167/271] Revert "scsi: ncr5380: Increase register polling limit"
-Date:   Wed, 24 Jul 2019 21:20:36 +0200
-Message-Id: <20190724191709.484438228@linuxfoundation.org>
+Subject: [PATCH 4.19 168/271] scsi: core: Fix race on creating sense cache
+Date:   Wed, 24 Jul 2019 21:20:37 +0200
+Message-Id: <20190724191709.569951829@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -45,43 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@telegraphics.com.au>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit 25fcf94a2fa89dd3e73e965ebb0b38a2a4f72aa4 upstream.
+commit f9b0530fa02e0c73f31a49ef743e8f44eb8e32cc upstream.
 
-This reverts commit 4822827a69d7cd3bc5a07b7637484ebd2cf88db6.
+When scsi_init_sense_cache(host) is called concurrently from different
+hosts, each code path may find that no cache has been created and
+allocate a new one. The lack of locking can lead to potentially
+overriding a cache allocated by a different host.
 
-The purpose of that commit was to suppress a timeout warning message which
-appeared to be caused by target latency. But suppressing the warning is
-undesirable as the warning may indicate a messed up transfer count.
+Fix the issue by moving 'mutex_lock(&scsi_sense_cache_mutex)' before
+scsi_select_sense_cache().
 
-Another problem with that commit is that 15 ms is too long to keep
-interrupts disabled as interrupt latency can cause system clock drift and
-other problems.
-
-Cc: Michael Schmitz <schmitzmic@gmail.com>
-Cc: stable@vger.kernel.org
-Fixes: 4822827a69d7 ("scsi: ncr5380: Increase register polling limit")
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-Tested-by: Stan Johnson <userm57@yahoo.com>
-Tested-by: Michael Schmitz <schmitzmic@gmail.com>
+Fixes: 0a6ac4ee7c21 ("scsi: respect unchecked_isa_dma for blk-mq")
+Cc: Stable <stable@vger.kernel.org>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Ewan D. Milne <emilne@redhat.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/NCR5380.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/scsi_lib.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/scsi/NCR5380.h
-+++ b/drivers/scsi/NCR5380.h
-@@ -235,7 +235,7 @@ struct NCR5380_cmd {
- #define NCR5380_PIO_CHUNK_SIZE		256
+--- a/drivers/scsi/scsi_lib.c
++++ b/drivers/scsi/scsi_lib.c
+@@ -71,11 +71,11 @@ int scsi_init_sense_cache(struct Scsi_Ho
+ 	struct kmem_cache *cache;
+ 	int ret = 0;
  
- /* Time limit (ms) to poll registers when IRQs are disabled, e.g. during PDMA */
--#define NCR5380_REG_POLL_TIME		15
-+#define NCR5380_REG_POLL_TIME		10
++	mutex_lock(&scsi_sense_cache_mutex);
+ 	cache = scsi_select_sense_cache(shost->unchecked_isa_dma);
+ 	if (cache)
+-		return 0;
++		goto exit;
  
- static inline struct scsi_cmnd *NCR5380_to_scmd(struct NCR5380_cmd *ncmd_ptr)
- {
+-	mutex_lock(&scsi_sense_cache_mutex);
+ 	if (shost->unchecked_isa_dma) {
+ 		scsi_sense_isadma_cache =
+ 			kmem_cache_create("scsi_sense_cache(DMA)",
+@@ -91,7 +91,7 @@ int scsi_init_sense_cache(struct Scsi_Ho
+ 		if (!scsi_sense_cache)
+ 			ret = -ENOMEM;
+ 	}
+-
++ exit:
+ 	mutex_unlock(&scsi_sense_cache_mutex);
+ 	return ret;
+ }
 
 
