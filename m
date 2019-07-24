@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 832D873FC6
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:35:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D9CB73FBF
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:35:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728507AbfGXT0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:26:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42972 "EHLO mail.kernel.org"
+        id S1728506AbfGXT0M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:26:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729220AbfGXT0C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:26:02 -0400
+        id S1728520AbfGXT0L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:26:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B144229F3;
-        Wed, 24 Jul 2019 19:26:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC983218EA;
+        Wed, 24 Jul 2019 19:26:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996361;
-        bh=q0uB/D5K0VxAqGrDu4XSQgjDRVhKt8SyVmUwyJA89Is=;
+        s=default; t=1563996370;
+        bh=3Xf/8TxSP6B0nYj1zPugHalsqJuC9fbdKprx1zpdIOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hL6moMq51o+GFHfIARiVt31sAl8o5MPf7W0zpG9y3hAyQs78Tj4kU6tf9U8KWta/M
-         t4bAwPbW9rVX+nLw+lnS2GzGHpiIobUqSyblZ4hqzpDRPlfyyE9YLT76y1dKrvoSeX
-         XQMNy4ce0MRJNdpeyS1mrgIXEBn3s04IAF91lpRk=
+        b=NOtdzoNajXISlX5JFgZB1Chcy9GxaawHZCSU00bVzA7g1/3msSfT98/oLthIYrtiD
+         WeWYuIf+XPeQryL9X9RzO9mSo6hM7SPKBi0EWgrRKm+bbKNzrN7TsH1UmeBNWchs0a
+         bzUC/lButCkALhkZ6/Iu1FJ3eye854f8u8s8+Fj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Biao Huang <biao.huang@mediatek.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Antoine Tenart <antoine.tenart@bootlin.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 069/413] net: stmmac: dwmac4: fix flow control issue
-Date:   Wed, 24 Jul 2019 21:16:00 +0200
-Message-Id: <20190724191740.072271007@linuxfoundation.org>
+Subject: [PATCH 5.2 071/413] crypto: inside-secure - do not rely on the hardware last bit for result descriptors
+Date:   Wed, 24 Jul 2019 21:16:02 +0200
+Message-Id: <20190724191740.189970410@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -44,53 +45,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ee326fd01e79dfa42014d55931260b68b9fa3273 ]
+[ Upstream commit 89332590427235680236b9470e851afc49b3caa1 ]
 
-Current dwmac4_flow_ctrl will not clear
-GMAC_RX_FLOW_CTRL_RFE/GMAC_RX_FLOW_CTRL_RFE bits,
-so MAC hw will keep flow control on although expecting
-flow control off by ethtool. Add codes to fix it.
+When performing a transformation the hardware is given result
+descriptors to save the result data. Those result descriptors are
+batched using a 'first' and a 'last' bit. There are cases were more
+descriptors than needed are given to the engine, leading to the engine
+only using some of them, and not setting the last bit on the last
+descriptor we gave. This causes issues were the driver and the hardware
+aren't in sync anymore about the number of result descriptors given (as
+the driver do not give a pool of descriptor to use for any
+transformation, but a pool of descriptors to use *per* transformation).
 
-Fixes: 477286b53f55 ("stmmac: add GMAC4 core support")
-Signed-off-by: Biao Huang <biao.huang@mediatek.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This patch fixes it by attaching the number of given result descriptors
+to the requests, and by using this number instead of the 'last' bit
+found on the descriptors to process them.
+
+Signed-off-by: Antoine Tenart <antoine.tenart@bootlin.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ .../crypto/inside-secure/safexcel_cipher.c    | 24 ++++++++++++++-----
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-index 206170d0bf81..e3850938cf2f 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-@@ -474,8 +474,9 @@ static void dwmac4_flow_ctrl(struct mac_device_info *hw, unsigned int duplex,
- 	if (fc & FLOW_RX) {
- 		pr_debug("\tReceive Flow-Control ON\n");
- 		flow |= GMAC_RX_FLOW_CTRL_RFE;
--		writel(flow, ioaddr + GMAC_RX_FLOW_CTRL);
- 	}
-+	writel(flow, ioaddr + GMAC_RX_FLOW_CTRL);
+diff --git a/drivers/crypto/inside-secure/safexcel_cipher.c b/drivers/crypto/inside-secure/safexcel_cipher.c
+index de4be10b172f..ccacdcf07ffc 100644
+--- a/drivers/crypto/inside-secure/safexcel_cipher.c
++++ b/drivers/crypto/inside-secure/safexcel_cipher.c
+@@ -51,6 +51,8 @@ struct safexcel_cipher_ctx {
+ 
+ struct safexcel_cipher_req {
+ 	enum safexcel_cipher_direction direction;
++	/* Number of result descriptors associated to the request */
++	unsigned int rdescs;
+ 	bool needs_inv;
+ };
+ 
+@@ -333,7 +335,10 @@ static int safexcel_handle_req_result(struct safexcel_crypto_priv *priv, int rin
+ 
+ 	*ret = 0;
+ 
+-	do {
++	if (unlikely(!sreq->rdescs))
++		return 0;
 +
- 	if (fc & FLOW_TX) {
- 		pr_debug("\tTransmit Flow-Control ON\n");
++	while (sreq->rdescs--) {
+ 		rdesc = safexcel_ring_next_rptr(priv, &priv->ring[ring].rdr);
+ 		if (IS_ERR(rdesc)) {
+ 			dev_err(priv->dev,
+@@ -346,7 +351,7 @@ static int safexcel_handle_req_result(struct safexcel_crypto_priv *priv, int rin
+ 			*ret = safexcel_rdesc_check_errors(priv, rdesc);
  
-@@ -483,7 +484,7 @@ static void dwmac4_flow_ctrl(struct mac_device_info *hw, unsigned int duplex,
- 			pr_debug("\tduplex mode: PAUSE %d\n", pause_time);
+ 		ndesc++;
+-	} while (!rdesc->last_seg);
++	}
  
- 		for (queue = 0; queue < tx_cnt; queue++) {
--			flow |= GMAC_TX_FLOW_CTRL_TFE;
-+			flow = GMAC_TX_FLOW_CTRL_TFE;
+ 	safexcel_complete(priv, ring);
  
- 			if (duplex)
- 				flow |=
-@@ -491,6 +492,9 @@ static void dwmac4_flow_ctrl(struct mac_device_info *hw, unsigned int duplex,
+@@ -501,6 +506,7 @@ static int safexcel_send_req(struct crypto_async_request *base, int ring,
+ static int safexcel_handle_inv_result(struct safexcel_crypto_priv *priv,
+ 				      int ring,
+ 				      struct crypto_async_request *base,
++				      struct safexcel_cipher_req *sreq,
+ 				      bool *should_complete, int *ret)
+ {
+ 	struct safexcel_cipher_ctx *ctx = crypto_tfm_ctx(base->tfm);
+@@ -509,7 +515,10 @@ static int safexcel_handle_inv_result(struct safexcel_crypto_priv *priv,
  
- 			writel(flow, ioaddr + GMAC_QX_TX_FLOW_CTRL(queue));
- 		}
-+	} else {
-+		for (queue = 0; queue < tx_cnt; queue++)
-+			writel(0, ioaddr + GMAC_QX_TX_FLOW_CTRL(queue));
- 	}
+ 	*ret = 0;
+ 
+-	do {
++	if (unlikely(!sreq->rdescs))
++		return 0;
++
++	while (sreq->rdescs--) {
+ 		rdesc = safexcel_ring_next_rptr(priv, &priv->ring[ring].rdr);
+ 		if (IS_ERR(rdesc)) {
+ 			dev_err(priv->dev,
+@@ -522,7 +531,7 @@ static int safexcel_handle_inv_result(struct safexcel_crypto_priv *priv,
+ 			*ret = safexcel_rdesc_check_errors(priv, rdesc);
+ 
+ 		ndesc++;
+-	} while (!rdesc->last_seg);
++	}
+ 
+ 	safexcel_complete(priv, ring);
+ 
+@@ -564,7 +573,7 @@ static int safexcel_skcipher_handle_result(struct safexcel_crypto_priv *priv,
+ 
+ 	if (sreq->needs_inv) {
+ 		sreq->needs_inv = false;
+-		err = safexcel_handle_inv_result(priv, ring, async,
++		err = safexcel_handle_inv_result(priv, ring, async, sreq,
+ 						 should_complete, ret);
+ 	} else {
+ 		err = safexcel_handle_req_result(priv, ring, async, req->src,
+@@ -587,7 +596,7 @@ static int safexcel_aead_handle_result(struct safexcel_crypto_priv *priv,
+ 
+ 	if (sreq->needs_inv) {
+ 		sreq->needs_inv = false;
+-		err = safexcel_handle_inv_result(priv, ring, async,
++		err = safexcel_handle_inv_result(priv, ring, async, sreq,
+ 						 should_complete, ret);
+ 	} else {
+ 		err = safexcel_handle_req_result(priv, ring, async, req->src,
+@@ -633,6 +642,8 @@ static int safexcel_skcipher_send(struct crypto_async_request *async, int ring,
+ 		ret = safexcel_send_req(async, ring, sreq, req->src,
+ 					req->dst, req->cryptlen, 0, 0, req->iv,
+ 					commands, results);
++
++	sreq->rdescs = *results;
+ 	return ret;
+ }
+ 
+@@ -655,6 +666,7 @@ static int safexcel_aead_send(struct crypto_async_request *async, int ring,
+ 					req->cryptlen, req->assoclen,
+ 					crypto_aead_authsize(tfm), req->iv,
+ 					commands, results);
++	sreq->rdescs = *results;
+ 	return ret;
  }
  
 -- 
