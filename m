@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1EFB73894
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:31:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4760A738C0
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:34:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388444AbfGXTa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:30:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51360 "EHLO mail.kernel.org"
+        id S2388438AbfGXTcy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:32:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388433AbfGXTa4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:30:56 -0400
+        id S2388725AbfGXTcx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:32:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B856C21951;
-        Wed, 24 Jul 2019 19:30:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF52B20659;
+        Wed, 24 Jul 2019 19:32:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996655;
-        bh=3rri1YZONZ3TOLxUQI7fXal6vOj9b7arHk6JSs0kj/8=;
+        s=default; t=1563996772;
+        bh=iwrlPVA64fx8hejUgWDykNeD1Dcj1UXtVBKgCQ3zyF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mUSRIM09mi4A2M1vacUlZM6IKBLsVX8HMWAnz84kV0imMAwaGE8n8oWGBOxq88Wdd
-         zyvfQZGj5MmzWRir2nML3vr+XVsmw6ZNzoJpLBIEOH+grGse/ye4kS9EaEk1xk3s79
-         nfe8j8O3gCuRT9D5rHIRVC3JSc+s+oWzfbxC0ZkM=
+        b=K3uSFNr2IX4LgRREsa0HwGi8dihMRowB62IveU/DOXmzAbM1OifCTqKBTBpXAPU/N
+         t4YWZnLjfOdN3HRiyiWS50edw+NqG/mvy+H9A586ZavPHNtTqmU+P2a4O/TYAiVVaI
+         FWcqfSUCUaNnyvqEl0vdOAX3VHlta+lBMPziSPYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kyle Meyer <kyle.meyer@hpe.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 164/413] perf tools: Increase MAX_NR_CPUS and MAX_CACHES
-Date:   Wed, 24 Jul 2019 21:17:35 +0200
-Message-Id: <20190724191746.787421443@linuxfoundation.org>
+Subject: [PATCH 5.2 170/413] clocksource/drivers/exynos_mct: Increase priority over ARM arch timer
+Date:   Wed, 24 Jul 2019 21:17:41 +0200
+Message-Id: <20190724191747.137660228@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -48,68 +47,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9f94c7f947e919c343b30f080285af53d0fa9902 ]
+[ Upstream commit 6282edb72bed5324352522d732080d4c1b9dfed6 ]
 
-Attempting to profile 1024 or more CPUs with perf causes two errors:
+Exynos SoCs based on CA7/CA15 have 2 timer interfaces: custom Exynos MCT
+(Multi Core Timer) and standard ARM Architected Timers.
 
-  perf record -a
-  [ perf record: Woken up X times to write data ]
-  way too many cpu caches..
-  [ perf record: Captured and wrote X MB perf.data (X samples) ]
+There are use cases, where both timer interfaces are used simultanously.
+One of such examples is using Exynos MCT for the main system timer and
+ARM Architected Timers for the KVM and virtualized guests (KVM requires
+arch timers).
 
-  perf report -C 1024
-  Error: failed to set  cpu bitmap
-  Requested CPU 1024 too large. Consider raising MAX_NR_CPUS
+Exynos Multi-Core Timer driver (exynos_mct) must be however started
+before ARM Architected Timers (arch_timer), because they both share some
+common hardware blocks (global system counter) and turning on MCT is
+needed to get ARM Architected Timer working properly.
 
-  Increasing MAX_NR_CPUS from 1024 to 2048 and redefining MAX_CACHES as
-  MAX_NR_CPUS * 4 returns normal functionality to perf:
+To ensure selecting Exynos MCT as the main system timer, increase MCT
+timer rating. To ensure proper starting order of both timers during
+suspend/resume cycle, increase MCT hotplug priority over ARM Archictected
+Timers.
 
-  perf record -a
-  [ perf record: Woken up X times to write data ]
-  [ perf record: Captured and wrote X MB perf.data (X samples) ]
-
-  perf report -C 1024
-  ...
-
-Signed-off-by: Kyle Meyer <kyle.meyer@hpe.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lkml.kernel.org/r/20190620193630.154025-1-meyerk@stormcage.eag.rdlabs.hpecorp.net
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/perf.h        | 2 +-
- tools/perf/util/header.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/clocksource/exynos_mct.c | 4 ++--
+ include/linux/cpuhotplug.h       | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/perf/perf.h b/tools/perf/perf.h
-index d59dee61b64d..a26555baf692 100644
---- a/tools/perf/perf.h
-+++ b/tools/perf/perf.h
-@@ -26,7 +26,7 @@ static inline unsigned long long rdclock(void)
- }
+diff --git a/drivers/clocksource/exynos_mct.c b/drivers/clocksource/exynos_mct.c
+index e8eab16b154b..74cb299f5089 100644
+--- a/drivers/clocksource/exynos_mct.c
++++ b/drivers/clocksource/exynos_mct.c
+@@ -206,7 +206,7 @@ static void exynos4_frc_resume(struct clocksource *cs)
  
- #ifndef MAX_NR_CPUS
--#define MAX_NR_CPUS			1024
-+#define MAX_NR_CPUS			2048
- #endif
+ static struct clocksource mct_frc = {
+ 	.name		= "mct-frc",
+-	.rating		= 400,
++	.rating		= 450,	/* use value higher than ARM arch timer */
+ 	.read		= exynos4_frc_read,
+ 	.mask		= CLOCKSOURCE_MASK(32),
+ 	.flags		= CLOCK_SOURCE_IS_CONTINUOUS,
+@@ -461,7 +461,7 @@ static int exynos4_mct_starting_cpu(unsigned int cpu)
+ 	evt->set_state_oneshot_stopped = set_state_shutdown;
+ 	evt->tick_resume = set_state_shutdown;
+ 	evt->features = CLOCK_EVT_FEAT_PERIODIC | CLOCK_EVT_FEAT_ONESHOT;
+-	evt->rating = 450;
++	evt->rating = 500;	/* use value higher than ARM arch timer */
  
- extern const char *input_name;
-diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
-index fb0aa661644b..b82d4577d969 100644
---- a/tools/perf/util/header.c
-+++ b/tools/perf/util/header.c
-@@ -1100,7 +1100,7 @@ static int build_caches(struct cpu_cache_level caches[], u32 size, u32 *cntp)
- 	return 0;
- }
+ 	exynos4_mct_write(TICK_BASE_CNT, mevt->base + MCT_L_TCNTB_OFFSET);
  
--#define MAX_CACHES 2000
-+#define MAX_CACHES (MAX_NR_CPUS * 4)
- 
- static int write_cache(struct feat_fd *ff,
- 		       struct perf_evlist *evlist __maybe_unused)
+diff --git a/include/linux/cpuhotplug.h b/include/linux/cpuhotplug.h
+index 52ec0d9fa1f7..068793a619ca 100644
+--- a/include/linux/cpuhotplug.h
++++ b/include/linux/cpuhotplug.h
+@@ -116,10 +116,10 @@ enum cpuhp_state {
+ 	CPUHP_AP_PERF_ARM_ACPI_STARTING,
+ 	CPUHP_AP_PERF_ARM_STARTING,
+ 	CPUHP_AP_ARM_L2X0_STARTING,
++	CPUHP_AP_EXYNOS4_MCT_TIMER_STARTING,
+ 	CPUHP_AP_ARM_ARCH_TIMER_STARTING,
+ 	CPUHP_AP_ARM_GLOBAL_TIMER_STARTING,
+ 	CPUHP_AP_JCORE_TIMER_STARTING,
+-	CPUHP_AP_EXYNOS4_MCT_TIMER_STARTING,
+ 	CPUHP_AP_ARM_TWD_STARTING,
+ 	CPUHP_AP_QCOM_TIMER_STARTING,
+ 	CPUHP_AP_TEGRA_TIMER_STARTING,
 -- 
 2.20.1
 
