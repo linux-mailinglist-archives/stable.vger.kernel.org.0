@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F1A173F47
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:32:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4835573F34
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:31:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388425AbfGXUa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:30:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51894 "EHLO mail.kernel.org"
+        id S2388463AbfGXTbT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:31:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388325AbfGXTbM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:31:12 -0400
+        id S2388459AbfGXTbS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:31:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6377720659;
-        Wed, 24 Jul 2019 19:31:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D8E5218EA;
+        Wed, 24 Jul 2019 19:31:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996671;
-        bh=Z7z6ZNVQ/aEopwbVD8Am1CrqyHr6ZMa+mZxXvPrDdAU=;
+        s=default; t=1563996677;
+        bh=FWreuhMM6Mt1r7S5lDbbQSWGpAelMHeB009HZa6gmmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HYr5C4rNHilbX4kQax77mkO32KNtIxVWUXtRxcJtosZol9GtNFA3EmjVVQ2+zv7s4
-         zSiuxnZBMZDJ8MWlBkSuZLuUsudH9q+tDy/8S7lJjnXjGNz/5UsM97oi5zgD9pnWj4
-         fNliRCbQkSmauB5L4jJpe4etbyf2CpT711MaNxV4=
+        b=mscaT6l70CCYVbaaOhLk1Ja5w2WdP/D902cdIetBrjOWiNRFi9/F02yz3AhOS7eWO
+         GJEQJMleZxbnHULg8tjawsXf6V7VP7ZFgHDeg+DBn9trmtZX5HZ32xIDG4YXRZMfcW
+         2VBTwuOw1iIwM6vaMsLTCHWEc9pNXL5jEHhOUGiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianbo Liu <jianbol@mellanox.com>,
-        Oz Shlomo <ozsh@mellanox.com>,
-        Eli Britstein <elibr@mellanox.com>,
-        Roi Dayan <roid@mellanox.com>, Mark Bloch <markb@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 178/413] net/mlx5: Get vport ACL namespace by vport index
-Date:   Wed, 24 Jul 2019 21:17:49 +0200
-Message-Id: <20190724191747.598534516@linuxfoundation.org>
+Subject: [PATCH 5.2 180/413] crypto: serpent - mark __serpent_setkey_sbox noinline
+Date:   Wed, 24 Jul 2019 21:17:51 +0200
+Message-Id: <20190724191747.711245129@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -47,47 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f53297d67800feb5fafd94abd926c889aefee690 ]
+[ Upstream commit 473971187d6727609951858c63bf12b0307ef015 ]
 
-The ingress and egress ACL root namespaces are created per vport and
-stored into arrays. However, the vport number is not the same as the
-index. Passing the array index, instead of vport number, to get the
-correct ingress and egress acl namespace.
+The same bug that gcc hit in the past is apparently now showing
+up with clang, which decides to inline __serpent_setkey_sbox:
 
-Fixes: 9b93ab981e3b ("net/mlx5: Separate ingress/egress namespaces for each vport")
-Signed-off-by: Jianbo Liu <jianbol@mellanox.com>
-Reviewed-by: Oz Shlomo <ozsh@mellanox.com>
-Reviewed-by: Eli Britstein <elibr@mellanox.com>
-Reviewed-by: Roi Dayan <roid@mellanox.com>
-Reviewed-by: Mark Bloch <markb@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+crypto/serpent_generic.c:268:5: error: stack frame size of 2112 bytes in function '__serpent_setkey' [-Werror,-Wframe-larger-than=]
+
+Marking it 'noinline' reduces the stack usage from 2112 bytes to
+192 and 96 bytes, respectively, and seems to generate more
+useful object code.
+
+Fixes: c871c10e4ea7 ("crypto: serpent - improve __serpent_setkey with UBSAN")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Eric Biggers <ebiggers@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/eswitch.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ crypto/serpent_generic.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-index 6a921e24cd5e..acab26b88261 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-@@ -939,7 +939,7 @@ int esw_vport_enable_egress_acl(struct mlx5_eswitch *esw,
- 		  vport->vport, MLX5_CAP_ESW_EGRESS_ACL(dev, log_max_ft_size));
+diff --git a/crypto/serpent_generic.c b/crypto/serpent_generic.c
+index 16f612b6dbca..a9cc0b2aa0d6 100644
+--- a/crypto/serpent_generic.c
++++ b/crypto/serpent_generic.c
+@@ -225,7 +225,13 @@
+ 	x4 ^= x2;					\
+ 	})
  
- 	root_ns = mlx5_get_flow_vport_acl_namespace(dev, MLX5_FLOW_NAMESPACE_ESW_EGRESS,
--						    vport->vport);
-+			mlx5_eswitch_vport_num_to_index(esw, vport->vport));
- 	if (!root_ns) {
- 		esw_warn(dev, "Failed to get E-Switch egress flow namespace for vport (%d)\n", vport->vport);
- 		return -EOPNOTSUPP;
-@@ -1057,7 +1057,7 @@ int esw_vport_enable_ingress_acl(struct mlx5_eswitch *esw,
- 		  vport->vport, MLX5_CAP_ESW_INGRESS_ACL(dev, log_max_ft_size));
- 
- 	root_ns = mlx5_get_flow_vport_acl_namespace(dev, MLX5_FLOW_NAMESPACE_ESW_INGRESS,
--						    vport->vport);
-+			mlx5_eswitch_vport_num_to_index(esw, vport->vport));
- 	if (!root_ns) {
- 		esw_warn(dev, "Failed to get E-Switch ingress flow namespace for vport (%d)\n", vport->vport);
- 		return -EOPNOTSUPP;
+-static void __serpent_setkey_sbox(u32 r0, u32 r1, u32 r2, u32 r3, u32 r4, u32 *k)
++/*
++ * both gcc and clang have misoptimized this function in the past,
++ * producing horrible object code from spilling temporary variables
++ * on the stack. Forcing this part out of line avoids that.
++ */
++static noinline void __serpent_setkey_sbox(u32 r0, u32 r1, u32 r2,
++					   u32 r3, u32 r4, u32 *k)
+ {
+ 	k += 100;
+ 	S3(r3, r4, r0, r1, r2); store_and_load_keys(r1, r2, r4, r3, 28, 24);
 -- 
 2.20.1
 
