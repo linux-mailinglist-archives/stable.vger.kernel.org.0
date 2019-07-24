@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C45E173997
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:42:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADC0C7396E
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:40:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389896AbfGXTlq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:41:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43204 "EHLO mail.kernel.org"
+        id S2389967AbfGXTkI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:40:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389666AbfGXTlo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:41:44 -0400
+        id S2389737AbfGXTkC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:40:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8EF3229F3;
-        Wed, 24 Jul 2019 19:41:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA5CE229F3;
+        Wed, 24 Jul 2019 19:40:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997304;
-        bh=hpH3G4a7G/KVsYa4id/3HXxZbpYaTdI/T6rleRNvGhI=;
+        s=default; t=1563997201;
+        bh=eVvG9VZLB22zQCc4vbFJLQoEix3cpxYMAt2ee8z/IeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kMoQViArEP+8po56MDY1XWozjcV9Nl/WdXUhhGE0lJGqs2Pcx2ncpXrC0kQ7uK9NI
-         W1BYVMIPI1J2sWA/stHM6QRsly3Z3+MnNUD/CZ5WhmskRI5ww+K8aeqbJ4q9y9NRSa
-         cBxs4t5lYIernJtyl2cJ44vUo/OgbCCmD0k10FDw=
+        b=txqCb9mJMHS3HZBLRi95QWgwSW9/fmeFGQbkrN7FpVQaHOEBoaVRKU0WZ58ZnJ6da
+         hiv2V7dRpxHJNjFZsv5a/4oMciIHo8mXm0wCjlW4wRSG7lcEhjKv88yUXO4EKteFKB
+         xf5ZNUXoIuiiJqrXlqsbpmt8IUth6x/Axu5nCmb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Dominique Martinet <dominique.martinet@cea.fr>
-Subject: [PATCH 5.2 349/413] 9p/xen: Add cleanup path in p9_trans_xen_init
-Date:   Wed, 24 Jul 2019 21:20:40 +0200
-Message-Id: <20190724191800.790232814@linuxfoundation.org>
+        stable@vger.kernel.org, Eiichi Tsukata <devel@etsukata.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.2 357/413] x86/stacktrace: Prevent infinite loop in arch_stack_walk_user()
+Date:   Wed, 24 Jul 2019 21:20:48 +0200
+Message-Id: <20190724191801.208485964@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -43,46 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Eiichi Tsukata <devel@etsukata.com>
 
-commit 80a316ff16276b36d0392a8f8b2f63259857ae98 upstream.
+commit cbf5b73d162b22e044fe0b7d51dcaa33be065253 upstream.
 
-If xenbus_register_frontend() fails in p9_trans_xen_init,
-we should call v9fs_unregister_trans() to do cleanup.
+arch_stack_walk_user() checks `if (fp == frame.next_fp)` to prevent a
+infinite loop by self reference but it's not enogh for circular reference.
 
-Link: http://lkml.kernel.org/r/20190430143933.19368-1-yuehaibing@huawei.com
-Cc: stable@vger.kernel.org
-Fixes: 868eb122739a ("xen/9pfs: introduce Xen 9pfs transport driver")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Dominique Martinet <dominique.martinet@cea.fr>
+Once a lack of return address is found, there is no point to continue the
+loop, so break out.
+
+Fixes: 02b67518e2b1 ("tracing: add support for userspace stacktraces in tracing/iter_ctrl")
+Signed-off-by: Eiichi Tsukata <devel@etsukata.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lkml.kernel.org/r/20190711023501.963-1-devel@etsukata.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/9p/trans_xen.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/x86/kernel/stacktrace.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/net/9p/trans_xen.c
-+++ b/net/9p/trans_xen.c
-@@ -530,13 +530,19 @@ static struct xenbus_driver xen_9pfs_fro
- 
- static int p9_trans_xen_init(void)
- {
-+	int rc;
-+
- 	if (!xen_domain())
- 		return -ENODEV;
- 
- 	pr_info("Initialising Xen transport for 9pfs\n");
- 
- 	v9fs_register_trans(&p9_xen_trans);
--	return xenbus_register_frontend(&xen_9pfs_front_driver);
-+	rc = xenbus_register_frontend(&xen_9pfs_front_driver);
-+	if (rc)
-+		v9fs_unregister_trans(&p9_xen_trans);
-+
-+	return rc;
- }
- module_init(p9_trans_xen_init);
- 
+--- a/arch/x86/kernel/stacktrace.c
++++ b/arch/x86/kernel/stacktrace.c
+@@ -129,11 +129,9 @@ void arch_stack_walk_user(stack_trace_co
+ 			break;
+ 		if ((unsigned long)fp < regs->sp)
+ 			break;
+-		if (frame.ret_addr) {
+-			if (!consume_entry(cookie, frame.ret_addr, false))
+-				return;
+-		}
+-		if (fp == frame.next_fp)
++		if (!frame.ret_addr)
++			break;
++		if (!consume_entry(cookie, frame.ret_addr, false))
+ 			break;
+ 		fp = frame.next_fp;
+ 	}
 
 
