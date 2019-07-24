@@ -2,118 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24E7D73438
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 18:50:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 244177353E
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 19:24:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726846AbfGXQu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 12:50:57 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:44000 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727469AbfGXQu5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 12:50:57 -0400
-Received: by mail-pg1-f195.google.com with SMTP id f25so21503087pgv.10
-        for <stable@vger.kernel.org>; Wed, 24 Jul 2019 09:50:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=I4WVMYQRX4kt5i+RJEPD9hd50TU3ciYeycTWWfmLtFI=;
-        b=aLLrZOFJvcpQV2exlwxVIjZ77RHlDRci+vHe961r+bqAqWt8HeKZH+8xjmkLD6Ex8k
-         o4IIy2BKsWL79Dp5mqywkQOfVmGuyDxIs3yHSaGSwNdJesJihjgSR99njLWpP/80nUGp
-         9+BmeAIGqmmfc5Mov7tjuPyQVp7NO6YErJzXCdWGS5D3PPtSOVBM3AQK27RR8u+XS5sW
-         sexhkHEH3PczorSKiZoUO6wXbbtf9iNmGq4F1gkoRkd8/nBbmyqkTpL3mf980eiccbbO
-         iEHv0JYUhlTZzjJsz4TNl9Jb60buH6Bq2Yba9zvzW3VKaNW1gsBmH7JMmKR9BkWfnW6y
-         BFxg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=I4WVMYQRX4kt5i+RJEPD9hd50TU3ciYeycTWWfmLtFI=;
-        b=Do3mzUQZr+1jwtp4VTBQnsLOL8AmjZwOgo+SCDXSQN/6BMa4c6OGctZ/eB2wquancP
-         TLAgxPjJVhndnfz+cem9/4Sp9Sn414f34VMeLepriZg6VMficaLfhmfYApIxab48+YeC
-         5MoSHpnGxJkDrLW2xG9o5j9FjiyzxSFpDQpsS+82syVCOXvLy9Je3rOK08USXDWlM0qE
-         lpha638Z5cf/q9FNGHrprt1pNuVdbLM989hDhtznx65xtKAtA+eVHi0zSIIFPrqUi7BR
-         Z/ZIRwaAPInryMtDMZK8QHSKDvheuSfxUxGMy+B1AAwHO8aCQnDxbWqm9IfJx5fsUOMX
-         hMWQ==
-X-Gm-Message-State: APjAAAW7t88sR5a0FyQq36u1N6DyRuOPVKpHnTZyKZ/TMwaDYLQ6SD9L
-        +haY1o+a6Ll9lT+ymjmqRUFAdVgq
-X-Google-Smtp-Source: APXvYqwcGAnpwyad9dtC0pTwOOD18AhNlqQM3fdTbC9C9aho6Z+fG8HgFS1VF9Wf0JFB68aE4lJRyw==
-X-Received: by 2002:a65:4546:: with SMTP id x6mr81102958pgr.266.1563987056381;
-        Wed, 24 Jul 2019 09:50:56 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 81sm41541032pfa.86.2019.07.24.09.50.55
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 24 Jul 2019 09:50:55 -0700 (PDT)
-Subject: Re: btrfs related build failures in stable queues
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Cc:     stable <stable@vger.kernel.org>
-References: <d32a9740-c5cf-8c91-fd39-ba8f0499541d@roeck-us.net>
- <20190724154039.GB3050@kroah.com> <20190724161534.GA10454@kroah.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <8d039d25-7e88-2de7-00d9-de2c30e11c82@roeck-us.net>
-Date:   Wed, 24 Jul 2019 09:50:54 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1728453AbfGXRRV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 13:17:21 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:34484 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728497AbfGXRRU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 13:17:20 -0400
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: ezequiel)
+        with ESMTPSA id A386028B608
+From:   Ezequiel Garcia <ezequiel@collabora.com>
+To:     linux-media@vger.kernel.org, Hans Verkuil <hans.verkuil@cisco.com>
+Cc:     kernel@collabora.com,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        Tomasz Figa <tfiga@chromium.org>,
+        linux-rockchip@lists.infradead.org,
+        Heiko Stuebner <heiko@sntech.de>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        Alexandre Courbot <acourbot@chromium.org>,
+        fbuergisser@chromium.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>
+Subject: [PATCH 1/7] media: hantro: Set DMA max segment size
+Date:   Wed, 24 Jul 2019 14:16:56 -0300
+Message-Id: <20190724171702.9449-2-ezequiel@collabora.com>
+X-Mailer: git-send-email 2.22.0
+In-Reply-To: <20190724171702.9449-1-ezequiel@collabora.com>
+References: <20190724171702.9449-1-ezequiel@collabora.com>
 MIME-Version: 1.0
-In-Reply-To: <20190724161534.GA10454@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/24/19 9:15 AM, Greg Kroah-Hartman wrote:
-> On Wed, Jul 24, 2019 at 05:40:39PM +0200, Greg Kroah-Hartman wrote:
->> On Wed, Jul 24, 2019 at 08:07:50AM -0700, Guenter Roeck wrote:
->>> v4.9.y to v5.1.y:
->>>
->>> fs/btrfs/file.c: In function 'btrfs_punch_hole':
->>> fs/btrfs/file.c:2787:27: error: invalid initializer
->>>     struct timespec64 now = current_time(inode);
->>>                             ^~~~~~~~~~~~
->>> fs/btrfs/file.c:2790:18: error: incompatible types when assigning to type 'struct timespec' from type 'struct timespec64'
->>
->> Oops, no, this looks like a 32bit issue, let me dig into that...
-> 
-> Ok, this makes no sense.
-> 
-> A few lines above this we do:
-> 	inode->i_mtime = inode->i_ctime = current_time(inode);
-> 
-> And here we are now doing:
-> 	struct timespec64 now = current_time(inode);
-> 
-> 	inode_inc_iversion(inode);
-> 	inode->i_mtime = now;
-> 	inode->i_ctime = now;
-> 
-> 
-> And current_time() is defined as:
-> 	extern struct timespec64 current_time(struct inode *inode);
-> 
+From: Francois Buergisser <fbuergisser@chromium.org>
 
-v4.9.186-108-g5b3c7cd16340 and v4.9.186-126-g97ad1fbc1478, line 1489 of fs.h:
+The Hantro codec is typically used in platforms with an IOMMU,
+so we need to set a proper DMA segment size. Devices without an
+IOMMU will still fallback to default 64KiB segments.
 
-extern struct timespec current_fs_time(struct super_block *sb);
+Cc: stable@vger.kernel.org
+Fixes: 775fec69008d3 ("media: add Rockchip VPU JPEG encoder driver")
+Signed-off-by: Francois Buergisser <fbuergisser@chromium.org>
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+---
+ drivers/staging/media/hantro/hantro_drv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Your code base seems to be different :-(.
-
-Guenter
-
-> 
-> I have no idea what is going on :(
-> 
-> This is caused by Felipe's patch: 179006688a7e ("Btrfs: add missing
-> inode version, ctime and mtime updates when punching hole").  Felipe,
-> any ideas?
-> 
-> thanks,
-> 
-> greg k-h
-> 
+diff --git a/drivers/staging/media/hantro/hantro_drv.c b/drivers/staging/media/hantro/hantro_drv.c
+index b71a06e9159e..4eae1dbb1ac8 100644
+--- a/drivers/staging/media/hantro/hantro_drv.c
++++ b/drivers/staging/media/hantro/hantro_drv.c
+@@ -731,6 +731,7 @@ static int hantro_probe(struct platform_device *pdev)
+ 		dev_err(vpu->dev, "Could not set DMA coherent mask.\n");
+ 		return ret;
+ 	}
++	vb2_dma_contig_set_max_seg_size(&pdev->dev, DMA_BIT_MASK(32));
+ 
+ 	for (i = 0; i < vpu->variant->num_irqs; i++) {
+ 		const char *irq_name = vpu->variant->irqs[i].name;
+-- 
+2.22.0
 
