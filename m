@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5620B73F4E
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:32:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 062B173F35
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:31:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729123AbfGXUb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:31:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50626 "EHLO mail.kernel.org"
+        id S2388501AbfGXUat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:30:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388313AbfGXTab (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:30:31 -0400
+        id S2388479AbfGXTb1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:31:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B4D920659;
-        Wed, 24 Jul 2019 19:30:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40C9221951;
+        Wed, 24 Jul 2019 19:31:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996630;
-        bh=sMDzDsnV3Rj9WChVW7MF4eabmz6uCc1sudHPf2bTMmM=;
+        s=default; t=1563996686;
+        bh=IwmdfIkC2MqFSmTk8Jj9ODAe/YIn4lBeiRKZeC1gaSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mCMn8LJcwV4EYthUCMvZk73/RbH90gC+6JbZG1Ydy/kpJN4SQIMzK2r9qAwyBJv3o
-         qDRR+FSV2t5ZTMuSo98w3Vsx1BAfiv7+I3xnV7IrdR0Uohez7gALpQBOR8NC+cKaPW
-         T6P34B+s7IlBxeVtqfOrWoNom5bpi5tmt8pvfOcY=
+        b=bj6MDSt+DP6fD3Op5WbKktvuWvDQRKUaXaatIShNZ4yQPgzSFeqth6EmbvefhOo/7
+         TrCXG2AEX8eL8ini3txrnff4stg/lsh97xvrlyVN5YpSHjJZo4I4JWJ44L85kJgtD5
+         SE+U9j2LRwmrwYjoE/Y0Pu1uDq8cr2YhTjMhjGac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqing Pan <miaoqing@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 161/413] ath10k: fix fw crash by moving chip reset after napi disabled
-Date:   Wed, 24 Jul 2019 21:17:32 +0200
-Message-Id: <20190724191746.602512161@linuxfoundation.org>
+Subject: [PATCH 5.2 165/413] ASoC: Intel: hdac_hdmi: Set ops to NULL on remove
+Date:   Wed, 24 Jul 2019 21:17:36 +0200
+Message-Id: <20190724191746.841668644@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -44,70 +47,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 08d80e4cd27ba19f9bee9e5f788f9a9fc440a22f ]
+[ Upstream commit 0f6ff78540bd1b4df1e0f17806b0ce2e1dff0d78 ]
 
-On SMP platform, when continuously running wifi up/down, the napi
-poll can be scheduled during chip reset, which will call
-ath10k_pci_has_fw_crashed() to check the fw status. But in the reset
-period, the value from FW_INDICATOR_ADDRESS register will return
-0xdeadbeef, which also be treated as fw crash. Fix the issue by
-moving chip reset after napi disabled.
+When we unload Skylake driver we may end up calling
+hdac_component_master_unbind(), it uses acomp->audio_ops, which we set
+in hdmi_codec_probe(), so we need to set it to NULL in hdmi_codec_remove(),
+otherwise we will dereference no longer existing pointer.
 
-ath10k_pci 0000:01:00.0: firmware crashed! (guid 73b30611-5b1e-4bdd-90b4-64c81eb947b6)
-ath10k_pci 0000:01:00.0: qca9984/qca9994 hw1.0 target 0x01000000 chip_id 0x00000000 sub 168c:cafe
-ath10k_pci 0000:01:00.0: htt-ver 2.2 wmi-op 6 htt-op 4 cal otp max-sta 512 raw 0 hwcrypto 1
-ath10k_pci 0000:01:00.0: failed to get memcpy hi address for firmware address 4: -16
-ath10k_pci 0000:01:00.0: failed to read firmware dump area: -16
-ath10k_pci 0000:01:00.0: Copy Engine register dump:
-ath10k_pci 0000:01:00.0: [00]: 0x0004a000   0   0   0   0
-ath10k_pci 0000:01:00.0: [01]: 0x0004a400   0   0   0   0
-ath10k_pci 0000:01:00.0: [02]: 0x0004a800   0   0   0   0
-ath10k_pci 0000:01:00.0: [03]: 0x0004ac00   0   0   0   0
-ath10k_pci 0000:01:00.0: [04]: 0x0004b000   0   0   0   0
-ath10k_pci 0000:01:00.0: [05]: 0x0004b400   0   0   0   0
-ath10k_pci 0000:01:00.0: [06]: 0x0004b800   0   0   0   0
-ath10k_pci 0000:01:00.0: [07]: 0x0004bc00   1   0   1   0
-ath10k_pci 0000:01:00.0: [08]: 0x0004c000   0   0   0   0
-ath10k_pci 0000:01:00.0: [09]: 0x0004c400   0   0   0   0
-ath10k_pci 0000:01:00.0: [10]: 0x0004c800   0   0   0   0
-ath10k_pci 0000:01:00.0: [11]: 0x0004cc00   0   0   0   0
-
-Tested HW: QCA9984,QCA9887,WCN3990
-
-Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/pci.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ sound/soc/codecs/hdac_hdmi.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
-index 2c27f407a851..6e5f7ae00253 100644
---- a/drivers/net/wireless/ath/ath10k/pci.c
-+++ b/drivers/net/wireless/ath/ath10k/pci.c
-@@ -2059,6 +2059,11 @@ static void ath10k_pci_hif_stop(struct ath10k *ar)
- 
- 	ath10k_dbg(ar, ATH10K_DBG_BOOT, "boot hif stop\n");
- 
-+	ath10k_pci_irq_disable(ar);
-+	ath10k_pci_irq_sync(ar);
-+	napi_synchronize(&ar->napi);
-+	napi_disable(&ar->napi);
+diff --git a/sound/soc/codecs/hdac_hdmi.c b/sound/soc/codecs/hdac_hdmi.c
+index 1f57126708e7..c9f9820968bb 100644
+--- a/sound/soc/codecs/hdac_hdmi.c
++++ b/sound/soc/codecs/hdac_hdmi.c
+@@ -1859,6 +1859,12 @@ static void hdmi_codec_remove(struct snd_soc_component *component)
+ {
+ 	struct hdac_hdmi_priv *hdmi = snd_soc_component_get_drvdata(component);
+ 	struct hdac_device *hdev = hdmi->hdev;
++	int ret;
 +
- 	/* Most likely the device has HTT Rx ring configured. The only way to
- 	 * prevent the device from accessing (and possible corrupting) host
- 	 * memory is to reset the chip now.
-@@ -2072,10 +2077,6 @@ static void ath10k_pci_hif_stop(struct ath10k *ar)
- 	 */
- 	ath10k_pci_safe_chip_reset(ar);
++	ret = snd_hdac_acomp_register_notifier(hdev->bus, NULL);
++	if (ret < 0)
++		dev_err(&hdev->dev, "notifier unregister failed: err: %d\n",
++				ret);
  
--	ath10k_pci_irq_disable(ar);
--	ath10k_pci_irq_sync(ar);
--	napi_synchronize(&ar->napi);
--	napi_disable(&ar->napi);
- 	ath10k_pci_flush(ar);
- 
- 	spin_lock_irqsave(&ar_pci->ps_lock, flags);
+ 	pm_runtime_disable(&hdev->dev);
+ }
 -- 
 2.20.1
 
