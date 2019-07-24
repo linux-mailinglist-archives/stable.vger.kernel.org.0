@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE3F673D4C
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:16:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BEAE73D46
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:16:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404040AbfGXTv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:51:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33348 "EHLO mail.kernel.org"
+        id S2387761AbfGXTwW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:52:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404037AbfGXTvz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:51:55 -0400
+        id S2404128AbfGXTwU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:52:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9657422ADF;
-        Wed, 24 Jul 2019 19:51:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 327CA205C9;
+        Wed, 24 Jul 2019 19:52:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997915;
-        bh=UIt44Sy2Z317ig9zcjRjZVvOxAI/fLmn8R0PcqkaCAQ=;
+        s=default; t=1563997939;
+        bh=DCYiLzI4rEMjmftj8L1UG2xOIvF/i96YLbPpwOFDYSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vDsK4+l1vxTKSOfTk7VBSwO78J3oPjf09LjhYcI9u1U8FCCzdALa78BBBHlDeA83p
-         +ZKGl+8Zv3STPjGnznvsLMJOuvKbDWS4ZcKHeJLV91frF0SzkdovpFXWZI7FAwGF4+
-         S0zjtrZz7KbMMs8dkTDzyQaZhEnR6bGXi51yi2vw=
+        b=dBWvVYER5SCHLFVrq0y6sz7BVU+bmBv4Bk1NbKaqfJqwt34fbIESjGvxIif/hITR+
+         jEi026JHMh9L/NXLUvHWXoEwIEog6ftJYZCgXpLr7gB6UT/Z4DbI6MX5Lkz1d2b62y
+         XwJF3IsUkgk7smqvPM0ZkKqhkMPw8ckMbG6+SF4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Rander Wang <rander.wang@linux.intel.com>,
+        stable@vger.kernel.org,
+        syzbot+8a3fc6674bbc3978ed4e@syzkaller.appspotmail.com,
+        Phong Tran <tranmanphong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 187/371] ALSA: hda: Fix a headphone detection issue when using SOF
-Date:   Wed, 24 Jul 2019 21:18:59 +0200
-Message-Id: <20190724191739.107624383@linuxfoundation.org>
+Subject: [PATCH 5.1 194/371] net: usb: asix: init MAC address buffers
+Date:   Wed, 24 Jul 2019 21:19:06 +0200
+Message-Id: <20190724191739.456032504@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -44,55 +46,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7c2b3629d09ddec810dc4c1d3a6657c32def8f71 ]
+[ Upstream commit 78226f6eaac80bf30256a33a4926c194ceefdf36 ]
 
-To save power, the hda hdmi driver in ASoC invokes snd_hdac_ext_bus_link_put
-to disable CORB/RIRB buffers DMA if there is no user of bus and invokes
-snd_hdac_ext_bus_link_get to set up CORB/RIRB buffers when it is used.
-Unsolicited responses is disabled in snd_hdac_bus_stop_cmd_io called by
-snd_hdac_ext_bus_link_put , but it is not enabled in snd_hdac_bus_init_cmd_io
-called by snd_hdac_ext_bus_link_get. So for put-get sequence, Unsolicited
-responses is disabled and headphone can't be detected by hda codecs.
+This is for fixing bug KMSAN: uninit-value in ax88772_bind
 
-Now unsolicited responses is only enabled in snd_hdac_bus_reset_link
-which resets controller. The function is only called for setup of
-controller. This patch enables Unsolicited responses after RIRB is
-initialized in snd_hdac_bus_init_cmd_io which works together with
-snd_hdac_bus_reset_link to set up controller.
+Tested by
+https://groups.google.com/d/msg/syzkaller-bugs/aFQurGotng4/eB_HlNhhCwAJ
 
-Tested legacy hda driver and SOF driver on intel whiskeylake.
+Reported-by: syzbot+8a3fc6674bbc3978ed4e@syzkaller.appspotmail.com
 
-Reviewed-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Rander Wang <rander.wang@linux.intel.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+syzbot found the following crash on:
+
+HEAD commit:    f75e4cfe kmsan: use kmsan_handle_urb() in urb.c
+git tree:       kmsan
+console output: https://syzkaller.appspot.com/x/log.txt?x=136d720ea00000
+kernel config:
+https://syzkaller.appspot.com/x/.config?x=602468164ccdc30a
+dashboard link:
+https://syzkaller.appspot.com/bug?extid=8a3fc6674bbc3978ed4e
+compiler:       clang version 9.0.0 (/home/glider/llvm/clang
+06d00afa61eef8f7f501ebdb4e8612ea43ec2d78)
+syz repro:
+https://syzkaller.appspot.com/x/repro.syz?x=12788316a00000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=120359aaa00000
+
+==================================================================
+BUG: KMSAN: uninit-value in is_valid_ether_addr
+include/linux/etherdevice.h:200 [inline]
+BUG: KMSAN: uninit-value in asix_set_netdev_dev_addr
+drivers/net/usb/asix_devices.c:73 [inline]
+BUG: KMSAN: uninit-value in ax88772_bind+0x93d/0x11e0
+drivers/net/usb/asix_devices.c:724
+CPU: 0 PID: 3348 Comm: kworker/0:2 Not tainted 5.1.0+ #1
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+Google 01/01/2011
+Workqueue: usb_hub_wq hub_event
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0x191/0x1f0 lib/dump_stack.c:113
+  kmsan_report+0x130/0x2a0 mm/kmsan/kmsan.c:622
+  __msan_warning+0x75/0xe0 mm/kmsan/kmsan_instr.c:310
+  is_valid_ether_addr include/linux/etherdevice.h:200 [inline]
+  asix_set_netdev_dev_addr drivers/net/usb/asix_devices.c:73 [inline]
+  ax88772_bind+0x93d/0x11e0 drivers/net/usb/asix_devices.c:724
+  usbnet_probe+0x10f5/0x3940 drivers/net/usb/usbnet.c:1728
+  usb_probe_interface+0xd66/0x1320 drivers/usb/core/driver.c:361
+  really_probe+0xdae/0x1d80 drivers/base/dd.c:513
+  driver_probe_device+0x1b3/0x4f0 drivers/base/dd.c:671
+  __device_attach_driver+0x5b8/0x790 drivers/base/dd.c:778
+  bus_for_each_drv+0x28e/0x3b0 drivers/base/bus.c:454
+  __device_attach+0x454/0x730 drivers/base/dd.c:844
+  device_initial_probe+0x4a/0x60 drivers/base/dd.c:891
+  bus_probe_device+0x137/0x390 drivers/base/bus.c:514
+  device_add+0x288d/0x30e0 drivers/base/core.c:2106
+  usb_set_configuration+0x30dc/0x3750 drivers/usb/core/message.c:2027
+  generic_probe+0xe7/0x280 drivers/usb/core/generic.c:210
+  usb_probe_device+0x14c/0x200 drivers/usb/core/driver.c:266
+  really_probe+0xdae/0x1d80 drivers/base/dd.c:513
+  driver_probe_device+0x1b3/0x4f0 drivers/base/dd.c:671
+  __device_attach_driver+0x5b8/0x790 drivers/base/dd.c:778
+  bus_for_each_drv+0x28e/0x3b0 drivers/base/bus.c:454
+  __device_attach+0x454/0x730 drivers/base/dd.c:844
+  device_initial_probe+0x4a/0x60 drivers/base/dd.c:891
+  bus_probe_device+0x137/0x390 drivers/base/bus.c:514
+  device_add+0x288d/0x30e0 drivers/base/core.c:2106
+  usb_new_device+0x23e5/0x2ff0 drivers/usb/core/hub.c:2534
+  hub_port_connect drivers/usb/core/hub.c:5089 [inline]
+  hub_port_connect_change drivers/usb/core/hub.c:5204 [inline]
+  port_event drivers/usb/core/hub.c:5350 [inline]
+  hub_event+0x48d1/0x7290 drivers/usb/core/hub.c:5432
+  process_one_work+0x1572/0x1f00 kernel/workqueue.c:2269
+  process_scheduled_works kernel/workqueue.c:2331 [inline]
+  worker_thread+0x189c/0x2460 kernel/workqueue.c:2417
+  kthread+0x4b5/0x4f0 kernel/kthread.c:254
+  ret_from_fork+0x35/0x40 arch/x86/entry/entry_64.S:355
+
+Signed-off-by: Phong Tran <tranmanphong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/hda/hdac_controller.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/net/usb/asix_devices.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/hda/hdac_controller.c b/sound/hda/hdac_controller.c
-index b2e9454f5816..6a190f0d2803 100644
---- a/sound/hda/hdac_controller.c
-+++ b/sound/hda/hdac_controller.c
-@@ -78,6 +78,8 @@ void snd_hdac_bus_init_cmd_io(struct hdac_bus *bus)
- 	snd_hdac_chip_writew(bus, RINTCNT, 1);
- 	/* enable rirb dma and response irq */
- 	snd_hdac_chip_writeb(bus, RIRBCTL, AZX_RBCTL_DMA_EN | AZX_RBCTL_IRQ_EN);
-+	/* Accept unsolicited responses */
-+	snd_hdac_chip_updatel(bus, GCTL, AZX_GCTL_UNSOL, AZX_GCTL_UNSOL);
- 	spin_unlock_irq(&bus->reg_lock);
- }
- EXPORT_SYMBOL_GPL(snd_hdac_bus_init_cmd_io);
-@@ -414,9 +416,6 @@ int snd_hdac_bus_reset_link(struct hdac_bus *bus, bool full_reset)
- 		return -EBUSY;
- 	}
+diff --git a/drivers/net/usb/asix_devices.c b/drivers/net/usb/asix_devices.c
+index 3d93993e74da..2eca4168af2f 100644
+--- a/drivers/net/usb/asix_devices.c
++++ b/drivers/net/usb/asix_devices.c
+@@ -238,7 +238,7 @@ static void asix_phy_reset(struct usbnet *dev, unsigned int reset_bits)
+ static int ax88172_bind(struct usbnet *dev, struct usb_interface *intf)
+ {
+ 	int ret = 0;
+-	u8 buf[ETH_ALEN];
++	u8 buf[ETH_ALEN] = {0};
+ 	int i;
+ 	unsigned long gpio_bits = dev->driver_info->data;
  
--	/* Accept unsolicited responses */
--	snd_hdac_chip_updatel(bus, GCTL, AZX_GCTL_UNSOL, AZX_GCTL_UNSOL);
--
- 	/* detect codecs */
- 	if (!bus->codec_mask) {
- 		bus->codec_mask = snd_hdac_chip_readw(bus, STATESTS);
+@@ -689,7 +689,7 @@ static int asix_resume(struct usb_interface *intf)
+ static int ax88772_bind(struct usbnet *dev, struct usb_interface *intf)
+ {
+ 	int ret, i;
+-	u8 buf[ETH_ALEN], chipcode = 0;
++	u8 buf[ETH_ALEN] = {0}, chipcode = 0;
+ 	u32 phyid;
+ 	struct asix_common_private *priv;
+ 
+@@ -1073,7 +1073,7 @@ static const struct net_device_ops ax88178_netdev_ops = {
+ static int ax88178_bind(struct usbnet *dev, struct usb_interface *intf)
+ {
+ 	int ret;
+-	u8 buf[ETH_ALEN];
++	u8 buf[ETH_ALEN] = {0};
+ 
+ 	usbnet_get_endpoints(dev,intf);
+ 
 -- 
 2.20.1
 
