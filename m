@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD76373E3D
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:23:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9F3373E3C
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:23:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390409AbfGXTms (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:42:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44652 "EHLO mail.kernel.org"
+        id S2389229AbfGXTmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:42:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388240AbfGXTms (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:42:48 -0400
+        id S2389203AbfGXTmv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:42:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDC9D21873;
-        Wed, 24 Jul 2019 19:42:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DAF920665;
+        Wed, 24 Jul 2019 19:42:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997367;
-        bh=+lOX/j8rmFpbITJk8sqtfGSUAEVYNwcy0C/BvfZ8d78=;
+        s=default; t=1563997370;
+        bh=GHmAGkLOrHLzPUBhHXMeYPkixSMgbRwCjktYV+PyNWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ND+TGw9FdWgICiAupfV3+EuZwFdOH1czUw+Uk/AoiglPEZdfUYRWx34x/PJh7iIC9
-         b1qHq9XzvjwlSs5Y8hSpQgSkM890jgI4mhcVHsBJma1L6CYzhfr26//VpiXX7uc0Hp
-         1IwCl6wQF6/U1syPqI7WqOX46QZjMNVI4G0xXLnI=
+        b=09ID5DDzGpd4269YO+75JzNPAq5s+d0tIIjj1ndGrUdsEZ4LEvzljHSjU+8DeqkG3
+         397YZ8rbxBsQ2OnqoZZW0uwEyQeoN5nw5zHoKatwfc54GbsRelwX+yBKb6/w46CYkq
+         7Wen/6RNWBw21WquukaRZdwjlV+f/2zApOKdW1xg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zdenek Kabelac <zkabelac@redhat.com>,
+        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.2 412/413] dm thin metadata: check if in fail_io mode when setting needs_check
-Date:   Wed, 24 Jul 2019 21:21:43 +0200
-Message-Id: <20190724191803.972802548@linuxfoundation.org>
+Subject: [PATCH 5.2 413/413] dm bufio: fix deadlock with loop device
+Date:   Wed, 24 Jul 2019 21:21:44 +0200
+Message-Id: <20190724191804.013853130@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -43,51 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@redhat.com>
+From: Junxiao Bi <junxiao.bi@oracle.com>
 
-commit 54fa16ee532705985e6c946da455856f18f63ee1 upstream.
+commit bd293d071ffe65e645b4d8104f9d8fe15ea13862 upstream.
 
-Check if in fail_io mode at start of dm_pool_metadata_set_needs_check().
-Otherwise dm_pool_metadata_set_needs_check()'s superblock_lock() can
-crash in dm_bm_write_lock() while accessing the block manager object
-that was previously destroyed as part of a failed
-dm_pool_abort_metadata() that ultimately set fail_io to begin with.
+When thin-volume is built on loop device, if available memory is low,
+the following deadlock can be triggered:
 
-Also, update DMERR() message to more accurately describe
-superblock_lock() failure.
+One process P1 allocates memory with GFP_FS flag, direct alloc fails,
+memory reclaim invokes memory shrinker in dm_bufio, dm_bufio_shrink_scan()
+runs, mutex dm_bufio_client->lock is acquired, then P1 waits for dm_buffer
+IO to complete in __try_evict_buffer().
+
+But this IO may never complete if issued to an underlying loop device
+that forwards it using direct-IO, which allocates memory using
+GFP_KERNEL (see: do_blockdev_direct_IO()).  If allocation fails, memory
+reclaim will invoke memory shrinker in dm_bufio, dm_bufio_shrink_scan()
+will be invoked, and since the mutex is already held by P1 the loop
+thread will hang, and IO will never complete.  Resulting in ABBA
+deadlock.
 
 Cc: stable@vger.kernel.org
-Reported-by: Zdenek Kabelac <zkabelac@redhat.com>
+Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-thin-metadata.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/md/dm-bufio.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/md/dm-thin-metadata.c
-+++ b/drivers/md/dm-thin-metadata.c
-@@ -2046,16 +2046,19 @@ int dm_pool_register_metadata_threshold(
+--- a/drivers/md/dm-bufio.c
++++ b/drivers/md/dm-bufio.c
+@@ -1599,9 +1599,7 @@ dm_bufio_shrink_scan(struct shrinker *sh
+ 	unsigned long freed;
  
- int dm_pool_metadata_set_needs_check(struct dm_pool_metadata *pmd)
- {
--	int r;
-+	int r = -EINVAL;
- 	struct dm_block *sblock;
- 	struct thin_disk_superblock *disk_super;
+ 	c = container_of(shrink, struct dm_bufio_client, shrinker);
+-	if (sc->gfp_mask & __GFP_FS)
+-		dm_bufio_lock(c);
+-	else if (!dm_bufio_trylock(c))
++	if (!dm_bufio_trylock(c))
+ 		return SHRINK_STOP;
  
- 	pmd_write_lock(pmd);
-+	if (pmd->fail_io)
-+		goto out;
-+
- 	pmd->flags |= THIN_METADATA_NEEDS_CHECK_FLAG;
- 
- 	r = superblock_lock(pmd, &sblock);
- 	if (r) {
--		DMERR("couldn't read superblock");
-+		DMERR("couldn't lock superblock");
- 		goto out;
- 	}
- 
+ 	freed  = __scan(c, sc->nr_to_scan, sc->gfp_mask);
 
 
