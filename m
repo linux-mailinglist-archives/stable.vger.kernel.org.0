@@ -2,110 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B94F73379
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 18:15:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A69473383
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 18:18:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727644AbfGXQP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 12:15:56 -0400
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:43513 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726614AbfGXQPz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 12:15:55 -0400
-Received: by mail-pg1-f193.google.com with SMTP id f25so21459242pgv.10
-        for <stable@vger.kernel.org>; Wed, 24 Jul 2019 09:15:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=2/X8d+N2SL13GFtWKeqQ/BIm7RYLDW1CqQYyQJCUeBc=;
-        b=efx2kjDpxdBQWRKbLrNffdIQYUrkv28DbY7Z53o5yLK6VSIdho9LeF+wFcir2Ioa1T
-         N6LYYjvskqj+ZeeZMTG4RArk3YHUwfUN2t8SM1n4m49RQG8KY/4/md8HH44KIDZ/iO1D
-         zJk/fA8h/DSB0/fHo+HNsfnHLAWRdq4QwOqHKwFlbo4vvMbTIw0HeYlLwtR2wtdgn1DJ
-         Rfcu3e6QvnZKaVTtXNiMInpUGtISSyw8uy24ZeBpXdw+n29uU3MDqEmiXWh7z+8/PpRc
-         e2pjft1iYwVag1TzTNgW+hzXDDyriT1iHix1/Lyj4oRh5xWbH2gPWk4tRaqkWNBIzDKE
-         DiUw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=2/X8d+N2SL13GFtWKeqQ/BIm7RYLDW1CqQYyQJCUeBc=;
-        b=ZIe05Uc4Ov1clLg7Wj/ImrAoNK4Wp9MMroF/Egfy0gSeDy5hcTAzHyyWb8Qe6SfE79
-         l0bTFINIUWiNxNpDbrZXX+/A5DtKAhWrVriZ4vmkCgDwRmoTwoXWv0z5xiUiAEbkGhnL
-         LR0YOmZWN2xdI2ft0ssrwaMPM42eGySo0YgIn2EMpDtCuG2VS0WqkedlU9UPSSwmGGXW
-         G+KcLYGKYYnpEH1mZ5WvfbF60dFkiNS+w8yBvr3p5xtY0yGmgBIpMashMRW5UbQo1HM1
-         SFp2VLieXOjjZcGXE+0SHT14F6VmpDhTm3eSyFI+pEBOBcVB66CmDWKU3hcw4rm5CXX5
-         DGxA==
-X-Gm-Message-State: APjAAAXEFAKbpL5QFIoiCo/j506YxeSmi9r1oLZoDf0XGXhW0rcskP+Y
-        OhTPEFJmuzIznNivhpkBanUj0bqP
-X-Google-Smtp-Source: APXvYqwAAAVn7bbYOiHCK3C1lzVwORIxvse5pNvNuxBOZ+eVRWuQFQ+QAshg5rsbetOaOS21bQLscg==
-X-Received: by 2002:a63:f304:: with SMTP id l4mr81335670pgh.66.1563984954844;
-        Wed, 24 Jul 2019 09:15:54 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id y12sm55412970pfn.187.2019.07.24.09.15.53
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 24 Jul 2019 09:15:54 -0700 (PDT)
-Subject: Re: btrfs related build failures in stable queues
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable <stable@vger.kernel.org>
-References: <d32a9740-c5cf-8c91-fd39-ba8f0499541d@roeck-us.net>
- <20190724154008.GA3050@kroah.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <6db43a01-2d84-9bda-4856-e5ee10120ca2@roeck-us.net>
-Date:   Wed, 24 Jul 2019 09:15:52 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1727747AbfGXQST (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 12:18:19 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:34088 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726441AbfGXQST (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 12:18:19 -0400
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id DBD5D30917AC;
+        Wed, 24 Jul 2019 16:18:18 +0000 (UTC)
+Received: from localhost (unknown [10.18.25.174])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 52E6B102482F;
+        Wed, 24 Jul 2019 16:18:14 +0000 (UTC)
+Date:   Wed, 24 Jul 2019 12:18:13 -0400
+From:   Mike Snitzer <snitzer@redhat.com>
+To:     Ming Lei <ming.lei@redhat.com>
+Cc:     Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
+        "Ewan D . Milne" <emilne@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Hannes Reinecke <hare@suse.com>,
+        Christoph Hellwig <hch@lst.de>, dm-devel@redhat.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH V3 1/2] blk-mq: add callback of .cleanup_rq
+Message-ID: <20190724161813.GA13896@redhat.com>
+References: <20190724031258.31688-1-ming.lei@redhat.com>
+ <20190724031258.31688-2-ming.lei@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20190724154008.GA3050@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190724031258.31688-2-ming.lei@redhat.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.41]); Wed, 24 Jul 2019 16:18:19 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/24/19 8:40 AM, Greg Kroah-Hartman wrote:
-> On Wed, Jul 24, 2019 at 08:07:50AM -0700, Guenter Roeck wrote:
->> v4.9.y to v5.1.y:
->>
->> fs/btrfs/file.c: In function 'btrfs_punch_hole':
->> fs/btrfs/file.c:2787:27: error: invalid initializer
->>     struct timespec64 now = current_time(inode);
->>                             ^~~~~~~~~~~~
->> fs/btrfs/file.c:2790:18: error: incompatible types when assigning to type 'struct timespec' from type 'struct timespec64'
+On Tue, Jul 23 2019 at 11:12pm -0400,
+Ming Lei <ming.lei@redhat.com> wrote:
+
+> dm-rq needs to free request which has been dispatched and not completed
+> by underlying queue. However, the underlying queue may have allocated
+> private data for this request in .queue_rq(), so the request private data
+> will be leaked in dm multipath IO code path.
 > 
-> This was reported, only seems to show up on arm64, right?
-> 
+> Add one new callback of .cleanup_rq() to fix the memory leak.
 
- From the 4.9.y build:
+Think the above kind of glosses over the nature of the issue.  While
+this issue _is_ unique to request-based DM multipath's use of blk-mq it
+ultimately is a failing of the existing blk-mq interface that SCSI's
+per-request private data is leaking.  SO all said, I'd rather this patch
+header reflect the nuance of why you skinned the cat like you have.
 
-Failed builds:
-	arm:allmodconfig
-	i386:allyesconfig
-	i386:allmodconfig
-	m68k:allmodconfig
-	mips:allmodconfig
-	parisc:allmodconfig
-	xtensa:allmodconfig
+Something like this would be a better header IMHO:
 
-It also affects various qemu builds, such as malta_defconfig, with btrfs enabled.
-It looks like it may affect all 32-bit builds with btrfs enabled. I _don't_ see
-this problem with arm64, actually.
+SCSI maintains its own driver private data hooked off of each SCSI
+request.  An upper layer driver (e.g. dm-rq) may need to retry these
+SCSI requests, before SCSI has fully dispatched them, due to a lower
+level SCSI driver's resource limitation identified in scsi_queue_rq().
+Currently SCSI's per-request private data is leaked when the upper layer
+driver (dm-rq) frees and then retries these requests in response to
+BLK_STS_RESOURCE or BLK_STS_DEV_RESOURCE returns from scsi_queue_rq().
 
->> v4.19.y, v5.1.y:
->>
->> fs/btrfs/props.c: In function 'prop_compression_validate':
->> fs/btrfs/props.c:369:6: error: implicit declaration of function 'btrfs_compression_is_valid_type'
->>
->> My apologies for the noise if this has already been reported/fixed.
-> 
-> Odd, I thought I fixed that, maybe I need to push out an updated git
-> tree, sorry about that.
-> 
+This usecase is so specialized that it doesn't warrant training an
+existing blk-mq interface (e.g. blk_mq_free_request) to allow SCSI to
+account for freeing its driver private data -- doing so would add an
+extra branch for handling a special case that all other consumers of
+SCSI (and blk-mq) won't ever need to worry about.
 
-It is reported with v4.19.60-243-gb06e2890aa3d and v5.1.19-346-ge63e6fbad916.
+So the most pragmatic way forward is to delegate freeing SCSI driver
+private data to the upper layer driver (dm-rq).  Do so by calling a new
+blk_mq_cleanup_rq() method from dm-rq.  A following commit will
+implement the .cleanup_rq() hook in scsi_mq_ops.
 
-No worries if it is already fixed.
 
-Guenter
+> Another use case is to free request when the hctx is dead during
+> cpu hotplug context.
+
+Not seeing any point forecasting this .cleanup_rq() hook's potential
+ability to address that cpu hotplug case; the future patch that provides
+that fix can deal with it.  Reality is the existing SCSI per-request
+private data leak justifies this new hook on its own.
+
+Mike
