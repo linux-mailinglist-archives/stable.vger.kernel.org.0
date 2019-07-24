@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B196745CE
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:47:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17383745FB
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:48:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391422AbfGYFqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:46:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34016 "EHLO mail.kernel.org"
+        id S2391588AbfGYFsO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:48:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391418AbfGYFqY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:46:24 -0400
+        id S2391425AbfGYFq1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:46:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D98420657;
-        Thu, 25 Jul 2019 05:46:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C36D620657;
+        Thu, 25 Jul 2019 05:46:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033583;
-        bh=C3mhXCl2ZWYBLwyb38j1K9FbAQ3C3952L957kgeENwA=;
+        s=default; t=1564033586;
+        bh=l2GgUcWotZtTGa/g0fbn9MHmnXq6w1je5UVn5OXKTA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i3uP1aIUzNM+0jDtaBuqCLYaSYI3HUaLWqHk1keklPFQs5g+EmCwYa0bQ1gRrecGh
-         D9sdZbwmMeffD3U227w0rjaw9Fzvv8oWpqru6ofhqrKzs+n7P7d42SYGStjMdepxew
-         soMpxEy+0RvhV5npedHJrbmsFR5/Wudf9tPplVRw=
+        b=DkIZYlmcd6Km8Q53l7PTo9LBiEjTSaqHAkMlcsKQOi1iSn2c1gexfxJ6o+6gz4Hrc
+         54DD1m0OZ1oa+F0mrfuEB2PSLUdg9BVvwzgq9HzrULZyl4Yp5zYxml+6uhTkArF1ZL
+         XK5wCChaomIV89kV3fGpbdDVkwz4+88B8H0lS2qk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Marc Meledandri <m.meledandri@gmail.com>,
-        Ben Skeggs <bskeggs@redhat.com>
-Subject: [PATCH 4.19 217/271] drm/nouveau/i2c: Enable i2c pads & busses during preinit
-Date:   Wed, 24 Jul 2019 21:21:26 +0200
-Message-Id: <20190724191713.683472423@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Andrea Parri <andrea.parri@amarulasolutions.com>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        linux-arch@vger.kernel.org, linux-crypto@vger.kernel.org
+Subject: [PATCH 4.19 218/271] padata: use smp_mb in padata_reorder to avoid orphaned padata jobs
+Date:   Wed, 24 Jul 2019 21:21:27 +0200
+Message-Id: <20190724191713.782742418@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -44,78 +49,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-commit 7cb95eeea6706c790571042a06782e378b2561ea upstream.
+commit cf144f81a99d1a3928f90b0936accfd3f45c9a0a upstream.
 
-It turns out that while disabling i2c bus access from software when the
-GPU is suspended was a step in the right direction with:
+Testing padata with the tcrypt module on a 5.2 kernel...
 
-commit 342406e4fbba ("drm/nouveau/i2c: Disable i2c bus access after
-->fini()")
+    # modprobe tcrypt alg="pcrypt(rfc4106(gcm(aes)))" type=3
+    # modprobe tcrypt mode=211 sec=1
 
-We also ended up accidentally breaking the vbios init scripts on some
-older Tesla GPUs, as apparently said scripts can actually use the i2c
-bus. Since these scripts are executed before initializing any
-subdevices, we end up failing to acquire access to the i2c bus which has
-left a number of cards with their fan controllers uninitialized. Luckily
-this doesn't break hardware - it just means the fan gets stuck at 100%.
+...produces this splat:
 
-This also means that we've always been using our i2c busses before
-initializing them during the init scripts for older GPUs, we just didn't
-notice it until we started preventing them from being used until init.
-It's pretty impressive this never caused us any issues before!
+    INFO: task modprobe:10075 blocked for more than 120 seconds.
+          Not tainted 5.2.0-base+ #16
+    modprobe        D    0 10075  10064 0x80004080
+    Call Trace:
+     ? __schedule+0x4dd/0x610
+     ? ring_buffer_unlock_commit+0x23/0x100
+     schedule+0x6c/0x90
+     schedule_timeout+0x3b/0x320
+     ? trace_buffer_unlock_commit_regs+0x4f/0x1f0
+     wait_for_common+0x160/0x1a0
+     ? wake_up_q+0x80/0x80
+     { crypto_wait_req }             # entries in braces added by hand
+     { do_one_aead_op }
+     { test_aead_jiffies }
+     test_aead_speed.constprop.17+0x681/0xf30 [tcrypt]
+     do_test+0x4053/0x6a2b [tcrypt]
+     ? 0xffffffffa00f4000
+     tcrypt_mod_init+0x50/0x1000 [tcrypt]
+     ...
 
-So, fix this by initializing our i2c pad and busses during subdev
-pre-init. We skip initializing aux busses during pre-init, as those are
-guaranteed to only ever be used by nouveau for DP aux transactions.
+The second modprobe command never finishes because in padata_reorder,
+CPU0's load of reorder_objects is executed before the unlocking store in
+spin_unlock_bh(pd->lock), causing CPU0 to miss CPU1's increment:
 
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Tested-by: Marc Meledandri <m.meledandri@gmail.com>
-Fixes: 342406e4fbba ("drm/nouveau/i2c: Disable i2c bus access after ->fini()")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+CPU0                                 CPU1
+
+padata_reorder                       padata_do_serial
+  LOAD reorder_objects  // 0
+                                       INC reorder_objects  // 1
+                                       padata_reorder
+                                         TRYLOCK pd->lock   // failed
+  UNLOCK pd->lock
+
+CPU0 deletes the timer before returning from padata_reorder and since no
+other job is submitted to padata, modprobe waits indefinitely.
+
+Add a pair of full barriers to guarantee proper ordering:
+
+CPU0                                 CPU1
+
+padata_reorder                       padata_do_serial
+  UNLOCK pd->lock
+  smp_mb()
+  LOAD reorder_objects
+                                       INC reorder_objects
+                                       smp_mb__after_atomic()
+                                       padata_reorder
+                                         TRYLOCK pd->lock
+
+smp_mb__after_atomic is needed so the read part of the trylock operation
+comes after the INC, as Andrea points out.   Thanks also to Andrea for
+help with writing a litmus test.
+
+Fixes: 16295bec6398 ("padata: Generic parallelization/serialization interface")
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: <stable@vger.kernel.org>
+Cc: Andrea Parri <andrea.parri@amarulasolutions.com>
+Cc: Boqun Feng <boqun.feng@gmail.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Paul E. McKenney <paulmck@linux.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: linux-arch@vger.kernel.org
+Cc: linux-crypto@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/i2c/base.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ kernel/padata.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/base.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/base.c
-@@ -185,6 +185,25 @@ nvkm_i2c_fini(struct nvkm_subdev *subdev
- }
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -267,7 +267,12 @@ static void padata_reorder(struct parall
+ 	 * The next object that needs serialization might have arrived to
+ 	 * the reorder queues in the meantime, we will be called again
+ 	 * from the timer function if no one else cares for it.
++	 *
++	 * Ensure reorder_objects is read after pd->lock is dropped so we see
++	 * an increment from another task in padata_do_serial.  Pairs with
++	 * smp_mb__after_atomic in padata_do_serial.
+ 	 */
++	smp_mb();
+ 	if (atomic_read(&pd->reorder_objects)
+ 			&& !(pinst->flags & PADATA_RESET))
+ 		mod_timer(&pd->timer, jiffies + HZ);
+@@ -387,6 +392,13 @@ void padata_do_serial(struct padata_priv
+ 	list_add_tail(&padata->list, &pqueue->reorder.list);
+ 	spin_unlock(&pqueue->reorder.lock);
  
- static int
-+nvkm_i2c_preinit(struct nvkm_subdev *subdev)
-+{
-+	struct nvkm_i2c *i2c = nvkm_i2c(subdev);
-+	struct nvkm_i2c_bus *bus;
-+	struct nvkm_i2c_pad *pad;
-+
 +	/*
-+	 * We init our i2c busses as early as possible, since they may be
-+	 * needed by the vbios init scripts on some cards
++	 * Ensure the atomic_inc of reorder_objects above is ordered correctly
++	 * with the trylock of pd->lock in padata_reorder.  Pairs with smp_mb
++	 * in padata_reorder.
 +	 */
-+	list_for_each_entry(pad, &i2c->pad, head)
-+		nvkm_i2c_pad_init(pad);
-+	list_for_each_entry(bus, &i2c->bus, head)
-+		nvkm_i2c_bus_init(bus);
++	smp_mb__after_atomic();
 +
-+	return 0;
-+}
-+
-+static int
- nvkm_i2c_init(struct nvkm_subdev *subdev)
- {
- 	struct nvkm_i2c *i2c = nvkm_i2c(subdev);
-@@ -238,6 +257,7 @@ nvkm_i2c_dtor(struct nvkm_subdev *subdev
- static const struct nvkm_subdev_func
- nvkm_i2c = {
- 	.dtor = nvkm_i2c_dtor,
-+	.preinit = nvkm_i2c_preinit,
- 	.init = nvkm_i2c_init,
- 	.fini = nvkm_i2c_fini,
- 	.intr = nvkm_i2c_intr,
+ 	put_cpu();
+ 
+ 	/* If we're running on the wrong CPU, call padata_reorder() via a
 
 
