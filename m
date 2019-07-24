@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EFD0745F3
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:48:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33072745DD
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:47:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728557AbfGYFrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:47:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34924 "EHLO mail.kernel.org"
+        id S1728922AbfGYFrF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:47:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388335AbfGYFrC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:47:02 -0400
+        id S1729089AbfGYFrF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:47:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3D6A2075C;
-        Thu, 25 Jul 2019 05:47:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D3AA20657;
+        Thu, 25 Jul 2019 05:47:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033621;
-        bh=MF8rD2QGHB9J0ZLkwA0r7YPIlLeoGOqpJ0E+xa3tB/E=;
+        s=default; t=1564033624;
+        bh=4b4CX6jb8XCPeuHxubIIUkcfA2LhIbM6dpe6yStPo6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oEFbouYZ5/+mXId0xw+7g/2eAPqPlqRNZh3mKCukktiDS4kzOsidEMKBkvzmDwkv9
-         1RMj5dfTqYIwvi24d/wqr6qOi6T24L55Of/cYVao+r6nf4G3EF95fw5/c8DX4Upj+s
-         meKhmv5EI4dp8c6O/5wWZwk/krJl5VoJaK+u8ISU=
+        b=i8XHhu4k+PpO312BkMUS6El5YZRpLVpQ9x+tVXW2KOaT9PjDhWUy0+qJt+QX4GAd6
+         cKbw2CBR0Qk/mK79u8Mwly2k7AkVt1o0orh/2dJeMLu2cYCDD/5bgYf3Pp3Varw2HV
+         O9x+j2aWj5BuNUrtaOmWt+h8tRQk9WqwnDx3kiFY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Schwab <schwab@linux-m68k.org>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
+        stable@vger.kernel.org,
+        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 255/271] powerpc/32s: fix suspend/resume when IBATs 4-7 are used
-Date:   Wed, 24 Jul 2019 21:22:04 +0200
-Message-Id: <20190724191717.064056341@linuxfoundation.org>
+Subject: [PATCH 4.19 256/271] powerpc/watchpoint: Restore NV GPRs while returning from exception
+Date:   Wed, 24 Jul 2019 21:22:05 +0200
+Message-Id: <20190724191717.158561828@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -44,249 +44,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
 
-commit 6ecb78ef56e08d2119d337ae23cb951a640dc52d upstream.
+commit f474c28fbcbe42faca4eb415172c07d76adcb819 upstream.
 
-Previously, only IBAT1 and IBAT2 were used to map kernel linear mem.
-Since commit 63b2bc619565 ("powerpc/mm/32s: Use BATs for
-STRICT_KERNEL_RWX"), we may have all 8 BATs used for mapping
-kernel text. But the suspend/restore functions only save/restore
-BATs 0 to 3, and clears BATs 4 to 7.
+powerpc hardware triggers watchpoint before executing the instruction.
+To make trigger-after-execute behavior, kernel emulates the
+instruction. If the instruction is 'load something into non-volatile
+register', exception handler should restore emulated register state
+while returning back, otherwise there will be register state
+corruption. eg, adding a watchpoint on a list can corrput the list:
 
-Make suspend and restore functions respectively save and reload
-the 8 BATs on CPUs having MMU_FTR_USE_HIGH_BATS feature.
+  # cat /proc/kallsyms | grep kthread_create_list
+  c00000000121c8b8 d kthread_create_list
 
-Reported-by: Andreas Schwab <schwab@linux-m68k.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Add watchpoint on kthread_create_list->prev:
+
+  # perf record -e mem:0xc00000000121c8c0
+
+Run some workload such that new kthread gets invoked. eg, I just
+logged out from console:
+
+  list_add corruption. next->prev should be prev (c000000001214e00), \
+	but was c00000000121c8b8. (next=c00000000121c8b8).
+  WARNING: CPU: 59 PID: 309 at lib/list_debug.c:25 __list_add_valid+0xb4/0xc0
+  CPU: 59 PID: 309 Comm: kworker/59:0 Kdump: loaded Not tainted 5.1.0-rc7+ #69
+  ...
+  NIP __list_add_valid+0xb4/0xc0
+  LR __list_add_valid+0xb0/0xc0
+  Call Trace:
+  __list_add_valid+0xb0/0xc0 (unreliable)
+  __kthread_create_on_node+0xe0/0x260
+  kthread_create_on_node+0x34/0x50
+  create_worker+0xe8/0x260
+  worker_thread+0x444/0x560
+  kthread+0x160/0x1a0
+  ret_from_kernel_thread+0x5c/0x70
+
+List corruption happened because it uses 'load into non-volatile
+register' instruction:
+
+Snippet from __kthread_create_on_node:
+
+  c000000000136be8:     addis   r29,r2,-19
+  c000000000136bec:     ld      r29,31424(r29)
+        if (!__list_add_valid(new, prev, next))
+  c000000000136bf0:     mr      r3,r30
+  c000000000136bf4:     mr      r5,r28
+  c000000000136bf8:     mr      r4,r29
+  c000000000136bfc:     bl      c00000000059a2f8 <__list_add_valid+0x8>
+
+Register state from WARN_ON():
+
+  GPR00: c00000000059a3a0 c000007ff23afb50 c000000001344e00 0000000000000075
+  GPR04: 0000000000000000 0000000000000000 0000001852af8bc1 0000000000000000
+  GPR08: 0000000000000001 0000000000000007 0000000000000006 00000000000004aa
+  GPR12: 0000000000000000 c000007ffffeb080 c000000000137038 c000005ff62aaa00
+  GPR16: 0000000000000000 0000000000000000 c000007fffbe7600 c000007fffbe7370
+  GPR20: c000007fffbe7320 c000007fffbe7300 c000000001373a00 0000000000000000
+  GPR24: fffffffffffffef7 c00000000012e320 c000007ff23afcb0 c000000000cb8628
+  GPR28: c00000000121c8b8 c000000001214e00 c000007fef5b17e8 c000007fef5b17c0
+
+Watchpoint hit at 0xc000000000136bec.
+
+  addis   r29,r2,-19
+   => r29 = 0xc000000001344e00 + (-19 << 16)
+   => r29 = 0xc000000001214e00
+
+  ld      r29,31424(r29)
+   => r29 = *(0xc000000001214e00 + 31424)
+   => r29 = *(0xc00000000121c8c0)
+
+0xc00000000121c8c0 is where we placed a watchpoint and thus this
+instruction was emulated by emulate_step. But because handle_dabr_fault
+did not restore emulated register state, r29 still contains stale
+value in above register state.
+
+Fixes: 5aae8a5370802 ("powerpc, hw_breakpoints: Implement hw_breakpoints for 64-bit server processors")
+Signed-off-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Cc: stable@vger.kernel.org # 2.6.36+
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/swsusp_32.S         |   73 ++++++++++++++++++++++++++++----
- arch/powerpc/platforms/powermac/sleep.S |   68 +++++++++++++++++++++++++++--
- 2 files changed, 128 insertions(+), 13 deletions(-)
+ arch/powerpc/kernel/exceptions-64s.S |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/kernel/swsusp_32.S
-+++ b/arch/powerpc/kernel/swsusp_32.S
-@@ -25,11 +25,19 @@
- #define SL_IBAT2	0x48
- #define SL_DBAT3	0x50
- #define SL_IBAT3	0x58
--#define SL_TB		0x60
--#define SL_R2		0x68
--#define SL_CR		0x6c
--#define SL_LR		0x70
--#define SL_R12		0x74	/* r12 to r31 */
-+#define SL_DBAT4	0x60
-+#define SL_IBAT4	0x68
-+#define SL_DBAT5	0x70
-+#define SL_IBAT5	0x78
-+#define SL_DBAT6	0x80
-+#define SL_IBAT6	0x88
-+#define SL_DBAT7	0x90
-+#define SL_IBAT7	0x98
-+#define SL_TB		0xa0
-+#define SL_R2		0xa8
-+#define SL_CR		0xac
-+#define SL_LR		0xb0
-+#define SL_R12		0xb4	/* r12 to r31 */
- #define SL_SIZE		(SL_R12 + 80)
+--- a/arch/powerpc/kernel/exceptions-64s.S
++++ b/arch/powerpc/kernel/exceptions-64s.S
+@@ -1745,7 +1745,7 @@ handle_page_fault:
+ 	addi	r3,r1,STACK_FRAME_OVERHEAD
+ 	bl	do_page_fault
+ 	cmpdi	r3,0
+-	beq+	12f
++	beq+	ret_from_except_lite
+ 	bl	save_nvgprs
+ 	mr	r5,r3
+ 	addi	r3,r1,STACK_FRAME_OVERHEAD
+@@ -1760,7 +1760,12 @@ handle_dabr_fault:
+ 	ld      r5,_DSISR(r1)
+ 	addi    r3,r1,STACK_FRAME_OVERHEAD
+ 	bl      do_break
+-12:	b       ret_from_except_lite
++	/*
++	 * do_break() may have changed the NV GPRS while handling a breakpoint.
++	 * If so, we need to restore them with their updated values. Don't use
++	 * ret_from_except_lite here.
++	 */
++	b       ret_from_except
  
- 	.section .data
-@@ -114,6 +122,41 @@ _GLOBAL(swsusp_arch_suspend)
- 	mfibatl	r4,3
- 	stw	r4,SL_IBAT3+4(r11)
  
-+BEGIN_MMU_FTR_SECTION
-+	mfspr	r4,SPRN_DBAT4U
-+	stw	r4,SL_DBAT4(r11)
-+	mfspr	r4,SPRN_DBAT4L
-+	stw	r4,SL_DBAT4+4(r11)
-+	mfspr	r4,SPRN_DBAT5U
-+	stw	r4,SL_DBAT5(r11)
-+	mfspr	r4,SPRN_DBAT5L
-+	stw	r4,SL_DBAT5+4(r11)
-+	mfspr	r4,SPRN_DBAT6U
-+	stw	r4,SL_DBAT6(r11)
-+	mfspr	r4,SPRN_DBAT6L
-+	stw	r4,SL_DBAT6+4(r11)
-+	mfspr	r4,SPRN_DBAT7U
-+	stw	r4,SL_DBAT7(r11)
-+	mfspr	r4,SPRN_DBAT7L
-+	stw	r4,SL_DBAT7+4(r11)
-+	mfspr	r4,SPRN_IBAT4U
-+	stw	r4,SL_IBAT4(r11)
-+	mfspr	r4,SPRN_IBAT4L
-+	stw	r4,SL_IBAT4+4(r11)
-+	mfspr	r4,SPRN_IBAT5U
-+	stw	r4,SL_IBAT5(r11)
-+	mfspr	r4,SPRN_IBAT5L
-+	stw	r4,SL_IBAT5+4(r11)
-+	mfspr	r4,SPRN_IBAT6U
-+	stw	r4,SL_IBAT6(r11)
-+	mfspr	r4,SPRN_IBAT6L
-+	stw	r4,SL_IBAT6+4(r11)
-+	mfspr	r4,SPRN_IBAT7U
-+	stw	r4,SL_IBAT7(r11)
-+	mfspr	r4,SPRN_IBAT7L
-+	stw	r4,SL_IBAT7+4(r11)
-+END_MMU_FTR_SECTION_IFSET(MMU_FTR_USE_HIGH_BATS)
-+
- #if  0
- 	/* Backup various CPU config stuffs */
- 	bl	__save_cpu_setup
-@@ -279,27 +322,41 @@ END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
- 	mtibatu	3,r4
- 	lwz	r4,SL_IBAT3+4(r11)
- 	mtibatl	3,r4
--#endif
--
- BEGIN_MMU_FTR_SECTION
--	li	r4,0
-+	lwz	r4,SL_DBAT4(r11)
- 	mtspr	SPRN_DBAT4U,r4
-+	lwz	r4,SL_DBAT4+4(r11)
- 	mtspr	SPRN_DBAT4L,r4
-+	lwz	r4,SL_DBAT5(r11)
- 	mtspr	SPRN_DBAT5U,r4
-+	lwz	r4,SL_DBAT5+4(r11)
- 	mtspr	SPRN_DBAT5L,r4
-+	lwz	r4,SL_DBAT6(r11)
- 	mtspr	SPRN_DBAT6U,r4
-+	lwz	r4,SL_DBAT6+4(r11)
- 	mtspr	SPRN_DBAT6L,r4
-+	lwz	r4,SL_DBAT7(r11)
- 	mtspr	SPRN_DBAT7U,r4
-+	lwz	r4,SL_DBAT7+4(r11)
- 	mtspr	SPRN_DBAT7L,r4
-+	lwz	r4,SL_IBAT4(r11)
- 	mtspr	SPRN_IBAT4U,r4
-+	lwz	r4,SL_IBAT4+4(r11)
- 	mtspr	SPRN_IBAT4L,r4
-+	lwz	r4,SL_IBAT5(r11)
- 	mtspr	SPRN_IBAT5U,r4
-+	lwz	r4,SL_IBAT5+4(r11)
- 	mtspr	SPRN_IBAT5L,r4
-+	lwz	r4,SL_IBAT6(r11)
- 	mtspr	SPRN_IBAT6U,r4
-+	lwz	r4,SL_IBAT6+4(r11)
- 	mtspr	SPRN_IBAT6L,r4
-+	lwz	r4,SL_IBAT7(r11)
- 	mtspr	SPRN_IBAT7U,r4
-+	lwz	r4,SL_IBAT7+4(r11)
- 	mtspr	SPRN_IBAT7L,r4
- END_MMU_FTR_SECTION_IFSET(MMU_FTR_USE_HIGH_BATS)
-+#endif
- 
- 	/* Flush all TLBs */
- 	lis	r4,0x1000
---- a/arch/powerpc/platforms/powermac/sleep.S
-+++ b/arch/powerpc/platforms/powermac/sleep.S
-@@ -38,10 +38,18 @@
- #define SL_IBAT2	0x48
- #define SL_DBAT3	0x50
- #define SL_IBAT3	0x58
--#define SL_TB		0x60
--#define SL_R2		0x68
--#define SL_CR		0x6c
--#define SL_R12		0x70	/* r12 to r31 */
-+#define SL_DBAT4	0x60
-+#define SL_IBAT4	0x68
-+#define SL_DBAT5	0x70
-+#define SL_IBAT5	0x78
-+#define SL_DBAT6	0x80
-+#define SL_IBAT6	0x88
-+#define SL_DBAT7	0x90
-+#define SL_IBAT7	0x98
-+#define SL_TB		0xa0
-+#define SL_R2		0xa8
-+#define SL_CR		0xac
-+#define SL_R12		0xb0	/* r12 to r31 */
- #define SL_SIZE		(SL_R12 + 80)
- 
- 	.section .text
-@@ -126,6 +134,41 @@ _GLOBAL(low_sleep_handler)
- 	mfibatl	r4,3
- 	stw	r4,SL_IBAT3+4(r1)
- 
-+BEGIN_MMU_FTR_SECTION
-+	mfspr	r4,SPRN_DBAT4U
-+	stw	r4,SL_DBAT4(r1)
-+	mfspr	r4,SPRN_DBAT4L
-+	stw	r4,SL_DBAT4+4(r1)
-+	mfspr	r4,SPRN_DBAT5U
-+	stw	r4,SL_DBAT5(r1)
-+	mfspr	r4,SPRN_DBAT5L
-+	stw	r4,SL_DBAT5+4(r1)
-+	mfspr	r4,SPRN_DBAT6U
-+	stw	r4,SL_DBAT6(r1)
-+	mfspr	r4,SPRN_DBAT6L
-+	stw	r4,SL_DBAT6+4(r1)
-+	mfspr	r4,SPRN_DBAT7U
-+	stw	r4,SL_DBAT7(r1)
-+	mfspr	r4,SPRN_DBAT7L
-+	stw	r4,SL_DBAT7+4(r1)
-+	mfspr	r4,SPRN_IBAT4U
-+	stw	r4,SL_IBAT4(r1)
-+	mfspr	r4,SPRN_IBAT4L
-+	stw	r4,SL_IBAT4+4(r1)
-+	mfspr	r4,SPRN_IBAT5U
-+	stw	r4,SL_IBAT5(r1)
-+	mfspr	r4,SPRN_IBAT5L
-+	stw	r4,SL_IBAT5+4(r1)
-+	mfspr	r4,SPRN_IBAT6U
-+	stw	r4,SL_IBAT6(r1)
-+	mfspr	r4,SPRN_IBAT6L
-+	stw	r4,SL_IBAT6+4(r1)
-+	mfspr	r4,SPRN_IBAT7U
-+	stw	r4,SL_IBAT7(r1)
-+	mfspr	r4,SPRN_IBAT7L
-+	stw	r4,SL_IBAT7+4(r1)
-+END_MMU_FTR_SECTION_IFSET(MMU_FTR_USE_HIGH_BATS)
-+
- 	/* Backup various CPU config stuffs */
- 	bl	__save_cpu_setup
- 
-@@ -326,22 +369,37 @@ grackle_wake_up:
- 	mtibatl	3,r4
- 
- BEGIN_MMU_FTR_SECTION
--	li	r4,0
-+	lwz	r4,SL_DBAT4(r1)
- 	mtspr	SPRN_DBAT4U,r4
-+	lwz	r4,SL_DBAT4+4(r1)
- 	mtspr	SPRN_DBAT4L,r4
-+	lwz	r4,SL_DBAT5(r1)
- 	mtspr	SPRN_DBAT5U,r4
-+	lwz	r4,SL_DBAT5+4(r1)
- 	mtspr	SPRN_DBAT5L,r4
-+	lwz	r4,SL_DBAT6(r1)
- 	mtspr	SPRN_DBAT6U,r4
-+	lwz	r4,SL_DBAT6+4(r1)
- 	mtspr	SPRN_DBAT6L,r4
-+	lwz	r4,SL_DBAT7(r1)
- 	mtspr	SPRN_DBAT7U,r4
-+	lwz	r4,SL_DBAT7+4(r1)
- 	mtspr	SPRN_DBAT7L,r4
-+	lwz	r4,SL_IBAT4(r1)
- 	mtspr	SPRN_IBAT4U,r4
-+	lwz	r4,SL_IBAT4+4(r1)
- 	mtspr	SPRN_IBAT4L,r4
-+	lwz	r4,SL_IBAT5(r1)
- 	mtspr	SPRN_IBAT5U,r4
-+	lwz	r4,SL_IBAT5+4(r1)
- 	mtspr	SPRN_IBAT5L,r4
-+	lwz	r4,SL_IBAT6(r1)
- 	mtspr	SPRN_IBAT6U,r4
-+	lwz	r4,SL_IBAT6+4(r1)
- 	mtspr	SPRN_IBAT6L,r4
-+	lwz	r4,SL_IBAT7(r1)
- 	mtspr	SPRN_IBAT7U,r4
-+	lwz	r4,SL_IBAT7+4(r1)
- 	mtspr	SPRN_IBAT7L,r4
- END_MMU_FTR_SECTION_IFSET(MMU_FTR_USE_HIGH_BATS)
- 
+ #ifdef CONFIG_PPC_BOOK3S_64
 
 
