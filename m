@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D913073AA0
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:54:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D9B973AA3
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:54:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404093AbfGXTwL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:52:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33708 "EHLO mail.kernel.org"
+        id S2404114AbfGXTwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:52:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404083AbfGXTwI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:52:08 -0400
+        id S2404107AbfGXTwP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:52:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA6D522ADC;
-        Wed, 24 Jul 2019 19:52:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1D652147A;
+        Wed, 24 Jul 2019 19:52:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997927;
-        bh=UHLBMKuVRGNJacK5YLD3HvgkTEb59mm4jBKEy/AzQ5k=;
+        s=default; t=1563997933;
+        bh=LtA1RB9Bg1G5SyqVDN+x6J+YySV0lxzHatCV6C1Neug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qm0sD5oxO7YS6yIHyQlsOn4wq4tUFiHoYERDlC2BA5+mk1TBpXtvmN5zGLGzjqlUe
-         m0nqTOZXryihzbncgWxSjIwB+Dxl6Ep+pdj6mQMur6SjIqdSSiAvq5zG3mqbDTqxNB
-         eZTQr3E1PExs/VOwBTEgkg65KEi/gmp2GUOpmbI0=
+        b=2Ac6XwSMvjFaGWLOjlSyBTDCu6LwJqDBYk672n1F2GA9zzLR4od94hOcxyFW130NW
+         O2C291NFkrkqBVgMt1W2lx/xaCmw/Rtk4sxCFVSnNQAC3BnYXRc5lq6qyCTHxMVICU
+         iGPf9yh8K8/pO1fdP+iK+4bMZ8dbIjYLXTzJv/YE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>,
+        Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 191/371] perf stat: Fix group lookup for metric group
-Date:   Wed, 24 Jul 2019 21:19:03 +0200
-Message-Id: <20190724191739.307166522@linuxfoundation.org>
+Subject: [PATCH 5.1 192/371] vxlan: do not destroy fdb if register_netdevice() is failed
+Date:   Wed, 24 Jul 2019 21:19:04 +0200
+Message-Id: <20190724191739.360882915@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -46,122 +45,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2f87f33f4226523df9c9cc28f9874ea02fcc3d3f ]
+[ Upstream commit 7c31e54aeee517d1318dfc0bde9fa7de75893dc6 ]
 
-The metric group code tries to find a group it added earlier in the
-evlist. Fix the lookup to handle groups with partially overlaps
-correctly. When a sub string match fails and we reset the match, we have
-to compare the first element again.
+__vxlan_dev_create() destroys FDB using specific pointer which indicates
+a fdb when error occurs.
+But that pointer should not be used when register_netdevice() fails because
+register_netdevice() internally destroys fdb when error occurs.
 
-I also renamed the find_evsel function to find_evsel_group to make its
-purpose clearer.
+This patch makes vxlan_fdb_create() to do not link fdb entry to vxlan dev
+internally.
+Instead, a new function vxlan_fdb_insert() is added to link fdb to vxlan
+dev.
 
-With the earlier changes this fixes:
+vxlan_fdb_insert() is called after calling register_netdevice().
+This routine can avoid situation that ->ndo_uninit() destroys fdb entry
+in error path of register_netdevice().
+Hence, error path of __vxlan_dev_create() routine can have an opportunity
+to destroy default fdb entry by hand.
 
-Before:
+Test command
+    ip link add bonding_masters type vxlan id 0 group 239.1.1.1 \
+	    dev enp0s9 dstport 4789
 
-  % perf stat -M UPI,IPC sleep 1
-  ...
-         1,032,922      uops_retired.retire_slots #      1.1 UPI
-         1,896,096      inst_retired.any
-         1,896,096      inst_retired.any
-         1,177,254      cpu_clk_unhalted.thread
+Splat looks like:
+[  213.392816] kasan: GPF could be caused by NULL-ptr deref or user memory access
+[  213.401257] general protection fault: 0000 [#1] SMP DEBUG_PAGEALLOC KASAN PTI
+[  213.402178] CPU: 0 PID: 1414 Comm: ip Not tainted 5.2.0-rc5+ #256
+[  213.402178] RIP: 0010:vxlan_fdb_destroy+0x120/0x220 [vxlan]
+[  213.402178] Code: df 48 8b 2b 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 06 01 00 00 4c 8b 63 08 48 b8 00 00 00 00 00 fc d
+[  213.402178] RSP: 0018:ffff88810cb9f0a0 EFLAGS: 00010202
+[  213.402178] RAX: dffffc0000000000 RBX: ffff888101d4a8c8 RCX: 0000000000000000
+[  213.402178] RDX: 1bd5a00000000040 RSI: ffff888101d4a8c8 RDI: ffff888101d4a8d0
+[  213.402178] RBP: 0000000000000000 R08: fffffbfff22b72d9 R09: 0000000000000000
+[  213.402178] R10: 00000000ffffffef R11: 0000000000000000 R12: dead000000000200
+[  213.402178] R13: ffff88810cb9f1f8 R14: ffff88810efccda0 R15: ffff88810efccda0
+[  213.402178] FS:  00007f7f6621a0c0(0000) GS:ffff88811b000000(0000) knlGS:0000000000000000
+[  213.402178] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  213.402178] CR2: 000055746f0807d0 CR3: 00000001123e0000 CR4: 00000000001006f0
+[  213.402178] Call Trace:
+[  213.402178]  __vxlan_dev_create+0x3a9/0x7d0 [vxlan]
+[  213.402178]  ? vxlan_changelink+0x740/0x740 [vxlan]
+[  213.402178]  ? rcu_read_unlock+0x60/0x60 [vxlan]
+[  213.402178]  ? __kasan_kmalloc.constprop.3+0xa0/0xd0
+[  213.402178]  vxlan_newlink+0x8d/0xc0 [vxlan]
+[  213.402178]  ? __vxlan_dev_create+0x7d0/0x7d0 [vxlan]
+[  213.554119]  ? __netlink_ns_capable+0xc3/0xf0
+[  213.554119]  __rtnl_newlink+0xb75/0x1180
+[  213.554119]  ? rtnl_link_unregister+0x230/0x230
+[ ... ]
 
-After:
-
-  % perf stat -M UPI,IPC sleep 1
-  ...
-        1,013,193      uops_retired.retire_slots #      1.1 UPI
-           932,033      inst_retired.any
-           932,033      inst_retired.any          #      0.9 IPC
-         1,091,245      cpu_clk_unhalted.thread
-
-Signed-off-by: Andi Kleen <ak@linux.intel.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Fixes: b18f3e365019 ("perf stat: Support JSON metrics in perf stat")
-Link: http://lkml.kernel.org/r/20190624193711.35241-4-andi@firstfloor.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 0241b836732f ("vxlan: fix default fdb entry netlink notify ordering during netdev create")
+Suggested-by: Roopa Prabhu <roopa@cumulusnetworks.com>
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Acked-by: Roopa Prabhu <roopa@cumulusnetworks.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/metricgroup.c | 47 ++++++++++++++++++++++++++---------
- 1 file changed, 35 insertions(+), 12 deletions(-)
+ drivers/net/vxlan.c | 37 +++++++++++++++++++++++++++----------
+ 1 file changed, 27 insertions(+), 10 deletions(-)
 
-diff --git a/tools/perf/util/metricgroup.c b/tools/perf/util/metricgroup.c
-index b8d864ed4afe..a48895c4324a 100644
---- a/tools/perf/util/metricgroup.c
-+++ b/tools/perf/util/metricgroup.c
-@@ -94,26 +94,49 @@ struct egroup {
- 	const char *metric_expr;
- };
+diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
+index 38ecb66fb3e9..82c25f07261f 100644
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -806,6 +806,14 @@ static struct vxlan_fdb *vxlan_fdb_alloc(struct vxlan_dev *vxlan,
+ 	return f;
+ }
  
--static struct perf_evsel *find_evsel(struct perf_evlist *perf_evlist,
--				     const char **ids,
--				     int idnum,
--				     struct perf_evsel **metric_events)
-+static bool record_evsel(int *ind, struct perf_evsel **start,
-+			 int idnum,
-+			 struct perf_evsel **metric_events,
-+			 struct perf_evsel *ev)
++static void vxlan_fdb_insert(struct vxlan_dev *vxlan, const u8 *mac,
++			     __be32 src_vni, struct vxlan_fdb *f)
 +{
-+	metric_events[*ind] = ev;
-+	if (*ind == 0)
-+		*start = ev;
-+	if (++*ind == idnum) {
-+		metric_events[*ind] = NULL;
-+		return true;
-+	}
-+	return false;
++	++vxlan->addrcnt;
++	hlist_add_head_rcu(&f->hlist,
++			   vxlan_fdb_head(vxlan, mac, src_vni));
 +}
 +
-+static struct perf_evsel *find_evsel_group(struct perf_evlist *perf_evlist,
-+					   const char **ids,
-+					   int idnum,
-+					   struct perf_evsel **metric_events)
- {
- 	struct perf_evsel *ev, *start = NULL;
- 	int ind = 0;
- 
- 	evlist__for_each_entry (perf_evlist, ev) {
-+		if (ev->collect_stat)
-+			continue;
- 		if (!strcmp(ev->name, ids[ind])) {
--			metric_events[ind] = ev;
--			if (ind == 0)
--				start = ev;
--			if (++ind == idnum) {
--				metric_events[ind] = NULL;
-+			if (record_evsel(&ind, &start, idnum,
-+					 metric_events, ev))
- 				return start;
--			}
- 		} else {
-+			/*
-+			 * We saw some other event that is not
-+			 * in our list of events. Discard
-+			 * the whole match and start again.
-+			 */
- 			ind = 0;
- 			start = NULL;
-+			if (!strcmp(ev->name, ids[ind])) {
-+				if (record_evsel(&ind, &start, idnum,
-+						 metric_events, ev))
-+					return start;
-+			}
- 		}
+ static int vxlan_fdb_create(struct vxlan_dev *vxlan,
+ 			    const u8 *mac, union vxlan_addr *ip,
+ 			    __u16 state, __be16 port, __be32 src_vni,
+@@ -831,18 +839,13 @@ static int vxlan_fdb_create(struct vxlan_dev *vxlan,
+ 		return rc;
  	}
- 	/*
-@@ -143,8 +166,8 @@ static int metricgroup__setup_events(struct list_head *groups,
- 			ret = -ENOMEM;
- 			break;
- 		}
--		evsel = find_evsel(perf_evlist, eg->ids, eg->idnum,
--				   metric_events);
-+		evsel = find_evsel_group(perf_evlist, eg->ids, eg->idnum,
-+					 metric_events);
- 		if (!evsel) {
- 			pr_debug("Cannot resolve %s: %s\n",
- 					eg->metric_name, eg->metric_expr);
+ 
+-	++vxlan->addrcnt;
+-	hlist_add_head_rcu(&f->hlist,
+-			   vxlan_fdb_head(vxlan, mac, src_vni));
+-
+ 	*fdb = f;
+ 
+ 	return 0;
+ }
+ 
+-static void vxlan_fdb_free(struct rcu_head *head)
++static void __vxlan_fdb_free(struct vxlan_fdb *f)
+ {
+-	struct vxlan_fdb *f = container_of(head, struct vxlan_fdb, rcu);
+ 	struct vxlan_rdst *rd, *nd;
+ 
+ 	list_for_each_entry_safe(rd, nd, &f->remotes, list) {
+@@ -852,6 +855,13 @@ static void vxlan_fdb_free(struct rcu_head *head)
+ 	kfree(f);
+ }
+ 
++static void vxlan_fdb_free(struct rcu_head *head)
++{
++	struct vxlan_fdb *f = container_of(head, struct vxlan_fdb, rcu);
++
++	__vxlan_fdb_free(f);
++}
++
+ static void vxlan_fdb_destroy(struct vxlan_dev *vxlan, struct vxlan_fdb *f,
+ 			      bool do_notify, bool swdev_notify)
+ {
+@@ -979,6 +989,7 @@ static int vxlan_fdb_update_create(struct vxlan_dev *vxlan,
+ 	if (rc < 0)
+ 		return rc;
+ 
++	vxlan_fdb_insert(vxlan, mac, src_vni, f);
+ 	rc = vxlan_fdb_notify(vxlan, f, first_remote_rtnl(f), RTM_NEWNEIGH,
+ 			      swdev_notify, extack);
+ 	if (rc)
+@@ -3573,12 +3584,17 @@ static int __vxlan_dev_create(struct net *net, struct net_device *dev,
+ 	if (err)
+ 		goto errout;
+ 
+-	/* notify default fdb entry */
+ 	if (f) {
++		vxlan_fdb_insert(vxlan, all_zeros_mac,
++				 vxlan->default_dst.remote_vni, f);
++
++		/* notify default fdb entry */
+ 		err = vxlan_fdb_notify(vxlan, f, first_remote_rtnl(f),
+ 				       RTM_NEWNEIGH, true, extack);
+-		if (err)
+-			goto errout;
++		if (err) {
++			vxlan_fdb_destroy(vxlan, f, false, false);
++			goto unregister;
++		}
+ 	}
+ 
+ 	list_add(&vxlan->next, &vn->vxlan_list);
+@@ -3590,7 +3606,8 @@ static int __vxlan_dev_create(struct net *net, struct net_device *dev,
+ 	 * destroy the entry by hand here.
+ 	 */
+ 	if (f)
+-		vxlan_fdb_destroy(vxlan, f, false, false);
++		__vxlan_fdb_free(f);
++unregister:
+ 	if (unregister)
+ 		unregister_netdevice(dev);
+ 	return err;
 -- 
 2.20.1
 
