@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2BA57390F
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:36:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB5F67391C
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:37:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728892AbfGXTg1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:36:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36178 "EHLO mail.kernel.org"
+        id S2389357AbfGXTg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:36:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728862AbfGXTg1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:36:27 -0400
+        id S2389365AbfGXTg6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:36:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75233214AF;
-        Wed, 24 Jul 2019 19:36:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3465720665;
+        Wed, 24 Jul 2019 19:36:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996985;
-        bh=QtlBSosPIGx7NyC+f4ToTQU3coh+S8xMK3YXpkL+5Qc=;
+        s=default; t=1563997017;
+        bh=7Y9poKPEgUGuoZRHPAlC4esT87CFOv4Dtq1zAnbwfYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ai1GDACEmAx6ec58xfA+mwxeUSUZNIJaSIFC2/wYxBQpAp7JtMxIojn0816x1cy95
-         3RaupP4GtktfP8/fzyJ4Wm+XctwJPv1irBRMqhN3nYBVmAMHEXsvAtWWjErTmYxjzL
-         uZh0C6wnxkqxLMeReA3JmmmPJexJYond9OwDqwOk=
+        b=KFcMLwJDl4IMjXxG8NwzIIxuf8KniAoHK7guU7duwfXkZvEv4PCdH/ImmYtJeJ8Gs
+         K954RKz08WTkZjy8l7EDiCEdvPB0z3jagmAAXl8O25Ul3Jc6HaU0k0apYB/MvnA3jV
+         AMV75UyRtQVJquGdjXoz8nGIDlvBMXNJsha27bZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>,
-        Thorsten Knabe <linux@thorsten-knabe.de>
-Subject: [PATCH 5.2 283/413] bcache: ignore read-ahead request failure on backing device
-Date:   Wed, 24 Jul 2019 21:19:34 +0200
-Message-Id: <20190724191756.533969744@linuxfoundation.org>
+        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 5.2 292/413] arm64: tegra: Update Jetson TX1 GPU regulator timings
+Date:   Wed, 24 Jul 2019 21:19:43 +0200
+Message-Id: <20190724191757.075181627@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -44,57 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Jon Hunter <jonathanh@nvidia.com>
 
-commit 578df99b1b0531d19af956530fe4da63d01a1604 upstream.
+commit ece6031ece2dd64d63708cfe1088016cee5b10c0 upstream.
 
-When md raid device (e.g. raid456) is used as backing device, read-ahead
-requests on a degrading and recovering md raid device might be failured
-immediately by md raid code, but indeed this md raid array can still be
-read or write for normal I/O requests. Therefore such failed read-ahead
-request are not real hardware failure. Further more, after degrading and
-recovering accomplished, read-ahead requests will be handled by md raid
-array again.
+The GPU regulator enable ramp delay for Jetson TX1 is set to 1ms which
+not sufficient because the enable ramp delay has been measured to be
+greater than 1ms. Furthermore, the downstream kernels released by NVIDIA
+for Jetson TX1 are using a enable ramp delay 2ms and a settling delay of
+160us. Update the GPU regulator enable ramp delay for Jetson TX1 to be
+2ms and add a settling delay of 160us.
 
-For such condition, I/O failures of read-ahead requests don't indicate
-real health status (because normal I/O still be served), they should not
-be counted into I/O error counter dc->io_errors.
-
-Since there is no simple way to detect whether the backing divice is a
-md raid device, this patch simply ignores I/O failures for read-ahead
-bios on backing device, to avoid bogus backing device failure on a
-degrading md raid array.
-
-Suggested-and-tested-by: Thorsten Knabe <linux@thorsten-knabe.de>
-Signed-off-by: Coly Li <colyli@suse.de>
 Cc: stable@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Fixes: 5e6b9a89afce ("arm64: tegra: Add VDD_GPU regulator to Jetson TX1")
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/bcache/io.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/arm64/boot/dts/nvidia/tegra210-p2180.dtsi |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/md/bcache/io.c
-+++ b/drivers/md/bcache/io.c
-@@ -58,6 +58,18 @@ void bch_count_backing_io_errors(struct
- 
- 	WARN_ONCE(!dc, "NULL pointer of struct cached_dev");
- 
-+	/*
-+	 * Read-ahead requests on a degrading and recovering md raid
-+	 * (e.g. raid6) device might be failured immediately by md
-+	 * raid code, which is not a real hardware media failure. So
-+	 * we shouldn't count failed REQ_RAHEAD bio to dc->io_errors.
-+	 */
-+	if (bio->bi_opf & REQ_RAHEAD) {
-+		pr_warn_ratelimited("%s: Read-ahead I/O failed on backing device, ignore",
-+				    dc->backing_dev_name);
-+		return;
-+	}
-+
- 	errors = atomic_add_return(1, &dc->io_errors);
- 	if (errors < dc->error_limit)
- 		pr_err("%s: IO error on backing device, unrecoverable",
+--- a/arch/arm64/boot/dts/nvidia/tegra210-p2180.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra210-p2180.dtsi
+@@ -328,7 +328,8 @@
+ 			regulator-max-microvolt = <1320000>;
+ 			enable-gpios = <&pmic 6 GPIO_ACTIVE_HIGH>;
+ 			regulator-ramp-delay = <80>;
+-			regulator-enable-ramp-delay = <1000>;
++			regulator-enable-ramp-delay = <2000>;
++			regulator-settling-time-us = <160>;
+ 		};
+ 	};
+ };
 
 
