@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D435073F60
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:32:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55ED873F5D
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:32:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727336AbfGXT3R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:29:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48306 "EHLO mail.kernel.org"
+        id S1729288AbfGXUcK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:32:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388337AbfGXT3O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:29:14 -0400
+        id S2388232AbfGXT3U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:29:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5272E22ADA;
-        Wed, 24 Jul 2019 19:29:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00DBA229F4;
+        Wed, 24 Jul 2019 19:29:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996553;
-        bh=SpUzqcby77o16NTeR8QQjkQPeC1IXxgQdO+ttTluORo=;
+        s=default; t=1563996560;
+        bh=QtkRpwKIMS1MM1vlmnVIMgdWiexO38FlHliCMnS6Akc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eQ2BfTgfg+EMBBQH0zfLjg3WBQxCuBdh9NSEmUJLLPIq7yzBI+EQXBZAPzeQEfmfN
-         CctV8ON5apA/hAg74ay1m5hRMvKFnaOkE9Nm0k7LcTzEwIAiM72IMdpn0MKLODMZ9X
-         RIPTLFm6f1uUZ1sLtgL5bhrtfQ+59GTftcYUuNGI=
+        b=a7z/0nLqQpT+cQLZiqoLzBQqjMf1O1E1EKPsIZKoUyrW/ElFUAsWd+39scZ0rkdbc
+         QwAXib0wnafG1WacLFaDx//gk3JJHjk3aLsPD2m2FRMcmQw0xbFukepuREs15pyA5+
+         rLWyJcBAtanpVR0D2NtQoKciq0JCDm2sdvDPaiEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 138/413] ipsec: select crypto ciphers for xfrm_algo
-Date:   Wed, 24 Jul 2019 21:17:09 +0200
-Message-Id: <20190724191744.906896939@linuxfoundation.org>
+Subject: [PATCH 5.2 139/413] media: staging: davinci: fix memory leaks and check for allocation failure
+Date:   Wed, 24 Jul 2019 21:17:10 +0200
+Message-Id: <20190724191744.967613995@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -45,41 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 597179b0ba550bd83fab1a9d57c42a9343c58514 ]
+[ Upstream commit a84e355ecd3ed9759d7aaa40170aab78e2a68a06 ]
 
-kernelci.org reports failed builds on arc because of what looks
-like an old missed 'select' statement:
+There are three error return paths that don't kfree params causing a
+memory leak.  Fix this by adding an error return path that kfree's
+params before returning.  Also add a check to see params failed to
+be allocated.
 
-net/xfrm/xfrm_algo.o: In function `xfrm_probe_algs':
-xfrm_algo.c:(.text+0x1e8): undefined reference to `crypto_has_ahash'
-
-I don't see this in randconfig builds on other architectures, but
-it's fairly clear we want to select the hash code for it, like we
-do for all its other users. As Herbert points out, CRYPTO_BLKCIPHER
-is also required even though it has not popped up in build tests.
-
-Fixes: 17bc19702221 ("ipsec: Use skcipher and ahash when probing algorithms")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/staging/media/davinci_vpfe/dm365_ipipe.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/net/xfrm/Kconfig b/net/xfrm/Kconfig
-index c967fc3c38c8..51bb6018f3bf 100644
---- a/net/xfrm/Kconfig
-+++ b/net/xfrm/Kconfig
-@@ -15,6 +15,8 @@ config XFRM_ALGO
- 	tristate
- 	select XFRM
- 	select CRYPTO
-+	select CRYPTO_HASH
-+	select CRYPTO_BLKCIPHER
+diff --git a/drivers/staging/media/davinci_vpfe/dm365_ipipe.c b/drivers/staging/media/davinci_vpfe/dm365_ipipe.c
+index 30e2edc0cec5..b88855c7ffe8 100644
+--- a/drivers/staging/media/davinci_vpfe/dm365_ipipe.c
++++ b/drivers/staging/media/davinci_vpfe/dm365_ipipe.c
+@@ -1251,10 +1251,10 @@ static int ipipe_s_config(struct v4l2_subdev *sd, struct vpfe_ipipe_config *cfg)
+ 	struct vpfe_ipipe_device *ipipe = v4l2_get_subdevdata(sd);
+ 	unsigned int i;
+ 	int rval = 0;
++	struct ipipe_module_params *params;
  
- if INET
- config XFRM_USER
+ 	for (i = 0; i < ARRAY_SIZE(ipipe_modules); i++) {
+ 		const struct ipipe_module_if *module_if;
+-		struct ipipe_module_params *params;
+ 		void *from, *to;
+ 		size_t size;
+ 
+@@ -1265,25 +1265,30 @@ static int ipipe_s_config(struct v4l2_subdev *sd, struct vpfe_ipipe_config *cfg)
+ 		from = *(void **)((void *)cfg + module_if->config_offset);
+ 
+ 		params = kmalloc(sizeof(*params), GFP_KERNEL);
++		if (!params)
++			return -ENOMEM;
+ 		to = (void *)params + module_if->param_offset;
+ 		size = module_if->param_size;
+ 
+ 		if (to && from && size) {
+ 			if (copy_from_user(to, (void __user *)from, size)) {
+ 				rval = -EFAULT;
+-				break;
++				goto error_free;
+ 			}
+ 			rval = module_if->set(ipipe, to);
+ 			if (rval)
+-				goto error;
++				goto error_free;
+ 		} else if (to && !from && size) {
+ 			rval = module_if->set(ipipe, NULL);
+ 			if (rval)
+-				goto error;
++				goto error_free;
+ 		}
+ 		kfree(params);
+ 	}
+-error:
++	return rval;
++
++error_free:
++	kfree(params);
+ 	return rval;
+ }
+ 
 -- 
 2.20.1
 
