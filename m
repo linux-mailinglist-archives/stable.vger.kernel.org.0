@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81C8B73C49
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:07:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 263B373C45
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:07:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405655AbfGXUDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:03:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53356 "EHLO mail.kernel.org"
+        id S2390661AbfGXUHp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:07:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405071AbfGXUDI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 16:03:08 -0400
+        id S2390764AbfGXUDj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 16:03:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 015B420665;
-        Wed, 24 Jul 2019 20:03:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F47D206BA;
+        Wed, 24 Jul 2019 20:03:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998587;
-        bh=mGnkw2XoQ5DXHzc2RlxPPbxIrDIFY4EP77hCvlohBjE=;
+        s=default; t=1563998618;
+        bh=Lqb720plAhnF/YmufVCIUF2Culua0WQPKVUrBJlh76Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FJ1W8RLxOYx7Va2Iq71v+2ZrigIvoaxBrw8SAm1ZPPc7PzUoZOxcD3Z199ddbjkO4
-         Zzy1cZ+Y1eYqtuDWBcQuHfDkgDI6kmyhUN0ONRFbccGmW2dTX1Be/ENrtXKBNkZn2L
-         vBucIT5yFCDMqWa3faAtvgeSo7+gE/FQwFlcM6Bs=
+        b=ZD89HKOqi8x8ygZHQRcesysVL7/E3bSmkkKQv6B8Sa2ebvOiNZQbOkoxwlLntJZl9
+         kfs0iSiMoj0oF2TvZq1uFxXr/mgjxEaqjB5jGE5/WhbQqtRnvvnKWoLDEMtNl8flMG
+         LQcS61+0E+as69G7CgIvwojjieeFk9/9lOJt40OU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
-        Marek Lindner <mareklindner@neomailbox.ch>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 038/271] batman-adv: Fix duplicated OGMs on NETDEV_UP
-Date:   Wed, 24 Jul 2019 21:18:27 +0200
-Message-Id: <20190724191658.460662211@linuxfoundation.org>
+        stable@vger.kernel.org, Imre Deak <imre.deak@intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will.deacon@arm.com>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 039/271] locking/lockdep: Fix merging of hlocks with non-zero references
+Date:   Wed, 24 Jul 2019 21:18:28 +0200
+Message-Id: <20190724191658.530756625@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -47,88 +49,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9e6b5648bbc4cd48fab62cecbb81e9cc3c6e7e88 ]
+[ Upstream commit d9349850e188b8b59e5322fda17ff389a1c0cd7d ]
 
-The state of slave interfaces are handled differently depending on whether
-the interface is up or not. All active interfaces (IFF_UP) will transmit
-OGMs. But for B.A.T.M.A.N. IV, also non-active interfaces are scheduling
-(low TTL) OGMs on active interfaces. The code which setups and schedules
-the OGMs must therefore already be called when the interfaces gets added as
-slave interface and the transmit function must then check whether it has to
-send out the OGM or not on the specific slave interface.
+The sequence
 
-But the commit f0d97253fb5f ("batman-adv: remove ogm_emit and ogm_schedule
-API calls") moved the setup code from the enable function to the activate
-function. The latter is called either when the added slave was already up
-when batadv_hardif_enable_interface processed the new interface or when a
-NETDEV_UP event was received for this slave interfac. As result, each
-NETDEV_UP would schedule a new OGM worker for the interface and thus OGMs
-would be send a lot more than expected.
+	static DEFINE_WW_CLASS(test_ww_class);
 
-Fixes: f0d97253fb5f ("batman-adv: remove ogm_emit and ogm_schedule API calls")
-Reported-by: Linus Lüssing <linus.luessing@c0d3.blue>
-Tested-by: Linus Lüssing <linus.luessing@c0d3.blue>
-Acked-by: Marek Lindner <mareklindner@neomailbox.ch>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+	struct ww_acquire_ctx ww_ctx;
+	struct ww_mutex ww_lock_a;
+	struct ww_mutex ww_lock_b;
+	struct ww_mutex ww_lock_c;
+	struct mutex lock_c;
+
+	ww_acquire_init(&ww_ctx, &test_ww_class);
+
+	ww_mutex_init(&ww_lock_a, &test_ww_class);
+	ww_mutex_init(&ww_lock_b, &test_ww_class);
+	ww_mutex_init(&ww_lock_c, &test_ww_class);
+
+	mutex_init(&lock_c);
+
+	ww_mutex_lock(&ww_lock_a, &ww_ctx);
+
+	mutex_lock(&lock_c);
+
+	ww_mutex_lock(&ww_lock_b, &ww_ctx);
+	ww_mutex_lock(&ww_lock_c, &ww_ctx);
+
+	mutex_unlock(&lock_c);	(*)
+
+	ww_mutex_unlock(&ww_lock_c);
+	ww_mutex_unlock(&ww_lock_b);
+	ww_mutex_unlock(&ww_lock_a);
+
+	ww_acquire_fini(&ww_ctx); (**)
+
+will trigger the following error in __lock_release() when calling
+mutex_release() at **:
+
+	DEBUG_LOCKS_WARN_ON(depth <= 0)
+
+The problem is that the hlock merging happening at * updates the
+references for test_ww_class incorrectly to 3 whereas it should've
+updated it to 4 (representing all the instances for ww_ctx and
+ww_lock_[abc]).
+
+Fix this by updating the references during merging correctly taking into
+account that we can have non-zero references (both for the hlock that we
+merge into another hlock or for the hlock we are merging into).
+
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Will Deacon <will.deacon@arm.com>
+Link: https://lkml.kernel.org/r/20190524201509.9199-2-imre.deak@intel.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bat_iv_ogm.c     | 4 ++--
- net/batman-adv/hard-interface.c | 3 +++
- net/batman-adv/types.h          | 3 +++
- 3 files changed, 8 insertions(+), 2 deletions(-)
+ kernel/locking/lockdep.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/net/batman-adv/bat_iv_ogm.c b/net/batman-adv/bat_iv_ogm.c
-index 73bf6a93a3cf..0b7b36fa0d5c 100644
---- a/net/batman-adv/bat_iv_ogm.c
-+++ b/net/batman-adv/bat_iv_ogm.c
-@@ -2485,7 +2485,7 @@ batadv_iv_ogm_neigh_is_sob(struct batadv_neigh_node *neigh1,
- 	return ret;
- }
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index 26b57e24476f..e810e8cb17e1 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -3326,17 +3326,17 @@ static int __lock_acquire(struct lockdep_map *lock, unsigned int subclass,
+ 	if (depth) {
+ 		hlock = curr->held_locks + depth - 1;
+ 		if (hlock->class_idx == class_idx && nest_lock) {
+-			if (hlock->references) {
+-				/*
+-				 * Check: unsigned int references:12, overflow.
+-				 */
+-				if (DEBUG_LOCKS_WARN_ON(hlock->references == (1 << 12)-1))
+-					return 0;
++			if (!references)
++				references++;
  
--static void batadv_iv_iface_activate(struct batadv_hard_iface *hard_iface)
-+static void batadv_iv_iface_enabled(struct batadv_hard_iface *hard_iface)
- {
- 	/* begin scheduling originator messages on that interface */
- 	batadv_iv_ogm_schedule(hard_iface);
-@@ -2825,8 +2825,8 @@ static void batadv_iv_gw_dump(struct sk_buff *msg, struct netlink_callback *cb,
- static struct batadv_algo_ops batadv_batman_iv __read_mostly = {
- 	.name = "BATMAN_IV",
- 	.iface = {
--		.activate = batadv_iv_iface_activate,
- 		.enable = batadv_iv_ogm_iface_enable,
-+		.enabled = batadv_iv_iface_enabled,
- 		.disable = batadv_iv_ogm_iface_disable,
- 		.update_mac = batadv_iv_ogm_iface_update_mac,
- 		.primary_set = batadv_iv_ogm_primary_iface_set,
-diff --git a/net/batman-adv/hard-interface.c b/net/batman-adv/hard-interface.c
-index 08690d06b7be..36f0962040d1 100644
---- a/net/batman-adv/hard-interface.c
-+++ b/net/batman-adv/hard-interface.c
-@@ -821,6 +821,9 @@ int batadv_hardif_enable_interface(struct batadv_hard_iface *hard_iface,
- 
- 	batadv_hardif_recalc_extra_skbroom(soft_iface);
- 
-+	if (bat_priv->algo_ops->iface.enabled)
-+		bat_priv->algo_ops->iface.enabled(hard_iface);
++			if (!hlock->references)
+ 				hlock->references++;
+-			} else {
+-				hlock->references = 2;
+-			}
 +
- out:
- 	return 0;
- 
-diff --git a/net/batman-adv/types.h b/net/batman-adv/types.h
-index eeee3e61c625..fdba8a144d73 100644
---- a/net/batman-adv/types.h
-+++ b/net/batman-adv/types.h
-@@ -2130,6 +2130,9 @@ struct batadv_algo_iface_ops {
- 	/** @enable: init routing info when hard-interface is enabled */
- 	int (*enable)(struct batadv_hard_iface *hard_iface);
- 
-+	/** @enabled: notification when hard-interface was enabled (optional) */
-+	void (*enabled)(struct batadv_hard_iface *hard_iface);
++			hlock->references += references;
 +
- 	/** @disable: de-init routing info when hard-interface is disabled */
- 	void (*disable)(struct batadv_hard_iface *hard_iface);
++			/* Overflow */
++			if (DEBUG_LOCKS_WARN_ON(hlock->references < references))
++				return 0;
  
+ 			return 1;
+ 		}
 -- 
 2.20.1
 
