@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C962873E93
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:25:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8B1E73E86
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:25:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727059AbfGXUZt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:25:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39176 "EHLO mail.kernel.org"
+        id S2389632AbfGXTii (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:38:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389193AbfGXTib (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:38:31 -0400
+        id S2389786AbfGXTig (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:38:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAB9B20665;
-        Wed, 24 Jul 2019 19:38:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A560214AF;
+        Wed, 24 Jul 2019 19:38:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997110;
-        bh=x5cBvB+ePUbEneL3+6RDnFsAOd6tOD2Z+cdqbyRCV1o=;
+        s=default; t=1563997115;
+        bh=90uT0hQzl2ry1AVARiOZO395TTaUxfa8Y/uH8XxG6uI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ICG8CEUQegaYP2wpW83032ZSIWlpDUjZp4HyMZo0zPWCrUfiLbNNYm9BhV+H+HOUR
-         +wMVTvTeJJEbC8/YLZ345On2W5q/XppQvWpb4RyXJ1EtUhsUYZdTHAEMfUZZdhHVMy
-         S18gtYYkwO8mAdFE/yfPBFln+L5Hi40NbOh5+nt0=
+        b=wiokfxlZO0Fej6KELXuICW9XjxaY2+59ySFgv8iXIbRTkTNvF6PCkaOv083d4jUr7
+         QGHyM9MibMlljWgDqIgerGUydpUAzMqbKKCMLmOHKqC2jxO28C1M1d1JXzTcaI/sL3
+         5aHQyYwnj9pzruuyV1L1J35wnNgfhvi3RaunionM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.2 324/413] media: videobuf2-core: Prevent size alignment wrapping buffer size to 0
-Date:   Wed, 24 Jul 2019 21:20:15 +0200
-Message-Id: <20190724191759.052586448@linuxfoundation.org>
+Subject: [PATCH 5.2 325/413] media: videobuf2-dma-sg: Prevent size from overflowing
+Date:   Wed, 24 Jul 2019 21:20:16 +0200
+Message-Id: <20190724191759.125108615@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -47,10 +47,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-commit defcdc5d89ced780fb45196d539d6570ec5b1ba5 upstream.
+commit 14f28f5cea9e3998442de87846d1907a531b6748 upstream.
 
-PAGE_ALIGN() may wrap the buffer size around to 0. Prevent this by
-checking that the aligned value is not smaller than the unaligned one.
+buf->size is an unsigned long; casting that to int will lead to an
+overflow if buf->size exceeds INT_MAX.
+
+Fix this by changing the type to unsigned long instead. This is possible
+as the buf->size is always aligned to PAGE_SIZE, and therefore the size
+will never have values lesser than 0.
 
 Note on backporting to stable: the file used to be under
 drivers/media/v4l2-core, it was moved to the current location after 4.14.
@@ -62,21 +66,19 @@ Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/common/videobuf2/videobuf2-core.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/common/videobuf2/videobuf2-dma-sg.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/common/videobuf2/videobuf2-core.c
-+++ b/drivers/media/common/videobuf2/videobuf2-core.c
-@@ -207,6 +207,10 @@ static int __vb2_buf_mem_alloc(struct vb
- 	for (plane = 0; plane < vb->num_planes; ++plane) {
- 		unsigned long size = PAGE_ALIGN(vb->planes[plane].length);
+--- a/drivers/media/common/videobuf2/videobuf2-dma-sg.c
++++ b/drivers/media/common/videobuf2/videobuf2-dma-sg.c
+@@ -59,7 +59,7 @@ static int vb2_dma_sg_alloc_compacted(st
+ 		gfp_t gfp_flags)
+ {
+ 	unsigned int last_page = 0;
+-	int size = buf->size;
++	unsigned long size = buf->size;
  
-+		/* Did it wrap around? */
-+		if (size < vb->planes[plane].length)
-+			goto free;
-+
- 		mem_priv = call_ptr_memop(vb, alloc,
- 				q->alloc_devs[plane] ? : q->dev,
- 				q->dma_attrs, size, q->dma_dir, q->gfp_flags);
+ 	while (size > 0) {
+ 		struct page *pages;
 
 
