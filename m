@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D586A73987
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:41:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A76187398B
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:41:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388088AbfGXTlI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:41:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42322 "EHLO mail.kernel.org"
+        id S2390140AbfGXTlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:41:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390125AbfGXTlD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:41:03 -0400
+        id S2389559AbfGXTlN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:41:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2726520665;
-        Wed, 24 Jul 2019 19:41:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2258214AF;
+        Wed, 24 Jul 2019 19:41:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997262;
-        bh=5pYMZi43cfgf5K/yk6QuHCzJcaNc+Pw8Os70RoTAy1o=;
+        s=default; t=1563997273;
+        bh=Ii5Hng9bB7hkNR5FEREtXLqS8OrCl3P6l6VAqgsU6wg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jU5pn9Xg3+hNcpgQapBwvk+JGK271R7DjEK8/kqA/s0X6v74/7gB8/xw6MFtE+blv
-         XvgfaFUMXog4LoJGN6svRXwcYvwFH/RvXiPLfA/byK/H6zuR7EVelpHZLG77tJ4lSd
-         QH1utAs/uZW/I0LLGHJ6FHjGQpkNUYHClUglHj50=
+        b=GdMb9I+SK1GddRoGSKx9pmjH+gEL2shpThshvJd83u+Dw9H5oRAlpZnGO6Wr3LJa6
+         kDse9QL+sQg8h8EQCpcA+QlyLfjTPDbhtMquNDJ6mqPXlLK8eU2NyolgL4pcHR0/vn
+         FbbVMJXgURTzh1q5FpC30u0iHzuKCVy6khhzMiog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Dan Williams <dan.j.williams@intel.com>,
+        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Yafang Shao <shaoyafang@didiglobal.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.2 376/413] mm/nvdimm: add is_ioremap_addr and use that to check ioremap address
-Date:   Wed, 24 Jul 2019 21:21:07 +0200
-Message-Id: <20190724191802.102043273@linuxfoundation.org>
+Subject: [PATCH 5.2 378/413] mm/memcontrol: fix wrong statistics in memory.stat
+Date:   Wed, 24 Jul 2019 21:21:09 +0200
+Message-Id: <20190724191802.201754427@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -46,79 +47,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Yafang Shao <laoar.shao@gmail.com>
 
-commit 9bd3bb6703d8c0a5fb8aec8e3287bd55b7341dcd upstream.
+commit dd9239900e12db84c198855b262ae7796db1123b upstream.
 
-Architectures like powerpc use different address range to map ioremap
-and vmalloc range.  The memunmap() check used by the nvdimm layer was
-wrongly using is_vmalloc_addr() to check for ioremap range which fails
-for ppc64.  This result in ppc64 not freeing the ioremap mapping.  The
-side effect of this is an unbind failure during module unload with
-papr_scm nvdimm driver
+When we calculate total statistics for memcg1_stats and memcg1_events,
+we use the the index 'i' in the for loop as the events index.  Actually
+we should use memcg1_stats[i] and memcg1_events[i] as the events index.
 
-Link: http://lkml.kernel.org/r/20190701134038.14165-1-aneesh.kumar@linux.ibm.com
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Fixes: b5beae5e224f ("powerpc/pseries: Add driver for PAPR SCM regions")
-Cc: Dan Williams <dan.j.williams@intel.com>
+Link: http://lkml.kernel.org/r/1562116978-19539-1-git-send-email-laoar.shao@gmail.com
+Fixes: 42a300353577 ("mm: memcontrol: fix recursive statistics correctness & scalabilty").
+Signed-off-by: Yafang Shao <laoar.shao@gmail.com
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Yafang Shao <shaoyafang@didiglobal.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/include/asm/pgtable.h |   14 ++++++++++++++
- include/linux/mm.h                 |    5 +++++
- kernel/iomem.c                     |    2 +-
- 3 files changed, 20 insertions(+), 1 deletion(-)
+ mm/memcontrol.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/include/asm/pgtable.h
-+++ b/arch/powerpc/include/asm/pgtable.h
-@@ -140,6 +140,20 @@ static inline void pte_frag_set(mm_conte
- }
- #endif
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -3530,12 +3530,13 @@ static int memcg_stat_show(struct seq_fi
+ 		if (memcg1_stats[i] == MEMCG_SWAP && !do_memsw_account())
+ 			continue;
+ 		seq_printf(m, "total_%s %llu\n", memcg1_stat_names[i],
+-			   (u64)memcg_page_state(memcg, i) * PAGE_SIZE);
++			   (u64)memcg_page_state(memcg, memcg1_stats[i]) *
++			   PAGE_SIZE);
+ 	}
  
-+#ifdef CONFIG_PPC64
-+#define is_ioremap_addr is_ioremap_addr
-+static inline bool is_ioremap_addr(const void *x)
-+{
-+#ifdef CONFIG_MMU
-+	unsigned long addr = (unsigned long)x;
-+
-+	return addr >= IOREMAP_BASE && addr < IOREMAP_END;
-+#else
-+	return false;
-+#endif
-+}
-+#endif /* CONFIG_PPC64 */
-+
- #endif /* __ASSEMBLY__ */
+ 	for (i = 0; i < ARRAY_SIZE(memcg1_events); i++)
+ 		seq_printf(m, "total_%s %llu\n", memcg1_event_names[i],
+-			   (u64)memcg_events(memcg, i));
++			   (u64)memcg_events(memcg, memcg1_events[i]));
  
- #endif /* _ASM_POWERPC_PGTABLE_H */
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -633,6 +633,11 @@ static inline bool is_vmalloc_addr(const
- 	return false;
- #endif
- }
-+
-+#ifndef is_ioremap_addr
-+#define is_ioremap_addr(x) is_vmalloc_addr(x)
-+#endif
-+
- #ifdef CONFIG_MMU
- extern int is_vmalloc_or_module_addr(const void *x);
- #else
---- a/kernel/iomem.c
-+++ b/kernel/iomem.c
-@@ -121,7 +121,7 @@ EXPORT_SYMBOL(memremap);
- 
- void memunmap(void *addr)
- {
--	if (is_vmalloc_addr(addr))
-+	if (is_ioremap_addr(addr))
- 		iounmap((void __iomem *) addr);
- }
- EXPORT_SYMBOL(memunmap);
+ 	for (i = 0; i < NR_LRU_LISTS; i++)
+ 		seq_printf(m, "total_%s %llu\n", mem_cgroup_lru_names[i],
 
 
