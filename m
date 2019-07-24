@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60261737E3
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:24:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80E8E737F3
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:24:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387900AbfGXTX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:23:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39896 "EHLO mail.kernel.org"
+        id S1727193AbfGXTYc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:24:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387898AbfGXTX4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:23:56 -0400
+        id S1729056AbfGXTYb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:24:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2B18218F0;
-        Wed, 24 Jul 2019 19:23:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DD0522387;
+        Wed, 24 Jul 2019 19:24:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996236;
-        bh=w7VUb5FPr2CBplIfXrUWD0r0lOuMXnxsaKY/LNDz9mg=;
+        s=default; t=1563996270;
+        bh=/m+OpmSi6461DEttxrd1JK+QUeBO2w8QPWSmaVlv9LE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oZ7DqTIApveocwsscvpb1QvtoB5vpos5G32gBJkKDm4VV7OW9nApzYViN8xEi/b1k
-         gMjTQqlTFjv+KixO7XS1avBhifZ94khwZYO5fY5btr/qwPtuzlU4ji2DAkDH6kVuWt
-         CvLI0WLdP+96SzIITGYoRoI+ETytPCkDPlUbHO2Q=
+        b=lNL7ToT6nIm2yvcR8GOvvohsgvlrrSk6Ub0PNkViwYD+zP8kTdIakLibDhhvpPuf+
+         pEZNHkUcBEWk7+wqom0DKSW1LmACckyvsnvMHSw3BjjTECqwECBRfPhWTyYax0iqgj
+         acpc4sCKeqh/b45DPWBOW7Ievytkxt8lTDUsxpIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
+        Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 027/413] media: venus: firmware: fix leaked of_node references
-Date:   Wed, 24 Jul 2019 21:15:18 +0200
-Message-Id: <20190724191737.420017002@linuxfoundation.org>
+Subject: [PATCH 5.2 032/413] ice: Fix couple of issues in ice_vsi_release
+Date:   Wed, 24 Jul 2019 21:15:23 +0200
+Message-Id: <20190724191737.862012030@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -45,51 +46,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2c41cc0be07b5ee2f1167f41cd8a86fc5b53d82c ]
+[ Upstream commit aa6ccf3f2d7042f94c4e91538956ce7051e7856e ]
 
-The call to of_parse_phandle returns a node pointer with refcount
-incremented thus it must be explicitly decremented after the last
-usage.
+Currently the driver is calling ice_napi_del() and then
+unregister_netdev(). The call to unregister_netdev() will result in a
+call to ice_stop() and then ice_vsi_close(). This is where we call
+napi_disable() for all the MSI-X vectors. This flow is reversed so make
+the changes to ensure napi_disable() happens prior to napi_del().
 
-Detected by coccinelle with the following warnings:
-drivers/media/platform/qcom/venus/firmware.c:90:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 82, but without a corresponding object release within this function.
-drivers/media/platform/qcom/venus/firmware.c:94:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 82, but without a corresponding object release within this function.
-drivers/media/platform/qcom/venus/firmware.c:128:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 82, but without a corresponding object release within this function.
+Before calling napi_del() and free_netdev() make sure
+unregister_netdev() was called. This is done by making sure the
+__ICE_DOWN bit is set in the vsi->state for the interested VSI.
 
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Acked-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/qcom/venus/firmware.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/ice/ice.h      |  1 -
+ drivers/net/ethernet/intel/ice/ice_lib.c  | 24 ++++++++++++-----------
+ drivers/net/ethernet/intel/ice/ice_main.c |  2 +-
+ 3 files changed, 14 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/media/platform/qcom/venus/firmware.c b/drivers/media/platform/qcom/venus/firmware.c
-index 1eba23409ff3..d3d1748a7ef6 100644
---- a/drivers/media/platform/qcom/venus/firmware.c
-+++ b/drivers/media/platform/qcom/venus/firmware.c
-@@ -78,11 +78,11 @@ static int venus_load_fw(struct venus_core *core, const char *fwname,
+diff --git a/drivers/net/ethernet/intel/ice/ice.h b/drivers/net/ethernet/intel/ice/ice.h
+index 792e6e42030e..754c7080c3fc 100644
+--- a/drivers/net/ethernet/intel/ice/ice.h
++++ b/drivers/net/ethernet/intel/ice/ice.h
+@@ -451,7 +451,6 @@ int ice_set_rss(struct ice_vsi *vsi, u8 *seed, u8 *lut, u16 lut_size);
+ int ice_get_rss(struct ice_vsi *vsi, u8 *seed, u8 *lut, u16 lut_size);
+ void ice_fill_rss_lut(u8 *lut, u16 rss_table_size, u16 rss_size);
+ void ice_print_link_msg(struct ice_vsi *vsi, bool isup);
+-void ice_napi_del(struct ice_vsi *vsi);
+ #ifdef CONFIG_DCB
+ int ice_pf_ena_all_vsi(struct ice_pf *pf, bool locked);
+ void ice_pf_dis_all_vsi(struct ice_pf *pf, bool locked);
+diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
+index fbf1eba0cc2a..f14fa51cc704 100644
+--- a/drivers/net/ethernet/intel/ice/ice_lib.c
++++ b/drivers/net/ethernet/intel/ice/ice_lib.c
+@@ -2754,19 +2754,14 @@ int ice_vsi_release(struct ice_vsi *vsi)
  
- 	ret = of_address_to_resource(node, 0, &r);
- 	if (ret)
--		return ret;
-+		goto err_put_node;
+ 	if (vsi->type == ICE_VSI_VF)
+ 		vf = &pf->vf[vsi->vf_id];
+-	/* do not unregister and free netdevs while driver is in the reset
+-	 * recovery pending state. Since reset/rebuild happens through PF
+-	 * service task workqueue, its not a good idea to unregister netdev
+-	 * that is associated to the PF that is running the work queue items
+-	 * currently. This is done to avoid check_flush_dependency() warning
+-	 * on this wq
++	/* do not unregister while driver is in the reset recovery pending
++	 * state. Since reset/rebuild happens through PF service task workqueue,
++	 * it's not a good idea to unregister netdev that is associated to the
++	 * PF that is running the work queue items currently. This is done to
++	 * avoid check_flush_dependency() warning on this wq
+ 	 */
+-	if (vsi->netdev && !ice_is_reset_in_progress(pf->state)) {
+-		ice_napi_del(vsi);
++	if (vsi->netdev && !ice_is_reset_in_progress(pf->state))
+ 		unregister_netdev(vsi->netdev);
+-		free_netdev(vsi->netdev);
+-		vsi->netdev = NULL;
+-	}
  
- 	ret = request_firmware(&mdt, fwname, dev);
- 	if (ret < 0)
--		return ret;
-+		goto err_put_node;
+ 	if (test_bit(ICE_FLAG_RSS_ENA, pf->flags))
+ 		ice_rss_clean(vsi);
+@@ -2799,6 +2794,13 @@ int ice_vsi_release(struct ice_vsi *vsi)
+ 	ice_rm_vsi_lan_cfg(vsi->port_info, vsi->idx);
+ 	ice_vsi_delete(vsi);
+ 	ice_vsi_free_q_vectors(vsi);
++
++	/* make sure unregister_netdev() was called by checking __ICE_DOWN */
++	if (vsi->netdev && test_bit(__ICE_DOWN, vsi->state)) {
++		free_netdev(vsi->netdev);
++		vsi->netdev = NULL;
++	}
++
+ 	ice_vsi_clear_rings(vsi);
  
- 	fw_size = qcom_mdt_get_size(mdt);
- 	if (fw_size < 0) {
-@@ -116,6 +116,8 @@ static int venus_load_fw(struct venus_core *core, const char *fwname,
- 	memunmap(mem_va);
- err_release_fw:
- 	release_firmware(mdt);
-+err_put_node:
-+	of_node_put(node);
- 	return ret;
- }
+ 	ice_vsi_put_qs(vsi);
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index 7843abf4d44d..dbf3d39ad8b1 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -1667,7 +1667,7 @@ static int ice_req_irq_msix_misc(struct ice_pf *pf)
+  * ice_napi_del - Remove NAPI handler for the VSI
+  * @vsi: VSI for which NAPI handler is to be removed
+  */
+-void ice_napi_del(struct ice_vsi *vsi)
++static void ice_napi_del(struct ice_vsi *vsi)
+ {
+ 	int v_idx;
  
 -- 
 2.20.1
