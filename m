@@ -2,84 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FB6072F74
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 15:03:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E9B87302C
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 15:46:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387453AbfGXNDl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 09:03:41 -0400
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:36411 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728161AbfGXNDi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 09:03:38 -0400
-Received: from heimdall.vpn.pengutronix.de ([2001:67c:670:205:1d::14] helo=blackshift.org)
-        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1hqGvc-0006gK-5H; Wed, 24 Jul 2019 15:03:32 +0200
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     netdev@vger.kernel.org
-Cc:     davem@davemloft.net, linux-can@vger.kernel.org,
-        kernel@pengutronix.de,
-        Stephane Grosjean <s.grosjean@peak-system.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 6/7] can: peak_usb: fix potential double kfree_skb()
-Date:   Wed, 24 Jul 2019 15:03:21 +0200
-Message-Id: <20190724130322.31702-7-mkl@pengutronix.de>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190724130322.31702-1-mkl@pengutronix.de>
-References: <20190724130322.31702-1-mkl@pengutronix.de>
+        id S1727090AbfGXNqt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 09:46:49 -0400
+Received: from mail-yb1-f194.google.com ([209.85.219.194]:37715 "EHLO
+        mail-yb1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725851AbfGXNqs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 09:46:48 -0400
+Received: by mail-yb1-f194.google.com with SMTP id i1so9995861ybo.4;
+        Wed, 24 Jul 2019 06:46:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=1FS6nZvEuFeNf1N3HWdad/uGLOLIg9Tz6qvhWMi6r5Y=;
+        b=kC7amnJXE0zXukFis2aMFEVoF2p7S3Bhseme9BxEy0ua0iMlZ0MG/bVxXoa3licq+j
+         vBDYMTBcVzXqD76FogQYucNOF/NuIcVP06M1OKip6pIwcmzqWIS2xtvdN/YhCrv5karB
+         kwagT21FvJiVkLPHVCxmXltgEC75uOUdqHGpxks9V1Iqh9vu2shsYSUA2AXVA9QsswOF
+         5Qhp8ofwrmImb4SUhZD5Uz9fD394qf8Q6b8rZ/NRTCbC9GRRwHVCfyAYv7PNNCr1ODgK
+         NOocIcgphcfuruoN+JA/+QJ2aSftTmR9kD1mHQPVOjnzVINpqYb/sv3gOrVoeYMwIF6s
+         BSJg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=1FS6nZvEuFeNf1N3HWdad/uGLOLIg9Tz6qvhWMi6r5Y=;
+        b=DPZzxeni8VKKseAQlsMx7naIEH0etHJfLxNZHEsFbcaA2gxwVPDeSVjFz775quFi7w
+         arWxzGm0OWlgA+B6R0NnXnMZXNPd51ReJQLSwBZWeEbkahoMM996ns/lqM+oztA+EPvH
+         0Tnep14c49yl9GAbBYO+VEFeeiMYBvPDEtYkUumnhQNt94dOhjCEHDB2ROWQF8hfn2o5
+         Ls1xmrZBlRAyw1Xou/0L0LgtKMA+tjiCHkZMalocOsGa9EpJAarv7OAbzc/FWIBqRf+O
+         gNnog/sUsyDsNGH7iRKy5m5OJ226Zqe7ow7o2/ZWwRTUIQWrDnw2Hp/tfxGOHzrc4wsN
+         Sh5w==
+X-Gm-Message-State: APjAAAWWTnhRqSkwZpYnRXGZ6G5JcDpvt3L6W1IirE5n9H+BOIjN4wtL
+        GEob+RdzzmFMaKPeBmANJPzq/DF4JymD9MhD+0M=
+X-Google-Smtp-Source: APXvYqzXdM5vKUUQadLuXZMsw7VWFLPbI51DNM7UMxQWu7FfUIu4B/2OC+v63bBoANlhjRNfXBm/oiteq5h9+LMmhHI=
+X-Received: by 2002:a25:aaea:: with SMTP id t97mr48822748ybi.126.1563976007886;
+ Wed, 24 Jul 2019 06:46:47 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:205:1d::14
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+References: <1560073529193139@kroah.com> <CAOQ4uxiTrsOs3KWOxedZicXNMJJharmWo=TDXDnxSC1XMNVKBg@mail.gmail.com>
+ <CAOQ4uxiTTuOESvZ2Y5cSebqKs+qeU3q6ZMReBDro0Qv7aRBhpw@mail.gmail.com>
+ <20190623010345.GJ2226@sasha-vm> <20190623202916.GA10957@kroah.com>
+ <20190624003409.GO2226@sasha-vm> <CAOQ4uxiz5CkGojr5yquUd__TS_eae+ZapqyGaojiOUGniFPMsg@mail.gmail.com>
+ <20190724115714.GA3244@kroah.com>
+In-Reply-To: <20190724115714.GA3244@kroah.com>
+From:   Amir Goldstein <amir73il@gmail.com>
+Date:   Wed, 24 Jul 2019 16:46:36 +0300
+Message-ID: <CAOQ4uxiEVsBp6qojO9K1TqzpETtdqDPzqTaFQGjr8woJ2WQP=g@mail.gmail.com>
+Subject: Re: FAILED: patch "[PATCH] ovl: support the FS_IOC_FS[SG]ETXATTR
+ ioctls" failed to apply to 5.1-stable tree
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        stable <stable@vger.kernel.org>,
+        overlayfs <linux-unionfs@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Grosjean <s.grosjean@peak-system.com>
+> > I don't think syzkaller ones are more relevant to 5.1 then the rest of
+> > the patches applied to 4.19. If anything, its the other way around.
+> > According to syzbot dashboard, it is being run on LTS kernels, not on
+> > latest stable.
+> >
+> > Please forgive me if my language caused confusion, when I said
+> > "please apply to 4.19" I meant 4.19+.
+>
+> So is anything else needed to be done here, or are we all caught up and
+> everything merged properly?
+>
 
-When closing the CAN device while tx skbs are inflight, echo skb could
-be released twice. By calling close_candev() before unlinking all
-pending tx urbs, then the internal echo_skb[] array is fully and
-correctly cleared before the USB write callback and, therefore,
-can_get_echo_skb() are called, for each aborted URB.
+All the needed patches have been merged, but
+Upstream commit 146d62e5a5867fbf84490d82455718bfb10fe824
+("ovl: detect overlapping layers") did introduce a regression to
+docker and friends into stable kernels :-/
 
-Fixes: bb4785551f64 ("can: usb: PEAK-System Technik USB adapters driver core")
-Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
----
- drivers/net/can/usb/peak_usb/pcan_usb_core.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+The fix commit is already tested and waiting in linux-next:
+0be0bfd2de9d ("ovl: fix regression caused by overlapping layers detection")
+but did not hit upstream yet. When it does, will need to apply it to v4.19+
 
-diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_core.c b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-index 458154c9b482..22b9c8e6d040 100644
---- a/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-@@ -568,16 +568,16 @@ static int peak_usb_ndo_stop(struct net_device *netdev)
- 	dev->state &= ~PCAN_USB_STATE_STARTED;
- 	netif_stop_queue(netdev);
- 
-+	close_candev(netdev);
-+
-+	dev->can.state = CAN_STATE_STOPPED;
-+
- 	/* unlink all pending urbs and free used memory */
- 	peak_usb_unlink_all_urbs(dev);
- 
- 	if (dev->adapter->dev_stop)
- 		dev->adapter->dev_stop(dev);
- 
--	close_candev(netdev);
--
--	dev->can.state = CAN_STATE_STOPPED;
--
- 	/* can set bus off now */
- 	if (dev->adapter->dev_set_bus) {
- 		int err = dev->adapter->dev_set_bus(dev, 0);
--- 
-2.20.1
-
+Thanks,
+Amir.
