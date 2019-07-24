@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2A86745B1
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:46:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 831A6745B3
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:46:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391313AbfGYFpR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:45:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60718 "EHLO mail.kernel.org"
+        id S2405154AbfGYFpU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:45:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391304AbfGYFpQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:45:16 -0400
+        id S2405147AbfGYFpU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:45:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02F5A22BEB;
-        Thu, 25 Jul 2019 05:45:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4BDA22BEB;
+        Thu, 25 Jul 2019 05:45:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033515;
-        bh=TEcS6VEwrK6c/rRhgJG8532FMPLUvInMa8VorxuqWJM=;
+        s=default; t=1564033519;
+        bh=zPsCyeore4QByTeWfah3hRE9uGuH/wF0goEemZD+vX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AoBiQ6vtsB877tgXck4QeOUE5YIrYKZ3s6uqY3lBtpmzywZQmEhcYuKUqnjBcFFUu
-         PosaTDL/XHFaId1qAykseZ9tFLKR62Q8Z3vfTU4Yux4/zaa2AZ2Il1efQf9Zwjw2Tg
-         Whpweesp5jSIOPq42DbDaD19om/oHnoXy3ivx3h8=
+        b=Z3xU0EYBfnGQFsIjxXboHE0pkkWhom62KOrkWIgd9o0EcA/cGrXbrMEJV8FZ1Rtii
+         qcEFKGQU2LgbhLv6Ns5WAIxuwp3Yqd1UZJdP4eXb5QP7JMWUev1RPQzcwUAU+21REF
+         zwVC5Lk53x91MjTtNgSJPOGatvgJ1fB3kKq26FIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Danit Goldberg <danitg@mellanox.com>,
-        Yishai Hadas <yishaih@mellanox.com>,
-        Artemy Kovalyov <artemyko@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.19 235/271] IB/mlx5: Report correctly tag matching rendezvous capability
-Date:   Wed, 24 Jul 2019 21:21:44 +0200
-Message-Id: <20190724191715.296943279@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.19 236/271] HID: wacom: generic: only switch the mode on devices with LEDs
+Date:   Wed, 24 Jul 2019 21:21:45 +0200
+Message-Id: <20190724191715.384398661@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -46,68 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Danit Goldberg <danitg@mellanox.com>
+From: Aaron Armstrong Skomra <skomra@gmail.com>
 
-commit 89705e92700170888236555fe91b45e4c1bb0985 upstream.
+commit d8e9806005f28bbb49899dab2068e3359e22ba35 upstream.
 
-Userspace expects the IB_TM_CAP_RC bit to indicate that the device
-supports RC transport tag matching with rendezvous offload. However the
-firmware splits this into two capabilities for eager and rendezvous tag
-matching.
+Currently, the driver will attempt to set the mode on all
+devices with a center button, but some devices with a center
+button lack LEDs, and attempting to set the LEDs on devices
+without LEDs results in the kernel error message of the form:
 
-Only if the FW supports both modes should userspace be told the tag
-matching capability is available.
+"leds input8::wacom-0.1: Setting an LED's brightness failed (-32)"
 
-Cc: <stable@vger.kernel.org> # 4.13
-Fixes: eb761894351d ("IB/mlx5: Fill XRQ capabilities")
-Signed-off-by: Danit Goldberg <danitg@mellanox.com>
-Reviewed-by: Yishai Hadas <yishaih@mellanox.com>
-Reviewed-by: Artemy Kovalyov <artemyko@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+This is because the generic codepath erroneously assumes that the
+BUTTON_CENTER usage indicates that the device has LEDs, the
+previously ignored TOUCH_RING_SETTING usage is a more accurate
+indication of the existence of LEDs on the device.
+
+Fixes: 10c55cacb8b2 ("HID: wacom: generic: support LEDs")
+Cc: <stable@vger.kernel.org> # v4.11+
+Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/mlx5/main.c |    8 ++++++--
- include/rdma/ib_verbs.h           |    4 ++--
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ drivers/hid/wacom_sys.c |    3 +++
+ drivers/hid/wacom_wac.c |    2 --
+ drivers/hid/wacom_wac.h |    1 +
+ 3 files changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -939,15 +939,19 @@ static int mlx5_ib_query_device(struct i
- 	}
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -275,6 +275,9 @@ static void wacom_feature_mapping(struct
+ 	wacom_hid_usage_quirk(hdev, field, usage);
  
- 	if (MLX5_CAP_GEN(mdev, tag_matching)) {
--		props->tm_caps.max_rndv_hdr_size = MLX5_TM_MAX_RNDV_MSG_SIZE;
- 		props->tm_caps.max_num_tags =
- 			(1 << MLX5_CAP_GEN(mdev, log_tag_matching_list_sz)) - 1;
--		props->tm_caps.flags = IB_TM_CAP_RC;
- 		props->tm_caps.max_ops =
- 			1 << MLX5_CAP_GEN(mdev, log_max_qp_sz);
- 		props->tm_caps.max_sge = MLX5_TM_MAX_SGE;
- 	}
- 
-+	if (MLX5_CAP_GEN(mdev, tag_matching) &&
-+	    MLX5_CAP_GEN(mdev, rndv_offload_rc)) {
-+		props->tm_caps.flags = IB_TM_CAP_RNDV_RC;
-+		props->tm_caps.max_rndv_hdr_size = MLX5_TM_MAX_RNDV_MSG_SIZE;
-+	}
-+
- 	if (MLX5_CAP_GEN(dev->mdev, cq_moderation)) {
- 		props->cq_caps.max_cq_moderation_count =
- 						MLX5_MAX_CQ_COUNT;
---- a/include/rdma/ib_verbs.h
-+++ b/include/rdma/ib_verbs.h
-@@ -290,8 +290,8 @@ struct ib_rss_caps {
- };
- 
- enum ib_tm_cap_flags {
--	/*  Support tag matching on RC transport */
--	IB_TM_CAP_RC		    = 1 << 0,
-+	/*  Support tag matching with rendezvous offload for RC transport */
-+	IB_TM_CAP_RNDV_RC = 1 << 0,
- };
- 
- struct ib_tm_caps {
+ 	switch (equivalent_usage) {
++	case WACOM_HID_WD_TOUCH_RING_SETTING:
++		wacom->generic_has_leds = true;
++		break;
+ 	case HID_DG_CONTACTMAX:
+ 		/* leave touch_max as is if predefined */
+ 		if (!features->touch_max) {
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1928,8 +1928,6 @@ static void wacom_wac_pad_usage_mapping(
+ 		features->device_type |= WACOM_DEVICETYPE_PAD;
+ 		break;
+ 	case WACOM_HID_WD_BUTTONCENTER:
+-		wacom->generic_has_leds = true;
+-		/* fall through */
+ 	case WACOM_HID_WD_BUTTONHOME:
+ 	case WACOM_HID_WD_BUTTONUP:
+ 	case WACOM_HID_WD_BUTTONDOWN:
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -145,6 +145,7 @@
+ #define WACOM_HID_WD_OFFSETBOTTOM       (WACOM_HID_UP_WACOMDIGITIZER | 0x0d33)
+ #define WACOM_HID_WD_DATAMODE           (WACOM_HID_UP_WACOMDIGITIZER | 0x1002)
+ #define WACOM_HID_WD_DIGITIZERINFO      (WACOM_HID_UP_WACOMDIGITIZER | 0x1013)
++#define WACOM_HID_WD_TOUCH_RING_SETTING (WACOM_HID_UP_WACOMDIGITIZER | 0x1032)
+ #define WACOM_HID_UP_G9                 0xff090000
+ #define WACOM_HID_G9_PEN                (WACOM_HID_UP_G9 | 0x02)
+ #define WACOM_HID_G9_TOUCHSCREEN        (WACOM_HID_UP_G9 | 0x11)
 
 
