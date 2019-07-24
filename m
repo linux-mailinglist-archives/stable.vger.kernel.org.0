@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FD7D745BA
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:46:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB53774604
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388071AbfGYFph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:45:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32964 "EHLO mail.kernel.org"
+        id S2391332AbfGYFpl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:45:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405210AbfGYFph (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:45:37 -0400
+        id S2391324AbfGYFpk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:45:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A7D822BEB;
-        Thu, 25 Jul 2019 05:45:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C65D722BEB;
+        Thu, 25 Jul 2019 05:45:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033536;
-        bh=GxwN1mmkCycNO3fHNV+ZrdYXA6d6xmqH0Z4BO14KspE=;
+        s=default; t=1564033539;
+        bh=CoBKqWiIa5zNNpcZbYdbs8ZD4v5CkUIQKUpQ5kFDWfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=apOtmE1ZMHpasMloYA4VonZbF/pDzx0m58RWIOABmsl62DToauIMg1DD39zoNtiJZ
-         80YVXuWrhfdZWghrPqvJnnOIp0cm4mfMndSB/08NjEgjiN7L/Iil0B6UmS8Yj2lAkm
-         JoRV5Ix8SnlLT6W4wr6WiOxYw9MUAlEub3QCbzHg=
+        b=XRMVbd7aFWI57NC4Z8cSyraK4C8y6FGgv/KWm6yXd3MOKh7fWMReERNmaz5HXaEdq
+         LCukYPVWWCYgbEjUEGKFvPvCQvFoRwAsnnhdqqJzrm+RfD1Njb7FqTgeJ6VpTLGctk
+         ou0tRdEHYHSqg+jKKGinp49DFQwBSfQPaiP7z360=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Drew Davenport <ddavenport@chromium.org>,
-        Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 241/271] include/asm-generic/bug.h: fix "cut here" for WARN_ON for __WARN_TAINT architectures
-Date:   Wed, 24 Jul 2019 21:21:50 +0200
-Message-Id: <20190724191715.827690757@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Dave Chinner <david@fromorbit.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 242/271] xfs: fix pagecache truncation prior to reflink
+Date:   Wed, 24 Jul 2019 21:21:51 +0200
+Message-Id: <20190724191715.912215063@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -45,43 +48,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Drew Davenport <ddavenport@chromium.org>
+commit 4918ef4ea008cd2ff47eb852894e3f9b9047f4f3 upstream.
 
-commit 6b15f678fb7d5ef54e089e6ace72f007fe6e9895 upstream.
+Prior to remapping blocks, it is necessary to remove pages from the
+destination file's page cache.  Unfortunately, the truncation is not
+aggressive enough -- if page size > block size, we'll end up zeroing
+subpage blocks instead of removing them.  So, round the start offset
+down and the end offset up to page boundaries.  We already wrote all
+the dirty data so the larger range shouldn't be a problem.
 
-For architectures using __WARN_TAINT, the WARN_ON macro did not print
-out the "cut here" string.  The other WARN_XXX macros would print "cut
-here" inside __warn_printk, which is not called for WARN_ON since it
-doesn't have a message to print.
-
-Link: http://lkml.kernel.org/r/20190624154831.163888-1-ddavenport@chromium.org
-Fixes: a7bed27af194 ("bug: fix "cut here" location for __WARN_TAINT architectures")
-Signed-off-by: Drew Davenport <ddavenport@chromium.org>
-Acked-by: Kees Cook <keescook@chromium.org>
-Tested-by: Kees Cook <keescook@chromium.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Dave Chinner <david@fromorbit.com>
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/asm-generic/bug.h |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/xfs/xfs_reflink.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/include/asm-generic/bug.h
-+++ b/include/asm-generic/bug.h
-@@ -104,8 +104,10 @@ extern void warn_slowpath_null(const cha
- 	warn_slowpath_fmt_taint(__FILE__, __LINE__, taint, arg)
- #else
- extern __printf(1, 2) void __warn_printk(const char *fmt, ...);
--#define __WARN()		__WARN_TAINT(TAINT_WARN)
--#define __WARN_printf(arg...)	do { __warn_printk(arg); __WARN(); } while (0)
-+#define __WARN() do { \
-+	printk(KERN_WARNING CUT_HERE); __WARN_TAINT(TAINT_WARN); \
-+} while (0)
-+#define __WARN_printf(arg...)	__WARN_printf_taint(TAINT_WARN, arg)
- #define __WARN_printf_taint(taint, arg...)				\
- 	do { __warn_printk(arg); __WARN_TAINT(taint); } while (0)
- #endif
+diff --git a/fs/xfs/xfs_reflink.c b/fs/xfs/xfs_reflink.c
+index 7088f44c0c59..38ea08a3dd1d 100644
+--- a/fs/xfs/xfs_reflink.c
++++ b/fs/xfs/xfs_reflink.c
+@@ -1369,8 +1369,9 @@ xfs_reflink_remap_prep(
+ 		goto out_unlock;
+ 
+ 	/* Zap any page cache for the destination file's range. */
+-	truncate_inode_pages_range(&inode_out->i_data, pos_out,
+-				   PAGE_ALIGN(pos_out + *len) - 1);
++	truncate_inode_pages_range(&inode_out->i_data,
++			round_down(pos_out, PAGE_SIZE),
++			round_up(pos_out + *len, PAGE_SIZE) - 1);
+ 
+ 	/* If we're altering the file contents... */
+ 	if (!is_dedupe) {
+-- 
+2.20.1
+
 
 
