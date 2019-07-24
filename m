@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CE5D73D82
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:18:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E5CF73D87
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:18:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391273AbfGXTtl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:49:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57914 "EHLO mail.kernel.org"
+        id S2403805AbfGXURy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:17:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390800AbfGXTtk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:49:40 -0400
+        id S2403799AbfGXTts (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:49:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84ED920659;
-        Wed, 24 Jul 2019 19:49:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A002F205C9;
+        Wed, 24 Jul 2019 19:49:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997779;
-        bh=CXM5VbJynbXTdT62wnQeXlfAn8i6CZymbpkKpf8OkyI=;
+        s=default; t=1563997787;
+        bh=w4us00/9sn9R8EktR5DtQjHif2aVMiSmqh/+yBf/PJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NZ4wU0aRDNLplV7yBMT3/bw0373BVSZqE2KtKHyAUvoz3FsBpO/LRHvCH6Y0e/yrO
-         wqVH2ZYQ7VLk5umIhigT3pMdsZKD8mRWY1gwG3iHcHKN/pf27tPQkKTXUuxHL53Rof
-         uKEwTEzbTBfM7zn92C03QZdXuQp03trxsnoqpe2Q=
+        b=YxgZBWhYW61JC4u7gQHxSPqWCAwJ5nBSSaky0Bl9/5PKRC9debMtnZb2cGQixGtbH
+         wad5QqLnNXx+j671BA5rscSgmbVsnBG/t+wDi+heIypiAH6co41IZoizQxyxqXpQ9H
+         QQyVYhS5SskPauDbLIPoZCEI5VdPjuYn4GkJvKpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Icenowy Zheng <icenowy@aosc.io>,
-        Ondrej Jirman <megous@megous.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, Borislav Petkov <bp@alien8.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 140/371] net: stmmac: sun8i: force select external PHY when no internal one
-Date:   Wed, 24 Jul 2019 21:18:12 +0200
-Message-Id: <20190724191735.534078181@linuxfoundation.org>
+Subject: [PATCH 5.1 143/371] x86/build: Add set -e to mkcapflags.sh to delete broken capflags.c
+Date:   Wed, 24 Jul 2019 21:18:15 +0200
+Message-Id: <20190724191735.801450037@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -45,43 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0fec7e72ae1391bb2d7527efb54fe6ae88acabce ]
+[ Upstream commit bc53d3d777f81385c1bb08b07bd1c06450ecc2c1 ]
 
-The PHY selection bit also exists on SoCs without an internal PHY; if it's
-set to 1 (internal PHY, default value) then the MAC will not make use of
-any PHY on such SoCs.
+Without 'set -e', shell scripts continue running even after any
+error occurs. The missed 'set -e' is a typical bug in shell scripting.
 
-This problem appears when adapting for H6, which has no real internal PHY
-(the "internal PHY" on H6 is not on-die, but on a co-packaged AC200 chip,
-connected via RMII interface at GPIO bank A).
+For example, when a disk space shortage occurs while this script is
+running, it actually ends up with generating a truncated capflags.c.
 
-Force the PHY selection bit to 0 when the SOC doesn't have an internal PHY,
-to address the problem of a wrong default value.
+Yet, mkcapflags.sh continues running and exits with 0. So, the build
+system assumes it has succeeded.
 
-Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
-Signed-off-by: Ondrej Jirman <megous@megous.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+It will not be re-generated in the next invocation of Make since its
+timestamp is newer than that of any of the source files.
+
+Add 'set -e' so that any error in this script is caught and propagated
+to the build system.
+
+Since 9c2af1c7377a ("kbuild: add .DELETE_ON_ERROR special target"),
+make automatically deletes the target on any failure. So, the broken
+capflags.c will be deleted automatically.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Link: https://lkml.kernel.org/r/20190625072622.17679-1-yamada.masahiro@socionext.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/x86/kernel/cpu/mkcapflags.sh | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-index ba124a4da793..8325e6499739 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-@@ -893,6 +893,11 @@ static int sun8i_dwmac_set_syscon(struct stmmac_priv *priv)
- 		 * address. No need to mask it again.
- 		 */
- 		reg |= 1 << H3_EPHY_ADDR_SHIFT;
-+	} else {
-+		/* For SoCs without internal PHY the PHY selection bit should be
-+		 * set to 0 (external PHY).
-+		 */
-+		reg &= ~H3_EPHY_SELECT;
- 	}
+diff --git a/arch/x86/kernel/cpu/mkcapflags.sh b/arch/x86/kernel/cpu/mkcapflags.sh
+index d0dfb892c72f..aed45b8895d5 100644
+--- a/arch/x86/kernel/cpu/mkcapflags.sh
++++ b/arch/x86/kernel/cpu/mkcapflags.sh
+@@ -4,6 +4,8 @@
+ # Generate the x86_cap/bug_flags[] arrays from include/asm/cpufeatures.h
+ #
  
- 	if (!of_property_read_u32(node, "allwinner,tx-delay-ps", &val)) {
++set -e
++
+ IN=$1
+ OUT=$2
+ 
 -- 
 2.20.1
 
