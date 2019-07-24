@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D024873D3B
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:15:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95C7273D35
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:15:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391763AbfGXTwo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:52:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34734 "EHLO mail.kernel.org"
+        id S2404271AbfGXTyB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:54:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391751AbfGXTwn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:52:43 -0400
+        id S2404266AbfGXTyA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:54:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44C6622BE8;
-        Wed, 24 Jul 2019 19:52:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AACFB22ADC;
+        Wed, 24 Jul 2019 19:53:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997962;
-        bh=KAb3NWyoP0PNIblTwiZYg056ddwWCOwhql5La9oPsuk=;
+        s=default; t=1563998040;
+        bh=dWZOKqVtBakxRyBVHEfpZ4h5+T0PPtBUpO8yzT8U9ec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hsw+tQ+gqKYzYaj9L0tNzU+slEdKHEXlbQkKOjGo4rwcXbcc5uhEMT9KR17ZDBwzw
-         cFLDkfydQVP/N3HpC+X6/YaKA8o066hAKgb8WEFd6GVNOggBC1vwKMGTQ71HWl2zgR
-         JR7wsjzX26Jy2ucvS6zQ3hkn6vjPBy+ZOSjP34Jk=
+        b=rl6hlPgz8vH3pQo0Yu/iK0vdZ0fsL7bw9HtQYb2u00BkITqiRgm7bHn4UMBd6/v55
+         lSumTjZFnqBquOGBDW7X+Ydfn8ea7vR2ogAumH2vWZjwgwjONAxin+hlIEYySwzfMb
+         dcISbNFHJz6Pt1ujEeCkxfCGw7jfWtZROv01pw0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        alsa-devel@alsa-project.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 201/371] ASoC: audio-graph-card: fix use-after-free in graph_for_each_link
-Date:   Wed, 24 Jul 2019 21:19:13 +0200
-Message-Id: <20190724191739.820465787@linuxfoundation.org>
+        stable@vger.kernel.org, Shijith Thotton <sthotton@marvell.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 208/371] genirq: Update irq stats from NMI handlers
+Date:   Wed, 24 Jul 2019 21:19:20 +0200
+Message-Id: <20190724191740.214761202@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -48,52 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1bcc1fd64e4dd903f4d868a9e053986e3b102713 ]
+[ Upstream commit c09cb1293523dd786ae54a12fd88001542cba2f6 ]
 
-After calling of_node_put() on the codec_ep and codec_port variables,
-they are still being used, which may result in use-after-free.
-We fix this issue by calling of_node_put() after the last usage.
+The NMI handlers handle_percpu_devid_fasteoi_nmi() and handle_fasteoi_nmi()
+do not update the interrupt counts. Due to that the NMI interrupt count
+does not show up correctly in /proc/interrupts.
 
-Fixes: fce9b90c1ab7 ("ASoC: audio-graph-card: cleanup DAI link loop method - step2")
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Cc: Liam Girdwood <lgirdwood@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Jaroslav Kysela <perex@perex.cz>
-Cc: Takashi Iwai <tiwai@suse.com>
-Cc: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Cc: alsa-devel@alsa-project.org
-Cc: linux-kernel@vger.kernel.org
-Link: https://lore.kernel.org/r/1562229530-8121-1-git-send-email-wen.yang99@zte.com.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Add the statistics and treat the NMI handlers in the same way as per cpu
+interrupts and prevent them from updating irq_desc::tot_count as this might
+be corrupted due to concurrency.
+
+[ tglx: Massaged changelog ]
+
+Fixes: 2dcf1fbcad35 ("genirq: Provide NMI handlers")
+Signed-off-by: Shijith Thotton <sthotton@marvell.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/1562313336-11888-1-git-send-email-sthotton@marvell.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/generic/audio-graph-card.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/irq/chip.c    | 4 ++++
+ kernel/irq/irqdesc.c | 8 +++++++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/generic/audio-graph-card.c b/sound/soc/generic/audio-graph-card.c
-index 69bc4848d787..f730830fb36c 100644
---- a/sound/soc/generic/audio-graph-card.c
-+++ b/sound/soc/generic/audio-graph-card.c
-@@ -460,9 +460,6 @@ static int graph_for_each_link(struct graph_priv *priv,
- 			codec_ep = of_graph_get_remote_endpoint(cpu_ep);
- 			codec_port = of_get_parent(codec_ep);
+diff --git a/kernel/irq/chip.c b/kernel/irq/chip.c
+index 04fe4f989bd8..bfac4d6761b3 100644
+--- a/kernel/irq/chip.c
++++ b/kernel/irq/chip.c
+@@ -754,6 +754,8 @@ void handle_fasteoi_nmi(struct irq_desc *desc)
+ 	unsigned int irq = irq_desc_get_irq(desc);
+ 	irqreturn_t res;
  
--			of_node_put(codec_ep);
--			of_node_put(codec_port);
--
- 			/* get convert-xxx property */
- 			memset(&adata, 0, sizeof(adata));
- 			graph_get_conversion(dev, codec_ep, &adata);
-@@ -482,6 +479,9 @@ static int graph_for_each_link(struct graph_priv *priv,
- 			else
- 				ret = func_noml(priv, cpu_ep, codec_ep, li);
- 
-+			of_node_put(codec_ep);
-+			of_node_put(codec_port);
++	__kstat_incr_irqs_this_cpu(desc);
 +
- 			if (ret < 0)
- 				return ret;
+ 	trace_irq_handler_entry(irq, action);
+ 	/*
+ 	 * NMIs cannot be shared, there is only one action.
+@@ -968,6 +970,8 @@ void handle_percpu_devid_fasteoi_nmi(struct irq_desc *desc)
+ 	unsigned int irq = irq_desc_get_irq(desc);
+ 	irqreturn_t res;
  
++	__kstat_incr_irqs_this_cpu(desc);
++
+ 	trace_irq_handler_entry(irq, action);
+ 	res = action->handler(irq, raw_cpu_ptr(action->percpu_dev_id));
+ 	trace_irq_handler_exit(irq, action, res);
+diff --git a/kernel/irq/irqdesc.c b/kernel/irq/irqdesc.c
+index 9f8a709337cf..8a93df71673d 100644
+--- a/kernel/irq/irqdesc.c
++++ b/kernel/irq/irqdesc.c
+@@ -945,6 +945,11 @@ unsigned int kstat_irqs_cpu(unsigned int irq, int cpu)
+ 			*per_cpu_ptr(desc->kstat_irqs, cpu) : 0;
+ }
+ 
++static bool irq_is_nmi(struct irq_desc *desc)
++{
++	return desc->istate & IRQS_NMI;
++}
++
+ /**
+  * kstat_irqs - Get the statistics for an interrupt
+  * @irq:	The interrupt number
+@@ -962,7 +967,8 @@ unsigned int kstat_irqs(unsigned int irq)
+ 	if (!desc || !desc->kstat_irqs)
+ 		return 0;
+ 	if (!irq_settings_is_per_cpu_devid(desc) &&
+-	    !irq_settings_is_per_cpu(desc))
++	    !irq_settings_is_per_cpu(desc) &&
++	    !irq_is_nmi(desc))
+ 	    return desc->tot_count;
+ 
+ 	for_each_possible_cpu(cpu)
 -- 
 2.20.1
 
