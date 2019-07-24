@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E391A7454A
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:41:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0178074553
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:41:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390769AbfGYFlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:41:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55682 "EHLO mail.kernel.org"
+        id S2404640AbfGYFl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:41:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390756AbfGYFk6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:40:58 -0400
+        id S2404634AbfGYFl0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:41:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BCAF22C7D;
-        Thu, 25 Jul 2019 05:40:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0524221850;
+        Thu, 25 Jul 2019 05:41:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033258;
-        bh=8ZDc2A+eJYtSwTH+qWvv5n5v6BuqQPfzwEJCxmqGHRE=;
+        s=default; t=1564033285;
+        bh=bJYU+BBdlRGXP2j5ps58YvTfzAMLYvWUtZycSO9cWgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kuq6+0+ePl+WyJenxKO2KNePe7T714QQiTWNTWTk/7kr2jSix3rDqnQLapxdflW65
-         UQQlLkOguxxYTKXXtHULu3VQASBqXvd+S01qj87CGPATNy/OKIKXu+e95KYdD4cZ3c
-         nuWG2noUF9y8TnILifrpE3z5TrVf8DEXE2DZNCyw=
+        b=bl6J9ph4r7Vh1f3qXIpAmwo+as2IAzZmEbOqAVBI3OIRj4QvYOrGnxYpCJsMEksYe
+         GXEqvohoIEs+fePTK6gluRo2iuwWLbLX03fdqgkMQAoaLsg3cIWIEs7F0Rq8oa/ZCV
+         1bza40w9MbKmGOHizAdQ6NrnDXr5WyncdoQxvzps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jo=C3=A3o=20Paulo=20Rechi=20Vita?= <jprvita@endlessm.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 147/271] Bluetooth: Add new 13d3:3491 QCA_ROME device
-Date:   Wed, 24 Jul 2019 21:20:16 +0200
-Message-Id: <20190724191707.780822044@linuxfoundation.org>
+Subject: [PATCH 4.19 155/271] gtp: fix Illegal context switch in RCU read-side critical section.
+Date:   Wed, 24 Jul 2019 21:20:24 +0200
+Message-Id: <20190724191708.483372021@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -45,37 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 44d34af2e4cfd0c5357182f8b43f3e0a1fe30a2e ]
+[ Upstream commit 3f167e1921865b379a9becf03828e7202c7b4917 ]
 
-Without the QCA ROME setup routine this adapter fails to establish a SCO
-connection.
+ipv4_pdp_add() is called in RCU read-side critical section.
+So GFP_KERNEL should not be used in the function.
+This patch make ipv4_pdp_add() to use GFP_ATOMIC instead of GFP_KERNEL.
 
-T:  Bus=01 Lev=01 Prnt=01 Port=08 Cnt=01 Dev#=  2 Spd=12  MxCh= 0
-D:  Ver= 1.10 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=13d3 ProdID=3491 Rev=00.01
-C:  #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=100mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-I:  If#=0x1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+Test commands:
+gtp-link add gtp1 &
+gtp-tunnel add gtp1 v1 100 200 1.1.1.1 2.2.2.2
 
-Signed-off-by: João Paulo Rechi Vita <jprvita@endlessm.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Splat looks like:
+[  130.618881] =============================
+[  130.626382] WARNING: suspicious RCU usage
+[  130.626994] 5.2.0-rc6+ #50 Not tainted
+[  130.627622] -----------------------------
+[  130.628223] ./include/linux/rcupdate.h:266 Illegal context switch in RCU read-side critical section!
+[  130.629684]
+[  130.629684] other info that might help us debug this:
+[  130.629684]
+[  130.631022]
+[  130.631022] rcu_scheduler_active = 2, debug_locks = 1
+[  130.632136] 4 locks held by gtp-tunnel/1025:
+[  130.632925]  #0: 000000002b93c8b7 (cb_lock){++++}, at: genl_rcv+0x15/0x40
+[  130.634159]  #1: 00000000f17bc999 (genl_mutex){+.+.}, at: genl_rcv_msg+0xfb/0x130
+[  130.635487]  #2: 00000000c644ed8e (rtnl_mutex){+.+.}, at: gtp_genl_new_pdp+0x18c/0x1150 [gtp]
+[  130.636936]  #3: 0000000007a1cde7 (rcu_read_lock){....}, at: gtp_genl_new_pdp+0x187/0x1150 [gtp]
+[  130.638348]
+[  130.638348] stack backtrace:
+[  130.639062] CPU: 1 PID: 1025 Comm: gtp-tunnel Not tainted 5.2.0-rc6+ #50
+[  130.641318] Call Trace:
+[  130.641707]  dump_stack+0x7c/0xbb
+[  130.642252]  ___might_sleep+0x2c0/0x3b0
+[  130.642862]  kmem_cache_alloc_trace+0x1cd/0x2b0
+[  130.643591]  gtp_genl_new_pdp+0x6c5/0x1150 [gtp]
+[  130.644371]  genl_family_rcv_msg+0x63a/0x1030
+[  130.645074]  ? mutex_lock_io_nested+0x1090/0x1090
+[  130.645845]  ? genl_unregister_family+0x630/0x630
+[  130.646592]  ? debug_show_all_locks+0x2d0/0x2d0
+[  130.647293]  ? check_flags.part.40+0x440/0x440
+[  130.648099]  genl_rcv_msg+0xa3/0x130
+[ ... ]
+
+Fixes: 459aa660eb1d ("gtp: add initial driver for datapath of GPRS Tunneling Protocol (GTP-U)")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/gtp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index 40a4f95f6178..f494fa30a912 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -277,6 +277,7 @@ static const struct usb_device_id blacklist_table[] = {
- 	{ USB_DEVICE(0x04ca, 0x3015), .driver_info = BTUSB_QCA_ROME },
- 	{ USB_DEVICE(0x04ca, 0x3016), .driver_info = BTUSB_QCA_ROME },
- 	{ USB_DEVICE(0x04ca, 0x301a), .driver_info = BTUSB_QCA_ROME },
-+	{ USB_DEVICE(0x13d3, 0x3491), .driver_info = BTUSB_QCA_ROME },
- 	{ USB_DEVICE(0x13d3, 0x3496), .driver_info = BTUSB_QCA_ROME },
+diff --git a/drivers/net/gtp.c b/drivers/net/gtp.c
+index f45a806b6c06..6f1ad7ccaea6 100644
+--- a/drivers/net/gtp.c
++++ b/drivers/net/gtp.c
+@@ -958,7 +958,7 @@ static int ipv4_pdp_add(struct gtp_dev *gtp, struct sock *sk,
  
- 	/* Broadcom BCM2035 */
+ 	}
+ 
+-	pctx = kmalloc(sizeof(struct pdp_ctx), GFP_KERNEL);
++	pctx = kmalloc(sizeof(*pctx), GFP_ATOMIC);
+ 	if (pctx == NULL)
+ 		return -ENOMEM;
+ 
 -- 
 2.20.1
 
