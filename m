@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C962973D9F
+	by mail.lfdr.de (Postfix) with ESMTP id 5922B73D9E
 	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:18:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403786AbfGXTsq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:48:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56268 "EHLO mail.kernel.org"
+        id S2390420AbfGXTsx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:48:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403815AbfGXTsp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:48:45 -0400
+        id S2403815AbfGXTsv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:48:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90AA020665;
-        Wed, 24 Jul 2019 19:48:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4F63205C9;
+        Wed, 24 Jul 2019 19:48:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997724;
-        bh=4jqX5u66y4Qf7X1G2HJvODoPVj0g3ObN57KBSnoBUF8=;
+        s=default; t=1563997730;
+        bh=4RT2YCBLC0Rda2BBIk43tD6MbLK6bI/3beNEyGlMY6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iuujD+z9O2EC0TkLtIAOVgNFIlgtbk72XQ0yRFnaWlwV1/Z+RR+if0iVGEmoxwrvz
-         0VIJ30Pam/p6ZHFjEcBJiHhkxIBMyVzHjcaAvL4rsTCoiv8Y1H2HTbxxMkCa0e6Wym
-         +XZpJDnIAh6BEdynWAqgVJDnm6KGB5PkAGWPyr9Q=
+        b=Wd8+JFjUU7N1T+bmmBxRD7UaMhYqcYXuQZ4RxhYhOkLFWfzUNrHQpcq/N+IbEHdMS
+         ZRhjOPvkI2kdDcaYZAATUUvtXPOj/uBU4/K8i6tEQO2dLMUdpuL+vhnFpyR8Wmqju2
+         hvVVoNrGrc0JNQus8k6yhO5rFR1s2W7QdAhQRD/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
         Grygorii Strashko <grygorii.strashko@ti.com>,
+        Keerthy <j-keerthy@ti.com>,
+        Ladislav Michl <ladis@linux-mips.org>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Tero Kristo <t-kristo@ti.com>,
         Tony Lindgren <tony@atomide.com>,
         Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 081/371] gpio: omap: ensure irq is enabled before wakeup
-Date:   Wed, 24 Jul 2019 21:17:13 +0200
-Message-Id: <20190724191730.944856709@linuxfoundation.org>
+Subject: [PATCH 5.1 083/371] gpio: omap: Fix lost edge wake-up interrupts
+Date:   Wed, 24 Jul 2019 21:17:15 +0200
+Message-Id: <20190724191731.096010251@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -46,82 +51,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c859e0d479b3b4f6132fc12637c51e01492f31f6 ]
+[ Upstream commit a522f1d0c381c42f3ace13b8bbeeccabdd6d2e5c ]
 
-Documentation states:
+If an edge interrupt triggers while entering idle just before we save
+GPIO datain register to saved_datain, the triggered GPIO will not be
+noticed on wake-up. This is because the saved_datain and GPIO datain
+are the same on wake-up in omap_gpio_unidle(). Let's fix this by
+ignoring any pending edge interrupts for saved_datain.
 
-  NOTE: There must be a correlation between the wake-up enable and
-  interrupt-enable registers. If a GPIO pin has a wake-up configured
-  on it, it must also have the corresponding interrupt enabled (on
-  one of the two interrupt lines).
+This issue affects only idle states where the GPIO module internal
+wake-up path is operational. For deeper idle states where the GPIO
+module gets powered off, Linux generic wakeirqs must be used for
+the padconf wake-up events with pinctrl-single driver. For examples,
+please see "interrupts-extended" dts usage in many drivers.
 
-Ensure that this condition is always satisfied by enabling the detection
-events after enabling the interrupt, and disabling the detection before
-disabling the interrupt.  This ensures interrupt/wakeup events can not
-happen until both the wakeup and interrupt enables correlate.
+This issue can be somewhat easily reproduced by pinging an idle system
+with smsc911x Ethernet interface configured IRQ_TYPE_EDGE_FALLING. At
+some point the smsc911x interrupts will just stop triggering. Also if
+WLCORE WLAN is used with EDGE interrupt like it's documentation specifies,
+we can see lost interrupts without this patch.
 
-If we do any clearing, clear between the interrupt enable/disable and
-trigger setting.
+Note that in the long run we may be able to cancel entering idle by
+returning an error in gpio_omap_cpu_notifier() on pending interrupts.
+But let's fix the bug first.
 
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Tested-by: Tony Lindgren <tony@atomide.com>
+Also note that because of the recent clean-up efforts this patch does
+not apply directly to older kernels. This does fix a long term issue
+though, and can be backported as needed.
+
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: Keerthy <j-keerthy@ti.com>
+Cc: Ladislav Michl <ladis@linux-mips.org>
+Cc: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Cc: Russell King <rmk+kernel@armlinux.org.uk>
+Cc: Tero Kristo <t-kristo@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-omap.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/gpio/gpio-omap.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/gpio/gpio-omap.c b/drivers/gpio/gpio-omap.c
-index 0708e50a27f0..233245bc693c 100644
+index 233245bc693c..1ddc872b4e4b 100644
 --- a/drivers/gpio/gpio-omap.c
 +++ b/drivers/gpio/gpio-omap.c
-@@ -838,9 +838,9 @@ static void omap_gpio_irq_shutdown(struct irq_data *d)
+@@ -1455,7 +1455,7 @@ static void omap_gpio_idle(struct gpio_bank *bank, bool may_lose_context)
+ {
+ 	struct device *dev = bank->chip.parent;
+ 	void __iomem *base = bank->base;
+-	u32 nowake;
++	u32 mask, nowake;
  
- 	raw_spin_lock_irqsave(&bank->lock, flags);
- 	bank->irq_usage &= ~(BIT(offset));
--	omap_set_gpio_irqenable(bank, offset, 0);
--	omap_clear_gpio_irqstatus(bank, offset);
- 	omap_set_gpio_triggering(bank, offset, IRQ_TYPE_NONE);
-+	omap_clear_gpio_irqstatus(bank, offset);
-+	omap_set_gpio_irqenable(bank, offset, 0);
- 	if (!LINE_USED(bank->mod_usage, offset))
- 		omap_clear_gpio_debounce(bank, offset);
- 	omap_disable_gpio_module(bank, offset);
-@@ -876,8 +876,8 @@ static void omap_gpio_mask_irq(struct irq_data *d)
- 	unsigned long flags;
+ 	bank->saved_datain = readl_relaxed(base + bank->regs->datain);
  
- 	raw_spin_lock_irqsave(&bank->lock, flags);
--	omap_set_gpio_irqenable(bank, offset, 0);
- 	omap_set_gpio_triggering(bank, offset, IRQ_TYPE_NONE);
-+	omap_set_gpio_irqenable(bank, offset, 0);
- 	raw_spin_unlock_irqrestore(&bank->lock, flags);
- }
+@@ -1465,6 +1465,16 @@ static void omap_gpio_idle(struct gpio_bank *bank, bool may_lose_context)
+ 	if (!bank->enabled_non_wakeup_gpios)
+ 		goto update_gpio_context_count;
  
-@@ -889,9 +889,6 @@ static void omap_gpio_unmask_irq(struct irq_data *d)
- 	unsigned long flags;
- 
- 	raw_spin_lock_irqsave(&bank->lock, flags);
--	if (trigger)
--		omap_set_gpio_triggering(bank, offset, trigger);
--
- 	omap_set_gpio_irqenable(bank, offset, 1);
- 
- 	/*
-@@ -899,9 +896,13 @@ static void omap_gpio_unmask_irq(struct irq_data *d)
- 	 * is cleared, thus after the handler has run. OMAP4 needs this done
- 	 * after enabing the interrupt to clear the wakeup status.
- 	 */
--	if (bank->level_mask & BIT(offset))
-+	if (bank->regs->leveldetect0 && bank->regs->wkup_en &&
-+	    trigger & (IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW))
- 		omap_clear_gpio_irqstatus(bank, offset);
- 
-+	if (trigger)
-+		omap_set_gpio_triggering(bank, offset, trigger);
++	/* Check for pending EDGE_FALLING, ignore EDGE_BOTH */
++	mask = bank->enabled_non_wakeup_gpios & bank->context.fallingdetect;
++	mask &= ~bank->context.risingdetect;
++	bank->saved_datain |= mask;
 +
- 	raw_spin_unlock_irqrestore(&bank->lock, flags);
- }
++	/* Check for pending EDGE_RISING, ignore EDGE_BOTH */
++	mask = bank->enabled_non_wakeup_gpios & bank->context.risingdetect;
++	mask &= ~bank->context.fallingdetect;
++	bank->saved_datain &= ~mask;
++
+ 	if (!may_lose_context)
+ 		goto update_gpio_context_count;
  
 -- 
 2.20.1
