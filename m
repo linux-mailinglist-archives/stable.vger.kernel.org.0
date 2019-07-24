@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0DC673949
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:38:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FC2173950
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:39:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389655AbfGXTit (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:38:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39608 "EHLO mail.kernel.org"
+        id S2389403AbfGXTjI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:39:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389360AbfGXTis (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:38:48 -0400
+        id S2389063AbfGXTjH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:39:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CCE0217D4;
-        Wed, 24 Jul 2019 19:38:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D570E20665;
+        Wed, 24 Jul 2019 19:39:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997127;
-        bh=RDfTuyx8Im7cNKgat8flDA5CdC/i7ij3ck4IM5BLh9E=;
+        s=default; t=1563997147;
+        bh=Bn01p6f4dJ+UG76o1+0Rtg6qiDDghmkM6c0UTczyLIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RxFZy59VCHO3fi2vBVJb5kqUpfC3f/5wU16yo9wtnGK90dTdGKG/kNwJYBBJ6/fRZ
-         v/oNG5ZOZ4bYVDkrNhu9MKWkz035RFVJOYA6tDMyXia3m9Ty7LFJWKRdL4ogYUtNTw
-         PeekeqmVwPJzqyN0QT9a9G0mzuaUJJgCfTQl+GYk=
+        b=XDuzIWgPPkNoG61Vg/e5pVzLihpTtJI2kqGNpcRcGoUtFAHCclG908X4UW4mOIvxi
+         qW9/jEqsNY+eej4YE/JN91xqGc93903JaKndef4US2sgNEs3GzBTHuL+op5aI4WGqk
+         gFvjAszAhhINRbca/AKi89ZG9mcASESEs+bH5/4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Jim Mattson <jmattson@google.com>,
+        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
+        Like Xu <like.xu@linux.intel.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.2 329/413] KVM: VMX: Fix handling of #MC that occurs during VM-Entry
-Date:   Wed, 24 Jul 2019 21:20:20 +0200
-Message-Id: <20190724191759.391565357@linuxfoundation.org>
+Subject: [PATCH 5.2 335/413] KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
+Date:   Wed, 24 Jul 2019 21:20:26 +0200
+Message-Id: <20190724191759.797865671@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -45,90 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Like Xu <like.xu@linux.intel.com>
 
-commit beb8d93b3e423043e079ef3dda19dad7b28467a8 upstream.
+commit 6fc3977ccc5d3c22e851f2dce2d3ce2a0a843842 upstream.
 
-A previous fix to prevent KVM from consuming stale VMCS state after a
-failed VM-Entry inadvertantly blocked KVM's handling of machine checks
-that occur during VM-Entry.
+If a perf_event creation fails due to any reason of the host perf
+subsystem, it has no chance to log the corresponding event for guest
+which may cause abnormal sampling data in guest result. In debug mode,
+this message helps to understand the state of vPMC and we may not
+limit the number of occurrences but not in a spamming style.
 
-Per Intel's SDM, a #MC during VM-Entry is handled in one of three ways,
-depending on when the #MC is recognoized.  As it pertains to this bug
-fix, the third case explicitly states EXIT_REASON_MCE_DURING_VMENTRY
-is handled like any other VM-Exit during VM-Entry, i.e. sets bit 31 to
-indicate the VM-Entry failed.
-
-If a machine-check event occurs during a VM entry, one of the following occurs:
- - The machine-check event is handled as if it occurred before the VM entry:
-        ...
- - The machine-check event is handled after VM entry completes:
-        ...
- - A VM-entry failure occurs as described in Section 26.7. The basic
-   exit reason is 41, for "VM-entry failure due to machine-check event".
-
-Explicitly handle EXIT_REASON_MCE_DURING_VMENTRY as a one-off case in
-vmx_vcpu_run() instead of binning it into vmx_complete_atomic_exit().
-Doing so allows vmx_vcpu_run() to handle VMX_EXIT_REASONS_FAILED_VMENTRY
-in a sane fashion and also simplifies vmx_complete_atomic_exit() since
-VMCS.VM_EXIT_INTR_INFO is guaranteed to be fresh.
-
-Fixes: b060ca3b2e9e7 ("kvm: vmx: Handle VMLAUNCH/VMRESUME failure properly")
+Suggested-by: Joe Perches <joe@perches.com>
+Signed-off-by: Like Xu <like.xu@linux.intel.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/vmx/vmx.c |   20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+ arch/x86/kvm/pmu.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -6110,28 +6110,21 @@ static void vmx_apicv_post_state_restore
- 
- static void vmx_complete_atomic_exit(struct vcpu_vmx *vmx)
- {
--	u32 exit_intr_info = 0;
--	u16 basic_exit_reason = (u16)vmx->exit_reason;
--
--	if (!(basic_exit_reason == EXIT_REASON_MCE_DURING_VMENTRY
--	      || basic_exit_reason == EXIT_REASON_EXCEPTION_NMI))
-+	if (vmx->exit_reason != EXIT_REASON_EXCEPTION_NMI)
+--- a/arch/x86/kvm/pmu.c
++++ b/arch/x86/kvm/pmu.c
+@@ -128,8 +128,8 @@ static void pmc_reprogram_counter(struct
+ 						 intr ? kvm_perf_overflow_intr :
+ 						 kvm_perf_overflow, pmc);
+ 	if (IS_ERR(event)) {
+-		printk_once("kvm_pmu: event creation failed %ld\n",
+-			    PTR_ERR(event));
++		pr_debug_ratelimited("kvm_pmu: event creation failed %ld for pmc->idx = %d\n",
++			    PTR_ERR(event), pmc->idx);
  		return;
- 
--	if (!(vmx->exit_reason & VMX_EXIT_REASONS_FAILED_VMENTRY))
--		exit_intr_info = vmcs_read32(VM_EXIT_INTR_INFO);
--	vmx->exit_intr_info = exit_intr_info;
-+	vmx->exit_intr_info = vmcs_read32(VM_EXIT_INTR_INFO);
- 
- 	/* if exit due to PF check for async PF */
--	if (is_page_fault(exit_intr_info))
-+	if (is_page_fault(vmx->exit_intr_info))
- 		vmx->vcpu.arch.apf.host_apf_reason = kvm_read_and_reset_pf_reason();
- 
- 	/* Handle machine checks before interrupts are enabled */
--	if (basic_exit_reason == EXIT_REASON_MCE_DURING_VMENTRY ||
--	    is_machine_check(exit_intr_info))
-+	if (is_machine_check(vmx->exit_intr_info))
- 		kvm_machine_check();
- 
- 	/* We need to handle NMIs before interrupts are enabled */
--	if (is_nmi(exit_intr_info)) {
-+	if (is_nmi(vmx->exit_intr_info)) {
- 		kvm_before_interrupt(&vmx->vcpu);
- 		asm("int $2");
- 		kvm_after_interrupt(&vmx->vcpu);
-@@ -6534,6 +6527,9 @@ static void vmx_vcpu_run(struct kvm_vcpu
- 	vmx->idt_vectoring_info = 0;
- 
- 	vmx->exit_reason = vmx->fail ? 0xdead : vmcs_read32(VM_EXIT_REASON);
-+	if ((u16)vmx->exit_reason == EXIT_REASON_MCE_DURING_VMENTRY)
-+		kvm_machine_check();
-+
- 	if (vmx->fail || (vmx->exit_reason & VMX_EXIT_REASONS_FAILED_VMENTRY))
- 		return;
+ 	}
  
 
 
