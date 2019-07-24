@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 042AC73E0B
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:22:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B457673DF0
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:21:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389103AbfGXUV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:21:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47666 "EHLO mail.kernel.org"
+        id S2390863AbfGXTot (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:44:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727890AbfGXTop (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:44:45 -0400
+        id S2390418AbfGXTot (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:44:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7BA8217D4;
-        Wed, 24 Jul 2019 19:44:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D96721873;
+        Wed, 24 Jul 2019 19:44:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997485;
-        bh=gYH5yrW6GexiAJGiJu0kgjoNRCvlT+6tT2XM5q6PdiE=;
+        s=default; t=1563997488;
+        bh=JnyVDG7l+ThDACkoABHvrNtBVYPbsm5B3IEOwH/xkVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uB73VmYN+pKj2kA94ko2QelCKbq1/A7j8dI2i7UvgpM3ahQPBpHVOpIWZ/KBcFUbY
-         VZutWVq2HAfEhieIveRA6xjRLdezl6bS7UVzQwMpyKcSvwU/SRL+4dv80kXMySO64G
-         bCRiNkif6vY26ZxFUrELc2f00kMTHfwm1TbrOxZs=
+        b=p4ZhVxGbni0ng1ZHiYD3reS9vzMPVcl6SniIemXIP9ct88LR6wiMUtNXTELCs7386
+         wJCjQvVhINTDonfEyvp6mFrZYFE8QIV6+uG35HaBZzZqUGKwYtA+dX5r+O7AcJjNn1
+         5pHvsu4YAr9oxfzRrx4fFrDc+U1yFvWlXrZ4sJ9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Sumit Gupta <sumitg@nvidia.com>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 041/371] media: vim2m: fix two double-free issues
-Date:   Wed, 24 Jul 2019 21:16:33 +0200
-Message-Id: <20190724191727.641331214@linuxfoundation.org>
+Subject: [PATCH 5.1 042/371] media: v4l2-core: fix use-after-free error
+Date:   Wed, 24 Jul 2019 21:16:34 +0200
+Message-Id: <20190724191727.751154929@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -48,55 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 20059cbbf981ca954be56f7963ae494d18e2dda1 ]
+[ Upstream commit 3e0f724346e96daae7792262c6767449795ac3b5 ]
 
-vim2m_device_release() will be called by video_unregister_device() to release
-various objects.
+Fixing use-after-free within __v4l2_ctrl_handler_setup().
+Memory is being freed with kfree(new_ref) for duplicate
+control reference entry but ctrl->cluster pointer is still
+referring to freed duplicate entry resulting in error on
+access. Change done to update cluster pointer only when new
+control reference is added.
 
-There are two double-free issue,
-1. dev->m2m_dev will be freed twice in error_m2m path/vim2m_device_release
-2. the error_v4l2 and error_free path in vim2m_probe() will release
-   same objects, since vim2m_device_release has done.
+ ==================================================================
+ BUG: KASAN: use-after-free in __v4l2_ctrl_handler_setup+0x388/0x428
+ Read of size 8 at addr ffffffc324e78618 by task systemd-udevd/312
 
-Fixes: ea6c7e34f3b2 ("media: vim2m: replace devm_kzalloc by kzalloc")
+ Allocated by task 312:
 
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+ Freed by task 312:
+
+ The buggy address belongs to the object at ffffffc324e78600
+  which belongs to the cache kmalloc-64 of size 64
+ The buggy address is located 24 bytes inside of
+  64-byte region [ffffffc324e78600, ffffffc324e78640)
+ The buggy address belongs to the page:
+ page:ffffffbf0c939e00 count:1 mapcount:0 mapping:
+					(null) index:0xffffffc324e78f80
+ flags: 0x4000000000000100(slab)
+ raw: 4000000000000100 0000000000000000 ffffffc324e78f80 000000018020001a
+ raw: 0000000000000000 0000000100000001 ffffffc37040fb80 0000000000000000
+ page dumped because: kasan: bad access detected
+
+ Memory state around the buggy address:
+  ffffffc324e78500: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+  ffffffc324e78580: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+ >ffffffc324e78600: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+                             ^
+  ffffffc324e78680: 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc fc
+  ffffffc324e78700: 00 00 00 00 00 fc fc fc fc fc fc fc fc fc fc fc
+ ==================================================================
+
+Suggested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Sumit Gupta <sumitg@nvidia.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/vim2m.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/v4l2-core/v4l2-ctrls.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/media/platform/vim2m.c b/drivers/media/platform/vim2m.c
-index dd47821fc661..240327d2a3ad 100644
---- a/drivers/media/platform/vim2m.c
-+++ b/drivers/media/platform/vim2m.c
-@@ -1355,7 +1355,7 @@ static int vim2m_probe(struct platform_device *pdev)
- 						 MEDIA_ENT_F_PROC_VIDEO_SCALER);
- 	if (ret) {
- 		v4l2_err(&dev->v4l2_dev, "Failed to init mem2mem media controller\n");
--		goto error_m2m;
-+		goto error_dev;
- 	}
+diff --git a/drivers/media/v4l2-core/v4l2-ctrls.c b/drivers/media/v4l2-core/v4l2-ctrls.c
+index 54d66dbc2a31..fd18923ccc14 100644
+--- a/drivers/media/v4l2-core/v4l2-ctrls.c
++++ b/drivers/media/v4l2-core/v4l2-ctrls.c
+@@ -2148,15 +2148,6 @@ static int handler_new_ref(struct v4l2_ctrl_handler *hdl,
+ 	if (size_extra_req)
+ 		new_ref->p_req.p = &new_ref[1];
  
- 	ret = media_device_register(&dev->mdev);
-@@ -1369,11 +1369,11 @@ static int vim2m_probe(struct platform_device *pdev)
- #ifdef CONFIG_MEDIA_CONTROLLER
- error_m2m_mc:
- 	v4l2_m2m_unregister_media_controller(dev->m2m_dev);
--error_m2m:
--	v4l2_m2m_release(dev->m2m_dev);
- #endif
- error_dev:
- 	video_unregister_device(&dev->vfd);
-+	/* vim2m_device_release called by video_unregister_device to release various objects */
-+	return ret;
- error_v4l2:
- 	v4l2_device_unregister(&dev->v4l2_dev);
- error_free:
+-	if (ctrl->handler == hdl) {
+-		/* By default each control starts in a cluster of its own.
+-		   new_ref->ctrl is basically a cluster array with one
+-		   element, so that's perfect to use as the cluster pointer.
+-		   But only do this for the handler that owns the control. */
+-		ctrl->cluster = &new_ref->ctrl;
+-		ctrl->ncontrols = 1;
+-	}
+-
+ 	INIT_LIST_HEAD(&new_ref->node);
+ 
+ 	mutex_lock(hdl->lock);
+@@ -2189,6 +2180,15 @@ static int handler_new_ref(struct v4l2_ctrl_handler *hdl,
+ 	hdl->buckets[bucket] = new_ref;
+ 	if (ctrl_ref)
+ 		*ctrl_ref = new_ref;
++	if (ctrl->handler == hdl) {
++		/* By default each control starts in a cluster of its own.
++		 * new_ref->ctrl is basically a cluster array with one
++		 * element, so that's perfect to use as the cluster pointer.
++		 * But only do this for the handler that owns the control.
++		 */
++		ctrl->cluster = &new_ref->ctrl;
++		ctrl->ncontrols = 1;
++	}
+ 
+ unlock:
+ 	mutex_unlock(hdl->lock);
 -- 
 2.20.1
 
