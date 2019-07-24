@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B38273ADC
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:55:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E811873ADF
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:55:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404376AbfGXTyj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:54:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37718 "EHLO mail.kernel.org"
+        id S2404400AbfGXTyp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:54:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404391AbfGXTyh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:54:37 -0400
+        id S2404416AbfGXTym (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:54:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5A8620665;
-        Wed, 24 Jul 2019 19:54:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E31B722ADC;
+        Wed, 24 Jul 2019 19:54:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998077;
-        bh=UuliqgOTkTmntToZ81rjcCYcGZUswTVPwrY3Yz1BCyw=;
+        s=default; t=1563998082;
+        bh=HMENl/L5+knTn/Fjjyg+GxPo4hsqznlJ+G8e9eT390w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s99iBXyYU7W8sojo8Li4zpiEyOJKVSTOMXHjc+F0DC+Wbv3RxXz/QiVP+UhTOxvsm
-         8Mh5A2z7XVbhM5bF3cvhNGjApCt+srmHTDWBCsS6REy4L2sroX+6ufU7sx8lzQMlQL
-         63PtKIptptRM2OOb19HlYXmz8Z4KSU65ay7IulxQ=
+        b=Y2iuQBOqQiilVxNeo+7LY34OHmWU7Ou9oQgPY7ImaNaIiLr9W7q+Zh8C9Qcm2cXXQ
+         ESZ5sj+C/Wpr/LalzKMMfpAkCx3H7xN3XJAh3AuIQVN4iExH/7746MdWhlG3VhzS5D
+         OPYH2/RQjr3+WZKYRrqS/iWPJ1bXBPylmesUPk3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Schmitz <schmitzmic@gmail.com>,
-        Finn Thain <fthain@telegraphics.com.au>,
-        Stan Johnson <userm57@yahoo.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.1 237/371] scsi: mac_scsi: Increase PIO/PDMA transfer length threshold
-Date:   Wed, 24 Jul 2019 21:19:49 +0200
-Message-Id: <20190724191742.440000731@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.1 239/371] crypto: ghash - fix unaligned memory access in ghash_setkey()
+Date:   Wed, 24 Jul 2019 21:19:51 +0200
+Message-Id: <20190724191742.620811056@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -45,62 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@telegraphics.com.au>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 7398cee4c3e6aea1ba07a6449e5533ecd0b92cdd upstream.
+commit 5c6bc4dfa515738149998bb0db2481a4fdead979 upstream.
 
-Some targets introduce delays when handshaking the response to certain
-commands. For example, a disk may send a 96-byte response to an INQUIRY
-command (or a 24-byte response to a MODE SENSE command) too slowly.
+Changing ghash_mod_init() to be subsys_initcall made it start running
+before the alignment fault handler has been installed on ARM.  In kernel
+builds where the keys in the ghash test vectors happened to be
+misaligned in the kernel image, this exposed the longstanding bug that
+ghash_setkey() is incorrectly casting the key buffer (which can have any
+alignment) to be128 for passing to gf128mul_init_4k_lle().
 
-Apparently the first 12 or 14 bytes are handshaked okay but then the system
-bus error timeout is reached while transferring the next word.
+Fix this by memcpy()ing the key to a temporary buffer.
 
-Since the scsi bus phase hasn't changed, the driver then sets the target
-borken flag to prevent further PDMA transfers. The driver also logs the
-warning, "switching to slow handshake".
+Don't fix it by setting an alignmask on the algorithm instead because
+that would unnecessarily force alignment of the data too.
 
-Raise the PDMA threshold to 512 bytes so that PIO transfers will be used
-for these commands. This default is sufficiently low that PDMA will still
-be used for READ and WRITE commands.
-
-The existing threshold (16 bytes) was chosen more or less at random.
-However, best performance requires the threshold to be as low as possible.
-Those systems that don't need the PIO workaround at all may benefit from
-mac_scsi.setup_use_pdma=1
-
-Cc: Michael Schmitz <schmitzmic@gmail.com>
-Cc: stable@vger.kernel.org # v4.14+
-Fixes: 3a0f64bfa907 ("mac_scsi: Fix pseudo DMA implementation")
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-Tested-by: Stan Johnson <userm57@yahoo.com>
-Tested-by: Michael Schmitz <schmitzmic@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 2cdc6899a88e ("crypto: ghash - Add GHASH digest algorithm for GCM")
+Reported-by: Peter Robinson <pbrobinson@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Tested-by: Peter Robinson <pbrobinson@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/mac_scsi.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ crypto/ghash-generic.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/mac_scsi.c
-+++ b/drivers/scsi/mac_scsi.c
-@@ -52,7 +52,7 @@ static int setup_cmd_per_lun = -1;
- module_param(setup_cmd_per_lun, int, 0);
- static int setup_sg_tablesize = -1;
- module_param(setup_sg_tablesize, int, 0);
--static int setup_use_pdma = -1;
-+static int setup_use_pdma = 512;
- module_param(setup_use_pdma, int, 0);
- static int setup_hostid = -1;
- module_param(setup_hostid, int, 0);
-@@ -305,7 +305,7 @@ static int macscsi_dma_xfer_len(struct N
-                                 struct scsi_cmnd *cmd)
+--- a/crypto/ghash-generic.c
++++ b/crypto/ghash-generic.c
+@@ -34,6 +34,7 @@ static int ghash_setkey(struct crypto_sh
+ 			const u8 *key, unsigned int keylen)
  {
- 	if (hostdata->flags & FLAG_NO_PSEUDO_DMA ||
--	    cmd->SCp.this_residual < 16)
-+	    cmd->SCp.this_residual < setup_use_pdma)
- 		return 0;
+ 	struct ghash_ctx *ctx = crypto_shash_ctx(tfm);
++	be128 k;
  
- 	return cmd->SCp.this_residual;
+ 	if (keylen != GHASH_BLOCK_SIZE) {
+ 		crypto_shash_set_flags(tfm, CRYPTO_TFM_RES_BAD_KEY_LEN);
+@@ -42,7 +43,12 @@ static int ghash_setkey(struct crypto_sh
+ 
+ 	if (ctx->gf128)
+ 		gf128mul_free_4k(ctx->gf128);
+-	ctx->gf128 = gf128mul_init_4k_lle((be128 *)key);
++
++	BUILD_BUG_ON(sizeof(k) != GHASH_BLOCK_SIZE);
++	memcpy(&k, key, GHASH_BLOCK_SIZE); /* avoid violating alignment rules */
++	ctx->gf128 = gf128mul_init_4k_lle(&k);
++	memzero_explicit(&k, GHASH_BLOCK_SIZE);
++
+ 	if (!ctx->gf128)
+ 		return -ENOMEM;
+ 
 
 
