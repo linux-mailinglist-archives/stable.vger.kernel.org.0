@@ -2,144 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D83E72CC4
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 13:01:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C05772CCF
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 13:05:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727330AbfGXLBe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 07:01:34 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:13464 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727318AbfGXLBe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 07:01:34 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x6OAvQwG090590
-        for <stable@vger.kernel.org>; Wed, 24 Jul 2019 07:01:33 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2txmv9k9u2-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Wed, 24 Jul 2019 07:01:33 -0400
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <pasic@linux.ibm.com>;
-        Wed, 24 Jul 2019 12:01:30 +0100
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (9.149.109.196)
-        by e06smtp07.uk.ibm.com (192.168.101.137) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Wed, 24 Jul 2019 12:01:27 +0100
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x6OB1PAf47448152
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 24 Jul 2019 11:01:25 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 934A652059;
-        Wed, 24 Jul 2019 11:01:25 +0000 (GMT)
-Received: from oc2783563651 (unknown [9.152.224.141])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 53D9A52052;
-        Wed, 24 Jul 2019 11:01:25 +0000 (GMT)
-Date:   Wed, 24 Jul 2019 13:01:24 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@de.ibm.com>
-Cc:     Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>,
-        Marc Hartmayer <mhartmay@linux.ibm.com>,
-        virtualization@lists.linux-foundation.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/1] virtio/s390: fix race on airq_areas[]
-In-Reply-To: <74087255-fdae-01a1-7152-f6fac8e13019@de.ibm.com>
-References: <20190723225817.12800-1-pasic@linux.ibm.com>
-        <74087255-fdae-01a1-7152-f6fac8e13019@de.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.11.1 (GTK+ 2.24.31; x86_64-redhat-linux-gnu)
+        id S1727339AbfGXLF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 07:05:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34688 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726981AbfGXLF1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 07:05:27 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BC1022387;
+        Wed, 24 Jul 2019 11:05:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1563966326;
+        bh=xMeMito1wt7g0GDuQrZ1HOc31sHe8PhGY6/3xFVCV8c=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=CRhIQdGhmmrqhpD4rCIUWy1mQezV8fQYayBP7WeHTGVSjVLrHyHC2swtgIOlR8spE
+         jc0hVDHQMdNWr13lNB+60p1NEdEa/JdfE9m+NcsO8RrCybUwBN5xpfrgx8rZEpBYru
+         2mIc3Hz7OdFbtJRHArnd22JFs7mOLUyANSKxf08c=
+Date:   Wed, 24 Jul 2019 13:05:24 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Mao Wenan <maowenan@huawei.com>
+Cc:     stable@vger.kernel.org, davem@davemloft.net,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4.4 stable net] net: tcp: Fix use-after-free in
+ tcp_write_xmit
+Message-ID: <20190724110524.GA4472@kroah.com>
+References: <20190724091715.137033-1-maowenan@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-x-cbid: 19072411-0028-0000-0000-000003875644
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 19072411-0029-0000-0000-00002447919D
-Message-Id: <20190724130124.0dcfc5c0.pasic@linux.ibm.com>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-07-24_04:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=2 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1906280000 definitions=main-1907240124
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190724091715.137033-1-maowenan@huawei.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 24 Jul 2019 08:44:19 +0200
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-
+On Wed, Jul 24, 2019 at 05:17:15PM +0800, Mao Wenan wrote:
+> There is one report about tcp_write_xmit use-after-free with version 4.4.136:
 > 
+> BUG: KASAN: use-after-free in tcp_skb_pcount include/net/tcp.h:796 [inline]
+> BUG: KASAN: use-after-free in tcp_init_tso_segs net/ipv4/tcp_output.c:1619 [inline]
+> BUG: KASAN: use-after-free in tcp_write_xmit+0x3fc2/0x4cb0 net/ipv4/tcp_output.c:2056
+> Read of size 2 at addr ffff8801d6fc87b0 by task syz-executor408/4195
 > 
-> On 24.07.19 00:58, Halil Pasic wrote:
-> > The access to airq_areas was racy ever since the adapter interrupts got
-> > introduced to virtio-ccw, but since commit 39c7dcb15892 ("virtio/s390:
-> > make airq summary indicators DMA") this became an issue in practice as
-> > well. Namely before that commit the airq_info that got overwritten was
-> > still functional. After that commit however the two infos share a
-> > summary_indicator, which aggravates the situation. Which means
-> > auto-online mechanism occasionally hangs the boot with virtio_blk.
-> > 
-> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> > Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
-> > Fixes: 96b14536d935 ("virtio-ccw: virtio-ccw adapter interrupt support.")
-> > ---
-> > * We need definitely this fixed for 5.3. For older stable kernels it is
-> > to be discussed. @Connie what do you think: do we need a cc stable?
+> CPU: 0 PID: 4195 Comm: syz-executor408 Not tainted 4.4.136-gfb7e319 #59
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+>  0000000000000000 7d8f38ecc03be946 ffff8801d73b7710 ffffffff81e0edad
+>  ffffea00075bf200 ffff8801d6fc87b0 0000000000000000 ffff8801d6fc87b0
+>  dffffc0000000000 ffff8801d73b7748 ffffffff815159b6 ffff8801d6fc87b0
+> Call Trace:
+>  [<ffffffff81e0edad>] __dump_stack lib/dump_stack.c:15 [inline]
+>  [<ffffffff81e0edad>] dump_stack+0xc1/0x124 lib/dump_stack.c:51
+>  [<ffffffff815159b6>] print_address_description+0x6c/0x216 mm/kasan/report.c:252
+>  [<ffffffff81515cd5>] kasan_report_error mm/kasan/report.c:351 [inline]
+>  [<ffffffff81515cd5>] kasan_report.cold.7+0x175/0x2f7 mm/kasan/report.c:408
+>  [<ffffffff814f9784>] __asan_report_load2_noabort+0x14/0x20 mm/kasan/report.c:427
+>  [<ffffffff83286582>] tcp_skb_pcount include/net/tcp.h:796 [inline]
+>  [<ffffffff83286582>] tcp_init_tso_segs net/ipv4/tcp_output.c:1619 [inline]
+>  [<ffffffff83286582>] tcp_write_xmit+0x3fc2/0x4cb0 net/ipv4/tcp_output.c:2056
+>  [<ffffffff83287a40>] __tcp_push_pending_frames+0xa0/0x290 net/ipv4/tcp_output.c:2307
+>  [<ffffffff8328e966>] tcp_send_fin+0x176/0xab0 net/ipv4/tcp_output.c:2883
+>  [<ffffffff8324c0d0>] tcp_close+0xca0/0xf70 net/ipv4/tcp.c:2112
+>  [<ffffffff832f8d0f>] inet_release+0xff/0x1d0 net/ipv4/af_inet.c:435
+>  [<ffffffff82f1a156>] sock_release+0x96/0x1c0 net/socket.c:586
+>  [<ffffffff82f1a296>] sock_close+0x16/0x20 net/socket.c:1037
+>  [<ffffffff81522da5>] __fput+0x235/0x6f0 fs/file_table.c:208
+>  [<ffffffff815232e5>] ____fput+0x15/0x20 fs/file_table.c:244
+>  [<ffffffff8118bd7f>] task_work_run+0x10f/0x190 kernel/task_work.c:115
+>  [<ffffffff81135285>] exit_task_work include/linux/task_work.h:21 [inline]
+>  [<ffffffff81135285>] do_exit+0x9e5/0x26b0 kernel/exit.c:759
+>  [<ffffffff8113b1d1>] do_group_exit+0x111/0x330 kernel/exit.c:889
+>  [<ffffffff8115e5cc>] get_signal+0x4ec/0x14b0 kernel/signal.c:2321
+>  [<ffffffff8100e02b>] do_signal+0x8b/0x1d30 arch/x86/kernel/signal.c:712
+>  [<ffffffff8100360a>] exit_to_usermode_loop+0x11a/0x160 arch/x86/entry/common.c:248
+>  [<ffffffff81006535>] prepare_exit_to_usermode arch/x86/entry/common.c:283 [inline]
+>  [<ffffffff81006535>] syscall_return_slowpath+0x1b5/0x1f0 arch/x86/entry/common.c:348
+>  [<ffffffff838c29b5>] int_ret_from_sys_call+0x25/0xa3
 > 
-> Unless you can prove that the problem could never happen on old version
-> we absolutely do need cc stable.
-
-No I would not like to make an attempt at proving that. I prefer code
-race free anyway. CC-ing stable.
- 
+> Allocated by task 4194:
+>  [<ffffffff810341d6>] save_stack_trace+0x26/0x50 arch/x86/kernel/stacktrace.c:63
+>  [<ffffffff814f8873>] save_stack+0x43/0xd0 mm/kasan/kasan.c:512
+>  [<ffffffff814f8b57>] set_track mm/kasan/kasan.c:524 [inline]
+>  [<ffffffff814f8b57>] kasan_kmalloc+0xc7/0xe0 mm/kasan/kasan.c:616
+>  [<ffffffff814f9122>] kasan_slab_alloc+0x12/0x20 mm/kasan/kasan.c:554
+>  [<ffffffff814f4c1e>] slab_post_alloc_hook mm/slub.c:1349 [inline]
+>  [<ffffffff814f4c1e>] slab_alloc_node mm/slub.c:2615 [inline]
+>  [<ffffffff814f4c1e>] slab_alloc mm/slub.c:2623 [inline]
+>  [<ffffffff814f4c1e>] kmem_cache_alloc+0xbe/0x2a0 mm/slub.c:2628
+>  [<ffffffff82f380a6>] kmem_cache_alloc_node include/linux/slab.h:350 [inline]
+>  [<ffffffff82f380a6>] __alloc_skb+0xe6/0x600 net/core/skbuff.c:218
+>  [<ffffffff832466c3>] alloc_skb_fclone include/linux/skbuff.h:856 [inline]
+>  [<ffffffff832466c3>] sk_stream_alloc_skb+0xa3/0x5d0 net/ipv4/tcp.c:833
+>  [<ffffffff83249164>] tcp_sendmsg+0xd34/0x2b00 net/ipv4/tcp.c:1178
+>  [<ffffffff83300ef3>] inet_sendmsg+0x203/0x4d0 net/ipv4/af_inet.c:755
+>  [<ffffffff82f1e1fc>] sock_sendmsg_nosec net/socket.c:625 [inline]
+>  [<ffffffff82f1e1fc>] sock_sendmsg+0xcc/0x110 net/socket.c:635
+>  [<ffffffff82f1eedc>] SYSC_sendto+0x21c/0x370 net/socket.c:1665
+>  [<ffffffff82f21560>] SyS_sendto+0x40/0x50 net/socket.c:1633
+>  [<ffffffff838c2825>] entry_SYSCALL_64_fastpath+0x22/0x9e
 > 
-> > 
-> > * I have a variant that does not need the extra mutex but uses cmpxchg().
-> > Decided to post this one because that one is more complex. But if there
-> > is interest we can have a look at it as well.
+> Freed by task 4194:
+>  [<ffffffff810341d6>] save_stack_trace+0x26/0x50 arch/x86/kernel/stacktrace.c:63
+>  [<ffffffff814f8873>] save_stack+0x43/0xd0 mm/kasan/kasan.c:512
+>  [<ffffffff814f91a2>] set_track mm/kasan/kasan.c:524 [inline]
+>  [<ffffffff814f91a2>] kasan_slab_free+0x72/0xc0 mm/kasan/kasan.c:589
+>  [<ffffffff814f632e>] slab_free_hook mm/slub.c:1383 [inline]
+>  [<ffffffff814f632e>] slab_free_freelist_hook mm/slub.c:1405 [inline]
+>  [<ffffffff814f632e>] slab_free mm/slub.c:2859 [inline]
+>  [<ffffffff814f632e>] kmem_cache_free+0xbe/0x340 mm/slub.c:2881
+>  [<ffffffff82f3527f>] kfree_skbmem+0xcf/0x100 net/core/skbuff.c:635
+>  [<ffffffff82f372fd>] __kfree_skb+0x1d/0x20 net/core/skbuff.c:676
+>  [<ffffffff83288834>] sk_wmem_free_skb include/net/sock.h:1447 [inline]
+>  [<ffffffff83288834>] tcp_write_queue_purge include/net/tcp.h:1460 [inline]
+>  [<ffffffff83288834>] tcp_connect_init net/ipv4/tcp_output.c:3122 [inline]
+>  [<ffffffff83288834>] tcp_connect+0xb24/0x30c0 net/ipv4/tcp_output.c:3261
+>  [<ffffffff8329b991>] tcp_v4_connect+0xf31/0x1890 net/ipv4/tcp_ipv4.c:246
+>  [<ffffffff832f9ca9>] __inet_stream_connect+0x2a9/0xc30 net/ipv4/af_inet.c:615
+>  [<ffffffff832fa685>] inet_stream_connect+0x55/0xa0 net/ipv4/af_inet.c:676
+>  [<ffffffff82f1eb78>] SYSC_connect+0x1b8/0x300 net/socket.c:1557
+>  [<ffffffff82f214b4>] SyS_connect+0x24/0x30 net/socket.c:1538
+>  [<ffffffff838c2825>] entry_SYSCALL_64_fastpath+0x22/0x9e
 > 
-> This is slow path (startup) and never called in hot path. Correct? Mutex should be
-> fine.
-
-Right, this is only relevant during device initialization, which is an
-infrequent operation.
-
-Thanks,
-Halil
-
-> > ---
-> >  drivers/s390/virtio/virtio_ccw.c | 4 ++++
-> >  1 file changed, 4 insertions(+)
-> > 
-> > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> > index 1a55e5942d36..d97742662755 100644
-> > --- a/drivers/s390/virtio/virtio_ccw.c
-> > +++ b/drivers/s390/virtio/virtio_ccw.c
-> > @@ -145,6 +145,8 @@ struct airq_info {
-> >  	struct airq_iv *aiv;
-> >  };
-> >  static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
-> > +DEFINE_MUTEX(airq_areas_lock);
-> > +
-> >  static u8 *summary_indicators;
-> >  
-> >  static inline u8 *get_summary_indicator(struct airq_info *info)
-> > @@ -265,9 +267,11 @@ static unsigned long get_airq_indicator(struct virtqueue *vqs[], int nvqs,
-> >  	unsigned long bit, flags;
-> >  
-> >  	for (i = 0; i < MAX_AIRQ_AREAS && !indicator_addr; i++) {
-> > +		mutex_lock(&airq_areas_lock);
-> >  		if (!airq_areas[i])
-> >  			airq_areas[i] = new_airq_info(i);
-> >  		info = airq_areas[i];
-> > +		mutex_unlock(&airq_areas_lock);
-> >  		if (!info)
-> >  			return 0;
-> >  		write_lock_irqsave(&info->lock, flags);
-> > 
+> Syzkaller reproducer():
+> r0 = socket$packet(0x11, 0x3, 0x300)
+> r1 = socket$inet_tcp(0x2, 0x1, 0x0)
+> bind$inet(r1, &(0x7f0000000300)={0x2, 0x4e21, @multicast1}, 0x10)
+> connect$inet(r1, &(0x7f0000000140)={0x2, 0x1000004e21, @loopback}, 0x10)
+> recvmmsg(r1, &(0x7f0000001e40)=[{{0x0, 0x0, &(0x7f0000000100)=[{&(0x7f00000005c0)=""/88, 0x58}], 0x1}}], 0x1, 0x40000000, 0x0)
+> sendto$inet(r1, &(0x7f0000000000)="e2f7ad5b661c761edf", 0x9, 0x8080, 0x0, 0x0)
+> r2 = fcntl$dupfd(r1, 0x0, r0)
+> connect$unix(r2, &(0x7f00000001c0)=@file={0x0, './file0\x00'}, 0x6e)
 > 
+> C repro link: https://syzkaller.appspot.com/text?tag=ReproC&x=14db474f800000
+> 
+> This is because when tcp_connect_init call tcp_write_queue_purge, it will
+> kfree all the skb in the write_queue, but the sk->sk_send_head forget to set NULL,
+> then tcp_write_xmit try to send skb, which has freed in tcp_write_queue_purge, UAF happens.
+> 
+> Signed-off-by: Mao Wenan <maowenan@huawei.com>
+> ---
+>  include/net/tcp.h | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/include/net/tcp.h b/include/net/tcp.h
+> index bf8a0dae977a..8f8aace28cf8 100644
+> --- a/include/net/tcp.h
+> +++ b/include/net/tcp.h
+> @@ -1457,6 +1457,7 @@ static inline void tcp_write_queue_purge(struct sock *sk)
+>  
+>  	while ((skb = __skb_dequeue(&sk->sk_write_queue)) != NULL)
+>  		sk_wmem_free_skb(sk, skb);
+> +	sk->sk_send_head = NULL;
+>  	sk_mem_reclaim(sk);
+>  	tcp_clear_all_retrans_hints(tcp_sk(sk));
+>  	inet_csk(sk)->icsk_backoff = 0;
 
+Does this corrispond with a specific commit that is already in Linus's
+tree?  If not, why, did we change/mess something up when doing
+backports, or is the code just that different?
+
+Also, is this needed in 4.9.y, 4.14.y, 4.19.y, and/or 5.2.y?  Why just
+4.4.y?
+
+thanks,
+
+greg k-h
