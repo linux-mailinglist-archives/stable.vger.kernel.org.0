@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7318B738F3
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:35:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B589738C9
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:34:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388645AbfGXTfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:35:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58384 "EHLO mail.kernel.org"
+        id S2388493AbfGXTdU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:33:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389115AbfGXTfE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:35:04 -0400
+        id S2388834AbfGXTdT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:33:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23B3622ADC;
-        Wed, 24 Jul 2019 19:35:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38BF322BEA;
+        Wed, 24 Jul 2019 19:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996903;
-        bh=Y9Pq0EbIcsS7FR/8qWpRKOO8+pZQLtcLgHAYAnC7vw0=;
+        s=default; t=1563996798;
+        bh=Q1EZqeCQWhCsHZTbAIDBuishbOzwnTWReFcUtB+aeCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RBVvgXOmjIPVvlBuaYJKPVREO4xlqlpDmU7LYa5JQ6H4UoIJ5rq3raTkF8JS/JOSq
-         iD8edH7i/eu7G8BD91L8AbU2hXAGL6XdpbLP7af9zkRcb+P7N4KqqXFv0dyVGJ26sb
-         SzdJ8Uggq9UgBPsrsCtkoLkywOA5l5fEGBqHY+8A=
+        b=yfWpeJa4cM1ehjdLoV2hP0LiCyK2Zwq/vDvpoMwhuhfm0TXsLsSS6/U2myQ8liTDK
+         l4bWTUwzM4UR9xWxRgG1RL0tp02KnT23rOTcglO606XC6mHEl57hPoyL3IblSzVq95
+         j5/dJIp97z0FMrKF4zU2sot8gdvKoNVQaMe42n/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>,
-        Taehee Yoo <ap420073@gmail.com>,
+        stable@vger.kernel.org, Jay Vosburgh <j.vosburgh@gmail.com>,
+        Veaceslav Falico <vfalico@gmail.com>,
+        Andy Gospodarek <andy@greyhouse.net>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 214/413] vxlan: do not destroy fdb if register_netdevice() is failed
-Date:   Wed, 24 Jul 2019 21:18:25 +0200
-Message-Id: <20190724191749.860604568@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+e5be16aa39ad6e755391@syzkaller.appspotmail.com
+Subject: [PATCH 5.2 221/413] bonding: validate ip header before check IPPROTO_IGMP
+Date:   Wed, 24 Jul 2019 21:18:32 +0200
+Message-Id: <20190724191750.592371357@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -45,157 +48,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7c31e54aeee517d1318dfc0bde9fa7de75893dc6 ]
+[ Upstream commit 9d1bc24b52fb8c5d859f9a47084bf1179470e04c ]
 
-__vxlan_dev_create() destroys FDB using specific pointer which indicates
-a fdb when error occurs.
-But that pointer should not be used when register_netdevice() fails because
-register_netdevice() internally destroys fdb when error occurs.
+bond_xmit_roundrobin() checks for IGMP packets but it parses
+the IP header even before checking skb->protocol.
 
-This patch makes vxlan_fdb_create() to do not link fdb entry to vxlan dev
-internally.
-Instead, a new function vxlan_fdb_insert() is added to link fdb to vxlan
-dev.
+We should validate the IP header with pskb_may_pull() before
+using iph->protocol.
 
-vxlan_fdb_insert() is called after calling register_netdevice().
-This routine can avoid situation that ->ndo_uninit() destroys fdb entry
-in error path of register_netdevice().
-Hence, error path of __vxlan_dev_create() routine can have an opportunity
-to destroy default fdb entry by hand.
-
-Test command
-    ip link add bonding_masters type vxlan id 0 group 239.1.1.1 \
-	    dev enp0s9 dstport 4789
-
-Splat looks like:
-[  213.392816] kasan: GPF could be caused by NULL-ptr deref or user memory access
-[  213.401257] general protection fault: 0000 [#1] SMP DEBUG_PAGEALLOC KASAN PTI
-[  213.402178] CPU: 0 PID: 1414 Comm: ip Not tainted 5.2.0-rc5+ #256
-[  213.402178] RIP: 0010:vxlan_fdb_destroy+0x120/0x220 [vxlan]
-[  213.402178] Code: df 48 8b 2b 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 06 01 00 00 4c 8b 63 08 48 b8 00 00 00 00 00 fc d
-[  213.402178] RSP: 0018:ffff88810cb9f0a0 EFLAGS: 00010202
-[  213.402178] RAX: dffffc0000000000 RBX: ffff888101d4a8c8 RCX: 0000000000000000
-[  213.402178] RDX: 1bd5a00000000040 RSI: ffff888101d4a8c8 RDI: ffff888101d4a8d0
-[  213.402178] RBP: 0000000000000000 R08: fffffbfff22b72d9 R09: 0000000000000000
-[  213.402178] R10: 00000000ffffffef R11: 0000000000000000 R12: dead000000000200
-[  213.402178] R13: ffff88810cb9f1f8 R14: ffff88810efccda0 R15: ffff88810efccda0
-[  213.402178] FS:  00007f7f6621a0c0(0000) GS:ffff88811b000000(0000) knlGS:0000000000000000
-[  213.402178] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  213.402178] CR2: 000055746f0807d0 CR3: 00000001123e0000 CR4: 00000000001006f0
-[  213.402178] Call Trace:
-[  213.402178]  __vxlan_dev_create+0x3a9/0x7d0 [vxlan]
-[  213.402178]  ? vxlan_changelink+0x740/0x740 [vxlan]
-[  213.402178]  ? rcu_read_unlock+0x60/0x60 [vxlan]
-[  213.402178]  ? __kasan_kmalloc.constprop.3+0xa0/0xd0
-[  213.402178]  vxlan_newlink+0x8d/0xc0 [vxlan]
-[  213.402178]  ? __vxlan_dev_create+0x7d0/0x7d0 [vxlan]
-[  213.554119]  ? __netlink_ns_capable+0xc3/0xf0
-[  213.554119]  __rtnl_newlink+0xb75/0x1180
-[  213.554119]  ? rtnl_link_unregister+0x230/0x230
-[ ... ]
-
-Fixes: 0241b836732f ("vxlan: fix default fdb entry netlink notify ordering during netdev create")
-Suggested-by: Roopa Prabhu <roopa@cumulusnetworks.com>
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Acked-by: Roopa Prabhu <roopa@cumulusnetworks.com>
+Reported-and-tested-by: syzbot+e5be16aa39ad6e755391@syzkaller.appspotmail.com
+Fixes: a2fd940f4cff ("bonding: fix broken multicast with round-robin mode")
+Cc: Jay Vosburgh <j.vosburgh@gmail.com>
+Cc: Veaceslav Falico <vfalico@gmail.com>
+Cc: Andy Gospodarek <andy@greyhouse.net>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vxlan.c | 37 +++++++++++++++++++++++++++----------
- 1 file changed, 27 insertions(+), 10 deletions(-)
+ drivers/net/bonding/bond_main.c | 37 ++++++++++++++++++++-------------
+ 1 file changed, 23 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index 083f3f0bf37f..b4283f52a09d 100644
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -804,6 +804,14 @@ static struct vxlan_fdb *vxlan_fdb_alloc(struct vxlan_dev *vxlan,
- 	return f;
- }
- 
-+static void vxlan_fdb_insert(struct vxlan_dev *vxlan, const u8 *mac,
-+			     __be32 src_vni, struct vxlan_fdb *f)
-+{
-+	++vxlan->addrcnt;
-+	hlist_add_head_rcu(&f->hlist,
-+			   vxlan_fdb_head(vxlan, mac, src_vni));
-+}
-+
- static int vxlan_fdb_create(struct vxlan_dev *vxlan,
- 			    const u8 *mac, union vxlan_addr *ip,
- 			    __u16 state, __be16 port, __be32 src_vni,
-@@ -829,18 +837,13 @@ static int vxlan_fdb_create(struct vxlan_dev *vxlan,
- 		return rc;
- 	}
- 
--	++vxlan->addrcnt;
--	hlist_add_head_rcu(&f->hlist,
--			   vxlan_fdb_head(vxlan, mac, src_vni));
--
- 	*fdb = f;
- 
- 	return 0;
- }
- 
--static void vxlan_fdb_free(struct rcu_head *head)
-+static void __vxlan_fdb_free(struct vxlan_fdb *f)
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 799fc38c5c34..b0aab3a0a1bf 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -3866,8 +3866,8 @@ static netdev_tx_t bond_xmit_roundrobin(struct sk_buff *skb,
+ 					struct net_device *bond_dev)
  {
--	struct vxlan_fdb *f = container_of(head, struct vxlan_fdb, rcu);
- 	struct vxlan_rdst *rd, *nd;
+ 	struct bonding *bond = netdev_priv(bond_dev);
+-	struct iphdr *iph = ip_hdr(skb);
+ 	struct slave *slave;
++	int slave_cnt;
+ 	u32 slave_id;
  
- 	list_for_each_entry_safe(rd, nd, &f->remotes, list) {
-@@ -850,6 +853,13 @@ static void vxlan_fdb_free(struct rcu_head *head)
- 	kfree(f);
- }
- 
-+static void vxlan_fdb_free(struct rcu_head *head)
-+{
-+	struct vxlan_fdb *f = container_of(head, struct vxlan_fdb, rcu);
-+
-+	__vxlan_fdb_free(f);
-+}
-+
- static void vxlan_fdb_destroy(struct vxlan_dev *vxlan, struct vxlan_fdb *f,
- 			      bool do_notify, bool swdev_notify)
- {
-@@ -977,6 +987,7 @@ static int vxlan_fdb_update_create(struct vxlan_dev *vxlan,
- 	if (rc < 0)
- 		return rc;
- 
-+	vxlan_fdb_insert(vxlan, mac, src_vni, f);
- 	rc = vxlan_fdb_notify(vxlan, f, first_remote_rtnl(f), RTM_NEWNEIGH,
- 			      swdev_notify, extack);
- 	if (rc)
-@@ -3571,12 +3582,17 @@ static int __vxlan_dev_create(struct net *net, struct net_device *dev,
- 	if (err)
- 		goto errout;
- 
--	/* notify default fdb entry */
- 	if (f) {
-+		vxlan_fdb_insert(vxlan, all_zeros_mac,
-+				 vxlan->default_dst.remote_vni, f);
-+
-+		/* notify default fdb entry */
- 		err = vxlan_fdb_notify(vxlan, f, first_remote_rtnl(f),
- 				       RTM_NEWNEIGH, true, extack);
--		if (err)
--			goto errout;
-+		if (err) {
-+			vxlan_fdb_destroy(vxlan, f, false, false);
-+			goto unregister;
-+		}
- 	}
- 
- 	list_add(&vxlan->next, &vn->vxlan_list);
-@@ -3588,7 +3604,8 @@ static int __vxlan_dev_create(struct net *net, struct net_device *dev,
- 	 * destroy the entry by hand here.
+ 	/* Start with the curr_active_slave that joined the bond as the
+@@ -3876,23 +3876,32 @@ static netdev_tx_t bond_xmit_roundrobin(struct sk_buff *skb,
+ 	 * send the join/membership reports.  The curr_active_slave found
+ 	 * will send all of this type of traffic.
  	 */
- 	if (f)
--		vxlan_fdb_destroy(vxlan, f, false, false);
-+		__vxlan_fdb_free(f);
-+unregister:
- 	if (unregister)
- 		unregister_netdevice(dev);
- 	return err;
+-	if (iph->protocol == IPPROTO_IGMP && skb->protocol == htons(ETH_P_IP)) {
+-		slave = rcu_dereference(bond->curr_active_slave);
+-		if (slave)
+-			bond_dev_queue_xmit(bond, skb, slave->dev);
+-		else
+-			bond_xmit_slave_id(bond, skb, 0);
+-	} else {
+-		int slave_cnt = READ_ONCE(bond->slave_cnt);
++	if (skb->protocol == htons(ETH_P_IP)) {
++		int noff = skb_network_offset(skb);
++		struct iphdr *iph;
+ 
+-		if (likely(slave_cnt)) {
+-			slave_id = bond_rr_gen_slave_id(bond);
+-			bond_xmit_slave_id(bond, skb, slave_id % slave_cnt);
+-		} else {
+-			bond_tx_drop(bond_dev, skb);
++		if (unlikely(!pskb_may_pull(skb, noff + sizeof(*iph))))
++			goto non_igmp;
++
++		iph = ip_hdr(skb);
++		if (iph->protocol == IPPROTO_IGMP) {
++			slave = rcu_dereference(bond->curr_active_slave);
++			if (slave)
++				bond_dev_queue_xmit(bond, skb, slave->dev);
++			else
++				bond_xmit_slave_id(bond, skb, 0);
++			return NETDEV_TX_OK;
+ 		}
+ 	}
+ 
++non_igmp:
++	slave_cnt = READ_ONCE(bond->slave_cnt);
++	if (likely(slave_cnt)) {
++		slave_id = bond_rr_gen_slave_id(bond);
++		bond_xmit_slave_id(bond, skb, slave_id % slave_cnt);
++	} else {
++		bond_tx_drop(bond_dev, skb);
++	}
+ 	return NETDEV_TX_OK;
+ }
+ 
 -- 
 2.20.1
 
