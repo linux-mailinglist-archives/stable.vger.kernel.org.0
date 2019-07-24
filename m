@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE57A73A53
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:49:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F3FD73A1D
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:47:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403859AbfGXTst (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:48:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56390 "EHLO mail.kernel.org"
+        id S2388449AbfGXTq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:46:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403815AbfGXTss (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:48:48 -0400
+        id S2391140AbfGXTq4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:46:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63B9021873;
-        Wed, 24 Jul 2019 19:48:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0642205C9;
+        Wed, 24 Jul 2019 19:46:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997727;
-        bh=kxrR3ZTKLhywdYlMyzuCoqVwYydWCssFeep6qKQ5QGY=;
+        s=default; t=1563997615;
+        bh=s1ShSWgebvUNJCPU9j+HSOIcpreMd5pjkTlQ7PKLUaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IEOZw7k306Vcg6Fv3zdCstiNJYEjdofvWczzTUuro7rQbd0jIA30rQEHuzgLV5yf+
-         UxGTc7e273tbLQHq/jmntxTyTlH52ulyD0mt/L6bzPC7tg1isopXs1qU7LYx0nuq+K
-         C27O8YChrUl0TaEohh1ShKVmJ6wW0W9HfdgYgUbI=
+        b=illJEHvIIgzkOutevY8KZllOXIt0Vqut2hCTaLpUXOQyJSLJD/DJbfDoKCcu+2X1L
+         1+5cJDIosTfeE4uVIlDNGAuDGkA0cpKGjPrxztSimAMWjPKSKH9gMtojVZ4Y6bLTje
+         ILXssZwrfLhppf6q/rJMHhuZon/HSRCLrzX9EqxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Valdis Kletnieks <valdis.kletnieks@vt.edu>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 082/371] regmap: fix bulk writes on paged registers
-Date:   Wed, 24 Jul 2019 21:17:14 +0200
-Message-Id: <20190724191731.019355270@linuxfoundation.org>
+Subject: [PATCH 5.1 085/371] bpf: silence warning messages in core
+Date:   Wed, 24 Jul 2019 21:17:17 +0200
+Message-Id: <20190724191731.251099174@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -45,40 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit db057679de3e9e6a03c1bcd5aee09b0d25fd9f5b ]
+[ Upstream commit aee450cbe482a8c2f6fa5b05b178ef8b8ff107ca ]
 
-On buses like SlimBus and SoundWire which does not support
-gather_writes yet in regmap, A bulk write on paged register
-would be silently ignored after programming page.
-This is because local variable 'ret' value in regmap_raw_write_impl()
-gets reset to 0 once page register is written successfully and the
-code below checks for 'ret' value to be -ENOTSUPP before linearising
-the write buffer to send to bus->write().
+Compiling kernel/bpf/core.c with W=1 causes a flood of warnings:
 
-Fix this by resetting the 'ret' value to -ENOTSUPP in cases where
-gather_writes() is not supported or single register write is
-not possible.
+kernel/bpf/core.c:1198:65: warning: initialized field overwritten [-Woverride-init]
+ 1198 | #define BPF_INSN_3_TBL(x, y, z) [BPF_##x | BPF_##y | BPF_##z] = true
+      |                                                                 ^~~~
+kernel/bpf/core.c:1087:2: note: in expansion of macro 'BPF_INSN_3_TBL'
+ 1087 |  INSN_3(ALU, ADD,  X),   \
+      |  ^~~~~~
+kernel/bpf/core.c:1202:3: note: in expansion of macro 'BPF_INSN_MAP'
+ 1202 |   BPF_INSN_MAP(BPF_INSN_2_TBL, BPF_INSN_3_TBL),
+      |   ^~~~~~~~~~~~
+kernel/bpf/core.c:1198:65: note: (near initialization for 'public_insntable[12]')
+ 1198 | #define BPF_INSN_3_TBL(x, y, z) [BPF_##x | BPF_##y | BPF_##z] = true
+      |                                                                 ^~~~
+kernel/bpf/core.c:1087:2: note: in expansion of macro 'BPF_INSN_3_TBL'
+ 1087 |  INSN_3(ALU, ADD,  X),   \
+      |  ^~~~~~
+kernel/bpf/core.c:1202:3: note: in expansion of macro 'BPF_INSN_MAP'
+ 1202 |   BPF_INSN_MAP(BPF_INSN_2_TBL, BPF_INSN_3_TBL),
+      |   ^~~~~~~~~~~~
 
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+98 copies of the above.
+
+The attached patch silences the warnings, because we *know* we're overwriting
+the default initializer. That leaves bpf/core.c with only 6 other warnings,
+which become more visible in comparison.
+
+Signed-off-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/regmap/regmap.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/bpf/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
-index 4f822e087def..61d1a0864dea 100644
---- a/drivers/base/regmap/regmap.c
-+++ b/drivers/base/regmap/regmap.c
-@@ -1642,6 +1642,8 @@ static int _regmap_raw_write_impl(struct regmap *map, unsigned int reg,
- 					     map->format.reg_bytes +
- 					     map->format.pad_bytes,
- 					     val, val_len);
-+	else
-+		ret = -ENOTSUPP;
+diff --git a/kernel/bpf/Makefile b/kernel/bpf/Makefile
+index 4c2fa3ac56f6..29d781061cd5 100644
+--- a/kernel/bpf/Makefile
++++ b/kernel/bpf/Makefile
+@@ -1,5 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0
+ obj-y := core.o
++CFLAGS_core.o += $(call cc-disable-warning, override-init)
  
- 	/* If that didn't work fall back on linearising by hand. */
- 	if (ret == -ENOTSUPP) {
+ obj-$(CONFIG_BPF_SYSCALL) += syscall.o verifier.o inode.o helpers.o tnum.o
+ obj-$(CONFIG_BPF_SYSCALL) += hashtab.o arraymap.o percpu_freelist.o bpf_lru_list.o lpm_trie.o map_in_map.o
 -- 
 2.20.1
 
