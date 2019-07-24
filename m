@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D756A74645
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:50:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF79674651
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:51:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390987AbfGYFnC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:43:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57994 "EHLO mail.kernel.org"
+        id S1727408AbfGYFuW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:50:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390984AbfGYFnB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:43:01 -0400
+        id S2404865AbfGYFnE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:43:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC94F21850;
-        Thu, 25 Jul 2019 05:43:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7670B21850;
+        Thu, 25 Jul 2019 05:43:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033381;
-        bh=BXbGsXOa9VO8OWmm5pyho2tcOhg7BywU2TkvD1p7kPk=;
+        s=default; t=1564033384;
+        bh=OgzOyEycRsQ5tZXTbgiVPzNADZxiQiXmkuy7t8sX45E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WJWmQpFs+l9IWFSmHy0I1fsbCWDB94TurRUDL725SxNnMRZ2qTsqojgxYaxHMTzLH
-         qTgqygAO/1Kr88OiRFe+ae/CuimzvOrAaFbJPQI3rEUzQvkxq9Fw/afa9A2e2SIeqX
-         ARo2EdGHIOGUunA7KGWnGQKUG/CIxveMkZKiQySI=
+        b=ldxotr/H4t9mBA7PRPwRpAuZEI9ag9RvTrdWKkgNicVMX0NUGwl965/5YYWyK+Odf
+         UKKIgwSMCrjpIWo+ItDl24E4Imo3OWFX+/sRix91M553UWZLgcu/6T1sxfbu6LMIvI
+         lXT1QMSIWwfpwc2JRRszsWuaUXLTpkycr4Reet6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.19 188/271] bcache: destroy dc->writeback_write_wq if failed to create dc->writeback_thread
-Date:   Wed, 24 Jul 2019 21:20:57 +0200
-Message-Id: <20190724191711.234053950@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Grant Hernandez <granthernandez@google.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.19 189/271] Input: gtco - bounds check collection indent level
+Date:   Wed, 24 Jul 2019 21:20:58 +0200
+Message-Id: <20190724191711.317742016@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -43,36 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Grant Hernandez <granthernandez@google.com>
 
-commit f54d801dda14942dbefa00541d10603015b7859c upstream.
+commit 2a017fd82c5402b3c8df5e3d6e5165d9e6147dc1 upstream.
 
-Commit 9baf30972b55 ("bcache: fix for gc and write-back race") added a
-new work queue dc->writeback_write_wq, but forgot to destroy it in the
-error condition when creating dc->writeback_thread failed.
+The GTCO tablet input driver configures itself from an HID report sent
+via USB during the initial enumeration process. Some debugging messages
+are generated during the parsing. A debugging message indentation
+counter is not bounds checked, leading to the ability for a specially
+crafted HID report to cause '-' and null bytes be written past the end
+of the indentation array. As long as the kernel has CONFIG_DYNAMIC_DEBUG
+enabled, this code will not be optimized out.  This was discovered
+during code review after a previous syzkaller bug was found in this
+driver.
 
-This patch destroys dc->writeback_write_wq if kthread_create() returns
-error pointer to dc->writeback_thread, then a memory leak is avoided.
-
-Fixes: 9baf30972b55 ("bcache: fix for gc and write-back race")
-Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Grant Hernandez <granthernandez@google.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/bcache/writeback.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/tablet/gtco.c |   20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
---- a/drivers/md/bcache/writeback.c
-+++ b/drivers/md/bcache/writeback.c
-@@ -807,6 +807,7 @@ int bch_cached_dev_writeback_start(struc
- 					      "bcache_writeback");
- 	if (IS_ERR(dc->writeback_thread)) {
- 		cached_dev_put(dc);
-+		destroy_workqueue(dc->writeback_write_wq);
- 		return PTR_ERR(dc->writeback_thread);
- 	}
+--- a/drivers/input/tablet/gtco.c
++++ b/drivers/input/tablet/gtco.c
+@@ -78,6 +78,7 @@ Scott Hill shill@gtcocalcomp.com
  
+ /* Max size of a single report */
+ #define REPORT_MAX_SIZE       10
++#define MAX_COLLECTION_LEVELS  10
+ 
+ 
+ /* Bitmask whether pen is in range */
+@@ -223,8 +224,7 @@ static void parse_hid_report_descriptor(
+ 	char  maintype = 'x';
+ 	char  globtype[12];
+ 	int   indent = 0;
+-	char  indentstr[10] = "";
+-
++	char  indentstr[MAX_COLLECTION_LEVELS + 1] = { 0 };
+ 
+ 	dev_dbg(ddev, "======>>>>>>PARSE<<<<<<======\n");
+ 
+@@ -350,6 +350,13 @@ static void parse_hid_report_descriptor(
+ 			case TAG_MAIN_COL_START:
+ 				maintype = 'S';
+ 
++				if (indent == MAX_COLLECTION_LEVELS) {
++					dev_err(ddev, "Collection level %d would exceed limit of %d\n",
++						indent + 1,
++						MAX_COLLECTION_LEVELS);
++					break;
++				}
++
+ 				if (data == 0) {
+ 					dev_dbg(ddev, "======>>>>>> Physical\n");
+ 					strcpy(globtype, "Physical");
+@@ -369,8 +376,15 @@ static void parse_hid_report_descriptor(
+ 				break;
+ 
+ 			case TAG_MAIN_COL_END:
+-				dev_dbg(ddev, "<<<<<<======\n");
+ 				maintype = 'E';
++
++				if (indent == 0) {
++					dev_err(ddev, "Collection level already at zero\n");
++					break;
++				}
++
++				dev_dbg(ddev, "<<<<<<======\n");
++
+ 				indent--;
+ 				for (x = 0; x < indent; x++)
+ 					indentstr[x] = '-';
 
 
