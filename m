@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBFFC73D32
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:15:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B63673D29
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:15:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403985AbfGXTyF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:54:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36790 "EHLO mail.kernel.org"
+        id S2404302AbfGXTyO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:54:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404060AbfGXTyE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:54:04 -0400
+        id S2404086AbfGXTyK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:54:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56131217D4;
-        Wed, 24 Jul 2019 19:54:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7767C22ADC;
+        Wed, 24 Jul 2019 19:54:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998042;
-        bh=MMDvgQIDUqkQpJk85ly4IO0t91zrFPbX6gTSnAmSimM=;
+        s=default; t=1563998048;
+        bh=Hq7xfIPpMVKYh/xEQ7Nzp1ydd1HyY/Vs4u0I5IFpz+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=USet/GRZmfwBmyMIW0+JW8OCT6vsAIyt9QrKIc5j1CfbAGOkU7F/q1NnXs5vZd84C
-         4JnSOHVuBFsR3bFQ0NeMjTZEDvBqG17IPTHzS5RZMRZRC6qAX3+M8HCV2fFBWQvMDj
-         QDAG1m1+M7yh+ow3o6AzvhhDTb6egPVVRoM4wULQ=
+        b=YrFjiT9tKrWtOd8XuHkc5wT+84/km1Y4TR9hjhsjKgEPCFqBJQiQgPUiOMgEhRXW/
+         tslBaIiELDX1Rj5HSCRxhVE5c+RBGSOkVEK1jI1jC7+ldPDRO91PeuXpld71G1uMAD
+         raJpX4EwYCLv50N953sv9gUXnOV/EYnDZCUaJoGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Efremov <efremov@ispras.ru>,
-        Willy Tarreau <w@1wt.eu>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 226/371] floppy: fix invalid pointer dereference in drive_name
-Date:   Wed, 24 Jul 2019 21:19:38 +0200
-Message-Id: <20190724191741.490197675@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.1 228/371] xen: let alloc_xenballooned_pages() fail if not enough memory free
+Date:   Wed, 24 Jul 2019 21:19:40 +0200
+Message-Id: <20190724191741.610322101@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -45,81 +42,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9b04609b784027968348796a18f601aed9db3789 ]
+From: Juergen Gross <jgross@suse.com>
 
-This fixes the invalid pointer dereference in the drive_name function of
-the floppy driver.
+commit a1078e821b605813b63bf6bca414a85f804d5c66 upstream.
 
-The native_format field of the struct floppy_drive_params is used as
-floppy_type array index in the drive_name function.  Thus, the field
-should be checked the same way as the autodetect field.
+Instead of trying to allocate pages with GFP_USER in
+add_ballooned_pages() check the available free memory via
+si_mem_available(). GFP_USER is far less limiting memory exhaustion
+than the test via si_mem_available().
 
-To trigger the bug, one could use a value out of range and set the drive
-parameters with the FDSETDRVPRM ioctl.  Next, FDGETDRVTYP ioctl should
-be used to call the drive_name.  A floppy disk is not required to be
-inserted.
+This will avoid dom0 running out of memory due to excessive foreign
+page mappings especially on ARM and on x86 in PVH mode, as those don't
+have a pre-ballooned area which can be used for foreign mappings.
 
-CAP_SYS_ADMIN is required to call FDSETDRVPRM.
+As the normal ballooning suffers from the same problem don't balloon
+down more than si_mem_available() pages in one iteration. At the same
+time limit the default maximum number of retries.
 
-The patch adds the check for a value of the native_format field to be in
-the '0 <= x < ARRAY_SIZE(floppy_type)' range of the floppy_type array
-indices.
+This is part of XSA-300.
 
-The bug was found by syzkaller.
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Denis Efremov <efremov@ispras.ru>
-Tested-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/floppy.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/xen/balloon.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/floppy.c b/drivers/block/floppy.c
-index 77c527db5134..8b443ee1d005 100644
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -3379,7 +3379,8 @@ static int fd_getgeo(struct block_device *bdev, struct hd_geometry *geo)
- 	return 0;
- }
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -538,8 +538,15 @@ static void balloon_process(struct work_
+ 				state = reserve_additional_memory();
+ 		}
  
--static bool valid_floppy_drive_params(const short autodetect[8])
-+static bool valid_floppy_drive_params(const short autodetect[8],
-+		int native_format)
- {
- 	size_t floppy_type_size = ARRAY_SIZE(floppy_type);
- 	size_t i = 0;
-@@ -3390,6 +3391,9 @@ static bool valid_floppy_drive_params(const short autodetect[8])
- 			return false;
+-		if (credit < 0)
+-			state = decrease_reservation(-credit, GFP_BALLOON);
++		if (credit < 0) {
++			long n_pages;
++
++			n_pages = min(-credit, si_mem_available());
++			state = decrease_reservation(n_pages, GFP_BALLOON);
++			if (state == BP_DONE && n_pages != -credit &&
++			    n_pages < totalreserve_pages)
++				state = BP_EAGAIN;
++		}
+ 
+ 		state = update_schedule(state);
+ 
+@@ -578,6 +585,9 @@ static int add_ballooned_pages(int nr_pa
+ 		}
  	}
  
-+	if (native_format < 0 || native_format >= floppy_type_size)
-+		return false;
++	if (si_mem_available() < nr_pages)
++		return -ENOMEM;
 +
- 	return true;
- }
+ 	st = decrease_reservation(nr_pages, GFP_USER);
+ 	if (st != BP_DONE)
+ 		return -ENOMEM;
+@@ -710,7 +720,7 @@ static int __init balloon_init(void)
+ 	balloon_stats.schedule_delay = 1;
+ 	balloon_stats.max_schedule_delay = 32;
+ 	balloon_stats.retry_count = 1;
+-	balloon_stats.max_retry_count = RETRY_UNLIMITED;
++	balloon_stats.max_retry_count = 4;
  
-@@ -3519,7 +3523,8 @@ static int fd_locked_ioctl(struct block_device *bdev, fmode_t mode, unsigned int
- 		SUPBOUND(size, strlen((const char *)outparam) + 1);
- 		break;
- 	case FDSETDRVPRM:
--		if (!valid_floppy_drive_params(inparam.dp.autodetect))
-+		if (!valid_floppy_drive_params(inparam.dp.autodetect,
-+				inparam.dp.native_format))
- 			return -EINVAL;
- 		*UDP = inparam.dp;
- 		break;
-@@ -3718,7 +3723,7 @@ static int compat_setdrvprm(int drive,
- 		return -EPERM;
- 	if (copy_from_user(&v, arg, sizeof(struct compat_floppy_drive_params)))
- 		return -EFAULT;
--	if (!valid_floppy_drive_params(v.autodetect))
-+	if (!valid_floppy_drive_params(v.autodetect, v.native_format))
- 		return -EINVAL;
- 	mutex_lock(&floppy_mutex);
- 	UDP->cmos = v.cmos;
--- 
-2.20.1
-
+ #ifdef CONFIG_XEN_BALLOON_MEMORY_HOTPLUG
+ 	set_online_page_callback(&xen_online_page);
 
 
