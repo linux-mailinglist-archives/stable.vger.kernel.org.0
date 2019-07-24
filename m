@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6CC073C39
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:07:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90CEA73BEA
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:04:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388509AbfGXUEL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:04:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55112 "EHLO mail.kernel.org"
+        id S2404692AbfGXUEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:04:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392463AbfGXUEL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 16:04:11 -0400
+        id S2392585AbfGXUEn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 16:04:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF77A206BA;
-        Wed, 24 Jul 2019 20:04:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA06E214AF;
+        Wed, 24 Jul 2019 20:04:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998650;
-        bh=cXKDB6AufGWoUrk9ygY68OsXQam0L8v3IV6DKgFBW1w=;
+        s=default; t=1563998682;
+        bh=y5aMZuNFOBLZnnkx+88Nli9ZhgKfyb91ZWUVryMTH8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vZRVPScsnoQ/zPy6hiKO5nTHBexAEDfK8Zho4F+Cuu7NDCJ0QolQyFgsAfItPK74i
-         pHgtFV7vbvuaqYCgJDLCfEpz7VAiD83tjNzMZdSDvW4zJwM/UDyRc9k1UT93g+ZZ8C
-         aRJGRvzpKHaaUWBIXgA1Ox5yGWnBbjDD5ZxuoikM=
+        b=nZe+9/yMNMEXV9zTso0c10zdBSJxi3VTEuIQucOggPrGYm5uNGP/GH0NsIlWCHGl9
+         cvZYmOfE32quslyN+8aDQi7VRuK6aTo7OwUK82Tdh3SdI11PIBN0LOtX0MFTSKC5os
+         fGyxmsfn9uq0m4vHPCW8rrj9OrpKXMlkW1/WYHE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hans.verkuil@cisco.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Weihang Li <liweihang@hisilicon.com>,
+        Peng Li <lipeng321@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 040/271] media: wl128x: Fix some error handling in fm_v4l2_init_video_device()
-Date:   Wed, 24 Jul 2019 21:18:29 +0200
-Message-Id: <20190724191658.629913689@linuxfoundation.org>
+Subject: [PATCH 4.19 041/271] net: hns3: set ops to null when unregister ad_dev
+Date:   Wed, 24 Jul 2019 21:18:30 +0200
+Message-Id: <20190724191658.702135535@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -46,98 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 69fbb3f47327d959830c94bf31893972b8c8f700 ]
+[ Upstream commit 594a81b39525f0a17e92c2e0b167ae1400650380 ]
 
-X-Originating-IP: [10.175.113.25]
-X-CFilter-Loop: Reflected
-The fm_v4l2_init_video_device() forget to unregister v4l2/video device
-in the error path, it could lead to UAF issue, eg,
+The hclge/hclgevf and hns3 module can be unloaded independently,
+when hclge/hclgevf unloaded firstly, the ops of ae_dev should
+be set to NULL, otherwise it will cause an use-after-free problem.
 
-  BUG: KASAN: use-after-free in atomic64_read include/asm-generic/atomic-instrumented.h:836 [inline]
-  BUG: KASAN: use-after-free in atomic_long_read include/asm-generic/atomic-long.h:28 [inline]
-  BUG: KASAN: use-after-free in __mutex_unlock_slowpath+0x92/0x690 kernel/locking/mutex.c:1206
-  Read of size 8 at addr ffff8881e84a7c70 by task v4l_id/3659
-
-  CPU: 1 PID: 3659 Comm: v4l_id Not tainted 5.1.0 #8
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-  Call Trace:
-   __dump_stack lib/dump_stack.c:77 [inline]
-   dump_stack+0xa9/0x10e lib/dump_stack.c:113
-   print_address_description+0x65/0x270 mm/kasan/report.c:187
-   kasan_report+0x149/0x18d mm/kasan/report.c:317
-   atomic64_read include/asm-generic/atomic-instrumented.h:836 [inline]
-   atomic_long_read include/asm-generic/atomic-long.h:28 [inline]
-   __mutex_unlock_slowpath+0x92/0x690 kernel/locking/mutex.c:1206
-   fm_v4l2_fops_open+0xac/0x120 [fm_drv]
-   v4l2_open+0x191/0x390 [videodev]
-   chrdev_open+0x20d/0x570 fs/char_dev.c:417
-   do_dentry_open+0x700/0xf30 fs/open.c:777
-   do_last fs/namei.c:3416 [inline]
-   path_openat+0x7c4/0x2a90 fs/namei.c:3532
-   do_filp_open+0x1a5/0x2b0 fs/namei.c:3563
-   do_sys_open+0x302/0x490 fs/open.c:1069
-   do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  RIP: 0033:0x7f8180c17c8e
-  ...
-  Allocated by task 3642:
-   set_track mm/kasan/common.c:87 [inline]
-   __kasan_kmalloc.constprop.3+0xa0/0xd0 mm/kasan/common.c:497
-   fm_drv_init+0x13/0x1000 [fm_drv]
-   do_one_initcall+0xbc/0x47d init/main.c:901
-   do_init_module+0x1b5/0x547 kernel/module.c:3456
-   load_module+0x6405/0x8c10 kernel/module.c:3804
-   __do_sys_finit_module+0x162/0x190 kernel/module.c:3898
-   do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-  Freed by task 3642:
-   set_track mm/kasan/common.c:87 [inline]
-   __kasan_slab_free+0x130/0x180 mm/kasan/common.c:459
-   slab_free_hook mm/slub.c:1429 [inline]
-   slab_free_freelist_hook mm/slub.c:1456 [inline]
-   slab_free mm/slub.c:3003 [inline]
-   kfree+0xe1/0x270 mm/slub.c:3958
-   fm_drv_init+0x1e6/0x1000 [fm_drv]
-   do_one_initcall+0xbc/0x47d init/main.c:901
-   do_init_module+0x1b5/0x547 kernel/module.c:3456
-   load_module+0x6405/0x8c10 kernel/module.c:3804
-   __do_sys_finit_module+0x162/0x190 kernel/module.c:3898
-   do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Add relevant unregister functions to fix it.
-
-Cc: Hans Verkuil <hans.verkuil@cisco.com>
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Fixes: 38caee9d3ee8 ("net: hns3: Add support of the HNAE3 framework")
+Signed-off-by: Weihang Li <liweihang@hisilicon.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/radio/wl128x/fmdrv_v4l2.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/hisilicon/hns3/hnae3.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/radio/wl128x/fmdrv_v4l2.c b/drivers/media/radio/wl128x/fmdrv_v4l2.c
-index dccdf6558e6a..33abc8616ecb 100644
---- a/drivers/media/radio/wl128x/fmdrv_v4l2.c
-+++ b/drivers/media/radio/wl128x/fmdrv_v4l2.c
-@@ -549,6 +549,7 @@ int fm_v4l2_init_video_device(struct fmdev *fmdev, int radio_nr)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.c b/drivers/net/ethernet/hisilicon/hns3/hnae3.c
+index fff5be8078ac..0594a6c3dccd 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.c
+@@ -229,6 +229,7 @@ void hnae3_unregister_ae_algo(struct hnae3_ae_algo *ae_algo)
  
- 	/* Register with V4L2 subsystem as RADIO device */
- 	if (video_register_device(&gradio_dev, VFL_TYPE_RADIO, radio_nr)) {
-+		v4l2_device_unregister(&fmdev->v4l2_dev);
- 		fmerr("Could not register video device\n");
- 		return -ENOMEM;
- 	}
-@@ -562,6 +563,8 @@ int fm_v4l2_init_video_device(struct fmdev *fmdev, int radio_nr)
- 	if (ret < 0) {
- 		fmerr("(fmdev): Can't init ctrl handler\n");
- 		v4l2_ctrl_handler_free(&fmdev->ctrl_handler);
-+		video_unregister_device(fmdev->radio_dev);
-+		v4l2_device_unregister(&fmdev->v4l2_dev);
- 		return -EBUSY;
+ 		ae_algo->ops->uninit_ae_dev(ae_dev);
+ 		hnae3_set_bit(ae_dev->flag, HNAE3_DEV_INITED_B, 0);
++		ae_dev->ops = NULL;
  	}
  
+ 	list_del(&ae_algo->node);
+@@ -316,6 +317,7 @@ void hnae3_unregister_ae_dev(struct hnae3_ae_dev *ae_dev)
+ 
+ 		ae_algo->ops->uninit_ae_dev(ae_dev);
+ 		hnae3_set_bit(ae_dev->flag, HNAE3_DEV_INITED_B, 0);
++		ae_dev->ops = NULL;
+ 	}
+ 
+ 	list_del(&ae_dev->node);
 -- 
 2.20.1
 
