@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E8CD7382A
+	by mail.lfdr.de (Postfix) with ESMTP id 1186473829
 	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:26:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387509AbfGXT0c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:26:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43564 "EHLO mail.kernel.org"
+        id S1726001AbfGXT0b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:26:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728452AbfGXT01 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:26:27 -0400
+        id S2388099AbfGXT0a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:26:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 827DA20659;
-        Wed, 24 Jul 2019 19:26:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3053521951;
+        Wed, 24 Jul 2019 19:26:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996387;
-        bh=CURt+DNmqAriFInCae09vldP6AQePfsWc1X55YjCn6s=;
+        s=default; t=1563996389;
+        bh=kqRomERKSwAVEGo/569p4viwfvsPUT/3IaH0Z/vnLVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ra8zpzPKHu9IeoJS+ErcyPEEgYCoMO7MHnw5vx2vRemYHZYWq1v9sr2k6jnwXUaAt
-         YWuJBZyzyOfMMcEc2IodAqvogHgdmQjwVucOfopcKPNYbDfLlIrukH3XseSX8zNbQk
-         zdrAwReuFnYC/MmBG+QoewIZsvTw/womk5Od54zs=
+        b=hLI49CXvACTKbHGcDSPQCzydAknyVCILHQYlFN5DhV1sU3qJTnQa5lSzRsMJ/4G5k
+         YVXG+yZ0GckVDG0oM1T/44FPvwsgsG8gvPm9CD2uX/8XYNMGcvfPwP+9w6majwT88c
+         7XqavcVv6YbguAL8mwMosR0QUl2d41aXsVpT7rwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namjae Jeon <namjae.jeon@samsung.com>,
-        Jeff Layton <jlayton@primarydata.com>,
-        Steve French <smfrench@gmail.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
+        stable@vger.kernel.org,
+        syzbot+4f0529365f7f2208d9f0@syzkaller.appspotmail.com,
+        Jeremy Sowden <jeremy@azazel.net>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 038/413] signal/cifs: Fix cifs_put_tcp_session to call send_sig instead of force_sig
-Date:   Wed, 24 Jul 2019 21:15:29 +0200
-Message-Id: <20190724191738.345725184@linuxfoundation.org>
+Subject: [PATCH 5.2 039/413] af_key: fix leaks in key_pol_get_resp and dump_sp.
+Date:   Wed, 24 Jul 2019 21:15:30 +0200
+Message-Id: <20190724191738.407710138@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -46,49 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 72abe3bcf0911d69b46c1e8bdb5612675e0ac42c ]
+[ Upstream commit 7c80eb1c7e2b8420477fbc998971d62a648035d9 ]
 
-The locking in force_sig_info is not prepared to deal with a task that
-exits or execs (as sighand may change).  The is not a locking problem
-in force_sig as force_sig is only built to handle synchronous
-exceptions.
+In both functions, if pfkey_xfrm_policy2msg failed we leaked the newly
+allocated sk_buff.  Free it on error.
 
-Further the function force_sig_info changes the signal state if the
-signal is ignored, or blocked or if SIGNAL_UNKILLABLE will prevent the
-delivery of the signal.  The signal SIGKILL can not be ignored and can
-not be blocked and SIGNAL_UNKILLABLE won't prevent it from being
-delivered.
-
-So using force_sig rather than send_sig for SIGKILL is confusing
-and pointless.
-
-Because it won't impact the sending of the signal and and because
-using force_sig is wrong, replace force_sig with send_sig.
-
-Cc: Namjae Jeon <namjae.jeon@samsung.com>
-Cc: Jeff Layton <jlayton@primarydata.com>
-Cc: Steve French <smfrench@gmail.com>
-Fixes: a5c3e1c725af ("Revert "cifs: No need to send SIGKILL to demux_thread during umount"")
-Fixes: e7ddee9037e7 ("cifs: disable sharing session and tcon and add new TCP sharing code")
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Fixes: 55569ce256ce ("Fix conversion between IPSEC_MODE_xxx and XFRM_MODE_xxx.")
+Reported-by: syzbot+4f0529365f7f2208d9f0@syzkaller.appspotmail.com
+Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/key/af_key.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 8dd6637a3cbb..714a359c7c8d 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -2631,7 +2631,7 @@ cifs_put_tcp_session(struct TCP_Server_Info *server, int from_reconnect)
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index a50dd6f34b91..fe5fc4bab7ee 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2438,8 +2438,10 @@ static int key_pol_get_resp(struct sock *sk, struct xfrm_policy *xp, const struc
+ 		goto out;
+ 	}
+ 	err = pfkey_xfrm_policy2msg(out_skb, xp, dir);
+-	if (err < 0)
++	if (err < 0) {
++		kfree_skb(out_skb);
+ 		goto out;
++	}
  
- 	task = xchg(&server->tsk, NULL);
- 	if (task)
--		force_sig(SIGKILL, task);
-+		send_sig(SIGKILL, task, 1);
- }
+ 	out_hdr = (struct sadb_msg *) out_skb->data;
+ 	out_hdr->sadb_msg_version = hdr->sadb_msg_version;
+@@ -2690,8 +2692,10 @@ static int dump_sp(struct xfrm_policy *xp, int dir, int count, void *ptr)
+ 		return PTR_ERR(out_skb);
  
- static struct TCP_Server_Info *
+ 	err = pfkey_xfrm_policy2msg(out_skb, xp, dir);
+-	if (err < 0)
++	if (err < 0) {
++		kfree_skb(out_skb);
+ 		return err;
++	}
+ 
+ 	out_hdr = (struct sadb_msg *) out_skb->data;
+ 	out_hdr->sadb_msg_version = pfk->dump.msg_version;
 -- 
 2.20.1
 
