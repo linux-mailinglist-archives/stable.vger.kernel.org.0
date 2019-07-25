@@ -2,117 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C4D075ACF
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 00:43:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5660F75ADD
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 00:46:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726871AbfGYWnH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 18:43:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55084 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726704AbfGYWnH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 18:43:07 -0400
-Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E8BB22BF5;
-        Thu, 25 Jul 2019 22:43:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564094585;
-        bh=lBESfuT3DmI+rgGQfA5Bgd1cqeRkqGQxNUSPLRT7J/w=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=Nv80oMNgEN71r3/BbqLh/q7zx+mZrVMhluqgvK4uigmTgyG2Qrpej99va5ARTRYqz
-         hNJlcDNZ5zVI3+fa4g9d0ZUUDegPlf28mUu6+eCDC/czkZ0H05t/GEVU1VfhMYABRd
-         1/+T5bnkyHC2A6g6LO4gPGxap4XYNjcZRILpeRwo=
-Received: by mail-qt1-f180.google.com with SMTP id z4so50787195qtc.3;
-        Thu, 25 Jul 2019 15:43:05 -0700 (PDT)
-X-Gm-Message-State: APjAAAX3lNwfuIZomWaUDY6UePS9LWFNB8ZwsoP68vLsCDLHse9OPlIg
-        q/gviR489Nggv9+Uu89u1gtUHUPhZN4ilTLH6Q==
-X-Google-Smtp-Source: APXvYqxdeWh9cmjbYBWJqGtuD2MR1ApRKd+If++ai9lKP0uWwFcRMyo2Qs/i7JSDX0ekJFmk7Df2ahT9V7pGKFBaufs=
-X-Received: by 2002:a0c:b627:: with SMTP id f39mr66634624qve.72.1564094584748;
- Thu, 25 Jul 2019 15:43:04 -0700 (PDT)
+        id S1726817AbfGYWqr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 18:46:47 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:46331 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726810AbfGYWqr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 18:46:47 -0400
+Received: by mail-wr1-f65.google.com with SMTP id z1so52343837wru.13
+        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 15:46:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=4vIWNXEwPG5SzvIX+eO1oQdVEiDr5fZ4ZRmPcdsf/is=;
+        b=igIQdtnmHT7di8sQ2jR9NZt+3PjdQ4q8A2tRJ0trZ1EM3TANnnwhZ7T+d9+9saYz3C
+         olM/BkH0bxZnKrTrNPjPR1fBWLJs4Q2isf5WSApHYFdg1PcM7oBhySmNsh4FInfKHvBS
+         5ODfMm8SHZt3cPXUSfNgOdkcIIy6z8mBILjtKrwwabhg9qZ/hiheJeLemBDOJ1AU5bvZ
+         ioemomKwcBavTx+hNxUDzNSv++QcMMWNmljXyI+4KD54t74PQK8fUXMvH2WKUc/vHOcG
+         04Mi9tHjbIuKyjO0N5Q4FydzznfOax/TUSW1F8bXoSkoKsOhtl2wd0Ur67O9lMqWypHa
+         YFGw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=4vIWNXEwPG5SzvIX+eO1oQdVEiDr5fZ4ZRmPcdsf/is=;
+        b=VpvEA72Fy0RLq4A5D28WvRn91oIrnj2wQANuuS1kd126E+cmhz4ul8r4vjawgYie+3
+         0Ew5mZzf2OoPOiN7AeKWMoVtJ8H0sNbtJP34YPnX8F0afOzJ07+jX/pCk1Eio6oYL/Cy
+         OqHLO6+0Z8Zs1AYzfADSL8EGbHeAvSY1UbMarWSxYtmAltmCll4YV1PSdBXiSUES49o3
+         dBZ7URkQ5V56T923eHAxWcDo1ndcVty5ja/3cju/Vzky2XotpFj0s7OCBeFNUQDTqnmz
+         2ikc9m01TUW3+J//nGGjyVrJ2Gf4dFC+Cse7lVFpthYgfpz6PS3FABYWiee2kzDwdf9N
+         9xew==
+X-Gm-Message-State: APjAAAX5r8tZ5DhqKkuYaz/Jgz6fe3fD9eiqeBsgeE8E0JPTY01VWiqP
+        UT2eV0BN4kR6pjJau9POMhIBW6chhpE=
+X-Google-Smtp-Source: APXvYqzLt29fFduKswwmeUCN427VOagKful9ApacJyLTNIDCgju/GvcoG8EP+an2jlvb4GZfstTmyg==
+X-Received: by 2002:a5d:540e:: with SMTP id g14mr11831191wrv.346.1564094805378;
+        Thu, 25 Jul 2019 15:46:45 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id f70sm62246119wme.22.2019.07.25.15.46.44
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 25 Jul 2019 15:46:44 -0700 (PDT)
+Message-ID: <5d3a3154.1c69fb81.3caa6.2a34@mx.google.com>
+Date:   Thu, 25 Jul 2019 15:46:44 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <cover.1562597164.git.hns@goldelico.com> <8ae7cf816b22ef9cecee0d789fcf9e8a06495c39.1562597164.git.hns@goldelico.com>
- <20190724194259.GA25847@bogus> <2EA06398-E45B-481B-9A26-4DD2E043BF9C@goldelico.com>
-In-Reply-To: <2EA06398-E45B-481B-9A26-4DD2E043BF9C@goldelico.com>
-From:   Rob Herring <robh@kernel.org>
-Date:   Thu, 25 Jul 2019 16:42:53 -0600
-X-Gmail-Original-Message-ID: <CAL_JsqLe_Y9Z6MRt7ojgSVKAb9n95S8j=eGidSVNz2T83j-zPQ@mail.gmail.com>
-Message-ID: <CAL_JsqLe_Y9Z6MRt7ojgSVKAb9n95S8j=eGidSVNz2T83j-zPQ@mail.gmail.com>
-Subject: Re: [PATCH 2/2] DTS: ARM: gta04: introduce legacy spi-cs-high to make
- display work again
-To:     "H. Nikolaus Schaller" <hns@goldelico.com>
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        =?UTF-8?Q?Beno=C3=AEt_Cousson?= <bcousson@baylibre.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Discussions about the Letux Kernel 
-        <letux-kernel@openphoenux.org>,
-        linux-spi <linux-spi@vger.kernel.org>,
-        devicetree <devicetree@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux-OMAP <linux-omap@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.1.19-370-gfb6ea525ffcf
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.1.y
+Subject: stable-rc/linux-5.1.y boot: 133 boots: 1 failed,
+ 130 passed with 2 offline (v5.1.19-370-gfb6ea525ffcf)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 25, 2019 at 12:23 AM H. Nikolaus Schaller <hns@goldelico.com> wrote:
->
-> Hi Rob,
->
-> > Am 24.07.2019 um 21:42 schrieb Rob Herring <robh@kernel.org>:
-> >
-> > On Mon, Jul 08, 2019 at 04:46:05PM +0200, H. Nikolaus Schaller wrote:
-> >> commit 6953c57ab172 "gpio: of: Handle SPI chipselect legacy bindings"
-> >>
-> >> did introduce logic to centrally handle the legacy spi-cs-high property
-> >> in combination with cs-gpios. This assumes that the polarity
-> >> of the CS has to be inverted if spi-cs-high is missing, even
-> >> and especially if non-legacy GPIO_ACTIVE_HIGH is specified.
-> >>
-> >> The DTS for the GTA04 was orginally introduced under the assumption
-> >> that there is no need for spi-cs-high if the gpio is defined with
-> >> proper polarity GPIO_ACTIVE_HIGH.
-> >
-> > Given that spi-cs-high is called legacy, that would imply that DT's
-> > should not have to use spi-cs-high.
->
-> Yes.
->
-> >
-> >> This was not a problem until gpiolib changed the interpretation of
-> >> GPIO_ACTIVE_HIGH and missing spi-cs-high.
-> >
-> > Then we should fix gpiolib...
->
-> I tried to convince Linus that this is the right way but he convinced
-> me that a fix that handles all cases does not exist.
->
-> There seem to be embedded devices with older DTB (potentially in ROM)
-> which provide a plain 0 value for a gpios definition. And either with
-> or without spi-cs-high.
->
-> Since "0" is the same as "GPIO_ACTIVE_HIGH", the absence of
-> spi-cs-high was and must be interpreted as active low for these
-> devices. This leads to the inversion logic in code.
->
-> AFAIR it boils down to the question if gpiolib and the bindings
-> should still support such legacy devices with out-of tree DTB,
-> but force in-tree DTS to add the legacy spi-cs-high property.
->
-> Or if we should fix the 2 or 3 cases of in-tree legacy cases
-> and potentially break out-of tree DTBs.
+stable-rc/linux-5.1.y boot: 133 boots: 1 failed, 130 passed with 2 offline =
+(v5.1.19-370-gfb6ea525ffcf)
 
-If it is small number of platforms, then the kernel could handle those
-cases explicitly as needed.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.1.y/kernel/v5.1.19-370-gfb6ea525ffcf/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.1.y=
+/kernel/v5.1.19-370-gfb6ea525ffcf/
 
-> IMHO it is more general to keep the out-of-tree DTBs working
-> and "fix" what we can control (in-tree DTS).
+Tree: stable-rc
+Branch: linux-5.1.y
+Git Describe: v5.1.19-370-gfb6ea525ffcf
+Git Commit: fb6ea525ffcf5a5339fa976ec38967b97526fe72
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 75 unique boards, 27 SoC families, 17 builds out of 209
 
-If we do this, then we need to not call spi-cs-high legacy because
-we're stuck with it forever.
+Boot Failure Detected:
 
-Rob
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            bcm4708-smartrg-sr400ac: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            meson-gxbb-odroidc2: 1 offline lab
+            meson-gxl-s905x-nexbox-a95x: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
