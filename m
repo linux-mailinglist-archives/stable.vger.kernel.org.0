@@ -2,156 +2,198 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51C0C74C6D
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 13:05:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43C2474CB0
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 13:16:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391518AbfGYLFb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 07:05:31 -0400
-Received: from mail-eopbgr20121.outbound.protection.outlook.com ([40.107.2.121]:59302
-        "EHLO EUR02-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S2388070AbfGYLFb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 07:05:31 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=NgMcx9JgKAwmTEHB3YX+6ZE/9mTtvzSzRZcntsWDjENKAsGjAlnmX2u6W75DWIaZYPxnTYfHrxc3mf/AxdJWd3Rp1zZdtS/MjsC9DNOvL13luZvB6R861f2ESRjjwAv4M2NAr8htkIGziVKXkLud5G4zck6uKZaqtstJU0+T5F+wuoDkGbnJcp8o2L4IbHYi/j9Ov8pH00lAY8DceZH3on+O2ZMETbc8ytBIzJHzYDC5mGa3LrHxVAY1g3GrFBwL/thbXX8nEIMDQjAadb6pQCScfsvup5CM717ydoHqi3K8XvFRYuUXPWggZFENzhJeiOsX+10UlPS30LmJ6/2Khg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=WRcXUpf4uIYFEL9fgZ8SDY54LsOYeAmHh5gNyiFNMvA=;
- b=IX6djHgbkaRzkd05vdyTTibmU8ba2C0rpg14KuS0r/jVDripxogc+iKszoXuTLp43lAakv9qcZ37tpSrN0hacqu/yXtTxY9G5SQ2zVa6qmw89kGCDuXOD8p1gqd7mu83VcoVbPRnw7uw7xvl+ND/yLGvnWSljB6iuHkzPLuvoX3UbA6coebTnqxxSxppFZGoyljv9OdALsNLx9mCvJ9wrMTAlJkiYKWoK7lpJExJenv0hj7autofwvJxu6rZUqgAGGW+vCphq7hUrEdrjLqAv2iMaafoAj7aNlPBw7ahnA0c4HxvWppJqly46aYlBqhMkwFxelS6JXt6z4RDaazk6A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1;spf=pass
- smtp.mailfrom=toradex.com;dmarc=pass action=none
- header.from=toradex.com;dkim=pass header.d=toradex.com;arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=toradex.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=WRcXUpf4uIYFEL9fgZ8SDY54LsOYeAmHh5gNyiFNMvA=;
- b=eK+t2Z8rHysT+V043gYsS5vwQSWPDOgs7BW26yD/g5+T/TXnt+AaaFHFwqsVDQ1CvWKqJYYptlIz9UEpQEoOHiHLmD3ZttbTMkKBqe5zHlDtbRw+qloospQrGMH6Uuwb7LzKgAywchmFNYkqAkw2We4tD4t3sf8wXu0kWsHT6Ts=
-Received: from AM6PR05MB6535.eurprd05.prod.outlook.com (20.179.18.16) by
- AM6PR05MB6406.eurprd05.prod.outlook.com (20.179.6.81) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2115.10; Thu, 25 Jul 2019 11:05:25 +0000
-Received: from AM6PR05MB6535.eurprd05.prod.outlook.com
- ([fe80::c860:b386:22a:8ec9]) by AM6PR05MB6535.eurprd05.prod.outlook.com
- ([fe80::c860:b386:22a:8ec9%6]) with mapi id 15.20.2094.017; Thu, 25 Jul 2019
- 11:05:25 +0000
-From:   Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
-To:     Andrzej Hajda <a.hajda@samsung.com>,
-        Neil Armstrong <narmstrong@baylibre.com>
-CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        Igor Opaniuk <igor.opaniuk@toradex.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
-        "maxime.ripard@free-electrons.com" <maxime.ripard@free-electrons.com>,
-        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
-        Jonas Karlman <jonas@kwiboo.se>,
-        David Airlie <airlied@linux.ie>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Daniel Vetter <daniel@ffwll.ch>
-Subject: [PATCH 1/1] drm/bridge: vga-dac: Fix detect of monitor connection
-Thread-Topic: [PATCH 1/1] drm/bridge: vga-dac: Fix detect of monitor
- connection
-Thread-Index: AQHVQtjc9EMAkuteLkuZ4bDgcKxYhw==
-Date:   Thu, 25 Jul 2019 11:05:24 +0000
-Message-ID: <20190725110520.26848-2-oleksandr.suvorov@toradex.com>
-References: <20190725110520.26848-1-oleksandr.suvorov@toradex.com>
-In-Reply-To: <20190725110520.26848-1-oleksandr.suvorov@toradex.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: AM0PR0102CA0065.eurprd01.prod.exchangelabs.com
- (2603:10a6:208::42) To AM6PR05MB6535.eurprd05.prod.outlook.com
- (2603:10a6:20b:71::16)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=oleksandr.suvorov@toradex.com; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-mailer: git-send-email 2.20.1
-x-originating-ip: [194.105.145.90]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: c189facf-cd15-4efd-ab54-08d710effe73
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(2017052603328)(7193020);SRVR:AM6PR05MB6406;
-x-ms-traffictypediagnostic: AM6PR05MB6406:
-x-microsoft-antispam-prvs: <AM6PR05MB640639F565F8E4514DBB8F00F9C10@AM6PR05MB6406.eurprd05.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:510;
-x-forefront-prvs: 0109D382B0
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(366004)(199004)(189003)(81166006)(6512007)(66066001)(25786009)(71190400001)(2906002)(7736002)(305945005)(14444005)(4326008)(7416002)(498600001)(52116002)(99286004)(71200400001)(256004)(66446008)(64756008)(76176011)(14454004)(44832011)(6486002)(66946007)(68736007)(6436002)(2616005)(50226002)(476003)(186003)(446003)(386003)(102836004)(5660300002)(8676002)(6506007)(26005)(54906003)(3846002)(53936002)(81156014)(6116002)(8936002)(110136005)(1076003)(86362001)(36756003)(66476007)(66556008)(11346002)(486006);DIR:OUT;SFP:1102;SCL:1;SRVR:AM6PR05MB6406;H:AM6PR05MB6535.eurprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: toradex.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: 9sx3bRzoIwHGRTYe9Mut9UdPVq3Pprnz13VlerohJShlidAhougJ7JtWFM15JSX66/9FUGwVWlgoEzY0MYslyPF8mVaZx+w1kz+ojk7Qwnsxuvqv8ibhHVHnjvBLTgwFOBy5AZBkD6MAfw8fTpyUOHLjgxnbRJlCZihX6Xk7T1NYM2op5OgijWRY8GmilP7BK2Q0svs9YH9DmCa/shTF+9pDmOdLYlRhL35GK6N/tcoveahpUuJsdBWOPQpSREKIEaNKfQF8k50SjlsBpKEDDAPU0ePFKn1DpdjmatdzbrqAbI760HfjiuSovQiDzeCN1tdq8www6B178dhcL+XjilUZChUkUKv2m0yINBV+M1EY4miXh5rwIJkcyh2cfokkO089Hre0kGefwSz8pLN44K0vxkksKh5G0yxy0fWISv4=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+        id S2391699AbfGYLQd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 07:16:33 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:38994 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390411AbfGYLQd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 07:16:33 -0400
+Received: by mail-lf1-f65.google.com with SMTP id v85so34210292lfa.6
+        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 04:16:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=0U3JNBmNGYy0aqS1fsdwYku9ZRDxCCZwgG78ptzr3/s=;
+        b=sPTFxew2HVdu5JYRV5YO/NUgdrasvKQ+2+/g+OQiWM2wL6nRSGlCQdjNlv1qdjFNwI
+         nVadL2bFBk8wbP2jGGsefYXpmS8Xw2647+VU+WAklkXrHqbX3KjgeISof/YsyX8QRRFk
+         wqTB+ipAZ0PL6X20wB2XEuyKPU3oDVcmZDYFu1qPNIuFCAq5JahdkrYK2ct3wVY6FlA3
+         ffAVw9/DVvSNcO1RJv7qlBl4cBle25tgkCZaR1k9379tRO4UqLbk5Lv5FDq65yaPRE9z
+         PuI4h7yCkEBODiN8cnW468URr2Jl/l8/zcHo3tGkx5Kmab4NT6kafF1zLKRA6wJBQZXz
+         s+tA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=0U3JNBmNGYy0aqS1fsdwYku9ZRDxCCZwgG78ptzr3/s=;
+        b=eL/sCibzy/qQ5p8f8fcmoQgIoOaVM5qy04FDbrMGzul/cr1W+J7TyEC8Q51clJx3ad
+         IyTryrg8uAcwNwA0h2w4ZamiIwUzS21FAOR0pulxHs6xBAgESpdNY14tPqbAJoXhAIPd
+         RHo92KcFThiwtpFXzDeAUGqNsroXOPkDS21md13x96aaUX8vnSDXRQX2rg3QMuitt5yw
+         /p1V4FeWWXWm0LpsESFDINVOcpimmnDYKwwPulxzS1wCta2To4qJ4Snv1hE7uMOSNkC9
+         /qveWq1C7jQPa7u1FdOcJrKGntMYN6IINRD+pQOEXtTVJu2i1N6ZEtlkcafy6Z70L5cF
+         EWsA==
+X-Gm-Message-State: APjAAAULW3is0DO/R2sPl0GAHq6wVSkAHxKl4bOaPqMmZOtI28TGOQJd
+        3qGBpQpybuCPMSiesOahu/vm1T+XtqwtLSvXLLFfTw==
+X-Google-Smtp-Source: APXvYqz5PSnz2vtWF1fvHXLKMELKN6t99rqUeay6/XuKtapo4XVBKVhmMFaoEsJ4IbsO3WUWJ9kwszBYIGRHqcGtcL4=
+X-Received: by 2002:a19:c514:: with SMTP id w20mr41342873lfe.182.1564053390533;
+ Thu, 25 Jul 2019 04:16:30 -0700 (PDT)
 MIME-Version: 1.0
-X-OriginatorOrg: toradex.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c189facf-cd15-4efd-ab54-08d710effe73
-X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Jul 2019 11:05:24.9995
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: d9995866-0d9b-4251-8315-093f062abab4
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: oleksandr.suvorov@toradex.com
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM6PR05MB6406
+References: <20190724191735.096702571@linuxfoundation.org>
+In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
+From:   Anders Roxell <anders.roxell@linaro.org>
+Date:   Thu, 25 Jul 2019 13:16:19 +0200
+Message-ID: <CADYN=9+WLxhmqX3JNL_s-kWSN97G=8WhD=TF=uAuKecJnKcj_Q@mail.gmail.com>
+Subject: Re: [PATCH 5.2 000/413] 5.2.3-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        sean.j.christopherson@intel.com, wanpengli@tencent.com,
+        jmattson@google.com
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, ben.hutchings@codethink.co.uk,
+        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+        torvalds@linux-foundation.org, linux@roeck-us.net
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-DDC and VGA channels are independent, and therefore
-we cannot decide whether the monitor is connected or not,
-depending on the information from the DDC.
+On Wed, 24 Jul 2019 at 21:25, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.2.3 release.
+> There are 413 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri 26 Jul 2019 07:13:35 PM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.2.3-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.2.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-So the monitor should always be considered connected.
-Thus there is no reason to use connector detect callback for this
-driver.
+Results from Linaro=E2=80=99s test farm.
+Regressions detected.
 
-Fixes DRM error of dumb monitor detection like:
-...
-DRM: head 'VGA-1' found, connector 32 is disconnected.
-...
+Summary
+------------------------------------------------------------------------
 
-Cc: stable@vger.kernel.org
-Fixes: 56fe8b6f4991 ("drm/bridge: Add RGB to VGA bridge support")
-Signed-off-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
----
+kernel: 5.2.3-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.2.y
+git commit: db628fe0e67ff8c66e8c6ba76e5e4becfa75fe21
+git describe: v5.2.2-414-gdb628fe0e67f
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.2-oe/bui=
+ld/v5.2.2-414-gdb628fe0e67f
 
- drivers/gpu/drm/bridge/dumb-vga-dac.c | 18 ------------------
- 1 file changed, 18 deletions(-)
+Regressions (compared to build v5.2.2)
+------------------------------------------------------------------------
 
-diff --git a/drivers/gpu/drm/bridge/dumb-vga-dac.c b/drivers/gpu/drm/bridge=
-/dumb-vga-dac.c
-index d32885b906ae..e37c19356d12 100644
---- a/drivers/gpu/drm/bridge/dumb-vga-dac.c
-+++ b/drivers/gpu/drm/bridge/dumb-vga-dac.c
-@@ -73,25 +73,7 @@ static const struct drm_connector_helper_funcs dumb_vga_=
-con_helper_funcs =3D {
- 	.get_modes	=3D dumb_vga_get_modes,
- };
-=20
--static enum drm_connector_status
--dumb_vga_connector_detect(struct drm_connector *connector, bool force)
--{
--	struct dumb_vga *vga =3D drm_connector_to_dumb_vga(connector);
--
--	/*
--	 * Even if we have an I2C bus, we can't assume that the cable
--	 * is disconnected if drm_probe_ddc fails. Some cables don't
--	 * wire the DDC pins, or the I2C bus might not be working at
--	 * all.
--	 */
--	if (!IS_ERR(vga->ddc) && drm_probe_ddc(vga->ddc))
--		return connector_status_connected;
--
--	return connector_status_unknown;
--}
--
- static const struct drm_connector_funcs dumb_vga_con_funcs =3D {
--	.detect			=3D dumb_vga_connector_detect,
- 	.fill_modes		=3D drm_helper_probe_single_connector_modes,
- 	.destroy		=3D drm_connector_cleanup,
- 	.reset			=3D drm_atomic_helper_connector_reset,
+x86:
+  kvm-unit-tests:
+    * vmx
+
+
+TESTNAME=3Dvmx TIMEOUT=3D90s ACCEL=3D ./x86/run x86/vmx.flat -smp 1 -cpu
+host,+vmx -append \"-exit_monitor_from_l2_test -ept_access* -vmx_smp*
+-vmx_vmcs_shadow_test\"
+[  155.670748] kvm [6062]: vcpu0, guest rIP: 0x4050cb
+kvm_set_msr_common: MSR_IA32_DEBUGCTLMSR 0x1, nop
+[  155.681027] kvm [6062]: vcpu0, guest rIP: 0x408911
+kvm_set_msr_common: MSR_IA32_DEBUGCTLMSR 0x3, nop
+[  155.690749] kvm [6062]: vcpu0, guest rIP: 0x40bb39
+kvm_set_msr_common: MSR_IA32_DEBUGCTLMSR 0x1, nop
+[  155.700595] kvm [6062]: vcpu0, guest rIP: 0x4089b2
+kvm_set_msr_common: MSR_IA32_DEBUGCTLMSR 0x3, nop
+[  158.349308] nested_vmx_exit_reflected failed vm entry 7
+[  158.363737] nested_vmx_exit_reflected failed vm entry 7
+[  158.378010] nested_vmx_exit_reflected failed vm entry 7
+[  158.392480] nested_vmx_exit_reflected failed vm entry 7
+[  158.406920] nested_vmx_exit_reflected failed vm entry 7
+[  158.421390] nested_vmx_exit_reflected failed vm entry 7
+[  158.435795] nested_vmx_exit_reflected failed vm entry 7
+[  158.450276] nested_vmx_exit_reflected failed vm entry 7
+[  158.464674] nested_vmx_exit_reflected failed vm entry 7
+[  158.479030] nested_vmx_exit_reflected failed vm entry 7
+[  161.044379] set kvm_intel.dump_invalid_vmcs=3D1 to dump internal KVM sta=
+te.
+FAIL vmx (timeout; duration=3D90s)
+
+kernel-config: http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/inte=
+l-corei7-64/lkft/linux-stable-rc-5.2/14/config
+Full log: https://lkft.validation.linaro.org/scheduler/job/836289#L1597
+
+No fixes (compared to build v5.2.2)
+
+Ran 22506 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libgpiod
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* network-basic-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* ltp-fs-tests
+* ltp-open-posix-tests
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
 --=20
-2.20.1
-
+Linaro LKFT
+https://lkft.linaro.org
