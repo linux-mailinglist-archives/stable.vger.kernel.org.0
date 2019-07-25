@@ -2,94 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7830374318
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 04:05:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DB047436B
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 04:46:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388867AbfGYCFm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 22:05:42 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:59344 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388438AbfGYCFm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 22:05:42 -0400
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id CDA198A004;
-        Thu, 25 Jul 2019 02:05:41 +0000 (UTC)
-Received: from localhost (ovpn-8-26.pek2.redhat.com [10.72.8.26])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 87F161001DDE;
-        Thu, 25 Jul 2019 02:05:33 +0000 (UTC)
-From:   Ming Lei <ming.lei@redhat.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     linux-block@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        "Ewan D . Milne" <emilne@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Hannes Reinecke <hare@suse.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com,
-        stable@vger.kernel.org
-Subject: [PATCH V4 2/2] scsi: implement .cleanup_rq callback
-Date:   Thu, 25 Jul 2019 10:05:00 +0800
-Message-Id: <20190725020500.4317-3-ming.lei@redhat.com>
-In-Reply-To: <20190725020500.4317-1-ming.lei@redhat.com>
-References: <20190725020500.4317-1-ming.lei@redhat.com>
+        id S2389344AbfGYCqu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 22:46:50 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:42281 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388165AbfGYCqu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 22:46:50 -0400
+Received: by mail-wr1-f68.google.com with SMTP id x1so33998369wrr.9
+        for <stable@vger.kernel.org>; Wed, 24 Jul 2019 19:46:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ChE7em+j3U0y9KQIioYhMfN05FqaOuCZwoNCnuzNKAE=;
+        b=B3qbS5deVjiaU9HWW+nl7X0SzOYzFcBCFP/HyMkRWml73P5Y2tu8UECwW7QbCG26fj
+         kifEu69xhMiEJGfX0IO4GjQZ9zYcHutJQz4/aMv3zrUAmtYZM9MCodbrZyQYJfpd2L3i
+         M+pKaV5A2tN9tfIYfoik9H2b8YNrWL09N2QhWTtb7G5H+i7RW97Lrk3QFaPPbApO1jbQ
+         ncnkBS+kGAiA35DeMSkmiYVSAWrKsTVIVWSvituZdFQF689CLtkvI3B+m0zExu1ac10K
+         J1m/ih25YWqHWAk8gCt3rQ7mb2XDJTjwmmbtQ8niL+HUNielJiqp8kt9pFNRgCTAAuQ8
+         NMzg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ChE7em+j3U0y9KQIioYhMfN05FqaOuCZwoNCnuzNKAE=;
+        b=lfoCtiVb2dt1Csty5NH1upt81Yv2teW+C717X4pT/RBEPSgVcT4OVOdU44/JlJBwtd
+         FsOvHpBAKAEQWTTTHDAWFL4CPwyIVsx7lI7wmxHJLngMxVqnvjmJLWeQbGZIWBmAEP/O
+         Mmgaivwjzz/BGG3KLaTn6ka+87ZnypSZGiKCaEG7KsjpM8w0M+qWXkjwPWtEiiwr2mVa
+         PA2r/IGG2p3HM6tLxqNZ5Xas4Da1Ayq9W2e1J2oQ36ofhTdU09AMzObaVeA751Fg3AB+
+         NKB0gHVXRlI/2RKLmB3dEYXPb3JxfHubI/TSdLQt6YsRGHesWFrB+iO1v7H+fIhbqcFA
+         BzKw==
+X-Gm-Message-State: APjAAAW1n6JvRf+7qpiiB6shTswUV9PCVuBfZjdaScyFtIO1N/oaxuFg
+        eJi5e9LXExxyubOSDc6Gx5pv9UJtXG8=
+X-Google-Smtp-Source: APXvYqxYx0/Rp9ctDvGla4JGDt4jI8Ou/XiwM1WjkIEzXsGhG2oDX5Q7UvEVYcGjTATm+MtlcZWgRw==
+X-Received: by 2002:adf:f544:: with SMTP id j4mr91520112wrp.150.1564022808134;
+        Wed, 24 Jul 2019 19:46:48 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id l17sm30797779wrr.94.2019.07.24.19.46.47
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 24 Jul 2019 19:46:47 -0700 (PDT)
+Message-ID: <5d391817.1c69fb81.b239c.7a3a@mx.google.com>
+Date:   Wed, 24 Jul 2019 19:46:47 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.26]); Thu, 25 Jul 2019 02:05:41 +0000 (UTC)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.186-126-ge18d357305a9
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y boot: 106 boots: 1 failed,
+ 103 passed with 1 offline, 1 untried/unknown (v4.9.186-126-ge18d357305a9)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Implement .cleanup_rq() callback for freeing driver private part
-of the request. Then we can avoid to leak this part if the request isn't
-completed by SCSI, and freed by blk-mq or upper layer(such as dm-rq) finally.
+stable-rc/linux-4.9.y boot: 106 boots: 1 failed, 103 passed with 1 offline,=
+ 1 untried/unknown (v4.9.186-126-ge18d357305a9)
 
-Cc: Ewan D. Milne <emilne@redhat.com>
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: Hannes Reinecke <hare@suse.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Mike Snitzer <snitzer@redhat.com>
-Cc: dm-devel@redhat.com
-Cc: <stable@vger.kernel.org>
-Fixes: 396eaf21ee17 ("blk-mq: improve DM's blk-mq IO merging via blk_insert_cloned_request feedback")
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.186-126-ge18d357305a9/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.186-126-ge18d357305a9/
+
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.186-126-ge18d357305a9
+Git Commit: e18d357305a9aaf6125c08c8038320ad1c2b1dce
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 51 unique boards, 23 SoC families, 15 builds out of 197
+
+Boot Regressions Detected:
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          apq8016-sbc:
+              lab-mhart: new failure (last pass: v4.9.186-126-g97ad1fbc1478)
+
+Boot Failure Detected:
+
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            qcom-apq8064-cm-qs600: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            meson-gxbb-odroidc2: 1 offline lab
+
 ---
- drivers/scsi/scsi_lib.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
-
-diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-index e1da8c70a266..eb848ff46afd 100644
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -1089,6 +1089,18 @@ static void scsi_initialize_rq(struct request *rq)
- 	cmd->retries = 0;
- }
- 
-+/*
-+ * Only called when the request isn't completed by SCSI, and not freed by
-+ * SCSI
-+ */
-+static void scsi_cleanup_rq(struct request *rq)
-+{
-+	if (rq->rq_flags & RQF_DONTPREP) {
-+		scsi_mq_uninit_cmd(blk_mq_rq_to_pdu(rq));
-+		rq->rq_flags &= ~RQF_DONTPREP;
-+	}
-+}
-+
- /* Add a command to the list used by the aacraid and dpt_i2o drivers */
- void scsi_add_cmd_to_list(struct scsi_cmnd *cmd)
- {
-@@ -1816,6 +1828,7 @@ static const struct blk_mq_ops scsi_mq_ops = {
- 	.init_request	= scsi_mq_init_request,
- 	.exit_request	= scsi_mq_exit_request,
- 	.initialize_rq_fn = scsi_initialize_rq,
-+	.cleanup_rq	= scsi_cleanup_rq,
- 	.busy		= scsi_mq_lld_busy,
- 	.map_queues	= scsi_map_queues,
- };
--- 
-2.20.1
-
+For more info write to <info@kernelci.org>
