@@ -2,103 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C789774CB8
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 13:17:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DE1A74CCF
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 13:19:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403869AbfGYLRi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 07:17:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35114 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403849AbfGYLRi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 07:17:38 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 364DD2238C;
-        Thu, 25 Jul 2019 11:17:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564053456;
-        bh=fEERm1Ewd7b82swCQZo2RLPPIYZG6f/Jt6BrmmRrpWk=;
-        h=Subject:To:From:Date:From;
-        b=tWY/V9xLgzIbbKPAZIOPgoGjrNnCI+J1tR7d4Dulpjl0m66RHoZzkHqXo8S56cSEM
-         lviL3ROqHrqUqDq+H/7RgnfQvi/u+ADbGK7nqkYMZ5CciEmqBzq4DwIe291BQL3msc
-         aLqC9XVRKfYywCIpmYbyqLyvoAuz7JE443nkIyQE=
-Subject: patch "staging: android: ion: Bail out upon SIGKILL when allocating memory." added to staging-linus
-To:     penguin-kernel@I-love.SAKURA.ne.jp, gregkh@linuxfoundation.org,
-        labbott@redhat.com, stable@vger.kernel.org,
-        sumit.semwal@linaro.org,
-        syzbot+8ab2d0f39fb79fe6ca40@syzkaller.appspotmail.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 25 Jul 2019 13:17:34 +0200
-Message-ID: <1564053454143101@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+        id S2404031AbfGYLTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 07:19:16 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:45126 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390493AbfGYLTP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 07:19:15 -0400
+Received: by mail-pf1-f195.google.com with SMTP id r1so22590134pfq.12
+        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 04:19:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=R81ZzKgxtCEhGNXrZhRMrtHubJyNabvopqXLt4EYV7c=;
+        b=QFoeMIJ2xnk1lN/sbOkFc+TglFBTMdjt4X1DAE3Ot1g+fOLc4h939AyJQqev5C2SY3
+         twL87xpjawUnU8exsiiuOXEsy2RA2MG+AfARBc6ziraSUHvLDLO62o+IUp4C9qfU/dp3
+         wkWdZHzzlG8I8Mz1/F2FT6gG/2vgMF6iaQQtY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=R81ZzKgxtCEhGNXrZhRMrtHubJyNabvopqXLt4EYV7c=;
+        b=JlO/sqxLHL+VG703PnFR11STkW6LRVkGnPYlM8i0WDoDKXWQ4NLyUTOZqoaNnp2krY
+         o6UKUbRnSCj0M96NJH09sq381AsKl+MyCGw+SjXqH1fi0ULawLu/WECGLEqgU3f/H5BC
+         CB9WO7Qb4cQRESqy7HHauW25yp1cR02HNipoz7V7DgtwcBYxJDeR8saiPgzcvOfKvq5/
+         O3LOu6F3pHRbtWNumJNInHgCX3AQ5MbKqdxUolpZBbQWX0BmagqHm+yS+k3gHK9d1Azn
+         +3Do525Rp1rHrBJeTAsfZoOKszVxPm9eBXLRNIIMHkNoiLYtaEXCL/nUWTfBo6e35TJ4
+         Rxpw==
+X-Gm-Message-State: APjAAAUUVZzV2VyUYI9VaShiNm5l4f+cSjNPOsv/r7z9y8hpNno4/MvC
+        I6snJzyLVDx/aMRLySwsElD3FQ==
+X-Google-Smtp-Source: APXvYqyKqhU48N9TQuxSG0hvU7JWWsCUXpSs2/EWc3i8+tszqYDkH3vz7NY4T/IiUmbFnb3J6KD2LA==
+X-Received: by 2002:a63:4f51:: with SMTP id p17mr64083775pgl.333.1564053554053;
+        Thu, 25 Jul 2019 04:19:14 -0700 (PDT)
+Received: from dhcp-10-123-20-16.dhcp.broadcom.net ([192.19.234.250])
+        by smtp.gmail.com with ESMTPSA id w2sm41791961pgc.32.2019.07.25.04.19.12
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Thu, 25 Jul 2019 04:19:13 -0700 (PDT)
+From:   Sumit Saxena <sumit.saxena@broadcom.com>
+To:     saxenasumit87m@gmail.com
+Cc:     chandrakanth.patil@broadcom.com, stable@vger.kernel.org,
+        Sumit Saxena <sumit.saxena@broadcom.com>
+Subject: [PATCH] PCI: set BAR size bits correctly in Resize BAR control register
+Date:   Fri, 26 Jul 2019 00:47:58 +0530
+Message-Id: <20190725191758.23462-1-sumit.saxena@broadcom.com>
+X-Mailer: git-send-email 2.18.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+In Resize BAR control register, bits[8:12] represents size of BAR.
+As per PCIe specification, below is encoded values in register bits
+to actual BAR size table:
 
-This is a note to let you know that I've just added the patch titled
+Bits  BAR size
+0     1 MB
+1     2 MB
+2     4 MB
+3     8 MB
+--
 
-    staging: android: ion: Bail out upon SIGKILL when allocating memory.
+For 1 MB BAR size, BAR size bits should be set to 0 but incorrectly
+these bits are set to "1f". 
+Latest megaraid_sas and mpt3sas adapters which support Resizable BAR 
+with 1 MB BAR size fails to initialize during system resume from S3 sleep.
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-linus branch.
+Fix: Correctly set BAR size bits to "0" for 1MB BAR size.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 8f9e86ee795971eabbf372e6d804d6b8578287a7 Mon Sep 17 00:00:00 2001
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Date: Mon, 1 Jul 2019 19:55:19 +0900
-Subject: staging: android: ion: Bail out upon SIGKILL when allocating memory.
-
-syzbot found that a thread can stall for minutes inside
-ion_system_heap_allocate() after that thread was killed by SIGKILL [1].
-Let's check for SIGKILL before doing memory allocation.
-
-[1] https://syzkaller.appspot.com/bug?id=a0e3436829698d5824231251fad9d8e998f94f5e
-
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: stable <stable@vger.kernel.org>
-Reported-by: syzbot <syzbot+8ab2d0f39fb79fe6ca40@syzkaller.appspotmail.com>
-Acked-by: Laura Abbott <labbott@redhat.com>
-Acked-by: Sumit Semwal <sumit.semwal@linaro.org>
-Link: https://lore.kernel.org/r/d088f188-5f32-d8fc-b9a0-0b404f7501cc@I-love.SAKURA.ne.jp
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC: stable@vger.kernel.org # v4.16+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203939
+Fixes: d3252ace0bc652a1a244455556b6a549f969bf99 ("PCI: Restore resized BAR state on resume")
+Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
 ---
- drivers/staging/android/ion/ion_page_pool.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/pci/pci.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/android/ion/ion_page_pool.c b/drivers/staging/android/ion/ion_page_pool.c
-index fd4995fb676e..f85ec5b16b65 100644
---- a/drivers/staging/android/ion/ion_page_pool.c
-+++ b/drivers/staging/android/ion/ion_page_pool.c
-@@ -8,11 +8,14 @@
- #include <linux/list.h>
- #include <linux/slab.h>
- #include <linux/swap.h>
-+#include <linux/sched/signal.h>
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index 8abc843..b651f32 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -1417,12 +1417,13 @@ static void pci_restore_rebar_state(struct pci_dev *pdev)
  
- #include "ion.h"
+ 	for (i = 0; i < nbars; i++, pos += 8) {
+ 		struct resource *res;
+-		int bar_idx, size;
++		int bar_idx, size, order;
  
- static inline struct page *ion_page_pool_alloc_pages(struct ion_page_pool *pool)
- {
-+	if (fatal_signal_pending(current))
-+		return NULL;
- 	return alloc_pages(pool->gfp_mask, pool->order);
- }
- 
+ 		pci_read_config_dword(pdev, pos + PCI_REBAR_CTRL, &ctrl);
+ 		bar_idx = ctrl & PCI_REBAR_CTRL_BAR_IDX;
+ 		res = pdev->resource + bar_idx;
+-		size = order_base_2((resource_size(res) >> 20) | 1) - 1;
++		order = order_base_2((resource_size(res) >> 20) | 1);
++		size = order ? order - 1 : 0;
+ 		ctrl &= ~PCI_REBAR_CTRL_BAR_SIZE;
+ 		ctrl |= size << PCI_REBAR_CTRL_BAR_SHIFT;
+ 		pci_write_config_dword(pdev, pos + PCI_REBAR_CTRL, ctrl);
 -- 
-2.22.0
-
+1.8.3.1
 
