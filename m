@@ -2,125 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2621A74E58
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 14:42:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CCB574F4D
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 15:26:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388451AbfGYMl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 08:41:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54972 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388147AbfGYMl5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 08:41:57 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4B0E22C7C;
-        Thu, 25 Jul 2019 12:41:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564058516;
-        bh=cIofEHINU68RgSF5Z4Rm/XbwU2En2ECT+fB6gSfymMg=;
-        h=Subject:To:From:Date:From;
-        b=BtKR6ki/WH0/skW5P8dbxa2mKPwcsDkJ/UzHgdIq6qMq7bFRLzWyOlLGAIEwtWQ6M
-         Svg17gxWuq2tKPVwAle1evg2zmsmqa7gLuvXH9DGeMQVxCJ8iIcwgkLHuzyuJqYmGN
-         qffP2lOGaGmUwe/IwF8Xlnay4skb7MKZojS/wIKk=
-Subject: patch "hpet: Fix division by zero in hpet_time_div()" added to char-misc-linus
-To:     wangkefeng.wang@huawei.com, arnd@arndb.de,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org,
-        zhanghongjun2@huawei.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 25 Jul 2019 14:41:43 +0200
-Message-ID: <1564058503122195@kroah.com>
+        id S1727418AbfGYN0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 09:26:35 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:35641 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726370AbfGYN0e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 09:26:34 -0400
+Received: by mail-lj1-f193.google.com with SMTP id x25so48058431ljh.2
+        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 06:26:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Vq1nmmnAokEWi6IeeQFF/Sj1eC/PC82lAqP5SEvu0eI=;
+        b=rxsDhgIXtyO7uV/fBbnWgz1a050eJfJt36cd+xIy+sc6LSML9a1bt0Oonq2Dhcq0Nn
+         i9OQ0cm7OQUO7961kjhNW3cPXmjkWMo+F/+IWzwmV0zx3aIk7WqX60RSI99k8n3vHJsN
+         J0IfNv75l1I6SN8MBb186ufzkSTkIBI2h/if5QfSFLoLAZ8NU1WIPiU4o8KvP7wxRCnL
+         0+QqRxKpNMJ4vTrQjgSz0Z72XTSb8cqNLTf29DIUgysxxPJDw5G4Kx745P4DySPla3zp
+         mvsXwRnsdPDe4zxfL9UDg6nlDdp/hQjGY2aXGL2SShlB36uScGod+oyYT1h8wWSKB2sy
+         mgKg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Vq1nmmnAokEWi6IeeQFF/Sj1eC/PC82lAqP5SEvu0eI=;
+        b=nOo12O9JEUx6LR0/7+6rBV52Nv9cDO89nS60toEaXC0GLDd/74Mhy+bC99p2zAKxDH
+         kLgxsq78xLUOAo5oBPI2yikiy58eCT0MNHnm41FruBK+SuSc+z5pgJJhHzNbsQ7JaIYZ
+         OV6ZDAZHBGQg8PF0nI1E0lPcGd3eAvzYo/+gNRcUHFMDh8MtoFgfGxfchwD77jJQIxji
+         IVrY1tp5cgIzLJ/WkuXlFqHO9r/5HPLt+LguVHNoaVQdW6jUD+hXX602zK39vZVggcMO
+         G1b2gd3LEeuZvEZD7VLfTSllxmumZn/1m1vGBvfIuGzr75mrHyamXocEN+ptEzHcVufw
+         IFEQ==
+X-Gm-Message-State: APjAAAUWq4PTI5LJHGG/AQqgDHzo+5WKZUuQDKdpPClR8bp3hIIxJDwE
+        Hcnk5gUMbgCmCbUwb6aw+pmxI0NF2nYH20kOdJbcSQ==
+X-Google-Smtp-Source: APXvYqyw66/Sf84tPzZxGkwYYc6jtAysQYq8MKoYuMY/aQJzca4JUqEOIuiImP+kz3UDj00OHYOKCGgqyA5GwFzPp1g=
+X-Received: by 2002:a2e:8559:: with SMTP id u25mr45784601ljj.224.1564061192579;
+ Thu, 25 Jul 2019 06:26:32 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <20190724191735.096702571@linuxfoundation.org> <CADYN=9+WLxhmqX3JNL_s-kWSN97G=8WhD=TF=uAuKecJnKcj_Q@mail.gmail.com>
+ <20190725113437.GA27429@kroah.com>
+In-Reply-To: <20190725113437.GA27429@kroah.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 25 Jul 2019 18:56:20 +0530
+Message-ID: <CA+G9fYugOviC4W87AMFN3EfyXhSuEWitTX7t+v4G_EbhfQgLAg@mail.gmail.com>
+Subject: Re: [PATCH 5.2 000/413] 5.2.3-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Anders Roxell <anders.roxell@linaro.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        sean.j.christopherson@intel.com, wanpengli@tencent.com,
+        jmattson@google.com,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+> > Regressions (compared to build v5.2.2)
+> > ------------------------------------------------------------------------
+> >
+> > x86:
+> >   kvm-unit-tests:
+> >     * vmx
+> >
+> >
+> > TESTNAME=vmx TIMEOUT=90s ACCEL= ./x86/run x86/vmx.flat -smp 1 -cpu
+> > host,+vmx -append \"-exit_monitor_from_l2_test -ept_access* -vmx_smp*
+> > -vmx_vmcs_shadow_test\"
+> > [  155.670748] kvm [6062]: vcpu0, guest rIP: 0x4050cb
+...
+> > [  158.479030] nested_vmx_exit_reflected failed vm entry 7
+> > [  161.044379] set kvm_intel.dump_invalid_vmcs=1 to dump internal KVM state.
+> > FAIL vmx (timeout; duration=90s)
+> >
+> > kernel-config: http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/intel-corei7-64/lkft/linux-stable-rc-5.2/14/config
+> > Full log: https://lkft.validation.linaro.org/scheduler/job/836289#L1597
+>
+> Ick.
+>
+> Any chance you can run 'git bisect' to find the offending patch?  Or
+> just try reverting a few, you can ignore the ppc ones, so that only
+> leaves you 7 different commits.
 
-This is a note to let you know that I've just added the patch titled
+We have started 'git bisect' please allow sometime.
 
-    hpet: Fix division by zero in hpet_time_div()
+> Does this same test pass in 5.3-rc1?
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
+yes.
+kvm-unit-tests: vmx test getting PASS on 5.3-rc1 mainline kernel [1].
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+ref:
+[1] https://qa-reports.linaro.org/lkft/linux-mainline-oe/tests/kvm-unit-tests/vmx
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+- Naresh
 
-If you have any questions about this process, please let me know.
-
-
-From 0c7d37f4d9b8446956e97b7c5e61173cdb7c8522 Mon Sep 17 00:00:00 2001
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
-Date: Thu, 11 Jul 2019 21:27:57 +0800
-Subject: hpet: Fix division by zero in hpet_time_div()
-
-The base value in do_div() called by hpet_time_div() is truncated from
-unsigned long to uint32_t, resulting in a divide-by-zero exception.
-
-UBSAN: Undefined behaviour in ../drivers/char/hpet.c:572:2
-division by zero
-CPU: 1 PID: 23682 Comm: syz-executor.3 Not tainted 4.4.184.x86_64+ #4
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
- 0000000000000000 b573382df1853d00 ffff8800a3287b98 ffffffff81ad7561
- ffff8800a3287c00 ffffffff838b35b0 ffffffff838b3860 ffff8800a3287c20
- 0000000000000000 ffff8800a3287bb0 ffffffff81b8f25e ffffffff838b35a0
-Call Trace:
- [<ffffffff81ad7561>] __dump_stack lib/dump_stack.c:15 [inline]
- [<ffffffff81ad7561>] dump_stack+0xc1/0x120 lib/dump_stack.c:51
- [<ffffffff81b8f25e>] ubsan_epilogue+0x12/0x8d lib/ubsan.c:166
- [<ffffffff81b900cb>] __ubsan_handle_divrem_overflow+0x282/0x2c8 lib/ubsan.c:262
- [<ffffffff823560dd>] hpet_time_div drivers/char/hpet.c:572 [inline]
- [<ffffffff823560dd>] hpet_ioctl_common drivers/char/hpet.c:663 [inline]
- [<ffffffff823560dd>] hpet_ioctl_common.cold+0xa8/0xad drivers/char/hpet.c:577
- [<ffffffff81e63d56>] hpet_ioctl+0xc6/0x180 drivers/char/hpet.c:676
- [<ffffffff81711590>] vfs_ioctl fs/ioctl.c:43 [inline]
- [<ffffffff81711590>] file_ioctl fs/ioctl.c:470 [inline]
- [<ffffffff81711590>] do_vfs_ioctl+0x6e0/0xf70 fs/ioctl.c:605
- [<ffffffff81711eb4>] SYSC_ioctl fs/ioctl.c:622 [inline]
- [<ffffffff81711eb4>] SyS_ioctl+0x94/0xc0 fs/ioctl.c:613
- [<ffffffff82846003>] tracesys_phase2+0x90/0x95
-
-The main C reproducer autogenerated by syzkaller,
-
-  syscall(__NR_mmap, 0x20000000, 0x1000000, 3, 0x32, -1, 0);
-  memcpy((void*)0x20000100, "/dev/hpet\000", 10);
-  syscall(__NR_openat, 0xffffffffffffff9c, 0x20000100, 0, 0);
-  syscall(__NR_ioctl, r[0], 0x40086806, 0x40000000000000);
-
-Fix it by using div64_ul().
-
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Signed-off-by: Zhang HongJun <zhanghongjun2@huawei.com>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20190711132757.130092-1-wangkefeng.wang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/char/hpet.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/char/hpet.c b/drivers/char/hpet.c
-index 5c39f20378b8..9ac6671bb514 100644
---- a/drivers/char/hpet.c
-+++ b/drivers/char/hpet.c
-@@ -567,8 +567,7 @@ static inline unsigned long hpet_time_div(struct hpets *hpets,
- 	unsigned long long m;
- 
- 	m = hpets->hp_tick_freq + (dis >> 1);
--	do_div(m, dis);
--	return (unsigned long)m;
-+	return div64_ul(m, dis);
- }
- 
- static int
--- 
-2.22.0
-
-
+>
+> thanks,
+>
+> greg k-h
