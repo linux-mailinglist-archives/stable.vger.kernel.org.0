@@ -2,101 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0735E75A6C
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 00:10:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2AB575AB2
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 00:20:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726786AbfGYWK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 18:10:28 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:52951 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726693AbfGYWK2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 18:10:28 -0400
-Received: by mail-wm1-f66.google.com with SMTP id s3so46263002wms.2
-        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 15:10:26 -0700 (PDT)
+        id S1726847AbfGYWTC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 18:19:02 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:38204 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726757AbfGYWTB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 18:19:01 -0400
+Received: by mail-pg1-f196.google.com with SMTP id f5so14890116pgu.5;
+        Thu, 25 Jul 2019 15:19:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=+wQa5fLhOl8wnCVHYW83kZDULRwf5iT88UNwiIbICr4=;
+        b=OgN0KMqMt0z9md93d6ScBjRyrYybTlKgQG++WP118jaOk3dZHH23jjlN+Oa9oKHDzV
+         OBGuKLmaPsxEMOq86zSX4TWISokoHI1DSg5Y+jMNNOZdktf5WciR+91MCKBAcJ5UQapD
+         dj7FR8JPf5UOi8W4vHh4Cw2uuFr/Pht3V6bmo/hc+mKLwnBzlmcnK9bljXeLORfPZhZd
+         AXES4EVs7pmH0qBFVv1yAmDKdHzyMVHAsRvqOMwKtKrGQU4HXfsZCxX6J5K6WgWvfcz4
+         nJkLgbfR6Sg6jAqWVj1ngScFxTRxbwhD6YCh4nCLujJcwxANbp6U5lqUy9+FR98QuH5z
+         oioQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:openpgp:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=/efOnDxSbGdN0Bdr5SzMCIHE/dK0Kshq+Eu+fKkpIAI=;
-        b=BdnzZwZBJupTx6YmmxfA9OBv4ZmIpqbFI7hnKjEaXQ/HFHteq1EKYpD6+q0X0MZ8dL
-         3QajWPSLx+uGwCrBmj/KdwYcL686+R9fL5AoYJ6wk4UVdD5aeFhdv96mOOyvj5erPmJf
-         cI67sFPNxpV29A/s1+qD1mRiXBJqQkh8UyhnTblUjNGPN6dSpGcHn62woyxRSX5fHm4I
-         7R46SSroLR3oV/cKPqhhYSbmclzuRoPLmBrqvXOa6m1xGU4+Qww5IzFCn/sDpz/yHTSq
-         pFIJz2V9cM6jIt4yumEex3sOVbKmuaFU3Y6Wv3GSACcWs5wlQei50GSW6bDabDyw9Hb4
-         bvjA==
-X-Gm-Message-State: APjAAAV2KjAxZMZgN+Y2qL5tz9On7aA2VvkuM4NAO5Dm3iF+dIxyAQrT
-        QO1tQdivnGg2nMjvjgrvbBIuOg==
-X-Google-Smtp-Source: APXvYqxuCBM42nA2ri+2nQ+IFiLkfFjMyzd5RxP94/5hxtMLT55P9FoKuk7obZIVITd21utAuKT30g==
-X-Received: by 2002:a1c:a1c1:: with SMTP id k184mr84016054wme.81.1564092625944;
-        Thu, 25 Jul 2019 15:10:25 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:cc23:f353:392:d2ee? ([2001:b07:6468:f312:cc23:f353:392:d2ee])
-        by smtp.gmail.com with ESMTPSA id 15sm35602094wmk.34.2019.07.25.15.10.24
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Thu, 25 Jul 2019 15:10:25 -0700 (PDT)
-Subject: Re: [PATCH 5.2 000/413] 5.2.3-stable review
-To:     Sean Christopherson <sean.j.christopherson@intel.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        wanpengli@tencent.com,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        patches@kernelci.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>, jmattson@google.com
-References: <20190725113437.GA27429@kroah.com>
- <230a5b34-d23e-8318-0b1f-d23ada7318e0@redhat.com>
- <CA+G9fYsWdmboyquZ=Bs3tkTwRFTzd1yuL0_EVpHOecNi4E_stA@mail.gmail.com>
- <20190725160939.GC18612@linux.intel.com>
- <33f1cfaa-525d-996a-4977-fda32dc368ee@redhat.com>
- <20190725162053.GD18612@linux.intel.com>
- <7bc207e0-0812-e41a-bfd5-e3fbfd43f242@redhat.com>
- <20190725163946.xt2p3pvxwuabzojj@xps.therub.org>
- <3e55414d-cb4f-8f3f-a359-e374b6298715@redhat.com>
- <20190725201933.aiqh6oj7bacdwact@xps.therub.org>
- <20190725205701.GF18612@linux.intel.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Openpgp: preference=signencrypt
-Message-ID: <dc5ff4ed-c6dd-74ea-03ae-4f65c5d58073@redhat.com>
-Date:   Fri, 26 Jul 2019 00:10:23 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=+wQa5fLhOl8wnCVHYW83kZDULRwf5iT88UNwiIbICr4=;
+        b=hV6Q3aGwZT+/rmrrNMZdxIWbW3uW+6OFTWyzbutGplMYCRfEWsquSnOdFqVVHeI/Ml
+         p05C/xNh9KsVPS7YOCRdm1TqpaUFsBTf5prx3dBupuWqVvwNqwvQUFZ7SUqWBzmDrDMl
+         SzciyYueSp2jeIGvUp49Qyw3p7+KAoHeA23lMgSdx4TmNLrZTqPI7UvvwnsjoYRCJTQl
+         O0uw7z4206aJ+ZQ5zxqOuC5Q3Z1i8YITyt1NvoB0nW7mLDCckddpCGIvSDPfsD1xPr01
+         0TxHhmPol3CaIHMOhQf/5ugoV4Ztal6QMIvtwBEONIMX3cKTwKgTSR3OyJQ9eYF76KWs
+         uTSQ==
+X-Gm-Message-State: APjAAAWfUeBPm7/l1cP4KGfJl2sK8Hu99UDp37C8wpdbdKaPhQqqCnhc
+        rzzru+sE/z9CcOlDA8Z34YM=
+X-Google-Smtp-Source: APXvYqznsrBakBi4F82lF4e+Jg00DDvrmT+k9b+BcBBn7Isxj72GXeVusEHD/J0rN5W/nlmZtfnx1w==
+X-Received: by 2002:a65:4b8b:: with SMTP id t11mr87905731pgq.130.1564093141437;
+        Thu, 25 Jul 2019 15:19:01 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id v18sm46030226pgl.87.2019.07.25.15.19.00
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 25 Jul 2019 15:19:00 -0700 (PDT)
+Date:   Thu, 25 Jul 2019 15:19:00 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.1 000/371] 5.1.20-stable review
+Message-ID: <20190725221859.GA31733@roeck-us.net>
+References: <20190724191724.382593077@linuxfoundation.org>
 MIME-Version: 1.0
-In-Reply-To: <20190725205701.GF18612@linux.intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 25/07/19 22:57, Sean Christopherson wrote:
-> On Thu, Jul 25, 2019 at 03:19:33PM -0500, Dan Rue wrote:
->> I would still prefer to run the latest tests against all kernel versions
->> (but better control when we upgrade it). Like I said, we can handle
->> expected failures, and it would even help to validate backports for
->> fixes that do get backported. I'm afraid on your behalf that snapping
->> (and maintaining) branches per kernel branch is going to be a lot to
->> manage.
+On Wed, Jul 24, 2019 at 09:15:52PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.1.20 release.
+> There are 371 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Having the branches would be beneficial for kernel developers as well,
-> e.g. on multiple occasions I've spent time hunting down non-existent KVM
-> bugs, only to realize my base kernel was stale with respect to kvm-unit-tests.
-> 
-> My thought was to have a mostly-unmaintained branch for each major kernel
-> version, e.g. snapshot a working version of kvm_unit_tests when the KVM
-> pull request for the merge window is sent, and for the most part leave it
-> at that.  I don't think it would introduce much overhead, but then again,
-> I'm not the person who would be maintaining this :-)
+> Responses should be made by Fri 26 Jul 2019 07:13:35 PM UTC.
+> Anything received after that time might be too late.
 > 
 
-Yes, I agree.  Stable backports that have fixes in kvm-unit-tests are
-relatively rare, so the branch would hardly move after a release is cut.
+For v5.1.19-370-gfb6ea525ffcf:
 
-Paolo
+Build results:
+	total: 159 pass: 159 fail: 0
+Qemu test results:
+	total: 364 pass: 364 fail: 0
+
+Guenter
