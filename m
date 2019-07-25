@@ -2,78 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5F5274964
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 10:53:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AC0C7497F
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 11:02:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389868AbfGYIxL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 04:53:11 -0400
-Received: from mga01.intel.com ([192.55.52.88]:22618 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388889AbfGYIxL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 04:53:11 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 Jul 2019 01:53:10 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,306,1559545200"; 
-   d="scan'208";a="253871913"
-Received: from mattu-haswell.fi.intel.com ([10.237.72.164])
-  by orsmga001.jf.intel.com with ESMTP; 25 Jul 2019 01:53:08 -0700
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-To:     <gregkh@linuxfoundation.org>
-Cc:     <linux-usb@vger.kernel.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        "# v5 . 2" <stable@vger.kernel.org>,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Subject: [PATCH] xhci: Fix crash if scatter gather is used with Immediate Data Transfer (IDT).
-Date:   Thu, 25 Jul 2019 11:54:21 +0300
-Message-Id: <1564044861-1445-1-git-send-email-mathias.nyman@linux.intel.com>
-X-Mailer: git-send-email 2.7.4
+        id S2390027AbfGYJCk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 05:02:40 -0400
+Received: from hqemgate15.nvidia.com ([216.228.121.64]:1715 "EHLO
+        hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390002AbfGYJCk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 05:02:40 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate15.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5d3970370000>; Thu, 25 Jul 2019 02:02:47 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Thu, 25 Jul 2019 02:02:39 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Thu, 25 Jul 2019 02:02:39 -0700
+Received: from [10.21.132.148] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 25 Jul
+ 2019 09:02:37 +0000
+Subject: Re: [PATCH 4.19 000/271] 4.19.61-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20190724191655.268628197@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <bc581ffd-d6a4-afae-7b0f-ec31e3b399e5@nvidia.com>
+Date:   Thu, 25 Jul 2019 10:02:35 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
+MIME-Version: 1.0
+In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL104.nvidia.com (172.18.146.11) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1564045367; bh=yQA1r/tzqZs9eGIkJFcO6JVaK1Z845KpjLwbZzYQcKg=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=UAQe/4Ikb9LC1pKbp61Hg3cgxSsKXPdx5b6V+Ms0WSnByzWANTp60Qwi4YOF+6ctn
+         FfHz/8CJ5sDmdeNO5c6EIPq1AZz7Al0dtaNHzQdJXX+spc+sFOsNqV5u729Nb8jfdQ
+         8shrSZIAUnzTc140ELbC+wLO63N527EWgORy/HkCG1PC5BofrV55H1BKaiaOgK3jhY
+         fXxIingpdU4ilJZHE+RYDZn1QX/QnrlAEunKg7jI5MYHSGT+MMrMg28ZtMbBwwWbXu
+         jzT60h0mIr2DCRvEIFrzS73ddCGMnVj702pvm9K+p946JtUvO9YUPaC9J0WwTK0lXx
+         VedCXpNo3LNvw==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A second regression was found in the immediate data transfer (IDT)
-support which was added to 5.2 kernel
 
-IDT is used to transfer small amounts of data (up to 8 bytes) in the
-field normally used for data dma address, thus avoiding dma mapping.
+On 24/07/2019 20:17, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.61 release.
+> There are 271 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri 26 Jul 2019 07:13:35 PM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.61-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-If the data was not already dma mapped, then IDT support assumed data was
-in urb->transfer_buffer, and did not take into accound that even
-small amounts of data (8 bytes) can be in a scatterlist instead.
 
-This caused a NULL pointer dereference when sg_dma_len() was used
-with non-dma mapped data.
+All tests are passing for Tegra ...
 
-Solve this by not using IDT if scatter gather buffer list is used.
+Test results for stable-v4.19:
+    12 builds:	12 pass, 0 fail
+    22 boots:	22 pass, 0 fail
+    32 tests:	32 pass, 0 fail
 
-Fixes: 33e39350ebd2 ("usb: xhci: add Immediate Data Transfer support")
-Cc: <stable@vger.kernel.org> # v5.2
-Reported-by: Maik Stohn <maik.stohn@seal-one.com>
-Tested-by: Maik Stohn <maik.stohn@seal-one.com>
-CC: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
----
- drivers/usb/host/xhci.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Linux version:	4.19.61-rc1-g872cde3ebfc9
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
 
-diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
-index 7a26496..f5c4144 100644
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -2175,7 +2175,8 @@ static inline bool xhci_urb_suitable_for_idt(struct urb *urb)
- 	if (!usb_endpoint_xfer_isoc(&urb->ep->desc) && usb_urb_dir_out(urb) &&
- 	    usb_endpoint_maxp(&urb->ep->desc) >= TRB_IDT_MAX_SIZE &&
- 	    urb->transfer_buffer_length <= TRB_IDT_MAX_SIZE &&
--	    !(urb->transfer_flags & URB_NO_TRANSFER_DMA_MAP))
-+	    !(urb->transfer_flags & URB_NO_TRANSFER_DMA_MAP) &&
-+	    !urb->num_sgs)
- 		return true;
- 
- 	return false;
+Cheers
+Jon
+
 -- 
-2.7.4
-
+nvpublic
