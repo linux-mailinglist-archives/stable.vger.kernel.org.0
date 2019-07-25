@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6DFC74847
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 09:37:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EB117484E
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 09:40:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388166AbfGYHhR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 03:37:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47124 "EHLO mail.kernel.org"
+        id S2388179AbfGYHkd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 03:40:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388161AbfGYHhR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 03:37:17 -0400
+        id S2387989AbfGYHkc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 03:40:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6723822CBD;
-        Thu, 25 Jul 2019 07:37:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D652F2070B;
+        Thu, 25 Jul 2019 07:40:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564040235;
-        bh=llt12HVhJMAhWKAVspypSw5Am36bWPRke5eP91slGSk=;
+        s=default; t=1564040431;
+        bh=KPHjLfP7/z4OgNe7fJPFovRZvN/mecLCNTpAUkexCx0=;
         h=Subject:To:From:Date:From;
-        b=cpI7/uEzJEMGeWyhZnvFfYI9lRkgxgRoFP79vvwHcHSvN3P8jZNspkMEEUjAkvqdN
-         O3iHBYcdZFBnDlFkNvqd6sBSDljo0mvJ3PaHzQ0/bPqmdotic80sMdAlGNH5MJ7Zct
-         iKHi7W0C87PTvrob3/ow1GCrIEVn/Oc52sH4tx+M=
-Subject: patch "staging: gasket: apex: fix copy-paste typo" added to staging-linus
-To:     brnkv.i1@gmail.com, gregkh@linuxfoundation.org,
+        b=tYVDEKFV7Dz1fWjB0Wh39PIqROssB1VFIrvMVn0BZ9Zvaxbdv1r4G4r626WtEnRim
+         aBnIw4pei7pLS/kqRk5mqRWSbXU8JeNSi/hbQDm/qNdE4ed2TlD3bhv5fWNZXQdhlz
+         fU+FwOEqf0bkH1V+mq65fH6yaPAyRfJirlKwxDzg=
+Subject: patch "staging: wilc1000: flush the workqueue before deinit the host" added to staging-linus
+To:     adham.abozaeid@microchip.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 25 Jul 2019 09:37:02 +0200
-Message-ID: <1564040222125196@kroah.com>
+Date:   Thu, 25 Jul 2019 09:40:29 +0200
+Message-ID: <1564040429208236@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: gasket: apex: fix copy-paste typo
+    staging: wilc1000: flush the workqueue before deinit the host
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -55,36 +55,34 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 66665bb9979246729562a09fcdbb101c83127989 Mon Sep 17 00:00:00 2001
-From: Ivan Bornyakov <brnkv.i1@gmail.com>
-Date: Wed, 10 Jul 2019 23:45:18 +0300
-Subject: staging: gasket: apex: fix copy-paste typo
+From fb2b055b7e6e44efda737c7c92f46c0868bb04e5 Mon Sep 17 00:00:00 2001
+From: Adham Abozaeid <adham.abozaeid@microchip.com>
+Date: Mon, 22 Jul 2019 21:38:44 +0000
+Subject: staging: wilc1000: flush the workqueue before deinit the host
 
-In sysfs_show() case-branches ATTR_KERNEL_HIB_PAGE_TABLE_SIZE and
-ATTR_KERNEL_HIB_SIMPLE_PAGE_TABLE_SIZE do the same. It looks like
-copy-paste mistake.
+Before deinitializing the host interface, the workqueue should be flushed
+to handle any pending deferred work
 
-Signed-off-by: Ivan Bornyakov <brnkv.i1@gmail.com>
+Signed-off-by: Adham Abozaeid <adham.abozaeid@microchip.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190710204518.16814-1-brnkv.i1@gmail.com
+Link: https://lore.kernel.org/r/20190722213837.21952-1-adham.abozaeid@microchip.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/gasket/apex_driver.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/wilc1000/wilc_wfi_cfgoperations.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/staging/gasket/apex_driver.c b/drivers/staging/gasket/apex_driver.c
-index 2be45ee9d061..464648ee2036 100644
---- a/drivers/staging/gasket/apex_driver.c
-+++ b/drivers/staging/gasket/apex_driver.c
-@@ -532,7 +532,7 @@ static ssize_t sysfs_show(struct device *device, struct device_attribute *attr,
- 		break;
- 	case ATTR_KERNEL_HIB_SIMPLE_PAGE_TABLE_SIZE:
- 		ret = scnprintf(buf, PAGE_SIZE, "%u\n",
--				gasket_page_table_num_entries(
-+				gasket_page_table_num_simple_entries(
- 					gasket_dev->page_table[0]));
- 		break;
- 	case ATTR_KERNEL_HIB_NUM_ACTIVE_PAGES:
+diff --git a/drivers/staging/wilc1000/wilc_wfi_cfgoperations.c b/drivers/staging/wilc1000/wilc_wfi_cfgoperations.c
+index d72fdd333050..736eedef23b6 100644
+--- a/drivers/staging/wilc1000/wilc_wfi_cfgoperations.c
++++ b/drivers/staging/wilc1000/wilc_wfi_cfgoperations.c
+@@ -1969,6 +1969,7 @@ void wilc_deinit_host_int(struct net_device *net)
+ 
+ 	priv->p2p_listen_state = false;
+ 
++	flush_workqueue(vif->wilc->hif_workqueue);
+ 	mutex_destroy(&priv->scan_req_lock);
+ 	ret = wilc_deinit(vif);
+ 
 -- 
 2.22.0
 
