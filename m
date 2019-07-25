@@ -2,75 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B34874410
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 05:40:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 604AE7441C
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 05:47:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390075AbfGYDkf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 23:40:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40496 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389704AbfGYDkf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 23:40:35 -0400
-Received: from localhost (unknown [216.243.17.14])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F0EC216F4;
-        Thu, 25 Jul 2019 03:40:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564026034;
-        bh=hpaCgDwNS1P+6uaG/9WjvDSlPYKubAyqTyESkFBXPZk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hor4+Z3nvpgoPiwv9nzdkhVrSK2GGGlhjsoKAyhcuK0p1sBN9nZ/56JMFZLgL2TDX
-         M8Vuczg0+LHefOwiH39Ur0xbjCsCVxOoVYuXNisE8PlRfr0hlTOh7+w7kjC8c5vdYL
-         /uIKhFr4erf8aODkz7AMeXIRFzPDzj+cfc+XCD7k=
-Date:   Wed, 24 Jul 2019 23:40:32 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Alessio Balsini <balsini@android.com>, astrachan@google.com,
-        maennich@google.com, kernel-team@android.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.9 1/2] um: Allow building and running on older hosts
-Message-ID: <20190725034032.GA4099@sasha-vm>
-References: <20190722103338.111753-1-balsini@android.com>
- <20190724120753.GH3244@kroah.com>
+        id S2390132AbfGYDrr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 23:47:47 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:37633 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389014AbfGYDrr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 23:47:47 -0400
+Received: by mail-wr1-f68.google.com with SMTP id n9so23998699wrr.4
+        for <stable@vger.kernel.org>; Wed, 24 Jul 2019 20:47:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=hWXOP67imUsurGQp8bcybIqJKKlgn1cn9YYELC/T1ZE=;
+        b=aMtWfTyfHBMe160QFhfFy8ebQEzJsLlmw1Ll928l7YWvfrub/anNSjw9A5RtmWB+3y
+         McQ9eGGQxl2MWsL011hbC7sYyd+i7NFHv+ZirPMCsikRKN7Wmv4ZplvNDvyQ2XLFpWnR
+         uqKeQRoK58xas060Iaec/4zB+wQXEm+NID3LKlUdEGnNixFMz8bRJX2xKFgnUuFufSo3
+         xKP2Ylf1vDRNCYCJpxZ0HP54zrTcToe09ywLJGcOgDVbEaiJtKBvUdEU2akNH7pMc9uw
+         SULza1+AqhEpH3dUDCgDaVZ7Cj0Y1pXZHIMEwDZ8q8qSNR/go+iM+glJC+/A97cyuARl
+         tKcw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=hWXOP67imUsurGQp8bcybIqJKKlgn1cn9YYELC/T1ZE=;
+        b=aW0ElrsdcHyVvonbkVGqM9K9/h4k5Kbh4ED3V8Mx6vyTK7A+qKf/zp17tUhow4+KWc
+         iXm+Y6jnHEetZT7ExcAFIi6wEXdWKxzzusTsh2A5FRFiDaHYxiljYR8JiaBmCOpkPH9f
+         IUFU5NOCmWYc4ALNEf7jTwAj/zN0lmh7sJLK79uyQwKPj9De5CD5sckQ9r042Ev+ddL7
+         fd6bQoAk4Vg+8bima9GVcQ2ZcIDsaH+vSNMz6bakKTyi9u3Mcnpv+ICkn4HS95nDeXGa
+         b4qp2KU3+IwYCDfXHYLLB2GH08U660CMTdAjBzAw3mUNHXBJKr76Mcyo8+yuRDH6CNoY
+         OU3g==
+X-Gm-Message-State: APjAAAW1ENyhsNkXJUmCoC+iXVv5nJlhEycc1PiRxMT/jZXztxYZaSUz
+        RTsXH14XGA1RqFwYlizDpXAGE/NqSWc=
+X-Google-Smtp-Source: APXvYqydDgoe5Kc3Xh8acf5mcABG73HW4atvfrhYFFqeKWLZqufB7CjLSxAzjo/FAObgAVUAoXOwEA==
+X-Received: by 2002:a5d:528d:: with SMTP id c13mr8548447wrv.247.1564026464903;
+        Wed, 24 Jul 2019 20:47:44 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id g12sm67777485wrv.9.2019.07.24.20.47.44
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 24 Jul 2019 20:47:44 -0700 (PDT)
+Message-ID: <5d392660.1c69fb81.e3cfb.f1f1@mx.google.com>
+Date:   Wed, 24 Jul 2019 20:47:44 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190724120753.GH3244@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.134-179-gf0382b8e83d1
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable-rc/linux-4.14.y boot: 126 boots: 3 failed,
+ 121 passed with 1 offline, 1 untried/unknown (v4.14.134-179-gf0382b8e83d1)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 24, 2019 at 02:07:53PM +0200, Greg KH wrote:
->On Mon, Jul 22, 2019 at 11:33:37AM +0100, Alessio Balsini wrote:
->> commit 0a987645672ebde7844a9c0732a5a25f3d4bb6c6 upstream.
->>
->> Commit a78ff1112263 ("um: add extended processor state save/restore
->> support") and b6024b21fec8 ("um: extend fpstate to _xstate to support
->> YMM registers") forced the use of the x86 FP _xstate and
->> PTRACE_GETREGSET/SETREGSET. On older hosts, we would neither be able to
->> build UML nor run it anymore with these two commits applied because we
->> don't have definitions for struct _xstate nor these two ptrace requests.
->>
->> We can determine at build time which fp context structure to check
->> against, just like we can keep using the old i387 fp save/restore if
->> PTRACE_GETRESET/SETREGSET are not defined.
->>
->> Fixes: a78ff1112263 ("um: add extended processor state save/restore support")
->> Fixes: b6024b21fec8 ("um: extend fpstate to _xstate to support YMM registers")
->> Change-Id: I2cda034c8a6637de392c2740a993982ad132bda5
->
->No need for change-id in upstream patches :)
->
->let me see if I can just take what is already in 4.13 directly...
+stable-rc/linux-4.14.y boot: 126 boots: 3 failed, 121 passed with 1 offline=
+, 1 untried/unknown (v4.14.134-179-gf0382b8e83d1)
 
-Alessio,
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.134-179-gf0382b8e83d1/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.134-179-gf0382b8e83d1/
 
-Do we also need 2fb44600fe784 ("um: Fix check for _xstate for older
-hosts")?
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.134-179-gf0382b8e83d1
+Git Commit: f0382b8e83d10a8840495f7243d28d5abd6502e8
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 67 unique boards, 26 SoC families, 16 builds out of 201
 
---
-Thanks,
-Sasha
+Boot Failures Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxl-s905x-nexbox-a95x: 1 failed lab
+            rk3399-firefly: 1 failed lab
+
+arc:
+    hsdk_defconfig:
+        gcc-8:
+            hsdk: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            meson-gxbb-odroidc2: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
