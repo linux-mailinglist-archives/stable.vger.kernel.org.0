@@ -2,119 +2,235 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C8E475519
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 19:06:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 885877552F
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 19:11:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388084AbfGYRGY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 13:06:24 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:33911 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387900AbfGYRGY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 13:06:24 -0400
-Received: by mail-wm1-f66.google.com with SMTP id w9so36202823wmd.1
-        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 10:06:22 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:openpgp:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=CYZmvdyjmQ9Y20lUl3LbpkZAg1UJeTYKaJ8xSu9KeRU=;
-        b=Eo4CqniVq9iAJGUPK9+LxFMIV4qL8ei5fUuWWOJBL65Id2db/IC+LPZKSv6vnaxund
-         LLm0HFTSNsbYraCD9kFI1I8Lk38Au34v36XHadVNoSIe+TgIvL1/PED5S9RWQK/s48Br
-         HnZUUFkdNvGorUYlhv4QM2dZMcKQ/SoouKUFQvSW0ZN33Hu49yKYqIgMtgFQZf4o0eL7
-         H2FGKlW5w6ZNuPzAvAea942kKkHj0iQ4qDDqsSlsKVyvmkcYb7R75xZPT4PCiew3ul7a
-         Qhiyrn39xL+W5rKhcfVWhSdpvPEokY4LDeJtlTldoYAuWtkB2jIx6z//i/61g+UK1CYK
-         nIJQ==
-X-Gm-Message-State: APjAAAXBL8NYzg+IbYHUlyGYS31TBNzB4uB3X/ED5UcQj0H0aDxm3c/Z
-        4GULdzPkNtRhSXz8FJB5zDZ+Jw==
-X-Google-Smtp-Source: APXvYqwbvdA1XCrnqMaxgyn3o22zds3kQexwwJkjRqOZdIaK3sdDC0Fu9DQ32DUvi/qqPCP70bshLg==
-X-Received: by 2002:a7b:c7d8:: with SMTP id z24mr81271885wmk.10.1564074381887;
-        Thu, 25 Jul 2019 10:06:21 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:cc23:f353:392:d2ee? ([2001:b07:6468:f312:cc23:f353:392:d2ee])
-        by smtp.gmail.com with ESMTPSA id y16sm102602666wrg.85.2019.07.25.10.06.20
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Thu, 25 Jul 2019 10:06:21 -0700 (PDT)
-Subject: Re: [PATCH 5.2 000/413] 5.2.3-stable review
-To:     Sean Christopherson <sean.j.christopherson@intel.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        wanpengli@tencent.com,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        patches@kernelci.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>, jmattson@google.com
-References: <20190724191735.096702571@linuxfoundation.org>
- <CADYN=9+WLxhmqX3JNL_s-kWSN97G=8WhD=TF=uAuKecJnKcj_Q@mail.gmail.com>
- <20190725113437.GA27429@kroah.com>
- <230a5b34-d23e-8318-0b1f-d23ada7318e0@redhat.com>
- <CA+G9fYsWdmboyquZ=Bs3tkTwRFTzd1yuL0_EVpHOecNi4E_stA@mail.gmail.com>
- <20190725160939.GC18612@linux.intel.com>
- <33f1cfaa-525d-996a-4977-fda32dc368ee@redhat.com>
- <20190725162053.GD18612@linux.intel.com>
- <7bc207e0-0812-e41a-bfd5-e3fbfd43f242@redhat.com>
- <20190725163946.xt2p3pvxwuabzojj@xps.therub.org>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Openpgp: preference=signencrypt
-Message-ID: <3e55414d-cb4f-8f3f-a359-e374b6298715@redhat.com>
-Date:   Thu, 25 Jul 2019 19:06:19 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S2389529AbfGYRLa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 13:11:30 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:36407 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388173AbfGYRL3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 13:11:29 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 4747922017;
+        Thu, 25 Jul 2019 13:11:28 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Thu, 25 Jul 2019 13:11:28 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=0oMkzd
+        cTVtGzV1FIPNYp2IV/eAwGlgBaZWfJm+H5J5g=; b=LoA52znRJpj54M+Kx4BvAG
+        k5AYT4iIIJepG/WxRv2rsJfRYjib0EqhL8k8h9Y4skJrs3cG0E9XEdYhJ8SEvZsW
+        oOyGajS1Mt56sLn4m8CYOSb87aCmADVFv4cPO3iHAwJLcjiD+4UbnIVjtDtgzEzJ
+        zveWhvPW+6CpNLMod41jpZYp41li49IP4+xDbzpxuP7SbLaiKTtpwuRlQsMlFHYf
+        5b76PpiMBk0tQWp4PCkeoBFXGk7J/v70Jsq4nfG5Oa8tGNSzVNcRC9BA8RqLpIBr
+        a58IvOC51PKSFwDpucgWqlpcTD6vbeHFRATI7eFughLz4BFj7GdKCl8uTxNrD4yA
+        ==
+X-ME-Sender: <xms:v-I5Xa9HbO65zzL4_YvSMdrSprID-shiN3uC4dkoZn26uaQEwd9kXg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrkedvgddutdekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:v-I5XXE_tuQLJwEDcO3Uu1IoeDYCxUJ8tWFgiT9siNU7bFq3fQ4Cbw>
+    <xmx:v-I5XUcagNurwj72sbH1AwUwdcEMKe4bRTBmWbK6CTpQ56ovY_CiYg>
+    <xmx:v-I5XQkP0N_833AGFgrOp9tnRqlVzoLlSLO3VlLPQtpFnFtjfY-BnQ>
+    <xmx:wOI5XfVwa_JG-DgnV-4PzyoG5cUB61gPr6F_M8js7oNeF8wJWt-ifA>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3D6DC380088;
+        Thu, 25 Jul 2019 13:11:27 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] powerpc/pseries: Fix xive=off command line" failed to apply to 5.1-stable tree
+To:     groug@kaod.org, clg@kaod.org, mpe@ellerman.id.au,
+        pavrampu@in.ibm.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 25 Jul 2019 19:11:25 +0200
+Message-ID: <1564074685138104@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20190725163946.xt2p3pvxwuabzojj@xps.therub.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 25/07/19 18:39, Dan Rue wrote:
-> To your point Paolo - reporting 'fail' because of a missing kernel
-> feature is a generic problem we see across test suites, and causes tons
-> of pain and misery for CI people. As a general rule, I'd avoid
-> submodules, and even branches that track specific kernels. Rather, and I
-> don't know if it's possible in this case, but the best way to manage it
-> from both a test author and a test runner POV is to wrap the test in
-> kernel feature checks, kernel version checks, kernel config checks, etc.
-> Report 'skip' if the environment in which the test is running isn't
-> sufficient to run the test. Then, you only have to maintain one version
-> of the test suite, users can always use the latest, and critically: all
-> failures are actual failures.
 
-Note that kvm-unit-tests are not really testing new kernel features;
-those are covered by tools/testing/selftests/kvm.  For some of these
-kvm-unit-tests there are some CPU features that we can check from the
-virtual machine, but those are easy to handle and they produce SKIP
-results just fine.
+The patch below does not apply to the 5.1-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-The problematic ones are tests that cover emulation accuracy.  These are
-effectively bugfixes, so the failures you see _are_ actual failures.  At
-the same time, the bugs are usually inoffensive(*), while the fixes are
-invasive and a bad source of cause conflicts in older Linux versions.
-This combines so that backporting to stable is not feasible.
+thanks,
 
-Passing the host kernel version would be really ugly because 1) the
-tests can run on other hypervisor or emulators or even bare metal, and
-of course the host kernel version has no bearing if you're using
-userspace emulation 2) there are thousands of tests that would be
-littered with kernel version checks of little significance.
+greg k-h
 
-So this is why I suggested a submodule: using a submodule effectively
-ignores all tests that were added after a given Linus release, and thus
-all the failures for which backports are just not going to happen.
-However, if Sean's idea of creating a linux-M.N branch in
-kvm-unit-tests.git works for you, we can also do that as a stopgap
-measure to ease your testing.
+------------------ original commit in Linus's tree ------------------
 
-Thanks,
+From a3bf9fbdad600b1e4335dd90979f8d6072e4f602 Mon Sep 17 00:00:00 2001
+From: Greg Kurz <groug@kaod.org>
+Date: Wed, 15 May 2019 12:05:01 +0200
+Subject: [PATCH] powerpc/pseries: Fix xive=off command line
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Paolo
+On POWER9, if the hypervisor supports XIVE exploitation mode, the
+guest OS will unconditionally requests for the XIVE interrupt mode
+even if XIVE was deactivated with the kernel command line xive=off.
+Later on, when the spapr XIVE init code handles xive=off, it disables
+XIVE and tries to fall back on the legacy mode XICS.
 
-(*) if they aren't, we *do* mark them for backport!
+This discrepency causes a kernel panic because the hypervisor is
+configured to provide the XIVE interrupt mode to the guest :
+
+  kernel BUG at arch/powerpc/sysdev/xics/xics-common.c:135!
+  ...
+  NIP xics_smp_probe+0x38/0x98
+  LR  xics_smp_probe+0x2c/0x98
+  Call Trace:
+    xics_smp_probe+0x2c/0x98 (unreliable)
+    pSeries_smp_probe+0x40/0xa0
+    smp_prepare_cpus+0x62c/0x6ec
+    kernel_init_freeable+0x148/0x448
+    kernel_init+0x2c/0x148
+    ret_from_kernel_thread+0x5c/0x68
+
+Look for xive=off during prom_init and don't ask for XIVE in this
+case. One exception though: if the host only supports XIVE, we still
+want to boot so we ignore xive=off.
+
+Similarly, have the spapr XIVE init code to looking at the interrupt
+mode negotiated during CAS, and ignore xive=off if the hypervisor only
+supports XIVE.
+
+Fixes: eac1e731b59e ("powerpc/xive: guest exploitation of the XIVE interrupt controller")
+Cc: stable@vger.kernel.org # v4.20
+Reported-by: Pavithra R. Prakash <pavrampu@in.ibm.com>
+Signed-off-by: Greg Kurz <groug@kaod.org>
+Reviewed-by: Cédric Le Goater <clg@kaod.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+
+diff --git a/arch/powerpc/kernel/prom_init.c b/arch/powerpc/kernel/prom_init.c
+index bab79c51ba4f..17f1ae7fae2c 100644
+--- a/arch/powerpc/kernel/prom_init.c
++++ b/arch/powerpc/kernel/prom_init.c
+@@ -172,6 +172,7 @@ static unsigned long __prombss prom_tce_alloc_end;
+ 
+ #ifdef CONFIG_PPC_PSERIES
+ static bool __prombss prom_radix_disable;
++static bool __prombss prom_xive_disable;
+ #endif
+ 
+ struct platform_support {
+@@ -808,6 +809,12 @@ static void __init early_cmdline_parse(void)
+ 	}
+ 	if (prom_radix_disable)
+ 		prom_debug("Radix disabled from cmdline\n");
++
++	opt = prom_strstr(prom_cmd_line, "xive=off");
++	if (opt) {
++		prom_xive_disable = true;
++		prom_debug("XIVE disabled from cmdline\n");
++	}
+ #endif /* CONFIG_PPC_PSERIES */
+ }
+ 
+@@ -1216,10 +1223,17 @@ static void __init prom_parse_xive_model(u8 val,
+ 	switch (val) {
+ 	case OV5_FEAT(OV5_XIVE_EITHER): /* Either Available */
+ 		prom_debug("XIVE - either mode supported\n");
+-		support->xive = true;
++		support->xive = !prom_xive_disable;
+ 		break;
+ 	case OV5_FEAT(OV5_XIVE_EXPLOIT): /* Only Exploitation mode */
+ 		prom_debug("XIVE - exploitation mode supported\n");
++		if (prom_xive_disable) {
++			/*
++			 * If we __have__ to do XIVE, we're better off ignoring
++			 * the command line rather than not booting.
++			 */
++			prom_printf("WARNING: Ignoring cmdline option xive=off\n");
++		}
+ 		support->xive = true;
+ 		break;
+ 	case OV5_FEAT(OV5_XIVE_LEGACY): /* Only Legacy mode */
+diff --git a/arch/powerpc/sysdev/xive/spapr.c b/arch/powerpc/sysdev/xive/spapr.c
+index 575db3b06a6b..2e2d1b8f810f 100644
+--- a/arch/powerpc/sysdev/xive/spapr.c
++++ b/arch/powerpc/sysdev/xive/spapr.c
+@@ -20,6 +20,7 @@
+ #include <linux/cpumask.h>
+ #include <linux/mm.h>
+ #include <linux/delay.h>
++#include <linux/libfdt.h>
+ 
+ #include <asm/prom.h>
+ #include <asm/io.h>
+@@ -663,6 +664,55 @@ static bool xive_get_max_prio(u8 *max_prio)
+ 	return true;
+ }
+ 
++static const u8 *get_vec5_feature(unsigned int index)
++{
++	unsigned long root, chosen;
++	int size;
++	const u8 *vec5;
++
++	root = of_get_flat_dt_root();
++	chosen = of_get_flat_dt_subnode_by_name(root, "chosen");
++	if (chosen == -FDT_ERR_NOTFOUND)
++		return NULL;
++
++	vec5 = of_get_flat_dt_prop(chosen, "ibm,architecture-vec-5", &size);
++	if (!vec5)
++		return NULL;
++
++	if (size <= index)
++		return NULL;
++
++	return vec5 + index;
++}
++
++static bool xive_spapr_disabled(void)
++{
++	const u8 *vec5_xive;
++
++	vec5_xive = get_vec5_feature(OV5_INDX(OV5_XIVE_SUPPORT));
++	if (vec5_xive) {
++		u8 val;
++
++		val = *vec5_xive & OV5_FEAT(OV5_XIVE_SUPPORT);
++		switch (val) {
++		case OV5_FEAT(OV5_XIVE_EITHER):
++		case OV5_FEAT(OV5_XIVE_LEGACY):
++			break;
++		case OV5_FEAT(OV5_XIVE_EXPLOIT):
++			/* Hypervisor only supports XIVE */
++			if (xive_cmdline_disabled)
++				pr_warn("WARNING: Ignoring cmdline option xive=off\n");
++			return false;
++		default:
++			pr_warn("%s: Unknown xive support option: 0x%x\n",
++				__func__, val);
++			break;
++		}
++	}
++
++	return xive_cmdline_disabled;
++}
++
+ bool __init xive_spapr_init(void)
+ {
+ 	struct device_node *np;
+@@ -675,7 +725,7 @@ bool __init xive_spapr_init(void)
+ 	const __be32 *reg;
+ 	int i;
+ 
+-	if (xive_cmdline_disabled)
++	if (xive_spapr_disabled())
+ 		return false;
+ 
+ 	pr_devel("%s()\n", __func__);
+
