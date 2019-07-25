@@ -2,67 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F3FF753C1
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 18:20:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D80E57541A
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 18:33:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388666AbfGYQUy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 12:20:54 -0400
-Received: from mga05.intel.com ([192.55.52.43]:11854 "EHLO mga05.intel.com"
+        id S1729304AbfGYQdH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 12:33:07 -0400
+Received: from www.linuxtv.org ([130.149.80.248]:59193 "EHLO www.linuxtv.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387564AbfGYQUy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 12:20:54 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 Jul 2019 09:20:53 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,307,1559545200"; 
-   d="scan'208";a="253978595"
-Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.165])
-  by orsmga001.jf.intel.com with ESMTP; 25 Jul 2019 09:20:53 -0700
-Date:   Thu, 25 Jul 2019 09:20:53 -0700
-From:   Sean Christopherson <sean.j.christopherson@intel.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        wanpengli@tencent.com,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        patches@kernelci.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>, jmattson@google.com
-Subject: Re: [PATCH 5.2 000/413] 5.2.3-stable review
-Message-ID: <20190725162053.GD18612@linux.intel.com>
-References: <20190724191735.096702571@linuxfoundation.org>
- <CADYN=9+WLxhmqX3JNL_s-kWSN97G=8WhD=TF=uAuKecJnKcj_Q@mail.gmail.com>
- <20190725113437.GA27429@kroah.com>
- <230a5b34-d23e-8318-0b1f-d23ada7318e0@redhat.com>
- <CA+G9fYsWdmboyquZ=Bs3tkTwRFTzd1yuL0_EVpHOecNi4E_stA@mail.gmail.com>
- <20190725160939.GC18612@linux.intel.com>
- <33f1cfaa-525d-996a-4977-fda32dc368ee@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <33f1cfaa-525d-996a-4977-fda32dc368ee@redhat.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+        id S1726087AbfGYQdG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 12:33:06 -0400
+Received: from mchehab by www.linuxtv.org with local (Exim 4.84_2)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1hqgfx-0001sS-6i; Thu, 25 Jul 2019 16:33:05 +0000
+From:   Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Date:   Thu, 25 Jul 2019 15:58:41 +0000
+Subject: [git:media_tree/master] media: hantro: Set DMA max segment size
+To:     linuxtv-commits@linuxtv.org
+Cc:     stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
+        Francois Buergisser <fbuergisser@chromium.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1hqgfx-0001sS-6i@www.linuxtv.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 25, 2019 at 06:10:37PM +0200, Paolo Bonzini wrote:
-> On 25/07/19 18:09, Sean Christopherson wrote:
-> >> This investigation confirms it is a new test code failure on stable-rc 5.2.3
-> > No, it only confirms that kvm-unit-tests/master fails on 5.2.*.  To confirm
-> > a new failure in 5.2.3 you would need to show a test that passes on 5.2.2
-> > and fails on 5.2.3.
-> 
-> I think he meant "a failure in new test code". :)
+This is an automatic generated email to let you know that the following patch were queued:
 
-Ah, that does appear to be the case.  So just to be clear, we're good, right?
+Subject: media: hantro: Set DMA max segment size
+Author:  Francois Buergisser <fbuergisser@chromium.org>
+Date:    Thu Jul 25 10:17:50 2019 -0400
+
+The Hantro codec is typically used in platforms with an IOMMU,
+so we need to set a proper DMA segment size. Devices without an
+IOMMU will still fallback to default 64KiB segments.
+
+Cc: stable@vger.kernel.org
+Fixes: 775fec69008d3 ("media: add Rockchip VPU JPEG encoder driver")
+Signed-off-by: Francois Buergisser <fbuergisser@chromium.org>
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+
+ drivers/staging/media/hantro/hantro_drv.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+---
+
+diff --git a/drivers/staging/media/hantro/hantro_drv.c b/drivers/staging/media/hantro/hantro_drv.c
+index b71a06e9159e..4eae1dbb1ac8 100644
+--- a/drivers/staging/media/hantro/hantro_drv.c
++++ b/drivers/staging/media/hantro/hantro_drv.c
+@@ -731,6 +731,7 @@ static int hantro_probe(struct platform_device *pdev)
+ 		dev_err(vpu->dev, "Could not set DMA coherent mask.\n");
+ 		return ret;
+ 	}
++	vb2_dma_contig_set_max_seg_size(&pdev->dev, DMA_BIT_MASK(32));
+ 
+ 	for (i = 0; i < vpu->variant->num_irqs; i++) {
+ 		const char *irq_name = vpu->variant->irqs[i].name;
