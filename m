@@ -2,100 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8567E7483D
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 09:32:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DB3974846
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 09:37:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388083AbfGYHcV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 03:32:21 -0400
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:43277 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387738AbfGYHcV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 03:32:21 -0400
-Received: by mail-ot1-f67.google.com with SMTP id j11so26388364otp.10
-        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 00:32:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=ZESu1hs7DKrdTYzlJ+91Jjl7ynlzUmW1qsOfOpkX7oU=;
-        b=IiC0N99JTaPiQ3cHyM+X876J99ZdsyYxp0ZNJxekQhAWpU4e4qXuEKF8Cj/b0fNakT
-         znMtmHIbaclp90tbAP8zz+1IqrKwj6dCGsVwnmCb6+OxjHrQApsjqcna0IIi1teF38Gl
-         RNPJZm1+o0GrRbgnoMKHPulCyadVMGvQ/xoD4OZIFYq1AI/0p0hHENsQsoaVQYoI9nh1
-         MiS+9PC2u9yoB/3tzfHfH8ocTuPKgxGheQ6eDeLp+NRmONF/BN3RNT443dtS13OxCVJD
-         zjENVeofxAPDmVcxcSWfONibdFkcTumrz6AckJ6krZJ4bnRKhdUvzic0pFyx0T1lgyyB
-         VSWQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=ZESu1hs7DKrdTYzlJ+91Jjl7ynlzUmW1qsOfOpkX7oU=;
-        b=lgg26nEFunjdQVIYCrqYEj4gdY4kcMUWnTurXiJzpiqHanu4fStiy2XytqZ93uxvai
-         HWnLV+1lO3jGDksuwr7MkrmIoGjVyH8Zd1e6yN1Jz/Wl8vn/R86Ufh2kAKqtVSNBaY20
-         RtACdw5tXhmNmTJNeA4FtUi+V4rI9dxd1CXNCwUe5CP7kkBk6MEXNgISLXkFdado962S
-         o7asUUGF58vNn01mi5xyaPOoek8Iw5dCiVXLAdMmCJTT8EWPYEBRO//m+pBuFaLoZBrk
-         e6uFcIP6p2udNugTfS8s61TdoYAUAdWQ1v6Z4ETgCd2Sjot0Xqt9/wvdZ3Cb3lpKRl44
-         YGHg==
-X-Gm-Message-State: APjAAAXJUnUBgt1u7YAqT/0niCEj8Q4GML+L2guaVSGn6sxfwk9Nt6Pp
-        aHMS/C5s8fcv/nj8pSlRg+tbVXF5zGScYIeftkA=
-X-Google-Smtp-Source: APXvYqwSowYp1iF9yEyjlE8SRFRgXyyGCm6sZ6Xwl5rmO4e9YiBGg2gIxTt8K4yuEJGU2mg7EJ52WuZ5C+OGw1A925Y=
-X-Received: by 2002:a9d:470f:: with SMTP id a15mr32129306otf.235.1564039940927;
- Thu, 25 Jul 2019 00:32:20 -0700 (PDT)
+        id S2388172AbfGYHhO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 03:37:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47080 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388161AbfGYHhN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 03:37:13 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C46DE22CBC;
+        Thu, 25 Jul 2019 07:37:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564040233;
+        bh=tcScNLjjelD2TBiKIYrCQA/Axtq6uQldCyNINoUFdZk=;
+        h=Subject:To:From:Date:From;
+        b=qjeYuBCyTIVWQBcsXvlV6txClVCMaiFuYpfgH41U+p/8GHDW6N7eVIZtbrGhJ74em
+         l2Y71vCybLBBIOcqZk9NmoqeNSVEIuaSLRDk5wJNX7WpgYBJt4Gf409gx2h/VM+jvu
+         OF3G8bYBvehmRkTLgQhNYcXPeidcJjJMXORoUbf4=
+Subject: patch "Staging: fbtft: Fix reset assertion when using gpio descriptor" added to staging-linus
+To:     preid@electromag.com.au, gregkh@linuxfoundation.org,
+        linux@jaseg.net, nsaenzjulienne@suse.de, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 25 Jul 2019 09:37:02 +0200
+Message-ID: <156404022213134@kroah.com>
 MIME-Version: 1.0
-Received: by 2002:a4a:2f02:0:0:0:0:0 with HTTP; Thu, 25 Jul 2019 00:32:20
- -0700 (PDT)
-Reply-To: elodieantoine76578@yahoo.com
-From:   Mrs Elodie Antoine <marianmiche754@gmail.com>
-Date:   Thu, 25 Jul 2019 00:32:20 -0700
-Message-ID: <CAND8_nfJUpgLOLXt_Nu0d99ZOOtBqOQKMMJSs5HMr9te96bq8w@mail.gmail.com>
-Subject: Greetings From Mrs Elodie,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings From Mrs Elodie,
 
-Calvary Greetings in the name of the LORD Almighty and Our LORD JESUS
-CHRIST the giver of every good thing. Good day,i know this letter will
-definitely come to you as a huge surprise, but I implore you to take
-the time to go through it carefully as the decision you make will go
-off a long way to determine my future and continued existence. I am
-Mrs Elodie Antoine
-aging widow of 59 years old suffering from long time illness. I have
-some funds I inherited from my late husband,
+This is a note to let you know that I've just added the patch titled
 
-The sum of (US$4.5 Million Dollars) and I needed a very honest and God
-fearing  who can withdraw this money then use the funds for Charity
-works. I WISH TO GIVE THIS FUNDS TO YOU FOR CHARITY WORKS. I found
-your email address from the internet after honest prayers  to the LORD
-to bring me a helper and i decided to contact you if you may be
-willing and interested to handle these trust funds in good faith
-before anything happens to me.
-I accept this decision because I do not have any child who will
-inherit this money after I die. I want your urgent reply to me so that
-I will give you the deposit receipt which the  COMPANY issued to me as
-next of kin for immediate transfer of the money to your account in
-your country, to start the good work of God, I want you to use the
-15/percent of the total amount to help yourself in doing the project.
+    Staging: fbtft: Fix reset assertion when using gpio descriptor
 
-I am desperately in keen need of assistance and I have summoned up
-courage to contact you for this task, you must not fail me and the
-millions of the poor people in our todays WORLD. This is no stolen
-money and there are no dangers involved,100% RISK FREE with full legal
-proof. Please if you would be able to use the funds for the Charity
-works kindly let me know immediately.I will appreciate your utmost
-confidentiality and trust in this matter to accomplish my heart
-desire, as I don't want anything that will jeopardize my last wish. I
-want you to take 15 percent of the total money for your personal use
-while 85% of the money will go to charity.I will appreciate your
-utmost confidentiality and trust in this matter to accomplish my heart
-desire, as I don't want anything that will jeopardize my last wish.
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-linus branch.
 
-kindly respond for further details. reply to my private E-mail:(
-elodieantoine76578@yahoo.com )
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
 
 
-Thanks and God bless you,
+From b918d1c2706619cb0712a61cc8c05148b68b24b2 Mon Sep 17 00:00:00 2001
+From: Phil Reid <preid@electromag.com.au>
+Date: Tue, 16 Jul 2019 08:24:37 +0800
+Subject: Staging: fbtft: Fix reset assertion when using gpio descriptor
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Mrs Elodie Antoine
+Typically gpiod_set_value calls would assert the reset line and
+then release it using the symantics of:
+	gpiod_set_value(par->gpio.reset, 0);
+	... delay
+	gpiod_set_value(par->gpio.reset, 1);
+And the gpio binding would specify the polarity.
+
+Prior to conversion to gpiod calls the polarity in the DT
+was ignored and assumed to be active low. Fix it so that
+DT polarity is respected.
+
+Fixes: c440eee1a7a1 ("Staging: fbtft: Switch to the gpio descriptor interface")
+Reviewed-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Tested-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Tested-by: Jan Sebastian Götte <linux@jaseg.net>
+Signed-off-by: Phil Reid <preid@electromag.com.au>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1563236677-5045-3-git-send-email-preid@electromag.com.au
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/fbtft/fbtft-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/staging/fbtft/fbtft-core.c b/drivers/staging/fbtft/fbtft-core.c
+index b963cccdc3f6..c3179cc847f8 100644
+--- a/drivers/staging/fbtft/fbtft-core.c
++++ b/drivers/staging/fbtft/fbtft-core.c
+@@ -231,9 +231,9 @@ static void fbtft_reset(struct fbtft_par *par)
+ 	if (!par->gpio.reset)
+ 		return;
+ 	fbtft_par_dbg(DEBUG_RESET, par, "%s()\n", __func__);
+-	gpiod_set_value_cansleep(par->gpio.reset, 0);
+-	usleep_range(20, 40);
+ 	gpiod_set_value_cansleep(par->gpio.reset, 1);
++	usleep_range(20, 40);
++	gpiod_set_value_cansleep(par->gpio.reset, 0);
+ 	msleep(120);
+ }
+ 
+-- 
+2.22.0
+
+
