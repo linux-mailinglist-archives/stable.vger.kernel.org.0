@@ -2,117 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36C6F74CE7
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 13:20:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20A6974CFF
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 13:24:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391220AbfGYLUr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 07:20:47 -0400
-Received: from mail-vs1-f67.google.com ([209.85.217.67]:44430 "EHLO
-        mail-vs1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389393AbfGYLUr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 07:20:47 -0400
-Received: by mail-vs1-f67.google.com with SMTP id v129so33443762vsb.11
-        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 04:20:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google;
-        h=from:references:in-reply-to:mime-version:thread-index:date
-         :message-id:subject:to:cc;
-        bh=6DcK30PpTPuCKM9YTLUqEUspcWU/lIpJ1+jFNrMw2cs=;
-        b=RgSZWnaSX18zKbwUYuW8pERQCPBn4OYsxSX0SZBkmwIRRT8LWde1MdRN8IVtnCSJCc
-         4jzvT1PS/LpRAZkBcwwM7c6v6Lu5MBNRQsFIm4kg+B+wNDfeS8pCJfbA9GyhEHZb9taE
-         Wj4XySWrHlhabRDzVnGpdMqsQ951wiTZGzGlI=
+        id S2391821AbfGYLYa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 07:24:30 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:35704 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391813AbfGYLYa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 07:24:30 -0400
+Received: by mail-wm1-f67.google.com with SMTP id l2so44382176wmg.0
+        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 04:24:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:references:in-reply-to:mime-version
-         :thread-index:date:message-id:subject:to:cc;
-        bh=6DcK30PpTPuCKM9YTLUqEUspcWU/lIpJ1+jFNrMw2cs=;
-        b=XsW+gf5wD7BPqjzH/IN7t4VIbKOcrO5byxaDdc6rge8OyeS5MsSfHvvFGzKRL4iEcs
-         CyI8DHTcupOwAEOu2n1tNJjsK0rFOWwUuX0YbWEP3e1IW/80DfS4cRIvISQsYptI9p/c
-         p5S+O3pWqpup3ZmUKjtXE5gi5AKrIhri/kuWbfNXA6hsUgT9SG9SzrqFvFG7j2Bb9b02
-         qowOswB8hZV+YqV7EcIGJgNrLFBoo2SO5znSRVQm2A3977JGRHw1nIe8M+epYjrEjmmW
-         qA+VnlWr2orpPssjLqkua6kr53UmOdNqesM8tYqlNEkJ0lQUDqBSqxUfPK/7cXIcmBhn
-         GRJw==
-X-Gm-Message-State: APjAAAUh+P6YERyzp8MBooCKCM1ocXvy2bMyRU9WseRqeIfrX1EEPNIq
-        ITkJsy4yB1TJVNlDPKo264H0LOO8ny2xjSabDyPXNA==
-X-Google-Smtp-Source: APXvYqwyJ2zNDuiFBRDZSGXZUVqv3sqiXWqSMXcmc7Jggsu4sMEl69y0B8enPxxd8DOK89gm5IH1lx6N+Gq3f5+XAX8=
-X-Received: by 2002:a67:8c84:: with SMTP id o126mr56496062vsd.122.1564053646150;
- Thu, 25 Jul 2019 04:20:46 -0700 (PDT)
-From:   Sumit Saxena <sumit.saxena@broadcom.com>
-References: <20190725191758.23462-1-sumit.saxena@broadcom.com>
-In-Reply-To: <20190725191758.23462-1-sumit.saxena@broadcom.com>
+        h=x-gm-message-state:subject:to:cc:references:from:openpgp:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=RjbdG3nViJvxOOUD7oJ8kV9hETSbuqoaOubZjfcu3IQ=;
+        b=CbhZEc/nPyb0GBbxNOs28Wr9uyj0Ti91oKr5tPI8YmCde7ec703llPOOFdc1/s+7a2
+         aLr75RXD7ufpTDAw+XmhSv0ghv9kbvqOdMvNM3lhyK6KjzMyu3RjIRqoAuiw8YSbPDr/
+         FqMDAFstzz2PBWZKacGLCb508ZPisLMPexjm30AW3Ryt6lukl576FJ/WB1vasRssbsKF
+         c5A5TAhgCvtgs6SstG+DclyFYunNZ+wxRb4qQ/XYQEFuAMCSaAE9HGyoulZKBzstgR4I
+         PQEArHKeUvh9wne7kBhgpTC0NPURKQ9CI5l05aGrF3XV/q2MUV4MsZGmMVWXqAAD7Xgl
+         u6+Q==
+X-Gm-Message-State: APjAAAVf2FMHneDG3qSxCXzXrpxRL+XzgKtAj2SRZzfh2jUOzLAHO+2n
+        j2dZ46J1g+PFJKqFywYWuMbByg==
+X-Google-Smtp-Source: APXvYqzdtuI6MnxEnBnPgCfGVAMefcNKRGR3/m2Mtw0Ia+Lfly9vb5NT90uj+luQR/pqs+tcN1zdRg==
+X-Received: by 2002:a1c:3:: with SMTP id 3mr80318202wma.6.1564053868317;
+        Thu, 25 Jul 2019 04:24:28 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:cc23:f353:392:d2ee? ([2001:b07:6468:f312:cc23:f353:392:d2ee])
+        by smtp.gmail.com with ESMTPSA id k124sm79155642wmk.47.2019.07.25.04.24.27
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Thu, 25 Jul 2019 04:24:27 -0700 (PDT)
+Subject: Re: [PATCH stable-4.19 0/2] KVM: nVMX: guest reset fixes
+To:     Vitaly Kuznetsov <vkuznets@redhat.com>, stable@vger.kernel.org
+Cc:     kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>
+References: <20190725104645.30642-1-vkuznets@redhat.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Openpgp: preference=signencrypt
+Message-ID: <b0ca6477-ac1e-bf92-3e3a-902243707f54@redhat.com>
+Date:   Thu, 25 Jul 2019 13:24:26 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-X-Mailer: Microsoft Outlook 16.0
-Thread-Index: AQFu2LZIV1NiQ/rnan7cBe6FQlMYJ6eoBG2A
-Date:   Thu, 25 Jul 2019 16:50:44 +0530
-Message-ID: <23f7699adcf7046058f8b5a9214313d0@mail.gmail.com>
-Subject: RE: [PATCH] PCI: set BAR size bits correctly in Resize BAR control register
-To:     saxenasumit87m@gmail.com
-Cc:     Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20190725104645.30642-1-vkuznets@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Please ignore this.. it was mistakenly sent.
+On 25/07/19 12:46, Vitaly Kuznetsov wrote:
+> Few patches were recently marked for stable@ but commits are not
+> backportable as-is and require a few tweaks. Here is 4.19 stable backport.
+> 
+> Jan Kiszka (1):
+>   KVM: nVMX: Clear pending KVM_REQ_GET_VMCS12_PAGES when leaving nested
+> 
+> Paolo Bonzini (1):
+>   KVM: nVMX: do not use dangling shadow VMCS after guest reset
+> 
+>  arch/x86/kvm/vmx.c | 10 +++++++++-
+>  1 file changed, 9 insertions(+), 1 deletion(-)
+> 
 
------Original Message-----
-From: Sumit Saxena <sumit.saxena@broadcom.com>
-Sent: Friday, July 26, 2019 12:48 AM
-To: saxenasumit87m@gmail.com
-Cc: chandrakanth.patil@broadcom.com; stable@vger.kernel.org; Sumit Saxena
-<sumit.saxena@broadcom.com>
-Subject: [PATCH] PCI: set BAR size bits correctly in Resize BAR control
-register
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
 
-In Resize BAR control register, bits[8:12] represents size of BAR.
-As per PCIe specification, below is encoded values in register bits to
-actual BAR size table:
+Thanks Vitaly for helping out.
 
-Bits  BAR size
-0     1 MB
-1     2 MB
-2     4 MB
-3     8 MB
---
-
-For 1 MB BAR size, BAR size bits should be set to 0 but incorrectly these
-bits are set to "1f".
-Latest megaraid_sas and mpt3sas adapters which support Resizable BAR with
-1 MB BAR size fails to initialize during system resume from S3 sleep.
-
-Fix: Correctly set BAR size bits to "0" for 1MB BAR size.
-
-CC: stable@vger.kernel.org # v4.16+
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203939
-Fixes: d3252ace0bc652a1a244455556b6a549f969bf99 ("PCI: Restore resized BAR
-state on resume")
-Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
----
- drivers/pci/pci.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c index 8abc843..b651f32
-100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -1417,12 +1417,13 @@ static void pci_restore_rebar_state(struct pci_dev
-*pdev)
-
- 	for (i = 0; i < nbars; i++, pos += 8) {
- 		struct resource *res;
--		int bar_idx, size;
-+		int bar_idx, size, order;
-
- 		pci_read_config_dword(pdev, pos + PCI_REBAR_CTRL, &ctrl);
- 		bar_idx = ctrl & PCI_REBAR_CTRL_BAR_IDX;
- 		res = pdev->resource + bar_idx;
--		size = order_base_2((resource_size(res) >> 20) | 1) - 1;
-+		order = order_base_2((resource_size(res) >> 20) | 1);
-+		size = order ? order - 1 : 0;
- 		ctrl &= ~PCI_REBAR_CTRL_BAR_SIZE;
- 		ctrl |= size << PCI_REBAR_CTRL_BAR_SHIFT;
- 		pci_write_config_dword(pdev, pos + PCI_REBAR_CTRL, ctrl);
---
-1.8.3.1
+Paolo
