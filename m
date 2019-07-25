@@ -2,100 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AE0775305
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 17:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10CF775321
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 17:47:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388598AbfGYPmF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 11:42:05 -0400
-Received: from mail-ed1-f66.google.com ([209.85.208.66]:34384 "EHLO
-        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389136AbfGYPmF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 11:42:05 -0400
-Received: by mail-ed1-f66.google.com with SMTP id s49so15810960edb.1
-        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 08:42:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=MNkXECJCwZrlY0TNH7A1b2lGWt3otavBoyZrTznJtcA=;
-        b=jI+NycjUP6dxobiyu7dooewJyiMPSKnZuEAR9QAAdHorsKKv9zQty8Zi/e3mTuuwTw
-         f+5REnTryYYRy7SGL9GubSQdxHJJASl9Ylgtuj/XQKjHnxc3LR3PA0ZTh3KESVVHAP0l
-         b+ZmbxdwQ8OgMxYul7lgpNzEHZXSO/mmnFCbw=
+        id S2389483AbfGYPrq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 11:47:46 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:46216 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727115AbfGYPrq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 11:47:46 -0400
+Received: by mail-wr1-f66.google.com with SMTP id z1so51289673wru.13
+        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 08:47:45 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=MNkXECJCwZrlY0TNH7A1b2lGWt3otavBoyZrTznJtcA=;
-        b=Cic/joPT80gqWjiw1u4RObm/vB/DWIr0UAIk9oAbgNrXhnth+JQROBHxOGOYs6B56Z
-         OZZ0AqyI8jl7Nq9/AGLhMXcYULSe+6s+iDl16KHyAn0BB0ye/G5Qu9qx4wvwB83wEYO8
-         lTd6sB7WdFIQGbpBvNnScsjn3Fw8ac0I4QEvGZgiBCmmKiIYrC7LgHuDIxt5njqOs1b0
-         rR3/t07SD5oOqpH8RGd+BcDMvoBmlRL5Mf8WOWs6h7TDw/KtPACr9kFazSQkBNILw/MW
-         VpKMKDWET0cRa2Yum/qPExIslPWQvon1zE3+KtrSAc42vooqkbg2P7eFJQ4EIhNaxpQo
-         62/Q==
-X-Gm-Message-State: APjAAAUlv2AuKFqZLntHOqjiS6pNty0/SnxkJ/mzFBzh9oZN42sr0thP
-        7JnCWDypVAQ7mBahGrg22H7QUz8hpo+MtA==
-X-Google-Smtp-Source: APXvYqzILmlGWVTVRLMPmX59d+tuOurxf+wpv0gI9hqdj1ZQ1mUs1Lyw6/pADO2/D7J4AP28WChnOg==
-X-Received: by 2002:a50:b122:: with SMTP id k31mr78575089edd.204.1564069323424;
-        Thu, 25 Jul 2019 08:42:03 -0700 (PDT)
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com. [209.85.128.41])
-        by smtp.gmail.com with ESMTPSA id b15sm2908420ejj.5.2019.07.25.08.42.02
-        for <stable@vger.kernel.org>
+        h=x-gm-message-state:subject:to:cc:references:from:openpgp:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=8E/W+J79L+KYsv7Uh31e54tPI2Vvux5yVJ3FL+wNPf4=;
+        b=GyiUdWoPoIegx289HEt+A0GbmXupt9Lnv+8PrmAqGE/0caeEeWkgvxF5EFkJ16gu10
+         fkZUmkm1lZdm25BYbQpg1zlueALjTZqddfcNs8TmBw375ENzsPv0CG9mhXb0f0ABWTya
+         H43o8toNT8ggI++Xgli9Az1HHNx+1SWxwYf2s/xCP419efI6553ifJnH7bfWOdaTXXgN
+         Mbbsjx5da4TYZd1nsVPM7RZpB0ZuNlcOjf8gABLglrSf/N7B3I2NP1OWWcGdGD50iFT/
+         zxXOlr0ZRM8lq2YYo2Vn22n55rPYBynDp0E6mrMLFIdLSGs+Xej0Ky2IOU9+ZMjB9hL2
+         T40A==
+X-Gm-Message-State: APjAAAVQNyX0m/H1dsUUjM7PZZw4Gmci9olLqG5AxPAhMxk4W8xEIHgv
+        jqTIRNqHaOkuQPOSEyvCPkK1tw==
+X-Google-Smtp-Source: APXvYqx8F4rl5cD7W/KK+pbOY5/EcnFeHrrid7MBUlv1f7jQoc3usw2wMBNEimIgXyzH9Mg8NMGD3g==
+X-Received: by 2002:adf:f046:: with SMTP id t6mr10549790wro.307.1564069664285;
+        Thu, 25 Jul 2019 08:47:44 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:cc23:f353:392:d2ee? ([2001:b07:6468:f312:cc23:f353:392:d2ee])
+        by smtp.gmail.com with ESMTPSA id n5sm38864628wmi.21.2019.07.25.08.47.43
         (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Thu, 25 Jul 2019 08:42:02 -0700 (PDT)
-Received: by mail-wm1-f41.google.com with SMTP id v15so45455829wml.0
-        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 08:42:02 -0700 (PDT)
-X-Received: by 2002:a1c:343:: with SMTP id 64mr77603832wmd.116.1564069321964;
- Thu, 25 Jul 2019 08:42:01 -0700 (PDT)
+        Thu, 25 Jul 2019 08:47:43 -0700 (PDT)
+Subject: Re: [PATCH stable-5.2 0/3] KVM: x86: FPU and nested VMX guest reset
+ fixes
+To:     Vitaly Kuznetsov <vkuznets@redhat.com>, stable@vger.kernel.org
+Cc:     kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>
+References: <20190725120436.5432-1-vkuznets@redhat.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Openpgp: preference=signencrypt
+Message-ID: <5c3736e4-4987-5396-c3a7-c5c97241eb2d@redhat.com>
+Date:   Thu, 25 Jul 2019 17:47:42 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-References: <20190725141756.2518-1-ezequiel@collabora.com> <20190725141756.2518-2-ezequiel@collabora.com>
- <1564069001.3006.1.camel@pengutronix.de>
-In-Reply-To: <1564069001.3006.1.camel@pengutronix.de>
-From:   Tomasz Figa <tfiga@chromium.org>
-Date:   Fri, 26 Jul 2019 00:41:48 +0900
-X-Gmail-Original-Message-ID: <CAAFQd5BxQJBNqMnS1bCVXz-9+dCkw0g4xmiPLYgtVCJx_pbRPg@mail.gmail.com>
-Message-ID: <CAAFQd5BxQJBNqMnS1bCVXz-9+dCkw0g4xmiPLYgtVCJx_pbRPg@mail.gmail.com>
-Subject: Re: [PATCH v2 1/7] media: hantro: Set DMA max segment size
-To:     Philipp Zabel <p.zabel@pengutronix.de>
-Cc:     Ezequiel Garcia <ezequiel@collabora.com>,
-        Linux Media Mailing List <linux-media@vger.kernel.org>,
-        Hans Verkuil <hans.verkuil@cisco.com>, kernel@collabora.com,
-        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
-        "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Jonas Karlman <jonas@kwiboo.se>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Alexandre Courbot <acourbot@chromium.org>,
-        fbuergisser@chromium.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20190725120436.5432-1-vkuznets@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 26, 2019 at 12:36 AM Philipp Zabel <p.zabel@pengutronix.de> wrote:
->
-> On Thu, 2019-07-25 at 11:17 -0300, Ezequiel Garcia wrote:
-> > From: Francois Buergisser <fbuergisser@chromium.org>
-> >
-> > The Hantro codec is typically used in platforms with an IOMMU,
-> > so we need to set a proper DMA segment size.
->
-> ... to make sure the DMA-mapping subsystem produces contiguous mappings?
->
-> > Devices without an
-> > IOMMU will still fallback to default 64KiB segments.
->
-> I don't understand this comment. The default max_seg_size may be 64 KiB,
-> but if we are always setting it to DMA_BUT_MASK(32), there is no falling
-> back.
->
+On 25/07/19 14:04, Vitaly Kuznetsov wrote:
+> Few patches were recently marked for stable@ but commits are not
+> backportable as-is and require a few tweaks. Here is 5.2 stable backport.
+> 
+> [PATCHes 2/3 of the series apply as-is, I have them here for completeness]
+> 
+> Jan Kiszka (1):
+>   KVM: nVMX: Clear pending KVM_REQ_GET_VMCS12_PAGES when leaving nested
+> 
+> Paolo Bonzini (2):
+>   KVM: nVMX: do not use dangling shadow VMCS after guest reset
+>   Revert "kvm: x86: Use task structs fpu field for user"
+> 
+>  arch/x86/include/asm/kvm_host.h |  7 ++++---
+>  arch/x86/kvm/vmx/nested.c       | 10 +++++++++-
+>  arch/x86/kvm/x86.c              |  4 ++--
+>  3 files changed, 15 insertions(+), 6 deletions(-)
+> 
 
-DMA mask and segment size are two completely orthogonal parameters.
-Please check https://elixir.bootlin.com/linux/v5.3-rc1/source/drivers/iommu/dma-iommu.c#L740
-for an example of how the latter is used.
-
-Best regards,
-Tomasz
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
