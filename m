@@ -2,97 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47EBD7498C
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 11:04:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC7DE749BD
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 11:21:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389060AbfGYJEt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 05:04:49 -0400
-Received: from hqemgate14.nvidia.com ([216.228.121.143]:13704 "EHLO
-        hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387586AbfGYJEt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 05:04:49 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate14.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5d3970b00001>; Thu, 25 Jul 2019 02:04:48 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Thu, 25 Jul 2019 02:04:47 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Thu, 25 Jul 2019 02:04:47 -0700
-Received: from [10.21.132.148] (10.124.1.5) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 25 Jul
- 2019 09:04:45 +0000
-Subject: Re: [PATCH 5.2 000/413] 5.2.3-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20190724191735.096702571@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <4a1e00d4-d952-c463-963f-0a26ba3976a2@nvidia.com>
-Date:   Thu, 25 Jul 2019 10:04:43 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
-MIME-Version: 1.0
-In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
-X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL104.nvidia.com (172.18.146.11) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"
+        id S2390369AbfGYJVN convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 25 Jul 2019 05:21:13 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([146.101.78.151]:34906 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388363AbfGYJVM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 05:21:12 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-235-scnLaRCdNWKuzfuwzi4QFQ-1; Thu, 25 Jul 2019 10:21:09 +0100
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b::d117) by AcuMS.aculab.com
+ (fd9f:af1c:a25b::d117) with Microsoft SMTP Server (TLS) id 15.0.1347.2; Thu,
+ 25 Jul 2019 10:21:08 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Thu, 25 Jul 2019 10:21:08 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Jian-Hong Pan' <jian-hong@endlessm.com>,
+        Yan-Hsuan Chuang <yhchuang@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S . Miller" <davem@davemloft.net>
+CC:     "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux@endlessm.com" <linux@endlessm.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] rtw88: pci: Use general byte arrays as the elements of RX
+ ring
+Thread-Topic: [PATCH] rtw88: pci: Use general byte arrays as the elements of
+ RX ring
+Thread-Index: AQHVQsDFH4BG56wpwU66J+Fzxhx3XabbDGOQ
+Date:   Thu, 25 Jul 2019 09:21:08 +0000
+Message-ID: <06d713fff7434dfb9ccab32c2e2112e2@AcuMS.aculab.com>
+References: <20190725080925.6575-1-jian-hong@endlessm.com>
+In-Reply-To: <20190725080925.6575-1-jian-hong@endlessm.com>
+Accept-Language: en-GB, en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1564045488; bh=GsSXQkthBYr1WWDhwOrxDqvdpQP0ikHvXO5VK92uA7s=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=hESbqYDGgX4/g5OQClEZtEhDmKk2v7mzBVxt5Q4yztE3gNSFDlFNluLxWyOgEzyJx
-         LQvqUKU76DUi2phqPPne16KFF2GVbmLI6/Hn2br5WrP9W/rMIpx0jwM7BG+mJ8DqHA
-         KBAwovQRsTY7fgSTrO1HXBL/tD9o4FPZm6fdAgiDZFXdBOehNdoNH5ZII4sIyb5EU4
-         E/JDsx23bdz7T1VeSdKVONsv1Lkuv6LR0gk5A5Q8/3n4QMWueXurdGqvETE3JW0ykT
-         OcdLMNo9xeSCnX/AXcNw2r7ecgcXIdti8US/OHJnyllvMyAwZV/0DlnOeLF9nAqFBD
-         AxbT4fIvyjmdA==
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
+MIME-Version: 1.0
+X-MC-Unique: scnLaRCdNWKuzfuwzi4QFQ-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Jian-Hong Pan
+> Sent: 25 July 2019 09:09
+> Each skb as the element in RX ring was expected with sized buffer 8216
+> (RTK_PCI_RX_BUF_SIZE) bytes. However, the skb buffer's true size is
+> 16640 bytes for alignment after allocated, x86_64 for example. And, the
+> difference will be enlarged 512 times (RTK_MAX_RX_DESC_NUM).
+> To prevent that much wasted memory, this patch follows David's
+> suggestion [1] and uses general buffer arrays, instead of skbs as the
+> elements in RX ring.
+...
+>  	for (i = 0; i < len; i++) {
+> -		skb = dev_alloc_skb(buf_sz);
+> -		if (!skb) {
+> +		buf = devm_kzalloc(rtwdev->dev, buf_sz, GFP_ATOMIC);
 
-On 24/07/2019 20:14, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.2.3 release.
-> There are 413 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri 26 Jul 2019 07:13:35 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.3-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+You should do this allocation somewhere than can sleep.
+So you don't need GFP_ATOMIC, making the allocate (and dma map)
+much less likely to fail.
+If they do fail using a smaller ring might be better than failing
+completely.
 
-All tests are passing for Tegra ...
+I suspect that buf_sz gets rounded up somewhat.
+Also you almost certainly want 'buf' to be cache-line aligned.
+I don't think devm_kzalloc() guarantees that at all.
 
-Test results for stable-v5.2:
-    12 builds:	12 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    38 tests:	38 pass, 0 fail
+While allocating all 512 buffers in one block (just over 4MB)
+is probably not a good idea, you may need to allocated (and dma map)
+then in groups.
 
-Linux version:	5.2.3-rc1-gdb628fe0e67f
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
+	David
 
-Cheers
-Jon
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
--- 
-nvpublic
