@@ -2,362 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EA80748D3
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 10:13:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AD8B7496A
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 10:54:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389111AbfGYIM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 04:12:57 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:46607 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389115AbfGYIM5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 04:12:57 -0400
-Received: by mail-pl1-f194.google.com with SMTP id c2so23078814plz.13
-        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 01:12:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=endlessm-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=x4qD4ZEq8uB2B4m8nty7P7lvoqwTNJJnTm/9KwAGSJI=;
-        b=hyFP81sv0viroEdy8kHV4s0OW1ZmcoTMqkLaeEWrdTHAfXIYp9YOTU3Gja+uGxe1xT
-         8mbRo9cJFQs041EwlTqZKEvSXDfXOFul5b1m1mmWVmjURynYdiWY9TgvAyxe4sqP1bjw
-         TfZ/ml/TZpZ3aok88NqO27D7DfHqL9krkjsAnM5KiZ+ZMw1IGocQVttwEQvXlfOijCAG
-         SOFNPZvZSBXTkLf9pIPON+wEIyQz+5SZVhI8Xko9Y4MOyHRAaCHcd/ewpFKQp/8vHwPD
-         IsqbSA5iw0Ks3DdK/xaFtMCy/A6kIDdZBvDlPib7OI902zKi+8nMJreXzay8umro7AZW
-         pxXw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=x4qD4ZEq8uB2B4m8nty7P7lvoqwTNJJnTm/9KwAGSJI=;
-        b=oJXw1T03FHA1ZD2HOpgiBV4f6N9ZbNjCPE7Jzh6OKuQttgrihnOVTTanvu8lQSSEex
-         jCZ59A2iFuYFPiI+19H3oUCgpdLjTpZJguadlkTtT+fVDfql5zaIMRdwOZLZlHv5NLBO
-         Gm9lEaDAd/8V6vpIjxdVIhmyr5DtSZsXTXwVtlDy/E6J3feBOH6WZBGUqvVevdFbw+Tm
-         XFloB4oCbiaCDQMwaMYSXEHwSE8GY1K52n4+GAlPhb2vf6Ybouuw3hME0N6C3MOz3er9
-         Ti45c/GA0y4G3XJ/aUOfe5X5bi36Wi/PydnmIbBrO9adyX/3TwIrZ6YQmBmTC5PIhRMH
-         91Jg==
-X-Gm-Message-State: APjAAAV3z3Sma1cxD73F/PVGX6Kx/Z6OsyR6HhCqHjuYdbmEyDfYe3k5
-        S+yTM+M3bPPfUah0LJ1efPNslg==
-X-Google-Smtp-Source: APXvYqzKKvtappYDVLaQo4m4BL7cxE+13GCx7l7JLmacRP1SnNcL0IQrVtJECFSUP0ui4VaGDKSFAg==
-X-Received: by 2002:a17:902:112c:: with SMTP id d41mr79563267pla.33.1564042375070;
-        Thu, 25 Jul 2019 01:12:55 -0700 (PDT)
-Received: from localhost.localdomain (123-204-46-122.static.seed.net.tw. [123.204.46.122])
-        by smtp.gmail.com with ESMTPSA id 81sm77584306pfx.111.2019.07.25.01.12.51
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Thu, 25 Jul 2019 01:12:54 -0700 (PDT)
-From:   Jian-Hong Pan <jian-hong@endlessm.com>
-To:     Yan-Hsuan Chuang <yhchuang@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        David Laight <David.Laight@aculab.com>
-Cc:     linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux@endlessm.com,
-        Jian-Hong Pan <jian-hong@endlessm.com>, stable@vger.kernel.org
-Subject: [PATCH] rtw88: pci: Use general byte arrays as the elements of RX ring
-Date:   Thu, 25 Jul 2019 16:09:26 +0800
-Message-Id: <20190725080925.6575-1-jian-hong@endlessm.com>
-X-Mailer: git-send-email 2.22.0
+        id S1725901AbfGYIyN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 04:54:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42238 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725808AbfGYIyN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 04:54:13 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC70222BED;
+        Thu, 25 Jul 2019 08:54:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564044852;
+        bh=FX6hbzDrsLzkqie8rosOcXKkXDjGwyOHmt5CxextNoY=;
+        h=Subject:To:From:Date:From;
+        b=lh3vRdCMgp53K5TCXlRZ0ih5pc0MwDEcHbhL3UuVYVW+eiGJNn5mub7NnCiOTsPTy
+         i3vIc7nyLirfw6aLyb3Jx2minTUW5zsiEZOGcjclkAcxEiFH5ruX2UuRACcgSu0TYt
+         4aCgKQ+mlNZ2mGlf15qv8x4ZCLuuw2z/graPKiv4=
+Subject: patch "usb: pci-quirks: Correct AMD PLL quirk detection" added to usb-linus
+To:     ryan5544@gmail.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, stern@rowland.harvard.edu
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 25 Jul 2019 10:54:08 +0200
+Message-ID: <156404484816104@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Each skb as the element in RX ring was expected with sized buffer 8216
-(RTK_PCI_RX_BUF_SIZE) bytes. However, the skb buffer's true size is
-16640 bytes for alignment after allocated, x86_64 for example. And, the
-difference will be enlarged 512 times (RTK_MAX_RX_DESC_NUM).
-To prevent that much wasted memory, this patch follows David's
-suggestion [1] and uses general buffer arrays, instead of skbs as the
-elements in RX ring.
 
-[1] https://www.spinics.net/lists/linux-wireless/msg187870.html
+This is a note to let you know that I've just added the patch titled
 
-Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
-Cc: <stable@vger.kernel.org>
+    usb: pci-quirks: Correct AMD PLL quirk detection
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From f3dccdaade4118070a3a47bef6b18321431f9ac6 Mon Sep 17 00:00:00 2001
+From: Ryan Kennedy <ryan5544@gmail.com>
+Date: Thu, 4 Jul 2019 11:35:28 -0400
+Subject: usb: pci-quirks: Correct AMD PLL quirk detection
+
+The AMD PLL USB quirk is incorrectly enabled on newer Ryzen
+chipsets. The logic in usb_amd_find_chipset_info currently checks
+for unaffected chipsets rather than affected ones. This broke
+once a new chipset was added in e788787ef. It makes more sense
+to reverse the logic so it won't need to be updated as new
+chipsets are added. Note that the core of the workaround in
+usb_amd_quirk_pll does correctly check the chipset.
+
+Signed-off-by: Ryan Kennedy <ryan5544@gmail.com>
+Fixes: e788787ef4f9 ("usb:xhci:Add quirk for Certain failing HP keyboard on reset after resume")
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20190704153529.9429-2-ryan5544@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/realtek/rtw88/pci.c | 132 +++++++++++++----------
- drivers/net/wireless/realtek/rtw88/pci.h |   2 +-
- 2 files changed, 75 insertions(+), 59 deletions(-)
+ drivers/usb/host/pci-quirks.c | 31 +++++++++++++++++++------------
+ 1 file changed, 19 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/pci.c b/drivers/net/wireless/realtek/rtw88/pci.c
-index 23dd06afef3d..e953010f0179 100644
---- a/drivers/net/wireless/realtek/rtw88/pci.c
-+++ b/drivers/net/wireless/realtek/rtw88/pci.c
-@@ -111,25 +111,49 @@ static void rtw_pci_free_tx_ring(struct rtw_dev *rtwdev,
- 	tx_ring->r.head = NULL;
- }
- 
-+static struct rtw_pci_rx_buffer_desc *rtw_pci_get_rx_desc(
-+					struct rtw_pci_rx_ring *rx_ring,
-+					u32 idx)
-+{
-+	struct rtw_pci_rx_buffer_desc *buf_desc;
-+	u32 desc_sz = rx_ring->r.desc_size;
-+
-+	buf_desc = (struct rtw_pci_rx_buffer_desc *)(rx_ring->r.head +
-+						     idx * desc_sz);
-+	return buf_desc;
-+}
-+
-+static dma_addr_t rtw_pci_get_rx_bufdma(struct rtw_pci_rx_ring *rx_ring,
-+					u32 idx)
-+{
-+	struct rtw_pci_rx_buffer_desc *buf_desc;
-+	dma_addr_t dma;
-+
-+	buf_desc = rtw_pci_get_rx_desc(rx_ring, idx);
-+	dma = le32_to_cpu(buf_desc->dma);
-+
-+	return dma;
-+}
-+
- static void rtw_pci_free_rx_ring(struct rtw_dev *rtwdev,
- 				 struct rtw_pci_rx_ring *rx_ring)
+diff --git a/drivers/usb/host/pci-quirks.c b/drivers/usb/host/pci-quirks.c
+index 3ce71cbfbb58..ad05c27b3a7b 100644
+--- a/drivers/usb/host/pci-quirks.c
++++ b/drivers/usb/host/pci-quirks.c
+@@ -205,7 +205,7 @@ int usb_amd_find_chipset_info(void)
  {
- 	struct pci_dev *pdev = to_pci_dev(rtwdev->dev);
--	struct sk_buff *skb;
-+	u8 *buf;
- 	dma_addr_t dma;
- 	u8 *head = rx_ring->r.head;
- 	int buf_sz = RTK_PCI_RX_BUF_SIZE;
- 	int ring_sz = rx_ring->r.desc_size * rx_ring->r.len;
--	int i;
-+	u32 i;
+ 	unsigned long flags;
+ 	struct amd_chipset_info info;
+-	int ret;
++	int need_pll_quirk = 0;
  
- 	for (i = 0; i < rx_ring->r.len; i++) {
--		skb = rx_ring->buf[i];
--		if (!skb)
-+		buf = rx_ring->buf[i];
-+		if (!buf)
- 			continue;
+ 	spin_lock_irqsave(&amd_lock, flags);
  
--		dma = *((dma_addr_t *)skb->cb);
--		pci_unmap_single(pdev, dma, buf_sz, PCI_DMA_FROMDEVICE);
--		dev_kfree_skb(skb);
-+		dma = rtw_pci_get_rx_bufdma(rx_ring, i);
-+		pci_unmap_single(pdev, dma, buf_sz, DMA_FROM_DEVICE);
-+		devm_kfree(rtwdev->dev, buf);
- 		rx_ring->buf[i] = NULL;
+@@ -219,21 +219,28 @@ int usb_amd_find_chipset_info(void)
+ 	spin_unlock_irqrestore(&amd_lock, flags);
+ 
+ 	if (!amd_chipset_sb_type_init(&info)) {
+-		ret = 0;
+ 		goto commit;
  	}
  
-@@ -180,27 +204,24 @@ static int rtw_pci_init_tx_ring(struct rtw_dev *rtwdev,
- 	return 0;
- }
- 
--static int rtw_pci_reset_rx_desc(struct rtw_dev *rtwdev, struct sk_buff *skb,
--				 struct rtw_pci_rx_ring *rx_ring,
--				 u32 idx, u32 desc_sz)
-+static int rtw_pci_reset_rx_desc(struct rtw_dev *rtwdev, u8 *buf,
-+				 struct rtw_pci_rx_ring *rx_ring, u32 idx)
- {
- 	struct pci_dev *pdev = to_pci_dev(rtwdev->dev);
- 	struct rtw_pci_rx_buffer_desc *buf_desc;
- 	int buf_sz = RTK_PCI_RX_BUF_SIZE;
- 	dma_addr_t dma;
- 
--	if (!skb)
-+	if (!buf)
- 		return -EINVAL;
- 
--	dma = pci_map_single(pdev, skb->data, buf_sz, PCI_DMA_FROMDEVICE);
-+	dma = pci_map_single(pdev, buf, buf_sz, DMA_FROM_DEVICE);
- 	if (pci_dma_mapping_error(pdev, dma))
- 		return -EBUSY;
- 
--	*((dma_addr_t *)skb->cb) = dma;
--	buf_desc = (struct rtw_pci_rx_buffer_desc *)(rx_ring->r.head +
--						     idx * desc_sz);
--	memset(buf_desc, 0, sizeof(*buf_desc));
-+	buf_desc = rtw_pci_get_rx_desc(rx_ring, idx);
- 	buf_desc->buf_size = cpu_to_le16(RTK_PCI_RX_BUF_SIZE);
-+	buf_desc->total_pkt_size = cpu_to_le16(0);
- 	buf_desc->dma = cpu_to_le32(dma);
- 
- 	return 0;
-@@ -208,7 +229,7 @@ static int rtw_pci_reset_rx_desc(struct rtw_dev *rtwdev, struct sk_buff *skb,
- 
- static void rtw_pci_sync_rx_desc_device(struct rtw_dev *rtwdev, dma_addr_t dma,
- 					struct rtw_pci_rx_ring *rx_ring,
--					u32 idx, u32 desc_sz)
-+					u32 idx)
- {
- 	struct device *dev = rtwdev->dev;
- 	struct rtw_pci_rx_buffer_desc *buf_desc;
-@@ -216,10 +237,9 @@ static void rtw_pci_sync_rx_desc_device(struct rtw_dev *rtwdev, dma_addr_t dma,
- 
- 	dma_sync_single_for_device(dev, dma, buf_sz, DMA_FROM_DEVICE);
- 
--	buf_desc = (struct rtw_pci_rx_buffer_desc *)(rx_ring->r.head +
--						     idx * desc_sz);
--	memset(buf_desc, 0, sizeof(*buf_desc));
-+	buf_desc = rtw_pci_get_rx_desc(rx_ring, idx);
- 	buf_desc->buf_size = cpu_to_le16(RTK_PCI_RX_BUF_SIZE);
-+	buf_desc->total_pkt_size = cpu_to_le16(0);
- 	buf_desc->dma = cpu_to_le32(dma);
- }
- 
-@@ -228,12 +248,12 @@ static int rtw_pci_init_rx_ring(struct rtw_dev *rtwdev,
- 				u8 desc_size, u32 len)
- {
- 	struct pci_dev *pdev = to_pci_dev(rtwdev->dev);
--	struct sk_buff *skb = NULL;
-+	u8 *buf = NULL;
- 	dma_addr_t dma;
- 	u8 *head;
- 	int ring_sz = desc_size * len;
- 	int buf_sz = RTK_PCI_RX_BUF_SIZE;
--	int i, allocated;
-+	u32 i, allocated;
- 	int ret = 0;
- 
- 	head = pci_zalloc_consistent(pdev, ring_sz, &dma);
-@@ -242,41 +262,39 @@ static int rtw_pci_init_rx_ring(struct rtw_dev *rtwdev,
- 		return -ENOMEM;
- 	}
- 	rx_ring->r.head = head;
-+	rx_ring->r.dma = dma;
-+	rx_ring->r.len = len;
-+	rx_ring->r.desc_size = desc_size;
-+	rx_ring->r.wp = 0;
-+	rx_ring->r.rp = 0;
- 
- 	for (i = 0; i < len; i++) {
--		skb = dev_alloc_skb(buf_sz);
--		if (!skb) {
-+		buf = devm_kzalloc(rtwdev->dev, buf_sz, GFP_ATOMIC);
-+		if (!buf) {
- 			allocated = i;
- 			ret = -ENOMEM;
- 			goto err_out;
+-	/* Below chipset generations needn't enable AMD PLL quirk */
+-	if (info.sb_type.gen == AMD_CHIPSET_UNKNOWN ||
+-			info.sb_type.gen == AMD_CHIPSET_SB600 ||
+-			info.sb_type.gen == AMD_CHIPSET_YANGTZE ||
+-			(info.sb_type.gen == AMD_CHIPSET_SB700 &&
+-			info.sb_type.rev > 0x3b)) {
++	switch (info.sb_type.gen) {
++	case AMD_CHIPSET_SB700:
++		need_pll_quirk = info.sb_type.rev <= 0x3B;
++		break;
++	case AMD_CHIPSET_SB800:
++	case AMD_CHIPSET_HUDSON2:
++	case AMD_CHIPSET_BOLTON:
++		need_pll_quirk = 1;
++		break;
++	default:
++		need_pll_quirk = 0;
++		break;
++	}
++
++	if (!need_pll_quirk) {
+ 		if (info.smbus_dev) {
+ 			pci_dev_put(info.smbus_dev);
+ 			info.smbus_dev = NULL;
  		}
+-		ret = 0;
+ 		goto commit;
+ 	}
  
--		memset(skb->data, 0, buf_sz);
--		rx_ring->buf[i] = skb;
--		ret = rtw_pci_reset_rx_desc(rtwdev, skb, rx_ring, i, desc_size);
-+		rx_ring->buf[i] = buf;
-+		ret = rtw_pci_reset_rx_desc(rtwdev, buf, rx_ring, i);
- 		if (ret) {
- 			allocated = i;
--			dev_kfree_skb_any(skb);
-+			devm_kfree(rtwdev->dev, buf);
- 			goto err_out;
+@@ -252,7 +259,7 @@ int usb_amd_find_chipset_info(void)
  		}
  	}
  
--	rx_ring->r.dma = dma;
--	rx_ring->r.len = len;
--	rx_ring->r.desc_size = desc_size;
--	rx_ring->r.wp = 0;
--	rx_ring->r.rp = 0;
--
- 	return 0;
+-	ret = info.probe_result = 1;
++	need_pll_quirk = info.probe_result = 1;
+ 	printk(KERN_DEBUG "QUIRK: Enable AMD PLL fix\n");
  
- err_out:
- 	for (i = 0; i < allocated; i++) {
--		skb = rx_ring->buf[i];
--		if (!skb)
-+		buf = rx_ring->buf[i];
-+		if (!buf)
- 			continue;
--		dma = *((dma_addr_t *)skb->cb);
--		pci_unmap_single(pdev, dma, buf_sz, PCI_DMA_FROMDEVICE);
--		dev_kfree_skb_any(skb);
-+		dma = rtw_pci_get_rx_bufdma(rx_ring, i);
-+		pci_unmap_single(pdev, dma, buf_sz, DMA_FROM_DEVICE);
-+		devm_kfree(rtwdev->dev, buf);
- 		rx_ring->buf[i] = NULL;
+ commit:
+@@ -263,7 +270,7 @@ int usb_amd_find_chipset_info(void)
+ 
+ 		/* Mark that we where here */
+ 		amd_chipset.probe_count++;
+-		ret = amd_chipset.probe_result;
++		need_pll_quirk = amd_chipset.probe_result;
+ 
+ 		spin_unlock_irqrestore(&amd_lock, flags);
+ 
+@@ -277,7 +284,7 @@ int usb_amd_find_chipset_info(void)
+ 		spin_unlock_irqrestore(&amd_lock, flags);
  	}
- 	pci_free_consistent(pdev, ring_sz, head, dma);
-@@ -776,13 +794,12 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev, struct rtw_pci *rtwpci,
- 	struct rtw_pci_rx_ring *ring;
- 	struct rtw_rx_pkt_stat pkt_stat;
- 	struct ieee80211_rx_status rx_status;
--	struct sk_buff *skb, *new;
-+	struct sk_buff *skb;
- 	u32 cur_wp, cur_rp, tmp;
- 	u32 count;
- 	u32 pkt_offset;
- 	u32 pkt_desc_sz = chip->rx_pkt_desc_sz;
--	u32 buf_desc_sz = chip->rx_buf_desc_sz;
--	u32 new_len;
-+	u32 len;
- 	u8 *rx_desc;
- 	dma_addr_t dma;
  
-@@ -799,11 +816,11 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev, struct rtw_pci *rtwpci,
- 	cur_rp = ring->r.rp;
- 	while (count--) {
- 		rtw_pci_dma_check(rtwdev, ring, cur_rp);
--		skb = ring->buf[cur_rp];
--		dma = *((dma_addr_t *)skb->cb);
-+		/* buffer is already filled as rx_desc */
-+		rx_desc = ring->buf[cur_rp];
-+		dma = rtw_pci_get_rx_bufdma(ring, cur_rp);
- 		dma_sync_single_for_cpu(rtwdev->dev, dma, RTK_PCI_RX_BUF_SIZE,
- 					DMA_FROM_DEVICE);
--		rx_desc = skb->data;
- 		chip->ops->query_rx_desc(rtwdev, rx_desc, &pkt_stat, &rx_status);
+-	return ret;
++	return need_pll_quirk;
+ }
+ EXPORT_SYMBOL_GPL(usb_amd_find_chipset_info);
  
- 		/* offset from rx_desc to payload */
-@@ -813,32 +830,31 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev, struct rtw_pci *rtwpci,
- 		/* allocate a new skb for this frame,
- 		 * discard the frame if none available
- 		 */
--		new_len = pkt_stat.pkt_len + pkt_offset;
--		new = dev_alloc_skb(new_len);
--		if (WARN_ONCE(!new, "rx routine starvation\n"))
-+		len = pkt_stat.pkt_len + pkt_offset;
-+		skb = dev_alloc_skb(len);
-+		if (WARN_ONCE(!skb, "rx routine starvation\n"))
- 			goto next_rp;
- 
- 		/* put the DMA data including rx_desc from phy to new skb */
--		skb_put_data(new, skb->data, new_len);
-+		skb_put_data(skb, rx_desc, len);
- 
- 		if (pkt_stat.is_c2h) {
- 			 /* pass rx_desc & offset for further operation */
--			*((u32 *)new->cb) = pkt_offset;
--			skb_queue_tail(&rtwdev->c2h_queue, new);
-+			*((u32 *)skb->cb) = pkt_offset;
-+			skb_queue_tail(&rtwdev->c2h_queue, skb);
- 			ieee80211_queue_work(rtwdev->hw, &rtwdev->c2h_work);
- 		} else {
- 			/* remove rx_desc */
--			skb_pull(new, pkt_offset);
-+			skb_pull(skb, pkt_offset);
- 
--			rtw_rx_stats(rtwdev, pkt_stat.vif, new);
--			memcpy(new->cb, &rx_status, sizeof(rx_status));
--			ieee80211_rx_irqsafe(rtwdev->hw, new);
-+			rtw_rx_stats(rtwdev, pkt_stat.vif, skb);
-+			memcpy(skb->cb, &rx_status, sizeof(rx_status));
-+			ieee80211_rx_irqsafe(rtwdev->hw, skb);
- 		}
- 
- next_rp:
--		/* new skb delivered to mac80211, re-enable original skb DMA */
--		rtw_pci_sync_rx_desc_device(rtwdev, dma, ring, cur_rp,
--					    buf_desc_sz);
-+		/* new skb delivered to mac80211, re-enable original buf DMA */
-+		rtw_pci_sync_rx_desc_device(rtwdev, dma, ring, cur_rp);
- 
- 		/* host read next element in ring */
- 		if (++cur_rp >= ring->r.len)
-diff --git a/drivers/net/wireless/realtek/rtw88/pci.h b/drivers/net/wireless/realtek/rtw88/pci.h
-index 87824a4caba9..283685421a64 100644
---- a/drivers/net/wireless/realtek/rtw88/pci.h
-+++ b/drivers/net/wireless/realtek/rtw88/pci.h
-@@ -174,7 +174,7 @@ struct rtw_pci_rx_buffer_desc {
- 
- struct rtw_pci_rx_ring {
- 	struct rtw_pci_ring r;
--	struct sk_buff *buf[RTK_MAX_RX_DESC_NUM];
-+	u8 *buf[RTK_MAX_RX_DESC_NUM];
- };
- 
- #define RX_TAG_MAX	8192
 -- 
 2.22.0
+
 
