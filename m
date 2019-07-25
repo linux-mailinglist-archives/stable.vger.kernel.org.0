@@ -2,303 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92F8274813
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 09:27:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8567E7483D
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 09:32:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726770AbfGYH1e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 03:27:34 -0400
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:36486 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725901AbfGYH1d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 03:27:33 -0400
-Received: by mail-pg1-f196.google.com with SMTP id l21so22563134pgm.3
-        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 00:27:32 -0700 (PDT)
+        id S2388083AbfGYHcV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 03:32:21 -0400
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:43277 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387738AbfGYHcV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 03:32:21 -0400
+Received: by mail-ot1-f67.google.com with SMTP id j11so26388364otp.10
+        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 00:32:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=731QJdN/9oTkfET9N484hKpqK/8t6gwEIW8hliLaoYc=;
-        b=BxDTMZyk6PZPzs3GKSH/zjG+PBXxvAiUxEvuZjA9XbapQ2iWC/Kk4BBPXkOhkQFxCW
-         B+tbfl9S5k32yru8UwX0bHTbg9eHH/lkZMmmq1QutGwCefqdKKXwkouXFzW14VYmzSwB
-         03Y2rKIY+ccWriPEVjEJr0NMv0oyNkeFNh9vU=
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=ZESu1hs7DKrdTYzlJ+91Jjl7ynlzUmW1qsOfOpkX7oU=;
+        b=IiC0N99JTaPiQ3cHyM+X876J99ZdsyYxp0ZNJxekQhAWpU4e4qXuEKF8Cj/b0fNakT
+         znMtmHIbaclp90tbAP8zz+1IqrKwj6dCGsVwnmCb6+OxjHrQApsjqcna0IIi1teF38Gl
+         RNPJZm1+o0GrRbgnoMKHPulCyadVMGvQ/xoD4OZIFYq1AI/0p0hHENsQsoaVQYoI9nh1
+         MiS+9PC2u9yoB/3tzfHfH8ocTuPKgxGheQ6eDeLp+NRmONF/BN3RNT443dtS13OxCVJD
+         zjENVeofxAPDmVcxcSWfONibdFkcTumrz6AckJ6krZJ4bnRKhdUvzic0pFyx0T1lgyyB
+         VSWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=731QJdN/9oTkfET9N484hKpqK/8t6gwEIW8hliLaoYc=;
-        b=QlvJcjnoYAC+o0z6dVALbvA+1yr2QbvlAzVtVg2fOqHflehJ99onTdn2K2Rn6hYAm4
-         NCjt0/qBWZiUjLQkcgCzJXRGUfPf+098SUWg4v7kVWeb1ujugZwruoUjA8DMxP5yN7LA
-         vgGicf1aCUlru9JDwadf1grOuxtuYAJH3ppu+pMBJ2cj6Js3UNClrKrPILPTuqQwKwJF
-         4VqbTiG7Zpi+lA711VfIV4x7BVulAKgYFAgd0UdoaXjvLcGiUQUV68UahvNDlIEIyUgU
-         SqJd4V9fdacptwa/GzB9lxSdnbiWeiHSuJbfRrt/6eBzSZJrVFOalCHesVCNIrn7x7bs
-         N5lA==
-X-Gm-Message-State: APjAAAWvlQ4h4G3RP08psq5gsdN5FcxHJDdP+t3EyQFnkRNP8u8LsMaP
-        0CEQJBfWp9tqw0e4M+0aLeheH4fiHA==
-X-Google-Smtp-Source: APXvYqy7BsmuOJQVncH5YvEbGLnsdKbr25KHgChCDgKI2QkAGb65cgKCd/vLKNRdzpX0QbA01FTXSg==
-X-Received: by 2002:a63:f750:: with SMTP id f16mr55278178pgk.317.1564039651939;
-        Thu, 25 Jul 2019 00:27:31 -0700 (PDT)
-Received: from vovoy-z840.tpe.corp.google.com ([2401:fa00:1:b:d89e:cfa6:3c8:e61b])
-        by smtp.gmail.com with ESMTPSA id l25sm60411010pff.143.2019.07.25.00.27.29
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Thu, 25 Jul 2019 00:27:31 -0700 (PDT)
-From:   Kuo-Hsin Yang <vovoy@chromium.org>
-To:     stable@vger.kernel.org
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        Kuo-Hsin Yang <vovoy@chromium.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Sonny Rao <sonnyrao@chromium.org>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Rik van Riel <riel@redhat.com>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14, 4.19, 5.1] mm: vmscan: scan anonymous pages on file refaults
-Date:   Thu, 25 Jul 2019 15:26:14 +0800
-Message-Id: <20190725072614.114942-1-vovoy@chromium.org>
-X-Mailer: git-send-email 2.22.0.709.g102302147b-goog
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=ZESu1hs7DKrdTYzlJ+91Jjl7ynlzUmW1qsOfOpkX7oU=;
+        b=lgg26nEFunjdQVIYCrqYEj4gdY4kcMUWnTurXiJzpiqHanu4fStiy2XytqZ93uxvai
+         HWnLV+1lO3jGDksuwr7MkrmIoGjVyH8Zd1e6yN1Jz/Wl8vn/R86Ufh2kAKqtVSNBaY20
+         RtACdw5tXhmNmTJNeA4FtUi+V4rI9dxd1CXNCwUe5CP7kkBk6MEXNgISLXkFdado962S
+         o7asUUGF58vNn01mi5xyaPOoek8Iw5dCiVXLAdMmCJTT8EWPYEBRO//m+pBuFaLoZBrk
+         e6uFcIP6p2udNugTfS8s61TdoYAUAdWQ1v6Z4ETgCd2Sjot0Xqt9/wvdZ3Cb3lpKRl44
+         YGHg==
+X-Gm-Message-State: APjAAAXJUnUBgt1u7YAqT/0niCEj8Q4GML+L2guaVSGn6sxfwk9Nt6Pp
+        aHMS/C5s8fcv/nj8pSlRg+tbVXF5zGScYIeftkA=
+X-Google-Smtp-Source: APXvYqwSowYp1iF9yEyjlE8SRFRgXyyGCm6sZ6Xwl5rmO4e9YiBGg2gIxTt8K4yuEJGU2mg7EJ52WuZ5C+OGw1A925Y=
+X-Received: by 2002:a9d:470f:: with SMTP id a15mr32129306otf.235.1564039940927;
+ Thu, 25 Jul 2019 00:32:20 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a4a:2f02:0:0:0:0:0 with HTTP; Thu, 25 Jul 2019 00:32:20
+ -0700 (PDT)
+Reply-To: elodieantoine76578@yahoo.com
+From:   Mrs Elodie Antoine <marianmiche754@gmail.com>
+Date:   Thu, 25 Jul 2019 00:32:20 -0700
+Message-ID: <CAND8_nfJUpgLOLXt_Nu0d99ZOOtBqOQKMMJSs5HMr9te96bq8w@mail.gmail.com>
+Subject: Greetings From Mrs Elodie,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 2c012a4ad1a2cd3fb5a0f9307b9d219f84eda1fa upstream.
+Greetings From Mrs Elodie,
 
-When file refaults are detected and there are many inactive file pages,
-the system never reclaim anonymous pages, the file pages are dropped
-aggressively when there are still a lot of cold anonymous pages and
-system thrashes.  This issue impacts the performance of applications
-with large executable, e.g.  chrome.
+Calvary Greetings in the name of the LORD Almighty and Our LORD JESUS
+CHRIST the giver of every good thing. Good day,i know this letter will
+definitely come to you as a huge surprise, but I implore you to take
+the time to go through it carefully as the decision you make will go
+off a long way to determine my future and continued existence. I am
+Mrs Elodie Antoine
+aging widow of 59 years old suffering from long time illness. I have
+some funds I inherited from my late husband,
 
-With this patch, when file refault is detected, inactive_list_is_low()
-always returns true for file pages in get_scan_count() to enable
-scanning anonymous pages.
+The sum of (US$4.5 Million Dollars) and I needed a very honest and God
+fearing  who can withdraw this money then use the funds for Charity
+works. I WISH TO GIVE THIS FUNDS TO YOU FOR CHARITY WORKS. I found
+your email address from the internet after honest prayers  to the LORD
+to bring me a helper and i decided to contact you if you may be
+willing and interested to handle these trust funds in good faith
+before anything happens to me.
+I accept this decision because I do not have any child who will
+inherit this money after I die. I want your urgent reply to me so that
+I will give you the deposit receipt which the  COMPANY issued to me as
+next of kin for immediate transfer of the money to your account in
+your country, to start the good work of God, I want you to use the
+15/percent of the total amount to help yourself in doing the project.
 
-The problem can be reproduced by the following test program.
+I am desperately in keen need of assistance and I have summoned up
+courage to contact you for this task, you must not fail me and the
+millions of the poor people in our todays WORLD. This is no stolen
+money and there are no dangers involved,100% RISK FREE with full legal
+proof. Please if you would be able to use the funds for the Charity
+works kindly let me know immediately.I will appreciate your utmost
+confidentiality and trust in this matter to accomplish my heart
+desire, as I don't want anything that will jeopardize my last wish. I
+want you to take 15 percent of the total money for your personal use
+while 85% of the money will go to charity.I will appreciate your
+utmost confidentiality and trust in this matter to accomplish my heart
+desire, as I don't want anything that will jeopardize my last wish.
 
----8<---
-void fallocate_file(const char *filename, off_t size)
-{
-	struct stat st;
-	int fd;
+kindly respond for further details. reply to my private E-mail:(
+elodieantoine76578@yahoo.com )
 
-	if (!stat(filename, &st) && st.st_size >= size)
-		return;
 
-	fd = open(filename, O_WRONLY | O_CREAT, 0600);
-	if (fd < 0) {
-		perror("create file");
-		exit(1);
-	}
-	if (posix_fallocate(fd, 0, size)) {
-		perror("fallocate");
-		exit(1);
-	}
-	close(fd);
-}
+Thanks and God bless you,
 
-long *alloc_anon(long size)
-{
-	long *start = malloc(size);
-	memset(start, 1, size);
-	return start;
-}
-
-long access_file(const char *filename, long size, long rounds)
-{
-	int fd, i;
-	volatile char *start1, *end1, *start2;
-	const int page_size = getpagesize();
-	long sum = 0;
-
-	fd = open(filename, O_RDONLY);
-	if (fd == -1) {
-		perror("open");
-		exit(1);
-	}
-
-	/*
-	 * Some applications, e.g. chrome, use a lot of executable file
-	 * pages, map some of the pages with PROT_EXEC flag to simulate
-	 * the behavior.
-	 */
-	start1 = mmap(NULL, size / 2, PROT_READ | PROT_EXEC, MAP_SHARED,
-		      fd, 0);
-	if (start1 == MAP_FAILED) {
-		perror("mmap");
-		exit(1);
-	}
-	end1 = start1 + size / 2;
-
-	start2 = mmap(NULL, size / 2, PROT_READ, MAP_SHARED, fd, size / 2);
-	if (start2 == MAP_FAILED) {
-		perror("mmap");
-		exit(1);
-	}
-
-	for (i = 0; i < rounds; ++i) {
-		struct timeval before, after;
-		volatile char *ptr1 = start1, *ptr2 = start2;
-		gettimeofday(&before, NULL);
-		for (; ptr1 < end1; ptr1 += page_size, ptr2 += page_size)
-			sum += *ptr1 + *ptr2;
-		gettimeofday(&after, NULL);
-		printf("File access time, round %d: %f (sec)
-", i,
-		       (after.tv_sec - before.tv_sec) +
-		       (after.tv_usec - before.tv_usec) / 1000000.0);
-	}
-	return sum;
-}
-
-int main(int argc, char *argv[])
-{
-	const long MB = 1024 * 1024;
-	long anon_mb, file_mb, file_rounds;
-	const char filename[] = "large";
-	long *ret1;
-	long ret2;
-
-	if (argc != 4) {
-		printf("usage: thrash ANON_MB FILE_MB FILE_ROUNDS
-");
-		exit(0);
-	}
-	anon_mb = atoi(argv[1]);
-	file_mb = atoi(argv[2]);
-	file_rounds = atoi(argv[3]);
-
-	fallocate_file(filename, file_mb * MB);
-	printf("Allocate %ld MB anonymous pages
-", anon_mb);
-	ret1 = alloc_anon(anon_mb * MB);
-	printf("Access %ld MB file pages
-", file_mb);
-	ret2 = access_file(filename, file_mb * MB, file_rounds);
-	printf("Print result to prevent optimization: %ld
-",
-	       *ret1 + ret2);
-	return 0;
-}
----8<---
-
-Running the test program on 2GB RAM VM with kernel 5.2.0-rc5, the program
-fills ram with 2048 MB memory, access a 200 MB file for 10 times.  Without
-this patch, the file cache is dropped aggresively and every access to the
-file is from disk.
-
-  $ ./thrash 2048 200 10
-  Allocate 2048 MB anonymous pages
-  Access 200 MB file pages
-  File access time, round 0: 2.489316 (sec)
-  File access time, round 1: 2.581277 (sec)
-  File access time, round 2: 2.487624 (sec)
-  File access time, round 3: 2.449100 (sec)
-  File access time, round 4: 2.420423 (sec)
-  File access time, round 5: 2.343411 (sec)
-  File access time, round 6: 2.454833 (sec)
-  File access time, round 7: 2.483398 (sec)
-  File access time, round 8: 2.572701 (sec)
-  File access time, round 9: 2.493014 (sec)
-
-With this patch, these file pages can be cached.
-
-  $ ./thrash 2048 200 10
-  Allocate 2048 MB anonymous pages
-  Access 200 MB file pages
-  File access time, round 0: 2.475189 (sec)
-  File access time, round 1: 2.440777 (sec)
-  File access time, round 2: 2.411671 (sec)
-  File access time, round 3: 1.955267 (sec)
-  File access time, round 4: 0.029924 (sec)
-  File access time, round 5: 0.000808 (sec)
-  File access time, round 6: 0.000771 (sec)
-  File access time, round 7: 0.000746 (sec)
-  File access time, round 8: 0.000738 (sec)
-  File access time, round 9: 0.000747 (sec)
-
-Checked the swap out stats during the test [1], 19006 pages swapped out
-with this patch, 3418 pages swapped out without this patch. There are
-more swap out, but I think it's within reasonable range when file backed
-data set doesn't fit into the memory.
-
-$ ./thrash 2000 100 2100 5 1 # ANON_MB FILE_EXEC FILE_NOEXEC ROUNDS
-PROCESSES Allocate 2000 MB anonymous pages active_anon: 1613644,
-inactive_anon: 348656, active_file: 892, inactive_file: 1384 (kB)
-pswpout: 7972443, pgpgin: 478615246 Access 100 MB executable file pages
-Access 2100 MB regular file pages File access time, round 0: 12.165,
-(sec) active_anon: 1433788, inactive_anon: 478116, active_file: 17896,
-inactive_file: 24328 (kB) File access time, round 1: 11.493, (sec)
-active_anon: 1430576, inactive_anon: 477144, active_file: 25440,
-inactive_file: 26172 (kB) File access time, round 2: 11.455, (sec)
-active_anon: 1427436, inactive_anon: 476060, active_file: 21112,
-inactive_file: 28808 (kB) File access time, round 3: 11.454, (sec)
-active_anon: 1420444, inactive_anon: 473632, active_file: 23216,
-inactive_file: 35036 (kB) File access time, round 4: 11.479, (sec)
-active_anon: 1413964, inactive_anon: 471460, active_file: 31728,
-inactive_file: 32224 (kB) pswpout: 7991449 (+ 19006), pgpgin: 489924366
-(+ 11309120)
-
-With 4 processes accessing non-overlapping parts of a large file, 30316
-pages swapped out with this patch, 5152 pages swapped out without this
-patch.  The swapout number is small comparing to pgpgin.
-
-[1]: https://github.com/vovo/testing/blob/master/mem_thrash.c
-
-Link: http://lkml.kernel.org/r/20190701081038.GA83398@google.com
-Fixes: e9868505987a ("mm,vmscan: only evict file pages when we have plenty")
-Fixes: 7c5bd705d8f9 ("mm: memcg: only evict file pages when we have plenty")
-Signed-off-by: Kuo-Hsin Yang <vovoy@chromium.org>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Sonny Rao <sonnyrao@chromium.org>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Rik van Riel <riel@redhat.com>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: <stable@vger.kernel.org>	[4.12+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[backported to 4.14.y, 4.19.y, 5.1.y: adjust context]
-Signed-off-by: Kuo-Hsin Yang <vovoy@chromium.org>
----
- mm/vmscan.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/mm/vmscan.c b/mm/vmscan.c
-index 290078e8d4b1d..0cc3c1eb15f5a 100644
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -2120,7 +2120,7 @@ static void shrink_active_list(unsigned long nr_to_scan,
-  *   10TB     320        32GB
-  */
- static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
--				 struct scan_control *sc, bool actual_reclaim)
-+				 struct scan_control *sc, bool trace)
- {
- 	enum lru_list active_lru = file * LRU_FILE + LRU_ACTIVE;
- 	struct pglist_data *pgdat = lruvec_pgdat(lruvec);
-@@ -2146,7 +2146,7 @@ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
- 	 * rid of the stale workingset quickly.
- 	 */
- 	refaults = lruvec_page_state(lruvec, WORKINGSET_ACTIVATE);
--	if (file && actual_reclaim && lruvec->refaults != refaults) {
-+	if (file && lruvec->refaults != refaults) {
- 		inactive_ratio = 0;
- 	} else {
- 		gb = (inactive + active) >> (30 - PAGE_SHIFT);
-@@ -2156,7 +2156,7 @@ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
- 			inactive_ratio = 1;
- 	}
- 
--	if (actual_reclaim)
-+	if (trace)
- 		trace_mm_vmscan_inactive_list_is_low(pgdat->node_id, sc->reclaim_idx,
- 			lruvec_lru_size(lruvec, inactive_lru, MAX_NR_ZONES), inactive,
- 			lruvec_lru_size(lruvec, active_lru, MAX_NR_ZONES), active,
--- 
-2.22.0.709.g102302147b-goog
-
+Mrs Elodie Antoine
