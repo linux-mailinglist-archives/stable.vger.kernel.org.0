@@ -2,73 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B2C4474F53
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 15:26:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D08A74F78
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 15:29:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726689AbfGYN0u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 09:26:50 -0400
-Received: from mga05.intel.com ([192.55.52.43]:63208 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726801AbfGYN0u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 09:26:50 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 Jul 2019 06:26:49 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,306,1559545200"; 
-   d="scan'208";a="253932233"
-Received: from irvmail001.ir.intel.com ([163.33.26.43])
-  by orsmga001.jf.intel.com with ESMTP; 25 Jul 2019 06:26:47 -0700
-Received: from sivswdev08.ir.intel.com (sivswdev08.ir.intel.com [10.237.217.47])
-        by irvmail001.ir.intel.com (8.14.3/8.13.6/MailSET/Hub) with ESMTP id x6PDQl5I026858;
-        Thu, 25 Jul 2019 14:26:47 +0100
-Received: from sivswdev08.ir.intel.com (localhost [127.0.0.1])
-        by sivswdev08.ir.intel.com with ESMTP id x6PDQkKH017252;
-        Thu, 25 Jul 2019 14:26:46 +0100
-Received: (from gcabiddu@localhost)
-        by sivswdev08.ir.intel.com with LOCAL id x6PDQjLP017244;
-        Thu, 25 Jul 2019 14:26:45 +0100
-Date:   Thu, 25 Jul 2019 14:26:45 +0100
-From:   Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-To:     "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
-Cc:     "qat-linux@intel.com" <qat-linux@intel.com>,
-        "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] crypto: qat - Silence smp_processor_id() warning
-Message-ID: <20190725132645.GA16573@sivswdev08.ir.intel.com>
-References: <20190723072347.16247-1-alexander.sverdlin@nokia.com>
+        id S2387495AbfGYN3t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 09:29:49 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:52882 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387483AbfGYN3s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 09:29:48 -0400
+Received: by mail-wm1-f66.google.com with SMTP id s3so45004261wms.2
+        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 06:29:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cogentembedded-com.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=tU8YjTmFbALUAn/qrmdPvLulIsSkzB2d5vOtzmfY2Rs=;
+        b=QSmEwdLe+YhZkcsz6o4ys0tAUbny3GwZMtN99XRXmdJW1iCZ+Vf5w/In+CBSdd0gHg
+         vibClHZKjsQ5r9p6HBHE/H/GgOJk2X6+elUIbON0QW6rgTxwJvqUGQ9yHbtra0efGoNs
+         W83ucOFD+C4dzQ7oUHIVDBhfdDQb4we0p+KDsHMlSnYg72/tUWMX3ZZTFsDnQKSagzp3
+         /5fqCWCWSPGPtFoHuE2tk0wdqTt2RTmL6SBUIE6hAPQblRStbcdtARk/9JRhp/aOg+/a
+         4Mb5/Tq5DHwFlXZrrC18XGiypTMQhfqfVm5Dbu5ShEOWmhs5SWISOep78td+xziV4xUO
+         CVSA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=tU8YjTmFbALUAn/qrmdPvLulIsSkzB2d5vOtzmfY2Rs=;
+        b=srpJwCfho4kmqdXYMf+/H/rTSUM0JsMPBhUMzuEEYGqm7KKgd4+dmmGJTPQAM6fhwc
+         kD+AnRisMLmAhxSjT1ti38jbrNY5W7V+rceAfmELBvqE4Ygj2imCsYBXF8S2KF/cBkFt
+         Jjy4alnbZaGBbBUatJvUtWHWH0QeuLFKK/axURiVvWE4iSsgBMCN6eTQ9hw6pVbxMaxG
+         lqgGvYkXvtwFypwysDsX5sxGjZuY8NgFAiaiw+YT8MZvxr5pDDX7AEbgEmMnobjgcl6A
+         NTyz7WJLMWN3I0yKxZBShI8KR6UBultnzt+FpoE6tC4iu9LjDdBRhZ3eraV1baZ8MH87
+         Gy/g==
+X-Gm-Message-State: APjAAAXqnxr3FQLF/fdTwoyGpnJprwdTjs7ohHSwD7KTRaSIMtUsVC5s
+        3/DfiCXKjH14P3XXrbXAwGGENWhKKQ0=
+X-Google-Smtp-Source: APXvYqxLCUPCepcCny7CzWoDDk1ywAgVa3CW+UD6K7NsIV9sI+XkHhXJ84YGrnyVi4MvfOP3KuSWxQ==
+X-Received: by 2002:a05:600c:20c1:: with SMTP id y1mr82394008wmm.10.1564061386852;
+        Thu, 25 Jul 2019 06:29:46 -0700 (PDT)
+Received: from [192.168.112.17] (nikaet.starlink.ru. [94.141.168.29])
+        by smtp.gmail.com with ESMTPSA id t13sm61665737wrr.0.2019.07.25.06.29.44
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Thu, 25 Jul 2019 06:29:45 -0700 (PDT)
+Subject: Re: [PATCH 2/7] can: rcar_canfd: fix possible IRQ storm on high load
+To:     Sasha Levin <sashal@kernel.org>,
+        Marc Kleine-Budde <mkl@pengutronix.de>, netdev@vger.kernel.org
+Cc:     davem@davemloft.net, linux-can@vger.kernel.org,
+        linux-stable <stable@vger.kernel.org>
+References: <20190724130322.31702-3-mkl@pengutronix.de>
+ <20190724210328.D91DF21873@mail.kernel.org>
+From:   Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+Message-ID: <6b23b091-92d1-b05d-b451-d8c78a990ef3@cogentembedded.com>
+Date:   Thu, 25 Jul 2019 16:29:43 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190723072347.16247-1-alexander.sverdlin@nokia.com>
-User-Agent: Mutt/1.5.20 (2009-06-14)
+In-Reply-To: <20190724210328.D91DF21873@mail.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Alexander,
-
-Thanks for you patch.
-
-On Tue, Jul 23, 2019 at 07:24:01AM +0000, Sverdlin, Alexander (Nokia - DE/Ulm) wrote:
-> It seems that smp_processor_id() is only used for a best-effort
-> load-balancing, refer to qat_crypto_get_instance_node(). It's not feasible
-> to disable preemption for the duration of the crypto requests. Therefore,
-> just silence the warning. This commit is similar to e7a9b05ca4
-> ("crypto: cavium - Fix smp_processor_id() warnings").
+> NOTE: The patch will not be queued to stable trees until it is upstream.
 > 
-> Silences the following splat:
-> BUG: using smp_processor_id() in preemptible [00000000] code: cryptomgr_test/2904
-> caller is qat_alg_ablkcipher_setkey+0x300/0x4a0 [intel_qat]
-> CPU: 1 PID: 2904 Comm: cryptomgr_test Tainted: P           O    4.14.69 #1
-How did you reproduce this problem?
+> How should we proceed with this patch?
 
-Thanks,
-
--- 
-Giovanni
+I don't know.
+Maintainer did not respond, nor to original send nor to resend.
