@@ -2,169 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C66C74DE1
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 14:14:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2621A74E58
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 14:42:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726894AbfGYMOu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 08:14:50 -0400
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:37627 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728079AbfGYMOu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 08:14:50 -0400
-Received: by mail-ed1-f68.google.com with SMTP id w13so50065919eds.4
-        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 05:14:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=sender:date:from:to:cc:subject:message-id:mail-followup-to
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=xBQlbxU4sIAkZTKOezDDuKJzUoBaUMJjzL90w1I4sJI=;
-        b=M3t1O2gx3+K3rmn/pg3IKsxF+wMha3/LFiBk1fJtQOwd8o0IqWLiVGplJsSGS0D56s
-         9xudBdZ2cfavEGGdm0BxzNjv7mYMR/gZDIdJDMJnpyWgil3kUhBR8OYvLmQzLxtkugQC
-         Fvqfzg4SzAyYVYQu3pyILKvHWBdT4P88aG3lU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :mail-followup-to:references:mime-version:content-disposition
-         :in-reply-to:user-agent;
-        bh=xBQlbxU4sIAkZTKOezDDuKJzUoBaUMJjzL90w1I4sJI=;
-        b=NTKbD+fU9BG6nPOUSNKNrUxM0Kff387S9ZFpr4KzXOw7oTCra51u2WBAAQisuV4Jmt
-         XPqq05qDE/ejzsNxBih+XDeDAYscu5B9vJ4Glybv/jYJgJllljP3MKwmEGiIzh3VdfJm
-         +jvgou8wX+iYtCIDlwELL0ITb7ep6CCxZIy+Is9lLtKSNTdM5N4Ac4t7A2SDcukTi7i7
-         f8RTtrPE8kllxBpvGZjyHwc5nfbVYQI7IT4v7iq1IltJoKHOq2oyYUjWhJVmQwoiL8yr
-         RP3q0nc6CBd1kFNv2kk9DuljzikQVAHxnNyp+s9znaJ93Qe6/v9qt1J3KFQB45aIb+/g
-         jozw==
-X-Gm-Message-State: APjAAAUYOyRAWHnWkOUUbzcfDLVf9eJA/+7Uj81tZzvr5mmMLLicgvJU
-        gYvLu8D2lWfEpE0OfBuwS7s=
-X-Google-Smtp-Source: APXvYqxpjLksWwyG57A6QDgvk5QYVTO1S3Bu71l5am95Yyx/jOFyNfHhPMap/yiKB8fT77bOtSzaSQ==
-X-Received: by 2002:a50:e618:: with SMTP id y24mr76229999edm.142.1564056888257;
-        Thu, 25 Jul 2019 05:14:48 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:569e:0:3106:d637:d723:e855])
-        by smtp.gmail.com with ESMTPSA id 34sm13374689eds.5.2019.07.25.05.14.46
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Thu, 25 Jul 2019 05:14:47 -0700 (PDT)
-Date:   Thu, 25 Jul 2019 14:14:45 +0200
-From:   Daniel Vetter <daniel@ffwll.ch>
-To:     Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
-Cc:     Andrzej Hajda <a.hajda@samsung.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        Igor Opaniuk <igor.opaniuk@toradex.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
-        "maxime.ripard@free-electrons.com" <maxime.ripard@free-electrons.com>,
-        Jonas Karlman <jonas@kwiboo.se>,
-        David Airlie <airlied@linux.ie>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH 1/1] drm/bridge: vga-dac: Fix detect of monitor connection
-Message-ID: <20190725121445.GD15868@phenom.ffwll.local>
-Mail-Followup-To: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
-        Andrzej Hajda <a.hajda@samsung.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        Igor Opaniuk <igor.opaniuk@toradex.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
-        "maxime.ripard@free-electrons.com" <maxime.ripard@free-electrons.com>,
-        Jonas Karlman <jonas@kwiboo.se>, David Airlie <airlied@linux.ie>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
-References: <20190725110520.26848-1-oleksandr.suvorov@toradex.com>
- <20190725110520.26848-2-oleksandr.suvorov@toradex.com>
+        id S2388451AbfGYMl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 08:41:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54972 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388147AbfGYMl5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 08:41:57 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4B0E22C7C;
+        Thu, 25 Jul 2019 12:41:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564058516;
+        bh=cIofEHINU68RgSF5Z4Rm/XbwU2En2ECT+fB6gSfymMg=;
+        h=Subject:To:From:Date:From;
+        b=BtKR6ki/WH0/skW5P8dbxa2mKPwcsDkJ/UzHgdIq6qMq7bFRLzWyOlLGAIEwtWQ6M
+         Svg17gxWuq2tKPVwAle1evg2zmsmqa7gLuvXH9DGeMQVxCJ8iIcwgkLHuzyuJqYmGN
+         qffP2lOGaGmUwe/IwF8Xlnay4skb7MKZojS/wIKk=
+Subject: patch "hpet: Fix division by zero in hpet_time_div()" added to char-misc-linus
+To:     wangkefeng.wang@huawei.com, arnd@arndb.de,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org,
+        zhanghongjun2@huawei.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 25 Jul 2019 14:41:43 +0200
+Message-ID: <1564058503122195@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190725110520.26848-2-oleksandr.suvorov@toradex.com>
-X-Operating-System: Linux phenom 4.19.0-5-amd64 
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 25, 2019 at 11:05:24AM +0000, Oleksandr Suvorov wrote:
-> DDC and VGA channels are independent, and therefore
-> we cannot decide whether the monitor is connected or not,
-> depending on the information from the DDC.
-> 
-> So the monitor should always be considered connected.
-> Thus there is no reason to use connector detect callback for this
-> driver.
-> 
-> Fixes DRM error of dumb monitor detection like:
-> ...
-> DRM: head 'VGA-1' found, connector 32 is disconnected.
-> ...
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 56fe8b6f4991 ("drm/bridge: Add RGB to VGA bridge support")
-> Signed-off-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
 
-Uh nope :-)
+This is a note to let you know that I've just added the patch titled
 
-Yes VGA monitors are broken, but the way to fix that is to either override
-that on the kernel cmdline, or in your userspace somewhere. Not hardcode
-this in the kernel for everyone. Because not everyone does have a broken
-VGA monitor, but if you do this _every_ desktop will try to light up that
-broken monitor. Which leads to lots of bug reports and regressions.
+    hpet: Fix division by zero in hpet_time_div()
 
-This case is exactly what connector_status_unknown is meant for: The
-kernel couldn't authoritatively figure out whether there is a monitor or
-not. Userspace should/can try this into account for autoconfiguration.
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-linus branch.
 
-Note a more proper fix would be to somehow wire up load detection. That
-will work even for dumb VGA monitors, and e.g. i915 then gives you an
-authoritative connector_status_disconnected if it could execute a load
-detect cycle (not always possible on some hw) and there's no screen
-detected with that.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Maybe we should document this better somewhere in docs? Would be great if
-you can type a patch for this ...
--Daniel
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-> ---
-> 
->  drivers/gpu/drm/bridge/dumb-vga-dac.c | 18 ------------------
->  1 file changed, 18 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/bridge/dumb-vga-dac.c b/drivers/gpu/drm/bridge/dumb-vga-dac.c
-> index d32885b906ae..e37c19356d12 100644
-> --- a/drivers/gpu/drm/bridge/dumb-vga-dac.c
-> +++ b/drivers/gpu/drm/bridge/dumb-vga-dac.c
-> @@ -73,25 +73,7 @@ static const struct drm_connector_helper_funcs dumb_vga_con_helper_funcs = {
->  	.get_modes	= dumb_vga_get_modes,
->  };
->  
-> -static enum drm_connector_status
-> -dumb_vga_connector_detect(struct drm_connector *connector, bool force)
-> -{
-> -	struct dumb_vga *vga = drm_connector_to_dumb_vga(connector);
-> -
-> -	/*
-> -	 * Even if we have an I2C bus, we can't assume that the cable
-> -	 * is disconnected if drm_probe_ddc fails. Some cables don't
-> -	 * wire the DDC pins, or the I2C bus might not be working at
-> -	 * all.
-> -	 */
-> -	if (!IS_ERR(vga->ddc) && drm_probe_ddc(vga->ddc))
-> -		return connector_status_connected;
-> -
-> -	return connector_status_unknown;
-> -}
-> -
->  static const struct drm_connector_funcs dumb_vga_con_funcs = {
-> -	.detect			= dumb_vga_connector_detect,
->  	.fill_modes		= drm_helper_probe_single_connector_modes,
->  	.destroy		= drm_connector_cleanup,
->  	.reset			= drm_atomic_helper_connector_reset,
-> -- 
-> 2.20.1
-> 
+If you have any questions about this process, please let me know.
 
+
+From 0c7d37f4d9b8446956e97b7c5e61173cdb7c8522 Mon Sep 17 00:00:00 2001
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
+Date: Thu, 11 Jul 2019 21:27:57 +0800
+Subject: hpet: Fix division by zero in hpet_time_div()
+
+The base value in do_div() called by hpet_time_div() is truncated from
+unsigned long to uint32_t, resulting in a divide-by-zero exception.
+
+UBSAN: Undefined behaviour in ../drivers/char/hpet.c:572:2
+division by zero
+CPU: 1 PID: 23682 Comm: syz-executor.3 Not tainted 4.4.184.x86_64+ #4
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
+ 0000000000000000 b573382df1853d00 ffff8800a3287b98 ffffffff81ad7561
+ ffff8800a3287c00 ffffffff838b35b0 ffffffff838b3860 ffff8800a3287c20
+ 0000000000000000 ffff8800a3287bb0 ffffffff81b8f25e ffffffff838b35a0
+Call Trace:
+ [<ffffffff81ad7561>] __dump_stack lib/dump_stack.c:15 [inline]
+ [<ffffffff81ad7561>] dump_stack+0xc1/0x120 lib/dump_stack.c:51
+ [<ffffffff81b8f25e>] ubsan_epilogue+0x12/0x8d lib/ubsan.c:166
+ [<ffffffff81b900cb>] __ubsan_handle_divrem_overflow+0x282/0x2c8 lib/ubsan.c:262
+ [<ffffffff823560dd>] hpet_time_div drivers/char/hpet.c:572 [inline]
+ [<ffffffff823560dd>] hpet_ioctl_common drivers/char/hpet.c:663 [inline]
+ [<ffffffff823560dd>] hpet_ioctl_common.cold+0xa8/0xad drivers/char/hpet.c:577
+ [<ffffffff81e63d56>] hpet_ioctl+0xc6/0x180 drivers/char/hpet.c:676
+ [<ffffffff81711590>] vfs_ioctl fs/ioctl.c:43 [inline]
+ [<ffffffff81711590>] file_ioctl fs/ioctl.c:470 [inline]
+ [<ffffffff81711590>] do_vfs_ioctl+0x6e0/0xf70 fs/ioctl.c:605
+ [<ffffffff81711eb4>] SYSC_ioctl fs/ioctl.c:622 [inline]
+ [<ffffffff81711eb4>] SyS_ioctl+0x94/0xc0 fs/ioctl.c:613
+ [<ffffffff82846003>] tracesys_phase2+0x90/0x95
+
+The main C reproducer autogenerated by syzkaller,
+
+  syscall(__NR_mmap, 0x20000000, 0x1000000, 3, 0x32, -1, 0);
+  memcpy((void*)0x20000100, "/dev/hpet\000", 10);
+  syscall(__NR_openat, 0xffffffffffffff9c, 0x20000100, 0, 0);
+  syscall(__NR_ioctl, r[0], 0x40086806, 0x40000000000000);
+
+Fix it by using div64_ul().
+
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Signed-off-by: Zhang HongJun <zhanghongjun2@huawei.com>
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20190711132757.130092-1-wangkefeng.wang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/char/hpet.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/char/hpet.c b/drivers/char/hpet.c
+index 5c39f20378b8..9ac6671bb514 100644
+--- a/drivers/char/hpet.c
++++ b/drivers/char/hpet.c
+@@ -567,8 +567,7 @@ static inline unsigned long hpet_time_div(struct hpets *hpets,
+ 	unsigned long long m;
+ 
+ 	m = hpets->hp_tick_freq + (dis >> 1);
+-	do_div(m, dis);
+-	return (unsigned long)m;
++	return div64_ul(m, dis);
+ }
+ 
+ static int
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+2.22.0
+
+
