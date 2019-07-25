@@ -2,129 +2,314 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C13E8747BA
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 09:03:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2296A747E5
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 09:12:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727498AbfGYHDI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 03:03:08 -0400
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:17829 "EHLO
+        id S2387783AbfGYHMT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 03:12:19 -0400
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:18635 "EHLO
         esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725808AbfGYHDH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 03:03:07 -0400
+        with ESMTP id S2387765AbfGYHMT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 03:12:19 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1564038187; x=1595574187;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-id:content-transfer-encoding:
-   mime-version;
-  bh=xgKRr18w+/ReKK7VMgfO9TfGUlpDnAunbBHIvHltBYc=;
-  b=L8IvOwr31n/qWSDDDEKoadSXIBU85iTOZ5AXx3wyzpxFANvUkjtOYu36
-   Oh6JiXzSOFpMpPDBPjOHeJeCiIfR6tULY6JXrxrj2hcYm65K4amJUlKm9
-   Yf2p8OT4eEDj0dWsFcqTCC0kgeqBM+BV/nWIAZ6qGxYWL0s4xCAmbhTCq
-   7eRn/68XeItuv2yV108Ut5PNd1UDeV30K81ZgC2pnMgihcuZmjxnwG4Xw
-   BqyMr6Zl3NDFMlgo6RMqdbGbkdEvWFOfImHyDw5abZG4Jvm7nVsBrR/Si
-   wc3nzYM0yA6tGimop4fLZl7idlHr85ZI9lyXKd3cR+YTOUKuD8j1ZQLdM
-   g==;
-IronPort-SDR: 3r/o3iizMhzH8cWKu2u/+3s64aoifxYQk5G0L8NvXcfaEQPRBzWdK+ifPp4rNANsT13kSLqLCJ
- QWBGUtRFK829fAs0gki5kaIKRnhopW6/ga/rn3pR6+VDYy6tLp/NvaBBoCvI9t8ojj2Wf/28Y2
- vv8tMyx7tMdKR0NMumWzHaYZTD+LXJDTZ/8yL7ij3kbJkXI7Ld02kqAgZObB5tVwXmnnpPpVJ1
- k+0SLgoUjp3WxNiEsnOmE5pz0YI8kaXtZyhHG5MlX/XkD8ltkinRr/EEani3GdPaDaqg1hpcHo
- WYQ=
+  t=1564038738; x=1595574738;
+  h=from:to:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=4jIwuKKR2jSeu4JKRuSFF1fQr93cS2/2zNbcYcjaFTc=;
+  b=kkqfMVgioBba0KctNYjRjvuiAkZzd04B4AxQWuC6cgvyolQ62/OA81I/
+   5Ts7d/ZJup0CreggUoWBiEr3WPfzdNQ1a+r+8S16opBIAmlv52MdCkjDb
+   xMmpfQGH69e7OXwC+Acq642m3S3SVtgho7WMsqloNccnpVNfKj9tEQnWt
+   FrlO8Uvdh3r6GboylJilO4oCNkZyjvSQMoffhibnPp+5ywUK+jcPghF/6
+   npGckrhd+NeCrxmTRnJ/1LGcK3Q2KQAN25GCdhW7VrOBdCh0k+Y24t2Fd
+   m76KamZ6h0nP2fRqelFZ83S16khh5TP2kHX0Z4gMbHen9rse9EBKFu4uk
+   A==;
+IronPort-SDR: Uj34DQn8eqZJVYZtNwkj3nSP2CyddfMaZ58WbHYB+BMImPcebxP/IGO9eRTjsmfk9Ap0n7p1tp
+ avzPsanTLFFlM686gYiODP4mdlBY1TYhkRg+YXq9KztAhmLelcl0e8QFqfHg1ILxM+jJ61R6gF
+ qp+O3m2GxZWs12yPq+p2NHR17gaL/VHoUzGgxsyM3Tx5sX2D0PsXu57eKlhiMcp79Edwewnmsz
+ 2inHOOAI5CnuhIaIq5op+GWR5IJkjbCcx5PUxTN3X7OKjikCJSNaVtG2GUuknlzDoXb07tFqV5
+ lXk=
 X-IronPort-AV: E=Sophos;i="5.64,305,1559491200"; 
-   d="scan'208";a="220432988"
-Received: from mail-by2nam01lp2050.outbound.protection.outlook.com (HELO NAM01-BY2-obe.outbound.protection.outlook.com) ([104.47.34.50])
-  by ob1.hgst.iphmx.com with ESMTP; 25 Jul 2019 15:03:06 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=TdJUMKrzzS6jU+g2H5EAs+LO+nS5WZCfwtOTUq3SsTQNjyqXa7n0wP5vQikV+79WW75PlxQEbJUF4cJPcYrU8YMF/0ySqAf7GGJK55cGuxTC3LWh2JJUMeOX/0sKE8In3ouWHHm5glW53hijWEDyPTyU1N94QBqp2wbrE0AGkxDvd5JApL1J5i78zf5Aicp3SN+RxKZgl0vQkEtw96nfkrlZLvE7xkKMv6+V64NW6KwWBYQtHQRkzdyLenTwDjkXp00BX+WWipfqTUobg9zxbkrjZ8pZY/cwumEyYph8+liYODjDI6EqBAF5M4MElcoKqbqy/NEmjwZthZGfFJCMgg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=xgKRr18w+/ReKK7VMgfO9TfGUlpDnAunbBHIvHltBYc=;
- b=GMnbg60d/2HtAAkgv6S9w7xvrDQSmDtfA7grkr+y9oFbX35RnVm7Ja1AnEfPSW6PA5KNeLPRJh+SyfCWZvYhmln5BkAopUfeascU9vyEMTEtZite8i8+vfrfmL0Uu4WjwDOUic6uiel9su2TVKJFmGUuCL1/gHdWL0kLPS1ngub7eezXqvKDFPAvE8oicoS5/hpjtSlA9ES/Ohl4AkcKKmZqgb10ZlY7dwzvO55VuHnBZ8SZ+rN9VlQ3g89KbPoz1CHyhN7mZX+MLV99hb70guu9/2jJQuI6bcE6FgI/IVn/75AthJ266OUE0YpOlyG59Qosdb1YhYkQbEuA0BG60Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1;spf=pass
- smtp.mailfrom=wdc.com;dmarc=pass action=none header.from=wdc.com;dkim=pass
- header.d=wdc.com;arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=xgKRr18w+/ReKK7VMgfO9TfGUlpDnAunbBHIvHltBYc=;
- b=CYYWMY5yTbYGLPM3KyIi1mz/jsaWxhYnwTDQ0iJtfCNPo0AbjC5y15LjBQTGP4cNFovwauRPBQ7yUNxulFVPt2uaUQ/Wv6D/540Pf5zY/La5dDsroZ1oU3PiC5JbiSuECNYumMoQiESfibtu9HCjVUzbXQb1nhNViWH45lw7woM=
-Received: from BYAPR04MB5816.namprd04.prod.outlook.com (20.179.58.207) by
- BYAPR04MB4965.namprd04.prod.outlook.com (52.135.232.222) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2115.10; Thu, 25 Jul 2019 07:03:04 +0000
-Received: from BYAPR04MB5816.namprd04.prod.outlook.com
- ([fe80::65a9:db0a:646d:eb1e]) by BYAPR04MB5816.namprd04.prod.outlook.com
- ([fe80::65a9:db0a:646d:eb1e%6]) with mapi id 15.20.2094.013; Thu, 25 Jul 2019
- 07:03:04 +0000
-From:   Damien Le Moal <Damien.LeMoal@wdc.com>
-To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-CC:     "hch@lst.de" <hch@lst.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "axboe@kernel.dk" <axboe@kernel.dk>,
-        "martin.petersen@oracle.com" <martin.petersen@oracle.com>
-Subject: Re: FAILED: patch "[PATCH] block: Limit zone array allocation size"
- failed to apply to 5.1-stable tree
-Thread-Topic: FAILED: patch "[PATCH] block: Limit zone array allocation size"
- failed to apply to 5.1-stable tree
-Thread-Index: AQHVQU3FeLJlIR4aIU2+m03jiRGu86ba26kAgAAH3gCAAAfbgA==
-Date:   Thu, 25 Jul 2019 07:03:03 +0000
-Message-ID: <54fce28aff5f014e3e1318f0db88c2cb9b4b2d97.camel@wdc.com>
-References: <1563883019244153@kroah.com>
-         <c1ed04aded7fb0e68cd4095cb4c7049c02a11e3f.camel@wdc.com>
-         <20190725063454.GD6723@kroah.com>
-In-Reply-To: <20190725063454.GD6723@kroah.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-user-agent: Evolution 3.32.4 (3.32.4-1.fc30) 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=Damien.LeMoal@wdc.com; 
-x-originating-ip: [199.255.47.11]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 3e7577b6-f8dc-4da9-4981-08d710ce2378
-x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(4618075)(2017052603328)(7193020);SRVR:BYAPR04MB4965;
-x-ms-traffictypediagnostic: BYAPR04MB4965:
-x-microsoft-antispam-prvs: <BYAPR04MB49658261B4C47D3F9477BB64E7C10@BYAPR04MB4965.namprd04.prod.outlook.com>
-wdcipoutbound: EOP-TRUE
-x-ms-oob-tlc-oobclassifiers: OLM:2958;
-x-forefront-prvs: 0109D382B0
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(346002)(376002)(39860400002)(136003)(396003)(366004)(199004)(189003)(72854002)(6246003)(53936002)(3846002)(6512007)(66066001)(14454004)(5660300002)(25786009)(2351001)(68736007)(316002)(99286004)(6116002)(2501003)(58126008)(36756003)(7736002)(76176011)(305945005)(76116006)(54906003)(6506007)(6436002)(71200400001)(71190400001)(102836004)(4326008)(118296001)(26005)(8936002)(8676002)(86362001)(256004)(6916009)(5640700003)(478600001)(2906002)(66946007)(229853002)(446003)(11346002)(2616005)(81156014)(81166006)(476003)(4744005)(66446008)(6486002)(1730700003)(64756008)(66556008)(66476007)(91956017)(486006)(186003);DIR:OUT;SFP:1102;SCL:1;SRVR:BYAPR04MB4965;H:BYAPR04MB5816.namprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: ORqPZJVIlowhZ17j2A7d6aXeBfmXT6M081cJQAKgnNZVBHnwzPi086FYZUyp+XOYb2LnNoIQ9gYg2x2zsdPOilJJCOZL1WHNx695BKHJHJgwRJZnIRqFt4Rf9awkBvNfUCYf/8tjVRbEPmK0PxO0OFf43ekJNuWvKvVSkt4mzsn+jEZDpssIl/ERKPjeHkWt3Yuh4E3t5vqnCFH8sGP8WSmrLs8CNWUAPVFUs/lm1gAiGccEWQ2KhzvqoUTe5q0N2O8Uz6wjnbTBhOUpEUOyP5cNbjRYSriPiZYmfjIm2rSDZH2vA3Xkd6PB5vVl1rxYBYqjU126EDvqDEMGP6kvF9oUuhKO1BbSfvM7TG6Z6fLi4s0AWhxkBWFETrFIHzsQZKlW9zTEeNAEVrY9/VHkiTae2i/i4Jdb9bNkBBe2SyU=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <FE729CB2A58117468F468378A1C17AB0@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
+   d="scan'208";a="220433744"
+Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
+  by ob1.hgst.iphmx.com with ESMTP; 25 Jul 2019 15:12:18 +0800
+IronPort-SDR: NiPHgCN0UHHrYVilUAdUjGpHMFA1wE96USB0OpIhS6m1emYfUGx8brCI8+D0owg0WJ+Z5Ly5eV
+ QDjp/wgtpnkYI4CYPymwwUb5P1uP1hEsGYjMoG8faXUlSR3G2E6ihKP4pCs1JXAqduEUIQyNjh
+ 9Msmo4sbZM3MSnb8oLGoB2LgTE7uXtTTiIshg4MH4sLjf6o/D+I/d2i3I9yzvVW+uVSLhALCQ8
+ pIBFltwouudfYZKnBqBPFdDk8ZsIzvd3RwiqTxKQYEcr+mszFuCrZuR6NhTkOL7NRo2Yiwklsa
+ NKMRSodqDXs6IleUVyLOBnpA
+Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
+  by uls-op-cesaep01.wdc.com with ESMTP; 25 Jul 2019 00:10:29 -0700
+IronPort-SDR: SCDaAPwjtCm073s03BstORI3FFDwfJgWp9cnzFWrRxBjtIMAvf4MEbTwXylQi4gWJRiU6dH5I4
+ 6VW706xmtoSi2sEL9Hrj0tATgocvhu3dZSVqkX00R2IzyM7vOsiI0VgFo4WczrHyRQIa3O2HzO
+ y5xh8NKHcTEdcqAS+YttxOMFt/ShKs7F8at3r2vH0WhYl9xVGEiMWG4jHPX30Q2RgdxXQ5Y+Lp
+ U91V73aP/JZKsxDH7/CvJA7v7lDvWimlFkusKQaSzu/lDe7eptt/qNI4CQG8KfWKdbQUED6c03
+ wVc=
+Received: from washi.fujisawa.hgst.com ([10.149.53.254])
+  by uls-op-cesaip01.wdc.com with ESMTP; 25 Jul 2019 00:12:17 -0700
+From:   Damien Le Moal <damien.lemoal@wdc.com>
+To:     stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH] sd_zbc: Fix report zones buffer allocation
+Date:   Thu, 25 Jul 2019 16:12:16 +0900
+Message-Id: <20190725071217.15551-1-damien.lemoal@wdc.com>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3e7577b6-f8dc-4da9-4981-08d710ce2378
-X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Jul 2019 07:03:03.2502
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: Damien.LeMoal@wdc.com
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR04MB4965
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gVGh1LCAyMDE5LTA3LTI1IGF0IDA4OjM0ICswMjAwLCBncmVna2hAbGludXhmb3VuZGF0aW9u
-Lm9yZyB3cm90ZToNCj4gT24gVGh1LCBKdWwgMjUsIDIwMTkgYXQgMDY6MDY6NDVBTSArMDAwMCwg
-RGFtaWVuIExlIE1vYWwgd3JvdGU6DQo+ID4gT24gVHVlLCAyMDE5LTA3LTIzIGF0IDEzOjU2ICsw
-MjAwLCBncmVna2hAbGludXhmb3VuZGF0aW9uLm9yZyB3cm90ZToNCj4gPiA+IFRoZSBwYXRjaCBi
-ZWxvdyBkb2VzIG5vdCBhcHBseSB0byB0aGUgNS4xLXN0YWJsZSB0cmVlLg0KPiA+ID4gSWYgc29t
-ZW9uZSB3YW50cyBpdCBhcHBsaWVkIHRoZXJlLCBvciB0byBhbnkgb3RoZXIgc3RhYmxlIG9yIGxv
-bmd0ZXJtDQo+ID4gPiB0cmVlLCB0aGVuIHBsZWFzZSBlbWFpbCB0aGUgYmFja3BvcnQsIGluY2x1
-ZGluZyB0aGUgb3JpZ2luYWwgZ2l0IGNvbW1pdA0KPiA+ID4gaWQgdG8gPHN0YWJsZUB2Z2VyLmtl
-cm5lbC5vcmc+Lg0KPiA+ID4gDQo+ID4gPiB0aGFua3MsDQo+ID4gPiANCj4gPiA+IGdyZWcgay1o
-DQo+ID4gDQo+ID4gR3JlZywNCj4gPiANCj4gPiBJIHNlbnQgeW91IGEgYmFja3BvcnRlZCB2ZXJz
-aW9uIHRoYXQgYXBwbGllcyBjbGVhbmx5IHRvIGJvdGggNS4xIGFuZA0KPiA+IDUuMiBzdGFibGUg
-dHJlZXMuDQo+IA0KPiBQbGVhc2UgZml4IHVwIHlvdXIgYmFja3BvcnRzIGFuZCBzZW5kIHRoZW0g
-aW4gYSBmb3JtYXQgdGhhdCBJIGNhbiB1c2UNCj4gdGhhdCBkb2VzIG5vdCBsaWUgYWJvdXQgdGhl
-IGF1dGhvciBvZiB0aGUgcGF0Y2ggOikNCj4gDQo+IHRoYW5rcywNCj4gDQo+IGdyZWcgay1oDQoN
-Ck9vb3BzLiBTb3JyeSBhYm91dCB0aGF0LiBGaXhpbmcgYW5kIHJlc2VuZGluZy4NCg0KLS0gDQpE
-YW1pZW4gTGUgTW9hbA0KV2VzdGVybiBEaWdpdGFsIFJlc2VhcmNoDQo=
+commit b091ac616846a1da75b1f2566b41255ce7f0e0a6 upstream.
+
+During disk scan and revalidation done with sd_revalidate(), the zones
+of a zoned disk are checked using the helper function
+blk_revalidate_disk_zones() if a configuration change is detected
+(change in the number of zones or zone size). The function
+blk_revalidate_disk_zones() issues report_zones calls that are very
+large, that is, to obtain zone information for all zones of the disk
+with a single command. The size of the report zones command buffer
+necessary for such large request generally is lower than the disk
+max_hw_sectors and KMALLOC_MAX_SIZE (4MB) and succeeds on boot (no
+memory fragmentation), but often fail at run time (e.g. hot-plug
+event). This causes the disk revalidation to fail and the disk
+capacity to be changed to 0.
+
+This problem can be avoided by using vmalloc() instead of kmalloc() for
+the buffer allocation. To limit the amount of memory to be allocated,
+this patch also introduces the arbitrary SD_ZBC_REPORT_MAX_ZONES
+maximum number of zones to report with a single report zones command.
+This limit may be lowered further to satisfy the disk max_hw_sectors
+limit. Finally, to ensure that the vmalloc-ed buffer can always be
+mapped in a request, the buffer size is further limited to at most
+queue_max_segments() pages, allowing successful mapping of the buffer
+even in the worst case scenario where none of the buffer pages are
+contiguous.
+
+Fixes: 515ce6061312 ("scsi: sd_zbc: Fix sd_zbc_report_zones() buffer allocation")
+Fixes: e76239a3748c ("block: add a report_zones method")
+Cc: stable@vger.kernel.org # 5.1.x
+Cc: stable@vger.kernel.org # 5.2.x
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ drivers/scsi/sd_zbc.c | 104 ++++++++++++++++++++++++++++++------------
+ 1 file changed, 75 insertions(+), 29 deletions(-)
+
+diff --git a/drivers/scsi/sd_zbc.c b/drivers/scsi/sd_zbc.c
+index a340af797a85..a9f3a8d77ee7 100644
+--- a/drivers/scsi/sd_zbc.c
++++ b/drivers/scsi/sd_zbc.c
+@@ -23,6 +23,8 @@
+  */
+ 
+ #include <linux/blkdev.h>
++#include <linux/vmalloc.h>
++#include <linux/sched/mm.h>
+ 
+ #include <asm/unaligned.h>
+ 
+@@ -64,7 +66,7 @@ static void sd_zbc_parse_report(struct scsi_disk *sdkp, u8 *buf,
+ /**
+  * sd_zbc_do_report_zones - Issue a REPORT ZONES scsi command.
+  * @sdkp: The target disk
+- * @buf: Buffer to use for the reply
++ * @buf: vmalloc-ed buffer to use for the reply
+  * @buflen: the buffer size
+  * @lba: Start LBA of the report
+  * @partial: Do partial report
+@@ -93,7 +95,6 @@ static int sd_zbc_do_report_zones(struct scsi_disk *sdkp, unsigned char *buf,
+ 	put_unaligned_be32(buflen, &cmd[10]);
+ 	if (partial)
+ 		cmd[14] = ZBC_REPORT_ZONE_PARTIAL;
+-	memset(buf, 0, buflen);
+ 
+ 	result = scsi_execute_req(sdp, cmd, DMA_FROM_DEVICE,
+ 				  buf, buflen, &sshdr,
+@@ -117,6 +118,53 @@ static int sd_zbc_do_report_zones(struct scsi_disk *sdkp, unsigned char *buf,
+ 	return 0;
+ }
+ 
++/*
++ * Maximum number of zones to get with one report zones command.
++ */
++#define SD_ZBC_REPORT_MAX_ZONES		8192U
++
++/**
++ * Allocate a buffer for report zones reply.
++ * @sdkp: The target disk
++ * @nr_zones: Maximum number of zones to report
++ * @buflen: Size of the buffer allocated
++ *
++ * Try to allocate a reply buffer for the number of requested zones.
++ * The size of the buffer allocated may be smaller than requested to
++ * satify the device constraint (max_hw_sectors, max_segments, etc).
++ *
++ * Return the address of the allocated buffer and update @buflen with
++ * the size of the allocated buffer.
++ */
++static void *sd_zbc_alloc_report_buffer(struct scsi_disk *sdkp,
++					unsigned int nr_zones, size_t *buflen)
++{
++	struct request_queue *q = sdkp->disk->queue;
++	size_t bufsize;
++	void *buf;
++
++	/*
++	 * Report zone buffer size should be at most 64B times the number of
++	 * zones requested plus the 64B reply header, but should be at least
++	 * SECTOR_SIZE for ATA devices.
++	 * Make sure that this size does not exceed the hardware capabilities.
++	 * Furthermore, since the report zone command cannot be split, make
++	 * sure that the allocated buffer can always be mapped by limiting the
++	 * number of pages allocated to the HBA max segments limit.
++	 */
++	nr_zones = min(nr_zones, SD_ZBC_REPORT_MAX_ZONES);
++	bufsize = roundup((nr_zones + 1) * 64, 512);
++	bufsize = min_t(size_t, bufsize,
++			queue_max_hw_sectors(q) << SECTOR_SHIFT);
++	bufsize = min_t(size_t, bufsize, queue_max_segments(q) << PAGE_SHIFT);
++
++	buf = vzalloc(bufsize);
++	if (buf)
++		*buflen = bufsize;
++
++	return buf;
++}
++
+ /**
+  * sd_zbc_report_zones - Disk report zones operation.
+  * @disk: The target disk
+@@ -132,30 +180,23 @@ int sd_zbc_report_zones(struct gendisk *disk, sector_t sector,
+ 			gfp_t gfp_mask)
+ {
+ 	struct scsi_disk *sdkp = scsi_disk(disk);
+-	unsigned int i, buflen, nrz = *nr_zones;
++	unsigned int i, nrz = *nr_zones;
+ 	unsigned char *buf;
+-	size_t offset = 0;
++	size_t buflen = 0, offset = 0;
+ 	int ret = 0;
+ 
+ 	if (!sd_is_zoned(sdkp))
+ 		/* Not a zoned device */
+ 		return -EOPNOTSUPP;
+ 
+-	/*
+-	 * Get a reply buffer for the number of requested zones plus a header,
+-	 * without exceeding the device maximum command size. For ATA disks,
+-	 * buffers must be aligned to 512B.
+-	 */
+-	buflen = min(queue_max_hw_sectors(disk->queue) << 9,
+-		     roundup((nrz + 1) * 64, 512));
+-	buf = kmalloc(buflen, gfp_mask);
++	buf = sd_zbc_alloc_report_buffer(sdkp, nrz, &buflen);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+ 	ret = sd_zbc_do_report_zones(sdkp, buf, buflen,
+ 			sectors_to_logical(sdkp->device, sector), true);
+ 	if (ret)
+-		goto out_free_buf;
++		goto out;
+ 
+ 	nrz = min(nrz, get_unaligned_be32(&buf[0]) / 64);
+ 	for (i = 0; i < nrz; i++) {
+@@ -166,8 +207,8 @@ int sd_zbc_report_zones(struct gendisk *disk, sector_t sector,
+ 
+ 	*nr_zones = nrz;
+ 
+-out_free_buf:
+-	kfree(buf);
++out:
++	kvfree(buf);
+ 
+ 	return ret;
+ }
+@@ -301,8 +342,6 @@ static int sd_zbc_check_zoned_characteristics(struct scsi_disk *sdkp,
+ 	return 0;
+ }
+ 
+-#define SD_ZBC_BUF_SIZE 131072U
+-
+ /**
+  * sd_zbc_check_zones - Check the device capacity and zone sizes
+  * @sdkp: Target disk
+@@ -318,22 +357,28 @@ static int sd_zbc_check_zoned_characteristics(struct scsi_disk *sdkp,
+  */
+ static int sd_zbc_check_zones(struct scsi_disk *sdkp, u32 *zblocks)
+ {
++	size_t bufsize, buflen;
++	unsigned int noio_flag;
+ 	u64 zone_blocks = 0;
+ 	sector_t max_lba, block = 0;
+ 	unsigned char *buf;
+ 	unsigned char *rec;
+-	unsigned int buf_len;
+-	unsigned int list_length;
+ 	int ret;
+ 	u8 same;
+ 
++	/* Do all memory allocations as if GFP_NOIO was specified */
++	noio_flag = memalloc_noio_save();
++
+ 	/* Get a buffer */
+-	buf = kmalloc(SD_ZBC_BUF_SIZE, GFP_KERNEL);
+-	if (!buf)
+-		return -ENOMEM;
++	buf = sd_zbc_alloc_report_buffer(sdkp, SD_ZBC_REPORT_MAX_ZONES,
++					 &bufsize);
++	if (!buf) {
++		ret = -ENOMEM;
++		goto out;
++	}
+ 
+ 	/* Do a report zone to get max_lba and the same field */
+-	ret = sd_zbc_do_report_zones(sdkp, buf, SD_ZBC_BUF_SIZE, 0, false);
++	ret = sd_zbc_do_report_zones(sdkp, buf, bufsize, 0, false);
+ 	if (ret)
+ 		goto out_free;
+ 
+@@ -369,12 +414,12 @@ static int sd_zbc_check_zones(struct scsi_disk *sdkp, u32 *zblocks)
+ 	do {
+ 
+ 		/* Parse REPORT ZONES header */
+-		list_length = get_unaligned_be32(&buf[0]) + 64;
++		buflen = min_t(size_t, get_unaligned_be32(&buf[0]) + 64,
++			       bufsize);
+ 		rec = buf + 64;
+-		buf_len = min(list_length, SD_ZBC_BUF_SIZE);
+ 
+ 		/* Parse zone descriptors */
+-		while (rec < buf + buf_len) {
++		while (rec < buf + buflen) {
+ 			u64 this_zone_blocks = get_unaligned_be64(&rec[8]);
+ 
+ 			if (zone_blocks == 0) {
+@@ -390,8 +435,8 @@ static int sd_zbc_check_zones(struct scsi_disk *sdkp, u32 *zblocks)
+ 		}
+ 
+ 		if (block < sdkp->capacity) {
+-			ret = sd_zbc_do_report_zones(sdkp, buf, SD_ZBC_BUF_SIZE,
+-						     block, true);
++			ret = sd_zbc_do_report_zones(sdkp, buf, bufsize, block,
++						     true);
+ 			if (ret)
+ 				goto out_free;
+ 		}
+@@ -422,7 +467,8 @@ static int sd_zbc_check_zones(struct scsi_disk *sdkp, u32 *zblocks)
+ 	}
+ 
+ out_free:
+-	kfree(buf);
++	memalloc_noio_restore(noio_flag);
++	kvfree(buf);
+ 
+ 	return ret;
+ }
+-- 
+2.21.0
+
