@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B2BE5768F7
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:48:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F950768F9
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:49:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388496AbfGZNpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:45:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53588 "EHLO mail.kernel.org"
+        id S2388502AbfGZNpE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:45:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388487AbfGZNpC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:45:02 -0400
+        id S2387747AbfGZNpE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:45:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 627FA22CC2;
-        Fri, 26 Jul 2019 13:45:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EC5A22CD0;
+        Fri, 26 Jul 2019 13:45:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148701;
-        bh=tTGj7TxV+qZskt12DE672FS4M46Bp/vOTZu0gwHaCJc=;
+        s=default; t=1564148703;
+        bh=KDln6zFomqC63mzorIXvEauG8u6B1BD1OXMjlYkRHkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BlCXobIu8+RczhbEEY7jpHStrKYS6/h19C8/SFl4LBMq98IciOZGv5aojBtYEK5/v
-         uHcOkcv2I1WlCAPbGZ/dg99qy1IGtGPPexZYGFp+YOjA0uBcRNXS4j6x51WKLAGwUC
-         1bpAYUHJJDGwn+uREgTzJ08uz68YsKDdzBu3HASc=
+        b=JcQg0qjgUuJfTZXLr+xr0uHs+X8w3xacSjDkN+i8r0Tcec0GxXWPpLaFYrz0NWLZM
+         wqM2r9QfwvzYREBzuYyiZcFlMWigM7YvkuPxmXaKOxvs3GG1AodBI0f012c6kCjVo/
+         anRn1pBrqYIu+alkLj8TfET/WvohzhhPFcrkKZxw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Doug Berger <opendmb@gmail.com>,
-        Michal Nazarewicz <mina86@mina86.com>,
-        Yue Hu <huyue2@yulong.com>, Mike Rapoport <rppt@linux.ibm.com>,
-        Laura Abbott <labbott@redhat.com>, Peng Fan <peng.fan@nxp.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
+Cc:     Zhouyang Jia <jiazhouyang09@gmail.com>,
+        Jan Harkes <jaharkes@cs.cmu.edu>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Colin Ian King <colin.king@canonical.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        David Howells <dhowells@redhat.com>,
+        Fabian Frederick <fabf@skynet.be>,
+        Mikko Rapeli <mikko.rapeli@iki.fi>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Yann Droneaud <ydroneaud@opteya.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 4.9 19/30] mm/cma.c: fail if fixed declaration can't be honored
-Date:   Fri, 26 Jul 2019 09:44:21 -0400
-Message-Id: <20190726134432.12993-19-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, codalist@coda.cs.cmu.edu
+Subject: [PATCH AUTOSEL 4.9 20/30] coda: add error handling for fget
+Date:   Fri, 26 Jul 2019 09:44:22 -0400
+Message-Id: <20190726134432.12993-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726134432.12993-1-sashal@kernel.org>
 References: <20190726134432.12993-1-sashal@kernel.org>
@@ -50,68 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Zhouyang Jia <jiazhouyang09@gmail.com>
 
-[ Upstream commit c633324e311243586675e732249339685e5d6faa ]
+[ Upstream commit 02551c23bcd85f0c68a8259c7b953d49d44f86af ]
 
-The description of cma_declare_contiguous() indicates that if the
-'fixed' argument is true the reserved contiguous area must be exactly at
-the address of the 'base' argument.
+When fget fails, the lack of error-handling code may cause unexpected
+results.
 
-However, the function currently allows the 'base', 'size', and 'limit'
-arguments to be silently adjusted to meet alignment constraints.  This
-commit enforces the documented behavior through explicit checks that
-return an error if the region does not fit within a specified region.
+This patch adds error-handling code after calling fget.
 
-Link: http://lkml.kernel.org/r/1561422051-16142-1-git-send-email-opendmb@gmail.com
-Fixes: 5ea3b1b2f8ad ("cma: add placement specifier for "cma=" kernel parameter")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Michal Nazarewicz <mina86@mina86.com>
-Cc: Yue Hu <huyue2@yulong.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Laura Abbott <labbott@redhat.com>
-Cc: Peng Fan <peng.fan@nxp.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Andrey Konovalov <andreyknvl@google.com>
+Link: http://lkml.kernel.org/r/2514ec03df9c33b86e56748513267a80dd8004d9.1558117389.git.jaharkes@cs.cmu.edu
+Signed-off-by: Zhouyang Jia <jiazhouyang09@gmail.com>
+Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Colin Ian King <colin.king@canonical.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Fabian Frederick <fabf@skynet.be>
+Cc: Mikko Rapeli <mikko.rapeli@iki.fi>
+Cc: Sam Protsenko <semen.protsenko@linaro.org>
+Cc: Yann Droneaud <ydroneaud@opteya.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/cma.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ fs/coda/psdev.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/mm/cma.c b/mm/cma.c
-index 4ea0f32761c1..7cb569a188c4 100644
---- a/mm/cma.c
-+++ b/mm/cma.c
-@@ -268,6 +268,12 @@ int __init cma_declare_contiguous(phys_addr_t base,
- 	 */
- 	alignment = max(alignment,  (phys_addr_t)PAGE_SIZE <<
- 			  max_t(unsigned long, MAX_ORDER - 1, pageblock_order));
-+	if (fixed && base & (alignment - 1)) {
-+		ret = -EINVAL;
-+		pr_err("Region at %pa must be aligned to %pa bytes\n",
-+			&base, &alignment);
-+		goto err;
-+	}
- 	base = ALIGN(base, alignment);
- 	size = ALIGN(size, alignment);
- 	limit &= ~(alignment - 1);
-@@ -298,6 +304,13 @@ int __init cma_declare_contiguous(phys_addr_t base,
- 	if (limit == 0 || limit > memblock_end)
- 		limit = memblock_end;
+diff --git a/fs/coda/psdev.c b/fs/coda/psdev.c
+index 822629126e89..ff9b5cf8ff01 100644
+--- a/fs/coda/psdev.c
++++ b/fs/coda/psdev.c
+@@ -187,8 +187,11 @@ static ssize_t coda_psdev_write(struct file *file, const char __user *buf,
+ 	if (req->uc_opcode == CODA_OPEN_BY_FD) {
+ 		struct coda_open_by_fd_out *outp =
+ 			(struct coda_open_by_fd_out *)req->uc_data;
+-		if (!outp->oh.result)
++		if (!outp->oh.result) {
+ 			outp->fh = fget(outp->fd);
++			if (!outp->fh)
++				return -EBADF;
++		}
+ 	}
  
-+	if (base + size > limit) {
-+		ret = -EINVAL;
-+		pr_err("Size (%pa) of region at %pa exceeds limit (%pa)\n",
-+			&size, &base, &limit);
-+		goto err;
-+	}
-+
- 	/* Reserve memory */
- 	if (fixed) {
- 		if (memblock_is_region_reserved(base, size) ||
+         wake_up(&req->uc_sleep);
 -- 
 2.20.1
 
