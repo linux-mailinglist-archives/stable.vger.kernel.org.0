@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DFED76D63
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:35:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1877576D36
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:31:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389633AbfGZPdX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:33:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48772 "EHLO mail.kernel.org"
+        id S2388872AbfGZPbj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:31:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389628AbfGZPdW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:33:22 -0400
+        id S2389314AbfGZPbj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:31:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A051218D4;
-        Fri, 26 Jul 2019 15:33:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17FE5218D4;
+        Fri, 26 Jul 2019 15:31:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564155201;
-        bh=I8lIdewyWN4WEkd5GZx92YtQgBlT9zMW79sYzkF9Ko0=;
+        s=default; t=1564155098;
+        bh=iuf0BCS8aLr+lbQU9Wd+UhcxJrowPtLhsC7MckbRu7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZQEqnH/4pT/9rASHrYe7ihDSdrMuBiP2c0zbpugh/eWQ79IFvAwFsU530lKU+E1Kz
-         uF3YIahBrzGEIKkcX1spNLHYVECzCMerFdim675xVw40fJiWA5SjJPP1d3H9Eul4Jx
-         xOcu8NGkS2uWFZyMc140dvZtK+B7cUSU/j7S2mOU=
+        b=d+cZU5QtLQlVpBuFmSrfN8FNEDgrougiVf4e6LV6tyS/UjSGg6UgNs5IqOGTqiCmG
+         TNH5E8TZQENzEUv5u2B0r0zhareO0eLa6x+JQKuyV/P7agI41W3FXT0sRixRvaBYM3
+         vvBxODKTcChF2Wh+3zqDM5jO6ZsyMBf4sdZsJ2uA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 29/50] net_sched: unset TCQ_F_CAN_BYPASS when adding filters
-Date:   Fri, 26 Jul 2019 17:25:04 +0200
-Message-Id: <20190726152303.612362667@linuxfoundation.org>
+        stable@vger.kernel.org, Ross Zwisler <zwisler@google.com>,
+        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.1 53/62] mm: add filemap_fdatawait_range_keep_errors()
+Date:   Fri, 26 Jul 2019 17:25:05 +0200
+Message-Id: <20190726152307.578233447@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190726152300.760439618@linuxfoundation.org>
-References: <20190726152300.760439618@linuxfoundation.org>
+In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
+References: <20190726152301.720139286@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,77 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Ross Zwisler <zwisler@chromium.org>
 
-[ Upstream commit 3f05e6886a595c9a29a309c52f45326be917823c ]
+commit aa0bfcd939c30617385ffa28682c062d78050eba upstream.
 
-For qdisc's that support TC filters and set TCQ_F_CAN_BYPASS,
-notably fq_codel, it makes no sense to let packets bypass the TC
-filters we setup in any scenario, otherwise our packets steering
-policy could not be enforced.
+In the spirit of filemap_fdatawait_range() and
+filemap_fdatawait_keep_errors(), introduce
+filemap_fdatawait_range_keep_errors() which both takes a range upon
+which to wait and does not clear errors from the address space.
 
-This can be reproduced easily with the following script:
-
- ip li add dev dummy0 type dummy
- ifconfig dummy0 up
- tc qd add dev dummy0 root fq_codel
- tc filter add dev dummy0 parent 8001: protocol arp basic action mirred egress redirect dev lo
- tc filter add dev dummy0 parent 8001: protocol ip basic action mirred egress redirect dev lo
- ping -I dummy0 192.168.112.1
-
-Without this patch, packets are sent directly to dummy0 without
-hitting any of the filters. With this patch, packets are redirected
-to loopback as expected.
-
-This fix is not perfect, it only unsets the flag but does not set it back
-because we have to save the information somewhere in the qdisc if we
-really want that. Note, both fq_codel and sfq clear this flag in their
-->bind_tcf() but this is clearly not sufficient when we don't use any
-class ID.
-
-Fixes: 23624935e0c4 ("net_sched: TCQ_F_CAN_BYPASS generalization")
-Cc: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ross Zwisler <zwisler@google.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/sched/cls_api.c      |    1 +
- net/sched/sch_fq_codel.c |    2 --
- net/sched/sch_sfq.c      |    2 --
- 3 files changed, 1 insertion(+), 4 deletions(-)
 
---- a/net/sched/cls_api.c
-+++ b/net/sched/cls_api.c
-@@ -1325,6 +1325,7 @@ replay:
- 			tcf_chain_tp_insert(chain, &chain_info, tp);
- 		tfilter_notify(net, skb, n, tp, block, q, parent, fh,
- 			       RTM_NEWTFILTER, false);
-+		q->flags &= ~TCQ_F_CAN_BYPASS;
- 	} else {
- 		if (tp_created)
- 			tcf_proto_destroy(tp, NULL);
---- a/net/sched/sch_fq_codel.c
-+++ b/net/sched/sch_fq_codel.c
-@@ -600,8 +600,6 @@ static unsigned long fq_codel_find(struc
- static unsigned long fq_codel_bind(struct Qdisc *sch, unsigned long parent,
- 			      u32 classid)
- {
--	/* we cannot bypass queue discipline anymore */
--	sch->flags &= ~TCQ_F_CAN_BYPASS;
- 	return 0;
- }
+---
+ include/linux/fs.h |    2 ++
+ mm/filemap.c       |   22 ++++++++++++++++++++++
+ 2 files changed, 24 insertions(+)
+
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -2703,6 +2703,8 @@ extern int filemap_flush(struct address_
+ extern int filemap_fdatawait_keep_errors(struct address_space *mapping);
+ extern int filemap_fdatawait_range(struct address_space *, loff_t lstart,
+ 				   loff_t lend);
++extern int filemap_fdatawait_range_keep_errors(struct address_space *mapping,
++		loff_t start_byte, loff_t end_byte);
  
---- a/net/sched/sch_sfq.c
-+++ b/net/sched/sch_sfq.c
-@@ -828,8 +828,6 @@ static unsigned long sfq_find(struct Qdi
- static unsigned long sfq_bind(struct Qdisc *sch, unsigned long parent,
- 			      u32 classid)
+ static inline int filemap_fdatawait(struct address_space *mapping)
  {
--	/* we cannot bypass queue discipline anymore */
--	sch->flags &= ~TCQ_F_CAN_BYPASS;
- 	return 0;
- }
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -548,6 +548,28 @@ int filemap_fdatawait_range(struct addre
+ EXPORT_SYMBOL(filemap_fdatawait_range);
  
+ /**
++ * filemap_fdatawait_range_keep_errors - wait for writeback to complete
++ * @mapping:		address space structure to wait for
++ * @start_byte:		offset in bytes where the range starts
++ * @end_byte:		offset in bytes where the range ends (inclusive)
++ *
++ * Walk the list of under-writeback pages of the given address space in the
++ * given range and wait for all of them.  Unlike filemap_fdatawait_range(),
++ * this function does not clear error status of the address space.
++ *
++ * Use this function if callers don't handle errors themselves.  Expected
++ * call sites are system-wide / filesystem-wide data flushers: e.g. sync(2),
++ * fsfreeze(8)
++ */
++int filemap_fdatawait_range_keep_errors(struct address_space *mapping,
++		loff_t start_byte, loff_t end_byte)
++{
++	__filemap_fdatawait_range(mapping, start_byte, end_byte);
++	return filemap_check_and_keep_errors(mapping);
++}
++EXPORT_SYMBOL(filemap_fdatawait_range_keep_errors);
++
++/**
+  * file_fdatawait_range - wait for writeback to complete
+  * @file:		file pointing to address space structure to wait for
+  * @start_byte:		offset in bytes where the range starts
 
 
