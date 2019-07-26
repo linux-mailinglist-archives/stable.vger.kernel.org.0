@@ -2,93 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C1CA76506
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 14:01:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE04D7654B
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 14:11:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726102AbfGZMBH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 08:01:07 -0400
-Received: from foss.arm.com ([217.140.110.172]:42078 "EHLO foss.arm.com"
+        id S1726681AbfGZMLE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 08:11:04 -0400
+Received: from foss.arm.com ([217.140.110.172]:42250 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726026AbfGZMBH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 08:01:07 -0400
+        id S1726282AbfGZMLE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 08:11:04 -0400
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9F185344;
-        Fri, 26 Jul 2019 05:01:04 -0700 (PDT)
-Received: from [10.1.197.57] (e110467-lin.cambridge.arm.com [10.1.197.57])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id B2B983F694;
-        Fri, 26 Jul 2019 05:01:03 -0700 (PDT)
-Subject: Re: [PATCH] iommu: arm-smmu-v3: Mark expected switch fall-through
-To:     Anders Roxell <anders.roxell@linaro.org>, will@kernel.org,
-        joro@8bytes.org
-Cc:     stable@vger.kernel.org, iommu@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-References: <20190726112821.19775-1-anders.roxell@linaro.org>
-From:   Robin Murphy <robin.murphy@arm.com>
-Message-ID: <522507e5-96e6-2bf4-cf91-73963a77358d@arm.com>
-Date:   Fri, 26 Jul 2019 13:01:02 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 56453344;
+        Fri, 26 Jul 2019 05:11:03 -0700 (PDT)
+Received: from lakrids.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 34CC33F694;
+        Fri, 26 Jul 2019 05:11:02 -0700 (PDT)
+Date:   Fri, 26 Jul 2019 13:10:57 +0100
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     Anders Roxell <anders.roxell@linaro.org>
+Cc:     will@kernel.org, catalin.marinas@arm.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH 1/3] arm64: perf: Mark expected switch fall-through
+Message-ID: <20190726121056.GA26088@lakrids.cambridge.arm.com>
+References: <20190726112716.19104-1-anders.roxell@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <20190726112821.19775-1-anders.roxell@linaro.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190726112716.19104-1-anders.roxell@linaro.org>
+User-Agent: Mutt/1.11.1+11 (2f07cb52) (2018-12-01)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 26/07/2019 12:28, Anders Roxell wrote:
+On Fri, Jul 26, 2019 at 01:27:16PM +0200, Anders Roxell wrote:
 > When fall-through warnings was enabled by default, commit d93512ef0f0e
-
-That commit ID only exists in a handful of old linux-next tags.
-
 > ("Makefile: Globally enable fall-through warning"), the following
-> warning was starting to show up:
+> warnings was starting to show up:
 > 
-> ../drivers/iommu/arm-smmu-v3.c: In function ‘arm_smmu_write_strtab_ent’:
-> ../drivers/iommu/arm-smmu-v3.c:1189:7: warning: this statement may fall
->   through [-Wimplicit-fallthrough=]
->      if (disable_bypass)
->         ^
-> ../drivers/iommu/arm-smmu-v3.c:1191:3: note: here
->     default:
->     ^~~~~~~
+> ../arch/arm64/kernel/hw_breakpoint.c: In function ‘hw_breakpoint_arch_parse’:
+> ../arch/arm64/kernel/hw_breakpoint.c:540:7: warning: this statement may fall
+>  through [-Wimplicit-fallthrough=]
+>     if (hw->ctrl.len == ARM_BREAKPOINT_LEN_1)
+>        ^
+> ../arch/arm64/kernel/hw_breakpoint.c:542:3: note: here
+>    case 2:
+>    ^~~~
+> ../arch/arm64/kernel/hw_breakpoint.c:544:7: warning: this statement may fall
+>  through [-Wimplicit-fallthrough=]
+>     if (hw->ctrl.len == ARM_BREAKPOINT_LEN_2)
+>        ^
+> ../arch/arm64/kernel/hw_breakpoint.c:546:3: note: here
+>    default:
+>    ^~~~~~~
 > 
-> Rework so that the compiler doesn't warn about fall-through. Make it
-> clearer by calling 'BUG()' when disable_bypass is set, and always
-> 'break;'
-> 
-> Cc: stable@vger.kernel.org # v4.2+
-> Fixes: 5bc0a11664e1 ("iommu/arm-smmu: Don't BUG() if we find aborting STEs with disable_bypass")
+> Rework so that the compiler doesn't warn about fall-through. Rework so
+> the code looks like the arm code. Since the comment in the function
+> indicates taht this is supposed to behave the same way as arm32 because
 
-Why? There's no actual bug, and not even current kernels have that 
-warning enabled.
+Typo: s/taht/that/
 
+> it handles 32-bit tasks also.
+> 
+> Cc: stable@vger.kernel.org # v3.16+
+> Fixes: 6ee33c2712fc ("ARM: hw_breakpoint: correct and simplify alignment fixup code")
 > Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+
+The patch itself looks fine, but I don't think this needs a CC to
+stable, nor does it require that fixes tag, as there's no functional
+problem.
+
+If anything, it fixes:
+
+  d93512ef0f0e (" Makefile: Globally enable fall-through warning")
+
+... given the commit message for that patch states:
+
+  Now that all the fall-through warnings have been addressed in the
+  kernel, enable the fall-through warning globally.
+
+... and the existence of this patch implies otherwise.
+
+IIUC that patch isn't even in mainline yet, but given this is simple I
+imagine that Will and Catalin might be happy to pick this up for the
+next rc.
+
+Thanks,
+Mark.
+
 > ---
->   drivers/iommu/arm-smmu-v3.c | 5 +++--
->   1 file changed, 3 insertions(+), 2 deletions(-)
+>  arch/arm64/kernel/hw_breakpoint.c | 11 +++++++----
+>  1 file changed, 7 insertions(+), 4 deletions(-)
 > 
-> diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
-> index a9a9fabd3968..8e5f0565996d 100644
-> --- a/drivers/iommu/arm-smmu-v3.c
-> +++ b/drivers/iommu/arm-smmu-v3.c
-> @@ -1186,8 +1186,9 @@ static void arm_smmu_write_strtab_ent(struct arm_smmu_master *master, u32 sid,
->   			ste_live = true;
->   			break;
->   		case STRTAB_STE_0_CFG_ABORT:
-> -			if (disable_bypass)
+> diff --git a/arch/arm64/kernel/hw_breakpoint.c b/arch/arm64/kernel/hw_breakpoint.c
+> index dceb84520948..ea616adf1cf1 100644
+> --- a/arch/arm64/kernel/hw_breakpoint.c
+> +++ b/arch/arm64/kernel/hw_breakpoint.c
+> @@ -535,14 +535,17 @@ int hw_breakpoint_arch_parse(struct perf_event *bp,
+>  		case 0:
+>  			/* Aligned */
+>  			break;
+> -		case 1:
+> -			/* Allow single byte watchpoint. */
+> -			if (hw->ctrl.len == ARM_BREAKPOINT_LEN_1)
 > -				break;
-> +			if (!disable_bypass)
-> +				BUG();
-
-You may as well just use BUG_ON().
-
-Robin.
-
-> +			break;
->   		default:
->   			BUG(); /* STE corruption */
->   		}
+>  		case 2:
+>  			/* Allow halfword watchpoints and breakpoints. */
+>  			if (hw->ctrl.len == ARM_BREAKPOINT_LEN_2)
+>  				break;
+> +			/* Fall through */
+> +		case 1:
+> +		case 3:
+> +			/* Allow single byte watchpoint. */
+> +			if (hw->ctrl.len == ARM_BREAKPOINT_LEN_1)
+> +				break;
+> +			/* Fall through */
+>  		default:
+>  			return -EINVAL;
+>  		}
+> -- 
+> 2.20.1
 > 
