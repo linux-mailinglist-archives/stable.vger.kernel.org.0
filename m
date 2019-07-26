@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EB6476DEF
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:40:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3BCD76DC4
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:36:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388067AbfGZP0r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:26:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40748 "EHLO mail.kernel.org"
+        id S2388211AbfGZPgm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:36:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388041AbfGZP0m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:26:42 -0400
+        id S2389176AbfGZPbA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:31:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9401F205F4;
-        Fri, 26 Jul 2019 15:26:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1ADDF22BF5;
+        Fri, 26 Jul 2019 15:30:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564154802;
-        bh=Ro0FAT0BGVOKoWB4ogETXCph+w+v7zxDCGjgX25mSfg=;
+        s=default; t=1564155059;
+        bh=NZBYPz9/upGof+pf+7aPQwh2oUQ15oTbaqLDqA5xc1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z/xSK/NWl3POynyaqjbBWzlFjzIU1BVDeVKFtOXrUTsBczy5o6d9Leu11vEc+Zc94
-         2Q37HKngM1BE6lEQbRzHzQGLkARPrI1kGkgV3R3YOBUQ5nS6TnyqNr42H/SbKbLh1e
-         LSI9xoMgh3YIaTAoRjdBzltKxy/RgVf2DyEGiuY4=
+        b=RwOiHpyDnWoqjLVmQvjfRyZBBu6RGNJ+oW3lQtZ57j98tu9YAMjWKawwKky1sBOvn
+         CNzjLUNGRH6x/pVwWIfmKA9FYStUBXOKvVp7aKn5R/gBBgYFE1tkroxBnHrms6Xmxm
+         Is06+u+a6yae5H4w39Ka3FBy+Y5Uk0cNfyJ1p+b4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
+        stable@vger.kernel.org, Yang Wei <albin_yang@163.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 30/66] net: bridge: dont cache ether dest pointer on input
+Subject: [PATCH 5.1 17/62] nfc: fix potential illegal memory access
 Date:   Fri, 26 Jul 2019 17:24:29 +0200
-Message-Id: <20190726152305.085650315@linuxfoundation.org>
+Message-Id: <20190726152303.521928803@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190726152301.936055394@linuxfoundation.org>
-References: <20190726152301.936055394@linuxfoundation.org>
+In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
+References: <20190726152301.720139286@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+From: Yang Wei <albin_yang@163.com>
 
-[ Upstream commit 3d26eb8ad1e9b906433903ce05f775cf038e747f ]
+[ Upstream commit dd006fc434e107ef90f7de0db9907cbc1c521645 ]
 
-We would cache ether dst pointer on input in br_handle_frame_finish but
-after the neigh suppress code that could lead to a stale pointer since
-both ipv4 and ipv6 suppress code do pskb_may_pull. This means we have to
-always reload it after the suppress code so there's no point in having
-it cached just retrieve it directly.
+The frags_q is not properly initialized, it may result in illegal memory
+access when conn_info is NULL.
+The "goto free_exit" should be replaced by "goto exit".
 
-Fixes: 057658cb33fbf ("bridge: suppress arp pkts on BR_NEIGH_SUPPRESS ports")
-Fixes: ed842faeb2bd ("bridge: suppress nd pkts on BR_NEIGH_SUPPRESS ports")
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Signed-off-by: Yang Wei <albin_yang@163.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br_input.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ net/nfc/nci/data.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -74,7 +74,6 @@ int br_handle_frame_finish(struct net *n
- 	struct net_bridge_fdb_entry *dst = NULL;
- 	struct net_bridge_mdb_entry *mdst;
- 	bool local_rcv, mcast_hit = false;
--	const unsigned char *dest;
- 	struct net_bridge *br;
- 	u16 vid = 0;
- 
-@@ -92,10 +91,9 @@ int br_handle_frame_finish(struct net *n
- 		br_fdb_update(br, p, eth_hdr(skb)->h_source, vid, false);
- 
- 	local_rcv = !!(br->dev->flags & IFF_PROMISC);
--	dest = eth_hdr(skb)->h_dest;
--	if (is_multicast_ether_addr(dest)) {
-+	if (is_multicast_ether_addr(eth_hdr(skb)->h_dest)) {
- 		/* by definition the broadcast is also a multicast address */
--		if (is_broadcast_ether_addr(dest)) {
-+		if (is_broadcast_ether_addr(eth_hdr(skb)->h_dest)) {
- 			pkt_type = BR_PKT_BROADCAST;
- 			local_rcv = true;
- 		} else {
-@@ -145,7 +143,7 @@ int br_handle_frame_finish(struct net *n
- 		}
- 		break;
- 	case BR_PKT_UNICAST:
--		dst = br_fdb_find_rcu(br, dest, vid);
-+		dst = br_fdb_find_rcu(br, eth_hdr(skb)->h_dest, vid);
- 	default:
- 		break;
+--- a/net/nfc/nci/data.c
++++ b/net/nfc/nci/data.c
+@@ -119,7 +119,7 @@ static int nci_queue_tx_data_frags(struc
+ 	conn_info = nci_get_conn_info_by_conn_id(ndev, conn_id);
+ 	if (!conn_info) {
+ 		rc = -EPROTO;
+-		goto free_exit;
++		goto exit;
  	}
+ 
+ 	__skb_queue_head_init(&frags_q);
 
 
