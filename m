@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 416A676935
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:50:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F31E976939
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:50:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388758AbfGZNuK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2388296AbfGZNuK (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 26 Jul 2019 09:50:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52798 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387659AbfGZNoc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:44:32 -0400
+        id S2387967AbfGZNoe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:44:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2DBD022BF5;
-        Fri, 26 Jul 2019 13:44:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCF9C22BF5;
+        Fri, 26 Jul 2019 13:44:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148671;
-        bh=sGdTX6qKLjso5PUS4UyRoXjmf1z7TAMwe0dJsMXsIs8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u9V/c/YrW+FIXLslmUTT1TD8YGfTc0R16TKobI57+riL6rzGKRxwm08B5/O5HIU0h
-         jlZF2HFvTsGEuXFRa/vN35TM4mBm5ufAC42xPEtRhXf2w2mjupv2eP/daSGfc9UWbJ
-         pVuTXmb+qB0FpwYvDpElsmIiyjwc9R0KvxYJy9o8=
+        s=default; t=1564148674;
+        bh=XVZDi/FcugkfghNrPmbRihgKx/wSKSciVCIePbMGChM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=RSyEjWS0FBLd/WWJpoqOKfq7F5FDgTOTpty63NJy8KXIoWVla2OwNso4OFy1/cEHR
+         QxEErxGm+U3SAMKTpQywEAeOG2BlyG+dL/2NW5J9fLid4CbmOJpILj3njSVPBQtymX
+         VSkzlOJJQN2KfZfLzeDFdKXLqODj49jrJvu5fg5k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yongxin Liu <yongxin.liu@windriver.com>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 37/37] drm/nouveau: fix memory leak in nouveau_conn_reset()
-Date:   Fri, 26 Jul 2019 09:43:32 -0400
-Message-Id: <20190726134332.12626-37-sashal@kernel.org>
+Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 01/30] ARM: riscpc: fix DMA
+Date:   Fri, 26 Jul 2019 09:44:03 -0400
+Message-Id: <20190726134432.12993-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190726134332.12626-1-sashal@kernel.org>
-References: <20190726134332.12626-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,61 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yongxin Liu <yongxin.liu@windriver.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 09b90e2fe35faeace2488234e2a7728f2ea8ba26 ]
+[ Upstream commit ffd9a1ba9fdb7f2bd1d1ad9b9243d34e96756ba2 ]
 
-In nouveau_conn_reset(), if connector->state is true,
-__drm_atomic_helper_connector_destroy_state() will be called,
-but the memory pointed by asyc isn't freed. Memory leak happens
-in the following function __drm_atomic_helper_connector_reset(),
-where newly allocated asyc->state will be assigned to connector->state.
+DMA got broken a while back in two different ways:
+1) a change in the behaviour of disable_irq() to wait for the interrupt
+   to finish executing causes us to deadlock at the end of DMA.
+2) a change to avoid modifying the scatterlist left the first transfer
+   uninitialised.
 
-So using nouveau_conn_atomic_destroy_state() instead of
-__drm_atomic_helper_connector_destroy_state to free the "old" asyc.
+DMA is only used with expansion cards, so has gone unnoticed.
 
-Here the is the log showing memory leak.
-
-unreferenced object 0xffff8c5480483c80 (size 192):
-  comm "kworker/0:2", pid 188, jiffies 4294695279 (age 53.179s)
-  hex dump (first 32 bytes):
-    00 f0 ba 7b 54 8c ff ff 00 00 00 00 00 00 00 00  ...{T...........
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000005005c0d0>] kmem_cache_alloc_trace+0x195/0x2c0
-    [<00000000a122baed>] nouveau_conn_reset+0x25/0xc0 [nouveau]
-    [<000000004fd189a2>] nouveau_connector_create+0x3a7/0x610 [nouveau]
-    [<00000000c73343a8>] nv50_display_create+0x343/0x980 [nouveau]
-    [<000000002e2b03c3>] nouveau_display_create+0x51f/0x660 [nouveau]
-    [<00000000c924699b>] nouveau_drm_device_init+0x182/0x7f0 [nouveau]
-    [<00000000cc029436>] nouveau_drm_probe+0x20c/0x2c0 [nouveau]
-    [<000000007e961c3e>] local_pci_probe+0x47/0xa0
-    [<00000000da14d569>] work_for_cpu_fn+0x1a/0x30
-    [<0000000028da4805>] process_one_work+0x27c/0x660
-    [<000000001d415b04>] worker_thread+0x22b/0x3f0
-    [<0000000003b69f1f>] kthread+0x12f/0x150
-    [<00000000c94c29b7>] ret_from_fork+0x3a/0x50
-
-Signed-off-by: Yongxin Liu <yongxin.liu@windriver.com>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Fixes: fa4e99899932 ("[ARM] dma: RiscPC: don't modify DMA SG entries")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_connector.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-rpc/dma.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.c b/drivers/gpu/drm/nouveau/nouveau_connector.c
-index 2c6d19683688..4a7d50a96d36 100644
---- a/drivers/gpu/drm/nouveau/nouveau_connector.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
-@@ -251,7 +251,7 @@ nouveau_conn_reset(struct drm_connector *connector)
- 		return;
+diff --git a/arch/arm/mach-rpc/dma.c b/arch/arm/mach-rpc/dma.c
+index 6d3517dc4772..82aac38fa2cf 100644
+--- a/arch/arm/mach-rpc/dma.c
++++ b/arch/arm/mach-rpc/dma.c
+@@ -131,7 +131,7 @@ static irqreturn_t iomd_dma_handle(int irq, void *dev_id)
+ 	} while (1);
  
- 	if (connector->state)
--		__drm_atomic_helper_connector_destroy_state(connector->state);
-+		nouveau_conn_atomic_destroy_state(connector, connector->state);
- 	__drm_atomic_helper_connector_reset(connector, &asyc->state);
- 	asyc->dither.mode = DITHERING_MODE_AUTO;
- 	asyc->dither.depth = DITHERING_DEPTH_AUTO;
+ 	idma->state = ~DMA_ST_AB;
+-	disable_irq(irq);
++	disable_irq_nosync(irq);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -174,6 +174,9 @@ static void iomd_enable_dma(unsigned int chan, dma_t *dma)
+ 				DMA_FROM_DEVICE : DMA_TO_DEVICE);
+ 		}
+ 
++		idma->dma_addr = idma->dma.sg->dma_address;
++		idma->dma_len = idma->dma.sg->length;
++
+ 		iomd_writeb(DMA_CR_C, dma_base + CR);
+ 		idma->state = DMA_ST_AB;
+ 	}
 -- 
 2.20.1
 
