@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E895C76DE7
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:40:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DA3776DE8
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:40:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387667AbfGZPZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:25:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39802 "EHLO mail.kernel.org"
+        id S2387740AbfGZP0A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:26:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387427AbfGZPZ4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:25:56 -0400
+        id S2387681AbfGZPZ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:25:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 416AB22CB8;
-        Fri, 26 Jul 2019 15:25:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17D0422CB8;
+        Fri, 26 Jul 2019 15:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564154755;
-        bh=B8hvJYZQVC03+qX3gtI0idWXSttmN3iZlKFBqPdTpYA=;
+        s=default; t=1564154758;
+        bh=tqF1FyZcllZIxd/XY7UlUE+/BwiFoe4vQugb4Ud9Rj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rq3uoG6qnT+DkhTX8OZp+rDE1Pr5MqATcfveWotHSlRSdBPueBA+VL4CCuL97UlfD
-         35py7ttUoAuzaw9QRPm30UcuQxBQJwLnTJZhWEcExd+7TmpYNh/w10ruLmdWeK1VnE
-         FuZw2B/f0Tx5cCl6I5h1wMIxsmST/PnPt5IqmAe0=
+        b=d3zQbJEXagkYKwofAsxMosRy+sRBP45qDYRsDR4/S8xxl8Fw+P3YhlY1wB982pb8y
+         H//CwYd6o6WHg2arWwN5OxwbAIceohwQSoyEnNEpSuC8is+kHP3kJmLweN/SKaFp+0
+         WSkaqXyDWVr6Cwe/B+33I9q6+8qpYDR/g4VB0FHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Dirk van der Merwe <dirk.vandermerwe@netronome.com>,
+        stable@vger.kernel.org, Yang Wei <albin_yang@163.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 16/66] net/tls: make sure offload also gets the keys wiped
-Date:   Fri, 26 Jul 2019 17:24:15 +0200
-Message-Id: <20190726152303.567642912@linuxfoundation.org>
+Subject: [PATCH 5.2 17/66] nfc: fix potential illegal memory access
+Date:   Fri, 26 Jul 2019 17:24:16 +0200
+Message-Id: <20190726152303.663617053@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190726152301.936055394@linuxfoundation.org>
 References: <20190726152301.936055394@linuxfoundation.org>
@@ -45,66 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
+From: Yang Wei <albin_yang@163.com>
 
-[ Upstream commit acd3e96d53a24d219f720ed4012b62723ae05da1 ]
+[ Upstream commit dd006fc434e107ef90f7de0db9907cbc1c521645 ]
 
-Commit 86029d10af18 ("tls: zero the crypto information from tls_context
-before freeing") added memzero_explicit() calls to clear the key material
-before freeing struct tls_context, but it missed tls_device.c has its
-own way of freeing this structure. Replace the missing free.
+The frags_q is not properly initialized, it may result in illegal memory
+access when conn_info is NULL.
+The "goto free_exit" should be replaced by "goto exit".
 
-Fixes: 86029d10af18 ("tls: zero the crypto information from tls_context before freeing")
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: Dirk van der Merwe <dirk.vandermerwe@netronome.com>
+Signed-off-by: Yang Wei <albin_yang@163.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/tls.h    |    1 +
- net/tls/tls_device.c |    2 +-
- net/tls/tls_main.c   |    4 ++--
- 3 files changed, 4 insertions(+), 3 deletions(-)
+ net/nfc/nci/data.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/net/tls.h
-+++ b/include/net/tls.h
-@@ -313,6 +313,7 @@ struct tls_offload_context_rx {
- 	(ALIGN(sizeof(struct tls_offload_context_rx), sizeof(void *)) + \
- 	 TLS_DRIVER_STATE_SIZE)
+--- a/net/nfc/nci/data.c
++++ b/net/nfc/nci/data.c
+@@ -107,7 +107,7 @@ static int nci_queue_tx_data_frags(struc
+ 	conn_info = nci_get_conn_info_by_conn_id(ndev, conn_id);
+ 	if (!conn_info) {
+ 		rc = -EPROTO;
+-		goto free_exit;
++		goto exit;
+ 	}
  
-+void tls_ctx_free(struct tls_context *ctx);
- int wait_on_pending_writer(struct sock *sk, long *timeo);
- int tls_sk_query(struct sock *sk, int optname, char __user *optval,
- 		int __user *optlen);
---- a/net/tls/tls_device.c
-+++ b/net/tls/tls_device.c
-@@ -61,7 +61,7 @@ static void tls_device_free_ctx(struct t
- 	if (ctx->rx_conf == TLS_HW)
- 		kfree(tls_offload_ctx_rx(ctx));
- 
--	kfree(ctx);
-+	tls_ctx_free(ctx);
- }
- 
- static void tls_device_gc_task(struct work_struct *work)
---- a/net/tls/tls_main.c
-+++ b/net/tls/tls_main.c
-@@ -251,7 +251,7 @@ static void tls_write_space(struct sock
- 	ctx->sk_write_space(sk);
- }
- 
--static void tls_ctx_free(struct tls_context *ctx)
-+void tls_ctx_free(struct tls_context *ctx)
- {
- 	if (!ctx)
- 		return;
-@@ -643,7 +643,7 @@ static void tls_hw_sk_destruct(struct so
- 
- 	ctx->sk_destruct(sk);
- 	/* Free ctx */
--	kfree(ctx);
-+	tls_ctx_free(ctx);
- 	icsk->icsk_ulp_data = NULL;
- }
- 
+ 	__skb_queue_head_init(&frags_q);
 
 
