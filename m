@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B10C176C99
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:25:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7680676CC0
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:27:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728486AbfGZPZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:25:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39634 "EHLO mail.kernel.org"
+        id S2388169AbfGZP1N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:27:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728481AbfGZPZq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:25:46 -0400
+        id S2388230AbfGZP1M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:27:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64B5422CB8;
-        Fri, 26 Jul 2019 15:25:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A539E22CBF;
+        Fri, 26 Jul 2019 15:27:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564154745;
-        bh=W4FR3wy1jqQSOKX4Wt5Oz9xjrRQFwqw6YChMOwS9VVI=;
+        s=default; t=1564154831;
+        bh=EvcoB1pQsL5JVbTVWA5/JqkFrYTXo3SGIpJ9K3RWwKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zOn1dPCjIL4/zXTNQtjVlgbL/QwEAuEZGCCs/qpAOU8mCALPbBYQdn0lG/kfMwy04
-         vJawX7FOgIH0XwpXQ1pz8XcjY11XQX3klQmvnDHbFNfn6x6dEdqqhjU1hT70dd57FI
-         Gx6ovhZc+/A4l0d3flwWOoP3HwbMk1Sh1ISFtJCY=
+        b=pogZyY7of/eiLgqYTbNT0cQc5m3tIWtxJYstLH9YuxhfrN8PS/jInK+aSM8xV+vRN
+         F7dRv2fRoLCQYFv5WzrdfC60LhoZsIEy7u+AWh8l4C5zgnetxqSgmsskpFqWiC83zs
+         H3UIeI3/TZmDJOhDiJiCddaYpWNZ7p9I0VzLOzsM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matteo Croce <mcroce@redhat.com>,
-        David Ahern <dsahern@gmail.com>,
+        stable@vger.kernel.org, Justin Chen <justinpopo6@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 05/66] ipv4: dont set IPv6 only flags to IPv4 addresses
-Date:   Fri, 26 Jul 2019 17:24:04 +0200
-Message-Id: <20190726152302.506906618@linuxfoundation.org>
+Subject: [PATCH 5.2 08/66] net: bcmgenet: use promisc for unsupported filters
+Date:   Fri, 26 Jul 2019 17:24:07 +0200
+Message-Id: <20190726152302.813137100@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190726152301.936055394@linuxfoundation.org>
 References: <20190726152301.936055394@linuxfoundation.org>
@@ -44,56 +44,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matteo Croce <mcroce@redhat.com>
+From: Justin Chen <justinpopo6@gmail.com>
 
-[ Upstream commit 2e60546368165c2449564d71f6005dda9205b5fb ]
+[ Upstream commit 35cbef9863640f06107144687bd13151bc2e8ce3 ]
 
-Avoid the situation where an IPV6 only flag is applied to an IPv4 address:
+Currently we silently ignore filters if we cannot meet the filter
+requirements. This will lead to the MAC dropping packets that are
+expected to pass. A better solution would be to set the NIC to promisc
+mode when the required filters cannot be met.
 
-    # ip addr add 192.0.2.1/24 dev dummy0 nodad home mngtmpaddr noprefixroute
-    # ip -4 addr show dev dummy0
-    2: dummy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
-        inet 192.0.2.1/24 scope global noprefixroute dummy0
-           valid_lft forever preferred_lft forever
+Also correct the number of MDF filters supported. It should be 17,
+not 16.
 
-Or worse, by sending a malicious netlink command:
-
-    # ip -4 addr show dev dummy0
-    2: dummy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
-        inet 192.0.2.1/24 scope global nodad optimistic dadfailed home tentative mngtmpaddr noprefixroute stable-privacy dummy0
-           valid_lft forever preferred_lft forever
-
-Signed-off-by: Matteo Croce <mcroce@redhat.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: Justin Chen <justinpopo6@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/devinet.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c |   57 +++++++++++--------------
+ 1 file changed, 26 insertions(+), 31 deletions(-)
 
---- a/net/ipv4/devinet.c
-+++ b/net/ipv4/devinet.c
-@@ -62,6 +62,11 @@
- #include <net/net_namespace.h>
- #include <net/addrconf.h>
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -3083,39 +3083,42 @@ static void bcmgenet_timeout(struct net_
+ 	netif_tx_wake_all_queues(dev);
+ }
  
-+#define IPV6ONLY_FLAGS	\
-+		(IFA_F_NODAD | IFA_F_OPTIMISTIC | IFA_F_DADFAILED | \
-+		 IFA_F_HOMEADDRESS | IFA_F_TENTATIVE | \
-+		 IFA_F_MANAGETEMPADDR | IFA_F_STABLE_PRIVACY)
-+
- static struct ipv4_devconf ipv4_devconf = {
- 	.data = {
- 		[IPV4_DEVCONF_ACCEPT_REDIRECTS - 1] = 1,
-@@ -468,6 +473,9 @@ static int __inet_insert_ifa(struct in_i
- 	ifa->ifa_flags &= ~IFA_F_SECONDARY;
- 	last_primary = &in_dev->ifa_list;
+-#define MAX_MC_COUNT	16
++#define MAX_MDF_FILTER	17
  
-+	/* Don't set IPv6 only flags to IPv4 addresses */
-+	ifa->ifa_flags &= ~IPV6ONLY_FLAGS;
+ static inline void bcmgenet_set_mdf_addr(struct bcmgenet_priv *priv,
+ 					 unsigned char *addr,
+-					 int *i,
+-					 int *mc)
++					 int *i)
+ {
+-	u32 reg;
+-
+ 	bcmgenet_umac_writel(priv, addr[0] << 8 | addr[1],
+ 			     UMAC_MDF_ADDR + (*i * 4));
+ 	bcmgenet_umac_writel(priv, addr[2] << 24 | addr[3] << 16 |
+ 			     addr[4] << 8 | addr[5],
+ 			     UMAC_MDF_ADDR + ((*i + 1) * 4));
+-	reg = bcmgenet_umac_readl(priv, UMAC_MDF_CTRL);
+-	reg |= (1 << (MAX_MC_COUNT - *mc));
+-	bcmgenet_umac_writel(priv, reg, UMAC_MDF_CTRL);
+ 	*i += 2;
+-	(*mc)++;
+ }
+ 
+ static void bcmgenet_set_rx_mode(struct net_device *dev)
+ {
+ 	struct bcmgenet_priv *priv = netdev_priv(dev);
+ 	struct netdev_hw_addr *ha;
+-	int i, mc;
++	int i, nfilter;
+ 	u32 reg;
+ 
+ 	netif_dbg(priv, hw, dev, "%s: %08X\n", __func__, dev->flags);
+ 
+-	/* Promiscuous mode */
++	/* Number of filters needed */
++	nfilter = netdev_uc_count(dev) + netdev_mc_count(dev) + 2;
 +
- 	for (ifap = &in_dev->ifa_list; (ifa1 = *ifap) != NULL;
- 	     ifap = &ifa1->ifa_next) {
- 		if (!(ifa1->ifa_flags & IFA_F_SECONDARY) &&
++	/*
++	 * Turn on promicuous mode for three scenarios
++	 * 1. IFF_PROMISC flag is set
++	 * 2. IFF_ALLMULTI flag is set
++	 * 3. The number of filters needed exceeds the number filters
++	 *    supported by the hardware.
++	*/
+ 	reg = bcmgenet_umac_readl(priv, UMAC_CMD);
+-	if (dev->flags & IFF_PROMISC) {
++	if ((dev->flags & (IFF_PROMISC | IFF_ALLMULTI)) ||
++	    (nfilter > MAX_MDF_FILTER)) {
+ 		reg |= CMD_PROMISC;
+ 		bcmgenet_umac_writel(priv, reg, UMAC_CMD);
+ 		bcmgenet_umac_writel(priv, 0, UMAC_MDF_CTRL);
+@@ -3125,32 +3128,24 @@ static void bcmgenet_set_rx_mode(struct
+ 		bcmgenet_umac_writel(priv, reg, UMAC_CMD);
+ 	}
+ 
+-	/* UniMac doesn't support ALLMULTI */
+-	if (dev->flags & IFF_ALLMULTI) {
+-		netdev_warn(dev, "ALLMULTI is not supported\n");
+-		return;
+-	}
+-
+ 	/* update MDF filter */
+ 	i = 0;
+-	mc = 0;
+ 	/* Broadcast */
+-	bcmgenet_set_mdf_addr(priv, dev->broadcast, &i, &mc);
++	bcmgenet_set_mdf_addr(priv, dev->broadcast, &i);
+ 	/* my own address.*/
+-	bcmgenet_set_mdf_addr(priv, dev->dev_addr, &i, &mc);
+-	/* Unicast list*/
+-	if (netdev_uc_count(dev) > (MAX_MC_COUNT - mc))
+-		return;
++	bcmgenet_set_mdf_addr(priv, dev->dev_addr, &i);
+ 
+-	if (!netdev_uc_empty(dev))
+-		netdev_for_each_uc_addr(ha, dev)
+-			bcmgenet_set_mdf_addr(priv, ha->addr, &i, &mc);
+-	/* Multicast */
+-	if (netdev_mc_empty(dev) || netdev_mc_count(dev) >= (MAX_MC_COUNT - mc))
+-		return;
++	/* Unicast */
++	netdev_for_each_uc_addr(ha, dev)
++		bcmgenet_set_mdf_addr(priv, ha->addr, &i);
+ 
++	/* Multicast */
+ 	netdev_for_each_mc_addr(ha, dev)
+-		bcmgenet_set_mdf_addr(priv, ha->addr, &i, &mc);
++		bcmgenet_set_mdf_addr(priv, ha->addr, &i);
++
++	/* Enable filters */
++	reg = GENMASK(MAX_MDF_FILTER - 1, MAX_MDF_FILTER - nfilter);
++	bcmgenet_umac_writel(priv, reg, UMAC_MDF_CTRL);
+ }
+ 
+ /* Set the hardware MAC address. */
 
 
