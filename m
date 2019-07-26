@@ -2,48 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2A2C76CFD
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:29:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1D0D76CA1
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:26:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388813AbfGZP32 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:29:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44126 "EHLO mail.kernel.org"
+        id S2387755AbfGZP0D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:26:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388802AbfGZP32 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:29:28 -0400
+        id S2387764AbfGZP0D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:26:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78F0822CBD;
-        Fri, 26 Jul 2019 15:29:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64F8D22CB9;
+        Fri, 26 Jul 2019 15:26:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564154967;
-        bh=KP4kL19oUn5lUt6gO3Ev0/T+mTO32QzgBIh7IS7sOK0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=wT0frocer5nKFQ/yX+IOyCRPcgmRsxI9HApr9bfBCoUIxZANFvOab2VaFrPRSpf/E
-         YPIqJvl46Sl1dnmltnN+UHdN/FDPZMGi2JlY3/Q/GMVhR3QNpL25707Rxt56c2+E/7
-         ASNssSqVcnHkocFat3uEgL8AFmQRvSQ9f7d2aZZM=
+        s=default; t=1564154761;
+        bh=9ZoUA2md95a4e1zQraQn12A8rw4C7V5MRn3nbzB9NUk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=zWQg7fgLQUaKjyj7GOLuH3wddoQq0IP4Ra8Cpz/enHBZ9ldjCH/YI/fdMU8HXyTby
+         THjGJbG9bnmcFNkZ/gm7Ut7L5OjlGE3IU3yHOqlA2TAF5bwY6LWjycFKdbhkAYflzn
+         DXL/EnU+IsHrJQNM2gMF9QaHe/AMroigw9UsT+/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 5.1 00/62] 5.1.21-stable review
-Date:   Fri, 26 Jul 2019 17:24:12 +0200
-Message-Id: <20190726152301.720139286@linuxfoundation.org>
+        stable@vger.kernel.org, Ionut Radu <ionut.radu@gmail.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.2 18/66] r8169: fix issue with confused RX unit after PHY power-down on RTL8411b
+Date:   Fri, 26 Jul 2019 17:24:17 +0200
+Message-Id: <20190726152303.752970145@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-MIME-Version: 1.0
+In-Reply-To: <20190726152301.936055394@linuxfoundation.org>
+References: <20190726152301.936055394@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.1.21-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.1.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.1.21-rc1
-X-KernelTest-Deadline: 2019-07-28T15:23+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -51,300 +44,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Note, this will be the LAST 5.1.y kernel release.  Everyone should move
-to the 5.2.y series at this point in time.
-
-This is the start of the stable review cycle for the 5.1.21 release.
-There are 62 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
-
-Responses should be made by Sun 28 Jul 2019 03:21:13 PM UTC.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.21-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.1.21-rc1
-
-Kuo-Hsin Yang <vovoy@chromium.org>
-    mm: vmscan: scan anonymous pages on file refaults
-
-Damien Le Moal <damien.lemoal@wdc.com>
-    block: Limit zone array allocation size
-
-Damien Le Moal <damien.lemoal@wdc.com>
-    sd_zbc: Fix report zones buffer allocation
-
-Paolo Bonzini <pbonzini@redhat.com>
-    Revert "kvm: x86: Use task structs fpu field for user"
-
-Jan Kiszka <jan.kiszka@siemens.com>
-    KVM: nVMX: Clear pending KVM_REQ_GET_VMCS12_PAGES when leaving nested
-
-Paolo Bonzini <pbonzini@redhat.com>
-    KVM: nVMX: do not use dangling shadow VMCS after guest reset
-
-Theodore Ts'o <tytso@mit.edu>
-    ext4: allow directory holes
-
-Ross Zwisler <zwisler@chromium.org>
-    ext4: use jbd2_inode dirty range scoping
-
-Ross Zwisler <zwisler@chromium.org>
-    jbd2: introduce jbd2_inode dirty range scoping
-
-Ross Zwisler <zwisler@chromium.org>
-    mm: add filemap_fdatawait_range_keep_errors()
-
-Theodore Ts'o <tytso@mit.edu>
-    ext4: enforce the immutable flag on open files
-
-Darrick J. Wong <darrick.wong@oracle.com>
-    ext4: don't allow any modifications to an immutable file
-
-Peter Zijlstra <peterz@infradead.org>
-    perf/core: Fix race between close() and fork()
-
-Alexander Shishkin <alexander.shishkin@linux.intel.com>
-    perf/core: Fix exclusive events' grouping
-
-Song Liu <songliubraving@fb.com>
-    perf script: Assume native_arch for pipe mode
-
-Paul Cercueil <paul@crapouillou.net>
-    MIPS: lb60: Fix pin mappings
-
-Keerthy <j-keerthy@ti.com>
-    gpio: davinci: silence error prints in case of EPROBE_DEFER
-
-Nishka Dasgupta <nishkadg.linux@gmail.com>
-    gpiolib: of: fix a memory leak in of_gpio_flags_quirks()
-
-Chris Wilson <chris@chris-wilson.co.uk>
-    dma-buf: Discard old fence_excl on retrying get_fences_rcu for realloc
-
-Jérôme Glisse <jglisse@redhat.com>
-    dma-buf: balance refcount inbalance
-
-Aya Levin <ayal@mellanox.com>
-    net/mlx5e: Fix error flow in tx reporter diagnose
-
-Aya Levin <ayal@mellanox.com>
-    net/mlx5e: Fix return value from timeout recover function
-
-Saeed Mahameed <saeedm@mellanox.com>
-    net/mlx5e: Rx, Fix checksum calculation for new hardware
-
-Eli Britstein <elibr@mellanox.com>
-    net/mlx5e: Fix port tunnel GRE entropy control
-
-Jakub Kicinski <jakub.kicinski@netronome.com>
-    net/tls: reject offload of TLS 1.3
-
-Jakub Kicinski <jakub.kicinski@netronome.com>
-    net/tls: fix poll ignoring partially copied records
-
-Frank de Brabander <debrabander@gmail.com>
-    selftests: txring_overwrite: fix incorrect test of mmap() return value
-
-Cong Wang <xiyou.wangcong@gmail.com>
-    netrom: hold sock when setting skb->destructor
-
-Cong Wang <xiyou.wangcong@gmail.com>
-    netrom: fix a memory leak in nr_rx_frame()
-
-Andreas Steinmetz <ast@domdv.de>
-    macsec: fix checksumming after decryption
-
-Andreas Steinmetz <ast@domdv.de>
-    macsec: fix use-after-free of skb during RX
-
-Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-    net: bridge: stp: don't cache eth dest pointer before skb pull
-
-Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-    net: bridge: don't cache ether dest pointer on input
-
-Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-    net: bridge: mcast: fix stale ipv6 hdr pointer when handling v6 query
-
-Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-    net: bridge: mcast: fix stale nsrcs pointer in igmp3/mld2 report handling
-
-Aya Levin <ayal@mellanox.com>
-    net/mlx5e: IPoIB, Add error path in mlx5_rdma_setup_rn
-
-Peter Kosyh <p.kosyh@gmail.com>
-    vrf: make sure skb->data contains ip header to make routing
-
-Christoph Paasch <cpaasch@apple.com>
-    tcp: Reset bytes_acked and bytes_received when disconnecting
-
-Eric Dumazet <edumazet@google.com>
-    tcp: fix tcp_set_congestion_control() use from bpf hook
-
-Eric Dumazet <edumazet@google.com>
-    tcp: be more careful in tcp_fragment()
-
-Takashi Iwai <tiwai@suse.de>
-    sky2: Disable MSI on ASUS P6T
-
-Xin Long <lucien.xin@gmail.com>
-    sctp: not bind the socket in sctp_connect
-
-Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-    sctp: fix error handling on stream scheduler initialization
-
-David Howells <dhowells@redhat.com>
-    rxrpc: Fix send on a connected, but unbound socket
-
-Heiner Kallweit <hkallweit1@gmail.com>
-    r8169: fix issue with confused RX unit after PHY power-down on RTL8411b
-
-Yang Wei <albin_yang@163.com>
-    nfc: fix potential illegal memory access
-
-Jakub Kicinski <jakub.kicinski@netronome.com>
-    net/tls: make sure offload also gets the keys wiped
-
-Jose Abreu <Jose.Abreu@synopsys.com>
-    net: stmmac: Re-work the queue selection for TSO packets
-
-Cong Wang <xiyou.wangcong@gmail.com>
-    net_sched: unset TCQ_F_CAN_BYPASS when adding filters
-
-Andrew Lunn <andrew@lunn.ch>
-    net: phy: sfp: hwmon: Fix scaling of RX power
-
-John Hurley <john.hurley@netronome.com>
-    net: openvswitch: fix csum updates for MPLS actions
-
-Lorenzo Bianconi <lorenzo.bianconi@redhat.com>
-    net: neigh: fix multiple neigh timer scheduling
-
-Florian Westphal <fw@strlen.de>
-    net: make skb_dst_force return true when dst is refcounted
-
-Baruch Siach <baruch@tkos.co.il>
-    net: dsa: mv88e6xxx: wait after reset deactivation
-
-Justin Chen <justinpopo6@gmail.com>
-    net: bcmgenet: use promisc for unsupported filters
-
-Ido Schimmel <idosch@mellanox.com>
-    ipv6: Unlink sibling route in case of failure
-
-David Ahern <dsahern@gmail.com>
-    ipv6: rt6_check should return NULL if 'from' is NULL
-
-Matteo Croce <mcroce@redhat.com>
-    ipv4: don't set IPv6 only flags to IPv4 addresses
-
-Eric Dumazet <edumazet@google.com>
-    igmp: fix memory leak in igmpv3_del_delrec()
-
-Haiyang Zhang <haiyangz@microsoft.com>
-    hv_netvsc: Fix extra rcu_read_unlock in netvsc_recv_callback()
-
-Taehee Yoo <ap420073@gmail.com>
-    caif-hsi: fix possible deadlock in cfhsi_exit_module()
-
-Brian King <brking@linux.vnet.ibm.com>
-    bnx2x: Prevent load reordering in tx completion processing
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |   4 +-
- arch/mips/jz4740/board-qi_lb60.c                   |  16 +--
- arch/x86/include/asm/kvm_host.h                    |   7 +-
- arch/x86/kvm/vmx/nested.c                          |  10 +-
- arch/x86/kvm/x86.c                                 |   4 +-
- block/blk-zoned.c                                  |  46 ++++---
- drivers/dma-buf/dma-buf.c                          |   1 +
- drivers/dma-buf/reservation.c                      |   4 +
- drivers/gpio/gpio-davinci.c                        |   5 +-
- drivers/gpio/gpiolib-of.c                          |   1 +
- drivers/net/caif/caif_hsi.c                        |   2 +-
- drivers/net/dsa/mv88e6xxx/chip.c                   |   2 +
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c    |   3 +
- drivers/net/ethernet/broadcom/genet/bcmgenet.c     |  57 ++++-----
- drivers/net/ethernet/marvell/sky2.c                |   7 ++
- drivers/net/ethernet/mellanox/mlx5/core/en.h       |   1 +
- .../ethernet/mellanox/mlx5/core/en/reporter_tx.c   |  10 +-
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c  |   3 +
- drivers/net/ethernet/mellanox/mlx5/core/en_rx.c    |   7 +-
- .../net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c  |   9 +-
- .../net/ethernet/mellanox/mlx5/core/lib/port_tun.c |  23 +---
- drivers/net/ethernet/realtek/r8169.c               | 137 +++++++++++++++++++++
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  |  29 +++--
- drivers/net/hyperv/netvsc_drv.c                    |   1 -
- drivers/net/macsec.c                               |   6 +-
- drivers/net/phy/sfp.c                              |   2 +-
- drivers/net/vrf.c                                  |  58 +++++----
- drivers/scsi/sd_zbc.c                              | 104 +++++++++++-----
- fs/ext4/dir.c                                      |  19 ++-
- fs/ext4/ext4_jbd2.h                                |  12 +-
- fs/ext4/file.c                                     |   4 +
- fs/ext4/inode.c                                    |  24 +++-
- fs/ext4/ioctl.c                                    |  46 ++++++-
- fs/ext4/move_extent.c                              |   3 +-
- fs/ext4/namei.c                                    |  45 +++++--
- fs/jbd2/commit.c                                   |  23 +++-
- fs/jbd2/journal.c                                  |   4 +
- fs/jbd2/transaction.c                              |  49 ++++----
- include/linux/blkdev.h                             |   5 +
- include/linux/fs.h                                 |   2 +
- include/linux/jbd2.h                               |  22 ++++
- include/linux/mlx5/mlx5_ifc.h                      |   3 +-
- include/linux/perf_event.h                         |   5 +
- include/net/dst.h                                  |   5 +-
- include/net/tcp.h                                  |   8 +-
- include/net/tls.h                                  |   1 +
- kernel/events/core.c                               |  83 ++++++++++---
- mm/filemap.c                                       |  22 ++++
- mm/vmscan.c                                        |   6 +-
- net/bridge/br_input.c                              |   8 +-
- net/bridge/br_multicast.c                          |  23 ++--
- net/bridge/br_stp_bpdu.c                           |   3 +-
- net/core/filter.c                                  |   2 +-
- net/core/neighbour.c                               |   2 +
- net/ipv4/devinet.c                                 |   8 ++
- net/ipv4/igmp.c                                    |   8 +-
- net/ipv4/tcp.c                                     |   6 +-
- net/ipv4/tcp_cong.c                                |   6 +-
- net/ipv4/tcp_output.c                              |  13 +-
- net/ipv6/ip6_fib.c                                 |  18 ++-
- net/ipv6/route.c                                   |   2 +-
- net/netfilter/nf_queue.c                           |   6 +-
- net/netrom/af_netrom.c                             |   4 +-
- net/nfc/nci/data.c                                 |   2 +-
- net/openvswitch/actions.c                          |   6 +-
- net/rxrpc/af_rxrpc.c                               |   4 +-
- net/sched/cls_api.c                                |   1 +
- net/sched/sch_fq_codel.c                           |   2 -
- net/sched/sch_sfq.c                                |   2 -
- net/sctp/socket.c                                  |  24 +---
- net/sctp/stream.c                                  |   9 +-
- net/tls/tls_device.c                               |  10 +-
- net/tls/tls_main.c                                 |   4 +-
- net/tls/tls_sw.c                                   |   3 +-
- tools/perf/builtin-script.c                        |   3 +-
- tools/testing/selftests/net/txring_overwrite.c     |   2 +-
- 76 files changed, 816 insertions(+), 315 deletions(-)
+From: Heiner Kallweit <hkallweit1@gmail.com>
+
+[ Upstream commit fe4e8db0392a6c2e795eb89ef5fcd86522e66248 ]
+
+On RTL8411b the RX unit gets confused if the PHY is powered-down.
+This was reported in [0] and confirmed by Realtek. Realtek provided
+a sequence to fix the RX unit after PHY wakeup.
+
+The issue itself seems to have been there longer, the Fixes tag
+refers to where the fix applies properly.
+
+[0] https://bugzilla.redhat.com/show_bug.cgi?id=1692075
+
+Fixes: a99790bf5c7f ("r8169: Reinstate ASPM Support")
+Tested-by: Ionut Radu <ionut.radu@gmail.com>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/net/ethernet/realtek/r8169.c |  137 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 137 insertions(+)
+
+--- a/drivers/net/ethernet/realtek/r8169.c
++++ b/drivers/net/ethernet/realtek/r8169.c
+@@ -5157,6 +5157,143 @@ static void rtl_hw_start_8411_2(struct r
+ 	/* disable aspm and clock request before access ephy */
+ 	rtl_hw_aspm_clkreq_enable(tp, false);
+ 	rtl_ephy_init(tp, e_info_8411_2);
++
++	/* The following Realtek-provided magic fixes an issue with the RX unit
++	 * getting confused after the PHY having been powered-down.
++	 */
++	r8168_mac_ocp_write(tp, 0xFC28, 0x0000);
++	r8168_mac_ocp_write(tp, 0xFC2A, 0x0000);
++	r8168_mac_ocp_write(tp, 0xFC2C, 0x0000);
++	r8168_mac_ocp_write(tp, 0xFC2E, 0x0000);
++	r8168_mac_ocp_write(tp, 0xFC30, 0x0000);
++	r8168_mac_ocp_write(tp, 0xFC32, 0x0000);
++	r8168_mac_ocp_write(tp, 0xFC34, 0x0000);
++	r8168_mac_ocp_write(tp, 0xFC36, 0x0000);
++	mdelay(3);
++	r8168_mac_ocp_write(tp, 0xFC26, 0x0000);
++
++	r8168_mac_ocp_write(tp, 0xF800, 0xE008);
++	r8168_mac_ocp_write(tp, 0xF802, 0xE00A);
++	r8168_mac_ocp_write(tp, 0xF804, 0xE00C);
++	r8168_mac_ocp_write(tp, 0xF806, 0xE00E);
++	r8168_mac_ocp_write(tp, 0xF808, 0xE027);
++	r8168_mac_ocp_write(tp, 0xF80A, 0xE04F);
++	r8168_mac_ocp_write(tp, 0xF80C, 0xE05E);
++	r8168_mac_ocp_write(tp, 0xF80E, 0xE065);
++	r8168_mac_ocp_write(tp, 0xF810, 0xC602);
++	r8168_mac_ocp_write(tp, 0xF812, 0xBE00);
++	r8168_mac_ocp_write(tp, 0xF814, 0x0000);
++	r8168_mac_ocp_write(tp, 0xF816, 0xC502);
++	r8168_mac_ocp_write(tp, 0xF818, 0xBD00);
++	r8168_mac_ocp_write(tp, 0xF81A, 0x074C);
++	r8168_mac_ocp_write(tp, 0xF81C, 0xC302);
++	r8168_mac_ocp_write(tp, 0xF81E, 0xBB00);
++	r8168_mac_ocp_write(tp, 0xF820, 0x080A);
++	r8168_mac_ocp_write(tp, 0xF822, 0x6420);
++	r8168_mac_ocp_write(tp, 0xF824, 0x48C2);
++	r8168_mac_ocp_write(tp, 0xF826, 0x8C20);
++	r8168_mac_ocp_write(tp, 0xF828, 0xC516);
++	r8168_mac_ocp_write(tp, 0xF82A, 0x64A4);
++	r8168_mac_ocp_write(tp, 0xF82C, 0x49C0);
++	r8168_mac_ocp_write(tp, 0xF82E, 0xF009);
++	r8168_mac_ocp_write(tp, 0xF830, 0x74A2);
++	r8168_mac_ocp_write(tp, 0xF832, 0x8CA5);
++	r8168_mac_ocp_write(tp, 0xF834, 0x74A0);
++	r8168_mac_ocp_write(tp, 0xF836, 0xC50E);
++	r8168_mac_ocp_write(tp, 0xF838, 0x9CA2);
++	r8168_mac_ocp_write(tp, 0xF83A, 0x1C11);
++	r8168_mac_ocp_write(tp, 0xF83C, 0x9CA0);
++	r8168_mac_ocp_write(tp, 0xF83E, 0xE006);
++	r8168_mac_ocp_write(tp, 0xF840, 0x74F8);
++	r8168_mac_ocp_write(tp, 0xF842, 0x48C4);
++	r8168_mac_ocp_write(tp, 0xF844, 0x8CF8);
++	r8168_mac_ocp_write(tp, 0xF846, 0xC404);
++	r8168_mac_ocp_write(tp, 0xF848, 0xBC00);
++	r8168_mac_ocp_write(tp, 0xF84A, 0xC403);
++	r8168_mac_ocp_write(tp, 0xF84C, 0xBC00);
++	r8168_mac_ocp_write(tp, 0xF84E, 0x0BF2);
++	r8168_mac_ocp_write(tp, 0xF850, 0x0C0A);
++	r8168_mac_ocp_write(tp, 0xF852, 0xE434);
++	r8168_mac_ocp_write(tp, 0xF854, 0xD3C0);
++	r8168_mac_ocp_write(tp, 0xF856, 0x49D9);
++	r8168_mac_ocp_write(tp, 0xF858, 0xF01F);
++	r8168_mac_ocp_write(tp, 0xF85A, 0xC526);
++	r8168_mac_ocp_write(tp, 0xF85C, 0x64A5);
++	r8168_mac_ocp_write(tp, 0xF85E, 0x1400);
++	r8168_mac_ocp_write(tp, 0xF860, 0xF007);
++	r8168_mac_ocp_write(tp, 0xF862, 0x0C01);
++	r8168_mac_ocp_write(tp, 0xF864, 0x8CA5);
++	r8168_mac_ocp_write(tp, 0xF866, 0x1C15);
++	r8168_mac_ocp_write(tp, 0xF868, 0xC51B);
++	r8168_mac_ocp_write(tp, 0xF86A, 0x9CA0);
++	r8168_mac_ocp_write(tp, 0xF86C, 0xE013);
++	r8168_mac_ocp_write(tp, 0xF86E, 0xC519);
++	r8168_mac_ocp_write(tp, 0xF870, 0x74A0);
++	r8168_mac_ocp_write(tp, 0xF872, 0x48C4);
++	r8168_mac_ocp_write(tp, 0xF874, 0x8CA0);
++	r8168_mac_ocp_write(tp, 0xF876, 0xC516);
++	r8168_mac_ocp_write(tp, 0xF878, 0x74A4);
++	r8168_mac_ocp_write(tp, 0xF87A, 0x48C8);
++	r8168_mac_ocp_write(tp, 0xF87C, 0x48CA);
++	r8168_mac_ocp_write(tp, 0xF87E, 0x9CA4);
++	r8168_mac_ocp_write(tp, 0xF880, 0xC512);
++	r8168_mac_ocp_write(tp, 0xF882, 0x1B00);
++	r8168_mac_ocp_write(tp, 0xF884, 0x9BA0);
++	r8168_mac_ocp_write(tp, 0xF886, 0x1B1C);
++	r8168_mac_ocp_write(tp, 0xF888, 0x483F);
++	r8168_mac_ocp_write(tp, 0xF88A, 0x9BA2);
++	r8168_mac_ocp_write(tp, 0xF88C, 0x1B04);
++	r8168_mac_ocp_write(tp, 0xF88E, 0xC508);
++	r8168_mac_ocp_write(tp, 0xF890, 0x9BA0);
++	r8168_mac_ocp_write(tp, 0xF892, 0xC505);
++	r8168_mac_ocp_write(tp, 0xF894, 0xBD00);
++	r8168_mac_ocp_write(tp, 0xF896, 0xC502);
++	r8168_mac_ocp_write(tp, 0xF898, 0xBD00);
++	r8168_mac_ocp_write(tp, 0xF89A, 0x0300);
++	r8168_mac_ocp_write(tp, 0xF89C, 0x051E);
++	r8168_mac_ocp_write(tp, 0xF89E, 0xE434);
++	r8168_mac_ocp_write(tp, 0xF8A0, 0xE018);
++	r8168_mac_ocp_write(tp, 0xF8A2, 0xE092);
++	r8168_mac_ocp_write(tp, 0xF8A4, 0xDE20);
++	r8168_mac_ocp_write(tp, 0xF8A6, 0xD3C0);
++	r8168_mac_ocp_write(tp, 0xF8A8, 0xC50F);
++	r8168_mac_ocp_write(tp, 0xF8AA, 0x76A4);
++	r8168_mac_ocp_write(tp, 0xF8AC, 0x49E3);
++	r8168_mac_ocp_write(tp, 0xF8AE, 0xF007);
++	r8168_mac_ocp_write(tp, 0xF8B0, 0x49C0);
++	r8168_mac_ocp_write(tp, 0xF8B2, 0xF103);
++	r8168_mac_ocp_write(tp, 0xF8B4, 0xC607);
++	r8168_mac_ocp_write(tp, 0xF8B6, 0xBE00);
++	r8168_mac_ocp_write(tp, 0xF8B8, 0xC606);
++	r8168_mac_ocp_write(tp, 0xF8BA, 0xBE00);
++	r8168_mac_ocp_write(tp, 0xF8BC, 0xC602);
++	r8168_mac_ocp_write(tp, 0xF8BE, 0xBE00);
++	r8168_mac_ocp_write(tp, 0xF8C0, 0x0C4C);
++	r8168_mac_ocp_write(tp, 0xF8C2, 0x0C28);
++	r8168_mac_ocp_write(tp, 0xF8C4, 0x0C2C);
++	r8168_mac_ocp_write(tp, 0xF8C6, 0xDC00);
++	r8168_mac_ocp_write(tp, 0xF8C8, 0xC707);
++	r8168_mac_ocp_write(tp, 0xF8CA, 0x1D00);
++	r8168_mac_ocp_write(tp, 0xF8CC, 0x8DE2);
++	r8168_mac_ocp_write(tp, 0xF8CE, 0x48C1);
++	r8168_mac_ocp_write(tp, 0xF8D0, 0xC502);
++	r8168_mac_ocp_write(tp, 0xF8D2, 0xBD00);
++	r8168_mac_ocp_write(tp, 0xF8D4, 0x00AA);
++	r8168_mac_ocp_write(tp, 0xF8D6, 0xE0C0);
++	r8168_mac_ocp_write(tp, 0xF8D8, 0xC502);
++	r8168_mac_ocp_write(tp, 0xF8DA, 0xBD00);
++	r8168_mac_ocp_write(tp, 0xF8DC, 0x0132);
++
++	r8168_mac_ocp_write(tp, 0xFC26, 0x8000);
++
++	r8168_mac_ocp_write(tp, 0xFC2A, 0x0743);
++	r8168_mac_ocp_write(tp, 0xFC2C, 0x0801);
++	r8168_mac_ocp_write(tp, 0xFC2E, 0x0BE9);
++	r8168_mac_ocp_write(tp, 0xFC30, 0x02FD);
++	r8168_mac_ocp_write(tp, 0xFC32, 0x0C25);
++	r8168_mac_ocp_write(tp, 0xFC34, 0x00A9);
++	r8168_mac_ocp_write(tp, 0xFC36, 0x012D);
++
+ 	rtl_hw_aspm_clkreq_enable(tp, true);
+ }
+ 
 
 
