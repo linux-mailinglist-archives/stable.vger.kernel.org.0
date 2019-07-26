@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9A75768F1
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:48:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A313376887
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:45:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388533AbfGZNpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:45:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53990 "EHLO mail.kernel.org"
+        id S2387897AbfGZNpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:45:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728143AbfGZNpM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:45:12 -0400
+        id S2387797AbfGZNpP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:45:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AEA7922CE9;
-        Fri, 26 Jul 2019 13:45:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D97622CBF;
+        Fri, 26 Jul 2019 13:45:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148711;
-        bh=cljafivhS5SgwGmwbvwM7kjh7jlUt6mW6AydIjbkjVo=;
+        s=default; t=1564148714;
+        bh=kO52KThU4opQaTxinGELJ0K7qWXZU/I58JEAGFrPfDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vf8GA85BVfYGM/4r/wlVn1CJUcPwOUoyEpnaEL5paQKmvdcn/Ug+bKiocMV5YAl6b
-         C3V555TORvqXmu/zo2Yw1gUaeUu7+Cy4WM8jSFJBM7DD8JQ+8FBbEsk4rNPpjs27BA
-         jWPHjnO+dtzfqsyQsk+MCHgDEHUPBqU4+ydOSby8=
+        b=A+7t9iB1xjf7xAmoO6Jvu7CLyvP2Rf5e8q7KS34moTk4gPFKtPZt4WACMmHDQz+UQ
+         C9SdR8FwkmXUgg/fV1wbzVG78Ou6UG2gjkp1WowvXzU49gU+Msoupa79INN1xv3hEW
+         JAxA27glw0m+v6nKnrbKYj9hMWayzmVm8pcmAjx4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Miroslav Lichvar <mlichvar@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Rodolfo Giometti <giometti@enneenne.com>,
-        Greg KH <greg@kroah.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+Cc:     Kees Cook <keescook@chromium.org>,
+        Andreas Christoforou <andreaschristofo@gmail.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Manfred Spraul <manfred@colorfullife.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 24/30] drivers/pps/pps.c: clear offset flags in PPS_SETPARAMS ioctl
-Date:   Fri, 26 Jul 2019 09:44:26 -0400
-Message-Id: <20190726134432.12993-24-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 25/30] ipc/mqueue.c: only perform resource calculation if user valid
+Date:   Fri, 26 Jul 2019 09:44:27 -0400
+Message-Id: <20190726134432.12993-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726134432.12993-1-sashal@kernel.org>
 References: <20190726134432.12993-1-sashal@kernel.org>
@@ -48,52 +50,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miroslav Lichvar <mlichvar@redhat.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 5515e9a6273b8c02034466bcbd717ac9f53dab99 ]
+[ Upstream commit a318f12ed8843cfac53198390c74a565c632f417 ]
 
-The PPS assert/clear offset corrections are set by the PPS_SETPARAMS
-ioctl in the pps_ktime structs, which also contain flags.  The flags are
-not initialized by applications (using the timepps.h header) and they
-are not used by the kernel for anything except returning them back in
-the PPS_GETPARAMS ioctl.
+Andreas Christoforou reported:
 
-Set the flags to zero to make it clear they are unused and avoid leaking
-uninitialized data of the PPS_SETPARAMS caller to other applications
-that have a read access to the PPS device.
+  UBSAN: Undefined behaviour in ipc/mqueue.c:414:49 signed integer overflow:
+  9 * 2305843009213693951 cannot be represented in type 'long int'
+  ...
+  Call Trace:
+    mqueue_evict_inode+0x8e7/0xa10 ipc/mqueue.c:414
+    evict+0x472/0x8c0 fs/inode.c:558
+    iput_final fs/inode.c:1547 [inline]
+    iput+0x51d/0x8c0 fs/inode.c:1573
+    mqueue_get_inode+0x8eb/0x1070 ipc/mqueue.c:320
+    mqueue_create_attr+0x198/0x440 ipc/mqueue.c:459
+    vfs_mkobj+0x39e/0x580 fs/namei.c:2892
+    prepare_open ipc/mqueue.c:731 [inline]
+    do_mq_open+0x6da/0x8e0 ipc/mqueue.c:771
 
-Link: http://lkml.kernel.org/r/20190702092251.24303-1-mlichvar@redhat.com
-Signed-off-by: Miroslav Lichvar <mlichvar@redhat.com>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Rodolfo Giometti <giometti@enneenne.com>
-Cc: Greg KH <greg@kroah.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Which could be triggered by:
+
+        struct mq_attr attr = {
+                .mq_flags = 0,
+                .mq_maxmsg = 9,
+                .mq_msgsize = 0x1fffffffffffffff,
+                .mq_curmsgs = 0,
+        };
+
+        if (mq_open("/testing", 0x40, 3, &attr) == (mqd_t) -1)
+                perror("mq_open");
+
+mqueue_get_inode() was correctly rejecting the giant mq_msgsize, and
+preparing to return -EINVAL.  During the cleanup, it calls
+mqueue_evict_inode() which performed resource usage tracking math for
+updating "user", before checking if there was a valid "user" at all
+(which would indicate that the calculations would be sane).  Instead,
+delay this check to after seeing a valid "user".
+
+The overflow was real, but the results went unused, so while the flaw is
+harmless, it's noisy for kernel fuzzers, so just fix it by moving the
+calculation under the non-NULL "user" where it actually gets used.
+
+Link: http://lkml.kernel.org/r/201906072207.ECB65450@keescook
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reported-by: Andreas Christoforou <andreaschristofo@gmail.com>
+Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Manfred Spraul <manfred@colorfullife.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pps/pps.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ ipc/mqueue.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/pps/pps.c b/drivers/pps/pps.c
-index 2f07cd615665..76ae38450aea 100644
---- a/drivers/pps/pps.c
-+++ b/drivers/pps/pps.c
-@@ -129,6 +129,14 @@ static long pps_cdev_ioctl(struct file *file,
- 			pps->params.mode |= PPS_CANWAIT;
- 		pps->params.api_version = PPS_API_VERS;
+diff --git a/ipc/mqueue.c b/ipc/mqueue.c
+index d5491a880751..3f7dc5f341f7 100644
+--- a/ipc/mqueue.c
++++ b/ipc/mqueue.c
+@@ -369,7 +369,6 @@ static void mqueue_evict_inode(struct inode *inode)
+ {
+ 	struct mqueue_inode_info *info;
+ 	struct user_struct *user;
+-	unsigned long mq_bytes, mq_treesize;
+ 	struct ipc_namespace *ipc_ns;
+ 	struct msg_msg *msg, *nmsg;
+ 	LIST_HEAD(tmp_msg);
+@@ -392,16 +391,18 @@ static void mqueue_evict_inode(struct inode *inode)
+ 		free_msg(msg);
+ 	}
  
-+		/*
-+		 * Clear unused fields of pps_kparams to avoid leaking
-+		 * uninitialized data of the PPS_SETPARAMS caller via
-+		 * PPS_GETPARAMS
-+		 */
-+		pps->params.assert_off_tu.flags = 0;
-+		pps->params.clear_off_tu.flags = 0;
+-	/* Total amount of bytes accounted for the mqueue */
+-	mq_treesize = info->attr.mq_maxmsg * sizeof(struct msg_msg) +
+-		min_t(unsigned int, info->attr.mq_maxmsg, MQ_PRIO_MAX) *
+-		sizeof(struct posix_msg_tree_node);
+-
+-	mq_bytes = mq_treesize + (info->attr.mq_maxmsg *
+-				  info->attr.mq_msgsize);
+-
+ 	user = info->user;
+ 	if (user) {
++		unsigned long mq_bytes, mq_treesize;
 +
- 		spin_unlock_irq(&pps->lock);
- 
- 		break;
++		/* Total amount of bytes accounted for the mqueue */
++		mq_treesize = info->attr.mq_maxmsg * sizeof(struct msg_msg) +
++			min_t(unsigned int, info->attr.mq_maxmsg, MQ_PRIO_MAX) *
++			sizeof(struct posix_msg_tree_node);
++
++		mq_bytes = mq_treesize + (info->attr.mq_maxmsg *
++					  info->attr.mq_msgsize);
++
+ 		spin_lock(&mq_lock);
+ 		user->mq_bytes -= mq_bytes;
+ 		/*
 -- 
 2.20.1
 
