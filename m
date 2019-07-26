@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03C0A76DDA
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:37:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E926276D5C
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:33:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388982AbfGZPaE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:30:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44946 "EHLO mail.kernel.org"
+        id S2389264AbfGZPdT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:33:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388976AbfGZPaE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:30:04 -0400
+        id S2389616AbfGZPdQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:33:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F693218D4;
-        Fri, 26 Jul 2019 15:30:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF63D22CD0;
+        Fri, 26 Jul 2019 15:33:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564155003;
-        bh=shJTikug5vCmgXdjWixPN2Mt7ygPLs3Sk1CgBOOm6Ns=;
+        s=default; t=1564155196;
+        bh=iv41E8Xkoz/Gx491upJuOMOJegDpsEKW4zDDb4NP148=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y/O5famuQbFNSPVwgbtC6RZ1pZkvgpsf63tRZ1N9AO/LEvsgRF3iKRGVL5S5Kn4OC
-         eLjCOTRv3HtZLQCyF7A2DhadN224r2GGF/YKhl2593PXwapJR0pPZJhqaja4oNzgNa
-         rWYcx846/oaBteZ1WRn/hi+Edfrj6tAQWCHNpDto=
+        b=xyzjk+mwzcz709SUaAI2RNQXrCCqV2l3rkMxQ1TP4OD+ATJKs/nJYW65gGeouykLV
+         S5dn5r72Q8K/EM6dgSWXwwboQ8f76XpHuHuN1dHoQp1EytySsh+jsQF7mdBMb5mM8C
+         oYQhBa2X4FM3nA/D7LCw2dTckR7qRnM3OFYbc9+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Steinmetz <ast@domdv.de>,
-        Willem de Bruijn <willemb@google.com>,
+        stable@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>,
+        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 32/62] macsec: fix use-after-free of skb during RX
+Subject: [PATCH 4.19 09/50] net: dsa: mv88e6xxx: wait after reset deactivation
 Date:   Fri, 26 Jul 2019 17:24:44 +0200
-Message-Id: <20190726152305.130414343@linuxfoundation.org>
+Message-Id: <20190726152301.584679551@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
-References: <20190726152301.720139286@linuxfoundation.org>
+In-Reply-To: <20190726152300.760439618@linuxfoundation.org>
+References: <20190726152300.760439618@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Steinmetz <ast@domdv.de>
+From: Baruch Siach <baruch@tkos.co.il>
 
-[ Upstream commit 095c02da80a41cf6d311c504d8955d6d1c2add10 ]
+[ Upstream commit 7b75e49de424ceb53d13e60f35d0a73765626fda ]
 
-Fix use-after-free of skb when rx_handler returns RX_HANDLER_PASS.
+Add a 1ms delay after reset deactivation. Otherwise the chip returns
+bogus ID value. This is observed with 88E6390 (Peridot) chip.
 
-Signed-off-by: Andreas Steinmetz <ast@domdv.de>
-Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Baruch Siach <baruch@tkos.co.il>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/macsec.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/net/dsa/mv88e6xxx/chip.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -1103,10 +1103,9 @@ static rx_handler_result_t macsec_handle
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -4816,6 +4816,8 @@ static int mv88e6xxx_probe(struct mdio_d
+ 		err = PTR_ERR(chip->reset);
+ 		goto out;
  	}
++	if (chip->reset)
++		usleep_range(1000, 2000);
  
- 	skb = skb_unshare(skb, GFP_ATOMIC);
--	if (!skb) {
--		*pskb = NULL;
-+	*pskb = skb;
-+	if (!skb)
- 		return RX_HANDLER_CONSUMED;
--	}
- 
- 	pulled_sci = pskb_may_pull(skb, macsec_extra_len(true));
- 	if (!pulled_sci) {
+ 	err = mv88e6xxx_detect(chip);
+ 	if (err)
 
 
