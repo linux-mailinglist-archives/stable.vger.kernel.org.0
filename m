@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1809E76D85
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:35:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4B5B76D3D
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:32:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389326AbfGZPeR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:34:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49932 "EHLO mail.kernel.org"
+        id S2388733AbfGZPb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:31:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389422AbfGZPeR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:34:17 -0400
+        id S2388577AbfGZPby (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:31:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97F522054F;
-        Fri, 26 Jul 2019 15:34:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D366922CD1;
+        Fri, 26 Jul 2019 15:31:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564155257;
-        bh=mU/cphH8ryHrVmuO9omVALk2fgtD/LhRfsJrntv7E2o=;
+        s=default; t=1564155113;
+        bh=H+PFAhJnfasRI2CQQwAOMPBazNoKG0UptdFUcKC+uqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JsSFV1pnKrU8BkWi2UbE4ot/BOgSBMicUEkYJaq+5rfqrdpCKFX1TW7+XSBjlOoMz
-         QKRQxhrN8hRh8qOiB/tRr7yspI6ke+ucEcnjbhZbtwDmhN+lrohD6iRmL06OlanMQ0
-         Ccmpy0eCwKxEYvYIZngnlhu/aRWQFaQW6byE6/VQ=
+        b=qIsx4s1yyGIJzMObshp0+zJc+NZFmGitfuwY8jL61moxe/F+/eTXoLqZ1ZM1g9ZaL
+         +TSoGa6M9TCCusgYp07GH4Ks5BHhKq/JbZGbtphTdR4PLZXoou3ZwDLxypsxnxrtbS
+         73tWcWgvc5NjDpv74gud8LQMuanx2YTZMuZ1NQnM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 35/50] net: bridge: stp: dont cache eth dest pointer before skb pull
+        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
+        Liran Alon <liran.alon@oracle.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.1 58/62] KVM: nVMX: Clear pending KVM_REQ_GET_VMCS12_PAGES when leaving nested
 Date:   Fri, 26 Jul 2019 17:25:10 +0200
-Message-Id: <20190726152304.248021797@linuxfoundation.org>
+Message-Id: <20190726152308.052374385@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190726152300.760439618@linuxfoundation.org>
-References: <20190726152300.760439618@linuxfoundation.org>
+In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
+References: <20190726152301.720139286@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+From: Jan Kiszka <jan.kiszka@siemens.com>
 
-[ Upstream commit 2446a68ae6a8cee6d480e2f5b52f5007c7c41312 ]
+commit cf64527bb33f6cec2ed50f89182fc4688d0056b6 upstream.
 
-Don't cache eth dest pointer before calling pskb_may_pull.
+Letting this pend may cause nested_get_vmcs12_pages to run against an
+invalid state, corrupting the effective vmcs of L1.
 
-Fixes: cf0f02d04a83 ("[BRIDGE]: use llc for receiving STP packets")
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This was triggerable in QEMU after a guest corruption in L2, followed by
+a L1 reset.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Reviewed-by: Liran Alon <liran.alon@oracle.com>
+Cc: stable@vger.kernel.org
+Fixes: 7f7f1ba33cf2 ("KVM: x86: do not load vmcs12 pages while still in SMM")
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/bridge/br_stp_bpdu.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/net/bridge/br_stp_bpdu.c
-+++ b/net/bridge/br_stp_bpdu.c
-@@ -147,7 +147,6 @@ void br_send_tcn_bpdu(struct net_bridge_
- void br_stp_rcv(const struct stp_proto *proto, struct sk_buff *skb,
- 		struct net_device *dev)
- {
--	const unsigned char *dest = eth_hdr(skb)->h_dest;
- 	struct net_bridge_port *p;
- 	struct net_bridge *br;
- 	const unsigned char *buf;
-@@ -176,7 +175,7 @@ void br_stp_rcv(const struct stp_proto *
- 	if (p->state == BR_STATE_DISABLED)
- 		goto out;
+---
+ arch/x86/kvm/vmx/nested.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -212,6 +212,8 @@ static void free_nested(struct kvm_vcpu
+ 	if (!vmx->nested.vmxon && !vmx->nested.smm.vmxon)
+ 		return;
  
--	if (!ether_addr_equal(dest, br->group_addr))
-+	if (!ether_addr_equal(eth_hdr(skb)->h_dest, br->group_addr))
- 		goto out;
- 
- 	if (p->flags & BR_BPDU_GUARD) {
++	kvm_clear_request(KVM_REQ_GET_VMCS12_PAGES, vcpu);
++
+ 	vmx->nested.vmxon = false;
+ 	vmx->nested.smm.vmxon = false;
+ 	free_vpid(vmx->nested.vpid02);
 
 
