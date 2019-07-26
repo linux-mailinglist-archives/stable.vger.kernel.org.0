@@ -2,169 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4940F766C3
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:00:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23D99766CC
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:05:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726491AbfGZNAf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:00:35 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:35797 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726005AbfGZNAf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 09:00:35 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 0917356F;
-        Fri, 26 Jul 2019 09:00:32 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Fri, 26 Jul 2019 09:00:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=9rGhEb
-        mA/yWQXl9vs75MYs3lUTmp84YL82X57Y79keg=; b=i69G/3FIzt+c46Kh+LRRWA
-        yujIpEgQaP/b5EsdbqMm5oyd8FIRJa7h8JSWMSWJ21o2D11pcfozJaQZ+ej4KL0O
-        1RtcR3LuUQouvHGSAcK38jIe0BIjIDsXkBIJKWHYZkdb75SHM4w92owIaCE006sL
-        ruM2meGd3Cc+hc08+2IA4GDXJ1AEhsgiS7ya4J+6SsezQwano9DlStHgvAub8l/o
-        onPnSt8pZm5ya0WNFz8auJShyZMpQZp7Wx/decK7IS6mm53aHA4vJuR7V7GeveFU
-        CbSZ9j8G/drY6latsyvlr+ZbdqxlXMyDtBX4cfOV+eo7OjFnF+zvBT3RwuUYCOXA
-        ==
-X-ME-Sender: <xms:b_k6XZrqU4msDMX8nkVFad_r1N4VH_A8HWdlb44YoHae4dy9c8xL5w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrkeeggdehlecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:cPk6XcGyI-Od1TV8Ev6KLCMgQ1Wkrk64KsQM9iipxq-XqZRV71DcHA>
-    <xmx:cPk6XV_ym1G3D03H331-bkGWhOLLpz0NUrLU6rLt82cVaEWx91dY4w>
-    <xmx:cPk6XRRcTQOPN37m0Hhb-TIRoBGwj4b3pIE7u1Qvi4Ab_sx6S7adxA>
-    <xmx:cPk6XaOqYsvVLqwGda6RSnfA3XVRGjc6j-CBV7I6DocUqupXfR_wKQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 982C680063;
-        Fri, 26 Jul 2019 09:00:31 -0400 (EDT)
-Subject: WTF: patch "[PATCH] gpio: em: remove the gpiochip before removing the irq domain" was seriously submitted to be applied to the 5.2-stable tree?
-To:     bgolaszewski@baylibre.com, geert+renesas@glider.be,
-        geert@linux-m68k.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 26 Jul 2019 15:00:30 +0200
-Message-ID: <1564146030179130@kroah.com>
+        id S1726253AbfGZNFa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:05:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45892 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726086AbfGZNFa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:05:30 -0400
+Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DD94218D4;
+        Fri, 26 Jul 2019 13:05:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564146328;
+        bh=PlJaIXLsd7+ROMZXdVipGcdLV0hhbDgStYB8O8oFc0c=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=RdcUIdd1H+5eq9/3l9EYVMzYIHTMXpCifNslC1KeXnrHabpBGQVVegiqp1oaFoNRa
+         dZ9wthH9uc5ZaCamXK2hqB0iYpN0Q6dAXK+IoCEFy4V5umgyxufnEdIhK/4CTLecCl
+         7Ghvg4ElsJ5NFty0qQoUitUxckBHjJfa8psJi1lo=
+Date:   Fri, 26 Jul 2019 14:05:24 +0100
+From:   Will Deacon <will@kernel.org>
+To:     Robin Murphy <robin.murphy@arm.com>
+Cc:     Mark Rutland <mark.rutland@arm.com>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        catalin.marinas@arm.com, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 1/3] arm64: perf: Mark expected switch fall-through
+Message-ID: <20190726130523.ftmc2un7fwwcegrr@willie-the-truck>
+References: <20190726112716.19104-1-anders.roxell@linaro.org>
+ <20190726121056.GA26088@lakrids.cambridge.arm.com>
+ <20190726121354.GB26088@lakrids.cambridge.arm.com>
+ <20190726122728.jhn4e6wq7rcowyi4@willie-the-truck>
+ <1549fe77-367f-fee1-c09c-e429fca91051@arm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <1549fe77-367f-fee1-c09c-e429fca91051@arm.com>
+User-Agent: NeoMutt/20170113 (1.7.2)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch below was submitted to be applied to the 5.2-stable tree.
+On Fri, Jul 26, 2019 at 01:38:24PM +0100, Robin Murphy wrote:
+> On 26/07/2019 13:27, Will Deacon wrote:
+> > On Fri, Jul 26, 2019 at 01:13:54PM +0100, Mark Rutland wrote:
+> > > On Fri, Jul 26, 2019 at 01:10:57PM +0100, Mark Rutland wrote:
+> > > > On Fri, Jul 26, 2019 at 01:27:16PM +0200, Anders Roxell wrote:
+> > > > > When fall-through warnings was enabled by default, commit d93512ef0f0e
+> > > > > ("Makefile: Globally enable fall-through warning"), the following
+> > > > > warnings was starting to show up:
+> > > > > 
+> > > > > ../arch/arm64/kernel/hw_breakpoint.c: In function ‘hw_breakpoint_arch_parse’:
+> > > > > ../arch/arm64/kernel/hw_breakpoint.c:540:7: warning: this statement may fall
+> > > > >   through [-Wimplicit-fallthrough=]
+> > > > >      if (hw->ctrl.len == ARM_BREAKPOINT_LEN_1)
+> > > > >         ^
+> > > > > ../arch/arm64/kernel/hw_breakpoint.c:542:3: note: here
+> > > > >     case 2:
+> > > > >     ^~~~
+> > > > > ../arch/arm64/kernel/hw_breakpoint.c:544:7: warning: this statement may fall
+> > > > >   through [-Wimplicit-fallthrough=]
+> > > > >      if (hw->ctrl.len == ARM_BREAKPOINT_LEN_2)
+> > > > >         ^
+> > > > > ../arch/arm64/kernel/hw_breakpoint.c:546:3: note: here
+> > > > >     default:
+> > > > >     ^~~~~~~
+> > > > > 
+> > > > > Rework so that the compiler doesn't warn about fall-through. Rework so
+> > > > > the code looks like the arm code. Since the comment in the function
+> > > > > indicates taht this is supposed to behave the same way as arm32 because
+> > > > 
+> > > > Typo: s/taht/that/
+> > > > 
+> > > > > it handles 32-bit tasks also.
+> > > > > 
+> > > > > Cc: stable@vger.kernel.org # v3.16+
+> > > > > Fixes: 6ee33c2712fc ("ARM: hw_breakpoint: correct and simplify alignment fixup code")
+> > > > > Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+> > > > 
+> > > > The patch itself looks fine, but I don't think this needs a CC to
+> > > > stable, nor does it require that fixes tag, as there's no functional
+> > > > problem.
+> > > 
+> > > Hmm... I now see I spoke too soon, and this is making the 1-byte
+> > > breakpoint work at a 3-byte offset.
+> > 
+> > I still don't think it's quite right though, since it forbids a 2-byte
+> > watchpoint on a byte-aligned address.
+> 
+> Plus, AFAICS, a 1-byte watchpoint on a 2-byte-aligned address.
+> 
+> Not that I know anything about this code, but it does start to look like it
+> might want rewriting without the offending switch statement anyway. At a
+> glance, it looks like the intended semantic might boil down to:
+> 
+> 	if (hw->ctrl.len > offset)
+> 		return -EINVAL;
 
-I fail to see how this patch meets the stable kernel rules as found at
-Documentation/process/stable-kernel-rules.rst.
+Given that it's compat code, I think it's worth staying as close to the
+arch/arm/ implementation as we can. Also, beware that the
+ARM_BREAKPOINT_LEN_* definitions are masks because of the BAS fields in
+the debug architecture.
 
-I could be totally wrong, and if so, please respond to 
-<stable@vger.kernel.org> and let me know why this patch should be
-applied.  Otherwise, it is now dropped from my patch queues, never to be
-seen again.
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 19ec11a2233d24a7811836fa735203aaccf95a23 Mon Sep 17 00:00:00 2001
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Date: Thu, 11 Jul 2019 10:29:35 +0200
-Subject: [PATCH] gpio: em: remove the gpiochip before removing the irq domain
-
-In commit 8764c4ca5049 ("gpio: em: use the managed version of
-gpiochip_add_data()") we implicitly altered the ordering of resource
-freeing: since gpiochip_remove() calls gpiochip_irqchip_remove()
-internally, we now can potentially use the irq_domain after it was
-destroyed in the remove() callback (as devm resources are freed after
-remove() has returned).
-
-Use devm_add_action_or_reset() to keep the ordering right and entirely
-kill the remove() callback in the driver.
-
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Fixes: 8764c4ca5049 ("gpio: em: use the managed version of gpiochip_add_data()")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-
-diff --git a/drivers/gpio/gpio-em.c b/drivers/gpio/gpio-em.c
-index b6af705a4e5f..a87951293aaa 100644
---- a/drivers/gpio/gpio-em.c
-+++ b/drivers/gpio/gpio-em.c
-@@ -259,6 +259,13 @@ static const struct irq_domain_ops em_gio_irq_domain_ops = {
- 	.xlate	= irq_domain_xlate_twocell,
- };
- 
-+static void em_gio_irq_domain_remove(void *data)
-+{
-+	struct irq_domain *domain = data;
-+
-+	irq_domain_remove(domain);
-+}
-+
- static int em_gio_probe(struct platform_device *pdev)
- {
- 	struct em_gio_priv *p;
-@@ -333,39 +340,30 @@ static int em_gio_probe(struct platform_device *pdev)
- 		return -ENXIO;
- 	}
- 
-+	ret = devm_add_action_or_reset(&pdev->dev, em_gio_irq_domain_remove,
-+				       p->irq_domain);
-+	if (ret)
-+		return ret;
-+
- 	if (devm_request_irq(&pdev->dev, irq[0]->start,
- 			     em_gio_irq_handler, 0, name, p)) {
- 		dev_err(&pdev->dev, "failed to request low IRQ\n");
--		ret = -ENOENT;
--		goto err1;
-+		return -ENOENT;
- 	}
- 
- 	if (devm_request_irq(&pdev->dev, irq[1]->start,
- 			     em_gio_irq_handler, 0, name, p)) {
- 		dev_err(&pdev->dev, "failed to request high IRQ\n");
--		ret = -ENOENT;
--		goto err1;
-+		return -ENOENT;
- 	}
- 
- 	ret = devm_gpiochip_add_data(&pdev->dev, gpio_chip, p);
- 	if (ret) {
- 		dev_err(&pdev->dev, "failed to add GPIO controller\n");
--		goto err1;
-+		return ret;
- 	}
- 
- 	return 0;
--
--err1:
--	irq_domain_remove(p->irq_domain);
--	return ret;
--}
--
--static int em_gio_remove(struct platform_device *pdev)
--{
--	struct em_gio_priv *p = platform_get_drvdata(pdev);
--
--	irq_domain_remove(p->irq_domain);
--	return 0;
- }
- 
- static const struct of_device_id em_gio_dt_ids[] = {
-@@ -376,7 +374,6 @@ MODULE_DEVICE_TABLE(of, em_gio_dt_ids);
- 
- static struct platform_driver em_gio_device_driver = {
- 	.probe		= em_gio_probe,
--	.remove		= em_gio_remove,
- 	.driver		= {
- 		.name	= "em_gio",
- 		.of_match_table = em_gio_dt_ids,
-
+Will
