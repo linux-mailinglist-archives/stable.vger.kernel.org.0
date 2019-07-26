@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5073B769FC
+	by mail.lfdr.de (Postfix) with ESMTP id BEB52769FD
 	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:55:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387859AbfGZNmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:42:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49330 "EHLO mail.kernel.org"
+        id S2387845AbfGZNmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:42:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387845AbfGZNmI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:42:08 -0400
+        id S2387874AbfGZNmN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:42:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F109822CBF;
-        Fri, 26 Jul 2019 13:42:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49CAF22CC0;
+        Fri, 26 Jul 2019 13:42:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148527;
-        bh=63hZ9egKx37hVIVrHIR+iW3hIjhT86QqwlTUfbow8ss=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=13drCaaYs1fy5Q4V6I3OCj9rdrrttgeYO9n6Owl7/KqxJ/icOXa6WZ8Enwn3rrHKV
-         RJEhosfZ1DSVPVKh7alUMar8RTqijvfhq175z/bpQB97fvvvgDjKOTKnnIhqA3+9y0
-         0JGWouMllXHX5Svv7NCkxdVACi3DCEMZCBb4PA8U=
+        s=default; t=1564148531;
+        bh=SRWkb1rYWHX8LGcFo1lj7BcnybwsJzYcZ56huQNPnn4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=lvmdxL0ZxCLs++Msjs4gfE6/SQs2QKRbomfDMI8WtrnRWw6YHoZVAS7IcRr7a6QUH
+         Akg9qUGe5J7gRZdci0TsurcsQr9ttswumPVmhRkL9OjfoEs1ccn375BuDslbDJMg84
+         XpCjSH5Yt/VW9c1z6OgqJiEon0oDIs6mC7+FOtUM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fugang Duan <fugang.duan@nxp.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.2 84/85] dma-direct: correct the physical addr in dma_direct_sync_sg_for_cpu/device
-Date:   Fri, 26 Jul 2019 09:39:34 -0400
-Message-Id: <20190726133936.11177-84-sashal@kernel.org>
+Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 01/47] ARM: riscpc: fix DMA
+Date:   Fri, 26 Jul 2019 09:41:24 -0400
+Message-Id: <20190726134210.12156-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
-References: <20190726133936.11177-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,71 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fugang Duan <fugang.duan@nxp.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 449fa54d6815be8c2c1f68fa9dbbae9384a7c03e ]
+[ Upstream commit ffd9a1ba9fdb7f2bd1d1ad9b9243d34e96756ba2 ]
 
-dma_map_sg() may use swiotlb buffer when the kernel command line includes
-"swiotlb=force" or the dma_addr is out of dev->dma_mask range.  After
-DMA complete the memory moving from device to memory, then user call
-dma_sync_sg_for_cpu() to sync with DMA buffer, and copy the original
-virtual buffer to other space.
+DMA got broken a while back in two different ways:
+1) a change in the behaviour of disable_irq() to wait for the interrupt
+   to finish executing causes us to deadlock at the end of DMA.
+2) a change to avoid modifying the scatterlist left the first transfer
+   uninitialised.
 
-So dma_direct_sync_sg_for_cpu() should use swiotlb physical addr, not
-the original physical addr from sg_phys(sg).
+DMA is only used with expansion cards, so has gone unnoticed.
 
-dma_direct_sync_sg_for_device() also has the same issue, correct it as
-well.
-
-Fixes: 55897af63091("dma-direct: merge swiotlb_dma_ops into the dma_direct code")
-Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: fa4e99899932 ("[ARM] dma: RiscPC: don't modify DMA SG entries")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/dma/direct.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ arch/arm/mach-rpc/dma.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-index 2c2772e9702a..2c6d51a62251 100644
---- a/kernel/dma/direct.c
-+++ b/kernel/dma/direct.c
-@@ -231,12 +231,14 @@ void dma_direct_sync_sg_for_device(struct device *dev,
- 	int i;
+diff --git a/arch/arm/mach-rpc/dma.c b/arch/arm/mach-rpc/dma.c
+index fb48f3141fb4..c4c96661eb89 100644
+--- a/arch/arm/mach-rpc/dma.c
++++ b/arch/arm/mach-rpc/dma.c
+@@ -131,7 +131,7 @@ static irqreturn_t iomd_dma_handle(int irq, void *dev_id)
+ 	} while (1);
  
- 	for_each_sg(sgl, sg, nents, i) {
--		if (unlikely(is_swiotlb_buffer(sg_phys(sg))))
--			swiotlb_tbl_sync_single(dev, sg_phys(sg), sg->length,
-+		phys_addr_t paddr = dma_to_phys(dev, sg_dma_address(sg));
-+
-+		if (unlikely(is_swiotlb_buffer(paddr)))
-+			swiotlb_tbl_sync_single(dev, paddr, sg->length,
- 					dir, SYNC_FOR_DEVICE);
+ 	idma->state = ~DMA_ST_AB;
+-	disable_irq(irq);
++	disable_irq_nosync(irq);
  
- 		if (!dev_is_dma_coherent(dev))
--			arch_sync_dma_for_device(dev, sg_phys(sg), sg->length,
-+			arch_sync_dma_for_device(dev, paddr, sg->length,
- 					dir);
- 	}
+ 	return IRQ_HANDLED;
  }
-@@ -268,11 +270,13 @@ void dma_direct_sync_sg_for_cpu(struct device *dev,
- 	int i;
+@@ -174,6 +174,9 @@ static void iomd_enable_dma(unsigned int chan, dma_t *dma)
+ 				DMA_FROM_DEVICE : DMA_TO_DEVICE);
+ 		}
  
- 	for_each_sg(sgl, sg, nents, i) {
-+		phys_addr_t paddr = dma_to_phys(dev, sg_dma_address(sg));
++		idma->dma_addr = idma->dma.sg->dma_address;
++		idma->dma_len = idma->dma.sg->length;
 +
- 		if (!dev_is_dma_coherent(dev))
--			arch_sync_dma_for_cpu(dev, sg_phys(sg), sg->length, dir);
--	
--		if (unlikely(is_swiotlb_buffer(sg_phys(sg))))
--			swiotlb_tbl_sync_single(dev, sg_phys(sg), sg->length, dir,
-+			arch_sync_dma_for_cpu(dev, paddr, sg->length, dir);
-+
-+		if (unlikely(is_swiotlb_buffer(paddr)))
-+			swiotlb_tbl_sync_single(dev, paddr, sg->length, dir,
- 					SYNC_FOR_CPU);
+ 		iomd_writeb(DMA_CR_C, dma_base + CR);
+ 		idma->state = DMA_ST_AB;
  	}
- 
 -- 
 2.20.1
 
