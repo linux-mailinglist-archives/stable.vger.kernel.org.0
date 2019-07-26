@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F242576D0C
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:31:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EBE276DE1
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:37:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388934AbfGZP3y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:29:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
+        id S2388942AbfGZP35 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:29:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388942AbfGZP3x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:29:53 -0400
+        id S2388960AbfGZP34 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:29:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F288722CBD;
-        Fri, 26 Jul 2019 15:29:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B6E822CBD;
+        Fri, 26 Jul 2019 15:29:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564154992;
-        bh=pFI+FnKdtCt9/zK/Th1ZUog+lfDJKx/bq8CxistJ1P8=;
+        s=default; t=1564154995;
+        bh=9Vs9GVRd9TJQm5SDEB14JCe59/uTBsjFm7m7oH9GKzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nrlcN7DT5zCpUVOjvHR8RMEOk0oS7uEEVhaQy/4vukBNTZohWjlFAI0UjlwOpJ8NN
-         22/vjABa+jRpWsee2PFKuiXwTOUQU/N5eHhoHpVIv5UJoLn5jKRN6qKkJdSzXXVROc
-         amC5/x7PaAJ2xQ3yyXYb3XRY3xf8ZpeceTGgECi4=
+        b=P9WL5bRaovziuT5L4ntvEOXxj0FQF0tzc5zVidiAhrpPfufA/tdlDWkiz+VUg1qB/
+         Azvs6Q+zhQe1z83I4GKA6gVbiXfZbceTPoUUvS40F8iaoqsXXehMYQQEocOCsvSjLJ
+         YNRKk8mnLIyNEKpU6ZFpx/ABzuKHVCwMBBkic+BE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
-        Martin Weinelt <martin@linuxlounge.net>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 29/62] net: bridge: mcast: fix stale ipv6 hdr pointer when handling v6 query
-Date:   Fri, 26 Jul 2019 17:24:41 +0200
-Message-Id: <20190726152304.774946256@linuxfoundation.org>
+Subject: [PATCH 5.1 30/62] net: bridge: dont cache ether dest pointer on input
+Date:   Fri, 26 Jul 2019 17:24:42 +0200
+Message-Id: <20190726152304.876809200@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
 References: <20190726152301.720139286@linuxfoundation.org>
@@ -47,39 +46,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-[ Upstream commit 3b26a5d03d35d8f732d75951218983c0f7f68dff ]
+[ Upstream commit 3d26eb8ad1e9b906433903ce05f775cf038e747f ]
 
-We get a pointer to the ipv6 hdr in br_ip6_multicast_query but we may
-call pskb_may_pull afterwards and end up using a stale pointer.
-So use the header directly, it's just 1 place where it's needed.
+We would cache ether dst pointer on input in br_handle_frame_finish but
+after the neigh suppress code that could lead to a stale pointer since
+both ipv4 and ipv6 suppress code do pskb_may_pull. This means we have to
+always reload it after the suppress code so there's no point in having
+it cached just retrieve it directly.
 
-Fixes: 08b202b67264 ("bridge br_multicast: IPv6 MLD support.")
+Fixes: 057658cb33fbf ("bridge: suppress arp pkts on BR_NEIGH_SUPPRESS ports")
+Fixes: ed842faeb2bd ("bridge: suppress nd pkts on BR_NEIGH_SUPPRESS ports")
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Tested-by: Martin Weinelt <martin@linuxlounge.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br_multicast.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/bridge/br_input.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1302,7 +1302,6 @@ static int br_ip6_multicast_query(struct
- 				  u16 vid)
- {
- 	unsigned int transport_len = ipv6_transport_len(skb);
--	const struct ipv6hdr *ip6h = ipv6_hdr(skb);
- 	struct mld_msg *mld;
- 	struct net_bridge_mdb_entry *mp;
- 	struct mld2_query *mld2q;
-@@ -1346,7 +1345,7 @@ static int br_ip6_multicast_query(struct
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -79,7 +79,6 @@ int br_handle_frame_finish(struct net *n
+ 	struct net_bridge_fdb_entry *dst = NULL;
+ 	struct net_bridge_mdb_entry *mdst;
+ 	bool local_rcv, mcast_hit = false;
+-	const unsigned char *dest;
+ 	struct net_bridge *br;
+ 	u16 vid = 0;
  
- 	if (is_general_query) {
- 		saddr.proto = htons(ETH_P_IPV6);
--		saddr.u.ip6 = ip6h->saddr;
-+		saddr.u.ip6 = ipv6_hdr(skb)->saddr;
+@@ -97,10 +96,9 @@ int br_handle_frame_finish(struct net *n
+ 		br_fdb_update(br, p, eth_hdr(skb)->h_source, vid, false);
  
- 		br_multicast_query_received(br, port, &br->ip6_other_query,
- 					    &saddr, max_delay);
+ 	local_rcv = !!(br->dev->flags & IFF_PROMISC);
+-	dest = eth_hdr(skb)->h_dest;
+-	if (is_multicast_ether_addr(dest)) {
++	if (is_multicast_ether_addr(eth_hdr(skb)->h_dest)) {
+ 		/* by definition the broadcast is also a multicast address */
+-		if (is_broadcast_ether_addr(dest)) {
++		if (is_broadcast_ether_addr(eth_hdr(skb)->h_dest)) {
+ 			pkt_type = BR_PKT_BROADCAST;
+ 			local_rcv = true;
+ 		} else {
+@@ -150,7 +148,7 @@ int br_handle_frame_finish(struct net *n
+ 		}
+ 		break;
+ 	case BR_PKT_UNICAST:
+-		dst = br_fdb_find_rcu(br, dest, vid);
++		dst = br_fdb_find_rcu(br, eth_hdr(skb)->h_dest, vid);
+ 	default:
+ 		break;
+ 	}
 
 
