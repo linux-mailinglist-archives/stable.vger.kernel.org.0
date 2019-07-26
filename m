@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59C4876D81
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:35:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8205576D37
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:31:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389788AbfGZPeG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:34:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49646 "EHLO mail.kernel.org"
+        id S2389319AbfGZPbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:31:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389782AbfGZPeG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:34:06 -0400
+        id S2388839AbfGZPbl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:31:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D367218D4;
-        Fri, 26 Jul 2019 15:34:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE8B322BF5;
+        Fri, 26 Jul 2019 15:31:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564155245;
-        bh=FppCgspIlyeTEQF7WqwK6Y7pgeDrCo7BI5JBXeA4STw=;
+        s=default; t=1564155101;
+        bh=2TXXXuxVKDfKUrY6s55kb8kkQrge3pVFExbKlv8oakY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D+Bitiz8/VIjI8Lb965S938nSoqHXvnkCnAnmC9p8t8sXDW5EMv4zUEGVFY/sDNOY
-         2ifZWy1HpSZJPRUfXPImR46qAeX+vNWyUj5lUh/5u4lW67VYVYBkxg7dhuJ989A1Z4
-         zDtfWL99L2BrgaPIbJB1PV/vifV9t8jLBEhpajUM=
+        b=kC/dgsiziwpBFcvsBLZZyUKblVxeezMc4I9I7qYElTeh31JXN9G2l1kdCF3+XUL1S
+         /uNLTyO/mbXY00uUKu7UlGQjGJaHJpumtjNulnbf0+Xv9q1hVvhWLts0AUGEuc5N2n
+         sYZs4/w0sFyJ65zbCgm1JNV62hgaIk9Zqyi0rE5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+079bf326b38072f849d9@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 31/50] sctp: not bind the socket in sctp_connect
+        stable@vger.kernel.org, Ross Zwisler <zwisler@google.com>,
+        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.1 54/62] jbd2: introduce jbd2_inode dirty range scoping
 Date:   Fri, 26 Jul 2019 17:25:06 +0200
-Message-Id: <20190726152303.824062269@linuxfoundation.org>
+Message-Id: <20190726152307.676250429@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190726152300.760439618@linuxfoundation.org>
-References: <20190726152300.760439618@linuxfoundation.org>
+In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
+References: <20190726152301.720139286@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,70 +43,251 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Ross Zwisler <zwisler@chromium.org>
 
-[ Upstream commit 9b6c08878e23adb7cc84bdca94d8a944b03f099e ]
+commit 6ba0e7dc64a5adcda2fbe65adc466891795d639e upstream.
 
-Now when sctp_connect() is called with a wrong sa_family, it binds
-to a port but doesn't set bp->port, then sctp_get_af_specific will
-return NULL and sctp_connect() returns -EINVAL.
+Currently both journal_submit_inode_data_buffers() and
+journal_finish_inode_data_buffers() operate on the entire address space
+of each of the inodes associated with a given journal entry.  The
+consequence of this is that if we have an inode where we are constantly
+appending dirty pages we can end up waiting for an indefinite amount of
+time in journal_finish_inode_data_buffers() while we wait for all the
+pages under writeback to be written out.
 
-Then if sctp_bind() is called to bind to another port, the last
-port it has bound will leak due to bp->port is NULL by then.
+The easiest way to cause this type of workload is do just dd from
+/dev/zero to a file until it fills the entire filesystem.  This can
+cause journal_finish_inode_data_buffers() to wait for the duration of
+the entire dd operation.
 
-sctp_connect() doesn't need to bind ports, as later __sctp_connect
-will do it if bp->port is NULL. So remove it from sctp_connect().
-While at it, remove the unnecessary sockaddr.sa_family len check
-as it's already done in sctp_inet_connect.
+We can improve this situation by scoping each of the inode dirty ranges
+associated with a given transaction.  We do this via the jbd2_inode
+structure so that the scoping is contained within jbd2 and so that it
+follows the lifetime and locking rules for that structure.
 
-Fixes: 644fbdeacf1d ("sctp: fix the issue that flags are ignored when using kernel_connect")
-Reported-by: syzbot+079bf326b38072f849d9@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This allows us to limit the writeback & wait in
+journal_submit_inode_data_buffers() and
+journal_finish_inode_data_buffers() respectively to the dirty range for
+a given struct jdb2_inode, keeping us from waiting forever if the inode
+in question is still being appended to.
+
+Signed-off-by: Ross Zwisler <zwisler@google.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/sctp/socket.c |   20 ++------------------
- 1 file changed, 2 insertions(+), 18 deletions(-)
 
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -4507,34 +4507,18 @@ out_nounlock:
- static int sctp_connect(struct sock *sk, struct sockaddr *addr,
- 			int addr_len, int flags)
+---
+ fs/jbd2/commit.c      |   23 +++++++++++++++++------
+ fs/jbd2/journal.c     |    4 ++++
+ fs/jbd2/transaction.c |   49 ++++++++++++++++++++++++++++---------------------
+ include/linux/jbd2.h  |   22 ++++++++++++++++++++++
+ 4 files changed, 71 insertions(+), 27 deletions(-)
+
+--- a/fs/jbd2/commit.c
++++ b/fs/jbd2/commit.c
+@@ -187,14 +187,15 @@ static int journal_wait_on_commit_record
+  * use writepages() because with dealyed allocation we may be doing
+  * block allocation in writepages().
+  */
+-static int journal_submit_inode_data_buffers(struct address_space *mapping)
++static int journal_submit_inode_data_buffers(struct address_space *mapping,
++		loff_t dirty_start, loff_t dirty_end)
  {
--	struct inet_sock *inet = inet_sk(sk);
- 	struct sctp_af *af;
--	int err = 0;
-+	int err = -EINVAL;
+ 	int ret;
+ 	struct writeback_control wbc = {
+ 		.sync_mode =  WB_SYNC_ALL,
+ 		.nr_to_write = mapping->nrpages * 2,
+-		.range_start = 0,
+-		.range_end = i_size_read(mapping->host),
++		.range_start = dirty_start,
++		.range_end = dirty_end,
+ 	};
  
- 	lock_sock(sk);
+ 	ret = generic_writepages(mapping, &wbc);
+@@ -218,6 +219,9 @@ static int journal_submit_data_buffers(j
  
- 	pr_debug("%s: sk:%p, sockaddr:%p, addr_len:%d\n", __func__, sk,
- 		 addr, addr_len);
+ 	spin_lock(&journal->j_list_lock);
+ 	list_for_each_entry(jinode, &commit_transaction->t_inode_list, i_list) {
++		loff_t dirty_start = jinode->i_dirty_start;
++		loff_t dirty_end = jinode->i_dirty_end;
++
+ 		if (!(jinode->i_flags & JI_WRITE_DATA))
+ 			continue;
+ 		mapping = jinode->i_vfs_inode->i_mapping;
+@@ -230,7 +234,8 @@ static int journal_submit_data_buffers(j
+ 		 * only allocated blocks here.
+ 		 */
+ 		trace_jbd2_submit_inode_data(jinode->i_vfs_inode);
+-		err = journal_submit_inode_data_buffers(mapping);
++		err = journal_submit_inode_data_buffers(mapping, dirty_start,
++				dirty_end);
+ 		if (!ret)
+ 			ret = err;
+ 		spin_lock(&journal->j_list_lock);
+@@ -257,12 +262,16 @@ static int journal_finish_inode_data_buf
+ 	/* For locking, see the comment in journal_submit_data_buffers() */
+ 	spin_lock(&journal->j_list_lock);
+ 	list_for_each_entry(jinode, &commit_transaction->t_inode_list, i_list) {
++		loff_t dirty_start = jinode->i_dirty_start;
++		loff_t dirty_end = jinode->i_dirty_end;
++
+ 		if (!(jinode->i_flags & JI_WAIT_DATA))
+ 			continue;
+ 		jinode->i_flags |= JI_COMMIT_RUNNING;
+ 		spin_unlock(&journal->j_list_lock);
+-		err = filemap_fdatawait_keep_errors(
+-				jinode->i_vfs_inode->i_mapping);
++		err = filemap_fdatawait_range_keep_errors(
++				jinode->i_vfs_inode->i_mapping, dirty_start,
++				dirty_end);
+ 		if (!ret)
+ 			ret = err;
+ 		spin_lock(&journal->j_list_lock);
+@@ -282,6 +291,8 @@ static int journal_finish_inode_data_buf
+ 				&jinode->i_transaction->t_inode_list);
+ 		} else {
+ 			jinode->i_transaction = NULL;
++			jinode->i_dirty_start = 0;
++			jinode->i_dirty_end = 0;
+ 		}
+ 	}
+ 	spin_unlock(&journal->j_list_lock);
+--- a/fs/jbd2/journal.c
++++ b/fs/jbd2/journal.c
+@@ -94,6 +94,8 @@ EXPORT_SYMBOL(jbd2_journal_try_to_free_b
+ EXPORT_SYMBOL(jbd2_journal_force_commit);
+ EXPORT_SYMBOL(jbd2_journal_inode_add_write);
+ EXPORT_SYMBOL(jbd2_journal_inode_add_wait);
++EXPORT_SYMBOL(jbd2_journal_inode_ranged_write);
++EXPORT_SYMBOL(jbd2_journal_inode_ranged_wait);
+ EXPORT_SYMBOL(jbd2_journal_init_jbd_inode);
+ EXPORT_SYMBOL(jbd2_journal_release_jbd_inode);
+ EXPORT_SYMBOL(jbd2_journal_begin_ordered_truncate);
+@@ -2574,6 +2576,8 @@ void jbd2_journal_init_jbd_inode(struct
+ 	jinode->i_next_transaction = NULL;
+ 	jinode->i_vfs_inode = inode;
+ 	jinode->i_flags = 0;
++	jinode->i_dirty_start = 0;
++	jinode->i_dirty_end = 0;
+ 	INIT_LIST_HEAD(&jinode->i_list);
+ }
  
--	/* We may need to bind the socket. */
--	if (!inet->inet_num) {
--		if (sk->sk_prot->get_port(sk, 0)) {
--			release_sock(sk);
--			return -EAGAIN;
--		}
--		inet->inet_sport = htons(inet->inet_num);
--	}
+--- a/fs/jbd2/transaction.c
++++ b/fs/jbd2/transaction.c
+@@ -2565,7 +2565,7 @@ void jbd2_journal_refile_buffer(journal_
+  * File inode in the inode list of the handle's transaction
+  */
+ static int jbd2_journal_file_inode(handle_t *handle, struct jbd2_inode *jinode,
+-				   unsigned long flags)
++		unsigned long flags, loff_t start_byte, loff_t end_byte)
+ {
+ 	transaction_t *transaction = handle->h_transaction;
+ 	journal_t *journal;
+@@ -2577,26 +2577,17 @@ static int jbd2_journal_file_inode(handl
+ 	jbd_debug(4, "Adding inode %lu, tid:%d\n", jinode->i_vfs_inode->i_ino,
+ 			transaction->t_tid);
+ 
+-	/*
+-	 * First check whether inode isn't already on the transaction's
+-	 * lists without taking the lock. Note that this check is safe
+-	 * without the lock as we cannot race with somebody removing inode
+-	 * from the transaction. The reason is that we remove inode from the
+-	 * transaction only in journal_release_jbd_inode() and when we commit
+-	 * the transaction. We are guarded from the first case by holding
+-	 * a reference to the inode. We are safe against the second case
+-	 * because if jinode->i_transaction == transaction, commit code
+-	 * cannot touch the transaction because we hold reference to it,
+-	 * and if jinode->i_next_transaction == transaction, commit code
+-	 * will only file the inode where we want it.
+-	 */
+-	if ((jinode->i_transaction == transaction ||
+-	    jinode->i_next_transaction == transaction) &&
+-	    (jinode->i_flags & flags) == flags)
+-		return 0;
 -
- 	/* Validate addr_len before calling common connect/connectx routine. */
- 	af = sctp_get_af_specific(addr->sa_family);
--	if (!af || addr_len < af->sockaddr_len) {
--		err = -EINVAL;
--	} else {
--		/* Pass correct addr len to common routine (so it knows there
--		 * is only one address being passed.
--		 */
-+	if (af && addr_len >= af->sockaddr_len)
- 		err = __sctp_connect(sk, addr, af->sockaddr_len, flags, NULL);
--	}
+ 	spin_lock(&journal->j_list_lock);
+ 	jinode->i_flags |= flags;
++
++	if (jinode->i_dirty_end) {
++		jinode->i_dirty_start = min(jinode->i_dirty_start, start_byte);
++		jinode->i_dirty_end = max(jinode->i_dirty_end, end_byte);
++	} else {
++		jinode->i_dirty_start = start_byte;
++		jinode->i_dirty_end = end_byte;
++	}
++
+ 	/* Is inode already attached where we need it? */
+ 	if (jinode->i_transaction == transaction ||
+ 	    jinode->i_next_transaction == transaction)
+@@ -2631,12 +2622,28 @@ done:
+ int jbd2_journal_inode_add_write(handle_t *handle, struct jbd2_inode *jinode)
+ {
+ 	return jbd2_journal_file_inode(handle, jinode,
+-				       JI_WRITE_DATA | JI_WAIT_DATA);
++			JI_WRITE_DATA | JI_WAIT_DATA, 0, LLONG_MAX);
+ }
  
- 	release_sock(sk);
- 	return err;
+ int jbd2_journal_inode_add_wait(handle_t *handle, struct jbd2_inode *jinode)
+ {
+-	return jbd2_journal_file_inode(handle, jinode, JI_WAIT_DATA);
++	return jbd2_journal_file_inode(handle, jinode, JI_WAIT_DATA, 0,
++			LLONG_MAX);
++}
++
++int jbd2_journal_inode_ranged_write(handle_t *handle,
++		struct jbd2_inode *jinode, loff_t start_byte, loff_t length)
++{
++	return jbd2_journal_file_inode(handle, jinode,
++			JI_WRITE_DATA | JI_WAIT_DATA, start_byte,
++			start_byte + length - 1);
++}
++
++int jbd2_journal_inode_ranged_wait(handle_t *handle, struct jbd2_inode *jinode,
++		loff_t start_byte, loff_t length)
++{
++	return jbd2_journal_file_inode(handle, jinode, JI_WAIT_DATA,
++			start_byte, start_byte + length - 1);
+ }
+ 
+ /*
+--- a/include/linux/jbd2.h
++++ b/include/linux/jbd2.h
+@@ -454,6 +454,22 @@ struct jbd2_inode {
+ 	 * @i_flags: Flags of inode [j_list_lock]
+ 	 */
+ 	unsigned long i_flags;
++
++	/**
++	 * @i_dirty_start:
++	 *
++	 * Offset in bytes where the dirty range for this inode starts.
++	 * [j_list_lock]
++	 */
++	loff_t i_dirty_start;
++
++	/**
++	 * @i_dirty_end:
++	 *
++	 * Inclusive offset in bytes where the dirty range for this inode
++	 * ends. [j_list_lock]
++	 */
++	loff_t i_dirty_end;
+ };
+ 
+ struct jbd2_revoke_table_s;
+@@ -1400,6 +1416,12 @@ extern int	   jbd2_journal_force_commit(
+ extern int	   jbd2_journal_force_commit_nested(journal_t *);
+ extern int	   jbd2_journal_inode_add_write(handle_t *handle, struct jbd2_inode *inode);
+ extern int	   jbd2_journal_inode_add_wait(handle_t *handle, struct jbd2_inode *inode);
++extern int	   jbd2_journal_inode_ranged_write(handle_t *handle,
++			struct jbd2_inode *inode, loff_t start_byte,
++			loff_t length);
++extern int	   jbd2_journal_inode_ranged_wait(handle_t *handle,
++			struct jbd2_inode *inode, loff_t start_byte,
++			loff_t length);
+ extern int	   jbd2_journal_begin_ordered_truncate(journal_t *journal,
+ 				struct jbd2_inode *inode, loff_t new_size);
+ extern void	   jbd2_journal_init_jbd_inode(struct jbd2_inode *jinode, struct inode *inode);
 
 
