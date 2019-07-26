@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 432F7769FE
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:55:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A77576A0B
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:56:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387889AbfGZNmO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:42:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49460 "EHLO mail.kernel.org"
+        id S1728417AbfGZNzm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:55:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387880AbfGZNmN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:42:13 -0400
+        id S2387450AbfGZNmO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:42:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24FDE22CD2;
-        Fri, 26 Jul 2019 13:42:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4928822BF5;
+        Fri, 26 Jul 2019 13:42:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148532;
-        bh=FAr2Y4OwpI1SNqxHOwFQI3SQBJHuAdZFWRAgm7Pbr+Y=;
+        s=default; t=1564148534;
+        bh=EU5siDgREa5O/B6bp+8ooCim/FYdlIjE/joDcocBlxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S5yJdpdzyZamuLJh+ANiE2W8IA6vk/ISOJC32+huQCXFbiGor8stSeplu2zzpl6TY
-         UbKCFuUUrAL6A6muD3yE35NKG8AZ5ybg++aB9oZbDhlq1HyXUT+oot9bnfXCZegX8z
-         zVDjYCPAP4kkHsroEIV5fC01iAYow6VUMa4AIUO0=
+        b=NTUvZZV26B+3dIqiPqPQ578xTtDzxGcf2GXMmYvU7hWEuSlp1aPD63ijaZ2p9cTzz
+         xGjNpVTl5/f+VfiU33DN2AAjEQ0/GR8zh+a7wTHqXHHaUjSJK0AVIjYIbNRPABCAx+
+         o5x1ZdGxPSMygkBD9aHmiPdXC9S1HO60qKCuapRU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Douglas Anderson <dianders@chromium.org>,
         Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>,
         linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 02/47] ARM: dts: rockchip: Make rk3288-veyron-minnie run at hs200
-Date:   Fri, 26 Jul 2019 09:41:25 -0400
-Message-Id: <20190726134210.12156-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 03/47] ARM: dts: rockchip: Make rk3288-veyron-mickey's emmc work again
+Date:   Fri, 26 Jul 2019 09:41:26 -0400
+Message-Id: <20190726134210.12156-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726134210.12156-1-sashal@kernel.org>
 References: <20190726134210.12156-1-sashal@kernel.org>
@@ -46,55 +46,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 1c0479023412ab7834f2e98b796eb0d8c627cd62 ]
+[ Upstream commit 99fa066710f75f18f4d9a5bc5f6a711968a581d5 ]
 
-As some point hs200 was failing on rk3288-veyron-minnie.  See commit
-984926781122 ("ARM: dts: rockchip: temporarily remove emmc hs200 speed
-from rk3288 minnie").  Although I didn't track down exactly when it
-started working, it seems to work OK now, so let's turn it back on.
+When I try to boot rk3288-veyron-mickey I totally fail to make the
+eMMC work.  Specifically my logs (on Chrome OS 4.19):
 
-To test this, I booted from SD card and then used this script to
-stress the enumeration process after fixing a memory leak [1]:
-  cd /sys/bus/platform/drivers/dwmmc_rockchip
-  for i in $(seq 1 3000); do
-    echo "========================" $i
-    echo ff0f0000.dwmmc > unbind
-    sleep .5
-    echo ff0f0000.dwmmc > bind
-    while true; do
-      if [ -e /dev/mmcblk2 ]; then
-        break;
-      fi
-      sleep .1
-    done
-  done
+  mmc_host mmc1: card is non-removable.
+  mmc_host mmc1: Bus speed (slot 0) = 400000Hz (slot req 400000Hz, actual 400000HZ div = 0)
+  mmc_host mmc1: Bus speed (slot 0) = 50000000Hz (slot req 52000000Hz, actual 50000000HZ div = 0)
+  mmc1: switch to bus width 8 failed
+  mmc1: switch to bus width 4 failed
+  mmc1: new high speed MMC card at address 0001
+  mmcblk1: mmc1:0001 HAG2e 14.7 GiB
+  mmcblk1boot0: mmc1:0001 HAG2e partition 1 4.00 MiB
+  mmcblk1boot1: mmc1:0001 HAG2e partition 2 4.00 MiB
+  mmcblk1rpmb: mmc1:0001 HAG2e partition 3 4.00 MiB, chardev (243:0)
+  mmc_host mmc1: Bus speed (slot 0) = 400000Hz (slot req 400000Hz, actual 400000HZ div = 0)
+  mmc_host mmc1: Bus speed (slot 0) = 50000000Hz (slot req 52000000Hz, actual 50000000HZ div = 0)
+  mmc1: switch to bus width 8 failed
+  mmc1: switch to bus width 4 failed
+  mmc1: tried to HW reset card, got error -110
+  mmcblk1: error -110 requesting status
+  mmcblk1: recovery failed!
+  print_req_error: I/O error, dev mmcblk1, sector 0
+  ...
 
-It worked fine.
+When I remove the '/delete-property/mmc-hs200-1_8v' then everything is
+hunky dory.
 
-[1] https://lkml.kernel.org/r/20190503233526.226272-1-dianders@chromium.org
+That line comes from the original submission of the mickey dts
+upstream, so presumably at the time the HS200 was failing and just
+enumerating things as a high speed device was fine.  ...or maybe it's
+just that some mickey devices work when enumerating at "high speed",
+just not mine?
+
+In any case, hs200 seems good now.  Let's turn it on.
 
 Signed-off-by: Douglas Anderson <dianders@chromium.org>
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3288-veyron-minnie.dts | 4 ----
+ arch/arm/boot/dts/rk3288-veyron-mickey.dts | 4 ----
  1 file changed, 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/rk3288-veyron-minnie.dts b/arch/arm/boot/dts/rk3288-veyron-minnie.dts
-index f95d0c5fcf71..6e8946052c78 100644
---- a/arch/arm/boot/dts/rk3288-veyron-minnie.dts
-+++ b/arch/arm/boot/dts/rk3288-veyron-minnie.dts
-@@ -90,10 +90,6 @@
- 	pwm-off-delay-ms = <200>;
+diff --git a/arch/arm/boot/dts/rk3288-veyron-mickey.dts b/arch/arm/boot/dts/rk3288-veyron-mickey.dts
+index 1e0158acf895..a593d0a998fc 100644
+--- a/arch/arm/boot/dts/rk3288-veyron-mickey.dts
++++ b/arch/arm/boot/dts/rk3288-veyron-mickey.dts
+@@ -124,10 +124,6 @@
+ 	};
  };
  
 -&emmc {
 -	/delete-property/mmc-hs200-1_8v;
 -};
 -
- &gpio_keys {
- 	pinctrl-0 = <&pwr_key_l &ap_lid_int_l &volum_down_l &volum_up_l>;
- 
+ &i2c2 {
+ 	status = "disabled";
+ };
 -- 
 2.20.1
 
