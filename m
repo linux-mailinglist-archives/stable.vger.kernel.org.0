@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AD2E76456
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 13:27:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 268CC7645A
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 13:27:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726074AbfGZL1j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 07:27:39 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:36751 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726416AbfGZL1j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 07:27:39 -0400
-Received: by mail-lf1-f68.google.com with SMTP id q26so36876300lfc.3
-        for <stable@vger.kernel.org>; Fri, 26 Jul 2019 04:27:37 -0700 (PDT)
+        id S1726004AbfGZL1u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 07:27:50 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:41609 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726302AbfGZL1s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 07:27:48 -0400
+Received: by mail-lf1-f66.google.com with SMTP id 62so31971915lfa.8
+        for <stable@vger.kernel.org>; Fri, 26 Jul 2019 04:27:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=WJ4oeV5ZLHJeESLEdUy9aN7H7bQ/Va6Qh1QrIFzI99g=;
-        b=xG8ocYYAMVyrT+fps7Ci3OpR1wI6YXEKPlizWNxS60+b9FbANZFGs/wC2hhclrgCmv
-         55v4U/Zf+1LhEPq7LC1Y1cEQQHtwFwuUvCj5CNmzqYyzQct5/fVjkoTGnd10sSfnC5V0
-         Hf+hL1vZACofkVZT/824XWihTsoLfe4Thp+o/40y9kSdsqD/HUVj++MnnfFRl7qYzdvF
-         +5ExUCQXug6wUu6+Z3l6cuXe+29DSYpXZRRB9Zrfg69tWctJwzzxCBftUTTRdBIa8MhL
-         bg/B/cPhoW0/TOldXnTgHzrzw5FfOpbMXBFcTYGl9OaxoQgUc7kD+JzWlPamB6tU+ytk
-         0Kvw==
+        bh=tkrBq1SnQkOBmUfMH8XCY0QYWm6lQdUCAmJmwMI79D0=;
+        b=M1iiTajuphNdCuVUNMETkotkLA2uwCvt8+fc0HhCeN8FY+jFkztC4vtaGleozZsjp0
+         6RMNu1DG/drs0/txBSzX43RNK90A7jWVLQKj7569hfsTDoGateqOXe1wyVw2ycSt2flz
+         WQE50mSYm5i94JOt4yAmI7YS+QcvOophZcWXbxWG5SMmo6KvALzHHE/IkQL/6c4yP81B
+         RIPsLIdqUHaX33s/nJ46/ywpe+27JJ3KnbewYtlEdXxprzRmSC8RwalTuBTXMkecFgst
+         ogj0phHtXMzsMPeheYDnkX5vAAIX2ZSvetV6x7plm+lhzWJymY3iXk8EpWfyRmHC/sI5
+         JVRQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=WJ4oeV5ZLHJeESLEdUy9aN7H7bQ/Va6Qh1QrIFzI99g=;
-        b=BFZuVYB5BvK9Me0UTtU9nVnbHMkK5P9IjZ5HytXHF9BD/YJQFaY1Yf+al9jY+P8LLw
-         i6nxizOE150TwK2lT5ECJenwhHcy8wiZf/2o2qoZHXznbMTP6FAKK30kQF5CsNJja9nX
-         7tqBVj3VkQnDhKJDkQnqlHk/KDcgpyFyJePaK80QwcWjWgpVwbYdfclqUYgtDs/jiNXC
-         bETsLWlZpHxUEJ+Ltjix93dI9aUn6/6y68fSmgA6TeggWH2ly+5fhKNMGsLFWJ/MgJVq
-         Ady3CuNfli6jZmPx6oxm4fuZvzTa746124Hf4BXBAgwu2bousVDOqu9PSvZM0oz61l5v
-         5Spg==
-X-Gm-Message-State: APjAAAU1sy9APnvwxTLVbbCrEmhlagH2MOfd6li4N7JO8dBaxjyO4VKu
-        iWII1h8WSPCvYjceVV4YGiy/cw==
-X-Google-Smtp-Source: APXvYqy19sSMEhoiwI1rduoX5SnYPS74HR9JH6CK0bVMOr3rdq3xpST/Q6wPbjIyPh4IZqzaDa1XzA==
-X-Received: by 2002:ac2:518d:: with SMTP id u13mr9418914lfi.40.1564140456984;
-        Fri, 26 Jul 2019 04:27:36 -0700 (PDT)
+        bh=tkrBq1SnQkOBmUfMH8XCY0QYWm6lQdUCAmJmwMI79D0=;
+        b=MrSAgUncFih75z1T47lf1JbR4ncSyRmzWa/7G059q4FTyIpKycmXCOzjQ6VSWDRH3f
+         JKtTEO7Y/shMr+yO9XSqEsRV46y+2n0FwY3HDWztKlr3GTsYzDvjCFjc+G39a2Vx0g7/
+         ndASbD0XmNekAFxUxYdcGbnGumO25ECaSmrtXjhQ05d9iubEu8JSxJUW/+8TqGjLvr24
+         fp0NUdd4eQ+oR6LRz+4dM+HeayuPxBgulT4GkPeNoITcdqhX+58KeRosQk3prYDLuDsx
+         abvZEK6FHeiKFmJZ7XyI2tIdzW5hIfEh3qxoClSdqlc69GcwgaOZ9wgbfFSpB5l1z7p/
+         M7Sw==
+X-Gm-Message-State: APjAAAWKa8gB+1drvwsfASKrYkK4YctoEABh5UWvZQ1jIqOcwM+1cgsp
+        MfRkTYWdLNZXDqefVfOec2c75A==
+X-Google-Smtp-Source: APXvYqymqL8+0NGle9LgsNo7cZJpanm/SQJZbXSjQtqaniNF93z4a6wOvybY0QrHQE3O8e+4n1Fo6A==
+X-Received: by 2002:ac2:5b09:: with SMTP id v9mr6868915lfn.22.1564140466048;
+        Fri, 26 Jul 2019 04:27:46 -0700 (PDT)
 Received: from localhost (c-243c70d5.07-21-73746f28.bbcust.telenor.se. [213.112.60.36])
-        by smtp.gmail.com with ESMTPSA id c1sm8257268lfh.13.2019.07.26.04.27.36
+        by smtp.gmail.com with ESMTPSA id u17sm8391919lfq.69.2019.07.26.04.27.45
         (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Fri, 26 Jul 2019 04:27:36 -0700 (PDT)
+        Fri, 26 Jul 2019 04:27:45 -0700 (PDT)
 From:   Anders Roxell <anders.roxell@linaro.org>
-To:     will@kernel.org, mark.rutland@arm.com
-Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+To:     airlied@linux.ie, daniel@ffwll.ch
+Cc:     dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
         Anders Roxell <anders.roxell@linaro.org>,
         stable@vger.kernel.org
-Subject: [PATCH] arm: perf: Mark expected switch fall-through
-Date:   Fri, 26 Jul 2019 13:27:32 +0200
-Message-Id: <20190726112732.19257-1-anders.roxell@linaro.org>
+Subject: [PATCH] drm: mali-dp: Mark expected switch fall-through
+Date:   Fri, 26 Jul 2019 13:27:41 +0200
+Message-Id: <20190726112741.19360-1-anders.roxell@linaro.org>
 X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,64 +61,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When fall-through warnings was enabled by default, d93512ef0f0e
-("Makefile: Globally enable fall-through warning"), we could see the
-following warnings was starting to show up. However, this was originally
-introduced in commit 6ee33c2712fc ("ARM: hw_breakpoint: correct and
-simplify alignment fixup code"). Commit d968d2b801d8 ("ARM: 7497/1:
-hw_breakpoint: allow single-byte watchpoints on all addresses") was
-written with the intent to allow single-byte watchpoints on all
-addresses but forgot to move 'case 1:' down below 'case 2:'.
+When fall-through warnings was enabled by default, commit d93512ef0f0e
+("Makefile: Globally enable fall-through warning"), the following
+warnings was starting to show up:
 
-../arch/arm/kernel/hw_breakpoint.c: In function ‘hw_breakpoint_arch_parse’:
-../arch/arm/kernel/hw_breakpoint.c:609:7: warning: this statement may fall
+../drivers/gpu/drm/arm/malidp_hw.c: In function ‘malidp_format_get_bpp’:
+../drivers/gpu/drm/arm/malidp_hw.c:387:8: warning: this statement may fall
  through [-Wimplicit-fallthrough=]
-    if (hw->ctrl.len == ARM_BREAKPOINT_LEN_2)
-       ^
-../arch/arm/kernel/hw_breakpoint.c:611:3: note: here
-   case 3:
+    bpp = 30;
+    ~~~~^~~~
+../drivers/gpu/drm/arm/malidp_hw.c:388:3: note: here
+   case DRM_FORMAT_YUV420_10BIT:
    ^~~~
-../arch/arm/kernel/hw_breakpoint.c:613:7: warning: this statement may fall
+../drivers/gpu/drm/arm/malidp_hw.c: In function ‘malidp_se_irq’:
+../drivers/gpu/drm/arm/malidp_hw.c:1311:4: warning: this statement may fall
  through [-Wimplicit-fallthrough=]
-    if (hw->ctrl.len == ARM_BREAKPOINT_LEN_1)
-       ^
-../arch/arm/kernel/hw_breakpoint.c:615:3: note: here
-   default:
-   ^~~~~~~
+    drm_writeback_signal_completion(&malidp->mw_connector, 0);
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../drivers/gpu/drm/arm/malidp_hw.c:1313:3: note: here
+   case MW_START:
+   ^~~~
 
-Rework so 'case 1:' are next to 'case 3:' and also add '/* Fall through
-*/' so that the compiler doesn't warn about fall-through.
+Rework to add a 'break;' in a case that didn't have it so that
+the compiler doesn't warn about fall-through.
 
-Cc: stable@vger.kernel.org # v3.16
-Fixes: 6ee33c2712fc ("ARM: hw_breakpoint: correct and simplify alignment fixup code")
+Cc: stable@vger.kernel.org # v4.9+
+Fixes: b8207562abdd ("drm/arm/malidp: Specified the rotation memory requirements for AFBC YUV formats")
 Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
 ---
- arch/arm/kernel/hw_breakpoint.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/arm/malidp_hw.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/kernel/hw_breakpoint.c b/arch/arm/kernel/hw_breakpoint.c
-index af8b8e15f589..c14d506969ba 100644
---- a/arch/arm/kernel/hw_breakpoint.c
-+++ b/arch/arm/kernel/hw_breakpoint.c
-@@ -603,15 +603,17 @@ int hw_breakpoint_arch_parse(struct perf_event *bp,
- 	case 0:
- 		/* Aligned */
- 		break;
--	case 1:
- 	case 2:
- 		/* Allow halfword watchpoints and breakpoints. */
- 		if (hw->ctrl.len == ARM_BREAKPOINT_LEN_2)
+diff --git a/drivers/gpu/drm/arm/malidp_hw.c b/drivers/gpu/drm/arm/malidp_hw.c
+index 50af399d7f6f..dc5fff9af338 100644
+--- a/drivers/gpu/drm/arm/malidp_hw.c
++++ b/drivers/gpu/drm/arm/malidp_hw.c
+@@ -385,6 +385,7 @@ int malidp_format_get_bpp(u32 fmt)
+ 		switch (fmt) {
+ 		case DRM_FORMAT_VUY101010:
+ 			bpp = 30;
++			break;
+ 		case DRM_FORMAT_YUV420_10BIT:
+ 			bpp = 15;
  			break;
-+		/* Fall through */
-+	case 1:
- 	case 3:
- 		/* Allow single byte watchpoint. */
- 		if (hw->ctrl.len == ARM_BREAKPOINT_LEN_1)
+@@ -1309,7 +1310,7 @@ static irqreturn_t malidp_se_irq(int irq, void *arg)
  			break;
-+		/* Fall through */
- 	default:
- 		ret = -EINVAL;
- 		goto out;
+ 		case MW_RESTART:
+ 			drm_writeback_signal_completion(&malidp->mw_connector, 0);
+-			/* fall through to a new start */
++			/* fall through */
+ 		case MW_START:
+ 			/* writeback started, need to emulate one-shot mode */
+ 			hw->disable_memwrite(hwdev);
 -- 
 2.20.1
 
