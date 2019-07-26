@@ -2,65 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 411A277115
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 20:17:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C35C771DD
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 21:09:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727268AbfGZSRr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 14:17:47 -0400
-Received: from smtp-fw-9102.amazon.com ([207.171.184.29]:59293 "EHLO
-        smtp-fw-9102.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726781AbfGZSRr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 14:17:47 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1564165066; x=1595701066;
-  h=date:from:to:cc:subject:message-id:mime-version;
-  bh=6r1JoVKmrIhhd5yCQ7e4JWNPkw/gLCQVMjUwgblpGpc=;
-  b=XArRdpGT1ewe4+dZIZlRbdVmWa0OH8eVTqS0XvOPonKV0Z+Xt295LGBf
-   5zcqHSk7pc+JimG1mHHFd7rAwG/nvV7TnBd5LhmcEz4vhgwtJZwvab7Ew
-   e24buVpDYf9y4I2u4LJE9nC5oQmIAw4pBotw36DKM500CDgsKJbnTKwlq
-   Q=;
-X-IronPort-AV: E=Sophos;i="5.64,311,1559520000"; 
-   d="scan'208";a="688304482"
-Received: from sea3-co-svc-lb6-vlan2.sea.amazon.com (HELO email-inbound-relay-1e-17c49630.us-east-1.amazon.com) ([10.47.22.34])
-  by smtp-border-fw-out-9102.sea19.amazon.com with ESMTP; 26 Jul 2019 18:17:43 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (iad55-ws-svc-p15-lb9-vlan3.iad.amazon.com [10.40.159.166])
-        by email-inbound-relay-1e-17c49630.us-east-1.amazon.com (Postfix) with ESMTPS id 8EE03A290F;
-        Fri, 26 Jul 2019 18:17:41 +0000 (UTC)
-Received: from EX13D17UWB001.ant.amazon.com (10.43.161.252) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
- id 15.0.1367.3; Fri, 26 Jul 2019 18:17:41 +0000
-Received: from EX13MTAUEA001.ant.amazon.com (10.43.61.82) by
- EX13D17UWB001.ant.amazon.com (10.43.161.252) with Microsoft SMTP Server (TLS)
- id 15.0.1367.3; Fri, 26 Jul 2019 18:17:40 +0000
-Received: from dev-dsk-luqia-2a-c7316a94.us-west-2.amazon.com (172.23.196.185)
- by mail-relay.amazon.com (10.43.61.243) with Microsoft SMTP Server id
- 15.0.1367.3 via Frontend Transport; Fri, 26 Jul 2019 18:17:40 +0000
-Received: by dev-dsk-luqia-2a-c7316a94.us-west-2.amazon.com (Postfix, from userid 5038314)
-        id D5E6C8C64F; Fri, 26 Jul 2019 11:17:39 -0700 (PDT)
-Date:   Fri, 26 Jul 2019 11:17:39 -0700
-From:   Qian Lu <luqia@amazon.com>
-To:     <gregkh@linuxfoundation.org>
-CC:     <tigran.mkrtchyan@desy.de>, <trond.myklebust@primarydata.com>,
-        <Anna.Schumaker@Netapp.com>, <stable@vger.kernel.org>
-Subject: Request for inclusion on linux-4.14.y
-Message-ID: <20190726181739.GB31189@dev-dsk-luqia-2a-c7316a94.us-west-2.amazon.com>
+        id S2388429AbfGZTJA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 15:09:00 -0400
+Received: from mail-qk1-f193.google.com ([209.85.222.193]:32989 "EHLO
+        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387570AbfGZTJA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 15:09:00 -0400
+Received: by mail-qk1-f193.google.com with SMTP id r6so39878101qkc.0
+        for <stable@vger.kernel.org>; Fri, 26 Jul 2019 12:08:59 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:organization:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=Qb1+vbELQhwoE9sQvpjeKsKKHLnCMT4wIYjW7XVS9cM=;
+        b=B97whWxbIN3dUwiPACNq8wOlzZBJ6KSmnml4P58YVB4Uvj4kgmrgibHv2sl+hFMSpi
+         DqtQAQq0/LiaB12t+Etovvmfl1fluV/kh1O15+vVmKg+mVnD01mYAocyLw9zQ4JGCZVP
+         CUrBl2XSn+5ROL5b8CF0zOkjLBhCg8HAwoKQ2xdqLQMGDxM7d11idsN6iq888ZaCVh8y
+         T6feJJpdocN3TqFujzwmUlkC2yBoK53RhC04dA5lHYQyIMeklKDsXKx6tU8OT8Omv2NT
+         TCJVy4DIaRS6KGM5yHQYhr6BGoSvY+ZwH7L87lkBEdEXY+aMJoP9e0kmJ3LXoUiVaJO+
+         ssQQ==
+X-Gm-Message-State: APjAAAU3HRbKhSao8rOYuemiATj/wJkrnVmO7K5HF2DdOsIl8EUjBE+a
+        NFS+HaZt5Pui2RSdsRMu2voYJA==
+X-Google-Smtp-Source: APXvYqyuM7wOcBTjeScSuO9H8vXIDps5SKi+kY5qcdZ/phats8pct/QoxMip1HIFc4UfQT0gm5y/Og==
+X-Received: by 2002:a37:afc3:: with SMTP id y186mr63596351qke.115.1564168138843;
+        Fri, 26 Jul 2019 12:08:58 -0700 (PDT)
+Received: from dhcp-10-20-1-11.bss.redhat.com ([144.121.20.162])
+        by smtp.gmail.com with ESMTPSA id z21sm21581263qto.48.2019.07.26.12.08.56
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Fri, 26 Jul 2019 12:08:56 -0700 (PDT)
+Message-ID: <f86af078c7024c2285641386e2b6f1d255d9dbca.camel@redhat.com>
+Subject: Re: [PATCH 2/2] drm/nouveau: Don't retry infinitely when receiving
+ no data on i2c over AUX
+From:   Lyude Paul <lyude@redhat.com>
+To:     Sasha Levin <sashal@kernel.org>, nouveau@lists.freedesktop.org
+Cc:     stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>
+Date:   Fri, 26 Jul 2019 15:08:55 -0400
+In-Reply-To: <20190726141715.A6C48218D3@mail.kernel.org>
+References: <20190725194005.16572-3-lyude@redhat.com>
+         <20190726141715.A6C48218D3@mail.kernel.org>
+Organization: Red Hat
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.32.3 (3.32.3-1.fc30) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.21 (2010-09-15)
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Greg,
+On Fri, 2019-07-26 at 14:17 +0000, Sasha Levin wrote:
+> Hi,
+> 
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a -stable tag.
+> The stable tag indicates that it's relevant for the following trees: all
+> 
+> The bot has tested the following trees: v5.2.2, v5.1.19, v4.19.60,
+> v4.14.134, v4.9.186, v4.4.186.
+> 
+> v5.2.2: Build OK!
+> v5.1.19: Build OK!
+> v4.19.60: Build OK!
+> v4.14.134: Build OK!
+> v4.9.186: Failed to apply! Possible dependencies:
+>     1af5c410cc0c ("drm/nouveau/i2c: modify aux interface to return length
+> actually transferred")
 
-Can you please consider including the following patch in the stable linux-4.14.y branch?
+skip v4.9
+> 
+> v4.4.186: Failed to apply! Possible dependencies:
+>     1af5c410cc0c ("drm/nouveau/i2c: modify aux interface to return length
+> actually transferred")
+>     2ed95a4c65a3 ("drm/nouveau: recognise GM200 chipset")
+>     7568b1067181 ("drm/nouveau/nvif: split out display interface
+> definitions")
+>     7d2813c437a0 ("drm/nouveau/ltc/gm204: split implementation from gm107")
+>     db1eb528462f ("drm/nouveau: s/gm204/gm200/ in a number of places")
+>     e3d26d086092 ("drm/nouveau/ibus/gm204: split implementation from gk104")
+> 
+> 
+and skip v4.4
 
-This is to fix that NFS client incorrectly handling a failed OPEN and ensure that we present the same verifier.
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+> 
+> How should we proceed with this patch?
+> 
+> --
+> Thanks,
+> Sasha
+-- 
+Cheers,
+	Lyude Paul
 
-8fd1ab747d2b("NFSv4: Fix open create exclusive when the server reboots")
-
-Thanks,
-Qian Lu
