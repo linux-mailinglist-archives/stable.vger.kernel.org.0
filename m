@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 446FF773FD
-	for <lists+stable@lfdr.de>; Sat, 27 Jul 2019 00:25:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6B7B77417
+	for <lists+stable@lfdr.de>; Sat, 27 Jul 2019 00:40:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727111AbfGZWZT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 18:25:19 -0400
-Received: from mail-wm1-f43.google.com ([209.85.128.43]:33802 "EHLO
-        mail-wm1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387400AbfGZWZT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 18:25:19 -0400
-Received: by mail-wm1-f43.google.com with SMTP id w9so38872901wmd.1
-        for <stable@vger.kernel.org>; Fri, 26 Jul 2019 15:25:14 -0700 (PDT)
+        id S1727278AbfGZWkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 18:40:16 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:52616 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726581AbfGZWkQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 18:40:16 -0400
+Received: by mail-wm1-f66.google.com with SMTP id s3so49160480wms.2
+        for <stable@vger.kernel.org>; Fri, 26 Jul 2019 15:40:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=792bED6rhdK5flvXBnclYzXOkkZnjpm9KvGKCyxnEZw=;
-        b=yWQfWIlSp/Z+xyK9CN1UjrHcfcKfQRhdsjJ+aNBBcwOrxrUHR9UK9MRunGtfJvZg2Y
-         FftdpLHSooGJwlt9Bj2eANWrItd1LkEahJ5XWhJ72wAWfUafnG4ZnoVGxciy7W01EX4r
-         v5IdsHdwHMtEAC71QTulN5jEPV5djgPwZcqcC07gbnTwtPDy1fGSv7VAEg97LEvrUA4k
-         Xzc+MhfW0vv5dRshNgPNVgU5tQcXVPKFGFEEbWMfXXj/CSdj6PnVHGHRZWvKPF9lm9uN
-         uFdQS+USDRdzJ4j+/yFw8LGpgK/SjZ4QWV0+u0HYP3krueklBWhXNRWw1adGDesxdLWX
-         RRIw==
+        bh=uYBsbemmKuySlbxX4Dxw+JddeEbynHSbToQl/msUNCk=;
+        b=c5lvYSxRXKpyQsXKtfCcTZPHJXWBbvnZA0uSyrBbAgssDXveSd8qCw5tZomml7/lt2
+         J8DvTPTquk13iosPTSf/e3Kv1PY9+Fk5VYkQ06y9p4vWokG9NsnDUYyirt6x1xh10n+Z
+         rpkplLBKq3qd0QK/vbVwCKhnaJxtX+3A9qFYhP6fdqshJ6kuHSnLe/2JXIQon7JyWmSl
+         fEtJvKO1PSZkdMpRrPBGuBKcv3BE0ELEeNYlVRnahJEyHT5FYuYoqHGj5lm+ReY7SCGF
+         Gj0222Y3MGzkIZ3MgYFw1FEZVNMUm7V/AK2KyNaGYVzAFYYMryYUdP8F8dI3+DKrYn1H
+         CscA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=792bED6rhdK5flvXBnclYzXOkkZnjpm9KvGKCyxnEZw=;
-        b=O8swSFAcvvQWSC45n93KxVsgd6nxF+QXI+S1+M7BFpc6xbRaPska4JDePOpoauM202
-         Swaes8ErMsmq0SreO8wh0SydyqzMaltXhwSrMJ7QHakwiVhM5o6bSNMAYnBcjgDpTmrE
-         BW6bZWXBqAoQun3MeRJE2frdYmgz+7q/5m4QN3k/NtNcOVFsJ8FeLr3mPeJHRc2KC5ij
-         TFr2GpDFAIXfpW0MCaLgcREYikyDKkkbHKzOfAXo8NI0U2t6qQNxWemdA2nFdUWdg/AL
-         EW4vmW1g2J83Fm+KySpgJ7cXNxbXZc3IXtaYhzV7Rz1xNLcjDCJ8AW/JTB1L4gWM8SoD
-         kJGQ==
-X-Gm-Message-State: APjAAAW/uihBly51mN82tfpZgaQRfwjPDQks8Qp5fuz1eUPfDUUowag1
-        TQXD1I0olkar8XsFtr+DfGKMdtw8WtI=
-X-Google-Smtp-Source: APXvYqydENW1sGVii9bElQ1GAn84ykGCPm8Z39WMrciXtuE0Jodm6q6bFLvEKm8PkcPkb3+OcuGNEA==
-X-Received: by 2002:a1c:f418:: with SMTP id z24mr37586929wma.80.1564179912743;
-        Fri, 26 Jul 2019 15:25:12 -0700 (PDT)
+        bh=uYBsbemmKuySlbxX4Dxw+JddeEbynHSbToQl/msUNCk=;
+        b=mG99xwkjjLzeB7QnHVJ4GhgGw6xp+KshnI+AJtJfROzGbvuka7AG7XryEJclF0aCe9
+         u97nLzSyVyC8waCiRnwRzCuQiwr+9QVEf5e45r5vf8AjZ4hvaulJ4wh7CN53GvZcTXBZ
+         IPqgdETMxJ93PK+xyILgVmVGLNF4cIXZ7MpRF7BsFFSD2nC4I2+CVlyo5GU821HzWmLz
+         jEk9ohk8gcxLDdqW5Uh7vPOp7xEK6Zlxg1zzhJFjgjt1TyLeGo0EfY9x85Y6YUlYHR9D
+         8vRWcboMnVF8tJV2A/uyWosgKSONbgBB/hw98scvw+7wFfTT3xbQtl+GRqrllbIAyfmx
+         B2JQ==
+X-Gm-Message-State: APjAAAXxAnxn/g3v+2Ke764HiASiCMPRjybmUncJneKQOp2X3PwM5gir
+        y0sCizoLMgSIzm1gepQd9sFKrED7JOE=
+X-Google-Smtp-Source: APXvYqzOwTMcsJ2GCd/ISRdKxfJBRN5DvDFBclhEetsW4dlZWU0CuK5VofLn0pQ8+RSBNdhGDxksqg==
+X-Received: by 2002:a05:600c:224d:: with SMTP id a13mr42762259wmm.62.1564180808647;
+        Fri, 26 Jul 2019 15:40:08 -0700 (PDT)
 Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id g19sm62104015wmg.10.2019.07.26.15.25.11
+        by smtp.gmail.com with ESMTPSA id j17sm83725999wrb.35.2019.07.26.15.40.07
         for <stable@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 26 Jul 2019 15:25:11 -0700 (PDT)
-Message-ID: <5d3b7dc7.1c69fb81.f8288.f53a@mx.google.com>
-Date:   Fri, 26 Jul 2019 15:25:11 -0700 (PDT)
+        Fri, 26 Jul 2019 15:40:08 -0700 (PDT)
+Message-ID: <5d3b8148.1c69fb81.35920.636d@mx.google.com>
+Date:   Fri, 26 Jul 2019 15:40:08 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.61-51-g213a5f3ac1f5
-X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v5.2.3-67-gd61e440a1852
+X-Kernelci-Branch: linux-5.2.y
 X-Kernelci-Report-Type: build
-Subject: stable-rc/linux-4.19.y build: 206 builds: 0 failed, 206 passed,
- 6 warnings (v4.19.61-51-g213a5f3ac1f5)
+Subject: stable-rc/linux-5.2.y build: 209 builds: 0 failed, 209 passed,
+ 20 warnings (v5.2.3-67-gd61e440a1852)
 To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
@@ -63,16 +63,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y build: 206 builds: 0 failed, 206 passed, 6 warnings =
-(v4.19.61-51-g213a5f3ac1f5)
+stable-rc/linux-5.2.y build: 209 builds: 0 failed, 209 passed, 20 warnings =
+(v5.2.3-67-gd61e440a1852)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.61-51-g213a5f3ac1f5/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.2.y=
+/kernel/v5.2.3-67-gd61e440a1852/
 
 Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.61-51-g213a5f3ac1f5
-Git Commit: 213a5f3ac1f5e2af0e25fd4b26497590ec290be0
+Branch: linux-5.2.y
+Git Describe: v5.2.3-67-gd61e440a1852
+Git Commit: d61e440a1852a64d8a2d0d358b9582b19157e039
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
@@ -84,16 +84,22 @@ arc:
 arm64:
 
 arm:
+    integrator_defconfig (gcc-8): 2 warnings
+    multi_v4t_defconfig (gcc-8): 2 warnings
+    multi_v5_defconfig (gcc-8): 2 warnings
+    realview_defconfig (gcc-8): 2 warnings
+    s3c6400_defconfig (gcc-8): 2 warnings
+    u300_defconfig (gcc-8): 2 warnings
 
 i386:
 
 mips:
-    lemote2f_defconfig (gcc-8): 1 warning
-    loongson3_defconfig (gcc-8): 2 warnings
+    db1xxx_defconfig (gcc-8): 1 warning
     malta_qemu_32r6_defconfig (gcc-8): 1 warning
-    nlm_xlp_defconfig (gcc-8): 1 warning
+    rb532_defconfig (gcc-8): 1 warning
 
 riscv:
+    rv32_defconfig (gcc-8): 4 warnings
 
 x86_64:
     tinyconfig (gcc-8): 1 warning
@@ -101,13 +107,21 @@ x86_64:
 
 Warnings summary:
 
-    3    net/core/rtnetlink.c:3160:1: warning: the frame size of 1312 bytes=
- is larger than 1024 bytes [-Wframe-larger-than=3D]
+    6    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-W=
+unused-variable]
+    6    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-W=
+unused-variable]
+    2    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
+-Wcpp]
+    2    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
+d [-Wcpp]
     1    {standard input}:131: Warning: macro instruction expanded into mul=
 tiple instructions
-    1    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm'=
- invalid for HOTPLUG_PCI_SHPC
-    1    .config:1007:warning: override: UNWINDER_GUESS changes choice state
+    1    drivers/mtd/nand/raw/au1550nd.c:443:57: warning: pointer type mism=
+atch in conditional expression
+    1    drivers/ata/pata_rb532_cf.c:161:24: warning: unused variable 'info=
+' [-Wunused-variable]
+    1    .config:1167:warning: override: UNWINDER_GUESS changes choice state
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -328,13 +342,27 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/mtd/nand/raw/au1550nd.c:443:57: warning: pointer type mismatch =
+in conditional expression
+
+---------------------------------------------------------------------------=
+-----
+decstation_64_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
 decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_r4k_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -473,8 +501,14 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
 ection mismatches
+
+Warnings:
+    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-Wunuse=
+d-variable]
+    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-Wunuse=
+d-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -553,12 +587,8 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/rtnetlink.c:3160:1: warning: the frame size of 1312 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -572,14 +602,8 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
-
-Warnings:
-    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm' inva=
-lid for HOTPLUG_PCI_SHPC
-    net/core/rtnetlink.c:3160:1: warning: the frame size of 1312 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -667,6 +691,11 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
+milbeaut_m10v_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
 mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
@@ -707,13 +736,25 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
 ction mismatches
+
+Warnings:
+    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-Wunuse=
+d-variable]
+    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-Wunuse=
+d-variable]
 
 ---------------------------------------------------------------------------=
 -----
-multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
 tion mismatches
+
+Warnings:
+    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-Wunuse=
+d-variable]
+    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-Wunuse=
+d-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -762,12 +803,8 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/rtnetlink.c:3160:1: warning: the frame size of 1312 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -906,13 +943,12 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
 
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+Warnings:
+    drivers/ata/pata_rb532_cf.c:161:24: warning: unused variable 'info' [-W=
+unused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -921,8 +957,14 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
 tion mismatches
+
+Warnings:
+    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-Wunuse=
+d-variable]
+    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-Wunuse=
+d-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -941,13 +983,32 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+rv32_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+
+---------------------------------------------------------------------------=
+-----
 s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
 ion mismatches
+
+Warnings:
+    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-Wunuse=
+d-variable]
+    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-Wunuse=
+d-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1060,7 +1121,7 @@ tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
 ismatches
 
 Warnings:
-    .config:1007:warning: override: UNWINDER_GUESS changes choice state
+    .config:1167:warning: override: UNWINDER_GUESS changes choice state
 
 ---------------------------------------------------------------------------=
 -----
@@ -1069,13 +1130,13 @@ matches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
+tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1089,8 +1150,14 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
  mismatches
+
+Warnings:
+    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-Wunuse=
+d-variable]
+    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-Wunuse=
+d-variable]
 
 ---------------------------------------------------------------------------=
 -----
