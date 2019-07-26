@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 496F1768BB
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:46:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C62E768BA
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:46:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387903AbfGZNq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:46:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55522 "EHLO mail.kernel.org"
+        id S2387789AbfGZNqK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:46:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388319AbfGZNqH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:46:07 -0400
+        id S2388647AbfGZNqJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:46:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 870A522CE8;
-        Fri, 26 Jul 2019 13:46:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C0A422CF8;
+        Fri, 26 Jul 2019 13:46:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148767;
-        bh=og77Y5EQree6qi0dTIEGGGXF9sFJz3o9fKjp7GNNEd0=;
+        s=default; t=1564148768;
+        bh=VP5Xc+mcNUjTtiLWHYus4hbqwajzv9y+NnGgO4hQQU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jj+D3jNcsHucO4OEaHiJC9xDwUQVPWSQn8yM40bdCbC9wxMgO6d0G499ocYtJZw0a
-         ZA8vaT9qckGQNGasCkLcTY28G/KatjhF2P8Zz+i1zUcXn39nNhvyrWSOV1nBoUcWmJ
-         9cWgdhF6Rmk1O+J2zkyKIT5Q62ousGTlv4M1ppeo=
+        b=uKWkM7+f7ZSKStUhf91bzXqWWFSx8oMYYMG1Pa6XmSGe+/R1005zzY5xcrcCUpYiL
+         9hzEQduSu8n2OzDIWItuWigwaoW208T4sTZ4Srt2mKwqwuxkCzR8fewahBx8ASAVJP
+         WTBwHXNPzN65BGf/AEMJY90+1R3YaKeBXi2YzJLg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Denis Efremov <efremov@ispras.ru>, Willy Tarreau <w@1wt.eu>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 22/23] floppy: fix out-of-bounds read in copy_buffer
-Date:   Fri, 26 Jul 2019 09:45:21 -0400
-Message-Id: <20190726134522.13308-22-sashal@kernel.org>
+Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 23/23] x86/kvm: Don't call kvm_spurious_fault() from .fixup
+Date:   Fri, 26 Jul 2019 09:45:22 -0400
+Message-Id: <20190726134522.13308-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726134522.13308-1-sashal@kernel.org>
 References: <20190726134522.13308-1-sashal@kernel.org>
@@ -43,52 +45,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Efremov <efremov@ispras.ru>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit da99466ac243f15fbba65bd261bfc75ffa1532b6 ]
+[ Upstream commit 3901336ed9887b075531bffaeef7742ba614058b ]
 
-This fixes a global out-of-bounds read access in the copy_buffer
-function of the floppy driver.
+After making a change to improve objtool's sibling call detection, it
+started showing the following warning:
 
-The FDDEFPRM ioctl allows one to set the geometry of a disk.  The sect
-and head fields (unsigned int) of the floppy_drive structure are used to
-compute the max_sector (int) in the make_raw_rw_request function.  It is
-possible to overflow the max_sector.  Next, max_sector is passed to the
-copy_buffer function and used in one of the memcpy calls.
+  arch/x86/kvm/vmx/nested.o: warning: objtool: .fixup+0x15: sibling call from callable instruction with modified stack frame
 
-An unprivileged user could trigger the bug if the device is accessible,
-but requires a floppy disk to be inserted.
+The problem is the ____kvm_handle_fault_on_reboot() macro.  It does a
+fake call by pushing a fake RIP and doing a jump.  That tricks the
+unwinder into printing the function which triggered the exception,
+rather than the .fixup code.
 
-The patch adds the check for the .sect * .head multiplication for not
-overflowing in the set_geometry function.
+Instead of the hack to make it look like the original function made the
+call, just change the macro so that the original function actually does
+make the call.  This allows removal of the hack, and also makes objtool
+happy.
 
-The bug was found by syzkaller.
+I triggered a vmx instruction exception and verified that the stack
+trace is still sane:
 
-Signed-off-by: Denis Efremov <efremov@ispras.ru>
-Tested-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+  kernel BUG at arch/x86/kvm/x86.c:358!
+  invalid opcode: 0000 [#1] SMP PTI
+  CPU: 28 PID: 4096 Comm: qemu-kvm Not tainted 5.2.0+ #16
+  Hardware name: Lenovo THINKSYSTEM SD530 -[7X2106Z000]-/-[7X2106Z000]-, BIOS -[TEE113Z-1.00]- 07/17/2017
+  RIP: 0010:kvm_spurious_fault+0x5/0x10
+  Code: 00 00 00 00 00 8b 44 24 10 89 d2 45 89 c9 48 89 44 24 10 8b 44 24 08 48 89 44 24 08 e9 d4 40 22 00 0f 1f 40 00 0f 1f 44 00 00 <0f> 0b 66 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 41 55 49 89 fd 41
+  RSP: 0018:ffffbf91c683bd00 EFLAGS: 00010246
+  RAX: 000061f040000000 RBX: ffff9e159c77bba0 RCX: ffff9e15a5c87000
+  RDX: 0000000665c87000 RSI: ffff9e15a5c87000 RDI: ffff9e159c77bba0
+  RBP: 0000000000000000 R08: 0000000000000000 R09: ffff9e15a5c87000
+  R10: 0000000000000000 R11: fffff8f2d99721c0 R12: ffff9e159c77bba0
+  R13: ffffbf91c671d960 R14: ffff9e159c778000 R15: 0000000000000000
+  FS:  00007fa341cbe700(0000) GS:ffff9e15b7400000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007fdd38356804 CR3: 00000006759de003 CR4: 00000000007606e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  PKRU: 55555554
+  Call Trace:
+   loaded_vmcs_init+0x4f/0xe0
+   alloc_loaded_vmcs+0x38/0xd0
+   vmx_create_vcpu+0xf7/0x600
+   kvm_vm_ioctl+0x5e9/0x980
+   ? __switch_to_asm+0x40/0x70
+   ? __switch_to_asm+0x34/0x70
+   ? __switch_to_asm+0x40/0x70
+   ? __switch_to_asm+0x34/0x70
+   ? free_one_page+0x13f/0x4e0
+   do_vfs_ioctl+0xa4/0x630
+   ksys_ioctl+0x60/0x90
+   __x64_sys_ioctl+0x16/0x20
+   do_syscall_64+0x55/0x1c0
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  RIP: 0033:0x7fa349b1ee5b
+
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/64a9b64d127e87b6920a97afde8e96ea76f6524e.1563413318.git.jpoimboe@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/floppy.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/kvm_host.h | 34 ++++++++++++++++++---------------
+ 1 file changed, 19 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/block/floppy.c b/drivers/block/floppy.c
-index 42ae1d2d8243..7516fed84ae9 100644
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -3236,8 +3236,10 @@ static int set_geometry(unsigned int cmd, struct floppy_struct *g,
- 	int cnt;
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 2cb49ac1b2b2..39f202462029 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1184,25 +1184,29 @@ enum {
+ #define kvm_arch_vcpu_memslots_id(vcpu) ((vcpu)->arch.hflags & HF_SMM_MASK ? 1 : 0)
+ #define kvm_memslots_for_spte_role(kvm, role) __kvm_memslots(kvm, (role).smm)
  
- 	/* sanity checking for parameters. */
--	if (g->sect <= 0 ||
--	    g->head <= 0 ||
-+	if ((int)g->sect <= 0 ||
-+	    (int)g->head <= 0 ||
-+	    /* check for overflow in max_sector */
-+	    (int)(g->sect * g->head) <= 0 ||
- 	    /* check for zero in F_SECT_PER_TRACK */
- 	    (unsigned char)((g->sect << 2) >> FD_SIZECODE(g)) == 0 ||
- 	    g->track <= 0 || g->track > UDP->tracks >> STRETCH(g) ||
++asmlinkage void __noreturn kvm_spurious_fault(void);
++
+ /*
+  * Hardware virtualization extension instructions may fault if a
+  * reboot turns off virtualization while processes are running.
+- * Trap the fault and ignore the instruction if that happens.
++ * Usually after catching the fault we just panic; during reboot
++ * instead the instruction is ignored.
+  */
+-asmlinkage void kvm_spurious_fault(void);
+-
+-#define ____kvm_handle_fault_on_reboot(insn, cleanup_insn)	\
+-	"666: " insn "\n\t" \
+-	"668: \n\t"                           \
+-	".pushsection .fixup, \"ax\" \n" \
+-	"667: \n\t" \
+-	cleanup_insn "\n\t"		      \
+-	"cmpb $0, kvm_rebooting \n\t"	      \
+-	"jne 668b \n\t"      		      \
+-	__ASM_SIZE(push) " $666b \n\t"	      \
+-	"jmp kvm_spurious_fault \n\t"	      \
+-	".popsection \n\t" \
+-	_ASM_EXTABLE(666b, 667b)
++#define ____kvm_handle_fault_on_reboot(insn, cleanup_insn)		\
++	"666: \n\t"							\
++	insn "\n\t"							\
++	"jmp	668f \n\t"						\
++	"667: \n\t"							\
++	"call	kvm_spurious_fault \n\t"				\
++	"668: \n\t"							\
++	".pushsection .fixup, \"ax\" \n\t"				\
++	"700: \n\t"							\
++	cleanup_insn "\n\t"						\
++	"cmpb	$0, kvm_rebooting\n\t"					\
++	"je	667b \n\t"						\
++	"jmp	668b \n\t"						\
++	".popsection \n\t"						\
++	_ASM_EXTABLE(666b, 700b)
+ 
+ #define __kvm_handle_fault_on_reboot(insn)		\
+ 	____kvm_handle_fault_on_reboot(insn, "")
 -- 
 2.20.1
 
