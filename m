@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EB0976D25
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:31:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EB6476DEF
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:40:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389168AbfGZPa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:30:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45900 "EHLO mail.kernel.org"
+        id S2388067AbfGZP0r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:26:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389163AbfGZPa5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:30:57 -0400
+        id S2388041AbfGZP0m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:26:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1D3C22BF5;
-        Fri, 26 Jul 2019 15:30:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9401F205F4;
+        Fri, 26 Jul 2019 15:26:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564155056;
-        bh=CWK5sbdCgpbPy18J/Gv5W5R3I2vx4GgWxSu7isiGFnc=;
+        s=default; t=1564154802;
+        bh=Ro0FAT0BGVOKoWB4ogETXCph+w+v7zxDCGjgX25mSfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WzyGkVUmlhkSjFGdkt9YmufjQGwAnu+hPVUUaIrEPHt42b/jmb6qXwTOu77uKvWcg
-         UmbzmYk9YECNfodzNmUadGUBc8VlwyWrklxB8+YE7ZHeb0byj9WXgBXKbQEESLosXB
-         TLmyx5Gxz9JFrnIzweNLTvB/xusprQDZk72KiRDM=
+        b=z/xSK/NWl3POynyaqjbBWzlFjzIU1BVDeVKFtOXrUTsBczy5o6d9Leu11vEc+Zc94
+         2Q37HKngM1BE6lEQbRzHzQGLkARPrI1kGkgV3R3YOBUQ5nS6TnyqNr42H/SbKbLh1e
+         LSI9xoMgh3YIaTAoRjdBzltKxy/RgVf2DyEGiuY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Dirk van der Merwe <dirk.vandermerwe@netronome.com>,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 16/62] net/tls: make sure offload also gets the keys wiped
-Date:   Fri, 26 Jul 2019 17:24:28 +0200
-Message-Id: <20190726152303.413935339@linuxfoundation.org>
+Subject: [PATCH 5.2 30/66] net: bridge: dont cache ether dest pointer on input
+Date:   Fri, 26 Jul 2019 17:24:29 +0200
+Message-Id: <20190726152305.085650315@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
-References: <20190726152301.720139286@linuxfoundation.org>
+In-Reply-To: <20190726152301.936055394@linuxfoundation.org>
+References: <20190726152301.936055394@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,66 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-[ Upstream commit acd3e96d53a24d219f720ed4012b62723ae05da1 ]
+[ Upstream commit 3d26eb8ad1e9b906433903ce05f775cf038e747f ]
 
-Commit 86029d10af18 ("tls: zero the crypto information from tls_context
-before freeing") added memzero_explicit() calls to clear the key material
-before freeing struct tls_context, but it missed tls_device.c has its
-own way of freeing this structure. Replace the missing free.
+We would cache ether dst pointer on input in br_handle_frame_finish but
+after the neigh suppress code that could lead to a stale pointer since
+both ipv4 and ipv6 suppress code do pskb_may_pull. This means we have to
+always reload it after the suppress code so there's no point in having
+it cached just retrieve it directly.
 
-Fixes: 86029d10af18 ("tls: zero the crypto information from tls_context before freeing")
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: Dirk van der Merwe <dirk.vandermerwe@netronome.com>
+Fixes: 057658cb33fbf ("bridge: suppress arp pkts on BR_NEIGH_SUPPRESS ports")
+Fixes: ed842faeb2bd ("bridge: suppress nd pkts on BR_NEIGH_SUPPRESS ports")
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/tls.h    |    1 +
- net/tls/tls_device.c |    2 +-
- net/tls/tls_main.c   |    4 ++--
- 3 files changed, 4 insertions(+), 3 deletions(-)
+ net/bridge/br_input.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/include/net/tls.h
-+++ b/include/net/tls.h
-@@ -285,6 +285,7 @@ struct tls_offload_context_rx {
- 	(ALIGN(sizeof(struct tls_offload_context_rx), sizeof(void *)) + \
- 	 TLS_DRIVER_STATE_SIZE)
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -74,7 +74,6 @@ int br_handle_frame_finish(struct net *n
+ 	struct net_bridge_fdb_entry *dst = NULL;
+ 	struct net_bridge_mdb_entry *mdst;
+ 	bool local_rcv, mcast_hit = false;
+-	const unsigned char *dest;
+ 	struct net_bridge *br;
+ 	u16 vid = 0;
  
-+void tls_ctx_free(struct tls_context *ctx);
- int wait_on_pending_writer(struct sock *sk, long *timeo);
- int tls_sk_query(struct sock *sk, int optname, char __user *optval,
- 		int __user *optlen);
---- a/net/tls/tls_device.c
-+++ b/net/tls/tls_device.c
-@@ -61,7 +61,7 @@ static void tls_device_free_ctx(struct t
- 	if (ctx->rx_conf == TLS_HW)
- 		kfree(tls_offload_ctx_rx(ctx));
+@@ -92,10 +91,9 @@ int br_handle_frame_finish(struct net *n
+ 		br_fdb_update(br, p, eth_hdr(skb)->h_source, vid, false);
  
--	kfree(ctx);
-+	tls_ctx_free(ctx);
- }
- 
- static void tls_device_gc_task(struct work_struct *work)
---- a/net/tls/tls_main.c
-+++ b/net/tls/tls_main.c
-@@ -251,7 +251,7 @@ static void tls_write_space(struct sock
- 	ctx->sk_write_space(sk);
- }
- 
--static void tls_ctx_free(struct tls_context *ctx)
-+void tls_ctx_free(struct tls_context *ctx)
- {
- 	if (!ctx)
- 		return;
-@@ -638,7 +638,7 @@ static void tls_hw_sk_destruct(struct so
- 
- 	ctx->sk_destruct(sk);
- 	/* Free ctx */
--	kfree(ctx);
-+	tls_ctx_free(ctx);
- 	icsk->icsk_ulp_data = NULL;
- }
- 
+ 	local_rcv = !!(br->dev->flags & IFF_PROMISC);
+-	dest = eth_hdr(skb)->h_dest;
+-	if (is_multicast_ether_addr(dest)) {
++	if (is_multicast_ether_addr(eth_hdr(skb)->h_dest)) {
+ 		/* by definition the broadcast is also a multicast address */
+-		if (is_broadcast_ether_addr(dest)) {
++		if (is_broadcast_ether_addr(eth_hdr(skb)->h_dest)) {
+ 			pkt_type = BR_PKT_BROADCAST;
+ 			local_rcv = true;
+ 		} else {
+@@ -145,7 +143,7 @@ int br_handle_frame_finish(struct net *n
+ 		}
+ 		break;
+ 	case BR_PKT_UNICAST:
+-		dst = br_fdb_find_rcu(br, dest, vid);
++		dst = br_fdb_find_rcu(br, eth_hdr(skb)->h_dest, vid);
+ 	default:
+ 		break;
+ 	}
 
 
