@@ -2,57 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B59B7644C
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 13:27:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADCE176450
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 13:27:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726832AbfGZL1M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 07:27:12 -0400
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:47063 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726130AbfGZL1M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 07:27:12 -0400
-Received: by mail-lj1-f193.google.com with SMTP id v24so51240504ljg.13
-        for <stable@vger.kernel.org>; Fri, 26 Jul 2019 04:27:11 -0700 (PDT)
+        id S1726819AbfGZL1X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 07:27:23 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:41581 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726130AbfGZL1X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 07:27:23 -0400
+Received: by mail-lf1-f67.google.com with SMTP id 62so31971060lfa.8
+        for <stable@vger.kernel.org>; Fri, 26 Jul 2019 04:27:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=/ZeEPeRDOknxPoC0/mlXSl8BxnaCt+PLZvPwsv+/Wqg=;
-        b=oFWvs4MvlL5GP1gOZX6EZCUM2DYpnzic9Y3aW+lbwp2ZlxCnqCK7T5Bah4HG/joNOs
-         hV63e0w5+svVL8XhftgWoWP/xCsWoblTf6/31WWKzPb/CwML3ON89eWY42RteRNyjwNS
-         I197pa9xb3Qz6rxDm9hDLNq5ZbkJvSiwlFXcR8fDGrI/kDNBHrhXDuf88fagsz5HwmT7
-         MpJtdv/j3qYcrqljuvU0aunOcizbibYaxbPC/XFelw2VXEj2hKS0CyZoB45ls2x83PYh
-         RbSW/E8DfU+T4TjCdPusX2d4I4gsNutKuwZXekucTrsBKtxPwVCvIaPHjB+M/RwiEKaA
-         KCVg==
+        bh=g0nLERSg4u07PeLcbnJNifTNV6Ww1N/l/brHYj7jzWs=;
+        b=tEZoMFkZNgKAf/ALc17jFdnG9AJ4QvVybihHJF/c2D6S8n5SsN+L+0XjTStbuw6X3M
+         bhiLIFDVRKQDJwMjvY2YSPQW6Z18SiYmYS/N8UJts90hythAR+0+zfg+jIGnVVW2J+rP
+         8qs/GJBVLpPG9EnfUtu3StUmEO0+4fVONMAQaypVDPNuMax6SLKkNRDcIq3OFdqbtPzf
+         Bzga0dDpWlbFfGCELpmpkhKsiNExxgIJHjumwcK/j5zDry2aUVodOsIv/Y0GsUrnIZOY
+         dk6ZmzAJmE/wTwCzcPDS8Gbt0fcwWyQ/djnGDjygEEDWDm/NHJI6XyPIxmmU41YyBfip
+         K++A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=/ZeEPeRDOknxPoC0/mlXSl8BxnaCt+PLZvPwsv+/Wqg=;
-        b=pRm5P4+kNE8Yi7/kIJp7fzOgFwkFOyOzHKc4rVbFq+2PvoMf5VHXr6pMfRuPne2eTf
-         wRTGejUbXWEy4r9Usqn6HEgTMUpOwGy2x/ZA14NmPfZ7xveNQR2/rwo4eB40OfGWG2l/
-         fgDNFqpyr4U6fcmGbbHZpSXdSP4Caa/Mx/CUk2Kc5wq4H5cE0xDFWmhzV92zrllqNjGF
-         fkIQME8fzyGC/iN2Lxq7nlf307RHjtVX4gURlkeCSzHzdGeguIM6n2a8O6rG73vB+3fF
-         Bwbz+y9faH43h6wocsD8EeF0qj5evvWBEInyhWy3mTNeC8JyyRwKNohzHTmjpj0Bi6CP
-         x/Ug==
-X-Gm-Message-State: APjAAAWn9VnMqySxRrGDpDER6DP7YCPKRiE9ibpBHgWRfkpvVJkzsJy1
-        NvIokkQlBaChcQlCzFPyYUHDNQ==
-X-Google-Smtp-Source: APXvYqzBzw39/qTQ5qot67rMP7b47yVgMBStFTk75r4a7FEttMNWySTKLQVrAfua6AJQua/mT8NDOA==
-X-Received: by 2002:a2e:9593:: with SMTP id w19mr1978301ljh.69.1564140430346;
-        Fri, 26 Jul 2019 04:27:10 -0700 (PDT)
+        bh=g0nLERSg4u07PeLcbnJNifTNV6Ww1N/l/brHYj7jzWs=;
+        b=uFB6KwK3smEimuWirUwa+0M0MnuHrv+y9GuUtDUwkDQlkhCykDS7khtmuxdnSzoZ8U
+         lAkcxidvID6s0T9dVLWT5xzBflf7jtwFPH8N0/R4I/vYR5qiVaS+xfWm0Cs3Kt4ZFQMy
+         0KbBOi8RiL9k72mHXcWhxwSFarM+Jx15iUl/SEk8fMObyKrbse06j+R0Z3xN9p9ykOfN
+         tuczuvdrx3ETae24kz+2+7ofrArx1chgrs2LA9VhbcF4CxBAs2UK31xeLbk4JiMmKeje
+         dB3kp+mqXVICoX5GQ0JIWUpt5m8LaHUjTwn63tuuVGoeZ7pxFZNLGFtZtkP5wXlqsWQd
+         aTNA==
+X-Gm-Message-State: APjAAAUGVLsZWiN0I84/HROiUi2ZqxfbzlrznGt8NodnBs1MsYD4G6/F
+        QGBI1Ki+XJmyad/8qzZ4TDrLZQ==
+X-Google-Smtp-Source: APXvYqzA4M9X20guHIBIplEQvEBB6Y95fjhGaemXWIsOmXfspEG/yh8Z8jnFK4oopjvXljlNC+Uf6w==
+X-Received: by 2002:a19:234c:: with SMTP id j73mr1078425lfj.96.1564140441031;
+        Fri, 26 Jul 2019 04:27:21 -0700 (PDT)
 Received: from localhost (c-243c70d5.07-21-73746f28.bbcust.telenor.se. [213.112.60.36])
-        by smtp.gmail.com with ESMTPSA id q2sm8196273lfj.25.2019.07.26.04.27.09
+        by smtp.gmail.com with ESMTPSA id l22sm9910671ljc.4.2019.07.26.04.27.20
         (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Fri, 26 Jul 2019 04:27:09 -0700 (PDT)
+        Fri, 26 Jul 2019 04:27:20 -0700 (PDT)
 From:   Anders Roxell <anders.roxell@linaro.org>
-To:     maz@kernel.org, catalin.marinas@arm.com, will@kernel.org
-Cc:     linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
-        linux-kernel@vger.kernel.org,
+To:     will@kernel.org, mark.rutland@arm.com, catalin.marinas@arm.com
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         Anders Roxell <anders.roxell@linaro.org>,
         stable@vger.kernel.org
-Subject: [PATCH 1/2] arm64: KVM: regmap: Mark expected switch fall-through
-Date:   Fri, 26 Jul 2019 13:27:05 +0200
-Message-Id: <20190726112705.19000-1-anders.roxell@linaro.org>
+Subject: [PATCH 1/3] arm64: perf: Mark expected switch fall-through
+Date:   Fri, 26 Jul 2019 13:27:16 +0200
+Message-Id: <20190726112716.19104-1-anders.roxell@linaro.org>
 X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,77 +65,60 @@ When fall-through warnings was enabled by default, commit d93512ef0f0e
 ("Makefile: Globally enable fall-through warning"), the following
 warnings was starting to show up:
 
-In file included from ../arch/arm64/include/asm/kvm_emulate.h:19,
-                 from ../arch/arm64/kvm/regmap.c:13:
-../arch/arm64/kvm/regmap.c: In function ‘vcpu_write_spsr32’:
-../arch/arm64/include/asm/kvm_hyp.h:31:3: warning: this statement may fall
+../arch/arm64/kernel/hw_breakpoint.c: In function ‘hw_breakpoint_arch_parse’:
+../arch/arm64/kernel/hw_breakpoint.c:540:7: warning: this statement may fall
  through [-Wimplicit-fallthrough=]
-   asm volatile(ALTERNATIVE(__msr_s(r##nvh, "%x0"), \
-   ^~~
-../arch/arm64/include/asm/kvm_hyp.h:46:31: note: in expansion of macro ‘write_sysreg_elx’
- #define write_sysreg_el1(v,r) write_sysreg_elx(v, r, _EL1, _EL12)
-                               ^~~~~~~~~~~~~~~~
-../arch/arm64/kvm/regmap.c:180:3: note: in expansion of macro ‘write_sysreg_el1’
-   write_sysreg_el1(v, SYS_SPSR);
-   ^~~~~~~~~~~~~~~~
-../arch/arm64/kvm/regmap.c:181:2: note: here
-  case KVM_SPSR_ABT:
-  ^~~~
-In file included from ../arch/arm64/include/asm/cputype.h:132,
-                 from ../arch/arm64/include/asm/cache.h:8,
-                 from ../include/linux/cache.h:6,
-                 from ../include/linux/printk.h:9,
-                 from ../include/linux/kernel.h:15,
-                 from ../include/asm-generic/bug.h:18,
-                 from ../arch/arm64/include/asm/bug.h:26,
-                 from ../include/linux/bug.h:5,
-                 from ../include/linux/mmdebug.h:5,
-                 from ../include/linux/mm.h:9,
-                 from ../arch/arm64/kvm/regmap.c:11:
-../arch/arm64/include/asm/sysreg.h:837:2: warning: this statement may fall
+    if (hw->ctrl.len == ARM_BREAKPOINT_LEN_1)
+       ^
+../arch/arm64/kernel/hw_breakpoint.c:542:3: note: here
+   case 2:
+   ^~~~
+../arch/arm64/kernel/hw_breakpoint.c:544:7: warning: this statement may fall
  through [-Wimplicit-fallthrough=]
-  asm volatile("msr " __stringify(r) ", %x0"  \
-  ^~~
-../arch/arm64/kvm/regmap.c:182:3: note: in expansion of macro ‘write_sysreg’
-   write_sysreg(v, spsr_abt);
-   ^~~~~~~~~~~~
-../arch/arm64/kvm/regmap.c:183:2: note: here
-  case KVM_SPSR_UND:
-  ^~~~
+    if (hw->ctrl.len == ARM_BREAKPOINT_LEN_2)
+       ^
+../arch/arm64/kernel/hw_breakpoint.c:546:3: note: here
+   default:
+   ^~~~~~~
 
-Rework to add a 'break;' in the swich-case since it didn't have that.
-That also made the compiler happy and didn't warn about fall-through.
+Rework so that the compiler doesn't warn about fall-through. Rework so
+the code looks like the arm code. Since the comment in the function
+indicates taht this is supposed to behave the same way as arm32 because
+it handles 32-bit tasks also.
 
 Cc: stable@vger.kernel.org # v3.16+
-Fixes: a892819560c4 ("KVM: arm64: Prepare to handle deferred save/restore of 32-bit registers")
+Fixes: 6ee33c2712fc ("ARM: hw_breakpoint: correct and simplify alignment fixup code")
 Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
 ---
- arch/arm64/kvm/regmap.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm64/kernel/hw_breakpoint.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/kvm/regmap.c b/arch/arm64/kvm/regmap.c
-index 0d60e4f0af66..a900181e3867 100644
---- a/arch/arm64/kvm/regmap.c
-+++ b/arch/arm64/kvm/regmap.c
-@@ -178,13 +178,18 @@ void vcpu_write_spsr32(struct kvm_vcpu *vcpu, unsigned long v)
- 	switch (spsr_idx) {
- 	case KVM_SPSR_SVC:
- 		write_sysreg_el1(v, SYS_SPSR);
-+		break;
- 	case KVM_SPSR_ABT:
- 		write_sysreg(v, spsr_abt);
-+		break;
- 	case KVM_SPSR_UND:
- 		write_sysreg(v, spsr_und);
-+		break;
- 	case KVM_SPSR_IRQ:
- 		write_sysreg(v, spsr_irq);
-+		break;
- 	case KVM_SPSR_FIQ:
- 		write_sysreg(v, spsr_fiq);
-+		break;
- 	}
- }
+diff --git a/arch/arm64/kernel/hw_breakpoint.c b/arch/arm64/kernel/hw_breakpoint.c
+index dceb84520948..ea616adf1cf1 100644
+--- a/arch/arm64/kernel/hw_breakpoint.c
++++ b/arch/arm64/kernel/hw_breakpoint.c
+@@ -535,14 +535,17 @@ int hw_breakpoint_arch_parse(struct perf_event *bp,
+ 		case 0:
+ 			/* Aligned */
+ 			break;
+-		case 1:
+-			/* Allow single byte watchpoint. */
+-			if (hw->ctrl.len == ARM_BREAKPOINT_LEN_1)
+-				break;
+ 		case 2:
+ 			/* Allow halfword watchpoints and breakpoints. */
+ 			if (hw->ctrl.len == ARM_BREAKPOINT_LEN_2)
+ 				break;
++			/* Fall through */
++		case 1:
++		case 3:
++			/* Allow single byte watchpoint. */
++			if (hw->ctrl.len == ARM_BREAKPOINT_LEN_1)
++				break;
++			/* Fall through */
+ 		default:
+ 			return -EINVAL;
+ 		}
 -- 
 2.20.1
 
