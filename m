@@ -2,156 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE48475F5D
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 08:57:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C91CB75F79
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 09:06:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725945AbfGZG5o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 02:57:44 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:44898 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725944AbfGZG5o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 02:57:44 -0400
-Received: by mail-pl1-f195.google.com with SMTP id t14so24359345plr.11
-        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 23:57:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=bzQNKaZKw8eToFqDsQXbuB2yvZDO2AGHnxOmbSadekg=;
-        b=D7jepyajIBROtTtVBRHO30NiYXAeVmjGCJbHSHXTuzjnSS8FsQ3UuvfORc1nANBoCV
-         4CKKsTIM5dtsEO607omtllGtCE8qOnJmQCgTbR1fYXDggum829aLmyTii5PkS6fd34od
-         T2cNSa8CjGv9SEDMGaCU33ritC8YGOBNMhBoWe3ZRvwB41GWr9XjgqkBMvZ0QDrcWs4L
-         irdsOPL2P9Fg1+oEAAw1PUVDBjx6voLdFWjdrEsONJ55F1XS6VlJs1SEpAek+1so9BNd
-         NTazoekjIgNqSPfCw/ZOVTRebwGFq8baCu0Xq8yDDvZLf6hFmjfiL7BxVK25Jti7ffq1
-         bx+w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=bzQNKaZKw8eToFqDsQXbuB2yvZDO2AGHnxOmbSadekg=;
-        b=gWn/SEH/N+Iy4TS936ET48PaolGgz1NzN2Hc6ClyUOM+P1wRE44T95ArNMrRnL0kSj
-         d2VlkJiiNHry2BeApNq48i5g11CW6QnJhXlSsp+0wRpunYA30UaVteMXKYfRK4Od7zvq
-         eqvgU/0F3X9PwJPSPmBA3hRNQiWpfL2wYkgRg0a7tPFyNDUAvOnPqSetHFGiPsM30IYV
-         ZthRBKKztuHkM15hAYDBjQkYoBr0H5pcYPliQ40aoMoVNmf2/FonjpCRyhopiRojlt+p
-         wE0en5tVGbpAiAa9mCiHTSLqEv3mskkj4MJ+CYN69EIGvAYcqBlXbZf0z3HLrC55u4ML
-         I/7g==
-X-Gm-Message-State: APjAAAWphGLqSAPPHhZI8WcKMFtMCVs4Pe9QSNVSNBDQo8QDhtqjiCs6
-        K3Far4wQZtoin40/Hme6uLS26w==
-X-Google-Smtp-Source: APXvYqzzo+ODsFIczIG4j/cy5XNrUcZj88VBcx5YjQ+nwxEcwhFoGe3xWYa2zhp/yiPSVfhcKjKEfw==
-X-Received: by 2002:a17:902:ff11:: with SMTP id f17mr96645555plj.121.1564124263268;
-        Thu, 25 Jul 2019 23:57:43 -0700 (PDT)
-Received: from localhost ([122.172.28.117])
-        by smtp.gmail.com with ESMTPSA id o24sm7949706pgn.93.2019.07.25.23.57.41
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 25 Jul 2019 23:57:41 -0700 (PDT)
-Date:   Fri, 26 Jul 2019 12:27:39 +0530
-From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     Doug Smythies <dsmythies@telus.net>
-Cc:     "'Rafael J. Wysocki'" <rafael@kernel.org>,
-        'Rafael Wysocki' <rjw@rjwysocki.net>,
-        'Ingo Molnar' <mingo@redhat.com>,
-        'Peter Zijlstra' <peterz@infradead.org>,
-        'Linux PM' <linux-pm@vger.kernel.org>,
-        'Vincent Guittot' <vincent.guittot@linaro.org>,
-        'Joel Fernandes' <joel@joelfernandes.org>,
-        "'v4 . 18+'" <stable@vger.kernel.org>,
-        'Linux Kernel Mailing List' <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cpufreq: schedutil: Don't skip freq update when limits
- change
-Message-ID: <20190726065739.xjvyvqpkb3o6m4ty@vireshk-i7>
-References: <1563431200-3042-1-git-send-email-dsmythies@telus.net>
- <8091ef83f264feb2feaa827fbeefe08348bcd05d.1563778071.git.viresh.kumar@linaro.org>
- <001201d54125$a6a82350$f3f869f0$@net>
- <20190723091551.nchopfpqlmdmzvge@vireshk-i7>
- <CAJZ5v0ji+ksapJ4kc2m5UM_O+AShAvJWmYhTQHiXiHnpTq+xRg@mail.gmail.com>
- <20190724114327.apmx35c7a4tv3qt5@vireshk-i7>
- <000c01d542fc$703ff850$50bfe8f0$@net>
+        id S1725878AbfGZHGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 03:06:18 -0400
+Received: from mx2.suse.de ([195.135.220.15]:40562 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725869AbfGZHGS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 03:06:18 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 810CAB128;
+        Fri, 26 Jul 2019 07:06:16 +0000 (UTC)
+Date:   Fri, 26 Jul 2019 09:06:15 +0200
+From:   Michal Hocko <mhocko@kernel.org>
+To:     Toshiki Fukasawa <t-fukasawa@vx.jp.nec.com>
+Cc:     "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "dan.j.williams@intel.com" <dan.j.williams@intel.com>,
+        "adobriyan@gmail.com" <adobriyan@gmail.com>,
+        "hch@lst.de" <hch@lst.de>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Junichi Nomura <j-nomura@ce.jp.nec.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH 2/2] /proc/kpageflags: do not use uninitialized struct
+ pages
+Message-ID: <20190726070615.GB6142@dhcp22.suse.cz>
+References: <20190725023100.31141-1-t-fukasawa@vx.jp.nec.com>
+ <20190725023100.31141-3-t-fukasawa@vx.jp.nec.com>
+ <20190725090341.GC13855@dhcp22.suse.cz>
+ <40b3078e-fb8b-87ef-5c4e-6321956cc940@vx.jp.nec.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <000c01d542fc$703ff850$50bfe8f0$@net>
-User-Agent: NeoMutt/20180716-391-311a52
+In-Reply-To: <40b3078e-fb8b-87ef-5c4e-6321956cc940@vx.jp.nec.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 25-07-19, 08:20, Doug Smythies wrote:
-> I tried the patch ("patch2"). It did not fix the issue.
+On Fri 26-07-19 06:25:49, Toshiki Fukasawa wrote:
 > 
-> To summarize, all kernel 5.2 based, all intel_cpufreq driver and schedutil governor:
 > 
-> Test: Does a busy system respond to maximum CPU clock frequency reduction?
+> On 2019/07/25 18:03, Michal Hocko wrote:
+> > On Thu 25-07-19 02:31:18, Toshiki Fukasawa wrote:
+> >> A kernel panic was observed during reading /proc/kpageflags for
+> >> first few pfns allocated by pmem namespace:
+> >>
+> >> BUG: unable to handle page fault for address: fffffffffffffffe
+> >> [  114.495280] #PF: supervisor read access in kernel mode
+> >> [  114.495738] #PF: error_code(0x0000) - not-present page
+> >> [  114.496203] PGD 17120e067 P4D 17120e067 PUD 171210067 PMD 0
+> >> [  114.496713] Oops: 0000 [#1] SMP PTI
+> >> [  114.497037] CPU: 9 PID: 1202 Comm: page-types Not tainted 5.3.0-rc1 #1
+> >> [  114.497621] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.0-0-g63451fca13-prebuilt.qemu-project.org 04/01/2014
+> >> [  114.498706] RIP: 0010:stable_page_flags+0x27/0x3f0
+> >> [  114.499142] Code: 82 66 90 66 66 66 66 90 48 85 ff 0f 84 d1 03 00 00 41 54 55 48 89 fd 53 48 8b 57 08 48 8b 1f 48 8d 42 ff 83 e2 01 48 0f 44 c7 <48> 8b 00 f6 c4 02 0f 84 57 03 00 00 45 31 e4 48 8b 55 08 48 89 ef
+> >> [  114.500788] RSP: 0018:ffffa5e601a0fe60 EFLAGS: 00010202
+> >> [  114.501373] RAX: fffffffffffffffe RBX: ffffffffffffffff RCX: 0000000000000000
+> >> [  114.502009] RDX: 0000000000000001 RSI: 00007ffca13a7310 RDI: ffffd07489000000
+> >> [  114.502637] RBP: ffffd07489000000 R08: 0000000000000001 R09: 0000000000000000
+> >> [  114.503270] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000240000
+> >> [  114.503896] R13: 0000000000080000 R14: 00007ffca13a7310 R15: ffffa5e601a0ff08
+> >> [  114.504530] FS:  00007f0266c7f540(0000) GS:ffff962dbbac0000(0000) knlGS:0000000000000000
+> >> [  114.505245] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> >> [  114.505754] CR2: fffffffffffffffe CR3: 000000023a204000 CR4: 00000000000006e0
+> >> [  114.506401] Call Trace:
+> >> [  114.506660]  kpageflags_read+0xb1/0x130
+> >> [  114.507051]  proc_reg_read+0x39/0x60
+> >> [  114.507387]  vfs_read+0x8a/0x140
+> >> [  114.507686]  ksys_pread64+0x61/0xa0
+> >> [  114.508021]  do_syscall_64+0x5f/0x1a0
+> >> [  114.508372]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> >> [  114.508844] RIP: 0033:0x7f0266ba426b
+> >>
+> >> The reason for the panic is that stable_page_flags() which parses
+> >> the page flags uses uninitialized struct pages reserved by the
+> >> ZONE_DEVICE driver.
+> > 
+> > Why pmem hasn't initialized struct pages? 
 > 
-> stock, unaltered: No.
-> revert ecd2884291261e3fddbc7651ee11a20d596bb514: Yes
-> viresh patch: No.
-> fast_switch edit: No.
-> viresh patch2: No.
+> We proposed to initialize in previous approach but that wasn't merged.
+> (See https://marc.info/?l=linux-mm&m=152964792500739&w=2)
+> 
+> > Isn't that a bug that should be addressed rather than paper over it like this?
+> 
+> I'm not sure. What do you think, Dan?
 
-Hmm, so I tried to reproduce your setup on my ARM board.
-- booted only with CPU0 so I hit the sugov_update_single() routine
-- And applied below diff to make CPU look permanently busy:
-
--------------------------8<-------------------------
-diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
-index 2f382b0959e5..afb47490e5dc 100644
---- a/kernel/sched/cpufreq_schedutil.c
-+++ b/kernel/sched/cpufreq_schedutil.c
-@@ -121,6 +121,7 @@ static void sugov_fast_switch(struct sugov_policy *sg_policy, u64 time,
-        if (!sugov_update_next_freq(sg_policy, time, next_freq))
-                return;
- 
-+       pr_info("%s: %d: %u\n", __func__, __LINE__, freq);
-        next_freq = cpufreq_driver_fast_switch(policy, next_freq);
-        if (!next_freq)
-                return;
-@@ -424,14 +425,10 @@ static unsigned long sugov_iowait_apply(struct sugov_cpu *sg_cpu, u64 time,
- #ifdef CONFIG_NO_HZ_COMMON
- static bool sugov_cpu_is_busy(struct sugov_cpu *sg_cpu)
- {
--       unsigned long idle_calls = tick_nohz_get_idle_calls_cpu(sg_cpu->cpu);
--       bool ret = idle_calls == sg_cpu->saved_idle_calls;
--
--       sg_cpu->saved_idle_calls = idle_calls;
--       return ret;
-+       return true;
- }
- #else
--static inline bool sugov_cpu_is_busy(struct sugov_cpu *sg_cpu) { return false; }
-+static inline bool sugov_cpu_is_busy(struct sugov_cpu *sg_cpu) { return true; }
- #endif /* CONFIG_NO_HZ_COMMON */
- 
- /*
-@@ -565,6 +562,7 @@ static void sugov_work(struct kthread_work *work)
-        sg_policy->work_in_progress = false;
-        raw_spin_unlock_irqrestore(&sg_policy->update_lock, flags);
- 
-+       pr_info("%s: %d: %u\n", __func__, __LINE__, freq);
-        mutex_lock(&sg_policy->work_lock);
-        __cpufreq_driver_target(sg_policy->policy, freq, CPUFREQ_RELATION_L);
-        mutex_unlock(&sg_policy->work_lock);
-
--------------------------8<-------------------------
-
-Now, the frequency never gets down and so gets set to the maximum
-possible after a bit.
-
-- Then I did:
-
-echo <any-low-freq-value> > /sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq
-
-Without my patch applied:
-        The print never gets printed and so frequency doesn't go down.
-
-With my patch applied:
-        The print gets printed immediately from sugov_work() and so
-        the frequency reduces.
-
-Can you try with this diff along with my Patch2 ? I suspect there may
-be something wrong with the intel_cpufreq driver as the patch fixes
-the only path we have in the schedutil governor which takes busyness
-of a CPU into account.
-
+Yeah, I am really curious about details. Why do we keep uninitialized
+struct pages at all? What is a random pfn walker supposed to do? What
+kind of metadata would be clobbered? In other words much more details
+please.
 -- 
-viresh
+Michal Hocko
+SUSE Labs
