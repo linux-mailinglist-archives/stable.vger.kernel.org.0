@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B3A67694C
+	by mail.lfdr.de (Postfix) with ESMTP id 1D2DA7694B
 	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:50:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728012AbfGZNoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:44:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52302 "EHLO mail.kernel.org"
+        id S1727745AbfGZNuv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:50:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727959AbfGZNoL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:44:11 -0400
+        id S1728005AbfGZNoN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:44:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E934E22CD6;
-        Fri, 26 Jul 2019 13:44:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CED6422CC0;
+        Fri, 26 Jul 2019 13:44:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148650;
-        bh=2HAjsazSUtJXt2TTMq9ufkoer4YWsLVnedNBQy4W8XM=;
+        s=default; t=1564148652;
+        bh=Nsk0wcbXrDw9o1+zIkA4XGOBBWIf9mehTF+5/qgGej0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ppQjh7RIT1Tc/auuq92cKy6FnI+j6iiF0+OwcnJ4iKg0pKAXYuG7J3/j0OWyMus6E
-         tT8XUars1KJIm8sHE1WcmCVpSWUVf1dCXYQA/AJRlr7LbH+2DLQDi2TUy8zAOBET9t
-         GtuiHEb+JuLIW15jgS2MOmUBAM1oL0P/hY5XrMk0=
+        b=ABwG+1J/aVdIUla7zrxY9Vh15zKbuO4eJXSgP+x4QUmn9LQg9IhS2QCPlMTul7MF8
+         JRSGqR4nJ4TPNyC7EuH++xerhfZ6XUDQh9gYGwQGMSWEIBjZwqf1/Cr8oQRehRcB5T
+         LPZEpSO3kCyTnza/ItCseq3pEY3UToreVAB8WHZ0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sam Protsenko <semen.protsenko@linaro.org>,
+Cc:     Mikko Rapeli <mikko.rapeli@iki.fi>,
         Jan Harkes <jaharkes@cs.cmu.edu>,
         Arnd Bergmann <arnd@arndb.de>,
         Colin Ian King <colin.king@canonical.com>,
         Dan Carpenter <dan.carpenter@oracle.com>,
         David Howells <dhowells@redhat.com>,
         Fabian Frederick <fabf@skynet.be>,
-        Mikko Rapeli <mikko.rapeli@iki.fi>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
         Yann Droneaud <ydroneaud@opteya.com>,
         Zhouyang Jia <jiazhouyang09@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, codalist@coda.cs.cmu.edu
-Subject: [PATCH AUTOSEL 4.14 25/37] coda: fix build using bare-metal toolchain
-Date:   Fri, 26 Jul 2019 09:43:20 -0400
-Message-Id: <20190726134332.12626-25-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 26/37] uapi linux/coda_psdev.h: move upc_req definition from uapi to kernel side headers
+Date:   Fri, 26 Jul 2019 09:43:21 -0400
+Message-Id: <20190726134332.12626-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726134332.12626-1-sashal@kernel.org>
 References: <20190726134332.12626-1-sashal@kernel.org>
@@ -53,48 +53,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sam Protsenko <semen.protsenko@linaro.org>
+From: Mikko Rapeli <mikko.rapeli@iki.fi>
 
-[ Upstream commit b2a57e334086602be56b74958d9f29b955cd157f ]
+[ Upstream commit f90fb3c7e2c13ae829db2274b88b845a75038b8a ]
 
-The kernel is self-contained project and can be built with bare-metal
-toolchain.  But bare-metal toolchain doesn't define __linux__.  Because
-of this u_quad_t type is not defined when using bare-metal toolchain and
-codafs build fails.  This patch fixes it by defining u_quad_t type
-unconditionally.
+Only users of upc_req in kernel side fs/coda/psdev.c and
+fs/coda/upcall.c already include linux/coda_psdev.h.
 
-Link: http://lkml.kernel.org/r/3cbb40b0a57b6f9923a9d67b53473c0b691a3eaa.1558117389.git.jaharkes@cs.cmu.edu
-Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
+Suggested by Jan Harkes <jaharkes@cs.cmu.edu> in
+  https://lore.kernel.org/lkml/20150531111913.GA23377@cs.cmu.edu/
+
+Fixes these include/uapi/linux/coda_psdev.h compilation errors in userspace:
+
+  linux/coda_psdev.h:12:19: error: field `uc_chain' has incomplete type
+  struct list_head    uc_chain;
+                   ^
+  linux/coda_psdev.h:13:2: error: unknown type name `caddr_t'
+  caddr_t             uc_data;
+  ^
+  linux/coda_psdev.h:14:2: error: unknown type name `u_short'
+  u_short             uc_flags;
+  ^
+  linux/coda_psdev.h:15:2: error: unknown type name `u_short'
+  u_short             uc_inSize;  /* Size is at most 5000 bytes */
+  ^
+  linux/coda_psdev.h:16:2: error: unknown type name `u_short'
+  u_short             uc_outSize;
+  ^
+  linux/coda_psdev.h:17:2: error: unknown type name `u_short'
+  u_short             uc_opcode;  /* copied from data to save lookup */
+  ^
+  linux/coda_psdev.h:19:2: error: unknown type name `wait_queue_head_t'
+  wait_queue_head_t   uc_sleep;   /* process' wait queue */
+  ^
+
+Link: http://lkml.kernel.org/r/9f99f5ce6a0563d5266e6cf7aa9585aac2cae971.1558117389.git.jaharkes@cs.cmu.edu
+Signed-off-by: Mikko Rapeli <mikko.rapeli@iki.fi>
 Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
 Cc: Arnd Bergmann <arnd@arndb.de>
 Cc: Colin Ian King <colin.king@canonical.com>
 Cc: Dan Carpenter <dan.carpenter@oracle.com>
 Cc: David Howells <dhowells@redhat.com>
 Cc: Fabian Frederick <fabf@skynet.be>
-Cc: Mikko Rapeli <mikko.rapeli@iki.fi>
+Cc: Sam Protsenko <semen.protsenko@linaro.org>
 Cc: Yann Droneaud <ydroneaud@opteya.com>
 Cc: Zhouyang Jia <jiazhouyang09@gmail.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/coda.h | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ include/linux/coda_psdev.h      | 11 +++++++++++
+ include/uapi/linux/coda_psdev.h | 13 -------------
+ 2 files changed, 11 insertions(+), 13 deletions(-)
 
-diff --git a/include/linux/coda.h b/include/linux/coda.h
-index d30209b9cef8..0ca0c83fdb1c 100644
---- a/include/linux/coda.h
-+++ b/include/linux/coda.h
-@@ -58,8 +58,7 @@ Mellon the rights to redistribute these changes without encumbrance.
- #ifndef _CODA_HEADER_
- #define _CODA_HEADER_
+diff --git a/include/linux/coda_psdev.h b/include/linux/coda_psdev.h
+index 15170954aa2b..57d2b2faf6a3 100644
+--- a/include/linux/coda_psdev.h
++++ b/include/linux/coda_psdev.h
+@@ -19,6 +19,17 @@ struct venus_comm {
+ 	struct mutex	    vc_mutex;
+ };
  
--#if defined(__linux__)
- typedef unsigned long long u_quad_t;
--#endif
-+
- #include <uapi/linux/coda.h>
- #endif 
++/* messages between coda filesystem in kernel and Venus */
++struct upc_req {
++	struct list_head	uc_chain;
++	caddr_t			uc_data;
++	u_short			uc_flags;
++	u_short			uc_inSize;  /* Size is at most 5000 bytes */
++	u_short			uc_outSize;
++	u_short			uc_opcode;  /* copied from data to save lookup */
++	int			uc_unique;
++	wait_queue_head_t	uc_sleep;   /* process' wait queue */
++};
+ 
+ static inline struct venus_comm *coda_vcp(struct super_block *sb)
+ {
+diff --git a/include/uapi/linux/coda_psdev.h b/include/uapi/linux/coda_psdev.h
+index aa6623efd2dd..d50d51a57fe4 100644
+--- a/include/uapi/linux/coda_psdev.h
++++ b/include/uapi/linux/coda_psdev.h
+@@ -7,19 +7,6 @@
+ #define CODA_PSDEV_MAJOR 67
+ #define MAX_CODADEVS  5	   /* how many do we allow */
+ 
+-
+-/* messages between coda filesystem in kernel and Venus */
+-struct upc_req {
+-	struct list_head    uc_chain;
+-	caddr_t	            uc_data;
+-	u_short	            uc_flags;
+-	u_short             uc_inSize;  /* Size is at most 5000 bytes */
+-	u_short	            uc_outSize;
+-	u_short	            uc_opcode;  /* copied from data to save lookup */
+-	int		    uc_unique;
+-	wait_queue_head_t   uc_sleep;   /* process' wait queue */
+-};
+-
+ #define CODA_REQ_ASYNC  0x1
+ #define CODA_REQ_READ   0x2
+ #define CODA_REQ_WRITE  0x4
 -- 
 2.20.1
 
