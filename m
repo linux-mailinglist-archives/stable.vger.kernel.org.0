@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 330ED76D19
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:31:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B6AC76D48
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:33:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389096AbfGZPab (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:30:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45420 "EHLO mail.kernel.org"
+        id S2389479AbfGZPca (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:32:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389088AbfGZPab (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:30:31 -0400
+        id S2388709AbfGZPc3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:32:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B8912218D4;
-        Fri, 26 Jul 2019 15:30:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11AE022BF5;
+        Fri, 26 Jul 2019 15:32:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564155030;
-        bh=K0NW8k+vUkkJ6hAz7S04FBZH5elkC1pGGaaqnabEz9E=;
+        s=default; t=1564155148;
+        bh=m4IhzfkG4WdTewNI3DALy3vQUl8DeziHc2wi2kspGA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XTksjKL3Q6dFqoT9QYlFcs68aC3pozIKcJhwdiOYsX1svDcwCCkARtHqnfRsgtEdJ
-         NMkvQ181JBSwvBBKioE8rhM/We5DDubYDb14qiZhWndcuoyzszoWhOTVFVf6hCZIHj
-         XBoh7w3laHKkcBZRR3sEHu5SkaiEz+Pkal8MGfwU=
+        b=ycvs2dp65fGmKJIkJEBQ7eOP3YRf5ngVdJQioAyyKl4oYJBbNOq0uTLVudiIP5AaY
+         +UJKGZyOBk9W/iLjfi9C3o1t6nWW+Q5HsHnwhIe0IE8W35qhosX2VY2wTo5yskdVZ5
+         JehEjTXotxZjCWIqg4wYwo4CRHLzVU0i17ZgTnc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        Tariq Toukan <tariqt@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.1 41/62] net/mlx5e: Fix return value from timeout recover function
-Date:   Fri, 26 Jul 2019 17:24:53 +0200
-Message-Id: <20190726152306.273886859@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Marcus Seyfarth <m.seyfarth@gmail.com>
+Subject: [PATCH 4.19 19/50] sky2: Disable MSI on ASUS P6T
+Date:   Fri, 26 Jul 2019 17:24:54 +0200
+Message-Id: <20190726152302.551519581@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
-References: <20190726152301.720139286@linuxfoundation.org>
+In-Reply-To: <20190726152300.760439618@linuxfoundation.org>
+References: <20190726152300.760439618@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@mellanox.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 39825350ae2a52f8513741b36e42118bd80dd689 ]
+[ Upstream commit a261e3797506bd561700be643fe1a85bf81e9661 ]
 
-Fix timeout recover function to return a meaningful return value.
-When an interrupt was not sent by the FW, return IO error instead of
-'true'.
+The onboard sky2 NIC on ASUS P6T WS PRO doesn't work after PM resume
+due to the infamous IRQ problem.  Disabling MSI works around it, so
+let's add it to the blacklist.
 
-Fixes: c7981bea48fb ("net/mlx5e: Fix return status of TX reporter timeout recover")
-Signed-off-by: Aya Levin <ayal@mellanox.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
-Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Unfortunately the BIOS on the machine doesn't fill the standard
+DMI_SYS_* entry, so we pick up DMI_BOARD_* entries instead.
+
+BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1142496
+Reported-and-tested-by: Marcus Seyfarth <m.seyfarth@gmail.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en/reporter_tx.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/marvell/sky2.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_tx.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_tx.c
-@@ -142,22 +142,20 @@ static int mlx5e_tx_reporter_timeout_rec
- {
- 	struct mlx5_eq_comp *eq = sq->cq.mcq.eq;
- 	u32 eqe_count;
--	int ret;
+--- a/drivers/net/ethernet/marvell/sky2.c
++++ b/drivers/net/ethernet/marvell/sky2.c
+@@ -4947,6 +4947,13 @@ static const struct dmi_system_id msi_bl
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "P-79"),
+ 		},
+ 	},
++	{
++		.ident = "ASUS P6T",
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer INC."),
++			DMI_MATCH(DMI_BOARD_NAME, "P6T"),
++		},
++	},
+ 	{}
+ };
  
- 	netdev_err(sq->channel->netdev, "EQ 0x%x: Cons = 0x%x, irqn = 0x%x\n",
- 		   eq->core.eqn, eq->core.cons_index, eq->core.irqn);
- 
- 	eqe_count = mlx5_eq_poll_irq_disabled(eq);
--	ret = eqe_count ? false : true;
- 	if (!eqe_count) {
- 		clear_bit(MLX5E_SQ_STATE_ENABLED, &sq->state);
--		return ret;
-+		return -EIO;
- 	}
- 
- 	netdev_err(sq->channel->netdev, "Recover %d eqes on EQ 0x%x\n",
- 		   eqe_count, eq->core.eqn);
- 	sq->channel->stats->eq_rearm++;
--	return ret;
-+	return 0;
- }
- 
- int mlx5e_tx_reporter_timeout(struct mlx5e_txqsq *sq)
 
 
