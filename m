@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5048876DEA
+	by mail.lfdr.de (Postfix) with ESMTP id BACC876DEB
 	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:40:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387815AbfGZP0P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:26:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40112 "EHLO mail.kernel.org"
+        id S2387871AbfGZP0S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:26:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387854AbfGZP0L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:26:11 -0400
+        id S2387867AbfGZP0R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:26:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2157B22CBE;
-        Fri, 26 Jul 2019 15:26:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46E2F22CBE;
+        Fri, 26 Jul 2019 15:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564154770;
-        bh=+ZxTGt51rK1SVRLv5Puk6vIbEgJLjlMdYTF1nSdXc8A=;
+        s=default; t=1564154776;
+        bh=nZSVqgw+OyqqsSoivuJYlq5EHO9EKgyOIuXLfB6vaIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gC+Cb4pAZgAUDO1+TvTCW1nqd2WM52atma2A5QLdD7xtWkLaYVSDqURQijazYxQ9W
-         /N3WcGGfFAGZLtVksKTHsRmJEbGICiUT8iv4XE7o+nvlgareYN+ZNzLFmKDELGwhMF
-         tV3SQty3C75sa+shevXT7U1YuF6w3HKby7BzkuGk=
+        b=h630sKoDb+iIstxMudBnu1QkRs03uXkLybuY3geP4Tnt+pN9fcKERrJxDbbtIRsKu
+         4cjDsS8ldhbDcs+/M3wk3Tp/RQMJ5JeeSU0MXlJMD5OcBBSLq8iSSQ3zEa86+9tbgU
+         UER00h6txEEvOnuI8+Nco2gbwv/3lEPwUQAb3fvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+079bf326b38072f849d9@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Andrew Prout <aprout@ll.mit.edu>,
+        Jonathan Lemon <jonathan.lemon@gmail.com>,
+        Michal Kubecek <mkubecek@suse.cz>,
+        Neal Cardwell <ncardwell@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Christoph Paasch <cpaasch@apple.com>,
+        Jonathan Looney <jtl@netflix.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 21/66] sctp: not bind the socket in sctp_connect
-Date:   Fri, 26 Jul 2019 17:24:20 +0200
-Message-Id: <20190726152304.076380271@linuxfoundation.org>
+Subject: [PATCH 5.2 23/66] tcp: be more careful in tcp_fragment()
+Date:   Fri, 26 Jul 2019 17:24:22 +0200
+Message-Id: <20190726152304.335263429@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190726152301.936055394@linuxfoundation.org>
 References: <20190726152301.936055394@linuxfoundation.org>
@@ -46,72 +50,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 9b6c08878e23adb7cc84bdca94d8a944b03f099e ]
+[ Upstream commit b617158dc096709d8600c53b6052144d12b89fab ]
 
-Now when sctp_connect() is called with a wrong sa_family, it binds
-to a port but doesn't set bp->port, then sctp_get_af_specific will
-return NULL and sctp_connect() returns -EINVAL.
+Some applications set tiny SO_SNDBUF values and expect
+TCP to just work. Recent patches to address CVE-2019-11478
+broke them in case of losses, since retransmits might
+be prevented.
 
-Then if sctp_bind() is called to bind to another port, the last
-port it has bound will leak due to bp->port is NULL by then.
+We should allow these flows to make progress.
 
-sctp_connect() doesn't need to bind ports, as later __sctp_connect
-will do it if bp->port is NULL. So remove it from sctp_connect().
-While at it, remove the unnecessary sockaddr.sa_family len check
-as it's already done in sctp_inet_connect.
+This patch allows the first and last skb in retransmit queue
+to be split even if memory limits are hit.
 
-Fixes: 644fbdeacf1d ("sctp: fix the issue that flags are ignored when using kernel_connect")
-Reported-by: syzbot+079bf326b38072f849d9@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+It also adds the some room due to the fact that tcp_sendmsg()
+and tcp_sendpage() might overshoot sk_wmem_queued by about one full
+TSO skb (64KB size). Note this allowance was already present
+in stable backports for kernels < 4.15
+
+Note for < 4.15 backports :
+ tcp_rtx_queue_tail() will probably look like :
+
+static inline struct sk_buff *tcp_rtx_queue_tail(const struct sock *sk)
+{
+	struct sk_buff *skb = tcp_send_head(sk);
+
+	return skb ? tcp_write_queue_prev(sk, skb) : tcp_write_queue_tail(sk);
+}
+
+Fixes: f070ef2ac667 ("tcp: tcp_fragment() should apply sane memory limits")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Andrew Prout <aprout@ll.mit.edu>
+Tested-by: Andrew Prout <aprout@ll.mit.edu>
+Tested-by: Jonathan Lemon <jonathan.lemon@gmail.com>
+Tested-by: Michal Kubecek <mkubecek@suse.cz>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Acked-by: Yuchung Cheng <ycheng@google.com>
+Acked-by: Christoph Paasch <cpaasch@apple.com>
+Cc: Jonathan Looney <jtl@netflix.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/socket.c |   24 +++---------------------
- 1 file changed, 3 insertions(+), 21 deletions(-)
+ include/net/tcp.h     |    5 +++++
+ net/ipv4/tcp_output.c |   13 +++++++++++--
+ 2 files changed, 16 insertions(+), 2 deletions(-)
 
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -4816,35 +4816,17 @@ out_nounlock:
- static int sctp_connect(struct sock *sk, struct sockaddr *addr,
- 			int addr_len, int flags)
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -1675,6 +1675,11 @@ static inline struct sk_buff *tcp_rtx_qu
+ 	return skb_rb_first(&sk->tcp_rtx_queue);
+ }
+ 
++static inline struct sk_buff *tcp_rtx_queue_tail(const struct sock *sk)
++{
++	return skb_rb_last(&sk->tcp_rtx_queue);
++}
++
+ static inline struct sk_buff *tcp_write_queue_head(const struct sock *sk)
  {
--	struct inet_sock *inet = inet_sk(sk);
- 	struct sctp_af *af;
--	int err = 0;
-+	int err = -EINVAL;
+ 	return skb_peek(&sk->sk_write_queue);
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -1286,6 +1286,7 @@ int tcp_fragment(struct sock *sk, enum t
+ 	struct tcp_sock *tp = tcp_sk(sk);
+ 	struct sk_buff *buff;
+ 	int nsize, old_factor;
++	long limit;
+ 	int nlen;
+ 	u8 flags;
  
- 	lock_sock(sk);
--
- 	pr_debug("%s: sk:%p, sockaddr:%p, addr_len:%d\n", __func__, sk,
- 		 addr, addr_len);
+@@ -1296,8 +1297,16 @@ int tcp_fragment(struct sock *sk, enum t
+ 	if (nsize < 0)
+ 		nsize = 0;
  
--	/* We may need to bind the socket. */
--	if (!inet->inet_num) {
--		if (sk->sk_prot->get_port(sk, 0)) {
--			release_sock(sk);
--			return -EAGAIN;
--		}
--		inet->inet_sport = htons(inet->inet_num);
--	}
--
- 	/* Validate addr_len before calling common connect/connectx routine. */
--	af = addr_len < offsetofend(struct sockaddr, sa_family) ? NULL :
--		sctp_get_af_specific(addr->sa_family);
--	if (!af || addr_len < af->sockaddr_len) {
--		err = -EINVAL;
--	} else {
--		/* Pass correct addr len to common routine (so it knows there
--		 * is only one address being passed.
--		 */
-+	af = sctp_get_af_specific(addr->sa_family);
-+	if (af && addr_len >= af->sockaddr_len)
- 		err = __sctp_connect(sk, addr, af->sockaddr_len, flags, NULL);
--	}
- 
- 	release_sock(sk);
- 	return err;
+-	if (unlikely((sk->sk_wmem_queued >> 1) > sk->sk_sndbuf &&
+-		     tcp_queue != TCP_FRAG_IN_WRITE_QUEUE)) {
++	/* tcp_sendmsg() can overshoot sk_wmem_queued by one full size skb.
++	 * We need some allowance to not penalize applications setting small
++	 * SO_SNDBUF values.
++	 * Also allow first and last skb in retransmit queue to be split.
++	 */
++	limit = sk->sk_sndbuf + 2 * SKB_TRUESIZE(GSO_MAX_SIZE);
++	if (unlikely((sk->sk_wmem_queued >> 1) > limit &&
++		     tcp_queue != TCP_FRAG_IN_WRITE_QUEUE &&
++		     skb != tcp_rtx_queue_head(sk) &&
++		     skb != tcp_rtx_queue_tail(sk))) {
+ 		NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPWQUEUETOOBIG);
+ 		return -ENOMEM;
+ 	}
 
 
