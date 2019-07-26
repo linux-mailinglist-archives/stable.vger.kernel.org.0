@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C0668767D2
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:40:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00528767E2
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:40:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387413AbfGZNkS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:40:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46254 "EHLO mail.kernel.org"
+        id S2387558AbfGZNkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:40:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387395AbfGZNkQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:40:16 -0400
+        id S2387507AbfGZNkn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:40:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A657522C7E;
-        Fri, 26 Jul 2019 13:40:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5441A2238C;
+        Fri, 26 Jul 2019 13:40:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148415;
-        bh=IWPjRJPgu9wPEVwBoAVPhkgA4Xv50ieDzkNLxVqxltA=;
+        s=default; t=1564148442;
+        bh=E8IlDIJ9+XEjMrH8K88c+5bFS1t26lVNbrD9vGmUlJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BHrUZQvZLuSZ++uhz3iLeuuq9Mzk1oiLe1sq3XdACcFtIWa2DqhpUqU8SFhaim89X
-         XB0C7WWbeyknQkLzJqn54ejkuN/YQb4pCABInAHITYxFo3mEkUhsJNL+UFdXMyrbqm
-         uss5TM1XzdoWwDFIpXgt+r9PYGrgi0BSGhayS0ak=
+        b=vAwO19bESO2XpLJU851hixnCqDt4z0apzWqhl3XtRhTWhP3FVQpCQFsQ9L3HzHSzb
+         75uw87Yb1mZFU3tIpCXi4tZWUTaA1JFDYDRI9Vqe4knqeabbjZH7AD25GRxU9gguuq
+         yvaguENCew3sBHKVHT5bMK8L7ItrmylyZ4RI7Cmk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     JC Kuo <jckuo@nvidia.com>,
-        Peter De Schrijver <pdeschrijver@nvidia.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 22/85] clk: tegra210: fix PLLU and PLLU_OUT1
-Date:   Fri, 26 Jul 2019 09:38:32 -0400
-Message-Id: <20190726133936.11177-22-sashal@kernel.org>
+Cc:     Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Leo Li <sunpeng.li@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.2 40/85] drm/amd/display: Expose audio inst from DC to DM
+Date:   Fri, 26 Jul 2019 09:38:50 -0400
+Message-Id: <20190726133936.11177-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
 References: <20190726133936.11177-1-sashal@kernel.org>
@@ -45,75 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: JC Kuo <jckuo@nvidia.com>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-[ Upstream commit 0d34dfbf3023cf119b83f6470692c0b10c832495 ]
+[ Upstream commit 5fdb7c4c7f2691efd760b0b0dc00da4a3699f1a6 ]
 
-Full-speed and low-speed USB devices do not work with Tegra210
-platforms because of incorrect PLLU/PLLU_OUT1 clock settings.
+[Why]
+In order to give pin notifications to the sound driver from DM we need
+to know whether audio is enabled on a stream and what pin it's using
+from DC.
 
-When full-speed device is connected:
-[   14.059886] usb 1-3: new full-speed USB device number 2 using tegra-xusb
-[   14.196295] usb 1-3: device descriptor read/64, error -71
-[   14.436311] usb 1-3: device descriptor read/64, error -71
-[   14.675749] usb 1-3: new full-speed USB device number 3 using tegra-xusb
-[   14.812335] usb 1-3: device descriptor read/64, error -71
-[   15.052316] usb 1-3: device descriptor read/64, error -71
-[   15.164799] usb usb1-port3: attempt power cycle
+[How]
+Expose the instance via stream status if it's a mapped resource for
+the stream. It will be -1 if there's no audio mapped.
 
-When low-speed device is connected:
-[   37.610949] usb usb1-port3: Cannot enable. Maybe the USB cable is bad?
-[   38.557376] usb usb1-port3: Cannot enable. Maybe the USB cable is bad?
-[   38.564977] usb usb1-port3: attempt power cycle
-
-This commit fixes the issue by:
- 1. initializing PLLU_OUT1 before initializing XUSB_FS_SRC clock
-    because PLLU_OUT1 is parent of XUSB_FS_SRC.
- 2. changing PLLU post-divider to /2 (DIVP=1) according to Technical
-    Reference Manual.
-
-Fixes: e745f992cf4b ("clk: tegra: Rework pll_u")
-Signed-off-by: JC Kuo <jckuo@nvidia.com>
-Acked-By: Peter De Schrijver <pdeschrijver@nvidia.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Cc: Leo Li <sunpeng.li@amd.com>
+Cc: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/tegra/clk-tegra210.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc_resource.c | 3 +++
+ drivers/gpu/drm/amd/display/dc/dc_stream.h        | 1 +
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/clk/tegra/clk-tegra210.c b/drivers/clk/tegra/clk-tegra210.c
-index ac1d27a8c650..e5470a6bbf55 100644
---- a/drivers/clk/tegra/clk-tegra210.c
-+++ b/drivers/clk/tegra/clk-tegra210.c
-@@ -2204,9 +2204,9 @@ static struct div_nmp pllu_nmp = {
- };
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
+index eac7186e4f08..12142d13f22f 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
+@@ -2034,6 +2034,9 @@ enum dc_status resource_map_pool_resources(
+ 		if (context->streams[i] == stream) {
+ 			context->stream_status[i].primary_otg_inst = pipe_ctx->stream_res.tg->inst;
+ 			context->stream_status[i].stream_enc_inst = pipe_ctx->stream_res.stream_enc->id;
++			context->stream_status[i].audio_inst =
++				pipe_ctx->stream_res.audio ? pipe_ctx->stream_res.audio->inst : -1;
++
+ 			return DC_OK;
+ 		}
  
- static struct tegra_clk_pll_freq_table pll_u_freq_table[] = {
--	{ 12000000, 480000000, 40, 1, 0, 0 },
--	{ 13000000, 480000000, 36, 1, 0, 0 }, /* actual: 468.0 MHz */
--	{ 38400000, 480000000, 25, 2, 0, 0 },
-+	{ 12000000, 480000000, 40, 1, 1, 0 },
-+	{ 13000000, 480000000, 36, 1, 1, 0 }, /* actual: 468.0 MHz */
-+	{ 38400000, 480000000, 25, 2, 1, 0 },
- 	{        0,         0,  0, 0, 0, 0 },
+diff --git a/drivers/gpu/drm/amd/display/dc/dc_stream.h b/drivers/gpu/drm/amd/display/dc/dc_stream.h
+index 189bdab929a5..c20803b71fa5 100644
+--- a/drivers/gpu/drm/amd/display/dc/dc_stream.h
++++ b/drivers/gpu/drm/amd/display/dc/dc_stream.h
+@@ -42,6 +42,7 @@ struct dc_stream_status {
+ 	int primary_otg_inst;
+ 	int stream_enc_inst;
+ 	int plane_count;
++	int audio_inst;
+ 	struct timing_sync_info timing_sync_info;
+ 	struct dc_plane_state *plane_states[MAX_SURFACE_NUM];
  };
- 
-@@ -3333,6 +3333,7 @@ static struct tegra_clk_init_table init_table[] __initdata = {
- 	{ TEGRA210_CLK_DFLL_REF, TEGRA210_CLK_PLL_P, 51000000, 1 },
- 	{ TEGRA210_CLK_SBC4, TEGRA210_CLK_PLL_P, 12000000, 1 },
- 	{ TEGRA210_CLK_PLL_RE_VCO, TEGRA210_CLK_CLK_MAX, 672000000, 1 },
-+	{ TEGRA210_CLK_PLL_U_OUT1, TEGRA210_CLK_CLK_MAX, 48000000, 1 },
- 	{ TEGRA210_CLK_XUSB_GATE, TEGRA210_CLK_CLK_MAX, 0, 1 },
- 	{ TEGRA210_CLK_XUSB_SS_SRC, TEGRA210_CLK_PLL_U_480M, 120000000, 0 },
- 	{ TEGRA210_CLK_XUSB_FS_SRC, TEGRA210_CLK_PLL_U_48M, 48000000, 0 },
-@@ -3357,7 +3358,6 @@ static struct tegra_clk_init_table init_table[] __initdata = {
- 	{ TEGRA210_CLK_PLL_DP, TEGRA210_CLK_CLK_MAX, 270000000, 0 },
- 	{ TEGRA210_CLK_SOC_THERM, TEGRA210_CLK_PLL_P, 51000000, 0 },
- 	{ TEGRA210_CLK_CCLK_G, TEGRA210_CLK_CLK_MAX, 0, 1 },
--	{ TEGRA210_CLK_PLL_U_OUT1, TEGRA210_CLK_CLK_MAX, 48000000, 1 },
- 	{ TEGRA210_CLK_PLL_U_OUT2, TEGRA210_CLK_CLK_MAX, 60000000, 1 },
- 	{ TEGRA210_CLK_SPDIF_IN_SYNC, TEGRA210_CLK_CLK_MAX, 24576000, 0 },
- 	{ TEGRA210_CLK_I2S0_SYNC, TEGRA210_CLK_CLK_MAX, 24576000, 0 },
 -- 
 2.20.1
 
