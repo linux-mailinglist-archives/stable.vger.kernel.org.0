@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A88E76960
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:51:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 772657695B
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:51:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727954AbfGZNv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:51:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51826 "EHLO mail.kernel.org"
+        id S1727765AbfGZNnz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:43:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727686AbfGZNnx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:43:53 -0400
+        id S2387799AbfGZNny (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:43:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB44F22BF5;
-        Fri, 26 Jul 2019 13:43:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2504022CD3;
+        Fri, 26 Jul 2019 13:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148632;
-        bh=vzNNaYikDY21v23/2zO3IPUtpcgrGZDW0AIPcGzNqA8=;
+        s=default; t=1564148634;
+        bh=Tv7PQycIOLXUxYYgmZAtDWIzm5x2CssZdmN374BwXI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YOmDqrtj4oVBkidZnkzhNq+Y5NXnscfqIYPqN2zRixs/WcVWsqRs4Gwd8GUivU3dL
-         TixBA+kcHCivm0ynX0RhNPCqVwyWNbzWbLWapHHOgYhWsXvcDYFUiEMR0pXo8ZeyIF
-         GrlpdqFTWN+XJUIPdgNanC3iU5LsAqC6u7d+LsNM=
+        b=cDDlb1wRW1k910Dr0zG5zldzWfsuKwJmV8tVfeFaoa8319Y4svm07U+RJHE00A8x6
+         /PovpbENu3LupirVIA1QHU5wFgxWNt7drbR0j3eWHBUYaU/L6bjmxl7UmNnzOt69fF
+         7aoHzfC5PAodKMWmO49dqfFvNmhnYrO7I6VIjUV0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 15/37] ACPI: blacklist: fix clang warning for unused DMI table
-Date:   Fri, 26 Jul 2019 09:43:10 -0400
-Message-Id: <20190726134332.12626-15-sashal@kernel.org>
+Cc:     Benjamin Block <bblock@linux.ibm.com>,
+        Jens Remus <jremus@linux.ibm.com>,
+        Steffen Maier <maier@linux.ibm.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 16/37] scsi: zfcp: fix GCC compiler warning emitted with -Wmaybe-uninitialized
+Date:   Fri, 26 Jul 2019 09:43:11 -0400
+Message-Id: <20190726134332.12626-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726134332.12626-1-sashal@kernel.org>
 References: <20190726134332.12626-1-sashal@kernel.org>
@@ -45,51 +45,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Benjamin Block <bblock@linux.ibm.com>
 
-[ Upstream commit b80d6a42bdc97bdb6139107d6034222e9843c6e2 ]
+[ Upstream commit 484647088826f2f651acbda6bcf9536b8a466703 ]
 
-When CONFIG_DMI is disabled, we only have a tentative declaration,
-which causes a warning from clang:
+GCC v9 emits this warning:
+      CC      drivers/s390/scsi/zfcp_erp.o
+    drivers/s390/scsi/zfcp_erp.c: In function 'zfcp_erp_action_enqueue':
+    drivers/s390/scsi/zfcp_erp.c:217:26: warning: 'erp_action' may be used uninitialized in this function [-Wmaybe-uninitialized]
+      217 |  struct zfcp_erp_action *erp_action;
+          |                          ^~~~~~~~~~
 
-drivers/acpi/blacklist.c:20:35: error: tentative array definition assumed to have one element [-Werror]
-static const struct dmi_system_id acpi_rev_dmi_table[] __initconst;
+This is a possible false positive case, as also documented in the GCC
+documentations:
+    https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wmaybe-uninitialized
 
-As the variable is not actually used here, hide it entirely
-in an #ifdef to shut up the warning.
+The actual code-sequence is like this:
+    Various callers can invoke the function below with the argument "want"
+    being one of:
+    ZFCP_ERP_ACTION_REOPEN_ADAPTER,
+    ZFCP_ERP_ACTION_REOPEN_PORT_FORCED,
+    ZFCP_ERP_ACTION_REOPEN_PORT, or
+    ZFCP_ERP_ACTION_REOPEN_LUN.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+    zfcp_erp_action_enqueue(want, ...)
+        ...
+        need = zfcp_erp_required_act(want, ...)
+            need = want
+            ...
+            maybe: need = ZFCP_ERP_ACTION_REOPEN_PORT
+            maybe: need = ZFCP_ERP_ACTION_REOPEN_ADAPTER
+            ...
+            return need
+        ...
+        zfcp_erp_setup_act(need, ...)
+            struct zfcp_erp_action *erp_action; // <== line 217
+            ...
+            switch(need) {
+            case ZFCP_ERP_ACTION_REOPEN_LUN:
+                    ...
+                    erp_action = &zfcp_sdev->erp_action;
+                    WARN_ON_ONCE(erp_action->port != port); // <== access
+                    ...
+                    break;
+            case ZFCP_ERP_ACTION_REOPEN_PORT:
+            case ZFCP_ERP_ACTION_REOPEN_PORT_FORCED:
+                    ...
+                    erp_action = &port->erp_action;
+                    WARN_ON_ONCE(erp_action->port != port); // <== access
+                    ...
+                    break;
+            case ZFCP_ERP_ACTION_REOPEN_ADAPTER:
+                    ...
+                    erp_action = &adapter->erp_action;
+                    WARN_ON_ONCE(erp_action->port != NULL); // <== access
+                    ...
+                    break;
+            }
+            ...
+            WARN_ON_ONCE(erp_action->adapter != adapter); // <== access
+
+When zfcp_erp_setup_act() is called, 'need' will never be anything else
+than one of the 4 possible enumeration-names that are used in the
+switch-case, and 'erp_action' is initialized for every one of them, before
+it is used. Thus the warning is a false positive, as documented.
+
+We introduce the extra if{} in the beginning to create an extra code-flow,
+so the compiler can be convinced that the switch-case will never see any
+other value.
+
+BUG_ON()/BUG() is intentionally not used to not crash anything, should
+this ever happen anyway - right now it's impossible, as argued above; and
+it doesn't introduce a 'default:' switch-case to retain warnings should
+'enum zfcp_erp_act_type' ever be extended and no explicit case be
+introduced. See also v5.0 commit 399b6c8bc9f7 ("scsi: zfcp: drop old
+default switch case which might paper over missing case").
+
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+Reviewed-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/blacklist.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/s390/scsi/zfcp_erp.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/acpi/blacklist.c b/drivers/acpi/blacklist.c
-index 995c4d8922b1..761f0c19a451 100644
---- a/drivers/acpi/blacklist.c
-+++ b/drivers/acpi/blacklist.c
-@@ -30,7 +30,9 @@
+diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
+index 6d5065f679ac..64d70de98cdb 100644
+--- a/drivers/s390/scsi/zfcp_erp.c
++++ b/drivers/s390/scsi/zfcp_erp.c
+@@ -11,6 +11,7 @@
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
  
- #include "internal.h"
+ #include <linux/kthread.h>
++#include <linux/bug.h>
+ #include "zfcp_ext.h"
+ #include "zfcp_reqlist.h"
  
-+#ifdef CONFIG_DMI
- static const struct dmi_system_id acpi_rev_dmi_table[] __initconst;
-+#endif
+@@ -245,6 +246,12 @@ static struct zfcp_erp_action *zfcp_erp_setup_act(int need, u32 act_status,
+ 	struct zfcp_erp_action *erp_action;
+ 	struct zfcp_scsi_dev *zfcp_sdev;
  
- /*
-  * POLICY: If *anything* doesn't work, put it on the blacklist.
-@@ -74,7 +76,9 @@ int __init acpi_blacklisted(void)
- 	}
- 
- 	(void)early_acpi_osi_init();
-+#ifdef CONFIG_DMI
- 	dmi_check_system(acpi_rev_dmi_table);
-+#endif
- 
- 	return blacklisted;
- }
++	if (WARN_ON_ONCE(need != ZFCP_ERP_ACTION_REOPEN_LUN &&
++			 need != ZFCP_ERP_ACTION_REOPEN_PORT &&
++			 need != ZFCP_ERP_ACTION_REOPEN_PORT_FORCED &&
++			 need != ZFCP_ERP_ACTION_REOPEN_ADAPTER))
++		return NULL;
++
+ 	switch (need) {
+ 	case ZFCP_ERP_ACTION_REOPEN_LUN:
+ 		zfcp_sdev = sdev_to_zfcp(sdev);
 -- 
 2.20.1
 
