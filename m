@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8627A76A90
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:59:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EE0076A8E
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:59:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387460AbfGZNk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:40:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46476 "EHLO mail.kernel.org"
+        id S1727485AbfGZN7b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:59:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387451AbfGZNk0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:40:26 -0400
+        id S2387423AbfGZNk1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:40:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 796D622CBF;
-        Fri, 26 Jul 2019 13:40:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93BAE22BE8;
+        Fri, 26 Jul 2019 13:40:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148425;
-        bh=dyzX37OIZYCFr2Y7qa+NiiW8n2qepCp8LuDQKdwJyfM=;
+        s=default; t=1564148426;
+        bh=lT53jVn0x4o2nj7YOhRR5yqWqMQqPXBWboEqcOgNnb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BpJ9+SzBGqk5mr539sMCbpy5Th/0rezfIqCWMqCzSD86jZHW+fAtAgHGHsTCszvtD
-         1qi1fO17TPpYgmQ/MvcMS1+NVKoeI4/PBXhmVqtBMxrYtceB2/7EoL8ipaXdgSFV6K
-         y5cwEWhG+E09OM9MqKOQQqI0miFL/Lp+Oe42Q6wc=
+        b=jg3B5WedHTAKoUQ0ScBeOq56eeLdYN3AhVQtnI2eAeE6NChXxYK6vv4Nk6awA3+U+
+         0rf+zCsjkK3s4+SUDvEurDyB08uyfnoiIekWhr0H/S01jb5i3OfBu7DY3l5txVy1KU
+         jSKUIBjrhTxIpByxAaDMp4AFss3/+WuY1T5YdF6I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qu Wenruo <wqu@suse.com>, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 28/85] btrfs: Flush before reflinking any extent to prevent NOCOW write falling back to COW without data reservation
-Date:   Fri, 26 Jul 2019 09:38:38 -0400
-Message-Id: <20190726133936.11177-28-sashal@kernel.org>
+Cc:     Clement Leger <cleger@kalray.eu>,
+        Loic Pallardy <loic.pallardy@st.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-remoteproc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 29/85] remoteproc: copy parent dma_pfn_offset for vdev
+Date:   Fri, 26 Jul 2019 09:38:39 -0400
+Message-Id: <20190726133936.11177-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
 References: <20190726133936.11177-1-sashal@kernel.org>
@@ -43,111 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Clement Leger <cleger@kalray.eu>
 
-[ Upstream commit a94d1d0cb3bf1983fcdf05b59d914dbff4f1f52c ]
+[ Upstream commit 72f64cabc4bd6985c7355f5547bd3637c82762ac ]
 
-[BUG]
-The following script can cause unexpected fsync failure:
+When preparing the subdevice for the vdev, also copy dma_pfn_offset
+since this is used for sub device dma allocations. Without that, there
+is incoherency between the parent dma settings and the childs one,
+potentially leading to dma_alloc_coherent failure (due to phys_to_dma
+using dma_pfn_offset for translation).
 
-  #!/bin/bash
-
-  dev=/dev/test/test
-  mnt=/mnt/btrfs
-
-  mkfs.btrfs -f $dev -b 512M > /dev/null
-  mount $dev $mnt -o nospace_cache
-
-  # Prealloc one extent
-  xfs_io -f -c "falloc 8k 64m" $mnt/file1
-  # Fill the remaining data space
-  xfs_io -f -c "pwrite 0 -b 4k 512M" $mnt/padding
-  sync
-
-  # Write into the prealloc extent
-  xfs_io -c "pwrite 1m 16m" $mnt/file1
-
-  # Reflink then fsync, fsync would fail due to ENOSPC
-  xfs_io -c "reflink $mnt/file1 8k 0 4k" -c "fsync" $mnt/file1
-  umount $dev
-
-The fsync fails with ENOSPC, and the last page of the buffered write is
-lost.
-
-[CAUSE]
-This is caused by:
-- Btrfs' back reference only has extent level granularity
-  So write into shared extent must be COWed even only part of the extent
-  is shared.
-
-So for above script we have:
-- fallocate
-  Create a preallocated extent where we can do NOCOW write.
-
-- fill all the remaining data and unallocated space
-
-- buffered write into preallocated space
-  As we have not enough space available for data and the extent is not
-  shared (yet) we fall into NOCOW mode.
-
-- reflink
-  Now part of the large preallocated extent is shared, later write
-  into that extent must be COWed.
-
-- fsync triggers writeback
-  But now the extent is shared and therefore we must fallback into COW
-  mode, which fails with ENOSPC since there's not enough space to
-  allocate data extents.
-
-[WORKAROUND]
-The workaround is to ensure any buffered write in the related extents
-(not just the reflink source range) get flushed before reflink/dedupe,
-so that NOCOW writes succeed that happened before reflinking succeed.
-
-The workaround is expensive, we could do it better by only flushing
-NOCOW range, but that needs extra accounting for NOCOW range.
-For now, fix the possible data loss first.
-
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 086d08725d34 ("remoteproc: create vdev subdevice with specific dma memory pool")
+Signed-off-by: Clement Leger <cleger@kalray.eu>
+Acked-by: Loic Pallardy <loic.pallardy@st.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ioctl.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/remoteproc/remoteproc_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index 2a1be0d1a698..5b4beebf138c 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -3999,6 +3999,27 @@ static int btrfs_remap_file_range_prep(struct file *file_in, loff_t pos_in,
- 	if (!same_inode)
- 		inode_dio_wait(inode_out);
- 
-+	/*
-+	 * Workaround to make sure NOCOW buffered write reach disk as NOCOW.
-+	 *
-+	 * Btrfs' back references do not have a block level granularity, they
-+	 * work at the whole extent level.
-+	 * NOCOW buffered write without data space reserved may not be able
-+	 * to fall back to CoW due to lack of data space, thus could cause
-+	 * data loss.
-+	 *
-+	 * Here we take a shortcut by flushing the whole inode, so that all
-+	 * nocow write should reach disk as nocow before we increase the
-+	 * reference of the extent. We could do better by only flushing NOCOW
-+	 * data, but that needs extra accounting.
-+	 *
-+	 * Also we don't need to check ASYNC_EXTENT, as async extent will be
-+	 * CoWed anyway, not affecting nocow part.
-+	 */
-+	ret = filemap_flush(inode_in->i_mapping);
-+	if (ret < 0)
-+		return ret;
-+
- 	ret = btrfs_wait_ordered_range(inode_in, ALIGN_DOWN(pos_in, bs),
- 				       wb_len);
- 	if (ret < 0)
+diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
+index 8b5363223eaa..5031c6806908 100644
+--- a/drivers/remoteproc/remoteproc_core.c
++++ b/drivers/remoteproc/remoteproc_core.c
+@@ -512,6 +512,7 @@ static int rproc_handle_vdev(struct rproc *rproc, struct fw_rsc_vdev *rsc,
+ 	/* Initialise vdev subdevice */
+ 	snprintf(name, sizeof(name), "vdev%dbuffer", rvdev->index);
+ 	rvdev->dev.parent = rproc->dev.parent;
++	rvdev->dev.dma_pfn_offset = rproc->dev.parent->dma_pfn_offset;
+ 	rvdev->dev.release = rproc_rvdev_release;
+ 	dev_set_name(&rvdev->dev, "%s#%s", dev_name(rvdev->dev.parent), name);
+ 	dev_set_drvdata(&rvdev->dev, rvdev);
 -- 
 2.20.1
 
