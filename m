@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 140DF76A08
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:56:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADF95769F6
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:55:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727817AbfGZNzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:55:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49636 "EHLO mail.kernel.org"
+        id S2387949AbfGZNm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:42:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387920AbfGZNmW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:42:22 -0400
+        id S2387943AbfGZNm2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:42:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6750322CBF;
-        Fri, 26 Jul 2019 13:42:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E0E322BF5;
+        Fri, 26 Jul 2019 13:42:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148541;
-        bh=QfQ3HbAzJQYJ4sG/ui79eueqqCQPSNxSJW+9CctBu3A=;
+        s=default; t=1564148546;
+        bh=ZVMbaLsKposierDugw05RSu2Ih9slD9YWGimhb+npNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QfCzEA/eycgAPrr1qPP2NT6hbBIlrimMSStO0gLwdaFtAYznh0Jaw2oS6tDXp+v9P
-         tz9sC6gHCsdwHXAJDJIFSenMRBZjhDmbqua+P39aTJZaAafcsxxGTi9PnZeD6yFV+R
-         UXccyYLZvppuICbUUgXs+SVfuc1O+sa0R6g8HOqs=
+        b=KMECLQnuKeSjGxBnq6IjShGjK4mIVI6TF5GfnknxnAz/n6yxbB0Fq6i9BrXuLD64d
+         D4TvnM5D/SwEuDwvVFWkqh+ruj3EMIn7j6FPTml7B9hLkQBOBpsCvP2pn5D7qk7iEF
+         aQr+gTK+NvkND6FwtnCOrjR1rcCP9nbzzyWGWZQ8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Prarit Bhargava <prarit@redhat.com>,
-        Barret Rhoden <brho@google.com>,
-        David Arcari <darcari@redhat.com>,
-        Jessica Yu <jeyu@kernel.org>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
+Cc:     Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Olof Johansson <olof@lixom.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 08/47] kernel/module.c: Only return -EEXIST for modules that have finished loading
-Date:   Fri, 26 Jul 2019 09:41:31 -0400
-Message-Id: <20190726134210.12156-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 09/47] firmware/psci: psci_checker: Park kthreads before stopping them
+Date:   Fri, 26 Jul 2019 09:41:32 -0400
+Message-Id: <20190726134210.12156-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726134210.12156-1-sashal@kernel.org>
 References: <20190726134210.12156-1-sashal@kernel.org>
@@ -46,73 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prarit Bhargava <prarit@redhat.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
 
-[ Upstream commit 6e6de3dee51a439f76eb73c22ae2ffd2c9384712 ]
+[ Upstream commit 92e074acf6f7694e96204265eb18ac113f546e80 ]
 
-Microsoft HyperV disables the X86_FEATURE_SMCA bit on AMD systems, and
-linux guests boot with repeated errors:
+Since commit 85f1abe0019f ("kthread, sched/wait: Fix kthread_parkme()
+completion issue"), kthreads that are bound to a CPU must be parked
+before being stopped. At the moment the PSCI checker calls
+kthread_stop() directly on the suspend kthread, which triggers the
+following warning:
 
-amd64_edac_mod: Unknown symbol amd_unregister_ecc_decoder (err -2)
-amd64_edac_mod: Unknown symbol amd_register_ecc_decoder (err -2)
-amd64_edac_mod: Unknown symbol amd_report_gart_errors (err -2)
-amd64_edac_mod: Unknown symbol amd_unregister_ecc_decoder (err -2)
-amd64_edac_mod: Unknown symbol amd_register_ecc_decoder (err -2)
-amd64_edac_mod: Unknown symbol amd_report_gart_errors (err -2)
+[    6.068288] WARNING: CPU: 1 PID: 1 at kernel/kthread.c:398 __kthread_bind_mask+0x20/0x78
+               ...
+[    6.190151] Call trace:
+[    6.192566]  __kthread_bind_mask+0x20/0x78
+[    6.196615]  kthread_unpark+0x74/0x80
+[    6.200235]  kthread_stop+0x44/0x1d8
+[    6.203769]  psci_checker+0x3bc/0x484
+[    6.207389]  do_one_initcall+0x48/0x260
+[    6.211180]  kernel_init_freeable+0x2c8/0x368
+[    6.215488]  kernel_init+0x10/0x100
+[    6.218935]  ret_from_fork+0x10/0x1c
+[    6.222467] ---[ end trace e05e22863d043cd3 ]---
 
-The warnings occur because the module code erroneously returns -EEXIST
-for modules that have failed to load and are in the process of being
-removed from the module list.
+kthread_unpark() tries to bind the thread to its CPU and aborts with a
+WARN() if the thread wasn't in TASK_PARKED state. Park the kthreads
+before stopping them.
 
-module amd64_edac_mod has a dependency on module edac_mce_amd.  Using
-modules.dep, systemd will load edac_mce_amd for every request of
-amd64_edac_mod.  When the edac_mce_amd module loads, the module has
-state MODULE_STATE_UNFORMED and once the module load fails and the state
-becomes MODULE_STATE_GOING.  Another request for edac_mce_amd module
-executes and add_unformed_module() will erroneously return -EEXIST even
-though the previous instance of edac_mce_amd has MODULE_STATE_GOING.
-Upon receiving -EEXIST, systemd attempts to load amd64_edac_mod, which
-fails because of unknown symbols from edac_mce_amd.
-
-add_unformed_module() must wait to return for any case other than
-MODULE_STATE_LIVE to prevent a race between multiple loads of
-dependent modules.
-
-Signed-off-by: Prarit Bhargava <prarit@redhat.com>
-Signed-off-by: Barret Rhoden <brho@google.com>
-Cc: David Arcari <darcari@redhat.com>
-Cc: Jessica Yu <jeyu@kernel.org>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
+Fixes: 85f1abe0019f ("kthread, sched/wait: Fix kthread_parkme() completion issue")
+Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Olof Johansson <olof@lixom.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/module.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/firmware/psci_checker.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/module.c b/kernel/module.c
-index b8f37376856b..3fda10c549a2 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -3388,8 +3388,7 @@ static bool finished_loading(const char *name)
- 	sched_annotate_sleep();
- 	mutex_lock(&module_mutex);
- 	mod = find_module_all(name, strlen(name), true);
--	ret = !mod || mod->state == MODULE_STATE_LIVE
--		|| mod->state == MODULE_STATE_GOING;
-+	ret = !mod || mod->state == MODULE_STATE_LIVE;
- 	mutex_unlock(&module_mutex);
+diff --git a/drivers/firmware/psci_checker.c b/drivers/firmware/psci_checker.c
+index 346943657962..cbd53cb1b2d4 100644
+--- a/drivers/firmware/psci_checker.c
++++ b/drivers/firmware/psci_checker.c
+@@ -366,16 +366,16 @@ static int suspend_test_thread(void *arg)
+ 	for (;;) {
+ 		/* Needs to be set first to avoid missing a wakeup. */
+ 		set_current_state(TASK_INTERRUPTIBLE);
+-		if (kthread_should_stop()) {
+-			__set_current_state(TASK_RUNNING);
++		if (kthread_should_park())
+ 			break;
+-		}
+ 		schedule();
+ 	}
  
- 	return ret;
-@@ -3559,8 +3558,7 @@ static int add_unformed_module(struct module *mod)
- 	mutex_lock(&module_mutex);
- 	old = find_module_all(mod->name, strlen(mod->name), true);
- 	if (old != NULL) {
--		if (old->state == MODULE_STATE_COMING
--		    || old->state == MODULE_STATE_UNFORMED) {
-+		if (old->state != MODULE_STATE_LIVE) {
- 			/* Wait in case it fails to load. */
- 			mutex_unlock(&module_mutex);
- 			err = wait_event_interruptible(module_wq,
+ 	pr_info("CPU %d suspend test results: success %d, shallow states %d, errors %d\n",
+ 		cpu, nb_suspend, nb_shallow_sleep, nb_err);
+ 
++	kthread_parkme();
++
+ 	return nb_err;
+ }
+ 
+@@ -440,8 +440,10 @@ static int suspend_tests(void)
+ 
+ 
+ 	/* Stop and destroy all threads, get return status. */
+-	for (i = 0; i < nb_threads; ++i)
++	for (i = 0; i < nb_threads; ++i) {
++		err += kthread_park(threads[i]);
+ 		err += kthread_stop(threads[i]);
++	}
+  out:
+ 	cpuidle_resume_and_unlock();
+ 	kfree(threads);
 -- 
 2.20.1
 
