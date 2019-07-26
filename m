@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2B5A76C93
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:25:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B10C176C99
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:25:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728096AbfGZPZf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:25:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39398 "EHLO mail.kernel.org"
+        id S1728486AbfGZPZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:25:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727985AbfGZPZf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:25:35 -0400
+        id S1728481AbfGZPZq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:25:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93DA9218D4;
-        Fri, 26 Jul 2019 15:25:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64B5422CB8;
+        Fri, 26 Jul 2019 15:25:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564154735;
-        bh=i4TRmu1fUBZFRG8S4fuS1qYx+hkUoT595nTsFf2200M=;
+        s=default; t=1564154745;
+        bh=W4FR3wy1jqQSOKX4Wt5Oz9xjrRQFwqw6YChMOwS9VVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rcniGJm1+0eFQV77yG97hzO3m5em5T8vTP+5Q3j/r9tYKLsEDN+8RhqdUizTShdSD
-         CalXVMOvkNOIkJEsXZ84nLPt6yHyLRldsHHCJFNC6IUfbu5JADmQbsVDyFJtZZZBqe
-         edzmpgYCIcDFA4f5XLanNKsG9igC7Wz9IvLmYZVY=
+        b=zOn1dPCjIL4/zXTNQtjVlgbL/QwEAuEZGCCs/qpAOU8mCALPbBYQdn0lG/kfMwy04
+         vJawX7FOgIH0XwpXQ1pz8XcjY11XQX3klQmvnDHbFNfn6x6dEdqqhjU1hT70dd57FI
+         Gx6ovhZc+/A4l0d3flwWOoP3HwbMk1Sh1ISFtJCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian King <brking@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, Matteo Croce <mcroce@redhat.com>,
+        David Ahern <dsahern@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 01/66] bnx2x: Prevent load reordering in tx completion processing
-Date:   Fri, 26 Jul 2019 17:24:00 +0200
-Message-Id: <20190726152302.093609198@linuxfoundation.org>
+Subject: [PATCH 5.2 05/66] ipv4: dont set IPv6 only flags to IPv4 addresses
+Date:   Fri, 26 Jul 2019 17:24:04 +0200
+Message-Id: <20190726152302.506906618@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190726152301.936055394@linuxfoundation.org>
 References: <20190726152301.936055394@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,33 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian King <brking@linux.vnet.ibm.com>
+From: Matteo Croce <mcroce@redhat.com>
 
-[ Upstream commit ea811b795df24644a8eb760b493c43fba4450677 ]
+[ Upstream commit 2e60546368165c2449564d71f6005dda9205b5fb ]
 
-This patch fixes an issue seen on Power systems with bnx2x which results
-in the skb is NULL WARN_ON in bnx2x_free_tx_pkt firing due to the skb
-pointer getting loaded in bnx2x_free_tx_pkt prior to the hw_cons
-load in bnx2x_tx_int. Adding a read memory barrier resolves the issue.
+Avoid the situation where an IPV6 only flag is applied to an IPv4 address:
 
-Signed-off-by: Brian King <brking@linux.vnet.ibm.com>
+    # ip addr add 192.0.2.1/24 dev dummy0 nodad home mngtmpaddr noprefixroute
+    # ip -4 addr show dev dummy0
+    2: dummy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+        inet 192.0.2.1/24 scope global noprefixroute dummy0
+           valid_lft forever preferred_lft forever
+
+Or worse, by sending a malicious netlink command:
+
+    # ip -4 addr show dev dummy0
+    2: dummy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+        inet 192.0.2.1/24 scope global nodad optimistic dadfailed home tentative mngtmpaddr noprefixroute stable-privacy dummy0
+           valid_lft forever preferred_lft forever
+
+Signed-off-by: Matteo Croce <mcroce@redhat.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/ipv4/devinet.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-@@ -285,6 +285,9 @@ int bnx2x_tx_int(struct bnx2x *bp, struc
- 	hw_cons = le16_to_cpu(*txdata->tx_cons_sb);
- 	sw_cons = txdata->tx_pkt_cons;
+--- a/net/ipv4/devinet.c
++++ b/net/ipv4/devinet.c
+@@ -62,6 +62,11 @@
+ #include <net/net_namespace.h>
+ #include <net/addrconf.h>
  
-+	/* Ensure subsequent loads occur after hw_cons */
-+	smp_rmb();
++#define IPV6ONLY_FLAGS	\
++		(IFA_F_NODAD | IFA_F_OPTIMISTIC | IFA_F_DADFAILED | \
++		 IFA_F_HOMEADDRESS | IFA_F_TENTATIVE | \
++		 IFA_F_MANAGETEMPADDR | IFA_F_STABLE_PRIVACY)
 +
- 	while (sw_cons != hw_cons) {
- 		u16 pkt_cons;
+ static struct ipv4_devconf ipv4_devconf = {
+ 	.data = {
+ 		[IPV4_DEVCONF_ACCEPT_REDIRECTS - 1] = 1,
+@@ -468,6 +473,9 @@ static int __inet_insert_ifa(struct in_i
+ 	ifa->ifa_flags &= ~IFA_F_SECONDARY;
+ 	last_primary = &in_dev->ifa_list;
  
++	/* Don't set IPv6 only flags to IPv4 addresses */
++	ifa->ifa_flags &= ~IPV6ONLY_FLAGS;
++
+ 	for (ifap = &in_dev->ifa_list; (ifa1 = *ifap) != NULL;
+ 	     ifap = &ifa1->ifa_next) {
+ 		if (!(ifa1->ifa_flags & IFA_F_SECONDARY) &&
 
 
