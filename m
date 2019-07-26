@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7310776D1E
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:31:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9426A76D9B
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:35:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389139AbfGZPao (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:30:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45634 "EHLO mail.kernel.org"
+        id S2389113AbfGZPcm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:32:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389134AbfGZPan (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:30:43 -0400
+        id S2387859AbfGZPcl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:32:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45D7C22BF5;
-        Fri, 26 Jul 2019 15:30:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CD0B218D4;
+        Fri, 26 Jul 2019 15:32:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564155042;
-        bh=D8JO664rZXtKd/XKwSNtzw8qz/FhTPtMJC/Z6cXlN18=;
+        s=default; t=1564155160;
+        bh=ilr3yYVnfkadw0BIMkVASEXZzFIXHCS7okPRCA9hKv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vf7pAJxTKqIxdwPVAzMSPUk0/3a880MaaUZK6ek4ivd0gOdzbJqmRHd580yI1jXfl
-         CKOqI/3GWAJoKMUxHou4lK9XYXrr39SfuVuZNTLpkaR1o6gC/BIByW/rArWwuWrzee
-         j8fb2XXvGj1FApYRlIaetzLcdEOfuclYjVtgkJNo=
+        b=RUXfDANOkmcytADa0VJb46cFhKerjXltrkW3EkSSNDWaKWJT4Vg4wMIezkxGbNLka
+         fK9EXUG/YnX+gB7bfHiyzqQe4ygwo+q2vS0x3ux0bUiTZmDUccB7qrMYAMjUB0oxhD
+         y21dZ52kYkWHqGVNSD3Gv5UbM702xY61bTH4cRFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sumit Semwal <sumit.semwal@linaro.org>
-Subject: [PATCH 5.1 44/62] dma-buf: Discard old fence_excl on retrying get_fences_rcu for realloc
-Date:   Fri, 26 Jul 2019 17:24:56 +0200
-Message-Id: <20190726152306.587203423@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Christoph Paasch <cpaasch@apple.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 22/50] tcp: Reset bytes_acked and bytes_received when disconnecting
+Date:   Fri, 26 Jul 2019 17:24:57 +0200
+Message-Id: <20190726152302.854207423@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
-References: <20190726152301.720139286@linuxfoundation.org>
+In-Reply-To: <20190726152300.760439618@linuxfoundation.org>
+References: <20190726152300.760439618@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,42 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Christoph Paasch <cpaasch@apple.com>
 
-commit f5b07b04e5f090a85d1e96938520f2b2b58e4a8e upstream.
+[ Upstream commit e858faf556d4e14c750ba1e8852783c6f9520a0e ]
 
-If we have to drop the seqcount & rcu lock to perform a krealloc, we
-have to restart the loop. In doing so, be careful not to lose track of
-the already acquired exclusive fence.
+If an app is playing tricks to reuse a socket via tcp_disconnect(),
+bytes_acked/received needs to be reset to 0. Otherwise tcp_info will
+report the sum of the current and the old connection..
 
-Fixes: fedf54132d24 ("dma-buf: Restart reservation_object_get_fences_rcu() after writes")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Christian König <christian.koenig@amd.com>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>
-Cc: stable@vger.kernel.org #v4.10
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190604125323.21396-1-chris@chris-wilson.co.uk
+Cc: Eric Dumazet <edumazet@google.com>
+Fixes: 0df48c26d841 ("tcp: add tcpi_bytes_acked to tcp_info")
+Fixes: bdd1f9edacb5 ("tcp: add tcpi_bytes_received to tcp_info")
+Signed-off-by: Christoph Paasch <cpaasch@apple.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/dma-buf/reservation.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/ipv4/tcp.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/dma-buf/reservation.c
-+++ b/drivers/dma-buf/reservation.c
-@@ -357,6 +357,10 @@ int reservation_object_get_fences_rcu(st
- 					   GFP_NOWAIT | __GFP_NOWARN);
- 			if (!nshared) {
- 				rcu_read_unlock();
-+
-+				dma_fence_put(fence_excl);
-+				fence_excl = NULL;
-+
- 				nshared = krealloc(shared, sz, GFP_KERNEL);
- 				if (nshared) {
- 					shared = nshared;
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -2594,6 +2594,8 @@ int tcp_disconnect(struct sock *sk, int
+ 	tcp_saved_syn_free(tp);
+ 	tp->compressed_ack = 0;
+ 	tp->bytes_sent = 0;
++	tp->bytes_acked = 0;
++	tp->bytes_received = 0;
+ 	tp->bytes_retrans = 0;
+ 	tp->dsack_dups = 0;
+ 	tp->reord_seen = 0;
 
 
