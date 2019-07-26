@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DBC476E01
+	by mail.lfdr.de (Postfix) with ESMTP id E78AC76E02
 	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:40:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727777AbfGZP2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:28:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42734 "EHLO mail.kernel.org"
+        id S2388445AbfGZP2X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:28:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727458AbfGZP2P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:28:15 -0400
+        id S2387978AbfGZP2V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:28:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A5E122CC2;
-        Fri, 26 Jul 2019 15:28:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7847F22BF5;
+        Fri, 26 Jul 2019 15:28:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564154894;
-        bh=GFHVLnUmJK0HBU4VcSG9CVBFnu7RvQYWoiekLdStjGY=;
+        s=default; t=1564154901;
+        bh=tq/XML1mgou6EUt/qIYkKsyK636drn68NKavb/LeLTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WI88soqWguSdJJvuesKn5DCJCzkG1tMZ94TCLHWWMOvHzvTAr5UmiHfCLwKYOKW8+
-         O8dyaL1fTd83x21EJoMQhu5HF8v0NK++7pgN0iPmkP/1QyLdRo1HhjGooPma6+zmiS
-         BhB1naKg9ezMteKoI+0HTDiHS977SnaxqlNmFEpA=
+        b=l3TZbvu++eqdVOX0n1jomchlOHdeW/Eo57WVSScNNGg/wPiCABsIZKmza1fY6pODJ
+         qGlcwW02OzNwrVf0nRzi0IPO0mOEjh4n+0y6aW5PmHI/q5XRA/ziwin8qJZIsGvpV5
+         teZMxASo60s8VD6Ago7bD1kCRNSxcH8fl0TywsNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
-        Liran Alon <liran.alon@oracle.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.2 62/66] KVM: nVMX: do not use dangling shadow VMCS after guest reset
-Date:   Fri, 26 Jul 2019 17:25:01 +0200
-Message-Id: <20190726152308.450282363@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.2 64/66] Revert "kvm: x86: Use task structs fpu field for user"
+Date:   Fri, 26 Jul 2019 17:25:03 +0200
+Message-Id: <20190726152308.597585968@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190726152301.936055394@linuxfoundation.org>
 References: <20190726152301.936055394@linuxfoundation.org>
@@ -46,63 +44,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 88dddc11a8d6b09201b4db9d255b3394d9bc9e57 upstream.
+commit ec269475cba7bcdd1eb8fdf8e87f4c6c81a376fe upstream.
 
-If a KVM guest is reset while running a nested guest, free_nested will
-disable the shadow VMCS execution control in the vmcs01.  However,
-on the next KVM_RUN vmx_vcpu_run would nevertheless try to sync
-the VMCS12 to the shadow VMCS which has since been freed.
+This reverts commit 240c35a3783ab9b3a0afaba0dde7291295680a6b
+("kvm: x86: Use task structs fpu field for user", 2018-11-06).
+The commit is broken and causes QEMU's FPU state to be destroyed
+when KVM_RUN is preempted.
 
-This causes a vmptrld of a NULL pointer on my machime, but Jan reports
-the host to hang altogether.  Let's see how much this trivial patch fixes.
-
-Reported-by: Jan Kiszka <jan.kiszka@siemens.com>
-Cc: Liran Alon <liran.alon@oracle.com>
+Fixes: 240c35a3783a ("kvm: x86: Use task structs fpu field for user")
 Cc: stable@vger.kernel.org
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/vmx/nested.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/kvm_host.h |    7 ++++---
+ arch/x86/kvm/x86.c              |    4 ++--
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -184,6 +184,7 @@ static void vmx_disable_shadow_vmcs(stru
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -607,15 +607,16 @@ struct kvm_vcpu_arch {
+ 
+ 	/*
+ 	 * QEMU userspace and the guest each have their own FPU state.
+-	 * In vcpu_run, we switch between the user, maintained in the
+-	 * task_struct struct, and guest FPU contexts. While running a VCPU,
+-	 * the VCPU thread will have the guest FPU context.
++	 * In vcpu_run, we switch between the user and guest FPU contexts.
++	 * While running a VCPU, the VCPU thread will have the guest FPU
++	 * context.
+ 	 *
+ 	 * Note that while the PKRU state lives inside the fpu registers,
+ 	 * it is switched out separately at VMENTER and VMEXIT time. The
+ 	 * "guest_fpu" state here contains the guest FPU context, with the
+ 	 * host PRKU bits.
+ 	 */
++	struct fpu user_fpu;
+ 	struct fpu *guest_fpu;
+ 
+ 	u64 xcr0;
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -8219,7 +8219,7 @@ static void kvm_load_guest_fpu(struct kv
  {
- 	vmcs_clear_bits(SECONDARY_VM_EXEC_CONTROL, SECONDARY_EXEC_SHADOW_VMCS);
- 	vmcs_write64(VMCS_LINK_POINTER, -1ull);
-+	vmx->nested.need_vmcs12_sync = false;
- }
+ 	fpregs_lock();
  
- static inline void nested_release_evmcs(struct kvm_vcpu *vcpu)
-@@ -1321,6 +1322,9 @@ static void copy_shadow_to_vmcs12(struct
- 	u64 field_value;
- 	struct vmcs *shadow_vmcs = vmx->vmcs01.shadow_vmcs;
+-	copy_fpregs_to_fpstate(&current->thread.fpu);
++	copy_fpregs_to_fpstate(&vcpu->arch.user_fpu);
+ 	/* PKRU is separately restored in kvm_x86_ops->run.  */
+ 	__copy_kernel_to_fpregs(&vcpu->arch.guest_fpu->state,
+ 				~XFEATURE_MASK_PKRU);
+@@ -8236,7 +8236,7 @@ static void kvm_put_guest_fpu(struct kvm
+ 	fpregs_lock();
  
-+	if (WARN_ON(!shadow_vmcs))
-+		return;
-+
- 	preempt_disable();
+ 	copy_fpregs_to_fpstate(vcpu->arch.guest_fpu);
+-	copy_kernel_to_fpregs(&current->thread.fpu.state);
++	copy_kernel_to_fpregs(&vcpu->arch.user_fpu.state);
  
- 	vmcs_load(shadow_vmcs);
-@@ -1359,6 +1363,9 @@ static void copy_vmcs12_to_shadow(struct
- 	u64 field_value = 0;
- 	struct vmcs *shadow_vmcs = vmx->vmcs01.shadow_vmcs;
- 
-+	if (WARN_ON(!shadow_vmcs))
-+		return;
-+
- 	vmcs_load(shadow_vmcs);
- 
- 	for (q = 0; q < ARRAY_SIZE(fields); q++) {
-@@ -4300,7 +4307,6 @@ static inline void nested_release_vmcs12
- 		/* copy to memory all shadowed fields in case
- 		   they were modified */
- 		copy_shadow_to_vmcs12(vmx);
--		vmx->nested.need_vmcs12_sync = false;
- 		vmx_disable_shadow_vmcs(vmx);
- 	}
- 	vmx->nested.posted_intr_nv = -1;
+ 	fpregs_mark_activate();
+ 	fpregs_unlock();
 
 
