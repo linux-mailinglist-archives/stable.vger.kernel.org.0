@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D059B75FEB
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 09:36:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F07475FEC
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 09:36:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726001AbfGZHgH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 03:36:07 -0400
+        id S1725945AbfGZHgK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 03:36:10 -0400
 Received: from mga14.intel.com ([192.55.52.115]:41199 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725869AbfGZHgH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 03:36:07 -0400
+        id S1725869AbfGZHgJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 03:36:09 -0400
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
 Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 26 Jul 2019 00:36:07 -0700
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 26 Jul 2019 00:36:09 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.64,310,1559545200"; 
-   d="scan'208";a="369967746"
+   d="scan'208";a="369967752"
 Received: from jlahtine-desk.ger.corp.intel.com ([10.252.2.51])
-  by fmsmga006.fm.intel.com with ESMTP; 26 Jul 2019 00:36:06 -0700
+  by fmsmga006.fm.intel.com with ESMTP; 26 Jul 2019 00:36:07 -0700
 From:   Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
 To:     stable@vger.kernel.org
-Subject: [PATCH 3/8] drm/i915/userptr: Acquire the page lock around set_page_dirty()
-Date:   Fri, 26 Jul 2019 10:35:51 +0300
-Message-Id: <20190726073556.9011-4-joonas.lahtinen@linux.intel.com>
+Subject: [PATCH 4/8] drm/i915: Disable SAMPLER_STATE prefetching on all Gen11 steppings.
+Date:   Fri, 26 Jul 2019 10:35:52 +0300
+Message-Id: <20190726073556.9011-5-joonas.lahtinen@linux.intel.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726073556.9011-1-joonas.lahtinen@linux.intel.com>
 References: <20190726073556.9011-1-joonas.lahtinen@linux.intel.com>
@@ -35,54 +35,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Kenneth Graunke <kenneth@whitecape.org>
 
-set_page_dirty says:
+The Demand Prefetch workaround (binding table prefetching) only applies
+to Icelake A0/B0.  But the Sampler Prefetch workaround needs to be
+applied to all Gen11 steppings, according to a programming note in the
+SARCHKMD documentation.
 
-	For pages with a mapping this should be done under the page lock
-	for the benefit of asynchronous memory errors who prefer a
-	consistent dirty state. This rule can be broken in some special
-	cases, but should be better not to.
+Using the Intel Gallium driver, I have seen intermittent failures in
+the dEQP-GLES31.functional.copy_image.non_compressed.* tests.  After
+applying this workaround, the tests reliably pass.
 
-Under those rules, it is only safe for us to use the plain set_page_dirty
-calls for shmemfs/anonymous memory. Userptr may be used with real
-mappings and so needs to use the locked version (set_page_dirty_lock).
+v2: Remove the overlap with a pre-production w/a
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203317
-Fixes: 5cc9ed4b9a7a ("drm/i915: Introduce mapping of user pages into video memory (userptr) ioctl")
-References: 6dcc693bc57f ("ext4: warn when page is dirtied without buffers")
+BSpec: 9663
+Signed-off-by: Kenneth Graunke <kenneth@whitecape.org>
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190708140327.26825-1-chris@chris-wilson.co.uk
-(cherry picked from commit cb6d7c7dc7ff8cace666ddec66334117a6068ce2)
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190625090655.19220-1-chris@chris-wilson.co.uk
+(cherry picked from commit f9a393875d3af13cc3267477746608dadb7f17c1)
 Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
 ---
- drivers/gpu/drm/i915/i915_gem_userptr.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/intel_workarounds.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/i915_gem_userptr.c b/drivers/gpu/drm/i915/i915_gem_userptr.c
-index 8079ea3af103..b1fc15c7f599 100644
---- a/drivers/gpu/drm/i915/i915_gem_userptr.c
-+++ b/drivers/gpu/drm/i915/i915_gem_userptr.c
-@@ -678,7 +678,15 @@ i915_gem_userptr_put_pages(struct drm_i915_gem_object *obj,
+diff --git a/drivers/gpu/drm/i915/intel_workarounds.c b/drivers/gpu/drm/i915/intel_workarounds.c
+index 841b8e515f4d..2fb70fab2d1c 100644
+--- a/drivers/gpu/drm/i915/intel_workarounds.c
++++ b/drivers/gpu/drm/i915/intel_workarounds.c
+@@ -1167,8 +1167,12 @@ rcs_engine_wa_init(struct intel_engine_cs *engine, struct i915_wa_list *wal)
+ 		if (IS_ICL_REVID(i915, ICL_REVID_A0, ICL_REVID_B0))
+ 			wa_write_or(wal,
+ 				    GEN7_SARCHKMD,
+-				    GEN7_DISABLE_DEMAND_PREFETCH |
+-				    GEN7_DISABLE_SAMPLER_PREFETCH);
++				    GEN7_DISABLE_DEMAND_PREFETCH);
++
++		/* Wa_1606682166:icl */
++		wa_write_or(wal,
++			    GEN7_SARCHKMD,
++			    GEN7_DISABLE_SAMPLER_PREFETCH);
+ 	}
  
- 	for_each_sgt_page(page, sgt_iter, pages) {
- 		if (obj->mm.dirty)
--			set_page_dirty(page);
-+			/*
-+			 * As this may not be anonymous memory (e.g. shmem)
-+			 * but exist on a real mapping, we have to lock
-+			 * the page in order to dirty it -- holding
-+			 * the page reference is not sufficient to
-+			 * prevent the inode from being truncated.
-+			 * Play safe and take the lock.
-+			 */
-+			set_page_dirty_lock(page);
- 
- 		mark_page_accessed(page);
- 		put_page(page);
+ 	if (IS_GEN_RANGE(i915, 9, 11)) {
 -- 
 2.20.1
 
