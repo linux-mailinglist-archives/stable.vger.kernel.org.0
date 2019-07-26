@@ -2,119 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 69080762B1
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 11:50:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52F60762F4
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 12:01:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726346AbfGZJlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 05:41:36 -0400
-Received: from mail-vs1-f66.google.com ([209.85.217.66]:46153 "EHLO
-        mail-vs1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726086AbfGZJlg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 05:41:36 -0400
-Received: by mail-vs1-f66.google.com with SMTP id r3so35645355vsr.13
-        for <stable@vger.kernel.org>; Fri, 26 Jul 2019 02:41:35 -0700 (PDT)
+        id S1726099AbfGZKBc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 06:01:32 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:45552 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725842AbfGZKBc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 06:01:32 -0400
+Received: by mail-pl1-f194.google.com with SMTP id y8so24588060plr.12
+        for <stable@vger.kernel.org>; Fri, 26 Jul 2019 03:01:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=endlessm-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=zQAETFiPc0aFNIxeDXyiIDZA2xGxTwhcJMiDlxf4BIg=;
-        b=gF9HjbvMjl5SVhv7yb2XcM5f/0R83Nt0MPGcMkb3JbW0PVLg8hJ1aDN8/yxAzHRJe8
-         h9bXjl+UIP7KZVZAq1hlOgwASM6/xlIuz5VAvWQ9gqSBIcvHOSWWHldRinLfZcpxh5Rr
-         VrSzo56C0bQjWOrBiGcfS6/jjvR+Xnuj4oVSbD6ay+tKRmwQUR9Zq63KTw704nCRuR3M
-         UpFbHnUlHD8pWZl/Wa2KTRmcV6gw6k48UOvAfQhYPVD3wnFnjv7obhES0C5gXSDvYFjU
-         DQh0biEXrF3tyOZ+TJv1zPmIv/gUnZ5njhjYC/kyqTZEJp9caVQKRvrG7Vxf9uhQEWPk
-         fzbQ==
+        d=broadcom.com; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=x3+KXCdYMOWuF4h/FqF9a+7bVPJBpkLPyD7+Y3l+WKY=;
+        b=M1q+PXQ12LBlRImIcDDqN1f9Lqp4vGfDFEGjuC8xtrTPl17VD8OUA0bEuS7zH4C2m1
+         uMlKCKzFTMsjpgNcitIE74cTm5BfNCID+Lp8gbjuAySjgszu1sxK8A0rrHicvG8o0Hh3
+         iNZKRlwhOLNHDDNpAkMLdDWFOisL0IshyvoqM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=zQAETFiPc0aFNIxeDXyiIDZA2xGxTwhcJMiDlxf4BIg=;
-        b=BWRqKtP+4KvQOgSjI2XU9MREZ/Il5e6uNxuC1JhriQbhGhH+zmcWY1GX/4eLaZzg5h
-         vUmKMJaSZBBRsF0J0lS6LCxPZZr4VUWJCh9tc/r3Aqm4bkH1Nr1damBWqF4xkjZxV/g8
-         DBCnpfbm+mGaSvVG9Jlsu8fGnBXwMtRp60TyY5rn7bRcocvJf8s0itZ5BIYBNVUAmKLw
-         3FDvblz8g0Toetz2w0o9z7IjclvbELKNWYKUMpAA6H6rkc3rjA46N0h3pBVpLsHGc2lP
-         RptebHH5XssMo3BekDiqdM5WSF3U4m8Ne0QxeILvairMrwNGzx3+9n8RHk1i2u48m7PY
-         g44Q==
-X-Gm-Message-State: APjAAAUPvgUMCQLJxTjMkf69XIxc2uTf0KzE5F0ja0yg/clpqCAD3GRs
-        YRbFUpPAmqkHpJN41KcSyaWUD01De0weBSH5UUG/aw==
-X-Google-Smtp-Source: APXvYqxvp/2LfFvQ/EjoQDSHcBttZZk1A87AFf9gl9KRUa+fnZYFT1MDihIpFExEm6iD5Y9Rq6s1yOnrhkOaXjfB/uI=
-X-Received: by 2002:a67:d990:: with SMTP id u16mr59869159vsj.95.1564134094915;
- Fri, 26 Jul 2019 02:41:34 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190725080925.6575-1-jian-hong@endlessm.com> <06d713fff7434dfb9ccab32c2e2112e2@AcuMS.aculab.com>
- <CAPpJ_ecAAw=1X=7+MOw-VVH0ZKBr6rcRub6JnEqgNbZ6Hxt=ag@mail.gmail.com> <c2cdffd30923459e8773379fc2927e1d@AcuMS.aculab.com>
-In-Reply-To: <c2cdffd30923459e8773379fc2927e1d@AcuMS.aculab.com>
-From:   Jian-Hong Pan <jian-hong@endlessm.com>
-Date:   Fri, 26 Jul 2019 17:40:58 +0800
-Message-ID: <CAPpJ_eey7+KCMFj2YVQD8ziWR_xf-==k9MYb49-32Z5E6vTdHA@mail.gmail.com>
-Subject: Re: [PATCH] rtw88: pci: Use general byte arrays as the elements of RX ring
-To:     David Laight <David.Laight@aculab.com>
-Cc:     Yan-Hsuan Chuang <yhchuang@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux@endlessm.com" <linux@endlessm.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=x3+KXCdYMOWuF4h/FqF9a+7bVPJBpkLPyD7+Y3l+WKY=;
+        b=JU3FBBvsZIXqQYYMFQMwULTZt8ROx5181Ub2Wo/uvflZJfh1UJbmo46rkWpGtRxHtw
+         H6QdV48zUBog+p5ruB/BOXepI0VzKVr/Rso3ohSTqAHJQrK4GuorgYDgVn9Usi8qJlUS
+         YpAG7I/8Ck+ZcpybvhD2pRIg0W6s9j+4kftX+Zoa+qGV9RJ+sUXN7owOLoPfYS+a2TdI
+         Di1Kud3CasH+y5oT/7VjhcjkHkrdD7jmAEWgQml4I7SCS2OJZEQGKmlll3Qr7hR1hPey
+         82BJTOhO5YVtjT0D9ZsNsNxZ0kWqZMBTSmz1vrEucrgi4w3zPoi9VlClg4bniDBFfU13
+         y2VQ==
+X-Gm-Message-State: APjAAAVPyNhRZkTLIoxRly+Pdx1Lg5QjGgj0l4EkW6bUw28IfFXlXoSi
+        SmnpzjLEHs3DCdgrnBRhdBnlQ26mgs4=
+X-Google-Smtp-Source: APXvYqwQtqb5Aow7Q5E6Cp0uL/YWpS73I7zI993nKApJPRLYb5eqIVLe8FepRN4ryZ020lBnr0IYeQ==
+X-Received: by 2002:a17:902:4222:: with SMTP id g31mr20381731pld.41.1564135291007;
+        Fri, 26 Jul 2019 03:01:31 -0700 (PDT)
+Received: from dhcp-10-123-20-15.dhcp.broadcom.net ([192.19.234.250])
+        by smtp.gmail.com with ESMTPSA id t11sm59628835pgb.33.2019.07.26.03.01.28
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 26 Jul 2019 03:01:30 -0700 (PDT)
+From:   Suganath Prabu <suganath-prabu.subramani@broadcom.com>
+To:     linux-scsi@vger.kernel.org, stable@vger.kernel.org
+Cc:     Sathya.Prakash@broadcom.com, kashyap.desai@broadcom.com,
+        sreekanth.reddy@broadcom.com,
+        Suganath Prabu <suganath-prabu.subramani@broadcom.com>
+Subject: [PATCH] mpt3sas: Use 63-bit DMA addressing on SAS35 HBA
+Date:   Fri, 26 Jul 2019 06:00:57 -0400
+Message-Id: <1564135257-33188-1-git-send-email-suganath-prabu.subramani@broadcom.com>
+X-Mailer: git-send-email 1.8.3.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-David Laight <David.Laight@aculab.com> =E6=96=BC 2019=E5=B9=B47=E6=9C=8826=
-=E6=97=A5 =E9=80=B1=E4=BA=94 =E4=B8=8B=E5=8D=885:23=E5=AF=AB=E9=81=93=EF=BC=
-=9A
->
-> From: Jian-Hong Pan
-> > Sent: 26 July 2019 07:18
-> ...
-> > > While allocating all 512 buffers in one block (just over 4MB)
-> > > is probably not a good idea, you may need to allocated (and dma map)
-> > > then in groups.
-> >
-> > Thanks for reviewing.  But got questions here to double confirm the ide=
-a.
-> > According to original code, it allocates 512 skbs for RX ring and dma
-> > mapping one by one.  So, the new code allocates memory buffer 512
-> > times to get 512 buffer arrays.  Will the 512 buffers arrays be in one
-> > block?  Do you mean aggregate the buffers as a scatterlist and use
-> > dma_map_sg?
->
-> If you malloc a buffer of size (8192+32) the allocator will either
-> round it up to a whole number of (often 4k) pages or to a power of
-> 2 of pages - so either 12k of 16k.
-> I think the Linux allocator does the latter.
-> Some of the allocators also 'steal' a bit from the front of the buffer
-> for 'red tape'.
->
-> OTOH malloc the space 15 buffers and the allocator will round the
-> 15*(8192 + 32) up to 32*4k - and you waste under 8k across all the
-> buffers.
->
-> You then dma_map the large buffer and split into the actual rx buffers.
-> Repeat until you've filled the entire ring.
-> The only complication is remembering the base address (and size) for
-> the dma_unmap and free.
-> Although there is plenty of padding to extend the buffer structure
-> significantly without using more memory.
-> Allocate in 15's and you (probably) have 512 bytes per buffer.
-> Allocate in 31's and you have 256 bytes.
->
-> The problem is that larger allocates are more likely to fail
-> (especially if the system has been running for some time).
-> So you almost certainly want to be able to fall back to smaller
-> allocates even though they use more memory.
->
-> I also wonder if you actually need 512 8k rx buffers to cover
-> interrupt latency?
-> I've not done any measurements for 20 years!
+Although SAS3 & SAS3.5 IT HBA controllers support
+64-bit DMA addressing, as per hardware design,
+DMA address with all 64-bits set (0xFFFFFFFF-FFFFFFFF)
+results in a firmware fault.
 
-Thanks for the explanation.
-I am not sure the combination of 512 8k RX buffers.  Maybe Realtek
-folks can give us some idea.
-Tony Chuang any comment?
+Fix:
+Driver will set 63-bit DMA mask to ensure the above address
+will not be used.
 
-Jian-Hong Pan
+Signed-off-by: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
+---
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
+index 6846628..050c0f0 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -2703,6 +2703,8 @@ _base_config_dma_addressing(struct MPT3SAS_ADAPTER *ioc, struct pci_dev *pdev)
+ {
+ 	u64 required_mask, coherent_mask;
+ 	struct sysinfo s;
++	/* Set 63 bit DMA mask for all SAS3 and SAS35 controllers */
++	int dma_mask = (ioc->hba_mpi_version_belonged > MPI2_VERSION) ? 63 : 64;
+ 
+ 	if (ioc->is_mcpu_endpoint)
+ 		goto try_32bit;
+@@ -2712,17 +2714,17 @@ _base_config_dma_addressing(struct MPT3SAS_ADAPTER *ioc, struct pci_dev *pdev)
+ 		goto try_32bit;
+ 
+ 	if (ioc->dma_mask)
+-		coherent_mask = DMA_BIT_MASK(64);
++		coherent_mask = DMA_BIT_MASK(dma_mask);
+ 	else
+ 		coherent_mask = DMA_BIT_MASK(32);
+ 
+-	if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(64)) ||
++	if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(dma_mask)) ||
+ 	    dma_set_coherent_mask(&pdev->dev, coherent_mask))
+ 		goto try_32bit;
+ 
+ 	ioc->base_add_sg_single = &_base_add_sg_single_64;
+ 	ioc->sge_size = sizeof(Mpi2SGESimple64_t);
+-	ioc->dma_mask = 64;
++	ioc->dma_mask = dma_mask;
+ 	goto out;
+ 
+  try_32bit:
+@@ -2744,7 +2746,7 @@ static int
+ _base_change_consistent_dma_mask(struct MPT3SAS_ADAPTER *ioc,
+ 				      struct pci_dev *pdev)
+ {
+-	if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64))) {
++	if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(ioc->dma_mask))) {
+ 		if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32)))
+ 			return -ENODEV;
+ 	}
+@@ -4989,7 +4991,7 @@ _base_allocate_memory_pools(struct MPT3SAS_ADAPTER *ioc)
+ 		total_sz += sz;
+ 	} while (ioc->rdpq_array_enable && (++i < ioc->reply_queue_count));
+ 
+-	if (ioc->dma_mask == 64) {
++	if (ioc->dma_mask > 32) {
+ 		if (_base_change_consistent_dma_mask(ioc, ioc->pdev) != 0) {
+ 			ioc_warn(ioc, "no suitable consistent DMA mask for %s\n",
+ 				 pci_name(ioc->pdev));
+-- 
+1.8.3.1
+
