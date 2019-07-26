@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC980768FF
+	by mail.lfdr.de (Postfix) with ESMTP id 53F33768FE
 	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:49:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726265AbfGZNs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:48:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54122 "EHLO mail.kernel.org"
+        id S1727514AbfGZNsV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:48:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388511AbfGZNpR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2388518AbfGZNpR (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 26 Jul 2019 09:45:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2C0122CE8;
-        Fri, 26 Jul 2019 13:45:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D93D322CEC;
+        Fri, 26 Jul 2019 13:45:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148716;
-        bh=W4fZ8DD3pnoKGAOR/q9xgxz0qgwyyfT3ltot2nCOB+c=;
+        s=default; t=1564148717;
+        bh=Ev4bULy0h2A0hB7svWgw9Hev4kR3poghVKw8Ioiju5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XYVhADWWqaTRnfmht/wB1lqT+U5DZTkr7lxqC2YYgCxyQK9KT28BFD+JvhBXK6H1s
-         Gfeg4OPCqsgDDFqtzcpYe56ifFxUURgktuIPOhADoOE+5BEDmn6DKbqk0Njz/1Rgu1
-         18Nn03WPmN/2alvLiDJ1bnL/3gXnGsHYzFp/SGAQ=
+        b=Up07vSW62WTO8PStfRc9SEYrs+inhN1iwad8Ptz0K7yRHqG06HU8aA+7DRGR33Wde
+         vVMnxi+1xNlLTVK8jXpdRSkXtxAMJ3Sndz+hykZoeP31xGpUcVZ6XtYktB7rNEtvfn
+         k4fKeQ9/zsgwL2TLywBG9keq2nfYO8VOcGh07TgU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Denis Efremov <efremov@ispras.ru>, Willy Tarreau <w@1wt.eu>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 27/30] floppy: fix out-of-bounds read in copy_buffer
-Date:   Fri, 26 Jul 2019 09:44:29 -0400
-Message-Id: <20190726134432.12993-27-sashal@kernel.org>
+Cc:     Juergen Gross <jgross@suse.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 28/30] xen: let alloc_xenballooned_pages() fail if not enough memory free
+Date:   Fri, 26 Jul 2019 09:44:30 -0400
+Message-Id: <20190726134432.12993-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726134432.12993-1-sashal@kernel.org>
 References: <20190726134432.12993-1-sashal@kernel.org>
@@ -43,52 +41,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Efremov <efremov@ispras.ru>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit da99466ac243f15fbba65bd261bfc75ffa1532b6 ]
+[ Upstream commit a1078e821b605813b63bf6bca414a85f804d5c66 ]
 
-This fixes a global out-of-bounds read access in the copy_buffer
-function of the floppy driver.
+Instead of trying to allocate pages with GFP_USER in
+add_ballooned_pages() check the available free memory via
+si_mem_available(). GFP_USER is far less limiting memory exhaustion
+than the test via si_mem_available().
 
-The FDDEFPRM ioctl allows one to set the geometry of a disk.  The sect
-and head fields (unsigned int) of the floppy_drive structure are used to
-compute the max_sector (int) in the make_raw_rw_request function.  It is
-possible to overflow the max_sector.  Next, max_sector is passed to the
-copy_buffer function and used in one of the memcpy calls.
+This will avoid dom0 running out of memory due to excessive foreign
+page mappings especially on ARM and on x86 in PVH mode, as those don't
+have a pre-ballooned area which can be used for foreign mappings.
 
-An unprivileged user could trigger the bug if the device is accessible,
-but requires a floppy disk to be inserted.
+As the normal ballooning suffers from the same problem don't balloon
+down more than si_mem_available() pages in one iteration. At the same
+time limit the default maximum number of retries.
 
-The patch adds the check for the .sect * .head multiplication for not
-overflowing in the set_geometry function.
+This is part of XSA-300.
 
-The bug was found by syzkaller.
-
-Signed-off-by: Denis Efremov <efremov@ispras.ru>
-Tested-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/floppy.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/xen/balloon.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/floppy.c b/drivers/block/floppy.c
-index bb9b50d1d828..de76b66893aa 100644
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -3236,8 +3236,10 @@ static int set_geometry(unsigned int cmd, struct floppy_struct *g,
- 	int cnt;
+diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
+index e4db19e88ab1..6af117af9780 100644
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -591,8 +591,15 @@ static void balloon_process(struct work_struct *work)
+ 				state = reserve_additional_memory();
+ 		}
  
- 	/* sanity checking for parameters. */
--	if (g->sect <= 0 ||
--	    g->head <= 0 ||
-+	if ((int)g->sect <= 0 ||
-+	    (int)g->head <= 0 ||
-+	    /* check for overflow in max_sector */
-+	    (int)(g->sect * g->head) <= 0 ||
- 	    /* check for zero in F_SECT_PER_TRACK */
- 	    (unsigned char)((g->sect << 2) >> FD_SIZECODE(g)) == 0 ||
- 	    g->track <= 0 || g->track > UDP->tracks >> STRETCH(g) ||
+-		if (credit < 0)
+-			state = decrease_reservation(-credit, GFP_BALLOON);
++		if (credit < 0) {
++			long n_pages;
++
++			n_pages = min(-credit, si_mem_available());
++			state = decrease_reservation(n_pages, GFP_BALLOON);
++			if (state == BP_DONE && n_pages != -credit &&
++			    n_pages < totalreserve_pages)
++				state = BP_EAGAIN;
++		}
+ 
+ 		state = update_schedule(state);
+ 
+@@ -631,6 +638,9 @@ static int add_ballooned_pages(int nr_pages)
+ 		}
+ 	}
+ 
++	if (si_mem_available() < nr_pages)
++		return -ENOMEM;
++
+ 	st = decrease_reservation(nr_pages, GFP_USER);
+ 	if (st != BP_DONE)
+ 		return -ENOMEM;
+@@ -754,7 +764,7 @@ static int __init balloon_init(void)
+ 	balloon_stats.schedule_delay = 1;
+ 	balloon_stats.max_schedule_delay = 32;
+ 	balloon_stats.retry_count = 1;
+-	balloon_stats.max_retry_count = RETRY_UNLIMITED;
++	balloon_stats.max_retry_count = 4;
+ 
+ #ifdef CONFIG_XEN_BALLOON_MEMORY_HOTPLUG
+ 	set_online_page_callback(&xen_online_page);
 -- 
 2.20.1
 
