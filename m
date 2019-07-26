@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C2D976DFC
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:40:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EA9C76DFF
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:40:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387862AbfGZP16 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:27:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42344 "EHLO mail.kernel.org"
+        id S2387938AbfGZP2J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:28:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728614AbfGZP15 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:27:57 -0400
+        id S2388367AbfGZP2J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:28:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0E7722CC3;
-        Fri, 26 Jul 2019 15:27:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC436205F4;
+        Fri, 26 Jul 2019 15:28:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564154876;
-        bh=lhhgHKY4uwGmGKOOf0P8A9Yrk3r3tpnAR+/0sAZ6wOQ=;
+        s=default; t=1564154888;
+        bh=1LYdKt7mexBVKpAR/h1PZwfj5xri1vDdeHhjSJ+zSUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qI/lOOcjjgSxIiGAq1UxnmMifI2y7CosQt/WL0im21nEC7G14ABBybCRIixSda+op
-         lQbk5hnVLpyrdcLI64Rvc55U0Fzd95AzDMIsZQnLh9JxJHM/6bNPIvQblS6ZlmS7no
-         prgWcai8f0gFENo8+VQa+jTCFdoFcf1PlBpSOWgA=
+        b=ic5hXtnZsNhsYerLR4dDmX1xCx8rrRVLKqlHvpCFupPZQAqwQ8WNgHbPc7MGl2yf3
+         ADBoXK1Vw5MUyJYvxk7GNtn5XxKCKjfv6STCFEji9JtCZatsI9CCXzid2D1ZDx3G/Q
+         JjnMJd0HTITJeaXjlsHI/TkG2dZw9A07jK6PZt3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>, stable@kernel.org
-Subject: [PATCH 5.2 57/66] ext4: enforce the immutable flag on open files
-Date:   Fri, 26 Jul 2019 17:24:56 +0200
-Message-Id: <20190726152308.022655108@linuxfoundation.org>
+        stable@vger.kernel.org, Ross Zwisler <zwisler@google.com>,
+        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.2 60/66] ext4: use jbd2_inode dirty range scoping
+Date:   Fri, 26 Jul 2019 17:24:59 +0200
+Message-Id: <20190726152308.269580319@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190726152301.936055394@linuxfoundation.org>
 References: <20190726152301.936055394@linuxfoundation.org>
@@ -43,70 +43,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Ross Zwisler <zwisler@chromium.org>
 
-commit 02b016ca7f99229ae6227e7b2fc950c4e140d74a upstream.
+commit 73131fbb003b3691cfcf9656f234b00da497fcd6 upstream.
 
-According to the chattr man page, "a file with the 'i' attribute
-cannot be modified..."  Historically, this was only enforced when the
-file was opened, per the rest of the description, "... and the file
-can not be opened in write mode".
+Use the newly introduced jbd2_inode dirty range scoping to prevent us
+from waiting forever when trying to complete a journal transaction.
 
-There is general agreement that we should standardize all file systems
-to prevent modifications even for files that were opened at the time
-the immutable flag is set.  Eventually, a change to enforce this at
-the VFS layer should be landing in mainline.  Until then, enforce this
-at the ext4 level to prevent xfstests generic/553 from failing.
-
+Signed-off-by: Ross Zwisler <zwisler@google.com>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: "Darrick J. Wong" <darrick.wong@oracle.com>
-Cc: stable@kernel.org
+Reviewed-by: Jan Kara <jack@suse.cz>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/file.c  |    4 ++++
- fs/ext4/inode.c |   11 +++++++++++
- 2 files changed, 15 insertions(+)
+ fs/ext4/ext4_jbd2.h   |   12 ++++++------
+ fs/ext4/inode.c       |   13 ++++++++++---
+ fs/ext4/move_extent.c |    3 ++-
+ 3 files changed, 18 insertions(+), 10 deletions(-)
 
---- a/fs/ext4/file.c
-+++ b/fs/ext4/file.c
-@@ -165,6 +165,10 @@ static ssize_t ext4_write_checks(struct
- 	ret = generic_write_checks(iocb, from);
- 	if (ret <= 0)
- 		return ret;
-+
-+	if (unlikely(IS_IMMUTABLE(inode)))
-+		return -EPERM;
-+
- 	/*
- 	 * If we have encountered a bitmap-format file, the size limit
- 	 * is smaller than s_maxbytes, which is for extent-mapped files.
+--- a/fs/ext4/ext4_jbd2.h
++++ b/fs/ext4/ext4_jbd2.h
+@@ -361,20 +361,20 @@ static inline int ext4_journal_force_com
+ }
+ 
+ static inline int ext4_jbd2_inode_add_write(handle_t *handle,
+-					    struct inode *inode)
++		struct inode *inode, loff_t start_byte, loff_t length)
+ {
+ 	if (ext4_handle_valid(handle))
+-		return jbd2_journal_inode_add_write(handle,
+-						    EXT4_I(inode)->jinode);
++		return jbd2_journal_inode_ranged_write(handle,
++				EXT4_I(inode)->jinode, start_byte, length);
+ 	return 0;
+ }
+ 
+ static inline int ext4_jbd2_inode_add_wait(handle_t *handle,
+-					   struct inode *inode)
++		struct inode *inode, loff_t start_byte, loff_t length)
+ {
+ 	if (ext4_handle_valid(handle))
+-		return jbd2_journal_inode_add_wait(handle,
+-						   EXT4_I(inode)->jinode);
++		return jbd2_journal_inode_ranged_wait(handle,
++				EXT4_I(inode)->jinode, start_byte, length);
+ 	return 0;
+ }
+ 
 --- a/fs/ext4/inode.c
 +++ b/fs/ext4/inode.c
-@@ -5520,6 +5520,14 @@ int ext4_setattr(struct dentry *dentry,
- 	if (unlikely(ext4_forced_shutdown(EXT4_SB(inode->i_sb))))
- 		return -EIO;
- 
-+	if (unlikely(IS_IMMUTABLE(inode)))
-+		return -EPERM;
+@@ -731,10 +731,16 @@ out_sem:
+ 		    !(flags & EXT4_GET_BLOCKS_ZERO) &&
+ 		    !ext4_is_quota_file(inode) &&
+ 		    ext4_should_order_data(inode)) {
++			loff_t start_byte =
++				(loff_t)map->m_lblk << inode->i_blkbits;
++			loff_t length = (loff_t)map->m_len << inode->i_blkbits;
 +
-+	if (unlikely(IS_APPEND(inode) &&
-+		     (ia_valid & (ATTR_MODE | ATTR_UID |
-+				  ATTR_GID | ATTR_TIMES_SET))))
-+		return -EPERM;
-+
- 	error = setattr_prepare(dentry, attr);
- 	if (error)
- 		return error;
-@@ -6190,6 +6198,9 @@ vm_fault_t ext4_page_mkwrite(struct vm_f
- 	get_block_t *get_block;
- 	int retries = 0;
+ 			if (flags & EXT4_GET_BLOCKS_IO_SUBMIT)
+-				ret = ext4_jbd2_inode_add_wait(handle, inode);
++				ret = ext4_jbd2_inode_add_wait(handle, inode,
++						start_byte, length);
+ 			else
+-				ret = ext4_jbd2_inode_add_write(handle, inode);
++				ret = ext4_jbd2_inode_add_write(handle, inode,
++						start_byte, length);
+ 			if (ret)
+ 				return ret;
+ 		}
+@@ -4085,7 +4091,8 @@ static int __ext4_block_zero_page_range(
+ 		err = 0;
+ 		mark_buffer_dirty(bh);
+ 		if (ext4_should_order_data(inode))
+-			err = ext4_jbd2_inode_add_write(handle, inode);
++			err = ext4_jbd2_inode_add_write(handle, inode, from,
++					length);
+ 	}
  
-+	if (unlikely(IS_IMMUTABLE(inode)))
-+		return VM_FAULT_SIGBUS;
-+
- 	sb_start_pagefault(inode->i_sb);
- 	file_update_time(vma->vm_file);
+ unlock:
+--- a/fs/ext4/move_extent.c
++++ b/fs/ext4/move_extent.c
+@@ -390,7 +390,8 @@ data_copy:
  
+ 	/* Even in case of data=writeback it is reasonable to pin
+ 	 * inode to transaction, to prevent unexpected data loss */
+-	*err = ext4_jbd2_inode_add_write(handle, orig_inode);
++	*err = ext4_jbd2_inode_add_write(handle, orig_inode,
++			(loff_t)orig_page_offset << PAGE_SHIFT, replaced_size);
+ 
+ unlock_pages:
+ 	unlock_page(pagep[0]);
 
 
