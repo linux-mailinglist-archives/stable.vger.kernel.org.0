@@ -2,99 +2,238 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D549766F2
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:08:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5895876715
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:15:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726808AbfGZNIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:08:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46540 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726262AbfGZNIj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:08:39 -0400
-Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D119218D4;
-        Fri, 26 Jul 2019 13:08:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564146518;
-        bh=nyisBE4O2xGmPKme/Zgrvs6HBJR9RJ66g+1LT4Ivjrc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LgQXq098EtOVgHG67rjk7dt3bpXrJlPkAQoNpmFWb4NWHDIs142jU+8ycHZhU7s2L
-         Emer6MdM1EHnQbBNgkaPghRuN98oX6dv6jGsri2XZ7s7mB2pNt7uQlbnDhLM3q5IQR
-         RtmZ//o5SEKJzLsfndCe9lp0gfG61xYdVN0HpgaQ=
-Date:   Fri, 26 Jul 2019 14:08:34 +0100
-From:   Will Deacon <will@kernel.org>
-To:     Anders Roxell <anders.roxell@linaro.org>
-Cc:     mark.rutland@arm.com, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] arm: perf: Mark expected switch fall-through
-Message-ID: <20190726130834.coonga4kygk23ojx@willie-the-truck>
-References: <20190726112732.19257-1-anders.roxell@linaro.org>
+        id S1726491AbfGZNPu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:15:50 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:55579 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726364AbfGZNPu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 09:15:50 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id AAEC85B1;
+        Fri, 26 Jul 2019 09:15:48 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Fri, 26 Jul 2019 09:15:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=XVzK1n
+        IXYZH+bFpG15EJ3ghmRyV3NaJ8Qn62N+UAges=; b=Nt5A0jTy2GnXPAcfkrliIg
+        g4rk22kZoGlLLjyDl3w9iSXAwNaIPRr/v7mTJhpdDLAO23pi78/Bf+wnusb1Iz2+
+        IxhoYr6O6yifYIIp9FAazC1/JoReuCSNBKhnCy/U9VN0VJAliWaXvL8nxjoPKng7
+        cswJU5hP4v5oB7VP6nFJwB5M2zy5CHv7uFopHfh4g4qJ76f7YtSqYSqRUC82aMXn
+        gqNCDP9/krVnagf3QNTw2wyiNDPZ24B0VVmpfs7zjfBIt/RQO4smdMz+y9eA+dnK
+        CfZR5kTmlBVpGbuB3o1LXIpx0lRVNm4zTLEPQk/n9PGYJfTodOD0rtuPB1gqq9uA
+        ==
+X-ME-Sender: <xms:A_06Xbv9evZl98-tJu1p86HS99Z8tg1VFuEw7SEBjt26RaxGU6Pu5Q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrkeeggdeifecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
+    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
+    vehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:A_06Xaq95v6Zk4zA5Olrg0L8O8QN7U4l1zq60nkKLXNhAVbR73DRGQ>
+    <xmx:A_06XVFiy03CILs2rI1qNt6SfoDsoZrn7DRtsGWvehbnh2qtlGvT5Q>
+    <xmx:A_06XeFn-p0euz8iRfLnxeLUifHUnQTmG2BBozSOxekiBpcycPfuQA>
+    <xmx:BP06XWQt_HnrzcWcfPMt09JMzHByZUeWrlboPxaD0vMhuwu6hqgd1w>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0298680063;
+        Fri, 26 Jul 2019 09:15:46 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] perf/core: Fix exclusive events' grouping" failed to apply to 4.4-stable tree
+To:     alexander.shishkin@linux.intel.com, acme@redhat.com,
+        eranian@google.com, jolsa@redhat.com, mingo@kernel.org,
+        peterz@infradead.org, stable@vger.kernel.org, tglx@linutronix.de,
+        torvalds@linux-foundation.org, vincent.weaver@maine.edu
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 26 Jul 2019 15:15:45 +0200
+Message-ID: <15641469451670@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190726112732.19257-1-anders.roxell@linaro.org>
-User-Agent: NeoMutt/20170113 (1.7.2)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 26, 2019 at 01:27:32PM +0200, Anders Roxell wrote:
-> When fall-through warnings was enabled by default, d93512ef0f0e
-> ("Makefile: Globally enable fall-through warning"), we could see the
-> following warnings was starting to show up. However, this was originally
-> introduced in commit 6ee33c2712fc ("ARM: hw_breakpoint: correct and
-> simplify alignment fixup code"). Commit d968d2b801d8 ("ARM: 7497/1:
-> hw_breakpoint: allow single-byte watchpoints on all addresses") was
-> written with the intent to allow single-byte watchpoints on all
-> addresses but forgot to move 'case 1:' down below 'case 2:'.
-> 
-> ../arch/arm/kernel/hw_breakpoint.c: In function ‘hw_breakpoint_arch_parse’:
-> ../arch/arm/kernel/hw_breakpoint.c:609:7: warning: this statement may fall
->  through [-Wimplicit-fallthrough=]
->     if (hw->ctrl.len == ARM_BREAKPOINT_LEN_2)
->        ^
-> ../arch/arm/kernel/hw_breakpoint.c:611:3: note: here
->    case 3:
->    ^~~~
-> ../arch/arm/kernel/hw_breakpoint.c:613:7: warning: this statement may fall
->  through [-Wimplicit-fallthrough=]
->     if (hw->ctrl.len == ARM_BREAKPOINT_LEN_1)
->        ^
-> ../arch/arm/kernel/hw_breakpoint.c:615:3: note: here
->    default:
->    ^~~~~~~
-> 
-> Rework so 'case 1:' are next to 'case 3:' and also add '/* Fall through
-> */' so that the compiler doesn't warn about fall-through.
-> 
-> Cc: stable@vger.kernel.org # v3.16
-> Fixes: 6ee33c2712fc ("ARM: hw_breakpoint: correct and simplify alignment fixup code")
-> Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
-> ---
->  arch/arm/kernel/hw_breakpoint.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/arm/kernel/hw_breakpoint.c b/arch/arm/kernel/hw_breakpoint.c
-> index af8b8e15f589..c14d506969ba 100644
-> --- a/arch/arm/kernel/hw_breakpoint.c
-> +++ b/arch/arm/kernel/hw_breakpoint.c
-> @@ -603,15 +603,17 @@ int hw_breakpoint_arch_parse(struct perf_event *bp,
->  	case 0:
->  		/* Aligned */
->  		break;
-> -	case 1:
->  	case 2:
->  		/* Allow halfword watchpoints and breakpoints. */
->  		if (hw->ctrl.len == ARM_BREAKPOINT_LEN_2)
->  			break;
-> +		/* Fall through */
-> +	case 1:
 
-Why are you moving the 'case 1:' here? AFAICT, your patch now rejects
-byte-aligned watchpoints of length 2.
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Will
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 8a58ddae23796c733c5dfbd717538d89d036c5bd Mon Sep 17 00:00:00 2001
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Date: Mon, 1 Jul 2019 14:07:55 +0300
+Subject: [PATCH] perf/core: Fix exclusive events' grouping
+
+So far, we tried to disallow grouping exclusive events for the fear of
+complications they would cause with moving between contexts. Specifically,
+moving a software group to a hardware context would violate the exclusivity
+rules if both groups contain matching exclusive events.
+
+This attempt was, however, unsuccessful: the check that we have in the
+perf_event_open() syscall is both wrong (looks at wrong PMU) and
+insufficient (group leader may still be exclusive), as can be illustrated
+by running:
+
+  $ perf record -e '{intel_pt//,cycles}' uname
+  $ perf record -e '{cycles,intel_pt//}' uname
+
+ultimately successfully.
+
+Furthermore, we are completely free to trigger the exclusivity violation
+by:
+
+   perf -e '{cycles,intel_pt//}' -e '{intel_pt//,instructions}'
+
+even though the helpful perf record will not allow that, the ABI will.
+
+The warning later in the perf_event_open() path will also not trigger, because
+it's also wrong.
+
+Fix all this by validating the original group before moving, getting rid
+of broken safeguards and placing a useful one to perf_install_in_context().
+
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: <stable@vger.kernel.org>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Cc: mathieu.poirier@linaro.org
+Cc: will.deacon@arm.com
+Fixes: bed5b25ad9c8a ("perf: Add a pmu capability for "exclusive" events")
+Link: https://lkml.kernel.org/r/20190701110755.24646-1-alexander.shishkin@linux.intel.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+
+diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+index 16e38c286d46..e8ad3c590a23 100644
+--- a/include/linux/perf_event.h
++++ b/include/linux/perf_event.h
+@@ -1055,6 +1055,11 @@ static inline int in_software_context(struct perf_event *event)
+ 	return event->ctx->pmu->task_ctx_nr == perf_sw_context;
+ }
+ 
++static inline int is_exclusive_pmu(struct pmu *pmu)
++{
++	return pmu->capabilities & PERF_PMU_CAP_EXCLUSIVE;
++}
++
+ extern struct static_key perf_swevent_enabled[PERF_COUNT_SW_MAX];
+ 
+ extern void ___perf_sw_event(u32, u64, struct pt_regs *, u64);
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 5dd19bedbf64..eea9d52b010c 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -2553,6 +2553,9 @@ static int  __perf_install_in_context(void *info)
+ 	return ret;
+ }
+ 
++static bool exclusive_event_installable(struct perf_event *event,
++					struct perf_event_context *ctx);
++
+ /*
+  * Attach a performance event to a context.
+  *
+@@ -2567,6 +2570,8 @@ perf_install_in_context(struct perf_event_context *ctx,
+ 
+ 	lockdep_assert_held(&ctx->mutex);
+ 
++	WARN_ON_ONCE(!exclusive_event_installable(event, ctx));
++
+ 	if (event->cpu != -1)
+ 		event->cpu = cpu;
+ 
+@@ -4360,7 +4365,7 @@ static int exclusive_event_init(struct perf_event *event)
+ {
+ 	struct pmu *pmu = event->pmu;
+ 
+-	if (!(pmu->capabilities & PERF_PMU_CAP_EXCLUSIVE))
++	if (!is_exclusive_pmu(pmu))
+ 		return 0;
+ 
+ 	/*
+@@ -4391,7 +4396,7 @@ static void exclusive_event_destroy(struct perf_event *event)
+ {
+ 	struct pmu *pmu = event->pmu;
+ 
+-	if (!(pmu->capabilities & PERF_PMU_CAP_EXCLUSIVE))
++	if (!is_exclusive_pmu(pmu))
+ 		return;
+ 
+ 	/* see comment in exclusive_event_init() */
+@@ -4411,14 +4416,15 @@ static bool exclusive_event_match(struct perf_event *e1, struct perf_event *e2)
+ 	return false;
+ }
+ 
+-/* Called under the same ctx::mutex as perf_install_in_context() */
+ static bool exclusive_event_installable(struct perf_event *event,
+ 					struct perf_event_context *ctx)
+ {
+ 	struct perf_event *iter_event;
+ 	struct pmu *pmu = event->pmu;
+ 
+-	if (!(pmu->capabilities & PERF_PMU_CAP_EXCLUSIVE))
++	lockdep_assert_held(&ctx->mutex);
++
++	if (!is_exclusive_pmu(pmu))
+ 		return true;
+ 
+ 	list_for_each_entry(iter_event, &ctx->event_list, event_entry) {
+@@ -10947,11 +10953,6 @@ SYSCALL_DEFINE5(perf_event_open,
+ 		goto err_alloc;
+ 	}
+ 
+-	if ((pmu->capabilities & PERF_PMU_CAP_EXCLUSIVE) && group_leader) {
+-		err = -EBUSY;
+-		goto err_context;
+-	}
+-
+ 	/*
+ 	 * Look up the group leader (we will attach this event to it):
+ 	 */
+@@ -11039,6 +11040,18 @@ SYSCALL_DEFINE5(perf_event_open,
+ 				move_group = 0;
+ 			}
+ 		}
++
++		/*
++		 * Failure to create exclusive events returns -EBUSY.
++		 */
++		err = -EBUSY;
++		if (!exclusive_event_installable(group_leader, ctx))
++			goto err_locked;
++
++		for_each_sibling_event(sibling, group_leader) {
++			if (!exclusive_event_installable(sibling, ctx))
++				goto err_locked;
++		}
+ 	} else {
+ 		mutex_lock(&ctx->mutex);
+ 	}
+@@ -11075,9 +11088,6 @@ SYSCALL_DEFINE5(perf_event_open,
+ 	 * because we need to serialize with concurrent event creation.
+ 	 */
+ 	if (!exclusive_event_installable(event, ctx)) {
+-		/* exclusive and group stuff are assumed mutually exclusive */
+-		WARN_ON_ONCE(move_group);
+-
+ 		err = -EBUSY;
+ 		goto err_locked;
+ 	}
+
