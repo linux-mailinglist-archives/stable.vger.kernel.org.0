@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82986768EC
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:48:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CC4A76891
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:45:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388549AbfGZNsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:48:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54394 "EHLO mail.kernel.org"
+        id S2388550AbfGZNp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:45:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388559AbfGZNpZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:45:25 -0400
+        id S2387751AbfGZNp1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:45:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E90B22CF6;
-        Fri, 26 Jul 2019 13:45:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8436022CE9;
+        Fri, 26 Jul 2019 13:45:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148725;
-        bh=yW7TGlrP4rOvaiUM/u3oVyJsef4Xl1+aBQt0r6KEkMg=;
+        s=default; t=1564148726;
+        bh=PAj6zUAmFM17o7AjZUCKjS16bLP6pFFJOAO8OFZD/kA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yIfrOwwxSynw2Cd0OhYCaw4+E9PeNW30DPhvs/VpxE8uwFpjtVC1r9vM+8moBZzSl
-         TwbKRcghxz+r05JE3Gmh+rvwEsxN/LC6U4Dd3OJlrEIZOMg1MMiDPnaAuphjmIdxdm
-         4eiVHc/LK4c4qyOfWXFcaqz90CPcikb0hKJVP7dI=
+        b=XXnhMX4a6L00XqDxq3b64jp6IHRknimgdSxLtVzyoSBYhRRak+crqrBopgySO9BWz
+         0+ws/lG1bOkPvH7aqJ6jrq5HLbWdeZeU1XOMJeqaCeS60k6FtvHOw62C4vjKB7yQ5g
+         DNhuO93VPUkyJjTpaWxgRim+Sj9A0E+e0pREfmAc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Douglas Anderson <dianders@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 02/23] ARM: dts: rockchip: Mark that the rk3288 timer might stop in suspend
-Date:   Fri, 26 Jul 2019 09:45:01 -0400
-Message-Id: <20190726134522.13308-2-sashal@kernel.org>
+Cc:     Prarit Bhargava <prarit@redhat.com>,
+        Barret Rhoden <brho@google.com>,
+        David Arcari <darcari@redhat.com>,
+        Jessica Yu <jeyu@kernel.org>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 03/23] kernel/module.c: Only return -EEXIST for modules that have finished loading
+Date:   Fri, 26 Jul 2019 09:45:02 -0400
+Message-Id: <20190726134522.13308-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726134522.13308-1-sashal@kernel.org>
 References: <20190726134522.13308-1-sashal@kernel.org>
@@ -44,48 +46,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Prarit Bhargava <prarit@redhat.com>
 
-[ Upstream commit 8ef1ba39a9fa53d2205e633bc9b21840a275908e ]
+[ Upstream commit 6e6de3dee51a439f76eb73c22ae2ffd2c9384712 ]
 
-This is similar to commit e6186820a745 ("arm64: dts: rockchip: Arch
-counter doesn't tick in system suspend").  Specifically on the rk3288
-it can be seen that the timer stops ticking in suspend if we end up
-running through the "osc_disable" path in rk3288_slp_mode_set().  In
-that path the 24 MHz clock will turn off and the timer stops.
+Microsoft HyperV disables the X86_FEATURE_SMCA bit on AMD systems, and
+linux guests boot with repeated errors:
 
-To test this, I ran this on a Chrome OS filesystem:
-  before=$(date); \
-  suspend_stress_test -c1 --suspend_min=30 --suspend_max=31; \
-  echo ${before}; date
+amd64_edac_mod: Unknown symbol amd_unregister_ecc_decoder (err -2)
+amd64_edac_mod: Unknown symbol amd_register_ecc_decoder (err -2)
+amd64_edac_mod: Unknown symbol amd_report_gart_errors (err -2)
+amd64_edac_mod: Unknown symbol amd_unregister_ecc_decoder (err -2)
+amd64_edac_mod: Unknown symbol amd_register_ecc_decoder (err -2)
+amd64_edac_mod: Unknown symbol amd_report_gart_errors (err -2)
 
-...and I found that unless I plug in a device that requests USB wakeup
-to be active that the two calls to "date" would show that fewer than
-30 seconds passed.
+The warnings occur because the module code erroneously returns -EEXIST
+for modules that have failed to load and are in the process of being
+removed from the module list.
 
-NOTE: deep suspend (where the 24 MHz clock gets disabled) isn't
-supported yet on upstream Linux so this was tested on a downstream
-kernel.
+module amd64_edac_mod has a dependency on module edac_mce_amd.  Using
+modules.dep, systemd will load edac_mce_amd for every request of
+amd64_edac_mod.  When the edac_mce_amd module loads, the module has
+state MODULE_STATE_UNFORMED and once the module load fails and the state
+becomes MODULE_STATE_GOING.  Another request for edac_mce_amd module
+executes and add_unformed_module() will erroneously return -EEXIST even
+though the previous instance of edac_mce_amd has MODULE_STATE_GOING.
+Upon receiving -EEXIST, systemd attempts to load amd64_edac_mod, which
+fails because of unknown symbols from edac_mce_amd.
 
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+add_unformed_module() must wait to return for any case other than
+MODULE_STATE_LIVE to prevent a race between multiple loads of
+dependent modules.
+
+Signed-off-by: Prarit Bhargava <prarit@redhat.com>
+Signed-off-by: Barret Rhoden <brho@google.com>
+Cc: David Arcari <darcari@redhat.com>
+Cc: Jessica Yu <jeyu@kernel.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3288.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/module.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
-index 04ea209f1737..98abb053b7da 100644
---- a/arch/arm/boot/dts/rk3288.dtsi
-+++ b/arch/arm/boot/dts/rk3288.dtsi
-@@ -205,6 +205,7 @@
- 			     <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>,
- 			     <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
- 		clock-frequency = <24000000>;
-+		arm,no-tick-in-suspend;
- 	};
+diff --git a/kernel/module.c b/kernel/module.c
+index bcc78f4c15e9..b940b2825b7b 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -3225,8 +3225,7 @@ static bool finished_loading(const char *name)
+ 	sched_annotate_sleep();
+ 	mutex_lock(&module_mutex);
+ 	mod = find_module_all(name, strlen(name), true);
+-	ret = !mod || mod->state == MODULE_STATE_LIVE
+-		|| mod->state == MODULE_STATE_GOING;
++	ret = !mod || mod->state == MODULE_STATE_LIVE;
+ 	mutex_unlock(&module_mutex);
  
- 	timer: timer@ff810000 {
+ 	return ret;
+@@ -3385,8 +3384,7 @@ static int add_unformed_module(struct module *mod)
+ 	mutex_lock(&module_mutex);
+ 	old = find_module_all(mod->name, strlen(mod->name), true);
+ 	if (old != NULL) {
+-		if (old->state == MODULE_STATE_COMING
+-		    || old->state == MODULE_STATE_UNFORMED) {
++		if (old->state != MODULE_STATE_LIVE) {
+ 			/* Wait in case it fails to load. */
+ 			mutex_unlock(&module_mutex);
+ 			err = wait_event_interruptible(module_wq,
 -- 
 2.20.1
 
