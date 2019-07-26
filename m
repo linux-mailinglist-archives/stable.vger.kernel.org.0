@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EC417697B
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:52:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6073A76980
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:52:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387429AbfGZNnr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:43:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51660 "EHLO mail.kernel.org"
+        id S2387701AbfGZNwe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:52:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388298AbfGZNnq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:43:46 -0400
+        id S2388305AbfGZNnr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:43:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 350F722CD0;
-        Fri, 26 Jul 2019 13:43:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A55D522CD2;
+        Fri, 26 Jul 2019 13:43:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148625;
-        bh=BfZ4s6f42mD9uFecUPofM7fiW/0Wm5NgAwY4qFaz8CI=;
+        s=default; t=1564148627;
+        bh=xDfCWhVDseD5mMcFkZluXYrX2Kjuu5L7Kf1DwzxIokc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vO0AQThwYsMWCBpRsAw7mu/r1RNpI7IZeWgonKp79RD8MbmehZ2jeDUt7tEPb3kp2
-         1pGoOollSRf0pCrCRnFcBkHUCawdwUQRYTxw4qN9VL7w509zJtLFVB2qu/cBT7SQFA
-         KrrwfWga70SDITky8zp5dYpPT/Np4/XwsGz3iXgc=
+        b=aMWNxyLd/QnOnPY7+ZZTp0tZVmfUNx70S5RQ908opU4/xaOeWcA+yj0YvNVkwO8bl
+         Y04VC+dEUC1zm489eJBGKsT27LWYie18PFQKcuqc79RFKgpojjV4NJ3Hg5SA2+fOyN
+         JJ4oF9X3S2PtEqN6j8XmzA7Kwm+sI6pvO5Zvxerk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     JC Kuo <jckuo@nvidia.com>,
-        Peter De Schrijver <pdeschrijver@nvidia.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 09/37] clk: tegra210: fix PLLU and PLLU_OUT1
-Date:   Fri, 26 Jul 2019 09:43:04 -0400
-Message-Id: <20190726134332.12626-9-sashal@kernel.org>
+Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 10/37] fs/adfs: super: fix use-after-free bug
+Date:   Fri, 26 Jul 2019 09:43:05 -0400
+Message-Id: <20190726134332.12626-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726134332.12626-1-sashal@kernel.org>
 References: <20190726134332.12626-1-sashal@kernel.org>
@@ -45,75 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: JC Kuo <jckuo@nvidia.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 0d34dfbf3023cf119b83f6470692c0b10c832495 ]
+[ Upstream commit 5808b14a1f52554de612fee85ef517199855e310 ]
 
-Full-speed and low-speed USB devices do not work with Tegra210
-platforms because of incorrect PLLU/PLLU_OUT1 clock settings.
+Fix a use-after-free bug during filesystem initialisation, where we
+access the disc record (which is stored in a buffer) after we have
+released the buffer.
 
-When full-speed device is connected:
-[   14.059886] usb 1-3: new full-speed USB device number 2 using tegra-xusb
-[   14.196295] usb 1-3: device descriptor read/64, error -71
-[   14.436311] usb 1-3: device descriptor read/64, error -71
-[   14.675749] usb 1-3: new full-speed USB device number 3 using tegra-xusb
-[   14.812335] usb 1-3: device descriptor read/64, error -71
-[   15.052316] usb 1-3: device descriptor read/64, error -71
-[   15.164799] usb usb1-port3: attempt power cycle
-
-When low-speed device is connected:
-[   37.610949] usb usb1-port3: Cannot enable. Maybe the USB cable is bad?
-[   38.557376] usb usb1-port3: Cannot enable. Maybe the USB cable is bad?
-[   38.564977] usb usb1-port3: attempt power cycle
-
-This commit fixes the issue by:
- 1. initializing PLLU_OUT1 before initializing XUSB_FS_SRC clock
-    because PLLU_OUT1 is parent of XUSB_FS_SRC.
- 2. changing PLLU post-divider to /2 (DIVP=1) according to Technical
-    Reference Manual.
-
-Fixes: e745f992cf4b ("clk: tegra: Rework pll_u")
-Signed-off-by: JC Kuo <jckuo@nvidia.com>
-Acked-By: Peter De Schrijver <pdeschrijver@nvidia.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/tegra/clk-tegra210.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/adfs/super.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/tegra/clk-tegra210.c b/drivers/clk/tegra/clk-tegra210.c
-index b92867814e2d..cb2be154db3b 100644
---- a/drivers/clk/tegra/clk-tegra210.c
-+++ b/drivers/clk/tegra/clk-tegra210.c
-@@ -2057,9 +2057,9 @@ static struct div_nmp pllu_nmp = {
- };
+diff --git a/fs/adfs/super.c b/fs/adfs/super.c
+index c9fdfb112933..e42c30001509 100644
+--- a/fs/adfs/super.c
++++ b/fs/adfs/super.c
+@@ -368,6 +368,7 @@ static int adfs_fill_super(struct super_block *sb, void *data, int silent)
+ 	struct buffer_head *bh;
+ 	struct object_info root_obj;
+ 	unsigned char *b_data;
++	unsigned int blocksize;
+ 	struct adfs_sb_info *asb;
+ 	struct inode *root;
+ 	int ret = -EINVAL;
+@@ -419,8 +420,10 @@ static int adfs_fill_super(struct super_block *sb, void *data, int silent)
+ 		goto error_free_bh;
+ 	}
  
- static struct tegra_clk_pll_freq_table pll_u_freq_table[] = {
--	{ 12000000, 480000000, 40, 1, 0, 0 },
--	{ 13000000, 480000000, 36, 1, 0, 0 }, /* actual: 468.0 MHz */
--	{ 38400000, 480000000, 25, 2, 0, 0 },
-+	{ 12000000, 480000000, 40, 1, 1, 0 },
-+	{ 13000000, 480000000, 36, 1, 1, 0 }, /* actual: 468.0 MHz */
-+	{ 38400000, 480000000, 25, 2, 1, 0 },
- 	{        0,         0,  0, 0, 0, 0 },
- };
- 
-@@ -2983,6 +2983,7 @@ static struct tegra_clk_init_table init_table[] __initdata = {
- 	{ TEGRA210_CLK_DFLL_REF, TEGRA210_CLK_PLL_P, 51000000, 1 },
- 	{ TEGRA210_CLK_SBC4, TEGRA210_CLK_PLL_P, 12000000, 1 },
- 	{ TEGRA210_CLK_PLL_RE_VCO, TEGRA210_CLK_CLK_MAX, 672000000, 1 },
-+	{ TEGRA210_CLK_PLL_U_OUT1, TEGRA210_CLK_CLK_MAX, 48000000, 1 },
- 	{ TEGRA210_CLK_XUSB_GATE, TEGRA210_CLK_CLK_MAX, 0, 1 },
- 	{ TEGRA210_CLK_XUSB_SS_SRC, TEGRA210_CLK_PLL_U_480M, 120000000, 0 },
- 	{ TEGRA210_CLK_XUSB_FS_SRC, TEGRA210_CLK_PLL_U_48M, 48000000, 0 },
-@@ -3008,7 +3009,6 @@ static struct tegra_clk_init_table init_table[] __initdata = {
- 	{ TEGRA210_CLK_PLL_DP, TEGRA210_CLK_CLK_MAX, 270000000, 0 },
- 	{ TEGRA210_CLK_SOC_THERM, TEGRA210_CLK_PLL_P, 51000000, 0 },
- 	{ TEGRA210_CLK_CCLK_G, TEGRA210_CLK_CLK_MAX, 0, 1 },
--	{ TEGRA210_CLK_PLL_U_OUT1, TEGRA210_CLK_CLK_MAX, 48000000, 1 },
- 	{ TEGRA210_CLK_PLL_U_OUT2, TEGRA210_CLK_CLK_MAX, 60000000, 1 },
- 	/* This MUST be the last entry. */
- 	{ TEGRA210_CLK_CLK_MAX, TEGRA210_CLK_CLK_MAX, 0, 0 },
++	blocksize = 1 << dr->log2secsize;
+ 	brelse(bh);
+-	if (sb_set_blocksize(sb, 1 << dr->log2secsize)) {
++
++	if (sb_set_blocksize(sb, blocksize)) {
+ 		bh = sb_bread(sb, ADFS_DISCRECORD / sb->s_blocksize);
+ 		if (!bh) {
+ 			adfs_error(sb, "couldn't read superblock on "
 -- 
 2.20.1
 
