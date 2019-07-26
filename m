@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 145F076AC5
+	by mail.lfdr.de (Postfix) with ESMTP id 869CC76AC6
 	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 16:01:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727398AbfGZNjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:39:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45614 "EHLO mail.kernel.org"
+        id S1727456AbfGZNjr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:39:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727391AbfGZNjo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:39:44 -0400
+        id S1727445AbfGZNjr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:39:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E56022BF5;
-        Fri, 26 Jul 2019 13:39:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C86F22BEF;
+        Fri, 26 Jul 2019 13:39:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148384;
-        bh=Oyi0/Wy+f4G1n/pjU1LScDgWu7qW3oGB7u9NNM9cmZo=;
+        s=default; t=1564148386;
+        bh=eemSfMtBsnGD9SpL7qlKq+QFqILAbZoChgumTr5OSfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=de8JOL0gE2z2QJNegMCRdOpVgDA11spTU8wWeVhcRey19zj8p/1CkXYpt0XVhQAn8
-         RhHNk+1VqShCZv7V6O6zwK6WURJu9rg5KjWpL8MK5SHf31OGtRyaQ3t56tuotjvzvV
-         xTVPLgXmBAml7aOjI5PItC3ZI3vMR/36vh1KCDnI=
+        b=0dFcQ33m1bL+ukdl9LHgVfImbmpcMb6gAPxyANX8F+uriZMmB+tYY498HzOcsxiKz
+         vURuCLY/rXhEqN6OAx3KFpt9Id04dnQUBAd0Cnc4UEPQGlAfbQufFUgK2LvYHxUsBw
+         6YtgldWDAjBk8AePyh2BMyHDXkuZGgimOAccbmzM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Niklas Cassel <niklas.cassel@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Andy Gross <agross@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 07/85] arm64: dts: qcom: qcs404-evb: fix l3 min voltage
-Date:   Fri, 26 Jul 2019 09:38:17 -0400
-Message-Id: <20190726133936.11177-7-sashal@kernel.org>
+Cc:     Heinrich Schuchardt <xypron.glpk@gmx.de>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 09/85] arm64: dts: marvell: mcbin: enlarge PCI memory window
+Date:   Fri, 26 Jul 2019 09:38:19 -0400
+Message-Id: <20190726133936.11177-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
 References: <20190726133936.11177-1-sashal@kernel.org>
@@ -45,44 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@linaro.org>
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 
-[ Upstream commit 887b528c958f40b064d53edd0bfa9fea3a69eccd ]
+[ Upstream commit d3446b266a8c72a7bbc94b65f5fc6d206be77d24 ]
 
-The current l3 min voltage level is not supported by
-the regulator (the voltage is not a multiple of the regulator step size),
-so a driver requesting this exact voltage would fail, see discussion in:
-https://patchwork.kernel.org/comment/22461199/
+Running a graphics adapter on the MACCHIATObin fails due to an
+insufficiently sized memory window.
 
-It was agreed upon to set a min voltage level that is a multiple of the
-regulator step size.
+Enlarge the memory window for the PCIe slot to 512 MiB.
 
-There was actually a patch sent that did this:
-https://patchwork.kernel.org/patch/10819313/
+With the patch I am able to use a GT710 graphics adapter with 1 GB onboard
+memory.
 
-However, the commit 331ab98f8c4a ("arm64: dts: qcom: qcs404:
-Fix voltages l3") that was applied is not identical to that patch.
+These are the mapped memory areas that the graphics adapter is actually
+using:
 
-Signed-off-by: Niklas Cassel <niklas.cassel@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Andy Gross <agross@kernel.org>
+Region 0: Memory at cc000000 (32-bit, non-prefetchable) [size=16M]
+Region 1: Memory at c0000000 (64-bit, prefetchable) [size=128M]
+Region 3: Memory at c8000000 (64-bit, prefetchable) [size=32M]
+Region 5: I/O ports at 1000 [size=128]
+Expansion ROM at ca000000 [disabled] [size=512K]
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/qcs404-evb.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/marvell/armada-8040-mcbin.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/qcs404-evb.dtsi b/arch/arm64/boot/dts/qcom/qcs404-evb.dtsi
-index 2c3127167e3c..d987d6741e40 100644
---- a/arch/arm64/boot/dts/qcom/qcs404-evb.dtsi
-+++ b/arch/arm64/boot/dts/qcom/qcs404-evb.dtsi
-@@ -118,7 +118,7 @@
- 		};
- 
- 		vreg_l3_1p05: l3 {
--			regulator-min-microvolt = <1050000>;
-+			regulator-min-microvolt = <1048000>;
- 			regulator-max-microvolt = <1160000>;
- 		};
+diff --git a/arch/arm64/boot/dts/marvell/armada-8040-mcbin.dtsi b/arch/arm64/boot/dts/marvell/armada-8040-mcbin.dtsi
+index 329f8ceeebea..205071b45a32 100644
+--- a/arch/arm64/boot/dts/marvell/armada-8040-mcbin.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-8040-mcbin.dtsi
+@@ -184,6 +184,8 @@
+ 	num-lanes = <4>;
+ 	num-viewport = <8>;
+ 	reset-gpios = <&cp0_gpio2 20 GPIO_ACTIVE_LOW>;
++	ranges = <0x81000000 0x0 0xf9010000 0x0 0xf9010000 0x0 0x10000
++		  0x82000000 0x0 0xc0000000 0x0 0xc0000000 0x0 0x20000000>;
+ 	status = "okay";
+ };
  
 -- 
 2.20.1
