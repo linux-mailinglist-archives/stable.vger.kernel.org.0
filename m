@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C084B76A80
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:59:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 749C676A86
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:59:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387476AbfGZNkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2387473AbfGZNkc (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 26 Jul 2019 09:40:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46552 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727681AbfGZNk3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:40:29 -0400
+        id S1727692AbfGZNkb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:40:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C905C22BF5;
-        Fri, 26 Jul 2019 13:40:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2E6222CBD;
+        Fri, 26 Jul 2019 13:40:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148428;
-        bh=uIbs0tM0t17lsosykX6s17QGS1UOz8ioMvBtnf/X32M=;
+        s=default; t=1564148429;
+        bh=u8mihk7BMaBudNZAbfb+ZXvceZCfjoz1RKteTCz+rjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FftBAWT4UBRYlUsRHErC51i0REzoW9YSSn/oHmPvUk7OLEtW6mzNl5/0SWX1RdvNy
-         hKaPiaRyhSjdivoam+PdqwY9u8RQeZ7r+tAK4JVBPmVNvKK1OI0PTTq5ny8r7n+G82
-         YU9eWlxHcw5583yhzYY83/+qtE795FxyVMw6IeK4=
+        b=PWZNAD4eWFMJTGz1owVDvO3s4yEOk/PcZMBu+qxa/MN0AjYAEIVbyVIZvQ4G6rwPC
+         S8u9eghoUCDbodKwdIK/9SGfGol77x+XTVlNJymHrblb4DWS9z5veQmA4trKnAaQ7i
+         aAZ8NPtt6NDxa5Ownnt7SMA11+wkvUUDjoyi1q10=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ronnie Sahlberg <lsahlber@redhat.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 31/85] cifs: Fix a race condition with cifs_echo_request
-Date:   Fri, 26 Jul 2019 09:38:41 -0400
-Message-Id: <20190726133936.11177-31-sashal@kernel.org>
+Cc:     David Disseldorp <ddiss@suse.de>, "Yan, Zheng" <zyan@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 32/85] ceph: fix listxattr vxattr buffer length calculation
+Date:   Fri, 26 Jul 2019 09:38:42 -0400
+Message-Id: <20190726133936.11177-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
 References: <20190726133936.11177-1-sashal@kernel.org>
@@ -44,63 +43,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: David Disseldorp <ddiss@suse.de>
 
-[ Upstream commit f2caf901c1b7ce65f9e6aef4217e3241039db768 ]
+[ Upstream commit 2b2abcac8c251d1c77a4cc9d9f248daefae0fb4e ]
 
-There is a race condition with how we send (or supress and don't send)
-smb echos that will cause the client to incorrectly think the
-server is unresponsive and thus needs to be reconnected.
+ceph_listxattr() incorrectly returns a length based on the static
+ceph_vxattrs_name_size() value, which only takes into account whether
+vxattrs are hidden, ignoring vxattr.exists_cb().
 
-Summary of the race condition:
- 1) Daisy chaining scheduling creates a gap.
- 2) If traffic comes unfortunate shortly after
-    the last echo, the planned echo is suppressed.
- 3) Due to the gap, the next echo transmission is delayed
-    until after the timeout, which is set hard to twice
-    the echo interval.
+When filling the xattr buffer ceph_listxattr() checks VXATTR_FLAG_HIDDEN
+and vxattr.exists_cb(). If both are false, we return an incorrect
+(oversize) length.
 
-This is fixed by changing the timeouts from 2 to three times the echo interval.
+Fix this behaviour by always calculating the vxattrs length at runtime,
+taking both vxattr.hidden and vxattr.exists_cb() into account.
 
-Detailed description of the bug: https://lutz.donnerhacke.de/eng/Blog/Groundhog-Day-with-SMB-remount
+This bug is only exposed with the new "ceph.snap.btime" vxattr, as all
+other vxattrs with a non-null exists_cb also carry VXATTR_FLAG_HIDDEN.
 
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: David Disseldorp <ddiss@suse.de>
+Reviewed-by: "Yan, Zheng" <zyan@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/ceph/xattr.c | 54 +++++++++++++++++++++++++++----------------------
+ 1 file changed, 30 insertions(+), 24 deletions(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 8dd6637a3cbb..0872188ce3c6 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -706,10 +706,10 @@ static bool
- server_unresponsive(struct TCP_Server_Info *server)
- {
- 	/*
--	 * We need to wait 2 echo intervals to make sure we handle such
-+	 * We need to wait 3 echo intervals to make sure we handle such
- 	 * situations right:
- 	 * 1s  client sends a normal SMB request
--	 * 2s  client gets a response
-+	 * 3s  client gets a response
- 	 * 30s echo workqueue job pops, and decides we got a response recently
- 	 *     and don't need to send another
- 	 * ...
-@@ -718,9 +718,9 @@ server_unresponsive(struct TCP_Server_Info *server)
- 	 */
- 	if ((server->tcpStatus == CifsGood ||
- 	    server->tcpStatus == CifsNeedNegotiate) &&
--	    time_after(jiffies, server->lstrp + 2 * server->echo_interval)) {
-+	    time_after(jiffies, server->lstrp + 3 * server->echo_interval)) {
- 		cifs_dbg(VFS, "Server %s has not responded in %lu seconds. Reconnecting...\n",
--			 server->hostname, (2 * server->echo_interval) / HZ);
-+			 server->hostname, (3 * server->echo_interval) / HZ);
- 		cifs_reconnect(server);
- 		wake_up(&server->response_q);
- 		return true;
+diff --git a/fs/ceph/xattr.c b/fs/ceph/xattr.c
+index 0cc42c8879e9..b9df49e13d9c 100644
+--- a/fs/ceph/xattr.c
++++ b/fs/ceph/xattr.c
+@@ -897,10 +897,9 @@ ssize_t ceph_listxattr(struct dentry *dentry, char *names, size_t size)
+ 	struct inode *inode = d_inode(dentry);
+ 	struct ceph_inode_info *ci = ceph_inode(inode);
+ 	struct ceph_vxattr *vxattrs = ceph_inode_vxattrs(inode);
+-	u32 vir_namelen = 0;
++	bool len_only = (size == 0);
+ 	u32 namelen;
+ 	int err;
+-	u32 len;
+ 	int i;
+ 
+ 	spin_lock(&ci->i_ceph_lock);
+@@ -919,38 +918,45 @@ ssize_t ceph_listxattr(struct dentry *dentry, char *names, size_t size)
+ 	err = __build_xattrs(inode);
+ 	if (err < 0)
+ 		goto out;
+-	/*
+-	 * Start with virtual dir xattr names (if any) (including
+-	 * terminating '\0' characters for each).
+-	 */
+-	vir_namelen = ceph_vxattrs_name_size(vxattrs);
+ 
+-	/* adding 1 byte per each variable due to the null termination */
++	/* add 1 byte for each xattr due to the null termination */
+ 	namelen = ci->i_xattrs.names_size + ci->i_xattrs.count;
+-	err = -ERANGE;
+-	if (size && vir_namelen + namelen > size)
+-		goto out;
+-
+-	err = namelen + vir_namelen;
+-	if (size == 0)
+-		goto out;
++	if (!len_only) {
++		if (namelen > size) {
++			err = -ERANGE;
++			goto out;
++		}
++		names = __copy_xattr_names(ci, names);
++		size -= namelen;
++	}
+ 
+-	names = __copy_xattr_names(ci, names);
+ 
+ 	/* virtual xattr names, too */
+-	err = namelen;
+ 	if (vxattrs) {
+ 		for (i = 0; vxattrs[i].name; i++) {
+-			if (!(vxattrs[i].flags & VXATTR_FLAG_HIDDEN) &&
+-			    !(vxattrs[i].exists_cb &&
+-			      !vxattrs[i].exists_cb(ci))) {
+-				len = sprintf(names, "%s", vxattrs[i].name);
+-				names += len + 1;
+-				err += len + 1;
++			size_t this_len;
++
++			if (vxattrs[i].flags & VXATTR_FLAG_HIDDEN)
++				continue;
++			if (vxattrs[i].exists_cb && !vxattrs[i].exists_cb(ci))
++				continue;
++
++			this_len = strlen(vxattrs[i].name) + 1;
++			namelen += this_len;
++			if (len_only)
++				continue;
++
++			if (this_len > size) {
++				err = -ERANGE;
++				goto out;
+ 			}
++
++			memcpy(names, vxattrs[i].name, this_len);
++			names += this_len;
++			size -= this_len;
+ 		}
+ 	}
+-
++	err = namelen;
+ out:
+ 	spin_unlock(&ci->i_ceph_lock);
+ 	return err;
 -- 
 2.20.1
 
