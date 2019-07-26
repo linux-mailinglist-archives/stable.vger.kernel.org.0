@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1970376A64
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:58:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65C3076A6B
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:58:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727721AbfGZNkl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727171AbfGZNkl (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 26 Jul 2019 09:40:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46760 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387512AbfGZNkh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:40:37 -0400
+        id S2387507AbfGZNkj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:40:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF52322BE8;
-        Fri, 26 Jul 2019 13:40:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF14C22CB9;
+        Fri, 26 Jul 2019 13:40:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148436;
-        bh=kNoMF9+Fdf7r8iUMfcif+NeJblciIOS13GV/ZPm1khU=;
+        s=default; t=1564148438;
+        bh=7RAidGglI7aphPYIWI0gFIpx2fMV/LHZrmurjZTT1Aw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QVv1aSsgRlm00f38XptmrQlIObeQTpfyRTCGagu3JxJiuyanmwHVkhydH1T5rxhSt
-         Z1FRm4Xtg0/ULhPyN7lyR8mX12vTdwghXUE6SLUv45jKgyfVumC2ibE5mamQ1Kt4OZ
-         AGWJ5p0YPCuoEiQeMQFhS5znGBbtNGTMJ30oVwpI=
+        b=TNrErPOUvGYQSamwaZvsRstU7CwjjeTtp0IyuRato71abI643fMQ73y/pFdsPd0zp
+         XbKI4xasLHVs+ppzmqq9F+XjmbgnVlJCys0FT3wQmht1JgyWoPtdmkB5RublzNNWAG
+         RNlZ1lnbFqcXMXm4NsZ4dEbvGizevykJeQJ+Gf+Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benjamin Block <bblock@linux.ibm.com>,
-        Jens Remus <jremus@linux.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 38/85] scsi: zfcp: fix GCC compiler warning emitted with -Wmaybe-uninitialized
-Date:   Fri, 26 Jul 2019 09:38:48 -0400
-Message-Id: <20190726133936.11177-38-sashal@kernel.org>
+Cc:     Ilya Leoshkevich <iii@linux.ibm.com>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.2 39/85] selftests/bpf: do not ignore clang failures
+Date:   Fri, 26 Jul 2019 09:38:49 -0400
+Message-Id: <20190726133936.11177-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
 References: <20190726133936.11177-1-sashal@kernel.org>
@@ -45,116 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Block <bblock@linux.ibm.com>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit 484647088826f2f651acbda6bcf9536b8a466703 ]
+[ Upstream commit 9cae4ace80ef39005da106fbb89c952b27d7b89e ]
 
-GCC v9 emits this warning:
-      CC      drivers/s390/scsi/zfcp_erp.o
-    drivers/s390/scsi/zfcp_erp.c: In function 'zfcp_erp_action_enqueue':
-    drivers/s390/scsi/zfcp_erp.c:217:26: warning: 'erp_action' may be used uninitialized in this function [-Wmaybe-uninitialized]
-      217 |  struct zfcp_erp_action *erp_action;
-          |                          ^~~~~~~~~~
+When compiling an eBPF prog fails, make still returns 0, because
+failing clang command's output is piped to llc and therefore its
+exit status is ignored.
 
-This is a possible false positive case, as also documented in the GCC
-documentations:
-    https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wmaybe-uninitialized
+When clang fails, pipe the string "clang failed" to llc. This will make
+llc fail with an informative error message. This solution was chosen
+over using pipefail, having separate targets or getting rid of llc
+invocation due to its simplicity.
 
-The actual code-sequence is like this:
-    Various callers can invoke the function below with the argument "want"
-    being one of:
-    ZFCP_ERP_ACTION_REOPEN_ADAPTER,
-    ZFCP_ERP_ACTION_REOPEN_PORT_FORCED,
-    ZFCP_ERP_ACTION_REOPEN_PORT, or
-    ZFCP_ERP_ACTION_REOPEN_LUN.
+In addition, pull Kbuild.include in order to get .DELETE_ON_ERROR target,
+which would cause partial .o files to be removed.
 
-    zfcp_erp_action_enqueue(want, ...)
-        ...
-        need = zfcp_erp_required_act(want, ...)
-            need = want
-            ...
-            maybe: need = ZFCP_ERP_ACTION_REOPEN_PORT
-            maybe: need = ZFCP_ERP_ACTION_REOPEN_ADAPTER
-            ...
-            return need
-        ...
-        zfcp_erp_setup_act(need, ...)
-            struct zfcp_erp_action *erp_action; // <== line 217
-            ...
-            switch(need) {
-            case ZFCP_ERP_ACTION_REOPEN_LUN:
-                    ...
-                    erp_action = &zfcp_sdev->erp_action;
-                    WARN_ON_ONCE(erp_action->port != port); // <== access
-                    ...
-                    break;
-            case ZFCP_ERP_ACTION_REOPEN_PORT:
-            case ZFCP_ERP_ACTION_REOPEN_PORT_FORCED:
-                    ...
-                    erp_action = &port->erp_action;
-                    WARN_ON_ONCE(erp_action->port != port); // <== access
-                    ...
-                    break;
-            case ZFCP_ERP_ACTION_REOPEN_ADAPTER:
-                    ...
-                    erp_action = &adapter->erp_action;
-                    WARN_ON_ONCE(erp_action->port != NULL); // <== access
-                    ...
-                    break;
-            }
-            ...
-            WARN_ON_ONCE(erp_action->adapter != adapter); // <== access
-
-When zfcp_erp_setup_act() is called, 'need' will never be anything else
-than one of the 4 possible enumeration-names that are used in the
-switch-case, and 'erp_action' is initialized for every one of them, before
-it is used. Thus the warning is a false positive, as documented.
-
-We introduce the extra if{} in the beginning to create an extra code-flow,
-so the compiler can be convinced that the switch-case will never see any
-other value.
-
-BUG_ON()/BUG() is intentionally not used to not crash anything, should
-this ever happen anyway - right now it's impossible, as argued above; and
-it doesn't introduce a 'default:' switch-case to retain warnings should
-'enum zfcp_erp_act_type' ever be extended and no explicit case be
-introduced. See also v5.0 commit 399b6c8bc9f7 ("scsi: zfcp: drop old
-default switch case which might paper over missing case").
-
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Reviewed-by: Steffen Maier <maier@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/scsi/zfcp_erp.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ tools/testing/selftests/bpf/Makefile | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
-index e8fc28dba8df..96f0d34e9459 100644
---- a/drivers/s390/scsi/zfcp_erp.c
-+++ b/drivers/s390/scsi/zfcp_erp.c
-@@ -11,6 +11,7 @@
- #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
+index e36356e2377e..e375f399b7a6 100644
+--- a/tools/testing/selftests/bpf/Makefile
++++ b/tools/testing/selftests/bpf/Makefile
+@@ -1,4 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0
++include ../../../../scripts/Kbuild.include
  
- #include <linux/kthread.h>
-+#include <linux/bug.h>
- #include "zfcp_ext.h"
- #include "zfcp_reqlist.h"
+ LIBDIR := ../../../lib
+ BPFDIR := $(LIBDIR)/bpf
+@@ -185,8 +186,8 @@ $(ALU32_BUILD_DIR)/test_progs_32: prog_tests/*.c
  
-@@ -217,6 +218,12 @@ static struct zfcp_erp_action *zfcp_erp_setup_act(enum zfcp_erp_act_type need,
- 	struct zfcp_erp_action *erp_action;
- 	struct zfcp_scsi_dev *zfcp_sdev;
+ $(ALU32_BUILD_DIR)/%.o: progs/%.c $(ALU32_BUILD_DIR) \
+ 					$(ALU32_BUILD_DIR)/test_progs_32
+-	$(CLANG) $(CLANG_FLAGS) \
+-		 -O2 -target bpf -emit-llvm -c $< -o - |      \
++	($(CLANG) $(CLANG_FLAGS) -O2 -target bpf -emit-llvm -c $< -o - || \
++		echo "clang failed") | \
+ 	$(LLC) -march=bpf -mattr=+alu32 -mcpu=$(CPU) $(LLC_FLAGS) \
+ 		-filetype=obj -o $@
+ ifeq ($(DWARF2BTF),y)
+@@ -197,16 +198,16 @@ endif
+ # Have one program compiled without "-target bpf" to test whether libbpf loads
+ # it successfully
+ $(OUTPUT)/test_xdp.o: progs/test_xdp.c
+-	$(CLANG) $(CLANG_FLAGS) \
+-		-O2 -emit-llvm -c $< -o - | \
++	($(CLANG) $(CLANG_FLAGS) -O2 -emit-llvm -c $< -o - || \
++		echo "clang failed") | \
+ 	$(LLC) -march=bpf -mcpu=$(CPU) $(LLC_FLAGS) -filetype=obj -o $@
+ ifeq ($(DWARF2BTF),y)
+ 	$(BTF_PAHOLE) -J $@
+ endif
  
-+	if (WARN_ON_ONCE(need != ZFCP_ERP_ACTION_REOPEN_LUN &&
-+			 need != ZFCP_ERP_ACTION_REOPEN_PORT &&
-+			 need != ZFCP_ERP_ACTION_REOPEN_PORT_FORCED &&
-+			 need != ZFCP_ERP_ACTION_REOPEN_ADAPTER))
-+		return NULL;
-+
- 	switch (need) {
- 	case ZFCP_ERP_ACTION_REOPEN_LUN:
- 		zfcp_sdev = sdev_to_zfcp(sdev);
+ $(OUTPUT)/%.o: progs/%.c
+-	$(CLANG) $(CLANG_FLAGS) \
+-		 -O2 -target bpf -emit-llvm -c $< -o - |      \
++	($(CLANG) $(CLANG_FLAGS) -O2 -target bpf -emit-llvm -c $< -o - || \
++		echo "clang failed") | \
+ 	$(LLC) -march=bpf -mcpu=$(CPU) $(LLC_FLAGS) -filetype=obj -o $@
+ ifeq ($(DWARF2BTF),y)
+ 	$(BTF_PAHOLE) -J $@
 -- 
 2.20.1
 
