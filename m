@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BA3276DD4
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:37:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13F7476DA3
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:35:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387842AbfGZPg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:36:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45364 "EHLO mail.kernel.org"
+        id S2387440AbfGZPcY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:32:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388315AbfGZPa2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:30:28 -0400
+        id S2389460AbfGZPcX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:32:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17D5E205F4;
-        Fri, 26 Jul 2019 15:30:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0509120644;
+        Fri, 26 Jul 2019 15:32:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564155027;
-        bh=YFQL1Pzr8VccqE6s74auw0DJ9yQhIgPRYDfdxRobNmY=;
+        s=default; t=1564155142;
+        bh=sgiH1nr+fxCZQp0g+9HvvoCks0KuNYIZ5VeqiQlyx5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j5uF4zVyA6lrj4Y2boD1Eu7Y4DMKhj+49sXDHJuuJ1LppRPYIKlTiCTIGSPGb7vDg
-         5HnEPA8JaiBujLkdnu2mAfEt8apgtZTBAhPRkDPLkP66rb4K4fcdTcaygG3HBLErSR
-         NCOyeIzaR8B5irRt6WPJdWNtlZ1I283PYB9fAZIk=
+        b=IOxTWWCBEumbWDBDtThQiKs4GRMrpi7m/I/OiCOcZ20Agc2jfwee/e8R+8A7XFN1e
+         lIaN8FIKcjMQUUlTV84O4l2wJISqP7L4qvC568vk7Hf/eCZjYtNLjcE4AemxxwnPDy
+         OG/csF82MP2/AZ0a4HlgwsatWQK1f+P1414gSAI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.1 40/62] net/mlx5e: Rx, Fix checksum calculation for new hardware
+        stable@vger.kernel.org,
+        syzbot+7966f2a0b2c7da8939b4@syzkaller.appspotmail.com,
+        David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 17/50] rxrpc: Fix send on a connected, but unbound socket
 Date:   Fri, 26 Jul 2019 17:24:52 +0200
-Message-Id: <20190726152306.179800031@linuxfoundation.org>
+Message-Id: <20190726152302.332604716@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
-References: <20190726152301.720139286@linuxfoundation.org>
+In-Reply-To: <20190726152300.760439618@linuxfoundation.org>
+References: <20190726152300.760439618@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,86 +46,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saeed Mahameed <saeedm@mellanox.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit db849faa9bef993a1379dc510623f750a72fa7ce ]
+[ Upstream commit e835ada07091f40dcfb1bc735082bd0a7c005e59 ]
 
-CQE checksum full mode in new HW, provides a full checksum of rx frame.
-Covering bytes starting from eth protocol up to last byte in the received
-frame (frame_size - ETH_HLEN), as expected by the stack.
+If sendmsg() or sendmmsg() is called on a connected socket that hasn't had
+bind() called on it, then an oops will occur when the kernel tries to
+connect the call because no local endpoint has been allocated.
 
-Fixing up skb->csum by the driver is not required in such case. This fix
-is to avoid wrong checksum calculation in drivers which already support
-the new hardware with the new checksum mode.
+Fix this by implicitly binding the socket if it is in the
+RXRPC_CLIENT_UNBOUND state, just like it does for the RXRPC_UNBOUND state.
 
-Fixes: 85327a9c4150 ("net/mlx5: Update the list of the PCI supported devices")
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Further, the state should be transitioned to RXRPC_CLIENT_BOUND after this
+to prevent further attempts to bind it.
+
+This can be tested with:
+
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <string.h>
+	#include <sys/socket.h>
+	#include <arpa/inet.h>
+	#include <linux/rxrpc.h>
+	static const unsigned char inet6_addr[16] = {
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0xac, 0x14, 0x14, 0xaa
+	};
+	int main(void)
+	{
+		struct sockaddr_rxrpc srx;
+		struct cmsghdr *cm;
+		struct msghdr msg;
+		unsigned char control[16];
+		int fd;
+		memset(&srx, 0, sizeof(srx));
+		srx.srx_family = 0x21;
+		srx.srx_service = 0;
+		srx.transport_type = AF_INET;
+		srx.transport_len = 0x1c;
+		srx.transport.sin6.sin6_family = AF_INET6;
+		srx.transport.sin6.sin6_port = htons(0x4e22);
+		srx.transport.sin6.sin6_flowinfo = htons(0x4e22);
+		srx.transport.sin6.sin6_scope_id = htons(0xaa3b);
+		memcpy(&srx.transport.sin6.sin6_addr, inet6_addr, 16);
+		cm = (struct cmsghdr *)control;
+		cm->cmsg_len	= CMSG_LEN(sizeof(unsigned long));
+		cm->cmsg_level	= SOL_RXRPC;
+		cm->cmsg_type	= RXRPC_USER_CALL_ID;
+		*(unsigned long *)CMSG_DATA(cm) = 0;
+		msg.msg_name = NULL;
+		msg.msg_namelen = 0;
+		msg.msg_iov = NULL;
+		msg.msg_iovlen = 0;
+		msg.msg_control = control;
+		msg.msg_controllen = cm->cmsg_len;
+		msg.msg_flags = 0;
+		fd = socket(AF_RXRPC, SOCK_DGRAM, AF_INET);
+		connect(fd, (struct sockaddr *)&srx, sizeof(srx));
+		sendmsg(fd, &msg, 0);
+		return 0;
+	}
+
+Leading to the following oops:
+
+	BUG: kernel NULL pointer dereference, address: 0000000000000018
+	#PF: supervisor read access in kernel mode
+	#PF: error_code(0x0000) - not-present page
+	...
+	RIP: 0010:rxrpc_connect_call+0x42/0xa01
+	...
+	Call Trace:
+	 ? mark_held_locks+0x47/0x59
+	 ? __local_bh_enable_ip+0xb6/0xba
+	 rxrpc_new_client_call+0x3b1/0x762
+	 ? rxrpc_do_sendmsg+0x3c0/0x92e
+	 rxrpc_do_sendmsg+0x3c0/0x92e
+	 rxrpc_sendmsg+0x16b/0x1b5
+	 sock_sendmsg+0x2d/0x39
+	 ___sys_sendmsg+0x1a4/0x22a
+	 ? release_sock+0x19/0x9e
+	 ? reacquire_held_locks+0x136/0x160
+	 ? release_sock+0x19/0x9e
+	 ? find_held_lock+0x2b/0x6e
+	 ? __lock_acquire+0x268/0xf73
+	 ? rxrpc_connect+0xdd/0xe4
+	 ? __local_bh_enable_ip+0xb6/0xba
+	 __sys_sendmsg+0x5e/0x94
+	 do_syscall_64+0x7d/0x1bf
+	 entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Fixes: 2341e0775747 ("rxrpc: Simplify connect() implementation and simplify sendmsg() op")
+Reported-by: syzbot+7966f2a0b2c7da8939b4@syzkaller.appspotmail.com
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en.h      |    1 +
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c |    3 +++
- drivers/net/ethernet/mellanox/mlx5/core/en_rx.c   |    7 ++++++-
- include/linux/mlx5/mlx5_ifc.h                     |    3 ++-
- 4 files changed, 12 insertions(+), 2 deletions(-)
+ net/rxrpc/af_rxrpc.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-@@ -294,6 +294,7 @@ enum {
- 	MLX5E_RQ_STATE_ENABLED,
- 	MLX5E_RQ_STATE_AM,
- 	MLX5E_RQ_STATE_NO_CSUM_COMPLETE,
-+	MLX5E_RQ_STATE_CSUM_FULL, /* cqe_csum_full hw bit is set */
- };
+--- a/net/rxrpc/af_rxrpc.c
++++ b/net/rxrpc/af_rxrpc.c
+@@ -552,6 +552,7 @@ static int rxrpc_sendmsg(struct socket *
  
- struct mlx5e_cq {
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -948,6 +948,9 @@ static int mlx5e_open_rq(struct mlx5e_ch
- 	if (err)
- 		goto err_destroy_rq;
+ 	switch (rx->sk.sk_state) {
+ 	case RXRPC_UNBOUND:
++	case RXRPC_CLIENT_UNBOUND:
+ 		rx->srx.srx_family = AF_RXRPC;
+ 		rx->srx.srx_service = 0;
+ 		rx->srx.transport_type = SOCK_DGRAM;
+@@ -576,10 +577,9 @@ static int rxrpc_sendmsg(struct socket *
+ 		}
  
-+	if (MLX5_CAP_ETH(c->mdev, cqe_checksum_full))
-+		__set_bit(MLX5E_RQ_STATE_CSUM_FULL, &c->rq.state);
-+
- 	if (params->rx_dim_enabled)
- 		__set_bit(MLX5E_RQ_STATE_AM, &c->rq.state);
+ 		rx->local = local;
+-		rx->sk.sk_state = RXRPC_CLIENT_UNBOUND;
++		rx->sk.sk_state = RXRPC_CLIENT_BOUND;
+ 		/* Fall through */
  
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
-@@ -829,8 +829,14 @@ static inline void mlx5e_handle_csum(str
- 		if (unlikely(get_ip_proto(skb, network_depth, proto) == IPPROTO_SCTP))
- 			goto csum_unnecessary;
- 
-+		stats->csum_complete++;
- 		skb->ip_summed = CHECKSUM_COMPLETE;
- 		skb->csum = csum_unfold((__force __sum16)cqe->check_sum);
-+
-+		if (test_bit(MLX5E_RQ_STATE_CSUM_FULL, &rq->state))
-+			return; /* CQE csum covers all received bytes */
-+
-+		/* csum might need some fixups ...*/
- 		if (network_depth > ETH_HLEN)
- 			/* CQE csum is calculated from the IP header and does
- 			 * not cover VLAN headers (if present). This will add
-@@ -841,7 +847,6 @@ static inline void mlx5e_handle_csum(str
- 						 skb->csum);
- 
- 		mlx5e_skb_padding_csum(skb, network_depth, proto, stats);
--		stats->csum_complete++;
- 		return;
- 	}
- 
---- a/include/linux/mlx5/mlx5_ifc.h
-+++ b/include/linux/mlx5/mlx5_ifc.h
-@@ -716,7 +716,8 @@ struct mlx5_ifc_per_protocol_networking_
- 	u8         swp[0x1];
- 	u8         swp_csum[0x1];
- 	u8         swp_lso[0x1];
--	u8         reserved_at_23[0xd];
-+	u8         cqe_checksum_full[0x1];
-+	u8         reserved_at_24[0xc];
- 	u8         max_vxlan_udp_ports[0x8];
- 	u8         reserved_at_38[0x6];
- 	u8         max_geneve_opt_len[0x1];
+-	case RXRPC_CLIENT_UNBOUND:
+ 	case RXRPC_CLIENT_BOUND:
+ 		if (!m->msg_name &&
+ 		    test_bit(RXRPC_SOCK_CONNECTED, &rx->flags)) {
 
 
