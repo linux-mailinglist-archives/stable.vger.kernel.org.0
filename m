@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0167F76E10
+	by mail.lfdr.de (Postfix) with ESMTP id 6B19276E11
 	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:40:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388221AbfGZP3K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:29:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43770 "EHLO mail.kernel.org"
+        id S2388700AbfGZP3N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:29:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388700AbfGZP3J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:29:09 -0400
+        id S2388716AbfGZP3N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:29:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87F3C22CE3;
-        Fri, 26 Jul 2019 15:29:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9975122C7E;
+        Fri, 26 Jul 2019 15:29:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564154949;
-        bh=fIQ1tvBsKzZe0VqS2TJLDE2ghzzJtvBo2bMd4yvsqbA=;
+        s=default; t=1564154952;
+        bh=Vl2JczSpl5+GItRq7QE1EzCi6nNwpumi/bsx7ruQJJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CE2FcOHSpy4M6q54wn3To2j4StGIxDr+NdwiGCoyHYayRPoSkP/aYhPFuSMFF5Rxl
-         dHlLV3685x+fZSvDEsAMP9F0ucCA+O1J2uZlyY5uB5pogpjmPsGwu1L4Lty9zRLeV2
-         HPuqdMUSZrzNumXepfhpBQ/sd7IzaJj1in3OO0sc=
+        b=gkkNu8UcTmUSDqqln+nawLm7bpbrNmw7HUtqEiAgxSMPLAY9e6k7IMVTFXShBGfVw
+         IUgtB6y7U+U4VIUjToo79vgZOIWNok0Y64ygsC5sGenPoRFEUGioH2h+pNSnXPKepn
+         vi8e/6fULtRDiVe7DgtzhcPVzQ3j2EjdhoICFCHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        syzbot+6ca1abd0db68b5173a4f@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, Matteo Croce <mcroce@redhat.com>,
+        David Ahern <dsahern@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 04/62] igmp: fix memory leak in igmpv3_del_delrec()
-Date:   Fri, 26 Jul 2019 17:24:16 +0200
-Message-Id: <20190726152302.163302981@linuxfoundation.org>
+Subject: [PATCH 5.1 05/62] ipv4: dont set IPv6 only flags to IPv4 addresses
+Date:   Fri, 26 Jul 2019 17:24:17 +0200
+Message-Id: <20190726152302.272064176@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
 References: <20190726152301.720139286@linuxfoundation.org>
@@ -45,78 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Matteo Croce <mcroce@redhat.com>
 
-[ Upstream commit e5b1c6c6277d5a283290a8c033c72544746f9b5b ]
+[ Upstream commit 2e60546368165c2449564d71f6005dda9205b5fb ]
 
-im->tomb and/or im->sources might not be NULL, but we
-currently overwrite their values blindly.
+Avoid the situation where an IPV6 only flag is applied to an IPv4 address:
 
-Using swap() will make sure the following call to kfree_pmc(pmc)
-will properly free the psf structures.
+    # ip addr add 192.0.2.1/24 dev dummy0 nodad home mngtmpaddr noprefixroute
+    # ip -4 addr show dev dummy0
+    2: dummy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+        inet 192.0.2.1/24 scope global noprefixroute dummy0
+           valid_lft forever preferred_lft forever
 
-Tested with the C repro provided by syzbot, which basically does :
+Or worse, by sending a malicious netlink command:
 
- socket(PF_INET, SOCK_DGRAM, IPPROTO_IP) = 3
- setsockopt(3, SOL_IP, IP_ADD_MEMBERSHIP, "\340\0\0\2\177\0\0\1\0\0\0\0", 12) = 0
- ioctl(3, SIOCSIFFLAGS, {ifr_name="lo", ifr_flags=0}) = 0
- setsockopt(3, SOL_IP, IP_MSFILTER, "\340\0\0\2\177\0\0\1\1\0\0\0\1\0\0\0\377\377\377\377", 20) = 0
- ioctl(3, SIOCSIFFLAGS, {ifr_name="lo", ifr_flags=IFF_UP}) = 0
- exit_group(0)                    = ?
+    # ip -4 addr show dev dummy0
+    2: dummy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+        inet 192.0.2.1/24 scope global nodad optimistic dadfailed home tentative mngtmpaddr noprefixroute stable-privacy dummy0
+           valid_lft forever preferred_lft forever
 
-BUG: memory leak
-unreferenced object 0xffff88811450f140 (size 64):
-  comm "softirq", pid 0, jiffies 4294942448 (age 32.070s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 ff ff ff ff 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000c7bad083>] kmemleak_alloc_recursive include/linux/kmemleak.h:43 [inline]
-    [<00000000c7bad083>] slab_post_alloc_hook mm/slab.h:439 [inline]
-    [<00000000c7bad083>] slab_alloc mm/slab.c:3326 [inline]
-    [<00000000c7bad083>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
-    [<000000009acc4151>] kmalloc include/linux/slab.h:547 [inline]
-    [<000000009acc4151>] kzalloc include/linux/slab.h:742 [inline]
-    [<000000009acc4151>] ip_mc_add1_src net/ipv4/igmp.c:1976 [inline]
-    [<000000009acc4151>] ip_mc_add_src+0x36b/0x400 net/ipv4/igmp.c:2100
-    [<000000004ac14566>] ip_mc_msfilter+0x22d/0x310 net/ipv4/igmp.c:2484
-    [<0000000052d8f995>] do_ip_setsockopt.isra.0+0x1795/0x1930 net/ipv4/ip_sockglue.c:959
-    [<000000004ee1e21f>] ip_setsockopt+0x3b/0xb0 net/ipv4/ip_sockglue.c:1248
-    [<0000000066cdfe74>] udp_setsockopt+0x4e/0x90 net/ipv4/udp.c:2618
-    [<000000009383a786>] sock_common_setsockopt+0x38/0x50 net/core/sock.c:3126
-    [<00000000d8ac0c94>] __sys_setsockopt+0x98/0x120 net/socket.c:2072
-    [<000000001b1e9666>] __do_sys_setsockopt net/socket.c:2083 [inline]
-    [<000000001b1e9666>] __se_sys_setsockopt net/socket.c:2080 [inline]
-    [<000000001b1e9666>] __x64_sys_setsockopt+0x26/0x30 net/socket.c:2080
-    [<00000000420d395e>] do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:301
-    [<000000007fd83a4b>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: 24803f38a5c0 ("igmp: do not remove igmp souce list info when set link down")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Hangbin Liu <liuhangbin@gmail.com>
-Reported-by: syzbot+6ca1abd0db68b5173a4f@syzkaller.appspotmail.com
+Signed-off-by: Matteo Croce <mcroce@redhat.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/igmp.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ net/ipv4/devinet.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -1232,12 +1232,8 @@ static void igmpv3_del_delrec(struct in_
- 	if (pmc) {
- 		im->interface = pmc->interface;
- 		if (im->sfmode == MCAST_INCLUDE) {
--			im->tomb = pmc->tomb;
--			pmc->tomb = NULL;
--
--			im->sources = pmc->sources;
--			pmc->sources = NULL;
--
-+			swap(im->tomb, pmc->tomb);
-+			swap(im->sources, pmc->sources);
- 			for (psf = im->sources; psf; psf = psf->sf_next)
- 				psf->sf_crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
- 		} else {
+--- a/net/ipv4/devinet.c
++++ b/net/ipv4/devinet.c
+@@ -66,6 +66,11 @@
+ #include <net/net_namespace.h>
+ #include <net/addrconf.h>
+ 
++#define IPV6ONLY_FLAGS	\
++		(IFA_F_NODAD | IFA_F_OPTIMISTIC | IFA_F_DADFAILED | \
++		 IFA_F_HOMEADDRESS | IFA_F_TENTATIVE | \
++		 IFA_F_MANAGETEMPADDR | IFA_F_STABLE_PRIVACY)
++
+ static struct ipv4_devconf ipv4_devconf = {
+ 	.data = {
+ 		[IPV4_DEVCONF_ACCEPT_REDIRECTS - 1] = 1,
+@@ -472,6 +477,9 @@ static int __inet_insert_ifa(struct in_i
+ 	ifa->ifa_flags &= ~IFA_F_SECONDARY;
+ 	last_primary = &in_dev->ifa_list;
+ 
++	/* Don't set IPv6 only flags to IPv4 addresses */
++	ifa->ifa_flags &= ~IPV6ONLY_FLAGS;
++
+ 	for (ifap = &in_dev->ifa_list; (ifa1 = *ifap) != NULL;
+ 	     ifap = &ifa1->ifa_next) {
+ 		if (!(ifa1->ifa_flags & IFA_F_SECONDARY) &&
 
 
