@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A5CB76A0F
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:56:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5262A76A0D
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:56:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387426AbfGZNmH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:42:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49258 "EHLO mail.kernel.org"
+        id S2387850AbfGZNmI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:42:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387418AbfGZNmG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:42:06 -0400
+        id S2387844AbfGZNmI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:42:08 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7EF6F22BF5;
-        Fri, 26 Jul 2019 13:42:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB30C22CD6;
+        Fri, 26 Jul 2019 13:42:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148525;
-        bh=jwyKKrIH0Sb3LUWowXcuRJ297ShxLiOtHjsxfr0bXBQ=;
+        s=default; t=1564148526;
+        bh=bkXd6B9Dqu+zP7vWK3oLVDih/8Ru2rswszj6L1ELQCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pO5aPHJxePB3A5na1SQEVi0ksbB8X4/W0lmianAPdtLFJ4Sapxqu0Upn/899C8v56
-         Bav46PtE7M6gNmUjihALnfKi7vW0dOLYuRYb4W3XW6koCN/BsNes+mGnzobjYKd/fr
-         qj69X3excgIFeu6Hx8XSpCCWm274qB/xugGW6LVs=
+        b=2bwYcYbTzitPeem9Fw4s/Cful/V+/+Uqr5x8vrW97hnQaF1Y38HJpKI+c9OQpUijm
+         DIFD1syjNnXVz/zc/fC4kYCvl8IKjbN9JhCsd6wLJDfg3KC2xTl92vfsarhCrNOPOc
+         Wh2ZgpMm607FNxmod5XRzZcAXuzCDJBTo8Iq9r7k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 82/85] bpf: Disable GCC -fgcse optimization for ___bpf_prog_run()
-Date:   Fri, 26 Jul 2019 09:39:32 -0400
-Message-Id: <20190726133936.11177-82-sashal@kernel.org>
+Cc:     Yongxin Liu <yongxin.liu@windriver.com>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.2 83/85] drm/nouveau: fix memory leak in nouveau_conn_reset()
+Date:   Fri, 26 Jul 2019 09:39:33 -0400
+Message-Id: <20190726133936.11177-83-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
 References: <20190726133936.11177-1-sashal@kernel.org>
@@ -47,110 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Yongxin Liu <yongxin.liu@windriver.com>
 
-[ Upstream commit 3193c0836f203a91bef96d88c64cccf0be090d9c ]
+[ Upstream commit 09b90e2fe35faeace2488234e2a7728f2ea8ba26 ]
 
-On x86-64, with CONFIG_RETPOLINE=n, GCC's "global common subexpression
-elimination" optimization results in ___bpf_prog_run()'s jumptable code
-changing from this:
+In nouveau_conn_reset(), if connector->state is true,
+__drm_atomic_helper_connector_destroy_state() will be called,
+but the memory pointed by asyc isn't freed. Memory leak happens
+in the following function __drm_atomic_helper_connector_reset(),
+where newly allocated asyc->state will be assigned to connector->state.
 
-	select_insn:
-		jmp *jumptable(, %rax, 8)
-		...
-	ALU64_ADD_X:
-		...
-		jmp *jumptable(, %rax, 8)
-	ALU_ADD_X:
-		...
-		jmp *jumptable(, %rax, 8)
+So using nouveau_conn_atomic_destroy_state() instead of
+__drm_atomic_helper_connector_destroy_state to free the "old" asyc.
 
-to this:
+Here the is the log showing memory leak.
 
-	select_insn:
-		mov jumptable, %r12
-		jmp *(%r12, %rax, 8)
-		...
-	ALU64_ADD_X:
-		...
-		jmp *(%r12, %rax, 8)
-	ALU_ADD_X:
-		...
-		jmp *(%r12, %rax, 8)
+unreferenced object 0xffff8c5480483c80 (size 192):
+  comm "kworker/0:2", pid 188, jiffies 4294695279 (age 53.179s)
+  hex dump (first 32 bytes):
+    00 f0 ba 7b 54 8c ff ff 00 00 00 00 00 00 00 00  ...{T...........
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<000000005005c0d0>] kmem_cache_alloc_trace+0x195/0x2c0
+    [<00000000a122baed>] nouveau_conn_reset+0x25/0xc0 [nouveau]
+    [<000000004fd189a2>] nouveau_connector_create+0x3a7/0x610 [nouveau]
+    [<00000000c73343a8>] nv50_display_create+0x343/0x980 [nouveau]
+    [<000000002e2b03c3>] nouveau_display_create+0x51f/0x660 [nouveau]
+    [<00000000c924699b>] nouveau_drm_device_init+0x182/0x7f0 [nouveau]
+    [<00000000cc029436>] nouveau_drm_probe+0x20c/0x2c0 [nouveau]
+    [<000000007e961c3e>] local_pci_probe+0x47/0xa0
+    [<00000000da14d569>] work_for_cpu_fn+0x1a/0x30
+    [<0000000028da4805>] process_one_work+0x27c/0x660
+    [<000000001d415b04>] worker_thread+0x22b/0x3f0
+    [<0000000003b69f1f>] kthread+0x12f/0x150
+    [<00000000c94c29b7>] ret_from_fork+0x3a/0x50
 
-The jumptable address is placed in a register once, at the beginning of
-the function.  The function execution can then go through multiple
-indirect jumps which rely on that same register value.  This has a few
-issues:
-
-1) Objtool isn't smart enough to be able to track such a register value
-   across multiple recursive indirect jumps through the jump table.
-
-2) With CONFIG_RETPOLINE enabled, this optimization actually results in
-   a small slowdown.  I measured a ~4.7% slowdown in the test_bpf
-   "tcpdump port 22" selftest.
-
-   This slowdown is actually predicted by the GCC manual:
-
-     Note: When compiling a program using computed gotos, a GCC
-     extension, you may get better run-time performance if you
-     disable the global common subexpression elimination pass by
-     adding -fno-gcse to the command line.
-
-So just disable the optimization for this function.
-
-Fixes: e55a73251da3 ("bpf: Fix ORC unwinding in non-JIT BPF code")
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/30c3ca29ba037afcbd860a8672eef0021addf9fe.1563413318.git.jpoimboe@redhat.com
+Signed-off-by: Yongxin Liu <yongxin.liu@windriver.com>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/compiler-gcc.h   | 2 ++
- include/linux/compiler_types.h | 4 ++++
- kernel/bpf/core.c              | 2 +-
- 3 files changed, 7 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nouveau_connector.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
-index e8579412ad21..d7ee4c6bad48 100644
---- a/include/linux/compiler-gcc.h
-+++ b/include/linux/compiler-gcc.h
-@@ -170,3 +170,5 @@
- #else
- #define __diag_GCC_8(s)
- #endif
-+
-+#define __no_fgcse __attribute__((optimize("-fno-gcse")))
-diff --git a/include/linux/compiler_types.h b/include/linux/compiler_types.h
-index 19e58b9138a0..0454d82f8bd8 100644
---- a/include/linux/compiler_types.h
-+++ b/include/linux/compiler_types.h
-@@ -187,6 +187,10 @@ struct ftrace_likely_data {
- #define asm_volatile_goto(x...) asm goto(x)
- #endif
+diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.c b/drivers/gpu/drm/nouveau/nouveau_connector.c
+index 4116ee62adaf..f69ff22beee0 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_connector.c
++++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
+@@ -252,7 +252,7 @@ nouveau_conn_reset(struct drm_connector *connector)
+ 		return;
  
-+#ifndef __no_fgcse
-+# define __no_fgcse
-+#endif
-+
- /* Are two types/vars the same type (ignoring qualifiers)? */
- #define __same_type(a, b) __builtin_types_compatible_p(typeof(a), typeof(b))
- 
-diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
-index 080e2bb644cc..ebfd189916dc 100644
---- a/kernel/bpf/core.c
-+++ b/kernel/bpf/core.c
-@@ -1295,7 +1295,7 @@ bool bpf_opcode_in_insntable(u8 code)
-  *
-  * Decode and execute eBPF instructions.
-  */
--static u64 ___bpf_prog_run(u64 *regs, const struct bpf_insn *insn, u64 *stack)
-+static u64 __no_fgcse ___bpf_prog_run(u64 *regs, const struct bpf_insn *insn, u64 *stack)
- {
- #define BPF_INSN_2_LBL(x, y)    [BPF_##x | BPF_##y] = &&x##_##y
- #define BPF_INSN_3_LBL(x, y, z) [BPF_##x | BPF_##y | BPF_##z] = &&x##_##y##_##z
+ 	if (connector->state)
+-		__drm_atomic_helper_connector_destroy_state(connector->state);
++		nouveau_conn_atomic_destroy_state(connector, connector->state);
+ 	__drm_atomic_helper_connector_reset(connector, &asyc->state);
+ 	asyc->dither.mode = DITHERING_MODE_AUTO;
+ 	asyc->dither.depth = DITHERING_DEPTH_AUTO;
 -- 
 2.20.1
 
