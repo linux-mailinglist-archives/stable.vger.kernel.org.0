@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9426A76D9B
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:35:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E26C576D1F
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:31:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389113AbfGZPcm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:32:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47924 "EHLO mail.kernel.org"
+        id S2389145AbfGZPaq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:30:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387859AbfGZPcl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:32:41 -0400
+        id S2389142AbfGZPaq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:30:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5CD0B218D4;
-        Fri, 26 Jul 2019 15:32:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BEFE622BF5;
+        Fri, 26 Jul 2019 15:30:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564155160;
-        bh=ilr3yYVnfkadw0BIMkVASEXZzFIXHCS7okPRCA9hKv8=;
+        s=default; t=1564155046;
+        bh=Zk3VFGdLnxj6L7eRlPZ1f8TcfgA404w4coNzKazCWhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RUXfDANOkmcytADa0VJb46cFhKerjXltrkW3EkSSNDWaKWJT4Vg4wMIezkxGbNLka
-         fK9EXUG/YnX+gB7bfHiyzqQe4ygwo+q2vS0x3ux0bUiTZmDUccB7qrMYAMjUB0oxhD
-         y21dZ52kYkWHqGVNSD3Gv5UbM702xY61bTH4cRFg=
+        b=n8U2yBeNp5N56sDDURvLEmrQ3MblhBk5WvueoFPokPHqGX7aawDmHX/FPVGol/tPn
+         NZKaKvzzZ1hPqAp//KLEblycVdzzgSl15b/HmkPno3E0ZDCU6hddvoq6bApSnRep4h
+         Q1tetQq/CixYhorWATzaPxEjUxwiM8V5XNPzjn5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Christoph Paasch <cpaasch@apple.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 22/50] tcp: Reset bytes_acked and bytes_received when disconnecting
+        stable@vger.kernel.org, Nishka Dasgupta <nishkadg.linux@gmail.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 5.1 45/62] gpiolib: of: fix a memory leak in of_gpio_flags_quirks()
 Date:   Fri, 26 Jul 2019 17:24:57 +0200
-Message-Id: <20190726152302.854207423@linuxfoundation.org>
+Message-Id: <20190726152306.727590027@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190726152300.760439618@linuxfoundation.org>
-References: <20190726152300.760439618@linuxfoundation.org>
+In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
+References: <20190726152301.720139286@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Paasch <cpaasch@apple.com>
+From: Nishka Dasgupta <nishkadg.linux@gmail.com>
 
-[ Upstream commit e858faf556d4e14c750ba1e8852783c6f9520a0e ]
+commit 89fea04c85e85f21ef4937611055abce82330d48 upstream.
 
-If an app is playing tricks to reuse a socket via tcp_disconnect(),
-bytes_acked/received needs to be reset to 0. Otherwise tcp_info will
-report the sum of the current and the old connection..
+Each iteration of for_each_child_of_node puts the previous node, but in
+the case of a break from the middle of the loop, there is no put, thus
+causing a memory leak. Hence add an of_node_put before the break.
+Issue found with Coccinelle.
 
-Cc: Eric Dumazet <edumazet@google.com>
-Fixes: 0df48c26d841 ("tcp: add tcpi_bytes_acked to tcp_info")
-Fixes: bdd1f9edacb5 ("tcp: add tcpi_bytes_received to tcp_info")
-Signed-off-by: Christoph Paasch <cpaasch@apple.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Nishka Dasgupta <nishkadg.linux@gmail.com>
+[Bartosz: tweaked the commit message]
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/tcp.c |    2 ++
- 1 file changed, 2 insertions(+)
 
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -2594,6 +2594,8 @@ int tcp_disconnect(struct sock *sk, int
- 	tcp_saved_syn_free(tp);
- 	tp->compressed_ack = 0;
- 	tp->bytes_sent = 0;
-+	tp->bytes_acked = 0;
-+	tp->bytes_received = 0;
- 	tp->bytes_retrans = 0;
- 	tp->dsack_dups = 0;
- 	tp->reord_seen = 0;
+---
+ drivers/gpio/gpiolib-of.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/gpio/gpiolib-of.c
++++ b/drivers/gpio/gpiolib-of.c
+@@ -155,6 +155,7 @@ static void of_gpio_flags_quirks(struct
+ 							of_node_full_name(child));
+ 					*flags |= OF_GPIO_ACTIVE_LOW;
+ 				}
++				of_node_put(child);
+ 				break;
+ 			}
+ 		}
 
 
