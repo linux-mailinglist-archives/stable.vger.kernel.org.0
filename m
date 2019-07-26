@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41E5D7682D
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:42:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 761F276833
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:43:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388051AbfGZNmt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:42:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50168 "EHLO mail.kernel.org"
+        id S2388135AbfGZNnH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:43:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388047AbfGZNmt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:42:49 -0400
+        id S2388130AbfGZNnG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:43:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D88022CBF;
-        Fri, 26 Jul 2019 13:42:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A4A822BF5;
+        Fri, 26 Jul 2019 13:43:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148569;
-        bh=xcrPwqvyu0V0LBKurqlo82+0cYsgFDQ2imAbyZfWuw4=;
+        s=default; t=1564148585;
+        bh=YfDo/63lxPW0sH2O9DcR7uvSG7t0vwBN3OKd1Ls/sr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I45MlmzvuS/OTGHy2Glg2oyMXykjiqtIN8s2Md0kix+L2OzrkuobjqrCgPLtnqxak
-         S6Qte4rwe/hdcloO5XS+nUQ2GHaEOhDb7TlhoP0HmzUALSv7C2WoCQ3EBoc8Ky8YgC
-         mjiXq+y2a6oKswJAb0ppCwfqLo6HV538wiYn8ELA=
+        b=kOjKPC2cNvhvr1IU9Gp8xDqln9D4XZzzRS9W61dYioa0PTpYu4zJgg04TS24pTD/p
+         nvKKZ6141Yh5BG7D5wSheIKDlaujnKbmbj5FMwfdmvrmfg6e4hriU/SQ+59PxPne39
+         FyB73b9zt+yLyuREzsIL+8zDa81irleL1fl76K9Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 24/47] x86: kvm: avoid constant-conversion warning
-Date:   Fri, 26 Jul 2019 09:41:47 -0400
-Message-Id: <20190726134210.12156-24-sashal@kernel.org>
+Cc:     Peter Rosin <peda@axentia.se>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 32/47] lib/test_string.c: avoid masking memset16/32/64 failures
+Date:   Fri, 26 Jul 2019 09:41:55 -0400
+Message-Id: <20190726134210.12156-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726134210.12156-1-sashal@kernel.org>
 References: <20190726134210.12156-1-sashal@kernel.org>
@@ -43,53 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Peter Rosin <peda@axentia.se>
 
-[ Upstream commit a6a6d3b1f867d34ba5bd61aa7bb056b48ca67cff ]
+[ Upstream commit 33d6e0ff68af74be0c846c8e042e84a9a1a0561e ]
 
-clang finds a contruct suspicious that converts an unsigned
-character to a signed integer and back, causing an overflow:
+If a memsetXX implementation is completely broken and fails in the first
+iteration, when i, j, and k are all zero, the failure is masked as zero
+is returned.  Failing in the first iteration is perhaps the most likely
+failure, so this makes the tests pretty much useless.  Avoid the
+situation by always setting a random unused bit in the result on
+failure.
 
-arch/x86/kvm/mmu.c:4605:39: error: implicit conversion from 'int' to 'u8' (aka 'unsigned char') changes value from -205 to 51 [-Werror,-Wconstant-conversion]
-                u8 wf = (pfec & PFERR_WRITE_MASK) ? ~w : 0;
-                   ~~                               ^~
-arch/x86/kvm/mmu.c:4607:38: error: implicit conversion from 'int' to 'u8' (aka 'unsigned char') changes value from -241 to 15 [-Werror,-Wconstant-conversion]
-                u8 uf = (pfec & PFERR_USER_MASK) ? ~u : 0;
-                   ~~                              ^~
-arch/x86/kvm/mmu.c:4609:39: error: implicit conversion from 'int' to 'u8' (aka 'unsigned char') changes value from -171 to 85 [-Werror,-Wconstant-conversion]
-                u8 ff = (pfec & PFERR_FETCH_MASK) ? ~x : 0;
-                   ~~                               ^~
-
-Add an explicit cast to tell clang that everything works as
-intended here.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://github.com/ClangBuiltLinux/linux/issues/95
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: http://lkml.kernel.org/r/20190506124634.6807-3-peda@axentia.se
+Fixes: 03270c13c5ff ("lib/string.c: add testcases for memset16/32/64")
+Signed-off-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/mmu.c | 6 +++---
+ lib/test_string.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
-index e0f982e35c96..cdc0c460950f 100644
---- a/arch/x86/kvm/mmu.c
-+++ b/arch/x86/kvm/mmu.c
-@@ -4532,11 +4532,11 @@ static void update_permission_bitmask(struct kvm_vcpu *vcpu,
- 		 */
+diff --git a/lib/test_string.c b/lib/test_string.c
+index 0fcdb82dca86..98a787e7a1fd 100644
+--- a/lib/test_string.c
++++ b/lib/test_string.c
+@@ -35,7 +35,7 @@ static __init int memset16_selftest(void)
+ fail:
+ 	kfree(p);
+ 	if (i < 256)
+-		return (i << 24) | (j << 16) | k;
++		return (i << 24) | (j << 16) | k | 0x8000;
+ 	return 0;
+ }
  
- 		/* Faults from writes to non-writable pages */
--		u8 wf = (pfec & PFERR_WRITE_MASK) ? ~w : 0;
-+		u8 wf = (pfec & PFERR_WRITE_MASK) ? (u8)~w : 0;
- 		/* Faults from user mode accesses to supervisor pages */
--		u8 uf = (pfec & PFERR_USER_MASK) ? ~u : 0;
-+		u8 uf = (pfec & PFERR_USER_MASK) ? (u8)~u : 0;
- 		/* Faults from fetches of non-executable pages*/
--		u8 ff = (pfec & PFERR_FETCH_MASK) ? ~x : 0;
-+		u8 ff = (pfec & PFERR_FETCH_MASK) ? (u8)~x : 0;
- 		/* Faults from kernel mode fetches of user pages */
- 		u8 smepf = 0;
- 		/* Faults from kernel mode accesses of user pages */
+@@ -71,7 +71,7 @@ static __init int memset32_selftest(void)
+ fail:
+ 	kfree(p);
+ 	if (i < 256)
+-		return (i << 24) | (j << 16) | k;
++		return (i << 24) | (j << 16) | k | 0x8000;
+ 	return 0;
+ }
+ 
+@@ -107,7 +107,7 @@ static __init int memset64_selftest(void)
+ fail:
+ 	kfree(p);
+ 	if (i < 256)
+-		return (i << 24) | (j << 16) | k;
++		return (i << 24) | (j << 16) | k | 0x8000;
+ 	return 0;
+ }
+ 
 -- 
 2.20.1
 
