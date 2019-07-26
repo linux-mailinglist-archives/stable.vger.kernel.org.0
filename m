@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F233676ABB
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 16:00:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B26C376AB6
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 16:00:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728148AbfGZOAr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 10:00:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46040 "EHLO mail.kernel.org"
+        id S1727573AbfGZOAm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 10:00:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727584AbfGZNkJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:40:09 -0400
+        id S1726364AbfGZNkK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:40:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B75722CBB;
-        Fri, 26 Jul 2019 13:40:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A19122CBF;
+        Fri, 26 Jul 2019 13:40:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148408;
-        bh=GS0t9ejWfMJx8u+jiXzlJqATgam2UjS8xzz2i1Kfo70=;
+        s=default; t=1564148409;
+        bh=tm7Y0GezpikEYvCrzvAS38HkjuB5/K0CmseOd6YnkoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ck0FiNcQjy4xFqS5XBGVeVPQzPL4hLByZ/ZJabWU7lfYdMS1XLGrMXNXK0opmmP5v
-         jOI5N+qcFBKEc5t2KaBNUkIhwvEdiSi4lUlJJyC6gIEPAIrCnGDXRxK6VSU+D0bzot
-         ZzCVtYve4efxLwQKowFsAHhqSv/7qOTOTa7eAzAU=
+        b=kLhHdUp7e30CpRtubBfT+2W//1zpenTCCn+xphNeETZ/dwPZWO2m7aNeFgZ6yCaAy
+         CMo6B3a4boVTGqMQgmJ6jqRTv48/Cub3OUMDruGi7CnsWaLd4y03LOG1UV/yIM/LRw
+         IKNbkadJVHvEZxFzmbLiyPRf3I7m9S9d1wd0G01A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Gross <agross@kernel.org>,
-        Niklas Cassel <niklas.cassel@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Olof Johansson <olof@lixom.net>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 17/85] arm64: qcom: qcs404: Add reset-cells to GCC node
-Date:   Fri, 26 Jul 2019 09:38:27 -0400
-Message-Id: <20190726133936.11177-17-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.2 18/85] swiotlb: fix phys_addr_t overflow warning
+Date:   Fri, 26 Jul 2019 09:38:28 -0400
+Message-Id: <20190726133936.11177-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
 References: <20190726133936.11177-1-sashal@kernel.org>
@@ -45,45 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Gross <agross@kernel.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 0763d0c2273a3c72247d325c48fbac3d918d6b87 ]
+[ Upstream commit 9c106119f6538f65bdddb7948a157d90625effa7 ]
 
-This patch adds a reset-cells property to the gcc controller on the QCS404.
-Without this in place, we get warnings like the following if nodes reference
-a gcc reset:
+On architectures that have a larger dma_addr_t than phys_addr_t,
+the swiotlb_tbl_map_single() function truncates its return code
+in the failure path, making it impossible to identify the error
+later, as we compare to the original value:
 
-arch/arm64/boot/dts/qcom/qcs404.dtsi:261.38-310.5: Warning (resets_property):
-/soc@0/remoteproc@b00000: Missing property '#reset-cells' in node
-/soc@0/clock-controller@1800000 or bad phandle (referred from resets[0])
-  also defined at arch/arm64/boot/dts/qcom/qcs404-evb.dtsi:82.18-84.3
-  DTC     arch/arm64/boot/dts/qcom/qcs404-evb-4000.dtb
-arch/arm64/boot/dts/qcom/qcs404.dtsi:261.38-310.5: Warning (resets_property):
-/soc@0/remoteproc@b00000: Missing property '#reset-cells' in node
-/soc@0/clock-controller@1800000 or bad phandle (referred from resets[0])
-  also defined at arch/arm64/boot/dts/qcom/qcs404-evb.dtsi:82.18-84.3
+kernel/dma/swiotlb.c:551:9: error: implicit conversion from 'dma_addr_t' (aka 'unsigned long long') to 'phys_addr_t' (aka 'unsigned int') changes value from 18446744073709551615 to 4294967295 [-Werror,-Wconstant-conversion]
+        return DMA_MAPPING_ERROR;
 
-Signed-off-by: Andy Gross <agross@kernel.org>
-Reviewed-by: Niklas Cassel <niklas.cassel@linaro.org>
-Reviewed-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Olof Johansson <olof@lixom.net>
+Use an explicit typecast here to convert it to the narrower type,
+and use the same expression in the error handling later.
+
+Fixes: b907e20508d0 ("swiotlb: remove SWIOTLB_MAP_ERROR")
+Acked-by: Stefano Stabellini <sstabellini@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/qcs404.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/xen/swiotlb-xen.c | 2 +-
+ kernel/dma/swiotlb.c      | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/qcs404.dtsi b/arch/arm64/boot/dts/qcom/qcs404.dtsi
-index ffedf9640af7..65a2cbeb28be 100644
---- a/arch/arm64/boot/dts/qcom/qcs404.dtsi
-+++ b/arch/arm64/boot/dts/qcom/qcs404.dtsi
-@@ -383,6 +383,7 @@
- 			compatible = "qcom,gcc-qcs404";
- 			reg = <0x01800000 0x80000>;
- 			#clock-cells = <1>;
-+			#reset-cells = <1>;
+diff --git a/drivers/xen/swiotlb-xen.c b/drivers/xen/swiotlb-xen.c
+index d53f3493a6b9..cfbe46785a3b 100644
+--- a/drivers/xen/swiotlb-xen.c
++++ b/drivers/xen/swiotlb-xen.c
+@@ -402,7 +402,7 @@ static dma_addr_t xen_swiotlb_map_page(struct device *dev, struct page *page,
  
- 			assigned-clocks = <&gcc GCC_APSS_AHB_CLK_SRC>;
- 			assigned-clock-rates = <19200000>;
+ 	map = swiotlb_tbl_map_single(dev, start_dma_addr, phys, size, dir,
+ 				     attrs);
+-	if (map == DMA_MAPPING_ERROR)
++	if (map == (phys_addr_t)DMA_MAPPING_ERROR)
+ 		return DMA_MAPPING_ERROR;
+ 
+ 	dev_addr = xen_phys_to_bus(map);
+diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+index 13f0cb080a4d..5f4e1b78babb 100644
+--- a/kernel/dma/swiotlb.c
++++ b/kernel/dma/swiotlb.c
+@@ -546,7 +546,7 @@ phys_addr_t swiotlb_tbl_map_single(struct device *hwdev,
+ 	if (!(attrs & DMA_ATTR_NO_WARN) && printk_ratelimit())
+ 		dev_warn(hwdev, "swiotlb buffer is full (sz: %zd bytes), total %lu (slots), used %lu (slots)\n",
+ 			 size, io_tlb_nslabs, tmp_io_tlb_used);
+-	return DMA_MAPPING_ERROR;
++	return (phys_addr_t)DMA_MAPPING_ERROR;
+ found:
+ 	io_tlb_used += nslots;
+ 	spin_unlock_irqrestore(&io_tlb_lock, flags);
+@@ -664,7 +664,7 @@ bool swiotlb_map(struct device *dev, phys_addr_t *phys, dma_addr_t *dma_addr,
+ 	/* Oh well, have to allocate and map a bounce buffer. */
+ 	*phys = swiotlb_tbl_map_single(dev, __phys_to_dma(dev, io_tlb_start),
+ 			*phys, size, dir, attrs);
+-	if (*phys == DMA_MAPPING_ERROR)
++	if (*phys == (phys_addr_t)DMA_MAPPING_ERROR)
+ 		return false;
+ 
+ 	/* Ensure that the address returned is DMA'ble */
 -- 
 2.20.1
 
