@@ -2,36 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CA34767EC
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:41:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 249C3767F2
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:41:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727745AbfGZNkv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:40:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47046 "EHLO mail.kernel.org"
+        id S1727796AbfGZNlA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:41:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387601AbfGZNku (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:40:50 -0400
+        id S2387625AbfGZNk6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:40:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84F272238C;
-        Fri, 26 Jul 2019 13:40:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9EA4E22CB8;
+        Fri, 26 Jul 2019 13:40:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148449;
-        bh=YBzj4fQ+SdNXzgQNLcvqMQX9tA99KBH39x2aobuK4sk=;
+        s=default; t=1564148458;
+        bh=+djP42l890PRgPpyfSuCFeOV38wuWwlVMb3pz0E+Mag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CNKpWfFkf7hPGHHjhRcwGnAZBlwNxDn30cuN9uj2UMmLtyumAolwN2UrFHkH4iqpn
-         9A82c1oQNX3t4e8L0h0xG2ZahB/HUmqkQb58wpUeX3ZhhL1Iv2W3JmBOtObFNzkInJ
-         PmO6p9MJuXuenVdBzQ1rW1oRxNMT+l0eBvJ8/wDc=
+        b=ELrxyKFQDLqS1N5c45EI7brqIhCoo9ezXaunRAkZNDL3vpyy6+ZfRXRWB1FAluPLh
+         Qdjvq9/47PBveEgpJTgU/EAi6ElyHoYEJE8J/Ejb1B0gqRLDBR+qKeD1PMwz08kP7U
+         3c31vM3g2rLrw6seYjiqD294n+lVi3mTgSjoQtxY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Phong Tran <tranmanphong@gmail.com>,
-        syzbot+8750abbc3a46ef47d509@syzkaller.appspotmail.com,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 45/85] ISDN: hfcsusb: checking idx of ep configuration
-Date:   Fri, 26 Jul 2019 09:38:55 -0400
-Message-Id: <20190726133936.11177-45-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        David Rientjes <rientjes@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Roman Gushchin <guro@fb.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Andrey Konovalov <andreyknvl@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.2 51/85] mm/slab_common.c: work around clang bug #42570
+Date:   Fri, 26 Jul 2019 09:39:01 -0400
+Message-Id: <20190726133936.11177-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
 References: <20190726133936.11177-1-sashal@kernel.org>
@@ -44,47 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phong Tran <tranmanphong@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit f384e62a82ba5d85408405fdd6aeff89354deaa9 ]
+[ Upstream commit a07057dce2823e10d64a2b73cefbf09d8645efe9 ]
 
-The syzbot test with random endpoint address which made the idx is
-overflow in the table of endpoint configuations.
+Clang gets rather confused about two variables in the same special
+section when one of them is not initialized, leading to an assembler
+warning later:
 
-this adds the checking for fixing the error report from
-syzbot
+  /tmp/slab_common-18f869.s: Assembler messages:
+  /tmp/slab_common-18f869.s:7526: Warning: ignoring changed section attributes for .data..ro_after_init
 
-KASAN: stack-out-of-bounds Read in hfcsusb_probe [1]
-The patch tested by syzbot [2]
+Adding an initialization to kmalloc_caches is rather silly here
+but does avoid the issue.
 
-Reported-by: syzbot+8750abbc3a46ef47d509@syzkaller.appspotmail.com
-
-[1]:
-https://syzkaller.appspot.com/bug?id=30a04378dac680c5d521304a00a86156bb913522
-[2]:
-https://groups.google.com/d/msg/syzkaller-bugs/_6HBdge8F3E/OJn7wVNpBAAJ
-
-Signed-off-by: Phong Tran <tranmanphong@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://bugs.llvm.org/show_bug.cgi?id=42570
+Link: http://lkml.kernel.org/r/20190712090455.266021-1-arnd@arndb.de
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: David Rientjes <rientjes@google.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Andrey Konovalov <andreyknvl@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/hardware/mISDN/hfcsusb.c | 3 +++
- 1 file changed, 3 insertions(+)
+ mm/slab_common.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/isdn/hardware/mISDN/hfcsusb.c b/drivers/isdn/hardware/mISDN/hfcsusb.c
-index 4c99739b937e..0e224232f746 100644
---- a/drivers/isdn/hardware/mISDN/hfcsusb.c
-+++ b/drivers/isdn/hardware/mISDN/hfcsusb.c
-@@ -1955,6 +1955,9 @@ hfcsusb_probe(struct usb_interface *intf, const struct usb_device_id *id)
+diff --git a/mm/slab_common.c b/mm/slab_common.c
+index 58251ba63e4a..cbd3411f644e 100644
+--- a/mm/slab_common.c
++++ b/mm/slab_common.c
+@@ -1003,7 +1003,8 @@ struct kmem_cache *__init create_kmalloc_cache(const char *name,
+ }
  
- 				/* get endpoint base */
- 				idx = ((ep_addr & 0x7f) - 1) * 2;
-+				if (idx > 15)
-+					return -EIO;
-+
- 				if (ep_addr & 0x80)
- 					idx++;
- 				attr = ep->desc.bmAttributes;
+ struct kmem_cache *
+-kmalloc_caches[NR_KMALLOC_TYPES][KMALLOC_SHIFT_HIGH + 1] __ro_after_init;
++kmalloc_caches[NR_KMALLOC_TYPES][KMALLOC_SHIFT_HIGH + 1] __ro_after_init =
++{ /* initialization for https://bugs.llvm.org/show_bug.cgi?id=42570 */ };
+ EXPORT_SYMBOL(kmalloc_caches);
+ 
+ /*
 -- 
 2.20.1
 
