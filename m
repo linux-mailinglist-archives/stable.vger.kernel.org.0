@@ -2,37 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 132D576D31
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:31:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0D3C76DB9
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:36:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389283AbfGZPb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:31:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46498 "EHLO mail.kernel.org"
+        id S2387997AbfGZPgV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:36:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389280AbfGZPb2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:31:28 -0400
+        id S2388790AbfGZPba (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:31:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED7A122BF5;
-        Fri, 26 Jul 2019 15:31:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E0A622BF5;
+        Fri, 26 Jul 2019 15:31:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564155087;
-        bh=Gmf3x3FBU965p7dUHwskFfW4rkX733qy8oCVaRR3zLY=;
+        s=default; t=1564155089;
+        bh=NM1tO4Ym7QfymXZyFFhNxVvQL0vcQJkAOMfVEMFgLMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wOxtH/g9o7yoZye4GFCubE+BZOPNuFTJuLpKf6zVK6CaimLxymofUxt+42GzMzf/o
-         3INVIRbS5ejF4OEoDrcBwDv2fOILcLo7LCIYQNDvKUBW2aYCMXpAAYBt3PFy4jU3ya
-         MIYx6MxY/nXVmARG4xTCI/Q2AwM+mCsmCMxksH3U=
+        b=1rJYRRI2aLpKaITkM5De6x0lW2xfMVvGej71V7YqSGIQ699E+Pn6kWwigr1aga0Xh
+         t6GnZk890UP9GD0hf0wFRfRzFW3WEBLt9deKCjE4nvjsRHvzMhuzNjFmWYjApA5xAl
+         vaAGjpXIEiDOfeJn1kK8MpyHzavDZLt7N0aLpTcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.1 61/62] block: Limit zone array allocation size
-Date:   Fri, 26 Jul 2019 17:25:13 +0200
-Message-Id: <20190726152308.297783287@linuxfoundation.org>
+        stable@vger.kernel.org, Kuo-Hsin Yang <vovoy@chromium.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Sonny Rao <sonnyrao@chromium.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Rik van Riel <riel@redhat.com>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.1 62/62] mm: vmscan: scan anonymous pages on file refaults
+Date:   Fri, 26 Jul 2019 17:25:14 +0200
+Message-Id: <20190726152308.374803957@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
 References: <20190726152301.720139286@linuxfoundation.org>
@@ -45,136 +51,241 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Kuo-Hsin Yang <vovoy@chromium.org>
 
-commit 26202928fafad8bda8b478edb7e62c885be623d7 upstream.
+commit 2c012a4ad1a2cd3fb5a0f9307b9d219f84eda1fa upstream.
 
-Limit the size of the struct blk_zone array used in
-blk_revalidate_disk_zones() to avoid memory allocation failures leading
-to disk revalidation failure. Also further reduce the likelyhood of
-such failures by using kvcalloc() (that is vmalloc()) instead of
-allocating contiguous pages with alloc_pages().
+When file refaults are detected and there are many inactive file pages,
+the system never reclaim anonymous pages, the file pages are dropped
+aggressively when there are still a lot of cold anonymous pages and
+system thrashes.  This issue impacts the performance of applications
+with large executable, e.g.  chrome.
 
-Fixes: 515ce6061312 ("scsi: sd_zbc: Fix sd_zbc_report_zones() buffer allocation")
-Fixes: e76239a3748c ("block: add a report_zones method")
-Cc: stable@vger.kernel.org
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+With this patch, when file refault is detected, inactive_list_is_low()
+always returns true for file pages in get_scan_count() to enable
+scanning anonymous pages.
+
+The problem can be reproduced by the following test program.
+
+---8<---
+void fallocate_file(const char *filename, off_t size)
+{
+	struct stat st;
+	int fd;
+
+	if (!stat(filename, &st) && st.st_size >= size)
+		return;
+
+	fd = open(filename, O_WRONLY | O_CREAT, 0600);
+	if (fd < 0) {
+		perror("create file");
+		exit(1);
+	}
+	if (posix_fallocate(fd, 0, size)) {
+		perror("fallocate");
+		exit(1);
+	}
+	close(fd);
+}
+
+long *alloc_anon(long size)
+{
+	long *start = malloc(size);
+	memset(start, 1, size);
+	return start;
+}
+
+long access_file(const char *filename, long size, long rounds)
+{
+	int fd, i;
+	volatile char *start1, *end1, *start2;
+	const int page_size = getpagesize();
+	long sum = 0;
+
+	fd = open(filename, O_RDONLY);
+	if (fd == -1) {
+		perror("open");
+		exit(1);
+	}
+
+	/*
+	 * Some applications, e.g. chrome, use a lot of executable file
+	 * pages, map some of the pages with PROT_EXEC flag to simulate
+	 * the behavior.
+	 */
+	start1 = mmap(NULL, size / 2, PROT_READ | PROT_EXEC, MAP_SHARED,
+		      fd, 0);
+	if (start1 == MAP_FAILED) {
+		perror("mmap");
+		exit(1);
+	}
+	end1 = start1 + size / 2;
+
+	start2 = mmap(NULL, size / 2, PROT_READ, MAP_SHARED, fd, size / 2);
+	if (start2 == MAP_FAILED) {
+		perror("mmap");
+		exit(1);
+	}
+
+	for (i = 0; i < rounds; ++i) {
+		struct timeval before, after;
+		volatile char *ptr1 = start1, *ptr2 = start2;
+		gettimeofday(&before, NULL);
+		for (; ptr1 < end1; ptr1 += page_size, ptr2 += page_size)
+			sum += *ptr1 + *ptr2;
+		gettimeofday(&after, NULL);
+		printf("File access time, round %d: %f (sec)
+", i,
+		       (after.tv_sec - before.tv_sec) +
+		       (after.tv_usec - before.tv_usec) / 1000000.0);
+	}
+	return sum;
+}
+
+int main(int argc, char *argv[])
+{
+	const long MB = 1024 * 1024;
+	long anon_mb, file_mb, file_rounds;
+	const char filename[] = "large";
+	long *ret1;
+	long ret2;
+
+	if (argc != 4) {
+		printf("usage: thrash ANON_MB FILE_MB FILE_ROUNDS
+");
+		exit(0);
+	}
+	anon_mb = atoi(argv[1]);
+	file_mb = atoi(argv[2]);
+	file_rounds = atoi(argv[3]);
+
+	fallocate_file(filename, file_mb * MB);
+	printf("Allocate %ld MB anonymous pages
+", anon_mb);
+	ret1 = alloc_anon(anon_mb * MB);
+	printf("Access %ld MB file pages
+", file_mb);
+	ret2 = access_file(filename, file_mb * MB, file_rounds);
+	printf("Print result to prevent optimization: %ld
+",
+	       *ret1 + ret2);
+	return 0;
+}
+---8<---
+
+Running the test program on 2GB RAM VM with kernel 5.2.0-rc5, the program
+fills ram with 2048 MB memory, access a 200 MB file for 10 times.  Without
+this patch, the file cache is dropped aggresively and every access to the
+file is from disk.
+
+  $ ./thrash 2048 200 10
+  Allocate 2048 MB anonymous pages
+  Access 200 MB file pages
+  File access time, round 0: 2.489316 (sec)
+  File access time, round 1: 2.581277 (sec)
+  File access time, round 2: 2.487624 (sec)
+  File access time, round 3: 2.449100 (sec)
+  File access time, round 4: 2.420423 (sec)
+  File access time, round 5: 2.343411 (sec)
+  File access time, round 6: 2.454833 (sec)
+  File access time, round 7: 2.483398 (sec)
+  File access time, round 8: 2.572701 (sec)
+  File access time, round 9: 2.493014 (sec)
+
+With this patch, these file pages can be cached.
+
+  $ ./thrash 2048 200 10
+  Allocate 2048 MB anonymous pages
+  Access 200 MB file pages
+  File access time, round 0: 2.475189 (sec)
+  File access time, round 1: 2.440777 (sec)
+  File access time, round 2: 2.411671 (sec)
+  File access time, round 3: 1.955267 (sec)
+  File access time, round 4: 0.029924 (sec)
+  File access time, round 5: 0.000808 (sec)
+  File access time, round 6: 0.000771 (sec)
+  File access time, round 7: 0.000746 (sec)
+  File access time, round 8: 0.000738 (sec)
+  File access time, round 9: 0.000747 (sec)
+
+Checked the swap out stats during the test [1], 19006 pages swapped out
+with this patch, 3418 pages swapped out without this patch. There are
+more swap out, but I think it's within reasonable range when file backed
+data set doesn't fit into the memory.
+
+$ ./thrash 2000 100 2100 5 1 # ANON_MB FILE_EXEC FILE_NOEXEC ROUNDS
+PROCESSES Allocate 2000 MB anonymous pages active_anon: 1613644,
+inactive_anon: 348656, active_file: 892, inactive_file: 1384 (kB)
+pswpout: 7972443, pgpgin: 478615246 Access 100 MB executable file pages
+Access 2100 MB regular file pages File access time, round 0: 12.165,
+(sec) active_anon: 1433788, inactive_anon: 478116, active_file: 17896,
+inactive_file: 24328 (kB) File access time, round 1: 11.493, (sec)
+active_anon: 1430576, inactive_anon: 477144, active_file: 25440,
+inactive_file: 26172 (kB) File access time, round 2: 11.455, (sec)
+active_anon: 1427436, inactive_anon: 476060, active_file: 21112,
+inactive_file: 28808 (kB) File access time, round 3: 11.454, (sec)
+active_anon: 1420444, inactive_anon: 473632, active_file: 23216,
+inactive_file: 35036 (kB) File access time, round 4: 11.479, (sec)
+active_anon: 1413964, inactive_anon: 471460, active_file: 31728,
+inactive_file: 32224 (kB) pswpout: 7991449 (+ 19006), pgpgin: 489924366
+(+ 11309120)
+
+With 4 processes accessing non-overlapping parts of a large file, 30316
+pages swapped out with this patch, 5152 pages swapped out without this
+patch.  The swapout number is small comparing to pgpgin.
+
+[1]: https://github.com/vovo/testing/blob/master/mem_thrash.c
+
+Link: http://lkml.kernel.org/r/20190701081038.GA83398@google.com
+Fixes: e9868505987a ("mm,vmscan: only evict file pages when we have plenty")
+Fixes: 7c5bd705d8f9 ("mm: memcg: only evict file pages when we have plenty")
+Signed-off-by: Kuo-Hsin Yang <vovoy@chromium.org>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Sonny Rao <sonnyrao@chromium.org>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Rik van Riel <riel@redhat.com>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: <stable@vger.kernel.org>	[4.12+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[backported to 4.14.y, 4.19.y, 5.1.y: adjust context]
+Signed-off-by: Kuo-Hsin Yang <vovoy@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk-zoned.c      |   46 ++++++++++++++++++++++++++++++----------------
- include/linux/blkdev.h |    5 +++++
- 2 files changed, 35 insertions(+), 16 deletions(-)
+ mm/vmscan.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/block/blk-zoned.c
-+++ b/block/blk-zoned.c
-@@ -13,6 +13,9 @@
- #include <linux/rbtree.h>
- #include <linux/blkdev.h>
- #include <linux/blk-mq.h>
-+#include <linux/mm.h>
-+#include <linux/vmalloc.h>
-+#include <linux/sched/mm.h>
- 
- #include "blk.h"
- 
-@@ -372,22 +375,25 @@ static inline unsigned long *blk_alloc_z
-  * Allocate an array of struct blk_zone to get nr_zones zone information.
-  * The allocated array may be smaller than nr_zones.
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -2176,7 +2176,7 @@ static void shrink_active_list(unsigned
+  *   10TB     320        32GB
   */
--static struct blk_zone *blk_alloc_zones(int node, unsigned int *nr_zones)
-+static struct blk_zone *blk_alloc_zones(unsigned int *nr_zones)
+ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
+-				 struct scan_control *sc, bool actual_reclaim)
++				 struct scan_control *sc, bool trace)
  {
--	size_t size = *nr_zones * sizeof(struct blk_zone);
--	struct page *page;
--	int order;
--
--	for (order = get_order(size); order >= 0; order--) {
--		page = alloc_pages_node(node, GFP_NOIO | __GFP_ZERO, order);
--		if (page) {
--			*nr_zones = min_t(unsigned int, *nr_zones,
--				(PAGE_SIZE << order) / sizeof(struct blk_zone));
--			return page_address(page);
--		}
-+	struct blk_zone *zones;
-+	size_t nrz = min(*nr_zones, BLK_ZONED_REPORT_MAX_ZONES);
-+
-+	/*
-+	 * GFP_KERNEL here is meaningless as the caller task context has
-+	 * the PF_MEMALLOC_NOIO flag set in blk_revalidate_disk_zones()
-+	 * with memalloc_noio_save().
-+	 */
-+	zones = kvcalloc(nrz, sizeof(struct blk_zone), GFP_KERNEL);
-+	if (!zones) {
-+		*nr_zones = 0;
-+		return NULL;
+ 	enum lru_list active_lru = file * LRU_FILE + LRU_ACTIVE;
+ 	struct pglist_data *pgdat = lruvec_pgdat(lruvec);
+@@ -2202,7 +2202,7 @@ static bool inactive_list_is_low(struct
+ 	 * rid of the stale workingset quickly.
+ 	 */
+ 	refaults = lruvec_page_state(lruvec, WORKINGSET_ACTIVATE);
+-	if (file && actual_reclaim && lruvec->refaults != refaults) {
++	if (file && lruvec->refaults != refaults) {
+ 		inactive_ratio = 0;
+ 	} else {
+ 		gb = (inactive + active) >> (30 - PAGE_SHIFT);
+@@ -2212,7 +2212,7 @@ static bool inactive_list_is_low(struct
+ 			inactive_ratio = 1;
  	}
  
--	return NULL;
-+	*nr_zones = nrz;
-+
-+	return zones;
- }
- 
- void blk_queue_free_zone_bitmaps(struct request_queue *q)
-@@ -414,6 +420,7 @@ int blk_revalidate_disk_zones(struct gen
- 	unsigned long *seq_zones_wlock = NULL, *seq_zones_bitmap = NULL;
- 	unsigned int i, rep_nr_zones = 0, z = 0, nrz;
- 	struct blk_zone *zones = NULL;
-+	unsigned int noio_flag;
- 	sector_t sector = 0;
- 	int ret = 0;
- 
-@@ -426,6 +433,12 @@ int blk_revalidate_disk_zones(struct gen
- 		return 0;
- 	}
- 
-+	/*
-+	 * Ensure that all memory allocations in this context are done as
-+	 * if GFP_NOIO was specified.
-+	 */
-+	noio_flag = memalloc_noio_save();
-+
- 	if (!blk_queue_is_zoned(q) || !nr_zones) {
- 		nr_zones = 0;
- 		goto update;
-@@ -442,7 +455,7 @@ int blk_revalidate_disk_zones(struct gen
- 
- 	/* Get zone information and initialize seq_zones_bitmap */
- 	rep_nr_zones = nr_zones;
--	zones = blk_alloc_zones(q->node, &rep_nr_zones);
-+	zones = blk_alloc_zones(&rep_nr_zones);
- 	if (!zones)
- 		goto out;
- 
-@@ -479,8 +492,9 @@ update:
- 	blk_mq_unfreeze_queue(q);
- 
- out:
--	free_pages((unsigned long)zones,
--		   get_order(rep_nr_zones * sizeof(struct blk_zone)));
-+	memalloc_noio_restore(noio_flag);
-+
-+	kvfree(zones);
- 	kfree(seq_zones_wlock);
- 	kfree(seq_zones_bitmap);
- 
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -344,6 +344,11 @@ struct queue_limits {
- 
- #ifdef CONFIG_BLK_DEV_ZONED
- 
-+/*
-+ * Maximum number of zones to report with a single report zones command.
-+ */
-+#define BLK_ZONED_REPORT_MAX_ZONES	8192U
-+
- extern unsigned int blkdev_nr_zones(struct block_device *bdev);
- extern int blkdev_report_zones(struct block_device *bdev,
- 			       sector_t sector, struct blk_zone *zones,
+-	if (actual_reclaim)
++	if (trace)
+ 		trace_mm_vmscan_inactive_list_is_low(pgdat->node_id, sc->reclaim_idx,
+ 			lruvec_lru_size(lruvec, inactive_lru, MAX_NR_ZONES), inactive,
+ 			lruvec_lru_size(lruvec, active_lru, MAX_NR_ZONES), active,
 
 
