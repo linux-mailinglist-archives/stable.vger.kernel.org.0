@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39BA376D34
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:31:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D04A76DB7
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:36:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389301AbfGZPbd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:31:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46632 "EHLO mail.kernel.org"
+        id S2387570AbfGZPgR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:36:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389297AbfGZPbd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:31:33 -0400
+        id S2389280AbfGZPbg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:31:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBDDB22CBD;
-        Fri, 26 Jul 2019 15:31:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9923722BF5;
+        Fri, 26 Jul 2019 15:31:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564155092;
-        bh=+WCIbUpYV1UwgnjGTloO4L1hrkUg6Ogk4wZPWUmVDxY=;
+        s=default; t=1564155095;
+        bh=Lqpta6U5ZDU31kj4VC9bAn/qwR9Ea3ycMlJ1w1wL8Lk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lfmb3hgVX5kA3VlN2hqX3TNkS742EyyKi1dlcTNrqifH/zMxf5UNuWagvR25ToJed
-         KnakB64tShwgnJYSkvdsMF7wWptTrfzmZP4uGbKP5MITKeNA8027vJ/cuSOSZGorxJ
-         Te+h5nYbkyIrlHh6AfoBf6WsDxqiT1hq8/rwxLQQ=
+        b=W2Lp3zBLbibZ0YzRoP3z7Ejum2vx9sQ64bonYCZhRJrnIP4wdMVHdI605xtI/0eNU
+         zF70iCrkQbkTMadOeqhPVXud6sCZ+K4xDT1Km+2c6Qj7KpuxBqED0cuL5gX47iqfGK
+         FjVKtnV9G6Ukwul2qPDLMFCVElazEUEEkoYAqzwI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.1 51/62] ext4: dont allow any modifications to an immutable file
-Date:   Fri, 26 Jul 2019 17:25:03 +0200
-Message-Id: <20190726152307.378371128@linuxfoundation.org>
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>, stable@kernel.org
+Subject: [PATCH 5.1 52/62] ext4: enforce the immutable flag on open files
+Date:   Fri, 26 Jul 2019 17:25:04 +0200
+Message-Id: <20190726152307.488238287@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
 References: <20190726152301.720139286@linuxfoundation.org>
@@ -44,98 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit 2e53840362771c73eb0a5ff71611507e64e8eecd upstream.
+commit 02b016ca7f99229ae6227e7b2fc950c4e140d74a upstream.
 
-Don't allow any modifications to a file that's marked immutable, which
-means that we have to flush all the writable pages to make the readonly
-and we have to check the setattr/setflags parameters more closely.
+According to the chattr man page, "a file with the 'i' attribute
+cannot be modified..."  Historically, this was only enforced when the
+file was opened, per the rest of the description, "... and the file
+can not be opened in write mode".
 
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+There is general agreement that we should standardize all file systems
+to prevent modifications even for files that were opened at the time
+the immutable flag is set.  Eventually, a change to enforce this at
+the VFS layer should be landing in mainline.  Until then, enforce this
+at the ext4 level to prevent xfstests generic/553 from failing.
+
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: "Darrick J. Wong" <darrick.wong@oracle.com>
 Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/ioctl.c |   46 +++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 45 insertions(+), 1 deletion(-)
+ fs/ext4/file.c  |    4 ++++
+ fs/ext4/inode.c |   11 +++++++++++
+ 2 files changed, 15 insertions(+)
 
---- a/fs/ext4/ioctl.c
-+++ b/fs/ext4/ioctl.c
-@@ -269,6 +269,29 @@ static int uuid_is_zero(__u8 u[16])
- }
- #endif
- 
-+/*
-+ * If immutable is set and we are not clearing it, we're not allowed to change
-+ * anything else in the inode.  Don't error out if we're only trying to set
-+ * immutable on an immutable file.
-+ */
-+static int ext4_ioctl_check_immutable(struct inode *inode, __u32 new_projid,
-+				      unsigned int flags)
-+{
-+	struct ext4_inode_info *ei = EXT4_I(inode);
-+	unsigned int oldflags = ei->i_flags;
+--- a/fs/ext4/file.c
++++ b/fs/ext4/file.c
+@@ -165,6 +165,10 @@ static ssize_t ext4_write_checks(struct
+ 	ret = generic_write_checks(iocb, from);
+ 	if (ret <= 0)
+ 		return ret;
 +
-+	if (!(oldflags & EXT4_IMMUTABLE_FL) || !(flags & EXT4_IMMUTABLE_FL))
-+		return 0;
-+
-+	if ((oldflags & ~EXT4_IMMUTABLE_FL) != (flags & ~EXT4_IMMUTABLE_FL))
-+		return -EPERM;
-+	if (ext4_has_feature_project(inode->i_sb) &&
-+	    __kprojid_val(ei->i_projid) != new_projid)
++	if (unlikely(IS_IMMUTABLE(inode)))
 +		return -EPERM;
 +
-+	return 0;
-+}
-+
- static int ext4_ioctl_setflags(struct inode *inode,
- 			       unsigned int flags)
- {
-@@ -322,6 +345,20 @@ static int ext4_ioctl_setflags(struct in
- 			goto flags_out;
- 	}
+ 	/*
+ 	 * If we have encountered a bitmap-format file, the size limit
+ 	 * is smaller than s_maxbytes, which is for extent-mapped files.
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -5514,6 +5514,14 @@ int ext4_setattr(struct dentry *dentry,
+ 	if (unlikely(ext4_forced_shutdown(EXT4_SB(inode->i_sb))))
+ 		return -EIO;
  
-+	/*
-+	 * Wait for all pending directio and then flush all the dirty pages
-+	 * for this file.  The flush marks all the pages readonly, so any
-+	 * subsequent attempt to write to the file (particularly mmap pages)
-+	 * will come through the filesystem and fail.
-+	 */
-+	if (S_ISREG(inode->i_mode) && !IS_IMMUTABLE(inode) &&
-+	    (flags & EXT4_IMMUTABLE_FL)) {
-+		inode_dio_wait(inode);
-+		err = filemap_write_and_wait(inode->i_mapping);
-+		if (err)
-+			goto flags_out;
-+	}
++	if (unlikely(IS_IMMUTABLE(inode)))
++		return -EPERM;
 +
- 	handle = ext4_journal_start(inode, EXT4_HT_INODE, 1);
- 	if (IS_ERR(handle)) {
- 		err = PTR_ERR(handle);
-@@ -751,7 +788,11 @@ long ext4_ioctl(struct file *filp, unsig
- 			return err;
++	if (unlikely(IS_APPEND(inode) &&
++		     (ia_valid & (ATTR_MODE | ATTR_UID |
++				  ATTR_GID | ATTR_TIMES_SET))))
++		return -EPERM;
++
+ 	error = setattr_prepare(dentry, attr);
+ 	if (error)
+ 		return error;
+@@ -6184,6 +6192,9 @@ vm_fault_t ext4_page_mkwrite(struct vm_f
+ 	get_block_t *get_block;
+ 	int retries = 0;
  
- 		inode_lock(inode);
--		err = ext4_ioctl_setflags(inode, flags);
-+		err = ext4_ioctl_check_immutable(inode,
-+				from_kprojid(&init_user_ns, ei->i_projid),
-+				flags);
-+		if (!err)
-+			err = ext4_ioctl_setflags(inode, flags);
- 		inode_unlock(inode);
- 		mnt_drop_write_file(filp);
- 		return err;
-@@ -1121,6 +1162,9 @@ resizefs_out:
- 			goto out;
- 		flags = (ei->i_flags & ~EXT4_FL_XFLAG_VISIBLE) |
- 			 (flags & EXT4_FL_XFLAG_VISIBLE);
-+		err = ext4_ioctl_check_immutable(inode, fa.fsx_projid, flags);
-+		if (err)
-+			goto out;
- 		err = ext4_ioctl_setflags(inode, flags);
- 		if (err)
- 			goto out;
++	if (unlikely(IS_IMMUTABLE(inode)))
++		return VM_FAULT_SIGBUS;
++
+ 	sb_start_pagefault(inode->i_sb);
+ 	file_update_time(vma->vm_file);
+ 
 
 
