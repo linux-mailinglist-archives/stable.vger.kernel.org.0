@@ -2,89 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED4C175EED
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 08:20:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B814775F13
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 08:33:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726102AbfGZGUa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 02:20:30 -0400
-Received: from mail-io1-f68.google.com ([209.85.166.68]:46845 "EHLO
-        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725942AbfGZGU3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 02:20:29 -0400
-Received: by mail-io1-f68.google.com with SMTP id i10so102436920iol.13;
-        Thu, 25 Jul 2019 23:20:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=kFzQMA0mDROxu3WWjjr+hWMrQnQOlqpH6UFVO6OFrf4=;
-        b=pbqij5o//r/okuSVI3ASnyDGovftQwBxFVVHYHDVQ9ZyovzjwpHe7ZEGX3SfThVJcK
-         MUGYk0Yu8isC3dPJKx7lzM5eMMhfkZw6x44fqhObkDdm/m/nYNp5QBloGmIXBLha3wNN
-         ZMWUmycYgGbLtKnEy45TxSbZLkrb+IZ9joEnxX4w6hhm4q4nHdONIzYWkH7RWzzi6FQe
-         VvW4Y7WFbfLQQp1OCyjILDj9+sjJ+koB62ABxjSr5O6IIpHfP8tU0UG87qNu2lxNddgC
-         1mqNnEUsxOkveUAoJTu0QaMpuu8A6TcSxcFWyjkmrQWilioxSHOVAaMW2dSJMdrYM9fz
-         s3dw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=kFzQMA0mDROxu3WWjjr+hWMrQnQOlqpH6UFVO6OFrf4=;
-        b=DQjJfipgl0y+wnKXqVEUCbmkEfX/t5ZYbphr6GMWWL4Zf3/RNPqDypX9RLpd4KmAi+
-         zZm9SplgZd+NOnr6JLoz7weubsSD1/bjlRyETC/o4ff7bJoJXU1HIofvRMT15fsDPYV2
-         9OfdYQWVqM2n1Etxr1i7KHsThqRBfVLmTbZZzKqrUArpkEsgDeDabZUh8iVKtAVkkkcz
-         KqwTFLqIZrraAbGaKt9ilq884iHeViRAFEBICcQY6BvqnhwdBSqSqIUxfGC+dHA9gvQh
-         Du7vQKfou9ELU1aqnISxkAVty0pMcbUanwM7oSq+m2wbXQ4ZPKcvtwlyWQCtm9eSY5xY
-         lSfQ==
-X-Gm-Message-State: APjAAAW9iwSuf+hM07BASQLS8dCTN938mv6o/Arzw6afbwiUu6XGCM7z
-        gI1IZTSERkyAfuq/5pfxvQDaK4YVl1OK+g==
-X-Google-Smtp-Source: APXvYqxd0gp1Yyi4cwYVIbeJQ8KoObTNpH1N+WwJNjYsLq2kzEaNasa5l8JL9VM1xkYPKs1W/wZMUQ==
-X-Received: by 2002:a5e:d615:: with SMTP id w21mr17280975iom.0.1564122028902;
-        Thu, 25 Jul 2019 23:20:28 -0700 (PDT)
-Received: from JATN (c-73-243-191-173.hsd1.co.comcast.net. [73.243.191.173])
-        by smtp.gmail.com with ESMTPSA id i23sm37001593ioj.24.2019.07.25.23.20.27
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Thu, 25 Jul 2019 23:20:28 -0700 (PDT)
-Date:   Fri, 26 Jul 2019 00:20:26 -0600
-From:   Kelsey Skunberg <skunberg.kelsey@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.1 000/371] 5.1.20-stable review
-Message-ID: <20190726062026.GC4075@JATN>
-References: <20190724191724.382593077@linuxfoundation.org>
+        id S1725909AbfGZGdh convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 26 Jul 2019 02:33:37 -0400
+Received: from tyo161.gate.nec.co.jp ([114.179.232.161]:33807 "EHLO
+        tyo161.gate.nec.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725903AbfGZGdh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 02:33:37 -0400
+Received: from mailgate01.nec.co.jp ([114.179.233.122])
+        by tyo161.gate.nec.co.jp (8.15.1/8.15.1) with ESMTPS id x6Q6XF0g009534
+        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
+        Fri, 26 Jul 2019 15:33:15 +0900
+Received: from mailsv02.nec.co.jp (mailgate-v.nec.co.jp [10.204.236.94])
+        by mailgate01.nec.co.jp (8.15.1/8.15.1) with ESMTP id x6Q6XFnI026172;
+        Fri, 26 Jul 2019 15:33:15 +0900
+Received: from mail01b.kamome.nec.co.jp (mail01b.kamome.nec.co.jp [10.25.43.2])
+        by mailsv02.nec.co.jp (8.15.1/8.15.1) with ESMTP id x6Q6TpBq025337;
+        Fri, 26 Jul 2019 15:33:15 +0900
+Received: from bpxc99gp.gisp.nec.co.jp ([10.38.151.152] [10.38.151.152]) by mail02.kamome.nec.co.jp with ESMTP id BT-MMP-7142931; Fri, 26 Jul 2019 15:25:51 +0900
+Received: from BPXM20GP.gisp.nec.co.jp ([10.38.151.212]) by
+ BPXC24GP.gisp.nec.co.jp ([10.38.151.152]) with mapi id 14.03.0439.000; Fri,
+ 26 Jul 2019 15:25:50 +0900
+From:   Toshiki Fukasawa <t-fukasawa@vx.jp.nec.com>
+To:     Michal Hocko <mhocko@kernel.org>
+CC:     "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "dan.j.williams@intel.com" <dan.j.williams@intel.com>,
+        "adobriyan@gmail.com" <adobriyan@gmail.com>,
+        "hch@lst.de" <hch@lst.de>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Junichi Nomura <j-nomura@ce.jp.nec.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH 2/2] /proc/kpageflags: do not use uninitialized struct
+ pages
+Thread-Topic: [PATCH 2/2] /proc/kpageflags: do not use uninitialized struct
+ pages
+Thread-Index: AQHVQpEKFGt+j6P+NkKoSe72QQuzoKbac7OAgAFmX4A=
+Date:   Fri, 26 Jul 2019 06:25:49 +0000
+Message-ID: <40b3078e-fb8b-87ef-5c4e-6321956cc940@vx.jp.nec.com>
+References: <20190725023100.31141-1-t-fukasawa@vx.jp.nec.com>
+ <20190725023100.31141-3-t-fukasawa@vx.jp.nec.com>
+ <20190725090341.GC13855@dhcp22.suse.cz>
+In-Reply-To: <20190725090341.GC13855@dhcp22.suse.cz>
+Accept-Language: ja-JP, en-US
+Content-Language: ja-JP
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.34.125.135]
+Content-Type: text/plain; charset="iso-2022-jp"
+Content-ID: <565C14CFB150684B823E03D090635792@gisp.nec.co.jp>
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-TM-AS-MML: disable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 24, 2019 at 09:15:52PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.1.20 release.
-> There are 371 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri 26 Jul 2019 07:13:35 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.20-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
 
-Compiled and booted with no regressions on my system.
 
-Cheers,
-Kelsey
- 
+On 2019/07/25 18:03, Michal Hocko wrote:
+> On Thu 25-07-19 02:31:18, Toshiki Fukasawa wrote:
+>> A kernel panic was observed during reading /proc/kpageflags for
+>> first few pfns allocated by pmem namespace:
+>>
+>> BUG: unable to handle page fault for address: fffffffffffffffe
+>> [  114.495280] #PF: supervisor read access in kernel mode
+>> [  114.495738] #PF: error_code(0x0000) - not-present page
+>> [  114.496203] PGD 17120e067 P4D 17120e067 PUD 171210067 PMD 0
+>> [  114.496713] Oops: 0000 [#1] SMP PTI
+>> [  114.497037] CPU: 9 PID: 1202 Comm: page-types Not tainted 5.3.0-rc1 #1
+>> [  114.497621] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.0-0-g63451fca13-prebuilt.qemu-project.org 04/01/2014
+>> [  114.498706] RIP: 0010:stable_page_flags+0x27/0x3f0
+>> [  114.499142] Code: 82 66 90 66 66 66 66 90 48 85 ff 0f 84 d1 03 00 00 41 54 55 48 89 fd 53 48 8b 57 08 48 8b 1f 48 8d 42 ff 83 e2 01 48 0f 44 c7 <48> 8b 00 f6 c4 02 0f 84 57 03 00 00 45 31 e4 48 8b 55 08 48 89 ef
+>> [  114.500788] RSP: 0018:ffffa5e601a0fe60 EFLAGS: 00010202
+>> [  114.501373] RAX: fffffffffffffffe RBX: ffffffffffffffff RCX: 0000000000000000
+>> [  114.502009] RDX: 0000000000000001 RSI: 00007ffca13a7310 RDI: ffffd07489000000
+>> [  114.502637] RBP: ffffd07489000000 R08: 0000000000000001 R09: 0000000000000000
+>> [  114.503270] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000240000
+>> [  114.503896] R13: 0000000000080000 R14: 00007ffca13a7310 R15: ffffa5e601a0ff08
+>> [  114.504530] FS:  00007f0266c7f540(0000) GS:ffff962dbbac0000(0000) knlGS:0000000000000000
+>> [  114.505245] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>> [  114.505754] CR2: fffffffffffffffe CR3: 000000023a204000 CR4: 00000000000006e0
+>> [  114.506401] Call Trace:
+>> [  114.506660]  kpageflags_read+0xb1/0x130
+>> [  114.507051]  proc_reg_read+0x39/0x60
+>> [  114.507387]  vfs_read+0x8a/0x140
+>> [  114.507686]  ksys_pread64+0x61/0xa0
+>> [  114.508021]  do_syscall_64+0x5f/0x1a0
+>> [  114.508372]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+>> [  114.508844] RIP: 0033:0x7f0266ba426b
+>>
+>> The reason for the panic is that stable_page_flags() which parses
+>> the page flags uses uninitialized struct pages reserved by the
+>> ZONE_DEVICE driver.
+> 
+> Why pmem hasn't initialized struct pages? 
+
+We proposed to initialize in previous approach but that wasn't merged.
+(See https://marc.info/?l=linux-mm&m=152964792500739&w=2)
+
+> Isn't that a bug that should be addressed rather than paper over it like this?
+
+I'm not sure. What do you think, Dan?
+
+Best regards,
+Toshiki Fukasawa
