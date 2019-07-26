@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6935E76A12
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:56:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 132C376A1A
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:56:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387805AbfGZNl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:41:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48914 "EHLO mail.kernel.org"
+        id S1728452AbfGZN4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:56:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727542AbfGZNly (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:41:54 -0400
+        id S1727558AbfGZNlz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:41:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE6DC22BF5;
-        Fri, 26 Jul 2019 13:41:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE59722CBD;
+        Fri, 26 Jul 2019 13:41:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148513;
-        bh=p68XiTC1LTWllQk29SVgoAQsHI6JE9Recy3GGh2LFFA=;
+        s=default; t=1564148514;
+        bh=dA9rjTfI3ezqpl0b3sykI4tA/BBNeqQ0Y08JP8hVIyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oEFDqa+AfqiuXz9z/Ug67UyN9k7Oxz3YK+CAn3dPnJEA5Pf1Rx5sGEFqYcqUBE03r
-         N8xUiu0gDehocxVgsg5h7uMTtFbjCKpx9Fvs+7SjCQeiD4P5SPF4kUO5slRQUDmuzV
-         xKRk6YmVo2gUsjWEOpegzb+u+SHqKwoGV1Q9txfc=
+        b=uGmlVZl8XSMB0BSzWLuhfh9gXsSGgLETdAY8sOvTePaI1nTKSskBvFk5B/Ctp5nmK
+         VdoT6+MmFT9gtlC8m3uXuC4q2zglgp0hJgbb2EYRuFD/fM95rZJrVhsNxTFbMpMteQ
+         6g60XOzBKcKM0jDc0PUwn06wALiuQYUFzO7Rua/w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
         Thomas Gleixner <tglx@linutronix.de>,
+        Nick Desaulniers <ndesaulniers@google.com>,
         Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 76/85] x86/uaccess: Remove ELF function annotation from copy_user_handle_tail()
-Date:   Fri, 26 Jul 2019 09:39:26 -0400
-Message-Id: <20190726133936.11177-76-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 77/85] objtool: Add mcsafe_handle_tail() to the uaccess safe list
+Date:   Fri, 26 Jul 2019 09:39:27 -0400
+Message-Id: <20190726133936.11177-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
 References: <20190726133936.11177-1-sashal@kernel.org>
@@ -46,46 +47,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit 3a6ab4bcc52263dd5b1d2fd2e4ce95a38c798b4d ]
+[ Upstream commit a7e47f26039c26312a4144c3001b4e9fa886bd45 ]
 
-After an objtool improvement, it's complaining about the CLAC in
-copy_user_handle_tail():
+After an objtool improvement, it's reporting that __memcpy_mcsafe() is
+calling mcsafe_handle_tail() with AC=1:
 
-  arch/x86/lib/copy_user_64.o: warning: objtool: .altinstr_replacement+0x12: redundant UACCESS disable
-  arch/x86/lib/copy_user_64.o: warning: objtool:   copy_user_handle_tail()+0x6: (alt)
-  arch/x86/lib/copy_user_64.o: warning: objtool:   copy_user_handle_tail()+0x2: (alt)
-  arch/x86/lib/copy_user_64.o: warning: objtool:   copy_user_handle_tail()+0x0: <=== (func)
+  arch/x86/lib/memcpy_64.o: warning: objtool: .fixup+0x13: call to mcsafe_handle_tail() with UACCESS enabled
+  arch/x86/lib/memcpy_64.o: warning: objtool:   __memcpy_mcsafe()+0x34: (alt)
+  arch/x86/lib/memcpy_64.o: warning: objtool:   __memcpy_mcsafe()+0xb: (branch)
+  arch/x86/lib/memcpy_64.o: warning: objtool:   __memcpy_mcsafe()+0x0: <=== (func)
 
-copy_user_handle_tail() is incorrectly marked as a callable function, so
-objtool is rightfully concerned about the CLAC with no corresponding
-STAC.
-
-Remove the ELF function annotation.  The copy_user_handle_tail() code
-path is already verified by objtool because it's jumped to by other
-callable asm code (which does the corresponding STAC).
+mcsafe_handle_tail() is basically an extension of __memcpy_mcsafe(), so
+AC=1 is supposed to be set.  Add mcsafe_handle_tail() to the uaccess
+safe list.
 
 Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
 Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/6b6e436774678b4b9873811ff023bd29935bee5b.1563413318.git.jpoimboe@redhat.com
+Link: https://lkml.kernel.org/r/035c38f7eac845281d3c3d36749144982e06e58c.1563413318.git.jpoimboe@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/lib/copy_user_64.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/objtool/check.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/lib/copy_user_64.S b/arch/x86/lib/copy_user_64.S
-index 378a1f70ae7d..4fe1601dbc5d 100644
---- a/arch/x86/lib/copy_user_64.S
-+++ b/arch/x86/lib/copy_user_64.S
-@@ -239,7 +239,7 @@ copy_user_handle_tail:
- 	ret
- 
- 	_ASM_EXTABLE_UA(1b, 2b)
--ENDPROC(copy_user_handle_tail)
-+END(copy_user_handle_tail)
- 
- /*
-  * copy_user_nocache - Uncached memory copy with exception handling
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index 172f99195726..f5c3b97051a7 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -488,6 +488,7 @@ static const char *uaccess_safe_builtin[] = {
+ 	/* misc */
+ 	"csum_partial_copy_generic",
+ 	"__memcpy_mcsafe",
++	"mcsafe_handle_tail",
+ 	"ftrace_likely_update", /* CONFIG_TRACE_BRANCH_PROFILING */
+ 	NULL
+ };
 -- 
 2.20.1
 
