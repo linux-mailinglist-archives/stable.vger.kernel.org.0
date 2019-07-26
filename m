@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB48776AA1
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 16:00:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B95176A98
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:59:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727622AbfGZNkS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:40:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46312 "EHLO mail.kernel.org"
+        id S2387440AbfGZNkY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:40:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726959AbfGZNkS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:40:18 -0400
+        id S2387423AbfGZNkU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:40:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F31A122BF5;
-        Fri, 26 Jul 2019 13:40:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C0A022C7E;
+        Fri, 26 Jul 2019 13:40:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148417;
-        bh=cSdDVAIWMsnBNzx9dEUvgtuT/rNZt3Ev+e8xCa6Ol8U=;
+        s=default; t=1564148420;
+        bh=iSt6GWVmi+fpAvXm1Wkw4oTple+1SFW8tj+x+5LwXHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A40AYqqPiKbbjaKQ3Sz2wdiI+4zVB7ocSjjRjCPjQuDxXcPxA89Yz/GctyMSW5au4
-         U3CHQ4+mII1GLtNuLYoCNcazQzNmyY9ETGfBmuubMvaKT+uDiWuT0qPk696PyUKEO7
-         sfsr7fm2P3rPUQUWAqugkwR8jiqAj9JTrEDfoHqA=
+        b=h9fYt+hnjwFh5YEYLvPOnjeQrRNGd82EHi/DOzX6dW3iOw60wZMChNNn9aCx3QiTX
+         QlicawywOGj7tSEzWS+6i8GOpO7qoWOhCur9CrYc1TqDn7EFYrc3t7ayKPAVt7iA31
+         0Xg/W6RU4rxchBDd4PikoNJDEuTdIICtU7GAlx74=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 23/85] fs/adfs: super: fix use-after-free bug
-Date:   Fri, 26 Jul 2019 09:38:33 -0400
-Message-Id: <20190726133936.11177-23-sashal@kernel.org>
+Cc:     Chunyan Zhang <zhang.chunyan@linaro.org>,
+        Baolin Wang <baolin.wang@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 24/85] clk: sprd: Add check for return value of sprd_clk_regmap_init()
+Date:   Fri, 26 Jul 2019 09:38:34 -0400
+Message-Id: <20190726133936.11177-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
 References: <20190726133936.11177-1-sashal@kernel.org>
@@ -43,45 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Chunyan Zhang <zhang.chunyan@linaro.org>
 
-[ Upstream commit 5808b14a1f52554de612fee85ef517199855e310 ]
+[ Upstream commit c974c48deeb969c5e4250e4f06af91edd84b1f10 ]
 
-Fix a use-after-free bug during filesystem initialisation, where we
-access the disc record (which is stored in a buffer) after we have
-released the buffer.
+sprd_clk_regmap_init() doesn't always return success, adding check
+for its return value should make the code more strong.
 
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Chunyan Zhang <zhang.chunyan@linaro.org>
+Reviewed-by: Baolin Wang <baolin.wang@linaro.org>
+[sboyd@kernel.org: Add a missing int ret]
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/adfs/super.c | 5 ++++-
+ drivers/clk/sprd/sc9860-clk.c | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/fs/adfs/super.c b/fs/adfs/super.c
-index ffb669f9bba7..ce0fbbe002bf 100644
---- a/fs/adfs/super.c
-+++ b/fs/adfs/super.c
-@@ -360,6 +360,7 @@ static int adfs_fill_super(struct super_block *sb, void *data, int silent)
- 	struct buffer_head *bh;
- 	struct object_info root_obj;
- 	unsigned char *b_data;
-+	unsigned int blocksize;
- 	struct adfs_sb_info *asb;
- 	struct inode *root;
- 	int ret = -EINVAL;
-@@ -411,8 +412,10 @@ static int adfs_fill_super(struct super_block *sb, void *data, int silent)
- 		goto error_free_bh;
+diff --git a/drivers/clk/sprd/sc9860-clk.c b/drivers/clk/sprd/sc9860-clk.c
+index 9980ab55271b..f76305b4bc8d 100644
+--- a/drivers/clk/sprd/sc9860-clk.c
++++ b/drivers/clk/sprd/sc9860-clk.c
+@@ -2023,6 +2023,7 @@ static int sc9860_clk_probe(struct platform_device *pdev)
+ {
+ 	const struct of_device_id *match;
+ 	const struct sprd_clk_desc *desc;
++	int ret;
+ 
+ 	match = of_match_node(sprd_sc9860_clk_ids, pdev->dev.of_node);
+ 	if (!match) {
+@@ -2031,7 +2032,9 @@ static int sc9860_clk_probe(struct platform_device *pdev)
  	}
  
-+	blocksize = 1 << dr->log2secsize;
- 	brelse(bh);
--	if (sb_set_blocksize(sb, 1 << dr->log2secsize)) {
-+
-+	if (sb_set_blocksize(sb, blocksize)) {
- 		bh = sb_bread(sb, ADFS_DISCRECORD / sb->s_blocksize);
- 		if (!bh) {
- 			adfs_error(sb, "couldn't read superblock on "
+ 	desc = match->data;
+-	sprd_clk_regmap_init(pdev, desc);
++	ret = sprd_clk_regmap_init(pdev, desc);
++	if (ret)
++		return ret;
+ 
+ 	return sprd_clk_probe(&pdev->dev, desc->hw_clks);
+ }
 -- 
 2.20.1
 
