@@ -2,56 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56BA876B95
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 16:27:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5139F76BC3
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 16:40:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727403AbfGZO1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 10:27:07 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:58188 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726731AbfGZO1H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 10:27:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=nYu9AqARyg1s9xhIySXzwj35RjVZXlDWPNT++weib0Q=; b=L6TPMw34jBusFt1s+qu213+qb
-        KGYpi2YSVUoYuGkZ3fazfm/2etpjsXmYTz7h4egt1ZYYYyosg8PjN2teBZ3tFpHQKHEKLZMcGzVUg
-        ZyGitzgaYZRugjqFc6rrxndPFB68yIdbMrkmItpFfS8TnGZJ9dzYk6wLTZS6S1zfk7tVvNrhNJQws
-        YWeNJngl+hdJ0xmxdwgvAb853vUEyy33B5HzicmU9CTdTk7GQz/tluuNfmTSHIbsF0sDoy3EaVqWl
-        EGeFQlMVyCERG7Nqqd3dRiIGE61OoIEgKpQ/ftyEewv/bDBh0iICjZk3QpoeBIeqe7F94grrYQLJV
-        lXpuP+f5Q==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat Linux))
-        id 1hr1Ba-0000WQ-UX; Fri, 26 Jul 2019 14:27:06 +0000
-Date:   Fri, 26 Jul 2019 07:27:06 -0700
-From:   Christoph Hellwig <hch@infradead.org>
-To:     Suganath Prabu <suganath-prabu.subramani@broadcom.com>
-Cc:     linux-scsi@vger.kernel.org, stable@vger.kernel.org,
-        Sathya.Prakash@broadcom.com, kashyap.desai@broadcom.com,
-        sreekanth.reddy@broadcom.com
-Subject: Re: [PATCH] mpt3sas: Use 63-bit DMA addressing on SAS35 HBA
-Message-ID: <20190726142706.GA1734@infradead.org>
-References: <1564135257-33188-1-git-send-email-suganath-prabu.subramani@broadcom.com>
+        id S1727548AbfGZOkC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 10:40:02 -0400
+Received: from mail-yw1-f68.google.com ([209.85.161.68]:38249 "EHLO
+        mail-yw1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726491AbfGZOkC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 10:40:02 -0400
+Received: by mail-yw1-f68.google.com with SMTP id f187so20406395ywa.5
+        for <stable@vger.kernel.org>; Fri, 26 Jul 2019 07:40:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=g1vw/zhzgzlaAj9PAyNj5qk7UcGlQmJnfYzX/GRn8iY=;
+        b=dEWr49kCy4JoyOMutCorZhU7tbpjeVLXFKLIK+CU7fb2p8P3CskwRmyEjVZVz4Od4K
+         izOo1vnQCuHV+/k8Do4XKG/lB+3qLdqs5SIM1ta3fu7ydDxQkHvWMJFAzX2Kq7wSBPsS
+         UuEvIcGbShgz6w16Tidzy6oeMimoJnPORvC8sp95O2GZSh/urZslg2Lnr3EWadgOYect
+         JqsN9+7ag59WmQdR7rrjWntgLuBTL8jhEnvIkRb10URhmXE2T4iQsdfSMO7uJEEWjKxq
+         ErQEc2WmJscX/h+fAMFzyzj9rlJPO3i/9zzBdZeath1fM/OvNFQTW6fwCjzbpMhPeKkJ
+         tzlQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=g1vw/zhzgzlaAj9PAyNj5qk7UcGlQmJnfYzX/GRn8iY=;
+        b=EkmvLfjjYYgM2n1cTr5twutRDJ4V/W5E3rNI+S/AjOoyaHR4VDR27TxJOJ5AW5luu2
+         nLU13B4Nu/6eKiIfedCdAh0KzpnmQJ+bQsoHQ2ZB/fRlpQEcpqX7kqeWan2DdbMZ+JON
+         j31iLi2KBfS98iaxlU6ROVTaHmz2alWWJm/gHgFkRa/Mriwtc9yy6YsFCc65KyF6g88s
+         RBX3SnsLQ1YieMOTBDvDdDDLXAA4sMmEKzrq4xTA29DsK4G2WSNqGiXIUBuzuVkRwOtL
+         fBETT6fCuSVO6cFclzI1eT/nhmkGeblakpbNdE966rOZNf4xmmFQGg/25SkPGBfGs98U
+         10eA==
+X-Gm-Message-State: APjAAAU50MZjq6nvmMWM7f0wgWPVmvibwPBTABBf7iuTtIm5rim4W2pH
+        6E2TFeqmRKDg3yi2mwBF2XIHvIqvdueN0Yrg8hd00g==
+X-Google-Smtp-Source: APXvYqyWfDGB9Bphyb5xRf5qrBhymbg7d9dBUICJ4NMqqAxbOeRxZgw7Xbt9ngN8ScnKmIb6stjlXSQ/aKv0yKU45Js=
+X-Received: by 2002:a81:494f:: with SMTP id w76mr54854608ywa.21.1564152001169;
+ Fri, 26 Jul 2019 07:40:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1564135257-33188-1-git-send-email-suganath-prabu.subramani@broadcom.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+References: <1564144694159130@kroah.com> <20190726124517.GA8301@kroah.com>
+In-Reply-To: <20190726124517.GA8301@kroah.com>
+From:   Eric Dumazet <edumazet@google.com>
+Date:   Fri, 26 Jul 2019 16:39:48 +0200
+Message-ID: <CANn89iKr7vYoLD_o-zhR72rQ8a4OQr=VW6oVRCYBDi1kmN6=dg@mail.gmail.com>
+Subject: Re: FAILED: patch "[PATCH] tcp: be more careful in tcp_fragment()"
+ failed to apply to 4.14-stable tree
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Andrew Prout <aprout@ll.mit.edu>,
+        Christoph Paasch <cpaasch@apple.com>,
+        David Miller <davem@davemloft.net>,
+        Jonathan Lemon <jonathan.lemon@gmail.com>,
+        Jonathan Looney <jtl@netflix.com>,
+        Michal Kubecek <mkubecek@suse.cz>,
+        Neal Cardwell <ncardwell@google.com>,
+        Yuchung Cheng <ycheng@google.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 26, 2019 at 06:00:57AM -0400, Suganath Prabu wrote:
-> Although SAS3 & SAS3.5 IT HBA controllers support
-> 64-bit DMA addressing, as per hardware design,
-> DMA address with all 64-bits set (0xFFFFFFFF-FFFFFFFF)
-> results in a firmware fault.
+On Fri, Jul 26, 2019 at 2:45 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Fri, Jul 26, 2019 at 02:38:14PM +0200, gregkh@linuxfoundation.org wrote:
+> >
+> > The patch below does not apply to the 4.14-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> >
+> > thanks,
+> >
+> > greg k-h
+> >
+> > ------------------ original commit in Linus's tree ------------------
+> >
+> > >From b617158dc096709d8600c53b6052144d12b89fab Mon Sep 17 00:00:00 2001
+> > From: Eric Dumazet <edumazet@google.com>
+> > Date: Fri, 19 Jul 2019 11:52:33 -0700
+> > Subject: [PATCH] tcp: be more careful in tcp_fragment()
+> >
+> > Some applications set tiny SO_SNDBUF values and expect
+> > TCP to just work. Recent patches to address CVE-2019-11478
+> > broke them in case of losses, since retransmits might
+> > be prevented.
+> >
+> > We should allow these flows to make progress.
+> >
+> > This patch allows the first and last skb in retransmit queue
+> > to be split even if memory limits are hit.
+> >
+> > It also adds the some room due to the fact that tcp_sendmsg()
+> > and tcp_sendpage() might overshoot sk_wmem_queued by about one full
+> > TSO skb (64KB size). Note this allowance was already present
+> > in stable backports for kernels < 4.15
+> >
+> > Note for < 4.15 backports :
+> >  tcp_rtx_queue_tail() will probably look like :
+> >
+> > static inline struct sk_buff *tcp_rtx_queue_tail(const struct sock *sk)
+> > {
+> >       struct sk_buff *skb = tcp_send_head(sk);
+> >
+> >       return skb ? tcp_write_queue_prev(sk, skb) : tcp_write_queue_tail(sk);
+> > }
+>
+>
+> Note, I tried the above, but still ran into problems a 4.14 does not
+> have tcp_rtx_queue_head() and while I could guess as to what it would be
+> (tcp_sent_head()?), I figured it would be safer to ask for a backport :)
+>
 
-Linux will never send a dma address with all bits set anyway, as that
-is our magic escape for the dma_addr_t error value.  Additionally to
-generate that address you'd need a 1-byte sized, 1-byte aligned buffer,
-which we never use.
+
+tcp_rtx_queue_head(sk) would be implemented by :
+{
+  struct sk_buff *skb = tcp_write_queue_head(sk);
+  if (skb == tcp_send_head(sk))
+    skb = NULL;
+  return skb;
+}
+
+I can provide the backport, of course.
+
+
+> thanks,
+>
+> greg k-h
