@@ -2,113 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D94717660A
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 14:38:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0546F7661B
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 14:45:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727373AbfGZMi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 08:38:28 -0400
-Received: from foss.arm.com ([217.140.110.172]:42694 "EHLO foss.arm.com"
+        id S1726391AbfGZMpW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 08:45:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726555AbfGZMi2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 08:38:28 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6DBC5337;
-        Fri, 26 Jul 2019 05:38:27 -0700 (PDT)
-Received: from [10.1.197.57] (e110467-lin.cambridge.arm.com [10.1.197.57])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4E1C13F694;
-        Fri, 26 Jul 2019 05:38:26 -0700 (PDT)
-Subject: Re: [PATCH 1/3] arm64: perf: Mark expected switch fall-through
-To:     Will Deacon <will@kernel.org>, Mark Rutland <mark.rutland@arm.com>
-Cc:     Anders Roxell <anders.roxell@linaro.org>,
-        Kees Cook <keescook@chromium.org>,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        catalin.marinas@arm.com, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-References: <20190726112716.19104-1-anders.roxell@linaro.org>
- <20190726121056.GA26088@lakrids.cambridge.arm.com>
- <20190726121354.GB26088@lakrids.cambridge.arm.com>
- <20190726122728.jhn4e6wq7rcowyi4@willie-the-truck>
-From:   Robin Murphy <robin.murphy@arm.com>
-Message-ID: <1549fe77-367f-fee1-c09c-e429fca91051@arm.com>
-Date:   Fri, 26 Jul 2019 13:38:24 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1726385AbfGZMpW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 08:45:22 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A732921951;
+        Fri, 26 Jul 2019 12:45:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564145121;
+        bh=VstrHKlLwVD4oiqI8kzSLM5YTJWL47oNQH4NV5pgMgQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=HuSa2yeEQXT35JfmTqfXTbF9BBLBWCCL8C9u4p5y2Gref8s04U+qe1cMsvXes3hwa
+         DfTv2F2mY74Gn2RxYLhG85OueOF0BSuXkfMvZOiHPFHed/YGIORg27IpnJstQwEy7h
+         zrNdlHODQ9gDsXUIIrPflmaPIq3jm3zbjsMF17Rs=
+Date:   Fri, 26 Jul 2019 14:45:17 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     edumazet@google.com, aprout@ll.mit.edu, cpaasch@apple.com,
+        davem@davemloft.net, jonathan.lemon@gmail.com, jtl@netflix.com,
+        mkubecek@suse.cz, ncardwell@google.com, ycheng@google.com
+Cc:     stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] tcp: be more careful in tcp_fragment()"
+ failed to apply to 4.14-stable tree
+Message-ID: <20190726124517.GA8301@kroah.com>
+References: <1564144694159130@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20190726122728.jhn4e6wq7rcowyi4@willie-the-truck>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1564144694159130@kroah.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 26/07/2019 13:27, Will Deacon wrote:
-> On Fri, Jul 26, 2019 at 01:13:54PM +0100, Mark Rutland wrote:
->> On Fri, Jul 26, 2019 at 01:10:57PM +0100, Mark Rutland wrote:
->>> On Fri, Jul 26, 2019 at 01:27:16PM +0200, Anders Roxell wrote:
->>>> When fall-through warnings was enabled by default, commit d93512ef0f0e
->>>> ("Makefile: Globally enable fall-through warning"), the following
->>>> warnings was starting to show up:
->>>>
->>>> ../arch/arm64/kernel/hw_breakpoint.c: In function ‘hw_breakpoint_arch_parse’:
->>>> ../arch/arm64/kernel/hw_breakpoint.c:540:7: warning: this statement may fall
->>>>   through [-Wimplicit-fallthrough=]
->>>>      if (hw->ctrl.len == ARM_BREAKPOINT_LEN_1)
->>>>         ^
->>>> ../arch/arm64/kernel/hw_breakpoint.c:542:3: note: here
->>>>     case 2:
->>>>     ^~~~
->>>> ../arch/arm64/kernel/hw_breakpoint.c:544:7: warning: this statement may fall
->>>>   through [-Wimplicit-fallthrough=]
->>>>      if (hw->ctrl.len == ARM_BREAKPOINT_LEN_2)
->>>>         ^
->>>> ../arch/arm64/kernel/hw_breakpoint.c:546:3: note: here
->>>>     default:
->>>>     ^~~~~~~
->>>>
->>>> Rework so that the compiler doesn't warn about fall-through. Rework so
->>>> the code looks like the arm code. Since the comment in the function
->>>> indicates taht this is supposed to behave the same way as arm32 because
->>>
->>> Typo: s/taht/that/
->>>
->>>> it handles 32-bit tasks also.
->>>>
->>>> Cc: stable@vger.kernel.org # v3.16+
->>>> Fixes: 6ee33c2712fc ("ARM: hw_breakpoint: correct and simplify alignment fixup code")
->>>> Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
->>>
->>> The patch itself looks fine, but I don't think this needs a CC to
->>> stable, nor does it require that fixes tag, as there's no functional
->>> problem.
->>
->> Hmm... I now see I spoke too soon, and this is making the 1-byte
->> breakpoint work at a 3-byte offset.
+On Fri, Jul 26, 2019 at 02:38:14PM +0200, gregkh@linuxfoundation.org wrote:
 > 
-> I still don't think it's quite right though, since it forbids a 2-byte
-> watchpoint on a byte-aligned address.
-
-Plus, AFAICS, a 1-byte watchpoint on a 2-byte-aligned address.
-
-Not that I know anything about this code, but it does start to look like 
-it might want rewriting without the offending switch statement anyway. 
-At a glance, it looks like the intended semantic might boil down to:
-
-	if (hw->ctrl.len > offset)
-		return -EINVAL;
-
-Robin.
-
-> I think the arm64 code matches what we had on 32-bit prior to
-> d968d2b801d8 ("ARM: 7497/1: hw_breakpoint: allow single-byte watchpoints
-> on all addresses"), so we should have one patch bringing us up to speed
-> with that change, and then another annotating the fallthroughs.
+> The patch below does not apply to the 4.14-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 > 
-> Will
+> thanks,
 > 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> greg k-h
 > 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> >From b617158dc096709d8600c53b6052144d12b89fab Mon Sep 17 00:00:00 2001
+> From: Eric Dumazet <edumazet@google.com>
+> Date: Fri, 19 Jul 2019 11:52:33 -0700
+> Subject: [PATCH] tcp: be more careful in tcp_fragment()
+> 
+> Some applications set tiny SO_SNDBUF values and expect
+> TCP to just work. Recent patches to address CVE-2019-11478
+> broke them in case of losses, since retransmits might
+> be prevented.
+> 
+> We should allow these flows to make progress.
+> 
+> This patch allows the first and last skb in retransmit queue
+> to be split even if memory limits are hit.
+> 
+> It also adds the some room due to the fact that tcp_sendmsg()
+> and tcp_sendpage() might overshoot sk_wmem_queued by about one full
+> TSO skb (64KB size). Note this allowance was already present
+> in stable backports for kernels < 4.15
+> 
+> Note for < 4.15 backports :
+>  tcp_rtx_queue_tail() will probably look like :
+> 
+> static inline struct sk_buff *tcp_rtx_queue_tail(const struct sock *sk)
+> {
+> 	struct sk_buff *skb = tcp_send_head(sk);
+> 
+> 	return skb ? tcp_write_queue_prev(sk, skb) : tcp_write_queue_tail(sk);
+> }
+
+
+Note, I tried the above, but still ran into problems a 4.14 does not
+have tcp_rtx_queue_head() and while I could guess as to what it would be
+(tcp_sent_head()?), I figured it would be safer to ask for a backport :)
+
+thanks,
+
+greg k-h
