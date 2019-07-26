@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 145547687D
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:44:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D6327690D
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:49:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388447AbfGZNow (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:44:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53272 "EHLO mail.kernel.org"
+        id S1728157AbfGZNtC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:49:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388439AbfGZNow (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:44:52 -0400
+        id S2388456AbfGZNoy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:44:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55C2122CD7;
-        Fri, 26 Jul 2019 13:44:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF07D22CBF;
+        Fri, 26 Jul 2019 13:44:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148691;
-        bh=1FOnbSF7WqPxZqQHFLMLT7wGOvQBsSTOeGGZhcbQPnk=;
+        s=default; t=1564148693;
+        bh=1Nx+pXv8/xDANp9AAKMymmPxnaEzBXyhJvBdMDF0yUU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b/1gT6wSgapNyF6JThloKi2bQ2TbSD9Tuh3kosZ9Z85tBjP3NDZBirrrPdF/8jF7M
-         rwBMYZbC3nRzWGOBbgi1+0/wSvVNQU2S13r4OSAHAmQiaicswH2dW9U6S4eT0SB4YU
-         SucxtzGnV+hF1KqoHJFZTBnUFA+q9GpxnGxRPC4w=
+        b=tYjEE6+rFX/zTNvLx9ELQNE2uu8rxre+BOViGyoyWP13xSJKmJq87FBNxfk+d8rxX
+         /CibHuGBaai4bwqQl6+bl20BDxk9HBR0+PR6j3CGh5MHa7iBug2U3u8yQqcHvdmV4Y
+         t7wCO5bh4HFQii8Rc4KLTeiP4/+FfIubCFAq3/gc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.9 14/30] ACPI: fix false-positive -Wuninitialized warning
-Date:   Fri, 26 Jul 2019 09:44:16 -0400
-Message-Id: <20190726134432.12993-14-sashal@kernel.org>
+Cc:     Phong Tran <tranmanphong@gmail.com>,
+        syzbot+8750abbc3a46ef47d509@syzkaller.appspotmail.com,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 15/30] ISDN: hfcsusb: checking idx of ep configuration
+Date:   Fri, 26 Jul 2019 09:44:17 -0400
+Message-Id: <20190726134432.12993-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726134432.12993-1-sashal@kernel.org>
 References: <20190726134432.12993-1-sashal@kernel.org>
@@ -46,58 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Phong Tran <tranmanphong@gmail.com>
 
-[ Upstream commit dfd6f9ad36368b8dbd5f5a2b2f0a4705ae69a323 ]
+[ Upstream commit f384e62a82ba5d85408405fdd6aeff89354deaa9 ]
 
-clang gets confused by an uninitialized variable in what looks
-to it like a never executed code path:
+The syzbot test with random endpoint address which made the idx is
+overflow in the table of endpoint configuations.
 
-arch/x86/kernel/acpi/boot.c:618:13: error: variable 'polarity' is uninitialized when used here [-Werror,-Wuninitialized]
-        polarity = polarity ? ACPI_ACTIVE_LOW : ACPI_ACTIVE_HIGH;
-                   ^~~~~~~~
-arch/x86/kernel/acpi/boot.c:606:32: note: initialize the variable 'polarity' to silence this warning
-        int rc, irq, trigger, polarity;
-                                      ^
-                                       = 0
-arch/x86/kernel/acpi/boot.c:617:12: error: variable 'trigger' is uninitialized when used here [-Werror,-Wuninitialized]
-        trigger = trigger ? ACPI_LEVEL_SENSITIVE : ACPI_EDGE_SENSITIVE;
-                  ^~~~~~~
-arch/x86/kernel/acpi/boot.c:606:22: note: initialize the variable 'trigger' to silence this warning
-        int rc, irq, trigger, polarity;
-                            ^
-                             = 0
+this adds the checking for fixing the error report from
+syzbot
 
-This is unfortunately a design decision in clang and won't be fixed.
+KASAN: stack-out-of-bounds Read in hfcsusb_probe [1]
+The patch tested by syzbot [2]
 
-Changing the acpi_get_override_irq() macro to an inline function
-reliably avoids the issue.
+Reported-by: syzbot+8750abbc3a46ef47d509@syzkaller.appspotmail.com
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+[1]:
+https://syzkaller.appspot.com/bug?id=30a04378dac680c5d521304a00a86156bb913522
+[2]:
+https://groups.google.com/d/msg/syzkaller-bugs/_6HBdge8F3E/OJn7wVNpBAAJ
+
+Signed-off-by: Phong Tran <tranmanphong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/acpi.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/isdn/hardware/mISDN/hfcsusb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index ca2b4c4aec42..719eb97217a3 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -309,7 +309,10 @@ void acpi_set_irq_model(enum acpi_irq_model_id model,
- #ifdef CONFIG_X86_IO_APIC
- extern int acpi_get_override_irq(u32 gsi, int *trigger, int *polarity);
- #else
--#define acpi_get_override_irq(gsi, trigger, polarity) (-1)
-+static inline int acpi_get_override_irq(u32 gsi, int *trigger, int *polarity)
-+{
-+	return -1;
-+}
- #endif
- /*
-  * This function undoes the effect of one call to acpi_register_gsi().
+diff --git a/drivers/isdn/hardware/mISDN/hfcsusb.c b/drivers/isdn/hardware/mISDN/hfcsusb.c
+index 114f3bcba1b0..c60c7998af17 100644
+--- a/drivers/isdn/hardware/mISDN/hfcsusb.c
++++ b/drivers/isdn/hardware/mISDN/hfcsusb.c
+@@ -1963,6 +1963,9 @@ hfcsusb_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ 
+ 				/* get endpoint base */
+ 				idx = ((ep_addr & 0x7f) - 1) * 2;
++				if (idx > 15)
++					return -EIO;
++
+ 				if (ep_addr & 0x80)
+ 					idx++;
+ 				attr = ep->desc.bmAttributes;
 -- 
 2.20.1
 
