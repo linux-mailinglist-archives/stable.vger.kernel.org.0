@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C868876ACB
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 16:01:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F233676ABB
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 16:00:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727554AbfGZNkC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:40:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45918 "EHLO mail.kernel.org"
+        id S1728148AbfGZOAr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 10:00:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727546AbfGZNkC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:40:02 -0400
+        id S1727584AbfGZNkJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:40:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 536D522CB8;
-        Fri, 26 Jul 2019 13:40:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B75722CBB;
+        Fri, 26 Jul 2019 13:40:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148401;
-        bh=j4QpKiWOZUwLVM0PO3DDqb7etaR53fFYJO+NvTspFdk=;
+        s=default; t=1564148408;
+        bh=GS0t9ejWfMJx8u+jiXzlJqATgam2UjS8xzz2i1Kfo70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zWhMHCdBFwGPGOsuvfBOtBdu2zZHZRatzR2mxP2wiecw3bV7tswFP87sKbCZ6TtJ+
-         D0Qm7+Ir+Se2G+4pkPEtKk0Lnb6CHTxe4lfr66Onwkes6JHKQ3fqwhn6TL2RmpAPbX
-         5D60qnMeR9PWMnJsIIiaA2jkg/0iNHp1r/4C1xe8=
+        b=Ck0FiNcQjy4xFqS5XBGVeVPQzPL4hLByZ/ZJabWU7lfYdMS1XLGrMXNXK0opmmP5v
+         jOI5N+qcFBKEc5t2KaBNUkIhwvEdiSi4lUlJJyC6gIEPAIrCnGDXRxK6VSU+D0bzot
+         ZzCVtYve4efxLwQKowFsAHhqSv/7qOTOTa7eAzAU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 14/85] PCI: OF: Initialize dev->fwnode appropriately
-Date:   Fri, 26 Jul 2019 09:38:24 -0400
-Message-Id: <20190726133936.11177-14-sashal@kernel.org>
+Cc:     Andy Gross <agross@kernel.org>,
+        Niklas Cassel <niklas.cassel@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Olof Johansson <olof@lixom.net>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 17/85] arm64: qcom: qcs404: Add reset-cells to GCC node
+Date:   Fri, 26 Jul 2019 09:38:27 -0400
+Message-Id: <20190726133936.11177-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
 References: <20190726133936.11177-1-sashal@kernel.org>
@@ -44,61 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+From: Andy Gross <agross@kernel.org>
 
-[ Upstream commit 59b099a6c75e4ddceeaf9676422d8d91d0049755 ]
+[ Upstream commit 0763d0c2273a3c72247d325c48fbac3d918d6b87 ]
 
-For PCI devices that have an OF node, set the fwnode as well. This way
-drivers that rely on fwnode don't need the special case described by
-commit f94277af03ea ("of/platform: Initialise dev->fwnode appropriately").
+This patch adds a reset-cells property to the gcc controller on the QCS404.
+Without this in place, we get warnings like the following if nodes reference
+a gcc reset:
 
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+arch/arm64/boot/dts/qcom/qcs404.dtsi:261.38-310.5: Warning (resets_property):
+/soc@0/remoteproc@b00000: Missing property '#reset-cells' in node
+/soc@0/clock-controller@1800000 or bad phandle (referred from resets[0])
+  also defined at arch/arm64/boot/dts/qcom/qcs404-evb.dtsi:82.18-84.3
+  DTC     arch/arm64/boot/dts/qcom/qcs404-evb-4000.dtb
+arch/arm64/boot/dts/qcom/qcs404.dtsi:261.38-310.5: Warning (resets_property):
+/soc@0/remoteproc@b00000: Missing property '#reset-cells' in node
+/soc@0/clock-controller@1800000 or bad phandle (referred from resets[0])
+  also defined at arch/arm64/boot/dts/qcom/qcs404-evb.dtsi:82.18-84.3
+
+Signed-off-by: Andy Gross <agross@kernel.org>
+Reviewed-by: Niklas Cassel <niklas.cassel@linaro.org>
+Reviewed-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Olof Johansson <olof@lixom.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/of.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/arm64/boot/dts/qcom/qcs404.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pci/of.c b/drivers/pci/of.c
-index 73d5adec0a28..bc7b27a28795 100644
---- a/drivers/pci/of.c
-+++ b/drivers/pci/of.c
-@@ -22,12 +22,15 @@ void pci_set_of_node(struct pci_dev *dev)
- 		return;
- 	dev->dev.of_node = of_pci_find_child_device(dev->bus->dev.of_node,
- 						    dev->devfn);
-+	if (dev->dev.of_node)
-+		dev->dev.fwnode = &dev->dev.of_node->fwnode;
- }
+diff --git a/arch/arm64/boot/dts/qcom/qcs404.dtsi b/arch/arm64/boot/dts/qcom/qcs404.dtsi
+index ffedf9640af7..65a2cbeb28be 100644
+--- a/arch/arm64/boot/dts/qcom/qcs404.dtsi
++++ b/arch/arm64/boot/dts/qcom/qcs404.dtsi
+@@ -383,6 +383,7 @@
+ 			compatible = "qcom,gcc-qcs404";
+ 			reg = <0x01800000 0x80000>;
+ 			#clock-cells = <1>;
++			#reset-cells = <1>;
  
- void pci_release_of_node(struct pci_dev *dev)
- {
- 	of_node_put(dev->dev.of_node);
- 	dev->dev.of_node = NULL;
-+	dev->dev.fwnode = NULL;
- }
- 
- void pci_set_bus_of_node(struct pci_bus *bus)
-@@ -41,13 +44,18 @@ void pci_set_bus_of_node(struct pci_bus *bus)
- 		if (node && of_property_read_bool(node, "external-facing"))
- 			bus->self->untrusted = true;
- 	}
-+
- 	bus->dev.of_node = node;
-+
-+	if (bus->dev.of_node)
-+		bus->dev.fwnode = &bus->dev.of_node->fwnode;
- }
- 
- void pci_release_bus_of_node(struct pci_bus *bus)
- {
- 	of_node_put(bus->dev.of_node);
- 	bus->dev.of_node = NULL;
-+	bus->dev.fwnode = NULL;
- }
- 
- struct device_node * __weak pcibios_get_phb_of_node(struct pci_bus *bus)
+ 			assigned-clocks = <&gcc GCC_APSS_AHB_CLK_SRC>;
+ 			assigned-clock-rates = <19200000>;
 -- 
 2.20.1
 
