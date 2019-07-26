@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37BBD76A2F
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:56:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1EDB76A2E
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:56:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387743AbfGZNlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:41:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48292 "EHLO mail.kernel.org"
+        id S2387755AbfGZNlr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:41:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387737AbfGZNln (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:41:43 -0400
+        id S2387747AbfGZNlp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:41:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A54B22CD2;
-        Fri, 26 Jul 2019 13:41:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4333C22CD3;
+        Fri, 26 Jul 2019 13:41:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148502;
-        bh=f52hWbXYvHnXkysoq3U1icOl2H8UpjMDUhfyg78YYUM=;
+        s=default; t=1564148504;
+        bh=kw1tzX8WE1U2hMV6bQjq4IdrRzIQAtYREyRufUjKTWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0igVgYOOjZHB4hsPZ5MY+Ij1SPa4kmZYFTvBvZHGbsk+9t0K1y/8fVtnBpqG6tmfG
-         cnir6LBYHri6tDAaP3YC9T9PmbG9F/MnBORRygydaxzucbRu5xwGMSoaL4CJlFYY+i
-         5MXcquOadzouG7XfUgUjnVNp3NOO7oApBq0y1abE=
+        b=gQ0faUZOwhrtv7YcgbZgENqWnQw7+9Cnl6nTCdqzj/bu8DnFfPoZvDRF/v7A/U13t
+         NJ645CpoHHip7qaN/2rDeIZBgIHkDCHsRBM3lSHASqaUjWN1UOmTwtRG7ZHUevSZHq
+         jX/EhdiugBNfQ+9Fcr0FranNfUuQQl85UeRrV3SM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Denis Efremov <efremov@ispras.ru>, Willy Tarreau <w@1wt.eu>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 70/85] floppy: fix out-of-bounds read in copy_buffer
-Date:   Fri, 26 Jul 2019 09:39:20 -0400
-Message-Id: <20190726133936.11177-70-sashal@kernel.org>
+Cc:     Petr Machata <petrm@mellanox.com>,
+        Alex Veber <alexve@mellanox.com>,
+        Ido Schimmel <idosch@mellanox.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 71/85] mlxsw: spectrum_dcb: Configure DSCP map as the last rule is removed
+Date:   Fri, 26 Jul 2019 09:39:21 -0400
+Message-Id: <20190726133936.11177-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
 References: <20190726133936.11177-1-sashal@kernel.org>
@@ -43,52 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Efremov <efremov@ispras.ru>
+From: Petr Machata <petrm@mellanox.com>
 
-[ Upstream commit da99466ac243f15fbba65bd261bfc75ffa1532b6 ]
+[ Upstream commit dedfde2fe1c4ccf27179fcb234e2112d065c39bb ]
 
-This fixes a global out-of-bounds read access in the copy_buffer
-function of the floppy driver.
+Spectrum systems use DSCP rewrite map to update DSCP field in egressing
+packets to correspond to priority that the packet has. Whether rewriting
+will take place is determined at the point when the packet ingresses the
+switch: if the port is in Trust L3 mode, packet priority is determined from
+the DSCP map at the port, and DSCP rewrite will happen. If the port is in
+Trust L2 mode, 802.1p is used for packet prioritization, and no DSCP
+rewrite will happen.
 
-The FDDEFPRM ioctl allows one to set the geometry of a disk.  The sect
-and head fields (unsigned int) of the floppy_drive structure are used to
-compute the max_sector (int) in the make_raw_rw_request function.  It is
-possible to overflow the max_sector.  Next, max_sector is passed to the
-copy_buffer function and used in one of the memcpy calls.
+The driver determines the port trust mode based on whether any DSCP
+prioritization rules are in effect at given port. If there are any, trust
+level is L3, otherwise it's L2. When the last DSCP rule is removed, the
+port is switched to trust L2. Under that scenario, if DSCP of a packet
+should be rewritten, it should be rewritten to 0.
 
-An unprivileged user could trigger the bug if the device is accessible,
-but requires a floppy disk to be inserted.
+However, when switching to Trust L2, the driver neglects to also update the
+DSCP rewrite map. The last DSCP rule thus remains in effect, and packets
+egressing through this port, if they have the right priority, will have
+their DSCP set according to this rule.
 
-The patch adds the check for the .sect * .head multiplication for not
-overflowing in the set_geometry function.
+Fix by first configuring the rewrite map, and only then switching to trust
+L2 and bailing out.
 
-The bug was found by syzkaller.
-
-Signed-off-by: Denis Efremov <efremov@ispras.ru>
-Tested-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: b2b1dab6884e ("mlxsw: spectrum: Support ieee_setapp, ieee_delapp")
+Signed-off-by: Petr Machata <petrm@mellanox.com>
+Reported-by: Alex Veber <alexve@mellanox.com>
+Tested-by: Alex Veber <alexve@mellanox.com>
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/floppy.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ .../net/ethernet/mellanox/mlxsw/spectrum_dcb.c   | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/block/floppy.c b/drivers/block/floppy.c
-index 51246bc9709a..6787fe0c06f8 100644
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -3233,8 +3233,10 @@ static int set_geometry(unsigned int cmd, struct floppy_struct *g,
- 	int cnt;
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
+index b25048c6c761..21296fa7f7fb 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
+@@ -408,14 +408,6 @@ static int mlxsw_sp_port_dcb_app_update(struct mlxsw_sp_port *mlxsw_sp_port)
+ 	have_dscp = mlxsw_sp_port_dcb_app_prio_dscp_map(mlxsw_sp_port,
+ 							&prio_map);
  
- 	/* sanity checking for parameters. */
--	if (g->sect <= 0 ||
--	    g->head <= 0 ||
-+	if ((int)g->sect <= 0 ||
-+	    (int)g->head <= 0 ||
-+	    /* check for overflow in max_sector */
-+	    (int)(g->sect * g->head) <= 0 ||
- 	    /* check for zero in F_SECT_PER_TRACK */
- 	    (unsigned char)((g->sect << 2) >> FD_SIZECODE(g)) == 0 ||
- 	    g->track <= 0 || g->track > UDP->tracks >> STRETCH(g) ||
+-	if (!have_dscp) {
+-		err = mlxsw_sp_port_dcb_toggle_trust(mlxsw_sp_port,
+-					MLXSW_REG_QPTS_TRUST_STATE_PCP);
+-		if (err)
+-			netdev_err(mlxsw_sp_port->dev, "Couldn't switch to trust L2\n");
+-		return err;
+-	}
+-
+ 	mlxsw_sp_port_dcb_app_dscp_prio_map(mlxsw_sp_port, default_prio,
+ 					    &dscp_map);
+ 	err = mlxsw_sp_port_dcb_app_update_qpdpm(mlxsw_sp_port,
+@@ -432,6 +424,14 @@ static int mlxsw_sp_port_dcb_app_update(struct mlxsw_sp_port *mlxsw_sp_port)
+ 		return err;
+ 	}
+ 
++	if (!have_dscp) {
++		err = mlxsw_sp_port_dcb_toggle_trust(mlxsw_sp_port,
++					MLXSW_REG_QPTS_TRUST_STATE_PCP);
++		if (err)
++			netdev_err(mlxsw_sp_port->dev, "Couldn't switch to trust L2\n");
++		return err;
++	}
++
+ 	err = mlxsw_sp_port_dcb_toggle_trust(mlxsw_sp_port,
+ 					     MLXSW_REG_QPTS_TRUST_STATE_DSCP);
+ 	if (err) {
 -- 
 2.20.1
 
