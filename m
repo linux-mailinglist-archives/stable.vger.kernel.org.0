@@ -2,123 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D0B476771
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:28:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 205BB767A9
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:37:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726265AbfGZN2l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:28:41 -0400
-Received: from foss.arm.com ([217.140.110.172]:43526 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726001AbfGZN2l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:28:41 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 738E3337;
-        Fri, 26 Jul 2019 06:28:40 -0700 (PDT)
-Received: from [10.1.197.57] (e110467-lin.cambridge.arm.com [10.1.197.57])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 5354E3F694;
-        Fri, 26 Jul 2019 06:28:39 -0700 (PDT)
-Subject: Re: [PATCH 1/3] arm64: perf: Mark expected switch fall-through
-To:     Will Deacon <will@kernel.org>
-Cc:     Mark Rutland <mark.rutland@arm.com>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Kees Cook <keescook@chromium.org>,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        catalin.marinas@arm.com, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-References: <20190726112716.19104-1-anders.roxell@linaro.org>
- <20190726121056.GA26088@lakrids.cambridge.arm.com>
- <20190726121354.GB26088@lakrids.cambridge.arm.com>
- <20190726122728.jhn4e6wq7rcowyi4@willie-the-truck>
- <1549fe77-367f-fee1-c09c-e429fca91051@arm.com>
- <20190726130523.ftmc2un7fwwcegrr@willie-the-truck>
-From:   Robin Murphy <robin.murphy@arm.com>
-Message-ID: <0dc7d97f-88bb-6416-d731-afbf0d3c6133@arm.com>
-Date:   Fri, 26 Jul 2019 14:28:38 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1726303AbfGZNhr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:37:47 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:34551 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726265AbfGZNhr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 09:37:47 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id D21345AC;
+        Fri, 26 Jul 2019 09:37:45 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Fri, 26 Jul 2019 09:37:46 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ZhTxLl
+        ZX+nH1Og4Kfxp4Xn2FFwtHFu9eLjPPLOHOSuc=; b=UzUkwYebQt7vujmtRl/ejp
+        0mOqZQ73s7B0mMnGqXcZLdHczZdj0G2Fj12yKiWnbwL9G9NXP0n07krY0cIMlHRV
+        a9uMsC1I7MvPjc4wqx3fzpQK0qyNSKTZUgoy3OBgQ/ViHJZnqM4wqvH/A4VIcW2J
+        yXJulDwLzesQnHb5Kd2ORLjDb9aqPVrFboA9aVTaVYfO85WcsF1Xyn1Bq933/5RA
+        4servVJoNY2PNbhs0PMC6xW5x/dIIm4e/EbqjPtDzv4fNZmJkx4lTf8yaVlPuIw6
+        3uxcS+DfwSmlhvYaqqZOjRIkK6gHS6acmTJNNU1ZVT68r7f8OchM//YI1HmzmCHg
+        ==
+X-ME-Sender: <xms:KAI7XUE8yV2zZUn68U4glFzVzYj4dkmzDhMit33WiYFrrJY6Wj9Npg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrkeeggdeijecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:KQI7XeSL9eBRvhUj7hELlTuXtSTS_qK2gluROeoMbREQG8HsI8GTYg>
+    <xmx:KQI7XedtGPF32q_JYJa-ad5WgWPT42QB5S55WMWrcsj7mvAQB1LUow>
+    <xmx:KQI7XUgfmuoAHs8iOS-E7Ichoka8YkDsqVYa5dujLSNFw_IbTzp_Nw>
+    <xmx:KQI7XRoo4l9SJBYfxtrWDQtpIk7zWaGPE0hkAWePTQAMohFOZ0NNQA>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9990280063;
+        Fri, 26 Jul 2019 09:37:44 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] net: stmmac: Re-work the queue selection for TSO packets" failed to apply to 4.14-stable tree
+To:     Jose.Abreu@synopsys.com, ben@decadent.org.uk, davem@davemloft.net,
+        joabreu@synopsys.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 26 Jul 2019 15:37:43 +0200
+Message-ID: <156414826318121@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20190726130523.ftmc2un7fwwcegrr@willie-the-truck>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 26/07/2019 14:05, Will Deacon wrote:
-> On Fri, Jul 26, 2019 at 01:38:24PM +0100, Robin Murphy wrote:
->> On 26/07/2019 13:27, Will Deacon wrote:
->>> On Fri, Jul 26, 2019 at 01:13:54PM +0100, Mark Rutland wrote:
->>>> On Fri, Jul 26, 2019 at 01:10:57PM +0100, Mark Rutland wrote:
->>>>> On Fri, Jul 26, 2019 at 01:27:16PM +0200, Anders Roxell wrote:
->>>>>> When fall-through warnings was enabled by default, commit d93512ef0f0e
->>>>>> ("Makefile: Globally enable fall-through warning"), the following
->>>>>> warnings was starting to show up:
->>>>>>
->>>>>> ../arch/arm64/kernel/hw_breakpoint.c: In function ‘hw_breakpoint_arch_parse’:
->>>>>> ../arch/arm64/kernel/hw_breakpoint.c:540:7: warning: this statement may fall
->>>>>>    through [-Wimplicit-fallthrough=]
->>>>>>       if (hw->ctrl.len == ARM_BREAKPOINT_LEN_1)
->>>>>>          ^
->>>>>> ../arch/arm64/kernel/hw_breakpoint.c:542:3: note: here
->>>>>>      case 2:
->>>>>>      ^~~~
->>>>>> ../arch/arm64/kernel/hw_breakpoint.c:544:7: warning: this statement may fall
->>>>>>    through [-Wimplicit-fallthrough=]
->>>>>>       if (hw->ctrl.len == ARM_BREAKPOINT_LEN_2)
->>>>>>          ^
->>>>>> ../arch/arm64/kernel/hw_breakpoint.c:546:3: note: here
->>>>>>      default:
->>>>>>      ^~~~~~~
->>>>>>
->>>>>> Rework so that the compiler doesn't warn about fall-through. Rework so
->>>>>> the code looks like the arm code. Since the comment in the function
->>>>>> indicates taht this is supposed to behave the same way as arm32 because
->>>>>
->>>>> Typo: s/taht/that/
->>>>>
->>>>>> it handles 32-bit tasks also.
->>>>>>
->>>>>> Cc: stable@vger.kernel.org # v3.16+
->>>>>> Fixes: 6ee33c2712fc ("ARM: hw_breakpoint: correct and simplify alignment fixup code")
->>>>>> Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
->>>>>
->>>>> The patch itself looks fine, but I don't think this needs a CC to
->>>>> stable, nor does it require that fixes tag, as there's no functional
->>>>> problem.
->>>>
->>>> Hmm... I now see I spoke too soon, and this is making the 1-byte
->>>> breakpoint work at a 3-byte offset.
->>>
->>> I still don't think it's quite right though, since it forbids a 2-byte
->>> watchpoint on a byte-aligned address.
->>
->> Plus, AFAICS, a 1-byte watchpoint on a 2-byte-aligned address.
 
-[and of course, what I missed was that that's the case the fallthrough 
-serves... yuck indeed]
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
->> Not that I know anything about this code, but it does start to look like it
->> might want rewriting without the offending switch statement anyway. At a
->> glance, it looks like the intended semantic might boil down to:
->>
->> 	if (hw->ctrl.len > offset)
->> 		return -EINVAL;
-> 
-> Given that it's compat code, I think it's worth staying as close to the
-> arch/arm/ implementation as we can.
+thanks,
 
-Right, I also misread the accompanying arch/arm/ patch and got the 
-impression that 32-bit also had a problem such that any fix would happen 
-in parallel - on closer inspection the current arch/arm/ code does 
-actually seem to make sense, even if it is horribly subtle.
+greg k-h
 
-> Also, beware that the
-> ARM_BREAKPOINT_LEN_* definitions are masks because of the BAS fields in
-> the debug architecture.
+------------------ original commit in Linus's tree ------------------
 
-Fun... Clearly it's a bit too Friday for me to be useful here, so 
-apologies for the confusion :)
+From 4993e5b37e8bcb55ac90f76eb6d2432647273747 Mon Sep 17 00:00:00 2001
+From: Jose Abreu <Jose.Abreu@synopsys.com>
+Date: Mon, 8 Jul 2019 14:26:28 +0200
+Subject: [PATCH] net: stmmac: Re-work the queue selection for TSO packets
 
-Robin.
+Ben Hutchings says:
+	"This is the wrong place to change the queue mapping.
+	stmmac_xmit() is called with a specific TX queue locked,
+	and accessing a different TX queue results in a data race
+	for all of that queue's state.
+
+	I think this commit should be reverted upstream and in all
+	stable branches.  Instead, the driver should implement the
+	ndo_select_queue operation and override the queue mapping there."
+
+Fixes: c5acdbee22a1 ("net: stmmac: Send TSO packets always from Queue 0")
+Suggested-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Jose Abreu <joabreu@synopsys.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 06358fe5b245..11b6feb33b54 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -3045,17 +3045,8 @@ static netdev_tx_t stmmac_xmit(struct sk_buff *skb, struct net_device *dev)
+ 
+ 	/* Manage oversized TCP frames for GMAC4 device */
+ 	if (skb_is_gso(skb) && priv->tso) {
+-		if (skb_shinfo(skb)->gso_type & (SKB_GSO_TCPV4 | SKB_GSO_TCPV6)) {
+-			/*
+-			 * There is no way to determine the number of TSO
+-			 * capable Queues. Let's use always the Queue 0
+-			 * because if TSO is supported then at least this
+-			 * one will be capable.
+-			 */
+-			skb_set_queue_mapping(skb, 0);
+-
++		if (skb_shinfo(skb)->gso_type & (SKB_GSO_TCPV4 | SKB_GSO_TCPV6))
+ 			return stmmac_tso_xmit(skb, dev);
+-		}
+ 	}
+ 
+ 	if (unlikely(stmmac_tx_avail(priv, queue) < nfrags + 1)) {
+@@ -3872,6 +3863,22 @@ static int stmmac_setup_tc(struct net_device *ndev, enum tc_setup_type type,
+ 	}
+ }
+ 
++static u16 stmmac_select_queue(struct net_device *dev, struct sk_buff *skb,
++			       struct net_device *sb_dev)
++{
++	if (skb_shinfo(skb)->gso_type & (SKB_GSO_TCPV4 | SKB_GSO_TCPV6)) {
++		/*
++		 * There is no way to determine the number of TSO
++		 * capable Queues. Let's use always the Queue 0
++		 * because if TSO is supported then at least this
++		 * one will be capable.
++		 */
++		return 0;
++	}
++
++	return netdev_pick_tx(dev, skb, NULL) % dev->real_num_tx_queues;
++}
++
+ static int stmmac_set_mac_address(struct net_device *ndev, void *addr)
+ {
+ 	struct stmmac_priv *priv = netdev_priv(ndev);
+@@ -4088,6 +4095,7 @@ static const struct net_device_ops stmmac_netdev_ops = {
+ 	.ndo_tx_timeout = stmmac_tx_timeout,
+ 	.ndo_do_ioctl = stmmac_ioctl,
+ 	.ndo_setup_tc = stmmac_setup_tc,
++	.ndo_select_queue = stmmac_select_queue,
+ #ifdef CONFIG_NET_POLL_CONTROLLER
+ 	.ndo_poll_controller = stmmac_poll_controller,
+ #endif
+
