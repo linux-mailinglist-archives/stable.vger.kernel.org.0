@@ -2,27 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6081761CB
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 11:23:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69080762B1
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 11:50:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726397AbfGZJXk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 05:23:40 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([146.101.78.151]:26650 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726183AbfGZJXj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 05:23:39 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-213-_IbTtnJhNCekhz4rwLltKA-1; Fri, 26 Jul 2019 10:23:36 +0100
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Fri, 26 Jul 2019 10:23:35 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Fri, 26 Jul 2019 10:23:35 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Jian-Hong Pan' <jian-hong@endlessm.com>
-CC:     Yan-Hsuan Chuang <yhchuang@realtek.com>,
+        id S1726346AbfGZJlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 05:41:36 -0400
+Received: from mail-vs1-f66.google.com ([209.85.217.66]:46153 "EHLO
+        mail-vs1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726086AbfGZJlg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 05:41:36 -0400
+Received: by mail-vs1-f66.google.com with SMTP id r3so35645355vsr.13
+        for <stable@vger.kernel.org>; Fri, 26 Jul 2019 02:41:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=endlessm-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=zQAETFiPc0aFNIxeDXyiIDZA2xGxTwhcJMiDlxf4BIg=;
+        b=gF9HjbvMjl5SVhv7yb2XcM5f/0R83Nt0MPGcMkb3JbW0PVLg8hJ1aDN8/yxAzHRJe8
+         h9bXjl+UIP7KZVZAq1hlOgwASM6/xlIuz5VAvWQ9gqSBIcvHOSWWHldRinLfZcpxh5Rr
+         VrSzo56C0bQjWOrBiGcfS6/jjvR+Xnuj4oVSbD6ay+tKRmwQUR9Zq63KTw704nCRuR3M
+         UpFbHnUlHD8pWZl/Wa2KTRmcV6gw6k48UOvAfQhYPVD3wnFnjv7obhES0C5gXSDvYFjU
+         DQh0biEXrF3tyOZ+TJv1zPmIv/gUnZ5njhjYC/kyqTZEJp9caVQKRvrG7Vxf9uhQEWPk
+         fzbQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=zQAETFiPc0aFNIxeDXyiIDZA2xGxTwhcJMiDlxf4BIg=;
+        b=BWRqKtP+4KvQOgSjI2XU9MREZ/Il5e6uNxuC1JhriQbhGhH+zmcWY1GX/4eLaZzg5h
+         vUmKMJaSZBBRsF0J0lS6LCxPZZr4VUWJCh9tc/r3Aqm4bkH1Nr1damBWqF4xkjZxV/g8
+         DBCnpfbm+mGaSvVG9Jlsu8fGnBXwMtRp60TyY5rn7bRcocvJf8s0itZ5BIYBNVUAmKLw
+         3FDvblz8g0Toetz2w0o9z7IjclvbELKNWYKUMpAA6H6rkc3rjA46N0h3pBVpLsHGc2lP
+         RptebHH5XssMo3BekDiqdM5WSF3U4m8Ne0QxeILvairMrwNGzx3+9n8RHk1i2u48m7PY
+         g44Q==
+X-Gm-Message-State: APjAAAUPvgUMCQLJxTjMkf69XIxc2uTf0KzE5F0ja0yg/clpqCAD3GRs
+        YRbFUpPAmqkHpJN41KcSyaWUD01De0weBSH5UUG/aw==
+X-Google-Smtp-Source: APXvYqxvp/2LfFvQ/EjoQDSHcBttZZk1A87AFf9gl9KRUa+fnZYFT1MDihIpFExEm6iD5Y9Rq6s1yOnrhkOaXjfB/uI=
+X-Received: by 2002:a67:d990:: with SMTP id u16mr59869159vsj.95.1564134094915;
+ Fri, 26 Jul 2019 02:41:34 -0700 (PDT)
+MIME-Version: 1.0
+References: <20190725080925.6575-1-jian-hong@endlessm.com> <06d713fff7434dfb9ccab32c2e2112e2@AcuMS.aculab.com>
+ <CAPpJ_ecAAw=1X=7+MOw-VVH0ZKBr6rcRub6JnEqgNbZ6Hxt=ag@mail.gmail.com> <c2cdffd30923459e8773379fc2927e1d@AcuMS.aculab.com>
+In-Reply-To: <c2cdffd30923459e8773379fc2927e1d@AcuMS.aculab.com>
+From:   Jian-Hong Pan <jian-hong@endlessm.com>
+Date:   Fri, 26 Jul 2019 17:40:58 +0800
+Message-ID: <CAPpJ_eey7+KCMFj2YVQD8ziWR_xf-==k9MYb49-32Z5E6vTdHA@mail.gmail.com>
+Subject: Re: [PATCH] rtw88: pci: Use general byte arrays as the elements of RX ring
+To:     David Laight <David.Laight@aculab.com>
+Cc:     Yan-Hsuan Chuang <yhchuang@realtek.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         "David S . Miller" <davem@davemloft.net>,
         "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
@@ -30,66 +57,64 @@ CC:     Yan-Hsuan Chuang <yhchuang@realtek.com>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "linux@endlessm.com" <linux@endlessm.com>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] rtw88: pci: Use general byte arrays as the elements of RX
- ring
-Thread-Topic: [PATCH] rtw88: pci: Use general byte arrays as the elements of
- RX ring
-Thread-Index: AQHVQsDFH4BG56wpwU66J+Fzxhx3XabbDGOQgAFRNgCAADuAcA==
-Date:   Fri, 26 Jul 2019 09:23:35 +0000
-Message-ID: <c2cdffd30923459e8773379fc2927e1d@AcuMS.aculab.com>
-References: <20190725080925.6575-1-jian-hong@endlessm.com>
- <06d713fff7434dfb9ccab32c2e2112e2@AcuMS.aculab.com>
- <CAPpJ_ecAAw=1X=7+MOw-VVH0ZKBr6rcRub6JnEqgNbZ6Hxt=ag@mail.gmail.com>
-In-Reply-To: <CAPpJ_ecAAw=1X=7+MOw-VVH0ZKBr6rcRub6JnEqgNbZ6Hxt=ag@mail.gmail.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
-MIME-Version: 1.0
-X-MC-Unique: _IbTtnJhNCekhz4rwLltKA-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogSmlhbi1Ib25nIFBhbiANCj4gU2VudDogMjYgSnVseSAyMDE5IDA3OjE4DQouLi4NCj4g
-PiBXaGlsZSBhbGxvY2F0aW5nIGFsbCA1MTIgYnVmZmVycyBpbiBvbmUgYmxvY2sgKGp1c3Qgb3Zl
-ciA0TUIpDQo+ID4gaXMgcHJvYmFibHkgbm90IGEgZ29vZCBpZGVhLCB5b3UgbWF5IG5lZWQgdG8g
-YWxsb2NhdGVkIChhbmQgZG1hIG1hcCkNCj4gPiB0aGVuIGluIGdyb3Vwcy4NCj4gDQo+IFRoYW5r
-cyBmb3IgcmV2aWV3aW5nLiAgQnV0IGdvdCBxdWVzdGlvbnMgaGVyZSB0byBkb3VibGUgY29uZmly
-bSB0aGUgaWRlYS4NCj4gQWNjb3JkaW5nIHRvIG9yaWdpbmFsIGNvZGUsIGl0IGFsbG9jYXRlcyA1
-MTIgc2ticyBmb3IgUlggcmluZyBhbmQgZG1hDQo+IG1hcHBpbmcgb25lIGJ5IG9uZS4gIFNvLCB0
-aGUgbmV3IGNvZGUgYWxsb2NhdGVzIG1lbW9yeSBidWZmZXIgNTEyDQo+IHRpbWVzIHRvIGdldCA1
-MTIgYnVmZmVyIGFycmF5cy4gIFdpbGwgdGhlIDUxMiBidWZmZXJzIGFycmF5cyBiZSBpbiBvbmUN
-Cj4gYmxvY2s/ICBEbyB5b3UgbWVhbiBhZ2dyZWdhdGUgdGhlIGJ1ZmZlcnMgYXMgYSBzY2F0dGVy
-bGlzdCBhbmQgdXNlDQo+IGRtYV9tYXBfc2c/DQoNCklmIHlvdSBtYWxsb2MgYSBidWZmZXIgb2Yg
-c2l6ZSAoODE5MiszMikgdGhlIGFsbG9jYXRvciB3aWxsIGVpdGhlcg0Kcm91bmQgaXQgdXAgdG8g
-YSB3aG9sZSBudW1iZXIgb2YgKG9mdGVuIDRrKSBwYWdlcyBvciB0byBhIHBvd2VyIG9mDQoyIG9m
-IHBhZ2VzIC0gc28gZWl0aGVyIDEyayBvZiAxNmsuDQpJIHRoaW5rIHRoZSBMaW51eCBhbGxvY2F0
-b3IgZG9lcyB0aGUgbGF0dGVyLg0KU29tZSBvZiB0aGUgYWxsb2NhdG9ycyBhbHNvICdzdGVhbCcg
-YSBiaXQgZnJvbSB0aGUgZnJvbnQgb2YgdGhlIGJ1ZmZlcg0KZm9yICdyZWQgdGFwZScuDQoNCk9U
-T0ggbWFsbG9jIHRoZSBzcGFjZSAxNSBidWZmZXJzIGFuZCB0aGUgYWxsb2NhdG9yIHdpbGwgcm91
-bmQgdGhlDQoxNSooODE5MiArIDMyKSB1cCB0byAzMio0ayAtIGFuZCB5b3Ugd2FzdGUgdW5kZXIg
-OGsgYWNyb3NzIGFsbCB0aGUNCmJ1ZmZlcnMuDQoNCllvdSB0aGVuIGRtYV9tYXAgdGhlIGxhcmdl
-IGJ1ZmZlciBhbmQgc3BsaXQgaW50byB0aGUgYWN0dWFsIHJ4IGJ1ZmZlcnMuDQpSZXBlYXQgdW50
-aWwgeW91J3ZlIGZpbGxlZCB0aGUgZW50aXJlIHJpbmcuDQpUaGUgb25seSBjb21wbGljYXRpb24g
-aXMgcmVtZW1iZXJpbmcgdGhlIGJhc2UgYWRkcmVzcyAoYW5kIHNpemUpIGZvcg0KdGhlIGRtYV91
-bm1hcCBhbmQgZnJlZS4NCkFsdGhvdWdoIHRoZXJlIGlzIHBsZW50eSBvZiBwYWRkaW5nIHRvIGV4
-dGVuZCB0aGUgYnVmZmVyIHN0cnVjdHVyZQ0Kc2lnbmlmaWNhbnRseSB3aXRob3V0IHVzaW5nIG1v
-cmUgbWVtb3J5Lg0KQWxsb2NhdGUgaW4gMTUncyBhbmQgeW91IChwcm9iYWJseSkgaGF2ZSA1MTIg
-Ynl0ZXMgcGVyIGJ1ZmZlci4NCkFsbG9jYXRlIGluIDMxJ3MgYW5kIHlvdSBoYXZlIDI1NiBieXRl
-cy4NCg0KVGhlIHByb2JsZW0gaXMgdGhhdCBsYXJnZXIgYWxsb2NhdGVzIGFyZSBtb3JlIGxpa2Vs
-eSB0byBmYWlsDQooZXNwZWNpYWxseSBpZiB0aGUgc3lzdGVtIGhhcyBiZWVuIHJ1bm5pbmcgZm9y
-IHNvbWUgdGltZSkuDQpTbyB5b3UgYWxtb3N0IGNlcnRhaW5seSB3YW50IHRvIGJlIGFibGUgdG8g
-ZmFsbCBiYWNrIHRvIHNtYWxsZXINCmFsbG9jYXRlcyBldmVuIHRob3VnaCB0aGV5IHVzZSBtb3Jl
-IG1lbW9yeS4NCg0KSSBhbHNvIHdvbmRlciBpZiB5b3UgYWN0dWFsbHkgbmVlZCA1MTIgOGsgcngg
-YnVmZmVycyB0byBjb3Zlcg0KaW50ZXJydXB0IGxhdGVuY3k/DQpJJ3ZlIG5vdCBkb25lIGFueSBt
-ZWFzdXJlbWVudHMgZm9yIDIwIHllYXJzIQ0KDQoJRGF2aWQNCg0KLQ0KUmVnaXN0ZXJlZCBBZGRy
-ZXNzIExha2VzaWRlLCBCcmFtbGV5IFJvYWQsIE1vdW50IEZhcm0sIE1pbHRvbiBLZXluZXMsIE1L
-MSAxUFQsIFVLDQpSZWdpc3RyYXRpb24gTm86IDEzOTczODYgKFdhbGVzKQ0K
+David Laight <David.Laight@aculab.com> =E6=96=BC 2019=E5=B9=B47=E6=9C=8826=
+=E6=97=A5 =E9=80=B1=E4=BA=94 =E4=B8=8B=E5=8D=885:23=E5=AF=AB=E9=81=93=EF=BC=
+=9A
+>
+> From: Jian-Hong Pan
+> > Sent: 26 July 2019 07:18
+> ...
+> > > While allocating all 512 buffers in one block (just over 4MB)
+> > > is probably not a good idea, you may need to allocated (and dma map)
+> > > then in groups.
+> >
+> > Thanks for reviewing.  But got questions here to double confirm the ide=
+a.
+> > According to original code, it allocates 512 skbs for RX ring and dma
+> > mapping one by one.  So, the new code allocates memory buffer 512
+> > times to get 512 buffer arrays.  Will the 512 buffers arrays be in one
+> > block?  Do you mean aggregate the buffers as a scatterlist and use
+> > dma_map_sg?
+>
+> If you malloc a buffer of size (8192+32) the allocator will either
+> round it up to a whole number of (often 4k) pages or to a power of
+> 2 of pages - so either 12k of 16k.
+> I think the Linux allocator does the latter.
+> Some of the allocators also 'steal' a bit from the front of the buffer
+> for 'red tape'.
+>
+> OTOH malloc the space 15 buffers and the allocator will round the
+> 15*(8192 + 32) up to 32*4k - and you waste under 8k across all the
+> buffers.
+>
+> You then dma_map the large buffer and split into the actual rx buffers.
+> Repeat until you've filled the entire ring.
+> The only complication is remembering the base address (and size) for
+> the dma_unmap and free.
+> Although there is plenty of padding to extend the buffer structure
+> significantly without using more memory.
+> Allocate in 15's and you (probably) have 512 bytes per buffer.
+> Allocate in 31's and you have 256 bytes.
+>
+> The problem is that larger allocates are more likely to fail
+> (especially if the system has been running for some time).
+> So you almost certainly want to be able to fall back to smaller
+> allocates even though they use more memory.
+>
+> I also wonder if you actually need 512 8k rx buffers to cover
+> interrupt latency?
+> I've not done any measurements for 20 years!
 
+Thanks for the explanation.
+I am not sure the combination of 512 8k RX buffers.  Maybe Realtek
+folks can give us some idea.
+Tony Chuang any comment?
+
+Jian-Hong Pan
