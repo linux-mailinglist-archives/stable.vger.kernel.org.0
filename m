@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B68307681F
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:42:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAF8876824
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:42:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387918AbfGZNmV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:42:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49598 "EHLO mail.kernel.org"
+        id S2387980AbfGZNmg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:42:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387916AbfGZNmU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:42:20 -0400
+        id S2387978AbfGZNmf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:42:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3353722BF5;
-        Fri, 26 Jul 2019 13:42:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DD0322CD3;
+        Fri, 26 Jul 2019 13:42:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148540;
-        bh=yWv4w82eJ4DUrjGMKIX9faGTTSZolnoRlKDkvEU6Osg=;
+        s=default; t=1564148554;
+        bh=tMWBYOgHAYiabn1YxSYJyUimcMhUZiXrErtPGmlTdWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W6FNxRoJLtF4OurkX65gp7xlr6j1bGMGzW1ivCmEWZxHXqZAjAlreYjCslAkcmvq0
-         HU4FYLMwXyaDphRIIGTrL1fMv36y4b/USlB+NFb25Ni0lD+go8LHj3xsDzDG/yj6CV
-         UwTaHLqK3tXkuall4Zu8Boo5+oF09EktDYOHTERs=
+        b=ijS9I7GxLxzVsCGekPClyOCKZZXtwAhx4cvlMhSg+kqi648OSdXQY6yATosBbYZ/R
+         k3Im4T9IETJhVu6hQlDTJageuRX146M1h3PYg98pTTNrMMzfLCG1Ll9PpIGf5YswIo
+         UTBsUjhq6m9Y/V+F29SGLQmMr4k/OkdC7G7TnXt0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Helen Koike <helen.koike@collabora.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 07/47] arm64: dts: rockchip: fix isp iommu clocks and power domain
-Date:   Fri, 26 Jul 2019 09:41:30 -0400
-Message-Id: <20190726134210.12156-7-sashal@kernel.org>
+Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 13/47] fs/adfs: super: fix use-after-free bug
+Date:   Fri, 26 Jul 2019 09:41:36 -0400
+Message-Id: <20190726134210.12156-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726134210.12156-1-sashal@kernel.org>
 References: <20190726134210.12156-1-sashal@kernel.org>
@@ -45,63 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helen Koike <helen.koike@collabora.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit c432a29d3fc9ee928caeca2f5cf68b3aebfa6817 ]
+[ Upstream commit 5808b14a1f52554de612fee85ef517199855e310 ]
 
-isp iommu requires wrapper variants of the clocks.
-noc variants are always on and using the wrapper variants will activate
-{A,H}CLK_ISP{0,1} due to the hierarchy.
+Fix a use-after-free bug during filesystem initialisation, where we
+access the disc record (which is stored in a buffer) after we have
+released the buffer.
 
-Tested using the pending isp patch set (which is not upstream
-yet). Without this patch, streaming from the isp stalls.
-
-Also add the respective power domain and remove the "disabled" status.
-
-Refer:
- RK3399 TRM v1.4 Fig. 2-4 RK3399 Clock Architecture Diagram
- RK3399 TRM v1.4 Fig. 8-1 RK3399 Power Domain Partition
-
-Signed-off-by: Helen Koike <helen.koike@collabora.com>
-Tested-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399.dtsi | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/adfs/super.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-index df7e62d9a670..cea44a7c7cf9 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-@@ -1643,11 +1643,11 @@
- 		reg = <0x0 0xff914000 0x0 0x100>, <0x0 0xff915000 0x0 0x100>;
- 		interrupts = <GIC_SPI 43 IRQ_TYPE_LEVEL_HIGH 0>;
- 		interrupt-names = "isp0_mmu";
--		clocks = <&cru ACLK_ISP0_NOC>, <&cru HCLK_ISP0_NOC>;
-+		clocks = <&cru ACLK_ISP0_WRAPPER>, <&cru HCLK_ISP0_WRAPPER>;
- 		clock-names = "aclk", "iface";
- 		#iommu-cells = <0>;
-+		power-domains = <&power RK3399_PD_ISP0>;
- 		rockchip,disable-mmu-reset;
--		status = "disabled";
- 	};
+diff --git a/fs/adfs/super.c b/fs/adfs/super.c
+index 7e099a7a4eb1..4dc15b263489 100644
+--- a/fs/adfs/super.c
++++ b/fs/adfs/super.c
+@@ -369,6 +369,7 @@ static int adfs_fill_super(struct super_block *sb, void *data, int silent)
+ 	struct buffer_head *bh;
+ 	struct object_info root_obj;
+ 	unsigned char *b_data;
++	unsigned int blocksize;
+ 	struct adfs_sb_info *asb;
+ 	struct inode *root;
+ 	int ret = -EINVAL;
+@@ -420,8 +421,10 @@ static int adfs_fill_super(struct super_block *sb, void *data, int silent)
+ 		goto error_free_bh;
+ 	}
  
- 	isp1_mmu: iommu@ff924000 {
-@@ -1655,11 +1655,11 @@
- 		reg = <0x0 0xff924000 0x0 0x100>, <0x0 0xff925000 0x0 0x100>;
- 		interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_HIGH 0>;
- 		interrupt-names = "isp1_mmu";
--		clocks = <&cru ACLK_ISP1_NOC>, <&cru HCLK_ISP1_NOC>;
-+		clocks = <&cru ACLK_ISP1_WRAPPER>, <&cru HCLK_ISP1_WRAPPER>;
- 		clock-names = "aclk", "iface";
- 		#iommu-cells = <0>;
-+		power-domains = <&power RK3399_PD_ISP1>;
- 		rockchip,disable-mmu-reset;
--		status = "disabled";
- 	};
- 
- 	hdmi_sound: hdmi-sound {
++	blocksize = 1 << dr->log2secsize;
+ 	brelse(bh);
+-	if (sb_set_blocksize(sb, 1 << dr->log2secsize)) {
++
++	if (sb_set_blocksize(sb, blocksize)) {
+ 		bh = sb_bread(sb, ADFS_DISCRECORD / sb->s_blocksize);
+ 		if (!bh) {
+ 			adfs_error(sb, "couldn't read superblock on "
 -- 
 2.20.1
 
