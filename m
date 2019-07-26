@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F950768F9
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:49:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03DE7768FB
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:49:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388502AbfGZNpE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:45:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53692 "EHLO mail.kernel.org"
+        id S1728121AbfGZNpI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:45:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387747AbfGZNpE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:45:04 -0400
+        id S1728114AbfGZNpG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:45:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EC5A22CD0;
-        Fri, 26 Jul 2019 13:45:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E82F22CD3;
+        Fri, 26 Jul 2019 13:45:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148703;
-        bh=KDln6zFomqC63mzorIXvEauG8u6B1BD1OXMjlYkRHkM=;
+        s=default; t=1564148705;
+        bh=2HAjsazSUtJXt2TTMq9ufkoer4YWsLVnedNBQy4W8XM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JcQg0qjgUuJfTZXLr+xr0uHs+X8w3xacSjDkN+i8r0Tcec0GxXWPpLaFYrz0NWLZM
-         wqM2r9QfwvzYREBzuYyiZcFlMWigM7YvkuPxmXaKOxvs3GG1AodBI0f012c6kCjVo/
-         anRn1pBrqYIu+alkLj8TfET/WvohzhhPFcrkKZxw=
+        b=lSkv+2dCRyTEyZBrl7Xkwv+sgRnO3vmejQLMdZZAlQ2qB+j3xOgDw8CXmu5y7wP9W
+         zD3ja7KsKmDyF97n+aoCcrFaH4fofvEypgdOI6RFwAX6p+sj7o9nVpuR4ujbnr22Mk
+         /AT79TBft8jENpL+bH6GPtwyRhinCNibXxEBPumI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhouyang Jia <jiazhouyang09@gmail.com>,
+Cc:     Sam Protsenko <semen.protsenko@linaro.org>,
         Jan Harkes <jaharkes@cs.cmu.edu>,
         Arnd Bergmann <arnd@arndb.de>,
         Colin Ian King <colin.king@canonical.com>,
@@ -33,14 +33,14 @@ Cc:     Zhouyang Jia <jiazhouyang09@gmail.com>,
         David Howells <dhowells@redhat.com>,
         Fabian Frederick <fabf@skynet.be>,
         Mikko Rapeli <mikko.rapeli@iki.fi>,
-        Sam Protsenko <semen.protsenko@linaro.org>,
         Yann Droneaud <ydroneaud@opteya.com>,
+        Zhouyang Jia <jiazhouyang09@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, codalist@coda.cs.cmu.edu
-Subject: [PATCH AUTOSEL 4.9 20/30] coda: add error handling for fget
-Date:   Fri, 26 Jul 2019 09:44:22 -0400
-Message-Id: <20190726134432.12993-20-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 21/30] coda: fix build using bare-metal toolchain
+Date:   Fri, 26 Jul 2019 09:44:23 -0400
+Message-Id: <20190726134432.12993-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726134432.12993-1-sashal@kernel.org>
 References: <20190726134432.12993-1-sashal@kernel.org>
@@ -53,17 +53,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhouyang Jia <jiazhouyang09@gmail.com>
+From: Sam Protsenko <semen.protsenko@linaro.org>
 
-[ Upstream commit 02551c23bcd85f0c68a8259c7b953d49d44f86af ]
+[ Upstream commit b2a57e334086602be56b74958d9f29b955cd157f ]
 
-When fget fails, the lack of error-handling code may cause unexpected
-results.
+The kernel is self-contained project and can be built with bare-metal
+toolchain.  But bare-metal toolchain doesn't define __linux__.  Because
+of this u_quad_t type is not defined when using bare-metal toolchain and
+codafs build fails.  This patch fixes it by defining u_quad_t type
+unconditionally.
 
-This patch adds error-handling code after calling fget.
-
-Link: http://lkml.kernel.org/r/2514ec03df9c33b86e56748513267a80dd8004d9.1558117389.git.jaharkes@cs.cmu.edu
-Signed-off-by: Zhouyang Jia <jiazhouyang09@gmail.com>
+Link: http://lkml.kernel.org/r/3cbb40b0a57b6f9923a9d67b53473c0b691a3eaa.1558117389.git.jaharkes@cs.cmu.edu
+Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
 Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
 Cc: Arnd Bergmann <arnd@arndb.de>
 Cc: Colin Ian King <colin.king@canonical.com>
@@ -71,32 +72,29 @@ Cc: Dan Carpenter <dan.carpenter@oracle.com>
 Cc: David Howells <dhowells@redhat.com>
 Cc: Fabian Frederick <fabf@skynet.be>
 Cc: Mikko Rapeli <mikko.rapeli@iki.fi>
-Cc: Sam Protsenko <semen.protsenko@linaro.org>
 Cc: Yann Droneaud <ydroneaud@opteya.com>
+Cc: Zhouyang Jia <jiazhouyang09@gmail.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/coda/psdev.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ include/linux/coda.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/coda/psdev.c b/fs/coda/psdev.c
-index 822629126e89..ff9b5cf8ff01 100644
---- a/fs/coda/psdev.c
-+++ b/fs/coda/psdev.c
-@@ -187,8 +187,11 @@ static ssize_t coda_psdev_write(struct file *file, const char __user *buf,
- 	if (req->uc_opcode == CODA_OPEN_BY_FD) {
- 		struct coda_open_by_fd_out *outp =
- 			(struct coda_open_by_fd_out *)req->uc_data;
--		if (!outp->oh.result)
-+		if (!outp->oh.result) {
- 			outp->fh = fget(outp->fd);
-+			if (!outp->fh)
-+				return -EBADF;
-+		}
- 	}
+diff --git a/include/linux/coda.h b/include/linux/coda.h
+index d30209b9cef8..0ca0c83fdb1c 100644
+--- a/include/linux/coda.h
++++ b/include/linux/coda.h
+@@ -58,8 +58,7 @@ Mellon the rights to redistribute these changes without encumbrance.
+ #ifndef _CODA_HEADER_
+ #define _CODA_HEADER_
  
-         wake_up(&req->uc_sleep);
+-#if defined(__linux__)
+ typedef unsigned long long u_quad_t;
+-#endif
++
+ #include <uapi/linux/coda.h>
+ #endif 
 -- 
 2.20.1
 
