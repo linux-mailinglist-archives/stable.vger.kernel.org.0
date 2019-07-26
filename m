@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B1987698D
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:53:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C515876997
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:53:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388234AbfGZNnc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:43:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51292 "EHLO mail.kernel.org"
+        id S2387528AbfGZNxE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:53:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388230AbfGZNnc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:43:32 -0400
+        id S2388249AbfGZNnf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:43:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBB3C22CC2;
-        Fri, 26 Jul 2019 13:43:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 926C922CEA;
+        Fri, 26 Jul 2019 13:43:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148611;
-        bh=2J4gXIGHaa9ElqJhqutcpFHs3KWy/itKMkN7OI+06wc=;
+        s=default; t=1564148615;
+        bh=3xVYBERJTrE1AyNi27bN6GYOlyuafegPFm+RMVy+xCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TbqnRNACZ0DqxmtfoJiUxTostp/LbqRptTAtRxaQQ3OBArH5/AAP9bRDtZ8la9iG0
-         cxqF1i28trCHY9iIpAheDPnyxvBesDpkPPi49e/Ecou/f2fECN2wj8aHVxttWn7Z9o
-         7T5SwrBuWimR+5GA2lImfPcuZeWm1ph5iIDny2u0=
+        b=YXwUMPiqs60IgpbQUI56amQuatbE9KMSkRXH3g8v5RsgAg2e90DqFezBtk1L+EmPc
+         QYjhPQSMrXANXWEajXGtYdKCGQXaPmF0ouGfhJcCXGdT3oQOvuEO2SA3U8wzrab2PU
+         rCh2eZDRzThyewUFnrTpLX9jF8i8pwjQnegbdmDg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yongxin Liu <yongxin.liu@windriver.com>,
-        Ben Skeggs <bskeggs@redhat.com>,
+Cc:     Douglas Anderson <dianders@chromium.org>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 47/47] drm/nouveau: fix memory leak in nouveau_conn_reset()
-Date:   Fri, 26 Jul 2019 09:42:10 -0400
-Message-Id: <20190726134210.12156-47-sashal@kernel.org>
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 02/37] ARM: dts: rockchip: Make rk3288-veyron-minnie run at hs200
+Date:   Fri, 26 Jul 2019 09:42:57 -0400
+Message-Id: <20190726134332.12626-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190726134210.12156-1-sashal@kernel.org>
-References: <20190726134210.12156-1-sashal@kernel.org>
+In-Reply-To: <20190726134332.12626-1-sashal@kernel.org>
+References: <20190726134332.12626-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,61 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yongxin Liu <yongxin.liu@windriver.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 09b90e2fe35faeace2488234e2a7728f2ea8ba26 ]
+[ Upstream commit 1c0479023412ab7834f2e98b796eb0d8c627cd62 ]
 
-In nouveau_conn_reset(), if connector->state is true,
-__drm_atomic_helper_connector_destroy_state() will be called,
-but the memory pointed by asyc isn't freed. Memory leak happens
-in the following function __drm_atomic_helper_connector_reset(),
-where newly allocated asyc->state will be assigned to connector->state.
+As some point hs200 was failing on rk3288-veyron-minnie.  See commit
+984926781122 ("ARM: dts: rockchip: temporarily remove emmc hs200 speed
+from rk3288 minnie").  Although I didn't track down exactly when it
+started working, it seems to work OK now, so let's turn it back on.
 
-So using nouveau_conn_atomic_destroy_state() instead of
-__drm_atomic_helper_connector_destroy_state to free the "old" asyc.
+To test this, I booted from SD card and then used this script to
+stress the enumeration process after fixing a memory leak [1]:
+  cd /sys/bus/platform/drivers/dwmmc_rockchip
+  for i in $(seq 1 3000); do
+    echo "========================" $i
+    echo ff0f0000.dwmmc > unbind
+    sleep .5
+    echo ff0f0000.dwmmc > bind
+    while true; do
+      if [ -e /dev/mmcblk2 ]; then
+        break;
+      fi
+      sleep .1
+    done
+  done
 
-Here the is the log showing memory leak.
+It worked fine.
 
-unreferenced object 0xffff8c5480483c80 (size 192):
-  comm "kworker/0:2", pid 188, jiffies 4294695279 (age 53.179s)
-  hex dump (first 32 bytes):
-    00 f0 ba 7b 54 8c ff ff 00 00 00 00 00 00 00 00  ...{T...........
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000005005c0d0>] kmem_cache_alloc_trace+0x195/0x2c0
-    [<00000000a122baed>] nouveau_conn_reset+0x25/0xc0 [nouveau]
-    [<000000004fd189a2>] nouveau_connector_create+0x3a7/0x610 [nouveau]
-    [<00000000c73343a8>] nv50_display_create+0x343/0x980 [nouveau]
-    [<000000002e2b03c3>] nouveau_display_create+0x51f/0x660 [nouveau]
-    [<00000000c924699b>] nouveau_drm_device_init+0x182/0x7f0 [nouveau]
-    [<00000000cc029436>] nouveau_drm_probe+0x20c/0x2c0 [nouveau]
-    [<000000007e961c3e>] local_pci_probe+0x47/0xa0
-    [<00000000da14d569>] work_for_cpu_fn+0x1a/0x30
-    [<0000000028da4805>] process_one_work+0x27c/0x660
-    [<000000001d415b04>] worker_thread+0x22b/0x3f0
-    [<0000000003b69f1f>] kthread+0x12f/0x150
-    [<00000000c94c29b7>] ret_from_fork+0x3a/0x50
+[1] https://lkml.kernel.org/r/20190503233526.226272-1-dianders@chromium.org
 
-Signed-off-by: Yongxin Liu <yongxin.liu@windriver.com>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_connector.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/rk3288-veyron-minnie.dts | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.c b/drivers/gpu/drm/nouveau/nouveau_connector.c
-index 247f72cc4d10..fb0094fc5583 100644
---- a/drivers/gpu/drm/nouveau/nouveau_connector.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
-@@ -251,7 +251,7 @@ nouveau_conn_reset(struct drm_connector *connector)
- 		return;
+diff --git a/arch/arm/boot/dts/rk3288-veyron-minnie.dts b/arch/arm/boot/dts/rk3288-veyron-minnie.dts
+index 544de6027aaa..6000dca1cf05 100644
+--- a/arch/arm/boot/dts/rk3288-veyron-minnie.dts
++++ b/arch/arm/boot/dts/rk3288-veyron-minnie.dts
+@@ -125,10 +125,6 @@
+ 	power-supply = <&backlight_regulator>;
+ };
  
- 	if (connector->state)
--		__drm_atomic_helper_connector_destroy_state(connector->state);
-+		nouveau_conn_atomic_destroy_state(connector, connector->state);
- 	__drm_atomic_helper_connector_reset(connector, &asyc->state);
- 	asyc->dither.mode = DITHERING_MODE_AUTO;
- 	asyc->dither.depth = DITHERING_DEPTH_AUTO;
+-&emmc {
+-	/delete-property/mmc-hs200-1_8v;
+-};
+-
+ &gpio_keys {
+ 	pinctrl-0 = <&pwr_key_l &ap_lid_int_l &volum_down_l &volum_up_l>;
+ 
 -- 
 2.20.1
 
