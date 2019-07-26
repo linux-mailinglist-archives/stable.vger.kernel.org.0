@@ -2,102 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E18A175D5D
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 05:26:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1506B75EE3
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 08:19:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725867AbfGZD0e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 23:26:34 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:33178 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725878AbfGZD0e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Jul 2019 23:26:34 -0400
-Received: by mail-pf1-f196.google.com with SMTP id g2so23776580pfq.0
-        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 20:26:34 -0700 (PDT)
+        id S1726124AbfGZGTF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 02:19:05 -0400
+Received: from mail-vs1-f66.google.com ([209.85.217.66]:35306 "EHLO
+        mail-vs1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725864AbfGZGTF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 02:19:05 -0400
+Received: by mail-vs1-f66.google.com with SMTP id u124so35389679vsu.2
+        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 23:19:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=YfhbltO6FtqY+nhX3A4c4C7VpTkM+5+6ovBigThYvB0=;
-        b=mMpsHV9ElNPYpaobsGlXivKLT7vbB0JAEpP7GYdEvTMn910AvbCidJ3JVjpj7Zt5xO
-         NEOiwgKk5owsCRQ7JkP48WP0iwfQ2o6QqoIaqaz1po699V1Y9BXGHQuhLc/DUx5rra87
-         0g3MLd0ArNNknkZsiNP+WkvbwMvBPl8CQTPN+jMd32AG50a3q9CehG1Jm/i+x4+pMVNL
-         OJHm7YoiI9V3/xFI7qakp9Fup0NPV7AX3zRuGEfnnOLSZdQ+13e45e4i/f6C4NBIrn89
-         t8HdpdLCqdmV7DzVH/uD++SKlZZ985zB/po5Nwnm5fMAGO4MKGuhjMzRoFJLL9HgF91v
-         ShXw==
+        d=endlessm-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Bl7fI4eVZWffKAOz4zhIOA0eJ2D0U0DNka5Gld+y0is=;
+        b=WmFtrFSw/R5Cz8UuWt8tiEoXLxFQ6BCS/F4MD7pwFOpPfJiwxzoJexVjGGjwbsbDM2
+         8kGywwqi+EOUNqcAN2+vSIAEsSl/yhZDMdDmQonSWX1pUYtAwsGuFx3miJ2JcVGBs7na
+         bOUfRzSLSYvBUWvbRSdvjTY1ct55yl0Iqn5yJ5tjdfz6zPsgOdAnc8TuJC4Fxt7PuTiq
+         6AM60l/Fdw/kt2HG/LbYjxx1ftu9FTGK4yV8DVY1xA3Da9zgQcDfENwhQDx1YstruteQ
+         q/r7kniw5cWXc/F3AtJTiR2+eVsb/myAm9vO7XDIP/hpQUaUdZ+mg1Nva++4iPrL65v/
+         E2tw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=YfhbltO6FtqY+nhX3A4c4C7VpTkM+5+6ovBigThYvB0=;
-        b=h7FzH4IaEkxnyAaSmyn5FY52eFVcERhm8tvceuXRjG107HHF1J+YD7CL+TKum/nBJc
-         I877nbCU4/cKAOWmKDf1n7KAMtjH0DU4aRQ6qqXcWiCGImRaH+6gSFoRFec3esOh3nej
-         iF4b0qKsZTnwme+dc39BlffuhD9TDYjEpT2vKcoshF2S0uQ6Btt75+h2biVe+og801uR
-         5dgV1grbVSQEcdC6zns+e9vBi+m4lVxN8hJqJMlz4KmU/nPXcR3iyMCdley3INAahbXK
-         pLeiBtX+FgjNR4sSPei6b6jJVcbhA1u1v9QmhFzqdv/UGpImjbuufCOr+EpsNDQI9k5i
-         BhBw==
-X-Gm-Message-State: APjAAAXTWtscxxGA9cNC+1xT0j9KKZ/gjTs4DVe5tz+gdP7Vfwv4F4Ut
-        +BZ80o7jW1wIMu5m7ZYdPCCV4Q==
-X-Google-Smtp-Source: APXvYqxTg6RaVRHtF9c9R4BCNa8UgHa7F5aWitP9SzEaN+tdcNZSH3RKI8L0lLXVfubPFM9Nx2djIA==
-X-Received: by 2002:a63:de07:: with SMTP id f7mr51786968pgg.213.1564111593449;
-        Thu, 25 Jul 2019 20:26:33 -0700 (PDT)
-Received: from localhost ([122.172.28.117])
-        by smtp.gmail.com with ESMTPSA id y12sm59772600pfn.187.2019.07.25.20.26.32
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 25 Jul 2019 20:26:32 -0700 (PDT)
-Date:   Fri, 26 Jul 2019 08:56:31 +0530
-From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     Doug Smythies <dsmythies@telus.net>
-Cc:     "'Rafael J. Wysocki'" <rafael@kernel.org>,
-        'Rafael Wysocki' <rjw@rjwysocki.net>,
-        'Ingo Molnar' <mingo@redhat.com>,
-        'Peter Zijlstra' <peterz@infradead.org>,
-        'Linux PM' <linux-pm@vger.kernel.org>,
-        'Vincent Guittot' <vincent.guittot@linaro.org>,
-        'Joel Fernandes' <joel@joelfernandes.org>,
-        "'v4 . 18+'" <stable@vger.kernel.org>,
-        'Linux Kernel Mailing List' <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cpufreq: schedutil: Don't skip freq update when limits
- change
-Message-ID: <20190726032631.rflrl5wxgbphqxyf@vireshk-i7>
-References: <1563431200-3042-1-git-send-email-dsmythies@telus.net>
- <8091ef83f264feb2feaa827fbeefe08348bcd05d.1563778071.git.viresh.kumar@linaro.org>
- <001201d54125$a6a82350$f3f869f0$@net>
- <20190723091551.nchopfpqlmdmzvge@vireshk-i7>
- <CAJZ5v0ji+ksapJ4kc2m5UM_O+AShAvJWmYhTQHiXiHnpTq+xRg@mail.gmail.com>
- <20190724114327.apmx35c7a4tv3qt5@vireshk-i7>
- <000c01d542fc$703ff850$50bfe8f0$@net>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Bl7fI4eVZWffKAOz4zhIOA0eJ2D0U0DNka5Gld+y0is=;
+        b=XMocYhLmpQ7LSrRAtYQB+kB0sQdalNwzz2ewJ+00atCNpHqPi/+eoU0ghDOLXOI05N
+         u43EVdl1UTFa8ig63/A4dXGB9JGwtMBxGK9C6at8OsXlREneeOJ3gR3yY9o+aB03jYGQ
+         J4JYMK+GYyWEp77paNValk0WM4iGtgLzdV6u9LPiYL52rwYFrkwDP18WZuM0ylQU1/OX
+         Vnhxb1EzBfh0h3Kld/PK8Xa0INDtmbLizGj8poWtZsO7l24RH3HG1Xy+IiE1r+Rx/mQ/
+         cHfovHzbHOHS2CKCc+4m4FeEfCehXch7F1yqAK7ld9bJb6f9mdz54f72yDT0kVjXRrIi
+         wvwQ==
+X-Gm-Message-State: APjAAAVjEnue462ILWJ5FTOTVlCoQTPHzh7dFKx2uvp/TkN7rbi4aQd1
+        McmMC/iBt1ghI0W2AVhoFjdR2PUxpegDK4TlEZiREg==
+X-Google-Smtp-Source: APXvYqy5de4RdPtgj97TOfRHiUta7VD2dn3FWaYfsVQWQZRVK/s1bYmGEqsu1oqBvlo5cD2KF02tErIDgh9uivkIFbI=
+X-Received: by 2002:a67:eb19:: with SMTP id a25mr58320351vso.109.1564121943796;
+ Thu, 25 Jul 2019 23:19:03 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <000c01d542fc$703ff850$50bfe8f0$@net>
-User-Agent: NeoMutt/20180716-391-311a52
+References: <20190725080925.6575-1-jian-hong@endlessm.com> <06d713fff7434dfb9ccab32c2e2112e2@AcuMS.aculab.com>
+In-Reply-To: <06d713fff7434dfb9ccab32c2e2112e2@AcuMS.aculab.com>
+From:   Jian-Hong Pan <jian-hong@endlessm.com>
+Date:   Fri, 26 Jul 2019 14:18:26 +0800
+Message-ID: <CAPpJ_ecAAw=1X=7+MOw-VVH0ZKBr6rcRub6JnEqgNbZ6Hxt=ag@mail.gmail.com>
+Subject: Re: [PATCH] rtw88: pci: Use general byte arrays as the elements of RX ring
+To:     David Laight <David.Laight@aculab.com>
+Cc:     Yan-Hsuan Chuang <yhchuang@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux@endlessm.com" <linux@endlessm.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 25-07-19, 08:20, Doug Smythies wrote:
-> I tried the patch ("patch2"). It did not fix the issue.
-> 
-> To summarize, all kernel 5.2 based, all intel_cpufreq driver and schedutil governor:
-> 
-> Test: Does a busy system respond to maximum CPU clock frequency reduction?
-> 
-> stock, unaltered: No.
-> revert ecd2884291261e3fddbc7651ee11a20d596bb514: Yes
-> viresh patch: No.
-> fast_switch edit: No.
+David Laight <David.Laight@aculab.com> =E6=96=BC 2019=E5=B9=B47=E6=9C=8825=
+=E6=97=A5 =E9=80=B1=E5=9B=9B =E4=B8=8B=E5=8D=885:21=E5=AF=AB=E9=81=93=EF=BC=
+=9A
+>
+> From: Jian-Hong Pan
+> > Sent: 25 July 2019 09:09
+> > Each skb as the element in RX ring was expected with sized buffer 8216
+> > (RTK_PCI_RX_BUF_SIZE) bytes. However, the skb buffer's true size is
+> > 16640 bytes for alignment after allocated, x86_64 for example. And, the
+> > difference will be enlarged 512 times (RTK_MAX_RX_DESC_NUM).
+> > To prevent that much wasted memory, this patch follows David's
+> > suggestion [1] and uses general buffer arrays, instead of skbs as the
+> > elements in RX ring.
+> ...
+> >       for (i =3D 0; i < len; i++) {
+> > -             skb =3D dev_alloc_skb(buf_sz);
+> > -             if (!skb) {
+> > +             buf =3D devm_kzalloc(rtwdev->dev, buf_sz, GFP_ATOMIC);
+>
+> You should do this allocation somewhere than can sleep.
+> So you don't need GFP_ATOMIC, making the allocate (and dma map)
+> much less likely to fail.
+> If they do fail using a smaller ring might be better than failing
+> completely.
 
-You tried this fast-switch thing with my patch applied, right ?
+Ok, I can tweak and try it.
 
-> viresh patch2: No.
-> 
-> References (and procedures used):
-> https://marc.info/?l=linux-pm&m=156346478429147&w=2
-> https://marc.info/?l=linux-kernel&m=156343125319461&w=2
-> 
-> ... Doug
-> 
+> I suspect that buf_sz gets rounded up somewhat.
+> Also you almost certainly want 'buf' to be cache-line aligned.
+> I don't think devm_kzalloc() guarantees that at all.
 
--- 
-viresh
+Sure
+
+> While allocating all 512 buffers in one block (just over 4MB)
+> is probably not a good idea, you may need to allocated (and dma map)
+> then in groups.
+
+Thanks for reviewing.  But got questions here to double confirm the idea.
+According to original code, it allocates 512 skbs for RX ring and dma
+mapping one by one.  So, the new code allocates memory buffer 512
+times to get 512 buffer arrays.  Will the 512 buffers arrays be in one
+block?  Do you mean aggregate the buffers as a scatterlist and use
+dma_map_sg?
+
+Thank you,
+Jain-Hong Pan
