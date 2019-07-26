@@ -2,36 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 761F276833
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:43:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2CB476837
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:43:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388135AbfGZNnH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:43:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50582 "EHLO mail.kernel.org"
+        id S1727321AbfGZNnP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:43:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388130AbfGZNnG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:43:06 -0400
+        id S2388147AbfGZNnM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:43:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A4A822BF5;
-        Fri, 26 Jul 2019 13:43:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E93F622CBB;
+        Fri, 26 Jul 2019 13:43:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148585;
-        bh=YfDo/63lxPW0sH2O9DcR7uvSG7t0vwBN3OKd1Ls/sr8=;
+        s=default; t=1564148591;
+        bh=Nsk0wcbXrDw9o1+zIkA4XGOBBWIf9mehTF+5/qgGej0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kOjKPC2cNvhvr1IU9Gp8xDqln9D4XZzzRS9W61dYioa0PTpYu4zJgg04TS24pTD/p
-         nvKKZ6141Yh5BG7D5wSheIKDlaujnKbmbj5FMwfdmvrmfg6e4hriU/SQ+59PxPne39
-         FyB73b9zt+yLyuREzsIL+8zDa81irleL1fl76K9Q=
+        b=wwzYwTHr4Is2scUQ7lqI9pT6RtDw+UVJsGdQsjuDqrP9X4FBKUmckZrc02+Xu/mDS
+         Ymfa5mJlUn1gr8bZ+QENzNkDo/Co07nvsAMNIZLpY5lLmX9AvejURnVIX6WUnpyKWJ
+         0g8jMpaPmhNRPCuBYzsCPMiv8by+Z2seNaiPsbDM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Rosin <peda@axentia.se>,
+Cc:     Mikko Rapeli <mikko.rapeli@iki.fi>,
+        Jan Harkes <jaharkes@cs.cmu.edu>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Colin Ian King <colin.king@canonical.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        David Howells <dhowells@redhat.com>,
+        Fabian Frederick <fabf@skynet.be>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Yann Droneaud <ydroneaud@opteya.com>,
+        Zhouyang Jia <jiazhouyang09@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 32/47] lib/test_string.c: avoid masking memset16/32/64 failures
-Date:   Fri, 26 Jul 2019 09:41:55 -0400
-Message-Id: <20190726134210.12156-32-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, codalist@coda.cs.cmu.edu
+Subject: [PATCH AUTOSEL 4.19 35/47] uapi linux/coda_psdev.h: move upc_req definition from uapi to kernel side headers
+Date:   Fri, 26 Jul 2019 09:41:58 -0400
+Message-Id: <20190726134210.12156-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726134210.12156-1-sashal@kernel.org>
 References: <20190726134210.12156-1-sashal@kernel.org>
@@ -44,58 +53,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Rosin <peda@axentia.se>
+From: Mikko Rapeli <mikko.rapeli@iki.fi>
 
-[ Upstream commit 33d6e0ff68af74be0c846c8e042e84a9a1a0561e ]
+[ Upstream commit f90fb3c7e2c13ae829db2274b88b845a75038b8a ]
 
-If a memsetXX implementation is completely broken and fails in the first
-iteration, when i, j, and k are all zero, the failure is masked as zero
-is returned.  Failing in the first iteration is perhaps the most likely
-failure, so this makes the tests pretty much useless.  Avoid the
-situation by always setting a random unused bit in the result on
-failure.
+Only users of upc_req in kernel side fs/coda/psdev.c and
+fs/coda/upcall.c already include linux/coda_psdev.h.
 
-Link: http://lkml.kernel.org/r/20190506124634.6807-3-peda@axentia.se
-Fixes: 03270c13c5ff ("lib/string.c: add testcases for memset16/32/64")
-Signed-off-by: Peter Rosin <peda@axentia.se>
+Suggested by Jan Harkes <jaharkes@cs.cmu.edu> in
+  https://lore.kernel.org/lkml/20150531111913.GA23377@cs.cmu.edu/
+
+Fixes these include/uapi/linux/coda_psdev.h compilation errors in userspace:
+
+  linux/coda_psdev.h:12:19: error: field `uc_chain' has incomplete type
+  struct list_head    uc_chain;
+                   ^
+  linux/coda_psdev.h:13:2: error: unknown type name `caddr_t'
+  caddr_t             uc_data;
+  ^
+  linux/coda_psdev.h:14:2: error: unknown type name `u_short'
+  u_short             uc_flags;
+  ^
+  linux/coda_psdev.h:15:2: error: unknown type name `u_short'
+  u_short             uc_inSize;  /* Size is at most 5000 bytes */
+  ^
+  linux/coda_psdev.h:16:2: error: unknown type name `u_short'
+  u_short             uc_outSize;
+  ^
+  linux/coda_psdev.h:17:2: error: unknown type name `u_short'
+  u_short             uc_opcode;  /* copied from data to save lookup */
+  ^
+  linux/coda_psdev.h:19:2: error: unknown type name `wait_queue_head_t'
+  wait_queue_head_t   uc_sleep;   /* process' wait queue */
+  ^
+
+Link: http://lkml.kernel.org/r/9f99f5ce6a0563d5266e6cf7aa9585aac2cae971.1558117389.git.jaharkes@cs.cmu.edu
+Signed-off-by: Mikko Rapeli <mikko.rapeli@iki.fi>
+Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Colin Ian King <colin.king@canonical.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Fabian Frederick <fabf@skynet.be>
+Cc: Sam Protsenko <semen.protsenko@linaro.org>
+Cc: Yann Droneaud <ydroneaud@opteya.com>
+Cc: Zhouyang Jia <jiazhouyang09@gmail.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_string.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/linux/coda_psdev.h      | 11 +++++++++++
+ include/uapi/linux/coda_psdev.h | 13 -------------
+ 2 files changed, 11 insertions(+), 13 deletions(-)
 
-diff --git a/lib/test_string.c b/lib/test_string.c
-index 0fcdb82dca86..98a787e7a1fd 100644
---- a/lib/test_string.c
-+++ b/lib/test_string.c
-@@ -35,7 +35,7 @@ static __init int memset16_selftest(void)
- fail:
- 	kfree(p);
- 	if (i < 256)
--		return (i << 24) | (j << 16) | k;
-+		return (i << 24) | (j << 16) | k | 0x8000;
- 	return 0;
- }
+diff --git a/include/linux/coda_psdev.h b/include/linux/coda_psdev.h
+index 15170954aa2b..57d2b2faf6a3 100644
+--- a/include/linux/coda_psdev.h
++++ b/include/linux/coda_psdev.h
+@@ -19,6 +19,17 @@ struct venus_comm {
+ 	struct mutex	    vc_mutex;
+ };
  
-@@ -71,7 +71,7 @@ static __init int memset32_selftest(void)
- fail:
- 	kfree(p);
- 	if (i < 256)
--		return (i << 24) | (j << 16) | k;
-+		return (i << 24) | (j << 16) | k | 0x8000;
- 	return 0;
- }
++/* messages between coda filesystem in kernel and Venus */
++struct upc_req {
++	struct list_head	uc_chain;
++	caddr_t			uc_data;
++	u_short			uc_flags;
++	u_short			uc_inSize;  /* Size is at most 5000 bytes */
++	u_short			uc_outSize;
++	u_short			uc_opcode;  /* copied from data to save lookup */
++	int			uc_unique;
++	wait_queue_head_t	uc_sleep;   /* process' wait queue */
++};
  
-@@ -107,7 +107,7 @@ static __init int memset64_selftest(void)
- fail:
- 	kfree(p);
- 	if (i < 256)
--		return (i << 24) | (j << 16) | k;
-+		return (i << 24) | (j << 16) | k | 0x8000;
- 	return 0;
- }
+ static inline struct venus_comm *coda_vcp(struct super_block *sb)
+ {
+diff --git a/include/uapi/linux/coda_psdev.h b/include/uapi/linux/coda_psdev.h
+index aa6623efd2dd..d50d51a57fe4 100644
+--- a/include/uapi/linux/coda_psdev.h
++++ b/include/uapi/linux/coda_psdev.h
+@@ -7,19 +7,6 @@
+ #define CODA_PSDEV_MAJOR 67
+ #define MAX_CODADEVS  5	   /* how many do we allow */
  
+-
+-/* messages between coda filesystem in kernel and Venus */
+-struct upc_req {
+-	struct list_head    uc_chain;
+-	caddr_t	            uc_data;
+-	u_short	            uc_flags;
+-	u_short             uc_inSize;  /* Size is at most 5000 bytes */
+-	u_short	            uc_outSize;
+-	u_short	            uc_opcode;  /* copied from data to save lookup */
+-	int		    uc_unique;
+-	wait_queue_head_t   uc_sleep;   /* process' wait queue */
+-};
+-
+ #define CODA_REQ_ASYNC  0x1
+ #define CODA_REQ_READ   0x2
+ #define CODA_REQ_WRITE  0x4
 -- 
 2.20.1
 
