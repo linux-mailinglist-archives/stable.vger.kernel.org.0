@@ -2,33 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E19376A2A
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:56:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80B7576A1D
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:56:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728511AbfGZN4e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:56:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48814 "EHLO mail.kernel.org"
+        id S1728483AbfGZN4W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:56:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387776AbfGZNls (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:41:48 -0400
+        id S2387790AbfGZNlv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:41:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C31222CD8;
-        Fri, 26 Jul 2019 13:41:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2012822C7E;
+        Fri, 26 Jul 2019 13:41:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148508;
-        bh=eiIvl15TE1PQR+e0/L2NdQWQqKyuwo1UD+t1FaRlF7Q=;
+        s=default; t=1564148511;
+        bh=EpQGnQ/G+NzeXJNmwDMDpPK+BWDg110HPcO6n8jqX9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ln+bA9NqHtxeWGr2N9wP2kstyETWXdDaAdpClG/0yLbE0+m4fj8xRvcGe9Y0h10v2
-         HzO3kkcMnwzVPBmInr1UJpDm5q4t4qrpRO3qprgT1d99b3rIPwIFow8im4YTsW+vqN
-         ecfYInvWTwNIvWVORtXNeJtJDgVhZ3/YT3tWf10I=
+        b=jePkYeLgBm3YPqol38CyIcH5fHeyboV5TFhOY6D1azOyOWkPUf+3hd30dnfkd4L27
+         LUnVJWjBirO2YXX46nWvY+ZAF778nfZb/QNBbyjiNc7YLuXldlNpAE+r6rRmYGCZdH
+         b7vyXpPapXW/8V5syvvWCrrLNWGcKhFa8QtHI2i0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 74/85] xen: let alloc_xenballooned_pages() fail if not enough memory free
-Date:   Fri, 26 Jul 2019 09:39:24 -0400
-Message-Id: <20190726133936.11177-74-sashal@kernel.org>
+Cc:     Zhenzhong Duan <zhenzhong.duan@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Andrew Cooper <andrew.cooper3@citrix.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 75/85] xen/pv: Fix a boot up hang revealed by int3 self test
+Date:   Fri, 26 Jul 2019 09:39:25 -0400
+Message-Id: <20190726133936.11177-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
 References: <20190726133936.11177-1-sashal@kernel.org>
@@ -41,72 +50,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Zhenzhong Duan <zhenzhong.duan@oracle.com>
 
-[ Upstream commit a1078e821b605813b63bf6bca414a85f804d5c66 ]
+[ Upstream commit b23e5844dfe78a80ba672793187d3f52e4b528d7 ]
 
-Instead of trying to allocate pages with GFP_USER in
-add_ballooned_pages() check the available free memory via
-si_mem_available(). GFP_USER is far less limiting memory exhaustion
-than the test via si_mem_available().
+Commit 7457c0da024b ("x86/alternatives: Add int3_emulate_call()
+selftest") is used to ensure there is a gap setup in int3 exception stack
+which could be used for inserting call return address.
 
-This will avoid dom0 running out of memory due to excessive foreign
-page mappings especially on ARM and on x86 in PVH mode, as those don't
-have a pre-ballooned area which can be used for foreign mappings.
+This gap is missed in XEN PV int3 exception entry path, then below panic
+triggered:
 
-As the normal ballooning suffers from the same problem don't balloon
-down more than si_mem_available() pages in one iteration. At the same
-time limit the default maximum number of retries.
+[    0.772876] general protection fault: 0000 [#1] SMP NOPTI
+[    0.772886] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.2.0+ #11
+[    0.772893] RIP: e030:int3_magic+0x0/0x7
+[    0.772905] RSP: 3507:ffffffff82203e98 EFLAGS: 00000246
+[    0.773334] Call Trace:
+[    0.773334]  alternative_instructions+0x3d/0x12e
+[    0.773334]  check_bugs+0x7c9/0x887
+[    0.773334]  ? __get_locked_pte+0x178/0x1f0
+[    0.773334]  start_kernel+0x4ff/0x535
+[    0.773334]  ? set_init_arg+0x55/0x55
+[    0.773334]  xen_start_kernel+0x571/0x57a
 
-This is part of XSA-300.
+For 64bit PV guests, Xen's ABI enters the kernel with using SYSRET, with
+%rcx/%r11 on the stack. To convert back to "normal" looking exceptions,
+the xen thunks do 'xen_*: pop %rcx; pop %r11; jmp *'.
 
+E.g. Extracting 'xen_pv_trap xenint3' we have:
+xen_xenint3:
+ pop %rcx;
+ pop %r11;
+ jmp xenint3
+
+As xenint3 and int3 entry code are same except xenint3 doesn't generate
+a gap, we can fix it by using int3 and drop useless xenint3.
+
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@oracle.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Stefano Stabellini <sstabellini@kernel.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Andrew Cooper <andrew.cooper3@citrix.com>
 Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/balloon.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ arch/x86/entry/entry_64.S    | 1 -
+ arch/x86/include/asm/traps.h | 2 +-
+ arch/x86/xen/enlighten_pv.c  | 2 +-
+ arch/x86/xen/xen-asm_64.S    | 1 -
+ 4 files changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
-index d37dd5bb7a8f..559768dc2567 100644
---- a/drivers/xen/balloon.c
-+++ b/drivers/xen/balloon.c
-@@ -538,8 +538,15 @@ static void balloon_process(struct work_struct *work)
- 				state = reserve_additional_memory();
- 		}
+diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
+index 8dbca86c249b..5c033dc0c2c7 100644
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -1171,7 +1171,6 @@ idtentry stack_segment		do_stack_segment	has_error_code=1
+ #ifdef CONFIG_XEN_PV
+ idtentry xennmi			do_nmi			has_error_code=0
+ idtentry xendebug		do_debug		has_error_code=0
+-idtentry xenint3		do_int3			has_error_code=0
+ #endif
  
--		if (credit < 0)
--			state = decrease_reservation(-credit, GFP_BALLOON);
-+		if (credit < 0) {
-+			long n_pages;
-+
-+			n_pages = min(-credit, si_mem_available());
-+			state = decrease_reservation(n_pages, GFP_BALLOON);
-+			if (state == BP_DONE && n_pages != -credit &&
-+			    n_pages < totalreserve_pages)
-+				state = BP_EAGAIN;
-+		}
+ idtentry general_protection	do_general_protection	has_error_code=1
+diff --git a/arch/x86/include/asm/traps.h b/arch/x86/include/asm/traps.h
+index 7d6f3f3fad78..f2bd284abc16 100644
+--- a/arch/x86/include/asm/traps.h
++++ b/arch/x86/include/asm/traps.h
+@@ -40,7 +40,7 @@ asmlinkage void simd_coprocessor_error(void);
+ asmlinkage void xen_divide_error(void);
+ asmlinkage void xen_xennmi(void);
+ asmlinkage void xen_xendebug(void);
+-asmlinkage void xen_xenint3(void);
++asmlinkage void xen_int3(void);
+ asmlinkage void xen_overflow(void);
+ asmlinkage void xen_bounds(void);
+ asmlinkage void xen_invalid_op(void);
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index 4722ba2966ac..30c14cb343fc 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -596,12 +596,12 @@ struct trap_array_entry {
  
- 		state = update_schedule(state);
- 
-@@ -578,6 +585,9 @@ static int add_ballooned_pages(int nr_pages)
- 		}
- 	}
- 
-+	if (si_mem_available() < nr_pages)
-+		return -ENOMEM;
-+
- 	st = decrease_reservation(nr_pages, GFP_USER);
- 	if (st != BP_DONE)
- 		return -ENOMEM;
-@@ -710,7 +720,7 @@ static int __init balloon_init(void)
- 	balloon_stats.schedule_delay = 1;
- 	balloon_stats.max_schedule_delay = 32;
- 	balloon_stats.retry_count = 1;
--	balloon_stats.max_retry_count = RETRY_UNLIMITED;
-+	balloon_stats.max_retry_count = 4;
- 
- #ifdef CONFIG_XEN_BALLOON_MEMORY_HOTPLUG
- 	set_online_page_callback(&xen_online_page);
+ static struct trap_array_entry trap_array[] = {
+ 	{ debug,                       xen_xendebug,                    true },
+-	{ int3,                        xen_xenint3,                     true },
+ 	{ double_fault,                xen_double_fault,                true },
+ #ifdef CONFIG_X86_MCE
+ 	{ machine_check,               xen_machine_check,               true },
+ #endif
+ 	{ nmi,                         xen_xennmi,                      true },
++	{ int3,                        xen_int3,                        false },
+ 	{ overflow,                    xen_overflow,                    false },
+ #ifdef CONFIG_IA32_EMULATION
+ 	{ entry_INT80_compat,          xen_entry_INT80_compat,          false },
+diff --git a/arch/x86/xen/xen-asm_64.S b/arch/x86/xen/xen-asm_64.S
+index 1e9ef0ba30a5..ebf610b49c06 100644
+--- a/arch/x86/xen/xen-asm_64.S
++++ b/arch/x86/xen/xen-asm_64.S
+@@ -32,7 +32,6 @@ xen_pv_trap divide_error
+ xen_pv_trap debug
+ xen_pv_trap xendebug
+ xen_pv_trap int3
+-xen_pv_trap xenint3
+ xen_pv_trap xennmi
+ xen_pv_trap overflow
+ xen_pv_trap bounds
 -- 
 2.20.1
 
