@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 95E5676DAD
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:36:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A79F76DAE
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:36:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389370AbfGZPcI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:32:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47240 "EHLO mail.kernel.org"
+        id S2389412AbfGZPcL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:32:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389398AbfGZPcI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:32:08 -0400
+        id S2389007AbfGZPcL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:32:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8871722BF5;
-        Fri, 26 Jul 2019 15:32:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1FBE2054F;
+        Fri, 26 Jul 2019 15:32:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564155127;
-        bh=p2jxfemamL9OThkkkhp5Ka0e+Tn3mOYTKn4IIiywrSo=;
+        s=default; t=1564155130;
+        bh=B2G43BUIL/B67yn5SSx5k31Rhc5SJkFskrrpC5iyrJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dj6Nbf6K/cYY9G7JVoLVYXmllR6Xtqx3qfz8iGVay0BNHJim0SzuZ8O2Tsflg5Nui
-         k8jCdjNzj3w9/cQOr5k0jBQdp2nqdjYSKXxojFAJF1FzyZnWHCmUz3uwUEFq7OamkJ
-         Jnx1qf9fiZZ8xva9KeKgdzxYxdcqn2AswlLNsMiM=
+        b=d6GAbXaYUXV6mOt0y/2R1duUBTL0kg7boDHopJS/rR0KiWKlSBnsNhN2HzTsY1bYM
+         oDpnPqn5Esl1tUQqrZJ3WI+zxwW4ASzAEG2ibV0HEQcElQPYLWRZmMNS7vtLAT2Yld
+         eqr80npMBFXona3n6aL0SvB5b1Ix9qIFikUClH4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Hurley <john.hurley@netronome.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Simon Horman <simon.horman@netronome.com>,
-        Pravin B Shelar <pshelar@ovn.org>,
+        stable@vger.kernel.org, chris.healy@zii.aero,
+        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 12/50] net: openvswitch: fix csum updates for MPLS actions
-Date:   Fri, 26 Jul 2019 17:24:47 +0200
-Message-Id: <20190726152301.842133310@linuxfoundation.org>
+Subject: [PATCH 4.19 13/50] net: phy: sfp: hwmon: Fix scaling of RX power
+Date:   Fri, 26 Jul 2019 17:24:48 +0200
+Message-Id: <20190726152301.937711203@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190726152300.760439618@linuxfoundation.org>
 References: <20190726152300.760439618@linuxfoundation.org>
@@ -46,73 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Hurley <john.hurley@netronome.com>
+From: Andrew Lunn <andrew@lunn.ch>
 
-[ Upstream commit 0e3183cd2a64843a95b62f8bd4a83605a4cf0615 ]
+[ Upstream commit 0cea0e1148fe134a4a3aaf0b1496f09241fb943a ]
 
-Skbs may have their checksum value populated by HW. If this is a checksum
-calculated over the entire packet then the CHECKSUM_COMPLETE field is
-marked. Changes to the data pointer on the skb throughout the network
-stack still try to maintain this complete csum value if it is required
-through functions such as skb_postpush_rcsum.
+The RX power read from the SFP uses units of 0.1uW. This must be
+scaled to units of uW for HWMON. This requires a divide by 10, not the
+current 100.
 
-The MPLS actions in Open vSwitch modify a CHECKSUM_COMPLETE value when
-changes are made to packet data without a push or a pull. This occurs when
-the ethertype of the MAC header is changed or when MPLS lse fields are
-modified.
+With this change in place, sensors(1) and ethtool -m agree:
 
-The modification is carried out using the csum_partial function to get the
-csum of a buffer and add it into the larger checksum. The buffer is an
-inversion of the data to be removed followed by the new data. Because the
-csum is calculated over 16 bits and these values align with 16 bits, the
-effect is the removal of the old value from the CHECKSUM_COMPLETE and
-addition of the new value.
+sff2-isa-0000
+Adapter: ISA adapter
+in0:          +3.23 V
+temp1:        +33.1 C
+power1:      270.00 uW
+power2:      200.00 uW
+curr1:        +0.01 A
 
-However, the csum fed into the function and the outcome of the
-calculation are also inverted. This would only make sense if it was the
-new value rather than the old that was inverted in the input buffer.
+        Laser output power                        : 0.2743 mW / -5.62 dBm
+        Receiver signal average optical power     : 0.2014 mW / -6.96 dBm
 
-Fix the issue by removing the bit inverts in the csum_partial calculation.
-
-The bug was verified and the fix tested by comparing the folded value of
-the updated CHECKSUM_COMPLETE value with the folded value of a full
-software checksum calculation (reset skb->csum to 0 and run
-skb_checksum_complete(skb)). Prior to the fix the outcomes differed but
-after they produce the same result.
-
-Fixes: 25cd9ba0abc0 ("openvswitch: Add basic MPLS support to kernel")
-Fixes: bc7cc5999fd3 ("openvswitch: update checksum in {push,pop}_mpls")
-Signed-off-by: John Hurley <john.hurley@netronome.com>
-Reviewed-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: Simon Horman <simon.horman@netronome.com>
-Acked-by: Pravin B Shelar <pshelar@ovn.org>
+Reported-by: chris.healy@zii.aero
+Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+Fixes: 1323061a018a ("net: phy: sfp: Add HWMON support for module sensors")
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/openvswitch/actions.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/net/phy/sfp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/openvswitch/actions.c
-+++ b/net/openvswitch/actions.c
-@@ -175,8 +175,7 @@ static void update_ethertype(struct sk_b
- 	if (skb->ip_summed == CHECKSUM_COMPLETE) {
- 		__be16 diff[] = { ~(hdr->h_proto), ethertype };
+--- a/drivers/net/phy/sfp.c
++++ b/drivers/net/phy/sfp.c
+@@ -514,7 +514,7 @@ static int sfp_hwmon_read_sensor(struct
  
--		skb->csum = ~csum_partial((char *)diff, sizeof(diff),
--					~skb->csum);
-+		skb->csum = csum_partial((char *)diff, sizeof(diff), skb->csum);
- 	}
+ static void sfp_hwmon_to_rx_power(long *value)
+ {
+-	*value = DIV_ROUND_CLOSEST(*value, 100);
++	*value = DIV_ROUND_CLOSEST(*value, 10);
+ }
  
- 	hdr->h_proto = ethertype;
-@@ -268,8 +267,7 @@ static int set_mpls(struct sk_buff *skb,
- 	if (skb->ip_summed == CHECKSUM_COMPLETE) {
- 		__be32 diff[] = { ~(stack->label_stack_entry), lse };
- 
--		skb->csum = ~csum_partial((char *)diff, sizeof(diff),
--					  ~skb->csum);
-+		skb->csum = csum_partial((char *)diff, sizeof(diff), skb->csum);
- 	}
- 
- 	stack->label_stack_entry = lse;
+ static void sfp_hwmon_calibrate(struct sfp *sfp, unsigned int slope, int offset,
 
 
