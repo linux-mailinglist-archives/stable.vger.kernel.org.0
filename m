@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB0BF76D50
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:33:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F7A476D24
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:31:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389554AbfGZPcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:32:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48042 "EHLO mail.kernel.org"
+        id S2389161AbfGZPaz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:30:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389547AbfGZPcq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:32:46 -0400
+        id S2389155AbfGZPaz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:30:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E3BB20644;
-        Fri, 26 Jul 2019 15:32:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 62D7F22BF5;
+        Fri, 26 Jul 2019 15:30:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564155166;
-        bh=Qu5C3pPl3pwTZRF/1RD436IutAMq/y9vFw1kouuIs3c=;
+        s=default; t=1564155053;
+        bh=MCUL7sTU/DfR1NNw9dpHQY2ENyUBKOeryycYkC5qzuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PCH4TTrRUMJl6MTiQt60pjEIFMbvutNLq7PCWh0kQXhZyVHEN+wS2ZtG1ABjlob8M
-         IroBSWvVXH3jiIaiG5T43ya5o6IeU98Ru48py9XicA0DvrjcUv+8jpuasz727Tzvls
-         bj9lvIipVbJt0pM+fEzZVV2ZYVf4O9IFRFRsOdwA=
+        b=nkJfCpMfFf+N/rM25SPdQrLpz3B9Up4AhaZCxgrXuNA1EPA6kzSuL42KogwixMGsb
+         7wuRIRoB/B5t/dgFO95ioOw/aTcdrilfG97cQfOagUbVNYMD9vUS5r82s9BNtBP9G2
+         CfF1er+3/pXuZ4UQuszL98zoRpKDCmB8SOSDlEBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@mellanox.com>,
-        Feras Daoud <ferasda@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 4.19 24/50] net/mlx5e: IPoIB, Add error path in mlx5_rdma_setup_rn
-Date:   Fri, 26 Jul 2019 17:24:59 +0200
-Message-Id: <20190726152303.052173118@linuxfoundation.org>
+        stable@vger.kernel.org, David Carrillo Cisneros <davidca@fb.com>,
+        Song Liu <songliubraving@fb.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>, kernel-team@fb.com
+Subject: [PATCH 5.1 48/62] perf script: Assume native_arch for pipe mode
+Date:   Fri, 26 Jul 2019 17:25:00 +0200
+Message-Id: <20190726152307.086370026@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190726152300.760439618@linuxfoundation.org>
-References: <20190726152300.760439618@linuxfoundation.org>
+In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
+References: <20190726152301.720139286@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@mellanox.com>
+From: Song Liu <songliubraving@fb.com>
 
-[ Upstream commit ef1ce7d7b67b46661091c7ccc0396186b7a247ef ]
+commit 9d49169c5958e429ffa6874fbef734ae7502ad65 upstream.
 
-Check return value from mlx5e_attach_netdev, add error path on failure.
+In pipe mode, session->header.env.arch is not populated until the events
+are processed. Therefore, the following command crashes:
 
-Fixes: 48935bbb7ae8 ("net/mlx5e: IPoIB, Add netdevice profile skeleton")
-Signed-off-by: Aya Levin <ayal@mellanox.com>
-Reviewed-by: Feras Daoud <ferasda@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+   perf record -o - | perf script
+
+(gdb) bt
+
+It fails when we try to compare env.arch against uts.machine:
+
+        if (!strcmp(uts.machine, session->header.env.arch) ||
+            (!strcmp(uts.machine, "x86_64") &&
+             !strcmp(session->header.env.arch, "i386")))
+                native_arch = true;
+
+In pipe mode, it is tricky to find env.arch at this stage. To keep it
+simple, let's just assume native_arch is always true for pipe mode.
+
+Reported-by: David Carrillo Cisneros <davidca@fb.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: kernel-team@fb.com
+Cc: stable@vger.kernel.org #v5.1+
+Fixes: 3ab481a1cfe1 ("perf script: Support insn output for normal samples")
+Link: http://lkml.kernel.org/r/20190621014438.810342-1-songliubraving@fb.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
-@@ -662,7 +662,9 @@ struct net_device *mlx5_rdma_netdev_allo
+---
+ tools/perf/builtin-script.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/tools/perf/builtin-script.c
++++ b/tools/perf/builtin-script.c
+@@ -3669,7 +3669,8 @@ int cmd_script(int argc, const char **ar
+ 		goto out_delete;
  
- 	profile->init(mdev, netdev, profile, ipriv);
- 
--	mlx5e_attach_netdev(epriv);
-+	err = mlx5e_attach_netdev(epriv);
-+	if (err)
-+		goto detach;
- 	netif_carrier_off(netdev);
- 
- 	/* set rdma_netdev func pointers */
-@@ -678,6 +680,11 @@ struct net_device *mlx5_rdma_netdev_allo
- 
- 	return netdev;
- 
-+detach:
-+	profile->cleanup(epriv);
-+	if (ipriv->sub_interface)
-+		return NULL;
-+	mlx5e_destroy_mdev_resources(mdev);
- destroy_ht:
- 	mlx5i_pkey_qpn_ht_cleanup(netdev);
- destroy_wq:
+ 	uname(&uts);
+-	if (!strcmp(uts.machine, session->header.env.arch) ||
++	if (data.is_pipe ||  /* assume pipe_mode indicates native_arch */
++	    !strcmp(uts.machine, session->header.env.arch) ||
+ 	    (!strcmp(uts.machine, "x86_64") &&
+ 	     !strcmp(session->header.env.arch, "i386")))
+ 		native_arch = true;
 
 
