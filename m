@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8205576D37
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:31:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38D7D76D83
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:35:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389319AbfGZPbm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:31:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46782 "EHLO mail.kernel.org"
+        id S2389800AbfGZPeM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:34:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388839AbfGZPbl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:31:41 -0400
+        id S2389782AbfGZPeK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:34:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE8B322BF5;
-        Fri, 26 Jul 2019 15:31:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B471D218D4;
+        Fri, 26 Jul 2019 15:34:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564155101;
-        bh=2TXXXuxVKDfKUrY6s55kb8kkQrge3pVFExbKlv8oakY=;
+        s=default; t=1564155249;
+        bh=pbeQDORN6gjVG0+4sDhKbTkgttOdLuzGdZH+0akPEqA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kC/dgsiziwpBFcvsBLZZyUKblVxeezMc4I9I7qYElTeh31JXN9G2l1kdCF3+XUL1S
-         /uNLTyO/mbXY00uUKu7UlGQjGJaHJpumtjNulnbf0+Xv9q1hVvhWLts0AUGEuc5N2n
-         sYZs4/w0sFyJ65zbCgm1JNV62hgaIk9Zqyi0rE5w=
+        b=zAzmc+JRpPPq9BolQVKbkMiCi1C89iaL5tUEyCpV167yLrP1u+AEeRD2+dmWp6rpu
+         8f2Fj4zgSy3t5RFFc/0ZLA7XXOoI2qFwfNBU8E76Acp53r1o2cnHZJw9Vw/U8AM5BU
+         j64OLFzi4mKCRf3gKJLbcBIj6jS6Rge9xREscoiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ross Zwisler <zwisler@google.com>,
-        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.1 54/62] jbd2: introduce jbd2_inode dirty range scoping
-Date:   Fri, 26 Jul 2019 17:25:06 +0200
-Message-Id: <20190726152307.676250429@linuxfoundation.org>
+        stable@vger.kernel.org, Martin Weinelt <martin@linuxlounge.net>,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 32/50] net: bridge: mcast: fix stale nsrcs pointer in igmp3/mld2 report handling
+Date:   Fri, 26 Jul 2019 17:25:07 +0200
+Message-Id: <20190726152303.934713855@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
-References: <20190726152301.720139286@linuxfoundation.org>
+In-Reply-To: <20190726152300.760439618@linuxfoundation.org>
+References: <20190726152300.760439618@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,251 +44,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ross Zwisler <zwisler@chromium.org>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-commit 6ba0e7dc64a5adcda2fbe65adc466891795d639e upstream.
+[ Upstream commit e57f61858b7cf478ed6fa23ed4b3876b1c9625c4 ]
 
-Currently both journal_submit_inode_data_buffers() and
-journal_finish_inode_data_buffers() operate on the entire address space
-of each of the inodes associated with a given journal entry.  The
-consequence of this is that if we have an inode where we are constantly
-appending dirty pages we can end up waiting for an indefinite amount of
-time in journal_finish_inode_data_buffers() while we wait for all the
-pages under writeback to be written out.
+We take a pointer to grec prior to calling pskb_may_pull and use it
+afterwards to get nsrcs so record nsrcs before the pull when handling
+igmp3 and we get a pointer to nsrcs and call pskb_may_pull when handling
+mld2 which again could lead to reading 2 bytes out-of-bounds.
 
-The easiest way to cause this type of workload is do just dd from
-/dev/zero to a file until it fills the entire filesystem.  This can
-cause journal_finish_inode_data_buffers() to wait for the duration of
-the entire dd operation.
+ ==================================================================
+ BUG: KASAN: use-after-free in br_multicast_rcv+0x480c/0x4ad0 [bridge]
+ Read of size 2 at addr ffff8880421302b4 by task ksoftirqd/1/16
 
-We can improve this situation by scoping each of the inode dirty ranges
-associated with a given transaction.  We do this via the jbd2_inode
-structure so that the scoping is contained within jbd2 and so that it
-follows the lifetime and locking rules for that structure.
+ CPU: 1 PID: 16 Comm: ksoftirqd/1 Tainted: G           OE     5.2.0-rc6+ #1
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/01/2014
+ Call Trace:
+  dump_stack+0x71/0xab
+  print_address_description+0x6a/0x280
+  ? br_multicast_rcv+0x480c/0x4ad0 [bridge]
+  __kasan_report+0x152/0x1aa
+  ? br_multicast_rcv+0x480c/0x4ad0 [bridge]
+  ? br_multicast_rcv+0x480c/0x4ad0 [bridge]
+  kasan_report+0xe/0x20
+  br_multicast_rcv+0x480c/0x4ad0 [bridge]
+  ? br_multicast_disable_port+0x150/0x150 [bridge]
+  ? ktime_get_with_offset+0xb4/0x150
+  ? __kasan_kmalloc.constprop.6+0xa6/0xf0
+  ? __netif_receive_skb+0x1b0/0x1b0
+  ? br_fdb_update+0x10e/0x6e0 [bridge]
+  ? br_handle_frame_finish+0x3c6/0x11d0 [bridge]
+  br_handle_frame_finish+0x3c6/0x11d0 [bridge]
+  ? br_pass_frame_up+0x3a0/0x3a0 [bridge]
+  ? virtnet_probe+0x1c80/0x1c80 [virtio_net]
+  br_handle_frame+0x731/0xd90 [bridge]
+  ? select_idle_sibling+0x25/0x7d0
+  ? br_handle_frame_finish+0x11d0/0x11d0 [bridge]
+  __netif_receive_skb_core+0xced/0x2d70
+  ? virtqueue_get_buf_ctx+0x230/0x1130 [virtio_ring]
+  ? do_xdp_generic+0x20/0x20
+  ? virtqueue_napi_complete+0x39/0x70 [virtio_net]
+  ? virtnet_poll+0x94d/0xc78 [virtio_net]
+  ? receive_buf+0x5120/0x5120 [virtio_net]
+  ? __netif_receive_skb_one_core+0x97/0x1d0
+  __netif_receive_skb_one_core+0x97/0x1d0
+  ? __netif_receive_skb_core+0x2d70/0x2d70
+  ? _raw_write_trylock+0x100/0x100
+  ? __queue_work+0x41e/0xbe0
+  process_backlog+0x19c/0x650
+  ? _raw_read_lock_irq+0x40/0x40
+  net_rx_action+0x71e/0xbc0
+  ? __switch_to_asm+0x40/0x70
+  ? napi_complete_done+0x360/0x360
+  ? __switch_to_asm+0x34/0x70
+  ? __switch_to_asm+0x40/0x70
+  ? __schedule+0x85e/0x14d0
+  __do_softirq+0x1db/0x5f9
+  ? takeover_tasklets+0x5f0/0x5f0
+  run_ksoftirqd+0x26/0x40
+  smpboot_thread_fn+0x443/0x680
+  ? sort_range+0x20/0x20
+  ? schedule+0x94/0x210
+  ? __kthread_parkme+0x78/0xf0
+  ? sort_range+0x20/0x20
+  kthread+0x2ae/0x3a0
+  ? kthread_create_worker_on_cpu+0xc0/0xc0
+  ret_from_fork+0x35/0x40
 
-This allows us to limit the writeback & wait in
-journal_submit_inode_data_buffers() and
-journal_finish_inode_data_buffers() respectively to the dirty range for
-a given struct jdb2_inode, keeping us from waiting forever if the inode
-in question is still being appended to.
+ The buggy address belongs to the page:
+ page:ffffea0001084c00 refcount:0 mapcount:-128 mapping:0000000000000000 index:0x0
+ flags: 0xffffc000000000()
+ raw: 00ffffc000000000 ffffea0000cfca08 ffffea0001098608 0000000000000000
+ raw: 0000000000000000 0000000000000003 00000000ffffff7f 0000000000000000
+ page dumped because: kasan: bad access detected
 
-Signed-off-by: Ross Zwisler <zwisler@google.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: stable@vger.kernel.org
+ Memory state around the buggy address:
+ ffff888042130180: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ ffff888042130200: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ > ffff888042130280: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+                                     ^
+ ffff888042130300: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ ffff888042130380: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ ==================================================================
+ Disabling lock debugging due to kernel taint
+
+Fixes: bc8c20acaea1 ("bridge: multicast: treat igmpv3 report with INCLUDE and no sources as a leave")
+Reported-by: Martin Weinelt <martin@linuxlounge.net>
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Tested-by: Martin Weinelt <martin@linuxlounge.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/jbd2/commit.c      |   23 +++++++++++++++++------
- fs/jbd2/journal.c     |    4 ++++
- fs/jbd2/transaction.c |   49 ++++++++++++++++++++++++++++---------------------
- include/linux/jbd2.h  |   22 ++++++++++++++++++++++
- 4 files changed, 71 insertions(+), 27 deletions(-)
+ net/bridge/br_multicast.c |   27 ++++++++++++++++-----------
+ 1 file changed, 16 insertions(+), 11 deletions(-)
 
---- a/fs/jbd2/commit.c
-+++ b/fs/jbd2/commit.c
-@@ -187,14 +187,15 @@ static int journal_wait_on_commit_record
-  * use writepages() because with dealyed allocation we may be doing
-  * block allocation in writepages().
-  */
--static int journal_submit_inode_data_buffers(struct address_space *mapping)
-+static int journal_submit_inode_data_buffers(struct address_space *mapping,
-+		loff_t dirty_start, loff_t dirty_end)
- {
- 	int ret;
- 	struct writeback_control wbc = {
- 		.sync_mode =  WB_SYNC_ALL,
- 		.nr_to_write = mapping->nrpages * 2,
--		.range_start = 0,
--		.range_end = i_size_read(mapping->host),
-+		.range_start = dirty_start,
-+		.range_end = dirty_end,
- 	};
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1147,6 +1147,7 @@ static int br_ip4_multicast_igmp3_report
+ 	int type;
+ 	int err = 0;
+ 	__be32 group;
++	u16 nsrcs;
  
- 	ret = generic_writepages(mapping, &wbc);
-@@ -218,6 +219,9 @@ static int journal_submit_data_buffers(j
+ 	ih = igmpv3_report_hdr(skb);
+ 	num = ntohs(ih->ngrec);
+@@ -1160,8 +1161,9 @@ static int br_ip4_multicast_igmp3_report
+ 		grec = (void *)(skb->data + len - sizeof(*grec));
+ 		group = grec->grec_mca;
+ 		type = grec->grec_type;
++		nsrcs = ntohs(grec->grec_nsrcs);
  
- 	spin_lock(&journal->j_list_lock);
- 	list_for_each_entry(jinode, &commit_transaction->t_inode_list, i_list) {
-+		loff_t dirty_start = jinode->i_dirty_start;
-+		loff_t dirty_end = jinode->i_dirty_end;
-+
- 		if (!(jinode->i_flags & JI_WRITE_DATA))
- 			continue;
- 		mapping = jinode->i_vfs_inode->i_mapping;
-@@ -230,7 +234,8 @@ static int journal_submit_data_buffers(j
- 		 * only allocated blocks here.
- 		 */
- 		trace_jbd2_submit_inode_data(jinode->i_vfs_inode);
--		err = journal_submit_inode_data_buffers(mapping);
-+		err = journal_submit_inode_data_buffers(mapping, dirty_start,
-+				dirty_end);
- 		if (!ret)
- 			ret = err;
- 		spin_lock(&journal->j_list_lock);
-@@ -257,12 +262,16 @@ static int journal_finish_inode_data_buf
- 	/* For locking, see the comment in journal_submit_data_buffers() */
- 	spin_lock(&journal->j_list_lock);
- 	list_for_each_entry(jinode, &commit_transaction->t_inode_list, i_list) {
-+		loff_t dirty_start = jinode->i_dirty_start;
-+		loff_t dirty_end = jinode->i_dirty_end;
-+
- 		if (!(jinode->i_flags & JI_WAIT_DATA))
- 			continue;
- 		jinode->i_flags |= JI_COMMIT_RUNNING;
- 		spin_unlock(&journal->j_list_lock);
--		err = filemap_fdatawait_keep_errors(
--				jinode->i_vfs_inode->i_mapping);
-+		err = filemap_fdatawait_range_keep_errors(
-+				jinode->i_vfs_inode->i_mapping, dirty_start,
-+				dirty_end);
- 		if (!ret)
- 			ret = err;
- 		spin_lock(&journal->j_list_lock);
-@@ -282,6 +291,8 @@ static int journal_finish_inode_data_buf
- 				&jinode->i_transaction->t_inode_list);
+-		len += ntohs(grec->grec_nsrcs) * 4;
++		len += nsrcs * 4;
+ 		if (!pskb_may_pull(skb, len))
+ 			return -EINVAL;
+ 
+@@ -1182,7 +1184,7 @@ static int br_ip4_multicast_igmp3_report
+ 		src = eth_hdr(skb)->h_source;
+ 		if ((type == IGMPV3_CHANGE_TO_INCLUDE ||
+ 		     type == IGMPV3_MODE_IS_INCLUDE) &&
+-		    ntohs(grec->grec_nsrcs) == 0) {
++		    nsrcs == 0) {
+ 			br_ip4_multicast_leave_group(br, port, group, vid, src);
  		} else {
- 			jinode->i_transaction = NULL;
-+			jinode->i_dirty_start = 0;
-+			jinode->i_dirty_end = 0;
- 		}
- 	}
- 	spin_unlock(&journal->j_list_lock);
---- a/fs/jbd2/journal.c
-+++ b/fs/jbd2/journal.c
-@@ -94,6 +94,8 @@ EXPORT_SYMBOL(jbd2_journal_try_to_free_b
- EXPORT_SYMBOL(jbd2_journal_force_commit);
- EXPORT_SYMBOL(jbd2_journal_inode_add_write);
- EXPORT_SYMBOL(jbd2_journal_inode_add_wait);
-+EXPORT_SYMBOL(jbd2_journal_inode_ranged_write);
-+EXPORT_SYMBOL(jbd2_journal_inode_ranged_wait);
- EXPORT_SYMBOL(jbd2_journal_init_jbd_inode);
- EXPORT_SYMBOL(jbd2_journal_release_jbd_inode);
- EXPORT_SYMBOL(jbd2_journal_begin_ordered_truncate);
-@@ -2574,6 +2576,8 @@ void jbd2_journal_init_jbd_inode(struct
- 	jinode->i_next_transaction = NULL;
- 	jinode->i_vfs_inode = inode;
- 	jinode->i_flags = 0;
-+	jinode->i_dirty_start = 0;
-+	jinode->i_dirty_end = 0;
- 	INIT_LIST_HEAD(&jinode->i_list);
- }
+ 			err = br_ip4_multicast_add_group(br, port, group, vid,
+@@ -1217,23 +1219,26 @@ static int br_ip6_multicast_mld2_report(
+ 	len = skb_transport_offset(skb) + sizeof(*icmp6h);
  
---- a/fs/jbd2/transaction.c
-+++ b/fs/jbd2/transaction.c
-@@ -2565,7 +2565,7 @@ void jbd2_journal_refile_buffer(journal_
-  * File inode in the inode list of the handle's transaction
-  */
- static int jbd2_journal_file_inode(handle_t *handle, struct jbd2_inode *jinode,
--				   unsigned long flags)
-+		unsigned long flags, loff_t start_byte, loff_t end_byte)
- {
- 	transaction_t *transaction = handle->h_transaction;
- 	journal_t *journal;
-@@ -2577,26 +2577,17 @@ static int jbd2_journal_file_inode(handl
- 	jbd_debug(4, "Adding inode %lu, tid:%d\n", jinode->i_vfs_inode->i_ino,
- 			transaction->t_tid);
+ 	for (i = 0; i < num; i++) {
+-		__be16 *nsrcs, _nsrcs;
++		__be16 *_nsrcs, __nsrcs;
++		u16 nsrcs;
  
--	/*
--	 * First check whether inode isn't already on the transaction's
--	 * lists without taking the lock. Note that this check is safe
--	 * without the lock as we cannot race with somebody removing inode
--	 * from the transaction. The reason is that we remove inode from the
--	 * transaction only in journal_release_jbd_inode() and when we commit
--	 * the transaction. We are guarded from the first case by holding
--	 * a reference to the inode. We are safe against the second case
--	 * because if jinode->i_transaction == transaction, commit code
--	 * cannot touch the transaction because we hold reference to it,
--	 * and if jinode->i_next_transaction == transaction, commit code
--	 * will only file the inode where we want it.
--	 */
--	if ((jinode->i_transaction == transaction ||
--	    jinode->i_next_transaction == transaction) &&
--	    (jinode->i_flags & flags) == flags)
--		return 0;
--
- 	spin_lock(&journal->j_list_lock);
- 	jinode->i_flags |= flags;
-+
-+	if (jinode->i_dirty_end) {
-+		jinode->i_dirty_start = min(jinode->i_dirty_start, start_byte);
-+		jinode->i_dirty_end = max(jinode->i_dirty_end, end_byte);
-+	} else {
-+		jinode->i_dirty_start = start_byte;
-+		jinode->i_dirty_end = end_byte;
-+	}
-+
- 	/* Is inode already attached where we need it? */
- 	if (jinode->i_transaction == transaction ||
- 	    jinode->i_next_transaction == transaction)
-@@ -2631,12 +2622,28 @@ done:
- int jbd2_journal_inode_add_write(handle_t *handle, struct jbd2_inode *jinode)
- {
- 	return jbd2_journal_file_inode(handle, jinode,
--				       JI_WRITE_DATA | JI_WAIT_DATA);
-+			JI_WRITE_DATA | JI_WAIT_DATA, 0, LLONG_MAX);
- }
+-		nsrcs = skb_header_pointer(skb,
+-					   len + offsetof(struct mld2_grec,
+-							  grec_nsrcs),
+-					   sizeof(_nsrcs), &_nsrcs);
+-		if (!nsrcs)
++		_nsrcs = skb_header_pointer(skb,
++					    len + offsetof(struct mld2_grec,
++							   grec_nsrcs),
++					    sizeof(__nsrcs), &__nsrcs);
++		if (!_nsrcs)
+ 			return -EINVAL;
  
- int jbd2_journal_inode_add_wait(handle_t *handle, struct jbd2_inode *jinode)
- {
--	return jbd2_journal_file_inode(handle, jinode, JI_WAIT_DATA);
-+	return jbd2_journal_file_inode(handle, jinode, JI_WAIT_DATA, 0,
-+			LLONG_MAX);
-+}
++		nsrcs = ntohs(*_nsrcs);
 +
-+int jbd2_journal_inode_ranged_write(handle_t *handle,
-+		struct jbd2_inode *jinode, loff_t start_byte, loff_t length)
-+{
-+	return jbd2_journal_file_inode(handle, jinode,
-+			JI_WRITE_DATA | JI_WAIT_DATA, start_byte,
-+			start_byte + length - 1);
-+}
-+
-+int jbd2_journal_inode_ranged_wait(handle_t *handle, struct jbd2_inode *jinode,
-+		loff_t start_byte, loff_t length)
-+{
-+	return jbd2_journal_file_inode(handle, jinode, JI_WAIT_DATA,
-+			start_byte, start_byte + length - 1);
- }
+ 		if (!pskb_may_pull(skb,
+ 				   len + sizeof(*grec) +
+-				   sizeof(struct in6_addr) * ntohs(*nsrcs)))
++				   sizeof(struct in6_addr) * nsrcs))
+ 			return -EINVAL;
  
- /*
---- a/include/linux/jbd2.h
-+++ b/include/linux/jbd2.h
-@@ -454,6 +454,22 @@ struct jbd2_inode {
- 	 * @i_flags: Flags of inode [j_list_lock]
- 	 */
- 	unsigned long i_flags;
-+
-+	/**
-+	 * @i_dirty_start:
-+	 *
-+	 * Offset in bytes where the dirty range for this inode starts.
-+	 * [j_list_lock]
-+	 */
-+	loff_t i_dirty_start;
-+
-+	/**
-+	 * @i_dirty_end:
-+	 *
-+	 * Inclusive offset in bytes where the dirty range for this inode
-+	 * ends. [j_list_lock]
-+	 */
-+	loff_t i_dirty_end;
- };
+ 		grec = (struct mld2_grec *)(skb->data + len);
+ 		len += sizeof(*grec) +
+-		       sizeof(struct in6_addr) * ntohs(*nsrcs);
++		       sizeof(struct in6_addr) * nsrcs;
  
- struct jbd2_revoke_table_s;
-@@ -1400,6 +1416,12 @@ extern int	   jbd2_journal_force_commit(
- extern int	   jbd2_journal_force_commit_nested(journal_t *);
- extern int	   jbd2_journal_inode_add_write(handle_t *handle, struct jbd2_inode *inode);
- extern int	   jbd2_journal_inode_add_wait(handle_t *handle, struct jbd2_inode *inode);
-+extern int	   jbd2_journal_inode_ranged_write(handle_t *handle,
-+			struct jbd2_inode *inode, loff_t start_byte,
-+			loff_t length);
-+extern int	   jbd2_journal_inode_ranged_wait(handle_t *handle,
-+			struct jbd2_inode *inode, loff_t start_byte,
-+			loff_t length);
- extern int	   jbd2_journal_begin_ordered_truncate(journal_t *journal,
- 				struct jbd2_inode *inode, loff_t new_size);
- extern void	   jbd2_journal_init_jbd_inode(struct jbd2_inode *jinode, struct inode *inode);
+ 		/* We treat these as MLDv1 reports for now. */
+ 		switch (grec->grec_type) {
+@@ -1252,7 +1257,7 @@ static int br_ip6_multicast_mld2_report(
+ 		src = eth_hdr(skb)->h_source;
+ 		if ((grec->grec_type == MLD2_CHANGE_TO_INCLUDE ||
+ 		     grec->grec_type == MLD2_MODE_IS_INCLUDE) &&
+-		    ntohs(*nsrcs) == 0) {
++		    nsrcs == 0) {
+ 			br_ip6_multicast_leave_group(br, port, &grec->grec_mca,
+ 						     vid, src);
+ 		} else {
 
 
