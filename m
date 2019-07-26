@@ -2,179 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B6E2767AC
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:38:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A052D767CD
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:40:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726402AbfGZNin (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:38:43 -0400
-Received: from mga11.intel.com ([192.55.52.93]:26492 "EHLO mga11.intel.com"
+        id S1727579AbfGZNkH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:40:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726364AbfGZNim (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:38:42 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 26 Jul 2019 06:38:42 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,311,1559545200"; 
-   d="scan'208";a="198321941"
-Received: from soegtrop-mobl1.ger.corp.intel.com (HELO [10.252.37.234]) ([10.252.37.234])
-  by fmsmga002.fm.intel.com with ESMTP; 26 Jul 2019 06:38:40 -0700
-Subject: Re: [Intel-gfx] [PATCH 1/5] drm/i915/userptr: Beware recursive
- lock_page()
-To:     Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org
-References: <20190716124931.5870-1-chris@chris-wilson.co.uk>
- <bb43c2b5-3513-ef4f-1bc9-887fc2b2e523@linux.intel.com>
- <156329142200.9436.8651620549785965913@skylake-alporthouse-com>
- <d76bdb93-b90b-afe3-841b-95a8de27902d@linux.intel.com>
- <156336944635.4375.7269371478914847980@skylake-alporthouse-com>
- <6038b21f-c052-36c5-2d56-72ddeb069097@linux.intel.com>
- <156337053617.4375.13675276970408492219@skylake-alporthouse-com>
- <951e2751-15d7-9ca8-ef6f-299ba59c47a6@linux.intel.com>
- <156337241401.4375.2377981562987470090@skylake-alporthouse-com>
- <d867c0e8-e2e1-fff6-d073-3d5d98335712@linux.intel.com>
-From:   Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-Organization: Intel Corporation (UK) Ltd. - Co. Reg. #1134945 - Pipers Way,
- Swindon SN3 1RJ
-Message-ID: <4a90e8f9-694c-8dea-45b6-e5ea5677df64@intel.com>
-Date:   Fri, 26 Jul 2019 16:38:40 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1727575AbfGZNkH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:40:07 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47FB622BF5;
+        Fri, 26 Jul 2019 13:40:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564148406;
+        bh=iRNqSiuw0WWltpKRN5X7jUlnCo+TpcQGXiHSgh5eqMI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=0+BZ9qO3HO3Lv+2S1zOxKsRWPrk2zCm93HAagGr/eJJN7r5xAIZvHT83Bva7RN/S5
+         sVRMKhd4gdnMh52/No96VpnxSWUj9nelRpUqQpNQg+Pyc4wNTil0vUyh5mc9SjZQRc
+         XhSrT0zK8H1fTq2+xGRpixzfrACKqP+9+ykCm7MI=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Anson Huang <Anson.Huang@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 16/85] soc: imx8: Fix potential kernel dump in error path
+Date:   Fri, 26 Jul 2019 09:38:26 -0400
+Message-Id: <20190726133936.11177-16-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
+References: <20190726133936.11177-1-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <d867c0e8-e2e1-fff6-d073-3d5d98335712@linux.intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 17/07/2019 21:09, Tvrtko Ursulin wrote:
->
-> On 17/07/2019 15:06, Chris Wilson wrote:
->> Quoting Tvrtko Ursulin (2019-07-17 14:46:15)
->>>
->>> On 17/07/2019 14:35, Chris Wilson wrote:
->>>> Quoting Tvrtko Ursulin (2019-07-17 14:23:55)
->>>>>
->>>>> On 17/07/2019 14:17, Chris Wilson wrote:
->>>>>> Quoting Tvrtko Ursulin (2019-07-17 14:09:00)
->>>>>>>
->>>>>>> On 16/07/2019 16:37, Chris Wilson wrote:
->>>>>>>> Quoting Tvrtko Ursulin (2019-07-16 16:25:22)
->>>>>>>>>
->>>>>>>>> On 16/07/2019 13:49, Chris Wilson wrote:
->>>>>>>>>> Following a try_to_unmap() we may want to remove the userptr 
->>>>>>>>>> and so call
->>>>>>>>>> put_pages(). However, try_to_unmap() acquires the page lock 
->>>>>>>>>> and so we
->>>>>>>>>> must avoid recursively locking the pages ourselves -- which 
->>>>>>>>>> means that
->>>>>>>>>> we cannot safely acquire the lock around set_page_dirty(). 
->>>>>>>>>> Since we
->>>>>>>>>> can't be sure of the lock, we have to risk skip dirtying the 
->>>>>>>>>> page, or
->>>>>>>>>> else risk calling set_page_dirty() without a lock and so risk fs
->>>>>>>>>> corruption.
->>>>>>>>>
->>>>>>>>> So if trylock randomly fail we get data corruption in whatever 
->>>>>>>>> data set
->>>>>>>>> application is working on, which is what the original patch 
->>>>>>>>> was trying
->>>>>>>>> to avoid? Are we able to detect the backing store type so at 
->>>>>>>>> least we
->>>>>>>>> don't risk skipping set_page_dirty with anonymous/shmemfs?
->>>>>>>>
->>>>>>>> page->mapping???
->>>>>>>
->>>>>>> Would page->mapping work? What is it telling us?
->>>>>>
->>>>>> It basically tells us if there is a fs around; anything that is 
->>>>>> the most
->>>>>> basic of malloc (even tmpfs/shmemfs has page->mapping).
->>>>>
->>>>> Normal malloc so anonymous pages? Or you meant everything _apart_ 
->>>>> from
->>>>> the most basic malloc?
->>>>
->>>> Aye missed the not.
->>>>
->>>>>>>> We still have the issue that if there is a mapping we should be 
->>>>>>>> taking
->>>>>>>> the lock, and we may have both a mapping and be inside 
->>>>>>>> try_to_unmap().
->>>>>>>
->>>>>>> Is this a problem? On a path with mappings we trylock and so 
->>>>>>> solve the
->>>>>>> set_dirty_locked and recursive deadlock issues, and with no 
->>>>>>> mappings
->>>>>>> with always dirty the page and avoid data corruption.
->>>>>>
->>>>>> The problem as I see it is !page->mapping are likely an 
->>>>>> insignificant
->>>>>> minority of userptr; as I think even memfd are essentially 
->>>>>> shmemfs (or
->>>>>> hugetlbfs) and so have mappings.
->>>>>
->>>>> Better then nothing, no? If easy to do..
->>>>
->>>> Actually, I erring on the opposite side. Peeking at mm/ internals does
->>>> not bode confidence and feels indefensible. I'd much rather throw my
->>>> hands up and say "this is the best we can do with the API provided,
->>>> please tell us what we should have done." To which the answer is
->>>> probably to not have used gup in the first place :|
->>>
->>> """
->>> /*
->>>   * set_page_dirty() is racy if the caller has no reference against
->>>   * page->mapping->host, and if the page is unlocked. This is 
->>> because another
->>>   * CPU could truncate the page off the mapping and then free the 
->>> mapping.
->>>   *
->>>   * Usually, the page _is_ locked, or the caller is a user-space 
->>> process which
->>>   * holds a reference on the inode by having an open file.
->>>   *
->>>   * In other cases, the page should be locked before running 
->>> set_page_dirty().
->>>   */
->>> int set_page_dirty_lock(struct page *page)
->>> """
->>>
->>> Could we hold a reference to page->mapping->host while having pages 
->>> and then would be okay to call plain set_page_dirty?
->>
->> We would then be hitting the warnings in ext4 for unlocked pages again.
->
-> Ah true..
->
->> Essentially the argument is whether or not that warn is valid, to 
->> which I
->> think requires inner knowledge of vfs + ext4. To hold a reference on the
->> host would require us tracking page->mapping (reasonable since we
->> already hooked into mmu and so will get an invalidate + fresh gup on
->> any changes), plus iterating over all to acquire the extra reference if
->> applicable -- and I have no idea what the side-effects of that would be.
->> Could well be positive side-effects. Just feels like wandering even
->> further off the beaten path without a map. Good news hmm is just around
->> the corner (which will probably prohibit this use-case) :|
->
-> ... can we reach out to someone more knowledgeable in mm matters to 
-> recommend us what to do?
->
-> Regards,
->
-> Tvrtko
+From: Anson Huang <Anson.Huang@nxp.com>
 
+[ Upstream commit 1bcbe7300815e91fef18ee905b04f65490ad38c9 ]
 
-Just a reminder to not let this slip.
-We run into userptr bugs in CI quite regularly.
+When SoC's revision value is 0, SoC driver will print out
+"unknown" in sysfs's revision node, this "unknown" is a
+static string which can NOT be freed, this will caused below
+kernel dump in later error path which calls kfree:
 
-Thanks,
+kernel BUG at mm/slub.c:3942!
+Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+Modules linked in:
+CPU: 2 PID: 1 Comm: swapper/0 Not tainted 5.2.0-rc4-next-20190611-00023-g705146c-dirty #2197
+Hardware name: NXP i.MX8MQ EVK (DT)
+pstate: 60000005 (nZCv daif -PAN -UAO)
+pc : kfree+0x170/0x1b0
+lr : imx8_soc_init+0xc0/0xe4
+sp : ffff00001003bd10
+x29: ffff00001003bd10 x28: ffff00001121e0a0
+x27: ffff000011482000 x26: ffff00001117068c
+x25: ffff00001121e100 x24: ffff000011482000
+x23: ffff000010fe2b58 x22: ffff0000111b9ab0
+x21: ffff8000bd9dfba0 x20: ffff0000111b9b70
+x19: ffff7e000043f880 x18: 0000000000001000
+x17: ffff000010d05fa0 x16: ffff0000122e0000
+x15: 0140000000000000 x14: 0000000030360000
+x13: ffff8000b94b5bb0 x12: 0000000000000038
+x11: ffffffffffffffff x10: ffffffffffffffff
+x9 : 0000000000000003 x8 : ffff8000b9488147
+x7 : ffff00001003bc00 x6 : 0000000000000000
+x5 : 0000000000000003 x4 : 0000000000000003
+x3 : 0000000000000003 x2 : b8793acd604edf00
+x1 : ffff7e000043f880 x0 : ffff7e000043f888
+Call trace:
+ kfree+0x170/0x1b0
+ imx8_soc_init+0xc0/0xe4
+ do_one_initcall+0x58/0x1b8
+ kernel_init_freeable+0x1cc/0x288
+ kernel_init+0x10/0x100
+ ret_from_fork+0x10/0x18
 
--Lionel
+This patch fixes this potential kernel dump when a chip's
+revision is "unknown", it is done by checking whether the
+revision space can be freed.
+
+Fixes: a7e26f356ca1 ("soc: imx: Add generic i.MX8 SoC driver")
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/soc/imx/soc-imx8.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/soc/imx/soc-imx8.c b/drivers/soc/imx/soc-imx8.c
+index e567d866a9d3..79a3d922a4a9 100644
+--- a/drivers/soc/imx/soc-imx8.c
++++ b/drivers/soc/imx/soc-imx8.c
+@@ -112,7 +112,8 @@ static int __init imx8_soc_init(void)
+ 	return 0;
+ 
+ free_rev:
+-	kfree(soc_dev_attr->revision);
++	if (strcmp(soc_dev_attr->revision, "unknown"))
++		kfree(soc_dev_attr->revision);
+ free_soc:
+ 	kfree(soc_dev_attr);
+ 	of_node_put(root);
+-- 
+2.20.1
+
