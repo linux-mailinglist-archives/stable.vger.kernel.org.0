@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7AFC7691E
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:49:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D78CF76911
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:49:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388454AbfGZNt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:49:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52978 "EHLO mail.kernel.org"
+        id S2388391AbfGZNol (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:44:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388384AbfGZNoj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:44:39 -0400
+        id S2388389AbfGZNok (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:44:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01F9D22BF5;
-        Fri, 26 Jul 2019 13:44:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E465322CD3;
+        Fri, 26 Jul 2019 13:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148678;
-        bh=4QBZJVq/T6G8bnes/gxxozlqjm5E77+GKJJqu/l+5Js=;
+        s=default; t=1564148679;
+        bh=HrYFEzNcruA/v/OAjqN3RyQZqE/fLW9IUEUJKwzL9XY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZYkwfmyTDG+4jIVANHzUHviwEqBkNmbiTqdEKeXhWQiASn8uQpz00gdtXbrL74o4Z
-         nb1q3Bz93BY2JwRE1H8axw7XwCYnrIQv2mgmVAq3KkSarBfC7so2xlLlpVYX2GkhCf
-         AsQ5j2FYadAIauK4rEXGsRtBnZVCRmcbxUlcdfqA=
+        b=diLFBbosT7dn6wadu36jS3RZy32YOXWGTf2js0r1O/UAZ9/ygadaTsog/GdYmcvoJ
+         YN8ykJCbrJ5+6uvzfsyV+2wAVrgX19zGjKZOiB/TMJ++Nvd26s72Nj5smwNA1ZEZub
+         OD06LggWODrNyc9nEPKJ7K6q8kPhf/EssD8JHTfM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Cheng Jian <cj.chengjian@huawei.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
+Cc:     Prarit Bhargava <prarit@redhat.com>,
+        Barret Rhoden <brho@google.com>,
+        David Arcari <darcari@redhat.com>,
+        Jessica Yu <jeyu@kernel.org>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 05/30] ftrace: Enable trampoline when rec count returns back to one
-Date:   Fri, 26 Jul 2019 09:44:07 -0400
-Message-Id: <20190726134432.12993-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 06/30] kernel/module.c: Only return -EEXIST for modules that have finished loading
+Date:   Fri, 26 Jul 2019 09:44:08 -0400
+Message-Id: <20190726134432.12993-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726134432.12993-1-sashal@kernel.org>
 References: <20190726134432.12993-1-sashal@kernel.org>
@@ -43,105 +46,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cheng Jian <cj.chengjian@huawei.com>
+From: Prarit Bhargava <prarit@redhat.com>
 
-[ Upstream commit a124692b698b00026a58d89831ceda2331b2e1d0 ]
+[ Upstream commit 6e6de3dee51a439f76eb73c22ae2ffd2c9384712 ]
 
-Custom trampolines can only be enabled if there is only a single ops
-attached to it. If there's only a single callback registered to a function,
-and the ops has a trampoline registered for it, then we can call the
-trampoline directly. This is very useful for improving the performance of
-ftrace and livepatch.
+Microsoft HyperV disables the X86_FEATURE_SMCA bit on AMD systems, and
+linux guests boot with repeated errors:
 
-If more than one callback is registered to a function, the general
-trampoline is used, and the custom trampoline is not restored back to the
-direct call even if all the other callbacks were unregistered and we are
-back to one callback for the function.
+amd64_edac_mod: Unknown symbol amd_unregister_ecc_decoder (err -2)
+amd64_edac_mod: Unknown symbol amd_register_ecc_decoder (err -2)
+amd64_edac_mod: Unknown symbol amd_report_gart_errors (err -2)
+amd64_edac_mod: Unknown symbol amd_unregister_ecc_decoder (err -2)
+amd64_edac_mod: Unknown symbol amd_register_ecc_decoder (err -2)
+amd64_edac_mod: Unknown symbol amd_report_gart_errors (err -2)
 
-To fix this, set FTRACE_FL_TRAMP flag if rec count is decremented
-to one, and the ops that left has a trampoline.
+The warnings occur because the module code erroneously returns -EEXIST
+for modules that have failed to load and are in the process of being
+removed from the module list.
 
-Testing After this patch :
+module amd64_edac_mod has a dependency on module edac_mce_amd.  Using
+modules.dep, systemd will load edac_mce_amd for every request of
+amd64_edac_mod.  When the edac_mce_amd module loads, the module has
+state MODULE_STATE_UNFORMED and once the module load fails and the state
+becomes MODULE_STATE_GOING.  Another request for edac_mce_amd module
+executes and add_unformed_module() will erroneously return -EEXIST even
+though the previous instance of edac_mce_amd has MODULE_STATE_GOING.
+Upon receiving -EEXIST, systemd attempts to load amd64_edac_mod, which
+fails because of unknown symbols from edac_mce_amd.
 
-insmod livepatch_unshare_files.ko
-cat /sys/kernel/debug/tracing/enabled_functions
+add_unformed_module() must wait to return for any case other than
+MODULE_STATE_LIVE to prevent a race between multiple loads of
+dependent modules.
 
-	unshare_files (1) R I	tramp: 0xffffffffc0000000(klp_ftrace_handler+0x0/0xa0) ->ftrace_ops_assist_func+0x0/0xf0
-
-echo unshare_files > /sys/kernel/debug/tracing/set_ftrace_filter
-echo function > /sys/kernel/debug/tracing/current_tracer
-cat /sys/kernel/debug/tracing/enabled_functions
-
-	unshare_files (2) R I ->ftrace_ops_list_func+0x0/0x150
-
-echo nop > /sys/kernel/debug/tracing/current_tracer
-cat /sys/kernel/debug/tracing/enabled_functions
-
-	unshare_files (1) R I	tramp: 0xffffffffc0000000(klp_ftrace_handler+0x0/0xa0) ->ftrace_ops_assist_func+0x0/0xf0
-
-Link: http://lkml.kernel.org/r/1556969979-111047-1-git-send-email-cj.chengjian@huawei.com
-
-Signed-off-by: Cheng Jian <cj.chengjian@huawei.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Prarit Bhargava <prarit@redhat.com>
+Signed-off-by: Barret Rhoden <brho@google.com>
+Cc: David Arcari <darcari@redhat.com>
+Cc: Jessica Yu <jeyu@kernel.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ftrace.c | 28 +++++++++++++++-------------
- 1 file changed, 15 insertions(+), 13 deletions(-)
+ kernel/module.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 0043aef0ed8d..77109b9cf733 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -1631,6 +1631,11 @@ static bool test_rec_ops_needs_regs(struct dyn_ftrace *rec)
- 	return  keep_regs;
- }
+diff --git a/kernel/module.c b/kernel/module.c
+index 2325c9821f2a..fb9e07aec49e 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -3351,8 +3351,7 @@ static bool finished_loading(const char *name)
+ 	sched_annotate_sleep();
+ 	mutex_lock(&module_mutex);
+ 	mod = find_module_all(name, strlen(name), true);
+-	ret = !mod || mod->state == MODULE_STATE_LIVE
+-		|| mod->state == MODULE_STATE_GOING;
++	ret = !mod || mod->state == MODULE_STATE_LIVE;
+ 	mutex_unlock(&module_mutex);
  
-+static struct ftrace_ops *
-+ftrace_find_tramp_ops_any(struct dyn_ftrace *rec);
-+static struct ftrace_ops *
-+ftrace_find_tramp_ops_next(struct dyn_ftrace *rec, struct ftrace_ops *ops);
-+
- static bool __ftrace_hash_rec_update(struct ftrace_ops *ops,
- 				     int filter_hash,
- 				     bool inc)
-@@ -1759,15 +1764,17 @@ static bool __ftrace_hash_rec_update(struct ftrace_ops *ops,
- 			}
- 
- 			/*
--			 * If the rec had TRAMP enabled, then it needs to
--			 * be cleared. As TRAMP can only be enabled iff
--			 * there is only a single ops attached to it.
--			 * In otherwords, always disable it on decrementing.
--			 * In the future, we may set it if rec count is
--			 * decremented to one, and the ops that is left
--			 * has a trampoline.
-+			 * The TRAMP needs to be set only if rec count
-+			 * is decremented to one, and the ops that is
-+			 * left has a trampoline. As TRAMP can only be
-+			 * enabled if there is only a single ops attached
-+			 * to it.
- 			 */
--			rec->flags &= ~FTRACE_FL_TRAMP;
-+			if (ftrace_rec_count(rec) == 1 &&
-+			    ftrace_find_tramp_ops_any(rec))
-+				rec->flags |= FTRACE_FL_TRAMP;
-+			else
-+				rec->flags &= ~FTRACE_FL_TRAMP;
- 
- 			/*
- 			 * flags will be cleared in ftrace_check_record()
-@@ -1960,11 +1967,6 @@ static void print_ip_ins(const char *fmt, const unsigned char *p)
- 		printk(KERN_CONT "%s%02x", i ? ":" : "", p[i]);
- }
- 
--static struct ftrace_ops *
--ftrace_find_tramp_ops_any(struct dyn_ftrace *rec);
--static struct ftrace_ops *
--ftrace_find_tramp_ops_next(struct dyn_ftrace *rec, struct ftrace_ops *ops);
--
- enum ftrace_bug_type ftrace_bug_type;
- const void *ftrace_expected;
- 
+ 	return ret;
+@@ -3515,8 +3514,7 @@ static int add_unformed_module(struct module *mod)
+ 	mutex_lock(&module_mutex);
+ 	old = find_module_all(mod->name, strlen(mod->name), true);
+ 	if (old != NULL) {
+-		if (old->state == MODULE_STATE_COMING
+-		    || old->state == MODULE_STATE_UNFORMED) {
++		if (old->state != MODULE_STATE_LIVE) {
+ 			/* Wait in case it fails to load. */
+ 			mutex_unlock(&module_mutex);
+ 			err = wait_event_interruptible(module_wq,
 -- 
 2.20.1
 
