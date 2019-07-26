@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00528767E2
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:40:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CA34767EC
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:41:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387558AbfGZNkn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:40:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46838 "EHLO mail.kernel.org"
+        id S1727745AbfGZNkv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:40:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387507AbfGZNkn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:40:43 -0400
+        id S2387601AbfGZNku (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:40:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5441A2238C;
-        Fri, 26 Jul 2019 13:40:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84F272238C;
+        Fri, 26 Jul 2019 13:40:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148442;
-        bh=E8IlDIJ9+XEjMrH8K88c+5bFS1t26lVNbrD9vGmUlJs=;
+        s=default; t=1564148449;
+        bh=YBzj4fQ+SdNXzgQNLcvqMQX9tA99KBH39x2aobuK4sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vAwO19bESO2XpLJU851hixnCqDt4z0apzWqhl3XtRhTWhP3FVQpCQFsQ9L3HzHSzb
-         75uw87Yb1mZFU3tIpCXi4tZWUTaA1JFDYDRI9Vqe4knqeabbjZH7AD25GRxU9gguuq
-         yvaguENCew3sBHKVHT5bMK8L7ItrmylyZ4RI7Cmk=
+        b=CNKpWfFkf7hPGHHjhRcwGnAZBlwNxDn30cuN9uj2UMmLtyumAolwN2UrFHkH4iqpn
+         9A82c1oQNX3t4e8L0h0xG2ZahB/HUmqkQb58wpUeX3ZhhL1Iv2W3JmBOtObFNzkInJ
+         PmO6p9MJuXuenVdBzQ1rW1oRxNMT+l0eBvJ8/wDc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Leo Li <sunpeng.li@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 40/85] drm/amd/display: Expose audio inst from DC to DM
-Date:   Fri, 26 Jul 2019 09:38:50 -0400
-Message-Id: <20190726133936.11177-40-sashal@kernel.org>
+Cc:     Phong Tran <tranmanphong@gmail.com>,
+        syzbot+8750abbc3a46ef47d509@syzkaller.appspotmail.com,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 45/85] ISDN: hfcsusb: checking idx of ep configuration
+Date:   Fri, 26 Jul 2019 09:38:55 -0400
+Message-Id: <20190726133936.11177-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
 References: <20190726133936.11177-1-sashal@kernel.org>
@@ -46,56 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Phong Tran <tranmanphong@gmail.com>
 
-[ Upstream commit 5fdb7c4c7f2691efd760b0b0dc00da4a3699f1a6 ]
+[ Upstream commit f384e62a82ba5d85408405fdd6aeff89354deaa9 ]
 
-[Why]
-In order to give pin notifications to the sound driver from DM we need
-to know whether audio is enabled on a stream and what pin it's using
-from DC.
+The syzbot test with random endpoint address which made the idx is
+overflow in the table of endpoint configuations.
 
-[How]
-Expose the instance via stream status if it's a mapped resource for
-the stream. It will be -1 if there's no audio mapped.
+this adds the checking for fixing the error report from
+syzbot
 
-Cc: Leo Li <sunpeng.li@amd.com>
-Cc: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+KASAN: stack-out-of-bounds Read in hfcsusb_probe [1]
+The patch tested by syzbot [2]
+
+Reported-by: syzbot+8750abbc3a46ef47d509@syzkaller.appspotmail.com
+
+[1]:
+https://syzkaller.appspot.com/bug?id=30a04378dac680c5d521304a00a86156bb913522
+[2]:
+https://groups.google.com/d/msg/syzkaller-bugs/_6HBdge8F3E/OJn7wVNpBAAJ
+
+Signed-off-by: Phong Tran <tranmanphong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_resource.c | 3 +++
- drivers/gpu/drm/amd/display/dc/dc_stream.h        | 1 +
- 2 files changed, 4 insertions(+)
+ drivers/isdn/hardware/mISDN/hfcsusb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-index eac7186e4f08..12142d13f22f 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-@@ -2034,6 +2034,9 @@ enum dc_status resource_map_pool_resources(
- 		if (context->streams[i] == stream) {
- 			context->stream_status[i].primary_otg_inst = pipe_ctx->stream_res.tg->inst;
- 			context->stream_status[i].stream_enc_inst = pipe_ctx->stream_res.stream_enc->id;
-+			context->stream_status[i].audio_inst =
-+				pipe_ctx->stream_res.audio ? pipe_ctx->stream_res.audio->inst : -1;
-+
- 			return DC_OK;
- 		}
+diff --git a/drivers/isdn/hardware/mISDN/hfcsusb.c b/drivers/isdn/hardware/mISDN/hfcsusb.c
+index 4c99739b937e..0e224232f746 100644
+--- a/drivers/isdn/hardware/mISDN/hfcsusb.c
++++ b/drivers/isdn/hardware/mISDN/hfcsusb.c
+@@ -1955,6 +1955,9 @@ hfcsusb_probe(struct usb_interface *intf, const struct usb_device_id *id)
  
-diff --git a/drivers/gpu/drm/amd/display/dc/dc_stream.h b/drivers/gpu/drm/amd/display/dc/dc_stream.h
-index 189bdab929a5..c20803b71fa5 100644
---- a/drivers/gpu/drm/amd/display/dc/dc_stream.h
-+++ b/drivers/gpu/drm/amd/display/dc/dc_stream.h
-@@ -42,6 +42,7 @@ struct dc_stream_status {
- 	int primary_otg_inst;
- 	int stream_enc_inst;
- 	int plane_count;
-+	int audio_inst;
- 	struct timing_sync_info timing_sync_info;
- 	struct dc_plane_state *plane_states[MAX_SURFACE_NUM];
- };
+ 				/* get endpoint base */
+ 				idx = ((ep_addr & 0x7f) - 1) * 2;
++				if (idx > 15)
++					return -EIO;
++
+ 				if (ep_addr & 0x80)
+ 					idx++;
+ 				attr = ep->desc.bmAttributes;
 -- 
 2.20.1
 
