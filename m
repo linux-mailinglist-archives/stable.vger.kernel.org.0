@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2CB476837
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:43:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3982076839
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:43:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727321AbfGZNnP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:43:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50756 "EHLO mail.kernel.org"
+        id S2387976AbfGZNnU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:43:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388147AbfGZNnM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:43:12 -0400
+        id S2388161AbfGZNnT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:43:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E93F622CBB;
-        Fri, 26 Jul 2019 13:43:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFC1922CD8;
+        Fri, 26 Jul 2019 13:43:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148591;
-        bh=Nsk0wcbXrDw9o1+zIkA4XGOBBWIf9mehTF+5/qgGej0=;
+        s=default; t=1564148597;
+        bh=jDYthrTEGclmOg2T6WE69S5AIUGsUkMk/TbxqsyMRIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wwzYwTHr4Is2scUQ7lqI9pT6RtDw+UVJsGdQsjuDqrP9X4FBKUmckZrc02+Xu/mDS
-         Ymfa5mJlUn1gr8bZ+QENzNkDo/Co07nvsAMNIZLpY5lLmX9AvejURnVIX6WUnpyKWJ
-         0g8jMpaPmhNRPCuBYzsCPMiv8by+Z2seNaiPsbDM=
+        b=vkbPj11hyqnz/ZK2RIkVTfKfh+vA4HB+LYmSg1Acz9uOrbDvEOpe0DnpWjp7w4EzT
+         mtQirRfdBPatm+Bs6s/dmtS7W696hQ+1FNSd8rF0CpXF6h90OsjMpY8Abm78ujEK1x
+         3Cr1bU3BYELtDMatT6179rYi1SnIg17AiAxEMrWk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mikko Rapeli <mikko.rapeli@iki.fi>,
-        Jan Harkes <jaharkes@cs.cmu.edu>,
+Cc:     Kees Cook <keescook@chromium.org>,
+        Andreas Christoforou <andreaschristofo@gmail.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
         Arnd Bergmann <arnd@arndb.de>,
-        Colin Ian King <colin.king@canonical.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        David Howells <dhowells@redhat.com>,
-        Fabian Frederick <fabf@skynet.be>,
-        Sam Protsenko <semen.protsenko@linaro.org>,
-        Yann Droneaud <ydroneaud@opteya.com>,
-        Zhouyang Jia <jiazhouyang09@gmail.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Manfred Spraul <manfred@colorfullife.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, codalist@coda.cs.cmu.edu
-Subject: [PATCH AUTOSEL 4.19 35/47] uapi linux/coda_psdev.h: move upc_req definition from uapi to kernel side headers
-Date:   Fri, 26 Jul 2019 09:41:58 -0400
-Message-Id: <20190726134210.12156-35-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 38/47] ipc/mqueue.c: only perform resource calculation if user valid
+Date:   Fri, 26 Jul 2019 09:42:01 -0400
+Message-Id: <20190726134210.12156-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726134210.12156-1-sashal@kernel.org>
 References: <20190726134210.12156-1-sashal@kernel.org>
@@ -53,105 +50,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikko Rapeli <mikko.rapeli@iki.fi>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit f90fb3c7e2c13ae829db2274b88b845a75038b8a ]
+[ Upstream commit a318f12ed8843cfac53198390c74a565c632f417 ]
 
-Only users of upc_req in kernel side fs/coda/psdev.c and
-fs/coda/upcall.c already include linux/coda_psdev.h.
+Andreas Christoforou reported:
 
-Suggested by Jan Harkes <jaharkes@cs.cmu.edu> in
-  https://lore.kernel.org/lkml/20150531111913.GA23377@cs.cmu.edu/
+  UBSAN: Undefined behaviour in ipc/mqueue.c:414:49 signed integer overflow:
+  9 * 2305843009213693951 cannot be represented in type 'long int'
+  ...
+  Call Trace:
+    mqueue_evict_inode+0x8e7/0xa10 ipc/mqueue.c:414
+    evict+0x472/0x8c0 fs/inode.c:558
+    iput_final fs/inode.c:1547 [inline]
+    iput+0x51d/0x8c0 fs/inode.c:1573
+    mqueue_get_inode+0x8eb/0x1070 ipc/mqueue.c:320
+    mqueue_create_attr+0x198/0x440 ipc/mqueue.c:459
+    vfs_mkobj+0x39e/0x580 fs/namei.c:2892
+    prepare_open ipc/mqueue.c:731 [inline]
+    do_mq_open+0x6da/0x8e0 ipc/mqueue.c:771
 
-Fixes these include/uapi/linux/coda_psdev.h compilation errors in userspace:
+Which could be triggered by:
 
-  linux/coda_psdev.h:12:19: error: field `uc_chain' has incomplete type
-  struct list_head    uc_chain;
-                   ^
-  linux/coda_psdev.h:13:2: error: unknown type name `caddr_t'
-  caddr_t             uc_data;
-  ^
-  linux/coda_psdev.h:14:2: error: unknown type name `u_short'
-  u_short             uc_flags;
-  ^
-  linux/coda_psdev.h:15:2: error: unknown type name `u_short'
-  u_short             uc_inSize;  /* Size is at most 5000 bytes */
-  ^
-  linux/coda_psdev.h:16:2: error: unknown type name `u_short'
-  u_short             uc_outSize;
-  ^
-  linux/coda_psdev.h:17:2: error: unknown type name `u_short'
-  u_short             uc_opcode;  /* copied from data to save lookup */
-  ^
-  linux/coda_psdev.h:19:2: error: unknown type name `wait_queue_head_t'
-  wait_queue_head_t   uc_sleep;   /* process' wait queue */
-  ^
+        struct mq_attr attr = {
+                .mq_flags = 0,
+                .mq_maxmsg = 9,
+                .mq_msgsize = 0x1fffffffffffffff,
+                .mq_curmsgs = 0,
+        };
 
-Link: http://lkml.kernel.org/r/9f99f5ce6a0563d5266e6cf7aa9585aac2cae971.1558117389.git.jaharkes@cs.cmu.edu
-Signed-off-by: Mikko Rapeli <mikko.rapeli@iki.fi>
-Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
+        if (mq_open("/testing", 0x40, 3, &attr) == (mqd_t) -1)
+                perror("mq_open");
+
+mqueue_get_inode() was correctly rejecting the giant mq_msgsize, and
+preparing to return -EINVAL.  During the cleanup, it calls
+mqueue_evict_inode() which performed resource usage tracking math for
+updating "user", before checking if there was a valid "user" at all
+(which would indicate that the calculations would be sane).  Instead,
+delay this check to after seeing a valid "user".
+
+The overflow was real, but the results went unused, so while the flaw is
+harmless, it's noisy for kernel fuzzers, so just fix it by moving the
+calculation under the non-NULL "user" where it actually gets used.
+
+Link: http://lkml.kernel.org/r/201906072207.ECB65450@keescook
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reported-by: Andreas Christoforou <andreaschristofo@gmail.com>
+Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
 Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Colin Ian King <colin.king@canonical.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Fabian Frederick <fabf@skynet.be>
-Cc: Sam Protsenko <semen.protsenko@linaro.org>
-Cc: Yann Droneaud <ydroneaud@opteya.com>
-Cc: Zhouyang Jia <jiazhouyang09@gmail.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Manfred Spraul <manfred@colorfullife.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/coda_psdev.h      | 11 +++++++++++
- include/uapi/linux/coda_psdev.h | 13 -------------
- 2 files changed, 11 insertions(+), 13 deletions(-)
+ ipc/mqueue.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/include/linux/coda_psdev.h b/include/linux/coda_psdev.h
-index 15170954aa2b..57d2b2faf6a3 100644
---- a/include/linux/coda_psdev.h
-+++ b/include/linux/coda_psdev.h
-@@ -19,6 +19,17 @@ struct venus_comm {
- 	struct mutex	    vc_mutex;
- };
- 
-+/* messages between coda filesystem in kernel and Venus */
-+struct upc_req {
-+	struct list_head	uc_chain;
-+	caddr_t			uc_data;
-+	u_short			uc_flags;
-+	u_short			uc_inSize;  /* Size is at most 5000 bytes */
-+	u_short			uc_outSize;
-+	u_short			uc_opcode;  /* copied from data to save lookup */
-+	int			uc_unique;
-+	wait_queue_head_t	uc_sleep;   /* process' wait queue */
-+};
- 
- static inline struct venus_comm *coda_vcp(struct super_block *sb)
+diff --git a/ipc/mqueue.c b/ipc/mqueue.c
+index bce7af1546d9..de4070d5472f 100644
+--- a/ipc/mqueue.c
++++ b/ipc/mqueue.c
+@@ -389,7 +389,6 @@ static void mqueue_evict_inode(struct inode *inode)
  {
-diff --git a/include/uapi/linux/coda_psdev.h b/include/uapi/linux/coda_psdev.h
-index aa6623efd2dd..d50d51a57fe4 100644
---- a/include/uapi/linux/coda_psdev.h
-+++ b/include/uapi/linux/coda_psdev.h
-@@ -7,19 +7,6 @@
- #define CODA_PSDEV_MAJOR 67
- #define MAX_CODADEVS  5	   /* how many do we allow */
+ 	struct mqueue_inode_info *info;
+ 	struct user_struct *user;
+-	unsigned long mq_bytes, mq_treesize;
+ 	struct ipc_namespace *ipc_ns;
+ 	struct msg_msg *msg, *nmsg;
+ 	LIST_HEAD(tmp_msg);
+@@ -412,16 +411,18 @@ static void mqueue_evict_inode(struct inode *inode)
+ 		free_msg(msg);
+ 	}
  
+-	/* Total amount of bytes accounted for the mqueue */
+-	mq_treesize = info->attr.mq_maxmsg * sizeof(struct msg_msg) +
+-		min_t(unsigned int, info->attr.mq_maxmsg, MQ_PRIO_MAX) *
+-		sizeof(struct posix_msg_tree_node);
 -
--/* messages between coda filesystem in kernel and Venus */
--struct upc_req {
--	struct list_head    uc_chain;
--	caddr_t	            uc_data;
--	u_short	            uc_flags;
--	u_short             uc_inSize;  /* Size is at most 5000 bytes */
--	u_short	            uc_outSize;
--	u_short	            uc_opcode;  /* copied from data to save lookup */
--	int		    uc_unique;
--	wait_queue_head_t   uc_sleep;   /* process' wait queue */
--};
+-	mq_bytes = mq_treesize + (info->attr.mq_maxmsg *
+-				  info->attr.mq_msgsize);
 -
- #define CODA_REQ_ASYNC  0x1
- #define CODA_REQ_READ   0x2
- #define CODA_REQ_WRITE  0x4
+ 	user = info->user;
+ 	if (user) {
++		unsigned long mq_bytes, mq_treesize;
++
++		/* Total amount of bytes accounted for the mqueue */
++		mq_treesize = info->attr.mq_maxmsg * sizeof(struct msg_msg) +
++			min_t(unsigned int, info->attr.mq_maxmsg, MQ_PRIO_MAX) *
++			sizeof(struct posix_msg_tree_node);
++
++		mq_bytes = mq_treesize + (info->attr.mq_maxmsg *
++					  info->attr.mq_msgsize);
++
+ 		spin_lock(&mq_lock);
+ 		user->mq_bytes -= mq_bytes;
+ 		/*
 -- 
 2.20.1
 
