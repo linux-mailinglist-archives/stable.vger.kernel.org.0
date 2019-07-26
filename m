@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43A7476DBD
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:36:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE7CF76DF2
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:40:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389227AbfGZPbK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:31:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46096 "EHLO mail.kernel.org"
+        id S2388106AbfGZP06 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:26:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389222AbfGZPbJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:31:09 -0400
+        id S2388153AbfGZP05 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:26:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 905E922C7E;
-        Fri, 26 Jul 2019 15:31:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF68D205F4;
+        Fri, 26 Jul 2019 15:26:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564155069;
-        bh=dxCqp4q5abbg4/vin1VX25ttmDOWXEktO/++kYm7cDU=;
+        s=default; t=1564154817;
+        bh=J9mVdvHRsyD18vZN+RHx+sUHusiwj/x9TMSWTGX0uQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oYmK9TLlec3qr191hE05lRPYUiQRvbTVXEAPK1iVWR81FU0NS65wYabzdq9uWM0rx
-         5lMwLIwv+wdGvq1/K/JiRV/TaMicT+WvMjHH0E1jpuKcZIGkXLqwV1/GtOxSw3gp2M
-         EgRmrItwLDouAwlfIwrfuZq+xHRS4e0RLm9lBwuU=
+        b=hbsHcK2X3bVPGGCp2xUdHC14PbLqW0lrZ4RA1Z6Z2Sy/Lm6LWmEtzgSO+Jxd/zfIW
+         VCCnAE0i+flEXfx8xt+P+lxCT9dOJmOTe11ia+5Dexm5DHxuIBiPaR50YQynaYyd+Y
+         utC0biokDfuOHXQho/3G3OXPmeaZ2do+GOpnmn+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+c1a380d42b190ad1e559@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Neil Horman <nhorman@redhat.com>,
+        syzbot+d6636a36d3c34bd88938@syzkaller.appspotmail.com,
+        Cong Wang <xiyou.wangcong@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 20/62] sctp: fix error handling on stream scheduler initialization
-Date:   Fri, 26 Jul 2019 17:24:32 +0200
-Message-Id: <20190726152303.823668436@linuxfoundation.org>
+Subject: [PATCH 5.2 34/66] netrom: fix a memory leak in nr_rx_frame()
+Date:   Fri, 26 Jul 2019 17:24:33 +0200
+Message-Id: <20190726152305.671081836@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
-References: <20190726152301.720139286@linuxfoundation.org>
+In-Reply-To: <20190726152301.936055394@linuxfoundation.org>
+References: <20190726152301.936055394@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,60 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit 4d1415811e492d9a8238f8a92dd0d51612c788e9 ]
+[ Upstream commit c8c8218ec5af5d2598381883acbefbf604e56b5e ]
 
-It allocates the extended area for outbound streams only on sendmsg
-calls, if they are not yet allocated.  When using the priority
-stream scheduler, this initialization may imply into a subsequent
-allocation, which may fail.  In this case, it was aborting the stream
-scheduler initialization but leaving the ->ext pointer (allocated) in
-there, thus in a partially initialized state.  On a subsequent call to
-sendmsg, it would notice the ->ext pointer in there, and trip on
-uninitialized stuff when trying to schedule the data chunk.
+When the skb is associated with a new sock, just assigning
+it to skb->sk is not sufficient, we have to set its destructor
+to free the sock properly too.
 
-The fix is undo the ->ext initialization if the stream scheduler
-initialization fails and avoid the partially initialized state.
-
-Although syzkaller bisected this to commit 4ff40b86262b ("sctp: set
-chunk transport correctly when it's a new asoc"), this bug was actually
-introduced on the commit I marked below.
-
-Reported-by: syzbot+c1a380d42b190ad1e559@syzkaller.appspotmail.com
-Fixes: 5bbbbe32a431 ("sctp: introduce stream scheduler foundations")
-Tested-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Acked-by: Neil Horman <nhorman@redhat.com>
+Reported-by: syzbot+d6636a36d3c34bd88938@syzkaller.appspotmail.com
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/stream.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ net/netrom/af_netrom.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/sctp/stream.c
-+++ b/net/sctp/stream.c
-@@ -168,13 +168,20 @@ out:
- int sctp_stream_init_ext(struct sctp_stream *stream, __u16 sid)
- {
- 	struct sctp_stream_out_ext *soute;
-+	int ret;
+--- a/net/netrom/af_netrom.c
++++ b/net/netrom/af_netrom.c
+@@ -869,7 +869,7 @@ int nr_rx_frame(struct sk_buff *skb, str
+ 	unsigned short frametype, flags, window, timeout;
+ 	int ret;
  
- 	soute = kzalloc(sizeof(*soute), GFP_KERNEL);
- 	if (!soute)
- 		return -ENOMEM;
- 	SCTP_SO(stream, sid)->ext = soute;
+-	skb->sk = NULL;		/* Initially we don't know who it's for */
++	skb_orphan(skb);
  
--	return sctp_sched_init_sid(stream, sid, GFP_KERNEL);
-+	ret = sctp_sched_init_sid(stream, sid, GFP_KERNEL);
-+	if (ret) {
-+		kfree(SCTP_SO(stream, sid)->ext);
-+		SCTP_SO(stream, sid)->ext = NULL;
-+	}
-+
-+	return ret;
- }
+ 	/*
+ 	 *	skb->data points to the netrom frame start
+@@ -968,6 +968,7 @@ int nr_rx_frame(struct sk_buff *skb, str
+ 	window = skb->data[20];
  
- void sctp_stream_free(struct sctp_stream *stream)
+ 	skb->sk             = make;
++	skb->destructor     = sock_efree;
+ 	make->sk_state	    = TCP_ESTABLISHED;
+ 
+ 	/* Fill in his circuit details */
 
 
