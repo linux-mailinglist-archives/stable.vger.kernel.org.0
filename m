@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F49B76DE6
+	by mail.lfdr.de (Postfix) with ESMTP id E895C76DE7
 	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:40:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387578AbfGZPZx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:25:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39736 "EHLO mail.kernel.org"
+        id S2387667AbfGZPZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:25:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387427AbfGZPZx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:25:53 -0400
+        id S2387427AbfGZPZ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:25:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49FC422CC0;
-        Fri, 26 Jul 2019 15:25:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 416AB22CB8;
+        Fri, 26 Jul 2019 15:25:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564154751;
-        bh=gYT19168glcXg4J3GUDQbnky9Yoz1Ow4mQTbq1yzZG8=;
+        s=default; t=1564154755;
+        bh=B8hvJYZQVC03+qX3gtI0idWXSttmN3iZlKFBqPdTpYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NQdzilaKUsD0MravRhJoD7YZQs76HblY7W/0/3Eiafu7YCwb1lhAfO5b+7fZOLLpX
-         kqnQ4FWLnq6IXjy0rSXCNNqkdwG7OJhOfH6+vsXmV6qu5PJRHIYS6AAyWuzbrDEpY1
-         +svxgt29xIlPAFvOIc+XYx4IhucuRfjwwjK9/Xuc=
+        b=rq3uoG6qnT+DkhTX8OZp+rDE1Pr5MqATcfveWotHSlRSdBPueBA+VL4CCuL97UlfD
+         35py7ttUoAuzaw9QRPm30UcuQxBQJwLnTJZhWEcExd+7TmpYNh/w10ruLmdWeK1VnE
+         FuZw2B/f0Tx5cCl6I5h1wMIxsmST/PnPt5IqmAe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>,
-        Jose Abreu <joabreu@synopsys.com>,
+        stable@vger.kernel.org,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Dirk van der Merwe <dirk.vandermerwe@netronome.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 15/66] net: stmmac: Re-work the queue selection for TSO packets
-Date:   Fri, 26 Jul 2019 17:24:14 +0200
-Message-Id: <20190726152303.482512030@linuxfoundation.org>
+Subject: [PATCH 5.2 16/66] net/tls: make sure offload also gets the keys wiped
+Date:   Fri, 26 Jul 2019 17:24:15 +0200
+Message-Id: <20190726152303.567642912@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190726152301.936055394@linuxfoundation.org>
 References: <20190726152301.936055394@linuxfoundation.org>
@@ -44,80 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jose Abreu <Jose.Abreu@synopsys.com>
+From: Jakub Kicinski <jakub.kicinski@netronome.com>
 
-[ Upstream commit 4993e5b37e8bcb55ac90f76eb6d2432647273747 ]
+[ Upstream commit acd3e96d53a24d219f720ed4012b62723ae05da1 ]
 
-Ben Hutchings says:
-	"This is the wrong place to change the queue mapping.
-	stmmac_xmit() is called with a specific TX queue locked,
-	and accessing a different TX queue results in a data race
-	for all of that queue's state.
+Commit 86029d10af18 ("tls: zero the crypto information from tls_context
+before freeing") added memzero_explicit() calls to clear the key material
+before freeing struct tls_context, but it missed tls_device.c has its
+own way of freeing this structure. Replace the missing free.
 
-	I think this commit should be reverted upstream and in all
-	stable branches.  Instead, the driver should implement the
-	ndo_select_queue operation and override the queue mapping there."
-
-Fixes: c5acdbee22a1 ("net: stmmac: Send TSO packets always from Queue 0")
-Suggested-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Jose Abreu <joabreu@synopsys.com>
+Fixes: 86029d10af18 ("tls: zero the crypto information from tls_context before freeing")
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Reviewed-by: Dirk van der Merwe <dirk.vandermerwe@netronome.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |   28 ++++++++++++++--------
- 1 file changed, 18 insertions(+), 10 deletions(-)
+ include/net/tls.h    |    1 +
+ net/tls/tls_device.c |    2 +-
+ net/tls/tls_main.c   |    4 ++--
+ 3 files changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -3048,17 +3048,8 @@ static netdev_tx_t stmmac_xmit(struct sk
+--- a/include/net/tls.h
++++ b/include/net/tls.h
+@@ -313,6 +313,7 @@ struct tls_offload_context_rx {
+ 	(ALIGN(sizeof(struct tls_offload_context_rx), sizeof(void *)) + \
+ 	 TLS_DRIVER_STATE_SIZE)
  
- 	/* Manage oversized TCP frames for GMAC4 device */
- 	if (skb_is_gso(skb) && priv->tso) {
--		if (skb_shinfo(skb)->gso_type & (SKB_GSO_TCPV4 | SKB_GSO_TCPV6)) {
--			/*
--			 * There is no way to determine the number of TSO
--			 * capable Queues. Let's use always the Queue 0
--			 * because if TSO is supported then at least this
--			 * one will be capable.
--			 */
--			skb_set_queue_mapping(skb, 0);
--
-+		if (skb_shinfo(skb)->gso_type & (SKB_GSO_TCPV4 | SKB_GSO_TCPV6))
- 			return stmmac_tso_xmit(skb, dev);
--		}
- 	}
++void tls_ctx_free(struct tls_context *ctx);
+ int wait_on_pending_writer(struct sock *sk, long *timeo);
+ int tls_sk_query(struct sock *sk, int optname, char __user *optval,
+ 		int __user *optlen);
+--- a/net/tls/tls_device.c
++++ b/net/tls/tls_device.c
+@@ -61,7 +61,7 @@ static void tls_device_free_ctx(struct t
+ 	if (ctx->rx_conf == TLS_HW)
+ 		kfree(tls_offload_ctx_rx(ctx));
  
- 	if (unlikely(stmmac_tx_avail(priv, queue) < nfrags + 1)) {
-@@ -3875,6 +3866,22 @@ static int stmmac_setup_tc(struct net_de
- 	}
+-	kfree(ctx);
++	tls_ctx_free(ctx);
  }
  
-+static u16 stmmac_select_queue(struct net_device *dev, struct sk_buff *skb,
-+			       struct net_device *sb_dev)
-+{
-+	if (skb_shinfo(skb)->gso_type & (SKB_GSO_TCPV4 | SKB_GSO_TCPV6)) {
-+		/*
-+		 * There is no way to determine the number of TSO
-+		 * capable Queues. Let's use always the Queue 0
-+		 * because if TSO is supported then at least this
-+		 * one will be capable.
-+		 */
-+		return 0;
-+	}
-+
-+	return netdev_pick_tx(dev, skb, NULL) % dev->real_num_tx_queues;
-+}
-+
- static int stmmac_set_mac_address(struct net_device *ndev, void *addr)
+ static void tls_device_gc_task(struct work_struct *work)
+--- a/net/tls/tls_main.c
++++ b/net/tls/tls_main.c
+@@ -251,7 +251,7 @@ static void tls_write_space(struct sock
+ 	ctx->sk_write_space(sk);
+ }
+ 
+-static void tls_ctx_free(struct tls_context *ctx)
++void tls_ctx_free(struct tls_context *ctx)
  {
- 	struct stmmac_priv *priv = netdev_priv(ndev);
-@@ -4091,6 +4098,7 @@ static const struct net_device_ops stmma
- 	.ndo_tx_timeout = stmmac_tx_timeout,
- 	.ndo_do_ioctl = stmmac_ioctl,
- 	.ndo_setup_tc = stmmac_setup_tc,
-+	.ndo_select_queue = stmmac_select_queue,
- #ifdef CONFIG_NET_POLL_CONTROLLER
- 	.ndo_poll_controller = stmmac_poll_controller,
- #endif
+ 	if (!ctx)
+ 		return;
+@@ -643,7 +643,7 @@ static void tls_hw_sk_destruct(struct so
+ 
+ 	ctx->sk_destruct(sk);
+ 	/* Free ctx */
+-	kfree(ctx);
++	tls_ctx_free(ctx);
+ 	icsk->icsk_ulp_data = NULL;
+ }
+ 
 
 
