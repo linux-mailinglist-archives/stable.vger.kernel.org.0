@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86E3176CD0
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:29:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E487576CD3
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:29:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728534AbfGZP1k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:27:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41944 "EHLO mail.kernel.org"
+        id S1728584AbfGZP1o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:27:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388279AbfGZP1j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:27:39 -0400
+        id S1728578AbfGZP1n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:27:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2853205F4;
-        Fri, 26 Jul 2019 15:27:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E010205F4;
+        Fri, 26 Jul 2019 15:27:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564154859;
-        bh=bJ6vLAfgnLHvKGBIv3dTVvxQABq1s5guCM+M2X+jl2k=;
+        s=default; t=1564154862;
+        bh=TOvUZ/V6H7pXioIIJXW/vE91et+Coe2BrdMyH+z6fVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pM8pBJGxADj+tEKOM6EgiAb6LEpF0r2KmvZTeUJbAtXlal4eEyl9ebzf9QQORCTje
-         EqdbCp9vir/xQebj3EHrlag+GbVtWdCq7pvA+CyzvtlV8DOF2XJMPqyedT2OuH3q+D
-         Lh/dDbLsiEf0Z+Gyz0sgzJGjFyYgoTTJi7xTnVME=
+        b=OOqZRr6FKFfPZnHWnGcxjQ9OGFvhJrZB7BhVd+qsSy7DuIM1pt9uZNErHbpczraEA
+         lBAVOZMReozDA6Fs9WFfMgTM/krh4DX4bf++iJsDqLMa9+mS66bC86AYvC2arb1tyV
+         zaC4K9AGB/UII6ttNKCfHd1f58ye4wfKAEPJ7L8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Keerthy <j-keerthy@ti.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 5.2 51/66] gpio: davinci: silence error prints in case of EPROBE_DEFER
-Date:   Fri, 26 Jul 2019 17:24:50 +0200
-Message-Id: <20190726152307.474310410@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Paul Burton <paul.burton@mips.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>, od@zcrc.me,
+        linux-mips@vger.kernel.org
+Subject: [PATCH 5.2 52/66] MIPS: lb60: Fix pin mappings
+Date:   Fri, 26 Jul 2019 17:24:51 +0200
+Message-Id: <20190726152307.584006536@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190726152301.936055394@linuxfoundation.org>
 References: <20190726152301.936055394@linuxfoundation.org>
@@ -43,35 +47,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keerthy <j-keerthy@ti.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit 541e4095f388c196685685633c950cb9b97f8039 upstream.
+commit 1323c3b72a987de57141cabc44bf9cd83656bc70 upstream.
 
-Silence error prints in case of EPROBE_DEFER. This avoids
-multiple/duplicate defer prints during boot.
+The pin mappings introduced in commit 636f8ba67fb6
+("MIPS: JZ4740: Qi LB60: Add pinctrl configuration for several drivers")
+are completely wrong. The pinctrl driver name is incorrect, and the
+function and group fields are swapped.
 
+Fixes: 636f8ba67fb6 ("MIPS: JZ4740: Qi LB60: Add pinctrl configuration for several drivers")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Keerthy <j-keerthy@ti.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: od@zcrc.me
+Cc: linux-mips@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpio/gpio-davinci.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/mips/jz4740/board-qi_lb60.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/gpio/gpio-davinci.c
-+++ b/drivers/gpio/gpio-davinci.c
-@@ -238,8 +238,9 @@ static int davinci_gpio_probe(struct pla
- 	for (i = 0; i < nirq; i++) {
- 		chips->irqs[i] = platform_get_irq(pdev, i);
- 		if (chips->irqs[i] < 0) {
--			dev_info(dev, "IRQ not populated, err = %d\n",
--				 chips->irqs[i]);
-+			if (chips->irqs[i] != -EPROBE_DEFER)
-+				dev_info(dev, "IRQ not populated, err = %d\n",
-+					 chips->irqs[i]);
- 			return chips->irqs[i];
- 		}
- 	}
+--- a/arch/mips/jz4740/board-qi_lb60.c
++++ b/arch/mips/jz4740/board-qi_lb60.c
+@@ -466,27 +466,27 @@ static unsigned long pin_cfg_bias_disabl
+ static struct pinctrl_map pin_map[] __initdata = {
+ 	/* NAND pin configuration */
+ 	PIN_MAP_MUX_GROUP_DEFAULT("jz4740-nand",
+-			"10010000.jz4740-pinctrl", "nand", "nand-cs1"),
++			"10010000.pin-controller", "nand-cs1", "nand"),
+ 
+ 	/* fbdev pin configuration */
+ 	PIN_MAP_MUX_GROUP("jz4740-fb", PINCTRL_STATE_DEFAULT,
+-			"10010000.jz4740-pinctrl", "lcd", "lcd-8bit"),
++			"10010000.pin-controller", "lcd-8bit", "lcd"),
+ 	PIN_MAP_MUX_GROUP("jz4740-fb", PINCTRL_STATE_SLEEP,
+-			"10010000.jz4740-pinctrl", "lcd", "lcd-no-pins"),
++			"10010000.pin-controller", "lcd-no-pins", "lcd"),
+ 
+ 	/* MMC pin configuration */
+ 	PIN_MAP_MUX_GROUP_DEFAULT("jz4740-mmc.0",
+-			"10010000.jz4740-pinctrl", "mmc", "mmc-1bit"),
++			"10010000.pin-controller", "mmc-1bit", "mmc"),
+ 	PIN_MAP_MUX_GROUP_DEFAULT("jz4740-mmc.0",
+-			"10010000.jz4740-pinctrl", "mmc", "mmc-4bit"),
++			"10010000.pin-controller", "mmc-4bit", "mmc"),
+ 	PIN_MAP_CONFIGS_PIN_DEFAULT("jz4740-mmc.0",
+-			"10010000.jz4740-pinctrl", "PD0", pin_cfg_bias_disable),
++			"10010000.pin-controller", "PD0", pin_cfg_bias_disable),
+ 	PIN_MAP_CONFIGS_PIN_DEFAULT("jz4740-mmc.0",
+-			"10010000.jz4740-pinctrl", "PD2", pin_cfg_bias_disable),
++			"10010000.pin-controller", "PD2", pin_cfg_bias_disable),
+ 
+ 	/* PWM pin configuration */
+ 	PIN_MAP_MUX_GROUP_DEFAULT("jz4740-pwm",
+-			"10010000.jz4740-pinctrl", "pwm4", "pwm4"),
++			"10010000.pin-controller", "pwm4", "pwm4"),
+ };
+ 
+ 
 
 
