@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C773769D7
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:54:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29B7B769D9
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:54:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387612AbfGZNmo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:42:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50060 "EHLO mail.kernel.org"
+        id S2387907AbfGZNyk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:54:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388021AbfGZNmo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:42:44 -0400
+        id S2388026AbfGZNmp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:42:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4431322CBF;
-        Fri, 26 Jul 2019 13:42:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 883C522CC2;
+        Fri, 26 Jul 2019 13:42:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148563;
-        bh=yGGLQpsk4pfJOCVhiY5lkmd6e5gX8chRYfFcRPbzkgU=;
+        s=default; t=1564148564;
+        bh=EZUN6warFmuHuCAzru1zhkp3J+uC5cuJqeHTnXFdn80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=18yNJDuVsiABeDh5PDvJMLeLe2JfW2j6m9wG5RJTjgck+4s6mJ/S4I72n6y9cemiB
-         cBIDOgEDAxet/OtIdURcqyQczAskquQ8y6t9dMbiiZe0skqG7oH7wgPDjVKr3aVbLj
-         +N6M2krVe9OCTuSZPPfaS+CtqTbUCuFuy75Odbns=
+        b=ltk+6fJZ7DGM/RazKyiJ65ESuHFMW0m9Te63bwk3BNkmVYsHYMLernaQKnX166jHx
+         Ed1Dl8esTRPi1wniCTdOl6afRJz1cRBtSpqQjr0qIH+5VYq6+M24Rt/yJQk28jsQhf
+         1YCNFzS12yA5TMZF/VPxYm8Qx55SE63+YeDtXalo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrea Parri <andrea.parri@amarulasolutions.com>,
-        "Paul E. McKenney" <paulmck@linux.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Yan, Zheng" <zyan@redhat.com>, Ilya Dryomov <idryomov@gmail.com>,
+Cc:     Jeff Layton <jlayton@kernel.org>, "Yan, Zheng" <zyan@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 19/47] ceph: fix improper use of smp_mb__before_atomic()
-Date:   Fri, 26 Jul 2019 09:41:42 -0400
-Message-Id: <20190726134210.12156-19-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 20/47] ceph: return -ERANGE if virtual xattr value didn't fit in buffer
+Date:   Fri, 26 Jul 2019 09:41:43 -0400
+Message-Id: <20190726134210.12156-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726134210.12156-1-sashal@kernel.org>
 References: <20190726134210.12156-1-sashal@kernel.org>
@@ -45,44 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Parri <andrea.parri@amarulasolutions.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit 749607731e26dfb2558118038c40e9c0c80d23b5 ]
+[ Upstream commit 3b421018f48c482bdc9650f894aa1747cf90e51d ]
 
-This barrier only applies to the read-modify-write operations; in
-particular, it does not apply to the atomic64_set() primitive.
+The getxattr manpage states that we should return ERANGE if the
+destination buffer size is too small to hold the value.
+ceph_vxattrcb_layout does this internally, but we should be doing
+this for all vxattrs.
 
-Replace the barrier with an smp_mb().
+Fix the only caller of getxattr_cb to check the returned size
+against the buffer length and return -ERANGE if it doesn't fit.
+Drop the same check in ceph_vxattrcb_layout and just rely on the
+caller to handle it.
 
-Fixes: fdd4e15838e59 ("ceph: rework dcache readdir")
-Reported-by: "Paul E. McKenney" <paulmck@linux.ibm.com>
-Reported-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Andrea Parri <andrea.parri@amarulasolutions.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
 Reviewed-by: "Yan, Zheng" <zyan@redhat.com>
+Acked-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/super.h | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/ceph/xattr.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/fs/ceph/super.h b/fs/ceph/super.h
-index 582e28fd1b7b..d8579a56e5dc 100644
---- a/fs/ceph/super.h
-+++ b/fs/ceph/super.h
-@@ -526,7 +526,12 @@ static inline void __ceph_dir_set_complete(struct ceph_inode_info *ci,
- 					   long long release_count,
- 					   long long ordered_count)
- {
--	smp_mb__before_atomic();
-+	/*
-+	 * Makes sure operations that setup readdir cache (update page
-+	 * cache and i_size) are strongly ordered w.r.t. the following
-+	 * atomic64_set() operations.
-+	 */
-+	smp_mb();
- 	atomic64_set(&ci->i_complete_seq[0], release_count);
- 	atomic64_set(&ci->i_complete_seq[1], ordered_count);
- }
+diff --git a/fs/ceph/xattr.c b/fs/ceph/xattr.c
+index 996ee87b1eaf..7e6d3df99f2f 100644
+--- a/fs/ceph/xattr.c
++++ b/fs/ceph/xattr.c
+@@ -79,7 +79,7 @@ static size_t ceph_vxattrcb_layout(struct ceph_inode_info *ci, char *val,
+ 	const char *ns_field = " pool_namespace=";
+ 	char buf[128];
+ 	size_t len, total_len = 0;
+-	int ret;
++	ssize_t ret;
+ 
+ 	pool_ns = ceph_try_get_string(ci->i_layout.pool_ns);
+ 
+@@ -103,11 +103,8 @@ static size_t ceph_vxattrcb_layout(struct ceph_inode_info *ci, char *val,
+ 	if (pool_ns)
+ 		total_len += strlen(ns_field) + pool_ns->len;
+ 
+-	if (!size) {
+-		ret = total_len;
+-	} else if (total_len > size) {
+-		ret = -ERANGE;
+-	} else {
++	ret = total_len;
++	if (size >= total_len) {
+ 		memcpy(val, buf, len);
+ 		ret = len;
+ 		if (pool_name) {
+@@ -817,8 +814,11 @@ ssize_t __ceph_getxattr(struct inode *inode, const char *name, void *value,
+ 		if (err)
+ 			return err;
+ 		err = -ENODATA;
+-		if (!(vxattr->exists_cb && !vxattr->exists_cb(ci)))
++		if (!(vxattr->exists_cb && !vxattr->exists_cb(ci))) {
+ 			err = vxattr->getxattr_cb(ci, value, size);
++			if (size && size < err)
++				err = -ERANGE;
++		}
+ 		return err;
+ 	}
+ 
 -- 
 2.20.1
 
