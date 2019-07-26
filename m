@@ -2,118 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 221A3774B4
-	for <lists+stable@lfdr.de>; Sat, 27 Jul 2019 00:53:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D367A774C8
+	for <lists+stable@lfdr.de>; Sat, 27 Jul 2019 01:06:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727202AbfGZWxa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 18:53:30 -0400
-Received: from mail-yw1-f67.google.com ([209.85.161.67]:44671 "EHLO
-        mail-yw1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727198AbfGZWxa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 18:53:30 -0400
-Received: by mail-yw1-f67.google.com with SMTP id l79so20841909ywe.11
-        for <stable@vger.kernel.org>; Fri, 26 Jul 2019 15:53:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=m8/4TDGoTP0YJOmmNh1QY5sjP7utSN3T4GKeg0uRKkI=;
-        b=S58mOK6kmyfjaqk1fnTJ++/++kcxrVvJPN9KcacKz65Ijo+9nbPY62HM1CffSp86Gu
-         /dPN5MfoF9x3qzmvRf4i/6AryZbuh86DENdsSJKo1zLveUuyHt3BmI5KngT42emGLpRg
-         LfE5/fDELYjpJFgZ6/3aEWoIOYp7eIVl/VMYJO3P6dhqng+w41uZfFsmu2hMSxMur74E
-         cjujptrMLPPTtmOt4Ya3Uv+rKDOFMywYfHOEFwqVFz7D2oHaFLDQNzYLJ324mImcBbId
-         h3rDRv/vOKwwLN7nnncz9jasy9fPT3hIXPkkvg9QeXHJnJnt2ZVEQ6gEW6zaDfc0rSja
-         EY0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=m8/4TDGoTP0YJOmmNh1QY5sjP7utSN3T4GKeg0uRKkI=;
-        b=S59FGgrjYenoyXleCzGLfxnOO9fV5zWMFSx/QpCnwqIKnENhZ9I5V9zitcE/vorRiN
-         mh+/siYbBTB4rsSCvvfStPkgSvClzleehwtuPxWVR35GqOeIYjqsM90buFrlAWjETgmb
-         ecgEoExtoREbien494LjBb6bVmkCsY/IVyRfRLddXd6PoEMAqt2rHRhdzNJdL3PIxMfp
-         OQtloml6QLFccIRkq0WGe9ats6phHNRa4PNneHFtw8/dgExVx5jTSi/tacjWrIgsCEK3
-         IABY3FMGD9hBHAbq7TMXzvI4yhLePXjkZSIMAcJ/swLVZy/5Ge+Y49rTqn8BbN9OqG0e
-         nBeA==
-X-Gm-Message-State: APjAAAUQK47VKxqhci63lv0DCEd0PUEdZMU1JpqHdZT+0xnPOhSUIHeZ
-        uOWluyH2l6/lXzEUL6+IZ6cACxNFKbh2eWSmcBxnwA==
-X-Google-Smtp-Source: APXvYqzNhimbC8mzTJcKYV0Wi6pTpAOpfQ/Ahx7/RLFgCd5sUCIjXXqqjCww0QbPgslVApm1LWoPGyUTAhbML+xsfXs=
-X-Received: by 2002:a81:19c6:: with SMTP id 189mr57026739ywz.296.1564181608700;
- Fri, 26 Jul 2019 15:53:28 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190726224810.79660-1-henryburns@google.com>
-In-Reply-To: <20190726224810.79660-1-henryburns@google.com>
-From:   Shakeel Butt <shakeelb@google.com>
-Date:   Fri, 26 Jul 2019 15:53:17 -0700
-Message-ID: <CALvZod7Q_86F=aH6zP0TRFZ_6N5e2oFnjoSTPv=mcAdi0HEg3A@mail.gmail.com>
-Subject: Re: [PATCH] mm/z3fold.c: Fix z3fold_destroy_pool() ordering
-To:     Henry Burns <henryburns@google.com>
-Cc:     Vitaly Vul <vitaly.vul@sony.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jonathan Adams <jwadams@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Linux MM <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        id S1726616AbfGZXGr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 19:06:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57856 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726347AbfGZXGq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 19:06:46 -0400
+Received: from localhost.localdomain (c-73-223-200-170.hsd1.ca.comcast.net [73.223.200.170])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0984D21994;
+        Fri, 26 Jul 2019 23:06:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564182405;
+        bh=1aESHqzNMc9UBeyjHzQ5UfpvZJbcDg117VFqAq4GxzM=;
+        h=Date:From:To:Subject:From;
+        b=qXKsoi1fY3Suf3SanWcBEbFCzN9m9KGtt4iGzTrXGbfMnw1XK6/3Wf9WlwNiHZpY5
+         +KHDC/kZM5w+fBcf6WGGy1s2c7Rk19NC/YPi2J4ZVaXismn3/lvEb5tsGqUbjNSUV/
+         pTYGKd1ILifTL6mvWER4TY7I6rPFMyNNMt43rL98=
+Date:   Fri, 26 Jul 2019 16:06:44 -0700
+From:   akpm@linux-foundation.org
+To:     dhowells@redhat.com, henryburns@google.com, jwadams@google.com,
+        mm-commits@vger.kernel.org, shakeelb@google.com,
+        stable@vger.kernel.org, tglx@linutronix.de,
+        viro@zeniv.linux.org.uk, vitaly.vul@sony.com, vitalywool@gmail.com
+Subject:  + mm-z3foldc-fix-z3fold_destroy_pool-ordering.patch added
+ to -mm tree
+Message-ID: <20190726230644.wxY_zeShM%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 26, 2019 at 3:48 PM Henry Burns <henryburns@google.com> wrote:
->
-> The constraint from the zpool use of z3fold_destroy_pool() is there are no
-> outstanding handles to memory (so no active allocations), but it is possible
-> for there to be outstanding work on either of the two wqs in the pool.
->
-> If there is work queued on pool->compact_workqueue when it is called,
-> z3fold_destroy_pool() will do:
->
->    z3fold_destroy_pool()
->      destroy_workqueue(pool->release_wq)
->      destroy_workqueue(pool->compact_wq)
->        drain_workqueue(pool->compact_wq)
->          do_compact_page(zhdr)
->            kref_put(&zhdr->refcount)
->              __release_z3fold_page(zhdr, ...)
->                queue_work_on(pool->release_wq, &pool->work) *BOOM*
->
-> So compact_wq needs to be destroyed before release_wq.
->
-> Fixes: 5d03a6613957 ("mm/z3fold.c: use kref to prevent page free/compact race")
->
-> Signed-off-by: Henry Burns <henryburns@google.com>
 
+The patch titled
+     Subject: mm/z3fold.c: fix z3fold_destroy_pool() ordering
+has been added to the -mm tree.  Its filename is
+     mm-z3foldc-fix-z3fold_destroy_pool-ordering.patch
+
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-z3foldc-fix-z3fold_destroy_pool-ordering.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-z3foldc-fix-z3fold_destroy_pool-ordering.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Henry Burns <henryburns@google.com>
+Subject: mm/z3fold.c: fix z3fold_destroy_pool() ordering
+
+The constraint from the zpool use of z3fold_destroy_pool() is there are no
+outstanding handles to memory (so no active allocations), but it is
+possible for there to be outstanding work on either of the two wqs in the
+pool.
+
+If there is work queued on pool->compact_workqueue when it is called,
+z3fold_destroy_pool() will do:
+
+   z3fold_destroy_pool()
+     destroy_workqueue(pool->release_wq)
+     destroy_workqueue(pool->compact_wq)
+       drain_workqueue(pool->compact_wq)
+         do_compact_page(zhdr)
+           kref_put(&zhdr->refcount)
+             __release_z3fold_page(zhdr, ...)
+               queue_work_on(pool->release_wq, &pool->work) *BOOM*
+
+So compact_wq needs to be destroyed before release_wq.
+
+Link: http://lkml.kernel.org/r/20190726224810.79660-1-henryburns@google.com
+Fixes: 5d03a6613957 ("mm/z3fold.c: use kref to prevent page free/compact race")
+Signed-off-by: Henry Burns <henryburns@google.com>
 Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Cc: Vitaly Vul <vitaly.vul@sony.com>
+Cc: Vitaly Wool <vitalywool@gmail.com>
+Cc: Jonathan Adams <jwadams@google.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Al Viro <viro@zeniv.linux.org.uk
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-> Cc: <stable@vger.kernel.org>
-> ---
->  mm/z3fold.c | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
->
-> diff --git a/mm/z3fold.c b/mm/z3fold.c
-> index 1a029a7432ee..43de92f52961 100644
-> --- a/mm/z3fold.c
-> +++ b/mm/z3fold.c
-> @@ -818,8 +818,15 @@ static void z3fold_destroy_pool(struct z3fold_pool *pool)
->  {
->         kmem_cache_destroy(pool->c_handle);
->         z3fold_unregister_migration(pool);
-> -       destroy_workqueue(pool->release_wq);
-> +
-> +       /*
-> +        * We need to destroy pool->compact_wq before pool->release_wq,
-> +        * as any pending work on pool->compact_wq will call
-> +        * queue_work(pool->release_wq, &pool->work).
-> +        */
-> +
->         destroy_workqueue(pool->compact_wq);
-> +       destroy_workqueue(pool->release_wq);
->         kfree(pool);
->  }
->
-> --
-> 2.22.0.709.g102302147b-goog
->
+ mm/z3fold.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+--- a/mm/z3fold.c~mm-z3foldc-fix-z3fold_destroy_pool-ordering
++++ a/mm/z3fold.c
+@@ -818,8 +818,15 @@ static void z3fold_destroy_pool(struct z
+ {
+ 	kmem_cache_destroy(pool->c_handle);
+ 	z3fold_unregister_migration(pool);
+-	destroy_workqueue(pool->release_wq);
++
++	/*
++	 * We need to destroy pool->compact_wq before pool->release_wq,
++	 * as any pending work on pool->compact_wq will call
++	 * queue_work(pool->release_wq, &pool->work).
++	 */
++
+ 	destroy_workqueue(pool->compact_wq);
++	destroy_workqueue(pool->release_wq);
+ 	kfree(pool);
+ }
+ 
+_
+
+Patches currently in -mm which might be from henryburns@google.com are
+
+mm-z3foldc-fix-z3fold_destroy_pool-ordering.patch
+mm-z3foldc-fix-z3fold_destroy_pool-race-condition.patch
+
