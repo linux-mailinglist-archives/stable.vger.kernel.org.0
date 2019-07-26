@@ -2,66 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77CF67635F
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 12:20:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F06E876409
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 13:01:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726005AbfGZKUS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 06:20:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44396 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725815AbfGZKUS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 06:20:18 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2E0E229F9;
-        Fri, 26 Jul 2019 10:20:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564136417;
-        bh=wuPxyatQ1ntgFgEXrwH5AO093BynmbAnbAZWIiXMcHI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=voVfPsZz3erZ33xg4eaa3gZXfjbNWoH+Z42jsm31w/BoT6K8i8lhsoETn+ACgHOS2
-         xOg3l4FDqYiQsPdLpwgjxu0hPjYeh+hg5kPhC1oE+UlwsJ2Z4gVYcvej5YCPKIBprd
-         NShoT9YtP58nd8KeAC8VNAbdPtZxWQSYGSGErlHA=
-Date:   Fri, 26 Jul 2019 12:20:10 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Suganath Prabu <suganath-prabu.subramani@broadcom.com>
-Cc:     linux-scsi@vger.kernel.org, stable@vger.kernel.org,
-        Sathya.Prakash@broadcom.com, kashyap.desai@broadcom.com,
-        sreekanth.reddy@broadcom.com
-Subject: Re: [PATCH] mpt3sas: Use 63-bit DMA addressing on SAS35 HBA
-Message-ID: <20190726102010.GB22476@kroah.com>
-References: <1564135257-33188-1-git-send-email-suganath-prabu.subramani@broadcom.com>
+        id S1726323AbfGZLBr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 07:01:47 -0400
+Received: from merlin.infradead.org ([205.233.59.134]:53124 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726129AbfGZLBr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 07:01:47 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=gW1Md4ZhXK3S0fvI55c/3Y5ClOV0sc1UfTNxtBj16RU=; b=s2c+GrUo/qdQvXNS9uOpLjrgt
+        ELnrxfhUFo9I7SgXEHySGOFk4SkuYJ/Bvomv//hsGI2fSSrHI+l0e59J/Id+/3XfiCmVfqH1VgWHU
+        8tp7h5gu5ux/QdL8map2mMsuUbQXMw/Ug0z03ho1xA1yMWgOr8AKckgDx1r7fIefGyXTyOJSVn3D+
+        YW/Aivd7mFpY/plRfr9DeMSVvJBfBMN5DbSLvwkuzhU019DCmxknDSnGdkOUzp8aJ9PqjmNOKqSVu
+        jwyJfW+Trf+39rLBomy4hvrqdZflDgpPU+PW1MxqSm4ucAIUD8CDkLF6zSIrdltytu7rff7T+AVnD
+        QAeQXRy2A==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=hirez.programming.kicks-ass.net)
+        by merlin.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
+        id 1hqxyk-0001YW-Be; Fri, 26 Jul 2019 11:01:38 +0000
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 99614203B6360; Fri, 26 Jul 2019 13:01:35 +0200 (CEST)
+Date:   Fri, 26 Jul 2019 13:01:35 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Jari Ruusu <jari.ruusu@gmail.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 079/271] x86/atomic: Fix
+ smp_mb__{before,after}_atomic()
+Message-ID: <20190726110135.GO31381@hirez.programming.kicks-ass.net>
+References: <20190724191655.268628197@linuxfoundation.org>
+ <20190724191701.954991110@linuxfoundation.org>
+ <5D3AD35E.FB77B44F@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1564135257-33188-1-git-send-email-suganath-prabu.subramani@broadcom.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <5D3AD35E.FB77B44F@gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 26, 2019 at 06:00:57AM -0400, Suganath Prabu wrote:
-> Although SAS3 & SAS3.5 IT HBA controllers support
-> 64-bit DMA addressing, as per hardware design,
-> DMA address with all 64-bits set (0xFFFFFFFF-FFFFFFFF)
-> results in a firmware fault.
+On Fri, Jul 26, 2019 at 01:18:06PM +0300, Jari Ruusu wrote:
+> Greg Kroah-Hartman wrote:
+> > [ Upstream commit 69d927bba39517d0980462efc051875b7f4db185 ]
+> > 
+> > Recent probing at the Linux Kernel Memory Model uncovered a
+> > 'surprise'. Strongly ordered architectures where the atomic RmW
+> > primitive implies full memory ordering and
+> > smp_mb__{before,after}_atomic() are a simple barrier() (such as x86)
+> > fail for:
+> > 
+> >         *x = 1;
+> >         atomic_inc(u);
+> >         smp_mb__after_atomic();
+> >         r0 = *y;
 > 
-> Fix:
-> Driver will set 63-bit DMA mask to ensure the above address
-> will not be used.
+> [snip]
 > 
-> Signed-off-by: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
-> ---
->  drivers/scsi/mpt3sas/mpt3sas_base.c | 12 +++++++-----
->  1 file changed, 7 insertions(+), 5 deletions(-)
+> > --- a/arch/x86/include/asm/atomic.h
+> > +++ b/arch/x86/include/asm/atomic.h
+> > @@ -54,7 +54,7 @@ static __always_inline void arch_atomic_add(int i, atomic_t *v)
+> >  {
+> >         asm volatile(LOCK_PREFIX "addl %1,%0"
+> >                      : "+m" (v->counter)
+> > -                    : "ir" (i));
+> > +                    : "ir" (i) : "memory");
+> >  }
+> > 
+> >  /**
+> 
+> Shouldn't those clobber contraints actually be:  "memory","cc"
+> That is because addl subl (and other) machine instructions
+> actually modify the flags register too.
+> 
+> gcc docs say: The "cc" clobber indicates that the assembler
+> code modifies the flags register.
 
-<formletter>
-
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
-
-</formletter>
+GCC x86 assumes any asm() will clobber "cc".
