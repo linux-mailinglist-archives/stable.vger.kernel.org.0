@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ACD076DFE
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:40:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C65A576E04
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:40:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388333AbfGZP2D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:28:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42476 "EHLO mail.kernel.org"
+        id S2388447AbfGZP2c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:28:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388325AbfGZP2D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:28:03 -0400
+        id S2387488AbfGZP2b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:28:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE5A9218D4;
-        Fri, 26 Jul 2019 15:28:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98B6A22BF5;
+        Fri, 26 Jul 2019 15:28:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564154882;
-        bh=K0NW8k+vUkkJ6hAz7S04FBZH5elkC1pGGaaqnabEz9E=;
+        s=default; t=1564154910;
+        bh=H4bYtcX4KBFMY4k2unPJ0XBiCn+ryDfEoLsz+eJJ37M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TvXsVnjylnwggQqwLC0sGdsO/kFGbomRjha2QWtXNXKHp/PNuH86rlJxpCqg9pzRE
-         pVlcBMi97yXcRhal0ngqwL5QWF6wCS9L3+nfVaSFhGYlqYwiEkZ+YKTFBFazv3J0wb
-         2LEoDOSdfLJN8xU2bpIR1SrraS3n0e36BN45KSx8=
+        b=O/AZEeR8qs5UHoLTCWuL7msSOk3VvVjuAbf+KGTB8CZ1X1b7s2KM1XsZL5UzwYjrX
+         d7BRAom9I5Gi4NnUAvhbSd5IQGQo/f5amN4cYYfDmGhVZWUhGVI3gyOAdQVAVa6Nn0
+         ZufLDbRVf4YTyHf9vQ5kvnKHyO7wUK5/fb4Pjx5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Aya Levin <ayal@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
         Tariq Toukan <tariqt@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
         Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.2 41/66] net/mlx5e: Fix return value from timeout recover function
-Date:   Fri, 26 Jul 2019 17:24:40 +0200
-Message-Id: <20190726152306.444724142@linuxfoundation.org>
+Subject: [PATCH 5.2 42/66] net/mlx5e: Fix error flow in tx reporter diagnose
+Date:   Fri, 26 Jul 2019 17:24:41 +0200
+Message-Id: <20190726152306.549741724@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190726152301.936055394@linuxfoundation.org>
 References: <20190726152301.936055394@linuxfoundation.org>
@@ -47,48 +47,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Aya Levin <ayal@mellanox.com>
 
-[ Upstream commit 39825350ae2a52f8513741b36e42118bd80dd689 ]
+[ Upstream commit 99d31cbd8953c6929da978bf049ab0f0b4e503d9 ]
 
-Fix timeout recover function to return a meaningful return value.
-When an interrupt was not sent by the FW, return IO error instead of
-'true'.
+Fix tx reporter's diagnose callback. Propagate error when failing to
+gather diagnostics information or failing to print diagnostic data per
+queue.
 
-Fixes: c7981bea48fb ("net/mlx5e: Fix return status of TX reporter timeout recover")
+Fixes: de8650a82071 ("net/mlx5e: Add tx reporter support")
 Signed-off-by: Aya Levin <ayal@mellanox.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
 Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en/reporter_tx.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/reporter_tx.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 --- a/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_tx.c
 +++ b/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_tx.c
-@@ -142,22 +142,20 @@ static int mlx5e_tx_reporter_timeout_rec
- {
- 	struct mlx5_eq_comp *eq = sq->cq.mcq.eq;
- 	u32 eqe_count;
--	int ret;
+@@ -262,13 +262,13 @@ static int mlx5e_tx_reporter_diagnose(st
  
- 	netdev_err(sq->channel->netdev, "EQ 0x%x: Cons = 0x%x, irqn = 0x%x\n",
- 		   eq->core.eqn, eq->core.cons_index, eq->core.irqn);
+ 		err = mlx5_core_query_sq_state(priv->mdev, sq->sqn, &state);
+ 		if (err)
+-			break;
++			goto unlock;
  
- 	eqe_count = mlx5_eq_poll_irq_disabled(eq);
--	ret = eqe_count ? false : true;
- 	if (!eqe_count) {
- 		clear_bit(MLX5E_SQ_STATE_ENABLED, &sq->state);
--		return ret;
-+		return -EIO;
+ 		err = mlx5e_tx_reporter_build_diagnose_output(fmsg, sq->sqn,
+ 							      state,
+ 							      netif_xmit_stopped(sq->txq));
+ 		if (err)
+-			break;
++			goto unlock;
  	}
- 
- 	netdev_err(sq->channel->netdev, "Recover %d eqes on EQ 0x%x\n",
- 		   eqe_count, eq->core.eqn);
- 	sq->channel->stats->eq_rearm++;
--	return ret;
-+	return 0;
- }
- 
- int mlx5e_tx_reporter_timeout(struct mlx5e_txqsq *sq)
+ 	err = devlink_fmsg_arr_pair_nest_end(fmsg);
+ 	if (err)
 
 
