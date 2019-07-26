@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5362976CF3
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:29:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2288D76CAB
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:26:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388649AbfGZP3A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:29:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43566 "EHLO mail.kernel.org"
+        id S2387910AbfGZP0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:26:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388221AbfGZP27 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:28:59 -0400
+        id S2387907AbfGZP0X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:26:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 383D3205F4;
-        Fri, 26 Jul 2019 15:28:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91E2B205F4;
+        Fri, 26 Jul 2019 15:26:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564154938;
-        bh=X2FF89FPtZ9iDNWY3iamf/vlsbahOtCxF9omaR74wN4=;
+        s=default; t=1564154783;
+        bh=7rDMmqDLwkFO43R/vd4dAl+oyh8ZyBFnU7mqN6WXHxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NM0qeS7NKjD9LC9LzunYITUdezB/FogNXxx7CzNe1FXCXAbXPbYiRjc/JzJ8n/jsN
-         aPn28TrhOAUBCjPDFe1gtfPP5qfCTky7FR/Eb7Zc3MijTM/atcX2VJ9J3Lr17LNIP2
-         bBfUgGPCBYLvmfHkToM9gRJEd1iwqGv07200XvBM=
+        b=CtNQ8Ws8Ehm8hQtUfdNyA6WojtJvW1dT62TWMS/3p+TQWdxAt6SMKo3qmeb4PYZlw
+         q3ewUwWlgb9da2HTT4XETXMUJVgLnuKqx1ghzNsgzDntcMgMQcj2O7oWDceyE3FLhI
+         1XW79GhDgNvhLONd5aiciVLdp5u/UjYKjf8ajnYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Lawrence Brakmo <brakmo@fb.com>,
+        Neal Cardwell <ncardwell@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 10/62] net: make skb_dst_force return true when dst is refcounted
-Date:   Fri, 26 Jul 2019 17:24:22 +0200
-Message-Id: <20190726152302.784171823@linuxfoundation.org>
+Subject: [PATCH 5.2 24/66] tcp: fix tcp_set_congestion_control() use from bpf hook
+Date:   Fri, 26 Jul 2019 17:24:23 +0200
+Message-Id: <20190726152304.440440036@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
-References: <20190726152301.720139286@linuxfoundation.org>
+In-Reply-To: <20190726152301.936055394@linuxfoundation.org>
+References: <20190726152301.936055394@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,91 +45,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit b60a77386b1d4868f72f6353d35dabe5fbe981f2 ]
+[ Upstream commit 8d650cdedaabb33e85e9b7c517c0c71fcecc1de9 ]
 
-netfilter did not expect that skb_dst_force() can cause skb to lose its
-dst entry.
+Neal reported incorrect use of ns_capable() from bpf hook.
 
-I got a bug report with a skb->dst NULL dereference in netfilter
-output path.  The backtrace contains nf_reinject(), so the dst might have
-been cleared when skb got queued to userspace.
+bpf_setsockopt(...TCP_CONGESTION...)
+  -> tcp_set_congestion_control()
+   -> ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN)
+    -> ns_capable_common()
+     -> current_cred()
+      -> rcu_dereference_protected(current->cred, 1)
 
-Other users were fixed via
-if (skb_dst(skb)) {
-	skb_dst_force(skb);
-	if (!skb_dst(skb))
-		goto handle_err;
-}
+Accessing 'current' in bpf context makes no sense, since packets
+are processed from softirq context.
 
-But I think its preferable to make the 'dst might be cleared' part
-of the function explicit.
+As Neal stated : The capability check in tcp_set_congestion_control()
+was written assuming a system call context, and then was reused from
+a BPF call site.
 
-In netfilter case, skb with a null dst is expected when queueing in
-prerouting hook, so drop skb for the other hooks.
+The fix is to add a new parameter to tcp_set_congestion_control(),
+so that the ns_capable() call is only performed under the right
+context.
 
-v2:
- v1 of this patch returned true in case skb had no dst entry.
- Eric said:
-   Say if we have two skb_dst_force() calls for some reason
-   on the same skb, only the first one will return false.
-
- This now returns false even when skb had no dst, as per Erics
- suggestion, so callers might need to check skb_dst() first before
- skb_dst_force().
-
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Fixes: 91b5b21c7c16 ("bpf: Add support for changing congestion control")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Lawrence Brakmo <brakmo@fb.com>
+Reported-by: Neal Cardwell <ncardwell@google.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Acked-by: Lawrence Brakmo <brakmo@fb.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/dst.h        |    5 ++++-
- net/netfilter/nf_queue.c |    6 +++++-
- 2 files changed, 9 insertions(+), 2 deletions(-)
+ include/net/tcp.h   |    3 ++-
+ net/core/filter.c   |    2 +-
+ net/ipv4/tcp.c      |    4 +++-
+ net/ipv4/tcp_cong.c |    6 +++---
+ 4 files changed, 9 insertions(+), 6 deletions(-)
 
---- a/include/net/dst.h
-+++ b/include/net/dst.h
-@@ -313,8 +313,9 @@ static inline bool dst_hold_safe(struct
-  * @skb: buffer
-  *
-  * If dst is not yet refcounted and not destroyed, grab a ref on it.
-+ * Returns true if dst is refcounted.
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -1063,7 +1063,8 @@ void tcp_get_default_congestion_control(
+ void tcp_get_available_congestion_control(char *buf, size_t len);
+ void tcp_get_allowed_congestion_control(char *buf, size_t len);
+ int tcp_set_allowed_congestion_control(char *allowed);
+-int tcp_set_congestion_control(struct sock *sk, const char *name, bool load, bool reinit);
++int tcp_set_congestion_control(struct sock *sk, const char *name, bool load,
++			       bool reinit, bool cap_net_admin);
+ u32 tcp_slow_start(struct tcp_sock *tp, u32 acked);
+ void tcp_cong_avoid_ai(struct tcp_sock *tp, u32 w, u32 acked);
+ 
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -4332,7 +4332,7 @@ BPF_CALL_5(bpf_setsockopt, struct bpf_so
+ 						    TCP_CA_NAME_MAX-1));
+ 			name[TCP_CA_NAME_MAX-1] = 0;
+ 			ret = tcp_set_congestion_control(sk, name, false,
+-							 reinit);
++							 reinit, true);
+ 		} else {
+ 			struct tcp_sock *tp = tcp_sk(sk);
+ 
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -2768,7 +2768,9 @@ static int do_tcp_setsockopt(struct sock
+ 		name[val] = 0;
+ 
+ 		lock_sock(sk);
+-		err = tcp_set_congestion_control(sk, name, true, true);
++		err = tcp_set_congestion_control(sk, name, true, true,
++						 ns_capable(sock_net(sk)->user_ns,
++							    CAP_NET_ADMIN));
+ 		release_sock(sk);
+ 		return err;
+ 	}
+--- a/net/ipv4/tcp_cong.c
++++ b/net/ipv4/tcp_cong.c
+@@ -333,7 +333,8 @@ out:
+  * tcp_reinit_congestion_control (if the current congestion control was
+  * already initialized.
   */
--static inline void skb_dst_force(struct sk_buff *skb)
-+static inline bool skb_dst_force(struct sk_buff *skb)
+-int tcp_set_congestion_control(struct sock *sk, const char *name, bool load, bool reinit)
++int tcp_set_congestion_control(struct sock *sk, const char *name, bool load,
++			       bool reinit, bool cap_net_admin)
  {
- 	if (skb_dst_is_noref(skb)) {
- 		struct dst_entry *dst = skb_dst(skb);
-@@ -325,6 +326,8 @@ static inline void skb_dst_force(struct
- 
- 		skb->_skb_refdst = (unsigned long)dst;
- 	}
-+
-+	return skb->_skb_refdst != 0UL;
- }
- 
- 
---- a/net/netfilter/nf_queue.c
-+++ b/net/netfilter/nf_queue.c
-@@ -190,6 +190,11 @@ static int __nf_queue(struct sk_buff *sk
- 		goto err;
- 	}
- 
-+	if (!skb_dst_force(skb) && state->hook != NF_INET_PRE_ROUTING) {
-+		status = -ENETDOWN;
-+		goto err;
-+	}
-+
- 	*entry = (struct nf_queue_entry) {
- 		.skb	= skb,
- 		.state	= *state,
-@@ -198,7 +203,6 @@ static int __nf_queue(struct sk_buff *sk
- 	};
- 
- 	nf_queue_entry_get_refs(entry);
--	skb_dst_force(skb);
- 
- 	switch (entry->state.pf) {
- 	case AF_INET:
+ 	struct inet_connection_sock *icsk = inet_csk(sk);
+ 	const struct tcp_congestion_ops *ca;
+@@ -369,8 +370,7 @@ int tcp_set_congestion_control(struct so
+ 		} else {
+ 			err = -EBUSY;
+ 		}
+-	} else if (!((ca->flags & TCP_CONG_NON_RESTRICTED) ||
+-		     ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN))) {
++	} else if (!((ca->flags & TCP_CONG_NON_RESTRICTED) || cap_net_admin)) {
+ 		err = -EPERM;
+ 	} else if (!try_module_get(ca->owner)) {
+ 		err = -EBUSY;
 
 
