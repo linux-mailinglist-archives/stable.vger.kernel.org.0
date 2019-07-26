@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1EDB76A2E
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:56:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E312876A2C
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:56:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387755AbfGZNlr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:41:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48348 "EHLO mail.kernel.org"
+        id S1727552AbfGZN4l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:56:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387747AbfGZNlp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:41:45 -0400
+        id S2387753AbfGZNlr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:41:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4333C22CD3;
-        Fri, 26 Jul 2019 13:41:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9003A22CD4;
+        Fri, 26 Jul 2019 13:41:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148504;
-        bh=kw1tzX8WE1U2hMV6bQjq4IdrRzIQAtYREyRufUjKTWw=;
+        s=default; t=1564148506;
+        bh=nzndwPSgzd3yxlgIMwo/8KxyQSBYjo653wm/221bf28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gQ0faUZOwhrtv7YcgbZgENqWnQw7+9Cnl6nTCdqzj/bu8DnFfPoZvDRF/v7A/U13t
-         NJ645CpoHHip7qaN/2rDeIZBgIHkDCHsRBM3lSHASqaUjWN1UOmTwtRG7ZHUevSZHq
-         jX/EhdiugBNfQ+9Fcr0FranNfUuQQl85UeRrV3SM=
+        b=HVpAbMX1NYUg2q5lNUPHRnun6wGDm5q+dxLO+PpdPmv4v7ZgxS+bU7DogomzbFJAb
+         t3Grcezc7Tzo75QnyAUPeZoyHlzlqelDHrHDEVbphMeTELS1pYfu7AzX/vwuaMrXnf
+         wzdo5JHw1ZKB2IAOtQYYz6ITmkbLVsEQsNb42380=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Petr Machata <petrm@mellanox.com>,
-        Alex Veber <alexve@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 71/85] mlxsw: spectrum_dcb: Configure DSCP map as the last rule is removed
-Date:   Fri, 26 Jul 2019 09:39:21 -0400
-Message-Id: <20190726133936.11177-71-sashal@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Vegard Nossum <vegard.nossum@oracle.com>,
+        Eiichi Tsukata <devel@etsukata.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 72/85] stacktrace: Force USER_DS for stack_trace_save_user()
+Date:   Fri, 26 Jul 2019 09:39:22 -0400
+Message-Id: <20190726133936.11177-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
 References: <20190726133936.11177-1-sashal@kernel.org>
@@ -45,77 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@mellanox.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit dedfde2fe1c4ccf27179fcb234e2112d065c39bb ]
+[ Upstream commit cac9b9a4b08304f11daace03b8b48659355e44c1 ]
 
-Spectrum systems use DSCP rewrite map to update DSCP field in egressing
-packets to correspond to priority that the packet has. Whether rewriting
-will take place is determined at the point when the packet ingresses the
-switch: if the port is in Trust L3 mode, packet priority is determined from
-the DSCP map at the port, and DSCP rewrite will happen. If the port is in
-Trust L2 mode, 802.1p is used for packet prioritization, and no DSCP
-rewrite will happen.
+When walking userspace stacks, USER_DS needs to be set, otherwise
+access_ok() will not function as expected.
 
-The driver determines the port trust mode based on whether any DSCP
-prioritization rules are in effect at given port. If there are any, trust
-level is L3, otherwise it's L2. When the last DSCP rule is removed, the
-port is switched to trust L2. Under that scenario, if DSCP of a packet
-should be rewritten, it should be rewritten to 0.
-
-However, when switching to Trust L2, the driver neglects to also update the
-DSCP rewrite map. The last DSCP rule thus remains in effect, and packets
-egressing through this port, if they have the right priority, will have
-their DSCP set according to this rule.
-
-Fix by first configuring the rewrite map, and only then switching to trust
-L2 and bailing out.
-
-Fixes: b2b1dab6884e ("mlxsw: spectrum: Support ieee_setapp, ieee_delapp")
-Signed-off-by: Petr Machata <petrm@mellanox.com>
-Reported-by: Alex Veber <alexve@mellanox.com>
-Tested-by: Alex Veber <alexve@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Vegard Nossum <vegard.nossum@oracle.com>
+Reported-by: Eiichi Tsukata <devel@etsukata.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Vegard Nossum <vegard.nossum@oracle.com>
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Link: https://lkml.kernel.org/r/20190718085754.GM3402@hirez.programming.kicks-ass.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlxsw/spectrum_dcb.c   | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ kernel/stacktrace.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
-index b25048c6c761..21296fa7f7fb 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
-@@ -408,14 +408,6 @@ static int mlxsw_sp_port_dcb_app_update(struct mlxsw_sp_port *mlxsw_sp_port)
- 	have_dscp = mlxsw_sp_port_dcb_app_prio_dscp_map(mlxsw_sp_port,
- 							&prio_map);
+diff --git a/kernel/stacktrace.c b/kernel/stacktrace.c
+index 36139de0a3c4..899b726c9e98 100644
+--- a/kernel/stacktrace.c
++++ b/kernel/stacktrace.c
+@@ -226,12 +226,17 @@ unsigned int stack_trace_save_user(unsigned long *store, unsigned int size)
+ 		.store	= store,
+ 		.size	= size,
+ 	};
++	mm_segment_t fs;
  
--	if (!have_dscp) {
--		err = mlxsw_sp_port_dcb_toggle_trust(mlxsw_sp_port,
--					MLXSW_REG_QPTS_TRUST_STATE_PCP);
--		if (err)
--			netdev_err(mlxsw_sp_port->dev, "Couldn't switch to trust L2\n");
--		return err;
--	}
--
- 	mlxsw_sp_port_dcb_app_dscp_prio_map(mlxsw_sp_port, default_prio,
- 					    &dscp_map);
- 	err = mlxsw_sp_port_dcb_app_update_qpdpm(mlxsw_sp_port,
-@@ -432,6 +424,14 @@ static int mlxsw_sp_port_dcb_app_update(struct mlxsw_sp_port *mlxsw_sp_port)
- 		return err;
- 	}
+ 	/* Trace user stack if not a kernel thread */
+ 	if (!current->mm)
+ 		return 0;
  
-+	if (!have_dscp) {
-+		err = mlxsw_sp_port_dcb_toggle_trust(mlxsw_sp_port,
-+					MLXSW_REG_QPTS_TRUST_STATE_PCP);
-+		if (err)
-+			netdev_err(mlxsw_sp_port->dev, "Couldn't switch to trust L2\n");
-+		return err;
-+	}
++	fs = get_fs();
++	set_fs(USER_DS);
+ 	arch_stack_walk_user(consume_entry, &c, task_pt_regs(current));
++	set_fs(fs);
 +
- 	err = mlxsw_sp_port_dcb_toggle_trust(mlxsw_sp_port,
- 					     MLXSW_REG_QPTS_TRUST_STATE_DSCP);
- 	if (err) {
+ 	return c.len;
+ }
+ #endif
 -- 
 2.20.1
 
