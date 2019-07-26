@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5355B76D78
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:35:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1017176D7C
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:35:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389737AbfGZPdy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:33:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49360 "EHLO mail.kernel.org"
+        id S2389733AbfGZPd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:33:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389724AbfGZPdw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:33:52 -0400
+        id S2389755AbfGZPd5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:33:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7495F205F4;
-        Fri, 26 Jul 2019 15:33:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADF62205F4;
+        Fri, 26 Jul 2019 15:33:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564155230;
-        bh=r5fRCuikjuN+Pl6WrWxO423Ep+1K6B4NT52+zWyCWFw=;
+        s=default; t=1564155237;
+        bh=T1Jxpb4wbUn3ZOVq1UmI4f/S3ZJAQaQftHqki6Lqt2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=imWzCgWu0lWoDxjwFUckfLQgB9qh6lvBx9s4Zl50egKypG/GuLZX8pCOaw64fSqN5
-         K2wumo5BBcUkobSYwpg1j7o6mEJfyBrJo9LSWL7qMStckBqSAhoT0htXUFi5GDfik8
-         IWD7d1SVbdxe6+IkKjncarS0dvHzaRAm2i0vm8/Y=
+        b=F0cqRbTkqmXdHHPG2OWtfEsy5U1I25o6xjhPk4L2WxJ+YRrvlb5ShLTDUs7UnNk8e
+         6gVaDKGNySvFdDzb+Ay/rMuo9bKIT6X0uIa0hGRBHIuSLk65mwDDmA3HrEKkEz9wW9
+         WoBhfgwYgcYGHtRqILCSJqZna2lh4Sf7uOmfoz7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 4.19 47/50] ext4: allow directory holes
-Date:   Fri, 26 Jul 2019 17:25:22 +0200
-Message-Id: <20190726152305.687606620@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
+        Liran Alon <liran.alon@oracle.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.19 48/50] KVM: nVMX: do not use dangling shadow VMCS after guest reset
+Date:   Fri, 26 Jul 2019 17:25:23 +0200
+Message-Id: <20190726152305.813155612@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190726152300.760439618@linuxfoundation.org>
 References: <20190726152300.760439618@linuxfoundation.org>
@@ -43,198 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 4e19d6b65fb4fc42e352ce9883649e049da14743 upstream.
+commit 88dddc11a8d6b09201b4db9d255b3394d9bc9e57 upstream.
 
-The largedir feature was intended to allow ext4 directories to have
-unmapped directory blocks (e.g., directory holes).  And so the
-released e2fsprogs no longer enforces this for largedir file systems;
-however, the corresponding change to the kernel-side code was not made.
+If a KVM guest is reset while running a nested guest, free_nested will
+disable the shadow VMCS execution control in the vmcs01.  However,
+on the next KVM_RUN vmx_vcpu_run would nevertheless try to sync
+the VMCS12 to the shadow VMCS which has since been freed.
 
-This commit fixes this oversight.
+This causes a vmptrld of a NULL pointer on my machime, but Jan reports
+the host to hang altogether.  Let's see how much this trivial patch fixes.
 
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Reported-by: Jan Kiszka <jan.kiszka@siemens.com>
+Cc: Liran Alon <liran.alon@oracle.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- fs/ext4/dir.c   |   19 +++++++++----------
- fs/ext4/namei.c |   45 +++++++++++++++++++++++++++++++++++++--------
- 2 files changed, 46 insertions(+), 18 deletions(-)
 
---- a/fs/ext4/dir.c
-+++ b/fs/ext4/dir.c
-@@ -108,7 +108,6 @@ static int ext4_readdir(struct file *fil
- 	struct inode *inode = file_inode(file);
- 	struct super_block *sb = inode->i_sb;
- 	struct buffer_head *bh = NULL;
--	int dir_has_error = 0;
- 	struct fscrypt_str fstr = FSTR_INIT(NULL, 0);
+---
+ arch/x86/kvm/vmx.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -8457,6 +8457,7 @@ static void vmx_disable_shadow_vmcs(stru
+ {
+ 	vmcs_clear_bits(SECONDARY_VM_EXEC_CONTROL, SECONDARY_EXEC_SHADOW_VMCS);
+ 	vmcs_write64(VMCS_LINK_POINTER, -1ull);
++	vmx->nested.sync_shadow_vmcs = false;
+ }
  
- 	if (ext4_encrypted_inode(inode)) {
-@@ -144,8 +143,6 @@ static int ext4_readdir(struct file *fil
- 			return err;
+ static inline void nested_release_vmcs12(struct vcpu_vmx *vmx)
+@@ -8468,7 +8469,6 @@ static inline void nested_release_vmcs12
+ 		/* copy to memory all shadowed fields in case
+ 		   they were modified */
+ 		copy_shadow_to_vmcs12(vmx);
+-		vmx->nested.sync_shadow_vmcs = false;
+ 		vmx_disable_shadow_vmcs(vmx);
  	}
+ 	vmx->nested.posted_intr_nv = -1;
+@@ -8668,6 +8668,9 @@ static void copy_shadow_to_vmcs12(struct
+ 	u64 field_value;
+ 	struct vmcs *shadow_vmcs = vmx->vmcs01.shadow_vmcs;
  
--	offset = ctx->pos & (sb->s_blocksize - 1);
--
- 	while (ctx->pos < inode->i_size) {
- 		struct ext4_map_blocks map;
++	if (WARN_ON(!shadow_vmcs))
++		return;
++
+ 	preempt_disable();
  
-@@ -154,9 +151,18 @@ static int ext4_readdir(struct file *fil
- 			goto errout;
- 		}
- 		cond_resched();
-+		offset = ctx->pos & (sb->s_blocksize - 1);
- 		map.m_lblk = ctx->pos >> EXT4_BLOCK_SIZE_BITS(sb);
- 		map.m_len = 1;
- 		err = ext4_map_blocks(NULL, inode, &map, 0);
-+		if (err == 0) {
-+			/* m_len should never be zero but let's avoid
-+			 * an infinite loop if it somehow is */
-+			if (map.m_len == 0)
-+				map.m_len = 1;
-+			ctx->pos += map.m_len * sb->s_blocksize;
-+			continue;
-+		}
- 		if (err > 0) {
- 			pgoff_t index = map.m_pblk >>
- 					(PAGE_SHIFT - inode->i_blkbits);
-@@ -175,13 +181,6 @@ static int ext4_readdir(struct file *fil
- 		}
+ 	vmcs_load(shadow_vmcs);
+@@ -8706,6 +8709,9 @@ static void copy_vmcs12_to_shadow(struct
+ 	u64 field_value = 0;
+ 	struct vmcs *shadow_vmcs = vmx->vmcs01.shadow_vmcs;
  
- 		if (!bh) {
--			if (!dir_has_error) {
--				EXT4_ERROR_FILE(file, 0,
--						"directory contains a "
--						"hole at offset %llu",
--					   (unsigned long long) ctx->pos);
--				dir_has_error = 1;
--			}
- 			/* corrupt size?  Maybe no more blocks to read */
- 			if (ctx->pos > inode->i_blocks << 9)
- 				break;
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -81,8 +81,18 @@ static struct buffer_head *ext4_append(h
- static int ext4_dx_csum_verify(struct inode *inode,
- 			       struct ext4_dir_entry *dirent);
++	if (WARN_ON(!shadow_vmcs))
++		return;
++
+ 	vmcs_load(shadow_vmcs);
  
-+/*
-+ * Hints to ext4_read_dirblock regarding whether we expect a directory
-+ * block being read to be an index block, or a block containing
-+ * directory entries (and if the latter, whether it was found via a
-+ * logical block in an htree index block).  This is used to control
-+ * what sort of sanity checkinig ext4_read_dirblock() will do on the
-+ * directory block read from the storage device.  EITHER will means
-+ * the caller doesn't know what kind of directory block will be read,
-+ * so no specific verification will be done.
-+ */
- typedef enum {
--	EITHER, INDEX, DIRENT
-+	EITHER, INDEX, DIRENT, DIRENT_HTREE
- } dirblock_type_t;
- 
- #define ext4_read_dirblock(inode, block, type) \
-@@ -108,11 +118,14 @@ static struct buffer_head *__ext4_read_d
- 
- 		return bh;
- 	}
--	if (!bh) {
-+	if (!bh && (type == INDEX || type == DIRENT_HTREE)) {
- 		ext4_error_inode(inode, func, line, block,
--				 "Directory hole found");
-+				 "Directory hole found for htree %s block",
-+				 (type == INDEX) ? "index" : "leaf");
- 		return ERR_PTR(-EFSCORRUPTED);
- 	}
-+	if (!bh)
-+		return NULL;
- 	dirent = (struct ext4_dir_entry *) bh->b_data;
- 	/* Determine whether or not we have an index block */
- 	if (is_dx(inode)) {
-@@ -979,7 +992,7 @@ static int htree_dirblock_to_tree(struct
- 
- 	dxtrace(printk(KERN_INFO "In htree dirblock_to_tree: block %lu\n",
- 							(unsigned long)block));
--	bh = ext4_read_dirblock(dir, block, DIRENT);
-+	bh = ext4_read_dirblock(dir, block, DIRENT_HTREE);
- 	if (IS_ERR(bh))
- 		return PTR_ERR(bh);
- 
-@@ -1509,7 +1522,7 @@ static struct buffer_head * ext4_dx_find
- 		return (struct buffer_head *) frame;
- 	do {
- 		block = dx_get_block(frame->at);
--		bh = ext4_read_dirblock(dir, block, DIRENT);
-+		bh = ext4_read_dirblock(dir, block, DIRENT_HTREE);
- 		if (IS_ERR(bh))
- 			goto errout;
- 
-@@ -2079,6 +2092,11 @@ static int ext4_add_entry(handle_t *hand
- 	blocks = dir->i_size >> sb->s_blocksize_bits;
- 	for (block = 0; block < blocks; block++) {
- 		bh = ext4_read_dirblock(dir, block, DIRENT);
-+		if (bh == NULL) {
-+			bh = ext4_bread(handle, dir, block,
-+					EXT4_GET_BLOCKS_CREATE);
-+			goto add_to_new_block;
-+		}
- 		if (IS_ERR(bh)) {
- 			retval = PTR_ERR(bh);
- 			bh = NULL;
-@@ -2099,6 +2117,7 @@ static int ext4_add_entry(handle_t *hand
- 		brelse(bh);
- 	}
- 	bh = ext4_append(handle, dir, &block);
-+add_to_new_block:
- 	if (IS_ERR(bh)) {
- 		retval = PTR_ERR(bh);
- 		bh = NULL;
-@@ -2143,7 +2162,7 @@ again:
- 		return PTR_ERR(frame);
- 	entries = frame->entries;
- 	at = frame->at;
--	bh = ext4_read_dirblock(dir, dx_get_block(frame->at), DIRENT);
-+	bh = ext4_read_dirblock(dir, dx_get_block(frame->at), DIRENT_HTREE);
- 	if (IS_ERR(bh)) {
- 		err = PTR_ERR(bh);
- 		bh = NULL;
-@@ -2691,7 +2710,10 @@ bool ext4_empty_dir(struct inode *inode)
- 		EXT4_ERROR_INODE(inode, "invalid size");
- 		return true;
- 	}
--	bh = ext4_read_dirblock(inode, 0, EITHER);
-+	/* The first directory block must not be a hole,
-+	 * so treat it as DIRENT_HTREE
-+	 */
-+	bh = ext4_read_dirblock(inode, 0, DIRENT_HTREE);
- 	if (IS_ERR(bh))
- 		return true;
- 
-@@ -2713,6 +2735,10 @@ bool ext4_empty_dir(struct inode *inode)
- 			brelse(bh);
- 			lblock = offset >> EXT4_BLOCK_SIZE_BITS(sb);
- 			bh = ext4_read_dirblock(inode, lblock, EITHER);
-+			if (bh == NULL) {
-+				offset += sb->s_blocksize;
-+				continue;
-+			}
- 			if (IS_ERR(bh))
- 				return true;
- 			de = (struct ext4_dir_entry_2 *) bh->b_data;
-@@ -3256,7 +3282,10 @@ static struct buffer_head *ext4_get_firs
- 	struct buffer_head *bh;
- 
- 	if (!ext4_has_inline_data(inode)) {
--		bh = ext4_read_dirblock(inode, 0, EITHER);
-+		/* The first directory block must not be a hole, so
-+		 * treat it as DIRENT_HTREE
-+		 */
-+		bh = ext4_read_dirblock(inode, 0, DIRENT_HTREE);
- 		if (IS_ERR(bh)) {
- 			*retval = PTR_ERR(bh);
- 			return NULL;
+ 	for (q = 0; q < ARRAY_SIZE(fields); q++) {
 
 
