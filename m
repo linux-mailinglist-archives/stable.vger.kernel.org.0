@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 19DE4767B5
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:39:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8043A767B9
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:39:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726920AbfGZNji (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:39:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45458 "EHLO mail.kernel.org"
+        id S1727374AbfGZNjn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:39:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726434AbfGZNji (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:39:38 -0400
+        id S1727336AbfGZNjm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:39:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A4C62238C;
-        Fri, 26 Jul 2019 13:39:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56E9322BF5;
+        Fri, 26 Jul 2019 13:39:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148377;
-        bh=BLhOaEzJpiBcupFrtwkSwZl9BKQjZCKbWHEf4i+tVgs=;
-        h=From:To:Cc:Subject:Date:From;
-        b=o8XecPiq6Q0TxInDoHpzia59CA+uNtJYXboMsbjwdkwEIiCcqO+L7yVogTioR9sWy
-         ORqV95bstScTeBdhV4or48XUT6GRHwddAp5QJwdfasBbjnIb81dk5aDTM267RIH3ny
-         OBWkUdqnAXKDgXX+XvtnUgfKnAh2OPVroVAWm/ZI=
+        s=default; t=1564148381;
+        bh=gnAI7TMKcTyegOT0vgw/DwcaWyOPR9eTp+ndZdPTykA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=RTywxIJfRzEKNevD5GBt33NkJzuRFMulWV1Gqit5nvuSUT1RXws7vWLAo5FlxzIgU
+         cdWvDgCfg4noFAfyTWVSx2MqL4gdGB+QZyrxj5vEwPQ5wxFbz69Fvb8hz7hSIa7IY9
+         aBFJy8zN9a6ANGKkevX2VC/I/PObnyK9n/ayv8J0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 01/85] ARM: riscpc: fix DMA
-Date:   Fri, 26 Jul 2019 09:38:11 -0400
-Message-Id: <20190726133936.11177-1-sashal@kernel.org>
+Cc:     Jerome Brunet <jbrunet@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-amlogic@lists.infradead.org, linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 04/85] clk: meson: mpll: properly handle spread spectrum
+Date:   Fri, 26 Jul 2019 09:38:14 -0400
+Message-Id: <20190726133936.11177-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
+References: <20190726133936.11177-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -40,48 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit ffd9a1ba9fdb7f2bd1d1ad9b9243d34e96756ba2 ]
+[ Upstream commit f9b3eeebef6aabaa37a351715374de53b6da860c ]
 
-DMA got broken a while back in two different ways:
-1) a change in the behaviour of disable_irq() to wait for the interrupt
-   to finish executing causes us to deadlock at the end of DMA.
-2) a change to avoid modifying the scatterlist left the first transfer
-   uninitialised.
+The bit 'SSEN' available on some MPLL DSS outputs is not related to the
+fractional part of the divider but to the function called
+'Spread Spectrum'.
 
-DMA is only used with expansion cards, so has gone unnoticed.
+This function might be used to solve EM issues by adding a jitter on
+clock signal. This widens the signal spectrum and weakens the peaks in it.
 
-Fixes: fa4e99899932 ("[ARM] dma: RiscPC: don't modify DMA SG entries")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+While spread spectrum might be useful for some application, it is
+problematic for others, such as audio.
+
+This patch introduce a new flag to the MPLL driver to enable (or not) the
+spread spectrum function.
+
+Fixes: 1f737ffa13ef ("clk: meson: mpll: fix mpll0 fractional part ignored")
+Tested-by: Martin Blumenstingl<martin.blumenstingl@googlemail.com>
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-rpc/dma.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/clk/meson/clk-mpll.c | 9 ++++++---
+ drivers/clk/meson/clk-mpll.h | 1 +
+ 2 files changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/mach-rpc/dma.c b/arch/arm/mach-rpc/dma.c
-index 488d5c3b37f4..799e0b016b62 100644
---- a/arch/arm/mach-rpc/dma.c
-+++ b/arch/arm/mach-rpc/dma.c
-@@ -128,7 +128,7 @@ static irqreturn_t iomd_dma_handle(int irq, void *dev_id)
- 	} while (1);
+diff --git a/drivers/clk/meson/clk-mpll.c b/drivers/clk/meson/clk-mpll.c
+index f76850d99e59..d3f42e086431 100644
+--- a/drivers/clk/meson/clk-mpll.c
++++ b/drivers/clk/meson/clk-mpll.c
+@@ -119,9 +119,12 @@ static int mpll_set_rate(struct clk_hw *hw,
+ 	meson_parm_write(clk->map, &mpll->sdm, sdm);
+ 	meson_parm_write(clk->map, &mpll->sdm_en, 1);
  
- 	idma->state = ~DMA_ST_AB;
--	disable_irq(irq);
-+	disable_irq_nosync(irq);
+-	/* Set additional fractional part enable if required */
+-	if (MESON_PARM_APPLICABLE(&mpll->ssen))
+-		meson_parm_write(clk->map, &mpll->ssen, 1);
++	/* Set spread spectrum if possible */
++	if (MESON_PARM_APPLICABLE(&mpll->ssen)) {
++		unsigned int ss =
++			mpll->flags & CLK_MESON_MPLL_SPREAD_SPECTRUM ? 1 : 0;
++		meson_parm_write(clk->map, &mpll->ssen, ss);
++	}
  
- 	return IRQ_HANDLED;
- }
-@@ -177,6 +177,9 @@ static void iomd_enable_dma(unsigned int chan, dma_t *dma)
- 				DMA_FROM_DEVICE : DMA_TO_DEVICE);
- 		}
+ 	/* Set the integer divider part */
+ 	meson_parm_write(clk->map, &mpll->n2, n2);
+diff --git a/drivers/clk/meson/clk-mpll.h b/drivers/clk/meson/clk-mpll.h
+index cf79340006dd..0f948430fed4 100644
+--- a/drivers/clk/meson/clk-mpll.h
++++ b/drivers/clk/meson/clk-mpll.h
+@@ -23,6 +23,7 @@ struct meson_clk_mpll_data {
+ };
  
-+		idma->dma_addr = idma->dma.sg->dma_address;
-+		idma->dma_len = idma->dma.sg->length;
-+
- 		iomd_writeb(DMA_CR_C, dma_base + CR);
- 		idma->state = DMA_ST_AB;
- 	}
+ #define CLK_MESON_MPLL_ROUND_CLOSEST	BIT(0)
++#define CLK_MESON_MPLL_SPREAD_SPECTRUM	BIT(1)
+ 
+ extern const struct clk_ops meson_clk_mpll_ro_ops;
+ extern const struct clk_ops meson_clk_mpll_ops;
 -- 
 2.20.1
 
