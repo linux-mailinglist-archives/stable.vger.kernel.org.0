@@ -2,55 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5895876715
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:15:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 694C27673F
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:22:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726491AbfGZNPu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:15:50 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:55579 "EHLO
+        id S1726001AbfGZNWd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:22:33 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:60329 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726364AbfGZNPu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 09:15:50 -0400
+        by vger.kernel.org with ESMTP id S1726681AbfGZNWc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 09:22:32 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id AAEC85B1;
-        Fri, 26 Jul 2019 09:15:48 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Fri, 26 Jul 2019 09:15:49 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 9CD852B6;
+        Fri, 26 Jul 2019 09:22:31 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Fri, 26 Jul 2019 09:22:31 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=XVzK1n
-        IXYZH+bFpG15EJ3ghmRyV3NaJ8Qn62N+UAges=; b=Nt5A0jTy2GnXPAcfkrliIg
-        g4rk22kZoGlLLjyDl3w9iSXAwNaIPRr/v7mTJhpdDLAO23pi78/Bf+wnusb1Iz2+
-        IxhoYr6O6yifYIIp9FAazC1/JoReuCSNBKhnCy/U9VN0VJAliWaXvL8nxjoPKng7
-        cswJU5hP4v5oB7VP6nFJwB5M2zy5CHv7uFopHfh4g4qJ76f7YtSqYSqRUC82aMXn
-        gqNCDP9/krVnagf3QNTw2wyiNDPZ24B0VVmpfs7zjfBIt/RQO4smdMz+y9eA+dnK
-        CfZR5kTmlBVpGbuB3o1LXIpx0lRVNm4zTLEPQk/n9PGYJfTodOD0rtuPB1gqq9uA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=xZgcdb
+        AVev8sHoQVylXppkQK8mxuTU3Y+ycpNSHebNM=; b=XFrikWn1HUGnVENBJi4rZX
+        6WO9iD8NAbmttZfkTRwtUxR20KSJmYNy1wuCMUo6OV+V1RMwvwbg44Zc8SW0V8SP
+        ZxfRGrpfMLuDoz5iVoQFCi1bG8exD54OFIZPjJ45TTSJlM09w/verURuIX1NKsK4
+        RfhdDw/nFwY3r3yekm4S3e7Pb5l2cWenDTUigsO2wMwMFWYwvQrX7YiWOfK2jjLk
+        2X9Uupb/xsORKQXJBSmt2bmdOc8mdAzpWX2RcLI7bFJBpMOxtfBB4nhwXoVr5x3i
+        LPGw6LuQAdV0T6p6kWG3cFPhXR2wFoVkajJMIkYXFvzdo+iAz/rOb+cOkKymMZlw
         ==
-X-ME-Sender: <xms:A_06Xbv9evZl98-tJu1p86HS99Z8tg1VFuEw7SEBjt26RaxGU6Pu5Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrkeeggdeifecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:lv46XeD_F9dKfQhKKm0Tn8oh503RJ7FDREnzkLvsCOPQszeySsvQaA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrkeeggdeigecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
-    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:A_06Xaq95v6Zk4zA5Olrg0L8O8QN7U4l1zq60nkKLXNhAVbR73DRGQ>
-    <xmx:A_06XVFiy03CILs2rI1qNt6SfoDsoZrn7DRtsGWvehbnh2qtlGvT5Q>
-    <xmx:A_06XeFn-p0euz8iRfLnxeLUifHUnQTmG2BBozSOxekiBpcycPfuQA>
-    <xmx:BP06XWQt_HnrzcWcfPMt09JMzHByZUeWrlboPxaD0vMhuwu6hqgd1w>
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:lv46Xbe6g2O6p7bJFZ9awOfGHC3jJH4QrEHtZUUfGDKvoXZKMz4g7Q>
+    <xmx:lv46XYUbqv4OyD-Tkg_jYYue8BlT1fowmqKK5iEphlbnzEHIZ2y1nQ>
+    <xmx:lv46XW6ynedfNuIIl5kz-uk7isvDt44u5Od_Xw-u9EAxn5n0JNNu2Q>
+    <xmx:l_46XXBy5NiATmuDMmnYDQVnqYwwmh5VGxm5qv4Kw-4NtsVucxoKjw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0298680063;
-        Fri, 26 Jul 2019 09:15:46 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] perf/core: Fix exclusive events' grouping" failed to apply to 4.4-stable tree
-To:     alexander.shishkin@linux.intel.com, acme@redhat.com,
-        eranian@google.com, jolsa@redhat.com, mingo@kernel.org,
-        peterz@infradead.org, stable@vger.kernel.org, tglx@linutronix.de,
-        torvalds@linux-foundation.org, vincent.weaver@maine.edu
+        by mail.messagingengine.com (Postfix) with ESMTPA id 79C17380086;
+        Fri, 26 Jul 2019 09:22:30 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ext4: don't allow any modifications to an immutable file" failed to apply to 4.9-stable tree
+To:     darrick.wong@oracle.com, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 26 Jul 2019 15:15:45 +0200
-Message-ID: <15641469451670@kroah.com>
+Date:   Fri, 26 Jul 2019 15:22:28 +0200
+Message-ID: <156414734855241@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,169 +67,95 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 8a58ddae23796c733c5dfbd717538d89d036c5bd Mon Sep 17 00:00:00 2001
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Date: Mon, 1 Jul 2019 14:07:55 +0300
-Subject: [PATCH] perf/core: Fix exclusive events' grouping
+From 2e53840362771c73eb0a5ff71611507e64e8eecd Mon Sep 17 00:00:00 2001
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
+Date: Sun, 9 Jun 2019 21:41:41 -0400
+Subject: [PATCH] ext4: don't allow any modifications to an immutable file
 
-So far, we tried to disallow grouping exclusive events for the fear of
-complications they would cause with moving between contexts. Specifically,
-moving a software group to a hardware context would violate the exclusivity
-rules if both groups contain matching exclusive events.
+Don't allow any modifications to a file that's marked immutable, which
+means that we have to flush all the writable pages to make the readonly
+and we have to check the setattr/setflags parameters more closely.
 
-This attempt was, however, unsuccessful: the check that we have in the
-perf_event_open() syscall is both wrong (looks at wrong PMU) and
-insufficient (group leader may still be exclusive), as can be illustrated
-by running:
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 
-  $ perf record -e '{intel_pt//,cycles}' uname
-  $ perf record -e '{cycles,intel_pt//}' uname
-
-ultimately successfully.
-
-Furthermore, we are completely free to trigger the exclusivity violation
-by:
-
-   perf -e '{cycles,intel_pt//}' -e '{intel_pt//,instructions}'
-
-even though the helpful perf record will not allow that, the ABI will.
-
-The warning later in the perf_event_open() path will also not trigger, because
-it's also wrong.
-
-Fix all this by validating the original group before moving, getting rid
-of broken safeguards and placing a useful one to perf_install_in_context().
-
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: <stable@vger.kernel.org>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Cc: mathieu.poirier@linaro.org
-Cc: will.deacon@arm.com
-Fixes: bed5b25ad9c8a ("perf: Add a pmu capability for "exclusive" events")
-Link: https://lkml.kernel.org/r/20190701110755.24646-1-alexander.shishkin@linux.intel.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-
-diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
-index 16e38c286d46..e8ad3c590a23 100644
---- a/include/linux/perf_event.h
-+++ b/include/linux/perf_event.h
-@@ -1055,6 +1055,11 @@ static inline int in_software_context(struct perf_event *event)
- 	return event->ctx->pmu->task_ctx_nr == perf_sw_context;
+diff --git a/fs/ext4/ioctl.c b/fs/ext4/ioctl.c
+index e486e49b31ed..7af835ac8d23 100644
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -269,6 +269,29 @@ static int uuid_is_zero(__u8 u[16])
  }
+ #endif
  
-+static inline int is_exclusive_pmu(struct pmu *pmu)
++/*
++ * If immutable is set and we are not clearing it, we're not allowed to change
++ * anything else in the inode.  Don't error out if we're only trying to set
++ * immutable on an immutable file.
++ */
++static int ext4_ioctl_check_immutable(struct inode *inode, __u32 new_projid,
++				      unsigned int flags)
 +{
-+	return pmu->capabilities & PERF_PMU_CAP_EXCLUSIVE;
++	struct ext4_inode_info *ei = EXT4_I(inode);
++	unsigned int oldflags = ei->i_flags;
++
++	if (!(oldflags & EXT4_IMMUTABLE_FL) || !(flags & EXT4_IMMUTABLE_FL))
++		return 0;
++
++	if ((oldflags & ~EXT4_IMMUTABLE_FL) != (flags & ~EXT4_IMMUTABLE_FL))
++		return -EPERM;
++	if (ext4_has_feature_project(inode->i_sb) &&
++	    __kprojid_val(ei->i_projid) != new_projid)
++		return -EPERM;
++
++	return 0;
 +}
 +
- extern struct static_key perf_swevent_enabled[PERF_COUNT_SW_MAX];
- 
- extern void ___perf_sw_event(u32, u64, struct pt_regs *, u64);
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 5dd19bedbf64..eea9d52b010c 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -2553,6 +2553,9 @@ static int  __perf_install_in_context(void *info)
- 	return ret;
- }
- 
-+static bool exclusive_event_installable(struct perf_event *event,
-+					struct perf_event_context *ctx);
-+
- /*
-  * Attach a performance event to a context.
-  *
-@@ -2567,6 +2570,8 @@ perf_install_in_context(struct perf_event_context *ctx,
- 
- 	lockdep_assert_held(&ctx->mutex);
- 
-+	WARN_ON_ONCE(!exclusive_event_installable(event, ctx));
-+
- 	if (event->cpu != -1)
- 		event->cpu = cpu;
- 
-@@ -4360,7 +4365,7 @@ static int exclusive_event_init(struct perf_event *event)
+ static int ext4_ioctl_setflags(struct inode *inode,
+ 			       unsigned int flags)
  {
- 	struct pmu *pmu = event->pmu;
- 
--	if (!(pmu->capabilities & PERF_PMU_CAP_EXCLUSIVE))
-+	if (!is_exclusive_pmu(pmu))
- 		return 0;
- 
- 	/*
-@@ -4391,7 +4396,7 @@ static void exclusive_event_destroy(struct perf_event *event)
- {
- 	struct pmu *pmu = event->pmu;
- 
--	if (!(pmu->capabilities & PERF_PMU_CAP_EXCLUSIVE))
-+	if (!is_exclusive_pmu(pmu))
- 		return;
- 
- 	/* see comment in exclusive_event_init() */
-@@ -4411,14 +4416,15 @@ static bool exclusive_event_match(struct perf_event *e1, struct perf_event *e2)
- 	return false;
- }
- 
--/* Called under the same ctx::mutex as perf_install_in_context() */
- static bool exclusive_event_installable(struct perf_event *event,
- 					struct perf_event_context *ctx)
- {
- 	struct perf_event *iter_event;
- 	struct pmu *pmu = event->pmu;
- 
--	if (!(pmu->capabilities & PERF_PMU_CAP_EXCLUSIVE))
-+	lockdep_assert_held(&ctx->mutex);
-+
-+	if (!is_exclusive_pmu(pmu))
- 		return true;
- 
- 	list_for_each_entry(iter_event, &ctx->event_list, event_entry) {
-@@ -10947,11 +10953,6 @@ SYSCALL_DEFINE5(perf_event_open,
- 		goto err_alloc;
- 	}
- 
--	if ((pmu->capabilities & PERF_PMU_CAP_EXCLUSIVE) && group_leader) {
--		err = -EBUSY;
--		goto err_context;
--	}
--
- 	/*
- 	 * Look up the group leader (we will attach this event to it):
- 	 */
-@@ -11039,6 +11040,18 @@ SYSCALL_DEFINE5(perf_event_open,
- 				move_group = 0;
- 			}
+@@ -340,6 +363,20 @@ static int ext4_ioctl_setflags(struct inode *inode,
  		}
-+
-+		/*
-+		 * Failure to create exclusive events returns -EBUSY.
-+		 */
-+		err = -EBUSY;
-+		if (!exclusive_event_installable(group_leader, ctx))
-+			goto err_locked;
-+
-+		for_each_sibling_event(sibling, group_leader) {
-+			if (!exclusive_event_installable(sibling, ctx))
-+				goto err_locked;
-+		}
- 	} else {
- 		mutex_lock(&ctx->mutex);
  	}
-@@ -11075,9 +11088,6 @@ SYSCALL_DEFINE5(perf_event_open,
- 	 * because we need to serialize with concurrent event creation.
- 	 */
- 	if (!exclusive_event_installable(event, ctx)) {
--		/* exclusive and group stuff are assumed mutually exclusive */
--		WARN_ON_ONCE(move_group);
--
- 		err = -EBUSY;
- 		goto err_locked;
- 	}
+ 
++	/*
++	 * Wait for all pending directio and then flush all the dirty pages
++	 * for this file.  The flush marks all the pages readonly, so any
++	 * subsequent attempt to write to the file (particularly mmap pages)
++	 * will come through the filesystem and fail.
++	 */
++	if (S_ISREG(inode->i_mode) && !IS_IMMUTABLE(inode) &&
++	    (flags & EXT4_IMMUTABLE_FL)) {
++		inode_dio_wait(inode);
++		err = filemap_write_and_wait(inode->i_mapping);
++		if (err)
++			goto flags_out;
++	}
++
+ 	handle = ext4_journal_start(inode, EXT4_HT_INODE, 1);
+ 	if (IS_ERR(handle)) {
+ 		err = PTR_ERR(handle);
+@@ -769,7 +806,11 @@ long ext4_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+ 			return err;
+ 
+ 		inode_lock(inode);
+-		err = ext4_ioctl_setflags(inode, flags);
++		err = ext4_ioctl_check_immutable(inode,
++				from_kprojid(&init_user_ns, ei->i_projid),
++				flags);
++		if (!err)
++			err = ext4_ioctl_setflags(inode, flags);
+ 		inode_unlock(inode);
+ 		mnt_drop_write_file(filp);
+ 		return err;
+@@ -1139,6 +1180,9 @@ long ext4_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+ 			goto out;
+ 		flags = (ei->i_flags & ~EXT4_FL_XFLAG_VISIBLE) |
+ 			 (flags & EXT4_FL_XFLAG_VISIBLE);
++		err = ext4_ioctl_check_immutable(inode, fa.fsx_projid, flags);
++		if (err)
++			goto out;
+ 		err = ext4_ioctl_setflags(inode, flags);
+ 		if (err)
+ 			goto out;
 
