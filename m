@@ -2,110 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1506B75EE3
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 08:19:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E29E575EE1
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 08:18:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726124AbfGZGTF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 02:19:05 -0400
-Received: from mail-vs1-f66.google.com ([209.85.217.66]:35306 "EHLO
-        mail-vs1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725864AbfGZGTF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 02:19:05 -0400
-Received: by mail-vs1-f66.google.com with SMTP id u124so35389679vsu.2
-        for <stable@vger.kernel.org>; Thu, 25 Jul 2019 23:19:04 -0700 (PDT)
+        id S1725944AbfGZGS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 02:18:58 -0400
+Received: from mail-io1-f67.google.com ([209.85.166.67]:39457 "EHLO
+        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725867AbfGZGS5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 02:18:57 -0400
+Received: by mail-io1-f67.google.com with SMTP id f4so102535351ioh.6;
+        Thu, 25 Jul 2019 23:18:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=endlessm-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Bl7fI4eVZWffKAOz4zhIOA0eJ2D0U0DNka5Gld+y0is=;
-        b=WmFtrFSw/R5Cz8UuWt8tiEoXLxFQ6BCS/F4MD7pwFOpPfJiwxzoJexVjGGjwbsbDM2
-         8kGywwqi+EOUNqcAN2+vSIAEsSl/yhZDMdDmQonSWX1pUYtAwsGuFx3miJ2JcVGBs7na
-         bOUfRzSLSYvBUWvbRSdvjTY1ct55yl0Iqn5yJ5tjdfz6zPsgOdAnc8TuJC4Fxt7PuTiq
-         6AM60l/Fdw/kt2HG/LbYjxx1ftu9FTGK4yV8DVY1xA3Da9zgQcDfENwhQDx1YstruteQ
-         q/r7kniw5cWXc/F3AtJTiR2+eVsb/myAm9vO7XDIP/hpQUaUdZ+mg1Nva++4iPrL65v/
-         E2tw==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=b5wTnvmQe0owwasvJmkSjSTFJ8Gz+1OIVPlKvi4Zh4c=;
+        b=gtWhppzwsp5YocYU2ZyowoL06vMVAdWXzoBLjYN3dPBSK1W0LsJw3ht4oW3t3yaoMI
+         h3fJ3uqqsoOgamaSbvW0NFSu3p9SjXRKj2Ud/VjQae+l2UYLoaxElvNChDpIQtk+Mkun
+         JYf6YUXKEh73Ke2OnPfvOJ4MIxENLt4mCJoMRJBBc6goUo3/T1kct3Ol+dQ8/pwZ/MDE
+         Hb6I75LSTgouMljLoql8g6oxA2jqWLnOS6JVL/Zm9NuIVm13iRy71SrPjEb/87tL3pvS
+         aqrypSQ8mQwUPHBNfP+IILMI0L029LRrXJipUt57ACECtpS4h8BfEWv2iUKsH0UGig0a
+         5QzQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Bl7fI4eVZWffKAOz4zhIOA0eJ2D0U0DNka5Gld+y0is=;
-        b=XMocYhLmpQ7LSrRAtYQB+kB0sQdalNwzz2ewJ+00atCNpHqPi/+eoU0ghDOLXOI05N
-         u43EVdl1UTFa8ig63/A4dXGB9JGwtMBxGK9C6at8OsXlREneeOJ3gR3yY9o+aB03jYGQ
-         J4JYMK+GYyWEp77paNValk0WM4iGtgLzdV6u9LPiYL52rwYFrkwDP18WZuM0ylQU1/OX
-         Vnhxb1EzBfh0h3Kld/PK8Xa0INDtmbLizGj8poWtZsO7l24RH3HG1Xy+IiE1r+Rx/mQ/
-         cHfovHzbHOHS2CKCc+4m4FeEfCehXch7F1yqAK7ld9bJb6f9mdz54f72yDT0kVjXRrIi
-         wvwQ==
-X-Gm-Message-State: APjAAAVjEnue462ILWJ5FTOTVlCoQTPHzh7dFKx2uvp/TkN7rbi4aQd1
-        McmMC/iBt1ghI0W2AVhoFjdR2PUxpegDK4TlEZiREg==
-X-Google-Smtp-Source: APXvYqy5de4RdPtgj97TOfRHiUta7VD2dn3FWaYfsVQWQZRVK/s1bYmGEqsu1oqBvlo5cD2KF02tErIDgh9uivkIFbI=
-X-Received: by 2002:a67:eb19:: with SMTP id a25mr58320351vso.109.1564121943796;
- Thu, 25 Jul 2019 23:19:03 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=b5wTnvmQe0owwasvJmkSjSTFJ8Gz+1OIVPlKvi4Zh4c=;
+        b=MV9rzxQweqVn5AgeYQVL9vzNUoTEcKLdGAWZQr8sUsR451SGPw3nhG75ZVf0yDqLmy
+         joiGNuGg87wYhKZu6IpRlYP77yVwTh7+gufb7KynXKht7E0KlU3+YT9QFi99D0aZ6E1H
+         bh6lspzlF58QYrsETVrorulLllAbHOwkKwXbM+PS7B+3hpvJw0soDjePviag1tCevLD5
+         Zevg7oHJkitwlxiPjFpI7mr1gaA1bl8zjXrrkdiMwrgwKIjb/cCmDUMDsMJAhAiPrxOS
+         CbLHG2826btNb9nMvva+cugCcTuiZDTyy9QTt/Ai7NzD5ydOfto0WhS5h/PXFZ8h9IB2
+         w9Xg==
+X-Gm-Message-State: APjAAAXwvbIOOvIGrNExyvHRu6eDAeBeUXRQIyQxvvAcllg03dMqgEhX
+        ePmy5HFgcHC9sQoezKlUyShLBA5t6uOXMw==
+X-Google-Smtp-Source: APXvYqxcFKoWSQzBqqzTzOFkK9EZ/emKW1tMiynSzruAU455nAJlvPKi9fqmmj+XWtUgEGMZq14L/Q==
+X-Received: by 2002:a02:9a03:: with SMTP id b3mr3531029jal.0.1564121936987;
+        Thu, 25 Jul 2019 23:18:56 -0700 (PDT)
+Received: from JATN (c-73-243-191-173.hsd1.co.comcast.net. [73.243.191.173])
+        by smtp.gmail.com with ESMTPSA id r7sm37897284ioa.71.2019.07.25.23.18.55
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Thu, 25 Jul 2019 23:18:56 -0700 (PDT)
+Date:   Fri, 26 Jul 2019 00:18:54 -0600
+From:   Kelsey Skunberg <skunberg.kelsey@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.2 000/413] 5.2.3-stable review
+Message-ID: <20190726061854.GA4075@JATN>
+References: <20190724191735.096702571@linuxfoundation.org>
 MIME-Version: 1.0
-References: <20190725080925.6575-1-jian-hong@endlessm.com> <06d713fff7434dfb9ccab32c2e2112e2@AcuMS.aculab.com>
-In-Reply-To: <06d713fff7434dfb9ccab32c2e2112e2@AcuMS.aculab.com>
-From:   Jian-Hong Pan <jian-hong@endlessm.com>
-Date:   Fri, 26 Jul 2019 14:18:26 +0800
-Message-ID: <CAPpJ_ecAAw=1X=7+MOw-VVH0ZKBr6rcRub6JnEqgNbZ6Hxt=ag@mail.gmail.com>
-Subject: Re: [PATCH] rtw88: pci: Use general byte arrays as the elements of RX ring
-To:     David Laight <David.Laight@aculab.com>
-Cc:     Yan-Hsuan Chuang <yhchuang@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux@endlessm.com" <linux@endlessm.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-David Laight <David.Laight@aculab.com> =E6=96=BC 2019=E5=B9=B47=E6=9C=8825=
-=E6=97=A5 =E9=80=B1=E5=9B=9B =E4=B8=8B=E5=8D=885:21=E5=AF=AB=E9=81=93=EF=BC=
-=9A
->
-> From: Jian-Hong Pan
-> > Sent: 25 July 2019 09:09
-> > Each skb as the element in RX ring was expected with sized buffer 8216
-> > (RTK_PCI_RX_BUF_SIZE) bytes. However, the skb buffer's true size is
-> > 16640 bytes for alignment after allocated, x86_64 for example. And, the
-> > difference will be enlarged 512 times (RTK_MAX_RX_DESC_NUM).
-> > To prevent that much wasted memory, this patch follows David's
-> > suggestion [1] and uses general buffer arrays, instead of skbs as the
-> > elements in RX ring.
-> ...
-> >       for (i =3D 0; i < len; i++) {
-> > -             skb =3D dev_alloc_skb(buf_sz);
-> > -             if (!skb) {
-> > +             buf =3D devm_kzalloc(rtwdev->dev, buf_sz, GFP_ATOMIC);
->
-> You should do this allocation somewhere than can sleep.
-> So you don't need GFP_ATOMIC, making the allocate (and dma map)
-> much less likely to fail.
-> If they do fail using a smaller ring might be better than failing
-> completely.
+On Wed, Jul 24, 2019 at 09:14:51PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.2.3 release.
+> There are 413 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri 26 Jul 2019 07:13:35 PM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.3-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Ok, I can tweak and try it.
+Compiled and booted with no regressions on my system.
 
-> I suspect that buf_sz gets rounded up somewhat.
-> Also you almost certainly want 'buf' to be cache-line aligned.
-> I don't think devm_kzalloc() guarantees that at all.
-
-Sure
-
-> While allocating all 512 buffers in one block (just over 4MB)
-> is probably not a good idea, you may need to allocated (and dma map)
-> then in groups.
-
-Thanks for reviewing.  But got questions here to double confirm the idea.
-According to original code, it allocates 512 skbs for RX ring and dma
-mapping one by one.  So, the new code allocates memory buffer 512
-times to get 512 buffer arrays.  Will the 512 buffers arrays be in one
-block?  Do you mean aggregate the buffers as a scatterlist and use
-dma_map_sg?
-
-Thank you,
-Jain-Hong Pan
+Cheers,
+Kelsey
