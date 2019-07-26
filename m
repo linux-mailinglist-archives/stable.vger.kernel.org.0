@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FB1376CC7
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:27:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2A2C76CFD
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:29:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728435AbfGZP10 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:27:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41616 "EHLO mail.kernel.org"
+        id S2388813AbfGZP32 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:29:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727720AbfGZP1X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:27:23 -0400
+        id S2388802AbfGZP32 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:29:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D3FA22CC0;
-        Fri, 26 Jul 2019 15:27:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78F0822CBD;
+        Fri, 26 Jul 2019 15:29:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564154842;
-        bh=81wdQUEyCb/aoAch/lizbkx5UAFnUOAJILSo5TwGLnA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0BCHzC+uytObxyLkWWcSJS65jP33p6aV9URs2g0MTlr17LpCrH9SD1KtUf7tdhUMR
-         TL4CN6w306JmzlYNIHidyB/H3Rcwzd3DX5QL7nBgWXdQPnxGhCNnpsqzc4CjtTQ9qt
-         1cY+gDLHZQmH6KF3AqqPVo3uiCqr5IGbSMv8uHUM=
+        s=default; t=1564154967;
+        bh=KP4kL19oUn5lUt6gO3Ev0/T+mTO32QzgBIh7IS7sOK0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=wT0frocer5nKFQ/yX+IOyCRPcgmRsxI9HApr9bfBCoUIxZANFvOab2VaFrPRSpf/E
+         YPIqJvl46Sl1dnmltnN+UHdN/FDPZMGi2JlY3/Q/GMVhR3QNpL25707Rxt56c2+E/7
+         ASNssSqVcnHkocFat3uEgL8AFmQRvSQ9f7d2aZZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Hurley <john.hurley@netronome.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Simon Horman <simon.horman@netronome.com>,
-        Pravin B Shelar <pshelar@ovn.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 12/66] net: openvswitch: fix csum updates for MPLS actions
-Date:   Fri, 26 Jul 2019 17:24:11 +0200
-Message-Id: <20190726152303.178637387@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 5.1 00/62] 5.1.21-stable review
+Date:   Fri, 26 Jul 2019 17:24:12 +0200
+Message-Id: <20190726152301.720139286@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190726152301.936055394@linuxfoundation.org>
-References: <20190726152301.936055394@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.1.21-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.1.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.1.21-rc1
+X-KernelTest-Deadline: 2019-07-28T15:23+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -46,73 +51,300 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Hurley <john.hurley@netronome.com>
+Note, this will be the LAST 5.1.y kernel release.  Everyone should move
+to the 5.2.y series at this point in time.
 
-[ Upstream commit 0e3183cd2a64843a95b62f8bd4a83605a4cf0615 ]
+This is the start of the stable review cycle for the 5.1.21 release.
+There are 62 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Skbs may have their checksum value populated by HW. If this is a checksum
-calculated over the entire packet then the CHECKSUM_COMPLETE field is
-marked. Changes to the data pointer on the skb throughout the network
-stack still try to maintain this complete csum value if it is required
-through functions such as skb_postpush_rcsum.
+Responses should be made by Sun 28 Jul 2019 03:21:13 PM UTC.
+Anything received after that time might be too late.
 
-The MPLS actions in Open vSwitch modify a CHECKSUM_COMPLETE value when
-changes are made to packet data without a push or a pull. This occurs when
-the ethertype of the MAC header is changed or when MPLS lse fields are
-modified.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.21-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
+and the diffstat can be found below.
 
-The modification is carried out using the csum_partial function to get the
-csum of a buffer and add it into the larger checksum. The buffer is an
-inversion of the data to be removed followed by the new data. Because the
-csum is calculated over 16 bits and these values align with 16 bits, the
-effect is the removal of the old value from the CHECKSUM_COMPLETE and
-addition of the new value.
+thanks,
 
-However, the csum fed into the function and the outcome of the
-calculation are also inverted. This would only make sense if it was the
-new value rather than the old that was inverted in the input buffer.
+greg k-h
 
-Fix the issue by removing the bit inverts in the csum_partial calculation.
+-------------
+Pseudo-Shortlog of commits:
 
-The bug was verified and the fix tested by comparing the folded value of
-the updated CHECKSUM_COMPLETE value with the folded value of a full
-software checksum calculation (reset skb->csum to 0 and run
-skb_checksum_complete(skb)). Prior to the fix the outcomes differed but
-after they produce the same result.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.1.21-rc1
 
-Fixes: 25cd9ba0abc0 ("openvswitch: Add basic MPLS support to kernel")
-Fixes: bc7cc5999fd3 ("openvswitch: update checksum in {push,pop}_mpls")
-Signed-off-by: John Hurley <john.hurley@netronome.com>
-Reviewed-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: Simon Horman <simon.horman@netronome.com>
-Acked-by: Pravin B Shelar <pshelar@ovn.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/openvswitch/actions.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+Kuo-Hsin Yang <vovoy@chromium.org>
+    mm: vmscan: scan anonymous pages on file refaults
 
---- a/net/openvswitch/actions.c
-+++ b/net/openvswitch/actions.c
-@@ -166,8 +166,7 @@ static void update_ethertype(struct sk_b
- 	if (skb->ip_summed == CHECKSUM_COMPLETE) {
- 		__be16 diff[] = { ~(hdr->h_proto), ethertype };
- 
--		skb->csum = ~csum_partial((char *)diff, sizeof(diff),
--					~skb->csum);
-+		skb->csum = csum_partial((char *)diff, sizeof(diff), skb->csum);
- 	}
- 
- 	hdr->h_proto = ethertype;
-@@ -259,8 +258,7 @@ static int set_mpls(struct sk_buff *skb,
- 	if (skb->ip_summed == CHECKSUM_COMPLETE) {
- 		__be32 diff[] = { ~(stack->label_stack_entry), lse };
- 
--		skb->csum = ~csum_partial((char *)diff, sizeof(diff),
--					  ~skb->csum);
-+		skb->csum = csum_partial((char *)diff, sizeof(diff), skb->csum);
- 	}
- 
- 	stack->label_stack_entry = lse;
+Damien Le Moal <damien.lemoal@wdc.com>
+    block: Limit zone array allocation size
+
+Damien Le Moal <damien.lemoal@wdc.com>
+    sd_zbc: Fix report zones buffer allocation
+
+Paolo Bonzini <pbonzini@redhat.com>
+    Revert "kvm: x86: Use task structs fpu field for user"
+
+Jan Kiszka <jan.kiszka@siemens.com>
+    KVM: nVMX: Clear pending KVM_REQ_GET_VMCS12_PAGES when leaving nested
+
+Paolo Bonzini <pbonzini@redhat.com>
+    KVM: nVMX: do not use dangling shadow VMCS after guest reset
+
+Theodore Ts'o <tytso@mit.edu>
+    ext4: allow directory holes
+
+Ross Zwisler <zwisler@chromium.org>
+    ext4: use jbd2_inode dirty range scoping
+
+Ross Zwisler <zwisler@chromium.org>
+    jbd2: introduce jbd2_inode dirty range scoping
+
+Ross Zwisler <zwisler@chromium.org>
+    mm: add filemap_fdatawait_range_keep_errors()
+
+Theodore Ts'o <tytso@mit.edu>
+    ext4: enforce the immutable flag on open files
+
+Darrick J. Wong <darrick.wong@oracle.com>
+    ext4: don't allow any modifications to an immutable file
+
+Peter Zijlstra <peterz@infradead.org>
+    perf/core: Fix race between close() and fork()
+
+Alexander Shishkin <alexander.shishkin@linux.intel.com>
+    perf/core: Fix exclusive events' grouping
+
+Song Liu <songliubraving@fb.com>
+    perf script: Assume native_arch for pipe mode
+
+Paul Cercueil <paul@crapouillou.net>
+    MIPS: lb60: Fix pin mappings
+
+Keerthy <j-keerthy@ti.com>
+    gpio: davinci: silence error prints in case of EPROBE_DEFER
+
+Nishka Dasgupta <nishkadg.linux@gmail.com>
+    gpiolib: of: fix a memory leak in of_gpio_flags_quirks()
+
+Chris Wilson <chris@chris-wilson.co.uk>
+    dma-buf: Discard old fence_excl on retrying get_fences_rcu for realloc
+
+Jérôme Glisse <jglisse@redhat.com>
+    dma-buf: balance refcount inbalance
+
+Aya Levin <ayal@mellanox.com>
+    net/mlx5e: Fix error flow in tx reporter diagnose
+
+Aya Levin <ayal@mellanox.com>
+    net/mlx5e: Fix return value from timeout recover function
+
+Saeed Mahameed <saeedm@mellanox.com>
+    net/mlx5e: Rx, Fix checksum calculation for new hardware
+
+Eli Britstein <elibr@mellanox.com>
+    net/mlx5e: Fix port tunnel GRE entropy control
+
+Jakub Kicinski <jakub.kicinski@netronome.com>
+    net/tls: reject offload of TLS 1.3
+
+Jakub Kicinski <jakub.kicinski@netronome.com>
+    net/tls: fix poll ignoring partially copied records
+
+Frank de Brabander <debrabander@gmail.com>
+    selftests: txring_overwrite: fix incorrect test of mmap() return value
+
+Cong Wang <xiyou.wangcong@gmail.com>
+    netrom: hold sock when setting skb->destructor
+
+Cong Wang <xiyou.wangcong@gmail.com>
+    netrom: fix a memory leak in nr_rx_frame()
+
+Andreas Steinmetz <ast@domdv.de>
+    macsec: fix checksumming after decryption
+
+Andreas Steinmetz <ast@domdv.de>
+    macsec: fix use-after-free of skb during RX
+
+Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+    net: bridge: stp: don't cache eth dest pointer before skb pull
+
+Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+    net: bridge: don't cache ether dest pointer on input
+
+Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+    net: bridge: mcast: fix stale ipv6 hdr pointer when handling v6 query
+
+Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+    net: bridge: mcast: fix stale nsrcs pointer in igmp3/mld2 report handling
+
+Aya Levin <ayal@mellanox.com>
+    net/mlx5e: IPoIB, Add error path in mlx5_rdma_setup_rn
+
+Peter Kosyh <p.kosyh@gmail.com>
+    vrf: make sure skb->data contains ip header to make routing
+
+Christoph Paasch <cpaasch@apple.com>
+    tcp: Reset bytes_acked and bytes_received when disconnecting
+
+Eric Dumazet <edumazet@google.com>
+    tcp: fix tcp_set_congestion_control() use from bpf hook
+
+Eric Dumazet <edumazet@google.com>
+    tcp: be more careful in tcp_fragment()
+
+Takashi Iwai <tiwai@suse.de>
+    sky2: Disable MSI on ASUS P6T
+
+Xin Long <lucien.xin@gmail.com>
+    sctp: not bind the socket in sctp_connect
+
+Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+    sctp: fix error handling on stream scheduler initialization
+
+David Howells <dhowells@redhat.com>
+    rxrpc: Fix send on a connected, but unbound socket
+
+Heiner Kallweit <hkallweit1@gmail.com>
+    r8169: fix issue with confused RX unit after PHY power-down on RTL8411b
+
+Yang Wei <albin_yang@163.com>
+    nfc: fix potential illegal memory access
+
+Jakub Kicinski <jakub.kicinski@netronome.com>
+    net/tls: make sure offload also gets the keys wiped
+
+Jose Abreu <Jose.Abreu@synopsys.com>
+    net: stmmac: Re-work the queue selection for TSO packets
+
+Cong Wang <xiyou.wangcong@gmail.com>
+    net_sched: unset TCQ_F_CAN_BYPASS when adding filters
+
+Andrew Lunn <andrew@lunn.ch>
+    net: phy: sfp: hwmon: Fix scaling of RX power
+
+John Hurley <john.hurley@netronome.com>
+    net: openvswitch: fix csum updates for MPLS actions
+
+Lorenzo Bianconi <lorenzo.bianconi@redhat.com>
+    net: neigh: fix multiple neigh timer scheduling
+
+Florian Westphal <fw@strlen.de>
+    net: make skb_dst_force return true when dst is refcounted
+
+Baruch Siach <baruch@tkos.co.il>
+    net: dsa: mv88e6xxx: wait after reset deactivation
+
+Justin Chen <justinpopo6@gmail.com>
+    net: bcmgenet: use promisc for unsupported filters
+
+Ido Schimmel <idosch@mellanox.com>
+    ipv6: Unlink sibling route in case of failure
+
+David Ahern <dsahern@gmail.com>
+    ipv6: rt6_check should return NULL if 'from' is NULL
+
+Matteo Croce <mcroce@redhat.com>
+    ipv4: don't set IPv6 only flags to IPv4 addresses
+
+Eric Dumazet <edumazet@google.com>
+    igmp: fix memory leak in igmpv3_del_delrec()
+
+Haiyang Zhang <haiyangz@microsoft.com>
+    hv_netvsc: Fix extra rcu_read_unlock in netvsc_recv_callback()
+
+Taehee Yoo <ap420073@gmail.com>
+    caif-hsi: fix possible deadlock in cfhsi_exit_module()
+
+Brian King <brking@linux.vnet.ibm.com>
+    bnx2x: Prevent load reordering in tx completion processing
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |   4 +-
+ arch/mips/jz4740/board-qi_lb60.c                   |  16 +--
+ arch/x86/include/asm/kvm_host.h                    |   7 +-
+ arch/x86/kvm/vmx/nested.c                          |  10 +-
+ arch/x86/kvm/x86.c                                 |   4 +-
+ block/blk-zoned.c                                  |  46 ++++---
+ drivers/dma-buf/dma-buf.c                          |   1 +
+ drivers/dma-buf/reservation.c                      |   4 +
+ drivers/gpio/gpio-davinci.c                        |   5 +-
+ drivers/gpio/gpiolib-of.c                          |   1 +
+ drivers/net/caif/caif_hsi.c                        |   2 +-
+ drivers/net/dsa/mv88e6xxx/chip.c                   |   2 +
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c    |   3 +
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c     |  57 ++++-----
+ drivers/net/ethernet/marvell/sky2.c                |   7 ++
+ drivers/net/ethernet/mellanox/mlx5/core/en.h       |   1 +
+ .../ethernet/mellanox/mlx5/core/en/reporter_tx.c   |  10 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c  |   3 +
+ drivers/net/ethernet/mellanox/mlx5/core/en_rx.c    |   7 +-
+ .../net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c  |   9 +-
+ .../net/ethernet/mellanox/mlx5/core/lib/port_tun.c |  23 +---
+ drivers/net/ethernet/realtek/r8169.c               | 137 +++++++++++++++++++++
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  |  29 +++--
+ drivers/net/hyperv/netvsc_drv.c                    |   1 -
+ drivers/net/macsec.c                               |   6 +-
+ drivers/net/phy/sfp.c                              |   2 +-
+ drivers/net/vrf.c                                  |  58 +++++----
+ drivers/scsi/sd_zbc.c                              | 104 +++++++++++-----
+ fs/ext4/dir.c                                      |  19 ++-
+ fs/ext4/ext4_jbd2.h                                |  12 +-
+ fs/ext4/file.c                                     |   4 +
+ fs/ext4/inode.c                                    |  24 +++-
+ fs/ext4/ioctl.c                                    |  46 ++++++-
+ fs/ext4/move_extent.c                              |   3 +-
+ fs/ext4/namei.c                                    |  45 +++++--
+ fs/jbd2/commit.c                                   |  23 +++-
+ fs/jbd2/journal.c                                  |   4 +
+ fs/jbd2/transaction.c                              |  49 ++++----
+ include/linux/blkdev.h                             |   5 +
+ include/linux/fs.h                                 |   2 +
+ include/linux/jbd2.h                               |  22 ++++
+ include/linux/mlx5/mlx5_ifc.h                      |   3 +-
+ include/linux/perf_event.h                         |   5 +
+ include/net/dst.h                                  |   5 +-
+ include/net/tcp.h                                  |   8 +-
+ include/net/tls.h                                  |   1 +
+ kernel/events/core.c                               |  83 ++++++++++---
+ mm/filemap.c                                       |  22 ++++
+ mm/vmscan.c                                        |   6 +-
+ net/bridge/br_input.c                              |   8 +-
+ net/bridge/br_multicast.c                          |  23 ++--
+ net/bridge/br_stp_bpdu.c                           |   3 +-
+ net/core/filter.c                                  |   2 +-
+ net/core/neighbour.c                               |   2 +
+ net/ipv4/devinet.c                                 |   8 ++
+ net/ipv4/igmp.c                                    |   8 +-
+ net/ipv4/tcp.c                                     |   6 +-
+ net/ipv4/tcp_cong.c                                |   6 +-
+ net/ipv4/tcp_output.c                              |  13 +-
+ net/ipv6/ip6_fib.c                                 |  18 ++-
+ net/ipv6/route.c                                   |   2 +-
+ net/netfilter/nf_queue.c                           |   6 +-
+ net/netrom/af_netrom.c                             |   4 +-
+ net/nfc/nci/data.c                                 |   2 +-
+ net/openvswitch/actions.c                          |   6 +-
+ net/rxrpc/af_rxrpc.c                               |   4 +-
+ net/sched/cls_api.c                                |   1 +
+ net/sched/sch_fq_codel.c                           |   2 -
+ net/sched/sch_sfq.c                                |   2 -
+ net/sctp/socket.c                                  |  24 +---
+ net/sctp/stream.c                                  |   9 +-
+ net/tls/tls_device.c                               |  10 +-
+ net/tls/tls_main.c                                 |   4 +-
+ net/tls/tls_sw.c                                   |   3 +-
+ tools/perf/builtin-script.c                        |   3 +-
+ tools/testing/selftests/net/txring_overwrite.c     |   2 +-
+ 76 files changed, 816 insertions(+), 315 deletions(-)
 
 
