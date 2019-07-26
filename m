@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1877576D36
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:31:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74C7B76D76
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:35:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388872AbfGZPbj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:31:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46722 "EHLO mail.kernel.org"
+        id S2389739AbfGZPdy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:33:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389314AbfGZPbj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:31:39 -0400
+        id S2389733AbfGZPdy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:33:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17FE5218D4;
-        Fri, 26 Jul 2019 15:31:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B19F2054F;
+        Fri, 26 Jul 2019 15:33:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564155098;
-        bh=iuf0BCS8aLr+lbQU9Wd+UhcxJrowPtLhsC7MckbRu7k=;
+        s=default; t=1564155233;
+        bh=GzdrERlVciSo6HfVAEApRX/1niK8SDg3s81xyoCbM6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d+cZU5QtLQlVpBuFmSrfN8FNEDgrougiVf4e6LV6tyS/UjSGg6UgNs5IqOGTqiCmG
-         TNH5E8TZQENzEUv5u2B0r0zhareO0eLa6x+JQKuyV/P7agI41W3FXT0sRixRvaBYM3
-         vvBxODKTcChF2Wh+3zqDM5jO6ZsyMBf4sdZsJ2uA=
+        b=yBkG49qb4BxH66oRCCiMN0caqzrsvw7y4lnQUUfuCAB2iY5cmjfoGnj/19se//Y0e
+         MqIpsOjKh0akgDWApGRvN8vVMM/dWZquAKMsNT4/l/d9HeEJTLcg/WtUOLN9YmUpO2
+         r1PI8s+DHBxriG76vYQG+zUHDvNJ2lAaVNpeB8dE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ross Zwisler <zwisler@google.com>,
-        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.1 53/62] mm: add filemap_fdatawait_range_keep_errors()
+        stable@vger.kernel.org,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Dirk van der Merwe <dirk.vandermerwe@netronome.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 30/50] net/tls: make sure offload also gets the keys wiped
 Date:   Fri, 26 Jul 2019 17:25:05 +0200
-Message-Id: <20190726152307.578233447@linuxfoundation.org>
+Message-Id: <20190726152303.707657736@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
-References: <20190726152301.720139286@linuxfoundation.org>
+In-Reply-To: <20190726152300.760439618@linuxfoundation.org>
+References: <20190726152300.760439618@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,67 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ross Zwisler <zwisler@chromium.org>
+From: Jakub Kicinski <jakub.kicinski@netronome.com>
 
-commit aa0bfcd939c30617385ffa28682c062d78050eba upstream.
+[ Upstream commit acd3e96d53a24d219f720ed4012b62723ae05da1 ]
 
-In the spirit of filemap_fdatawait_range() and
-filemap_fdatawait_keep_errors(), introduce
-filemap_fdatawait_range_keep_errors() which both takes a range upon
-which to wait and does not clear errors from the address space.
+Commit 86029d10af18 ("tls: zero the crypto information from tls_context
+before freeing") added memzero_explicit() calls to clear the key material
+before freeing struct tls_context, but it missed tls_device.c has its
+own way of freeing this structure. Replace the missing free.
 
-Signed-off-by: Ross Zwisler <zwisler@google.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: stable@vger.kernel.org
+Fixes: 86029d10af18 ("tls: zero the crypto information from tls_context before freeing")
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Reviewed-by: Dirk van der Merwe <dirk.vandermerwe@netronome.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/linux/fs.h |    2 ++
- mm/filemap.c       |   22 ++++++++++++++++++++++
- 2 files changed, 24 insertions(+)
+ include/net/tls.h    |    1 +
+ net/tls/tls_device.c |    2 +-
+ net/tls/tls_main.c   |    2 +-
+ 3 files changed, 3 insertions(+), 2 deletions(-)
 
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -2703,6 +2703,8 @@ extern int filemap_flush(struct address_
- extern int filemap_fdatawait_keep_errors(struct address_space *mapping);
- extern int filemap_fdatawait_range(struct address_space *, loff_t lstart,
- 				   loff_t lend);
-+extern int filemap_fdatawait_range_keep_errors(struct address_space *mapping,
-+		loff_t start_byte, loff_t end_byte);
+--- a/include/net/tls.h
++++ b/include/net/tls.h
+@@ -234,6 +234,7 @@ struct tls_offload_context_rx {
+ 	(ALIGN(sizeof(struct tls_offload_context_rx), sizeof(void *)) + \
+ 	 TLS_DRIVER_STATE_SIZE)
  
- static inline int filemap_fdatawait(struct address_space *mapping)
++void tls_ctx_free(struct tls_context *ctx);
+ int wait_on_pending_writer(struct sock *sk, long *timeo);
+ int tls_sk_query(struct sock *sk, int optname, char __user *optval,
+ 		int __user *optlen);
+--- a/net/tls/tls_device.c
++++ b/net/tls/tls_device.c
+@@ -61,7 +61,7 @@ static void tls_device_free_ctx(struct t
+ 	if (ctx->rx_conf == TLS_HW)
+ 		kfree(tls_offload_ctx_rx(ctx));
+ 
+-	kfree(ctx);
++	tls_ctx_free(ctx);
+ }
+ 
+ static void tls_device_gc_task(struct work_struct *work)
+--- a/net/tls/tls_main.c
++++ b/net/tls/tls_main.c
+@@ -241,7 +241,7 @@ static void tls_write_space(struct sock
+ 	ctx->sk_write_space(sk);
+ }
+ 
+-static void tls_ctx_free(struct tls_context *ctx)
++void tls_ctx_free(struct tls_context *ctx)
  {
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -548,6 +548,28 @@ int filemap_fdatawait_range(struct addre
- EXPORT_SYMBOL(filemap_fdatawait_range);
- 
- /**
-+ * filemap_fdatawait_range_keep_errors - wait for writeback to complete
-+ * @mapping:		address space structure to wait for
-+ * @start_byte:		offset in bytes where the range starts
-+ * @end_byte:		offset in bytes where the range ends (inclusive)
-+ *
-+ * Walk the list of under-writeback pages of the given address space in the
-+ * given range and wait for all of them.  Unlike filemap_fdatawait_range(),
-+ * this function does not clear error status of the address space.
-+ *
-+ * Use this function if callers don't handle errors themselves.  Expected
-+ * call sites are system-wide / filesystem-wide data flushers: e.g. sync(2),
-+ * fsfreeze(8)
-+ */
-+int filemap_fdatawait_range_keep_errors(struct address_space *mapping,
-+		loff_t start_byte, loff_t end_byte)
-+{
-+	__filemap_fdatawait_range(mapping, start_byte, end_byte);
-+	return filemap_check_and_keep_errors(mapping);
-+}
-+EXPORT_SYMBOL(filemap_fdatawait_range_keep_errors);
-+
-+/**
-  * file_fdatawait_range - wait for writeback to complete
-  * @file:		file pointing to address space structure to wait for
-  * @start_byte:		offset in bytes where the range starts
+ 	if (!ctx)
+ 		return;
 
 
