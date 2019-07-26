@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D59376D94
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:35:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC8EC76DDF
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:37:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388840AbfGZPdD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:33:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48326 "EHLO mail.kernel.org"
+        id S2387400AbfGZP3t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:29:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389577AbfGZPdB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:33:01 -0400
+        id S2387845AbfGZP3r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:29:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DAD622CBD;
-        Fri, 26 Jul 2019 15:32:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D51FC22CBE;
+        Fri, 26 Jul 2019 15:29:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564155180;
-        bh=bahlsBMkVkYMfpPIdhKmsQdccPk3ZEPzUihRE6jKl+A=;
+        s=default; t=1564154986;
+        bh=5RYlE/PzhWIeGqoHSSU1wVSgtVIkc9GzHbSiCAM3ggQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XgYtMp2A13w6TdGSV02GJ5T726tLXPyiQCAd4V84wrthfU9h+RkqWpjFZAUCoTpnH
-         Y5x2KNkuPNSbT//hX+8+w4b4sumMR5W5yW3/48iPbPekYY6IRpU37jC9Xc+5lUxnlj
-         13M+jOimmA5GUDh0Dpv+D1t1PFWd2BQ9b2e4fk4w=
+        b=oamyHRpfBF8Dor70wbCcvHJoOipxj2tVKc2Kmr24l8kOlGO3FY4n4MEhDkfGA+b8B
+         seFu6jUMfnXUZvSKS6rq6CvuflwIkVV0MMTi324AO1nCE2tsXcX56Ny3wOcOjumIr6
+         f/3LKBXVjZDFhmpb8o0W9DszaOGvgNhPUdlUdGCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        syzbot+6ca1abd0db68b5173a4f@syzkaller.appspotmail.com,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 04/50] igmp: fix memory leak in igmpv3_del_delrec()
+        stable@vger.kernel.org, Aya Levin <ayal@mellanox.com>,
+        Feras Daoud <ferasda@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 5.1 27/62] net/mlx5e: IPoIB, Add error path in mlx5_rdma_setup_rn
 Date:   Fri, 26 Jul 2019 17:24:39 +0200
-Message-Id: <20190726152301.163583356@linuxfoundation.org>
+Message-Id: <20190726152304.567036815@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190726152300.760439618@linuxfoundation.org>
-References: <20190726152300.760439618@linuxfoundation.org>
+In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
+References: <20190726152301.720139286@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,78 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Aya Levin <ayal@mellanox.com>
 
-[ Upstream commit e5b1c6c6277d5a283290a8c033c72544746f9b5b ]
+[ Upstream commit ef1ce7d7b67b46661091c7ccc0396186b7a247ef ]
 
-im->tomb and/or im->sources might not be NULL, but we
-currently overwrite their values blindly.
+Check return value from mlx5e_attach_netdev, add error path on failure.
 
-Using swap() will make sure the following call to kfree_pmc(pmc)
-will properly free the psf structures.
-
-Tested with the C repro provided by syzbot, which basically does :
-
- socket(PF_INET, SOCK_DGRAM, IPPROTO_IP) = 3
- setsockopt(3, SOL_IP, IP_ADD_MEMBERSHIP, "\340\0\0\2\177\0\0\1\0\0\0\0", 12) = 0
- ioctl(3, SIOCSIFFLAGS, {ifr_name="lo", ifr_flags=0}) = 0
- setsockopt(3, SOL_IP, IP_MSFILTER, "\340\0\0\2\177\0\0\1\1\0\0\0\1\0\0\0\377\377\377\377", 20) = 0
- ioctl(3, SIOCSIFFLAGS, {ifr_name="lo", ifr_flags=IFF_UP}) = 0
- exit_group(0)                    = ?
-
-BUG: memory leak
-unreferenced object 0xffff88811450f140 (size 64):
-  comm "softirq", pid 0, jiffies 4294942448 (age 32.070s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 ff ff ff ff 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000c7bad083>] kmemleak_alloc_recursive include/linux/kmemleak.h:43 [inline]
-    [<00000000c7bad083>] slab_post_alloc_hook mm/slab.h:439 [inline]
-    [<00000000c7bad083>] slab_alloc mm/slab.c:3326 [inline]
-    [<00000000c7bad083>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
-    [<000000009acc4151>] kmalloc include/linux/slab.h:547 [inline]
-    [<000000009acc4151>] kzalloc include/linux/slab.h:742 [inline]
-    [<000000009acc4151>] ip_mc_add1_src net/ipv4/igmp.c:1976 [inline]
-    [<000000009acc4151>] ip_mc_add_src+0x36b/0x400 net/ipv4/igmp.c:2100
-    [<000000004ac14566>] ip_mc_msfilter+0x22d/0x310 net/ipv4/igmp.c:2484
-    [<0000000052d8f995>] do_ip_setsockopt.isra.0+0x1795/0x1930 net/ipv4/ip_sockglue.c:959
-    [<000000004ee1e21f>] ip_setsockopt+0x3b/0xb0 net/ipv4/ip_sockglue.c:1248
-    [<0000000066cdfe74>] udp_setsockopt+0x4e/0x90 net/ipv4/udp.c:2618
-    [<000000009383a786>] sock_common_setsockopt+0x38/0x50 net/core/sock.c:3126
-    [<00000000d8ac0c94>] __sys_setsockopt+0x98/0x120 net/socket.c:2072
-    [<000000001b1e9666>] __do_sys_setsockopt net/socket.c:2083 [inline]
-    [<000000001b1e9666>] __se_sys_setsockopt net/socket.c:2080 [inline]
-    [<000000001b1e9666>] __x64_sys_setsockopt+0x26/0x30 net/socket.c:2080
-    [<00000000420d395e>] do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:301
-    [<000000007fd83a4b>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: 24803f38a5c0 ("igmp: do not remove igmp souce list info when set link down")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Hangbin Liu <liuhangbin@gmail.com>
-Reported-by: syzbot+6ca1abd0db68b5173a4f@syzkaller.appspotmail.com
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 48935bbb7ae8 ("net/mlx5e: IPoIB, Add netdevice profile skeleton")
+Signed-off-by: Aya Levin <ayal@mellanox.com>
+Reviewed-by: Feras Daoud <ferasda@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/igmp.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -1218,12 +1218,8 @@ static void igmpv3_del_delrec(struct in_
- 	if (pmc) {
- 		im->interface = pmc->interface;
- 		if (im->sfmode == MCAST_INCLUDE) {
--			im->tomb = pmc->tomb;
--			pmc->tomb = NULL;
--
--			im->sources = pmc->sources;
--			pmc->sources = NULL;
--
-+			swap(im->tomb, pmc->tomb);
-+			swap(im->sources, pmc->sources);
- 			for (psf = im->sources; psf; psf = psf->sf_next)
- 				psf->sf_crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
- 		} else {
+--- a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
+@@ -698,7 +698,9 @@ static int mlx5_rdma_setup_rn(struct ib_
+ 
+ 	prof->init(mdev, netdev, prof, ipriv);
+ 
+-	mlx5e_attach_netdev(epriv);
++	err = mlx5e_attach_netdev(epriv);
++	if (err)
++		goto detach;
+ 	netif_carrier_off(netdev);
+ 
+ 	/* set rdma_netdev func pointers */
+@@ -714,6 +716,11 @@ static int mlx5_rdma_setup_rn(struct ib_
+ 
+ 	return 0;
+ 
++detach:
++	prof->cleanup(epriv);
++	if (ipriv->sub_interface)
++		return err;
++	mlx5e_destroy_mdev_resources(mdev);
+ destroy_ht:
+ 	mlx5i_pkey_qpn_ht_cleanup(netdev);
+ 	return err;
 
 
