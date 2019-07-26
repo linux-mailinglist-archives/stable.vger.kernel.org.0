@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7481D76CB3
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:26:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 297B876CB7
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:26:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388021AbfGZP0k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:26:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40670 "EHLO mail.kernel.org"
+        id S2388091AbfGZP0u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:26:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387976AbfGZP0k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:26:40 -0400
+        id S2388078AbfGZP0s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:26:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EAE0205F4;
-        Fri, 26 Jul 2019 15:26:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFEC1205F4;
+        Fri, 26 Jul 2019 15:26:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564154799;
-        bh=CGEPUx5/GNrDdg84izwMwOxDHOlO1764eXfvEVvnkSw=;
+        s=default; t=1564154808;
+        bh=4H05V33b22NBKbavxlsFHLdxSESXPpMrppj84sOSSIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FtqPcEaxJ4gySOp/aIXGFnx3PMYUzyCjn4BImZe0+EjT9I/8O/CR5oKKcfI3+2TRd
-         U+Yo82yqNTV9fypX6bVy0ZmlVGRaGRbHIniYe0cGu+xULjQhMTCAJCr0NPFpLyaODb
-         4k4A3fC2wYySMFroKg2DADHJZf9PrePAhAvQsjK4=
+        b=JttS7iN/3DR8oeV+HPWZKDFkLmYWAdQE+w7p0ce5SctmQF67HUd/aMVC/7LctgHdv
+         4cRDv21Pq1SHl/HSharB/jKYvkvoOTsOr9pw2KLmWeOfcwhte+iR5+JriUnWomqoFZ
+         /lPK+xx+cQW4ib/zLoGvyRG1t6HJ4yo/qca8AXOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
-        Martin Weinelt <martin@linuxlounge.net>,
+        stable@vger.kernel.org, Andreas Steinmetz <ast@domdv.de>,
+        Willem de Bruijn <willemb@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 29/66] net: bridge: mcast: fix stale ipv6 hdr pointer when handling v6 query
-Date:   Fri, 26 Jul 2019 17:24:28 +0200
-Message-Id: <20190726152304.964693114@linuxfoundation.org>
+Subject: [PATCH 5.2 32/66] macsec: fix use-after-free of skb during RX
+Date:   Fri, 26 Jul 2019 17:24:31 +0200
+Message-Id: <20190726152305.366115983@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190726152301.936055394@linuxfoundation.org>
 References: <20190726152301.936055394@linuxfoundation.org>
@@ -45,41 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+From: Andreas Steinmetz <ast@domdv.de>
 
-[ Upstream commit 3b26a5d03d35d8f732d75951218983c0f7f68dff ]
+[ Upstream commit 095c02da80a41cf6d311c504d8955d6d1c2add10 ]
 
-We get a pointer to the ipv6 hdr in br_ip6_multicast_query but we may
-call pskb_may_pull afterwards and end up using a stale pointer.
-So use the header directly, it's just 1 place where it's needed.
+Fix use-after-free of skb when rx_handler returns RX_HANDLER_PASS.
 
-Fixes: 08b202b67264 ("bridge br_multicast: IPv6 MLD support.")
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Tested-by: Martin Weinelt <martin@linuxlounge.net>
+Signed-off-by: Andreas Steinmetz <ast@domdv.de>
+Acked-by: Willem de Bruijn <willemb@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br_multicast.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/macsec.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1279,7 +1279,6 @@ static int br_ip6_multicast_query(struct
- 				  u16 vid)
- {
- 	unsigned int transport_len = ipv6_transport_len(skb);
--	const struct ipv6hdr *ip6h = ipv6_hdr(skb);
- 	struct mld_msg *mld;
- 	struct net_bridge_mdb_entry *mp;
- 	struct mld2_query *mld2q;
-@@ -1323,7 +1322,7 @@ static int br_ip6_multicast_query(struct
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -1099,10 +1099,9 @@ static rx_handler_result_t macsec_handle
+ 	}
  
- 	if (is_general_query) {
- 		saddr.proto = htons(ETH_P_IPV6);
--		saddr.u.ip6 = ip6h->saddr;
-+		saddr.u.ip6 = ipv6_hdr(skb)->saddr;
+ 	skb = skb_unshare(skb, GFP_ATOMIC);
+-	if (!skb) {
+-		*pskb = NULL;
++	*pskb = skb;
++	if (!skb)
+ 		return RX_HANDLER_CONSUMED;
+-	}
  
- 		br_multicast_query_received(br, port, &br->ip6_other_query,
- 					    &saddr, max_delay);
+ 	pulled_sci = pskb_may_pull(skb, macsec_extra_len(true));
+ 	if (!pulled_sci) {
 
 
