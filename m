@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 42C9076E0C
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:40:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ACD076DFE
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:40:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388010AbfGZP2z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:28:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43454 "EHLO mail.kernel.org"
+        id S2388333AbfGZP2D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:28:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387941AbfGZP2x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:28:53 -0400
+        id S2388325AbfGZP2D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:28:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20A2722CBF;
-        Fri, 26 Jul 2019 15:28:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE5A9218D4;
+        Fri, 26 Jul 2019 15:28:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564154932;
-        bh=9cCUXLDKRsxfDMoR6KEmOnfyTw5M6dYipV/GNd1btkw=;
+        s=default; t=1564154882;
+        bh=K0NW8k+vUkkJ6hAz7S04FBZH5elkC1pGGaaqnabEz9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sf3bN0vu5xuzt5bVVqMIAtZ0WMtY6r9Xo0HU9LsE5pQRiGQey+0WBGOFHtQOkeLvL
-         uo0PRtuqsYTGcih5SJrB26ONNCGg5yFji/NALUACoVgjsrOpH9f+0jo44ykpXXSCPR
-         aPoGYySzCITH6G3P3ySRxU5SFW9XEfUJjXzoa5RA=
+        b=TvXsVnjylnwggQqwLC0sGdsO/kFGbomRjha2QWtXNXKHp/PNuH86rlJxpCqg9pzRE
+         pVlcBMi97yXcRhal0ngqwL5QWF6wCS9L3+nfVaSFhGYlqYwiEkZ+YKTFBFazv3J0wb
+         2LEoDOSdfLJN8xU2bpIR1SrraS3n0e36BN45KSx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eli Britstein <elibr@mellanox.com>,
+        stable@vger.kernel.org, Aya Levin <ayal@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
+        Tariq Toukan <tariqt@mellanox.com>,
         Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.2 39/66] net/mlx5e: Fix port tunnel GRE entropy control
-Date:   Fri, 26 Jul 2019 17:24:38 +0200
-Message-Id: <20190726152306.249386182@linuxfoundation.org>
+Subject: [PATCH 5.2 41/66] net/mlx5e: Fix return value from timeout recover function
+Date:   Fri, 26 Jul 2019 17:24:40 +0200
+Message-Id: <20190726152306.444724142@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190726152301.936055394@linuxfoundation.org>
 References: <20190726152301.936055394@linuxfoundation.org>
@@ -43,56 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eli Britstein <elibr@mellanox.com>
+From: Aya Levin <ayal@mellanox.com>
 
-[ Upstream commit 914adbb1bcf89478ac138318d28b302704564d59 ]
+[ Upstream commit 39825350ae2a52f8513741b36e42118bd80dd689 ]
 
-GRE entropy calculation is a single bit per card, and not per port.
-Force disable GRE entropy calculation upon the first GRE encap rule,
-and release the force at the last GRE encap rule removal. This is done
-per port.
+Fix timeout recover function to return a meaningful return value.
+When an interrupt was not sent by the FW, return IO error instead of
+'true'.
 
-Fixes: 97417f6182f8 ("net/mlx5e: Fix GRE key by controlling port tunnel entropy calculation")
-Signed-off-by: Eli Britstein <elibr@mellanox.com>
+Fixes: c7981bea48fb ("net/mlx5e: Fix return status of TX reporter timeout recover")
+Signed-off-by: Aya Levin <ayal@mellanox.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
 Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lib/port_tun.c |   23 ++---------------
- 1 file changed, 4 insertions(+), 19 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/reporter_tx.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/lib/port_tun.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/port_tun.c
-@@ -98,27 +98,12 @@ static int mlx5_set_entropy(struct mlx5_
- 	 */
- 	if (entropy_flags.gre_calc_supported &&
- 	    reformat_type == MLX5_REFORMAT_TYPE_L2_TO_NVGRE) {
--		/* Other applications may change the global FW entropy
--		 * calculations settings. Check that the current entropy value
--		 * is the negative of the updated value.
--		 */
--		if (entropy_flags.force_enabled &&
--		    enable == entropy_flags.gre_calc_enabled) {
--			mlx5_core_warn(tun_entropy->mdev,
--				       "Unexpected GRE entropy calc setting - expected %d",
--				       !entropy_flags.gre_calc_enabled);
--			return -EOPNOTSUPP;
--		}
--		err = mlx5_set_port_gre_tun_entropy_calc(tun_entropy->mdev, enable,
--							 entropy_flags.force_supported);
-+		if (!entropy_flags.force_supported)
-+			return 0;
-+		err = mlx5_set_port_gre_tun_entropy_calc(tun_entropy->mdev,
-+							 enable, !enable);
- 		if (err)
- 			return err;
--		/* if we turn on the entropy we don't need to force it anymore */
--		if (entropy_flags.force_supported && enable) {
--			err = mlx5_set_port_gre_tun_entropy_calc(tun_entropy->mdev, 1, 0);
--			if (err)
--				return err;
--		}
- 	} else if (entropy_flags.calc_supported) {
- 		/* Other applications may change the global FW entropy
- 		 * calculations settings. Check that the current entropy value
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_tx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_tx.c
+@@ -142,22 +142,20 @@ static int mlx5e_tx_reporter_timeout_rec
+ {
+ 	struct mlx5_eq_comp *eq = sq->cq.mcq.eq;
+ 	u32 eqe_count;
+-	int ret;
+ 
+ 	netdev_err(sq->channel->netdev, "EQ 0x%x: Cons = 0x%x, irqn = 0x%x\n",
+ 		   eq->core.eqn, eq->core.cons_index, eq->core.irqn);
+ 
+ 	eqe_count = mlx5_eq_poll_irq_disabled(eq);
+-	ret = eqe_count ? false : true;
+ 	if (!eqe_count) {
+ 		clear_bit(MLX5E_SQ_STATE_ENABLED, &sq->state);
+-		return ret;
++		return -EIO;
+ 	}
+ 
+ 	netdev_err(sq->channel->netdev, "Recover %d eqes on EQ 0x%x\n",
+ 		   eqe_count, eq->core.eqn);
+ 	sq->channel->stats->eq_rearm++;
+-	return ret;
++	return 0;
+ }
+ 
+ int mlx5e_tx_reporter_timeout(struct mlx5e_txqsq *sq)
 
 
