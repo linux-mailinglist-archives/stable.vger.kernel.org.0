@@ -2,123 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE8D4767CC
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:40:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B6E2767AC
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:38:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727572AbfGZNkG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:40:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45936 "EHLO mail.kernel.org"
+        id S1726402AbfGZNin (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:38:43 -0400
+Received: from mga11.intel.com ([192.55.52.93]:26492 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726364AbfGZNkD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:40:03 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B48D22BF5;
-        Fri, 26 Jul 2019 13:40:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148402;
-        bh=RLsYumlcChrRdNAT+1a34p/7+WhNOBCg+wKS11rYYOI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BBNaR2dJvM1DC5YNjHabfrTivAv/DENdTepFPiJxY33lY3ZHByhUx7/pWT6FUey9H
-         UOlQb/lSYzIwsy7EYmuWlolZFFr+ARaOqUKHZf3dnAVGVd7Qudqmb9QHmLT6HVV/Tw
-         o1yhjHFepgbAG2HzC4gDlK14Y9ebROdZyNuHZV5c=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Olof Johansson <olof@lixom.net>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.2 15/85] firmware/psci: psci_checker: Park kthreads before stopping them
-Date:   Fri, 26 Jul 2019 09:38:25 -0400
-Message-Id: <20190726133936.11177-15-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
-References: <20190726133936.11177-1-sashal@kernel.org>
+        id S1726364AbfGZNim (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:38:42 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 26 Jul 2019 06:38:42 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,311,1559545200"; 
+   d="scan'208";a="198321941"
+Received: from soegtrop-mobl1.ger.corp.intel.com (HELO [10.252.37.234]) ([10.252.37.234])
+  by fmsmga002.fm.intel.com with ESMTP; 26 Jul 2019 06:38:40 -0700
+Subject: Re: [Intel-gfx] [PATCH 1/5] drm/i915/userptr: Beware recursive
+ lock_page()
+To:     Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org
+References: <20190716124931.5870-1-chris@chris-wilson.co.uk>
+ <bb43c2b5-3513-ef4f-1bc9-887fc2b2e523@linux.intel.com>
+ <156329142200.9436.8651620549785965913@skylake-alporthouse-com>
+ <d76bdb93-b90b-afe3-841b-95a8de27902d@linux.intel.com>
+ <156336944635.4375.7269371478914847980@skylake-alporthouse-com>
+ <6038b21f-c052-36c5-2d56-72ddeb069097@linux.intel.com>
+ <156337053617.4375.13675276970408492219@skylake-alporthouse-com>
+ <951e2751-15d7-9ca8-ef6f-299ba59c47a6@linux.intel.com>
+ <156337241401.4375.2377981562987470090@skylake-alporthouse-com>
+ <d867c0e8-e2e1-fff6-d073-3d5d98335712@linux.intel.com>
+From:   Lionel Landwerlin <lionel.g.landwerlin@intel.com>
+Organization: Intel Corporation (UK) Ltd. - Co. Reg. #1134945 - Pipers Way,
+ Swindon SN3 1RJ
+Message-ID: <4a90e8f9-694c-8dea-45b6-e5ea5677df64@intel.com>
+Date:   Fri, 26 Jul 2019 16:38:40 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
+In-Reply-To: <d867c0e8-e2e1-fff6-d073-3d5d98335712@linux.intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+On 17/07/2019 21:09, Tvrtko Ursulin wrote:
+>
+> On 17/07/2019 15:06, Chris Wilson wrote:
+>> Quoting Tvrtko Ursulin (2019-07-17 14:46:15)
+>>>
+>>> On 17/07/2019 14:35, Chris Wilson wrote:
+>>>> Quoting Tvrtko Ursulin (2019-07-17 14:23:55)
+>>>>>
+>>>>> On 17/07/2019 14:17, Chris Wilson wrote:
+>>>>>> Quoting Tvrtko Ursulin (2019-07-17 14:09:00)
+>>>>>>>
+>>>>>>> On 16/07/2019 16:37, Chris Wilson wrote:
+>>>>>>>> Quoting Tvrtko Ursulin (2019-07-16 16:25:22)
+>>>>>>>>>
+>>>>>>>>> On 16/07/2019 13:49, Chris Wilson wrote:
+>>>>>>>>>> Following a try_to_unmap() we may want to remove the userptr 
+>>>>>>>>>> and so call
+>>>>>>>>>> put_pages(). However, try_to_unmap() acquires the page lock 
+>>>>>>>>>> and so we
+>>>>>>>>>> must avoid recursively locking the pages ourselves -- which 
+>>>>>>>>>> means that
+>>>>>>>>>> we cannot safely acquire the lock around set_page_dirty(). 
+>>>>>>>>>> Since we
+>>>>>>>>>> can't be sure of the lock, we have to risk skip dirtying the 
+>>>>>>>>>> page, or
+>>>>>>>>>> else risk calling set_page_dirty() without a lock and so risk fs
+>>>>>>>>>> corruption.
+>>>>>>>>>
+>>>>>>>>> So if trylock randomly fail we get data corruption in whatever 
+>>>>>>>>> data set
+>>>>>>>>> application is working on, which is what the original patch 
+>>>>>>>>> was trying
+>>>>>>>>> to avoid? Are we able to detect the backing store type so at 
+>>>>>>>>> least we
+>>>>>>>>> don't risk skipping set_page_dirty with anonymous/shmemfs?
+>>>>>>>>
+>>>>>>>> page->mapping???
+>>>>>>>
+>>>>>>> Would page->mapping work? What is it telling us?
+>>>>>>
+>>>>>> It basically tells us if there is a fs around; anything that is 
+>>>>>> the most
+>>>>>> basic of malloc (even tmpfs/shmemfs has page->mapping).
+>>>>>
+>>>>> Normal malloc so anonymous pages? Or you meant everything _apart_ 
+>>>>> from
+>>>>> the most basic malloc?
+>>>>
+>>>> Aye missed the not.
+>>>>
+>>>>>>>> We still have the issue that if there is a mapping we should be 
+>>>>>>>> taking
+>>>>>>>> the lock, and we may have both a mapping and be inside 
+>>>>>>>> try_to_unmap().
+>>>>>>>
+>>>>>>> Is this a problem? On a path with mappings we trylock and so 
+>>>>>>> solve the
+>>>>>>> set_dirty_locked and recursive deadlock issues, and with no 
+>>>>>>> mappings
+>>>>>>> with always dirty the page and avoid data corruption.
+>>>>>>
+>>>>>> The problem as I see it is !page->mapping are likely an 
+>>>>>> insignificant
+>>>>>> minority of userptr; as I think even memfd are essentially 
+>>>>>> shmemfs (or
+>>>>>> hugetlbfs) and so have mappings.
+>>>>>
+>>>>> Better then nothing, no? If easy to do..
+>>>>
+>>>> Actually, I erring on the opposite side. Peeking at mm/ internals does
+>>>> not bode confidence and feels indefensible. I'd much rather throw my
+>>>> hands up and say "this is the best we can do with the API provided,
+>>>> please tell us what we should have done." To which the answer is
+>>>> probably to not have used gup in the first place :|
+>>>
+>>> """
+>>> /*
+>>>   * set_page_dirty() is racy if the caller has no reference against
+>>>   * page->mapping->host, and if the page is unlocked. This is 
+>>> because another
+>>>   * CPU could truncate the page off the mapping and then free the 
+>>> mapping.
+>>>   *
+>>>   * Usually, the page _is_ locked, or the caller is a user-space 
+>>> process which
+>>>   * holds a reference on the inode by having an open file.
+>>>   *
+>>>   * In other cases, the page should be locked before running 
+>>> set_page_dirty().
+>>>   */
+>>> int set_page_dirty_lock(struct page *page)
+>>> """
+>>>
+>>> Could we hold a reference to page->mapping->host while having pages 
+>>> and then would be okay to call plain set_page_dirty?
+>>
+>> We would then be hitting the warnings in ext4 for unlocked pages again.
+>
+> Ah true..
+>
+>> Essentially the argument is whether or not that warn is valid, to 
+>> which I
+>> think requires inner knowledge of vfs + ext4. To hold a reference on the
+>> host would require us tracking page->mapping (reasonable since we
+>> already hooked into mmu and so will get an invalidate + fresh gup on
+>> any changes), plus iterating over all to acquire the extra reference if
+>> applicable -- and I have no idea what the side-effects of that would be.
+>> Could well be positive side-effects. Just feels like wandering even
+>> further off the beaten path without a map. Good news hmm is just around
+>> the corner (which will probably prohibit this use-case) :|
+>
+> ... can we reach out to someone more knowledgeable in mm matters to 
+> recommend us what to do?
+>
+> Regards,
+>
+> Tvrtko
 
-[ Upstream commit 92e074acf6f7694e96204265eb18ac113f546e80 ]
 
-Since commit 85f1abe0019f ("kthread, sched/wait: Fix kthread_parkme()
-completion issue"), kthreads that are bound to a CPU must be parked
-before being stopped. At the moment the PSCI checker calls
-kthread_stop() directly on the suspend kthread, which triggers the
-following warning:
+Just a reminder to not let this slip.
+We run into userptr bugs in CI quite regularly.
 
-[    6.068288] WARNING: CPU: 1 PID: 1 at kernel/kthread.c:398 __kthread_bind_mask+0x20/0x78
-               ...
-[    6.190151] Call trace:
-[    6.192566]  __kthread_bind_mask+0x20/0x78
-[    6.196615]  kthread_unpark+0x74/0x80
-[    6.200235]  kthread_stop+0x44/0x1d8
-[    6.203769]  psci_checker+0x3bc/0x484
-[    6.207389]  do_one_initcall+0x48/0x260
-[    6.211180]  kernel_init_freeable+0x2c8/0x368
-[    6.215488]  kernel_init+0x10/0x100
-[    6.218935]  ret_from_fork+0x10/0x1c
-[    6.222467] ---[ end trace e05e22863d043cd3 ]---
+Thanks,
 
-kthread_unpark() tries to bind the thread to its CPU and aborts with a
-WARN() if the thread wasn't in TASK_PARKED state. Park the kthreads
-before stopping them.
-
-Fixes: 85f1abe0019f ("kthread, sched/wait: Fix kthread_parkme() completion issue")
-Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
-Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Olof Johansson <olof@lixom.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/firmware/psci/psci_checker.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/firmware/psci/psci_checker.c b/drivers/firmware/psci/psci_checker.c
-index 08c85099d4d0..f3659443f8c2 100644
---- a/drivers/firmware/psci/psci_checker.c
-+++ b/drivers/firmware/psci/psci_checker.c
-@@ -359,16 +359,16 @@ static int suspend_test_thread(void *arg)
- 	for (;;) {
- 		/* Needs to be set first to avoid missing a wakeup. */
- 		set_current_state(TASK_INTERRUPTIBLE);
--		if (kthread_should_stop()) {
--			__set_current_state(TASK_RUNNING);
-+		if (kthread_should_park())
- 			break;
--		}
- 		schedule();
- 	}
- 
- 	pr_info("CPU %d suspend test results: success %d, shallow states %d, errors %d\n",
- 		cpu, nb_suspend, nb_shallow_sleep, nb_err);
- 
-+	kthread_parkme();
-+
- 	return nb_err;
- }
- 
-@@ -433,8 +433,10 @@ static int suspend_tests(void)
- 
- 
- 	/* Stop and destroy all threads, get return status. */
--	for (i = 0; i < nb_threads; ++i)
-+	for (i = 0; i < nb_threads; ++i) {
-+		err += kthread_park(threads[i]);
- 		err += kthread_stop(threads[i]);
-+	}
-  out:
- 	cpuidle_resume_and_unlock();
- 	kfree(threads);
--- 
-2.20.1
-
+-Lionel
