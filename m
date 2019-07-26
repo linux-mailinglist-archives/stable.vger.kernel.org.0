@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C47A6768DD
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:48:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1AD8768D0
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:47:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388231AbfGZNpt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:45:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55026 "EHLO mail.kernel.org"
+        id S2388591AbfGZNpw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:45:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387482AbfGZNps (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:45:48 -0400
+        id S2388584AbfGZNpw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:45:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE4F222CF4;
-        Fri, 26 Jul 2019 13:45:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A012522CBF;
+        Fri, 26 Jul 2019 13:45:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148747;
-        bh=T+1JGxTwv5cgA4sBxreOfkkpahMOxT2F7QFlv3KlCAQ=;
+        s=default; t=1564148751;
+        bh=vf8Lnl1VmmLsZDZiRxuHThBIF7lydJtxpXe7pKXu8ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fF1N/XANpGkEgTFs3MGpnqUEBDwrfSlqJfneitr567Hc1keL4SuQuzr8uMq08O56W
-         eed76A4+psadofCEhZe8gM5IZFO4lo/hnqYfgx5TcCOTNhz6z0VYzhqzxiGalPy9k5
-         TJirIyCtW2PgqAE3uI7G5ZLzTUNQFqhwk8AfZSPE=
+        b=USSbhaX5mYDlXrYh04QpTcFdvUVL3JVCn93LLfGwp2xY40CVpnxp/grlKyiwYcrGw
+         sJ/qxz5Mqnu3PLq9U7DM6TkUt3IKrQCFYd6tVV5H8oWVP4K0M0Nd5dchz3oL68PCWc
+         DPGoUohMIroiDSRH4vE73c5zN7q/G648+elRi41Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benjamin Poirier <bpoirier@suse.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 12/23] be2net: Signal that the device cannot transmit during reconfiguration
-Date:   Fri, 26 Jul 2019 09:45:11 -0400
-Message-Id: <20190726134522.13308-12-sashal@kernel.org>
+Cc:     Qian Cai <cai@lca.pw>, Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 13/23] x86/apic: Silence -Wtype-limits compiler warnings
+Date:   Fri, 26 Jul 2019 09:45:12 -0400
+Message-Id: <20190726134522.13308-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726134522.13308-1-sashal@kernel.org>
 References: <20190726134522.13308-1-sashal@kernel.org>
@@ -43,43 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Poirier <bpoirier@suse.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 7429c6c0d9cb086d8e79f0d2a48ae14851d2115e ]
+[ Upstream commit ec6335586953b0df32f83ef696002063090c7aef ]
 
-While changing the number of interrupt channels, be2net stops adapter
-operation (including netif_tx_disable()) but it doesn't signal that it
-cannot transmit. This may lead dev_watchdog() to falsely trigger during
-that time.
+There are many compiler warnings like this,
 
-Add the missing call to netif_carrier_off(), following the pattern used in
-many other drivers. netif_carrier_on() is already taken care of in
-be_open().
+In file included from ./arch/x86/include/asm/smp.h:13,
+                 from ./arch/x86/include/asm/mmzone_64.h:11,
+                 from ./arch/x86/include/asm/mmzone.h:5,
+                 from ./include/linux/mmzone.h:969,
+                 from ./include/linux/gfp.h:6,
+                 from ./include/linux/mm.h:10,
+                 from arch/x86/kernel/apic/io_apic.c:34:
+arch/x86/kernel/apic/io_apic.c: In function 'check_timer':
+./arch/x86/include/asm/apic.h:37:11: warning: comparison of unsigned
+expression >= 0 is always true [-Wtype-limits]
+   if ((v) <= apic_verbosity) \
+           ^~
+arch/x86/kernel/apic/io_apic.c:2160:2: note: in expansion of macro
+'apic_printk'
+  apic_printk(APIC_QUIET, KERN_INFO "..TIMER: vector=0x%02X "
+  ^~~~~~~~~~~
+./arch/x86/include/asm/apic.h:37:11: warning: comparison of unsigned
+expression >= 0 is always true [-Wtype-limits]
+   if ((v) <= apic_verbosity) \
+           ^~
+arch/x86/kernel/apic/io_apic.c:2207:4: note: in expansion of macro
+'apic_printk'
+    apic_printk(APIC_QUIET, KERN_ERR "..MP-BIOS bug: "
+    ^~~~~~~~~~~
 
-Signed-off-by: Benjamin Poirier <bpoirier@suse.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+APIC_QUIET is 0, so silence them by making apic_verbosity type int.
+
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/1562621805-24789-1-git-send-email-cai@lca.pw
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/emulex/benet/be_main.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/apic.h | 2 +-
+ arch/x86/kernel/apic/apic.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/emulex/benet/be_main.c b/drivers/net/ethernet/emulex/benet/be_main.c
-index 26255862d1cf..7524a33b7032 100644
---- a/drivers/net/ethernet/emulex/benet/be_main.c
-+++ b/drivers/net/ethernet/emulex/benet/be_main.c
-@@ -4307,8 +4307,12 @@ int be_update_queues(struct be_adapter *adapter)
- 	struct net_device *netdev = adapter->netdev;
- 	int status;
+diff --git a/arch/x86/include/asm/apic.h b/arch/x86/include/asm/apic.h
+index fd810a57ab1b..3328a37ddc75 100644
+--- a/arch/x86/include/asm/apic.h
++++ b/arch/x86/include/asm/apic.h
+@@ -44,7 +44,7 @@ static inline void generic_apic_probe(void)
  
--	if (netif_running(netdev))
-+	if (netif_running(netdev)) {
-+		/* device cannot transmit now, avoid dev_watchdog timeouts */
-+		netif_carrier_off(netdev);
-+
- 		be_close(netdev);
-+	}
+ #ifdef CONFIG_X86_LOCAL_APIC
  
- 	be_cancel_worker(adapter);
+-extern unsigned int apic_verbosity;
++extern int apic_verbosity;
+ extern int local_apic_timer_c2_ok;
+ 
+ extern int disable_apic;
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index deddc9b93299..cc6c33249850 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -171,7 +171,7 @@ int first_system_vector = FIRST_SYSTEM_VECTOR;
+ /*
+  * Debug level, exported for io_apic.c
+  */
+-unsigned int apic_verbosity;
++int apic_verbosity;
+ 
+ int pic_mode;
  
 -- 
 2.20.1
