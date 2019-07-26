@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51AD2768CA
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:47:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3A71768C8
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:47:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388639AbfGZNrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:47:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55350 "EHLO mail.kernel.org"
+        id S2388599AbfGZNqD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:46:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388619AbfGZNqC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2388625AbfGZNqC (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 26 Jul 2019 09:46:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97BE522CBF;
-        Fri, 26 Jul 2019 13:45:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7388522CE5;
+        Fri, 26 Jul 2019 13:46:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148761;
-        bh=6/uPIlYL4tXXpClEj4Iy438L3wZe0nAPdUyNVWwWoeY=;
+        s=default; t=1564148762;
+        bh=cljafivhS5SgwGmwbvwM7kjh7jlUt6mW6AydIjbkjVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RAdwt3HXyLHZSEpPaCcBgBs5B339yacCxzQRzrbvXatX30avfaDt5GHM7F03diQ/O
-         aTQyCbcuVkoC/04nyxgLvc/BtIVjLqj9lBzs2MCzFOAmx9inSSpmlGb4gTFxK3ny4Q
-         h/WKF9y1AC4OGOMjGf1fpKOWojtGiHyt/mUH/MFM=
+        b=Xa1x1b1zfVsSEvg234GUKgMmFNWQBmxJK+sK9K0denPBRP7U1p6riC9Ik0J+TRgjA
+         t5tgSGn1lnsbJPAYDeyDchwQUDLcS4MRMX7rLVfVGeuqkPnnPkSAq9D0EHvVT70l0i
+         UcEmH1Y486DVfm/ONzLnREKLUzjQmH+tmSfzjU34=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mikko Rapeli <mikko.rapeli@iki.fi>,
-        Jan Harkes <jaharkes@cs.cmu.edu>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Colin Ian King <colin.king@canonical.com>,
+Cc:     Miroslav Lichvar <mlichvar@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Rodolfo Giometti <giometti@enneenne.com>,
+        Greg KH <greg@kroah.com>,
         Dan Carpenter <dan.carpenter@oracle.com>,
-        David Howells <dhowells@redhat.com>,
-        Fabian Frederick <fabf@skynet.be>,
-        Sam Protsenko <semen.protsenko@linaro.org>,
-        Yann Droneaud <ydroneaud@opteya.com>,
-        Zhouyang Jia <jiazhouyang09@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, codalist@coda.cs.cmu.edu
-Subject: [PATCH AUTOSEL 4.4 18/23] uapi linux/coda_psdev.h: move upc_req definition from uapi to kernel side headers
-Date:   Fri, 26 Jul 2019 09:45:17 -0400
-Message-Id: <20190726134522.13308-18-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 19/23] drivers/pps/pps.c: clear offset flags in PPS_SETPARAMS ioctl
+Date:   Fri, 26 Jul 2019 09:45:18 -0400
+Message-Id: <20190726134522.13308-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726134522.13308-1-sashal@kernel.org>
 References: <20190726134522.13308-1-sashal@kernel.org>
@@ -53,105 +48,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikko Rapeli <mikko.rapeli@iki.fi>
+From: Miroslav Lichvar <mlichvar@redhat.com>
 
-[ Upstream commit f90fb3c7e2c13ae829db2274b88b845a75038b8a ]
+[ Upstream commit 5515e9a6273b8c02034466bcbd717ac9f53dab99 ]
 
-Only users of upc_req in kernel side fs/coda/psdev.c and
-fs/coda/upcall.c already include linux/coda_psdev.h.
+The PPS assert/clear offset corrections are set by the PPS_SETPARAMS
+ioctl in the pps_ktime structs, which also contain flags.  The flags are
+not initialized by applications (using the timepps.h header) and they
+are not used by the kernel for anything except returning them back in
+the PPS_GETPARAMS ioctl.
 
-Suggested by Jan Harkes <jaharkes@cs.cmu.edu> in
-  https://lore.kernel.org/lkml/20150531111913.GA23377@cs.cmu.edu/
+Set the flags to zero to make it clear they are unused and avoid leaking
+uninitialized data of the PPS_SETPARAMS caller to other applications
+that have a read access to the PPS device.
 
-Fixes these include/uapi/linux/coda_psdev.h compilation errors in userspace:
-
-  linux/coda_psdev.h:12:19: error: field `uc_chain' has incomplete type
-  struct list_head    uc_chain;
-                   ^
-  linux/coda_psdev.h:13:2: error: unknown type name `caddr_t'
-  caddr_t             uc_data;
-  ^
-  linux/coda_psdev.h:14:2: error: unknown type name `u_short'
-  u_short             uc_flags;
-  ^
-  linux/coda_psdev.h:15:2: error: unknown type name `u_short'
-  u_short             uc_inSize;  /* Size is at most 5000 bytes */
-  ^
-  linux/coda_psdev.h:16:2: error: unknown type name `u_short'
-  u_short             uc_outSize;
-  ^
-  linux/coda_psdev.h:17:2: error: unknown type name `u_short'
-  u_short             uc_opcode;  /* copied from data to save lookup */
-  ^
-  linux/coda_psdev.h:19:2: error: unknown type name `wait_queue_head_t'
-  wait_queue_head_t   uc_sleep;   /* process' wait queue */
-  ^
-
-Link: http://lkml.kernel.org/r/9f99f5ce6a0563d5266e6cf7aa9585aac2cae971.1558117389.git.jaharkes@cs.cmu.edu
-Signed-off-by: Mikko Rapeli <mikko.rapeli@iki.fi>
-Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Colin Ian King <colin.king@canonical.com>
+Link: http://lkml.kernel.org/r/20190702092251.24303-1-mlichvar@redhat.com
+Signed-off-by: Miroslav Lichvar <mlichvar@redhat.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Rodolfo Giometti <giometti@enneenne.com>
+Cc: Greg KH <greg@kroah.com>
 Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Fabian Frederick <fabf@skynet.be>
-Cc: Sam Protsenko <semen.protsenko@linaro.org>
-Cc: Yann Droneaud <ydroneaud@opteya.com>
-Cc: Zhouyang Jia <jiazhouyang09@gmail.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/coda_psdev.h      | 11 +++++++++++
- include/uapi/linux/coda_psdev.h | 13 -------------
- 2 files changed, 11 insertions(+), 13 deletions(-)
+ drivers/pps/pps.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/include/linux/coda_psdev.h b/include/linux/coda_psdev.h
-index 5b8721efa948..fe1466daf291 100644
---- a/include/linux/coda_psdev.h
-+++ b/include/linux/coda_psdev.h
-@@ -19,6 +19,17 @@ struct venus_comm {
- 	struct mutex	    vc_mutex;
- };
+diff --git a/drivers/pps/pps.c b/drivers/pps/pps.c
+index 2f07cd615665..76ae38450aea 100644
+--- a/drivers/pps/pps.c
++++ b/drivers/pps/pps.c
+@@ -129,6 +129,14 @@ static long pps_cdev_ioctl(struct file *file,
+ 			pps->params.mode |= PPS_CANWAIT;
+ 		pps->params.api_version = PPS_API_VERS;
  
-+/* messages between coda filesystem in kernel and Venus */
-+struct upc_req {
-+	struct list_head	uc_chain;
-+	caddr_t			uc_data;
-+	u_short			uc_flags;
-+	u_short			uc_inSize;  /* Size is at most 5000 bytes */
-+	u_short			uc_outSize;
-+	u_short			uc_opcode;  /* copied from data to save lookup */
-+	int			uc_unique;
-+	wait_queue_head_t	uc_sleep;   /* process' wait queue */
-+};
++		/*
++		 * Clear unused fields of pps_kparams to avoid leaking
++		 * uninitialized data of the PPS_SETPARAMS caller via
++		 * PPS_GETPARAMS
++		 */
++		pps->params.assert_off_tu.flags = 0;
++		pps->params.clear_off_tu.flags = 0;
++
+ 		spin_unlock_irq(&pps->lock);
  
- static inline struct venus_comm *coda_vcp(struct super_block *sb)
- {
-diff --git a/include/uapi/linux/coda_psdev.h b/include/uapi/linux/coda_psdev.h
-index 79d05981fc4b..e2c44d2f7d5b 100644
---- a/include/uapi/linux/coda_psdev.h
-+++ b/include/uapi/linux/coda_psdev.h
-@@ -6,19 +6,6 @@
- #define CODA_PSDEV_MAJOR 67
- #define MAX_CODADEVS  5	   /* how many do we allow */
- 
--
--/* messages between coda filesystem in kernel and Venus */
--struct upc_req {
--	struct list_head    uc_chain;
--	caddr_t	            uc_data;
--	u_short	            uc_flags;
--	u_short             uc_inSize;  /* Size is at most 5000 bytes */
--	u_short	            uc_outSize;
--	u_short	            uc_opcode;  /* copied from data to save lookup */
--	int		    uc_unique;
--	wait_queue_head_t   uc_sleep;   /* process' wait queue */
--};
--
- #define CODA_REQ_ASYNC  0x1
- #define CODA_REQ_READ   0x2
- #define CODA_REQ_WRITE  0x4
+ 		break;
 -- 
 2.20.1
 
