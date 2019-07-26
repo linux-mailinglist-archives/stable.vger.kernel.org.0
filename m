@@ -2,130 +2,238 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5139F76BC3
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 16:40:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97D8776BCC
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 16:41:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727548AbfGZOkC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 10:40:02 -0400
-Received: from mail-yw1-f68.google.com ([209.85.161.68]:38249 "EHLO
-        mail-yw1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726491AbfGZOkC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 10:40:02 -0400
-Received: by mail-yw1-f68.google.com with SMTP id f187so20406395ywa.5
-        for <stable@vger.kernel.org>; Fri, 26 Jul 2019 07:40:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=g1vw/zhzgzlaAj9PAyNj5qk7UcGlQmJnfYzX/GRn8iY=;
-        b=dEWr49kCy4JoyOMutCorZhU7tbpjeVLXFKLIK+CU7fb2p8P3CskwRmyEjVZVz4Od4K
-         izOo1vnQCuHV+/k8Do4XKG/lB+3qLdqs5SIM1ta3fu7ydDxQkHvWMJFAzX2Kq7wSBPsS
-         UuEvIcGbShgz6w16Tidzy6oeMimoJnPORvC8sp95O2GZSh/urZslg2Lnr3EWadgOYect
-         JqsN9+7ag59WmQdR7rrjWntgLuBTL8jhEnvIkRb10URhmXE2T4iQsdfSMO7uJEEWjKxq
-         ErQEc2WmJscX/h+fAMFzyzj9rlJPO3i/9zzBdZeath1fM/OvNFQTW6fwCjzbpMhPeKkJ
-         tzlQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=g1vw/zhzgzlaAj9PAyNj5qk7UcGlQmJnfYzX/GRn8iY=;
-        b=EkmvLfjjYYgM2n1cTr5twutRDJ4V/W5E3rNI+S/AjOoyaHR4VDR27TxJOJ5AW5luu2
-         nLU13B4Nu/6eKiIfedCdAh0KzpnmQJ+bQsoHQ2ZB/fRlpQEcpqX7kqeWan2DdbMZ+JON
-         j31iLi2KBfS98iaxlU6ROVTaHmz2alWWJm/gHgFkRa/Mriwtc9yy6YsFCc65KyF6g88s
-         RBX3SnsLQ1YieMOTBDvDdDDLXAA4sMmEKzrq4xTA29DsK4G2WSNqGiXIUBuzuVkRwOtL
-         fBETT6fCuSVO6cFclzI1eT/nhmkGeblakpbNdE966rOZNf4xmmFQGg/25SkPGBfGs98U
-         10eA==
-X-Gm-Message-State: APjAAAU50MZjq6nvmMWM7f0wgWPVmvibwPBTABBf7iuTtIm5rim4W2pH
-        6E2TFeqmRKDg3yi2mwBF2XIHvIqvdueN0Yrg8hd00g==
-X-Google-Smtp-Source: APXvYqyWfDGB9Bphyb5xRf5qrBhymbg7d9dBUICJ4NMqqAxbOeRxZgw7Xbt9ngN8ScnKmIb6stjlXSQ/aKv0yKU45Js=
-X-Received: by 2002:a81:494f:: with SMTP id w76mr54854608ywa.21.1564152001169;
- Fri, 26 Jul 2019 07:40:01 -0700 (PDT)
+        id S2387513AbfGZOla (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 10:41:30 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:60943 "EHLO
+        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2387512AbfGZOl3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 10:41:29 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id CF2EA5F8;
+        Fri, 26 Jul 2019 10:41:25 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Fri, 26 Jul 2019 10:41:26 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=DDkXN0
+        W6/ilwAUCac2n+vslVl7JEfMC23Rc46j0DfkY=; b=E0CEnTcsk2S29LA07GiegH
+        Sx3PyZ/ZgfTgSIszq+I2cIbGH69i5mkLM/ikc/QneW0pLzoWRjdXJY4AW++oCkjO
+        CzftxE+pINwcREfdUjRffytufKbZAKIGSvzlzYo5WBj+qoTLp6AtCR1EdMRE/LyW
+        YzC2K+hQkrrKxL07ei+oMD5cGIEV+PoU23YeBwm8lYj7F7zA5/HI/3xiftGya+/T
+        QxZrsxiHrvVzZ7URuDmXIsA+ZgCeurical42YLchDiVf/9YzmyF6TQI3dFpB+C8I
+        nqnSigXe8lnWb+TTtJo9NOy+GbL+0HYzIUmDAskovdtGyMlBCvkjY180zIBrir+A
+        ==
+X-ME-Sender: <xms:ExE7XbiQcVfFj5bjEzWIsPw_3oa1EydlIfLt0ypl-PsbI5Fgg-Pgww>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrkeeggdektdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
+    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
+    vehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:ExE7XYe1bFgdTWllnV3f0gjMLZxBbSa3K1hpC8dIJHtwUYoldxVJaA>
+    <xmx:ExE7XQjYkpAgrPIR8eBCCmc7Pe1C3AC2PBIeJx8MXGOVm0MyBUmFxg>
+    <xmx:ExE7XWOCNarBrWytJXRQTg2s53Wee5cBSHQfU0NYLtUZypSkfWQ95g>
+    <xmx:FRE7XY7GINAC30BhHFZEzmwbww0i2VkoOEQ-_MlZQ3Rd4_LFkAYtaA>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7F8E8380079;
+        Fri, 26 Jul 2019 10:41:23 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] perf/core: Fix exclusive events' grouping" failed to apply to 4.14-stable tree
+To:     alexander.shishkin@linux.intel.com, acme@redhat.com,
+        eranian@google.com, jolsa@redhat.com, mingo@kernel.org,
+        peterz@infradead.org, stable@vger.kernel.org, tglx@linutronix.de,
+        torvalds@linux-foundation.org, vincent.weaver@maine.edu
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 26 Jul 2019 16:41:21 +0200
+Message-ID: <1564152081161173@kroah.com>
 MIME-Version: 1.0
-References: <1564144694159130@kroah.com> <20190726124517.GA8301@kroah.com>
-In-Reply-To: <20190726124517.GA8301@kroah.com>
-From:   Eric Dumazet <edumazet@google.com>
-Date:   Fri, 26 Jul 2019 16:39:48 +0200
-Message-ID: <CANn89iKr7vYoLD_o-zhR72rQ8a4OQr=VW6oVRCYBDi1kmN6=dg@mail.gmail.com>
-Subject: Re: FAILED: patch "[PATCH] tcp: be more careful in tcp_fragment()"
- failed to apply to 4.14-stable tree
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Andrew Prout <aprout@ll.mit.edu>,
-        Christoph Paasch <cpaasch@apple.com>,
-        David Miller <davem@davemloft.net>,
-        Jonathan Lemon <jonathan.lemon@gmail.com>,
-        Jonathan Looney <jtl@netflix.com>,
-        Michal Kubecek <mkubecek@suse.cz>,
-        Neal Cardwell <ncardwell@google.com>,
-        Yuchung Cheng <ycheng@google.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 26, 2019 at 2:45 PM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Fri, Jul 26, 2019 at 02:38:14PM +0200, gregkh@linuxfoundation.org wrote:
-> >
-> > The patch below does not apply to the 4.14-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> >
-> > thanks,
-> >
-> > greg k-h
-> >
-> > ------------------ original commit in Linus's tree ------------------
-> >
-> > >From b617158dc096709d8600c53b6052144d12b89fab Mon Sep 17 00:00:00 2001
-> > From: Eric Dumazet <edumazet@google.com>
-> > Date: Fri, 19 Jul 2019 11:52:33 -0700
-> > Subject: [PATCH] tcp: be more careful in tcp_fragment()
-> >
-> > Some applications set tiny SO_SNDBUF values and expect
-> > TCP to just work. Recent patches to address CVE-2019-11478
-> > broke them in case of losses, since retransmits might
-> > be prevented.
-> >
-> > We should allow these flows to make progress.
-> >
-> > This patch allows the first and last skb in retransmit queue
-> > to be split even if memory limits are hit.
-> >
-> > It also adds the some room due to the fact that tcp_sendmsg()
-> > and tcp_sendpage() might overshoot sk_wmem_queued by about one full
-> > TSO skb (64KB size). Note this allowance was already present
-> > in stable backports for kernels < 4.15
-> >
-> > Note for < 4.15 backports :
-> >  tcp_rtx_queue_tail() will probably look like :
-> >
-> > static inline struct sk_buff *tcp_rtx_queue_tail(const struct sock *sk)
-> > {
-> >       struct sk_buff *skb = tcp_send_head(sk);
-> >
-> >       return skb ? tcp_write_queue_prev(sk, skb) : tcp_write_queue_tail(sk);
-> > }
->
->
-> Note, I tried the above, but still ran into problems a 4.14 does not
-> have tcp_rtx_queue_head() and while I could guess as to what it would be
-> (tcp_sent_head()?), I figured it would be safer to ask for a backport :)
->
 
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-tcp_rtx_queue_head(sk) would be implemented by :
-{
-  struct sk_buff *skb = tcp_write_queue_head(sk);
-  if (skb == tcp_send_head(sk))
-    skb = NULL;
-  return skb;
-}
+thanks,
 
-I can provide the backport, of course.
+greg k-h
 
+------------------ original commit in Linus's tree ------------------
 
-> thanks,
->
-> greg k-h
+From 8a58ddae23796c733c5dfbd717538d89d036c5bd Mon Sep 17 00:00:00 2001
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Date: Mon, 1 Jul 2019 14:07:55 +0300
+Subject: [PATCH] perf/core: Fix exclusive events' grouping
+
+So far, we tried to disallow grouping exclusive events for the fear of
+complications they would cause with moving between contexts. Specifically,
+moving a software group to a hardware context would violate the exclusivity
+rules if both groups contain matching exclusive events.
+
+This attempt was, however, unsuccessful: the check that we have in the
+perf_event_open() syscall is both wrong (looks at wrong PMU) and
+insufficient (group leader may still be exclusive), as can be illustrated
+by running:
+
+  $ perf record -e '{intel_pt//,cycles}' uname
+  $ perf record -e '{cycles,intel_pt//}' uname
+
+ultimately successfully.
+
+Furthermore, we are completely free to trigger the exclusivity violation
+by:
+
+   perf -e '{cycles,intel_pt//}' -e '{intel_pt//,instructions}'
+
+even though the helpful perf record will not allow that, the ABI will.
+
+The warning later in the perf_event_open() path will also not trigger, because
+it's also wrong.
+
+Fix all this by validating the original group before moving, getting rid
+of broken safeguards and placing a useful one to perf_install_in_context().
+
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: <stable@vger.kernel.org>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Cc: mathieu.poirier@linaro.org
+Cc: will.deacon@arm.com
+Fixes: bed5b25ad9c8a ("perf: Add a pmu capability for "exclusive" events")
+Link: https://lkml.kernel.org/r/20190701110755.24646-1-alexander.shishkin@linux.intel.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+
+diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+index 16e38c286d46..e8ad3c590a23 100644
+--- a/include/linux/perf_event.h
++++ b/include/linux/perf_event.h
+@@ -1055,6 +1055,11 @@ static inline int in_software_context(struct perf_event *event)
+ 	return event->ctx->pmu->task_ctx_nr == perf_sw_context;
+ }
+ 
++static inline int is_exclusive_pmu(struct pmu *pmu)
++{
++	return pmu->capabilities & PERF_PMU_CAP_EXCLUSIVE;
++}
++
+ extern struct static_key perf_swevent_enabled[PERF_COUNT_SW_MAX];
+ 
+ extern void ___perf_sw_event(u32, u64, struct pt_regs *, u64);
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 5dd19bedbf64..eea9d52b010c 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -2553,6 +2553,9 @@ static int  __perf_install_in_context(void *info)
+ 	return ret;
+ }
+ 
++static bool exclusive_event_installable(struct perf_event *event,
++					struct perf_event_context *ctx);
++
+ /*
+  * Attach a performance event to a context.
+  *
+@@ -2567,6 +2570,8 @@ perf_install_in_context(struct perf_event_context *ctx,
+ 
+ 	lockdep_assert_held(&ctx->mutex);
+ 
++	WARN_ON_ONCE(!exclusive_event_installable(event, ctx));
++
+ 	if (event->cpu != -1)
+ 		event->cpu = cpu;
+ 
+@@ -4360,7 +4365,7 @@ static int exclusive_event_init(struct perf_event *event)
+ {
+ 	struct pmu *pmu = event->pmu;
+ 
+-	if (!(pmu->capabilities & PERF_PMU_CAP_EXCLUSIVE))
++	if (!is_exclusive_pmu(pmu))
+ 		return 0;
+ 
+ 	/*
+@@ -4391,7 +4396,7 @@ static void exclusive_event_destroy(struct perf_event *event)
+ {
+ 	struct pmu *pmu = event->pmu;
+ 
+-	if (!(pmu->capabilities & PERF_PMU_CAP_EXCLUSIVE))
++	if (!is_exclusive_pmu(pmu))
+ 		return;
+ 
+ 	/* see comment in exclusive_event_init() */
+@@ -4411,14 +4416,15 @@ static bool exclusive_event_match(struct perf_event *e1, struct perf_event *e2)
+ 	return false;
+ }
+ 
+-/* Called under the same ctx::mutex as perf_install_in_context() */
+ static bool exclusive_event_installable(struct perf_event *event,
+ 					struct perf_event_context *ctx)
+ {
+ 	struct perf_event *iter_event;
+ 	struct pmu *pmu = event->pmu;
+ 
+-	if (!(pmu->capabilities & PERF_PMU_CAP_EXCLUSIVE))
++	lockdep_assert_held(&ctx->mutex);
++
++	if (!is_exclusive_pmu(pmu))
+ 		return true;
+ 
+ 	list_for_each_entry(iter_event, &ctx->event_list, event_entry) {
+@@ -10947,11 +10953,6 @@ SYSCALL_DEFINE5(perf_event_open,
+ 		goto err_alloc;
+ 	}
+ 
+-	if ((pmu->capabilities & PERF_PMU_CAP_EXCLUSIVE) && group_leader) {
+-		err = -EBUSY;
+-		goto err_context;
+-	}
+-
+ 	/*
+ 	 * Look up the group leader (we will attach this event to it):
+ 	 */
+@@ -11039,6 +11040,18 @@ SYSCALL_DEFINE5(perf_event_open,
+ 				move_group = 0;
+ 			}
+ 		}
++
++		/*
++		 * Failure to create exclusive events returns -EBUSY.
++		 */
++		err = -EBUSY;
++		if (!exclusive_event_installable(group_leader, ctx))
++			goto err_locked;
++
++		for_each_sibling_event(sibling, group_leader) {
++			if (!exclusive_event_installable(sibling, ctx))
++				goto err_locked;
++		}
+ 	} else {
+ 		mutex_lock(&ctx->mutex);
+ 	}
+@@ -11075,9 +11088,6 @@ SYSCALL_DEFINE5(perf_event_open,
+ 	 * because we need to serialize with concurrent event creation.
+ 	 */
+ 	if (!exclusive_event_installable(event, ctx)) {
+-		/* exclusive and group stuff are assumed mutually exclusive */
+-		WARN_ON_ONCE(move_group);
+-
+ 		err = -EBUSY;
+ 		goto err_locked;
+ 	}
+
