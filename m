@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AD54767F5
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:41:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47FE4767F7
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:41:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387613AbfGZNlD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:41:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47354 "EHLO mail.kernel.org"
+        id S1727390AbfGZNlK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:41:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727806AbfGZNlD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:41:03 -0400
+        id S2387642AbfGZNlK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:41:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C63222CB9;
-        Fri, 26 Jul 2019 13:41:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E89522BEF;
+        Fri, 26 Jul 2019 13:41:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148462;
-        bh=Qt2/1Z3/byDB4IlQk0hOeMb7GKWf8oM+Z2eeZc24UfU=;
+        s=default; t=1564148469;
+        bh=KcjEwut+kBGUorf7XNpfc3U8ssodwP7/ihtxLHD9Rjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OjjpPW7v1GN99vV9Ddsmo5b1CPZ2sil7k8KzGs2GZNcuzZBAlUvo90lUqvgiHWdug
-         9frEFwg7ZguJGpVByRf6CNC5xSp70ex1NqD7AfNzTy/abdPwaJ1Wo2uJ4R/4S48orj
-         o0D5y6ephx5b73+ihstS3t5CBeGDYaa876ddYqMA=
+        b=0Tz3Jx8lc1/SiDsM6As9vagpIX3KhwhzsvtL0A9Q0GAFBcc1gXiN44xbzhSuKmn2X
+         pjbOlXnKigb60mbdSqR8F+LgAHg4kMnyWld0XT0NDwWXndhUYts2atN200C/Fukys4
+         5DwMCPMaqZ5i0SiO8/y5Z2Mu831eMHnI/VZEKrZA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Henry Burns <henryburns@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Vitaly Vul <vitaly.vul@sony.com>,
-        Vitaly Wool <vitalywool@gmail.com>,
-        Jonathan Adams <jwadams@google.com>,
+Cc:     Doug Berger <opendmb@gmail.com>,
+        Michal Nazarewicz <mina86@mina86.com>,
+        Yue Hu <huyue2@yulong.com>, Mike Rapoport <rppt@linux.ibm.com>,
+        Laura Abbott <labbott@redhat.com>, Peng Fan <peng.fan@nxp.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Andrey Konovalov <andreyknvl@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.2 53/85] mm/z3fold.c: reinitialize zhdr structs after migration
-Date:   Fri, 26 Jul 2019 09:39:03 -0400
-Message-Id: <20190726133936.11177-53-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 56/85] mm/cma.c: fail if fixed declaration can't be honored
+Date:   Fri, 26 Jul 2019 09:39:06 -0400
+Message-Id: <20190726133936.11177-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
 References: <20190726133936.11177-1-sashal@kernel.org>
@@ -48,61 +50,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Henry Burns <henryburns@google.com>
+From: Doug Berger <opendmb@gmail.com>
 
-[ Upstream commit c92d2f38563db20c20c8db2f98fa1349290477d5 ]
+[ Upstream commit c633324e311243586675e732249339685e5d6faa ]
 
-z3fold_page_migration() calls memcpy(new_zhdr, zhdr, PAGE_SIZE).
-However, zhdr contains fields that can't be directly coppied over (ex:
-list_head, a circular linked list).  We only need to initialize the
-linked lists in new_zhdr, as z3fold_isolate_page() already ensures that
-these lists are empty
+The description of cma_declare_contiguous() indicates that if the
+'fixed' argument is true the reserved contiguous area must be exactly at
+the address of the 'base' argument.
 
-Additionally it is possible that zhdr->work has been placed in a
-workqueue.  In this case we shouldn't migrate the page, as zhdr->work
-references zhdr as opposed to new_zhdr.
+However, the function currently allows the 'base', 'size', and 'limit'
+arguments to be silently adjusted to meet alignment constraints.  This
+commit enforces the documented behavior through explicit checks that
+return an error if the region does not fit within a specified region.
 
-Link: http://lkml.kernel.org/r/20190716000520.230595-1-henryburns@google.com
-Fixes: 1f862989b04ade61d3 ("mm/z3fold.c: support page migration")
-Signed-off-by: Henry Burns <henryburns@google.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Cc: Vitaly Vul <vitaly.vul@sony.com>
-Cc: Vitaly Wool <vitalywool@gmail.com>
-Cc: Jonathan Adams <jwadams@google.com>
+Link: http://lkml.kernel.org/r/1561422051-16142-1-git-send-email-opendmb@gmail.com
+Fixes: 5ea3b1b2f8ad ("cma: add placement specifier for "cma=" kernel parameter")
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Acked-by: Michal Nazarewicz <mina86@mina86.com>
+Cc: Yue Hu <huyue2@yulong.com>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Laura Abbott <labbott@redhat.com>
+Cc: Peng Fan <peng.fan@nxp.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Andrey Konovalov <andreyknvl@google.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/z3fold.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ mm/cma.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/mm/z3fold.c b/mm/z3fold.c
-index e1686bf6d689..7e764b0d8c8a 100644
---- a/mm/z3fold.c
-+++ b/mm/z3fold.c
-@@ -1350,12 +1350,22 @@ static int z3fold_page_migrate(struct address_space *mapping, struct page *newpa
- 		unlock_page(page);
- 		return -EBUSY;
- 	}
-+	if (work_pending(&zhdr->work)) {
-+		z3fold_page_unlock(zhdr);
-+		return -EAGAIN;
+diff --git a/mm/cma.c b/mm/cma.c
+index 3340ef34c154..4973d253dc83 100644
+--- a/mm/cma.c
++++ b/mm/cma.c
+@@ -278,6 +278,12 @@ int __init cma_declare_contiguous(phys_addr_t base,
+ 	 */
+ 	alignment = max(alignment,  (phys_addr_t)PAGE_SIZE <<
+ 			  max_t(unsigned long, MAX_ORDER - 1, pageblock_order));
++	if (fixed && base & (alignment - 1)) {
++		ret = -EINVAL;
++		pr_err("Region at %pa must be aligned to %pa bytes\n",
++			&base, &alignment);
++		goto err;
 +	}
- 	new_zhdr = page_address(newpage);
- 	memcpy(new_zhdr, zhdr, PAGE_SIZE);
- 	newpage->private = page->private;
- 	page->private = 0;
- 	z3fold_page_unlock(zhdr);
- 	spin_lock_init(&new_zhdr->page_lock);
-+	INIT_WORK(&new_zhdr->work, compact_page_work);
-+	/*
-+	 * z3fold_page_isolate() ensures that new_zhdr->buddy is empty,
-+	 * so we only have to reinitialize it.
-+	 */
-+	INIT_LIST_HEAD(&new_zhdr->buddy);
- 	new_mapping = page_mapping(page);
- 	__ClearPageMovable(page);
- 	ClearPagePrivate(page);
+ 	base = ALIGN(base, alignment);
+ 	size = ALIGN(size, alignment);
+ 	limit &= ~(alignment - 1);
+@@ -308,6 +314,13 @@ int __init cma_declare_contiguous(phys_addr_t base,
+ 	if (limit == 0 || limit > memblock_end)
+ 		limit = memblock_end;
+ 
++	if (base + size > limit) {
++		ret = -EINVAL;
++		pr_err("Size (%pa) of region at %pa exceeds limit (%pa)\n",
++			&size, &base, &limit);
++		goto err;
++	}
++
+ 	/* Reserve memory */
+ 	if (fixed) {
+ 		if (memblock_is_region_reserved(base, size) ||
 -- 
 2.20.1
 
