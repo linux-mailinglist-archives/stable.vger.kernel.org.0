@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80B7576A1D
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:56:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6935E76A12
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:56:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728483AbfGZN4W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:56:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48978 "EHLO mail.kernel.org"
+        id S2387805AbfGZNl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:41:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387790AbfGZNlv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:41:51 -0400
+        id S1727542AbfGZNly (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:41:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2012822C7E;
-        Fri, 26 Jul 2019 13:41:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE6DC22BF5;
+        Fri, 26 Jul 2019 13:41:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148511;
-        bh=EpQGnQ/G+NzeXJNmwDMDpPK+BWDg110HPcO6n8jqX9o=;
+        s=default; t=1564148513;
+        bh=p68XiTC1LTWllQk29SVgoAQsHI6JE9Recy3GGh2LFFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jePkYeLgBm3YPqol38CyIcH5fHeyboV5TFhOY6D1azOyOWkPUf+3hd30dnfkd4L27
-         LUnVJWjBirO2YXX46nWvY+ZAF778nfZb/QNBbyjiNc7YLuXldlNpAE+r6rRmYGCZdH
-         b7vyXpPapXW/8V5syvvWCrrLNWGcKhFa8QtHI2i0=
+        b=oEFDqa+AfqiuXz9z/Ug67UyN9k7Oxz3YK+CAn3dPnJEA5Pf1Rx5sGEFqYcqUBE03r
+         N8xUiu0gDehocxVgsg5h7uMTtFbjCKpx9Fvs+7SjCQeiD4P5SPF4kUO5slRQUDmuzV
+         xKRk6YmVo2gUsjWEOpegzb+u+SHqKwoGV1Q9txfc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhenzhong Duan <zhenzhong.duan@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
+Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Andrew Cooper <andrew.cooper3@citrix.com>,
+        Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 75/85] xen/pv: Fix a boot up hang revealed by int3 self test
-Date:   Fri, 26 Jul 2019 09:39:25 -0400
-Message-Id: <20190726133936.11177-75-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 76/85] x86/uaccess: Remove ELF function annotation from copy_user_handle_tail()
+Date:   Fri, 26 Jul 2019 09:39:26 -0400
+Message-Id: <20190726133936.11177-76-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
 References: <20190726133936.11177-1-sashal@kernel.org>
@@ -50,117 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenzhong Duan <zhenzhong.duan@oracle.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit b23e5844dfe78a80ba672793187d3f52e4b528d7 ]
+[ Upstream commit 3a6ab4bcc52263dd5b1d2fd2e4ce95a38c798b4d ]
 
-Commit 7457c0da024b ("x86/alternatives: Add int3_emulate_call()
-selftest") is used to ensure there is a gap setup in int3 exception stack
-which could be used for inserting call return address.
+After an objtool improvement, it's complaining about the CLAC in
+copy_user_handle_tail():
 
-This gap is missed in XEN PV int3 exception entry path, then below panic
-triggered:
+  arch/x86/lib/copy_user_64.o: warning: objtool: .altinstr_replacement+0x12: redundant UACCESS disable
+  arch/x86/lib/copy_user_64.o: warning: objtool:   copy_user_handle_tail()+0x6: (alt)
+  arch/x86/lib/copy_user_64.o: warning: objtool:   copy_user_handle_tail()+0x2: (alt)
+  arch/x86/lib/copy_user_64.o: warning: objtool:   copy_user_handle_tail()+0x0: <=== (func)
 
-[    0.772876] general protection fault: 0000 [#1] SMP NOPTI
-[    0.772886] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.2.0+ #11
-[    0.772893] RIP: e030:int3_magic+0x0/0x7
-[    0.772905] RSP: 3507:ffffffff82203e98 EFLAGS: 00000246
-[    0.773334] Call Trace:
-[    0.773334]  alternative_instructions+0x3d/0x12e
-[    0.773334]  check_bugs+0x7c9/0x887
-[    0.773334]  ? __get_locked_pte+0x178/0x1f0
-[    0.773334]  start_kernel+0x4ff/0x535
-[    0.773334]  ? set_init_arg+0x55/0x55
-[    0.773334]  xen_start_kernel+0x571/0x57a
+copy_user_handle_tail() is incorrectly marked as a callable function, so
+objtool is rightfully concerned about the CLAC with no corresponding
+STAC.
 
-For 64bit PV guests, Xen's ABI enters the kernel with using SYSRET, with
-%rcx/%r11 on the stack. To convert back to "normal" looking exceptions,
-the xen thunks do 'xen_*: pop %rcx; pop %r11; jmp *'.
+Remove the ELF function annotation.  The copy_user_handle_tail() code
+path is already verified by objtool because it's jumped to by other
+callable asm code (which does the corresponding STAC).
 
-E.g. Extracting 'xen_pv_trap xenint3' we have:
-xen_xenint3:
- pop %rcx;
- pop %r11;
- jmp xenint3
-
-As xenint3 and int3 entry code are same except xenint3 doesn't generate
-a gap, we can fix it by using int3 and drop useless xenint3.
-
-Signed-off-by: Zhenzhong Duan <zhenzhong.duan@oracle.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Stefano Stabellini <sstabellini@kernel.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Andrew Cooper <andrew.cooper3@citrix.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/6b6e436774678b4b9873811ff023bd29935bee5b.1563413318.git.jpoimboe@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/entry/entry_64.S    | 1 -
- arch/x86/include/asm/traps.h | 2 +-
- arch/x86/xen/enlighten_pv.c  | 2 +-
- arch/x86/xen/xen-asm_64.S    | 1 -
- 4 files changed, 2 insertions(+), 4 deletions(-)
+ arch/x86/lib/copy_user_64.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
-index 8dbca86c249b..5c033dc0c2c7 100644
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -1171,7 +1171,6 @@ idtentry stack_segment		do_stack_segment	has_error_code=1
- #ifdef CONFIG_XEN_PV
- idtentry xennmi			do_nmi			has_error_code=0
- idtentry xendebug		do_debug		has_error_code=0
--idtentry xenint3		do_int3			has_error_code=0
- #endif
+diff --git a/arch/x86/lib/copy_user_64.S b/arch/x86/lib/copy_user_64.S
+index 378a1f70ae7d..4fe1601dbc5d 100644
+--- a/arch/x86/lib/copy_user_64.S
++++ b/arch/x86/lib/copy_user_64.S
+@@ -239,7 +239,7 @@ copy_user_handle_tail:
+ 	ret
  
- idtentry general_protection	do_general_protection	has_error_code=1
-diff --git a/arch/x86/include/asm/traps.h b/arch/x86/include/asm/traps.h
-index 7d6f3f3fad78..f2bd284abc16 100644
---- a/arch/x86/include/asm/traps.h
-+++ b/arch/x86/include/asm/traps.h
-@@ -40,7 +40,7 @@ asmlinkage void simd_coprocessor_error(void);
- asmlinkage void xen_divide_error(void);
- asmlinkage void xen_xennmi(void);
- asmlinkage void xen_xendebug(void);
--asmlinkage void xen_xenint3(void);
-+asmlinkage void xen_int3(void);
- asmlinkage void xen_overflow(void);
- asmlinkage void xen_bounds(void);
- asmlinkage void xen_invalid_op(void);
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index 4722ba2966ac..30c14cb343fc 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -596,12 +596,12 @@ struct trap_array_entry {
+ 	_ASM_EXTABLE_UA(1b, 2b)
+-ENDPROC(copy_user_handle_tail)
++END(copy_user_handle_tail)
  
- static struct trap_array_entry trap_array[] = {
- 	{ debug,                       xen_xendebug,                    true },
--	{ int3,                        xen_xenint3,                     true },
- 	{ double_fault,                xen_double_fault,                true },
- #ifdef CONFIG_X86_MCE
- 	{ machine_check,               xen_machine_check,               true },
- #endif
- 	{ nmi,                         xen_xennmi,                      true },
-+	{ int3,                        xen_int3,                        false },
- 	{ overflow,                    xen_overflow,                    false },
- #ifdef CONFIG_IA32_EMULATION
- 	{ entry_INT80_compat,          xen_entry_INT80_compat,          false },
-diff --git a/arch/x86/xen/xen-asm_64.S b/arch/x86/xen/xen-asm_64.S
-index 1e9ef0ba30a5..ebf610b49c06 100644
---- a/arch/x86/xen/xen-asm_64.S
-+++ b/arch/x86/xen/xen-asm_64.S
-@@ -32,7 +32,6 @@ xen_pv_trap divide_error
- xen_pv_trap debug
- xen_pv_trap xendebug
- xen_pv_trap int3
--xen_pv_trap xenint3
- xen_pv_trap xennmi
- xen_pv_trap overflow
- xen_pv_trap bounds
+ /*
+  * copy_user_nocache - Uncached memory copy with exception handling
 -- 
 2.20.1
 
