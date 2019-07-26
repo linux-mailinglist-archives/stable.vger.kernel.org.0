@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6650F76A60
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:58:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 737A876A5E
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 15:58:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728460AbfGZN6W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 09:58:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46850 "EHLO mail.kernel.org"
+        id S2387570AbfGZNkp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 09:40:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387561AbfGZNko (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:40:44 -0400
+        id S2387567AbfGZNkp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:40:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95BF222BEF;
-        Fri, 26 Jul 2019 13:40:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C92922BE8;
+        Fri, 26 Jul 2019 13:40:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564148443;
-        bh=2MXhqljQf7IMFqHmhVvDjqDPhscxIYuwMTCiLHA670Q=;
+        s=default; t=1564148444;
+        bh=w/KW5ObIhciXvw3i0+grY7jHEW6Jfw7aZ9qTvrIzwAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SSkyK/iocW2pj3MgCUwWeqbjYK6lvSnK1ToWFB8TaueyASCdnjwz/RemsLMC+2Jve
-         eCw3fSuCAuEaqJWCwLbmvUoa1Hly9yH+8D5AlRdnr/ttfAdiJnTpHYnrIidVuZyag4
-         YJZwghLA7ghrUstR2ek3LTx1zzGFC0b5+UGY9Dms=
+        b=RZ7Bmqo1Wo0esvXPfMTwtVAGCtZ9pQ51NwO34p77JMXcQsiXj/kPCyPZl4rkpVAdk
+         mP5RkHyFX52ZZNT/fihgcrCvuXYCM1m1UXkwPE0dsRKrhLwubj32jbU+XVuAzphdkq
+         T7rz//YPxdG+gnvv3PjWCk7u1+kbi7/bUkNNGP0U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 41/85] cifs: fix crash in cifs_dfs_do_automount
-Date:   Fri, 26 Jul 2019 09:38:51 -0400
-Message-Id: <20190726133936.11177-41-sashal@kernel.org>
+Cc:     Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>,
+        Mamatha Inamdar <mamatha4@linux.vnet.ibm.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 42/85] perf version: Fix segfault due to missing OPT_END()
+Date:   Fri, 26 Jul 2019 09:38:52 -0400
+Message-Id: <20190726133936.11177-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
 References: <20190726133936.11177-1-sashal@kernel.org>
@@ -43,66 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
 
-[ Upstream commit ce465bf94b70f03136171a62b607864f00093b19 ]
+[ Upstream commit 916c31fff946fae0e05862f9b2435fdb29fd5090 ]
 
-RHBZ: 1649907
+'perf version' on powerpc segfaults when used with non-supported
+option:
+  # perf version -a
+  Segmentation fault (core dumped)
 
-Fix a crash that happens while attempting to mount a DFS referral from the same server on the root of a filesystem.
+Fix this.
 
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Reviewed-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+Tested-by: Mamatha Inamdar <mamatha4@linux.vnet.ibm.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+Link: http://lkml.kernel.org/r/20190611030109.20228-1-ravi.bangoria@linux.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ tools/perf/builtin-version.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 0872188ce3c6..e508613f09ff 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -4459,11 +4459,13 @@ cifs_are_all_path_components_accessible(struct TCP_Server_Info *server,
- 					unsigned int xid,
- 					struct cifs_tcon *tcon,
- 					struct cifs_sb_info *cifs_sb,
--					char *full_path)
-+					char *full_path,
-+					int added_treename)
- {
- 	int rc;
- 	char *s;
- 	char sep, tmp;
-+	int skip = added_treename ? 1 : 0;
+diff --git a/tools/perf/builtin-version.c b/tools/perf/builtin-version.c
+index f470144d1a70..bf114ca9ca87 100644
+--- a/tools/perf/builtin-version.c
++++ b/tools/perf/builtin-version.c
+@@ -19,6 +19,7 @@ static struct version version;
+ static struct option version_options[] = {
+ 	OPT_BOOLEAN(0, "build-options", &version.build_options,
+ 		    "display the build options"),
++	OPT_END(),
+ };
  
- 	sep = CIFS_DIR_SEP(cifs_sb);
- 	s = full_path;
-@@ -4478,7 +4480,14 @@ cifs_are_all_path_components_accessible(struct TCP_Server_Info *server,
- 		/* next separator */
- 		while (*s && *s != sep)
- 			s++;
--
-+		/*
-+		 * if the treename is added, we then have to skip the first
-+		 * part within the separators
-+		 */
-+		if (skip) {
-+			skip = 0;
-+			continue;
-+		}
- 		/*
- 		 * temporarily null-terminate the path at the end of
- 		 * the current component
-@@ -4526,8 +4535,7 @@ static int is_path_remote(struct cifs_sb_info *cifs_sb, struct smb_vol *vol,
- 
- 	if (rc != -EREMOTE) {
- 		rc = cifs_are_all_path_components_accessible(server, xid, tcon,
--							     cifs_sb,
--							     full_path);
-+			cifs_sb, full_path, tcon->Flags & SMB_SHARE_IS_IN_DFS);
- 		if (rc != 0) {
- 			cifs_dbg(VFS, "cannot query dirs between root and final path, "
- 				 "enabling CIFS_MOUNT_USE_PREFIX_PATH\n");
+ static const char * const version_usage[] = {
 -- 
 2.20.1
 
