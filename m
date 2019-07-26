@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A062B76D59
-	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:33:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69D0476D0F
+	for <lists+stable@lfdr.de>; Fri, 26 Jul 2019 17:31:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389251AbfGZPdP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 11:33:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48548 "EHLO mail.kernel.org"
+        id S1727359AbfGZPaA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 11:30:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389223AbfGZPdO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 11:33:14 -0400
+        id S1726260AbfGZP36 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 11:29:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57D2D20644;
-        Fri, 26 Jul 2019 15:33:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0799922CBD;
+        Fri, 26 Jul 2019 15:29:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564155192;
-        bh=uu3qTDnCNTovUsEE/JifBgDG5Yt/eiY+fHSm5v52wDk=;
+        s=default; t=1564154998;
+        bh=mU/cphH8ryHrVmuO9omVALk2fgtD/LhRfsJrntv7E2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rQbcCR2q3tZeF6kQF55x/qxq2Eeabl42nst3VHH6OIAIFxHl8IWC1IOnV6o/+3wdD
-         K8Q0LGxA3GdEzw/So0txeFMymuW9ejkzPg7z/YcUZ0ZK/1J4rrO7tVEtEi1bO18AKF
-         flXlj/aVdDozviJl63Aw51Rrt//ypkECRkSkDJqQ=
+        b=gCWuOYUUa7S1+CpTqEb8UsQ/Fl1jmJRv7McEi5yeMvzd5omIfwv0dRNCb9lrlXlNJ
+         H9HfV7zW7fUCUhZtVIsmuPwlgq86VbKXMNlfkEDXIVD1cTPzxoZ0OJACI1B4dvgvtB
+         Fh9Rjkeeuiv5hcLmnVWpnro30u66YAxvSeQjW+08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Chen <justinpopo6@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 08/50] net: bcmgenet: use promisc for unsupported filters
+Subject: [PATCH 5.1 31/62] net: bridge: stp: dont cache eth dest pointer before skb pull
 Date:   Fri, 26 Jul 2019 17:24:43 +0200
-Message-Id: <20190726152301.503600968@linuxfoundation.org>
+Message-Id: <20190726152305.002892598@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190726152300.760439618@linuxfoundation.org>
-References: <20190726152300.760439618@linuxfoundation.org>
+In-Reply-To: <20190726152301.720139286@linuxfoundation.org>
+References: <20190726152301.720139286@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,126 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Justin Chen <justinpopo6@gmail.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-[ Upstream commit 35cbef9863640f06107144687bd13151bc2e8ce3 ]
+[ Upstream commit 2446a68ae6a8cee6d480e2f5b52f5007c7c41312 ]
 
-Currently we silently ignore filters if we cannot meet the filter
-requirements. This will lead to the MAC dropping packets that are
-expected to pass. A better solution would be to set the NIC to promisc
-mode when the required filters cannot be met.
+Don't cache eth dest pointer before calling pskb_may_pull.
 
-Also correct the number of MDF filters supported. It should be 17,
-not 16.
-
-Signed-off-by: Justin Chen <justinpopo6@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: cf0f02d04a83 ("[BRIDGE]: use llc for receiving STP packets")
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c |   57 +++++++++++--------------
- 1 file changed, 26 insertions(+), 31 deletions(-)
+ net/bridge/br_stp_bpdu.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -3086,39 +3086,42 @@ static void bcmgenet_timeout(struct net_
- 	netif_tx_wake_all_queues(dev);
- }
- 
--#define MAX_MC_COUNT	16
-+#define MAX_MDF_FILTER	17
- 
- static inline void bcmgenet_set_mdf_addr(struct bcmgenet_priv *priv,
- 					 unsigned char *addr,
--					 int *i,
--					 int *mc)
-+					 int *i)
+--- a/net/bridge/br_stp_bpdu.c
++++ b/net/bridge/br_stp_bpdu.c
+@@ -147,7 +147,6 @@ void br_send_tcn_bpdu(struct net_bridge_
+ void br_stp_rcv(const struct stp_proto *proto, struct sk_buff *skb,
+ 		struct net_device *dev)
  {
--	u32 reg;
--
- 	bcmgenet_umac_writel(priv, addr[0] << 8 | addr[1],
- 			     UMAC_MDF_ADDR + (*i * 4));
- 	bcmgenet_umac_writel(priv, addr[2] << 24 | addr[3] << 16 |
- 			     addr[4] << 8 | addr[5],
- 			     UMAC_MDF_ADDR + ((*i + 1) * 4));
--	reg = bcmgenet_umac_readl(priv, UMAC_MDF_CTRL);
--	reg |= (1 << (MAX_MC_COUNT - *mc));
--	bcmgenet_umac_writel(priv, reg, UMAC_MDF_CTRL);
- 	*i += 2;
--	(*mc)++;
- }
+-	const unsigned char *dest = eth_hdr(skb)->h_dest;
+ 	struct net_bridge_port *p;
+ 	struct net_bridge *br;
+ 	const unsigned char *buf;
+@@ -176,7 +175,7 @@ void br_stp_rcv(const struct stp_proto *
+ 	if (p->state == BR_STATE_DISABLED)
+ 		goto out;
  
- static void bcmgenet_set_rx_mode(struct net_device *dev)
- {
- 	struct bcmgenet_priv *priv = netdev_priv(dev);
- 	struct netdev_hw_addr *ha;
--	int i, mc;
-+	int i, nfilter;
- 	u32 reg;
+-	if (!ether_addr_equal(dest, br->group_addr))
++	if (!ether_addr_equal(eth_hdr(skb)->h_dest, br->group_addr))
+ 		goto out;
  
- 	netif_dbg(priv, hw, dev, "%s: %08X\n", __func__, dev->flags);
- 
--	/* Promiscuous mode */
-+	/* Number of filters needed */
-+	nfilter = netdev_uc_count(dev) + netdev_mc_count(dev) + 2;
-+
-+	/*
-+	 * Turn on promicuous mode for three scenarios
-+	 * 1. IFF_PROMISC flag is set
-+	 * 2. IFF_ALLMULTI flag is set
-+	 * 3. The number of filters needed exceeds the number filters
-+	 *    supported by the hardware.
-+	*/
- 	reg = bcmgenet_umac_readl(priv, UMAC_CMD);
--	if (dev->flags & IFF_PROMISC) {
-+	if ((dev->flags & (IFF_PROMISC | IFF_ALLMULTI)) ||
-+	    (nfilter > MAX_MDF_FILTER)) {
- 		reg |= CMD_PROMISC;
- 		bcmgenet_umac_writel(priv, reg, UMAC_CMD);
- 		bcmgenet_umac_writel(priv, 0, UMAC_MDF_CTRL);
-@@ -3128,32 +3131,24 @@ static void bcmgenet_set_rx_mode(struct
- 		bcmgenet_umac_writel(priv, reg, UMAC_CMD);
- 	}
- 
--	/* UniMac doesn't support ALLMULTI */
--	if (dev->flags & IFF_ALLMULTI) {
--		netdev_warn(dev, "ALLMULTI is not supported\n");
--		return;
--	}
--
- 	/* update MDF filter */
- 	i = 0;
--	mc = 0;
- 	/* Broadcast */
--	bcmgenet_set_mdf_addr(priv, dev->broadcast, &i, &mc);
-+	bcmgenet_set_mdf_addr(priv, dev->broadcast, &i);
- 	/* my own address.*/
--	bcmgenet_set_mdf_addr(priv, dev->dev_addr, &i, &mc);
--	/* Unicast list*/
--	if (netdev_uc_count(dev) > (MAX_MC_COUNT - mc))
--		return;
-+	bcmgenet_set_mdf_addr(priv, dev->dev_addr, &i);
- 
--	if (!netdev_uc_empty(dev))
--		netdev_for_each_uc_addr(ha, dev)
--			bcmgenet_set_mdf_addr(priv, ha->addr, &i, &mc);
--	/* Multicast */
--	if (netdev_mc_empty(dev) || netdev_mc_count(dev) >= (MAX_MC_COUNT - mc))
--		return;
-+	/* Unicast */
-+	netdev_for_each_uc_addr(ha, dev)
-+		bcmgenet_set_mdf_addr(priv, ha->addr, &i);
- 
-+	/* Multicast */
- 	netdev_for_each_mc_addr(ha, dev)
--		bcmgenet_set_mdf_addr(priv, ha->addr, &i, &mc);
-+		bcmgenet_set_mdf_addr(priv, ha->addr, &i);
-+
-+	/* Enable filters */
-+	reg = GENMASK(MAX_MDF_FILTER - 1, MAX_MDF_FILTER - nfilter);
-+	bcmgenet_umac_writel(priv, reg, UMAC_MDF_CTRL);
- }
- 
- /* Set the hardware MAC address. */
+ 	if (p->flags & BR_BPDU_GUARD) {
 
 
