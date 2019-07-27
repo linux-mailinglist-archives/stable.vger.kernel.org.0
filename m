@@ -2,85 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C11C77A86
-	for <lists+stable@lfdr.de>; Sat, 27 Jul 2019 18:07:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25A4C77BF0
+	for <lists+stable@lfdr.de>; Sat, 27 Jul 2019 22:58:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387665AbfG0QHw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 27 Jul 2019 12:07:52 -0400
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:42496 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387419AbfG0QHw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 27 Jul 2019 12:07:52 -0400
-Received: by mail-pl1-f193.google.com with SMTP id ay6so25906581plb.9;
-        Sat, 27 Jul 2019 09:07:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=TdhMyA0f7GkaYro7VFqzIpVNCMN/yq8RzRd3YAwWKNc=;
-        b=HBqa2TyhEsp1seVChsHeDkI4AxsQWX54WK7RVVHuTTP3Y7mibfnmHKWyw+M1U0unno
-         ynmk+tYzQmF9+pJac6L0Kp7xOgCA5lQS5PEqhHIDc0Ezd0id9U275y4fk/Z8hisRqhDR
-         d67YKh1QWhF6rFecBBlb9CcPjEkUneB+q9rRwnGkc8Y59QaDBh6tEyEWxNyepG6klsXh
-         nsuRpTu8f+UYDLn8Icnm+YrpPmM5TM+M0lvCDwdHodJh728Vxmgw7nQR7WM4DYjN1Qez
-         lWcEvh9kKboxAPGOGFXNyHBGOSTCkc6cg/tsCXfgB7gXxcowtCcE1bJfeixI3loFDTCn
-         1y1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=TdhMyA0f7GkaYro7VFqzIpVNCMN/yq8RzRd3YAwWKNc=;
-        b=pOTdKaghVBKcOor1TMud7kZjlPGyk+H/ve35+yKwvyytApafsZfErazf1MzEs5iKxL
-         OcEiOZyo9q1s1fgDaO8xH50HQhMJmxXJZyVFj3dDTYtGU8WkSvNlupJcQYWHLlmDKtFA
-         ksr7zY26kkKTQnecIbY2/jK2Ki0S0aCLbnZl5ojizCaVUyUmseSrRfGL+et4PET6jCaF
-         FTVIXz+aMMkRxRYHlTAqq9DtEuRRMxiWX6E4hR+0ZxM66gEW0YpQir6lBHgFqvBrQyNr
-         4D+DJAx7Sur8j4jcE/A6dp8BJFHqfLlk+ZpfhSX0V4n4usEvpXhIRoZuajyOWVtpcvDX
-         Rkmg==
-X-Gm-Message-State: APjAAAXzuxkRM5aXcbtUcn0Q273zo9qWT4HwYwQe0w8L9Odkrtg4Oc1U
-        ZorkFqBnnv/MzVY7xdDFfrPAHsGY
-X-Google-Smtp-Source: APXvYqwZANIe3JXnpGimCQLlzGMzKQ3z09SjzzceNMeDay/ka4AXStj8I32eViy/jGE6L4NPs8rs0g==
-X-Received: by 2002:a17:902:f46:: with SMTP id 64mr102720487ply.235.1564243671475;
-        Sat, 27 Jul 2019 09:07:51 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id q24sm50546239pjp.14.2019.07.27.09.07.50
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 27 Jul 2019 09:07:51 -0700 (PDT)
-Subject: Re: [PATCH 5.2 00/66] 5.2.4-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        id S2388368AbfG0U6e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 27 Jul 2019 16:58:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53998 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388150AbfG0U6d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 27 Jul 2019 16:58:33 -0400
+Received: from archlinux (cpc149474-cmbg20-2-0-cust94.5-4.cable.virginm.net [82.4.196.95])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B1912147A;
+        Sat, 27 Jul 2019 20:58:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564261112;
+        bh=3jvANDc9LliVkm8hGLHYQZv+x16Th48I4QDkZbmlC6g=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=II9jiPzdrI+X4JBvEQZPZzwwbe8udv2GD1DPtQdcgt3uAUH42j6Ns4TjtF4+j3A52
+         t2RreywU7Fkp19ReS5PSHVd/GnVN6TX0e+/SXsiKLnJRCKVqM4iGw9cEuOTzxTxrVR
+         UFYXnJK9yLozZQRP4wclydPjJBiHLgaAeZ3Dvc+4=
+Date:   Sat, 27 Jul 2019 21:58:26 +0100
+From:   Jonathan Cameron <jic23@kernel.org>
+To:     Wolfram Sang <wsa@the-dreams.de>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Marek Vasut <marek.vasut@gmail.com>,
+        stable@vger.kernel.org,
+        Marek Vasut <marek.vasut+renesas@gmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Simon Horman <horms+renesas@verge.net.au>,
+        linux-renesas-soc@vger.kernel.org,
+        Hartmut Knaack <knaack.h@gmx.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Rob Herring <robh@kernel.org>, linux-iio@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-References: <20190726152301.936055394@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <9e69ade0-419d-a024-8b5e-988cbd69d4b4@roeck-us.net>
-Date:   Sat, 27 Jul 2019 09:07:49 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+Subject: Re: [PATCH] [v2] iio: adc: gyroadc: fix uninitialized return code
+Message-ID: <20190727215826.70212910@archlinux>
+In-Reply-To: <20190718140227.GA3813@kunai>
+References: <20190718135758.2672152-1-arnd@arndb.de>
+        <20190718140227.GA3813@kunai>
+X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <20190726152301.936055394@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/26/19 8:23 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.2.4 release.
-> There are 66 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Thu, 18 Jul 2019 16:02:27 +0200
+Wolfram Sang <wsa@the-dreams.de> wrote:
+
+> On Thu, Jul 18, 2019 at 03:57:49PM +0200, Arnd Bergmann wrote:
+> > gcc-9 complains about a blatant uninitialized variable use that
+> > all earlier compiler versions missed:
+> > 
+> > drivers/iio/adc/rcar-gyroadc.c:510:5: warning: 'ret' may be used uninitialized in this function [-Wmaybe-uninitialized]
+> > 
+> > Return -EINVAL instead here and a few lines above it where
+> > we accidentally return 0 on failure.
+> > 
+> > Cc: stable@vger.kernel.org
+> > Fixes: 059c53b32329 ("iio: adc: Add Renesas GyroADC driver")
+> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>  
 > 
-> Responses should be made by Sun 28 Jul 2019 03:21:13 PM UTC.
-> Anything received after that time might be too late.
+> Yes, I checked the other error paths, too, and they look proper to me.
+> 
+> Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 > 
 
-Build results:
-	total: 159 pass: 159 fail: 0
-Qemu test results:
-	total: 364 pass: 364 fail: 0
+Thanks for sorting that second case as well.
 
-Guenter
+Applied to the fixes-togreg branch of iio.git.
+
+Thanks,
+
+Jonathan
+
