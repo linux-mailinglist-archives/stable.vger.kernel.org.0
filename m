@@ -2,82 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25A4C77BF0
-	for <lists+stable@lfdr.de>; Sat, 27 Jul 2019 22:58:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA59577C04
+	for <lists+stable@lfdr.de>; Sat, 27 Jul 2019 23:24:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388368AbfG0U6e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 27 Jul 2019 16:58:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53998 "EHLO mail.kernel.org"
+        id S1727363AbfG0VYW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 27 Jul 2019 17:24:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388150AbfG0U6d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 27 Jul 2019 16:58:33 -0400
-Received: from archlinux (cpc149474-cmbg20-2-0-cust94.5-4.cable.virginm.net [82.4.196.95])
+        id S1726404AbfG0VYW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 27 Jul 2019 17:24:22 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B1912147A;
-        Sat, 27 Jul 2019 20:58:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 544B820657;
+        Sat, 27 Jul 2019 21:24:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564261112;
-        bh=3jvANDc9LliVkm8hGLHYQZv+x16Th48I4QDkZbmlC6g=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=II9jiPzdrI+X4JBvEQZPZzwwbe8udv2GD1DPtQdcgt3uAUH42j6Ns4TjtF4+j3A52
-         t2RreywU7Fkp19ReS5PSHVd/GnVN6TX0e+/SXsiKLnJRCKVqM4iGw9cEuOTzxTxrVR
-         UFYXnJK9yLozZQRP4wclydPjJBiHLgaAeZ3Dvc+4=
-Date:   Sat, 27 Jul 2019 21:58:26 +0100
-From:   Jonathan Cameron <jic23@kernel.org>
-To:     Wolfram Sang <wsa@the-dreams.de>
-Cc:     Arnd Bergmann <arnd@arndb.de>, Marek Vasut <marek.vasut@gmail.com>,
-        stable@vger.kernel.org,
-        Marek Vasut <marek.vasut+renesas@gmail.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Simon Horman <horms+renesas@verge.net.au>,
-        linux-renesas-soc@vger.kernel.org,
-        Hartmut Knaack <knaack.h@gmx.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Rob Herring <robh@kernel.org>, linux-iio@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [v2] iio: adc: gyroadc: fix uninitialized return code
-Message-ID: <20190727215826.70212910@archlinux>
-In-Reply-To: <20190718140227.GA3813@kunai>
-References: <20190718135758.2672152-1-arnd@arndb.de>
-        <20190718140227.GA3813@kunai>
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        s=default; t=1564262661;
+        bh=qoE6ptOEb4ULRj1Rw05H1bmDm81qtxOhZ4CxCKq7DKs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=oXz/4F4yJJ1k+lSXFJfJQyElubb42wUxO4un+dZzd6/squ5M3/mqyv7ZuZ8kl6GWR
+         yiYaOMJTny1lJ0+OI9E/z4nKemRQjgA3bJfxqybEhUkaVFefvauc0lzfVR8h3byeos
+         hnRuZRewNOIIzW96DIxkqn2w66J2x6eZ9GDVJDFU=
+Date:   Sat, 27 Jul 2019 17:24:20 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Eric Dumazet <edumazet@google.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 5.2 14/66] net_sched: unset TCQ_F_CAN_BYPASS when adding
+ filters
+Message-ID: <20190727212420.GA8637@sasha-vm>
+References: <20190726152301.936055394@linuxfoundation.org>
+ <20190726152303.389623216@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20190726152303.389623216@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 18 Jul 2019 16:02:27 +0200
-Wolfram Sang <wsa@the-dreams.de> wrote:
+On Fri, Jul 26, 2019 at 05:24:13PM +0200, Greg Kroah-Hartman wrote:
+>From: Cong Wang <xiyou.wangcong@gmail.com>
+>
+>[ Upstream commit 3f05e6886a595c9a29a309c52f45326be917823c ]
+>
+>For qdisc's that support TC filters and set TCQ_F_CAN_BYPASS,
+>notably fq_codel, it makes no sense to let packets bypass the TC
+>filters we setup in any scenario, otherwise our packets steering
+>policy could not be enforced.
+>
+>This can be reproduced easily with the following script:
+>
+> ip li add dev dummy0 type dummy
+> ifconfig dummy0 up
+> tc qd add dev dummy0 root fq_codel
+> tc filter add dev dummy0 parent 8001: protocol arp basic action mirred egress redirect dev lo
+> tc filter add dev dummy0 parent 8001: protocol ip basic action mirred egress redirect dev lo
+> ping -I dummy0 192.168.112.1
+>
+>Without this patch, packets are sent directly to dummy0 without
+>hitting any of the filters. With this patch, packets are redirected
+>to loopback as expected.
+>
+>This fix is not perfect, it only unsets the flag but does not set it back
+>because we have to save the information somewhere in the qdisc if we
+>really want that. Note, both fq_codel and sfq clear this flag in their
+>->bind_tcf() but this is clearly not sufficient when we don't use any
+>class ID.
+>
+>Fixes: 23624935e0c4 ("net_sched: TCQ_F_CAN_BYPASS generalization")
+>Cc: Eric Dumazet <edumazet@google.com>
+>Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+>Reviewed-by: Eric Dumazet <edumazet@google.com>
+>Signed-off-by: David S. Miller <davem@davemloft.net>
+>Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-> On Thu, Jul 18, 2019 at 03:57:49PM +0200, Arnd Bergmann wrote:
-> > gcc-9 complains about a blatant uninitialized variable use that
-> > all earlier compiler versions missed:
-> > 
-> > drivers/iio/adc/rcar-gyroadc.c:510:5: warning: 'ret' may be used uninitialized in this function [-Wmaybe-uninitialized]
-> > 
-> > Return -EINVAL instead here and a few lines above it where
-> > we accidentally return 0 on failure.
-> > 
-> > Cc: stable@vger.kernel.org
-> > Fixes: 059c53b32329 ("iio: adc: Add Renesas GyroADC driver")
-> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>  
-> 
-> Yes, I checked the other error paths, too, and they look proper to me.
-> 
-> Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> 
+There's a fix for this one:
 
-Thanks for sorting that second case as well.
+	503d81d428bd5 ("net: sched: verify that q!=NULL before setting
+	q->flags").
 
-Applied to the fixes-togreg branch of iio.git.
-
+--
 Thanks,
-
-Jonathan
-
+Sasha
