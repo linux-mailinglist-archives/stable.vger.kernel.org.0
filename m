@@ -2,98 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CF1F775E2
-	for <lists+stable@lfdr.de>; Sat, 27 Jul 2019 04:16:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D4D1775FD
+	for <lists+stable@lfdr.de>; Sat, 27 Jul 2019 04:33:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727941AbfG0CQE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 22:16:04 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:51300 "EHLO mx1.redhat.com"
+        id S1727127AbfG0Cd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 22:33:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727908AbfG0CQD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jul 2019 22:16:03 -0400
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726766AbfG0Cd3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jul 2019 22:33:29 -0400
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 69EEF8553D;
-        Sat, 27 Jul 2019 02:16:03 +0000 (UTC)
-Received: from ming.t460p (ovpn-8-20.pek2.redhat.com [10.72.8.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 87B8F600C0;
-        Sat, 27 Jul 2019 02:15:48 +0000 (UTC)
-Date:   Sat, 27 Jul 2019 10:15:44 +0800
-From:   Ming Lei <ming.lei@redhat.com>
-To:     kernel test robot <rong.a.chen@intel.com>
-Cc:     Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
-        "James E . J . Bottomley" <jejb@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        linux-scsi@vger.kernel.org, "Ewan D . Milne" <emilne@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Hannes Reinecke <hare@suse.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com,
-        stable@vger.kernel.org, lkp@01.org
-Subject: Re: [scsi] ae86a1c553: BUG:kernel_NULL_pointer_dereference,address
-Message-ID: <20190727021523.GB6926@ming.t460p>
-References: <20190720030637.14447-3-ming.lei@redhat.com>
- <20190725104629.GC3640@shao2-debian>
+        by mail.kernel.org (Postfix) with ESMTPSA id 437142084D;
+        Sat, 27 Jul 2019 02:33:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564194808;
+        bh=nG/DP4zu0+bBCKaJ08jsk7eT0QH5jK3U1xszKcdFgFc=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=nFZcfZNNGk1+yNVcRbfBjZyzh4gTdMpPOAsSRpVREAH2JUugvJJNjl72M86s9jyhi
+         xKXh+6a1yMVzBz+35Lf+fkM2kFrrDbEyllTbI9RornOA/n8G6/XD4pdg4PyBPHp6fa
+         lD7qawx4cwrZylHaRNnN+qHISn7Wt45ED+XsOhXE=
+Subject: Re: [PATCH 5.2 00/66] 5.2.4-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, shuah <shuah@kernel.org>
+References: <20190726152301.936055394@linuxfoundation.org>
+From:   shuah <shuah@kernel.org>
+Message-ID: <2cd55ec5-ea26-2d47-1aa2-276662329e59@kernel.org>
+Date:   Fri, 26 Jul 2019 20:33:27 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190725104629.GC3640@shao2-debian>
-User-Agent: Mutt/1.11.3 (2019-02-01)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Sat, 27 Jul 2019 02:16:03 +0000 (UTC)
+In-Reply-To: <20190726152301.936055394@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On 7/26/19 9:23 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.2.4 release.
+> There are 66 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun 28 Jul 2019 03:21:13 PM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.4-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Thanks for your report!
+Compiled and booted on my test system. No dmesg regressions,
 
-On Thu, Jul 25, 2019 at 06:46:29PM +0800, kernel test robot wrote:
-> FYI, we noticed the following commit (built with gcc-7):
-> 
-> commit: ae86a1c5530b52dc44a280e78feb0c4eb2dd8595 ("[PATCH V2 2/2] scsi: implement .cleanup_rq callback")
-> url: https://github.com/0day-ci/linux/commits/Ming-Lei/blk-mq-add-callback-of-cleanup_rq/20190720-133431
-> 
-> 
-> in testcase: blktests
-> with following parameters:
-> 
-> 	disk: 1SSD
-> 	test: block-group1
-> 
-> 
-> 
-> on test machine: qemu-system-x86_64 -enable-kvm -cpu SandyBridge -smp 2 -m 4G
-> 
-> caused below changes (please refer to attached dmesg/kmsg for entire log/backtrace):
-> 
-> 
-> +---------------------------------------------------------------------------------------------------------------+------------+------------+
-> |                                                                                                               | bd222ca85f | ae86a1c553 |
-> +---------------------------------------------------------------------------------------------------------------+------------+------------+
-> | boot_successes                                                                                                | 0          | 0          |
-> | boot_failures                                                                                                 | 11         | 14         |
-> | BUG:kernel_reboot-without-warning_in_test_stage                                                               | 11         | 1          |
-> | BUG:kernel_NULL_pointer_dereference,address                                                                   | 0          | 4          |
-> | Oops:#[##]                                                                                                    | 0          | 4          |
-> | RIP:scsi_queue_rq                                                                                             | 0          | 4          |
-> | Kernel_panic-not_syncing:Fatal_exception                                                                      | 0          | 4          |
-> | invoked_oom-killer:gfp_mask=0x                                                                                | 0          | 9          |
-> | Mem-Info                                                                                                      | 0          | 9          |
-> | page_allocation_failure:order:#,mode:#(GFP_KERNEL|__GFP_RETRY_MAYFAIL),nodemask=(null),cpuset=/,mems_allowed= | 0          | 2          |
-> +---------------------------------------------------------------------------------------------------------------+------------+------------+
-> 
-> 
-> If you fix the issue, kindly add following tag
-> Reported-by: kernel test robot <rong.a.chen@intel.com>
-> 
-> 
-> [  140.974865] BUG: kernel NULL pointer dereference, address: 000000000000001c
+thanks,
+-- Shuah
 
-Yeah, I know this issue, and it has been fixed in either V3 or V4.
-
-Thanks,
-Ming
