@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ED4D7754E
-	for <lists+stable@lfdr.de>; Sat, 27 Jul 2019 01:56:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E435377556
+	for <lists+stable@lfdr.de>; Sat, 27 Jul 2019 02:02:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726905AbfGZX4J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jul 2019 19:56:09 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:42959 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726191AbfGZX4J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 19:56:09 -0400
-Received: by mail-wr1-f65.google.com with SMTP id x1so6078540wrr.9
-        for <stable@vger.kernel.org>; Fri, 26 Jul 2019 16:56:03 -0700 (PDT)
+        id S1726384AbfG0ACo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jul 2019 20:02:44 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:45256 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726102AbfG0ACo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Jul 2019 20:02:44 -0400
+Received: by mail-wr1-f68.google.com with SMTP id f9so55954877wre.12
+        for <stable@vger.kernel.org>; Fri, 26 Jul 2019 17:02:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=zpD9SBgpl9nEzs9z7Fnk3H8nF4X+S5fYmGBvsBW58gs=;
-        b=x+a9SdXLkJlF13IhqGDYzmPzXHrQ6zI0x16pERddbHoiT4f1taQi8iS0YJdrBw0DJk
-         dwryYRcUqERjFRcKS7G+pEG8BpVzosZyPaFTCAEnLMhc+tXYcuMNE+1uSv32+EO016BV
-         tT1sA27nZRnlay+vsAKyPJGoi4WMR97v0unr1G5q9lppdHyW+GvvLM3jkdOzMCGmjTol
-         OEFC/sh9KeQObH2O/c0zlRfjUXpBhTSTndDOQ3QXE6fopgGS+ybFrzW4cTsscmfQnNLp
-         +vkme/+HdKl5wbefn8HRWwFnXL3Bxn/Y5DMJ8qvXvTuczHQ9B7QH7AG3NZJp1KoZnvbe
-         afOA==
+        bh=dcQbrOB9LYo9Htfe0UZvH3d+bzuGOkqt+5WYpfWUyLE=;
+        b=g7m/7gAIGVHc5vz80Ng8uneL2eLRP1tezVaH3n+R+y/4JXKkdF41Z4EfaXKr10hqKW
+         LAoWy9TeFcSjmI+taH+THglaa92AJDYLvpmM4n37MW+eBn77SEEFq9qFrSfRObYF1oaQ
+         SMaYd6Mkjyx8z0UXZxJoEQfCgZSivtJMufMHHCd3Na0lgDA/92RyrCofbbsavuZBrii7
+         ZF3fWrPyTDJtEPAgbufzn4+pqLxuLqYTt+wZQ/H/bSlWem5foj+6stO9s7Nk+7fsAQqZ
+         Ucsk5loWhqCO3Q76BPUqrmnVAoQo0jIpmtGGtCFoFGBvhgcTTbPeetYhSvexkVQDS3DN
+         l6gA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=zpD9SBgpl9nEzs9z7Fnk3H8nF4X+S5fYmGBvsBW58gs=;
-        b=nsb72GF7hoQfPGwCwEZpQfaWsVXVCiW3K9Q3itYqXx6jj/otGyNrVIZkorCHg+4g2R
-         iTZVF6VcRzi6uwMTdp4fu9nBIokG+8f3PgrH5Bt4a78f1l9thy3pLQKEKQgUNz0Z1HtJ
-         wVIBp9JNaoVkVQYcesXvpvwQkT+xqMmYRG9cFywY1YNFBme1NnPOEnvxaQzJaXaK2ADi
-         8zzd/BiedvwM1s6SzZ48G5qUQK3V66rD9/6BBgfzGs5toQ0cIOOSxGVrrqJ/UOGBkRoH
-         IyLCQiM7NNn/VTPohdC/KXX4RQqLUktCW7mHpN9kh4dQLR0S7LVorruXSDmA4QLG8JYK
-         UjRA==
-X-Gm-Message-State: APjAAAWSIIgYUL45Ql8J0tcP9MYxg3nI/bBPegW9DK0qgqfplYAbsP/K
-        4UgWXA/tN/5sFy4jAV4jumiByGwROdM=
-X-Google-Smtp-Source: APXvYqyfVVrIlj7K7jU75Fl0PhbSgKyXVhl3jUPUjXg1pMRJXiwWefZF14st07+Fw2/jnE1YaXSecA==
-X-Received: by 2002:adf:ed41:: with SMTP id u1mr98990483wro.162.1564185361830;
-        Fri, 26 Jul 2019 16:56:01 -0700 (PDT)
+        bh=dcQbrOB9LYo9Htfe0UZvH3d+bzuGOkqt+5WYpfWUyLE=;
+        b=eNObB8ZhBVexWdngMeJsObJOr5Bve9AQLBsiuPPBy6lV+/FNG68z/lrYYtDNGLPASM
+         Ug/2lFxVQ6rsjJav0cG4VNHLCxFc85zLooJNx1fMAthasSkrXrjLY7woqo6dr0nWtS1P
+         bCdQoNVMqToxtWc4Yll1a/WboN3j9qk9YNy5bR9hxlFgxPnOFIeXwwPyuZkbItp4ujxk
+         fl+P0itdsTsmL5EFkFnaow02As6G5K+fBMuxkroHLnj0rnvtu5OYJzxxLTJ3LITPjkwD
+         0S0W2wEHJ+NPyFGUqfFfY+kQLzuysOVLdxzoQNINe0H9YSEe2QzB6OmrLdY/9dIIMPQ3
+         y45A==
+X-Gm-Message-State: APjAAAXTkK6UW0/qsMxjeOC0H5MaiIm/paAMVYeRyQQC6jXAWADiCwrL
+        V2MtpcK/mWs9gIaTkpsr8t2e/QQG+2w=
+X-Google-Smtp-Source: APXvYqyf+tHrsiLA/5nOV2oyd1+yIL38vq7wigPd84KG76hg+4/lVYCTHj34dlHE/0R0BtTpzlKUjA==
+X-Received: by 2002:adf:e6c5:: with SMTP id y5mr108334831wrm.235.1564185757757;
+        Fri, 26 Jul 2019 17:02:37 -0700 (PDT)
 Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id j33sm108258855wre.42.2019.07.26.16.56.01
+        by smtp.gmail.com with ESMTPSA id t185sm46048518wma.11.2019.07.26.17.02.36
         for <stable@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 26 Jul 2019 16:56:01 -0700 (PDT)
-Message-ID: <5d3b9311.1c69fb81.a4d2f.0524@mx.google.com>
-Date:   Fri, 26 Jul 2019 16:56:01 -0700 (PDT)
+        Fri, 26 Jul 2019 17:02:36 -0700 (PDT)
+Message-ID: <5d3b949c.1c69fb81.731be.191b@mx.google.com>
+Date:   Fri, 26 Jul 2019 17:02:36 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v5.1.20
-X-Kernelci-Branch: linux-5.1.y
+X-Kernelci-Kernel: v5.2.3
+X-Kernelci-Branch: linux-5.2.y
 X-Kernelci-Report-Type: build
-Subject: stable/linux-5.1.y build: 209 builds: 0 failed, 209 passed,
- 20 warnings (v5.1.20)
+Subject: stable/linux-5.2.y build: 209 builds: 0 failed, 209 passed,
+ 20 warnings (v5.2.3)
 To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
@@ -63,16 +63,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.1.y build: 209 builds: 0 failed, 209 passed, 20 warnings (v5=
-.1.20)
+stable/linux-5.2.y build: 209 builds: 0 failed, 209 passed, 20 warnings (v5=
+.2.3)
 
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.1.y/ke=
-rnel/v5.1.20/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.2.y/ke=
+rnel/v5.2.3/
 
 Tree: stable
-Branch: linux-5.1.y
-Git Describe: v5.1.20
-Git Commit: aac977a09eca0e62280644a2bdc3403a61892348
+Branch: linux-5.2.y
+Git Describe: v5.2.3
+Git Commit: 577669778464e991c12291f5833bd627d2102bcb
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e.git
 Built: 7 unique architectures
@@ -107,9 +107,9 @@ x86_64:
 
 Warnings summary:
 
-    6    arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-W=
+    6    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-W=
 unused-variable]
-    6    arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-W=
+    6    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-W=
 unused-variable]
     2    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
 -Wcpp]
@@ -117,11 +117,11 @@ unused-variable]
 d [-Wcpp]
     1    {standard input}:131: Warning: macro instruction expanded into mul=
 tiple instructions
-    1    drivers/mtd/nand/raw/au1550nd.c:447:57: warning: pointer type mism=
+    1    drivers/mtd/nand/raw/au1550nd.c:443:57: warning: pointer type mism=
 atch in conditional expression
-    1    drivers/ata/pata_rb532_cf.c:165:24: warning: unused variable 'info=
+    1    drivers/ata/pata_rb532_cf.c:161:24: warning: unused variable 'info=
 ' [-Wunused-variable]
-    1    .config:1021:warning: override: UNWINDER_GUESS changes choice state
+    1    .config:1167:warning: override: UNWINDER_GUESS changes choice state
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -346,7 +346,7 @@ db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
 
 Warnings:
-    drivers/mtd/nand/raw/au1550nd.c:447:57: warning: pointer type mismatch =
+    drivers/mtd/nand/raw/au1550nd.c:443:57: warning: pointer type mismatch =
 in conditional expression
 
 ---------------------------------------------------------------------------=
@@ -505,9 +505,9 @@ integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
 ection mismatches
 
 Warnings:
-    arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunuse=
+    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-Wunuse=
 d-variable]
-    arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunuse=
+    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-Wunuse=
 d-variable]
 
 ---------------------------------------------------------------------------=
@@ -740,9 +740,9 @@ multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
 ction mismatches
 
 Warnings:
-    arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunuse=
+    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-Wunuse=
 d-variable]
-    arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunuse=
+    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-Wunuse=
 d-variable]
 
 ---------------------------------------------------------------------------=
@@ -751,9 +751,9 @@ multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
 tion mismatches
 
 Warnings:
-    arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunuse=
+    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-Wunuse=
 d-variable]
-    arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunuse=
+    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-Wunuse=
 d-variable]
 
 ---------------------------------------------------------------------------=
@@ -947,7 +947,7 @@ rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
 n mismatches
 
 Warnings:
-    drivers/ata/pata_rb532_cf.c:165:24: warning: unused variable 'info' [-W=
+    drivers/ata/pata_rb532_cf.c:161:24: warning: unused variable 'info' [-W=
 unused-variable]
 
 ---------------------------------------------------------------------------=
@@ -961,9 +961,9 @@ realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
 tion mismatches
 
 Warnings:
-    arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunuse=
+    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-Wunuse=
 d-variable]
-    arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunuse=
+    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-Wunuse=
 d-variable]
 
 ---------------------------------------------------------------------------=
@@ -1005,9 +1005,9 @@ s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
 ion mismatches
 
 Warnings:
-    arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunuse=
+    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-Wunuse=
 d-variable]
-    arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunuse=
+    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-Wunuse=
 d-variable]
 
 ---------------------------------------------------------------------------=
@@ -1121,7 +1121,7 @@ tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
 ismatches
 
 Warnings:
-    .config:1021:warning: override: UNWINDER_GUESS changes choice state
+    .config:1167:warning: override: UNWINDER_GUESS changes choice state
 
 ---------------------------------------------------------------------------=
 -----
@@ -1154,9 +1154,9 @@ u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
  mismatches
 
 Warnings:
-    arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunuse=
+    arch/arm/mm/init.c:453:13: warning: unused variable 'itcm_end' [-Wunuse=
 d-variable]
-    arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunuse=
+    arch/arm/mm/init.c:452:13: warning: unused variable 'dtcm_end' [-Wunuse=
 d-variable]
 
 ---------------------------------------------------------------------------=
