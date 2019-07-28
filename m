@@ -2,92 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3536677E3E
-	for <lists+stable@lfdr.de>; Sun, 28 Jul 2019 08:21:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA2F777E40
+	for <lists+stable@lfdr.de>; Sun, 28 Jul 2019 08:22:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725937AbfG1GVT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Jul 2019 02:21:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39408 "EHLO mail.kernel.org"
+        id S1726004AbfG1GWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Jul 2019 02:22:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725875AbfG1GVT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 28 Jul 2019 02:21:19 -0400
+        id S1725875AbfG1GWQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 28 Jul 2019 02:22:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA85D2077C;
-        Sun, 28 Jul 2019 06:21:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4349D2085A;
+        Sun, 28 Jul 2019 06:22:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564294878;
-        bh=XrJDtnarn39ZDygwkMhGYucgX/EKPOtxl6M6piwv4XQ=;
+        s=default; t=1564294935;
+        bh=i2iFqiRgqUwkzxykGYDgQJuVL1DpyhAtJzOkbfYJPug=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bxCo0+wnSuumjCscQlLQoduom0wVzYKefaYQKnU/SZ1IaxWZeJuNd90zl7Euv4sJx
-         UxLJnC0KTSVXByvbVk9vFETbsCPKNqrkxguRXrYk0LPObNjlQLhIp5YmG+OatkLMWG
-         C+aZgDRvh5LGW6KHfNDbv6wdPM72r5wmQRAf7nzc=
-Date:   Sun, 28 Jul 2019 08:21:15 +0200
+        b=XJydwrCl2c18dEq5gxxDNN0uYOMPJfOk3zxr8dWe27tM5B5cM72GYiOTDVi/g+Brq
+         kehBFhfuntNy9YZ5fJwo/v76MgvD2MQliKGA02FvsN7YUs0NirPLQzaxh1wIx4MnlG
+         2gYvJJIuyQnMDGbRRhLiCrDbIkrl1zFlOTayavI4=
+Date:   Sun, 28 Jul 2019 08:22:13 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Eric Dumazet <edumazet@google.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 5.2 14/66] net_sched: unset TCQ_F_CAN_BYPASS when adding
- filters
-Message-ID: <20190728062115.GA21371@kroah.com>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.2 00/66] 5.2.4-stable review
+Message-ID: <20190728062213.GB21371@kroah.com>
 References: <20190726152301.936055394@linuxfoundation.org>
- <20190726152303.389623216@linuxfoundation.org>
- <20190727212420.GA8637@sasha-vm>
+ <9e69ade0-419d-a024-8b5e-988cbd69d4b4@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190727212420.GA8637@sasha-vm>
+In-Reply-To: <9e69ade0-419d-a024-8b5e-988cbd69d4b4@roeck-us.net>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jul 27, 2019 at 05:24:20PM -0400, Sasha Levin wrote:
-> On Fri, Jul 26, 2019 at 05:24:13PM +0200, Greg Kroah-Hartman wrote:
-> > From: Cong Wang <xiyou.wangcong@gmail.com>
+On Sat, Jul 27, 2019 at 09:07:49AM -0700, Guenter Roeck wrote:
+> On 7/26/19 8:23 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.2.4 release.
+> > There are 66 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
 > > 
-> > [ Upstream commit 3f05e6886a595c9a29a309c52f45326be917823c ]
+> > Responses should be made by Sun 28 Jul 2019 03:21:13 PM UTC.
+> > Anything received after that time might be too late.
 > > 
-> > For qdisc's that support TC filters and set TCQ_F_CAN_BYPASS,
-> > notably fq_codel, it makes no sense to let packets bypass the TC
-> > filters we setup in any scenario, otherwise our packets steering
-> > policy could not be enforced.
-> > 
-> > This can be reproduced easily with the following script:
-> > 
-> > ip li add dev dummy0 type dummy
-> > ifconfig dummy0 up
-> > tc qd add dev dummy0 root fq_codel
-> > tc filter add dev dummy0 parent 8001: protocol arp basic action mirred egress redirect dev lo
-> > tc filter add dev dummy0 parent 8001: protocol ip basic action mirred egress redirect dev lo
-> > ping -I dummy0 192.168.112.1
-> > 
-> > Without this patch, packets are sent directly to dummy0 without
-> > hitting any of the filters. With this patch, packets are redirected
-> > to loopback as expected.
-> > 
-> > This fix is not perfect, it only unsets the flag but does not set it back
-> > because we have to save the information somewhere in the qdisc if we
-> > really want that. Note, both fq_codel and sfq clear this flag in their
-> > ->bind_tcf() but this is clearly not sufficient when we don't use any
-> > class ID.
-> > 
-> > Fixes: 23624935e0c4 ("net_sched: TCQ_F_CAN_BYPASS generalization")
-> > Cc: Eric Dumazet <edumazet@google.com>
-> > Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-> > Reviewed-by: Eric Dumazet <edumazet@google.com>
-> > Signed-off-by: David S. Miller <davem@davemloft.net>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 > 
-> There's a fix for this one:
-> 
-> 	503d81d428bd5 ("net: sched: verify that q!=NULL before setting
-> 	q->flags").
+> Build results:
+> 	total: 159 pass: 159 fail: 0
+> Qemu test results:
+> 	total: 364 pass: 364 fail: 0
 
-Thanks for this, now queued up.
+Thanks for testing all of these and letting me know.
 
 greg k-h
