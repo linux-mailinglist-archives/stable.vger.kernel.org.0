@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7796777EC8
-	for <lists+stable@lfdr.de>; Sun, 28 Jul 2019 11:28:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A5AC77EC9
+	for <lists+stable@lfdr.de>; Sun, 28 Jul 2019 11:28:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725961AbfG1J20 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Jul 2019 05:28:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40898 "EHLO mail.kernel.org"
+        id S1725977AbfG1J23 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Jul 2019 05:28:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725937AbfG1J2Z (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Sun, 28 Jul 2019 05:28:25 -0400
+        id S1725937AbfG1J23 (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Sun, 28 Jul 2019 05:28:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69F4420659;
-        Sun, 28 Jul 2019 09:28:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF12E214C6;
+        Sun, 28 Jul 2019 09:28:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564306104;
-        bh=8YjYCK2UzJdWnCJDbKHEMoeWiDIoyQfNfJ1qC2xzSBY=;
+        s=default; t=1564306108;
+        bh=/WjVstEIPSB6QKQQ/lvXwSBldUWfA/J1o8rESDxJh8g=;
         h=Subject:To:From:Date:From;
-        b=j+rYfBIMyphZXKW+gnmsWILMhaTcNvjQkShI23sakyRtlW4RcTLEQYiKsBk7/VDap
-         o6DOrTjOJoqIv/+Xhmm9KbdrEnTqxVohQ1rqxfLRmAuSxf3r8+rcgOYaBVJQHCNGPc
-         E2eC7cWTn3ckzrC3/r7Cam0SSJFGSgeIlPPNQJi4=
-Subject: patch "iio: cros_ec_accel_legacy: Fix incorrect channel setting" added to staging-linus
-To:     gwendal@chromium.org, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
+        b=ZAzDQWHdk/bvDJMr4+IQb1K9jQ2eGEmPfmC6swEACGVG/7ZUAgucRbUmfBW9Tn3gP
+         PqPYGf4GuiPLVG5McsoKciu3MDP4Hg+kvp+/CQGvso/jbHbwgxuqb5sZ++I8z+7/Ja
+         gYrSZC3nvHBTYuhliO4RxL0KfwQtv5W52YY0twB0=
+Subject: patch "iio: imu: mpu6050: add missing available scan masks" added to staging-linus
+To:     JManeyrol@invensense.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, jmaneyrol@invensense.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 28 Jul 2019 11:28:19 +0200
-Message-ID: <156430609910771@kroah.com>
+Date:   Sun, 28 Jul 2019 11:28:21 +0200
+Message-ID: <1564306101211158@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: cros_ec_accel_legacy: Fix incorrect channel setting
+    iio: imu: mpu6050: add missing available scan masks
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -55,33 +55,97 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 6cdff99c9f7d7d28b87cf05dd464f7c7736332ae Mon Sep 17 00:00:00 2001
-From: Gwendal Grignou <gwendal@chromium.org>
-Date: Fri, 28 Jun 2019 12:17:09 -0700
-Subject: iio: cros_ec_accel_legacy: Fix incorrect channel setting
+From 1244a720572fd1680ac8d6b8a4235f2e8557b810 Mon Sep 17 00:00:00 2001
+From: Jean-Baptiste Maneyrol <JManeyrol@invensense.com>
+Date: Thu, 27 Jun 2019 13:19:53 +0000
+Subject: iio: imu: mpu6050: add missing available scan masks
 
-INFO_SCALE is set both for each channel and all channels.
-iio is using all channel setting, so the error was not user visible.
+Driver only supports 3-axis gyro and/or 3-axis accel.
+For icm20602, temp data is mandatory for all configurations.
 
-Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+Fix all single and double axis configurations (almost never used) and more
+importantly fix 3-axis gyro and 6-axis accel+gyro buffer on icm20602 when
+temp data is not enabled.
+
+Signed-off-by: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
+Fixes: 1615fe41a195 ("iio: imu: mpu6050: Fix FIFO layout for ICM20602")
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/accel/cros_ec_accel_legacy.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/iio/imu/inv_mpu6050/inv_mpu_core.c | 43 ++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
 
-diff --git a/drivers/iio/accel/cros_ec_accel_legacy.c b/drivers/iio/accel/cros_ec_accel_legacy.c
-index 46bb2e421bb9..ad19d9c716f4 100644
---- a/drivers/iio/accel/cros_ec_accel_legacy.c
-+++ b/drivers/iio/accel/cros_ec_accel_legacy.c
-@@ -319,7 +319,6 @@ static const struct iio_chan_spec_ext_info cros_ec_accel_legacy_ext_info[] = {
- 		.modified = 1,					        \
- 		.info_mask_separate =					\
- 			BIT(IIO_CHAN_INFO_RAW) |			\
--			BIT(IIO_CHAN_INFO_SCALE) |			\
- 			BIT(IIO_CHAN_INFO_CALIBBIAS),			\
- 		.info_mask_shared_by_all = BIT(IIO_CHAN_INFO_SCALE),	\
- 		.ext_info = cros_ec_accel_legacy_ext_info,		\
+diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+index 53a59957cc54..8a704cd5bddb 100644
+--- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
++++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+@@ -845,6 +845,25 @@ static const struct iio_chan_spec inv_mpu_channels[] = {
+ 	INV_MPU6050_CHAN(IIO_ACCEL, IIO_MOD_Z, INV_MPU6050_SCAN_ACCL_Z),
+ };
+ 
++static const unsigned long inv_mpu_scan_masks[] = {
++	/* 3-axis accel */
++	BIT(INV_MPU6050_SCAN_ACCL_X)
++		| BIT(INV_MPU6050_SCAN_ACCL_Y)
++		| BIT(INV_MPU6050_SCAN_ACCL_Z),
++	/* 3-axis gyro */
++	BIT(INV_MPU6050_SCAN_GYRO_X)
++		| BIT(INV_MPU6050_SCAN_GYRO_Y)
++		| BIT(INV_MPU6050_SCAN_GYRO_Z),
++	/* 6-axis accel + gyro */
++	BIT(INV_MPU6050_SCAN_ACCL_X)
++		| BIT(INV_MPU6050_SCAN_ACCL_Y)
++		| BIT(INV_MPU6050_SCAN_ACCL_Z)
++		| BIT(INV_MPU6050_SCAN_GYRO_X)
++		| BIT(INV_MPU6050_SCAN_GYRO_Y)
++		| BIT(INV_MPU6050_SCAN_GYRO_Z),
++	0,
++};
++
+ static const struct iio_chan_spec inv_icm20602_channels[] = {
+ 	IIO_CHAN_SOFT_TIMESTAMP(INV_ICM20602_SCAN_TIMESTAMP),
+ 	{
+@@ -871,6 +890,28 @@ static const struct iio_chan_spec inv_icm20602_channels[] = {
+ 	INV_MPU6050_CHAN(IIO_ACCEL, IIO_MOD_Z, INV_ICM20602_SCAN_ACCL_Z),
+ };
+ 
++static const unsigned long inv_icm20602_scan_masks[] = {
++	/* 3-axis accel + temp (mandatory) */
++	BIT(INV_ICM20602_SCAN_ACCL_X)
++		| BIT(INV_ICM20602_SCAN_ACCL_Y)
++		| BIT(INV_ICM20602_SCAN_ACCL_Z)
++		| BIT(INV_ICM20602_SCAN_TEMP),
++	/* 3-axis gyro + temp (mandatory) */
++	BIT(INV_ICM20602_SCAN_GYRO_X)
++		| BIT(INV_ICM20602_SCAN_GYRO_Y)
++		| BIT(INV_ICM20602_SCAN_GYRO_Z)
++		| BIT(INV_ICM20602_SCAN_TEMP),
++	/* 6-axis accel + gyro + temp (mandatory) */
++	BIT(INV_ICM20602_SCAN_ACCL_X)
++		| BIT(INV_ICM20602_SCAN_ACCL_Y)
++		| BIT(INV_ICM20602_SCAN_ACCL_Z)
++		| BIT(INV_ICM20602_SCAN_GYRO_X)
++		| BIT(INV_ICM20602_SCAN_GYRO_Y)
++		| BIT(INV_ICM20602_SCAN_GYRO_Z)
++		| BIT(INV_ICM20602_SCAN_TEMP),
++	0,
++};
++
+ /*
+  * The user can choose any frequency between INV_MPU6050_MIN_FIFO_RATE and
+  * INV_MPU6050_MAX_FIFO_RATE, but only these frequencies are matched by the
+@@ -1130,9 +1171,11 @@ int inv_mpu_core_probe(struct regmap *regmap, int irq, const char *name,
+ 	if (chip_type == INV_ICM20602) {
+ 		indio_dev->channels = inv_icm20602_channels;
+ 		indio_dev->num_channels = ARRAY_SIZE(inv_icm20602_channels);
++		indio_dev->available_scan_masks = inv_icm20602_scan_masks;
+ 	} else {
+ 		indio_dev->channels = inv_mpu_channels;
+ 		indio_dev->num_channels = ARRAY_SIZE(inv_mpu_channels);
++		indio_dev->available_scan_masks = inv_mpu_scan_masks;
+ 	}
+ 
+ 	indio_dev->info = &mpu_info;
 -- 
 2.22.0
 
