@@ -2,121 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C0EE79C53
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 00:16:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A80B679C64
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 00:22:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728089AbfG2WQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 18:16:20 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:46063 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726327AbfG2WQU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 18:16:20 -0400
-Received: by mail-pg1-f195.google.com with SMTP id o13so28921962pgp.12
-        for <stable@vger.kernel.org>; Mon, 29 Jul 2019 15:16:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=android.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=BYK7OhY4Zs3xEZ3rD2sAHSi4xgYu3lqni8LNbwDhtKA=;
-        b=YB4YUwXyAaJ50+M7syE0Q4lgd+aJqSKTnUaCXTYF6UidYNiOj8TLOqoPs6e3uO3YjI
-         jFeoBQHavH7cJ2LgKOCwQNWhQ5oWgr9maUjmmb+CpN87lkLGpilBgKEv5iJzO8Fipjj1
-         VPOCfP3g77t8ByA+fjKHyIbXvppVz7jlDhfkeAzm/LFBIa8/5j6sKKC2zojf/Ox8/cUQ
-         QpHQlvRWzT4WOcze51+tohdzGCOR0MRdJ5tCWXD1ijCc5pzwDiQ3JbXS5p4LKaB1qq53
-         xJsKhu7sLNkr0PIxbZJp55sEnuaabVHtmHMYPZLHlqBd5rxOuWwPKcBuNH4UN3p1zCAA
-         Tw/w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=BYK7OhY4Zs3xEZ3rD2sAHSi4xgYu3lqni8LNbwDhtKA=;
-        b=lmMmoPyRz4B5pKuR50jVHsQq5FY7RLzVzL0gCzFmXWT4UuuwodNUzOpqWY+2muaed6
-         Zn9qXlQvPZsIlUMs7AWDYMbqeLCfPXK+0N/kamYmzErI5WdATwPcaQaAzayrqUPiul3i
-         GwKpRQn2uee2kPpvgN4VEE2Btv7c+41+2ucdygShf70VlfwthtUKCXIp8m2+uSGvkkNE
-         sQw3kRDla4Mw0oefGAUfxVz57iw9xabawK7FBem3tJuQo1WpvdS7VEUxQzvfV6bmHccE
-         MFilws8/Glw+wzrn7Q5LzIgvwHrWlmlaw1o1DD5NeNgVVqDrdns4fT6uNy8l0TX/7JeH
-         KauQ==
-X-Gm-Message-State: APjAAAU8SxiJW9Lkg1OF2ieZA90mRie+2JZgk5dUcGNv9Y6Qv+OWO4ws
-        nWi/JA5eqOSq+mknUK9qY6k=
-X-Google-Smtp-Source: APXvYqxFy/r3gUtE9Br/3RiI2lkMxMaKMK/cS/GEPfggKg1YrnVSQ12+QnRB5DJbaJXjUBemSY3uow==
-X-Received: by 2002:a17:90a:35e6:: with SMTP id r93mr114645865pjb.20.1564438579714;
-        Mon, 29 Jul 2019 15:16:19 -0700 (PDT)
-Received: from ava-linux2.mtv.corp.google.com ([2620:15c:211:0:b2de:593e:a6f0:9b20])
-        by smtp.googlemail.com with ESMTPSA id o3sm116637836pje.1.2019.07.29.15.16.18
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 29 Jul 2019 15:16:18 -0700 (PDT)
-From:   Todd Kjos <tkjos@android.com>
-X-Google-Original-From: Todd Kjos <tkjos@google.com>
-To:     tkjos@google.com, gregkh@linuxfoundation.org, arve@android.com,
-        maco@google.com, stable@vger.kernel.org
-Cc:     joel@joelfernandes.org, kernel-team@android.com,
-        Todd Kjos <tkjos@android.com>
-Subject: [PATCH 4.14,4.19] binder: fix possible UAF when freeing buffer
-Date:   Mon, 29 Jul 2019 15:16:06 -0700
-Message-Id: <20190729221606.243098-1-tkjos@google.com>
-X-Mailer: git-send-email 2.22.0.709.g102302147b-goog
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1729341AbfG2WWS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 18:22:18 -0400
+Received: from alln-iport-5.cisco.com ([173.37.142.92]:63639 "EHLO
+        alln-iport-5.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728170AbfG2WWS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 18:22:18 -0400
+X-Greylist: delayed 425 seconds by postgrey-1.27 at vger.kernel.org; Mon, 29 Jul 2019 18:22:18 EDT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=cisco.com; i=@cisco.com; l=3015; q=dns/txt; s=iport;
+  t=1564438938; x=1565648538;
+  h=from:to:cc:subject:date:message-id;
+  bh=DrO2yKnFyi8F+66k61q6HgiBESDEHiaC3GUOr1F7f5k=;
+  b=E//483uplBqW6fDkI7s5IQcU10++KMwi4ymYcEgyPwggbwfz7nuIzG5D
+   cupF19aqelh3AEMfszT67Sfc1fuWRjroRBAVFlIpus1Ez2NOXtiTU4KBk
+   06UPOAnrntG8XAJnzb9sSAv7m1LcrnFUZbCV7gOheDwB+khlnDW4U28Qo
+   4=;
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: =?us-ascii?q?A0CfAQCWbz9d/4ENJK1mGwEBAQEDAQE?=
+ =?us-ascii?q?BBwMBAQGBZ4IXgT4BMiqhKJEaCQEBAQwBAS8BAYRAgm4jOBMBAwEBBAEBAgE?=
+ =?us-ascii?q?GbYUqhXhSgT4BEoMigXcUrgAziHqBSBSBIIcJglCCBxeBQD+BEYNQiicEqnc?=
+ =?us-ascii?q?JghyUCAwbmA0BjTuXVgIECwIVgWchgVhwFYMnkQY/AzCOZAEB?=
+X-IronPort-AV: E=Sophos;i="5.64,324,1559520000"; 
+   d="scan'208";a="302124420"
+Received: from alln-core-9.cisco.com ([173.36.13.129])
+  by alln-iport-5.cisco.com with ESMTP/TLS/DHE-RSA-SEED-SHA; 29 Jul 2019 22:15:09 +0000
+Received: from sjc-ads-7132.cisco.com (sjc-ads-7132.cisco.com [10.30.217.207])
+        (authenticated bits=0)
+        by alln-core-9.cisco.com (8.15.2/8.15.2) with ESMTPSA id x6TMF85J006800
+        (version=TLSv1.2 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO);
+        Mon, 29 Jul 2019 22:15:09 GMT
+From:   Taras Kondratiuk <takondra@cisco.com>
+To:     Jon Maloy <jon.maloy@ericsson.com>,
+        Ying Xue <ying.xue@windriver.com>,
+        "David S. Miller" <davem@davemloft.net>
+Cc:     netdev@vger.kernel.org, tipc-discussion@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, xe-linux-external@cisco.com,
+        stable@vger.kernel.org
+Subject: [PATCH] tipc: compat: allow tipc commands without arguments
+Date:   Mon, 29 Jul 2019 22:15:07 +0000
+Message-Id: <20190729221507.48893-1-takondra@cisco.com>
+X-Mailer: git-send-email 2.18.1
+X-Auto-Response-Suppress: DR, OOF, AutoReply
+X-Authenticated-User: takondra@cisco.com
+X-Outbound-SMTP-Client: 10.30.217.207, sjc-ads-7132.cisco.com
+X-Outbound-Node: alln-core-9.cisco.com
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Todd Kjos <tkjos@android.com>
+Commit 2753ca5d9009 ("tipc: fix uninit-value in tipc_nl_compat_doit")
+broke older tipc tools that use compat interface (e.g. tipc-config from
+tipcutils package):
 
-commit a370003cc301d4361bae20c9ef615f89bf8d1e8a upstream
+% tipc-config -p
+operation not supported
 
-There is a race between the binder driver cleaning
-up a completed transaction via binder_free_transaction()
-and a user calling binder_ioctl(BC_FREE_BUFFER) to
-release a buffer. It doesn't matter which is first but
-they need to be protected against running concurrently
-which can result in a UAF.
+The commit started to reject TIPC netlink compat messages that do not
+have attributes. It is too restrictive because some of such messages are
+valid (they don't need any arguments):
 
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Cc: stable <stable@vger.kernel.org> # 4.14 4.19
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+% grep 'tx none' include/uapi/linux/tipc_config.h
+#define  TIPC_CMD_NOOP              0x0000    /* tx none, rx none */
+#define  TIPC_CMD_GET_MEDIA_NAMES   0x0002    /* tx none, rx media_name(s) */
+#define  TIPC_CMD_GET_BEARER_NAMES  0x0003    /* tx none, rx bearer_name(s) */
+#define  TIPC_CMD_SHOW_PORTS        0x0006    /* tx none, rx ultra_string */
+#define  TIPC_CMD_GET_REMOTE_MNG    0x4003    /* tx none, rx unsigned */
+#define  TIPC_CMD_GET_MAX_PORTS     0x4004    /* tx none, rx unsigned */
+#define  TIPC_CMD_GET_NETID         0x400B    /* tx none, rx unsigned */
+#define  TIPC_CMD_NOT_NET_ADMIN     0xC001    /* tx none, rx none */
+
+This patch relaxes the original fix and rejects messages without
+arguments only if such arguments are expected by a command (reg_type is
+non zero).
+
+Fixes: 2753ca5d9009 ("tipc: fix uninit-value in tipc_nl_compat_doit")
+Cc: stable@vger.kernel.org
+Signed-off-by: Taras Kondratiuk <takondra@cisco.com>
 ---
- drivers/android/binder.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+The patch is based on v5.3-rc2.
 
-diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-index 5d67f5fec6c1b..2decb1a5a8e2f 100644
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -1960,8 +1960,18 @@ static struct binder_thread *binder_get_txn_from_and_acq_inner(
+ net/tipc/netlink_compat.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/net/tipc/netlink_compat.c b/net/tipc/netlink_compat.c
+index d86030ef1232..e135d4e11231 100644
+--- a/net/tipc/netlink_compat.c
++++ b/net/tipc/netlink_compat.c
+@@ -55,6 +55,7 @@ struct tipc_nl_compat_msg {
+ 	int rep_type;
+ 	int rep_size;
+ 	int req_type;
++	int req_size;
+ 	struct net *net;
+ 	struct sk_buff *rep;
+ 	struct tlv_desc *req;
+@@ -257,7 +258,8 @@ static int tipc_nl_compat_dumpit(struct tipc_nl_compat_cmd_dump *cmd,
+ 	int err;
+ 	struct sk_buff *arg;
  
- static void binder_free_transaction(struct binder_transaction *t)
+-	if (msg->req_type && !TLV_CHECK_TYPE(msg->req, msg->req_type))
++	if (msg->req_type && (!msg->req_size ||
++			      !TLV_CHECK_TYPE(msg->req, msg->req_type)))
+ 		return -EINVAL;
+ 
+ 	msg->rep = tipc_tlv_alloc(msg->rep_size);
+@@ -354,7 +356,8 @@ static int tipc_nl_compat_doit(struct tipc_nl_compat_cmd_doit *cmd,
  {
--	if (t->buffer)
--		t->buffer->transaction = NULL;
-+	struct binder_proc *target_proc = t->to_proc;
-+
-+	if (target_proc) {
-+		binder_inner_proc_lock(target_proc);
-+		if (t->buffer)
-+			t->buffer->transaction = NULL;
-+		binder_inner_proc_unlock(target_proc);
-+	}
-+	/*
-+	 * If the transaction has no target_proc, then
-+	 * t->buffer->transaction has already been cleared.
-+	 */
- 	kfree(t);
- 	binder_stats_deleted(BINDER_STAT_TRANSACTION);
- }
-@@ -3484,10 +3494,12 @@ static int binder_thread_write(struct binder_proc *proc,
- 				     buffer->debug_id,
- 				     buffer->transaction ? "active" : "finished");
+ 	int err;
  
-+			binder_inner_proc_lock(proc);
- 			if (buffer->transaction) {
- 				buffer->transaction->buffer = NULL;
- 				buffer->transaction = NULL;
- 			}
-+			binder_inner_proc_unlock(proc);
- 			if (buffer->async_transaction && buffer->target_node) {
- 				struct binder_node *buf_node;
- 				struct binder_work *w;
+-	if (msg->req_type && !TLV_CHECK_TYPE(msg->req, msg->req_type))
++	if (msg->req_type && (!msg->req_size ||
++			      !TLV_CHECK_TYPE(msg->req, msg->req_type)))
+ 		return -EINVAL;
+ 
+ 	err = __tipc_nl_compat_doit(cmd, msg);
+@@ -1278,8 +1281,8 @@ static int tipc_nl_compat_recv(struct sk_buff *skb, struct genl_info *info)
+ 		goto send;
+ 	}
+ 
+-	len = nlmsg_attrlen(req_nlh, GENL_HDRLEN + TIPC_GENL_HDRLEN);
+-	if (!len || !TLV_OK(msg.req, len)) {
++	msg.req_size = nlmsg_attrlen(req_nlh, GENL_HDRLEN + TIPC_GENL_HDRLEN);
++	if (msg.req_size && !TLV_OK(msg.req, msg.req_size)) {
+ 		msg.rep = tipc_get_err_tlv(TIPC_CFG_NOT_SUPPORTED);
+ 		err = -EOPNOTSUPP;
+ 		goto send;
 -- 
-2.22.0.709.g102302147b-goog
+2.19.1
 
