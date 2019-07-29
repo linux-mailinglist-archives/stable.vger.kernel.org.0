@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B201798A6
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:10:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52CE1798B7
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:10:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388575AbfG2TgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:36:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50624 "EHLO mail.kernel.org"
+        id S1728680AbfG2UJu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 16:09:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388572AbfG2TgQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:36:16 -0400
+        id S1729794AbfG2Tfn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:35:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D87512171F;
-        Mon, 29 Jul 2019 19:36:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCA3A217D4;
+        Mon, 29 Jul 2019 19:35:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428975;
-        bh=88T8WQy+9gKqfooyuekwAxRjIY12W/zte00sVRrZulk=;
+        s=default; t=1564428943;
+        bh=ZGWD3sUV9uHaEwmTx4a0VLY6cZXDAmvPWcFM/D4w6YY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yuskjZW8kFqmeJ4ABEuTFh6HeBi8dW4yyvCRaX7JwV212nJ3aqRhBMfRzYGs3bJ+J
-         3oBxffR4CCkkF/m65srF5gFqG3Vk4q30kJ9PM9+BFIVnS343Kx5z7T1LS9xhsYojjF
-         UysPXca4WUhO46+vfA/gMZIHc3gU7hMtGuBRCFSM=
+        b=V5i5i2i0fEWv/G/6K3NhQdsdlqW7iUTehHXyDkQAEUN7mlDEp4vQ/3WX31LTae1rd
+         GBWOlwDt9TgpKIRA0+OHiAeU/wHfBxMWx8bTqxncsGpmrTM2iDs3DZJ5Wfg8i5+Brq
+         5GRuUdybzOft9wInMXPWSKZY6Sza/QLrNaHpfSbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, David Riley <davidriley@chromium.org>,
+        Gerd Hoffmann <kraxel@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 228/293] PCI: Return error if cannot probe VF
-Date:   Mon, 29 Jul 2019 21:21:59 +0200
-Message-Id: <20190729190841.960852238@linuxfoundation.org>
+Subject: [PATCH 4.14 236/293] drm/virtio: Add memory barriers for capset cache.
+Date:   Mon, 29 Jul 2019 21:22:07 +0200
+Message-Id: <20190729190842.535102914@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -45,61 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 76002d8b48c4b08c9bd414517dd295e132ad910b ]
+[ Upstream commit 9ff3a5c88e1f1ab17a31402b96d45abe14aab9d7 ]
 
-Commit 0e7df22401a3 ("PCI: Add sysfs sriov_drivers_autoprobe to control
-VF driver binding") allows the user to specify that drivers for VFs of
-a PF should not be probed, but it actually causes pci_device_probe() to
-return success back to the driver core in this case.  Therefore by all
-sysfs appearances the device is bound to a driver, the driver link from
-the device exists as does the device link back from the driver, yet the
-driver's probe function is never called on the device.  We also fail to
-do any sort of cleanup when we're prohibited from probing the device,
-the IRQ setup remains in place and we even hold a device reference.
+After data is copied to the cache entry, atomic_set is used indicate
+that the data is the entry is valid without appropriate memory barriers.
+Similarly the read side was missing the corresponding memory barriers.
 
-Instead, abort with errno before any setup or references are taken when
-pci_device_can_probe() prevents us from trying to probe the device.
-
-Link: https://lore.kernel.org/lkml/155672991496.20698.4279330795743262888.stgit@gimli.home
-Fixes: 0e7df22401a3 ("PCI: Add sysfs sriov_drivers_autoprobe to control VF driver binding")
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: David Riley <davidriley@chromium.org>
+Link: http://patchwork.freedesktop.org/patch/msgid/20190610211810.253227-5-davidriley@chromium.org
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci-driver.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 3 +++
+ drivers/gpu/drm/virtio/virtgpu_vq.c    | 2 ++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
-index ea69b4dbab66..e5a8bf2c9b37 100644
---- a/drivers/pci/pci-driver.c
-+++ b/drivers/pci/pci-driver.c
-@@ -415,6 +415,9 @@ static int pci_device_probe(struct device *dev)
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
- 	struct pci_driver *drv = to_pci_driver(dev->driver);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index ed9c443bb8a1..40cc2f6707cf 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -523,6 +523,9 @@ static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
+ 	ret = wait_event_timeout(vgdev->resp_wq,
+ 				 atomic_read(&cache_ent->is_valid), 5 * HZ);
  
-+	if (!pci_device_can_probe(pci_dev))
-+		return -ENODEV;
++	/* is_valid check must proceed before copy of the cache entry. */
++	smp_rmb();
 +
- 	pci_assign_irq(pci_dev);
+ 	ptr = cache_ent->caps_cache;
  
- 	error = pcibios_alloc_irq(pci_dev);
-@@ -422,12 +425,10 @@ static int pci_device_probe(struct device *dev)
- 		return error;
- 
- 	pci_dev_get(pci_dev);
--	if (pci_device_can_probe(pci_dev)) {
--		error = __pci_device_probe(drv, pci_dev);
--		if (error) {
--			pcibios_free_irq(pci_dev);
--			pci_dev_put(pci_dev);
--		}
-+	error = __pci_device_probe(drv, pci_dev);
-+	if (error) {
-+		pcibios_free_irq(pci_dev);
-+		pci_dev_put(pci_dev);
- 	}
- 
- 	return error;
+ copy_exit:
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 26a2da1f712d..21c2de81f3e3 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -585,6 +585,8 @@ static void virtio_gpu_cmd_capset_cb(struct virtio_gpu_device *vgdev,
+ 		    cache_ent->id == le32_to_cpu(cmd->capset_id)) {
+ 			memcpy(cache_ent->caps_cache, resp->capset_data,
+ 			       cache_ent->size);
++			/* Copy must occur before is_valid is signalled. */
++			smp_wmb();
+ 			atomic_set(&cache_ent->is_valid, 1);
+ 			break;
+ 		}
 -- 
 2.20.1
 
