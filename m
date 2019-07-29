@@ -2,35 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7B2B79472
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:31:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1F0A79476
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:31:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728706AbfG2Tbh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:31:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44512 "EHLO mail.kernel.org"
+        id S1729324AbfG2Tby (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:31:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730171AbfG2Tbg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:31:36 -0400
+        id S1730191AbfG2Tbw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:31:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A3C82070B;
-        Mon, 29 Jul 2019 19:31:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F90B21655;
+        Mon, 29 Jul 2019 19:31:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428695;
-        bh=teYA52SKQAPfFHB3ttDrRt74gQvkiiKl0rrFbTo3XVg=;
+        s=default; t=1564428711;
+        bh=0W16tsMQAcxB/cu+dIZ70l3X1En5LlP5plGhVJf4liE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UA7s6mdw0ODWmDpm65CSAnBOo1oD3nfzVsmB9lpNgDwKD/yjRIpCO70xfBpuTtS6o
-         c1x6wcqTB9nWcx9/m6VfZBjPlqfitXYL+kZo0J+CQLIEzSP1/I6fDGbEbMNxBuDAE/
-         A8/MGLYD9UewyAGUVpGUmNBNUFBWDQenKB6l716E=
+        b=c8OFItFlk8oSJbwusZNV5sL5UhnFnT4TdYmUuzAkr6Ffsp6bFiXig6g1j5iUj0Syz
+         GnWttL9CSJs9E5ceAXu5S3OF0flsg7Nk99/of8IGvykXz9A8sRmGgZsX+EbZL0Bce5
+         pv2cEubmRcnK0s741rz5KqZzB3cjd6jmsDfN3StU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 158/293] Btrfs: fix fsync not persisting dentry deletions due to inode evictions
-Date:   Mon, 29 Jul 2019 21:20:49 +0200
-Message-Id: <20190729190836.657261298@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jane Chu <jane.chu@oracle.com>, Jeff Moyer <jmoyer@redhat.com>,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Toshi Kani <toshi.kani@hpe.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Wei Yang <richardw.yang@linux.intel.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>
+Subject: [PATCH 4.14 162/293] libnvdimm/pfn: fix fsdax-mode namespace info-block zero-fields
+Date:   Mon, 29 Jul 2019 21:20:53 +0200
+Message-Id: <20190729190836.979840257@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -43,133 +59,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-commit 803f0f64d17769071d7287d9e3e3b79a3e1ae937 upstream.
+commit 7e3e888dfc138089f4c15a81b418e88f0978f744 upstream.
 
-In order to avoid searches on a log tree when unlinking an inode, we check
-if the inode being unlinked was logged in the current transaction, as well
-as the inode of its parent directory. When any of the inodes are logged,
-we proceed to delete directory items and inode reference items from the
-log, to ensure that if a subsequent fsync of only the inode being unlinked
-or only of the parent directory when the other is not fsync'ed as well,
-does not result in the entry still existing after a power failure.
+At namespace creation time there is the potential for the "expected to
+be zero" fields of a 'pfn' info-block to be filled with indeterminate
+data.  While the kernel buffer is zeroed on allocation it is immediately
+overwritten by nd_pfn_validate() filling it with the current contents of
+the on-media info-block location.  For fields like, 'flags' and the
+'padding' it potentially means that future implementations can not rely on
+those fields being zero.
 
-That check however is not reliable when one of the inodes involved (the
-one being unlinked or its parent directory's inode) is evicted, since the
-logged_trans field is transient, that is, it is not stored on disk, so it
-is lost when the inode is evicted and loaded into memory again (which is
-set to zero on load). As a consequence the checks currently being done by
-btrfs_del_dir_entries_in_log() and btrfs_del_inode_ref_in_log() always
-return true if the inode was evicted before, regardless of the inode
-having been logged or not before (and in the current transaction), this
-results in the dentry being unlinked still existing after a log replay
-if after the unlink operation only one of the inodes involved is fsync'ed.
+In preparation to stop using the 'start_pad' and 'end_trunc' fields for
+section alignment, arrange for fields that are not explicitly
+initialized to be guaranteed zero.  Bump the minor version to indicate
+it is safe to assume the 'padding' and 'flags' are zero.  Otherwise,
+this corruption is expected to benign since all other critical fields
+are explicitly initialized.
 
-Example:
+Note The cc: stable is about spreading this new policy to as many
+kernels as possible not fixing an issue in those kernels.  It is not
+until the change titled "libnvdimm/pfn: Stop padding pmem namespaces to
+section alignment" where this improper initialization becomes a problem.
+So if someone decides to backport "libnvdimm/pfn: Stop padding pmem
+namespaces to section alignment" (which is not tagged for stable), make
+sure this pre-requisite is flagged.
 
-  $ mkfs.btrfs -f /dev/sdb
-  $ mount /dev/sdb /mnt
-
-  $ mkdir /mnt/dir
-  $ touch /mnt/dir/foo
-  $ xfs_io -c fsync /mnt/dir/foo
-
-  # Keep an open file descriptor on our directory while we evict inodes.
-  # We just want to evict the file's inode, the directory's inode must not
-  # be evicted.
-  $ ( cd /mnt/dir; while true; do :; done ) &
-  $ pid=$!
-
-  # Wait a bit to give time to background process to chdir to our test
-  # directory.
-  $ sleep 0.5
-
-  # Trigger eviction of the file's inode.
-  $ echo 2 > /proc/sys/vm/drop_caches
-
-  # Unlink our file and fsync the parent directory. After a power failure
-  # we don't expect to see the file anymore, since we fsync'ed the parent
-  # directory.
-  $ rm -f $SCRATCH_MNT/dir/foo
-  $ xfs_io -c fsync /mnt/dir
-
-  <power failure>
-
-  $ mount /dev/sdb /mnt
-  $ ls /mnt/dir
-  foo
-  $
-   --> file still there, unlink not persisted despite explicit fsync on dir
-
-Fix this by checking if the inode has the full_sync bit set in its runtime
-flags as well, since that bit is set everytime an inode is loaded from
-disk, or for other less common cases such as after a shrinking truncate
-or failure to allocate extent maps for holes, and gets cleared after the
-first fsync. Also consider the inode as possibly logged only if it was
-last modified in the current transaction (besides having the full_fsync
-flag set).
-
-Fixes: 3a5f1d458ad161 ("Btrfs: Optimize btree walking while logging inodes")
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Link: http://lkml.kernel.org/r/156092356065.979959.6681003754765958296.stgit@dwillia2-desk3.amr.corp.intel.com
+Fixes: 32ab0a3f5170 ("libnvdimm, pmem: 'struct page' for pmem")
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Tested-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>	[ppc64]
+Cc: <stable@vger.kernel.org>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Jane Chu <jane.chu@oracle.com>
+Cc: Jeff Moyer <jmoyer@redhat.com>
+Cc: Jérôme Glisse <jglisse@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Logan Gunthorpe <logang@deltatee.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Toshi Kani <toshi.kani@hpe.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Wei Yang <richardw.yang@linux.intel.com>
+Cc: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/tree-log.c |   28 ++++++++++++++++++++++++++--
- 1 file changed, 26 insertions(+), 2 deletions(-)
+ drivers/nvdimm/dax_devs.c |    2 +-
+ drivers/nvdimm/pfn.h      |    1 +
+ drivers/nvdimm/pfn_devs.c |   18 +++++++++++++++---
+ 3 files changed, 17 insertions(+), 4 deletions(-)
 
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -3153,6 +3153,30 @@ int btrfs_free_log_root_tree(struct btrf
+--- a/drivers/nvdimm/dax_devs.c
++++ b/drivers/nvdimm/dax_devs.c
+@@ -126,7 +126,7 @@ int nd_dax_probe(struct device *dev, str
+ 	nvdimm_bus_unlock(&ndns->dev);
+ 	if (!dax_dev)
+ 		return -ENOMEM;
+-	pfn_sb = devm_kzalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
++	pfn_sb = devm_kmalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
+ 	nd_pfn->pfn_sb = pfn_sb;
+ 	rc = nd_pfn_validate(nd_pfn, DAX_SIG);
+ 	dev_dbg(dev, "%s: dax: %s\n", __func__,
+--- a/drivers/nvdimm/pfn.h
++++ b/drivers/nvdimm/pfn.h
+@@ -36,6 +36,7 @@ struct nd_pfn_sb {
+ 	__le32 end_trunc;
+ 	/* minor-version-2 record the base alignment of the mapping */
+ 	__le32 align;
++	/* minor-version-3 guarantee the padding and flags are zero */
+ 	u8 padding[4000];
+ 	__le64 checksum;
+ };
+--- a/drivers/nvdimm/pfn_devs.c
++++ b/drivers/nvdimm/pfn_devs.c
+@@ -361,6 +361,15 @@ struct device *nd_pfn_create(struct nd_r
+ 	return dev;
  }
  
- /*
-+ * Check if an inode was logged in the current transaction. We can't always rely
-+ * on an inode's logged_trans value, because it's an in-memory only field and
-+ * therefore not persisted. This means that its value is lost if the inode gets
-+ * evicted and loaded again from disk (in which case it has a value of 0, and
-+ * certainly it is smaller then any possible transaction ID), when that happens
-+ * the full_sync flag is set in the inode's runtime flags, so on that case we
-+ * assume eviction happened and ignore the logged_trans value, assuming the
-+ * worst case, that the inode was logged before in the current transaction.
++/**
++ * nd_pfn_validate - read and validate info-block
++ * @nd_pfn: fsdax namespace runtime state / properties
++ * @sig: 'devdax' or 'fsdax' signature
++ *
++ * Upon return the info-block buffer contents (->pfn_sb) are
++ * indeterminate when validation fails, and a coherent info-block
++ * otherwise.
 + */
-+static bool inode_logged(struct btrfs_trans_handle *trans,
-+			 struct btrfs_inode *inode)
-+{
-+	if (inode->logged_trans == trans->transid)
-+		return true;
+ int nd_pfn_validate(struct nd_pfn *nd_pfn, const char *sig)
+ {
+ 	u64 checksum, offset;
+@@ -506,7 +515,7 @@ int nd_pfn_probe(struct device *dev, str
+ 	nvdimm_bus_unlock(&ndns->dev);
+ 	if (!pfn_dev)
+ 		return -ENOMEM;
+-	pfn_sb = devm_kzalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
++	pfn_sb = devm_kmalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
+ 	nd_pfn = to_nd_pfn(pfn_dev);
+ 	nd_pfn->pfn_sb = pfn_sb;
+ 	rc = nd_pfn_validate(nd_pfn, PFN_SIG);
+@@ -637,7 +646,7 @@ static int nd_pfn_init(struct nd_pfn *nd
+ 	u64 checksum;
+ 	int rc;
+ 
+-	pfn_sb = devm_kzalloc(&nd_pfn->dev, sizeof(*pfn_sb), GFP_KERNEL);
++	pfn_sb = devm_kmalloc(&nd_pfn->dev, sizeof(*pfn_sb), GFP_KERNEL);
+ 	if (!pfn_sb)
+ 		return -ENOMEM;
+ 
+@@ -646,11 +655,14 @@ static int nd_pfn_init(struct nd_pfn *nd
+ 		sig = DAX_SIG;
+ 	else
+ 		sig = PFN_SIG;
 +
-+	if (inode->last_trans == trans->transid &&
-+	    test_bit(BTRFS_INODE_NEEDS_FULL_SYNC, &inode->runtime_flags) &&
-+	    !test_bit(BTRFS_FS_LOG_RECOVERING, &trans->fs_info->flags))
-+		return true;
+ 	rc = nd_pfn_validate(nd_pfn, sig);
+ 	if (rc != -ENODEV)
+ 		return rc;
+ 
+ 	/* no info block, do init */;
++	memset(pfn_sb, 0, sizeof(*pfn_sb));
 +
-+	return false;
-+}
-+
-+/*
-  * If both a file and directory are logged, and unlinks or renames are
-  * mixed in, we have a few interesting corners:
-  *
-@@ -3186,7 +3210,7 @@ int btrfs_del_dir_entries_in_log(struct
- 	int bytes_del = 0;
- 	u64 dir_ino = btrfs_ino(dir);
- 
--	if (dir->logged_trans < trans->transid)
-+	if (!inode_logged(trans, dir))
- 		return 0;
- 
- 	ret = join_running_log_trans(root);
-@@ -3291,7 +3315,7 @@ int btrfs_del_inode_ref_in_log(struct bt
- 	u64 index;
- 	int ret;
- 
--	if (inode->logged_trans < trans->transid)
-+	if (!inode_logged(trans, inode))
- 		return 0;
- 
- 	ret = join_running_log_trans(root);
+ 	nd_region = to_nd_region(nd_pfn->dev.parent);
+ 	if (nd_region->ro) {
+ 		dev_info(&nd_pfn->dev,
+@@ -704,7 +716,7 @@ static int nd_pfn_init(struct nd_pfn *nd
+ 	memcpy(pfn_sb->uuid, nd_pfn->uuid, 16);
+ 	memcpy(pfn_sb->parent_uuid, nd_dev_to_uuid(&ndns->dev), 16);
+ 	pfn_sb->version_major = cpu_to_le16(1);
+-	pfn_sb->version_minor = cpu_to_le16(2);
++	pfn_sb->version_minor = cpu_to_le16(3);
+ 	pfn_sb->start_pad = cpu_to_le32(start_pad);
+ 	pfn_sb->end_trunc = cpu_to_le32(end_trunc);
+ 	pfn_sb->align = cpu_to_le32(nd_pfn->align);
 
 
