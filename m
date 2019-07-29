@@ -2,102 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EEB9792EB
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 20:17:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89FC579329
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 20:34:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728740AbfG2SRV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 14:17:21 -0400
-Received: from mail-io1-f49.google.com ([209.85.166.49]:33093 "EHLO
-        mail-io1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726242AbfG2SRV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 14:17:21 -0400
-Received: by mail-io1-f49.google.com with SMTP id z3so3284410iog.0
-        for <stable@vger.kernel.org>; Mon, 29 Jul 2019 11:17:21 -0700 (PDT)
+        id S2388000AbfG2SeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 14:34:25 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:38958 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387849AbfG2SeZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 14:34:25 -0400
+Received: by mail-wr1-f65.google.com with SMTP id x4so9769335wrt.6
+        for <stable@vger.kernel.org>; Mon, 29 Jul 2019 11:34:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=jN1VrhemEwfUdvcwgI6hsvtoLObQ3NsJ5/wJEXlhkzA=;
-        b=kWwqz43DjtNsBiFPAP1nYt6/VUBZkEwJ/Qkrn0EVXfwrriQgw9E6RnQm83gnAXFT1r
-         K6Ntnus7OBBwqa+wec+inRmVVF+npYRa8aIHp+BwvlkvhD2KqIryFYCefsDYejDK9c1z
-         oIU6MX9h4L0PrEV9DwGN3UOQAaD6bFGU5qypNOoq2HfdBz5wOuaeyxzZUWrCQJixdm5C
-         GE2km+FPCfnlwDl7EHan9VpIeqZ1egZy6npV062Jt0EHuVfyVVjon71VopthKtPphFoG
-         Zk6ANLTIv6t3fwG2Cpz2wFAQ/Vl6EHFQheUFOkqm5tNwcWoeqhFlzA8aTC+2u+ZMjYNm
-         pZNQ==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=tpTNef2J2++QNO/OkHVy/yBR1B5TUwAqqnweG/iXLyQ=;
+        b=LZVoxJO0kBPqiF/uiAFqrbcV2bFOZTwsBdFA28Xc8nQJSw/oSIaMTOi0CJ/jTHW+kb
+         kACkHaaTGZ5nbO7JbvxdhhGQC1iFHZEBGxy/Igms3FH3htza/94TRLm1nZBPT9nmcPIX
+         v9S963ibaBpFPqm4rgg0MujYPEqxWeU/d6/97rEBTKPfdGMLcW6ZcrFefJNKbV1H0OS/
+         icvQypSExJN8HtE5YcyKj5QcOgKFTxA50dxbjFLH95maIKNImEPobXrcWyik2Buz5FQK
+         BOw0crkgXtXYCvOdhJMxsFBd0H614pBW3ZAS7IpKS+PHXoMGpfRDC/MDTFeo/UccetOM
+         Bv0A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=jN1VrhemEwfUdvcwgI6hsvtoLObQ3NsJ5/wJEXlhkzA=;
-        b=bAsjtrgbN3PSqlSjR2BzEWkV+NCvG2h+onCCgXwXQSYP1TL/29187bXCwISqCRV+Ln
-         tAzS4UQFj94BCmNH5AOthks3l1IfMho+MZalCiAYmibaaYJEb2vOR0tz34T01c53CQxx
-         n3cHgSwAgmy9StP5JwJyQGqirqHmDthNha0xKFHhJf13IpxZEZEF4AYqzxPLfQU2ibKR
-         4EuAa4Ny7Wxfl3itlKIEKdR+bzvtN/yMXnAiyM+UIdLRFkygINxd/6m127SV81clFIwP
-         cz45KkuoZBfvTwTGQXDn9uJ+iWIBjLm4H/0WN5ozRQD7yQnAZkKP2gd6hs6rBZv0+vA4
-         qPhQ==
-X-Gm-Message-State: APjAAAXSHfsvmgZ3w4317pUBy9IDtwjTwlQXJcRMJROAyV4YX/evhN3d
-        dOhEsVMwZPAOXDTt67er3WrnGdRoEYU=
-X-Google-Smtp-Source: APXvYqw15iY8h6OdgDTSZamSq5CLBwQQlz3SK6iIvTXFMHD3SU3zAbM2JlskQE7MtByyk8mDnNoyeA==
-X-Received: by 2002:a02:b609:: with SMTP id h9mr109898502jam.36.1564424240186;
-        Mon, 29 Jul 2019 11:17:20 -0700 (PDT)
-Received: from [192.168.1.57] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id s3sm52236467iob.49.2019.07.29.11.17.19
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 29 Jul 2019 11:17:19 -0700 (PDT)
-Subject: Re: fs/io_uring.c stable additions
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
-References: <59d14d1f-441a-568c-246e-4ee1ea443278@kernel.dk>
- <20190729181528.GA25613@kroah.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <abd31004-9c2f-ffa9-10b3-77ed4427d411@kernel.dk>
-Date:   Mon, 29 Jul 2019 12:17:18 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=tpTNef2J2++QNO/OkHVy/yBR1B5TUwAqqnweG/iXLyQ=;
+        b=n/4G8d8DHcBV74d/p4zvgyQeMZy+h4qB3fvsMeSoEC9r6/v7Kw9FMjcNDMmi1P+Y0x
+         NXDvM+pMrAwFZMQ1Wec1BxH0ZKTTCFp+Nz2CPE9rcSozluEadbn2p5EouznuMHlo5Z/h
+         1z0wwJP0bqucVIg3g/sTP5UZwE6EuPGUHRtKXoGwLfB1kQNIM9xjVZBOQt+vEJMVv19b
+         PyLv2RRNrmimwVtKmXMMR2pVYV8RISNjlprbBQFsK0x1eASz6FKiM7/oiUKzDK4UPElQ
+         d1wCWKxMq3d7EJ02/LXfB7ajhL8FyfM1XU777yJn10fbV95DcFI8Pw/EQmuwcp7dau2Q
+         waDQ==
+X-Gm-Message-State: APjAAAUa/b7NXFoOk/L7zccnQ9J7z/3bS4LfNvLemzdCyO8NWoFjnVaH
+        zaTXb5vm3u8pJnArn/gBvj0Nkpv2TTOmVUbSUHCbig==
+X-Google-Smtp-Source: APXvYqzm6XO0MjlmwEOBSDGQInrilKkrrqCvL/4sjBmTp50wT9ZFDcnAsnubc3selGc8g3TuMaB/fX2ZNp0VmcyOQa0=
+X-Received: by 2002:adf:b1cb:: with SMTP id r11mr114636138wra.328.1564425262685;
+ Mon, 29 Jul 2019 11:34:22 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20190729181528.GA25613@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <CY4PR1201MB003708ADAD79BF4FD24D3445AACB0@CY4PR1201MB0037.namprd12.prod.outlook.com>
+ <20190723202735.113381-1-john.stultz@linaro.org>
+In-Reply-To: <20190723202735.113381-1-john.stultz@linaro.org>
+From:   John Stultz <john.stultz@linaro.org>
+Date:   Mon, 29 Jul 2019 11:34:10 -0700
+Message-ID: <CALAqxLW0HWJpPUK5JBDhuQ_m3w6teWo6eg1BeEd9YcfSmG+iHQ@mail.gmail.com>
+Subject: Re: [PATCH] usb: dwc3: Check for IOC/LST bit in both event->status
+ and TRB->ctrl fields
+To:     lkml <linux-kernel@vger.kernel.org>
+Cc:     Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        Fei Yang <fei.yang@intel.com>,
+        Thinh Nguyen <thinhn@synopsys.com>,
+        Tejas Joglekar <tejas.joglekar@synopsys.com>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Linux USB List <linux-usb@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/29/19 12:15 PM, Greg Kroah-Hartman wrote:
-> On Mon, Jul 29, 2019 at 12:08:28PM -0600, Jens Axboe wrote:
->> Hi,
->>
->> I forgot to mark a few patches for io_uring as stable. In order
->> of how to apply, can you add the following commits for 5.2?
->>
->> f7b76ac9d17e16e44feebb6d2749fec92bfd6dd4
-> 
-> Does not apply :(
-> 
->> c0e48f9dea9129aa11bec3ed13803bcc26e96e49
-> 
-> Now queued up.
-> 
->> bd11b3a391e3df6fa958facbe4b3f9f4cca9bd49
-> 
-> Does not apply :(
-> 
->> 36703247d5f52a679df9da51192b6950fe81689f
-> 
-> Now queued up.
-> 
-> You are 2 out of 4 :)
-> 
-> Care to send backported versions of the 2 that did not apply?  I'll be
-> glad to queue them up then.
+On Tue, Jul 23, 2019 at 1:27 PM John Stultz <john.stultz@linaro.org> wrote:
+>
+> From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
+>
+> The present code in dwc3_gadget_ep_reclaim_completed_trb() will check
+> for IOC/LST bit in the event->status and returns if IOC/LST bit is
+> set. This logic doesn't work if multiple TRBs are queued per
+> request and the IOC/LST bit is set on the last TRB of that request.
+> Consider an example where a queued request has multiple queued TRBs
+> and IOC/LST bit is set only for the last TRB. In this case, the Core
+> generates XferComplete/XferInProgress events only for the last TRB
+> (since IOC/LST are set only for the last TRB). As per the logic in
+> dwc3_gadget_ep_reclaim_completed_trb() event->status is checked for
+> IOC/LST bit and returns on the first TRB. This makes the remaining
+> TRBs left unhandled.
+> To aviod this, changed the code to check for IOC/LST bits in both
+> event->status & TRB->ctrl. This patch does the same.
+>
+> At a practical level, this patch resolves USB transfer stalls seen
+> with adb on dwc3 based Android devices after functionfs gadget
+> added scatter-gather support around v4.20.
+>
+> Cc: Felipe Balbi <felipe.balbi@linux.intel.com>
+> Cc: Fei Yang <fei.yang@intel.com>
+> Cc: Thinh Nguyen <thinhn@synopsys.com>
+> Cc: Tejas Joglekar <tejas.joglekar@synopsys.com>
+> Cc: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+> Cc: Greg KH <gregkh@linuxfoundation.org>
+> Cc: Linux USB List <linux-usb@vger.kernel.org>
+> Cc: stable <stable@vger.kernel.org>
+> Tested-By: Tejas Joglekar <tejas.joglekar@synopsys.com>
+> Reviewed-by: Thinh Nguyen <thinhn@synopsys.com>
+> Signed-off-by: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
+> [jstultz: forward ported to mainline, added note to commit log]
+> Signed-off-by: John Stultz <john.stultz@linaro.org>
+> ---
+> Just wanted to send this out so we're all looking at the same thing.
+> Not sure if its correct, but it seems to solve the adb stalls I've
+> been seeing for awhile.
 
-Huh strange, I applied them to our internal 5.2 tree without conflict.
-Maybe I had backported more...
+Felipe: Any thoughts on this patch?
 
-I'll send versions for 5.2 in a bit for you.
-
--- 
-Jens Axboe
-
+thanks
+-john
