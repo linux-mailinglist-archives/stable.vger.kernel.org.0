@@ -2,85 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7138B79379
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 20:58:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94C8D793B6
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:23:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727915AbfG2S6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 14:58:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56418 "EHLO mail.kernel.org"
+        id S1728123AbfG2TXq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:23:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727089AbfG2S6N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 14:58:13 -0400
+        id S1725938AbfG2TXq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:23:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A754206DD;
-        Mon, 29 Jul 2019 18:58:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EAFE52070B;
+        Mon, 29 Jul 2019 19:23:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564426692;
-        bh=zgKfBWrlVs0BWqbWq453nBIBZ8evDtpioWPOioqCcy0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=P/c5i4VTnvuIr0oyNRodMJY0H5NblFqcIy9tgxlfElBzxFWX7ik7s26SxFXpCRM2r
-         zeSjNrbIbeBf4izETKWN6tMYjG0cBbPXG+ZQHVQivbT3pqTWJo+ixLUvAE7NNGNwfM
-         d4U9Mxw/0YsRXZkQlkcuaTtGdPZ+r0+Qatq1UY8o=
-Date:   Mon, 29 Jul 2019 20:58:08 +0200
+        s=default; t=1564428225;
+        bh=HP3/a2oZIL74Jk6LrFo/J/9++kAyvAYs/l+UguAunkM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=BxTFwV/MmFZB0+bz461wi1uZCS3rzoacLMe/JGbo8qf7ehqfVf4QNo3PHsrbG1OBT
+         EniQH/Zsf7L3rOP30RcXCP3swc9opctO/pRq4QJoxcncAFlBDZtfPdT9sStfBlrTeq
+         9EFEVyvsH/VaM4987xWcSbs0YRdrZWrRHJGyzW1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     stable@vger.kernel.org
-Subject: Re: fs/io_uring.c stable additions
-Message-ID: <20190729185808.GA25051@kroah.com>
-References: <59d14d1f-441a-568c-246e-4ee1ea443278@kernel.dk>
- <20190729181528.GA25613@kroah.com>
- <abd31004-9c2f-ffa9-10b3-77ed4427d411@kernel.dk>
- <93699ab7-35b2-338a-967d-bf0b432e8abf@kernel.dk>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Stefan Hellermann <stefan@the2masters.de>,
+        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 001/293] MIPS: ath79: fix ar933x uart parity mode
+Date:   Mon, 29 Jul 2019 21:18:12 +0200
+Message-Id: <20190729190820.454391880@linuxfoundation.org>
+X-Mailer: git-send-email 2.22.0
+In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
+References: <20190729190820.321094988@linuxfoundation.org>
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <93699ab7-35b2-338a-967d-bf0b432e8abf@kernel.dk>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 29, 2019 at 12:35:14PM -0600, Jens Axboe wrote:
-> On 7/29/19 12:17 PM, Jens Axboe wrote:
-> > On 7/29/19 12:15 PM, Greg Kroah-Hartman wrote:
-> > > On Mon, Jul 29, 2019 at 12:08:28PM -0600, Jens Axboe wrote:
-> > > > Hi,
-> > > > 
-> > > > I forgot to mark a few patches for io_uring as stable. In order
-> > > > of how to apply, can you add the following commits for 5.2?
-> > > > 
-> > > > f7b76ac9d17e16e44feebb6d2749fec92bfd6dd4
-> > > 0ef67e605d2b1e8300d04fd9134d283bbbf441b9
-> > > Does not apply :(
-> > > 
-> > > > c0e48f9dea9129aa11bec3ed13803bcc26e96e49
-> > > 
-> > > Now queued up.
-> > > 
-> > > > bd11b3a391e3df6fa958facbe4b3f9f4cca9bd49
-> > > 
-> > > Does not apply :(
-> > > 
-> > > > 36703247d5f52a679df9da51192b6950fe81689f
-> > > 
-> > > Now queued up.
-> > > 
-> > > You are 2 out of 4 :)
-> > > 
-> > > Care to send backported versions of the 2 that did not apply?  I'll be
-> > > glad to queue them up then.
-> > 
-> > Huh strange, I applied them to our internal 5.2 tree without conflict.
-> > Maybe I had backported more...
-> > 
-> > I'll send versions for 5.2 in a bit for you.
-> 
-> Here you go, those two on top of the others. Ran it through the
-> regressions tests here, works for me.
+[ Upstream commit db13a5ba2732755cf13320f3987b77cf2a71e790 ]
 
-That worked, all now queued up, thanks!
+While trying to get the uart with parity working I found setting even
+parity enabled odd parity insted. Fix the register settings to match
+the datasheet of AR9331.
 
-greg k-h
+A similar patch was created by 8devices, but not sent upstream.
+https://github.com/8devices/openwrt-8devices/commit/77c5586ade3bb72cda010afad3f209ed0c98ea7c
+
+Signed-off-by: Stefan Hellermann <stefan@the2masters.de>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: linux-mips@vger.kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/mips/include/asm/mach-ath79/ar933x_uart.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/mips/include/asm/mach-ath79/ar933x_uart.h b/arch/mips/include/asm/mach-ath79/ar933x_uart.h
+index c2917b39966b..bba2c8837951 100644
+--- a/arch/mips/include/asm/mach-ath79/ar933x_uart.h
++++ b/arch/mips/include/asm/mach-ath79/ar933x_uart.h
+@@ -27,8 +27,8 @@
+ #define AR933X_UART_CS_PARITY_S		0
+ #define AR933X_UART_CS_PARITY_M		0x3
+ #define	  AR933X_UART_CS_PARITY_NONE	0
+-#define	  AR933X_UART_CS_PARITY_ODD	1
+-#define	  AR933X_UART_CS_PARITY_EVEN	2
++#define	  AR933X_UART_CS_PARITY_ODD	2
++#define	  AR933X_UART_CS_PARITY_EVEN	3
+ #define AR933X_UART_CS_IF_MODE_S	2
+ #define AR933X_UART_CS_IF_MODE_M	0x3
+ #define	  AR933X_UART_CS_IF_MODE_NONE	0
+-- 
+2.20.1
+
+
+
