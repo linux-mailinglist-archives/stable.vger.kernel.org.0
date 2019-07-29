@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25894795C7
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:46:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80282795CA
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:46:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389248AbfG2Tp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:45:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35008 "EHLO mail.kernel.org"
+        id S2389755AbfG2TqL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:46:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389732AbfG2Tp5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:45:57 -0400
+        id S2390098AbfG2TqJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:46:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 924CF2171F;
-        Mon, 29 Jul 2019 19:45:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6AB9B21655;
+        Mon, 29 Jul 2019 19:46:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429556;
-        bh=NljQuSTzO2M/JfMc0jAmcqezMEWVRtpAYocA8vn465Y=;
+        s=default; t=1564429569;
+        bh=MvNMOkezmcVB2765TDn/hRcjd4x9ipr+ymUwktuan7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mC1GbWLMIZat00zSifSOG3KRw2XE3DQWso6Nc6BLgSueU49hZjeNLjeivMiOOtIgC
-         xNkoD27tA4S3QRjsZX2O9UKU57czJm3KLi5IBZ7Vk3NGeyZoxQeyzvGy1bxD1yshEA
-         QkUSVnadQ8T9lIykU8oVI6WKflHUbt2Rp8A87ZB8=
+        b=gYHxO5pLXu+jF4PbAihcWeNFcZHK37rvDYZbX69KoN+22fET0dkPDb6uI809engP4
+         JcWoyLwKD5bO+DsOY16LTP6N34zpm3rN2rCkgc7T5BFS+YGxVgrVMaRdd3umyCRcNH
+         VaLA+5QBetwx1MZeQMYHCchMHtiF4KvBhDvadHms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony Koo <anthony.koo@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        stable@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Harish Kasiviswanathan <Harish.Kasiviswanathan@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 021/215] drm/amd/display: fix multi display seamless boot case
-Date:   Mon, 29 Jul 2019 21:20:17 +0200
-Message-Id: <20190729190743.425605466@linuxfoundation.org>
+Subject: [PATCH 5.2 025/215] drm/amdgpu: Reserve shared fence for eviction fence
+Date:   Mon, 29 Jul 2019 21:20:21 +0200
+Message-Id: <20190729190744.332250061@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -46,68 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4cd75ff096f4ef49c343093b52a952f27aba7796 ]
+[ Upstream commit dd68722c427d5b33420dce0ed0c44b4881e0a416 ]
 
-[Why]
-There is a scenario that causes eDP to become blank if
-there are multiple displays connected, and the external
-display is set as the primary display such that the first
-flip comes to the external display.
+Need to reserve space for the shared eviction fence when initializing
+a KFD VM.
 
-In this scenario, we call our optimize function before
-the eDP even has a chance to flip.
-
-[How]
-There is a check that prevents bandwidth optimize from
-occurring before first flip is complete on the seamless boot
-display.
-But actually it assumed the seamless boot display is the
-first one to flip. But in this scenario it is not.
-Modify the check to ensure the steam with the seamless
-boot flag set is the one that has completed the first flip.
-
-Signed-off-by: Anthony Koo <anthony.koo@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Harish Kasiviswanathan <Harish.Kasiviswanathan@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
-index 18c775a950cc..ee6b646180b6 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
-@@ -1138,9 +1138,6 @@ static enum dc_status dc_commit_state_no_check(struct dc *dc, struct dc_state *c
- 		const struct dc_link *link = context->streams[i]->link;
- 		struct dc_stream_status *status;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
+index a6e5184d436c..4b192e0ce92f 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
+@@ -896,6 +896,9 @@ static int init_kfd_vm(struct amdgpu_vm *vm, void **process_info,
+ 				  AMDGPU_FENCE_OWNER_KFD, false);
+ 	if (ret)
+ 		goto wait_pd_fail;
++	ret = reservation_object_reserve_shared(vm->root.base.bo->tbo.resv, 1);
++	if (ret)
++		goto reserve_shared_fail;
+ 	amdgpu_bo_fence(vm->root.base.bo,
+ 			&vm->process_info->eviction_fence->base, true);
+ 	amdgpu_bo_unreserve(vm->root.base.bo);
+@@ -909,6 +912,7 @@ static int init_kfd_vm(struct amdgpu_vm *vm, void **process_info,
  
--		if (context->streams[i]->apply_seamless_boot_optimization)
--			context->streams[i]->apply_seamless_boot_optimization = false;
--
- 		if (!context->streams[i]->mode_changed)
- 			continue;
+ 	return 0;
  
-@@ -1792,10 +1789,15 @@ static void commit_planes_for_stream(struct dc *dc,
- 	if (dc->optimize_seamless_boot && surface_count > 0) {
- 		/* Optimize seamless boot flag keeps clocks and watermarks high until
- 		 * first flip. After first flip, optimization is required to lower
--		 * bandwidth.
-+		 * bandwidth. Important to note that it is expected UEFI will
-+		 * only light up a single display on POST, therefore we only expect
-+		 * one stream with seamless boot flag set.
- 		 */
--		dc->optimize_seamless_boot = false;
--		dc->optimized_required = true;
-+		if (stream->apply_seamless_boot_optimization) {
-+			stream->apply_seamless_boot_optimization = false;
-+			dc->optimize_seamless_boot = false;
-+			dc->optimized_required = true;
-+		}
- 	}
- 
- 	if (update_type == UPDATE_TYPE_FULL && !dc->optimize_seamless_boot) {
++reserve_shared_fail:
+ wait_pd_fail:
+ validate_pd_fail:
+ 	amdgpu_bo_unreserve(vm->root.base.bo);
 -- 
 2.20.1
 
