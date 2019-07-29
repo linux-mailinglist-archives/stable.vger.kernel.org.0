@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13BFF79825
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:06:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3CED7986B
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:07:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389535AbfG2TpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:45:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33660 "EHLO mail.kernel.org"
+        id S2388933AbfG2TjF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:39:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389851AbfG2To7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:44:59 -0400
+        id S2388925AbfG2TjE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:39:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A69720C01;
-        Mon, 29 Jul 2019 19:44:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A4382171F;
+        Mon, 29 Jul 2019 19:39:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429498;
-        bh=oMVB5LUCxLBc4d04rJgABbGj+3wyZ+J3zsf37SFGpH4=;
+        s=default; t=1564429143;
+        bh=Bk4euBxqH5qlll/EnIf32IESFKGEKVT4LqtJsXFNGTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RBj3hhteEjANR893qEXecaxw23ofKrgbtBpzQcSdK9OSff54fP8CjAoPqGvA2ifcq
-         lRX/OX2LKCOm1uHUQtoyn3AtzC03AXOb7RccPIZeWRpzu5vjadPNnxzOl07m7hYp+M
-         EaZrROWpvmrRn8B33QAT/22mu0pYRz376ox0J6cY=
+        b=HVv+HESF+Zocdz3+I7by6SK+AzzM23C1U13/Md7EXyvizjERySkEX/44viDi6vhE0
+         uv9cvd5PjFGHharfua2WvR/4oO1TSBYPOVfNXmpz2FlfPnANtKEfrCOWsgpSzyIaG+
+         BRJss+4VFK4X+Cf7H/i088V2vxkKmJ1k9FpufO4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Morten Borup Petersen <morten_bp@live.dk>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
+        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Florian Weimer <fweimer@redhat.com>,
+        Jann Horn <jannh@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 078/113] mailbox: handle failed named mailbox channel request
+Subject: [PATCH 4.14 274/293] mm/gup.c: remove some BUG_ONs from get_gate_page()
 Date:   Mon, 29 Jul 2019 21:22:45 +0200
-Message-Id: <20190729190714.296045350@linuxfoundation.org>
+Message-Id: <20190729190845.306981562@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
-References: <20190729190655.455345569@linuxfoundation.org>
+In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
+References: <20190729190820.321094988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 25777e5784a7b417967460d4fcf9660d05a0c320 ]
+[ Upstream commit b5d1c39f34d1c9bca0c4b9ae2e339fbbe264a9c7 ]
 
-Previously, if mbox_request_channel_byname was used with a name
-which did not exist in the "mbox-names" property of a mailbox
-client, the mailbox corresponding to the last entry in the
-"mbox-names" list would be incorrectly selected.
-With this patch, -EINVAL is returned if the named mailbox is
-not found.
+If we end up without a PGD or PUD entry backing the gate area, don't BUG
+-- just fail gracefully.
 
-Signed-off-by: Morten Borup Petersen <morten_bp@live.dk>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+It's not entirely implausible that this could happen some day on x86.  It
+doesn't right now even with an execute-only emulated vsyscall page because
+the fixmap shares the PUD, but the core mm code shouldn't rely on that
+particular detail to avoid OOPSing.
+
+Link: http://lkml.kernel.org/r/a1d9f4efb75b9d464e59fd6af00104b21c58f6f7.1561610798.git.luto@kernel.org
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Florian Weimer <fweimer@redhat.com>
+Cc: Jann Horn <jannh@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/mailbox.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ mm/gup.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mailbox/mailbox.c b/drivers/mailbox/mailbox.c
-index 674b35f402f5..055c90b8253c 100644
---- a/drivers/mailbox/mailbox.c
-+++ b/drivers/mailbox/mailbox.c
-@@ -391,11 +391,13 @@ struct mbox_chan *mbox_request_channel_byname(struct mbox_client *cl,
- 
- 	of_property_for_each_string(np, "mbox-names", prop, mbox_name) {
- 		if (!strncmp(name, mbox_name, strlen(name)))
--			break;
-+			return mbox_request_channel(cl, index);
- 		index++;
- 	}
- 
--	return mbox_request_channel(cl, index);
-+	dev_err(cl->dev, "%s() could not locate channel named \"%s\"\n",
-+		__func__, name);
-+	return ERR_PTR(-EINVAL);
- }
- EXPORT_SYMBOL_GPL(mbox_request_channel_byname);
- 
+diff --git a/mm/gup.c b/mm/gup.c
+index cee599d1692c..12b9626b1a9e 100644
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -442,11 +442,14 @@ static int get_gate_page(struct mm_struct *mm, unsigned long address,
+ 		pgd = pgd_offset_k(address);
+ 	else
+ 		pgd = pgd_offset_gate(mm, address);
+-	BUG_ON(pgd_none(*pgd));
++	if (pgd_none(*pgd))
++		return -EFAULT;
+ 	p4d = p4d_offset(pgd, address);
+-	BUG_ON(p4d_none(*p4d));
++	if (p4d_none(*p4d))
++		return -EFAULT;
+ 	pud = pud_offset(p4d, address);
+-	BUG_ON(pud_none(*pud));
++	if (pud_none(*pud))
++		return -EFAULT;
+ 	pmd = pmd_offset(pud, address);
+ 	if (!pmd_present(*pmd))
+ 		return -EFAULT;
 -- 
 2.20.1
 
