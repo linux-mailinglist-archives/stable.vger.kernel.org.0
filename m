@@ -2,97 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CDE98787EF
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 11:03:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FA7B7880C
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 11:10:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727509AbfG2JDP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 05:03:15 -0400
-Received: from hqemgate15.nvidia.com ([216.228.121.64]:17274 "EHLO
-        hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726432AbfG2JDP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 05:03:15 -0400
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqemgate15.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5d3eb65a0000>; Mon, 29 Jul 2019 02:03:22 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Mon, 29 Jul 2019 02:03:14 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Mon, 29 Jul 2019 02:03:14 -0700
-Received: from [10.21.132.148] (10.124.1.5) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 29 Jul
- 2019 09:03:11 +0000
-Subject: Re: [PATCH 5.2 00/66] 5.2.4-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20190726152301.936055394@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <df4d349b-03a1-58b1-cf82-4e76d5820614@nvidia.com>
-Date:   Mon, 29 Jul 2019 10:03:10 +0100
+        id S1726678AbfG2JK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 05:10:27 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:44359 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726526AbfG2JK0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 05:10:26 -0400
+Received: by mail-wr1-f66.google.com with SMTP id p17so60924823wrf.11
+        for <stable@vger.kernel.org>; Mon, 29 Jul 2019 02:10:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:openpgp:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=zV+bTIgChlMbStRhEz4HmI17F1bLOP/P0h9cutKjnuk=;
+        b=UQEoBowvyMFW7bhfEm544cOVO02eC61JVv8fgdjpNm1uIFlzfrRWJkWgVogcbu7qld
+         NMElVomLa173Ig1jF/dBgTmOEj+a/vWhG0MznsIwizzQCuxQXyqV6YYfhXZqzwfCCqPE
+         Bh1l7kXO8rDMe8G7w0Up0d8FvDVdS4zTJJeSORw3GEYjmztbJgmb+9rMdIrN/szFwFCu
+         m6YVlgI8eAjd3DNbxnCR57Ub0jq5ftud/3Uv27dEal3Qv2Th5VBiW9EaMpSKFAFpKbA6
+         W1EbzWxdbT65bWwGb6f+h3eLOexdJKlqyEeSOF4tbZdsAGh0K9np+bvTrHoG8I3zSPlN
+         ZM2g==
+X-Gm-Message-State: APjAAAUMACMMhDGrGeFzn/FGDZNIYmp0IHkkpAfDqvi0dPhoo/8V7UsX
+        0ZABMjsW+RLwMQOMOil/GOypXvBBOMQ=
+X-Google-Smtp-Source: APXvYqwu+iJxG0Nnx1LAgpMTW4dJUcSifVyQWlGLBgiZPy7xi6UkywxpJxOjNTGIQL6gbv5Vi6t8kA==
+X-Received: by 2002:a5d:4e8a:: with SMTP id e10mr38159080wru.26.1564391424671;
+        Mon, 29 Jul 2019 02:10:24 -0700 (PDT)
+Received: from [192.168.10.150] ([93.56.166.5])
+        by smtp.gmail.com with ESMTPSA id e6sm57983191wrw.23.2019.07.29.02.10.23
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Mon, 29 Jul 2019 02:10:23 -0700 (PDT)
+Subject: Re: [PATCH stable-4.19 1/2] KVM: nVMX: do not use dangling shadow
+ VMCS after guest reset
+To:     Jack Wang <jack.wang.usish@gmail.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc:     stable@vger.kernel.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>
+References: <20190725104645.30642-1-vkuznets@redhat.com>
+ <20190725104645.30642-2-vkuznets@redhat.com>
+ <CA+res+RfqpT=g1QbCqr3OkHVzFFSAt3cfCYNcwqiemWmOifFxg@mail.gmail.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Openpgp: preference=signencrypt
+Message-ID: <2ea5d588-8573-6653-b848-0b06d1f98310@redhat.com>
+Date:   Mon, 29 Jul 2019 11:10:26 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.8.0
 MIME-Version: 1.0
-In-Reply-To: <20190726152301.936055394@linuxfoundation.org>
-X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL105.nvidia.com (172.20.187.12) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <CA+res+RfqpT=g1QbCqr3OkHVzFFSAt3cfCYNcwqiemWmOifFxg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1564391002; bh=8XCwXG3bSoPGoVaqWvCQLwGWu4+QUH2urSLln44fk+A=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=KuC6J7DHg7P9VENLrBHysk+8WL3VTuK+Nbfc8raWib1iwAmZNY63cvUXWTmZ0zgPB
-         aOscvcWidrkyTMTl02+1ziIdtwW2lRhFWbxgMHbXqobrDaGpGGRCcgixq8GH7HbNXw
-         Doar6klqDlhwdhDV2gBpv/7xah9F5iU387D/++1qv9L908MHblNh5V/7XhtSswtOBT
-         pnXfPgIFYMuea063519gj0G/S7+XW1Rru02jtWVVbDEU5Ft4PB9ngCALYofUouWJ6x
-         pJ7TdFigAn9o9r16ijfAl6nrG/bs3T+MrO3LhzoYHYryPBTZU3JU9oYk8a8KJuNK62
-         wcKp9Q9u2uFvw==
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 26/07/2019 16:23, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.2.4 release.
-> There are 66 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 29/07/19 10:58, Jack Wang wrote:
+> Vitaly Kuznetsov <vkuznets@redhat.com> 于2019年7月25日周四 下午3:29写道：
+>>
+>> From: Paolo Bonzini <pbonzini@redhat.com>
+>>
+>> [ Upstream commit 88dddc11a8d6b09201b4db9d255b3394d9bc9e57 ]
+>>
+>> If a KVM guest is reset while running a nested guest, free_nested will
+>> disable the shadow VMCS execution control in the vmcs01.  However,
+>> on the next KVM_RUN vmx_vcpu_run would nevertheless try to sync
+>> the VMCS12 to the shadow VMCS which has since been freed.
+>>
+>> This causes a vmptrld of a NULL pointer on my machime, but Jan reports
+>> the host to hang altogether.  Let's see how much this trivial patch fixes.
+>>
+>> Reported-by: Jan Kiszka <jan.kiszka@siemens.com>
+>> Cc: Liran Alon <liran.alon@oracle.com>
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 > 
-> Responses should be made by Sun 28 Jul 2019 03:21:13 PM UTC.
-> Anything received after that time might be too late.
+> Hi all,
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.4-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+> Do we need to backport the fix also to stable 4.14?  It applies
+> cleanly and compiles fine.
 
-All tests are passing for Tegra ...
+The reproducer required newer kernels that support KVM_GET_NESTED_STATE
+and KVM_SET_NESTED_STATE, so it would be hard to test it.  However, the
+patch itself should be safe.
 
-Test results for stable-v5.2:
-    12 builds:	12 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    38 tests:	38 pass, 0 fail
-
-Linux version:	5.2.4-gfc89179bfa10
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
-
-Cheers
-Jon
-
--- 
-nvpublic
+Paolo
