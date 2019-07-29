@@ -2,164 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 705F578F58
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 17:32:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45EB578FBB
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 17:47:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387926AbfG2Pcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 11:32:43 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:45507 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2387925AbfG2Pcm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 11:32:42 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id B169922265;
-        Mon, 29 Jul 2019 11:32:41 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 29 Jul 2019 11:32:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Of10dj
-        FgNxCycBQzaTdi2VUJN9MFfIBoERK8W9doiCw=; b=PlUWxIGeMwOmRUgGgZcQ7Q
-        HQHjeK4vOV/suj/QP54J0qRVsSQnfp6lnwYP53lth664bYplnZ3S98tvbOxEffcu
-        KM57kOjtvQsxLwKWoSTn3FVfKaesJ4gnw/VQ8qlr9akwDvVS7aqdleBjXXwZf48H
-        2SC1DmAIK9bjjOe3TiHjOGEmdJRe2LlrLBiweF0k1RcUk2nN9bknksRKo3lwzPGi
-        43xi5PD1JjSCv3CFAjK44yZnv4VhdW+6f7roxigXJeiTqYaU4LS+LAAu/NAQGQTl
-        rBC3EU9KUsZK4BehB7dUMhHTmnUbcqF4VSIDjD6wbe9nYcztBKFgpen7vFykkbMw
-        ==
-X-ME-Sender: <xms:mRE_Xf5inzBTXYDstAA0r5SSKP8HlOS-psIm5PaeS16RlzEI_KnaKQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrledugdeltdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
-    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:mRE_XYmbZmR-yEDv9aR6HIBIPjShfh5gFLtzUIzaxvtken0tgfUksw>
-    <xmx:mRE_XQSqfGjP31Ej3oNRy0mfx7lcFcM1xDf3Ty2rAZg7LTvpW1AK_w>
-    <xmx:mRE_XXFrcZXkLLHBYxxC63UdpLt7VWZbcy1wNNR4VgQZtM6iR9pUqA>
-    <xmx:mRE_XcPH2k5MPEtiLrz0hyGoFkrsEv9yRnIKi_Q8y1sMaffmrcJE5A>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2EA6B380086;
-        Mon, 29 Jul 2019 11:32:41 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: inode: Don't compress if NODATASUM or NODATACOW set" failed to apply to 4.9-stable tree
-To:     wqu@suse.com, dsterba@suse.com, jamespharvey20@gmail.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Jul 2019 17:32:32 +0200
-Message-ID: <1564414352161176@kroah.com>
+        id S2388212AbfG2PrC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 11:47:02 -0400
+Received: from mail.monom.org ([188.138.9.77]:50038 "EHLO mail.monom.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387476AbfG2PrC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 11:47:02 -0400
+X-Greylist: delayed 368 seconds by postgrey-1.27 at vger.kernel.org; Mon, 29 Jul 2019 11:47:01 EDT
+Received: from mail.monom.org (localhost [127.0.0.1])
+        by filter.mynetwork.local (Postfix) with ESMTP id 0EAC45006EC;
+        Mon, 29 Jul 2019 17:40:51 +0200 (CEST)
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on mail.monom.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.5 required=5.0 tests=ALL_TRUSTED,BAYES_00
+        autolearn=ham autolearn_force=no version=3.4.2
+Received: from localhost (b9168f76.cgn.dg-w.de [185.22.143.118])
+        by mail.monom.org (Postfix) with ESMTPSA id D47805005D6;
+        Mon, 29 Jul 2019 17:40:50 +0200 (CEST)
+From:   Daniel Wagner <wagi@monom.org>
+To:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Jon Hunter <jonathanh@nvidia.com>
+Subject: [PATCH 4.4 0/2] vmstat backports
+Date:   Mon, 29 Jul 2019 17:40:44 +0200
+Message-Id: <20190729154046.8824-1-wagi@monom.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Greg,
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Second attempt on this topic [1]:
 
-thanks,
+"""
+Upstream commmit 0eb77e988032 ("vmstat: make vmstat_updater deferrable
+again and shut down on idle") was back ported in v4.4.178
+(bdf3c006b9a2). For -rt we definitely need the bugfix f01f17d3705b
+("mm, vmstat: make quiet_vmstat lighter") as well.
 
-greg k-h
+Since the offending patch was back ported to v4.4 stable only, the
+other stable branches don't need an update (offending patch and bug
+fix are already in).
+"""
 
------------------- original commit in Linus's tree ------------------
+Though I missed a dependency as Jon noted[2]. The missing patch is
+587198ba5206 ("vmstat: Remove BUG_ON from vmstat_update"). I've tested
+this on a Tegra K1 one board which exposed the bug. With this should
+be fine.
 
-From 42c16da6d684391db83788eb680accd84f6c2083 Mon Sep 17 00:00:00 2001
-From: Qu Wenruo <wqu@suse.com>
-Date: Mon, 1 Jul 2019 05:12:46 +0000
-Subject: [PATCH] btrfs: inode: Don't compress if NODATASUM or NODATACOW set
+While at it, I looked on all relevant changes for
+vmstat_updated(). These two patches are the only relevant changes
+which are missing. It seems almost all changes from mainline have made
+it back to v4.
 
-As btrfs(5) specified:
+Could you please queue the above patches for v4.4.y?
 
-	Note
-	If nodatacow or nodatasum are enabled, compression is disabled.
+Thanks,
+Daniel
 
-If NODATASUM or NODATACOW set, we should not compress the extent.
+[1] https://lore.kernel.org/stable/20190513061237.4915-1-wagi@monom.org
+[2] https://lore.kernel.org/stable/f32de22f-c928-2eaa-ee3f-d2b26c184dd4@nvidia.com
 
-Normally NODATACOW is detected properly in run_delalloc_range() so
-compression won't happen for NODATACOW.
 
-However for NODATASUM we don't have any check, and it can cause
-compressed extent without csum pretty easily, just by:
-  mkfs.btrfs -f $dev
-  mount $dev $mnt -o nodatasum
-  touch $mnt/foobar
-  mount -o remount,datasum,compress $mnt
-  xfs_io -f -c "pwrite 0 128K" $mnt/foobar
+Christoph Lameter (1):
+  vmstat: Remove BUG_ON from vmstat_update
 
-And in fact, we have a bug report about corrupted compressed extent
-without proper data checksum so even RAID1 can't recover the corruption.
-(https://bugzilla.kernel.org/show_bug.cgi?id=199707)
+Michal Hocko (1):
+  mm, vmstat: make quiet_vmstat lighter
 
-Running compression without proper checksum could cause more damage when
-corruption happens, as compressed data could make the whole extent
-unreadable, so there is no need to allow compression for
-NODATACSUM.
+ mm/vmstat.c | 80 +++++++++++++++++++++++++++++++----------------------
+ 1 file changed, 47 insertions(+), 33 deletions(-)
 
-The fix will refactor the inode compression check into two parts:
-
-- inode_can_compress()
-  As the hard requirement, checked at btrfs_run_delalloc_range(), so no
-  compression will happen for NODATASUM inode at all.
-
-- inode_need_compress()
-  As the soft requirement, checked at btrfs_run_delalloc_range() and
-  compress_file_range().
-
-Reported-by: James Harvey <jamespharvey20@gmail.com>
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 1af069a9a0c7..ee582a36653d 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -395,10 +395,31 @@ static noinline int add_async_extent(struct async_chunk *cow,
- 	return 0;
- }
- 
-+/*
-+ * Check if the inode has flags compatible with compression
-+ */
-+static inline bool inode_can_compress(struct inode *inode)
-+{
-+	if (BTRFS_I(inode)->flags & BTRFS_INODE_NODATACOW ||
-+	    BTRFS_I(inode)->flags & BTRFS_INODE_NODATASUM)
-+		return false;
-+	return true;
-+}
-+
-+/*
-+ * Check if the inode needs to be submitted to compression, based on mount
-+ * options, defragmentation, properties or heuristics.
-+ */
- static inline int inode_need_compress(struct inode *inode, u64 start, u64 end)
- {
- 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
- 
-+	if (!inode_can_compress(inode)) {
-+		WARN(IS_ENABLED(CONFIG_BTRFS_DEBUG),
-+			KERN_ERR "BTRFS: unexpected compression for ino %llu\n",
-+			btrfs_ino(BTRFS_I(inode)));
-+		return 0;
-+	}
- 	/* force compress */
- 	if (btrfs_test_opt(fs_info, FORCE_COMPRESS))
- 		return 1;
-@@ -1631,7 +1652,8 @@ int btrfs_run_delalloc_range(struct inode *inode, struct page *locked_page,
- 	} else if (BTRFS_I(inode)->flags & BTRFS_INODE_PREALLOC && !force_cow) {
- 		ret = run_delalloc_nocow(inode, locked_page, start, end,
- 					 page_started, 0, nr_written);
--	} else if (!inode_need_compress(inode, start, end)) {
-+	} else if (!inode_can_compress(inode) ||
-+		   !inode_need_compress(inode, start, end)) {
- 		ret = cow_file_range(inode, locked_page, start, end, end,
- 				      page_started, nr_written, 1, NULL);
- 	} else {
-
+-- 
+2.20.1
