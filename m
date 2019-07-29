@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 520E2798F0
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:11:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6B1C798E8
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:11:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730310AbfG2TdM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:33:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47152 "EHLO mail.kernel.org"
+        id S1729384AbfG2TdP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:33:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729527AbfG2TdM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:33:12 -0400
+        id S1729397AbfG2TdO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:33:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A978521655;
-        Mon, 29 Jul 2019 19:33:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5314A21655;
+        Mon, 29 Jul 2019 19:33:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428791;
-        bh=jCXGdMDV83SSi0RMcl/cTH0AX2saeysAkpPWqNnn6r8=;
+        s=default; t=1564428793;
+        bh=eO0h03KlQJOXUAo5ZXToyNf4OaRQbcRRIWCrBWlHd+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NnDlRPyE8052uiS7XgX1fkVvJzJs8NOcoTTVfkKYBuMdfuhE9YCpIZAc7a20LOCdt
-         ybKrDKC/t5NqEOBvbzU8R4OAWqI6L8lrzqVtx0aMTwdsa8UPpDDXURd6TxQ6dfLCb1
-         dPn2RVv6PEMCYVSoBEwBgCoz16rI/p3Y1znIR2dg=
+        b=xN76abjBHNFxeLNmG5gdH7wPLpV00gnTiZ+bZocS4bAGbddgJYxQhIatQmMpavpxu
+         NeAdgDq4cmPDFZhpYwDPPYnglri4KIFpXakMZI6rxgkw4/J+3wkMPHOo3iRTT1ACFX
+         WlLE31yrDJuTEl/AyOsp+RU7/krPqt0lkXU87Xms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masato Suzuki <masato.suzuki@wdc.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.14 148/293] dm zoned: fix zone state management race
-Date:   Mon, 29 Jul 2019 21:20:39 +0200
-Message-Id: <20190729190835.903830594@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 4.14 149/293] xen/events: fix binding user event channels to cpus
+Date:   Mon, 29 Jul 2019 21:20:40 +0200
+Message-Id: <20190729190835.986303022@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -44,130 +43,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 3b8cafdd5436f9298b3bf6eb831df5eef5ee82b6 upstream.
+commit bce5963bcb4f9934faa52be323994511d59fd13c upstream.
 
-dm-zoned uses the zone flag DMZ_ACTIVE to indicate that a zone of the
-backend device is being actively read or written and so cannot be
-reclaimed. This flag is set as long as the zone atomic reference
-counter is not 0. When this atomic is decremented and reaches 0 (e.g.
-on BIO completion), the active flag is cleared and set again whenever
-the zone is reused and BIO issued with the atomic counter incremented.
-These 2 operations (atomic inc/dec and flag set/clear) are however not
-always executed atomically under the target metadata mutex lock and
-this causes the warning:
+When binding an interdomain event channel to a vcpu via
+IOCTL_EVTCHN_BIND_INTERDOMAIN not only the event channel needs to be
+bound, but the affinity of the associated IRQi must be changed, too.
+Otherwise the IRQ and the event channel won't be moved to another vcpu
+in case the original vcpu they were bound to is going offline.
 
-WARN_ON(!test_bit(DMZ_ACTIVE, &zone->flags));
-
-in dmz_deactivate_zone() to be displayed. This problem is regularly
-triggered with xfstests generic/209, generic/300, generic/451 and
-xfs/077 with XFS being used as the file system on the dm-zoned target
-device. Similarly, xfstests ext4/303, ext4/304, generic/209 and
-generic/300 trigger the warning with ext4 use.
-
-This problem can be easily fixed by simply removing the DMZ_ACTIVE flag
-and managing the "ACTIVE" state by directly looking at the reference
-counter value. To do so, the functions dmz_activate_zone() and
-dmz_deactivate_zone() are changed to inline functions respectively
-calling atomic_inc() and atomic_dec(), while the dmz_is_active() macro
-is changed to an inline function calling atomic_read().
-
-Fixes: 3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
-Cc: stable@vger.kernel.org
-Reported-by: Masato Suzuki <masato.suzuki@wdc.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Cc: <stable@vger.kernel.org> # 4.13
+Fixes: c48f64ab472389df ("xen-evtchn: Bind dyn evtchn:qemu-dm interrupt to next online VCPU")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-zoned-metadata.c |   24 ------------------------
- drivers/md/dm-zoned.h          |   28 ++++++++++++++++++++++++----
- 2 files changed, 24 insertions(+), 28 deletions(-)
+ drivers/xen/events/events_base.c |   12 ++++++++++--
+ drivers/xen/evtchn.c             |    2 +-
+ include/xen/events.h             |    3 ++-
+ 3 files changed, 13 insertions(+), 4 deletions(-)
 
---- a/drivers/md/dm-zoned-metadata.c
-+++ b/drivers/md/dm-zoned-metadata.c
-@@ -1594,30 +1594,6 @@ struct dm_zone *dmz_get_zone_for_reclaim
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -1293,7 +1293,7 @@ void rebind_evtchn_irq(int evtchn, int i
  }
  
- /*
-- * Activate a zone (increment its reference count).
-- */
--void dmz_activate_zone(struct dm_zone *zone)
--{
--	set_bit(DMZ_ACTIVE, &zone->flags);
--	atomic_inc(&zone->refcount);
--}
--
--/*
-- * Deactivate a zone. This decrement the zone reference counter
-- * and clears the active state of the zone once the count reaches 0,
-- * indicating that all BIOs to the zone have completed. Returns
-- * true if the zone was deactivated.
-- */
--void dmz_deactivate_zone(struct dm_zone *zone)
--{
--	if (atomic_dec_and_test(&zone->refcount)) {
--		WARN_ON(!test_bit(DMZ_ACTIVE, &zone->flags));
--		clear_bit_unlock(DMZ_ACTIVE, &zone->flags);
--		smp_mb__after_atomic();
--	}
--}
--
--/*
-  * Get the zone mapping a chunk, if the chunk is mapped already.
-  * If no mapping exist and the operation is WRITE, a zone is
-  * allocated and used to map the chunk.
---- a/drivers/md/dm-zoned.h
-+++ b/drivers/md/dm-zoned.h
-@@ -115,7 +115,6 @@ enum {
- 	DMZ_BUF,
+ /* Rebind an evtchn so that it gets delivered to a specific cpu */
+-int xen_rebind_evtchn_to_cpu(int evtchn, unsigned tcpu)
++static int xen_rebind_evtchn_to_cpu(int evtchn, unsigned int tcpu)
+ {
+ 	struct evtchn_bind_vcpu bind_vcpu;
+ 	int masked;
+@@ -1327,7 +1327,6 @@ int xen_rebind_evtchn_to_cpu(int evtchn,
  
- 	/* Zone internal state */
--	DMZ_ACTIVE,
- 	DMZ_RECLAIM,
- 	DMZ_SEQ_WRITE_ERR,
- };
-@@ -128,7 +127,6 @@ enum {
- #define dmz_is_empty(z)		((z)->wp_block == 0)
- #define dmz_is_offline(z)	test_bit(DMZ_OFFLINE, &(z)->flags)
- #define dmz_is_readonly(z)	test_bit(DMZ_READ_ONLY, &(z)->flags)
--#define dmz_is_active(z)	test_bit(DMZ_ACTIVE, &(z)->flags)
- #define dmz_in_reclaim(z)	test_bit(DMZ_RECLAIM, &(z)->flags)
- #define dmz_seq_write_err(z)	test_bit(DMZ_SEQ_WRITE_ERR, &(z)->flags)
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(xen_rebind_evtchn_to_cpu);
  
-@@ -188,8 +186,30 @@ void dmz_unmap_zone(struct dmz_metadata
- unsigned int dmz_nr_rnd_zones(struct dmz_metadata *zmd);
- unsigned int dmz_nr_unmap_rnd_zones(struct dmz_metadata *zmd);
+ static int set_affinity_irq(struct irq_data *data, const struct cpumask *dest,
+ 			    bool force)
+@@ -1341,6 +1340,15 @@ static int set_affinity_irq(struct irq_d
+ 	return ret;
+ }
  
--void dmz_activate_zone(struct dm_zone *zone);
--void dmz_deactivate_zone(struct dm_zone *zone);
-+/*
-+ * Activate a zone (increment its reference count).
-+ */
-+static inline void dmz_activate_zone(struct dm_zone *zone)
++/* To be called with desc->lock held. */
++int xen_set_affinity_evtchn(struct irq_desc *desc, unsigned int tcpu)
 +{
-+	atomic_inc(&zone->refcount);
-+}
++	struct irq_data *d = irq_desc_get_irq_data(desc);
 +
-+/*
-+ * Deactivate a zone. This decrement the zone reference counter
-+ * indicating that all BIOs to the zone have completed when the count is 0.
-+ */
-+static inline void dmz_deactivate_zone(struct dm_zone *zone)
-+{
-+	atomic_dec(&zone->refcount);
++	return set_affinity_irq(d, cpumask_of(tcpu), false);
 +}
++EXPORT_SYMBOL_GPL(xen_set_affinity_evtchn);
 +
-+/*
-+ * Test if a zone is active, that is, has a refcount > 0.
-+ */
-+static inline bool dmz_is_active(struct dm_zone *zone)
-+{
-+	return atomic_read(&zone->refcount);
-+}
+ static void enable_dynirq(struct irq_data *data)
+ {
+ 	int evtchn = evtchn_from_irq(data->irq);
+--- a/drivers/xen/evtchn.c
++++ b/drivers/xen/evtchn.c
+@@ -447,7 +447,7 @@ static void evtchn_bind_interdom_next_vc
+ 	this_cpu_write(bind_last_selected_cpu, selected_cpu);
  
- int dmz_lock_zone_reclaim(struct dm_zone *zone);
- void dmz_unlock_zone_reclaim(struct dm_zone *zone);
+ 	/* unmask expects irqs to be disabled */
+-	xen_rebind_evtchn_to_cpu(evtchn, selected_cpu);
++	xen_set_affinity_evtchn(desc, selected_cpu);
+ 	raw_spin_unlock_irqrestore(&desc->lock, flags);
+ }
+ 
+--- a/include/xen/events.h
++++ b/include/xen/events.h
+@@ -3,6 +3,7 @@
+ #define _XEN_EVENTS_H
+ 
+ #include <linux/interrupt.h>
++#include <linux/irq.h>
+ #ifdef CONFIG_PCI_MSI
+ #include <linux/msi.h>
+ #endif
+@@ -59,7 +60,7 @@ void evtchn_put(unsigned int evtchn);
+ 
+ void xen_send_IPI_one(unsigned int cpu, enum ipi_vector vector);
+ void rebind_evtchn_irq(int evtchn, int irq);
+-int xen_rebind_evtchn_to_cpu(int evtchn, unsigned tcpu);
++int xen_set_affinity_evtchn(struct irq_desc *desc, unsigned int tcpu);
+ 
+ static inline void notify_remote_via_evtchn(int port)
+ {
 
 
