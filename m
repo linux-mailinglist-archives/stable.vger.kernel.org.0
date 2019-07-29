@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A56B2793F8
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:27:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1AAF793FA
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:27:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729761AbfG2T02 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:26:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38870 "EHLO mail.kernel.org"
+        id S1729783AbfG2T0e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:26:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729762AbfG2T01 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:26:27 -0400
+        id S1728513AbfG2T0e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:26:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 174CA20C01;
-        Mon, 29 Jul 2019 19:26:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D68021655;
+        Mon, 29 Jul 2019 19:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428386;
-        bh=RdYRD5uZKbN7OnkDT8czaQDN2LdIh8ABplfgRuQLvT4=;
+        s=default; t=1564428393;
+        bh=5zrgH3212XZxlRA9/bHkdArtyD4muCdJKVSnbNKioVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vL/8CTU4fjUQWVUyBAlzSvtm74vI4Wykel98XnQovWrszSia7TSj8bXyg33WIuSYA
-         tKoPqo/xjtktEWOyRb2DN6yCCxZtAsfkAmpsXghXQgqnaHftouidos0TlsmGIZiKwL
-         4XEf9IHJWdd6ZRmEKeFYvosKXWoC09EJXeyDxljk=
+        b=E+2kQ7TEP7deOIEtNMZUd354z44dQFaxYNpTJCWNYsYdsmimjgf4+swO7pDKar/jj
+         Uuik4KdXzX8/6hR/F3w9rnzcDE9+a5dbvJmclW3Kdf6+irswtCki7X9khYL+rAfBFM
+         Ihvca84Bh80fJEsZkx53VDv+tBzaSE3zHmqKsefo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Lezcano <daniel.lezcano@free.fr>,
-        Serge Hallyn <serge@hallyn.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
+        stable@vger.kernel.org, Anirudh Gupta <anirudh.gupta@sophos.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 021/293] signal/pid_namespace: Fix reboot_pid_ns to use send_sig not force_sig
-Date:   Mon, 29 Jul 2019 21:18:32 +0200
-Message-Id: <20190729190822.545550642@linuxfoundation.org>
+Subject: [PATCH 4.14 023/293] xfrm: Fix xfrm sel prefix length validation
+Date:   Mon, 29 Jul 2019 21:18:34 +0200
+Message-Id: <20190729190822.916090014@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -46,48 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f9070dc94542093fd516ae4ccea17ef46a4362c5 ]
+[ Upstream commit b38ff4075a80b4da5cb2202d7965332ca0efb213 ]
 
-The locking in force_sig_info is not prepared to deal with a task that
-exits or execs (as sighand may change).  The is not a locking problem
-in force_sig as force_sig is only built to handle synchronous
-exceptions.
+Family of src/dst can be different from family of selector src/dst.
+Use xfrm selector family to validate address prefix length,
+while verifying new sa from userspace.
 
-Further the function force_sig_info changes the signal state if the
-signal is ignored, or blocked or if SIGNAL_UNKILLABLE will prevent the
-delivery of the signal.  The signal SIGKILL can not be ignored and can
-not be blocked and SIGNAL_UNKILLABLE won't prevent it from being
-delivered.
+Validated patch with this command:
+ip xfrm state add src 1.1.6.1 dst 1.1.6.2 proto esp spi 4260196 \
+reqid 20004 mode tunnel aead "rfc4106(gcm(aes))" \
+0x1111016400000000000000000000000044440001 128 \
+sel src 1011:1:4::2/128 sel dst 1021:1:4::2/128 dev Port5
 
-So using force_sig rather than send_sig for SIGKILL is confusing
-and pointless.
-
-Because it won't impact the sending of the signal and and because
-using force_sig is wrong, replace force_sig with send_sig.
-
-Cc: Daniel Lezcano <daniel.lezcano@free.fr>
-Cc: Serge Hallyn <serge@hallyn.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Fixes: cf3f89214ef6 ("pidns: add reboot_pid_ns() to handle the reboot syscall")
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Fixes: 07bf7908950a ("xfrm: Validate address prefix lengths in the xfrm selector.")
+Signed-off-by: Anirudh Gupta <anirudh.gupta@sophos.com>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/pid_namespace.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/xfrm/xfrm_user.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/kernel/pid_namespace.c b/kernel/pid_namespace.c
-index 4918314893bc..22091c88b3bb 100644
---- a/kernel/pid_namespace.c
-+++ b/kernel/pid_namespace.c
-@@ -351,7 +351,7 @@ int reboot_pid_ns(struct pid_namespace *pid_ns, int cmd)
- 	}
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index 919b8406028c..b25b68ae7c74 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -150,6 +150,22 @@ static int verify_newsa_info(struct xfrm_usersa_info *p,
  
- 	read_lock(&tasklist_lock);
--	force_sig(SIGKILL, pid_ns->child_reaper);
-+	send_sig(SIGKILL, pid_ns->child_reaper, 1);
- 	read_unlock(&tasklist_lock);
- 
- 	do_exit(0);
+ 	err = -EINVAL;
+ 	switch (p->family) {
++	case AF_INET:
++		break;
++
++	case AF_INET6:
++#if IS_ENABLED(CONFIG_IPV6)
++		break;
++#else
++		err = -EAFNOSUPPORT;
++		goto out;
++#endif
++
++	default:
++		goto out;
++	}
++
++	switch (p->sel.family) {
+ 	case AF_INET:
+ 		if (p->sel.prefixlen_d > 32 || p->sel.prefixlen_s > 32)
+ 			goto out;
 -- 
 2.20.1
 
