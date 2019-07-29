@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5540679618
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:48:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FB2E79622
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:49:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388415AbfG2Tsl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:48:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38982 "EHLO mail.kernel.org"
+        id S2390281AbfG2TtG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:49:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390410AbfG2Tsj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:48:39 -0400
+        id S2390471AbfG2TtF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:49:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CA68205F4;
-        Mon, 29 Jul 2019 19:48:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEB3B20C01;
+        Mon, 29 Jul 2019 19:49:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429719;
-        bh=Drb7JSB57DtMotOFpPRiaDsEWKfqyiq2kMzgnVjtx9o=;
+        s=default; t=1564429744;
+        bh=j0lY89zL8lm04jqxntNdtd32n6H1hVaxj2cQkmT5++4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jy313OOk5zUuXc4T8FfHA6LDIRq2x/u064DtiqKNzbpm3wWnAeyjodJfoEIH1yQPL
-         4cgw/hX2NQFcQl43794K2JMUFdH07pLijY2i4I+q7FzYptSVEk8bkNvwtV95mi74oo
-         cLhySnN8vtA5MHE95WdBVHxS1mDgPqkX5PFvpTXU=
+        b=iCzaObMcqNwjOP1XpCWfbb0GcnMFuT4sbVpHBxhJETTyoGCnN5if5ExNZILdVlpKA
+         zJjB4AfATrYuIf48OT8sw/KOWB3Xj5knI7vn/7YwdsVfspt0N3p1jr9Sb1FYIBETOc
+         bEXgJIJvRZG4FS2lcfCURgReptA1NxS+BhWYOwCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        Pierre-Yves MORDRET <pierre-yves.mordret@st.com>,
+        Fabien Dessenne <fabien.dessenne@st.com>,
+        Fabrice Gasnier <fabrice.gasnier@st.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 071/215] usb: dwc3: Fix core validation in probe, move after clocks are enabled
-Date:   Mon, 29 Jul 2019 21:21:07 +0200
-Message-Id: <20190729190752.561773195@linuxfoundation.org>
+Subject: [PATCH 5.2 082/215] i2c: stm32f7: fix the get_irq error cases
+Date:   Mon, 29 Jul 2019 21:21:18 +0200
+Message-Id: <20190729190753.899907991@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -45,68 +47,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit dc1b5d9aed1794b5a1c6b0da46e372cc09974cbc ]
+[ Upstream commit 79b4499524ed659fb76323efc30f3dc03967c88f ]
 
-The required clocks needs to be enabled before the first register
-access. After commit fe8abf332b8f ("usb: dwc3: support clocks and resets
-for DWC3 core"), this happens when the dwc3_core_is_valid function is
-called, but the mentioned commit adds that call in the wrong place,
-before the clocks are enabled. So, move that call after the
-clk_bulk_enable() to ensure the clocks are enabled and the reset
-deasserted.
+During probe, return the "get_irq" error value instead of -EINVAL which
+allows the driver to be deferred probed if needed.
+Fix also the case where of_irq_get() returns a negative value.
+Note :
+On failure of_irq_get() returns 0 or a negative value while
+platform_get_irq() returns a negative value.
 
-I detected this while, as experiment, I tried to move the clocks and resets
-from the glue layer to the DWC3 core on a Samsung Chromebook Plus.
-
-That was not detected before because, in most cases, the glue layer
-initializes SoC-specific things and then populates the child "snps,dwc3"
-with those clocks already enabled.
-
-Fixes: b873e2d0ea1ef ("usb: dwc3: Do core validation early on probe")
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver")
+Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Signed-off-by: Fabien Dessenne <fabien.dessenne@st.com>
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/core.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-stm32f7.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index 4aff1d8dbc4f..6e9e172010fc 100644
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -1423,11 +1423,6 @@ static int dwc3_probe(struct platform_device *pdev)
- 	dwc->regs	= regs;
- 	dwc->regs_size	= resource_size(&dwc_res);
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index 48337bef5b87..3d90c0bb049e 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -25,7 +25,6 @@
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/of_address.h>
+-#include <linux/of_irq.h>
+ #include <linux/of_platform.h>
+ #include <linux/platform_device.h>
+ #include <linux/pinctrl/consumer.h>
+@@ -1816,15 +1815,14 @@ static struct i2c_algorithm stm32f7_i2c_algo = {
  
--	if (!dwc3_core_is_valid(dwc)) {
--		dev_err(dwc->dev, "this is not a DesignWare USB3 DRD Core\n");
--		return -ENODEV;
--	}
--
- 	dwc3_get_properties(dwc);
+ static int stm32f7_i2c_probe(struct platform_device *pdev)
+ {
+-	struct device_node *np = pdev->dev.of_node;
+ 	struct stm32f7_i2c_dev *i2c_dev;
+ 	const struct stm32f7_i2c_setup *setup;
+ 	struct resource *res;
+-	u32 irq_error, irq_event, clk_rate, rise_time, fall_time;
++	u32 clk_rate, rise_time, fall_time;
+ 	struct i2c_adapter *adap;
+ 	struct reset_control *rst;
+ 	dma_addr_t phy_addr;
+-	int ret;
++	int irq_error, irq_event, ret;
  
- 	dwc->reset = devm_reset_control_get_optional_shared(dev, NULL);
-@@ -1460,6 +1455,12 @@ static int dwc3_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto unprepare_clks;
+ 	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
+ 	if (!i2c_dev)
+@@ -1836,16 +1834,20 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
+ 		return PTR_ERR(i2c_dev->base);
+ 	phy_addr = (dma_addr_t)res->start;
  
-+	if (!dwc3_core_is_valid(dwc)) {
-+		dev_err(dwc->dev, "this is not a DesignWare USB3 DRD Core\n");
-+		ret = -ENODEV;
-+		goto disable_clks;
-+	}
-+
- 	platform_set_drvdata(pdev, dwc);
- 	dwc3_cache_hwparams(dwc);
+-	irq_event = irq_of_parse_and_map(np, 0);
+-	if (!irq_event) {
+-		dev_err(&pdev->dev, "IRQ event missing or invalid\n");
+-		return -EINVAL;
++	irq_event = platform_get_irq(pdev, 0);
++	if (irq_event <= 0) {
++		if (irq_event != -EPROBE_DEFER)
++			dev_err(&pdev->dev, "Failed to get IRQ event: %d\n",
++				irq_event);
++		return irq_event ? : -ENOENT;
+ 	}
  
-@@ -1525,6 +1526,7 @@ static int dwc3_probe(struct platform_device *pdev)
- 	pm_runtime_put_sync(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
+-	irq_error = irq_of_parse_and_map(np, 1);
+-	if (!irq_error) {
+-		dev_err(&pdev->dev, "IRQ error missing or invalid\n");
+-		return -EINVAL;
++	irq_error = platform_get_irq(pdev, 1);
++	if (irq_error <= 0) {
++		if (irq_error != -EPROBE_DEFER)
++			dev_err(&pdev->dev, "Failed to get IRQ error: %d\n",
++				irq_error);
++		return irq_error ? : -ENOENT;
+ 	}
  
-+disable_clks:
- 	clk_bulk_disable(dwc->num_clks, dwc->clks);
- unprepare_clks:
- 	clk_bulk_unprepare(dwc->num_clks, dwc->clks);
+ 	i2c_dev->clk = devm_clk_get(&pdev->dev, NULL);
 -- 
 2.20.1
 
