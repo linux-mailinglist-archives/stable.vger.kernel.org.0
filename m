@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54438799A7
+	by mail.lfdr.de (Postfix) with ESMTP id C1C85799A8
 	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:17:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729380AbfG2TXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:23:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35994 "EHLO mail.kernel.org"
+        id S1729396AbfG2TXy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:23:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725938AbfG2TXt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:23:49 -0400
+        id S1725938AbfG2TXw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:23:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B31E52070B;
-        Mon, 29 Jul 2019 19:23:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BBD372070B;
+        Mon, 29 Jul 2019 19:23:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428228;
-        bh=hbaWQ/86C4aWzlWjVCF8FiRdDL4BEFMH12eY0tpE9mM=;
+        s=default; t=1564428231;
+        bh=obB4wLO2yhIWMyZPlhiEwLiR3oIFHKt+hOnNiPSzV2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=07ZiICcadkySb90Q1VbwCgNbQptESjwfDtk2o2yeuXHzvqfmxwPRaOpfdugddsq7Y
-         EvAyOrPek8gu8W+qudcV5kcseXAeW7G7Bq2Oebh/pDMbabbVs6rfEDnDbbZU7Dheu5
-         Az3K+wsIEx0RnQwZ5aM+roSE7JBDOZJG5QApxq54=
+        b=WWHw9bKOJ63LVlMmqhLHzWMo5K+Fck/CSUxWL3WbS2+PP8GZ+QEeH1DNQ99UtYHSZ
+         CSoIdSyL7cnx1jyCxJ597o6xbUFYvGw6QGmBBsBv7JAab4wSM0o4ctaSFebvJKSoBf
+         p78lFpiBVl/a8FV2MpbgXOp6GrQs9AiUYvKnuIpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tamizh chelvam <tamizhr@codeaurora.org>,
-        Anilkumar Kolli <akolli@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        syzbot+d454a826e670502484b8@syzkaller.appspotmail.com,
+        Jeremy Sowden <jeremy@azazel.net>,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 010/293] ath: DFS JP domain W56 fixed pulse type 3 RADAR detection
-Date:   Mon, 29 Jul 2019 21:18:21 +0200
-Message-Id: <20190729190821.117935436@linuxfoundation.org>
+Subject: [PATCH 4.14 011/293] batman-adv: fix for leaked TVLV handler.
+Date:   Mon, 29 Jul 2019 21:18:22 +0200
+Message-Id: <20190729190821.206535000@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -45,42 +47,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d8792393a783158cbb2c39939cb897dc5e5299b6 ]
+[ Upstream commit 17f78dd1bd624a4dd78ed5db3284a63ee807fcc3 ]
 
-Increase pulse width range from 1-2usec to 0-4usec.
-During data traffic HW occasionally fails detecting radar pulses,
-so that SW cannot get enough radar reports to achieve the success rate.
+A handler for BATADV_TVLV_ROAM was being registered when the
+translation-table was initialized, but not unregistered when the
+translation-table was freed.  Unregister it.
 
-Tested ath10k hw and fw:
-	* QCA9888(10.4-3.5.1-00052)
-	* QCA4019(10.4-3.2.1.1-00017)
-	* QCA9984(10.4-3.6-00104)
-	* QCA988X(10.2.4-1.0-00041)
-
-Tested ath9k hw: AR9300
-
-Tested-by: Tamizh chelvam <tamizhr@codeaurora.org>
-Signed-off-by: Tamizh chelvam <tamizhr@codeaurora.org>
-Signed-off-by: Anilkumar Kolli <akolli@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: 122edaa05940 ("batman-adv: tvlv - convert roaming adv packet to use tvlv unicast packets")
+Reported-by: syzbot+d454a826e670502484b8@syzkaller.appspotmail.com
+Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/dfs_pattern_detector.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/batman-adv/translation-table.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/dfs_pattern_detector.c b/drivers/net/wireless/ath/dfs_pattern_detector.c
-index 4100ffd42a43..78146607f16e 100644
---- a/drivers/net/wireless/ath/dfs_pattern_detector.c
-+++ b/drivers/net/wireless/ath/dfs_pattern_detector.c
-@@ -111,7 +111,7 @@ static const struct radar_detector_specs jp_radar_ref_types[] = {
- 	JP_PATTERN(0, 0, 1, 1428, 1428, 1, 18, 29, false),
- 	JP_PATTERN(1, 2, 3, 3846, 3846, 1, 18, 29, false),
- 	JP_PATTERN(2, 0, 1, 1388, 1388, 1, 18, 50, false),
--	JP_PATTERN(3, 1, 2, 4000, 4000, 1, 18, 50, false),
-+	JP_PATTERN(3, 0, 4, 4000, 4000, 1, 18, 50, false),
- 	JP_PATTERN(4, 0, 5, 150, 230, 1, 23, 50, false),
- 	JP_PATTERN(5, 6, 10, 200, 500, 1, 16, 50, false),
- 	JP_PATTERN(6, 11, 20, 200, 500, 1, 12, 50, false),
+diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
+index 020a8adc4cce..2c2670b85fa9 100644
+--- a/net/batman-adv/translation-table.c
++++ b/net/batman-adv/translation-table.c
+@@ -3750,6 +3750,8 @@ static void batadv_tt_purge(struct work_struct *work)
+ 
+ void batadv_tt_free(struct batadv_priv *bat_priv)
+ {
++	batadv_tvlv_handler_unregister(bat_priv, BATADV_TVLV_ROAM, 1);
++
+ 	batadv_tvlv_container_unregister(bat_priv, BATADV_TVLV_TT, 1);
+ 	batadv_tvlv_handler_unregister(bat_priv, BATADV_TVLV_TT, 1);
+ 
 -- 
 2.20.1
 
