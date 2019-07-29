@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 554B6796FC
+	by mail.lfdr.de (Postfix) with ESMTP id CE6C5796FD
 	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:57:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390804AbfG2TzD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:55:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47720 "EHLO mail.kernel.org"
+        id S2391030AbfG2TzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:55:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404141AbfG2TzC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:55:02 -0400
+        id S2390434AbfG2TzG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:55:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CDFB204EC;
-        Mon, 29 Jul 2019 19:55:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6DC1204EC;
+        Mon, 29 Jul 2019 19:55:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564430101;
-        bh=Su9El4zE9CqFO7ZFLiW6WLgYA1RJp2b/hBWoEB5mFpU=;
+        s=default; t=1564430105;
+        bh=pAGEkEdNZrIayxF3+frudUusRfrprRIXZLWd+vVqxh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZMXQKqETQqfnuVhEA/Vct58m0+VVhN7m0BdhL974lCSDPiWZo7X9/CsA2dKym5Kh8
-         lZdfUaJPB2/t3jucpDk/FW8GeSuCEaBmb02+OPyLDqJGHtkhvhD153P4qrSs0LkMod
-         Cx9PK4DvRsFUjq4NBv8Ub9WjGNS7e5HTWEapJS0w=
+        b=0BYPmtNJp8wBn2IaIytYLxXcYs5Y00yyy4Fnv6bwBch0bafcpQSMy3H7W++DBP34j
+         glWPzWB4QMLmlrvvZJI3c6G5sGoooosVdwCS+0hfNNLPDMBPV8NrMAywAhHndEigN6
+         4vs1z6wG67qz+xXGyBbRV2GVenNFZTbqXvWG+70E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.2 195/215] ALSA: hda - Add a conexant codec entry to let mute led work
-Date:   Mon, 29 Jul 2019 21:23:11 +0200
-Message-Id: <20190729190813.709357569@linuxfoundation.org>
+        stable@vger.kernel.org, Shawn Anastasio <shawn@anastas.io>,
+        Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Christoph Hellwig <hch@lst.de>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.2 196/215] powerpc/dma: Fix invalid DMA mmap behavior
+Date:   Mon, 29 Jul 2019 21:23:12 +0200
+Message-Id: <20190729190813.865994407@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -43,34 +45,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Shawn Anastasio <shawn@anastas.io>
 
-commit 3f8809499bf02ef7874254c5e23fc764a47a21a0 upstream.
+commit b4fc36e60f25cf22bf8b7b015a701015740c3743 upstream.
 
-This conexant codec isn't in the supported codec list yet, the hda
-generic driver can drive this codec well, but on a Lenovo machine
-with mute/mic-mute leds, we need to apply CXT_FIXUP_THINKPAD_ACPI
-to make the leds work. After adding this codec to the list, the
-driver patch_conexant.c will apply THINKPAD_ACPI to this machine.
+The refactor of powerpc DMA functions in commit 6666cc17d780
+("powerpc/dma: remove dma_nommu_mmap_coherent") incorrectly
+changes the way DMA mappings are handled on powerpc.
+Since this change, all mapped pages are marked as cache-inhibited
+through the default implementation of arch_dma_mmap_pgprot.
+This differs from the previous behavior of only marking pages
+in noncoherent mappings as cache-inhibited and has resulted in
+sporadic system crashes in certain hardware configurations and
+workloads (see Bugzilla).
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This commit restores the previous correct behavior by providing
+an implementation of arch_dma_mmap_pgprot that only marks
+pages in noncoherent mappings as cache-inhibited. As this behavior
+should be universal for all powerpc platforms a new file,
+dma-generic.c, was created to store it.
+
+Fixes: 6666cc17d780 ("powerpc/dma: remove dma_nommu_mmap_coherent")
+# NOTE: fixes commit 6666cc17d780 released in v5.1.
+# Consider a stable tag:
+# Cc: stable@vger.kernel.org # v5.1+
+# NOTE: fixes commit 6666cc17d780 released in v5.1.
+# Consider a stable tag:
+# Cc: stable@vger.kernel.org # v5.1+
+Cc: stable@vger.kernel.org # v5.1+
+Signed-off-by: Shawn Anastasio <shawn@anastas.io>
+Reviewed-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190717235437.12908-1-shawn@anastas.io
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_conexant.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/Kconfig             |    1 +
+ arch/powerpc/kernel/Makefile     |    3 ++-
+ arch/powerpc/kernel/dma-common.c |   17 +++++++++++++++++
+ 3 files changed, 20 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_conexant.c
-+++ b/sound/pci/hda/patch_conexant.c
-@@ -1083,6 +1083,7 @@ static int patch_conexant_auto(struct hd
-  */
- 
- static const struct hda_device_id snd_hda_id_conexant[] = {
-+	HDA_CODEC_ENTRY(0x14f11f86, "CX8070", patch_conexant_auto),
- 	HDA_CODEC_ENTRY(0x14f12008, "CX8200", patch_conexant_auto),
- 	HDA_CODEC_ENTRY(0x14f15045, "CX20549 (Venice)", patch_conexant_auto),
- 	HDA_CODEC_ENTRY(0x14f15047, "CX20551 (Waikiki)", patch_conexant_auto),
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -121,6 +121,7 @@ config PPC
+ 	select ARCH_32BIT_OFF_T if PPC32
+ 	select ARCH_HAS_DEBUG_VIRTUAL
+ 	select ARCH_HAS_DEVMEM_IS_ALLOWED
++	select ARCH_HAS_DMA_MMAP_PGPROT
+ 	select ARCH_HAS_ELF_RANDOMIZE
+ 	select ARCH_HAS_FORTIFY_SOURCE
+ 	select ARCH_HAS_GCOV_PROFILE_ALL
+--- a/arch/powerpc/kernel/Makefile
++++ b/arch/powerpc/kernel/Makefile
+@@ -49,7 +49,8 @@ obj-y				:= cputable.o ptrace.o syscalls
+ 				   signal.o sysfs.o cacheinfo.o time.o \
+ 				   prom.o traps.o setup-common.o \
+ 				   udbg.o misc.o io.o misc_$(BITS).o \
+-				   of_platform.o prom_parse.o
++				   of_platform.o prom_parse.o \
++				   dma-common.o
+ obj-$(CONFIG_PPC64)		+= setup_64.o sys_ppc32.o \
+ 				   signal_64.o ptrace32.o \
+ 				   paca.o nvram_64.o firmware.o
+--- /dev/null
++++ b/arch/powerpc/kernel/dma-common.c
+@@ -0,0 +1,17 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Contains common dma routines for all powerpc platforms.
++ *
++ * Copyright (C) 2019 Shawn Anastasio.
++ */
++
++#include <linux/mm.h>
++#include <linux/dma-noncoherent.h>
++
++pgprot_t arch_dma_mmap_pgprot(struct device *dev, pgprot_t prot,
++		unsigned long attrs)
++{
++	if (!dev_is_dma_coherent(dev))
++		return pgprot_noncached(prot);
++	return prot;
++}
 
 
