@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 889E27986A
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:07:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E38B79824
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:06:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388943AbfG2TjH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:39:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54170 "EHLO mail.kernel.org"
+        id S2389890AbfG2TpD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:45:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388939AbfG2TjG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:39:06 -0400
+        id S2389827AbfG2TpC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:45:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE33E2054F;
-        Mon, 29 Jul 2019 19:39:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0890220C01;
+        Mon, 29 Jul 2019 19:45:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429146;
-        bh=C2ERHxkMjstK/3REuWR56W15NHHguzmwGCiAkdCUl30=;
+        s=default; t=1564429501;
+        bh=pHc7wbZC2CQyPwbypAX1PB3PGUIUAQS/3zqsA9hgQkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Y6gneybSTOC1aJQ/suVXem0uja9DJ84hM6KHfiFLCt/2NEADdqf4K9vTHKRyffiA
-         pKnKVzvk4LXqIMWyM8R4Dyhq12nDMohM2oBM7s3YksBm8gGrtnF/ti7JFhONAxh1ki
-         /TXhdRK+abGpZxaRsCXayBE0t1dWb4H7ZU85XceQ=
+        b=xYoYaEXc/ySqtsvWWTmJJ4sZ0zb2bdynSeIQQYNw+WzVfHJa2BNnbAMtKnrxJuBGd
+         Q4rmIlEfS5BvQis6BjB4wwzQWIAK5iOMlTGHXwZibRemtnMqMvilTvJcd9/r1l0x93
+         8yIMb+WoE2To8kDJCBw0Q5e0r1RfJoWDpz5mt+Y4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, David Windsor <dwindsor@redhat.com>,
+        David Teigland <teigland@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 275/293] mm/mmu_notifier: use hlist_add_head_rcu()
+Subject: [PATCH 4.19 079/113] dlm: check if workqueues are NULL before flushing/destroying
 Date:   Mon, 29 Jul 2019 21:22:46 +0200
-Message-Id: <20190729190845.383054872@linuxfoundation.org>
+Message-Id: <20190729190714.519242769@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
-References: <20190729190820.321094988@linuxfoundation.org>
+In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
+References: <20190729190655.455345569@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,64 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 543bdb2d825fe2400d6e951f1786d92139a16931 ]
+[ Upstream commit b355516f450703c9015316e429b66a93dfff0e6f ]
 
-Make mmu_notifier_register() safer by issuing a memory barrier before
-registering a new notifier.  This fixes a theoretical bug on weakly
-ordered CPUs.  For example, take this simplified use of notifiers by a
-driver:
+If the DLM lowcomms stack is shut down before any DLM
+traffic can be generated, flush_workqueue() and
+destroy_workqueue() can be called on empty send and/or recv
+workqueues.
 
-	my_struct->mn.ops = &my_ops; /* (1) */
-	mmu_notifier_register(&my_struct->mn, mm)
-		...
-		hlist_add_head(&mn->hlist, &mm->mmu_notifiers); /* (2) */
-		...
+Insert guard conditionals to only call flush_workqueue()
+and destroy_workqueue() on workqueues that are not NULL.
 
-Once mmu_notifier_register() releases the mm locks, another thread can
-invalidate a range:
-
-	mmu_notifier_invalidate_range()
-		...
-		hlist_for_each_entry_rcu(mn, &mm->mmu_notifiers, hlist) {
-			if (mn->ops->invalidate_range)
-
-The read side relies on the data dependency between mn and ops to ensure
-that the pointer is properly initialized.  But the write side doesn't have
-any dependency between (1) and (2), so they could be reordered and the
-readers could dereference an invalid mn->ops.  mmu_notifier_register()
-does take all the mm locks before adding to the hlist, but those have
-acquire semantics which isn't sufficient.
-
-By calling hlist_add_head_rcu() instead of hlist_add_head() we update the
-hlist using a store-release, ensuring that readers see prior
-initialization of my_struct.  This situation is better illustated by
-litmus test MP+onceassign+derefonce.
-
-Link: http://lkml.kernel.org/r/20190502133532.24981-1-jean-philippe.brucker@arm.com
-Fixes: cddb8a5c14aa ("mmu-notifiers: core")
-Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: David Windsor <dwindsor@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/mmu_notifier.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/dlm/lowcomms.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/mm/mmu_notifier.c b/mm/mmu_notifier.c
-index 314285284e6e..70d0efb06374 100644
---- a/mm/mmu_notifier.c
-+++ b/mm/mmu_notifier.c
-@@ -267,7 +267,7 @@ static int do_mmu_notifier_register(struct mmu_notifier *mn,
- 	 * thanks to mm_take_all_locks().
- 	 */
- 	spin_lock(&mm->mmu_notifier_mm->lock);
--	hlist_add_head(&mn->hlist, &mm->mmu_notifier_mm->list);
-+	hlist_add_head_rcu(&mn->hlist, &mm->mmu_notifier_mm->list);
- 	spin_unlock(&mm->mmu_notifier_mm->lock);
+diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
+index a5e4a221435c..a93ebffe84b3 100644
+--- a/fs/dlm/lowcomms.c
++++ b/fs/dlm/lowcomms.c
+@@ -1630,8 +1630,10 @@ static void clean_writequeues(void)
  
- 	mm_drop_all_locks(mm);
+ static void work_stop(void)
+ {
+-	destroy_workqueue(recv_workqueue);
+-	destroy_workqueue(send_workqueue);
++	if (recv_workqueue)
++		destroy_workqueue(recv_workqueue);
++	if (send_workqueue)
++		destroy_workqueue(send_workqueue);
+ }
+ 
+ static int work_start(void)
+@@ -1691,13 +1693,17 @@ static void work_flush(void)
+ 	struct hlist_node *n;
+ 	struct connection *con;
+ 
+-	flush_workqueue(recv_workqueue);
+-	flush_workqueue(send_workqueue);
++	if (recv_workqueue)
++		flush_workqueue(recv_workqueue);
++	if (send_workqueue)
++		flush_workqueue(send_workqueue);
+ 	do {
+ 		ok = 1;
+ 		foreach_conn(stop_conn);
+-		flush_workqueue(recv_workqueue);
+-		flush_workqueue(send_workqueue);
++		if (recv_workqueue)
++			flush_workqueue(recv_workqueue);
++		if (send_workqueue)
++			flush_workqueue(send_workqueue);
+ 		for (i = 0; i < CONN_HASH_SIZE && ok; i++) {
+ 			hlist_for_each_entry_safe(con, n,
+ 						  &connection_hash[i], list) {
 -- 
 2.20.1
 
