@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D71A797A8
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:02:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D3EE79868
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:07:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390086AbfG2TuI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:50:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40922 "EHLO mail.kernel.org"
+        id S2388979AbfG2TjS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:39:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389663AbfG2TuH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:50:07 -0400
+        id S2388931AbfG2TjS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:39:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A7452171F;
-        Mon, 29 Jul 2019 19:50:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E005A2054F;
+        Mon, 29 Jul 2019 19:39:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429805;
-        bh=FfBSftjkxA4VBM6W0bbDtLYMoU+8RUCpM3t+Nkg30sg=;
+        s=default; t=1564429157;
+        bh=9b7c6kU1SYuZX9p5oPrdSDkiGadYewf2Xl7P85wxZzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vdyaECKvL9grGwGAScU//wnQM3sAISpAq2X/wFvyfGkCkls1oNI+UeVsN39v7z1Dv
-         Hl1BvTQuJAXGXMp0uccTcuWVkqzWMF8xKRKn7Vy3KCm9ttkejo6EFjOL+FixQcQ6W6
-         vf2pBSrUhyA0PDR7idPNa5Q9p7iXf7BisPF6tJL0=
+        b=jwiR2EuSg++73Zp05mAJC39j/v2N5wrD81/+g7Z1+O/i4xeqbU1yezWpEhxBc4VRF
+         8atd7PCLIiwz8G/VJmYgtBBpMMwKfQQJH5aiJbMMA6CPuQ1vV6i1z6T+B6NfsYkZyK
+         lJrTy1ReoBZGmPbUHpvCkEsAahz6UjUPAn9xvk7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Roman Li <Roman.Li@amd.com>,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 101/215] um: Silence lockdep complaint about mmap_sem
+Subject: [PATCH 4.19 010/113] drm/amd/display: Fill prescale_params->scale for RGB565
 Date:   Mon, 29 Jul 2019 21:21:37 +0200
-Message-Id: <20190729190756.571000194@linuxfoundation.org>
+Message-Id: <20190729190658.243719860@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
-References: <20190729190739.971253303@linuxfoundation.org>
+In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
+References: <20190729190655.455345569@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,109 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 80bf6ceaf9310b3f61934c69b382d4912deee049 ]
+[ Upstream commit 1352c779cb74d427f4150cbe779a2f7886f70cae ]
 
-When we get into activate_mm(), lockdep complains that we're doing
-something strange:
+[Why]
+An assertion is thrown when using SURFACE_PIXEL_FORMAT_GRPH_RGB565
+formats on DCE since the prescale_params->scale wasn't being filled.
 
-    WARNING: possible circular locking dependency detected
-    5.1.0-10252-gb00152307319-dirty #121 Not tainted
-    ------------------------------------------------------
-    inside.sh/366 is trying to acquire lock:
-    (____ptrval____) (&(&p->alloc_lock)->rlock){+.+.}, at: flush_old_exec+0x703/0x8d7
+Found by a dmesg-fail when running the
+igt@kms_plane@pixel-format-pipe-a-planes test on Baffin.
 
-    but task is already holding lock:
-    (____ptrval____) (&mm->mmap_sem){++++}, at: flush_old_exec+0x6c5/0x8d7
+[How]
+Fill in the scale parameter.
 
-    which lock already depends on the new lock.
-
-    the existing dependency chain (in reverse order) is:
-
-    -> #1 (&mm->mmap_sem){++++}:
-           [...]
-           __lock_acquire+0x12ab/0x139f
-           lock_acquire+0x155/0x18e
-           down_write+0x3f/0x98
-           flush_old_exec+0x748/0x8d7
-           load_elf_binary+0x2ca/0xddb
-           [...]
-
-    -> #0 (&(&p->alloc_lock)->rlock){+.+.}:
-           [...]
-           __lock_acquire+0x12ab/0x139f
-           lock_acquire+0x155/0x18e
-           _raw_spin_lock+0x30/0x83
-           flush_old_exec+0x703/0x8d7
-           load_elf_binary+0x2ca/0xddb
-           [...]
-
-    other info that might help us debug this:
-
-     Possible unsafe locking scenario:
-
-           CPU0                    CPU1
-           ----                    ----
-      lock(&mm->mmap_sem);
-                                   lock(&(&p->alloc_lock)->rlock);
-                                   lock(&mm->mmap_sem);
-      lock(&(&p->alloc_lock)->rlock);
-
-     *** DEADLOCK ***
-
-    2 locks held by inside.sh/366:
-     #0: (____ptrval____) (&sig->cred_guard_mutex){+.+.}, at: __do_execve_file+0x12d/0x869
-     #1: (____ptrval____) (&mm->mmap_sem){++++}, at: flush_old_exec+0x6c5/0x8d7
-
-    stack backtrace:
-    CPU: 0 PID: 366 Comm: inside.sh Not tainted 5.1.0-10252-gb00152307319-dirty #121
-    Stack:
-     [...]
-    Call Trace:
-     [<600420de>] show_stack+0x13b/0x155
-     [<6048906b>] dump_stack+0x2a/0x2c
-     [<6009ae64>] print_circular_bug+0x332/0x343
-     [<6009c5c6>] check_prev_add+0x669/0xdad
-     [<600a06b4>] __lock_acquire+0x12ab/0x139f
-     [<6009f3d0>] lock_acquire+0x155/0x18e
-     [<604a07e0>] _raw_spin_lock+0x30/0x83
-     [<60151e6a>] flush_old_exec+0x703/0x8d7
-     [<601a8eb8>] load_elf_binary+0x2ca/0xddb
-     [...]
-
-I think it's because in exec_mmap() we have
-
-	down_read(&old_mm->mmap_sem);
-...
-        task_lock(tsk);
-...
-	activate_mm(active_mm, mm);
-	(which does down_write(&mm->mmap_sem))
-
-I'm not really sure why lockdep throws in the whole knowledge
-about the task lock, but it seems that old_mm and mm shouldn't
-ever be the same (and it doesn't deadlock) so tell lockdep that
-they're different.
-
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Reviewed-by: Roman Li <Roman.Li@amd.com>
+Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/include/asm/mmu_context.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/um/include/asm/mmu_context.h b/arch/um/include/asm/mmu_context.h
-index 9f4b4bb78120..00cefd33afdd 100644
---- a/arch/um/include/asm/mmu_context.h
-+++ b/arch/um/include/asm/mmu_context.h
-@@ -52,7 +52,7 @@ static inline void activate_mm(struct mm_struct *old, struct mm_struct *new)
- 	 * when the new ->mm is used for the first time.
- 	 */
- 	__switch_mm(&new->context.id);
--	down_write(&new->mmap_sem);
-+	down_write_nested(&new->mmap_sem, 1);
- 	uml_setup_stubs(new);
- 	up_write(&new->mmap_sem);
- }
+diff --git a/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
+index 53ccacf99eca..c3ad2bbec1a5 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
++++ b/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
+@@ -242,6 +242,9 @@ static void build_prescale_params(struct ipp_prescale_params *prescale_params,
+ 	prescale_params->mode = IPP_PRESCALE_MODE_FIXED_UNSIGNED;
+ 
+ 	switch (plane_state->format) {
++	case SURFACE_PIXEL_FORMAT_GRPH_RGB565:
++		prescale_params->scale = 0x2082;
++		break;
+ 	case SURFACE_PIXEL_FORMAT_GRPH_ARGB8888:
+ 	case SURFACE_PIXEL_FORMAT_GRPH_ABGR8888:
+ 		prescale_params->scale = 0x2020;
 -- 
 2.20.1
 
