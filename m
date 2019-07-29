@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92F7679903
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:12:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9658798FF
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:12:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727959AbfG2UMT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 16:12:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45164 "EHLO mail.kernel.org"
+        id S1730213AbfG2TcL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:32:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729353AbfG2TcB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:32:01 -0400
+        id S1730222AbfG2TcL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:32:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FD2D217F4;
-        Mon, 29 Jul 2019 19:32:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BB60217D6;
+        Mon, 29 Jul 2019 19:32:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428721;
-        bh=d8Rhx9wi7iBHJQRfIlU9sxJP5KGSpoaz0j5bTOi3UgA=;
+        s=default; t=1564428729;
+        bh=9wT11Yaz+MY1CT0KMzqzxrxebYgBo/RtEIUH/idFx7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VD4bb8yTmDGiQx05IiWgLkNsQ7ym6a3nDukB5jYDshpPvkd+lWXXbJ1u68AtfL9c7
-         lyjq0UZdewVOhaOBpqd6VWz2mFqBhat4TQed1SSUey8+bWC5OZ1e9q+7BB+0bhOwQc
-         stoRZd0Ykbc8BWH9vSLkgkRylxwTkh7XqHmpWxJY=
+        b=JDM7QR3X0Tp2o6zsnbGBIBeBekQI1InWR0J5QxaCh+yo1mzsrLp363It0HHDvPNlh
+         iA1NRo/+yCcJYGbq3LW9PIqfTM/YcmkziMCu8bOnuUrVAKtpT4Wm/MisDQ1WGof1VJ
+         O/pWY35MCcUQ76NE9Mqzh20moaWsendMLRKnOf+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Michael Kelley <mikelley@microsoft.com>
-Subject: [PATCH 4.14 165/293] PCI: hv: Fix a use-after-free bug in hv_eject_device_work()
-Date:   Mon, 29 Jul 2019 21:20:56 +0200
-Message-Id: <20190729190837.187517038@linuxfoundation.org>
+        stable@vger.kernel.org, Jeroen Roovers <jer@gentoo.org>,
+        Rolf Eike Beer <eike-kernel@sf-tec.de>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.14 168/293] parisc: Fix kernel panic due invalid values in IAOQ0 or IAOQ1
+Date:   Mon, 29 Jul 2019 21:20:59 +0200
+Message-Id: <20190729190837.385761772@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -44,81 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com>
+From: Helge Deller <deller@gmx.de>
 
-commit 4df591b20b80cb77920953812d894db259d85bd7 upstream.
+commit 10835c854685393a921b68f529bf740fa7c9984d upstream.
 
-Fix a use-after-free in hv_eject_device_work().
+On parisc the privilege level of a process is stored in the lowest two bits of
+the instruction pointers (IAOQ0 and IAOQ1). On Linux we use privilege level 0
+for the kernel and privilege level 3 for user-space. So userspace should not be
+allowed to modify IAOQ0 or IAOQ1 of a ptraced process to change it's privilege
+level to e.g. 0 to try to gain kernel privileges.
 
-Fixes: 05f151a73ec2 ("PCI: hv: Fix a memory leak in hv_eject_device_work()")
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Cc: stable@vger.kernel.org
+This patch prevents such modifications by always setting the two lowest bits to
+one (which relates to privilege level 3 for user-space) if IAOQ0 or IAOQ1 are
+modified via ptrace calls in the native and compat ptrace paths.
+
+Link: https://bugs.gentoo.org/481768
+Reported-by: Jeroen Roovers <jer@gentoo.org>
+Cc: <stable@vger.kernel.org>
+Tested-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/host/pci-hyperv.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ arch/parisc/kernel/ptrace.c |   28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
 
---- a/drivers/pci/host/pci-hyperv.c
-+++ b/drivers/pci/host/pci-hyperv.c
-@@ -1912,6 +1912,7 @@ static void hv_pci_devices_present(struc
- static void hv_eject_device_work(struct work_struct *work)
+--- a/arch/parisc/kernel/ptrace.c
++++ b/arch/parisc/kernel/ptrace.c
+@@ -171,6 +171,9 @@ long arch_ptrace(struct task_struct *chi
+ 		if ((addr & (sizeof(unsigned long)-1)) ||
+ 		     addr >= sizeof(struct pt_regs))
+ 			break;
++		if (addr == PT_IAOQ0 || addr == PT_IAOQ1) {
++			data |= 3; /* ensure userspace privilege */
++		}
+ 		if ((addr >= PT_GR1 && addr <= PT_GR31) ||
+ 				addr == PT_IAOQ0 || addr == PT_IAOQ1 ||
+ 				(addr >= PT_FR0 && addr <= PT_FR31 + 4) ||
+@@ -232,16 +235,18 @@ long arch_ptrace(struct task_struct *chi
+ 
+ static compat_ulong_t translate_usr_offset(compat_ulong_t offset)
  {
- 	struct pci_eject_response *ejct_pkt;
-+	struct hv_pcibus_device *hbus;
- 	struct hv_pci_dev *hpdev;
- 	struct pci_dev *pdev;
- 	unsigned long flags;
-@@ -1922,6 +1923,7 @@ static void hv_eject_device_work(struct
- 	} ctxt;
- 
- 	hpdev = container_of(work, struct hv_pci_dev, wrk);
-+	hbus = hpdev->hbus;
- 
- 	if (hpdev->state != hv_pcichild_ejecting) {
- 		put_pcichild(hpdev, hv_pcidev_ref_pnp);
-@@ -1935,8 +1937,7 @@ static void hv_eject_device_work(struct
- 	 * because hbus->pci_bus may not exist yet.
- 	 */
- 	wslot = wslot_to_devfn(hpdev->desc.win_slot.slot);
--	pdev = pci_get_domain_bus_and_slot(hpdev->hbus->sysdata.domain, 0,
--					   wslot);
-+	pdev = pci_get_domain_bus_and_slot(hbus->sysdata.domain, 0, wslot);
- 	if (pdev) {
- 		pci_lock_rescan_remove();
- 		pci_stop_and_remove_bus_device(pdev);
-@@ -1944,9 +1945,9 @@ static void hv_eject_device_work(struct
- 		pci_unlock_rescan_remove();
- 	}
- 
--	spin_lock_irqsave(&hpdev->hbus->device_list_lock, flags);
-+	spin_lock_irqsave(&hbus->device_list_lock, flags);
- 	list_del(&hpdev->list_entry);
--	spin_unlock_irqrestore(&hpdev->hbus->device_list_lock, flags);
-+	spin_unlock_irqrestore(&hbus->device_list_lock, flags);
- 
- 	if (hpdev->pci_slot)
- 		pci_destroy_slot(hpdev->pci_slot);
-@@ -1955,14 +1956,16 @@ static void hv_eject_device_work(struct
- 	ejct_pkt = (struct pci_eject_response *)&ctxt.pkt.message;
- 	ejct_pkt->message_type.type = PCI_EJECTION_COMPLETE;
- 	ejct_pkt->wslot.slot = hpdev->desc.win_slot.slot;
--	vmbus_sendpacket(hpdev->hbus->hdev->channel, ejct_pkt,
-+	vmbus_sendpacket(hbus->hdev->channel, ejct_pkt,
- 			 sizeof(*ejct_pkt), (unsigned long)&ctxt.pkt,
- 			 VM_PKT_DATA_INBAND, 0);
- 
- 	put_pcichild(hpdev, hv_pcidev_ref_childlist);
- 	put_pcichild(hpdev, hv_pcidev_ref_initial);
- 	put_pcichild(hpdev, hv_pcidev_ref_pnp);
--	put_hvpcibus(hpdev->hbus);
+-	if (offset < 0)
+-		return sizeof(struct pt_regs);
+-	else if (offset <= 32*4)	/* gr[0..31] */
+-		return offset * 2 + 4;
+-	else if (offset <= 32*4+32*8)	/* gr[0..31] + fr[0..31] */
+-		return offset + 32*4;
+-	else if (offset < sizeof(struct pt_regs)/2 + 32*4)
+-		return offset * 2 + 4 - 32*8;
++	compat_ulong_t pos;
 +
-+	/* hpdev has been freed. Do not use it any more. */
-+	put_hvpcibus(hbus);
++	if (offset < 32*4)	/* gr[0..31] */
++		pos = offset * 2 + 4;
++	else if (offset < 32*4+32*8)	/* fr[0] ... fr[31] */
++		pos = (offset - 32*4) + PT_FR0;
++	else if (offset < sizeof(struct pt_regs)/2 + 32*4) /* sr[0] ... ipsw */
++		pos = (offset - 32*4 - 32*8) * 2 + PT_SR0 + 4;
+ 	else
+-		return sizeof(struct pt_regs);
++		pos = sizeof(struct pt_regs);
++
++	return pos;
  }
  
- /**
+ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
+@@ -285,9 +290,12 @@ long compat_arch_ptrace(struct task_stru
+ 			addr = translate_usr_offset(addr);
+ 			if (addr >= sizeof(struct pt_regs))
+ 				break;
++			if (addr == PT_IAOQ0+4 || addr == PT_IAOQ1+4) {
++				data |= 3; /* ensure userspace privilege */
++			}
+ 			if (addr >= PT_FR0 && addr <= PT_FR31 + 4) {
+ 				/* Special case, fp regs are 64 bits anyway */
+-				*(__u64 *) ((char *) task_regs(child) + addr) = data;
++				*(__u32 *) ((char *) task_regs(child) + addr) = data;
+ 				ret = 0;
+ 			}
+ 			else if ((addr >= PT_GR1+4 && addr <= PT_GR31+4) ||
 
 
