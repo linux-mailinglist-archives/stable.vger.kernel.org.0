@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FB2E79622
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:49:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65CDE79626
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:49:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390281AbfG2TtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:49:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39468 "EHLO mail.kernel.org"
+        id S2390309AbfG2TtO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:49:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390471AbfG2TtF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:49:05 -0400
+        id S2390283AbfG2TtL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:49:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CEB3B20C01;
-        Mon, 29 Jul 2019 19:49:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D66E221773;
+        Mon, 29 Jul 2019 19:49:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429744;
-        bh=j0lY89zL8lm04jqxntNdtd32n6H1hVaxj2cQkmT5++4=;
+        s=default; t=1564429750;
+        bh=GXLQEAEmuYk2XNPqRZ4LjIT/TEVruiwv4dJS6yy00WM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iCzaObMcqNwjOP1XpCWfbb0GcnMFuT4sbVpHBxhJETTyoGCnN5if5ExNZILdVlpKA
-         zJjB4AfATrYuIf48OT8sw/KOWB3Xj5knI7vn/7YwdsVfspt0N3p1jr9Sb1FYIBETOc
-         bEXgJIJvRZG4FS2lcfCURgReptA1NxS+BhWYOwCs=
+        b=Y8iHJhz/V1h8V80yOyeZqS+OOikuc+Sc6p2u4AplILRB7aowa6gDt7JDK+4Bocit/
+         XX1F/7vuY+D7i8P+I93zzo8CyYWTYbf699uauTqveQG3WC59dFpz+Ai+0m2zWu4Bd6
+         Fxk13z3tJyejfR3sfx/LEUcdCoo/XauhwV7SJ3bw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Yves MORDRET <pierre-yves.mordret@st.com>,
-        Fabien Dessenne <fabien.dessenne@st.com>,
-        Fabrice Gasnier <fabrice.gasnier@st.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
+        stable@vger.kernel.org, Peter Smith <peter.smith@linaro.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 082/215] i2c: stm32f7: fix the get_irq error cases
-Date:   Mon, 29 Jul 2019 21:21:18 +0200
-Message-Id: <20190729190753.899907991@linuxfoundation.org>
+Subject: [PATCH 5.2 084/215] kbuild: Add -Werror=unknown-warning-option to CLANG_FLAGS
+Date:   Mon, 29 Jul 2019 21:21:20 +0200
+Message-Id: <20190729190754.125100755@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -47,84 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 79b4499524ed659fb76323efc30f3dc03967c88f ]
+[ Upstream commit 589834b3a0097a4908f4112eac0ca2feb486fa32 ]
 
-During probe, return the "get_irq" error value instead of -EINVAL which
-allows the driver to be deferred probed if needed.
-Fix also the case where of_irq_get() returns a negative value.
-Note :
-On failure of_irq_get() returns 0 or a negative value while
-platform_get_irq() returns a negative value.
+In commit ebcc5928c5d9 ("arm64: Silence gcc warnings about arch ABI
+drift"), the arm64 Makefile added -Wno-psabi to KBUILD_CFLAGS, which is
+a GCC only option so clang rightfully complains:
 
-Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver")
-Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Signed-off-by: Fabien Dessenne <fabien.dessenne@st.com>
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+warning: unknown warning option '-Wno-psabi' [-Wunknown-warning-option]
+
+https://clang.llvm.org/docs/DiagnosticsReference.html#wunknown-warning-option
+
+However, by default, this is merely a warning so the build happily goes
+on with a slew of these warnings in the process.
+
+Commit c3f0d0bc5b01 ("kbuild, LLVMLinux: Add -Werror to cc-option to
+support clang") worked around this behavior in cc-option by adding
+-Werror so that unknown flags cause an error. However, this all happens
+silently and when an unknown flag is added to the build unconditionally
+like -Wno-psabi, cc-option will always fail because there is always an
+unknown flag in the list of flags. This manifested as link time failures
+in the arm64 libstub because -fno-stack-protector didn't get added to
+KBUILD_CFLAGS.
+
+To avoid these weird cryptic failures in the future, make clang behave
+like gcc and immediately error when it encounters an unknown flag by
+adding -Werror=unknown-warning-option to CLANG_FLAGS. This can be added
+unconditionally for clang because it is supported by at least 3.0.0,
+according to godbolt [1] and 4.0.0, according to its documentation [2],
+which is far earlier than we typically support.
+
+[1]: https://godbolt.org/z/7F7rm3
+[2]: https://releases.llvm.org/4.0.0/tools/clang/docs/DiagnosticsReference.html#wunknown-warning-option
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/511
+Link: https://github.com/ClangBuiltLinux/linux/issues/517
+Suggested-by: Peter Smith <peter.smith@linaro.org>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-stm32f7.c | 26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+ Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 48337bef5b87..3d90c0bb049e 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -25,7 +25,6 @@
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/of_address.h>
--#include <linux/of_irq.h>
- #include <linux/of_platform.h>
- #include <linux/platform_device.h>
- #include <linux/pinctrl/consumer.h>
-@@ -1816,15 +1815,14 @@ static struct i2c_algorithm stm32f7_i2c_algo = {
- 
- static int stm32f7_i2c_probe(struct platform_device *pdev)
- {
--	struct device_node *np = pdev->dev.of_node;
- 	struct stm32f7_i2c_dev *i2c_dev;
- 	const struct stm32f7_i2c_setup *setup;
- 	struct resource *res;
--	u32 irq_error, irq_event, clk_rate, rise_time, fall_time;
-+	u32 clk_rate, rise_time, fall_time;
- 	struct i2c_adapter *adap;
- 	struct reset_control *rst;
- 	dma_addr_t phy_addr;
--	int ret;
-+	int irq_error, irq_event, ret;
- 
- 	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
- 	if (!i2c_dev)
-@@ -1836,16 +1834,20 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 		return PTR_ERR(i2c_dev->base);
- 	phy_addr = (dma_addr_t)res->start;
- 
--	irq_event = irq_of_parse_and_map(np, 0);
--	if (!irq_event) {
--		dev_err(&pdev->dev, "IRQ event missing or invalid\n");
--		return -EINVAL;
-+	irq_event = platform_get_irq(pdev, 0);
-+	if (irq_event <= 0) {
-+		if (irq_event != -EPROBE_DEFER)
-+			dev_err(&pdev->dev, "Failed to get IRQ event: %d\n",
-+				irq_event);
-+		return irq_event ? : -ENOENT;
- 	}
- 
--	irq_error = irq_of_parse_and_map(np, 1);
--	if (!irq_error) {
--		dev_err(&pdev->dev, "IRQ error missing or invalid\n");
--		return -EINVAL;
-+	irq_error = platform_get_irq(pdev, 1);
-+	if (irq_error <= 0) {
-+		if (irq_error != -EPROBE_DEFER)
-+			dev_err(&pdev->dev, "Failed to get IRQ error: %d\n",
-+				irq_error);
-+		return irq_error ? : -ENOENT;
- 	}
- 
- 	i2c_dev->clk = devm_clk_get(&pdev->dev, NULL);
+diff --git a/Makefile b/Makefile
+index 68ee97784c4d..fa0f48c43ab2 100644
+--- a/Makefile
++++ b/Makefile
+@@ -528,6 +528,7 @@ ifneq ($(GCC_TOOLCHAIN),)
+ CLANG_FLAGS	+= --gcc-toolchain=$(GCC_TOOLCHAIN)
+ endif
+ CLANG_FLAGS	+= -no-integrated-as
++CLANG_FLAGS	+= -Werror=unknown-warning-option
+ KBUILD_CFLAGS	+= $(CLANG_FLAGS)
+ KBUILD_AFLAGS	+= $(CLANG_FLAGS)
+ export CLANG_FLAGS
 -- 
 2.20.1
 
