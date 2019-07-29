@@ -2,114 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CDAC07934C
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 20:42:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7138B79379
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 20:58:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387980AbfG2SmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 14:42:25 -0400
-Received: from mail-io1-f68.google.com ([209.85.166.68]:34233 "EHLO
-        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387397AbfG2SmW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 14:42:22 -0400
-Received: by mail-io1-f68.google.com with SMTP id k8so122357806iot.1
-        for <stable@vger.kernel.org>; Mon, 29 Jul 2019 11:42:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=3tfpxcMIOawO8s0nF6u5AxpRiYOClgINgvc5ma6ttZw=;
-        b=IQmmqup/6r9M4vGzFNJ2eQeqgw7xlIoAUs5jeMBIFXwMw1/6E8KZwGF59gU1R/s1wr
-         od8n0zVv12PnonheCchmyOFja2Rj5CqOQgVE6IuSCXp0atpMNpN4A4t4/7Vf5jI1f1tC
-         bqmDTxp9EjXqdrgmgE7jOAMpjGGp01BzpAfRmS/bOjpScIYhwcfWKhJCbOf4mGM/MuOx
-         kfDC4rfXTjw6TLq0kV/0cEZZi4Hv/UOPJ9FqlF/1RHxu+j97c80UihRGIktDhfVOQUtm
-         u+Knabw655Ohtf9vz38yQiZVVGmgt0OllVIj/2aK5dgiGvZqqDwcxin29m4BabmpHLuu
-         rFwg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=3tfpxcMIOawO8s0nF6u5AxpRiYOClgINgvc5ma6ttZw=;
-        b=CoBrd0RGUyQqpblhqCl3ngGQc6KjYaHACOnSeLK2IbD0tdaacwmRzIFvw20Gp/shFT
-         K+KfU6v2A7lsMn04HlS6F14rTV4jVd4/8EDN83m8wpXxsVMN3kX31h+sqcbf0LsO4hJE
-         /ZCZyk9tb44fqcnR4MmTDWikJOX4cicJKUWxa8p58hghhFk5rPQwIiqKBmefVoy9lCG1
-         GXU+0UGUYcfFDvUb81x3vahX42ac5/XlOclpa/cHtRfp+wGyofNPV8xACSjXi5cEVmZS
-         /hireKwD2OFd6/6KLYEW4tC0WysyJWfrki4oB8HLnyaUE7Y7KETJhhA/Z1qjU0Aup3QO
-         AEqQ==
-X-Gm-Message-State: APjAAAXFgOvn1xsoG0UGawc8XyyzUiJ/RZu2RlRuUAuOXYwV//7RRnw9
-        KD2wJ93KfdoiiKEI5u79hmD5SA/CTq7Ezhc+7/wyoA==
-X-Google-Smtp-Source: APXvYqwjLiqzT6+l8biMGbT+ubzfDFZQP3pdxi7Bs2LEIu59aazQJHsn2226HIPI6J8GkYWgkqquogjLf6r6kCe70Dg=
-X-Received: by 2002:a6b:c38b:: with SMTP id t133mr38575856iof.162.1564425741290;
- Mon, 29 Jul 2019 11:42:21 -0700 (PDT)
+        id S1727915AbfG2S6N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 14:58:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56418 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727089AbfG2S6N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 14:58:13 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A754206DD;
+        Mon, 29 Jul 2019 18:58:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564426692;
+        bh=zgKfBWrlVs0BWqbWq453nBIBZ8evDtpioWPOioqCcy0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=P/c5i4VTnvuIr0oyNRodMJY0H5NblFqcIy9tgxlfElBzxFWX7ik7s26SxFXpCRM2r
+         zeSjNrbIbeBf4izETKWN6tMYjG0cBbPXG+ZQHVQivbT3pqTWJo+ixLUvAE7NNGNwfM
+         d4U9Mxw/0YsRXZkQlkcuaTtGdPZ+r0+Qatq1UY8o=
+Date:   Mon, 29 Jul 2019 20:58:08 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     stable@vger.kernel.org
+Subject: Re: fs/io_uring.c stable additions
+Message-ID: <20190729185808.GA25051@kroah.com>
+References: <59d14d1f-441a-568c-246e-4ee1ea443278@kernel.dk>
+ <20190729181528.GA25613@kroah.com>
+ <abd31004-9c2f-ffa9-10b3-77ed4427d411@kernel.dk>
+ <93699ab7-35b2-338a-967d-bf0b432e8abf@kernel.dk>
 MIME-Version: 1.0
-References: <20190726224810.79660-1-henryburns@google.com> <20190726224810.79660-2-henryburns@google.com>
- <CA+VK+GPC+akF0qGrKFivtNneweEfdC9uEx=QgmztB4M_xvMeKQ@mail.gmail.com>
-In-Reply-To: <CA+VK+GPC+akF0qGrKFivtNneweEfdC9uEx=QgmztB4M_xvMeKQ@mail.gmail.com>
-From:   Henry Burns <henryburns@google.com>
-Date:   Mon, 29 Jul 2019 11:41:45 -0700
-Message-ID: <CAGQXPTi8+EanC2ygr4W7qDN1bnas_3utxFkSCj4Xdzo4H134nw@mail.gmail.com>
-Subject: Re: [PATCH] mm/z3fold.c: Fix z3fold_destroy_pool() race condition
-To:     Jonathan Adams <jwadams@google.com>
-Cc:     Vitaly Vul <vitaly.vul@sony.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Linux-MM <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <93699ab7-35b2-338a-967d-bf0b432e8abf@kernel.dk>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The constraint from the zpool use of z3fold_destroy_pool() is there
-are no outstanding handles to memory (so no active allocations), but
-it is possible for there to be outstanding work on either of the two
-wqs in the pool.
+On Mon, Jul 29, 2019 at 12:35:14PM -0600, Jens Axboe wrote:
+> On 7/29/19 12:17 PM, Jens Axboe wrote:
+> > On 7/29/19 12:15 PM, Greg Kroah-Hartman wrote:
+> > > On Mon, Jul 29, 2019 at 12:08:28PM -0600, Jens Axboe wrote:
+> > > > Hi,
+> > > > 
+> > > > I forgot to mark a few patches for io_uring as stable. In order
+> > > > of how to apply, can you add the following commits for 5.2?
+> > > > 
+> > > > f7b76ac9d17e16e44feebb6d2749fec92bfd6dd4
+> > > 0ef67e605d2b1e8300d04fd9134d283bbbf441b9
+> > > Does not apply :(
+> > > 
+> > > > c0e48f9dea9129aa11bec3ed13803bcc26e96e49
+> > > 
+> > > Now queued up.
+> > > 
+> > > > bd11b3a391e3df6fa958facbe4b3f9f4cca9bd49
+> > > 
+> > > Does not apply :(
+> > > 
+> > > > 36703247d5f52a679df9da51192b6950fe81689f
+> > > 
+> > > Now queued up.
+> > > 
+> > > You are 2 out of 4 :)
+> > > 
+> > > Care to send backported versions of the 2 that did not apply?  I'll be
+> > > glad to queue them up then.
+> > 
+> > Huh strange, I applied them to our internal 5.2 tree without conflict.
+> > Maybe I had backported more...
+> > 
+> > I'll send versions for 5.2 in a bit for you.
+> 
+> Here you go, those two on top of the others. Ran it through the
+> regressions tests here, works for me.
 
-Calling z3fold_deregister_migration() before the workqueues are drained
-means that there can be allocated pages referencing a freed inode,
-causing any thread in compaction to be able to trip over the bad
-pointer in PageMovable().
+That worked, all now queued up, thanks!
 
-Fixes: 1f862989b04a ("mm/z3fold.c: support page migration")
-
-Signed-off-by: Henry Burns <henryburns@google.com>
-
-> Reviewed-by: Shakeel Butt <shakeelb@google.com>
-> Reviewed-by: Jonathan Adams <jwadams@google.com>
->
-> > Cc: <stable@vger.kernel.org>
-> > ---
-> >  mm/z3fold.c | 5 ++++-
-> >  1 file changed, 4 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/mm/z3fold.c b/mm/z3fold.c
-> > index 43de92f52961..ed19d98c9dcd 100644
-> > --- a/mm/z3fold.c
-> > +++ b/mm/z3fold.c
-> > @@ -817,16 +817,19 @@ static struct z3fold_pool *z3fold_create_pool(const char *name, gfp_t gfp,
-> >  static void z3fold_destroy_pool(struct z3fold_pool *pool)
-> >  {
-> >         kmem_cache_destroy(pool->c_handle);
-> > -       z3fold_unregister_migration(pool);
-> >
-> >         /*
-> >          * We need to destroy pool->compact_wq before pool->release_wq,
-> >          * as any pending work on pool->compact_wq will call
-> >          * queue_work(pool->release_wq, &pool->work).
-> > +        *
-> > +        * There are still outstanding pages until both workqueues are drained,
-> > +        * so we cannot unregister migration until then.
-> >          */
-> >
-> >         destroy_workqueue(pool->compact_wq);
-> >         destroy_workqueue(pool->release_wq);
-> > +       z3fold_unregister_migration(pool);
-> >         kfree(pool);
-> >  }
-> >
-> > --
-> > 2.22.0.709.g102302147b-goog
-> >
+greg k-h
