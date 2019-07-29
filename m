@@ -2,133 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 945ED796EB
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:56:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21BA179723
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:58:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404273AbfG2Tz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:55:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48826 "EHLO mail.kernel.org"
+        id S2391065AbfG2T6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:58:18 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:58522 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404250AbfG2Tz5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:55:57 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S2390992AbfG2T6S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:58:18 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2A02204EC;
-        Mon, 29 Jul 2019 19:55:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564430156;
-        bh=wh1zoquakyM/0TPKZ8B93mtc776SuJUVqVduk7mbb1c=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M3tuxRCYanLZzQp/zqBPSh71Iix5KaghalvfjpR7lHpWjc+L+t2Ddss9VRBz/z4h/
-         LYS2TT9P7F7gJ/kvZ6TtZt8ocy2e7GPkK7ohWQQvqz5xHPgZV5J+rMem+t/vaMw+VA
-         NnFUy4vcMYXqdtcHWbnHXHUpIYfuQ6wAGJW+EM2Q=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hrvoje Zeba <zeba.hrvoje@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.2 215/215] io_uring: dont use iov_iter_advance() for fixed buffers
-Date:   Mon, 29 Jul 2019 21:23:31 +0200
-Message-Id: <20190729190817.178599978@linuxfoundation.org>
-X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
-References: <20190729190739.971253303@linuxfoundation.org>
-User-Agent: quilt/0.66
+        by mx1.redhat.com (Postfix) with ESMTPS id 7534130832E1;
+        Mon, 29 Jul 2019 19:58:18 +0000 (UTC)
+Received: from parsley.fieldses.org (ovpn-117-226.phx2.redhat.com [10.3.117.226])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 4A2E65D6A0;
+        Mon, 29 Jul 2019 19:58:18 +0000 (UTC)
+Received: by parsley.fieldses.org (Postfix, from userid 2815)
+        id 7F14B1804A0; Mon, 29 Jul 2019 15:58:17 -0400 (EDT)
+Date:   Mon, 29 Jul 2019 15:58:17 -0400
+From:   "J. Bruce Fields" <bfields@redhat.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Qian Lu <luqia@amazon.com>, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, ctracy@engr.scu.edu
+Subject: Re: Request for inclusion on linux-4.14.y
+Message-ID: <20190729195817.GB9606@parsley.fieldses.org>
+References: <20190726213635.GB1900@dev-dsk-luqia-2a-c7316a94.us-west-2.amazon.com>
+ <20190728150425.GD8637@sasha-vm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190728150425.GD8637@sasha-vm>
+User-Agent: Mutt/1.12.0 (2019-05-25)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.44]); Mon, 29 Jul 2019 19:58:18 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+On Sun, Jul 28, 2019 at 11:04:25AM -0400, Sasha Levin wrote:
+> On Fri, Jul 26, 2019 at 02:36:35PM -0700, Qian Lu wrote:
+> > Hello Greg,
+> > 
+> > Can you please consider including the following patches in the stable
+> > linux-4.14.y branch?
+> > 
+> > An NFS server accepts only a limited number of concurrent v4.1+ mounts. Once
+> > that limit is reached, on the affected client side, mount.nfs appears to hang to
+> > keep reissuing CREATE_SESSION calls until one of them succeeds. This is to bump
+> > the limit, also return smaller ca_maxrequests as the limit approaches instead of
+> > waiting till we have to fail CREATE_SESSION completely.
+> > 
+> > 44d8660d3bb0("nfsd: increase DRC cache limit")
+> > de766e570413("nfsd: give out fewer session slots as limit approaches")
+> > c54f24e338ed("nfsd: fix performance-limiting session calculation")
+> 
+> I've queued these 3 for 4.14 and older.
+> 
+> Note that c54f24e338ed has a fix: 3b2d4dcf71c4a ("nfsd: Fix overflow
+> causing non-working mounts on 1 TB machines") which was queued as well.
 
-commit bd11b3a391e3df6fa958facbe4b3f9f4cca9bd49 upstream.
+Thanks for catching that.  These sound like reasonable stable backports.
 
-Hrvoje reports that when a large fixed buffer is registered and IO is
-being done to the latter pages of said buffer, the IO submission time
-is much worse:
-
-reading to the start of the buffer: 11238 ns
-reading to the end of the buffer:   1039879 ns
-
-In fact, it's worse by two orders of magnitude. The reason for that is
-how io_uring figures out how to setup the iov_iter. We point the iter
-at the first bvec, and then use iov_iter_advance() to fast-forward to
-the offset within that buffer we need.
-
-However, that is abysmally slow, as it entails iterating the bvecs
-that we setup as part of buffer registration. There's really no need
-to use this generic helper, as we know it's a BVEC type iterator, and
-we also know that each bvec is PAGE_SIZE in size, apart from possibly
-the first and last. Hence we can just use a shift on the offset to
-find the right index, and then adjust the iov_iter appropriately.
-After this fix, the timings are:
-
-reading to the start of the buffer: 10135 ns
-reading to the end of the buffer:   1377 ns
-
-Or about an 755x improvement for the tail page.
-
-Reported-by: Hrvoje Zeba <zeba.hrvoje@gmail.com>
-Tested-by: Hrvoje Zeba <zeba.hrvoje@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-
----
- fs/io_uring.c |   39 +++++++++++++++++++++++++++++++++++++--
- 1 file changed, 37 insertions(+), 2 deletions(-)
-
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1001,8 +1001,43 @@ static int io_import_fixed(struct io_rin
- 	 */
- 	offset = buf_addr - imu->ubuf;
- 	iov_iter_bvec(iter, rw, imu->bvec, imu->nr_bvecs, offset + len);
--	if (offset)
--		iov_iter_advance(iter, offset);
-+
-+	if (offset) {
-+		/*
-+		 * Don't use iov_iter_advance() here, as it's really slow for
-+		 * using the latter parts of a big fixed buffer - it iterates
-+		 * over each segment manually. We can cheat a bit here, because
-+		 * we know that:
-+		 *
-+		 * 1) it's a BVEC iter, we set it up
-+		 * 2) all bvecs are PAGE_SIZE in size, except potentially the
-+		 *    first and last bvec
-+		 *
-+		 * So just find our index, and adjust the iterator afterwards.
-+		 * If the offset is within the first bvec (or the whole first
-+		 * bvec, just use iov_iter_advance(). This makes it easier
-+		 * since we can just skip the first segment, which may not
-+		 * be PAGE_SIZE aligned.
-+		 */
-+		const struct bio_vec *bvec = imu->bvec;
-+
-+		if (offset <= bvec->bv_len) {
-+			iov_iter_advance(iter, offset);
-+		} else {
-+			unsigned long seg_skip;
-+
-+			/* skip first vec */
-+			offset -= bvec->bv_len;
-+			seg_skip = 1 + (offset >> PAGE_SHIFT);
-+
-+			iter->bvec = bvec + seg_skip;
-+			iter->nr_segs -= seg_skip;
-+			iter->count -= (seg_skip << PAGE_SHIFT);
-+			iter->iov_offset = offset & ~PAGE_MASK;
-+			if (iter->iov_offset)
-+				iter->count -= iter->iov_offset;
-+		}
-+	}
- 
- 	/* don't drop a reference to these pages */
- 	iter->type |= ITER_BVEC_FLAG_NO_REF;
-
-
+--b.
