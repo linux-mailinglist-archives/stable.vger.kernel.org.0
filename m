@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F42779702
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:57:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B532C796B1
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:55:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390395AbfG2T5T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:57:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47182 "EHLO mail.kernel.org"
+        id S2390715AbfG2Tyf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:54:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404060AbfG2Tyb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:54:31 -0400
+        id S2404072AbfG2Tye (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:54:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FD832054F;
-        Mon, 29 Jul 2019 19:54:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 657F2204EC;
+        Mon, 29 Jul 2019 19:54:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564430070;
-        bh=hM3Cw06sG+uY9q8n7DVamsw6wKd9UJaB/2X3M9tvu20=;
+        s=default; t=1564430073;
+        bh=BgaFoJmCnN6zqvgOEmwjxIoKMu9wlG4zT4NGfQxuYWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QstDM+oPVmkYE+ltiX84k6DTKUVlvSWalygPy6zLR+Eh2waE/nJC+fTxOxZI8dYEj
-         jD0eFgXNO/Nyfe6LE3Psol4XSP+roFiRraqIlq0hXkFPRcLHH/QusL4qmWo2nWZq2i
-         cfKE8Y0coph4v7EFtn/8lTAJWvx97K4fzvmx/O84=
+        b=ufbtKy68QzNJlHuwabe0Tq4mw7WK18x512sgZg46YoXJQV1pde0G2lBrTgyJd1XUb
+         V0K3t7PTjr390tXEHD6SusbbVJ1hmbnU2+MDEgJWSU9wmmzk41fLw+3CAzSK9GgaaC
+         GIc/7X96m2ICthDex0lKOsvOxPSKtbUlAD35RklU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Moritz Fischer <mdf@kernel.org>
-Subject: [PATCH 5.2 186/215] fpga-manager: altera-ps-spi: Fix build error
-Date:   Mon, 29 Jul 2019 21:23:02 +0200
-Message-Id: <20190729190812.422865445@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 5.2 187/215] mei: me: add mule creek canyon (EHL) device ids
+Date:   Mon, 29 Jul 2019 21:23:03 +0200
+Message-Id: <20190729190812.545618308@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -44,39 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit 3d139703d397f6281368047ba7ad1c8bf95aa8ab upstream.
+commit 1be8624a0cbef720e8da39a15971e01abffc865b upstream.
 
-If BITREVERSE is m and FPGA_MGR_ALTERA_PS_SPI is y,
-build fails:
+Add Mule Creek Canyon (PCH) MEI device ids for Elkhart Lake (EHL) Platform.
 
-drivers/fpga/altera-ps-spi.o: In function `altera_ps_write':
-altera-ps-spi.c:(.text+0x4ec): undefined reference to `byte_rev_table'
-
-Select BITREVERSE to fix this.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: fcfe18f885f6 ("fpga-manager: altera-ps-spi: use bitrev8x4")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
 Cc: stable <stable@vger.kernel.org>
-Acked-by: Moritz Fischer <mdf@kernel.org>
-Link: https://lore.kernel.org/r/20190708071356.50928-1-yuehaibing@huawei.com
+Link: https://lore.kernel.org/r/20190712095814.20746-1-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/fpga/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/misc/mei/hw-me-regs.h |    3 +++
+ drivers/misc/mei/pci-me.c     |    3 +++
+ 2 files changed, 6 insertions(+)
 
---- a/drivers/fpga/Kconfig
-+++ b/drivers/fpga/Kconfig
-@@ -40,6 +40,7 @@ config ALTERA_PR_IP_CORE_PLAT
- config FPGA_MGR_ALTERA_PS_SPI
- 	tristate "Altera FPGA Passive Serial over SPI"
- 	depends on SPI
-+	select BITREVERSE
- 	help
- 	  FPGA manager driver support for Altera Arria/Cyclone/Stratix
- 	  using the passive serial interface over SPI.
+--- a/drivers/misc/mei/hw-me-regs.h
++++ b/drivers/misc/mei/hw-me-regs.h
+@@ -81,6 +81,9 @@
+ 
+ #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
+ 
++#define MEI_DEV_ID_MCC        0x4B70  /* Mule Creek Canyon (EHL) */
++#define MEI_DEV_ID_MCC_4      0x4B75  /* Mule Creek Canyon 4 (EHL) */
++
+ /*
+  * MEI HW Section
+  */
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -98,6 +98,9 @@ static const struct pci_device_id mei_me
+ 
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_LP, MEI_ME_PCH12_CFG)},
+ 
++	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC, MEI_ME_PCH12_CFG)},
++	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC_4, MEI_ME_PCH8_CFG)},
++
+ 	/* required last entry */
+ 	{0, }
+ };
 
 
