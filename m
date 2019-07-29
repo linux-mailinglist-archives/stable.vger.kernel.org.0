@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70D9679905
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:12:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B636E79901
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:12:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728763AbfG2UM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 16:12:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44810 "EHLO mail.kernel.org"
+        id S1730448AbfG2UMF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 16:12:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728931AbfG2Tbt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:31:49 -0400
+        id S1730244AbfG2TcX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:32:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF8E621655;
-        Mon, 29 Jul 2019 19:31:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E31B3217D7;
+        Mon, 29 Jul 2019 19:32:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428708;
-        bh=WHcO5EoZl0fr/lRyk3dvLveSy6NFjKp82pGRFirSzA0=;
+        s=default; t=1564428742;
+        bh=AILK7DP9X50hhJTzq8VqHW7fZk/yuQgyTU9wiXDKOBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GpVVF/ANdqEYzm1aW2trJnZPKrZP778zggiLyn3b6VXrmQjDtYNeT9wQYqTTh7ojK
-         hlP3JeJcrCLlQbNMsKWJYq7r5WC0E+cKy7iGzWv5scCcHB4gr7UCQgo1kYdh7zwMHx
-         p3pcF9ftcAX0eFKabEIa7fslmbC6Wr2s6tqFBw/4=
+        b=AME+Lo9mduQCgDd8HDqkegJgefhiFHjusHbIFHFgO8lOOPbjFueiRw4/PQX2/JJxJ
+         PWFgsgYTDabRL3c9fDtaKALHvU71bAT9n6/oWmT60HWCyFjrAjmueFKBVn/72yiEsV
+         G9ulaQxuJuU3C3UMuokj7jxL7YL6uP1sFSQhEAX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 4.14 144/293] arm64: tegra: Fix AGIC register range
-Date:   Mon, 29 Jul 2019 21:20:35 +0200
-Message-Id: <20190729190835.563268178@linuxfoundation.org>
+        stable@vger.kernel.org, Radoslaw Burny <rburny@google.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Seth Forshee <seth.forshee@canonical.com>,
+        John Sperbeck <jsperbeck@google.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 145/293] fs/proc/proc_sysctl.c: fix the default values of i_uid/i_gid on /proc/sys inodes.
+Date:   Mon, 29 Jul 2019 21:20:36 +0200
+Message-Id: <20190729190835.633385600@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -43,38 +50,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Radoslaw Burny <rburny@google.com>
 
-commit ba24eee6686f6ed3738602b54d959253316a9541 upstream.
+commit 5ec27ec735ba0477d48c80561cc5e856f0c5dfaf upstream.
 
-The Tegra AGIC interrupt controller is an ARM GIC400 interrupt
-controller. Per the ARM GIC device-tree binding, the first address
-region is for the GIC distributor registers and the second address
-region is for the GIC CPU interface registers. The address space for
-the distributor registers is 4kB, but currently this is incorrectly
-defined as 8kB for the Tegra AGIC and overlaps with the CPU interface
-registers. Correct the address space for the distributor to be 4kB.
+Normally, the inode's i_uid/i_gid are translated relative to s_user_ns,
+but this is not a correct behavior for proc.  Since sysctl permission
+check in test_perm is done against GLOBAL_ROOT_[UG]ID, it makes more
+sense to use these values in u_[ug]id of proc inodes.  In other words:
+although uid/gid in the inode is not read during test_perm, the inode
+logically belongs to the root of the namespace.  I have confirmed this
+with Eric Biederman at LPC and in this thread:
+  https://lore.kernel.org/lkml/87k1kzjdff.fsf@xmission.com
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Fixes: bcdbde433542 ("arm64: tegra: Add AGIC node for Tegra210")
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Consequences
+============
+
+Since the i_[ug]id values of proc nodes are not used for permissions
+checks, this change usually makes no functional difference.  However, it
+causes an issue in a setup where:
+
+ * a namespace container is created without root user in container -
+   hence the i_[ug]id of proc nodes are set to INVALID_[UG]ID
+
+ * container creator tries to configure it by writing /proc/sys files,
+   e.g. writing /proc/sys/kernel/shmmax to configure shared memory limit
+
+Kernel does not allow to open an inode for writing if its i_[ug]id are
+invalid, making it impossible to write shmmax and thus - configure the
+container.
+
+Using a container with no root mapping is apparently rare, but we do use
+this configuration at Google.  Also, we use a generic tool to configure
+the container limits, and the inability to write any of them causes a
+failure.
+
+History
+=======
+
+The invalid uids/gids in inodes first appeared due to 81754357770e (fs:
+Update i_[ug]id_(read|write) to translate relative to s_user_ns).
+However, AFAIK, this did not immediately cause any issues.  The
+inability to write to these "invalid" inodes was only caused by a later
+commit 0bd23d09b874 (vfs: Don't modify inodes with a uid or gid unknown
+to the vfs).
+
+Tested: Used a repro program that creates a user namespace without any
+mapping and stat'ed /proc/$PID/root/proc/sys/kernel/shmmax from outside.
+Before the change, it shows the overflow uid, with the change it's 0.
+The overflow uid indicates that the uid in the inode is not correct and
+thus it is not possible to open the file for writing.
+
+Link: http://lkml.kernel.org/r/20190708115130.250149-1-rburny@google.com
+Fixes: 0bd23d09b874 ("vfs: Don't modify inodes with a uid or gid unknown to the vfs")
+Signed-off-by: Radoslaw Burny <rburny@google.com>
+Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: "Eric W . Biederman" <ebiederm@xmission.com>
+Cc: Seth Forshee <seth.forshee@canonical.com>
+Cc: John Sperbeck <jsperbeck@google.com>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: <stable@vger.kernel.org>	[4.8+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/dts/nvidia/tegra210.dtsi |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/proc/proc_sysctl.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/arm64/boot/dts/nvidia/tegra210.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra210.dtsi
-@@ -1103,7 +1103,7 @@
- 			compatible = "nvidia,tegra210-agic";
- 			#interrupt-cells = <3>;
- 			interrupt-controller;
--			reg = <0x702f9000 0x2000>,
-+			reg = <0x702f9000 0x1000>,
- 			      <0x702fa000 0x2000>;
- 			interrupts = <GIC_SPI 102 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
- 			clocks = <&tegra_car TEGRA210_CLK_APE>;
+--- a/fs/proc/proc_sysctl.c
++++ b/fs/proc/proc_sysctl.c
+@@ -498,6 +498,10 @@ static struct inode *proc_sys_make_inode
+ 
+ 	if (root->set_ownership)
+ 		root->set_ownership(head, table, &inode->i_uid, &inode->i_gid);
++	else {
++		inode->i_uid = GLOBAL_ROOT_UID;
++		inode->i_gid = GLOBAL_ROOT_GID;
++	}
+ 
+ 	return inode;
+ }
 
 
