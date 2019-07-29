@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 368ED79436
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:29:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FB5A7943A
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:29:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728761AbfG2T3K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:29:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41866 "EHLO mail.kernel.org"
+        id S1728041AbfG2T3V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:29:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730077AbfG2T3J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:29:09 -0400
+        id S1727533AbfG2T3Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:29:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 922E3217D4;
-        Mon, 29 Jul 2019 19:29:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F714217D4;
+        Mon, 29 Jul 2019 19:29:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428549;
-        bh=LBngP+SYDecVYiJm+t3k/6UP2RSu5ScY0G4AkJwtVNM=;
+        s=default; t=1564428555;
+        bh=LOARK0T404+azY1suHxq6Tt9I+LxkICd8FbLI+35sfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2nPKV4F+xfMdbK3U6eaEngElL3Eu5sOtqCGMHQLuu8mPOV99EaHUG2NuoTJkOKoyQ
-         6XIa+Vo9tZcQE1Q13xNYo3rHm7ystFgRsthSSpHMEDCCA/rZd9cbu8+GoBTM4QDb/h
-         AlF6tX/9JdbN1TodfNjknwwxTOFErMTRQOhS+k0I=
+        b=PheJRNPBQkjYTRJP91yw8vNrqWik0wZQkQrf1+Q6ysDoQsv28Izj6D5cE58bkyLWJ
+         IPh38ehUMlznbLrrf3ewBGOxgnBNzy991+weKGDXBSHvZPUzDUOwkEnRZERdrFGJDU
+         tu6O/47HD+LuzURPc5BY7PjEctEsFwjpM3Xo/pIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Michael Schmitz <schmitzmic@gmail.com>,
         Finn Thain <fthain@telegraphics.com.au>,
+        Stan Johnson <userm57@yahoo.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.14 112/293] scsi: NCR5380: Reduce goto statements in NCR5380_select()
-Date:   Mon, 29 Jul 2019 21:20:03 +0200
-Message-Id: <20190729190833.219059030@linuxfoundation.org>
+Subject: [PATCH 4.14 114/293] Revert "scsi: ncr5380: Increase register polling limit"
+Date:   Mon, 29 Jul 2019 21:20:05 +0200
+Message-Id: <20190729190833.357775795@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -46,71 +47,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Finn Thain <fthain@telegraphics.com.au>
 
-commit 6a162836997c10bbefb7c7ca772201cc45c0e4a6 upstream.
+commit 25fcf94a2fa89dd3e73e965ebb0b38a2a4f72aa4 upstream.
 
-Replace a 'goto' statement with a simple 'return' where possible.  This
-improves readability. No functional change.
+This reverts commit 4822827a69d7cd3bc5a07b7637484ebd2cf88db6.
 
-Tested-by: Michael Schmitz <schmitzmic@gmail.com>
+The purpose of that commit was to suppress a timeout warning message which
+appeared to be caused by target latency. But suppressing the warning is
+undesirable as the warning may indicate a messed up transfer count.
+
+Another problem with that commit is that 15 ms is too long to keep
+interrupts disabled as interrupt latency can cause system clock drift and
+other problems.
+
+Cc: Michael Schmitz <schmitzmic@gmail.com>
+Cc: stable@vger.kernel.org
+Fixes: 4822827a69d7 ("scsi: ncr5380: Increase register polling limit")
 Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Tested-by: Stan Johnson <userm57@yahoo.com>
+Tested-by: Michael Schmitz <schmitzmic@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/NCR5380.c |   21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+ drivers/scsi/NCR5380.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/NCR5380.c
-+++ b/drivers/scsi/NCR5380.c
-@@ -984,7 +984,7 @@ static struct scsi_cmnd *NCR5380_select(
- 	if (!hostdata->selecting) {
- 		/* Command was aborted */
- 		NCR5380_write(MODE_REG, MR_BASE);
--		goto out;
-+		return NULL;
- 	}
- 	if (err < 0) {
- 		NCR5380_write(MODE_REG, MR_BASE);
-@@ -1033,7 +1033,7 @@ static struct scsi_cmnd *NCR5380_select(
- 	if (!hostdata->selecting) {
- 		NCR5380_write(MODE_REG, MR_BASE);
- 		NCR5380_write(INITIATOR_COMMAND_REG, ICR_BASE);
--		goto out;
-+		return NULL;
- 	}
+--- a/drivers/scsi/NCR5380.h
++++ b/drivers/scsi/NCR5380.h
+@@ -235,7 +235,7 @@ struct NCR5380_cmd {
+ #define NCR5380_PIO_CHUNK_SIZE		256
  
- 	dsprintk(NDEBUG_ARBITRATION, instance, "won arbitration\n");
-@@ -1116,13 +1116,16 @@ static struct scsi_cmnd *NCR5380_select(
- 		spin_lock_irq(&hostdata->lock);
- 		NCR5380_write(INITIATOR_COMMAND_REG, ICR_BASE);
- 		NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
-+
- 		/* Can't touch cmd if it has been reclaimed by the scsi ML */
--		if (hostdata->selecting) {
--			cmd->result = DID_BAD_TARGET << 16;
--			complete_cmd(instance, cmd);
--			dsprintk(NDEBUG_SELECTION, instance, "target did not respond within 250ms\n");
--			cmd = NULL;
--		}
-+		if (!hostdata->selecting)
-+			return NULL;
-+
-+		cmd->result = DID_BAD_TARGET << 16;
-+		complete_cmd(instance, cmd);
-+		dsprintk(NDEBUG_SELECTION, instance,
-+			"target did not respond within 250ms\n");
-+		cmd = NULL;
- 		goto out;
- 	}
+ /* Time limit (ms) to poll registers when IRQs are disabled, e.g. during PDMA */
+-#define NCR5380_REG_POLL_TIME		15
++#define NCR5380_REG_POLL_TIME		10
  
-@@ -1155,7 +1158,7 @@ static struct scsi_cmnd *NCR5380_select(
- 	}
- 	if (!hostdata->selecting) {
- 		do_abort(instance);
--		goto out;
-+		return NULL;
- 	}
- 
- 	dsprintk(NDEBUG_SELECTION, instance, "target %d selected, going into MESSAGE OUT phase.\n",
+ static inline struct scsi_cmnd *NCR5380_to_scmd(struct NCR5380_cmd *ncmd_ptr)
+ {
 
 
