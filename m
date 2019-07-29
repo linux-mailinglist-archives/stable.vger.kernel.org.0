@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA36C79895
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:09:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 397BA79805
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:06:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388269AbfG2ThN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:37:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51570 "EHLO mail.kernel.org"
+        id S2389308AbfG2TmR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:42:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726805AbfG2ThD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:37:03 -0400
+        id S2389290AbfG2TmQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:42:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D38320C01;
-        Mon, 29 Jul 2019 19:37:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7700220C01;
+        Mon, 29 Jul 2019 19:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429022;
-        bh=PU7Dd+5IV7sWwb4ymWOHQ82+VRVcPHi0ngUL0BtacQk=;
+        s=default; t=1564429336;
+        bh=Mt3rxP5j/KBt/R08xubLFerAOhYk7oa71VRYwJkBrrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FkV/uCmRiMDO0Ps6xAM0YX0IvrRUYbT8C8WzuHKF2a787KGM98MFFgq95MKZ9zR5q
-         4bBLiFHsNViw1rcqw8rOhae9fdxPZuzyAckstah5A2nebL9FWYlCboznP61kpWW/LI
-         sjKdTvAbs2CQYiP20KEBkA/9aqJ94FWeZKzzkid8=
+        b=SDYcaVcflHmtbD+tu5eEbYZ7RdeY2IHUqaYsrpOSN4XPeGsP1bRdYGTvHnXnjJE3y
+         lmZQ5ZRQAOmExpsW/Ym3I1SGFm72UPrh+/F85Vty48+Frq0Cn9h2bn92ZGNDAS2I+P
+         sbf/ZqEbUFE9cf9yPz6vybRfLjGHiARnJ6xKHWLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
         Masahiro Yamada <yamada.masahiro@socionext.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 259/293] kallsyms: exclude kasan local symbols on s390
-Date:   Mon, 29 Jul 2019 21:22:30 +0200
-Message-Id: <20190729190844.262976455@linuxfoundation.org>
+Subject: [PATCH 4.19 064/113] kallsyms: exclude kasan local symbols on s390
+Date:   Mon, 29 Jul 2019 21:22:31 +0200
+Message-Id: <20190729190710.822245021@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
-References: <20190729190820.321094988@linuxfoundation.org>
+In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
+References: <20190729190655.455345569@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -91,10 +91,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+)
 
 diff --git a/scripts/kallsyms.c b/scripts/kallsyms.c
-index 1dd24c5b9b47..b471022c8162 100644
+index 0c9c54b57515..31ed7f3f0e15 100644
 --- a/scripts/kallsyms.c
 +++ b/scripts/kallsyms.c
-@@ -160,6 +160,9 @@ static int read_symbol(FILE *in, struct sym_entry *s)
+@@ -152,6 +152,9 @@ static int read_symbol(FILE *in, struct sym_entry *s)
  	/* exclude debugging symbols */
  	else if (stype == 'N' || stype == 'n')
  		return -1;
