@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06198798D4
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:11:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD78A7989D
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:10:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730431AbfG2UKo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 16:10:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48390 "EHLO mail.kernel.org"
+        id S2388409AbfG2TfX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:35:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388157AbfG2TeC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:34:02 -0400
+        id S1728886AbfG2TfX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:35:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FE2421655;
-        Mon, 29 Jul 2019 19:34:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A0052171F;
+        Mon, 29 Jul 2019 19:35:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428841;
-        bh=wiDEyZdYXykqNWuoM8qvCbURYYqsywdDXaN71XOl2YM=;
+        s=default; t=1564428922;
+        bh=6VxoevqU13y+krWgCZOS1XIMk1y2SPkfoW4m36eNQLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GfgZHFTXNXQpf3g+eeR8mepgE6bsyPaA8ByNHC//wzzXDKoA3EudWE6mREf/bD8zY
-         0Mg6wgDNGZ5NR9zbQi3d3HVV4xuxkV4eAlHf4MxwLAmin6Iqcb7gvJiNhko3OPFiHe
-         rooGQPkXn2xEzst6ephCh8KZYOIID/Uja77xL0oQ=
+        b=ExzBdSykKggISnzaZUWxFpzUtD24eg6/KOiXR4RmcnEXdaAKwbDL0+xrckT2OdSuz
+         MU1U2rrN1aTJ7z2eRlSVDC3YAtj8k1MKfhW/JsNEA3XcUrhNE0RH041NjQXq0BSfyT
+         0AZhUi0KaSry+wTUNafG3HMHTwWSEwnMXnzGUxck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Chen <justinpopo6@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, John Hurley <john.hurley@netronome.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Simon Horman <simon.horman@netronome.com>,
+        Pravin B Shelar <pshelar@ovn.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 186/293] net: bcmgenet: use promisc for unsupported filters
-Date:   Mon, 29 Jul 2019 21:21:17 +0200
-Message-Id: <20190729190838.747798668@linuxfoundation.org>
+Subject: [PATCH 4.14 189/293] net: openvswitch: fix csum updates for MPLS actions
+Date:   Mon, 29 Jul 2019 21:21:20 +0200
+Message-Id: <20190729190838.969560477@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -44,126 +46,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Justin Chen <justinpopo6@gmail.com>
+From: John Hurley <john.hurley@netronome.com>
 
-[ Upstream commit 35cbef9863640f06107144687bd13151bc2e8ce3 ]
+[ Upstream commit 0e3183cd2a64843a95b62f8bd4a83605a4cf0615 ]
 
-Currently we silently ignore filters if we cannot meet the filter
-requirements. This will lead to the MAC dropping packets that are
-expected to pass. A better solution would be to set the NIC to promisc
-mode when the required filters cannot be met.
+Skbs may have their checksum value populated by HW. If this is a checksum
+calculated over the entire packet then the CHECKSUM_COMPLETE field is
+marked. Changes to the data pointer on the skb throughout the network
+stack still try to maintain this complete csum value if it is required
+through functions such as skb_postpush_rcsum.
 
-Also correct the number of MDF filters supported. It should be 17,
-not 16.
+The MPLS actions in Open vSwitch modify a CHECKSUM_COMPLETE value when
+changes are made to packet data without a push or a pull. This occurs when
+the ethertype of the MAC header is changed or when MPLS lse fields are
+modified.
 
-Signed-off-by: Justin Chen <justinpopo6@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+The modification is carried out using the csum_partial function to get the
+csum of a buffer and add it into the larger checksum. The buffer is an
+inversion of the data to be removed followed by the new data. Because the
+csum is calculated over 16 bits and these values align with 16 bits, the
+effect is the removal of the old value from the CHECKSUM_COMPLETE and
+addition of the new value.
+
+However, the csum fed into the function and the outcome of the
+calculation are also inverted. This would only make sense if it was the
+new value rather than the old that was inverted in the input buffer.
+
+Fix the issue by removing the bit inverts in the csum_partial calculation.
+
+The bug was verified and the fix tested by comparing the folded value of
+the updated CHECKSUM_COMPLETE value with the folded value of a full
+software checksum calculation (reset skb->csum to 0 and run
+skb_checksum_complete(skb)). Prior to the fix the outcomes differed but
+after they produce the same result.
+
+Fixes: 25cd9ba0abc0 ("openvswitch: Add basic MPLS support to kernel")
+Fixes: bc7cc5999fd3 ("openvswitch: update checksum in {push,pop}_mpls")
+Signed-off-by: John Hurley <john.hurley@netronome.com>
+Reviewed-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Reviewed-by: Simon Horman <simon.horman@netronome.com>
+Acked-by: Pravin B Shelar <pshelar@ovn.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c |   57 +++++++++++--------------
- 1 file changed, 26 insertions(+), 31 deletions(-)
+ net/openvswitch/actions.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -3088,39 +3088,42 @@ static void bcmgenet_timeout(struct net_
- 	netif_tx_wake_all_queues(dev);
- }
+--- a/net/openvswitch/actions.c
++++ b/net/openvswitch/actions.c
+@@ -174,8 +174,7 @@ static void update_ethertype(struct sk_b
+ 	if (skb->ip_summed == CHECKSUM_COMPLETE) {
+ 		__be16 diff[] = { ~(hdr->h_proto), ethertype };
  
--#define MAX_MC_COUNT	16
-+#define MAX_MDF_FILTER	17
- 
- static inline void bcmgenet_set_mdf_addr(struct bcmgenet_priv *priv,
- 					 unsigned char *addr,
--					 int *i,
--					 int *mc)
-+					 int *i)
- {
--	u32 reg;
--
- 	bcmgenet_umac_writel(priv, addr[0] << 8 | addr[1],
- 			     UMAC_MDF_ADDR + (*i * 4));
- 	bcmgenet_umac_writel(priv, addr[2] << 24 | addr[3] << 16 |
- 			     addr[4] << 8 | addr[5],
- 			     UMAC_MDF_ADDR + ((*i + 1) * 4));
--	reg = bcmgenet_umac_readl(priv, UMAC_MDF_CTRL);
--	reg |= (1 << (MAX_MC_COUNT - *mc));
--	bcmgenet_umac_writel(priv, reg, UMAC_MDF_CTRL);
- 	*i += 2;
--	(*mc)++;
- }
- 
- static void bcmgenet_set_rx_mode(struct net_device *dev)
- {
- 	struct bcmgenet_priv *priv = netdev_priv(dev);
- 	struct netdev_hw_addr *ha;
--	int i, mc;
-+	int i, nfilter;
- 	u32 reg;
- 
- 	netif_dbg(priv, hw, dev, "%s: %08X\n", __func__, dev->flags);
- 
--	/* Promiscuous mode */
-+	/* Number of filters needed */
-+	nfilter = netdev_uc_count(dev) + netdev_mc_count(dev) + 2;
-+
-+	/*
-+	 * Turn on promicuous mode for three scenarios
-+	 * 1. IFF_PROMISC flag is set
-+	 * 2. IFF_ALLMULTI flag is set
-+	 * 3. The number of filters needed exceeds the number filters
-+	 *    supported by the hardware.
-+	*/
- 	reg = bcmgenet_umac_readl(priv, UMAC_CMD);
--	if (dev->flags & IFF_PROMISC) {
-+	if ((dev->flags & (IFF_PROMISC | IFF_ALLMULTI)) ||
-+	    (nfilter > MAX_MDF_FILTER)) {
- 		reg |= CMD_PROMISC;
- 		bcmgenet_umac_writel(priv, reg, UMAC_CMD);
- 		bcmgenet_umac_writel(priv, 0, UMAC_MDF_CTRL);
-@@ -3130,32 +3133,24 @@ static void bcmgenet_set_rx_mode(struct
- 		bcmgenet_umac_writel(priv, reg, UMAC_CMD);
+-		skb->csum = ~csum_partial((char *)diff, sizeof(diff),
+-					~skb->csum);
++		skb->csum = csum_partial((char *)diff, sizeof(diff), skb->csum);
  	}
  
--	/* UniMac doesn't support ALLMULTI */
--	if (dev->flags & IFF_ALLMULTI) {
--		netdev_warn(dev, "ALLMULTI is not supported\n");
--		return;
--	}
--
- 	/* update MDF filter */
- 	i = 0;
--	mc = 0;
- 	/* Broadcast */
--	bcmgenet_set_mdf_addr(priv, dev->broadcast, &i, &mc);
-+	bcmgenet_set_mdf_addr(priv, dev->broadcast, &i);
- 	/* my own address.*/
--	bcmgenet_set_mdf_addr(priv, dev->dev_addr, &i, &mc);
--	/* Unicast list*/
--	if (netdev_uc_count(dev) > (MAX_MC_COUNT - mc))
--		return;
-+	bcmgenet_set_mdf_addr(priv, dev->dev_addr, &i);
+ 	hdr->h_proto = ethertype;
+@@ -267,8 +266,7 @@ static int set_mpls(struct sk_buff *skb,
+ 	if (skb->ip_summed == CHECKSUM_COMPLETE) {
+ 		__be32 diff[] = { ~(stack->label_stack_entry), lse };
  
--	if (!netdev_uc_empty(dev))
--		netdev_for_each_uc_addr(ha, dev)
--			bcmgenet_set_mdf_addr(priv, ha->addr, &i, &mc);
--	/* Multicast */
--	if (netdev_mc_empty(dev) || netdev_mc_count(dev) >= (MAX_MC_COUNT - mc))
--		return;
-+	/* Unicast */
-+	netdev_for_each_uc_addr(ha, dev)
-+		bcmgenet_set_mdf_addr(priv, ha->addr, &i);
+-		skb->csum = ~csum_partial((char *)diff, sizeof(diff),
+-					  ~skb->csum);
++		skb->csum = csum_partial((char *)diff, sizeof(diff), skb->csum);
+ 	}
  
-+	/* Multicast */
- 	netdev_for_each_mc_addr(ha, dev)
--		bcmgenet_set_mdf_addr(priv, ha->addr, &i, &mc);
-+		bcmgenet_set_mdf_addr(priv, ha->addr, &i);
-+
-+	/* Enable filters */
-+	reg = GENMASK(MAX_MDF_FILTER - 1, MAX_MDF_FILTER - nfilter);
-+	bcmgenet_umac_writel(priv, reg, UMAC_MDF_CTRL);
- }
- 
- /* Set the hardware MAC address. */
+ 	stack->label_stack_entry = lse;
 
 
