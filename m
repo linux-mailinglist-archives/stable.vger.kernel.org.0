@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 840C57986E
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:07:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B2CB7986F
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:07:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388385AbfG2TjC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:39:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53972 "EHLO mail.kernel.org"
+        id S1729951AbfG2UHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 16:07:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387909AbfG2Ti6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:38:58 -0400
+        id S2388921AbfG2TjC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:39:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39F9A217D7;
-        Mon, 29 Jul 2019 19:38:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96C6E206DD;
+        Mon, 29 Jul 2019 19:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429137;
-        bh=ZeySQA67f8U0g3QtOJ+NqwzjKd7z3D+xJ9QnjPk48ZM=;
+        s=default; t=1564429141;
+        bh=hIvLzSMFIklJ8+m8wmolvyy/M8acELv/Jtlw11xSbsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uq9Z/enPvD69pj7fcHpxAmge6hrJJjN4ORPkqHpmDL2ejwpmzbALwoRJcxTQsdPG1
-         SbkIw4sFheoazYk4u9XzUwzTm96LcnEiRo/kBJbedRmFVKPnDux0euUANveclQMhll
-         xSpIrDXHCA8xYDfI6e/A4ow7UhGKfyA87v2n7uIA=
+        b=nbMnbzG4RU6gQasoqf7CSAGP4Lt4e720kABAS30DKStmHiZ/DOo9WanaG9EhGwJKv
+         tcpDTfreW/HcpLvcUMe1iGKc4tEi+P5vO/FMljDorDmh+xmi4b6KZf70+01J65LvvW
+         Sf82W43NIFfhPNOB5K42SbCRJzRwx5axJTY/i360=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Kees Cook <keescook@chromium.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
         Andrew Morton <akpm@linux-foundation.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Robin Murphy <robin.murphy@arm.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 272/293] 9p: pass the correct prototype to read_cache_page
-Date:   Mon, 29 Jul 2019 21:22:43 +0200
-Message-Id: <20190729190845.170763501@linuxfoundation.org>
+Subject: [PATCH 4.14 273/293] mm/gup.c: mark undo_dev_pagemap as __maybe_unused
+Date:   Mon, 29 Jul 2019 21:22:44 +0200
+Message-Id: <20190729190845.233364232@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -48,49 +48,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f053cbd4366051d7eb6ba1b8d529d20f719c2963 ]
+[ Upstream commit 790c73690c2bbecb3f6f8becbdb11ddc9bcff8cc ]
 
-Fix the callback 9p passes to read_cache_page to actually have the
-proper type expected.  Casting around function pointers can easily
-hide typing bugs, and defeats control flow protection.
+Several mips builds generate the following build warning.
 
-Link: http://lkml.kernel.org/r/20190520055731.24538-5-hch@lst.de
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Sami Tolvanen <samitolvanen@google.com>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
+  mm/gup.c:1788:13: warning: 'undo_dev_pagemap' defined but not used
+
+The function is declared unconditionally but only called from behind
+various ifdefs. Mark it __maybe_unused.
+
+Link: http://lkml.kernel.org/r/1562072523-22311-1-git-send-email-linux@roeck-us.net
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/9p/vfs_addr.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ mm/gup.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/9p/vfs_addr.c b/fs/9p/vfs_addr.c
-index e1cbdfdb7c68..197069303510 100644
---- a/fs/9p/vfs_addr.c
-+++ b/fs/9p/vfs_addr.c
-@@ -50,8 +50,9 @@
-  * @page: structure to page
-  *
-  */
--static int v9fs_fid_readpage(struct p9_fid *fid, struct page *page)
-+static int v9fs_fid_readpage(void *data, struct page *page)
- {
-+	struct p9_fid *fid = data;
- 	struct inode *inode = page->mapping->host;
- 	struct bio_vec bvec = {.bv_page = page, .bv_len = PAGE_SIZE};
- 	struct iov_iter to;
-@@ -122,7 +123,8 @@ static int v9fs_vfs_readpages(struct file *filp, struct address_space *mapping,
- 	if (ret == 0)
- 		return ret;
- 
--	ret = read_cache_pages(mapping, pages, (void *)v9fs_vfs_readpage, filp);
-+	ret = read_cache_pages(mapping, pages, v9fs_fid_readpage,
-+			filp->private_data);
- 	p9_debug(P9_DEBUG_VFS, "  = %d\n", ret);
- 	return ret;
+diff --git a/mm/gup.c b/mm/gup.c
+index babcbd6d99c3..cee599d1692c 100644
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -1364,7 +1364,8 @@ static inline pte_t gup_get_pte(pte_t *ptep)
  }
+ #endif
+ 
+-static void undo_dev_pagemap(int *nr, int nr_start, struct page **pages)
++static void __maybe_unused undo_dev_pagemap(int *nr, int nr_start,
++					    struct page **pages)
+ {
+ 	while ((*nr) - nr_start) {
+ 		struct page *page = pages[--(*nr)];
 -- 
 2.20.1
 
