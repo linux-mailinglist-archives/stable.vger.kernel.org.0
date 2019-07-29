@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9531F7950A
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:38:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 529507950E
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:38:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388795AbfG2TiC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:38:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52974 "EHLO mail.kernel.org"
+        id S2388830AbfG2TiI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:38:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388437AbfG2TiB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:38:01 -0400
+        id S2388469AbfG2TiI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:38:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E96DC2171F;
-        Mon, 29 Jul 2019 19:37:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47A44206DD;
+        Mon, 29 Jul 2019 19:38:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429080;
-        bh=KJf2K2UdkZTGt+0mCo4df6+uIaLto5eUYkcRQ8ZM+Rk=;
+        s=default; t=1564429086;
+        bh=g5PHaDvBug9tJQg8/3/c0mZKrSSFk6rM4H1mNFs9ZZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e/hPW1vwK1CB+RKtrY0TBiJNfHtnjkYKclF7WLLFS9zsy3Wez9h2MLcrxvSSzIyc9
-         M51B79wW3mx3d5BtMoZqzzO5IIN7hadk3DXJnzvrUEYERvb9jss6kpmkTXVctTEp8Y
-         xNdO6j/Ywxzd6UPvvKvhn0yT7ajf5TcX9u8gYs+0=
+        b=ZoZ8qmXNsATLclUISs9AYQ6uLQK+akTdAsKPwU7qsnOk7ysaTPtg4JXZQPD/zbRit
+         q8J8gmgfpTfJ6/jLopQb1VPgVjcXLr/vz0tXkM69ce2WmSSmDFRMSEnEJWOwW0Mqd2
+         TH2g+o0GWwtQ5BsKnRXCnSwElYPGTjsTNZiVy7jU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
-        Tomeu Vizoso <tomeu.vizoso@collabora.com>,
-        Emil Velikov <emil.velikov@collabora.com>,
-        Benjamin Gaignard <benjamin.gaignard@linaro.org>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 279/293] drm/crc-debugfs: Also sprinkle irqrestore over early exits
-Date:   Mon, 29 Jul 2019 21:22:50 +0200
-Message-Id: <20190729190845.641798943@linuxfoundation.org>
+        stable@vger.kernel.org, Ryan Kennedy <ryan5544@gmail.com>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 4.14 281/293] usb: pci-quirks: Correct AMD PLL quirk detection
+Date:   Mon, 29 Jul 2019 21:22:52 +0200
+Message-Id: <20190729190845.788318316@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -50,51 +43,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d99004d7201aa653658ff2390d6e516567c96ebc ]
+From: Ryan Kennedy <ryan5544@gmail.com>
 
-I. was. blind.
+commit f3dccdaade4118070a3a47bef6b18321431f9ac6 upstream.
 
-Caught with vkms, which has some really slow crc computation function.
+The AMD PLL USB quirk is incorrectly enabled on newer Ryzen
+chipsets. The logic in usb_amd_find_chipset_info currently checks
+for unaffected chipsets rather than affected ones. This broke
+once a new chipset was added in e788787ef. It makes more sense
+to reverse the logic so it won't need to be updated as new
+chipsets are added. Note that the core of the workaround in
+usb_amd_quirk_pll does correctly check the chipset.
 
-Fixes: 1882018a70e0 ("drm/crc-debugfs: User irqsafe spinlock in drm_crtc_add_crc_entry")
-Cc: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
-Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Cc: Emil Velikov <emil.velikov@collabora.com>
-Cc: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Reviewed-by: Emil Velikov <emil.velikov@collabora.com>
-Reviewed-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190606211544.5389-1-daniel.vetter@ffwll.ch
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ryan Kennedy <ryan5544@gmail.com>
+Fixes: e788787ef4f9 ("usb:xhci:Add quirk for Certain failing HP keyboard on reset after resume")
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20190704153529.9429-2-ryan5544@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/drm_debugfs_crc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/host/pci-quirks.c |   31 +++++++++++++++++++------------
+ 1 file changed, 19 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_debugfs_crc.c b/drivers/gpu/drm/drm_debugfs_crc.c
-index f689c75474e5..2901b7944068 100644
---- a/drivers/gpu/drm/drm_debugfs_crc.c
-+++ b/drivers/gpu/drm/drm_debugfs_crc.c
-@@ -366,7 +366,7 @@ int drm_crtc_add_crc_entry(struct drm_crtc *crtc, bool has_frame,
+--- a/drivers/usb/host/pci-quirks.c
++++ b/drivers/usb/host/pci-quirks.c
+@@ -204,7 +204,7 @@ int usb_amd_find_chipset_info(void)
+ {
+ 	unsigned long flags;
+ 	struct amd_chipset_info info;
+-	int ret;
++	int need_pll_quirk = 0;
  
- 	/* Caller may not have noticed yet that userspace has stopped reading */
- 	if (!crc->entries) {
--		spin_unlock(&crc->lock);
-+		spin_unlock_irqrestore(&crc->lock, flags);
- 		return -EINVAL;
+ 	spin_lock_irqsave(&amd_lock, flags);
+ 
+@@ -218,21 +218,28 @@ int usb_amd_find_chipset_info(void)
+ 	spin_unlock_irqrestore(&amd_lock, flags);
+ 
+ 	if (!amd_chipset_sb_type_init(&info)) {
+-		ret = 0;
+ 		goto commit;
  	}
  
-@@ -377,7 +377,7 @@ int drm_crtc_add_crc_entry(struct drm_crtc *crtc, bool has_frame,
- 		bool was_overflow = crc->overflow;
+-	/* Below chipset generations needn't enable AMD PLL quirk */
+-	if (info.sb_type.gen == AMD_CHIPSET_UNKNOWN ||
+-			info.sb_type.gen == AMD_CHIPSET_SB600 ||
+-			info.sb_type.gen == AMD_CHIPSET_YANGTZE ||
+-			(info.sb_type.gen == AMD_CHIPSET_SB700 &&
+-			info.sb_type.rev > 0x3b)) {
++	switch (info.sb_type.gen) {
++	case AMD_CHIPSET_SB700:
++		need_pll_quirk = info.sb_type.rev <= 0x3B;
++		break;
++	case AMD_CHIPSET_SB800:
++	case AMD_CHIPSET_HUDSON2:
++	case AMD_CHIPSET_BOLTON:
++		need_pll_quirk = 1;
++		break;
++	default:
++		need_pll_quirk = 0;
++		break;
++	}
++
++	if (!need_pll_quirk) {
+ 		if (info.smbus_dev) {
+ 			pci_dev_put(info.smbus_dev);
+ 			info.smbus_dev = NULL;
+ 		}
+-		ret = 0;
+ 		goto commit;
+ 	}
  
- 		crc->overflow = true;
--		spin_unlock(&crc->lock);
-+		spin_unlock_irqrestore(&crc->lock, flags);
+@@ -251,7 +258,7 @@ int usb_amd_find_chipset_info(void)
+ 		}
+ 	}
  
- 		if (!was_overflow)
- 			DRM_ERROR("Overflow of CRC buffer, userspace reads too slow.\n");
--- 
-2.20.1
-
+-	ret = info.probe_result = 1;
++	need_pll_quirk = info.probe_result = 1;
+ 	printk(KERN_DEBUG "QUIRK: Enable AMD PLL fix\n");
+ 
+ commit:
+@@ -262,7 +269,7 @@ commit:
+ 
+ 		/* Mark that we where here */
+ 		amd_chipset.probe_count++;
+-		ret = amd_chipset.probe_result;
++		need_pll_quirk = amd_chipset.probe_result;
+ 
+ 		spin_unlock_irqrestore(&amd_lock, flags);
+ 
+@@ -276,7 +283,7 @@ commit:
+ 		spin_unlock_irqrestore(&amd_lock, flags);
+ 	}
+ 
+-	return ret;
++	return need_pll_quirk;
+ }
+ EXPORT_SYMBOL_GPL(usb_amd_find_chipset_info);
+ 
 
 
