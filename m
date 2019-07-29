@@ -2,60 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4201C7980C
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:06:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CDB379890
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:09:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389540AbfG2Tmm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:42:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58596 "EHLO mail.kernel.org"
+        id S2388750AbfG2Thw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:37:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389536AbfG2Tmm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:42:42 -0400
+        id S2388233AbfG2Thw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:37:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D920217F5;
-        Mon, 29 Jul 2019 19:42:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0399620C01;
+        Mon, 29 Jul 2019 19:37:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429360;
-        bh=PC1jyJSYs8kQGazeAblx2dFnoYd09Pwf5CS25k/MkAY=;
+        s=default; t=1564429071;
+        bh=QjnyUyV1hdUPn66Cc6iDCsIzSBxgpn+yWqQs7w7ckww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0AxitwQsiE4X/Hky0vsCd+z4OZKGnaknPMUvIQO6ybI0R9LjfIo+mn9Q/jsCEofuv
-         oYsvoHFtMVRu6DqXP607AQR2MNG4UquaZtHh8IaYsI2HEUFhKkITa9gRBKD12JiwTI
-         7uK2GgMmrMiVchmDwFMKM3MWYVs9i8RnoRAYWORo=
+        b=Y5K+ASgMTpEi9RG7R6LmUrRuMEXPzz/v91a0pMPjujsr7ZFK3N4Z8GWvInrl2MPRI
+         hqzF6lHv3jw6o6GidtAbUvuLs3zUgZ9v5WXChwWXy2GIxV22CtjF38LQTdTKh/uJHy
+         fZ0NyCoweIi1cAD8+yVOofv84ttehbCvcdIxep+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Alexios Zavras <alexios.zavras@intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Changbin Du <changbin.du@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Eric Saint-Etienne <eric.saint.etienne@oracle.com>,
-        Jin Yao <yao.jin@linux.intel.com>,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Song Liu <songliubraving@fb.com>,
-        Suzuki Poulouse <suzuki.poulose@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Sachin Sant <sachinp@linux.vnet.ibm.com>,
+        Oliver OHalloran <oohall@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 071/113] perf annotate: Fix dereferencing freed memory found by the smatch tool
-Date:   Mon, 29 Jul 2019 21:22:38 +0200
-Message-Id: <20190729190712.439276151@linuxfoundation.org>
+Subject: [PATCH 4.14 268/293] powerpc/eeh: Handle hugepages in ioremap space
+Date:   Mon, 29 Jul 2019 21:22:39 +0200
+Message-Id: <20190729190844.891917352@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
-References: <20190729190655.455345569@linuxfoundation.org>
+In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
+References: <20190729190820.321094988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -65,100 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 600c787dbf6521d8d07ee717ab7606d5070103ea ]
+[ Upstream commit 33439620680be5225c1b8806579a291e0d761ca0 ]
 
-Based on the following report from Smatch, fix the potential
-dereferencing freed memory check.
+In commit 4a7b06c157a2 ("powerpc/eeh: Handle hugepages in ioremap
+space") support for using hugepages in the vmalloc and ioremap areas was
+enabled for radix. Unfortunately this broke EEH MMIO error checking.
 
-  tools/perf/util/annotate.c:1125
-  disasm_line__parse() error: dereferencing freed memory 'namep'
+Detection works by inserting a hook which checks the results of the
+ioreadXX() set of functions.  When a read returns a 0xFFs response we
+need to check for an error which we do by mapping the (virtual) MMIO
+address back to a physical address, then mapping physical address to a
+PCI device via an interval tree.
 
-  tools/perf/util/annotate.c
-  1100 static int disasm_line__parse(char *line, const char **namep, char **rawp)
-  1101 {
-  1102         char tmp, *name = ltrim(line);
+When translating virt -> phys we currently assume the ioremap space is
+only populated by PAGE_SIZE mappings. If a hugepage mapping is found we
+emit a WARN_ON(), but otherwise handles the check as though a normal
+page was found. In pathalogical cases such as copying a buffer
+containing a lot of 0xFFs from BAR memory this can result in the system
+not booting because it's too busy printing WARN_ON()s.
 
-  [...]
+There's no real reason to assume huge pages can't be present and we're
+prefectly capable of handling them, so do that.
 
-  1114         *namep = strdup(name);
-  1115
-  1116         if (*namep == NULL)
-  1117                 goto out_free_name;
-
-  [...]
-
-  1124 out_free_name:
-  1125         free((void *)namep);
-                            ^^^^^
-  1126         *namep = NULL;
-               ^^^^^^
-  1127         return -1;
-  1128 }
-
-If strdup() fails to allocate memory space for *namep, we don't need to
-free memory with pointer 'namep', which is resident in data structure
-disasm_line::ins::name; and *namep is NULL pointer for this failure, so
-it's pointless to assign NULL to *namep again.
-
-Committer note:
-
-Freeing namep, which is the address of the first entry of the 'struct
-ins' that is the first member of struct disasm_line would in fact free
-that disasm_line instance, if it was allocated via malloc/calloc, which,
-later, would a dereference of freed memory.
-
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc: Alexios Zavras <alexios.zavras@intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Changbin Du <changbin.du@intel.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Eric Saint-Etienne <eric.saint.etienne@oracle.com>
-Cc: Jin Yao <yao.jin@linux.intel.com>
-Cc: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Thomas Richter <tmricht@linux.ibm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Link: http://lkml.kernel.org/r/20190702103420.27540-5-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 4a7b06c157a2 ("powerpc/eeh: Handle hugepages in ioremap space")
+Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
+Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190710150517.27114-1-oohall@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/annotate.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ arch/powerpc/kernel/eeh.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/tools/perf/util/annotate.c b/tools/perf/util/annotate.c
-index c357051dd2b6..daea1fdf7385 100644
---- a/tools/perf/util/annotate.c
-+++ b/tools/perf/util/annotate.c
-@@ -1079,16 +1079,14 @@ static int disasm_line__parse(char *line, const char **namep, char **rawp)
- 	*namep = strdup(name);
+diff --git a/arch/powerpc/kernel/eeh.c b/arch/powerpc/kernel/eeh.c
+index 45322b37669a..d2ba7936d0d3 100644
+--- a/arch/powerpc/kernel/eeh.c
++++ b/arch/powerpc/kernel/eeh.c
+@@ -361,10 +361,19 @@ static inline unsigned long eeh_token_to_phys(unsigned long token)
+ 	ptep = find_init_mm_pte(token, &hugepage_shift);
+ 	if (!ptep)
+ 		return token;
+-	WARN_ON(hugepage_shift);
+-	pa = pte_pfn(*ptep) << PAGE_SHIFT;
  
- 	if (*namep == NULL)
--		goto out_free_name;
-+		goto out;
- 
- 	(*rawp)[0] = tmp;
- 	*rawp = ltrim(*rawp);
- 
- 	return 0;
- 
--out_free_name:
--	free((void *)namep);
--	*namep = NULL;
-+out:
- 	return -1;
+-	return pa | (token & (PAGE_SIZE-1));
++	pa = pte_pfn(*ptep);
++
++	/* On radix we can do hugepage mappings for io, so handle that */
++	if (hugepage_shift) {
++		pa <<= hugepage_shift;
++		pa |= token & ((1ul << hugepage_shift) - 1);
++	} else {
++		pa <<= PAGE_SHIFT;
++		pa |= token & (PAGE_SIZE - 1);
++	}
++
++	return pa;
  }
  
+ /*
 -- 
 2.20.1
 
