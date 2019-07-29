@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A3E97959A
+	by mail.lfdr.de (Postfix) with ESMTP id DCDA17959C
 	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:44:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389752AbfG2ToL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:44:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60904 "EHLO mail.kernel.org"
+        id S2389764AbfG2ToP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:44:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389747AbfG2ToK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:44:10 -0400
+        id S2389687AbfG2ToP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:44:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 891222054F;
-        Mon, 29 Jul 2019 19:44:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C8A5217D7;
+        Mon, 29 Jul 2019 19:44:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429449;
-        bh=F3xEu7dp5QQ6tel3JOLvaCiGrTfOh3hsxHZD8ZXf8Tc=;
+        s=default; t=1564429454;
+        bh=TFqTnxju/RcqurZHbARZd4YhaMMzHJ+XMmRzD+1Pn2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m9FGuT9tuhPRwfonhp2p2+v7JUioZy8X8qeIVolhBldN5c3XE2AcHKGnrwspWJgxc
-         M/0i4HMoqjJqG8GjEvuz9OUtFpeW+B4zqGgg8WuKy/LngjdEO3cWW1XRiUBl16qAQo
-         qijtgMXIpPfa8Jb3v2RnwVDjhxXBm2cyX5SPVLWc=
+        b=uOikIoM5tlDe1fmOGUl8wTL5gFBeSVFxIu8nNxsTl1STYgn6sqWeaaKKQdtcKZt5+
+         Fbz2CyhMU87iJXcMcw4NAlS+1wH3IcA7hnF596gmB71t8Jnou11defTXWHYsbvGzun
+         YtdawqrH+/wrTMwwVieD/Zp6T9M+yU7AkeBWnk6E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@oracle.com>,
         Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.19 101/113] x86/sysfb_efi: Add quirks for some devices with swapped width and height
-Date:   Mon, 29 Jul 2019 21:23:08 +0200
-Message-Id: <20190729190719.625627564@linuxfoundation.org>
+Subject: [PATCH 4.19 102/113] x86/speculation/mds: Apply more accurate check on hypervisor platform
+Date:   Mon, 29 Jul 2019 21:23:09 +0200
+Message-Id: <20190729190719.902947322@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
 References: <20190729190655.455345569@linuxfoundation.org>
@@ -43,91 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Zhenzhong Duan <zhenzhong.duan@oracle.com>
 
-commit d02f1aa39189e0619c3525d5cd03254e61bf606a upstream.
+commit 517c3ba00916383af6411aec99442c307c23f684 upstream.
 
-Some Lenovo 2-in-1s with a detachable keyboard have a portrait screen but
-advertise a landscape resolution and pitch, resulting in a messed up
-display if the kernel tries to show anything on the efifb (because of the
-wrong pitch).
+X86_HYPER_NATIVE isn't accurate for checking if running on native platform,
+e.g. CONFIG_HYPERVISOR_GUEST isn't set or "nopv" is enabled.
 
-Fix this by adding a new DMI match table for devices which need to have
-their width and height swapped.
+Checking the CPU feature bit X86_FEATURE_HYPERVISOR to determine if it's
+running on native platform is more accurate.
 
-At first it was tried to use the existing table for overriding some of the
-efifb parameters, but some of the affected devices have variants with
-different LCD resolutions which will not work with hardcoded override
-values.
+This still doesn't cover the platforms on which X86_FEATURE_HYPERVISOR is
+unsupported, e.g. VMware, but there is nothing which can be done about this
+scenario.
 
-Reference: https://bugzilla.redhat.com/show_bug.cgi?id=1730783
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: 8a4b06d391b0 ("x86/speculation/mds: Add sysfs reporting for MDS")
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@oracle.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20190721152418.11644-1-hdegoede@redhat.com
+Link: https://lkml.kernel.org/r/1564022349-17338-1-git-send-email-zhenzhong.duan@oracle.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/sysfb_efi.c |   46 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
+ arch/x86/kernel/cpu/bugs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kernel/sysfb_efi.c
-+++ b/arch/x86/kernel/sysfb_efi.c
-@@ -231,9 +231,55 @@ static const struct dmi_system_id efifb_
- 	{},
- };
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -1196,7 +1196,7 @@ static ssize_t l1tf_show_state(char *buf
  
-+/*
-+ * Some devices have a portrait LCD but advertise a landscape resolution (and
-+ * pitch). We simply swap width and height for these devices so that we can
-+ * correctly deal with some of them coming with multiple resolutions.
-+ */
-+static const struct dmi_system_id efifb_dmi_swap_width_height[] __initconst = {
-+	{
-+		/*
-+		 * Lenovo MIIX310-10ICR, only some batches have the troublesome
-+		 * 800x1280 portrait screen. Luckily the portrait version has
-+		 * its own BIOS version, so we match on that.
-+		 */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "MIIX 310-10ICR"),
-+			DMI_EXACT_MATCH(DMI_BIOS_VERSION, "1HCN44WW"),
-+		},
-+	},
-+	{
-+		/* Lenovo MIIX 320-10ICR with 800x1280 portrait screen */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION,
-+					"Lenovo MIIX 320-10ICR"),
-+		},
-+	},
-+	{
-+		/* Lenovo D330 with 800x1280 or 1200x1920 portrait screen */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION,
-+					"Lenovo ideapad D330-10IGM"),
-+		},
-+	},
-+	{},
-+};
-+
- __init void sysfb_apply_efi_quirks(void)
+ static ssize_t mds_show_state(char *buf)
  {
- 	if (screen_info.orig_video_isVGA != VIDEO_TYPE_EFI ||
- 	    !(screen_info.capabilities & VIDEO_CAPABILITY_SKIP_QUIRKS))
- 		dmi_check_system(efifb_dmi_system_table);
-+
-+	if (screen_info.orig_video_isVGA == VIDEO_TYPE_EFI &&
-+	    dmi_check_system(efifb_dmi_swap_width_height)) {
-+		u16 temp = screen_info.lfb_width;
-+
-+		screen_info.lfb_width = screen_info.lfb_height;
-+		screen_info.lfb_height = temp;
-+		screen_info.lfb_linelength = 4 * screen_info.lfb_width;
-+	}
- }
+-	if (!hypervisor_is_type(X86_HYPER_NATIVE)) {
++	if (boot_cpu_has(X86_FEATURE_HYPERVISOR)) {
+ 		return sprintf(buf, "%s; SMT Host state unknown\n",
+ 			       mds_strings[mds_mitigation]);
+ 	}
 
 
