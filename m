@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B7A0798A3
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:10:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20AB5798A4
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:10:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387521AbfG2Tfw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:35:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50192 "EHLO mail.kernel.org"
+        id S2388552AbfG2Tfy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:35:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388528AbfG2Tfu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:35:50 -0400
+        id S2388543AbfG2Tfx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:35:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A25A2070B;
-        Mon, 29 Jul 2019 19:35:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7674217D9;
+        Mon, 29 Jul 2019 19:35:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428949;
-        bh=6KoBIfRycs0fd73LI5Ph46OJrdLpdAWCZXhfKYUdFK8=;
+        s=default; t=1564428952;
+        bh=nfaBBkNgqTdKnb9X8BDpa8JKZUUFpkBnv5zNHO/Pxv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UErMUOjxJ5FCw0Qg2LrEju37LfPOYIPwBjxIeFI+RI67YIBBzvMwEpU5nLfLj26fo
-         aUM90/YqU8FPzkI5cwGpUBRl8pTLmZok5uMd7qOBP9a+3KIa6mdo8xExggCYn2FCFm
-         4LrupNdu0CdPVpRL/XsXSwsqj+4ZJsmwo66q+RKQ=
+        b=uQMgaW+O0kIyeipChtOksdgENJzYVNrYFhDj6OcorELugI6z5+NZMZe0JFZf5Qmo6
+         gX2BNoux7ZoBqUtz+JmDcENW7XGb/H4HnAjiY2fBQSXWtqKhDK8bF7p/gzX5WMupVq
+         aimw7amSr2vot1Levsuq01E8djDtYys2/J80NsYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Sean Paul <seanpaul@chromium.org>,
+        Yakir Yang <ykk@rock-chips.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 238/293] powerpc/pseries/mobility: prevent cpu hotplug during DT update
-Date:   Mon, 29 Jul 2019 21:22:09 +0200
-Message-Id: <20190729190842.688563055@linuxfoundation.org>
+Subject: [PATCH 4.14 239/293] drm/rockchip: Properly adjust to a true clock in adjusted_mode
+Date:   Mon, 29 Jul 2019 21:22:10 +0200
+Message-Id: <20190729190842.772487729@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -45,55 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e59a175faa8df9d674247946f2a5a9c29c835725 ]
+[ Upstream commit 99b9683f2142b20bad78e61f7f829e8714e45685 ]
 
-CPU online/offline code paths are sensitive to parts of the device
-tree (various cpu node properties, cache nodes) that can be changed as
-a result of a migration.
+When fixing up the clock in vop_crtc_mode_fixup() we're not doing it
+quite correctly.  Specifically if we've got the true clock 266666667 Hz,
+we'll perform this calculation:
+   266666667 / 1000 => 266666
 
-Prevent CPU hotplug while the device tree potentially is inconsistent.
+Later when we try to set the clock we'll do clk_set_rate(266666 *
+1000).  The common clock framework won't actually pick the proper clock
+in this case since it always wants clocks <= the specified one.
 
-Fixes: 410bccf97881 ("powerpc/pseries: Partition migration in the kernel")
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Let's solve this by using DIV_ROUND_UP.
+
+Fixes: b59b8de31497 ("drm/rockchip: return a true clock rate to adjusted_mode")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
+Reviewed-by: Yakir Yang <ykk@rock-chips.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190614224730.98622-1-dianders@chromium.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/mobility.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/gpu/drm/rockchip/rockchip_drm_vop.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/pseries/mobility.c b/arch/powerpc/platforms/pseries/mobility.c
-index fbea7db043fa..4addc552eb33 100644
---- a/arch/powerpc/platforms/pseries/mobility.c
-+++ b/arch/powerpc/platforms/pseries/mobility.c
-@@ -9,6 +9,7 @@
-  * 2 as published by the Free Software Foundation.
-  */
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+index f1fa8d5c9b52..7010424b2f89 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+@@ -861,7 +861,8 @@ static bool vop_crtc_mode_fixup(struct drm_crtc *crtc,
+ 	struct vop *vop = to_vop(crtc);
  
-+#include <linux/cpu.h>
- #include <linux/kernel.h>
- #include <linux/kobject.h>
- #include <linux/smp.h>
-@@ -343,11 +344,19 @@ void post_mobility_fixup(void)
- 	if (rc)
- 		printk(KERN_ERR "Post-mobility activate-fw failed: %d\n", rc);
+ 	adjusted_mode->clock =
+-		clk_round_rate(vop->dclk, mode->clock * 1000) / 1000;
++		DIV_ROUND_UP(clk_round_rate(vop->dclk, mode->clock * 1000),
++			     1000);
  
-+	/*
-+	 * We don't want CPUs to go online/offline while the device
-+	 * tree is being updated.
-+	 */
-+	cpus_read_lock();
-+
- 	rc = pseries_devicetree_update(MIGRATION_SCOPE);
- 	if (rc)
- 		printk(KERN_ERR "Post-mobility device tree update "
- 			"failed: %d\n", rc);
- 
-+	cpus_read_unlock();
-+
- 	/* Possibly switch to a new RFI flush type */
- 	pseries_setup_rfi_flush();
- 
+ 	return true;
+ }
 -- 
 2.20.1
 
