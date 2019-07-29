@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF9EF797A4
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:02:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2985F79850
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:07:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390582AbfG2Ttr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:49:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40502 "EHLO mail.kernel.org"
+        id S2389171AbfG2Tkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:40:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389840AbfG2Ttr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:49:47 -0400
+        id S2387957AbfG2Tkb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:40:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0B5721655;
-        Mon, 29 Jul 2019 19:49:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D9B62054F;
+        Mon, 29 Jul 2019 19:40:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429786;
-        bh=jimd+J+7ciZKpnau6npdhpH0c9hsi6H1gm/vd/Sec/I=;
+        s=default; t=1564429230;
+        bh=DMnLZSpJb7xil/grlPuduJQqQpp5X7vHxoIv8Tzcd6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iV3j+S2l6b9AhrFsIio7PtLalxikm9IE+9LVsIpx0lf4KweRwBwqQ6hg/zLydw8EC
-         FBlXJmlotr+GzQH55yo05n2vp+5/6C/Vef4u5GzkWMvpHAowSD30k9XouwcW8ngOhs
-         ZVmHjul1b2dNQuRYLqX3Kolb/Dp8Oe1G6hp712QE=
+        b=OKCaOUCV0GmAR+8ezFkwqjRfHi5UYwMAOUKZ6gx699C1n3Gu/pFdvk3oyXlwA5dqm
+         ZsOZilRHTrXv71Utj1q5A8bUR5xeL2fGc8qXv/Wzta68VxkLTWTEy5jfMTQg+ZH/Sl
+         rKjdZntnDNLpIHRPn0q69pmn0a9g8A+WoCakMAL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Fabien Dessenne <fabien.dessenne@st.com>,
+        Fabrice Gasnier <fabrice.gasnier@st.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 095/215] mfd: cros_ec: Register cros_ec_lid_angle driver when presented
+Subject: [PATCH 4.19 004/113] iio: adc: stm32-dfsdm: missing error case during probe
 Date:   Mon, 29 Jul 2019 21:21:31 +0200
-Message-Id: <20190729190755.698209247@linuxfoundation.org>
+Message-Id: <20190729190656.727177684@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
-References: <20190729190739.971253303@linuxfoundation.org>
+In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
+References: <20190729190655.455345569@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1bb407f17c5316888c3c446e26cb2bb78943f236 ]
+[ Upstream commit d2fc0156963cae8f1eec8e2dd645fbbf1e1c1c8e ]
 
-Register driver when EC indicates has precise lid angle calculation code
-running.
-Fix incorrect extra resource allocation in cros_ec_sensors_register().
+During probe, check the devm_ioremap_resource() error value.
+Also return the devm_clk_get() error value instead of -EINVAL.
 
-Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Fabien Dessenne <fabien.dessenne@st.com>
+Acked-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/cros_ec_dev.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/iio/adc/stm32-dfsdm-core.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mfd/cros_ec_dev.c b/drivers/mfd/cros_ec_dev.c
-index a5391f96eafd..607383b67cf1 100644
---- a/drivers/mfd/cros_ec_dev.c
-+++ b/drivers/mfd/cros_ec_dev.c
-@@ -285,13 +285,15 @@ static void cros_ec_sensors_register(struct cros_ec_dev *ec)
- 
- 	resp = (struct ec_response_motion_sense *)msg->data;
- 	sensor_num = resp->dump.sensor_count;
--	/* Allocate 1 extra sensors in FIFO are needed */
--	sensor_cells = kcalloc(sensor_num + 1, sizeof(struct mfd_cell),
-+	/*
-+	 * Allocate 2 extra sensors if lid angle sensor and/or FIFO are needed.
-+	 */
-+	sensor_cells = kcalloc(sensor_num + 2, sizeof(struct mfd_cell),
- 			       GFP_KERNEL);
- 	if (sensor_cells == NULL)
- 		goto error;
- 
--	sensor_platforms = kcalloc(sensor_num + 1,
-+	sensor_platforms = kcalloc(sensor_num,
- 				   sizeof(struct cros_ec_sensor_platform),
- 				   GFP_KERNEL);
- 	if (sensor_platforms == NULL)
-@@ -351,6 +353,11 @@ static void cros_ec_sensors_register(struct cros_ec_dev *ec)
- 		sensor_cells[id].name = "cros-ec-ring";
- 		id++;
+diff --git a/drivers/iio/adc/stm32-dfsdm-core.c b/drivers/iio/adc/stm32-dfsdm-core.c
+index bf089f5d6225..941630615e88 100644
+--- a/drivers/iio/adc/stm32-dfsdm-core.c
++++ b/drivers/iio/adc/stm32-dfsdm-core.c
+@@ -213,6 +213,8 @@ static int stm32_dfsdm_parse_of(struct platform_device *pdev,
  	}
-+	if (cros_ec_check_features(ec,
-+				EC_FEATURE_REFINED_TABLET_MODE_HYSTERESIS)) {
-+		sensor_cells[id].name = "cros-ec-lid-angle";
-+		id++;
-+	}
+ 	priv->dfsdm.phys_base = res->start;
+ 	priv->dfsdm.base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(priv->dfsdm.base))
++		return PTR_ERR(priv->dfsdm.base);
  
- 	ret = mfd_add_devices(ec->dev, 0, sensor_cells, id,
- 			      NULL, 0, NULL);
+ 	/*
+ 	 * "dfsdm" clock is mandatory for DFSDM peripheral clocking.
+@@ -222,8 +224,10 @@ static int stm32_dfsdm_parse_of(struct platform_device *pdev,
+ 	 */
+ 	priv->clk = devm_clk_get(&pdev->dev, "dfsdm");
+ 	if (IS_ERR(priv->clk)) {
+-		dev_err(&pdev->dev, "No stm32_dfsdm_clk clock found\n");
+-		return -EINVAL;
++		ret = PTR_ERR(priv->clk);
++		if (ret != -EPROBE_DEFER)
++			dev_err(&pdev->dev, "Failed to get clock (%d)\n", ret);
++		return ret;
+ 	}
+ 
+ 	priv->aclk = devm_clk_get(&pdev->dev, "audio");
 -- 
 2.20.1
 
