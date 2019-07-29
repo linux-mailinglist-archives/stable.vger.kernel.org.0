@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43666794CF
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:35:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8A03794D3
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:36:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388531AbfG2Tfr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:35:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50120 "EHLO mail.kernel.org"
+        id S2387743AbfG2Tf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:35:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388528AbfG2Tfq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:35:46 -0400
+        id S2388543AbfG2Tf5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:35:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82145217D9;
-        Mon, 29 Jul 2019 19:35:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED03E2070B;
+        Mon, 29 Jul 2019 19:35:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428946;
-        bh=H5VIOUyEePA3e7YILjunOmQC973IRxnSoT1mO4GezMc=;
+        s=default; t=1564428956;
+        bh=gjigkedbTLbWtgV7jYoDIS4dKCy0u3tofYw9FRBagog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ge0sY79RohgICVETjNcTBc7DIreW3WXAzt/+VKS0u3uxvn3yaccdxwpmqslKuCoep
-         kjUykcHIUuLt3u0DgmC+C/BtF2TswQb0Bfipfn88lvIntYxfiUubpgHDpMG1JzWTRN
-         gqUv8z11iZVIM8szbwJanH/ULlKSktPrjrQ5xPRI=
+        b=R7YsZKZB/NqejDsAhw4+rg1XgKJ6Wezk5wWOfBCX8u93DNd2p2VOFiYOpyoF5smbl
+         5CRlaXDYo4uResuzQsnFRFB8nAcKkl7+TEM+RApop2xPgF5IBjnI8LB6snZ+9pLNYT
+         p4xxvJglM4IeKOnUmwXZGIfbd0hxS0Xal735hhBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
+        stable@vger.kernel.org, Serge Semin <fancer.lancer@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 237/293] phy: renesas: rcar-gen2: Fix memory leak at error paths
-Date:   Mon, 29 Jul 2019 21:22:08 +0200
-Message-Id: <20190729190842.604743846@linuxfoundation.org>
+Subject: [PATCH 4.14 240/293] tty: serial_core: Set port active bit in uart_port_activate
+Date:   Mon, 29 Jul 2019 21:22:11 +0200
+Message-Id: <20190729190842.856050919@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -46,42 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d4a36e82924d3305a17ac987a510f3902df5a4b2 ]
+[ Upstream commit 13b18d35909707571af9539f7731389fbf0feb31 ]
 
-This patch fixes memory leak at error paths of the probe function.
-In for_each_child_of_node, if the loop returns, the driver should
-call of_put_node() before returns.
+A bug was introduced by commit b3b576461864 ("tty: serial_core: convert
+uart_open to use tty_port_open"). It caused a constant warning printed
+into the system log regarding the tty and port counter mismatch:
 
-Reported-by: Julia Lawall <julia.lawall@lip6.fr>
-Fixes: 1233f59f745b237 ("phy: Renesas R-Car Gen2 PHY driver")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+[   21.644197] ttyS ttySx: tty_port_close_start: tty->count = 1 port count = 2
+
+in case if session hangup was detected so the warning is printed starting
+from the second open-close iteration.
+
+Particularly the problem was discovered in situation when there is a
+serial tty device without hardware back-end being setup. It is considered
+by the tty-serial subsystems as a hardware problem with session hang up.
+In this case uart_startup() will return a positive value with TTY_IO_ERROR
+flag set in corresponding tty_struct instance. The same value will get
+passed to be returned from the activate() callback and then being returned
+from tty_port_open(). But since in this case tty_port_block_til_ready()
+isn't called the TTY_PORT_ACTIVE flag isn't set (while the method had been
+called before tty_port_open conversion was introduced and the rest of the
+subsystem code expected the bit being set in this case), which prevents the
+uart_hangup() method to perform any cleanups including the tty port
+counter setting to zero. So the next attempt to open/close the tty device
+will discover the counters mismatch.
+
+In order to fix the problem we need to manually set the TTY_PORT_ACTIVE
+flag in case if uart_startup() returned a positive value. In this case
+the hang up procedure will perform a full set of cleanup actions including
+the port ref-counter resetting.
+
+Fixes: b3b576461864 "tty: serial_core: convert uart_open to use tty_port_open"
+Signed-off-by: Serge Semin <fancer.lancer@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/renesas/phy-rcar-gen2.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/serial/serial_core.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/phy/renesas/phy-rcar-gen2.c b/drivers/phy/renesas/phy-rcar-gen2.c
-index 97d4dd6ea924..aa02b19b7e0e 100644
---- a/drivers/phy/renesas/phy-rcar-gen2.c
-+++ b/drivers/phy/renesas/phy-rcar-gen2.c
-@@ -288,6 +288,7 @@ static int rcar_gen2_phy_probe(struct platform_device *pdev)
- 		error = of_property_read_u32(np, "reg", &channel_num);
- 		if (error || channel_num > 2) {
- 			dev_err(dev, "Invalid \"reg\" property\n");
-+			of_node_put(np);
- 			return error;
- 		}
- 		channel->select_mask = select_mask[channel_num];
-@@ -303,6 +304,7 @@ static int rcar_gen2_phy_probe(struct platform_device *pdev)
- 						   &rcar_gen2_phy_ops);
- 			if (IS_ERR(phy->phy)) {
- 				dev_err(dev, "Failed to create PHY\n");
-+				of_node_put(np);
- 				return PTR_ERR(phy->phy);
- 			}
- 			phy_set_drvdata(phy->phy, phy);
+diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
+index c39246b916af..17e2311f7b00 100644
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -1742,6 +1742,7 @@ static int uart_port_activate(struct tty_port *port, struct tty_struct *tty)
+ {
+ 	struct uart_state *state = container_of(port, struct uart_state, port);
+ 	struct uart_port *uport;
++	int ret;
+ 
+ 	uport = uart_port_check(state);
+ 	if (!uport || uport->flags & UPF_DEAD)
+@@ -1752,7 +1753,11 @@ static int uart_port_activate(struct tty_port *port, struct tty_struct *tty)
+ 	/*
+ 	 * Start up the serial port.
+ 	 */
+-	return uart_startup(tty, state, 0);
++	ret = uart_startup(tty, state, 0);
++	if (ret > 0)
++		tty_port_set_active(port, 1);
++
++	return ret;
+ }
+ 
+ static const char *uart_type(struct uart_port *port)
 -- 
 2.20.1
 
