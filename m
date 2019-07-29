@@ -2,72 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DD4B7920A
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 19:24:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA98879213
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 19:27:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726173AbfG2RYt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 13:24:49 -0400
-Received: from mail-qk1-f179.google.com ([209.85.222.179]:38757 "EHLO
-        mail-qk1-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725934AbfG2RYs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 13:24:48 -0400
-Received: by mail-qk1-f179.google.com with SMTP id a27so44664743qkk.5
-        for <stable@vger.kernel.org>; Mon, 29 Jul 2019 10:24:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
-        bh=DFAlpQjMr6fTHIiQQygLCwlASciOfg3PR3WS7cZl/44=;
-        b=RT9v57SBoQ6rUXiu+au4ls4q25olBLb380u6kLIHsh0hEPw59kV0HsHtbSE+QFV81O
-         mxMc0sARQixV+20YJ0goaHgaC5bybDJxuughZL5FJ2CEc0o2xtMZ3AFQYqKs87rtzczA
-         GAKeBAwJHkbOTGGCsY5UvsxzkEwltHtCV3B+66Id5ZbB41bLAufzUGZ5zYnIyP+ARbBj
-         /xQTuc3NR5KiaySwVQLldNaN+W/QoEdMkXS64LY2Ayz8dZnp7W0wUhYCwOAG5bng/vx0
-         kHuS04eI8qHR7vxgbZ8LZzzR1JUxnUEUEB0FKgPdt+szOxJgdRehMm8kp/2KFNkPdWhd
-         9NAg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to;
-        bh=DFAlpQjMr6fTHIiQQygLCwlASciOfg3PR3WS7cZl/44=;
-        b=gPe75yZUe1MOi8TM/HKpR2XtrQXaOu018cQfgoBQDDDOEBwlJUUSMYYQFPcLR9hRiI
-         LVYmPwPYACs6dASvmiWtX1mUuezUR5a31fvnqPv6Sithuf7eiodobVQ30Vsgp1xIS0Bk
-         sEgj0zsqHrynefV1mWwjFWhAxOCyEmcPAr033gPeWFVhpeWAMGd6DEtuKNBfc6fBrR8l
-         daWvxlO3naz37DakREwn+Zz30tj7Z7B6XoWEN2U0OeW0zR6ICVyFmHKo7I2CS14qrKko
-         02e6ktrcQMeqIgxWlpeqswox0Nwpj+oJcpSiteem47V2Zp12k01wn/Hswv54UCFjEtD1
-         HPbQ==
-X-Gm-Message-State: APjAAAXSWwmN3/60owLqe+iE1fDYdVMZiOsO+9VYzhbrdOnKcWkahXUL
-        NUe81Fp5PwaYLsu6YNJuVQ2dcjW2rc+7fASWx6A=
-X-Google-Smtp-Source: APXvYqxzXvUIjjx/EkvtULalGZpZGeIM2Uw+Xgf7MokhB0M/n6eMPygmBPWogcyQOl8Rct61jHA9NEV8VrqyKMnEFfY=
-X-Received: by 2002:a37:c40b:: with SMTP id d11mr66990327qki.78.1564421088049;
- Mon, 29 Jul 2019 10:24:48 -0700 (PDT)
+        id S1727860AbfG2R16 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 13:27:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41164 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725934AbfG2R16 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 13:27:58 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A6C7206DD;
+        Mon, 29 Jul 2019 17:27:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564421277;
+        bh=84sFfN8BLYDPAZjnPZ2gWMIaKnzZcW62FcLErO0vmxA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=vD87Bh/9iJK4xjJHmxcLeFtMIi/zB9+vfMdOgyYgM/m6Jw1ja1ljJZIGHX9yB3OUO
+         LzRx0Mh4SustYEdaV1EKDlKRc1MQzZwiHAPtk2+Z6tSKLy5FeWkoFK/1GvrvlCVY5C
+         RturpfPOgoXZQ2A8xwX1/qn5dUadrCkF2/70ZiRI=
+Date:   Mon, 29 Jul 2019 13:27:55 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Stephen Suryaputra <ssuryaextr@gmail.com>, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dsahern@gmail.com,
+        davem@davemloft.net
+Subject: Re: Back-porting request
+Message-ID: <20190729172755.GB29162@sasha-vm>
+References: <20190729154234.GA3508@ubuntu>
+ <20190729155627.GA15584@kroah.com>
 MIME-Version: 1.0
-Reply-To: edwarddwilliee01@gmail.com
-Received: by 2002:a37:51c2:0:0:0:0:0 with HTTP; Mon, 29 Jul 2019 10:24:47
- -0700 (PDT)
-From:   Edward Willie <edwarddwilliee01@gmail.com>
-Date:   Mon, 29 Jul 2019 19:24:47 +0200
-X-Google-Sender-Auth: sl38ZGQPY07la0k5KvTrsPIG2bY
-Message-ID: <CA+1HHX9Aqmjv=hN8r4wdsRkoNgGeP+KTjGL0gXbfhfrGRyxkWQ@mail.gmail.com>
-Subject: HELLO
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20190729155627.GA15584@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear friend, i am contacting you independently of my investigation in
-my bank and no one is informed of this communication. I need your
-urgent assistance in transferring the sum of $11.6million dollars to
-your private account,that belongs to one of our foreign customer who
-died a longtime with his supposed NEXT OF KIN since July 22, 2003. The
-money has been here in our Bank lying dormant for years now without
-anybody coming for the claim of it.
+On Mon, Jul 29, 2019 at 05:56:27PM +0200, Greg KH wrote:
+>On Mon, Jul 29, 2019 at 11:42:34AM -0400, Stephen Suryaputra wrote:
+>> Hello,
+>>
+>> I'm requesting this commit to be back-ported to v4.14:
+>> ---
+>> commit 5b18f1289808fee5d04a7e6ecf200189f41a4db6
+>> Author: Stephen Suryaputra <ssuryaextr@gmail.com>
+>> Date:   Wed Jun 26 02:21:16 2019 -0400
+>>
+>>     ipv4: reset rt_iif for recirculated mcast/bcast out pkts
+>>
+>>     Multicast or broadcast egress packets have rt_iif set to the oif. These
+>>     packets might be recirculated back as input and lookup to the raw
+>>     sockets may fail because they are bound to the incoming interface
+>>     (skb_iif). If rt_iif is not zero, during the lookup, inet_iif() function
+>>     returns rt_iif instead of skb_iif. Hence, the lookup fails.
+>>
+>>     v2: Make it non vrf specific (David Ahern). Reword the changelog to
+>>         reflect it.
+>>     Signed-off-by: Stephen Suryaputra <ssuryaextr@gmail.com>
+>>     Reviewed-by: David Ahern <dsahern@gmail.com>
+>>     Signed-off-by: David S. Miller <davem@davemloft.net>
+>> ---
+>>
+>> We found the issue in that release and the above commit is on
+>> linux-stable. On the discussion behind this commit, please see:
+>> https://www.spinics.net/lists/netdev/msg581045.html
+>>
+>> I think after the following diff is needed on top of the above commit
+>> for v4.14:
+>>
+>> ---
+>> diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+>> index 4d85a4fdfdb0..ad2718c1624e 100644
+>> --- a/net/ipv4/route.c
+>> +++ b/net/ipv4/route.c
+>> @@ -1623,11 +1623,8 @@ struct rtable *rt_dst_clone(struct net_device *dev, struct rtable *rt)
+>>  		new_rt->rt_iif = rt->rt_iif;
+>>  		new_rt->rt_pmtu = rt->rt_pmtu;
+>>  		new_rt->rt_mtu_locked = rt->rt_mtu_locked;
+>> -		new_rt->rt_gw_family = rt->rt_gw_family;
+>> -		if (rt->rt_gw_family == AF_INET)
+>> -			new_rt->rt_gw4 = rt->rt_gw4;
+>> -		else if (rt->rt_gw_family == AF_INET6)
+>> -			new_rt->rt_gw6 = rt->rt_gw6;
+>> +		new_rt->rt_gateway = rt->rt_gateway;
+>> +		new_rt->rt_table_id = rt->rt_table_id;
+>>  		INIT_LIST_HEAD(&new_rt->rt_uncached);
+>>
+>>  		new_rt->dst.flags |= DST_HOST;
+>> ---
+>>
+>> Thank you,
+>
+>For networking patches to be applied to the stable kernel tree(s),
+>please read:
+>    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+>for how to do this properly.
+>
+>There is a section for how to do this for networking patches as they are
+>accepted a bit differently from other patches.
 
-I want to release the money to you as the relative to our deceased
-customer , the Banking laws here does not allow such money to stay
-more than 18years, because the money will be recalled to the Bank
-treasury account as unclaimed fund. I am ready to share with you 40%
-for you and 60% will be kept for me, by indicating your interest i
-will send you the full details on how the business will be executed, i
-will be waiting for your urgent response.
-Mr.Edward.
+To clarify a bit more here: technically you're asking for a patch to be
+included in 4.14, which isn't one of the "last two stable releases", so
+that document will tell you to send that patch directly to us.
+
+However, this patch isn't in 4.19 either, which is still Dave's domain,
+and we can't take it in 4.14 if it's not in 4.19 (we don't want to
+introduce regressions for people who are upgrading their kernels), so
+this will still need to go through Dave.
+
+--
+Thanks,
+Sasha
