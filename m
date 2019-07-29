@@ -2,47 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ECC6E7976A
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:01:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74B4F797FF
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:06:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403927AbfG2Twk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:52:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44508 "EHLO mail.kernel.org"
+        id S2388893AbfG2Tl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:41:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403920AbfG2Twj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:52:39 -0400
+        id S2388871AbfG2Tly (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:41:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04F7621655;
-        Mon, 29 Jul 2019 19:52:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20D762054F;
+        Mon, 29 Jul 2019 19:41:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429958;
-        bh=Jl3ktDhtDoytYpouuDYTsZkHQpDwAh/XYv9EgjJON4c=;
+        s=default; t=1564429313;
+        bh=jIA1HbUoSEFIGUtpk97chnHaO5IF+YiQbVdOmNIzJ3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WjyZfYzUDhONEVX8Mc1xkQ06hVCKYBfEJRHXJzxev7t7Ac3+TwLSa95agGyEdqoZH
-         pCiUmdz1Q4EBybK+t0nj3c3Y1UK3ac33mLpHDV0T6t+di1lbrAmxuUfGXcpCWYH7Zw
-         sxttMG3QFNvZZj5PZPwip0M2eRQYVoSlcQL49yy0=
+        b=xfZSyM6E0ZcXCim1nL/A/n8GYsCm+yrvcIN+nCoJHKOCDS0KkpjvcsSHtMKsdWxOm
+         3gEA6jwR1a3Vw5WUjUrqs03DsqRaa0y1EOM+NsdWBlDS0uB5miPnDsg7D+cmuNSg5x
+         ixT2UotLPsA/RAkjawTBQnU7vw+id4rNTsSf8PEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        Will Deacon <will.deacon@arm.com>,
-        Mark Brown <broonie@kernel.org>,
-        Inki Dae <inki.dae@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Parav Pandit <parav@mellanox.com>,
+        Daniel Jurgens <danielj@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 149/215] sh: prevent warnings when using iounmap
+Subject: [PATCH 4.19 058/113] IB/mlx5: Fixed reporting counters on 2nd port for Dual port RoCE
 Date:   Mon, 29 Jul 2019 21:22:25 +0200
-Message-Id: <20190729190805.570775656@linuxfoundation.org>
+Message-Id: <20190729190709.363262444@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
-References: <20190729190739.971253303@linuxfoundation.org>
+In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
+References: <20190729190655.455345569@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,60 +46,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 733f0025f0fb43e382b84db0930ae502099b7e62 ]
+[ Upstream commit 2f40cf30c8644360d37287861d5288f00eab35e5 ]
 
-When building drm/exynos for sh, as part of an allmodconfig build, the
-following warning triggered:
+Currently during dual port IB device registration in below code flow,
 
-  exynos7_drm_decon.c: In function `decon_remove':
-  exynos7_drm_decon.c:769:24: warning: unused variable `ctx'
-    struct decon_context *ctx = dev_get_drvdata(&pdev->dev);
+ib_register_device()
+  ib_device_register_sysfs()
+    ib_setup_port_attrs()
+      add_port()
+        get_counter_table()
+          get_perf_mad()
+            process_mad()
+              mlx5_ib_process_mad()
 
-The ctx variable is only used as argument to iounmap().
+mlx5_ib_process_mad() fails on 2nd port when both the ports are not fully
+setup at the device level (because 2nd port is unaffiliated).
 
-In sh - allmodconfig CONFIG_MMU is not defined
-so it ended up in:
+As a result, get_perf_mad() registers different PMA counter group for 1st
+and 2nd port, namely pma_counter_ext and pma_counter. However both ports
+have the same capability and counter offsets.
 
-\#define __iounmap(addr)	do { } while (0)
-\#define iounmap		__iounmap
+Due to this when counters are read by the user via sysfs in below code
+flow, counters are queried from wrong location from the device mainly from
+PPCNT instead of VPORT counters.
 
-Fix the warning by introducing a static inline function for iounmap.
+show_pma_counter()
+  get_perf_mad()
+    process_mad()
+      mlx5_ib_process_mad()
+        process_pma_cmd()
 
-This is similar to several other architectures.
+This shows all zero counters for 2nd port.
 
-Link: http://lkml.kernel.org/r/20190622114208.24427-1-sam@ravnborg.org
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Inki Dae <inki.dae@samsung.com>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+To overcome this, process_pma_cmd() is invoked, and when unaffiliated port
+is not yet setup during device registration phase, make the query on the
+first port.  while at it, only process_pma_cmd() needs to work on the
+native port number and underlying mdev, so shift the get, put calls to
+where its needed inside process_pma_cmd().
+
+Fixes: 212f2a87b74f ("IB/mlx5: Route MADs for dual port RoCE")
+Signed-off-by: Parav Pandit <parav@mellanox.com>
+Reviewed-by: Daniel Jurgens <danielj@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/include/asm/io.h | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/mlx5/mad.c | 60 +++++++++++++++++++-------------
+ 1 file changed, 36 insertions(+), 24 deletions(-)
 
-diff --git a/arch/sh/include/asm/io.h b/arch/sh/include/asm/io.h
-index c28e37a344ad..ac0561960c52 100644
---- a/arch/sh/include/asm/io.h
-+++ b/arch/sh/include/asm/io.h
-@@ -369,7 +369,11 @@ static inline int iounmap_fixed(void __iomem *addr) { return -EINVAL; }
+diff --git a/drivers/infiniband/hw/mlx5/mad.c b/drivers/infiniband/hw/mlx5/mad.c
+index 32a9e9228b13..cdf6e26ebc87 100644
+--- a/drivers/infiniband/hw/mlx5/mad.c
++++ b/drivers/infiniband/hw/mlx5/mad.c
+@@ -197,19 +197,33 @@ static void pma_cnt_assign(struct ib_pma_portcounters *pma_cnt,
+ 			     vl_15_dropped);
+ }
  
- #define ioremap_nocache	ioremap
- #define ioremap_uc	ioremap
--#define iounmap		__iounmap
-+
-+static inline void iounmap(void __iomem *addr)
-+{
-+	__iounmap(addr);
-+}
+-static int process_pma_cmd(struct mlx5_core_dev *mdev, u8 port_num,
++static int process_pma_cmd(struct mlx5_ib_dev *dev, u8 port_num,
+ 			   const struct ib_mad *in_mad, struct ib_mad *out_mad)
+ {
+-	int err;
++	struct mlx5_core_dev *mdev;
++	bool native_port = true;
++	u8 mdev_port_num;
+ 	void *out_cnt;
++	int err;
  
- /*
-  * Convert a physical pointer to a virtual kernel pointer for /dev/mem
++	mdev = mlx5_ib_get_native_port_mdev(dev, port_num, &mdev_port_num);
++	if (!mdev) {
++		/* Fail to get the native port, likely due to 2nd port is still
++		 * unaffiliated. In such case default to 1st port and attached
++		 * PF device.
++		 */
++		native_port = false;
++		mdev = dev->mdev;
++		mdev_port_num = 1;
++	}
+ 	/* Declaring support of extended counters */
+ 	if (in_mad->mad_hdr.attr_id == IB_PMA_CLASS_PORT_INFO) {
+ 		struct ib_class_port_info cpi = {};
+ 
+ 		cpi.capability_mask = IB_PMA_CLASS_CAP_EXT_WIDTH;
+ 		memcpy((out_mad->data + 40), &cpi, sizeof(cpi));
+-		return IB_MAD_RESULT_SUCCESS | IB_MAD_RESULT_REPLY;
++		err = IB_MAD_RESULT_SUCCESS | IB_MAD_RESULT_REPLY;
++		goto done;
+ 	}
+ 
+ 	if (in_mad->mad_hdr.attr_id == IB_PMA_PORT_COUNTERS_EXT) {
+@@ -218,11 +232,13 @@ static int process_pma_cmd(struct mlx5_core_dev *mdev, u8 port_num,
+ 		int sz = MLX5_ST_SZ_BYTES(query_vport_counter_out);
+ 
+ 		out_cnt = kvzalloc(sz, GFP_KERNEL);
+-		if (!out_cnt)
+-			return IB_MAD_RESULT_FAILURE;
++		if (!out_cnt) {
++			err = IB_MAD_RESULT_FAILURE;
++			goto done;
++		}
+ 
+ 		err = mlx5_core_query_vport_counter(mdev, 0, 0,
+-						    port_num, out_cnt, sz);
++						    mdev_port_num, out_cnt, sz);
+ 		if (!err)
+ 			pma_cnt_ext_assign(pma_cnt_ext, out_cnt);
+ 	} else {
+@@ -231,20 +247,23 @@ static int process_pma_cmd(struct mlx5_core_dev *mdev, u8 port_num,
+ 		int sz = MLX5_ST_SZ_BYTES(ppcnt_reg);
+ 
+ 		out_cnt = kvzalloc(sz, GFP_KERNEL);
+-		if (!out_cnt)
+-			return IB_MAD_RESULT_FAILURE;
++		if (!out_cnt) {
++			err = IB_MAD_RESULT_FAILURE;
++			goto done;
++		}
+ 
+-		err = mlx5_core_query_ib_ppcnt(mdev, port_num,
++		err = mlx5_core_query_ib_ppcnt(mdev, mdev_port_num,
+ 					       out_cnt, sz);
+ 		if (!err)
+ 			pma_cnt_assign(pma_cnt, out_cnt);
+-		}
+-
++	}
+ 	kvfree(out_cnt);
+-	if (err)
+-		return IB_MAD_RESULT_FAILURE;
+-
+-	return IB_MAD_RESULT_SUCCESS | IB_MAD_RESULT_REPLY;
++	err = err ? IB_MAD_RESULT_FAILURE :
++		    IB_MAD_RESULT_SUCCESS | IB_MAD_RESULT_REPLY;
++done:
++	if (native_port)
++		mlx5_ib_put_native_port_mdev(dev, port_num);
++	return err;
+ }
+ 
+ int mlx5_ib_process_mad(struct ib_device *ibdev, int mad_flags, u8 port_num,
+@@ -256,8 +275,6 @@ int mlx5_ib_process_mad(struct ib_device *ibdev, int mad_flags, u8 port_num,
+ 	struct mlx5_ib_dev *dev = to_mdev(ibdev);
+ 	const struct ib_mad *in_mad = (const struct ib_mad *)in;
+ 	struct ib_mad *out_mad = (struct ib_mad *)out;
+-	struct mlx5_core_dev *mdev;
+-	u8 mdev_port_num;
+ 	int ret;
+ 
+ 	if (WARN_ON_ONCE(in_mad_size != sizeof(*in_mad) ||
+@@ -266,19 +283,14 @@ int mlx5_ib_process_mad(struct ib_device *ibdev, int mad_flags, u8 port_num,
+ 
+ 	memset(out_mad->data, 0, sizeof(out_mad->data));
+ 
+-	mdev = mlx5_ib_get_native_port_mdev(dev, port_num, &mdev_port_num);
+-	if (!mdev)
+-		return IB_MAD_RESULT_FAILURE;
+-
+-	if (MLX5_CAP_GEN(mdev, vport_counters) &&
++	if (MLX5_CAP_GEN(dev->mdev, vport_counters) &&
+ 	    in_mad->mad_hdr.mgmt_class == IB_MGMT_CLASS_PERF_MGMT &&
+ 	    in_mad->mad_hdr.method == IB_MGMT_METHOD_GET) {
+-		ret = process_pma_cmd(mdev, mdev_port_num, in_mad, out_mad);
++		ret = process_pma_cmd(dev, port_num, in_mad, out_mad);
+ 	} else {
+ 		ret =  process_mad(ibdev, mad_flags, port_num, in_wc, in_grh,
+ 				   in_mad, out_mad);
+ 	}
+-	mlx5_ib_put_native_port_mdev(dev, port_num);
+ 	return ret;
+ }
+ 
 -- 
 2.20.1
 
