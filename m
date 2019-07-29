@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA00579423
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:28:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8CA979428
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:28:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728284AbfG2T2W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:28:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41058 "EHLO mail.kernel.org"
+        id S1728172AbfG2T2c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:28:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728771AbfG2T2V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:28:21 -0400
+        id S1729987AbfG2T2b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:28:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 427D4217D7;
-        Mon, 29 Jul 2019 19:28:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 649332070B;
+        Mon, 29 Jul 2019 19:28:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428500;
-        bh=Cd/i1Nq2Ul7QD8KsMj7YacQXpM+qi/Pmf8IQc34zxsk=;
+        s=default; t=1564428510;
+        bh=bU8JmnIf0S2UTSfiMcOwDN2VXep2/+pVvG31xsfqtKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aHgsLJMCK0qFT9rLEvDp3wzby6kU1EHaympNsBUwocDCoRPkQ1tPPZp1qe+plW0pV
-         9GlE7Jx06G6oKskcGc6lQIRoi0cHn+A+jki8i6h3246HUY3uSlFJqglhmlUw45tuDN
-         ND6eANQbIg8W1FzOXn/O9FFR9kT0rREyqYubeaaw=
+        b=XP++lUOFyFdPJg0AfTGEYuV92Z3YmRF/TbY4YBfDwVU5OT2986W72HCSuVyFm5OwK
+         QO5CXA/aUfubSxAlzJ69IdLOwecw9QE3My2XmIyMPzAnkVTE+huV5cPPXcuOIz/F35
+         N7nHPbXfEc9w1IW2nLR6qAyUWlSaJ2BdHp9t2e9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        Jukka Rissanen <jukka.rissanen@linux.intel.com>,
+        Michael Scott <mike@foundries.io>,
+        Josua Mayer <josua.mayer@jm0.eu>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 095/293] gpiolib: Fix references to gpiod_[gs]et_*value_cansleep() variants
-Date:   Mon, 29 Jul 2019 21:19:46 +0200
-Message-Id: <20190729190831.890070871@linuxfoundation.org>
+Subject: [PATCH 4.14 097/293] Bluetooth: 6lowpan: search for destination address in all peers
+Date:   Mon, 29 Jul 2019 21:19:48 +0200
+Message-Id: <20190729190832.052222758@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -45,56 +47,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3285170f28a850638794cdfe712eb6d93e51e706 ]
+[ Upstream commit b188b03270b7f8568fc714101ce82fbf5e811c5a ]
 
-Commit 372e722ea4dd4ca1 ("gpiolib: use descriptors internally") renamed
-the functions to use a "gpiod" prefix, and commit 79a9becda8940deb
-("gpiolib: export descriptor-based GPIO interface") introduced the "raw"
-variants, but both changes forgot to update the comments.
+Handle overlooked case where the target address is assigned to a peer
+and neither route nor gateway exist.
 
-Readd a similar reference to gpiod_set_value(), which was accidentally
-removed by commit 1e77fc82110ac36f ("gpio: Add missing open drain/source
-handling to gpiod_set_value_cansleep()").
+For one peer, no checks are performed to see if it is meant to receive
+packets for a given address.
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20190701142738.25219-1-geert+renesas@glider.be
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+As soon as there is a second peer however, checks are performed
+to deal with routes and gateways for handling complex setups with
+multiple hops to a target address.
+This logic assumed that no route and no gateway imply that the
+destination address can not be reached, which is false in case of a
+direct peer.
+
+Acked-by: Jukka Rissanen <jukka.rissanen@linux.intel.com>
+Tested-by: Michael Scott <mike@foundries.io>
+Signed-off-by: Josua Mayer <josua.mayer@jm0.eu>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/bluetooth/6lowpan.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index 21062cb6b85f..3db0a9b0d259 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -2480,7 +2480,7 @@ static int _gpiod_get_raw_value(const struct gpio_desc *desc)
- int gpiod_get_raw_value(const struct gpio_desc *desc)
- {
- 	VALIDATE_DESC(desc);
--	/* Should be using gpio_get_value_cansleep() */
-+	/* Should be using gpiod_get_raw_value_cansleep() */
- 	WARN_ON(desc->gdev->chip->can_sleep);
- 	return _gpiod_get_raw_value(desc);
- }
-@@ -2501,7 +2501,7 @@ int gpiod_get_value(const struct gpio_desc *desc)
- 	int value;
+diff --git a/net/bluetooth/6lowpan.c b/net/bluetooth/6lowpan.c
+index 4e2576fc0c59..357475cceec6 100644
+--- a/net/bluetooth/6lowpan.c
++++ b/net/bluetooth/6lowpan.c
+@@ -187,10 +187,16 @@ static inline struct lowpan_peer *peer_lookup_dst(struct lowpan_btle_dev *dev,
+ 	}
  
- 	VALIDATE_DESC(desc);
--	/* Should be using gpio_get_value_cansleep() */
-+	/* Should be using gpiod_get_value_cansleep() */
- 	WARN_ON(desc->gdev->chip->can_sleep);
+ 	if (!rt) {
+-		nexthop = &lowpan_cb(skb)->gw;
+-
+-		if (ipv6_addr_any(nexthop))
+-			return NULL;
++		if (ipv6_addr_any(&lowpan_cb(skb)->gw)) {
++			/* There is neither route nor gateway,
++			 * probably the destination is a direct peer.
++			 */
++			nexthop = daddr;
++		} else {
++			/* There is a known gateway
++			 */
++			nexthop = &lowpan_cb(skb)->gw;
++		}
+ 	} else {
+ 		nexthop = rt6_nexthop(rt, daddr);
  
- 	value = _gpiod_get_raw_value(desc);
-@@ -2670,7 +2670,7 @@ void gpiod_set_array_value_complex(bool raw, bool can_sleep,
- void gpiod_set_raw_value(struct gpio_desc *desc, int value)
- {
- 	VALIDATE_DESC_VOID(desc);
--	/* Should be using gpiod_set_value_cansleep() */
-+	/* Should be using gpiod_set_raw_value_cansleep() */
- 	WARN_ON(desc->gdev->chip->can_sleep);
- 	_gpiod_set_raw_value(desc, value);
- }
 -- 
 2.20.1
 
