@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E415079940
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:14:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2154079935
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:14:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730012AbfG2UOU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 16:14:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40934 "EHLO mail.kernel.org"
+        id S1728325AbfG2T21 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:28:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728280AbfG2T2P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:28:15 -0400
+        id S1727585AbfG2T2Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:28:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF3F421655;
-        Mon, 29 Jul 2019 19:28:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 190332070B;
+        Mon, 29 Jul 2019 19:28:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428494;
-        bh=2o22tR3EhmUoGO81eu0w4DIxcCBKxG35WXyGeRSq6xM=;
+        s=default; t=1564428504;
+        bh=pL1Aa3SPAtQ1KsmWD8g3jrklpTWaWSpltuulPbI1cwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X4SQrCaogZ9ulT/8AjByxn4+Tdm0NYr+h6wi8mB95BZPoqx17FNiGkA+Ny3iClXgd
-         UnTZBpovxK+8178tT6+R8QiT67/Vv7r4RspUXRJRnJ27bsOisv/HaNEpdebrlFXvGl
-         dIf6VhSi3DQ7rMnnfGtc7vT19fbxL8Y/kQDtW2rk=
+        b=wDukipXFR8n+SINXUjR/+A7qipMlMnA/5C495zpz3m1IPhhNUiGJpB+b84278Oj7Y
+         zw9inOUWGPdxiDK5GEIcV/9rtqe4VNVEhu3kSRQ7BYzIXMneks6fnsQgGmDkHjwlex
+         Vcbrru/mL8eBS1hhIxpcwgiKERyiBa1Xk6WmrTLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Tomas Bortoli <tomasbortoli@gmail.com>,
+        syzbot+98162c885993b72f19c4@syzkaller.appspotmail.com,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 093/293] perf stat: Make metric event lookup more robust
-Date:   Mon, 29 Jul 2019 21:19:44 +0200
-Message-Id: <20190729190831.731409775@linuxfoundation.org>
+Subject: [PATCH 4.14 096/293] Bluetooth: hci_bcsp: Fix memory leak in rx_skb
+Date:   Mon, 29 Jul 2019 21:19:47 +0200
+Message-Id: <20190729190831.970958989@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -46,49 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 145c407c808352acd625be793396fd4f33c794f8 ]
+[ Upstream commit 4ce9146e0370fcd573f0372d9b4e5a211112567c ]
 
-After setting up metric groups through the event parser, the metricgroup
-code looks them up again in the event list.
+Syzkaller found that it is possible to provoke a memory leak by
+never freeing rx_skb in struct bcsp_struct.
 
-Make sure we only look up events that haven't been used by some other
-metric. The data structures currently cannot handle more than one metric
-per event. This avoids problems with multiple events partially
-overlapping.
+Fix by freeing in bcsp_close()
 
-Signed-off-by: Andi Kleen <ak@linux.intel.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Link: http://lkml.kernel.org/r/20190624193711.35241-2-andi@firstfloor.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Tomas Bortoli <tomasbortoli@gmail.com>
+Reported-by: syzbot+98162c885993b72f19c4@syzkaller.appspotmail.com
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/stat-shadow.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/bluetooth/hci_bcsp.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/tools/perf/util/stat-shadow.c b/tools/perf/util/stat-shadow.c
-index 37363869c9a1..eadc9a2aef16 100644
---- a/tools/perf/util/stat-shadow.c
-+++ b/tools/perf/util/stat-shadow.c
-@@ -271,7 +271,7 @@ static struct perf_evsel *perf_stat__find_event(struct perf_evlist *evsel_list,
- 	struct perf_evsel *c2;
+diff --git a/drivers/bluetooth/hci_bcsp.c b/drivers/bluetooth/hci_bcsp.c
+index d880f4e33c75..57a7f4255ac0 100644
+--- a/drivers/bluetooth/hci_bcsp.c
++++ b/drivers/bluetooth/hci_bcsp.c
+@@ -757,6 +757,11 @@ static int bcsp_close(struct hci_uart *hu)
+ 	skb_queue_purge(&bcsp->rel);
+ 	skb_queue_purge(&bcsp->unrel);
  
- 	evlist__for_each_entry (evsel_list, c2) {
--		if (!strcasecmp(c2->name, name))
-+		if (!strcasecmp(c2->name, name) && !c2->collect_stat)
- 			return c2;
- 	}
- 	return NULL;
-@@ -310,7 +310,8 @@ void perf_stat__collect_metric_expr(struct perf_evlist *evsel_list)
- 			if (leader) {
- 				/* Search in group */
- 				for_each_group_member (oc, leader) {
--					if (!strcasecmp(oc->name, metric_names[i])) {
-+					if (!strcasecmp(oc->name, metric_names[i]) &&
-+						!oc->collect_stat) {
- 						found = true;
- 						break;
- 					}
++	if (bcsp->rx_skb) {
++		kfree_skb(bcsp->rx_skb);
++		bcsp->rx_skb = NULL;
++	}
++
+ 	kfree(bcsp);
+ 	return 0;
+ }
 -- 
 2.20.1
 
