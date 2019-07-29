@@ -2,38 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ACF6796F2
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:56:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6537796F1
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:56:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403914AbfG2Tzo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:55:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48512 "EHLO mail.kernel.org"
+        id S2404232AbfG2Tzp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:55:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391048AbfG2Tzl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:55:41 -0400
+        id S2390634AbfG2Tzp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:55:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A4942054F;
-        Mon, 29 Jul 2019 19:55:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 281D9204EC;
+        Mon, 29 Jul 2019 19:55:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564430140;
-        bh=71/CmMNhNip2fgg79PeggCuwhuzDhvx2mKbBfwvQMOY=;
+        s=default; t=1564430143;
+        bh=LwEnGQfxQpiggdDYOq2N97WcBfprIU6Xtg2b2Lnylgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iVZgSePMrxgqOrD5x2y4mxGdhPMBcc/Xg53NYrCWRJ9H8Hk217lOXLzebojiUkXfA
-         bIGdU2nFSTUbd+Jh1mM/2xD02YGP+KSkRC4soWbQC785I54Vb4PmjCvcWD+GteCGYm
-         qQ0Nx95YzPVn6amZDvAYV93Mixd4QDk2xJvV38fs=
+        b=wfISqotstVkvERnmz1CwO1BoQzwr0HP3t1iRaUPg30DZbSbvrGuuKvGh9w2ILDvtP
+         UBWD/FsroBrKVGm8LD+ml/4O/Go9l903gk8vEdps+X6SZVAbQWrpIfnHG+fptONvBD
+         kn0ZytHYXuiSivpO2B3DyyXgm35FZUDjdEssuB4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Dmitry Rogozhkin <dmitry.v.rogozhkin@intel.com>,
-        Dmitry Ermilov <dmitry.ermilov@intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Subject: [PATCH 5.2 210/215] drm/i915: Make the semaphore saturation mask global
-Date:   Mon, 29 Jul 2019 21:23:26 +0200
-Message-Id: <20190729190816.360739317@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Eric Dumazet <edumazet@google.com>,
+        "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Jan Glauber <jglauber@marvell.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Jayachandran Chandrasekharan Nair <jnair@marvell.com>,
+        Greg KH <greg@kroah.com>, Kees Cook <keescook@chromium.org>,
+        David Howells <dhowells@redhat.com>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.2 211/215] access: avoid the RCU grace period for the temporary subjective credentials
+Date:   Mon, 29 Jul 2019 21:23:27 +0200
+Message-Id: <20190729190816.523626281@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -46,118 +54,182 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 44d89409a12eb8333735958509d7d591b461d13d upstream.
+commit d7852fbd0f0423937fa287a598bfde188bb68c22 upstream.
 
-The idea behind keeping the saturation mask local to a context backfired
-spectacularly. The premise with the local mask was that we would be more
-proactive in attempting to use semaphores after each time the context
-idled, and that all new contexts would attempt to use semaphores
-ignoring the current state of the system. This turns out to be horribly
-optimistic. If the system state is still oversaturated and the existing
-workloads have all stopped using semaphores, the new workloads would
-attempt to use semaphores and be deprioritised behind real work. The
-new contexts would not switch off using semaphores until their initial
-batch of low priority work had completed. Given sufficient backload load
-of equal user priority, this would completely starve the new work of any
-GPU time.
+It turns out that 'access()' (and 'faccessat()') can cause a lot of RCU
+work because it installs a temporary credential that gets allocated and
+freed for each system call.
 
-To compensate, remove the local tracking in favour of keeping it as
-global state on the engine -- once the system is saturated and
-semaphores are disabled, everyone stops attempting to use semaphores
-until the system is idle again. One of the reason for preferring local
-context tracking was that it worked with virtual engines, so for
-switching to global state we could either do a complete check of all the
-virtual siblings or simply disable semaphores for those requests. This
-takes the simpler approach of disabling semaphores on virtual engines.
+The allocation and freeing overhead is mostly benign, but because
+credentials can be accessed under the RCU read lock, the freeing
+involves a RCU grace period.
 
-The downside is that the decision that the engine is saturated is a
-local measure -- we are only checking whether or not this context was
-scheduled in a timely fashion, it may be legitimately delayed due to user
-priorities. We still have the same dilemma though, that we do not want
-to employ the semaphore poll unless it will be used.
+Which is not a huge deal normally, but if you have a lot of access()
+calls, this causes a fair amount of seconday damage: instead of having a
+nice alloc/free patterns that hits in hot per-CPU slab caches, you have
+all those delayed free's, and on big machines with hundreds of cores,
+the RCU overhead can end up being enormous.
 
-v2: Explain why we need to assume the worst wrt virtual engines.
+But it turns out that all of this is entirely unnecessary.  Exactly
+because access() only installs the credential as the thread-local
+subjective credential, the temporary cred pointer doesn't actually need
+to be RCU free'd at all.  Once we're done using it, we can just free it
+synchronously and avoid all the RCU overhead.
 
-Fixes: ca6e56f654e7 ("drm/i915: Disable semaphore busywaits on saturated systems")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: Dmitry Rogozhkin <dmitry.v.rogozhkin@intel.com>
-Cc: Dmitry Ermilov <dmitry.ermilov@intel.com>
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190618074153.16055-8-chris@chris-wilson.co.uk
-Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+So add a 'non_rcu' flag to 'struct cred', which can be set by users that
+know they only use it in non-RCU context (there are other potential
+users for this).  We can make it a union with the rcu freeing list head
+that we need for the RCU case, so this doesn't need any extra storage.
+
+Note that this also makes 'get_current_cred()' clear the new non_rcu
+flag, in case we have filesystems that take a long-term reference to the
+cred and then expect the RCU delayed freeing afterwards.  It's not
+entirely clear that this is required, but it makes for clear semantics:
+the subjective cred remains non-RCU as long as you only access it
+synchronously using the thread-local accessors, but you _can_ use it as
+a generic cred if you want to.
+
+It is possible that we should just remove the whole RCU markings for
+->cred entirely.  Only ->real_cred is really supposed to be accessed
+through RCU, and the long-term cred copies that nfs uses might want to
+explicitly re-enable RCU freeing if required, rather than have
+get_current_cred() do it implicitly.
+
+But this is a "minimal semantic changes" change for the immediate
+problem.
+
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Paul E. McKenney <paulmck@linux.ibm.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Jan Glauber <jglauber@marvell.com>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Jayachandran Chandrasekharan Nair <jnair@marvell.com>
+Cc: Greg KH <greg@kroah.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Miklos Szeredi <miklos@szeredi.hu>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/gpu/drm/i915/i915_request.c        |    4 ++--
- drivers/gpu/drm/i915/intel_context.c       |    1 -
- drivers/gpu/drm/i915/intel_context_types.h |    2 --
- drivers/gpu/drm/i915/intel_engine_cs.c     |    1 +
- drivers/gpu/drm/i915/intel_engine_types.h  |    2 ++
- 5 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/i915/i915_request.c
-+++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -443,7 +443,7 @@ void __i915_request_submit(struct i915_r
- 	 */
- 	if (request->sched.semaphores &&
- 	    i915_sw_fence_signaled(&request->semaphore))
--		request->hw_context->saturated |= request->sched.semaphores;
-+		engine->saturated |= request->sched.semaphores;
- 
- 	/* We may be recursing from the signal callback of another i915 fence */
- 	spin_lock_nested(&request->lock, SINGLE_DEPTH_NESTING);
-@@ -829,7 +829,7 @@ already_busywaiting(struct i915_request
- 	 *
- 	 * See the are-we-too-late? check in __i915_request_submit().
- 	 */
--	return rq->sched.semaphores | rq->hw_context->saturated;
-+	return rq->sched.semaphores | rq->engine->saturated;
- }
- 
- static int
---- a/drivers/gpu/drm/i915/intel_context.c
-+++ b/drivers/gpu/drm/i915/intel_context.c
-@@ -230,7 +230,6 @@ intel_context_init(struct intel_context
- 	ce->gem_context = ctx;
- 	ce->engine = engine;
- 	ce->ops = engine->cops;
--	ce->saturated = 0;
- 
- 	INIT_LIST_HEAD(&ce->signal_link);
- 	INIT_LIST_HEAD(&ce->signals);
---- a/drivers/gpu/drm/i915/intel_context_types.h
-+++ b/drivers/gpu/drm/i915/intel_context_types.h
-@@ -59,8 +59,6 @@ struct intel_context {
- 	atomic_t pin_count;
- 	struct mutex pin_mutex; /* guards pinning and associated on-gpuing */
- 
--	intel_engine_mask_t saturated; /* submitting semaphores too late? */
--
- 	/**
- 	 * active_tracker: Active tracker for the external rq activity
- 	 * on this intel_context object.
---- a/drivers/gpu/drm/i915/intel_engine_cs.c
-+++ b/drivers/gpu/drm/i915/intel_engine_cs.c
-@@ -1200,6 +1200,7 @@ void intel_engines_park(struct drm_i915_
- 
- 		i915_gem_batch_pool_fini(&engine->batch_pool);
- 		engine->execlists.no_priolist = false;
-+		engine->saturated = 0;
+---
+ fs/open.c            |   19 +++++++++++++++++++
+ include/linux/cred.h |    8 +++++++-
+ kernel/cred.c        |   21 +++++++++++++++++++--
+ 3 files changed, 45 insertions(+), 3 deletions(-)
+
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -374,6 +374,25 @@ long do_faccessat(int dfd, const char __
+ 				override_cred->cap_permitted;
  	}
  
- 	i915->gt.active_engines = 0;
---- a/drivers/gpu/drm/i915/intel_engine_types.h
-+++ b/drivers/gpu/drm/i915/intel_engine_types.h
-@@ -285,6 +285,8 @@ struct intel_engine_cs {
- 	struct intel_context *kernel_context; /* pinned */
- 	struct intel_context *preempt_context; /* pinned; optional */
- 
-+	intel_engine_mask_t saturated; /* submitting semaphores too late? */
++	/*
++	 * The new set of credentials can *only* be used in
++	 * task-synchronous circumstances, and does not need
++	 * RCU freeing, unless somebody then takes a separate
++	 * reference to it.
++	 *
++	 * NOTE! This is _only_ true because this credential
++	 * is used purely for override_creds() that installs
++	 * it as the subjective cred. Other threads will be
++	 * accessing ->real_cred, not the subjective cred.
++	 *
++	 * If somebody _does_ make a copy of this (using the
++	 * 'get_current_cred()' function), that will clear the
++	 * non_rcu field, because now that other user may be
++	 * expecting RCU freeing. But normal thread-synchronous
++	 * cred accesses will keep things non-RCY.
++	 */
++	override_cred->non_rcu = 1;
 +
- 	struct drm_i915_gem_object *default_state;
- 	void *pinned_default_state;
+ 	old_cred = override_creds(override_cred);
+ retry:
+ 	res = user_path_at(dfd, filename, lookup_flags, &path);
+--- a/include/linux/cred.h
++++ b/include/linux/cred.h
+@@ -145,7 +145,11 @@ struct cred {
+ 	struct user_struct *user;	/* real user ID subscription */
+ 	struct user_namespace *user_ns; /* user_ns the caps and keyrings are relative to. */
+ 	struct group_info *group_info;	/* supplementary groups for euid/fsgid */
+-	struct rcu_head	rcu;		/* RCU deletion hook */
++	/* RCU deletion */
++	union {
++		int non_rcu;			/* Can we skip RCU deletion? */
++		struct rcu_head	rcu;		/* RCU deletion hook */
++	};
+ } __randomize_layout;
  
+ extern void __put_cred(struct cred *);
+@@ -246,6 +250,7 @@ static inline const struct cred *get_cre
+ 	if (!cred)
+ 		return cred;
+ 	validate_creds(cred);
++	nonconst_cred->non_rcu = 0;
+ 	return get_new_cred(nonconst_cred);
+ }
+ 
+@@ -257,6 +262,7 @@ static inline const struct cred *get_cre
+ 	if (!atomic_inc_not_zero(&nonconst_cred->usage))
+ 		return NULL;
+ 	validate_creds(cred);
++	nonconst_cred->non_rcu = 0;
+ 	return cred;
+ }
+ 
+--- a/kernel/cred.c
++++ b/kernel/cred.c
+@@ -144,7 +144,10 @@ void __put_cred(struct cred *cred)
+ 	BUG_ON(cred == current->cred);
+ 	BUG_ON(cred == current->real_cred);
+ 
+-	call_rcu(&cred->rcu, put_cred_rcu);
++	if (cred->non_rcu)
++		put_cred_rcu(&cred->rcu);
++	else
++		call_rcu(&cred->rcu, put_cred_rcu);
+ }
+ EXPORT_SYMBOL(__put_cred);
+ 
+@@ -256,6 +259,7 @@ struct cred *prepare_creds(void)
+ 	old = task->cred;
+ 	memcpy(new, old, sizeof(struct cred));
+ 
++	new->non_rcu = 0;
+ 	atomic_set(&new->usage, 1);
+ 	set_cred_subscribers(new, 0);
+ 	get_group_info(new->group_info);
+@@ -535,7 +539,19 @@ const struct cred *override_creds(const
+ 
+ 	validate_creds(old);
+ 	validate_creds(new);
+-	get_cred(new);
++
++	/*
++	 * NOTE! This uses 'get_new_cred()' rather than 'get_cred()'.
++	 *
++	 * That means that we do not clear the 'non_rcu' flag, since
++	 * we are only installing the cred into the thread-synchronous
++	 * '->cred' pointer, not the '->real_cred' pointer that is
++	 * visible to other threads under RCU.
++	 *
++	 * Also note that we did validate_creds() manually, not depending
++	 * on the validation in 'get_cred()'.
++	 */
++	get_new_cred((struct cred *)new);
+ 	alter_cred_subscribers(new, 1);
+ 	rcu_assign_pointer(current->cred, new);
+ 	alter_cred_subscribers(old, -1);
+@@ -672,6 +688,7 @@ struct cred *prepare_kernel_cred(struct
+ 	validate_creds(old);
+ 
+ 	*new = *old;
++	new->non_rcu = 0;
+ 	atomic_set(&new->usage, 1);
+ 	set_cred_subscribers(new, 0);
+ 	get_uid(new->user);
 
 
