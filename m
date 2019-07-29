@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 15F1D799B1
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:17:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54438799A7
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:17:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729511AbfG2TY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:24:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36662 "EHLO mail.kernel.org"
+        id S1729380AbfG2TXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:23:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729501AbfG2TY0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:24:26 -0400
+        id S1725938AbfG2TXt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:23:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 438D92070B;
-        Mon, 29 Jul 2019 19:24:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B31E52070B;
+        Mon, 29 Jul 2019 19:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428265;
-        bh=PDqgGhIokdVoyL0gvsRBdGE+bCkPsovuKfj8ytoK7sg=;
+        s=default; t=1564428228;
+        bh=hbaWQ/86C4aWzlWjVCF8FiRdDL4BEFMH12eY0tpE9mM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bc7gF8nK+U4Na7A3/HdHSwhrolTpse6gt7maC82k0/Y0dPh9BZF+ZgarGY9CqRfuC
-         I8awCXBEddy5eHDi5Vo5MIrsyk17/t1/rIuvx1fGKDAKX1GOmoaY5OTfQwBnSFaMFI
-         XF/1+ri+2cSO1RMQkThyDld86zmsbHpnZJWeL/UU=
+        b=07ZiICcadkySb90Q1VbwCgNbQptESjwfDtk2o2yeuXHzvqfmxwPRaOpfdugddsq7Y
+         EvAyOrPek8gu8W+qudcV5kcseXAeW7G7Bq2Oebh/pDMbabbVs6rfEDnDbbZU7Dheu5
+         Az3K+wsIEx0RnQwZ5aM+roSE7JBDOZJG5QApxq54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Schumacher <timschumi@gmx.de>,
+        stable@vger.kernel.org, Tamizh chelvam <tamizhr@codeaurora.org>,
+        Anilkumar Kolli <akolli@codeaurora.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 008/293] ath9k: Check for errors when reading SREV register
-Date:   Mon, 29 Jul 2019 21:18:19 +0200
-Message-Id: <20190729190820.973395916@linuxfoundation.org>
+Subject: [PATCH 4.14 010/293] ath: DFS JP domain W56 fixed pulse type 3 RADAR detection
+Date:   Mon, 29 Jul 2019 21:18:21 +0200
+Message-Id: <20190729190821.117935436@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -44,119 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2f90c7e5d09437a4d8d5546feaae9f1cf48cfbe1 ]
+[ Upstream commit d8792393a783158cbb2c39939cb897dc5e5299b6 ]
 
-Right now, if an error is encountered during the SREV register
-read (i.e. an EIO in ath9k_regread()), that error code gets
-passed all the way to __ath9k_hw_init(), where it is visible
-during the "Chip rev not supported" message.
+Increase pulse width range from 1-2usec to 0-4usec.
+During data traffic HW occasionally fails detecting radar pulses,
+so that SW cannot get enough radar reports to achieve the success rate.
 
-    ath9k_htc 1-1.4:1.0: ath9k_htc: HTC initialized with 33 credits
-    ath: phy2: Mac Chip Rev 0x0f.3 is not supported by this driver
-    ath: phy2: Unable to initialize hardware; initialization status: -95
-    ath: phy2: Unable to initialize hardware; initialization status: -95
-    ath9k_htc: Failed to initialize the device
+Tested ath10k hw and fw:
+	* QCA9888(10.4-3.5.1-00052)
+	* QCA4019(10.4-3.2.1.1-00017)
+	* QCA9984(10.4-3.6-00104)
+	* QCA988X(10.2.4-1.0-00041)
 
-Check for -EIO explicitly in ath9k_hw_read_revisions() and return
-a boolean based on the success of the operation. Check for that in
-__ath9k_hw_init() and abort with a more debugging-friendly message
-if reading the revisions wasn't successful.
+Tested ath9k hw: AR9300
 
-    ath9k_htc 1-1.4:1.0: ath9k_htc: HTC initialized with 33 credits
-    ath: phy2: Failed to read SREV register
-    ath: phy2: Could not read hardware revision
-    ath: phy2: Unable to initialize hardware; initialization status: -95
-    ath: phy2: Unable to initialize hardware; initialization status: -95
-    ath9k_htc: Failed to initialize the device
-
-This helps when debugging by directly showing the first point of
-failure and it could prevent possible errors if a 0x0f.3 revision
-is ever supported.
-
-Signed-off-by: Tim Schumacher <timschumi@gmx.de>
+Tested-by: Tamizh chelvam <tamizhr@codeaurora.org>
+Signed-off-by: Tamizh chelvam <tamizhr@codeaurora.org>
+Signed-off-by: Anilkumar Kolli <akolli@codeaurora.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/hw.c | 32 +++++++++++++++++++++--------
- 1 file changed, 23 insertions(+), 9 deletions(-)
+ drivers/net/wireless/ath/dfs_pattern_detector.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/hw.c b/drivers/net/wireless/ath/ath9k/hw.c
-index a7f506eb7b36..406b52f114f0 100644
---- a/drivers/net/wireless/ath/ath9k/hw.c
-+++ b/drivers/net/wireless/ath/ath9k/hw.c
-@@ -250,8 +250,9 @@ void ath9k_hw_get_channel_centers(struct ath_hw *ah,
- /* Chip Revisions */
- /******************/
- 
--static void ath9k_hw_read_revisions(struct ath_hw *ah)
-+static bool ath9k_hw_read_revisions(struct ath_hw *ah)
- {
-+	u32 srev;
- 	u32 val;
- 
- 	if (ah->get_mac_revision)
-@@ -267,25 +268,33 @@ static void ath9k_hw_read_revisions(struct ath_hw *ah)
- 			val = REG_READ(ah, AR_SREV);
- 			ah->hw_version.macRev = MS(val, AR_SREV_REVISION2);
- 		}
--		return;
-+		return true;
- 	case AR9300_DEVID_AR9340:
- 		ah->hw_version.macVersion = AR_SREV_VERSION_9340;
--		return;
-+		return true;
- 	case AR9300_DEVID_QCA955X:
- 		ah->hw_version.macVersion = AR_SREV_VERSION_9550;
--		return;
-+		return true;
- 	case AR9300_DEVID_AR953X:
- 		ah->hw_version.macVersion = AR_SREV_VERSION_9531;
--		return;
-+		return true;
- 	case AR9300_DEVID_QCA956X:
- 		ah->hw_version.macVersion = AR_SREV_VERSION_9561;
--		return;
-+		return true;
- 	}
- 
--	val = REG_READ(ah, AR_SREV) & AR_SREV_ID;
-+	srev = REG_READ(ah, AR_SREV);
-+
-+	if (srev == -EIO) {
-+		ath_err(ath9k_hw_common(ah),
-+			"Failed to read SREV register");
-+		return false;
-+	}
-+
-+	val = srev & AR_SREV_ID;
- 
- 	if (val == 0xFF) {
--		val = REG_READ(ah, AR_SREV);
-+		val = srev;
- 		ah->hw_version.macVersion =
- 			(val & AR_SREV_VERSION2) >> AR_SREV_TYPE2_S;
- 		ah->hw_version.macRev = MS(val, AR_SREV_REVISION2);
-@@ -304,6 +313,8 @@ static void ath9k_hw_read_revisions(struct ath_hw *ah)
- 		if (ah->hw_version.macVersion == AR_SREV_VERSION_5416_PCIE)
- 			ah->is_pciexpress = true;
- 	}
-+
-+	return true;
- }
- 
- /************************************/
-@@ -557,7 +568,10 @@ static int __ath9k_hw_init(struct ath_hw *ah)
- 	struct ath_common *common = ath9k_hw_common(ah);
- 	int r = 0;
- 
--	ath9k_hw_read_revisions(ah);
-+	if (!ath9k_hw_read_revisions(ah)) {
-+		ath_err(common, "Could not read hardware revisions");
-+		return -EOPNOTSUPP;
-+	}
- 
- 	switch (ah->hw_version.macVersion) {
- 	case AR_SREV_VERSION_5416_PCI:
+diff --git a/drivers/net/wireless/ath/dfs_pattern_detector.c b/drivers/net/wireless/ath/dfs_pattern_detector.c
+index 4100ffd42a43..78146607f16e 100644
+--- a/drivers/net/wireless/ath/dfs_pattern_detector.c
++++ b/drivers/net/wireless/ath/dfs_pattern_detector.c
+@@ -111,7 +111,7 @@ static const struct radar_detector_specs jp_radar_ref_types[] = {
+ 	JP_PATTERN(0, 0, 1, 1428, 1428, 1, 18, 29, false),
+ 	JP_PATTERN(1, 2, 3, 3846, 3846, 1, 18, 29, false),
+ 	JP_PATTERN(2, 0, 1, 1388, 1388, 1, 18, 50, false),
+-	JP_PATTERN(3, 1, 2, 4000, 4000, 1, 18, 50, false),
++	JP_PATTERN(3, 0, 4, 4000, 4000, 1, 18, 50, false),
+ 	JP_PATTERN(4, 0, 5, 150, 230, 1, 23, 50, false),
+ 	JP_PATTERN(5, 6, 10, 200, 500, 1, 16, 50, false),
+ 	JP_PATTERN(6, 11, 20, 200, 500, 1, 12, 50, false),
 -- 
 2.20.1
 
