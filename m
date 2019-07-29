@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EA037993D
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:14:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E8C779930
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:14:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727721AbfG2UN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 16:13:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41818 "EHLO mail.kernel.org"
+        id S1730085AbfG2T3N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:29:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730061AbfG2T3G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:29:06 -0400
+        id S1729125AbfG2T3M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:29:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0BAC217D4;
-        Mon, 29 Jul 2019 19:29:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43B2E217F5;
+        Mon, 29 Jul 2019 19:29:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428545;
-        bh=DQmGO2/rHpH4BIoutncEkm80QuwmDwo+n4TZCChVJG8=;
+        s=default; t=1564428551;
+        bh=8VBU01KzegVBNk90L5Zskd7WJIALXijJGVy0aMoXn50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vXDTMBYt6o3f/abxeByZqV8pDMPbpOLI5OodPdcBiDGpS2ODsTNAshrsK6CQlTkBr
-         q3rGQ3sq0bjKNWDCQtCAHFnfAVKNKAzZgWXmMmuyCuhcy/xwfOOmbMmOFINwgePGfL
-         kdPOKb8w03J5sEuEI36utafdLN0aSoQEuNIeEx14=
+        b=BogrNDAE3i5Axi6E67/0Oq8JYire/d3UAP+w+jeb+ox8sKkdVMqrfdENRtksbuRrJ
+         VqpNKM5LAF5Pppnco78QQodYhnpKETDmwMg197Ekyndj8eHuWjqdneJ9noGiCa47fY
+         JkpR7HGLkN/mDcnsYJpvU6161UwnigSyPOAMJQtM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.14 111/293] xen: let alloc_xenballooned_pages() fail if not enough memory free
-Date:   Mon, 29 Jul 2019 21:20:02 +0200
-Message-Id: <20190729190833.160577291@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Schmitz <schmitzmic@gmail.com>,
+        Finn Thain <fthain@telegraphics.com.au>,
+        Stan Johnson <userm57@yahoo.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 113/293] scsi: NCR5380: Always re-enable reselection interrupt
+Date:   Mon, 29 Jul 2019 21:20:04 +0200
+Message-Id: <20190729190833.289471786@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -42,70 +45,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-commit a1078e821b605813b63bf6bca414a85f804d5c66 upstream.
+commit 57f31326518e98ee4cabf9a04efe00ed57c54147 upstream.
 
-Instead of trying to allocate pages with GFP_USER in
-add_ballooned_pages() check the available free memory via
-si_mem_available(). GFP_USER is far less limiting memory exhaustion
-than the test via si_mem_available().
+The reselection interrupt gets disabled during selection and must be
+re-enabled when hostdata->connected becomes NULL. If it isn't re-enabled a
+disconnected command may time-out or the target may wedge the bus while
+trying to reselect the host. This can happen after a command is aborted.
 
-This will avoid dom0 running out of memory due to excessive foreign
-page mappings especially on ARM and on x86 in PVH mode, as those don't
-have a pre-ballooned area which can be used for foreign mappings.
+Fix this by enabling the reselection interrupt in NCR5380_main() after
+calls to NCR5380_select() and NCR5380_information_transfer() return.
 
-As the normal ballooning suffers from the same problem don't balloon
-down more than si_mem_available() pages in one iteration. At the same
-time limit the default maximum number of retries.
-
-This is part of XSA-300.
-
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Cc: Michael Schmitz <schmitzmic@gmail.com>
+Cc: stable@vger.kernel.org # v4.9+
+Fixes: 8b00c3d5d40d ("ncr5380: Implement new eh_abort_handler")
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Tested-by: Stan Johnson <userm57@yahoo.com>
+Tested-by: Michael Schmitz <schmitzmic@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/balloon.c |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/scsi/NCR5380.c |   12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
 
---- a/drivers/xen/balloon.c
-+++ b/drivers/xen/balloon.c
-@@ -590,8 +590,15 @@ static void balloon_process(struct work_
- 				state = reserve_additional_memory();
+--- a/drivers/scsi/NCR5380.c
++++ b/drivers/scsi/NCR5380.c
+@@ -710,6 +710,8 @@ static void NCR5380_main(struct work_str
+ 			NCR5380_information_transfer(instance);
+ 			done = 0;
  		}
- 
--		if (credit < 0)
--			state = decrease_reservation(-credit, GFP_BALLOON);
-+		if (credit < 0) {
-+			long n_pages;
-+
-+			n_pages = min(-credit, si_mem_available());
-+			state = decrease_reservation(n_pages, GFP_BALLOON);
-+			if (state == BP_DONE && n_pages != -credit &&
-+			    n_pages < totalreserve_pages)
-+				state = BP_EAGAIN;
-+		}
- 
- 		state = update_schedule(state);
- 
-@@ -630,6 +637,9 @@ static int add_ballooned_pages(int nr_pa
- 		}
++		if (!hostdata->connected)
++			NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
+ 		spin_unlock_irq(&hostdata->lock);
+ 		if (!done)
+ 			cond_resched();
+@@ -1106,8 +1108,6 @@ static struct scsi_cmnd *NCR5380_select(
+ 		spin_lock_irq(&hostdata->lock);
+ 		NCR5380_write(INITIATOR_COMMAND_REG, ICR_BASE);
+ 		NCR5380_reselect(instance);
+-		if (!hostdata->connected)
+-			NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
+ 		shost_printk(KERN_ERR, instance, "reselection after won arbitration?\n");
+ 		goto out;
  	}
+@@ -1115,7 +1115,6 @@ static struct scsi_cmnd *NCR5380_select(
+ 	if (err < 0) {
+ 		spin_lock_irq(&hostdata->lock);
+ 		NCR5380_write(INITIATOR_COMMAND_REG, ICR_BASE);
+-		NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
  
-+	if (si_mem_available() < nr_pages)
-+		return -ENOMEM;
-+
- 	st = decrease_reservation(nr_pages, GFP_USER);
- 	if (st != BP_DONE)
- 		return -ENOMEM;
-@@ -759,7 +769,7 @@ static int __init balloon_init(void)
- 	balloon_stats.schedule_delay = 1;
- 	balloon_stats.max_schedule_delay = 32;
- 	balloon_stats.retry_count = 1;
--	balloon_stats.max_retry_count = RETRY_UNLIMITED;
-+	balloon_stats.max_retry_count = 4;
+ 		/* Can't touch cmd if it has been reclaimed by the scsi ML */
+ 		if (!hostdata->selecting)
+@@ -1153,7 +1152,6 @@ static struct scsi_cmnd *NCR5380_select(
+ 	if (err < 0) {
+ 		shost_printk(KERN_ERR, instance, "select: REQ timeout\n");
+ 		NCR5380_write(INITIATOR_COMMAND_REG, ICR_BASE);
+-		NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
+ 		goto out;
+ 	}
+ 	if (!hostdata->selecting) {
+@@ -1820,9 +1818,6 @@ static void NCR5380_information_transfer
+ 					 */
+ 					NCR5380_write(TARGET_COMMAND_REG, 0);
  
- #ifdef CONFIG_XEN_BALLOON_MEMORY_HOTPLUG
- 	set_online_page_callback(&xen_online_page);
+-					/* Enable reselect interrupts */
+-					NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
+-
+ 					maybe_release_dma_irq(instance);
+ 					return;
+ 				case MESSAGE_REJECT:
+@@ -1854,8 +1849,6 @@ static void NCR5380_information_transfer
+ 					 */
+ 					NCR5380_write(TARGET_COMMAND_REG, 0);
+ 
+-					/* Enable reselect interrupts */
+-					NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
+ #ifdef SUN3_SCSI_VME
+ 					dregs->csr |= CSR_DMA_ENABLE;
+ #endif
+@@ -1963,7 +1956,6 @@ static void NCR5380_information_transfer
+ 					cmd->result = DID_ERROR << 16;
+ 					complete_cmd(instance, cmd);
+ 					maybe_release_dma_irq(instance);
+-					NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
+ 					return;
+ 				}
+ 				msgout = NOP;
 
 
