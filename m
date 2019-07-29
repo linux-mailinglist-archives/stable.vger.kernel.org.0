@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E72A795A0
+	by mail.lfdr.de (Postfix) with ESMTP id E2079795A1
 	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:44:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388995AbfG2To3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2389745AbfG2To3 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 29 Jul 2019 15:44:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32976 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389789AbfG2ToY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:44:24 -0400
+        id S2389513AbfG2To2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:44:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E00C205F4;
-        Mon, 29 Jul 2019 19:44:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96AC3205F4;
+        Mon, 29 Jul 2019 19:44:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429463;
-        bh=GMis9y1gp4dDNK5vH45Cc8rR7fF1kSsqr+SU/3x0DSQ=;
+        s=default; t=1564429467;
+        bh=HRmdymFz9CoKWHbTLjLYlSb8GYeHY4UE37+eJqbgQPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W1OpDxBlY+s+1CPwhaJrvEtq2H7J76/BvpNof2RVOmOkHU62GiJlsodmVhNab48yb
-         13crVvHrYh1VI8T7lqlmzKM8Yqj5S6KKC9IXyxfZmv2K7R8woVq7+za2Oqg24nRlNj
-         qQdwp6FDSq4oBXHnPa64Xk4nhxXAdjKD6u6L4h1E=
+        b=Ql3Lp4ia9nrohhcXgN/tibefFEdTnfu/xHqNl3xayH0Z78CkMR1Bw2R5hHkJGONSQ
+         2wAl8esjAmPeXEXSmpZKXainpRvQ3l+Ip2nh9uYja05tPtRRSG3GtpmZtS1p8F08d0
+         3HxCHalkAN+evzruVwx1uhvDb+0MhQclLAK2AY6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 4.19 105/113] mei: me: add mule creek canyon (EHL) device ids
-Date:   Mon, 29 Jul 2019 21:23:12 +0200
-Message-Id: <20190729190720.478175582@linuxfoundation.org>
+        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Zhang HongJun <zhanghongjun2@huawei.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 4.19 106/113] hpet: Fix division by zero in hpet_time_div()
+Date:   Mon, 29 Jul 2019 21:23:13 +0200
+Message-Id: <20190729190720.652873366@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
 References: <20190729190655.455345569@linuxfoundation.org>
@@ -44,46 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
 
-commit 1be8624a0cbef720e8da39a15971e01abffc865b upstream.
+commit 0c7d37f4d9b8446956e97b7c5e61173cdb7c8522 upstream.
 
-Add Mule Creek Canyon (PCH) MEI device ids for Elkhart Lake (EHL) Platform.
+The base value in do_div() called by hpet_time_div() is truncated from
+unsigned long to uint32_t, resulting in a divide-by-zero exception.
 
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+UBSAN: Undefined behaviour in ../drivers/char/hpet.c:572:2
+division by zero
+CPU: 1 PID: 23682 Comm: syz-executor.3 Not tainted 4.4.184.x86_64+ #4
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
+ 0000000000000000 b573382df1853d00 ffff8800a3287b98 ffffffff81ad7561
+ ffff8800a3287c00 ffffffff838b35b0 ffffffff838b3860 ffff8800a3287c20
+ 0000000000000000 ffff8800a3287bb0 ffffffff81b8f25e ffffffff838b35a0
+Call Trace:
+ [<ffffffff81ad7561>] __dump_stack lib/dump_stack.c:15 [inline]
+ [<ffffffff81ad7561>] dump_stack+0xc1/0x120 lib/dump_stack.c:51
+ [<ffffffff81b8f25e>] ubsan_epilogue+0x12/0x8d lib/ubsan.c:166
+ [<ffffffff81b900cb>] __ubsan_handle_divrem_overflow+0x282/0x2c8 lib/ubsan.c:262
+ [<ffffffff823560dd>] hpet_time_div drivers/char/hpet.c:572 [inline]
+ [<ffffffff823560dd>] hpet_ioctl_common drivers/char/hpet.c:663 [inline]
+ [<ffffffff823560dd>] hpet_ioctl_common.cold+0xa8/0xad drivers/char/hpet.c:577
+ [<ffffffff81e63d56>] hpet_ioctl+0xc6/0x180 drivers/char/hpet.c:676
+ [<ffffffff81711590>] vfs_ioctl fs/ioctl.c:43 [inline]
+ [<ffffffff81711590>] file_ioctl fs/ioctl.c:470 [inline]
+ [<ffffffff81711590>] do_vfs_ioctl+0x6e0/0xf70 fs/ioctl.c:605
+ [<ffffffff81711eb4>] SYSC_ioctl fs/ioctl.c:622 [inline]
+ [<ffffffff81711eb4>] SyS_ioctl+0x94/0xc0 fs/ioctl.c:613
+ [<ffffffff82846003>] tracesys_phase2+0x90/0x95
+
+The main C reproducer autogenerated by syzkaller,
+
+  syscall(__NR_mmap, 0x20000000, 0x1000000, 3, 0x32, -1, 0);
+  memcpy((void*)0x20000100, "/dev/hpet\000", 10);
+  syscall(__NR_openat, 0xffffffffffffff9c, 0x20000100, 0, 0);
+  syscall(__NR_ioctl, r[0], 0x40086806, 0x40000000000000);
+
+Fix it by using div64_ul().
+
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Signed-off-by: Zhang HongJun <zhanghongjun2@huawei.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190712095814.20746-1-tomas.winkler@intel.com
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20190711132757.130092-1-wangkefeng.wang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/mei/hw-me-regs.h |    3 +++
- drivers/misc/mei/pci-me.c     |    3 +++
- 2 files changed, 6 insertions(+)
+ drivers/char/hpet.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -141,6 +141,9 @@
+--- a/drivers/char/hpet.c
++++ b/drivers/char/hpet.c
+@@ -570,8 +570,7 @@ static inline unsigned long hpet_time_di
+ 	unsigned long long m;
  
- #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
+ 	m = hpets->hp_tick_freq + (dis >> 1);
+-	do_div(m, dis);
+-	return (unsigned long)m;
++	return div64_ul(m, dis);
+ }
  
-+#define MEI_DEV_ID_MCC        0x4B70  /* Mule Creek Canyon (EHL) */
-+#define MEI_DEV_ID_MCC_4      0x4B75  /* Mule Creek Canyon 4 (EHL) */
-+
- /*
-  * MEI HW Section
-  */
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -107,6 +107,9 @@ static const struct pci_device_id mei_me
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_LP, MEI_ME_PCH12_CFG)},
- 
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC, MEI_ME_PCH12_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC_4, MEI_ME_PCH8_CFG)},
-+
- 	/* required last entry */
- 	{0, }
- };
+ static int
 
 
