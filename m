@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EAEBE79553
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:41:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCC4179555
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:41:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389348AbfG2TlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:41:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56668 "EHLO mail.kernel.org"
+        id S2389305AbfG2TlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:41:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389343AbfG2TlQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:41:16 -0400
+        id S2389302AbfG2TlZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:41:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F4C12054F;
-        Mon, 29 Jul 2019 19:41:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F341C205F4;
+        Mon, 29 Jul 2019 19:41:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429275;
-        bh=+UH73TabjstyQM1ZGgm2X7vTE469AT8mDDRMpApa9lY=;
+        s=default; t=1564429284;
+        bh=7M2fhzTcQpuBUatI/D1JN5eOLvcGekCgBEf/1DH9Zlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FlIzDAf1EKrjOSp63SF/GxjVnoXYEOnBy4WogSNNZc9CVfiWQcopuE0NbpxD9SrKd
-         Fpcs8LVav5LhR3INP7CZb7rygHeR1yVpwmDmhA5pVOG9ZDmH8SrUoux50UGfCLbU8v
-         QakgtV7Jfapyo4zkkh6BmmUtPXxzQiY3FCPJA6Zk=
+        b=fyskzldb0nVs/d31PT6s2enX/ZUezUxK6M5ZZl8gO3wfRv7Kp+Pdbs/EN07JecbGz
+         XXV3One9eiAaPBkMOsOekjGfv2hTMTdS1DV8RC0hwUgIEmRN8tdpDsG8j9BDWXRk5K
+         5yRtV10y8GVHDt+NQFjMo/0PH3ZhKmEebgCZkRkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 047/113] recordmcount: Fix spurious mcount entries on powerpc
-Date:   Mon, 29 Jul 2019 21:22:14 +0200
-Message-Id: <20190729190706.872741216@linuxfoundation.org>
+Subject: [PATCH 4.19 050/113] mfd: arizona: Fix undefined behavior
+Date:   Mon, 29 Jul 2019 21:22:17 +0200
+Message-Id: <20190729190707.505517770@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
 References: <20190729190655.455345569@linuxfoundation.org>
@@ -47,92 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 80e5302e4bc85a6b685b7668c36c6487b5f90e9a ]
+[ Upstream commit 5da6cbcd2f395981aa9bfc571ace99f1c786c985 ]
 
-An impending change to enable HAVE_C_RECORDMCOUNT on powerpc leads to
-warnings such as the following:
+When the driver is used with a subdevice that is disabled in the
+kernel configuration, clang gets a little confused about the
+control flow and fails to notice that n_subdevs is only
+uninitialized when subdevs is NULL, and we check for that,
+leading to a false-positive warning:
 
-  # modprobe kprobe_example
-  ftrace-powerpc: Not expected bl: opcode is 3c4c0001
-  WARNING: CPU: 0 PID: 227 at kernel/trace/ftrace.c:2001 ftrace_bug+0x90/0x318
-  Modules linked in:
-  CPU: 0 PID: 227 Comm: modprobe Not tainted 5.2.0-rc6-00678-g1c329100b942 #2
-  NIP:  c000000000264318 LR: c00000000025d694 CTR: c000000000f5cd30
-  REGS: c000000001f2b7b0 TRAP: 0700   Not tainted  (5.2.0-rc6-00678-g1c329100b942)
-  MSR:  900000010282b033 <SF,HV,VEC,VSX,EE,FP,ME,IR,DR,RI,LE,TM[E]>  CR: 28228222  XER: 00000000
-  CFAR: c0000000002642fc IRQMASK: 0
-  <snip>
-  NIP [c000000000264318] ftrace_bug+0x90/0x318
-  LR [c00000000025d694] ftrace_process_locs+0x4f4/0x5e0
-  Call Trace:
-  [c000000001f2ba40] [0000000000000004] 0x4 (unreliable)
-  [c000000001f2bad0] [c00000000025d694] ftrace_process_locs+0x4f4/0x5e0
-  [c000000001f2bb90] [c00000000020ff10] load_module+0x25b0/0x30c0
-  [c000000001f2bd00] [c000000000210cb0] sys_finit_module+0xc0/0x130
-  [c000000001f2be20] [c00000000000bda4] system_call+0x5c/0x70
-  Instruction dump:
-  419e0018 2f83ffff 419e00bc 2f83ffea 409e00cc 4800001c 0fe00000 3c62ff96
-  39000001 39400000 386386d0 480000c4 <0fe00000> 3ce20003 39000001 3c62ff96
-  ---[ end trace 4c438d5cebf78381 ]---
-  ftrace failed to modify
-  [<c0080000012a0008>] 0xc0080000012a0008
-   actual:   01:00:4c:3c
-  Initializing ftrace call sites
-  ftrace record flags: 2000000
-   (0)
-   expected tramp: c00000000006af4c
+drivers/mfd/arizona-core.c:1423:19: error: variable 'n_subdevs' is uninitialized when used here
+      [-Werror,-Wuninitialized]
+                              subdevs, n_subdevs, NULL, 0, NULL);
+                                       ^~~~~~~~~
+drivers/mfd/arizona-core.c:999:15: note: initialize the variable 'n_subdevs' to silence this warning
+        int n_subdevs, ret, i;
+                     ^
+                      = 0
 
-Looking at the relocation records in __mcount_loc shows a few spurious
-entries:
+Ideally, we would rearrange the code to avoid all those early
+initializations and have an explicit exit in each disabled case,
+but it's much easier to chicken out and add one more initialization
+here to shut up the warning.
 
-  RELOCATION RECORDS FOR [__mcount_loc]:
-  OFFSET           TYPE              VALUE
-  0000000000000000 R_PPC64_ADDR64    .text.unlikely+0x0000000000000008
-  0000000000000008 R_PPC64_ADDR64    .text.unlikely+0x0000000000000014
-  0000000000000010 R_PPC64_ADDR64    .text.unlikely+0x0000000000000060
-  0000000000000018 R_PPC64_ADDR64    .text.unlikely+0x00000000000000b4
-  0000000000000020 R_PPC64_ADDR64    .init.text+0x0000000000000008
-  0000000000000028 R_PPC64_ADDR64    .init.text+0x0000000000000014
-
-The first entry in each section is incorrect. Looking at the
-relocation records, the spurious entries correspond to the
-R_PPC64_ENTRY records:
-
-  RELOCATION RECORDS FOR [.text.unlikely]:
-  OFFSET           TYPE              VALUE
-  0000000000000000 R_PPC64_REL64     .TOC.-0x0000000000000008
-  0000000000000008 R_PPC64_ENTRY     *ABS*
-  0000000000000014 R_PPC64_REL24     _mcount
-  <snip>
-
-The problem is that we are not validating the return value from
-get_mcountsym() in sift_rel_mcount(). With this entry, mcountsym is 0,
-but Elf_r_sym(relp) also ends up being 0. Fix this by ensuring
-mcountsym is valid before processing the entry.
-
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Tested-by: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/recordmcount.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mfd/arizona-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/scripts/recordmcount.h b/scripts/recordmcount.h
-index 2e7793735e14..ccfbfde61556 100644
---- a/scripts/recordmcount.h
-+++ b/scripts/recordmcount.h
-@@ -326,7 +326,8 @@ static uint_t *sift_rel_mcount(uint_t *mlocp,
- 		if (!mcountsym)
- 			mcountsym = get_mcountsym(sym0, relp, str0);
+diff --git a/drivers/mfd/arizona-core.c b/drivers/mfd/arizona-core.c
+index 5f1e37d23943..47d6d40f41cd 100644
+--- a/drivers/mfd/arizona-core.c
++++ b/drivers/mfd/arizona-core.c
+@@ -996,7 +996,7 @@ int arizona_dev_init(struct arizona *arizona)
+ 	unsigned int reg, val;
+ 	int (*apply_patch)(struct arizona *) = NULL;
+ 	const struct mfd_cell *subdevs = NULL;
+-	int n_subdevs, ret, i;
++	int n_subdevs = 0, ret, i;
  
--		if (mcountsym == Elf_r_sym(relp) && !is_fake_mcount(relp)) {
-+		if (mcountsym && mcountsym == Elf_r_sym(relp) &&
-+				!is_fake_mcount(relp)) {
- 			uint_t const addend =
- 				_w(_w(relp->r_offset) - recval + mcount_adjust);
- 			mrelp->r_offset = _w(offbase
+ 	dev_set_drvdata(arizona->dev, arizona);
+ 	mutex_init(&arizona->clk_lock);
 -- 
 2.20.1
 
