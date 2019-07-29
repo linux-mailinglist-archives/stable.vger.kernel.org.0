@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 956287977F
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:01:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46D0A79803
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:06:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390726AbfG2UAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 16:00:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44590 "EHLO mail.kernel.org"
+        id S1728702AbfG2TmI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:42:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403810AbfG2Twp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:52:45 -0400
+        id S1729370AbfG2TmG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:42:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FF092171F;
-        Mon, 29 Jul 2019 19:52:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF0222171F;
+        Mon, 29 Jul 2019 19:42:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429964;
-        bh=qtpQve33xVbuoeZIu8vd+agX2xDVDUpkDAhJEmLgQ8Y=;
+        s=default; t=1564429326;
+        bh=Pc4AGbWAnFsdeRUAkr5mSLk9VgIA/HBJyrByJg+IG1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DPMZaMW/8GxmAi/Dh4YkcPOoVnKbt8IWWh3FRg3CM1zZHETs3LCe3BG+dA3MfhGDn
-         XTl6RCYErV/Zopn2IW/ajE/YxKDdifL0TRczNxHaWGHIvXzX0YFrRzBOHp+xACGjz5
-         jxMyj19dHIXxRmYW5SL7mOctFLcHr7ZDcD2pUMoA=
+        b=I1R5DrQVvoJi1iIip6RGRe0y+k6hsQWSa7ajqlFMXVSZEuWd37tm8JHQMH3gz7vNl
+         rZYORuVRImJfet+fRCtvMB021TTKDBcnKXPnvKEuoKA6LZc5aRsb1tyLgm8pICW5uy
+         ZW899NuQzUN25We6fOT0h13kecVmprUfpw2uxIi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Kees Cook <keescook@chromium.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Julien Thierry <julien.thierry@arm.com>,
+        James Morse <james.morse@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 151/215] 9p: pass the correct prototype to read_cache_page
-Date:   Mon, 29 Jul 2019 21:22:27 +0200
-Message-Id: <20190729190805.975538186@linuxfoundation.org>
+Subject: [PATCH 4.19 061/113] arm64: assembler: Switch ESB-instruction with a vanilla nop if !ARM64_HAS_RAS
+Date:   Mon, 29 Jul 2019 21:22:28 +0200
+Message-Id: <20190729190710.058948087@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
-References: <20190729190739.971253303@linuxfoundation.org>
+In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
+References: <20190729190655.455345569@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,49 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f053cbd4366051d7eb6ba1b8d529d20f719c2963 ]
+[ Upstream commit 2b68a2a963a157f024c67c0697b16f5f792c8a35 ]
 
-Fix the callback 9p passes to read_cache_page to actually have the
-proper type expected.  Casting around function pointers can easily
-hide typing bugs, and defeats control flow protection.
+The ESB-instruction is a nop on CPUs that don't implement the RAS
+extensions. This lets us use it in places like the vectors without
+having to use alternatives.
 
-Link: http://lkml.kernel.org/r/20190520055731.24538-5-hch@lst.de
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Sami Tolvanen <samitolvanen@google.com>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+If someone disables CONFIG_ARM64_RAS_EXTN, this instruction still has
+its RAS extensions behaviour, but we no longer read DISR_EL1 as this
+register does depend on alternatives.
+
+This could go wrong if we want to synchronize an SError from a KVM
+guest. On a CPU that has the RAS extensions, but the KConfig option
+was disabled, we consume the pending SError with no chance of ever
+reading it.
+
+Hide the ESB-instruction behind the CONFIG_ARM64_RAS_EXTN option,
+outputting a regular nop if the feature has been disabled.
+
+Reported-by: Julien Thierry <julien.thierry@arm.com>
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/9p/vfs_addr.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/assembler.h | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/9p/vfs_addr.c b/fs/9p/vfs_addr.c
-index bc57ae9e2963..cce9ace651a2 100644
---- a/fs/9p/vfs_addr.c
-+++ b/fs/9p/vfs_addr.c
-@@ -35,8 +35,9 @@
-  * @page: structure to page
-  *
+diff --git a/arch/arm64/include/asm/assembler.h b/arch/arm64/include/asm/assembler.h
+index f90f5d83b228..5a97ac853168 100644
+--- a/arch/arm64/include/asm/assembler.h
++++ b/arch/arm64/include/asm/assembler.h
+@@ -112,7 +112,11 @@
+  * RAS Error Synchronization barrier
   */
--static int v9fs_fid_readpage(struct p9_fid *fid, struct page *page)
-+static int v9fs_fid_readpage(void *data, struct page *page)
- {
-+	struct p9_fid *fid = data;
- 	struct inode *inode = page->mapping->host;
- 	struct bio_vec bvec = {.bv_page = page, .bv_len = PAGE_SIZE};
- 	struct iov_iter to;
-@@ -107,7 +108,8 @@ static int v9fs_vfs_readpages(struct file *filp, struct address_space *mapping,
- 	if (ret == 0)
- 		return ret;
+ 	.macro  esb
++#ifdef CONFIG_ARM64_RAS_EXTN
+ 	hint    #16
++#else
++	nop
++#endif
+ 	.endm
  
--	ret = read_cache_pages(mapping, pages, (void *)v9fs_vfs_readpage, filp);
-+	ret = read_cache_pages(mapping, pages, v9fs_fid_readpage,
-+			filp->private_data);
- 	p9_debug(P9_DEBUG_VFS, "  = %d\n", ret);
- 	return ret;
- }
+ /*
 -- 
 2.20.1
 
