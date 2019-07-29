@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FDEE798A5
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:10:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68765798B5
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:10:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727582AbfG2TgC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:36:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50330 "EHLO mail.kernel.org"
+        id S1730098AbfG2UJi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 16:09:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388412AbfG2Tf7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:35:59 -0400
+        id S1730229AbfG2TgK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:36:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B99502070B;
-        Mon, 29 Jul 2019 19:35:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97CFC217D7;
+        Mon, 29 Jul 2019 19:36:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428959;
-        bh=96GKdQd01LTKAbHkpgUaJiy124ivuRtEJ2BvWn9+DOE=;
+        s=default; t=1564428969;
+        bh=NL0Hfjz45MuNbtUhlnR1TsogGihB0wA2bwbfMTTx4fM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sTyaLmx3BjVX4Lb4mR06bmuXSmhE+rRZ5Yscby1SmlzD+jCfIe+v7Gf+08PBoDKAW
-         TZxzLKLySLT4hJhP3ANLwd4plT9e96ILaUWMR9A2EunWRKBdYQBpz+wqn58ntbXJWq
-         nxgdSnro5+CwiaSijqLfbbiWa0yapI84qGrGmoJw=
+        b=i5nt17wju2xrkPcHZNihmtcYT2HJ/Gdb2llreqBP+Y8kUcQekWsTaUAh0YpK/nZzT
+         EHbBaD7WOlPKslewjVtU2gXuu2Xl3rUIIKtuSSEaAQbxd+PNk0is8VH68o5qJuOWGg
+         0yZoW3Zc55IH3l7993J90Az4zCIw3GeyJ1jqgzog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        stable@vger.kernel.org, Stefan Roese <sr@denx.de>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Yegor Yefremov <yegorslists@googlemail.com>,
+        Giulio Benetti <giulio.benetti@micronovasrl.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 241/293] usb: gadget: Zero ffs_io_data
-Date:   Mon, 29 Jul 2019 21:22:12 +0200
-Message-Id: <20190729190842.931624396@linuxfoundation.org>
+Subject: [PATCH 4.14 244/293] serial: mctrl_gpio: Check if GPIO property exisits before requesting it
+Date:   Mon, 29 Jul 2019 21:22:15 +0200
+Message-Id: <20190729190843.157174988@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -45,55 +47,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 508595515f4bcfe36246e4a565cf280937aeaade ]
+[ Upstream commit d99482673f950817b30caf3fcdfb31179b050ce1 ]
 
-In some cases the "Allocate & copy" block in ffs_epfile_io() is not
-executed. Consequently, in such a case ffs_alloc_buffer() is never called
-and struct ffs_io_data is not initialized properly. This in turn leads to
-problems when ffs_free_buffer() is called at the end of ffs_epfile_io().
+This patch adds a check for the GPIOs property existence, before the
+GPIO is requested. This fixes an issue seen when the 8250 mctrl_gpio
+support is added (2nd patch in this patch series) on x86 platforms using
+ACPI.
 
-This patch uses kzalloc() instead of kmalloc() in the aio case and memset()
-in non-aio case to properly initialize struct ffs_io_data.
+Here Mika's comments from 2016-08-09:
 
-Signed-off-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+"
+I noticed that with v4.8-rc1 serial console of some of our Broxton
+systems does not work properly anymore. I'm able to see output but input
+does not work.
+
+I bisected it down to commit 4ef03d328769eddbfeca1f1c958fdb181a69c341
+("tty/serial/8250: use mctrl_gpio helpers").
+
+The reason why it fails is that in ACPI we do not have names for GPIOs
+(except when _DSD is used) so we use the "idx" to index into _CRS GPIO
+resources. Now mctrl_gpio_init_noauto() goes through a list of GPIOs
+calling devm_gpiod_get_index_optional() passing "idx" of 0 for each. The
+UART device in Broxton has following (simplified) ACPI description:
+
+    Device (URT4)
+    {
+        ...
+        Name (_CRS, ResourceTemplate () {
+            GpioIo (Exclusive, PullDefault, 0x0000, 0x0000, IoRestrictionOutputOnly,
+                    "\\_SB.GPO0", 0x00, ResourceConsumer)
+            {
+                0x003A
+            }
+            GpioIo (Exclusive, PullDefault, 0x0000, 0x0000, IoRestrictionOutputOnly,
+                    "\\_SB.GPO0", 0x00, ResourceConsumer)
+            {
+                0x003D
+            }
+        })
+
+In this case it finds the first GPIO (0x003A which happens to be RX pin
+for that UART), turns it into GPIO which then breaks input for the UART
+device. This also breaks systems with bluetooth connected to UART (those
+typically have some GPIOs in their _CRS).
+
+Any ideas how to fix this?
+
+We cannot just drop the _CRS index lookup fallback because that would
+break many existing machines out there so maybe we can limit this to
+only DT enabled machines. Or alternatively probe if the property first
+exists before trying to acquire the GPIOs (using
+device_property_present()).
+"
+
+This patch implements the fix suggested by Mika in his statement above.
+
+Signed-off-by: Stefan Roese <sr@denx.de>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Yegor Yefremov <yegorslists@googlemail.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Yegor Yefremov <yegorslists@googlemail.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_fs.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/tty/serial/serial_mctrl_gpio.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index 79900c0b4f3a..cdffbe999500 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1102,11 +1102,12 @@ static ssize_t ffs_epfile_write_iter(struct kiocb *kiocb, struct iov_iter *from)
- 	ENTER();
+diff --git a/drivers/tty/serial/serial_mctrl_gpio.c b/drivers/tty/serial/serial_mctrl_gpio.c
+index d2da6aa7f27d..42e42e3e7a6e 100644
+--- a/drivers/tty/serial/serial_mctrl_gpio.c
++++ b/drivers/tty/serial/serial_mctrl_gpio.c
+@@ -21,6 +21,7 @@
+ #include <linux/termios.h>
+ #include <linux/serial_core.h>
+ #include <linux/module.h>
++#include <linux/property.h>
  
- 	if (!is_sync_kiocb(kiocb)) {
--		p = kmalloc(sizeof(io_data), GFP_KERNEL);
-+		p = kzalloc(sizeof(io_data), GFP_KERNEL);
- 		if (unlikely(!p))
- 			return -ENOMEM;
- 		p->aio = true;
- 	} else {
-+		memset(p, 0, sizeof(*p));
- 		p->aio = false;
- 	}
+ #include "serial_mctrl_gpio.h"
  
-@@ -1138,11 +1139,12 @@ static ssize_t ffs_epfile_read_iter(struct kiocb *kiocb, struct iov_iter *to)
- 	ENTER();
+@@ -124,6 +125,19 @@ struct mctrl_gpios *mctrl_gpio_init_noauto(struct device *dev, unsigned int idx)
  
- 	if (!is_sync_kiocb(kiocb)) {
--		p = kmalloc(sizeof(io_data), GFP_KERNEL);
-+		p = kzalloc(sizeof(io_data), GFP_KERNEL);
- 		if (unlikely(!p))
- 			return -ENOMEM;
- 		p->aio = true;
- 	} else {
-+		memset(p, 0, sizeof(*p));
- 		p->aio = false;
- 	}
+ 	for (i = 0; i < UART_GPIO_MAX; i++) {
+ 		enum gpiod_flags flags;
++		char *gpio_str;
++		bool present;
++
++		/* Check if GPIO property exists and continue if not */
++		gpio_str = kasprintf(GFP_KERNEL, "%s-gpios",
++				     mctrl_gpios_desc[i].name);
++		if (!gpio_str)
++			continue;
++
++		present = device_property_present(dev, gpio_str);
++		kfree(gpio_str);
++		if (!present)
++			continue;
  
+ 		if (mctrl_gpios_desc[i].dir_out)
+ 			flags = GPIOD_OUT_LOW;
 -- 
 2.20.1
 
