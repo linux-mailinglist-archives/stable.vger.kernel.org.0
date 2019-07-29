@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65D057924B
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 19:42:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE8C67924D
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 19:43:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727753AbfG2Rmv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 13:42:51 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:35801 "EHLO
+        id S1727302AbfG2RnE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 13:43:04 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:40079 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726905AbfG2Rmu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 13:42:50 -0400
+        by vger.kernel.org with ESMTP id S1726905AbfG2RnE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 13:43:04 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 2DC3621CFD;
-        Mon, 29 Jul 2019 13:42:50 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id EC8D62227E;
+        Mon, 29 Jul 2019 13:43:03 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 29 Jul 2019 13:42:50 -0400
+  by compute6.internal (MEProxy); Mon, 29 Jul 2019 13:43:03 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=rLIwCr
-        Db+FF0gumejPXy+60Dgz4nfqNAHHo2QeFXLHU=; b=SVGBq+gfQmJWM09WO7pzx4
-        iiMI20Jl55ABTrPp6qxtTkbO9V1aMQu0AYXs5ZW21TUZjOqyNM4g6nNovDzI+Gny
-        AI1BfUVxwnKDYF8fC65HcA2ZEdlpaovOao7TcFHQupscCWXcojfh4cVmzj6uPrWO
-        Xhi8s9HKbotzuBQ0uMBfafob4Pg8mkkWZGxxdhYdRlZZmhv99Cz05fnOUNs5iX7j
-        riwY/chxNeozv9zDkOvn/eJURje2L5oeD6Yr6IlSLdJ/IvQG63i4zQ+T8ri5HrCf
-        Gd5dils4jJhuNDKH6gMo/8s7ojOzgRW0t7nfMZAgtP9Ba1gIlD+WoyrAHjWXQ19w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=u0DBpC
+        ucsNXTuQb+bC87DYnVnrOvL3Pjf+NC2QZAN9E=; b=1mkBqxSUdtZICyjgVnt/Wn
+        xEVoyvSGesfw0QIouYR/q+EM0O9+5/7yLYg8dKWaoqms8P/vnOpg7PZzm4WHSN3R
+        x1ODH2TUHX5diVvbD3j7RAyJPK2a/8BJ9WGikrc/T+lY/ojidH5SzksYX+mxfjQ/
+        hBI/BtDGXFl0aldHLO4ZGF6K3rZaoOQDLS4aI0R4liFEuuyIfdBgKk5Kqw931F6Z
+        s5W1D4ju751G0McCSz10UST8/w7t5ntvfGSLi8yhPehnvmEVqgrAZ6dTtoG6fyjF
+        dLZpskczCmdTznOXWMjnpcKjL0p+zSGq4/7Yv2aukW+BZj5dpbdtZ7s3WLwU1nNA
         ==
-X-ME-Sender: <xms:GTA_XWXrPOTfDALKwzvBVV6dRiqFJeYzrHzsZiC62YMP1O9FlsvKKQ>
+X-ME-Sender: <xms:JzA_XXYKqbuVZmBCtneBbeHGzrcjxhrkLegVWfGE8aS2q2-fvxLTTg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrledugdduudeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:GjA_XdsdBedR5OgE-lPCuKP8J6CysXfauxunwkskiWpV8xydXsU0Dg>
-    <xmx:GjA_XfySbpBv-6AioY3hi0k0-uQ5u1UOp7Ul1KXhDQDufUyTtTrCnA>
-    <xmx:GjA_XdK8uN-pEauk-GUP4m40c_LB3X3Ccl2TltV62K_dlbi96l_PYA>
-    <xmx:GjA_XXq05SJTmbezYray9O3NF4-Nw2_p40H-1F6CPKeWP4Oo58LQSA>
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdpghhithhhuhgsrdgtohhmnecukf
+    hppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghg
+    sehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
+X-ME-Proxy: <xmx:JzA_XcBGRgzkO-KDr8TFRuBw2M4nOPWUdHWHyKFOi4vPSQM_MkMLuw>
+    <xmx:JzA_Xe4LLBedRQzuQHft8JSMwXCsfHZ6HSTrCTssKSQUhQFE3C0XHw>
+    <xmx:JzA_XeBD-J4XyY0dZcSzAeQVRp33wJ3dV1ALgyyXCwXWPT34BnPCCQ>
+    <xmx:JzA_XcV43xOTqbRd1WG41iMEkemmpVL2owrmognOIXt5HWCaanbENA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A086D80063;
-        Mon, 29 Jul 2019 13:42:49 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drivers/base: Introduce kill_device()" failed to apply to 4.4-stable tree
-To:     dan.j.williams@intel.com, gregkh@linuxfoundation.org,
-        jane.chu@oracle.com, rafael@kernel.org, stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6F3B780062;
+        Mon, 29 Jul 2019 13:43:03 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] libnvdimm/bus: Prevent duplicate device_unregister() calls" failed to apply to 4.14-stable tree
+To:     dan.j.williams@intel.com, erwin.tsaur@oracle.com,
+        jane.chu@oracle.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Jul 2019 19:42:44 +0200
-Message-ID: <15644221647087@kroah.com>
+Date:   Mon, 29 Jul 2019 19:42:59 +0200
+Message-ID: <156442217919690@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,96 +69,90 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 00289cd87676e14913d2d8492d1ce05c4baafdae Mon Sep 17 00:00:00 2001
+From 8aac0e2338916e273ccbd438a2b7a1e8c61749f5 Mon Sep 17 00:00:00 2001
 From: Dan Williams <dan.j.williams@intel.com>
-Date: Wed, 17 Jul 2019 18:07:53 -0700
-Subject: [PATCH] drivers/base: Introduce kill_device()
+Date: Wed, 17 Jul 2019 18:07:58 -0700
+Subject: [PATCH] libnvdimm/bus: Prevent duplicate device_unregister() calls
 
-The libnvdimm subsystem arranges for devices to be destroyed as a result
-of a sysfs operation. Since device_unregister() cannot be called from
-an actively running sysfs attribute of the same device libnvdimm
-arranges for device_unregister() to be performed in an out-of-line async
-context.
+A multithreaded namespace creation/destruction stress test currently
+fails with signatures like the following:
 
-The driver core maintains a 'dead' state for coordinating its own racing
-async registration / de-registration requests. Rather than add local
-'dead' state tracking infrastructure to libnvdimm device objects, export
-the existing state tracking via a new kill_device() helper.
+    sysfs group 'power' not found for kobject 'dax1.1'
+    RIP: 0010:sysfs_remove_group+0x76/0x80
+    Call Trace:
+     device_del+0x73/0x370
+     device_unregister+0x16/0x50
+     nd_async_device_unregister+0x1e/0x30 [libnvdimm]
+     async_run_entry_fn+0x39/0x160
+     process_one_work+0x23c/0x5e0
+     worker_thread+0x3c/0x390
 
-The kill_device() helper simply marks the device as dead, i.e. that it
-is on its way to device_del(), or returns that the device was already
-dead. This can be used in advance of calling device_unregister() for
-subsystems like libnvdimm that might need to handle multiple user
-threads racing to delete a device.
+    BUG: kernel NULL pointer dereference, address: 0000000000000020
+    RIP: 0010:klist_put+0x1b/0x6c
+    Call Trace:
+     klist_del+0xe/0x10
+     device_del+0x8a/0x2c9
+     ? __switch_to_asm+0x34/0x70
+     ? __switch_to_asm+0x40/0x70
+     device_unregister+0x44/0x4f
+     nd_async_device_unregister+0x22/0x2d [libnvdimm]
+     async_run_entry_fn+0x47/0x15a
+     process_one_work+0x1a2/0x2eb
+     worker_thread+0x1b8/0x26e
 
-This refactoring does not change any behavior, but it is a pre-requisite
-for follow-on fixes and therefore marked for -stable.
+Use the kill_device() helper to atomically resolve the race of multiple
+threads issuing kill, device_unregister(), requests.
 
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Reported-by: Jane Chu <jane.chu@oracle.com>
+Reported-by: Erwin Tsaur <erwin.tsaur@oracle.com>
 Fixes: 4d88a97aa9e8 ("libnvdimm, nvdimm: dimm driver and base libnvdimm device-driver...")
 Cc: <stable@vger.kernel.org>
-Tested-by: Jane Chu <jane.chu@oracle.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Link: https://lore.kernel.org/r/156341207332.292348.14959761496009347574.stgit@dwillia2-desk3.amr.corp.intel.com
+Link: https://github.com/pmem/ndctl/issues/96
+Tested-by: Tested-by: Jane Chu <jane.chu@oracle.com>
+Link: https://lore.kernel.org/r/156341207846.292348.10435719262819764054.stgit@dwillia2-desk3.amr.corp.intel.com
 Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index fd7511e04e62..eaf3aa0cb803 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -2211,6 +2211,24 @@ void put_device(struct device *dev)
- }
- EXPORT_SYMBOL_GPL(put_device);
+diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
+index 2dca3034fee0..42713b210f51 100644
+--- a/drivers/nvdimm/bus.c
++++ b/drivers/nvdimm/bus.c
+@@ -547,13 +547,38 @@ EXPORT_SYMBOL(nd_device_register);
  
-+bool kill_device(struct device *dev)
-+{
-+	/*
-+	 * Require the device lock and set the "dead" flag to guarantee that
-+	 * the update behavior is consistent with the other bitfields near
-+	 * it and that we cannot have an asynchronous probe routine trying
-+	 * to run while we are tearing out the bus/class/sysfs from
-+	 * underneath the device.
-+	 */
-+	lockdep_assert_held(&dev->mutex);
+ void nd_device_unregister(struct device *dev, enum nd_async_mode mode)
+ {
++	bool killed;
 +
-+	if (dev->p->dead)
-+		return false;
-+	dev->p->dead = true;
-+	return true;
-+}
-+EXPORT_SYMBOL_GPL(kill_device);
+ 	switch (mode) {
+ 	case ND_ASYNC:
++		/*
++		 * In the async case this is being triggered with the
++		 * device lock held and the unregistration work needs to
++		 * be moved out of line iff this is thread has won the
++		 * race to schedule the deletion.
++		 */
++		if (!kill_device(dev))
++			return;
 +
- /**
-  * device_del - delete device from system.
-  * @dev: device.
-@@ -2230,15 +2248,8 @@ void device_del(struct device *dev)
- 	struct kobject *glue_dir = NULL;
- 	struct class_interface *class_intf;
- 
--	/*
--	 * Hold the device lock and set the "dead" flag to guarantee that
--	 * the update behavior is consistent with the other bitfields near
--	 * it and that we cannot have an asynchronous probe routine trying
--	 * to run while we are tearing out the bus/class/sysfs from
--	 * underneath the device.
--	 */
- 	device_lock(dev);
--	dev->p->dead = true;
-+	kill_device(dev);
- 	device_unlock(dev);
- 
- 	/* Notify clients of device removal.  This call must come
-diff --git a/include/linux/device.h b/include/linux/device.h
-index e85264fb6616..0da5c67f6be1 100644
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -1373,6 +1373,7 @@ extern int (*platform_notify_remove)(struct device *dev);
-  */
- extern struct device *get_device(struct device *dev);
- extern void put_device(struct device *dev);
-+extern bool kill_device(struct device *dev);
- 
- #ifdef CONFIG_DEVTMPFS
- extern int devtmpfs_create_node(struct device *dev);
+ 		get_device(dev);
+ 		async_schedule_domain(nd_async_device_unregister, dev,
+ 				&nd_async_domain);
+ 		break;
+ 	case ND_SYNC:
++		/*
++		 * In the sync case the device is being unregistered due
++		 * to a state change of the parent. Claim the kill state
++		 * to synchronize against other unregistration requests,
++		 * or otherwise let the async path handle it if the
++		 * unregistration was already queued.
++		 */
++		device_lock(dev);
++		killed = kill_device(dev);
++		device_unlock(dev);
++
++		if (!killed)
++			return;
++
+ 		nd_synchronize();
+ 		device_unregister(dev);
+ 		break;
 
