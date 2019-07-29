@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77E92796F8
+	by mail.lfdr.de (Postfix) with ESMTP id E6EBC796F9
 	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:57:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404089AbfG2Tyl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:54:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47358 "EHLO mail.kernel.org"
+        id S2404103AbfG2Tyo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:54:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404053AbfG2Tyl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:54:41 -0400
+        id S2404094AbfG2Tyo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:54:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AEB602171F;
-        Mon, 29 Jul 2019 19:54:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 627A0204EC;
+        Mon, 29 Jul 2019 19:54:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564430080;
-        bh=B/oxvIEJXcPzHXdB0xrK2ROxMA5FbIFbDsHay0+/Qgw=;
+        s=default; t=1564430082;
+        bh=3K7M/8egWQFv845UWWMbiOsoAy/k7SPRgJ5lUK/hYHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EQrC3iEt2b/TmPV6aSYrGP6JoLh6yF0Vu+qomMVX3BgoPwzlop+BDfDV+Byh6TYWA
-         qOTVzSZ6tdtRVlyIfUyimCdaX7JWFW7gF7zFBuVvKUPi5SR5bmp1DimIloMTq/c3l4
-         js4vM871+HPuT1spW+xeUdS+4/we6vn7BGq3o7vg=
+        b=URVp9SRq0y/aPvesXXsRd6EuGXfWJuhQdwsPQY5XnJyWsvl+mG+2l+VnJJotnlbG/
+         h9jQVgwsKybhgm3NreilD1HFn1bs/8DZLQBtCxEJ2i07yg2Z0SBdRrPpLGqb0k1MTq
+         UNX1aukPFY0gTMIVEj+Gbb4KRvW+yj1KHozclvvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Zhang HongJun <zhanghongjun2@huawei.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.2 189/215] hpet: Fix division by zero in hpet_time_div()
-Date:   Mon, 29 Jul 2019 21:23:05 +0200
-Message-Id: <20190729190812.807982759@linuxfoundation.org>
+        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
+        =?UTF-8?q?S=C3=A9bastien=20Szymanski?= 
+        <sebastien.szymanski@armadeus.com>, Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH 5.2 190/215] drm/panel: Add support for Armadeus ST0700 Adapt
+Date:   Mon, 29 Jul 2019 21:23:06 +0200
+Message-Id: <20190729190812.945504045@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -44,67 +44,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
+From: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
 
-commit 0c7d37f4d9b8446956e97b7c5e61173cdb7c8522 upstream.
+commit c479450f61c7f1f248c9a54aedacd2a6ca521ff8 upstream.
 
-The base value in do_div() called by hpet_time_div() is truncated from
-unsigned long to uint32_t, resulting in a divide-by-zero exception.
+This patch adds support for the Armadeus ST0700 Adapt. It comes with a
+Santek ST0700I5Y-RBSLW 7.0" WVGA (800x480) TFT and an adapter board so
+that it can be connected on the TFT header of Armadeus Dev boards.
 
-UBSAN: Undefined behaviour in ../drivers/char/hpet.c:572:2
-division by zero
-CPU: 1 PID: 23682 Comm: syz-executor.3 Not tainted 4.4.184.x86_64+ #4
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
- 0000000000000000 b573382df1853d00 ffff8800a3287b98 ffffffff81ad7561
- ffff8800a3287c00 ffffffff838b35b0 ffffffff838b3860 ffff8800a3287c20
- 0000000000000000 ffff8800a3287bb0 ffffffff81b8f25e ffffffff838b35a0
-Call Trace:
- [<ffffffff81ad7561>] __dump_stack lib/dump_stack.c:15 [inline]
- [<ffffffff81ad7561>] dump_stack+0xc1/0x120 lib/dump_stack.c:51
- [<ffffffff81b8f25e>] ubsan_epilogue+0x12/0x8d lib/ubsan.c:166
- [<ffffffff81b900cb>] __ubsan_handle_divrem_overflow+0x282/0x2c8 lib/ubsan.c:262
- [<ffffffff823560dd>] hpet_time_div drivers/char/hpet.c:572 [inline]
- [<ffffffff823560dd>] hpet_ioctl_common drivers/char/hpet.c:663 [inline]
- [<ffffffff823560dd>] hpet_ioctl_common.cold+0xa8/0xad drivers/char/hpet.c:577
- [<ffffffff81e63d56>] hpet_ioctl+0xc6/0x180 drivers/char/hpet.c:676
- [<ffffffff81711590>] vfs_ioctl fs/ioctl.c:43 [inline]
- [<ffffffff81711590>] file_ioctl fs/ioctl.c:470 [inline]
- [<ffffffff81711590>] do_vfs_ioctl+0x6e0/0xf70 fs/ioctl.c:605
- [<ffffffff81711eb4>] SYSC_ioctl fs/ioctl.c:622 [inline]
- [<ffffffff81711eb4>] SyS_ioctl+0x94/0xc0 fs/ioctl.c:613
- [<ffffffff82846003>] tracesys_phase2+0x90/0x95
-
-The main C reproducer autogenerated by syzkaller,
-
-  syscall(__NR_mmap, 0x20000000, 0x1000000, 3, 0x32, -1, 0);
-  memcpy((void*)0x20000100, "/dev/hpet\000", 10);
-  syscall(__NR_openat, 0xffffffffffffff9c, 0x20000100, 0, 0);
-  syscall(__NR_ioctl, r[0], 0x40086806, 0x40000000000000);
-
-Fix it by using div64_ul().
-
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Signed-off-by: Zhang HongJun <zhanghongjun2@huawei.com>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20190711132757.130092-1-wangkefeng.wang@huawei.com
+Cc: stable@vger.kernel.org # v4.19
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190507152713.27494-1-sebastien.szymanski@armadeus.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/hpet.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ Documentation/devicetree/bindings/display/panel/armadeus,st0700-adapt.txt |    9 +++
+ drivers/gpu/drm/panel/panel-simple.c                                      |   29 ++++++++++
+ 2 files changed, 38 insertions(+)
 
---- a/drivers/char/hpet.c
-+++ b/drivers/char/hpet.c
-@@ -567,8 +567,7 @@ static inline unsigned long hpet_time_di
- 	unsigned long long m;
+--- /dev/null
++++ b/Documentation/devicetree/bindings/display/panel/armadeus,st0700-adapt.txt
+@@ -0,0 +1,9 @@
++Armadeus ST0700 Adapt. A Santek ST0700I5Y-RBSLW 7.0" WVGA (800x480) TFT with
++an adapter board.
++
++Required properties:
++- compatible: "armadeus,st0700-adapt"
++- power-supply: see panel-common.txt
++
++Optional properties:
++- backlight: see panel-common.txt
+--- a/drivers/gpu/drm/panel/panel-simple.c
++++ b/drivers/gpu/drm/panel/panel-simple.c
+@@ -446,6 +446,32 @@ static const struct panel_desc ampire_am
+ 	.bus_format = MEDIA_BUS_FMT_RGB666_1X18,
+ };
  
- 	m = hpets->hp_tick_freq + (dis >> 1);
--	do_div(m, dis);
--	return (unsigned long)m;
-+	return div64_ul(m, dis);
- }
- 
- static int
++static const struct display_timing santek_st0700i5y_rbslw_f_timing = {
++	.pixelclock = { 26400000, 33300000, 46800000 },
++	.hactive = { 800, 800, 800 },
++	.hfront_porch = { 16, 210, 354 },
++	.hback_porch = { 45, 36, 6 },
++	.hsync_len = { 1, 10, 40 },
++	.vactive = { 480, 480, 480 },
++	.vfront_porch = { 7, 22, 147 },
++	.vback_porch = { 22, 13, 3 },
++	.vsync_len = { 1, 10, 20 },
++	.flags = DISPLAY_FLAGS_HSYNC_LOW | DISPLAY_FLAGS_VSYNC_LOW |
++		DISPLAY_FLAGS_DE_HIGH | DISPLAY_FLAGS_PIXDATA_POSEDGE
++};
++
++static const struct panel_desc armadeus_st0700_adapt = {
++	.timings = &santek_st0700i5y_rbslw_f_timing,
++	.num_timings = 1,
++	.bpc = 6,
++	.size = {
++		.width = 154,
++		.height = 86,
++	},
++	.bus_format = MEDIA_BUS_FMT_RGB666_1X18,
++	.bus_flags = DRM_BUS_FLAG_DE_HIGH | DRM_BUS_FLAG_PIXDATA_POSEDGE,
++};
++
+ static const struct drm_display_mode auo_b101aw03_mode = {
+ 	.clock = 51450,
+ 	.hdisplay = 1024,
+@@ -2571,6 +2597,9 @@ static const struct of_device_id platfor
+ 		.compatible = "arm,rtsm-display",
+ 		.data = &arm_rtsm,
+ 	}, {
++		.compatible = "armadeus,st0700-adapt",
++		.data = &armadeus_st0700_adapt,
++	}, {
+ 		.compatible = "auo,b101aw03",
+ 		.data = &auo_b101aw03,
+ 	}, {
 
 
