@@ -2,60 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A93B79798
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:01:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC98D7980B
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:06:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390737AbfG2TvX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:51:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42710 "EHLO mail.kernel.org"
+        id S2389530AbfG2Tmj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:42:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403850AbfG2TvW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:51:22 -0400
+        id S2389526AbfG2Tmj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:42:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36B00217D6;
-        Mon, 29 Jul 2019 19:51:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B72C1217F5;
+        Mon, 29 Jul 2019 19:42:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429881;
-        bh=weIz1uBlyldbyeAv5HDGI4Fix09FhaoFEQLoHR14ie8=;
+        s=default; t=1564429358;
+        bh=dEuEHs4GsP7bekn11dR5FNyO4oT3Y+XEYEwe9AxXBDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PFE5piDe3XbzXX/b9rJFPGMucgtkiA6Q1t03tAX/4w/kAtMu/+vNYA9PlJ8LPY9GA
-         +UL+Mm5jpZJU0opd5KKO5aek80m/a6E9vS2b6a0hSemo9hkKOHZB1pvcVvA2fD7GfV
-         6OkpmdmOXnxfwyyFMkPKVze78VmE8P8w1Im6pjJA=
+        b=KOBt2WFTpVyryW444mWcZdFHstlzelwSUIXhnGRZVAq164Hbgc9Zi857GHSKqI9Rs
+         eJS4hfzTE9doJyDWb7I1DipLLCW2J/FtYrC/O4aLmAIZOggy+2C5fGcFaCcjbEsvv3
+         MOXqAVNuVRBIlgE7LmYv0Bz5EQDOVeiYlszZcjVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Jiri Olsa <jolsa@kernel.org>,
+        stable@vger.kernel.org, Raul E Rangel <rrangel@chromium.org>,
         Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Alexios Zavras <alexios.zavras@intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Changbin Du <changbin.du@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Eric Saint-Etienne <eric.saint.etienne@oracle.com>,
-        Jin Yao <yao.jin@linux.intel.com>,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Song Liu <songliubraving@fb.com>,
-        Suzuki Poulouse <suzuki.poulose@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 126/215] perf annotate: Fix dereferencing freed memory found by the smatch tool
+Subject: [PATCH 4.19 035/113] mmc: sdhci: sdhci-pci-o2micro: Check if controller supports 8-bit width
 Date:   Mon, 29 Jul 2019 21:22:02 +0200
-Message-Id: <20190729190801.169409742@linuxfoundation.org>
+Message-Id: <20190729190704.162266984@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
-References: <20190729190739.971253303@linuxfoundation.org>
+In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
+References: <20190729190655.455345569@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -65,100 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 600c787dbf6521d8d07ee717ab7606d5070103ea ]
+[ Upstream commit de23f0b757766d9fae59df97da6e8bdc5b231351 ]
 
-Based on the following report from Smatch, fix the potential
-dereferencing freed memory check.
+The O2 controller supports 8-bit EMMC access.
 
-  tools/perf/util/annotate.c:1125
-  disasm_line__parse() error: dereferencing freed memory 'namep'
+JESD84-B51 section A.6.3.a defines the bus testing procedure that
+`mmc_select_bus_width()` implements. This is used to determine the actual
+bus width of the eMMC.
 
-  tools/perf/util/annotate.c
-  1100 static int disasm_line__parse(char *line, const char **namep, char **rawp)
-  1101 {
-  1102         char tmp, *name = ltrim(line);
-
-  [...]
-
-  1114         *namep = strdup(name);
-  1115
-  1116         if (*namep == NULL)
-  1117                 goto out_free_name;
-
-  [...]
-
-  1124 out_free_name:
-  1125         free((void *)namep);
-                            ^^^^^
-  1126         *namep = NULL;
-               ^^^^^^
-  1127         return -1;
-  1128 }
-
-If strdup() fails to allocate memory space for *namep, we don't need to
-free memory with pointer 'namep', which is resident in data structure
-disasm_line::ins::name; and *namep is NULL pointer for this failure, so
-it's pointless to assign NULL to *namep again.
-
-Committer note:
-
-Freeing namep, which is the address of the first entry of the 'struct
-ins' that is the first member of struct disasm_line would in fact free
-that disasm_line instance, if it was allocated via malloc/calloc, which,
-later, would a dereference of freed memory.
-
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc: Alexios Zavras <alexios.zavras@intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Changbin Du <changbin.du@intel.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Eric Saint-Etienne <eric.saint.etienne@oracle.com>
-Cc: Jin Yao <yao.jin@linux.intel.com>
-Cc: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Thomas Richter <tmricht@linux.ibm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Link: http://lkml.kernel.org/r/20190702103420.27540-5-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Raul E Rangel <rrangel@chromium.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/annotate.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/mmc/host/sdhci-pci-o2micro.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/annotate.c b/tools/perf/util/annotate.c
-index c8ce13419d9b..b8dfcfe08bb1 100644
---- a/tools/perf/util/annotate.c
-+++ b/tools/perf/util/annotate.c
-@@ -1113,16 +1113,14 @@ static int disasm_line__parse(char *line, const char **namep, char **rawp)
- 	*namep = strdup(name);
+diff --git a/drivers/mmc/host/sdhci-pci-o2micro.c b/drivers/mmc/host/sdhci-pci-o2micro.c
+index fa8d9da2ab7f..e248d7945c06 100644
+--- a/drivers/mmc/host/sdhci-pci-o2micro.c
++++ b/drivers/mmc/host/sdhci-pci-o2micro.c
+@@ -290,11 +290,21 @@ int sdhci_pci_o2_probe_slot(struct sdhci_pci_slot *slot)
+ {
+ 	struct sdhci_pci_chip *chip;
+ 	struct sdhci_host *host;
+-	u32 reg;
++	u32 reg, caps;
+ 	int ret;
  
- 	if (*namep == NULL)
--		goto out_free_name;
-+		goto out;
- 
- 	(*rawp)[0] = tmp;
- 	*rawp = ltrim(*rawp);
- 
- 	return 0;
- 
--out_free_name:
--	free((void *)namep);
--	*namep = NULL;
-+out:
- 	return -1;
- }
- 
+ 	chip = slot->chip;
+ 	host = slot->host;
++
++	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
++
++	/*
++	 * mmc_select_bus_width() will test the bus to determine the actual bus
++	 * width.
++	 */
++	if (caps & SDHCI_CAN_DO_8BIT)
++		host->mmc->caps |= MMC_CAP_8_BIT_DATA;
++
+ 	switch (chip->pdev->device) {
+ 	case PCI_DEVICE_ID_O2_SDS0:
+ 	case PCI_DEVICE_ID_O2_SEABIRD0:
 -- 
 2.20.1
 
