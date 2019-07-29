@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AA69796C0
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:55:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9308E796C3
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:55:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404141AbfG2TzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:55:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47882 "EHLO mail.kernel.org"
+        id S2391040AbfG2TzN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:55:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403890AbfG2TzI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:55:08 -0400
+        id S2391036AbfG2TzM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:55:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46E952054F;
-        Mon, 29 Jul 2019 19:55:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFE01204EC;
+        Mon, 29 Jul 2019 19:55:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564430107;
-        bh=vYx/zHP8wWU9g1UIxBmoe+KnVEnCZqWTIOJc41rRGsQ=;
+        s=default; t=1564430111;
+        bh=1RTK4MyWY4DmfoGIIMIHyA483+DSIIqOUIvtChCMhhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pnTPb4AjXNFB1atxPkhyren0de8uUY5M7C5OzZK6Eife3lxasvT3F4XHKO7wNmhTH
-         kqXJSAHRJziPmm+FWxmDk8CvhQClgWxnEOvuiWlkZPgTqVubPevyza6k1YOnFBdz4K
-         57kJQp9pTU0n9JNu4lJo+t+xfCzJfR2G4MY3PTIE=
+        b=BFMRHKVbwPKcblteRqj2hwZRaG9DO618jDjByJ241huDhMhTCFfD0zlX+052anJAl
+         mmDqNgnC1DFtIDrjSu8rjneiHZPK405lU6AtuW7cbeDkV8pZP8TfT4wQCRqcnaIYKw
+         1mA1yMqsaXbtVyyfR3vF3PvUzeg87wekBa6XOVp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -40,9 +40,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 159/215] proc: use down_read_killable mmap_sem for /proc/pid/clear_refs
-Date:   Mon, 29 Jul 2019 21:22:35 +0200
-Message-Id: <20190729190807.416089191@linuxfoundation.org>
+Subject: [PATCH 5.2 160/215] proc: use down_read_killable mmap_sem for /proc/pid/map_files
+Date:   Mon, 29 Jul 2019 21:22:36 +0200
+Message-Id: <20190729190807.585600663@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -55,14 +55,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c46038017fbdcac627b670c9d4176f1d0c2f5fa3 ]
+[ Upstream commit cd9e2bb8271c971d9f37c722be2616c7f8ba0664 ]
 
 Do not remain stuck forever if something goes wrong.  Using a killable
 lock permits cleanup of stuck tasks and simplifies investigation.
 
-Replace the only unkillable mmap_sem lock in clear_refs_write().
+It seems ->d_revalidate() could return any error (except ECHILD) to abort
+validation and pass error as result of lookup sequence.
 
-Link: http://lkml.kernel.org/r/156007493826.3335.5424884725467456239.stgit@buzz
+[akpm@linux-foundation.org: fix proc_map_files_lookup() return value, per Andrei]
+Link: http://lkml.kernel.org/r/156007493995.3335.9595044802115356911.stgit@buzz
 Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
 Reviewed-by: Roman Gushchin <guro@fb.com>
 Reviewed-by: Cyrill Gorcunov <gorcunov@gmail.com>
@@ -77,25 +79,77 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/proc/task_mmu.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/proc/base.c | 28 ++++++++++++++++++++++------
+ 1 file changed, 22 insertions(+), 6 deletions(-)
 
-diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-index 1d9c63cd8a3c..abcd9513efff 100644
---- a/fs/proc/task_mmu.c
-+++ b/fs/proc/task_mmu.c
-@@ -1136,7 +1136,10 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
- 			goto out_mm;
- 		}
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index 255f6754c70d..03517154fe0f 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -1962,9 +1962,12 @@ static int map_files_d_revalidate(struct dentry *dentry, unsigned int flags)
+ 		goto out;
  
+ 	if (!dname_to_vma_addr(dentry, &vm_start, &vm_end)) {
 -		down_read(&mm->mmap_sem);
-+		if (down_read_killable(&mm->mmap_sem)) {
-+			count = -EINTR;
-+			goto out_mm;
+-		exact_vma_exists = !!find_exact_vma(mm, vm_start, vm_end);
+-		up_read(&mm->mmap_sem);
++		status = down_read_killable(&mm->mmap_sem);
++		if (!status) {
++			exact_vma_exists = !!find_exact_vma(mm, vm_start,
++							    vm_end);
++			up_read(&mm->mmap_sem);
 +		}
- 		tlb_gather_mmu(&tlb, mm, 0, -1);
- 		if (type == CLEAR_REFS_SOFT_DIRTY) {
- 			for (vma = mm->mmap; vma; vma = vma->vm_next) {
+ 	}
+ 
+ 	mmput(mm);
+@@ -2010,8 +2013,11 @@ static int map_files_get_link(struct dentry *dentry, struct path *path)
+ 	if (rc)
+ 		goto out_mmput;
+ 
++	rc = down_read_killable(&mm->mmap_sem);
++	if (rc)
++		goto out_mmput;
++
+ 	rc = -ENOENT;
+-	down_read(&mm->mmap_sem);
+ 	vma = find_exact_vma(mm, vm_start, vm_end);
+ 	if (vma && vma->vm_file) {
+ 		*path = vma->vm_file->f_path;
+@@ -2107,7 +2113,11 @@ static struct dentry *proc_map_files_lookup(struct inode *dir,
+ 	if (!mm)
+ 		goto out_put_task;
+ 
+-	down_read(&mm->mmap_sem);
++	result = ERR_PTR(-EINTR);
++	if (down_read_killable(&mm->mmap_sem))
++		goto out_put_mm;
++
++	result = ERR_PTR(-ENOENT);
+ 	vma = find_exact_vma(mm, vm_start, vm_end);
+ 	if (!vma)
+ 		goto out_no_vma;
+@@ -2118,6 +2128,7 @@ static struct dentry *proc_map_files_lookup(struct inode *dir,
+ 
+ out_no_vma:
+ 	up_read(&mm->mmap_sem);
++out_put_mm:
+ 	mmput(mm);
+ out_put_task:
+ 	put_task_struct(task);
+@@ -2160,7 +2171,12 @@ proc_map_files_readdir(struct file *file, struct dir_context *ctx)
+ 	mm = get_task_mm(task);
+ 	if (!mm)
+ 		goto out_put_task;
+-	down_read(&mm->mmap_sem);
++
++	ret = down_read_killable(&mm->mmap_sem);
++	if (ret) {
++		mmput(mm);
++		goto out_put_task;
++	}
+ 
+ 	nr_files = 0;
+ 
 -- 
 2.20.1
 
