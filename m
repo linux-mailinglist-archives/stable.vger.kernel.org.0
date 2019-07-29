@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56C6D795D5
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:47:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB62D795F9
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:48:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389582AbfG2TqY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:46:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35618 "EHLO mail.kernel.org"
+        id S2390342AbfG2Tr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:47:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390125AbfG2TqW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:46:22 -0400
+        id S2389965AbfG2Tr0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:47:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B6A320C01;
-        Mon, 29 Jul 2019 19:46:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AFE520C01;
+        Mon, 29 Jul 2019 19:47:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429581;
-        bh=Y07Jhuh86TB1zC+Il3gXb0CrcePi+HPbIZrlTPtBLKQ=;
+        s=default; t=1564429645;
+        bh=cfF5JTRL9wJTAdyolM8Phzi3rYbFHUx/a1jzKwjHkxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pJxxOfyT4WnvDZqHafwrs9iBLZ0kOOQAwMw/X40YGgjYROf6cq8++nXOEYN/U5snp
-         2HgYyBXlv4zM8/qg3rgaeTt2JVjSbMMVF18uQzbWWLxC4z0qQB84WVnPGaWbTv5i2+
-         t7IGJJ79Zpp5uhxpHtavbi/HtNSnM8jkmKpmsiNY=
+        b=id6SBAwOkWf70euLLop96Jz2EoicRfoWzktQNaXRp+IvjZWQ0gVzPI38GiW9ZDVNr
+         /587km8GdZcc4qi42Up5JVwOed640D4kPLIiQjXfygbe03RVFWWUhg/klmeyYN1chf
+         h1CNiJlYH9Q+0UA8tySBa9gipWe6B1920ydJR4aM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oak Zeng <ozeng@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Alan Mikhak <alan.mikhak@sifive.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 029/215] drm/amdkfd: Fix a potential memory leak
-Date:   Mon, 29 Jul 2019 21:20:25 +0200
-Message-Id: <20190729190745.138948656@linuxfoundation.org>
+Subject: [PATCH 5.2 032/215] tools: PCI: Fix broken pcitest compilation
+Date:   Mon, 29 Jul 2019 21:20:28 +0200
+Message-Id: <20190729190745.776649298@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -45,43 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e73390d181103a19e1111ec2f25559a0570e9fe0 ]
+[ Upstream commit 8a5e0af240e07dd3d4897eb8ff52aab757da7fab ]
 
-Free mqd_mem_obj it GTT buffer allocation for MQD+control stack fails.
+pcitest is currently broken due to the following compiler error
+and related warning. Fix by changing the run_test() function
+signature to return an integer result.
 
-Signed-off-by: Oak Zeng <ozeng@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+pcitest.c: In function run_test:
+pcitest.c:143:9: warning: return with a value, in function
+returning void
+  return (ret < 0) ? ret : 1 - ret; /* return 0 if test succeeded */
+
+pcitest.c: In function main:
+pcitest.c:232:9: error: void value not ignored as it ought to be
+  return run_test(test);
+
+Fixes: fef31ecaaf2c ("tools: PCI: Fix compilation warnings")
+Signed-off-by: Alan Mikhak <alan.mikhak@sifive.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Paul Walmsley <paul.walmsley@sifive.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager_v9.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ tools/pci/pcitest.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager_v9.c b/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager_v9.c
-index 9dbba609450e..8fe74b821b32 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager_v9.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager_v9.c
-@@ -76,6 +76,7 @@ static int init_mqd(struct mqd_manager *mm, void **mqd,
- 	struct v9_mqd *m;
- 	struct kfd_dev *kfd = mm->dev;
+diff --git a/tools/pci/pcitest.c b/tools/pci/pcitest.c
+index cb7a47dfd8b6..49ddfa6f5a8c 100644
+--- a/tools/pci/pcitest.c
++++ b/tools/pci/pcitest.c
+@@ -36,15 +36,15 @@ struct pci_test {
+ 	unsigned long	size;
+ };
  
-+	*mqd_mem_obj = NULL;
- 	/* From V9,  for CWSR, the control stack is located on the next page
- 	 * boundary after the mqd, we will use the gtt allocation function
- 	 * instead of sub-allocation function.
-@@ -93,8 +94,10 @@ static int init_mqd(struct mqd_manager *mm, void **mqd,
- 	} else
- 		retval = kfd_gtt_sa_allocate(mm->dev, sizeof(struct v9_mqd),
- 				mqd_mem_obj);
--	if (retval != 0)
-+	if (retval) {
-+		kfree(*mqd_mem_obj);
- 		return -ENOMEM;
-+	}
+-static void run_test(struct pci_test *test)
++static int run_test(struct pci_test *test)
+ {
+-	long ret;
++	int ret = -EINVAL;
+ 	int fd;
  
- 	m = (struct v9_mqd *) (*mqd_mem_obj)->cpu_ptr;
- 	addr = (*mqd_mem_obj)->gpu_addr;
+ 	fd = open(test->device, O_RDWR);
+ 	if (fd < 0) {
+ 		perror("can't open PCI Endpoint Test device");
+-		return;
++		return -ENODEV;
+ 	}
+ 
+ 	if (test->barnum >= 0 && test->barnum <= 5) {
 -- 
 2.20.1
 
