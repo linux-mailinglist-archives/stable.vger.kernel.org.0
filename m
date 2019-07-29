@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 524D17951B
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:40:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8346179591
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:44:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388517AbfG2Tio (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:38:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53680 "EHLO mail.kernel.org"
+        id S2389678AbfG2Tnw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:43:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388901AbfG2Tin (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:38:43 -0400
+        id S2389713AbfG2Tnw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:43:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBFD320C01;
-        Mon, 29 Jul 2019 19:38:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90913205F4;
+        Mon, 29 Jul 2019 19:43:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429122;
-        bh=fvGRNs2FZrfT4aZyjiQgrhFmO0UphcPFILCJdOuup+Q=;
+        s=default; t=1564429431;
+        bh=REbwc4i22Y9r8hbpNcBt/TcR5wSYBdiN8ktOy5yWdpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pQzYb8XJYHa5Fko2a+NfL9gAiKfRkUSZwh4d1j4jKPRnPSCcL9y0vOSlabsTpBsX3
-         j3fYZyJkF9ZkyUfFs3bLFNfFNH3FTDWquXPx1xgte20LsjT9KJ5k8GV8xP5THdegaq
-         RkKzgj8CUmrW7LNkDfgQTU6cagr0bv18ji1Uhxls=
+        b=ctfJOvop1DmHL1O9N7TXHizvhlZ57iv8822WcnaMJoy2Zp2ynN8ZLiph7yxELAnse
+         0UDuQ4haVPVLRVONv82VGmS79HODxmRH/DHPSLxFVxcC+mCRGuyHv8m16V2/VsCG9a
+         2X7XGj0O3raZ6DIOr2PE1Cnh/mr9nETGWvVVndXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Indira P. Joga" <indira.priya@in.ibm.com>,
-        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 291/293] powerpc/xive: Fix loop exit-condition in xive_find_target_in_mask()
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Yuyang Du <duyuyang@gmail.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will.deacon@arm.com>, arnd@arndb.de,
+        frederic@kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 095/113] locking/lockdep: Fix lock used or unused stats error
 Date:   Mon, 29 Jul 2019 21:23:02 +0200
-Message-Id: <20190729190846.540136064@linuxfoundation.org>
+Message-Id: <20190729190718.271983481@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
-References: <20190729190820.321094988@linuxfoundation.org>
+In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
+References: <20190729190655.455345569@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,119 +51,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+[ Upstream commit 68d41d8c94a31dfb8233ab90b9baf41a2ed2da68 ]
 
-commit 4d202c8c8ed3822327285747db1765967110b274 upstream.
+The stats variable nr_unused_locks is incremented every time a new lock
+class is register and decremented when the lock is first used in
+__lock_acquire(). And after all, it is shown and checked in lockdep_stats.
 
-xive_find_target_in_mask() has the following for(;;) loop which has a
-bug when @first == cpumask_first(@mask) and condition 1 fails to hold
-for every CPU in @mask. In this case we loop forever in the for-loop.
+However, under configurations that either CONFIG_TRACE_IRQFLAGS or
+CONFIG_PROVE_LOCKING is not defined:
 
-  first = cpu;
-  for (;;) {
-  	  if (cpu_online(cpu) && xive_try_pick_target(cpu)) // condition 1
-		  return cpu;
-	  cpu = cpumask_next(cpu, mask);
-	  if (cpu == first) // condition 2
-		  break;
+The commit:
 
-	  if (cpu >= nr_cpu_ids) // condition 3
-		  cpu = cpumask_first(mask);
-  }
+  091806515124b20 ("locking/lockdep: Consolidate lock usage bit initialization")
 
-This is because, when @first == cpumask_first(@mask), we never hit the
-condition 2 (cpu == first) since prior to this check, we would have
-executed "cpu = cpumask_next(cpu, mask)" which will set the value of
-@cpu to a value greater than @first or to nr_cpus_ids. When this is
-coupled with the fact that condition 1 is not met, we will never exit
-this loop.
+missed marking the LOCK_USED flag at IRQ usage initialization because
+as mark_usage() is not called. And the commit:
 
-This was discovered by the hard-lockup detector while running LTP test
-concurrently with SMT switch tests.
+  886532aee3cd42d ("locking/lockdep: Move mark_lock() inside CONFIG_TRACE_IRQFLAGS && CONFIG_PROVE_LOCKING")
 
- watchdog: CPU 12 detected hard LOCKUP on other CPUs 68
- watchdog: CPU 12 TB:85587019220796, last SMP heartbeat TB:85578827223399 (15999ms ago)
- watchdog: CPU 68 Hard LOCKUP
- watchdog: CPU 68 TB:85587019361273, last heartbeat TB:85576815065016 (19930ms ago)
- CPU: 68 PID: 45050 Comm: hxediag Kdump: loaded Not tainted 4.18.0-100.el8.ppc64le #1
- NIP:  c0000000006f5578 LR: c000000000cba9ec CTR: 0000000000000000
- REGS: c000201fff3c7d80 TRAP: 0100   Not tainted  (4.18.0-100.el8.ppc64le)
- MSR:  9000000002883033 <SF,HV,VEC,VSX,FP,ME,IR,DR,RI,LE>  CR: 24028424  XER: 00000000
- CFAR: c0000000006f558c IRQMASK: 1
- GPR00: c0000000000afc58 c000201c01c43400 c0000000015ce500 c000201cae26ec18
- GPR04: 0000000000000800 0000000000000540 0000000000000800 00000000000000f8
- GPR08: 0000000000000020 00000000000000a8 0000000080000000 c00800001a1beed8
- GPR12: c0000000000b1410 c000201fff7f4c00 0000000000000000 0000000000000000
- GPR16: 0000000000000000 0000000000000000 0000000000000540 0000000000000001
- GPR20: 0000000000000048 0000000010110000 c00800001a1e3780 c000201cae26ed18
- GPR24: 0000000000000000 c000201cae26ed8c 0000000000000001 c000000001116bc0
- GPR28: c000000001601ee8 c000000001602494 c000201cae26ec18 000000000000001f
- NIP [c0000000006f5578] find_next_bit+0x38/0x90
- LR [c000000000cba9ec] cpumask_next+0x2c/0x50
- Call Trace:
- [c000201c01c43400] [c000201cae26ec18] 0xc000201cae26ec18 (unreliable)
- [c000201c01c43420] [c0000000000afc58] xive_find_target_in_mask+0x1b8/0x240
- [c000201c01c43470] [c0000000000b0228] xive_pick_irq_target.isra.3+0x168/0x1f0
- [c000201c01c435c0] [c0000000000b1470] xive_irq_startup+0x60/0x260
- [c000201c01c43640] [c0000000001d8328] __irq_startup+0x58/0xf0
- [c000201c01c43670] [c0000000001d844c] irq_startup+0x8c/0x1a0
- [c000201c01c436b0] [c0000000001d57b0] __setup_irq+0x9f0/0xa90
- [c000201c01c43760] [c0000000001d5aa0] request_threaded_irq+0x140/0x220
- [c000201c01c437d0] [c00800001a17b3d4] bnx2x_nic_load+0x188c/0x3040 [bnx2x]
- [c000201c01c43950] [c00800001a187c44] bnx2x_self_test+0x1fc/0x1f70 [bnx2x]
- [c000201c01c43a90] [c000000000adc748] dev_ethtool+0x11d8/0x2cb0
- [c000201c01c43b60] [c000000000b0b61c] dev_ioctl+0x5ac/0xa50
- [c000201c01c43bf0] [c000000000a8d4ec] sock_do_ioctl+0xbc/0x1b0
- [c000201c01c43c60] [c000000000a8dfb8] sock_ioctl+0x258/0x4f0
- [c000201c01c43d20] [c0000000004c9704] do_vfs_ioctl+0xd4/0xa70
- [c000201c01c43de0] [c0000000004ca274] sys_ioctl+0xc4/0x160
- [c000201c01c43e30] [c00000000000b388] system_call+0x5c/0x70
- Instruction dump:
- 78aad182 54a806be 3920ffff 78a50664 794a1f24 7d294036 7d43502a 7d295039
- 4182001c 48000034 78a9d182 79291f24 <7d23482a> 2fa90000 409e0020 38a50040
+further made mark_lock() not defined such that the LOCK_USED cannot be
+marked at all when the lock is first acquired.
 
-To fix this, move the check for condition 2 after the check for
-condition 3, so that we are able to break out of the loop soon after
-iterating through all the CPUs in the @mask in the problem case. Use
-do..while() to achieve this.
+As a result, we fix this by not showing and checking the stats under such
+configurations for lockdep_stats.
 
-Fixes: 243e25112d06 ("powerpc/xive: Native exploitation of the XIVE interrupt controller")
-Cc: stable@vger.kernel.org # v4.12+
-Reported-by: Indira P. Joga <indira.priya@in.ibm.com>
-Signed-off-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1563359724-13931-1-git-send-email-ego@linux.vnet.ibm.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Yuyang Du <duyuyang@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: arnd@arndb.de
+Cc: frederic@kernel.org
+Link: https://lkml.kernel.org/r/20190709101522.9117-1-duyuyang@gmail.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/xive/common.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ kernel/locking/lockdep_proc.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/sysdev/xive/common.c
-+++ b/arch/powerpc/sysdev/xive/common.c
-@@ -482,7 +482,7 @@ static int xive_find_target_in_mask(cons
- 	 * Now go through the entire mask until we find a valid
- 	 * target.
- 	 */
--	for (;;) {
-+	do {
- 		/*
- 		 * We re-check online as the fallback case passes us
- 		 * an untested affinity mask
-@@ -490,12 +490,11 @@ static int xive_find_target_in_mask(cons
- 		if (cpu_online(cpu) && xive_try_pick_target(cpu))
- 			return cpu;
- 		cpu = cpumask_next(cpu, mask);
--		if (cpu == first)
--			break;
- 		/* Wrap around */
- 		if (cpu >= nr_cpu_ids)
- 			cpu = cpumask_first(mask);
--	}
-+	} while (cpu != first);
-+
- 	return -1;
- }
+diff --git a/kernel/locking/lockdep_proc.c b/kernel/locking/lockdep_proc.c
+index 3dd980dfba2d..6cf288eef670 100644
+--- a/kernel/locking/lockdep_proc.c
++++ b/kernel/locking/lockdep_proc.c
+@@ -210,6 +210,7 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
+ 		      nr_hardirq_read_safe = 0, nr_hardirq_read_unsafe = 0,
+ 		      sum_forward_deps = 0;
  
++#ifdef CONFIG_PROVE_LOCKING
+ 	list_for_each_entry(class, &all_lock_classes, lock_entry) {
+ 
+ 		if (class->usage_mask == 0)
+@@ -241,12 +242,12 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
+ 		if (class->usage_mask & LOCKF_ENABLED_HARDIRQ_READ)
+ 			nr_hardirq_read_unsafe++;
+ 
+-#ifdef CONFIG_PROVE_LOCKING
+ 		sum_forward_deps += lockdep_count_forward_deps(class);
+-#endif
+ 	}
+ #ifdef CONFIG_DEBUG_LOCKDEP
+ 	DEBUG_LOCKS_WARN_ON(debug_atomic_read(nr_unused_locks) != nr_unused);
++#endif
++
+ #endif
+ 	seq_printf(m, " lock-classes:                  %11lu [max: %lu]\n",
+ 			nr_lock_classes, MAX_LOCKDEP_KEYS);
+-- 
+2.20.1
+
 
 
