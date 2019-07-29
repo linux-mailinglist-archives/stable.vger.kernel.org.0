@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A083E7945D
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:30:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E2017945F
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:30:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729281AbfG2Taj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:30:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43394 "EHLO mail.kernel.org"
+        id S1729494AbfG2Taq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:30:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725894AbfG2Taj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:30:39 -0400
+        id S1726674AbfG2Tap (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:30:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85F7721655;
-        Mon, 29 Jul 2019 19:30:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA32D21850;
+        Mon, 29 Jul 2019 19:30:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428638;
-        bh=cZ7HUEQurZUTQWyxwgwAlvkjhDjErbPofYKk5uukbRQ=;
+        s=default; t=1564428644;
+        bh=02lJq1r0mBN4D9aZrTeZswREr3BnLBzB9N1Q5gXdA7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TDDAPR2INTLmKzUeW58EQOqMOBn8sZt61R/Wg7jRuJT6UiAiE420JxU6eEZ6sctYr
-         0ea/6zDg++Yhw1DjQbqo2SZSAVFKPlX+4HOGOzOL6G62F/4iecVYDw7/0gJVo8+LDi
-         3HBXWguS85GyH3Em/s2gcNzGcAIr2NGR3JAimkT0=
+        b=zy7tXwNHfM+3bHJycpkA1aMdcpkVdQsuihlDzr6tEpmhNZpxQmyptFbKVcQL53fzJ
+         DAlc3LRsY+kfY684ShFu00dF7mZa0c/kTObS3btX202mE7kOV/mGb/FPTmVEcahPW5
+         /Q3wiYoTIL0HNjxZPh8j1kLm2Z7QbZDmtD+IxqN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.14 138/293] ASoC: dapm: Adapt for debugfs API change
-Date:   Mon, 29 Jul 2019 21:20:29 +0200
-Message-Id: <20190729190835.122177618@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+97aae04ce27e39cbfca9@syzkaller.appspotmail.com,
+        syzbot+4c595632b98bb8ffcc66@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 139/293] ALSA: seq: Break too long mutex context in the write loop
+Date:   Mon, 29 Jul 2019 21:20:30 +0200
+Message-Id: <20190729190835.203109671@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -42,72 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit ceaea851b9ea75f9ea2bbefb53ff0d4b27cd5a6e upstream.
+commit ede34f397ddb063b145b9e7d79c6026f819ded13 upstream.
 
-Back in ff9fb72bc07705c (debugfs: return error values, not NULL) the
-debugfs APIs were changed to return error pointers rather than NULL
-pointers on error, breaking the error checking in ASoC. Update the
-code to use IS_ERR() and log the codes that are returned as part of
-the error messages.
+The fix for the racy writes and ioctls to sequencer widened the
+application of client->ioctl_mutex to the whole write loop.  Although
+it does unlock/relock for the lengthy operation like the event dup,
+the loop keeps the ioctl_mutex for the whole time in other
+situations.  This may take quite long time if the user-space would
+give a huge buffer, and this is a likely cause of some weird behavior
+spotted by syzcaller fuzzer.
 
-Fixes: ff9fb72bc07705c (debugfs: return error values, not NULL)
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This patch puts a simple workaround, just adding a mutex break in the
+loop when a large number of events have been processed.  This
+shouldn't hit any performance drop because the threshold is set high
+enough for usual operations.
+
+Fixes: 7bd800915677 ("ALSA: seq: More protection for concurrent write and ioctl races")
+Reported-by: syzbot+97aae04ce27e39cbfca9@syzkaller.appspotmail.com
+Reported-by: syzbot+4c595632b98bb8ffcc66@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/soc-dapm.c |   18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ sound/core/seq/seq_clientmgr.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -2120,23 +2120,25 @@ void snd_soc_dapm_debugfs_init(struct sn
+--- a/sound/core/seq/seq_clientmgr.c
++++ b/sound/core/seq/seq_clientmgr.c
+@@ -1001,7 +1001,7 @@ static ssize_t snd_seq_write(struct file
  {
- 	struct dentry *d;
+ 	struct snd_seq_client *client = file->private_data;
+ 	int written = 0, len;
+-	int err;
++	int err, handled;
+ 	struct snd_seq_event event;
  
--	if (!parent)
-+	if (!parent || IS_ERR(parent))
- 		return;
+ 	if (!(snd_seq_file_flags(file) & SNDRV_SEQ_LFLG_OUTPUT))
+@@ -1014,6 +1014,8 @@ static ssize_t snd_seq_write(struct file
+ 	if (!client->accept_output || client->pool == NULL)
+ 		return -ENXIO;
  
- 	dapm->debugfs_dapm = debugfs_create_dir("dapm", parent);
++ repeat:
++	handled = 0;
+ 	/* allocate the pool now if the pool is not allocated yet */ 
+ 	mutex_lock(&client->ioctl_mutex);
+ 	if (client->pool->size > 0 && !snd_seq_write_pool_allocated(client)) {
+@@ -1073,12 +1075,19 @@ static ssize_t snd_seq_write(struct file
+ 						   0, 0, &client->ioctl_mutex);
+ 		if (err < 0)
+ 			break;
++		handled++;
  
--	if (!dapm->debugfs_dapm) {
-+	if (IS_ERR(dapm->debugfs_dapm)) {
- 		dev_warn(dapm->dev,
--		       "ASoC: Failed to create DAPM debugfs directory\n");
-+			 "ASoC: Failed to create DAPM debugfs directory %ld\n",
-+			 PTR_ERR(dapm->debugfs_dapm));
- 		return;
+ 	__skip_event:
+ 		/* Update pointers and counts */
+ 		count -= len;
+ 		buf += len;
+ 		written += len;
++
++		/* let's have a coffee break if too many events are queued */
++		if (++handled >= 200) {
++			mutex_unlock(&client->ioctl_mutex);
++			goto repeat;
++		}
  	}
  
- 	d = debugfs_create_file("bias_level", 0444,
- 				dapm->debugfs_dapm, dapm,
- 				&dapm_bias_fops);
--	if (!d)
-+	if (IS_ERR(d))
- 		dev_warn(dapm->dev,
--			 "ASoC: Failed to create bias level debugfs file\n");
-+			 "ASoC: Failed to create bias level debugfs file: %ld\n",
-+			 PTR_ERR(d));
- }
- 
- static void dapm_debugfs_add_widget(struct snd_soc_dapm_widget *w)
-@@ -2150,10 +2152,10 @@ static void dapm_debugfs_add_widget(stru
- 	d = debugfs_create_file(w->name, 0444,
- 				dapm->debugfs_dapm, w,
- 				&dapm_widget_power_fops);
--	if (!d)
-+	if (IS_ERR(d))
- 		dev_warn(w->dapm->dev,
--			"ASoC: Failed to create %s debugfs file\n",
--			w->name);
-+			 "ASoC: Failed to create %s debugfs file: %ld\n",
-+			 w->name, PTR_ERR(d));
- }
- 
- static void dapm_debugfs_cleanup(struct snd_soc_dapm_context *dapm)
+  out:
 
 
