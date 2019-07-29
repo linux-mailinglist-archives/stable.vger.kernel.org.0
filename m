@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CE84797F8
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:04:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E03B797F6
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:04:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389954AbfG2TpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:45:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34340 "EHLO mail.kernel.org"
+        id S2389429AbfG2Tpi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:45:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389945AbfG2TpZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:45:25 -0400
+        id S2389684AbfG2Tpe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:45:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD9812054F;
-        Mon, 29 Jul 2019 19:45:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 103592054F;
+        Mon, 29 Jul 2019 19:45:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429524;
-        bh=uPp4tapojiNozBdE6upd4Gpo8ntR3WWdTAio4QDbu9k=;
+        s=default; t=1564429533;
+        bh=8JFWAouRfci5VnEtp4/OWU62qL5P6hS03Li64OSWmEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pFgNEDWbLLTvf3mgJimVcvk9ytHFlNkQgwbhsY2EEsE0I3xB2lj4x+QQkLmBFAU2P
-         1Mg4ObWOgeBf4XlsWG3z9H1dOWlMZ80tkCJdyQfiPQWCNutusFGQfy+L/zwGtHdkGu
-         6c7FVU96qrGLTziainCNBWO92tqojzBze0wcS4Fg=
+        b=h4DRSkQB6iRxr+bTP19zVolf7/L4TevBPdWTMdulWc4ZFHC091/sf6HGZDFCH4Fjd
+         caDpODQyGoVtcHKzoyQrpYBK5TcKgQKCrzxJDGH2ASr5se/U/XezVlQpuoeLw24iZd
+         si55W6HenwIn2BrSMNw5EPkzOUJe6Qoxurc1B1Ac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Bobroff <sbobroff@linux.ibm.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 012/215] drm/bochs: Fix connector leak during driver unload
-Date:   Mon, 29 Jul 2019 21:20:08 +0200
-Message-Id: <20190729190741.665670375@linuxfoundation.org>
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Heiko Stuebner <heiko@sntech.de>, linux-gpio@vger.kernel.org,
+        linux-rockchip@lists.infradead.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 015/215] pinctrl: rockchip: fix leaked of_node references
+Date:   Mon, 29 Jul 2019 21:20:11 +0200
+Message-Id: <20190729190742.091745059@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -44,44 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3c6b8625dde82600fd03ad1fcba223f1303ee535 ]
+[ Upstream commit 3c89c70634bb0b6f48512de873e7a45c7e1fbaa5 ]
 
-When unloading the bochs-drm driver, a warning message is printed by
-drm_mode_config_cleanup() because a reference is still held to one of
-the drm_connector structs.
+The call to of_parse_phandle returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-Correct this by calling drm_atomic_helper_shutdown() in
-bochs_pci_remove().
+Detected by coccinelle with the following warnings:
+./drivers/pinctrl/pinctrl-rockchip.c:3221:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 3196, but without a corresponding object release within this function.
+./drivers/pinctrl/pinctrl-rockchip.c:3223:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 3196, but without a corresponding object release within this function.
 
-Fixes: 6579c39594ae ("drm/bochs: atomic: switch planes to atomic, wire up helpers.")
-Signed-off-by: Sam Bobroff <sbobroff@linux.ibm.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/93b363ad62f4938d9ddf3e05b2a61e3f66b2dcd3.1558416473.git.sbobroff@linux.ibm.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Heiko Stuebner <heiko@sntech.de>
+Cc: linux-gpio@vger.kernel.org
+Cc: linux-rockchip@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bochs/bochs_drv.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pinctrl/pinctrl-rockchip.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
-index b86cc705138c..d8b945596b09 100644
---- a/drivers/gpu/drm/bochs/bochs_drv.c
-+++ b/drivers/gpu/drm/bochs/bochs_drv.c
-@@ -7,6 +7,7 @@
- #include <linux/slab.h>
- #include <drm/drm_fb_helper.h>
- #include <drm/drm_probe_helper.h>
-+#include <drm/drm_atomic_helper.h>
+diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
+index 807a3263d849..62a622159006 100644
+--- a/drivers/pinctrl/pinctrl-rockchip.c
++++ b/drivers/pinctrl/pinctrl-rockchip.c
+@@ -3204,6 +3204,7 @@ static int rockchip_get_bank_data(struct rockchip_pin_bank *bank,
+ 						    base,
+ 						    &rockchip_regmap_config);
+ 		}
++		of_node_put(node);
+ 	}
  
- #include "bochs.h"
- 
-@@ -171,6 +172,7 @@ static void bochs_pci_remove(struct pci_dev *pdev)
- {
- 	struct drm_device *dev = pci_get_drvdata(pdev);
- 
-+	drm_atomic_helper_shutdown(dev);
- 	drm_dev_unregister(dev);
- 	bochs_unload(dev);
- 	drm_dev_put(dev);
+ 	bank->irq = irq_of_parse_and_map(bank->of_node, 0);
 -- 
 2.20.1
 
