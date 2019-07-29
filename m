@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80A9679765
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:01:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3211F79841
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:06:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390623AbfG2TwH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:52:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43830 "EHLO mail.kernel.org"
+        id S2389389AbfG2UG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 16:06:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390633AbfG2TwE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:52:04 -0400
+        id S2388558AbfG2TlV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:41:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A858121849;
-        Mon, 29 Jul 2019 19:52:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06088206DD;
+        Mon, 29 Jul 2019 19:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429923;
-        bh=PNDGmWQI7cDkfKFaBd1EUA/CM2aZJfNnIxTpY9WEvi0=;
+        s=default; t=1564429281;
+        bh=VxXnJ/P807ym+51bu1JQ01WrVeUIkkjT5fp71u2lyag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BGiNhD97JLkgxiNweLPOCiZknrrBuESDzPTq+WOMai7McFsTmVkNy2ZEiJgzGRju2
-         6Wq9kzTcga05vtVz4B8BHZClsJwIdSaEdeyr/Fk+352Ioe8gROBprzipyKrdiQPFY7
-         kRtxnju8lERx97eU22jEOjqWkakYovNfEsIRiNoM=
+        b=qNUcFTDnPbfVcauKcJAm/0BZFVZr8JvExL0dT2J/1ESXpwY3sfAeJ3DK9aITaf6r3
+         HxUANz3n6sVP0/ux6c/PLsexmfWlzb0DVqEC7ORAPiN3fWEO+MTOs6oEVcMtHunvHC
+         wLsT+u25F6c2+brSnZxKyHKdFUBcEexqqihI9Awk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 139/215] block: init flush rq ref count to 1
-Date:   Mon, 29 Jul 2019 21:22:15 +0200
-Message-Id: <20190729190803.642305760@linuxfoundation.org>
+        stable@vger.kernel.org, Robert Hancock <hancock@sedsystems.ca>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 049/113] mfd: core: Set fwnode for created devices
+Date:   Mon, 29 Jul 2019 21:22:16 +0200
+Message-Id: <20190729190707.272214674@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
-References: <20190729190739.971253303@linuxfoundation.org>
+In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
+References: <20190729190655.455345569@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,44 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b554db147feea39617b533ab6bca247c91c6198a ]
+[ Upstream commit c176c6d7e932662668bcaec2d763657096589d85 ]
 
-We discovered a problem in newer kernels where a disconnect of a NBD
-device while the flush request was pending would result in a hang.  This
-is because the blk mq timeout handler does
+The logic for setting the of_node on devices created by mfd did not set
+the fwnode pointer to match, which caused fwnode-based APIs to
+malfunction on these devices since the fwnode pointer was null. Fix
+this.
 
-        if (!refcount_inc_not_zero(&rq->ref))
-                return true;
-
-to determine if it's ok to run the timeout handler for the request.
-Flush_rq's don't have a ref count set, so we'd skip running the timeout
-handler for this request and it would just sit there in limbo forever.
-
-Fix this by always setting the refcount of any request going through
-blk_init_rq() to 1.  I tested this with a nbd-server that dropped flush
-requests to verify that it hung, and then tested with this patch to
-verify I got the timeout as expected and the error handling kicked in.
-Thanks,
-
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Robert Hancock <hancock@sedsystems.ca>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-core.c | 1 +
+ drivers/mfd/mfd-core.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index 8340f69670d8..5183fca0818a 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -117,6 +117,7 @@ void blk_rq_init(struct request_queue *q, struct request *rq)
- 	rq->internal_tag = -1;
- 	rq->start_time_ns = ktime_get_ns();
- 	rq->part = NULL;
-+	refcount_set(&rq->ref, 1);
- }
- EXPORT_SYMBOL(blk_rq_init);
- 
+diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
+index 94e3f32ce935..182973df1aed 100644
+--- a/drivers/mfd/mfd-core.c
++++ b/drivers/mfd/mfd-core.c
+@@ -179,6 +179,7 @@ static int mfd_add_device(struct device *parent, int id,
+ 		for_each_child_of_node(parent->of_node, np) {
+ 			if (of_device_is_compatible(np, cell->of_compatible)) {
+ 				pdev->dev.of_node = np;
++				pdev->dev.fwnode = &np->fwnode;
+ 				break;
+ 			}
+ 		}
 -- 
 2.20.1
 
