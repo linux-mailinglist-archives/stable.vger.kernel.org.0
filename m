@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 914A77996A
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:15:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D2E5799B4
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:17:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729776AbfG2T0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:26:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38940 "EHLO mail.kernel.org"
+        id S2387693AbfG2TYn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:24:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729762AbfG2T0b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:26:31 -0400
+        id S2388179AbfG2TYi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:24:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8202217D6;
-        Mon, 29 Jul 2019 19:26:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA7D32070B;
+        Mon, 29 Jul 2019 19:24:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428390;
-        bh=8d90N1f6X6r12t1S7fD+JCOclmrbvumpbXPSk48yZ04=;
+        s=default; t=1564428278;
+        bh=CjlvBsiFhwAUEMeUHdDLO23FbcGoZf9Zz4/59VqwbkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NDZu2ReAq47GXKFi9C916JP6naKWrNp5Dj1VeZ/n71ryYqAsAHnAy8KkE1xYoHX3Y
-         liY6uTX05lqax2EjdGrtNVEG4oprw7G+PgTP0hd6Hq1xAZRpz1OREiZbHhtClZYFE4
-         YVTIgPFuUhrjo5XfLd89K9XH79jzB8m9AqIMG8OY=
+        b=pQAyZFnSDf+bTRA5a2U8Lba7wB6ufsLmW2Qa/01HXXMqBeSt5WwheISWlofRr3JSG
+         2pLgqbhSuB6cpGfhRIky5/nUcj7m5nnxZpxOjvpLVLeaOP8LMJJ1MnA2l/dAHzY+9n
+         6buj0cDPp7rdd/4Pmpki3HzAriactJj2Ur76nAu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+4f0529365f7f2208d9f0@syzkaller.appspotmail.com,
-        Jeremy Sowden <jeremy@azazel.net>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        Shailendra Verma <shailendra.v@samsung.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 022/293] af_key: fix leaks in key_pol_get_resp and dump_sp.
-Date:   Mon, 29 Jul 2019 21:18:33 +0200
-Message-Id: <20190729190822.702269515@linuxfoundation.org>
+Subject: [PATCH 4.14 026/293] media: staging: media: davinci_vpfe: - Fix for memory leak if decoder initialization fails.
+Date:   Mon, 29 Jul 2019 21:18:37 +0200
+Message-Id: <20190729190823.499575110@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -46,48 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7c80eb1c7e2b8420477fbc998971d62a648035d9 ]
+[ Upstream commit 6995a659101bd4effa41cebb067f9dc18d77520d ]
 
-In both functions, if pfkey_xfrm_policy2msg failed we leaked the newly
-allocated sk_buff.  Free it on error.
+Fix to avoid possible memory leak if the decoder initialization
+got failed.Free the allocated memory for file handle object
+before return in case decoder initialization fails.
 
-Fixes: 55569ce256ce ("Fix conversion between IPSEC_MODE_xxx and XFRM_MODE_xxx.")
-Reported-by: syzbot+4f0529365f7f2208d9f0@syzkaller.appspotmail.com
-Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Shailendra Verma <shailendra.v@samsung.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/key/af_key.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/staging/media/davinci_vpfe/vpfe_video.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/key/af_key.c b/net/key/af_key.c
-index b095551a5773..ac38b47e9f86 100644
---- a/net/key/af_key.c
-+++ b/net/key/af_key.c
-@@ -2438,8 +2438,10 @@ static int key_pol_get_resp(struct sock *sk, struct xfrm_policy *xp, const struc
- 		goto out;
+diff --git a/drivers/staging/media/davinci_vpfe/vpfe_video.c b/drivers/staging/media/davinci_vpfe/vpfe_video.c
+index 155e8c758e4b..346e60d230f3 100644
+--- a/drivers/staging/media/davinci_vpfe/vpfe_video.c
++++ b/drivers/staging/media/davinci_vpfe/vpfe_video.c
+@@ -422,6 +422,9 @@ static int vpfe_open(struct file *file)
+ 	/* If decoder is not initialized. initialize it */
+ 	if (!video->initialized && vpfe_update_pipe_state(video)) {
+ 		mutex_unlock(&video->lock);
++		v4l2_fh_del(&handle->vfh);
++		v4l2_fh_exit(&handle->vfh);
++		kfree(handle);
+ 		return -ENODEV;
  	}
- 	err = pfkey_xfrm_policy2msg(out_skb, xp, dir);
--	if (err < 0)
-+	if (err < 0) {
-+		kfree_skb(out_skb);
- 		goto out;
-+	}
- 
- 	out_hdr = (struct sadb_msg *) out_skb->data;
- 	out_hdr->sadb_msg_version = hdr->sadb_msg_version;
-@@ -2690,8 +2692,10 @@ static int dump_sp(struct xfrm_policy *xp, int dir, int count, void *ptr)
- 		return PTR_ERR(out_skb);
- 
- 	err = pfkey_xfrm_policy2msg(out_skb, xp, dir);
--	if (err < 0)
-+	if (err < 0) {
-+		kfree_skb(out_skb);
- 		return err;
-+	}
- 
- 	out_hdr = (struct sadb_msg *) out_skb->data;
- 	out_hdr->sadb_msg_version = pfk->dump.msg_version;
+ 	/* Increment device users counter */
 -- 
 2.20.1
 
