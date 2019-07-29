@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93B62795F4
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:48:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99C6B795FB
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:48:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389728AbfG2TrR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:47:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36924 "EHLO mail.kernel.org"
+        id S2390349AbfG2Tr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:47:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390301AbfG2TrQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:47:16 -0400
+        id S2390347AbfG2Tr3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:47:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 154F520C01;
-        Mon, 29 Jul 2019 19:47:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC10621655;
+        Mon, 29 Jul 2019 19:47:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429635;
-        bh=U1MrTmgOBlQV6ONvXs/aoEgHVNbQwAm6RBeHlkKYph0=;
+        s=default; t=1564429648;
+        bh=DP5SadGgwHMgpsRuelU8uLN3MrrOAUm48aM4mEa5+O4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OENqb9+rGPmS/3nHkFH67dJvqUnkQHgC0qVGmzQwLk9qSvoplstHrGU9cXgRZDCfY
-         iAcSzhEpck28qx4NrLVO6IfQvw/f2og6UnyjeMZGFmXMW8ULPj3nPhar8VRl4XyE4i
-         2CnPTRie2/0+MJt1BDDsw6KG13fXwyQkKOEVS+Dw=
+        b=1h/Y4o0kOGKShhh6wbXFMSj2t4X6u/tmUV0zyywo2R5AOsz25e47yqzaFeU5omTPs
+         zNZJjtOi+WCL/bFce92hmJYBB2zFsnHoqwEdFRiVHkAizG1Zpp6d61aj63lBFI5BFi
+         Y2VyWWTcLXXqMaqoZZn7oNezs4axsl/OUvk3kX+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Philip Yang <Philip.Yang@amd.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Baruch Siach <baruch@tkos.co.il>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 047/215] mm/hmm: fix use after free with struct hmm in the mmu notifiers
-Date:   Mon, 29 Jul 2019 21:20:43 +0200
-Message-Id: <20190729190748.653021982@linuxfoundation.org>
+Subject: [PATCH 5.2 050/215] tty/serial: digicolor: Fix digicolor-usart already registered warning
+Date:   Mon, 29 Jul 2019 21:20:46 +0200
+Message-Id: <20190729190749.174832314@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -48,129 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6d7c3cde93c1d9ac0b37f78ec3f2ff052159a242 ]
+[ Upstream commit c7ad9ba0611c53cfe194223db02e3bca015f0674 ]
 
-mmu_notifier_unregister_no_release() is not a fence and the mmu_notifier
-system will continue to reference hmm->mn until the srcu grace period
-expires.
+When modprobe/rmmod/modprobe module, if platform_driver_register() fails,
+the kernel complained,
 
-Resulting in use after free races like this:
+  proc_dir_entry 'driver/digicolor-usart' already registered
+  WARNING: CPU: 1 PID: 5636 at fs/proc/generic.c:360 proc_register+0x19d/0x270
 
-         CPU0                                     CPU1
-                                               __mmu_notifier_invalidate_range_start()
-                                                 srcu_read_lock
-                                                 hlist_for_each ()
-                                                   // mn == hmm->mn
-hmm_mirror_unregister()
-  hmm_put()
-    hmm_free()
-      mmu_notifier_unregister_no_release()
-         hlist_del_init_rcu(hmm-mn->list)
-			                           mn->ops->invalidate_range_start(mn, range);
-					             mm_get_hmm()
-      mm->hmm = NULL;
-      kfree(hmm)
-                                                     mutex_lock(&hmm->lock);
+Fix this by adding uart_unregister_driver() when platform_driver_register() fails.
 
-Use SRCU to kfree the hmm memory so that the notifiers can rely on hmm
-existing. Get the now-safe hmm struct through container_of and directly
-check kref_get_unless_zero to lock it against free.
-
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Reviewed-by: Ralph Campbell <rcampbell@nvidia.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Tested-by: Philip Yang <Philip.Yang@amd.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Acked-by: Baruch Siach <baruch@tkos.co.il>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/hmm.h |  1 +
- mm/hmm.c            | 23 +++++++++++++++++------
- 2 files changed, 18 insertions(+), 6 deletions(-)
+ drivers/tty/serial/digicolor-usart.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/hmm.h b/include/linux/hmm.h
-index 044a36d7c3f8..89508dc0795f 100644
---- a/include/linux/hmm.h
-+++ b/include/linux/hmm.h
-@@ -93,6 +93,7 @@ struct hmm {
- 	struct mmu_notifier	mmu_notifier;
- 	struct rw_semaphore	mirrors_sem;
- 	wait_queue_head_t	wq;
-+	struct rcu_head		rcu;
- 	long			notifiers;
- 	bool			dead;
- };
-diff --git a/mm/hmm.c b/mm/hmm.c
-index f702a3895d05..4c405dfbd2b3 100644
---- a/mm/hmm.c
-+++ b/mm/hmm.c
-@@ -104,6 +104,11 @@ static struct hmm *hmm_get_or_create(struct mm_struct *mm)
- 	return NULL;
- }
+diff --git a/drivers/tty/serial/digicolor-usart.c b/drivers/tty/serial/digicolor-usart.c
+index f460cca139e2..13ac36e2da4f 100644
+--- a/drivers/tty/serial/digicolor-usart.c
++++ b/drivers/tty/serial/digicolor-usart.c
+@@ -541,7 +541,11 @@ static int __init digicolor_uart_init(void)
+ 	if (ret)
+ 		return ret;
  
-+static void hmm_free_rcu(struct rcu_head *rcu)
-+{
-+	kfree(container_of(rcu, struct hmm, rcu));
-+}
+-	return platform_driver_register(&digicolor_uart_platform);
++	ret = platform_driver_register(&digicolor_uart_platform);
++	if (ret)
++		uart_unregister_driver(&digicolor_uart);
 +
- static void hmm_free(struct kref *kref)
- {
- 	struct hmm *hmm = container_of(kref, struct hmm, kref);
-@@ -116,7 +121,7 @@ static void hmm_free(struct kref *kref)
- 		mm->hmm = NULL;
- 	spin_unlock(&mm->page_table_lock);
- 
--	kfree(hmm);
-+	mmu_notifier_call_srcu(&hmm->rcu, hmm_free_rcu);
++	return ret;
  }
+ module_init(digicolor_uart_init);
  
- static inline void hmm_put(struct hmm *hmm)
-@@ -144,10 +149,14 @@ void hmm_mm_destroy(struct mm_struct *mm)
- 
- static void hmm_release(struct mmu_notifier *mn, struct mm_struct *mm)
- {
--	struct hmm *hmm = mm_get_hmm(mm);
-+	struct hmm *hmm = container_of(mn, struct hmm, mmu_notifier);
- 	struct hmm_mirror *mirror;
- 	struct hmm_range *range;
- 
-+	/* Bail out if hmm is in the process of being freed */
-+	if (!kref_get_unless_zero(&hmm->kref))
-+		return;
-+
- 	/* Report this HMM as dying. */
- 	hmm->dead = true;
- 
-@@ -185,13 +194,14 @@ static void hmm_release(struct mmu_notifier *mn, struct mm_struct *mm)
- static int hmm_invalidate_range_start(struct mmu_notifier *mn,
- 			const struct mmu_notifier_range *nrange)
- {
--	struct hmm *hmm = mm_get_hmm(nrange->mm);
-+	struct hmm *hmm = container_of(mn, struct hmm, mmu_notifier);
- 	struct hmm_mirror *mirror;
- 	struct hmm_update update;
- 	struct hmm_range *range;
- 	int ret = 0;
- 
--	VM_BUG_ON(!hmm);
-+	if (!kref_get_unless_zero(&hmm->kref))
-+		return 0;
- 
- 	update.start = nrange->start;
- 	update.end = nrange->end;
-@@ -239,9 +249,10 @@ static int hmm_invalidate_range_start(struct mmu_notifier *mn,
- static void hmm_invalidate_range_end(struct mmu_notifier *mn,
- 			const struct mmu_notifier_range *nrange)
- {
--	struct hmm *hmm = mm_get_hmm(nrange->mm);
-+	struct hmm *hmm = container_of(mn, struct hmm, mmu_notifier);
- 
--	VM_BUG_ON(!hmm);
-+	if (!kref_get_unless_zero(&hmm->kref))
-+		return;
- 
- 	mutex_lock(&hmm->lock);
- 	hmm->notifiers--;
 -- 
 2.20.1
 
