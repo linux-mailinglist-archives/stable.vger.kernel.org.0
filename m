@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A47B479795
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:01:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63FB47984A
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:07:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391111AbfG2UBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 16:01:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43108 "EHLO mail.kernel.org"
+        id S2389239AbfG2TlB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:41:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390800AbfG2Tvg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:51:36 -0400
+        id S2389237AbfG2TlA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:41:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C88E204EC;
-        Mon, 29 Jul 2019 19:51:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90EBC217D7;
+        Mon, 29 Jul 2019 19:40:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429896;
-        bh=fQxvfeb8Oau7nGkThdwi/x3SxOWcDMjxQ9XNvSRw1Rw=;
+        s=default; t=1564429259;
+        bh=WNI63ClIKFam02JLlz0hE4qcHBWjAksWtoewTpu32O0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=znLvocsgLa9YSqIBZTMG5DIwbdEQu2vO7gOaMz+iJnqak2jh3qNxfOfHGjlEutkkW
-         pgPHPbAQp435CD8rtpfRawQfzKtP9AbDCLqykotzOuLnnFsN7CTPGRW79//28N1Gsl
-         xlnxbGUfEBnlqCpRkLos9VKrvll72odLbvWj2aJ4=
+        b=FTxiNHvbjVOeBNnx8Oyzhu5/Iqe8jAyhs0HpPTLWYYm6p2ML/NfmGyj6pFlSipII9
+         CeDI4QCEEcAj/4Hz3XLw/BpGrqQm4MUwvj5h6tnCuOSE7gHjXz8sLO7GRWP20TEkjD
+         nt7zXDNL2jsZuQPwk3KyYy1HqqMzSlb5uiaw9SBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dag Moxnes <dag.moxnes@oracle.com>,
-        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Will Deacon <will.deacon@arm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 131/215] RDMA/core: Fix race when resolving IP address
-Date:   Mon, 29 Jul 2019 21:22:07 +0200
-Message-Id: <20190729190802.158910889@linuxfoundation.org>
+Subject: [PATCH 4.19 042/113] genksyms: Teach parser about 128-bit built-in types
+Date:   Mon, 29 Jul 2019 21:22:09 +0200
+Message-Id: <20190729190705.751204828@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
-References: <20190729190739.971253303@linuxfoundation.org>
+In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
+References: <20190729190655.455345569@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d8d9ec7dc5abbb3f11d866e983c4984f5c2de9d6 ]
+[ Upstream commit a222061b85234d8a44486a46bd4df7e2cda52385 ]
 
-Use the neighbour lock when copying the MAC address from the neighbour
-data struct in dst_fetch_ha.
+__uint128_t crops up in a few files that export symbols to modules, so
+teach genksyms about it and the other GCC built-in 128-bit integer types
+so that we don't end up skipping the CRC generation for some symbols due
+to the parser failing to spot them:
 
-When not using the lock, it is possible for the function to race with
-neigh_update(), causing it to copy an torn MAC address:
+  | WARNING: EXPORT symbol "kernel_neon_begin" [vmlinux] version
+  |          generation failed, symbol will not be versioned.
+  | ld: arch/arm64/kernel/fpsimd.o: relocation R_AARCH64_ABS32 against
+  |     `__crc_kernel_neon_begin' can not be used when making a shared
+  |     object
+  | ld: arch/arm64/kernel/fpsimd.o:(.data+0x0): dangerous relocation:
+  |     unsupported relocation
 
-rdma_resolve_addr()
-  rdma_resolve_ip()
-    addr_resolve()
-      addr_resolve_neigh()
-        fetch_ha()
-          dst_fetch_ha()
-	     memcpy(dev_addr->dst_dev_addr, n->ha, MAX_ADDR_LEN)
-
-and
-
-net_ioctl()
-  arp_ioctl()
-    arp_rec_delete()
-      arp_invalidate()
-        neigh_update()
-          __neigh_update()
-	    memcpy(&neigh->ha, lladdr, dev->addr_len)
-
-It is possible to provoke this error by calling rdma_resolve_addr() in a
-tight loop, while deleting the corresponding ARP entry in another tight
-loop.
-
-Fixes: 51d45974515c ("infiniband: addr: Consolidate code to fetch neighbour hardware address from dst.")
-Signed-off-by: Dag Moxnes <dag.moxnes@oracle.com>
-Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/addr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/genksyms/keywords.c | 4 ++++
+ scripts/genksyms/parse.y    | 2 ++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/infiniband/core/addr.c b/drivers/infiniband/core/addr.c
-index 2f7d14159841..9b76a8fcdd24 100644
---- a/drivers/infiniband/core/addr.c
-+++ b/drivers/infiniband/core/addr.c
-@@ -337,7 +337,7 @@ static int dst_fetch_ha(const struct dst_entry *dst,
- 		neigh_event_send(n, NULL);
- 		ret = -ENODATA;
- 	} else {
--		memcpy(dev_addr->dst_dev_addr, n->ha, MAX_ADDR_LEN);
-+		neigh_ha_snapshot(dev_addr->dst_dev_addr, n, dst->dev);
- 	}
+diff --git a/scripts/genksyms/keywords.c b/scripts/genksyms/keywords.c
+index 9f40bcd17d07..f6956aa41366 100644
+--- a/scripts/genksyms/keywords.c
++++ b/scripts/genksyms/keywords.c
+@@ -24,6 +24,10 @@ static struct resword {
+ 	{ "__volatile__", VOLATILE_KEYW },
+ 	{ "__builtin_va_list", VA_LIST_KEYW },
  
- 	neigh_release(n);
++	{ "__int128", BUILTIN_INT_KEYW },
++	{ "__int128_t", BUILTIN_INT_KEYW },
++	{ "__uint128_t", BUILTIN_INT_KEYW },
++
+ 	// According to rth, c99 defines "_Bool", __restrict", __restrict__", "restrict".  KAO
+ 	{ "_Bool", BOOL_KEYW },
+ 	{ "_restrict", RESTRICT_KEYW },
+diff --git a/scripts/genksyms/parse.y b/scripts/genksyms/parse.y
+index 00a6d7e54971..1ebcf52cd0f9 100644
+--- a/scripts/genksyms/parse.y
++++ b/scripts/genksyms/parse.y
+@@ -76,6 +76,7 @@ static void record_compound(struct string_list **keyw,
+ %token ATTRIBUTE_KEYW
+ %token AUTO_KEYW
+ %token BOOL_KEYW
++%token BUILTIN_INT_KEYW
+ %token CHAR_KEYW
+ %token CONST_KEYW
+ %token DOUBLE_KEYW
+@@ -263,6 +264,7 @@ simple_type_specifier:
+ 	| VOID_KEYW
+ 	| BOOL_KEYW
+ 	| VA_LIST_KEYW
++	| BUILTIN_INT_KEYW
+ 	| TYPE			{ (*$1)->tag = SYM_TYPEDEF; $$ = $1; }
+ 	;
+ 
 -- 
 2.20.1
 
