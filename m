@@ -2,91 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FA7B7880C
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 11:10:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7335778833
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 11:20:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726678AbfG2JK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 05:10:27 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:44359 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726526AbfG2JK0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 05:10:26 -0400
-Received: by mail-wr1-f66.google.com with SMTP id p17so60924823wrf.11
-        for <stable@vger.kernel.org>; Mon, 29 Jul 2019 02:10:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:openpgp:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=zV+bTIgChlMbStRhEz4HmI17F1bLOP/P0h9cutKjnuk=;
-        b=UQEoBowvyMFW7bhfEm544cOVO02eC61JVv8fgdjpNm1uIFlzfrRWJkWgVogcbu7qld
-         NMElVomLa173Ig1jF/dBgTmOEj+a/vWhG0MznsIwizzQCuxQXyqV6YYfhXZqzwfCCqPE
-         Bh1l7kXO8rDMe8G7w0Up0d8FvDVdS4zTJJeSORw3GEYjmztbJgmb+9rMdIrN/szFwFCu
-         m6YVlgI8eAjd3DNbxnCR57Ub0jq5ftud/3Uv27dEal3Qv2Th5VBiW9EaMpSKFAFpKbA6
-         W1EbzWxdbT65bWwGb6f+h3eLOexdJKlqyEeSOF4tbZdsAGh0K9np+bvTrHoG8I3zSPlN
-         ZM2g==
-X-Gm-Message-State: APjAAAUMACMMhDGrGeFzn/FGDZNIYmp0IHkkpAfDqvi0dPhoo/8V7UsX
-        0ZABMjsW+RLwMQOMOil/GOypXvBBOMQ=
-X-Google-Smtp-Source: APXvYqwu+iJxG0Nnx1LAgpMTW4dJUcSifVyQWlGLBgiZPy7xi6UkywxpJxOjNTGIQL6gbv5Vi6t8kA==
-X-Received: by 2002:a5d:4e8a:: with SMTP id e10mr38159080wru.26.1564391424671;
-        Mon, 29 Jul 2019 02:10:24 -0700 (PDT)
-Received: from [192.168.10.150] ([93.56.166.5])
-        by smtp.gmail.com with ESMTPSA id e6sm57983191wrw.23.2019.07.29.02.10.23
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Mon, 29 Jul 2019 02:10:23 -0700 (PDT)
-Subject: Re: [PATCH stable-4.19 1/2] KVM: nVMX: do not use dangling shadow
- VMCS after guest reset
-To:     Jack Wang <jack.wang.usish@gmail.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc:     stable@vger.kernel.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>
-References: <20190725104645.30642-1-vkuznets@redhat.com>
- <20190725104645.30642-2-vkuznets@redhat.com>
- <CA+res+RfqpT=g1QbCqr3OkHVzFFSAt3cfCYNcwqiemWmOifFxg@mail.gmail.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Openpgp: preference=signencrypt
-Message-ID: <2ea5d588-8573-6653-b848-0b06d1f98310@redhat.com>
-Date:   Mon, 29 Jul 2019 11:10:26 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
-MIME-Version: 1.0
-In-Reply-To: <CA+res+RfqpT=g1QbCqr3OkHVzFFSAt3cfCYNcwqiemWmOifFxg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+        id S1727845AbfG2JU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 05:20:27 -0400
+Received: from condef-04.nifty.com ([202.248.20.69]:39064 "EHLO
+        condef-04.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726496AbfG2JU0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 05:20:26 -0400
+Received: from conuserg-10.nifty.com ([10.126.8.73])by condef-04.nifty.com with ESMTP id x6T9GUUA007533
+        for <stable@vger.kernel.org>; Mon, 29 Jul 2019 18:16:30 +0900
+Received: from localhost.localdomain (p14092-ipngnfx01kyoto.kyoto.ocn.ne.jp [153.142.97.92]) (authenticated)
+        by conuserg-10.nifty.com with ESMTP id x6T9FQFU007006;
+        Mon, 29 Jul 2019 18:15:26 +0900
+DKIM-Filter: OpenDKIM Filter v2.10.3 conuserg-10.nifty.com x6T9FQFU007006
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+        s=dec2015msa; t=1564391727;
+        bh=16VOGPWZt50QIHw/yZwbKWLNAnF5eIhm7sbfTUqTMxA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=u/TOvPqsajpOhFpabeQCcu9qwyoIyMmujb5rMmt9gB0Wd+b+HQleb4MRmthDq5rGL
+         9MJfl3XWc796KP5LciGQTI0lDcDnuMBMCX0hsvK0G33oq5rGnxkOD7DAHhd9cWviI9
+         R9otBuj5iDdjHfKzzE/Ll53q0VQ01ujIpNhDDyiJWbd8s8go7BT3YWNKG4LITpsIJG
+         /y0WY7HleQol3+W8Zu8r85nJofkrjLEvbnTcF/AOyQj/4A+vRYHv+vkT/Xgql+b/ky
+         HfQSevJduCNBLGpsqSuKkt9pUACuU3kTG5QH9i1CZUjx3DuXo7onZNdSRE6GVSfoYT
+         zmkzFARkmZQkQ==
+X-Nifty-SrcIP: [153.142.97.92]
+From:   Masahiro Yamada <yamada.masahiro@socionext.com>
+To:     linux-kbuild@vger.kernel.org
+Cc:     Stephen Boyd <swboyd@chromium.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        stable@vger.kernel.org, Michal Marek <michal.lkml@markovi.net>,
+        clang-built-linux@googlegroups.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] kbuild: initialize CLANG_FLAGS correctly in the top Makefile
+Date:   Mon, 29 Jul 2019 18:15:17 +0900
+Message-Id: <20190729091517.5334-1-yamada.masahiro@socionext.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 29/07/19 10:58, Jack Wang wrote:
-> Vitaly Kuznetsov <vkuznets@redhat.com> 于2019年7月25日周四 下午3:29写道：
->>
->> From: Paolo Bonzini <pbonzini@redhat.com>
->>
->> [ Upstream commit 88dddc11a8d6b09201b4db9d255b3394d9bc9e57 ]
->>
->> If a KVM guest is reset while running a nested guest, free_nested will
->> disable the shadow VMCS execution control in the vmcs01.  However,
->> on the next KVM_RUN vmx_vcpu_run would nevertheless try to sync
->> the VMCS12 to the shadow VMCS which has since been freed.
->>
->> This causes a vmptrld of a NULL pointer on my machime, but Jan reports
->> the host to hang altogether.  Let's see how much this trivial patch fixes.
->>
->> Reported-by: Jan Kiszka <jan.kiszka@siemens.com>
->> Cc: Liran Alon <liran.alon@oracle.com>
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> 
-> Hi all,
-> 
-> Do we need to backport the fix also to stable 4.14?  It applies
-> cleanly and compiles fine.
+CLANG_FLAGS is initialized by the following line:
 
-The reproducer required newer kernels that support KVM_GET_NESTED_STATE
-and KVM_SET_NESTED_STATE, so it would be hard to test it.  However, the
-patch itself should be safe.
+  CLANG_FLAGS     := --target=$(notdir $(CROSS_COMPILE:%-=%))
 
-Paolo
+..., which is run only when CROSS_COMPILE is set.
+
+Some build targets (bindeb-pkg etc.) recurse to the top Makefile.
+
+When you build the kernel with Clang but without CROSS_COMPILE,
+the same compiler flags such as -no-integrated-as are accumulated
+into CLANG_FLAGS.
+
+If you run 'make CC=clang' and then 'make CC=clang bindeb-pkg',
+Kbuild will recompile everything needlessly due to the build command
+change.
+
+Fix this by correctly initializing CLANG_FLAGS.
+
+Fixes: 238bcbc4e07f ("kbuild: consolidate Clang compiler flags")
+Cc: <stable@vger.kernel.org> # v4.20+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+---
+
+ Makefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index fa0fbe7851ea..5ee6f6889869 100644
+--- a/Makefile
++++ b/Makefile
+@@ -472,6 +472,7 @@ KBUILD_CFLAGS_MODULE  := -DMODULE
+ KBUILD_LDFLAGS_MODULE := -T $(srctree)/scripts/module-common.lds
+ KBUILD_LDFLAGS :=
+ GCC_PLUGINS_CFLAGS :=
++CLANG_FLAGS :=
+ 
+ export ARCH SRCARCH CONFIG_SHELL HOSTCC KBUILD_HOSTCFLAGS CROSS_COMPILE AS LD CC
+ export CPP AR NM STRIP OBJCOPY OBJDUMP PAHOLE KBUILD_HOSTLDFLAGS KBUILD_HOSTLDLIBS
+@@ -519,7 +520,7 @@ endif
+ 
+ ifneq ($(shell $(CC) --version 2>&1 | head -n 1 | grep clang),)
+ ifneq ($(CROSS_COMPILE),)
+-CLANG_FLAGS	:= --target=$(notdir $(CROSS_COMPILE:%-=%))
++CLANG_FLAGS	+= --target=$(notdir $(CROSS_COMPILE:%-=%))
+ GCC_TOOLCHAIN_DIR := $(dir $(shell which $(CROSS_COMPILE)elfedit))
+ CLANG_FLAGS	+= --prefix=$(GCC_TOOLCHAIN_DIR)
+ GCC_TOOLCHAIN	:= $(realpath $(GCC_TOOLCHAIN_DIR)/..)
+-- 
+2.17.1
+
