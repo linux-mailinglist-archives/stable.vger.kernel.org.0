@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3229179732
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:59:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6FD579727
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:58:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390072AbfG2TxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:53:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45432 "EHLO mail.kernel.org"
+        id S2390920AbfG2Txt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:53:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403978AbfG2TxP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:53:15 -0400
+        id S2390915AbfG2Txs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:53:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1617221655;
-        Mon, 29 Jul 2019 19:53:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 114702171F;
+        Mon, 29 Jul 2019 19:53:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429994;
-        bh=xB2H3tfFN4AhLC7vXs7vXxb6XWm8rStXOPLz45k1tQQ=;
+        s=default; t=1564430028;
+        bh=4DZFibPYCuNcp0FO2IO2qNHEk2svupAztvwR1Xf2t7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1FOxChOken1tTEXu4CLDueTIJMxgl9EDIOK70CvRTwUvFbqd1Wp4Dw9iveITW43Em
-         RmyJ6/mmn7UC/ALRHXq4KwOITqQwlRu/077s99+RAIJ6qwa/EcMwnoMbDyeW6cfLN6
-         fp7P9uJl2VVUpKUTT0LkoYUFTelyFZyH7r/qe2QY=
+        b=S/GDSAMwvO6Ez0XWhizTmPRYy7uki1OBv0LT6n3bQzIcZGsl+9GsgAFLTvM2lv7t+
+         8Wo4nNEfiDKBxO8Y/lBX0t+0+Nt4jwamu89xGEH75DdWbjOPDZCXawbVRz8Oiatb0X
+         urTQ5h9h5UOnBsazhOLrIOypK7Gee0h9CVihYQN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
-        Roman Gushchin <guro@fb.com>, Jan Kara <jack@suse.cz>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        stable@vger.kernel.org,
+        Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
         Michal Hocko <mhocko@suse.com>,
-        Amir Goldstein <amir73il@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 155/215] memcg, fsnotify: no oom-kill for remote memcg charging
-Date:   Mon, 29 Jul 2019 21:22:31 +0200
-Message-Id: <20190729190806.652021662@linuxfoundation.org>
+Subject: [PATCH 5.2 156/215] mm/mmu_notifier: use hlist_add_head_rcu()
+Date:   Mon, 29 Jul 2019 21:22:32 +0200
+Message-Id: <20190729190806.816560456@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -50,75 +48,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ec165450968b26298bd1c373de37b0ab6d826b33 ]
+[ Upstream commit 543bdb2d825fe2400d6e951f1786d92139a16931 ]
 
-Commit d46eb14b735b ("fs: fsnotify: account fsnotify metadata to
-kmemcg") added remote memcg charging for fanotify and inotify event
-objects.  The aim was to charge the memory to the listener who is
-interested in the events but without triggering the OOM killer.
-Otherwise there would be security concerns for the listener.
+Make mmu_notifier_register() safer by issuing a memory barrier before
+registering a new notifier.  This fixes a theoretical bug on weakly
+ordered CPUs.  For example, take this simplified use of notifiers by a
+driver:
 
-At the time, oom-kill trigger was not in the charging path.  A parallel
-work added the oom-kill back to charging path i.e.  commit 29ef680ae7c2
-("memcg, oom: move out_of_memory back to the charge path").  So to not
-trigger oom-killer in the remote memcg, explicitly add
-__GFP_RETRY_MAYFAIL to the fanotigy and inotify event allocations.
+	my_struct->mn.ops = &my_ops; /* (1) */
+	mmu_notifier_register(&my_struct->mn, mm)
+		...
+		hlist_add_head(&mn->hlist, &mm->mmu_notifiers); /* (2) */
+		...
 
-Link: http://lkml.kernel.org/r/20190514212259.156585-2-shakeelb@google.com
-Signed-off-by: Shakeel Butt <shakeelb@google.com>
-Reviewed-by: Roman Gushchin <guro@fb.com>
-Acked-by: Jan Kara <jack@suse.cz>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Once mmu_notifier_register() releases the mm locks, another thread can
+invalidate a range:
+
+	mmu_notifier_invalidate_range()
+		...
+		hlist_for_each_entry_rcu(mn, &mm->mmu_notifiers, hlist) {
+			if (mn->ops->invalidate_range)
+
+The read side relies on the data dependency between mn and ops to ensure
+that the pointer is properly initialized.  But the write side doesn't have
+any dependency between (1) and (2), so they could be reordered and the
+readers could dereference an invalid mn->ops.  mmu_notifier_register()
+does take all the mm locks before adding to the hlist, but those have
+acquire semantics which isn't sufficient.
+
+By calling hlist_add_head_rcu() instead of hlist_add_head() we update the
+hlist using a store-release, ensuring that readers see prior
+initialization of my_struct.  This situation is better illustated by
+litmus test MP+onceassign+derefonce.
+
+Link: http://lkml.kernel.org/r/20190502133532.24981-1-jean-philippe.brucker@arm.com
+Fixes: cddb8a5c14aa ("mmu-notifiers: core")
+Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Cc: Jérôme Glisse <jglisse@redhat.com>
 Cc: Michal Hocko <mhocko@suse.com>
-Cc: Amir Goldstein <amir73il@gmail.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/notify/fanotify/fanotify.c        | 5 ++++-
- fs/notify/inotify/inotify_fsnotify.c | 8 ++++++--
- 2 files changed, 10 insertions(+), 3 deletions(-)
+ mm/mmu_notifier.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/notify/fanotify/fanotify.c b/fs/notify/fanotify/fanotify.c
-index b428c295d13f..5778d1347b35 100644
---- a/fs/notify/fanotify/fanotify.c
-+++ b/fs/notify/fanotify/fanotify.c
-@@ -288,10 +288,13 @@ struct fanotify_event *fanotify_alloc_event(struct fsnotify_group *group,
- 	/*
- 	 * For queues with unlimited length lost events are not expected and
- 	 * can possibly have security implications. Avoid losing events when
--	 * memory is short.
-+	 * memory is short. For the limited size queues, avoid OOM killer in the
-+	 * target monitoring memcg as it may have security repercussion.
+diff --git a/mm/mmu_notifier.c b/mm/mmu_notifier.c
+index 513b9607409d..b5670620aea0 100644
+--- a/mm/mmu_notifier.c
++++ b/mm/mmu_notifier.c
+@@ -274,7 +274,7 @@ static int do_mmu_notifier_register(struct mmu_notifier *mn,
+ 	 * thanks to mm_take_all_locks().
  	 */
- 	if (group->max_events == UINT_MAX)
- 		gfp |= __GFP_NOFAIL;
-+	else
-+		gfp |= __GFP_RETRY_MAYFAIL;
+ 	spin_lock(&mm->mmu_notifier_mm->lock);
+-	hlist_add_head(&mn->hlist, &mm->mmu_notifier_mm->list);
++	hlist_add_head_rcu(&mn->hlist, &mm->mmu_notifier_mm->list);
+ 	spin_unlock(&mm->mmu_notifier_mm->lock);
  
- 	/* Whoever is interested in the event, pays for the allocation. */
- 	memalloc_use_memcg(group->memcg);
-diff --git a/fs/notify/inotify/inotify_fsnotify.c b/fs/notify/inotify/inotify_fsnotify.c
-index 2fda08b2b885..d510223d302c 100644
---- a/fs/notify/inotify/inotify_fsnotify.c
-+++ b/fs/notify/inotify/inotify_fsnotify.c
-@@ -90,9 +90,13 @@ int inotify_handle_event(struct fsnotify_group *group,
- 	i_mark = container_of(inode_mark, struct inotify_inode_mark,
- 			      fsn_mark);
- 
--	/* Whoever is interested in the event, pays for the allocation. */
-+	/*
-+	 * Whoever is interested in the event, pays for the allocation. Do not
-+	 * trigger OOM killer in the target monitoring memcg as it may have
-+	 * security repercussion.
-+	 */
- 	memalloc_use_memcg(group->memcg);
--	event = kmalloc(alloc_len, GFP_KERNEL_ACCOUNT);
-+	event = kmalloc(alloc_len, GFP_KERNEL_ACCOUNT | __GFP_RETRY_MAYFAIL);
- 	memalloc_unuse_memcg();
- 
- 	if (unlikely(!event)) {
+ 	mm_drop_all_locks(mm);
 -- 
 2.20.1
 
