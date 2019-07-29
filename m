@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E38B79824
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:06:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5554379865
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:07:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389890AbfG2TpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:45:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33730 "EHLO mail.kernel.org"
+        id S2388947AbfG2TjK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:39:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389827AbfG2TpC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:45:02 -0400
+        id S2388660AbfG2TjJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:39:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0890220C01;
-        Mon, 29 Jul 2019 19:45:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58E0320C01;
+        Mon, 29 Jul 2019 19:39:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429501;
-        bh=pHc7wbZC2CQyPwbypAX1PB3PGUIUAQS/3zqsA9hgQkg=;
+        s=default; t=1564429148;
+        bh=5mzxjAS4pS7jkVa0En5RhnwJAGCwyMt7ZuowPMiUu0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xYoYaEXc/ySqtsvWWTmJJ4sZ0zb2bdynSeIQQYNw+WzVfHJa2BNnbAMtKnrxJuBGd
-         Q4rmIlEfS5BvQis6BjB4wwzQWIAK5iOMlTGHXwZibRemtnMqMvilTvJcd9/r1l0x93
-         8yIMb+WoE2To8kDJCBw0Q5e0r1RfJoWDpz5mt+Y4=
+        b=DVpofo8w72ykROevhy5FrzLSqSgBn1v2Ni680c4RUBsYp4kzxl59P57SQX7a13TcM
+         J7LnTu+0NgPcvqSB5/Sk0noNIZn89EHmACaQtCIVnZ/8BWoeDudhYJwiL1f8EHSnEN
+         w9EeqOLe/seqpYIauw+X9zCpypsQgTNPWR7/sBIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Windsor <dwindsor@redhat.com>,
-        David Teigland <teigland@redhat.com>,
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Yuyang Du <duyuyang@gmail.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will.deacon@arm.com>, arnd@arndb.de,
+        frederic@kernel.org, Ingo Molnar <mingo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 079/113] dlm: check if workqueues are NULL before flushing/destroying
-Date:   Mon, 29 Jul 2019 21:22:46 +0200
-Message-Id: <20190729190714.519242769@linuxfoundation.org>
+Subject: [PATCH 4.14 276/293] locking/lockdep: Fix lock used or unused stats error
+Date:   Mon, 29 Jul 2019 21:22:47 +0200
+Message-Id: <20190729190845.451271035@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
-References: <20190729190655.455345569@linuxfoundation.org>
+In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
+References: <20190729190820.321094988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +51,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b355516f450703c9015316e429b66a93dfff0e6f ]
+[ Upstream commit 68d41d8c94a31dfb8233ab90b9baf41a2ed2da68 ]
 
-If the DLM lowcomms stack is shut down before any DLM
-traffic can be generated, flush_workqueue() and
-destroy_workqueue() can be called on empty send and/or recv
-workqueues.
+The stats variable nr_unused_locks is incremented every time a new lock
+class is register and decremented when the lock is first used in
+__lock_acquire(). And after all, it is shown and checked in lockdep_stats.
 
-Insert guard conditionals to only call flush_workqueue()
-and destroy_workqueue() on workqueues that are not NULL.
+However, under configurations that either CONFIG_TRACE_IRQFLAGS or
+CONFIG_PROVE_LOCKING is not defined:
 
-Signed-off-by: David Windsor <dwindsor@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+The commit:
+
+  091806515124b20 ("locking/lockdep: Consolidate lock usage bit initialization")
+
+missed marking the LOCK_USED flag at IRQ usage initialization because
+as mark_usage() is not called. And the commit:
+
+  886532aee3cd42d ("locking/lockdep: Move mark_lock() inside CONFIG_TRACE_IRQFLAGS && CONFIG_PROVE_LOCKING")
+
+further made mark_lock() not defined such that the LOCK_USED cannot be
+marked at all when the lock is first acquired.
+
+As a result, we fix this by not showing and checking the stats under such
+configurations for lockdep_stats.
+
+Reported-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Yuyang Du <duyuyang@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: arnd@arndb.de
+Cc: frederic@kernel.org
+Link: https://lkml.kernel.org/r/20190709101522.9117-1-duyuyang@gmail.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/lowcomms.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ kernel/locking/lockdep_proc.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
-index a5e4a221435c..a93ebffe84b3 100644
---- a/fs/dlm/lowcomms.c
-+++ b/fs/dlm/lowcomms.c
-@@ -1630,8 +1630,10 @@ static void clean_writequeues(void)
+diff --git a/kernel/locking/lockdep_proc.c b/kernel/locking/lockdep_proc.c
+index ad69bbc9bd28..71631bef0e84 100644
+--- a/kernel/locking/lockdep_proc.c
++++ b/kernel/locking/lockdep_proc.c
+@@ -234,6 +234,7 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
+ 		      nr_hardirq_read_safe = 0, nr_hardirq_read_unsafe = 0,
+ 		      sum_forward_deps = 0;
  
- static void work_stop(void)
- {
--	destroy_workqueue(recv_workqueue);
--	destroy_workqueue(send_workqueue);
-+	if (recv_workqueue)
-+		destroy_workqueue(recv_workqueue);
-+	if (send_workqueue)
-+		destroy_workqueue(send_workqueue);
- }
++#ifdef CONFIG_PROVE_LOCKING
+ 	list_for_each_entry(class, &all_lock_classes, lock_entry) {
  
- static int work_start(void)
-@@ -1691,13 +1693,17 @@ static void work_flush(void)
- 	struct hlist_node *n;
- 	struct connection *con;
+ 		if (class->usage_mask == 0)
+@@ -265,12 +266,12 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
+ 		if (class->usage_mask & LOCKF_ENABLED_HARDIRQ_READ)
+ 			nr_hardirq_read_unsafe++;
  
--	flush_workqueue(recv_workqueue);
--	flush_workqueue(send_workqueue);
-+	if (recv_workqueue)
-+		flush_workqueue(recv_workqueue);
-+	if (send_workqueue)
-+		flush_workqueue(send_workqueue);
- 	do {
- 		ok = 1;
- 		foreach_conn(stop_conn);
--		flush_workqueue(recv_workqueue);
--		flush_workqueue(send_workqueue);
-+		if (recv_workqueue)
-+			flush_workqueue(recv_workqueue);
-+		if (send_workqueue)
-+			flush_workqueue(send_workqueue);
- 		for (i = 0; i < CONN_HASH_SIZE && ok; i++) {
- 			hlist_for_each_entry_safe(con, n,
- 						  &connection_hash[i], list) {
+-#ifdef CONFIG_PROVE_LOCKING
+ 		sum_forward_deps += lockdep_count_forward_deps(class);
+-#endif
+ 	}
+ #ifdef CONFIG_DEBUG_LOCKDEP
+ 	DEBUG_LOCKS_WARN_ON(debug_atomic_read(nr_unused_locks) != nr_unused);
++#endif
++
+ #endif
+ 	seq_printf(m, " lock-classes:                  %11lu [max: %lu]\n",
+ 			nr_lock_classes, MAX_LOCKDEP_KEYS);
 -- 
 2.20.1
 
