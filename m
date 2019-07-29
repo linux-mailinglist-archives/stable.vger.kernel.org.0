@@ -2,60 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7B8E79692
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:53:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B0A979752
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:59:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390869AbfG2TxG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:53:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45068 "EHLO mail.kernel.org"
+        id S2403870AbfG2T7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:59:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403961AbfG2TxF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:53:05 -0400
+        id S2390861AbfG2TxH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:53:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFEBF21773;
-        Mon, 29 Jul 2019 19:53:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EA40217D7;
+        Mon, 29 Jul 2019 19:53:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429983;
-        bh=gJD8e620zaPYnffCTRC+zsCd09tdPtH5UnNylRM9SSU=;
+        s=default; t=1564429985;
+        bh=sFfn2UZdTEp+YrDjG7uK+E7T6yPIR+C9ODctvnIzeqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DBfIvMaK8nCZHlACUV0qXdOzlvKyC/ApQOzTjZRHSgQZn46dwgEGCLfrZgNsktiM5
-         pDMDf2bIKT7/mpVzFQFIDqU3O5pa938VLkJgB5WTFLpKGcVbz3hW3hOB7qs7TG5eCC
-         dwywnWkuq+gskCGHVhSQPVa+glonWsRNv9Ip9YRg=
+        b=GIJBWt8KBhnaTgg92tnCAhkfMATK+SwYDxjvm3S+lqV6GaF/ykWUSq/DK2vK4XH4R
+         y+d7P8XlmmrcOC/lhCwJHqRBjOqtuODPVEgZtqCRDyhdx602iCJygyAhoOaLisWEEI
+         OzQYRqbeSc6rljNwsoSLef04MCKE8hqBPrtQsbLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Will Deacon <will.deacon@arm.com>,
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Alexios Zavras <alexios.zavras@intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Changbin Du <changbin.du@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Eric Saint-Etienne <eric.saint.etienne@oracle.com>,
+        Jin Yao <yao.jin@linux.intel.com>,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Namhyung Kim <namhyung@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Song Liu <songliubraving@fb.com>,
+        Suzuki Poulouse <suzuki.poulose@arm.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Joel Fernandes <joelaf@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Dave Watson <davejwatson@fb.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Andi Kleen <andi@firstfloor.org>,
-        linux-kselftest@vger.kernel.org, "H . Peter Anvin" <hpa@zytor.com>,
-        Chris Lameter <cl@linux.com>,
-        Russell King <linux@arm.linux.org.uk>,
-        Michael Kerrisk <mtk.manpages@gmail.com>,
-        "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>,
-        Paul Turner <pjt@google.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Maurer <bmaurer@fb.com>, linux-api@vger.kernel.org,
-        Andy Lutomirski <luto@amacapital.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Carlos ODonell <carlos@redhat.com>,
-        Florian Weimer <fweimer@redhat.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 121/215] rseq/selftests: Fix Thumb mode build failure on arm32
-Date:   Mon, 29 Jul 2019 21:21:57 +0200
-Message-Id: <20190729190800.113109828@linuxfoundation.org>
+Subject: [PATCH 5.2 122/215] perf top: Fix potential NULL pointer dereference detected by the smatch tool
+Date:   Mon, 29 Jul 2019 21:21:58 +0200
+Message-Id: <20190729190800.312232580@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -68,159 +65,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ee8a84c60bcc1f1615bd9cb3edfe501e26cdc85b ]
+[ Upstream commit 111442cfc8abdeaa7ec1407f07ef7b3e5f76654e ]
 
-Using ".arm .inst" for the arm signature introduces build issues for
-programs compiled in Thumb mode because the assembler stays in the
-arm mode for the rest of the inline assembly. Revert to using a ".word"
-to express the signature as data instead.
+Based on the following report from Smatch, fix the potential NULL
+pointer dereference check.
 
-The choice of signature is a valid trap instruction on arm32 little
-endian, where both code and data are little endian.
+  tools/perf/builtin-top.c:109
+  perf_top__parse_source() warn: variable dereferenced before check 'he'
+  (see line 103)
 
-ARMv6+ big endian (BE8) generates mixed endianness code vs data:
-little-endian code and big-endian data. The data value of the signature
-needs to have its byte order reversed to generate the trap instruction.
+  tools/perf/builtin-top.c:233
+  perf_top__show_details() warn: variable dereferenced before check 'he'
+  (see line 228)
 
-Prior to ARMv6, -mbig-endian generates big-endian code and data
-(which match), so the endianness of the data representation of the
-signature should not be reversed. However, the choice between BE32
-and BE8 is done by the linker, so we cannot know whether code and
-data endianness will be mixed before the linker is invoked. So rather
-than try to play tricks with the linker, the rseq signature is simply
-data (not a trap instruction) prior to ARMv6 on big endian. This is
-why the signature is expressed as data (.word) rather than as
-instruction (.inst) in assembler.
+  tools/perf/builtin-top.c
+  101 static int perf_top__parse_source(struct perf_top *top, struct hist_entry *he)
+  102 {
+  103         struct perf_evsel *evsel = hists_to_evsel(he->hists);
+                                                        ^^^^
+  104         struct symbol *sym;
+  105         struct annotation *notes;
+  106         struct map *map;
+  107         int err = -1;
+  108
+  109         if (!he || !he->ms.sym)
+  110                 return -1;
 
-Because a ".word" is used to emit the signature, it will be interpreted
-as a literal pool by a disassembler, not as an actual instruction.
-Considering that the signature is not meant to be executed except in
-scenarios where the program execution is completely bogus, this should
-not be an issue.
+This patch moves the values assignment after validating pointer 'he'.
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Acked-by: Will Deacon <will.deacon@arm.com>
-CC: Peter Zijlstra <peterz@infradead.org>
-CC: Thomas Gleixner <tglx@linutronix.de>
-CC: Joel Fernandes <joelaf@google.com>
-CC: Catalin Marinas <catalin.marinas@arm.com>
-CC: Dave Watson <davejwatson@fb.com>
-CC: Will Deacon <will.deacon@arm.com>
-CC: Shuah Khan <shuah@kernel.org>
-CC: Andi Kleen <andi@firstfloor.org>
-CC: linux-kselftest@vger.kernel.org
-CC: "H . Peter Anvin" <hpa@zytor.com>
-CC: Chris Lameter <cl@linux.com>
-CC: Russell King <linux@arm.linux.org.uk>
-CC: Michael Kerrisk <mtk.manpages@gmail.com>
-CC: "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>
-CC: Paul Turner <pjt@google.com>
-CC: Boqun Feng <boqun.feng@gmail.com>
-CC: Josh Triplett <josh@joshtriplett.org>
-CC: Steven Rostedt <rostedt@goodmis.org>
-CC: Ben Maurer <bmaurer@fb.com>
-CC: linux-api@vger.kernel.org
-CC: Andy Lutomirski <luto@amacapital.net>
-CC: Andrew Morton <akpm@linux-foundation.org>
-CC: Linus Torvalds <torvalds@linux-foundation.org>
-CC: Carlos O'Donell <carlos@redhat.com>
-CC: Florian Weimer <fweimer@redhat.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
+Cc: Alexios Zavras <alexios.zavras@intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Changbin Du <changbin.du@intel.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Eric Saint-Etienne <eric.saint.etienne@oracle.com>
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Thomas Richter <tmricht@linux.ibm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Link: http://lkml.kernel.org/r/20190702103420.27540-4-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/rseq/rseq-arm.h | 61 +++++++++++++------------
- 1 file changed, 33 insertions(+), 28 deletions(-)
+ tools/perf/builtin-top.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/rseq/rseq-arm.h b/tools/testing/selftests/rseq/rseq-arm.h
-index 84f28f147fb6..5943c816c07c 100644
---- a/tools/testing/selftests/rseq/rseq-arm.h
-+++ b/tools/testing/selftests/rseq/rseq-arm.h
-@@ -6,6 +6,8 @@
-  */
+diff --git a/tools/perf/builtin-top.c b/tools/perf/builtin-top.c
+index 466621cd1017..8a9ff4b11df0 100644
+--- a/tools/perf/builtin-top.c
++++ b/tools/perf/builtin-top.c
+@@ -100,7 +100,7 @@ static void perf_top__resize(struct perf_top *top)
  
- /*
-+ * - ARM little endian
-+ *
-  * RSEQ_SIG uses the udf A32 instruction with an uncommon immediate operand
-  * value 0x5de3. This traps if user-space reaches this instruction by mistake,
-  * and the uncommon operand ensures the kernel does not move the instruction
-@@ -22,36 +24,40 @@
-  * def3        udf    #243      ; 0xf3
-  * e7f5        b.n    <7f5>
-  *
-- * pre-ARMv6 big endian code:
-- * e7f5        b.n    <7f5>
-- * def3        udf    #243      ; 0xf3
-+ * - ARMv6+ big endian (BE8):
-  *
-  * ARMv6+ -mbig-endian generates mixed endianness code vs data: little-endian
-- * code and big-endian data. Ensure the RSEQ_SIG data signature matches code
-- * endianness. Prior to ARMv6, -mbig-endian generates big-endian code and data
-- * (which match), so there is no need to reverse the endianness of the data
-- * representation of the signature. However, the choice between BE32 and BE8
-- * is done by the linker, so we cannot know whether code and data endianness
-- * will be mixed before the linker is invoked.
-+ * code and big-endian data. The data value of the signature needs to have its
-+ * byte order reversed to generate the trap instruction:
-+ *
-+ * Data: 0xf3def5e7
-+ *
-+ * Translates to this A32 instruction pattern:
-+ *
-+ * e7f5def3    udf    #24035    ; 0x5de3
-+ *
-+ * Translates to this T16 instruction pattern:
-+ *
-+ * def3        udf    #243      ; 0xf3
-+ * e7f5        b.n    <7f5>
-+ *
-+ * - Prior to ARMv6 big endian (BE32):
-+ *
-+ * Prior to ARMv6, -mbig-endian generates big-endian code and data
-+ * (which match), so the endianness of the data representation of the
-+ * signature should not be reversed. However, the choice between BE32
-+ * and BE8 is done by the linker, so we cannot know whether code and
-+ * data endianness will be mixed before the linker is invoked. So rather
-+ * than try to play tricks with the linker, the rseq signature is simply
-+ * data (not a trap instruction) prior to ARMv6 on big endian. This is
-+ * why the signature is expressed as data (.word) rather than as
-+ * instruction (.inst) in assembler.
-  */
+ static int perf_top__parse_source(struct perf_top *top, struct hist_entry *he)
+ {
+-	struct perf_evsel *evsel = hists_to_evsel(he->hists);
++	struct perf_evsel *evsel;
+ 	struct symbol *sym;
+ 	struct annotation *notes;
+ 	struct map *map;
+@@ -109,6 +109,8 @@ static int perf_top__parse_source(struct perf_top *top, struct hist_entry *he)
+ 	if (!he || !he->ms.sym)
+ 		return -1;
  
--#define RSEQ_SIG_CODE	0xe7f5def3
--
--#ifndef __ASSEMBLER__
--
--#define RSEQ_SIG_DATA							\
--	({								\
--		int sig;						\
--		asm volatile ("b 2f\n\t"				\
--			      "1: .inst " __rseq_str(RSEQ_SIG_CODE) "\n\t" \
--			      "2:\n\t"					\
--			      "ldr %[sig], 1b\n\t"			\
--			      : [sig] "=r" (sig));			\
--		sig;							\
--	})
--
--#define RSEQ_SIG	RSEQ_SIG_DATA
--
-+#ifdef __ARMEB__
-+#define RSEQ_SIG    0xf3def5e7      /* udf    #24035    ; 0x5de3 (ARMv6+) */
-+#else
-+#define RSEQ_SIG    0xe7f5def3      /* udf    #24035    ; 0x5de3 */
- #endif
++	evsel = hists_to_evsel(he->hists);
++
+ 	sym = he->ms.sym;
+ 	map = he->ms.map;
  
- #define rseq_smp_mb()	__asm__ __volatile__ ("dmb" ::: "memory", "cc")
-@@ -125,8 +131,7 @@ do {									\
- 		__rseq_str(table_label) ":\n\t"				\
- 		".word " __rseq_str(version) ", " __rseq_str(flags) "\n\t" \
- 		".word " __rseq_str(start_ip) ", 0x0, " __rseq_str(post_commit_offset) ", 0x0, " __rseq_str(abort_ip) ", 0x0\n\t" \
--		".arm\n\t"						\
--		".inst " __rseq_str(RSEQ_SIG_CODE) "\n\t"		\
-+		".word " __rseq_str(RSEQ_SIG) "\n\t"			\
- 		__rseq_str(label) ":\n\t"				\
- 		teardown						\
- 		"b %l[" __rseq_str(abort_label) "]\n\t"
+@@ -225,7 +227,7 @@ static void perf_top__record_precise_ip(struct perf_top *top,
+ static void perf_top__show_details(struct perf_top *top)
+ {
+ 	struct hist_entry *he = top->sym_filter_entry;
+-	struct perf_evsel *evsel = hists_to_evsel(he->hists);
++	struct perf_evsel *evsel;
+ 	struct annotation *notes;
+ 	struct symbol *symbol;
+ 	int more;
+@@ -233,6 +235,8 @@ static void perf_top__show_details(struct perf_top *top)
+ 	if (!he)
+ 		return;
+ 
++	evsel = hists_to_evsel(he->hists);
++
+ 	symbol = he->ms.sym;
+ 	notes = symbol__annotation(symbol);
+ 
 -- 
 2.20.1
 
