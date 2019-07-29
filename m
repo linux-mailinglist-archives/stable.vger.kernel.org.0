@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F3DC7793CE
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:24:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF3DC793D3
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:25:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388136AbfG2TYt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:24:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37062 "EHLO mail.kernel.org"
+        id S1729571AbfG2TY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:24:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388261AbfG2TYt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:24:49 -0400
+        id S1729562AbfG2TY7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:24:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C13F2070B;
-        Mon, 29 Jul 2019 19:24:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EFE421655;
+        Mon, 29 Jul 2019 19:24:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428288;
-        bh=Ire5g8j7iE8F2i2K4gIHA5JJB8poiWFOp1vz2FsF8wM=;
+        s=default; t=1564428297;
+        bh=31Y3PFm7Rdq/mDBbzc0NKinDNh7RGDZq7CL7tzmrL0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bbUR1AKJaV0aDVEa05Y+1+NdEFKK3m/2Z/u2cgy0E2faq1bbbEp8mexqSdVxLinm7
-         EDz1LNLao8CtEgqFW5BTTvl3H9QxTMPDyvuX7D6LV6rIWQZTLi2uxzoSXGmR9yBJbC
-         X7fkjg6xz7JquM4GMzkgC3kpW8/BsP2APFoGxV/4=
+        b=pXRw0+2CjzZFzDvNCiGXEr9iM21AKUoVw6JFuoqpl7TRq+I5q3DvxAxDxgvr+S/4L
+         fvdrRCncr5upTHyS/IW5sh2/2Ln6U0ddYNCchKFFBLJvXeveNu8IHqtcC3DsmCi1D8
+         1k+b0FZDC0aGK8gDuLvsifqy/q7mNc7K8iFFagCw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Hans Verkuil <hans.verkuil@cisco.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 029/293] crypto: talitos - Align SEC1 accesses to 32 bits boundaries.
-Date:   Mon, 29 Jul 2019 21:18:40 +0200
-Message-Id: <20190729190823.964781137@linuxfoundation.org>
+Subject: [PATCH 4.14 032/293] media: wl128x: Fix some error handling in fm_v4l2_init_video_device()
+Date:   Mon, 29 Jul 2019 21:18:43 +0200
+Message-Id: <20190729190824.373855223@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -44,39 +46,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c9cca7034b34a2d82e9a03b757de2485c294851c ]
+[ Upstream commit 69fbb3f47327d959830c94bf31893972b8c8f700 ]
 
-The MPC885 reference manual states:
+X-Originating-IP: [10.175.113.25]
+X-CFilter-Loop: Reflected
+The fm_v4l2_init_video_device() forget to unregister v4l2/video device
+in the error path, it could lead to UAF issue, eg,
 
-SEC Lite-initiated 8xx writes can occur only on 32-bit-word boundaries, but
-reads can occur on any byte boundary. Writing back a header read from a
-non-32-bit-word boundary will yield unpredictable results.
+  BUG: KASAN: use-after-free in atomic64_read include/asm-generic/atomic-instrumented.h:836 [inline]
+  BUG: KASAN: use-after-free in atomic_long_read include/asm-generic/atomic-long.h:28 [inline]
+  BUG: KASAN: use-after-free in __mutex_unlock_slowpath+0x92/0x690 kernel/locking/mutex.c:1206
+  Read of size 8 at addr ffff8881e84a7c70 by task v4l_id/3659
 
-In order to ensure that, cra_alignmask is set to 3 for SEC1.
+  CPU: 1 PID: 3659 Comm: v4l_id Not tainted 5.1.0 #8
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+  Call Trace:
+   __dump_stack lib/dump_stack.c:77 [inline]
+   dump_stack+0xa9/0x10e lib/dump_stack.c:113
+   print_address_description+0x65/0x270 mm/kasan/report.c:187
+   kasan_report+0x149/0x18d mm/kasan/report.c:317
+   atomic64_read include/asm-generic/atomic-instrumented.h:836 [inline]
+   atomic_long_read include/asm-generic/atomic-long.h:28 [inline]
+   __mutex_unlock_slowpath+0x92/0x690 kernel/locking/mutex.c:1206
+   fm_v4l2_fops_open+0xac/0x120 [fm_drv]
+   v4l2_open+0x191/0x390 [videodev]
+   chrdev_open+0x20d/0x570 fs/char_dev.c:417
+   do_dentry_open+0x700/0xf30 fs/open.c:777
+   do_last fs/namei.c:3416 [inline]
+   path_openat+0x7c4/0x2a90 fs/namei.c:3532
+   do_filp_open+0x1a5/0x2b0 fs/namei.c:3563
+   do_sys_open+0x302/0x490 fs/open.c:1069
+   do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+  RIP: 0033:0x7f8180c17c8e
+  ...
+  Allocated by task 3642:
+   set_track mm/kasan/common.c:87 [inline]
+   __kasan_kmalloc.constprop.3+0xa0/0xd0 mm/kasan/common.c:497
+   fm_drv_init+0x13/0x1000 [fm_drv]
+   do_one_initcall+0xbc/0x47d init/main.c:901
+   do_init_module+0x1b5/0x547 kernel/module.c:3456
+   load_module+0x6405/0x8c10 kernel/module.c:3804
+   __do_sys_finit_module+0x162/0x190 kernel/module.c:3898
+   do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Fixes: 9c4a79653b35 ("crypto: talitos - Freescale integrated security engine (SEC) driver")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+  Freed by task 3642:
+   set_track mm/kasan/common.c:87 [inline]
+   __kasan_slab_free+0x130/0x180 mm/kasan/common.c:459
+   slab_free_hook mm/slub.c:1429 [inline]
+   slab_free_freelist_hook mm/slub.c:1456 [inline]
+   slab_free mm/slub.c:3003 [inline]
+   kfree+0xe1/0x270 mm/slub.c:3958
+   fm_drv_init+0x1e6/0x1000 [fm_drv]
+   do_one_initcall+0xbc/0x47d init/main.c:901
+   do_init_module+0x1b5/0x547 kernel/module.c:3456
+   load_module+0x6405/0x8c10 kernel/module.c:3804
+   __do_sys_finit_module+0x162/0x190 kernel/module.c:3898
+   do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Add relevant unregister functions to fix it.
+
+Cc: Hans Verkuil <hans.verkuil@cisco.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/talitos.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/media/radio/wl128x/fmdrv_v4l2.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
-index 62dca638105d..a0cd4f6085d0 100644
---- a/drivers/crypto/talitos.c
-+++ b/drivers/crypto/talitos.c
-@@ -3119,7 +3119,10 @@ static struct talitos_crypto_alg *talitos_alg_alloc(struct device *dev,
- 		alg->cra_priority = t_alg->algt.priority;
- 	else
- 		alg->cra_priority = TALITOS_CRA_PRIORITY;
--	alg->cra_alignmask = 0;
-+	if (has_ftr_sec1(priv))
-+		alg->cra_alignmask = 3;
-+	else
-+		alg->cra_alignmask = 0;
- 	alg->cra_ctxsize = sizeof(struct talitos_ctx);
- 	alg->cra_flags |= CRYPTO_ALG_KERN_DRIVER_ONLY;
+diff --git a/drivers/media/radio/wl128x/fmdrv_v4l2.c b/drivers/media/radio/wl128x/fmdrv_v4l2.c
+index fc5a7abc83d2..77778c86e04d 100644
+--- a/drivers/media/radio/wl128x/fmdrv_v4l2.c
++++ b/drivers/media/radio/wl128x/fmdrv_v4l2.c
+@@ -549,6 +549,7 @@ int fm_v4l2_init_video_device(struct fmdev *fmdev, int radio_nr)
+ 
+ 	/* Register with V4L2 subsystem as RADIO device */
+ 	if (video_register_device(&gradio_dev, VFL_TYPE_RADIO, radio_nr)) {
++		v4l2_device_unregister(&fmdev->v4l2_dev);
+ 		fmerr("Could not register video device\n");
+ 		return -ENOMEM;
+ 	}
+@@ -562,6 +563,8 @@ int fm_v4l2_init_video_device(struct fmdev *fmdev, int radio_nr)
+ 	if (ret < 0) {
+ 		fmerr("(fmdev): Can't init ctrl handler\n");
+ 		v4l2_ctrl_handler_free(&fmdev->ctrl_handler);
++		video_unregister_device(fmdev->radio_dev);
++		v4l2_device_unregister(&fmdev->v4l2_dev);
+ 		return -EBUSY;
+ 	}
  
 -- 
 2.20.1
