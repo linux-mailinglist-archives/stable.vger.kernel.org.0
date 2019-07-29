@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E2017945F
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:30:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 908AF79462
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:31:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729494AbfG2Taq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:30:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43490 "EHLO mail.kernel.org"
+        id S1727562AbfG2Taw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:30:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726674AbfG2Tap (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:30:45 -0400
+        id S1726674AbfG2Tav (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:30:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA32D21850;
-        Mon, 29 Jul 2019 19:30:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5873921655;
+        Mon, 29 Jul 2019 19:30:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428644;
-        bh=02lJq1r0mBN4D9aZrTeZswREr3BnLBzB9N1Q5gXdA7Q=;
+        s=default; t=1564428650;
+        bh=MXbR2Riu2wdtV+5/uzvxW26kndj2hoEGmL1FkNpIiQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zy7tXwNHfM+3bHJycpkA1aMdcpkVdQsuihlDzr6tEpmhNZpxQmyptFbKVcQL53fzJ
-         DAlc3LRsY+kfY684ShFu00dF7mZa0c/kTObS3btX202mE7kOV/mGb/FPTmVEcahPW5
-         /Q3wiYoTIL0HNjxZPh8j1kLm2Z7QbZDmtD+IxqN8=
+        b=QETL9fg0vofXfc65iJBeIANcIkY65++eZlPJRrUCuKP6YzqwwDIZl/OBbfQzoMiee
+         KO489SxAZpz5HyYYMUyd4eDxcjAtZWCzjhe7FXQNanbIxhPWJOPJ6oW3t34sYlvQh/
+         D2XFD2QVgU7oy6WcStehC588wWoMu9NKySVX8Xx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+97aae04ce27e39cbfca9@syzkaller.appspotmail.com,
-        syzbot+4c595632b98bb8ffcc66@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 139/293] ALSA: seq: Break too long mutex context in the write loop
-Date:   Mon, 29 Jul 2019 21:20:30 +0200
-Message-Id: <20190729190835.203109671@linuxfoundation.org>
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 4.14 141/293] media: v4l2: Test type instead of cfg->type in v4l2_ctrl_new_custom()
+Date:   Mon, 29 Jul 2019 21:20:32 +0200
+Message-Id: <20190729190835.352250698@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -45,73 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Boris Brezillon <boris.brezillon@collabora.com>
 
-commit ede34f397ddb063b145b9e7d79c6026f819ded13 upstream.
+commit 07d89227a983df957a6a7c56f7c040cde9ac571f upstream.
 
-The fix for the racy writes and ioctls to sequencer widened the
-application of client->ioctl_mutex to the whole write loop.  Although
-it does unlock/relock for the lengthy operation like the event dup,
-the loop keeps the ioctl_mutex for the whole time in other
-situations.  This may take quite long time if the user-space would
-give a huge buffer, and this is a likely cause of some weird behavior
-spotted by syzcaller fuzzer.
+cfg->type can be overridden by v4l2_ctrl_fill() and the new value is
+stored in the local type var. Fix the tests to use this local var.
 
-This patch puts a simple workaround, just adding a mutex break in the
-loop when a large number of events have been processed.  This
-shouldn't hit any performance drop because the threshold is set high
-enough for usual operations.
-
-Fixes: 7bd800915677 ("ALSA: seq: More protection for concurrent write and ioctl races")
-Reported-by: syzbot+97aae04ce27e39cbfca9@syzkaller.appspotmail.com
-Reported-by: syzbot+4c595632b98bb8ffcc66@syzkaller.appspotmail.com
+Fixes: 0996517cf8ea ("V4L/DVB: v4l2: Add new control handling framework")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+[hverkuil-cisco@xs4all.nl: change to !qmenu and !qmenu_int (checkpatch)]
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/core/seq/seq_clientmgr.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/media/v4l2-core/v4l2-ctrls.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/sound/core/seq/seq_clientmgr.c
-+++ b/sound/core/seq/seq_clientmgr.c
-@@ -1001,7 +1001,7 @@ static ssize_t snd_seq_write(struct file
- {
- 	struct snd_seq_client *client = file->private_data;
- 	int written = 0, len;
--	int err;
-+	int err, handled;
- 	struct snd_seq_event event;
+--- a/drivers/media/v4l2-core/v4l2-ctrls.c
++++ b/drivers/media/v4l2-core/v4l2-ctrls.c
+@@ -2113,16 +2113,15 @@ struct v4l2_ctrl *v4l2_ctrl_new_custom(s
+ 		v4l2_ctrl_fill(cfg->id, &name, &type, &min, &max, &step,
+ 								&def, &flags);
  
- 	if (!(snd_seq_file_flags(file) & SNDRV_SEQ_LFLG_OUTPUT))
-@@ -1014,6 +1014,8 @@ static ssize_t snd_seq_write(struct file
- 	if (!client->accept_output || client->pool == NULL)
- 		return -ENXIO;
- 
-+ repeat:
-+	handled = 0;
- 	/* allocate the pool now if the pool is not allocated yet */ 
- 	mutex_lock(&client->ioctl_mutex);
- 	if (client->pool->size > 0 && !snd_seq_write_pool_allocated(client)) {
-@@ -1073,12 +1075,19 @@ static ssize_t snd_seq_write(struct file
- 						   0, 0, &client->ioctl_mutex);
- 		if (err < 0)
- 			break;
-+		handled++;
- 
- 	__skip_event:
- 		/* Update pointers and counts */
- 		count -= len;
- 		buf += len;
- 		written += len;
-+
-+		/* let's have a coffee break if too many events are queued */
-+		if (++handled >= 200) {
-+			mutex_unlock(&client->ioctl_mutex);
-+			goto repeat;
-+		}
+-	is_menu = (cfg->type == V4L2_CTRL_TYPE_MENU ||
+-		   cfg->type == V4L2_CTRL_TYPE_INTEGER_MENU);
++	is_menu = (type == V4L2_CTRL_TYPE_MENU ||
++		   type == V4L2_CTRL_TYPE_INTEGER_MENU);
+ 	if (is_menu)
+ 		WARN_ON(step);
+ 	else
+ 		WARN_ON(cfg->menu_skip_mask);
+-	if (cfg->type == V4L2_CTRL_TYPE_MENU && qmenu == NULL)
++	if (type == V4L2_CTRL_TYPE_MENU && !qmenu) {
+ 		qmenu = v4l2_ctrl_get_menu(cfg->id);
+-	else if (cfg->type == V4L2_CTRL_TYPE_INTEGER_MENU &&
+-		 qmenu_int == NULL) {
++	} else if (type == V4L2_CTRL_TYPE_INTEGER_MENU && !qmenu_int) {
+ 		handler_set_err(hdl, -EINVAL);
+ 		return NULL;
  	}
- 
-  out:
 
 
