@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F96B7942D
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:28:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E351879403
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:27:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727817AbfG2T2n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:28:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41348 "EHLO mail.kernel.org"
+        id S1729021AbfG2T0x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:26:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726738AbfG2T2i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:28:38 -0400
+        id S1729831AbfG2T0w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:26:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE6E42070B;
-        Mon, 29 Jul 2019 19:28:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1F2421655;
+        Mon, 29 Jul 2019 19:26:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428517;
-        bh=S4svMKdHuAGeN67O6kmLtk+ZNOQ7EGTIYKVayCpUo8g=;
+        s=default; t=1564428411;
+        bh=Th9uGvkZvs6hjOlKwzt2L5qfRyOhG8Rf+28gOkDNjkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nddZKNxj+h5VIs0IFXQVdsrgoWnPjcxcgeeNehuqhAhgtQOVERHMYLKZkNf9qZdJL
-         daA0IkJwzqkkVSWtHDWtAr2zsRAE58gGTAbymenuXLsRS3sqRXrwqqtuxrnDIrk4jU
-         ozY4+vwD6zCGy57izWEEljpxCoRz8h6Ndp46X3iA=
+        b=v3H1LbPvyScFHRzq2Fb5bo5bWA0dbPQsalaw2jh1EZ6Gf7MT6fq99VFpY0XXPyNBW
+         58D1RTpUaerT1rNMY1czmtHLcLXzNWNRQHEz5/Yy1xaOUmIUeQtHTUE2TGW/JScebn
+         j+3ORTWLQNJifLPEIdgU2/nk2Vd9KbODVs42S6Ak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
+        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 062/293] media: s5p-mfc: Make additional clocks optional
-Date:   Mon, 29 Jul 2019 21:19:13 +0200
-Message-Id: <20190729190829.262713031@linuxfoundation.org>
+Subject: [PATCH 4.14 068/293] media: coda: fix last buffer handling in V4L2_ENC_CMD_STOP
+Date:   Mon, 29 Jul 2019 21:19:19 +0200
+Message-Id: <20190729190829.876691158@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -46,42 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e08efef8fe7db87206314c19b341612c719f891a ]
+[ Upstream commit f3775f89852d167990b0d718587774cf00d22ac2 ]
 
-Since the beginning the second clock ('special', 'sclk') was optional and
-it is not available on some variants of Exynos SoCs (i.e. Exynos5420 with
-v7 of MFC hardware).
+coda_encoder_cmd() is racy, as the last scheduled picture run worker can
+still be in-flight while the ENC_CMD_STOP command is issued. Depending
+on the exact timing the sequence numbers might already be changed, but
+the last buffer might not have been put on the destination queue yet.
 
-However commit 1bce6fb3edf1 ("[media] s5p-mfc: Rework clock handling")
-made handling of all specified clocks mandatory. This patch restores
-original behavior of the driver and fixes its operation on
-Exynos5420 SoCs.
+In this case the current implementation would prematurely wake the
+destination queue with last_buffer_dequeued=true, causing userspace to
+call streamoff before the last buffer is handled.
 
-Fixes: 1bce6fb3edf1 ("[media] s5p-mfc: Rework clock handling")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Close this race window by synchronizing with the pic_run_worker before
+doing the sequence check.
+
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+[l.stach@pengutronix.de: switch to flush_work, reword commit message]
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-mfc/s5p_mfc_pm.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/media/platform/coda/coda-common.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c b/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c
-index eb85cedc5ef3..5e080f32b0e8 100644
---- a/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c
-+++ b/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c
-@@ -38,6 +38,11 @@ int s5p_mfc_init_pm(struct s5p_mfc_dev *dev)
- 	for (i = 0; i < pm->num_clocks; i++) {
- 		pm->clocks[i] = devm_clk_get(pm->device, pm->clk_names[i]);
- 		if (IS_ERR(pm->clocks[i])) {
-+			/* additional clocks are optional */
-+			if (i && PTR_ERR(pm->clocks[i]) == -ENOENT) {
-+				pm->clocks[i] = NULL;
-+				continue;
-+			}
- 			mfc_err("Failed to get clock: %s\n",
- 				pm->clk_names[i]);
- 			return PTR_ERR(pm->clocks[i]);
+diff --git a/drivers/media/platform/coda/coda-common.c b/drivers/media/platform/coda/coda-common.c
+index 2e1472fadc2c..5b87c488ee11 100644
+--- a/drivers/media/platform/coda/coda-common.c
++++ b/drivers/media/platform/coda/coda-common.c
+@@ -932,6 +932,8 @@ static int coda_encoder_cmd(struct file *file, void *fh,
+ 	/* Set the stream-end flag on this context */
+ 	ctx->bit_stream_param |= CODA_BIT_STREAM_END_FLAG;
+ 
++	flush_work(&ctx->pic_run_work);
++
+ 	/* If there is no buffer in flight, wake up */
+ 	if (!ctx->streamon_out || ctx->qsequence == ctx->osequence) {
+ 		dst_vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx,
 -- 
 2.20.1
 
