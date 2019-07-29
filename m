@@ -2,35 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F39B4793E6
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:26:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3514D793EF
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:26:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727093AbfG2TZl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:25:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37972 "EHLO mail.kernel.org"
+        id S2388294AbfG2T0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:26:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728921AbfG2TZk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:25:40 -0400
+        id S2388324AbfG2T0C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:26:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCAE32070B;
-        Mon, 29 Jul 2019 19:25:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4C7C20C01;
+        Mon, 29 Jul 2019 19:26:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428339;
-        bh=fmgSYmE0C7pvU3I+LoGPfnOvAV42bXtX0afORF5V/GY=;
+        s=default; t=1564428361;
+        bh=+sI7MiA78Xynau4wxY7rl427YDpjWCmjVg0wXCpSfkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rvaghpia/iwfU/ufvarLY2xUtOloA4g0aFJoupIgIY0q1d4IGh1vrIkkSf86wTkSO
-         U5cXE0whx/uPhP+LUj6SLCtdXflckb0GQEmCJsZHTggdoeOQZ2XpxPD0VC5O6IZOwX
-         F+l+Gresv+OtwlJFq5WPZ1PMLra8z+vTj6W9kwWw=
+        b=ClUpkKMKGW1aDTn77/k447wgfCpdB712H2aqlR5BlbaMwwlSiaxa5aZfoIpirW3xl
+         WZyCWRBv5xpbv9KyFygbNvsdA1P1rfSwoitJy5FUncVadLkwrdiDLT8EB/nf9WB4DT
+         iq++k0s02XIz3o3pgGoswxU6PquHbVfTQfISWPm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 044/293] iommu: Fix a leak in iommu_insert_resv_region
-Date:   Mon, 29 Jul 2019 21:18:55 +0200
-Message-Id: <20190729190826.252193838@linuxfoundation.org>
+        stable@vger.kernel.org, Aaron Lewis <aaronlewis@google.com>,
+        Borislav Petkov <bp@suse.de>,
+        Jim Mattson <jmattson@google.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        marcorr@google.com, Peter Feiner <pfeiner@google.com>,
+        pshier@google.com, Robert Hoo <robert.hu@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Thomas Lendacky <Thomas.Lendacky@amd.com>,
+        x86-ml <x86@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 050/293] x86/cpufeatures: Add FDP_EXCPTN_ONLY and ZERO_FCS_FDS
+Date:   Mon, 29 Jul 2019 21:19:01 +0200
+Message-Id: <20190729190827.345614425@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -43,58 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ad0834dedaa15c3a176f783c0373f836e44b4700 ]
+[ Upstream commit cbb99c0f588737ec98c333558922ce47e9a95827 ]
 
-In case we expand an existing region, we unlink
-this latter and insert the larger one. In
-that case we should free the original region after
-the insertion. Also we can immediately return.
+Add the CPUID enumeration for Intel's de-feature bits to accommodate
+passing these de-features through to kvm guests.
 
-Fixes: 6c65fb318e8b ("iommu: iommu_get_group_resv_regions")
+These de-features are (from SDM vol 1, section 8.1.8):
+ - X86_FEATURE_FDP_EXCPTN_ONLY: If CPUID.(EAX=07H,ECX=0H):EBX[bit 6] = 1, the
+   data pointer (FDP) is updated only for the x87 non-control instructions that
+   incur unmasked x87 exceptions.
+ - X86_FEATURE_ZERO_FCS_FDS: If CPUID.(EAX=07H,ECX=0H):EBX[bit 13] = 1, the
+   processor deprecates FCS and FDS; it saves each as 0000H.
 
-Signed-off-by: Eric Auger <eric.auger@redhat.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Aaron Lewis <aaronlewis@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Frederic Weisbecker <frederic@kernel.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: marcorr@google.com
+Cc: Peter Feiner <pfeiner@google.com>
+Cc: pshier@google.com
+Cc: Robert Hoo <robert.hu@linux.intel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Thomas Lendacky <Thomas.Lendacky@amd.com>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20190605220252.103406-1-aaronlewis@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/iommu.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/x86/include/asm/cpufeatures.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 3de5c0bcb5cc..1620a6f49989 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -205,18 +205,21 @@ static int iommu_insert_resv_region(struct iommu_resv_region *new,
- 			pos = pos->next;
- 		} else if ((start >= a) && (end <= b)) {
- 			if (new->type == type)
--				goto done;
-+				return 0;
- 			else
- 				pos = pos->next;
- 		} else {
- 			if (new->type == type) {
- 				phys_addr_t new_start = min(a, start);
- 				phys_addr_t new_end = max(b, end);
-+				int ret;
- 
- 				list_del(&entry->list);
- 				entry->start = new_start;
- 				entry->length = new_end - new_start + 1;
--				iommu_insert_resv_region(entry, regions);
-+				ret = iommu_insert_resv_region(entry, regions);
-+				kfree(entry);
-+				return ret;
- 			} else {
- 				pos = pos->next;
- 			}
-@@ -229,7 +232,6 @@ static int iommu_insert_resv_region(struct iommu_resv_region *new,
- 		return -ENOMEM;
- 
- 	list_add_tail(&region->list, pos);
--done:
- 	return 0;
- }
- 
+diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
+index 48ef9ed8226d..4cb8315c521f 100644
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -239,12 +239,14 @@
+ #define X86_FEATURE_BMI1		( 9*32+ 3) /* 1st group bit manipulation extensions */
+ #define X86_FEATURE_HLE			( 9*32+ 4) /* Hardware Lock Elision */
+ #define X86_FEATURE_AVX2		( 9*32+ 5) /* AVX2 instructions */
++#define X86_FEATURE_FDP_EXCPTN_ONLY	( 9*32+ 6) /* "" FPU data pointer updated only on x87 exceptions */
+ #define X86_FEATURE_SMEP		( 9*32+ 7) /* Supervisor Mode Execution Protection */
+ #define X86_FEATURE_BMI2		( 9*32+ 8) /* 2nd group bit manipulation extensions */
+ #define X86_FEATURE_ERMS		( 9*32+ 9) /* Enhanced REP MOVSB/STOSB instructions */
+ #define X86_FEATURE_INVPCID		( 9*32+10) /* Invalidate Processor Context ID */
+ #define X86_FEATURE_RTM			( 9*32+11) /* Restricted Transactional Memory */
+ #define X86_FEATURE_CQM			( 9*32+12) /* Cache QoS Monitoring */
++#define X86_FEATURE_ZERO_FCS_FDS	( 9*32+13) /* "" Zero out FPU CS and FPU DS */
+ #define X86_FEATURE_MPX			( 9*32+14) /* Memory Protection Extension */
+ #define X86_FEATURE_RDT_A		( 9*32+15) /* Resource Director Technology Allocation */
+ #define X86_FEATURE_AVX512F		( 9*32+16) /* AVX-512 Foundation */
 -- 
 2.20.1
 
