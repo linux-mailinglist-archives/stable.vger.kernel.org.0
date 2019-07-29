@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63FB47984A
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:07:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1520C7978B
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:01:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389239AbfG2TlB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:41:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56376 "EHLO mail.kernel.org"
+        id S2390673AbfG2UA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 16:00:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389237AbfG2TlA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:41:00 -0400
+        id S2403887AbfG2Tvs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:51:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90EBC217D7;
-        Mon, 29 Jul 2019 19:40:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCC2B204EC;
+        Mon, 29 Jul 2019 19:51:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429259;
-        bh=WNI63ClIKFam02JLlz0hE4qcHBWjAksWtoewTpu32O0=;
+        s=default; t=1564429907;
+        bh=sizR6Xq3/RQtR4jQO/vuWDORMl5pzGPn+/xcWFwpwYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FTxiNHvbjVOeBNnx8Oyzhu5/Iqe8jAyhs0HpPTLWYYm6p2ML/NfmGyj6pFlSipII9
-         CeDI4QCEEcAj/4Hz3XLw/BpGrqQm4MUwvj5h6tnCuOSE7gHjXz8sLO7GRWP20TEkjD
-         nt7zXDNL2jsZuQPwk3KyYy1HqqMzSlb5uiaw9SBo=
+        b=LxSrKCH9yVK1Ie1P5NPiOt4lpwafiOTCASNo5XZNg4LHeakJy7MDqsWq05HTbc0vC
+         7h/qwnXnyPF5QpQvZNZi2MjOf8mKmn4wTIAZCS3h/eGBbe3ZLfd9WCyN9KPoHbVYfH
+         mBGQ2wWX4fdHsAQ0DgLzz0UAvfG/EEbI9xRDMbmM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Will Deacon <will.deacon@arm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 042/113] genksyms: Teach parser about 128-bit built-in types
-Date:   Mon, 29 Jul 2019 21:22:09 +0200
-Message-Id: <20190729190705.751204828@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 134/215] nvme-tcp: dont use sendpage for SLAB pages
+Date:   Mon, 29 Jul 2019 21:22:10 +0200
+Message-Id: <20190729190802.778876364@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
-References: <20190729190655.455345569@linuxfoundation.org>
+In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
+References: <20190729190739.971253303@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,64 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a222061b85234d8a44486a46bd4df7e2cda52385 ]
+[ Upstream commit 37c15219599f7a4baa73f6e3432afc69ba7cc530 ]
 
-__uint128_t crops up in a few files that export symbols to modules, so
-teach genksyms about it and the other GCC built-in 128-bit integer types
-so that we don't end up skipping the CRC generation for some symbols due
-to the parser failing to spot them:
+According to commit a10674bf2406 ("tcp: detecting the misuse of
+.sendpage for Slab objects") and previous discussion, tcp_sendpage
+should not be used for pages that is managed by SLAB, as SLAB is not
+taking page reference counters into consideration.
 
-  | WARNING: EXPORT symbol "kernel_neon_begin" [vmlinux] version
-  |          generation failed, symbol will not be versioned.
-  | ld: arch/arm64/kernel/fpsimd.o: relocation R_AARCH64_ABS32 against
-  |     `__crc_kernel_neon_begin' can not be used when making a shared
-  |     object
-  | ld: arch/arm64/kernel/fpsimd.o:(.data+0x0): dangerous relocation:
-  |     unsupported relocation
-
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/genksyms/keywords.c | 4 ++++
- scripts/genksyms/parse.y    | 2 ++
- 2 files changed, 6 insertions(+)
+ drivers/nvme/host/tcp.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/scripts/genksyms/keywords.c b/scripts/genksyms/keywords.c
-index 9f40bcd17d07..f6956aa41366 100644
---- a/scripts/genksyms/keywords.c
-+++ b/scripts/genksyms/keywords.c
-@@ -24,6 +24,10 @@ static struct resword {
- 	{ "__volatile__", VOLATILE_KEYW },
- 	{ "__builtin_va_list", VA_LIST_KEYW },
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 08a2501b9357..606b13d35d16 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -860,7 +860,14 @@ static int nvme_tcp_try_send_data(struct nvme_tcp_request *req)
+ 		else
+ 			flags |= MSG_MORE;
  
-+	{ "__int128", BUILTIN_INT_KEYW },
-+	{ "__int128_t", BUILTIN_INT_KEYW },
-+	{ "__uint128_t", BUILTIN_INT_KEYW },
-+
- 	// According to rth, c99 defines "_Bool", __restrict", __restrict__", "restrict".  KAO
- 	{ "_Bool", BOOL_KEYW },
- 	{ "_restrict", RESTRICT_KEYW },
-diff --git a/scripts/genksyms/parse.y b/scripts/genksyms/parse.y
-index 00a6d7e54971..1ebcf52cd0f9 100644
---- a/scripts/genksyms/parse.y
-+++ b/scripts/genksyms/parse.y
-@@ -76,6 +76,7 @@ static void record_compound(struct string_list **keyw,
- %token ATTRIBUTE_KEYW
- %token AUTO_KEYW
- %token BOOL_KEYW
-+%token BUILTIN_INT_KEYW
- %token CHAR_KEYW
- %token CONST_KEYW
- %token DOUBLE_KEYW
-@@ -263,6 +264,7 @@ simple_type_specifier:
- 	| VOID_KEYW
- 	| BOOL_KEYW
- 	| VA_LIST_KEYW
-+	| BUILTIN_INT_KEYW
- 	| TYPE			{ (*$1)->tag = SYM_TYPEDEF; $$ = $1; }
- 	;
+-		ret = kernel_sendpage(queue->sock, page, offset, len, flags);
++		/* can't zcopy slab pages */
++		if (unlikely(PageSlab(page))) {
++			ret = sock_no_sendpage(queue->sock, page, offset, len,
++					flags);
++		} else {
++			ret = kernel_sendpage(queue->sock, page, offset, len,
++					flags);
++		}
+ 		if (ret <= 0)
+ 			return ret;
  
 -- 
 2.20.1
