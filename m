@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9387F796F3
+	by mail.lfdr.de (Postfix) with ESMTP id 2ACF6796F2
 	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:56:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391049AbfG2Tzk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:55:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48466 "EHLO mail.kernel.org"
+        id S2403914AbfG2Tzo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:55:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391047AbfG2Tzi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:55:38 -0400
+        id S2391048AbfG2Tzl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:55:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E62C2204EC;
-        Mon, 29 Jul 2019 19:55:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A4942054F;
+        Mon, 29 Jul 2019 19:55:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564430137;
-        bh=T2jjRL4C0aJe4QicyVoBE1EXvP3PYDkgBDX+2pELYFA=;
+        s=default; t=1564430140;
+        bh=71/CmMNhNip2fgg79PeggCuwhuzDhvx2mKbBfwvQMOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pHJCkmnXXCETsgb65XnfDzFMr0PVuZcJpkGGo4i74OcWM069VSU33/dCTvwc1Hy8A
-         pyOIXpdCDvGCinvBMTolzsix5fCpsYxfBDFwx1HWusf5Kx5guRh4SnN9/EnxOT3SG9
-         qYzdZUEadLL6ewJn2MeqUvcFF1fZ1uF9FHJooLLw=
+        b=iVZgSePMrxgqOrD5x2y4mxGdhPMBcc/Xg53NYrCWRJ9H8Hk217lOXLzebojiUkXfA
+         bIGdU2nFSTUbd+Jh1mM/2xD02YGP+KSkRC4soWbQC785I54Vb4PmjCvcWD+GteCGYm
+         qQ0Nx95YzPVn6amZDvAYV93Mixd4QDk2xJvV38fs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.2 209/215] structleak: disable STRUCTLEAK_BYREF in combination with KASAN_STACK
-Date:   Mon, 29 Jul 2019 21:23:25 +0200
-Message-Id: <20190729190816.215884327@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Dmitry Rogozhkin <dmitry.v.rogozhkin@intel.com>,
+        Dmitry Ermilov <dmitry.ermilov@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Subject: [PATCH 5.2 210/215] drm/i915: Make the semaphore saturation mask global
+Date:   Mon, 29 Jul 2019 21:23:26 +0200
+Message-Id: <20190729190816.360739317@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -43,90 +46,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit 173e6ee21e2b3f477f07548a79c43b8d9cfbb37d upstream.
+commit 44d89409a12eb8333735958509d7d591b461d13d upstream.
 
-The combination of KASAN_STACK and GCC_PLUGIN_STRUCTLEAK_BYREF
-leads to much larger kernel stack usage, as seen from the warnings
-about functions that now exceed the 2048 byte limit:
+The idea behind keeping the saturation mask local to a context backfired
+spectacularly. The premise with the local mask was that we would be more
+proactive in attempting to use semaphores after each time the context
+idled, and that all new contexts would attempt to use semaphores
+ignoring the current state of the system. This turns out to be horribly
+optimistic. If the system state is still oversaturated and the existing
+workloads have all stopped using semaphores, the new workloads would
+attempt to use semaphores and be deprioritised behind real work. The
+new contexts would not switch off using semaphores until their initial
+batch of low priority work had completed. Given sufficient backload load
+of equal user priority, this would completely starve the new work of any
+GPU time.
 
-drivers/media/i2c/tvp5150.c:253:1: error: the frame size of 3936 bytes is larger than 2048 bytes
-drivers/media/tuners/r820t.c:1327:1: error: the frame size of 2816 bytes is larger than 2048 bytes
-drivers/net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_n.c:16552:1: error: the frame size of 3144 bytes is larger than 2048 bytes [-Werror=frame-larger-than=]
-fs/ocfs2/aops.c:1892:1: error: the frame size of 2088 bytes is larger than 2048 bytes
-fs/ocfs2/dlm/dlmrecovery.c:737:1: error: the frame size of 2088 bytes is larger than 2048 bytes
-fs/ocfs2/namei.c:1677:1: error: the frame size of 2584 bytes is larger than 2048 bytes
-fs/ocfs2/super.c:1186:1: error: the frame size of 2640 bytes is larger than 2048 bytes
-fs/ocfs2/xattr.c:3678:1: error: the frame size of 2176 bytes is larger than 2048 bytes
-net/bluetooth/l2cap_core.c:7056:1: error: the frame size of 2144 bytes is larger than 2048 bytes [-Werror=frame-larger-than=]
-net/bluetooth/l2cap_core.c: In function 'l2cap_recv_frame':
-net/bridge/br_netlink.c:1505:1: error: the frame size of 2448 bytes is larger than 2048 bytes
-net/ieee802154/nl802154.c:548:1: error: the frame size of 2232 bytes is larger than 2048 bytes
-net/wireless/nl80211.c:1726:1: error: the frame size of 2224 bytes is larger than 2048 bytes
-net/wireless/nl80211.c:2357:1: error: the frame size of 4584 bytes is larger than 2048 bytes
-net/wireless/nl80211.c:5108:1: error: the frame size of 2760 bytes is larger than 2048 bytes
-net/wireless/nl80211.c:6472:1: error: the frame size of 2112 bytes is larger than 2048 bytes
+To compensate, remove the local tracking in favour of keeping it as
+global state on the engine -- once the system is saturated and
+semaphores are disabled, everyone stops attempting to use semaphores
+until the system is idle again. One of the reason for preferring local
+context tracking was that it worked with virtual engines, so for
+switching to global state we could either do a complete check of all the
+virtual siblings or simply disable semaphores for those requests. This
+takes the simpler approach of disabling semaphores on virtual engines.
 
-The structleak plugin was previously disabled for CONFIG_COMPILE_TEST,
-but meant we missed some bugs, so this time we should address them.
+The downside is that the decision that the engine is saturated is a
+local measure -- we are only checking whether or not this context was
+scheduled in a timely fashion, it may be legitimately delayed due to user
+priorities. We still have the same dilemma though, that we do not want
+to employ the semaphore poll unless it will be used.
 
-The frame size warnings are distracting, and risking a kernel stack
-overflow is generally not beneficial to performance, so it may be best
-to disallow that particular combination. This can be done by turning
-off either one. I picked the dependency in GCC_PLUGIN_STRUCTLEAK_BYREF
-and GCC_PLUGIN_STRUCTLEAK_BYREF_ALL, as this option is designed to
-make uninitialized stack usage less harmful when enabled on its own,
-but it also prevents KASAN from detecting those cases in which it was
-in fact needed.
+v2: Explain why we need to assume the worst wrt virtual engines.
 
-KASAN_STACK is currently implied by KASAN on gcc, but could be made a
-user selectable option if we want to allow combining (non-stack) KASAN
-with GCC_PLUGIN_STRUCTLEAK_BYREF.
-
-Note that it would be possible to specifically address the files that
-print the warning, but presumably the overall stack usage is still
-significantly higher than in other configurations, so this would not
-address the full problem.
-
-I could not test this with CONFIG_INIT_STACK_ALL, which may or may not
-suffer from a similar problem.
-
-Fixes: 81a56f6dcd20 ("gcc-plugins: structleak: Generalize to all variable types")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20190722114134.3123901-1-arnd@arndb.de
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Fixes: ca6e56f654e7 ("drm/i915: Disable semaphore busywaits on saturated systems")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: Dmitry Rogozhkin <dmitry.v.rogozhkin@intel.com>
+Cc: Dmitry Ermilov <dmitry.ermilov@intel.com>
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190618074153.16055-8-chris@chris-wilson.co.uk
+Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- security/Kconfig.hardening |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/i915/i915_request.c        |    4 ++--
+ drivers/gpu/drm/i915/intel_context.c       |    1 -
+ drivers/gpu/drm/i915/intel_context_types.h |    2 --
+ drivers/gpu/drm/i915/intel_engine_cs.c     |    1 +
+ drivers/gpu/drm/i915/intel_engine_types.h  |    2 ++
+ 5 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/security/Kconfig.hardening
-+++ b/security/Kconfig.hardening
-@@ -61,6 +61,7 @@ choice
- 	config GCC_PLUGIN_STRUCTLEAK_BYREF
- 		bool "zero-init structs passed by reference (strong)"
- 		depends on GCC_PLUGINS
-+		depends on !(KASAN && KASAN_STACK=1)
- 		select GCC_PLUGIN_STRUCTLEAK
- 		help
- 		  Zero-initialize any structures on the stack that may
-@@ -70,9 +71,15 @@ choice
- 		  exposures, like CVE-2017-1000410:
- 		  https://git.kernel.org/linus/06e7e776ca4d3654
+--- a/drivers/gpu/drm/i915/i915_request.c
++++ b/drivers/gpu/drm/i915/i915_request.c
+@@ -443,7 +443,7 @@ void __i915_request_submit(struct i915_r
+ 	 */
+ 	if (request->sched.semaphores &&
+ 	    i915_sw_fence_signaled(&request->semaphore))
+-		request->hw_context->saturated |= request->sched.semaphores;
++		engine->saturated |= request->sched.semaphores;
  
-+		  As a side-effect, this keeps a lot of variables on the
-+		  stack that can otherwise be optimized out, so combining
-+		  this with CONFIG_KASAN_STACK can lead to a stack overflow
-+		  and is disallowed.
+ 	/* We may be recursing from the signal callback of another i915 fence */
+ 	spin_lock_nested(&request->lock, SINGLE_DEPTH_NESTING);
+@@ -829,7 +829,7 @@ already_busywaiting(struct i915_request
+ 	 *
+ 	 * See the are-we-too-late? check in __i915_request_submit().
+ 	 */
+-	return rq->sched.semaphores | rq->hw_context->saturated;
++	return rq->sched.semaphores | rq->engine->saturated;
+ }
+ 
+ static int
+--- a/drivers/gpu/drm/i915/intel_context.c
++++ b/drivers/gpu/drm/i915/intel_context.c
+@@ -230,7 +230,6 @@ intel_context_init(struct intel_context
+ 	ce->gem_context = ctx;
+ 	ce->engine = engine;
+ 	ce->ops = engine->cops;
+-	ce->saturated = 0;
+ 
+ 	INIT_LIST_HEAD(&ce->signal_link);
+ 	INIT_LIST_HEAD(&ce->signals);
+--- a/drivers/gpu/drm/i915/intel_context_types.h
++++ b/drivers/gpu/drm/i915/intel_context_types.h
+@@ -59,8 +59,6 @@ struct intel_context {
+ 	atomic_t pin_count;
+ 	struct mutex pin_mutex; /* guards pinning and associated on-gpuing */
+ 
+-	intel_engine_mask_t saturated; /* submitting semaphores too late? */
+-
+ 	/**
+ 	 * active_tracker: Active tracker for the external rq activity
+ 	 * on this intel_context object.
+--- a/drivers/gpu/drm/i915/intel_engine_cs.c
++++ b/drivers/gpu/drm/i915/intel_engine_cs.c
+@@ -1200,6 +1200,7 @@ void intel_engines_park(struct drm_i915_
+ 
+ 		i915_gem_batch_pool_fini(&engine->batch_pool);
+ 		engine->execlists.no_priolist = false;
++		engine->saturated = 0;
+ 	}
+ 
+ 	i915->gt.active_engines = 0;
+--- a/drivers/gpu/drm/i915/intel_engine_types.h
++++ b/drivers/gpu/drm/i915/intel_engine_types.h
+@@ -285,6 +285,8 @@ struct intel_engine_cs {
+ 	struct intel_context *kernel_context; /* pinned */
+ 	struct intel_context *preempt_context; /* pinned; optional */
+ 
++	intel_engine_mask_t saturated; /* submitting semaphores too late? */
 +
- 	config GCC_PLUGIN_STRUCTLEAK_BYREF_ALL
- 		bool "zero-init anything passed by reference (very strong)"
- 		depends on GCC_PLUGINS
-+		depends on !(KASAN && KASAN_STACK=1)
- 		select GCC_PLUGIN_STRUCTLEAK
- 		help
- 		  Zero-initialize any stack variables that may be passed
+ 	struct drm_i915_gem_object *default_state;
+ 	void *pinned_default_state;
+ 
 
 
