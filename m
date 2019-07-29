@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21C2779598
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:44:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A3E97959A
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:44:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389739AbfG2ToI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:44:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60826 "EHLO mail.kernel.org"
+        id S2389752AbfG2ToL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:44:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389741AbfG2ToH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:44:07 -0400
+        id S2389747AbfG2ToK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:44:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D31AE205F4;
-        Mon, 29 Jul 2019 19:44:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 891222054F;
+        Mon, 29 Jul 2019 19:44:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429446;
-        bh=xNwiuznsOjYzk1ckiVdZu9i10yFwm7YgRHBwL1Elp+w=;
+        s=default; t=1564429449;
+        bh=F3xEu7dp5QQ6tel3JOLvaCiGrTfOh3hsxHZD8ZXf8Tc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xkURDhzQy+hyVJdI/OSATVV6dDmAM96KEg4JPJ0lQDTGJPrVXs04rkz7AKE8fUTPi
-         UfznpEp+YqnL+8dps1RuncBf8i0BoF/FXaLFAgTzsbVhBm5fnR/sFuXex4zIiVsGXY
-         MogtGuVpnq2U3W0KI5OJ9dF/GF3CukaA7uqHFhrI=
+        b=m9FGuT9tuhPRwfonhp2p2+v7JUioZy8X8qeIVolhBldN5c3XE2AcHKGnrwspWJgxc
+         M/0i4HMoqjJqG8GjEvuz9OUtFpeW+B4zqGgg8WuKy/LngjdEO3cWW1XRiUBl16qAQo
+         qijtgMXIpPfa8Jb3v2RnwVDjhxXBm2cyX5SPVLWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Harvey <jamespharvey20@gmail.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 100/113] btrfs: inode: Dont compress if NODATASUM or NODATACOW set
-Date:   Mon, 29 Jul 2019 21:23:07 +0200
-Message-Id: <20190729190719.413799969@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.19 101/113] x86/sysfb_efi: Add quirks for some devices with swapped width and height
+Date:   Mon, 29 Jul 2019 21:23:08 +0200
+Message-Id: <20190729190719.625627564@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
 References: <20190729190655.455345569@linuxfoundation.org>
@@ -43,101 +43,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 42c16da6d684391db83788eb680accd84f6c2083 upstream.
+commit d02f1aa39189e0619c3525d5cd03254e61bf606a upstream.
 
-As btrfs(5) specified:
+Some Lenovo 2-in-1s with a detachable keyboard have a portrait screen but
+advertise a landscape resolution and pitch, resulting in a messed up
+display if the kernel tries to show anything on the efifb (because of the
+wrong pitch).
 
-	Note
-	If nodatacow or nodatasum are enabled, compression is disabled.
+Fix this by adding a new DMI match table for devices which need to have
+their width and height swapped.
 
-If NODATASUM or NODATACOW set, we should not compress the extent.
+At first it was tried to use the existing table for overriding some of the
+efifb parameters, but some of the affected devices have variants with
+different LCD resolutions which will not work with hardcoded override
+values.
 
-Normally NODATACOW is detected properly in run_delalloc_range() so
-compression won't happen for NODATACOW.
-
-However for NODATASUM we don't have any check, and it can cause
-compressed extent without csum pretty easily, just by:
-  mkfs.btrfs -f $dev
-  mount $dev $mnt -o nodatasum
-  touch $mnt/foobar
-  mount -o remount,datasum,compress $mnt
-  xfs_io -f -c "pwrite 0 128K" $mnt/foobar
-
-And in fact, we have a bug report about corrupted compressed extent
-without proper data checksum so even RAID1 can't recover the corruption.
-(https://bugzilla.kernel.org/show_bug.cgi?id=199707)
-
-Running compression without proper checksum could cause more damage when
-corruption happens, as compressed data could make the whole extent
-unreadable, so there is no need to allow compression for
-NODATACSUM.
-
-The fix will refactor the inode compression check into two parts:
-
-- inode_can_compress()
-  As the hard requirement, checked at btrfs_run_delalloc_range(), so no
-  compression will happen for NODATASUM inode at all.
-
-- inode_need_compress()
-  As the soft requirement, checked at btrfs_run_delalloc_range() and
-  compress_file_range().
-
-Reported-by: James Harvey <jamespharvey20@gmail.com>
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reference: https://bugzilla.redhat.com/show_bug.cgi?id=1730783
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20190721152418.11644-1-hdegoede@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/inode.c |   24 +++++++++++++++++++++++-
- 1 file changed, 23 insertions(+), 1 deletion(-)
+ arch/x86/kernel/sysfb_efi.c |   46 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 46 insertions(+)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -388,10 +388,31 @@ static noinline int add_async_extent(str
- 	return 0;
- }
+--- a/arch/x86/kernel/sysfb_efi.c
++++ b/arch/x86/kernel/sysfb_efi.c
+@@ -231,9 +231,55 @@ static const struct dmi_system_id efifb_
+ 	{},
+ };
  
 +/*
-+ * Check if the inode has flags compatible with compression
++ * Some devices have a portrait LCD but advertise a landscape resolution (and
++ * pitch). We simply swap width and height for these devices so that we can
++ * correctly deal with some of them coming with multiple resolutions.
 + */
-+static inline bool inode_can_compress(struct inode *inode)
-+{
-+	if (BTRFS_I(inode)->flags & BTRFS_INODE_NODATACOW ||
-+	    BTRFS_I(inode)->flags & BTRFS_INODE_NODATASUM)
-+		return false;
-+	return true;
-+}
++static const struct dmi_system_id efifb_dmi_swap_width_height[] __initconst = {
++	{
++		/*
++		 * Lenovo MIIX310-10ICR, only some batches have the troublesome
++		 * 800x1280 portrait screen. Luckily the portrait version has
++		 * its own BIOS version, so we match on that.
++		 */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "MIIX 310-10ICR"),
++			DMI_EXACT_MATCH(DMI_BIOS_VERSION, "1HCN44WW"),
++		},
++	},
++	{
++		/* Lenovo MIIX 320-10ICR with 800x1280 portrait screen */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION,
++					"Lenovo MIIX 320-10ICR"),
++		},
++	},
++	{
++		/* Lenovo D330 with 800x1280 or 1200x1920 portrait screen */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION,
++					"Lenovo ideapad D330-10IGM"),
++		},
++	},
++	{},
++};
 +
-+/*
-+ * Check if the inode needs to be submitted to compression, based on mount
-+ * options, defragmentation, properties or heuristics.
-+ */
- static inline int inode_need_compress(struct inode *inode, u64 start, u64 end)
+ __init void sysfb_apply_efi_quirks(void)
  {
- 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
- 
-+	if (!inode_can_compress(inode)) {
-+		WARN(IS_ENABLED(CONFIG_BTRFS_DEBUG),
-+			KERN_ERR "BTRFS: unexpected compression for ino %llu\n",
-+			btrfs_ino(BTRFS_I(inode)));
-+		return 0;
+ 	if (screen_info.orig_video_isVGA != VIDEO_TYPE_EFI ||
+ 	    !(screen_info.capabilities & VIDEO_CAPABILITY_SKIP_QUIRKS))
+ 		dmi_check_system(efifb_dmi_system_table);
++
++	if (screen_info.orig_video_isVGA == VIDEO_TYPE_EFI &&
++	    dmi_check_system(efifb_dmi_swap_width_height)) {
++		u16 temp = screen_info.lfb_width;
++
++		screen_info.lfb_width = screen_info.lfb_height;
++		screen_info.lfb_height = temp;
++		screen_info.lfb_linelength = 4 * screen_info.lfb_width;
 +	}
- 	/* force compress */
- 	if (btrfs_test_opt(fs_info, FORCE_COMPRESS))
- 		return 1;
-@@ -1596,7 +1617,8 @@ static int run_delalloc_range(void *priv
- 	} else if (BTRFS_I(inode)->flags & BTRFS_INODE_PREALLOC && !force_cow) {
- 		ret = run_delalloc_nocow(inode, locked_page, start, end,
- 					 page_started, 0, nr_written);
--	} else if (!inode_need_compress(inode, start, end)) {
-+	} else if (!inode_can_compress(inode) ||
-+		   !inode_need_compress(inode, start, end)) {
- 		ret = cow_file_range(inode, locked_page, start, end, end,
- 				      page_started, nr_written, 1, NULL);
- 	} else {
+ }
 
 
