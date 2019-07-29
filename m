@@ -2,50 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 058ED79817
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:06:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D5217987C
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:08:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389399AbfG2Tng (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:43:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59918 "EHLO mail.kernel.org"
+        id S1727931AbfG2UHy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 16:07:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389665AbfG2Tnc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:43:32 -0400
+        id S2387731AbfG2TiY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:38:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BAF821773;
-        Mon, 29 Jul 2019 19:43:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3928021773;
+        Mon, 29 Jul 2019 19:38:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429412;
-        bh=333I/5dGGjAojenhI1WcZlnlZf5vSbq8kbFNtZytKEo=;
+        s=default; t=1564429103;
+        bh=fjuEbsoJsz/8BtvzJHjIfCmO5QHPJ5no2YLmeQCMmik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ytt4dx0b2xWk1iSfbqmrs0l3Ey9CH1kPKNTzDGEpojnmyvbBF38sfe8vca33u+C2c
-         lb21e4EaiKWu9fdkK/WFrkA+g0aYhObJaZY57iyBlwFYKdrK4RJS95A0kQQEUqHPUw
-         x9I4g1F+dSzQAEn8FIIEAc7GFVwyvgDGdPubS4ok=
+        b=osdCOARnyh2OVsDASTzYyVu1X/Uu9D/eCGwhv8PTNDEPxCoSGg8Y+4thi39BlqiBb
+         /q02j3gzBoahk5+pU+AkVR0PcZz/jzBekW8yil/SM162ooF9AEt0sQmbuaXQwkjUoE
+         DXGuO10M9b1i2tidUGem3FzjN/zV1swAyi+H/6r4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Roman Gushchin <guro@fb.com>,
-        Cyrill Gorcunov <gorcunov@gmail.com>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Matthew Wilcox <willy@infradead.org>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 090/113] proc: use down_read_killable mmap_sem for /proc/pid/pagemap
+        syzbot+8b3c354d33c4ac78bfad@syzkaller.appspotmail.com,
+        Hridya Valsaraju <hridya@google.com>,
+        Todd Kjos <tkjos@google.com>
+Subject: [PATCH 4.14 286/293] binder: prevent transactions to context manager from its own process.
 Date:   Mon, 29 Jul 2019 21:22:57 +0200
-Message-Id: <20190729190716.968891980@linuxfoundation.org>
+Message-Id: <20190729190846.170358376@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
-References: <20190729190655.455345569@linuxfoundation.org>
+In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
+References: <20190729190820.321094988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ad80b932c57d85fd6377f97f359b025baf179a87 ]
+From: Hridya Valsaraju <hridya@google.com>
 
-Do not remain stuck forever if something goes wrong.  Using a killable
-lock permits cleanup of stuck tasks and simplifies investigation.
+commit 49ed96943a8e0c62cc5a9b0a6cfc88be87d1fcec upstream.
 
-Link: http://lkml.kernel.org/r/156007493638.3335.4872164955523928492.stgit@buzz
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Reviewed-by: Roman Gushchin <guro@fb.com>
-Reviewed-by: Cyrill Gorcunov <gorcunov@gmail.com>
-Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Michal Koutný <mkoutny@suse.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Currently, a transaction to context manager from its own process
+is prevented by checking if its binder_proc struct is the same as
+that of the sender. However, this would not catch cases where the
+process opens the binder device again and uses the new fd to send
+a transaction to the context manager.
+
+Reported-by: syzbot+8b3c354d33c4ac78bfad@syzkaller.appspotmail.com
+Signed-off-by: Hridya Valsaraju <hridya@google.com>
+Acked-by: Todd Kjos <tkjos@google.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20190715191804.112933-1-hridya@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/proc/task_mmu.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/android/binder.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-index b2010055180e..74965e17ffd5 100644
---- a/fs/proc/task_mmu.c
-+++ b/fs/proc/task_mmu.c
-@@ -1535,7 +1535,9 @@ static ssize_t pagemap_read(struct file *file, char __user *buf,
- 		/* overflow ? */
- 		if (end < start_vaddr || end > end_vaddr)
- 			end = end_vaddr;
--		down_read(&mm->mmap_sem);
-+		ret = down_read_killable(&mm->mmap_sem);
-+		if (ret)
-+			goto out_free;
- 		ret = walk_page_range(start_vaddr, end, &pagemap_walk);
- 		up_read(&mm->mmap_sem);
- 		start_vaddr = end;
--- 
-2.20.1
-
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -2785,7 +2785,7 @@ static void binder_transaction(struct bi
+ 			else
+ 				return_error = BR_DEAD_REPLY;
+ 			mutex_unlock(&context->context_mgr_node_lock);
+-			if (target_node && target_proc == proc) {
++			if (target_node && target_proc->pid == proc->pid) {
+ 				binder_user_error("%d:%d got transaction to context manager from process owning it\n",
+ 						  proc->pid, thread->pid);
+ 				return_error = BR_FAILED_REPLY;
 
 
