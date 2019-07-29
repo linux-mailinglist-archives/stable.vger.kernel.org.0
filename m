@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 883837991E
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:13:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 076B37991F
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:13:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388404AbfG2TaR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:30:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43018 "EHLO mail.kernel.org"
+        id S2388411AbfG2Ta0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:30:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388401AbfG2TaQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:30:16 -0400
+        id S2387665AbfG2Ta0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:30:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24C232070B;
-        Mon, 29 Jul 2019 19:30:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE4B82070B;
+        Mon, 29 Jul 2019 19:30:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428615;
-        bh=OFxhJOi9sLznw4eEidnuhjd6ksLW7loPCO20MUwXS5g=;
+        s=default; t=1564428625;
+        bh=zcOOwdkWwAzsrnMVM5ggWKEhyC2WltkG0rLCXQ1hlsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PjY0c4YhsDX9aaXI90P169/2WII/6VSnWdQ5F07oXnPZ4KzVAL5XdHOXNDciKgY86
-         ysT4xkBMxzQeiyiZKndF/OCuIXLsMkBqX/ZkoNwLK8QF8VJCnZ544Lu4Rc3moZ67bI
-         JpfbA8SHt3rok3qnzdoWA1pl3FoMirawN6NY8M9k=
+        b=OGkqbUrE9nzo/IT999G5gvEbytN0q9wMkypv1ek+N3qr7ThMV+yn/ObV8AcJD47GL
+         s70attwta0RuehaXiF/Bag2RUiMD3k4EgTnzAzeKIjD9ow4UqgUh5ncfOBCkB8nyMI
+         dtDK+CpNMrJIFrYy+30nekKfrd3p8tdX0PEwL7N0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.14 131/293] regulator: s2mps11: Fix buck7 and buck8 wrong voltages
-Date:   Mon, 29 Jul 2019 21:20:22 +0200
-Message-Id: <20190729190834.609066963@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>
+Subject: [PATCH 4.14 134/293] iwlwifi: pcie: fix ALIVE interrupt handling for gen2 devices w/o MSI-X
+Date:   Mon, 29 Jul 2019 21:20:25 +0200
+Message-Id: <20190729190834.822858147@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -43,42 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
 
-commit 16da0eb5ab6ef2dd1d33431199126e63db9997cc upstream.
+commit ec46ae30245ecb41d73f8254613db07c653fb498 upstream.
 
-On S2MPS11 device, the buck7 and buck8 regulator voltages start at 750
-mV, not 600 mV.  Using wrong minimal value caused shifting of these
-regulator values by 150 mV (e.g. buck7 usually configured to v1.35 V was
-reported as 1.2 V).
+We added code to restock the buffer upon ALIVE interrupt
+when MSI-X is disabled. This was added as part of the context
+info code. This code was added only if the ISR debug level
+is set which is very unlikely to be related.
+Move this code to run even when the ISR debug level is not
+set.
 
-On most of the boards these regulators are left in default state so this
-was only affecting reported voltage.  However if any driver wanted to
-change them, then effectively it would set voltage 150 mV higher than
-intended.
+Note that gen2 devices work with MSI-X in most cases so that
+this path is seldom used.
 
-Cc: <stable@vger.kernel.org>
-Fixes: cb74685ecb39 ("regulator: s2mps11: Add samsung s2mps11 regulator driver")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/regulator/s2mps11.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/pcie/rx.c |   34 ++++++++++++---------------
+ 1 file changed, 16 insertions(+), 18 deletions(-)
 
---- a/drivers/regulator/s2mps11.c
-+++ b/drivers/regulator/s2mps11.c
-@@ -386,8 +386,8 @@ static const struct regulator_desc s2mps
- 	regulator_desc_s2mps11_buck1_4(4),
- 	regulator_desc_s2mps11_buck5,
- 	regulator_desc_s2mps11_buck67810(6, MIN_600_MV, STEP_6_25_MV),
--	regulator_desc_s2mps11_buck67810(7, MIN_600_MV, STEP_12_5_MV),
--	regulator_desc_s2mps11_buck67810(8, MIN_600_MV, STEP_12_5_MV),
-+	regulator_desc_s2mps11_buck67810(7, MIN_750_MV, STEP_12_5_MV),
-+	regulator_desc_s2mps11_buck67810(8, MIN_750_MV, STEP_12_5_MV),
- 	regulator_desc_s2mps11_buck9,
- 	regulator_desc_s2mps11_buck67810(10, MIN_750_MV, STEP_12_5_MV),
- };
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
+@@ -1674,25 +1674,23 @@ irqreturn_t iwl_pcie_irq_handler(int irq
+ 		goto out;
+ 	}
+ 
+-	if (iwl_have_debug_level(IWL_DL_ISR)) {
+-		/* NIC fires this, but we don't use it, redundant with WAKEUP */
+-		if (inta & CSR_INT_BIT_SCD) {
+-			IWL_DEBUG_ISR(trans,
+-				      "Scheduler finished to transmit the frame/frames.\n");
+-			isr_stats->sch++;
+-		}
++	/* NIC fires this, but we don't use it, redundant with WAKEUP */
++	if (inta & CSR_INT_BIT_SCD) {
++		IWL_DEBUG_ISR(trans,
++			      "Scheduler finished to transmit the frame/frames.\n");
++		isr_stats->sch++;
++	}
+ 
+-		/* Alive notification via Rx interrupt will do the real work */
+-		if (inta & CSR_INT_BIT_ALIVE) {
+-			IWL_DEBUG_ISR(trans, "Alive interrupt\n");
+-			isr_stats->alive++;
+-			if (trans->cfg->gen2) {
+-				/*
+-				 * We can restock, since firmware configured
+-				 * the RFH
+-				 */
+-				iwl_pcie_rxmq_restock(trans, trans_pcie->rxq);
+-			}
++	/* Alive notification via Rx interrupt will do the real work */
++	if (inta & CSR_INT_BIT_ALIVE) {
++		IWL_DEBUG_ISR(trans, "Alive interrupt\n");
++		isr_stats->alive++;
++		if (trans->cfg->gen2) {
++			/*
++			 * We can restock, since firmware configured
++			 * the RFH
++			 */
++			iwl_pcie_rxmq_restock(trans, trans_pcie->rxq);
+ 		}
+ 	}
+ 
 
 
