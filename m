@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8523796B3
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:55:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77E92796F8
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:57:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404072AbfG2Tyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:54:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47270 "EHLO mail.kernel.org"
+        id S2404089AbfG2Tyl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:54:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404073AbfG2Tyh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:54:37 -0400
+        id S2404053AbfG2Tyl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:54:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15A69204EC;
-        Mon, 29 Jul 2019 19:54:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AEB602171F;
+        Mon, 29 Jul 2019 19:54:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564430076;
-        bh=GBPPaGxrCNpYyAZszl07+DyHsr+jJxr0l5+IvGAZjtM=;
+        s=default; t=1564430080;
+        bh=B/oxvIEJXcPzHXdB0xrK2ROxMA5FbIFbDsHay0+/Qgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gaOnQGEA1BrVWUFO3rVnZAQ44TBa4r5NxvdhO02G7QEtuhVGLifP3Y7yUf30WGmnP
-         bvWqyr5ojtCcTipwlOu5IqV15hUeaFNWzgKgGk5Gvh7pBDszjGXlHKx4U6bIOtzeaC
-         smfVnXCmiox6+jbYdMzdMQapyke8E0+rFNdca9dU=
+        b=EQrC3iEt2b/TmPV6aSYrGP6JoLh6yF0Vu+qomMVX3BgoPwzlop+BDfDV+Byh6TYWA
+         qOTVzSZ6tdtRVlyIfUyimCdaX7JWFW7gF7zFBuVvKUPi5SR5bmp1DimIloMTq/c3l4
+         js4vM871+HPuT1spW+xeUdS+4/we6vn7BGq3o7vg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Bunk <bunk@kernel.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Arseny Solokha <asolokha@kb.kras.ru>
-Subject: [PATCH 5.2 188/215] eeprom: make older eeprom drivers select NVMEM_SYSFS
-Date:   Mon, 29 Jul 2019 21:23:04 +0200
-Message-Id: <20190729190812.669585679@linuxfoundation.org>
+        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Zhang HongJun <zhanghongjun2@huawei.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.2 189/215] hpet: Fix division by zero in hpet_time_div()
+Date:   Mon, 29 Jul 2019 21:23:05 +0200
+Message-Id: <20190729190812.807982759@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -45,62 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arseny Solokha <asolokha@kb.kras.ru>
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
 
-commit 1b5621832f9bd9899370ea6928462cd02ebe7dc0 upstream.
+commit 0c7d37f4d9b8446956e97b7c5e61173cdb7c8522 upstream.
 
-misc/eeprom/{at24,at25,eeprom_93xx46} drivers all register their
-corresponding devices in the nvmem framework in compat mode which requires
-nvmem sysfs interface to be present. The latter, however, has been split
-out from nvmem under a separate Kconfig in commit ae0c2d725512 ("nvmem:
-core: add NVMEM_SYSFS Kconfig"). As a result, probing certain I2C-attached
-EEPROMs now fails with
+The base value in do_div() called by hpet_time_div() is truncated from
+unsigned long to uint32_t, resulting in a divide-by-zero exception.
 
-  at24: probe of 0-0050 failed with error -38
+UBSAN: Undefined behaviour in ../drivers/char/hpet.c:572:2
+division by zero
+CPU: 1 PID: 23682 Comm: syz-executor.3 Not tainted 4.4.184.x86_64+ #4
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
+ 0000000000000000 b573382df1853d00 ffff8800a3287b98 ffffffff81ad7561
+ ffff8800a3287c00 ffffffff838b35b0 ffffffff838b3860 ffff8800a3287c20
+ 0000000000000000 ffff8800a3287bb0 ffffffff81b8f25e ffffffff838b35a0
+Call Trace:
+ [<ffffffff81ad7561>] __dump_stack lib/dump_stack.c:15 [inline]
+ [<ffffffff81ad7561>] dump_stack+0xc1/0x120 lib/dump_stack.c:51
+ [<ffffffff81b8f25e>] ubsan_epilogue+0x12/0x8d lib/ubsan.c:166
+ [<ffffffff81b900cb>] __ubsan_handle_divrem_overflow+0x282/0x2c8 lib/ubsan.c:262
+ [<ffffffff823560dd>] hpet_time_div drivers/char/hpet.c:572 [inline]
+ [<ffffffff823560dd>] hpet_ioctl_common drivers/char/hpet.c:663 [inline]
+ [<ffffffff823560dd>] hpet_ioctl_common.cold+0xa8/0xad drivers/char/hpet.c:577
+ [<ffffffff81e63d56>] hpet_ioctl+0xc6/0x180 drivers/char/hpet.c:676
+ [<ffffffff81711590>] vfs_ioctl fs/ioctl.c:43 [inline]
+ [<ffffffff81711590>] file_ioctl fs/ioctl.c:470 [inline]
+ [<ffffffff81711590>] do_vfs_ioctl+0x6e0/0xf70 fs/ioctl.c:605
+ [<ffffffff81711eb4>] SYSC_ioctl fs/ioctl.c:622 [inline]
+ [<ffffffff81711eb4>] SyS_ioctl+0x94/0xc0 fs/ioctl.c:613
+ [<ffffffff82846003>] tracesys_phase2+0x90/0x95
 
-because of a stub implementation of nvmem_sysfs_setup_compat()
-in drivers/nvmem/nvmem.h. Update the nvmem dependency for these drivers
-so they could load again:
+The main C reproducer autogenerated by syzkaller,
 
-  at24 0-0050: 32768 byte 24c256 EEPROM, writable, 64 bytes/write
+  syscall(__NR_mmap, 0x20000000, 0x1000000, 3, 0x32, -1, 0);
+  memcpy((void*)0x20000100, "/dev/hpet\000", 10);
+  syscall(__NR_openat, 0xffffffffffffff9c, 0x20000100, 0, 0);
+  syscall(__NR_ioctl, r[0], 0x40086806, 0x40000000000000);
 
-Cc: Adrian Bunk <bunk@kernel.org>
-Cc: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Cc: stable@vger.kernel.org # v5.2+
-Signed-off-by: Arseny Solokha <asolokha@kb.kras.ru>
-Link: https://lore.kernel.org/r/20190716111236.27803-1-asolokha@kb.kras.ru
+Fix it by using div64_ul().
+
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Signed-off-by: Zhang HongJun <zhanghongjun2@huawei.com>
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20190711132757.130092-1-wangkefeng.wang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/eeprom/Kconfig |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/char/hpet.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/misc/eeprom/Kconfig
-+++ b/drivers/misc/eeprom/Kconfig
-@@ -5,6 +5,7 @@ config EEPROM_AT24
- 	tristate "I2C EEPROMs / RAMs / ROMs from most vendors"
- 	depends on I2C && SYSFS
- 	select NVMEM
-+	select NVMEM_SYSFS
- 	select REGMAP_I2C
- 	help
- 	  Enable this driver to get read/write support to most I2C EEPROMs
-@@ -34,6 +35,7 @@ config EEPROM_AT25
- 	tristate "SPI EEPROMs from most vendors"
- 	depends on SPI && SYSFS
- 	select NVMEM
-+	select NVMEM_SYSFS
- 	help
- 	  Enable this driver to get read/write support to most SPI EEPROMs,
- 	  after you configure the board init code to know about each eeprom
-@@ -80,6 +82,7 @@ config EEPROM_93XX46
- 	depends on SPI && SYSFS
- 	select REGMAP
- 	select NVMEM
-+	select NVMEM_SYSFS
- 	help
- 	  Driver for the microwire EEPROM chipsets 93xx46x. The driver
- 	  supports both read and write commands and also the command to
+--- a/drivers/char/hpet.c
++++ b/drivers/char/hpet.c
+@@ -567,8 +567,7 @@ static inline unsigned long hpet_time_di
+ 	unsigned long long m;
+ 
+ 	m = hpets->hp_tick_freq + (dis >> 1);
+-	do_div(m, dis);
+-	return (unsigned long)m;
++	return div64_ul(m, dis);
+ }
+ 
+ static int
 
 
