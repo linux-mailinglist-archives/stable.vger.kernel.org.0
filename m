@@ -2,89 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B33C792BF
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 20:01:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E179792CB
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 20:08:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726986AbfG2SBk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 14:01:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57852 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726167AbfG2SBk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 14:01:40 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39EB3206BA;
-        Mon, 29 Jul 2019 18:01:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564423299;
-        bh=52c1nW5heDpTP/El9Iy9uFqcvw8UtHQKUJlSWaFumJw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Uw8bJEadKbmw1AuUSVvPa5d6fMyhSN92qJ3owhe6SX7jhpWeOjYUiKxmSfuJ00Z7t
-         FdbCH8ag48dBX8ddhDtTkPC2TCmKb+u/VU/UiZIplDeAFJB0UxecxnntWK90MtxRH6
-         vHuH4SLvxrpy0DouUQ4ZJfitGBswhLEPvuBvLzxM=
-Date:   Mon, 29 Jul 2019 20:01:37 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Daniel Wagner <wagi@monom.org>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jon Hunter <jonathanh@nvidia.com>
-Subject: Re: [PATCH 4.4 0/2] vmstat backports
-Message-ID: <20190729180137.GA3471@kroah.com>
-References: <20190729154046.8824-1-wagi@monom.org>
+        id S1729119AbfG2SIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 14:08:32 -0400
+Received: from mail-io1-f47.google.com ([209.85.166.47]:45416 "EHLO
+        mail-io1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727482AbfG2SIc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 14:08:32 -0400
+Received: by mail-io1-f47.google.com with SMTP id g20so122062037ioc.12
+        for <stable@vger.kernel.org>; Mon, 29 Jul 2019 11:08:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=wRLwKGBtKJgQRLSmh+F3xXu7JBlNIu4QQFNpHbu2Ff4=;
+        b=c4KkeQj5VjmA5khJokvbWr6kywseiA3bfz/sVUzHkHGLd1F0t5mBaxyM1vYBk4GExU
+         1I2b1kycQmHNxEXAhI4Rde+81esanYKbEYIVon28G9640rBpgwbNo3q9HN5QR/Ae2bvK
+         JUafPq7Niz4iQSSTMKG2vPZ1AKpOOCWg86FPLBlBj/T/crdsXbhgnzhc0xuT1nGiIVbK
+         oqbHr462eKzjd31GHoDd3i1RfWwH1t+mobhqb6JsqpW4Mw+7NKER/Cx0lb5HXKp64MxH
+         B7KW7sPjb1hYM4C7SDWc22fx8xpyTwDk+s+Q7d5wjJan1SWDI8Nx2Esv2iBp0yJri2Fj
+         Lgpg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=wRLwKGBtKJgQRLSmh+F3xXu7JBlNIu4QQFNpHbu2Ff4=;
+        b=qLfS2XfmE8s0X8OUD5AyMa5eiTvGjlVWXPzkHYtT00eXxPZ81KvErK7aCDQXKsg+2k
+         TxarU391R3p7mshnuEuTCxRntqom4uYXTHfp+LgS0Xe0elQewruiz0jGTHIcPqf5ddtA
+         mnXgqu3Iz8ZOUw6eJQCtIW5ukxoEM32Yrl8QBPkkO0wa4LVKL+8pma+yP9yzDdvoX/NB
+         63HPrLfdfOxWkQIsI9WVH9MPgm3LYIhZaYUtcCzsp/rlyS5lYxhOQty4d83YGcVYRUVH
+         lrreT+lFED3Gl5UihOpIys+575TuG+JAssQVocizGYOaHrpF9WDsOavIW6j8GRHbd/cN
+         A3ig==
+X-Gm-Message-State: APjAAAV+ImasvfxOO4OwqRrX29+VeHnfHvx0H3FaYTH0qy0FBPzqrJnC
+        mZBxWvt7Wdo959/4mcFtbFoxtTElwW4=
+X-Google-Smtp-Source: APXvYqxh8wP0QXO0eqZ4vwuLUAbuXpnFzWFWwADzQH82/2KQfOvCIkVGXXGNxdRdjJPN6u2C+uc+iQ==
+X-Received: by 2002:a05:6602:220d:: with SMTP id n13mr4934136ion.104.1564423710451;
+        Mon, 29 Jul 2019 11:08:30 -0700 (PDT)
+Received: from [192.168.1.57] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id v3sm6595284ioh.58.2019.07.29.11.08.29
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 29 Jul 2019 11:08:29 -0700 (PDT)
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+From:   Jens Axboe <axboe@kernel.dk>
+Subject: fs/io_uring.c stable additions
+Message-ID: <59d14d1f-441a-568c-246e-4ee1ea443278@kernel.dk>
+Date:   Mon, 29 Jul 2019 12:08:28 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190729154046.8824-1-wagi@monom.org>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 29, 2019 at 05:40:44PM +0200, Daniel Wagner wrote:
-> Hi Greg,
-> 
-> Second attempt on this topic [1]:
-> 
-> """
-> Upstream commmit 0eb77e988032 ("vmstat: make vmstat_updater deferrable
-> again and shut down on idle") was back ported in v4.4.178
-> (bdf3c006b9a2). For -rt we definitely need the bugfix f01f17d3705b
-> ("mm, vmstat: make quiet_vmstat lighter") as well.
-> 
-> Since the offending patch was back ported to v4.4 stable only, the
-> other stable branches don't need an update (offending patch and bug
-> fix are already in).
-> """
-> 
-> Though I missed a dependency as Jon noted[2]. The missing patch is
-> 587198ba5206 ("vmstat: Remove BUG_ON from vmstat_update"). I've tested
-> this on a Tegra K1 one board which exposed the bug. With this should
-> be fine.
-> 
-> While at it, I looked on all relevant changes for
-> vmstat_updated(). These two patches are the only relevant changes
-> which are missing. It seems almost all changes from mainline have made
-> it back to v4.
-> 
-> Could you please queue the above patches for v4.4.y?
-> 
-> Thanks,
-> Daniel
-> 
-> [1] https://lore.kernel.org/stable/20190513061237.4915-1-wagi@monom.org
-> [2] https://lore.kernel.org/stable/f32de22f-c928-2eaa-ee3f-d2b26c184dd4@nvidia.com
-> 
-> 
-> Christoph Lameter (1):
->   vmstat: Remove BUG_ON from vmstat_update
-> 
-> Michal Hocko (1):
->   mm, vmstat: make quiet_vmstat lighter
-> 
->  mm/vmstat.c | 80 +++++++++++++++++++++++++++++++----------------------
->  1 file changed, 47 insertions(+), 33 deletions(-)
+Hi,
 
-Now queued up.
+I forgot to mark a few patches for io_uring as stable. In order
+of how to apply, can you add the following commits for 5.2?
 
-greg k-h
+f7b76ac9d17e16e44feebb6d2749fec92bfd6dd4
+c0e48f9dea9129aa11bec3ed13803bcc26e96e49
+bd11b3a391e3df6fa958facbe4b3f9f4cca9bd49
+36703247d5f52a679df9da51192b6950fe81689f
+
+Thanks!
+
+-- 
+Jens Axboe
+
