@@ -2,90 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E17B7889B
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 11:39:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 606DC788FE
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 11:58:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726208AbfG2Jjl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 05:39:41 -0400
-Received: from conssluserg-06.nifty.com ([210.131.2.91]:20905 "EHLO
-        conssluserg-06.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725818AbfG2Jjl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 05:39:41 -0400
-X-Greylist: delayed 1392 seconds by postgrey-1.27 at vger.kernel.org; Mon, 29 Jul 2019 05:39:40 EDT
-Received: from mail-vk1-f176.google.com (mail-vk1-f176.google.com [209.85.221.176]) (authenticated)
-        by conssluserg-06.nifty.com with ESMTP id x6T9dZk6032431;
-        Mon, 29 Jul 2019 18:39:36 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-06.nifty.com x6T9dZk6032431
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1564393176;
-        bh=OvGgGY+dgwLXgEKVa2h6PzusTMe05KI1PVF/woNjrhk=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=A4v2BH/xAeLIhnO42BZ/x9uQ4+WEMdBV9dB+rYLnglOykUhWDFOFWVa73Emf8Gycm
-         rghWwoz3WN5dzBdIp+egO6z/MByjpw7VgupiEElTwzj4/5ERT1yacLPzSwCQ5xfjT7
-         26ZmIRLiXg+3kcrg+nLwRPYYRckZtTzmM6gL79HUOpF+MnmVdS3GsnxiCCd0wu1jgb
-         UrDFvjM67jKDTQul/vH5poRqoEa9PAUAKLrAVOcj+SDUHRLtP1KsBczN/VZnJTvNjO
-         fhb/VAXCWN/wJPbT2tYMXwlrGE7TNp0GeqJk7Qr5xZnIVkZpLYFAjIqczxgY5Afg2B
-         c4UVJAagV9O9g==
-X-Nifty-SrcIP: [209.85.221.176]
-Received: by mail-vk1-f176.google.com with SMTP id b69so11866731vkb.3;
-        Mon, 29 Jul 2019 02:39:36 -0700 (PDT)
-X-Gm-Message-State: APjAAAUt8NlOEj2859aPHppiGIZrFxsI0RJNJQgk4BJ0XRLSbM2km92j
-        4FYeZn77Kmw1Dws0XlDR87rR84F/CK4l9mbxcC0=
-X-Google-Smtp-Source: APXvYqwEX+Lp8XpvfBa4PcWqJpgOlLEg0Aba3p7+WL/zHArfuap+JR6G0C4CvAMZW3uB2c3HEIKDtFji+TvuRuE8UyM=
-X-Received: by 2002:a1f:a34c:: with SMTP id m73mr27418063vke.74.1564393175172;
- Mon, 29 Jul 2019 02:39:35 -0700 (PDT)
+        id S1728088AbfG2J6G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 05:58:06 -0400
+Received: from foss.arm.com ([217.140.110.172]:41110 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726524AbfG2J6G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 05:58:06 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6E0A715AB;
+        Mon, 29 Jul 2019 02:58:05 -0700 (PDT)
+Received: from e110455-lin.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4EF7C3F694;
+        Mon, 29 Jul 2019 02:58:05 -0700 (PDT)
+Received: by e110455-lin.cambridge.arm.com (Postfix, from userid 1000)
+        id F23AF68240B; Mon, 29 Jul 2019 10:58:03 +0100 (BST)
+Date:   Mon, 29 Jul 2019 10:58:03 +0100
+From:   Liviu Dudau <Liviu.Dudau@arm.com>
+To:     Anders Roxell <anders.roxell@linaro.org>
+Cc:     airlied@linux.ie, daniel@ffwll.ch, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org
+Subject: Re: [PATCH] drm: mali-dp: Mark expected switch fall-through
+Message-ID: <20190729095803.hd7ehqjc4zlqztv3@e110455-lin.cambridge.arm.com>
+References: <20190726112741.19360-1-anders.roxell@linaro.org>
 MIME-Version: 1.0
-References: <20190729091517.5334-1-yamada.masahiro@socionext.com>
-In-Reply-To: <20190729091517.5334-1-yamada.masahiro@socionext.com>
-From:   Masahiro Yamada <yamada.masahiro@socionext.com>
-Date:   Mon, 29 Jul 2019 18:38:59 +0900
-X-Gmail-Original-Message-ID: <CAK7LNASjXdMJG5OVz4qhyGHHLGd0uZO9ifH_iqkUqYxKD+Xn2g@mail.gmail.com>
-Message-ID: <CAK7LNASjXdMJG5OVz4qhyGHHLGd0uZO9ifH_iqkUqYxKD+Xn2g@mail.gmail.com>
-Subject: Re: [PATCH] kbuild: initialize CLANG_FLAGS correctly in the top Makefile
-To:     Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>
-Cc:     Stephen Boyd <swboyd@chromium.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        stable <stable@vger.kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190726112741.19360-1-anders.roxell@linaro.org>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 29, 2019 at 6:16 PM Masahiro Yamada
-<yamada.masahiro@socionext.com> wrote:
->
-> CLANG_FLAGS is initialized by the following line:
->
->   CLANG_FLAGS     := --target=$(notdir $(CROSS_COMPILE:%-=%))
->
-> ..., which is run only when CROSS_COMPILE is set.
->
-> Some build targets (bindeb-pkg etc.) recurse to the top Makefile.
->
-> When you build the kernel with Clang but without CROSS_COMPILE,
-> the same compiler flags such as -no-integrated-as are accumulated
-> into CLANG_FLAGS.
->
-> If you run 'make CC=clang' and then 'make CC=clang bindeb-pkg',
-> Kbuild will recompile everything needlessly due to the build command
-> change.
->
-> Fix this by correctly initializing CLANG_FLAGS.
->
-> Fixes: 238bcbc4e07f ("kbuild: consolidate Clang compiler flags")
-> Cc: <stable@vger.kernel.org> # v4.20+
+Hi Anders,
 
-This should be v5.0+
+On Fri, Jul 26, 2019 at 01:27:41PM +0200, Anders Roxell wrote:
+> When fall-through warnings was enabled by default, commit d93512ef0f0e
+> ("Makefile: Globally enable fall-through warning"), the following
+> warnings was starting to show up:
+> 
+> ../drivers/gpu/drm/arm/malidp_hw.c: In function ‘malidp_format_get_bpp’:
+> ../drivers/gpu/drm/arm/malidp_hw.c:387:8: warning: this statement may fall
+>  through [-Wimplicit-fallthrough=]
+>     bpp = 30;
+>     ~~~~^~~~
+> ../drivers/gpu/drm/arm/malidp_hw.c:388:3: note: here
+>    case DRM_FORMAT_YUV420_10BIT:
+>    ^~~~
+> ../drivers/gpu/drm/arm/malidp_hw.c: In function ‘malidp_se_irq’:
+> ../drivers/gpu/drm/arm/malidp_hw.c:1311:4: warning: this statement may fall
+>  through [-Wimplicit-fallthrough=]
+>     drm_writeback_signal_completion(&malidp->mw_connector, 0);
+>     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> ../drivers/gpu/drm/arm/malidp_hw.c:1313:3: note: here
+>    case MW_START:
+>    ^~~~
+> 
+> Rework to add a 'break;' in a case that didn't have it so that
+> the compiler doesn't warn about fall-through.
+> 
+> Cc: stable@vger.kernel.org # v4.9+
+> Fixes: b8207562abdd ("drm/arm/malidp: Specified the rotation memory requirements for AFBC YUV formats")
+> Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
 
-> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Running the patch through scripts/get_maintainer.pl would've also given you the
+emails for the mali-dp maintainers to reach directly and have a faster response
+time, but I guess you were trying to see if we check the dri-devel mailing list.
+
+Thanks for the patch!
+
+Acked-by: Liviu Dudau <liviu.dudau@arm.com>
+
+Best regards,
+Liviu
+
 > ---
+>  drivers/gpu/drm/arm/malidp_hw.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/arm/malidp_hw.c b/drivers/gpu/drm/arm/malidp_hw.c
+> index 50af399d7f6f..dc5fff9af338 100644
+> --- a/drivers/gpu/drm/arm/malidp_hw.c
+> +++ b/drivers/gpu/drm/arm/malidp_hw.c
+> @@ -385,6 +385,7 @@ int malidp_format_get_bpp(u32 fmt)
+>  		switch (fmt) {
+>  		case DRM_FORMAT_VUY101010:
+>  			bpp = 30;
+> +			break;
+>  		case DRM_FORMAT_YUV420_10BIT:
+>  			bpp = 15;
+>  			break;
+> @@ -1309,7 +1310,7 @@ static irqreturn_t malidp_se_irq(int irq, void *arg)
+>  			break;
+>  		case MW_RESTART:
+>  			drm_writeback_signal_completion(&malidp->mw_connector, 0);
+> -			/* fall through to a new start */
 
+It's a shame that the compiler throws a warning here, it would've been really
+useful to keep the hint that going back to a new start is intentional without
+having to type another comment.
+
+> +			/* fall through */
+>  		case MW_START:
+>  			/* writeback started, need to emulate one-shot mode */
+>  			hw->disable_memwrite(hwdev);
+> -- 
+> 2.20.1
+> 
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
 
 -- 
-Best Regards
-Masahiro Yamada
+====================
+| I would like to |
+| fix the world,  |
+| but they're not |
+| giving me the   |
+ \ source code!  /
+  ---------------
+    ¯\_(ツ)_/¯
