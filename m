@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2C71797BE
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:02:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F04A8797C0
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:02:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390146AbfG2Tsf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:48:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38834 "EHLO mail.kernel.org"
+        id S2390236AbfG2Tsn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:48:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390142AbfG2Tse (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:48:34 -0400
+        id S2390422AbfG2Tsn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:48:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63052205F4;
-        Mon, 29 Jul 2019 19:48:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C50932054F;
+        Mon, 29 Jul 2019 19:48:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429713;
-        bh=swzzTSWVDkECQUft7G79O2Qg7RSN7yfYSx8KiYioYDo=;
+        s=default; t=1564429722;
+        bh=kmaBY2dSCDGI0h4yZEVJbMGEAJASyHHrcCdpv1ArV0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hurK1f/UPT6JlWb5KcHrNCoBnn2ChOGMOLHA/UNN3ZPpH9T9/P91xL1WCN3fJ5cDH
-         +9CC2tbPyez1mve3lg8ZvlmmFw6nze2KQAx0NTXJfeFnJxtGD9ysb1+FOYUNnK2Fqa
-         8dpSeTO8kc5hS16HJgW9Gb98VJjE5QfOfxKi7BOM=
+        b=H4Y6j2XxZURQeWQEygBIT0M6EnbQtDXb0JQGYuMGPWsRuxrxT+BbuCNmB9y0ue9Wx
+         u3VJ7QvLiwvJ9j/uSlxDgDpF52Gnbz7Pa9Ei3eZ/J0TY8+DsWgrt6lg4verPutOeJk
+         6VSz/AKn9c5U5LtC5X7O/e7exzQERe08ZUfHq+jg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mao Wenan <maowenan@huawei.com>,
+        stable@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Andrzej Hajda <a.hajda@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 034/215] staging: kpc2000: report error status to spi core
-Date:   Mon, 29 Jul 2019 21:20:30 +0200
-Message-Id: <20190729190746.218831662@linuxfoundation.org>
+Subject: [PATCH 5.2 035/215] drm/bridge: tc358767: read display_props in get_modes()
+Date:   Mon, 29 Jul 2019 21:20:31 +0200
+Message-Id: <20190729190746.409416708@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -43,53 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9164f336311863d3e9f80840f4a1cce2aee293bd ]
+[ Upstream commit 3231573065ad4f4ecc5c9147b24f29f846dc0c2f ]
 
-There is an error condition that's not reported to
-the spi core in kp_spi_transfer_one_message().
-It should restore status value to m->status, and
-return it in error path.
+We need to know the link bandwidth to filter out modes we cannot
+support, so we need to have read the display props before doing the
+filtering.
 
-Signed-off-by: Mao Wenan <maowenan@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To ensure we have up to date display props, call tc_get_display_props()
+in the beginning of tc_connector_get_modes().
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
+Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190528082747.3631-22-tomi.valkeinen@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/kpc2000/kpc_spi/spi_driver.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/bridge/tc358767.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/staging/kpc2000/kpc_spi/spi_driver.c b/drivers/staging/kpc2000/kpc_spi/spi_driver.c
-index 86df16547a92..2f535022dc03 100644
---- a/drivers/staging/kpc2000/kpc_spi/spi_driver.c
-+++ b/drivers/staging/kpc2000/kpc_spi/spi_driver.c
-@@ -333,7 +333,7 @@ kp_spi_transfer_one_message(struct spi_master *master, struct spi_message *m)
-     list_for_each_entry(transfer, &m->transfers, transfer_list) {
-         if (transfer->tx_buf == NULL && transfer->rx_buf == NULL && transfer->len) {
-             status = -EINVAL;
--            break;
-+            goto error;
-         }
-         
-         /* transfer */
-@@ -371,7 +371,7 @@ kp_spi_transfer_one_message(struct spi_master *master, struct spi_message *m)
-             
-             if (count != transfer->len) {
-                 status = -EIO;
--                break;
-+                goto error;
-             }
-         }
-         
-@@ -389,6 +389,10 @@ kp_spi_transfer_one_message(struct spi_master *master, struct spi_message *m)
-     /* done work */
-     spi_finalize_current_message(master);
-     return 0;
+diff --git a/drivers/gpu/drm/bridge/tc358767.c b/drivers/gpu/drm/bridge/tc358767.c
+index 4655bb1eb88f..f59a51e19dab 100644
+--- a/drivers/gpu/drm/bridge/tc358767.c
++++ b/drivers/gpu/drm/bridge/tc358767.c
+@@ -1141,6 +1141,13 @@ static int tc_connector_get_modes(struct drm_connector *connector)
+ 	struct tc_data *tc = connector_to_tc(connector);
+ 	struct edid *edid;
+ 	unsigned int count;
++	int ret;
 +
-+ error:
-+    m->status = status;
-+    return status;
- }
++	ret = tc_get_display_props(tc);
++	if (ret < 0) {
++		dev_err(tc->dev, "failed to read display props: %d\n", ret);
++		return 0;
++	}
  
- static void
+ 	if (tc->panel && tc->panel->funcs && tc->panel->funcs->get_modes) {
+ 		count = tc->panel->funcs->get_modes(tc->panel);
 -- 
 2.20.1
 
