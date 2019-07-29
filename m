@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE4CA79899
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:10:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7852798A1
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:10:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729177AbfG2TfT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:35:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49700 "EHLO mail.kernel.org"
+        id S1729834AbfG2Tfm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:35:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728886AbfG2TfT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:35:19 -0400
+        id S1728393AbfG2Tfk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:35:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A87912070B;
-        Mon, 29 Jul 2019 19:35:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2561C217D4;
+        Mon, 29 Jul 2019 19:35:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428918;
-        bh=XYN/qrYwQHRKz9KRB1CiZLD9OaTPu1tl4KBb3q3d40o=;
+        s=default; t=1564428939;
+        bh=G65mtQ9TaQSShLzvl+hKMv4/rU9GifJgKQgXHhXgXD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tdlKejRGSSA7euO2+D348JQukrnModNHb19+F8NDdGJGOLHrxkjHJZS+RqAdj7+X7
-         aHVcNiR2HUP67yXxywl4BY1Zkfh20faf5MZMDYp7QsXmfWkzp0eOBkcoJwyi/T4RKx
-         YwTJbQndqX7hDNy0x2XDqvbYjk+ss98a4D/+i1QY=
+        b=dw8z936XlyXTcRO5jTpfZfiBG79gKLA7j8ltcUg9KGx2bTEM1aUd7Zh4RlWE3mmbK
+         Ue3dsEw0CFIhZ2V6zIGcPP59i9G2evmAgNRs9Mhv2YVWdOzEmtf2hXTnbum4SGXCfN
+         hfzTFXxnfAw+vpVCtztL+2elJDHXsbHr3Bzdh/jA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Heiko Stuebner <heiko@sntech.de>, linux-gpio@vger.kernel.org,
-        linux-rockchip@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 225/293] pinctrl: rockchip: fix leaked of_node references
-Date:   Mon, 29 Jul 2019 21:21:56 +0200
-Message-Id: <20190729190841.727001383@linuxfoundation.org>
+        stable@vger.kernel.org, Gen Zhang <blackgod016574@gmail.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 227/293] drm/edid: Fix a missing-check bug in drm_load_edid_firmware()
+Date:   Mon, 29 Jul 2019 21:21:58 +0200
+Message-Id: <20190729190841.890464443@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -45,40 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3c89c70634bb0b6f48512de873e7a45c7e1fbaa5 ]
+[ Upstream commit 9f1f1a2dab38d4ce87a13565cf4dc1b73bef3a5f ]
 
-The call to of_parse_phandle returns a node pointer with refcount
-incremented thus it must be explicitly decremented after the last
-usage.
+In drm_load_edid_firmware(), fwstr is allocated by kstrdup(). And fwstr
+is dereferenced in the following codes. However, memory allocation
+functions such as kstrdup() may fail and returns NULL. Dereferencing
+this null pointer may cause the kernel go wrong. Thus we should check
+this kstrdup() operation.
+Further, if kstrdup() returns NULL, we should return ERR_PTR(-ENOMEM) to
+the caller site.
 
-Detected by coccinelle with the following warnings:
-./drivers/pinctrl/pinctrl-rockchip.c:3221:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 3196, but without a corresponding object release within this function.
-./drivers/pinctrl/pinctrl-rockchip.c:3223:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 3196, but without a corresponding object release within this function.
-
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Heiko Stuebner <heiko@sntech.de>
-Cc: linux-gpio@vger.kernel.org
-Cc: linux-rockchip@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190524023222.GA5302@zhanggen-UX430UQ
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-rockchip.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/drm_edid_load.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
-index a9bc1e01f982..5d6cf024ee9c 100644
---- a/drivers/pinctrl/pinctrl-rockchip.c
-+++ b/drivers/pinctrl/pinctrl-rockchip.c
-@@ -2941,6 +2941,7 @@ static int rockchip_get_bank_data(struct rockchip_pin_bank *bank,
- 						    base,
- 						    &rockchip_regmap_config);
- 		}
-+		of_node_put(node);
- 	}
+diff --git a/drivers/gpu/drm/drm_edid_load.c b/drivers/gpu/drm/drm_edid_load.c
+index 1c0495acf341..06656acea420 100644
+--- a/drivers/gpu/drm/drm_edid_load.c
++++ b/drivers/gpu/drm/drm_edid_load.c
+@@ -274,6 +274,8 @@ struct edid *drm_load_edid_firmware(struct drm_connector *connector)
+ 	 * the last one found one as a fallback.
+ 	 */
+ 	fwstr = kstrdup(edid_firmware, GFP_KERNEL);
++	if (!fwstr)
++		return ERR_PTR(-ENOMEM);
+ 	edidstr = fwstr;
  
- 	bank->irq = irq_of_parse_and_map(bank->of_node, 0);
+ 	while ((edidname = strsep(&edidstr, ","))) {
 -- 
 2.20.1
 
