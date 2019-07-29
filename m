@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8346179591
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:44:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 441DC7951D
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:40:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389678AbfG2Tnw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:43:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60434 "EHLO mail.kernel.org"
+        id S2388913AbfG2Tiq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:38:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389713AbfG2Tnw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:43:52 -0400
+        id S2388908AbfG2Tiq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:38:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90913205F4;
-        Mon, 29 Jul 2019 19:43:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81D06206DD;
+        Mon, 29 Jul 2019 19:38:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429431;
-        bh=REbwc4i22Y9r8hbpNcBt/TcR5wSYBdiN8ktOy5yWdpc=;
+        s=default; t=1564429125;
+        bh=aoeShnV0MIzWhAgFVNAHStxRa1liCLThPH1T9JScSmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ctfJOvop1DmHL1O9N7TXHizvhlZ57iv8822WcnaMJoy2Zp2ynN8ZLiph7yxELAnse
-         0UDuQ4haVPVLRVONv82VGmS79HODxmRH/DHPSLxFVxcC+mCRGuyHv8m16V2/VsCG9a
-         2X7XGj0O3raZ6DIOr2PE1Cnh/mr9nETGWvVVndXs=
+        b=KgHXeoeq3vpchqwo/9MxQivP3J4hpnArOUXINPxGG+l4VJBphSrc57LFfnz2O6M/T
+         uCmeNd4D1Qri04l60gW5LrygNhMVOa+VM5Gi3y9s6U/RiexXVZjbnzkzNZqNBEZGRe
+         Wnph+w1MiambNrool2C0QAkGdHHWXZ5jexb/08Yw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Yuyang Du <duyuyang@gmail.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will.deacon@arm.com>, arnd@arndb.de,
-        frederic@kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 095/113] locking/lockdep: Fix lock used or unused stats error
-Date:   Mon, 29 Jul 2019 21:23:02 +0200
-Message-Id: <20190729190718.271983481@linuxfoundation.org>
+        stable@vger.kernel.org, Praveen Pandey <Praveen.Pandey@in.ibm.com>,
+        Michael Neuling <mikey@neuling.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.14 292/293] powerpc/tm: Fix oops on sigreturn on systems without TM
+Date:   Mon, 29 Jul 2019 21:23:03 +0200
+Message-Id: <20190729190846.605183441@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
-References: <20190729190655.455345569@linuxfoundation.org>
+In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
+References: <20190729190820.321094988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,77 +44,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 68d41d8c94a31dfb8233ab90b9baf41a2ed2da68 ]
+From: Michael Neuling <mikey@neuling.org>
 
-The stats variable nr_unused_locks is incremented every time a new lock
-class is register and decremented when the lock is first used in
-__lock_acquire(). And after all, it is shown and checked in lockdep_stats.
+commit f16d80b75a096c52354c6e0a574993f3b0dfbdfe upstream.
 
-However, under configurations that either CONFIG_TRACE_IRQFLAGS or
-CONFIG_PROVE_LOCKING is not defined:
+On systems like P9 powernv where we have no TM (or P8 booted with
+ppc_tm=off), userspace can construct a signal context which still has
+the MSR TS bits set. The kernel tries to restore this context which
+results in the following crash:
 
-The commit:
+  Unexpected TM Bad Thing exception at c0000000000022fc (msr 0x8000000102a03031) tm_scratch=800000020280f033
+  Oops: Unrecoverable exception, sig: 6 [#1]
+  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+  Modules linked in:
+  CPU: 0 PID: 1636 Comm: sigfuz Not tainted 5.2.0-11043-g0a8ad0ffa4 #69
+  NIP:  c0000000000022fc LR: 00007fffb2d67e48 CTR: 0000000000000000
+  REGS: c00000003fffbd70 TRAP: 0700   Not tainted  (5.2.0-11045-g7142b497d8)
+  MSR:  8000000102a03031 <SF,VEC,VSX,FP,ME,IR,DR,LE,TM[E]>  CR: 42004242  XER: 00000000
+  CFAR: c0000000000022e0 IRQMASK: 0
+  GPR00: 0000000000000072 00007fffb2b6e560 00007fffb2d87f00 0000000000000669
+  GPR04: 00007fffb2b6e728 0000000000000000 0000000000000000 00007fffb2b6f2a8
+  GPR08: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+  GPR12: 0000000000000000 00007fffb2b76900 0000000000000000 0000000000000000
+  GPR16: 00007fffb2370000 00007fffb2d84390 00007fffea3a15ac 000001000a250420
+  GPR20: 00007fffb2b6f260 0000000010001770 0000000000000000 0000000000000000
+  GPR24: 00007fffb2d843a0 00007fffea3a14a0 0000000000010000 0000000000800000
+  GPR28: 00007fffea3a14d8 00000000003d0f00 0000000000000000 00007fffb2b6e728
+  NIP [c0000000000022fc] rfi_flush_fallback+0x7c/0x80
+  LR [00007fffb2d67e48] 0x7fffb2d67e48
+  Call Trace:
+  Instruction dump:
+  e96a0220 e96a02a8 e96a0330 e96a03b8 394a0400 4200ffdc 7d2903a6 e92d0c00
+  e94d0c08 e96d0c10 e82d0c18 7db242a6 <4c000024> 7db243a6 7db142a6 f82d0c18
 
-  091806515124b20 ("locking/lockdep: Consolidate lock usage bit initialization")
+The problem is the signal code assumes TM is enabled when
+CONFIG_PPC_TRANSACTIONAL_MEM is enabled. This may not be the case as
+with P9 powernv or if `ppc_tm=off` is used on P8.
 
-missed marking the LOCK_USED flag at IRQ usage initialization because
-as mark_usage() is not called. And the commit:
+This means any local user can crash the system.
 
-  886532aee3cd42d ("locking/lockdep: Move mark_lock() inside CONFIG_TRACE_IRQFLAGS && CONFIG_PROVE_LOCKING")
+Fix the problem by returning a bad stack frame to the user if they try
+to set the MSR TS bits with sigreturn() on systems where TM is not
+supported.
 
-further made mark_lock() not defined such that the LOCK_USED cannot be
-marked at all when the lock is first acquired.
+Found with sigfuz kernel selftest on P9.
 
-As a result, we fix this by not showing and checking the stats under such
-configurations for lockdep_stats.
+This fixes CVE-2019-13648.
 
-Reported-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Yuyang Du <duyuyang@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: arnd@arndb.de
-Cc: frederic@kernel.org
-Link: https://lkml.kernel.org/r/20190709101522.9117-1-duyuyang@gmail.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2b0a576d15e0 ("powerpc: Add new transactional memory state to the signal context")
+Cc: stable@vger.kernel.org # v3.9
+Reported-by: Praveen Pandey <Praveen.Pandey@in.ibm.com>
+Signed-off-by: Michael Neuling <mikey@neuling.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190719050502.405-1-mikey@neuling.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- kernel/locking/lockdep_proc.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/signal_32.c |    3 +++
+ arch/powerpc/kernel/signal_64.c |    5 +++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/kernel/locking/lockdep_proc.c b/kernel/locking/lockdep_proc.c
-index 3dd980dfba2d..6cf288eef670 100644
---- a/kernel/locking/lockdep_proc.c
-+++ b/kernel/locking/lockdep_proc.c
-@@ -210,6 +210,7 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
- 		      nr_hardirq_read_safe = 0, nr_hardirq_read_unsafe = 0,
- 		      sum_forward_deps = 0;
+--- a/arch/powerpc/kernel/signal_32.c
++++ b/arch/powerpc/kernel/signal_32.c
+@@ -1279,6 +1279,9 @@ long sys_rt_sigreturn(int r3, int r4, in
+ 			goto bad;
  
-+#ifdef CONFIG_PROVE_LOCKING
- 	list_for_each_entry(class, &all_lock_classes, lock_entry) {
- 
- 		if (class->usage_mask == 0)
-@@ -241,12 +242,12 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
- 		if (class->usage_mask & LOCKF_ENABLED_HARDIRQ_READ)
- 			nr_hardirq_read_unsafe++;
- 
--#ifdef CONFIG_PROVE_LOCKING
- 		sum_forward_deps += lockdep_count_forward_deps(class);
--#endif
- 	}
- #ifdef CONFIG_DEBUG_LOCKDEP
- 	DEBUG_LOCKS_WARN_ON(debug_atomic_read(nr_unused_locks) != nr_unused);
-+#endif
+ 		if (MSR_TM_ACTIVE(msr_hi<<32)) {
++			/* Trying to start TM on non TM system */
++			if (!cpu_has_feature(CPU_FTR_TM))
++				goto bad;
+ 			/* We only recheckpoint on return if we're
+ 			 * transaction.
+ 			 */
+--- a/arch/powerpc/kernel/signal_64.c
++++ b/arch/powerpc/kernel/signal_64.c
+@@ -741,6 +741,11 @@ int sys_rt_sigreturn(unsigned long r3, u
+ 	if (MSR_TM_ACTIVE(msr)) {
+ 		/* We recheckpoint on return. */
+ 		struct ucontext __user *uc_transact;
 +
- #endif
- 	seq_printf(m, " lock-classes:                  %11lu [max: %lu]\n",
- 			nr_lock_classes, MAX_LOCKDEP_KEYS);
--- 
-2.20.1
-
++		/* Trying to start TM on non TM system */
++		if (!cpu_has_feature(CPU_FTR_TM))
++			goto badframe;
++
+ 		if (__get_user(uc_transact, &uc->uc_link))
+ 			goto badframe;
+ 		if (restore_tm_sigcontexts(current, &uc->uc_mcontext,
 
 
