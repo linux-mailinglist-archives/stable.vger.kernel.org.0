@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD7BC7984B
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:07:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9102679760
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:01:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389252AbfG2TlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:41:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56468 "EHLO mail.kernel.org"
+        id S2390525AbfG2Tvx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:51:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389242AbfG2TlD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:41:03 -0400
+        id S2403892AbfG2Tvu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:51:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E89C6217D9;
-        Mon, 29 Jul 2019 19:41:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75AB521655;
+        Mon, 29 Jul 2019 19:51:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429262;
-        bh=QxH2mou0ZhhzmjsCzvNUYTR3sj0Y2sitMANirnGFbOo=;
+        s=default; t=1564429909;
+        bh=HQOG1iY6pkax4M3C8S986Wec1wueTYM36qKD4XvFAJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cjr9Mk4TD6EGWBS17jC+kdU8EUpzrvGRHrbFpb57Xd33glxVE2pDXgStwZYlt+gcc
-         O2ijOlaM68B3+qpQA7y+KjjQUbLTz2+fyjTFg6BPn/lB8VYmCG47VqPAOkhhdxI7FD
-         xAJ6tkFiEtMXCnFFknjc3I5T/A2fkt96FfUYbQHs=
+        b=KcBGCoH9TdjQq8q8eNppdZa34M8RcnT+TvHL2oDISX32HDrlzw3qyZRSRG6Z1UGqD
+         Exl+qnDPAUhawpvSNRudt5r6+9v1WDf7FrtjhXXQM7Jwczw4AvqsPk+X5Nk9acFCbl
+         OR64YShHd9x/zfPi1qB9PFyr+FS40o7IQbR9U6Xo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>,
-        Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org,
+        syzbot+94324416c485d422fe15@syzkaller.appspotmail.com,
+        Jens Axboe <axboe@kernel.dk>, Jackie Liu <liuyun01@kylinos.cn>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 043/113] PCI: xilinx-nwl: Fix Multi MSI data programming
-Date:   Mon, 29 Jul 2019 21:22:10 +0200
-Message-Id: <20190729190705.962255545@linuxfoundation.org>
+Subject: [PATCH 5.2 135/215] io_uring: fix io_sq_thread_stop running in front of io_sq_thread
+Date:   Mon, 29 Jul 2019 21:22:11 +0200
+Message-Id: <20190729190803.015904039@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
-References: <20190729190655.455345569@linuxfoundation.org>
+In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
+References: <20190729190739.971253303@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,95 +45,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 181fa434d0514e40ebf6e9721f2b72700287b6e2 ]
+[ Upstream commit a4c0b3decb33fb4a2b5ecc6234a50680f0b21e7d ]
 
-According to the PCI Local Bus specification Revision 3.0,
-section 6.8.1.3 (Message Control for MSI), endpoints that
-are Multiple Message Capable as defined by bits [3:1] in
-the Message Control for MSI can request a number of vectors
-that is power of two aligned.
+INFO: task syz-executor.5:8634 blocked for more than 143 seconds.
+       Not tainted 5.2.0-rc5+ #3
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+syz-executor.5  D25632  8634   8224 0x00004004
+Call Trace:
+  context_switch kernel/sched/core.c:2818 [inline]
+  __schedule+0x658/0x9e0 kernel/sched/core.c:3445
+  schedule+0x131/0x1d0 kernel/sched/core.c:3509
+  schedule_timeout+0x9a/0x2b0 kernel/time/timer.c:1783
+  do_wait_for_common+0x35e/0x5a0 kernel/sched/completion.c:83
+  __wait_for_common kernel/sched/completion.c:104 [inline]
+  wait_for_common kernel/sched/completion.c:115 [inline]
+  wait_for_completion+0x47/0x60 kernel/sched/completion.c:136
+  kthread_stop+0xb4/0x150 kernel/kthread.c:559
+  io_sq_thread_stop fs/io_uring.c:2252 [inline]
+  io_finish_async fs/io_uring.c:2259 [inline]
+  io_ring_ctx_free fs/io_uring.c:2770 [inline]
+  io_ring_ctx_wait_and_kill+0x268/0x880 fs/io_uring.c:2834
+  io_uring_release+0x5d/0x70 fs/io_uring.c:2842
+  __fput+0x2e4/0x740 fs/file_table.c:280
+  ____fput+0x15/0x20 fs/file_table.c:313
+  task_work_run+0x17e/0x1b0 kernel/task_work.c:113
+  tracehook_notify_resume include/linux/tracehook.h:185 [inline]
+  exit_to_usermode_loop arch/x86/entry/common.c:168 [inline]
+  prepare_exit_to_usermode+0x402/0x4f0 arch/x86/entry/common.c:199
+  syscall_return_slowpath+0x110/0x440 arch/x86/entry/common.c:279
+  do_syscall_64+0x126/0x140 arch/x86/entry/common.c:304
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x412fb1
+Code: 80 3b 7c 0f 84 c7 02 00 00 c7 85 d0 00 00 00 00 00 00 00 48 8b 05 cf
+a6 24 00 49 8b 14 24 41 b9 cb 2a 44 00 48 89 ee 48 89 df <48> 85 c0 4c 0f
+45 c8 45 31 c0 31 c9 e8 0e 5b 00 00 85 c0 41 89 c7
+RSP: 002b:00007ffe7ee6a180 EFLAGS: 00000293 ORIG_RAX: 0000000000000003
+RAX: 0000000000000000 RBX: 0000000000000004 RCX: 0000000000412fb1
+RDX: 0000001b2d920000 RSI: 0000000000000000 RDI: 0000000000000003
+RBP: 0000000000000001 R08: 00000000f3a3e1f8 R09: 00000000f3a3e1fc
+R10: 00007ffe7ee6a260 R11: 0000000000000293 R12: 000000000075c9a0
+R13: 000000000075c9a0 R14: 0000000000024c00 R15: 000000000075bf2c
 
-As specified in section 6.8.1.6 "Message data for MSI", the Multiple
-Message Enable field (bits [6:4] of the Message Control register)
-defines the number of low order message data bits the function is
-permitted to modify to generate its system software allocated
-vectors.
+=============================================
 
-The MSI controller in the Xilinx NWL PCIe controller supports a number
-of MSI vectors specified through a bitmap and the hwirq number for an
-MSI, that is the value written in the MSI data TLP is determined by
-the bitmap allocation.
+There is an wrong logic, when kthread_park running
+in front of io_sq_thread.
 
-For instance, in a situation where two endpoints sitting on
-the PCI bus request the following MSI configuration, with
-the current PCI Xilinx bitmap allocation code (that does not
-align MSI vector allocation on a power of two boundary):
+CPU#0					CPU#1
 
-Endpoint #1: Requesting 1 MSI vector - allocated bitmap bits 0
-Endpoint #2: Requesting 2 MSI vectors - allocated bitmap bits [1,2]
+io_sq_thread_stop:			int kthread(void *_create):
 
-The bitmap value(s) corresponds to the hwirq number that is programmed
-into the Message Data for MSI field in the endpoint MSI capability
-and is detected by the root complex to fire the corresponding
-MSI irqs. The value written in Message Data for MSI field corresponds
-to the first bit allocated in the bitmap for Multi MSI vectors.
+kthread_park()
+					__kthread_parkme(self);	 <<< Wrong
+kthread_stop()
+    << wait for self->exited
+    << clear_bit KTHREAD_SHOULD_PARK
 
-The current Xilinx NWL MSI allocation code allows a bitmap allocation
-that is not a power of two boundaries, so endpoint #2, is allowed to
-toggle Message Data bit[0] to differentiate between its two vectors
-(meaning that the MSI data will be respectively 0x0 and 0x1 for the two
-vectors allocated to endpoint #2).
+					ret = threadfn(data);
+					   |
+					   |- io_sq_thread
+					       |- kthread_should_park()	<< false
+					       |- schedule() <<< nobody wake up
 
-This clearly aliases with the Endpoint #1 vector allocation, resulting
-in a broken Multi MSI implementation.
+stuck CPU#0				stuck CPU#1
 
-Update the code to allocate MSI bitmap ranges with a power of two
-alignment, fixing the bug.
+So, use a new variable sqo_thread_started to ensure that io_sq_thread
+run first, then io_sq_thread_stop.
 
-Fixes: ab597d35ef11 ("PCI: xilinx-nwl: Add support for Xilinx NWL PCIe Host Controller")
-Suggested-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>
-[lorenzo.pieralisi@arm.com: updated commit log]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Marc Zyngier <marc.zyngier@arm.com>
+Reported-by: syzbot+94324416c485d422fe15@syzkaller.appspotmail.com
+Suggested-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-xilinx-nwl.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ fs/io_uring.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/pci/controller/pcie-xilinx-nwl.c b/drivers/pci/controller/pcie-xilinx-nwl.c
-index fb32840ce8e6..4850a1b8eec1 100644
---- a/drivers/pci/controller/pcie-xilinx-nwl.c
-+++ b/drivers/pci/controller/pcie-xilinx-nwl.c
-@@ -483,15 +483,13 @@ static int nwl_irq_domain_alloc(struct irq_domain *domain, unsigned int virq,
- 	int i;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 4ef62a45045d..fef2cd44b2ac 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -231,6 +231,7 @@ struct io_ring_ctx {
+ 	struct task_struct	*sqo_thread;	/* if using sq thread polling */
+ 	struct mm_struct	*sqo_mm;
+ 	wait_queue_head_t	sqo_wait;
++	struct completion	sqo_thread_started;
  
- 	mutex_lock(&msi->lock);
--	bit = bitmap_find_next_zero_area(msi->bitmap, INT_PCI_MSI_NR, 0,
--					 nr_irqs, 0);
--	if (bit >= INT_PCI_MSI_NR) {
-+	bit = bitmap_find_free_region(msi->bitmap, INT_PCI_MSI_NR,
-+				      get_count_order(nr_irqs));
-+	if (bit < 0) {
- 		mutex_unlock(&msi->lock);
- 		return -ENOSPC;
- 	}
+ 	struct {
+ 		/* CQ ring */
+@@ -403,6 +404,7 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
+ 	ctx->flags = p->flags;
+ 	init_waitqueue_head(&ctx->cq_wait);
+ 	init_completion(&ctx->ctx_done);
++	init_completion(&ctx->sqo_thread_started);
+ 	mutex_init(&ctx->uring_lock);
+ 	init_waitqueue_head(&ctx->wait);
+ 	for (i = 0; i < ARRAY_SIZE(ctx->pending_async); i++) {
+@@ -2009,6 +2011,8 @@ static int io_sq_thread(void *data)
+ 	unsigned inflight;
+ 	unsigned long timeout;
  
--	bitmap_set(msi->bitmap, bit, nr_irqs);
--
- 	for (i = 0; i < nr_irqs; i++) {
- 		irq_domain_set_info(domain, virq + i, bit + i, &nwl_irq_chip,
- 				domain->host_data, handle_simple_irq,
-@@ -509,7 +507,8 @@ static void nwl_irq_domain_free(struct irq_domain *domain, unsigned int virq,
- 	struct nwl_msi *msi = &pcie->msi;
++	complete(&ctx->sqo_thread_started);
++
+ 	old_fs = get_fs();
+ 	set_fs(USER_DS);
  
- 	mutex_lock(&msi->lock);
--	bitmap_clear(msi->bitmap, data->hwirq, nr_irqs);
-+	bitmap_release_region(msi->bitmap, data->hwirq,
-+			      get_count_order(nr_irqs));
- 	mutex_unlock(&msi->lock);
- }
- 
+@@ -2243,6 +2247,7 @@ static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
+ static void io_sq_thread_stop(struct io_ring_ctx *ctx)
+ {
+ 	if (ctx->sqo_thread) {
++		wait_for_completion(&ctx->sqo_thread_started);
+ 		/*
+ 		 * The park is a bit of a work-around, without it we get
+ 		 * warning spews on shutdown with SQPOLL set and affinity
 -- 
 2.20.1
 
