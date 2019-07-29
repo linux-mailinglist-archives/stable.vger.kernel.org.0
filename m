@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 52DD579479
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:32:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C5A67947B
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:32:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728692AbfG2TcA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:32:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45058 "EHLO mail.kernel.org"
+        id S1729383AbfG2TcF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:32:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730202AbfG2Tb6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:31:58 -0400
+        id S1729389AbfG2TcE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:32:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB10F21773;
-        Mon, 29 Jul 2019 19:31:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AE022070B;
+        Mon, 29 Jul 2019 19:32:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428717;
-        bh=6EyA4BUqKDgjHynT9MTmCSzzqmkbv0iQoAtfbugv96Q=;
+        s=default; t=1564428723;
+        bh=/mMcL1qO+DoVheTOpWO+mEUa2orPdN6aPdPc7je13yA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PTKspnlvZrVy8k04dQrJs4Ycg0V508YJY0XOs6F0nmM8LGLCUfGOnSrXCIlOglKCE
-         lwcCmfMGVZ49S6fkXGG5E+790u5Md34tIYofaWPwPBKZtqP5ILWNgnPMG8sp0LPNVe
-         Cj2cqfaSglx5KCyvP02uo+usX8PLK/WkVPqYtc5g=
+        b=qaHypbMm6/DkMSXM6PA+h/fv59H8bmXbVoq0B96N8+N69FMoN3Q6jsscaKB2oL9R3
+         +IyxmeT+dgkrnj2S4eD2Hd9MuhchQ5vjztutLvKfaw+cQcQZoY2lXGJ8zSRoZDuNfw
+         QXZ293WAg8qb0m3Gdrf/3KKrNUOJZP+qihJEZ8LM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve Longerbeam <slongerbeam@gmail.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>
-Subject: [PATCH 4.14 164/293] gpu: ipu-v3: ipu-ic: Fix saturation bit offset in TPMEM
-Date:   Mon, 29 Jul 2019 21:20:55 +0200
-Message-Id: <20190729190837.128133198@linuxfoundation.org>
+        stable@vger.kernel.org, Horia Geanta <horia.geanta@nxp.com>,
+        Iuliana Prodan <iuliana.prodan@nxp.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.14 166/293] crypto: caam - limit output IV to CBC to work around CTR mode DMA issue
+Date:   Mon, 29 Jul 2019 21:20:57 +0200
+Message-Id: <20190729190837.249555862@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -43,36 +46,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Longerbeam <slongerbeam@gmail.com>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 
-commit 3d1f62c686acdedf5ed9642b763f3808d6a47d1e upstream.
+commit ed527b13d800dd515a9e6c582f0a73eca65b2e1b upstream.
 
-The saturation bit was being set at bit 9 in the second 32-bit word
-of the TPMEM CSC. This isn't correct, the saturation bit is bit 42,
-which is bit 10 of the second word.
+The CAAM driver currently violates an undocumented and slightly
+controversial requirement imposed by the crypto stack that a buffer
+referred to by the request structure via its virtual address may not
+be modified while any scatterlists passed via the same request
+structure are mapped for inbound DMA.
 
-Fixes: 1aa8ea0d2bd5d ("gpu: ipu-v3: Add Image Converter unit")
+This may result in errors like
 
-Signed-off-by: Steve Longerbeam <slongerbeam@gmail.com>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+  alg: aead: decryption failed on test 1 for gcm_base(ctr-aes-caam,ghash-generic): ret=74
+  alg: aead: Failed to load transform for gcm(aes): -2
+
+on non-cache coherent systems, due to the fact that the GCM driver
+passes an IV buffer by virtual address which shares a cacheline with
+the auth_tag buffer passed via a scatterlist, resulting in corruption
+of the auth_tag when the IV is updated while the DMA mapping is live.
+
+Since the IV that is returned to the caller is only valid for CBC mode,
+and given that the in-kernel users of CBC (such as CTS) don't trigger the
+same issue as the GCM driver, let's just disable the output IV generation
+for all modes except CBC for the time being.
+
+Fixes: 854b06f76879 ("crypto: caam - properly set IV after {en,de}crypt")
+Cc: Horia Geanta <horia.geanta@nxp.com>
+Cc: Iuliana Prodan <iuliana.prodan@nxp.com>
+Reported-by: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Reviewed-by: Horia Geanta <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+[ Horia: backported to 4.14, 4.19 ]
+Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/ipu-v3/ipu-ic.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/caam/caamalg.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/ipu-v3/ipu-ic.c
-+++ b/drivers/gpu/ipu-v3/ipu-ic.c
-@@ -256,7 +256,7 @@ static int init_csc(struct ipu_ic *ic,
- 	writel(param, base++);
+--- a/drivers/crypto/caam/caamalg.c
++++ b/drivers/crypto/caam/caamalg.c
+@@ -853,6 +853,7 @@ static void ablkcipher_encrypt_done(stru
+ 	struct ablkcipher_request *req = context;
+ 	struct ablkcipher_edesc *edesc;
+ 	struct crypto_ablkcipher *ablkcipher = crypto_ablkcipher_reqtfm(req);
++	struct caam_ctx *ctx = crypto_ablkcipher_ctx(ablkcipher);
+ 	int ivsize = crypto_ablkcipher_ivsize(ablkcipher);
  
- 	param = ((a[0] & 0x1fe0) >> 5) | (params->scale << 8) |
--		(params->sat << 9);
-+		(params->sat << 10);
- 	writel(param, base++);
+ #ifdef DEBUG
+@@ -877,10 +878,11 @@ static void ablkcipher_encrypt_done(stru
  
- 	param = ((a[1] & 0x1f) << 27) | ((c[0][1] & 0x1ff) << 18) |
+ 	/*
+ 	 * The crypto API expects us to set the IV (req->info) to the last
+-	 * ciphertext block. This is used e.g. by the CTS mode.
++	 * ciphertext block when running in CBC mode.
+ 	 */
+-	scatterwalk_map_and_copy(req->info, req->dst, req->nbytes - ivsize,
+-				 ivsize, 0);
++	if ((ctx->cdata.algtype & OP_ALG_AAI_MASK) == OP_ALG_AAI_CBC)
++		scatterwalk_map_and_copy(req->info, req->dst, req->nbytes -
++					 ivsize, ivsize, 0);
+ 
+ 	/* In case initial IV was generated, copy it in GIVCIPHER request */
+ 	if (edesc->iv_dir == DMA_FROM_DEVICE) {
+@@ -1609,10 +1611,11 @@ static int ablkcipher_decrypt(struct abl
+ 
+ 	/*
+ 	 * The crypto API expects us to set the IV (req->info) to the last
+-	 * ciphertext block.
++	 * ciphertext block when running in CBC mode.
+ 	 */
+-	scatterwalk_map_and_copy(req->info, req->src, req->nbytes - ivsize,
+-				 ivsize, 0);
++	if ((ctx->cdata.algtype & OP_ALG_AAI_MASK) == OP_ALG_AAI_CBC)
++		scatterwalk_map_and_copy(req->info, req->src, req->nbytes -
++					 ivsize, ivsize, 0);
+ 
+ 	/* Create and submit job descriptor*/
+ 	init_ablkcipher_job(ctx->sh_desc_dec, ctx->sh_desc_dec_dma, edesc, req);
 
 
