@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22BC9796BB
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:55:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D084B796FB
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:57:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390696AbfG2Tyy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:54:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47576 "EHLO mail.kernel.org"
+        id S2404150AbfG2TzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:55:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404132AbfG2Tyx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:54:53 -0400
+        id S2404141AbfG2Ty7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:54:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B1CF204EC;
-        Mon, 29 Jul 2019 19:54:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C036204EC;
+        Mon, 29 Jul 2019 19:54:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564430092;
-        bh=JSym5BCHXIZhjJG90piwBXOB0c8hcCgBoTk+AG7pemM=;
+        s=default; t=1564430098;
+        bh=DdfrbT/h5+IQ5TDhREUJeTkJ1Qo6pc6XqjlIG7Ji4qI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UlahhL24bwsv1b6MT7Jg7JnTt3PvVvLBKOyHPuKt4u2a4LNK8ARRRzLCihYsEwBVy
-         MD4n4hstBX0ZM8XY0PLQ9xAqAaO3Xfv52842IvwM5qgt51I3Xh/j+VTJ8mU10zkiLB
-         /yVS29dAzWLNxRuZ2nJip7V9JbV0toUaqshdwoh0=
+        b=faDaPQ6d+kC7FjioofxGSn3kZobwKJzuhZnMsAw6g56IwZa3gabWW2QhrwheCUiJv
+         kaSYCsUEwd7cVbYrvsaa0COkQ6iyN865WRcKPBI6s67s67pKpghPKHLmJup33oMkzG
+         RtIP5qAvWaW/NfIhbXz8vpGHUx2uJbmuuVoUnTTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Duncan Overbruck <kernel@duncano.de>
-Subject: [PATCH 5.2 193/215] ALSA: pcm: Fix refcount_inc() on zero usage
-Date:   Mon, 29 Jul 2019 21:23:09 +0200
-Message-Id: <20190729190813.335586133@linuxfoundation.org>
+        Todd Brandt <todd.e.brandt@linux.intel.com>
+Subject: [PATCH 5.2 194/215] ALSA: hda - Fix intermittent CORB/RIRB stall on Intel chips
+Date:   Mon, 29 Jul 2019 21:23:10 +0200
+Message-Id: <20190729190813.533620151@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -45,79 +45,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit 0e279dcea0ec897af1c979ebee4ec92b461793f5 upstream.
+commit 2756d9143aa517b97961e85412882b8ce31371a6 upstream.
 
-The recent rewrite of PCM link lock management introduced the refcount
-in snd_pcm_group object, managed by the kernel refcount_t API.  This
-caused unexpected kernel warnings when the kernel is built with
-CONFIG_REFCOUNT_FULL=y.  As the warning line indicates, the problem is
-obviously that we start with refcount=0 and do refcount_inc() for
-adding each PCM link, while refcount_t API doesn't like refcount_inc()
-performed on zero.
+It turned out that the recent Intel HD-audio controller chips show a
+significant stall during the system PM resume intermittently.  It
+doesn't happen so often and usually it may read back successfully
+after one or more seconds, but in some rare worst cases the driver
+went into fallback mode.
 
-For adapting the proper refcount_t usage, this patch changes the logic
-slightly:
-- The initial refcount is 1, assuming the single list entry
-- The refcount is incremented / decremented at each PCM link addition
-  and deletion
-- ... which allows us concentrating only on the refcount as a release
-  condition
+After trial-and-error, we found out that the communication stall seems
+covered by issuing the sync after each verb write, as already done for
+AMD and other chipsets.  So this patch enables the write-sync flag for
+the recent Intel chips, Skylake and onward, as a workaround.
 
-Fixes: f57f3df03a8e ("ALSA: pcm: More fine-grained PCM link locking")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204221
-Reported-and-tested-by: Duncan Overbruck <kernel@duncano.de>
+Also, since Broxton and co have the very same driver flags as Skylake,
+refer to the Skylake driver flags instead of defining the same
+contents again for simplification.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=201901
+Reported-and-tested-by: Todd Brandt <todd.e.brandt@linux.intel.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/core/pcm_native.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ sound/pci/hda/hda_intel.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -77,7 +77,7 @@ void snd_pcm_group_init(struct snd_pcm_g
- 	spin_lock_init(&group->lock);
- 	mutex_init(&group->mutex);
- 	INIT_LIST_HEAD(&group->substreams);
--	refcount_set(&group->refs, 0);
-+	refcount_set(&group->refs, 1);
- }
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -313,11 +313,10 @@ enum {
  
- /* define group lock helpers */
-@@ -1096,8 +1096,7 @@ static void snd_pcm_group_unref(struct s
+ #define AZX_DCAPS_INTEL_SKYLAKE \
+ 	(AZX_DCAPS_INTEL_PCH_BASE | AZX_DCAPS_PM_RUNTIME |\
++	 AZX_DCAPS_SYNC_WRITE |\
+ 	 AZX_DCAPS_SEPARATE_STREAM_TAG | AZX_DCAPS_I915_COMPONENT)
  
- 	if (!group)
- 		return;
--	do_free = refcount_dec_and_test(&group->refs) &&
--		list_empty(&group->substreams);
-+	do_free = refcount_dec_and_test(&group->refs);
- 	snd_pcm_group_unlock(group, substream->pcm->nonatomic);
- 	if (do_free)
- 		kfree(group);
-@@ -2020,6 +2019,7 @@ static int snd_pcm_link(struct snd_pcm_s
- 	snd_pcm_group_lock_irq(target_group, nonatomic);
- 	snd_pcm_stream_lock(substream1);
- 	snd_pcm_group_assign(substream1, target_group);
-+	refcount_inc(&target_group->refs);
- 	snd_pcm_stream_unlock(substream1);
- 	snd_pcm_group_unlock_irq(target_group, nonatomic);
-  _end:
-@@ -2056,13 +2056,14 @@ static int snd_pcm_unlink(struct snd_pcm
- 	snd_pcm_group_lock_irq(group, nonatomic);
+-#define AZX_DCAPS_INTEL_BROXTON \
+-	(AZX_DCAPS_INTEL_PCH_BASE | AZX_DCAPS_PM_RUNTIME |\
+-	 AZX_DCAPS_SEPARATE_STREAM_TAG | AZX_DCAPS_I915_COMPONENT)
++#define AZX_DCAPS_INTEL_BROXTON		AZX_DCAPS_INTEL_SKYLAKE
  
- 	relink_to_local(substream);
-+	refcount_dec(&group->refs);
- 
- 	/* detach the last stream, too */
- 	if (list_is_singular(&group->substreams)) {
- 		relink_to_local(list_first_entry(&group->substreams,
- 						 struct snd_pcm_substream,
- 						 link_list));
--		do_free = !refcount_read(&group->refs);
-+		do_free = refcount_dec_and_test(&group->refs);
- 	}
- 
- 	snd_pcm_group_unlock_irq(group, nonatomic);
+ /* quirks for ATI SB / AMD Hudson */
+ #define AZX_DCAPS_PRESET_ATI_SB \
 
 
