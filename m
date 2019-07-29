@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B3DC794FC
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:38:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9531F7950A
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:38:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388702AbfG2ThX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:37:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52110 "EHLO mail.kernel.org"
+        id S2388795AbfG2TiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:38:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388209AbfG2ThW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:37:22 -0400
+        id S2388437AbfG2TiB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:38:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A18602184D;
-        Mon, 29 Jul 2019 19:37:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E96DC2171F;
+        Mon, 29 Jul 2019 19:37:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429042;
-        bh=Jb5//ygbKyXJ/q7wmeUpiah/CscHFECierkUDcF46nM=;
+        s=default; t=1564429080;
+        bh=KJf2K2UdkZTGt+0mCo4df6+uIaLto5eUYkcRQ8ZM+Rk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5r8DeNGNR9lCdPAdJc7lGBcwsMxeG0+MNp5eoQd3UxOPc6+tKShyMEeDmJFyiOWu
-         +PY4CTSQUvx5f8V8QzHxK+kH9mkWdRa5QtoCHsSv79lfecDkGyqpxdMpy0P6Jsnx2g
-         /Cx7ElVVK0nPw6xNUeVu9xdwDQYzU7skI8zaPRWQ=
+        b=e/hPW1vwK1CB+RKtrY0TBiJNfHtnjkYKclF7WLLFS9zsy3Wez9h2MLcrxvSSzIyc9
+         M51B79wW3mx3d5BtMoZqzzO5IIN7hadk3DXJnzvrUEYERvb9jss6kpmkTXVctTEp8Y
+         xNdO6j/Ywxzd6UPvvKvhn0yT7ajf5TcX9u8gYs+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
+        Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+        Emil Velikov <emil.velikov@collabora.com>,
+        Benjamin Gaignard <benjamin.gaignard@linaro.org>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Daniel Vetter <daniel.vetter@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 265/293] powerpc/boot: add {get, put}_unaligned_be32 to xz_config.h
-Date:   Mon, 29 Jul 2019 21:22:36 +0200
-Message-Id: <20190729190844.683491211@linuxfoundation.org>
+Subject: [PATCH 4.14 279/293] drm/crc-debugfs: Also sprinkle irqrestore over early exits
+Date:   Mon, 29 Jul 2019 21:22:50 +0200
+Message-Id: <20190729190845.641798943@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -45,100 +50,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9e005b761e7ad153dcf40a6cba1d681fe0830ac6 ]
+[ Upstream commit d99004d7201aa653658ff2390d6e516567c96ebc ]
 
-The next commit will make the way of passing CONFIG options more robust.
-Unfortunately, it would uncover another hidden issue; without this
-commit, skiroot_defconfig would be broken like this:
+I. was. blind.
 
-|   WRAP    arch/powerpc/boot/zImage.pseries
-| arch/powerpc/boot/wrapper.a(decompress.o): In function `bcj_powerpc.isra.10':
-| decompress.c:(.text+0x720): undefined reference to `get_unaligned_be32'
-| decompress.c:(.text+0x7a8): undefined reference to `put_unaligned_be32'
-| make[1]: *** [arch/powerpc/boot/Makefile;383: arch/powerpc/boot/zImage.pseries] Error 1
-| make: *** [arch/powerpc/Makefile;295: zImage] Error 2
+Caught with vkms, which has some really slow crc computation function.
 
-skiroot_defconfig is the only defconfig that enables CONFIG_KERNEL_XZ
-for ppc, which has never been correctly built before.
-
-I figured out the root cause in lib/decompress_unxz.c:
-
-| #ifdef CONFIG_PPC
-| #      define XZ_DEC_POWERPC
-| #endif
-
-CONFIG_PPC is undefined here in the ppc bootwrapper because autoconf.h
-is not included except by arch/powerpc/boot/serial.c
-
-XZ_DEC_POWERPC is not defined, therefore, bcj_powerpc() is not compiled
-for the bootwrapper.
-
-With the next commit passing CONFIG_PPC correctly, we would realize that
-{get,put}_unaligned_be32 was missing.
-
-Unlike the other decompressors, the ppc bootwrapper duplicates all the
-necessary helpers in arch/powerpc/boot/.
-
-The other architectures define __KERNEL__ and pull in helpers for
-building the decompressors.
-
-If ppc bootwrapper had defined __KERNEL__, lib/xz/xz_private.h would
-have included <asm/unaligned.h>:
-
-| #ifdef __KERNEL__
-| #       include <linux/xz.h>
-| #       include <linux/kernel.h>
-| #       include <asm/unaligned.h>
-
-However, doing so would cause tons of definition conflicts since the
-bootwrapper has duplicated everything.
-
-I just added copies of {get,put}_unaligned_be32, following the
-bootwrapper coding convention.
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190705100144.28785-1-yamada.masahiro@socionext.com
+Fixes: 1882018a70e0 ("drm/crc-debugfs: User irqsafe spinlock in drm_crtc_add_crc_entry")
+Cc: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Cc: Emil Velikov <emil.velikov@collabora.com>
+Cc: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Reviewed-by: Emil Velikov <emil.velikov@collabora.com>
+Reviewed-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190606211544.5389-1-daniel.vetter@ffwll.ch
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/xz_config.h | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/gpu/drm/drm_debugfs_crc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/boot/xz_config.h b/arch/powerpc/boot/xz_config.h
-index e22e5b3770dd..ebfadd39e192 100644
---- a/arch/powerpc/boot/xz_config.h
-+++ b/arch/powerpc/boot/xz_config.h
-@@ -20,10 +20,30 @@ static inline uint32_t swab32p(void *p)
+diff --git a/drivers/gpu/drm/drm_debugfs_crc.c b/drivers/gpu/drm/drm_debugfs_crc.c
+index f689c75474e5..2901b7944068 100644
+--- a/drivers/gpu/drm/drm_debugfs_crc.c
++++ b/drivers/gpu/drm/drm_debugfs_crc.c
+@@ -366,7 +366,7 @@ int drm_crtc_add_crc_entry(struct drm_crtc *crtc, bool has_frame,
  
- #ifdef __LITTLE_ENDIAN__
- #define get_le32(p) (*((uint32_t *) (p)))
-+#define cpu_to_be32(x) swab32(x)
-+static inline u32 be32_to_cpup(const u32 *p)
-+{
-+	return swab32p((u32 *)p);
-+}
- #else
- #define get_le32(p) swab32p(p)
-+#define cpu_to_be32(x) (x)
-+static inline u32 be32_to_cpup(const u32 *p)
-+{
-+	return *p;
-+}
- #endif
+ 	/* Caller may not have noticed yet that userspace has stopped reading */
+ 	if (!crc->entries) {
+-		spin_unlock(&crc->lock);
++		spin_unlock_irqrestore(&crc->lock, flags);
+ 		return -EINVAL;
+ 	}
  
-+static inline uint32_t get_unaligned_be32(const void *p)
-+{
-+	return be32_to_cpup(p);
-+}
-+
-+static inline void put_unaligned_be32(u32 val, void *p)
-+{
-+	*((u32 *)p) = cpu_to_be32(val);
-+}
-+
- #define memeq(a, b, size) (memcmp(a, b, size) == 0)
- #define memzero(buf, size) memset(buf, 0, size)
+@@ -377,7 +377,7 @@ int drm_crtc_add_crc_entry(struct drm_crtc *crtc, bool has_frame,
+ 		bool was_overflow = crc->overflow;
  
+ 		crc->overflow = true;
+-		spin_unlock(&crc->lock);
++		spin_unlock_irqrestore(&crc->lock, flags);
+ 
+ 		if (!was_overflow)
+ 			DRM_ERROR("Overflow of CRC buffer, userspace reads too slow.\n");
 -- 
 2.20.1
 
