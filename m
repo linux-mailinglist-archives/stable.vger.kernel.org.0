@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BC4079484
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:32:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AA9A79488
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:32:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729250AbfG2Tc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:32:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45934 "EHLO mail.kernel.org"
+        id S1728178AbfG2Tck (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:32:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729269AbfG2Tc1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:32:27 -0400
+        id S1725897AbfG2Tcj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:32:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF0FC2070B;
-        Mon, 29 Jul 2019 19:32:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 962AD21773;
+        Mon, 29 Jul 2019 19:32:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428746;
-        bh=9kmPyRcMmFGN7pr4iXMbqPLPyqE6JzneAeKulfpo9v4=;
+        s=default; t=1564428759;
+        bh=ZoxoJX3JIBSKtw7+QATylHzz1N3zv5WldLucO3PBzVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WtdbKwpjX0Of74+Hnie2CY5Tg14XfVs1DpR/XymuhMbmpec7NJHYCCw7XWEMtdShD
-         pZ6+oZmROp3VZub8V/GRNLzVRyWjnM60yQIamWWlAwSxx+cfmLBCV1jtyxRg0FRCC+
-         MNGgN3a0tFQ1dkP1DYXibukcFCEXCYYSSuxhLtMQ=
+        b=ZXLy543ZMVb/AweA457KMdLzSmjenV3BhMtwpAXLI+L76dq1S1iVPBUWz98eVegJ2
+         iRQvGOIxXA0TnRYzM3hvyQfmMNYgkY7F8wvt7Vw11BXlXhlhDklCKgDJvx78GSOStH
+         CMGmTBOyAijE8KNoLmAs6vHSOY7kfh6tJcR3HYXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Ammy Yi <ammy.yi@intel.com>
-Subject: [PATCH 4.14 172/293] intel_th: msu: Fix single mode with disabled IOMMU
-Date:   Mon, 29 Jul 2019 21:21:03 +0200
-Message-Id: <20190729190837.690914993@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Josua Mayer <josua@solid-run.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 176/293] dt-bindings: allow up to four clocks for orion-mdio
+Date:   Mon, 29 Jul 2019 21:21:07 +0200
+Message-Id: <20190729190837.998992704@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -45,40 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Josua Mayer <josua@solid-run.com>
 
-commit 918b8646497b5dba6ae82d4a7325f01b258972b9 upstream.
+commit 80785f5a22e9073e2ded5958feb7f220e066d17b upstream.
 
-Commit 4e0eaf239fb3 ("intel_th: msu: Fix single mode with IOMMU") switched
-the single mode code to use dma mapping pages obtained from the page
-allocator, but with IOMMU disabled, that may lead to using SWIOTLB bounce
-buffers and without additional sync'ing, produces empty trace buffers.
+Armada 8040 needs four clocks to be enabled for MDIO accesses to work.
+Update the binding to allow the extra clock to be specified.
 
-Fix this by using a DMA32 GFP flag to the page allocation in single mode,
-as the device supports full 32-bit DMA addressing.
-
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Fixes: 4e0eaf239fb3 ("intel_th: msu: Fix single mode with IOMMU")
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reported-by: Ammy Yi <ammy.yi@intel.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190621161930.60785-4-alexander.shishkin@linux.intel.com
+Cc: stable@vger.kernel.org
+Fixes: 6d6a331f44a1 ("dt-bindings: allow up to three clocks for orion-mdio")
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Josua Mayer <josua@solid-run.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwtracing/intel_th/msu.c |    2 +-
+ Documentation/devicetree/bindings/net/marvell-orion-mdio.txt |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hwtracing/intel_th/msu.c
-+++ b/drivers/hwtracing/intel_th/msu.c
-@@ -640,7 +640,7 @@ static int msc_buffer_contig_alloc(struc
- 		goto err_out;
+--- a/Documentation/devicetree/bindings/net/marvell-orion-mdio.txt
++++ b/Documentation/devicetree/bindings/net/marvell-orion-mdio.txt
+@@ -16,7 +16,7 @@ Required properties:
  
- 	ret = -ENOMEM;
--	page = alloc_pages(GFP_KERNEL | __GFP_ZERO, order);
-+	page = alloc_pages(GFP_KERNEL | __GFP_ZERO | GFP_DMA32, order);
- 	if (!page)
- 		goto err_free_sgt;
+ Optional properties:
+ - interrupts: interrupt line number for the SMI error/done interrupt
+-- clocks: phandle for up to three required clocks for the MDIO instance
++- clocks: phandle for up to four required clocks for the MDIO instance
  
+ The child nodes of the MDIO driver are the individual PHY devices
+ connected to this MDIO bus. They must have a "reg" property given the
 
 
