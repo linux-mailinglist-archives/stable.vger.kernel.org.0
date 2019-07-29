@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 205EF79875
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:07:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D980779819
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:06:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388874AbfG2Tid (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:38:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53524 "EHLO mail.kernel.org"
+        id S2389699AbfG2Tnr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:43:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388559AbfG2Tid (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:38:33 -0400
+        id S2389680AbfG2Tnp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:43:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE5A720C01;
-        Mon, 29 Jul 2019 19:38:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71A9320C01;
+        Mon, 29 Jul 2019 19:43:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429112;
-        bh=HRmdymFz9CoKWHbTLjLYlSb8GYeHY4UE37+eJqbgQPE=;
+        s=default; t=1564429424;
+        bh=/Wi2A+EetNzhILvEGcYGvMmll5Cs67u1h0XisClzJpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QYrRAU1y8pOxOOlIr+Vu6NFMKm20CjQDPOOLlMtJ4+b+tT6A7kHsCpHn76u6Dqk9J
-         nNTdH8R4dMQRjmGCfK33ak2Bb2nnuYlwGMTEKAooSCvAYSP7HV0W8aOIOWQZfrCN6U
-         B/bygsyfHK5lXzEKj1wfp5uOdLFSNJb5UQjk6QMU=
+        b=I5osa37BGiWgl1OZARnqEX+LOBg7fWshK5Gm5TWPB86PS+jw3xLc726eWBCkySvfD
+         Fy57KLrbbhuCt96Tv/rgL+0uvuOn/dO82860OEjWr49PLtE6zkqh9Zx36u86ReDUBU
+         BarcCxhPeiPgPrcAaiECYDEPVKP2/pBTO8GKh1Zk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Zhang HongJun <zhanghongjun2@huawei.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.14 288/293] hpet: Fix division by zero in hpet_time_div()
-Date:   Mon, 29 Jul 2019 21:22:59 +0200
-Message-Id: <20190729190846.309781280@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 093/113] cxgb4: reduce kernel stack usage in cudbg_collect_mem_region()
+Date:   Mon, 29 Jul 2019 21:23:00 +0200
+Message-Id: <20190729190717.776068837@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
-References: <20190729190820.321094988@linuxfoundation.org>
+In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
+References: <20190729190655.455345569@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
+[ Upstream commit 752c2ea2d8e7c23b0f64e2e7d4337f3604d44c9f ]
 
-commit 0c7d37f4d9b8446956e97b7c5e61173cdb7c8522 upstream.
+The cudbg_collect_mem_region() and cudbg_read_fw_mem() both use several
+hundred kilobytes of kernel stack space. One gets inlined into the other,
+which causes the stack usage to be combined beyond the warning limit
+when building with clang:
 
-The base value in do_div() called by hpet_time_div() is truncated from
-unsigned long to uint32_t, resulting in a divide-by-zero exception.
+drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c:1057:12: error: stack frame size of 1244 bytes in function 'cudbg_collect_mem_region' [-Werror,-Wframe-larger-than=]
 
-UBSAN: Undefined behaviour in ../drivers/char/hpet.c:572:2
-division by zero
-CPU: 1 PID: 23682 Comm: syz-executor.3 Not tainted 4.4.184.x86_64+ #4
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
- 0000000000000000 b573382df1853d00 ffff8800a3287b98 ffffffff81ad7561
- ffff8800a3287c00 ffffffff838b35b0 ffffffff838b3860 ffff8800a3287c20
- 0000000000000000 ffff8800a3287bb0 ffffffff81b8f25e ffffffff838b35a0
-Call Trace:
- [<ffffffff81ad7561>] __dump_stack lib/dump_stack.c:15 [inline]
- [<ffffffff81ad7561>] dump_stack+0xc1/0x120 lib/dump_stack.c:51
- [<ffffffff81b8f25e>] ubsan_epilogue+0x12/0x8d lib/ubsan.c:166
- [<ffffffff81b900cb>] __ubsan_handle_divrem_overflow+0x282/0x2c8 lib/ubsan.c:262
- [<ffffffff823560dd>] hpet_time_div drivers/char/hpet.c:572 [inline]
- [<ffffffff823560dd>] hpet_ioctl_common drivers/char/hpet.c:663 [inline]
- [<ffffffff823560dd>] hpet_ioctl_common.cold+0xa8/0xad drivers/char/hpet.c:577
- [<ffffffff81e63d56>] hpet_ioctl+0xc6/0x180 drivers/char/hpet.c:676
- [<ffffffff81711590>] vfs_ioctl fs/ioctl.c:43 [inline]
- [<ffffffff81711590>] file_ioctl fs/ioctl.c:470 [inline]
- [<ffffffff81711590>] do_vfs_ioctl+0x6e0/0xf70 fs/ioctl.c:605
- [<ffffffff81711eb4>] SYSC_ioctl fs/ioctl.c:622 [inline]
- [<ffffffff81711eb4>] SyS_ioctl+0x94/0xc0 fs/ioctl.c:613
- [<ffffffff82846003>] tracesys_phase2+0x90/0x95
+Restructuring cudbg_collect_mem_region() lets clang do the same
+optimization that gcc does and reuse the stack slots as it can
+see that the large variables are never used together.
 
-The main C reproducer autogenerated by syzkaller,
+A better fix might be to avoid using cudbg_meminfo on the stack
+altogether, but that requires a larger rewrite.
 
-  syscall(__NR_mmap, 0x20000000, 0x1000000, 3, 0x32, -1, 0);
-  memcpy((void*)0x20000100, "/dev/hpet\000", 10);
-  syscall(__NR_openat, 0xffffffffffffff9c, 0x20000100, 0, 0);
-  syscall(__NR_ioctl, r[0], 0x40086806, 0x40000000000000);
-
-Fix it by using div64_ul().
-
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Signed-off-by: Zhang HongJun <zhanghongjun2@huawei.com>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20190711132757.130092-1-wangkefeng.wang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: a1c69520f785 ("cxgb4: collect MC memory dump")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/hpet.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ .../net/ethernet/chelsio/cxgb4/cudbg_lib.c    | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
---- a/drivers/char/hpet.c
-+++ b/drivers/char/hpet.c
-@@ -570,8 +570,7 @@ static inline unsigned long hpet_time_di
- 	unsigned long long m;
- 
- 	m = hpets->hp_tick_freq + (dis >> 1);
--	do_div(m, dis);
--	return (unsigned long)m;
-+	return div64_ul(m, dis);
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
+index d97e0d7e541a..b766362031c3 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
+@@ -1065,14 +1065,12 @@ static void cudbg_t4_fwcache(struct cudbg_init *pdbg_init,
+ 	}
  }
  
- static int
+-static int cudbg_collect_mem_region(struct cudbg_init *pdbg_init,
+-				    struct cudbg_buffer *dbg_buff,
+-				    struct cudbg_error *cudbg_err,
+-				    u8 mem_type)
++static unsigned long cudbg_mem_region_size(struct cudbg_init *pdbg_init,
++					   struct cudbg_error *cudbg_err,
++					   u8 mem_type)
+ {
+ 	struct adapter *padap = pdbg_init->adap;
+ 	struct cudbg_meminfo mem_info;
+-	unsigned long size;
+ 	u8 mc_idx;
+ 	int rc;
+ 
+@@ -1086,7 +1084,16 @@ static int cudbg_collect_mem_region(struct cudbg_init *pdbg_init,
+ 	if (rc)
+ 		return rc;
+ 
+-	size = mem_info.avail[mc_idx].limit - mem_info.avail[mc_idx].base;
++	return mem_info.avail[mc_idx].limit - mem_info.avail[mc_idx].base;
++}
++
++static int cudbg_collect_mem_region(struct cudbg_init *pdbg_init,
++				    struct cudbg_buffer *dbg_buff,
++				    struct cudbg_error *cudbg_err,
++				    u8 mem_type)
++{
++	unsigned long size = cudbg_mem_region_size(pdbg_init, cudbg_err, mem_type);
++
+ 	return cudbg_read_fw_mem(pdbg_init, dbg_buff, mem_type, size,
+ 				 cudbg_err);
+ }
+-- 
+2.20.1
+
 
 
