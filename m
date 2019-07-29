@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 94CBD79724
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:58:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDF2E7971C
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:58:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390943AbfG2Txx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:53:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46390 "EHLO mail.kernel.org"
+        id S2390958AbfG2Tx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:53:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390935AbfG2Txw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:53:52 -0400
+        id S2390954AbfG2Txz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:53:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6112217D7;
-        Mon, 29 Jul 2019 19:53:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB115204EC;
+        Mon, 29 Jul 2019 19:53:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564430031;
-        bh=7oNkVGkCARzG3ouaad00+6R83JA69aiApiOofGoMXcc=;
+        s=default; t=1564430035;
+        bh=QVggB+xuFtwkbmgGs1TmoIKKalViLPWMe7q2bke1mag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k7r0wJDMUyOUeM+YAxSH2u8P883Csv/BuK6MbXytvsYzC+kotmfR20vip8g268I+l
-         sLR7r7qsrWb4097ZqO+NChPbPaibHtis7IxnFFu2XjouQV3i+W7GZdlulCQdttUC7J
-         ypQ+uZnfveknkaUw9wX/IeHPavxSX+lvLXvXObRA=
+        b=ylt0dSHXAeEIrdNgjIkoOoA4BX+01fxgCc4YcTMCAdJ7JX6/siHA+j31Q67LGSa/9
+         EYYX0L8lY05quhwmMhsPRSiS5qoLo+tQW+pZKqeCfkDVQtLLOwc+5yDFyuq8UVI1g1
+         J1zOOA9TCOMmTvT5Wiphi8xjBUUhNsAVlmiKoSpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Lambertz <mail@thomaslambertz.de>,
-        anthony <antdev66@gmail.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>
-Subject: [PATCH 5.2 174/215] KVM: X86: Fix fpu state crash in kvm guest
-Date:   Mon, 29 Jul 2019 21:22:50 +0200
-Message-Id: <20190729190810.125640760@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Suraj Jitindar Singh <sjitindarsingh@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.2 175/215] KVM: PPC: Book3S HV: Always save guest pmu for guest capable of nesting
+Date:   Mon, 29 Jul 2019 21:22:51 +0200
+Message-Id: <20190729190810.318937160@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -46,72 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wanpeng Li <wanpengli@tencent.com>
+From: Suraj Jitindar Singh <sjitindarsingh@gmail.com>
 
-commit e751732486eb3f159089a64d1901992b1357e7cc upstream.
+commit 63279eeb7f93abb1692573c26f1e038e1a87358b upstream.
 
-The idea before commit 240c35a37 (which has just been reverted)
-was that we have the following FPU states:
+The performance monitoring unit (PMU) registers are saved on guest
+exit when the guest has set the pmcregs_in_use flag in its lppaca, if
+it exists, or unconditionally if it doesn't. If a nested guest is
+being run then the hypervisor doesn't, and in most cases can't, know
+if the PMU registers are in use since it doesn't know the location of
+the lppaca for the nested guest, although it may have one for its
+immediate guest. This results in the values of these registers being
+lost across nested guest entry and exit in the case where the nested
+guest was making use of the performance monitoring facility while it's
+nested guest hypervisor wasn't.
 
-               userspace (QEMU)             guest
----------------------------------------------------------------------------
-               processor                    vcpu->arch.guest_fpu
->>> KVM_RUN: kvm_load_guest_fpu
-               vcpu->arch.user_fpu          processor
->>> preempt out
-               vcpu->arch.user_fpu          current->thread.fpu
->>> preempt in
-               vcpu->arch.user_fpu          processor
->>> back to userspace
->>> kvm_put_guest_fpu
-               processor                    vcpu->arch.guest_fpu
----------------------------------------------------------------------------
+Further more the hypervisor could interrupt a guest hypervisor between
+when it has loaded up the PMU registers and it calling H_ENTER_NESTED
+or between returning from the nested guest to the guest hypervisor and
+the guest hypervisor reading the PMU registers, in
+kvmhv_p9_guest_entry(). This means that it isn't sufficient to just
+save the PMU registers when entering or exiting a nested guest, but
+that it is necessary to always save the PMU registers whenever a guest
+is capable of running nested guests to ensure the register values
+aren't lost in the context switch.
 
-With the new lazy model we want to get the state back to the processor
-when schedule in from current->thread.fpu.
+Ensure the PMU register values are preserved by always saving their
+value into the vcpu struct when a guest is capable of running nested
+guests.
 
-Reported-by: Thomas Lambertz <mail@thomaslambertz.de>
-Reported-by: anthony <antdev66@gmail.com>
-Tested-by: anthony <antdev66@gmail.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Radim Krčmář <rkrcmar@redhat.com>
-Cc: Thomas Lambertz <mail@thomaslambertz.de>
-Cc: anthony <antdev66@gmail.com>
-Cc: stable@vger.kernel.org
-Fixes: 5f409e20b (x86/fpu: Defer FPU state load until return to userspace)
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-[Add a comment in front of the warning. - Paolo]
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+This should have minimal performance impact however any impact can be
+avoided by booting a guest with "-machine pseries,cap-nested-hv=false"
+on the qemu commandline.
+
+Fixes: 95a6432ce903 ("KVM: PPC: Book3S HV: Streamlined guest entry/exit path on P9 for radix guests")
+Cc: stable@vger.kernel.org # v4.20+
+Signed-off-by: Suraj Jitindar Singh <sjitindarsingh@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190703012022.15644-1-sjitindarsingh@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/powerpc/kvm/book3s_hv.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3264,6 +3264,10 @@ void kvm_arch_vcpu_load(struct kvm_vcpu
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -3654,6 +3654,8 @@ int kvmhv_p9_guest_entry(struct kvm_vcpu
+ 		vcpu->arch.vpa.dirty = 1;
+ 		save_pmu = lp->pmcregs_in_use;
+ 	}
++	/* Must save pmu if this guest is capable of running nested guests */
++	save_pmu |= nesting_enabled(vcpu->kvm);
  
- 	kvm_x86_ops->vcpu_load(vcpu, cpu);
+ 	kvmhv_save_guest_pmu(vcpu, save_pmu);
  
-+	fpregs_assert_state_consistent();
-+	if (test_thread_flag(TIF_NEED_FPU_LOAD))
-+		switch_fpu_return();
-+
- 	/* Apply any externally detected TSC adjustments (due to suspend) */
- 	if (unlikely(vcpu->arch.tsc_offset_adjustment)) {
- 		adjust_tsc_offset_host(vcpu, vcpu->arch.tsc_offset_adjustment);
-@@ -7955,9 +7959,8 @@ static int vcpu_enter_guest(struct kvm_v
- 		wait_lapic_expire(vcpu);
- 	guest_enter_irqoff();
- 
--	fpregs_assert_state_consistent();
--	if (test_thread_flag(TIF_NEED_FPU_LOAD))
--		switch_fpu_return();
-+	/* The preempt notifier should have taken care of the FPU already.  */
-+	WARN_ON_ONCE(test_thread_flag(TIF_NEED_FPU_LOAD));
- 
- 	if (unlikely(vcpu->arch.switch_db_regs)) {
- 		set_debugreg(0, 7);
 
 
