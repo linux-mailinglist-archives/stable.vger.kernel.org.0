@@ -2,95 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DBAEE7916C
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 18:50:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 768BA79192
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 18:56:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728100AbfG2Quj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 12:50:39 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:42824 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726972AbfG2Quj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 12:50:39 -0400
-Received: by mail-wr1-f68.google.com with SMTP id x1so12713058wrr.9
-        for <stable@vger.kernel.org>; Mon, 29 Jul 2019 09:50:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=arista.com; s=googlenew;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=bKCNDrzNXD8kDs+4Zji72nDWMvbZVJOPeE8sU8hsx8U=;
-        b=V4+tkM9mi/h7POp9rz0XeYUxxDjP7AO8PTSH/lh2A6NE5B6k5kOgoE8JQPYDPrvTmz
-         qoKJls0uJuldhGWeb89/6ECqToqLvtEKZqkJwkv5AdTJnWnRAAlj0GY34xQk0YMJGI6P
-         lOLDZXhSEhxDGrA4ifl8/FzliPpZncHr0XmdGpGM0WIcPcApYX3xI4oCqWs8WzOvlhjI
-         atJHkFgGEmI4EU3OLGWWwbS2PYnditX/Urtj4FaEOVDPtf9cGa8hlDr9OYBh2PkFl7yX
-         cneEvhlEciCt5y7T6jDcxyF13InZVY1bnkMTT67Oo69X1vYPn5RA703cDEO0HwnM+EGC
-         d7+w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=bKCNDrzNXD8kDs+4Zji72nDWMvbZVJOPeE8sU8hsx8U=;
-        b=kHcVp7RXpJcoXLMFaFuKnaVUw9hubBhO/fPyd7zwF/+vwTwBGI0l5lfeEioWvvsCQc
-         f7fsQKGnp0hxQ+4TsvPRf9eDl/myhVaiQAJo+vx37nN2jF2k7thW5eEi9BtdjyiBC8T7
-         8kOpXben2kislhWq+Zwa4CkrPjCoQ2fklqvrk5c3ZT7SQMa1RzKaaoB1PZf3/A39OCu3
-         8ttMP5nvMGTyK73wTjZnwQa/w11FXKaQ+vHrrp5Ie+fVhitHej4YZiRmW0eVh6u6cf8+
-         Mi+odWXZaTdsChMqVm5f4K7TPrA+6+K9WiMY4syi2Fqr4Wb17GJax3JRYc4G4hep63Hb
-         cBjA==
-X-Gm-Message-State: APjAAAV5t8OkPJpAJXZwo0+fCKYJkb9SMNHpfFv3CDPD5+FNzLlqV50j
-        3xD0tsa6RHOwcejs2jb6ZIKG/ApwXX2zXvWpS2aeiFVIfTAaVlpz7NGtDJqvAt+3Evkn3dhCxta
-        HlEmZK6CDzAX1hKqRpnv7t+XpVfvUNeA4gFnBR+qZgmd6D85LrJn21UN8FWknDfzk5JB4t8G8Dk
-        Bfe/Z5+D7otgRquizxLRLMDXc=
-X-Google-Smtp-Source: APXvYqylwUI/5u8EudwNXobPmfzrS4MR1Z0EA9B8s0g/aiXdszuFSNDP7MZ5LvyK2ZFS+NOYUKp75Q==
-X-Received: by 2002:adf:db50:: with SMTP id f16mr111938020wrj.214.1564419037082;
-        Mon, 29 Jul 2019 09:50:37 -0700 (PDT)
-Received: from [10.83.36.153] ([217.173.96.166])
-        by smtp.gmail.com with ESMTPSA id z1sm68830259wrv.90.2019.07.29.09.50.36
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Mon, 29 Jul 2019 09:50:36 -0700 (PDT)
-Subject: Re: FAILED: patch "[PATCH] iommu/vt-d: Don't queue_iova() if there is
- no flush queue" failed to apply to 4.9-stable tree
-To:     gregkh@linuxfoundation.org, baolu.lu@linux.intel.com,
-        dwmw2@infradead.org, joro@8bytes.org, jroedel@suse.de,
-        stable@vger.kernel.org
-References: <1564417154125183@kroah.com>
-From:   Dmitry Safonov <dima@arista.com>
-Message-ID: <15add355-84d9-69f2-8939-adbf430f8e4f@arista.com>
-Date:   Mon, 29 Jul 2019 17:50:35 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+        id S1727481AbfG2Q4P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 12:56:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55898 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727165AbfG2Q4O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 12:56:14 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FEC3206E0;
+        Mon, 29 Jul 2019 16:56:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564419373;
+        bh=Jb7YttoUfhXk57tI+td6fw5yT58F4sBic2hI+PXmoR4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FvEucwLp9F/97X8skoF+H8Wz10sVG1GIsV67VKgXl8I6siTOxMPv55fryyZ/wJ/XO
+         cOcRut/6QT2SZSqhKdxd5kQ9W1nGAfPtBFWyf4lqspLrmAf6GObQEfzv95jQKIIiMm
+         XEdddmHh458+5qHmcwmIyJHnOiDl9zs27NxITJ1M=
+Date:   Mon, 29 Jul 2019 18:56:11 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Saranya Gopal <saranya.gopal@intel.com>
+Cc:     stable@vger.kernel.org, linux-usb@vger.kernel.org,
+        fei.yang@intel.com, john.stultz@linaro.org,
+        Felipe Balbi <felipe.balbi@linux.intel.com>
+Subject: Re: [PATCH 4.19.y 3/3] usb: dwc3: gadget: remove req->started flag
+Message-ID: <20190729165611.GA14160@kroah.com>
+References: <1564407819-10746-1-git-send-email-saranya.gopal@intel.com>
+ <1564407819-10746-4-git-send-email-saranya.gopal@intel.com>
 MIME-Version: 1.0
-In-Reply-To: <1564417154125183@kroah.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-CLOUD-SEC-AV-Info: arista,google_mail,monitor
-X-CLOUD-SEC-AV-Sent: true
-X-Gm-Spam: 0
-X-Gm-Phishy: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1564407819-10746-4-git-send-email-saranya.gopal@intel.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-
-On 7/29/19 5:19 PM, gregkh@linuxfoundation.org wrote:
+On Mon, Jul 29, 2019 at 07:13:39PM +0530, Saranya Gopal wrote:
+> From: Felipe Balbi <felipe.balbi@linux.intel.com>
 > 
-> The patch below does not apply to the 4.9-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+> [Upstream commit 7c3d7dc89e57a1d43acea935882dd8713c9e639f]
+> 
+> Now that we have req->status, we don't need this extra flag
+> anymore. It's safe to remove it.
+> 
+> Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+> Signed-off-by: Saranya Gopal <saranya.gopal@intel.com>
+> ---
+>  drivers/usb/dwc3/core.h   | 2 --
+>  drivers/usb/dwc3/gadget.c | 1 -
+>  drivers/usb/dwc3/gadget.h | 2 --
+>  3 files changed, 5 deletions(-)
 
-It's not needed for v4.9 stable tree [as pointed by tag's comment line]:
+Why is this patch needed for a stable tree?  It just cleans stuff up, it
+doesn't actually change any functionality.
 
-> Cc: <stable@vger.kernel.org> # 4.14+
+thanks,
 
-If there is any better way to inform where a commit should be
-backported, please let me know.
-
-I'll send v4.19 -stable patch shortly..
-And will prepare v4.14 patch (as we don't have v4.14 release, I need to
-actually port it).
-
-Thanks,
-          Dmitry
+greg k-h
