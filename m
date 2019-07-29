@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34E9879700
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:57:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B483979745
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:59:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390500AbfG2T46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:56:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48148 "EHLO mail.kernel.org"
+        id S2404202AbfG2T6x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:58:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404185AbfG2TzW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:55:22 -0400
+        id S2403816AbfG2TxS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:53:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9200204EC;
-        Mon, 29 Jul 2019 19:55:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C98CB2171F;
+        Mon, 29 Jul 2019 19:53:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564430121;
-        bh=xWU2T18u/Nu5RkpwNewS1gvI8KovX04BBdh4IsTYUiM=;
+        s=default; t=1564429997;
+        bh=yNRuLvnJl93keGWCDhEdJDmk3b9iv2u3ZP53YRNB+QU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EgIVd8UmQY83GTmni/0AED9z6QyVH0VkiPxsthGNv2gVJwDxs/ZTJp071OibXFgdB
-         0jf1BpGXT5NyecjFVgxLs+xgFRwLwmVKFOVLLxi5rQBN73WCXDsvcBi+FyVsDvd3RG
-         A0LQPmkV3ER65M978nD4U8nThSSs/B8Wa0Wzxr20=
+        b=VlWJnCDY01Mu3HSFfclfBncKfGRYlnHE0uAUkltmReFYBT29VVByNeUeQgHfMUiiJ
+         GBkjmErQXHIKU3bIRKrKivP9IYSzJjfy8qLG6+liVTv7Nosymnnny5EdNKkiCiWp1U
+         EmE4cKWRrx20ACqx65D+s+ZTA/DIeHV5TR3Jagbw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Yuyang Du <duyuyang@gmail.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Cyrill Gorcunov <gorcunov@gmail.com>,
+        Kirill Tkhai <ktkhai@virtuozzo.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Roman Gushchin <guro@fb.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will.deacon@arm.com>, arnd@arndb.de,
-        frederic@kernel.org, Ingo Molnar <mingo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 163/215] locking/lockdep: Fix lock used or unused stats error
-Date:   Mon, 29 Jul 2019 21:22:39 +0200
-Message-Id: <20190729190808.078872094@linuxfoundation.org>
+Subject: [PATCH 5.2 164/215] mm: use down_read_killable for locking mmap_sem in access_remote_vm
+Date:   Mon, 29 Jul 2019 21:22:40 +0200
+Message-Id: <20190729190808.252237041@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -51,75 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 68d41d8c94a31dfb8233ab90b9baf41a2ed2da68 ]
+[ Upstream commit 1e426fe28261b03f297992e89da3320b42816f4e ]
 
-The stats variable nr_unused_locks is incremented every time a new lock
-class is register and decremented when the lock is first used in
-__lock_acquire(). And after all, it is shown and checked in lockdep_stats.
+This function is used by ptrace and proc files like /proc/pid/cmdline and
+/proc/pid/environ.
 
-However, under configurations that either CONFIG_TRACE_IRQFLAGS or
-CONFIG_PROVE_LOCKING is not defined:
+Access_remote_vm never returns error codes, all errors are ignored and
+only size of successfully read data is returned.  So, if current task was
+killed we'll simply return 0 (bytes read).
 
-The commit:
+Mmap_sem could be locked for a long time or forever if something goes
+wrong.  Using a killable lock permits cleanup of stuck tasks and
+simplifies investigation.
 
-  091806515124b20 ("locking/lockdep: Consolidate lock usage bit initialization")
-
-missed marking the LOCK_USED flag at IRQ usage initialization because
-as mark_usage() is not called. And the commit:
-
-  886532aee3cd42d ("locking/lockdep: Move mark_lock() inside CONFIG_TRACE_IRQFLAGS && CONFIG_PROVE_LOCKING")
-
-further made mark_lock() not defined such that the LOCK_USED cannot be
-marked at all when the lock is first acquired.
-
-As a result, we fix this by not showing and checking the stats under such
-configurations for lockdep_stats.
-
-Reported-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Yuyang Du <duyuyang@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: arnd@arndb.de
-Cc: frederic@kernel.org
-Link: https://lkml.kernel.org/r/20190709101522.9117-1-duyuyang@gmail.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: http://lkml.kernel.org/r/156007494202.3335.16782303099589302087.stgit@buzz
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Acked-by: Oleg Nesterov <oleg@redhat.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Cyrill Gorcunov <gorcunov@gmail.com>
+Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Roman Gushchin <guro@fb.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/lockdep_proc.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ mm/memory.c | 4 +++-
+ mm/nommu.c  | 3 ++-
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/locking/lockdep_proc.c b/kernel/locking/lockdep_proc.c
-index 9c49ec645d8b..65b6a1600c8f 100644
---- a/kernel/locking/lockdep_proc.c
-+++ b/kernel/locking/lockdep_proc.c
-@@ -210,6 +210,7 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
- 		      nr_hardirq_read_safe = 0, nr_hardirq_read_unsafe = 0,
- 		      sum_forward_deps = 0;
+diff --git a/mm/memory.c b/mm/memory.c
+index ddf20bd0c317..9a4401d21e94 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -4349,7 +4349,9 @@ int __access_remote_vm(struct task_struct *tsk, struct mm_struct *mm,
+ 	void *old_buf = buf;
+ 	int write = gup_flags & FOLL_WRITE;
  
-+#ifdef CONFIG_PROVE_LOCKING
- 	list_for_each_entry(class, &all_lock_classes, lock_entry) {
- 
- 		if (class->usage_mask == 0)
-@@ -241,12 +242,12 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
- 		if (class->usage_mask & LOCKF_ENABLED_HARDIRQ_READ)
- 			nr_hardirq_read_unsafe++;
- 
--#ifdef CONFIG_PROVE_LOCKING
- 		sum_forward_deps += lockdep_count_forward_deps(class);
--#endif
- 	}
- #ifdef CONFIG_DEBUG_LOCKDEP
- 	DEBUG_LOCKS_WARN_ON(debug_atomic_read(nr_unused_locks) != nr_unused);
-+#endif
+-	down_read(&mm->mmap_sem);
++	if (down_read_killable(&mm->mmap_sem))
++		return 0;
 +
- #endif
- 	seq_printf(m, " lock-classes:                  %11lu [max: %lu]\n",
- 			nr_lock_classes, MAX_LOCKDEP_KEYS);
+ 	/* ignore errors, just check how much was successfully transferred */
+ 	while (len) {
+ 		int bytes, ret, offset;
+diff --git a/mm/nommu.c b/mm/nommu.c
+index d8c02fbe03b5..b2823519f8cd 100644
+--- a/mm/nommu.c
++++ b/mm/nommu.c
+@@ -1792,7 +1792,8 @@ int __access_remote_vm(struct task_struct *tsk, struct mm_struct *mm,
+ 	struct vm_area_struct *vma;
+ 	int write = gup_flags & FOLL_WRITE;
+ 
+-	down_read(&mm->mmap_sem);
++	if (down_read_killable(&mm->mmap_sem))
++		return 0;
+ 
+ 	/* the access must start within one of the target process's mappings */
+ 	vma = find_vma(mm, addr);
 -- 
 2.20.1
 
