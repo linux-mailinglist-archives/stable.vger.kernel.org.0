@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D0C77967F
+	by mail.lfdr.de (Postfix) with ESMTP id B043479680
 	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:52:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390674AbfG2TwY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:52:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44196 "EHLO mail.kernel.org"
+        id S2390620AbfG2Twa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:52:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403886AbfG2TwW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:52:22 -0400
+        id S2403898AbfG2Tw0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:52:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BE9B2171F;
-        Mon, 29 Jul 2019 19:52:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22F4A2171F;
+        Mon, 29 Jul 2019 19:52:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429942;
-        bh=dzvGZR5DDmGEX6Cf6j5ZTi37Rt4Wn/mZhjl8aYJylCA=;
+        s=default; t=1564429945;
+        bh=dLN48frxHIgBkJc6jUET3AT4ObeOAhRSb1d7Fprxev4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nFWXi4/4kvE3O4Cp7DRSy5b/8vlO8dmLAm7hf0v9ExsF2q6wb/CfWrTVkp9mbkq80
-         lX8LeWmBMXoRecQG0h+sInif/ltXVRLHKCQuYBBz66rZFsM/YYNZHcwNWWMwqKkBRy
-         OOSh2al47UkGJTz4TpvA0QKXplDC6Vml7wreiFwQ=
+        b=F/9MAQgVMnq0M/+EmvwH7cl2Bged338bNhegx0KiHT6NUqBu+3BNuCIZSjqIfyUYK
+         Ner678Th/gaT5+aLrbti098Wgu1hG7NvKjH2FtVm/7yKF9O/UEOAT6bh1vEu3nUdpq
+         ZYV567KcFG6lSUNgS6yflA4vFXcPRCmTcQZL9Sjk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Windsor <dwindsor@redhat.com>,
-        David Teigland <teigland@redhat.com>,
+        stable@vger.kernel.org, Sachin Sant <sachinp@linux.vnet.ibm.com>,
+        Oliver OHalloran <oohall@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 144/215] dlm: check if workqueues are NULL before flushing/destroying
-Date:   Mon, 29 Jul 2019 21:22:20 +0200
-Message-Id: <20190729190804.634942706@linuxfoundation.org>
+Subject: [PATCH 5.2 145/215] powerpc/eeh: Handle hugepages in ioremap space
+Date:   Mon, 29 Jul 2019 21:22:21 +0200
+Message-Id: <20190729190804.835475505@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -44,62 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b355516f450703c9015316e429b66a93dfff0e6f ]
+[ Upstream commit 33439620680be5225c1b8806579a291e0d761ca0 ]
 
-If the DLM lowcomms stack is shut down before any DLM
-traffic can be generated, flush_workqueue() and
-destroy_workqueue() can be called on empty send and/or recv
-workqueues.
+In commit 4a7b06c157a2 ("powerpc/eeh: Handle hugepages in ioremap
+space") support for using hugepages in the vmalloc and ioremap areas was
+enabled for radix. Unfortunately this broke EEH MMIO error checking.
 
-Insert guard conditionals to only call flush_workqueue()
-and destroy_workqueue() on workqueues that are not NULL.
+Detection works by inserting a hook which checks the results of the
+ioreadXX() set of functions.  When a read returns a 0xFFs response we
+need to check for an error which we do by mapping the (virtual) MMIO
+address back to a physical address, then mapping physical address to a
+PCI device via an interval tree.
 
-Signed-off-by: David Windsor <dwindsor@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+When translating virt -> phys we currently assume the ioremap space is
+only populated by PAGE_SIZE mappings. If a hugepage mapping is found we
+emit a WARN_ON(), but otherwise handles the check as though a normal
+page was found. In pathalogical cases such as copying a buffer
+containing a lot of 0xFFs from BAR memory this can result in the system
+not booting because it's too busy printing WARN_ON()s.
+
+There's no real reason to assume huge pages can't be present and we're
+prefectly capable of handling them, so do that.
+
+Fixes: 4a7b06c157a2 ("powerpc/eeh: Handle hugepages in ioremap space")
+Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
+Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190710150517.27114-1-oohall@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/lowcomms.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ arch/powerpc/kernel/eeh.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
-index 114ebfe30929..3951d39b9b75 100644
---- a/fs/dlm/lowcomms.c
-+++ b/fs/dlm/lowcomms.c
-@@ -1628,8 +1628,10 @@ static void clean_writequeues(void)
+diff --git a/arch/powerpc/kernel/eeh.c b/arch/powerpc/kernel/eeh.c
+index f192d57db47d..c0e4b73191f3 100644
+--- a/arch/powerpc/kernel/eeh.c
++++ b/arch/powerpc/kernel/eeh.c
+@@ -354,10 +354,19 @@ static inline unsigned long eeh_token_to_phys(unsigned long token)
+ 	ptep = find_init_mm_pte(token, &hugepage_shift);
+ 	if (!ptep)
+ 		return token;
+-	WARN_ON(hugepage_shift);
+-	pa = pte_pfn(*ptep) << PAGE_SHIFT;
  
- static void work_stop(void)
- {
--	destroy_workqueue(recv_workqueue);
--	destroy_workqueue(send_workqueue);
-+	if (recv_workqueue)
-+		destroy_workqueue(recv_workqueue);
-+	if (send_workqueue)
-+		destroy_workqueue(send_workqueue);
+-	return pa | (token & (PAGE_SIZE-1));
++	pa = pte_pfn(*ptep);
++
++	/* On radix we can do hugepage mappings for io, so handle that */
++	if (hugepage_shift) {
++		pa <<= hugepage_shift;
++		pa |= token & ((1ul << hugepage_shift) - 1);
++	} else {
++		pa <<= PAGE_SHIFT;
++		pa |= token & (PAGE_SIZE - 1);
++	}
++
++	return pa;
  }
  
- static int work_start(void)
-@@ -1689,13 +1691,17 @@ static void work_flush(void)
- 	struct hlist_node *n;
- 	struct connection *con;
- 
--	flush_workqueue(recv_workqueue);
--	flush_workqueue(send_workqueue);
-+	if (recv_workqueue)
-+		flush_workqueue(recv_workqueue);
-+	if (send_workqueue)
-+		flush_workqueue(send_workqueue);
- 	do {
- 		ok = 1;
- 		foreach_conn(stop_conn);
--		flush_workqueue(recv_workqueue);
--		flush_workqueue(send_workqueue);
-+		if (recv_workqueue)
-+			flush_workqueue(recv_workqueue);
-+		if (send_workqueue)
-+			flush_workqueue(send_workqueue);
- 		for (i = 0; i < CONN_HASH_SIZE && ok; i++) {
- 			hlist_for_each_entry_safe(con, n,
- 						  &connection_hash[i], list) {
+ /*
 -- 
 2.20.1
 
