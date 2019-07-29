@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 258BA79681
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:52:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9D1B7967C
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:52:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390752AbfG2Twb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:52:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44002 "EHLO mail.kernel.org"
+        id S2390232AbfG2TwS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:52:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390861AbfG2TwN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:52:13 -0400
+        id S2390868AbfG2TwQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:52:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FE1621655;
-        Mon, 29 Jul 2019 19:52:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22E782171F;
+        Mon, 29 Jul 2019 19:52:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429933;
-        bh=WQzSuaMhJ3OkzAaDq0Sz8lpc3FBoiK7kOXSrxmr9KPI=;
+        s=default; t=1564429935;
+        bh=CTuAuaTLazECyivSnK5XnsZFPeOlr9DkR+6xrHXFSGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PLJHjv88F7DZjvUZUH/SfoXEnmVzJmx2jwUhzt5jitzxU7FU7wq+VUpQUZC3D6br0
-         xid8/kjC4lMHIMn3V9Vafh9X6iMjYHEQMSblLffjN188/Bhg97UVdwRZk2kEwJPPry
-         l2bJ+D70mu5THXoy7ZOjrfkVWK7KExx11VcGlV4U=
+        b=mDq3ggJkkaLX1cdNh9MCiDLwZYO1l/abCYpYqU+vaN7VlUidbZ/fASjHeq89601aN
+         wqIOcpQM9XfjeSBPAefFaThCAaxYWGW+y7W0W6uCKmObzLyANllvmCaLdprss6dC8l
+         pgwe/lffnC5ykSL4ahSXGJRtXcH4jBk+uTbZSiLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ocean Chen <oceanchen@google.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Morten Borup Petersen <morten_bp@live.dk>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 142/215] f2fs: avoid out-of-range memory access
-Date:   Mon, 29 Jul 2019 21:22:18 +0200
-Message-Id: <20190729190804.238870752@linuxfoundation.org>
+Subject: [PATCH 5.2 143/215] mailbox: handle failed named mailbox channel request
+Date:   Mon, 29 Jul 2019 21:22:19 +0200
+Message-Id: <20190729190804.444390948@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -44,37 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 56f3ce675103e3fb9e631cfb4131fc768bc23e9a ]
+[ Upstream commit 25777e5784a7b417967460d4fcf9660d05a0c320 ]
 
-blkoff_off might over 512 due to fs corrupt or security
-vulnerability. That should be checked before being using.
+Previously, if mbox_request_channel_byname was used with a name
+which did not exist in the "mbox-names" property of a mailbox
+client, the mailbox corresponding to the last entry in the
+"mbox-names" list would be incorrectly selected.
+With this patch, -EINVAL is returned if the named mailbox is
+not found.
 
-Use ENTRIES_IN_SUM to protect invalid value in cur_data_blkoff.
-
-Signed-off-by: Ocean Chen <oceanchen@google.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Morten Borup Petersen <morten_bp@live.dk>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/segment.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/mailbox/mailbox.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 291f7106537c..ce15fbcd7cff 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -3403,6 +3403,11 @@ static int read_compacted_summaries(struct f2fs_sb_info *sbi)
- 		seg_i = CURSEG_I(sbi, i);
- 		segno = le32_to_cpu(ckpt->cur_data_segno[i]);
- 		blk_off = le16_to_cpu(ckpt->cur_data_blkoff[i]);
-+		if (blk_off > ENTRIES_IN_SUM) {
-+			f2fs_bug_on(sbi, 1);
-+			f2fs_put_page(page, 1);
-+			return -EFAULT;
-+		}
- 		seg_i->next_segno = segno;
- 		reset_curseg(sbi, i, 0);
- 		seg_i->alloc_type = ckpt->alloc_type[i];
+diff --git a/drivers/mailbox/mailbox.c b/drivers/mailbox/mailbox.c
+index f4b1950d35f3..0b821a5b2db8 100644
+--- a/drivers/mailbox/mailbox.c
++++ b/drivers/mailbox/mailbox.c
+@@ -418,11 +418,13 @@ struct mbox_chan *mbox_request_channel_byname(struct mbox_client *cl,
+ 
+ 	of_property_for_each_string(np, "mbox-names", prop, mbox_name) {
+ 		if (!strncmp(name, mbox_name, strlen(name)))
+-			break;
++			return mbox_request_channel(cl, index);
+ 		index++;
+ 	}
+ 
+-	return mbox_request_channel(cl, index);
++	dev_err(cl->dev, "%s() could not locate channel named \"%s\"\n",
++		__func__, name);
++	return ERR_PTR(-EINVAL);
+ }
+ EXPORT_SYMBOL_GPL(mbox_request_channel_byname);
+ 
 -- 
 2.20.1
 
