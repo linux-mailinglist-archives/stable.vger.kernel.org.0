@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D980779819
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:06:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1A7879872
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:07:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389699AbfG2Tnr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:43:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60282 "EHLO mail.kernel.org"
+        id S2388892AbfG2Tik (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:38:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389680AbfG2Tnp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:43:45 -0400
+        id S2388889AbfG2Tij (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:38:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71A9320C01;
-        Mon, 29 Jul 2019 19:43:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DAAD206DD;
+        Mon, 29 Jul 2019 19:38:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429424;
-        bh=/Wi2A+EetNzhILvEGcYGvMmll5Cs67u1h0XisClzJpw=;
+        s=default; t=1564429119;
+        bh=RB9hIpH/8Qdkva/l9o2yes0mx8YaAiHanj/V/Q1RVWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I5osa37BGiWgl1OZARnqEX+LOBg7fWshK5Gm5TWPB86PS+jw3xLc726eWBCkySvfD
-         Fy57KLrbbhuCt96Tv/rgL+0uvuOn/dO82860OEjWr49PLtE6zkqh9Zx36u86ReDUBU
-         BarcCxhPeiPgPrcAaiECYDEPVKP2/pBTO8GKh1Zk=
+        b=UjSpSEGwHMdiW6CjYnlYF+w5U2rlH9xsHYLEJfk/h/nN2TwDO55rKm7ys3O8ect6y
+         Z+qdhC5ewN2Gqr7+Bbl2uAO53J2OhhRCJYGSDNLFWGwcRTS2tTy2RuqrgQ/Xgqmu6I
+         +kqKgLt/wu4s1CCoRY5ARweG5EQDSKiA61S6Ij9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 093/113] cxgb4: reduce kernel stack usage in cudbg_collect_mem_region()
-Date:   Mon, 29 Jul 2019 21:23:00 +0200
-Message-Id: <20190729190717.776068837@linuxfoundation.org>
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 290/293] ALSA: hda - Add a conexant codec entry to let mute led work
+Date:   Mon, 29 Jul 2019 21:23:01 +0200
+Message-Id: <20190729190846.459586057@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
-References: <20190729190655.455345569@linuxfoundation.org>
+In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
+References: <20190729190820.321094988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 752c2ea2d8e7c23b0f64e2e7d4337f3604d44c9f ]
+From: Hui Wang <hui.wang@canonical.com>
 
-The cudbg_collect_mem_region() and cudbg_read_fw_mem() both use several
-hundred kilobytes of kernel stack space. One gets inlined into the other,
-which causes the stack usage to be combined beyond the warning limit
-when building with clang:
+commit 3f8809499bf02ef7874254c5e23fc764a47a21a0 upstream.
 
-drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c:1057:12: error: stack frame size of 1244 bytes in function 'cudbg_collect_mem_region' [-Werror,-Wframe-larger-than=]
+This conexant codec isn't in the supported codec list yet, the hda
+generic driver can drive this codec well, but on a Lenovo machine
+with mute/mic-mute leds, we need to apply CXT_FIXUP_THINKPAD_ACPI
+to make the leds work. After adding this codec to the list, the
+driver patch_conexant.c will apply THINKPAD_ACPI to this machine.
 
-Restructuring cudbg_collect_mem_region() lets clang do the same
-optimization that gcc does and reuse the stack slots as it can
-see that the large variables are never used together.
+Cc: stable@vger.kernel.org
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-A better fix might be to avoid using cudbg_meminfo on the stack
-altogether, but that requires a larger rewrite.
-
-Fixes: a1c69520f785 ("cxgb4: collect MC memory dump")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/chelsio/cxgb4/cudbg_lib.c    | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ sound/pci/hda/patch_conexant.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
-index d97e0d7e541a..b766362031c3 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
-@@ -1065,14 +1065,12 @@ static void cudbg_t4_fwcache(struct cudbg_init *pdbg_init,
- 	}
- }
+--- a/sound/pci/hda/patch_conexant.c
++++ b/sound/pci/hda/patch_conexant.c
+@@ -1127,6 +1127,7 @@ static int patch_conexant_auto(struct hd
+  */
  
--static int cudbg_collect_mem_region(struct cudbg_init *pdbg_init,
--				    struct cudbg_buffer *dbg_buff,
--				    struct cudbg_error *cudbg_err,
--				    u8 mem_type)
-+static unsigned long cudbg_mem_region_size(struct cudbg_init *pdbg_init,
-+					   struct cudbg_error *cudbg_err,
-+					   u8 mem_type)
- {
- 	struct adapter *padap = pdbg_init->adap;
- 	struct cudbg_meminfo mem_info;
--	unsigned long size;
- 	u8 mc_idx;
- 	int rc;
- 
-@@ -1086,7 +1084,16 @@ static int cudbg_collect_mem_region(struct cudbg_init *pdbg_init,
- 	if (rc)
- 		return rc;
- 
--	size = mem_info.avail[mc_idx].limit - mem_info.avail[mc_idx].base;
-+	return mem_info.avail[mc_idx].limit - mem_info.avail[mc_idx].base;
-+}
-+
-+static int cudbg_collect_mem_region(struct cudbg_init *pdbg_init,
-+				    struct cudbg_buffer *dbg_buff,
-+				    struct cudbg_error *cudbg_err,
-+				    u8 mem_type)
-+{
-+	unsigned long size = cudbg_mem_region_size(pdbg_init, cudbg_err, mem_type);
-+
- 	return cudbg_read_fw_mem(pdbg_init, dbg_buff, mem_type, size,
- 				 cudbg_err);
- }
--- 
-2.20.1
-
+ static const struct hda_device_id snd_hda_id_conexant[] = {
++	HDA_CODEC_ENTRY(0x14f11f86, "CX8070", patch_conexant_auto),
+ 	HDA_CODEC_ENTRY(0x14f12008, "CX8200", patch_conexant_auto),
+ 	HDA_CODEC_ENTRY(0x14f15045, "CX20549 (Venice)", patch_conexant_auto),
+ 	HDA_CODEC_ENTRY(0x14f15047, "CX20551 (Waikiki)", patch_conexant_auto),
 
 
