@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CDF37798C9
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:11:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45B24798CC
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:11:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388082AbfG2Td7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:33:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48344 "EHLO mail.kernel.org"
+        id S2388232AbfG2TeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:34:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388054AbfG2Td7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:33:59 -0400
+        id S2388219AbfG2TeI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:34:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A89BB217D6;
-        Mon, 29 Jul 2019 19:33:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76384217D7;
+        Mon, 29 Jul 2019 19:34:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428838;
-        bh=5NwAp73nKV++WnnHW1SKK5D8ojELMkgVwqolVmj/iTs=;
+        s=default; t=1564428848;
+        bh=wbyM6RbvZIQm3+NgUtFet8W7UaelmwWaworHQg34nyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pchwhhqfqtJFic2T1HgKwliUmJg534ndH3BEragfQh+7++O9uOlXZNf5PyRvsDwGL
-         BPe7XXn0m4STBM/8ofFkMq0HEEu0qwdR6ZYTXeLyRubNzgGgYi1yJnpvQuXrhqh9zb
-         I8tGrfNwtptOTH95sd+n/0pdBMWGMdaxcbA4W6To=
+        b=UOrGaiKo5s9nLLZ0WpdMN6lJRFM+UlIlypQ/Zml8QlTfouIbVuzwHRTkCgW2kzGLW
+         58G+M+aIVOwPxdmNHG7OJ5oV7brdLspzfhp8OkIQlspe3U7PrqisYDRQz9yocm0eye
+         FhvknBwIbtbjqboS6pPUBK7GpgUI0Yk8RD6ELkik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
-        Martin Weinelt <martin@linuxlounge.net>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 203/293] net: bridge: mcast: fix stale ipv6 hdr pointer when handling v6 query
-Date:   Mon, 29 Jul 2019 21:21:34 +0200
-Message-Id: <20190729190840.031452347@linuxfoundation.org>
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linaro-mm-sig@lists.linaro.org,
+        =?UTF-8?q?St=C3=A9phane=20Marchesin?= <marcheu@chromium.org>
+Subject: [PATCH 4.14 205/293] dma-buf: balance refcount inbalance
+Date:   Mon, 29 Jul 2019 21:21:36 +0200
+Message-Id: <20190729190840.168417823@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -45,41 +49,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+From: Jérôme Glisse <jglisse@redhat.com>
 
-[ Upstream commit 3b26a5d03d35d8f732d75951218983c0f7f68dff ]
+commit 5e383a9798990c69fc759a4930de224bb497e62c upstream.
 
-We get a pointer to the ipv6 hdr in br_ip6_multicast_query but we may
-call pskb_may_pull afterwards and end up using a stale pointer.
-So use the header directly, it's just 1 place where it's needed.
+The debugfs take reference on fence without dropping them.
 
-Fixes: 08b202b67264 ("bridge br_multicast: IPv6 MLD support.")
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Tested-by: Martin Weinelt <martin@linuxlounge.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jérôme Glisse <jglisse@redhat.com>
+Cc: Christian König <christian.koenig@amd.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Sumit Semwal <sumit.semwal@linaro.org>
+Cc: linux-media@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: linaro-mm-sig@lists.linaro.org
+Cc: Stéphane Marchesin <marcheu@chromium.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Sumit Semwal <sumit.semwal@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20181206161840.6578-1-jglisse@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/bridge/br_multicast.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1482,7 +1482,6 @@ static int br_ip6_multicast_query(struct
- 				  struct sk_buff *skb,
- 				  u16 vid)
- {
--	const struct ipv6hdr *ip6h = ipv6_hdr(skb);
- 	struct mld_msg *mld;
- 	struct net_bridge_mdb_entry *mp;
- 	struct mld2_query *mld2q;
-@@ -1526,7 +1525,7 @@ static int br_ip6_multicast_query(struct
+---
+ drivers/dma-buf/dma-buf.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/dma-buf/dma-buf.c
++++ b/drivers/dma-buf/dma-buf.c
+@@ -1115,6 +1115,7 @@ static int dma_buf_debug_show(struct seq
+ 				   fence->ops->get_driver_name(fence),
+ 				   fence->ops->get_timeline_name(fence),
+ 				   dma_fence_is_signaled(fence) ? "" : "un");
++			dma_fence_put(fence);
+ 		}
+ 		rcu_read_unlock();
  
- 	if (is_general_query) {
- 		saddr.proto = htons(ETH_P_IPV6);
--		saddr.u.ip6 = ip6h->saddr;
-+		saddr.u.ip6 = ipv6_hdr(skb)->saddr;
- 
- 		br_multicast_query_received(br, port, &br->ip6_other_query,
- 					    &saddr, max_delay);
 
 
