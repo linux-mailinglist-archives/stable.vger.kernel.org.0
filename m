@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA809796F6
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:56:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9387F796F3
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:56:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390676AbfG2T4v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:56:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48398 "EHLO mail.kernel.org"
+        id S2391049AbfG2Tzk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:55:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390500AbfG2Tze (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:55:34 -0400
+        id S2391047AbfG2Tzi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:55:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47B86204EC;
-        Mon, 29 Jul 2019 19:55:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E62C2204EC;
+        Mon, 29 Jul 2019 19:55:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564430133;
-        bh=jVl1Bq+rz05LUbH30KTBqKp5WAEqWVDJQxcufSSolAM=;
+        s=default; t=1564430137;
+        bh=T2jjRL4C0aJe4QicyVoBE1EXvP3PYDkgBDX+2pELYFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XpuextUnVWB+K1Y/Iq9W+InOVO3mG4caegVdc/HKIagYUGrCSxHF622B74vp9EnDi
-         r9t7XQqM2fhXBIGSltb4H9l5siYPRmCy9EGQQprxRhnq7mMlz/Cfq1hhQ1KRJzsRku
-         YEUZ/R7Q/zu30Dy8vKpM/lLoKeKxnJnGdKAGiWKM=
+        b=pHJCkmnXXCETsgb65XnfDzFMr0PVuZcJpkGGo4i74OcWM069VSU33/dCTvwc1Hy8A
+         pyOIXpdCDvGCinvBMTolzsix5fCpsYxfBDFwx1HWusf5Kx5guRh4SnN9/EnxOT3SG9
+         qYzdZUEadLL6ewJn2MeqUvcFF1fZ1uF9FHJooLLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
-        Jane Chu <jane.chu@oracle.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.2 208/215] libnvdimm/bus: Stop holding nvdimm_bus_list_mutex over __nd_ioctl()
-Date:   Mon, 29 Jul 2019 21:23:24 +0200
-Message-Id: <20190729190816.062161344@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.2 209/215] structleak: disable STRUCTLEAK_BYREF in combination with KASAN_STACK
+Date:   Mon, 29 Jul 2019 21:23:25 +0200
+Message-Id: <20190729190816.215884327@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -44,208 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit b70d31d054ee3a6fc1034b9d7fc0ae1e481aa018 upstream.
+commit 173e6ee21e2b3f477f07548a79c43b8d9cfbb37d upstream.
 
-In preparation for fixing a deadlock between wait_for_bus_probe_idle()
-and the nvdimm_bus_list_mutex arrange for __nd_ioctl() without
-nvdimm_bus_list_mutex held. This also unifies the 'dimm' and 'bus' level
-ioctls into a common nd_ioctl() preamble implementation.
+The combination of KASAN_STACK and GCC_PLUGIN_STRUCTLEAK_BYREF
+leads to much larger kernel stack usage, as seen from the warnings
+about functions that now exceed the 2048 byte limit:
 
-Marked for -stable as it is a pre-requisite for a follow-on fix.
+drivers/media/i2c/tvp5150.c:253:1: error: the frame size of 3936 bytes is larger than 2048 bytes
+drivers/media/tuners/r820t.c:1327:1: error: the frame size of 2816 bytes is larger than 2048 bytes
+drivers/net/wireless/broadcom/brcm80211/brcmsmac/phy/phy_n.c:16552:1: error: the frame size of 3144 bytes is larger than 2048 bytes [-Werror=frame-larger-than=]
+fs/ocfs2/aops.c:1892:1: error: the frame size of 2088 bytes is larger than 2048 bytes
+fs/ocfs2/dlm/dlmrecovery.c:737:1: error: the frame size of 2088 bytes is larger than 2048 bytes
+fs/ocfs2/namei.c:1677:1: error: the frame size of 2584 bytes is larger than 2048 bytes
+fs/ocfs2/super.c:1186:1: error: the frame size of 2640 bytes is larger than 2048 bytes
+fs/ocfs2/xattr.c:3678:1: error: the frame size of 2176 bytes is larger than 2048 bytes
+net/bluetooth/l2cap_core.c:7056:1: error: the frame size of 2144 bytes is larger than 2048 bytes [-Werror=frame-larger-than=]
+net/bluetooth/l2cap_core.c: In function 'l2cap_recv_frame':
+net/bridge/br_netlink.c:1505:1: error: the frame size of 2448 bytes is larger than 2048 bytes
+net/ieee802154/nl802154.c:548:1: error: the frame size of 2232 bytes is larger than 2048 bytes
+net/wireless/nl80211.c:1726:1: error: the frame size of 2224 bytes is larger than 2048 bytes
+net/wireless/nl80211.c:2357:1: error: the frame size of 4584 bytes is larger than 2048 bytes
+net/wireless/nl80211.c:5108:1: error: the frame size of 2760 bytes is larger than 2048 bytes
+net/wireless/nl80211.c:6472:1: error: the frame size of 2112 bytes is larger than 2048 bytes
 
-Cc: <stable@vger.kernel.org>
-Fixes: bf9bccc14c05 ("libnvdimm: pmem label sets and namespace instantiation")
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Tested-by: Jane Chu <jane.chu@oracle.com>
-Link: https://lore.kernel.org/r/156341209518.292348.7183897251740665198.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+The structleak plugin was previously disabled for CONFIG_COMPILE_TEST,
+but meant we missed some bugs, so this time we should address them.
+
+The frame size warnings are distracting, and risking a kernel stack
+overflow is generally not beneficial to performance, so it may be best
+to disallow that particular combination. This can be done by turning
+off either one. I picked the dependency in GCC_PLUGIN_STRUCTLEAK_BYREF
+and GCC_PLUGIN_STRUCTLEAK_BYREF_ALL, as this option is designed to
+make uninitialized stack usage less harmful when enabled on its own,
+but it also prevents KASAN from detecting those cases in which it was
+in fact needed.
+
+KASAN_STACK is currently implied by KASAN on gcc, but could be made a
+user selectable option if we want to allow combining (non-stack) KASAN
+with GCC_PLUGIN_STRUCTLEAK_BYREF.
+
+Note that it would be possible to specifically address the files that
+print the warning, but presumably the overall stack usage is still
+significantly higher than in other configurations, so this would not
+address the full problem.
+
+I could not test this with CONFIG_INIT_STACK_ALL, which may or may not
+suffer from a similar problem.
+
+Fixes: 81a56f6dcd20 ("gcc-plugins: structleak: Generalize to all variable types")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20190722114134.3123901-1-arnd@arndb.de
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nvdimm/bus.c     |   94 ++++++++++++++++++++++++++++-------------------
- drivers/nvdimm/nd-core.h |    3 +
- 2 files changed, 59 insertions(+), 38 deletions(-)
+ security/Kconfig.hardening |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/nvdimm/bus.c
-+++ b/drivers/nvdimm/bus.c
-@@ -73,7 +73,7 @@ static void nvdimm_bus_probe_end(struct
- {
- 	nvdimm_bus_lock(&nvdimm_bus->dev);
- 	if (--nvdimm_bus->probe_active == 0)
--		wake_up(&nvdimm_bus->probe_wait);
-+		wake_up(&nvdimm_bus->wait);
- 	nvdimm_bus_unlock(&nvdimm_bus->dev);
- }
+--- a/security/Kconfig.hardening
++++ b/security/Kconfig.hardening
+@@ -61,6 +61,7 @@ choice
+ 	config GCC_PLUGIN_STRUCTLEAK_BYREF
+ 		bool "zero-init structs passed by reference (strong)"
+ 		depends on GCC_PLUGINS
++		depends on !(KASAN && KASAN_STACK=1)
+ 		select GCC_PLUGIN_STRUCTLEAK
+ 		help
+ 		  Zero-initialize any structures on the stack that may
+@@ -70,9 +71,15 @@ choice
+ 		  exposures, like CVE-2017-1000410:
+ 		  https://git.kernel.org/linus/06e7e776ca4d3654
  
-@@ -341,7 +341,7 @@ struct nvdimm_bus *nvdimm_bus_register(s
- 		return NULL;
- 	INIT_LIST_HEAD(&nvdimm_bus->list);
- 	INIT_LIST_HEAD(&nvdimm_bus->mapping_list);
--	init_waitqueue_head(&nvdimm_bus->probe_wait);
-+	init_waitqueue_head(&nvdimm_bus->wait);
- 	nvdimm_bus->id = ida_simple_get(&nd_ida, 0, 0, GFP_KERNEL);
- 	if (nvdimm_bus->id < 0) {
- 		kfree(nvdimm_bus);
-@@ -426,6 +426,9 @@ static int nd_bus_remove(struct device *
- 	list_del_init(&nvdimm_bus->list);
- 	mutex_unlock(&nvdimm_bus_list_mutex);
- 
-+	wait_event(nvdimm_bus->wait,
-+			atomic_read(&nvdimm_bus->ioctl_active) == 0);
++		  As a side-effect, this keeps a lot of variables on the
++		  stack that can otherwise be optimized out, so combining
++		  this with CONFIG_KASAN_STACK can lead to a stack overflow
++		  and is disallowed.
 +
- 	nd_synchronize();
- 	device_for_each_child(&nvdimm_bus->dev, NULL, child_unregister);
- 
-@@ -885,7 +888,7 @@ void wait_nvdimm_bus_probe_idle(struct d
- 		if (nvdimm_bus->probe_active == 0)
- 			break;
- 		nvdimm_bus_unlock(&nvdimm_bus->dev);
--		wait_event(nvdimm_bus->probe_wait,
-+		wait_event(nvdimm_bus->wait,
- 				nvdimm_bus->probe_active == 0);
- 		nvdimm_bus_lock(&nvdimm_bus->dev);
- 	} while (true);
-@@ -1115,24 +1118,10 @@ static int __nd_ioctl(struct nvdimm_bus
- 	return rc;
- }
- 
--static long nd_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
--{
--	long id = (long) file->private_data;
--	int rc = -ENXIO, ro;
--	struct nvdimm_bus *nvdimm_bus;
--
--	ro = ((file->f_flags & O_ACCMODE) == O_RDONLY);
--	mutex_lock(&nvdimm_bus_list_mutex);
--	list_for_each_entry(nvdimm_bus, &nvdimm_bus_list, list) {
--		if (nvdimm_bus->id == id) {
--			rc = __nd_ioctl(nvdimm_bus, NULL, ro, cmd, arg);
--			break;
--		}
--	}
--	mutex_unlock(&nvdimm_bus_list_mutex);
--
--	return rc;
--}
-+enum nd_ioctl_mode {
-+	BUS_IOCTL,
-+	DIMM_IOCTL,
-+};
- 
- static int match_dimm(struct device *dev, void *data)
- {
-@@ -1147,31 +1136,62 @@ static int match_dimm(struct device *dev
- 	return 0;
- }
- 
--static long nvdimm_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-+static long nd_ioctl(struct file *file, unsigned int cmd, unsigned long arg,
-+		enum nd_ioctl_mode mode)
-+
- {
--	int rc = -ENXIO, ro;
--	struct nvdimm_bus *nvdimm_bus;
-+	struct nvdimm_bus *nvdimm_bus, *found = NULL;
-+	long id = (long) file->private_data;
-+	struct nvdimm *nvdimm = NULL;
-+	int rc, ro;
- 
- 	ro = ((file->f_flags & O_ACCMODE) == O_RDONLY);
- 	mutex_lock(&nvdimm_bus_list_mutex);
- 	list_for_each_entry(nvdimm_bus, &nvdimm_bus_list, list) {
--		struct device *dev = device_find_child(&nvdimm_bus->dev,
--				file->private_data, match_dimm);
--		struct nvdimm *nvdimm;
-+		if (mode == DIMM_IOCTL) {
-+			struct device *dev;
- 
--		if (!dev)
--			continue;
-+			dev = device_find_child(&nvdimm_bus->dev,
-+					file->private_data, match_dimm);
-+			if (!dev)
-+				continue;
-+			nvdimm = to_nvdimm(dev);
-+			found = nvdimm_bus;
-+		} else if (nvdimm_bus->id == id) {
-+			found = nvdimm_bus;
-+		}
- 
--		nvdimm = to_nvdimm(dev);
--		rc = __nd_ioctl(nvdimm_bus, nvdimm, ro, cmd, arg);
--		put_device(dev);
--		break;
-+		if (found) {
-+			atomic_inc(&nvdimm_bus->ioctl_active);
-+			break;
-+		}
- 	}
- 	mutex_unlock(&nvdimm_bus_list_mutex);
- 
-+	if (!found)
-+		return -ENXIO;
-+
-+	nvdimm_bus = found;
-+	rc = __nd_ioctl(nvdimm_bus, nvdimm, ro, cmd, arg);
-+
-+	if (nvdimm)
-+		put_device(&nvdimm->dev);
-+	if (atomic_dec_and_test(&nvdimm_bus->ioctl_active))
-+		wake_up(&nvdimm_bus->wait);
-+
- 	return rc;
- }
- 
-+static long bus_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+	return nd_ioctl(file, cmd, arg, BUS_IOCTL);
-+}
-+
-+static long dimm_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+	return nd_ioctl(file, cmd, arg, DIMM_IOCTL);
-+}
-+
- static int nd_open(struct inode *inode, struct file *file)
- {
- 	long minor = iminor(inode);
-@@ -1183,16 +1203,16 @@ static int nd_open(struct inode *inode,
- static const struct file_operations nvdimm_bus_fops = {
- 	.owner = THIS_MODULE,
- 	.open = nd_open,
--	.unlocked_ioctl = nd_ioctl,
--	.compat_ioctl = nd_ioctl,
-+	.unlocked_ioctl = bus_ioctl,
-+	.compat_ioctl = bus_ioctl,
- 	.llseek = noop_llseek,
- };
- 
- static const struct file_operations nvdimm_fops = {
- 	.owner = THIS_MODULE,
- 	.open = nd_open,
--	.unlocked_ioctl = nvdimm_ioctl,
--	.compat_ioctl = nvdimm_ioctl,
-+	.unlocked_ioctl = dimm_ioctl,
-+	.compat_ioctl = dimm_ioctl,
- 	.llseek = noop_llseek,
- };
- 
---- a/drivers/nvdimm/nd-core.h
-+++ b/drivers/nvdimm/nd-core.h
-@@ -17,10 +17,11 @@ extern struct workqueue_struct *nvdimm_w
- 
- struct nvdimm_bus {
- 	struct nvdimm_bus_descriptor *nd_desc;
--	wait_queue_head_t probe_wait;
-+	wait_queue_head_t wait;
- 	struct list_head list;
- 	struct device dev;
- 	int id, probe_active;
-+	atomic_t ioctl_active;
- 	struct list_head mapping_list;
- 	struct mutex reconfig_mutex;
- 	struct badrange badrange;
+ 	config GCC_PLUGIN_STRUCTLEAK_BYREF_ALL
+ 		bool "zero-init anything passed by reference (very strong)"
+ 		depends on GCC_PLUGINS
++		depends on !(KASAN && KASAN_STACK=1)
+ 		select GCC_PLUGIN_STRUCTLEAK
+ 		help
+ 		  Zero-initialize any stack variables that may be passed
 
 
