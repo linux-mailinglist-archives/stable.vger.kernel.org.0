@@ -2,45 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F95879584
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:43:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2CE979512
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:40:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389373AbfG2TnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:43:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59632 "EHLO mail.kernel.org"
+        id S2388801AbfG2TiT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:38:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389639AbfG2TnY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:43:24 -0400
+        id S2387731AbfG2TiS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:38:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE31A2054F;
-        Mon, 29 Jul 2019 19:43:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C86F2054F;
+        Mon, 29 Jul 2019 19:38:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429403;
-        bh=EyK6gRJlxAvJzXu89B1/5FdgCOahdnNn1sjhMN82MkY=;
+        s=default; t=1564429096;
+        bh=F3xEu7dp5QQ6tel3JOLvaCiGrTfOh3hsxHZD8ZXf8Tc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hfXjZlv35bc7R72ujLkIBP6YZLOmMUP+xlGsa6pKVWaDCcAGUIb99OoyOz5EA4bMH
-         m8E/txlplzLfig+DOj79PM2Q0smmK1JZ7Vx+gpkltTGO+aXo0zsl0kL5xxYSyfo38q
-         Qrb9y8FzETsKPplttIMRk2n6Jun/MSGQGBxZkDvU=
+        b=o6sY04T8t6nVOZoVXdirrwLAB82dxGGsIlh7AEGLUq99g4JhhvOTMNYVbJWHXmd27
+         xyXdXp5pMyv1KF2FLMa0Mbw87+ydBTIDssKdekS6EF0FBDZVTFkwVp9taIB//taEsZ
+         8ADCHTDoSr0VM5COXlQKkhRJLAvoOcrHjSMvx0eo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
-        Roman Gushchin <guro@fb.com>, Jan Kara <jack@suse.cz>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 087/113] memcg, fsnotify: no oom-kill for remote memcg charging
-Date:   Mon, 29 Jul 2019 21:22:54 +0200
-Message-Id: <20190729190716.336041721@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.14 284/293] x86/sysfb_efi: Add quirks for some devices with swapped width and height
+Date:   Mon, 29 Jul 2019 21:22:55 +0200
+Message-Id: <20190729190846.009515213@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
-References: <20190729190655.455345569@linuxfoundation.org>
+In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
+References: <20190729190820.321094988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,77 +43,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ec165450968b26298bd1c373de37b0ab6d826b33 ]
+From: Hans de Goede <hdegoede@redhat.com>
 
-Commit d46eb14b735b ("fs: fsnotify: account fsnotify metadata to
-kmemcg") added remote memcg charging for fanotify and inotify event
-objects.  The aim was to charge the memory to the listener who is
-interested in the events but without triggering the OOM killer.
-Otherwise there would be security concerns for the listener.
+commit d02f1aa39189e0619c3525d5cd03254e61bf606a upstream.
 
-At the time, oom-kill trigger was not in the charging path.  A parallel
-work added the oom-kill back to charging path i.e.  commit 29ef680ae7c2
-("memcg, oom: move out_of_memory back to the charge path").  So to not
-trigger oom-killer in the remote memcg, explicitly add
-__GFP_RETRY_MAYFAIL to the fanotigy and inotify event allocations.
+Some Lenovo 2-in-1s with a detachable keyboard have a portrait screen but
+advertise a landscape resolution and pitch, resulting in a messed up
+display if the kernel tries to show anything on the efifb (because of the
+wrong pitch).
 
-Link: http://lkml.kernel.org/r/20190514212259.156585-2-shakeelb@google.com
-Signed-off-by: Shakeel Butt <shakeelb@google.com>
-Reviewed-by: Roman Gushchin <guro@fb.com>
-Acked-by: Jan Kara <jack@suse.cz>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by adding a new DMI match table for devices which need to have
+their width and height swapped.
+
+At first it was tried to use the existing table for overriding some of the
+efifb parameters, but some of the affected devices have variants with
+different LCD resolutions which will not work with hardcoded override
+values.
+
+Reference: https://bugzilla.redhat.com/show_bug.cgi?id=1730783
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20190721152418.11644-1-hdegoede@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/notify/fanotify/fanotify.c        | 5 ++++-
- fs/notify/inotify/inotify_fsnotify.c | 8 ++++++--
- 2 files changed, 10 insertions(+), 3 deletions(-)
+ arch/x86/kernel/sysfb_efi.c |   46 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 46 insertions(+)
 
-diff --git a/fs/notify/fanotify/fanotify.c b/fs/notify/fanotify/fanotify.c
-index 29dee9630eec..a18b8d7a3075 100644
---- a/fs/notify/fanotify/fanotify.c
-+++ b/fs/notify/fanotify/fanotify.c
-@@ -148,10 +148,13 @@ struct fanotify_event_info *fanotify_alloc_event(struct fsnotify_group *group,
- 	/*
- 	 * For queues with unlimited length lost events are not expected and
- 	 * can possibly have security implications. Avoid losing events when
--	 * memory is short.
-+	 * memory is short. For the limited size queues, avoid OOM killer in the
-+	 * target monitoring memcg as it may have security repercussion.
- 	 */
- 	if (group->max_events == UINT_MAX)
- 		gfp |= __GFP_NOFAIL;
-+	else
-+		gfp |= __GFP_RETRY_MAYFAIL;
+--- a/arch/x86/kernel/sysfb_efi.c
++++ b/arch/x86/kernel/sysfb_efi.c
+@@ -231,9 +231,55 @@ static const struct dmi_system_id efifb_
+ 	{},
+ };
  
- 	/* Whoever is interested in the event, pays for the allocation. */
- 	memalloc_use_memcg(group->memcg);
-diff --git a/fs/notify/inotify/inotify_fsnotify.c b/fs/notify/inotify/inotify_fsnotify.c
-index f4184b4f3815..16b8702af0e7 100644
---- a/fs/notify/inotify/inotify_fsnotify.c
-+++ b/fs/notify/inotify/inotify_fsnotify.c
-@@ -99,9 +99,13 @@ int inotify_handle_event(struct fsnotify_group *group,
- 	i_mark = container_of(inode_mark, struct inotify_inode_mark,
- 			      fsn_mark);
- 
--	/* Whoever is interested in the event, pays for the allocation. */
-+	/*
-+	 * Whoever is interested in the event, pays for the allocation. Do not
-+	 * trigger OOM killer in the target monitoring memcg as it may have
-+	 * security repercussion.
-+	 */
- 	memalloc_use_memcg(group->memcg);
--	event = kmalloc(alloc_len, GFP_KERNEL_ACCOUNT);
-+	event = kmalloc(alloc_len, GFP_KERNEL_ACCOUNT | __GFP_RETRY_MAYFAIL);
- 	memalloc_unuse_memcg();
- 
- 	if (unlikely(!event)) {
--- 
-2.20.1
-
++/*
++ * Some devices have a portrait LCD but advertise a landscape resolution (and
++ * pitch). We simply swap width and height for these devices so that we can
++ * correctly deal with some of them coming with multiple resolutions.
++ */
++static const struct dmi_system_id efifb_dmi_swap_width_height[] __initconst = {
++	{
++		/*
++		 * Lenovo MIIX310-10ICR, only some batches have the troublesome
++		 * 800x1280 portrait screen. Luckily the portrait version has
++		 * its own BIOS version, so we match on that.
++		 */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "MIIX 310-10ICR"),
++			DMI_EXACT_MATCH(DMI_BIOS_VERSION, "1HCN44WW"),
++		},
++	},
++	{
++		/* Lenovo MIIX 320-10ICR with 800x1280 portrait screen */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION,
++					"Lenovo MIIX 320-10ICR"),
++		},
++	},
++	{
++		/* Lenovo D330 with 800x1280 or 1200x1920 portrait screen */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION,
++					"Lenovo ideapad D330-10IGM"),
++		},
++	},
++	{},
++};
++
+ __init void sysfb_apply_efi_quirks(void)
+ {
+ 	if (screen_info.orig_video_isVGA != VIDEO_TYPE_EFI ||
+ 	    !(screen_info.capabilities & VIDEO_CAPABILITY_SKIP_QUIRKS))
+ 		dmi_check_system(efifb_dmi_system_table);
++
++	if (screen_info.orig_video_isVGA == VIDEO_TYPE_EFI &&
++	    dmi_check_system(efifb_dmi_swap_width_height)) {
++		u16 temp = screen_info.lfb_width;
++
++		screen_info.lfb_width = screen_info.lfb_height;
++		screen_info.lfb_height = temp;
++		screen_info.lfb_linelength = 4 * screen_info.lfb_width;
++	}
+ }
 
 
