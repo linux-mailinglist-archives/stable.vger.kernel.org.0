@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99C6B795FB
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:48:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 795B5795FD
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:48:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390349AbfG2Tr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:47:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37188 "EHLO mail.kernel.org"
+        id S2389990AbfG2Trf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:47:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390347AbfG2Tr3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:47:29 -0400
+        id S2390357AbfG2Trc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:47:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC10621655;
-        Mon, 29 Jul 2019 19:47:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E92420C01;
+        Mon, 29 Jul 2019 19:47:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429648;
-        bh=DP5SadGgwHMgpsRuelU8uLN3MrrOAUm48aM4mEa5+O4=;
+        s=default; t=1564429651;
+        bh=MqF8HHLqzYEMhjxa/Iw6PcCVntom90MdjouzgeIFzrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1h/Y4o0kOGKShhh6wbXFMSj2t4X6u/tmUV0zyywo2R5AOsz25e47yqzaFeU5omTPs
-         zNZJjtOi+WCL/bFce92hmJYBB2zFsnHoqwEdFRiVHkAizG1Zpp6d61aj63lBFI5BFi
-         Y2VyWWTcLXXqMaqoZZn7oNezs4axsl/OUvk3kX+E=
+        b=Rfcm+isbpG+Uzz/gE6CXrSNrO8B3pIEy/PneiZJUeBj/9aVoJOh8/yO3osJc1023H
+         Jfl0dLafByIoLbvBn4JDcr+a7iwCWdqcGVcxI/ByshiqTaLAOjJIJHPVknkWummbfB
+         xFUxUj1pqSri+gb6DCQmP2O6Q18fYWsy4M/zOcyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Baruch Siach <baruch@tkos.co.il>,
+        stable@vger.kernel.org,
+        Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 050/215] tty/serial: digicolor: Fix digicolor-usart already registered warning
-Date:   Mon, 29 Jul 2019 21:20:46 +0200
-Message-Id: <20190729190749.174832314@linuxfoundation.org>
+Subject: [PATCH 5.2 051/215] tty: serial: msm_serial: avoid system lockup condition
+Date:   Mon, 29 Jul 2019 21:20:47 +0200
+Message-Id: <20190729190749.370988457@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -45,42 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c7ad9ba0611c53cfe194223db02e3bca015f0674 ]
+[ Upstream commit ba3684f99f1b25d2a30b6956d02d339d7acb9799 ]
 
-When modprobe/rmmod/modprobe module, if platform_driver_register() fails,
-the kernel complained,
+The function msm_wait_for_xmitr can be taken with interrupts
+disabled. In order to avoid a potential system lockup - demonstrated
+under stress testing conditions on SoC QCS404/5 - make sure we wait
+for a bounded amount of time.
 
-  proc_dir_entry 'driver/digicolor-usart' already registered
-  WARNING: CPU: 1 PID: 5636 at fs/proc/generic.c:360 proc_register+0x19d/0x270
+Tested on SoC QCS404.
 
-Fix this by adding uart_unregister_driver() when platform_driver_register() fails.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Acked-by: Baruch Siach <baruch@tkos.co.il>
+Signed-off-by: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/digicolor-usart.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/tty/serial/msm_serial.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/tty/serial/digicolor-usart.c b/drivers/tty/serial/digicolor-usart.c
-index f460cca139e2..13ac36e2da4f 100644
---- a/drivers/tty/serial/digicolor-usart.c
-+++ b/drivers/tty/serial/digicolor-usart.c
-@@ -541,7 +541,11 @@ static int __init digicolor_uart_init(void)
- 	if (ret)
- 		return ret;
+diff --git a/drivers/tty/serial/msm_serial.c b/drivers/tty/serial/msm_serial.c
+index 23833ad952ba..3657a24913fc 100644
+--- a/drivers/tty/serial/msm_serial.c
++++ b/drivers/tty/serial/msm_serial.c
+@@ -383,10 +383,14 @@ static void msm_request_rx_dma(struct msm_port *msm_port, resource_size_t base)
  
--	return platform_driver_register(&digicolor_uart_platform);
-+	ret = platform_driver_register(&digicolor_uart_platform);
-+	if (ret)
-+		uart_unregister_driver(&digicolor_uart);
+ static inline void msm_wait_for_xmitr(struct uart_port *port)
+ {
++	unsigned int timeout = 500000;
 +
-+	return ret;
+ 	while (!(msm_read(port, UART_SR) & UART_SR_TX_EMPTY)) {
+ 		if (msm_read(port, UART_ISR) & UART_ISR_TX_READY)
+ 			break;
+ 		udelay(1);
++		if (!timeout--)
++			break;
+ 	}
+ 	msm_write(port, UART_CR_CMD_RESET_TX_READY, UART_CR);
  }
- module_init(digicolor_uart_init);
- 
 -- 
 2.20.1
 
