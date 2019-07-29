@@ -2,127 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25D1F792DB
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 20:11:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB8F9792E4
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 20:15:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727993AbfG2SLE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 14:11:04 -0400
-Received: from mail-vs1-f67.google.com ([209.85.217.67]:34364 "EHLO
-        mail-vs1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727326AbfG2SLE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 14:11:04 -0400
-Received: by mail-vs1-f67.google.com with SMTP id m23so41545161vso.1
-        for <stable@vger.kernel.org>; Mon, 29 Jul 2019 11:11:03 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:reply-to:to:date
-         :in-reply-to:references:organization:user-agent:mime-version
-         :content-transfer-encoding;
-        bh=bUfMTPgx9WjAuO9WgICdJPmYrEQAtDvBX73B3OSaH0o=;
-        b=EEqUC1fQybETpVTVVY6ZtCsUiW0mJ4cWCAImX0XQkzOOzWDO0k4odj7fpNoeuerG7C
-         /b9Xq3LNvVdoyfy/719zvqSEISGXCXo9MSBkZvQPKh0PfRZNrXiwuiX2kaGyg3qstkva
-         sHYuhThY0eqFtRpx1vAVgcbQLYP45CkfuH5nQHBANhV4EA4YXWfC2nET+LnIg9BoZapM
-         fI+cul7qJmBkg8zSFMXJB11eZdgPi1uzRuYRztBEuLJ24SSgF2B+Y24lmBQc535hyY3i
-         0uRSubC9ar0qBjVSwIG0maJV4/x4wriwToXQuyYtlc/zWWtlZb26baGg6OykdJwkypiK
-         kPCw==
-X-Gm-Message-State: APjAAAVPVap6INe+3C9qHqRoJmOlTmbig5NKfMYy5QmnwiukGUHByM4P
-        LRR91ikjP+T3pRTDYGSqQYC0DA==
-X-Google-Smtp-Source: APXvYqz6W4xcPCRb/LcxxS+0tsRD6XNCs/tU/GcX6Q6GS6hOy7eZGE3SDwio2RJY6Gz2pPRc2JDFXg==
-X-Received: by 2002:a67:dd85:: with SMTP id i5mr68533733vsk.220.1564423862921;
-        Mon, 29 Jul 2019 11:11:02 -0700 (PDT)
-Received: from whitewolf.lyude.net (static-173-76-190-23.bstnma.ftas.verizon.net. [173.76.190.23])
-        by smtp.gmail.com with ESMTPSA id d67sm17744995vkd.25.2019.07.29.11.11.01
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 29 Jul 2019 11:11:02 -0700 (PDT)
-Message-ID: <9b014c2d95328fb0dc2751178a516a713884e12a.camel@redhat.com>
-Subject: Re: FAILED: patch "[PATCH] drm/amdgpu: Don't skip display settings
- in hwmgr_resume()" failed to apply to 5.2-stable tree
-From:   Lyude Paul <lyude@redhat.com>
-Reply-To: lyude@redhat.com
-To:     gregkh@linuxfoundation.org, Likun.Gao@amd.com, Rex.Zhu@amd.com,
-        alexander.deucher@amd.com, evan.quan@amd.com, ray.huang@amd.com,
-        stable@vger.kernel.org
-Date:   Mon, 29 Jul 2019 14:11:00 -0400
-In-Reply-To: <1564416461175229@kroah.com>
-References: <1564416461175229@kroah.com>
-Organization: Red Hat
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.32.4 (3.32.4-1.fc30) 
+        id S1729158AbfG2SPc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 14:15:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36262 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726242AbfG2SPb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 14:15:31 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0382206DD;
+        Mon, 29 Jul 2019 18:15:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564424131;
+        bh=XD/svAglHpuigJf60aUmiT+Vak6Bskovd4W8KJJSiUM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=uFXeN7vmLpABH7jBo9TFTyR/EcT2Otxy9xd/h1yJgAvvto46Ytcud7pXn/DFal9bk
+         qPK0wEna0P1Y1pFfCw3HjoWEsCgvMrgaPByqgS5jTl0kuamf86qMiJ4eTUtEjvOa1n
+         yOMs7BIUmihDNL4McqeC2eaSm3kAKQm4dnCy4NOw=
+Date:   Mon, 29 Jul 2019 20:15:28 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     stable@vger.kernel.org
+Subject: Re: fs/io_uring.c stable additions
+Message-ID: <20190729181528.GA25613@kroah.com>
+References: <59d14d1f-441a-568c-246e-4ee1ea443278@kernel.dk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <59d14d1f-441a-568c-246e-4ee1ea443278@kernel.dk>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Looks like this patch managed to make it in before 5.2 was finalized, so we
-won't need a stable backport for this. Cheers
+On Mon, Jul 29, 2019 at 12:08:28PM -0600, Jens Axboe wrote:
+> Hi,
+> 
+> I forgot to mark a few patches for io_uring as stable. In order
+> of how to apply, can you add the following commits for 5.2?
+> 
+> f7b76ac9d17e16e44feebb6d2749fec92bfd6dd4
 
-On Mon, 2019-07-29 at 18:07 +0200, gregkh@linuxfoundation.org wrote:
-> The patch below does not apply to the 5.2-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> ------------------ original commit in Linus's tree ------------------
-> 
-> From ee006eb00a00198d21dad60696318fd443a59f88 Mon Sep 17 00:00:00 2001
-> From: Lyude Paul <lyude@redhat.com>
-> Date: Thu, 20 Jun 2019 19:21:26 -0400
-> Subject: [PATCH] drm/amdgpu: Don't skip display settings in hwmgr_resume()
-> 
-> I'm not entirely sure why this is, but for some reason:
-> 
-> 921935dc6404 ("drm/amd/powerplay: enforce display related settings only on
-> needed")
-> 
-> Breaks runtime PM resume on the Radeon PRO WX 3100 (Lexa) in one the
-> pre-production laptops I have. The issue manifests as the following
-> messages in dmesg:
-> 
-> [drm] UVD and UVD ENC initialized successfully.
-> amdgpu 0000:3b:00.0: [drm:amdgpu_ring_test_helper [amdgpu]] *ERROR* ring vce1
-> test failed (-110)
-> [drm:amdgpu_device_ip_resume_phase2 [amdgpu]] *ERROR* resume of IP block
-> <vce_v3_0> failed -110
-> [drm:amdgpu_device_resume [amdgpu]] *ERROR* amdgpu_device_ip_resume failed (-
-> 110).
-> 
-> And happens after about 6-10 runtime PM suspend/resume cycles (sometimes
-> sooner, if you're lucky!). Unfortunately I can't seem to pin down
-> precisely which part in psm_adjust_power_state_dynamic that is causing
-> the issue, but not skipping the display setting setup seems to fix it.
-> Hopefully if there is a better fix for this, this patch will spark
-> discussion around it.
-> 
-> Fixes: 921935dc6404 ("drm/amd/powerplay: enforce display related settings only
-> on needed")
-> Cc: Evan Quan <evan.quan@amd.com>
-> Cc: Alex Deucher <alexander.deucher@amd.com>
-> Cc: Huang Rui <ray.huang@amd.com>
-> Cc: Rex Zhu <Rex.Zhu@amd.com>
-> Cc: Likun Gao <Likun.Gao@amd.com>
-> Cc: <stable@vger.kernel.org> # v5.1+
-> Signed-off-by: Lyude Paul <lyude@redhat.com>
-> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-> 
-> diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/hwmgr.c
-> b/drivers/gpu/drm/amd/powerplay/hwmgr/hwmgr.c
-> index 0b0d83c2a678..a24beaa4fb01 100644
-> --- a/drivers/gpu/drm/amd/powerplay/hwmgr/hwmgr.c
-> +++ b/drivers/gpu/drm/amd/powerplay/hwmgr/hwmgr.c
-> @@ -327,7 +327,7 @@ int hwmgr_resume(struct pp_hwmgr *hwmgr)
->  	if (ret)
->  		return ret;
->  
-> -	ret = psm_adjust_power_state_dynamic(hwmgr, true, NULL);
-> +	ret = psm_adjust_power_state_dynamic(hwmgr, false, NULL);
->  
->  	return ret;
->  }
-> 
+Does not apply :(
 
+> c0e48f9dea9129aa11bec3ed13803bcc26e96e49
+
+Now queued up.
+
+> bd11b3a391e3df6fa958facbe4b3f9f4cca9bd49
+
+Does not apply :(
+
+> 36703247d5f52a679df9da51192b6950fe81689f
+
+Now queued up.
+
+You are 2 out of 4 :)
+
+Care to send backported versions of the 2 that did not apply?  I'll be
+glad to queue them up then.
+
+thanks,
+
+greg k-h
