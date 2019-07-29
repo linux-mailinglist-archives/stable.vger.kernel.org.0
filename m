@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 344D67994A
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:14:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 885437995B
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:15:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729187AbfG2T1e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:27:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40138 "EHLO mail.kernel.org"
+        id S1729166AbfG2UOo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 16:14:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729913AbfG2T1a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:27:30 -0400
+        id S1727823AbfG2T1e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:27:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8652621655;
-        Mon, 29 Jul 2019 19:27:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26B0B2070B;
+        Mon, 29 Jul 2019 19:27:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428450;
-        bh=6FcBgwCB5UyM7ZPScu2a0X9HOdI7+y5nBgg4KT1PRxs=;
+        s=default; t=1564428453;
+        bh=ShgKpm0eZJ7Plq1nkdU7/k8Ezm6faceNi+rb9OH4lOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1CD6M6IHbQrtcL/yM6FwjNHCm3f0K0euVYnZrUY9Tt4Zs9FdYD5D2AGAAYAePHmAK
-         qhtgek0Cu7SyDpaBS3Qm4zwNWQ/i3b6wr4V5nGTE/yg6MFv7U/JgtW1LL3Xuce5zhz
-         zVAlG3/LlbOmWEzTA0OoKeFH4n5UePcAJQ8TAnPM=
+        b=yHyEiIl8kaUgbgk8yEm8BW97w59GKsDg8BQ3R6j6W+Lha+6qFAn2C3xDmR4uX8Mqt
+         GLxxAgf8hx1MWDRj37j1dLv3F0HjK1/sqHJc5pmwmd9ldEBAumT49AZVKkdq3wi04l
+         ZfOYXeQyTzXG8ZKKkPxSXEk1Jdu9aBFZ3oGdoumA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
-        Masato Suzuki <masato.suzuki@wdc.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 080/293] libata: dont request sense data on !ZAC ATA devices
-Date:   Mon, 29 Jul 2019 21:19:31 +0200
-Message-Id: <20190729190830.742783855@linuxfoundation.org>
+Subject: [PATCH 4.14 081/293] clocksource/drivers/exynos_mct: Increase priority over ARM arch timer
+Date:   Mon, 29 Jul 2019 21:19:32 +0200
+Message-Id: <20190729190830.826229620@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -46,66 +47,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ca156e006add67e4beea7896be395160735e09b0 ]
+[ Upstream commit 6282edb72bed5324352522d732080d4c1b9dfed6 ]
 
-ZAC support added sense data requesting on error for both ZAC and ATA
-devices. This seems to cause erratic error handling behaviors on some
-SSDs where the device reports sense data availability and then
-delivers the wrong content making EH take the wrong actions.  The
-failure mode was sporadic on a LITE-ON ssd and couldn't be reliably
-reproduced.
+Exynos SoCs based on CA7/CA15 have 2 timer interfaces: custom Exynos MCT
+(Multi Core Timer) and standard ARM Architected Timers.
 
-There is no value in requesting sense data from non-ZAC ATA devices
-while there's a significant risk of introducing EH misbehaviors which
-are difficult to reproduce and fix.  Let's do the sense data dancing
-only for ZAC devices.
+There are use cases, where both timer interfaces are used simultanously.
+One of such examples is using Exynos MCT for the main system timer and
+ARM Architected Timers for the KVM and virtualized guests (KVM requires
+arch timers).
 
-Reviewed-by: Hannes Reinecke <hare@suse.com>
-Tested-by: Masato Suzuki <masato.suzuki@wdc.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Exynos Multi-Core Timer driver (exynos_mct) must be however started
+before ARM Architected Timers (arch_timer), because they both share some
+common hardware blocks (global system counter) and turning on MCT is
+needed to get ARM Architected Timer working properly.
+
+To ensure selecting Exynos MCT as the main system timer, increase MCT
+timer rating. To ensure proper starting order of both timers during
+suspend/resume cycle, increase MCT hotplug priority over ARM Archictected
+Timers.
+
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-eh.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/clocksource/exynos_mct.c | 4 ++--
+ include/linux/cpuhotplug.h       | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/ata/libata-eh.c b/drivers/ata/libata-eh.c
-index 2651c81d1edf..c398be4b1797 100644
---- a/drivers/ata/libata-eh.c
-+++ b/drivers/ata/libata-eh.c
-@@ -1535,7 +1535,7 @@ static int ata_eh_read_log_10h(struct ata_device *dev,
- 	tf->hob_lbah = buf[10];
- 	tf->nsect = buf[12];
- 	tf->hob_nsect = buf[13];
--	if (ata_id_has_ncq_autosense(dev->id))
-+	if (dev->class == ATA_DEV_ZAC && ata_id_has_ncq_autosense(dev->id))
- 		tf->auxiliary = buf[14] << 16 | buf[15] << 8 | buf[16];
+diff --git a/drivers/clocksource/exynos_mct.c b/drivers/clocksource/exynos_mct.c
+index d55c30f6981d..aaf5bfa9bd9c 100644
+--- a/drivers/clocksource/exynos_mct.c
++++ b/drivers/clocksource/exynos_mct.c
+@@ -211,7 +211,7 @@ static void exynos4_frc_resume(struct clocksource *cs)
  
- 	return 0;
-@@ -1784,7 +1784,8 @@ void ata_eh_analyze_ncq_error(struct ata_link *link)
- 	memcpy(&qc->result_tf, &tf, sizeof(tf));
- 	qc->result_tf.flags = ATA_TFLAG_ISADDR | ATA_TFLAG_LBA | ATA_TFLAG_LBA48;
- 	qc->err_mask |= AC_ERR_DEV | AC_ERR_NCQ;
--	if ((qc->result_tf.command & ATA_SENSE) || qc->result_tf.auxiliary) {
-+	if (dev->class == ATA_DEV_ZAC &&
-+	    ((qc->result_tf.command & ATA_SENSE) || qc->result_tf.auxiliary)) {
- 		char sense_key, asc, ascq;
+ static struct clocksource mct_frc = {
+ 	.name		= "mct-frc",
+-	.rating		= 400,
++	.rating		= 450,	/* use value higher than ARM arch timer */
+ 	.read		= exynos4_frc_read,
+ 	.mask		= CLOCKSOURCE_MASK(32),
+ 	.flags		= CLOCK_SOURCE_IS_CONTINUOUS,
+@@ -466,7 +466,7 @@ static int exynos4_mct_starting_cpu(unsigned int cpu)
+ 	evt->set_state_oneshot_stopped = set_state_shutdown;
+ 	evt->tick_resume = set_state_shutdown;
+ 	evt->features = CLOCK_EVT_FEAT_PERIODIC | CLOCK_EVT_FEAT_ONESHOT;
+-	evt->rating = 450;
++	evt->rating = 500;	/* use value higher than ARM arch timer */
  
- 		sense_key = (qc->result_tf.auxiliary >> 16) & 0xff;
-@@ -1838,10 +1839,11 @@ static unsigned int ata_eh_analyze_tf(struct ata_queued_cmd *qc,
- 	}
+ 	exynos4_mct_write(TICK_BASE_CNT, mevt->base + MCT_L_TCNTB_OFFSET);
  
- 	switch (qc->dev->class) {
--	case ATA_DEV_ATA:
- 	case ATA_DEV_ZAC:
- 		if (stat & ATA_SENSE)
- 			ata_eh_request_sense(qc, qc->scsicmd);
-+		/* fall through */
-+	case ATA_DEV_ATA:
- 		if (err & ATA_ICRC)
- 			qc->err_mask |= AC_ERR_ATA_BUS;
- 		if (err & (ATA_UNC | ATA_AMNF))
+diff --git a/include/linux/cpuhotplug.h b/include/linux/cpuhotplug.h
+index 0c78ad0cc515..0834eb5ea9e6 100644
+--- a/include/linux/cpuhotplug.h
++++ b/include/linux/cpuhotplug.h
+@@ -115,10 +115,10 @@ enum cpuhp_state {
+ 	CPUHP_AP_PERF_ARM_ACPI_STARTING,
+ 	CPUHP_AP_PERF_ARM_STARTING,
+ 	CPUHP_AP_ARM_L2X0_STARTING,
++	CPUHP_AP_EXYNOS4_MCT_TIMER_STARTING,
+ 	CPUHP_AP_ARM_ARCH_TIMER_STARTING,
+ 	CPUHP_AP_ARM_GLOBAL_TIMER_STARTING,
+ 	CPUHP_AP_JCORE_TIMER_STARTING,
+-	CPUHP_AP_EXYNOS4_MCT_TIMER_STARTING,
+ 	CPUHP_AP_ARM_TWD_STARTING,
+ 	CPUHP_AP_METAG_TIMER_STARTING,
+ 	CPUHP_AP_QCOM_TIMER_STARTING,
 -- 
 2.20.1
 
