@@ -2,96 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 12C1379AAF
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 23:10:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDF9579C26
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 00:04:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729901AbfG2VKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 17:10:55 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:34082 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729873AbfG2VKy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 17:10:54 -0400
-Received: by mail-lj1-f196.google.com with SMTP id p17so59983840ljg.1
-        for <stable@vger.kernel.org>; Mon, 29 Jul 2019 14:10:53 -0700 (PDT)
+        id S1729051AbfG2WEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 18:04:06 -0400
+Received: from mail-oi1-f196.google.com ([209.85.167.196]:39091 "EHLO
+        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726173AbfG2WEG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 18:04:06 -0400
+Received: by mail-oi1-f196.google.com with SMTP id m202so46448086oig.6
+        for <stable@vger.kernel.org>; Mon, 29 Jul 2019 15:04:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
+        d=ffwll.ch; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=SLwaZEH25wNqGZTB2HC+4XfUpsEwrKsTiwJGEkrXZM0=;
-        b=h0yQPRrjNKlXGfFBoWoylITmjbz4SK0JegbN37szOKfhSVCcgDFpmM6/f4t2Mu9tMG
-         ZWd1EFVeGSDBJhC5biZ3ZtwATb2l99NNxnlGXA9y2m7IcmKrIXcPQs0AB2aVeLDcxgIp
-         zH57jcOguVqz4e5oNCbnoYI9t15QxN/XOs5TE=
+        bh=hWkU2/nir7ZQfvW4i66MunEPrc2ksPHZ+kI417Vwor0=;
+        b=YSpTPlMeCYYov7BuvMIOVP4Mbjnyr+tyM3byOHdUesUddEkSMTdk3VN0J5EVFcO5AA
+         60elu2KlvLQ7lbDIJNkKFyLm/z9m97CbYD/J723A4PhsO4MTQiDYTKtSefUUNGurPUOQ
+         Ol+MGNxjX5/jPtRV8JWa3rmBQ9b9icxpWWGsc=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=SLwaZEH25wNqGZTB2HC+4XfUpsEwrKsTiwJGEkrXZM0=;
-        b=C0Ns3w57J9PPyUM3hz7m+MhWSvFy5WpnI+29qmB3zxnvfAwrBE2IfOa7GQun0Akgu3
-         kceKdWWh2dkfz5UfqAsrYJLtTCrC9KIdAkVif8l3movvq0T2dh+rn7uf22x6yTig6aob
-         2Yb+b5jzV7gH0OEO+RSNec0yuy6KHTmhKwvnB1jlc3ire5JE69u91IcHwlWCM1xREhBH
-         F3DqETlurHYo4PMh+sVJIGAEBZ1HZOYd8AgHzqLYySiGduU2J9A+Ky08RmRbfTARAoPT
-         8btiUpP2/B0kr0k8DsPwgT75pinJwHv29JvrEKeTySdALWZ3j+okMhlGw70E26fCJV+f
-         u/sw==
-X-Gm-Message-State: APjAAAWbjkVup6A70UXfXD0PW8RLfcaroUE/dzWjKoYvsmhbfEtrTkiI
-        2WEcQ6dKeaLBNhe6t5FWQ0EP8gredpI=
-X-Google-Smtp-Source: APXvYqy/ILdtEilH/r1GiaKmsW/y41qdECxw/vDzlTBrO3Gyfafjoq0eF+dktMQzAvFDDyvkJqQg+Q==
-X-Received: by 2002:a2e:959a:: with SMTP id w26mr47603390ljh.150.1564434652781;
-        Mon, 29 Jul 2019 14:10:52 -0700 (PDT)
-Received: from mail-lj1-f171.google.com (mail-lj1-f171.google.com. [209.85.208.171])
-        by smtp.gmail.com with ESMTPSA id f24sm12174877lfk.72.2019.07.29.14.10.52
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Mon, 29 Jul 2019 14:10:52 -0700 (PDT)
-Received: by mail-lj1-f171.google.com with SMTP id m8so26357625lji.7
-        for <stable@vger.kernel.org>; Mon, 29 Jul 2019 14:10:52 -0700 (PDT)
-X-Received: by 2002:a2e:80d6:: with SMTP id r22mr31685480ljg.83.1564434227544;
- Mon, 29 Jul 2019 14:03:47 -0700 (PDT)
+        bh=hWkU2/nir7ZQfvW4i66MunEPrc2ksPHZ+kI417Vwor0=;
+        b=srDcLar3nv0xsNHbaiq2ZX6PjDpE94bAuTuTwan1YgdtmLbh3qKpvfPmK/a61fxgdv
+         TQ8alVQyUDCLAjncaCBHhlYzHx/IuSpC2CVAr4O8rgwfKucueBUciuK3fWlUw97JTKwT
+         qKwJBNzpYNbnZ2RzqnmBw82X0pzviHdMC7yKvVzXaN26IuuFkoNt7rkNTqCT5RSNhbB6
+         S488jelj6R27RQcaSRceKg+Sj9pGOD0GRJyAq1tzKNf6eZL9/CCq/UarVQdC9UA90iKd
+         6jnp1VlVN8nOEYuuU0R5/+Wxvz4PfhIxJJkxzzBk5dKE4hDSDHXkr2yCBsk/KRZ5s5uc
+         W2DA==
+X-Gm-Message-State: APjAAAW+ehi4Acs47p3hWKpDJAe1gfN2JiTBcCWgezzBeIBy+WsKZHgt
+        kebu2H66tovXXrvGmvt8vEA5CtA1HlRSt16NOHjCun9f
+X-Google-Smtp-Source: APXvYqzxoYmsrKa+/w4iZlFyZ+r721up9sOSNNUO05B9bQZK5PB1hT9YRKjmerl1KT4H08nbG3IA1hv+pMyhSISgMfg=
+X-Received: by 2002:a05:6808:118:: with SMTP id b24mr56856483oie.128.1564437844733;
+ Mon, 29 Jul 2019 15:04:04 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190729204954.25510-1-briannorris@chromium.org> <20190729205452.GA22785@archlinux-threadripper>
-In-Reply-To: <20190729205452.GA22785@archlinux-threadripper>
-From:   Brian Norris <briannorris@chromium.org>
-Date:   Mon, 29 Jul 2019 14:03:35 -0700
-X-Gmail-Original-Message-ID: <CA+ASDXOOqOAWg9LnSPUs9d9Ai8G_4xkdUGC+CCduQQLBzC4kQA@mail.gmail.com>
-Message-ID: <CA+ASDXOOqOAWg9LnSPUs9d9Ai8G_4xkdUGC+CCduQQLBzC4kQA@mail.gmail.com>
-Subject: Re: [PATCH] driver core: platform: return -ENXIO for missing GpioInt
-To:     Nathan Chancellor <natechancellor@gmail.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Salvatore Bellizzi <salvatore.bellizzi@linux.seppia.net>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Enrico Granata <egranata@chromium.org>,
-        Enrico Granata <egranata@google.com>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Gwendal Grignou <gwendal@chromium.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        Benson Leung <bleung@chromium.org>,
-        stable <stable@vger.kernel.org>
+References: <20190725110520.26848-1-oleksandr.suvorov@toradex.com>
+ <20190725113237.d2dwxzientte4j3n@flea> <CAGgjyvEA54kR3U8Lyz-1-vPS74raT6SpoM0e8YYcm12T=0r50A@mail.gmail.com>
+In-Reply-To: <CAGgjyvEA54kR3U8Lyz-1-vPS74raT6SpoM0e8YYcm12T=0r50A@mail.gmail.com>
+From:   Daniel Vetter <daniel@ffwll.ch>
+Date:   Tue, 30 Jul 2019 00:03:53 +0200
+Message-ID: <CAKMK7uHNyP0XAkPZ4dSfdAzcrvzNSHc8J02rwh0nLCSnPu_d2Q@mail.gmail.com>
+Subject: Re: [PATCH 0/1] This patch fixes connection detection for monitors
+ w/o DDC.
+To:     Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+Cc:     "maxime.ripard@free-electrons.com" <maxime.ripard@free-electrons.com>,
+        Andrzej Hajda <a.hajda@samsung.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+        Igor Opaniuk <igor.opaniuk@toradex.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        David Airlie <airlied@linux.ie>,
+        Jernej Skrabec <jernej.skrabec@siol.net>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Suvorov Alexander <cryosay@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 29, 2019 at 1:54 PM Nathan Chancellor
-<natechancellor@gmail.com> wrote:
-> On Mon, Jul 29, 2019 at 01:49:54PM -0700, Brian Norris wrote:
-> > Side note: it might have helped alleviate some of this pain if there
-> > were email notifications to the mailing list when a patch gets applied.
-> > I didn't realize (and I'm not sure if Enrico did) that v2 was already
-> > merged by the time I noted its mistakes. If I had known, I would have
-> > suggested a follow-up patch, not a v3.
+On Mon, Jul 29, 2019 at 12:58 PM Oleksandr Suvorov
+<oleksandr.suvorov@toradex.com> wrote:
 >
-> I've found this to be fairly reliable for getting notified when
-> something gets applied if it is a tree that shows up in -next.
+> On Thu, Jul 25, 2019 at 5:41 PM maxime.ripard@free-electrons.com
+> <maxime.ripard@free-electrons.com> wrote:
+> >
+> > On Thu, Jul 25, 2019 at 11:05:23AM +0000, Oleksandr Suvorov wrote:
+> > >
+> > > Even in source code of this driver there is an author's description:
+> > >     /*
+> > >      * Even if we have an I2C bus, we can't assume that the cable
+> > >      * is disconnected if drm_probe_ddc fails. Some cables don't
+> > >      * wire the DDC pins, or the I2C bus might not be working at
+> > >      * all.
+> > >      */
+> > >
+> > > That's true. DDC and VGA channels are independent, and therefore
+> > > we cannot decide whether the monitor is connected or not,
+> > > depending on the information from the DDC.
+> > >
+> > > So the monitor should always be considered connected.
+> >
+> > Well, no. Like you said, we cannot decided whether is connected or
+> > not.
 >
-> https://www.kernel.org/get-notifications-for-your-patches.html
+> Maxime, thanks, I agree that's a bad solution.
+> But I still think we should be able to define the DT node of a device for
+> this driver to claim the connector is always connected.
+> Please see my following thoughts.
+>
+> > > Thus there is no reason to use connector detect callback for this
+> > > driver: DRM sub-system considers monitor always connected if there
+> > > is no detect() callback registered with drm_connector_init().
+> > >
+> > > How to reproduce the bug:
+> > > * setup: i.MX8QXP, LCDIF video module + gpu/drm/mxsfb driver,
+> > >   adv712x VGA DAC + dumb-vga-dac driver, VGA-connector w/o DDC;
+> > > * try to use drivers chain mxsfb-drm + dumb-vga-dac;
+> > > * any DRM applications consider the monitor is not connected:
+> > >   ===========
+> > >   $ weston-start
+> > >   $ cat /var/log/weston.log
+> > >       ...
+> > >       DRM: head 'VGA-1' found, connector 32 is disconnected.
+> > >       ...
+> > >   $ cat /sys/devices/platform/5a180000.lcdif/drm/card0/card0-VGA-1/status
+> > >   unknown
+> >
+> > And that's exactly what's being reported here: we cannot decide if it
+> > is connected or not, so it's unknown.
+> >
+> > If weston chooses to ignore connectors that are in an unknown state,
+> > I'd say it's weston's problem, since it's much broader than this
+> > particular device.
+>
+> If we look at the code of drm_probe_helper.c, we can see, the
+> drm_helper_probe_detect_ctx() assume the cable is connected if there is no
+> detect() callback registered.
+> ...
+>                 if (funcs->detect_ctx)
+>                          ret = funcs->detect_ctx(connector, &ctx, force);
+>                  else if (connector->funcs->detect)
+>                          ret = connector->funcs->detect(connector, force);
+>                  else
+>                          ret = connector_status_connected;
+> ...
+>
+> The driver dumb-vga-dac supports both DT configurations:
+> - with DDC channel, that allows us to detect if the cable is connected;
+> - without DDC channel. In this case, IMHO, the driver should behave
+> the same way as a
+>   connector driver without registered detect() callback.
+>
+> So what about the patch like?
 
-I didn't send the original patch. I was only debugging/reviewing
-someone else's patch, and jumped in after its authorship (as it hit
-issues in our own CI system). So it was more of a "drive-by" scenario,
-and it doesn't sound like that page addresses this situation.
+Still no. The "always connected" case is for outputs which are
+physically always connected and typing a dummy function which would
+unconditionally return connected would be silly. Like built-in panels.
+This is _not_ for external screens.
+-Daniel
 
-Brian
+>
+> @@ -81,6 +81,13 @@ dumb_vga_connector_detect(struct drm_connector
+> *connector, bool force)
+>  {
+>         struct dumb_vga *vga = drm_connector_to_dumb_vga(connector);
+>
+> +       /*
+> +        * If I2C bus for DDC is not defined, asume that the cable
+> +        * is always connected.
+> +        */
+> +       if (PTR_ERR(vga->ddc) == -ENODEV)
+> +               return connector_status_connected;
+> +
+>         /*
+>          * Even if we have an I2C bus, we can't assume that the cable
+>          * is disconnected if drm_probe_ddc fails. Some cables don't
+>
+> --
+> Best regards
+> Oleksandr Suvorov
+>
+> Toradex AG
+> Altsagenstrasse 5 | 6048 Horw/Luzern | Switzerland | T: +41 41 500
+> 4800 (main line)
+
+
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
++41 (0) 79 365 57 48 - http://blog.ffwll.ch
