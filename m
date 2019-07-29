@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C4F4796A9
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:54:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 344B479716
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:57:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390988AbfG2TyK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:54:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46734 "EHLO mail.kernel.org"
+        id S2390997AbfG2TyL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:54:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390821AbfG2TyI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:54:08 -0400
+        id S2390989AbfG2TyK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:54:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16CD021655;
-        Mon, 29 Jul 2019 19:54:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B49C32054F;
+        Mon, 29 Jul 2019 19:54:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564430047;
-        bh=E45bOxYEs1GCke5wwWSaD5o7gMTEOtOqrjfmOPnbj38=;
+        s=default; t=1564430050;
+        bh=rHm3w1s+OA3vgn6UbbqNpJH1RefhjVI02EjHY1GJZcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J5gydGPDegwRDmFnr83S49GvO7oRbsRCjXhXj1SC6NhzYS7JuHGo8nGGMLekdT1Fh
-         im6SRu0x2Ifs06HGtMb5WndNSjPuKJN0SjWbzNEPE/uJmKF284sWgvidInkO9F4JAx
-         wC6QFgAYtfSm8S8J/1CyCYof/yPZktikxrYpe3QA=
+        b=2iV6RCgeHS6+M27njPBltpyfnwTh+bjdCaf7SbuVboNzVuv+dW8KI3s+eikCo0zdo
+         NfqXGx/ZdrRnpmiRNsy1/JtRelcJXlreE45UQKg8KPOQ3bTk2wezGTZo/VfPUPcBKo
+         GRrzLllwoMHrhlf5mhYl97466XiXjIjyGlx9vcKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Harvey <jamespharvey20@gmail.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.2 179/215] btrfs: inode: Dont compress if NODATASUM or NODATACOW set
-Date:   Mon, 29 Jul 2019 21:22:55 +0200
-Message-Id: <20190729190811.031475083@linuxfoundation.org>
+        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
+        Kees Cook <keescook@chromium.org>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.2 180/215] selinux: check sidtab limit before adding a new entry
+Date:   Mon, 29 Jul 2019 21:22:56 +0200
+Message-Id: <20190729190811.251798429@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -43,101 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
 
-commit 42c16da6d684391db83788eb680accd84f6c2083 upstream.
+commit acbc372e6109c803cbee4733769d02008381740f upstream.
 
-As btrfs(5) specified:
+We need to error out when trying to add an entry above SIDTAB_MAX in
+sidtab_reverse_lookup() to avoid overflow on the odd chance that this
+happens.
 
-	Note
-	If nodatacow or nodatasum are enabled, compression is disabled.
-
-If NODATASUM or NODATACOW set, we should not compress the extent.
-
-Normally NODATACOW is detected properly in run_delalloc_range() so
-compression won't happen for NODATACOW.
-
-However for NODATASUM we don't have any check, and it can cause
-compressed extent without csum pretty easily, just by:
-  mkfs.btrfs -f $dev
-  mount $dev $mnt -o nodatasum
-  touch $mnt/foobar
-  mount -o remount,datasum,compress $mnt
-  xfs_io -f -c "pwrite 0 128K" $mnt/foobar
-
-And in fact, we have a bug report about corrupted compressed extent
-without proper data checksum so even RAID1 can't recover the corruption.
-(https://bugzilla.kernel.org/show_bug.cgi?id=199707)
-
-Running compression without proper checksum could cause more damage when
-corruption happens, as compressed data could make the whole extent
-unreadable, so there is no need to allow compression for
-NODATACSUM.
-
-The fix will refactor the inode compression check into two parts:
-
-- inode_can_compress()
-  As the hard requirement, checked at btrfs_run_delalloc_range(), so no
-  compression will happen for NODATASUM inode at all.
-
-- inode_need_compress()
-  As the soft requirement, checked at btrfs_run_delalloc_range() and
-  compress_file_range().
-
-Reported-by: James Harvey <jamespharvey20@gmail.com>
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: stable@vger.kernel.org
+Fixes: ee1a84fdfeed ("selinux: overhaul sidtab to fix bug and improve performance")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/inode.c |   24 +++++++++++++++++++++++-
- 1 file changed, 23 insertions(+), 1 deletion(-)
+ security/selinux/ss/sidtab.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -394,10 +394,31 @@ static noinline int add_async_extent(str
- 	return 0;
- }
+--- a/security/selinux/ss/sidtab.c
++++ b/security/selinux/ss/sidtab.c
+@@ -286,6 +286,11 @@ static int sidtab_reverse_lookup(struct
+ 		++count;
+ 	}
  
-+/*
-+ * Check if the inode has flags compatible with compression
-+ */
-+static inline bool inode_can_compress(struct inode *inode)
-+{
-+	if (BTRFS_I(inode)->flags & BTRFS_INODE_NODATACOW ||
-+	    BTRFS_I(inode)->flags & BTRFS_INODE_NODATASUM)
-+		return false;
-+	return true;
-+}
++	/* bail out if we already reached max entries */
++	rc = -EOVERFLOW;
++	if (count >= SIDTAB_MAX)
++		goto out_unlock;
 +
-+/*
-+ * Check if the inode needs to be submitted to compression, based on mount
-+ * options, defragmentation, properties or heuristics.
-+ */
- static inline int inode_need_compress(struct inode *inode, u64 start, u64 end)
- {
- 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
- 
-+	if (!inode_can_compress(inode)) {
-+		WARN(IS_ENABLED(CONFIG_BTRFS_DEBUG),
-+			KERN_ERR "BTRFS: unexpected compression for ino %llu\n",
-+			btrfs_ino(BTRFS_I(inode)));
-+		return 0;
-+	}
- 	/* force compress */
- 	if (btrfs_test_opt(fs_info, FORCE_COMPRESS))
- 		return 1;
-@@ -1630,7 +1651,8 @@ int btrfs_run_delalloc_range(struct inod
- 	} else if (BTRFS_I(inode)->flags & BTRFS_INODE_PREALLOC && !force_cow) {
- 		ret = run_delalloc_nocow(inode, locked_page, start, end,
- 					 page_started, 0, nr_written);
--	} else if (!inode_need_compress(inode, start, end)) {
-+	} else if (!inode_can_compress(inode) ||
-+		   !inode_need_compress(inode, start, end)) {
- 		ret = cow_file_range(inode, locked_page, start, end, end,
- 				      page_started, nr_written, 1, NULL);
- 	} else {
+ 	/* insert context into new entry */
+ 	rc = -ENOMEM;
+ 	dst = sidtab_do_lookup(s, count, 1);
 
 
