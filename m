@@ -2,90 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9957F79043
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 18:04:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 588E079056
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 18:07:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727115AbfG2QER (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 12:04:17 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:55524 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726795AbfG2QER (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 12:04:17 -0400
-Received: by mail-wm1-f68.google.com with SMTP id a15so54370596wmj.5;
-        Mon, 29 Jul 2019 09:04:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=ZxCoxZNZqZ7BaNpp6YlaSGJX4F8d+cKr8ODCDAIBeo0=;
-        b=so0RkHbQmktB6qvbzDiBKriLe/K5ptlYiSmQLEWl1HuGaXc5eKAH3MVFtwhZ3awKrZ
-         blQZvJemfCUieBHxA0+RMJ0DcC9Aj5ClGQU2JDDQFl+b1iyHt1pxWfUD0EgInZgiwX17
-         cNR99Ep+c2x/jHPQmsiCV+MjZY/dSNEFqAAdnwS+1IqeSu2HaHxyRFTrYnI9cbB0XDJD
-         0Za/nyl2w1iJN3qQPuQZXqHL1/7cOtvfgjJWyJBLksgkHEur7WbXQDx5kp+4a8ViBHam
-         9B0YBxc5+nRTMUslC2e2RJr0VedelGAChxO1iyzKp3DYnfLHbdu2LxE2eFUSwaj8VFzV
-         khFA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=ZxCoxZNZqZ7BaNpp6YlaSGJX4F8d+cKr8ODCDAIBeo0=;
-        b=CB1kgX5ytURUi6S+ptZ9FPubVVvM4L/uysId5Oj8pnz56LSNA34Yh+PJt9XiSjIpRP
-         g48rDB3NjDBkzuQ1KY087zvj+GR+IMCsa8hpgrkL8+sWosBl8lYPPcttdzUm3KsUBH1Y
-         tTDB6tjOlneJWKsxC6L2dc6JIhBo9tUsE3foCK1Z+l9QBbOJvsP8xyRMGoH6qTWbi+cY
-         U+SKRoil/PaSIFArNm1HxFe/CvtcmTgy4yUOUm1WEetLWP4URz3JtHpNTdRbmRQcrLPg
-         8PPEVNBxgfrthTOlucIxknr5OVrv3//DZjzft957ebBQFWB4A3UcrY6bCA6L1jif0fz+
-         hqnQ==
-X-Gm-Message-State: APjAAAXbdThRHI5BbLUg5Au2updcSEsaZ9PefCd5WXiVZ/8dMna0NRRI
-        fliueQOhebKs+rc3vxB+3Q8=
-X-Google-Smtp-Source: APXvYqzGLKYdNwB2KW7FyW6D9ipox2XB2mdajXe63NXSkTQIYI4BlIbqGc0hBM3uIt5TS50fgN4EgA==
-X-Received: by 2002:a7b:c144:: with SMTP id z4mr104465393wmi.50.1564416255100;
-        Mon, 29 Jul 2019 09:04:15 -0700 (PDT)
-Received: from archlinux-threadripper ([2a01:4f8:222:2f1b::2])
-        by smtp.gmail.com with ESMTPSA id a81sm63363187wmh.3.2019.07.29.09.04.14
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 29 Jul 2019 09:04:14 -0700 (PDT)
-Date:   Mon, 29 Jul 2019 09:04:12 -0700
-From:   Nathan Chancellor <natechancellor@gmail.com>
-To:     Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc:     linux-kbuild@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        stable@vger.kernel.org, Michal Marek <michal.lkml@markovi.net>,
-        clang-built-linux@googlegroups.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kbuild: initialize CLANG_FLAGS correctly in the top
- Makefile
-Message-ID: <20190729160412.GA100132@archlinux-threadripper>
-References: <20190729091517.5334-1-yamada.masahiro@socionext.com>
+        id S1728518AbfG2QHo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 12:07:44 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:40741 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727796AbfG2QHo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 12:07:44 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id A0F2920782;
+        Mon, 29 Jul 2019 12:07:43 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 29 Jul 2019 12:07:43 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=0QnhCD
+        +zc/YKewAZ+8+MZGIPCSOfq6+ZBASgUGbxUhs=; b=gguVHBqNAqHl5xYyuxJFNb
+        wpOONHY6nhev/jxIHSCJEpcrmPgcuwABC5/9NVG/VRcGg0VqrJN+MhoiFXEqLmv7
+        HTtAIWnuSTDTaC2wc0hH037Zq1vH42Bs87E3t22nwviv8U3n5LksUYfr1dobH8Y8
+        KNl/E9FaFLjh3TtJeyQ4lflo+KBVNPa5vS9aP/6LvQAFdSJXqIa4/x4hORbx6LcU
+        QC9n28CVBC3DYkrtNWqKyKYCCMPdbkxrSfjpYQ/j5SdGVxatEjSvwqqjfd2bqBbR
+        eoYk+m8/sG9gxo/XqaxwwmZ1Nmt0IO4Kj9S777tmHFqQ7YCu85bnd9asI5lxudQg
+        ==
+X-ME-Sender: <xms:zxk_XVpNu67PAqqsH8NT7u4S4TffR4pKTuHx0NXuT4E7OHwxLKOZAw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrledugdeljecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:zxk_XRRPgoSyXQRNkiBqVhKI9tMa4QgeZPLYULQw-_gorxpBRiUngA>
+    <xmx:zxk_XVoLXelkWF5WSDPKLEbmMasKacDIbh0WzC5JQllI6ehub4L3pQ>
+    <xmx:zxk_XXyR0OUAGUaYIbJh4s6WSzk5FHhPQxp-h4AQwwtHfWwOQcXKjg>
+    <xmx:zxk_XRlF2emq5DvhihG-Zl2W3zGKXnGvsLUDDysaJU9-yCUGiS766w>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id E8D298005B;
+        Mon, 29 Jul 2019 12:07:42 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/amdgpu: Don't skip display settings in hwmgr_resume()" failed to apply to 5.2-stable tree
+To:     lyude@redhat.com, Likun.Gao@amd.com, Rex.Zhu@amd.com,
+        alexander.deucher@amd.com, evan.quan@amd.com, ray.huang@amd.com,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 29 Jul 2019 18:07:41 +0200
+Message-ID: <1564416461175229@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190729091517.5334-1-yamada.masahiro@socionext.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 29, 2019 at 06:15:17PM +0900, Masahiro Yamada wrote:
-> CLANG_FLAGS is initialized by the following line:
-> 
->   CLANG_FLAGS     := --target=$(notdir $(CROSS_COMPILE:%-=%))
-> 
-> ..., which is run only when CROSS_COMPILE is set.
-> 
-> Some build targets (bindeb-pkg etc.) recurse to the top Makefile.
-> 
-> When you build the kernel with Clang but without CROSS_COMPILE,
-> the same compiler flags such as -no-integrated-as are accumulated
-> into CLANG_FLAGS.
-> 
-> If you run 'make CC=clang' and then 'make CC=clang bindeb-pkg',
-> Kbuild will recompile everything needlessly due to the build command
-> change.
-> 
-> Fix this by correctly initializing CLANG_FLAGS.
-> 
-> Fixes: 238bcbc4e07f ("kbuild: consolidate Clang compiler flags")
-> Cc: <stable@vger.kernel.org> # v4.20+
-> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+The patch below does not apply to the 5.2-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From ee006eb00a00198d21dad60696318fd443a59f88 Mon Sep 17 00:00:00 2001
+From: Lyude Paul <lyude@redhat.com>
+Date: Thu, 20 Jun 2019 19:21:26 -0400
+Subject: [PATCH] drm/amdgpu: Don't skip display settings in hwmgr_resume()
+
+I'm not entirely sure why this is, but for some reason:
+
+921935dc6404 ("drm/amd/powerplay: enforce display related settings only on needed")
+
+Breaks runtime PM resume on the Radeon PRO WX 3100 (Lexa) in one the
+pre-production laptops I have. The issue manifests as the following
+messages in dmesg:
+
+[drm] UVD and UVD ENC initialized successfully.
+amdgpu 0000:3b:00.0: [drm:amdgpu_ring_test_helper [amdgpu]] *ERROR* ring vce1 test failed (-110)
+[drm:amdgpu_device_ip_resume_phase2 [amdgpu]] *ERROR* resume of IP block <vce_v3_0> failed -110
+[drm:amdgpu_device_resume [amdgpu]] *ERROR* amdgpu_device_ip_resume failed (-110).
+
+And happens after about 6-10 runtime PM suspend/resume cycles (sometimes
+sooner, if you're lucky!). Unfortunately I can't seem to pin down
+precisely which part in psm_adjust_power_state_dynamic that is causing
+the issue, but not skipping the display setting setup seems to fix it.
+Hopefully if there is a better fix for this, this patch will spark
+discussion around it.
+
+Fixes: 921935dc6404 ("drm/amd/powerplay: enforce display related settings only on needed")
+Cc: Evan Quan <evan.quan@amd.com>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: Huang Rui <ray.huang@amd.com>
+Cc: Rex Zhu <Rex.Zhu@amd.com>
+Cc: Likun Gao <Likun.Gao@amd.com>
+Cc: <stable@vger.kernel.org> # v5.1+
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+
+diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/hwmgr.c
+index 0b0d83c2a678..a24beaa4fb01 100644
+--- a/drivers/gpu/drm/amd/powerplay/hwmgr/hwmgr.c
++++ b/drivers/gpu/drm/amd/powerplay/hwmgr/hwmgr.c
+@@ -327,7 +327,7 @@ int hwmgr_resume(struct pp_hwmgr *hwmgr)
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = psm_adjust_power_state_dynamic(hwmgr, true, NULL);
++	ret = psm_adjust_power_state_dynamic(hwmgr, false, NULL);
+ 
+ 	return ret;
+ }
+
