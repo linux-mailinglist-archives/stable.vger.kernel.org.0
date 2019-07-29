@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68D48793BD
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:24:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A56B2793F8
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:27:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729439AbfG2TYG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:24:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36270 "EHLO mail.kernel.org"
+        id S1729761AbfG2T02 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:26:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729431AbfG2TYF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:24:05 -0400
+        id S1729762AbfG2T01 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:26:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54C5C2070B;
-        Mon, 29 Jul 2019 19:24:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 174CA20C01;
+        Mon, 29 Jul 2019 19:26:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428243;
-        bh=2HPNLndBxxLtbMoU5BXIpRFzD6ly9rT6jL7EcLmxmNo=;
+        s=default; t=1564428386;
+        bh=RdYRD5uZKbN7OnkDT8czaQDN2LdIh8ABplfgRuQLvT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZGQtbOTl0OCPKB91nNSsc7YR9kjqCjwy7NQY6pN6TTiCp8krrvfadP0MVqkBsGC0L
-         yFmhbJ3owIV3ok1sm+tClTD/71tR/0kYdZKW2dZZOXevQlCShTSDiS3jXfEiZpaYVa
-         vNKYSX9mJ0yG+S98QR8ZEJEXDddb1Z89T8zob2t4=
+        b=vL/8CTU4fjUQWVUyBAlzSvtm74vI4Wykel98XnQovWrszSia7TSj8bXyg33WIuSYA
+         tKoPqo/xjtktEWOyRb2DN6yCCxZtAsfkAmpsXghXQgqnaHftouidos0TlsmGIZiKwL
+         4XEf9IHJWdd6ZRmEKeFYvosKXWoC09EJXeyDxljk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Daniel Lezcano <daniel.lezcano@free.fr>,
+        Serge Hallyn <serge@hallyn.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 015/293] media: marvell-ccic: fix DMA s/g desc number calculation
-Date:   Mon, 29 Jul 2019 21:18:26 +0200
-Message-Id: <20190729190821.615639430@linuxfoundation.org>
+Subject: [PATCH 4.14 021/293] signal/pid_namespace: Fix reboot_pid_ns to use send_sig not force_sig
+Date:   Mon, 29 Jul 2019 21:18:32 +0200
+Message-Id: <20190729190822.545550642@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -45,62 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0c7aa32966dab0b8a7424e1b34c7f206817953ec ]
+[ Upstream commit f9070dc94542093fd516ae4ccea17ef46a4362c5 ]
 
-The commit d790b7eda953 ("[media] vb2-dma-sg: move dma_(un)map_sg here")
-left dma_desc_nent unset. It previously contained the number of DMA
-descriptors as returned from dma_map_sg().
+The locking in force_sig_info is not prepared to deal with a task that
+exits or execs (as sighand may change).  The is not a locking problem
+in force_sig as force_sig is only built to handle synchronous
+exceptions.
 
-We can now (since the commit referred to above) obtain the same value from
-the sg_table and drop dma_desc_nent altogether.
+Further the function force_sig_info changes the signal state if the
+signal is ignored, or blocked or if SIGNAL_UNKILLABLE will prevent the
+delivery of the signal.  The signal SIGKILL can not be ignored and can
+not be blocked and SIGNAL_UNKILLABLE won't prevent it from being
+delivered.
 
-Tested on OLPC XO-1.75 machine. Doesn't affect the OLPC XO-1's Cafe
-driver, since that one doesn't do DMA.
+So using force_sig rather than send_sig for SIGKILL is confusing
+and pointless.
 
-[mchehab+samsung@kernel.org: fix a checkpatch warning]
+Because it won't impact the sending of the signal and and because
+using force_sig is wrong, replace force_sig with send_sig.
 
-Fixes: d790b7eda953 ("[media] vb2-dma-sg: move dma_(un)map_sg here")
-Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cc: Daniel Lezcano <daniel.lezcano@free.fr>
+Cc: Serge Hallyn <serge@hallyn.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Fixes: cf3f89214ef6 ("pidns: add reboot_pid_ns() to handle the reboot syscall")
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/marvell-ccic/mcam-core.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ kernel/pid_namespace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/marvell-ccic/mcam-core.c b/drivers/media/platform/marvell-ccic/mcam-core.c
-index 7b7250b1cff8..4ecb94860aa4 100644
---- a/drivers/media/platform/marvell-ccic/mcam-core.c
-+++ b/drivers/media/platform/marvell-ccic/mcam-core.c
-@@ -200,7 +200,6 @@ struct mcam_vb_buffer {
- 	struct list_head queue;
- 	struct mcam_dma_desc *dma_desc;	/* Descriptor virtual address */
- 	dma_addr_t dma_desc_pa;		/* Descriptor physical address */
--	int dma_desc_nent;		/* Number of mapped descriptors */
- };
+diff --git a/kernel/pid_namespace.c b/kernel/pid_namespace.c
+index 4918314893bc..22091c88b3bb 100644
+--- a/kernel/pid_namespace.c
++++ b/kernel/pid_namespace.c
+@@ -351,7 +351,7 @@ int reboot_pid_ns(struct pid_namespace *pid_ns, int cmd)
+ 	}
  
- static inline struct mcam_vb_buffer *vb_to_mvb(struct vb2_v4l2_buffer *vb)
-@@ -608,9 +607,11 @@ static void mcam_dma_contig_done(struct mcam_camera *cam, int frame)
- static void mcam_sg_next_buffer(struct mcam_camera *cam)
- {
- 	struct mcam_vb_buffer *buf;
-+	struct sg_table *sg_table;
+ 	read_lock(&tasklist_lock);
+-	force_sig(SIGKILL, pid_ns->child_reaper);
++	send_sig(SIGKILL, pid_ns->child_reaper, 1);
+ 	read_unlock(&tasklist_lock);
  
- 	buf = list_first_entry(&cam->buffers, struct mcam_vb_buffer, queue);
- 	list_del_init(&buf->queue);
-+	sg_table = vb2_dma_sg_plane_desc(&buf->vb_buf.vb2_buf, 0);
- 	/*
- 	 * Very Bad Not Good Things happen if you don't clear
- 	 * C1_DESC_ENA before making any descriptor changes.
-@@ -618,7 +619,7 @@ static void mcam_sg_next_buffer(struct mcam_camera *cam)
- 	mcam_reg_clear_bit(cam, REG_CTRL1, C1_DESC_ENA);
- 	mcam_reg_write(cam, REG_DMA_DESC_Y, buf->dma_desc_pa);
- 	mcam_reg_write(cam, REG_DESC_LEN_Y,
--			buf->dma_desc_nent*sizeof(struct mcam_dma_desc));
-+			sg_table->nents * sizeof(struct mcam_dma_desc));
- 	mcam_reg_write(cam, REG_DESC_LEN_U, 0);
- 	mcam_reg_write(cam, REG_DESC_LEN_V, 0);
- 	mcam_reg_set_bit(cam, REG_CTRL1, C1_DESC_ENA);
+ 	do_exit(0);
 -- 
 2.20.1
 
