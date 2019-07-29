@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35B1979848
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:06:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D71A797A8
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:02:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389221AbfG2Tks (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:40:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56106 "EHLO mail.kernel.org"
+        id S2390086AbfG2TuI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:50:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388065AbfG2Tkr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:40:47 -0400
+        id S2389663AbfG2TuH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:50:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED66A20C01;
-        Mon, 29 Jul 2019 19:40:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A7452171F;
+        Mon, 29 Jul 2019 19:50:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429246;
-        bh=+Ly88yUH6yAJrx+nKGGrwNVtbiju5gqZ/9uzwEJDyP8=;
+        s=default; t=1564429805;
+        bh=FfBSftjkxA4VBM6W0bbDtLYMoU+8RUCpM3t+Nkg30sg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sO8+R9/sDkvuQt1PG0J/Ei/ywmRMlwW/88oHBfjjEMYbXH8QEc0eoc7xlRRYx/A2Y
-         y0HrF3kUJOnoWtZ5oG/1F5GR/apPhaO4GfPKLQMJTZiVXQcX/bsM2O4D6m20e6kGgD
-         lsf61TUfCICw2RzA2dwnd5wLmrqAM/kZRQVAm0kc=
+        b=vdyaECKvL9grGwGAScU//wnQM3sAISpAq2X/wFvyfGkCkls1oNI+UeVsN39v7z1Dv
+         Hl1BvTQuJAXGXMp0uccTcuWVkqzWMF8xKRKn7Vy3KCm9ttkejo6EFjOL+FixQcQ6W6
+         vf2pBSrUhyA0PDR7idPNa5Q9p7iXf7BisPF6tJL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 009/113] tty: serial: cpm_uart - fix init when SMC is relocated
-Date:   Mon, 29 Jul 2019 21:21:36 +0200
-Message-Id: <20190729190657.968938058@linuxfoundation.org>
+Subject: [PATCH 5.2 101/215] um: Silence lockdep complaint about mmap_sem
+Date:   Mon, 29 Jul 2019 21:21:37 +0200
+Message-Id: <20190729190756.571000194@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
-References: <20190729190655.455345569@linuxfoundation.org>
+In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
+References: <20190729190739.971253303@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,74 +44,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 06aaa3d066db87e8478522d910285141d44b1e58 ]
+[ Upstream commit 80bf6ceaf9310b3f61934c69b382d4912deee049 ]
 
-SMC relocation can also be activated earlier by the bootloader,
-so the driver's behaviour cannot rely on selected kernel config.
+When we get into activate_mm(), lockdep complains that we're doing
+something strange:
 
-When the SMC is relocated, CPM_CR_INIT_TRX cannot be used.
+    WARNING: possible circular locking dependency detected
+    5.1.0-10252-gb00152307319-dirty #121 Not tainted
+    ------------------------------------------------------
+    inside.sh/366 is trying to acquire lock:
+    (____ptrval____) (&(&p->alloc_lock)->rlock){+.+.}, at: flush_old_exec+0x703/0x8d7
 
-But the only thing CPM_CR_INIT_TRX does is to clear the
-rstate and tstate registers, so this can be done manually,
-even when SMC is not relocated.
+    but task is already holding lock:
+    (____ptrval____) (&mm->mmap_sem){++++}, at: flush_old_exec+0x6c5/0x8d7
 
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Fixes: 9ab921201444 ("cpm_uart: fix non-console port startup bug")
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    which lock already depends on the new lock.
+
+    the existing dependency chain (in reverse order) is:
+
+    -> #1 (&mm->mmap_sem){++++}:
+           [...]
+           __lock_acquire+0x12ab/0x139f
+           lock_acquire+0x155/0x18e
+           down_write+0x3f/0x98
+           flush_old_exec+0x748/0x8d7
+           load_elf_binary+0x2ca/0xddb
+           [...]
+
+    -> #0 (&(&p->alloc_lock)->rlock){+.+.}:
+           [...]
+           __lock_acquire+0x12ab/0x139f
+           lock_acquire+0x155/0x18e
+           _raw_spin_lock+0x30/0x83
+           flush_old_exec+0x703/0x8d7
+           load_elf_binary+0x2ca/0xddb
+           [...]
+
+    other info that might help us debug this:
+
+     Possible unsafe locking scenario:
+
+           CPU0                    CPU1
+           ----                    ----
+      lock(&mm->mmap_sem);
+                                   lock(&(&p->alloc_lock)->rlock);
+                                   lock(&mm->mmap_sem);
+      lock(&(&p->alloc_lock)->rlock);
+
+     *** DEADLOCK ***
+
+    2 locks held by inside.sh/366:
+     #0: (____ptrval____) (&sig->cred_guard_mutex){+.+.}, at: __do_execve_file+0x12d/0x869
+     #1: (____ptrval____) (&mm->mmap_sem){++++}, at: flush_old_exec+0x6c5/0x8d7
+
+    stack backtrace:
+    CPU: 0 PID: 366 Comm: inside.sh Not tainted 5.1.0-10252-gb00152307319-dirty #121
+    Stack:
+     [...]
+    Call Trace:
+     [<600420de>] show_stack+0x13b/0x155
+     [<6048906b>] dump_stack+0x2a/0x2c
+     [<6009ae64>] print_circular_bug+0x332/0x343
+     [<6009c5c6>] check_prev_add+0x669/0xdad
+     [<600a06b4>] __lock_acquire+0x12ab/0x139f
+     [<6009f3d0>] lock_acquire+0x155/0x18e
+     [<604a07e0>] _raw_spin_lock+0x30/0x83
+     [<60151e6a>] flush_old_exec+0x703/0x8d7
+     [<601a8eb8>] load_elf_binary+0x2ca/0xddb
+     [...]
+
+I think it's because in exec_mmap() we have
+
+	down_read(&old_mm->mmap_sem);
+...
+        task_lock(tsk);
+...
+	activate_mm(active_mm, mm);
+	(which does down_write(&mm->mmap_sem))
+
+I'm not really sure why lockdep throws in the whole knowledge
+about the task lock, but it seems that old_mm and mm shouldn't
+ever be the same (and it doesn't deadlock) so tell lockdep that
+they're different.
+
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/cpm_uart/cpm_uart_core.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ arch/um/include/asm/mmu_context.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/cpm_uart/cpm_uart_core.c b/drivers/tty/serial/cpm_uart/cpm_uart_core.c
-index e5389591bb4f..ad40c75bb58f 100644
---- a/drivers/tty/serial/cpm_uart/cpm_uart_core.c
-+++ b/drivers/tty/serial/cpm_uart/cpm_uart_core.c
-@@ -407,7 +407,16 @@ static int cpm_uart_startup(struct uart_port *port)
- 			clrbits16(&pinfo->sccp->scc_sccm, UART_SCCM_RX);
- 		}
- 		cpm_uart_initbd(pinfo);
--		cpm_line_cr_cmd(pinfo, CPM_CR_INIT_TRX);
-+		if (IS_SMC(pinfo)) {
-+			out_be32(&pinfo->smcup->smc_rstate, 0);
-+			out_be32(&pinfo->smcup->smc_tstate, 0);
-+			out_be16(&pinfo->smcup->smc_rbptr,
-+				 in_be16(&pinfo->smcup->smc_rbase));
-+			out_be16(&pinfo->smcup->smc_tbptr,
-+				 in_be16(&pinfo->smcup->smc_tbase));
-+		} else {
-+			cpm_line_cr_cmd(pinfo, CPM_CR_INIT_TRX);
-+		}
- 	}
- 	/* Install interrupt handler. */
- 	retval = request_irq(port->irq, cpm_uart_int, 0, "cpm_uart", port);
-@@ -861,16 +870,14 @@ static void cpm_uart_init_smc(struct uart_cpm_port *pinfo)
- 	         (u8 __iomem *)pinfo->tx_bd_base - DPRAM_BASE);
- 
- /*
-- *  In case SMC1 is being relocated...
-+ *  In case SMC is being relocated...
-  */
--#if defined (CONFIG_I2C_SPI_SMC1_UCODE_PATCH)
- 	out_be16(&up->smc_rbptr, in_be16(&pinfo->smcup->smc_rbase));
- 	out_be16(&up->smc_tbptr, in_be16(&pinfo->smcup->smc_tbase));
- 	out_be32(&up->smc_rstate, 0);
- 	out_be32(&up->smc_tstate, 0);
- 	out_be16(&up->smc_brkcr, 1);              /* number of break chars */
- 	out_be16(&up->smc_brkec, 0);
--#endif
- 
- 	/* Set up the uart parameters in the
- 	 * parameter ram.
-@@ -884,8 +891,6 @@ static void cpm_uart_init_smc(struct uart_cpm_port *pinfo)
- 	out_be16(&up->smc_brkec, 0);
- 	out_be16(&up->smc_brkcr, 1);
- 
--	cpm_line_cr_cmd(pinfo, CPM_CR_INIT_TRX);
--
- 	/* Set UART mode, 8 bit, no parity, one stop.
- 	 * Enable receive and transmit.
+diff --git a/arch/um/include/asm/mmu_context.h b/arch/um/include/asm/mmu_context.h
+index 9f4b4bb78120..00cefd33afdd 100644
+--- a/arch/um/include/asm/mmu_context.h
++++ b/arch/um/include/asm/mmu_context.h
+@@ -52,7 +52,7 @@ static inline void activate_mm(struct mm_struct *old, struct mm_struct *new)
+ 	 * when the new ->mm is used for the first time.
  	 */
+ 	__switch_mm(&new->context.id);
+-	down_write(&new->mmap_sem);
++	down_write_nested(&new->mmap_sem, 1);
+ 	uml_setup_stubs(new);
+ 	up_write(&new->mmap_sem);
+ }
 -- 
 2.20.1
 
