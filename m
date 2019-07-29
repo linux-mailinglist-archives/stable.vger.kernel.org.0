@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D7FF796CA
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:55:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA809796F6
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:56:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390486AbfG2Tze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:55:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48370 "EHLO mail.kernel.org"
+        id S2390676AbfG2T4v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:56:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404223AbfG2Tzc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:55:32 -0400
+        id S2390500AbfG2Tze (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:55:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9FE9C204EC;
-        Mon, 29 Jul 2019 19:55:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47B86204EC;
+        Mon, 29 Jul 2019 19:55:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564430131;
-        bh=rB73xvJpdEcFSjH9TyP6peeD9RRA82j1t5fr13TMwFM=;
+        s=default; t=1564430133;
+        bh=jVl1Bq+rz05LUbH30KTBqKp5WAEqWVDJQxcufSSolAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tQpjcGXRh1oudxNHtUJ+Xhkyq7ZmIthIJjEiQ54wwygnp83kDqo/Ajn/rIwjchDBt
-         Wy/vQUw4nQwaquRoBb1Uzu9jqHIzMdWaL9MMeJuaAqYGG+RNmwFx5xkUThfx4QItik
-         EtCEbhGuBCCH5Jw5uMK1H4wOFwh8nfN80EucBuks=
+        b=XpuextUnVWB+K1Y/Iq9W+InOVO3mG4caegVdc/HKIagYUGrCSxHF622B74vp9EnDi
+         r9t7XQqM2fhXBIGSltb4H9l5siYPRmCy9EGQQprxRhnq7mMlz/Cfq1hhQ1KRJzsRku
+         YEUZ/R7Q/zu30Dy8vKpM/lLoKeKxnJnGdKAGiWKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
+        Jane Chu <jane.chu@oracle.com>,
         Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.2 207/215] libnvdimm/region: Register badblocks before namespaces
-Date:   Mon, 29 Jul 2019 21:23:23 +0200
-Message-Id: <20190729190815.879490144@linuxfoundation.org>
+Subject: [PATCH 5.2 208/215] libnvdimm/bus: Stop holding nvdimm_bus_list_mutex over __nd_ioctl()
+Date:   Mon, 29 Jul 2019 21:23:24 +0200
+Message-Id: <20190729190816.062161344@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -45,89 +46,206 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Williams <dan.j.williams@intel.com>
 
-commit 700cd033a82d466ad8f9615f9985525e45f8960a upstream.
+commit b70d31d054ee3a6fc1034b9d7fc0ae1e481aa018 upstream.
 
-Namespace activation expects to be able to reference region badblocks.
-The following warning sometimes triggers when asynchronous namespace
-activation races in front of the completion of namespace probing. Move
-all possible namespace probing after region badblocks initialization.
+In preparation for fixing a deadlock between wait_for_bus_probe_idle()
+and the nvdimm_bus_list_mutex arrange for __nd_ioctl() without
+nvdimm_bus_list_mutex held. This also unifies the 'dimm' and 'bus' level
+ioctls into a common nd_ioctl() preamble implementation.
 
-Otherwise, lockdep sometimes catches the uninitialized state of the
-badblocks seqlock with stack trace signatures like:
+Marked for -stable as it is a pre-requisite for a follow-on fix.
 
-    INFO: trying to register non-static key.
-    pmem2: detected capacity change from 0 to 136365211648
-    the code is fine but needs lockdep annotation.
-    turning off the locking correctness validator.
-    CPU: 9 PID: 358 Comm: kworker/u80:5 Tainted: G           OE     5.2.0-rc4+ #3382
-    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.0.0 02/06/2015
-    Workqueue: events_unbound async_run_entry_fn
-    Call Trace:
-     dump_stack+0x85/0xc0
-    pmem1.12: detected capacity change from 0 to 8589934592
-     register_lock_class+0x56a/0x570
-     ? check_object+0x140/0x270
-     __lock_acquire+0x80/0x1710
-     ? __mutex_lock+0x39d/0x910
-     lock_acquire+0x9e/0x180
-     ? nd_pfn_validate+0x28f/0x440 [libnvdimm]
-     badblocks_check+0x93/0x1f0
-     ? nd_pfn_validate+0x28f/0x440 [libnvdimm]
-     nd_pfn_validate+0x28f/0x440 [libnvdimm]
-     ? lockdep_hardirqs_on+0xf0/0x180
-     nd_dax_probe+0x9a/0x120 [libnvdimm]
-     nd_pmem_probe+0x6d/0x180 [nd_pmem]
-     nvdimm_bus_probe+0x90/0x2c0 [libnvdimm]
-
-Fixes: 48af2f7e52f4 ("libnvdimm, pfn: during init, clear errors...")
 Cc: <stable@vger.kernel.org>
+Fixes: bf9bccc14c05 ("libnvdimm: pmem label sets and namespace instantiation")
 Cc: Vishal Verma <vishal.l.verma@intel.com>
-Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
-Link: https://lore.kernel.org/r/156341208365.292348.1547528796026249120.stgit@dwillia2-desk3.amr.corp.intel.com
+Tested-by: Jane Chu <jane.chu@oracle.com>
+Link: https://lore.kernel.org/r/156341209518.292348.7183897251740665198.stgit@dwillia2-desk3.amr.corp.intel.com
 Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nvdimm/region.c |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/nvdimm/bus.c     |   94 ++++++++++++++++++++++++++++-------------------
+ drivers/nvdimm/nd-core.h |    3 +
+ 2 files changed, 59 insertions(+), 38 deletions(-)
 
---- a/drivers/nvdimm/region.c
-+++ b/drivers/nvdimm/region.c
-@@ -34,17 +34,6 @@ static int nd_region_probe(struct device
- 	if (rc)
- 		return rc;
+--- a/drivers/nvdimm/bus.c
++++ b/drivers/nvdimm/bus.c
+@@ -73,7 +73,7 @@ static void nvdimm_bus_probe_end(struct
+ {
+ 	nvdimm_bus_lock(&nvdimm_bus->dev);
+ 	if (--nvdimm_bus->probe_active == 0)
+-		wake_up(&nvdimm_bus->probe_wait);
++		wake_up(&nvdimm_bus->wait);
+ 	nvdimm_bus_unlock(&nvdimm_bus->dev);
+ }
  
--	rc = nd_region_register_namespaces(nd_region, &err);
--	if (rc < 0)
--		return rc;
--
--	ndrd = dev_get_drvdata(dev);
--	ndrd->ns_active = rc;
--	ndrd->ns_count = rc + err;
--
--	if (rc && err && rc == err)
--		return -ENODEV;
--
- 	if (is_nd_pmem(&nd_region->dev)) {
- 		struct resource ndr_res;
+@@ -341,7 +341,7 @@ struct nvdimm_bus *nvdimm_bus_register(s
+ 		return NULL;
+ 	INIT_LIST_HEAD(&nvdimm_bus->list);
+ 	INIT_LIST_HEAD(&nvdimm_bus->mapping_list);
+-	init_waitqueue_head(&nvdimm_bus->probe_wait);
++	init_waitqueue_head(&nvdimm_bus->wait);
+ 	nvdimm_bus->id = ida_simple_get(&nd_ida, 0, 0, GFP_KERNEL);
+ 	if (nvdimm_bus->id < 0) {
+ 		kfree(nvdimm_bus);
+@@ -426,6 +426,9 @@ static int nd_bus_remove(struct device *
+ 	list_del_init(&nvdimm_bus->list);
+ 	mutex_unlock(&nvdimm_bus_list_mutex);
  
-@@ -60,6 +49,17 @@ static int nd_region_probe(struct device
- 		nvdimm_badblocks_populate(nd_region, &nd_region->bb, &ndr_res);
++	wait_event(nvdimm_bus->wait,
++			atomic_read(&nvdimm_bus->ioctl_active) == 0);
++
+ 	nd_synchronize();
+ 	device_for_each_child(&nvdimm_bus->dev, NULL, child_unregister);
+ 
+@@ -885,7 +888,7 @@ void wait_nvdimm_bus_probe_idle(struct d
+ 		if (nvdimm_bus->probe_active == 0)
+ 			break;
+ 		nvdimm_bus_unlock(&nvdimm_bus->dev);
+-		wait_event(nvdimm_bus->probe_wait,
++		wait_event(nvdimm_bus->wait,
+ 				nvdimm_bus->probe_active == 0);
+ 		nvdimm_bus_lock(&nvdimm_bus->dev);
+ 	} while (true);
+@@ -1115,24 +1118,10 @@ static int __nd_ioctl(struct nvdimm_bus
+ 	return rc;
+ }
+ 
+-static long nd_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+-{
+-	long id = (long) file->private_data;
+-	int rc = -ENXIO, ro;
+-	struct nvdimm_bus *nvdimm_bus;
+-
+-	ro = ((file->f_flags & O_ACCMODE) == O_RDONLY);
+-	mutex_lock(&nvdimm_bus_list_mutex);
+-	list_for_each_entry(nvdimm_bus, &nvdimm_bus_list, list) {
+-		if (nvdimm_bus->id == id) {
+-			rc = __nd_ioctl(nvdimm_bus, NULL, ro, cmd, arg);
+-			break;
+-		}
+-	}
+-	mutex_unlock(&nvdimm_bus_list_mutex);
+-
+-	return rc;
+-}
++enum nd_ioctl_mode {
++	BUS_IOCTL,
++	DIMM_IOCTL,
++};
+ 
+ static int match_dimm(struct device *dev, void *data)
+ {
+@@ -1147,31 +1136,62 @@ static int match_dimm(struct device *dev
+ 	return 0;
+ }
+ 
+-static long nvdimm_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
++static long nd_ioctl(struct file *file, unsigned int cmd, unsigned long arg,
++		enum nd_ioctl_mode mode)
++
+ {
+-	int rc = -ENXIO, ro;
+-	struct nvdimm_bus *nvdimm_bus;
++	struct nvdimm_bus *nvdimm_bus, *found = NULL;
++	long id = (long) file->private_data;
++	struct nvdimm *nvdimm = NULL;
++	int rc, ro;
+ 
+ 	ro = ((file->f_flags & O_ACCMODE) == O_RDONLY);
+ 	mutex_lock(&nvdimm_bus_list_mutex);
+ 	list_for_each_entry(nvdimm_bus, &nvdimm_bus_list, list) {
+-		struct device *dev = device_find_child(&nvdimm_bus->dev,
+-				file->private_data, match_dimm);
+-		struct nvdimm *nvdimm;
++		if (mode == DIMM_IOCTL) {
++			struct device *dev;
+ 
+-		if (!dev)
+-			continue;
++			dev = device_find_child(&nvdimm_bus->dev,
++					file->private_data, match_dimm);
++			if (!dev)
++				continue;
++			nvdimm = to_nvdimm(dev);
++			found = nvdimm_bus;
++		} else if (nvdimm_bus->id == id) {
++			found = nvdimm_bus;
++		}
+ 
+-		nvdimm = to_nvdimm(dev);
+-		rc = __nd_ioctl(nvdimm_bus, nvdimm, ro, cmd, arg);
+-		put_device(dev);
+-		break;
++		if (found) {
++			atomic_inc(&nvdimm_bus->ioctl_active);
++			break;
++		}
  	}
+ 	mutex_unlock(&nvdimm_bus_list_mutex);
  
-+	rc = nd_region_register_namespaces(nd_region, &err);
-+	if (rc < 0)
-+		return rc;
++	if (!found)
++		return -ENXIO;
 +
-+	ndrd = dev_get_drvdata(dev);
-+	ndrd->ns_active = rc;
-+	ndrd->ns_count = rc + err;
++	nvdimm_bus = found;
++	rc = __nd_ioctl(nvdimm_bus, nvdimm, ro, cmd, arg);
 +
-+	if (rc && err && rc == err)
-+		return -ENODEV;
++	if (nvdimm)
++		put_device(&nvdimm->dev);
++	if (atomic_dec_and_test(&nvdimm_bus->ioctl_active))
++		wake_up(&nvdimm_bus->wait);
 +
- 	nd_region->btt_seed = nd_btt_create(nd_region);
- 	nd_region->pfn_seed = nd_pfn_create(nd_region);
- 	nd_region->dax_seed = nd_dax_create(nd_region);
+ 	return rc;
+ }
+ 
++static long bus_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
++{
++	return nd_ioctl(file, cmd, arg, BUS_IOCTL);
++}
++
++static long dimm_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
++{
++	return nd_ioctl(file, cmd, arg, DIMM_IOCTL);
++}
++
+ static int nd_open(struct inode *inode, struct file *file)
+ {
+ 	long minor = iminor(inode);
+@@ -1183,16 +1203,16 @@ static int nd_open(struct inode *inode,
+ static const struct file_operations nvdimm_bus_fops = {
+ 	.owner = THIS_MODULE,
+ 	.open = nd_open,
+-	.unlocked_ioctl = nd_ioctl,
+-	.compat_ioctl = nd_ioctl,
++	.unlocked_ioctl = bus_ioctl,
++	.compat_ioctl = bus_ioctl,
+ 	.llseek = noop_llseek,
+ };
+ 
+ static const struct file_operations nvdimm_fops = {
+ 	.owner = THIS_MODULE,
+ 	.open = nd_open,
+-	.unlocked_ioctl = nvdimm_ioctl,
+-	.compat_ioctl = nvdimm_ioctl,
++	.unlocked_ioctl = dimm_ioctl,
++	.compat_ioctl = dimm_ioctl,
+ 	.llseek = noop_llseek,
+ };
+ 
+--- a/drivers/nvdimm/nd-core.h
++++ b/drivers/nvdimm/nd-core.h
+@@ -17,10 +17,11 @@ extern struct workqueue_struct *nvdimm_w
+ 
+ struct nvdimm_bus {
+ 	struct nvdimm_bus_descriptor *nd_desc;
+-	wait_queue_head_t probe_wait;
++	wait_queue_head_t wait;
+ 	struct list_head list;
+ 	struct device dev;
+ 	int id, probe_active;
++	atomic_t ioctl_active;
+ 	struct list_head mapping_list;
+ 	struct mutex reconfig_mutex;
+ 	struct badrange badrange;
 
 
