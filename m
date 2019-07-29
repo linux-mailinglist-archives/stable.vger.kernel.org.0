@@ -2,86 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97248787C1
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 10:50:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F204A787DA
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 10:58:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726516AbfG2IuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 04:50:09 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:36496 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726482AbfG2IuI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 04:50:08 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id uk-mta-6-T74adJHKP9OKW6b0WGvMPg-1;
- Mon, 29 Jul 2019 09:50:05 +0100
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Mon, 29 Jul 2019 09:50:04 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Mon, 29 Jul 2019 09:50:04 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     =?utf-8?B?J0NocmlzdG9waCBCw7ZobXdhbGRlcic=?= 
-        <christoph.boehmwalder@linbit.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     "Eric W . Biederman" <ebiederm@xmission.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Philipp Reisner <philipp.reisner@linbit.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] drbd: do not ignore signals in threads
-Thread-Topic: [PATCH] drbd: do not ignore signals in threads
-Thread-Index: AQHVRehdZ3MFgEc+dUGpXqE3QyW7xKbhRpmw
-Date:   Mon, 29 Jul 2019 08:50:04 +0000
-Message-ID: <6259de605e9246b095233e3984262b93@AcuMS.aculab.com>
-References: <20190729083248.30362-1-christoph.boehmwalder@linbit.com>
-In-Reply-To: <20190729083248.30362-1-christoph.boehmwalder@linbit.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S1727206AbfG2I6o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 04:58:44 -0400
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:34672 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727195AbfG2I6o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 04:58:44 -0400
+Received: by mail-lf1-f68.google.com with SMTP id b29so34247708lfq.1;
+        Mon, 29 Jul 2019 01:58:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=I1Kj7YUPvkqZu0AVoqLEWB0rMOmtYob12XhQjO3Ri6Q=;
+        b=cqvfLHPFUr5VxLj7mTj7MPXkdMQrlElRYzxTAKvcRGsHMjXI10VTKm4NlH9fEjQCX7
+         +HyrBLZh73kMWXuARtvgjMlo6mHSUe5xs+i/Jhy4EblsDE7sji2m1JzJ3oaeyt/EuFnb
+         mK0hJ18HHpmV3uHcNB5U6SBZc7ICPlwSSgwX5eQbHPsRuHa9PhFEJnjhPo29ufjn+mwK
+         REBtU646Guh/uerj6wz5DOsVddH3mBBhJ/5AGJO97VwAofsGZeelKO0q0Lemqj50c/Dz
+         nsneBBBi7xzaAPaX/70YoFTn0x2CY4K+SXJKHtxuWSOA8+6uFU4I2i+2HPZNAGKevH7s
+         fV4w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=I1Kj7YUPvkqZu0AVoqLEWB0rMOmtYob12XhQjO3Ri6Q=;
+        b=MgHmd4uYtFe8WB38OOp4+SUMj6T76r5U+PX7+WqTQePF+FWrZqlLYdvvtH9SbuxYff
+         RfHnvD+7JlYP/ogyZMlyCZRHI2Ny2wTd230B9EBwEMKWPFj0J5Wk616AdU0OlXXO09Ew
+         /WUOhJjegZbdXNouxW4CH3q+rW7xPRdeZmiEM00WYgppMc7pIGkLHTd+hsZY0Qa/Htfx
+         QYHyCh3fRXpLPd676/YpiXA5rr5Ldj/v6c4vXgNxb93YwMqfHDJq0a2tI6y736u0hCyl
+         a5Yb/g1uJHyUCLm5oJa1DqgcbAkeEn46kzTHmIwn7JxEh3S2wmbPuW5paej+s3LLeJn6
+         tVgw==
+X-Gm-Message-State: APjAAAXBZryT5ctImfqcZnTuRQsY2Nta8R30GPnHmVuSWY2ELajUXD5D
+        7Ak0m4er+tJAn+yHcGB4BqX6bjm2z3qPuUtD9/1iIA==
+X-Google-Smtp-Source: APXvYqwEYMRATv6hJXcp2sN2uBqY7MeCPBYc/cx7vGGCDzzL9FkPA8m7NHC3RC8RJW7yXkhUwM+YmkfaE0n50XYnM0E=
+X-Received: by 2002:a19:4349:: with SMTP id m9mr50210064lfj.64.1564390721868;
+ Mon, 29 Jul 2019 01:58:41 -0700 (PDT)
 MIME-Version: 1.0
-X-MC-Unique: T74adJHKP9OKW6b0WGvMPg-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+References: <20190725104645.30642-1-vkuznets@redhat.com> <20190725104645.30642-2-vkuznets@redhat.com>
+In-Reply-To: <20190725104645.30642-2-vkuznets@redhat.com>
+From:   Jack Wang <jack.wang.usish@gmail.com>
+Date:   Mon, 29 Jul 2019 10:58:30 +0200
+Message-ID: <CA+res+RfqpT=g1QbCqr3OkHVzFFSAt3cfCYNcwqiemWmOifFxg@mail.gmail.com>
+Subject: Re: [PATCH stable-4.19 1/2] KVM: nVMX: do not use dangling shadow
+ VMCS after guest reset
+To:     Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc:     stable@vger.kernel.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogQ2hyaXN0b3BoIELDtmhtd2FsZGVyDQo+IFNlbnQ6IDI5IEp1bHkgMjAxOSAwOTozMw0K
-PiBGaXggYSByZWdyZXNzaW9uIGludHJvZHVjZWQgYnkgdXBzdHJlYW0gY29tbWl0IGZlZTEwOTkw
-MWYzOQ0KPiAoJ3NpZ25hbC9kcmJkOiBVc2Ugc2VuZF9zaWcgbm90IGZvcmNlX3NpZycpLg0KPiAN
-Cj4gQ3VycmVudGx5LCB3aGVuIGEgdGhyZWFkIGlzIGluaXRpYWxpemVkLCBhbGwgc2lnbmFscyBh
-cmUgc2V0IHRvIGJlDQo+IGlnbm9yZWQgYnkgZGVmYXVsdC4gRFJCRCB1c2VzIFNJR0hVUCB0byBl
-bmQgaXRzIHRocmVhZHMsIHdoaWNoIG1lYW5zIGl0DQo+IGlzIG5vdyBubyBsb25nZXIgcG9zc2li
-bGUgdG8gYnJpbmcgZG93biBhIERSQkQgcmVzb3VyY2UgYmVjYXVzZSB0aGUNCj4gc2lnbmFscyBk
-byBub3QgbWFrZSBpdCB0aHJvdWdoIHRvIHRoZSB0aHJlYWQgaW4gcXVlc3Rpb24uDQo+IA0KPiBU
-aGlzIGNpcmN1bXN0YW5jZSB3YXMgcHJldmlvdXNseSBoaWRkZW4gYnkgdGhlIGZhY3QgdGhhdCBE
-UkJEIHVzZWQNCj4gZm9yY2Vfc2lnKCkgdG8ga2lsbCBpdHMgdGhyZWFkcy4gVGhlIGFmb3JlbWVu
-dGlvbmVkIHVwc3RyZWFtIGNvbW1pdA0KPiBjaGFuZ2VkIHRoaXMgdG8gc2VuZF9zaWcoKSwgd2hp
-Y2ggbWVhbnMgdGhlIGVmZmVjdHMgb2YgdGhlIHNpZ25hbHMgYmVpbmcNCj4gaWdub3JlZCBieSBk
-ZWZhdWx0IGFyZSBub3cgYmVjb21pbmcgdmlzaWJsZS4NCj4gDQo+IFRodXMsIGlzc3VlIGFuIGFs
-bG93X3NpZ25hbCgpIGF0IHRoZSBzdGFydCBvZiB0aGUgdGhyZWFkIHRvIGV4cGxpY2l0bHkNCj4g
-YWxsb3cgdGhlIGRlc2lyZWQgc2lnbmFscy4NCg0KRG9lc24ndCB1bm1hc2tpbmcgdGhlIHNpZ25h
-bHMgYW5kIHVzaW5nIHNlbmRfc2lnKCkgaW5zdGVhZCAgb2YgZm9yY2Vfc2lnKCkNCmhhdmUgdGhl
-IChwcm9iYWJseSB1bndhbnRlZCkgc2lkZSBlZmZlY3Qgb2YgYWxsb3dpbmcgdXNlcnNwYWNlIHRv
-IHNlbmQNCnRoZSBzaWduYWw/DQoNCkkndmUgY2VydGFpbmx5IGdvdCBzb21lIGRyaXZlciBjb2Rl
-IHRoYXQgdXNlcyBmb3JjZV9zaWcoKSBvbiBhIGt0aHJlYWQNCnRoYXQgaXQgZG9lc24ndCAoZXZl
-cikgd2FudCB1c2Vyc3BhY2UgdG8gc2lnbmFsLg0KDQpUaGUgb3JpZ2luYTEgY29tbWl0IHNheXM6
-DQo+IEZ1cnRoZXIgZm9yY2Vfc2lnIGlzIGZvciBkZWxpdmVyaW5nIHN5bmNocm9ub3VzIHNpZ25h
-bHMgKGFrYSBleGNlcHRpb25zKS4NCj4gVGhlIGxvY2tpbmcgaW4gZm9yY2Vfc2lnIGlzIG5vdCBw
-cmVwYXJlZCB0byBkZWFsIHdpdGggcnVubmluZyBwcm9jZXNzZXMsIGFzDQo+IHRzay0+c2lnaGFu
-ZCBtYXkgY2hhbmdlIGR1cmluZyBleGVjIGZvciBhIHJ1bm5pbmcgcHJvY2Vzcy4NCg0KSSB0aGlu
-ayBhIGxvdCBvZiBjb2RlIGhhcyBhc3N1bWVkIHRoYXQgdGhlIG9ubHkgcmVhbCBkaWZmZXJlbmNl
-IGJldHdlZW4NCnNlbmRfc2lnKCkgYW5kIGZvcmNlX3NpZygpIGlzIHRoYXQgdGhlIGxhdHRlciBp
-Z25vcmVzIHRoZSBzaWduYWwgbWFzay4NCg0KSWYgeW91IG5lZWQgdG8gdW5ibG9jayBhIGtlcm5l
-bCB0aHJlYWQgKGVnIG9uZSBibG9ja2VkIGluIGtlcm5lbF9hY2NlcHQoKSkNCmluIG9yZGVyIHRv
-IHVubG9hZCBhIGRyaXZlciwgdGhlbiB5b3UgcmVhbGx5IGRvbid0IHdhbnQgaXQgdG8gYmUgcG9z
-c2libGUNCmZvciBhbnl0aGluZyBlbHNlIHRvIHNpZ25hbCB0aGUga3RocmVhZC4NCg0KCURhdmlk
-DQoNCi0NClJlZ2lzdGVyZWQgQWRkcmVzcyBMYWtlc2lkZSwgQnJhbWxleSBSb2FkLCBNb3VudCBG
-YXJtLCBNaWx0b24gS2V5bmVzLCBNSzEgMVBULCBVSw0KUmVnaXN0cmF0aW9uIE5vOiAxMzk3Mzg2
-IChXYWxlcykNCg==
+Vitaly Kuznetsov <vkuznets@redhat.com> =E4=BA=8E2019=E5=B9=B47=E6=9C=8825=
+=E6=97=A5=E5=91=A8=E5=9B=9B =E4=B8=8B=E5=8D=883:29=E5=86=99=E9=81=93=EF=BC=
+=9A
+>
+> From: Paolo Bonzini <pbonzini@redhat.com>
+>
+> [ Upstream commit 88dddc11a8d6b09201b4db9d255b3394d9bc9e57 ]
+>
+> If a KVM guest is reset while running a nested guest, free_nested will
+> disable the shadow VMCS execution control in the vmcs01.  However,
+> on the next KVM_RUN vmx_vcpu_run would nevertheless try to sync
+> the VMCS12 to the shadow VMCS which has since been freed.
+>
+> This causes a vmptrld of a NULL pointer on my machime, but Jan reports
+> the host to hang altogether.  Let's see how much this trivial patch fixes=
+.
+>
+> Reported-by: Jan Kiszka <jan.kiszka@siemens.com>
+> Cc: Liran Alon <liran.alon@oracle.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
+Hi all,
+
+Do we need to backport the fix also to stable 4.14?  It applies
+cleanly and compiles fine.
+
+Regards,
+Jack Wang
