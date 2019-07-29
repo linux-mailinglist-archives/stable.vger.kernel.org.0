@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB37879921
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:13:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70D9679905
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:12:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387530AbfG2Tax (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:30:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43508 "EHLO mail.kernel.org"
+        id S1728763AbfG2UM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 16:12:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727991AbfG2Tar (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:30:47 -0400
+        id S1728931AbfG2Tbt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:31:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A055221655;
-        Mon, 29 Jul 2019 19:30:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF8E621655;
+        Mon, 29 Jul 2019 19:31:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428647;
-        bh=tDQDRQ12fLgTyrsfORkgshblzGCDzEYvHzE8aV8oW/M=;
+        s=default; t=1564428708;
+        bh=WHcO5EoZl0fr/lRyk3dvLveSy6NFjKp82pGRFirSzA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r+buXZmwpBEtkmoMyrFmKrGdCz+1WaUDmNKRUw+o7vB5oQDEJ5miYZ2QyL5jLi/zo
-         oY7Ia0CF9pXE2UXkB8ymji6dS3QO23uPhtRvfc/nBIgZjPHs8hi/pWsLMchPVDy0VD
-         0C0U/HmSD8178K+dTz9rbQFEs+CfGM2gF4j/HE7M=
+        b=GpVVF/ANdqEYzm1aW2trJnZPKrZP778zggiLyn3b6VXrmQjDtYNeT9wQYqTTh7ojK
+         hlP3JeJcrCLlQbNMsKWJYq7r5WC0E+cKy7iGzWv5scCcHB4gr7UCQgo1kYdh7zwMHx
+         p3pcF9ftcAX0eFKabEIa7fslmbC6Wr2s6tqFBw/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 140/293] ALSA: hda/realtek: apply ALC891 headset fixup to one Dell machine
-Date:   Mon, 29 Jul 2019 21:20:31 +0200
-Message-Id: <20190729190835.277958453@linuxfoundation.org>
+        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 4.14 144/293] arm64: tegra: Fix AGIC register range
+Date:   Mon, 29 Jul 2019 21:20:35 +0200
+Message-Id: <20190729190835.563268178@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -43,34 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Jon Hunter <jonathanh@nvidia.com>
 
-commit 4b4e0e32e4b09274dbc9d173016c1a026f44608c upstream.
+commit ba24eee6686f6ed3738602b54d959253316a9541 upstream.
 
-Without this patch, the headset-mic and headphone-mic don't work.
+The Tegra AGIC interrupt controller is an ARM GIC400 interrupt
+controller. Per the ARM GIC device-tree binding, the first address
+region is for the GIC distributor registers and the second address
+region is for the GIC CPU interface registers. The address space for
+the distributor registers is 4kB, but currently this is incorrectly
+defined as 8kB for the Tegra AGIC and overlaps with the CPU interface
+registers. Correct the address space for the distributor to be 4kB.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Fixes: bcdbde433542 ("arm64: tegra: Add AGIC node for Tegra210")
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm64/boot/dts/nvidia/tegra210.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8149,6 +8149,11 @@ static const struct snd_hda_pin_quirk al
- 		{0x18, 0x01a19030},
- 		{0x1a, 0x01813040},
- 		{0x21, 0x01014020}),
-+	SND_HDA_PIN_QUIRK(0x10ec0867, 0x1028, "Dell", ALC891_FIXUP_DELL_MIC_NO_PRESENCE,
-+		{0x16, 0x01813030},
-+		{0x17, 0x02211010},
-+		{0x18, 0x01a19040},
-+		{0x21, 0x01014020}),
- 	SND_HDA_PIN_QUIRK(0x10ec0662, 0x1028, "Dell", ALC662_FIXUP_DELL_MIC_NO_PRESENCE,
- 		{0x14, 0x01014010},
- 		{0x18, 0x01a19020},
+--- a/arch/arm64/boot/dts/nvidia/tegra210.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra210.dtsi
+@@ -1103,7 +1103,7 @@
+ 			compatible = "nvidia,tegra210-agic";
+ 			#interrupt-cells = <3>;
+ 			interrupt-controller;
+-			reg = <0x702f9000 0x2000>,
++			reg = <0x702f9000 0x1000>,
+ 			      <0x702fa000 0x2000>;
+ 			interrupts = <GIC_SPI 102 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
+ 			clocks = <&tegra_car TEGRA210_CLK_APE>;
 
 
