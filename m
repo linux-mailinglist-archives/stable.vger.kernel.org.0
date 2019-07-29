@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65CDE79626
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:49:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EF107962B
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:49:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390309AbfG2TtO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:49:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39630 "EHLO mail.kernel.org"
+        id S2390534AbfG2Tt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:49:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390283AbfG2TtL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:49:11 -0400
+        id S2390530AbfG2Tt0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:49:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D66E221773;
-        Mon, 29 Jul 2019 19:49:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB4CA21655;
+        Mon, 29 Jul 2019 19:49:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429750;
-        bh=GXLQEAEmuYk2XNPqRZ4LjIT/TEVruiwv4dJS6yy00WM=;
+        s=default; t=1564429765;
+        bh=Fp1/PCJzmmL4q7pkcIlbBIawt4Iaunw6ZRL7LHFPzwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y8iHJhz/V1h8V80yOyeZqS+OOikuc+Sc6p2u4AplILRB7aowa6gDt7JDK+4Bocit/
-         XX1F/7vuY+D7i8P+I93zzo8CyYWTYbf699uauTqveQG3WC59dFpz+Ai+0m2zWu4Bd6
-         Fxk13z3tJyejfR3sfx/LEUcdCoo/XauhwV7SJ3bw=
+        b=iacrIsBLW+tmPO7DywqNF2DwLyOE5aLDrlaKQYmN0iwXx8r82PLj+udb+HzprTGmY
+         sy0y9uCEMoq5YGjgyHXR+zYwbbPukAFZ5TdQ0ON8QtY6HZCSNaa2umgAJCGxb/+dp1
+         S2pyDTfPOXWS7h5gjXUMk2zzdNxdwhJsDmXemkOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Smith <peter.smith@linaro.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        stable@vger.kernel.org, Brian Masney <masneyb@onstation.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Dan Murphy <dmurphy@ti.com>, Rob Herring <robh@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 084/215] kbuild: Add -Werror=unknown-warning-option to CLANG_FLAGS
-Date:   Mon, 29 Jul 2019 21:21:20 +0200
-Message-Id: <20190729190754.125100755@linuxfoundation.org>
+Subject: [PATCH 5.2 089/215] dt-bindings: backlight: lm3630a: correct schema validation
+Date:   Mon, 29 Jul 2019 21:21:25 +0200
+Message-Id: <20190729190754.820886392@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -46,61 +46,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 589834b3a0097a4908f4112eac0ca2feb486fa32 ]
+[ Upstream commit ef4db28c1f45cda6989bc8a8e45294894786d947 ]
 
-In commit ebcc5928c5d9 ("arm64: Silence gcc warnings about arch ABI
-drift"), the arm64 Makefile added -Wno-psabi to KBUILD_CFLAGS, which is
-a GCC only option so clang rightfully complains:
+The '#address-cells' and '#size-cells' properties were not defined in
+the lm3630a bindings and would cause the following error when
+attempting to validate the examples against the schema:
 
-warning: unknown warning option '-Wno-psabi' [-Wunknown-warning-option]
+Documentation/devicetree/bindings/leds/backlight/lm3630a-backlight.example.dt.yaml:
+'#address-cells', '#size-cells' do not match any of the regexes:
+'^led@[01]$', 'pinctrl-[0-9]+'
 
-https://clang.llvm.org/docs/DiagnosticsReference.html#wunknown-warning-option
+Correct this by adding those two properties.
 
-However, by default, this is merely a warning so the build happily goes
-on with a slew of these warnings in the process.
+While we're here, move the ti,linear-mapping-mode property to the
+led@[01] child nodes to correct the following validation error:
 
-Commit c3f0d0bc5b01 ("kbuild, LLVMLinux: Add -Werror to cc-option to
-support clang") worked around this behavior in cc-option by adding
--Werror so that unknown flags cause an error. However, this all happens
-silently and when an unknown flag is added to the build unconditionally
-like -Wno-psabi, cc-option will always fail because there is always an
-unknown flag in the list of flags. This manifested as link time failures
-in the arm64 libstub because -fno-stack-protector didn't get added to
-KBUILD_CFLAGS.
+Documentation/devicetree/bindings/leds/backlight/lm3630a-backlight.example.dt.yaml:
+led@0: 'ti,linear-mapping-mode' does not match any of the regexes:
+'pinctrl-[0-9]+'
 
-To avoid these weird cryptic failures in the future, make clang behave
-like gcc and immediately error when it encounters an unknown flag by
-adding -Werror=unknown-warning-option to CLANG_FLAGS. This can be added
-unconditionally for clang because it is supported by at least 3.0.0,
-according to godbolt [1] and 4.0.0, according to its documentation [2],
-which is far earlier than we typically support.
-
-[1]: https://godbolt.org/z/7F7rm3
-[2]: https://releases.llvm.org/4.0.0/tools/clang/docs/DiagnosticsReference.html#wunknown-warning-option
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/511
-Link: https://github.com/ClangBuiltLinux/linux/issues/517
-Suggested-by: Peter Smith <peter.smith@linaro.org>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Fixes: 32fcb75c66a0 ("dt-bindings: backlight: Add lm3630a bindings")
+Signed-off-by: Brian Masney <masneyb@onstation.org>
+Reported-by: Rob Herring <robh+dt@kernel.org>
+Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
+Acked-by: Dan Murphy <dmurphy@ti.com>
+[robh: also drop maxItems from child reg]
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile | 1 +
- 1 file changed, 1 insertion(+)
+ .../leds/backlight/lm3630a-backlight.yaml     | 21 ++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/Makefile b/Makefile
-index 68ee97784c4d..fa0f48c43ab2 100644
---- a/Makefile
-+++ b/Makefile
-@@ -528,6 +528,7 @@ ifneq ($(GCC_TOOLCHAIN),)
- CLANG_FLAGS	+= --gcc-toolchain=$(GCC_TOOLCHAIN)
- endif
- CLANG_FLAGS	+= -no-integrated-as
-+CLANG_FLAGS	+= -Werror=unknown-warning-option
- KBUILD_CFLAGS	+= $(CLANG_FLAGS)
- KBUILD_AFLAGS	+= $(CLANG_FLAGS)
- export CLANG_FLAGS
+diff --git a/Documentation/devicetree/bindings/leds/backlight/lm3630a-backlight.yaml b/Documentation/devicetree/bindings/leds/backlight/lm3630a-backlight.yaml
+index 4d61fe0a98a4..dc129d9a329e 100644
+--- a/Documentation/devicetree/bindings/leds/backlight/lm3630a-backlight.yaml
++++ b/Documentation/devicetree/bindings/leds/backlight/lm3630a-backlight.yaml
+@@ -23,16 +23,17 @@ properties:
+   reg:
+     maxItems: 1
+ 
+-  ti,linear-mapping-mode:
+-    description: |
+-      Enable linear mapping mode. If disabled, then it will use exponential
+-      mapping mode in which the ramp up/down appears to have a more uniform
+-      transition to the human eye.
+-    type: boolean
++  '#address-cells':
++    const: 1
++
++  '#size-cells':
++    const: 0
+ 
+ required:
+   - compatible
+   - reg
++  - '#address-cells'
++  - '#size-cells'
+ 
+ patternProperties:
+   "^led@[01]$":
+@@ -48,7 +49,6 @@ patternProperties:
+           in this property. The two current sinks can be controlled
+           independently with both banks, or bank A can be configured to control
+           both sinks with the led-sources property.
+-        maxItems: 1
+         minimum: 0
+         maximum: 1
+ 
+@@ -73,6 +73,13 @@ patternProperties:
+         minimum: 0
+         maximum: 255
+ 
++      ti,linear-mapping-mode:
++        description: |
++          Enable linear mapping mode. If disabled, then it will use exponential
++          mapping mode in which the ramp up/down appears to have a more uniform
++          transition to the human eye.
++        type: boolean
++
+     required:
+       - reg
+ 
 -- 
 2.20.1
 
