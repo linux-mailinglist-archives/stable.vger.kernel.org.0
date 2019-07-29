@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E90B07962E
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:49:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5FA179630
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:49:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390104AbfG2Tta (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:49:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40000 "EHLO mail.kernel.org"
+        id S2390372AbfG2Tth (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:49:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390324AbfG2Tt3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:49:29 -0400
+        id S2390559AbfG2Tth (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:49:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 992E621655;
-        Mon, 29 Jul 2019 19:49:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2D542171F;
+        Mon, 29 Jul 2019 19:49:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429768;
-        bh=UKG81nHbOs5b5H96t8JY12N6peRn2i/jtp95vtWKP2U=;
+        s=default; t=1564429776;
+        bh=ljmbUjArS7s9I0wGp7O46tcK9Gu6RtaNGsPsw8xQges=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iLt/LC/qKkQrjAm8pUw4Hl3qksKN8zyR7oiR7z1fLTwNSUg4XzmOS0OWItllFxy93
-         iqUZtQBSSgNod1s2ovk7k0mdDzDVwITszZYmfQh4kwOL/mDemqgC2jTgUvCUh2MYpE
-         Ft/YE2AYm71wvd18IB4oPLujOOh9TQ0j5EQ1BViw=
+        b=ZoTr8s+m2R7uNtipbWZIi7BmLmSXPoafkeN3Ttt/+B4m1ZtfwsCI8Njvj1hA7vfOa
+         VsmPsqkIzKCrCu4JWFOT2d0oyYL7UogrDincb/y8Xs2FRkTrUtCBA2LaWaSXAtmGZH
+         nY/6t5HIhFOd+E2S2/J05e+9zeEEnN8xm3rd+oMk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 090/215] powerpc/cacheflush: fix variable set but not used
-Date:   Mon, 29 Jul 2019 21:21:26 +0200
-Message-Id: <20190729190754.981741824@linuxfoundation.org>
+Subject: [PATCH 5.2 092/215] powerpc/rtas: retry when cpu offline races with suspend/migration
+Date:   Mon, 29 Jul 2019 21:21:28 +0200
+Message-Id: <20190729190755.293241211@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -44,43 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 04db3ede40ae4fc23a5c4237254c4a53bbe4c1f2 ]
+[ Upstream commit 9fb603050ffd94f8127df99c699cca2f575eb6a0 ]
 
-The powerpc's flush_cache_vmap() is defined as a macro and never use
-both of its arguments, so it will generate a compilation warning,
+The protocol for suspending or migrating an LPAR requires all present
+processor threads to enter H_JOIN. So if we have threads offline, we
+have to temporarily bring them up. This can race with administrator
+actions such as SMT state changes. As of dfd718a2ed1f ("powerpc/rtas:
+Fix a potential race between CPU-Offline & Migration"),
+rtas_ibm_suspend_me() accounts for this, but errors out with -EBUSY
+for what almost certainly is a transient condition in any reasonable
+scenario.
 
-lib/ioremap.c: In function 'ioremap_page_range':
-lib/ioremap.c:203:16: warning: variable 'start' set but not used
-[-Wunused-but-set-variable]
+Callers of rtas_ibm_suspend_me() already retry when -EAGAIN is
+returned, and it is typical during a migration for that to happen
+repeatedly for several minutes polling the H_VASI_STATE hcall result
+before proceeding to the next stage.
 
-Fix it by making it an inline function.
+So return -EAGAIN instead of -EBUSY when this race is
+encountered. Additionally: logging this event is still appropriate but
+use pr_info instead of pr_err; and remove use of unlikely() while here
+as this is not a hot path at all.
 
-Signed-off-by: Qian Cai <cai@lca.pw>
+Fixes: dfd718a2ed1f ("powerpc/rtas: Fix a potential race between CPU-Offline & Migration")
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/cacheflush.h | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/rtas.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/cacheflush.h b/arch/powerpc/include/asm/cacheflush.h
-index 74d60cfe8ce5..fd318f7c3eed 100644
---- a/arch/powerpc/include/asm/cacheflush.h
-+++ b/arch/powerpc/include/asm/cacheflush.h
-@@ -29,9 +29,12 @@
-  * not expect this type of fault. flush_cache_vmap is not exactly the right
-  * place to put this, but it seems to work well enough.
-  */
--#define flush_cache_vmap(start, end)		do { asm volatile("ptesync" ::: "memory"); } while (0)
-+static inline void flush_cache_vmap(unsigned long start, unsigned long end)
-+{
-+	asm volatile("ptesync" ::: "memory");
-+}
- #else
--#define flush_cache_vmap(start, end)		do { } while (0)
-+static inline void flush_cache_vmap(unsigned long start, unsigned long end) { }
- #endif
+diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
+index b824f4c69622..fff2eb22427d 100644
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -980,10 +980,9 @@ int rtas_ibm_suspend_me(u64 handle)
+ 	cpu_hotplug_disable();
  
- #define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 1
+ 	/* Check if we raced with a CPU-Offline Operation */
+-	if (unlikely(!cpumask_equal(cpu_present_mask, cpu_online_mask))) {
+-		pr_err("%s: Raced against a concurrent CPU-Offline\n",
+-		       __func__);
+-		atomic_set(&data.error, -EBUSY);
++	if (!cpumask_equal(cpu_present_mask, cpu_online_mask)) {
++		pr_info("%s: Raced against a concurrent CPU-Offline\n", __func__);
++		atomic_set(&data.error, -EAGAIN);
+ 		goto out_hotplug_enable;
+ 	}
+ 
 -- 
 2.20.1
 
