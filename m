@@ -2,41 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ECF379818
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:06:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A52C679874
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:07:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389611AbfG2Tnk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:43:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60074 "EHLO mail.kernel.org"
+        id S1730119AbfG2UHp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 16:07:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389680AbfG2Tnj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:43:39 -0400
+        id S1727931AbfG2Tiw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:38:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA8ED205F4;
-        Mon, 29 Jul 2019 19:43:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8901020C01;
+        Mon, 29 Jul 2019 19:38:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429418;
-        bh=51ONNl4E+d89K/QAbboXSlc5uF1O3xdiIJKuLk6jNjo=;
+        s=default; t=1564429131;
+        bh=L/0UbfsQuSYVVoqqmZY9l7Kzvao87zU9df+ydNE1jbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vzdv4LwlwpkSh2/0eI9mJSHdMXig5Tzs72yDKaw5hfQs/f0tqnUa1rjTdlBWZwI6i
-         kQPKZasUQD5rCx++Fybd/UHmfY3eNwVUxAX6AZEkbSyGh6fzs9P/cKEjHMzhG2Dtag
-         rRUkQ16LxeFAn7w5u15YM73h6CG3TJgE/0WGxcAY=
+        b=KeKUmZTNvF4Bfl+g4aORmKpyczI/anBCquqXVBAmBBZByExfzX4wq++vjuqfQN6T2
+         77zmsFFQtxKgUZ3JQikTa/IeoDl1kDPI5rd1swK8SSdIKUdJB3cYvUs7zVPokIm9nc
+         ENUbPv+bLR14Rbz0/ddEfUr5lAQWODCg7R6jaI2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
+        stable@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        Will Deacon <will.deacon@arm.com>,
+        Mark Brown <broonie@kernel.org>,
+        Inki Dae <inki.dae@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 074/113] PCI: dwc: pci-dra7xx: Fix compilation when !CONFIG_GPIOLIB
+Subject: [PATCH 4.14 270/293] sh: prevent warnings when using iounmap
 Date:   Mon, 29 Jul 2019 21:22:41 +0200
-Message-Id: <20190729190713.193526342@linuxfoundation.org>
+Message-Id: <20190729190845.034969861@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
-References: <20190729190655.455345569@linuxfoundation.org>
+In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
+References: <20190729190820.321094988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,49 +52,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 381ed79c8655a40268ee7391f716edd90c5c3a97 ]
+[ Upstream commit 733f0025f0fb43e382b84db0930ae502099b7e62 ]
 
-If CONFIG_GPIOLIB is not selected the compilation results in the
-following build errors:
+When building drm/exynos for sh, as part of an allmodconfig build, the
+following warning triggered:
 
-drivers/pci/controller/dwc/pci-dra7xx.c:
- In function dra7xx_pcie_probe:
-drivers/pci/controller/dwc/pci-dra7xx.c:777:10:
- error: implicit declaration of function devm_gpiod_get_optional;
- did you mean devm_regulator_get_optional? [-Werror=implicit-function-declaration]
+  exynos7_drm_decon.c: In function `decon_remove':
+  exynos7_drm_decon.c:769:24: warning: unused variable `ctx'
+    struct decon_context *ctx = dev_get_drvdata(&pdev->dev);
 
-  reset = devm_gpiod_get_optional(dev, NULL, GPIOD_OUT_HIGH);
+The ctx variable is only used as argument to iounmap().
 
-drivers/pci/controller/dwc/pci-dra7xx.c:778:45: error: ‘GPIOD_OUT_HIGH’
-undeclared (first use in this function); did you mean ‘GPIOF_INIT_HIGH’?
-  reset = devm_gpiod_get_optional(dev, NULL, GPIOD_OUT_HIGH);
-                                             ^~~~~~~~~~~~~~
-                                             GPIOF_INIT_HIGH
+In sh - allmodconfig CONFIG_MMU is not defined
+so it ended up in:
 
-Fix them by including the appropriate header file.
+\#define __iounmap(addr)	do { } while (0)
+\#define iounmap		__iounmap
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-[lorenzo.pieralisi@arm.com: commit log]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Kishon Vijay Abraham I <kishon@ti.com>
+Fix the warning by introducing a static inline function for iounmap.
+
+This is similar to several other architectures.
+
+Link: http://lkml.kernel.org/r/20190622114208.24427-1-sam@ravnborg.org
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Rich Felker <dalias@libc.org>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Inki Dae <inki.dae@samsung.com>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pci-dra7xx.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/sh/include/asm/io.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/dwc/pci-dra7xx.c b/drivers/pci/controller/dwc/pci-dra7xx.c
-index a32d6dde7a57..412524aa1fde 100644
---- a/drivers/pci/controller/dwc/pci-dra7xx.c
-+++ b/drivers/pci/controller/dwc/pci-dra7xx.c
-@@ -26,6 +26,7 @@
- #include <linux/types.h>
- #include <linux/mfd/syscon.h>
- #include <linux/regmap.h>
-+#include <linux/gpio/consumer.h>
+diff --git a/arch/sh/include/asm/io.h b/arch/sh/include/asm/io.h
+index 98cb8c802b1a..0ae60d680000 100644
+--- a/arch/sh/include/asm/io.h
++++ b/arch/sh/include/asm/io.h
+@@ -371,7 +371,11 @@ static inline int iounmap_fixed(void __iomem *addr) { return -EINVAL; }
  
- #include "../../pci.h"
- #include "pcie-designware.h"
+ #define ioremap_nocache	ioremap
+ #define ioremap_uc	ioremap
+-#define iounmap		__iounmap
++
++static inline void iounmap(void __iomem *addr)
++{
++	__iounmap(addr);
++}
+ 
+ /*
+  * Convert a physical pointer to a virtual kernel pointer for /dev/mem
 -- 
 2.20.1
 
