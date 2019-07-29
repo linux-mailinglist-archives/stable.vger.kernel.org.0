@@ -2,35 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA10A794B2
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:35:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCD57794B7
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:35:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388442AbfG2Te3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:34:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48842 "EHLO mail.kernel.org"
+        id S2387935AbfG2Tem (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:34:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388434AbfG2Te2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:34:28 -0400
+        id S2388344AbfG2Tel (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:34:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5EA02070B;
-        Mon, 29 Jul 2019 19:34:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41E9B21655;
+        Mon, 29 Jul 2019 19:34:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428867;
-        bh=i8k7dCpkFk85zm07G0bXS/wey0EkGA6BUjPmersWp/g=;
+        s=default; t=1564428879;
+        bh=DBxuIdXXEGkzb8kZ1WbKf384j2DKFnAhtb36t7aZy2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2bEjW6EDDsdJRqnG5wH3x5uuToSccWPg1A9BEo+djifcfTWzG8LsnHPuOdgRGZPUH
-         zm0ScUgYB3Go23bH9aFSEwJ9Z3fLloQpfyvPDfiAjy6cM6GiNC7IipjXvd4F4qNWW8
-         nciu2dZi9+ugQiiGNl11NBrctBBXKgwHNDkXxETk=
+        b=haNZHjj7vm/AnY/zo73amSNg8s05bvfelHO3ldTCW30ovzHAuSW0/XR1n1+pp0U5Z
+         Ug0F1xDLFTkE45cx1LjFbeG1ogJiHpdW+Z6WDDp5M69SXUTB6Gt59igf6+QVH4d3UA
+         5UOi2oofER5Z+hjORiTdYaMIdNy75rtgL7vnWXyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ross Zwisler <zwisler@google.com>,
-        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.14 211/293] jbd2: introduce jbd2_inode dirty range scoping
-Date:   Mon, 29 Jul 2019 21:21:42 +0200
-Message-Id: <20190729190840.630244034@linuxfoundation.org>
+        stable@vger.kernel.org, Kuo-Hsin Yang <vovoy@chromium.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Sonny Rao <sonnyrao@chromium.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Rik van Riel <riel@redhat.com>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 214/293] mm: vmscan: scan anonymous pages on file refaults
+Date:   Mon, 29 Jul 2019 21:21:45 +0200
+Message-Id: <20190729190840.885952466@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -43,251 +51,241 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ross Zwisler <zwisler@chromium.org>
+From: Kuo-Hsin Yang <vovoy@chromium.org>
 
-commit 6ba0e7dc64a5adcda2fbe65adc466891795d639e upstream.
+commit 2c012a4ad1a2cd3fb5a0f9307b9d219f84eda1fa upstream.
 
-Currently both journal_submit_inode_data_buffers() and
-journal_finish_inode_data_buffers() operate on the entire address space
-of each of the inodes associated with a given journal entry.  The
-consequence of this is that if we have an inode where we are constantly
-appending dirty pages we can end up waiting for an indefinite amount of
-time in journal_finish_inode_data_buffers() while we wait for all the
-pages under writeback to be written out.
+When file refaults are detected and there are many inactive file pages,
+the system never reclaim anonymous pages, the file pages are dropped
+aggressively when there are still a lot of cold anonymous pages and
+system thrashes.  This issue impacts the performance of applications
+with large executable, e.g.  chrome.
 
-The easiest way to cause this type of workload is do just dd from
-/dev/zero to a file until it fills the entire filesystem.  This can
-cause journal_finish_inode_data_buffers() to wait for the duration of
-the entire dd operation.
+With this patch, when file refault is detected, inactive_list_is_low()
+always returns true for file pages in get_scan_count() to enable
+scanning anonymous pages.
 
-We can improve this situation by scoping each of the inode dirty ranges
-associated with a given transaction.  We do this via the jbd2_inode
-structure so that the scoping is contained within jbd2 and so that it
-follows the lifetime and locking rules for that structure.
+The problem can be reproduced by the following test program.
 
-This allows us to limit the writeback & wait in
-journal_submit_inode_data_buffers() and
-journal_finish_inode_data_buffers() respectively to the dirty range for
-a given struct jdb2_inode, keeping us from waiting forever if the inode
-in question is still being appended to.
+---8<---
+void fallocate_file(const char *filename, off_t size)
+{
+	struct stat st;
+	int fd;
 
-Signed-off-by: Ross Zwisler <zwisler@google.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: stable@vger.kernel.org
+	if (!stat(filename, &st) && st.st_size >= size)
+		return;
+
+	fd = open(filename, O_WRONLY | O_CREAT, 0600);
+	if (fd < 0) {
+		perror("create file");
+		exit(1);
+	}
+	if (posix_fallocate(fd, 0, size)) {
+		perror("fallocate");
+		exit(1);
+	}
+	close(fd);
+}
+
+long *alloc_anon(long size)
+{
+	long *start = malloc(size);
+	memset(start, 1, size);
+	return start;
+}
+
+long access_file(const char *filename, long size, long rounds)
+{
+	int fd, i;
+	volatile char *start1, *end1, *start2;
+	const int page_size = getpagesize();
+	long sum = 0;
+
+	fd = open(filename, O_RDONLY);
+	if (fd == -1) {
+		perror("open");
+		exit(1);
+	}
+
+	/*
+	 * Some applications, e.g. chrome, use a lot of executable file
+	 * pages, map some of the pages with PROT_EXEC flag to simulate
+	 * the behavior.
+	 */
+	start1 = mmap(NULL, size / 2, PROT_READ | PROT_EXEC, MAP_SHARED,
+		      fd, 0);
+	if (start1 == MAP_FAILED) {
+		perror("mmap");
+		exit(1);
+	}
+	end1 = start1 + size / 2;
+
+	start2 = mmap(NULL, size / 2, PROT_READ, MAP_SHARED, fd, size / 2);
+	if (start2 == MAP_FAILED) {
+		perror("mmap");
+		exit(1);
+	}
+
+	for (i = 0; i < rounds; ++i) {
+		struct timeval before, after;
+		volatile char *ptr1 = start1, *ptr2 = start2;
+		gettimeofday(&before, NULL);
+		for (; ptr1 < end1; ptr1 += page_size, ptr2 += page_size)
+			sum += *ptr1 + *ptr2;
+		gettimeofday(&after, NULL);
+		printf("File access time, round %d: %f (sec)
+", i,
+		       (after.tv_sec - before.tv_sec) +
+		       (after.tv_usec - before.tv_usec) / 1000000.0);
+	}
+	return sum;
+}
+
+int main(int argc, char *argv[])
+{
+	const long MB = 1024 * 1024;
+	long anon_mb, file_mb, file_rounds;
+	const char filename[] = "large";
+	long *ret1;
+	long ret2;
+
+	if (argc != 4) {
+		printf("usage: thrash ANON_MB FILE_MB FILE_ROUNDS
+");
+		exit(0);
+	}
+	anon_mb = atoi(argv[1]);
+	file_mb = atoi(argv[2]);
+	file_rounds = atoi(argv[3]);
+
+	fallocate_file(filename, file_mb * MB);
+	printf("Allocate %ld MB anonymous pages
+", anon_mb);
+	ret1 = alloc_anon(anon_mb * MB);
+	printf("Access %ld MB file pages
+", file_mb);
+	ret2 = access_file(filename, file_mb * MB, file_rounds);
+	printf("Print result to prevent optimization: %ld
+",
+	       *ret1 + ret2);
+	return 0;
+}
+---8<---
+
+Running the test program on 2GB RAM VM with kernel 5.2.0-rc5, the program
+fills ram with 2048 MB memory, access a 200 MB file for 10 times.  Without
+this patch, the file cache is dropped aggresively and every access to the
+file is from disk.
+
+  $ ./thrash 2048 200 10
+  Allocate 2048 MB anonymous pages
+  Access 200 MB file pages
+  File access time, round 0: 2.489316 (sec)
+  File access time, round 1: 2.581277 (sec)
+  File access time, round 2: 2.487624 (sec)
+  File access time, round 3: 2.449100 (sec)
+  File access time, round 4: 2.420423 (sec)
+  File access time, round 5: 2.343411 (sec)
+  File access time, round 6: 2.454833 (sec)
+  File access time, round 7: 2.483398 (sec)
+  File access time, round 8: 2.572701 (sec)
+  File access time, round 9: 2.493014 (sec)
+
+With this patch, these file pages can be cached.
+
+  $ ./thrash 2048 200 10
+  Allocate 2048 MB anonymous pages
+  Access 200 MB file pages
+  File access time, round 0: 2.475189 (sec)
+  File access time, round 1: 2.440777 (sec)
+  File access time, round 2: 2.411671 (sec)
+  File access time, round 3: 1.955267 (sec)
+  File access time, round 4: 0.029924 (sec)
+  File access time, round 5: 0.000808 (sec)
+  File access time, round 6: 0.000771 (sec)
+  File access time, round 7: 0.000746 (sec)
+  File access time, round 8: 0.000738 (sec)
+  File access time, round 9: 0.000747 (sec)
+
+Checked the swap out stats during the test [1], 19006 pages swapped out
+with this patch, 3418 pages swapped out without this patch. There are
+more swap out, but I think it's within reasonable range when file backed
+data set doesn't fit into the memory.
+
+$ ./thrash 2000 100 2100 5 1 # ANON_MB FILE_EXEC FILE_NOEXEC ROUNDS
+PROCESSES Allocate 2000 MB anonymous pages active_anon: 1613644,
+inactive_anon: 348656, active_file: 892, inactive_file: 1384 (kB)
+pswpout: 7972443, pgpgin: 478615246 Access 100 MB executable file pages
+Access 2100 MB regular file pages File access time, round 0: 12.165,
+(sec) active_anon: 1433788, inactive_anon: 478116, active_file: 17896,
+inactive_file: 24328 (kB) File access time, round 1: 11.493, (sec)
+active_anon: 1430576, inactive_anon: 477144, active_file: 25440,
+inactive_file: 26172 (kB) File access time, round 2: 11.455, (sec)
+active_anon: 1427436, inactive_anon: 476060, active_file: 21112,
+inactive_file: 28808 (kB) File access time, round 3: 11.454, (sec)
+active_anon: 1420444, inactive_anon: 473632, active_file: 23216,
+inactive_file: 35036 (kB) File access time, round 4: 11.479, (sec)
+active_anon: 1413964, inactive_anon: 471460, active_file: 31728,
+inactive_file: 32224 (kB) pswpout: 7991449 (+ 19006), pgpgin: 489924366
+(+ 11309120)
+
+With 4 processes accessing non-overlapping parts of a large file, 30316
+pages swapped out with this patch, 5152 pages swapped out without this
+patch.  The swapout number is small comparing to pgpgin.
+
+[1]: https://github.com/vovo/testing/blob/master/mem_thrash.c
+
+Link: http://lkml.kernel.org/r/20190701081038.GA83398@google.com
+Fixes: e9868505987a ("mm,vmscan: only evict file pages when we have plenty")
+Fixes: 7c5bd705d8f9 ("mm: memcg: only evict file pages when we have plenty")
+Signed-off-by: Kuo-Hsin Yang <vovoy@chromium.org>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Sonny Rao <sonnyrao@chromium.org>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Rik van Riel <riel@redhat.com>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: <stable@vger.kernel.org>	[4.12+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[backported to 4.14.y, 4.19.y, 5.1.y: adjust context]
+Signed-off-by: Kuo-Hsin Yang <vovoy@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/jbd2/commit.c      |   23 +++++++++++++++++------
- fs/jbd2/journal.c     |    4 ++++
- fs/jbd2/transaction.c |   49 ++++++++++++++++++++++++++++---------------------
- include/linux/jbd2.h  |   22 ++++++++++++++++++++++
- 4 files changed, 71 insertions(+), 27 deletions(-)
+ mm/vmscan.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/jbd2/commit.c
-+++ b/fs/jbd2/commit.c
-@@ -189,14 +189,15 @@ static int journal_wait_on_commit_record
-  * use writepages() because with dealyed allocation we may be doing
-  * block allocation in writepages().
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -2120,7 +2120,7 @@ static void shrink_active_list(unsigned
+  *   10TB     320        32GB
   */
--static int journal_submit_inode_data_buffers(struct address_space *mapping)
-+static int journal_submit_inode_data_buffers(struct address_space *mapping,
-+		loff_t dirty_start, loff_t dirty_end)
+ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
+-				 struct scan_control *sc, bool actual_reclaim)
++				 struct scan_control *sc, bool trace)
  {
- 	int ret;
- 	struct writeback_control wbc = {
- 		.sync_mode =  WB_SYNC_ALL,
- 		.nr_to_write = mapping->nrpages * 2,
--		.range_start = 0,
--		.range_end = i_size_read(mapping->host),
-+		.range_start = dirty_start,
-+		.range_end = dirty_end,
- 	};
- 
- 	ret = generic_writepages(mapping, &wbc);
-@@ -220,6 +221,9 @@ static int journal_submit_data_buffers(j
- 
- 	spin_lock(&journal->j_list_lock);
- 	list_for_each_entry(jinode, &commit_transaction->t_inode_list, i_list) {
-+		loff_t dirty_start = jinode->i_dirty_start;
-+		loff_t dirty_end = jinode->i_dirty_end;
-+
- 		if (!(jinode->i_flags & JI_WRITE_DATA))
- 			continue;
- 		mapping = jinode->i_vfs_inode->i_mapping;
-@@ -232,7 +236,8 @@ static int journal_submit_data_buffers(j
- 		 * only allocated blocks here.
- 		 */
- 		trace_jbd2_submit_inode_data(jinode->i_vfs_inode);
--		err = journal_submit_inode_data_buffers(mapping);
-+		err = journal_submit_inode_data_buffers(mapping, dirty_start,
-+				dirty_end);
- 		if (!ret)
- 			ret = err;
- 		spin_lock(&journal->j_list_lock);
-@@ -259,12 +264,16 @@ static int journal_finish_inode_data_buf
- 	/* For locking, see the comment in journal_submit_data_buffers() */
- 	spin_lock(&journal->j_list_lock);
- 	list_for_each_entry(jinode, &commit_transaction->t_inode_list, i_list) {
-+		loff_t dirty_start = jinode->i_dirty_start;
-+		loff_t dirty_end = jinode->i_dirty_end;
-+
- 		if (!(jinode->i_flags & JI_WAIT_DATA))
- 			continue;
- 		jinode->i_flags |= JI_COMMIT_RUNNING;
- 		spin_unlock(&journal->j_list_lock);
--		err = filemap_fdatawait_keep_errors(
--				jinode->i_vfs_inode->i_mapping);
-+		err = filemap_fdatawait_range_keep_errors(
-+				jinode->i_vfs_inode->i_mapping, dirty_start,
-+				dirty_end);
- 		if (!ret)
- 			ret = err;
- 		spin_lock(&journal->j_list_lock);
-@@ -284,6 +293,8 @@ static int journal_finish_inode_data_buf
- 				&jinode->i_transaction->t_inode_list);
- 		} else {
- 			jinode->i_transaction = NULL;
-+			jinode->i_dirty_start = 0;
-+			jinode->i_dirty_end = 0;
- 		}
- 	}
- 	spin_unlock(&journal->j_list_lock);
---- a/fs/jbd2/journal.c
-+++ b/fs/jbd2/journal.c
-@@ -97,6 +97,8 @@ EXPORT_SYMBOL(jbd2_journal_try_to_free_b
- EXPORT_SYMBOL(jbd2_journal_force_commit);
- EXPORT_SYMBOL(jbd2_journal_inode_add_write);
- EXPORT_SYMBOL(jbd2_journal_inode_add_wait);
-+EXPORT_SYMBOL(jbd2_journal_inode_ranged_write);
-+EXPORT_SYMBOL(jbd2_journal_inode_ranged_wait);
- EXPORT_SYMBOL(jbd2_journal_init_jbd_inode);
- EXPORT_SYMBOL(jbd2_journal_release_jbd_inode);
- EXPORT_SYMBOL(jbd2_journal_begin_ordered_truncate);
-@@ -2581,6 +2583,8 @@ void jbd2_journal_init_jbd_inode(struct
- 	jinode->i_next_transaction = NULL;
- 	jinode->i_vfs_inode = inode;
- 	jinode->i_flags = 0;
-+	jinode->i_dirty_start = 0;
-+	jinode->i_dirty_end = 0;
- 	INIT_LIST_HEAD(&jinode->i_list);
- }
- 
---- a/fs/jbd2/transaction.c
-+++ b/fs/jbd2/transaction.c
-@@ -2503,7 +2503,7 @@ void jbd2_journal_refile_buffer(journal_
-  * File inode in the inode list of the handle's transaction
-  */
- static int jbd2_journal_file_inode(handle_t *handle, struct jbd2_inode *jinode,
--				   unsigned long flags)
-+		unsigned long flags, loff_t start_byte, loff_t end_byte)
- {
- 	transaction_t *transaction = handle->h_transaction;
- 	journal_t *journal;
-@@ -2515,26 +2515,17 @@ static int jbd2_journal_file_inode(handl
- 	jbd_debug(4, "Adding inode %lu, tid:%d\n", jinode->i_vfs_inode->i_ino,
- 			transaction->t_tid);
- 
--	/*
--	 * First check whether inode isn't already on the transaction's
--	 * lists without taking the lock. Note that this check is safe
--	 * without the lock as we cannot race with somebody removing inode
--	 * from the transaction. The reason is that we remove inode from the
--	 * transaction only in journal_release_jbd_inode() and when we commit
--	 * the transaction. We are guarded from the first case by holding
--	 * a reference to the inode. We are safe against the second case
--	 * because if jinode->i_transaction == transaction, commit code
--	 * cannot touch the transaction because we hold reference to it,
--	 * and if jinode->i_next_transaction == transaction, commit code
--	 * will only file the inode where we want it.
--	 */
--	if ((jinode->i_transaction == transaction ||
--	    jinode->i_next_transaction == transaction) &&
--	    (jinode->i_flags & flags) == flags)
--		return 0;
--
- 	spin_lock(&journal->j_list_lock);
- 	jinode->i_flags |= flags;
-+
-+	if (jinode->i_dirty_end) {
-+		jinode->i_dirty_start = min(jinode->i_dirty_start, start_byte);
-+		jinode->i_dirty_end = max(jinode->i_dirty_end, end_byte);
-+	} else {
-+		jinode->i_dirty_start = start_byte;
-+		jinode->i_dirty_end = end_byte;
-+	}
-+
- 	/* Is inode already attached where we need it? */
- 	if (jinode->i_transaction == transaction ||
- 	    jinode->i_next_transaction == transaction)
-@@ -2569,12 +2560,28 @@ done:
- int jbd2_journal_inode_add_write(handle_t *handle, struct jbd2_inode *jinode)
- {
- 	return jbd2_journal_file_inode(handle, jinode,
--				       JI_WRITE_DATA | JI_WAIT_DATA);
-+			JI_WRITE_DATA | JI_WAIT_DATA, 0, LLONG_MAX);
- }
- 
- int jbd2_journal_inode_add_wait(handle_t *handle, struct jbd2_inode *jinode)
- {
--	return jbd2_journal_file_inode(handle, jinode, JI_WAIT_DATA);
-+	return jbd2_journal_file_inode(handle, jinode, JI_WAIT_DATA, 0,
-+			LLONG_MAX);
-+}
-+
-+int jbd2_journal_inode_ranged_write(handle_t *handle,
-+		struct jbd2_inode *jinode, loff_t start_byte, loff_t length)
-+{
-+	return jbd2_journal_file_inode(handle, jinode,
-+			JI_WRITE_DATA | JI_WAIT_DATA, start_byte,
-+			start_byte + length - 1);
-+}
-+
-+int jbd2_journal_inode_ranged_wait(handle_t *handle, struct jbd2_inode *jinode,
-+		loff_t start_byte, loff_t length)
-+{
-+	return jbd2_journal_file_inode(handle, jinode, JI_WAIT_DATA,
-+			start_byte, start_byte + length - 1);
- }
- 
- /*
---- a/include/linux/jbd2.h
-+++ b/include/linux/jbd2.h
-@@ -454,6 +454,22 @@ struct jbd2_inode {
- 	 * @i_flags: Flags of inode [j_list_lock]
+ 	enum lru_list active_lru = file * LRU_FILE + LRU_ACTIVE;
+ 	struct pglist_data *pgdat = lruvec_pgdat(lruvec);
+@@ -2146,7 +2146,7 @@ static bool inactive_list_is_low(struct
+ 	 * rid of the stale workingset quickly.
  	 */
- 	unsigned long i_flags;
-+
-+	/**
-+	 * @i_dirty_start:
-+	 *
-+	 * Offset in bytes where the dirty range for this inode starts.
-+	 * [j_list_lock]
-+	 */
-+	loff_t i_dirty_start;
-+
-+	/**
-+	 * @i_dirty_end:
-+	 *
-+	 * Inclusive offset in bytes where the dirty range for this inode
-+	 * ends. [j_list_lock]
-+	 */
-+	loff_t i_dirty_end;
- };
+ 	refaults = lruvec_page_state(lruvec, WORKINGSET_ACTIVATE);
+-	if (file && actual_reclaim && lruvec->refaults != refaults) {
++	if (file && lruvec->refaults != refaults) {
+ 		inactive_ratio = 0;
+ 	} else {
+ 		gb = (inactive + active) >> (30 - PAGE_SHIFT);
+@@ -2156,7 +2156,7 @@ static bool inactive_list_is_low(struct
+ 			inactive_ratio = 1;
+ 	}
  
- struct jbd2_revoke_table_s;
-@@ -1399,6 +1415,12 @@ extern int	   jbd2_journal_force_commit(
- extern int	   jbd2_journal_force_commit_nested(journal_t *);
- extern int	   jbd2_journal_inode_add_write(handle_t *handle, struct jbd2_inode *inode);
- extern int	   jbd2_journal_inode_add_wait(handle_t *handle, struct jbd2_inode *inode);
-+extern int	   jbd2_journal_inode_ranged_write(handle_t *handle,
-+			struct jbd2_inode *inode, loff_t start_byte,
-+			loff_t length);
-+extern int	   jbd2_journal_inode_ranged_wait(handle_t *handle,
-+			struct jbd2_inode *inode, loff_t start_byte,
-+			loff_t length);
- extern int	   jbd2_journal_begin_ordered_truncate(journal_t *journal,
- 				struct jbd2_inode *inode, loff_t new_size);
- extern void	   jbd2_journal_init_jbd_inode(struct jbd2_inode *jinode, struct inode *inode);
+-	if (actual_reclaim)
++	if (trace)
+ 		trace_mm_vmscan_inactive_list_is_low(pgdat->node_id, sc->reclaim_idx,
+ 			lruvec_lru_size(lruvec, inactive_lru, MAX_NR_ZONES), inactive,
+ 			lruvec_lru_size(lruvec, active_lru, MAX_NR_ZONES), active,
 
 
