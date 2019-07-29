@@ -2,45 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F3107798FD
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:12:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92F7679903
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:12:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730194AbfG2Tb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:31:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44968 "EHLO mail.kernel.org"
+        id S1727959AbfG2UMT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 16:12:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728692AbfG2Tbz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:31:55 -0400
+        id S1729353AbfG2TcB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:32:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C05E217D6;
-        Mon, 29 Jul 2019 19:31:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FD2D217F4;
+        Mon, 29 Jul 2019 19:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428714;
-        bh=2JuZ68chLQHkmtttpPeLALXBf11PAatz+Tf3pJxTQ94=;
+        s=default; t=1564428721;
+        bh=d8Rhx9wi7iBHJQRfIlU9sxJP5KGSpoaz0j5bTOi3UgA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=osOxlIe9MM3yaId8ZrwRdJQ+o+7ipcGOoiiSbbjB2YqeV+2nzE/Zztss3k5gwtbrw
-         3VZqhnnC9wmgafI+GPqj8tpr8l6hk65hVPLfjQOgYFDzWcGTUXroYRWOzx7rm7L9Xt
-         R772LWDcuGVJgoYwbe8JcarbA7Ccq1qDRW5voGEc=
+        b=VD4bb8yTmDGiQx05IiWgLkNsQ7ym6a3nDukB5jYDshpPvkd+lWXXbJ1u68AtfL9c7
+         lyjq0UZdewVOhaOBpqd6VWz2mFqBhat4TQed1SSUey8+bWC5OZ1e9q+7BB+0bhOwQc
+         stoRZd0Ykbc8BWH9vSLkgkRylxwTkh7XqHmpWxJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Harkes <jaharkes@cs.cmu.edu>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Colin Ian King <colin.king@canonical.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        David Howells <dhowells@redhat.com>,
-        Fabian Frederick <fabf@skynet.be>,
-        Mikko Rapeli <mikko.rapeli@iki.fi>,
-        Sam Protsenko <semen.protsenko@linaro.org>,
-        Yann Droneaud <ydroneaud@opteya.com>,
-        Zhouyang Jia <jiazhouyang09@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 163/293] coda: pass the host file in vma->vm_file on mmap
-Date:   Mon, 29 Jul 2019 21:20:54 +0200
-Message-Id: <20190729190837.050620503@linuxfoundation.org>
+        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Michael Kelley <mikelley@microsoft.com>
+Subject: [PATCH 4.14 165/293] PCI: hv: Fix a use-after-free bug in hv_eject_device_work()
+Date:   Mon, 29 Jul 2019 21:20:56 +0200
+Message-Id: <20190729190837.187517038@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -53,167 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+From: Dexuan Cui <decui@microsoft.com>
 
-commit 7fa0a1da3dadfd9216df7745a1331fdaa0940d1c upstream.
+commit 4df591b20b80cb77920953812d894db259d85bd7 upstream.
 
-Patch series "Coda updates".
+Fix a use-after-free in hv_eject_device_work().
 
-The following patch series is a collection of various fixes for Coda,
-most of which were collected from linux-fsdevel or linux-kernel but
-which have as yet not found their way upstream.
-
-This patch (of 22):
-
-Various file systems expect that vma->vm_file points at their own file
-handle, several use file_inode(vma->vm_file) to get at their inode or
-use vma->vm_file->private_data.  However the way Coda wrapped mmap on a
-host file broke this assumption, vm_file was still pointing at the Coda
-file and the host file systems would scribble over Coda's inode and
-private file data.
-
-This patch fixes the incorrect expectation and wraps vm_ops->open and
-vm_ops->close to allow Coda to track when the vm_area_struct is
-destroyed so we still release the reference on the Coda file handle at
-the right time.
-
-Link: http://lkml.kernel.org/r/0e850c6e59c0b147dc2dcd51a3af004c948c3697.1558117389.git.jaharkes@cs.cmu.edu
-Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Colin Ian King <colin.king@canonical.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Fabian Frederick <fabf@skynet.be>
-Cc: Mikko Rapeli <mikko.rapeli@iki.fi>
-Cc: Sam Protsenko <semen.protsenko@linaro.org>
-Cc: Yann Droneaud <ydroneaud@opteya.com>
-Cc: Zhouyang Jia <jiazhouyang09@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 05f151a73ec2 ("PCI: hv: Fix a memory leak in hv_eject_device_work()")
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/coda/file.c |   70 +++++++++++++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 68 insertions(+), 2 deletions(-)
+ drivers/pci/host/pci-hyperv.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/fs/coda/file.c
-+++ b/fs/coda/file.c
-@@ -27,6 +27,13 @@
- #include "coda_linux.h"
- #include "coda_int.h"
- 
-+struct coda_vm_ops {
-+	atomic_t refcnt;
-+	struct file *coda_file;
-+	const struct vm_operations_struct *host_vm_ops;
-+	struct vm_operations_struct vm_ops;
-+};
-+
- static ssize_t
- coda_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
+--- a/drivers/pci/host/pci-hyperv.c
++++ b/drivers/pci/host/pci-hyperv.c
+@@ -1912,6 +1912,7 @@ static void hv_pci_devices_present(struc
+ static void hv_eject_device_work(struct work_struct *work)
  {
-@@ -61,6 +68,34 @@ coda_file_write_iter(struct kiocb *iocb,
- 	return ret;
- }
+ 	struct pci_eject_response *ejct_pkt;
++	struct hv_pcibus_device *hbus;
+ 	struct hv_pci_dev *hpdev;
+ 	struct pci_dev *pdev;
+ 	unsigned long flags;
+@@ -1922,6 +1923,7 @@ static void hv_eject_device_work(struct
+ 	} ctxt;
  
-+static void
-+coda_vm_open(struct vm_area_struct *vma)
-+{
-+	struct coda_vm_ops *cvm_ops =
-+		container_of(vma->vm_ops, struct coda_vm_ops, vm_ops);
-+
-+	atomic_inc(&cvm_ops->refcnt);
-+
-+	if (cvm_ops->host_vm_ops && cvm_ops->host_vm_ops->open)
-+		cvm_ops->host_vm_ops->open(vma);
-+}
-+
-+static void
-+coda_vm_close(struct vm_area_struct *vma)
-+{
-+	struct coda_vm_ops *cvm_ops =
-+		container_of(vma->vm_ops, struct coda_vm_ops, vm_ops);
-+
-+	if (cvm_ops->host_vm_ops && cvm_ops->host_vm_ops->close)
-+		cvm_ops->host_vm_ops->close(vma);
-+
-+	if (atomic_dec_and_test(&cvm_ops->refcnt)) {
-+		vma->vm_ops = cvm_ops->host_vm_ops;
-+		fput(cvm_ops->coda_file);
-+		kfree(cvm_ops);
-+	}
-+}
-+
- static int
- coda_file_mmap(struct file *coda_file, struct vm_area_struct *vma)
- {
-@@ -68,6 +103,8 @@ coda_file_mmap(struct file *coda_file, s
- 	struct coda_inode_info *cii;
- 	struct file *host_file;
- 	struct inode *coda_inode, *host_inode;
-+	struct coda_vm_ops *cvm_ops;
-+	int ret;
+ 	hpdev = container_of(work, struct hv_pci_dev, wrk);
++	hbus = hpdev->hbus;
  
- 	cfi = CODA_FTOC(coda_file);
- 	BUG_ON(!cfi || cfi->cfi_magic != CODA_MAGIC);
-@@ -76,6 +113,13 @@ coda_file_mmap(struct file *coda_file, s
- 	if (!host_file->f_op->mmap)
- 		return -ENODEV;
- 
-+	if (WARN_ON(coda_file != vma->vm_file))
-+		return -EIO;
-+
-+	cvm_ops = kmalloc(sizeof(struct coda_vm_ops), GFP_KERNEL);
-+	if (!cvm_ops)
-+		return -ENOMEM;
-+
- 	coda_inode = file_inode(coda_file);
- 	host_inode = file_inode(host_file);
- 
-@@ -89,6 +133,7 @@ coda_file_mmap(struct file *coda_file, s
- 	 * the container file on us! */
- 	else if (coda_inode->i_mapping != host_inode->i_mapping) {
- 		spin_unlock(&cii->c_lock);
-+		kfree(cvm_ops);
- 		return -EBUSY;
+ 	if (hpdev->state != hv_pcichild_ejecting) {
+ 		put_pcichild(hpdev, hv_pcidev_ref_pnp);
+@@ -1935,8 +1937,7 @@ static void hv_eject_device_work(struct
+ 	 * because hbus->pci_bus may not exist yet.
+ 	 */
+ 	wslot = wslot_to_devfn(hpdev->desc.win_slot.slot);
+-	pdev = pci_get_domain_bus_and_slot(hpdev->hbus->sysdata.domain, 0,
+-					   wslot);
++	pdev = pci_get_domain_bus_and_slot(hbus->sysdata.domain, 0, wslot);
+ 	if (pdev) {
+ 		pci_lock_rescan_remove();
+ 		pci_stop_and_remove_bus_device(pdev);
+@@ -1944,9 +1945,9 @@ static void hv_eject_device_work(struct
+ 		pci_unlock_rescan_remove();
  	}
  
-@@ -97,7 +142,29 @@ coda_file_mmap(struct file *coda_file, s
- 	cfi->cfi_mapcount++;
- 	spin_unlock(&cii->c_lock);
+-	spin_lock_irqsave(&hpdev->hbus->device_list_lock, flags);
++	spin_lock_irqsave(&hbus->device_list_lock, flags);
+ 	list_del(&hpdev->list_entry);
+-	spin_unlock_irqrestore(&hpdev->hbus->device_list_lock, flags);
++	spin_unlock_irqrestore(&hbus->device_list_lock, flags);
  
--	return call_mmap(host_file, vma);
-+	vma->vm_file = get_file(host_file);
-+	ret = call_mmap(vma->vm_file, vma);
+ 	if (hpdev->pci_slot)
+ 		pci_destroy_slot(hpdev->pci_slot);
+@@ -1955,14 +1956,16 @@ static void hv_eject_device_work(struct
+ 	ejct_pkt = (struct pci_eject_response *)&ctxt.pkt.message;
+ 	ejct_pkt->message_type.type = PCI_EJECTION_COMPLETE;
+ 	ejct_pkt->wslot.slot = hpdev->desc.win_slot.slot;
+-	vmbus_sendpacket(hpdev->hbus->hdev->channel, ejct_pkt,
++	vmbus_sendpacket(hbus->hdev->channel, ejct_pkt,
+ 			 sizeof(*ejct_pkt), (unsigned long)&ctxt.pkt,
+ 			 VM_PKT_DATA_INBAND, 0);
+ 
+ 	put_pcichild(hpdev, hv_pcidev_ref_childlist);
+ 	put_pcichild(hpdev, hv_pcidev_ref_initial);
+ 	put_pcichild(hpdev, hv_pcidev_ref_pnp);
+-	put_hvpcibus(hpdev->hbus);
 +
-+	if (ret) {
-+		/* if call_mmap fails, our caller will put coda_file so we
-+		 * should drop the reference to the host_file that we got.
-+		 */
-+		fput(host_file);
-+		kfree(cvm_ops);
-+	} else {
-+		/* here we add redirects for the open/close vm_operations */
-+		cvm_ops->host_vm_ops = vma->vm_ops;
-+		if (vma->vm_ops)
-+			cvm_ops->vm_ops = *vma->vm_ops;
-+
-+		cvm_ops->vm_ops.open = coda_vm_open;
-+		cvm_ops->vm_ops.close = coda_vm_close;
-+		cvm_ops->coda_file = coda_file;
-+		atomic_set(&cvm_ops->refcnt, 1);
-+
-+		vma->vm_ops = &cvm_ops->vm_ops;
-+	}
-+	return ret;
++	/* hpdev has been freed. Do not use it any more. */
++	put_hvpcibus(hbus);
  }
  
- int coda_open(struct inode *coda_inode, struct file *coda_file)
-@@ -207,4 +274,3 @@ const struct file_operations coda_file_o
- 	.fsync		= coda_fsync,
- 	.splice_read	= generic_file_splice_read,
- };
--
+ /**
 
 
