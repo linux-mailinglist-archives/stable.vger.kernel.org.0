@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2CE979512
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:40:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30C7679586
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:43:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388801AbfG2TiT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:38:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53234 "EHLO mail.kernel.org"
+        id S2389639AbfG2Tn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:43:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387731AbfG2TiS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:38:18 -0400
+        id S2389647AbfG2Tn0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:43:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C86F2054F;
-        Mon, 29 Jul 2019 19:38:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7091A21773;
+        Mon, 29 Jul 2019 19:43:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429096;
-        bh=F3xEu7dp5QQ6tel3JOLvaCiGrTfOh3hsxHZD8ZXf8Tc=;
+        s=default; t=1564429405;
+        bh=SCTpNe73w03WFMGCTgSs09EQkuxblGIon7LU4ul75hk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o6sY04T8t6nVOZoVXdirrwLAB82dxGGsIlh7AEGLUq99g4JhhvOTMNYVbJWHXmd27
-         xyXdXp5pMyv1KF2FLMa0Mbw87+ydBTIDssKdekS6EF0FBDZVTFkwVp9taIB//taEsZ
-         8ADCHTDoSr0VM5COXlQKkhRJLAvoOcrHjSMvx0eo=
+        b=QUIWVHZg+LZUHkDQr+VI78tv2Th4WOUK4S9X+Y+6zBvrbBxFA4MZwum1elgEhh0Mr
+         gjNZo3c128D3zGRtq0URUJpkOE9B1BttHFdFb5avGUK0MC5D+MQCjRgzsH4o86GCv+
+         c2KbdTX85I5TSzCOroTOO0OxO8kgLIjT7FCFughg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.14 284/293] x86/sysfb_efi: Add quirks for some devices with swapped width and height
+        stable@vger.kernel.org,
+        Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 088/113] mm/mmu_notifier: use hlist_add_head_rcu()
 Date:   Mon, 29 Jul 2019 21:22:55 +0200
-Message-Id: <20190729190846.009515213@linuxfoundation.org>
+Message-Id: <20190729190716.582894769@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
-References: <20190729190820.321094988@linuxfoundation.org>
+In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
+References: <20190729190655.455345569@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,91 +48,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+[ Upstream commit 543bdb2d825fe2400d6e951f1786d92139a16931 ]
 
-commit d02f1aa39189e0619c3525d5cd03254e61bf606a upstream.
+Make mmu_notifier_register() safer by issuing a memory barrier before
+registering a new notifier.  This fixes a theoretical bug on weakly
+ordered CPUs.  For example, take this simplified use of notifiers by a
+driver:
 
-Some Lenovo 2-in-1s with a detachable keyboard have a portrait screen but
-advertise a landscape resolution and pitch, resulting in a messed up
-display if the kernel tries to show anything on the efifb (because of the
-wrong pitch).
+	my_struct->mn.ops = &my_ops; /* (1) */
+	mmu_notifier_register(&my_struct->mn, mm)
+		...
+		hlist_add_head(&mn->hlist, &mm->mmu_notifiers); /* (2) */
+		...
 
-Fix this by adding a new DMI match table for devices which need to have
-their width and height swapped.
+Once mmu_notifier_register() releases the mm locks, another thread can
+invalidate a range:
 
-At first it was tried to use the existing table for overriding some of the
-efifb parameters, but some of the affected devices have variants with
-different LCD resolutions which will not work with hardcoded override
-values.
+	mmu_notifier_invalidate_range()
+		...
+		hlist_for_each_entry_rcu(mn, &mm->mmu_notifiers, hlist) {
+			if (mn->ops->invalidate_range)
 
-Reference: https://bugzilla.redhat.com/show_bug.cgi?id=1730783
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20190721152418.11644-1-hdegoede@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The read side relies on the data dependency between mn and ops to ensure
+that the pointer is properly initialized.  But the write side doesn't have
+any dependency between (1) and (2), so they could be reordered and the
+readers could dereference an invalid mn->ops.  mmu_notifier_register()
+does take all the mm locks before adding to the hlist, but those have
+acquire semantics which isn't sufficient.
 
+By calling hlist_add_head_rcu() instead of hlist_add_head() we update the
+hlist using a store-release, ensuring that readers see prior
+initialization of my_struct.  This situation is better illustated by
+litmus test MP+onceassign+derefonce.
+
+Link: http://lkml.kernel.org/r/20190502133532.24981-1-jean-philippe.brucker@arm.com
+Fixes: cddb8a5c14aa ("mmu-notifiers: core")
+Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Cc: Jérôme Glisse <jglisse@redhat.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/sysfb_efi.c |   46 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
+ mm/mmu_notifier.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kernel/sysfb_efi.c
-+++ b/arch/x86/kernel/sysfb_efi.c
-@@ -231,9 +231,55 @@ static const struct dmi_system_id efifb_
- 	{},
- };
+diff --git a/mm/mmu_notifier.c b/mm/mmu_notifier.c
+index 82bb1a939c0e..06dedb175572 100644
+--- a/mm/mmu_notifier.c
++++ b/mm/mmu_notifier.c
+@@ -316,7 +316,7 @@ static int do_mmu_notifier_register(struct mmu_notifier *mn,
+ 	 * thanks to mm_take_all_locks().
+ 	 */
+ 	spin_lock(&mm->mmu_notifier_mm->lock);
+-	hlist_add_head(&mn->hlist, &mm->mmu_notifier_mm->list);
++	hlist_add_head_rcu(&mn->hlist, &mm->mmu_notifier_mm->list);
+ 	spin_unlock(&mm->mmu_notifier_mm->lock);
  
-+/*
-+ * Some devices have a portrait LCD but advertise a landscape resolution (and
-+ * pitch). We simply swap width and height for these devices so that we can
-+ * correctly deal with some of them coming with multiple resolutions.
-+ */
-+static const struct dmi_system_id efifb_dmi_swap_width_height[] __initconst = {
-+	{
-+		/*
-+		 * Lenovo MIIX310-10ICR, only some batches have the troublesome
-+		 * 800x1280 portrait screen. Luckily the portrait version has
-+		 * its own BIOS version, so we match on that.
-+		 */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "MIIX 310-10ICR"),
-+			DMI_EXACT_MATCH(DMI_BIOS_VERSION, "1HCN44WW"),
-+		},
-+	},
-+	{
-+		/* Lenovo MIIX 320-10ICR with 800x1280 portrait screen */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION,
-+					"Lenovo MIIX 320-10ICR"),
-+		},
-+	},
-+	{
-+		/* Lenovo D330 with 800x1280 or 1200x1920 portrait screen */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION,
-+					"Lenovo ideapad D330-10IGM"),
-+		},
-+	},
-+	{},
-+};
-+
- __init void sysfb_apply_efi_quirks(void)
- {
- 	if (screen_info.orig_video_isVGA != VIDEO_TYPE_EFI ||
- 	    !(screen_info.capabilities & VIDEO_CAPABILITY_SKIP_QUIRKS))
- 		dmi_check_system(efifb_dmi_system_table);
-+
-+	if (screen_info.orig_video_isVGA == VIDEO_TYPE_EFI &&
-+	    dmi_check_system(efifb_dmi_swap_width_height)) {
-+		u16 temp = screen_info.lfb_width;
-+
-+		screen_info.lfb_width = screen_info.lfb_height;
-+		screen_info.lfb_height = temp;
-+		screen_info.lfb_linelength = 4 * screen_info.lfb_width;
-+	}
- }
+ 	mm_drop_all_locks(mm);
+-- 
+2.20.1
+
 
 
