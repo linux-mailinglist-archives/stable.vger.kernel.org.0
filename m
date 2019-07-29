@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D94C79454
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:30:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 914E579456
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:30:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387622AbfG2TaU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:30:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43068 "EHLO mail.kernel.org"
+        id S2388415AbfG2TaX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:30:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728364AbfG2TaU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:30:20 -0400
+        id S2388411AbfG2TaW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:30:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AA8A21655;
-        Mon, 29 Jul 2019 19:30:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5268E2070B;
+        Mon, 29 Jul 2019 19:30:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428619;
-        bh=faUFouGVsvnKvzfagFEBAOX962ina06t1NfPmZeNwOE=;
+        s=default; t=1564428621;
+        bh=ezO2e8FB2y1vTPEbylxFU1S4TdWHKbUYDyvs7/+dJqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KS9QXyaukvyZJlspk2/N9zATBA8vnxlD11j6W/spY0X343kGRG3JbyhopK0rCOIos
-         gVoqIgoedrWbi0aDEO3prs1Pn5IARep53SCdkTb809oGtpmoa6A+IapYO0G+GTOoqu
-         iZPn90Oy+nQADyd4ISmd73HOXeu8XaWRlKYKWsMY=
+        b=EYYqEQoCE7/JJxuqMgoFTOiN1Z3OkIzA8JCAnR6h3fx3pWNmU7edCWIVLj1dAS4Mv
+         X7x3QL6fLffPciORH2uQMQeqVtAwNsHF2yFRsFP87TFrHtpfGTlIQY6B7mjyNLStxS
+         YF5o/3xvs8lU5JiDerH/0yVHBiLQ/C2QOQ8Uv5j4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 4.14 132/293] arm64: tegra: Update Jetson TX1 GPU regulator timings
-Date:   Mon, 29 Jul 2019 21:20:23 +0200
-Message-Id: <20190729190834.673617776@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>
+Subject: [PATCH 4.14 133/293] iwlwifi: pcie: dont service an interrupt that was masked
+Date:   Mon, 29 Jul 2019 21:20:24 +0200
+Message-Id: <20190729190834.734096972@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -43,38 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
 
-commit ece6031ece2dd64d63708cfe1088016cee5b10c0 upstream.
+commit 3b57a10ca14c619707398dc58fe5ece18c95b20b upstream.
 
-The GPU regulator enable ramp delay for Jetson TX1 is set to 1ms which
-not sufficient because the enable ramp delay has been measured to be
-greater than 1ms. Furthermore, the downstream kernels released by NVIDIA
-for Jetson TX1 are using a enable ramp delay 2ms and a settling delay of
-160us. Update the GPU regulator enable ramp delay for Jetson TX1 to be
-2ms and add a settling delay of 160us.
+Sometimes the register status can include interrupts that
+were masked. We can, for example, get the RF-Kill bit set
+in the interrupt status register although this interrupt
+was masked. Then if we get the ALIVE interrupt (for example)
+that was not masked, we need to *not* service the RF-Kill
+interrupt.
+Fix this in the MSI-X interrupt handler.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Fixes: 5e6b9a89afce ("arm64: tegra: Add VDD_GPU regulator to Jetson TX1")
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/dts/nvidia/tegra210-p2180.dtsi |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/pcie/rx.c |   27 +++++++++++++++++++++------
+ 1 file changed, 21 insertions(+), 6 deletions(-)
 
---- a/arch/arm64/boot/dts/nvidia/tegra210-p2180.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra210-p2180.dtsi
-@@ -307,7 +307,8 @@
- 			regulator-max-microvolt = <1320000>;
- 			enable-gpios = <&pmic 6 GPIO_ACTIVE_HIGH>;
- 			regulator-ramp-delay = <80>;
--			regulator-enable-ramp-delay = <1000>;
-+			regulator-enable-ramp-delay = <2000>;
-+			regulator-settling-time-us = <160>;
- 		};
- 	};
- };
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
+@@ -1956,10 +1956,18 @@ irqreturn_t iwl_pcie_irq_msix_handler(in
+ 		return IRQ_NONE;
+ 	}
+ 
+-	if (iwl_have_debug_level(IWL_DL_ISR))
+-		IWL_DEBUG_ISR(trans, "ISR inta_fh 0x%08x, enabled 0x%08x\n",
+-			      inta_fh,
++	if (iwl_have_debug_level(IWL_DL_ISR)) {
++		IWL_DEBUG_ISR(trans,
++			      "ISR inta_fh 0x%08x, enabled (sw) 0x%08x (hw) 0x%08x\n",
++			      inta_fh, trans_pcie->fh_mask,
+ 			      iwl_read32(trans, CSR_MSIX_FH_INT_MASK_AD));
++		if (inta_fh & ~trans_pcie->fh_mask)
++			IWL_DEBUG_ISR(trans,
++				      "We got a masked interrupt (0x%08x)\n",
++				      inta_fh & ~trans_pcie->fh_mask);
++	}
++
++	inta_fh &= trans_pcie->fh_mask;
+ 
+ 	if ((trans_pcie->shared_vec_mask & IWL_SHARED_IRQ_NON_RX) &&
+ 	    inta_fh & MSIX_FH_INT_CAUSES_Q0) {
+@@ -1998,11 +2006,18 @@ irqreturn_t iwl_pcie_irq_msix_handler(in
+ 	}
+ 
+ 	/* After checking FH register check HW register */
+-	if (iwl_have_debug_level(IWL_DL_ISR))
++	if (iwl_have_debug_level(IWL_DL_ISR)) {
+ 		IWL_DEBUG_ISR(trans,
+-			      "ISR inta_hw 0x%08x, enabled 0x%08x\n",
+-			      inta_hw,
++			      "ISR inta_hw 0x%08x, enabled (sw) 0x%08x (hw) 0x%08x\n",
++			      inta_hw, trans_pcie->hw_mask,
+ 			      iwl_read32(trans, CSR_MSIX_HW_INT_MASK_AD));
++		if (inta_hw & ~trans_pcie->hw_mask)
++			IWL_DEBUG_ISR(trans,
++				      "We got a masked interrupt 0x%08x\n",
++				      inta_hw & ~trans_pcie->hw_mask);
++	}
++
++	inta_hw &= trans_pcie->hw_mask;
+ 
+ 	/* Alive notification via Rx interrupt will do the real work */
+ 	if (inta_hw & MSIX_HW_INT_CAUSES_REG_ALIVE) {
 
 
