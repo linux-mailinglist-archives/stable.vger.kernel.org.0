@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B9D17963A
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:50:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 822AC7963E
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:50:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403758AbfG2Ttu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:49:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40566 "EHLO mail.kernel.org"
+        id S2390626AbfG2TuD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:50:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389840AbfG2Ttu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:49:50 -0400
+        id S2389663AbfG2TuD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:50:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71BD221655;
-        Mon, 29 Jul 2019 19:49:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D0E32171F;
+        Mon, 29 Jul 2019 19:50:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429788;
-        bh=1Np7r3LAsxti73689pvspT3FnyQs5zyBYCe9YqO5YqI=;
+        s=default; t=1564429801;
+        bh=Iy8qZVQ3LH2D9XH8iObm2cxeJ+sPEDDHwG2eVfTr+sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=elDc/BnBuLKQ47e//BXXnO5wfThU3U65rt8LvPDc2XvNxS2UArP7IfDZpMLwaLRlZ
-         44jHJx2xslkLzunPDKCAsBxfiEDIoC7+WsUG2wdt8fsn3j0giP8xstIb23cdu7ro3+
-         grLU5Cg0rjehDbyHTE98FcaNcBojELgd5tst5qPo=
+        b=zFJvbW7AhPD2J6UkFYxEGmXeb4gO4+Cz77H95R3tdKp1Hc5ZwgWU+YrwHIOxDXwPK
+         bY/7kgk5J2fAApMUDmhqDmkDjC25kMWX1X2EwBh7MwRWEu7BUMqv5BBc2cHbvsAimU
+         BLXAPS4kYKX8r5SvB2Lib/Y9vkAkNFxrVCSN3S0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Javier Martinez Canillas <javier@dowhile0.org>,
-        Daniel Gomez <dagmcr@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 096/215] mfd: madera: Add missing of table registration
-Date:   Mon, 29 Jul 2019 21:21:32 +0200
-Message-Id: <20190729190755.827160052@linuxfoundation.org>
+Subject: [PATCH 5.2 100/215] mm/swap: fix release_pages() when releasing devmap pages
+Date:   Mon, 29 Jul 2019 21:21:36 +0200
+Message-Id: <20190729190756.417958947@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -46,47 +49,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5aa3709c0a5c026735b0ddd4ec80810a23d65f5b ]
+[ Upstream commit c5d6c45e90c49150670346967971e14576afd7f1 ]
 
-MODULE_DEVICE_TABLE(of, <of_match_table>) should be called to complete DT
-OF mathing mechanism and register it.
+release_pages() is an optimized version of a loop around put_page().
+Unfortunately for devmap pages the logic is not entirely correct in
+release_pages().  This is because device pages can be more than type
+MEMORY_DEVICE_PUBLIC.  There are in fact 4 types, private, public, FS DAX,
+and PCI P2PDMA.  Some of these have specific needs to "put" the page while
+others do not.
 
-Before this patch:
-modinfo ./drivers/mfd/madera.ko | grep alias
+This logic to handle any special needs is contained in
+put_devmap_managed_page().  Therefore all devmap pages should be processed
+by this function where we can contain the correct logic for a page put.
 
-After this patch:
-modinfo ./drivers/mfd/madera.ko | grep alias
-alias:          of:N*T*Ccirrus,wm1840C*
-alias:          of:N*T*Ccirrus,wm1840
-alias:          of:N*T*Ccirrus,cs47l91C*
-alias:          of:N*T*Ccirrus,cs47l91
-alias:          of:N*T*Ccirrus,cs47l90C*
-alias:          of:N*T*Ccirrus,cs47l90
-alias:          of:N*T*Ccirrus,cs47l85C*
-alias:          of:N*T*Ccirrus,cs47l85
-alias:          of:N*T*Ccirrus,cs47l35C*
-alias:          of:N*T*Ccirrus,cs47l35
+Handle all device type pages within release_pages() by calling
+put_devmap_managed_page() on all devmap pages.  If
+put_devmap_managed_page() returns true the page has been put and we
+continue with the next page.  A false return of put_devmap_managed_page()
+means the page did not require special processing and should fall to
+"normal" processing.
 
-Reported-by: Javier Martinez Canillas <javier@dowhile0.org>
-Signed-off-by: Daniel Gomez <dagmcr@gmail.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+This was found via code inspection while determining if release_pages()
+and the new put_user_pages() could be interchangeable.[1]
+
+[1] https://lkml.kernel.org/r/20190523172852.GA27175@iweiny-DESK2.sc.intel.com
+
+Link: https://lkml.kernel.org/r/20190605214922.17684-1-ira.weiny@intel.com
+Cc: Jérôme Glisse <jglisse@redhat.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Signed-off-by: Ira Weiny <ira.weiny@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/madera-core.c | 1 +
- 1 file changed, 1 insertion(+)
+ mm/swap.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mfd/madera-core.c b/drivers/mfd/madera-core.c
-index 2a77988d0462..826b971ccb86 100644
---- a/drivers/mfd/madera-core.c
-+++ b/drivers/mfd/madera-core.c
-@@ -286,6 +286,7 @@ const struct of_device_id madera_of_match[] = {
- 	{ .compatible = "cirrus,wm1840", .data = (void *)WM1840 },
- 	{}
- };
-+MODULE_DEVICE_TABLE(of, madera_of_match);
- EXPORT_SYMBOL_GPL(madera_of_match);
+diff --git a/mm/swap.c b/mm/swap.c
+index 7ede3eddc12a..607c48229a1d 100644
+--- a/mm/swap.c
++++ b/mm/swap.c
+@@ -740,15 +740,20 @@ void release_pages(struct page **pages, int nr)
+ 		if (is_huge_zero_page(page))
+ 			continue;
  
- static int madera_get_reset_gpio(struct madera *madera)
+-		/* Device public page can not be huge page */
+-		if (is_device_public_page(page)) {
++		if (is_zone_device_page(page)) {
+ 			if (locked_pgdat) {
+ 				spin_unlock_irqrestore(&locked_pgdat->lru_lock,
+ 						       flags);
+ 				locked_pgdat = NULL;
+ 			}
+-			put_devmap_managed_page(page);
+-			continue;
++			/*
++			 * ZONE_DEVICE pages that return 'false' from
++			 * put_devmap_managed_page() do not require special
++			 * processing, and instead, expect a call to
++			 * put_page_testzero().
++			 */
++			if (put_devmap_managed_page(page))
++				continue;
+ 		}
+ 
+ 		page = compound_head(page);
 -- 
 2.20.1
 
