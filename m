@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ED1B79648
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:50:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92A107964B
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:50:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390307AbfG2TuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:50:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41364 "EHLO mail.kernel.org"
+        id S2403796AbfG2Tuc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:50:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390387AbfG2TuZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:50:25 -0400
+        id S2403793AbfG2Tuc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:50:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2406B2054F;
-        Mon, 29 Jul 2019 19:50:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98CE72054F;
+        Mon, 29 Jul 2019 19:50:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429824;
-        bh=GvbE2fC6pwWDfbRv6F6wOgwMcnnR0+US54MondtgepI=;
+        s=default; t=1564429831;
+        bh=BEwfKRSa/76MFIw2dI4BUls0CbjO2fv1MWFO24Kis0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lMKT7ExrrXYwcuMhGW14YTYyDqZpYiepEdXohXwuzJzHcKqB0wsJkqNys/1Mi0nv4
-         u3UPG+1vUY8YglFRwe7Viqr0L5zCrzo5X+DjH3zE3IDABIKNvVJDwXoTXDyqMC7Ax6
-         S+IhQJVptJsfMbvAkfkXIIptAcT0D+t1UOTuVDHo=
+        b=ko/owCY/T8uzwtkzhAmeBMjVE5rBIKY7Io6ZStElH8Jgytd5nwt2kPXXu1fEL6+4N
+         rtIHqLSfsOQqIlzqdZiHXpow2P+moWH69qlJjyunYo/1AytCKSXQBBLLFEptZ22+Ft
+         z4fOHT2Kzi7XfERArQK4/YUMRDi58MBQXmT/HzQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Changcheng Liu <changcheng.liu@aliyun.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Eugeniu Rosca <erosca@de.adit-jv.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 106/215] RDMA/i40iw: Set queue pair state when being queried
-Date:   Mon, 29 Jul 2019 21:21:42 +0200
-Message-Id: <20190729190757.346259534@linuxfoundation.org>
+Subject: [PATCH 5.2 108/215] serial: sh-sci: Fix TX DMA buffer flushing and workqueue races
+Date:   Mon, 29 Jul 2019 21:21:44 +0200
+Message-Id: <20190729190757.592244849@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -45,34 +45,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2e67e775845373905d2c2aecb9062c2c4352a535 ]
+[ Upstream commit 8493eab02608b0e82f67b892aa72882e510c31d0 ]
 
-The API for ib_query_qp requires the driver to set qp_state and
-cur_qp_state on return, add the missing sets.
+When uart_flush_buffer() is called, the .flush_buffer() callback zeroes
+the tx_dma_len field.  This may race with the work queue function
+handling transmit DMA requests:
 
-Fixes: d37498417947 ("i40iw: add files for iwarp interface")
-Signed-off-by: Changcheng Liu <changcheng.liu@aliyun.com>
-Acked-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+  1. If the buffer is flushed before the first DMA API call,
+     dmaengine_prep_slave_single() may be called with a zero length,
+     causing the DMA request to never complete, leading to messages
+     like:
+
+        rcar-dmac e7300000.dma-controller: Channel Address Error happen
+
+     and, with debug enabled:
+
+	sh-sci e6e88000.serial: sci_dma_tx_work_fn: ffff800639b55000: 0...0, cookie 126
+
+     and DMA timeouts.
+
+  2. If the buffer is flushed after the first DMA API call, but before
+     the second, dma_sync_single_for_device() may be called with a zero
+     length, causing the transmit data not to be flushed to RAM, and
+     leading to stale data being output.
+
+Fix this by:
+  1. Letting sci_dma_tx_work_fn() return immediately if the transmit
+     buffer is empty,
+  2. Extending the critical section to cover all DMA preparational work,
+     so tx_dma_len stays consistent for all of it,
+  3. Using local copies of circ_buf.head and circ_buf.tail, to make sure
+     they match the actual operation above.
+
+Reported-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Suggested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Tested-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Link: https://lore.kernel.org/r/20190624123540.20629-2-geert+renesas@glider.be
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/i40iw/i40iw_verbs.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/serial/sh-sci.c | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/infiniband/hw/i40iw/i40iw_verbs.c b/drivers/infiniband/hw/i40iw/i40iw_verbs.c
-index 5689d742bafb..4c88d6f72574 100644
---- a/drivers/infiniband/hw/i40iw/i40iw_verbs.c
-+++ b/drivers/infiniband/hw/i40iw/i40iw_verbs.c
-@@ -772,6 +772,8 @@ static int i40iw_query_qp(struct ib_qp *ibqp,
- 	struct i40iw_qp *iwqp = to_iwqp(ibqp);
- 	struct i40iw_sc_qp *qp = &iwqp->sc_qp;
+diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
+index 1d25c4e2d0d2..d18c680aa64b 100644
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -1398,6 +1398,7 @@ static void sci_dma_tx_work_fn(struct work_struct *work)
+ 	struct circ_buf *xmit = &port->state->xmit;
+ 	unsigned long flags;
+ 	dma_addr_t buf;
++	int head, tail;
  
-+	attr->qp_state = iwqp->ibqp_state;
-+	attr->cur_qp_state = attr->qp_state;
- 	attr->qp_access_flags = 0;
- 	attr->cap.max_send_wr = qp->qp_uk.sq_size;
- 	attr->cap.max_recv_wr = qp->qp_uk.rq_size;
+ 	/*
+ 	 * DMA is idle now.
+@@ -1407,16 +1408,23 @@ static void sci_dma_tx_work_fn(struct work_struct *work)
+ 	 * consistent xmit buffer state.
+ 	 */
+ 	spin_lock_irq(&port->lock);
+-	buf = s->tx_dma_addr + (xmit->tail & (UART_XMIT_SIZE - 1));
++	head = xmit->head;
++	tail = xmit->tail;
++	buf = s->tx_dma_addr + (tail & (UART_XMIT_SIZE - 1));
+ 	s->tx_dma_len = min_t(unsigned int,
+-		CIRC_CNT(xmit->head, xmit->tail, UART_XMIT_SIZE),
+-		CIRC_CNT_TO_END(xmit->head, xmit->tail, UART_XMIT_SIZE));
+-	spin_unlock_irq(&port->lock);
++		CIRC_CNT(head, tail, UART_XMIT_SIZE),
++		CIRC_CNT_TO_END(head, tail, UART_XMIT_SIZE));
++	if (!s->tx_dma_len) {
++		/* Transmit buffer has been flushed */
++		spin_unlock_irq(&port->lock);
++		return;
++	}
+ 
+ 	desc = dmaengine_prep_slave_single(chan, buf, s->tx_dma_len,
+ 					   DMA_MEM_TO_DEV,
+ 					   DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
+ 	if (!desc) {
++		spin_unlock_irq(&port->lock);
+ 		dev_warn(port->dev, "Failed preparing Tx DMA descriptor\n");
+ 		goto switch_to_pio;
+ 	}
+@@ -1424,18 +1432,18 @@ static void sci_dma_tx_work_fn(struct work_struct *work)
+ 	dma_sync_single_for_device(chan->device->dev, buf, s->tx_dma_len,
+ 				   DMA_TO_DEVICE);
+ 
+-	spin_lock_irq(&port->lock);
+ 	desc->callback = sci_dma_tx_complete;
+ 	desc->callback_param = s;
+-	spin_unlock_irq(&port->lock);
+ 	s->cookie_tx = dmaengine_submit(desc);
+ 	if (dma_submit_error(s->cookie_tx)) {
++		spin_unlock_irq(&port->lock);
+ 		dev_warn(port->dev, "Failed submitting Tx DMA descriptor\n");
+ 		goto switch_to_pio;
+ 	}
+ 
++	spin_unlock_irq(&port->lock);
+ 	dev_dbg(port->dev, "%s: %p: %d...%d, cookie %d\n",
+-		__func__, xmit->buf, xmit->tail, xmit->head, s->cookie_tx);
++		__func__, xmit->buf, tail, head, s->cookie_tx);
+ 
+ 	dma_async_issue_pending(chan);
+ 	return;
 -- 
 2.20.1
 
