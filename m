@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D25E479812
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:06:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E32CC79879
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:08:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729141AbfG2TnO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:43:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59396 "EHLO mail.kernel.org"
+        id S1727644AbfG2TiF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:38:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389618AbfG2TnO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:43:14 -0400
+        id S2388437AbfG2TiE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:38:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B67AF21655;
-        Mon, 29 Jul 2019 19:43:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9586D2171F;
+        Mon, 29 Jul 2019 19:38:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429393;
-        bh=ZeySQA67f8U0g3QtOJ+NqwzjKd7z3D+xJ9QnjPk48ZM=;
+        s=default; t=1564429084;
+        bh=hrZTVpKYLlJxRlevqnBkuB6HXjFYDdHXF96oTmXPbg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MyqU3jKuLUs7kPDK+aCdAbOTuHxFT5mWojv35hWGKsQUPDHY12tqSN3CD359K4elO
-         oUEWgfWfD+ucP53uwWbv45N45U1KIFi/AzNDFmALRF/UOb7jTMGuifDN4E7c6LjB/d
-         HsPwv7e93BiCc4WXBFbKQtzp3VyjsLnGTsKjhT3s=
+        b=hdL1kFnie+QlSYMmCu3Q7dlGnUmB+QJsuCdzG+WRNnA0PVx1wHPJ3NkrebdKheQBL
+         y7X3lgl2LcAG4nC4g2x/witnc8NyavSyJgAuv8C9whlHamU2Bb/c5/whfAIHR+YohU
+         c0NcBBn64A+K3y97NQyKu5fxe7QmnWy/nB+TzO/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Kees Cook <keescook@chromium.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 084/113] 9p: pass the correct prototype to read_cache_page
+        stable@vger.kernel.org,
+        syzbot+fd2bd7df88c606eea4ef@syzkaller.appspotmail.com,
+        Phong Tran <tranmanphong@gmail.com>
+Subject: [PATCH 4.14 280/293] usb: wusbcore: fix unbalanced get/put cluster_id
 Date:   Mon, 29 Jul 2019 21:22:51 +0200
-Message-Id: <20190729190715.635757732@linuxfoundation.org>
+Message-Id: <20190729190845.706731351@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
-References: <20190729190655.455345569@linuxfoundation.org>
+In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
+References: <20190729190820.321094988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,51 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f053cbd4366051d7eb6ba1b8d529d20f719c2963 ]
+From: Phong Tran <tranmanphong@gmail.com>
 
-Fix the callback 9p passes to read_cache_page to actually have the
-proper type expected.  Casting around function pointers can easily
-hide typing bugs, and defeats control flow protection.
+commit f90bf1ece48a736097ea224430578fe586a9544c upstream.
 
-Link: http://lkml.kernel.org/r/20190520055731.24538-5-hch@lst.de
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Sami Tolvanen <samitolvanen@google.com>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+syzboot reported that
+https://syzkaller.appspot.com/bug?extid=fd2bd7df88c606eea4ef
+
+There is not consitency parameter in cluste_id_get/put calling.
+In case of getting the id with result is failure, the wusbhc->cluster_id
+will not be updated and this can not be used for wusb_cluster_id_put().
+
+Tested report
+https://groups.google.com/d/msg/syzkaller-bugs/0znZopp3-9k/oxOrhLkLEgAJ
+
+Reproduce and gdb got the details:
+
+139		addr = wusb_cluster_id_get();
+(gdb) n
+140		if (addr == 0)
+(gdb) print addr
+$1 = 254 '\376'
+(gdb) n
+142		result = __hwahc_set_cluster_id(hwahc, addr);
+(gdb) print result
+$2 = -71
+(gdb) break wusb_cluster_id_put
+Breakpoint 3 at 0xffffffff836e3f20: file drivers/usb/wusbcore/wusbhc.c, line 384.
+(gdb) s
+Thread 2 hit Breakpoint 3, wusb_cluster_id_put (id=0 '\000') at drivers/usb/wusbcore/wusbhc.c:384
+384		id = 0xff - id;
+(gdb) n
+385		BUG_ON(id >= CLUSTER_IDS);
+(gdb) print id
+$3 = 255 '\377'
+
+Reported-by: syzbot+fd2bd7df88c606eea4ef@syzkaller.appspotmail.com
+Signed-off-by: Phong Tran <tranmanphong@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20190724020601.15257-1-tranmanphong@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/9p/vfs_addr.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/host/hwa-hc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/9p/vfs_addr.c b/fs/9p/vfs_addr.c
-index e1cbdfdb7c68..197069303510 100644
---- a/fs/9p/vfs_addr.c
-+++ b/fs/9p/vfs_addr.c
-@@ -50,8 +50,9 @@
-  * @page: structure to page
-  *
-  */
--static int v9fs_fid_readpage(struct p9_fid *fid, struct page *page)
-+static int v9fs_fid_readpage(void *data, struct page *page)
- {
-+	struct p9_fid *fid = data;
- 	struct inode *inode = page->mapping->host;
- 	struct bio_vec bvec = {.bv_page = page, .bv_len = PAGE_SIZE};
- 	struct iov_iter to;
-@@ -122,7 +123,8 @@ static int v9fs_vfs_readpages(struct file *filp, struct address_space *mapping,
- 	if (ret == 0)
- 		return ret;
+--- a/drivers/usb/host/hwa-hc.c
++++ b/drivers/usb/host/hwa-hc.c
+@@ -173,7 +173,7 @@ out:
+ 	return result;
  
--	ret = read_cache_pages(mapping, pages, (void *)v9fs_vfs_readpage, filp);
-+	ret = read_cache_pages(mapping, pages, v9fs_fid_readpage,
-+			filp->private_data);
- 	p9_debug(P9_DEBUG_VFS, "  = %d\n", ret);
- 	return ret;
- }
--- 
-2.20.1
-
+ error_set_cluster_id:
+-	wusb_cluster_id_put(wusbhc->cluster_id);
++	wusb_cluster_id_put(addr);
+ error_cluster_id_get:
+ 	goto out;
+ 
 
 
