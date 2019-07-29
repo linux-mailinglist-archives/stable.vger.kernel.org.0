@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5AEA7941F
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:28:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34FF979424
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:28:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728286AbfG2T2O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:28:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40914 "EHLO mail.kernel.org"
+        id S1727443AbfG2T2T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:28:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727241AbfG2T2M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:28:12 -0400
+        id S2387905AbfG2T2S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:28:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E4E621773;
-        Mon, 29 Jul 2019 19:28:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8CB93217D6;
+        Mon, 29 Jul 2019 19:28:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428491;
-        bh=BSZPvpOMtHf9X+S8zBNMYSxLNZ1dYPWKShwaiIJ/B50=;
+        s=default; t=1564428498;
+        bh=FLfj+D+Cdcjeuh0saU+6BBHoPN8M2Rf9vmOtmCCh3KY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JDYpuB5mHzPOIBzFliGI2g7FGkYgpYmNH/HcP5d+MGdZ2kezEiByDpMgPlYRBAA/D
-         RV0YFxVyTUPDQ08vP0LNQdBXJQO8cQ271qJWcycgoUtOhYEj41UHfyRvpykitzExo1
-         oEUyNHk6LOvJNHjfQhj5uYHjdmWop/jtXEgHhaj8=
+        b=gk3SMGVrtHIOfsFrcrXCaUg6mpplB31zngJB3aR4b10Ldg2F3ww9De0nra1J/+Pk1
+         y6ykI2TtlzHbfbhp+NcBaaPZyNZQfa3dbiO+Aov9UsGDwJMRrcqpMC9V4KPd5Inqar
+         z5f+J+9BoQQ3U/6fAPy30W4eIAKD/slPFY9VtLpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andrei Otcheretianski <andrei.otcheretianski@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        syzbot+8a3fc6674bbc3978ed4e@syzkaller.appspotmail.com,
+        Phong Tran <tranmanphong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 092/293] iwlwifi: mvm: Drop large non sta frames
-Date:   Mon, 29 Jul 2019 21:19:43 +0200
-Message-Id: <20190729190831.657269062@linuxfoundation.org>
+Subject: [PATCH 4.14 094/293] net: usb: asix: init MAC address buffers
+Date:   Mon, 29 Jul 2019 21:19:45 +0200
+Message-Id: <20190729190831.815461589@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -45,36 +46,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ac70499ee97231a418dc1a4d6c9dc102e8f64631 ]
+[ Upstream commit 78226f6eaac80bf30256a33a4926c194ceefdf36 ]
 
-In some buggy scenarios we could possible attempt to transmit frames larger
-than maximum MSDU size. Since our devices don't know how to handle this,
-it may result in asserts, hangs etc.
-This can happen, for example, when we receive a large multicast frame
-and try to transmit it back to the air in AP mode.
-Since in a legal scenario this should never happen, drop such frames and
-warn about it.
+This is for fixing bug KMSAN: uninit-value in ax88772_bind
 
-Signed-off-by: Andrei Otcheretianski <andrei.otcheretianski@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Tested by
+https://groups.google.com/d/msg/syzkaller-bugs/aFQurGotng4/eB_HlNhhCwAJ
+
+Reported-by: syzbot+8a3fc6674bbc3978ed4e@syzkaller.appspotmail.com
+
+syzbot found the following crash on:
+
+HEAD commit:    f75e4cfe kmsan: use kmsan_handle_urb() in urb.c
+git tree:       kmsan
+console output: https://syzkaller.appspot.com/x/log.txt?x=136d720ea00000
+kernel config:
+https://syzkaller.appspot.com/x/.config?x=602468164ccdc30a
+dashboard link:
+https://syzkaller.appspot.com/bug?extid=8a3fc6674bbc3978ed4e
+compiler:       clang version 9.0.0 (/home/glider/llvm/clang
+06d00afa61eef8f7f501ebdb4e8612ea43ec2d78)
+syz repro:
+https://syzkaller.appspot.com/x/repro.syz?x=12788316a00000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=120359aaa00000
+
+==================================================================
+BUG: KMSAN: uninit-value in is_valid_ether_addr
+include/linux/etherdevice.h:200 [inline]
+BUG: KMSAN: uninit-value in asix_set_netdev_dev_addr
+drivers/net/usb/asix_devices.c:73 [inline]
+BUG: KMSAN: uninit-value in ax88772_bind+0x93d/0x11e0
+drivers/net/usb/asix_devices.c:724
+CPU: 0 PID: 3348 Comm: kworker/0:2 Not tainted 5.1.0+ #1
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+Google 01/01/2011
+Workqueue: usb_hub_wq hub_event
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0x191/0x1f0 lib/dump_stack.c:113
+  kmsan_report+0x130/0x2a0 mm/kmsan/kmsan.c:622
+  __msan_warning+0x75/0xe0 mm/kmsan/kmsan_instr.c:310
+  is_valid_ether_addr include/linux/etherdevice.h:200 [inline]
+  asix_set_netdev_dev_addr drivers/net/usb/asix_devices.c:73 [inline]
+  ax88772_bind+0x93d/0x11e0 drivers/net/usb/asix_devices.c:724
+  usbnet_probe+0x10f5/0x3940 drivers/net/usb/usbnet.c:1728
+  usb_probe_interface+0xd66/0x1320 drivers/usb/core/driver.c:361
+  really_probe+0xdae/0x1d80 drivers/base/dd.c:513
+  driver_probe_device+0x1b3/0x4f0 drivers/base/dd.c:671
+  __device_attach_driver+0x5b8/0x790 drivers/base/dd.c:778
+  bus_for_each_drv+0x28e/0x3b0 drivers/base/bus.c:454
+  __device_attach+0x454/0x730 drivers/base/dd.c:844
+  device_initial_probe+0x4a/0x60 drivers/base/dd.c:891
+  bus_probe_device+0x137/0x390 drivers/base/bus.c:514
+  device_add+0x288d/0x30e0 drivers/base/core.c:2106
+  usb_set_configuration+0x30dc/0x3750 drivers/usb/core/message.c:2027
+  generic_probe+0xe7/0x280 drivers/usb/core/generic.c:210
+  usb_probe_device+0x14c/0x200 drivers/usb/core/driver.c:266
+  really_probe+0xdae/0x1d80 drivers/base/dd.c:513
+  driver_probe_device+0x1b3/0x4f0 drivers/base/dd.c:671
+  __device_attach_driver+0x5b8/0x790 drivers/base/dd.c:778
+  bus_for_each_drv+0x28e/0x3b0 drivers/base/bus.c:454
+  __device_attach+0x454/0x730 drivers/base/dd.c:844
+  device_initial_probe+0x4a/0x60 drivers/base/dd.c:891
+  bus_probe_device+0x137/0x390 drivers/base/bus.c:514
+  device_add+0x288d/0x30e0 drivers/base/core.c:2106
+  usb_new_device+0x23e5/0x2ff0 drivers/usb/core/hub.c:2534
+  hub_port_connect drivers/usb/core/hub.c:5089 [inline]
+  hub_port_connect_change drivers/usb/core/hub.c:5204 [inline]
+  port_event drivers/usb/core/hub.c:5350 [inline]
+  hub_event+0x48d1/0x7290 drivers/usb/core/hub.c:5432
+  process_one_work+0x1572/0x1f00 kernel/workqueue.c:2269
+  process_scheduled_works kernel/workqueue.c:2331 [inline]
+  worker_thread+0x189c/0x2460 kernel/workqueue.c:2417
+  kthread+0x4b5/0x4f0 kernel/kthread.c:254
+  ret_from_fork+0x35/0x40 arch/x86/entry/entry_64.S:355
+
+Signed-off-by: Phong Tran <tranmanphong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/tx.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/usb/asix_devices.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-index 62a6e293cf12..f0f2be432d20 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-@@ -621,6 +621,9 @@ int iwl_mvm_tx_skb_non_sta(struct iwl_mvm *mvm, struct sk_buff *skb)
+diff --git a/drivers/net/usb/asix_devices.c b/drivers/net/usb/asix_devices.c
+index d0c0ac0c3519..9b751d4bd327 100644
+--- a/drivers/net/usb/asix_devices.c
++++ b/drivers/net/usb/asix_devices.c
+@@ -238,7 +238,7 @@ static void asix_phy_reset(struct usbnet *dev, unsigned int reset_bits)
+ static int ax88172_bind(struct usbnet *dev, struct usb_interface *intf)
+ {
+ 	int ret = 0;
+-	u8 buf[ETH_ALEN];
++	u8 buf[ETH_ALEN] = {0};
+ 	int i;
+ 	unsigned long gpio_bits = dev->driver_info->data;
  
- 	memcpy(&info, skb->cb, sizeof(info));
+@@ -689,7 +689,7 @@ static int asix_resume(struct usb_interface *intf)
+ static int ax88772_bind(struct usbnet *dev, struct usb_interface *intf)
+ {
+ 	int ret, i;
+-	u8 buf[ETH_ALEN], chipcode = 0;
++	u8 buf[ETH_ALEN] = {0}, chipcode = 0;
+ 	u32 phyid;
+ 	struct asix_common_private *priv;
  
-+	if (WARN_ON_ONCE(skb->len > IEEE80211_MAX_DATA_LEN + hdrlen))
-+		return -1;
-+
- 	if (WARN_ON_ONCE(info.flags & IEEE80211_TX_CTL_AMPDU))
- 		return -1;
+@@ -1065,7 +1065,7 @@ static const struct net_device_ops ax88178_netdev_ops = {
+ static int ax88178_bind(struct usbnet *dev, struct usb_interface *intf)
+ {
+ 	int ret;
+-	u8 buf[ETH_ALEN];
++	u8 buf[ETH_ALEN] = {0};
+ 
+ 	usbnet_get_endpoints(dev,intf);
  
 -- 
 2.20.1
