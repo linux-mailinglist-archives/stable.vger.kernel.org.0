@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE45679782
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:01:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D4BA79801
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:06:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403810AbfG2UA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 16:00:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44558 "EHLO mail.kernel.org"
+        id S2389427AbfG2TmC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:42:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403932AbfG2Twm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:52:42 -0400
+        id S2388566AbfG2TmB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:42:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF24E2171F;
-        Mon, 29 Jul 2019 19:52:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E08220C01;
+        Mon, 29 Jul 2019 19:41:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429961;
-        bh=4D3nf9zUhEE3PvkK7yQYHQYThXnRio5WdgPT7j1S0/Q=;
+        s=default; t=1564429319;
+        bh=O1vQYt8aWgXf55lft2fOPPZ64nQp9DyO7NU2Lkv8ZnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Lzv49y5IYvK+lPurY0M3znUjHWERxViUTqcmBxnBPQ2jmbv7T5MJ+NnRCEUBYbpY
-         bo/kSS8TT7DrAVCytVSJDiReq7NCeY4p+ieMBlM9ruPq+LaGmPFnlTobj+vWdhs5Qt
-         gOr6pKRLSyM7ytU4ugQV14Mb+f+UIGsG54IjmXgY=
+        b=b7iB2uHdW6QDgQKk/tLV8jwWHpAh7qSOzzXcoD6kjFaQ+8cXkPJdiAFt9NeHXBm0M
+         K+K/V9ZG6k5m1N7wX3Y/tIXbjq/tGspHck4DJ57HXhwp2aQzus82OfUIdevFWtJxde
+         LCw5QgT6Pe4jJA83l01TrJP/CnNXhJIuxAz4BXTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Valentine Fatiev <valentinef@mellanox.com>,
+        Feras Daoud <ferasda@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 150/215] mm/kmemleak.c: fix check for softirq context
-Date:   Mon, 29 Jul 2019 21:22:26 +0200
-Message-Id: <20190729190805.769245696@linuxfoundation.org>
+Subject: [PATCH 4.19 060/113] IB/ipoib: Add child to parent list only if device initialized
+Date:   Mon, 29 Jul 2019 21:22:27 +0200
+Message-Id: <20190729190709.867511240@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
-References: <20190729190739.971253303@linuxfoundation.org>
+In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
+References: <20190729190655.455345569@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,94 +46,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6ef9056952532c3b746de46aa10d45b4d7797bd8 ]
+[ Upstream commit 91b01061fef9c57d2f5b712a6322ef51061f4efd ]
 
-in_softirq() is a wrong predicate to check if we are in a softirq
-context.  It also returns true if we have BH disabled, so objects are
-falsely stamped with "softirq" comm.  The correct predicate is
-in_serving_softirq().
+Despite failure in ipoib_dev_init() we continue with initialization flow
+and creation of child device. It causes to the situation where this child
+device is added too early to parent device list.
 
-If user does cat from /sys/kernel/debug/kmemleak previously they would
-see this, which is clearly wrong, this is system call context (see the
-comm):
+Change the logic, so in case of failure we properly return error from
+ipoib_dev_init() and add child only in success path.
 
-unreferenced object 0xffff88805bd661c0 (size 64):
-  comm "softirq", pid 0, jiffies 4294942959 (age 12.400s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 ff ff ff ff 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000007dcb30c>] kmemleak_alloc_recursive include/linux/kmemleak.h:55 [inline]
-    [<0000000007dcb30c>] slab_post_alloc_hook mm/slab.h:439 [inline]
-    [<0000000007dcb30c>] slab_alloc mm/slab.c:3326 [inline]
-    [<0000000007dcb30c>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
-    [<00000000969722b7>] kmalloc include/linux/slab.h:547 [inline]
-    [<00000000969722b7>] kzalloc include/linux/slab.h:742 [inline]
-    [<00000000969722b7>] ip_mc_add1_src net/ipv4/igmp.c:1961 [inline]
-    [<00000000969722b7>] ip_mc_add_src+0x36b/0x400 net/ipv4/igmp.c:2085
-    [<00000000a4134b5f>] ip_mc_msfilter+0x22d/0x310 net/ipv4/igmp.c:2475
-    [<00000000d20248ad>] do_ip_setsockopt.isra.0+0x19fe/0x1c00 net/ipv4/ip_sockglue.c:957
-    [<000000003d367be7>] ip_setsockopt+0x3b/0xb0 net/ipv4/ip_sockglue.c:1246
-    [<000000003c7c76af>] udp_setsockopt+0x4e/0x90 net/ipv4/udp.c:2616
-    [<000000000c1aeb23>] sock_common_setsockopt+0x3e/0x50 net/core/sock.c:3130
-    [<000000000157b92b>] __sys_setsockopt+0x9e/0x120 net/socket.c:2078
-    [<00000000a9f3d058>] __do_sys_setsockopt net/socket.c:2089 [inline]
-    [<00000000a9f3d058>] __se_sys_setsockopt net/socket.c:2086 [inline]
-    [<00000000a9f3d058>] __x64_sys_setsockopt+0x26/0x30 net/socket.c:2086
-    [<000000001b8da885>] do_syscall_64+0x7c/0x1a0 arch/x86/entry/common.c:301
-    [<00000000ba770c62>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-now they will see this:
-
-unreferenced object 0xffff88805413c800 (size 64):
-  comm "syz-executor.4", pid 8960, jiffies 4294994003 (age 14.350s)
-  hex dump (first 32 bytes):
-    00 7a 8a 57 80 88 ff ff e0 00 00 01 00 00 00 00  .z.W............
-    00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000c5d3be64>] kmemleak_alloc_recursive include/linux/kmemleak.h:55 [inline]
-    [<00000000c5d3be64>] slab_post_alloc_hook mm/slab.h:439 [inline]
-    [<00000000c5d3be64>] slab_alloc mm/slab.c:3326 [inline]
-    [<00000000c5d3be64>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
-    [<0000000023865be2>] kmalloc include/linux/slab.h:547 [inline]
-    [<0000000023865be2>] kzalloc include/linux/slab.h:742 [inline]
-    [<0000000023865be2>] ip_mc_add1_src net/ipv4/igmp.c:1961 [inline]
-    [<0000000023865be2>] ip_mc_add_src+0x36b/0x400 net/ipv4/igmp.c:2085
-    [<000000003029a9d4>] ip_mc_msfilter+0x22d/0x310 net/ipv4/igmp.c:2475
-    [<00000000ccd0a87c>] do_ip_setsockopt.isra.0+0x19fe/0x1c00 net/ipv4/ip_sockglue.c:957
-    [<00000000a85a3785>] ip_setsockopt+0x3b/0xb0 net/ipv4/ip_sockglue.c:1246
-    [<00000000ec13c18d>] udp_setsockopt+0x4e/0x90 net/ipv4/udp.c:2616
-    [<0000000052d748e3>] sock_common_setsockopt+0x3e/0x50 net/core/sock.c:3130
-    [<00000000512f1014>] __sys_setsockopt+0x9e/0x120 net/socket.c:2078
-    [<00000000181758bc>] __do_sys_setsockopt net/socket.c:2089 [inline]
-    [<00000000181758bc>] __se_sys_setsockopt net/socket.c:2086 [inline]
-    [<00000000181758bc>] __x64_sys_setsockopt+0x26/0x30 net/socket.c:2086
-    [<00000000d4b73623>] do_syscall_64+0x7c/0x1a0 arch/x86/entry/common.c:301
-    [<00000000c1098bec>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Link: http://lkml.kernel.org/r/20190517171507.96046-1-dvyukov@gmail.com
-Signed-off-by: Dmitry Vyukov <dvyukov@google.com>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: eaeb39842508 ("IB/ipoib: Move init code to ndo_init")
+Signed-off-by: Valentine Fatiev <valentinef@mellanox.com>
+Reviewed-by: Feras Daoud <ferasda@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/kmemleak.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/ulp/ipoib/ipoib_main.c | 34 +++++++++++++----------
+ 1 file changed, 20 insertions(+), 14 deletions(-)
 
-diff --git a/mm/kmemleak.c b/mm/kmemleak.c
-index 9dd581d11565..3e147ea83182 100644
---- a/mm/kmemleak.c
-+++ b/mm/kmemleak.c
-@@ -575,7 +575,7 @@ static struct kmemleak_object *create_object(unsigned long ptr, size_t size,
- 	if (in_irq()) {
- 		object->pid = 0;
- 		strncpy(object->comm, "hardirq", sizeof(object->comm));
--	} else if (in_softirq()) {
-+	} else if (in_serving_softirq()) {
- 		object->pid = 0;
- 		strncpy(object->comm, "softirq", sizeof(object->comm));
- 	} else {
+diff --git a/drivers/infiniband/ulp/ipoib/ipoib_main.c b/drivers/infiniband/ulp/ipoib/ipoib_main.c
+index 009615499b37..78dd36daac00 100644
+--- a/drivers/infiniband/ulp/ipoib/ipoib_main.c
++++ b/drivers/infiniband/ulp/ipoib/ipoib_main.c
+@@ -1892,12 +1892,6 @@ static void ipoib_child_init(struct net_device *ndev)
+ 	struct ipoib_dev_priv *priv = ipoib_priv(ndev);
+ 	struct ipoib_dev_priv *ppriv = ipoib_priv(priv->parent);
+ 
+-	dev_hold(priv->parent);
+-
+-	down_write(&ppriv->vlan_rwsem);
+-	list_add_tail(&priv->list, &ppriv->child_intfs);
+-	up_write(&ppriv->vlan_rwsem);
+-
+ 	priv->max_ib_mtu = ppriv->max_ib_mtu;
+ 	set_bit(IPOIB_FLAG_SUBINTERFACE, &priv->flags);
+ 	memcpy(priv->dev->dev_addr, ppriv->dev->dev_addr, INFINIBAND_ALEN);
+@@ -1940,6 +1934,17 @@ static int ipoib_ndo_init(struct net_device *ndev)
+ 	if (rc) {
+ 		pr_warn("%s: failed to initialize device: %s port %d (ret = %d)\n",
+ 			priv->ca->name, priv->dev->name, priv->port, rc);
++		return rc;
++	}
++
++	if (priv->parent) {
++		struct ipoib_dev_priv *ppriv = ipoib_priv(priv->parent);
++
++		dev_hold(priv->parent);
++
++		down_write(&ppriv->vlan_rwsem);
++		list_add_tail(&priv->list, &ppriv->child_intfs);
++		up_write(&ppriv->vlan_rwsem);
+ 	}
+ 
+ 	return 0;
+@@ -1957,6 +1962,14 @@ static void ipoib_ndo_uninit(struct net_device *dev)
+ 	 */
+ 	WARN_ON(!list_empty(&priv->child_intfs));
+ 
++	if (priv->parent) {
++		struct ipoib_dev_priv *ppriv = ipoib_priv(priv->parent);
++
++		down_write(&ppriv->vlan_rwsem);
++		list_del(&priv->list);
++		up_write(&ppriv->vlan_rwsem);
++	}
++
+ 	ipoib_neigh_hash_uninit(dev);
+ 
+ 	ipoib_ib_dev_cleanup(dev);
+@@ -1968,15 +1981,8 @@ static void ipoib_ndo_uninit(struct net_device *dev)
+ 		priv->wq = NULL;
+ 	}
+ 
+-	if (priv->parent) {
+-		struct ipoib_dev_priv *ppriv = ipoib_priv(priv->parent);
+-
+-		down_write(&ppriv->vlan_rwsem);
+-		list_del(&priv->list);
+-		up_write(&ppriv->vlan_rwsem);
+-
++	if (priv->parent)
+ 		dev_put(priv->parent);
+-	}
+ }
+ 
+ static int ipoib_set_vf_link_state(struct net_device *dev, int vf, int link_state)
 -- 
 2.20.1
 
