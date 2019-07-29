@@ -2,216 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 19A6B790A9
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 18:19:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC91A790AE
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 18:21:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728665AbfG2QTn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 12:19:43 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:48427 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728027AbfG2QTn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 12:19:43 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 38120221FC;
-        Mon, 29 Jul 2019 12:19:42 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 29 Jul 2019 12:19:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=hp6laU
-        9ka3RWzxxdNE2rmOLJGLntCoANshCa3PHeZ24=; b=wGf7F+P5eucYthx4FAnx3f
-        YxwHcMmlQni1F/oqwY0DhigQ2w3zdDLFoXsRIWQwKhpmHwATjfrQ62gCLnSCHncM
-        F+yGIdplB/Y7Geaiw+GLVlvjSvCOcmaEJNxKUkmJkFW53rqblGDr62NCw60tSq5t
-        7SYZbnMKcN8DUMqCcCvnkgnW5GcNljUePnfS3og7lKW2i1xRRqfKOfO1bbTUbW+n
-        e+oS/g40N2WR3or57FEYrhiwp0smfy9ec+wPjB0e30DmR/XKyMHtnxuwvz85ojXf
-        RKsTbAHRivjzB23E4qRrOya5/3KIoKIr/D4qpI3JH36rB7XokROOqtHem8fVd7Ww
-        ==
-X-ME-Sender: <xms:nRw_XUGS4bRNlxWnl4reOB5bUu5P-sAU_8Pj7L8B6kQGTx0vTfSviw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrledugdellecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghenucfkphepkeefrdekie
-    drkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdr
-    tghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:nRw_XUn51KZv6YgM1E1sS3rilpW1hMMVfZFpOJSsLPBVVX2c4Q1NTA>
-    <xmx:nRw_XZABcq6t2-24w3-NWoGHWruH7faSFTdr3P69h3CaMQVJ91Fybg>
-    <xmx:nRw_XWCSHCRxibpwk6KIcQtYu8C93X-prlV1V-DFRd-eXHkQY_A-NA>
-    <xmx:nhw_XUvf92CmTisUkn3ResAdCUbPci044unsUa36cjCOVJFI5FXp3A>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4C347380079;
-        Mon, 29 Jul 2019 12:19:41 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] iommu/iova: Remove stale cached32_node" failed to apply to 4.19-stable tree
-To:     chris@chris-wilson.co.uk, joro@8bytes.org, jroedel@suse.de,
-        robin.murphy@arm.com, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Jul 2019 18:19:39 +0200
-Message-ID: <15644171795375@kroah.com>
+        id S1728271AbfG2QVq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 12:21:46 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:36117 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728258AbfG2QVq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 12:21:46 -0400
+Received: by mail-pl1-f196.google.com with SMTP id k8so27717910plt.3
+        for <stable@vger.kernel.org>; Mon, 29 Jul 2019 09:21:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=6c39aHCrPSADKgn1QA3sQ/OzJg2W7CUxLj9xwpXNwm8=;
+        b=QNUdnwD+0BnljNKmpSMc4dq1BHiw94BWEcKU6fhvEQa03/4iKV41fAYISj+UN/3NAL
+         4U3SKSKjVySDfUikKeS7kxUw15lpQOIY6MO0E7z+KYjC5MJLO6LXo0+jxLdjCRpKdisd
+         9d5GqsNYlbc9jvHYMxRLbYC1fQPIgz7J9VZ1gGCGAzc+2MhgJW88fvuhsEJRZIKOKUSm
+         wj/WB4k+6L+qzQLCI4Grpkmjj+3If7uPvcS7y1u6H1mDyYfeVqylpARfkL1K0KmJWas6
+         C+NAm3hah4FzqYYgR7uaMLyyl7qdKYmPl2O3w4Y3EIwOGUb+aq/Ro29iUmqbaubuzhqO
+         Fpog==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=6c39aHCrPSADKgn1QA3sQ/OzJg2W7CUxLj9xwpXNwm8=;
+        b=kSkQq44uR4Xp11lf5iNAzcZhLZRsPJDzHWlxaK4n3xetV0CpXl+VveVDDxvUB2mSer
+         izFFpx1zrWfOrVK5ugon+FI1guldpLh1JJZy3zv9amDvQKLkZAswC3y+xDiCGoLOCOpV
+         0z0dx7d1WdkYMlfJ3N38ALaG9hl0BXpuiZ+Bmqm2DJKbWERLeX7HjTob5AHZxkcyHEog
+         I82WbVDmT3xiRT7oUyQTNdMBmSC0CcVEocEc5neFOl49VfT5Rsoy8otiMe53I/xtQy+7
+         /4TjX6+4zcE+Umec9JJsVSExlncTVF6xTEAZm7fn5mG01/gi+sQAs1ncfXAJf+x8Nh4/
+         E5bg==
+X-Gm-Message-State: APjAAAXCyQTSYyfqdfeXrIyn6wimkv7rlTDE1bXIrYkuD+fqazgLCc+T
+        B8sgMCGVUHgAP27bi9ATunO1r7urrGtTnNW3FdYsO0C+SE8=
+X-Google-Smtp-Source: APXvYqxNskZ/KQ64ZtfmGcktH0OJHpIo2HF39Q8rmuazafjjU1buTQDpZhkJSEFFXEE2fvgDHJElTStCCkxLT6/DleE=
+X-Received: by 2002:a17:902:e703:: with SMTP id co3mr13856835plb.119.1564417305124;
+ Mon, 29 Jul 2019 09:21:45 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <20190729091517.5334-1-yamada.masahiro@socionext.com> <20190729160412.GA100132@archlinux-threadripper>
+In-Reply-To: <20190729160412.GA100132@archlinux-threadripper>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Mon, 29 Jul 2019 09:21:33 -0700
+Message-ID: <CAKwvOdnU8tLQ=wYAKs9Fy+3c2e_NmKL6H4kRKsRxH=sv16+8cQ@mail.gmail.com>
+Subject: Re: [PATCH] kbuild: initialize CLANG_FLAGS correctly in the top Makefile
+To:     Nathan Chancellor <natechancellor@gmail.com>
+Cc:     Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Michal Marek <michal.lkml@markovi.net>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Jul 29, 2019 at 9:04 AM Nathan Chancellor
+<natechancellor@gmail.com> wrote:
+>
+> On Mon, Jul 29, 2019 at 06:15:17PM +0900, Masahiro Yamada wrote:
+> > CLANG_FLAGS is initialized by the following line:
+> >
+> >   CLANG_FLAGS     := --target=$(notdir $(CROSS_COMPILE:%-=%))
+> >
+> > ..., which is run only when CROSS_COMPILE is set.
+> >
+> > Some build targets (bindeb-pkg etc.) recurse to the top Makefile.
+> >
+> > When you build the kernel with Clang but without CROSS_COMPILE,
+> > the same compiler flags such as -no-integrated-as are accumulated
+> > into CLANG_FLAGS.
+> >
+> > If you run 'make CC=clang' and then 'make CC=clang bindeb-pkg',
+> > Kbuild will recompile everything needlessly due to the build command
+> > change.
+> >
+> > Fix this by correctly initializing CLANG_FLAGS.
+> >
+> > Fixes: 238bcbc4e07f ("kbuild: consolidate Clang compiler flags")
+> > Cc: <stable@vger.kernel.org> # v4.20+
+> > Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+>
+> Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Acked-by: Nick Desaulniers <ndesaulniers@google.com>
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 9eed17d37c77171cf5ffb95c4257f87df3cd4c8f Mon Sep 17 00:00:00 2001
-From: Chris Wilson <chris@chris-wilson.co.uk>
-Date: Sat, 20 Jul 2019 19:08:48 +0100
-Subject: [PATCH] iommu/iova: Remove stale cached32_node
-
-Since the cached32_node is allowed to be advanced above dma_32bit_pfn
-(to provide a shortcut into the limited range), we need to be careful to
-remove the to be freed node if it is the cached32_node.
-
-[   48.477773] BUG: KASAN: use-after-free in __cached_rbnode_delete_update+0x68/0x110
-[   48.477812] Read of size 8 at addr ffff88870fc19020 by task kworker/u8:1/37
-[   48.477843]
-[   48.477879] CPU: 1 PID: 37 Comm: kworker/u8:1 Tainted: G     U            5.2.0+ #735
-[   48.477915] Hardware name: Intel Corporation NUC7i5BNK/NUC7i5BNB, BIOS BNKBL357.86A.0052.2017.0918.1346 09/18/2017
-[   48.478047] Workqueue: i915 __i915_gem_free_work [i915]
-[   48.478075] Call Trace:
-[   48.478111]  dump_stack+0x5b/0x90
-[   48.478137]  print_address_description+0x67/0x237
-[   48.478178]  ? __cached_rbnode_delete_update+0x68/0x110
-[   48.478212]  __kasan_report.cold.3+0x1c/0x38
-[   48.478240]  ? __cached_rbnode_delete_update+0x68/0x110
-[   48.478280]  ? __cached_rbnode_delete_update+0x68/0x110
-[   48.478308]  __cached_rbnode_delete_update+0x68/0x110
-[   48.478344]  private_free_iova+0x2b/0x60
-[   48.478378]  iova_magazine_free_pfns+0x46/0xa0
-[   48.478403]  free_iova_fast+0x277/0x340
-[   48.478443]  fq_ring_free+0x15a/0x1a0
-[   48.478473]  queue_iova+0x19c/0x1f0
-[   48.478597]  cleanup_page_dma.isra.64+0x62/0xb0 [i915]
-[   48.478712]  __gen8_ppgtt_cleanup+0x63/0x80 [i915]
-[   48.478826]  __gen8_ppgtt_cleanup+0x42/0x80 [i915]
-[   48.478940]  __gen8_ppgtt_clear+0x433/0x4b0 [i915]
-[   48.479053]  __gen8_ppgtt_clear+0x462/0x4b0 [i915]
-[   48.479081]  ? __sg_free_table+0x9e/0xf0
-[   48.479116]  ? kfree+0x7f/0x150
-[   48.479234]  i915_vma_unbind+0x1e2/0x240 [i915]
-[   48.479352]  i915_vma_destroy+0x3a/0x280 [i915]
-[   48.479465]  __i915_gem_free_objects+0xf0/0x2d0 [i915]
-[   48.479579]  __i915_gem_free_work+0x41/0xa0 [i915]
-[   48.479607]  process_one_work+0x495/0x710
-[   48.479642]  worker_thread+0x4c7/0x6f0
-[   48.479687]  ? process_one_work+0x710/0x710
-[   48.479724]  kthread+0x1b2/0x1d0
-[   48.479774]  ? kthread_create_worker_on_cpu+0xa0/0xa0
-[   48.479820]  ret_from_fork+0x1f/0x30
-[   48.479864]
-[   48.479907] Allocated by task 631:
-[   48.479944]  save_stack+0x19/0x80
-[   48.479994]  __kasan_kmalloc.constprop.6+0xc1/0xd0
-[   48.480038]  kmem_cache_alloc+0x91/0xf0
-[   48.480082]  alloc_iova+0x2b/0x1e0
-[   48.480125]  alloc_iova_fast+0x58/0x376
-[   48.480166]  intel_alloc_iova+0x90/0xc0
-[   48.480214]  intel_map_sg+0xde/0x1f0
-[   48.480343]  i915_gem_gtt_prepare_pages+0xb8/0x170 [i915]
-[   48.480465]  huge_get_pages+0x232/0x2b0 [i915]
-[   48.480590]  ____i915_gem_object_get_pages+0x40/0xb0 [i915]
-[   48.480712]  __i915_gem_object_get_pages+0x90/0xa0 [i915]
-[   48.480834]  i915_gem_object_prepare_write+0x2d6/0x330 [i915]
-[   48.480955]  create_test_object.isra.54+0x1a9/0x3e0 [i915]
-[   48.481075]  igt_shared_ctx_exec+0x365/0x3c0 [i915]
-[   48.481210]  __i915_subtests.cold.4+0x30/0x92 [i915]
-[   48.481341]  __run_selftests.cold.3+0xa9/0x119 [i915]
-[   48.481466]  i915_live_selftests+0x3c/0x70 [i915]
-[   48.481583]  i915_pci_probe+0xe7/0x220 [i915]
-[   48.481620]  pci_device_probe+0xe0/0x180
-[   48.481665]  really_probe+0x163/0x4e0
-[   48.481710]  device_driver_attach+0x85/0x90
-[   48.481750]  __driver_attach+0xa5/0x180
-[   48.481796]  bus_for_each_dev+0xda/0x130
-[   48.481831]  bus_add_driver+0x205/0x2e0
-[   48.481882]  driver_register+0xca/0x140
-[   48.481927]  do_one_initcall+0x6c/0x1af
-[   48.481970]  do_init_module+0x106/0x350
-[   48.482010]  load_module+0x3d2c/0x3ea0
-[   48.482058]  __do_sys_finit_module+0x110/0x180
-[   48.482102]  do_syscall_64+0x62/0x1f0
-[   48.482147]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[   48.482190]
-[   48.482224] Freed by task 37:
-[   48.482273]  save_stack+0x19/0x80
-[   48.482318]  __kasan_slab_free+0x12e/0x180
-[   48.482363]  kmem_cache_free+0x70/0x140
-[   48.482406]  __free_iova+0x1d/0x30
-[   48.482445]  fq_ring_free+0x15a/0x1a0
-[   48.482490]  queue_iova+0x19c/0x1f0
-[   48.482624]  cleanup_page_dma.isra.64+0x62/0xb0 [i915]
-[   48.482749]  __gen8_ppgtt_cleanup+0x63/0x80 [i915]
-[   48.482873]  __gen8_ppgtt_cleanup+0x42/0x80 [i915]
-[   48.482999]  __gen8_ppgtt_clear+0x433/0x4b0 [i915]
-[   48.483123]  __gen8_ppgtt_clear+0x462/0x4b0 [i915]
-[   48.483250]  i915_vma_unbind+0x1e2/0x240 [i915]
-[   48.483378]  i915_vma_destroy+0x3a/0x280 [i915]
-[   48.483500]  __i915_gem_free_objects+0xf0/0x2d0 [i915]
-[   48.483622]  __i915_gem_free_work+0x41/0xa0 [i915]
-[   48.483659]  process_one_work+0x495/0x710
-[   48.483704]  worker_thread+0x4c7/0x6f0
-[   48.483748]  kthread+0x1b2/0x1d0
-[   48.483787]  ret_from_fork+0x1f/0x30
-[   48.483831]
-[   48.483868] The buggy address belongs to the object at ffff88870fc19000
-[   48.483868]  which belongs to the cache iommu_iova of size 40
-[   48.483920] The buggy address is located 32 bytes inside of
-[   48.483920]  40-byte region [ffff88870fc19000, ffff88870fc19028)
-[   48.483964] The buggy address belongs to the page:
-[   48.484006] page:ffffea001c3f0600 refcount:1 mapcount:0 mapping:ffff8888181a91c0 index:0x0 compound_mapcount: 0
-[   48.484045] flags: 0x8000000000010200(slab|head)
-[   48.484096] raw: 8000000000010200 ffffea001c421a08 ffffea001c447e88 ffff8888181a91c0
-[   48.484141] raw: 0000000000000000 0000000000120012 00000001ffffffff 0000000000000000
-[   48.484188] page dumped because: kasan: bad access detected
-[   48.484230]
-[   48.484265] Memory state around the buggy address:
-[   48.484314]  ffff88870fc18f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[   48.484361]  ffff88870fc18f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[   48.484406] >ffff88870fc19000: fb fb fb fb fb fc fc fc fc fc fc fc fc fc fc fc
-[   48.484451]                                ^
-[   48.484494]  ffff88870fc19080: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[   48.484530]  ffff88870fc19100: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=108602
-Fixes: e60aa7b53845 ("iommu/iova: Extend rbtree node caching")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Robin Murphy <robin.murphy@arm.com>
-Cc: Joerg Roedel <jroedel@suse.de>
-Cc: Joerg Roedel <joro@8bytes.org>
-Cc: <stable@vger.kernel.org> # v4.15+
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-
-diff --git a/drivers/iommu/iova.c b/drivers/iommu/iova.c
-index 8413ae54904a..3e1a8a675572 100644
---- a/drivers/iommu/iova.c
-+++ b/drivers/iommu/iova.c
-@@ -137,8 +137,9 @@ __cached_rbnode_delete_update(struct iova_domain *iovad, struct iova *free)
- 	struct iova *cached_iova;
- 
- 	cached_iova = rb_entry(iovad->cached32_node, struct iova, node);
--	if (free->pfn_hi < iovad->dma_32bit_pfn &&
--	    free->pfn_lo >= cached_iova->pfn_lo) {
-+	if (free == cached_iova ||
-+	    (free->pfn_hi < iovad->dma_32bit_pfn &&
-+	     free->pfn_lo >= cached_iova->pfn_lo)) {
- 		iovad->cached32_node = rb_next(&free->node);
- 		iovad->max32_alloc_size = iovad->dma_32bit_pfn;
- 	}
-
+-- 
+Thanks,
+~Nick Desaulniers
