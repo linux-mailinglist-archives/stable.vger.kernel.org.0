@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 421B47961C
+	by mail.lfdr.de (Postfix) with ESMTP id B619F7961D
 	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:48:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390004AbfG2Tsw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:48:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39132 "EHLO mail.kernel.org"
+        id S2390448AbfG2Tsx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:48:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390237AbfG2Tst (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:48:49 -0400
+        id S2390175AbfG2Tsw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:48:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B58E2054F;
-        Mon, 29 Jul 2019 19:48:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3216205F4;
+        Mon, 29 Jul 2019 19:48:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429728;
-        bh=ZmJcYVj3vIaFeFPJxeMpF8uhIBbkm+iqJEjV41m3/1M=;
+        s=default; t=1564429731;
+        bh=WGMYS6q83Thcael11V87cslMUvmVDRsxbyMeEMFWzbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0KH1lNkOA2b4RYqNsbqVCP+PHUgtAKZ6Bm0P5QFZMSoYUkKUzpS3LzTf0IVWQjXrU
-         JDt4/d7HKDC+ngkASM5CxUs+0tND5bbhgc7f56FSgIlPFbvLhWHMTkdP4QwNFbJTZl
-         dCqa9W4QH+MKLHjyelFdH9ylrKLJzagUN8WA+FFM=
+        b=Je3UnRYdJnaD5suk3+k1xGfqnn1yCqqlwv6mQ8C8HTmg8VVRBg6PEUGt4TMOE4Pz4
+         98A0AYUGoK1yha+i6evhEUkxTgIs+zlYH3OPMGztPPG0sWx88hm84Lbdm4L1MIRISR
+         Q85iFya4tZNucMp2dKVlv69ToD+I6HsnUbSMBFyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Harry Wentland <Harry.Wentland@amd.com>,
-        Leo Li <sunpeng.li@amd.com>,
+        stable@vger.kernel.org, Krunoslav Kovac <Krunoslav.Kovac@amd.com>,
+        Aric Cyr <Aric.Cyr@amd.com>, Leo Li <sunpeng.li@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 037/215] drm/amd/display: Reset planes for color management changes
-Date:   Mon, 29 Jul 2019 21:20:33 +0200
-Message-Id: <20190729190746.833737256@linuxfoundation.org>
+Subject: [PATCH 5.2 038/215] drm/amd/display: CS_TFM_1D only applied post EOTF
+Date:   Mon, 29 Jul 2019 21:20:34 +0200
+Message-Id: <20190729190747.058926921@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -47,42 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7316c4ad299663a16ca9ce13e5e817b4ca760809 ]
+[ Upstream commit 6ad34adeaec5b56a5ba90e90099cabf1c1fe9dd2 ]
 
 [Why]
-For commits with allow_modeset=false and CRTC degamma changes the planes
-aren't reset. This results in incorrect rendering.
+There's some unnecessary mem allocation for CS_TFM_ID. What's worse, it
+depends on LUT size and since it's 4K for CS_TFM_1D, it is 16x bigger
+than in regular case when it's actually needed. This leads to some
+crashes in stress conditions.
 
 [How]
-Reset the planes when color management has changed on the CRTC.
-Technically this will include regamma changes as well, but it doesn't
-really after legacy userspace since those commit with
-allow_modeset=true.
+Skip ramp combining designed for RGB256 and DXGI gamma with CS_TFM_1D.
 
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-by: Harry Wentland <Harry.Wentland@amd.com>
+Signed-off-by: Krunoslav Kovac <Krunoslav.Kovac@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
 Acked-by: Leo Li <sunpeng.li@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/amd/display/modules/color/color_gamma.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 31530bfd002a..0e482349a5cb 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -6331,6 +6331,10 @@ static bool should_reset_plane(struct drm_atomic_state *state,
- 	if (!new_crtc_state)
- 		return true;
+diff --git a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
+index a1055413bade..31f867bb5afe 100644
+--- a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
++++ b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
+@@ -1564,7 +1564,8 @@ bool mod_color_calculate_regamma_params(struct dc_transfer_func *output_tf,
  
-+	/* CRTC Degamma changes currently require us to recreate planes. */
-+	if (new_crtc_state->color_mgmt_changed)
-+		return true;
-+
- 	if (drm_atomic_crtc_needs_modeset(new_crtc_state))
- 		return true;
+ 	output_tf->type = TF_TYPE_DISTRIBUTED_POINTS;
  
+-	if (ramp && (mapUserRamp || ramp->type != GAMMA_RGB_256)) {
++	if (ramp && ramp->type != GAMMA_CS_TFM_1D &&
++			(mapUserRamp || ramp->type != GAMMA_RGB_256)) {
+ 		rgb_user = kvcalloc(ramp->num_entries + _EXTRA_POINTS,
+ 			    sizeof(*rgb_user),
+ 			    GFP_KERNEL);
 -- 
 2.20.1
 
