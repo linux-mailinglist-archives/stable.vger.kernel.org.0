@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1520C7978B
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:01:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD7BC7984B
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:07:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390673AbfG2UA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 16:00:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43438 "EHLO mail.kernel.org"
+        id S2389252AbfG2TlE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:41:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403887AbfG2Tvs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:51:48 -0400
+        id S2389242AbfG2TlD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:41:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCC2B204EC;
-        Mon, 29 Jul 2019 19:51:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E89C6217D9;
+        Mon, 29 Jul 2019 19:41:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429907;
-        bh=sizR6Xq3/RQtR4jQO/vuWDORMl5pzGPn+/xcWFwpwYo=;
+        s=default; t=1564429262;
+        bh=QxH2mou0ZhhzmjsCzvNUYTR3sj0Y2sitMANirnGFbOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LxSrKCH9yVK1Ie1P5NPiOt4lpwafiOTCASNo5XZNg4LHeakJy7MDqsWq05HTbc0vC
-         7h/qwnXnyPF5QpQvZNZi2MjOf8mKmn4wTIAZCS3h/eGBbe3ZLfd9WCyN9KPoHbVYfH
-         mBGQ2wWX4fdHsAQ0DgLzz0UAvfG/EEbI9xRDMbmM=
+        b=cjr9Mk4TD6EGWBS17jC+kdU8EUpzrvGRHrbFpb57Xd33glxVE2pDXgStwZYlt+gcc
+         O2ijOlaM68B3+qpQA7y+KjjQUbLTz2+fyjTFg6BPn/lB8VYmCG47VqPAOkhhdxI7FD
+         xAJ6tkFiEtMXCnFFknjc3I5T/A2fkt96FfUYbQHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 134/215] nvme-tcp: dont use sendpage for SLAB pages
+        stable@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>,
+        Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 043/113] PCI: xilinx-nwl: Fix Multi MSI data programming
 Date:   Mon, 29 Jul 2019 21:22:10 +0200
-Message-Id: <20190729190802.778876364@linuxfoundation.org>
+Message-Id: <20190729190705.962255545@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
-References: <20190729190739.971253303@linuxfoundation.org>
+In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
+References: <20190729190655.455345569@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 37c15219599f7a4baa73f6e3432afc69ba7cc530 ]
+[ Upstream commit 181fa434d0514e40ebf6e9721f2b72700287b6e2 ]
 
-According to commit a10674bf2406 ("tcp: detecting the misuse of
-.sendpage for Slab objects") and previous discussion, tcp_sendpage
-should not be used for pages that is managed by SLAB, as SLAB is not
-taking page reference counters into consideration.
+According to the PCI Local Bus specification Revision 3.0,
+section 6.8.1.3 (Message Control for MSI), endpoints that
+are Multiple Message Capable as defined by bits [3:1] in
+the Message Control for MSI can request a number of vectors
+that is power of two aligned.
 
-Signed-off-by: Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+As specified in section 6.8.1.6 "Message data for MSI", the Multiple
+Message Enable field (bits [6:4] of the Message Control register)
+defines the number of low order message data bits the function is
+permitted to modify to generate its system software allocated
+vectors.
+
+The MSI controller in the Xilinx NWL PCIe controller supports a number
+of MSI vectors specified through a bitmap and the hwirq number for an
+MSI, that is the value written in the MSI data TLP is determined by
+the bitmap allocation.
+
+For instance, in a situation where two endpoints sitting on
+the PCI bus request the following MSI configuration, with
+the current PCI Xilinx bitmap allocation code (that does not
+align MSI vector allocation on a power of two boundary):
+
+Endpoint #1: Requesting 1 MSI vector - allocated bitmap bits 0
+Endpoint #2: Requesting 2 MSI vectors - allocated bitmap bits [1,2]
+
+The bitmap value(s) corresponds to the hwirq number that is programmed
+into the Message Data for MSI field in the endpoint MSI capability
+and is detected by the root complex to fire the corresponding
+MSI irqs. The value written in Message Data for MSI field corresponds
+to the first bit allocated in the bitmap for Multi MSI vectors.
+
+The current Xilinx NWL MSI allocation code allows a bitmap allocation
+that is not a power of two boundaries, so endpoint #2, is allowed to
+toggle Message Data bit[0] to differentiate between its two vectors
+(meaning that the MSI data will be respectively 0x0 and 0x1 for the two
+vectors allocated to endpoint #2).
+
+This clearly aliases with the Endpoint #1 vector allocation, resulting
+in a broken Multi MSI implementation.
+
+Update the code to allocate MSI bitmap ranges with a power of two
+alignment, fixing the bug.
+
+Fixes: ab597d35ef11 ("PCI: xilinx-nwl: Add support for Xilinx NWL PCIe Host Controller")
+Suggested-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>
+[lorenzo.pieralisi@arm.com: updated commit log]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/tcp.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/pci/controller/pcie-xilinx-nwl.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 08a2501b9357..606b13d35d16 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -860,7 +860,14 @@ static int nvme_tcp_try_send_data(struct nvme_tcp_request *req)
- 		else
- 			flags |= MSG_MORE;
+diff --git a/drivers/pci/controller/pcie-xilinx-nwl.c b/drivers/pci/controller/pcie-xilinx-nwl.c
+index fb32840ce8e6..4850a1b8eec1 100644
+--- a/drivers/pci/controller/pcie-xilinx-nwl.c
++++ b/drivers/pci/controller/pcie-xilinx-nwl.c
+@@ -483,15 +483,13 @@ static int nwl_irq_domain_alloc(struct irq_domain *domain, unsigned int virq,
+ 	int i;
  
--		ret = kernel_sendpage(queue->sock, page, offset, len, flags);
-+		/* can't zcopy slab pages */
-+		if (unlikely(PageSlab(page))) {
-+			ret = sock_no_sendpage(queue->sock, page, offset, len,
-+					flags);
-+		} else {
-+			ret = kernel_sendpage(queue->sock, page, offset, len,
-+					flags);
-+		}
- 		if (ret <= 0)
- 			return ret;
+ 	mutex_lock(&msi->lock);
+-	bit = bitmap_find_next_zero_area(msi->bitmap, INT_PCI_MSI_NR, 0,
+-					 nr_irqs, 0);
+-	if (bit >= INT_PCI_MSI_NR) {
++	bit = bitmap_find_free_region(msi->bitmap, INT_PCI_MSI_NR,
++				      get_count_order(nr_irqs));
++	if (bit < 0) {
+ 		mutex_unlock(&msi->lock);
+ 		return -ENOSPC;
+ 	}
+ 
+-	bitmap_set(msi->bitmap, bit, nr_irqs);
+-
+ 	for (i = 0; i < nr_irqs; i++) {
+ 		irq_domain_set_info(domain, virq + i, bit + i, &nwl_irq_chip,
+ 				domain->host_data, handle_simple_irq,
+@@ -509,7 +507,8 @@ static void nwl_irq_domain_free(struct irq_domain *domain, unsigned int virq,
+ 	struct nwl_msi *msi = &pcie->msi;
+ 
+ 	mutex_lock(&msi->lock);
+-	bitmap_clear(msi->bitmap, data->hwirq, nr_irqs);
++	bitmap_release_region(msi->bitmap, data->hwirq,
++			      get_count_order(nr_irqs));
+ 	mutex_unlock(&msi->lock);
+ }
  
 -- 
 2.20.1
