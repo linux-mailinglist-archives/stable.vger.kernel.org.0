@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E4F567986D
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:07:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E7847981C
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:06:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729209AbfG2Ti4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:38:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53940 "EHLO mail.kernel.org"
+        id S2389757AbfG2ToN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:44:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729051AbfG2Ti4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:38:56 -0400
+        id S2389330AbfG2ToM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:44:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D8672171F;
-        Mon, 29 Jul 2019 19:38:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D030205F4;
+        Mon, 29 Jul 2019 19:44:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429135;
-        bh=39Qn7CY0gvfGkgBGKGn1BAgs9YVFAcqlkY3UDE5wr94=;
+        s=default; t=1564429451;
+        bh=Jb5//ygbKyXJ/q7wmeUpiah/CscHFECierkUDcF46nM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mVxr//HpKIYjZsxq56eeI7T0sRQTZ6Oy6XOjMjFPMuBbvR2B/3i0HElHxupfWv4ed
-         FJoU/bzXaeAjVGjYVjgEneXri552FWKQ+mR8mXH0+wqi2zk/fI57grrI312haxur0v
-         SJ/OovYnli9DpeuD9q8MRIBPF9yL/1FvTc6NwmfQ=
+        b=uKQnx0cRij/fP/oaUclzM2iBL9BqfICS+bstNF5J9Qc6gyyxjqr5/u3+gKgp8GVlH
+         zFx7YFlNvqS/TGpVp05Fy6i3r1Yvp6Rc22DUOZ+Cj1IVHIFN2YB7673e5hb0COswnk
+         Evp261Sj8O4oqTB5tPWB6JIUmYMQET7mNJnRVB8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 271/293] mm/kmemleak.c: fix check for softirq context
+Subject: [PATCH 4.19 075/113] powerpc/boot: add {get, put}_unaligned_be32 to xz_config.h
 Date:   Mon, 29 Jul 2019 21:22:42 +0200
-Message-Id: <20190729190845.102079643@linuxfoundation.org>
+Message-Id: <20190729190713.461109334@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
-References: <20190729190820.321094988@linuxfoundation.org>
+In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
+References: <20190729190655.455345569@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,94 +45,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6ef9056952532c3b746de46aa10d45b4d7797bd8 ]
+[ Upstream commit 9e005b761e7ad153dcf40a6cba1d681fe0830ac6 ]
 
-in_softirq() is a wrong predicate to check if we are in a softirq
-context.  It also returns true if we have BH disabled, so objects are
-falsely stamped with "softirq" comm.  The correct predicate is
-in_serving_softirq().
+The next commit will make the way of passing CONFIG options more robust.
+Unfortunately, it would uncover another hidden issue; without this
+commit, skiroot_defconfig would be broken like this:
 
-If user does cat from /sys/kernel/debug/kmemleak previously they would
-see this, which is clearly wrong, this is system call context (see the
-comm):
+|   WRAP    arch/powerpc/boot/zImage.pseries
+| arch/powerpc/boot/wrapper.a(decompress.o): In function `bcj_powerpc.isra.10':
+| decompress.c:(.text+0x720): undefined reference to `get_unaligned_be32'
+| decompress.c:(.text+0x7a8): undefined reference to `put_unaligned_be32'
+| make[1]: *** [arch/powerpc/boot/Makefile;383: arch/powerpc/boot/zImage.pseries] Error 1
+| make: *** [arch/powerpc/Makefile;295: zImage] Error 2
 
-unreferenced object 0xffff88805bd661c0 (size 64):
-  comm "softirq", pid 0, jiffies 4294942959 (age 12.400s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 ff ff ff ff 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000007dcb30c>] kmemleak_alloc_recursive include/linux/kmemleak.h:55 [inline]
-    [<0000000007dcb30c>] slab_post_alloc_hook mm/slab.h:439 [inline]
-    [<0000000007dcb30c>] slab_alloc mm/slab.c:3326 [inline]
-    [<0000000007dcb30c>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
-    [<00000000969722b7>] kmalloc include/linux/slab.h:547 [inline]
-    [<00000000969722b7>] kzalloc include/linux/slab.h:742 [inline]
-    [<00000000969722b7>] ip_mc_add1_src net/ipv4/igmp.c:1961 [inline]
-    [<00000000969722b7>] ip_mc_add_src+0x36b/0x400 net/ipv4/igmp.c:2085
-    [<00000000a4134b5f>] ip_mc_msfilter+0x22d/0x310 net/ipv4/igmp.c:2475
-    [<00000000d20248ad>] do_ip_setsockopt.isra.0+0x19fe/0x1c00 net/ipv4/ip_sockglue.c:957
-    [<000000003d367be7>] ip_setsockopt+0x3b/0xb0 net/ipv4/ip_sockglue.c:1246
-    [<000000003c7c76af>] udp_setsockopt+0x4e/0x90 net/ipv4/udp.c:2616
-    [<000000000c1aeb23>] sock_common_setsockopt+0x3e/0x50 net/core/sock.c:3130
-    [<000000000157b92b>] __sys_setsockopt+0x9e/0x120 net/socket.c:2078
-    [<00000000a9f3d058>] __do_sys_setsockopt net/socket.c:2089 [inline]
-    [<00000000a9f3d058>] __se_sys_setsockopt net/socket.c:2086 [inline]
-    [<00000000a9f3d058>] __x64_sys_setsockopt+0x26/0x30 net/socket.c:2086
-    [<000000001b8da885>] do_syscall_64+0x7c/0x1a0 arch/x86/entry/common.c:301
-    [<00000000ba770c62>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+skiroot_defconfig is the only defconfig that enables CONFIG_KERNEL_XZ
+for ppc, which has never been correctly built before.
 
-now they will see this:
+I figured out the root cause in lib/decompress_unxz.c:
 
-unreferenced object 0xffff88805413c800 (size 64):
-  comm "syz-executor.4", pid 8960, jiffies 4294994003 (age 14.350s)
-  hex dump (first 32 bytes):
-    00 7a 8a 57 80 88 ff ff e0 00 00 01 00 00 00 00  .z.W............
-    00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000c5d3be64>] kmemleak_alloc_recursive include/linux/kmemleak.h:55 [inline]
-    [<00000000c5d3be64>] slab_post_alloc_hook mm/slab.h:439 [inline]
-    [<00000000c5d3be64>] slab_alloc mm/slab.c:3326 [inline]
-    [<00000000c5d3be64>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
-    [<0000000023865be2>] kmalloc include/linux/slab.h:547 [inline]
-    [<0000000023865be2>] kzalloc include/linux/slab.h:742 [inline]
-    [<0000000023865be2>] ip_mc_add1_src net/ipv4/igmp.c:1961 [inline]
-    [<0000000023865be2>] ip_mc_add_src+0x36b/0x400 net/ipv4/igmp.c:2085
-    [<000000003029a9d4>] ip_mc_msfilter+0x22d/0x310 net/ipv4/igmp.c:2475
-    [<00000000ccd0a87c>] do_ip_setsockopt.isra.0+0x19fe/0x1c00 net/ipv4/ip_sockglue.c:957
-    [<00000000a85a3785>] ip_setsockopt+0x3b/0xb0 net/ipv4/ip_sockglue.c:1246
-    [<00000000ec13c18d>] udp_setsockopt+0x4e/0x90 net/ipv4/udp.c:2616
-    [<0000000052d748e3>] sock_common_setsockopt+0x3e/0x50 net/core/sock.c:3130
-    [<00000000512f1014>] __sys_setsockopt+0x9e/0x120 net/socket.c:2078
-    [<00000000181758bc>] __do_sys_setsockopt net/socket.c:2089 [inline]
-    [<00000000181758bc>] __se_sys_setsockopt net/socket.c:2086 [inline]
-    [<00000000181758bc>] __x64_sys_setsockopt+0x26/0x30 net/socket.c:2086
-    [<00000000d4b73623>] do_syscall_64+0x7c/0x1a0 arch/x86/entry/common.c:301
-    [<00000000c1098bec>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+| #ifdef CONFIG_PPC
+| #      define XZ_DEC_POWERPC
+| #endif
 
-Link: http://lkml.kernel.org/r/20190517171507.96046-1-dvyukov@gmail.com
-Signed-off-by: Dmitry Vyukov <dvyukov@google.com>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+CONFIG_PPC is undefined here in the ppc bootwrapper because autoconf.h
+is not included except by arch/powerpc/boot/serial.c
+
+XZ_DEC_POWERPC is not defined, therefore, bcj_powerpc() is not compiled
+for the bootwrapper.
+
+With the next commit passing CONFIG_PPC correctly, we would realize that
+{get,put}_unaligned_be32 was missing.
+
+Unlike the other decompressors, the ppc bootwrapper duplicates all the
+necessary helpers in arch/powerpc/boot/.
+
+The other architectures define __KERNEL__ and pull in helpers for
+building the decompressors.
+
+If ppc bootwrapper had defined __KERNEL__, lib/xz/xz_private.h would
+have included <asm/unaligned.h>:
+
+| #ifdef __KERNEL__
+| #       include <linux/xz.h>
+| #       include <linux/kernel.h>
+| #       include <asm/unaligned.h>
+
+However, doing so would cause tons of definition conflicts since the
+bootwrapper has duplicated everything.
+
+I just added copies of {get,put}_unaligned_be32, following the
+bootwrapper coding convention.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190705100144.28785-1-yamada.masahiro@socionext.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/kmemleak.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/boot/xz_config.h | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/mm/kmemleak.c b/mm/kmemleak.c
-index 71ba1c7f8892..d779181bed4d 100644
---- a/mm/kmemleak.c
-+++ b/mm/kmemleak.c
-@@ -577,7 +577,7 @@ static struct kmemleak_object *create_object(unsigned long ptr, size_t size,
- 	if (in_irq()) {
- 		object->pid = 0;
- 		strncpy(object->comm, "hardirq", sizeof(object->comm));
--	} else if (in_softirq()) {
-+	} else if (in_serving_softirq()) {
- 		object->pid = 0;
- 		strncpy(object->comm, "softirq", sizeof(object->comm));
- 	} else {
+diff --git a/arch/powerpc/boot/xz_config.h b/arch/powerpc/boot/xz_config.h
+index e22e5b3770dd..ebfadd39e192 100644
+--- a/arch/powerpc/boot/xz_config.h
++++ b/arch/powerpc/boot/xz_config.h
+@@ -20,10 +20,30 @@ static inline uint32_t swab32p(void *p)
+ 
+ #ifdef __LITTLE_ENDIAN__
+ #define get_le32(p) (*((uint32_t *) (p)))
++#define cpu_to_be32(x) swab32(x)
++static inline u32 be32_to_cpup(const u32 *p)
++{
++	return swab32p((u32 *)p);
++}
+ #else
+ #define get_le32(p) swab32p(p)
++#define cpu_to_be32(x) (x)
++static inline u32 be32_to_cpup(const u32 *p)
++{
++	return *p;
++}
+ #endif
+ 
++static inline uint32_t get_unaligned_be32(const void *p)
++{
++	return be32_to_cpup(p);
++}
++
++static inline void put_unaligned_be32(u32 val, void *p)
++{
++	*((u32 *)p) = cpu_to_be32(val);
++}
++
+ #define memeq(a, b, size) (memcmp(a, b, size) == 0)
+ #define memzero(buf, size) memset(buf, 0, size)
+ 
 -- 
 2.20.1
 
