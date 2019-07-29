@@ -2,86 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F3D6C79292
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 19:49:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98FBC79293
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 19:49:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727585AbfG2RtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 13:49:06 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:49517 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726627AbfG2RtG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 13:49:06 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 678A92227B;
-        Mon, 29 Jul 2019 13:49:05 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 29 Jul 2019 13:49:05 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=VqodAuV95QLJre6Fma7GchXCohz
-        094a6+WwaebtLix4=; b=OmAsDB9lOAs63PcYn3p5EAkrtXe+us0XTvuSsuRHf3k
-        3SQysNXy/N9Jr5MbA8Up0xjuDtjORBSams7rx1j3JoYtBWhCxz6TpJVEMJ1pm07V
-        eeeZpz28NhQFkHzLByieDTDin8hG7UJSiw5ZF+Iqzt4DSYpXDbjvtW0UQ2oq0QGC
-        ZYQsh8uuvroK0lCXICpRogiWSgO/dWq93Mel6+jIP5Gb30ATXVloPokhUKY9zzsC
-        QLlFtZdQc7QIBYBeASPvZQuSajFzBivSCzext9PDiOzN3Y38E0ntuRJGjtgDTDx4
-        3yLxpZmYlbFpjenKfHSUb3p9RYs+n6UWvdF7Je6JIsA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=VqodAu
-        V95QLJre6Fma7GchXCohz094a6+WwaebtLix4=; b=MTZalJR5VUWNQAK8L3sa2/
-        0Y8KlCxqCQSSREGOh3VSCxo0Z8n3R5If6o7ZPAkaaZMKIj9PkjARAetUQrGYrMXw
-        DZY/qYspqH1BCAFohw7uRORR800OmQYNTEcNGbcBz2s5obq5qzz8RCOR2yJViOXX
-        AorImD/Owl+qa46kt2vBDDh2eH5OOtvc891UnQ8fSx/dxeql2vcmiYn6OxwueJbz
-        Q+m2awK+FpD99jmX6MBkLS6/LcRqSgFLqTM8WMEuICRpjwZ0eE6SU3KBunh1k6Zw
-        QEPEcWPCoVWNPevfxoZXKuypNxYq43bF0XU7yD4z28+AarL9UIYNCyrQmytp0SvA
-        ==
-X-ME-Sender: <xms:kTE_XQC74quesGDFsB_Nj2G0xkTomR1zfVh_zWdZFUBKT3rbmJK4hA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrledugdduudejucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpehfrhgvvgguvg
-    hskhhtohhprdhorhhgnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehm
-    rghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivg
-    eptd
-X-ME-Proxy: <xmx:kTE_XUA7bQr6U7WwReBRVvNaf_waocReHBs0ddczk2KuUTv9krOmTA>
-    <xmx:kTE_XROTY9XgoR_s_3Mpxua6Y516JNX_yCuvjSe0bIgXz-sDTsx5ig>
-    <xmx:kTE_XeNjzG3JLhVAu4E13sQOdYDwOruHtiYec-bwK6XXm6IUUPCYnA>
-    <xmx:kTE_XXupMy5aCUugoRRTesRFgxWymWF8UFUlRQdS50e1UkqFqp-Ovg>
+        id S1727330AbfG2Rtp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 13:49:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52880 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726973AbfG2Rtp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 13:49:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5B01D380079;
-        Mon, 29 Jul 2019 13:49:04 -0400 (EDT)
-Date:   Mon, 29 Jul 2019 19:49:02 +0200
-From:   Greg KH <greg@kroah.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 126EF21655;
+        Mon, 29 Jul 2019 17:49:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564422584;
+        bh=kUjabzzm8akMz5ZnqpPMhsmdp3Rt8NQCmeiQ1XFVGa4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=HxB3E3D2qw8+317O24pvuMCRUWC+BQqsRMyRTkl261PJQ/uvS6++7Zw/eUUK0JHHL
+         gxB9SWL3fGI7g/8RCUon/mCShfDcCR9Wk7Gt1mvb9BO+1mTzILKoGGwJVlifZVtwer
+         T5WkS9WVqMm9fHE/QwIcrdOuFMYY+7WNYgr9Oftc=
+Date:   Mon, 29 Jul 2019 19:49:42 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
 To:     Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 2/8] drm/i915/perf: fix ICL perf register offsets
-Message-ID: <20190729174902.GB19326@kroah.com>
+Subject: Re: [PATCH 3/8] drm/i915/userptr: Acquire the page lock around
+ set_page_dirty()
+Message-ID: <20190729174942.GC19326@kroah.com>
 References: <20190726073556.9011-1-joonas.lahtinen@linux.intel.com>
- <20190726073556.9011-3-joonas.lahtinen@linux.intel.com>
+ <20190726073556.9011-4-joonas.lahtinen@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190726073556.9011-3-joonas.lahtinen@linux.intel.com>
+In-Reply-To: <20190726073556.9011-4-joonas.lahtinen@linux.intel.com>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 26, 2019 at 10:35:50AM +0300, Joonas Lahtinen wrote:
-> From: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
+On Fri, Jul 26, 2019 at 10:35:51AM +0300, Joonas Lahtinen wrote:
+> From: Chris Wilson <chris@chris-wilson.co.uk>
 > 
-> We got the wrong offsets (could they have changed?). New values were
-> computed off an error state by looking up the register offset in the
-> context image as written by the HW.
+> set_page_dirty says:
 > 
-> Signed-off-by: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-> Fixes: 1de401c08fa805 ("drm/i915/perf: enable perf support on ICL")
-> Acked-by: Kenneth Graunke <kenneth@whitecape.org>
-> Link: https://patchwork.freedesktop.org/patch/msgid/20190610081914.25428-1-lionel.g.landwerlin@intel.com
-> (cherry picked from commit 8dcfdfb4501012a8d36d2157dc73925715f2befb)
+> 	For pages with a mapping this should be done under the page lock
+> 	for the benefit of asynchronous memory errors who prefer a
+> 	consistent dirty state. This rule can be broken in some special
+> 	cases, but should be better not to.
+> 
+> Under those rules, it is only safe for us to use the plain set_page_dirty
+> calls for shmemfs/anonymous memory. Userptr may be used with real
+> mappings and so needs to use the locked version (set_page_dirty_lock).
+> 
+> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203317
+> Fixes: 5cc9ed4b9a7a ("drm/i915: Introduce mapping of user pages into video memory (userptr) ioctl")
+> References: 6dcc693bc57f ("ext4: warn when page is dirtied without buffers")
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+> Link: https://patchwork.freedesktop.org/patch/msgid/20190708140327.26825-1-chris@chris-wilson.co.uk
+> (cherry picked from commit cb6d7c7dc7ff8cace666ddec66334117a6068ce2)
 
-This commit id is not in Linus's tree :(
+This commit id is not in Linus's tree.
 
+I've stopped here, and dropped patch 1/8 as well.  Please fix these all
+up to have the correct git ids and resend.
+
+thanks,
+
+greg k-h
