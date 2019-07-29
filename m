@@ -2,55 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F3367977A
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:01:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA0DD79804
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:06:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390813AbfG2UAG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 16:00:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44668 "EHLO mail.kernel.org"
+        id S2389463AbfG2TmK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:42:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403754AbfG2Tws (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:52:48 -0400
+        id S2389458AbfG2TmJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:42:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3D9B21773;
-        Mon, 29 Jul 2019 19:52:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6834A2054F;
+        Mon, 29 Jul 2019 19:42:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429967;
-        bh=7gI2jRdswUqOZikL5g6HJFqgYXJPBbm5N+9BTbWMDY0=;
+        s=default; t=1564429328;
+        bh=rWYz9xo/WKu8NOvHjnTN4kXmB1g94dKxuNB+LbsP418=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UOZJBu4erYTGVEzWfZiOHHNnaGZPNxKRwS1YJphXCKeRdwArOrpQ/rl+fcVfeAp1d
-         Kh5agMQjBeF966n+oOOYR3IrCiHkDqsEgqUD0FetlcWbSCjrXn1tZ0+raI6Egp5TEb
-         xGal4d8uBAwcU0hmUZzAEsxV0TsrVfPmH/pWQSP4=
+        b=1KE82p25n4v6t66ORLfIJd+baxdno4ip9yyXUitlUJMWvSHb0buq8IkpuLVjyoKzE
+         8VUGHeNO8+8lPZQbHiazn0l5OAvf6B4tKgWuPTdirWI+2KkrcSyuTjdtILBUIFtaU7
+         O9cgkUmcZX4knpJDD/UOnnl/sXCVjqFuW59DHKDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Huang, Ying" <ying.huang@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Hugh Dickins <hughd@google.com>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Yang Shi <yang.shi@linux.alibaba.com>,
-        David Rientjes <rientjes@google.com>,
-        Rik van Riel <riel@redhat.com>, Jan Kara <jack@suse.cz>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Andrea Parri <andrea.parri@amarulasolutions.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Minghuan Lian <Minghuan.Lian@nxp.com>,
+        Subrahmanya Lingappa <l.subrahmanya@mobiveil.co.in>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 152/215] mm/mincore.c: fix race between swapoff and mincore
-Date:   Mon, 29 Jul 2019 21:22:28 +0200
-Message-Id: <20190729190806.168930852@linuxfoundation.org>
+Subject: [PATCH 4.19 062/113] PCI: mobiveil: Fix PCI base address in MEM/IO outbound windows
+Date:   Mon, 29 Jul 2019 21:22:29 +0200
+Message-Id: <20190729190710.299999798@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
-References: <20190729190739.971253303@linuxfoundation.org>
+In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
+References: <20190729190655.455345569@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,85 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit aeb309b81c6bada783c3695528a3e10748e97285 ]
+[ Upstream commit f99536e9d2f55996038158a6559d4254a7cc1693 ]
 
-Via commit 4b3ef9daa4fc ("mm/swap: split swap cache into 64MB trunks"),
-after swapoff, the address_space associated with the swap device will be
-freed.  So swap_address_space() users which touch the address_space need
-some kind of mechanism to prevent the address_space from being freed
-during accessing.
+The outbound memory windows PCI base addresses should be taken
+from the 'ranges' property of DT node to setup MEM/IO outbound
+windows decoding correctly instead of being hardcoded to zero.
 
-When mincore processes an unmapped range for swapped shmem pages, it
-doesn't hold the lock to prevent swap device from being swapped off.  So
-the following race is possible:
+Update the code to retrieve the PCI base address for each range
+and use it to program the outbound windows address decoders
 
-CPU1					CPU2
-do_mincore()				swapoff()
-  walk_page_range()
-    mincore_unmapped_range()
-      __mincore_unmapped_range
-        mincore_page
-	  as = swap_address_space()
-          ...				  exit_swap_address_space()
-          ...				    kvfree(spaces)
-	  find_get_page(as)
-
-The address space may be accessed after being freed.
-
-To fix the race, get_swap_device()/put_swap_device() is used to enclose
-find_get_page() to check whether the swap entry is valid and prevent the
-swap device from being swapoff during accessing.
-
-Link: http://lkml.kernel.org/r/20190611020510.28251-1-ying.huang@intel.com
-Fixes: 4b3ef9daa4fc ("mm/swap: split swap cache into 64MB trunks")
-Signed-off-by: "Huang, Ying" <ying.huang@intel.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Yang Shi <yang.shi@linux.alibaba.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Rik van Riel <riel@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Andrea Parri <andrea.parri@amarulasolutions.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 9af6bcb11e12 ("PCI: mobiveil: Add Mobiveil PCIe Host Bridge IP driver")
+Signed-off-by: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Minghuan Lian <Minghuan.Lian@nxp.com>
+Reviewed-by: Subrahmanya Lingappa <l.subrahmanya@mobiveil.co.in>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/mincore.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/pci/controller/pcie-mobiveil.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/mm/mincore.c b/mm/mincore.c
-index c3f058bd0faf..4fe91d497436 100644
---- a/mm/mincore.c
-+++ b/mm/mincore.c
-@@ -68,8 +68,16 @@ static unsigned char mincore_page(struct address_space *mapping, pgoff_t pgoff)
- 		 */
- 		if (xa_is_value(page)) {
- 			swp_entry_t swp = radix_to_swp_entry(page);
--			page = find_get_page(swap_address_space(swp),
--					     swp_offset(swp));
-+			struct swap_info_struct *si;
-+
-+			/* Prevent swap device to being swapoff under us */
-+			si = get_swap_device(swp);
-+			if (si) {
-+				page = find_get_page(swap_address_space(swp),
-+						     swp_offset(swp));
-+				put_swap_device(si);
-+			} else
-+				page = NULL;
+diff --git a/drivers/pci/controller/pcie-mobiveil.c b/drivers/pci/controller/pcie-mobiveil.c
+index a939e8d31735..d9f2d0f2d602 100644
+--- a/drivers/pci/controller/pcie-mobiveil.c
++++ b/drivers/pci/controller/pcie-mobiveil.c
+@@ -559,8 +559,9 @@ static int mobiveil_host_init(struct mobiveil_pcie *pcie)
+ 		if (type) {
+ 			/* configure outbound translation window */
+ 			program_ob_windows(pcie, pcie->ob_wins_configured,
+-				win->res->start, 0, type,
+-				resource_size(win->res));
++					   win->res->start,
++					   win->res->start - win->offset,
++					   type, resource_size(win->res));
  		}
- 	} else
- 		page = find_get_page(mapping, pgoff);
+ 	}
+ 
 -- 
 2.20.1
 
