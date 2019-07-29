@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A25B279934
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:14:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E415079940
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:14:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728279AbfG2T2M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:28:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40848 "EHLO mail.kernel.org"
+        id S1730012AbfG2UOU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 16:14:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729977AbfG2T2I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:28:08 -0400
+        id S1728280AbfG2T2P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:28:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B6BE21655;
-        Mon, 29 Jul 2019 19:28:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF3F421655;
+        Mon, 29 Jul 2019 19:28:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428487;
-        bh=un2I5Up+R3N+egRplOmM+AVXuWvtxMCyhBqAnnhfpOA=;
+        s=default; t=1564428494;
+        bh=2o22tR3EhmUoGO81eu0w4DIxcCBKxG35WXyGeRSq6xM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NLfaDwdFZRI6PDmkrAdzIFh5Pu+Tn5PkPa2vfWcmjxdl62Jar04zj8SLvxqDdR/3d
-         N49CtT4FRX9c5bgc++lfBH+AF7oID9nqyV++C4thzO9kzcqh5+AwJZaAbC13k6muqo
-         cR15tozJ4fbRSfjgOb1r25msuQHIXWD43z8oInCM=
+        b=X4SQrCaogZ9ulT/8AjByxn4+Tdm0NYr+h6wi8mB95BZPoqx17FNiGkA+Ny3iClXgd
+         UnTZBpovxK+8178tT6+R8QiT67/Vv7r4RspUXRJRnJ27bsOisv/HaNEpdebrlFXvGl
+         dIf6VhSi3DQ7rMnnfGtc7vT19fbxL8Y/kQDtW2rk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Gong <wgong@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 091/293] ath10k: destroy sdio workqueue while remove sdio module
-Date:   Mon, 29 Jul 2019 21:19:42 +0200
-Message-Id: <20190729190831.576184783@linuxfoundation.org>
+Subject: [PATCH 4.14 093/293] perf stat: Make metric event lookup more robust
+Date:   Mon, 29 Jul 2019 21:19:44 +0200
+Message-Id: <20190729190831.731409775@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -44,36 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3ed39f8e747a7aafeec07bb244f2c3a1bdca5730 ]
+[ Upstream commit 145c407c808352acd625be793396fd4f33c794f8 ]
 
-The workqueue need to flush and destory while remove sdio module,
-otherwise it will have thread which is not destory after remove
-sdio modules.
+After setting up metric groups through the event parser, the metricgroup
+code looks them up again in the event list.
 
-Tested with QCA6174 SDIO with firmware
-WLAN.RMH.4.4.1-00007-QCARMSWP-1.
+Make sure we only look up events that haven't been used by some other
+metric. The data structures currently cannot handle more than one metric
+per event. This avoids problems with multiple events partially
+overlapping.
 
-Signed-off-by: Wen Gong <wgong@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Andi Kleen <ak@linux.intel.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Link: http://lkml.kernel.org/r/20190624193711.35241-2-andi@firstfloor.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/sdio.c | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/perf/util/stat-shadow.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/sdio.c b/drivers/net/wireless/ath/ath10k/sdio.c
-index c6440d28ab48..0a1248ebccf5 100644
---- a/drivers/net/wireless/ath/ath10k/sdio.c
-+++ b/drivers/net/wireless/ath/ath10k/sdio.c
-@@ -2076,6 +2076,9 @@ static void ath10k_sdio_remove(struct sdio_func *func)
- 	cancel_work_sync(&ar_sdio->wr_async_work);
- 	ath10k_core_unregister(ar);
- 	ath10k_core_destroy(ar);
-+
-+	flush_workqueue(ar_sdio->workqueue);
-+	destroy_workqueue(ar_sdio->workqueue);
- }
+diff --git a/tools/perf/util/stat-shadow.c b/tools/perf/util/stat-shadow.c
+index 37363869c9a1..eadc9a2aef16 100644
+--- a/tools/perf/util/stat-shadow.c
++++ b/tools/perf/util/stat-shadow.c
+@@ -271,7 +271,7 @@ static struct perf_evsel *perf_stat__find_event(struct perf_evlist *evsel_list,
+ 	struct perf_evsel *c2;
  
- static const struct sdio_device_id ath10k_sdio_devices[] = {
+ 	evlist__for_each_entry (evsel_list, c2) {
+-		if (!strcasecmp(c2->name, name))
++		if (!strcasecmp(c2->name, name) && !c2->collect_stat)
+ 			return c2;
+ 	}
+ 	return NULL;
+@@ -310,7 +310,8 @@ void perf_stat__collect_metric_expr(struct perf_evlist *evsel_list)
+ 			if (leader) {
+ 				/* Search in group */
+ 				for_each_group_member (oc, leader) {
+-					if (!strcasecmp(oc->name, metric_names[i])) {
++					if (!strcasecmp(oc->name, metric_names[i]) &&
++						!oc->collect_stat) {
+ 						found = true;
+ 						break;
+ 					}
 -- 
 2.20.1
 
