@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75C0C79767
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:01:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80B0479855
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:07:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390368AbfG2TwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:52:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42398 "EHLO mail.kernel.org"
+        id S2388825AbfG2TkH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:40:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390791AbfG2TvM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:51:12 -0400
+        id S2389088AbfG2TkF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:40:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97975205F4;
-        Mon, 29 Jul 2019 19:51:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED8072054F;
+        Mon, 29 Jul 2019 19:40:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429872;
-        bh=gTOeOC5VmGuItE7SqR1J06FTqVJudN8LyY0SgeGDW4A=;
+        s=default; t=1564429205;
+        bh=pLP+vHYWLnhimDZ0n0v57hSXCodcbj60OSQFN8CvEMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=teIp+lS14h/FbBs/iRm/Qt+Sttr6VZT6Y8ztTJpeCnR83phSUNUNSRbnN0hXMcLgM
-         2wzL4DkXD9iWXAY7CSFqmpr+d+KB6CAdQ2g+FlrFnm+yWVZ1EnDe3ElKGc+jcNrbWb
-         3WE+pZob7cYoFtt4D+lJ0SsmY1wtlUX9tQB6bH6I=
+        b=bxGBi4xulilZ1OzrcAzSD8wwTo05X4hwl5Z3VXOa1RWWQ9v4i1cCzyeo4k3SwFZt2
+         hPaB5Uygfj0qLP13wAAW6tWVQJLiO4St/Y0vM2P9RZ1wIIT1aTO6qS+p9uXRuwBqJ6
+         pN6eSqZwMwqesRHiC1ey4jR1bVKoRTIYvXau8z14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Minghuan Lian <Minghuan.Lian@nxp.com>,
-        Subrahmanya Lingappa <l.subrahmanya@mobiveil.co.in>,
+        stable@vger.kernel.org,
+        Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 115/215] PCI: mobiveil: Fix the Class Code field
+Subject: [PATCH 4.19 024/113] tty: serial: msm_serial: avoid system lockup condition
 Date:   Mon, 29 Jul 2019 21:21:51 +0200
-Message-Id: <20190729190758.970953197@linuxfoundation.org>
+Message-Id: <20190729190701.631193260@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
-References: <20190729190739.971253303@linuxfoundation.org>
+In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
+References: <20190729190655.455345569@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0122af0a08243f344a438f924e5c2486486555b3 ]
+[ Upstream commit ba3684f99f1b25d2a30b6956d02d339d7acb9799 ]
 
-Fix up the Class Code field in PCI configuration space and set it to
-PCI_CLASS_BRIDGE_PCI.
+The function msm_wait_for_xmitr can be taken with interrupts
+disabled. In order to avoid a potential system lockup - demonstrated
+under stress testing conditions on SoC QCS404/5 - make sure we wait
+for a bounded amount of time.
 
-Move the Class Code fixup to function mobiveil_host_init() where
-it belongs.
+Tested on SoC QCS404.
 
-Fixes: 9af6bcb11e12 ("PCI: mobiveil: Add Mobiveil PCIe Host Bridge IP driver")
-Signed-off-by: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Minghuan Lian <Minghuan.Lian@nxp.com>
-Reviewed-by: Subrahmanya Lingappa <l.subrahmanya@mobiveil.co.in>
+Signed-off-by: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-mobiveil.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/tty/serial/msm_serial.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/pci/controller/pcie-mobiveil.c b/drivers/pci/controller/pcie-mobiveil.c
-index 03d697b63e2a..88e9b70081fc 100644
---- a/drivers/pci/controller/pcie-mobiveil.c
-+++ b/drivers/pci/controller/pcie-mobiveil.c
-@@ -558,6 +558,12 @@ static int mobiveil_host_init(struct mobiveil_pcie *pcie)
- 		}
- 	}
+diff --git a/drivers/tty/serial/msm_serial.c b/drivers/tty/serial/msm_serial.c
+index 0f41b936da03..310bbae515b0 100644
+--- a/drivers/tty/serial/msm_serial.c
++++ b/drivers/tty/serial/msm_serial.c
+@@ -383,10 +383,14 @@ static void msm_request_rx_dma(struct msm_port *msm_port, resource_size_t base)
  
-+	/* fixup for PCIe class register */
-+	value = csr_readl(pcie, PAB_INTP_AXI_PIO_CLASS);
-+	value &= 0xff;
-+	value |= (PCI_CLASS_BRIDGE_PCI << 16);
-+	csr_writel(pcie, value, PAB_INTP_AXI_PIO_CLASS);
+ static inline void msm_wait_for_xmitr(struct uart_port *port)
+ {
++	unsigned int timeout = 500000;
 +
- 	/* setup MSI hardware registers */
- 	mobiveil_pcie_enable_msi(pcie);
- 
-@@ -798,9 +804,6 @@ static int mobiveil_pcie_probe(struct platform_device *pdev)
- 		goto error;
+ 	while (!(msm_read(port, UART_SR) & UART_SR_TX_EMPTY)) {
+ 		if (msm_read(port, UART_ISR) & UART_ISR_TX_READY)
+ 			break;
+ 		udelay(1);
++		if (!timeout--)
++			break;
  	}
- 
--	/* fixup for PCIe class register */
--	csr_writel(pcie, 0x060402ab, PAB_INTP_AXI_PIO_CLASS);
--
- 	/* initialize the IRQ domains */
- 	ret = mobiveil_pcie_init_irq_domain(pcie);
- 	if (ret) {
+ 	msm_write(port, UART_CR_CMD_RESET_TX_READY, UART_CR);
+ }
 -- 
 2.20.1
 
