@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 296BB797DA
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:04:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC4D2797C8
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 22:02:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390397AbfG2Tr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:47:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37900 "EHLO mail.kernel.org"
+        id S2389865AbfG2TsF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:48:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390396AbfG2Tr5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:47:57 -0400
+        id S1729316AbfG2TsF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:48:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0757B2054F;
-        Mon, 29 Jul 2019 19:47:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A26C720C01;
+        Mon, 29 Jul 2019 19:48:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564429677;
-        bh=7b3PNelU0H9b3f/+JF6x6eK27XM/GcEd3wH6I8f+LMs=;
+        s=default; t=1564429684;
+        bh=dPWXnPoMNQ/AGftH0Fj6+yl480hMzVScjFP8uUDm/xs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fklr8hsawFT956sMFjySeCitLTlxTbrrOgBjbyy1LTvcIz9QaDV1tzU2E8kDBw7HZ
-         OLx2mHbxVH59jn8lRPPkyWOLXvMkFVpH7zLQ5OysInV53RnQxM2p9+52jZ+D2w64TA
-         8xZwwBrhi0CsoO7dUI/jy0W3388iOWfIXDA2EvWE=
+        b=rZjTVRwCM1J5keUG+WArQitLFOUXmz4ilRdpXJ8tx7wHoraAa4zEqTxLDZdZb2S5W
+         vEVeXNC0EPD7ga+bNZLg/IkN8Hav1vi7OjJaeL3hSmdbqhltF4hqeqTiLSs4c1ElYR
+         hAc3kpClzBVNUhjrWQoQC9Pq4z4Sh+2ks/Hwlsjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Hariprasad Kelam <hariprasad.kelam@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 059/215] drm/amd/display: fix compilation error
-Date:   Mon, 29 Jul 2019 21:20:55 +0200
-Message-Id: <20190729190750.758334939@linuxfoundation.org>
+Subject: [PATCH 5.2 060/215] sunhv: Fix device naming inconsistency between sunhv_console and sunhv_reg
+Date:   Mon, 29 Jul 2019 21:20:56 +0200
+Message-Id: <20190729190750.925642226@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
 References: <20190729190739.971253303@linuxfoundation.org>
@@ -45,36 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 88099f53cc3717437f5fc9cf84205c5b65118377 ]
+[ Upstream commit 07a6d63eb1b54b5fb38092780fe618dfe1d96e23 ]
 
-this patch fixes below compilation error
+In d5a2aa24, the name in struct console sunhv_console was changed from "ttyS"
+to "ttyHV" while the name in struct uart_ops sunhv_pops remained unchanged.
 
-drivers/gpu/drm/amd/amdgpu/../display/dc/dcn10/dcn10_hw_sequencer.c: In
-function ‘dcn10_apply_ctx_for_surface’:
-drivers/gpu/drm/amd/amdgpu/../display/dc/dcn10/dcn10_hw_sequencer.c:2378:3:
-error: implicit declaration of function ‘udelay’
-[-Werror=implicit-function-declaration]
-   udelay(underflow_check_delay_us);
+This results in the hypervisor console device to be listed as "ttyHV0" under
+/proc/consoles while the device node is still named "ttyS0":
 
-Signed-off-by: Hariprasad Kelam <hariprasad.kelam@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+root@osaka:~# cat /proc/consoles
+ttyHV0               -W- (EC p  )    4:64
+tty0                 -WU (E     )    4:1
+root@osaka:~# readlink /sys/dev/char/4:64
+../../devices/root/f02836f0/f0285690/tty/ttyS0
+root@osaka:~#
+
+This means that any userland code which tries to determine the name of the
+device file of the hypervisor console device can not rely on the information
+provided by /proc/consoles. In particular, booting current versions of debian-
+installer inside a SPARC LDOM will fail with the installer unable to determine
+the console device.
+
+After renaming the device in struct uart_ops sunhv_pops to "ttyHV" as well,
+the inconsistency is fixed and it is possible again to determine the name
+of the device file of the hypervisor console device by reading the contents
+of /proc/console:
+
+root@osaka:~# cat /proc/consoles
+ttyHV0               -W- (EC p  )    4:64
+tty0                 -WU (E     )    4:1
+root@osaka:~# readlink /sys/dev/char/4:64
+../../devices/root/f02836f0/f0285690/tty/ttyHV0
+root@osaka:~#
+
+With this change, debian-installer works correctly when installing inside
+a SPARC LDOM.
+
+Signed-off-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/serial/sunhv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-index 33d311cea28c..9e4d70a0055e 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-@@ -23,6 +23,7 @@
-  *
-  */
+diff --git a/drivers/tty/serial/sunhv.c b/drivers/tty/serial/sunhv.c
+index 63e34d868de8..f8503f8fc44e 100644
+--- a/drivers/tty/serial/sunhv.c
++++ b/drivers/tty/serial/sunhv.c
+@@ -397,7 +397,7 @@ static const struct uart_ops sunhv_pops = {
+ static struct uart_driver sunhv_reg = {
+ 	.owner			= THIS_MODULE,
+ 	.driver_name		= "sunhv",
+-	.dev_name		= "ttyS",
++	.dev_name		= "ttyHV",
+ 	.major			= TTY_MAJOR,
+ };
  
-+#include <linux/delay.h>
- #include "dm_services.h"
- #include "core_types.h"
- #include "resource.h"
 -- 
 2.20.1
 
