@@ -2,140 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F71378B3D
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 14:02:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C37978BDC
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 14:35:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387665AbfG2MCd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 08:02:33 -0400
-Received: from mx2.suse.de ([195.135.220.15]:48766 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S2387637AbfG2MCd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 08:02:33 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 2914DB61A;
-        Mon, 29 Jul 2019 12:02:31 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id 8355B1E3C1F; Mon, 29 Jul 2019 14:02:28 +0200 (CEST)
-Date:   Mon, 29 Jul 2019 14:02:28 +0200
-From:   Jan Kara <jack@suse.cz>
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     Jan Kara <jack@suse.cz>, Matthew Wilcox <willy@infradead.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Boaz Harrosh <openosd@gmail.com>,
-        stable <stable@vger.kernel.org>,
-        Robert Barror <robert.barror@intel.com>,
-        Seema Pandit <seema.pandit@intel.com>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] dax: Fix missed PMD wakeups
-Message-ID: <20190729120228.GC17833@quack2.suse.cz>
-References: <CAPcyv4gUiDw8Ma9mvbW5BamQtGZxWVuvBW7UrOLa2uijrXUWaw@mail.gmail.com>
- <20190705191004.GC32320@bombadil.infradead.org>
- <CAPcyv4jVARa38Qc4NjQ04wJ4ZKJ6On9BbJgoL95wQqU-p-Xp_w@mail.gmail.com>
- <20190710190204.GB14701@quack2.suse.cz>
- <20190710201539.GN32320@bombadil.infradead.org>
- <20190710202647.GA7269@quack2.suse.cz>
- <20190711141350.GS32320@bombadil.infradead.org>
- <20190711152550.GT32320@bombadil.infradead.org>
- <20190711154111.GA29284@quack2.suse.cz>
- <CAPcyv4hA+44EHpGN9F5eQD5Y_AuyPTKmovNWvccAFGhF_O2JMg@mail.gmail.com>
+        id S2387889AbfG2Mfj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 08:35:39 -0400
+Received: from sonic303-21.consmr.mail.ne1.yahoo.com ([66.163.188.147]:34820
+        "EHLO sonic303-21.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2387891AbfG2Mfj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 08:35:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1564403738; bh=tPdyM4f7Tq8kspt5syr9wxbiHLUxanV8lkCr2Pkkkas=; h=Date:From:Reply-To:Subject:From:Subject; b=d2JUVEL+71zg7v/w/JvtbAfs00rMCz3zQGAmAh61lm28nCN9WApLhF2t88kjPBhk/oZZ8AI0C0eoQA2Sh34YiJqa08PoPW+qlUkZ+j/WNA1iTPrfTQQIMzLVWp6Cvu2h+aRBaP5AEXP+Rqao/0NiNpXtMMcdymGUB9IdEMJR4uyjMhJ8CvQUTtqzHHbazgq4KO6Uk0kvJhFndSdPBi6FD/WrXLW68Hw9XYg7t/FylLdGenAf00ixsQSJyacKVTpw43tyEuQvauBdMNXZ+abrXoyzW+w0XaThZBk+4Yu+ZZwPF9Fhr977kdFxBDJvQulCgWDJKsvPcr96pbgwet2/ow==
+X-YMail-OSG: ajO7fLQVM1ku1XFiX2c3U5nOVfCk2d.4JQL45oB_pRyficJDHiTWyDEchu60YyQ
+ EQpsARIPKgg2AZNh.l6P40OR8rm6ALlVOhbJIM_oLGSyQ5oJwSbrLzzp0FyrFtqAvpq4zFdhuwgT
+ hWkxrjZuqJVvdMjUArtP2GHMdNlmiqNcKsG38wViVvewz5cx1We3okYeZnqRGO8JgbhdStz8croQ
+ yRt599w_HCeTs5sHlrWuwofRTtuNQ.kwDcFSbXSH3ELP85KzlqDceOW13D_vEGl_IL39uPbsc3r9
+ RJCRABbcfIpuOQ7wbbOe33sbfriq0amxJ0h_RwKEk9Skf7DwiorYBkg5ptLuONeVUn0onErxZylC
+ ueVTu2DWyg76T9JiTOpgz1b4aLMb9iwhK9FM6bgUC5CssCrZ5pkKkG0opf8l.egV8uwfXFtD_AAY
+ DHCMVBKSOALgiaZrXz6zZerroMloH7kUHekNcGsowjGzQt2ulOsKxna5DvDt9cOPKwtDiGGy1gDb
+ aO8fv9Sdfy07_KlyXnfScIvPLZAONQvvZtY95zYU9x_p.h3wCtPwpOCeG6BTKwAp00Lysq4__eeu
+ KSedNrVNSBtDRUZ.GcAufK1zIun6O91w3iW2Uh8NUQSHH579RWizlyiKkrY7tO6CCQ977mEA6ACO
+ hLeZOqKqP5_o5ukWmAfJOpquJKN.LUyO16IiIe2.TeaylwHw_wOWBuFeEv3C2GH8b_jP.z6eG8mW
+ LzM_YpU89sR4NP8Qy9.sWnCiTwxxmicNLbVEuhFmQF7odGQkJYiQatstg_6JPKUKdjK3H79XJVsH
+ Dn5cvT3jZRQ7DE46y710mdq8ywp2gFqKV3CMye2nCMk4gIUBJzLrr_a_AzWr3YaLzmPz0tXWDfkR
+ rtte6KuHMunE5hxf0dBicMCZvrXJyJd3YyrxK1xpTJ6tFkDLvzCn0zFw4CzLixn9ge1bnnD23vPB
+ e1n6mPnOYVuHZhxSF19KfcJ1k9G.1.rAHYCCE0yxVE2VVHg6x4FcxqxdGe0enX444LAAel5JDjOR
+ 5rxC9abBTNxPJbh_sWR95aedQ01F.3t.GO6Mt7z3JktRwP9ObGP6TurWk69elv5GnZpmi.3HTdbn
+ pUZh_6OnHdJKiAm2Zd4ljAkXYWShnskGZD7oOdWOxXYkMIgztb2OrNjhTo80RJaR8l6Jnq3JP5v7
+ BPeJgxGcEOPRpnFq9rdFCBakEtFdYfCDgSumtCAbO5ozqv0rKn_7wi01WABmDSbbxDodQSa4-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ne1.yahoo.com with HTTP; Mon, 29 Jul 2019 12:35:38 +0000
+Date:   Mon, 29 Jul 2019 12:35:36 +0000 (UTC)
+From:   Aisha Gaddafi <agaddafibb@gmail.com>
+Reply-To: gaisha983@gmail.com
+Message-ID: <245465340.3941826.1564403736050@mail.yahoo.com>
+Subject: Dear Friend,
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="opJtzjQTFsWo+cga"
-Content-Disposition: inline
-In-Reply-To: <CAPcyv4hA+44EHpGN9F5eQD5Y_AuyPTKmovNWvccAFGhF_O2JMg@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Dear Friend,
 
---opJtzjQTFsWo+cga
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I came across your e-mail contact prior a private search while in need of 
+your assistance. My name is Aisha  Gaddafi a single Mother and a Widow with 
+three Children. I am the only biological Daughter of late Libyan President 
+(Late Colonel Muammar Gaddafi).
 
-On Tue 16-07-19 20:39:46, Dan Williams wrote:
-> On Fri, Jul 12, 2019 at 2:14 AM Jan Kara <jack@suse.cz> wrote:
-> >
-> > On Thu 11-07-19 08:25:50, Matthew Wilcox wrote:
-> > > On Thu, Jul 11, 2019 at 07:13:50AM -0700, Matthew Wilcox wrote:
-> > > > However, the XA_RETRY_ENTRY might be a good choice.  It doesn't normally
-> > > > appear in an XArray (it may appear if you're looking at a deleted node,
-> > > > but since we're holding the lock, we can't see deleted nodes).
-> > >
-> > ...
-> >
-> > > @@ -254,7 +267,7 @@ static void wait_entry_unlocked(struct xa_state *xas, void *entry)
-> > >  static void put_unlocked_entry(struct xa_state *xas, void *entry)
-> > >  {
-> > >       /* If we were the only waiter woken, wake the next one */
-> > > -     if (entry)
-> > > +     if (entry && dax_is_conflict(entry))
-> >
-> > This should be !dax_is_conflict(entry)...
-> >
-> > >               dax_wake_entry(xas, entry, false);
-> > >  }
-> >
-> > Otherwise the patch looks good to me so feel free to add:
-> >
-> > Reviewed-by: Jan Kara <jack@suse.cz>
-> 
-> Looks good, and passes the test case. Now pushed out to
-> libnvdimm-for-next for v5.3 inclusion:
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/nvdimm/nvdimm.git/commit/?h=libnvdimm-for-next&id=23c84eb7837514e16d79ed6d849b13745e0ce688
+I have investment funds worth Twenty Seven Million Five Hundred Thousand 
+United State Dollar ($27.500.000.00 ) and i need a trusted investment 
+Manager/Partner because of my current refugee status, however, I am 
+interested in you for investment project assistance in your country, may be 
+from there, we can build business relationship in the nearest future.
 
-Thanks for picking up the patch but you didn't apply the fix I've mentioned
-above. So put_unlocked_entry() is not waking up anybody anymore... Since
-this got already to Linus' tree, I guess a separate fixup patch is needed
-(attached).
+I am willing to negotiate investment/business profit sharing ratio with you 
+base on the future investment earning profits.
 
-								Honza
+If you are willing to handle this project on my behalf kindly reply urgent 
+to enable me provide you more information about the investment funds.
 
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+Your Urgent Reply Will Be Appreciated.
 
---opJtzjQTFsWo+cga
-Content-Type: text/x-patch; charset=us-ascii
-Content-Disposition: attachment; filename="0001-dax-Fix-missed-wakup-in-put_unlocked_entry.patch"
-
-From 950204f7dfdb06198f40820be4d33ce824508f11 Mon Sep 17 00:00:00 2001
-From: Jan Kara <jack@suse.cz>
-Date: Mon, 29 Jul 2019 13:57:49 +0200
-Subject: [PATCH] dax: Fix missed wakup in put_unlocked_entry()
-
-The condition checking whether put_unlocked_entry() needs to wake up
-following waiter got broken by commit 23c84eb78375 ("dax: Fix missed
-wakeup with PMD faults"). We need to wake the waiter whenever the passed
-entry is valid (i.e., non-NULL and not special conflict entry). This
-could lead to processes never being woken up when waiting for entry
-lock. Fix the condition.
-
-CC: stable@vger.kernel.org
-Fixes: 23c84eb78375 ("dax: Fix missed wakeup with PMD faults")
-Signed-off-by: Jan Kara <jack@suse.cz>
----
- fs/dax.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/fs/dax.c b/fs/dax.c
-index a237141d8787..b64964ef44f6 100644
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -266,7 +266,7 @@ static void wait_entry_unlocked(struct xa_state *xas, void *entry)
- static void put_unlocked_entry(struct xa_state *xas, void *entry)
- {
- 	/* If we were the only waiter woken, wake the next one */
--	if (entry && dax_is_conflict(entry))
-+	if (entry && !dax_is_conflict(entry))
- 		dax_wake_entry(xas, entry, false);
- }
- 
--- 
-2.16.4
-
-
---opJtzjQTFsWo+cga--
+Best Regards
+Mrs Aisha Gaddafi
+(gaisha983@gmail.com)
