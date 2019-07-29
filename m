@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18FFE79418
-	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:28:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 033FC7941A
+	for <lists+stable@lfdr.de>; Mon, 29 Jul 2019 21:28:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728908AbfG2T15 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 15:27:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40582 "EHLO mail.kernel.org"
+        id S1729963AbfG2T2D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 15:28:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388378AbfG2T14 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 15:27:56 -0400
+        id S1727628AbfG2T2C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jul 2019 15:28:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1B1B217D6;
-        Mon, 29 Jul 2019 19:27:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DC8221773;
+        Mon, 29 Jul 2019 19:28:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564428475;
-        bh=dC96CRTHLIiJDwl+kyZ8OcKf6xdWeVSdlD3KZnio7wc=;
+        s=default; t=1564428481;
+        bh=V7IVo0iwIu+sC7gWTWTEMn7Gmx6aLqUCMxmrNGlIN2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f1+cv4YO+bqac4PPapc23cReIJTXdGtiBsPEbr+vtAA4wpz+Xv0YOgxGRNpaiDN5e
-         k2uXYIBUViYlGvMmK2mN8KYFvOZQCQA2iPbjx8vgcr2xiTBUsYvIfBYPcYdZZdc0mN
-         0RAzwfWHvSvApmyuHO+D2A1LA1NRpSoYbPVu0Dlk=
+        b=dxgIawUZhtBIzDq7tMOvkYSu1SmxvBUu4U5d7qN8MwCkLsowUsIcIThmlQE/Q2Fra
+         5wS1N1D/7nJRIneZyfuO/V9PuN8v5MedhEm+luxdIOlJgfk1nJXQB6LPbkFcXJxaWm
+         3JU2SaMcnwiSLdxxfXjA6ZYqItLEzjUqPTwzfjHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Eiichi Tsukata <devel@etsukata.com>,
-        Tony Luck <tony.luck@intel.com>,
+        stable@vger.kernel.org, Yonglong Liu <liuyonglong@huawei.com>,
+        Peng Li <lipeng321@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 087/293] EDAC: Fix global-out-of-bounds write when setting edac_mc_poll_msec
-Date:   Mon, 29 Jul 2019 21:19:38 +0200
-Message-Id: <20190729190831.259272809@linuxfoundation.org>
+Subject: [PATCH 4.14 089/293] net: hns3: fix a -Wformat-nonliteral compile warning
+Date:   Mon, 29 Jul 2019 21:19:40 +0200
+Message-Id: <20190729190831.412957231@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
 References: <20190729190820.321094988@linuxfoundation.org>
@@ -45,157 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d8655e7630dafa88bc37f101640e39c736399771 ]
+[ Upstream commit 18d219b783da61a6cc77581f55fc4af2fa16bc36 ]
 
-Commit 9da21b1509d8 ("EDAC: Poll timeout cannot be zero, p2") assumes
-edac_mc_poll_msec to be unsigned long, but the type of the variable still
-remained as int. Setting edac_mc_poll_msec can trigger out-of-bounds
-write.
+When setting -Wformat=2, there is a compiler warning like this:
 
-Reproducer:
+hclge_main.c:xxx:x: warning: format not a string literal and no
+format arguments [-Wformat-nonliteral]
+strs[i].desc);
+^~~~
 
-  # echo 1001 > /sys/module/edac_core/parameters/edac_mc_poll_msec
+This patch adds missing format parameter "%s" to snprintf() to
+fix it.
 
-KASAN report:
-
-  BUG: KASAN: global-out-of-bounds in edac_set_poll_msec+0x140/0x150
-  Write of size 8 at addr ffffffffb91b2d00 by task bash/1996
-
-  CPU: 1 PID: 1996 Comm: bash Not tainted 5.2.0-rc6+ #23
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-2.fc30 04/01/2014
-  Call Trace:
-   dump_stack+0xca/0x13e
-   print_address_description.cold+0x5/0x246
-   __kasan_report.cold+0x75/0x9a
-   ? edac_set_poll_msec+0x140/0x150
-   kasan_report+0xe/0x20
-   edac_set_poll_msec+0x140/0x150
-   ? dimmdev_location_show+0x30/0x30
-   ? vfs_lock_file+0xe0/0xe0
-   ? _raw_spin_lock+0x87/0xe0
-   param_attr_store+0x1b5/0x310
-   ? param_array_set+0x4f0/0x4f0
-   module_attr_store+0x58/0x80
-   ? module_attr_show+0x80/0x80
-   sysfs_kf_write+0x13d/0x1a0
-   kernfs_fop_write+0x2bc/0x460
-   ? sysfs_kf_bin_read+0x270/0x270
-   ? kernfs_notify+0x1f0/0x1f0
-   __vfs_write+0x81/0x100
-   vfs_write+0x1e1/0x560
-   ksys_write+0x126/0x250
-   ? __ia32_sys_read+0xb0/0xb0
-   ? do_syscall_64+0x1f/0x390
-   do_syscall_64+0xc1/0x390
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  RIP: 0033:0x7fa7caa5e970
-  Code: 73 01 c3 48 8b 0d 28 d5 2b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 0f 1f 44 00 00 83 3d 99 2d 2c 00 00 75 10 b8 01 00 00 00 04
-  RSP: 002b:00007fff6acfdfe8 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-  RAX: ffffffffffffffda RBX: 0000000000000005 RCX: 00007fa7caa5e970
-  RDX: 0000000000000005 RSI: 0000000000e95c08 RDI: 0000000000000001
-  RBP: 0000000000e95c08 R08: 00007fa7cad1e760 R09: 00007fa7cb36a700
-  R10: 0000000000000073 R11: 0000000000000246 R12: 0000000000000005
-  R13: 0000000000000001 R14: 00007fa7cad1d600 R15: 0000000000000005
-
-  The buggy address belongs to the variable:
-   edac_mc_poll_msec+0x0/0x40
-
-  Memory state around the buggy address:
-   ffffffffb91b2c00: 00 00 00 00 fa fa fa fa 00 00 00 00 fa fa fa fa
-   ffffffffb91b2c80: 00 00 00 00 fa fa fa fa 00 00 00 00 fa fa fa fa
-  >ffffffffb91b2d00: 04 fa fa fa fa fa fa fa 04 fa fa fa fa fa fa fa
-                     ^
-   ffffffffb91b2d80: 04 fa fa fa fa fa fa fa 00 00 00 00 00 00 00 00
-   ffffffffb91b2e00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-Fix it by changing the type of edac_mc_poll_msec to unsigned int.
-The reason why this patch adopts unsigned int rather than unsigned long
-is msecs_to_jiffies() assumes arg to be unsigned int. We can avoid
-integer conversion bugs and unsigned int will be large enough for
-edac_mc_poll_msec.
-
-Reviewed-by: James Morse <james.morse@arm.com>
-Fixes: 9da21b1509d8 ("EDAC: Poll timeout cannot be zero, p2")
-Signed-off-by: Eiichi Tsukata <devel@etsukata.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
+Fixes: 46a3df9f9718 ("Add HNS3 Acceleration Engine & Compatibility Layer Support")
+Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/edac_mc_sysfs.c | 16 ++++++++--------
- drivers/edac/edac_module.h   |  2 +-
- 2 files changed, 9 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/edac/edac_mc_sysfs.c b/drivers/edac/edac_mc_sysfs.c
-index 148c4649b155..a4acfa81dfe0 100644
---- a/drivers/edac/edac_mc_sysfs.c
-+++ b/drivers/edac/edac_mc_sysfs.c
-@@ -26,7 +26,7 @@
- static int edac_mc_log_ue = 1;
- static int edac_mc_log_ce = 1;
- static int edac_mc_panic_on_ue;
--static int edac_mc_poll_msec = 1000;
-+static unsigned int edac_mc_poll_msec = 1000;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 654aad6e748b..86523e8993cb 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -619,8 +619,7 @@ static u8 *hclge_comm_get_strings(u32 stringset,
+ 		return buff;
  
- /* Getter functions for above */
- int edac_mc_get_log_ue(void)
-@@ -45,30 +45,30 @@ int edac_mc_get_panic_on_ue(void)
- }
+ 	for (i = 0; i < size; i++) {
+-		snprintf(buff, ETH_GSTRING_LEN,
+-			 strs[i].desc);
++		snprintf(buff, ETH_GSTRING_LEN, "%s", strs[i].desc);
+ 		buff = buff + ETH_GSTRING_LEN;
+ 	}
  
- /* this is temporary */
--int edac_mc_get_poll_msec(void)
-+unsigned int edac_mc_get_poll_msec(void)
- {
- 	return edac_mc_poll_msec;
- }
- 
- static int edac_set_poll_msec(const char *val, struct kernel_param *kp)
- {
--	unsigned long l;
-+	unsigned int i;
- 	int ret;
- 
- 	if (!val)
- 		return -EINVAL;
- 
--	ret = kstrtoul(val, 0, &l);
-+	ret = kstrtouint(val, 0, &i);
- 	if (ret)
- 		return ret;
- 
--	if (l < 1000)
-+	if (i < 1000)
- 		return -EINVAL;
- 
--	*((unsigned long *)kp->arg) = l;
-+	*((unsigned int *)kp->arg) = i;
- 
- 	/* notify edac_mc engine to reset the poll period */
--	edac_mc_reset_delay_period(l);
-+	edac_mc_reset_delay_period(i);
- 
- 	return 0;
- }
-@@ -82,7 +82,7 @@ MODULE_PARM_DESC(edac_mc_log_ue,
- module_param(edac_mc_log_ce, int, 0644);
- MODULE_PARM_DESC(edac_mc_log_ce,
- 		 "Log correctable error to console: 0=off 1=on");
--module_param_call(edac_mc_poll_msec, edac_set_poll_msec, param_get_int,
-+module_param_call(edac_mc_poll_msec, edac_set_poll_msec, param_get_uint,
- 		  &edac_mc_poll_msec, 0644);
- MODULE_PARM_DESC(edac_mc_poll_msec, "Polling period in milliseconds");
- 
-diff --git a/drivers/edac/edac_module.h b/drivers/edac/edac_module.h
-index dec88dcea036..c9f0e73872a6 100644
---- a/drivers/edac/edac_module.h
-+++ b/drivers/edac/edac_module.h
-@@ -36,7 +36,7 @@ extern int edac_mc_get_log_ue(void);
- extern int edac_mc_get_log_ce(void);
- extern int edac_mc_get_panic_on_ue(void);
- extern int edac_get_poll_msec(void);
--extern int edac_mc_get_poll_msec(void);
-+extern unsigned int edac_mc_get_poll_msec(void);
- 
- unsigned edac_dimm_info_location(struct dimm_info *dimm, char *buf,
- 				 unsigned len);
 -- 
 2.20.1
 
