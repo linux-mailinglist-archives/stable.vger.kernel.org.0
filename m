@@ -2,58 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F23457AA43
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 15:56:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B7307AA61
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 15:59:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727508AbfG3N4O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 09:56:14 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:40318 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725871AbfG3N4N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 09:56:13 -0400
-Received: from localhost (unknown [IPv6:2a01:e0a:2c:6930:5cf4:84a1:2763:fe0d])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1728978AbfG3N71 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 09:59:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60728 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728974AbfG3N71 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Jul 2019 09:59:27 -0400
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        (Authenticated sender: bbrezillon)
-        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id 3260928A109;
-        Tue, 30 Jul 2019 14:56:12 +0100 (BST)
-Date:   Tue, 30 Jul 2019 15:56:09 +0200
-From:   Boris Brezillon <boris.brezillon@collabora.com>
-To:     Marco Felsch <m.felsch@pengutronix.de>
-Cc:     richard.weinberger@gmail.com, miquel.raynal@bootlin.com,
-        linux-mtd@lists.infradead.org, stable@vger.kernel.org,
-        kernel@pengutronix.de
-Subject: Re: [PATCH v2] mtd: rawnand: micron: handle on-die "ECC-off"
- devices correctly
-Message-ID: <20190730155609.09331b24@collabora.com>
-In-Reply-To: <20190730133748.dzzst6p6u77tvke7@pengutronix.de>
-References: <20190729070652.12629-1-m.felsch@pengutronix.de>
-        <20190729095715.2de79aea@collabora.com>
-        <20190730133748.dzzst6p6u77tvke7@pengutronix.de>
-Organization: Collabora
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        by mail.kernel.org (Postfix) with ESMTPSA id 33E7A206E0;
+        Tue, 30 Jul 2019 13:59:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564495166;
+        bh=RN3WLgtLO9LxEGGK8h3FFzXxmqTQiS7tuLP6iCmYr9E=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=Wcf45IXHQGtvtPZzwWCv+1yYZsKFZjU6J+s0yIuoJ4Qilj7f06eaJ/UnF1xBTcTgP
+         6rP9YBijd3MkEKRmmOksXnGR1R7Z7oipGfGvk5wrrChyA0Ppm7G0mZtXLZZEFjTXx4
+         fIv1vTLyUjYdpXTMaHGMKVIdErgNhVR6fCHWTBMU=
+Subject: Re: [PATCH 4.14 000/293] 4.14.135-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, shuah <shuah@kernel.org>
+References: <20190729190820.321094988@linuxfoundation.org>
+From:   shuah <shuah@kernel.org>
+Message-ID: <850e4aba-cf24-d4b3-9d0f-59e8c4c6a46b@kernel.org>
+Date:   Tue, 30 Jul 2019 07:59:14 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 30 Jul 2019 15:37:48 +0200
-Marco Felsch <m.felsch@pengutronix.de> wrote:
-
-> Hi Boris,
+On 7/29/19 1:18 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.135 release.
+> There are 293 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> On 19-07-29 09:57, Boris Brezillon wrote:
-> > On Mon, 29 Jul 2019 09:06:52 +0200
-> > Marco Felsch <m.felsch@pengutronix.de> wrote:
-> >   
-> > > Some devices are supposed to do not support on-die ECC but experience  
-> > 
-> > 		^ are not supposed to support  
+> Responses should be made by Wed 31 Jul 2019 07:05:01 PM UTC.
+> Anything received after that time might be too late.
 > 
-> Fixed both, thanks. I will keep you rb-tag okay?
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.135-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Sure.
+Compiled and booted on my test system. No dmesg regressions.
 
+thanks,
+-- Shuah
