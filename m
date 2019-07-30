@@ -2,280 +2,197 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA8927B148
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 20:10:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CD8A7B1DF
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 20:24:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726900AbfG3SKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 14:10:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48134 "EHLO mail.kernel.org"
+        id S1728473AbfG3SYq convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 30 Jul 2019 14:24:46 -0400
+Received: from mga04.intel.com ([192.55.52.120]:7617 "EHLO mga04.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726255AbfG3SKk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Jul 2019 14:10:40 -0400
-Received: from X1 (216.sub-174-222-135.myvzw.com [174.222.135.216])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DDEE20693;
-        Tue, 30 Jul 2019 18:10:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564510239;
-        bh=p/rM5Hp6Y/yhEX8Ao1oENLyCl2fcVGbrb4V4RrgQ0zo=;
-        h=Date:From:To:Subject:From;
-        b=bZSSGruHkhyfxk6WDWSKblhhzA7XkKkngCYsKFYaGGDpY9zQY8ymaxO2KqnpiMTvH
-         8z3Gl7oiYMNKqrKUKNg9KKzD8c4RhCde0kbWfVF4gftk08/JdLm15/90eozwIUxdKz
-         pCIAKZIKLT+NyFH/Q2gojP6kvbkr8DYXezvx3TxQ=
-Date:   Tue, 30 Jul 2019 11:10:32 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, vdavydov.dev@gmail.com,
-        stable@vger.kernel.org, mhocko@suse.com, hannes@cmpxchg.org,
-        miles.chen@mediatek.com
-Subject:  + mm-memcontrol-fix-use-after-free-in-mem_cgroup_iter.patch
- added to -mm tree
-Message-ID: <20190730181032.hko-1%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        id S1725935AbfG3SYq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Jul 2019 14:24:46 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 30 Jul 2019 11:24:47 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,327,1559545200"; 
+   d="scan'208";a="172051058"
+Received: from orsmsx102.amr.corp.intel.com ([10.22.225.129])
+  by fmsmga008.fm.intel.com with ESMTP; 30 Jul 2019 11:24:45 -0700
+Received: from orsmsx157.amr.corp.intel.com (10.22.240.23) by
+ ORSMSX102.amr.corp.intel.com (10.22.225.129) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Tue, 30 Jul 2019 11:24:45 -0700
+Received: from orsmsx109.amr.corp.intel.com ([169.254.11.25]) by
+ ORSMSX157.amr.corp.intel.com ([169.254.9.94]) with mapi id 14.03.0439.000;
+ Tue, 30 Jul 2019 11:24:45 -0700
+From:   "Pandiyan, Dhinakaran" <dhinakaran.pandiyan@intel.com>
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>
+CC:     "Nikula, Jani" <jani.nikula@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        "Souza, Jose" <jose.souza@intel.com>,
+        "sashal@kernel.org" <sashal@kernel.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [Intel-gfx] [PATCH stable v5.2] drm/i915/vbt: Fix VBT parsing
+ for the PSR section
+Thread-Topic: [Intel-gfx] [PATCH stable v5.2] drm/i915/vbt: Fix VBT parsing
+ for the PSR section
+Thread-Index: AQHVQONqundbRmAsW0u9h20HVNR8W6baJCaAgABZngCAAAOSgIAJRn8AgAACTwCAAA9KgIAAAWiAgAAIVoCAAANSAP//nxyQ
+Date:   Tue, 30 Jul 2019 18:24:44 +0000
+Message-ID: <C56C55B681623645A065C9EE352337D61D03990F@ORSMSX109.amr.corp.intel.com>
+References: <20190719004526.B0CC521850@mail.kernel.org>
+ <20190722231325.16615-1-dhinakaran.pandiyan@intel.com>
+ <20190724120657.GG3244@kroah.com>
+ <05339e812e35a4cf1811f26a06bd5a4d1d652407.camel@intel.com>
+ <20190724174029.GC30776@intel.com> <20190730151908.GA21970@intel.com>
+ <20190730152724.GB31590@kroah.com> <20190730162207.GA18653@intel.com>
+ <20190730162709.GA28503@kroah.com> <20190730165659.GB18653@intel.com>
+ <20190730170852.GA32124@kroah.com>
+In-Reply-To: <20190730170852.GA32124@kroah.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ctpclassification: CTP_NT
+x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiMDEyNzE4MjUtZGMzMy00YWFhLWFlZjUtMTFmY2JmZGE4OTYwIiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoidlZjd200dG9qYnBUMkh3TWV0MTlRYVRzcSsxXC9FTUN3Sm8yblFRSWlqRUYwaGpoQndVMU14NGpabXI3d3h3cnkifQ==
+dlp-product: dlpe-windows
+dlp-version: 11.0.600.7
+dlp-reaction: no-action
+x-originating-ip: [10.22.254.139]
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm/memcontrol.c: fix use after free in mem_cgroup_iter()
-has been added to the -mm tree.  Its filename is
-     mm-memcontrol-fix-use-after-free-in-mem_cgroup_iter.patch
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-memcontrol-fix-use-after-free-in-mem_cgroup_iter.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-memcontrol-fix-use-after-free-in-mem_cgroup_iter.patch
+> -----Original Message-----
+> From: Greg KH [mailto:gregkh@linuxfoundation.org]
+> Sent: Tuesday, July 30, 2019 10:09 AM
+> To: Vivi, Rodrigo <rodrigo.vivi@intel.com>
+> Cc: Nikula, Jani <jani.nikula@intel.com>; Joonas Lahtinen
+> <joonas.lahtinen@linux.intel.com>; Souza, Jose <jose.souza@intel.com>;
+> sashal@kernel.org; intel-gfx@lists.freedesktop.org; stable@vger.kernel.org;
+> Pandiyan, Dhinakaran <dhinakaran.pandiyan@intel.com>
+> Subject: Re: [Intel-gfx] [PATCH stable v5.2] drm/i915/vbt: Fix VBT parsing for
+> the PSR section
+> 
+> On Tue, Jul 30, 2019 at 09:56:59AM -0700, Rodrigo Vivi wrote:
+> >
+> > On Tue, Jul 30, 2019 at 06:27:09PM +0200, Greg KH wrote:
+> > > On Tue, Jul 30, 2019 at 09:22:07AM -0700, Rodrigo Vivi wrote:
+> > > > On Tue, Jul 30, 2019 at 05:27:24PM +0200, Greg KH wrote:
+> > > > > On Tue, Jul 30, 2019 at 08:19:08AM -0700, Rodrigo Vivi wrote:
+> > > > > > Hi Greg,
+> > > > > >
+> > > > > > On Wed, Jul 24, 2019 at 10:40:29AM -0700, Rodrigo Vivi wrote:
+> > > > > > > On Wed, Jul 24, 2019 at 05:27:42PM +0000, Souza, Jose wrote:
+> > > > > > > > On Wed, 2019-07-24 at 14:06 +0200, Greg KH wrote:
+> > > > > > > > > On Mon, Jul 22, 2019 at 04:13:25PM -0700, Dhinakaran Pandiyan
+> wrote:
+> > > > > > > > > > A single 32-bit PSR2 training pattern field follows the sixteen
+> > > > > > > > > > element
+> > > > > > > > > > array of PSR table entries in the VBT spec. But, we incorrectly
+> > > > > > > > > > define
+> > > > > > > > > > this PSR2 field for each of the PSR table entries. As a result,
+> the
+> > > > > > > > > > PSR1
+> > > > > > > > > > training pattern duration for any panel_type != 0 will be
+> parsed
+> > > > > > > > > > incorrectly. Secondly, PSR2 training pattern durations for VBTs
+> > > > > > > > > > with bdb
+> > > > > > > > > > version >= 226 will also be wrong.
+> > > > > > > > > >
+> > > > > > > > > > Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> > > > > > > > > > Cc: José Roberto de Souza <jose.souza@intel.com>
+> > > > > > > > > > Cc: stable@vger.kernel.org
+> > > > > > > > > > Cc: stable@vger.kernel.org #v5.2
+> > > > > > > > > > Fixes: 88a0d9606aff ("drm/i915/vbt: Parse and use the new field
+> > > > > > > > > > with PSR2 TP2/3 wakeup time")
+> > > > > > > > > > Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111088
+> > > > > > > > > > Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204183
+> > > > > > > > > > Signed-off-by: Dhinakaran Pandiyan
+> <dhinakaran.pandiyan@intel.com>
+> > > > > > > > > > Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > > > > > > > > > Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
+> > > > > > > > > > Acked-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> > > > > > > > > > Tested-by: François Guerraz <kubrick@fgv6.net>
+> > > > > > > > > > Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> > > > > > > > > > Link:
+> > > > > > > > > >
+> https://patchwork.freedesktop.org/patch/msgid/20190717223451.2595-1-
+> dhinakaran.pandiyan@intel.com
+> > > > > > > > > > (cherry picked from commit
+> > > > > > > > > > b5ea9c9337007d6e700280c8a60b4e10d070fb53)
+> > > > > > > > >
+> > > > > > > > > There is no such commit in Linus's kernel tree :(
+> > > > > > >
+> > > > > > > not yet... It is queued for 5.3 on drm-intel-next-queued.
+> > > > > > >
+> > > > > > > This line is automatically added by "dim" tool when
+> > > > > > > cherry-picking queued stuff for our drm-intel fixes branches.
+> > > > > >
+> > > > > > What do you need her from us to accept this patch?
+> > > > >
+> > > > > Um, you have read the stable kernel rules, right?
+> > > > >     https://www.kernel.org/doc/html/latest/process/stable-kernel-
+> rules.html
+> > > > >
+> > > > > That's what I need for it to go into a stable kernel release.
+> > > >
+> > > > Yes, I have read it. Maybe what I don't understand is just the fact that we
+> will
+> > > > let customers facing issues for 6 weeks or more while the original patch
+> > > > doesn't land on Linus tree. :(
+> > >
+> > > Then get the patch into Linus's tree!
+> > > Nothing I can do until that happens, you know this...
+> >
+> > -ENOTENOUGHCOFFEE sorry.
+> > For some reason I thought this thread had started as the reject of your
+> scripts.
+> 
+> That is correct.  But more coffee is always good.
+> 
+> > This patch is already queued on our drm-intel-fixes and will probably land on
+> > Linus tree next week. Than your scripts will just get it.
+> >
+> > So, back to your original concern:
+> >
+> > The referrence b5ea9c9337007d6e700280c8a60b4e10d070fb53 you pointed out won't
+> > exist until 5.3 merge window though.
+> 
+> That's fine.
+> 
+> > My question now is regarding our fixes flow adding these future references.
+> > Do you have any concern with that?
+> 
+> I hate and despise and complain endlessly about how you all are doing
+> this, but I have learned to just suck it up and accept it.  It is a
+> major pain in the rear, and I will say that it causes me to delay all
+> merges of stable drm patches that get merged in Linus's tree in -rc1
+> until -rc2 or -rc3 is out usually as I have to go through and
+> hand-determine if a reject happens because it really is a reject, or
+> because this patch is already in the tree.
+> 
+> So, if this hits Linus's tree "like normal", my scripts will pick it up
+> and all is good.  I can handle this crazy notation you all feel that
+> works for you, but I reserve the right to complain.
+> 
+> This original patch, however, was sent only to stable and it seemed to
+> indicate that I needed to pick it up because it already was upstream (I
+> saw the cherry-pick line.)  As that is not the case here, fine, no harm,
+> no foul, let's go get more coffee...
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Not sure if it was my fault to have included the cherry-pick line, I'll talk
+to Rodrigo offline to understand if that was the source of confusion.
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+-DK
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Miles Chen <miles.chen@mediatek.com>
-Subject: mm/memcontrol.c: fix use after free in mem_cgroup_iter()
-
-This patch is sent to report an use after free in mem_cgroup_iter() after
-merging commit be2657752e9e ("mm: memcg: fix use after free in
-mem_cgroup_iter()").
-
-I work with android kernel tree (4.9 & 4.14), and commit be2657752e9e
-("mm: memcg: fix use after free in mem_cgroup_iter()") has been merged to
-the trees.  However, I can still observe use after free issues addressed
-in the commit be2657752e9e.  (on low-end devices, a few times this month)
-
-backtrace:
-	css_tryget <- crash here
-	mem_cgroup_iter
-	shrink_node
-	shrink_zones
-	do_try_to_free_pages
-	try_to_free_pages
-	__perform_reclaim
-	__alloc_pages_direct_reclaim
-	__alloc_pages_slowpath
-	__alloc_pages_nodemask
-
-To debug, I poisoned mem_cgroup before freeing it:
-
-static void __mem_cgroup_free(struct mem_cgroup *memcg)
-	for_each_node(node)
-	free_mem_cgroup_per_node_info(memcg, node);
-	free_percpu(memcg->stat);
-+       /* poison memcg before freeing it */
-+       memset(memcg, 0x78, sizeof(struct mem_cgroup));
-	kfree(memcg);
-}
-
-The coredump shows the position=0xdbbc2a00 is freed.
-
-(gdb) p/x ((struct mem_cgroup_per_node *)0xe5009e00)->iter[8]
-$13 = {position = 0xdbbc2a00, generation = 0x2efd}
-
-0xdbbc2a00:     0xdbbc2e00      0x00000000      0xdbbc2800      0x00000100
-0xdbbc2a10:     0x00000200      0x78787878      0x00026218      0x00000000
-0xdbbc2a20:     0xdcad6000      0x00000001      0x78787800      0x00000000
-0xdbbc2a30:     0x78780000      0x00000000      0x0068fb84      0x78787878
-0xdbbc2a40:     0x78787878      0x78787878      0x78787878      0xe3fa5cc0
-0xdbbc2a50:     0x78787878      0x78787878      0x00000000      0x00000000
-0xdbbc2a60:     0x00000000      0x00000000      0x00000000      0x00000000
-0xdbbc2a70:     0x00000000      0x00000000      0x00000000      0x00000000
-0xdbbc2a80:     0x00000000      0x00000000      0x00000000      0x00000000
-0xdbbc2a90:     0x00000001      0x00000000      0x00000000      0x00100000
-0xdbbc2aa0:     0x00000001      0xdbbc2ac8      0x00000000      0x00000000
-0xdbbc2ab0:     0x00000000      0x00000000      0x00000000      0x00000000
-0xdbbc2ac0:     0x00000000      0x00000000      0xe5b02618      0x00001000
-0xdbbc2ad0:     0x00000000      0x78787878      0x78787878      0x78787878
-0xdbbc2ae0:     0x78787878      0x78787878      0x78787878      0x78787878
-0xdbbc2af0:     0x78787878      0x78787878      0x78787878      0x78787878
-0xdbbc2b00:     0x78787878      0x78787878      0x78787878      0x78787878
-0xdbbc2b10:     0x78787878      0x78787878      0x78787878      0x78787878
-0xdbbc2b20:     0x78787878      0x78787878      0x78787878      0x78787878
-0xdbbc2b30:     0x78787878      0x78787878      0x78787878      0x78787878
-0xdbbc2b40:     0x78787878      0x78787878      0x78787878      0x78787878
-0xdbbc2b50:     0x78787878      0x78787878      0x78787878      0x78787878
-0xdbbc2b60:     0x78787878      0x78787878      0x78787878      0x78787878
-0xdbbc2b70:     0x78787878      0x78787878      0x78787878      0x78787878
-0xdbbc2b80:     0x78787878      0x78787878      0x00000000      0x78787878
-0xdbbc2b90:     0x78787878      0x78787878      0x78787878      0x78787878
-0xdbbc2ba0:     0x78787878      0x78787878      0x78787878      0x78787878
-
-In the reclaim path, try_to_free_pages() does not setup
-sc.target_mem_cgroup and sc is passed to do_try_to_free_pages(), ...,
-shrink_node().
-
-In mem_cgroup_iter(), root is set to root_mem_cgroup because
-sc->target_mem_cgroup is NULL.  It is possible to assign a memcg to
-root_mem_cgroup.nodeinfo.iter in mem_cgroup_iter().
-
-	try_to_free_pages
-		struct scan_control sc = {...}, target_mem_cgroup is 0x0;
-	do_try_to_free_pages
-	shrink_zones
-	shrink_node
-		 mem_cgroup *root = sc->target_mem_cgroup;
-		 memcg = mem_cgroup_iter(root, NULL, &reclaim);
-	mem_cgroup_iter()
-		if (!root)
-			root = root_mem_cgroup;
-		...
-
-		css = css_next_descendant_pre(css, &root->css);
-		memcg = mem_cgroup_from_css(css);
-		cmpxchg(&iter->position, pos, memcg);
-
-My device uses memcg non-hierarchical mode.  When we release a memcg:
-invalidate_reclaim_iterators() reaches only dead_memcg and its parents. 
-If non-hierarchical mode is used, invalidate_reclaim_iterators() never
-reaches root_mem_cgroup.
-
-static void invalidate_reclaim_iterators(struct mem_cgroup *dead_memcg)
-{
-	struct mem_cgroup *memcg = dead_memcg;
-
-	for (; memcg; memcg = parent_mem_cgroup(memcg)
-	...
-}
-
-So the use after free scenario looks like:
-
-CPU1						CPU2
-
-try_to_free_pages
-do_try_to_free_pages
-shrink_zones
-shrink_node
-mem_cgroup_iter()
-    if (!root)
-    	root = root_mem_cgroup;
-    ...
-    css = css_next_descendant_pre(css, &root->css);
-    memcg = mem_cgroup_from_css(css);
-    cmpxchg(&iter->position, pos, memcg);
-
-					invalidate_reclaim_iterators(memcg);
-					...
-					__mem_cgroup_free()
-						kfree(memcg);
-
-try_to_free_pages
-do_try_to_free_pages
-shrink_zones
-shrink_node
-mem_cgroup_iter()
-    if (!root)
-    	root = root_mem_cgroup;
-    ...
-    mz = mem_cgroup_nodeinfo(root, reclaim->pgdat->node_id);
-    iter = &mz->iter[reclaim->priority];
-    pos = READ_ONCE(iter->position);
-    css_tryget(&pos->css) <- use after free
-
-To avoid this, we should also invalidate root_mem_cgroup.nodeinfo.iter in
-invalidate_reclaim_iterators().
-
-Link: http://lkml.kernel.org/r/20190730015729.4406-1-miles.chen@mediatek.com
-Fixes: 5ac8fb31ad2e ("mm: memcontrol: convert reclaim iterator to simple css refcounting")
-Signed-off-by: Miles Chen <miles.chen@mediatek.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/memcontrol.c |   39 +++++++++++++++++++++++++++++----------
- 1 file changed, 29 insertions(+), 10 deletions(-)
-
---- a/mm/memcontrol.c~mm-memcontrol-fix-use-after-free-in-mem_cgroup_iter
-+++ a/mm/memcontrol.c
-@@ -1130,26 +1130,45 @@ void mem_cgroup_iter_break(struct mem_cg
- 		css_put(&prev->css);
- }
- 
--static void invalidate_reclaim_iterators(struct mem_cgroup *dead_memcg)
-+static void __invalidate_reclaim_iterators(struct mem_cgroup *from,
-+					struct mem_cgroup *dead_memcg)
- {
--	struct mem_cgroup *memcg = dead_memcg;
- 	struct mem_cgroup_reclaim_iter *iter;
- 	struct mem_cgroup_per_node *mz;
- 	int nid;
- 	int i;
- 
--	for (; memcg; memcg = parent_mem_cgroup(memcg)) {
--		for_each_node(nid) {
--			mz = mem_cgroup_nodeinfo(memcg, nid);
--			for (i = 0; i <= DEF_PRIORITY; i++) {
--				iter = &mz->iter[i];
--				cmpxchg(&iter->position,
--					dead_memcg, NULL);
--			}
-+	for_each_node(nid) {
-+		mz = mem_cgroup_nodeinfo(from, nid);
-+		for (i = 0; i <= DEF_PRIORITY; i++) {
-+			iter = &mz->iter[i];
-+			cmpxchg(&iter->position,
-+				dead_memcg, NULL);
- 		}
- 	}
- }
- 
-+static void invalidate_reclaim_iterators(struct mem_cgroup *dead_memcg)
-+{
-+	struct mem_cgroup *memcg = dead_memcg;
-+	struct mem_cgroup *last;
-+
-+	do {
-+		__invalidate_reclaim_iterators(memcg, dead_memcg);
-+		last = memcg;
-+	} while (memcg = parent_mem_cgroup(memcg));
-+
-+	/*
-+	 * When cgruop1 non-hierarchy mode is used,
-+	 * parent_mem_cgroup() does not walk all the way up to the
-+	 * cgroup root (root_mem_cgroup). So we have to handle
-+	 * dead_memcg from cgroup root separately.
-+	 */
-+	if (last != root_mem_cgroup)
-+		__invalidate_reclaim_iterators(root_mem_cgroup,
-+						dead_memcg);
-+}
-+
- /**
-  * mem_cgroup_scan_tasks - iterate over tasks of a memory cgroup hierarchy
-  * @memcg: hierarchy root
-_
-
-Patches currently in -mm which might be from miles.chen@mediatek.com are
-
-mm-memcontrol-fix-use-after-free-in-mem_cgroup_iter.patch
-
+> 
+> greg k-h
