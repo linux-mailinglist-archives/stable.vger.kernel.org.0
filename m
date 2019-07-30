@@ -2,89 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 545B37A40B
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 11:26:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0480D7A425
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 11:29:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731132AbfG3JZy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 05:25:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59216 "EHLO mail.kernel.org"
+        id S1729246AbfG3J3X convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 30 Jul 2019 05:29:23 -0400
+Received: from mga07.intel.com ([134.134.136.100]:27888 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731046AbfG3JZy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Jul 2019 05:25:54 -0400
-Received: from localhost.localdomain (236.31.169.217.in-addr.arpa [217.169.31.236])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 906A22089E;
-        Tue, 30 Jul 2019 09:25:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564478753;
-        bh=nqU4k4X/e7lYeTAPiZAW8mdKZR5UN/bj9V8U1bHWGn8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=2F0v4akXyoiqT9/IdB6Ohu4GIcsn8FKvMOtHoG+WiVduFmfrv/2DFnEhZcTFRMI38
-         djITFzPR+wZabZ+x6kLMIDxM8IeHsUqlAD02hW1ZOJmf8bPYufh5CJ1EzwQEM2Abru
-         Yd+T5QoVt9ASTYqx5qMTWhukv0Vsan1typDxX4/Q=
-From:   Will Deacon <will@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     linux-kernel@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
-        "# 4 . 9+" <stable@vger.kernel.org>,
-        Aurelien Jarno <aurelien@aurel32.net>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH] arm64: compat: Provide definition for COMPAT_SIGMINSTKSZ
-Date:   Tue, 30 Jul 2019 10:25:47 +0100
-Message-Id: <20190730092547.1284-1-will@kernel.org>
-X-Mailer: git-send-email 2.11.0
+        id S1727247AbfG3J3X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Jul 2019 05:29:23 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 30 Jul 2019 02:29:22 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,326,1559545200"; 
+   d="scan'208";a="165791932"
+Received: from fmsmsx105.amr.corp.intel.com ([10.18.124.203])
+  by orsmga008.jf.intel.com with ESMTP; 30 Jul 2019 02:29:22 -0700
+Received: from fmsmsx602.amr.corp.intel.com (10.18.126.82) by
+ FMSMSX105.amr.corp.intel.com (10.18.124.203) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Tue, 30 Jul 2019 02:29:21 -0700
+Received: from fmsmsx602.amr.corp.intel.com (10.18.126.82) by
+ fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Tue, 30 Jul 2019 02:29:21 -0700
+Received: from BGSMSX108.gar.corp.intel.com (10.223.4.192) by
+ fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id 15.1.1713.5
+ via Frontend Transport; Tue, 30 Jul 2019 02:29:20 -0700
+Received: from bgsmsx104.gar.corp.intel.com ([169.254.5.156]) by
+ BGSMSX108.gar.corp.intel.com ([169.254.8.155]) with mapi id 14.03.0439.000;
+ Tue, 30 Jul 2019 14:59:18 +0530
+From:   "Gopal, Saranya" <saranya.gopal@intel.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        "Yang, Fei" <fei.yang@intel.com>,
+        "john.stultz@linaro.org" <john.stultz@linaro.org>
+Subject: RE: [PATCH 4.19.y 0/3] usb: dwc3: Prevent requests from being
+ queued twice
+Thread-Topic: [PATCH 4.19.y 0/3] usb: dwc3: Prevent requests from being
+ queued twice
+Thread-Index: AQHVRhOUnK9XeBaQ9UCn6YgdpRfpLKbhf2KAgAFlo/A=
+Date:   Tue, 30 Jul 2019 09:29:18 +0000
+Message-ID: <C672AA6DAAC36042A98BAD0B0B25BDA94CC83271@BGSMSX104.gar.corp.intel.com>
+References: <1564407819-10746-1-git-send-email-saranya.gopal@intel.com>
+ <20190729173427.GA19326@kroah.com>
+In-Reply-To: <20190729173427.GA19326@kroah.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-version: 11.0.600.7
+dlp-reaction: no-action
+x-ctpclassification: CTP_NT
+x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiZTYyZDU5MWQtNWIxZi00MmI4LTgxM2UtMzJhN2IwYzM5OTdhIiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoiVlZUcjlzOVV2djJUWFI4TUF4XC9aTXpYR3huVFF1eXlwcjVOK1ZEazJwVmFIUzRFZjVzTmk3YkJscWxZWWZVem8ifQ==
+x-originating-ip: [10.223.10.10]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will.deacon@arm.com>
+> On Mon, Jul 29, 2019 at 07:13:36PM +0530, Saranya Gopal wrote:
+> > With recent changes in AOSP, adb is now using asynchronous I/O.
+> > While adb works good for the most part, there have been issues with
+> > adb root/unroot commands which cause adb hang. The issue is caused
+> > by a request being queued twice. A series of 3 patches from
+> > Felipe Balbi in upstream tree fixes this issue.
+> >
+> > Felipe Balbi (3):
+> >   usb: dwc3: gadget: add dwc3_request status tracking
+> >   usb: dwc3: gadget: prevent dwc3_request from being queued twice
+> >   usb: dwc3: gadget: remove req->started flag
+> 
+> I would like to get an ack from Felipe before I take these.
+> 
+> thanks,
+> 
+> greg k-h
 
-[ Upstream commit 24951465cbd279f60b1fdc2421b3694405bcff42 ]
+I just realized that I had been testing this patch series with the flag to enable async IO on adb disabled!
+It requires a few more patches on top for adb to work properly in async IO mode.
+It has been working reliably in our internal tree for some time.
+Let me resubmit the whole series after getting it reviewed by Felipe.
 
-arch/arm/ defines a SIGMINSTKSZ of 2k, so we should use the same value
-for compat tasks.
-
-Cc: <stable@vger.kernel.org> # 4.9+
-Cc: Aurelien Jarno <aurelien@aurel32.net>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Reviewed-by: Dave Martin <Dave.Martin@arm.com>
-Reported-by: Steve McIntyre <steve.mcintyre@arm.com>
-Tested-by: Steve McIntyre <93sam@debian.org>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
----
-
-Aurelien points out that this didn't get selected for -stable despite its
-counterpart (22839869f21a ("signal: Introduce COMPAT_SIGMINSTKSZ for use
-in compat_sys_sigaltstack")) being backported to 4.9. Oops.
-
- arch/arm64/include/asm/compat.h | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/arm64/include/asm/compat.h b/arch/arm64/include/asm/compat.h
-index 1a037b94eba1..cee28a05ee98 100644
---- a/arch/arm64/include/asm/compat.h
-+++ b/arch/arm64/include/asm/compat.h
-@@ -159,6 +159,7 @@ static inline compat_uptr_t ptr_to_compat(void __user *uptr)
- }
- 
- #define compat_user_stack_pointer() (user_stack_pointer(task_pt_regs(current)))
-+#define COMPAT_MINSIGSTKSZ	2048
- 
- static inline void __user *arch_compat_alloc_user_space(long len)
- {
--- 
-2.11.0
-
+Thanks,
+Saranya
