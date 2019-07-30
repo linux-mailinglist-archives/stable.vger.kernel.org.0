@@ -2,81 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CF917A621
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 12:39:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFDFA7A69E
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 13:07:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727987AbfG3KjT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 06:39:19 -0400
-Received: from mail-wr1-f41.google.com ([209.85.221.41]:47103 "EHLO
-        mail-wr1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727823AbfG3KjT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 06:39:19 -0400
-Received: by mail-wr1-f41.google.com with SMTP id z1so65171745wru.13
-        for <stable@vger.kernel.org>; Tue, 30 Jul 2019 03:39:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition:user-agent;
-        bh=BkPuPqqtjXBBicZ1H4mEBoclibVONJUG+D17KmCs5Cc=;
-        b=Cc6J5pO9saOA+HoPfi76O7Bjax+DOkDqC9sNzAzKO5bQ6Z039hwv1qdxAQvKY9Qjbp
-         lIALMF9RxddgoOqyjDnqR7H9xtfszD7w+OGxVCgOlOedsLo6+SRyhWRAqDabzkExetv0
-         yvYOklHdUs1f6FdGk8Z4N4n3EgwP8wB7J2lw8rAU2KGPVpkFEpFiiK6S3QhFJpPSkg8i
-         H66u+qAQh9UrVxQJ6tMhAAz4j2XbdRrDMUwXU1b4GLHx/bAnbdA+WQow9RXhpa9YewXx
-         HsnRjzSR6n34g3cZFFrNriEh1S8XoaK++aVeJ9hmj0E86B0YKywKRSsSznlVZ8AeHhbG
-         mrlQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :mime-version:content-disposition:user-agent;
-        bh=BkPuPqqtjXBBicZ1H4mEBoclibVONJUG+D17KmCs5Cc=;
-        b=LnDvNHxV1DBPfi+sXKWCEShCAM0AFNshNp//kGCw21TVsdiALxNV3tQcoEs6YH31ZH
-         aqcOUQ9uDPDYg6h8upWbV+Eq9nC3w+WPtpd/drF+RzTt2Sb437R1y17MYL+FNpiur881
-         Ts9xQja8nD34ps25l6qPH3xSrTsxGCJ/UFusgZWMtQnlvXhsk5Cxs/4ztDR5lFR93BiX
-         +dhps8jrvSxoRXdJ9m6y+v59IpRcroZiPs7LA6C4FXM5P5+WBo7K7UDvG5JNxFCl4FJs
-         T+rEzJbYUxjzQ51kWG6RALMQP7NY8b7jHH2cN9AbA+6ZFy5oZFRZ14XhXbc3AK/RtlLV
-         eQ/g==
-X-Gm-Message-State: APjAAAW+YAWHiDmuBLRFUyo2ghp3oRZL09EsTGfQG/Lmp0NFQXZHyKt0
-        EhhHgBo+z/lYBpC85kmJCEwnAnrkx8I=
-X-Google-Smtp-Source: APXvYqzS4v4fim8fhFCGG0JWLS88iDxyeFIAY2JTlsjtHzA00LNfhqIFQj3cGunYjIdTu0Oujz7LYA==
-X-Received: by 2002:a05:6000:112:: with SMTP id o18mr47050681wrx.153.1564483156805;
-        Tue, 30 Jul 2019 03:39:16 -0700 (PDT)
-Received: from lorien (lorien.valinor.li. [2a01:4f8:192:61d5::2])
-        by smtp.gmail.com with ESMTPSA id t1sm76948497wra.74.2019.07.30.03.39.15
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Tue, 30 Jul 2019 03:39:16 -0700 (PDT)
-Date:   Tue, 30 Jul 2019 12:39:15 +0200
-From:   Salvatore Bonaccorso <carnil@debian.org>
-To:     stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        Xin Long <lucien.xin@gmail.com>
-Subject: Backport request for 4.9 99253eb750fd ("ipv6: check sk sk_type and
- protocol early in ip_mroute_set/getsockopt")
-Message-ID: <20190730103914.GA3114@lorien.valinor.li>
+        id S1729057AbfG3LHn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 07:07:43 -0400
+Received: from mga11.intel.com ([192.55.52.93]:57603 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730639AbfG3LHg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Jul 2019 07:07:36 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 30 Jul 2019 04:07:35 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,326,1559545200"; 
+   d="scan'208";a="371502145"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.145])
+  by fmsmga006.fm.intel.com with ESMTP; 30 Jul 2019 04:07:32 -0700
+Received: from andy by smile with local (Exim 4.92)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1hsPyc-000293-LK; Tue, 30 Jul 2019 14:07:30 +0300
+Date:   Tue, 30 Jul 2019 14:07:30 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Brian Norris <briannorris@chromium.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        linux-kernel@vger.kernel.org,
+        Salvatore Bellizzi <salvatore.bellizzi@linux.seppia.net>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        egranata@chromium.org, egranata@google.com,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Gwendal Grignou <gwendal@chromium.org>,
+        linux-acpi@vger.kernel.org, Benson Leung <bleung@chromium.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] driver core: platform: return -ENXIO for missing GpioInt
+Message-ID: <20190730110730.GK23480@smile.fi.intel.com>
+References: <20190729204954.25510-1-briannorris@chromium.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20190729204954.25510-1-briannorris@chromium.org>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
+On Mon, Jul 29, 2019 at 01:49:54PM -0700, Brian Norris wrote:
+> Commit daaef255dc96 ("driver: platform: Support parsing GpioInt 0 in
+> platform_get_irq()") broke the Embedded Controller driver on most LPC
+> Chromebooks (i.e., most x86 Chromebooks), because cros_ec_lpc expects
+> platform_get_irq() to return -ENXIO for non-existent IRQs.
+> Unfortunately, acpi_dev_gpio_irq_get() doesn't follow this convention
+> and returns -ENOENT instead. So we get this error from cros_ec_lpc:
+> 
+>    couldn't retrieve IRQ number (-2)
+> 
+> I see a variety of drivers that treat -ENXIO specially, so rather than
+> fix all of them, let's fix up the API to restore its previous behavior.
+> 
+> I reported this on v2 of this patch:
+> 
+> https://lore.kernel.org/lkml/20190220180538.GA42642@google.com/
+> 
+> but apparently the patch had already been merged before v3 got sent out:
+> 
+> https://lore.kernel.org/lkml/20190221193429.161300-1-egranata@chromium.org/
+> 
+> and the result is that the bug landed and remains unfixed.
+> 
+> I differ from the v3 patch by:
+>  * allowing for ret==0, even though acpi_dev_gpio_irq_get() specifically
+>    documents (and enforces) that 0 is not a valid return value (noted on
+>    the v3 review)
+>  * adding a small comment
 
-As this goes to the 4.9 series according to
-https://www.kernel.org/doc/html/latest/networking/netdev-FAQ.html#q-are-all-networking-bug-fixes-backported-to-all-stable-releases
-I'm sending it primarily to stable@v.k.o but Cc'ing Dave and Xin Long.
+Thank you for fixing this.
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Could you please apply 99253eb750fd ("ipv6: check sk sk_type and
-protocol early in ip_mroute_set/getsockopt") to the 4.9 stable series?
+> 
+> Reported-by: Brian Norris <briannorris@chromium.org>
+> Reported-by: Salvatore Bellizzi <salvatore.bellizzi@linux.seppia.net>
+> Cc: Enrico Granata <egranata@chromium.org>
+> Cc: <stable@vger.kernel.org>
+> Fixes: daaef255dc96 ("driver: platform: Support parsing GpioInt 0 in platform_get_irq()")
+> Signed-off-by: Brian Norris <briannorris@chromium.org>
+> ---
+> Side note: it might have helped alleviate some of this pain if there
+> were email notifications to the mailing list when a patch gets applied.
+> I didn't realize (and I'm not sure if Enrico did) that v2 was already
+> merged by the time I noted its mistakes. If I had known, I would have
+> suggested a follow-up patch, not a v3.
+> 
+> I know some maintainers' "tip bots" do this, but not all apparently.
+> 
+>  drivers/base/platform.c | 9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+> index 506a0175a5a7..ec974ba9c0c4 100644
+> --- a/drivers/base/platform.c
+> +++ b/drivers/base/platform.c
+> @@ -157,8 +157,13 @@ int platform_get_irq(struct platform_device *dev, unsigned int num)
+>  	 * the device will only expose one IRQ, and this fallback
+>  	 * allows a common code path across either kind of resource.
+>  	 */
+> -	if (num == 0 && has_acpi_companion(&dev->dev))
+> -		return acpi_dev_gpio_irq_get(ACPI_COMPANION(&dev->dev), num);
+> +	if (num == 0 && has_acpi_companion(&dev->dev)) {
+> +		int ret = acpi_dev_gpio_irq_get(ACPI_COMPANION(&dev->dev), num);
+> +
+> +		/* Our callers expect -ENXIO for missing IRQs. */
+> +		if (ret >= 0 || ret == -EPROBE_DEFER)
+> +			return ret;
+> +	}
+>  
+>  	return -ENXIO;
+>  #endif
+> -- 
+> 2.22.0.709.g102302147b-goog
+> 
 
-While 5e1859fbcc3c was done back in 3.8-rc1, 99253eb750fd from
-4.11-rc1 was not backported to older stable series itself, where it is
-needed as well. 
+-- 
+With Best Regards,
+Andy Shevchenko
 
-Only checked if applicable without change in 4.9, but the fix should
-probably go as well to the 4.4 and 3.16.
 
-Regards,
-Salvatore
