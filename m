@@ -2,101 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A02257B474
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 22:42:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38C387B53E
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 23:48:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728340AbfG3Um6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 16:42:58 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:42811 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727461AbfG3Um6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 16:42:58 -0400
-Received: by mail-lj1-f194.google.com with SMTP id t28so63384797lje.9
-        for <stable@vger.kernel.org>; Tue, 30 Jul 2019 13:42:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=lv9xmyxG6IGQjvUZ86rphL4nIe1jnAFhb/zH3aGbb60=;
-        b=XqytTsE8uyrmeLssSTef+p0jCEwc53nd2nhSJTqkB9hNAVar3QvDbiEsGd7lo1w2Vd
-         +28uE5nAIbIiP9QJ8f2a66B9NCZBQh3Vp+FoohG2CFuIKycie4266tT7mqpUSqzF/ZS2
-         GW/6C0dS9rlnTb0s5o4dXZ9YS7tjds0M2BRB3KWJRAxmBbl2RRu96xETQNomt42IYXJy
-         KLqBoJm7drhwnvtHMwXFZ3SKompaDRhGyvI9KnUpI8oBXiWyi0Fgo+jO83g0C2xWa1PC
-         oSNwitZ0h4Ps3AFw6onhr4KvNjMSdX9nfdmO311dBkGFNMN3UoatGYiZlUiOxb/Frb3T
-         b+MA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=lv9xmyxG6IGQjvUZ86rphL4nIe1jnAFhb/zH3aGbb60=;
-        b=gLG0/gnMGrhwonNwPqeeNdHP9Hjq6LFH15m62oMWaskHQflbH4atOyFSNi349l6QzZ
-         qa/iwVqC7JJXAH5W5bsR/qMBue2BKAF4fkZbq0d7a932qS6G5gZKRsnWT77mZHxQdw6o
-         yLie+aoMW4ak71eLCZTSg6R+J8PgCGz8WFdllKA8W/vpzEBEGU66CvTHZDsf3ZNsbCpR
-         oZIZVGHdb+o5TGxuLsFarnemb9yv+rx3ZRYp9pJ+90yOkVc2xX92CpDpb4Q/okn9Z+Sb
-         DG9ySN72GM3IWfp/8tiirXEw1Es6RlDiG3GFEqCJVisUYIXHbrWhPqN4AHsIXvOz10Rn
-         8pAg==
-X-Gm-Message-State: APjAAAWotWs9NG5kgZtsqOmdLcicgJcl7M8esuKs7ifR0j6ZkCzSUZ0k
-        CWJT+bMK5EKs4jvLyydxipdEbGQ6HeQBF22fa+0=
-X-Google-Smtp-Source: APXvYqypNwP6Gp5aYCmc2W/UgTB6fmRlqYFduRHmjhP6g3OHwPmnwzUDPtAMVuRNgoD2hDjI9fPcI/KvUHHZPuZQi9M=
-X-Received: by 2002:a2e:87d0:: with SMTP id v16mr3521523ljj.24.1564519376593;
- Tue, 30 Jul 2019 13:42:56 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190717223451.2595-1-dhinakaran.pandiyan@intel.com> <20190719004526.B0CC521850@mail.kernel.org>
-In-Reply-To: <20190719004526.B0CC521850@mail.kernel.org>
-From:   Rodrigo Vivi <rodrigo.vivi@gmail.com>
-Date:   Tue, 30 Jul 2019 13:42:45 -0700
-Message-ID: <CABVU7+sbS8mw+4O1Ct8EY_5cj+fnmNFzyd6_=v2_RmCgBRA13g@mail.gmail.com>
-Subject: Re: [Intel-gfx] [PATCH] drm/i915/vbt: Fix VBT parsing for the PSR section
-To:     Sasha Levin <sashal@kernel.org>
+        id S2387405AbfG3Vsx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 17:48:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50472 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387818AbfG3Vsx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Jul 2019 17:48:53 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A644C206E0;
+        Tue, 30 Jul 2019 21:48:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564523332;
+        bh=Gkgsgkc+pagnnDyvApbeJ+bgOv+hO1UoqiR4qAYPhkU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=kvKmYr04b4/dk0cI4cZDA34aJY67y7difyG6hWeCjteBWGdG27tBrq/Af/GHFWHAa
+         3XV7KGD8ymJ8JzhGEpYbjTQ40ilfnlUyUwxPdFUYj36j9R0rn+bnI4WGEMSvyFsedw
+         zmgowBbkcs6/Vts+ugiVY+dvua54Sx0wH9eTUiiw=
+Date:   Tue, 30 Jul 2019 17:48:51 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Rodrigo Vivi <rodrigo.vivi@gmail.com>
 Cc:     Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>,
         intel-gfx <intel-gfx@lists.freedesktop.org>,
         stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [Intel-gfx] [PATCH] drm/i915/vbt: Fix VBT parsing for the PSR
+ section
+Message-ID: <20190730214851.GF29162@sasha-vm>
+References: <20190717223451.2595-1-dhinakaran.pandiyan@intel.com>
+ <20190719004526.B0CC521850@mail.kernel.org>
+ <CABVU7+sbS8mw+4O1Ct8EY_5cj+fnmNFzyd6_=v2_RmCgBRA13g@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <CABVU7+sbS8mw+4O1Ct8EY_5cj+fnmNFzyd6_=v2_RmCgBRA13g@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+On Tue, Jul 30, 2019 at 01:42:45PM -0700, Rodrigo Vivi wrote:
+>Hi Sasha,
 
-On Thu, Jul 18, 2019 at 5:45 PM Sasha Levin <sashal@kernel.org> wrote:
+Hello!
+
+>On Thu, Jul 18, 2019 at 5:45 PM Sasha Levin <sashal@kernel.org> wrote:
+>>
+>> Hi,
+>>
+>> [This is an automated email]
 >
-> Hi,
->
-> [This is an automated email]
+>Where did you get this patch from? Since stable needs patches merged
 
-Where did you get this patch from? Since stable needs patches merged
-on Linus tree,
-shouldn't your scripts run to try backporting only patches from there?
+This bot grabs them from various mailing lists.
 
+>on Linus tree,
+>shouldn't your scripts run to try backporting only patches from there?
+
+There's a note a few lines down that says:
+
+    "NOTE: The patch will not be queued to stable trees until it is upstream."
+
+Otherwise, no, there's no rule that says we can't look at patches before
+they are upstream. We can't queue them up, but we sure can poke them.
+
+The reasoning behind this is that it's easier to get replies (and
+backports) from folks who are actively working on the patch now, rather
+than a few weeks later when Greg sends his "FAILED:" mails and gets
+ignored because said folks have moved on.
+
+--
 Thanks,
-Rodrigo.
-
->
-> This commit has been processed because it contains a "Fixes:" tag,
-> fixing commit: 88a0d9606aff drm/i915/vbt: Parse and use the new field with PSR2 TP2/3 wakeup time.
->
-> The bot has tested the following trees: v5.2.1.
-> v5.2.1: Failed to apply! Possible dependencies:
->     231dcffc234f ("drm/i915/bios: add BDB block comments before definitions")
->     843444ed1301 ("drm/i915/bios: sort BDB block definitions using block ID")
->     f87f6599c843 ("drm/i915/bios: reserve struct bdb_ prefix for BDB blocks")
->
->
-> NOTE: The patch will not be queued to stable trees until it is upstream.
->
-> How should we proceed with this patch?
->
-> --
-> Thanks,
-> Sasha
-> _______________________________________________
-> Intel-gfx mailing list
-> Intel-gfx@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
-
-
-
--- 
-Rodrigo Vivi
-Blog: http://blog.vivi.eng.br
+Sasha
