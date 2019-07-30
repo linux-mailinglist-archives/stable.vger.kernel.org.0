@@ -2,121 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B358B7A71E
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 13:37:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FA687A734
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 13:46:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730616AbfG3Lhy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 07:37:54 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:60277 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730614AbfG3Lhy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 07:37:54 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id 39FA3802B5; Tue, 30 Jul 2019 13:37:40 +0200 (CEST)
-Date:   Tue, 30 Jul 2019 13:37:51 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Tony Lindgren <tony@atomide.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.2 048/215] drm/omap: dont check dispc timings for DSI
-Message-ID: <20190730113751.GB21815@amd>
-References: <20190729190739.971253303@linuxfoundation.org>
- <20190729190748.832081009@linuxfoundation.org>
+        id S1728647AbfG3LqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 07:46:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39920 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728590AbfG3LqA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Jul 2019 07:46:00 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D767D206E0;
+        Tue, 30 Jul 2019 11:45:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564487159;
+        bh=MdCmTq2/62GOla3xYdR1q+U30DvmMzx9ilbakjTfbuY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=hNRILnIGpwN0IQ17UgUT9sNy5oW3a2JqVMfOgkS1x5zDIp+bnrnOA5gUA3vFMnckT
+         ImalFhGvGWcRgYOH4oWtJGoEErv0Hg16NWumKADitrYbYxaF5WUPl3I9wt65hcy2D5
+         UpEcc6XDJDwSe5h8nvuSvpKdK1R8vJAO2KCAu+Nk=
+Date:   Tue, 30 Jul 2019 13:45:56 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Brian Norris <briannorris@chromium.org>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        linux-kernel@vger.kernel.org, andriy.shevchenko@linux.intel.com,
+        Salvatore Bellizzi <salvatore.bellizzi@linux.seppia.net>,
+        andy.shevchenko@gmail.com,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        egranata@chromium.org, egranata@google.com,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Gwendal Grignou <gwendal@chromium.org>,
+        linux-acpi@vger.kernel.org, Benson Leung <bleung@chromium.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] driver core: platform: return -ENXIO for missing GpioInt
+Message-ID: <20190730114556.GA10673@kroah.com>
+References: <20190729204954.25510-1-briannorris@chromium.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="1LKvkjL3sHcu1TtY"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190729190748.832081009@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+In-Reply-To: <20190729204954.25510-1-briannorris@chromium.org>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Jul 29, 2019 at 01:49:54PM -0700, Brian Norris wrote:
+> Commit daaef255dc96 ("driver: platform: Support parsing GpioInt 0 in
+> platform_get_irq()") broke the Embedded Controller driver on most LPC
+> Chromebooks (i.e., most x86 Chromebooks), because cros_ec_lpc expects
+> platform_get_irq() to return -ENXIO for non-existent IRQs.
+> Unfortunately, acpi_dev_gpio_irq_get() doesn't follow this convention
+> and returns -ENOENT instead. So we get this error from cros_ec_lpc:
+> 
+>    couldn't retrieve IRQ number (-2)
+> 
+> I see a variety of drivers that treat -ENXIO specially, so rather than
+> fix all of them, let's fix up the API to restore its previous behavior.
+> 
+> I reported this on v2 of this patch:
+> 
+> https://lore.kernel.org/lkml/20190220180538.GA42642@google.com/
+> 
+> but apparently the patch had already been merged before v3 got sent out:
+> 
+> https://lore.kernel.org/lkml/20190221193429.161300-1-egranata@chromium.org/
+> 
+> and the result is that the bug landed and remains unfixed.
+> 
+> I differ from the v3 patch by:
+>  * allowing for ret==0, even though acpi_dev_gpio_irq_get() specifically
+>    documents (and enforces) that 0 is not a valid return value (noted on
+>    the v3 review)
+>  * adding a small comment
+> 
+> Reported-by: Brian Norris <briannorris@chromium.org>
+> Reported-by: Salvatore Bellizzi <salvatore.bellizzi@linux.seppia.net>
+> Cc: Enrico Granata <egranata@chromium.org>
+> Cc: <stable@vger.kernel.org>
+> Fixes: daaef255dc96 ("driver: platform: Support parsing GpioInt 0 in platform_get_irq()")
+> Signed-off-by: Brian Norris <briannorris@chromium.org>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Acked-by: Enrico Granata <egranata@google.com>
+> ---
+> Side note: it might have helped alleviate some of this pain if there
+> were email notifications to the mailing list when a patch gets applied.
+> I didn't realize (and I'm not sure if Enrico did) that v2 was already
+> merged by the time I noted its mistakes. If I had known, I would have
+> suggested a follow-up patch, not a v3.
+> 
+> I know some maintainers' "tip bots" do this, but not all apparently.
 
---1LKvkjL3sHcu1TtY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+We can't drown out mailing list traffic with a ton of "this patch was
+applied" emails.  We send them directly to the people involved in it.
 
-On Mon 2019-07-29 21:20:44, Greg Kroah-Hartman wrote:
-> [ Upstream commit ad9df7d91b4a6e8f4b20c2bf539ac09b3b2ad6eb ]
->=20
-> While most display types only forward their VM to the DISPC, this
-> is not true for DSI. DSI calculates the VM for DISPC based on its
-> own, but it's not identical. Actually the DSI VM is not even a valid
-> DISPC VM making this check fail. Let's restore the old behaviour
-> and avoid checking the DISPC VM for DSI here.
->=20
-> Fixes: 7c27fa57ef31 ("drm/omap: Call dispc timings check operation direct=
-ly")
-> Acked-by: Pavel Machek <pavel@ucw.cz>
-> Tested-by: Tony Lindgren <tony@atomide.com>
-> Tested-by: Pavel Machek <pavel@ucw.cz>
-> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-> Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+Note, you can always set up your own "watch" for stuff like this by
+pulling linux-next every day and sending yourself any new patches that
+get applied for any specific files/directories you are concerned about.
 
-Not sure if this is good idea for stable. IIRC there's series of
-patches to enable display on droid4 (etc), which is useful, but this
-patch is not going to do any good on its own.
+thanks,
 
-								Pavel
-
->  drivers/gpu/drm/omapdrm/omap_crtc.c | 18 ++++++++++++++----
->  1 file changed, 14 insertions(+), 4 deletions(-)
->=20
-> diff --git a/drivers/gpu/drm/omapdrm/omap_crtc.c b/drivers/gpu/drm/omapdr=
-m/omap_crtc.c
-> index 8712af79a49c..4c43dd282acc 100644
-> --- a/drivers/gpu/drm/omapdrm/omap_crtc.c
-> +++ b/drivers/gpu/drm/omapdrm/omap_crtc.c
-> @@ -384,10 +384,20 @@ static enum drm_mode_status omap_crtc_mode_valid(st=
-ruct drm_crtc *crtc,
->  	int r;
-> =20
->  	drm_display_mode_to_videomode(mode, &vm);
-> -	r =3D priv->dispc_ops->mgr_check_timings(priv->dispc, omap_crtc->channe=
-l,
-> -					       &vm);
-> -	if (r)
-> -		return r;
-> +
-> +	/*
-> +	 * DSI might not call this, since the supplied mode is not a
-> +	 * valid DISPC mode. DSI will calculate and configure the
-> +	 * proper DISPC mode later.
-> +	 */
-> +	if (omap_crtc->pipe->output->next =3D=3D NULL ||
-> +	    omap_crtc->pipe->output->next->type !=3D OMAP_DISPLAY_TYPE_DSI) {
-> +		r =3D priv->dispc_ops->mgr_check_timings(priv->dispc,
-> +						       omap_crtc->channel,
-> +						       &vm);
-> +		if (r)
-> +			return r;
-> +	}
-> =20
->  	/* Check for bandwidth limit */
->  	if (priv->max_bandwidth) {
-
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---1LKvkjL3sHcu1TtY
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl1ALA8ACgkQMOfwapXb+vLivwCfSxC4OWQN/14fhb5nIvRRnOS+
-JMwAnix68z/VpEm39HRi2R0vnq3K7lOU
-=mnTv
------END PGP SIGNATURE-----
-
---1LKvkjL3sHcu1TtY--
+greg k-h
