@@ -2,67 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58DBA7A15B
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 08:38:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B2DC7A1A8
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 09:13:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727358AbfG3Giq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 02:38:46 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:53118 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726736AbfG3Giq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 02:38:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=YkfJp93d1ohj3Bbmj3d25o5QzlPIkOwC8l2K/xOCTnQ=; b=hQhQ6PBe/YM6WQezX8UNvl2yQ
-        LUHQl+a1MJkPFxl8imZ59d6sDF33V0PaBEYu/7B3FEsfbJgl4fjp1ud3qcdACZi8Had/xbzFgQ/o/
-        b71aeX3/AbBR8rp2yJEHeP+mH9nNUDDeC+fyy49fhc+LQUW5GvwWRQH/2zwc1tEKJ25iGJJ9Alx2r
-        tKme/u+fm+zlZjpoYDxK2DHEO0//iWudSn8ipG6PL6TQo4ZtNnDeF0odXTfk3elkUntH0BWRdm1Ui
-        Uz9h7jaiJ8TBHAXRUYos4IWwSxXpbbTfXi13R3EV6FtwjE6vV2z8Q1shLkJRPLu4qfXOZbpgp+l65
-        jYmmNstWg==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat Linux))
-        id 1hsLmX-0005jg-6M; Tue, 30 Jul 2019 06:38:45 +0000
-Date:   Mon, 29 Jul 2019 23:38:45 -0700
-From:   Christoph Hellwig <hch@infradead.org>
-To:     Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Cc:     Christoph Hellwig <hch@infradead.org>,
-        Suganath Prabu <suganath-prabu.subramani@broadcom.com>,
-        linux-scsi <linux-scsi@vger.kernel.org>, stable@vger.kernel.org,
-        Sathya Prakash <Sathya.Prakash@broadcom.com>,
-        Kashyap Desai <kashyap.desai@broadcom.com>
-Subject: Re: [PATCH] mpt3sas: Use 63-bit DMA addressing on SAS35 HBA
-Message-ID: <20190730063845.GA16355@infradead.org>
-References: <1564135257-33188-1-git-send-email-suganath-prabu.subramani@broadcom.com>
- <20190726142706.GA1734@infradead.org>
- <CAK=zhgrWW_vOkXKRYRbiMdHgiT7u=Ra_pCkO_HkmQrCdVXfJBQ@mail.gmail.com>
+        id S1727029AbfG3HNx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 03:13:53 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:39301 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729485AbfG3HNu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 03:13:50 -0400
+Received: by mail-lj1-f196.google.com with SMTP id v18so60989447ljh.6
+        for <stable@vger.kernel.org>; Tue, 30 Jul 2019 00:13:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=euGPPD1eIvXtOUX5549+IyFWsRravUw6eFS+OtoISr0=;
+        b=ijLP+t6eEZQmZYQSDPixEPzwg90AqCFV7x0fu/8Ao60sEiRGe/jbGuBzcYHXncanHi
+         uPvk4zTz01kbLNDvkCQrXEYrmiVBWLBOgc5kShTLw1DO2xiTyrrDpllzWztZYCfZdG/z
+         ETeq/mZ1ALIkqQ2cEE9Hg/zHANP1R8BdQB8kQQiVJvqCOK2t51pMoCGbYGSV3l9ByMMB
+         UQCHF8d4yISs/T1BQHY2hoUWiPKTeKb2C8gtbKmK0XH47MAb1e+7ZXqseAGasDCwG2Ce
+         QT0FEIcdOkAhEzrYqSwdJbuJs4q5O5OMLAOMw5vHbw0rWl5M5P+TJRbBX4ZrPdldV0jG
+         fY6Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=euGPPD1eIvXtOUX5549+IyFWsRravUw6eFS+OtoISr0=;
+        b=I8NAMwB29Jmj2BUedmXmS2fGnshqZIoMhtIcXCMtxXH0E7iKwqv5CnW8RbNva/F91I
+         7t4uPChRjZ8L11yDmdK0S0pJzXNtEzQiX26NyEYMFcpsy52bWGe3TmaOrtXfw81FdI4/
+         lSG6Vh1T117a3S+y/SO+pq9nD+TM0xtVWGCJf28J8jlqFBNFFjk/iUSW5cA09CI79ING
+         y8L65MK0T5oTj840ZW4rDnHmymu1m2jWuv5lZz57vYFxvjjw+XWBG5qCLhEMXAQfW4Cp
+         BihF5yyQF4jmW9/ZpWX9Ldcp0295cgglk2IHAy7E11VNYFUbwrHx27zO9RWl2zmec4pH
+         lBjg==
+X-Gm-Message-State: APjAAAUtkCCemqkUsAZ9+LWn7h6cnYLlFUYH4ccqbkeVlUcBYtjVugtN
+        XV65Nk+NCuW+J3VIwb4ZrvNajr7xFqY8keKsBCrptoSAH3s=
+X-Google-Smtp-Source: APXvYqxx1SG3uBUNOLIUP0C3cmO79sWI54VvoAkAXxELSEFMicLE3rCXzoHnKehJ/vw6gkxvnc3U/RkH2+HEfzwlacg=
+X-Received: by 2002:a2e:b0f0:: with SMTP id h16mr36380851ljl.21.1564470827752;
+ Tue, 30 Jul 2019 00:13:47 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAK=zhgrWW_vOkXKRYRbiMdHgiT7u=Ra_pCkO_HkmQrCdVXfJBQ@mail.gmail.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+References: <20190729190820.321094988@linuxfoundation.org>
+In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 30 Jul 2019 12:43:36 +0530
+Message-ID: <CA+G9fYuin5m8Rzc4_YF5tvjwsBN4=GXnkgmpD8-7U5fwcTnb7Q@mail.gmail.com>
+Subject: Re: [PATCH 4.14 000/293] 4.14.135-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 29, 2019 at 05:25:35PM +0530, Sreekanth Reddy wrote:
-> 
-> I agree with your above statement. But it is also possible that
-> 0xFFFFFFFF-FFFFFFFF falls under the DMA able range, e.g. SGE's start
-> address is 0xFFFFFFFF-FFFF000 and data length is 0x1000 bytes. So when
-> HBA tries to DMA the data at 0xFFFFFFFF-FFFFFFFF location then it will
-> faults the firmware due to it's hardware design.
-> 
-> We have observed above example's SGE address and length on AMD systems
-> with SME & IOMMU enabled.
+On Tue, 30 Jul 2019 at 00:54, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.14.135 release.
+> There are 293 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed 31 Jul 2019 07:05:01 PM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.14.135-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.14.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Ok.  Please slightly update the changelog to say dma ranges instead
-of a dma address, as that implicies the addr field in the sg to me.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Otherwise looks ok:
+Summary
+------------------------------------------------------------------------
 
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+kernel: 4.14.135-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.14.y
+git commit: f6ba73a2e356d3f40ed298dbf4097561f2cd9973
+git describe: v4.14.134-294-gf6ba73a2e356
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
+ild/v4.14.134-294-gf6ba73a2e356
+
+
+No regressions (compared to build v4.14.134)
+
+No fixes (compared to build v4.14.134)
+
+Ran 22754 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-timers-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* ltp-fs-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* ltp-open-posix-tests
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
