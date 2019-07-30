@@ -2,88 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEB9A7A4DD
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 11:42:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3FDC7A521
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 11:48:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728744AbfG3Jma (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 05:42:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40052 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725913AbfG3Jma (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Jul 2019 05:42:30 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A6AA20651;
-        Tue, 30 Jul 2019 09:42:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564479749;
-        bh=9U7S5HqHsQMxAcuK3A1EE0m0ZQZ/Ib1RwKPlv1/9FW0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=GknCCLUo1R3zTmHqLvtM5sX3iVFVo20C9HnWD77jaxTwmdhK44ixoWYl06+zaZbC6
-         0M/av3pQF4wO9+G09J4g0kGJaMHofOzPsGo5XWBSd8Ga2j3Qc4tHI/WV/B4724UWH4
-         ZJgBjX+VdAydkujxi3x4Ws7l+S+tnZBw3GfHAZtM=
-Date:   Tue, 30 Jul 2019 11:42:26 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Will Deacon <will@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
-        "# 4 . 9+" <stable@vger.kernel.org>,
-        Aurelien Jarno <aurelien@aurel32.net>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: Re: [PATCH] arm64: compat: Provide definition for COMPAT_SIGMINSTKSZ
-Message-ID: <20190730094226.GA16071@kroah.com>
-References: <20190730092547.1284-1-will@kernel.org>
- <20190730093713.GB15402@kroah.com>
- <20190730093938.bimxbvhd3alo3u37@willie-the-truck>
+        id S1731896AbfG3Jsp convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 30 Jul 2019 05:48:45 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:49846 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730150AbfG3Jsp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 05:48:45 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-174-SV6Xl8A9OrKA0tVNQBwUCg-1; Tue, 30 Jul 2019 10:48:38 +0100
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b::d117) by AcuMS.aculab.com
+ (fd9f:af1c:a25b::d117) with Microsoft SMTP Server (TLS) id 15.0.1347.2; Tue,
+ 30 Jul 2019 10:48:38 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Tue, 30 Jul 2019 10:48:38 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Stanislaw Gruszka' <sgruszka@redhat.com>,
+        Jian-Hong Pan <jian-hong@endlessm.com>
+CC:     Yan-Hsuan Chuang <yhchuang@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux@endlessm.com" <linux@endlessm.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] rtw88: pci: Use general byte arrays as the elements of RX
+ ring
+Thread-Topic: [PATCH] rtw88: pci: Use general byte arrays as the elements of
+ RX ring
+Thread-Index: AQHVRro3Kaj7ufhACkSCuQV9Pmu/hqbi59sQ
+Date:   Tue, 30 Jul 2019 09:48:38 +0000
+Message-ID: <962a8a8e735946d6b3944b7d0e228309@AcuMS.aculab.com>
+References: <20190725080925.6575-1-jian-hong@endlessm.com>
+ <20190730093533.GC3174@redhat.com>
+In-Reply-To: <20190730093533.GC3174@redhat.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190730093938.bimxbvhd3alo3u37@willie-the-truck>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+X-MC-Unique: SV6Xl8A9OrKA0tVNQBwUCg-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 30, 2019 at 10:39:38AM +0100, Will Deacon wrote:
-> On Tue, Jul 30, 2019 at 11:37:13AM +0200, Greg KH wrote:
-> > On Tue, Jul 30, 2019 at 10:25:47AM +0100, Will Deacon wrote:
-> > > From: Will Deacon <will.deacon@arm.com>
-> > > 
-> > > [ Upstream commit 24951465cbd279f60b1fdc2421b3694405bcff42 ]
-> > > 
-> > > arch/arm/ defines a SIGMINSTKSZ of 2k, so we should use the same value
-> > > for compat tasks.
-> > > 
-> > > Cc: <stable@vger.kernel.org> # 4.9+
-> > > Cc: Aurelien Jarno <aurelien@aurel32.net>
-> > > Cc: Arnd Bergmann <arnd@arndb.de>
-> > > Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-> > > Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-> > > Cc: Andrew Morton <akpm@linux-foundation.org>
-> > > Cc: Al Viro <viro@zeniv.linux.org.uk>
-> > > Cc: Oleg Nesterov <oleg@redhat.com>
-> > > Reviewed-by: Dave Martin <Dave.Martin@arm.com>
-> > > Reported-by: Steve McIntyre <steve.mcintyre@arm.com>
-> > > Tested-by: Steve McIntyre <93sam@debian.org>
-> > > Signed-off-by: Will Deacon <will.deacon@arm.com>
-> > > Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> > > ---
-> > > 
-> > > Aurelien points out that this didn't get selected for -stable despite its
-> > > counterpart (22839869f21a ("signal: Introduce COMPAT_SIGMINSTKSZ for use
-> > > in compat_sys_sigaltstack")) being backported to 4.9. Oops.
-> > 
-> > So this needs to go into 4.9.y, 4.14.y, and 4.19.y?
+From: Stanislaw Gruszka
+> Sent: 30 July 2019 10:36
+...
+> > +		len = pkt_stat.pkt_len + pkt_offset;
+> > +		skb = dev_alloc_skb(len);
+> > +		if (WARN_ONCE(!skb, "rx routine starvation\n"))
+> >  			goto next_rp;
+> >
+> >  		/* put the DMA data including rx_desc from phy to new skb */
+> > -		skb_put_data(new, skb->data, new_len);
+> > +		skb_put_data(skb, rx_desc, len);
 > 
-> Yes, please.
+> Coping big packets it quite inefficient. What drivers usually do is
+> copy only for small packets and for big ones allocate new rx buf
+> (drop packet alloc if fail) and pas old buf to network stack via
+> skb_add_rx_frag(). See iwlmvm as example.
 
-Thanks, will do after this next round of kernels goes out.
+If you have to do iommu setup/teardown then the breakeven point
+for (not) copying may be surprisingly large.
+You do need to do the measurements on a range of hardware.
+Coping is also likely to affect the L1 cache - unless you can
+copy quickly without polluting the cache.
 
-greg k-h
+It is all 'swings and roundabouts'.
+
+	David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
+
