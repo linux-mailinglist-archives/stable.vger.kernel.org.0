@@ -2,197 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CD8A7B1DF
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 20:24:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C12B07B1F4
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 20:28:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728473AbfG3SYq convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 30 Jul 2019 14:24:46 -0400
-Received: from mga04.intel.com ([192.55.52.120]:7617 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725935AbfG3SYq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Jul 2019 14:24:46 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 30 Jul 2019 11:24:47 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,327,1559545200"; 
-   d="scan'208";a="172051058"
-Received: from orsmsx102.amr.corp.intel.com ([10.22.225.129])
-  by fmsmga008.fm.intel.com with ESMTP; 30 Jul 2019 11:24:45 -0700
-Received: from orsmsx157.amr.corp.intel.com (10.22.240.23) by
- ORSMSX102.amr.corp.intel.com (10.22.225.129) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Tue, 30 Jul 2019 11:24:45 -0700
-Received: from orsmsx109.amr.corp.intel.com ([169.254.11.25]) by
- ORSMSX157.amr.corp.intel.com ([169.254.9.94]) with mapi id 14.03.0439.000;
- Tue, 30 Jul 2019 11:24:45 -0700
-From:   "Pandiyan, Dhinakaran" <dhinakaran.pandiyan@intel.com>
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>
-CC:     "Nikula, Jani" <jani.nikula@intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        "Souza, Jose" <jose.souza@intel.com>,
-        "sashal@kernel.org" <sashal@kernel.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [Intel-gfx] [PATCH stable v5.2] drm/i915/vbt: Fix VBT parsing
- for the PSR section
-Thread-Topic: [Intel-gfx] [PATCH stable v5.2] drm/i915/vbt: Fix VBT parsing
- for the PSR section
-Thread-Index: AQHVQONqundbRmAsW0u9h20HVNR8W6baJCaAgABZngCAAAOSgIAJRn8AgAACTwCAAA9KgIAAAWiAgAAIVoCAAANSAP//nxyQ
-Date:   Tue, 30 Jul 2019 18:24:44 +0000
-Message-ID: <C56C55B681623645A065C9EE352337D61D03990F@ORSMSX109.amr.corp.intel.com>
-References: <20190719004526.B0CC521850@mail.kernel.org>
- <20190722231325.16615-1-dhinakaran.pandiyan@intel.com>
- <20190724120657.GG3244@kroah.com>
- <05339e812e35a4cf1811f26a06bd5a4d1d652407.camel@intel.com>
- <20190724174029.GC30776@intel.com> <20190730151908.GA21970@intel.com>
- <20190730152724.GB31590@kroah.com> <20190730162207.GA18653@intel.com>
- <20190730162709.GA28503@kroah.com> <20190730165659.GB18653@intel.com>
- <20190730170852.GA32124@kroah.com>
-In-Reply-To: <20190730170852.GA32124@kroah.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ctpclassification: CTP_NT
-x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiMDEyNzE4MjUtZGMzMy00YWFhLWFlZjUtMTFmY2JmZGE4OTYwIiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoidlZjd200dG9qYnBUMkh3TWV0MTlRYVRzcSsxXC9FTUN3Sm8yblFRSWlqRUYwaGpoQndVMU14NGpabXI3d3h3cnkifQ==
-dlp-product: dlpe-windows
-dlp-version: 11.0.600.7
-dlp-reaction: no-action
-x-originating-ip: [10.22.254.139]
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+        id S1729102AbfG3S2H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 14:28:07 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:38594 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726522AbfG3S2H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 14:28:07 -0400
+Received: by mail-wm1-f66.google.com with SMTP id s15so36167834wmj.3;
+        Tue, 30 Jul 2019 11:28:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=wvsOsY5CLQsky8uz4ClfHVAjHjhjUTEeWUp/GJcH9vg=;
+        b=rrckOx3Ihb+ID9d4P65+Fyq+4f0d0RK+viITtEC/PCnIRlbUYceRhBOVpLCZEV//zb
+         y6hTtV2C9CMqNsjje6RId2eo8D5fq4iq8TW0qR5cWN3+VMJSPvthhpDvoCxsbzPqK+rV
+         7LlHLYu/9J3Fs3ej8sCF3XhoqF3dMRSJ6rbQHzcGjjkNly36gQ8WUg7EC2YxAN2zscM6
+         +I7OBL2/87MTAIrAF4X+BRRPp0aNzsEZlgqRlyWVlTjyUMCkpnHqWjiBk9yJTewEouiY
+         BSQBfz0bMPXWS3pgzBIHY4HxzRZJk5eaMqlw7v28M1gkIpwrTnKkMDSyMYGihCMw5svS
+         jGpw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=wvsOsY5CLQsky8uz4ClfHVAjHjhjUTEeWUp/GJcH9vg=;
+        b=Ss/MxwEbsFaNt/NeziGxTysXKuQpbmMEdY8qiJglWzLF0CHB6Ff1fz3FLarUX5h8qY
+         RCuhAXXobsxd/F3sQ65DyPbk/bF28Yi659h/80YQT4muDMfe2LgXh7UXohQbMZZLl8rE
+         LkfGUfou/1FB90AD0x8RoeLx1wcwi+wd23GfHzOJvFfHp2jkYlRo2RWg1wkaOW8j4xuW
+         qYvdQgFD0dIK1APzL8LQAoyOsMnePEtwgIQURFivp/mRc+M38TaWYCl/ZTF1koDULcLr
+         5k/p01J7pIRQpsOPrO1O6SDRJJlu7Pom4FvKyGZ/tk1einRkT+9ROOwU7Jy2JXSadt/j
+         X8IA==
+X-Gm-Message-State: APjAAAVv71KNsoEIk04U/fBJhNund6BCj7brsrJG3XKlkDEstNX9yaf1
+        wmLlYo8rKj/13Kkhw6CaGFI=
+X-Google-Smtp-Source: APXvYqwn6kyl9fuKU9XTfrr8jZzivv/H5Z7x6p9WbogCsbSL5AnBIA5zWpXTjxtjUjpzWKZCagASaw==
+X-Received: by 2002:a7b:cf0b:: with SMTP id l11mr111949106wmg.143.1564511283748;
+        Tue, 30 Jul 2019 11:28:03 -0700 (PDT)
+Received: from archlinux-threadripper ([2a01:4f8:222:2f1b::2])
+        by smtp.gmail.com with ESMTPSA id v204sm69670944wma.20.2019.07.30.11.28.02
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Tue, 30 Jul 2019 11:28:02 -0700 (PDT)
+Date:   Tue, 30 Jul 2019 11:28:01 -0700
+From:   Nathan Chancellor <natechancellor@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Qian Cai <cai@lca.pw>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.14 054/293] sched/fair: Fix "runnable_avg_yN_inv" not
+ used warnings
+Message-ID: <20190730182801.GA94301@archlinux-threadripper>
+References: <20190729190820.321094988@linuxfoundation.org>
+ <20190729190828.058944959@linuxfoundation.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190729190828.058944959@linuxfoundation.org>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Jul 29, 2019 at 09:19:05PM +0200, Greg Kroah-Hartman wrote:
+> [ Upstream commit 509466b7d480bc5d22e90b9fbe6122ae0e2fbe39 ]
+> 
+> runnable_avg_yN_inv[] is only used in kernel/sched/pelt.c but was
+> included in several other places because they need other macros all
+> came from kernel/sched/sched-pelt.h which was generated by
+> Documentation/scheduler/sched-pelt. As the result, it causes compilation
+> a lot of warnings,
+> 
+>   kernel/sched/sched-pelt.h:4:18: warning: 'runnable_avg_yN_inv' defined but not used [-Wunused-const-variable=]
+>   kernel/sched/sched-pelt.h:4:18: warning: 'runnable_avg_yN_inv' defined but not used [-Wunused-const-variable=]
+>   kernel/sched/sched-pelt.h:4:18: warning: 'runnable_avg_yN_inv' defined but not used [-Wunused-const-variable=]
+>   ...
+> 
+> Silence it by appending the __maybe_unused attribute for it, so all
+> generated variables and macros can still be kept in the same file.
+> 
+> Signed-off-by: Qian Cai <cai@lca.pw>
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Link: https://lkml.kernel.org/r/1559596304-31581-1-git-send-email-cai@lca.pw
+> Signed-off-by: Ingo Molnar <mingo@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  Documentation/scheduler/sched-pelt.c | 3 ++-
+>  kernel/sched/sched-pelt.h            | 2 +-
+>  2 files changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/Documentation/scheduler/sched-pelt.c b/Documentation/scheduler/sched-pelt.c
+> index e4219139386a..7238b355919c 100644
+> --- a/Documentation/scheduler/sched-pelt.c
+> +++ b/Documentation/scheduler/sched-pelt.c
+> @@ -20,7 +20,8 @@ void calc_runnable_avg_yN_inv(void)
+>  	int i;
+>  	unsigned int x;
+>  
+> -	printf("static const u32 runnable_avg_yN_inv[] = {");
+> +	/* To silence -Wunused-but-set-variable warnings. */
+> +	printf("static const u32 runnable_avg_yN_inv[] __maybe_unused = {");
+>  	for (i = 0; i < HALFLIFE; i++) {
+>  		x = ((1UL<<32)-1)*pow(y, i);
+>  
+> diff --git a/kernel/sched/sched-pelt.h b/kernel/sched/sched-pelt.h
+> index a26473674fb7..c529706bed11 100644
+> --- a/kernel/sched/sched-pelt.h
+> +++ b/kernel/sched/sched-pelt.h
+> @@ -1,7 +1,7 @@
+>  /* SPDX-License-Identifier: GPL-2.0 */
+>  /* Generated by Documentation/scheduler/sched-pelt; do not modify. */
+>  
+> -static const u32 runnable_avg_yN_inv[] = {
+> +static const u32 runnable_avg_yN_inv[] __maybe_unused = {
+>  	0xffffffff, 0xfa83b2da, 0xf5257d14, 0xefe4b99a, 0xeac0c6e6, 0xe5b906e6,
+>  	0xe0ccdeeb, 0xdbfbb796, 0xd744fcc9, 0xd2a81d91, 0xce248c14, 0xc9b9bd85,
+>  	0xc5672a10, 0xc12c4cc9, 0xbd08a39e, 0xb8fbaf46, 0xb504f333, 0xb123f581,
+> -- 
+> 2.20.1
+> 
+> 
+> 
 
+This patch does nothing in 4.14. There is no kernel/sched/pelt.c.
 
-> -----Original Message-----
-> From: Greg KH [mailto:gregkh@linuxfoundation.org]
-> Sent: Tuesday, July 30, 2019 10:09 AM
-> To: Vivi, Rodrigo <rodrigo.vivi@intel.com>
-> Cc: Nikula, Jani <jani.nikula@intel.com>; Joonas Lahtinen
-> <joonas.lahtinen@linux.intel.com>; Souza, Jose <jose.souza@intel.com>;
-> sashal@kernel.org; intel-gfx@lists.freedesktop.org; stable@vger.kernel.org;
-> Pandiyan, Dhinakaran <dhinakaran.pandiyan@intel.com>
-> Subject: Re: [Intel-gfx] [PATCH stable v5.2] drm/i915/vbt: Fix VBT parsing for
-> the PSR section
-> 
-> On Tue, Jul 30, 2019 at 09:56:59AM -0700, Rodrigo Vivi wrote:
-> >
-> > On Tue, Jul 30, 2019 at 06:27:09PM +0200, Greg KH wrote:
-> > > On Tue, Jul 30, 2019 at 09:22:07AM -0700, Rodrigo Vivi wrote:
-> > > > On Tue, Jul 30, 2019 at 05:27:24PM +0200, Greg KH wrote:
-> > > > > On Tue, Jul 30, 2019 at 08:19:08AM -0700, Rodrigo Vivi wrote:
-> > > > > > Hi Greg,
-> > > > > >
-> > > > > > On Wed, Jul 24, 2019 at 10:40:29AM -0700, Rodrigo Vivi wrote:
-> > > > > > > On Wed, Jul 24, 2019 at 05:27:42PM +0000, Souza, Jose wrote:
-> > > > > > > > On Wed, 2019-07-24 at 14:06 +0200, Greg KH wrote:
-> > > > > > > > > On Mon, Jul 22, 2019 at 04:13:25PM -0700, Dhinakaran Pandiyan
-> wrote:
-> > > > > > > > > > A single 32-bit PSR2 training pattern field follows the sixteen
-> > > > > > > > > > element
-> > > > > > > > > > array of PSR table entries in the VBT spec. But, we incorrectly
-> > > > > > > > > > define
-> > > > > > > > > > this PSR2 field for each of the PSR table entries. As a result,
-> the
-> > > > > > > > > > PSR1
-> > > > > > > > > > training pattern duration for any panel_type != 0 will be
-> parsed
-> > > > > > > > > > incorrectly. Secondly, PSR2 training pattern durations for VBTs
-> > > > > > > > > > with bdb
-> > > > > > > > > > version >= 226 will also be wrong.
-> > > > > > > > > >
-> > > > > > > > > > Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-> > > > > > > > > > Cc: José Roberto de Souza <jose.souza@intel.com>
-> > > > > > > > > > Cc: stable@vger.kernel.org
-> > > > > > > > > > Cc: stable@vger.kernel.org #v5.2
-> > > > > > > > > > Fixes: 88a0d9606aff ("drm/i915/vbt: Parse and use the new field
-> > > > > > > > > > with PSR2 TP2/3 wakeup time")
-> > > > > > > > > > Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111088
-> > > > > > > > > > Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204183
-> > > > > > > > > > Signed-off-by: Dhinakaran Pandiyan
-> <dhinakaran.pandiyan@intel.com>
-> > > > > > > > > > Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > > > > > > > > Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
-> > > > > > > > > > Acked-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-> > > > > > > > > > Tested-by: François Guerraz <kubrick@fgv6.net>
-> > > > > > > > > > Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-> > > > > > > > > > Link:
-> > > > > > > > > >
-> https://patchwork.freedesktop.org/patch/msgid/20190717223451.2595-1-
-> dhinakaran.pandiyan@intel.com
-> > > > > > > > > > (cherry picked from commit
-> > > > > > > > > > b5ea9c9337007d6e700280c8a60b4e10d070fb53)
-> > > > > > > > >
-> > > > > > > > > There is no such commit in Linus's kernel tree :(
-> > > > > > >
-> > > > > > > not yet... It is queued for 5.3 on drm-intel-next-queued.
-> > > > > > >
-> > > > > > > This line is automatically added by "dim" tool when
-> > > > > > > cherry-picking queued stuff for our drm-intel fixes branches.
-> > > > > >
-> > > > > > What do you need her from us to accept this patch?
-> > > > >
-> > > > > Um, you have read the stable kernel rules, right?
-> > > > >     https://www.kernel.org/doc/html/latest/process/stable-kernel-
-> rules.html
-> > > > >
-> > > > > That's what I need for it to go into a stable kernel release.
-> > > >
-> > > > Yes, I have read it. Maybe what I don't understand is just the fact that we
-> will
-> > > > let customers facing issues for 6 weeks or more while the original patch
-> > > > doesn't land on Linus tree. :(
-> > >
-> > > Then get the patch into Linus's tree!
-> > > Nothing I can do until that happens, you know this...
-> >
-> > -ENOTENOUGHCOFFEE sorry.
-> > For some reason I thought this thread had started as the reject of your
-> scripts.
-> 
-> That is correct.  But more coffee is always good.
-> 
-> > This patch is already queued on our drm-intel-fixes and will probably land on
-> > Linus tree next week. Than your scripts will just get it.
-> >
-> > So, back to your original concern:
-> >
-> > The referrence b5ea9c9337007d6e700280c8a60b4e10d070fb53 you pointed out won't
-> > exist until 5.3 merge window though.
-> 
-> That's fine.
-> 
-> > My question now is regarding our fixes flow adding these future references.
-> > Do you have any concern with that?
-> 
-> I hate and despise and complain endlessly about how you all are doing
-> this, but I have learned to just suck it up and accept it.  It is a
-> major pain in the rear, and I will say that it causes me to delay all
-> merges of stable drm patches that get merged in Linus's tree in -rc1
-> until -rc2 or -rc3 is out usually as I have to go through and
-> hand-determine if a reject happens because it really is a reject, or
-> because this patch is already in the tree.
-> 
-> So, if this hits Linus's tree "like normal", my scripts will pick it up
-> and all is good.  I can handle this crazy notation you all feel that
-> works for you, but I reserve the right to complain.
-> 
-> This original patch, however, was sent only to stable and it seemed to
-> indicate that I needed to pick it up because it already was upstream (I
-> saw the cherry-pick line.)  As that is not the case here, fine, no harm,
-> no foul, let's go get more coffee...
+$ fd pelt
+kernel/sched/sched-pelt.h
+Documentation/scheduler/sched-pelt.c
 
-Not sure if it was my fault to have included the cherry-pick line, I'll talk
-to Rodrigo offline to understand if that was the source of confusion.
+runnable_avg_yN_inv is only used in one location in 4.14.134, in fair.c
+behind CONFIG_SMP, which is also the guard that includes sched-pelt.h.
 
--DK
+$ rg --no-heading -g '!Documentation' runnable_avg_yN_inv
+kernel/sched/sched-pelt.h:4:static const u32 runnable_avg_yN_inv[] = {
+kernel/sched/fair.c:2849:       val = mul_u64_u32_shr(val, runnable_avg_yN_inv[local_n], 32);
 
-> 
-> greg k-h
+$ rg --no-heading -B 2 "sched-pelt.h"
+kernel/sched/fair.c-707-#ifdef CONFIG_SMP
+kernel/sched/fair.c-708-
+kernel/sched/fair.c:709:#include "sched-pelt.h"
+
+I see no way for the warnings in this patch to occur here, making it
+pointless. I get two trivial conflicts in my msm-4.14 tree from this
+patch that I would like to avoid dealing with.
+
+Please consider dropping this patch, thanks!
+Nathan
