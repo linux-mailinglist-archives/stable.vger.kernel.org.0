@@ -2,17 +2,17 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 636C77A9A4
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 15:32:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55F297A9AF
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 15:32:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729155AbfG3NcC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 09:32:02 -0400
-Received: from szxga04-in.huawei.com ([45.249.212.190]:3221 "EHLO huawei.com"
+        id S1731038AbfG3NcW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 09:32:22 -0400
+Received: from szxga04-in.huawei.com ([45.249.212.190]:3222 "EHLO huawei.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727409AbfG3NcC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Jul 2019 09:32:02 -0400
+        id S1726382AbfG3NcD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Jul 2019 09:32:03 -0400
 Received: from DGGEMS402-HUB.china.huawei.com (unknown [172.30.72.60])
-        by Forcepoint Email with ESMTP id 528E8D07E9812DC34B2E;
+        by Forcepoint Email with ESMTP id 483AFB7D026684F4B264;
         Tue, 30 Jul 2019 21:32:00 +0800 (CST)
 Received: from localhost.localdomain (10.67.212.75) by
  DGGEMS402-HUB.china.huawei.com (10.3.19.202) with Microsoft SMTP Server id
@@ -22,10 +22,12 @@ To:     <xuwei5@huawei.com>
 CC:     <bhelgaas@google.com>, <linuxarm@huawei.com>,
         <linux-kernel@vger.kernel.org>, <arnd@arndb.de>, <olof@lixom.net>,
         <stable@vger.kernel.org>, John Garry <john.garry@huawei.com>
-Subject: [PATCH v4 0/5]  Fixes for HiSilicon LPC driver and logical PIO code
-Date:   Tue, 30 Jul 2019 21:29:51 +0800
-Message-ID: <1564493396-92195-1-git-send-email-john.garry@huawei.com>
+Subject: [PATCH v4 1/5] lib: logic_pio: Fix RCU usage
+Date:   Tue, 30 Jul 2019 21:29:52 +0800
+Message-ID: <1564493396-92195-2-git-send-email-john.garry@huawei.com>
 X-Mailer: git-send-email 2.8.1
+In-Reply-To: <1564493396-92195-1-git-send-email-john.garry@huawei.com>
+References: <1564493396-92195-1-git-send-email-john.garry@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 X-Originating-IP: [10.67.212.75]
@@ -35,57 +37,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As reported in [1], the hisi-lpc driver has certain issues in handling
-logical PIO regions, specifically unregistering regions.
+The traversing of io_range_list with list_for_each_entry_rcu()
+is not properly protected by rcu_read_lock() and rcu_read_unlock(),
+so add them.
 
-This series add a method to unregister a logical PIO region, and fixes up
-the driver to use them.
+These functions mark the critical section scope where the list is
+protected for the reader, it cannot be  "reclaimed". Any updater - in
+this case, the logical PIO registration functions - cannot update the
+list until the reader exits this critical section.
 
-RCU usage in logical PIO code looks to always have been broken, so that
-is fixed also. This is not a major fix as the list which RCU protects
-would be rarely modified.
+In addition, the list traversing used in logic_pio_register_range()
+does not need to use the rcu variant.
 
-At this point, there are still separate ongoing discussions about how to
-stop the logical PIO and PCI host bridge code leaking ranges, as in [2],
-which I haven't had a chance to look at recently.
+This is because we are already using io_range_mutex to guarantee mutual
+exclusion from mutating the list.
 
-Hopefully this series can go through the arm soc tree and the maintainers
-have no issue with that. I'm talking specifically about the logical PIO
-code, which went through PCI tree on only previous upstreaming.
+Cc: stable@vger.kernel.org
+Fixes: 031e3601869c ("lib: Add generic PIO mapping method")
+Signed-off-by: John Garry <john.garry@huawei.com>
+---
+ lib/logic_pio.c | 49 +++++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 35 insertions(+), 14 deletions(-)
 
-
-[1] https://lore.kernel.org/lkml/1560770148-57960-1-git-send-email-john.garry@huawei.com/
-[2] https://lore.kernel.org/lkml/4b24fd36-e716-7c5e-31cc-13da727802e7@huawei.com/
-
-Changes since v3:
-https://lore.kernel.org/lkml/1561566418-22714-1-git-send-email-john.garry@huawei.com/
-- drop optimisation patch (lib: logic_pio: Enforce LOGIC_PIO_INDIRECT
-  region ops are set at registration)
-  Not a fix
-- rebase to v5.3-rc2
-- cc stable
-
-Change since v2:
-- Add hisi_lpc_acpi_remove() stub to fix build for !CONFIG_ACPI
-
-Changes since v1:
-- Add more reasoning in RCU fix patch
-- Create separate patch to change LOGIC_PIO_CPU_MMIO registration to
-  accomodate unregistration
-
-John Garry (5):
-  lib: logic_pio: Fix RCU usage
-  lib: logic_pio: Avoid possible overlap for unregistering regions
-  lib: logic_pio: Add logic_pio_unregister_range()
-  bus: hisi_lpc: Unregister logical PIO range to avoid potential
-    use-after-free
-  bus: hisi_lpc: Add .remove method to avoid driver unbind crash
-
- drivers/bus/hisi_lpc.c    | 47 +++++++++++++++++++++----
- include/linux/logic_pio.h |  1 +
- lib/logic_pio.c           | 73 +++++++++++++++++++++++++++++----------
- 3 files changed, 96 insertions(+), 25 deletions(-)
-
+diff --git a/lib/logic_pio.c b/lib/logic_pio.c
+index feea48fd1a0d..761296376fbc 100644
+--- a/lib/logic_pio.c
++++ b/lib/logic_pio.c
+@@ -46,7 +46,7 @@ int logic_pio_register_range(struct logic_pio_hwaddr *new_range)
+ 	end = new_range->hw_start + new_range->size;
+ 
+ 	mutex_lock(&io_range_mutex);
+-	list_for_each_entry_rcu(range, &io_range_list, list) {
++	list_for_each_entry(range, &io_range_list, list) {
+ 		if (range->fwnode == new_range->fwnode) {
+ 			/* range already there */
+ 			goto end_register;
+@@ -108,26 +108,38 @@ int logic_pio_register_range(struct logic_pio_hwaddr *new_range)
+  */
+ struct logic_pio_hwaddr *find_io_range_by_fwnode(struct fwnode_handle *fwnode)
+ {
+-	struct logic_pio_hwaddr *range;
++	struct logic_pio_hwaddr *range, *found_range = NULL;
+ 
++	rcu_read_lock();
+ 	list_for_each_entry_rcu(range, &io_range_list, list) {
+-		if (range->fwnode == fwnode)
+-			return range;
++		if (range->fwnode == fwnode) {
++			found_range = range;
++			break;
++		}
+ 	}
+-	return NULL;
++	rcu_read_unlock();
++
++	return found_range;
+ }
+ 
+ /* Return a registered range given an input PIO token */
+ static struct logic_pio_hwaddr *find_io_range(unsigned long pio)
+ {
+-	struct logic_pio_hwaddr *range;
++	struct logic_pio_hwaddr *range, *found_range = NULL;
+ 
++	rcu_read_lock();
+ 	list_for_each_entry_rcu(range, &io_range_list, list) {
+-		if (in_range(pio, range->io_start, range->size))
+-			return range;
++		if (in_range(pio, range->io_start, range->size)) {
++			found_range = range;
++			break;
++		}
+ 	}
+-	pr_err("PIO entry token %lx invalid\n", pio);
+-	return NULL;
++	rcu_read_unlock();
++
++	if (!found_range)
++		pr_err("PIO entry token 0x%lx invalid\n", pio);
++
++	return found_range;
+ }
+ 
+ /**
+@@ -180,14 +192,23 @@ unsigned long logic_pio_trans_cpuaddr(resource_size_t addr)
+ {
+ 	struct logic_pio_hwaddr *range;
+ 
++	rcu_read_lock();
+ 	list_for_each_entry_rcu(range, &io_range_list, list) {
+ 		if (range->flags != LOGIC_PIO_CPU_MMIO)
+ 			continue;
+-		if (in_range(addr, range->hw_start, range->size))
+-			return addr - range->hw_start + range->io_start;
++		if (in_range(addr, range->hw_start, range->size)) {
++			unsigned long cpuaddr;
++
++			cpuaddr = addr - range->hw_start + range->io_start;
++
++			rcu_read_unlock();
++			return cpuaddr;
++		}
+ 	}
+-	pr_err("addr %llx not registered in io_range_list\n",
+-	       (unsigned long long) addr);
++	rcu_read_unlock();
++
++	pr_err("addr %pa not registered in io_range_list\n", &addr);
++
+ 	return ~0UL;
+ }
+ 
 -- 
 2.17.1
 
