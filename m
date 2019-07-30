@@ -2,163 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B2DC7A1A8
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 09:13:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2537D7A276
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 09:44:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727029AbfG3HNx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 03:13:53 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:39301 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729485AbfG3HNu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 03:13:50 -0400
-Received: by mail-lj1-f196.google.com with SMTP id v18so60989447ljh.6
-        for <stable@vger.kernel.org>; Tue, 30 Jul 2019 00:13:48 -0700 (PDT)
+        id S1729708AbfG3HoK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 03:44:10 -0400
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:34748 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729000AbfG3HoK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 03:44:10 -0400
+Received: by mail-pf1-f196.google.com with SMTP id b13so29390875pfo.1
+        for <stable@vger.kernel.org>; Tue, 30 Jul 2019 00:44:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=euGPPD1eIvXtOUX5549+IyFWsRravUw6eFS+OtoISr0=;
-        b=ijLP+t6eEZQmZYQSDPixEPzwg90AqCFV7x0fu/8Ao60sEiRGe/jbGuBzcYHXncanHi
-         uPvk4zTz01kbLNDvkCQrXEYrmiVBWLBOgc5kShTLw1DO2xiTyrrDpllzWztZYCfZdG/z
-         ETeq/mZ1ALIkqQ2cEE9Hg/zHANP1R8BdQB8kQQiVJvqCOK2t51pMoCGbYGSV3l9ByMMB
-         UQCHF8d4yISs/T1BQHY2hoUWiPKTeKb2C8gtbKmK0XH47MAb1e+7ZXqseAGasDCwG2Ce
-         QT0FEIcdOkAhEzrYqSwdJbuJs4q5O5OMLAOMw5vHbw0rWl5M5P+TJRbBX4ZrPdldV0jG
-         fY6Q==
+        d=broadcom.com; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=2dWWxTxJd1pii9dj8g3hNQ+SfQSV9WfBBB3Us7PIsTg=;
+        b=Gj1spyNdOEX4wIgjQsV3tGjIwHgaeP0XhSIrvNBSBO4eoUUvl+rJKYxLMoc20vNLs0
+         7wANx9S4BA5mHhzI2QgjuZuPuOxvYfXFcDaIPpgf9dEempWjionBTk3wyfDKPWmc3I20
+         iPDfLRZHN6vdSHQzYcRxzxxkSn/YMRGNZaebI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=euGPPD1eIvXtOUX5549+IyFWsRravUw6eFS+OtoISr0=;
-        b=I8NAMwB29Jmj2BUedmXmS2fGnshqZIoMhtIcXCMtxXH0E7iKwqv5CnW8RbNva/F91I
-         7t4uPChRjZ8L11yDmdK0S0pJzXNtEzQiX26NyEYMFcpsy52bWGe3TmaOrtXfw81FdI4/
-         lSG6Vh1T117a3S+y/SO+pq9nD+TM0xtVWGCJf28J8jlqFBNFFjk/iUSW5cA09CI79ING
-         y8L65MK0T5oTj840ZW4rDnHmymu1m2jWuv5lZz57vYFxvjjw+XWBG5qCLhEMXAQfW4Cp
-         BihF5yyQF4jmW9/ZpWX9Ldcp0295cgglk2IHAy7E11VNYFUbwrHx27zO9RWl2zmec4pH
-         lBjg==
-X-Gm-Message-State: APjAAAUtkCCemqkUsAZ9+LWn7h6cnYLlFUYH4ccqbkeVlUcBYtjVugtN
-        XV65Nk+NCuW+J3VIwb4ZrvNajr7xFqY8keKsBCrptoSAH3s=
-X-Google-Smtp-Source: APXvYqxx1SG3uBUNOLIUP0C3cmO79sWI54VvoAkAXxELSEFMicLE3rCXzoHnKehJ/vw6gkxvnc3U/RkH2+HEfzwlacg=
-X-Received: by 2002:a2e:b0f0:: with SMTP id h16mr36380851ljl.21.1564470827752;
- Tue, 30 Jul 2019 00:13:47 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190729190820.321094988@linuxfoundation.org>
-In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 30 Jul 2019 12:43:36 +0530
-Message-ID: <CA+G9fYuin5m8Rzc4_YF5tvjwsBN4=GXnkgmpD8-7U5fwcTnb7Q@mail.gmail.com>
-Subject: Re: [PATCH 4.14 000/293] 4.14.135-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=2dWWxTxJd1pii9dj8g3hNQ+SfQSV9WfBBB3Us7PIsTg=;
+        b=pjY7ldFGcLSJbEXfJuJgY8SyrjVZC4pSbTqoe48kWQD7LNO5QHDEIuXnxiai//d52W
+         SExMrHVL5u1eeXl9/4px01Cx64c7gdUiJMpDgr8yj/W9zmhaWdS37GKg3V/b6BMneof0
+         OHWtGpQoXF4ZdT8xheCycboJYwviLf3WfqyKs9oKZ302KgL/4hSxiFytr3E9bdDbkP5j
+         c82l92B2ecwAhcLuvzlBFfC92UOZjRHV4pyLy8p9EIap2NdfThQBp6VOsRrgvi/fml8V
+         UnLlMZayWV54jJw2oHV4ARN+DO6Rn3/ykNSkMaiu/NkHr3w519DT5UZGRxc3+Y37AWrH
+         bFQQ==
+X-Gm-Message-State: APjAAAWLJbo2VLsJwWLP5jXcerS4dYCDjQufcW7H8GSZkO1ZhHNEv4Z8
+        +bdQ5YHLX5BV7+U966MdmSs+oN+hLo4=
+X-Google-Smtp-Source: APXvYqxi5mii3lQbqkH6nGaxPGueZvYZ+yXendYx7MJ+6Cv46Dpuq9cbms0INdMWupLnaUk4dEtS9w==
+X-Received: by 2002:a63:7245:: with SMTP id c5mr94475280pgn.11.1564472649319;
+        Tue, 30 Jul 2019 00:44:09 -0700 (PDT)
+Received: from dhcp-10-123-20-15.dhcp.broadcom.net ([192.19.234.250])
+        by smtp.gmail.com with ESMTPSA id b30sm92259975pfr.117.2019.07.30.00.44.06
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 30 Jul 2019 00:44:08 -0700 (PDT)
+From:   Suganath Prabu <suganath-prabu.subramani@broadcom.com>
+To:     linux-scsi@vger.kernel.org, stable@vger.kernel.org
+Cc:     Sathya.Prakash@broadcom.com, kashyap.desai@broadcom.com,
+        sreekanth.reddy@broadcom.com,
+        Suganath Prabu <suganath-prabu.subramani@broadcom.com>
+Subject: [PATCH v2] mpt3sas: Use 63-bit DMA addressing on SAS35 HBA
+Date:   Tue, 30 Jul 2019 03:43:57 -0400
+Message-Id: <1564472637-8062-1-git-send-email-suganath-prabu.subramani@broadcom.com>
+X-Mailer: git-send-email 1.8.3.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 30 Jul 2019 at 00:54, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.135 release.
-> There are 293 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed 31 Jul 2019 07:05:01 PM UTC.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.135-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Although SAS3 & SAS3.5 IT HBA controllers support
+64-bit DMA addressing, as per hardware design,
+if DMA able range contains all 64-bits set (0xFFFFFFFF-FFFFFFFF) then
+it results in a firmware fault.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+e.g. SGE's start address is 0xFFFFFFFF-FFFF000 and
+data length is 0x1000 bytes. when HBA tries to DMA the data
+at 0xFFFFFFFF-FFFFFFFF location then HBA will
+fault the firmware.
 
-Summary
-------------------------------------------------------------------------
+Fix:
+Driver will set 63-bit DMA mask to ensure the above address
+will not be used.
 
-kernel: 4.14.135-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.14.y
-git commit: f6ba73a2e356d3f40ed298dbf4097561f2cd9973
-git describe: v4.14.134-294-gf6ba73a2e356
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
-ild/v4.14.134-294-gf6ba73a2e356
+Cc: <stable@vger.kernel.org> # 5.1.20+
+Signed-off-by: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+---
+V1 Change: Added tag for stable tree
+V2 Change: Updated patch description.
+ 
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
+index 6846628..050c0f0 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -2703,6 +2703,8 @@ _base_config_dma_addressing(struct MPT3SAS_ADAPTER *ioc, struct pci_dev *pdev)
+ {
+ 	u64 required_mask, coherent_mask;
+ 	struct sysinfo s;
++	/* Set 63 bit DMA mask for all SAS3 and SAS35 controllers */
++	int dma_mask = (ioc->hba_mpi_version_belonged > MPI2_VERSION) ? 63 : 64;
+ 
+ 	if (ioc->is_mcpu_endpoint)
+ 		goto try_32bit;
+@@ -2712,17 +2714,17 @@ _base_config_dma_addressing(struct MPT3SAS_ADAPTER *ioc, struct pci_dev *pdev)
+ 		goto try_32bit;
+ 
+ 	if (ioc->dma_mask)
+-		coherent_mask = DMA_BIT_MASK(64);
++		coherent_mask = DMA_BIT_MASK(dma_mask);
+ 	else
+ 		coherent_mask = DMA_BIT_MASK(32);
+ 
+-	if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(64)) ||
++	if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(dma_mask)) ||
+ 	    dma_set_coherent_mask(&pdev->dev, coherent_mask))
+ 		goto try_32bit;
+ 
+ 	ioc->base_add_sg_single = &_base_add_sg_single_64;
+ 	ioc->sge_size = sizeof(Mpi2SGESimple64_t);
+-	ioc->dma_mask = 64;
++	ioc->dma_mask = dma_mask;
+ 	goto out;
+ 
+  try_32bit:
+@@ -2744,7 +2746,7 @@ static int
+ _base_change_consistent_dma_mask(struct MPT3SAS_ADAPTER *ioc,
+ 				      struct pci_dev *pdev)
+ {
+-	if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64))) {
++	if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(ioc->dma_mask))) {
+ 		if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32)))
+ 			return -ENODEV;
+ 	}
+@@ -4989,7 +4991,7 @@ _base_allocate_memory_pools(struct MPT3SAS_ADAPTER *ioc)
+ 		total_sz += sz;
+ 	} while (ioc->rdpq_array_enable && (++i < ioc->reply_queue_count));
+ 
+-	if (ioc->dma_mask == 64) {
++	if (ioc->dma_mask > 32) {
+ 		if (_base_change_consistent_dma_mask(ioc, ioc->pdev) != 0) {
+ 			ioc_warn(ioc, "no suitable consistent DMA mask for %s\n",
+ 				 pci_name(ioc->pdev));
+-- 
+1.8.3.1
 
-No regressions (compared to build v4.14.134)
-
-No fixes (compared to build v4.14.134)
-
-Ran 22754 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-timers-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* ltp-fs-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* ltp-open-posix-tests
-* kvm-unit-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
