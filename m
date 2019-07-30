@@ -2,84 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06B5A7A728
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 13:39:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B358B7A71E
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 13:37:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730508AbfG3Ljx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 07:39:53 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:57237 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726386AbfG3Ljx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 07:39:53 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 17726989-1500050 
-        for multiple; Tue, 30 Jul 2019 12:21:53 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     tvrtko.ursulin@intel.com, Chris Wilson <chris@chris-wilson.co.uk>,
-        stable@vger.kernel.org
-Subject: [PATCH 3/3] drm/i915: Flush extra hard after writing relocations through the GTT
-Date:   Tue, 30 Jul 2019 12:21:51 +0100
-Message-Id: <20190730112151.5633-4-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190730112151.5633-1-chris@chris-wilson.co.uk>
-References: <20190730112151.5633-1-chris@chris-wilson.co.uk>
+        id S1730616AbfG3Lhy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 07:37:54 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:60277 "EHLO
+        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730614AbfG3Lhy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 07:37:54 -0400
+Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
+        id 39FA3802B5; Tue, 30 Jul 2019 13:37:40 +0200 (CEST)
+Date:   Tue, 30 Jul 2019 13:37:51 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Tony Lindgren <tony@atomide.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.2 048/215] drm/omap: dont check dispc timings for DSI
+Message-ID: <20190730113751.GB21815@amd>
+References: <20190729190739.971253303@linuxfoundation.org>
+ <20190729190748.832081009@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="1LKvkjL3sHcu1TtY"
+Content-Disposition: inline
+In-Reply-To: <20190729190748.832081009@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Recently discovered in commit bdae33b8b82b ("drm/i915: Use maximum write
-flush for pwrite_gtt") was that we needed to our full write barrier
-before changing the GGTT PTE to ensure that our indirect writes through
-the GTT landed before the PTE changed (and the writes end up in a
-different page). That also applies to our GGTT relocation path.
 
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: stable@vger.kernel.org
----
- drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+--1LKvkjL3sHcu1TtY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-index 8a2047c4e7c3..01901dad33f7 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -1019,11 +1019,12 @@ static void reloc_cache_reset(struct reloc_cache *cache)
- 		kunmap_atomic(vaddr);
- 		i915_gem_object_finish_access((struct drm_i915_gem_object *)cache->node.mm);
- 	} else {
--		wmb();
-+		struct i915_ggtt *ggtt = cache_to_ggtt(cache);
-+
-+		intel_gt_flush_ggtt_writes(ggtt->vm.gt);
- 		io_mapping_unmap_atomic((void __iomem *)vaddr);
--		if (cache->node.allocated) {
--			struct i915_ggtt *ggtt = cache_to_ggtt(cache);
- 
-+		if (cache->node.allocated) {
- 			ggtt->vm.clear_range(&ggtt->vm,
- 					     cache->node.start,
- 					     cache->node.size);
-@@ -1078,6 +1079,7 @@ static void *reloc_iomap(struct drm_i915_gem_object *obj,
- 	void *vaddr;
- 
- 	if (cache->vaddr) {
-+		intel_gt_flush_ggtt_writes(ggtt->vm.gt);
- 		io_mapping_unmap_atomic((void __force __iomem *) unmask_page(cache->vaddr));
- 	} else {
- 		struct i915_vma *vma;
-@@ -1119,7 +1121,6 @@ static void *reloc_iomap(struct drm_i915_gem_object *obj,
- 
- 	offset = cache->node.start;
- 	if (cache->node.allocated) {
--		wmb();
- 		ggtt->vm.insert_page(&ggtt->vm,
- 				     i915_gem_object_get_dma_address(obj, page),
- 				     offset, I915_CACHE_NONE, 0);
--- 
-2.22.0
+On Mon 2019-07-29 21:20:44, Greg Kroah-Hartman wrote:
+> [ Upstream commit ad9df7d91b4a6e8f4b20c2bf539ac09b3b2ad6eb ]
+>=20
+> While most display types only forward their VM to the DISPC, this
+> is not true for DSI. DSI calculates the VM for DISPC based on its
+> own, but it's not identical. Actually the DSI VM is not even a valid
+> DISPC VM making this check fail. Let's restore the old behaviour
+> and avoid checking the DISPC VM for DSI here.
+>=20
+> Fixes: 7c27fa57ef31 ("drm/omap: Call dispc timings check operation direct=
+ly")
+> Acked-by: Pavel Machek <pavel@ucw.cz>
+> Tested-by: Tony Lindgren <tony@atomide.com>
+> Tested-by: Pavel Machek <pavel@ucw.cz>
+> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+> Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
+Not sure if this is good idea for stable. IIRC there's series of
+patches to enable display on droid4 (etc), which is useful, but this
+patch is not going to do any good on its own.
+
+								Pavel
+
+>  drivers/gpu/drm/omapdrm/omap_crtc.c | 18 ++++++++++++++----
+>  1 file changed, 14 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/drivers/gpu/drm/omapdrm/omap_crtc.c b/drivers/gpu/drm/omapdr=
+m/omap_crtc.c
+> index 8712af79a49c..4c43dd282acc 100644
+> --- a/drivers/gpu/drm/omapdrm/omap_crtc.c
+> +++ b/drivers/gpu/drm/omapdrm/omap_crtc.c
+> @@ -384,10 +384,20 @@ static enum drm_mode_status omap_crtc_mode_valid(st=
+ruct drm_crtc *crtc,
+>  	int r;
+> =20
+>  	drm_display_mode_to_videomode(mode, &vm);
+> -	r =3D priv->dispc_ops->mgr_check_timings(priv->dispc, omap_crtc->channe=
+l,
+> -					       &vm);
+> -	if (r)
+> -		return r;
+> +
+> +	/*
+> +	 * DSI might not call this, since the supplied mode is not a
+> +	 * valid DISPC mode. DSI will calculate and configure the
+> +	 * proper DISPC mode later.
+> +	 */
+> +	if (omap_crtc->pipe->output->next =3D=3D NULL ||
+> +	    omap_crtc->pipe->output->next->type !=3D OMAP_DISPLAY_TYPE_DSI) {
+> +		r =3D priv->dispc_ops->mgr_check_timings(priv->dispc,
+> +						       omap_crtc->channel,
+> +						       &vm);
+> +		if (r)
+> +			return r;
+> +	}
+> =20
+>  	/* Check for bandwidth limit */
+>  	if (priv->max_bandwidth) {
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--1LKvkjL3sHcu1TtY
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl1ALA8ACgkQMOfwapXb+vLivwCfSxC4OWQN/14fhb5nIvRRnOS+
+JMwAnix68z/VpEm39HRi2R0vnq3K7lOU
+=mnTv
+-----END PGP SIGNATURE-----
+
+--1LKvkjL3sHcu1TtY--
