@@ -2,91 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 55F767A47F
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 11:36:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6F9E7A492
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 11:37:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731575AbfG3JgG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 05:36:06 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:43680 "EHLO mx1.redhat.com"
+        id S1731374AbfG3JhS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 05:37:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731501AbfG3JgF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Jul 2019 05:36:05 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1730463AbfG3JhS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Jul 2019 05:37:18 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 469ECC028353;
-        Tue, 30 Jul 2019 09:36:05 +0000 (UTC)
-Received: from localhost (unknown [10.43.2.114])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D12DC60856;
-        Tue, 30 Jul 2019 09:36:04 +0000 (UTC)
-Date:   Tue, 30 Jul 2019 11:35:33 +0200
-From:   Stanislaw Gruszka <sgruszka@redhat.com>
-To:     Jian-Hong Pan <jian-hong@endlessm.com>
-Cc:     Yan-Hsuan Chuang <yhchuang@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        David Laight <David.Laight@aculab.com>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux@endlessm.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] rtw88: pci: Use general byte arrays as the elements of
- RX ring
-Message-ID: <20190730093533.GC3174@redhat.com>
-References: <20190725080925.6575-1-jian-hong@endlessm.com>
+        by mail.kernel.org (Postfix) with ESMTPSA id EE32520665;
+        Tue, 30 Jul 2019 09:37:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564479437;
+        bh=ACBlNakQ/oKIl6NGWB/sfYV8/tSIhvEY9neGq9na4Hw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nfJ9o/vNLPQu4yWfxwA5aRJpEucP8Z27NRBVVTKEKgFe8mmTudurerR/wlHABg+Cl
+         8v4iVBgFwHZWdpEJ7r0VGR53jODTLlbeAA+T07mAPLrVF3nCnEZoWecOBApOVLwdds
+         zWwHEgcy6RLOqjNnM9caXI1+iKSZ7evs/rmW/hQo=
+Date:   Tue, 30 Jul 2019 11:37:13 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Will Deacon <will@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
+        "# 4 . 9+" <stable@vger.kernel.org>,
+        Aurelien Jarno <aurelien@aurel32.net>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: Re: [PATCH] arm64: compat: Provide definition for COMPAT_SIGMINSTKSZ
+Message-ID: <20190730093713.GB15402@kroah.com>
+References: <20190730092547.1284-1-will@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190725080925.6575-1-jian-hong@endlessm.com>
-User-Agent: Mutt/1.5.20 (2009-12-10)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.31]); Tue, 30 Jul 2019 09:36:05 +0000 (UTC)
+In-Reply-To: <20190730092547.1284-1-will@kernel.org>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 25, 2019 at 04:09:26PM +0800, Jian-Hong Pan wrote:
-> Each skb as the element in RX ring was expected with sized buffer 8216
-> (RTK_PCI_RX_BUF_SIZE) bytes. However, the skb buffer's true size is
-> 16640 bytes for alignment after allocated, x86_64 for example. And, the
-
-rtw88 advertise IEEE80211_VHT_CAP_MAX_MPDU_LENGTH_11454, so maximum AMSDU
-packet can be approximately 12kB. This might be accidental, but having
-16kB skb's allow to handle such big AMSDUs. If you shrink buf size,
-you can probably override memory after buffer end.
-
-> difference will be enlarged 512 times (RTK_MAX_RX_DESC_NUM).
-> To prevent that much wasted memory, this patch follows David's
-> suggestion [1] and uses general buffer arrays, instead of skbs as the
-> elements in RX ring.
+On Tue, Jul 30, 2019 at 10:25:47AM +0100, Will Deacon wrote:
+> From: Will Deacon <will.deacon@arm.com>
 > 
-> [1] https://www.spinics.net/lists/linux-wireless/msg187870.html
+> [ Upstream commit 24951465cbd279f60b1fdc2421b3694405bcff42 ]
 > 
-> Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
-> Cc: <stable@vger.kernel.org>
+> arch/arm/ defines a SIGMINSTKSZ of 2k, so we should use the same value
+> for compat tasks.
+> 
+> Cc: <stable@vger.kernel.org> # 4.9+
+> Cc: Aurelien Jarno <aurelien@aurel32.net>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+> Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Al Viro <viro@zeniv.linux.org.uk>
+> Cc: Oleg Nesterov <oleg@redhat.com>
+> Reviewed-by: Dave Martin <Dave.Martin@arm.com>
+> Reported-by: Steve McIntyre <steve.mcintyre@arm.com>
+> Tested-by: Steve McIntyre <93sam@debian.org>
+> Signed-off-by: Will Deacon <will.deacon@arm.com>
+> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+> ---
+> 
+> Aurelien points out that this didn't get selected for -stable despite its
+> counterpart (22839869f21a ("signal: Introduce COMPAT_SIGMINSTKSZ for use
+> in compat_sys_sigaltstack")) being backported to 4.9. Oops.
 
-This does not fix any serious problem, it actually most likely 
-introduce memory corruption problem described above. Should not
-be targeted to stable anyway.
+So this needs to go into 4.9.y, 4.14.y, and 4.19.y?
 
-> -			dev_kfree_skb_any(skb);
-> +			devm_kfree(rtwdev->dev, buf);
+thanks,
 
-For what this is needed? devm_ allocations are used exactly to avoid
-manual freeing.
-
-> +		len = pkt_stat.pkt_len + pkt_offset;
-> +		skb = dev_alloc_skb(len);
-> +		if (WARN_ONCE(!skb, "rx routine starvation\n"))
->  			goto next_rp;
->  
->  		/* put the DMA data including rx_desc from phy to new skb */
-> -		skb_put_data(new, skb->data, new_len);
-> +		skb_put_data(skb, rx_desc, len);
-
-Coping big packets it quite inefficient. What drivers usually do is 
-copy only for small packets and for big ones allocate new rx buf
-(drop packet alloc if fail) and pas old buf to network stack via
-skb_add_rx_frag(). See iwlmvm as example.
-
-Stanislaw
+greg k-h
