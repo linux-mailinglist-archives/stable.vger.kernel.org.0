@@ -2,124 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2443C7B34B
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 21:28:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BFF27B368
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 21:31:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727412AbfG3T22 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 15:28:28 -0400
-Received: from mout.kundenserver.de ([212.227.126.134]:33433 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727169AbfG3T22 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 15:28:28 -0400
-Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
- (mreue010 [212.227.15.129]) with ESMTPA (Nemesis) id
- 1MfpjF-1iYSFh2Mgb-00gKk2; Tue, 30 Jul 2019 21:28:20 +0200
-From:   Arnd Bergmann <arnd@arndb.de>
-To:     Alexander Viro <viro@zeniv.linux.org.uk>
-Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Arnd Bergmann <arnd@arndb.de>, "Yan, Zheng" <zyan@redhat.com>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        Sage Weil <sage@redhat.com>, Ilya Dryomov <idryomov@gmail.com>,
-        ceph-devel@vger.kernel.org
-Subject: [PATCH v5 07/29] ceph: fix compat_ioctl for ceph_dir_operations
-Date:   Tue, 30 Jul 2019 21:25:18 +0200
-Message-Id: <20190730192552.4014288-8-arnd@arndb.de>
-X-Mailer: git-send-email 2.20.0
-In-Reply-To: <20190730192552.4014288-1-arnd@arndb.de>
-References: <20190730192552.4014288-1-arnd@arndb.de>
+        id S1728562AbfG3Tb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 15:31:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43488 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728522AbfG3Tb6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Jul 2019 15:31:58 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB26E2067D;
+        Tue, 30 Jul 2019 19:31:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564515118;
+        bh=8yD0S9fSH5v/5Hl/wEGQwDxo0ojb/Bg4JQGOdpy8YTI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=aLJuCTAfDgQaL4l2X9n6/xwi83FV90PDFsDWOe2ysMT9I6Zc4y95xykbq51H7U7ck
+         r5Ar7NhYR8yT2Kd9j2OxYOD9/I3G1u7I5hrLe3sQFw5Y96czSGbeEDjDAG8PSQiiuy
+         ebHu2HxoSCNK2x6ItcjkdSsYiw2qg3k9k3Gn23Sg=
+Date:   Tue, 30 Jul 2019 15:31:56 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Salvatore Bonaccorso <carnil@debian.org>
+Cc:     stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Xin Long <lucien.xin@gmail.com>
+Subject: Re: Backport request for 4.9 99253eb750fd ("ipv6: check sk sk_type
+ and protocol early in ip_mroute_set/getsockopt")
+Message-ID: <20190730193156.GD29162@sasha-vm>
+References: <20190730103914.GA3114@lorien.valinor.li>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:OFNJPOAxGGQ88UZpH506xX65QSClANbkeR8AXnNFg+lHh90Gp1y
- Km41PW8pur9V06yneCdcMZ9hh6d7J9oJdH/kEeWqHVzsG8RfrRQSupk+d4DtS4KyFBYLPBk
- rLbLRcJlpLJWSeIcWqGypgZFvJWpty+odggTjE26mYnYSO+ZtQlFYfaJz+zO9Ttf4G3JFIk
- GArX7xpL2XyXJhbP6c1FA==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:7ixz1WNaE9E=:uKu7zALGZzh9Pb/581lnUp
- nEk/LWN5HTdg5wgAzCfGiVw/W98p50xEGd/MYkeFR/+jqdAlXWazfuGBWuoHj/4eQJfnvWJ5r
- 4mVE7cUYfbuFFpZ+Vp+MldVtItnygDJl4pYCuOWCGYep5VqwG1vaLk4kGIj91MRla4R3f//mN
- Ao3WW5mslyMD18Z+FIV50rXswB9VoGR4WQw7RTJUHetuBsHa07aPDlSRcY/uP2lOEkmZ2p2kN
- YFsUfeib4Gt9qLDT4OI0fyD7SvU9ZELhn5Q+RJk1rv4DxktrrUern2aMCavVNcat0Izyxz5jq
- GMZzq2Gc9G3qdZ5NGD9I2nQA1qYLsPlr1ZOybe2mG6r69qiwGnCV/aEFfehF147d8NBcZkIb3
- aQn1oI+qSDtExttzQKmjqV8Cr9PvYZTBV5+kXOQa5HjTdQj+ECe82bjd/+/D4fByztqZlwqjJ
- yQWn6RZ4myWQG6fv/KYq0Ws3eHzP/9STmpTiTh4zQzz+GWGVHzFcIqvkP5VA5rr75q95jzPn7
- 394M+z/wTyOYXLfcXkUOAxu/+lXElKeFl6hsPOtRAxIMidDR1Z/OJV5ACHotfEjWCHTQns1H4
- qhefIVICQQS3pBpDC9mbTC83KPjxxgwOMdmWfzc0d5sS2vlzQRcDh+o9GP6ad992ZzONHzn+f
- 9bot1snjzctzXYFC/KfkjepJfrF4h+GLon35W3nYgIqFb8ZzPKescF3M7t1zHlnqoJ2JrpJIz
- Mx8EeqifWwxcXLRP7OQCYd9H/5ANh8rYYo1wNg==
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20190730103914.GA3114@lorien.valinor.li>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The ceph_ioctl function is used both for files and directories, but only
-the files support doing that in 32-bit compat mode.
+On Tue, Jul 30, 2019 at 12:39:15PM +0200, Salvatore Bonaccorso wrote:
+>Hi
+>
+>As this goes to the 4.9 series according to
+>https://www.kernel.org/doc/html/latest/networking/netdev-FAQ.html#q-are-all-networking-bug-fixes-backported-to-all-stable-releases
+>I'm sending it primarily to stable@v.k.o but Cc'ing Dave and Xin Long.
+>
+>Could you please apply 99253eb750fd ("ipv6: check sk sk_type and
+>protocol early in ip_mroute_set/getsockopt") to the 4.9 stable series?
+>
+>While 5e1859fbcc3c was done back in 3.8-rc1, 99253eb750fd from
+>4.11-rc1 was not backported to older stable series itself, where it is
+>needed as well.
+>
+>Only checked if applicable without change in 4.9, but the fix should
+>probably go as well to the 4.4 and 3.16.
 
-For consistency, add the same compat handler to the dir operations
-as well, and use a handler that applies the appropriate compat_ptr()
-conversion.
+I've queued it for 4.9 and 4.4, thank you!
 
-Reviewed-by: "Yan, Zheng" <zyan@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- fs/ceph/dir.c   |  1 +
- fs/ceph/file.c  |  2 +-
- fs/ceph/super.h | 10 ++++++++++
- 3 files changed, 12 insertions(+), 1 deletion(-)
-
-diff --git a/fs/ceph/dir.c b/fs/ceph/dir.c
-index 4ca0b8ff9a72..401c17d36b71 100644
---- a/fs/ceph/dir.c
-+++ b/fs/ceph/dir.c
-@@ -1808,6 +1808,7 @@ const struct file_operations ceph_dir_fops = {
- 	.open = ceph_open,
- 	.release = ceph_release,
- 	.unlocked_ioctl = ceph_ioctl,
-+	.compat_ioctl = ceph_compat_ioctl,
- 	.fsync = ceph_fsync,
- 	.lock = ceph_lock,
- 	.flock = ceph_flock,
-diff --git a/fs/ceph/file.c b/fs/ceph/file.c
-index 685a03cc4b77..99712b6b1ad5 100644
---- a/fs/ceph/file.c
-+++ b/fs/ceph/file.c
-@@ -2138,7 +2138,7 @@ const struct file_operations ceph_file_fops = {
- 	.splice_read = generic_file_splice_read,
- 	.splice_write = iter_file_splice_write,
- 	.unlocked_ioctl = ceph_ioctl,
--	.compat_ioctl	= ceph_ioctl,
-+	.compat_ioctl = ceph_compat_ioctl,
- 	.fallocate	= ceph_fallocate,
- 	.copy_file_range = ceph_copy_file_range,
- };
-diff --git a/fs/ceph/super.h b/fs/ceph/super.h
-index d2352fd95dbc..0aebccd48fa0 100644
---- a/fs/ceph/super.h
-+++ b/fs/ceph/super.h
-@@ -6,6 +6,7 @@
- 
- #include <asm/unaligned.h>
- #include <linux/backing-dev.h>
-+#include <linux/compat.h>
- #include <linux/completion.h>
- #include <linux/exportfs.h>
- #include <linux/fs.h>
-@@ -1108,6 +1109,15 @@ extern void ceph_readdir_cache_release(struct ceph_readdir_cache_control *ctl);
- 
- /* ioctl.c */
- extern long ceph_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
-+static inline long
-+ceph_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+#ifdef CONFIG_COMPAT
-+	return ceph_ioctl(file, cmd, (unsigned long)compat_ptr(arg));
-+#else
-+	return -ENOTTY;
-+#endif
-+}
- 
- /* export.c */
- extern const struct export_operations ceph_export_ops;
--- 
-2.20.0
-
+--
+Thanks,
+Sasha
