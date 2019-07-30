@@ -2,133 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2537D7A276
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 09:44:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D6AB7A2CE
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 10:08:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729708AbfG3HoK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 03:44:10 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:34748 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729000AbfG3HoK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 03:44:10 -0400
-Received: by mail-pf1-f196.google.com with SMTP id b13so29390875pfo.1
-        for <stable@vger.kernel.org>; Tue, 30 Jul 2019 00:44:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=2dWWxTxJd1pii9dj8g3hNQ+SfQSV9WfBBB3Us7PIsTg=;
-        b=Gj1spyNdOEX4wIgjQsV3tGjIwHgaeP0XhSIrvNBSBO4eoUUvl+rJKYxLMoc20vNLs0
-         7wANx9S4BA5mHhzI2QgjuZuPuOxvYfXFcDaIPpgf9dEempWjionBTk3wyfDKPWmc3I20
-         iPDfLRZHN6vdSHQzYcRxzxxkSn/YMRGNZaebI=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=2dWWxTxJd1pii9dj8g3hNQ+SfQSV9WfBBB3Us7PIsTg=;
-        b=pjY7ldFGcLSJbEXfJuJgY8SyrjVZC4pSbTqoe48kWQD7LNO5QHDEIuXnxiai//d52W
-         SExMrHVL5u1eeXl9/4px01Cx64c7gdUiJMpDgr8yj/W9zmhaWdS37GKg3V/b6BMneof0
-         OHWtGpQoXF4ZdT8xheCycboJYwviLf3WfqyKs9oKZ302KgL/4hSxiFytr3E9bdDbkP5j
-         c82l92B2ecwAhcLuvzlBFfC92UOZjRHV4pyLy8p9EIap2NdfThQBp6VOsRrgvi/fml8V
-         UnLlMZayWV54jJw2oHV4ARN+DO6Rn3/ykNSkMaiu/NkHr3w519DT5UZGRxc3+Y37AWrH
-         bFQQ==
-X-Gm-Message-State: APjAAAWLJbo2VLsJwWLP5jXcerS4dYCDjQufcW7H8GSZkO1ZhHNEv4Z8
-        +bdQ5YHLX5BV7+U966MdmSs+oN+hLo4=
-X-Google-Smtp-Source: APXvYqxi5mii3lQbqkH6nGaxPGueZvYZ+yXendYx7MJ+6Cv46Dpuq9cbms0INdMWupLnaUk4dEtS9w==
-X-Received: by 2002:a63:7245:: with SMTP id c5mr94475280pgn.11.1564472649319;
-        Tue, 30 Jul 2019 00:44:09 -0700 (PDT)
-Received: from dhcp-10-123-20-15.dhcp.broadcom.net ([192.19.234.250])
-        by smtp.gmail.com with ESMTPSA id b30sm92259975pfr.117.2019.07.30.00.44.06
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 30 Jul 2019 00:44:08 -0700 (PDT)
-From:   Suganath Prabu <suganath-prabu.subramani@broadcom.com>
-To:     linux-scsi@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sathya.Prakash@broadcom.com, kashyap.desai@broadcom.com,
-        sreekanth.reddy@broadcom.com,
-        Suganath Prabu <suganath-prabu.subramani@broadcom.com>
-Subject: [PATCH v2] mpt3sas: Use 63-bit DMA addressing on SAS35 HBA
-Date:   Tue, 30 Jul 2019 03:43:57 -0400
-Message-Id: <1564472637-8062-1-git-send-email-suganath-prabu.subramani@broadcom.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1730859AbfG3IIn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 04:08:43 -0400
+Received: from smtp.codeaurora.org ([198.145.29.96]:54480 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730839AbfG3IIn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 04:08:43 -0400
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id D6EDC6037C; Tue, 30 Jul 2019 08:08:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1564474122;
+        bh=+sMHcpS1ulUUbOmL1Z9dNBUBD3g23n1MFcbcZj3a+ko=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=bXFfgyHSjL0PRBtecGd20UWGA4l8n1uGluyo/dEkV1t2J75intbKIxtYx1SF4SqDl
+         udg1tD2b/zKAVaV3kS58KSkDQCeE8h/onM3dpTe8s8b4G8W5NJqcC2MUg0s8QLId3Q
+         HX5yKOmj71IafmJ2HitJYY84tT3i96fLV3SFnia4=
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        pdx-caf-mail.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.7 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        DKIM_INVALID,DKIM_SIGNED,SPF_NONE autolearn=no autolearn_force=no
+        version=3.4.0
+Received: from x230.qca.qualcomm.com (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: kvalo@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 92C256037C;
+        Tue, 30 Jul 2019 08:08:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1564474122;
+        bh=+sMHcpS1ulUUbOmL1Z9dNBUBD3g23n1MFcbcZj3a+ko=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=bXFfgyHSjL0PRBtecGd20UWGA4l8n1uGluyo/dEkV1t2J75intbKIxtYx1SF4SqDl
+         udg1tD2b/zKAVaV3kS58KSkDQCeE8h/onM3dpTe8s8b4G8W5NJqcC2MUg0s8QLId3Q
+         HX5yKOmj71IafmJ2HitJYY84tT3i96fLV3SFnia4=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 92C256037C
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
+From:   Kalle Valo <kvalo@codeaurora.org>
+To:     Brian Norris <briannorris@chromium.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Ganapathi Bhat <gbhat@marvell.com>,
+        Nishant Sarmukadam <nishants@marvell.com>,
+        Amitkumar Karwar <amitkarwar@gmail.com>,
+        Xinming Hu <huxinming820@gmail.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        stable <stable@vger.kernel.org>,
+        Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: [PATCH 5.3] mwifiex: fix 802.11n/WPA detection
+References: <20190724194634.205718-1-briannorris@chromium.org>
+        <s5hv9vkx21i.wl-tiwai@suse.de>
+        <CA+ASDXMEFew2Sg5G1ofKq-0gfOTFEOhZNjfyNJMRzRjv7ZFgXw@mail.gmail.com>
+Date:   Tue, 30 Jul 2019 11:08:37 +0300
+In-Reply-To: <CA+ASDXMEFew2Sg5G1ofKq-0gfOTFEOhZNjfyNJMRzRjv7ZFgXw@mail.gmail.com>
+        (Brian Norris's message of "Mon, 29 Jul 2019 12:45:26 -0700")
+Message-ID: <87y30glzay.fsf@codeaurora.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/24.5 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Although SAS3 & SAS3.5 IT HBA controllers support
-64-bit DMA addressing, as per hardware design,
-if DMA able range contains all 64-bits set (0xFFFFFFFF-FFFFFFFF) then
-it results in a firmware fault.
+Brian Norris <briannorris@chromium.org> writes:
 
-e.g. SGE's start address is 0xFFFFFFFF-FFFF000 and
-data length is 0x1000 bytes. when HBA tries to DMA the data
-at 0xFFFFFFFF-FFFFFFFF location then HBA will
-fault the firmware.
+> On Mon, Jul 29, 2019 at 9:01 AM Takashi Iwai <tiwai@suse.de> wrote:
+>> This isn't seen in linux-next yet.
+>
+> Apparently not.
+>
+>> Still pending review?
+>
+> I guess? Probably mostly pending maintainer attention.
 
-Fix:
-Driver will set 63-bit DMA mask to ensure the above address
-will not be used.
+Correct, I was offline for few days.
 
-Cc: <stable@vger.kernel.org> # 5.1.20+
-Signed-off-by: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
----
-V1 Change: Added tag for stable tree
-V2 Change: Updated patch description.
- 
- drivers/scsi/mpt3sas/mpt3sas_base.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+> Also, Johannes already had noticed (and privately messaged me): this
+> patch took a while to show up on the linux-wireless Patchwork
+> instance. So the first review (from Guenter Roeck) and my extra reply
+> noting the -stable regression didn't make it to Patchwork:
+>
+> https://patchwork.kernel.org/patch/11057585/
+>
+>> In anyway,
+>>   Reviewed-by: Takashi Iwai <tiwai@suse.de>
+>
+> Thanks. Hopefully Kalle can pick it up.
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
-index 6846628..050c0f0 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_base.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
-@@ -2703,6 +2703,8 @@ _base_config_dma_addressing(struct MPT3SAS_ADAPTER *ioc, struct pci_dev *pdev)
- {
- 	u64 required_mask, coherent_mask;
- 	struct sysinfo s;
-+	/* Set 63 bit DMA mask for all SAS3 and SAS35 controllers */
-+	int dma_mask = (ioc->hba_mpi_version_belonged > MPI2_VERSION) ? 63 : 64;
- 
- 	if (ioc->is_mcpu_endpoint)
- 		goto try_32bit;
-@@ -2712,17 +2714,17 @@ _base_config_dma_addressing(struct MPT3SAS_ADAPTER *ioc, struct pci_dev *pdev)
- 		goto try_32bit;
- 
- 	if (ioc->dma_mask)
--		coherent_mask = DMA_BIT_MASK(64);
-+		coherent_mask = DMA_BIT_MASK(dma_mask);
- 	else
- 		coherent_mask = DMA_BIT_MASK(32);
- 
--	if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(64)) ||
-+	if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(dma_mask)) ||
- 	    dma_set_coherent_mask(&pdev->dev, coherent_mask))
- 		goto try_32bit;
- 
- 	ioc->base_add_sg_single = &_base_add_sg_single_64;
- 	ioc->sge_size = sizeof(Mpi2SGESimple64_t);
--	ioc->dma_mask = 64;
-+	ioc->dma_mask = dma_mask;
- 	goto out;
- 
-  try_32bit:
-@@ -2744,7 +2746,7 @@ static int
- _base_change_consistent_dma_mask(struct MPT3SAS_ADAPTER *ioc,
- 				      struct pci_dev *pdev)
- {
--	if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64))) {
-+	if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(ioc->dma_mask))) {
- 		if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32)))
- 			return -ENODEV;
- 	}
-@@ -4989,7 +4991,7 @@ _base_allocate_memory_pools(struct MPT3SAS_ADAPTER *ioc)
- 		total_sz += sz;
- 	} while (ioc->rdpq_array_enable && (++i < ioc->reply_queue_count));
- 
--	if (ioc->dma_mask == 64) {
-+	if (ioc->dma_mask > 32) {
- 		if (_base_change_consistent_dma_mask(ioc, ioc->pdev) != 0) {
- 			ioc_warn(ioc, "no suitable consistent DMA mask for %s\n",
- 				 pci_name(ioc->pdev));
+I expect to apply this today.
+
 -- 
-1.8.3.1
-
+Kalle Valo
