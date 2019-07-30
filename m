@@ -2,89 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3FDC7A521
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 11:48:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CF917A621
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 12:39:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731896AbfG3Jsp convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 30 Jul 2019 05:48:45 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:49846 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730150AbfG3Jsp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 05:48:45 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-174-SV6Xl8A9OrKA0tVNQBwUCg-1; Tue, 30 Jul 2019 10:48:38 +0100
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b::d117) by AcuMS.aculab.com
- (fd9f:af1c:a25b::d117) with Microsoft SMTP Server (TLS) id 15.0.1347.2; Tue,
- 30 Jul 2019 10:48:38 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Tue, 30 Jul 2019 10:48:38 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Stanislaw Gruszka' <sgruszka@redhat.com>,
-        Jian-Hong Pan <jian-hong@endlessm.com>
-CC:     Yan-Hsuan Chuang <yhchuang@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux@endlessm.com" <linux@endlessm.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] rtw88: pci: Use general byte arrays as the elements of RX
- ring
-Thread-Topic: [PATCH] rtw88: pci: Use general byte arrays as the elements of
- RX ring
-Thread-Index: AQHVRro3Kaj7ufhACkSCuQV9Pmu/hqbi59sQ
-Date:   Tue, 30 Jul 2019 09:48:38 +0000
-Message-ID: <962a8a8e735946d6b3944b7d0e228309@AcuMS.aculab.com>
-References: <20190725080925.6575-1-jian-hong@endlessm.com>
- <20190730093533.GC3174@redhat.com>
-In-Reply-To: <20190730093533.GC3174@redhat.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S1727987AbfG3KjT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 06:39:19 -0400
+Received: from mail-wr1-f41.google.com ([209.85.221.41]:47103 "EHLO
+        mail-wr1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727823AbfG3KjT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 06:39:19 -0400
+Received: by mail-wr1-f41.google.com with SMTP id z1so65171745wru.13
+        for <stable@vger.kernel.org>; Tue, 30 Jul 2019 03:39:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=BkPuPqqtjXBBicZ1H4mEBoclibVONJUG+D17KmCs5Cc=;
+        b=Cc6J5pO9saOA+HoPfi76O7Bjax+DOkDqC9sNzAzKO5bQ6Z039hwv1qdxAQvKY9Qjbp
+         lIALMF9RxddgoOqyjDnqR7H9xtfszD7w+OGxVCgOlOedsLo6+SRyhWRAqDabzkExetv0
+         yvYOklHdUs1f6FdGk8Z4N4n3EgwP8wB7J2lw8rAU2KGPVpkFEpFiiK6S3QhFJpPSkg8i
+         H66u+qAQh9UrVxQJ6tMhAAz4j2XbdRrDMUwXU1b4GLHx/bAnbdA+WQow9RXhpa9YewXx
+         HsnRjzSR6n34g3cZFFrNriEh1S8XoaK++aVeJ9hmj0E86B0YKywKRSsSznlVZ8AeHhbG
+         mrlQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :mime-version:content-disposition:user-agent;
+        bh=BkPuPqqtjXBBicZ1H4mEBoclibVONJUG+D17KmCs5Cc=;
+        b=LnDvNHxV1DBPfi+sXKWCEShCAM0AFNshNp//kGCw21TVsdiALxNV3tQcoEs6YH31ZH
+         aqcOUQ9uDPDYg6h8upWbV+Eq9nC3w+WPtpd/drF+RzTt2Sb437R1y17MYL+FNpiur881
+         Ts9xQja8nD34ps25l6qPH3xSrTsxGCJ/UFusgZWMtQnlvXhsk5Cxs/4ztDR5lFR93BiX
+         +dhps8jrvSxoRXdJ9m6y+v59IpRcroZiPs7LA6C4FXM5P5+WBo7K7UDvG5JNxFCl4FJs
+         T+rEzJbYUxjzQ51kWG6RALMQP7NY8b7jHH2cN9AbA+6ZFy5oZFRZ14XhXbc3AK/RtlLV
+         eQ/g==
+X-Gm-Message-State: APjAAAW+YAWHiDmuBLRFUyo2ghp3oRZL09EsTGfQG/Lmp0NFQXZHyKt0
+        EhhHgBo+z/lYBpC85kmJCEwnAnrkx8I=
+X-Google-Smtp-Source: APXvYqzS4v4fim8fhFCGG0JWLS88iDxyeFIAY2JTlsjtHzA00LNfhqIFQj3cGunYjIdTu0Oujz7LYA==
+X-Received: by 2002:a05:6000:112:: with SMTP id o18mr47050681wrx.153.1564483156805;
+        Tue, 30 Jul 2019 03:39:16 -0700 (PDT)
+Received: from lorien (lorien.valinor.li. [2a01:4f8:192:61d5::2])
+        by smtp.gmail.com with ESMTPSA id t1sm76948497wra.74.2019.07.30.03.39.15
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Tue, 30 Jul 2019 03:39:16 -0700 (PDT)
+Date:   Tue, 30 Jul 2019 12:39:15 +0200
+From:   Salvatore Bonaccorso <carnil@debian.org>
+To:     stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     "David S. Miller" <davem@davemloft.net>,
+        Xin Long <lucien.xin@gmail.com>
+Subject: Backport request for 4.9 99253eb750fd ("ipv6: check sk sk_type and
+ protocol early in ip_mroute_set/getsockopt")
+Message-ID: <20190730103914.GA3114@lorien.valinor.li>
 MIME-Version: 1.0
-X-MC-Unique: SV6Xl8A9OrKA0tVNQBwUCg-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanislaw Gruszka
-> Sent: 30 July 2019 10:36
-...
-> > +		len = pkt_stat.pkt_len + pkt_offset;
-> > +		skb = dev_alloc_skb(len);
-> > +		if (WARN_ONCE(!skb, "rx routine starvation\n"))
-> >  			goto next_rp;
-> >
-> >  		/* put the DMA data including rx_desc from phy to new skb */
-> > -		skb_put_data(new, skb->data, new_len);
-> > +		skb_put_data(skb, rx_desc, len);
-> 
-> Coping big packets it quite inefficient. What drivers usually do is
-> copy only for small packets and for big ones allocate new rx buf
-> (drop packet alloc if fail) and pas old buf to network stack via
-> skb_add_rx_frag(). See iwlmvm as example.
+Hi
 
-If you have to do iommu setup/teardown then the breakeven point
-for (not) copying may be surprisingly large.
-You do need to do the measurements on a range of hardware.
-Coping is also likely to affect the L1 cache - unless you can
-copy quickly without polluting the cache.
+As this goes to the 4.9 series according to
+https://www.kernel.org/doc/html/latest/networking/netdev-FAQ.html#q-are-all-networking-bug-fixes-backported-to-all-stable-releases
+I'm sending it primarily to stable@v.k.o but Cc'ing Dave and Xin Long.
 
-It is all 'swings and roundabouts'.
+Could you please apply 99253eb750fd ("ipv6: check sk sk_type and
+protocol early in ip_mroute_set/getsockopt") to the 4.9 stable series?
 
-	David
+While 5e1859fbcc3c was done back in 3.8-rc1, 99253eb750fd from
+4.11-rc1 was not backported to older stable series itself, where it is
+needed as well. 
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+Only checked if applicable without change in 4.9, but the fix should
+probably go as well to the 4.4 and 3.16.
 
+Regards,
+Salvatore
