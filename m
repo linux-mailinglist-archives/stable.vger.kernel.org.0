@@ -2,118 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98A1D7AC73
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 17:31:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D6257AD10
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 17:59:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731751AbfG3PbO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 11:31:14 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:40576 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725877AbfG3PbN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 11:31:13 -0400
-Received: by mail-lj1-f194.google.com with SMTP id m8so28903906lji.7
-        for <stable@vger.kernel.org>; Tue, 30 Jul 2019 08:31:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=ijf+IXMFVOGyvl/6lR3Dl4FHOPijwIT8zlA3D+mB5Zg=;
-        b=ky12He8Kf8tUIMDwGJbIw/FAZCNoOYc2+0deJeoUMUYn71ibisQOQBx3k6VOLHsTuo
-         B1dzMxoZdynUB6zjeAwIMLthlkJ+ZjykQ1XLvWnpUkORJ49J2i7rTLTrcxe5S5wVazgY
-         sN4tUbFcMmf6azm9wd2Vt0HGmw8R3gjYK7q4u7dP3xcI6T0V84NL7ri6cxhfjiIWcTk8
-         szRtTwondYA84H0RtHLJ59dTa0a8GMLmHcwNszu7oJaWMsbBkpH80NIHAuBR3faQ+lBp
-         jC5V/LgKlFNaEWIBprf+MaSxhio7gITyAIw64IdCi+q4VVkTkoEPpDHFuEv0fQQHIDiz
-         22OA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=ijf+IXMFVOGyvl/6lR3Dl4FHOPijwIT8zlA3D+mB5Zg=;
-        b=CzNIdp8M1PiYAY/d70XaZogC9bFl4Gw41uGJ52OGUHG7T3+4ONw5RBNy22SYdhSIYZ
-         f5jNiWCKPv515dd70pcxFYWopk0z1FlEOfCdl+TxDXi1qcMFhLFKh+Kd7CkQCLsfbF6f
-         Sk43Bhw+ul31Dj+zc5E8LVvuUGXiYJ2GpavAuTQt0HBKVipDOBJ15C5npLlXXzjt7F7i
-         7Zctb6t+i28CH4V6HkCYscIma9HKeVnYVpZkEw2c+1W4OlSP1eqDDVljYBp+MZe/dRKE
-         vv0c2KrF4RZWkhf+qfhmXzmhsnkdNagshzwfYEjJEYVnUnW2FrqaBuei2eVbTiABoxTH
-         b2fg==
-X-Gm-Message-State: APjAAAXkobYvsB2XAoDKcivPBiJ0j/e0N8hxOuWODUtD1epLJQnX5Dsb
-        AYxI4O1j4IVNjnDDCWsEhv8n2g==
-X-Google-Smtp-Source: APXvYqwn5yHeNh2SggjrocFklpCW7DMwZmxMpOfufxOmSHRUb0st7KBTDbw62b+nH+RnCHOuX2bDgg==
-X-Received: by 2002:a05:651c:1b8:: with SMTP id c24mr63473072ljn.2.1564500671320;
-        Tue, 30 Jul 2019 08:31:11 -0700 (PDT)
-Received: from localhost (c-243c70d5.07-21-73746f28.bbcust.telenor.se. [213.112.60.36])
-        by smtp.gmail.com with ESMTPSA id l22sm13409494ljc.4.2019.07.30.08.31.09
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Tue, 30 Jul 2019 08:31:10 -0700 (PDT)
-From:   Anders Roxell <anders.roxell@linaro.org>
-To:     malidp@foss.arm.com, airlied@linux.ie, daniel@ffwll.ch
-Cc:     dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
-        gustavo@embeddedor.com, liviu.dudau@arm.com,
-        Anders Roxell <anders.roxell@linaro.org>,
-        stable@vger.kernel.org
-Subject: [PATCH v2] drm: mali-dp: Mark expected switch fall-through
-Date:   Tue, 30 Jul 2019 17:30:56 +0200
-Message-Id: <20190730153056.3606-1-anders.roxell@linaro.org>
-X-Mailer: git-send-email 2.20.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        id S1730372AbfG3P7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 11:59:14 -0400
+Received: from conuserg-11.nifty.com ([210.131.2.78]:60066 "EHLO
+        conuserg-11.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729291AbfG3P7O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 11:59:14 -0400
+Received: from grover.flets-west.jp (softbank126026094249.bbtec.net [126.26.94.249]) (authenticated)
+        by conuserg-11.nifty.com with ESMTP id x6UFx3RY014915;
+        Wed, 31 Jul 2019 00:59:03 +0900
+DKIM-Filter: OpenDKIM Filter v2.10.3 conuserg-11.nifty.com x6UFx3RY014915
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+        s=dec2015msa; t=1564502344;
+        bh=tmS7rnSw2i0wnICGgr8MtsDLTrDE/y5htkc0RewVGsQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=SeHvLBy8UxNSSmSxw57UopL/v+/sDXCLCt5mURKX9QxblCFwEtObGcYs6AqFyWRae
+         CQFOKPlz2LDf2LGVNZpY1vPVq5k5/r3rbWY6hR3+iVRPBJfn9lT+MV2AxbOo9L4+a6
+         TEOg6HC/Qqd/bh8PhpM7UbwTclEpieW4lRQn4KlckotzuDiqNStImwH4HrQIGSLxk1
+         58eIF1eqpAJ7qYM39BGpzRhVfkm75fltGTDCVc2fUIoZSs6EdFqDQK0KKlCcPpzM5w
+         Iz8KZjhg3iXh8CpNY6pED7y2ZtyyGwTgZh1o2qP9mFFMHXzP7JPDBZsnY+rpZmdBs3
+         CE7aY0cjYfpMA==
+X-Nifty-SrcIP: [126.26.94.249]
+From:   Masahiro Yamada <yamada.masahiro@socionext.com>
+To:     linux-kbuild@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        stable@vger.kernel.org, Michal Marek <michal.lkml@markovi.net>
+Subject: [PATCH 1/4] kbuild: modpost: include .*.cmd files only when targets exist
+Date:   Wed, 31 Jul 2019 00:58:59 +0900
+Message-Id: <20190730155902.5557-1-yamada.masahiro@socionext.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Now that -Wimplicit-fallthrough is passed to GCC by default, the
-following warnings shows up:
+A build rule fails, the .DELETE_ON_ERROR special target removes the
+target, but does nothing for the .*.cmd file, which might be corrupted.
+So, .*.cmd files should be included only when the corresponding targets
+exist.
 
-../drivers/gpu/drm/arm/malidp_hw.c: In function ‘malidp_format_get_bpp’:
-../drivers/gpu/drm/arm/malidp_hw.c:387:8: warning: this statement may fall
- through [-Wimplicit-fallthrough=]
-    bpp = 30;
-    ~~~~^~~~
-../drivers/gpu/drm/arm/malidp_hw.c:388:3: note: here
-   case DRM_FORMAT_YUV420_10BIT:
-   ^~~~
-../drivers/gpu/drm/arm/malidp_hw.c: In function ‘malidp_se_irq’:
-../drivers/gpu/drm/arm/malidp_hw.c:1311:4: warning: this statement may fall
- through [-Wimplicit-fallthrough=]
-    drm_writeback_signal_completion(&malidp->mw_connector, 0);
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../drivers/gpu/drm/arm/malidp_hw.c:1313:3: note: here
-   case MW_START:
-   ^~~~
+Commit 392885ee82d3 ("kbuild: let fixdep directly write to .*.cmd
+files") missed to fix up this file.
 
-Rework to add a 'break;' in a case that didn't have it so that
-the compiler doesn't warn about fall-through.
-
-Cc: stable@vger.kernel.org # v5.2+
-Fixes: b8207562abdd ("drm/arm/malidp: Specified the rotation memory requirements for AFBC YUV formats")
-Acked-by: Liviu Dudau <liviu.dudau@arm.com>
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Fixes: 392885ee82d3 ("kbuild: let fixdep directly write to .*.cmd")
+Cc: <stable@vger.kernel.org> # v5.0+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 ---
- drivers/gpu/drm/arm/malidp_hw.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/arm/malidp_hw.c b/drivers/gpu/drm/arm/malidp_hw.c
-index 50af399d7f6f..380be66d4c6e 100644
---- a/drivers/gpu/drm/arm/malidp_hw.c
-+++ b/drivers/gpu/drm/arm/malidp_hw.c
-@@ -385,6 +385,7 @@ int malidp_format_get_bpp(u32 fmt)
- 		switch (fmt) {
- 		case DRM_FORMAT_VUY101010:
- 			bpp = 30;
-+			break;
- 		case DRM_FORMAT_YUV420_10BIT:
- 			bpp = 15;
- 			break;
-@@ -1309,7 +1310,7 @@ static irqreturn_t malidp_se_irq(int irq, void *arg)
- 			break;
- 		case MW_RESTART:
- 			drm_writeback_signal_completion(&malidp->mw_connector, 0);
--			/* fall through to a new start */
-+			/* fall through - to a new start */
- 		case MW_START:
- 			/* writeback started, need to emulate one-shot mode */
- 			hw->disable_memwrite(hwdev);
+ scripts/Makefile.modpost | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/scripts/Makefile.modpost b/scripts/Makefile.modpost
+index 6b19c1a4eae5..ad4b9829a456 100644
+--- a/scripts/Makefile.modpost
++++ b/scripts/Makefile.modpost
+@@ -145,10 +145,8 @@ FORCE:
+ # optimization, we don't need to read them if the target does not
+ # exist, we will rebuild anyway in that case.
+ 
+-cmd_files := $(wildcard $(foreach f,$(sort $(targets)),$(dir $(f)).$(notdir $(f)).cmd))
++existing-targets := $(wildcard $(sort $(targets)))
+ 
+-ifneq ($(cmd_files),)
+-  include $(cmd_files)
+-endif
++-include $(foreach f,$(existing-targets),$(dir $(f)).$(notdir $(f)).cmd)
+ 
+ .PHONY: $(PHONY)
 -- 
-2.20.1
+2.17.1
 
