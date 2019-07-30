@@ -2,192 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0115879DF6
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 03:31:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDC0C79EA3
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 04:24:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729697AbfG3BbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 21:31:25 -0400
-Received: from szxga05-in.huawei.com ([45.249.212.191]:3237 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1729473AbfG3BbY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jul 2019 21:31:24 -0400
-Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.59])
-        by Forcepoint Email with ESMTP id 9DA0B8677B88E1F2180E;
-        Tue, 30 Jul 2019 09:31:21 +0800 (CST)
-Received: from [127.0.0.1] (10.177.96.96) by DGGEMS401-HUB.china.huawei.com
- (10.3.19.201) with Microsoft SMTP Server id 14.3.439.0; Tue, 30 Jul 2019
- 09:31:20 +0800
-Subject: Re: [PATCH stable 4.9] tcp: reset sk_send_head in
- tcp_write_queue_purge
-To:     Sasha Levin <sashal@kernel.org>
-References: <20190729132108.162320-1-maowenan@huawei.com>
- <20190729153218.GA29162@sasha-vm>
-CC:     <gregkh@linuxfoundation.org>, <stable@vger.kernel.org>,
-        <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-From:   maowenan <maowenan@huawei.com>
-Message-ID: <29c1ee9c-4a5d-4f61-f526-85980185f0bd@huawei.com>
-Date:   Tue, 30 Jul 2019 09:31:19 +0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101
- Thunderbird/45.2.0
+        id S1729270AbfG3CYl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 22:24:41 -0400
+Received: from mail-wr1-f49.google.com ([209.85.221.49]:39538 "EHLO
+        mail-wr1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728962AbfG3CYl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 22:24:41 -0400
+Received: by mail-wr1-f49.google.com with SMTP id x4so10769391wrt.6
+        for <stable@vger.kernel.org>; Mon, 29 Jul 2019 19:24:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=KXaoPbrQR8cOY5xonhHKs7ogV9g+KKiBGCtdfBnXIps=;
+        b=SkFmTFB2rhJ5NWnsC5igBM7kIjO0ngg1wJFLBawSLi/D7iZFnTdmbJg5nJFf2YCQpR
+         PYe4Jz0I5uEOnQ1slZY0v/QZPima1nX8Sp4O7PGRUv/3YbV2mFRk6RkU8CDyCV7GkByq
+         GPJkCJl3EwMt86zzopJyfXBXcqxaoQoACPncRbdyFmmVALtQxEscl/3QvcDNDZSJU8/4
+         i2Bor1UjAGZrM2NOQkChjFwPcjRs4EoDjRKDyoTiSjq3HRn5w1Q14y6i9E70z4Bisl53
+         C1RqN4F3GlLTXN55iv8DK+KMh8rCTLSYH21yk3Em9sADlC3ORn+sTIs9fRzzq163K3QP
+         o+aw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=KXaoPbrQR8cOY5xonhHKs7ogV9g+KKiBGCtdfBnXIps=;
+        b=UZhUtkamgQHZF5Yis59RPjuAUGzDYQQ+6Fszi710+FIyZiCyuLvABelhyepkCfENnH
+         20rkOXRRhf2mWrNkQKEwoWeOSPZyDjKwx74Z+7uB2rsI5n2RmLrlIOpXiWPJoxz1JiYW
+         qGb3gocA9cplBiG4ukPh1lYsuKtFKGkqQLh65qMTXt2tK66f/YLpTKgUWw5cYynA9YOz
+         GPsVPuxh2rF5OsUuhHa+DTOADMF6yV2mmFcSg/bI+PHX2jPQFgBiHyNW127nyT6tFgnZ
+         b+FsTfjQvmItXSXrUt+X4Gb22K7SLoeCxx+4iBegtlxAowosdzhI5MKsLK04UawgqPKV
+         9cFA==
+X-Gm-Message-State: APjAAAUqE2uMPlwXpShTvyjNJ7lNkdYwACZbVH2SJEIQeVUWGiv8dmlx
+        L3vEXiQE2Scm+xXGuYENASGv1WHWW+Q=
+X-Google-Smtp-Source: APXvYqyKJXM9q5L2USmHuoa+n70gtJ3ifVz22FQrphogBwo4K3TETPWRKPVrFInHbuDRyRGa3kWpJg==
+X-Received: by 2002:a5d:518f:: with SMTP id k15mr64682073wrv.321.1564453479178;
+        Mon, 29 Jul 2019 19:24:39 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id n5sm48769779wmi.21.2019.07.29.19.24.38
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 29 Jul 2019 19:24:38 -0700 (PDT)
+Message-ID: <5d3faa66.1c69fb81.af756.a088@mx.google.com>
+Date:   Mon, 29 Jul 2019 19:24:38 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20190729153218.GA29162@sasha-vm>
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.177.96.96]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.62-114-g0c75526c53c7
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.19.y boot: 111 boots: 1 failed,
+ 70 passed with 40 offline (v4.19.62-114-g0c75526c53c7)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.19.y boot: 111 boots: 1 failed, 70 passed with 40 offline=
+ (v4.19.62-114-g0c75526c53c7)
 
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.62-114-g0c75526c53c7/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.62-114-g0c75526c53c7/
 
-On 2019/7/29 23:32, Sasha Levin wrote:
-> On Mon, Jul 29, 2019 at 09:21:08PM +0800, Mao Wenan wrote:
->> From: Soheil Hassas Yeganeh <soheil@google.com>
->>
->> tcp_write_queue_purge clears all the SKBs in the write queue
->> but does not reset the sk_send_head. As a result, we can have
->> a NULL pointer dereference anywhere that we use tcp_send_head
->> instead of the tcp_write_queue_tail.
->>
->> For example, after a27fd7a8ed38 (tcp: purge write queue upon RST),
->> we can purge the write queue on RST. Prior to
->> 75c119afe14f (tcp: implement rb-tree based retransmit queue),
->> tcp_push will only check tcp_send_head and then accesses
->> tcp_write_queue_tail to send the actual SKB. As a result, it will
->> dereference a NULL pointer.
->>
->> This has been reported twice for 4.14 where we don't have
->> 75c119afe14f:
->>
->> By Timofey Titovets:
->>
->> [  422.081094] BUG: unable to handle kernel NULL pointer dereference
->> at 0000000000000038
->> [  422.081254] IP: tcp_push+0x42/0x110
->> [  422.081314] PGD 0 P4D 0
->> [  422.081364] Oops: 0002 [#1] SMP PTI
->>
->> By Yongjian Xu:
->>
->> BUG: unable to handle kernel NULL pointer dereference at 0000000000000038
->> IP: tcp_push+0x48/0x120
->> PGD 80000007ff77b067 P4D 80000007ff77b067 PUD 7fd989067 PMD 0
->> Oops: 0002 [#18] SMP PTI
->> Modules linked in: tcp_diag inet_diag tcp_bbr sch_fq iTCO_wdt
->> iTCO_vendor_support pcspkr ixgbe mdio i2c_i801 lpc_ich joydev input_leds shpchp
->> e1000e igb dca ptp pps_core hwmon mei_me mei ipmi_si ipmi_msghandler sg ses
->> scsi_transport_sas enclosure ext4 jbd2 mbcache sd_mod ahci libahci megaraid_sas
->> wmi ast ttm dm_mirror dm_region_hash dm_log dm_mod dax
->> CPU: 6 PID: 14156 Comm: [ET_NET 6] Tainted: G D 4.14.26-1.el6.x86_64 #1
->> Hardware name: LENOVO ThinkServer RD440 /ThinkServer RD440, BIOS A0TS80A
->> 09/22/2014
->> task: ffff8807d78d8140 task.stack: ffffc9000e944000
->> RIP: 0010:tcp_push+0x48/0x120
->> RSP: 0018:ffffc9000e947a88 EFLAGS: 00010246
->> RAX: 00000000000005b4 RBX: ffff880f7cce9c00 RCX: 0000000000000000
->> RDX: 0000000000000000 RSI: 0000000000000040 RDI: ffff8807d00f5000
->> RBP: ffffc9000e947aa8 R08: 0000000000001c84 R09: 0000000000000000
->> R10: ffff8807d00f5158 R11: 0000000000000000 R12: ffff8807d00f5000
->> R13: 0000000000000020 R14: 00000000000256d4 R15: 0000000000000000
->> FS: 00007f5916de9700(0000) GS:ffff88107fd00000(0000) knlGS:0000000000000000
->> CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->> CR2: 0000000000000038 CR3: 00000007f8226004 CR4: 00000000001606e0
->> Call Trace:
->> tcp_sendmsg_locked+0x33d/0xe50
->> tcp_sendmsg+0x37/0x60
->> inet_sendmsg+0x39/0xc0
->> sock_sendmsg+0x49/0x60
->> sock_write_iter+0xb6/0x100
->> do_iter_readv_writev+0xec/0x130
->> ? rw_verify_area+0x49/0xb0
->> do_iter_write+0x97/0xd0
->> vfs_writev+0x7e/0xe0
->> ? __wake_up_common_lock+0x80/0xa0
->> ? __fget_light+0x2c/0x70
->> ? __do_page_fault+0x1e7/0x530
->> do_writev+0x60/0xf0
->> ? inet_shutdown+0xac/0x110
->> SyS_writev+0x10/0x20
->> do_syscall_64+0x6f/0x140
->> ? prepare_exit_to_usermode+0x8b/0xa0
->> entry_SYSCALL_64_after_hwframe+0x3d/0xa2
->> RIP: 0033:0x3135ce0c57
->> RSP: 002b:00007f5916de4b00 EFLAGS: 00000293 ORIG_RAX: 0000000000000014
->> RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 0000003135ce0c57
->> RDX: 0000000000000002 RSI: 00007f5916de4b90 RDI: 000000000000606f
->> RBP: 0000000000000000 R08: 0000000000000000 R09: 00007f5916de8c38
->> R10: 0000000000000000 R11: 0000000000000293 R12: 00000000000464cc
->> R13: 00007f5916de8c30 R14: 00007f58d8bef080 R15: 0000000000000002
->> Code: 48 8b 97 60 01 00 00 4c 8d 97 58 01 00 00 41 b9 00 00 00 00 41 89 f3 4c 39
->> d2 49 0f 44 d1 41 81 e3 00 80 00 00 0f 85 b0 00 00 00 <80> 4a 38 08 44 8b 8f 74
->> 06 00 00 44 89 8f 7c 06 00 00 83 e6 01
->> RIP: tcp_push+0x48/0x120 RSP: ffffc9000e947a88
->> CR2: 0000000000000038
->> ---[ end trace 8d545c2e93515549 ]---
->>
->> There is other scenario which found in stable 4.4:
->> Allocated:
->> [<ffffffff82f380a6>] __alloc_skb+0xe6/0x600 net/core/skbuff.c:218
->> [<ffffffff832466c3>] alloc_skb_fclone include/linux/skbuff.h:856 [inline]
->> [<ffffffff832466c3>] sk_stream_alloc_skb+0xa3/0x5d0 net/ipv4/tcp.c:833
->> [<ffffffff83249164>] tcp_sendmsg+0xd34/0x2b00 net/ipv4/tcp.c:1178
->> [<ffffffff83300ef3>] inet_sendmsg+0x203/0x4d0 net/ipv4/af_inet.c:755
->> Freed:
->> [<ffffffff82f372fd>] __kfree_skb+0x1d/0x20 net/core/skbuff.c:676
->> [<ffffffff83288834>] sk_wmem_free_skb include/net/sock.h:1447 [inline]
->> [<ffffffff83288834>] tcp_write_queue_purge include/net/tcp.h:1460 [inline]
->> [<ffffffff83288834>] tcp_connect_init net/ipv4/tcp_output.c:3122 [inline]
->> [<ffffffff83288834>] tcp_connect+0xb24/0x30c0 net/ipv4/tcp_output.c:3261
->> [<ffffffff8329b991>] tcp_v4_connect+0xf31/0x1890 net/ipv4/tcp_ipv4.c:246
->>
->> BUG: KASAN: use-after-free in tcp_skb_pcount include/net/tcp.h:796 [inline]
->> BUG: KASAN: use-after-free in tcp_init_tso_segs net/ipv4/tcp_output.c:1619 [inline]
->> BUG: KASAN: use-after-free in tcp_write_xmit+0x3fc2/0x4cb0 net/ipv4/tcp_output.c:2056
->> [<ffffffff81515cd5>] kasan_report.cold.7+0x175/0x2f7 mm/kasan/report.c:408
->> [<ffffffff814f9784>] __asan_report_load2_noabort+0x14/0x20 mm/kasan/report.c:427
->> [<ffffffff83286582>] tcp_skb_pcount include/net/tcp.h:796 [inline]
->> [<ffffffff83286582>] tcp_init_tso_segs net/ipv4/tcp_output.c:1619 [inline]
->> [<ffffffff83286582>] tcp_write_xmit+0x3fc2/0x4cb0 net/ipv4/tcp_output.c:2056
->> [<ffffffff83287a40>] __tcp_push_pending_frames+0xa0/0x290 net/ipv4/tcp_output.c:2307
->>
->> stable 4.4 and stable 4.9 don't have the commit abb4a8b870b5 ("tcp: purge write queue upon RST")
->> which is referred in dbbf2d1e4077,
->> in tcp_connect_init, it calls tcp_write_queue_purge, and does not reset sk_send_head, then UAF.
->>
->> stable 4.14 have the commit abb4a8b870b5 ("tcp: purge write queue upon RST"),
->> in tcp_reset, it calls tcp_write_queue_purge(sk), and does not reset sk_send_head, then UAF.
->>
->> So this patch can be used to fix stable 4.4 and 4.9.
->>
->> Fixes: a27fd7a8ed38 (tcp: purge write queue upon RST)
->> Reported-by: Timofey Titovets <nefelim4ag@gmail.com>
->> Reported-by: Yongjian Xu <yongjianchn@gmail.com>
->> Signed-off-by: Eric Dumazet <edumazet@google.com>
->> Signed-off-by: Soheil Hassas Yeganeh <soheil@google.com>
->> Tested-by: Yongjian Xu <yongjianchn@gmail.com>
->>
->> Signed-off-by: David S. Miller <davem@davemloft.net>
->> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->> Signed-off-by: Mao Wenan <maowenan@huawei.com>
-> 
-> So the "Fixes:" commit in the commit message is wrong? What's the actual
-> commit that this fixes?
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.62-114-g0c75526c53c7
+Git Commit: 0c75526c53c7c911b415119a86ace13c9d3e1724
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 64 unique boards, 26 SoC families, 17 builds out of 206
 
-Upstream commit is 7f582b248d0a ("tcp: purge write queue in tcp_connect_init()")
-linux-4.4.y
-Fixes: 5bbe138a250e ("tcp: purge write queue in tcp_connect_init()")
-linux-4.9.y
-Fixes: 74a4c09d4b05 ("tcp: purge write queue in tcp_connect_init()")
-linux-4.14.y
-Fixes: a27fd7a8ed38 ("tcp: purge write queue upon RST")
+Boot Failure Detected:
 
-> 
-> -- 
-> Thanks,
-> Sasha
-> 
-> .
-> 
+arc:
+    hsdk_defconfig:
+        gcc-8:
+            hsdk: 1 failed lab
 
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            meson-axg-s400: 1 offline lab
+            meson-gxbb-odroidc2: 1 offline lab
+            meson-gxl-s905d-p230: 1 offline lab
+            meson-gxl-s905x-libretech-cc: 1 offline lab
+            meson-gxl-s905x-nexbox-a95x: 1 offline lab
+            meson-gxl-s905x-p212: 1 offline lab
+            meson-gxm-nexbox-a1: 1 offline lab
+            rk3399-firefly: 1 offline lab
+            sun50i-a64-pine64-plus: 1 offline lab
+
+mips:
+
+    pistachio_defconfig:
+        gcc-8
+            pistachio_marduk: 1 offline lab
+
+arm:
+
+    exynos_defconfig:
+        gcc-8
+            exynos5250-arndale: 1 offline lab
+            exynos5420-arndale-octa: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5250-arndale: 1 offline lab
+            exynos5420-arndale-octa: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
+            imx6dl-wandboard_dual: 1 offline lab
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+            imx7s-warp: 1 offline lab
+            meson8b-odroidc1: 1 offline lab
+            omap3-beagle: 1 offline lab
+            omap4-panda: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            stih410-b2120: 1 offline lab
+            sun4i-a10-cubieboard: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+            vf610-colibri-eval-v3: 1 offline lab
+
+    omap2plus_defconfig:
+        gcc-8
+            omap3-beagle: 1 offline lab
+            omap4-panda: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+    imx_v6_v7_defconfig:
+        gcc-8
+            imx6dl-wandboard_dual: 1 offline lab
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+            imx7s-warp: 1 offline lab
+            vf610-colibri-eval-v3: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun4i-a10-cubieboard: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
