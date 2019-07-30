@@ -2,83 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F61E7AE5A
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 18:48:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69A937AE7B
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 18:56:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727067AbfG3Qrl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 12:47:41 -0400
-Received: from userp2130.oracle.com ([156.151.31.86]:44124 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726253AbfG3Qrl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 12:47:41 -0400
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x6UGj5Ea037135;
-        Tue, 30 Jul 2019 16:47:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
- from : references : date : in-reply-to : message-id : mime-version :
- content-type; s=corp-2018-07-02;
- bh=3Lvf5l3PuwIQZBPFEa0S/5jsyNyEzSw2FH0i8ExleJw=;
- b=14gHRnWEvJT7qDzzi2NJH5QtaVJcu4EVUuov9igUPbthZ3fjoUqvujIuialHwAYvQSwA
- B+yfzD7gTX/dt4Uub1JlQVlfQlQObf5O3rNqIFJSMmkrHfEtTRJqBoSScZlpDnilXG1G
- Q3bKMVb+kI2Ikbunk49lpYHO5try4awHPeaoh5pgzULst4IF4O7fAq2jF2680puPdyZe
- yaBQezQNDG1smHtiWrlShBmnr3yrkhjhrUyg0NVOyee7nR3Ut933fPsMuGU0RwOVn/Qm
- wer+rKsvD8SIv4b2u7Ztksvb/j0PlxI49HAT/Ok39xxBklNLTUUo7JMA4NNRN328XnHn nw== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by userp2130.oracle.com with ESMTP id 2u0e1tqxu4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 30 Jul 2019 16:47:37 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x6UGgf74138056;
-        Tue, 30 Jul 2019 16:47:37 GMT
-Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
-        by userp3020.oracle.com with ESMTP id 2u2exabmx1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 30 Jul 2019 16:47:37 +0000
-Received: from abhmp0015.oracle.com (abhmp0015.oracle.com [141.146.116.21])
-        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id x6UGlZme029942;
-        Tue, 30 Jul 2019 16:47:35 GMT
-Received: from ca-mkp.ca.oracle.com (/10.159.214.123)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 30 Jul 2019 09:47:35 -0700
-To:     Suganath Prabu <suganath-prabu.subramani@broadcom.com>
-Cc:     linux-scsi@vger.kernel.org, stable@vger.kernel.org,
-        Sathya.Prakash@broadcom.com, kashyap.desai@broadcom.com,
-        sreekanth.reddy@broadcom.com
-Subject: Re: [PATCH v2] mpt3sas: Use 63-bit DMA addressing on SAS35 HBA
-From:   "Martin K. Petersen" <martin.petersen@oracle.com>
-Organization: Oracle Corporation
-References: <1564472637-8062-1-git-send-email-suganath-prabu.subramani@broadcom.com>
-Date:   Tue, 30 Jul 2019 12:47:33 -0400
-In-Reply-To: <1564472637-8062-1-git-send-email-suganath-prabu.subramani@broadcom.com>
-        (Suganath Prabu's message of "Tue, 30 Jul 2019 03:43:57 -0400")
-Message-ID: <yq1mugvmpui.fsf@oracle.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1.92 (gnu/linux)
+        id S1727009AbfG3Q4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 12:56:25 -0400
+Received: from mga04.intel.com ([192.55.52.120]:64805 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725911AbfG3Q4Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Jul 2019 12:56:25 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 30 Jul 2019 09:56:24 -0700
+X-IronPort-AV: E=Sophos;i="5.64,327,1559545200"; 
+   d="scan'208";a="162634411"
+Received: from rdvivi-losangeles.jf.intel.com (HELO intel.com) ([10.7.196.65])
+  by orsmga007-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 30 Jul 2019 09:56:24 -0700
+Date:   Tue, 30 Jul 2019 09:56:59 -0700
+From:   Rodrigo Vivi <rodrigo.vivi@intel.com>
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc:     "Souza, Jose" <jose.souza@intel.com>,
+        "sashal@kernel.org" <sashal@kernel.org>,
+        Jani Nikula <jani.nikula@intel.com>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Pandiyan, Dhinakaran" <dhinakaran.pandiyan@intel.com>
+Subject: Re: [Intel-gfx] [PATCH stable v5.2] drm/i915/vbt: Fix VBT parsing
+ for the PSR section
+Message-ID: <20190730165659.GB18653@intel.com>
+References: <20190719004526.B0CC521850@mail.kernel.org>
+ <20190722231325.16615-1-dhinakaran.pandiyan@intel.com>
+ <20190724120657.GG3244@kroah.com>
+ <05339e812e35a4cf1811f26a06bd5a4d1d652407.camel@intel.com>
+ <20190724174029.GC30776@intel.com>
+ <20190730151908.GA21970@intel.com>
+ <20190730152724.GB31590@kroah.com>
+ <20190730162207.GA18653@intel.com>
+ <20190730162709.GA28503@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9334 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=623
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1906280000 definitions=main-1907300174
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9334 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=690 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1906280000
- definitions=main-1907300174
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190730162709.GA28503@kroah.com>
+User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-Suganath,
+On Tue, Jul 30, 2019 at 06:27:09PM +0200, Greg KH wrote:
+> On Tue, Jul 30, 2019 at 09:22:07AM -0700, Rodrigo Vivi wrote:
+> > On Tue, Jul 30, 2019 at 05:27:24PM +0200, Greg KH wrote:
+> > > On Tue, Jul 30, 2019 at 08:19:08AM -0700, Rodrigo Vivi wrote:
+> > > > Hi Greg,
+> > > > 
+> > > > On Wed, Jul 24, 2019 at 10:40:29AM -0700, Rodrigo Vivi wrote:
+> > > > > On Wed, Jul 24, 2019 at 05:27:42PM +0000, Souza, Jose wrote:
+> > > > > > On Wed, 2019-07-24 at 14:06 +0200, Greg KH wrote:
+> > > > > > > On Mon, Jul 22, 2019 at 04:13:25PM -0700, Dhinakaran Pandiyan wrote:
+> > > > > > > > A single 32-bit PSR2 training pattern field follows the sixteen
+> > > > > > > > element
+> > > > > > > > array of PSR table entries in the VBT spec. But, we incorrectly
+> > > > > > > > define
+> > > > > > > > this PSR2 field for each of the PSR table entries. As a result, the
+> > > > > > > > PSR1
+> > > > > > > > training pattern duration for any panel_type != 0 will be parsed
+> > > > > > > > incorrectly. Secondly, PSR2 training pattern durations for VBTs
+> > > > > > > > with bdb
+> > > > > > > > version >= 226 will also be wrong.
+> > > > > > > > 
+> > > > > > > > Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> > > > > > > > Cc: José Roberto de Souza <jose.souza@intel.com>
+> > > > > > > > Cc: stable@vger.kernel.org
+> > > > > > > > Cc: stable@vger.kernel.org #v5.2
+> > > > > > > > Fixes: 88a0d9606aff ("drm/i915/vbt: Parse and use the new field
+> > > > > > > > with PSR2 TP2/3 wakeup time")
+> > > > > > > > Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111088
+> > > > > > > > Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204183
+> > > > > > > > Signed-off-by: Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>
+> > > > > > > > Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > > > > > > > Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
+> > > > > > > > Acked-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> > > > > > > > Tested-by: François Guerraz <kubrick@fgv6.net>
+> > > > > > > > Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> > > > > > > > Link: 
+> > > > > > > > https://patchwork.freedesktop.org/patch/msgid/20190717223451.2595-1-dhinakaran.pandiyan@intel.com
+> > > > > > > > (cherry picked from commit
+> > > > > > > > b5ea9c9337007d6e700280c8a60b4e10d070fb53)
+> > > > > > > 
+> > > > > > > There is no such commit in Linus's kernel tree :(
+> > > > > 
+> > > > > not yet... It is queued for 5.3 on drm-intel-next-queued.
+> > > > > 
+> > > > > This line is automatically added by "dim" tool when
+> > > > > cherry-picking queued stuff for our drm-intel fixes branches.
+> > > > 
+> > > > What do you need her from us to accept this patch?
+> > > 
+> > > Um, you have read the stable kernel rules, right?
+> > >     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+> > >
+> > > That's what I need for it to go into a stable kernel release.
+> > 
+> > Yes, I have read it. Maybe what I don't understand is just the fact that we will
+> > let customers facing issues for 6 weeks or more while the original patch
+> > doesn't land on Linus tree. :(
+> 
+> Then get the patch into Linus's tree!
+> Nothing I can do until that happens, you know this...
 
-> Although SAS3 & SAS3.5 IT HBA controllers support 64-bit DMA
-> addressing, as per hardware design, if DMA able range contains all
-> 64-bits set (0xFFFFFFFF-FFFFFFFF) then it results in a firmware fault.
+-ENOTENOUGHCOFFEE sorry.
+For some reason I thought this thread had started as the reject of your scripts.
 
-Applied to 5.3/scsi-fixes. Thanks!
+This patch is already queued on our drm-intel-fixes and will probably land on
+Linus tree next week. Than your scripts will just get it.
 
--- 
-Martin K. Petersen	Oracle Linux Engineering
+So, back to your original concern:
+
+The referrence b5ea9c9337007d6e700280c8a60b4e10d070fb53 you pointed out won't
+exist until 5.3 merge window though.
+
+My question now is regarding our fixes flow adding these future references.
+Do you have any concern with that?
+
+Sorry and Thanks,
+Rodrigo.
+
+> 
+> greg k-h
