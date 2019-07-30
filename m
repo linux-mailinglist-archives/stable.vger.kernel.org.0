@@ -2,144 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1AC07AAAA
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 16:14:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 612E77AB75
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 16:52:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729584AbfG3OOx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 10:14:53 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:40422 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727338AbfG3OOx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 10:14:53 -0400
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: sre)
-        with ESMTPSA id 06DF828A5E8
-Received: by earth.universe (Postfix, from userid 1000)
-        id 27ED63C0943; Tue, 30 Jul 2019 16:14:48 +0200 (CEST)
-Date:   Tue, 30 Jul 2019 16:14:48 +0200
-From:   Sebastian Reichel <sebastian.reichel@collabora.com>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Tony Lindgren <tony@atomide.com>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.2 048/215] drm/omap: dont check dispc timings for DSI
-Message-ID: <20190730141448.hvmkffa4s23pweci@earth.universe>
-References: <20190729190739.971253303@linuxfoundation.org>
- <20190729190748.832081009@linuxfoundation.org>
- <20190730113751.GB21815@amd>
+        id S1726740AbfG3OwS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 10:52:18 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:40249 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726535AbfG3OwS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 10:52:18 -0400
+Received: by mail-lf1-f66.google.com with SMTP id b17so44958096lff.7;
+        Tue, 30 Jul 2019 07:52:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=vLDKuH+/Y6R1wGAQGSCIi/9agKk/j9gR7pNqj2Ro2Ic=;
+        b=iuQpUu6a8JnbGLjoBITZrEilnUrTWiH26PXOZvr0eJQhTGXYXPQKMEzNw2wB2Zdhwg
+         O1s79fuH/+qKj9qM+F5N7WUORuY3bi2XPxK5gT8Guf2uZd9D6oyAtYDwhskz/FMsfn6o
+         lKk6nD1IBmzrEbMo1z8fbSNSoKGZUfXjLfcnm5mKawQB8u+vap+bsQ1AUfdjGTiXN2ty
+         tL6eFXIjDfZ571OcOPQwvXVAUX+46G+xpgSdufwNKOjBmDF3XP8A7mx0CfXSR6UXqbUn
+         dguHNLtM+ir+qgid1b0WJ9SI3b8hxcX2P6U5NkAvYIDJKRzUwkVnKHJszs5C7d/SjcoV
+         C0AQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=vLDKuH+/Y6R1wGAQGSCIi/9agKk/j9gR7pNqj2Ro2Ic=;
+        b=NGKkLnA3hd2NE4ghB6+4hIJSTtb9cJr6cmxiq2kByYTcHaMMPuXfTna4e9gbFu71KV
+         0+2i8dk7lLBpKWbif4YO2GlQZDEHSmzC5x/AXN9o1R6D+DA3j16adeONyzHjihQl3Ate
+         vXyUXu/Nk2VT/F9WV0kk5Rx1b3dOBo/b8mQOGnf+KkkfF754NYokhQsrG46G0FsFS6af
+         5FxhCh10lwiGL7r59EDa4u/OfcxWvWN5XXVhr6S9EgvZzJJK9/2CWxKGXzYs4n+9AIsI
+         VR4Z1TrlLrMbpzCfl8JMkC8D6kAsneqVk+f5H7jzUzH4WDAjJx0bIu48WODzUb193Bjt
+         +YOQ==
+X-Gm-Message-State: APjAAAURGDLiJx2rt9SaVWaZH/4vSPhunCbqFT8Yw94P4XM0Vxd03yba
+        AK0mT27eiIhOokDDR+0ITTbx7mM9Yt3W/8VirXQQyg==
+X-Google-Smtp-Source: APXvYqwtNV8PHczquSPB8e+BmF7PEr+3WvMBui8pMbhp0rAOkLkZq6TteMkvwzTbZj0eIDgOEAic/3pWWOYVMC6LbUU=
+X-Received: by 2002:a19:c1cc:: with SMTP id r195mr53854149lff.95.1564498336043;
+ Tue, 30 Jul 2019 07:52:16 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="2voqpcm7kqxghyvb"
-Content-Disposition: inline
-In-Reply-To: <20190730113751.GB21815@amd>
-User-Agent: NeoMutt/20180716
+References: <20190215024830.GA26477@jordon-HP-15-Notebook-PC>
+ <20190728180611.GA20589@mail-itl> <CAFqt6zaMDnpB-RuapQAyYAub1t7oSdHH_pTD=f5k-s327ZvqMA@mail.gmail.com>
+ <CAFqt6zY+07JBxAVfMqb+X78mXwFOj2VBh0nbR2tGnQOP9RrNkQ@mail.gmail.com>
+ <20190729133642.GQ1250@mail-itl> <CAFqt6zZN+6r6wYJY+f15JAjj8dY+o30w_+EWH9Vy2kUXCKSBog@mail.gmail.com>
+ <bf02becc-9db0-bb78-8efc-9e25cc115237@oracle.com> <20190730142233.GR1250@mail-itl>
+In-Reply-To: <20190730142233.GR1250@mail-itl>
+From:   Souptick Joarder <jrdr.linux@gmail.com>
+Date:   Tue, 30 Jul 2019 20:22:02 +0530
+Message-ID: <CAFqt6zZOymx8RH75F69exukLYcGd45xpUHkRHK8nYXpwF8co6g@mail.gmail.com>
+Subject: Re: [Xen-devel] [PATCH v4 8/9] xen/gntdev.c: Convert to use vm_map_pages()
+To:     =?UTF-8?Q?Marek_Marczykowski=2DG=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>
+Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Juergen Gross <jgross@suse.com>,
+        Russell King - ARM Linux <linux@armlinux.org.uk>,
+        robin.murphy@arm.com, xen-devel@lists.xenproject.org,
+        linux-kernel@vger.kernel.org, Linux-MM <linux-mm@kvack.org>,
+        stable@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Jul 30, 2019 at 7:52 PM Marek Marczykowski-G=C3=B3recki
+<marmarek@invisiblethingslab.com> wrote:
+>
+> On Tue, Jul 30, 2019 at 10:05:42AM -0400, Boris Ostrovsky wrote:
+> > On 7/30/19 2:03 AM, Souptick Joarder wrote:
+> > > On Mon, Jul 29, 2019 at 7:06 PM Marek Marczykowski-G=C3=B3recki
+> > > <marmarek@invisiblethingslab.com> wrote:
+> > >> On Mon, Jul 29, 2019 at 02:02:54PM +0530, Souptick Joarder wrote:
+> > >>> On Mon, Jul 29, 2019 at 1:35 PM Souptick Joarder <jrdr.linux@gmail.=
+com> wrote:
+> > >>>> On Sun, Jul 28, 2019 at 11:36 PM Marek Marczykowski-G=C3=B3recki
+> > >>>> <marmarek@invisiblethingslab.com> wrote:
+> > >>>>> On Fri, Feb 15, 2019 at 08:18:31AM +0530, Souptick Joarder wrote:
+> > >>>>>> Convert to use vm_map_pages() to map range of kernel
+> > >>>>>> memory to user vma.
+> > >>>>>>
+> > >>>>>> map->count is passed to vm_map_pages() and internal API
+> > >>>>>> verify map->count against count ( count =3D vma_pages(vma))
+> > >>>>>> for page array boundary overrun condition.
+> > >>>>> This commit breaks gntdev driver. If vma->vm_pgoff > 0, vm_map_pa=
+ges
+> > >>>>> will:
+> > >>>>>  - use map->pages starting at vma->vm_pgoff instead of 0
+> > >>>> The actual code ignores vma->vm_pgoff > 0 scenario and mapped
+> > >>>> the entire map->pages[i]. Why the entire map->pages[i] needs to be=
+ mapped
+> > >>>> if vma->vm_pgoff > 0 (in original code) ?
+> > >> vma->vm_pgoff is used as index passed to gntdev_find_map_index. It's
+> > >> basically (ab)using this parameter for "which grant reference to map=
+".
+> > >>
+> > >>>> are you referring to set vma->vm_pgoff =3D 0 irrespective of value=
+ passed
+> > >>>> from user space ? If yes, using vm_map_pages_zero() is an alternat=
+e
+> > >>>> option.
+> > >> Yes, that should work.
+> > > I prefer to use vm_map_pages_zero() to resolve both the issues. Alter=
+natively
+> > > the patch can be reverted as you suggested. Let me know you opinion a=
+nd wait
+> > > for feedback from others.
+> > >
+> > > Boris, would you like to give any feedback ?
+> >
+> > vm_map_pages_zero() looks good to me. Marek, does it work for you?
+>
+> Yes, replacing vm_map_pages() with vm_map_pages_zero() fixes the
+> problem for me.
 
---2voqpcm7kqxghyvb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Marek, I can send a patch for the same if you are ok.
+We need to cc stable as this changes are available in 5.2.4.
 
-Hi,
-
-On Tue, Jul 30, 2019 at 01:37:51PM +0200, Pavel Machek wrote:
-> On Mon 2019-07-29 21:20:44, Greg Kroah-Hartman wrote:
-> > [ Upstream commit ad9df7d91b4a6e8f4b20c2bf539ac09b3b2ad6eb ]
-> >=20
-> > While most display types only forward their VM to the DISPC, this
-> > is not true for DSI. DSI calculates the VM for DISPC based on its
-> > own, but it's not identical. Actually the DSI VM is not even a valid
-> > DISPC VM making this check fail. Let's restore the old behaviour
-> > and avoid checking the DISPC VM for DSI here.
-> >=20
-> > Fixes: 7c27fa57ef31 ("drm/omap: Call dispc timings check operation dire=
-ctly")
-> > Acked-by: Pavel Machek <pavel@ucw.cz>
-> > Tested-by: Tony Lindgren <tony@atomide.com>
-> > Tested-by: Pavel Machek <pavel@ucw.cz>
-> > Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-> > Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
->=20
-> Not sure if this is good idea for stable. IIRC there's series of
-> patches to enable display on droid4 (etc), which is useful, but this
-> patch is not going to do any good on its own.
-
-It does not hurt to have it. I know that some people have out of
-tree omapdrm DSI drivers and those also need this regression fix.
-
--- Sebastian
-
->=20
-> 								Pavel
->=20
-> >  drivers/gpu/drm/omapdrm/omap_crtc.c | 18 ++++++++++++++----
-> >  1 file changed, 14 insertions(+), 4 deletions(-)
-> >=20
-> > diff --git a/drivers/gpu/drm/omapdrm/omap_crtc.c b/drivers/gpu/drm/omap=
-drm/omap_crtc.c
-> > index 8712af79a49c..4c43dd282acc 100644
-> > --- a/drivers/gpu/drm/omapdrm/omap_crtc.c
-> > +++ b/drivers/gpu/drm/omapdrm/omap_crtc.c
-> > @@ -384,10 +384,20 @@ static enum drm_mode_status omap_crtc_mode_valid(=
-struct drm_crtc *crtc,
-> >  	int r;
-> > =20
-> >  	drm_display_mode_to_videomode(mode, &vm);
-> > -	r =3D priv->dispc_ops->mgr_check_timings(priv->dispc, omap_crtc->chan=
-nel,
-> > -					       &vm);
-> > -	if (r)
-> > -		return r;
-> > +
-> > +	/*
-> > +	 * DSI might not call this, since the supplied mode is not a
-> > +	 * valid DISPC mode. DSI will calculate and configure the
-> > +	 * proper DISPC mode later.
-> > +	 */
-> > +	if (omap_crtc->pipe->output->next =3D=3D NULL ||
-> > +	    omap_crtc->pipe->output->next->type !=3D OMAP_DISPLAY_TYPE_DSI) {
-> > +		r =3D priv->dispc_ops->mgr_check_timings(priv->dispc,
-> > +						       omap_crtc->channel,
-> > +						       &vm);
-> > +		if (r)
-> > +			return r;
-> > +	}
-> > =20
-> >  	/* Check for bandwidth limit */
-> >  	if (priv->max_bandwidth) {
->=20
-> --=20
-> (english) http://www.livejournal.com/~pavelmachek
-> (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/b=
-log.html
-
-
-
---2voqpcm7kqxghyvb
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAl1AUNQACgkQ2O7X88g7
-+poS5g//YmueoR3bKp2q+77bUwb7W+OhoUliO31RrKvQ/d5HaNu1HwV9XqUJ9QrB
-ujOV8iozVKup60KZDYSuQ2L3CAocmeIx3dTl4BfWENnhJlBGb3yZF8W9JkC+dKiq
-rIFvgSZZh+Jvyt1SffYG+TW9xEK7jTBDAnu0UgR6JU/79RRBrBA6lvNkYrNojV4o
-DBGUaepe0wR/im0xGxlJYVuwruvDOKD8BRrV1V1JajctFx/pZOGZLX4qjgtQnPG1
-dxp5i7l9j8LKpBwD6SrXg1hJr/e6H+n9Sh04iEVy7WRrZSSEL/UlX+CO/d0LVR3R
-mOJcK9bC687HvGovK57Ru9BgObeypGQoLbUn1nU3O9A2jNiLyi5zTTzBrFqPuIhv
-AaqoYAmnM0Nr3Hb6UJg2dvpGW4HgTu4mgsS1CFv7w/Ca4jE7PSv2we3t9C7T+rUe
-jnRF6Ar27dI5TePYAhX2OpA34oEKgDOcJcO6hrrDeoTJfc73dKm4/ZdKT1V5NvLr
-C5pVCsXXqaMM0w1XJlGWskC0e2I0WBarGroA/JXfia7HZOgN5uqlAyFHF9Vf1zKG
-tH+pDSW2BzK9wQmvdkjyL/RmAE7ehwOIY3bU2wvrz5vTfH0TSbzIBitml7u5iT8Q
-8oy8QOK3uo/ikKESp/2x5cRnJ8YSHcSct2itlXVAkpkxhBDTSLg=
-=8pit
------END PGP SIGNATURE-----
-
---2voqpcm7kqxghyvb--
+>
+> --
+> Best Regards,
+> Marek Marczykowski-G=C3=B3recki
+> Invisible Things Lab
+> A: Because it messes up the order in which people normally read text.
+> Q: Why is top-posting such a bad thing?
