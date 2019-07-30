@@ -2,99 +2,194 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 536617B436
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 22:16:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22CC97B439
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 22:17:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725947AbfG3UQu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 16:16:50 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:45761 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387406AbfG3UQt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 16:16:49 -0400
-Received: by mail-pf1-f195.google.com with SMTP id r1so30405583pfq.12
-        for <stable@vger.kernel.org>; Tue, 30 Jul 2019 13:16:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=MunFz2lTShwR26VZ4w2FwMukvVD2WiHHyR9u5VL0/FM=;
-        b=O0sgUBMmEVpuYzSdIhpoJHYNdPFG1Wy1qJ37KN+PwiFAJmdOsuuYvjImrBg5oRDGzg
-         v1fRzWZc7wQSkFwkmQ04Wmmm3cTUnZFJMS0YAzSShidmCBhlBth2BEYbVq2r03h4g2of
-         EPQkmhkEpqq5AB4lycKJmHq8JtWO/NmRnMBBVKDFYRJr7ezH/yBqYidFXwHiC631ArCG
-         OkGHhQnum43cky9PAUD5NS7e4Rtt8JIqP0qSO7U/PZ2xqGNjCGXqzesoK5LfhSVBhxJd
-         tAnm4ETsjj7Es9dfA9vHolHfhwQ+0kyNqD4xm6yrwMcjJDKmMMjMU+XCm6iRYV58JqTi
-         Eelw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=MunFz2lTShwR26VZ4w2FwMukvVD2WiHHyR9u5VL0/FM=;
-        b=AnGg82aLQOTDlDLzCcBE51RWZaBodoPfB2CQM2Uo5Xx0al0wtB1wivOVi/VZ0rl8g/
-         8+eE7HPjK5aeNXF0YjBKkNGnAn9psoP22CRamHpOycbCsV60n8BkifVMZIy2zY+xcHtj
-         EcbeaZ3iutNsSrHMiU8UQQxh17hLX1ESyUZzgROyiNdB8ZE3Qqt/SbPAEy/sG5iQnHZx
-         Ka80Un5Noc8Lij2d3FU57bZW00RBw1kSM9+VgOlZtHGZDmxsGMJXpbQGGF3bvpEqUCs9
-         qQNZWZjWIXD64XgS3LZanIGFOtH1bi6JnKKHBGvmeK1flqz9sejFIkqJdHZ9stMP45+i
-         mG5Q==
-X-Gm-Message-State: APjAAAUFTBq71RaCnCYQUijafs5yApMmJdoPLfOn7j8h/eERwxs6x1DB
-        I0LwGbnVra+nXZLPrM/kRFW71g==
-X-Google-Smtp-Source: APXvYqyCh3yUtQI3VkNGClveToc2ZHZf54acs8Khx2ApsRSmRvTf4hjvqCaGBxHfuo78BDRcwtZOGw==
-X-Received: by 2002:a63:f807:: with SMTP id n7mr114040472pgh.119.1564517808943;
-        Tue, 30 Jul 2019 13:16:48 -0700 (PDT)
-Received: from localhost.localdomain ([49.207.49.136])
-        by smtp.gmail.com with ESMTPSA id 135sm67603659pfb.137.2019.07.30.13.16.46
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Tue, 30 Jul 2019 13:16:48 -0700 (PDT)
-From:   Amit Pundir <amit.pundir@linaro.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Stable <stable@vger.kernel.org>,
-        Christian Lamparter <chunkeey@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH for-4.19.y 3/3] powerpc/4xx/uic: clear pending interrupt after irq type/pol change
-Date:   Wed, 31 Jul 2019 01:46:39 +0530
-Message-Id: <1564517799-16880-3-git-send-email-amit.pundir@linaro.org>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1564517799-16880-1-git-send-email-amit.pundir@linaro.org>
-References: <1564517799-16880-1-git-send-email-amit.pundir@linaro.org>
+        id S1727913AbfG3UR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 16:17:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34172 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726837AbfG3UR4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Jul 2019 16:17:56 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99D7220693;
+        Tue, 30 Jul 2019 20:17:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564517873;
+        bh=/W+9jaawErVT51Elva3JfolGD51FWoAeFhMH0Y/9LUI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=cehCfNRKkrT9n1L7WOZyKEqR51p2eWfpV5gx6oNuAUQ4OcD3RRgsXG0nTq31thgXQ
+         emn16oRHDXBFzxh0A0k0sUWiRanV/dhPtSwRwLF962zqPR5A7wj/PhmzePF6Z46i22
+         Gh5fRebxyBK+goX+IVN0h7One1pe6TBCV72a378Y=
+Date:   Tue, 30 Jul 2019 16:17:52 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     maowenan <maowenan@huawei.com>
+Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH stable 4.9] tcp: reset sk_send_head in
+ tcp_write_queue_purge
+Message-ID: <20190730201752.GE29162@sasha-vm>
+References: <20190729132108.162320-1-maowenan@huawei.com>
+ <20190729153218.GA29162@sasha-vm>
+ <29c1ee9c-4a5d-4f61-f526-85980185f0bd@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <29c1ee9c-4a5d-4f61-f526-85980185f0bd@huawei.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lamparter <chunkeey@gmail.com>
+On Tue, Jul 30, 2019 at 09:31:19AM +0800, maowenan wrote:
+>
+>
+>On 2019/7/29 23:32, Sasha Levin wrote:
+>> On Mon, Jul 29, 2019 at 09:21:08PM +0800, Mao Wenan wrote:
+>>> From: Soheil Hassas Yeganeh <soheil@google.com>
+>>>
+>>> tcp_write_queue_purge clears all the SKBs in the write queue
+>>> but does not reset the sk_send_head. As a result, we can have
+>>> a NULL pointer dereference anywhere that we use tcp_send_head
+>>> instead of the tcp_write_queue_tail.
+>>>
+>>> For example, after a27fd7a8ed38 (tcp: purge write queue upon RST),
+>>> we can purge the write queue on RST. Prior to
+>>> 75c119afe14f (tcp: implement rb-tree based retransmit queue),
+>>> tcp_push will only check tcp_send_head and then accesses
+>>> tcp_write_queue_tail to send the actual SKB. As a result, it will
+>>> dereference a NULL pointer.
+>>>
+>>> This has been reported twice for 4.14 where we don't have
+>>> 75c119afe14f:
+>>>
+>>> By Timofey Titovets:
+>>>
+>>> [  422.081094] BUG: unable to handle kernel NULL pointer dereference
+>>> at 0000000000000038
+>>> [  422.081254] IP: tcp_push+0x42/0x110
+>>> [  422.081314] PGD 0 P4D 0
+>>> [  422.081364] Oops: 0002 [#1] SMP PTI
+>>>
+>>> By Yongjian Xu:
+>>>
+>>> BUG: unable to handle kernel NULL pointer dereference at 0000000000000038
+>>> IP: tcp_push+0x48/0x120
+>>> PGD 80000007ff77b067 P4D 80000007ff77b067 PUD 7fd989067 PMD 0
+>>> Oops: 0002 [#18] SMP PTI
+>>> Modules linked in: tcp_diag inet_diag tcp_bbr sch_fq iTCO_wdt
+>>> iTCO_vendor_support pcspkr ixgbe mdio i2c_i801 lpc_ich joydev input_leds shpchp
+>>> e1000e igb dca ptp pps_core hwmon mei_me mei ipmi_si ipmi_msghandler sg ses
+>>> scsi_transport_sas enclosure ext4 jbd2 mbcache sd_mod ahci libahci megaraid_sas
+>>> wmi ast ttm dm_mirror dm_region_hash dm_log dm_mod dax
+>>> CPU: 6 PID: 14156 Comm: [ET_NET 6] Tainted: G D 4.14.26-1.el6.x86_64 #1
+>>> Hardware name: LENOVO ThinkServer RD440 /ThinkServer RD440, BIOS A0TS80A
+>>> 09/22/2014
+>>> task: ffff8807d78d8140 task.stack: ffffc9000e944000
+>>> RIP: 0010:tcp_push+0x48/0x120
+>>> RSP: 0018:ffffc9000e947a88 EFLAGS: 00010246
+>>> RAX: 00000000000005b4 RBX: ffff880f7cce9c00 RCX: 0000000000000000
+>>> RDX: 0000000000000000 RSI: 0000000000000040 RDI: ffff8807d00f5000
+>>> RBP: ffffc9000e947aa8 R08: 0000000000001c84 R09: 0000000000000000
+>>> R10: ffff8807d00f5158 R11: 0000000000000000 R12: ffff8807d00f5000
+>>> R13: 0000000000000020 R14: 00000000000256d4 R15: 0000000000000000
+>>> FS: 00007f5916de9700(0000) GS:ffff88107fd00000(0000) knlGS:0000000000000000
+>>> CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>>> CR2: 0000000000000038 CR3: 00000007f8226004 CR4: 00000000001606e0
+>>> Call Trace:
+>>> tcp_sendmsg_locked+0x33d/0xe50
+>>> tcp_sendmsg+0x37/0x60
+>>> inet_sendmsg+0x39/0xc0
+>>> sock_sendmsg+0x49/0x60
+>>> sock_write_iter+0xb6/0x100
+>>> do_iter_readv_writev+0xec/0x130
+>>> ? rw_verify_area+0x49/0xb0
+>>> do_iter_write+0x97/0xd0
+>>> vfs_writev+0x7e/0xe0
+>>> ? __wake_up_common_lock+0x80/0xa0
+>>> ? __fget_light+0x2c/0x70
+>>> ? __do_page_fault+0x1e7/0x530
+>>> do_writev+0x60/0xf0
+>>> ? inet_shutdown+0xac/0x110
+>>> SyS_writev+0x10/0x20
+>>> do_syscall_64+0x6f/0x140
+>>> ? prepare_exit_to_usermode+0x8b/0xa0
+>>> entry_SYSCALL_64_after_hwframe+0x3d/0xa2
+>>> RIP: 0033:0x3135ce0c57
+>>> RSP: 002b:00007f5916de4b00 EFLAGS: 00000293 ORIG_RAX: 0000000000000014
+>>> RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 0000003135ce0c57
+>>> RDX: 0000000000000002 RSI: 00007f5916de4b90 RDI: 000000000000606f
+>>> RBP: 0000000000000000 R08: 0000000000000000 R09: 00007f5916de8c38
+>>> R10: 0000000000000000 R11: 0000000000000293 R12: 00000000000464cc
+>>> R13: 00007f5916de8c30 R14: 00007f58d8bef080 R15: 0000000000000002
+>>> Code: 48 8b 97 60 01 00 00 4c 8d 97 58 01 00 00 41 b9 00 00 00 00 41 89 f3 4c 39
+>>> d2 49 0f 44 d1 41 81 e3 00 80 00 00 0f 85 b0 00 00 00 <80> 4a 38 08 44 8b 8f 74
+>>> 06 00 00 44 89 8f 7c 06 00 00 83 e6 01
+>>> RIP: tcp_push+0x48/0x120 RSP: ffffc9000e947a88
+>>> CR2: 0000000000000038
+>>> ---[ end trace 8d545c2e93515549 ]---
+>>>
+>>> There is other scenario which found in stable 4.4:
+>>> Allocated:
+>>> [<ffffffff82f380a6>] __alloc_skb+0xe6/0x600 net/core/skbuff.c:218
+>>> [<ffffffff832466c3>] alloc_skb_fclone include/linux/skbuff.h:856 [inline]
+>>> [<ffffffff832466c3>] sk_stream_alloc_skb+0xa3/0x5d0 net/ipv4/tcp.c:833
+>>> [<ffffffff83249164>] tcp_sendmsg+0xd34/0x2b00 net/ipv4/tcp.c:1178
+>>> [<ffffffff83300ef3>] inet_sendmsg+0x203/0x4d0 net/ipv4/af_inet.c:755
+>>> Freed:
+>>> [<ffffffff82f372fd>] __kfree_skb+0x1d/0x20 net/core/skbuff.c:676
+>>> [<ffffffff83288834>] sk_wmem_free_skb include/net/sock.h:1447 [inline]
+>>> [<ffffffff83288834>] tcp_write_queue_purge include/net/tcp.h:1460 [inline]
+>>> [<ffffffff83288834>] tcp_connect_init net/ipv4/tcp_output.c:3122 [inline]
+>>> [<ffffffff83288834>] tcp_connect+0xb24/0x30c0 net/ipv4/tcp_output.c:3261
+>>> [<ffffffff8329b991>] tcp_v4_connect+0xf31/0x1890 net/ipv4/tcp_ipv4.c:246
+>>>
+>>> BUG: KASAN: use-after-free in tcp_skb_pcount include/net/tcp.h:796 [inline]
+>>> BUG: KASAN: use-after-free in tcp_init_tso_segs net/ipv4/tcp_output.c:1619 [inline]
+>>> BUG: KASAN: use-after-free in tcp_write_xmit+0x3fc2/0x4cb0 net/ipv4/tcp_output.c:2056
+>>> [<ffffffff81515cd5>] kasan_report.cold.7+0x175/0x2f7 mm/kasan/report.c:408
+>>> [<ffffffff814f9784>] __asan_report_load2_noabort+0x14/0x20 mm/kasan/report.c:427
+>>> [<ffffffff83286582>] tcp_skb_pcount include/net/tcp.h:796 [inline]
+>>> [<ffffffff83286582>] tcp_init_tso_segs net/ipv4/tcp_output.c:1619 [inline]
+>>> [<ffffffff83286582>] tcp_write_xmit+0x3fc2/0x4cb0 net/ipv4/tcp_output.c:2056
+>>> [<ffffffff83287a40>] __tcp_push_pending_frames+0xa0/0x290 net/ipv4/tcp_output.c:2307
+>>>
+>>> stable 4.4 and stable 4.9 don't have the commit abb4a8b870b5 ("tcp: purge write queue upon RST")
+>>> which is referred in dbbf2d1e4077,
+>>> in tcp_connect_init, it calls tcp_write_queue_purge, and does not reset sk_send_head, then UAF.
+>>>
+>>> stable 4.14 have the commit abb4a8b870b5 ("tcp: purge write queue upon RST"),
+>>> in tcp_reset, it calls tcp_write_queue_purge(sk), and does not reset sk_send_head, then UAF.
+>>>
+>>> So this patch can be used to fix stable 4.4 and 4.9.
+>>>
+>>> Fixes: a27fd7a8ed38 (tcp: purge write queue upon RST)
+>>> Reported-by: Timofey Titovets <nefelim4ag@gmail.com>
+>>> Reported-by: Yongjian Xu <yongjianchn@gmail.com>
+>>> Signed-off-by: Eric Dumazet <edumazet@google.com>
+>>> Signed-off-by: Soheil Hassas Yeganeh <soheil@google.com>
+>>> Tested-by: Yongjian Xu <yongjianchn@gmail.com>
+>>>
+>>> Signed-off-by: David S. Miller <davem@davemloft.net>
+>>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>>> Signed-off-by: Mao Wenan <maowenan@huawei.com>
+>>
+>> So the "Fixes:" commit in the commit message is wrong? What's the actual
+>> commit that this fixes?
+>
+>Upstream commit is 7f582b248d0a ("tcp: purge write queue in tcp_connect_init()")
+>linux-4.4.y
+>Fixes: 5bbe138a250e ("tcp: purge write queue in tcp_connect_init()")
+>linux-4.9.y
+>Fixes: 74a4c09d4b05 ("tcp: purge write queue in tcp_connect_init()")
+>linux-4.14.y
+>Fixes: a27fd7a8ed38 ("tcp: purge write queue upon RST")
 
-commit 3ab3a0689e74e6aa5b41360bc18861040ddef5b1 upstream.
+Okay, I've queued this for 4.9 and 4.4, thank you.
 
-When testing out gpio-keys with a button, a spurious
-interrupt (and therefore a key press or release event)
-gets triggered as soon as the driver enables the irq
-line for the first time.
-
-This patch clears any potential bogus generated interrupt
-that was caused by the switching of the associated irq's
-type and polarity.
-
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Amit Pundir <amit.pundir@linaro.org>
----
-Cherry-picked from lede/openwrt tree
-https://git.lede-project.org/?p=source.git.
-To be picked up for 4.14.y as well.
-
- arch/powerpc/platforms/4xx/uic.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/powerpc/platforms/4xx/uic.c b/arch/powerpc/platforms/4xx/uic.c
-index 8b4dd0da0839..9e27cfe27026 100644
---- a/arch/powerpc/platforms/4xx/uic.c
-+++ b/arch/powerpc/platforms/4xx/uic.c
-@@ -158,6 +158,7 @@ static int uic_set_irq_type(struct irq_data *d, unsigned int flow_type)
- 
- 	mtdcr(uic->dcrbase + UIC_PR, pr);
- 	mtdcr(uic->dcrbase + UIC_TR, tr);
-+	mtdcr(uic->dcrbase + UIC_SR, ~mask);
- 
- 	raw_spin_unlock_irqrestore(&uic->lock, flags);
- 
--- 
-2.7.4
-
+--
+Thanks,
+Sasha
