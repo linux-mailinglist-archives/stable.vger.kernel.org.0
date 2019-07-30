@@ -2,140 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E64707B21B
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 20:38:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98CEE7B230
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 20:42:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726522AbfG3Si5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 14:38:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56732 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726165AbfG3Si4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Jul 2019 14:38:56 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BD99206A2;
-        Tue, 30 Jul 2019 18:38:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564511935;
-        bh=OChHIstTK2zdB+afth0r88I81U8buXZ9fswSRaKxvq0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=MClK7EC2EGSMMykLIzctg8O6K4hjl6libkpRSi8PMGmwFu1gvJg9B/Ck4tHy5X1pi
-         UMvoiBDZ7c290TOmgDlnEYOKtUSgrchkHRIhTxqOKKlt+rcUvTxh/vB4j29u/UT/+P
-         yyn1Ww2p2Y2DU5sK7LBIHm3TsslVtLEM1slrH+A4=
-Date:   Tue, 30 Jul 2019 20:38:53 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Nathan Chancellor <natechancellor@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Qian Cai <cai@lca.pw>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.14 054/293] sched/fair: Fix "runnable_avg_yN_inv" not
- used warnings
-Message-ID: <20190730183853.GA5169@kroah.com>
+        id S1727737AbfG3Sm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 14:42:26 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:45319 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726165AbfG3Sm0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 14:42:26 -0400
+Received: by mail-pg1-f194.google.com with SMTP id o13so30494363pgp.12;
+        Tue, 30 Jul 2019 11:42:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=H6/0rGFSSk9m/tHQBcjoEOXQDXeQBtVWdbTW9wA3CeY=;
+        b=L3Uy0hWmdnJU7cpZAiNfu1BmXg9SPWv7spNV62t1ptInxGAWDDRz6n7YiNplnRnhw0
+         61NmDAjC2XYpPQt5LwhoHUK/9JwM/ErocwTTysIk0YwOWZUJXpwKy/hFGtwsmFDZXQAq
+         1QHh57jS/5esZfXvs85++eCOvK62jaC7GU7u0iXP2hptZEFjhp3gTc7pkfTioxnpxhqk
+         Ox4Td7BIeBywojKcVTNQx2ytp3cnNYFReWOT+xxWUh1Q41lvs7ZNkKmc7zSTEUbSprZ2
+         rEbpBZKhlUArgGmimuZtuKIPXfUrEWAyYJ5zbBifkFYTAVQMdTw/oyJ2vmGZ/UveOlWz
+         H3HA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=H6/0rGFSSk9m/tHQBcjoEOXQDXeQBtVWdbTW9wA3CeY=;
+        b=KAZgQbJc7naJlHS3uFd0Lp44Pwdf2Z9tYWGxqiigsbeQUfLmlG2fkCbEwcTPx7Ic77
+         AOqt1spreXy6VYSe+V6dofDwiCBHtHGKP5MBaMA2I4NkCR41uGKg5YwOFdpOI1/CH55N
+         ijRtVfTLg3Q2TrYEzEmuRc4SnTvflYkV4OpBcSntJXp7fOAvQRTneJgsOtGqzseLLnOy
+         M7cn3ZvK+kSGoFFUmj+PFZyVsU8LII9tCK2ovM/5pO616f3Jq+Hln0bmAkt2xVQVeF1a
+         6Hds/K+ZZPk5A012pSuLb+gAojNRIhxVQYDQuAp9C8fLWpS/MXFykSYrIMQ5cH7b8FRT
+         MuDg==
+X-Gm-Message-State: APjAAAXYa9RQkd9nsg9uXq7CoOqgzo7xfcoyp84XsFa+j3HPXozvOxh0
+        UAgvNg1Y389NFAlNix98fxM=
+X-Google-Smtp-Source: APXvYqxvSycUvpK+s7oHEiV4tcojf6IMDJqey4PmAieE1AbbVIymAcdeIbijuv5sWRSfGQUj/h5xNA==
+X-Received: by 2002:a17:90a:de02:: with SMTP id m2mr117998215pjv.18.1564512145410;
+        Tue, 30 Jul 2019 11:42:25 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id l26sm70299694pgb.90.2019.07.30.11.42.24
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 30 Jul 2019 11:42:24 -0700 (PDT)
+Date:   Tue, 30 Jul 2019 11:42:24 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.14 000/293] 4.14.135-stable review
+Message-ID: <20190730184224.GB32293@roeck-us.net>
 References: <20190729190820.321094988@linuxfoundation.org>
- <20190729190828.058944959@linuxfoundation.org>
- <20190730182801.GA94301@archlinux-threadripper>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190730182801.GA94301@archlinux-threadripper>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 30, 2019 at 11:28:01AM -0700, Nathan Chancellor wrote:
-> On Mon, Jul 29, 2019 at 09:19:05PM +0200, Greg Kroah-Hartman wrote:
-> > [ Upstream commit 509466b7d480bc5d22e90b9fbe6122ae0e2fbe39 ]
-> > 
-> > runnable_avg_yN_inv[] is only used in kernel/sched/pelt.c but was
-> > included in several other places because they need other macros all
-> > came from kernel/sched/sched-pelt.h which was generated by
-> > Documentation/scheduler/sched-pelt. As the result, it causes compilation
-> > a lot of warnings,
-> > 
-> >   kernel/sched/sched-pelt.h:4:18: warning: 'runnable_avg_yN_inv' defined but not used [-Wunused-const-variable=]
-> >   kernel/sched/sched-pelt.h:4:18: warning: 'runnable_avg_yN_inv' defined but not used [-Wunused-const-variable=]
-> >   kernel/sched/sched-pelt.h:4:18: warning: 'runnable_avg_yN_inv' defined but not used [-Wunused-const-variable=]
-> >   ...
-> > 
-> > Silence it by appending the __maybe_unused attribute for it, so all
-> > generated variables and macros can still be kept in the same file.
-> > 
-> > Signed-off-by: Qian Cai <cai@lca.pw>
-> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> > Cc: Linus Torvalds <torvalds@linux-foundation.org>
-> > Cc: Peter Zijlstra <peterz@infradead.org>
-> > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > Link: https://lkml.kernel.org/r/1559596304-31581-1-git-send-email-cai@lca.pw
-> > Signed-off-by: Ingo Molnar <mingo@kernel.org>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > ---
-> >  Documentation/scheduler/sched-pelt.c | 3 ++-
-> >  kernel/sched/sched-pelt.h            | 2 +-
-> >  2 files changed, 3 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/Documentation/scheduler/sched-pelt.c b/Documentation/scheduler/sched-pelt.c
-> > index e4219139386a..7238b355919c 100644
-> > --- a/Documentation/scheduler/sched-pelt.c
-> > +++ b/Documentation/scheduler/sched-pelt.c
-> > @@ -20,7 +20,8 @@ void calc_runnable_avg_yN_inv(void)
-> >  	int i;
-> >  	unsigned int x;
-> >  
-> > -	printf("static const u32 runnable_avg_yN_inv[] = {");
-> > +	/* To silence -Wunused-but-set-variable warnings. */
-> > +	printf("static const u32 runnable_avg_yN_inv[] __maybe_unused = {");
-> >  	for (i = 0; i < HALFLIFE; i++) {
-> >  		x = ((1UL<<32)-1)*pow(y, i);
-> >  
-> > diff --git a/kernel/sched/sched-pelt.h b/kernel/sched/sched-pelt.h
-> > index a26473674fb7..c529706bed11 100644
-> > --- a/kernel/sched/sched-pelt.h
-> > +++ b/kernel/sched/sched-pelt.h
-> > @@ -1,7 +1,7 @@
-> >  /* SPDX-License-Identifier: GPL-2.0 */
-> >  /* Generated by Documentation/scheduler/sched-pelt; do not modify. */
-> >  
-> > -static const u32 runnable_avg_yN_inv[] = {
-> > +static const u32 runnable_avg_yN_inv[] __maybe_unused = {
-> >  	0xffffffff, 0xfa83b2da, 0xf5257d14, 0xefe4b99a, 0xeac0c6e6, 0xe5b906e6,
-> >  	0xe0ccdeeb, 0xdbfbb796, 0xd744fcc9, 0xd2a81d91, 0xce248c14, 0xc9b9bd85,
-> >  	0xc5672a10, 0xc12c4cc9, 0xbd08a39e, 0xb8fbaf46, 0xb504f333, 0xb123f581,
-> > -- 
-> > 2.20.1
-> > 
-> > 
-> > 
+On Mon, Jul 29, 2019 at 09:18:11PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.135 release.
+> There are 293 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> This patch does nothing in 4.14. There is no kernel/sched/pelt.c.
+> Responses should be made by Wed 31 Jul 2019 07:05:01 PM UTC.
+> Anything received after that time might be too late.
 > 
-> $ fd pelt
-> kernel/sched/sched-pelt.h
-> Documentation/scheduler/sched-pelt.c
-> 
-> runnable_avg_yN_inv is only used in one location in 4.14.134, in fair.c
-> behind CONFIG_SMP, which is also the guard that includes sched-pelt.h.
-> 
-> $ rg --no-heading -g '!Documentation' runnable_avg_yN_inv
-> kernel/sched/sched-pelt.h:4:static const u32 runnable_avg_yN_inv[] = {
-> kernel/sched/fair.c:2849:       val = mul_u64_u32_shr(val, runnable_avg_yN_inv[local_n], 32);
-> 
-> $ rg --no-heading -B 2 "sched-pelt.h"
-> kernel/sched/fair.c-707-#ifdef CONFIG_SMP
-> kernel/sched/fair.c-708-
-> kernel/sched/fair.c:709:#include "sched-pelt.h"
-> 
-> I see no way for the warnings in this patch to occur here, making it
-> pointless. I get two trivial conflicts in my msm-4.14 tree from this
-> patch that I would like to avoid dealing with.
-> 
-> Please consider dropping this patch, thanks!
 
-Now dropped, thanks.
+Build results:
+	total: 172 pass: 172 fail: 0
+Qemu test results:
+	total: 346 pass: 346 fail: 0
 
-greg k-h
+Guenter
