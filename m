@@ -2,157 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB6BF7AEF6
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 19:09:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06A567B0EB
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 19:54:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729315AbfG3RI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 13:08:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47872 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727201AbfG3RI4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Jul 2019 13:08:56 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1728287AbfG3RyX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 13:54:23 -0400
+Received: from smtp.codeaurora.org ([198.145.29.96]:58972 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387450AbfG3RyW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 13:54:22 -0400
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id 18C1660735; Tue, 30 Jul 2019 17:54:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1564509261;
+        bh=SiHOslm33TKp3uM0b2CsOrfbOok3Z7O03LFNxQsXv/M=;
+        h=From:To:Cc:Subject:Date:From;
+        b=GSBRgNvpCIyCxN55XaPtvtff/kLeu4W3oYvjPtFdbS8ojNyO5XbaucHuwWQgg9Rt+
+         GyKh2zM6uHvFWkUk2vAKXRAc8oQHDWxUZ4PAA99UmU+MNRIIRVgjSdZD80pNzjZvXe
+         9j1lpOFee2Ivi2O7lZBD+bgT6c/Xxs+jkicD/uyQ=
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        pdx-caf-mail.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.7 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        DKIM_INVALID,DKIM_SIGNED,SPF_NONE autolearn=no autolearn_force=no
+        version=3.4.0
+Received: from isaacm-linux.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2AC9206A2;
-        Tue, 30 Jul 2019 17:08:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564506535;
-        bh=opm6wJMwr+EZEj+BRrMT6yE4l4FL3FP5Dp2uxqjlDE4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BMiep/6owq0o99QWWGFEgwYfEmYN9LTWCNaM360rE/dTbOLFSbdkZJJMtN+93gkcY
-         9+zUYdJOFysb+tTnByMpKC1Yx1bCFRDZDM5Z6GstchQF9ktLjmnrfGIewjQjJTgmoe
-         N0G3sch6cdOOopOm6Gx6bQHqU0YWJmT+FVWVSmE8=
-Date:   Tue, 30 Jul 2019 19:08:52 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc:     Jani Nikula <jani.nikula@intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        "Souza, Jose" <jose.souza@intel.com>,
-        "sashal@kernel.org" <sashal@kernel.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Pandiyan, Dhinakaran" <dhinakaran.pandiyan@intel.com>
-Subject: Re: [Intel-gfx] [PATCH stable v5.2] drm/i915/vbt: Fix VBT parsing
- for the PSR section
-Message-ID: <20190730170852.GA32124@kroah.com>
-References: <20190719004526.B0CC521850@mail.kernel.org>
- <20190722231325.16615-1-dhinakaran.pandiyan@intel.com>
- <20190724120657.GG3244@kroah.com>
- <05339e812e35a4cf1811f26a06bd5a4d1d652407.camel@intel.com>
- <20190724174029.GC30776@intel.com>
- <20190730151908.GA21970@intel.com>
- <20190730152724.GB31590@kroah.com>
- <20190730162207.GA18653@intel.com>
- <20190730162709.GA28503@kroah.com>
- <20190730165659.GB18653@intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190730165659.GB18653@intel.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+        (Authenticated sender: isaacm@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id F3F9C60364;
+        Tue, 30 Jul 2019 17:54:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1564509260;
+        bh=SiHOslm33TKp3uM0b2CsOrfbOok3Z7O03LFNxQsXv/M=;
+        h=From:To:Cc:Subject:Date:From;
+        b=HhkLI3mnLCUAvo6B+gyuVgHIEoUFryU4bKpFS+qp4AwVZ3Ac7QNXZRSylqSO8lK/A
+         eLdYQt8nc/CJHzTfrqDVNiWy31besAPLEAzMofVSM3pmOcpq8yuyZHvmdrrfe/nYEd
+         g2Obgc+iVNjkBmpW/KOjhrJEY0XM3t+pA7ZtTxKk=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org F3F9C60364
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=isaacm@codeaurora.org
+From:   "Isaac J. Manjarres" <isaacm@codeaurora.org>
+To:     keescook@chromium.org, crecklin@redhat.com
+Cc:     "Isaac J. Manjarres" <isaacm@codeaurora.org>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org,
+        psodagud@codeaurora.org, tsoni@codeaurora.org,
+        eberman@codeaurora.org, stable@vger.kernel.org
+Subject: [PATCH] mm/usercopy: Use memory range to be accessed for wraparound check
+Date:   Tue, 30 Jul 2019 10:54:13 -0700
+Message-Id: <1564509253-23287-1-git-send-email-isaacm@codeaurora.org>
+X-Mailer: git-send-email 1.9.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 30, 2019 at 09:56:59AM -0700, Rodrigo Vivi wrote:
-> 
-> On Tue, Jul 30, 2019 at 06:27:09PM +0200, Greg KH wrote:
-> > On Tue, Jul 30, 2019 at 09:22:07AM -0700, Rodrigo Vivi wrote:
-> > > On Tue, Jul 30, 2019 at 05:27:24PM +0200, Greg KH wrote:
-> > > > On Tue, Jul 30, 2019 at 08:19:08AM -0700, Rodrigo Vivi wrote:
-> > > > > Hi Greg,
-> > > > > 
-> > > > > On Wed, Jul 24, 2019 at 10:40:29AM -0700, Rodrigo Vivi wrote:
-> > > > > > On Wed, Jul 24, 2019 at 05:27:42PM +0000, Souza, Jose wrote:
-> > > > > > > On Wed, 2019-07-24 at 14:06 +0200, Greg KH wrote:
-> > > > > > > > On Mon, Jul 22, 2019 at 04:13:25PM -0700, Dhinakaran Pandiyan wrote:
-> > > > > > > > > A single 32-bit PSR2 training pattern field follows the sixteen
-> > > > > > > > > element
-> > > > > > > > > array of PSR table entries in the VBT spec. But, we incorrectly
-> > > > > > > > > define
-> > > > > > > > > this PSR2 field for each of the PSR table entries. As a result, the
-> > > > > > > > > PSR1
-> > > > > > > > > training pattern duration for any panel_type != 0 will be parsed
-> > > > > > > > > incorrectly. Secondly, PSR2 training pattern durations for VBTs
-> > > > > > > > > with bdb
-> > > > > > > > > version >= 226 will also be wrong.
-> > > > > > > > > 
-> > > > > > > > > Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-> > > > > > > > > Cc: José Roberto de Souza <jose.souza@intel.com>
-> > > > > > > > > Cc: stable@vger.kernel.org
-> > > > > > > > > Cc: stable@vger.kernel.org #v5.2
-> > > > > > > > > Fixes: 88a0d9606aff ("drm/i915/vbt: Parse and use the new field
-> > > > > > > > > with PSR2 TP2/3 wakeup time")
-> > > > > > > > > Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111088
-> > > > > > > > > Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204183
-> > > > > > > > > Signed-off-by: Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>
-> > > > > > > > > Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > > > > > > > Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
-> > > > > > > > > Acked-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-> > > > > > > > > Tested-by: François Guerraz <kubrick@fgv6.net>
-> > > > > > > > > Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-> > > > > > > > > Link: 
-> > > > > > > > > https://patchwork.freedesktop.org/patch/msgid/20190717223451.2595-1-dhinakaran.pandiyan@intel.com
-> > > > > > > > > (cherry picked from commit
-> > > > > > > > > b5ea9c9337007d6e700280c8a60b4e10d070fb53)
-> > > > > > > > 
-> > > > > > > > There is no such commit in Linus's kernel tree :(
-> > > > > > 
-> > > > > > not yet... It is queued for 5.3 on drm-intel-next-queued.
-> > > > > > 
-> > > > > > This line is automatically added by "dim" tool when
-> > > > > > cherry-picking queued stuff for our drm-intel fixes branches.
-> > > > > 
-> > > > > What do you need her from us to accept this patch?
-> > > > 
-> > > > Um, you have read the stable kernel rules, right?
-> > > >     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> > > >
-> > > > That's what I need for it to go into a stable kernel release.
-> > > 
-> > > Yes, I have read it. Maybe what I don't understand is just the fact that we will
-> > > let customers facing issues for 6 weeks or more while the original patch
-> > > doesn't land on Linus tree. :(
-> > 
-> > Then get the patch into Linus's tree!
-> > Nothing I can do until that happens, you know this...
-> 
-> -ENOTENOUGHCOFFEE sorry.
-> For some reason I thought this thread had started as the reject of your scripts.
+Currently, when checking to see if accessing n bytes starting at
+address "ptr" will cause a wraparound in the memory addresses,
+the check in check_bogus_address() adds an extra byte, which is
+incorrect, as the range of addresses that will be accessed is
+[ptr, ptr + (n - 1)].
 
-That is correct.  But more coffee is always good.
+This can lead to incorrectly detecting a wraparound in the
+memory address, when trying to read 4 KB from memory that is
+mapped to the the last possible page in the virtual address
+space, when in fact, accessing that range of memory would not
+cause a wraparound to occur.
 
-> This patch is already queued on our drm-intel-fixes and will probably land on
-> Linus tree next week. Than your scripts will just get it.
-> 
-> So, back to your original concern:
-> 
-> The referrence b5ea9c9337007d6e700280c8a60b4e10d070fb53 you pointed out won't
-> exist until 5.3 merge window though.
+Use the memory range that will actually be accessed when
+considering if accessing a certain amount of bytes will cause
+the memory address to wrap around.
 
-That's fine.
+Fixes: f5509cc18daa ("mm: Hardened usercopy")
+Co-developed-by: Prasad Sodagudi <psodagud@codeaurora.org>
+Signed-off-by: Prasad Sodagudi <psodagud@codeaurora.org>
+Signed-off-by: Isaac J. Manjarres <isaacm@codeaurora.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: William Kucharski <william.kucharski@oracle.com>
+Acked-by: Kees Cook <keescook@chromium.org>
+---
+ mm/usercopy.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> My question now is regarding our fixes flow adding these future references.
-> Do you have any concern with that?
+diff --git a/mm/usercopy.c b/mm/usercopy.c
+index 2a09796..98e92486 100644
+--- a/mm/usercopy.c
++++ b/mm/usercopy.c
+@@ -147,7 +147,7 @@ static inline void check_bogus_address(const unsigned long ptr, unsigned long n,
+ 				       bool to_user)
+ {
+ 	/* Reject if object wraps past end of memory. */
+-	if (ptr + n < ptr)
++	if (ptr + (n - 1) < ptr)
+ 		usercopy_abort("wrapped address", NULL, to_user, 0, ptr + n);
+ 
+ 	/* Reject if NULL or ZERO-allocation. */
+-- 
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
 
-I hate and despise and complain endlessly about how you all are doing
-this, but I have learned to just suck it up and accept it.  It is a
-major pain in the rear, and I will say that it causes me to delay all
-merges of stable drm patches that get merged in Linus's tree in -rc1
-until -rc2 or -rc3 is out usually as I have to go through and
-hand-determine if a reject happens because it really is a reject, or
-because this patch is already in the tree.
-
-So, if this hits Linus's tree "like normal", my scripts will pick it up
-and all is good.  I can handle this crazy notation you all feel that
-works for you, but I reserve the right to complain.
-
-This original patch, however, was sent only to stable and it seemed to
-indicate that I needed to pick it up because it already was upstream (I
-saw the cherry-pick line.)  As that is not the case here, fine, no harm,
-no foul, let's go get more coffee...
-
-greg k-h
