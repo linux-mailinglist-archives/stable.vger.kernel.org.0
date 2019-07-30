@@ -2,84 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6A217A9C6
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 15:36:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1BEB7A9D2
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 15:37:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728655AbfG3Ngk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 09:36:40 -0400
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:35629 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726358AbfG3Ngk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 09:36:40 -0400
-Received: by mail-ot1-f67.google.com with SMTP id j19so27812850otq.2
-        for <stable@vger.kernel.org>; Tue, 30 Jul 2019 06:36:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=lh0sivaTAyzwQ/KMJES4MAb8ySxzeARIVx5WwejHlKg=;
-        b=Phj5Bd99NU20+Ti/0h2CzoK0yKQTxXY7WDSSXWPN4MenJyC+cVAfzEq4CwLzKM+n6Z
-         8jCXcc7TEfHjtrRpT4+KQqBPqST4FxgEcwbR1hsXuT+1wZ0eexmby62QXTwCKCBxWzvz
-         gD7TmOvh38BKfYYf0leB/nddNMn7t2gaWYgADQb6IUh5NuEMx61Uy5P9qtQsqMqK6kkx
-         HxY6SwLfAYk2KuAX4+NUiVemRCXrutjyA0QFTtVPRenz5vApKJ90kc7opDsE3G5iRR11
-         ephPawukYPviGCv/e0SSOvdSCseOGxkwwuiJpI3OVT+JV1QZmpr3KXTS7NZ55JD/IH4j
-         4ICA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=lh0sivaTAyzwQ/KMJES4MAb8ySxzeARIVx5WwejHlKg=;
-        b=RWTJYkCsXEA/r962WWemb904rWN0z5YMFp4wL1cfYryTg1o2XRkPSdd6grgh/5O1Bt
-         1s6lRMbRHd//pZxY19vBcEy1qmPNI2GD+9zPiUpl+5BBHybQaxdYGx9eNE/9c+3vKx6x
-         laFaqD+i+DaO1O3BKiPHUod4b4rNxVaemncnZl5+O24l6OCOtvUDT+wl87df4UXydsWe
-         JTOvrdFv6lzIvB65k7AB0U7Af1CWpSHIjxd4GdJq8HM2gr+h05ckrQTutIdylQNcA77G
-         eQDTdFpdFUP1HvGB6UHGjuWvrK87IVQe6VHYD/1AxIbb1N8PJEPRrpiwqWdOuORm55AT
-         /dCw==
-X-Gm-Message-State: APjAAAWM3DjOLBGcCUa55eAtN58KI0LRnqr1W3LbbDo71K1Gt+sAhw43
-        UlnlV+v5RGTp5yq/5rH+ZQYPubOtCo612EB6Seo=
-X-Google-Smtp-Source: APXvYqy7+nYWqxDrckc6JT3L6eLarhKzD9olB9rO6Z1Sg+u+NPslN+FqypLrKYbxXKlAm6cxOJcQqDHoQAgxnBMXX1Q=
-X-Received: by 2002:a9d:6e8d:: with SMTP id a13mr35838012otr.303.1564493799258;
- Tue, 30 Jul 2019 06:36:39 -0700 (PDT)
+        id S1731196AbfG3Nhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 09:37:52 -0400
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:41065 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725793AbfG3Nhw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 09:37:52 -0400
+Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
+        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1hsSK6-0003PY-2j; Tue, 30 Jul 2019 15:37:50 +0200
+Received: from mfe by pty.hi.pengutronix.de with local (Exim 4.89)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1hsSK4-0003QO-Ci; Tue, 30 Jul 2019 15:37:48 +0200
+Date:   Tue, 30 Jul 2019 15:37:48 +0200
+From:   Marco Felsch <m.felsch@pengutronix.de>
+To:     Boris Brezillon <boris.brezillon@collabora.com>
+Cc:     richard.weinberger@gmail.com, miquel.raynal@bootlin.com,
+        linux-mtd@lists.infradead.org, stable@vger.kernel.org,
+        kernel@pengutronix.de
+Subject: Re: [PATCH v2] mtd: rawnand: micron: handle on-die "ECC-off" devices
+ correctly
+Message-ID: <20190730133748.dzzst6p6u77tvke7@pengutronix.de>
+References: <20190729070652.12629-1-m.felsch@pengutronix.de>
+ <20190729095715.2de79aea@collabora.com>
 MIME-Version: 1.0
-Received: by 2002:a9d:6f16:0:0:0:0:0 with HTTP; Tue, 30 Jul 2019 06:36:38
- -0700 (PDT)
-Reply-To: tofilbaman@gmail.com
-From:   Tofil Bama <financeministryof0@gmail.com>
-Date:   Tue, 30 Jul 2019 15:36:38 +0200
-Message-ID: <CAAQn61Ey3BHzuQjX=aD8JBHFYH8_dMh4fEf82Hdt5ypTjku8fg@mail.gmail.com>
-Subject: URGENT REPLY NEEDED.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190729095715.2de79aea@collabora.com>
+X-Sent-From: Pengutronix Hildesheim
+X-URL:  http://www.pengutronix.de/
+X-IRC:  #ptxdist @freenode
+X-Accept-Language: de,en
+X-Accept-Content-Type: text/plain
+X-Uptime: 15:36:39 up 73 days, 19:54, 49 users,  load average: 0.04, 0.02,
+ 0.00
+User-Agent: NeoMutt/20170113 (1.7.2)
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
+X-SA-Exim-Mail-From: mfe@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear,
+Hi Boris,
 
-My name is Mr Tofil Bama, I am the Bill and Exchange (assistant)
-Manager of Bank of Africa Ouagadougou, Burkina Faso. In my department
-I discovered an abandoned sum of eighteen million three hundred
-thousand United State of American dollars (18.3MILLION USA DOLLARS)
-in an account that belongs to one of our foreign customer who died in
-airline that crashed on 4th October 2001.
+On 19-07-29 09:57, Boris Brezillon wrote:
+> On Mon, 29 Jul 2019 09:06:52 +0200
+> Marco Felsch <m.felsch@pengutronix.de> wrote:
+> 
+> > Some devices are supposed to do not support on-die ECC but experience
+> 
+> 		^ are not supposed to support
 
-Since I got information about his death I have been expecting his next
-of kin to come over and claim his money because we can not release it
-unless somebody applies for it as the next of kin or relation to the
-deceased as indicated in our banking guidelines, but unfortunately we
-learnt that all his supposed next of kin or relation died alongside
-with him in the plane crash leaving nobody behind for the claim. It is
-therefore upon this discovery that I decided to make this business
-proposal to you and release the money to you as next of kin or
-relation to the deceased for safety and subsequent disbursement since
-nobody is coming for it and I don't want the money to go into the bank
-treasury as unclaimed bill.
+Fixed both, thanks. I will keep you rb-tag okay?
 
-You will be entitled with 40% of the total sum while 60% will be for
-me after which I will visit your Country to invest my own share when
-the fund is successfully transferred into your account, Please I would
-like you to keep this transaction confidential and as a top secret as
-you may wish to know that I am a bank official.
+Regards,
+  Marco
 
-Yours sincerely,
-Mr Tofil Bama.
+> > shows that internal ECC machinery can actually be enabled through the
+> > "SET FEATURE (EFh)" command, even if a read of the "READ ID Parameter
+> > Tables" returns that it is not.
+> > 
+> > Currently, the driver checks the "READ ID Parameter" field directly
+> > after having enabled the feature. If the check fails it returns
+> > immediately but leaves the ECC on. When using buggy chips like
+> > MT29F2G08ABAGA and MT29F2G08ABBGA, all future read/program cycles will
+> > go through the on-die ECC, confusing the host controller which is
+> > supposed to be the one handling correction.
+> > 
+> > To address this in a common way we need to turn off the on-die ECC
+> > directly after reading the "READ ID Parameter" and before checking the
+> > "ECC status".
+> > 
+> > Cc: stable@vger.kernel.org
+> > Fixes: dbc44edbf833 ("mtd: rawnand: micron: Fix on-die ECC detection logic")
+> > Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+> > Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+> > ---
+> > v2:
+> > - adapt commit message according Miquel comments
+> > - add fixes, stable tags
+> > - add Boris rb-tag
+> > 
+> >  drivers/mtd/nand/raw/nand_micron.c | 14 +++++++++++---
+> >  1 file changed, 11 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/drivers/mtd/nand/raw/nand_micron.c b/drivers/mtd/nand/raw/nand_micron.c
+> > index 1622d3145587..fb199ad2f1a6 100644
+> > --- a/drivers/mtd/nand/raw/nand_micron.c
+> > +++ b/drivers/mtd/nand/raw/nand_micron.c
+> > @@ -390,6 +390,14 @@ static int micron_supports_on_die_ecc(struct nand_chip *chip)
+> >  	    (chip->id.data[4] & MICRON_ID_INTERNAL_ECC_MASK) != 0x2)
+> >  		return MICRON_ON_DIE_UNSUPPORTED;
+> >  
+> > +	/*
+> > +	 * It seems that there are devices which do not support ECC official.
+> 
+> 								    ^officially.
+> 
+> > +	 * At least the MT29F2G08ABAGA / MT29F2G08ABBGA devices supports
+> > +	 * enabling the ECC feature but don't reflect that to the READ_ID table.
+> > +	 * So we have to guarantee that we disable the ECC feature directly
+> > +	 * after we did the READ_ID table command. Later we can evaluate the
+> > +	 * ECC_ENABLE support.
+> > +	 */
+> >  	ret = micron_nand_on_die_ecc_setup(chip, true);
+> >  	if (ret)
+> >  		return MICRON_ON_DIE_UNSUPPORTED;
+> > @@ -398,13 +406,13 @@ static int micron_supports_on_die_ecc(struct nand_chip *chip)
+> >  	if (ret)
+> >  		return MICRON_ON_DIE_UNSUPPORTED;
+> >  
+> > -	if (!(id[4] & MICRON_ID_ECC_ENABLED))
+> > -		return MICRON_ON_DIE_UNSUPPORTED;
+> > -
+> >  	ret = micron_nand_on_die_ecc_setup(chip, false);
+> >  	if (ret)
+> >  		return MICRON_ON_DIE_UNSUPPORTED;
+> >  
+> > +	if (!(id[4] & MICRON_ID_ECC_ENABLED))
+> > +		return MICRON_ON_DIE_UNSUPPORTED;
+> > +
+> >  	ret = nand_readid_op(chip, 0, id, sizeof(id));
+> >  	if (ret)
+> >  		return MICRON_ON_DIE_UNSUPPORTED;
+> 
+> 
+
+-- 
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
