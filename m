@@ -2,156 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C12B07B1F4
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 20:28:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2E037B203
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 20:32:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729102AbfG3S2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 14:28:07 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:38594 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726522AbfG3S2H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 14:28:07 -0400
-Received: by mail-wm1-f66.google.com with SMTP id s15so36167834wmj.3;
-        Tue, 30 Jul 2019 11:28:04 -0700 (PDT)
+        id S2387431AbfG3Sct (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 14:32:49 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:34656 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726050AbfG3Sct (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 14:32:49 -0400
+Received: by mail-pg1-f194.google.com with SMTP id n9so24278098pgc.1;
+        Tue, 30 Jul 2019 11:32:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=wvsOsY5CLQsky8uz4ClfHVAjHjhjUTEeWUp/GJcH9vg=;
-        b=rrckOx3Ihb+ID9d4P65+Fyq+4f0d0RK+viITtEC/PCnIRlbUYceRhBOVpLCZEV//zb
-         y6hTtV2C9CMqNsjje6RId2eo8D5fq4iq8TW0qR5cWN3+VMJSPvthhpDvoCxsbzPqK+rV
-         7LlHLYu/9J3Fs3ej8sCF3XhoqF3dMRSJ6rbQHzcGjjkNly36gQ8WUg7EC2YxAN2zscM6
-         +I7OBL2/87MTAIrAF4X+BRRPp0aNzsEZlgqRlyWVlTjyUMCkpnHqWjiBk9yJTewEouiY
-         BSQBfz0bMPXWS3pgzBIHY4HxzRZJk5eaMqlw7v28M1gkIpwrTnKkMDSyMYGihCMw5svS
-         jGpw==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=6fCIBt83Qg0xm9/csFeyeLFWARKqAMvTELcBmphTpo0=;
+        b=JUA9FbUPr0F6xNgBd5J9MHwHtCHrMpBJuNDTvZBzKBZeCmNsbohHado2HBbGTi0It9
+         yThD+OL5Bkf6Da9wJnEKF7n1ZuYfE+RCaAChBqmkI/jmB2QhloDai+ucTPidoKT2u6UQ
+         29UC6QoAyrEf4tN2GNQniwXjZkr83rJH4ak6SFrbJFSb15jmyMBIWZiHh1EgvVH6j48q
+         cZKmuIlqPfwxsnRzt4ye0SXQ2NpyGAmqO03R0RsRzNRYkzGXP/3U1W6hIGXqsFMnjHXR
+         g7Xo3I2gA+uPgrVqyPZw3rp948eNJFIjP60aR0GcG/CsRV9BR7dafhIdCpB5PUi2sogn
+         ixHw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=wvsOsY5CLQsky8uz4ClfHVAjHjhjUTEeWUp/GJcH9vg=;
-        b=Ss/MxwEbsFaNt/NeziGxTysXKuQpbmMEdY8qiJglWzLF0CHB6Ff1fz3FLarUX5h8qY
-         RCuhAXXobsxd/F3sQ65DyPbk/bF28Yi659h/80YQT4muDMfe2LgXh7UXohQbMZZLl8rE
-         LkfGUfou/1FB90AD0x8RoeLx1wcwi+wd23GfHzOJvFfHp2jkYlRo2RWg1wkaOW8j4xuW
-         qYvdQgFD0dIK1APzL8LQAoyOsMnePEtwgIQURFivp/mRc+M38TaWYCl/ZTF1koDULcLr
-         5k/p01J7pIRQpsOPrO1O6SDRJJlu7Pom4FvKyGZ/tk1einRkT+9ROOwU7Jy2JXSadt/j
-         X8IA==
-X-Gm-Message-State: APjAAAVv71KNsoEIk04U/fBJhNund6BCj7brsrJG3XKlkDEstNX9yaf1
-        wmLlYo8rKj/13Kkhw6CaGFI=
-X-Google-Smtp-Source: APXvYqwn6kyl9fuKU9XTfrr8jZzivv/H5Z7x6p9WbogCsbSL5AnBIA5zWpXTjxtjUjpzWKZCagASaw==
-X-Received: by 2002:a7b:cf0b:: with SMTP id l11mr111949106wmg.143.1564511283748;
-        Tue, 30 Jul 2019 11:28:03 -0700 (PDT)
-Received: from archlinux-threadripper ([2a01:4f8:222:2f1b::2])
-        by smtp.gmail.com with ESMTPSA id v204sm69670944wma.20.2019.07.30.11.28.02
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Tue, 30 Jul 2019 11:28:02 -0700 (PDT)
-Date:   Tue, 30 Jul 2019 11:28:01 -0700
-From:   Nathan Chancellor <natechancellor@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Qian Cai <cai@lca.pw>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.14 054/293] sched/fair: Fix "runnable_avg_yN_inv" not
- used warnings
-Message-ID: <20190730182801.GA94301@archlinux-threadripper>
-References: <20190729190820.321094988@linuxfoundation.org>
- <20190729190828.058944959@linuxfoundation.org>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=6fCIBt83Qg0xm9/csFeyeLFWARKqAMvTELcBmphTpo0=;
+        b=H2MThA67qYPZW3whWUWmv1wpTsz4n7hsBi7YYWQkbmeHxkouQeztlHvj9RcEP2YNn/
+         0bwbajJxRfrMD44wa89uP7Dyb0ZLNl8GeNHGMFpcsl+zjMR2/0U2MZM7xR2AfVVAOyyP
+         ySAOjbAHq5an67cbAQy7/+z2qKgkxbKTBwA6mn+mjgOTCUEguZDzwTUJwLq1EQdqMeQA
+         C68ov5HTq0IrrpgaJDl9nhbjTLPsm8vADBrGZVfxGaH97Spo4SRiaTOWjWOodtKarK/O
+         HpxR9l51rzNZLJRkfV+VG+LPgCbl9Fu6klAwlX6yNdvW+rmj+2hV2SzigMnRpfOF5Rev
+         DBiw==
+X-Gm-Message-State: APjAAAVXcbBUhpFx6is2mQzzo94H1HRSnUYaALZaIcjlLU45TIMTGjCW
+        3G0iro+5s8tdu7cTBDFZ+6E=
+X-Google-Smtp-Source: APXvYqz3TKO5CR8bm9L/zAhw0K/5mmOOXYnkeug29AHRYcKaRz4UPuCN4Qa7WYzWXEa+PlUkZGXEBw==
+X-Received: by 2002:a62:754d:: with SMTP id q74mr42050335pfc.211.1564511568653;
+        Tue, 30 Jul 2019 11:32:48 -0700 (PDT)
+Received: from jordon-HP-15-Notebook-PC.domain.name ([106.51.16.0])
+        by smtp.gmail.com with ESMTPSA id j5sm57328671pgp.59.2019.07.30.11.32.43
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Tue, 30 Jul 2019 11:32:47 -0700 (PDT)
+From:   Souptick Joarder <jrdr.linux@gmail.com>
+To:     boris.ostrovsky@oracle.com, jgross@suse.com,
+        sstabellini@kernel.org, marmarek@invisiblethingslab.com
+Cc:     willy@infradead.org, akpm@linux-foundation.org,
+        linux@armlinux.org.uk, linux-mm@kvack.org,
+        xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, gregkh@linuxfoundation.org,
+        Souptick Joarder <jrdr.linux@gmail.com>
+Subject: [PATCH] xen/gntdev.c: Replace vm_map_pages() with vm_map_pages_zero()
+Date:   Wed, 31 Jul 2019 00:04:56 +0530
+Message-Id: <1564511696-4044-1-git-send-email-jrdr.linux@gmail.com>
+X-Mailer: git-send-email 1.9.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190729190828.058944959@linuxfoundation.org>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 29, 2019 at 09:19:05PM +0200, Greg Kroah-Hartman wrote:
-> [ Upstream commit 509466b7d480bc5d22e90b9fbe6122ae0e2fbe39 ]
-> 
-> runnable_avg_yN_inv[] is only used in kernel/sched/pelt.c but was
-> included in several other places because they need other macros all
-> came from kernel/sched/sched-pelt.h which was generated by
-> Documentation/scheduler/sched-pelt. As the result, it causes compilation
-> a lot of warnings,
-> 
->   kernel/sched/sched-pelt.h:4:18: warning: 'runnable_avg_yN_inv' defined but not used [-Wunused-const-variable=]
->   kernel/sched/sched-pelt.h:4:18: warning: 'runnable_avg_yN_inv' defined but not used [-Wunused-const-variable=]
->   kernel/sched/sched-pelt.h:4:18: warning: 'runnable_avg_yN_inv' defined but not used [-Wunused-const-variable=]
->   ...
-> 
-> Silence it by appending the __maybe_unused attribute for it, so all
-> generated variables and macros can still be kept in the same file.
-> 
-> Signed-off-by: Qian Cai <cai@lca.pw>
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Cc: Linus Torvalds <torvalds@linux-foundation.org>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Link: https://lkml.kernel.org/r/1559596304-31581-1-git-send-email-cai@lca.pw
-> Signed-off-by: Ingo Molnar <mingo@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  Documentation/scheduler/sched-pelt.c | 3 ++-
->  kernel/sched/sched-pelt.h            | 2 +-
->  2 files changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/scheduler/sched-pelt.c b/Documentation/scheduler/sched-pelt.c
-> index e4219139386a..7238b355919c 100644
-> --- a/Documentation/scheduler/sched-pelt.c
-> +++ b/Documentation/scheduler/sched-pelt.c
-> @@ -20,7 +20,8 @@ void calc_runnable_avg_yN_inv(void)
->  	int i;
->  	unsigned int x;
->  
-> -	printf("static const u32 runnable_avg_yN_inv[] = {");
-> +	/* To silence -Wunused-but-set-variable warnings. */
-> +	printf("static const u32 runnable_avg_yN_inv[] __maybe_unused = {");
->  	for (i = 0; i < HALFLIFE; i++) {
->  		x = ((1UL<<32)-1)*pow(y, i);
->  
-> diff --git a/kernel/sched/sched-pelt.h b/kernel/sched/sched-pelt.h
-> index a26473674fb7..c529706bed11 100644
-> --- a/kernel/sched/sched-pelt.h
-> +++ b/kernel/sched/sched-pelt.h
-> @@ -1,7 +1,7 @@
->  /* SPDX-License-Identifier: GPL-2.0 */
->  /* Generated by Documentation/scheduler/sched-pelt; do not modify. */
->  
-> -static const u32 runnable_avg_yN_inv[] = {
-> +static const u32 runnable_avg_yN_inv[] __maybe_unused = {
->  	0xffffffff, 0xfa83b2da, 0xf5257d14, 0xefe4b99a, 0xeac0c6e6, 0xe5b906e6,
->  	0xe0ccdeeb, 0xdbfbb796, 0xd744fcc9, 0xd2a81d91, 0xce248c14, 0xc9b9bd85,
->  	0xc5672a10, 0xc12c4cc9, 0xbd08a39e, 0xb8fbaf46, 0xb504f333, 0xb123f581,
-> -- 
-> 2.20.1
-> 
-> 
-> 
+'commit df9bde015a72 ("xen/gntdev.c: convert to use vm_map_pages()")'
+breaks gntdev driver. If vma->vm_pgoff > 0, vm_map_pages()
+will:
+ - use map->pages starting at vma->vm_pgoff instead of 0
+ - verify map->count against vma_pages()+vma->vm_pgoff instead of just
+   vma_pages().
 
-This patch does nothing in 4.14. There is no kernel/sched/pelt.c.
+In practice, this breaks using a single gntdev FD for mapping multiple
+grants.
 
-$ fd pelt
-kernel/sched/sched-pelt.h
-Documentation/scheduler/sched-pelt.c
+relevant strace output:
+[pid   857] ioctl(7, IOCTL_GNTDEV_MAP_GRANT_REF, 0x7ffd3407b6d0) = 0
+[pid   857] mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_SHARED, 7, 0) =
+0x777f1211b000
+[pid   857] ioctl(7, IOCTL_GNTDEV_SET_UNMAP_NOTIFY, 0x7ffd3407b710) = 0
+[pid   857] ioctl(7, IOCTL_GNTDEV_MAP_GRANT_REF, 0x7ffd3407b6d0) = 0
+[pid   857] mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_SHARED, 7,
+0x1000) = -1 ENXIO (No such device or address)
 
-runnable_avg_yN_inv is only used in one location in 4.14.134, in fair.c
-behind CONFIG_SMP, which is also the guard that includes sched-pelt.h.
+details here:
+https://github.com/QubesOS/qubes-issues/issues/5199
 
-$ rg --no-heading -g '!Documentation' runnable_avg_yN_inv
-kernel/sched/sched-pelt.h:4:static const u32 runnable_avg_yN_inv[] = {
-kernel/sched/fair.c:2849:       val = mul_u64_u32_shr(val, runnable_avg_yN_inv[local_n], 32);
+The reason is -> ( copying Marek's word from discussion)
 
-$ rg --no-heading -B 2 "sched-pelt.h"
-kernel/sched/fair.c-707-#ifdef CONFIG_SMP
-kernel/sched/fair.c-708-
-kernel/sched/fair.c:709:#include "sched-pelt.h"
+vma->vm_pgoff is used as index passed to gntdev_find_map_index. It's
+basically using this parameter for "which grant reference to map".
+map struct returned by gntdev_find_map_index() describes just the pages
+to be mapped. Specifically map->pages[0] should be mapped at
+vma->vm_start, not vma->vm_start+vma->vm_pgoff*PAGE_SIZE.
 
-I see no way for the warnings in this patch to occur here, making it
-pointless. I get two trivial conflicts in my msm-4.14 tree from this
-patch that I would like to avoid dealing with.
+When trying to map grant with index (aka vma->vm_pgoff) > 1,
+__vm_map_pages() will refuse to map it because it will expect map->count
+to be at least vma_pages(vma)+vma->vm_pgoff, while it is exactly
+vma_pages(vma).
 
-Please consider dropping this patch, thanks!
-Nathan
+Converting vm_map_pages() to use vm_map_pages_zero() will fix the
+problem.
+
+Marek has tested and confirmed the same.
+
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
+Tested-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+---
+ drivers/xen/gntdev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
+index 4c339c7..a446a72 100644
+--- a/drivers/xen/gntdev.c
++++ b/drivers/xen/gntdev.c
+@@ -1143,7 +1143,7 @@ static int gntdev_mmap(struct file *flip, struct vm_area_struct *vma)
+ 		goto out_put_map;
+ 
+ 	if (!use_ptemod) {
+-		err = vm_map_pages(vma, map->pages, map->count);
++		err = vm_map_pages_zero(vma, map->pages, map->count);
+ 		if (err)
+ 			goto out_put_map;
+ 	} else {
+-- 
+1.9.1
+
