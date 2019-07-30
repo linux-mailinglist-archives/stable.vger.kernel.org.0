@@ -2,170 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 296E379EC5
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 04:34:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03BB579F77
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 05:12:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731069AbfG3Cem (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jul 2019 22:34:42 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:36606 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731340AbfG3Cem (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 22:34:42 -0400
-Received: by mail-wm1-f67.google.com with SMTP id g67so51074128wme.1
-        for <stable@vger.kernel.org>; Mon, 29 Jul 2019 19:34:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
-         :references:subject:to:from:cc;
-        bh=KXaoPbrQR8cOY5xonhHKs7ogV9g+KKiBGCtdfBnXIps=;
-        b=xR1buKxFHC0Ubt/ueUgau0i3OVjchdiaRtL/HXgzdhTf3GxYPAuByUABbqIUdX9CHO
-         WlxxxdvqpyPWTiTttbdGIHYR2dYcnnenzozkng6PJ2U6FIW7+ZZURcSyAVkM/6t8dFWf
-         8PTTJ3yzVfNEgxhTtA4Mp/MF5Z4b1tZAfAuhtuETVUNcPAtBg7mYyvFlZ3+p8+UoKo0Y
-         REt/MGwcGK2tc2mQM1FOYiROMEdfPQQVaFWlZ5T7b+pPmQZLSxCQoUf0dkO3yjveozJa
-         QIGIRGQ66OLYTsblwdav/XiDj+vz2nj9R8T8sIsK4b/zNx7dr6tP/J6yS5jnoaIpzmNS
-         j7ww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
-        bh=KXaoPbrQR8cOY5xonhHKs7ogV9g+KKiBGCtdfBnXIps=;
-        b=WD09uMtPhnMLVFLRgNuEPtQLFKrmkVk61qWv+gjIApfd7logVWqyxnK2S21r/SYfTq
-         F7q6Nbywc512RJCOVc6mLFSOhahS39pipnhBp4mtF6avI/GJLWrUVu/+Bb5HodB1UpF8
-         K1pU3kuswBh6Ffzg7TdyTDztNwQ7CWZFJD7xY33x2agVNGHKBD9rny1WKnUgVXvO1i9p
-         Y8OnNeUkq+zpH84in592f5T2hBbuXHlNDylZz6iqpXxMEXcK84iZ3VD5OZAiZ6059Si0
-         HOupzspyOqsh/Ds4wRXllOROP+KvOjXMt9sg1MF2yRr+MEObGr2XmbJpKvd+qs99uRdm
-         uX4w==
-X-Gm-Message-State: APjAAAV03mygy7ljFxcXb60oZ8ctiMyKjSs9nTDU7vkWOTY6Z4ViKwIy
-        5Kewhqdxx3t0GtIx511ZeLI=
-X-Google-Smtp-Source: APXvYqypftDUNx8st82aK4dw1bMbg4A99G1C5vmNK3sMd9EDAfkwgxv9Spu5UTrgFmr5v0FOmsvmSQ==
-X-Received: by 2002:a7b:c4c1:: with SMTP id g1mr6832114wmk.14.1564454080143;
-        Mon, 29 Jul 2019 19:34:40 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id c1sm145051435wrh.1.2019.07.29.19.34.38
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 29 Jul 2019 19:34:39 -0700 (PDT)
-Message-ID: <5d3facbf.1c69fb81.f6d50.d89a@mx.google.com>
-Date:   Mon, 29 Jul 2019 19:34:39 -0700 (PDT)
+        id S1726833AbfG3DMK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jul 2019 23:12:10 -0400
+Received: from rtits2.realtek.com ([211.75.126.72]:55102 "EHLO
+        rtits2.realtek.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726281AbfG3DMJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jul 2019 23:12:09 -0400
+Authenticated-By: 
+X-SpamFilter-By: BOX Solutions SpamTrap 5.62 with qID x6U3BePq012141, This message is accepted by code: ctloc85258
+Received: from mail.realtek.com (RTITCAS12.realtek.com.tw[172.21.6.16])
+        by rtits2.realtek.com.tw (8.15.2/2.57/5.78) with ESMTPS id x6U3BePq012141
+        (version=TLSv1 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT);
+        Tue, 30 Jul 2019 11:11:41 +0800
+Received: from RTITMBSVM04.realtek.com.tw ([fe80::e404:880:2ef1:1aa1]) by
+ RTITCAS12.realtek.com.tw ([::1]) with mapi id 14.03.0439.000; Tue, 30 Jul
+ 2019 11:11:40 +0800
+From:   Tony Chuang <yhchuang@realtek.com>
+To:     Jian-Hong Pan <jian-hong@endlessm.com>,
+        David Laight <David.Laight@aculab.com>
+CC:     Kalle Valo <kvalo@codeaurora.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux@endlessm.com" <linux@endlessm.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] rtw88: pci: Use general byte arrays as the elements of RX ring
+Thread-Topic: [PATCH] rtw88: pci: Use general byte arrays as the elements of
+ RX ring
+Thread-Index: AQHVQsDFA5h+OZuaBU+XsMB5k0fq7qbaiPcAgAFfSQCAADO7gIAABNsAgAZbryA=
+Date:   Tue, 30 Jul 2019 03:11:39 +0000
+Message-ID: <F7CD281DE3E379468C6D07993EA72F84D1881C54@RTITMBSVM04.realtek.com.tw>
+References: <20190725080925.6575-1-jian-hong@endlessm.com>
+ <06d713fff7434dfb9ccab32c2e2112e2@AcuMS.aculab.com>
+ <CAPpJ_ecAAw=1X=7+MOw-VVH0ZKBr6rcRub6JnEqgNbZ6Hxt=ag@mail.gmail.com>
+ <c2cdffd30923459e8773379fc2927e1d@AcuMS.aculab.com>
+ <CAPpJ_eey7+KCMFj2YVQD8ziWR_xf-==k9MYb49-32Z5E6vTdHA@mail.gmail.com>
+In-Reply-To: <CAPpJ_eey7+KCMFj2YVQD8ziWR_xf-==k9MYb49-32Z5E6vTdHA@mail.gmail.com>
+Accept-Language: zh-TW, en-US
+Content-Language: zh-TW
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [172.21.68.183]
 Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.62-114-g0c75526c53c7
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Report-Type: boot
-In-Reply-To: <20190729190655.455345569@linuxfoundation.org>
-References: <20190729190655.455345569@linuxfoundation.org>
-Subject: Re: [PATCH 4.19 000/113] 4.19.63-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 111 boots: 1 failed, 70 passed with 40 offline=
- (v4.19.62-114-g0c75526c53c7)
-
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.62-114-g0c75526c53c7/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.62-114-g0c75526c53c7/
-
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.62-114-g0c75526c53c7
-Git Commit: 0c75526c53c7c911b415119a86ace13c9d3e1724
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 64 unique boards, 26 SoC families, 17 builds out of 206
-
-Boot Failure Detected:
-
-arc:
-    hsdk_defconfig:
-        gcc-8:
-            hsdk: 1 failed lab
-
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-axg-s400: 1 offline lab
-            meson-gxbb-odroidc2: 1 offline lab
-            meson-gxl-s905d-p230: 1 offline lab
-            meson-gxl-s905x-libretech-cc: 1 offline lab
-            meson-gxl-s905x-nexbox-a95x: 1 offline lab
-            meson-gxl-s905x-p212: 1 offline lab
-            meson-gxm-nexbox-a1: 1 offline lab
-            rk3399-firefly: 1 offline lab
-            sun50i-a64-pine64-plus: 1 offline lab
-
-mips:
-
-    pistachio_defconfig:
-        gcc-8
-            pistachio_marduk: 1 offline lab
-
-arm:
-
-    exynos_defconfig:
-        gcc-8
-            exynos5250-arndale: 1 offline lab
-            exynos5420-arndale-octa: 1 offline lab
-            exynos5800-peach-pi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5250-arndale: 1 offline lab
-            exynos5420-arndale-octa: 1 offline lab
-            exynos5800-peach-pi: 1 offline lab
-            imx6dl-wandboard_dual: 1 offline lab
-            imx6dl-wandboard_solo: 1 offline lab
-            imx6q-wandboard: 1 offline lab
-            imx7s-warp: 1 offline lab
-            meson8b-odroidc1: 1 offline lab
-            omap3-beagle: 1 offline lab
-            omap4-panda: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            stih410-b2120: 1 offline lab
-            sun4i-a10-cubieboard: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-            vf610-colibri-eval-v3: 1 offline lab
-
-    omap2plus_defconfig:
-        gcc-8
-            omap3-beagle: 1 offline lab
-            omap4-panda: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            da850-evm: 1 offline lab
-            dm365evm,legacy: 1 offline lab
-
-    imx_v6_v7_defconfig:
-        gcc-8
-            imx6dl-wandboard_dual: 1 offline lab
-            imx6dl-wandboard_solo: 1 offline lab
-            imx6q-wandboard: 1 offline lab
-            imx7s-warp: 1 offline lab
-            vf610-colibri-eval-v3: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun4i-a10-cubieboard: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+PiA+ID4gPiBXaGlsZSBhbGxvY2F0aW5nIGFsbCA1MTIgYnVmZmVycyBpbiBvbmUgYmxvY2sgKGp1
+c3Qgb3ZlciA0TUIpDQo+ID4gPiA+IGlzIHByb2JhYmx5IG5vdCBhIGdvb2QgaWRlYSwgeW91IG1h
+eSBuZWVkIHRvIGFsbG9jYXRlZCAoYW5kIGRtYSBtYXApDQo+ID4gPiA+IHRoZW4gaW4gZ3JvdXBz
+Lg0KPiA+ID4NCj4gPiA+IFRoYW5rcyBmb3IgcmV2aWV3aW5nLiAgQnV0IGdvdCBxdWVzdGlvbnMg
+aGVyZSB0byBkb3VibGUgY29uZmlybSB0aGUNCj4gaWRlYS4NCj4gPiA+IEFjY29yZGluZyB0byBv
+cmlnaW5hbCBjb2RlLCBpdCBhbGxvY2F0ZXMgNTEyIHNrYnMgZm9yIFJYIHJpbmcgYW5kIGRtYQ0K
+PiA+ID4gbWFwcGluZyBvbmUgYnkgb25lLiAgU28sIHRoZSBuZXcgY29kZSBhbGxvY2F0ZXMgbWVt
+b3J5IGJ1ZmZlciA1MTINCj4gPiA+IHRpbWVzIHRvIGdldCA1MTIgYnVmZmVyIGFycmF5cy4gIFdp
+bGwgdGhlIDUxMiBidWZmZXJzIGFycmF5cyBiZSBpbiBvbmUNCj4gPiA+IGJsb2NrPyAgRG8geW91
+IG1lYW4gYWdncmVnYXRlIHRoZSBidWZmZXJzIGFzIGEgc2NhdHRlcmxpc3QgYW5kIHVzZQ0KPiA+
+ID4gZG1hX21hcF9zZz8NCj4gPg0KPiA+IElmIHlvdSBtYWxsb2MgYSBidWZmZXIgb2Ygc2l6ZSAo
+ODE5MiszMikgdGhlIGFsbG9jYXRvciB3aWxsIGVpdGhlcg0KPiA+IHJvdW5kIGl0IHVwIHRvIGEg
+d2hvbGUgbnVtYmVyIG9mIChvZnRlbiA0aykgcGFnZXMgb3IgdG8gYSBwb3dlciBvZg0KPiA+IDIg
+b2YgcGFnZXMgLSBzbyBlaXRoZXIgMTJrIG9mIDE2ay4NCj4gPiBJIHRoaW5rIHRoZSBMaW51eCBh
+bGxvY2F0b3IgZG9lcyB0aGUgbGF0dGVyLg0KPiA+IFNvbWUgb2YgdGhlIGFsbG9jYXRvcnMgYWxz
+byAnc3RlYWwnIGEgYml0IGZyb20gdGhlIGZyb250IG9mIHRoZSBidWZmZXINCj4gPiBmb3IgJ3Jl
+ZCB0YXBlJy4NCj4gPg0KPiA+IE9UT0ggbWFsbG9jIHRoZSBzcGFjZSAxNSBidWZmZXJzIGFuZCB0
+aGUgYWxsb2NhdG9yIHdpbGwgcm91bmQgdGhlDQo+ID4gMTUqKDgxOTIgKyAzMikgdXAgdG8gMzIq
+NGsgLSBhbmQgeW91IHdhc3RlIHVuZGVyIDhrIGFjcm9zcyBhbGwgdGhlDQo+ID4gYnVmZmVycy4N
+Cj4gPg0KPiA+IFlvdSB0aGVuIGRtYV9tYXAgdGhlIGxhcmdlIGJ1ZmZlciBhbmQgc3BsaXQgaW50
+byB0aGUgYWN0dWFsIHJ4IGJ1ZmZlcnMuDQo+ID4gUmVwZWF0IHVudGlsIHlvdSd2ZSBmaWxsZWQg
+dGhlIGVudGlyZSByaW5nLg0KPiA+IFRoZSBvbmx5IGNvbXBsaWNhdGlvbiBpcyByZW1lbWJlcmlu
+ZyB0aGUgYmFzZSBhZGRyZXNzIChhbmQgc2l6ZSkgZm9yDQo+ID4gdGhlIGRtYV91bm1hcCBhbmQg
+ZnJlZS4NCj4gPiBBbHRob3VnaCB0aGVyZSBpcyBwbGVudHkgb2YgcGFkZGluZyB0byBleHRlbmQg
+dGhlIGJ1ZmZlciBzdHJ1Y3R1cmUNCj4gPiBzaWduaWZpY2FudGx5IHdpdGhvdXQgdXNpbmcgbW9y
+ZSBtZW1vcnkuDQo+ID4gQWxsb2NhdGUgaW4gMTUncyBhbmQgeW91IChwcm9iYWJseSkgaGF2ZSA1
+MTIgYnl0ZXMgcGVyIGJ1ZmZlci4NCj4gPiBBbGxvY2F0ZSBpbiAzMSdzIGFuZCB5b3UgaGF2ZSAy
+NTYgYnl0ZXMuDQo+ID4NCj4gPiBUaGUgcHJvYmxlbSBpcyB0aGF0IGxhcmdlciBhbGxvY2F0ZXMg
+YXJlIG1vcmUgbGlrZWx5IHRvIGZhaWwNCj4gPiAoZXNwZWNpYWxseSBpZiB0aGUgc3lzdGVtIGhh
+cyBiZWVuIHJ1bm5pbmcgZm9yIHNvbWUgdGltZSkuDQo+ID4gU28geW91IGFsbW9zdCBjZXJ0YWlu
+bHkgd2FudCB0byBiZSBhYmxlIHRvIGZhbGwgYmFjayB0byBzbWFsbGVyDQo+ID4gYWxsb2NhdGVz
+IGV2ZW4gdGhvdWdoIHRoZXkgdXNlIG1vcmUgbWVtb3J5Lg0KPiA+DQo+ID4gSSBhbHNvIHdvbmRl
+ciBpZiB5b3UgYWN0dWFsbHkgbmVlZCA1MTIgOGsgcnggYnVmZmVycyB0byBjb3Zlcg0KPiA+IGlu
+dGVycnVwdCBsYXRlbmN5Pw0KPiA+IEkndmUgbm90IGRvbmUgYW55IG1lYXN1cmVtZW50cyBmb3Ig
+MjAgeWVhcnMhDQo+IA0KPiBUaGFua3MgZm9yIHRoZSBleHBsYW5hdGlvbi4NCj4gSSBhbSBub3Qg
+c3VyZSB0aGUgY29tYmluYXRpb24gb2YgNTEyIDhrIFJYIGJ1ZmZlcnMuICBNYXliZSBSZWFsdGVr
+DQo+IGZvbGtzIGNhbiBnaXZlIHVzIHNvbWUgaWRlYS4NCj4gVG9ueSBDaHVhbmcgYW55IGNvbW1l
+bnQ/DQo+IA0KPiBKaWFuLUhvbmcgUGFuDQo+IA0KDQo1MTIgUlggYnVmZmVycyBpcyBub3QgbmVj
+ZXNzYXJ5IEkgdGhpbmsuIEJ1dCBJIGhhdmVuJ3QgaGFkIGEgY2hhbmNlIHRvDQp0ZXN0IGlmIHJl
+ZHVjZSB0aGUgbnVtYmVyIG9mIFJYIFNLQnMgY291bGQgYWZmZWN0IHRoZSBsYXRlbmN5Lg0KSSBj
+YW4gcnVuIHNvbWUgdGhyb3VnaHB1dCB0ZXN0cyBhbmQgdGhlbiBkZWNpZGUgYSBtaW5pbXVtIG51
+bWJlcnMNCnRoYXQgUlggcmluZyByZXF1aXJlcy4gT3IgaWYgeW91IGNhbiB0cnkgaXQuDQoNClRo
+YW5rcy4NCllhbi1Ic3Vhbg0K
