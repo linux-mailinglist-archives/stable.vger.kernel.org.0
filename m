@@ -2,220 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 111C07B435
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 22:16:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 536617B436
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 22:16:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728140AbfG3UQr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 16:16:47 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:37178 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725947AbfG3UQr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 16:16:47 -0400
-Received: by mail-pg1-f194.google.com with SMTP id i70so19888790pgd.4
-        for <stable@vger.kernel.org>; Tue, 30 Jul 2019 13:16:46 -0700 (PDT)
+        id S1725947AbfG3UQu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 16:16:50 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:45761 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387406AbfG3UQt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 16:16:49 -0400
+Received: by mail-pf1-f195.google.com with SMTP id r1so30405583pfq.12
+        for <stable@vger.kernel.org>; Tue, 30 Jul 2019 13:16:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=BeA/svtAIFW8HDV9tUYz5pgLvX8TrGYNMj5kwb+rqcE=;
-        b=k/5uDoU+a06aMoVqDSCbVpbcEi6eGjeSTKQ39j7yNqiQXZaBK2cZmzIyhyn4cdQy3O
-         sPrc8MIasvPdgbP3sf4gie614PaC8WVhyTBZo0w8ZxXeSZMIl+CKLTiJO6/RBIycRJaC
-         tb82SWrI980qCnHmIPpKHKuIhs3M2P2ZpjSDHDtpElOs3twZbVDMzDxn8UMClj1tstD6
-         7S1C9ZCRcC9bSLXcmW8oFepKXgJVXgMs2quS4VQ4cBG6XRhW2A2DWKOSdlJ/9ztOJ4KQ
-         c5tlrlsGZrSz6l/v+CWX4BEGtiC78kESi+tZ1PBAm2cmBpSWBOf+lZT/GfU8oNBpUfAo
-         JHaA==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=MunFz2lTShwR26VZ4w2FwMukvVD2WiHHyR9u5VL0/FM=;
+        b=O0sgUBMmEVpuYzSdIhpoJHYNdPFG1Wy1qJ37KN+PwiFAJmdOsuuYvjImrBg5oRDGzg
+         v1fRzWZc7wQSkFwkmQ04Wmmm3cTUnZFJMS0YAzSShidmCBhlBth2BEYbVq2r03h4g2of
+         EPQkmhkEpqq5AB4lycKJmHq8JtWO/NmRnMBBVKDFYRJr7ezH/yBqYidFXwHiC631ArCG
+         OkGHhQnum43cky9PAUD5NS7e4Rtt8JIqP0qSO7U/PZ2xqGNjCGXqzesoK5LfhSVBhxJd
+         tAnm4ETsjj7Es9dfA9vHolHfhwQ+0kyNqD4xm6yrwMcjJDKmMMjMU+XCm6iRYV58JqTi
+         Eelw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=BeA/svtAIFW8HDV9tUYz5pgLvX8TrGYNMj5kwb+rqcE=;
-        b=pzoNdWBOBHNadS3tI9aalOP5Pf8UjnkxVCRzR5M5LX/UTHLakQI3cSqBfOOZPY/oEQ
-         c/FXnX+Je4/54ljh6YjYmvXrDKIR7gTCJWCc4Ecbge6MU3Kc6c/ZVPT25UzgQ4t+8n0K
-         IzlwKOKHQMqh8T88n9rhqNhrzDgfdDMlxP+vKL9Qrg9MXUFrt2uN8dqtkVgLL1PvAt+7
-         b0JF4UZmfO3+VqMfBW468l2axQyKS7oPB6/fG1BORUeuXTI0EplWEOeilG0z2kbsRzV9
-         NigT8JW6/t6f+qf/7yUH2sgufpUHtpCn7kdLCNIH6pFj1KXBc1RlXEfkHJf50wGSnkAG
-         Cv1Q==
-X-Gm-Message-State: APjAAAWV27qN0krvca2EafovicpXJwa+zcg3s3k9YaIl8uUDUru5u/zO
-        FTeSnUVH94EDEyhp4gik8QMmuq3y35E=
-X-Google-Smtp-Source: APXvYqxQpR6P5VT2YjZrU1dnwrvSMJLWVfNQT/i6a+++9WjV+cMQ0mugAt88Z5nJQR5HQfZpuF9u1Q==
-X-Received: by 2002:a63:61c6:: with SMTP id v189mr103070806pgb.36.1564517806498;
-        Tue, 30 Jul 2019 13:16:46 -0700 (PDT)
+         :references;
+        bh=MunFz2lTShwR26VZ4w2FwMukvVD2WiHHyR9u5VL0/FM=;
+        b=AnGg82aLQOTDlDLzCcBE51RWZaBodoPfB2CQM2Uo5Xx0al0wtB1wivOVi/VZ0rl8g/
+         8+eE7HPjK5aeNXF0YjBKkNGnAn9psoP22CRamHpOycbCsV60n8BkifVMZIy2zY+xcHtj
+         EcbeaZ3iutNsSrHMiU8UQQxh17hLX1ESyUZzgROyiNdB8ZE3Qqt/SbPAEy/sG5iQnHZx
+         Ka80Un5Noc8Lij2d3FU57bZW00RBw1kSM9+VgOlZtHGZDmxsGMJXpbQGGF3bvpEqUCs9
+         qQNZWZjWIXD64XgS3LZanIGFOtH1bi6JnKKHBGvmeK1flqz9sejFIkqJdHZ9stMP45+i
+         mG5Q==
+X-Gm-Message-State: APjAAAUFTBq71RaCnCYQUijafs5yApMmJdoPLfOn7j8h/eERwxs6x1DB
+        I0LwGbnVra+nXZLPrM/kRFW71g==
+X-Google-Smtp-Source: APXvYqyCh3yUtQI3VkNGClveToc2ZHZf54acs8Khx2ApsRSmRvTf4hjvqCaGBxHfuo78BDRcwtZOGw==
+X-Received: by 2002:a63:f807:: with SMTP id n7mr114040472pgh.119.1564517808943;
+        Tue, 30 Jul 2019 13:16:48 -0700 (PDT)
 Received: from localhost.localdomain ([49.207.49.136])
-        by smtp.gmail.com with ESMTPSA id 135sm67603659pfb.137.2019.07.30.13.16.44
+        by smtp.gmail.com with ESMTPSA id 135sm67603659pfb.137.2019.07.30.13.16.46
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Tue, 30 Jul 2019 13:16:45 -0700 (PDT)
+        Tue, 30 Jul 2019 13:16:48 -0700 (PDT)
 From:   Amit Pundir <amit.pundir@linaro.org>
 To:     Greg KH <gregkh@linuxfoundation.org>
 Cc:     Stable <stable@vger.kernel.org>,
-        Minas Harutyunyan <minas.harutyunyan@synopsys.com>,
-        Minas Harutyunyan <hminas@synopsys.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>
-Subject: [PATCH for-4.19.y 2/3] usb: dwc2: Fix disable all EP's on disconnect
-Date:   Wed, 31 Jul 2019 01:46:38 +0530
-Message-Id: <1564517799-16880-2-git-send-email-amit.pundir@linaro.org>
+        Christian Lamparter <chunkeey@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH for-4.19.y 3/3] powerpc/4xx/uic: clear pending interrupt after irq type/pol change
+Date:   Wed, 31 Jul 2019 01:46:39 +0530
+Message-Id: <1564517799-16880-3-git-send-email-amit.pundir@linaro.org>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1564517799-16880-1-git-send-email-amit.pundir@linaro.org>
 References: <1564517799-16880-1-git-send-email-amit.pundir@linaro.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minas Harutyunyan <minas.harutyunyan@synopsys.com>
+From: Christian Lamparter <chunkeey@gmail.com>
 
-commit 4fe4f9fecc36956fd53c8edf96dd0c691ef98ff9 upstream.
+commit 3ab3a0689e74e6aa5b41360bc18861040ddef5b1 upstream.
 
-Disabling all EP's allow to reset EP's to initial state.
-Introduced new function dwc2_hsotg_ep_disable_lock() which
-before calling dwc2_hsotg_ep_disable() function acquire
-hsotg->lock and release on exiting.
-From dwc2_hsotg_ep_disable() function removed acquiring
-hsotg->lock.
-In dwc2_hsotg_core_init_disconnected() function when USB
-reset interrupt asserted disabling all ep’s by
-dwc2_hsotg_ep_disable() function.
-This updates eliminating sparse imbalance warnings.
+When testing out gpio-keys with a button, a spurious
+interrupt (and therefore a key press or release event)
+gets triggered as soon as the driver enables the irq
+line for the first time.
 
-Reverted changes in dwc2_hostg_disconnect() function.
-Introduced new function dwc2_hsotg_ep_disable_lock().
-Changed dwc2_hsotg_ep_ops. Now disable point to
-dwc2_hsotg_ep_disable_lock() function.
-In functions dwc2_hsotg_udc_stop() and dwc2_hsotg_suspend()
-dwc2_hsotg_ep_disable() function replaced by
-dwc2_hsotg_ep_disable_lock() function.
-In dwc2_hsotg_ep_disable() function removed acquiring
-of hsotg->lock.
+This patch clears any potential bogus generated interrupt
+that was caused by the switching of the associated irq's
+type and polarity.
 
-Fixes: dccf1bad4be7 ("usb: dwc2: Disable all EP's on disconnect")
-Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Amit Pundir <amit.pundir@linaro.org>
 ---
 Cherry-picked from lede/openwrt tree
 https://git.lede-project.org/?p=source.git.
-Build tested for ARCH=arm64 + defconfig
+To be picked up for 4.14.y as well.
 
- drivers/usb/dwc2/gadget.c | 41 +++++++++++++++++++++++------------------
- 1 file changed, 23 insertions(+), 18 deletions(-)
+ arch/powerpc/platforms/4xx/uic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index ed79bdf6f56c..3f68edde0f03 100644
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -3107,8 +3107,6 @@ static void kill_all_requests(struct dwc2_hsotg *hsotg,
- 		dwc2_hsotg_txfifo_flush(hsotg, ep->fifo_index);
- }
+diff --git a/arch/powerpc/platforms/4xx/uic.c b/arch/powerpc/platforms/4xx/uic.c
+index 8b4dd0da0839..9e27cfe27026 100644
+--- a/arch/powerpc/platforms/4xx/uic.c
++++ b/arch/powerpc/platforms/4xx/uic.c
+@@ -158,6 +158,7 @@ static int uic_set_irq_type(struct irq_data *d, unsigned int flow_type)
  
--static int dwc2_hsotg_ep_disable(struct usb_ep *ep);
--
- /**
-  * dwc2_hsotg_disconnect - disconnect service
-  * @hsotg: The device state.
-@@ -3130,9 +3128,11 @@ void dwc2_hsotg_disconnect(struct dwc2_hsotg *hsotg)
- 	/* all endpoints should be shutdown */
- 	for (ep = 0; ep < hsotg->num_of_eps; ep++) {
- 		if (hsotg->eps_in[ep])
--			dwc2_hsotg_ep_disable(&hsotg->eps_in[ep]->ep);
-+			kill_all_requests(hsotg, hsotg->eps_in[ep],
-+					  -ESHUTDOWN);
- 		if (hsotg->eps_out[ep])
--			dwc2_hsotg_ep_disable(&hsotg->eps_out[ep]->ep);
-+			kill_all_requests(hsotg, hsotg->eps_out[ep],
-+					  -ESHUTDOWN);
- 	}
+ 	mtdcr(uic->dcrbase + UIC_PR, pr);
+ 	mtdcr(uic->dcrbase + UIC_TR, tr);
++	mtdcr(uic->dcrbase + UIC_SR, ~mask);
  
- 	call_gadget(hsotg, disconnect);
-@@ -3176,6 +3176,7 @@ static void dwc2_hsotg_irq_fifoempty(struct dwc2_hsotg *hsotg, bool periodic)
- 			GINTSTS_PTXFEMP |  \
- 			GINTSTS_RXFLVL)
- 
-+static int dwc2_hsotg_ep_disable(struct usb_ep *ep);
- /**
-  * dwc2_hsotg_core_init - issue softreset to the core
-  * @hsotg: The device state
-@@ -4004,10 +4005,8 @@ static int dwc2_hsotg_ep_disable(struct usb_ep *ep)
- 	struct dwc2_hsotg *hsotg = hs_ep->parent;
- 	int dir_in = hs_ep->dir_in;
- 	int index = hs_ep->index;
--	unsigned long flags;
- 	u32 epctrl_reg;
- 	u32 ctrl;
--	int locked;
- 
- 	dev_dbg(hsotg->dev, "%s(ep %p)\n", __func__, ep);
- 
-@@ -4023,10 +4022,6 @@ static int dwc2_hsotg_ep_disable(struct usb_ep *ep)
- 
- 	epctrl_reg = dir_in ? DIEPCTL(index) : DOEPCTL(index);
- 
--	locked = spin_is_locked(&hsotg->lock);
--	if (!locked)
--		spin_lock_irqsave(&hsotg->lock, flags);
--
- 	ctrl = dwc2_readl(hsotg, epctrl_reg);
- 
- 	if (ctrl & DXEPCTL_EPENA)
-@@ -4049,12 +4044,22 @@ static int dwc2_hsotg_ep_disable(struct usb_ep *ep)
- 	hs_ep->fifo_index = 0;
- 	hs_ep->fifo_size = 0;
- 
--	if (!locked)
--		spin_unlock_irqrestore(&hsotg->lock, flags);
--
- 	return 0;
- }
- 
-+static int dwc2_hsotg_ep_disable_lock(struct usb_ep *ep)
-+{
-+	struct dwc2_hsotg_ep *hs_ep = our_ep(ep);
-+	struct dwc2_hsotg *hsotg = hs_ep->parent;
-+	unsigned long flags;
-+	int ret;
-+
-+	spin_lock_irqsave(&hsotg->lock, flags);
-+	ret = dwc2_hsotg_ep_disable(ep);
-+	spin_unlock_irqrestore(&hsotg->lock, flags);
-+	return ret;
-+}
-+
- /**
-  * on_list - check request is on the given endpoint
-  * @ep: The endpoint to check.
-@@ -4202,7 +4207,7 @@ static int dwc2_hsotg_ep_sethalt_lock(struct usb_ep *ep, int value)
- 
- static const struct usb_ep_ops dwc2_hsotg_ep_ops = {
- 	.enable		= dwc2_hsotg_ep_enable,
--	.disable	= dwc2_hsotg_ep_disable,
-+	.disable	= dwc2_hsotg_ep_disable_lock,
- 	.alloc_request	= dwc2_hsotg_ep_alloc_request,
- 	.free_request	= dwc2_hsotg_ep_free_request,
- 	.queue		= dwc2_hsotg_ep_queue_lock,
-@@ -4342,9 +4347,9 @@ static int dwc2_hsotg_udc_stop(struct usb_gadget *gadget)
- 	/* all endpoints should be shutdown */
- 	for (ep = 1; ep < hsotg->num_of_eps; ep++) {
- 		if (hsotg->eps_in[ep])
--			dwc2_hsotg_ep_disable(&hsotg->eps_in[ep]->ep);
-+			dwc2_hsotg_ep_disable_lock(&hsotg->eps_in[ep]->ep);
- 		if (hsotg->eps_out[ep])
--			dwc2_hsotg_ep_disable(&hsotg->eps_out[ep]->ep);
-+			dwc2_hsotg_ep_disable_lock(&hsotg->eps_out[ep]->ep);
- 	}
- 
- 	spin_lock_irqsave(&hsotg->lock, flags);
-@@ -4792,9 +4797,9 @@ int dwc2_hsotg_suspend(struct dwc2_hsotg *hsotg)
- 
- 		for (ep = 0; ep < hsotg->num_of_eps; ep++) {
- 			if (hsotg->eps_in[ep])
--				dwc2_hsotg_ep_disable(&hsotg->eps_in[ep]->ep);
-+				dwc2_hsotg_ep_disable_lock(&hsotg->eps_in[ep]->ep);
- 			if (hsotg->eps_out[ep])
--				dwc2_hsotg_ep_disable(&hsotg->eps_out[ep]->ep);
-+				dwc2_hsotg_ep_disable_lock(&hsotg->eps_out[ep]->ep);
- 		}
- 	}
+ 	raw_spin_unlock_irqrestore(&uic->lock, flags);
  
 -- 
 2.7.4
