@@ -2,165 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB5777A3DC
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 11:18:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB36A7A3E3
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 11:20:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728686AbfG3JS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 05:18:28 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:42805 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727036AbfG3JS2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 05:18:28 -0400
-Received: by mail-lj1-f194.google.com with SMTP id t28so61354870lje.9
-        for <stable@vger.kernel.org>; Tue, 30 Jul 2019 02:18:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=6iUjqyu7puaZGhpAi6MyRyG6cTzBcQl5BSzTgNmE43Y=;
-        b=QpXAV1PjcCAsOVKYPbvsUi/MbeltGu7SOf75gvXfyM7t2DO9dqkAa7qEHxjSfXrcge
-         eyVU1TH8JWkOfLhgMUNxhYPVQ/vV38mwqOtEqBlp9VvH1YZg2IwH/nIqOy3e6Hfx/7yN
-         jAplWlFWVN8tySXVcKGC/RBH54E7bwStzqrvttZcyd9Sl4z0mediMIgiINo1/3HGyCs2
-         BltjE6Bxj9UDFLyavMRT9l2etRHORbtcHoky86uKMZkwwcwug7sOzVpQEtH0IcCchRNR
-         udNIVaNpy59blTsjJbOkWK8r8Bbe7FwxJBAesmmse4UDPw5jEKaEwURCp23lxJN2M8hk
-         3KRA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=6iUjqyu7puaZGhpAi6MyRyG6cTzBcQl5BSzTgNmE43Y=;
-        b=HFafmKi0mVCRzdNIm9OsfHkEuT5E12uUZUu0zHYnyfMb3oZRU5aKxhyWTQibIVdpqP
-         19ezwv9MZKVg7Cajb71hnQ2tSbd7BfpMTVP6f+aPHNVgrm3acCVniBU1Sgjkhzm184uA
-         mZyB1mZ7ZUCLBxGr2FJypCiYS7YI05mT5jxMMgAPuxBDpqYrD6n0LtLMPZUIzHHgPoXm
-         /k6KREj8IuEGmLDpHq32JGHueI+71Ar/vvV65cuAofsOwlzVOMg4tJLj1qYp0cH9VZnL
-         3rmfIItsgOIlnRM4bhKGQLy5jvV386hn0+Ya14WaVfncfLSU5w4ZrNVSqICeoWyyVGsQ
-         UPyg==
-X-Gm-Message-State: APjAAAUgdP8134+oJY0vGQEuExW6fVwmZjqa2C5K8u24geuxQblsdvgE
-        hNSiF99imZgkVwVCSi+rx4tBasJUyTu+MXvWUN08Wg==
-X-Google-Smtp-Source: APXvYqyxC3pATEXcCowDql2D3+Tg0p6F77KDXN36EYaTIN7KU33y/6ocxvauwWGduun50JgpjIqfC98kTw6UxZLmnL8=
-X-Received: by 2002:a2e:8559:: with SMTP id u25mr60111856ljj.224.1564478306874;
- Tue, 30 Jul 2019 02:18:26 -0700 (PDT)
+        id S1728835AbfG3JUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 05:20:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57062 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728192AbfG3JT7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Jul 2019 05:19:59 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F8E920665;
+        Tue, 30 Jul 2019 09:19:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564478398;
+        bh=/TGf7fHKLI5m846irYYSs6ThLcZ1qG0hXxvCVHxzs0w=;
+        h=Subject:To:From:Date:From;
+        b=f4jfRutlEz8OEv+yKS4iqtEAFh/rWGhPMXJBHzdfXU6IgFf6b9l+sa59xOPQMx0uL
+         gz0n/ww0FjVlqb11nlMUBEPSiEneU8Sklgnp0D39JMUEY3BgpPgT1dmFsAZPQHT4Oe
+         kUi+Q4iaF/o5cEGygv6OQFWmfwW/iivdlRDeQX+g=
+Subject: patch "usb: typec: tcpm: Add NULL check before dereferencing config" added to usb-linus
+To:     linux@roeck-us.net, dgilbert@interlog.com,
+        gregkh@linuxfoundation.org, heikki.krogerus@linux.intel.com,
+        jun.li@nxp.com, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 30 Jul 2019 11:19:55 +0200
+Message-ID: <156447839518188@kroah.com>
 MIME-Version: 1.0
-References: <20190729190739.971253303@linuxfoundation.org>
-In-Reply-To: <20190729190739.971253303@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 30 Jul 2019 14:48:15 +0530
-Message-ID: <CA+G9fYvpvFXfoiaiaKTgTVggvEi--xFS=4y=R9a4+Xw1Havb9w@mail.gmail.com>
-Subject: Re: [PATCH 5.2 000/215] 5.2.5-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 30 Jul 2019 at 01:16, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.2.5 release.
-> There are 215 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed 31 Jul 2019 07:05:01 PM UTC.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.2.5-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.2.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+This is a note to let you know that I've just added the patch titled
 
-Summary
-------------------------------------------------------------------------
+    usb: typec: tcpm: Add NULL check before dereferencing config
 
-kernel: 5.2.5-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.2.y
-git commit: 0c4d120e771a048ef7ae9a4130169b1cf03c36da
-git describe: v5.2.4-216-g0c4d120e771a
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.2-oe/bui=
-ld/v5.2.4-216-g0c4d120e771a
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
 
 
-No regressions (compared to build v5.2.4)
+From 1957de95d425d1c06560069dc7277a73a8b28683 Mon Sep 17 00:00:00 2001
+From: Guenter Roeck <linux@roeck-us.net>
+Date: Wed, 24 Jul 2019 07:38:32 -0700
+Subject: usb: typec: tcpm: Add NULL check before dereferencing config
+
+When instantiating tcpm on an NXP OM 13588 board with NXP PTN5110,
+the following crash is seen when writing into the 'preferred_role'
+sysfs attribute.
+
+Unable to handle kernel NULL pointer dereference at virtual address 00000028
+pgd = f69149ad
+[00000028] *pgd=00000000
+Internal error: Oops: 5 [#1] THUMB2
+Modules linked in: tcpci tcpm
+CPU: 0 PID: 1882 Comm: bash Not tainted 5.1.18-sama5-armv7-r2 #4
+Hardware name: Atmel SAMA5
+PC is at tcpm_try_role+0x3a/0x4c [tcpm]
+LR is at tcpm_try_role+0x15/0x4c [tcpm]
+pc : [<bf8000e2>]    lr : [<bf8000bd>]    psr: 60030033
+sp : dc1a1e88  ip : c03fb47d  fp : 00000000
+r10: dc216190  r9 : dc1a1f78  r8 : 00000001
+r7 : df4ae044  r6 : dd032e90  r5 : dd1ce340  r4 : df4ae054
+r3 : 00000000  r2 : 00000000  r1 : 00000000  r0 : df4ae044
+Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA Thumb  Segment none
+Control: 50c53c7d  Table: 3efec059  DAC: 00000051
+Process bash (pid: 1882, stack limit = 0x6a6d4aa5)
+Stack: (0xdc1a1e88 to 0xdc1a2000)
+1e80:                   dd05d808 dd1ce340 00000001 00000007 dd1ce340 c03fb4a7
+1ea0: 00000007 00000007 dc216180 00000000 00000000 c01e1e03 00000000 00000000
+1ec0: c0907008 dee98b40 c01e1d5d c06106c4 00000000 00000000 00000007 c0194e8b
+1ee0: 0000000a 00000400 00000000 c01a97db dc22bf00 ffffe000 df4b6a00 df745900
+1f00: 00000001 00000001 000000dd c01a9c2f 7aeab3be c0907008 00000000 dc22bf00
+1f20: c0907008 00000000 00000000 00000000 00000000 7aeab3be 00000007 dee98b40
+1f40: 005dc318 dc1a1f78 00000000 00000000 00000007 c01969f7 0000000a c01a20cb
+1f60: dee98b40 c0907008 dee98b40 005dc318 00000000 c0196b9b 00000000 00000000
+1f80: dee98b40 7aeab3be 00000074 005dc318 b6f3bdb0 00000004 c0101224 dc1a0000
+1fa0: 00000004 c0101001 00000074 005dc318 00000001 005dc318 00000007 00000000
+1fc0: 00000074 005dc318 b6f3bdb0 00000004 00000007 00000007 00000000 00000000
+1fe0: 00000004 be800880 b6ed35b3 b6e5c746 60030030 00000001 00000000 00000000
+[<bf8000e2>] (tcpm_try_role [tcpm]) from [<c03fb4a7>] (preferred_role_store+0x2b/0x5c)
+[<c03fb4a7>] (preferred_role_store) from [<c01e1e03>] (kernfs_fop_write+0xa7/0x150)
+[<c01e1e03>] (kernfs_fop_write) from [<c0194e8b>] (__vfs_write+0x1f/0x104)
+[<c0194e8b>] (__vfs_write) from [<c01969f7>] (vfs_write+0x6b/0x104)
+[<c01969f7>] (vfs_write) from [<c0196b9b>] (ksys_write+0x43/0x94)
+[<c0196b9b>] (ksys_write) from [<c0101001>] (ret_fast_syscall+0x1/0x62)
+
+Since commit 96232cbc6c994 ("usb: typec: tcpm: support get typec and pd
+config from device properties"), the 'config' pointer in struct tcpc_dev
+is optional when registering a Type-C port. Since it is optional, we have
+to check if it is NULL before dereferencing it.
+
+Reported-by: Douglas Gilbert <dgilbert@interlog.com>
+Cc: Douglas Gilbert <dgilbert@interlog.com>
+Fixes: 96232cbc6c994 ("usb: typec: tcpm: support get typec and pd config from device properties")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Jun Li <jun.li@nxp.com>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/1563979112-22483-1-git-send-email-linux@roeck-us.net
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/typec/tcpm/tcpm.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
+index fba32d84e578..77f71f602f73 100644
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -379,7 +379,8 @@ static enum tcpm_state tcpm_default_state(struct tcpm_port *port)
+ 			return SNK_UNATTACHED;
+ 		else if (port->try_role == TYPEC_SOURCE)
+ 			return SRC_UNATTACHED;
+-		else if (port->tcpc->config->default_role == TYPEC_SINK)
++		else if (port->tcpc->config &&
++			 port->tcpc->config->default_role == TYPEC_SINK)
+ 			return SNK_UNATTACHED;
+ 		/* Fall through to return SRC_UNATTACHED */
+ 	} else if (port->port_type == TYPEC_PORT_SNK) {
+@@ -4114,7 +4115,7 @@ static int tcpm_try_role(const struct typec_capability *cap, int role)
+ 	mutex_lock(&port->lock);
+ 	if (tcpc->try_role)
+ 		ret = tcpc->try_role(tcpc, role);
+-	if (!ret && !tcpc->config->try_role_hw)
++	if (!ret && (!tcpc->config || !tcpc->config->try_role_hw))
+ 		port->try_role = role;
+ 	port->try_src_count = 0;
+ 	port->try_snk_count = 0;
+@@ -4701,7 +4702,7 @@ static int tcpm_copy_caps(struct tcpm_port *port,
+ 	port->typec_caps.prefer_role = tcfg->default_role;
+ 	port->typec_caps.type = tcfg->type;
+ 	port->typec_caps.data = tcfg->data;
+-	port->self_powered = port->tcpc->config->self_powered;
++	port->self_powered = tcfg->self_powered;
+ 
+ 	return 0;
+ }
+-- 
+2.22.0
 
 
-No fixes (compared to build v5.2.4)
-
-Ran 22523 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15
-- x86
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libgpiod
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* network-basic-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* ltp-fs-tests
-* ltp-open-posix-tests
-* kvm-unit-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
