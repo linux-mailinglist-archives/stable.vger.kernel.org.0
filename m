@@ -2,103 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DFAE77A8FE
-	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 14:52:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 636C77A9A4
+	for <lists+stable@lfdr.de>; Tue, 30 Jul 2019 15:32:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730538AbfG3MwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 08:52:10 -0400
-Received: from foss.arm.com ([217.140.110.172]:60434 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729182AbfG3MwJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Jul 2019 08:52:09 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2F28115A2;
-        Tue, 30 Jul 2019 05:52:09 -0700 (PDT)
-Received: from e119886-lin.cambridge.arm.com (unknown [10.37.6.20])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id E97ED3F575;
-        Tue, 30 Jul 2019 05:52:06 -0700 (PDT)
-From:   Andrew Murray <andrew.murray@arm.com>
-To:     Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc:     linux-arm-kernel@lists.infradead.org,
-        Mike Leach <mike.leach@linaro.org>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Leo Yan <leo.yan@linaro.org>, Al.Grant@arm.com,
-        coresight@lists.linaro.org, stable@vger.kernel.org
-Subject: [PATCH v4 2/6] coresight: etm4x: use explicit barriers on enable/disable
-Date:   Tue, 30 Jul 2019 13:51:53 +0100
-Message-Id: <20190730125157.884-3-andrew.murray@arm.com>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190730125157.884-1-andrew.murray@arm.com>
-References: <20190730125157.884-1-andrew.murray@arm.com>
+        id S1729155AbfG3NcC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 09:32:02 -0400
+Received: from szxga04-in.huawei.com ([45.249.212.190]:3221 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727409AbfG3NcC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Jul 2019 09:32:02 -0400
+Received: from DGGEMS402-HUB.china.huawei.com (unknown [172.30.72.60])
+        by Forcepoint Email with ESMTP id 528E8D07E9812DC34B2E;
+        Tue, 30 Jul 2019 21:32:00 +0800 (CST)
+Received: from localhost.localdomain (10.67.212.75) by
+ DGGEMS402-HUB.china.huawei.com (10.3.19.202) with Microsoft SMTP Server id
+ 14.3.439.0; Tue, 30 Jul 2019 21:31:54 +0800
+From:   John Garry <john.garry@huawei.com>
+To:     <xuwei5@huawei.com>
+CC:     <bhelgaas@google.com>, <linuxarm@huawei.com>,
+        <linux-kernel@vger.kernel.org>, <arnd@arndb.de>, <olof@lixom.net>,
+        <stable@vger.kernel.org>, John Garry <john.garry@huawei.com>
+Subject: [PATCH v4 0/5]  Fixes for HiSilicon LPC driver and logical PIO code
+Date:   Tue, 30 Jul 2019 21:29:51 +0800
+Message-ID: <1564493396-92195-1-git-send-email-john.garry@huawei.com>
+X-Mailer: git-send-email 2.8.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.67.212.75]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Synchronization is recommended before disabling the trace registers
-to prevent any start or stop points being speculative at the point
-of disabling the unit (section 7.3.77 of ARM IHI 0064D).
+As reported in [1], the hisi-lpc driver has certain issues in handling
+logical PIO regions, specifically unregistering regions.
 
-Synchronization is also recommended after programming the trace
-registers to ensure all updates are committed prior to normal code
-resuming (section 4.3.7 of ARM IHI 0064D).
+This series add a method to unregister a logical PIO region, and fixes up
+the driver to use them.
 
-Let's ensure these syncronization points are present in the code
-and clearly commented.
+RCU usage in logical PIO code looks to always have been broken, so that
+is fixed also. This is not a major fix as the list which RCU protects
+would be rarely modified.
 
-Note that we could rely on the barriers in CS_LOCK and
-coresight_disclaim_device_unlocked or the context switch to user
-space - however coresight may be of use in the kernel.
+At this point, there are still separate ongoing discussions about how to
+stop the logical PIO and PCI host bridge code leaking ranges, as in [2],
+which I haven't had a chance to look at recently.
 
-On armv8 the mb macro is defined as dsb(sy) - Given that the etm4x is
-only used on armv8 let's directly use dsb(sy) instead of mb(). This
-removes some ambiguity and makes it easier to correlate the code with
-the TRM.
+Hopefully this series can go through the arm soc tree and the maintainers
+have no issue with that. I'm talking specifically about the logical PIO
+code, which went through PCI tree on only previous upstreaming.
 
-Signed-off-by: Andrew Murray <andrew.murray@arm.com>
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-CC: stable@vger.kernel.org
----
- drivers/hwtracing/coresight/coresight-etm4x.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hwtracing/coresight/coresight-etm4x.c b/drivers/hwtracing/coresight/coresight-etm4x.c
-index 7ad15651e069..ec9468880c71 100644
---- a/drivers/hwtracing/coresight/coresight-etm4x.c
-+++ b/drivers/hwtracing/coresight/coresight-etm4x.c
-@@ -188,6 +188,13 @@ static int etm4_enable_hw(struct etmv4_drvdata *drvdata)
- 		dev_err(etm_dev,
- 			"timeout while waiting for Idle Trace Status\n");
- 
-+	/*
-+	 * As recommended by section 4.3.7 ("Synchronization when using the
-+	 * memory-mapped interface") of ARM IHI 0064D
-+	 */
-+	dsb(sy);
-+	isb();
-+
- done:
- 	CS_LOCK(drvdata->base);
- 
-@@ -453,8 +460,12 @@ static void etm4_disable_hw(void *info)
- 	/* EN, bit[0] Trace unit enable bit */
- 	control &= ~0x1;
- 
--	/* make sure everything completes before disabling */
--	mb();
-+	/*
-+	 * Make sure everything completes before disabling, as recommended
-+	 * by section 7.3.77 ("TRCVICTLR, ViewInst Main Control Register,
-+	 * SSTATUS") of ARM IHI 0064D
-+	 */
-+	dsb(sy);
- 	isb();
- 	writel_relaxed(control, drvdata->base + TRCPRGCTLR);
- 
+[1] https://lore.kernel.org/lkml/1560770148-57960-1-git-send-email-john.garry@huawei.com/
+[2] https://lore.kernel.org/lkml/4b24fd36-e716-7c5e-31cc-13da727802e7@huawei.com/
+
+Changes since v3:
+https://lore.kernel.org/lkml/1561566418-22714-1-git-send-email-john.garry@huawei.com/
+- drop optimisation patch (lib: logic_pio: Enforce LOGIC_PIO_INDIRECT
+  region ops are set at registration)
+  Not a fix
+- rebase to v5.3-rc2
+- cc stable
+
+Change since v2:
+- Add hisi_lpc_acpi_remove() stub to fix build for !CONFIG_ACPI
+
+Changes since v1:
+- Add more reasoning in RCU fix patch
+- Create separate patch to change LOGIC_PIO_CPU_MMIO registration to
+  accomodate unregistration
+
+John Garry (5):
+  lib: logic_pio: Fix RCU usage
+  lib: logic_pio: Avoid possible overlap for unregistering regions
+  lib: logic_pio: Add logic_pio_unregister_range()
+  bus: hisi_lpc: Unregister logical PIO range to avoid potential
+    use-after-free
+  bus: hisi_lpc: Add .remove method to avoid driver unbind crash
+
+ drivers/bus/hisi_lpc.c    | 47 +++++++++++++++++++++----
+ include/linux/logic_pio.h |  1 +
+ lib/logic_pio.c           | 73 +++++++++++++++++++++++++++++----------
+ 3 files changed, 96 insertions(+), 25 deletions(-)
+
 -- 
-2.21.0
+2.17.1
 
