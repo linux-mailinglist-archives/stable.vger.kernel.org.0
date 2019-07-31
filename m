@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CE3E7D039
-	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 23:43:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E84327D07E
+	for <lists+stable@lfdr.de>; Thu,  1 Aug 2019 00:11:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727600AbfGaVnp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Jul 2019 17:43:45 -0400
-Received: from mail-wr1-f44.google.com ([209.85.221.44]:44941 "EHLO
-        mail-wr1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727360AbfGaVnp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 17:43:45 -0400
-Received: by mail-wr1-f44.google.com with SMTP id p17so71262265wrf.11
-        for <stable@vger.kernel.org>; Wed, 31 Jul 2019 14:43:43 -0700 (PDT)
+        id S1729949AbfGaWLd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Jul 2019 18:11:33 -0400
+Received: from mail-wm1-f52.google.com ([209.85.128.52]:37417 "EHLO
+        mail-wm1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729680AbfGaWLc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 18:11:32 -0400
+Received: by mail-wm1-f52.google.com with SMTP id f17so61227328wme.2
+        for <stable@vger.kernel.org>; Wed, 31 Jul 2019 15:11:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=vklFMinGCCJ3bPt6RO8G80SBIJyWLyA+Mu+duA6eTTo=;
-        b=p+kJSv1PV5hzkxVu/vlGPQ/VEV0LkRgV50vpfrpwkOQfNMESfkNuu0mUjxzQ+G7XYg
-         3/ucVYu+/NfK0Ts8wnpRqpf4tzKWoShIYPd3BKKB5LLWgt464gyu2rOAyTbCdATrlq2X
-         zp5iWjkO2HPa/7Kad4xdgZg60Q799DV+x8sd+uGX/A7KIPjw7dY9/iy907BYWQu9v3W6
-         bwcsJOdrecfqyC06LkNAyeBlwribfm9H26hwDnktv+pKhUJz2g2U5v3vNR1ul0sjxPsH
-         P2fo/Rgf4XmpyznOKVB4oE0dNuLhe80EbWttvBOx75/cBuyDVfpUrFjCUfehYHGZaa5U
-         5k7g==
+        bh=pC56YGbeYf3m5HiSsuUFBRFbJBYncd52nkgIo2N2iXQ=;
+        b=gER+NlLpaFI1s1k4Uq8kEoYUNMvRbaoHoD4dYWw26aTtpegKNxZBkyavP8AJVNfSOe
+         kndbivh99iwIH21ubqg8AMDElJM/2hbeQgOVLTOtV8DUx/5QRhIwz8AYE+ioeUgFeLqG
+         fxLq6rXiyYNnJ2hBwmkzgOc2j3NJs5hT2tq/Lnnn/ikX7E2cnmjDhDfe8LGpgw3YiePD
+         S+wFJU563qyQxx7TpBWM4Qi+AfDEu7piAIhcBQdr0eV/KKUvPNzsTSZYFoiZrvIGqu4K
+         SQ4NwjYJRoRLPuhN+4eZOCDo7O0vjrBICvYQaFnsBM5rdNQeiZW+Zq7AtQdRE94ffezn
+         1VzQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=vklFMinGCCJ3bPt6RO8G80SBIJyWLyA+Mu+duA6eTTo=;
-        b=McEueNvmkDTQMPuh5MG/Q4BCaulsJFO312rcCQXdzDnNtn4vg7R7G/hDLkEicAU0xp
-         Z9RRn0qiaXk952KNcxAQ2Jwr8MdlfB97H0BGDi5JCFVqBn8+muNNQb3tNzwe24V7S6Pt
-         sTRzcViXz8TE0Ze9Va31ryGEZiyBQ0WseNsvMLKBSm1dET0ywrIHLqj82sCINY0qIOhi
-         UttW+lhoNpCQWggTvH+MXp3iNBhOYfixfb1qlbHjzzeybkxu1an+8NXT/ROrDGGGxwqy
-         kF8TDAiysSnNpH2gKmOYTxr0ikrZaYanduLK8kDh4An+Uzd4BKAwaFFO2nx05YRtS31E
-         3vJw==
-X-Gm-Message-State: APjAAAWjUHjyaodeoVqnio9arZCEJOqkRAhlAL+umvqrwyZgRP8lWVkk
-        veIxQGkJJiaZ7yRJInljjztowvev+GY=
-X-Google-Smtp-Source: APXvYqzZdIMxNWNmg5wMuqj3AZ7vZ8F7aGfDua8X2ODceZofZyU/Xa8th3gn+FZXk67+nM6TIHI/uQ==
-X-Received: by 2002:a5d:5448:: with SMTP id w8mr135508323wrv.180.1564609422270;
-        Wed, 31 Jul 2019 14:43:42 -0700 (PDT)
+        bh=pC56YGbeYf3m5HiSsuUFBRFbJBYncd52nkgIo2N2iXQ=;
+        b=qBiiEnwy+/G57oN1yjVXADif/YFTl7ZmnYPoMUsLe9c82dGN1Im+iVWxngLRvbXAy2
+         ZgZaf4NpY/cIibIF4W0cG7ZGj+IoN6Nh/KMuoiy/GK4attvswQYch4uW4Rt8Z8SR6fkO
+         V45pgC++qKSWDpY3iNH2DDh02MvBgiw7Mharn8mUPXgcR1KtiFjkOelLr9wuonhKqLY3
+         Ngyk8kZjUu1/tce984X1QFmf/nyqYIWSnQKUjyCekRH2SCzRZmpWIZEzheUCRtwAKHE5
+         p+8CROPuWNx67enx6KxteqEWH5YPf6ZgvW8wypgwNMRLNmIroREvgQPKnz2R9r3ZF7WK
+         w7ZQ==
+X-Gm-Message-State: APjAAAXLFZGZSlrtQBt8EmBqAL3hte6feYrgbFdASxPar4FNGQ5URFyc
+        z2vhkZHEyDj+Ed0MI4v5W1ZlLousHF0=
+X-Google-Smtp-Source: APXvYqwgPh7azAFteDu+Ys/07zyxBd/22OaQHFtwnWLE6SDkV3oOiGjMmQtazJAUCD0ocw5z+bgdNQ==
+X-Received: by 2002:a1c:b146:: with SMTP id a67mr109869934wmf.124.1564611090535;
+        Wed, 31 Jul 2019 15:11:30 -0700 (PDT)
 Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id j189sm81372495wmb.48.2019.07.31.14.43.40
+        by smtp.gmail.com with ESMTPSA id j17sm115792370wrb.35.2019.07.31.15.11.29
         for <stable@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 31 Jul 2019 14:43:40 -0700 (PDT)
-Message-ID: <5d420b8c.1c69fb81.8eca7.7363@mx.google.com>
-Date:   Wed, 31 Jul 2019 14:43:40 -0700 (PDT)
+        Wed, 31 Jul 2019 15:11:29 -0700 (PDT)
+Message-ID: <5d421211.1c69fb81.35920.0ab5@mx.google.com>
+Date:   Wed, 31 Jul 2019 15:11:29 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.186-220-g49d1c2e96b78
-X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Kernel: v4.19.62-131-ga4090d312ea0
+X-Kernelci-Branch: linux-4.19.y
 X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.9.y boot: 99 boots: 0 failed,
- 64 passed with 35 offline (v4.9.186-220-g49d1c2e96b78)
+Subject: stable-rc/linux-4.19.y boot: 118 boots: 1 failed,
+ 74 passed with 40 offline, 3 untried/unknown (v4.19.62-131-ga4090d312ea0)
 To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
@@ -63,21 +63,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 99 boots: 0 failed, 64 passed with 35 offline (=
-v4.9.186-220-g49d1c2e96b78)
+stable-rc/linux-4.19.y boot: 118 boots: 1 failed, 74 passed with 40 offline=
+, 3 untried/unknown (v4.19.62-131-ga4090d312ea0)
 
 Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.186-220-g49d1c2e96b78/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.186-220-g49d1c2e96b78/
+-4.19.y/kernel/v4.19.62-131-ga4090d312ea0/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.62-131-ga4090d312ea0/
 
 Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.186-220-g49d1c2e96b78
-Git Commit: 49d1c2e96b7891914c40702a379f1c4b936aae62
+Branch: linux-4.19.y
+Git Describe: v4.19.62-131-ga4090d312ea0
+Git Commit: a4090d312ea03a428da2996a6374b1a3a604ff93
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Tested: 50 unique boards, 23 SoC families, 15 builds out of 197
+Tested: 67 unique boards, 27 SoC families, 17 builds out of 206
+
+Boot Failure Detected:
+
+arc:
+    hsdk_defconfig:
+        gcc-8:
+            hsdk: 1 failed lab
 
 Offline Platforms:
 
@@ -85,13 +92,23 @@ arm64:
 
     defconfig:
         gcc-8
+            meson-axg-s400: 1 offline lab
             meson-gxbb-odroidc2: 1 offline lab
+            meson-gxl-s905d-p230: 1 offline lab
+            meson-gxl-s905x-libretech-cc: 1 offline lab
+            meson-gxl-s905x-nexbox-a95x: 1 offline lab
+            meson-gxl-s905x-p212: 1 offline lab
+            meson-gxm-nexbox-a1: 1 offline lab
+            rk3399-firefly: 1 offline lab
+            sun50i-a64-pine64-plus: 1 offline lab
+
+mips:
+
+    pistachio_defconfig:
+        gcc-8
+            pistachio_marduk: 1 offline lab
 
 arm:
-
-    tegra_defconfig:
-        gcc-8
-            tegra20-iris-512: 1 offline lab
 
     exynos_defconfig:
         gcc-8
@@ -101,8 +118,6 @@ arm:
 
     multi_v7_defconfig:
         gcc-8
-            bcm72521-bcm97252sffe: 1 offline lab
-            bcm7445-bcm97445c: 1 offline lab
             exynos5250-arndale: 1 offline lab
             exynos5420-arndale-octa: 1 offline lab
             exynos5800-peach-pi: 1 offline lab
@@ -117,7 +132,6 @@ arm:
             stih410-b2120: 1 offline lab
             sun4i-a10-cubieboard: 1 offline lab
             sun7i-a20-bananapi: 1 offline lab
-            tegra20-iris-512: 1 offline lab
             vf610-colibri-eval-v3: 1 offline lab
 
     omap2plus_defconfig:
