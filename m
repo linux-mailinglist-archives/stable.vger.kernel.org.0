@@ -2,98 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66BC77C9EA
-	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 19:06:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A75527CA01
+	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 19:11:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728549AbfGaRGP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Jul 2019 13:06:15 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:43777 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728955AbfGaRGP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 13:06:15 -0400
-Received: by mail-wr1-f68.google.com with SMTP id p13so70479730wru.10
-        for <stable@vger.kernel.org>; Wed, 31 Jul 2019 10:06:13 -0700 (PDT)
+        id S1730465AbfGaRLV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Jul 2019 13:11:21 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:37578 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730447AbfGaRLU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 13:11:20 -0400
+Received: by mail-wm1-f67.google.com with SMTP id f17so60501537wme.2
+        for <stable@vger.kernel.org>; Wed, 31 Jul 2019 10:11:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=arista.com; s=googlenew;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=NqYuAsCxZnbGTgaXr+3YhsOwAJv9zT0r5brKkzwq8xQ=;
-        b=i+bybRXG3TBUtD9u8radmJFhL9V1SqHv7Hf1YDzeg8dR5Scv5AmIG4IhHNyP5xiup9
-         YM8uVOWbN0avt9C2+QfMlHV/J5SogDzkUluww3JrZZcyb5dKHznzgZnvLzNiq9UvINED
-         7ljcCoCJ1mw7f1KwlbJqWabuapSdsjghBvDkoHeAufSyKx4e9ksVeg1TbIwDjXBKmJMa
-         Ar3Ib+ZVDFUWrNry4pMzYS0JsHkyksRUi5oBq/C7Rdnyqw668xkdbf/UHsTLWAChk0IJ
-         7HYQ9F1NFsgFW6Xbw7PmKFHxWCgWcTMLRcTyeWAhGN8ljvlytlIirHjazjRwIRmWnNbI
-         8/Tw==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=6aqp1SROVBPGL6PpjE2cr1MAchAQrVyyqOfG2x3pN60=;
+        b=CwOXUl0MReCpzU50Di3jcj1sp90+SrT9ymFVLLW+kzzNVzKgdJe6lZ59om6p3/zp9z
+         jmViIjzyLh5vEedqaDT1FjopdkXSJDCLktjSIYGD6fvDW9LahjlNI5OaoxWhi0c1akUt
+         wNSyrtEI+jxqMRwkDZytwxdROSNPKMQS7rJHxawukvi3nQkNQHamItNVUvkZAIvppTUH
+         h5ybVIcrz+ssPTK27gEl312GI6wKfTq/p2RMc7bwzmkLPXY7lTp8hJbZ2w/8jv7EUy9F
+         kFD32irTRDO5zt084euUF6uM4sSSnDYW6o8/pNzLV6TCnglmw+psTbLlm1JYgzgF6AhS
+         Zf1A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=NqYuAsCxZnbGTgaXr+3YhsOwAJv9zT0r5brKkzwq8xQ=;
-        b=BP+8L2cl0ksO31x0WtgnZhMo+6L2cUVPfUopMrYlQadsVh7mE6TcdMl8Xhi5vdWy6W
-         TtCPzhmE4GM1DDmEIBVjqcE6a13ugEIfxOj2bBBCsGRW8h7xZUcitFLv93N82lIWeCdZ
-         lzTy2B5cU1qRXeYBe2B/3oziKkCqVQcvP2dnqtNTvb0tWfCIHLPCMGMvwpd3Oz1ues2m
-         hTQ9xLH1HaevepZCYMRdsxK/L/ALp9hq7tMyHmdUYh4Bfu/ZFpoIbHff7REXyIDN/KkA
-         Pg8NoAtBipEWDfnLNwrOMeNm4B4NhLY9QhuAb4uxUS6lQfksPV00Lvm3OhR2VZsdjPsj
-         XJKA==
-X-Gm-Message-State: APjAAAUADNetcpNeaCrsKpRAW9khk2J+QCVbj+uf+aNNGnRMVfV957lZ
-        B/0HsGV+l+TOiv7KB+YIHogfzERHuPZgC+2cJvz45JOHjXlXI+ckHeGVtIO4q9SHbJyQH3bfnLI
-        cnmXspU/1I3qoBiBjcu/bF5IHMWRlBB0mHJZUctplh+yQ7Q9p0SF/B9g2DTG4YEs5jzcc4p4ncX
-        GnEhHOOU7z8jAUqwtbdg==
-X-Google-Smtp-Source: APXvYqziuO0u89HuMRTcTlrbmTgjMLvFjOA+gjyCdQuAQYX7L3aCovgO5ZZr5B7JjCaxYRnKZS7Y3g==
-X-Received: by 2002:a5d:6284:: with SMTP id k4mr103268166wru.179.1564592773228;
-        Wed, 31 Jul 2019 10:06:13 -0700 (PDT)
-Received: from [10.83.36.153] ([217.173.96.166])
-        by smtp.gmail.com with ESMTPSA id i12sm81569400wrx.61.2019.07.31.10.06.12
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Wed, 31 Jul 2019 10:06:12 -0700 (PDT)
-Subject: Re: [PATCH-4.19-stable 2/2] iommu/iova: Fix compilation error with
- !CONFIG_IOMMU_IOVA
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, 0x7f454c46@gmail.com,
-        Joerg Roedel <jroedel@suse.de>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Joerg Roedel <joro@8bytes.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>
-References: <20190731162220.24364-1-dima@arista.com>
- <20190731162220.24364-3-dima@arista.com> <20190731170411.GA22660@kroah.com>
-From:   Dmitry Safonov <dima@arista.com>
-Message-ID: <beb8ebff-aece-2f50-9779-2ab1d183ce03@arista.com>
-Date:   Wed, 31 Jul 2019 18:06:11 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=6aqp1SROVBPGL6PpjE2cr1MAchAQrVyyqOfG2x3pN60=;
+        b=P0DBmSXaIHB+nGBZfrkZ0tkXFhXHMyxINKLkNb7QdVtA+qTWLAbHLcXp3ccL1BHXZm
+         eGW6RrmjNXN4fte9vBb7vRTzEP/cllm9/WNClLXcy0wfxrWsEDrwvz4DhVjFOJL8hF1t
+         9+xq4ZdP0rs7hMoe/5l+lQDyeDZbOsYQkXpgY+jfp3sc6nMtgtwcbe8z7kT1oW+iWytn
+         OukAqSz0PdlZ5fpVEBQuaeri9yNIDxjfy9mKvT48uiXmFYtvWO47wSzhtObeedl3/Q39
+         EleOcgkncaESiSXV2eJ20pa3Ji85WrT9Q5PJjgjHOMxxCSsNLR8MMEIK0+NTRGuBm5Sb
+         B1Qg==
+X-Gm-Message-State: APjAAAVJHctLrcc+ehbFhBh1TeJRQw+AVKC0gcG3a2K9EENGQmgHVldC
+        9CQXjuyfWLucbGp75QToaXI58kUYkHc=
+X-Google-Smtp-Source: APXvYqwzh7idYmCnLleTnITaxTDfCUDwSORC72sCzi3NhL8anxwlgNNwoCWQzklgCrMSzZsYC6R4eA==
+X-Received: by 2002:a05:600c:1007:: with SMTP id c7mr106884083wmc.161.1564593078910;
+        Wed, 31 Jul 2019 10:11:18 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id z1sm72397365wrp.51.2019.07.31.10.11.18
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 31 Jul 2019 10:11:18 -0700 (PDT)
+Message-ID: <5d41cbb6.1c69fb81.feef2.f9fa@mx.google.com>
+Date:   Wed, 31 Jul 2019 10:11:18 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20190731170411.GA22660@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-CLOUD-SEC-AV-Info: arista,google_mail,monitor
-X-CLOUD-SEC-AV-Sent: true
-X-Gm-Spam: 0
-X-Gm-Phishy: 0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.186-152-g312c583f6950
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.4.y boot: 91 boots: 1 failed,
+ 57 passed with 32 offline, 1 conflict (v4.4.186-152-g312c583f6950)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/31/19 6:04 PM, Greg Kroah-Hartman wrote:
-> On Wed, Jul 31, 2019 at 05:22:20PM +0100, Dmitry Safonov wrote:
->> From: Joerg Roedel <jroedel@suse.de>
->>
->> [ Upstream commit 201c1db90cd643282185a00770f12f95da330eca ]
->>
->> The stub function for !CONFIG_IOMMU_IOVA needs to be
->> 'static inline'.
->>
->> Fixes: effa467870c76 ('iommu/vt-d: Don't queue_iova() if there is no flush queue')
->> Signed-off-by: Joerg Roedel <jroedel@suse.de>
->> Signed-off-by: Dmitry Safonov <dima@arista.com>
->> [v4.14 backport]
-> 
-> 4.19?  :)
-> 
+stable-rc/linux-4.4.y boot: 91 boots: 1 failed, 57 passed with 32 offline, =
+1 conflict (v4.4.186-152-g312c583f6950)
 
-Hehe, yes - copied SoB line from 4.14 backport *blush*
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.186-152-g312c583f6950/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.186-152-g312c583f6950/
 
-Thanks,
-          Dmitry
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.186-152-g312c583f6950
+Git Commit: 312c583f695014a27e3ce0ab568e819e38e9ba3a
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 44 unique boards, 20 SoC families, 14 builds out of 190
+
+Boot Failure Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            qcom-qdf2400: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    tegra_defconfig:
+        gcc-8
+            tegra20-iris-512: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5250-arndale: 1 offline lab
+            exynos5420-arndale-octa: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            bcm72521-bcm97252sffe: 1 offline lab
+            bcm7445-bcm97445c: 1 offline lab
+            exynos5250-arndale: 1 offline lab
+            exynos5420-arndale-octa: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
+            imx6dl-wandboard_dual: 1 offline lab
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+            meson8b-odroidc1: 1 offline lab
+            omap3-beagle: 1 offline lab
+            omap4-panda: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            stih410-b2120: 1 offline lab
+            sun4i-a10-cubieboard: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+            tegra20-iris-512: 1 offline lab
+            vf610-colibri-eval-v3: 1 offline lab
+
+    omap2plus_defconfig:
+        gcc-8
+            omap3-beagle: 1 offline lab
+            omap4-panda: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+    imx_v6_v7_defconfig:
+        gcc-8
+            imx6dl-wandboard_dual: 1 offline lab
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+            vf610-colibri-eval-v3: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun4i-a10-cubieboard: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+x86_64:
+    x86_64_defconfig:
+        qemu:
+            lab-linaro-lkft: PASS (gcc-8)
+            lab-drue: PASS (gcc-8)
+            lab-baylibre: FAIL (gcc-8)
+            lab-collabora: PASS (gcc-8)
+            lab-mhart: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
