@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D828B7BF3B
-	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 13:27:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3A217C032
+	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 13:40:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728098AbfGaL12 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Jul 2019 07:27:28 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:45725 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728123AbfGaL11 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 07:27:27 -0400
-Received: by mail-pg1-f195.google.com with SMTP id o13so31819936pgp.12;
-        Wed, 31 Jul 2019 04:27:27 -0700 (PDT)
+        id S1726377AbfGaLkD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Jul 2019 07:40:03 -0400
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:34903 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725942AbfGaLkD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 07:40:03 -0400
+Received: by mail-pf1-f193.google.com with SMTP id u14so31742485pfn.2;
+        Wed, 31 Jul 2019 04:40:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=vQV5WkYi1RCaWV1rfzrmNeSid8EG2ORcB51l+rIc8nE=;
-        b=YAQafS7T3YJom2VXMOvDWitBFs54x+WqCi/+XukFa7EOfEC/iuP5xGekW2D1YbYRc1
-         1NcoIrd3zS4DPSHoYMzURGkQRdc6/i2zS3DuskzXg0alJOBimbt8/nVs4IAm3TqXAnmO
-         1kfGJ+wCyQPXeA+X8F9qq8Nsc0+lSkuVlBU/ME5xGKRHTXRNlDkrVstOPBo/psYk3POi
-         clKIoAWQFRqABDp7axVMg2G25NZS7YXBMVMJF5yXPyyql2L1Cj5vkBHPq+krSvznMVuA
-         rojQ7PaezEKTurEfI7x2ItVHYTCAtDrgi49rbwEuTSKOay6K6lKkJUgRHAjQvDHOIFi3
-         bhdg==
+        bh=ioEVQgkCZ3XHkGfukyPn8AoF8aXKuaUVBcVPK+Y84sg=;
+        b=MFo0on9+QPhpo4y6M+rqnXS6DJ0lVOYQKIKOSeetucqRHBNdbHigIh665xCjnOwGFB
+         rE3kweQhMDpoaHxy6qhLuoF7lZSlDXH9tIu5sKPFhlHrC0M28tYLoaa2Tt71xahf+8R+
+         4w7Jp5SDLPTHyrVwUpYgV689VDPPk3ZAL7V/gVOOOL1ytRz4B/iEd5WoieeU4kq+qUvZ
+         Gb4PWxCsAbBPU0h5/hsuC/NJCTu5zwh25YWkQ1KcCScrhk8kzZkLmN8qlREag28tASjt
+         +nJWZ1s/a5jqclGiwCePDz+bNjpGlQjPSj23d7Wpq5gXqHyjv2snqCTlKBEva4/DSvd4
+         zxwg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=vQV5WkYi1RCaWV1rfzrmNeSid8EG2ORcB51l+rIc8nE=;
-        b=C8ptdu2BRhlVPxqL7VecpzNjWx7SVc+2oyDURrLX5Kv9iNYi47M67Goug9z9e2WNFk
-         M5FmzuBt1txxNkcNKFDMsePTgt2lmuC6kve5j4Hvl6HaF9b3z2IeZlTIKKNo6p1IpH/h
-         poBmR9ReSuLybsY0Vked3mgwvPUU6tlKk8h/WITdUpc+xbndVePdmJdLbPJOXmqjJlE9
-         55aPJREMu9Z2DSnBPWQofJwqvDKfgtvWvlNxW2Jqa5OJ92JgrUgQxNcc+1Ckyj3DFQSt
-         1qe+5Ly6hSjQHiGOhCOenF1SsEW7CE20gST4F62tnwSgE6jbOFsD3elTAfCt4xcea8eU
-         9Geg==
-X-Gm-Message-State: APjAAAUAPI7OOf9Ad06MMTfq+RXLPxes8+3P5OPmpLAYKAVJ1WUPlIda
-        HDqeVVcl1476o8T7AHIw+DRPboIvZmU=
-X-Google-Smtp-Source: APXvYqyZyRrubMwWdKsJ5FhRtpzBvWs+SH6iatiD5Xa+UFGCV6WUXQmwGPq/GZVrzH6Cd6jqgVNNXQ==
-X-Received: by 2002:a63:f750:: with SMTP id f16mr84157002pgk.317.1564572446710;
-        Wed, 31 Jul 2019 04:27:26 -0700 (PDT)
+        bh=ioEVQgkCZ3XHkGfukyPn8AoF8aXKuaUVBcVPK+Y84sg=;
+        b=bsi6z646p+D20+xneinKe7LENq7djzvaYCvdFm5GCGk4H8y3OkeUYRFMmYCCmRi6Nj
+         pXREWnOWYejPI/dAIHCDzA4QRKoqXytKywU3TxDeebU/Qz7Buykftp1sjnqAoNsZNsrs
+         lUmKvrvPXYTafU3wfTwL0iAgCfsDNvMI8fgi6Nb0+BJZJHq1d03G7sN1UyJdW39TCxr3
+         G+rakyC44h6/X2GALZ6tSzO+KxnLkK9nKNfLxjX7Fl7fq1M7wds4xuwcbXW8XVLC7/OD
+         ddHge8QUyksLx4tkHLOUQqJClIAFKaUqBu2aWgF2/+pZOqhXKJseWKfXdHqKQcPUIdhT
+         Hneg==
+X-Gm-Message-State: APjAAAVFZ+w533HopXJ0gAASWG4Vp2TVNTZr3EF9K7qb6VUmYsFrZF5d
+        ScSVvJX2uJ8Ad05VAHoqZmbPq8qZTYE=
+X-Google-Smtp-Source: APXvYqyhwhcD6OfvCncLJRvxP7Tjw9JOOJZEKttxK03Zik2sYra+s+HDy5hptj0+HleWRThzWEiOGA==
+X-Received: by 2002:a63:a66:: with SMTP id z38mr18204717pgk.247.1564573202836;
+        Wed, 31 Jul 2019 04:40:02 -0700 (PDT)
 Received: from localhost.localdomain ([203.205.141.123])
-        by smtp.googlemail.com with ESMTPSA id e3sm1211441pgm.64.2019.07.31.04.27.24
+        by smtp.googlemail.com with ESMTPSA id f20sm81136633pgg.56.2019.07.31.04.40.00
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Wed, 31 Jul 2019 04:27:26 -0700 (PDT)
+        Wed, 31 Jul 2019 04:40:02 -0700 (PDT)
 From:   Wanpeng Li <kernellwp@gmail.com>
 X-Google-Original-From: Wanpeng Li <wanpengli@tencent.com>
 To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 Cc:     Paolo Bonzini <pbonzini@redhat.com>,
         =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
         stable@vger.kernel.org
-Subject: [PATCH 3/3] KVM: Fix leak vCPU's VMCS value into other pCPU
-Date:   Wed, 31 Jul 2019 19:27:18 +0800
-Message-Id: <1564572438-15518-3-git-send-email-wanpengli@tencent.com>
+Subject: [PATCH v2 3/3] KVM: Fix leak vCPU's VMCS value into other pCPU
+Date:   Wed, 31 Jul 2019 19:39:58 +0800
+Message-Id: <1564573198-16219-1-git-send-email-wanpengli@tencent.com>
 X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1564572438-15518-1-git-send-email-wanpengli@tencent.com>
-References: <1564572438-15518-1-git-send-email-wanpengli@tencent.com>
+In-Reply-To: <1564572438-15518-3-git-send-email-wanpengli@tencent.com>
+References: <1564572438-15518-3-git-send-email-wanpengli@tencent.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -89,7 +89,8 @@ vmx_sync_pir_to_irr()) into spinning-on-a-taken-lock vCPU's current
 VMCS.
 
 This patch fixes it by reverting the kvm_arch_vcpu_runnable() condition 
-in kvm_vcpu_on_spin() loop.
+in kvm_vcpu_on_spin() loop and checking swait_active(&vcpu->wq) for 
+involuntary preemption.
 
 Cc: Paolo Bonzini <pbonzini@redhat.com>
 Cc: Radim Krčmář <rkrcmar@redhat.com>
@@ -97,6 +98,9 @@ Fixes: 98f4a1467 (KVM: add kvm_arch_vcpu_runnable() test to kvm_vcpu_on_spin() l
 Cc: stable@vger.kernel.org
 Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
 ---
+v1 -> v2:
+ * checking swait_active(&vcpu->wq) for involuntary preemption
+
  virt/kvm/kvm_main.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
@@ -109,7 +113,7 @@ index ed061d8..12f2c91 100644
  			if (vcpu == me)
  				continue;
 -			if (swait_active(&vcpu->wq) && !kvm_arch_vcpu_runnable(vcpu))
-+			if (swait_active(&vcpu->wq))
++			if (READ_ONCE(vcpu->preempted) && swait_active(&vcpu->wq))
  				continue;
  			if (READ_ONCE(vcpu->preempted) && yield_to_kernel_mode &&
  				!kvm_arch_vcpu_in_kernel(vcpu))
