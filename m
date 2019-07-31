@@ -2,115 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B36A57C0BD
-	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 14:08:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE1FA7C16D
+	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 14:35:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728533AbfGaMHq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Jul 2019 08:07:46 -0400
-Received: from szxga04-in.huawei.com ([45.249.212.190]:3670 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726185AbfGaMHq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 31 Jul 2019 08:07:46 -0400
-Received: from DGGEMS414-HUB.china.huawei.com (unknown [172.30.72.60])
-        by Forcepoint Email with ESMTP id 26166B29F60F478F0E4D;
-        Wed, 31 Jul 2019 20:07:27 +0800 (CST)
-Received: from RH5885H-V3.huawei.com (10.90.53.225) by
- DGGEMS414-HUB.china.huawei.com (10.3.19.214) with Microsoft SMTP Server id
- 14.3.439.0; Wed, 31 Jul 2019 20:07:18 +0800
-From:   SunKe <sunke32@huawei.com>
-To:     <sunke32@huawei.com>, <josef@toxicpanda.com>, <axboe@kernel.dk>,
-        <linux-block@vger.kernel.org>, <nbd@other.debian.org>,
-        <linux-kernel@vger.kernel.org>, <kamatam@amazon.com>,
-        <manoj.br@gmail.com>, <stable@vger.kernel.org>, <dwmw@amazon.com>
-Subject: [PATCH v2] nbd: replace kill_bdev() with __invalidate_device() again
-Date:   Wed, 31 Jul 2019 20:13:10 +0800
-Message-ID: <1564575190-132357-1-git-send-email-sunke32@huawei.com>
-X-Mailer: git-send-email 2.7.4
+        id S1727813AbfGaMfj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Jul 2019 08:35:39 -0400
+Received: from foss.arm.com ([217.140.110.172]:45742 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726259AbfGaMfj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 31 Jul 2019 08:35:39 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 22F17344;
+        Wed, 31 Jul 2019 05:35:39 -0700 (PDT)
+Received: from lakrids.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id BFE023F575;
+        Wed, 31 Jul 2019 05:35:37 -0700 (PDT)
+Date:   Wed, 31 Jul 2019 13:35:33 +0100
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     Viresh Kumar <viresh.kumar@linaro.org>
+Cc:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        mark.brown@arm.com
+Subject: Re: [PATCH v4.4 V2 15/43] arm64: Move cpu_die_early to smp.c
+Message-ID: <20190731123532.GA39768@lakrids.cambridge.arm.com>
+References: <cover.1562908074.git.viresh.kumar@linaro.org>
+ <dd031e0851c01a0cfe275c05dc24935580d2fd78.1562908075.git.viresh.kumar@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.90.53.225]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <dd031e0851c01a0cfe275c05dc24935580d2fd78.1562908075.git.viresh.kumar@linaro.org>
+User-Agent: Mutt/1.11.1+11 (2f07cb52) (2018-12-01)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Munehisa Kamata <kamatam@amazon.com>
+On Fri, Jul 12, 2019 at 10:58:03AM +0530, Viresh Kumar wrote:
+> From: Suzuki K Poulose <suzuki.poulose@arm.com>
+> 
+> commit fce6361fe9b0caeba0c05b7d72ceda406f8780df upstream.
+> 
+> This patch moves cpu_die_early to smp.c, where it fits better.
+> No functional changes, except for adding the necessary checks
+> for CONFIG_HOTPLUG_CPU.
+> 
+> Cc: Mark Rutland <mark.rutland@arm.com>
+> Acked-by: Will Deacon <will.deacon@arm.com>
+> Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+> [ Viresh: Resolved rebase conflict ]
+> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 
-Commit abbbdf12497d ("replace kill_bdev() with __invalidate_device()")
-once did this, but 29eaadc03649 ("nbd: stop using the bdev everywhere")
-resurrected kill_bdev() and it has been there since then. So buffer_head
-mappings still get killed on a server disconnection, and we can still
-hit the BUG_ON on a filesystem on the top of the nbd device.
+> +void cpu_die_early(void)
 
-  EXT4-fs (nbd0): mounted filesystem with ordered data mode. Opts: (null)
-  block nbd0: Receive control failed (result -32)
-  block nbd0: shutting down sockets
-  print_req_error: I/O error, dev nbd0, sector 66264 flags 3000
-  EXT4-fs warning (device nbd0): htree_dirblock_to_tree:979: inode #2: lblock 0: comm ls: error -5 reading directory block
-  print_req_error: I/O error, dev nbd0, sector 2264 flags 3000
-  EXT4-fs error (device nbd0): __ext4_get_inode_loc:4690: inode #2: block 283: comm ls: unable to read itable block
-  EXT4-fs error (device nbd0) in ext4_reserve_inode_write:5894: IO failure
-  ------------[ cut here ]------------
-  kernel BUG at fs/buffer.c:3057!
-  invalid opcode: 0000 [#1] SMP PTI
-  CPU: 7 PID: 40045 Comm: jbd2/nbd0-8 Not tainted 5.1.0-rc3+ #4
-  Hardware name: Amazon EC2 m5.12xlarge/, BIOS 1.0 10/16/2017
-  RIP: 0010:submit_bh_wbc+0x18b/0x190
-  ...
-  Call Trace:
-   jbd2_write_superblock+0xf1/0x230 [jbd2]
-   ? account_entity_enqueue+0xc5/0xf0
-   jbd2_journal_update_sb_log_tail+0x94/0xe0 [jbd2]
-   jbd2_journal_commit_transaction+0x12f/0x1d20 [jbd2]
-   ? __switch_to_asm+0x40/0x70
-   ...
-   ? lock_timer_base+0x67/0x80
-   kjournald2+0x121/0x360 [jbd2]
-   ? remove_wait_queue+0x60/0x60
-   kthread+0xf8/0x130
-   ? commit_timeout+0x10/0x10 [jbd2]
-   ? kthread_bind+0x10/0x10
-   ret_from_fork+0x35/0x40
+> +	asm(
+> +	"1:	wfe\n"
+> +	"	wfi\n"
+> +	"	b	1b");
+> +}
 
-With __invalidate_device(), I no longer hit the BUG_ON with sync or
-unmount on the disconnected device.
+Rather than open-coding this loop differently from upstream and the
+v4.9.y backport, please backport commit:
 
-Fixes: 29eaadc03649 ("nbd: stop using the bdev everywhere")
-Cc: linux-block@vger.kernel.org
-Cc: Ratna Manoj Bolla <manoj.br@gmail.com>
-Cc: nbd@other.debian.org
-Cc: stable@vger.kernel.org
-Cc: David Woodhouse <dwmw@amazon.com>
-Signed-off-by: Munehisa Kamata <kamatam@amazon.com>
+  c4bc34d20273db69 ("arm64: Add a helper for parking CPUs in a loop")
 
----
-I reproduced this phenomenon on the fat file system.
-reproduce steps :
-1.Establish a nbd connection.
-2.Run two threads:one do mount and umount,anther one do clear_sock ioctl
-3.Then hit the BUG_ON.
+... as a prerequisite of this patch.
 
-v2: Delete a link.
+Otherwise, this looks fine to me.
 
-Signed-off-by: SunKe <sunke32@huawei.com>
-
- drivers/block/nbd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 9bcde23..e21d2de 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1231,7 +1231,7 @@ static void nbd_clear_sock_ioctl(struct nbd_device *nbd,
- 				 struct block_device *bdev)
- {
- 	sock_shutdown(nbd);
--	kill_bdev(bdev);
-+	__invalidate_device(bdev, true);
- 	nbd_bdev_reset(bdev);
- 	if (test_and_clear_bit(NBD_HAS_CONFIG_REF,
- 			       &nbd->config->runtime_flags))
--- 
-2.7.4
-
+Thanks,
+Mark.
