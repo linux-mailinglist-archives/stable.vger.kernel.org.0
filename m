@@ -2,54 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF5AD7BDD5
-	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 11:59:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E88D7BDD7
+	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 11:59:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729034AbfGaJ7G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Jul 2019 05:59:06 -0400
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:34234 "EHLO
+        id S1729031AbfGaJ7J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Jul 2019 05:59:09 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:44357 "EHLO
         mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725793AbfGaJ7G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 05:59:06 -0400
-Received: by mail-pg1-f196.google.com with SMTP id n9so25491534pgc.1
-        for <stable@vger.kernel.org>; Wed, 31 Jul 2019 02:59:05 -0700 (PDT)
+        with ESMTP id S1729033AbfGaJ7I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 05:59:08 -0400
+Received: by mail-pg1-f196.google.com with SMTP id i18so31713085pgl.11
+        for <stable@vger.kernel.org>; Wed, 31 Jul 2019 02:59:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=broadcom.com; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=B2F/W6Khl5b8DIAKp/DZU3rMzP5GHON6W3RzTeWHMDA=;
-        b=cknzDh4S9MO0DThFVAwVWn8+sVTE2/S5SRSXOFvPbdpZRDPD8MCa/lkT4ACyOULmlH
-         b+n24Hf6Xf4PuaKoBJKBKV/Qn+nAicfVB2IxO+cnToWBZC6FlPUh9JRl6lfNmBjfGLzk
-         DIf6UCPhvrP0IfIupCiIkfR9VCthMjwPdGGzg=
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=UbBQQRLxpygquoYJMp5IbAbyJw/jWOiuWIcqrrvEH4U=;
+        b=e2kKXttYJCkFqN9hw6JMtpbzE0+aOyj/iV7uJ2tqExSS5b0oYL9CFakPmSmj43QWsp
+         OcC+VA405d0HDCS3yo/qdV6+P7Qa5OMv1mwne44CETS/gGHbDmHqb2ARv4iJgNquTK3T
+         n8EgUrANBAKqgKxg08QhSMLC9tXj9xTNxdW+c=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=B2F/W6Khl5b8DIAKp/DZU3rMzP5GHON6W3RzTeWHMDA=;
-        b=KPUvfY1jLC7N3XLRb+vH9xg1LjKdNPv59zxQBqtAWHYxQuDYkMUCB8UkrarDaQuapf
-         GgvF9TXZMdqJ0XPm3b/eY0sUIjlVXIrPl8yRDeVZTEhxSeBkN11sTbl8mkZTcqtULDLY
-         RFx2OMGlg9tMaM6+Yr7Z5NauIRLAFngYBfwkpkjBsUf/I8O0VbS2pMVmrdLJEkKOeCSV
-         HXEsu1zkjqzEu1BrVkFHLgp4TNsNGc7+6+8Yqc/goZwF2UtbpfLYhqciWspD/74KwCQ8
-         S/UoN59EEMQV5qw4U6T0U2q/wN9uw0a3TH4h0dnYYJTLBM0F019+M1sdOEMiAY4qDsM2
-         X3lg==
-X-Gm-Message-State: APjAAAUSssMg+6Ha6DMKMDjVmOr75eHvVQJQjRHl0HE2zotkz5PxcSWr
-        x1ALMQR6UxXYMBTl87RxxBY09jOqEtYXsMdE/1aUMcga2ZhYM/XVRCm7F5230HYPDVHugLQYCtf
-        eeAfmm3sCfoL5PsP4ENXTxcBdPX5N/s2Yabjrts8mUzFta2sj5PnfFpmQ3NSmi5hUPBVdrMrkko
-        C2eiUh4yqFT7tC
-X-Google-Smtp-Source: APXvYqyzJu0u3A7E8VAM+pU8cymSDEWIA/EycP2f1Hp9FurY1BVtOy1Bpe9h7pMBjpwa+gV/0fR+3A==
-X-Received: by 2002:a17:90a:9b8a:: with SMTP id g10mr2070612pjp.66.1564567145302;
-        Wed, 31 Jul 2019 02:59:05 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=UbBQQRLxpygquoYJMp5IbAbyJw/jWOiuWIcqrrvEH4U=;
+        b=sBxuMaz/KC03taJAtRclq0JgIeqc8uORVn4fAa20ZdMBagkAIsDxTu1WjZ1v0yaWJS
+         DuvYxPmJFZ4uqts4LBABx7E8HrYmjcqr8LwJY6A2IvRU8de6TYcluACuGpczywISJMtA
+         vO6ne9fr1Yx3WpzikuJKeNxSCfE/2qoz+P615FE7svIyHT7MJ4TyjUE0QJi9vUC2x8lg
+         bchp+x18FTzPcNHyMOXppObmEabvB7/GDpG9mHGxfR8U0/lsD+257BgtaO8bbiWKLXwi
+         fXOxjhUVRm0TrLTi9YeFB/mdIZnHd/j/t53+O9idq19rDPF5GGXneDOyIXauZUVVWBeK
+         Tthw==
+X-Gm-Message-State: APjAAAVutJozAA/f0tkxMM498GhiOiYGQvk4l6N54eQjaMcsURfsx7ri
+        2o8lnI1FYzpY16BTBstHQDnZtO/YbI32jPxdUsb/Zh/e679jWj6XyhCwFUnnuuexz2tgVSBrD7z
+        FeZ05mfdowpUWMb7FMNDyTy70rR3o4tJHR5Uzq8Y0+zTyp9lvS1fJh40zM7urPCaAId7HpDA5EZ
+        /IDw4S/WcUZX0c
+X-Google-Smtp-Source: APXvYqxJuu/srt7bpt7KCGyBWGVDhcPGCEftI/xgehGhgDndGHr/OhXUHhCp35d+SVGUV4fUkPy6OA==
+X-Received: by 2002:a63:c203:: with SMTP id b3mr114453432pgd.450.1564567147655;
+        Wed, 31 Jul 2019 02:59:07 -0700 (PDT)
 Received: from dhcp-10-123-20-15.dhcp.broadcom.net ([192.19.234.250])
-        by smtp.gmail.com with ESMTPSA id v126sm8208428pgb.23.2019.07.31.02.59.03
+        by smtp.gmail.com with ESMTPSA id v126sm8208428pgb.23.2019.07.31.02.59.05
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 31 Jul 2019 02:59:04 -0700 (PDT)
+        Wed, 31 Jul 2019 02:59:07 -0700 (PDT)
 From:   Suganath Prabu <suganath-prabu.subramani@broadcom.com>
 To:     stable@vger.kernel.org
 Cc:     sreekanth.reddy@broadcom.com, Sathya.Prakash@broadcom.com,
         kashyap.desai@broadcom.com,
         Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
 Subject: [PATCH] mpt3sas: Use 63-bit DMA addressing on SAS35 HBA
-Date:   Wed, 31 Jul 2019 05:58:48 -0400
-Message-Id: <1564567129-9503-1-git-send-email-suganath-prabu.subramani@broadcom.com>
+Date:   Wed, 31 Jul 2019 05:58:49 -0400
+Message-Id: <1564567129-9503-2-git-send-email-suganath-prabu.subramani@broadcom.com>
 X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1564567129-9503-1-git-send-email-suganath-prabu.subramani@broadcom.com>
+References: <1564567129-9503-1-git-send-email-suganath-prabu.subramani@broadcom.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -71,11 +74,11 @@ Fix:
 Driver will set 63-bit DMA mask to ensure the above address
 will not be used.
 
-Cc: <stable@vger.kernel.org> # 4.4.186, # 4.9.186
+Cc: <stable@vger.kernel.org> # 4.19.63
 Signed-off-by: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
 ---
 Note:
-This Patch is for stable kernel 4.4.186 and 4.9.186.
+This Patch is for stable kernel 4.19.63.
 Original patch is applied to 5.3/scsi-fixes.
 commit ID:  df9a606184bfdb5ae3ca9d226184e9489f5c24f7
 
@@ -83,15 +86,18 @@ commit ID:  df9a606184bfdb5ae3ca9d226184e9489f5c24f7
  1 file changed, 7 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
-index 9b53672..7af7a08 100644
+index 8776330..d2ab520 100644
 --- a/drivers/scsi/mpt3sas/mpt3sas_base.c
 +++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
-@@ -1686,9 +1686,11 @@ _base_config_dma_addressing(struct MPT3SAS_ADAPTER *ioc, struct pci_dev *pdev)
+@@ -2565,12 +2565,14 @@ _base_config_dma_addressing(struct MPT3SAS_ADAPTER *ioc, struct pci_dev *pdev)
  {
  	struct sysinfo s;
  	u64 consistent_dma_mask;
 +	/* Set 63 bit DMA mask for all SAS3 and SAS35 controllers */
 +	int dma_mask = (ioc->hba_mpi_version_belonged > MPI2_VERSION) ? 63 : 64;
+ 
+ 	if (ioc->is_mcpu_endpoint)
+ 		goto try_32bit;
  
  	if (ioc->dma_mask)
 -		consistent_dma_mask = DMA_BIT_MASK(64);
@@ -99,7 +105,7 @@ index 9b53672..7af7a08 100644
  	else
  		consistent_dma_mask = DMA_BIT_MASK(32);
  
-@@ -1696,11 +1698,11 @@ _base_config_dma_addressing(struct MPT3SAS_ADAPTER *ioc, struct pci_dev *pdev)
+@@ -2578,11 +2580,11 @@ _base_config_dma_addressing(struct MPT3SAS_ADAPTER *ioc, struct pci_dev *pdev)
  		const uint64_t required_mask =
  		    dma_get_required_mask(&pdev->dev);
  		if ((required_mask > DMA_BIT_MASK(32)) &&
@@ -113,7 +119,7 @@ index 9b53672..7af7a08 100644
  			goto out;
  		}
  	}
-@@ -1726,7 +1728,7 @@ static int
+@@ -2609,7 +2611,7 @@ static int
  _base_change_consistent_dma_mask(struct MPT3SAS_ADAPTER *ioc,
  				      struct pci_dev *pdev)
  {
@@ -122,7 +128,7 @@ index 9b53672..7af7a08 100644
  		if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32)))
  			return -ENODEV;
  	}
-@@ -3325,7 +3327,7 @@ _base_allocate_memory_pools(struct MPT3SAS_ADAPTER *ioc,  int sleep_flag)
+@@ -4545,7 +4547,7 @@ _base_allocate_memory_pools(struct MPT3SAS_ADAPTER *ioc)
  		total_sz += sz;
  	} while (ioc->rdpq_array_enable && (++i < ioc->reply_queue_count));
  
