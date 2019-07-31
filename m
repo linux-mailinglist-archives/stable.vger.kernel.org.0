@@ -2,167 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53E967C683
-	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 17:26:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 477D37C6AE
+	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 17:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728816AbfGaP0j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Jul 2019 11:26:39 -0400
-Received: from mail-wm1-f44.google.com ([209.85.128.44]:51416 "EHLO
-        mail-wm1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729162AbfGaP0j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 11:26:39 -0400
-Received: by mail-wm1-f44.google.com with SMTP id 207so61285638wma.1
-        for <stable@vger.kernel.org>; Wed, 31 Jul 2019 08:26:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=KvQaWkZEuVHhYkOsUE1i52IZydsRDscbxK0oGMI9LxA=;
-        b=qT+0KhurHO0x3FcQDusn/5Yor8yFmoIMjvZzMutuor1Qv9byWBttBU79dlBzsnz1Px
-         we9Hb9DocJxMJE1wrfSpCtoe72bDT9G3yQm9aVewaM4YXoJqMOmB5fZLGTps0mTEQxTn
-         uab8ezBOvSlYVe713WHYW4U2L5KraBva/Xw57D+mlO10wJCHy69KzIlX2Xl8bwyTgLD7
-         YFPeyPl2VgCDL1gbhhtXMdoLRVx+T9MP9kqztQeq6jphRMpBJ3aWqOmQHL/YTCHiQMiF
-         /lOlJvXEqsBB2PXF8gMeFZAmvUQ2C6PV97cKIWHD85GJJeiy3AyuNNk+hiNW2f4ADWnx
-         q51Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=KvQaWkZEuVHhYkOsUE1i52IZydsRDscbxK0oGMI9LxA=;
-        b=Tg6I4RkXYO+Y3TUBONQNtltkq+l+nKMLckKwsQ6LQ+nVVwJiF/1gdANkzRvuMfQ3oL
-         IM4yQQ7TtLUA+EvYflVVjnuhy92bMeCcmnb+dtV5hOPexWYJROwkeoiM+Bh6veSAqoRE
-         fbfIrq/InZTPwseyVO2pmDOcugXvVk2JktahDPvk5dFGFXxVIG4+X5Xn3UrcmEXakn4n
-         xNaThYkevMeyQtpALv5nJ5qJv/VKx3eUv9h0P1Qlqklaq1UpXj4wwXp1Ol53ukRVlUvx
-         Wfg3OjH9sLFmL4LR6wvRiwcW5nwE0bQPwn1W5z9Oi4z+fAZkawwn/cXKgBPRj6jUXz4W
-         BHoQ==
-X-Gm-Message-State: APjAAAUtu2NuDZlMjVX3BxwjOvnFhj22eGYFZGwyYgHjutLEPcdZA3kv
-        dcj1dfOMlSLjJbzpU/CVUWwTbqLVuK8=
-X-Google-Smtp-Source: APXvYqwtDfUhDul3eTy6Z1fezlIvrJ0MnzT6TKpkc2heUHtp3ZopDfqbfk9vr48MIXXWoIb44tS3uw==
-X-Received: by 2002:a1c:1f4e:: with SMTP id f75mr108710782wmf.137.1564586796625;
-        Wed, 31 Jul 2019 08:26:36 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id s10sm78423813wmf.8.2019.07.31.08.26.35
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 31 Jul 2019 08:26:35 -0700 (PDT)
-Message-ID: <5d41b32b.1c69fb81.85fd7.4ea9@mx.google.com>
-Date:   Wed, 31 Jul 2019 08:26:35 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726185AbfGaPdr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Jul 2019 11:33:47 -0400
+Received: from mx2.suse.de ([195.135.220.15]:44946 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725209AbfGaPdr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 31 Jul 2019 11:33:47 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 39D45AC68;
+        Wed, 31 Jul 2019 15:14:17 +0000 (UTC)
+Subject: Re: [PATCH 4.9 57/83] mm: prevent get_user_pages() from overflowing
+ page refcount
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+References: <20190609164127.843327870@linuxfoundation.org>
+ <20190609164132.774263938@linuxfoundation.org>
+From:   Vlastimil Babka <vbabka@suse.cz>
+Openpgp: preference=signencrypt
+Autocrypt: addr=vbabka@suse.cz; prefer-encrypt=mutual; keydata=
+ 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
+Message-ID: <6650323f-dbc9-f069-000b-f6b0f941a065@suse.cz>
+Date:   Wed, 31 Jul 2019 17:14:16 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.2.4-217-g6aaac92a7ecc
-X-Kernelci-Branch: linux-5.2.y
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-5.2.y boot: 136 boots: 0 failed,
- 90 passed with 45 offline, 1 untried/unknown (v5.2.4-217-g6aaac92a7ecc)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20190609164132.774263938@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.2.y boot: 136 boots: 0 failed, 90 passed with 45 offline,=
- 1 untried/unknown (v5.2.4-217-g6aaac92a7ecc)
+On 6/9/19 6:42 PM, Greg Kroah-Hartman wrote:
+> From: Linus Torvalds <torvalds@linux-foundation.org>
+> 
+> commit 8fde12ca79aff9b5ba951fce1a2641901b8d8e64 upstream.
+> 
+> If the page refcount wraps around past zero, it will be freed while
+> there are still four billion references to it.  One of the possible
+> avenues for an attacker to try to make this happen is by doing direct IO
+> on a page multiple times.  This patch makes get_user_pages() refuse to
+> take a new page reference if there are already more than two billion
+> references to the page.
+> 
+> Reported-by: Jann Horn <jannh@google.com>
+> Acked-by: Matthew Wilcox <willy@infradead.org>
+> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> [bwh: Backported to 4.9:
+>  - Add the "err" variable in follow_hugetlb_page()
+>  - Adjust context]
+> Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>  mm/gup.c     |   45 ++++++++++++++++++++++++++++++++++-----------
+>  mm/hugetlb.c |   16 +++++++++++++++-
+>  2 files changed, 49 insertions(+), 12 deletions(-)
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.2.y/kernel/v5.2.4-217-g6aaac92a7ecc/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.2.y=
-/kernel/v5.2.4-217-g6aaac92a7ecc/
+...
 
-Tree: stable-rc
-Branch: linux-5.2.y
-Git Describe: v5.2.4-217-g6aaac92a7ecc
-Git Commit: 6aaac92a7ecc330b95d4184c29c3f49e0c6c3de9
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 80 unique boards, 28 SoC families, 17 builds out of 209
+> @@ -1231,6 +1240,20 @@ struct page *get_dump_page(unsigned long
+>   */
+>  #ifdef CONFIG_HAVE_GENERIC_RCU_GUP
+>  
+> +/*
+> + * Return the compund head page with ref appropriately incremented,
+> + * or NULL if that failed.
+> + */
+> +static inline struct page *try_get_compound_head(struct page *page, int refs)
+> +{
+> +	struct page *head = compound_head(page);
+> +	if (WARN_ON_ONCE(page_ref_count(head) < 0))
+> +		return NULL;
+> +	if (unlikely(!page_cache_add_speculative(head, refs)))
+> +		return NULL;
+> +	return head;
+> +}
+> +
+>  #ifdef __HAVE_ARCH_PTE_SPECIAL
+>  static int gup_pte_range(pmd_t pmd, unsigned long addr, unsigned long end,
+>  			 int write, struct page **pages, int *nr)
+> @@ -1263,9 +1286,9 @@ static int gup_pte_range(pmd_t pmd, unsi
+>  
+>  		VM_BUG_ON(!pfn_valid(pte_pfn(pte)));
+>  		page = pte_page(pte);
+> -		head = compound_head(page);
+>  
+> -		if (!page_cache_get_speculative(head))
+> +		head = try_get_compound_head(page, 1);
 
-Offline Platforms:
-
-riscv:
-
-    defconfig:
-        gcc-8
-            sifive_fu540: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-axg-s400: 1 offline lab
-            meson-g12a-u200: 1 offline lab
-            meson-g12a-x96-max: 1 offline lab
-            meson-gxbb-odroidc2: 1 offline lab
-            meson-gxl-s905d-p230: 1 offline lab
-            meson-gxl-s905x-libretech-cc: 1 offline lab
-            meson-gxl-s905x-nexbox-a95x: 1 offline lab
-            meson-gxl-s905x-p212: 1 offline lab
-            meson-gxm-nexbox-a1: 1 offline lab
-            rk3399-firefly: 1 offline lab
-            sun50i-a64-pine64-plus: 1 offline lab
-
-mips:
-
-    pistachio_defconfig:
-        gcc-8
-            pistachio_marduk: 1 offline lab
-
-arm:
-
-    exynos_defconfig:
-        gcc-8
-            exynos5250-arndale: 1 offline lab
-            exynos5420-arndale-octa: 1 offline lab
-            exynos5800-peach-pi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            bcm72521-bcm97252sffe: 1 offline lab
-            bcm7445-bcm97445c: 1 offline lab
-            exynos5250-arndale: 1 offline lab
-            exynos5420-arndale-octa: 1 offline lab
-            exynos5800-peach-pi: 1 offline lab
-            imx6dl-wandboard_dual: 1 offline lab
-            imx6dl-wandboard_solo: 1 offline lab
-            imx6q-wandboard: 1 offline lab
-            imx7s-warp: 1 offline lab
-            meson8b-odroidc1: 1 offline lab
-            omap3-beagle: 1 offline lab
-            omap4-panda: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            stih410-b2120: 1 offline lab
-            sun4i-a10-cubieboard: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-            vf610-colibri-eval-v3: 1 offline lab
-
-    omap2plus_defconfig:
-        gcc-8
-            omap3-beagle: 1 offline lab
-            omap4-panda: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            da850-evm: 1 offline lab
-            dm365evm,legacy: 1 offline lab
-
-    imx_v6_v7_defconfig:
-        gcc-8
-            imx6dl-wandboard_dual: 1 offline lab
-            imx6dl-wandboard_solo: 1 offline lab
-            imx6q-wandboard: 1 offline lab
-            imx7s-warp: 1 offline lab
-            vf610-colibri-eval-v3: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun4i-a10-cubieboard: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+BTW, several arches in 4.9, including x86, have arch-specific fast gup
+implementation, which is not touched by this backport. Didn't check if
+Jann's exploit ends up using the fast on non-fast one, though.
