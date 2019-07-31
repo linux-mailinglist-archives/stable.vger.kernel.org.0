@@ -2,71 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C33C7BF32
-	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 13:23:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D828B7BF3B
+	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 13:27:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726862AbfGaLXo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Jul 2019 07:23:44 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:37429 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725793AbfGaLXo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 07:23:44 -0400
-Received: by mail-wm1-f68.google.com with SMTP id f17so59443765wme.2;
-        Wed, 31 Jul 2019 04:23:43 -0700 (PDT)
+        id S1728098AbfGaL12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Jul 2019 07:27:28 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:45725 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728123AbfGaL11 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 07:27:27 -0400
+Received: by mail-pg1-f195.google.com with SMTP id o13so31819936pgp.12;
+        Wed, 31 Jul 2019 04:27:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=vQV5WkYi1RCaWV1rfzrmNeSid8EG2ORcB51l+rIc8nE=;
+        b=YAQafS7T3YJom2VXMOvDWitBFs54x+WqCi/+XukFa7EOfEC/iuP5xGekW2D1YbYRc1
+         1NcoIrd3zS4DPSHoYMzURGkQRdc6/i2zS3DuskzXg0alJOBimbt8/nVs4IAm3TqXAnmO
+         1kfGJ+wCyQPXeA+X8F9qq8Nsc0+lSkuVlBU/ME5xGKRHTXRNlDkrVstOPBo/psYk3POi
+         clKIoAWQFRqABDp7axVMg2G25NZS7YXBMVMJF5yXPyyql2L1Cj5vkBHPq+krSvznMVuA
+         rojQ7PaezEKTurEfI7x2ItVHYTCAtDrgi49rbwEuTSKOay6K6lKkJUgRHAjQvDHOIFi3
+         bhdg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=3Vvv54g/EpOR/8Ex2zJ0vIMb4LQOnfvh3/O79aWVpSA=;
-        b=dZSCPGyZh4h+LEXgdKVBQyBT7Jg2HRVAk1ci7PWBecm9xGTbJVpwvlqdDusY+mawuO
-         MhagmwSRXreDl0GX+Y+UdABPTLw8Ya+jI4JXwtz32ge4WK7gtQjEL6SCqZ4qEpUiOgOs
-         vq88uh6+8XTl8D5HLXwX0t6U1sfmyUJBXro9qO20fhOI1+lMAyiH9ORZVMyc4SQrytVg
-         PSMJpwqAQR7s8kHY1Z28yR29Sy8kc0w6shLlLUvvSkJ13+TGzgzGAeANuLSDnm8IaAVj
-         YwQuAMDEiNRtJ0UNQiGWRx4HEAlBMssdR7o1SN1GkvKYzxSH58t1gFbEGJV/6aknF+ve
-         Op8A==
-X-Gm-Message-State: APjAAAWUz5TfzojPDtN3AUZAoBqXZ099m7oMqa9iT8YwSnMYonMhWgCN
-        sQMucw91wxeK2IMfIVDHnWAN+EIxiTFX/j6NW6Q=
-X-Google-Smtp-Source: APXvYqwkGrlVoyO/zr0mualeskMS+XAfllwPaWnmaxVLcdCULWwIoXTi5yBB9XmatBuEMbeEz95s9TZS3zFE8mm4Muk=
-X-Received: by 2002:a05:600c:254b:: with SMTP id e11mr103137207wma.171.1564572222178;
- Wed, 31 Jul 2019 04:23:42 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=vQV5WkYi1RCaWV1rfzrmNeSid8EG2ORcB51l+rIc8nE=;
+        b=C8ptdu2BRhlVPxqL7VecpzNjWx7SVc+2oyDURrLX5Kv9iNYi47M67Goug9z9e2WNFk
+         M5FmzuBt1txxNkcNKFDMsePTgt2lmuC6kve5j4Hvl6HaF9b3z2IeZlTIKKNo6p1IpH/h
+         poBmR9ReSuLybsY0Vked3mgwvPUU6tlKk8h/WITdUpc+xbndVePdmJdLbPJOXmqjJlE9
+         55aPJREMu9Z2DSnBPWQofJwqvDKfgtvWvlNxW2Jqa5OJ92JgrUgQxNcc+1Ckyj3DFQSt
+         1qe+5Ly6hSjQHiGOhCOenF1SsEW7CE20gST4F62tnwSgE6jbOFsD3elTAfCt4xcea8eU
+         9Geg==
+X-Gm-Message-State: APjAAAUAPI7OOf9Ad06MMTfq+RXLPxes8+3P5OPmpLAYKAVJ1WUPlIda
+        HDqeVVcl1476o8T7AHIw+DRPboIvZmU=
+X-Google-Smtp-Source: APXvYqyZyRrubMwWdKsJ5FhRtpzBvWs+SH6iatiD5Xa+UFGCV6WUXQmwGPq/GZVrzH6Cd6jqgVNNXQ==
+X-Received: by 2002:a63:f750:: with SMTP id f16mr84157002pgk.317.1564572446710;
+        Wed, 31 Jul 2019 04:27:26 -0700 (PDT)
+Received: from localhost.localdomain ([203.205.141.123])
+        by smtp.googlemail.com with ESMTPSA id e3sm1211441pgm.64.2019.07.31.04.27.24
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Wed, 31 Jul 2019 04:27:26 -0700 (PDT)
+From:   Wanpeng Li <kernellwp@gmail.com>
+X-Google-Original-From: Wanpeng Li <wanpengli@tencent.com>
+To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 3/3] KVM: Fix leak vCPU's VMCS value into other pCPU
+Date:   Wed, 31 Jul 2019 19:27:18 +0800
+Message-Id: <1564572438-15518-3-git-send-email-wanpengli@tencent.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1564572438-15518-1-git-send-email-wanpengli@tencent.com>
+References: <1564572438-15518-1-git-send-email-wanpengli@tencent.com>
 MIME-Version: 1.0
-References: <1564568143-3371-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
-In-Reply-To: <1564568143-3371-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Wed, 31 Jul 2019 13:23:29 +0200
-Message-ID: <CAMuHMdWjN79_F_7qf9f+NSaSxyHi4Wrtn5aZtwaK30s6GaT24A@mail.gmail.com>
-Subject: Re: [PATCH] usb: gadget: udc: renesas_usb3: Fix sysfs interface of "role"
-To:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Cc:     Felipe Balbi <balbi@kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        USB list <linux-usb@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 31, 2019 at 1:17 PM Yoshihiro Shimoda
-<yoshihiro.shimoda.uh@renesas.com> wrote:
-> Since the role_store() uses strncmp(), it's possible to refer
-> out-of-memory if the sysfs data size is smaller than strlen("host").
-> This patch fixes it by using sysfs_streq() instead of strncmp().
->
-> Fixes: cc995c9ec118 ("usb: gadget: udc: renesas_usb3: add support for usb role swap")
-> Cc: <stable@vger.kernel.org> # v4.12+
-> Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+After commit d73eb57b80b (KVM: Boost vCPUs that are delivering interrupts), a 
+five years ago bug is exposed. Running ebizzy benchmark in three 80 vCPUs VMs 
+on one 80 pCPUs Skylake server, a lot of rcu_sched stall warning splatting 
+in the VMs after stress testing:
 
-Gr{oetje,eeting}s,
+ INFO: rcu_sched detected stalls on CPUs/tasks: { 4 41 57 62 77} (detected by 15, t=60004 jiffies, g=899, c=898, q=15073)
+ Call Trace:
+   flush_tlb_mm_range+0x68/0x140
+   tlb_flush_mmu.part.75+0x37/0xe0
+   tlb_finish_mmu+0x55/0x60
+   zap_page_range+0x142/0x190
+   SyS_madvise+0x3cd/0x9c0
+   system_call_fastpath+0x1c/0x21
 
-                        Geert
+swait_active() sustains to be true before finish_swait() is called in 
+kvm_vcpu_block(), voluntarily preempted vCPUs are taken into account 
+by kvm_vcpu_on_spin() loop greatly increases the probability condition 
+kvm_arch_vcpu_runnable(vcpu) is checked and can be true, when APICv 
+is enabled the yield-candidate vCPU's VMCS RVI field leaks(by 
+vmx_sync_pir_to_irr()) into spinning-on-a-taken-lock vCPU's current 
+VMCS.
 
+This patch fixes it by reverting the kvm_arch_vcpu_runnable() condition 
+in kvm_vcpu_on_spin() loop.
+
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Radim Krčmář <rkrcmar@redhat.com>
+Fixes: 98f4a1467 (KVM: add kvm_arch_vcpu_runnable() test to kvm_vcpu_on_spin() loop)
+Cc: stable@vger.kernel.org
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+---
+ virt/kvm/kvm_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index ed061d8..12f2c91 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2506,7 +2506,7 @@ void kvm_vcpu_on_spin(struct kvm_vcpu *me, bool yield_to_kernel_mode)
+ 				continue;
+ 			if (vcpu == me)
+ 				continue;
+-			if (swait_active(&vcpu->wq) && !kvm_arch_vcpu_runnable(vcpu))
++			if (swait_active(&vcpu->wq))
+ 				continue;
+ 			if (READ_ONCE(vcpu->preempted) && yield_to_kernel_mode &&
+ 				!kvm_arch_vcpu_in_kernel(vcpu))
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+2.7.4
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
