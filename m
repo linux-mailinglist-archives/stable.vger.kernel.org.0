@@ -2,54 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 462C67C257
-	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 14:55:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81E177C2E9
+	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 15:09:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728728AbfGaMzg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Jul 2019 08:55:36 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:33884 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726300AbfGaMzg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 08:55:36 -0400
-Received: by mail-wr1-f68.google.com with SMTP id 31so69599096wrm.1
-        for <stable@vger.kernel.org>; Wed, 31 Jul 2019 05:55:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:openpgp:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=inYUgJMClSBxeCZ5ua9oZG9WtRjGPUuf4CzpS2AwxKs=;
-        b=SkiwF9zX0UJoVoQMK818x5lR4tja+BkNwdTAG4z4EQ2tfQSNdITmSlc0pmPtrALdyk
-         DS56ArlqeLjS7LHKiX7/R/zxF5xRGzpxuiwsFYVinoFcRwS2xiyhILwY7Pi91Qdgc3ss
-         E6GCgj7VnklLzRPhoCFDLSbCSpUujrJRm2Ri225vGCbIU2CIos0jjlNnzfZZBhT4fqzU
-         NcSmY2AXE0u3eZSHpZMqcDFQ8iS9CZYqt1Y86uYLI784KT++bXJviT9W5S+9E7nxriui
-         fccvE/8fXSLxuWtZ4+VfBk00P7vwg3f6ZtxEIfwEQjvrKZweOvUu0/wdzNRrlXkN1Gv3
-         BJkA==
-X-Gm-Message-State: APjAAAVUmr4sPybY2yjuXu6ACDfVAIIK/nPlRABgRv8zJum96sArPi9c
-        t+1wPE5fyWG6t2QUdtrxTA6hsA==
-X-Google-Smtp-Source: APXvYqwCf62ldPWvGGU8UmKgsxpBKfaLCnTreng8h5G6SJLRotAe/VLh/nJpN/VFHHc3WzbeLtqcGA==
-X-Received: by 2002:a05:6000:118a:: with SMTP id g10mr18463602wrx.175.1564577734089;
-        Wed, 31 Jul 2019 05:55:34 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:91e7:65e:d8cd:fdb3? ([2001:b07:6468:f312:91e7:65e:d8cd:fdb3])
-        by smtp.gmail.com with ESMTPSA id g19sm128484284wrb.52.2019.07.31.05.55.33
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Wed, 31 Jul 2019 05:55:33 -0700 (PDT)
-Subject: Re: [PATCH v2 3/3] KVM: Fix leak vCPU's VMCS value into other pCPU
-To:     Wanpeng Li <kernellwp@gmail.com>, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
-        stable@vger.kernel.org, Marc Zyngier <Marc.Zyngier@arm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-References: <1564572438-15518-3-git-send-email-wanpengli@tencent.com>
- <1564573198-16219-1-git-send-email-wanpengli@tencent.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Openpgp: preference=signencrypt
-Message-ID: <9240ada8-8e18-d2b2-006e-41ededb89efb@redhat.com>
-Date:   Wed, 31 Jul 2019 14:55:33 +0200
+        id S2388334AbfGaNJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Jul 2019 09:09:09 -0400
+Received: from foss.arm.com ([217.140.110.172]:46898 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388329AbfGaNJJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 31 Jul 2019 09:09:09 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CC7FB1570;
+        Wed, 31 Jul 2019 06:09:08 -0700 (PDT)
+Received: from [10.1.197.45] (e112298-lin.cambridge.arm.com [10.1.197.45])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 750113F575;
+        Wed, 31 Jul 2019 06:09:07 -0700 (PDT)
+Subject: Re: [PATCH v4.4 V2 25/43] arm64: Move BP hardening to
+ check_and_switch_context
+To:     Viresh Kumar <viresh.kumar@linaro.org>, stable@vger.kernel.org
+Cc:     linux-arm-kernel@lists.infradead.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        mark.brown@arm.com, julien.thierry.kdev@gmail.com
+References: <cover.1562908074.git.viresh.kumar@linaro.org>
+ <f655aaa158af070d45a2bd4965852b0c97a08838.1562908075.git.viresh.kumar@linaro.org>
+From:   Julien Thierry <julien.thierry@arm.com>
+Message-ID: <59b252cf-9cb7-128b-4887-c21a8b9b92a9@arm.com>
+Date:   Wed, 31 Jul 2019 14:09:05 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-In-Reply-To: <1564573198-16219-1-git-send-email-wanpengli@tencent.com>
+In-Reply-To: <f655aaa158af070d45a2bd4965852b0c97a08838.1562908075.git.viresh.kumar@linaro.org>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -58,48 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 31/07/19 13:39, Wanpeng Li wrote:
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index ed061d8..12f2c91 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -2506,7 +2506,7 @@ void kvm_vcpu_on_spin(struct kvm_vcpu *me, bool yield_to_kernel_mode)
->  				continue;
->  			if (vcpu == me)
->  				continue;
-> -			if (swait_active(&vcpu->wq) && !kvm_arch_vcpu_runnable(vcpu))
-> +			if (READ_ONCE(vcpu->preempted) && swait_active(&vcpu->wq))
->  				continue;
->  			if (READ_ONCE(vcpu->preempted) && yield_to_kernel_mode &&
->  				!kvm_arch_vcpu_in_kernel(vcpu))
+
+
+On 12/07/2019 06:28, Viresh Kumar wrote:
+> From: Marc Zyngier <marc.zyngier@arm.com>
 > 
+> commit a8e4c0a919ae310944ed2c9ace11cf3ccd8a609b upstream.
+> 
+> We call arm64_apply_bp_hardening() from post_ttbr_update_workaround,
+> which has the unexpected consequence of being triggered on every
+> exception return to userspace when ARM64_SW_TTBR0_PAN is selected,
+> even if no context switch actually occured.
+> 
+> This is a bit suboptimal, and it would be more logical to only
+> invalidate the branch predictor when we actually switch to
+> a different mm.
+> 
+> In order to solve this, move the call to arm64_apply_bp_hardening()
+> into check_and_switch_context(), where we're guaranteed to pick
+> a different mm context.
+> 
+> Acked-by: Will Deacon <will.deacon@arm.com>
+> Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+> ---
+>  arch/arm64/mm/context.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/arm64/mm/context.c b/arch/arm64/mm/context.c
+> index be42bd3dca5c..de5afc27b4e6 100644
+> --- a/arch/arm64/mm/context.c
+> +++ b/arch/arm64/mm/context.c
+> @@ -183,6 +183,8 @@ void check_and_switch_context(struct mm_struct *mm, unsigned int cpu)
+>  	raw_spin_unlock_irqrestore(&cpu_asid_lock, flags);
+>  
+>  switch_mm_fastpath:
+> +	arm64_apply_bp_hardening();
+> +
+>  	cpu_switch_mm(mm->pgd, mm);
+>  }
+>  
+> @@ -193,8 +195,6 @@ asmlinkage void post_ttbr_update_workaround(void)
+>  			"ic iallu; dsb nsh; isb",
+>  			ARM64_WORKAROUND_CAVIUM_27456,
+>  			CONFIG_CAVIUM_ERRATUM_27456));
+> -
+> -	arm64_apply_bp_hardening();
 
-This cannot work.  swait_active means you are waiting, so you cannot be
-involuntarily preempted.
+Patches 22 and 23 factorize the post_ttbr_update_workaround() and move
+it to C code just so we would and a call to arm64_apply_bp_hardening()
+in patch 24 that now gets moved elsewhere?
 
-The problem here is simply that kvm_vcpu_has_events is being called
-without holding the lock.  So kvm_arch_vcpu_runnable is okay, it's the
-implementation that's wrong.
+Is it really worth backporting patches 22 and 23?
 
-Just rename the existing function to just vcpu_runnable and make a new
-arch callback kvm_arch_dy_runnable.   kvm_arch_dy_runnable can be
-conservative and only returns true for a subset of events, in particular
-for x86 it can check:
+Cheers,
 
-- vcpu->arch.pv.pv_unhalted
-
-- KVM_REQ_NMI or KVM_REQ_SMI or KVM_REQ_EVENT
-
-- PIR.ON if APICv is set
-
-Ultimately, all variables accessed in kvm_arch_dy_runnable should be
-accessed with READ_ONCE or atomic_read.
-
-And for all architectures, kvm_vcpu_on_spin should check
-list_empty_careful(&vcpu->async_pf.done)
-
-It's okay if your patch renames the function in non-x86 architectures,
-leaving the fix to maintainers.  So, let's CC Marc and Christian since
-ARM and s390 have pretty complex kvm_arch_vcpu_runnable as well.
-
-Paolo
+-- 
+Julien Thierry
