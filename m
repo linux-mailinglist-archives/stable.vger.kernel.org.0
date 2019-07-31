@@ -2,96 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E95B7C914
-	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 18:46:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4A147C9C1
+	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 19:02:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726960AbfGaQqA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Jul 2019 12:46:00 -0400
-Received: from foss.arm.com ([217.140.110.172]:51498 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726268AbfGaQqA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 31 Jul 2019 12:46:00 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id D6337337;
-        Wed, 31 Jul 2019 09:45:59 -0700 (PDT)
-Received: from lakrids.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 814443F71F;
-        Wed, 31 Jul 2019 09:45:58 -0700 (PDT)
-Date:   Wed, 31 Jul 2019 17:45:56 +0100
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Viresh Kumar <viresh.kumar@linaro.org>
-Cc:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Russell King <rmk+kernel@arm.linux.org.uk>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        mark.brown@arm.com
-Subject: Re: [PATCH v4.4 V2 24/43] arm64: Add skeleton to harden the branch
- predictor against aliasing attacks
-Message-ID: <20190731164556.GI39768@lakrids.cambridge.arm.com>
-References: <cover.1562908074.git.viresh.kumar@linaro.org>
- <4349161f0ed572bbc6bff64bad94aa96d07b27ff.1562908075.git.viresh.kumar@linaro.org>
+        id S1727487AbfGaRBX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Jul 2019 13:01:23 -0400
+Received: from mail-wm1-f42.google.com ([209.85.128.42]:37426 "EHLO
+        mail-wm1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726300AbfGaRBX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 13:01:23 -0400
+Received: by mail-wm1-f42.google.com with SMTP id f17so60474077wme.2
+        for <stable@vger.kernel.org>; Wed, 31 Jul 2019 10:01:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=OBhU3Ov7j2YUeUIQPbFUscNIvwRm1+QOrZpoKK1+hOU=;
+        b=bbdZJhS3AjBXq6fhDIBFIkXefPtg7c+2Xl4Gx14YOEz+MYLpWq6ktAvEmlf6wnf3UB
+         0Dd6D5L5bHspKOitJ14lxJmaC15IdE2JAeGTYO9VN7Wf7Df+HbuS9KnLIBAJssXNKdMg
+         i5Ldq+uV8IN/0Lbu9aHR+29/kZUxq7y/eiqzoqbevaWTo8EtzRk7vLnkCXlHvovmrMF5
+         3Z5b1YObl6ZAjOCpVIOIvgMhrm2PWywIz5DC9EGtxYphAmy1XnCtdzYyIlazqqVAxZOW
+         FF7jf2aGnhxZTcvHMSispPuipkPCy5NJuJhoK9koEYkhGK73yd8Xa4ECuWTfG4/J1EQ0
+         FVPQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=OBhU3Ov7j2YUeUIQPbFUscNIvwRm1+QOrZpoKK1+hOU=;
+        b=Yx5NUucsjWmX2bNi5Ffm+2Y7uIebvPt/Mk+yuRv6O972UUbV/yKjVVSchcHN0OVNoo
+         pF0UfH6wFe6/Agw3nOSY2Zpai2JBXm60BIq3BjdCu7zMT9xZxBGxpC4n7kXCG0Ru93VJ
+         9MyEQVRmP3nQJmUnHOANbCmsF7oK232DtHJYSe6J7xi14Vzg13oSnb/RxrSNIQPEdvKY
+         JguJ/PZT/EIIhlJR4rVNMmSXOswSsiROfz3nuS0HelFN5arzcXMEoVFzrr3c4Ewgc9X5
+         QYxS2VsQaMtS9OLSNV8EFdXk6WLEdA90kW1lktDNbMf1uuP8mUxuRLfSLPjABwGBxokx
+         +f3w==
+X-Gm-Message-State: APjAAAUWVco+SkCde9l2LdgF9L5O3wxA3mrd7ywhT1ImHwyXsF0OfQOh
+        yNFK/wfnDUwoTPctGRwx1y/NAzLptrs=
+X-Google-Smtp-Source: APXvYqw6LMsbU6aeFYv5YbWy14vVswT5gNPAvNfIq5szuOZSeopEjqRouE+FjS029Sul1rHejY1jnA==
+X-Received: by 2002:a1c:4b0b:: with SMTP id y11mr87324081wma.25.1564592480971;
+        Wed, 31 Jul 2019 10:01:20 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id a64sm4790069wmf.1.2019.07.31.10.01.19
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 31 Jul 2019 10:01:20 -0700 (PDT)
+Message-ID: <5d41c960.1c69fb81.bc923.09bd@mx.google.com>
+Date:   Wed, 31 Jul 2019 10:01:20 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4349161f0ed572bbc6bff64bad94aa96d07b27ff.1562908075.git.viresh.kumar@linaro.org>
-User-Agent: Mutt/1.11.1+11 (2f07cb52) (2018-12-01)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.186-216-gf61b5d80bbfa
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.9.y boot: 100 boots: 0 failed,
+ 65 passed with 35 offline (v4.9.186-216-gf61b5d80bbfa)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 12, 2019 at 10:58:12AM +0530, Viresh Kumar wrote:
-> From: Will Deacon <will.deacon@arm.com>
-> 
-> commit 0f15adbb2861ce6f75ccfc5a92b19eae0ef327d0 upstream.
-> 
-> Aliasing attacks against CPU branch predictors can allow an attacker to
-> redirect speculative control flow on some CPUs and potentially divulge
-> information from one context to another.
-> 
-> This patch adds initial skeleton code behind a new Kconfig option to
-> enable implementation-specific mitigations against these attacks for
-> CPUs that are affected.
-> 
-> Co-developed-by: Marc Zyngier <marc.zyngier@arm.com>
-> Signed-off-by: Will Deacon <will.deacon@arm.com>
-> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> [ v4.4: Changes made according to 4.4 codebase ]
-> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+stable-rc/linux-4.9.y boot: 100 boots: 0 failed, 65 passed with 35 offline =
+(v4.9.186-216-gf61b5d80bbfa)
 
-[...]
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.186-216-gf61b5d80bbfa/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.186-216-gf61b5d80bbfa/
 
->  /* id_aa64pfr0 */
-> +#define ID_AA64PFR0_CSV2_SHIFT		56
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.186-216-gf61b5d80bbfa
+Git Commit: f61b5d80bbfaa5820eddeb363b965c6e175974d0
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 50 unique boards, 23 SoC families, 15 builds out of 197
 
-Note: CSV3 is bits 63-60, 
+Offline Platforms:
 
-> diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-> index 474b34243521..040a42d79990 100644
-> --- a/arch/arm64/kernel/cpufeature.c
-> +++ b/arch/arm64/kernel/cpufeature.c
-> @@ -83,7 +83,8 @@ static struct arm64_ftr_bits ftr_id_aa64isar0[] = {
->  };
->  
->  static struct arm64_ftr_bits ftr_id_aa64pfr0[] = {
-> -	ARM64_FTR_BITS(FTR_STRICT, FTR_EXACT, 32, 32, 0),
-> +	ARM64_FTR_BITS(FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_CSV2_SHIFT, 4, 0),
-> +	ARM64_FTR_BITS(FTR_STRICT, FTR_EXACT, 32, 28, 0),
+arm64:
 
-This line should be:
+    defconfig:
+        gcc-8
+            meson-gxbb-odroidc2: 1 offline lab
 
-	ARM64_FTR_BITS(FTR_STRICT, FTR_EXACT, 32, 24, 0),
+arm:
 
-... as it was in the v4.9 backbort, making it cover bits 55:32. As in
-this patch, it covers 59:32, overlapping with CSV2.
+    tegra_defconfig:
+        gcc-8
+            tegra20-iris-512: 1 offline lab
 
-We also need to cater for bits 63:60. In the v4.9 backport, the meltdown
-bits were applied first, so nothing special was necessary.
+    exynos_defconfig:
+        gcc-8
+            exynos5250-arndale: 1 offline lab
+            exynos5420-arndale-octa: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
 
-What's the plan w.r.t. meltdown mitigations and v4.4?
+    multi_v7_defconfig:
+        gcc-8
+            bcm72521-bcm97252sffe: 1 offline lab
+            bcm7445-bcm97445c: 1 offline lab
+            exynos5250-arndale: 1 offline lab
+            exynos5420-arndale-octa: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
+            imx6dl-wandboard_dual: 1 offline lab
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+            imx7s-warp: 1 offline lab
+            meson8b-odroidc1: 1 offline lab
+            omap3-beagle: 1 offline lab
+            omap4-panda: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            stih410-b2120: 1 offline lab
+            sun4i-a10-cubieboard: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+            tegra20-iris-512: 1 offline lab
+            vf610-colibri-eval-v3: 1 offline lab
 
-Thanks,
-Mark.
+    omap2plus_defconfig:
+        gcc-8
+            omap3-beagle: 1 offline lab
+            omap4-panda: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+    imx_v6_v7_defconfig:
+        gcc-8
+            imx6dl-wandboard_dual: 1 offline lab
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+            imx7s-warp: 1 offline lab
+            vf610-colibri-eval-v3: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun4i-a10-cubieboard: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
