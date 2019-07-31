@@ -2,160 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C075D7B81B
-	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 04:59:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84C757B829
+	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 05:10:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726691AbfGaC7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 22:59:09 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:36999 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726096AbfGaC7J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 22:59:09 -0400
-Received: by mail-pg1-f195.google.com with SMTP id i70so20388354pgd.4
-        for <stable@vger.kernel.org>; Tue, 30 Jul 2019 19:59:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=B7l52D/cRUQyEKtM6D9Z02BVoe/7k/AeNEzc9yQ+CeI=;
-        b=bkoXiW2ZCG3VyC8G6LPZgBZuI3y0v2RUc/ccSE0ChSGLNoZT6BX5NE8m9Z8F/1Y46T
-         OlrlmQZ/RU9gu6V2zSy+QA4wqnBGe23ABaN6+GETOMjbLTwv1v0b6ssiRxV1BOsJR6OV
-         Uq1l0VsAIibFVMIuqQKhdKY/kCgPlFwMeCZh5+PL7h55QoJDscTpXhbqdZiuWmNXmreq
-         YpyyRZaweDEJoQ+Rsj6RPXrtLPb3B5O3q6827dDVLuy49O+OVtJuCmfTYghgQ0IhHMIu
-         ZAZGttFO4gUbQBSHY8UfufkMuYWTuIvjBg4AE05QyoJdH+v2asCd9GLKgyhlytygWTJa
-         xG3w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=B7l52D/cRUQyEKtM6D9Z02BVoe/7k/AeNEzc9yQ+CeI=;
-        b=dzUYQ24Y3BsiXUKmKVky81IhULDpXPVQTbfmeqtQ9Z40PjnfnBZ5mUt4Bn3LmkiSZG
-         EWzj8EQHNgw7hPWxeQu9WcP1Cc6ka39ufgSX9becoUiO9p3wawl/E+6hFb3SJYQx1ly+
-         QdXSu2eF8bKVB1fpUdkACBDtfyIu/VeuPzczZcl0fe0CgunmaUTrRPUSUalJQXM+sj9Q
-         w9KGJWCoKxCGYe51xMQ5KL5Yja1AijVLJygVSlqO/WiEj0tIjfc8zt6sHY2gDLvJkWf0
-         LyxarqmycSR2W939YnZpeAqEy38ROMK6hsg0jQMsrRxSzRoxZW65HpbB1FPaA+Oo6PGU
-         fkjw==
-X-Gm-Message-State: APjAAAW+llB6LS6hF1elxGV/hFG9KSnogjI1JlxKT5fAUSPFp06laYOR
-        Pg14Vy46GR5RFGsa0g1T9XzwcQ==
-X-Google-Smtp-Source: APXvYqzX977xFiSHTriuRuGYyl0OLc4P0XfrtGSCyPCZP10LRC7cWGWRT5jd8/2+n6pShJuBgEhHow==
-X-Received: by 2002:a17:90a:1b48:: with SMTP id q66mr502148pjq.83.1564541948328;
-        Tue, 30 Jul 2019 19:59:08 -0700 (PDT)
-Received: from localhost ([122.172.28.117])
-        by smtp.gmail.com with ESMTPSA id v18sm63769086pgl.87.2019.07.30.19.59.07
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 30 Jul 2019 19:59:07 -0700 (PDT)
-From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     Rafael Wysocki <rjw@rjwysocki.net>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>
-Cc:     linux-pm@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        "v4 . 18+" <stable@vger.kernel.org>,
-        Doug Smythies <doug.smythies@gmail.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] cpufreq: schedutil: Don't skip freq update when limits change
-Date:   Wed, 31 Jul 2019 08:28:57 +0530
-Message-Id: <04ff2be6ef108585d57aa2462aa7a4c676b6d1cd.1564541875.git.viresh.kumar@linaro.org>
-X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
+        id S1728274AbfGaDKI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 23:10:08 -0400
+Received: from szxga05-in.huawei.com ([45.249.212.191]:3256 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727137AbfGaDKI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Jul 2019 23:10:08 -0400
+Received: from DGGEMS403-HUB.china.huawei.com (unknown [172.30.72.60])
+        by Forcepoint Email with ESMTP id CEE4DA57303E09839F76;
+        Wed, 31 Jul 2019 11:10:05 +0800 (CST)
+Received: from RH5885H-V3.huawei.com (10.90.53.225) by
+ DGGEMS403-HUB.china.huawei.com (10.3.19.203) with Microsoft SMTP Server id
+ 14.3.439.0; Wed, 31 Jul 2019 11:09:55 +0800
+From:   SunKe <sunke32@huawei.com>
+To:     <sunke32@huawei.com>, <josef@toxicpanda.com>, <axboe@kernel.dk>,
+        <linux-block@vger.kernel.org>, <nbd@other.debian.org>,
+        <linux-kernel@vger.kernel.org>, <kamatam@amazon.com>,
+        <manoj.br@gmail.com>, <stable@vger.kernel.org>, <dwmw@amazon.com>
+Subject: [PATCH] nbd: replace kill_bdev() with __invalidate_device() again
+Date:   Wed, 31 Jul 2019 11:15:46 +0800
+Message-ID: <1564542946-26255-1-git-send-email-sunke32@huawei.com>
+X-Mailer: git-send-email 2.7.4
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.90.53.225]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-To avoid reducing the frequency of a CPU prematurely, we skip reducing
-the frequency if the CPU had been busy recently.
+From: Munehisa Kamata <kamatam@amazon.com>
 
-This should not be done when the limits of the policy are changed, for
-example due to thermal throttling. We should always get the frequency
-within the new limits as soon as possible.
+Commit abbbdf12497d ("replace kill_bdev() with __invalidate_device()")
+once did this, but 29eaadc03649 ("nbd: stop using the bdev everywhere")
+resurrected kill_bdev() and it has been there since then. So buffer_head
+mappings still get killed on a server disconnection, and we can still
+hit the BUG_ON on a filesystem on the top of the nbd device.
 
-Fixes: ecd288429126 ("cpufreq: schedutil: Don't set next_freq to UINT_MAX")
-Cc: v4.18+ <stable@vger.kernel.org> # v4.18+
-Reported-by: Doug Smythies <doug.smythies@gmail.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+  EXT4-fs (nbd0): mounted filesystem with ordered data mode. Opts: (null)
+  block nbd0: Receive control failed (result -32)
+  block nbd0: shutting down sockets
+  print_req_error: I/O error, dev nbd0, sector 66264 flags 3000
+  EXT4-fs warning (device nbd0): htree_dirblock_to_tree:979: inode #2: lblock 0: comm ls: error -5 reading directory block
+  print_req_error: I/O error, dev nbd0, sector 2264 flags 3000
+  EXT4-fs error (device nbd0): __ext4_get_inode_loc:4690: inode #2: block 283: comm ls: unable to read itable block
+  EXT4-fs error (device nbd0) in ext4_reserve_inode_write:5894: IO failure
+  ------------[ cut here ]------------
+  kernel BUG at fs/buffer.c:3057!
+  invalid opcode: 0000 [#1] SMP PTI
+  CPU: 7 PID: 40045 Comm: jbd2/nbd0-8 Not tainted 5.1.0-rc3+ #4
+  Hardware name: Amazon EC2 m5.12xlarge/, BIOS 1.0 10/16/2017
+  RIP: 0010:submit_bh_wbc+0x18b/0x190
+  ...
+  Call Trace:
+   jbd2_write_superblock+0xf1/0x230 [jbd2]
+   ? account_entity_enqueue+0xc5/0xf0
+   jbd2_journal_update_sb_log_tail+0x94/0xe0 [jbd2]
+   jbd2_journal_commit_transaction+0x12f/0x1d20 [jbd2]
+   ? __switch_to_asm+0x40/0x70
+   ...
+   ? lock_timer_base+0x67/0x80
+   kjournald2+0x121/0x360 [jbd2]
+   ? remove_wait_queue+0x60/0x60
+   kthread+0xf8/0x130
+   ? commit_timeout+0x10/0x10 [jbd2]
+   ? kthread_bind+0x10/0x10
+   ret_from_fork+0x35/0x40
+
+With __invalidate_device(), I no longer hit the BUG_ON with sync or
+unmount on the disconnected device.
+
+Fixes: 29eaadc03649 ("nbd: stop using the bdev everywhere")
+Cc: linux-block@vger.kernel.org
+Cc: Ratna Manoj Bolla <manoj.br@gmail.com>
+Cc: nbd@other.debian.org
+Cc: stable@vger.kernel.org
+Cc: David Woodhouse <dwmw@amazon.com>
+Signed-off-by: Munehisa Kamata <kamatam@amazon.com>
+
+CR: https://code.amazon.com/reviews/CR-7629288
 ---
-@Doug: Can you please provide your Tested-by for this commit, as it
-already fixed the issue around acpi-cpufreq driver.
+I reproduced this phenomenon on the fat file system.
+reproduce steps :
+1.Establish a nbd connection.
+2.Run two threads:one do mount and umount,anther one do clear_sock ioctl
+3.Then hit the BUG_ON.
 
-We will continue to see what's wrong with intel-pstate though.
 
- kernel/sched/cpufreq_schedutil.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/block/nbd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
-index 636ca6f88c8e..2f382b0959e5 100644
---- a/kernel/sched/cpufreq_schedutil.c
-+++ b/kernel/sched/cpufreq_schedutil.c
-@@ -40,6 +40,7 @@ struct sugov_policy {
- 	struct task_struct	*thread;
- 	bool			work_in_progress;
- 
-+	bool			limits_changed;
- 	bool			need_freq_update;
- };
- 
-@@ -89,8 +90,11 @@ static bool sugov_should_update_freq(struct sugov_policy *sg_policy, u64 time)
- 	    !cpufreq_this_cpu_can_update(sg_policy->policy))
- 		return false;
- 
--	if (unlikely(sg_policy->need_freq_update))
-+	if (unlikely(sg_policy->limits_changed)) {
-+		sg_policy->limits_changed = false;
-+		sg_policy->need_freq_update = true;
- 		return true;
-+	}
- 
- 	delta_ns = time - sg_policy->last_freq_update_time;
- 
-@@ -437,7 +441,7 @@ static inline bool sugov_cpu_is_busy(struct sugov_cpu *sg_cpu) { return false; }
- static inline void ignore_dl_rate_limit(struct sugov_cpu *sg_cpu, struct sugov_policy *sg_policy)
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 9bcde23..e21d2de 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -1231,7 +1231,7 @@ static void nbd_clear_sock_ioctl(struct nbd_device *nbd,
+ 				 struct block_device *bdev)
  {
- 	if (cpu_bw_dl(cpu_rq(sg_cpu->cpu)) > sg_cpu->bw_dl)
--		sg_policy->need_freq_update = true;
-+		sg_policy->limits_changed = true;
- }
- 
- static void sugov_update_single(struct update_util_data *hook, u64 time,
-@@ -447,7 +451,7 @@ static void sugov_update_single(struct update_util_data *hook, u64 time,
- 	struct sugov_policy *sg_policy = sg_cpu->sg_policy;
- 	unsigned long util, max;
- 	unsigned int next_f;
--	bool busy;
-+	bool busy = false;
- 
- 	sugov_iowait_boost(sg_cpu, time, flags);
- 	sg_cpu->last_update = time;
-@@ -457,7 +461,9 @@ static void sugov_update_single(struct update_util_data *hook, u64 time,
- 	if (!sugov_should_update_freq(sg_policy, time))
- 		return;
- 
--	busy = sugov_cpu_is_busy(sg_cpu);
-+	/* Limits may have changed, don't skip frequency update */
-+	if (!sg_policy->need_freq_update)
-+		busy = sugov_cpu_is_busy(sg_cpu);
- 
- 	util = sugov_get_util(sg_cpu);
- 	max = sg_cpu->max;
-@@ -831,6 +837,7 @@ static int sugov_start(struct cpufreq_policy *policy)
- 	sg_policy->last_freq_update_time	= 0;
- 	sg_policy->next_freq			= 0;
- 	sg_policy->work_in_progress		= false;
-+	sg_policy->limits_changed		= false;
- 	sg_policy->need_freq_update		= false;
- 	sg_policy->cached_raw_freq		= 0;
- 
-@@ -879,7 +886,7 @@ static void sugov_limits(struct cpufreq_policy *policy)
- 		mutex_unlock(&sg_policy->work_lock);
- 	}
- 
--	sg_policy->need_freq_update = true;
-+	sg_policy->limits_changed = true;
- }
- 
- struct cpufreq_governor schedutil_gov = {
+ 	sock_shutdown(nbd);
+-	kill_bdev(bdev);
++	__invalidate_device(bdev, true);
+ 	nbd_bdev_reset(bdev);
+ 	if (test_and_clear_bit(NBD_HAS_CONFIG_REF,
+ 			       &nbd->config->runtime_flags))
 -- 
-2.21.0.rc0.269.g1a574e7a288b
+2.7.4
 
