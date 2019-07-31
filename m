@@ -2,125 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A83E7CA19
-	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 19:14:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F25D77CAC8
+	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 19:43:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730551AbfGaROj convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 31 Jul 2019 13:14:39 -0400
-Received: from mga12.intel.com ([192.55.52.136]:51464 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728879AbfGaROi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 31 Jul 2019 13:14:38 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 31 Jul 2019 10:14:38 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,330,1559545200"; 
-   d="scan'208";a="200831992"
-Received: from fmsmsx107.amr.corp.intel.com ([10.18.124.205])
-  by fmsmga002.fm.intel.com with ESMTP; 31 Jul 2019 10:14:38 -0700
-Received: from fmsmsx115.amr.corp.intel.com ([169.254.4.194]) by
- fmsmsx107.amr.corp.intel.com ([169.254.6.32]) with mapi id 14.03.0439.000;
- Wed, 31 Jul 2019 10:14:38 -0700
-From:   "Vivi, Rodrigo" <rodrigo.vivi@intel.com>
-To:     Sasha Levin <sashal@kernel.org>
-CC:     Rodrigo Vivi <rodrigo.vivi@gmail.com>,
-        intel-gfx <intel-gfx@lists.freedesktop.org>,
-        "Pandiyan, Dhinakaran" <dhinakaran.pandiyan@intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [Intel-gfx] [PATCH] drm/i915/vbt: Fix VBT parsing for the PSR
- section
-Thread-Topic: [Intel-gfx] [PATCH] drm/i915/vbt: Fix VBT parsing for the PSR
- section
-Thread-Index: AQHVPPA32UuiQAqQX0GQuUuHjAoekqbRkfmAgBKYLYCAABJ4gIABRbaA
-Date:   Wed, 31 Jul 2019 17:14:38 +0000
-Message-ID: <1689B7E0-5CA6-4B27-B2A8-F352618096EA@intel.com>
-References: <20190717223451.2595-1-dhinakaran.pandiyan@intel.com>
- <20190719004526.B0CC521850@mail.kernel.org>
- <CABVU7+sbS8mw+4O1Ct8EY_5cj+fnmNFzyd6_=v2_RmCgBRA13g@mail.gmail.com>
- <20190730214851.GF29162@sasha-vm>
-In-Reply-To: <20190730214851.GF29162@sasha-vm>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.7.196.66]
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <12F8BF15E0B9324CB1CE296363467821@intel.com>
-Content-Transfer-Encoding: 8BIT
+        id S1727571AbfGaRn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Jul 2019 13:43:27 -0400
+Received: from mail-wr1-f52.google.com ([209.85.221.52]:38119 "EHLO
+        mail-wr1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729389AbfGaRn0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 13:43:26 -0400
+Received: by mail-wr1-f52.google.com with SMTP id g17so70621843wrr.5
+        for <stable@vger.kernel.org>; Wed, 31 Jul 2019 10:43:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=cu4vg7JQ2MMf3zX4T/8TGzKsbfNFoKFrB540X0BOFeM=;
+        b=xzpYbX0o7YkWqvs72EbypZSeHQacR+kFlB6tyqashUe0GunuN53ZtiE3SLoTNc8Lgg
+         Oka6fDNzB11MTXtaW/Mpfp88KhBEwb1aJac2yuPbBLKOncdYDeRmuD0vkKFjSGq4fdlT
+         O83PO21s+O93XIAI72FQ85i7in92jlsUlDA9N2eUu8c2Xfhe2uqVh0k5J4RWXR8ibcrA
+         XfnChOeALqsZ8WeXfT0AIwUxmbzpnmooWSMIG15fXED0FLeVqiY9+cPhEu87UXEWPWZ3
+         iAkQ3QFIhJ2Ua+IqBEJ9A8NJPdcv1O3zFoqRYHKwXuPn5ZP5XYmjhdMEKvhGO2PGyj+b
+         qn/A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=cu4vg7JQ2MMf3zX4T/8TGzKsbfNFoKFrB540X0BOFeM=;
+        b=kjO3cgLpy3ZrTywOKi21UQrjEEDYm0Sbi07HQrrRnY4rBMI1OZXjvxTU/QU7GNAkvj
+         1Hw1KPM82Py0DATaZYHkGITqFLldLqbDxMSCmmoYyDugBL2Nr4th8chwtX9iupQe0iKv
+         5cifbbvDDm5yjP7WPL+DdQdOLWfLPwWe2Zjpc7Bgd9e6pH2Oy0kWfPZ6lczYG7Yds2q0
+         31YboALQv8PRZqAMoRyRkc+NIqjWgtcI1bQNuRdECGu+VcWPAuf6F4qT8K3hIJtV0+eS
+         mY+DeKHWxP8AtU4EOj8TJjS6E2WEO6cNT3TnhPTRFW9iIG7kSvr9rAsA5IARcbY2cS2f
+         SDBA==
+X-Gm-Message-State: APjAAAUqhCXhbG+v9vL2Hx8Wxmdg1+FUkoEUGcN9k0hJwMQ0EFYkBrRx
+        B5wW+BNPz2K4KP87C1+LLSRGaOv1M+E=
+X-Google-Smtp-Source: APXvYqyAxXb2Q4yaIBXKcPuDvhAFeJ5bJsryY8q0eoRkP/S/8NTBgOzua8I6vbOg5OmiLoSrdYYLVg==
+X-Received: by 2002:adf:eb0f:: with SMTP id s15mr58934375wrn.324.1564595004677;
+        Wed, 31 Jul 2019 10:43:24 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id u18sm55268360wmd.19.2019.07.31.10.43.23
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 31 Jul 2019 10:43:24 -0700 (PDT)
+Message-ID: <5d41d33c.1c69fb81.ae4ad.d6bc@mx.google.com>
+Date:   Wed, 31 Jul 2019 10:43:24 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.134-303-g55685a28b143
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.14.y boot: 120 boots: 1 failed,
+ 78 passed with 41 offline (v4.14.134-303-g55685a28b143)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.14.y boot: 120 boots: 1 failed, 78 passed with 41 offline=
+ (v4.14.134-303-g55685a28b143)
 
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.134-303-g55685a28b143/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.134-303-g55685a28b143/
 
-> On Jul 30, 2019, at 2:48 PM, Sasha Levin <sashal@kernel.org> wrote:
-> 
-> On Tue, Jul 30, 2019 at 01:42:45PM -0700, Rodrigo Vivi wrote:
->> Hi Sasha,
-> 
-> Hello!
-> 
->> On Thu, Jul 18, 2019 at 5:45 PM Sasha Levin <sashal@kernel.org> wrote:
->>> 
->>> Hi,
->>> 
->>> [This is an automated email]
->> 
->> Where did you get this patch from? Since stable needs patches merged
-> 
-> This bot grabs them from various mailing lists.
-> 
->> on Linus tree,
->> shouldn't your scripts run to try backporting only patches from there?
-> 
-> There's a note a few lines down that says:
-> 
->   "NOTE: The patch will not be queued to stable trees until it is upstream."
-> 
-> Otherwise, no, there's no rule that says we can't look at patches before
-> they are upstream. We can't queue them up, but we sure can poke them.
-> 
-> The reasoning behind this is that it's easier to get replies (and
-> backports) from folks who are actively working on the patch now,
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.134-303-g55685a28b143
+Git Commit: 55685a28b1431ae3c9f6041e5e20693369feb8d5
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 66 unique boards, 26 SoC families, 16 builds out of 201
 
+Boot Failure Detected:
 
-This is a very good reason indeed...
+arc:
+    hsdk_defconfig:
+        gcc-8:
+            hsdk: 1 failed lab
 
-> rather
-> than a few weeks later when Greg sends his "FAILED:" mails and gets
-> ignored because said folks have moved on.
+Offline Platforms:
 
-however this could potentially cause extra work and confusion like we can see on this
-thread where the developer immediately responded to your email and sent the
-backported patch to the stable mailing list.
+arm64:
 
-Maybe it is just because we are used to Greg's failed to apply email or maybe
-it was just a matter of education... 
+    defconfig:
+        gcc-8
+            meson-gxbb-odroidc2: 1 offline lab
+            meson-gxl-s905d-p230: 1 offline lab
+            meson-gxl-s905x-libretech-cc: 1 offline lab
+            meson-gxl-s905x-nexbox-a95x: 1 offline lab
+            meson-gxl-s905x-p212: 1 offline lab
+            meson-gxm-nexbox-a1: 1 offline lab
+            rk3399-firefly: 1 offline lab
+            sun50i-a64-pine64-plus: 1 offline lab
 
-But I wonder if there isn't something that could be improved on the automated
-message here. Some message clearly stating:
+mips:
 
-- No action required at this point
-- you can work to prepare the backport in advance
--  don't send it to stable before requested by Greg
+    pistachio_defconfig:
+        gcc-8
+            pistachio_marduk: 1 offline lab
 
-Anyway, just few ideas. I just reached you to understand the flow and I'm already
-happy to understand what happened here.
+arm:
 
-Thanks a lot for that,
-Rodrigo.
+    tegra_defconfig:
+        gcc-8
+            tegra20-iris-512: 1 offline lab
 
+    exynos_defconfig:
+        gcc-8
+            exynos5250-arndale: 1 offline lab
+            exynos5420-arndale-octa: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
 
-> 
-> --
-> Thanks,
-> Sasha
-> _______________________________________________
-> Intel-gfx mailing list
-> Intel-gfx@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
+    multi_v7_defconfig:
+        gcc-8
+            exynos5250-arndale: 1 offline lab
+            exynos5420-arndale-octa: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
+            imx6dl-wandboard_dual: 1 offline lab
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+            imx7s-warp: 1 offline lab
+            meson8b-odroidc1: 1 offline lab
+            omap3-beagle: 1 offline lab
+            omap4-panda: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            stih410-b2120: 1 offline lab
+            sun4i-a10-cubieboard: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+            tegra20-iris-512: 1 offline lab
+            vf610-colibri-eval-v3: 1 offline lab
 
+    omap2plus_defconfig:
+        gcc-8
+            omap3-beagle: 1 offline lab
+            omap4-panda: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+    imx_v6_v7_defconfig:
+        gcc-8
+            imx6dl-wandboard_dual: 1 offline lab
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+            imx7s-warp: 1 offline lab
+            vf610-colibri-eval-v3: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun4i-a10-cubieboard: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
