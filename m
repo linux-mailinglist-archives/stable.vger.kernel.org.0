@@ -2,87 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ECB07BE9F
-	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 12:49:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C33C7BF32
+	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 13:23:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727597AbfGaKtz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Jul 2019 06:49:55 -0400
-Received: from mail-wr1-f50.google.com ([209.85.221.50]:40508 "EHLO
-        mail-wr1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726151AbfGaKtz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 06:49:55 -0400
-Received: by mail-wr1-f50.google.com with SMTP id r1so69121852wrl.7
-        for <stable@vger.kernel.org>; Wed, 31 Jul 2019 03:49:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=T2KUV+rLJCFifWdaYBxw3F9qzgwHXvW+7kzhDZg8Zjs=;
-        b=m44oxK4ceoevEB8z3ajEChNha183BhYSdvuLDPfgXtDbhN1pY6WlSNsIdHJkIQXx90
-         NvgmjNpH4Z5nd8WrgOy49s9HEHm+bODdiEyuDUewBQuBFsRQvuzj6UF02JH7lEgoOGnI
-         ECJxajTqXwDibGlsqb+P4bFbelFzwNwozf3peKHrMDQ9DWE1v0IJ/Z/N/bC1hjE3km9S
-         10VjputJLm4IBrrSNLY4C3+JLHRkyd6wD/8xQjj/9yTjeIfQIGbiTTiK2qmzNbxRditp
-         6OiHDyl/9VnQRt3vCnBPmG6h9sJoGoynrs1Wx4N7TNntS8W/T287goo+qs+oEblyVnOo
-         MRrw==
+        id S1726862AbfGaLXo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Jul 2019 07:23:44 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:37429 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725793AbfGaLXo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 07:23:44 -0400
+Received: by mail-wm1-f68.google.com with SMTP id f17so59443765wme.2;
+        Wed, 31 Jul 2019 04:23:43 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=T2KUV+rLJCFifWdaYBxw3F9qzgwHXvW+7kzhDZg8Zjs=;
-        b=iaff+D22qeCk3YceEnuY1swUFwbe40iuC2HE9uOjSFYbM8qbfzLjLS9MPFSnjCD5U7
-         zCHbyR2/yHglFH+TNRVpMju4UUkF9Qsb6EqG+40HxiR3xg+QvRLaKeSU5PW/9cVyEmtR
-         Siqg1WNJMeNdjL4egBrylQQQUGFLPSeJCVivaSk1oD1fp7GquXlu1aw753bORSjDkd0x
-         tD+1ONrXFgXQKG4soffcdPhhVCb+IbnIC1dq3C38WBJaatf63cw8hxIu32zAPSEjFY6Z
-         kaL49xvjPIYzvVwgqV1BXZm8IECNHEBiVUOdHlUYsW/1/Hy8O2lMaLFw6hZd2wDWZDBY
-         tJSA==
-X-Gm-Message-State: APjAAAUP7RdV8eAqQrfK/uf6uK9GwbjWeeQS9Fx7W0cAQbvWtYj3l+Y+
-        y6YZmdnjvnxGxYMVD3D1NZsimOKw6hE=
-X-Google-Smtp-Source: APXvYqwwMMKCEzFzM+rdiOnbyqSC4ZYlSe8HaIk6Q4fuOHYI/JP5/XQvavIOE3ooRcs7usTS02PyMA==
-X-Received: by 2002:a05:6000:1186:: with SMTP id g6mr16460452wrx.17.1564570192998;
-        Wed, 31 Jul 2019 03:49:52 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id u186sm121220368wmu.26.2019.07.31.03.49.52
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 31 Jul 2019 03:49:52 -0700 (PDT)
-Message-ID: <5d417250.1c69fb81.d5363.9681@mx.google.com>
-Date:   Wed, 31 Jul 2019 03:49:52 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=3Vvv54g/EpOR/8Ex2zJ0vIMb4LQOnfvh3/O79aWVpSA=;
+        b=dZSCPGyZh4h+LEXgdKVBQyBT7Jg2HRVAk1ci7PWBecm9xGTbJVpwvlqdDusY+mawuO
+         MhagmwSRXreDl0GX+Y+UdABPTLw8Ya+jI4JXwtz32ge4WK7gtQjEL6SCqZ4qEpUiOgOs
+         vq88uh6+8XTl8D5HLXwX0t6U1sfmyUJBXro9qO20fhOI1+lMAyiH9ORZVMyc4SQrytVg
+         PSMJpwqAQR7s8kHY1Z28yR29Sy8kc0w6shLlLUvvSkJ13+TGzgzGAeANuLSDnm8IaAVj
+         YwQuAMDEiNRtJ0UNQiGWRx4HEAlBMssdR7o1SN1GkvKYzxSH58t1gFbEGJV/6aknF+ve
+         Op8A==
+X-Gm-Message-State: APjAAAWUz5TfzojPDtN3AUZAoBqXZ099m7oMqa9iT8YwSnMYonMhWgCN
+        sQMucw91wxeK2IMfIVDHnWAN+EIxiTFX/j6NW6Q=
+X-Google-Smtp-Source: APXvYqwkGrlVoyO/zr0mualeskMS+XAfllwPaWnmaxVLcdCULWwIoXTi5yBB9XmatBuEMbeEz95s9TZS3zFE8mm4Muk=
+X-Received: by 2002:a05:600c:254b:: with SMTP id e11mr103137207wma.171.1564572222178;
+ Wed, 31 Jul 2019 04:23:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v4.14.135
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Report-Type: boot
-Subject: stable/linux-4.14.y boot: 61 boots: 1 failed, 60 passed (v4.14.135)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <1564568143-3371-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
+In-Reply-To: <1564568143-3371-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Wed, 31 Jul 2019 13:23:29 +0200
+Message-ID: <CAMuHMdWjN79_F_7qf9f+NSaSxyHi4Wrtn5aZtwaK30s6GaT24A@mail.gmail.com>
+Subject: Re: [PATCH] usb: gadget: udc: renesas_usb3: Fix sysfs interface of "role"
+To:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Cc:     Felipe Balbi <balbi@kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        USB list <linux-usb@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y boot: 61 boots: 1 failed, 60 passed (v4.14.135)
+On Wed, Jul 31, 2019 at 1:17 PM Yoshihiro Shimoda
+<yoshihiro.shimoda.uh@renesas.com> wrote:
+> Since the role_store() uses strncmp(), it's possible to refer
+> out-of-memory if the sysfs data size is smaller than strlen("host").
+> This patch fixes it by using sysfs_streq() instead of strncmp().
+>
+> Fixes: cc995c9ec118 ("usb: gadget: udc: renesas_usb3: add support for usb role swap")
+> Cc: <stable@vger.kernel.org> # v4.12+
+> Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-14.y/kernel/v4.14.135/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
-ernel/v4.14.135/
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-Tree: stable
-Branch: linux-4.14.y
-Git Describe: v4.14.135
-Git Commit: 10d6aa565d0593fe4e152e49ab58f47a2952f902
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 31 unique boards, 16 SoC families, 11 builds out of 201
+Gr{oetje,eeting}s,
 
-Boot Failure Detected:
+                        Geert
 
-arc:
-    hsdk_defconfig:
-        gcc-8:
-            hsdk: 1 failed lab
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
----
-For more info write to <info@kernelci.org>
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
