@@ -2,176 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76DCC7D1CE
-	for <lists+stable@lfdr.de>; Thu,  1 Aug 2019 01:22:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 353757D203
+	for <lists+stable@lfdr.de>; Thu,  1 Aug 2019 01:38:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727947AbfGaXWX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Jul 2019 19:22:23 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:35608 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727941AbfGaXWX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 19:22:23 -0400
-Received: by mail-wm1-f67.google.com with SMTP id l2so61353674wmg.0
-        for <stable@vger.kernel.org>; Wed, 31 Jul 2019 16:22:22 -0700 (PDT)
+        id S1729021AbfGaXii (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Jul 2019 19:38:38 -0400
+Received: from smtp-fw-6002.amazon.com ([52.95.49.90]:55316 "EHLO
+        smtp-fw-6002.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726448AbfGaXii (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 19:38:38 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=warpKx3vjWCVhJLvo1H3p3xyBbFi1045P98FswmUzEY=;
-        b=pKEPK2b16v5SsFEzrKq9vdWs7elbQ5j840y9MKqKRLIjLqGsGyy/xVmQtR5ks9FZ49
-         FBbN+iVS7IKufE8G8TaAtpgAsKIqPbU9TbT0g1k93YDSUFHj25Toai0n/ra4WEL5vtao
-         2Ty6b/IdWYVeUbpTrooyM2hWgb0R1+Gcz02ejjCp/6cR7Vij1xz/XJn/8gpNu2FEaeWF
-         raOjkvecYh0/49x+H3QkDYDecRfzAqVpKwN7/kqvP6ukLMlQrlS8Q+BG/J7UNZyOkS91
-         X5/aQNzHduwmzt2LCYoC1Zm2LgX9tYAn5ENH0zchAc09+dMJlER4/XITUN4S0jAKk5G9
-         LxLg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=warpKx3vjWCVhJLvo1H3p3xyBbFi1045P98FswmUzEY=;
-        b=TJb6MGxdh4FyY5QYCxBGu0kZ6ImEhKPTMy4rLqdm8A1vkJl5BfQ8WFz6Q3yV5n0z6w
-         QnCofkqT8kywEzvFnew/WcPXk8KydEtjsVXcNi3XE9/yGtV+R+HaM9/oiABaX4ehjZtL
-         KPaJSI7He3cKzXTLW5hurBPdpVCDJULRzJG08DEmRkmH8Qh49QxIjWaBS3+67PjY6Wj7
-         tH2JnuSpE7J1EH5wAqrwcs6XLjRH5lb2KCVI1TCV+JvsClvrmLKLb9+Re4nYgJAcZFp9
-         dC3Y6wRc40Ayko+6o7IVYuOUKUsge5xCwbpl20I+ZuH75Zj8ULekF/tfQHP3Ne05xBKe
-         0WYQ==
-X-Gm-Message-State: APjAAAWXD76Ax4lS/8HfVhzqe+WErUDUdvsDUJKce9xg7xvne2FoHlWx
-        /a26uhC1/SmumMP+EM1C3DQxVc6Q5ac=
-X-Google-Smtp-Source: APXvYqyeBGk6Nkf2gyF9z+YX6Z2MJmf+tyM60QXrY9LbJfutdIfaS+Cnt0zT5tFKVXHPeGfwUJHqeQ==
-X-Received: by 2002:a1c:f918:: with SMTP id x24mr11713075wmh.132.1564615341442;
-        Wed, 31 Jul 2019 16:22:21 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id s10sm80731240wmf.8.2019.07.31.16.22.20
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 31 Jul 2019 16:22:20 -0700 (PDT)
-Message-ID: <5d4222ac.1c69fb81.85fd7.20b6@mx.google.com>
-Date:   Wed, 31 Jul 2019 16:22:20 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1564616317; x=1596152317;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=Kd98BXsBmYyhXF8NQI/xoh/VfpCf36zrcpwwmqSjLZQ=;
+  b=ufN57qAL04haOgigzx7ujX7uLOeeVw20tdenmE5/Jm25qxWK/TH+hRc2
+   2hdKSO8FFTr41LSy+pKxclrhdTbw3CSTyWuzOxPzm/ZWq6Q1cA5TsrALo
+   Hv5OTAO/Bnx0OZP88BJHDXRBaf7VGxMH0k2mxiFxZLGRH4zBabUYIDQb/
+   Q=;
+X-IronPort-AV: E=Sophos;i="5.64,332,1559520000"; 
+   d="scan'208";a="413325993"
+Received: from iad6-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-2a-d0be17ee.us-west-2.amazon.com) ([10.124.125.6])
+  by smtp-border-fw-out-6002.iad6.amazon.com with ESMTP; 31 Jul 2019 23:38:35 +0000
+Received: from EX13MTAUWB001.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan3.pdx.amazon.com [10.170.41.166])
+        by email-inbound-relay-2a-d0be17ee.us-west-2.amazon.com (Postfix) with ESMTPS id 73F2CA1E0F;
+        Wed, 31 Jul 2019 23:38:34 +0000 (UTC)
+Received: from EX13D10UWB004.ant.amazon.com (10.43.161.121) by
+ EX13MTAUWB001.ant.amazon.com (10.43.161.249) with Microsoft SMTP Server (TLS)
+ id 15.0.1367.3; Wed, 31 Jul 2019 23:38:34 +0000
+Received: from [10.63.178.84] (10.43.160.160) by EX13D10UWB004.ant.amazon.com
+ (10.43.161.121) with Microsoft SMTP Server (TLS) id 15.0.1367.3; Wed, 31 Jul
+ 2019 23:38:33 +0000
+Subject: Re: [PATCH v2] nbd: replace kill_bdev() with __invalidate_device()
+ again
+To:     SunKe <sunke32@huawei.com>, <josef@toxicpanda.com>,
+        <axboe@kernel.dk>, <linux-block@vger.kernel.org>,
+        <nbd@other.debian.org>, <linux-kernel@vger.kernel.org>,
+        <manoj.br@gmail.com>, <stable@vger.kernel.org>, <dwmw@amazon.com>
+References: <1564575190-132357-1-git-send-email-sunke32@huawei.com>
+From:   Munehisa Kamata <kamatam@amazon.com>
+Message-ID: <98ac17cf-c658-9e80-8505-4309805fc1f0@amazon.com>
+Date:   Wed, 31 Jul 2019 16:38:33 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.186-155-gad906964c00c
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.4.y boot: 91 boots: 2 failed,
- 56 passed with 32 offline, 1 conflict (v4.4.186-155-gad906964c00c)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <1564575190-132357-1-git-send-email-sunke32@huawei.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.43.160.160]
+X-ClientProxiedBy: EX13D15UWB004.ant.amazon.com (10.43.161.61) To
+ EX13D10UWB004.ant.amazon.com (10.43.161.121)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 91 boots: 2 failed, 56 passed with 32 offline, =
-1 conflict (v4.4.186-155-gad906964c00c)
+On 7/31/2019 5:13 AM, SunKe wrote:
+> From: Munehisa Kamata <kamatam@amazon.com>
+> 
+> Commit abbbdf12497d ("replace kill_bdev() with __invalidate_device()")
+> once did this, but 29eaadc03649 ("nbd: stop using the bdev everywhere")
+> resurrected kill_bdev() and it has been there since then. So buffer_head
+> mappings still get killed on a server disconnection, and we can still
+> hit the BUG_ON on a filesystem on the top of the nbd device.
+> 
+>   EXT4-fs (nbd0): mounted filesystem with ordered data mode. Opts: (null)
+>   block nbd0: Receive control failed (result -32)
+>   block nbd0: shutting down sockets
+>   print_req_error: I/O error, dev nbd0, sector 66264 flags 3000
+>   EXT4-fs warning (device nbd0): htree_dirblock_to_tree:979: inode #2: lblock 0: comm ls: error -5 reading directory block
+>   print_req_error: I/O error, dev nbd0, sector 2264 flags 3000
+>   EXT4-fs error (device nbd0): __ext4_get_inode_loc:4690: inode #2: block 283: comm ls: unable to read itable block
+>   EXT4-fs error (device nbd0) in ext4_reserve_inode_write:5894: IO failure
+>   ------------[ cut here ]------------
+>   kernel BUG at fs/buffer.c:3057!
+>   invalid opcode: 0000 [#1] SMP PTI
+>   CPU: 7 PID: 40045 Comm: jbd2/nbd0-8 Not tainted 5.1.0-rc3+ #4
+>   Hardware name: Amazon EC2 m5.12xlarge/, BIOS 1.0 10/16/2017
+>   RIP: 0010:submit_bh_wbc+0x18b/0x190
+>   ...
+>   Call Trace:
+>    jbd2_write_superblock+0xf1/0x230 [jbd2]
+>    ? account_entity_enqueue+0xc5/0xf0
+>    jbd2_journal_update_sb_log_tail+0x94/0xe0 [jbd2]
+>    jbd2_journal_commit_transaction+0x12f/0x1d20 [jbd2]
+>    ? __switch_to_asm+0x40/0x70
+>    ...
+>    ? lock_timer_base+0x67/0x80
+>    kjournald2+0x121/0x360 [jbd2]
+>    ? remove_wait_queue+0x60/0x60
+>    kthread+0xf8/0x130
+>    ? commit_timeout+0x10/0x10 [jbd2]
+>    ? kthread_bind+0x10/0x10
+>    ret_from_fork+0x35/0x40
+> 
+> With __invalidate_device(), I no longer hit the BUG_ON with sync or
+> unmount on the disconnected device.
+> 
+> Fixes: 29eaadc03649 ("nbd: stop using the bdev everywhere")
+> Cc: linux-block@vger.kernel.org
+> Cc: Ratna Manoj Bolla <manoj.br@gmail.com>
+> Cc: nbd@other.debian.org
+> Cc: stable@vger.kernel.org
+> Cc: David Woodhouse <dwmw@amazon.com>
+> Signed-off-by: Munehisa Kamata <kamatam@amazon.com>
+> 
+> ---
+> I reproduced this phenomenon on the fat file system.
+> reproduce steps :
+> 1.Establish a nbd connection.
+> 2.Run two threads:one do mount and umount,anther one do clear_sock ioctl
+> 3.Then hit the BUG_ON.
+> 
+> v2: Delete a link.
+> 
+> Signed-off-by: SunKe <sunke32@huawei.com>
+> 
+>  drivers/block/nbd.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+> index 9bcde23..e21d2de 100644
+> --- a/drivers/block/nbd.c
+> +++ b/drivers/block/nbd.c
+> @@ -1231,7 +1231,7 @@ static void nbd_clear_sock_ioctl(struct nbd_device *nbd,
+>  				 struct block_device *bdev)
+>  {
+>  	sock_shutdown(nbd);
+> -	kill_bdev(bdev);
+> +	__invalidate_device(bdev, true);
+>  	nbd_bdev_reset(bdev);
+>  	if (test_and_clear_bit(NBD_HAS_CONFIG_REF,
+>  			       &nbd->config->runtime_flags))
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.186-155-gad906964c00c/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.186-155-gad906964c00c/
+Hi SunKe,
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.186-155-gad906964c00c
-Git Commit: ad906964c00c39ecfda2b6822bf62036c855962e
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 44 unique boards, 20 SoC families, 14 builds out of 190
+I accidentally included the link in the original one. Sorry about that and thanks
+for picking this up.
 
-Boot Regressions Detected:
-
-arm:
-
-    tegra_defconfig:
-        gcc-8:
-          tegra124-nyan-big:
-              lab-collabora: new failure (last pass: v4.4.186-152-g312c583f=
-6950)
-
-Boot Failures Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            qcom-qdf2400: 1 failed lab
-
-arm:
-    tegra_defconfig:
-        gcc-8:
-            tegra124-nyan-big: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    tegra_defconfig:
-        gcc-8
-            tegra20-iris-512: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5250-arndale: 1 offline lab
-            exynos5420-arndale-octa: 1 offline lab
-            exynos5800-peach-pi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            bcm72521-bcm97252sffe: 1 offline lab
-            bcm7445-bcm97445c: 1 offline lab
-            exynos5250-arndale: 1 offline lab
-            exynos5420-arndale-octa: 1 offline lab
-            exynos5800-peach-pi: 1 offline lab
-            imx6dl-wandboard_dual: 1 offline lab
-            imx6dl-wandboard_solo: 1 offline lab
-            imx6q-wandboard: 1 offline lab
-            meson8b-odroidc1: 1 offline lab
-            omap3-beagle: 1 offline lab
-            omap4-panda: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            stih410-b2120: 1 offline lab
-            sun4i-a10-cubieboard: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-            tegra20-iris-512: 1 offline lab
-            vf610-colibri-eval-v3: 1 offline lab
-
-    omap2plus_defconfig:
-        gcc-8
-            omap3-beagle: 1 offline lab
-            omap4-panda: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            da850-evm: 1 offline lab
-            dm365evm,legacy: 1 offline lab
-
-    imx_v6_v7_defconfig:
-        gcc-8
-            imx6dl-wandboard_dual: 1 offline lab
-            imx6dl-wandboard_solo: 1 offline lab
-            imx6q-wandboard: 1 offline lab
-            vf610-colibri-eval-v3: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun4i-a10-cubieboard: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-x86_64:
-    x86_64_defconfig:
-        qemu:
-            lab-linaro-lkft: PASS (gcc-8)
-            lab-drue: PASS (gcc-8)
-            lab-baylibre: FAIL (gcc-8)
-            lab-collabora: PASS (gcc-8)
-            lab-mhart: PASS (gcc-8)
-
----
-For more info write to <info@kernelci.org>
+Regards,
+Munehsia
