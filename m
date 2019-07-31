@@ -2,92 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A34A7CCB1
-	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 21:23:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C1D67CCC2
+	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 21:31:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730873AbfGaTXd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Jul 2019 15:23:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33756 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730870AbfGaTXd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 31 Jul 2019 15:23:33 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4032208E4;
-        Wed, 31 Jul 2019 19:23:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564601013;
-        bh=Y2Pz74QYqGGC1hOcZt1OKTgO0goLWg57a6iQRfF+1Kw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=NMQDgh1hqFQzzLdCjRq/hLpLWq2U4IIa2H5rpTrVcjyfsysDSRcIYfFfM0OpHVqiS
-         DqSajvRGX6Wwp+u2ME7ta1aPHoUABht0Vly1raA+Epsveadsdpx2pEc/XL0Jf/SjEa
-         YXoUWobDFvjp8HTJj7maSrVoT/CItZnQYjSyGB0g=
-Date:   Wed, 31 Jul 2019 15:23:31 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     "Vivi, Rodrigo" <rodrigo.vivi@intel.com>
-Cc:     Rodrigo Vivi <rodrigo.vivi@gmail.com>,
-        intel-gfx <intel-gfx@lists.freedesktop.org>,
-        "Pandiyan, Dhinakaran" <dhinakaran.pandiyan@intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [Intel-gfx] [PATCH] drm/i915/vbt: Fix VBT parsing for the PSR
- section
-Message-ID: <20190731192331.GA17697@sasha-vm>
-References: <20190717223451.2595-1-dhinakaran.pandiyan@intel.com>
- <20190719004526.B0CC521850@mail.kernel.org>
- <CABVU7+sbS8mw+4O1Ct8EY_5cj+fnmNFzyd6_=v2_RmCgBRA13g@mail.gmail.com>
- <20190730214851.GF29162@sasha-vm>
- <1689B7E0-5CA6-4B27-B2A8-F352618096EA@intel.com>
+        id S1730918AbfGaTbT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Jul 2019 15:31:19 -0400
+Received: from mail-ot1-f66.google.com ([209.85.210.66]:44246 "EHLO
+        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730916AbfGaTbS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 15:31:18 -0400
+Received: by mail-ot1-f66.google.com with SMTP id b7so21248562otl.11
+        for <stable@vger.kernel.org>; Wed, 31 Jul 2019 12:31:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=intel-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=rS31TGE+Mlwy7Maxt5cv0TA4vXxyACTIm226Er7Yz18=;
+        b=vOibndjhZQkynS4J/8fftBuH9T/2s/u1bVZrKWX86LTDWN++MLOqRy3Ep27/E6GVWU
+         604TSX1CLsvH+6a7GFfdrcz0bOlElTQnUJyHPDHxB5BaxRZ+Or5Negww2J2ObAexe2fi
+         3iM0qn+78IhWNMoJcDYY6HRxtIFDKeS2Zm1GUfXDIEf/Md7bDlfxseS5fZURC5fvAZs1
+         ML/qgtz4s2tidgqbYLMFqk6qfgVncCuyp1caNzW8MQHd+Q6M2mu5/5l2d/s01juOsmmH
+         VZa/fznlq7uCb+9a+N25RlWsrL6UJdyEv4JPpIrFWi327pk39aN4ehcBSWC1JFdArBUj
+         T9Hg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=rS31TGE+Mlwy7Maxt5cv0TA4vXxyACTIm226Er7Yz18=;
+        b=OPCZq3vyvivGZ8qH5knzvIeaYmrWIH5/AQ/uOfQHdfoNV7vPa04KLQVJpFb2bbTzu4
+         TO1xIJYdSQYwNXgRKRlHQl+XQvAI5uw2hpgdpNFOFqavKMMecgJdkk4Xmnlnb956HLpq
+         7Ll40ixh5VqTxy72SZd7dQzEDdNvjFGy3hqQo8nBkymna7QOmStPwJZU9bMsmt8ZCsLZ
+         83jgiJKCs5I52DOGm6Ek7jmCKp3LwOtGvj/+sxPyUrZxB2havdqwKjlh/GmYgOxEVz44
+         CKv3956Afa8I9DFfMuWbcq06Z5YVxtVtcnzobQ/I8mCFtokGn+WGZh5Skgt9vjAT1Hcx
+         QXGw==
+X-Gm-Message-State: APjAAAXhG2REf6uUyvfgP0nrAv1EMiaDaOTzPq1i7AojhWneZPgmn/6a
+        EgJzIk1JcnFuSg3kU8m2l+9nbtp2DB7pUdD+ayhp3g==
+X-Google-Smtp-Source: APXvYqxvLS6tHvfy6ibysI39PnAGiA0Vn1TCXbmDTTfULDYAWuHOLzupVb55cRBZPjvI9lxKLzSQW7IbxXyfUA8LS9c=
+X-Received: by 2002:a9d:470d:: with SMTP id a13mr89782986otf.126.1564601478105;
+ Wed, 31 Jul 2019 12:31:18 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <1689B7E0-5CA6-4B27-B2A8-F352618096EA@intel.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20190729190655.455345569@linuxfoundation.org> <20190729190721.610390670@linuxfoundation.org>
+ <20190731181444.GA821@amd>
+In-Reply-To: <20190731181444.GA821@amd>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Wed, 31 Jul 2019 12:31:07 -0700
+Message-ID: <CAPcyv4iM3i3oBS3WRe8QHmD6zncAy0-CsgdbJ0WSt9RBiVgVqg@mail.gmail.com>
+Subject: Re: [PATCH 4.19 112/113] libnvdimm/bus: Stop holding
+ nvdimm_bus_list_mutex over __nd_ioctl()
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Jane Chu <jane.chu@oracle.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 31, 2019 at 05:14:38PM +0000, Vivi, Rodrigo wrote:
->> On Jul 30, 2019, at 2:48 PM, Sasha Levin <sashal@kernel.org> wrote:
->> rather
->> than a few weeks later when Greg sends his "FAILED:" mails and gets
->> ignored because said folks have moved on.
+On Wed, Jul 31, 2019 at 11:15 AM Pavel Machek <pavel@denx.de> wrote:
 >
->however this could potentially cause extra work and confusion like we can see on this
->thread where the developer immediately responded to your email and sent the
->backported patch to the stable mailing list.
+> On Mon 2019-07-29 21:23:19, Greg Kroah-Hartman wrote:
+> > From: Dan Williams <dan.j.williams@intel.com>
+> >
+> > commit b70d31d054ee3a6fc1034b9d7fc0ae1e481aa018 upstream.
+> >
+> > In preparation for fixing a deadlock between wait_for_bus_probe_idle()
+> > and the nvdimm_bus_list_mutex arrange for __nd_ioctl() without
+> > nvdimm_bus_list_mutex held. This also unifies the 'dimm' and 'bus' level
+> > ioctls into a common nd_ioctl() preamble implementation.
 >
->Maybe it is just because we are used to Greg's failed to apply email or maybe
->it was just a matter of education...
-
-I think that there were a few things here that ended up causing
-confusion, but I'm not quite sure how to address them.
-
-I think that stable should have a clearer rules as to how backports
-should be sent. Right now we weed through mails to stable@ to figure out
-what are backport requests, what are upstream patches, and what are just
-confused folks.
-
-We have gotten pretty good at this, but still not perfect...
-
->But I wonder if there isn't something that could be improved on the automated
->message here. Some message clearly stating:
+> Ok, so this is a preparation patch, not a fix...
 >
->- No action required at this point
+> > Marked for -stable as it is a pre-requisite for a follow-on fix.
+>
+> ...but follow-on fixes are going to be applied for 5.2 but not
+> 4.19. So perhaps this one should not be in 4.19, either?
 
-One *could* send a backport at this point. My understanding is that when
-Greg sees a failure to apply a commit tagged for stable he'll grep
-through his mailbox, hopefully finding the backport as a result of this
-bot bugging people.
-
->- you can work to prepare the backport in advance
->-  don't send it to stable before requested by Greg
-
-Why not? I think it's fine to put it on the mailing list, specially
-under the same thread, and let us deal with it after the patch goes
-upstream.
-
---
-Thanks,
-Sasha
+I plan to follow up with a backport of the series for 4.19. I have no
+problem with v4.19 carrying this in the meantime, but if you want to
+kick it out and wait for the backport, that's fine too.
