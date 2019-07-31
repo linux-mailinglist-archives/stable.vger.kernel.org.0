@@ -2,91 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25FEC7BD2F
-	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 11:30:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B7A07BD3B
+	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 11:34:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726701AbfGaJax (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Jul 2019 05:30:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33344 "EHLO mail.kernel.org"
+        id S1726811AbfGaJd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Jul 2019 05:33:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726651AbfGaJax (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 31 Jul 2019 05:30:53 -0400
+        id S1726651AbfGaJd7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 31 Jul 2019 05:33:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F9A920449;
-        Wed, 31 Jul 2019 09:30:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C651C20449;
+        Wed, 31 Jul 2019 09:33:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564565452;
-        bh=lSL8iGeInfXr8NLRPR0FK43KE1M/rPiN+13E2P6u5yU=;
+        s=default; t=1564565638;
+        bh=ys3QQ7mBgC1hoxTyKdlEiT3Rpn5J7V22GgaEZXLRSPY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Ufo5Tln9D1R5asrSkzQOBYwK+O96ML2SrMsu85z2rU1jq8RRlJfowMNPaSDhubV47
-         ClYdEjUaZzp7E0T8794QK6uhc3+ui3e2Eafh1cKsqFg2FzYWSyYIp+3xGkrGCvSEO6
-         ysgcPIH59Y5kKz2TkfgG4O7lVuVtHLE4bbig+lC8=
-Date:   Wed, 31 Jul 2019 11:30:49 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Dexuan Cui <decui@microsoft.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Sunil Muthuswamy <sunilmut@microsoft.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: Request vsock and hv_sock patches to be backported for
- linux-5.2.y, linux-4.19.y and linux-4.14.y
-Message-ID: <20190731093049.GC18269@kroah.com>
-References: <PU1P153MB0169AD4EB10548EACCED82C2BFDF0@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
+        b=Qy4a8Od4EgTISh7ZOuGC/694zyvY7ISKezYR2vOQf8GTK/EIGPhToVJ+TYjNwKHqM
+         irPejz3OUnH29lYu0rpwGz5rnWWfAnmfe0ZR4o6E3oKVlt7BrIoWF4Q5Y3DV+IX/vC
+         3mVxPTIm4cm8wyQBSy61stI7+mc05FN090K/EMes=
+Date:   Wed, 31 Jul 2019 11:33:55 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Qian Lu <luqia@amazon.com>
+Cc:     stable@vger.kernel.org, trond.myklebust@hammerspace.com,
+        zhangliguang <zhangliguang@linux.alibaba.com>
+Subject: Re: [PATCH 4/4] NFS: Remove redundant semicolon
+Message-ID: <20190731093355.GD18269@kroah.com>
+References: <20190731071327.28701-1-luqia@amazon.com>
+ <20190731071327.28701-5-luqia@amazon.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <PU1P153MB0169AD4EB10548EACCED82C2BFDF0@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
+In-Reply-To: <20190731071327.28701-5-luqia@amazon.com>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 31, 2019 at 06:41:10AM +0000, Dexuan Cui wrote:
-> Hi,
-> Sunil Muthuswamy <sunilmut@microsoft.com> made some important fixes for
-> hv_sock recently. I and Sunil think it would be great to backport the
-> fixes to the longterm stable kernels.
+On Wed, Jul 31, 2019 at 12:13:27AM -0700, Qian Lu wrote:
+> From: zhangliguang <zhangliguang@linux.alibaba.com>
 > 
-> Since hv_sock was firstly introduced in v4.14, we only care about
-> v4.14, v4.19 and v5.2.
+> commit 42f72cf368c502c435af4e206e26d651cfb7d9ad upstream.
 > 
-> For linux-5.2.y (currently it's v5.2.4), only one patch is missing.
-> The mainline commit ID is:
->         d5afa82c977e ("vsock: correct removal of socket from the list")
-> It can be cleanly cherry-picked from the mainline.
+> This removes redundant semicolon for ending code.
 > 
+> Fixes: c7944ebb9ce9 ("NFSv4: Fix lookup revalidate of regular files")
+> Signed-off-by: Liguang Zhang <zhangliguang@linux.alibaba.com>
+> Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+> Cc: <stable@vger.kernel.org> # 4.14.x
+> Signed-off-by: Qian Lu <luqia@amazon.com>
+> ---
+>  fs/nfs/dir.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> For linux-4.19.y (currently it's v4.19.62), 3 patches are missing.
-> The mainline commit IDs are:
->         cb359b604167 ("hvsock: fix epollout hang from race condition")
->         a9eeb998c28d ("hv_sock: Add support for delayed close")
->         d5afa82c977e ("vsock: correct removal of socket from the list")
-> They can be cleanly cherry-picked from the mainline, in the listed order here.
-> Note: it looks the first commit (cb359b604167) has been queued.
-> 
-> 
-> For linux-4.14.y (currently it's v4.14.134), 4 patches are missing.
-> The mainline commit IDs are:
->         cb359b604167 ("hvsock: fix epollout hang from race condition")
->         3b4477d2dcf2 ("VSOCK: use TCP state constants for sk_state")
->         a9eeb998c28d ("hv_sock: Add support for delayed close")
->         d5afa82c977e ("vsock: correct removal of socket from the list")
-> The third patch (a9eeb998c28d) needs small manual adjustments, and please
-> use the attached backported patch for it; the other 3 patches can be cleanly
-> cherry-picked from the mainline, in the listed order here.
-> Note: it looks the first commit (cb359b604167) has been queued.
+> diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
+> index 85a6fdd76e20..9065db7c31eb 100644
+> --- a/fs/nfs/dir.c
+> +++ b/fs/nfs/dir.c
+> @@ -1635,7 +1635,7 @@ nfs4_do_lookup_revalidate(struct inode *dir, struct dentry *dentry,
+>  reval_dentry:
+>  	if (flags & LOOKUP_RCU)
+>  		return -ECHILD;
+> -	return nfs_lookup_revalidate_dentry(dir, dentry, inode);;
+> +	return nfs_lookup_revalidate_dentry(dir, dentry, inode);
 
-I have not taken 3b4477d2dcf2 ("VSOCK: use TCP state constants for
-sk_state") for 4.14.y as it doesn't look like you really needed it.  Are
-you sure you did?
+This is not needed in a stable kernel tree :(
 
-The other ones are now queued up, please let me know if I have messed
-anythign up.
-
-thanks,
-
-greg k-h
