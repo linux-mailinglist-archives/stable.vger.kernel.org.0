@@ -2,113 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 615177D02C
-	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 23:40:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CE3E7D039
+	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 23:43:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728292AbfGaVkW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Jul 2019 17:40:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43370 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729117AbfGaVkW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 31 Jul 2019 17:40:22 -0400
-Received: from X1 (unknown [76.191.170.112])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 901FD20659;
-        Wed, 31 Jul 2019 21:40:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564609220;
-        bh=CH6Fgx/aAmFiWc/o/5e6THhzvTznH7DejXkhPYF+BJY=;
-        h=Date:From:To:Subject:From;
-        b=jf5C0PSLiZQi0Eo0rY1LLw/HqegSY3+RHq9kDdBEhqQI0IFXy1eRyXXGzYwvKIPoL
-         +xwO7hIuemZgtsRYqEckaafx4ULhriYpHAWjJSKhKKSzFvgBshC77HfsRwzZh6Tvgo
-         99HRiLG4KX+M8kgStEiWoETTl3P93S0G+JAUVwo4=
-Date:   Wed, 31 Jul 2019 14:40:17 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, william.kucharski@oracle.com,
-        tsoni@codeaurora.org, stable@vger.kernel.org,
-        psodagud@codeaurora.org, keescook@chromium.org,
-        gregkh@linuxfoundation.org, isaacm@codeaurora.org
-Subject:  +
- mm-usercopy-use-memory-range-to-be-accessed-for-wraparound-check.patch added
- to -mm tree
-Message-ID: <20190731214017.XFBOL%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        id S1727600AbfGaVnp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Jul 2019 17:43:45 -0400
+Received: from mail-wr1-f44.google.com ([209.85.221.44]:44941 "EHLO
+        mail-wr1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727360AbfGaVnp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 17:43:45 -0400
+Received: by mail-wr1-f44.google.com with SMTP id p17so71262265wrf.11
+        for <stable@vger.kernel.org>; Wed, 31 Jul 2019 14:43:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=vklFMinGCCJ3bPt6RO8G80SBIJyWLyA+Mu+duA6eTTo=;
+        b=p+kJSv1PV5hzkxVu/vlGPQ/VEV0LkRgV50vpfrpwkOQfNMESfkNuu0mUjxzQ+G7XYg
+         3/ucVYu+/NfK0Ts8wnpRqpf4tzKWoShIYPd3BKKB5LLWgt464gyu2rOAyTbCdATrlq2X
+         zp5iWjkO2HPa/7Kad4xdgZg60Q799DV+x8sd+uGX/A7KIPjw7dY9/iy907BYWQu9v3W6
+         bwcsJOdrecfqyC06LkNAyeBlwribfm9H26hwDnktv+pKhUJz2g2U5v3vNR1ul0sjxPsH
+         P2fo/Rgf4XmpyznOKVB4oE0dNuLhe80EbWttvBOx75/cBuyDVfpUrFjCUfehYHGZaa5U
+         5k7g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=vklFMinGCCJ3bPt6RO8G80SBIJyWLyA+Mu+duA6eTTo=;
+        b=McEueNvmkDTQMPuh5MG/Q4BCaulsJFO312rcCQXdzDnNtn4vg7R7G/hDLkEicAU0xp
+         Z9RRn0qiaXk952KNcxAQ2Jwr8MdlfB97H0BGDi5JCFVqBn8+muNNQb3tNzwe24V7S6Pt
+         sTRzcViXz8TE0Ze9Va31ryGEZiyBQ0WseNsvMLKBSm1dET0ywrIHLqj82sCINY0qIOhi
+         UttW+lhoNpCQWggTvH+MXp3iNBhOYfixfb1qlbHjzzeybkxu1an+8NXT/ROrDGGGxwqy
+         kF8TDAiysSnNpH2gKmOYTxr0ikrZaYanduLK8kDh4An+Uzd4BKAwaFFO2nx05YRtS31E
+         3vJw==
+X-Gm-Message-State: APjAAAWjUHjyaodeoVqnio9arZCEJOqkRAhlAL+umvqrwyZgRP8lWVkk
+        veIxQGkJJiaZ7yRJInljjztowvev+GY=
+X-Google-Smtp-Source: APXvYqzZdIMxNWNmg5wMuqj3AZ7vZ8F7aGfDua8X2ODceZofZyU/Xa8th3gn+FZXk67+nM6TIHI/uQ==
+X-Received: by 2002:a5d:5448:: with SMTP id w8mr135508323wrv.180.1564609422270;
+        Wed, 31 Jul 2019 14:43:42 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id j189sm81372495wmb.48.2019.07.31.14.43.40
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 31 Jul 2019 14:43:40 -0700 (PDT)
+Message-ID: <5d420b8c.1c69fb81.8eca7.7363@mx.google.com>
+Date:   Wed, 31 Jul 2019 14:43:40 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.186-220-g49d1c2e96b78
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.9.y boot: 99 boots: 0 failed,
+ 64 passed with 35 offline (v4.9.186-220-g49d1c2e96b78)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.9.y boot: 99 boots: 0 failed, 64 passed with 35 offline (=
+v4.9.186-220-g49d1c2e96b78)
 
-The patch titled
-     Subject: mm/usercopy: use memory range to be accessed for wraparound check
-has been added to the -mm tree.  Its filename is
-     mm-usercopy-use-memory-range-to-be-accessed-for-wraparound-check.patch
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.186-220-g49d1c2e96b78/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.186-220-g49d1c2e96b78/
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-usercopy-use-memory-range-to-be-accessed-for-wraparound-check.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-usercopy-use-memory-range-to-be-accessed-for-wraparound-check.patch
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.186-220-g49d1c2e96b78
+Git Commit: 49d1c2e96b7891914c40702a379f1c4b936aae62
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 50 unique boards, 23 SoC families, 15 builds out of 197
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Offline Platforms:
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+arm64:
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+    defconfig:
+        gcc-8
+            meson-gxbb-odroidc2: 1 offline lab
 
-------------------------------------------------------
-From: "Isaac J. Manjarres" <isaacm@codeaurora.org>
-Subject: mm/usercopy: use memory range to be accessed for wraparound check
+arm:
 
-Currently, when checking to see if accessing n bytes starting at address
-"ptr" will cause a wraparound in the memory addresses, the check in
-check_bogus_address() adds an extra byte, which is incorrect, as the range
-of addresses that will be accessed is [ptr, ptr + (n - 1)].
+    tegra_defconfig:
+        gcc-8
+            tegra20-iris-512: 1 offline lab
 
-This can lead to incorrectly detecting a wraparound in the memory address,
-when trying to read 4 KB from memory that is mapped to the the last
-possible page in the virtual address space, when in fact, accessing that
-range of memory would not cause a wraparound to occur.
+    exynos_defconfig:
+        gcc-8
+            exynos5250-arndale: 1 offline lab
+            exynos5420-arndale-octa: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
 
-Use the memory range that will actually be accessed when considering if
-accessing a certain amount of bytes will cause the memory address to wrap
-around.
+    multi_v7_defconfig:
+        gcc-8
+            bcm72521-bcm97252sffe: 1 offline lab
+            bcm7445-bcm97445c: 1 offline lab
+            exynos5250-arndale: 1 offline lab
+            exynos5420-arndale-octa: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
+            imx6dl-wandboard_dual: 1 offline lab
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+            imx7s-warp: 1 offline lab
+            meson8b-odroidc1: 1 offline lab
+            omap3-beagle: 1 offline lab
+            omap4-panda: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            stih410-b2120: 1 offline lab
+            sun4i-a10-cubieboard: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+            tegra20-iris-512: 1 offline lab
+            vf610-colibri-eval-v3: 1 offline lab
 
-Link: http://lkml.kernel.org/r/1564509253-23287-1-git-send-email-isaacm@codeaurora.org
-Fixes: f5509cc18daa ("mm: Hardened usercopy")
-Signed-off-by: Prasad Sodagudi <psodagud@codeaurora.org>
-Signed-off-by: Isaac J. Manjarres <isaacm@codeaurora.org>
-Co-developed-by: Prasad Sodagudi <psodagud@codeaurora.org>
-Reviewed-by: William Kucharski <william.kucharski@oracle.com>
-Acked-by: Kees Cook <keescook@chromium.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Trilok Soni <tsoni@codeaurora.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+    omap2plus_defconfig:
+        gcc-8
+            omap3-beagle: 1 offline lab
+            omap4-panda: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+    imx_v6_v7_defconfig:
+        gcc-8
+            imx6dl-wandboard_dual: 1 offline lab
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+            imx7s-warp: 1 offline lab
+            vf610-colibri-eval-v3: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun4i-a10-cubieboard: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
 ---
-
- mm/usercopy.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/mm/usercopy.c~mm-usercopy-use-memory-range-to-be-accessed-for-wraparound-check
-+++ a/mm/usercopy.c
-@@ -147,7 +147,7 @@ static inline void check_bogus_address(c
- 				       bool to_user)
- {
- 	/* Reject if object wraps past end of memory. */
--	if (ptr + n < ptr)
-+	if (ptr + (n - 1) < ptr)
- 		usercopy_abort("wrapped address", NULL, to_user, 0, ptr + n);
- 
- 	/* Reject if NULL or ZERO-allocation. */
-_
-
-Patches currently in -mm which might be from isaacm@codeaurora.org are
-
-mm-usercopy-use-memory-range-to-be-accessed-for-wraparound-check.patch
-
+For more info write to <info@kernelci.org>
