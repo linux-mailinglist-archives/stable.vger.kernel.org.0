@@ -2,68 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7A2D7BD48
-	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 11:35:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4724B7BD49
+	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 11:35:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387463AbfGaJe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Jul 2019 05:34:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34204 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387452AbfGaJe7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 31 Jul 2019 05:34:59 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15B8B20657;
-        Wed, 31 Jul 2019 09:34:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564565698;
-        bh=5Ik30p5MWCv7LtOZUHHDd8fN5cfDtyBl0OxA1qG0u/U=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=oTyAJ2J9vnr7zP+dUOnrJVJHoYGx7BN3tjBZEIhksiiwfo/WcfGL2rGX4i7wjyye6
-         sxadHmEatUrxkxHjrPtW0tyUBvVyx85EEqUpX8io1jL5tQQieNo2chvJ8RyWWM/Il+
-         p9LmNb3LYP1cNrudzh3o1gRLHKv+dKLoPuWwZ17s=
-Date:   Wed, 31 Jul 2019 11:34:56 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Qian Lu <luqia@amazon.com>
-Cc:     stable@vger.kernel.org, trond.myklebust@hammerspace.com
-Subject: Re: [PATCH 0/4] Fix NFSv4 lookup revalidation
-Message-ID: <20190731093456.GE18269@kroah.com>
-References: <20190731071327.28701-1-luqia@amazon.com>
+        id S1726079AbfGaJfO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Jul 2019 05:35:14 -0400
+Received: from hqemgate16.nvidia.com ([216.228.121.65]:10763 "EHLO
+        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726641AbfGaJfN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 05:35:13 -0400
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqemgate16.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5d4160d10000>; Wed, 31 Jul 2019 02:35:13 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Wed, 31 Jul 2019 02:35:13 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate102.nvidia.com on Wed, 31 Jul 2019 02:35:13 -0700
+Received: from [10.21.132.148] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 31 Jul
+ 2019 09:35:10 +0000
+Subject: Re: [PATCH 4.14 000/293] 4.14.135-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20190729190820.321094988@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <1b3e819e-26f3-4257-73bc-744cda177d1c@nvidia.com>
+Date:   Wed, 31 Jul 2019 10:35:08 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190731071327.28701-1-luqia@amazon.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <20190729190820.321094988@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1564565713; bh=Qdr9suviQFxMiImd4j6jct8jcdpi5dfJ8e5vEo58rD8=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=VvsoKpPs5GNx++aAA5BYSGDasgkRyBvqfG+izZGphHKLBFReydEJxESqeDTiaC+5R
+         0YZhw+aUYkhWKXpQfq/y7O8nlH436GhcBc517Dw0F8cVv4D/yJaMo9vB1JV86u34Dr
+         FcttPxgt7f43nzIPBm1MKXLshOkyUUc5abud6AxVxgZJ8WQnY+oyiOVeoA1glB8SEs
+         JTBAwrFUXNc0CMYCI/4Cjkk5eMvhiYJDBsYkQ9jxhm+isrBiZz8uUOVUuWOj0FLK4V
+         lDrGwZJi/YcMh/RTWv8NcGdyZ05dFJYGZ9UTluzuHks/cIpw6r0lwU7VLUAt7D/E14
+         YcUU/l7CN8Enw==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 31, 2019 at 12:13:23AM -0700, Qian Lu wrote:
-> Hello Greg,
+
+On 29/07/2019 20:18, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.135 release.
+> There are 293 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Can you please consider including the following patches in the stable
-> linux-4.14.y branch?
+> Responses should be made by Wed 31 Jul 2019 07:05:01 PM UTC.
+> Anything received after that time might be too late.
 > 
-> The following patch series attempts to address the issues raised by
-> Stan Hu around NFSv4 lookup revalidation.
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.135-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> and the diffstat can be found below.
 > 
-> The first patch in the series should, in principle suffice to address
-> the exact issue raised by Stan, however when looking at the
-> implementation of nfs4_lookup_revalidate(), it becomes clear that we're
-> not doing enough to revalidate the dentry itself when performing NFSv4.1
-> opens either.
+> thanks,
 > 
+> greg k-h
 
-You can not just ignore the 4.19.y kernel tree for these patches, as
-when you all finally move forward from 4.14.y to 4.19.y, you would have
-hit these same exact issues :(
 
-I have also queued them up to 4.19.y.
+All tests passing for Tegra ...
 
-Well, except for the last patch, that's not needed at all.
+Test results for stable-v4.14:
+    8 builds:	8 pass, 0 fail
+    16 boots:	16 pass, 0 fail
+    24 tests:	24 pass, 0 fail
 
-thanks,
+Linux version:	4.14.135-rc1-gf6ba73a2e356
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
 
-greg k-h
+Cheers
+Jon
+
+-- 
+nvpublic
