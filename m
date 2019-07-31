@@ -2,97 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA1987BE0F
-	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 12:10:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB9AD7BE29
+	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 12:16:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727629AbfGaKKE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Jul 2019 06:10:04 -0400
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:36070 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725866AbfGaKKE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 06:10:04 -0400
-Received: by mail-wr1-f67.google.com with SMTP id n4so69084001wrs.3;
-        Wed, 31 Jul 2019 03:10:02 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=LaPBamwe8LNxxhMMnlugrgaLMOo+ivzahalIgxNO9YM=;
-        b=bxRQm8RrZhN9Xc1mBZlynssfeaW+WRGEP49s2j9TdJXHIcYN/jJYvOaM4eBi2Z+mld
-         xshXjZQIBLWU8FbKRdCz3BRyJhTLtHxi9gN8YkXmLTKbdgUNBkElQoprqE4YxSSg9gSV
-         8f+a770AKt0wCxCQ2A4zN2G+/Uq+pNbzOxaUQ8XO4nDmyhmaD3dOYBPMsDyudvgdcmGa
-         5+gUqg8tYq0b0Zoc5q1NsGzf04uiZWH73fYTOEHTBquDEmQJpvJ8lxr0ua85bphk51XE
-         yomscBbywE0zB7hpyF22PeLyq3gRsal/BHCstMZwQuwcTfhG31jvatZiZQQGyb+yXy8C
-         GxQg==
-X-Gm-Message-State: APjAAAUFK5gWQDH/YFoIHfCbYXNzzbnJRAdIorppEJZptN3C2jT0e0Oi
-        Hx9QCL07q5I56SxMMyIQeMWTsNbdXWd1MR3IjHM=
-X-Google-Smtp-Source: APXvYqxnPqjf0pKDPP9iEC0wHGpvoacDZItJm4NNSvxzrLnaOqyc3Y99AHa0L6cIeVvp/HFF0mTSwr16a/6dnz8DtYg=
-X-Received: by 2002:adf:cd81:: with SMTP id q1mr132338071wrj.16.1564567801751;
- Wed, 31 Jul 2019 03:10:01 -0700 (PDT)
-MIME-Version: 1.0
-References: <1564563689-25863-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
- <CAMuHMdWhA2xxKKEmmobZDDKGnWNfO4xDb6m6gM16CCFX-1UyTQ@mail.gmail.com> <TYAPR01MB4544CFAACC4C81316CF0760DD8DF0@TYAPR01MB4544.jpnprd01.prod.outlook.com>
-In-Reply-To: <TYAPR01MB4544CFAACC4C81316CF0760DD8DF0@TYAPR01MB4544.jpnprd01.prod.outlook.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Wed, 31 Jul 2019 12:09:48 +0200
-Message-ID: <CAMuHMdXyUEHAPYyBN=m6YwCS8129nD3q8Hi4Vh0fvpDwyHNWhw@mail.gmail.com>
-Subject: Re: [PATCH] phy: renesas: rcar-gen3-usb2: Fix sysfs interface of "role"
-To:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Cc:     Kishon Vijay Abraham I <kishon@ti.com>,
-        Pavel Machek <pavel@denx.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S1727798AbfGaKQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Jul 2019 06:16:57 -0400
+Received: from relmlor1.renesas.com ([210.160.252.171]:55334 "EHLO
+        relmlie5.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725914AbfGaKQ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Jul 2019 06:16:57 -0400
+X-IronPort-AV: E=Sophos;i="5.64,329,1559487600"; 
+   d="scan'208";a="22944828"
+Received: from unknown (HELO relmlir6.idc.renesas.com) ([10.200.68.152])
+  by relmlie5.idc.renesas.com with ESMTP; 31 Jul 2019 19:16:55 +0900
+Received: from localhost.localdomain (unknown [10.166.17.210])
+        by relmlir6.idc.renesas.com (Postfix) with ESMTP id 59497422844D;
+        Wed, 31 Jul 2019 19:16:55 +0900 (JST)
+From:   Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+To:     balbi@kernel.org
+Cc:     gregkh@linuxfoundation.org, linux-usb@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org, stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Subject: [PATCH] usb: gadget: udc: renesas_usb3: Fix sysfs interface of "role"
+Date:   Wed, 31 Jul 2019 19:15:43 +0900
+Message-Id: <1564568143-3371-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
+X-Mailer: git-send-email 2.7.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Shimoda-san,
+Since the role_store() uses strncmp(), it's possible to refer
+out-of-memory if the sysfs data size is smaller than strlen("host").
+This patch fixes it by using sysfs_streq() instead of strncmp().
 
-On Wed, Jul 31, 2019 at 11:58 AM Yoshihiro Shimoda
-<yoshihiro.shimoda.uh@renesas.com> wrote:
-> > From: Geert Uytterhoeven, Sent: Wednesday, July 31, 2019 6:27 PM
-> > On Wed, Jul 31, 2019 at 11:04 AM Yoshihiro Shimoda
-> > <yoshihiro.shimoda.uh@renesas.com> wrote:
-> > > Since the role_store() uses strncmp(), it's possible to refer
-> > > out-of-memory if the sysfs data size is smaller than strlen("host").
-> > > This patch fixes it by using sysfs_streq() instead of strncmp().
-> > >
-> > > Reported-by: Pavel Machek <pavel@denx.de>
-> > > Fixes: 9bb86777fb71 ("phy: rcar-gen3-usb2: add sysfs for usb role swap")
-> > > Cc: <stable@vger.kernel.org> # v4.10+
-> > > Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-> >
-> > Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
->
-> Thank you for your review!
->
-> > > ---
-> > >  Just a record. The role_store() doesn't need to check the count because
-> > >  the sysfs_streq() checks the first argument is NULL or not.
-> >
-> > Is that wat you mean? sysfs_streq() doesn't seem to check for NULL pointers.
->
-> Oops, sorry for unclear. I meant a NULL-terminated string, not NULL pointer.
+Fixes: cc995c9ec118 ("usb: gadget: udc: renesas_usb3: add support for usb role swap")
+Cc: <stable@vger.kernel.org> # v4.12+
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+---
+ drivers/usb/gadget/udc/renesas_usb3.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-OK.
-
-> > Isn't the real reason that sysfs (kernfs) guarantees that the passed buffer
-> > is NUL-terminated?
->
-> I doesn't check in detail, but I assume so.
-
-I have checked that recently, so it is OK.
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
+diff --git a/drivers/usb/gadget/udc/renesas_usb3.c b/drivers/usb/gadget/udc/renesas_usb3.c
+index 7dc2485..b6eec81 100644
+--- a/drivers/usb/gadget/udc/renesas_usb3.c
++++ b/drivers/usb/gadget/udc/renesas_usb3.c
+@@ -19,6 +19,7 @@
+ #include <linux/pm_runtime.h>
+ #include <linux/sizes.h>
+ #include <linux/slab.h>
++#include <linux/string.h>
+ #include <linux/sys_soc.h>
+ #include <linux/uaccess.h>
+ #include <linux/usb/ch9.h>
+@@ -2378,9 +2379,9 @@ static ssize_t role_store(struct device *dev, struct device_attribute *attr,
+ 	if (usb3->forced_b_device)
+ 		return -EBUSY;
+ 
+-	if (!strncmp(buf, "host", strlen("host")))
++	if (sysfs_streq(buf, "host"))
+ 		new_mode_is_host = true;
+-	else if (!strncmp(buf, "peripheral", strlen("peripheral")))
++	else if (sysfs_streq(buf, "peripheral"))
+ 		new_mode_is_host = false;
+ 	else
+ 		return -EINVAL;
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+2.7.4
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
