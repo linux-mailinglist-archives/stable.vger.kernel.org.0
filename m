@@ -2,82 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF7F37B811
-	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 04:53:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C075D7B81B
+	for <lists+stable@lfdr.de>; Wed, 31 Jul 2019 04:59:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726817AbfGaCxA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jul 2019 22:53:00 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:37351 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726691AbfGaCw7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 22:52:59 -0400
-Received: by mail-pf1-f195.google.com with SMTP id 19so30941662pfa.4
-        for <stable@vger.kernel.org>; Tue, 30 Jul 2019 19:52:59 -0700 (PDT)
+        id S1726691AbfGaC7J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jul 2019 22:59:09 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:36999 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726096AbfGaC7J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Jul 2019 22:59:09 -0400
+Received: by mail-pg1-f195.google.com with SMTP id i70so20388354pgd.4
+        for <stable@vger.kernel.org>; Tue, 30 Jul 2019 19:59:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=56Bn5pwMSMLXsA6Sg66QvKIXarSTHoNqckCS8wh5DCE=;
-        b=T5uPiL/v4zO7L+/UuiAFt+1GgbPGjLZpUWaYmgFyMFig9LiakhBOaJ2zS5/+XtanRm
-         MTsOZEltRo5Tzcq3PeCMs6k3f0myRLUCegG6aMqTw2+69/Hya5c8GNZjyWBV+Bg1GpXE
-         j6UtfLKhNC7PSgIEZdCBgQOmlQlszFjCktlCTLk9ocf07NxjKHknkxlLW62ABQYZwDUV
-         vYYNex6Xw4pKG59W/1fVWm6ZdxvR/qDh5qYuKNr2GwRY/XYvWgTT5JpIOdpGY+CkwdLG
-         n7zeJFHoeWZhQTbnOuiSGLxEyl/P123f8L/C7+MCAH1VP4ooiIQA2iKhsQ8IQ0D9rJff
-         7MHA==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=B7l52D/cRUQyEKtM6D9Z02BVoe/7k/AeNEzc9yQ+CeI=;
+        b=bkoXiW2ZCG3VyC8G6LPZgBZuI3y0v2RUc/ccSE0ChSGLNoZT6BX5NE8m9Z8F/1Y46T
+         OlrlmQZ/RU9gu6V2zSy+QA4wqnBGe23ABaN6+GETOMjbLTwv1v0b6ssiRxV1BOsJR6OV
+         Uq1l0VsAIibFVMIuqQKhdKY/kCgPlFwMeCZh5+PL7h55QoJDscTpXhbqdZiuWmNXmreq
+         YpyyRZaweDEJoQ+Rsj6RPXrtLPb3B5O3q6827dDVLuy49O+OVtJuCmfTYghgQ0IhHMIu
+         ZAZGttFO4gUbQBSHY8UfufkMuYWTuIvjBg4AE05QyoJdH+v2asCd9GLKgyhlytygWTJa
+         xG3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=56Bn5pwMSMLXsA6Sg66QvKIXarSTHoNqckCS8wh5DCE=;
-        b=fhJUdxVKaBkKzySuYSXzgvBNrVOebd8qjOn/sa2DA1r2/Zsw33HewUg/ij4oYVHwRt
-         9X+/HFEtd4utU7P0ypPsG72b5Q4PRTHRvFAgEiv/nogN5zSX12bun0JNAXDe/VpJDpii
-         Rb/G2jdZD3GkidPvzq2Q5tWigwVhIPksWsSzA70/bbLrD8biASyBymWrtt6uHIBHt+2p
-         PVUf8+YFRwD9G4UMZcgDfK20tRs+Es+NyQnk6Uyh2X2d49zXpv53CxPNQqoj2EbwnvE6
-         2Xcg8+OVW28LVIWPujOcOnvv3M7AXJIyH1g8tGCxrriFEPEC6JoFBjD5Wcj2Ch6Y3yVh
-         Rz0A==
-X-Gm-Message-State: APjAAAXZ4ct8iuEOpbAq42IyfvbABXjMCPY17278efiS8VAxGYrDNj0c
-        UP0u5e1ybOVVwRzOorF/P7uyld9ZmVk=
-X-Google-Smtp-Source: APXvYqweDhuP41Q2XigbHyz53Mq5un5wB99GfLLAAUWTa/8XwSSoNBdz/WcJ67Oda9Ze+cRWXZaPQA==
-X-Received: by 2002:a62:6044:: with SMTP id u65mr44053507pfb.15.1564541578548;
-        Tue, 30 Jul 2019 19:52:58 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=B7l52D/cRUQyEKtM6D9Z02BVoe/7k/AeNEzc9yQ+CeI=;
+        b=dzUYQ24Y3BsiXUKmKVky81IhULDpXPVQTbfmeqtQ9Z40PjnfnBZ5mUt4Bn3LmkiSZG
+         EWzj8EQHNgw7hPWxeQu9WcP1Cc6ka39ufgSX9becoUiO9p3wawl/E+6hFb3SJYQx1ly+
+         QdXSu2eF8bKVB1fpUdkACBDtfyIu/VeuPzczZcl0fe0CgunmaUTrRPUSUalJQXM+sj9Q
+         w9KGJWCoKxCGYe51xMQ5KL5Yja1AijVLJygVSlqO/WiEj0tIjfc8zt6sHY2gDLvJkWf0
+         LyxarqmycSR2W939YnZpeAqEy38ROMK6hsg0jQMsrRxSzRoxZW65HpbB1FPaA+Oo6PGU
+         fkjw==
+X-Gm-Message-State: APjAAAW+llB6LS6hF1elxGV/hFG9KSnogjI1JlxKT5fAUSPFp06laYOR
+        Pg14Vy46GR5RFGsa0g1T9XzwcQ==
+X-Google-Smtp-Source: APXvYqzX977xFiSHTriuRuGYyl0OLc4P0XfrtGSCyPCZP10LRC7cWGWRT5jd8/2+n6pShJuBgEhHow==
+X-Received: by 2002:a17:90a:1b48:: with SMTP id q66mr502148pjq.83.1564541948328;
+        Tue, 30 Jul 2019 19:59:08 -0700 (PDT)
 Received: from localhost ([122.172.28.117])
-        by smtp.gmail.com with ESMTPSA id b24sm35968813pfd.91.2019.07.30.19.52.57
+        by smtp.gmail.com with ESMTPSA id v18sm63769086pgl.87.2019.07.30.19.59.07
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 30 Jul 2019 19:52:57 -0700 (PDT)
-Date:   Wed, 31 Jul 2019 08:22:53 +0530
+        Tue, 30 Jul 2019 19:59:07 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>
-Cc:     linux-arm-kernel@lists.infradead.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Russell King <rmk+kernel@arm.linux.org.uk>,
+To:     Rafael Wysocki <rjw@rjwysocki.net>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>
+Cc:     linux-pm@vger.kernel.org,
         Vincent Guittot <vincent.guittot@linaro.org>,
-        mark.brown@arm.com
-Subject: Re: [PATCH v4.4 V2 00/43] V4.4 backport of arm64 Spectre patches
-Message-ID: <20190731025253.ys4ph2hwa7hzdi5n@vireshk-i7>
-References: <cover.1562908074.git.viresh.kumar@linaro.org>
+        "v4 . 18+" <stable@vger.kernel.org>,
+        Doug Smythies <doug.smythies@gmail.com>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] cpufreq: schedutil: Don't skip freq update when limits change
+Date:   Wed, 31 Jul 2019 08:28:57 +0530
+Message-Id: <04ff2be6ef108585d57aa2462aa7a4c676b6d1cd.1564541875.git.viresh.kumar@linaro.org>
+X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cover.1562908074.git.viresh.kumar@linaro.org>
-User-Agent: NeoMutt/20180716-391-311a52
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12-07-19, 10:57, Viresh Kumar wrote:
-> Hello,
-> 
-> This series backports arm64 spectre patches to v4.4 stable kernel. I
-> have started this backport with Mark Rutland's backport of Spectre to
-> 4.9 [1] and tried applying the upstream version of them over 4.4 and
-> resolved conflicts by checking how they have been resolved in 4.9.
+To avoid reducing the frequency of a CPU prematurely, we skip reducing
+the frequency if the CPU had been busy recently.
 
-Since it has been almost 3 weeks since the patches are last posted,
-here is a gentle reminder for reviewing it :)
+This should not be done when the limits of the policy are changed, for
+example due to thermal throttling. We should always get the frequency
+within the new limits as soon as possible.
 
+Fixes: ecd288429126 ("cpufreq: schedutil: Don't set next_freq to UINT_MAX")
+Cc: v4.18+ <stable@vger.kernel.org> # v4.18+
+Reported-by: Doug Smythies <doug.smythies@gmail.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+---
+@Doug: Can you please provide your Tested-by for this commit, as it
+already fixed the issue around acpi-cpufreq driver.
+
+We will continue to see what's wrong with intel-pstate though.
+
+ kernel/sched/cpufreq_schedutil.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
+
+diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
+index 636ca6f88c8e..2f382b0959e5 100644
+--- a/kernel/sched/cpufreq_schedutil.c
++++ b/kernel/sched/cpufreq_schedutil.c
+@@ -40,6 +40,7 @@ struct sugov_policy {
+ 	struct task_struct	*thread;
+ 	bool			work_in_progress;
+ 
++	bool			limits_changed;
+ 	bool			need_freq_update;
+ };
+ 
+@@ -89,8 +90,11 @@ static bool sugov_should_update_freq(struct sugov_policy *sg_policy, u64 time)
+ 	    !cpufreq_this_cpu_can_update(sg_policy->policy))
+ 		return false;
+ 
+-	if (unlikely(sg_policy->need_freq_update))
++	if (unlikely(sg_policy->limits_changed)) {
++		sg_policy->limits_changed = false;
++		sg_policy->need_freq_update = true;
+ 		return true;
++	}
+ 
+ 	delta_ns = time - sg_policy->last_freq_update_time;
+ 
+@@ -437,7 +441,7 @@ static inline bool sugov_cpu_is_busy(struct sugov_cpu *sg_cpu) { return false; }
+ static inline void ignore_dl_rate_limit(struct sugov_cpu *sg_cpu, struct sugov_policy *sg_policy)
+ {
+ 	if (cpu_bw_dl(cpu_rq(sg_cpu->cpu)) > sg_cpu->bw_dl)
+-		sg_policy->need_freq_update = true;
++		sg_policy->limits_changed = true;
+ }
+ 
+ static void sugov_update_single(struct update_util_data *hook, u64 time,
+@@ -447,7 +451,7 @@ static void sugov_update_single(struct update_util_data *hook, u64 time,
+ 	struct sugov_policy *sg_policy = sg_cpu->sg_policy;
+ 	unsigned long util, max;
+ 	unsigned int next_f;
+-	bool busy;
++	bool busy = false;
+ 
+ 	sugov_iowait_boost(sg_cpu, time, flags);
+ 	sg_cpu->last_update = time;
+@@ -457,7 +461,9 @@ static void sugov_update_single(struct update_util_data *hook, u64 time,
+ 	if (!sugov_should_update_freq(sg_policy, time))
+ 		return;
+ 
+-	busy = sugov_cpu_is_busy(sg_cpu);
++	/* Limits may have changed, don't skip frequency update */
++	if (!sg_policy->need_freq_update)
++		busy = sugov_cpu_is_busy(sg_cpu);
+ 
+ 	util = sugov_get_util(sg_cpu);
+ 	max = sg_cpu->max;
+@@ -831,6 +837,7 @@ static int sugov_start(struct cpufreq_policy *policy)
+ 	sg_policy->last_freq_update_time	= 0;
+ 	sg_policy->next_freq			= 0;
+ 	sg_policy->work_in_progress		= false;
++	sg_policy->limits_changed		= false;
+ 	sg_policy->need_freq_update		= false;
+ 	sg_policy->cached_raw_freq		= 0;
+ 
+@@ -879,7 +886,7 @@ static void sugov_limits(struct cpufreq_policy *policy)
+ 		mutex_unlock(&sg_policy->work_lock);
+ 	}
+ 
+-	sg_policy->need_freq_update = true;
++	sg_policy->limits_changed = true;
+ }
+ 
+ struct cpufreq_governor schedutil_gov = {
 -- 
-viresh
+2.21.0.rc0.269.g1a574e7a288b
+
