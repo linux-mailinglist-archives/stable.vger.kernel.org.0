@@ -2,89 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D04DA7D56D
-	for <lists+stable@lfdr.de>; Thu,  1 Aug 2019 08:21:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A9677D583
+	for <lists+stable@lfdr.de>; Thu,  1 Aug 2019 08:30:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729603AbfHAGVa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Aug 2019 02:21:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59042 "EHLO mail.kernel.org"
+        id S1729687AbfHAGa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Aug 2019 02:30:26 -0400
+Received: from foss.arm.com ([217.140.110.172]:58882 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728884AbfHAGVa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 1 Aug 2019 02:21:30 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E12320644;
-        Thu,  1 Aug 2019 06:21:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564640489;
-        bh=94YBJl9BSKguvjo7G9HODMAg6sYdTT6pdmMmNA8WOzA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=GPFaiQMp5oEY9rU6/Ve6tU6wrP7JQPbEIkoC9ddjnOFAGYeO7dX7TgMt3tT5C9rAe
-         jFS38cS3nBds7CGGGULrK3l5+7d+oYjl2GkXIC98j3zHJT2tEmiOyMGF0Y99mdKPIM
-         nYB0axWEjwwkJ3SRGler7zsUwKEvVlIlZyL0M/9A=
-Date:   Thu, 1 Aug 2019 08:21:26 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Dexuan Cui <decui@microsoft.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Sunil Muthuswamy <sunilmut@microsoft.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: Request vsock and hv_sock patches to be backported for
- linux-5.2.y, linux-4.19.y and linux-4.14.y
-Message-ID: <20190801062126.GC4338@kroah.com>
-References: <PU1P153MB0169AD4EB10548EACCED82C2BFDF0@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
- <20190731093049.GC18269@kroah.com>
- <PU1P153MB0169EE57A6C3022A05C8DCF7BFDF0@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
+        id S1726783AbfHAGa0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 1 Aug 2019 02:30:26 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A7C6C337;
+        Wed, 31 Jul 2019 23:30:25 -0700 (PDT)
+Received: from [10.1.197.45] (e112298-lin.cambridge.arm.com [10.1.197.45])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9CBC13F694;
+        Wed, 31 Jul 2019 23:32:31 -0700 (PDT)
+Subject: Re: [PATCH v4.4 V2 25/43] arm64: Move BP hardening to
+ check_and_switch_context
+To:     Viresh Kumar <viresh.kumar@linaro.org>
+Cc:     stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        mark.brown@arm.com, julien.thierry.kdev@gmail.com
+References: <cover.1562908074.git.viresh.kumar@linaro.org>
+ <f655aaa158af070d45a2bd4965852b0c97a08838.1562908075.git.viresh.kumar@linaro.org>
+ <59b252cf-9cb7-128b-4887-c21a8b9b92a9@arm.com>
+ <20190801050940.h65crfawrdifsrgg@vireshk-i7>
+From:   Julien Thierry <julien.thierry@arm.com>
+Message-ID: <86354576-fc54-a8b7-4dc9-bc613d59fb17@arm.com>
+Date:   Thu, 1 Aug 2019 07:30:23 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <PU1P153MB0169EE57A6C3022A05C8DCF7BFDF0@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <20190801050940.h65crfawrdifsrgg@vireshk-i7>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 31, 2019 at 08:13:24PM +0000, Dexuan Cui wrote:
-> > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > Sent: Wednesday, July 31, 2019 2:31 AM
-> > On Wed, Jul 31, 2019 at 06:41:10AM +0000, Dexuan Cui wrote:
-> > > For linux-4.14.y (currently it's v4.14.134), 4 patches are missing.
-> > > The mainline commit IDs are:
-> > >         cb359b604167 ("hvsock: fix epollout hang from race condition")
-> > >         3b4477d2dcf2 ("VSOCK: use TCP state constants for sk_state")
-> > >         a9eeb998c28d ("hv_sock: Add support for delayed close")
-> > >         d5afa82c977e ("vsock: correct removal of socket from the list")
-> > > The third patch (a9eeb998c28d) needs small manual adjustments, and please
-> > > use the attached backported patch for it; the other 3 patches can be cleanly
-> > > cherry-picked from the mainline, in the listed order here.
-> > > Note: it looks the first commit (cb359b604167) has been queued.
-> > 
-> > I have not taken 3b4477d2dcf2 ("VSOCK: use TCP state constants for
-> > sk_state") for 4.14.y as it doesn't look like you really needed it.  Are
-> > you sure you did?
+
+
+On 01/08/2019 06:09, Viresh Kumar wrote:
+> On 31-07-19, 14:09, Julien Thierry wrote:
+>>
+>>
+>> On 12/07/2019 06:28, Viresh Kumar wrote:
+>>> From: Marc Zyngier <marc.zyngier@arm.com>
+>>>
+>>> commit a8e4c0a919ae310944ed2c9ace11cf3ccd8a609b upstream.
+>>>
+>>> We call arm64_apply_bp_hardening() from post_ttbr_update_workaround,
+>>> which has the unexpected consequence of being triggered on every
+>>> exception return to userspace when ARM64_SW_TTBR0_PAN is selected,
+>>> even if no context switch actually occured.
+>>>
+>>> This is a bit suboptimal, and it would be more logical to only
+>>> invalidate the branch predictor when we actually switch to
+>>> a different mm.
+>>>
+>>> In order to solve this, move the call to arm64_apply_bp_hardening()
+>>> into check_and_switch_context(), where we're guaranteed to pick
+>>> a different mm context.
+>>>
+>>> Acked-by: Will Deacon <will.deacon@arm.com>
+>>> Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+>>> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+>>> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+>>> ---
+>>>  arch/arm64/mm/context.c | 4 ++--
+>>>  1 file changed, 2 insertions(+), 2 deletions(-)
+>>>
+>>> diff --git a/arch/arm64/mm/context.c b/arch/arm64/mm/context.c
+>>> index be42bd3dca5c..de5afc27b4e6 100644
+>>> --- a/arch/arm64/mm/context.c
+>>> +++ b/arch/arm64/mm/context.c
+>>> @@ -183,6 +183,8 @@ void check_and_switch_context(struct mm_struct *mm, unsigned int cpu)
+>>>  	raw_spin_unlock_irqrestore(&cpu_asid_lock, flags);
+>>>  
+>>>  switch_mm_fastpath:
+>>> +	arm64_apply_bp_hardening();
+>>> +
+>>>  	cpu_switch_mm(mm->pgd, mm);
+>>>  }
+>>>  
+>>> @@ -193,8 +195,6 @@ asmlinkage void post_ttbr_update_workaround(void)
+>>>  			"ic iallu; dsb nsh; isb",
+>>>  			ARM64_WORKAROUND_CAVIUM_27456,
+>>>  			CONFIG_CAVIUM_ERRATUM_27456));
+>>> -
+>>> -	arm64_apply_bp_hardening();
+>>
+>> Patches 22 and 23 factorize the post_ttbr_update_workaround() and move
+>> it to C code just so we would and a call to arm64_apply_bp_hardening()
+>> in patch 24 that now gets moved elsewhere?
+>>
+>> Is it really worth backporting patches 22 and 23?
 > 
-> For linux-4.14.y:
->   Without 3b4477d2dcf2, there would be a conflict when we apply a9eeb998c28d.
-
-Didn't happen, look at the tree for proof of that :)
-
->   And, without 3b4477d2dcf2, I think actually we should not apply:
->   c9d3fe9da094 ("VSOCK: fix outdated sk_state value in hvs_release()"), 
->   but c9d3fe9da094 was already applied into linux-4.14.y on Feb 25, 2018.
+> If I can merge patch 24 and 25 into a single patch while backporting,
+> then patch 22 and 23 won't be required. I am not sure how should the
+> commit log look like in that case though :)
 > 
->   I just checked 4.14.136-rc1 and found 3b4477d2dcf2 is queued. This is great! :-)
+> Is mentioning both the upstream commit ids along with log of the first
+> patch (which was more important) enough, like this ?
 > 
->   So the only missing thing is: we need to cherry pick 
->     a9eeb998c28d ("hv_sock: Add support for delayed close")
->   onto 4.14.136-rc1.
 
-Now queued up.
+I must admit I am not familiar with backport/stable process enough. But
+personally I think the your suggestion seems more sensible than
+backporting 4 patches.
 
-Can you test all of these to verify I got it right?
+Or you can maybe ignore patch 25 and say in patch 24 that among the
+changes made for the 4.4 codebase, the call arm64_apply_bp_hardening()
+was moved from post_ttbr_update_workaround as it doesn't exist and
+placed in check_and_switch_context() as it is its final destination.
 
-thanks,
+However, I really don't know what's the best way to proceed according to
+existing practices. So input from someone else would be welcome.
 
-greg k-h
+Thanks,
+
+Julien
+
+> Author: Will Deacon <will.deacon@arm.com>
+> Date:   Wed Jan 3 11:17:58 2018 +0000
+> 
+>     arm64: Add skeleton to harden the branch predictor against aliasing attacks
+>     
+>     commit 0f15adbb2861ce6f75ccfc5a92b19eae0ef327d0 upstream.
+>     commit a8e4c0a919ae310944ed2c9ace11cf3ccd8a609b upstream.
+>     
+>     Aliasing attacks against CPU branch predictors can allow an attacker to
+>     redirect speculative control flow on some CPUs and potentially divulge
+>     information from one context to another.
+>     
+>     This patch adds initial skeleton code behind a new Kconfig option to
+>     enable implementation-specific mitigations against these attacks for
+>     CPUs that are affected.
+>     
+>     Co-developed-by: Marc Zyngier <marc.zyngier@arm.com>
+>     Signed-off-by: Will Deacon <will.deacon@arm.com>
+>     Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+>     [ v4.4: Changes made according to 4.4 codebase ]
+>     Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+> 
+
+-- 
+Julien Thierry
