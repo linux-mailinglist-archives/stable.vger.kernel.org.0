@@ -2,69 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3D4E7E0A2
-	for <lists+stable@lfdr.de>; Thu,  1 Aug 2019 18:57:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0FB47E0EB
+	for <lists+stable@lfdr.de>; Thu,  1 Aug 2019 19:16:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726583AbfHAQ5J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Aug 2019 12:57:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40860 "EHLO mail.kernel.org"
+        id S1732689AbfHARQl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Aug 2019 13:16:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725804AbfHAQ5I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 1 Aug 2019 12:57:08 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1730102AbfHARQl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 1 Aug 2019 13:16:41 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78E632064A;
-        Thu,  1 Aug 2019 16:57:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B0AF2064A;
+        Thu,  1 Aug 2019 17:16:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564678628;
-        bh=4ezqwlPAovpVuLlfTDzS1AWwDrqX++zYUnYp2p9b17s=;
+        s=default; t=1564679800;
+        bh=hugktKepZTaSJZmk5APIsma6IAUz8PHugOUthpU6u7E=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Q1WUKMDY3IL927TyRZwS7f3cRNOL2/DXVLQ+l59r43JrdhEuA+JvbMqeohhpPkBdx
-         nJvgax8KDyIsfdyhEQQKyhCmL8cobgwK5sJfEO5liDwipVQeCbsQBRR8eSZPbFopkq
-         Xn31aLfYr1p+KwmYrTHZlHG8Ci5LD29j5OoBfJ9o=
-Date:   Thu, 1 Aug 2019 18:57:05 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ajay Kaher <akaher@vmware.com>
-Cc:     torvalds@linux-foundation.org, aarcange@redhat.com,
-        hughd@google.com, dave.hansen@intel.com, mgorman@suse.de,
-        riel@redhat.com, mhocko@suse.cz, jannh@google.com,
-        linux-kernel@vger.kernel.org, stable@kernel.org,
-        stable@vger.kernel.org, srivatsab@vmware.com,
-        srivatsa@csail.mit.edu, amakhalov@vmware.com, srinidhir@vmware.com,
-        bvikas@vmware.com, srostedt@vmware.com
-Subject: Re: [PATCH 0/8] Backported fixes for 4.4 stable tree
-Message-ID: <20190801165705.GA29730@kroah.com>
-References: <1563880111-19058-1-git-send-email-akaher@vmware.com>
- <20190724120627.GF3244@kroah.com>
+        b=Ul81fXoq2+6K9dejlvslqd6qtXd1pW3517qC4jMHJf6YdXNisnZ36FSu7x7Xr9CDn
+         ayMZXoOC6vhL81Z3iRfW4HUWTPy+akkWQmTDfHBqw48R+lx6XaiSOROqaSxj1oNWrr
+         QtfvbX+OoljXiBMMHejW6a8L8uC2Y/JKMkep2ct8=
+Date:   Thu, 1 Aug 2019 13:16:39 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg KH <greg@kroah.com>
+Cc:     Marcel Holtmann <marcel@holtmann.org>,
+        Vladis Dronov <vdronov@redhat.com>,
+        torvalds@linux-foundation.org, linux-kernel@vger.kernel.org,
+        linux-bluetooth@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v5.3-rc2] Bluetooth: hci_uart: check for missing tty
+ operations
+Message-ID: <20190801171639.GC17697@sasha-vm>
+References: <20190730093345.25573-1-marcel@holtmann.org>
+ <20190801133132.6BF30206A3@mail.kernel.org>
+ <20190801135044.GB24791@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20190724120627.GF3244@kroah.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <20190801135044.GB24791@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 24, 2019 at 02:06:27PM +0200, Greg KH wrote:
-> On Tue, Jul 23, 2019 at 04:38:23PM +0530, Ajay Kaher wrote:
-> > These patches include few backported fixes for the 4.4 stable
-> > tree.
-> > I would appreciate if you could kindly consider including them in the
-> > next release.
-> 
-> Why are these needed?  From what I remember, the last patch here is only
-> needed for machines that are "HUGE" and for those, you shouldn't be
-> using 4.4.y anymore anyway, right?  You just end up saving so much more
-> speed and energy using a newer kernel, why would you want to waste it
-> using an older one?
-> 
-> So I need a really good reason why to accept these :)
+On Thu, Aug 01, 2019 at 03:50:44PM +0200, Greg KH wrote:
+>On Thu, Aug 01, 2019 at 01:31:31PM +0000, Sasha Levin wrote:
+>> Hi,
+>>
+>> [This is an automated email]
+>>
+>> This commit has been processed because it contains a "Fixes:" tag,
+>> fixing commit: .
+>>
+>> The bot has tested the following trees: v5.2.4, v5.1.21, v4.19.62, v4.14.134, v4.9.186, v4.4.186.
+>>
+>> v5.2.4: Build OK!
+>> v5.1.21: Build OK!
+>> v4.19.62: Build OK!
+>> v4.14.134: Failed to apply! Possible dependencies:
+>>     25a13e382de2 ("bluetooth: hci_qca: Replace GFP_ATOMIC with GFP_KERNEL")
+>>
+>> v4.9.186: Failed to apply! Possible dependencies:
+>>     25a13e382de2 ("bluetooth: hci_qca: Replace GFP_ATOMIC with GFP_KERNEL")
+>>
+>> v4.4.186: Failed to apply! Possible dependencies:
+>>     162f812f23ba ("Bluetooth: hci_uart: Add Marvell support")
+>>     25a13e382de2 ("bluetooth: hci_qca: Replace GFP_ATOMIC with GFP_KERNEL")
+>>     395174bb07c1 ("Bluetooth: hci_uart: Add Intel/AG6xx support")
+>>     9e69130c4efc ("Bluetooth: hci_uart: Add Nokia Protocol identifier")
+>>
+>>
+>> NOTE: The patch will not be queued to stable trees until it is upstream.
+>>
+>> How should we proceed with this patch?
+>
+>Already fixed up by hand and queued up, your automated email is a bit
+>slow :)
 
-It's been a week, so I'm dropping this from my queue now.  Please resend
-with this information if you still want these in the tree.
+/me scratches head
 
-thanks,
+The patch went out two days ago:
+https://lore.kernel.org/lkml/20190730093345.25573-1-marcel@holtmann.org/
 
-greg k-h
+How did it make it upstream already?
