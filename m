@@ -2,99 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F1D77E60E
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 00:52:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BF937E6A5
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 01:46:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727276AbfHAWwD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Aug 2019 18:52:03 -0400
-Received: from mga04.intel.com ([192.55.52.120]:41227 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727008AbfHAWwD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 1 Aug 2019 18:52:03 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 01 Aug 2019 15:52:03 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,335,1559545200"; 
-   d="scan'208";a="324391112"
-Received: from pkumarva-server.ra.intel.com (HELO intel.com) ([10.23.184.130])
-  by orsmga004.jf.intel.com with ESMTP; 01 Aug 2019 15:52:02 -0700
-Date:   Thu, 1 Aug 2019 19:08:02 -0400
-From:   "Kumar Valsan, Prathap" <prathap.kumar.valsan@intel.com>
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [PATCH 3/3] drm/i915: Flush extra hard after writing
- relocations through the GTT
-Message-ID: <20190801230802.GZ3842@intel.com>
-References: <20190730112151.5633-1-chris@chris-wilson.co.uk>
- <20190730112151.5633-4-chris@chris-wilson.co.uk>
+        id S1728771AbfHAXqF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Aug 2019 19:46:05 -0400
+Received: from mail-vk1-f193.google.com ([209.85.221.193]:43957 "EHLO
+        mail-vk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390411AbfHAXqE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Aug 2019 19:46:04 -0400
+Received: by mail-vk1-f193.google.com with SMTP id b200so14985502vkf.10;
+        Thu, 01 Aug 2019 16:46:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=PhuFM2pdRnW2kX108enkfIuXqe+2wuG+ARNOH5L+Sds=;
+        b=va1tKdssM+gKOUvvNunrZBekJn5ccALnpSDxSI76pAmLOUxB0xAuqPlAx8pHMrFYRn
+         AEXjxmVNbmQc86qbUbqlRbQAvSU2lupPHjr/iMKzTyU5QuE+zV5BV1zGRE5mXtWtXa9I
+         AK84q1HiHlBCExd9gbz/p/lhTOH5qLzbMG4s6JUjR/8xndXPuxdZ0Z9XNDaxO8e6tYfF
+         wYxF5ToKRSCB51NZjKea552bepCsYNBj8WlYGWuLzC3FeUjRogM5h5yz35xfnuGn8kzY
+         7kRLDObIkjHmVOykGk1qg8d7BHDHdflHFdRCydlJxiYIl9dyuvFs7/+rtRUjZ+P2sh5x
+         aMWw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=PhuFM2pdRnW2kX108enkfIuXqe+2wuG+ARNOH5L+Sds=;
+        b=rAlYUpGu00tMr2u+qt7X7B7T8wTCw7fvOhZVZ8uwZr/t62W9STBABpzf8A3XqEESOo
+         UTCDGCA02ZLsxoFXh8kGUdgiAkBwGwYGgiGBXz4QMyJBEr9Z70k1X0T73ArDjWa5Thxz
+         ZeUZtqIYWTVDrztO39CczYsQ++3g0yazblNaLYeb3gDjg2jtm401DKZUpbDAjUw+O+mb
+         5Aru1jxfnOOLm5YnA1ZQAIt/LLQCFz4xE1ZGumQspBFNmKsiqKwDNP2e4oRH8p1ctwft
+         lsPuI0ggxzGHubDrWchjpbdKBhWjgFaOp3jVK9mH5MMSdwnK7ndpW7FN61UR6Hp8S0qe
+         Juwg==
+X-Gm-Message-State: APjAAAWAGId0+d5WN8cVE2EWLtF0A6Y5eXJuczUAWqbcaorJOt1y9BcU
+        kCzwbjab43UrRShE1Pn1/4FWvYBhGUPuygAJ9bc=
+X-Google-Smtp-Source: APXvYqz7HVl1IX60b6WZ5btm0hhToTNvYT8T77SPWWR/N2VB8mJecpIuoTni0zoAIqdXtxl+FsDlqejJHrdMLaN9vcg=
+X-Received: by 2002:a1f:4107:: with SMTP id o7mr52276511vka.34.1564703163073;
+ Thu, 01 Aug 2019 16:46:03 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20190730112151.5633-4-chris@chris-wilson.co.uk>
-User-Agent: Mutt/1.11.3 (2019-02-01)
+References: <20190801220216.15323-1-lyude@redhat.com>
+In-Reply-To: <20190801220216.15323-1-lyude@redhat.com>
+From:   Ben Skeggs <skeggsb@gmail.com>
+Date:   Fri, 2 Aug 2019 09:45:52 +1000
+Message-ID: <CACAvsv7sBPrC-6yxqKCT=H8FhVYvUSoN2GEqWrcfkAtXZmXprw@mail.gmail.com>
+Subject: Re: [Nouveau] [PATCH] drm/nouveau: Only release VCPI slots on mode changes
+To:     Lyude Paul <lyude@redhat.com>
+Cc:     ML nouveau <nouveau@lists.freedesktop.org>,
+        David Airlie <airlied@linux.ie>,
+        ML dri-devel <dri-devel@lists.freedesktop.org>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jerry Zuo <Jerry.Zuo@amd.com>, Ben Skeggs <bskeggs@redhat.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        David Airlie <airlied@redhat.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Juston Li <juston.li@intel.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 30, 2019 at 12:21:51PM +0100, Chris Wilson wrote:
-> Recently discovered in commit bdae33b8b82b ("drm/i915: Use maximum write
-> flush for pwrite_gtt") was that we needed to our full write barrier
-> before changing the GGTT PTE to ensure that our indirect writes through
-> the GTT landed before the PTE changed (and the writes end up in a
-> different page). That also applies to our GGTT relocation path.
-> 
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: stable@vger.kernel.org
+On Fri, 2 Aug 2019 at 08:02, Lyude Paul <lyude@redhat.com> wrote:
+>
+> Looks like a regression got introduced into nv50_mstc_atomic_check()
+> that somehow didn't get found until now. If userspace changes
+> crtc_state->active to false but leaves the CRTC enabled, we end up
+> calling drm_dp_atomic_find_vcpi_slots() using the PBN calculated in
+> asyh->dp.pbn. However, if the display is inactive we end up calculating
+> a PBN of 0, which inadvertently causes us to have an allocation of 0.
+> From there, if userspace then disables the CRTC afterwards we end up
+> accidentally attempting to free the VCPI twice:
+>
+> WARNING: CPU: 0 PID: 1484 at drivers/gpu/drm/drm_dp_mst_topology.c:3336
+> drm_dp_atomic_release_vcpi_slots+0x87/0xb0 [drm_kms_helper]
+> RIP: 0010:drm_dp_atomic_release_vcpi_slots+0x87/0xb0 [drm_kms_helper]
+> Call Trace:
+>  drm_atomic_helper_check_modeset+0x3f3/0xa60 [drm_kms_helper]
+>  ? drm_atomic_check_only+0x43/0x780 [drm]
+>  drm_atomic_helper_check+0x15/0x90 [drm_kms_helper]
+>  nv50_disp_atomic_check+0x83/0x1d0 [nouveau]
+>  drm_atomic_check_only+0x54d/0x780 [drm]
+>  ? drm_atomic_set_crtc_for_connector+0xec/0x100 [drm]
+>  drm_atomic_commit+0x13/0x50 [drm]
+>  drm_atomic_helper_set_config+0x81/0x90 [drm_kms_helper]
+>  drm_mode_setcrtc+0x194/0x6a0 [drm]
+>  ? vprintk_emit+0x16a/0x230
+>  ? drm_ioctl+0x163/0x390 [drm]
+>  ? drm_mode_getcrtc+0x180/0x180 [drm]
+>  drm_ioctl_kernel+0xaa/0xf0 [drm]
+>  drm_ioctl+0x208/0x390 [drm]
+>  ? drm_mode_getcrtc+0x180/0x180 [drm]
+>  nouveau_drm_ioctl+0x63/0xb0 [nouveau]
+>  do_vfs_ioctl+0x405/0x660
+>  ? recalc_sigpending+0x17/0x50
+>  ? _copy_from_user+0x37/0x60
+>  ksys_ioctl+0x5e/0x90
+>  ? exit_to_usermode_loop+0x92/0xe0
+>  __x64_sys_ioctl+0x16/0x20
+>  do_syscall_64+0x59/0x190
+>  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> WARNING: CPU: 0 PID: 1484 at drivers/gpu/drm/drm_dp_mst_topology.c:3336
+> drm_dp_atomic_release_vcpi_slots+0x87/0xb0 [drm_kms_helper]
+> ---[ end trace 4c395c0c51b1f88d ]---
+> [drm:drm_dp_atomic_release_vcpi_slots [drm_kms_helper]] *ERROR* no VCPI for
+> [MST PORT:00000000e288eb7d] found in mst state 000000008e642070
+>
+> So, fix this by doing what we probably should have done from the start: only
+> call drm_dp_atomic_find_vcpi_slots() when crtc_state->mode_changed is set, so
+> that VCPI allocations remain for as long as the CRTC is enabled.
+>
+> Signed-off-by: Lyude Paul <lyude@redhat.com>
+> Fixes: 232c9eec417a ("drm/nouveau: Use atomic VCPI helpers for MST")
+> Cc: Lyude Paul <lyude@redhat.com>
+> Cc: Ben Skeggs <bskeggs@redhat.com>
+> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+> Cc: David Airlie <airlied@redhat.com>
+> Cc: Jerry Zuo <Jerry.Zuo@amd.com>
+> Cc: Harry Wentland <harry.wentland@amd.com>
+> Cc: Juston Li <juston.li@intel.com>
+> Cc: Karol Herbst <karolherbst@gmail.com>
+> Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> Cc: Ilia Mirkin <imirkin@alum.mit.edu>
+> Cc: <stable@vger.kernel.org> # v5.1+
+Acked-by: Ben Skeggs <bskeggs@redhat.com>
 
-Reviewed-by: Prathap Kumar Valsan <prathap.kumar.valsan@intel.com>
 > ---
->  drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-> index 8a2047c4e7c3..01901dad33f7 100644
-> --- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-> +++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-> @@ -1019,11 +1019,12 @@ static void reloc_cache_reset(struct reloc_cache *cache)
->  		kunmap_atomic(vaddr);
->  		i915_gem_object_finish_access((struct drm_i915_gem_object *)cache->node.mm);
->  	} else {
-> -		wmb();
-> +		struct i915_ggtt *ggtt = cache_to_ggtt(cache);
-> +
-> +		intel_gt_flush_ggtt_writes(ggtt->vm.gt);
->  		io_mapping_unmap_atomic((void __iomem *)vaddr);
-> -		if (cache->node.allocated) {
-> -			struct i915_ggtt *ggtt = cache_to_ggtt(cache);
->  
-> +		if (cache->node.allocated) {
->  			ggtt->vm.clear_range(&ggtt->vm,
->  					     cache->node.start,
->  					     cache->node.size);
-> @@ -1078,6 +1079,7 @@ static void *reloc_iomap(struct drm_i915_gem_object *obj,
->  	void *vaddr;
->  
->  	if (cache->vaddr) {
-> +		intel_gt_flush_ggtt_writes(ggtt->vm.gt);
->  		io_mapping_unmap_atomic((void __force __iomem *) unmask_page(cache->vaddr));
->  	} else {
->  		struct i915_vma *vma;
-> @@ -1119,7 +1121,6 @@ static void *reloc_iomap(struct drm_i915_gem_object *obj,
->  
->  	offset = cache->node.start;
->  	if (cache->node.allocated) {
-> -		wmb();
->  		ggtt->vm.insert_page(&ggtt->vm,
->  				     i915_gem_object_get_dma_address(obj, page),
->  				     offset, I915_CACHE_NONE, 0);
-> -- 
-> 2.22.0
-> 
+>  drivers/gpu/drm/nouveau/dispnv50/disp.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+> index 8497768f1b41..126703816794 100644
+> --- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
+> +++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+> @@ -780,7 +780,7 @@ nv50_msto_atomic_check(struct drm_encoder *encoder,
+>                         drm_dp_calc_pbn_mode(crtc_state->adjusted_mode.clock,
+>                                              connector->display_info.bpc * 3);
+>
+> -       if (drm_atomic_crtc_needs_modeset(crtc_state)) {
+> +       if (crtc_state->mode_changed) {
+>                 slots = drm_dp_atomic_find_vcpi_slots(state, &mstm->mgr,
+>                                                       mstc->port,
+>                                                       asyh->dp.pbn);
+> --
+> 2.21.0
+>
 > _______________________________________________
-> Intel-gfx mailing list
-> Intel-gfx@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
+> Nouveau mailing list
+> Nouveau@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/nouveau
