@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BA267D738
+	by mail.lfdr.de (Postfix) with ESMTP id 7A8C27D739
 	for <lists+stable@lfdr.de>; Thu,  1 Aug 2019 10:20:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731086AbfHAIUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Aug 2019 04:20:34 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:32779 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730473AbfHAIUe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Aug 2019 04:20:34 -0400
-Received: by mail-pg1-f194.google.com with SMTP id n190so2294045pgn.0
-        for <stable@vger.kernel.org>; Thu, 01 Aug 2019 01:20:33 -0700 (PDT)
+        id S1730473AbfHAIUh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Aug 2019 04:20:37 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:44304 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731089AbfHAIUg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Aug 2019 04:20:36 -0400
+Received: by mail-pg1-f193.google.com with SMTP id i18so33734644pgl.11
+        for <stable@vger.kernel.org>; Thu, 01 Aug 2019 01:20:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=8Q63Doa+cYNUasTyoI6bAijjzbaGR6LEUpU/vkgXczo=;
-        b=OnsdO7izQSNVnwcP+XktL4K50wNOnqx0WIs3j/4fZwBlbC1vL8Vgb2fIiI3F0DZ352
-         hDXCHjiY36jcTMB5mAKJuG2ykd6K+l269e6V9AuhxQJ+QwNN46c9FcYNT2PRs7Ux8dyw
-         dawW6e6Gip/Dh+pab1P/lzDYfZeOBGdM9VDiD9nFqowBMCClAN46ML417pHVVHLcAImZ
-         Jj1R+5+//GzwB447sGneYtYUYUM0RaREDKbuGh9+mZWdlnt3ILrFgEszu/ioySwcYlul
-         hEMRvjyIbc7eIJdA/WwhNrZjD3lSGwnOGnRPtMo3p3ayQkKuAkwMog4XZK9aT4zdelH4
-         k/LQ==
+        bh=uRyk3zcBxn+kArv7clzkKBJGfRbp0pIX9juxiKGvE2U=;
+        b=b2McCC/WCcGBPzkhtxUUkoJMeMcdJguyRODCBJ0WTu/VoS9DEEque4sOadkrF9Nbft
+         lPCrVhWn8e8vlLv2WWnVQZJRuv3ttph1yCzYhXrPNBvES/oMHX2J1WpCdT1oG9MQMP+D
+         Jt/0F9x460JOvtbf5koGqj6pES0Ec3SdobEldPLHFvYJvGZET5aHonfh2gMfP5ZT/VLg
+         EJFEuXzxVGFfmlErLRbS0l/WPAPQuTGoCIH/i0Z5vanbDpw4ZjXJQREgsoYvtVVpVzbM
+         eVc3rMqWzX0hfKrrk3QsXMlXzD6NdG5EZbR19l0oj43J9RBgyjDLk2+iB6/q7m5FMEvc
+         9xtA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=8Q63Doa+cYNUasTyoI6bAijjzbaGR6LEUpU/vkgXczo=;
-        b=PDl+Wtfa63HajK8cZXzaKED6/3UE8xfN2SYSY7HiITjZuuJyQJ3fJ5VpJ8U0HgsC6V
-         O673GX/OyzRS55rNwVw9tKMpySskdK9bgUYlSJeHp5Ly+R01WAXqKOsYtpXFkD/YR4UW
-         apkoC00eeBdBuEv9igYFtwVOk6ctyRoduAo+uDfPePtNhE+vNQj2KVK5enTdF4bu5x5Z
-         XJ6emQzBgUlHN5Ye9JJWUdR7vkWEcMxbpvvL9NYPvXv3poxINbSa60WUs782MpxaYkh4
-         O6pLwjrB0q8HxTA6IkjTu4dPrAHrWJKhxSi3hazr4PPXx1bF0hi9UOcjy6mHJkqMdY4s
-         QEeg==
-X-Gm-Message-State: APjAAAWdZ03Z/roNNZMz0rBLrUapjVNrmcYJyWe6MeaLeeGvEmsCJQBX
-        PS1DjfYRvkyghaqe5amPB4yBH++pHws=
-X-Google-Smtp-Source: APXvYqwvOhOWgRG5Ry6TKP2Km/uijYOKs0rlPuA0mCCWOxKbLEYDS5Z6VWPpRcaMDl4E8jVLeWoZuQ==
-X-Received: by 2002:a63:ee08:: with SMTP id e8mr64308403pgi.70.1564647633016;
-        Thu, 01 Aug 2019 01:20:33 -0700 (PDT)
+        bh=uRyk3zcBxn+kArv7clzkKBJGfRbp0pIX9juxiKGvE2U=;
+        b=kLqfenlKphL3DUeNjCNhHJpGoIWUWeHu7Y9AP55oX9DtMlBlu7o8APazRjQTUFnhqT
+         M3mVA9w57Lz+ATvSnna+YvInIdB26/5V6pHjqr/6LHxjVUI1qL5vGTymh0qsve5wJlYC
+         vDPUcgZGPj07Q3FFRdY4yuwA+71QDJe2vokhSBHq5zwYGnHE/eoI9MGk6fx1PW7MKfWX
+         NHbbjk98MyQLcEVhjSd/QWtc3me2j2Ofy5VmkQnztAibwlM0nT96SQVJ9cxuiDr0ZUFi
+         sCM8/AD1C2x5ONqNnxB88+R47eUOzKX15cNTWtTPRGLY9IBuff8Vti2VCSUOfdD8zwqL
+         6O4g==
+X-Gm-Message-State: APjAAAXLQE0BSYlAebtzTn0FmV66OLAehKGXuww5XdXw/fy3vmynXzNx
+        ZTWg0C6Zb3Q5q7rgV2JDqoR7uFL9Y+8=
+X-Google-Smtp-Source: APXvYqxL4re/D71PbEnnmwmOeprKRJUhUxiAc8Bj8thOBjsQS5N86j2M8Po5fkRwLg7hw8Lweus4EA==
+X-Received: by 2002:aa7:9dcd:: with SMTP id g13mr53047380pfq.204.1564647635649;
+        Thu, 01 Aug 2019 01:20:35 -0700 (PDT)
 Received: from localhost ([122.172.28.117])
-        by smtp.gmail.com with ESMTPSA id o24sm135619457pfp.135.2019.08.01.01.20.32
+        by smtp.gmail.com with ESMTPSA id n17sm74761757pfq.182.2019.08.01.01.20.34
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 01 Aug 2019 01:20:32 -0700 (PDT)
+        Thu, 01 Aug 2019 01:20:35 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
@@ -56,9 +56,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com, guohanjun@huawei.com
-Subject: [PATCH ARM32 v4.4 V2 22/47] ARM: signal: copy registers using __copy_from_user()
-Date:   Thu,  1 Aug 2019 13:46:06 +0530
-Message-Id: <cd300105252ac227310a4f700bec67745ec1ef46.1564646727.git.viresh.kumar@linaro.org>
+Subject: [PATCH ARM32 v4.4 V2 23/47] ARM: vfp: use __copy_from_user() when restoring VFP state
+Date:   Thu,  1 Aug 2019 13:46:07 +0530
+Message-Id: <8476fc23988444fda761ae9d99563cea0b21c191.1564646727.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1564646727.git.viresh.kumar@linaro.org>
 References: <cover.1564646727.git.viresh.kumar@linaro.org>
@@ -71,7 +71,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Russell King <rmk+kernel@armlinux.org.uk>
 
-Commit c32cd419d6650e42b9cdebb83c672ec945e6bd7e upstream.
+Commit 42019fc50dfadb219f9e6ddf4c354f3837057d80 upstream.
 
 __get_user_error() is used as a fast accessor to make copying structure
 members in the signal handling path as efficient as possible.  However,
@@ -82,73 +82,122 @@ In the case of software PAN, it has to switch the domain register around
 each access, and with Spectre variant 1, it would have to repeat the
 access_ok() check for each access.
 
-It becomes much more efficient to use __copy_from_user() instead, so
-let's use this for the ARM integer registers.
+Use __copy_from_user() rather than __get_user_err() for individual
+members when restoring VFP state.
 
 Acked-by: Mark Rutland <mark.rutland@arm.com>
 Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: David A. Long <dave.long@linaro.org>
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- arch/arm/kernel/signal.c | 38 +++++++++++++++++++++-----------------
- 1 file changed, 21 insertions(+), 17 deletions(-)
+ arch/arm/include/asm/thread_info.h |  4 ++--
+ arch/arm/kernel/signal.c           | 18 ++++++++----------
+ arch/arm/vfp/vfpmodule.c           | 17 +++++++----------
+ 3 files changed, 17 insertions(+), 22 deletions(-)
 
+diff --git a/arch/arm/include/asm/thread_info.h b/arch/arm/include/asm/thread_info.h
+index 776757d1604a..57d2ad9c75ca 100644
+--- a/arch/arm/include/asm/thread_info.h
++++ b/arch/arm/include/asm/thread_info.h
+@@ -126,8 +126,8 @@ struct user_vfp_exc;
+ 
+ extern int vfp_preserve_user_clear_hwstate(struct user_vfp __user *,
+ 					   struct user_vfp_exc __user *);
+-extern int vfp_restore_user_hwstate(struct user_vfp __user *,
+-				    struct user_vfp_exc __user *);
++extern int vfp_restore_user_hwstate(struct user_vfp *,
++				    struct user_vfp_exc *);
+ #endif
+ 
+ /*
 diff --git a/arch/arm/kernel/signal.c b/arch/arm/kernel/signal.c
-index 7b8f2141427b..a592bc0287f8 100644
+index a592bc0287f8..76f85c38f2b8 100644
 --- a/arch/arm/kernel/signal.c
 +++ b/arch/arm/kernel/signal.c
-@@ -141,6 +141,7 @@ struct rt_sigframe {
+@@ -107,21 +107,19 @@ static int preserve_vfp_context(struct vfp_sigframe __user *frame)
+ 	return vfp_preserve_user_clear_hwstate(&frame->ufp, &frame->ufp_exc);
+ }
  
- static int restore_sigframe(struct pt_regs *regs, struct sigframe __user *sf)
+-static int restore_vfp_context(struct vfp_sigframe __user *frame)
++static int restore_vfp_context(struct vfp_sigframe __user *auxp)
  {
-+	struct sigcontext context;
- 	struct aux_sigframe __user *aux;
- 	sigset_t set;
- 	int err;
-@@ -149,23 +150,26 @@ static int restore_sigframe(struct pt_regs *regs, struct sigframe __user *sf)
- 	if (err == 0)
- 		set_current_blocked(&set);
+-	unsigned long magic;
+-	unsigned long size;
+-	int err = 0;
+-
+-	__get_user_error(magic, &frame->magic, err);
+-	__get_user_error(size, &frame->size, err);
++	struct vfp_sigframe frame;
++	int err;
  
--	__get_user_error(regs->ARM_r0, &sf->uc.uc_mcontext.arm_r0, err);
--	__get_user_error(regs->ARM_r1, &sf->uc.uc_mcontext.arm_r1, err);
--	__get_user_error(regs->ARM_r2, &sf->uc.uc_mcontext.arm_r2, err);
--	__get_user_error(regs->ARM_r3, &sf->uc.uc_mcontext.arm_r3, err);
--	__get_user_error(regs->ARM_r4, &sf->uc.uc_mcontext.arm_r4, err);
--	__get_user_error(regs->ARM_r5, &sf->uc.uc_mcontext.arm_r5, err);
--	__get_user_error(regs->ARM_r6, &sf->uc.uc_mcontext.arm_r6, err);
--	__get_user_error(regs->ARM_r7, &sf->uc.uc_mcontext.arm_r7, err);
--	__get_user_error(regs->ARM_r8, &sf->uc.uc_mcontext.arm_r8, err);
--	__get_user_error(regs->ARM_r9, &sf->uc.uc_mcontext.arm_r9, err);
--	__get_user_error(regs->ARM_r10, &sf->uc.uc_mcontext.arm_r10, err);
--	__get_user_error(regs->ARM_fp, &sf->uc.uc_mcontext.arm_fp, err);
--	__get_user_error(regs->ARM_ip, &sf->uc.uc_mcontext.arm_ip, err);
--	__get_user_error(regs->ARM_sp, &sf->uc.uc_mcontext.arm_sp, err);
--	__get_user_error(regs->ARM_lr, &sf->uc.uc_mcontext.arm_lr, err);
--	__get_user_error(regs->ARM_pc, &sf->uc.uc_mcontext.arm_pc, err);
--	__get_user_error(regs->ARM_cpsr, &sf->uc.uc_mcontext.arm_cpsr, err);
-+	err |= __copy_from_user(&context, &sf->uc.uc_mcontext, sizeof(context));
-+	if (err == 0) {
-+		regs->ARM_r0 = context.arm_r0;
-+		regs->ARM_r1 = context.arm_r1;
-+		regs->ARM_r2 = context.arm_r2;
-+		regs->ARM_r3 = context.arm_r3;
-+		regs->ARM_r4 = context.arm_r4;
-+		regs->ARM_r5 = context.arm_r5;
-+		regs->ARM_r6 = context.arm_r6;
-+		regs->ARM_r7 = context.arm_r7;
-+		regs->ARM_r8 = context.arm_r8;
-+		regs->ARM_r9 = context.arm_r9;
-+		regs->ARM_r10 = context.arm_r10;
-+		regs->ARM_fp = context.arm_fp;
-+		regs->ARM_ip = context.arm_ip;
-+		regs->ARM_sp = context.arm_sp;
-+		regs->ARM_lr = context.arm_lr;
-+		regs->ARM_pc = context.arm_pc;
-+		regs->ARM_cpsr = context.arm_cpsr;
-+	}
++	err = __copy_from_user(&frame, (char __user *) auxp, sizeof(frame));
+ 	if (err)
+-		return -EFAULT;
+-	if (magic != VFP_MAGIC || size != VFP_STORAGE_SIZE)
++		return err;
++
++	if (frame.magic != VFP_MAGIC || frame.size != VFP_STORAGE_SIZE)
+ 		return -EINVAL;
  
- 	err |= !valid_user_regs(regs);
+-	return vfp_restore_user_hwstate(&frame->ufp, &frame->ufp_exc);
++	return vfp_restore_user_hwstate(&frame.ufp, &frame.ufp_exc);
+ }
  
+ #endif
+diff --git a/arch/arm/vfp/vfpmodule.c b/arch/arm/vfp/vfpmodule.c
+index 2a61e4b04600..7aa6366b2a8d 100644
+--- a/arch/arm/vfp/vfpmodule.c
++++ b/arch/arm/vfp/vfpmodule.c
+@@ -601,13 +601,11 @@ int vfp_preserve_user_clear_hwstate(struct user_vfp __user *ufp,
+ }
+ 
+ /* Sanitise and restore the current VFP state from the provided structures. */
+-int vfp_restore_user_hwstate(struct user_vfp __user *ufp,
+-			     struct user_vfp_exc __user *ufp_exc)
++int vfp_restore_user_hwstate(struct user_vfp *ufp, struct user_vfp_exc *ufp_exc)
+ {
+ 	struct thread_info *thread = current_thread_info();
+ 	struct vfp_hard_struct *hwstate = &thread->vfpstate.hard;
+ 	unsigned long fpexc;
+-	int err = 0;
+ 
+ 	/* Disable VFP to avoid corrupting the new thread state. */
+ 	vfp_flush_hwstate(thread);
+@@ -616,17 +614,16 @@ int vfp_restore_user_hwstate(struct user_vfp __user *ufp,
+ 	 * Copy the floating point registers. There can be unused
+ 	 * registers see asm/hwcap.h for details.
+ 	 */
+-	err |= __copy_from_user(&hwstate->fpregs, &ufp->fpregs,
+-				sizeof(hwstate->fpregs));
++	memcpy(&hwstate->fpregs, &ufp->fpregs, sizeof(hwstate->fpregs));
+ 	/*
+ 	 * Copy the status and control register.
+ 	 */
+-	__get_user_error(hwstate->fpscr, &ufp->fpscr, err);
++	hwstate->fpscr = ufp->fpscr;
+ 
+ 	/*
+ 	 * Sanitise and restore the exception registers.
+ 	 */
+-	__get_user_error(fpexc, &ufp_exc->fpexc, err);
++	fpexc = ufp_exc->fpexc;
+ 
+ 	/* Ensure the VFP is enabled. */
+ 	fpexc |= FPEXC_EN;
+@@ -635,10 +632,10 @@ int vfp_restore_user_hwstate(struct user_vfp __user *ufp,
+ 	fpexc &= ~(FPEXC_EX | FPEXC_FP2V);
+ 	hwstate->fpexc = fpexc;
+ 
+-	__get_user_error(hwstate->fpinst, &ufp_exc->fpinst, err);
+-	__get_user_error(hwstate->fpinst2, &ufp_exc->fpinst2, err);
++	hwstate->fpinst = ufp_exc->fpinst;
++	hwstate->fpinst2 = ufp_exc->fpinst2;
+ 
+-	return err ? -EFAULT : 0;
++	return 0;
+ }
+ 
+ /*
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
