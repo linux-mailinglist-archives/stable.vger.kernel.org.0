@@ -2,125 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F7827DC7D
-	for <lists+stable@lfdr.de>; Thu,  1 Aug 2019 15:25:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AE697DC82
+	for <lists+stable@lfdr.de>; Thu,  1 Aug 2019 15:26:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731032AbfHANZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Aug 2019 09:25:42 -0400
-Received: from mail5.windriver.com ([192.103.53.11]:38808 "EHLO mail5.wrs.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730706AbfHANZm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 1 Aug 2019 09:25:42 -0400
-Received: from ALA-HCA.corp.ad.wrs.com (ala-hca.corp.ad.wrs.com [147.11.189.40])
-        by mail5.wrs.com (8.15.2/8.15.2) with ESMTPS id x71DNfDm032295
-        (version=TLSv1 cipher=AES128-SHA bits=128 verify=FAIL);
-        Thu, 1 Aug 2019 06:24:18 -0700
-Received: from [128.224.155.90] (128.224.155.90) by ALA-HCA.corp.ad.wrs.com
- (147.11.189.50) with Microsoft SMTP Server (TLS) id 14.3.468.0; Thu, 1 Aug
- 2019 06:23:40 -0700
-Subject: Re: [PATCH] tipc: compat: allow tipc commands without arguments
-To:     Taras Kondratiuk <takondra@cisco.com>,
-        Jon Maloy <jon.maloy@ericsson.com>,
-        "David S. Miller" <davem@davemloft.net>
-CC:     <netdev@vger.kernel.org>, <tipc-discussion@lists.sourceforge.net>,
-        <linux-kernel@vger.kernel.org>, <xe-linux-external@cisco.com>,
-        <stable@vger.kernel.org>
-References: <20190729221507.48893-1-takondra@cisco.com>
-From:   Ying Xue <ying.xue@windriver.com>
-Message-ID: <605b6a6e-8bdd-c95f-ac00-9dd895fcc6a3@windriver.com>
-Date:   Thu, 1 Aug 2019 21:12:36 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.1
-MIME-Version: 1.0
-In-Reply-To: <20190729221507.48893-1-takondra@cisco.com>
+        id S1731227AbfHAN0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Aug 2019 09:26:20 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:38344 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731138AbfHAN0T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Aug 2019 09:26:19 -0400
+Received: by mail-wm1-f66.google.com with SMTP id s15so41842747wmj.3
+        for <stable@vger.kernel.org>; Thu, 01 Aug 2019 06:26:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ygiMt7D+UUPzNtAjEIP/DslqUuv3wEIPtBF6V5M4JVE=;
+        b=O2yZEzyU8WvUUKRilJRCSsDjvRu9M65Fv3BJhwB+jVGoWTvimx/RVeyTKxrT21msiV
+         IihOry4Vl8ZctGyOBPbmZmMZdndPa9Q6FQXuJwhPceWMV9x/evMURDw81lNsZZyi0etb
+         Knx5Zrg7Tb6T683TM06EZw2gBd2UJEXq9o60pvSxmuqc6+p9p3Jy+qzDjVaQddX9zTHl
+         oW31bhgdgctRZW1Zic5P1G7zjeq+LDpoQx0TNufPPaQgL755FOi8ncW7hXUe0BrQCIsT
+         4VesX3LoKfXtn9VRa/VGGWwvnqK+ghJ92tldbep0qnmtcpYJA1a8K42NpE479CP2QJHL
+         bWjg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ygiMt7D+UUPzNtAjEIP/DslqUuv3wEIPtBF6V5M4JVE=;
+        b=rIWu3EaYw6KfNNeqgYAK8RhSY1/bQNFFI9eWIimOwKqVCWaLc9jVy08My4v6tPz9la
+         bORUvfZvnLv846xbcLqvjkMUUjDgxCwbjqKpTJPeRuGgDrHx9HweDtT+iE1zSuF8+0AX
+         LsyqTM7APRKMKziIjTZFBdRtC4B8fFL0jlILRvtVl6QtJINe8YDEcvaWzrUoMKL1aep4
+         eIjxYYc9KRpk5tu3kQAxvcWrGNZZRivAAXNAxMfoJmiklsE9Vz8TyQwqcDwkLFDky7oA
+         JpsLd4Anh+VhFgd9mkqkCNTlnqE5/54XhiRWHkxIumRD2CyubT+UfAMIeKmI0MG/7tEA
+         GRCw==
+X-Gm-Message-State: APjAAAXC1vVWOHLen8+bX50eFhKl+LtiDCagFzxUp9z381rpdFM30Vyq
+        qMq7/dZ/bgVWia7TrLugtPT1Epir0lA=
+X-Google-Smtp-Source: APXvYqzQGWc7Zo/WdME0w0uimr1UtYGYDb7/b1e6pd/MVstOBWpglgxpfdL1twxQKN0QeaY1eDQ7Mw==
+X-Received: by 2002:a1c:7606:: with SMTP id r6mr1849473wmc.118.1564665977521;
+        Thu, 01 Aug 2019 06:26:17 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id g10sm54200080wrw.60.2019.08.01.06.26.16
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 01 Aug 2019 06:26:16 -0700 (PDT)
+Message-ID: <5d42e878.1c69fb81.9104.158e@mx.google.com>
+Date:   Thu, 01 Aug 2019 06:26:16 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [128.224.155.90]
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.186-155-gad2e7f4d5a83
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.4.y boot: 86 boots: 2 failed,
+ 51 passed with 32 offline, 1 conflict (v4.4.186-155-gad2e7f4d5a83)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/30/19 6:15 AM, Taras Kondratiuk wrote:
-> Commit 2753ca5d9009 ("tipc: fix uninit-value in tipc_nl_compat_doit")
-> broke older tipc tools that use compat interface (e.g. tipc-config from
-> tipcutils package):
-> 
-> % tipc-config -p
-> operation not supported
-> 
-> The commit started to reject TIPC netlink compat messages that do not
-> have attributes. It is too restrictive because some of such messages are
-> valid (they don't need any arguments):
-> 
-> % grep 'tx none' include/uapi/linux/tipc_config.h
-> #define  TIPC_CMD_NOOP              0x0000    /* tx none, rx none */
-> #define  TIPC_CMD_GET_MEDIA_NAMES   0x0002    /* tx none, rx media_name(s) */
-> #define  TIPC_CMD_GET_BEARER_NAMES  0x0003    /* tx none, rx bearer_name(s) */
-> #define  TIPC_CMD_SHOW_PORTS        0x0006    /* tx none, rx ultra_string */
-> #define  TIPC_CMD_GET_REMOTE_MNG    0x4003    /* tx none, rx unsigned */
-> #define  TIPC_CMD_GET_MAX_PORTS     0x4004    /* tx none, rx unsigned */
-> #define  TIPC_CMD_GET_NETID         0x400B    /* tx none, rx unsigned */
-> #define  TIPC_CMD_NOT_NET_ADMIN     0xC001    /* tx none, rx none */
-> 
-> This patch relaxes the original fix and rejects messages without
-> arguments only if such arguments are expected by a command (reg_type is
-> non zero).
-> 
-> Fixes: 2753ca5d9009 ("tipc: fix uninit-value in tipc_nl_compat_doit")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Taras Kondratiuk <takondra@cisco.com>
+stable-rc/linux-4.4.y boot: 86 boots: 2 failed, 51 passed with 32 offline, =
+1 conflict (v4.4.186-155-gad2e7f4d5a83)
 
-Acked-by: Ying Xue <ying.xue@windriver.com>
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.186-155-gad2e7f4d5a83/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.186-155-gad2e7f4d5a83/
 
-> ---
-> The patch is based on v5.3-rc2.
-> 
->  net/tipc/netlink_compat.c | 11 +++++++----
->  1 file changed, 7 insertions(+), 4 deletions(-)
-> 
-> diff --git a/net/tipc/netlink_compat.c b/net/tipc/netlink_compat.c
-> index d86030ef1232..e135d4e11231 100644
-> --- a/net/tipc/netlink_compat.c
-> +++ b/net/tipc/netlink_compat.c
-> @@ -55,6 +55,7 @@ struct tipc_nl_compat_msg {
->  	int rep_type;
->  	int rep_size;
->  	int req_type;
-> +	int req_size;
->  	struct net *net;
->  	struct sk_buff *rep;
->  	struct tlv_desc *req;
-> @@ -257,7 +258,8 @@ static int tipc_nl_compat_dumpit(struct tipc_nl_compat_cmd_dump *cmd,
->  	int err;
->  	struct sk_buff *arg;
->  
-> -	if (msg->req_type && !TLV_CHECK_TYPE(msg->req, msg->req_type))
-> +	if (msg->req_type && (!msg->req_size ||
-> +			      !TLV_CHECK_TYPE(msg->req, msg->req_type)))
->  		return -EINVAL;
->  
->  	msg->rep = tipc_tlv_alloc(msg->rep_size);
-> @@ -354,7 +356,8 @@ static int tipc_nl_compat_doit(struct tipc_nl_compat_cmd_doit *cmd,
->  {
->  	int err;
->  
-> -	if (msg->req_type && !TLV_CHECK_TYPE(msg->req, msg->req_type))
-> +	if (msg->req_type && (!msg->req_size ||
-> +			      !TLV_CHECK_TYPE(msg->req, msg->req_type)))
->  		return -EINVAL;
->  
->  	err = __tipc_nl_compat_doit(cmd, msg);
-> @@ -1278,8 +1281,8 @@ static int tipc_nl_compat_recv(struct sk_buff *skb, struct genl_info *info)
->  		goto send;
->  	}
->  
-> -	len = nlmsg_attrlen(req_nlh, GENL_HDRLEN + TIPC_GENL_HDRLEN);
-> -	if (!len || !TLV_OK(msg.req, len)) {
-> +	msg.req_size = nlmsg_attrlen(req_nlh, GENL_HDRLEN + TIPC_GENL_HDRLEN);
-> +	if (msg.req_size && !TLV_OK(msg.req, msg.req_size)) {
->  		msg.rep = tipc_get_err_tlv(TIPC_CFG_NOT_SUPPORTED);
->  		err = -EOPNOTSUPP;
->  		goto send;
-> 
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.186-155-gad2e7f4d5a83
+Git Commit: ad2e7f4d5a837932c07c937dee0c5bf8fbcdf2e7
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 43 unique boards, 19 SoC families, 14 builds out of 190
+
+Boot Failures Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            qcom-qdf2400: 1 failed lab
+
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            exynos5250-snow: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    tegra_defconfig:
+        gcc-8
+            tegra20-iris-512: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5250-arndale: 1 offline lab
+            exynos5420-arndale-octa: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            bcm72521-bcm97252sffe: 1 offline lab
+            bcm7445-bcm97445c: 1 offline lab
+            exynos5250-arndale: 1 offline lab
+            exynos5420-arndale-octa: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
+            imx6dl-wandboard_dual: 1 offline lab
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+            meson8b-odroidc1: 1 offline lab
+            omap3-beagle: 1 offline lab
+            omap4-panda: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            stih410-b2120: 1 offline lab
+            sun4i-a10-cubieboard: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+            tegra20-iris-512: 1 offline lab
+            vf610-colibri-eval-v3: 1 offline lab
+
+    omap2plus_defconfig:
+        gcc-8
+            omap3-beagle: 1 offline lab
+            omap4-panda: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+    imx_v6_v7_defconfig:
+        gcc-8
+            imx6dl-wandboard_dual: 1 offline lab
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+            vf610-colibri-eval-v3: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun4i-a10-cubieboard: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+x86_64:
+    x86_64_defconfig:
+        qemu:
+            lab-linaro-lkft: PASS (gcc-8)
+            lab-drue: PASS (gcc-8)
+            lab-baylibre: FAIL (gcc-8)
+            lab-collabora: PASS (gcc-8)
+            lab-mhart: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
