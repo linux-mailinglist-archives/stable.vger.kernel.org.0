@@ -2,121 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A19E27D681
-	for <lists+stable@lfdr.de>; Thu,  1 Aug 2019 09:41:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F5B67D69F
+	for <lists+stable@lfdr.de>; Thu,  1 Aug 2019 09:48:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729266AbfHAHle (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Aug 2019 03:41:34 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:46831 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729140AbfHAHle (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Aug 2019 03:41:34 -0400
-Received: by mail-pg1-f194.google.com with SMTP id k189so14620940pgk.13
-        for <stable@vger.kernel.org>; Thu, 01 Aug 2019 00:41:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=stRY7i1GZrfY6D+PTgs0D4UrvfUCsK1idtnpqO9v05A=;
-        b=FIzQTHdYyzbSF4UXVeIZHy3ZAwIm6WNjJ/7SFU/GqKhukmbYUPc5uoLrynWLyUBJVb
-         fRHC5adeqiJFVkCnJcahOseTMZ7e2ZkBrgl6yzcXksAwGWJhQu+I8pPcCuRU+gQJMZrt
-         6zWlCDe679nJhA/Frtiufn5nm9bM8CDM32JZOhtmzzcvNFyU0tW2INMvtpZKKuJlNGB1
-         Z05sWFHKHngzHjtuXq+dCNMtQE/y0N5oT7ENpWnZjy2HUF3NgPHY0YsXwrYwcAhAhbfK
-         BwVZloDwEUKpWfOLiuawIFKfuHlNJKEVWD08Fy5DVw55YcQkMA1MTyaNgn+YACVYM24+
-         I9QA==
+        id S1729894AbfHAHrm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Aug 2019 03:47:42 -0400
+Received: from mail-ot1-f66.google.com ([209.85.210.66]:35870 "EHLO
+        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728582AbfHAHrl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Aug 2019 03:47:41 -0400
+Received: by mail-ot1-f66.google.com with SMTP id r6so73251076oti.3;
+        Thu, 01 Aug 2019 00:47:41 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=stRY7i1GZrfY6D+PTgs0D4UrvfUCsK1idtnpqO9v05A=;
-        b=dCf0pcyIQfrPlPm6vCy9hG2d/fP00ks2/ShVnJzRLUtmNZL0hA359Auw+OVQgZj6W5
-         gOZI1I25qrCLE/OsbNhbNxkdCX64hAuaBWvSp1bo2PGx/clLBYguFlEu046mEa1Ai6Kk
-         zT9kabZgb2VevWAo/1+K7afc9f2Nw5oi6jDBJbDrOyZQWGHmjnjj8SAHD0w+9O104V/c
-         iH+DEU0qQOi1+3plsNBx3hu+9MA4WtZLiWq+ui4GdM/2ISzxFp414oozVMelopC4iyqQ
-         kGHCl+t7hJo5JxtMSukYAa5joO/AQVvxBhDEBXzmRGLRah9HB1BaRnDyiL+A7Hma/S67
-         9/OQ==
-X-Gm-Message-State: APjAAAX8NLPmp8gGctfzex9aQia52SJvxpt7Z1oG61W8LBy9DTUPyjNC
-        vAIdX6jUzPgq7hzNROrz0VRbaQ==
-X-Google-Smtp-Source: APXvYqyjrB9ZTQXX8An99agwlE3etMrgkqcBgU4z6N9t7CiNe210eVe0fuU/nEZOBJMkJFfzCzTgfw==
-X-Received: by 2002:a17:90a:228b:: with SMTP id s11mr6888100pjc.23.1564645293756;
-        Thu, 01 Aug 2019 00:41:33 -0700 (PDT)
-Received: from localhost ([122.172.28.117])
-        by smtp.gmail.com with ESMTPSA id u97sm4101405pjb.26.2019.08.01.00.41.32
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 01 Aug 2019 00:41:32 -0700 (PDT)
-Date:   Thu, 1 Aug 2019 13:11:31 +0530
-From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     Will Deacon <will@kernel.org>
-Cc:     Greg KH <greg@kroah.com>, Mark Rutland <mark.rutland@arm.com>,
-        Julien Thierry <julien.thierry@arm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>, stable@vger.kernel.org,
-        mark.brown@arm.com, julien.thierry.kdev@gmail.com,
-        Russell King <rmk+kernel@arm.linux.org.uk>,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v4.4 V2 25/43] arm64: Move BP hardening to
- check_and_switch_context
-Message-ID: <20190801074131.526h5d4hwpxutlq2@vireshk-i7>
-References: <cover.1562908074.git.viresh.kumar@linaro.org>
- <f655aaa158af070d45a2bd4965852b0c97a08838.1562908075.git.viresh.kumar@linaro.org>
- <59b252cf-9cb7-128b-4887-c21a8b9b92a9@arm.com>
- <20190801050940.h65crfawrdifsrgg@vireshk-i7>
- <86354576-fc54-a8b7-4dc9-bc613d59fb17@arm.com>
- <20190801063544.ruw444isj5uojjdx@vireshk-i7>
- <20190801065700.GA17391@kroah.com>
- <20190801070541.hpmadulgp45txfem@vireshk-i7>
- <20190801073444.4n45h6kcbmejvzte@willie-the-truck>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=KPtUl6S9pUeshVpKYc9UCS01HVobV6JcVnU/2QSDqPc=;
+        b=f2ONRf58b6ZWfesYK5hQ0jz8+ztB2jh5WvXhwcJe68Bcxk6ujzaDvJGenYRH6t9jIJ
+         OD3yXnADZa4hckjU+iwr5JlvNmyYcmjGiJaBlco7cFRPtNp2hsnO0vTz+jPWl5Ksn/se
+         0QOpqK3CXCBBjXk839WBkwE2qyQOEqlndPiCDWnYIeP3PTXxhlccIMOiuqEiCBrUU0CF
+         jjnlRFdBhx6xY0vuSZzlURjtUPSYOxieaJOpfL9Ab+tDLbNWCuUrnUQrJMWZJAWNMkOY
+         rlD0Hrg6Fgp+JxGKEQNY5S7WMlir5bLoGGue9av4Sb/qk2h0CrLJtdA1h92egkdkgCfz
+         gqoA==
+X-Gm-Message-State: APjAAAXtJOAKBXDvKPwm9eyeGkE8FO5tGpC9j1NgYbDMwog4e0MiAHb7
+        b5vNrZkPTG8VTf/v3+6wOZC6RgBNDUYy1RkAAVw=
+X-Google-Smtp-Source: APXvYqyOoGop7nNIW0gxv/BXKVx0ZDyUU00QkD4MjF1j+GibHaV/XXvlJMuSY2wsXN0O90V0xRQQPN1cek+Cmtf9elo=
+X-Received: by 2002:a9d:7a51:: with SMTP id z17mr8066393otm.266.1564645660565;
+ Thu, 01 Aug 2019 00:47:40 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190801073444.4n45h6kcbmejvzte@willie-the-truck>
-User-Agent: NeoMutt/20180716-391-311a52
+References: <001201d54125$a6a82350$f3f869f0$@net> <20190723091551.nchopfpqlmdmzvge@vireshk-i7>
+ <CAJZ5v0ji+ksapJ4kc2m5UM_O+AShAvJWmYhTQHiXiHnpTq+xRg@mail.gmail.com>
+ <20190724114327.apmx35c7a4tv3qt5@vireshk-i7> <000c01d542fc$703ff850$50bfe8f0$@net>
+ <20190726065739.xjvyvqpkb3o6m4ty@vireshk-i7> <000001d545e3$047d9750$0d78c5f0$@net>
+ <20190729083219.fe4xxq4ugmetzntm@vireshk-i7> <CAJZ5v0gaW=ujtsDmewrVXL7V8K0YZysNqwu=qKLw+kPC86ydqA@mail.gmail.com>
+ <000b01d547fe$e7b51fd0$b71f5f70$@net> <20190801061700.dl33rtilvg44obzu@vireshk-i7>
+In-Reply-To: <20190801061700.dl33rtilvg44obzu@vireshk-i7>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Thu, 1 Aug 2019 09:47:28 +0200
+Message-ID: <CAJZ5v0h7GPT3Z_oWz=WfJon=wg3bgS3KVMOATEYvdTM2ywuHOA@mail.gmail.com>
+Subject: Re: [PATCH] cpufreq: schedutil: Don't skip freq update when limits change
+To:     Viresh Kumar <viresh.kumar@linaro.org>
+Cc:     Doug Smythies <dsmythies@telus.net>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Rafael Wysocki <rjw@rjwysocki.net>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        "v4 . 18+" <stable@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 01-08-19, 08:34, Will Deacon wrote:
-> On Thu, Aug 01, 2019 at 12:35:41PM +0530, Viresh Kumar wrote:
-> > On 01-08-19, 08:57, Greg KH wrote:
-> > > On Thu, Aug 01, 2019 at 12:05:44PM +0530, Viresh Kumar wrote:
-> > > > On 01-08-19, 07:30, Julien Thierry wrote:
-> > > > > I must admit I am not familiar with backport/stable process enough. But
-> > > > > personally I think the your suggestion seems more sensible than
-> > > > > backporting 4 patches.
-> > > > > 
-> > > > > Or you can maybe ignore patch 25 and say in patch 24 that among the
-> > > > > changes made for the 4.4 codebase, the call arm64_apply_bp_hardening()
-> > > > > was moved from post_ttbr_update_workaround as it doesn't exist and
-> > > > > placed in check_and_switch_context() as it is its final destination.
-> > > > 
-> > > > Done that and dropped the other two patches.
-> > > > 
-> > > > > However, I really don't know what's the best way to proceed according to
-> > > > > existing practices. So input from someone else would be welcome.
-> > > > 
-> > > > Lets see if someone comes up and ask me to do something else :)
-> > > 
-> > > Keeping the same patches that upstream has is almost always the better
-> > > thing to do in the long-run.
-> > 
-> > That would require two additional patches to be backported, 22 and 23
-> > from this series. From your suggestion it seems that keeping them is
-> > better here ?
-> 
-> Yes. Backporting individual patches as they appear upstream is definitely
-> the preferred method for -stable. It makes the relationship to mainline
-> crystal clear, as well as any dependencies between patches that have been
-> backported. Everytime we tweak something unecessarily in a stable backport,
-> it just creates the potential for confusion and additional conflicts in
-> future backports, so it's best to follow the shape of upstream as closely as
-> possible, even if it results in additional patches.
-> 
-> So I wouldn't worry about total number of patches. I'd worry more about
-> things like conflicts, deviation from mainline and overall testing coverage.
+On Thu, Aug 1, 2019 at 8:17 AM Viresh Kumar <viresh.kumar@linaro.org> wrote:
+>
+> On 31-07-19, 17:20, Doug Smythies wrote:
+> > Hi Viresh,
+> >
+> > Summary:
+> >
+> > The old way, using UINT_MAX had two purposes: first,
+> > as a "need to do a frequency update" flag; but also second, to
+> > force any subsequent old/new frequency comparison to NOT be "the same,
+> > so why bother actually updating" (see: sugov_update_next_freq). All
+> > patches so far have been dealing with the flag, but only partially
+> > the comparisons. In a busy system, and when schedutil.c doesn't actually
+> > know the currently set system limits, the new frequency is dominated by
+> > values the same as the old frequency. So, when sugov_fast_switch calls
+> > sugov_update_next_freq, false is usually returned.
+>
+> And finally we know "Why" :)
+>
+> Good work Doug. Thanks for taking it to the end.
+>
+> > However, if we move the resetting of the flag and add another condition
+> > to the "no need to actually update" decision, then perhaps this patch
+> > version 1 will be O.K. It seems to be. (see way later in this e-mail).
+>
+> > With all this new knowledge, how about going back to
+> > version 1 of this patch, and then adding this:
+> >
+> > diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
+> > index 808d32b..f9156db 100644
+> > --- a/kernel/sched/cpufreq_schedutil.c
+> > +++ b/kernel/sched/cpufreq_schedutil.c
+> > @@ -100,7 +100,12 @@ static bool sugov_should_update_freq(struct sugov_policy *sg_policy, u64 time)
+> >  static bool sugov_update_next_freq(struct sugov_policy *sg_policy, u64 time,
+> >                                    unsigned int next_freq)
+> >  {
+> > -       if (sg_policy->next_freq == next_freq)
+> > +       /*
+> > +        * Always force an update if the flag is set, regardless.
+> > +        * In some implementations (intel_cpufreq) the frequency is clamped
+> > +        * further downstream, and might not actually be different here.
+> > +        */
+> > +       if (sg_policy->next_freq == next_freq && !sg_policy->need_freq_update)
+> >                 return false;
+>
+> This is not correct because this is an optimization we have in place
+> to make things more efficient. And it was working by luck earlier and
+> my patch broke it for good :)
 
-Okay, I won't make these changes then. Thanks.
-
--- 
-viresh
+OK, so since we know why it was wrong now, why don't we just revert
+it?  Plus maybe add some comment explaining the rationale in there?
