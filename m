@@ -2,128 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 139237D7EC
-	for <lists+stable@lfdr.de>; Thu,  1 Aug 2019 10:44:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E8C37D7FE
+	for <lists+stable@lfdr.de>; Thu,  1 Aug 2019 10:47:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729021AbfHAIoB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Aug 2019 04:44:01 -0400
-Received: from new4-smtp.messagingengine.com ([66.111.4.230]:53939 "EHLO
-        new4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728922AbfHAIoB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Aug 2019 04:44:01 -0400
+        id S1726368AbfHAIrX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Aug 2019 04:47:23 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:57067 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725946AbfHAIrX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Aug 2019 04:47:23 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 4A0D12B22;
-        Thu,  1 Aug 2019 04:44:00 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id C7FB34B2;
+        Thu,  1 Aug 2019 04:47:21 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 01 Aug 2019 04:44:00 -0400
+  by compute6.internal (MEProxy); Thu, 01 Aug 2019 04:47:22 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=6WafO7cI6r8VaJJsdXC/ys704rY
-        XUFHR38NTVXOrVBI=; b=JJwGdkRI9foxSc48bXUp94Bx81Ro7lRFO9/F/+73h10
-        gUO01O36cL23W8Vqv/IbKQ2vxscypeeUpyQMgZnRvqHBHteUSvaQE+DuRDI5rQro
-        0cNmuvsDDCjySzqVgmP0B+kPxf+IeH7TTWg70h3KIwV1aob0yU9WiK8Kt2jQ2dfq
-        gCfUYevOeA+xPkOLY9WA/Aw/tRLY2PbwYeZ2ywfwi4NOPpxBvKf5LYAZn7u+d+kS
-        OXOcUWCT1jY9oxkZEQIPDRTrxFlW6vuX0SDuCIW+rD1ky6ojcsQr3JNX9fG2T22o
-        b/4z0cCV+OWPkbab0sJYgXwvDyrFuukPm/6UntcXjng==
+        :content-type:in-reply-to; s=fm1; bh=OruvwqhKtwaV12zths6LqkNUy9s
+        VYCbtSXzhaNxoUiY=; b=AZutz2SLJF1c285u4VuQsgEVYbvpt6qQL2LL6ypJpCJ
+        sYbd/bckbZPrs5a7gPaH7J5BLFZa5jd+I1s2Q3RxtJ27aU7cvAyhSc4lTEIhZtlN
+        vlxfBYgm6+MFKQymTG4oPi9Qv7HjgzQ6z4gQZrKNlglagUYVrutVfHHy1ipEJ6fc
+        xGYWmw5Nus8mvr71b5vHnKGXvv47hrfsT2D9idLu0ADim7T+1KTs3uRH0q0gUz4m
+        D4qKdTaKZWGLt2TdSt3cvo6CTFS4Tq4wZqP3dSAayjkEaad7MTVCU1yip7WYMdbn
+        y4H/1Se9hsAA5lw9B8x09M7ZZg5zvjEi46UNqEpDhfQ==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-type:date:from:in-reply-to
         :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=6WafO7
-        cI6r8VaJJsdXC/ys704rYXUFHR38NTVXOrVBI=; b=hcxj3NJM2t2lvrpzzqmqhm
-        rhDP/nC3yP7CZv4ZSMp8b/KYE/XULqB4Xo7o1+u3UNE81tqyRRQDYjF5aDBINKoJ
-        D7RkmgONAZ9EJ+tM9Klz20nfIjr+jwwZ1kVNKxRuYUekkRaSM/YGzU+N3TubUy/R
-        BJqupysIFdohrrhUe1HBioqMb5rewfEdqpqh6JuUZOKAgJc6lZ45xJiVaJjs+Pwz
-        N+kadhJDfbVKV2KRh0qLvR+3Wd4cBb6NSC6D8p5leWJDu44y6Y+7zSCSGzb/Mw9s
-        Q+4pX555L30fHgwPt+/SkmfrsdNHqGwsCMtAlzwg+5z3C4YxWYcX3DGD8zyO9IDQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Oruvwq
+        hKtwaV12zths6LqkNUy9sVYCbtSXzhaNxoUiY=; b=vnvq4Gry1p2445AnOP2UzT
+        J2G2DjWIxz73bx9eHU3TYI+ravYTszVH+0pfXAjIGZzxzkMTu/i5qq+DWfS533Q/
+        o5qlj6wyzGd0fHZ6oVYE1jSh1dmxB3nDlXYEVcMdgW0rgxNAIL+GQ2WEUOoRRSh/
+        DUNq6yQoqVFGaRxQZsNLRO3F9crYaqZ4m5olFcBIDWTcbeTHLkLitjYbFAkQgvit
+        FcEYcGUuv6VtgQmimjAOvRetYL82afb/QsYxetmkve8ulMeKSAW3Jm8bLtrX2N7i
+        Jj2AZXZsNL3fuH0RU6qwip4NEpHavUGaUNcfEL9ujYAneJCiUmQ7LDRSw6NA0yqA
         ==
-X-ME-Sender: <xms:T6ZCXaqAt1vJJfSKbM7OtO6r-dAnV9hImAnlpZFKOEjLgjLmDje8-g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrleejgddtiecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:GKdCXex0N2DKxVdwUeja_tILb3iDufq8ffrU3GWv4VcsyFsZbIUZRQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrleejgddtjecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
     fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
     mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepvddufedruddvjedrvdehud
     drvdduieenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
     necuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:T6ZCXbuPt_p8Uw_hw2ddN3lLbdMdLcl18a5nRpaBpS8mu5SLAQ3XWw>
-    <xmx:T6ZCXdRYykirXSMpHWhFZOgww4Ddq7EOjHN_BNbCnLkh6ZZWjOhE9g>
-    <xmx:T6ZCXdWKrivdTKnYnGvJiWUIjVYDIXTCwQ4ENcYy2AnlttVHYe8uvA>
-    <xmx:UKZCXSoIRyETvlUltgulbRJpK_tFwBa1rPZCJ4cT3rkN04zUCu0AeA>
+X-ME-Proxy: <xmx:GKdCXatm14GaxWOFjobyPHN8_he220NrZDHkaPOwD4PyKaxiI-Y_Mg>
+    <xmx:GKdCXXObapmvwDzX7Cy7CmXIEEvMAw8zhYgvvbonhToSwcl4cgsPhg>
+    <xmx:GKdCXazxJHkEa85261rp1hwORH5M0RIPE7iL6krJDMMwUgJEwtE8rg>
+    <xmx:GadCXatX3fVufyySbfXFtAh3x9hmXjQOr672yZt4Pvy07WexXRzhXQ>
 Received: from localhost (ip-213-127-251-216.ip.prioritytelecom.net [213.127.251.216])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 922928005A;
-        Thu,  1 Aug 2019 04:43:58 -0400 (EDT)
-Date:   Thu, 1 Aug 2019 10:43:54 +0200
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3F17880066;
+        Thu,  1 Aug 2019 04:47:20 -0400 (EDT)
+Date:   Thu, 1 Aug 2019 10:47:17 +0200
 From:   Greg KH <greg@kroah.com>
-To:     Will Deacon <will@kernel.org>
-Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Julien Thierry <julien.thierry@arm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>, stable@vger.kernel.org,
-        mark.brown@arm.com, julien.thierry.kdev@gmail.com,
-        Russell King <rmk+kernel@arm.linux.org.uk>,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v4.4 V2 25/43] arm64: Move BP hardening to
- check_and_switch_context
-Message-ID: <20190801084354.GA1085@kroah.com>
-References: <cover.1562908074.git.viresh.kumar@linaro.org>
- <f655aaa158af070d45a2bd4965852b0c97a08838.1562908075.git.viresh.kumar@linaro.org>
- <59b252cf-9cb7-128b-4887-c21a8b9b92a9@arm.com>
- <20190801050940.h65crfawrdifsrgg@vireshk-i7>
- <86354576-fc54-a8b7-4dc9-bc613d59fb17@arm.com>
- <20190801063544.ruw444isj5uojjdx@vireshk-i7>
- <20190801065700.GA17391@kroah.com>
- <20190801070541.hpmadulgp45txfem@vireshk-i7>
- <20190801073444.4n45h6kcbmejvzte@willie-the-truck>
+To:     Marta Rybczynska <mrybczyn@kalray.eu>
+Cc:     stable@vger.kernel.org, kbusch@kernel.org, axboe@fb.com,
+        hch@lst.de, sagi@grimberg.me
+Subject: Re: Please include 66b20ac0a1a10769d059d6903202f53494e3d902 in 5.1
+ and 5.2
+Message-ID: <20190801084717.GB1085@kroah.com>
+References: <604962916.43493351.1564642842245.JavaMail.zimbra@kalray.eu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190801073444.4n45h6kcbmejvzte@willie-the-truck>
+In-Reply-To: <604962916.43493351.1564642842245.JavaMail.zimbra@kalray.eu>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 01, 2019 at 08:34:45AM +0100, Will Deacon wrote:
-> On Thu, Aug 01, 2019 at 12:35:41PM +0530, Viresh Kumar wrote:
-> > On 01-08-19, 08:57, Greg KH wrote:
-> > > On Thu, Aug 01, 2019 at 12:05:44PM +0530, Viresh Kumar wrote:
-> > > > On 01-08-19, 07:30, Julien Thierry wrote:
-> > > > > I must admit I am not familiar with backport/stable process enough. But
-> > > > > personally I think the your suggestion seems more sensible than
-> > > > > backporting 4 patches.
-> > > > > 
-> > > > > Or you can maybe ignore patch 25 and say in patch 24 that among the
-> > > > > changes made for the 4.4 codebase, the call arm64_apply_bp_hardening()
-> > > > > was moved from post_ttbr_update_workaround as it doesn't exist and
-> > > > > placed in check_and_switch_context() as it is its final destination.
-> > > > 
-> > > > Done that and dropped the other two patches.
-> > > > 
-> > > > > However, I really don't know what's the best way to proceed according to
-> > > > > existing practices. So input from someone else would be welcome.
-> > > > 
-> > > > Lets see if someone comes up and ask me to do something else :)
-> > > 
-> > > Keeping the same patches that upstream has is almost always the better
-> > > thing to do in the long-run.
-> > 
-> > That would require two additional patches to be backported, 22 and 23
-> > from this series. From your suggestion it seems that keeping them is
-> > better here ?
+On Thu, Aug 01, 2019 at 09:00:42AM +0200, Marta Rybczynska wrote:
+> Dear stable maintainers,
+> Please include the commit 66b20ac0a1a10769d059d6903202f53494e3d902 into the stable 5.1 and 5.2.
 > 
-> Yes. Backporting individual patches as they appear upstream is definitely
-> the preferred method for -stable. It makes the relationship to mainline
-> crystal clear, as well as any dependencies between patches that have been
-> backported. Everytime we tweak something unecessarily in a stable backport,
-> it just creates the potential for confusion and additional conflicts in
-> future backports, so it's best to follow the shape of upstream as closely as
-> possible, even if it results in additional patches.
+> Commit title: nvme: fix multipath crash when ANA is deactivated
 > 
-> So I wouldn't worry about total number of patches. I'd worry more about
-> things like conflicts, deviation from mainline and overall testing coverage.
+> The bug that this commit fixes was seen crashing kernels or provoking an oops from 5.0 onwards.
 
-That is exactly correct, thanks for saying it better than I could :)
+5.1 is end-of-life, but I have now queued this up for 5.2-stable,
+thanks.
 
 greg k-h
