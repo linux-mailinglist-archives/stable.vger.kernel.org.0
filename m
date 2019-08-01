@@ -2,242 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1EAA7D921
-	for <lists+stable@lfdr.de>; Thu,  1 Aug 2019 12:17:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C71C17DA72
+	for <lists+stable@lfdr.de>; Thu,  1 Aug 2019 13:40:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726125AbfHAKRi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Aug 2019 06:17:38 -0400
-Received: from mail-eopbgr70092.outbound.protection.outlook.com ([40.107.7.92]:26396
-        "EHLO EUR04-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725379AbfHAKRh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 1 Aug 2019 06:17:37 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=hJeuQbR+Mdq9Qfb91BAuQXnd2uWpoOGJnNDekA8FRCzzgVQg8yJGKWd7FcJsrw4KDtEaZ+yG8M+LaX77renaIlmK4A42/njrETIxuuXPdkHgmA1dz+tHak7KuiExBnODNw/ptnXEct5oo2ryptYC+pWOyakG4I9HvFxDRWYHLE73uru7H+IeE4liwydsDrFW/AmAQlqQqe4107oflBAH+b7OKSolM7aKwxwAeDmFFGk9yraCpjf7dPNKGc7SIqPyYBPgS0wwIGg4VlyYRayoaI+Csd1gcxNYYN1WLoIeYT8u9X6yOSr6mxf30/vsN8DMO56s3aQWFImehL5o0fRXWQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=t3HyNzaAU4mAKE6nBmxQFQDsuH2DWbmfLC6fpPXrlfA=;
- b=k+OTDJbx75Bs07QFP3n7aILFJPDQsTgBDh0cgGmGdRD1iDAQpeZ8lgTw/5ZX/1ndatniR4UVVPZEqIfz7A0esARsT+hFuYC3ZDYbIitcK9nRsJ7tp3oJCPUumlqhvKfBm6RvpxpQQcoHCcSApDp4xR3SwJeDXiY9kDcJGrZTW/G8USn9NWDj90/sDF/L+wwdD+30o1IbBrVRn1cYGx2VbodmYv96y6kbeXA0khZuMprQH9wDoY02vAr4ErWU04qyKpPkUTCjxqxPs9XUWreDMw/sxye8b8SmZnN1HqBKgcREZ1XfdeeIpK7zuIaVgTdQrFraD9/tNYh08e2dnL8l2Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1;spf=pass
- smtp.mailfrom=nokia.com;dmarc=pass action=none
- header.from=nokia.com;dkim=pass header.d=nokia.com;arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia.onmicrosoft.com;
- s=selector1-nokia-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=t3HyNzaAU4mAKE6nBmxQFQDsuH2DWbmfLC6fpPXrlfA=;
- b=We9+gfmkWlhRFdQ/r1I9zp6HrS0pk4VlFO3WZ89qyfGknwylEB0kc2zahdSk+5GqfEBr9JfAkebsBWsFeIb8Zk1NdSOs/vAEbCLWVi6YE8cPaZCeJPeDN3dZylOpC7EvkHYJbnsQDag2utqnUd3cWLAFrqUrjTrJrvJePq1/MWk=
-Received: from HE1PR0702MB3675.eurprd07.prod.outlook.com (52.133.6.141) by
- HE1PR0702MB3626.eurprd07.prod.outlook.com (52.133.6.24) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2136.9; Thu, 1 Aug 2019 10:17:31 +0000
-Received: from HE1PR0702MB3675.eurprd07.prod.outlook.com
- ([fe80::d90c:c96:8d6a:362d]) by HE1PR0702MB3675.eurprd07.prod.outlook.com
- ([fe80::d90c:c96:8d6a:362d%6]) with mapi id 15.20.2136.010; Thu, 1 Aug 2019
- 10:17:31 +0000
-From:   "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>
-To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     "lucien.xin@gmail.com" <lucien.xin@gmail.com>,
-        "syzbot+c4c4b2bb358bb936ad7e@syzkaller.appspotmail.com" 
-        <syzbot+c4c4b2bb358bb936ad7e@syzkaller.appspotmail.com>,
-        "syzbot+a43d8d4e7e8a7a9e149e@syzkaller.appspotmail.com" 
-        <syzbot+a43d8d4e7e8a7a9e149e@syzkaller.appspotmail.com>,
-        "syzbot+a47c5f4c6c00fc1ed16e@syzkaller.appspotmail.com" 
-        <syzbot+a47c5f4c6c00fc1ed16e@syzkaller.appspotmail.com>,
-        "davem@davemloft.net" <davem@davemloft.net>,
-        "syzbot+a9e23ea2aa21044c2798@syzkaller.appspotmail.com" 
-        <syzbot+a9e23ea2aa21044c2798@syzkaller.appspotmail.com>,
-        "syzbot+0290d2290a607e035ba1@syzkaller.appspotmail.com" 
-        <syzbot+0290d2290a607e035ba1@syzkaller.appspotmail.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "syzbot+9d4c12bfd45a58738d0a@syzkaller.appspotmail.com" 
-        <syzbot+9d4c12bfd45a58738d0a@syzkaller.appspotmail.com>
-Subject: Re: [PATCH 4.14 43/43] tipc: pass tunnel dev as NULL to
- udp_tunnel(6)_xmit_skb
-Thread-Topic: [PATCH 4.14 43/43] tipc: pass tunnel dev as NULL to
- udp_tunnel(6)_xmit_skb
-Thread-Index: AQHVMK2k4G4Q5DhZpEC+QWpFsSOawKbmQ0kA
-Date:   Thu, 1 Aug 2019 10:17:30 +0000
-Message-ID: <0f105a3696611dc10aa4d7c5c22ffac031b3c098.camel@nokia.com>
-References: <20190702080123.904399496@linuxfoundation.org>
-         <20190702080126.138655706@linuxfoundation.org>
-In-Reply-To: <20190702080126.138655706@linuxfoundation.org>
-Accept-Language: fi-FI, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=tommi.t.rantala@nokia.com; 
-x-originating-ip: [131.228.2.6]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 89140648-f22c-4373-d927-08d716697686
-x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(4618075)(2017052603328)(7193020);SRVR:HE1PR0702MB3626;
-x-ms-traffictypediagnostic: HE1PR0702MB3626:
-x-microsoft-antispam-prvs: <HE1PR0702MB3626791A41461978B6372614B4DE0@HE1PR0702MB3626.eurprd07.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:227;
-x-forefront-prvs: 01165471DB
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(376002)(396003)(39860400002)(346002)(136003)(366004)(199004)(189003)(110136005)(316002)(6512007)(14454004)(99286004)(14444005)(2906002)(478600001)(45080400002)(102836004)(6436002)(256004)(53936002)(6486002)(6506007)(3846002)(6116002)(5660300002)(66946007)(66556008)(66476007)(66446008)(64756008)(76116006)(229853002)(25786009)(4326008)(6246003)(54906003)(76176011)(11346002)(7736002)(86362001)(66066001)(486006)(7416002)(186003)(26005)(305945005)(36756003)(8676002)(8936002)(81166006)(81156014)(118296001)(476003)(2616005)(2501003)(446003)(71200400001)(71190400001)(68736007);DIR:OUT;SFP:1102;SCL:1;SRVR:HE1PR0702MB3626;H:HE1PR0702MB3675.eurprd07.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: nokia.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: 2b5W3lO4mc6G64D5wVQowHp0qxjXy3HrmCkMENYOp/PfWzGi08eczOMD1sV/Iei37yw/taMIe5PniBAdRZ3xz3+C75zRHuIHa4R4bDesfIRqLpIN0ueMtd6YcKmMhnqQaTmjEEQcR+WEVE+0dU1s+jEAGbCZaXfiuhUHC4mq7g9IAlPMUwwIFeW2r+XfykIjCTcSIFZZx2Ew5HB3i+K82qX63/oCKFGErUO/Meh7Diy7ZfTJES+MWfJASYmL0dUOImlIPS/ifU+Bw1YABQxw9u2Kgmvzvo2WQYPWuRBSZZwHUhqsGWQzTyZxzKls/fN89rT6T0Rhe0QeRjFFVbl3qGYuEBx1lM0PSw+ybxDS5lM0irkvtKUPBHVWMS0n6w7fYSr4IZnDGY0tqPxHlkUrKjTze30e6uWEm5V882LtLss=
+        id S1729318AbfHALkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Aug 2019 07:40:43 -0400
+Received: from mail-wm1-f49.google.com ([209.85.128.49]:33882 "EHLO
+        mail-wm1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728582AbfHALkn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Aug 2019 07:40:43 -0400
+Received: by mail-wm1-f49.google.com with SMTP id w9so3461751wmd.1
+        for <stable@vger.kernel.org>; Thu, 01 Aug 2019 04:40:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=gcCLFPO0a/4LxHzPzrSMvGlSc2ir+WuGooTWlmrbCfU=;
+        b=U6FvpJ0a3vrNmhTQQbrOJAzqEl9K0Pyw/J28+JXOm32JnSWtgbztrobhp9fLY1XwG4
+         ZbdA3PM6wnMMLkr+LTdqrSQ0oyWIhKpfZwkcfdHappdNjwth0909DK+RmOZABCPBwO5+
+         k4tycQziKmCkNlQoliOq5a8maowCXYUhkO/H4UnzqnjvlOw28HwMwrZxWwwxwK2dT77H
+         D4vxOb6LIy+YjKcdV+xIkq8y7Mm+ZLKcbDjMoXKN8KV58TH8mSX+cZ/f/n3OdRdPwI/T
+         64rSSOlkMsxHBpg0qJ4dSx3Z6d/Io0yGW+aeij81c2YoGeabhm2BgE+INuk75NiNWfS4
+         ivhg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=gcCLFPO0a/4LxHzPzrSMvGlSc2ir+WuGooTWlmrbCfU=;
+        b=RiofgnHEz9OWYSRM1pOA5/dxKG3MHo2VtoOiULxCL2w58L5RRq/7y0nI2ojrmtZC2h
+         9uHgI9q6SPIIwOt+eG5Ki3c2f4uDwnQdpQdN0Yz7QKs7tZUROpHYBf6/xzgktBvNso5N
+         oDU5tvhfTjRXaYSFT6C9NfQYHFIsw9zB1XiDYAKP0oEOb52b6wwK6dm30C5sGyui1DrE
+         evpgKSvnjQLPKEa2KioUM8NWTJIXSoI3y9oyJBbvI1Iz1NK2OScvu+4q8evh8PfAaUg2
+         GFV6ZhyrQNgQmTf5JaKowCzWQ63NkA1i9nqI1fFlucN95X5GMLtKloCOODv8GOJDq3Ik
+         Q1Hg==
+X-Gm-Message-State: APjAAAUGAxdtG5PDGf8mOvO+YPDhuCEmUCG/rnRKWfHpFyD9bhOMi+ep
+        N0pD0xG0C1LpwoYasz7yw8PgMDh2xiI=
+X-Google-Smtp-Source: APXvYqxFa/rSE/zvLCzbDTGB525S0i3PiE08ylaIYgFKT5iN/EZqN+VMv1n0VhSYMBVVt9v/aQOm2Q==
+X-Received: by 2002:a1c:9d53:: with SMTP id g80mr111261980wme.103.1564659640654;
+        Thu, 01 Aug 2019 04:40:40 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id b15sm88632342wrt.77.2019.08.01.04.40.40
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 01 Aug 2019 04:40:40 -0700 (PDT)
+Message-ID: <5d42cfb8.1c69fb81.73527.cad8@mx.google.com>
+Date:   Thu, 01 Aug 2019 04:40:40 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
-Content-ID: <4A07F21B40244F4C89138DCAA2EDC820@eurprd07.prod.outlook.com>
-Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-X-OriginatorOrg: nokia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 89140648-f22c-4373-d927-08d716697686
-X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Aug 2019 10:17:30.9022
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 5d471751-9675-428d-917b-70f44f9630b0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: tommi.t.rantala@nokia.com
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: HE1PR0702MB3626
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.134-313-g6c9b3711a3b3
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.14.y boot: 120 boots: 1 failed,
+ 78 passed with 41 offline (v4.14.134-313-g6c9b3711a3b3)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gVHVlLCAyMDE5LTA3LTAyIGF0IDEwOjAyICswMjAwLCBHcmVnIEtyb2FoLUhhcnRtYW4gd3Jv
-dGU6DQo+IEZyb206IFhpbiBMb25nIDxsdWNpZW4ueGluQGdtYWlsLmNvbT4NCj4gDQo+IGNvbW1p
-dCBjM2JjZGUwMjY2ODRjNjJkN2EyYjZmNjI2ZGM3Y2Y3NjM4MzM4NzVjIHVwc3RyZWFtLg0KPiAN
-Cj4gdWRwX3R1bm5lbCg2KV94bWl0X3NrYigpIGNhbGxlZCBieSB0aXBjX3VkcF94bWl0KCkgZXhw
-ZWN0cyBhIHR1bm5lbA0KPiBkZXZpY2UNCj4gdG8gY291bnQgcGFja2V0cyBvbiBkZXYtPnRzdGF0
-cywgYSBwZXJwY3UgdmFyaWFibGUuIEhvd2V2ZXIsIFRJUEMgaXMNCj4gdXNpbmcNCj4gdWRwIHR1
-bm5lbCB3aXRoIG5vIHR1bm5lbCBkZXZpY2UsIGFuZCBwYXNzIHRoZSBsb3dlciBkZXYsIGxpa2Ug
-dmV0aA0KPiBkZXZpY2UNCj4gdGhhdCBvbmx5IGluaXRpYWxpemVzIGRldi0+bHN0YXRzKGEgcGVy
-cGN1IHZhcmlhYmxlKSB3aGVuIGNyZWF0aW5nDQo+IGl0Lg0KDQpIaSwNCg0KVGhpcyB0aXBjIHBh
-dGNoIGFkZGVkIGluIDQuMTQuMTMyIGlzIHRyaWdnZXJpbmcgYSBjcmFzaCBmb3IgbWUsIHJldmVy
-dA0KZml4ZXMgaXQuDQoNCkFueW9uZSBoYXZlIGlkZWFzIGlmIHNvbWUgb3RoZXIgY29tbWl0cyBt
-aXNzaW5nIGluIDQuMTQueCB0byBtYWtlIHRoaXMNCndvcmsuLi4/DQoNCg0KIyBtb2Rwcm9iZSB0
-aXBjDQojIHRpcGMgbm9kZSBzZXQgYWRkciAxLjEuMg0KIyB0aXBjIGJlYXJlciBlbmFibGUgbWVk
-aWEgdWRwIG5hbWUgVURQMSBsb2NhbGlwIDE5Mi4xNjguMS4xNQ0KDQpbICAxNDMuMTA1NTI5XSBP
-d24gbm9kZSBhZGRyZXNzIDwxLjEuMj4sIG5ldHdvcmsgaWRlbnRpdHkgNDcxMQ0KWyAgMTcyLjA4
-NzA5OF0gQlVHOiB1bmFibGUgdG8gaGFuZGxlIGtlcm5lbCBOVUxMIHBvaW50ZXIgZGVyZWZlcmVu
-Y2UgYXQNCjAwMDAwMDAwMDAwMDA0ZjANClsgIDE3Mi4wODgzNzVdIElQOiBpcHR1bm5lbF94bWl0
-KzB4MTVlLzB4MWUwDQpbICAxNzIuMDg5MDcyXSBQR0QgODAwMDAwMDIzMTMwNjA2NyBQNEQgODAw
-MDAwMDIzMTMwNjA2NyBQVUQgMjM1NmUxMDY3DQpQTUQgMA0KWyAgMTcyLjA5MDA5NF0gT29wczog
-MDAwMCBbIzFdIFNNUCBQVEkNClsgIDE3Mi4wOTA2MTBdIE1vZHVsZXMgbGlua2VkIGluOiB0aXBj
-IGlwNl91ZHBfdHVubmVsIHVkcF90dW5uZWwgaXNvZnMNCmt2bV9pbnRlbCBrdm0gaXJxYnlwYXNz
-IHNjaF9mcV9jb2RlbCBwY2JjIGFlc25pX2ludGVsIGFlc194ODZfNjQNCmNyeXB0b19zaW1kIGNy
-eXB0ZCBnbHVlX2hlbHBlciBhdGFfcGlpeCBkbV9taXJyb3IgZG1fcmVnaW9uX2hhc2ggZG1fbG9n
-DQpkbV9tb2QgZGF4IGF1dG9mczQNClsgIDE3Mi4wOTMyOTNdIENQVTogMSBQSUQ6IDc0NyBDb21t
-OiB0aXBjIE5vdCB0YWludGVkIDQuMTQuMTM0LTEueDg2XzY0IA0KIzENClsgIDE3Mi4wOTQ0NDhd
-IEhhcmR3YXJlIG5hbWU6IFFFTVUgU3RhbmRhcmQgUEMgKGk0NDBGWCArIFBJSVgsIDE5OTYpLA0K
-QklPUyAxLjEyLjAtMi5mYzMwIDA0LzAxLzIwMTQNClsgIDE3Mi4wOTU3MDNdIHRhc2s6IGZmZmY4
-Yjk5ZjEyYzAwMDAgdGFzay5zdGFjazogZmZmZjlhYjQ4MTE5ODAwMA0KWyAgMTcyLjA5NjczMV0g
-UklQOiAwMDEwOmlwdHVubmVsX3htaXQrMHgxNWUvMHgxZTANClsgIDE3Mi4wOTc0NjBdIFJTUDog
-MDAxODpmZmZmOWFiNDgxMTliYTAwIEVGTEFHUzogMDAwMTAyMDINClsgIDE3Mi4wOTgyMTRdIFJB
-WDogMDAwMDAwMDAwMDAwMDAwMCBSQlg6IGZmZmZmZmZmYmY0ZDgxNDAgUkNYOg0KMDAwMDAwMDAw
-MDAwMDA4Yw0KWyAgMTcyLjA5OTMyMF0gUkRYOiAwMDAwMDAwMDAwMDAwMDAxIFJTSTogMDAwMDAw
-MDBmZmZmZmUwMSBSREk6DQpmZmZmZmZmZmJlOTQ0ZDYyDQpbICAxNzIuMTAwMzkyXSBSQlA6IGZm
-ZmY4Yjk5ZjFlN2VkMDAgUjA4OiBmZmZmOGI5OWZmYzY0NTIwIFIwOToNCjAwMDAwMDAwMDAwMDAw
-MDANClsgIDE3Mi4xMDE0NTFdIFIxMDogMDAwMDAwMDIzNDI2ZDAwMCBSMTE6IDAwMDAwMDAwMDAw
-MDAwMDIgUjEyOg0KMDAwMDAwMDAwMDAwMDAwMA0KWyAgMTcyLjEwMjYwN10gUjEzOiAwMDAwMDAw
-MDAwMDAwMDQwIFIxNDogMDAwMDAwMDAwMDAwMDAwMCBSMTU6DQpmZmZmOGI5OWY0MjZlMGU4DQpb
-ICAxNzIuMTAzNzI4XSBGUzogIDAwMDA3ZWZjODJiOTY4MDAoMDAwMCkgR1M6ZmZmZjhiOTlmZmM0
-MDAwMCgwMDAwKQ0Ka25sR1M6MDAwMDAwMDAwMDAwMDAwMA0KWyAgMTcyLjEwNDk3Nl0gQ1M6ICAw
-MDEwIERTOiAwMDAwIEVTOiAwMDAwIENSMDogMDAwMDAwMDA4MDA1MDAzMw0KWyAgMTcyLjEwNTgy
-MV0gQ1IyOiAwMDAwMDAwMDAwMDAwNGYwIENSMzogMDAwMDAwMDIzNDI1MDAwMSBDUjQ6DQowMDAw
-MDAwMDAwMzYwNmUwDQpbICAxNzIuMTA2OTgxXSBEUjA6IDAwMDAwMDAwMDAwMDAwMDAgRFIxOiAw
-MDAwMDAwMDAwMDAwMDAwIERSMjoNCjAwMDAwMDAwMDAwMDAwMDANClsgIDE3Mi4xMDgxMjBdIERS
-MzogMDAwMDAwMDAwMDAwMDAwMCBEUjY6IDAwMDAwMDAwZmZmZTBmZjAgRFI3Og0KMDAwMDAwMDAw
-MDAwMDQwMA0KWyAgMTcyLjEwOTM4Nl0gQ2FsbCBUcmFjZToNClsgIDE3Mi4xMDk4MDhdICB0aXBj
-X3VkcF94bWl0LmlzcmEuMTgrMHgxYTcvMHgxYzAgW3RpcGNdDQpbICAxNzIuMTEwNjg3XSAgPyBf
-X2ludGVybmFsX2FkZF90aW1lcisweDFhLzB4NTANClsgIDE3Mi4xMTEzNjldICA/IF9fc2tiX2Ns
-b25lKzB4MjkvMHgxMzANClsgIDE3Mi4xMTE5OTldICB0aXBjX2JlYXJlcl94bWl0X3NrYisweDRk
-LzB4ODAgW3RpcGNdDQpbICAxNzIuMTEyODQ1XSAgdGlwY19lbmFibGVfYmVhcmVyKzB4MmI5LzB4
-M2MwIFt0aXBjXQ0KWyAgMTcyLjExMzYzN10gID8gX19ubGFfcHV0KzB4Yy8weDIwDQpbICAxNzIu
-MTE0MjEzXSAgdGlwY19ubF9iZWFyZXJfZW5hYmxlKzB4Y2EvMHgxMDAgW3RpcGNdDQpbICAxNzIu
-MTE0OTUyXSAgZ2VubF9mYW1pbHlfcmN2X21zZysweDE5MC8weDM5MA0KWyAgMTcyLjExNTc0OF0g
-IGdlbmxfcmN2X21zZysweDQ3LzB4OTANClsgIDE3Mi4xMTYyODddICA/IF9fYWxsb2Nfc2tiKzB4
-NzIvMHgxYjANClsgIDE3Mi4xMTY4OThdICA/IGdlbmxfZmFtaWx5X3Jjdl9tc2crMHgzOTAvMHgz
-OTANClsgIDE3Mi4xMTc2NjldICBuZXRsaW5rX3Jjdl9za2IrMHgzZC8weDEwMA0KWyAgMTcyLjEx
-ODM2MV0gIGdlbmxfcmN2KzB4MjQvMHg0MA0KWyAgMTcyLjExOTAwNV0gIG5ldGxpbmtfdW5pY2Fz
-dCsweDE2ZC8weDIzMA0KWyAgMTcyLjExOTc3N10gIG5ldGxpbmtfc2VuZG1zZysweDFhZS8weDNj
-MA0KWyAgMTcyLjEyMDUyNV0gIFNZU0Nfc2VuZHRvKzB4ZTYvMHgxNDANClsgIDE3Mi4xMjEyNDhd
-ICA/IFNZU0NfZ2V0c29ja25hbWUrMHg4MS8weGEwDQpbICAxNzIuMTIxOTg5XSAgPyBzb2NrX2Fs
-bG9jX2ZpbGUrMHg5Ny8weDEyMA0KWyAgMTcyLjEyMjY0NV0gID8gc29ja19tYXBfZmQrMHgzZC8w
-eDYwDQpbICAxNzIuMTIzMjc4XSAgZG9fc3lzY2FsbF82NCsweDc0LzB4MTkwDQpbICAxNzIuMTIz
-OTExXSAgZW50cnlfU1lTQ0FMTF82NF9hZnRlcl9od2ZyYW1lKzB4M2QvMHhhMg0KWyAgMTcyLjEy
-NDcxNl0gUklQOiAwMDMzOjB4N2VmYzgyZDZhYzZiDQpbICAxNzIuMTI1MzY4XSBSU1A6IDAwMmI6
-MDAwMDdmZmY0MDQxMWFlOCBFRkxBR1M6IDAwMDAwMjQ2IE9SSUdfUkFYOg0KMDAwMDAwMDAwMDAw
-MDAyYw0KWyAgMTcyLjEyNjQ4Nl0gUkFYOiBmZmZmZmZmZmZmZmZmZmRhIFJCWDogMDAwMDAwMDAw
-MWRmY2EyMCBSQ1g6DQowMDAwN2VmYzgyZDZhYzZiDQpbICAxNzIuMTI3NjMyXSBSRFg6IDAwMDAw
-MDAwMDAwMDAwNTQgUlNJOiAwMDAwN2ZmZjQwNDExYjYwIFJESToNCjAwMDAwMDAwMDAwMDAwMDMN
-ClsgIDE3Mi4xMjg3NjVdIFJCUDogMDAwMDdmZmY0MDQxMWI1MCBSMDg6IDAwMDA3ZWZjODJlMzYw
-MDAgUjA5Og0KMDAwMDAwMDAwMDAwMDAwYw0KWyAgMTcyLjEyOTc5M10gUjEwOiAwMDAwMDAwMDAw
-MDAwMDAwIFIxMTogMDAwMDAwMDAwMDAwMDI0NiBSMTI6DQowMDAwN2ZmZjQwNDExYjYwDQpbICAx
-NzIuMTMwNzk5XSBSMTM6IDAwMDA3ZmZmNDA0MTJkMTAgUjE0OiAwMDAwMDAwMDAwNDBiYjQ0IFIx
-NToNCjAwMDAwMDAwMDAwMDAwMDANClsgIDE3Mi4xMzE4NjhdIENvZGU6IDAxIDAwIDAwIDAwIDg1
-IGQyIDBmIDQ0IGQwIGU4IDFmIGYzIGZhIGZmIDQ4IDhiIDc0DQoyNCAwOCA0YyA4OSBmYSA0OCA4
-OSBkZiBlOCA5ZiA5NCBmYiBmZiA4MyBlMCBmZCA3NSAzNSA4YiA0YyAyNCAxYyA4NSBjOQ0KN2Ug
-MmIgPDQ5PiA4YiA4NCAyNCBmMCAwNCAwMCAwMCA2NSA0OCAwMyAwNSBhYSAyOSA2OCA0MSA0OCA4
-MyA0MCAxMCAwMQ0KWyAgMTcyLjEzNDc3M10gUklQOiBpcHR1bm5lbF94bWl0KzB4MTVlLzB4MWUw
-IFJTUDogZmZmZjlhYjQ4MTE5YmEwMA0KWyAgMTcyLjEzNTY5N10gQ1IyOiAwMDAwMDAwMDAwMDAw
-NGYwDQpbICAxNzIuMTM2MzA1XSAtLS1bIGVuZCB0cmFjZSAyN2Y3NTIyYWRlMjY3OTdmIF0tLS0N
-Cg0KDQo+IExhdGVyIGlwdHVubmVsX3htaXRfc3RhdHMoKSBjYWxsZWQgYnkgaXAoNil0dW5uZWxf
-eG1pdCgpIHRoaW5rcyB0aGUNCj4gZGV2IGFzDQo+IGEgdHVubmVsIGRldmljZSwgYW5kIHVzZXMg
-ZGV2LT50c3RhdHMgaW5zdGVhZCBvZiBkZXYtPmxzdGF0cy4gdHN0YXRzJw0KPiBlYWNoDQo+IHBv
-aW50ZXIgcG9pbnRzIHRvIGEgYmlnZ2VyIHN0cnVjdCB0aGFuIGxzdGF0cywgc28gd2hlbiB0c3Rh
-dHMtDQo+ID50eF9ieXRlcyBpcw0KPiBpbmNyZWFzZWQsIG90aGVyIHBlcmNwdSB2YXJpYWJsZSdz
-IG1lbWJlcnMgY291bGQgYmUgb3ZlcndyaXR0ZW4uDQo+IA0KPiBzeXpib3QgaGFzIHJlcG9ydGVk
-IHF1aXRlIGEgZmV3IGNyYXNoZXMgZHVlIHRvIGZpYl9uaF9jb21tb24gcGVyY3B1DQo+IG1lbWJl
-cg0KPiAnbmhjX3BjcHVfcnRoX291dHB1dCcgb3ZlcndyaXR0ZW4sIGNhbGwgdHJhY2VzIGFyZSBs
-aWtlOg0KPiANCj4gICBCVUc6IEtBU0FOOiBzbGFiLW91dC1vZi1ib3VuZHMgaW4gcnRfY2FjaGVf
-dmFsaWQrMHgxNTgvMHgxOTANCj4gICBuZXQvaXB2NC9yb3V0ZS5jOjE1NTYNCj4gICAgIHJ0X2Nh
-Y2hlX3ZhbGlkKzB4MTU4LzB4MTkwIG5ldC9pcHY0L3JvdXRlLmM6MTU1Ng0KPiAgICAgX19ta3Jv
-dXRlX291dHB1dCBuZXQvaXB2NC9yb3V0ZS5jOjIzMzIgW2lubGluZV0NCj4gICAgIGlwX3JvdXRl
-X291dHB1dF9rZXlfaGFzaF9yY3UrMHg4MTkvMHgyZDUwIG5ldC9pcHY0L3JvdXRlLmM6MjU2NA0K
-PiAgICAgaXBfcm91dGVfb3V0cHV0X2tleV9oYXNoKzB4MWVmLzB4MzYwIG5ldC9pcHY0L3JvdXRl
-LmM6MjM5Mw0KPiAgICAgX19pcF9yb3V0ZV9vdXRwdXRfa2V5IGluY2x1ZGUvbmV0L3JvdXRlLmg6
-MTI1IFtpbmxpbmVdDQo+ICAgICBpcF9yb3V0ZV9vdXRwdXRfZmxvdysweDI4LzB4YzAgbmV0L2lw
-djQvcm91dGUuYzoyNjUxDQo+ICAgICBpcF9yb3V0ZV9vdXRwdXRfa2V5IGluY2x1ZGUvbmV0L3Jv
-dXRlLmg6MTM1IFtpbmxpbmVdDQo+ICAgLi4uDQo+IA0KPiBvcjoNCj4gDQo+ICAga2FzYW46IEdQ
-RiBjb3VsZCBiZSBjYXVzZWQgYnkgTlVMTC1wdHIgZGVyZWYgb3IgdXNlciBtZW1vcnkgYWNjZXNz
-DQo+ICAgUklQOiAwMDEwOmRzdF9kZXZfcHV0KzB4MjQvMHgyOTAgbmV0L2NvcmUvZHN0LmM6MTY4
-DQo+ICAgICA8SVJRPg0KPiAgICAgcnRfZmliaW5mb19mcmVlX2NwdXMgbmV0L2lwdjQvZmliX3Nl
-bWFudGljcy5jOjIwMCBbaW5saW5lXQ0KPiAgICAgZnJlZV9maWJfaW5mb19yY3UrMHgyZTEvMHg0
-OTAgbmV0L2lwdjQvZmliX3NlbWFudGljcy5jOjIxNw0KPiAgICAgX19yY3VfcmVjbGFpbSBrZXJu
-ZWwvcmN1L3JjdS5oOjI0MCBbaW5saW5lXQ0KPiAgICAgcmN1X2RvX2JhdGNoIGtlcm5lbC9yY3Uv
-dHJlZS5jOjI0MzcgW2lubGluZV0NCj4gICAgIGludm9rZV9yY3VfY2FsbGJhY2tzIGtlcm5lbC9y
-Y3UvdHJlZS5jOjI3MTYgW2lubGluZV0NCj4gICAgIHJjdV9wcm9jZXNzX2NhbGxiYWNrcysweDEw
-MGEvMHgxYWMwIGtlcm5lbC9yY3UvdHJlZS5jOjI2OTcNCj4gICAuLi4NCj4gDQo+IFRoZSBpc3N1
-ZSBleGlzdHMgc2luY2UgdHVubmVsIHN0YXRzIHVwZGF0ZSBpcyBtb3ZlZCB0byBpcHR1bm5lbF94
-bWl0DQo+IGJ5DQo+IENvbW1pdCAwMzlmNTA2MjliN2YgKCJpcF90dW5uZWw6IE1vdmUgc3RhdHMg
-dXBkYXRlIHRvDQo+IGlwdHVubmVsX3htaXQoKSIpLA0KPiBhbmQgaGVyZSB0byBmaXggaXQgYnkg
-cGFzc2luZyBhIE5VTEwgdHVubmVsIGRldiB0bw0KPiB1ZHBfdHVubmVsKDYpX3htaXRfc2tiDQo+
-IHNvIHRoYXQgdGhlIHBhY2tldHMgY291bnRpbmcgd29uJ3QgaGFwcGVuIG9uIGRldi0+dHN0YXRz
-Lg0KPiANCj4gUmVwb3J0ZWQtYnk6IHN5emJvdCs5ZDRjMTJiZmQ0NWE1ODczOGQwYUBzeXprYWxs
-ZXIuYXBwc3BvdG1haWwuY29tDQo+IFJlcG9ydGVkLWJ5OiBzeXpib3QrYTllMjNlYTJhYTIxMDQ0
-YzI3OThAc3l6a2FsbGVyLmFwcHNwb3RtYWlsLmNvbQ0KPiBSZXBvcnRlZC1ieTogc3l6Ym90K2M0
-YzRiMmJiMzU4YmI5MzZhZDdlQHN5emthbGxlci5hcHBzcG90bWFpbC5jb20NCj4gUmVwb3J0ZWQt
-Ynk6IHN5emJvdCswMjkwZDIyOTBhNjA3ZTAzNWJhMUBzeXprYWxsZXIuYXBwc3BvdG1haWwuY29t
-DQo+IFJlcG9ydGVkLWJ5OiBzeXpib3QrYTQzZDhkNGU3ZThhN2E5ZTE0OWVAc3l6a2FsbGVyLmFw
-cHNwb3RtYWlsLmNvbQ0KPiBSZXBvcnRlZC1ieTogc3l6Ym90K2E0N2M1ZjRjNmMwMGZjMWVkMTZl
-QHN5emthbGxlci5hcHBzcG90bWFpbC5jb20NCj4gRml4ZXM6IDAzOWY1MDYyOWI3ZiAoImlwX3R1
-bm5lbDogTW92ZSBzdGF0cyB1cGRhdGUgdG8NCj4gaXB0dW5uZWxfeG1pdCgpIikNCj4gU2lnbmVk
-LW9mZi1ieTogWGluIExvbmcgPGx1Y2llbi54aW5AZ21haWwuY29tPg0KPiBTaWduZWQtb2ZmLWJ5
-OiBEYXZpZCBTLiBNaWxsZXIgPGRhdmVtQGRhdmVtbG9mdC5uZXQ+DQo+IFNpZ25lZC1vZmYtYnk6
-IEdyZWcgS3JvYWgtSGFydG1hbiA8Z3JlZ2toQGxpbnV4Zm91bmRhdGlvbi5vcmc+DQo+IA0KPiAt
-LS0NCj4gIG5ldC90aXBjL3VkcF9tZWRpYS5jIHwgICAgOCArKystLS0tLQ0KPiAgMSBmaWxlIGNo
-YW5nZWQsIDMgaW5zZXJ0aW9ucygrKSwgNSBkZWxldGlvbnMoLSkNCj4gDQo+IC0tLSBhL25ldC90
-aXBjL3VkcF9tZWRpYS5jDQo+ICsrKyBiL25ldC90aXBjL3VkcF9tZWRpYS5jDQo+IEBAIC0xNzQs
-NyArMTc0LDYgQEAgc3RhdGljIGludCB0aXBjX3VkcF94bWl0KHN0cnVjdCBuZXQgKm5ldA0KPiAg
-CQkJZ290byB0eF9lcnJvcjsNCj4gIAkJfQ0KPiAgDQo+IC0JCXNrYi0+ZGV2ID0gcnQtPmRzdC5k
-ZXY7DQo+ICAJCXR0bCA9IGlwNF9kc3RfaG9wbGltaXQoJnJ0LT5kc3QpOw0KPiAgCQl1ZHBfdHVu
-bmVsX3htaXRfc2tiKHJ0LCB1Yi0+dWJzb2NrLT5zaywgc2tiLCBzcmMtDQo+ID5pcHY0LnNfYWRk
-ciwNCj4gIAkJCQkgICAgZHN0LT5pcHY0LnNfYWRkciwgMCwgdHRsLCAwLCBzcmMtDQo+ID5wb3J0
-LA0KPiBAQCAtMTkzLDEwICsxOTIsOSBAQCBzdGF0aWMgaW50IHRpcGNfdWRwX3htaXQoc3RydWN0
-IG5ldCAqbmV0DQo+ICAJCWlmIChlcnIpDQo+ICAJCQlnb3RvIHR4X2Vycm9yOw0KPiAgCQl0dGwg
-PSBpcDZfZHN0X2hvcGxpbWl0KG5kc3QpOw0KPiAtCQllcnIgPSB1ZHBfdHVubmVsNl94bWl0X3Nr
-YihuZHN0LCB1Yi0+dWJzb2NrLT5zaywgc2tiLA0KPiAtCQkJCQkgICBuZHN0LT5kZXYsICZzcmMt
-PmlwdjYsDQo+IC0JCQkJCSAgICZkc3QtPmlwdjYsIDAsIHR0bCwgMCwgc3JjLQ0KPiA+cG9ydCwN
-Cj4gLQkJCQkJICAgZHN0LT5wb3J0LCBmYWxzZSk7DQo+ICsJCWVyciA9IHVkcF90dW5uZWw2X3ht
-aXRfc2tiKG5kc3QsIHViLT51YnNvY2stPnNrLCBza2IsDQo+IE5VTEwsDQo+ICsJCQkJCSAgICZz
-cmMtPmlwdjYsICZkc3QtPmlwdjYsIDAsDQo+IHR0bCwgMCwNCj4gKwkJCQkJICAgc3JjLT5wb3J0
-LCBkc3QtPnBvcnQsDQo+IGZhbHNlKTsNCj4gICNlbmRpZg0KPiAgCX0NCj4gIAlyZXR1cm4gZXJy
-Ow0KPiANCj4gDQoNCg==
+stable-rc/linux-4.14.y boot: 120 boots: 1 failed, 78 passed with 41 offline=
+ (v4.14.134-313-g6c9b3711a3b3)
+
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.134-313-g6c9b3711a3b3/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.134-313-g6c9b3711a3b3/
+
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.134-313-g6c9b3711a3b3
+Git Commit: 6c9b3711a3b3b10f2bd59631d9661687b9f57545
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 66 unique boards, 26 SoC families, 16 builds out of 201
+
+Boot Failure Detected:
+
+arc:
+    hsdk_defconfig:
+        gcc-8:
+            hsdk: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            meson-gxbb-odroidc2: 1 offline lab
+            meson-gxl-s905d-p230: 1 offline lab
+            meson-gxl-s905x-libretech-cc: 1 offline lab
+            meson-gxl-s905x-nexbox-a95x: 1 offline lab
+            meson-gxl-s905x-p212: 1 offline lab
+            meson-gxm-nexbox-a1: 1 offline lab
+            rk3399-firefly: 1 offline lab
+            sun50i-a64-pine64-plus: 1 offline lab
+
+mips:
+
+    pistachio_defconfig:
+        gcc-8
+            pistachio_marduk: 1 offline lab
+
+arm:
+
+    tegra_defconfig:
+        gcc-8
+            tegra20-iris-512: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5250-arndale: 1 offline lab
+            exynos5420-arndale-octa: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5250-arndale: 1 offline lab
+            exynos5420-arndale-octa: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
+            imx6dl-wandboard_dual: 1 offline lab
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+            imx7s-warp: 1 offline lab
+            meson8b-odroidc1: 1 offline lab
+            omap3-beagle: 1 offline lab
+            omap4-panda: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            stih410-b2120: 1 offline lab
+            sun4i-a10-cubieboard: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+            tegra20-iris-512: 1 offline lab
+            vf610-colibri-eval-v3: 1 offline lab
+
+    omap2plus_defconfig:
+        gcc-8
+            omap3-beagle: 1 offline lab
+            omap4-panda: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+    imx_v6_v7_defconfig:
+        gcc-8
+            imx6dl-wandboard_dual: 1 offline lab
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+            imx7s-warp: 1 offline lab
+            vf610-colibri-eval-v3: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun4i-a10-cubieboard: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
