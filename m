@@ -2,169 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 732777EE05
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 09:51:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 300AF7EE28
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 09:57:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729847AbfHBHv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 03:51:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47576 "EHLO mail.kernel.org"
+        id S2390580AbfHBH5t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 03:57:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729283AbfHBHv2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 03:51:28 -0400
+        id S1728268AbfHBH5s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 03:57:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAAA220644;
-        Fri,  2 Aug 2019 07:51:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7164420449;
+        Fri,  2 Aug 2019 07:57:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564732287;
-        bh=kzEEtbjjrdPAyzxrRRGRUcKmUt5I/OGfmVyN7CZTUMo=;
+        s=default; t=1564732667;
+        bh=IIi+crYPKCJNVS372QYWXk3lsDIqeTJGHnU5i0PSoCU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KBK3hTK/g/w1aS9eKJB4kyQ5nqJ6ZCuZXyoR+ReQBa1K4Bu7vGSDPSACtOCtfACHo
-         a1B7nFMVv3skMPHQKGVGcFCv4Rbo6B9rHuqN756eyGLeuLaLvYRgs0qCHfIJBDNutS
-         RXDR6sYF4uSLMhhhCLYAW7jWbFfdigVvBzm6JRxw=
-Date:   Fri, 2 Aug 2019 09:51:24 +0200
+        b=kzySmlyiI9BnzS87TcDSD9/hn7oqFaFfxPRU+Mj9dH7NiFCtK7BdJESYT+k9eioU0
+         lS+wNSbPuS1lbt9kKqwuKKhsHVPutNrrI10F4BngRW7Y1dmiZIvCyOOXujO31RlCa3
+         e7ksgVRHuHS6FqrHHJxTyBS1FMh3kw4eS2zjcTG0=
+Date:   Fri, 2 Aug 2019 09:57:45 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ajay Kaher <akaher@vmware.com>
-Cc:     aarcange@redhat.com, jannh@google.com, oleg@redhat.com,
-        peterx@redhat.com, rppt@linux.ibm.com, jgg@mellanox.com,
-        mhocko@suse.com, jglisse@redhat.com, akpm@linux-foundation.org,
-        mike.kravetz@oracle.com, viro@zeniv.linux.org.uk,
-        riandrews@android.com, arve@android.com, yishaih@mellanox.com,
-        dledford@redhat.com, sean.hefty@intel.com,
-        hal.rosenstock@gmail.com, matanb@mellanox.com, leonro@mellanox.com,
-        torvalds@linux-foundation.org, linux-fsdevel@vger.kernel.org,
-        linux-mm@kvack.org, devel@driverdev.osuosl.org,
-        linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, srivatsab@vmware.com, amakhalov@vmware.com
-Subject: Re: [PATCH v5 1/3] [v4.9.y] coredump: fix race condition between
- mmget_not_zero()/get_task_mm() and core dumping
-Message-ID: <20190802075124.GG26174@kroah.com>
-References: <1562005928-1929-1-git-send-email-akaher@vmware.com>
+To:     Rolf Eike Beer <eb@emlix.com>
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Matt Fleming <matt@codeblueprint.co.uk>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-efi@vger.kernel.org,
+        Linux Kernel Developers List <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, Matthias Kaehlcke <mka@google.com>,
+        clang-built-linux <clang-built-linux@googlegroups.com>
+Subject: Re: Building arm64 EFI stub with -fpie breaks build of 4.9.x
+ (undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_')
+Message-ID: <20190802075745.GI26174@kroah.com>
+References: <779905244.a0lJJiZRjM@devpool35>
+ <CAKwvOdnegLvkAa+-2uc-GM63HLcucWZtN5OoFvocLs50iLNJLg@mail.gmail.com>
+ <CAKwvOdn9g2Z=G_qz84S5xmn2GBNK7T-MWOGYT5C52sP0R=M_-Q@mail.gmail.com>
+ <2102708.6BiaULqomI@devpool35>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1562005928-1929-1-git-send-email-akaher@vmware.com>
+In-Reply-To: <2102708.6BiaULqomI@devpool35>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 02, 2019 at 12:02:05AM +0530, Ajay Kaher wrote:
-> From: Andrea Arcangeli <aarcange@redhat.com>
+On Thu, Jun 06, 2019 at 09:11:00AM +0200, Rolf Eike Beer wrote:
+> Nick Desaulniers wrote:
+> > On Wed, Jun 5, 2019 at 10:27 AM Nick Desaulniers
+> > 
+> > <ndesaulniers@google.com> wrote:
+> > > On Wed, Jun 5, 2019 at 9:26 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+> > > > On Wed, Jun 05, 2019 at 05:19:40PM +0200, Rolf Eike Beer wrote:
+> > > > > I decided to dig out a toy project which uses a DragonBoard 410c. This
+> > > > > has
+> > > > > been "running" with kernel 4.9, which I would keep this way for
+> > > > > unrelated
+> > > > > reasons. The vanilla 4.9 kernel wasn't bootable back then, but it was
+> > > > > buildable, which was good enough.
+> > > > > 
+> > > > > Upgrading the kernel to 4.9.180 caused the boot to suddenly fail:
+> > > > > 
+> > > > > aarch64-unknown-linux-gnueabi-ld:
+> > > > > ./drivers/firmware/efi/libstub/lib.a(arm64- stub.stub.o): in function
+> > > > > `handle_kernel_image':
+> > > > > /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm64-stub.c:
+> > > > > 63:
+> > > > > undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_'
+> > > > > aarch64-unknown-linux-gnueabi-ld:
+> > > > > ./drivers/firmware/efi/libstub/lib.a(arm64- stub.stub.o): relocation
+> > > > > R_AARCH64_ADR_PREL_PG_HI21 against symbol
+> > > > > `__efistub__GLOBAL_OFFSET_TABLE_' which may bind externally can not
+> > > > > be used when making a shared object; recompile with -fPIC
+> > > > > /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm64-stub.c:
+> > > > > 63:
+> > > > > (.init.text+0xc): dangerous relocation: unsupported relocation
+> > > > > /tmp/e2/build/linux-4.9.139/Makefile:1001: recipe for target 'vmlinux'
+> > > > > failed -make[1]: *** [vmlinux] Error 1
+> > > > > 
+> > > > > This is caused by commit 27b5ebf61818749b3568354c64a8ec2d9cd5ecca from
+> > > > > linux-4.9.y (which is 91ee5b21ee026c49e4e7483de69b55b8b47042be),
+> > > > > reverting
+> > > > > this commit fixes the build.
+> > > > > 
+> > > > > This happens with vanilla binutils 2.32 and gcc 8.3.0 as well as
+> > > > > 9.1.0. See
+> > > > > the attached .config for reference.
+> > > > > 
+> > > > > If you have questions or patches just ping me.
+> > > > 
+> > > > Does Linus's latest tree also fail for you (or 5.1)?
+> > > > 
+> > > > Nick, do we need to add another fix that is in mainline for this to work
+> > > > properly?
+> > > > 
+> > > > thanks,
+> > > > 
+> > > > greg k-h
+> > > 
+> > > Doesn't immediately ring any bells for me.
+> > 
+> > Upstream commits:
+> > dd6846d77469 ("arm64: drop linker script hack to hide __efistub_ symbols")
+> > 1212f7a16af4 ("scripts/kallsyms: filter arm64's __efistub_ symbols")
+> > 
+> > Look related to __efistub__ prefixes on symbols and aren't in stable
+> > 4.9 (maybe Rolf can try cherry picks of those).
 > 
-> commit 04f5866e41fb70690e28397487d8bd8eea7d712a upstream.
+> I now have cherry-picked these commits:
 > 
-> The core dumping code has always run without holding the mmap_sem for
-> writing, despite that is the only way to ensure that the entire vma
-> layout will not change from under it.  Only using some signal
-> serialization on the processes belonging to the mm is not nearly enough.
-> This was pointed out earlier.  For example in Hugh's post from Jul 2017:
+> dd6846d77469
+> fdfb69a72522e97f9105a6d39a5be0a465951ed8
+> 1212f7a16af4
+> 56067812d5b0e737ac2063e94a50f76b810d6ca3
 > 
->   https://lkml.kernel.org/r/alpine.LSU.2.11.1707191716030.2055@eggly.anvils
-> 
->   "Not strictly relevant here, but a related note: I was very surprised
->    to discover, only quite recently, how handle_mm_fault() may be called
->    without down_read(mmap_sem) - when core dumping. That seems a
->    misguided optimization to me, which would also be nice to correct"
-> 
-> In particular because the growsdown and growsup can move the
-> vm_start/vm_end the various loops the core dump does around the vma will
-> not be consistent if page faults can happen concurrently.
-> 
-> Pretty much all users calling mmget_not_zero()/get_task_mm() and then
-> taking the mmap_sem had the potential to introduce unexpected side
-> effects in the core dumping code.
-> 
-> Adding mmap_sem for writing around the ->core_dump invocation is a
-> viable long term fix, but it requires removing all copy user and page
-> faults and to replace them with get_dump_page() for all binary formats
-> which is not suitable as a short term fix.
-> 
-> For the time being this solution manually covers the places that can
-> confuse the core dump either by altering the vma layout or the vma flags
-> while it runs.  Once ->core_dump runs under mmap_sem for writing the
-> function mmget_still_valid() can be dropped.
-> 
-> Allowing mmap_sem protected sections to run in parallel with the
-> coredump provides some minor parallelism advantage to the swapoff code
-> (which seems to be safe enough by never mangling any vma field and can
-> keep doing swapins in parallel to the core dumping) and to some other
-> corner case.
-> 
-> In order to facilitate the backporting I added "Fixes: 86039bd3b4e6"
-> however the side effect of this same race condition in /proc/pid/mem
-> should be reproducible since before 2.6.12-rc2 so I couldn't add any
-> other "Fixes:" because there's no hash beyond the git genesis commit.
-> 
-> Because find_extend_vma() is the only location outside of the process
-> context that could modify the "mm" structures under mmap_sem for
-> reading, by adding the mmget_still_valid() check to it, all other cases
-> that take the mmap_sem for reading don't need the new check after
-> mmget_not_zero()/get_task_mm().  The expand_stack() in page fault
-> context also doesn't need the new check, because all tasks under core
-> dumping are frozen.
-> 
-> Link: http://lkml.kernel.org/r/20190325224949.11068-1-aarcange@redhat.com
-> Fixes: 86039bd3b4e6 ("userfaultfd: add new syscall to provide memory externalization")
-> Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
-> Reported-by: Jann Horn <jannh@google.com>
-> Suggested-by: Oleg Nesterov <oleg@redhat.com>
-> Acked-by: Peter Xu <peterx@redhat.com>
-> Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
-> Reviewed-by: Oleg Nesterov <oleg@redhat.com>
-> Reviewed-by: Jann Horn <jannh@google.com>
-> Acked-by: Jason Gunthorpe <jgg@mellanox.com>
-> Acked-by: Michal Hocko <mhocko@suse.com>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> [akaher@vmware.com: stable 4.9 backport
-> -  handle binder_update_page_range - mhocko@suse.com]
-> Signed-off-by: Ajay Kaher <akaher@vmware.com>
-> ---
-> drivers/android/binder.c |  6 ++++++
-> fs/proc/task_mmu.c       | 18 ++++++++++++++++++
-> fs/userfaultfd.c         |  9 +++++++++
-> include/linux/mm.h       | 21 +++++++++++++++++++++
-> mm/mmap.c                |  6 +++++-
-> 5 files changed, 59 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-> index 80499f4..f05ab8f 100644
-> --- a/drivers/android/binder.c
-> +++ b/drivers/android/binder.c
-> @@ -581,6 +581,12 @@ static int binder_update_page_range(struct binder_proc *proc, int allocate,
-> 	if (mm) {
-> 		down_write(&mm->mmap_sem);
-> +		if (!mmget_still_valid(mm)) {
-> +			if (allocate == 0)
-> +				goto free_range;
-> +			goto err_no_vma;
-> +		}
-> +
-> 		vma = proc->vma;
-> 		if (vma && mm != proc->vma_vm_mm) {
-> 			pr_err("%d: vma mm and task mm mismatch\n",
-> diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-> index 5138e78..4b207b1 100644
-> --- a/fs/proc/task_mmu.c
-> +++ b/fs/proc/task_mmu.c
-> @@ -1057,6 +1057,24 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
+> The 2 additional ones were needed as dependencies of the others. Nothing of 
+> this has helped.
 
-This patch is oddly corrupted, and I can't figure out how to fix it up.
-
-When applying it, I get following error:
-
-patching file drivers/android/binder.c
-patch: **** malformed patch at line 102: diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-
-So something is odd here.
-
-Can you please fix this up, and resend the series so that they can be
-applied?
+Did this ever get resolved, or is it still an issue?
 
 thanks,
 
