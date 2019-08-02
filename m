@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B65D47F1F6
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:44:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F44F7F1E7
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:43:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731234AbfHBJnv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:43:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46890 "EHLO mail.kernel.org"
+        id S2391684AbfHBJnN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:43:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405127AbfHBJnu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:43:50 -0400
+        id S2404042AbfHBJnI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:43:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D39DD2087E;
-        Fri,  2 Aug 2019 09:43:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A835520679;
+        Fri,  2 Aug 2019 09:43:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739029;
-        bh=bO5GQ3b6BqSWLBgyH9f/0sZRr1dSnWJoox1yt84Edik=;
+        s=default; t=1564738987;
+        bh=d8J/eyduV+erwOk2PgEXLcSJfL3INtQfXul//p44UDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1SfznabfXfvKivajNG8QtNFEKNvEF8SVwyI4bgAkXcsl0qLIpAXK2RO7zrN2XGh9G
-         CKNt91AZ9lkHKZSt6nV5hJcuPWKaBw5UVsE3zlR+i0pR+vpocf6lvZQJvF0Jd0aeIK
-         LLlyX0jeDLi17ybxtuItAxFzkpWsVKCvcKLhDYl0=
+        b=nlN9Syh9mhaSofPKQY2zhq5JQ3OPxjydmkZ8Kcu3pYPTc0HcxKFI90UNvy5C/Wm+b
+         EtSXi70pdcJbCjN0pyFdm6eJsIzVyMLUdtvgSHupjZXV6raC3UakggOOdif83dcpSb
+         MQsbEUqFvOZJT6TJ6uQehc6GQrhOEGpsvlb+gAQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matti Kamunen <matti.kamunen@synopsys.com>,
-        Ari Timonen <ari.timonen@synopsys.com>,
-        Matias Karhumaa <matias.karhumaa@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 070/223] Bluetooth: Check state in l2cap_disconnect_rsp
-Date:   Fri,  2 Aug 2019 11:34:55 +0200
-Message-Id: <20190802092243.343104078@linuxfoundation.org>
+Subject: [PATCH 4.9 073/223] gtp: fix use-after-free in gtp_newlink()
+Date:   Fri,  2 Aug 2019 11:34:58 +0200
+Message-Id: <20190802092243.571212596@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -46,218 +44,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 28261da8a26f4915aa257d12d506c6ba179d961f ]
+[ Upstream commit a2bed90704c68d3763bf24decb1b781a45395de8 ]
 
-Because of both sides doing L2CAP disconnection at the same time, it
-was possible to receive L2CAP Disconnection Response with CID that was
-already freed. That caused problems if CID was already reused and L2CAP
-Connection Request with same CID was sent out. Before this patch kernel
-deleted channel context regardless of the state of the channel.
+Current gtp_newlink() could be called after unregister_pernet_subsys().
+gtp_newlink() uses gtp_net but it can be destroyed by
+unregister_pernet_subsys().
+So unregister_pernet_subsys() should be called after
+rtnl_link_unregister().
 
-Example where leftover Disconnection Response (frame #402) causes local
-device to delete L2CAP channel which was not yet connected. This in
-turn confuses remote device's stack because same CID is re-used without
-properly disconnecting.
+Test commands:
+   #SHELL 1
+   while :
+   do
+	   for i in {1..5}
+	   do
+		./gtp-link add gtp$i &
+	   done
+	   killall gtp-link
+   done
 
-Btmon capture before patch:
-** snip **
-> ACL Data RX: Handle 43 flags 0x02 dlen 8                #394 [hci1] 10.748949
-      Channel: 65 len 4 [PSM 3 mode 0] {chan 2}
-      RFCOMM: Disconnect (DISC) (0x43)
-         Address: 0x03 cr 1 dlci 0x00
-         Control: 0x53 poll/final 1
-         Length: 0
-         FCS: 0xfd
-< ACL Data TX: Handle 43 flags 0x00 dlen 8                #395 [hci1] 10.749062
-      Channel: 65 len 4 [PSM 3 mode 0] {chan 2}
-      RFCOMM: Unnumbered Ack (UA) (0x63)
-         Address: 0x03 cr 1 dlci 0x00
-         Control: 0x73 poll/final 1
-         Length: 0
-         FCS: 0xd7
-< ACL Data TX: Handle 43 flags 0x00 dlen 12               #396 [hci1] 10.749073
-      L2CAP: Disconnection Request (0x06) ident 17 len 4
-        Destination CID: 65
-        Source CID: 65
-> HCI Event: Number of Completed Packets (0x13) plen 5    #397 [hci1] 10.752391
-        Num handles: 1
-        Handle: 43
-        Count: 1
-> HCI Event: Number of Completed Packets (0x13) plen 5    #398 [hci1] 10.753394
-        Num handles: 1
-        Handle: 43
-        Count: 1
-> ACL Data RX: Handle 43 flags 0x02 dlen 12               #399 [hci1] 10.756499
-      L2CAP: Disconnection Request (0x06) ident 26 len 4
-        Destination CID: 65
-        Source CID: 65
-< ACL Data TX: Handle 43 flags 0x00 dlen 12               #400 [hci1] 10.756548
-      L2CAP: Disconnection Response (0x07) ident 26 len 4
-        Destination CID: 65
-        Source CID: 65
-< ACL Data TX: Handle 43 flags 0x00 dlen 12               #401 [hci1] 10.757459
-      L2CAP: Connection Request (0x02) ident 18 len 4
-        PSM: 1 (0x0001)
-        Source CID: 65
-> ACL Data RX: Handle 43 flags 0x02 dlen 12               #402 [hci1] 10.759148
-      L2CAP: Disconnection Response (0x07) ident 17 len 4
-        Destination CID: 65
-        Source CID: 65
-= bluetoothd: 00:1E:AB:4C:56:54: error updating services: Input/o..   10.759447
-> HCI Event: Number of Completed Packets (0x13) plen 5    #403 [hci1] 10.759386
-        Num handles: 1
-        Handle: 43
-        Count: 1
-> ACL Data RX: Handle 43 flags 0x02 dlen 12               #404 [hci1] 10.760397
-      L2CAP: Connection Request (0x02) ident 27 len 4
-        PSM: 3 (0x0003)
-        Source CID: 65
-< ACL Data TX: Handle 43 flags 0x00 dlen 16               #405 [hci1] 10.760441
-      L2CAP: Connection Response (0x03) ident 27 len 8
-        Destination CID: 65
-        Source CID: 65
-        Result: Connection successful (0x0000)
-        Status: No further information available (0x0000)
-< ACL Data TX: Handle 43 flags 0x00 dlen 27               #406 [hci1] 10.760449
-      L2CAP: Configure Request (0x04) ident 19 len 19
-        Destination CID: 65
-        Flags: 0x0000
-        Option: Maximum Transmission Unit (0x01) [mandatory]
-          MTU: 1013
-        Option: Retransmission and Flow Control (0x04) [mandatory]
-          Mode: Basic (0x00)
-          TX window size: 0
-          Max transmit: 0
-          Retransmission timeout: 0
-          Monitor timeout: 0
-          Maximum PDU size: 0
-> HCI Event: Number of Completed Packets (0x13) plen 5    #407 [hci1] 10.761399
-        Num handles: 1
-        Handle: 43
-        Count: 1
-> ACL Data RX: Handle 43 flags 0x02 dlen 16               #408 [hci1] 10.762942
-      L2CAP: Connection Response (0x03) ident 18 len 8
-        Destination CID: 66
-        Source CID: 65
-        Result: Connection successful (0x0000)
-        Status: No further information available (0x0000)
-*snip*
+   #SHELL 2
+   while :
+   do
+	modprobe -rv gtp
+   done
 
-Similar case after the patch:
-*snip*
-> ACL Data RX: Handle 43 flags 0x02 dlen 8            #22702 [hci0] 1664.411056
-      Channel: 65 len 4 [PSM 3 mode 0] {chan 3}
-      RFCOMM: Disconnect (DISC) (0x43)
-         Address: 0x03 cr 1 dlci 0x00
-         Control: 0x53 poll/final 1
-         Length: 0
-         FCS: 0xfd
-< ACL Data TX: Handle 43 flags 0x00 dlen 8            #22703 [hci0] 1664.411136
-      Channel: 65 len 4 [PSM 3 mode 0] {chan 3}
-      RFCOMM: Unnumbered Ack (UA) (0x63)
-         Address: 0x03 cr 1 dlci 0x00
-         Control: 0x73 poll/final 1
-         Length: 0
-         FCS: 0xd7
-< ACL Data TX: Handle 43 flags 0x00 dlen 12           #22704 [hci0] 1664.411143
-      L2CAP: Disconnection Request (0x06) ident 11 len 4
-        Destination CID: 65
-        Source CID: 65
-> HCI Event: Number of Completed Pac.. (0x13) plen 5  #22705 [hci0] 1664.414009
-        Num handles: 1
-        Handle: 43
-        Count: 1
-> HCI Event: Number of Completed Pac.. (0x13) plen 5  #22706 [hci0] 1664.415007
-        Num handles: 1
-        Handle: 43
-        Count: 1
-> ACL Data RX: Handle 43 flags 0x02 dlen 12           #22707 [hci0] 1664.418674
-      L2CAP: Disconnection Request (0x06) ident 17 len 4
-        Destination CID: 65
-        Source CID: 65
-< ACL Data TX: Handle 43 flags 0x00 dlen 12           #22708 [hci0] 1664.418762
-      L2CAP: Disconnection Response (0x07) ident 17 len 4
-        Destination CID: 65
-        Source CID: 65
-< ACL Data TX: Handle 43 flags 0x00 dlen 12           #22709 [hci0] 1664.421073
-      L2CAP: Connection Request (0x02) ident 12 len 4
-        PSM: 1 (0x0001)
-        Source CID: 65
-> ACL Data RX: Handle 43 flags 0x02 dlen 12           #22710 [hci0] 1664.421371
-      L2CAP: Disconnection Response (0x07) ident 11 len 4
-        Destination CID: 65
-        Source CID: 65
-> HCI Event: Number of Completed Pac.. (0x13) plen 5  #22711 [hci0] 1664.424082
-        Num handles: 1
-        Handle: 43
-        Count: 1
-> HCI Event: Number of Completed Pac.. (0x13) plen 5  #22712 [hci0] 1664.425040
-        Num handles: 1
-        Handle: 43
-        Count: 1
-> ACL Data RX: Handle 43 flags 0x02 dlen 12           #22713 [hci0] 1664.426103
-      L2CAP: Connection Request (0x02) ident 18 len 4
-        PSM: 3 (0x0003)
-        Source CID: 65
-< ACL Data TX: Handle 43 flags 0x00 dlen 16           #22714 [hci0] 1664.426186
-      L2CAP: Connection Response (0x03) ident 18 len 8
-        Destination CID: 66
-        Source CID: 65
-        Result: Connection successful (0x0000)
-        Status: No further information available (0x0000)
-< ACL Data TX: Handle 43 flags 0x00 dlen 27           #22715 [hci0] 1664.426196
-      L2CAP: Configure Request (0x04) ident 13 len 19
-        Destination CID: 65
-        Flags: 0x0000
-        Option: Maximum Transmission Unit (0x01) [mandatory]
-          MTU: 1013
-        Option: Retransmission and Flow Control (0x04) [mandatory]
-          Mode: Basic (0x00)
-          TX window size: 0
-          Max transmit: 0
-          Retransmission timeout: 0
-          Monitor timeout: 0
-          Maximum PDU size: 0
-> ACL Data RX: Handle 43 flags 0x02 dlen 16           #22716 [hci0] 1664.428804
-      L2CAP: Connection Response (0x03) ident 12 len 8
-        Destination CID: 66
-        Source CID: 65
-        Result: Connection successful (0x0000)
-        Status: No further information available (0x0000)
-*snip*
+Splat looks like:
+[  753.176631] BUG: KASAN: use-after-free in gtp_newlink+0x9b4/0xa5c [gtp]
+[  753.177722] Read of size 8 at addr ffff8880d48f2458 by task gtp-link/7126
+[  753.179082] CPU: 0 PID: 7126 Comm: gtp-link Tainted: G        W         5.2.0-rc6+ #50
+[  753.185801] Call Trace:
+[  753.186264]  dump_stack+0x7c/0xbb
+[  753.186863]  ? gtp_newlink+0x9b4/0xa5c [gtp]
+[  753.187583]  print_address_description+0xc7/0x240
+[  753.188382]  ? gtp_newlink+0x9b4/0xa5c [gtp]
+[  753.189097]  ? gtp_newlink+0x9b4/0xa5c [gtp]
+[  753.189846]  __kasan_report+0x12a/0x16f
+[  753.190542]  ? gtp_newlink+0x9b4/0xa5c [gtp]
+[  753.191298]  kasan_report+0xe/0x20
+[  753.191893]  gtp_newlink+0x9b4/0xa5c [gtp]
+[  753.192580]  ? __netlink_ns_capable+0xc3/0xf0
+[  753.193370]  __rtnl_newlink+0xb9f/0x11b0
+[ ... ]
+[  753.241201] Allocated by task 7186:
+[  753.241844]  save_stack+0x19/0x80
+[  753.242399]  __kasan_kmalloc.constprop.3+0xa0/0xd0
+[  753.243192]  __kmalloc+0x13e/0x300
+[  753.243764]  ops_init+0xd6/0x350
+[  753.244314]  register_pernet_operations+0x249/0x6f0
+[ ... ]
+[  753.251770] Freed by task 7178:
+[  753.252288]  save_stack+0x19/0x80
+[  753.252833]  __kasan_slab_free+0x111/0x150
+[  753.253962]  kfree+0xc7/0x280
+[  753.254509]  ops_free_list.part.11+0x1c4/0x2d0
+[  753.255241]  unregister_pernet_operations+0x262/0x390
+[ ... ]
+[  753.285883] list_add corruption. next->prev should be prev (ffff8880d48f2458), but was ffff8880d497d878. (next.
+[  753.287241] ------------[ cut here ]------------
+[  753.287794] kernel BUG at lib/list_debug.c:25!
+[  753.288364] invalid opcode: 0000 [#1] SMP DEBUG_PAGEALLOC KASAN PTI
+[  753.289099] CPU: 0 PID: 7126 Comm: gtp-link Tainted: G    B   W         5.2.0-rc6+ #50
+[  753.291036] RIP: 0010:__list_add_valid+0x74/0xd0
+[  753.291589] Code: 48 39 da 75 27 48 39 f5 74 36 48 39 dd 74 31 48 83 c4 08 b8 01 00 00 00 5b 5d c3 48 89 d9 48b
+[  753.293779] RSP: 0018:ffff8880cae8f398 EFLAGS: 00010286
+[  753.294401] RAX: 0000000000000075 RBX: ffff8880d497d878 RCX: 0000000000000000
+[  753.296260] RDX: 0000000000000075 RSI: 0000000000000008 RDI: ffffed10195d1e69
+[  753.297070] RBP: ffff8880cd250ae0 R08: ffffed101b4bff21 R09: ffffed101b4bff21
+[  753.297899] R10: 0000000000000001 R11: ffffed101b4bff20 R12: ffff8880d497d878
+[  753.298703] R13: 0000000000000000 R14: ffff8880cd250ae0 R15: ffff8880d48f2458
+[  753.299564] FS:  00007f5f79805740(0000) GS:ffff8880da400000(0000) knlGS:0000000000000000
+[  753.300533] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  753.301231] CR2: 00007fe8c7ef4f10 CR3: 00000000b71a6006 CR4: 00000000000606f0
+[  753.302183] Call Trace:
+[  753.302530]  gtp_newlink+0x5f6/0xa5c [gtp]
+[  753.303037]  ? __netlink_ns_capable+0xc3/0xf0
+[  753.303576]  __rtnl_newlink+0xb9f/0x11b0
+[  753.304092]  ? rtnl_link_unregister+0x230/0x230
 
-Fix is to check that channel is in state BT_DISCONN before deleting the
-channel.
-
-This bug was found while fuzzing Bluez's OBEX implementation using
-Synopsys Defensics.
-
-Reported-by: Matti Kamunen <matti.kamunen@synopsys.com>
-Reported-by: Ari Timonen <ari.timonen@synopsys.com>
-Signed-off-by: Matias Karhumaa <matias.karhumaa@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 459aa660eb1d ("gtp: add initial driver for datapath of GPRS Tunneling Protocol (GTP-U)")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/gtp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index ec9b5d159591..48d23abfe799 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -4374,6 +4374,12 @@ static inline int l2cap_disconnect_rsp(struct l2cap_conn *conn,
+diff --git a/drivers/net/gtp.c b/drivers/net/gtp.c
+index 60df6e391ad2..7e1df403a37d 100644
+--- a/drivers/net/gtp.c
++++ b/drivers/net/gtp.c
+@@ -1358,9 +1358,9 @@ late_initcall(gtp_init);
  
- 	l2cap_chan_lock(chan);
+ static void __exit gtp_fini(void)
+ {
+-	unregister_pernet_subsys(&gtp_net_ops);
+ 	genl_unregister_family(&gtp_genl_family);
+ 	rtnl_link_unregister(&gtp_link_ops);
++	unregister_pernet_subsys(&gtp_net_ops);
  
-+	if (chan->state != BT_DISCONN) {
-+		l2cap_chan_unlock(chan);
-+		mutex_unlock(&conn->chan_lock);
-+		return 0;
-+	}
-+
- 	l2cap_chan_hold(chan);
- 	l2cap_chan_del(chan, 0);
- 
+ 	pr_info("GTP module unloaded\n");
+ }
 -- 
 2.20.1
 
