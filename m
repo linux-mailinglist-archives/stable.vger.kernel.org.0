@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 831997FAD0
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E0817FADE
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:36:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393732AbfHBNWU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:22:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60910 "EHLO mail.kernel.org"
+        id S2405989AbfHBNfF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:35:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393726AbfHBNWT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:22:19 -0400
+        id S2393735AbfHBNWV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:22:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12EBB2173E;
-        Fri,  2 Aug 2019 13:22:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93D0E21851;
+        Fri,  2 Aug 2019 13:22:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752139;
-        bh=yPrQMS+7RMJW6ZvOmMUVj0WXisOzt31m6mEW5a5WZSk=;
+        s=default; t=1564752140;
+        bh=uNA+mGTVxaUDqpL+jM1PMaWa2FEDc+RSUb4fLqVBUik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wKg9xc9zlePV3tunDNGhedoyKebzshNPOwg9ZZinIJ3HEvK4f6682t+X5hc8/XVau
-         DGHo9J90IGx8mAW6ZHwETB8Sm2grkaQk0uESNsOKeBOI3vmPIOD7hc41LWtk85WtLd
-         Ub6GW7VsmhkWbps1FketUeJ8ZaWMDb/F640+wmuA=
+        b=NPyiYNqNZlU0zJ5Eandd+7PW6VL9ROPe9RKaHPqo0YRwqJ7+iKf2tUTKRhl/N+F59
+         /PZBhhlES6awu2txp6oUnvsRIkzAg9RhUyXOyV7XMIMJMGAz5xe9riYPBcnaO1NrXu
+         gpnWvVNmA9yGet6IPPyvRaJhFTmhGoXIEzKi2wjE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>,
-        Roland Kammerer <roland.kammerer@linbit.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        drbd-dev@lists.linbit.com, linux-block@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.2 57/76] drbd: dynamically allocate shash descriptor
-Date:   Fri,  2 Aug 2019 09:19:31 -0400
-Message-Id: <20190802131951.11600-57-sashal@kernel.org>
+Cc:     Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Will Deacon <will@kernel.org>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 58/76] ACPI/IORT: Fix off-by-one check in iort_dev_find_its_id()
+Date:   Fri,  2 Aug 2019 09:19:32 -0400
+Message-Id: <20190802131951.11600-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
 References: <20190802131951.11600-1-sashal@kernel.org>
@@ -45,69 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 
-[ Upstream commit 77ce56e2bfaa64127ae5e23ef136c0168b818777 ]
+[ Upstream commit 5a46d3f71d5e5a9f82eabc682f996f1281705ac7 ]
 
-Building with clang and KASAN, we get a warning about an overly large
-stack frame on 32-bit architectures:
+Static analysis identified that index comparison against ITS entries in
+iort_dev_find_its_id() is off by one.
 
-drivers/block/drbd/drbd_receiver.c:921:31: error: stack frame size of 1280 bytes in function 'conn_connect'
-      [-Werror,-Wframe-larger-than=]
+Update the comparison condition and clarify the resulting error
+message.
 
-We already allocate other data dynamically in this function, so
-just do the same for the shash descriptor, which makes up most of
-this memory.
-
-Link: https://lore.kernel.org/lkml/20190617132440.2721536-1-arnd@arndb.de/
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Roland Kammerer <roland.kammerer@linbit.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 4bf2efd26d76 ("ACPI: Add new IORT functions to support MSI domain handling")
+Link: https://lore.kernel.org/linux-arm-kernel/20190613065410.GB16334@mwanda/
+Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Hanjun Guo <guohanjun@huawei.com>
+Cc: Sudeep Holla <sudeep.holla@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/drbd/drbd_receiver.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/acpi/arm64/iort.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/drbd/drbd_receiver.c b/drivers/block/drbd/drbd_receiver.c
-index 90ebfcae0ce6e..2b3103c308573 100644
---- a/drivers/block/drbd/drbd_receiver.c
-+++ b/drivers/block/drbd/drbd_receiver.c
-@@ -5417,7 +5417,7 @@ static int drbd_do_auth(struct drbd_connection *connection)
- 	unsigned int key_len;
- 	char secret[SHARED_SECRET_MAX]; /* 64 byte */
- 	unsigned int resp_size;
--	SHASH_DESC_ON_STACK(desc, connection->cram_hmac_tfm);
-+	struct shash_desc *desc;
- 	struct packet_info pi;
- 	struct net_conf *nc;
- 	int err, rv;
-@@ -5430,6 +5430,13 @@ static int drbd_do_auth(struct drbd_connection *connection)
- 	memcpy(secret, nc->shared_secret, key_len);
- 	rcu_read_unlock();
+diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/arm64/iort.c
+index d4551e33fa716..8569b79e8b581 100644
+--- a/drivers/acpi/arm64/iort.c
++++ b/drivers/acpi/arm64/iort.c
+@@ -611,8 +611,8 @@ static int iort_dev_find_its_id(struct device *dev, u32 req_id,
  
-+	desc = kmalloc(sizeof(struct shash_desc) +
-+		       crypto_shash_descsize(connection->cram_hmac_tfm),
-+		       GFP_KERNEL);
-+	if (!desc) {
-+		rv = -1;
-+		goto fail;
-+	}
- 	desc->tfm = connection->cram_hmac_tfm;
- 
- 	rv = crypto_shash_setkey(connection->cram_hmac_tfm, (u8 *)secret, key_len);
-@@ -5571,7 +5578,10 @@ static int drbd_do_auth(struct drbd_connection *connection)
- 	kfree(peers_ch);
- 	kfree(response);
- 	kfree(right_response);
--	shash_desc_zero(desc);
-+	if (desc) {
-+		shash_desc_zero(desc);
-+		kfree(desc);
-+	}
- 
- 	return rv;
- }
+ 	/* Move to ITS specific data */
+ 	its = (struct acpi_iort_its_group *)node->node_data;
+-	if (idx > its->its_count) {
+-		dev_err(dev, "requested ITS ID index [%d] is greater than available [%d]\n",
++	if (idx >= its->its_count) {
++		dev_err(dev, "requested ITS ID index [%d] overruns ITS entries [%d]\n",
+ 			idx, its->its_count);
+ 		return -ENXIO;
+ 	}
 -- 
 2.20.1
 
