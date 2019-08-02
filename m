@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C0757F3D3
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:00:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 130B07F3D6
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:00:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405995AbfHBJwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:52:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58018 "EHLO mail.kernel.org"
+        id S2406776AbfHBKA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 06:00:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405992AbfHBJwY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:52:24 -0400
+        id S2405986AbfHBJwc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:52:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FAF720B7C;
-        Fri,  2 Aug 2019 09:52:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B48320B7C;
+        Fri,  2 Aug 2019 09:52:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739543;
-        bh=nmPTsWkP88e57Ys91exz3DHHrVrBrLe2/K84VB5KA5U=;
+        s=default; t=1564739551;
+        bh=QX+m9bc2daiQaPYZktOpa4/lnm8a/+CJzVft8iWKPp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o9ruawNFTPxLZ9Sce9DOmuJ+aSX7FSer3t9Gwco5sFYmqOqIR8geyB1NUbQ/HpdEv
-         3XYXgZuWqsqqIlcnObnwQYIu4pPtHhCDvhQ1SplFiCiYLRlny6Psm1kkGy09m1YZDo
-         X4LL/QTEomKdMm4x8qzmxmgsumQw23xt9DDzuV1A=
+        b=IUDjPsk+GOpR9i7s7dXcc7cJn5Wq9jqjXfVakMIQrTRI5817cj7OXw1bOReLGmy0z
+         iCMGgjYuRBoufrxblHO2CDzv/t/LzGDoHaanj2qMO01wUbQ7uzGsb00uSxPFLHncF7
+         q+9sW22OaxcpC0zOb3W97rTApRZw8yCZZXpg8CFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Zhang HongJun <zhanghongjun2@huawei.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.9 206/223] hpet: Fix division by zero in hpet_time_div()
-Date:   Fri,  2 Aug 2019 11:37:11 +0200
-Message-Id: <20190802092250.338058159@linuxfoundation.org>
+        stable@vger.kernel.org, Praveen Pandey <Praveen.Pandey@in.ibm.com>,
+        Michael Neuling <mikey@neuling.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.9 209/223] powerpc/tm: Fix oops on sigreturn on systems without TM
+Date:   Fri,  2 Aug 2019 11:37:14 +0200
+Message-Id: <20190802092250.452016416@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -44,67 +44,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
+From: Michael Neuling <mikey@neuling.org>
 
-commit 0c7d37f4d9b8446956e97b7c5e61173cdb7c8522 upstream.
+commit f16d80b75a096c52354c6e0a574993f3b0dfbdfe upstream.
 
-The base value in do_div() called by hpet_time_div() is truncated from
-unsigned long to uint32_t, resulting in a divide-by-zero exception.
+On systems like P9 powernv where we have no TM (or P8 booted with
+ppc_tm=off), userspace can construct a signal context which still has
+the MSR TS bits set. The kernel tries to restore this context which
+results in the following crash:
 
-UBSAN: Undefined behaviour in ../drivers/char/hpet.c:572:2
-division by zero
-CPU: 1 PID: 23682 Comm: syz-executor.3 Not tainted 4.4.184.x86_64+ #4
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
- 0000000000000000 b573382df1853d00 ffff8800a3287b98 ffffffff81ad7561
- ffff8800a3287c00 ffffffff838b35b0 ffffffff838b3860 ffff8800a3287c20
- 0000000000000000 ffff8800a3287bb0 ffffffff81b8f25e ffffffff838b35a0
-Call Trace:
- [<ffffffff81ad7561>] __dump_stack lib/dump_stack.c:15 [inline]
- [<ffffffff81ad7561>] dump_stack+0xc1/0x120 lib/dump_stack.c:51
- [<ffffffff81b8f25e>] ubsan_epilogue+0x12/0x8d lib/ubsan.c:166
- [<ffffffff81b900cb>] __ubsan_handle_divrem_overflow+0x282/0x2c8 lib/ubsan.c:262
- [<ffffffff823560dd>] hpet_time_div drivers/char/hpet.c:572 [inline]
- [<ffffffff823560dd>] hpet_ioctl_common drivers/char/hpet.c:663 [inline]
- [<ffffffff823560dd>] hpet_ioctl_common.cold+0xa8/0xad drivers/char/hpet.c:577
- [<ffffffff81e63d56>] hpet_ioctl+0xc6/0x180 drivers/char/hpet.c:676
- [<ffffffff81711590>] vfs_ioctl fs/ioctl.c:43 [inline]
- [<ffffffff81711590>] file_ioctl fs/ioctl.c:470 [inline]
- [<ffffffff81711590>] do_vfs_ioctl+0x6e0/0xf70 fs/ioctl.c:605
- [<ffffffff81711eb4>] SYSC_ioctl fs/ioctl.c:622 [inline]
- [<ffffffff81711eb4>] SyS_ioctl+0x94/0xc0 fs/ioctl.c:613
- [<ffffffff82846003>] tracesys_phase2+0x90/0x95
+  Unexpected TM Bad Thing exception at c0000000000022fc (msr 0x8000000102a03031) tm_scratch=800000020280f033
+  Oops: Unrecoverable exception, sig: 6 [#1]
+  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+  Modules linked in:
+  CPU: 0 PID: 1636 Comm: sigfuz Not tainted 5.2.0-11043-g0a8ad0ffa4 #69
+  NIP:  c0000000000022fc LR: 00007fffb2d67e48 CTR: 0000000000000000
+  REGS: c00000003fffbd70 TRAP: 0700   Not tainted  (5.2.0-11045-g7142b497d8)
+  MSR:  8000000102a03031 <SF,VEC,VSX,FP,ME,IR,DR,LE,TM[E]>  CR: 42004242  XER: 00000000
+  CFAR: c0000000000022e0 IRQMASK: 0
+  GPR00: 0000000000000072 00007fffb2b6e560 00007fffb2d87f00 0000000000000669
+  GPR04: 00007fffb2b6e728 0000000000000000 0000000000000000 00007fffb2b6f2a8
+  GPR08: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+  GPR12: 0000000000000000 00007fffb2b76900 0000000000000000 0000000000000000
+  GPR16: 00007fffb2370000 00007fffb2d84390 00007fffea3a15ac 000001000a250420
+  GPR20: 00007fffb2b6f260 0000000010001770 0000000000000000 0000000000000000
+  GPR24: 00007fffb2d843a0 00007fffea3a14a0 0000000000010000 0000000000800000
+  GPR28: 00007fffea3a14d8 00000000003d0f00 0000000000000000 00007fffb2b6e728
+  NIP [c0000000000022fc] rfi_flush_fallback+0x7c/0x80
+  LR [00007fffb2d67e48] 0x7fffb2d67e48
+  Call Trace:
+  Instruction dump:
+  e96a0220 e96a02a8 e96a0330 e96a03b8 394a0400 4200ffdc 7d2903a6 e92d0c00
+  e94d0c08 e96d0c10 e82d0c18 7db242a6 <4c000024> 7db243a6 7db142a6 f82d0c18
 
-The main C reproducer autogenerated by syzkaller,
+The problem is the signal code assumes TM is enabled when
+CONFIG_PPC_TRANSACTIONAL_MEM is enabled. This may not be the case as
+with P9 powernv or if `ppc_tm=off` is used on P8.
 
-  syscall(__NR_mmap, 0x20000000, 0x1000000, 3, 0x32, -1, 0);
-  memcpy((void*)0x20000100, "/dev/hpet\000", 10);
-  syscall(__NR_openat, 0xffffffffffffff9c, 0x20000100, 0, 0);
-  syscall(__NR_ioctl, r[0], 0x40086806, 0x40000000000000);
+This means any local user can crash the system.
 
-Fix it by using div64_ul().
+Fix the problem by returning a bad stack frame to the user if they try
+to set the MSR TS bits with sigreturn() on systems where TM is not
+supported.
 
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Signed-off-by: Zhang HongJun <zhanghongjun2@huawei.com>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20190711132757.130092-1-wangkefeng.wang@huawei.com
+Found with sigfuz kernel selftest on P9.
+
+This fixes CVE-2019-13648.
+
+Fixes: 2b0a576d15e0 ("powerpc: Add new transactional memory state to the signal context")
+Cc: stable@vger.kernel.org # v3.9
+Reported-by: Praveen Pandey <Praveen.Pandey@in.ibm.com>
+Signed-off-by: Michael Neuling <mikey@neuling.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190719050502.405-1-mikey@neuling.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/hpet.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/powerpc/kernel/signal_32.c |    3 +++
+ arch/powerpc/kernel/signal_64.c |    5 +++++
+ 2 files changed, 8 insertions(+)
 
---- a/drivers/char/hpet.c
-+++ b/drivers/char/hpet.c
-@@ -569,8 +569,7 @@ static inline unsigned long hpet_time_di
- 	unsigned long long m;
+--- a/arch/powerpc/kernel/signal_32.c
++++ b/arch/powerpc/kernel/signal_32.c
+@@ -1281,6 +1281,9 @@ long sys_rt_sigreturn(int r3, int r4, in
+ 			goto bad;
  
- 	m = hpets->hp_tick_freq + (dis >> 1);
--	do_div(m, dis);
--	return (unsigned long)m;
-+	return div64_ul(m, dis);
- }
- 
- static int
+ 		if (MSR_TM_ACTIVE(msr_hi<<32)) {
++			/* Trying to start TM on non TM system */
++			if (!cpu_has_feature(CPU_FTR_TM))
++				goto bad;
+ 			/* We only recheckpoint on return if we're
+ 			 * transaction.
+ 			 */
+--- a/arch/powerpc/kernel/signal_64.c
++++ b/arch/powerpc/kernel/signal_64.c
+@@ -741,6 +741,11 @@ int sys_rt_sigreturn(unsigned long r3, u
+ 	if (MSR_TM_ACTIVE(msr)) {
+ 		/* We recheckpoint on return. */
+ 		struct ucontext __user *uc_transact;
++
++		/* Trying to start TM on non TM system */
++		if (!cpu_has_feature(CPU_FTR_TM))
++			goto badframe;
++
+ 		if (__get_user(uc_transact, &uc->uc_link))
+ 			goto badframe;
+ 		if (restore_tm_sigcontexts(current, &uc->uc_mcontext,
 
 
