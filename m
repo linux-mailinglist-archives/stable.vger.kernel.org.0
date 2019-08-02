@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A774F7F2D3
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:51:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBD117F2A0
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:50:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405720AbfHBJvd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:51:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48068 "EHLO mail.kernel.org"
+        id S2403831AbfHBJpY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:45:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391547AbfHBJoj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:44:39 -0400
+        id S2405424AbfHBJpW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:45:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9080C206A2;
-        Fri,  2 Aug 2019 09:44:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 077592086A;
+        Fri,  2 Aug 2019 09:45:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739078;
-        bh=JLeOArumhw3pHEpAq0cX2sLAqcrHiDyam2CGdvxGhxQ=;
+        s=default; t=1564739121;
+        bh=C3mhXCl2ZWYBLwyb38j1K9FbAQ3C3952L957kgeENwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aC4KywNzdMrEJ4bVo/ofCfFWIvI4cNKZTFtab3+H4yGSSTYbiuyt6bc/HBXdfQePi
-         2v67rjOkaEso70X9B/B1p0VV1at1kKKOU76cUQf5djfVe/RnCk2wLlILF/3RgXi9Zq
-         LxM20/RcChLoBKMfBVrZBjyZxk0/gzdXpGvQYJrU=
+        b=yszODwNow/TFRm4BxiJJLxhZz2/xUndyjiwjIQnfT+wfxftU16O23XIMzlb89VhaL
+         ycMNAfSUhG1vWBdU5BvZxiCATa+IrLbrNs1R55f80RexOWyqO3rgk2sdfztKPtsTAv
+         VUsqrXUvGV0swybYs0WVogsNJ3Ac0PYMIo9CbGes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.9 089/223] lib/scatterlist: Fix mapping iterator when sg->offset is greater than PAGE_SIZE
-Date:   Fri,  2 Aug 2019 11:35:14 +0200
-Message-Id: <20190802092244.851105063@linuxfoundation.org>
+        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
+        Marc Meledandri <m.meledandri@gmail.com>,
+        Ben Skeggs <bskeggs@redhat.com>
+Subject: [PATCH 4.9 097/223] drm/nouveau/i2c: Enable i2c pads & busses during preinit
+Date:   Fri,  2 Aug 2019 11:35:22 +0200
+Message-Id: <20190802092245.461973137@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -43,57 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Lyude Paul <lyude@redhat.com>
 
-commit aeb87246537a83c2aff482f3f34a2e0991e02cbc upstream.
+commit 7cb95eeea6706c790571042a06782e378b2561ea upstream.
 
-All mapping iterator logic is based on the assumption that sg->offset
-is always lower than PAGE_SIZE.
+It turns out that while disabling i2c bus access from software when the
+GPU is suspended was a step in the right direction with:
 
-But there are situations where sg->offset is such that the SG item
-is on the second page. In that case sg_copy_to_buffer() fails
-properly copying the data into the buffer. One of the reason is
-that the data will be outside the kmapped area used to access that
-data.
+commit 342406e4fbba ("drm/nouveau/i2c: Disable i2c bus access after
+->fini()")
 
-This patch fixes the issue by adjusting the mapping iterator
-offset and pgoffset fields such that offset is always lower than
-PAGE_SIZE.
+We also ended up accidentally breaking the vbios init scripts on some
+older Tesla GPUs, as apparently said scripts can actually use the i2c
+bus. Since these scripts are executed before initializing any
+subdevices, we end up failing to acquire access to the i2c bus which has
+left a number of cards with their fan controllers uninitialized. Luckily
+this doesn't break hardware - it just means the fan gets stuck at 100%.
 
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Fixes: 4225fc8555a9 ("lib/scatterlist: use page iterator in the mapping iterator")
+This also means that we've always been using our i2c busses before
+initializing them during the init scripts for older GPUs, we just didn't
+notice it until we started preventing them from being used until init.
+It's pretty impressive this never caused us any issues before!
+
+So, fix this by initializing our i2c pad and busses during subdev
+pre-init. We skip initializing aux busses during pre-init, as those are
+guaranteed to only ever be used by nouveau for DP aux transactions.
+
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Tested-by: Marc Meledandri <m.meledandri@gmail.com>
+Fixes: 342406e4fbba ("drm/nouveau/i2c: Disable i2c bus access after ->fini()")
 Cc: stable@vger.kernel.org
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- lib/scatterlist.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/nouveau/nvkm/subdev/i2c/base.c |   20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
---- a/lib/scatterlist.c
-+++ b/lib/scatterlist.c
-@@ -496,17 +496,18 @@ static bool sg_miter_get_next_page(struc
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/base.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/base.c
+@@ -185,6 +185,25 @@ nvkm_i2c_fini(struct nvkm_subdev *subdev
+ }
+ 
+ static int
++nvkm_i2c_preinit(struct nvkm_subdev *subdev)
++{
++	struct nvkm_i2c *i2c = nvkm_i2c(subdev);
++	struct nvkm_i2c_bus *bus;
++	struct nvkm_i2c_pad *pad;
++
++	/*
++	 * We init our i2c busses as early as possible, since they may be
++	 * needed by the vbios init scripts on some cards
++	 */
++	list_for_each_entry(pad, &i2c->pad, head)
++		nvkm_i2c_pad_init(pad);
++	list_for_each_entry(bus, &i2c->bus, head)
++		nvkm_i2c_bus_init(bus);
++
++	return 0;
++}
++
++static int
+ nvkm_i2c_init(struct nvkm_subdev *subdev)
  {
- 	if (!miter->__remaining) {
- 		struct scatterlist *sg;
--		unsigned long pgoffset;
- 
- 		if (!__sg_page_iter_next(&miter->piter))
- 			return false;
- 
- 		sg = miter->piter.sg;
--		pgoffset = miter->piter.sg_pgoffset;
- 
--		miter->__offset = pgoffset ? 0 : sg->offset;
-+		miter->__offset = miter->piter.sg_pgoffset ? 0 : sg->offset;
-+		miter->piter.sg_pgoffset += miter->__offset >> PAGE_SHIFT;
-+		miter->__offset &= PAGE_SIZE - 1;
- 		miter->__remaining = sg->offset + sg->length -
--				(pgoffset << PAGE_SHIFT) - miter->__offset;
-+				     (miter->piter.sg_pgoffset << PAGE_SHIFT) -
-+				     miter->__offset;
- 		miter->__remaining = min_t(unsigned long, miter->__remaining,
- 					   PAGE_SIZE - miter->__offset);
- 	}
+ 	struct nvkm_i2c *i2c = nvkm_i2c(subdev);
+@@ -238,6 +257,7 @@ nvkm_i2c_dtor(struct nvkm_subdev *subdev
+ static const struct nvkm_subdev_func
+ nvkm_i2c = {
+ 	.dtor = nvkm_i2c_dtor,
++	.preinit = nvkm_i2c_preinit,
+ 	.init = nvkm_i2c_init,
+ 	.fini = nvkm_i2c_fini,
+ 	.intr = nvkm_i2c_intr,
 
 
