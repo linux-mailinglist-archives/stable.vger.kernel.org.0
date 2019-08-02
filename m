@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D93B17F53B
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:39:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A85DF7F5A3
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 13:00:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727788AbfHBKjw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 06:39:52 -0400
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:37833 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726170AbfHBKjw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 06:39:52 -0400
-Received: by mail-lf1-f65.google.com with SMTP id c9so52553450lfh.4;
-        Fri, 02 Aug 2019 03:39:50 -0700 (PDT)
+        id S2392179AbfHBLAo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 07:00:44 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:34421 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2392192AbfHBLAo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 07:00:44 -0400
+Received: by mail-lf1-f67.google.com with SMTP id b29so45414274lfq.1;
+        Fri, 02 Aug 2019 04:00:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=5482PCZzUMFMKuxfVvg4Yev3g0GqmaJh0s8a2jYMhWU=;
-        b=oEJYr5HtY21v/R0yUWUqTDOGxQ4aV+3YBib4fTTbtJ9LAsigZlma6ZgGrFk429vtTs
-         8K6xXpykk661zyEbBcGOI1wahifn29OW21y14f8H6pZeB6Gglru5OLCBepG9BFgt28dN
-         sH77qA8B59Vc9ZAb/dpiey2lmJbDl2NTzgDXoqgANURBQVCQE9U8e3RAF4RUoRerrfzC
-         cGhHfrpE+e1Z43SpJanvXA2bWZr3wxJL+Bamm+fQ5dpH0H5swpLKyEcytkFSeViqktyO
-         vf9+p4q2aYpiP4mduNmGwwvR3HfcHP8jdAvz+kQFiomUaBYinbXPTULM5O/CdBFqWdqw
-         Bf7Q==
+        bh=Wt7WxlfN5bbYMzTthies6t41pinYZ4q+vA57T6gnbAE=;
+        b=aOmSVpS+bt+ekMUqTL+Y7tH2ieGGr7Jw/44h5Faq2JU1dAWaMKr6ii9PaA5NX+GT6T
+         GtnVvKBnz6ksdtz0RiDwdZS3ZJYNzsuKxh/KNSFVTjvMe4578A2frIbLs+0TpqwRydcJ
+         ds1PDJ7rwGAyvDn4tVj3r9v6pKSqkePEc5HpjQpzZAMSiWII60O2+dfjrSDvrMgNhEIj
+         yrfvFPaJjbuj0zPj+0IxYMpOrp5q7So2wU1W03lhMdiFRfDtcRo+mRE6FTTEIt8yeQZF
+         wO72V1ijDl/1vM29+m1InFFAfM52dLwprShMVE+SgsTvI8yIOCdfUDAH5hl7qUcpOn06
+         fNiw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=5482PCZzUMFMKuxfVvg4Yev3g0GqmaJh0s8a2jYMhWU=;
-        b=IFoZcMECrCZrrnSK3Cy2lJeN66WHLjlkpyHMq7XRuQteUYwhRxFjlKrUE01KUn2d+p
-         k0t0TRb3LLkR+AdmcLVAnqWwCXQGcnIowCTYBENfJz3QH/g4z5KmOfTfq6acMR4i2BvA
-         glPTjhKOm81cKfClDRrWHf90ZsyZLf9kZ26jQGdksmmOXxHdddSFuo23pl/Nhzvg0ytd
-         l5YWO3XJTcJLfjQbWEuK5E6PdzsgwRWSVCiew0wC/+O+YqqqSgO+5OXsDYOhDFtr2+n0
-         wI9+xiZuT+q0Wio+uuTjOf036dhv5KVvZHuBX97nf/liTVgA2w/NkEwiDZLYSHh1PlCB
-         kv6A==
-X-Gm-Message-State: APjAAAUA36OLefjcSR5riKYi7VzhQvhBvz6bFU58opgCuScgBXJWfGtA
-        RmL1VnCT3aHW4J7Pc9XPFH3RToOfJkT68BPm5sfeqm3+
-X-Google-Smtp-Source: APXvYqyfHp5ss+YMsd9FBA/CWTPi5XIqr0RtlJ6Z2s+wPVY7vdlWXexjaMPryPpA5eC6RJi2x9ByMFoEKtCGCYcd8Z8=
-X-Received: by 2002:a19:491d:: with SMTP id w29mr64758033lfa.149.1564742389620;
- Fri, 02 Aug 2019 03:39:49 -0700 (PDT)
+        bh=Wt7WxlfN5bbYMzTthies6t41pinYZ4q+vA57T6gnbAE=;
+        b=fs3lBAzIuIxBsIA1jXwHNgk6PZ0J8jNiLhoN02dvqQjy3sKyzpNAtFpIiiSid6Q2Eg
+         G7WHJkKAeZet/v9wgnCzykarSwlBbQhFiP8IBg0pEVkQ7FCB7DF35s4fuiaPdV3QTNGm
+         AuMQbpENufdO32t5eVmOg2rAXMD8u2jdle+gS0pWhVtNLde2KROkrOSFH2alKsRz5hYX
+         PiSCvkrrFppIGabS2PjlhEdfNrQux8RAYTycMDt8vh6p2naUaT7iQUN+Vh5ZIfUWheFX
+         AJ17x7WZ9QEr1mJAPvFAtAjBLhHLlF5T7H5rScIQ1j44wQPUxpsdOMipjso0aSaVHgHb
+         9bwQ==
+X-Gm-Message-State: APjAAAUjfRpNXyF810IN1VDsL4P+Y9GdkbiXkTGFydJ7mNhHMLfnGY4u
+        OJyNOlKHA/oIZL0IKM5reERajubU4Tb5AIt3240=
+X-Google-Smtp-Source: APXvYqxjOsmMp4j5kcGBFe67+JYL7mzTR5TgnpPp282kSrMxiiv8w4drdi258b3Om8fsOuoNBtaTTKdaKWsTJKZyVS0=
+X-Received: by 2002:a05:6512:1d2:: with SMTP id f18mr24187779lfp.173.1564743642396;
+ Fri, 02 Aug 2019 04:00:42 -0700 (PDT)
 MIME-Version: 1.0
 References: <259986242.BvXPX32bHu@devpool35> <20190606185900.GA19937@kroah.com>
  <CANiq72n2E4Ue0MU5mWitSbsscizPQKML0QQx_DBwJVni+eWMHQ@mail.gmail.com>
@@ -47,8 +47,8 @@ References: <259986242.BvXPX32bHu@devpool35> <20190606185900.GA19937@kroah.com>
  <20190802103346.GA14255@kroah.com>
 In-Reply-To: <20190802103346.GA14255@kroah.com>
 From:   Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Date:   Fri, 2 Aug 2019 12:39:38 +0200
-Message-ID: <CANiq72neLZLB5dKsqK8y=_JDNf=Ea07b_jYutBXJ8Y=kse1q8A@mail.gmail.com>
+Date:   Fri, 2 Aug 2019 13:00:30 +0200
+Message-ID: <CANiq72kcZZwp2MRVF5Ls+drXCzVbCfZ7wZ8Y+rU93oGohVAGsQ@mail.gmail.com>
 Subject: =?UTF-8?Q?Re=3A_Linux_4=2E9=2E180_build_fails_with_gcc_9_and_=27cleanu?=
         =?UTF-8?Q?p=5Fmodule=27_specifies_less_restrictive_attribute_than_its_targ?=
         =?UTF-8?Q?et_=E2=80=A6?=
@@ -96,7 +96,20 @@ On Fri, Aug 2, 2019 at 12:33 PM Greg KH <greg@kroah.com> wrote:
 > them, can you send them to me (and cc: the stable list) in email so I
 > can queue them up for the next round of releases after this one?
 
-Done! Please double check, since I am not used to send to stable.
+At least for that particular problem, yeah -- I haven't done a full allmod.
+
+By the way, I just checked 4.14.y and I noticed you had already
+backported it, although going for another solution:
+
++#if GCC_VERSION >= 90100
++#define __copy(symbol)                 __attribute__((__copy__(symbol)))
++#endif
+
+and then:
+
++#ifndef __copy
++# define __copy(symbol)
++#endif
 
 Cheers,
 Miguel
