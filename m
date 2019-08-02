@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8C087F396
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:59:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D860E7F36E
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:57:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406789AbfHBJ6t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:58:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36572 "EHLO mail.kernel.org"
+        id S2406900AbfHBJ50 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:57:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406871AbfHBJ5X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:57:23 -0400
+        id S2406895AbfHBJ50 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:57:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2296B20B7C;
-        Fri,  2 Aug 2019 09:57:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B15E52087E;
+        Fri,  2 Aug 2019 09:57:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739842;
-        bh=lpySsXp3nInyhS+g20TznSRkPQDULGp/A/Gs1UqHMSk=;
+        s=default; t=1564739845;
+        bh=TZIj1XO9MgEwWteHdZaf3ynD/LvR36ZM79MeKGbyz9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QhU6t3AlpXL7tDy6W69FRvc+ec7eYpveA+Sv18u2c/h5mFeEhddjLmI5atUUix8Hq
-         GYcTEIuTckrCaUqc6dPnwJxH+IL39ZHsXA/ReX4gjtQt/7wrIcmBRluBG2bGGNrV4n
-         s2rwu0ySjwJ73ALFmyroZbkfPHjAqjJR1AGczHz4=
+        b=jjlJj1EC5OEwmYnNhS2TZo1irD4m3auWZjVVCsoDJxUTSBUZFIu9mA9mY+XQNdlDU
+         ktS/T6UxEg8SscBQGOeSry7Yc3Vpi1dAusrUSjolqe1E8seUHRhJqNNyytinlNMRWS
+         6suY1SumxnNad4x6si6bgoOd2x6Ck1Q0j8gtFX0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+0165480d4ef07360eeda@syzkaller.appspotmail.com,
-        Florian Westphal <fw@strlen.de>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 5.2 11/20] xfrm: policy: fix bydst hlist corruption on hash rebuild
-Date:   Fri,  2 Aug 2019 11:40:05 +0200
-Message-Id: <20190802092100.481389776@linuxfoundation.org>
+        Marta Rybczynska <marta.rybczynska@kalray.eu>,
+        Jean-Baptiste Riaux <jbriaux@kalray.eu>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.2 12/20] nvme: fix multipath crash when ANA is deactivated
+Date:   Fri,  2 Aug 2019 11:40:06 +0200
+Message-Id: <20190802092100.642491391@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092055.131876977@linuxfoundation.org>
 References: <20190802092055.131876977@linuxfoundation.org>
@@ -45,150 +45,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Marta Rybczynska <mrybczyn@kalray.eu>
 
-commit fd709721352dd5239056eacaded00f2244e6ef58 upstream.
+commit 66b20ac0a1a10769d059d6903202f53494e3d902 upstream.
 
-syzbot reported following spat:
+Fix a crash with multipath activated. It happends when ANA log
+page is larger than MDTS and because of that ANA is disabled.
+The driver then tries to access unallocated buffer when connecting
+to a nvme target. The signature is as follows:
 
-BUG: KASAN: use-after-free in __write_once_size include/linux/compiler.h:221
-BUG: KASAN: use-after-free in hlist_del_rcu include/linux/rculist.h:455
-BUG: KASAN: use-after-free in xfrm_hash_rebuild+0xa0d/0x1000 net/xfrm/xfrm_policy.c:1318
-Write of size 8 at addr ffff888095e79c00 by task kworker/1:3/8066
-Workqueue: events xfrm_hash_rebuild
-Call Trace:
- __write_once_size include/linux/compiler.h:221 [inline]
- hlist_del_rcu include/linux/rculist.h:455 [inline]
- xfrm_hash_rebuild+0xa0d/0x1000 net/xfrm/xfrm_policy.c:1318
- process_one_work+0x814/0x1130 kernel/workqueue.c:2269
-Allocated by task 8064:
- __kmalloc+0x23c/0x310 mm/slab.c:3669
- kzalloc include/linux/slab.h:742 [inline]
- xfrm_hash_alloc+0x38/0xe0 net/xfrm/xfrm_hash.c:21
- xfrm_policy_init net/xfrm/xfrm_policy.c:4036 [inline]
- xfrm_net_init+0x269/0xd60 net/xfrm/xfrm_policy.c:4120
- ops_init+0x336/0x420 net/core/net_namespace.c:130
- setup_net+0x212/0x690 net/core/net_namespace.c:316
+[  300.433586] nvme nvme0: ANA log page size (8208) larger than MDTS (8192).
+[  300.435387] nvme nvme0: disabling ANA support.
+[  300.437835] nvme nvme0: creating 4 I/O queues.
+[  300.459132] nvme nvme0: new ctrl: NQN "nqn.0.0.0", addr 10.91.0.1:8009
+[  300.464609] BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
+[  300.466342] #PF error: [normal kernel read fault]
+[  300.467385] PGD 0 P4D 0
+[  300.467987] Oops: 0000 [#1] SMP PTI
+[  300.468787] CPU: 3 PID: 50 Comm: kworker/u8:1 Not tainted 5.0.20kalray+ #4
+[  300.470264] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+[  300.471532] Workqueue: nvme-wq nvme_scan_work [nvme_core]
+[  300.472724] RIP: 0010:nvme_parse_ana_log+0x21/0x140 [nvme_core]
+[  300.474038] Code: 45 01 d2 d8 48 98 c3 66 90 0f 1f 44 00 00 41 57 41 56 41 55 41 54 55 53 48 89 fb 48 83 ec 08 48 8b af 20 0a 00 00 48 89 34 24 <66> 83 7d 08 00 0f 84 c6 00 00 00 44 8b 7d 14 49 89 d5 8b 55 10 48
+[  300.477374] RSP: 0018:ffffa50e80fd7cb8 EFLAGS: 00010296
+[  300.478334] RAX: 0000000000000001 RBX: ffff9130f1872258 RCX: 0000000000000000
+[  300.479784] RDX: ffffffffc06c4c30 RSI: ffff9130edad4280 RDI: ffff9130f1872258
+[  300.481488] RBP: 0000000000000000 R08: 0000000000000001 R09: 0000000000000044
+[  300.483203] R10: 0000000000000220 R11: 0000000000000040 R12: ffff9130f18722c0
+[  300.484928] R13: ffff9130f18722d0 R14: ffff9130edad4280 R15: ffff9130f18722c0
+[  300.486626] FS:  0000000000000000(0000) GS:ffff9130f7b80000(0000) knlGS:0000000000000000
+[  300.488538] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  300.489907] CR2: 0000000000000008 CR3: 00000002365e6000 CR4: 00000000000006e0
+[  300.491612] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  300.493303] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  300.494991] Call Trace:
+[  300.495645]  nvme_mpath_add_disk+0x5c/0xb0 [nvme_core]
+[  300.496880]  nvme_validate_ns+0x2ef/0x550 [nvme_core]
+[  300.498105]  ? nvme_identify_ctrl.isra.45+0x6a/0xb0 [nvme_core]
+[  300.499539]  nvme_scan_work+0x2b4/0x370 [nvme_core]
+[  300.500717]  ? __switch_to_asm+0x35/0x70
+[  300.501663]  process_one_work+0x171/0x380
+[  300.502340]  worker_thread+0x49/0x3f0
+[  300.503079]  kthread+0xf8/0x130
+[  300.503795]  ? max_active_store+0x80/0x80
+[  300.504690]  ? kthread_bind+0x10/0x10
+[  300.505502]  ret_from_fork+0x35/0x40
+[  300.506280] Modules linked in: nvme_tcp nvme_rdma rdma_cm iw_cm ib_cm ib_core nvme_fabrics nvme_core xt_physdev ip6table_raw ip6table_mangle ip6table_filter ip6_tables xt_comment iptable_nat nf_nat_ipv4 nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 xt_CHECKSUM iptable_mangle iptable_filter veth ebtable_filter ebtable_nat ebtables iptable_raw vxlan ip6_udp_tunnel udp_tunnel sunrpc joydev pcspkr virtio_balloon br_netfilter bridge stp llc ip_tables xfs libcrc32c ata_generic pata_acpi virtio_net virtio_console net_failover virtio_blk failover ata_piix serio_raw libata virtio_pci virtio_ring virtio
+[  300.514984] CR2: 0000000000000008
+[  300.515569] ---[ end trace faa2eefad7e7f218 ]---
+[  300.516354] RIP: 0010:nvme_parse_ana_log+0x21/0x140 [nvme_core]
+[  300.517330] Code: 45 01 d2 d8 48 98 c3 66 90 0f 1f 44 00 00 41 57 41 56 41 55 41 54 55 53 48 89 fb 48 83 ec 08 48 8b af 20 0a 00 00 48 89 34 24 <66> 83 7d 08 00 0f 84 c6 00 00 00 44 8b 7d 14 49 89 d5 8b 55 10 48
+[  300.520353] RSP: 0018:ffffa50e80fd7cb8 EFLAGS: 00010296
+[  300.521229] RAX: 0000000000000001 RBX: ffff9130f1872258 RCX: 0000000000000000
+[  300.522399] RDX: ffffffffc06c4c30 RSI: ffff9130edad4280 RDI: ffff9130f1872258
+[  300.523560] RBP: 0000000000000000 R08: 0000000000000001 R09: 0000000000000044
+[  300.524734] R10: 0000000000000220 R11: 0000000000000040 R12: ffff9130f18722c0
+[  300.525915] R13: ffff9130f18722d0 R14: ffff9130edad4280 R15: ffff9130f18722c0
+[  300.527084] FS:  0000000000000000(0000) GS:ffff9130f7b80000(0000) knlGS:0000000000000000
+[  300.528396] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  300.529440] CR2: 0000000000000008 CR3: 00000002365e6000 CR4: 00000000000006e0
+[  300.530739] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  300.531989] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  300.533264] Kernel panic - not syncing: Fatal exception
+[  300.534338] Kernel Offset: 0x17c00000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+[  300.536227] ---[ end Kernel panic - not syncing: Fatal exception ]---
 
-The faulting address is the address of the old chain head,
-free'd by xfrm_hash_resize().
+Condition check refactoring from Christoph Hellwig.
 
-In xfrm_hash_rehash(), chain heads get re-initialized without
-any hlist_del_rcu:
-
- for (i = hmask; i >= 0; i--)
-    INIT_HLIST_HEAD(odst + i);
-
-Then, hlist_del_rcu() gets called on the about to-be-reinserted policy
-when iterating the per-net list of policies.
-
-hlist_del_rcu() will then make chain->first be nonzero again:
-
-static inline void __hlist_del(struct hlist_node *n)
-{
-   struct hlist_node *next = n->next;   // address of next element in list
-   struct hlist_node **pprev = n->pprev;// location of previous elem, this
-                                        // can point at chain->first
-        WRITE_ONCE(*pprev, next);       // chain->first points to next elem
-        if (next)
-                next->pprev = pprev;
-
-Then, when we walk chainlist to find insertion point, we may find a
-non-empty list even though we're supposedly reinserting the first
-policy to an empty chain.
-
-To fix this first unlink all exact and inexact policies instead of
-zeroing the list heads.
-
-Add the commands equivalent to the syzbot reproducer to xfrm_policy.sh,
-without fix KASAN catches the corruption as it happens, SLUB poisoning
-detects it a bit later.
-
-Reported-by: syzbot+0165480d4ef07360eeda@syzkaller.appspotmail.com
-Fixes: 1548bc4e0512 ("xfrm: policy: delete inexact policies from inexact list on hash rebuild")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Marta Rybczynska <marta.rybczynska@kalray.eu>
+Tested-by: Jean-Baptiste Riaux <jbriaux@kalray.eu>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/xfrm/xfrm_policy.c                     |   12 +++++++-----
- tools/testing/selftests/net/xfrm_policy.sh |   27 ++++++++++++++++++++++++++-
- 2 files changed, 33 insertions(+), 6 deletions(-)
+ drivers/nvme/host/multipath.c |    8 ++------
+ drivers/nvme/host/nvme.h      |    6 +++++-
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -1280,13 +1280,17 @@ static void xfrm_hash_rebuild(struct wor
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -12,11 +12,6 @@ module_param(multipath, bool, 0444);
+ MODULE_PARM_DESC(multipath,
+ 	"turn on native support for multiple controllers per subsystem");
  
- 		hlist_for_each_entry_safe(policy, n,
- 					  &net->xfrm.policy_inexact[dir],
--					  bydst_inexact_list)
-+					  bydst_inexact_list) {
-+			hlist_del_rcu(&policy->bydst);
- 			hlist_del_init(&policy->bydst_inexact_list);
-+		}
- 
- 		hmask = net->xfrm.policy_bydst[dir].hmask;
- 		odst = net->xfrm.policy_bydst[dir].table;
--		for (i = hmask; i >= 0; i--)
--			INIT_HLIST_HEAD(odst + i);
-+		for (i = hmask; i >= 0; i--) {
-+			hlist_for_each_entry_safe(policy, n, odst + i, bydst)
-+				hlist_del_rcu(&policy->bydst);
-+		}
- 		if ((dir & XFRM_POLICY_MASK) == XFRM_POLICY_OUT) {
- 			/* dir out => dst = remote, src = local */
- 			net->xfrm.policy_bydst[dir].dbits4 = rbits4;
-@@ -1315,8 +1319,6 @@ static void xfrm_hash_rebuild(struct wor
- 		chain = policy_hash_bysel(net, &policy->selector,
- 					  policy->family, dir);
- 
--		hlist_del_rcu(&policy->bydst);
+-inline bool nvme_ctrl_use_ana(struct nvme_ctrl *ctrl)
+-{
+-	return multipath && ctrl->subsys && (ctrl->subsys->cmic & (1 << 3));
+-}
 -
- 		if (!chain) {
- 			void *p = xfrm_policy_inexact_insert(policy, dir, 0);
+ /*
+  * If multipathing is enabled we need to always use the subsystem instance
+  * number for numbering our devices to avoid conflicts between subsystems that
+@@ -614,7 +609,8 @@ int nvme_mpath_init(struct nvme_ctrl *ct
+ {
+ 	int error;
  
---- a/tools/testing/selftests/net/xfrm_policy.sh
-+++ b/tools/testing/selftests/net/xfrm_policy.sh
-@@ -257,6 +257,29 @@ check_exceptions()
- 	return $lret
- }
+-	if (!nvme_ctrl_use_ana(ctrl))
++	/* check if multipath is enabled and we have the capability */
++	if (!multipath || !ctrl->subsys || !(ctrl->subsys->cmic & (1 << 3)))
+ 		return 0;
  
-+check_hthresh_repeat()
+ 	ctrl->anacap = id->anacap;
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -472,7 +472,11 @@ extern const struct attribute_group *nvm
+ extern const struct block_device_operations nvme_ns_head_ops;
+ 
+ #ifdef CONFIG_NVME_MULTIPATH
+-bool nvme_ctrl_use_ana(struct nvme_ctrl *ctrl);
++static inline bool nvme_ctrl_use_ana(struct nvme_ctrl *ctrl)
 +{
-+	local log=$1
-+	i=0
-+
-+	for i in $(seq 1 10);do
-+		ip -net ns1 xfrm policy update src e000:0001::0000 dst ff01::0014:0000:0001 dir in tmpl src :: dst :: proto esp mode tunnel priority 100 action allow || break
-+		ip -net ns1 xfrm policy set hthresh6 0 28 || break
-+
-+		ip -net ns1 xfrm policy update src e000:0001::0000 dst ff01::01 dir in tmpl src :: dst :: proto esp mode tunnel priority 100 action allow || break
-+		ip -net ns1 xfrm policy set hthresh6 0 28 || break
-+	done
-+
-+	if [ $i -ne 10 ] ;then
-+		echo "FAIL: $log" 1>&2
-+		ret=1
-+		return 1
-+	fi
-+
-+	echo "PASS: $log"
-+	return 0
++	return ctrl->ana_log_buf != NULL;
 +}
 +
- #check for needed privileges
- if [ "$(id -u)" -ne 0 ];then
- 	echo "SKIP: Need root privileges"
-@@ -404,7 +427,9 @@ for n in ns3 ns4;do
- 	ip -net $n xfrm policy set hthresh4 32 32 hthresh6 128 128
- 	sleep $((RANDOM%5))
- done
--check_exceptions "exceptions and block policies after hresh change to normal"
-+check_exceptions "exceptions and block policies after htresh change to normal"
-+
-+check_hthresh_repeat "policies with repeated htresh change"
- 
- for i in 1 2 3 4;do ip netns del ns$i;done
- 
+ void nvme_set_disk_name(char *disk_name, struct nvme_ns *ns,
+ 			struct nvme_ctrl *ctrl, int *flags);
+ void nvme_failover_req(struct request *req);
 
 
