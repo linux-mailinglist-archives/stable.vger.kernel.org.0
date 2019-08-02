@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 44D557F99F
+	by mail.lfdr.de (Postfix) with ESMTP id AE4447F9A0
 	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:30:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394551AbfHBN02 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:26:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37228 "EHLO mail.kernel.org"
+        id S2394637AbfHBN0s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:26:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391562AbfHBN01 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:26:27 -0400
+        id S2391562AbfHBN0p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:26:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BDD8217D4;
-        Fri,  2 Aug 2019 13:26:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DA10217D4;
+        Fri,  2 Aug 2019 13:26:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752387;
-        bh=Zlu+FMluWUdLvCE9sgOpTHdimenP8JMa4OO4KuQ0GuE=;
+        s=default; t=1564752404;
+        bh=y4c5od+dJqEwVbq9IGEgd2Dwt60GSOcwyBqfRkgs0QE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sS9ht+9WTGf79LH2cxq60+Czy3UMBeZx8q3Cq+osxw9XfwTFTgc8zIdVtaKYaQ2Jc
-         2okFuvyI3qXgGUvEbhleetNs09lSY/Jtwd1DlGJ+Rj/G/gZUjFzNaL7Rs5ZehvMvYJ
-         xLDtSke27X9Y5dPde/OKPjjCpG9j6bdDhD6YPOIs=
+        b=ADXZK9xAlYgW4ei5hTHW0+M2h6PXm+1tFfWtl6tCMF5YZebiBrQF2EZVv5SzeB8Wj
+         leOjLAV2JpKRPhVX4MVmmO/GI9dhaAYdkjHyxUjq+eMsFgRsAXjNmZMFcvs2xV7d8M
+         vKonQ98H1ooyBK8tGmsIPCVlHB89/Xkl0eKcajGQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hannes Reinecke <hare@suse.de>, Hannes Reinecke <hare@suse.com>,
-        Zhangguanghui <zhang.guanghui@h3c.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 20/22] scsi: scsi_dh_alua: always use a 2 second delay before retrying RTPG
-Date:   Fri,  2 Aug 2019 09:25:44 -0400
-Message-Id: <20190802132547.14517-20-sashal@kernel.org>
+Cc:     Thomas Tai <thomas.tai@oracle.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 02/17] iscsi_ibft: make ISCSI_IBFT dependson ACPI instead of ISCSI_IBFT_FIND
+Date:   Fri,  2 Aug 2019 09:26:19 -0400
+Message-Id: <20190802132635.14885-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190802132547.14517-1-sashal@kernel.org>
-References: <20190802132547.14517-1-sashal@kernel.org>
+In-Reply-To: <20190802132635.14885-1-sashal@kernel.org>
+References: <20190802132635.14885-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,61 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+From: Thomas Tai <thomas.tai@oracle.com>
 
-[ Upstream commit 20122994e38aef0ae50555884d287adde6641c94 ]
+[ Upstream commit 94bccc34071094c165c79b515d21b63c78f7e968 ]
 
-Retrying immediately after we've received a 'transitioning' sense code is
-pretty much pointless, we should always use a delay before retrying.  So
-ensure the default delay is applied before retrying.
+iscsi_ibft can use ACPI to find the iBFT entry during bootup,
+currently, ISCSI_IBFT depends on ISCSI_IBFT_FIND which is
+a X86 legacy way to find the iBFT by searching through the
+low memory. This patch changes the dependency so that other
+arch like ARM64 can use ISCSI_IBFT as long as the arch supports
+ACPI.
 
-Signed-off-by: Hannes Reinecke <hare@suse.com>
-Tested-by: Zhangguanghui <zhang.guanghui@h3c.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+ibft_init() needs to use the global variable ibft_addr declared
+in iscsi_ibft_find.c. A #ifndef CONFIG_ISCSI_IBFT_FIND is needed
+to declare the variable if CONFIG_ISCSI_IBFT_FIND is not selected.
+Moving ibft_addr into the iscsi_ibft.c does not work because if
+ISCSI_IBFT is selected as a module, the arch/x86/kernel/setup.c won't
+be able to find the variable at compile time.
+
+Signed-off-by: Thomas Tai <thomas.tai@oracle.com>
+Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/device_handler/scsi_dh_alua.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/firmware/Kconfig      | 5 +++--
+ drivers/firmware/iscsi_ibft.c | 4 ++++
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
-index d3145799b92fa..98787588247bf 100644
---- a/drivers/scsi/device_handler/scsi_dh_alua.c
-+++ b/drivers/scsi/device_handler/scsi_dh_alua.c
-@@ -53,6 +53,7 @@
- #define ALUA_FAILOVER_TIMEOUT		60
- #define ALUA_FAILOVER_RETRIES		5
- #define ALUA_RTPG_DELAY_MSECS		5
-+#define ALUA_RTPG_RETRY_DELAY		2
+diff --git a/drivers/firmware/Kconfig b/drivers/firmware/Kconfig
+index cf478fe6b335b..b0d42234fba0e 100644
+--- a/drivers/firmware/Kconfig
++++ b/drivers/firmware/Kconfig
+@@ -135,7 +135,7 @@ config DMI_SCAN_MACHINE_NON_EFI_FALLBACK
  
- /* device handler flags */
- #define ALUA_OPTIMIZE_STPG		0x01
-@@ -681,7 +682,7 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
- 	case SCSI_ACCESS_STATE_TRANSITIONING:
- 		if (time_before(jiffies, pg->expiry)) {
- 			/* State transition, retry */
--			pg->interval = 2;
-+			pg->interval = ALUA_RTPG_RETRY_DELAY;
- 			err = SCSI_DH_RETRY;
- 		} else {
- 			struct alua_dh_data *h;
-@@ -809,6 +810,8 @@ static void alua_rtpg_work(struct work_struct *work)
- 				spin_lock_irqsave(&pg->lock, flags);
- 				pg->flags &= ~ALUA_PG_RUNNING;
- 				pg->flags |= ALUA_PG_RUN_RTPG;
-+				if (!pg->interval)
-+					pg->interval = ALUA_RTPG_RETRY_DELAY;
- 				spin_unlock_irqrestore(&pg->lock, flags);
- 				queue_delayed_work(alua_wq, &pg->rtpg_work,
- 						   pg->interval * HZ);
-@@ -820,6 +823,8 @@ static void alua_rtpg_work(struct work_struct *work)
- 		spin_lock_irqsave(&pg->lock, flags);
- 		if (err == SCSI_DH_RETRY || pg->flags & ALUA_PG_RUN_RTPG) {
- 			pg->flags &= ~ALUA_PG_RUNNING;
-+			if (!pg->interval && !(pg->flags & ALUA_PG_RUN_RTPG))
-+				pg->interval = ALUA_RTPG_RETRY_DELAY;
- 			pg->flags |= ALUA_PG_RUN_RTPG;
- 			spin_unlock_irqrestore(&pg->lock, flags);
- 			queue_delayed_work(alua_wq, &pg->rtpg_work,
+ config ISCSI_IBFT_FIND
+ 	bool "iSCSI Boot Firmware Table Attributes"
+-	depends on X86 && ACPI
++	depends on X86 && ISCSI_IBFT
+ 	default n
+ 	help
+ 	  This option enables the kernel to find the region of memory
+@@ -146,7 +146,8 @@ config ISCSI_IBFT_FIND
+ config ISCSI_IBFT
+ 	tristate "iSCSI Boot Firmware Table Attributes module"
+ 	select ISCSI_BOOT_SYSFS
+-	depends on ISCSI_IBFT_FIND && SCSI && SCSI_LOWLEVEL
++	select ISCSI_IBFT_FIND if X86
++	depends on ACPI && SCSI && SCSI_LOWLEVEL
+ 	default	n
+ 	help
+ 	  This option enables support for detection and exposing of iSCSI
+diff --git a/drivers/firmware/iscsi_ibft.c b/drivers/firmware/iscsi_ibft.c
+index 437c8ef90643b..30d67fbe00c73 100644
+--- a/drivers/firmware/iscsi_ibft.c
++++ b/drivers/firmware/iscsi_ibft.c
+@@ -93,6 +93,10 @@ MODULE_DESCRIPTION("sysfs interface to BIOS iBFT information");
+ MODULE_LICENSE("GPL");
+ MODULE_VERSION(IBFT_ISCSI_VERSION);
+ 
++#ifndef CONFIG_ISCSI_IBFT_FIND
++struct acpi_table_ibft *ibft_addr;
++#endif
++
+ struct ibft_hdr {
+ 	u8 id;
+ 	u8 version;
 -- 
 2.20.1
 
