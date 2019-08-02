@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5F2D7FAEF
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:36:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3D6C7FAF3
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:36:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391925AbfHBNf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2390653AbfHBNf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 2 Aug 2019 09:35:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58866 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393374AbfHBNU2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:20:28 -0400
+        id S2393378AbfHBNUa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:20:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD6F621880;
-        Fri,  2 Aug 2019 13:20:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05B512173E;
+        Fri,  2 Aug 2019 13:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752027;
-        bh=qYATy7CJpCOjeg6zvdgdZ/gVtljDVqOylR61OFotxEc=;
+        s=default; t=1564752029;
+        bh=sLxGRHB82ABi8IPvwEJ48S+TkbwPSy9Tse9vCufO+2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uJB5dGHM+hNHRl2YGm23ON6A5Dbn02Kndjm5HJ0VDqPJGDNSzw7LFBzHHWbygggfj
-         phMM3aXcMEbhawX9kY+/m6/E7NnCUKA5NkLBq0fG9S79vfwaLTgLAa2TMTI+jbfbi/
-         ZQF1EtfGHEizBWlCEUDsi938ajlDVluPpLjc4hrA=
+        b=jSO4b/GITALvkSAnH+jQ4eOj7bJRU76fskGBG2bpUClmaEm+M1k5DUfbXk0Bf0AWK
+         a95juFbLRtR2g9ta2/u2fBSbCXb/aUcpaBrE4qfdN5rjwSc9ohw729ZZiVY9lfMSoA
+         PSPmlPzuqFCqletJMj5m6mkTdMBr1qeJrWZHYKeE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alvin Lee <alvin.lee2@amd.com>, Jun Lei <Jun.Lei@amd.com>,
+Cc:     Tai Man <taiman.wong@amd.com>,
+        Joshua Aberback <Joshua.Aberback@amd.com>,
         Leo Li <sunpeng.li@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 24/76] drm/amd/display: Only enable audio if speaker allocation exists
-Date:   Fri,  2 Aug 2019 09:18:58 -0400
-Message-Id: <20190802131951.11600-24-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 25/76] drm/amd/display: Increase size of audios array
+Date:   Fri,  2 Aug 2019 09:18:59 -0400
+Message-Id: <20190802131951.11600-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
 References: <20190802131951.11600-1-sashal@kernel.org>
@@ -45,44 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alvin Lee <alvin.lee2@amd.com>
+From: Tai Man <taiman.wong@amd.com>
 
-[ Upstream commit 6ac25e6d5b2fbf251e9fa2f4131d42c815b43867 ]
+[ Upstream commit 7352193a33dfc9b69ba3bf6a8caea925b96243b1 ]
 
 [Why]
-
-In dm_helpers_parse_edid_caps, there is a corner case where no speakers
-can be allocated even though the audio mode count is greater than 0.
-Enabling audio when no speaker allocations exists can cause issues in
-the video stream.
+The audios array defined in "struct resource_pool" is only 6 (MAX_PIPES)
+but the max number of audio devices (num_audio) is 7. In some projects,
+it will run out of audios array.
 
 [How]
+Incraese the audios array size to 7.
 
-Add a check to not enable audio unless one or more speaker allocations
-exist (since doing this can cause issues in the video stream).
-
-Signed-off-by: Alvin Lee <alvin.lee2@amd.com>
-Reviewed-by: Jun Lei <Jun.Lei@amd.com>
+Signed-off-by: Tai Man <taiman.wong@amd.com>
+Reviewed-by: Joshua Aberback <Joshua.Aberback@amd.com>
 Acked-by: Leo Li <sunpeng.li@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_resource.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/inc/core_types.h   | 2 +-
+ drivers/gpu/drm/amd/display/dc/inc/hw/hw_shared.h | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-index b87e8d80bb6a8..0fd759d3a0e7d 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-@@ -2019,7 +2019,7 @@ enum dc_status resource_map_pool_resources(
- 	/* TODO: Add check if ASIC support and EDID audio */
- 	if (!stream->converter_disable_audio &&
- 	    dc_is_audio_capable_signal(pipe_ctx->stream->signal) &&
--	    stream->audio_info.mode_count) {
-+	    stream->audio_info.mode_count && stream->audio_info.flags.all) {
- 		pipe_ctx->stream_res.audio = find_first_free_audio(
- 		&context->res_ctx, pool, pipe_ctx->stream_res.stream_enc->id);
+diff --git a/drivers/gpu/drm/amd/display/dc/inc/core_types.h b/drivers/gpu/drm/amd/display/dc/inc/core_types.h
+index 6f5ab05d64677..6f0cc718fbd75 100644
+--- a/drivers/gpu/drm/amd/display/dc/inc/core_types.h
++++ b/drivers/gpu/drm/amd/display/dc/inc/core_types.h
+@@ -169,7 +169,7 @@ struct resource_pool {
+ 	struct clock_source *clock_sources[MAX_CLOCK_SOURCES];
+ 	unsigned int clk_src_count;
  
+-	struct audio *audios[MAX_PIPES];
++	struct audio *audios[MAX_AUDIOS];
+ 	unsigned int audio_count;
+ 	struct audio_support audio_support;
+ 
+diff --git a/drivers/gpu/drm/amd/display/dc/inc/hw/hw_shared.h b/drivers/gpu/drm/amd/display/dc/inc/hw/hw_shared.h
+index 4c8e2c6fb6dbc..72266efd826cf 100644
+--- a/drivers/gpu/drm/amd/display/dc/inc/hw/hw_shared.h
++++ b/drivers/gpu/drm/amd/display/dc/inc/hw/hw_shared.h
+@@ -34,6 +34,7 @@
+  * Data types shared between different Virtual HW blocks
+  ******************************************************************************/
+ 
++#define MAX_AUDIOS 7
+ #define MAX_PIPES 6
+ 
+ struct gamma_curve {
 -- 
 2.20.1
 
