@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CBF27F12C
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:37:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E01F07F145
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:37:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404436AbfHBJgk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:36:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37662 "EHLO mail.kernel.org"
+        id S2404796AbfHBJgD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:36:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731185AbfHBJgj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:36:39 -0400
+        id S2404092AbfHBJf7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:35:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E4CE2086A;
-        Fri,  2 Aug 2019 09:36:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A76B921773;
+        Fri,  2 Aug 2019 09:35:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738598;
-        bh=9e+qZckbaJQmwEnIicl3WnS9YT3igfdelpfQL5AwbPk=;
+        s=default; t=1564738558;
+        bh=nmPTsWkP88e57Ys91exz3DHHrVrBrLe2/K84VB5KA5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gFER5DYSF8X76PRZuj9YONO3DBiyuaI2EZjofQVBTrVX0GY140R07FyXXSYPJfOlA
-         DAOeLO7Vq0T8pjG5D20Tp3Edd1jlyzQn+qGIiWBs4zt8En/XZZXDzw5FFg3UE1ycDU
-         U1aLD682tXoHenpCllch0L6S+YdmfO2O41G2qvdw=
+        b=m3WJvISrOIfsmty87KQjX/l0/qMAELIIVd3wlPuBDag2psry5EEO2tCT8J8KPMuK1
+         xGkCuCkeypjKoEShhjvQbJ0bZZsC9cCZcZ/eiE+cMiYT8X1/X5rrCFBc+BtREMUOSO
+         PjuYG+/e1xJotPoub/ERL7nfQ8Yy2E9ND4RvCn1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@oracle.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.4 142/158] x86/speculation/mds: Apply more accurate check on hypervisor platform
-Date:   Fri,  2 Aug 2019 11:29:23 +0200
-Message-Id: <20190802092231.632580014@linuxfoundation.org>
+        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Zhang HongJun <zhanghongjun2@huawei.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 4.4 143/158] hpet: Fix division by zero in hpet_time_div()
+Date:   Fri,  2 Aug 2019 11:29:24 +0200
+Message-Id: <20190802092231.791993826@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
 References: <20190802092203.671944552@linuxfoundation.org>
@@ -43,41 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenzhong Duan <zhenzhong.duan@oracle.com>
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
 
-commit 517c3ba00916383af6411aec99442c307c23f684 upstream.
+commit 0c7d37f4d9b8446956e97b7c5e61173cdb7c8522 upstream.
 
-X86_HYPER_NATIVE isn't accurate for checking if running on native platform,
-e.g. CONFIG_HYPERVISOR_GUEST isn't set or "nopv" is enabled.
+The base value in do_div() called by hpet_time_div() is truncated from
+unsigned long to uint32_t, resulting in a divide-by-zero exception.
 
-Checking the CPU feature bit X86_FEATURE_HYPERVISOR to determine if it's
-running on native platform is more accurate.
+UBSAN: Undefined behaviour in ../drivers/char/hpet.c:572:2
+division by zero
+CPU: 1 PID: 23682 Comm: syz-executor.3 Not tainted 4.4.184.x86_64+ #4
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
+ 0000000000000000 b573382df1853d00 ffff8800a3287b98 ffffffff81ad7561
+ ffff8800a3287c00 ffffffff838b35b0 ffffffff838b3860 ffff8800a3287c20
+ 0000000000000000 ffff8800a3287bb0 ffffffff81b8f25e ffffffff838b35a0
+Call Trace:
+ [<ffffffff81ad7561>] __dump_stack lib/dump_stack.c:15 [inline]
+ [<ffffffff81ad7561>] dump_stack+0xc1/0x120 lib/dump_stack.c:51
+ [<ffffffff81b8f25e>] ubsan_epilogue+0x12/0x8d lib/ubsan.c:166
+ [<ffffffff81b900cb>] __ubsan_handle_divrem_overflow+0x282/0x2c8 lib/ubsan.c:262
+ [<ffffffff823560dd>] hpet_time_div drivers/char/hpet.c:572 [inline]
+ [<ffffffff823560dd>] hpet_ioctl_common drivers/char/hpet.c:663 [inline]
+ [<ffffffff823560dd>] hpet_ioctl_common.cold+0xa8/0xad drivers/char/hpet.c:577
+ [<ffffffff81e63d56>] hpet_ioctl+0xc6/0x180 drivers/char/hpet.c:676
+ [<ffffffff81711590>] vfs_ioctl fs/ioctl.c:43 [inline]
+ [<ffffffff81711590>] file_ioctl fs/ioctl.c:470 [inline]
+ [<ffffffff81711590>] do_vfs_ioctl+0x6e0/0xf70 fs/ioctl.c:605
+ [<ffffffff81711eb4>] SYSC_ioctl fs/ioctl.c:622 [inline]
+ [<ffffffff81711eb4>] SyS_ioctl+0x94/0xc0 fs/ioctl.c:613
+ [<ffffffff82846003>] tracesys_phase2+0x90/0x95
 
-This still doesn't cover the platforms on which X86_FEATURE_HYPERVISOR is
-unsupported, e.g. VMware, but there is nothing which can be done about this
-scenario.
+The main C reproducer autogenerated by syzkaller,
 
-Fixes: 8a4b06d391b0 ("x86/speculation/mds: Add sysfs reporting for MDS")
-Signed-off-by: Zhenzhong Duan <zhenzhong.duan@oracle.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1564022349-17338-1-git-send-email-zhenzhong.duan@oracle.com
+  syscall(__NR_mmap, 0x20000000, 0x1000000, 3, 0x32, -1, 0);
+  memcpy((void*)0x20000100, "/dev/hpet\000", 10);
+  syscall(__NR_openat, 0xffffffffffffff9c, 0x20000100, 0, 0);
+  syscall(__NR_ioctl, r[0], 0x40086806, 0x40000000000000);
+
+Fix it by using div64_ul().
+
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Signed-off-by: Zhang HongJun <zhanghongjun2@huawei.com>
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20190711132757.130092-1-wangkefeng.wang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/bugs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/hpet.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -1094,7 +1094,7 @@ static void __init l1tf_select_mitigatio
- static ssize_t mds_show_state(char *buf)
- {
- #ifdef CONFIG_HYPERVISOR_GUEST
--	if (x86_hyper) {
-+	if (boot_cpu_has(X86_FEATURE_HYPERVISOR)) {
- 		return sprintf(buf, "%s; SMT Host state unknown\n",
- 			       mds_strings[mds_mitigation]);
- 	}
+--- a/drivers/char/hpet.c
++++ b/drivers/char/hpet.c
+@@ -569,8 +569,7 @@ static inline unsigned long hpet_time_di
+ 	unsigned long long m;
+ 
+ 	m = hpets->hp_tick_freq + (dis >> 1);
+-	do_div(m, dis);
+-	return (unsigned long)m;
++	return div64_ul(m, dis);
+ }
+ 
+ static int
 
 
