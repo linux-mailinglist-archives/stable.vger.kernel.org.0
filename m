@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E6507F323
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:57:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CB037F334
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:57:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406245AbfHBJxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:53:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59640 "EHLO mail.kernel.org"
+        id S2406083AbfHBJy5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:54:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406198AbfHBJx3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:53:29 -0400
+        id S2405891AbfHBJxb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:53:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDCEE2086A;
-        Fri,  2 Aug 2019 09:53:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 842442064A;
+        Fri,  2 Aug 2019 09:53:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739608;
-        bh=ZD/d7wEanQe31gJ/K5UdbGiLfybN+idHdUps5k0IfR8=;
+        s=default; t=1564739611;
+        bh=OufKD8J6lv8iRq2T8OhHfNlKOq+SpB83ycK3WdKvSvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bdTov3dQJlhTETZxwZIreIsmzqtDxUlcwZGn1/Tv4phuUbcxOd61TNMxPvjFL64qL
-         OGKwsCNrbhGuWFVTQxeqDSkLzkSxhj0JVteINABOP5SpQx5jwVeA4laBQOP9jxM3yE
-         5qtRKeNUukQwkHU4jhWlLOLtU5Sn1OZMnhvrAmd0=
+        b=D53CHPRL651MrdOzMmNlsmbziWtMk1zjKowI07qqJ31GsV+TFC/4xSez8+5nOUtHi
+         6hH52l3+0JL5AGmuxvKVFgfY99Oz0aX3d8EQoopoNIFiUKSvwNqy161rUCyTGZa2Y0
+         6j+G2jATkQjF9i3GP7MbKc6mVTWE68tN0TXiT7JE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+357d86bcb4cca1a2f572@syzkaller.appspotmail.com,
-        Sean Young <sean@mess.org>,
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        syzbot+0c90fc937c84f97d0aa6@syzkaller.appspotmail.com,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.9 217/223] media: au0828: fix null dereference in error path
-Date:   Fri,  2 Aug 2019 11:37:22 +0200
-Message-Id: <20190802092250.761351262@linuxfoundation.org>
+Subject: [PATCH 4.9 218/223] media: cpia2_usb: first wake up, then free in disconnect
+Date:   Fri,  2 Aug 2019 11:37:23 +0200
+Message-Id: <20190802092250.799616900@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -45,49 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 6d0d1ff9ff21fbb06b867c13a1d41ce8ddcd8230 upstream.
+commit eff73de2b1600ad8230692f00bc0ab49b166512a upstream.
 
-au0828_usb_disconnect() gets the au0828_dev struct via usb_get_intfdata,
-so it needs to set up for the error paths.
+Kasan reported a use after free in cpia2_usb_disconnect()
+It first freed everything and then woke up those waiting.
+The reverse order is correct.
 
-Reported-by: syzbot+357d86bcb4cca1a2f572@syzkaller.appspotmail.com
-Signed-off-by: Sean Young <sean@mess.org>
+Fixes: 6c493f8b28c67 ("[media] cpia2: major overhaul to get it in a working state again")
+
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: syzbot+0c90fc937c84f97d0aa6@syzkaller.appspotmail.com
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/au0828/au0828-core.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/media/usb/cpia2/cpia2_usb.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/media/usb/au0828/au0828-core.c
-+++ b/drivers/media/usb/au0828/au0828-core.c
-@@ -630,6 +630,12 @@ static int au0828_usb_probe(struct usb_i
- 	/* Setup */
- 	au0828_card_setup(dev);
+--- a/drivers/media/usb/cpia2/cpia2_usb.c
++++ b/drivers/media/usb/cpia2/cpia2_usb.c
+@@ -909,7 +909,6 @@ static void cpia2_usb_disconnect(struct
+ 	cpia2_unregister_camera(cam);
+ 	v4l2_device_disconnect(&cam->v4l2_dev);
+ 	mutex_unlock(&cam->v4l2_lock);
+-	v4l2_device_put(&cam->v4l2_dev);
  
-+	/*
-+	 * Store the pointer to the au0828_dev so it can be accessed in
-+	 * au0828_usb_disconnect
-+	 */
-+	usb_set_intfdata(interface, dev);
+ 	if(cam->buffers) {
+ 		DBG("Wakeup waiting processes\n");
+@@ -921,6 +920,8 @@ static void cpia2_usb_disconnect(struct
+ 	DBG("Releasing interface\n");
+ 	usb_driver_release_interface(&cpia2_driver, intf);
+ 
++	v4l2_device_put(&cam->v4l2_dev);
 +
- 	/* Analog TV */
- 	retval = au0828_analog_register(dev, interface);
- 	if (retval) {
-@@ -647,12 +653,6 @@ static int au0828_usb_probe(struct usb_i
- 	/* Remote controller */
- 	au0828_rc_register(dev);
- 
--	/*
--	 * Store the pointer to the au0828_dev so it can be accessed in
--	 * au0828_usb_disconnect
--	 */
--	usb_set_intfdata(interface, dev);
--
- 	pr_info("Registered device AU0828 [%s]\n",
- 		dev->board.name == NULL ? "Unset" : dev->board.name);
+ 	LOG("CPiA2 camera disconnected.\n");
+ }
  
 
 
