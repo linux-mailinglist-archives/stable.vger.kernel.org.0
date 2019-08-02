@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 019EC7F3AF
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:00:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64F247F318
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:54:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406557AbfHBJze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:55:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34158 "EHLO mail.kernel.org"
+        id S2406373AbfHBJyG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:54:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406567AbfHBJzd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:55:33 -0400
+        id S2406352AbfHBJyG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:54:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D40E42064A;
-        Fri,  2 Aug 2019 09:55:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDADF2064A;
+        Fri,  2 Aug 2019 09:54:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739733;
-        bh=lTZt4r7kCi74yRtU/qLbL73nW1wDah+lru5/+Pv60Rw=;
+        s=default; t=1564739645;
+        bh=0QrHLcZlTxBxRrMNGwkZ6LT+konluKI3yPm9WcrEoMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vm6ZeaH2lAtyc0+XGL7+9CnAqwXVEubVuguM/Wt6eOtw1DiWcxfDEW57PBW9ZgoLM
-         lf1ppt+hL1Cfxfs1raeIJm3tNBQzn6sv4UplX39tl4GKhGkkl8UEtqLf9yq9VrTKKd
-         CKECc1DYkQZuYB+6y4cICUIhYfD5YG4Ry+MQCvBs=
+        b=B0i5DuK+JkS4F0AmpqIpKW84FX2duHO2QqaMPoG+mgqYXly9TFBYIDIxKvqC5K4Is
+         00JJvL28Z34KDs29YEG0fC+CXfY2J2A9hFkBOfuDNAy3WAEvsjrCCZ4I0cU0BOcTfq
+         AnU1+bfK4z8nvkIrRgIH70T3xWgjozIDqXfSCQsU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+c1b25598aa60dcd47e78@syzkaller.appspotmail.com,
-        Fabio Estevam <festevam@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.19 12/32] ath10k: Change the warning message string
-Date:   Fri,  2 Aug 2019 11:39:46 +0200
-Message-Id: <20190802092105.531633213@linuxfoundation.org>
+        syzbot+7fe11b49c1cc30e3fce2@syzkaller.appspotmail.com,
+        Benjamin Coddington <bcodding@redhat.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.14 15/25] NFS: Cleanup if nfs_match_client is interrupted
+Date:   Fri,  2 Aug 2019 11:39:47 +0200
+Message-Id: <20190802092104.271855151@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190802092101.913646560@linuxfoundation.org>
-References: <20190802092101.913646560@linuxfoundation.org>
+In-Reply-To: <20190802092058.428079740@linuxfoundation.org>
+References: <20190802092058.428079740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Benjamin Coddington <bcodding@redhat.com>
 
-commit 265df32eae5845212ad9f55f5ae6b6dcb68b187b upstream.
+commit 9f7761cf0409465075dadb875d5d4b8ef2f890c8 upstream.
 
-The "WARNING" string confuses syzbot, which thinks it found
-a crash [1].
+Don't bail out before cleaning up a new allocation if the wait for
+searching for a matching nfs client is interrupted.  Memory leaks.
 
-Change the string to avoid such problem.
-
-[1] https://lkml.org/lkml/2019/5/9/243
-
-Reported-by: syzbot+c1b25598aa60dcd47e78@syzkaller.appspotmail.com
-Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Reported-by: syzbot+7fe11b49c1cc30e3fce2@syzkaller.appspotmail.com
+Fixes: 950a578c6128 ("NFS: make nfs_match_client killable")
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/ath/ath10k/usb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/client.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/ath/ath10k/usb.c
-+++ b/drivers/net/wireless/ath/ath10k/usb.c
-@@ -1025,7 +1025,7 @@ static int ath10k_usb_probe(struct usb_i
- 	}
- 
- 	/* TODO: remove this once USB support is fully implemented */
--	ath10k_warn(ar, "WARNING: ath10k USB support is incomplete, don't expect anything to work!\n");
-+	ath10k_warn(ar, "Warning: ath10k USB support is incomplete, don't expect anything to work!\n");
- 
- 	return 0;
- 
+--- a/fs/nfs/client.c
++++ b/fs/nfs/client.c
+@@ -416,10 +416,10 @@ struct nfs_client *nfs_get_client(const
+ 		clp = nfs_match_client(cl_init);
+ 		if (clp) {
+ 			spin_unlock(&nn->nfs_client_lock);
+-			if (IS_ERR(clp))
+-				return clp;
+ 			if (new)
+ 				new->rpc_ops->free_client(new);
++			if (IS_ERR(clp))
++				return clp;
+ 			return nfs_found_client(cl_init, clp);
+ 		}
+ 		if (new) {
 
 
