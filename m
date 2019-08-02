@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47DFD7FACB
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:35:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D627F7FAE1
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:36:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393655AbfHBNVz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:21:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60434 "EHLO mail.kernel.org"
+        id S2406027AbfHBNfS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:35:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393644AbfHBNVz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:21:55 -0400
+        id S2393667AbfHBNWA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:22:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C4262173E;
-        Fri,  2 Aug 2019 13:21:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DF5F2173E;
+        Fri,  2 Aug 2019 13:21:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752113;
-        bh=9dH5jADkYDsCkjIEADRk5oylykPvsymkT97XQDf6TNE=;
+        s=default; t=1564752118;
+        bh=4uN3179dwP4szdq5eWw+Dq25Sm8SMDPGqRrSCuwDCvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PkgqBEOxs7eBGaPTfJVuOu74PQe4+xMrmfVgcAfHIolvYCC4FUVrtuZOBFKp3zX32
-         jMh8Kr9Gl6jY1sDaZmooi0Ertr7WtCn5Ticd9fr+FOCXrQ1RscZQQtm8BYhzAcF2C4
-         Xr4e227K7XKvHgCsVDUy54OvufhRucb4yd0OeWRE=
+        b=n4pjAST5zskaCbo2N2EPxVVImf3DVGdEvYQAlCPdh1jNPL+fjICWcTYSJuj6z8eMz
+         DyYPgV4dwpDHrQC+mGlGznSIZG5Xrr17QDlNWd08HOGYkl6iMd1TQEGvW2DiwJe6kQ
+         KJr7M5sFZslYCjsqbulfRoW6PO3zLQwiP5wGDUKo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
         Vinod Koul <vkoul@kernel.org>, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 48/76] ALSA: compress: Fix regression on compressed capture streams
-Date:   Fri,  2 Aug 2019 09:19:22 -0400
-Message-Id: <20190802131951.11600-48-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 51/76] ALSA: compress: Be more restrictive about when a drain is allowed
+Date:   Fri,  2 Aug 2019 09:19:25 -0400
+Message-Id: <20190802131951.11600-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
 References: <20190802131951.11600-1-sashal@kernel.org>
@@ -45,80 +45,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 4475f8c4ab7b248991a60d9c02808dbb813d6be8 ]
+[ Upstream commit 3b8179944cb0dd53e5223996966746cdc8a60657 ]
 
-A previous fix to the stop handling on compressed capture streams causes
-some knock on issues. The previous fix updated snd_compr_drain_notify to
-set the state back to PREPARED for capture streams. This causes some
-issues however as the handling for snd_compr_poll differs between the
-two states and some user-space applications were relying on the poll
-failing after the stream had been stopped.
+Draining makes little sense in the situation of hardware overrun, as the
+hardware will have consumed all its available samples. Additionally,
+draining whilst the stream is paused would presumably get stuck as no
+data is being consumed on the DSP side.
 
-To correct this regression whilst still fixing the original problem the
-patch was addressing, update the capture handling to skip the PREPARED
-state rather than skipping the SETUP state as it has done until now.
-
-Fixes: 4f2ab5e1d13d ("ALSA: compress: Fix stop handling on compressed capture streams")
 Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 Acked-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/compress_driver.h |  5 +----
- sound/core/compress_offload.c   | 16 +++++++++++-----
- 2 files changed, 12 insertions(+), 9 deletions(-)
+ sound/core/compress_offload.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/include/sound/compress_driver.h b/include/sound/compress_driver.h
-index c5188ff724d12..bc88d6f964da9 100644
---- a/include/sound/compress_driver.h
-+++ b/include/sound/compress_driver.h
-@@ -173,10 +173,7 @@ static inline void snd_compr_drain_notify(struct snd_compr_stream *stream)
- 	if (snd_BUG_ON(!stream))
- 		return;
- 
--	if (stream->direction == SND_COMPRESS_PLAYBACK)
--		stream->runtime->state = SNDRV_PCM_STATE_SETUP;
--	else
--		stream->runtime->state = SNDRV_PCM_STATE_PREPARED;
-+	stream->runtime->state = SNDRV_PCM_STATE_SETUP;
- 
- 	wake_up(&stream->runtime->sleep);
- }
 diff --git a/sound/core/compress_offload.c b/sound/core/compress_offload.c
-index 99b8821587053..d79aee6b9edd2 100644
+index 6cf5b8440cf30..41905afada63f 100644
 --- a/sound/core/compress_offload.c
 +++ b/sound/core/compress_offload.c
-@@ -574,10 +574,7 @@ snd_compr_set_params(struct snd_compr_stream *stream, unsigned long arg)
- 		stream->metadata_set = false;
- 		stream->next_track = false;
- 
--		if (stream->direction == SND_COMPRESS_PLAYBACK)
--			stream->runtime->state = SNDRV_PCM_STATE_SETUP;
--		else
--			stream->runtime->state = SNDRV_PCM_STATE_PREPARED;
-+		stream->runtime->state = SNDRV_PCM_STATE_SETUP;
- 	} else {
+@@ -811,7 +811,10 @@ static int snd_compr_drain(struct snd_compr_stream *stream)
+ 	case SNDRV_PCM_STATE_OPEN:
+ 	case SNDRV_PCM_STATE_SETUP:
+ 	case SNDRV_PCM_STATE_PREPARED:
++	case SNDRV_PCM_STATE_PAUSED:
  		return -EPERM;
++	case SNDRV_PCM_STATE_XRUN:
++		return -EPIPE;
+ 	default:
+ 		break;
  	}
-@@ -693,8 +690,17 @@ static int snd_compr_start(struct snd_compr_stream *stream)
- {
- 	int retval;
- 
--	if (stream->runtime->state != SNDRV_PCM_STATE_PREPARED)
-+	switch (stream->runtime->state) {
-+	case SNDRV_PCM_STATE_SETUP:
-+		if (stream->direction != SND_COMPRESS_CAPTURE)
-+			return -EPERM;
-+		break;
-+	case SNDRV_PCM_STATE_PREPARED:
-+		break;
-+	default:
+@@ -860,7 +863,10 @@ static int snd_compr_partial_drain(struct snd_compr_stream *stream)
+ 	case SNDRV_PCM_STATE_OPEN:
+ 	case SNDRV_PCM_STATE_SETUP:
+ 	case SNDRV_PCM_STATE_PREPARED:
++	case SNDRV_PCM_STATE_PAUSED:
  		return -EPERM;
-+	}
-+
- 	retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_START);
- 	if (!retval)
- 		stream->runtime->state = SNDRV_PCM_STATE_RUNNING;
++	case SNDRV_PCM_STATE_XRUN:
++		return -EPIPE;
+ 	default:
+ 		break;
+ 	}
 -- 
 2.20.1
 
