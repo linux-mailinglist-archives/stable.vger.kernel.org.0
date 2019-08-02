@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CD7E7F38C
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:59:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2767E7F363
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:57:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406720AbfHBJ6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:58:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37548 "EHLO mail.kernel.org"
+        id S2406790AbfHBJ44 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:56:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407034AbfHBJ6E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:58:04 -0400
+        id S2406803AbfHBJ44 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:56:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCD7320B7C;
-        Fri,  2 Aug 2019 09:58:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 346832067D;
+        Fri,  2 Aug 2019 09:56:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739883;
-        bh=B9V9oPsQD8P75d8VDLpXDxfezBuysYWjwCh63KCoJv4=;
+        s=default; t=1564739815;
+        bh=CLg68tfzKMVwWEvkzvAmfZIb7/a7kh58NQrcf00uExY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w1dswroc+hqrK7Coj5reubWANrXquOKB93FQECzbRux1fZyqOjIiXFayaRMPlArM0
-         MV+tYb86GKl7lf2lYCBlQDWL5UAkTOpGHlqleFi3QEj2MySSm5W9DqBG65OKUmxDSs
-         KvShD1eGMrZXEOMzcVOwk9ygM7rwjb4SpHbde5OY=
+        b=UzGOMcIsSEuDV1y3YRCf6W/4TibAIAo3Xw0P5AQidWHf/tkND/9dvoFcQP2F7IeZD
+         PsYMQa84G6r3cox0ws3rLxxG+qKqyvARfxpiMCQPaLn2ks6Llktsu7Ta68m2jbCMnP
+         skUaT1elIzZdpZrWfKI/k4VRBx7kAj8zw5DwSmyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+af8f8d2ac0d39b0ed3a0@syzkaller.appspotmail.com,
-        syzbot+170a86bf206dd2c6217e@syzkaller.appspotmail.com,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.2 08/20] media: pvrusb2: use a different format for warnings
-Date:   Fri,  2 Aug 2019 11:40:02 +0200
-Message-Id: <20190802092059.716217512@linuxfoundation.org>
+        stable@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>
+Subject: [PATCH 4.19 29/32] Fix allyesconfig output.
+Date:   Fri,  2 Aug 2019 11:40:03 +0200
+Message-Id: <20190802092110.918219220@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190802092055.131876977@linuxfoundation.org>
-References: <20190802092055.131876977@linuxfoundation.org>
+In-Reply-To: <20190802092101.913646560@linuxfoundation.org>
+References: <20190802092101.913646560@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,87 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Konovalov <andreyknvl@google.com>
+From: Yoshinori Sato <ysato@users.sourceforge.jp>
 
-commit 1753c7c4367aa1201e1e5d0a601897ab33444af1 upstream.
+commit 1b496469d0c020e09124e03e66a81421c21272a7 upstream.
 
-When the pvrusb2 driver detects that there's something wrong with the
-device, it prints a warning message. Right now those message are
-printed in two different formats:
+Conflict JCore-SoC and SolutionEngine 7619.
 
-1. ***WARNING*** message here
-2. WARNING: message here
-
-There's an issue with the second format. Syzkaller recognizes it as a
-message produced by a WARN_ON(), which is used to indicate a bug in the
-kernel. However pvrusb2 prints those warnings to indicate an issue with
-the device, not the bug in the kernel.
-
-This patch changes the pvrusb2 driver to consistently use the first
-warning message format. This will unblock syzkaller testing of this
-driver.
-
-Reported-by: syzbot+af8f8d2ac0d39b0ed3a0@syzkaller.appspotmail.com
-Reported-by: syzbot+170a86bf206dd2c6217e@syzkaller.appspotmail.com
-Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Yoshinori Sato <ysato@users.sourceforge.jp>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/pvrusb2/pvrusb2-hdw.c      |    4 ++--
- drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c |    6 +++---
- drivers/media/usb/pvrusb2/pvrusb2-std.c      |    2 +-
- 3 files changed, 6 insertions(+), 6 deletions(-)
+ arch/sh/boards/Kconfig |   14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
---- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-+++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-@@ -1670,7 +1670,7 @@ static int pvr2_decoder_enable(struct pv
- 	}
- 	if (!hdw->flag_decoder_missed) {
- 		pvr2_trace(PVR2_TRACE_ERROR_LEGS,
--			   "WARNING: No decoder present");
-+			   "***WARNING*** No decoder present");
- 		hdw->flag_decoder_missed = !0;
- 		trace_stbit("flag_decoder_missed",
- 			    hdw->flag_decoder_missed);
-@@ -2356,7 +2356,7 @@ struct pvr2_hdw *pvr2_hdw_create(struct
- 	if (hdw_desc->flag_is_experimental) {
- 		pvr2_trace(PVR2_TRACE_INFO, "**********");
- 		pvr2_trace(PVR2_TRACE_INFO,
--			   "WARNING: Support for this device (%s) is experimental.",
-+			   "***WARNING*** Support for this device (%s) is experimental.",
- 							      hdw_desc->description);
- 		pvr2_trace(PVR2_TRACE_INFO,
- 			   "Important functionality might not be entirely working.");
---- a/drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c
-+++ b/drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c
-@@ -333,11 +333,11 @@ static int i2c_hack_cx25840(struct pvr2_
+--- a/arch/sh/boards/Kconfig
++++ b/arch/sh/boards/Kconfig
+@@ -8,27 +8,19 @@ config SH_ALPHA_BOARD
+ 	bool
  
- 	if ((ret != 0) || (*rdata == 0x04) || (*rdata == 0x0a)) {
- 		pvr2_trace(PVR2_TRACE_ERROR_LEGS,
--			   "WARNING: Detected a wedged cx25840 chip; the device will not work.");
-+			   "***WARNING*** Detected a wedged cx25840 chip; the device will not work.");
- 		pvr2_trace(PVR2_TRACE_ERROR_LEGS,
--			   "WARNING: Try power cycling the pvrusb2 device.");
-+			   "***WARNING*** Try power cycling the pvrusb2 device.");
- 		pvr2_trace(PVR2_TRACE_ERROR_LEGS,
--			   "WARNING: Disabling further access to the device to prevent other foul-ups.");
-+			   "***WARNING*** Disabling further access to the device to prevent other foul-ups.");
- 		// This blocks all further communication with the part.
- 		hdw->i2c_func[0x44] = NULL;
- 		pvr2_hdw_render_useless(hdw);
---- a/drivers/media/usb/pvrusb2/pvrusb2-std.c
-+++ b/drivers/media/usb/pvrusb2/pvrusb2-std.c
-@@ -343,7 +343,7 @@ struct v4l2_standard *pvr2_std_create_en
- 		bcnt = pvr2_std_id_to_str(buf,sizeof(buf),fmsk);
- 		pvr2_trace(
- 			PVR2_TRACE_ERROR_LEGS,
--			"WARNING: Failed to classify the following standard(s): %.*s",
-+			"***WARNING*** Failed to classify the following standard(s): %.*s",
- 			bcnt,buf);
- 	}
+ config SH_DEVICE_TREE
+-	bool "Board Described by Device Tree"
++	bool
+ 	select OF
+ 	select OF_EARLY_FLATTREE
+ 	select TIMER_OF
+ 	select COMMON_CLK
+ 	select GENERIC_CALIBRATE_DELAY
+-	help
+-	  Select Board Described by Device Tree to build a kernel that
+-	  does not hard-code any board-specific knowledge but instead uses
+-	  a device tree blob provided by the boot-loader. You must enable
+-	  drivers for any hardware you want to use separately. At this
+-	  time, only boards based on the open-hardware J-Core processors
+-	  have sufficient driver coverage to use this option; do not
+-	  select it if you are using original SuperH hardware.
  
+ config SH_JCORE_SOC
+ 	bool "J-Core SoC"
+-	depends on SH_DEVICE_TREE && (CPU_SH2 || CPU_J2)
++	select SH_DEVICE_TREE
+ 	select CLKSRC_JCORE_PIT
+ 	select JCORE_AIC
+-	default y if CPU_J2
++	depends on CPU_J2
+ 	help
+ 	  Select this option to include drivers core components of the
+ 	  J-Core SoC, including interrupt controllers and timers.
 
 
