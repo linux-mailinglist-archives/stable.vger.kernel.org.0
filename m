@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54E9F7F8A7
+	by mail.lfdr.de (Postfix) with ESMTP id C40077F8A8
 	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:22:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393569AbfHBNVX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:21:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59854 "EHLO mail.kernel.org"
+        id S2393571AbfHBNVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:21:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393563AbfHBNVW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:21:22 -0400
+        id S2393531AbfHBNVX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:21:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8219E21841;
-        Fri,  2 Aug 2019 13:21:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F4BE21849;
+        Fri,  2 Aug 2019 13:21:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752081;
-        bh=TZ7dI/ODz8ogsYuPTd0l2FqsIFC5E4zVICalUEyz9gg=;
+        s=default; t=1564752082;
+        bh=tfCEAaZ/7wP7IyWf1wpi3ulEwPG2rgB//jXsv3f5eC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W0zxX8WyaeaK64a5sIoT23rlFpQCjPvvhtQEnggJ1dk+ycHIHcenr+azyDqwXSpnE
-         0OmT2YCzONrZ4jiO6qnynU4j+c6WixpAARjokrb8iUmRuzqdPv8LKWFKxCUMp0HiTa
-         Z7evb+ueag/MISOGbIZ8pKV5/nTPMhX+THPIwzu8=
+        b=OjjHyc4Xsh0LUSdZK2uXSM2L3Yz3mIpVS+KdJGYYDF7vcQNmDp/cFyzJuqoGhZ33k
+         qStkfywsxo65kn52ymy/MrfaxvapY4hJzEAtEuErYRUp/afCi/HuhHMU3XMm9AGgRK
+         VLhhUeLp8trzztoIptLXv9vkds7/PLEMeDR1a8nc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rob Clark <robdclark@chromium.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Jordan Crouse <jcrouse@codeaurora.org>,
-        Sean Paul <seanpaul@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 42/76] drm/msm: stop abusing dma_map/unmap for cache
-Date:   Fri,  2 Aug 2019 09:19:16 -0400
-Message-Id: <20190802131951.11600-42-sashal@kernel.org>
+Cc:     Qian Cai <cai@lca.pw>, Sean Paul <seanpaul@chromium.org>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.2 43/76] drm: silence variable 'conn' set but not used
+Date:   Fri,  2 Aug 2019 09:19:17 -0400
+Message-Id: <20190802131951.11600-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
 References: <20190802131951.11600-1-sashal@kernel.org>
@@ -47,83 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 0036bc73ccbe7e600a3468bf8e8879b122252274 ]
+[ Upstream commit bbb6fc43f131f77fcb7ae8081f6d7c51396a2120 ]
 
-Recently splats like this started showing up:
+The "struct drm_connector" iteration cursor from
+"for_each_new_connector_in_state" is never used in atomic_remove_fb()
+which generates a compilation warning,
 
-   WARNING: CPU: 4 PID: 251 at drivers/iommu/dma-iommu.c:451 __iommu_dma_unmap+0xb8/0xc0
-   Modules linked in: ath10k_snoc ath10k_core fuse msm ath mac80211 uvcvideo cfg80211 videobuf2_vmalloc videobuf2_memops vide
-   CPU: 4 PID: 251 Comm: kworker/u16:4 Tainted: G        W         5.2.0-rc5-next-20190619+ #2317
-   Hardware name: LENOVO 81JL/LNVNB161216, BIOS 9UCN23WW(V1.06) 10/25/2018
-   Workqueue: msm msm_gem_free_work [msm]
-   pstate: 80c00005 (Nzcv daif +PAN +UAO)
-   pc : __iommu_dma_unmap+0xb8/0xc0
-   lr : __iommu_dma_unmap+0x54/0xc0
-   sp : ffff0000119abce0
-   x29: ffff0000119abce0 x28: 0000000000000000
-   x27: ffff8001f9946648 x26: ffff8001ec271068
-   x25: 0000000000000000 x24: ffff8001ea3580a8
-   x23: ffff8001f95ba010 x22: ffff80018e83ba88
-   x21: ffff8001e548f000 x20: fffffffffffff000
-   x19: 0000000000001000 x18: 00000000c00001fe
-   x17: 0000000000000000 x16: 0000000000000000
-   x15: ffff000015b70068 x14: 0000000000000005
-   x13: 0003142cc1be1768 x12: 0000000000000001
-   x11: ffff8001f6de9100 x10: 0000000000000009
-   x9 : ffff000015b78000 x8 : 0000000000000000
-   x7 : 0000000000000001 x6 : fffffffffffff000
-   x5 : 0000000000000fff x4 : ffff00001065dbc8
-   x3 : 000000000000000d x2 : 0000000000001000
-   x1 : fffffffffffff000 x0 : 0000000000000000
-   Call trace:
-    __iommu_dma_unmap+0xb8/0xc0
-    iommu_dma_unmap_sg+0x98/0xb8
-    put_pages+0x5c/0xf0 [msm]
-    msm_gem_free_work+0x10c/0x150 [msm]
-    process_one_work+0x1e0/0x330
-    worker_thread+0x40/0x438
-    kthread+0x12c/0x130
-    ret_from_fork+0x10/0x18
-   ---[ end trace afc0dc5ab81a06bf ]---
+drivers/gpu/drm/drm_framebuffer.c: In function 'atomic_remove_fb':
+drivers/gpu/drm/drm_framebuffer.c:838:24: warning: variable 'conn' set
+but not used [-Wunused-but-set-variable]
 
-Not quite sure what triggered that, but we really shouldn't be abusing
-dma_{map,unmap}_sg() for cache maint.
+Silence it by marking "conn" __maybe_unused.
 
-Cc: Stephen Boyd <sboyd@kernel.org>
-Tested-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Qian Cai <cai@lca.pw>
 Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190630124735.27786-1-robdclark@gmail.com
+Link: https://patchwork.freedesktop.org/patch/msgid/1563822886-13570-1-git-send-email-cai@lca.pw
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_gem.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_framebuffer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_gem.c b/drivers/gpu/drm/msm/msm_gem.c
-index 49a019939ccdc..a3b5fe1a13944 100644
---- a/drivers/gpu/drm/msm/msm_gem.c
-+++ b/drivers/gpu/drm/msm/msm_gem.c
-@@ -97,7 +97,7 @@ static struct page **get_pages(struct drm_gem_object *obj)
- 		 * because display controller, GPU, etc. are not coherent:
- 		 */
- 		if (msm_obj->flags & (MSM_BO_WC|MSM_BO_UNCACHED))
--			dma_map_sg(dev->dev, msm_obj->sgt->sgl,
-+			dma_sync_sg_for_device(dev->dev, msm_obj->sgt->sgl,
- 					msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
- 	}
- 
-@@ -127,7 +127,7 @@ static void put_pages(struct drm_gem_object *obj)
- 			 * GPU, etc. are not coherent:
- 			 */
- 			if (msm_obj->flags & (MSM_BO_WC|MSM_BO_UNCACHED))
--				dma_unmap_sg(obj->dev->dev, msm_obj->sgt->sgl,
-+				dma_sync_sg_for_cpu(obj->dev->dev, msm_obj->sgt->sgl,
- 					     msm_obj->sgt->nents,
- 					     DMA_BIDIRECTIONAL);
- 
+diff --git a/drivers/gpu/drm/drm_framebuffer.c b/drivers/gpu/drm/drm_framebuffer.c
+index d8d75e25f6fb8..45f6f11a88a74 100644
+--- a/drivers/gpu/drm/drm_framebuffer.c
++++ b/drivers/gpu/drm/drm_framebuffer.c
+@@ -830,7 +830,7 @@ static int atomic_remove_fb(struct drm_framebuffer *fb)
+ 	struct drm_device *dev = fb->dev;
+ 	struct drm_atomic_state *state;
+ 	struct drm_plane *plane;
+-	struct drm_connector *conn;
++	struct drm_connector *conn __maybe_unused;
+ 	struct drm_connector_state *conn_state;
+ 	int i, ret;
+ 	unsigned plane_mask;
 -- 
 2.20.1
 
