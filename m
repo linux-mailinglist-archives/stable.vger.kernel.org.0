@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 287D57FA5A
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2E957FA53
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:32:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405139AbfHBNce (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:32:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34588 "EHLO mail.kernel.org"
+        id S2394087AbfHBNYB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:24:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730453AbfHBNX6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:23:58 -0400
+        id S2394082AbfHBNYA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:24:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FC7421871;
-        Fri,  2 Aug 2019 13:23:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30ABF21850;
+        Fri,  2 Aug 2019 13:23:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752237;
-        bh=8f7K031i4FP76JzNvmYkrd181BcKJpbw4yDnNNJNuMk=;
+        s=default; t=1564752240;
+        bh=EcsuI+g39qTBmjUcacw7kMGLcPEQ3i7hCV+lyVy9SMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iaIkmwfwEezNwS5Y9Vw1SeuZSplp5K1GwvGXCZJmF/1EHVLSgzp8UvwgYjQXc7hCS
-         levBzANEE5xaA6nDq/9a7eQwfgeE6/ic8ssdH66vGxoGPwqJvVjx5wA0+NfrcnfTun
-         arnQb47z2v9gzvG0FjMTMJ3bf6Gh3wSSpuw8El6o=
+        b=CAGVg/RPMwnMoJ7GmfK0FtjGZJ9QiFUI10M3Wd4e49MZbwBmf11MFNuTHmAwxxZA2
+         iF9+kh8ienyz7UwrYrNSLTa3g0ujKfrQdNuKHwas8vnfwR/P0AEL17XSbJOie5QQCc
+         nBv2HM2G+HqPU8WjXDR1PN1p0OC3MCuLcrCtcWDY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>,
-        Roland Kammerer <roland.kammerer@linbit.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        drbd-dev@lists.linbit.com, linux-block@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 29/42] drbd: dynamically allocate shash descriptor
-Date:   Fri,  2 Aug 2019 09:22:49 -0400
-Message-Id: <20190802132302.13537-29-sashal@kernel.org>
+Cc:     Marta Rybczynska <mrybczyn@kalray.eu>,
+        Marta Rybczynska <marta.rybczynska@kalray.eu>,
+        Jean-Baptiste Riaux <jbriaux@kalray.eu>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 31/42] nvme: fix multipath crash when ANA is deactivated
+Date:   Fri,  2 Aug 2019 09:22:51 -0400
+Message-Id: <20190802132302.13537-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802132302.13537-1-sashal@kernel.org>
 References: <20190802132302.13537-1-sashal@kernel.org>
@@ -45,69 +45,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Marta Rybczynska <mrybczyn@kalray.eu>
 
-[ Upstream commit 77ce56e2bfaa64127ae5e23ef136c0168b818777 ]
+[ Upstream commit 66b20ac0a1a10769d059d6903202f53494e3d902 ]
 
-Building with clang and KASAN, we get a warning about an overly large
-stack frame on 32-bit architectures:
+Fix a crash with multipath activated. It happends when ANA log
+page is larger than MDTS and because of that ANA is disabled.
+The driver then tries to access unallocated buffer when connecting
+to a nvme target. The signature is as follows:
 
-drivers/block/drbd/drbd_receiver.c:921:31: error: stack frame size of 1280 bytes in function 'conn_connect'
-      [-Werror,-Wframe-larger-than=]
+[  300.433586] nvme nvme0: ANA log page size (8208) larger than MDTS (8192).
+[  300.435387] nvme nvme0: disabling ANA support.
+[  300.437835] nvme nvme0: creating 4 I/O queues.
+[  300.459132] nvme nvme0: new ctrl: NQN "nqn.0.0.0", addr 10.91.0.1:8009
+[  300.464609] BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
+[  300.466342] #PF error: [normal kernel read fault]
+[  300.467385] PGD 0 P4D 0
+[  300.467987] Oops: 0000 [#1] SMP PTI
+[  300.468787] CPU: 3 PID: 50 Comm: kworker/u8:1 Not tainted 5.0.20kalray+ #4
+[  300.470264] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+[  300.471532] Workqueue: nvme-wq nvme_scan_work [nvme_core]
+[  300.472724] RIP: 0010:nvme_parse_ana_log+0x21/0x140 [nvme_core]
+[  300.474038] Code: 45 01 d2 d8 48 98 c3 66 90 0f 1f 44 00 00 41 57 41 56 41 55 41 54 55 53 48 89 fb 48 83 ec 08 48 8b af 20 0a 00 00 48 89 34 24 <66> 83 7d 08 00 0f 84 c6 00 00 00 44 8b 7d 14 49 89 d5 8b 55 10 48
+[  300.477374] RSP: 0018:ffffa50e80fd7cb8 EFLAGS: 00010296
+[  300.478334] RAX: 0000000000000001 RBX: ffff9130f1872258 RCX: 0000000000000000
+[  300.479784] RDX: ffffffffc06c4c30 RSI: ffff9130edad4280 RDI: ffff9130f1872258
+[  300.481488] RBP: 0000000000000000 R08: 0000000000000001 R09: 0000000000000044
+[  300.483203] R10: 0000000000000220 R11: 0000000000000040 R12: ffff9130f18722c0
+[  300.484928] R13: ffff9130f18722d0 R14: ffff9130edad4280 R15: ffff9130f18722c0
+[  300.486626] FS:  0000000000000000(0000) GS:ffff9130f7b80000(0000) knlGS:0000000000000000
+[  300.488538] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  300.489907] CR2: 0000000000000008 CR3: 00000002365e6000 CR4: 00000000000006e0
+[  300.491612] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  300.493303] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  300.494991] Call Trace:
+[  300.495645]  nvme_mpath_add_disk+0x5c/0xb0 [nvme_core]
+[  300.496880]  nvme_validate_ns+0x2ef/0x550 [nvme_core]
+[  300.498105]  ? nvme_identify_ctrl.isra.45+0x6a/0xb0 [nvme_core]
+[  300.499539]  nvme_scan_work+0x2b4/0x370 [nvme_core]
+[  300.500717]  ? __switch_to_asm+0x35/0x70
+[  300.501663]  process_one_work+0x171/0x380
+[  300.502340]  worker_thread+0x49/0x3f0
+[  300.503079]  kthread+0xf8/0x130
+[  300.503795]  ? max_active_store+0x80/0x80
+[  300.504690]  ? kthread_bind+0x10/0x10
+[  300.505502]  ret_from_fork+0x35/0x40
+[  300.506280] Modules linked in: nvme_tcp nvme_rdma rdma_cm iw_cm ib_cm ib_core nvme_fabrics nvme_core xt_physdev ip6table_raw ip6table_mangle ip6table_filter ip6_tables xt_comment iptable_nat nf_nat_ipv4 nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 xt_CHECKSUM iptable_mangle iptable_filter veth ebtable_filter ebtable_nat ebtables iptable_raw vxlan ip6_udp_tunnel udp_tunnel sunrpc joydev pcspkr virtio_balloon br_netfilter bridge stp llc ip_tables xfs libcrc32c ata_generic pata_acpi virtio_net virtio_console net_failover virtio_blk failover ata_piix serio_raw libata virtio_pci virtio_ring virtio
+[  300.514984] CR2: 0000000000000008
+[  300.515569] ---[ end trace faa2eefad7e7f218 ]---
+[  300.516354] RIP: 0010:nvme_parse_ana_log+0x21/0x140 [nvme_core]
+[  300.517330] Code: 45 01 d2 d8 48 98 c3 66 90 0f 1f 44 00 00 41 57 41 56 41 55 41 54 55 53 48 89 fb 48 83 ec 08 48 8b af 20 0a 00 00 48 89 34 24 <66> 83 7d 08 00 0f 84 c6 00 00 00 44 8b 7d 14 49 89 d5 8b 55 10 48
+[  300.520353] RSP: 0018:ffffa50e80fd7cb8 EFLAGS: 00010296
+[  300.521229] RAX: 0000000000000001 RBX: ffff9130f1872258 RCX: 0000000000000000
+[  300.522399] RDX: ffffffffc06c4c30 RSI: ffff9130edad4280 RDI: ffff9130f1872258
+[  300.523560] RBP: 0000000000000000 R08: 0000000000000001 R09: 0000000000000044
+[  300.524734] R10: 0000000000000220 R11: 0000000000000040 R12: ffff9130f18722c0
+[  300.525915] R13: ffff9130f18722d0 R14: ffff9130edad4280 R15: ffff9130f18722c0
+[  300.527084] FS:  0000000000000000(0000) GS:ffff9130f7b80000(0000) knlGS:0000000000000000
+[  300.528396] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  300.529440] CR2: 0000000000000008 CR3: 00000002365e6000 CR4: 00000000000006e0
+[  300.530739] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  300.531989] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  300.533264] Kernel panic - not syncing: Fatal exception
+[  300.534338] Kernel Offset: 0x17c00000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+[  300.536227] ---[ end Kernel panic - not syncing: Fatal exception ]---
 
-We already allocate other data dynamically in this function, so
-just do the same for the shash descriptor, which makes up most of
-this memory.
+Condition check refactoring from Christoph Hellwig.
 
-Link: https://lore.kernel.org/lkml/20190617132440.2721536-1-arnd@arndb.de/
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Roland Kammerer <roland.kammerer@linbit.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Marta Rybczynska <marta.rybczynska@kalray.eu>
+Tested-by: Jean-Baptiste Riaux <jbriaux@kalray.eu>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/drbd/drbd_receiver.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/nvme/host/multipath.c | 8 ++------
+ drivers/nvme/host/nvme.h      | 6 +++++-
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/block/drbd/drbd_receiver.c b/drivers/block/drbd/drbd_receiver.c
-index cb919b9640660..3cdadf75c82da 100644
---- a/drivers/block/drbd/drbd_receiver.c
-+++ b/drivers/block/drbd/drbd_receiver.c
-@@ -5240,7 +5240,7 @@ static int drbd_do_auth(struct drbd_connection *connection)
- 	unsigned int key_len;
- 	char secret[SHARED_SECRET_MAX]; /* 64 byte */
- 	unsigned int resp_size;
--	SHASH_DESC_ON_STACK(desc, connection->cram_hmac_tfm);
-+	struct shash_desc *desc;
- 	struct packet_info pi;
- 	struct net_conf *nc;
- 	int err, rv;
-@@ -5253,6 +5253,13 @@ static int drbd_do_auth(struct drbd_connection *connection)
- 	memcpy(secret, nc->shared_secret, key_len);
- 	rcu_read_unlock();
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index 260248fbb8feb..a11e210d173e4 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -20,11 +20,6 @@ module_param(multipath, bool, 0444);
+ MODULE_PARM_DESC(multipath,
+ 	"turn on native support for multiple controllers per subsystem");
  
-+	desc = kmalloc(sizeof(struct shash_desc) +
-+		       crypto_shash_descsize(connection->cram_hmac_tfm),
-+		       GFP_KERNEL);
-+	if (!desc) {
-+		rv = -1;
-+		goto fail;
-+	}
- 	desc->tfm = connection->cram_hmac_tfm;
- 	desc->flags = 0;
+-inline bool nvme_ctrl_use_ana(struct nvme_ctrl *ctrl)
+-{
+-	return multipath && ctrl->subsys && (ctrl->subsys->cmic & (1 << 3));
+-}
+-
+ /*
+  * If multipathing is enabled we need to always use the subsystem instance
+  * number for numbering our devices to avoid conflicts between subsystems that
+@@ -516,7 +511,8 @@ int nvme_mpath_init(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id)
+ {
+ 	int error;
  
-@@ -5395,7 +5402,10 @@ static int drbd_do_auth(struct drbd_connection *connection)
- 	kfree(peers_ch);
- 	kfree(response);
- 	kfree(right_response);
--	shash_desc_zero(desc);
-+	if (desc) {
-+		shash_desc_zero(desc);
-+		kfree(desc);
-+	}
+-	if (!nvme_ctrl_use_ana(ctrl))
++	/* check if multipath is enabled and we have the capability */
++	if (!multipath || !ctrl->subsys || !(ctrl->subsys->cmic & (1 << 3)))
+ 		return 0;
  
- 	return rv;
- }
+ 	ctrl->anacap = id->anacap;
+diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
+index e82cdaec81c9c..d5e29b57eb340 100644
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -464,7 +464,11 @@ extern const struct attribute_group nvme_ns_id_attr_group;
+ extern const struct block_device_operations nvme_ns_head_ops;
+ 
+ #ifdef CONFIG_NVME_MULTIPATH
+-bool nvme_ctrl_use_ana(struct nvme_ctrl *ctrl);
++static inline bool nvme_ctrl_use_ana(struct nvme_ctrl *ctrl)
++{
++	return ctrl->ana_log_buf != NULL;
++}
++
+ void nvme_set_disk_name(char *disk_name, struct nvme_ns *ns,
+ 			struct nvme_ctrl *ctrl, int *flags);
+ void nvme_failover_req(struct request *req);
 -- 
 2.20.1
 
