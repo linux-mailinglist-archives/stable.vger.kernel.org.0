@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9890A7F274
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:49:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23DA47F27E
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:49:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405885AbfHBJso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:48:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54152 "EHLO mail.kernel.org"
+        id S2405366AbfHBJtH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:49:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405878AbfHBJsl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:48:41 -0400
+        id S2405300AbfHBJsn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:48:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 307E72087E;
-        Fri,  2 Aug 2019 09:48:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B91F8206A2;
+        Fri,  2 Aug 2019 09:48:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739320;
-        bh=1l0EAHHLvUwKDNyHuZOGsTVAkJXPM1btSYpS8ZVJubE=;
+        s=default; t=1564739323;
+        bh=sw7NaxbdxmEM6aRee2IGjhr908nG873HqFG3gLRoZso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZ1Xl6fWGZ7GPqupVCR8orx5EI3N1hymX9G2DwU7o4/ig/R/ndZWeFXCySm/bszbf
-         H9RncAI5sDggm+Hm1fitofpFsiEZnA3pXhdUo1X8aktiCOcHSTy9hwvlZOR2J9fCTx
-         Ez7XwCA9hVSsbl31sYEVNyJAqwHCTqyT1YRuZ/8Q=
+        b=MJY+GaKRG4x5D+BqA/u0Nbg/IFkEojDdm5ZtUHQ8sf8YoASB/gUroMORqjcf9C8ZO
+         x+s8i2KSMwxGXHMDgLHsYb9h8HYaPGhpuhaAa4+KWdxbkRdpepDdtFZ0r61IclRIYS
+         +DfWhRPPIWUAVK9g3YUsiW03HAhwG41AtbG++53E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai26@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Baruch Siach <baruch@tkos.co.il>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 166/223] memstick: Fix error cleanup path of memstick_init
-Date:   Fri,  2 Aug 2019 11:36:31 +0200
-Message-Id: <20190802092248.818904494@linuxfoundation.org>
+Subject: [PATCH 4.9 167/223] tty/serial: digicolor: Fix digicolor-usart already registered warning
+Date:   Fri,  2 Aug 2019 11:36:32 +0200
+Message-Id: <20190802092248.856080642@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -45,73 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 65f1a0d39c289bb6fc85635528cd36c4b07f560e ]
+[ Upstream commit c7ad9ba0611c53cfe194223db02e3bca015f0674 ]
 
-If bus_register fails. On its error handling path, it has cleaned up
-what it has done. There is no need to call bus_unregister again.
-Otherwise, if bus_unregister is called, issues such as null-ptr-deref
-will arise.
+When modprobe/rmmod/modprobe module, if platform_driver_register() fails,
+the kernel complained,
 
-Syzkaller report this:
+  proc_dir_entry 'driver/digicolor-usart' already registered
+  WARNING: CPU: 1 PID: 5636 at fs/proc/generic.c:360 proc_register+0x19d/0x270
 
-kobject_add_internal failed for memstick (error: -12 parent: bus)
-BUG: KASAN: null-ptr-deref in sysfs_remove_file_ns+0x1b/0x40 fs/sysfs/file.c:467
-Read of size 8 at addr 0000000000000078 by task syz-executor.0/4460
+Fix this by adding uart_unregister_driver() when platform_driver_register() fails.
 
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0xa9/0x10e lib/dump_stack.c:113
- __kasan_report+0x171/0x18d mm/kasan/report.c:321
- kasan_report+0xe/0x20 mm/kasan/common.c:614
- sysfs_remove_file_ns+0x1b/0x40 fs/sysfs/file.c:467
- sysfs_remove_file include/linux/sysfs.h:519 [inline]
- bus_remove_file+0x6c/0x90 drivers/base/bus.c:145
- remove_probe_files drivers/base/bus.c:599 [inline]
- bus_unregister+0x6e/0x100 drivers/base/bus.c:916 ? 0xffffffffc1590000
- memstick_init+0x7a/0x1000 [memstick]
- do_one_initcall+0xb9/0x3b5 init/main.c:914
- do_init_module+0xe0/0x330 kernel/module.c:3468
- load_module+0x38eb/0x4270 kernel/module.c:3819
- __do_sys_finit_module+0x162/0x190 kernel/module.c:3909
- do_syscall_64+0x72/0x2a0 arch/x86/entry/common.c:298
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Fixes: baf8532a147d ("memstick: initial commit for Sony MemoryStick support")
 Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai26@huawei.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Acked-by: Baruch Siach <baruch@tkos.co.il>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memstick/core/memstick.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/tty/serial/digicolor-usart.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/memstick/core/memstick.c b/drivers/memstick/core/memstick.c
-index 4d673a626db4..1041eb7a6167 100644
---- a/drivers/memstick/core/memstick.c
-+++ b/drivers/memstick/core/memstick.c
-@@ -629,13 +629,18 @@ static int __init memstick_init(void)
- 		return -ENOMEM;
+diff --git a/drivers/tty/serial/digicolor-usart.c b/drivers/tty/serial/digicolor-usart.c
+index 02ad6953b167..50ec5f1ac77f 100644
+--- a/drivers/tty/serial/digicolor-usart.c
++++ b/drivers/tty/serial/digicolor-usart.c
+@@ -545,7 +545,11 @@ static int __init digicolor_uart_init(void)
+ 	if (ret)
+ 		return ret;
  
- 	rc = bus_register(&memstick_bus_type);
--	if (!rc)
--		rc = class_register(&memstick_host_class);
-+	if (rc)
-+		goto error_destroy_workqueue;
- 
--	if (!rc)
--		return 0;
-+	rc = class_register(&memstick_host_class);
-+	if (rc)
-+		goto error_bus_unregister;
+-	return platform_driver_register(&digicolor_uart_platform);
++	ret = platform_driver_register(&digicolor_uart_platform);
++	if (ret)
++		uart_unregister_driver(&digicolor_uart);
 +
-+	return 0;
++	return ret;
+ }
+ module_init(digicolor_uart_init);
  
-+error_bus_unregister:
- 	bus_unregister(&memstick_bus_type);
-+error_destroy_workqueue:
- 	destroy_workqueue(workqueue);
- 
- 	return rc;
 -- 
 2.20.1
 
