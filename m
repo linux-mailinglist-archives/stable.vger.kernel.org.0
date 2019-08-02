@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 188347EDB0
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 09:39:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 966B77EDAE
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 09:39:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389438AbfHBHjH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 03:39:07 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:37475 "EHLO
+        id S1732472AbfHBHi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 03:38:59 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:48501 "EHLO
         wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732669AbfHBHjH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 03:39:07 -0400
+        by vger.kernel.org with ESMTP id S1732669AbfHBHi7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 03:38:59 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id EE7DA3DC;
-        Fri,  2 Aug 2019 03:39:05 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id 10C0C3DB;
+        Fri,  2 Aug 2019 03:38:57 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Fri, 02 Aug 2019 03:39:06 -0400
+  by compute6.internal (MEProxy); Fri, 02 Aug 2019 03:38:57 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=iy8n7L
-        TsYZEqjj1ZjeUjor3dy77Wr5gsVZFSiKrCLao=; b=dmQlOZ+1rYlPt43JLHXjCY
-        Ng8EyzvHi9Ae9pg3dnNy0K/TA0UtC8uPoRCInOOApRio6Cm1V7Rxf6CxHjfxIVRd
-        y0AWmJjHiDPaCjuDuzpon9bm8dVV1Z/8EGXs9nWBoBB5gOUgEdfyPRDwvtWC1tpY
-        rJuMar5XHNuIsYimfEDdKPMYPNAtAhar9k1zor/NLJrFYabJqiV8qpFQVZTzWJ0Z
-        HJl7hVyPHdW7AS/+L1vX2D1d2uoDftDSAglw2tZRJh3IKxHgxdt8l8qfei2U22uZ
-        ojj3tSf8zAfyL9lIpFQhPElb2Soij6Mf/JNJAPm8pVXMhKolhe3T5LeFzebz9K5g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=CTZoEg
+        qgC/Si24MOPfnC7J+ml2pvAeE9tNxHxI0B3Ak=; b=AWSJfS7KxknRYx/ke8riIg
+        esV/dvcLaTcpodTn/ucd9nWeeb9OJWUnNOvTSqAeKqTvVXoixM8X2N/+Glust3S0
+        5S4NwbfBIDCLKNADW7IT/rJjfNDMOYBojNvq/i2+ADc+bSc4QDK/zQhx8EwQ+kbl
+        3Q6GuX2xU+JVg/frWqFpgQzzt0CX+giO//4bd2xLx8eOY8ukC36x/JsnRX+unfGt
+        DmLzrJKoP9PB2hnt+UJInGngsSnflDSGMY4zhoUUR+MztXo0nSzt/0E9cq7NrJHO
+        0DYWZ2AsXXkoqIMtl735ISTvGEhrlhQlNpbS4VGM3vhaI3JXbBJjLQIVHJ2QRpPA
         ==
-X-ME-Sender: <xms:mehDXbeJYW_o3aRsK1DeIde3MvMRlOv_-xjZd4w-un58RnxqGmeYiA>
+X-ME-Sender: <xms:j-hDXWo6A3ZYk0bfHPBtagU6ZkEhxEqWf55_zTRpIYrkiPt0lxazVw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrleekgdduvddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:mehDXT1M60g2tkqVS6hMzfa3N_bzAamniShN9moKX7fG5fBr3nPqzA>
-    <xmx:mehDXUDyA_tTWlxfY-mlD2tY5B9aLCezms1X0XlBK4LUAbayConNPA>
-    <xmx:mehDXeSY2e4UNiHyYcrbs9zHMpjrmYb-gJehw-cOxLcb1ghK8ANJIw>
-    <xmx:mehDXVVh6FqMrMvxAwqxq6C2KLlNA8dWRXaIKm4F7E_ZxEm8x_OItg>
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:j-hDXZOuDs7Qjp4nAJYLwMd8qpXYn0WuZZ3MsLFIr0Yq50bRdzpPeQ>
+    <xmx:j-hDXYXmfJd2F0FOkN5QEC0gL_uYJJTk0ZTHzqGJLrMBGOJcVDMu5w>
+    <xmx:j-hDXcs1odKnsAOWncqtiAfd7gSXy53gvzlR3JSC8YU-2jo6muUUPQ>
+    <xmx:kOhDXRCN3N4Dz4AL3CYjRz5F39fJDPiYApsAO99L1MCt1ilCss76Rg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E034638008B;
-        Fri,  2 Aug 2019 03:39:02 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] sched/fair: Use RCU accessors consistently for ->numa_group" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id D7AB5380075;
+        Fri,  2 Aug 2019 03:38:54 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] sched/fair: Use RCU accessors consistently for ->numa_group" failed to apply to 4.14-stable tree
 To:     jannh@google.com, mingo@kernel.org, peterz@infradead.org,
         pmladek@suse.com, sergey.senozhatsky@gmail.com, tglx@linutronix.de,
         torvalds@linux-foundation.org, will@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 02 Aug 2019 09:38:53 +0200
-Message-ID: <1564731533166148@kroah.com>
+Message-ID: <156473153361211@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
