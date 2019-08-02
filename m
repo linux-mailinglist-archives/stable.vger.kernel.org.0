@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A3DD7F480
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:05:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FDD07F47E
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:05:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391174AbfHBJcM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:32:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58940 "EHLO mail.kernel.org"
+        id S2387864AbfHBJcV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:32:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391169AbfHBJcL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:32:11 -0400
+        id S2391191AbfHBJcT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:32:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B011B217D7;
-        Fri,  2 Aug 2019 09:32:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63060217D6;
+        Fri,  2 Aug 2019 09:32:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738331;
-        bh=JLeOArumhw3pHEpAq0cX2sLAqcrHiDyam2CGdvxGhxQ=;
+        s=default; t=1564738338;
+        bh=ZgwQnHW9qbACH2wauFG8EO9BfA2QDmU0QRpAI0NIdI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xFoIkTsgbxuz46FkXzPsVNCqFSz3plMoFZNuqTaCq+VU7uitiYr78vWrxdMXxEm9C
-         zXjZWwNgkfaqu2GYMA4EnLzEVBE5anTzkx0ouxQCbsrJebtc8mh+88MneJPOmKAoEO
-         XDfEEpPNyk0GQX1UJOH+ltOOYG5cYdvccLeINr2g=
+        b=hzVckPf4igC2g5380phc6p4UAtU0UZ33nSwsqRvnXE1XW+6kecSWNJGjBiULp7ZT+
+         WXjdixzPBI5uccgf+SgsFEy4ItkVQ1w+6fkj1zWWqvSOQCz11E5ZF4IQSyv5vslsUg
+         bmvPa9Z8LJyety1m0EPFfFJptpKrZl23utVInvfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.4 062/158] lib/scatterlist: Fix mapping iterator when sg->offset is greater than PAGE_SIZE
-Date:   Fri,  2 Aug 2019 11:28:03 +0200
-Message-Id: <20190802092216.662285387@linuxfoundation.org>
+        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
+        Ezequiel Garcia <ezequiel@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 4.4 065/158] media: coda: Remove unbalanced and unneeded mutex unlock
+Date:   Fri,  2 Aug 2019 11:28:06 +0200
+Message-Id: <20190802092217.291610771@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
 References: <20190802092203.671944552@linuxfoundation.org>
@@ -43,57 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Ezequiel Garcia <ezequiel@collabora.com>
 
-commit aeb87246537a83c2aff482f3f34a2e0991e02cbc upstream.
+commit 766b9b168f6c75c350dd87c3e0bc6a9b322f0013 upstream.
 
-All mapping iterator logic is based on the assumption that sg->offset
-is always lower than PAGE_SIZE.
+The mutex unlock in the threaded interrupt handler is not paired
+with any mutex lock. Remove it.
 
-But there are situations where sg->offset is such that the SG item
-is on the second page. In that case sg_copy_to_buffer() fails
-properly copying the data into the buffer. One of the reason is
-that the data will be outside the kmapped area used to access that
-data.
+This bug has been here for a really long time, so it applies
+to any stable repo.
 
-This patch fixes the issue by adjusting the mapping iterator
-offset and pgoffset fields such that offset is always lower than
-PAGE_SIZE.
-
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Fixes: 4225fc8555a9 ("lib/scatterlist: use page iterator in the mapping iterator")
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Cc: stable@vger.kernel.org
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- lib/scatterlist.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/media/platform/coda/coda-bit.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/lib/scatterlist.c
-+++ b/lib/scatterlist.c
-@@ -496,17 +496,18 @@ static bool sg_miter_get_next_page(struc
- {
- 	if (!miter->__remaining) {
- 		struct scatterlist *sg;
--		unsigned long pgoffset;
- 
- 		if (!__sg_page_iter_next(&miter->piter))
- 			return false;
- 
- 		sg = miter->piter.sg;
--		pgoffset = miter->piter.sg_pgoffset;
- 
--		miter->__offset = pgoffset ? 0 : sg->offset;
-+		miter->__offset = miter->piter.sg_pgoffset ? 0 : sg->offset;
-+		miter->piter.sg_pgoffset += miter->__offset >> PAGE_SHIFT;
-+		miter->__offset &= PAGE_SIZE - 1;
- 		miter->__remaining = sg->offset + sg->length -
--				(pgoffset << PAGE_SHIFT) - miter->__offset;
-+				     (miter->piter.sg_pgoffset << PAGE_SHIFT) -
-+				     miter->__offset;
- 		miter->__remaining = min_t(unsigned long, miter->__remaining,
- 					   PAGE_SIZE - miter->__offset);
+--- a/drivers/media/platform/coda/coda-bit.c
++++ b/drivers/media/platform/coda/coda-bit.c
+@@ -2107,7 +2107,6 @@ irqreturn_t coda_irq_handler(int irq, vo
+ 	if (ctx == NULL) {
+ 		v4l2_err(&dev->v4l2_dev,
+ 			 "Instance released before the end of transaction\n");
+-		mutex_unlock(&dev->coda_mutex);
+ 		return IRQ_HANDLED;
  	}
+ 
 
 
