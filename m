@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7680E7F35D
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:57:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF09E7F3A4
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:59:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406766AbfHBJ4l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:56:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35594 "EHLO mail.kernel.org"
+        id S2406684AbfHBJ7T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:59:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406761AbfHBJ4l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:56:41 -0400
+        id S2404831AbfHBJ7S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:59:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B953B2067D;
-        Fri,  2 Aug 2019 09:56:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF4C02064A;
+        Fri,  2 Aug 2019 09:59:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739800;
-        bh=PcsQo1hXT6MNMUhxrEhQkhYoGRVZHbiC+jN1cSetfSQ=;
+        s=default; t=1564739957;
+        bh=aukFEtkpuQkA4+TcaUceQB467wd7cnkY7fo7OTdBTYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R7VckPrmFJP85NiRtk/dQxRFazcqOtvt03Dd7+WjN4HMM3c+Mua+tXh43rHYU5E57
-         yue+XTtmOKsRD0WOQhgIsKffp2LjORcc4jD+LgZnTR9ni/NB9trpFO5nWOascU37RE
-         0oOCQk+xm14U/a3QeBky+E1Aa1SKo84aQpcmhAPE=
+        b=06JZs/Zt1dw2VINq0qFgWkXa2JBUkPWz4KHq4tL34MTtjhpROwcsaSu9xcJFZeSMP
+         gJL2+tInDGs8UHPHaunQHg2FS35lvDc9llCz50DjIzgM096pdLziZy91NRd2MCyvE5
+         aSkkwfI3+ryXePpwwKs+uwFIbjj8PE9et9H0r+gY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Hannes Reinecke <hare@suse.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        Johannes Thumshirn <jthumshirn@suse.de>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Martin Steigerwald <martin@lichtvoll.de>,
-        Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 32/32] scsi: core: Avoid that a kernel warning appears during system resume
-Date:   Fri,  2 Aug 2019 11:40:06 +0200
-Message-Id: <20190802092111.551503666@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+79337b501d6aa974d0f6@syzkaller.appspotmail.com,
+        Vladis Dronov <vdronov@redhat.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        "Yu-Chen, Cho" <acho@suse.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.2 13/20] Bluetooth: hci_uart: check for missing tty operations
+Date:   Fri,  2 Aug 2019 11:40:07 +0200
+Message-Id: <20190802092101.527095180@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190802092101.913646560@linuxfoundation.org>
-References: <20190802092101.913646560@linuxfoundation.org>
+In-Reply-To: <20190802092055.131876977@linuxfoundation.org>
+References: <20190802092055.131876977@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,63 +47,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Vladis Dronov <vdronov@redhat.com>
 
-commit 17605afaae825b0291f80c62a7f6565879edaa8a upstream.
+commit b36a1552d7319bbfd5cf7f08726c23c5c66d4f73 upstream.
 
-Since scsi_device_quiesce() skips SCSI devices that have another state than
-RUNNING, OFFLINE or TRANSPORT_OFFLINE, scsi_device_resume() should not
-complain about SCSI devices that have been skipped. Hence this patch.  This
-patch avoids that the following warning appears during resume:
+Certain ttys operations (pty_unix98_ops) lack tiocmget() and tiocmset()
+functions which are called by the certain HCI UART protocols (hci_ath,
+hci_bcm, hci_intel, hci_mrvl, hci_qca) via hci_uart_set_flow_control()
+or directly. This leads to an execution at NULL and can be triggered by
+an unprivileged user. Fix this by adding a helper function and a check
+for the missing tty operations in the protocols code.
 
-WARNING: CPU: 3 PID: 1039 at blk_clear_pm_only+0x2a/0x30
-CPU: 3 PID: 1039 Comm: kworker/u8:49 Not tainted 5.0.0+ #1
-Hardware name: LENOVO 4180F42/4180F42, BIOS 83ET75WW (1.45 ) 05/10/2013
-Workqueue: events_unbound async_run_entry_fn
-RIP: 0010:blk_clear_pm_only+0x2a/0x30
-Call Trace:
- ? scsi_device_resume+0x28/0x50
- ? scsi_dev_type_resume+0x2b/0x80
- ? async_run_entry_fn+0x2c/0xd0
- ? process_one_work+0x1f0/0x3f0
- ? worker_thread+0x28/0x3c0
- ? process_one_work+0x3f0/0x3f0
- ? kthread+0x10c/0x130
- ? __kthread_create_on_node+0x150/0x150
- ? ret_from_fork+0x1f/0x30
+This fixes CVE-2019-10207. The Fixes: lines list commits where calls to
+tiocm[gs]et() or hci_uart_set_flow_control() were added to the HCI UART
+protocols.
 
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Hannes Reinecke <hare@suse.com>
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: Johannes Thumshirn <jthumshirn@suse.de>
-Cc: Oleksandr Natalenko <oleksandr@natalenko.name>
-Cc: Martin Steigerwald <martin@lichtvoll.de>
-Cc: <stable@vger.kernel.org>
-Reported-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Tested-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Fixes: 3a0a529971ec ("block, scsi: Make SCSI quiesce and resume work reliably") # v4.15
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: https://syzkaller.appspot.com/bug?id=1b42faa2848963564a5b1b7f8c837ea7b55ffa50
+Reported-by: syzbot+79337b501d6aa974d0f6@syzkaller.appspotmail.com
+Cc: stable@vger.kernel.org # v2.6.36+
+Fixes: b3190df62861 ("Bluetooth: Support for Atheros AR300x serial chip")
+Fixes: 118612fb9165 ("Bluetooth: hci_bcm: Add suspend/resume PM functions")
+Fixes: ff2895592f0f ("Bluetooth: hci_intel: Add Intel baudrate configuration support")
+Fixes: 162f812f23ba ("Bluetooth: hci_uart: Add Marvell support")
+Fixes: fa9ad876b8e0 ("Bluetooth: hci_qca: Add support for Qualcomm Bluetooth chip wcn3990")
+Signed-off-by: Vladis Dronov <vdronov@redhat.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Reviewed-by: Yu-Chen, Cho <acho@suse.com>
+Tested-by: Yu-Chen, Cho <acho@suse.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/scsi_lib.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/bluetooth/hci_ath.c   |    3 +++
+ drivers/bluetooth/hci_bcm.c   |    3 +++
+ drivers/bluetooth/hci_intel.c |    3 +++
+ drivers/bluetooth/hci_ldisc.c |   13 +++++++++++++
+ drivers/bluetooth/hci_mrvl.c  |    3 +++
+ drivers/bluetooth/hci_qca.c   |    3 +++
+ drivers/bluetooth/hci_uart.h  |    1 +
+ 7 files changed, 29 insertions(+)
 
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -3102,8 +3102,10 @@ void scsi_device_resume(struct scsi_devi
- 	 * device deleted during suspend)
- 	 */
- 	mutex_lock(&sdev->state_mutex);
--	sdev->quiesced_by = NULL;
--	blk_clear_pm_only(sdev->request_queue);
-+	if (sdev->quiesced_by) {
-+		sdev->quiesced_by = NULL;
-+		blk_clear_pm_only(sdev->request_queue);
-+	}
- 	if (sdev->sdev_state == SDEV_QUIESCE)
- 		scsi_device_set_state(sdev, SDEV_RUNNING);
- 	mutex_unlock(&sdev->state_mutex);
+--- a/drivers/bluetooth/hci_ath.c
++++ b/drivers/bluetooth/hci_ath.c
+@@ -98,6 +98,9 @@ static int ath_open(struct hci_uart *hu)
+ 
+ 	BT_DBG("hu %p", hu);
+ 
++	if (!hci_uart_has_flow_control(hu))
++		return -EOPNOTSUPP;
++
+ 	ath = kzalloc(sizeof(*ath), GFP_KERNEL);
+ 	if (!ath)
+ 		return -ENOMEM;
+--- a/drivers/bluetooth/hci_bcm.c
++++ b/drivers/bluetooth/hci_bcm.c
+@@ -406,6 +406,9 @@ static int bcm_open(struct hci_uart *hu)
+ 
+ 	bt_dev_dbg(hu->hdev, "hu %p", hu);
+ 
++	if (!hci_uart_has_flow_control(hu))
++		return -EOPNOTSUPP;
++
+ 	bcm = kzalloc(sizeof(*bcm), GFP_KERNEL);
+ 	if (!bcm)
+ 		return -ENOMEM;
+--- a/drivers/bluetooth/hci_intel.c
++++ b/drivers/bluetooth/hci_intel.c
+@@ -391,6 +391,9 @@ static int intel_open(struct hci_uart *h
+ 
+ 	BT_DBG("hu %p", hu);
+ 
++	if (!hci_uart_has_flow_control(hu))
++		return -EOPNOTSUPP;
++
+ 	intel = kzalloc(sizeof(*intel), GFP_KERNEL);
+ 	if (!intel)
+ 		return -ENOMEM;
+--- a/drivers/bluetooth/hci_ldisc.c
++++ b/drivers/bluetooth/hci_ldisc.c
+@@ -284,6 +284,19 @@ static int hci_uart_send_frame(struct hc
+ 	return 0;
+ }
+ 
++/* Check the underlying device or tty has flow control support */
++bool hci_uart_has_flow_control(struct hci_uart *hu)
++{
++	/* serdev nodes check if the needed operations are present */
++	if (hu->serdev)
++		return true;
++
++	if (hu->tty->driver->ops->tiocmget && hu->tty->driver->ops->tiocmset)
++		return true;
++
++	return false;
++}
++
+ /* Flow control or un-flow control the device */
+ void hci_uart_set_flow_control(struct hci_uart *hu, bool enable)
+ {
+--- a/drivers/bluetooth/hci_mrvl.c
++++ b/drivers/bluetooth/hci_mrvl.c
+@@ -52,6 +52,9 @@ static int mrvl_open(struct hci_uart *hu
+ 
+ 	BT_DBG("hu %p", hu);
+ 
++	if (!hci_uart_has_flow_control(hu))
++		return -EOPNOTSUPP;
++
+ 	mrvl = kzalloc(sizeof(*mrvl), GFP_KERNEL);
+ 	if (!mrvl)
+ 		return -ENOMEM;
+--- a/drivers/bluetooth/hci_qca.c
++++ b/drivers/bluetooth/hci_qca.c
+@@ -458,6 +458,9 @@ static int qca_open(struct hci_uart *hu)
+ 
+ 	BT_DBG("hu %p qca_open", hu);
+ 
++	if (!hci_uart_has_flow_control(hu))
++		return -EOPNOTSUPP;
++
+ 	qca = kzalloc(sizeof(struct qca_data), GFP_KERNEL);
+ 	if (!qca)
+ 		return -ENOMEM;
+--- a/drivers/bluetooth/hci_uart.h
++++ b/drivers/bluetooth/hci_uart.h
+@@ -103,6 +103,7 @@ int hci_uart_tx_wakeup(struct hci_uart *
+ int hci_uart_init_ready(struct hci_uart *hu);
+ void hci_uart_init_work(struct work_struct *work);
+ void hci_uart_set_baudrate(struct hci_uart *hu, unsigned int speed);
++bool hci_uart_has_flow_control(struct hci_uart *hu);
+ void hci_uart_set_flow_control(struct hci_uart *hu, bool enable);
+ void hci_uart_set_speeds(struct hci_uart *hu, unsigned int init_speed,
+ 			 unsigned int oper_speed);
 
 
