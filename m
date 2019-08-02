@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F44F7F1E7
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:43:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E55127F1E6
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:43:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391684AbfHBJnN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2391681AbfHBJnN (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 2 Aug 2019 05:43:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45878 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404042AbfHBJnI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:43:08 -0400
+        id S2405037AbfHBJnK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:43:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A835520679;
-        Fri,  2 Aug 2019 09:43:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41A4F2087E;
+        Fri,  2 Aug 2019 09:43:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738987;
-        bh=d8J/eyduV+erwOk2PgEXLcSJfL3INtQfXul//p44UDE=;
+        s=default; t=1564738989;
+        bh=3b2N+zxazR7CX2RTeYYADRRfU7VrY1Byjv3Lv5J3Oyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nlN9Syh9mhaSofPKQY2zhq5JQ3OPxjydmkZ8Kcu3pYPTc0HcxKFI90UNvy5C/Wm+b
-         EtSXi70pdcJbCjN0pyFdm6eJsIzVyMLUdtvgSHupjZXV6raC3UakggOOdif83dcpSb
-         MQsbEUqFvOZJT6TJ6uQehc6GQrhOEGpsvlb+gAQc=
+        b=YaaDNkZ6gZEWZB8YxlIDavOPAfXIKXCLLIJntA91I3hy5oEUXlAKJsB5pta5hhlAF
+         ZSZLhgaU9Cn5dEZhd1ikYqTkPkgAhMEtUpSi/jt1cRxhr7FLN1v6RHU7g4qAm3Yxxm
+         EUTkGoLfiJHksL6NbmnpNvfIYBL2WhVdOXQyVuuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 073/223] gtp: fix use-after-free in gtp_newlink()
-Date:   Fri,  2 Aug 2019 11:34:58 +0200
-Message-Id: <20190802092243.571212596@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.9 074/223] xen: let alloc_xenballooned_pages() fail if not enough memory free
+Date:   Fri,  2 Aug 2019 11:34:59 +0200
+Message-Id: <20190802092243.634454390@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -44,109 +42,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a2bed90704c68d3763bf24decb1b781a45395de8 ]
+From: Juergen Gross <jgross@suse.com>
 
-Current gtp_newlink() could be called after unregister_pernet_subsys().
-gtp_newlink() uses gtp_net but it can be destroyed by
-unregister_pernet_subsys().
-So unregister_pernet_subsys() should be called after
-rtnl_link_unregister().
+commit a1078e821b605813b63bf6bca414a85f804d5c66 upstream.
 
-Test commands:
-   #SHELL 1
-   while :
-   do
-	   for i in {1..5}
-	   do
-		./gtp-link add gtp$i &
-	   done
-	   killall gtp-link
-   done
+Instead of trying to allocate pages with GFP_USER in
+add_ballooned_pages() check the available free memory via
+si_mem_available(). GFP_USER is far less limiting memory exhaustion
+than the test via si_mem_available().
 
-   #SHELL 2
-   while :
-   do
-	modprobe -rv gtp
-   done
+This will avoid dom0 running out of memory due to excessive foreign
+page mappings especially on ARM and on x86 in PVH mode, as those don't
+have a pre-ballooned area which can be used for foreign mappings.
 
-Splat looks like:
-[  753.176631] BUG: KASAN: use-after-free in gtp_newlink+0x9b4/0xa5c [gtp]
-[  753.177722] Read of size 8 at addr ffff8880d48f2458 by task gtp-link/7126
-[  753.179082] CPU: 0 PID: 7126 Comm: gtp-link Tainted: G        W         5.2.0-rc6+ #50
-[  753.185801] Call Trace:
-[  753.186264]  dump_stack+0x7c/0xbb
-[  753.186863]  ? gtp_newlink+0x9b4/0xa5c [gtp]
-[  753.187583]  print_address_description+0xc7/0x240
-[  753.188382]  ? gtp_newlink+0x9b4/0xa5c [gtp]
-[  753.189097]  ? gtp_newlink+0x9b4/0xa5c [gtp]
-[  753.189846]  __kasan_report+0x12a/0x16f
-[  753.190542]  ? gtp_newlink+0x9b4/0xa5c [gtp]
-[  753.191298]  kasan_report+0xe/0x20
-[  753.191893]  gtp_newlink+0x9b4/0xa5c [gtp]
-[  753.192580]  ? __netlink_ns_capable+0xc3/0xf0
-[  753.193370]  __rtnl_newlink+0xb9f/0x11b0
-[ ... ]
-[  753.241201] Allocated by task 7186:
-[  753.241844]  save_stack+0x19/0x80
-[  753.242399]  __kasan_kmalloc.constprop.3+0xa0/0xd0
-[  753.243192]  __kmalloc+0x13e/0x300
-[  753.243764]  ops_init+0xd6/0x350
-[  753.244314]  register_pernet_operations+0x249/0x6f0
-[ ... ]
-[  753.251770] Freed by task 7178:
-[  753.252288]  save_stack+0x19/0x80
-[  753.252833]  __kasan_slab_free+0x111/0x150
-[  753.253962]  kfree+0xc7/0x280
-[  753.254509]  ops_free_list.part.11+0x1c4/0x2d0
-[  753.255241]  unregister_pernet_operations+0x262/0x390
-[ ... ]
-[  753.285883] list_add corruption. next->prev should be prev (ffff8880d48f2458), but was ffff8880d497d878. (next.
-[  753.287241] ------------[ cut here ]------------
-[  753.287794] kernel BUG at lib/list_debug.c:25!
-[  753.288364] invalid opcode: 0000 [#1] SMP DEBUG_PAGEALLOC KASAN PTI
-[  753.289099] CPU: 0 PID: 7126 Comm: gtp-link Tainted: G    B   W         5.2.0-rc6+ #50
-[  753.291036] RIP: 0010:__list_add_valid+0x74/0xd0
-[  753.291589] Code: 48 39 da 75 27 48 39 f5 74 36 48 39 dd 74 31 48 83 c4 08 b8 01 00 00 00 5b 5d c3 48 89 d9 48b
-[  753.293779] RSP: 0018:ffff8880cae8f398 EFLAGS: 00010286
-[  753.294401] RAX: 0000000000000075 RBX: ffff8880d497d878 RCX: 0000000000000000
-[  753.296260] RDX: 0000000000000075 RSI: 0000000000000008 RDI: ffffed10195d1e69
-[  753.297070] RBP: ffff8880cd250ae0 R08: ffffed101b4bff21 R09: ffffed101b4bff21
-[  753.297899] R10: 0000000000000001 R11: ffffed101b4bff20 R12: ffff8880d497d878
-[  753.298703] R13: 0000000000000000 R14: ffff8880cd250ae0 R15: ffff8880d48f2458
-[  753.299564] FS:  00007f5f79805740(0000) GS:ffff8880da400000(0000) knlGS:0000000000000000
-[  753.300533] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  753.301231] CR2: 00007fe8c7ef4f10 CR3: 00000000b71a6006 CR4: 00000000000606f0
-[  753.302183] Call Trace:
-[  753.302530]  gtp_newlink+0x5f6/0xa5c [gtp]
-[  753.303037]  ? __netlink_ns_capable+0xc3/0xf0
-[  753.303576]  __rtnl_newlink+0xb9f/0x11b0
-[  753.304092]  ? rtnl_link_unregister+0x230/0x230
+As the normal ballooning suffers from the same problem don't balloon
+down more than si_mem_available() pages in one iteration. At the same
+time limit the default maximum number of retries.
 
-Fixes: 459aa660eb1d ("gtp: add initial driver for datapath of GPRS Tunneling Protocol (GTP-U)")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is part of XSA-300.
+
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/gtp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/xen/balloon.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/gtp.c b/drivers/net/gtp.c
-index 60df6e391ad2..7e1df403a37d 100644
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -1358,9 +1358,9 @@ late_initcall(gtp_init);
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -591,8 +591,15 @@ static void balloon_process(struct work_
+ 				state = reserve_additional_memory();
+ 		}
  
- static void __exit gtp_fini(void)
- {
--	unregister_pernet_subsys(&gtp_net_ops);
- 	genl_unregister_family(&gtp_genl_family);
- 	rtnl_link_unregister(&gtp_link_ops);
-+	unregister_pernet_subsys(&gtp_net_ops);
+-		if (credit < 0)
+-			state = decrease_reservation(-credit, GFP_BALLOON);
++		if (credit < 0) {
++			long n_pages;
++
++			n_pages = min(-credit, si_mem_available());
++			state = decrease_reservation(n_pages, GFP_BALLOON);
++			if (state == BP_DONE && n_pages != -credit &&
++			    n_pages < totalreserve_pages)
++				state = BP_EAGAIN;
++		}
  
- 	pr_info("GTP module unloaded\n");
- }
--- 
-2.20.1
-
+ 		state = update_schedule(state);
+ 
+@@ -631,6 +638,9 @@ static int add_ballooned_pages(int nr_pa
+ 		}
+ 	}
+ 
++	if (si_mem_available() < nr_pages)
++		return -ENOMEM;
++
+ 	st = decrease_reservation(nr_pages, GFP_USER);
+ 	if (st != BP_DONE)
+ 		return -ENOMEM;
+@@ -754,7 +764,7 @@ static int __init balloon_init(void)
+ 	balloon_stats.schedule_delay = 1;
+ 	balloon_stats.max_schedule_delay = 32;
+ 	balloon_stats.retry_count = 1;
+-	balloon_stats.max_retry_count = RETRY_UNLIMITED;
++	balloon_stats.max_retry_count = 4;
+ 
+ #ifdef CONFIG_XEN_BALLOON_MEMORY_HOTPLUG
+ 	set_online_page_callback(&xen_online_page);
 
 
