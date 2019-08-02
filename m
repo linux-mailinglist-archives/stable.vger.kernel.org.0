@@ -2,135 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A82617F535
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:38:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D93B17F53B
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:39:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726920AbfHBKiR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 06:38:17 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:38523 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726340AbfHBKiR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 06:38:17 -0400
-Received: by mail-wm1-f66.google.com with SMTP id s15so44515586wmj.3
-        for <stable@vger.kernel.org>; Fri, 02 Aug 2019 03:38:15 -0700 (PDT)
+        id S1727788AbfHBKjw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 06:39:52 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:37833 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726170AbfHBKjw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 06:39:52 -0400
+Received: by mail-lf1-f65.google.com with SMTP id c9so52553450lfh.4;
+        Fri, 02 Aug 2019 03:39:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=S+2+EUVBSWcWz2Z0VayqHRfaQ1Tp/Ak1WRItv1hrS5s=;
-        b=oxQYZC75E2sT85gGwrKMKKcJkmOfGJ2riCKiYseKLRsEfzzUxPriPh7TXqD19zJ7Jj
-         tIXzicfwLNZDy9b9C4U+7b1R6IrOPRnjCRyeTVRrHXmhGow7PnBq9TGp3Q5ed52o9edH
-         IQO05fO+1buXwbZ/bQ/ryCblWFPMuzBt5JFQLEB89FYTJOAE2iaD5IzSTejMQ7HOibQD
-         J/DGZIitphpU70UMaA8kV3VEbfg0SF8iJkqxv1BT7UolADA/ILshYlzLgVmHPya30/Ae
-         N/GO6AJ9V0auM+rGfaTQgRUVPeUeoevzep83CvxSmfpsoNuD6Bgy3g/CHjhtVzmWkzIS
-         Q9pw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=5482PCZzUMFMKuxfVvg4Yev3g0GqmaJh0s8a2jYMhWU=;
+        b=oEJYr5HtY21v/R0yUWUqTDOGxQ4aV+3YBib4fTTbtJ9LAsigZlma6ZgGrFk429vtTs
+         8K6xXpykk661zyEbBcGOI1wahifn29OW21y14f8H6pZeB6Gglru5OLCBepG9BFgt28dN
+         sH77qA8B59Vc9ZAb/dpiey2lmJbDl2NTzgDXoqgANURBQVCQE9U8e3RAF4RUoRerrfzC
+         cGhHfrpE+e1Z43SpJanvXA2bWZr3wxJL+Bamm+fQ5dpH0H5swpLKyEcytkFSeViqktyO
+         vf9+p4q2aYpiP4mduNmGwwvR3HfcHP8jdAvz+kQFiomUaBYinbXPTULM5O/CdBFqWdqw
+         Bf7Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=S+2+EUVBSWcWz2Z0VayqHRfaQ1Tp/Ak1WRItv1hrS5s=;
-        b=f89O8pRiyJ+5OuNzBySZ4WLYEFBfalafaHO+s+pBqlQSBLxL2GkPAQLabgwZ8/9Gjt
-         d3HvGgtt16nUyiGtD/lPWw7D7PbjUlw02C8i3TOWpybSdjGx3w8GaYdzAc9gznRXTI63
-         S2xZHI1pA8c3DZDoYgEAC15djM73hF1HxPUCkpZgJTCR2o2AqW+M3mU236q7crRrleEy
-         BU97gY43x/ztG0LTWrQ2sGVqG9uO3db5fdH88SU9dUw2jJHSknAx4BUnxPepNQj0gTvT
-         sdcVcZ52uQloq02A3Or3v3QhGRKXT/BXX24FvOftHibJF4Fj0G6WkOeJrJpe55GSJ9TC
-         rKbg==
-X-Gm-Message-State: APjAAAW5A2MWKlo6kJixOil13YXUqm4xNPv9n/ER1OiG0ryfKpL8ogUA
-        R0hehi1ilZ+c/lBtvPGhQ6Q=
-X-Google-Smtp-Source: APXvYqw0G8V9fcr5MJ4CiBpw7hLay7Zzthr/H2uysHcRj8KsX2peQQ2vdll8XBADOsgHUcFhBFQ4Gg==
-X-Received: by 2002:a1c:f415:: with SMTP id z21mr4150994wma.34.1564742294706;
-        Fri, 02 Aug 2019 03:38:14 -0700 (PDT)
-Received: from localhost.localdomain (82.159.32.155.dyn.user.ono.com. [82.159.32.155])
-        by smtp.gmail.com with ESMTPSA id p18sm75788008wrm.16.2019.08.02.03.38.13
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Fri, 02 Aug 2019 03:38:14 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=5482PCZzUMFMKuxfVvg4Yev3g0GqmaJh0s8a2jYMhWU=;
+        b=IFoZcMECrCZrrnSK3Cy2lJeN66WHLjlkpyHMq7XRuQteUYwhRxFjlKrUE01KUn2d+p
+         k0t0TRb3LLkR+AdmcLVAnqWwCXQGcnIowCTYBENfJz3QH/g4z5KmOfTfq6acMR4i2BvA
+         glPTjhKOm81cKfClDRrWHf90ZsyZLf9kZ26jQGdksmmOXxHdddSFuo23pl/Nhzvg0ytd
+         l5YWO3XJTcJLfjQbWEuK5E6PdzsgwRWSVCiew0wC/+O+YqqqSgO+5OXsDYOhDFtr2+n0
+         wI9+xiZuT+q0Wio+uuTjOf036dhv5KVvZHuBX97nf/liTVgA2w/NkEwiDZLYSHh1PlCB
+         kv6A==
+X-Gm-Message-State: APjAAAUA36OLefjcSR5riKYi7VzhQvhBvz6bFU58opgCuScgBXJWfGtA
+        RmL1VnCT3aHW4J7Pc9XPFH3RToOfJkT68BPm5sfeqm3+
+X-Google-Smtp-Source: APXvYqyfHp5ss+YMsd9FBA/CWTPi5XIqr0RtlJ6Z2s+wPVY7vdlWXexjaMPryPpA5eC6RJi2x9ByMFoEKtCGCYcd8Z8=
+X-Received: by 2002:a19:491d:: with SMTP id w29mr64758033lfa.149.1564742389620;
+ Fri, 02 Aug 2019 03:39:49 -0700 (PDT)
+MIME-Version: 1.0
+References: <259986242.BvXPX32bHu@devpool35> <20190606185900.GA19937@kroah.com>
+ <CANiq72n2E4Ue0MU5mWitSbsscizPQKML0QQx_DBwJVni+eWMHQ@mail.gmail.com>
+ <4007272.nJfEYfeqza@devpool35> <CANiq72=T8nH3HHkYvWF+vPMscgwXki1Ugiq6C9PhVHJUHAwDYw@mail.gmail.com>
+ <20190802103346.GA14255@kroah.com>
+In-Reply-To: <20190802103346.GA14255@kroah.com>
 From:   Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Subject: [PATCH 2/2] include/linux/module.h: copy __init/__exit attrs to init/cleanup_module
-Date:   Fri,  2 Aug 2019 12:37:57 +0200
-Message-Id: <20190802103757.31397-2-miguel.ojeda.sandonis@gmail.com>
-In-Reply-To: <20190802103757.31397-1-miguel.ojeda.sandonis@gmail.com>
-References: <20190802103757.31397-1-miguel.ojeda.sandonis@gmail.com>
+Date:   Fri, 2 Aug 2019 12:39:38 +0200
+Message-ID: <CANiq72neLZLB5dKsqK8y=_JDNf=Ea07b_jYutBXJ8Y=kse1q8A@mail.gmail.com>
+Subject: =?UTF-8?Q?Re=3A_Linux_4=2E9=2E180_build_fails_with_gcc_9_and_=27cleanu?=
+        =?UTF-8?Q?p=5Fmodule=27_specifies_less_restrictive_attribute_than_its_targ?=
+        =?UTF-8?Q?et_=E2=80=A6?=
+To:     Greg KH <greg@kroah.com>
+Cc:     Rolf Eike Beer <eb@emlix.com>, stable@vger.kernel.org,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit a6e60d84989fa0e91db7f236eda40453b0e44afa upstream.
+On Fri, Aug 2, 2019 at 12:33 PM Greg KH <greg@kroah.com> wrote:
+>
+> On Fri, Aug 02, 2019 at 12:19:33PM +0200, Miguel Ojeda wrote:
+> > On Fri, Aug 2, 2019 at 10:17 AM Rolf Eike Beer <eb@emlix.com> wrote:
+> > >
+> > > Am Samstag, 8. Juni 2019, 14:00:34 CEST schrieb Miguel Ojeda:
+> > > > On Thu, Jun 6, 2019 at 8:59 PM Greg KH <greg@kroah.com> wrote:
+> > > > > "manually fixing it up" means "hacked it to pieces" to me, I have no
+> > > > > idea what the end result really was :)
+> > > > >
+> > > > > If someone wants to send me some patches I can actually apply, that
+> > > > > would be best...
+> > > >
+> > > > I will give it a go whenever I get some free time :)
+> > >
+> > > I fear this has never happened, did it?
+> >
+> > No. Between summer, holidays and a conference I didn't get to do it.
+> >
+> > Done the minimal approach here:
+> >
+> >   https://github.com/ojeda/linux/commits/compiler-attributes-backport
+> >
+> > Tested building a handful of drivers with gcc 4.6.4, 8.3.0 and 9.1.1.
+> >
+> > Greg, I could backport the entire compiler_attributes.h, but given
+> > this is stable, we are supposed to minimize changes, right?
+> >
+> > I tried to imitate what you do in other stable patches, please check
+> > the Cc:, Link: lines and the "commit ... upstream" just in case.
+>
+> If only those 2 patches are all that is needed, nice!  I'll gladly take
+> them, can you send them to me (and cc: the stable list) in email so I
+> can queue them up for the next round of releases after this one?
 
-The upcoming GCC 9 release extends the -Wmissing-attributes warnings
-(enabled by -Wall) to C and aliases: it warns when particular function
-attributes are missing in the aliases but not in their target.
+Done! Please double check, since I am not used to send to stable.
 
-In particular, it triggers for all the init/cleanup_module
-aliases in the kernel (defined by the module_init/exit macros),
-ending up being very noisy.
-
-These aliases point to the __init/__exit functions of a module,
-which are defined as __cold (among other attributes). However,
-the aliases themselves do not have the __cold attribute.
-
-Since the compiler behaves differently when compiling a __cold
-function as well as when compiling paths leading to calls
-to __cold functions, the warning is trying to point out
-the possibly-forgotten attribute in the alias.
-
-In order to keep the warning enabled, we decided to silence
-this case. Ideally, we would mark the aliases directly
-as __init/__exit. However, there are currently around 132 modules
-in the kernel which are missing __init/__exit in their init/cleanup
-functions (either because they are missing, or for other reasons,
-e.g. the functions being called from somewhere else); and
-a section mismatch is a hard error.
-
-A conservative alternative was to mark the aliases as __cold only.
-However, since we would like to eventually enforce __init/__exit
-to be always marked,  we chose to use the new __copy function
-attribute (introduced by GCC 9 as well to deal with this).
-With it, we copy the attributes used by the target functions
-into the aliases. This way, functions that were not marked
-as __init/__exit won't have their aliases marked either,
-and therefore there won't be a section mismatch.
-
-Note that the warning would go away marking either the extern
-declaration, the definition, or both. However, we only mark
-the definition of the alias, since we do not want callers
-(which only see the declaration) to be compiled as if the function
-was __cold (and therefore the paths leading to those calls
-would be assumed to be unlikely).
-
-Link: https://lore.kernel.org/lkml/259986242.BvXPX32bHu@devpool35/
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/lkml/20190123173707.GA16603@gmail.com/
-Link: https://lore.kernel.org/lkml/20190206175627.GA20399@gmail.com/
-Suggested-by: Martin Sebor <msebor@gcc.gnu.org>
-Acked-by: Jessica Yu <jeyu@kernel.org>
-Signed-off-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
----
- include/linux/module.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/include/linux/module.h b/include/linux/module.h
-index fd9e121c7b3f..99f330ae13da 100644
---- a/include/linux/module.h
-+++ b/include/linux/module.h
-@@ -129,13 +129,13 @@ extern void cleanup_module(void);
- #define module_init(initfn)					\
- 	static inline initcall_t __maybe_unused __inittest(void)		\
- 	{ return initfn; }					\
--	int init_module(void) __attribute__((alias(#initfn)));
-+	int init_module(void) __copy(initfn) __attribute__((alias(#initfn)));
- 
- /* This is only required if you want to be unloadable. */
- #define module_exit(exitfn)					\
- 	static inline exitcall_t __maybe_unused __exittest(void)		\
- 	{ return exitfn; }					\
--	void cleanup_module(void) __attribute__((alias(#exitfn)));
-+	void cleanup_module(void) __copy(exitfn) __attribute__((alias(#exitfn)));
- 
- #endif
- 
--- 
-2.17.1
-
+Cheers,
+Miguel
