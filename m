@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC4C97F34B
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:57:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A75BD7F31D
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:54:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406631AbfHBJz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:55:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34428 "EHLO mail.kernel.org"
+        id S2406414AbfHBJyR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:54:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406363AbfHBJzr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:55:47 -0400
+        id S2405324AbfHBJyQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:54:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BCB12087E;
-        Fri,  2 Aug 2019 09:55:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C05D2064A;
+        Fri,  2 Aug 2019 09:54:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739746;
-        bh=/cb/Ces5GAssZzPycjTabnZ+Na4/ZFIaOSHATyUqsJo=;
+        s=default; t=1564739655;
+        bh=HGRbB6D5A9Z4ltOekFW9DHOd9lQMBMc61GLbiY7DoxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=STcgE6U8SkgkZLcR4IOq9aHaw/3C+bvHVxWSjwH3QgKM6FilZrWDzlea5eeX7a4Kr
-         ls7EunQtP9ZBHd1slFy7sjJhDNBaQMbj2ewCXvvuWn/szF7GymKL0gpOEFzF9ZSD6Z
-         RZUVIZpofUZdx8RSgTXv/E6X7XYOyQfShoCh/CRw=
+        b=Losq+u1SBghNd5qqpho+w5BA0i5CTzoIUOU177eyOhD/0UH2UxfRaUR7tvUnpSSxd
+         cNbsmMwbf9OHhsrP/Ith8Fy8RP4fTE4agwb7NwxHdevfNitonSf3n9g74F3Wxc53S2
+         khIAASRJjvlP1tOALaJUcs3ZUSesbk+yuctMBiuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
-        Joerg Roedel <joro@8bytes.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        iommu@lists.linux-foundation.org, Dmitry Safonov <dima@arista.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 4.19 17/32] iommu/vt-d: Dont queue_iova() if there is no flush queue
+        stable@vger.kernel.org, Sunil Muthuswamy <sunilmut@microsoft.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 19/25] hv_sock: Add support for delayed close
 Date:   Fri,  2 Aug 2019 11:39:51 +0200
-Message-Id: <20190802092107.177554199@linuxfoundation.org>
+Message-Id: <20190802092105.809404259@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190802092101.913646560@linuxfoundation.org>
-References: <20190802092101.913646560@linuxfoundation.org>
+In-Reply-To: <20190802092058.428079740@linuxfoundation.org>
+References: <20190802092058.428079740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,186 +44,192 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Safonov <dima@arista.com>
+From: Sunil Muthuswamy <sunilmut@microsoft.com>
 
-commit effa467870c7612012885df4e246bdb8ffd8e44c upstream.
+commit a9eeb998c28d5506616426bd3a216bd5735a18b8 upstream.
 
-Intel VT-d driver was reworked to use common deferred flushing
-implementation. Previously there was one global per-cpu flush queue,
-afterwards - one per domain.
+Currently, hvsock does not implement any delayed or background close
+logic. Whenever the hvsock socket is closed, a FIN is sent to the peer, and
+the last reference to the socket is dropped, which leads to a call to
+.destruct where the socket can hang indefinitely waiting for the peer to
+close it's side. The can cause the user application to hang in the close()
+call.
 
-Before deferring a flush, the queue should be allocated and initialized.
+This change implements proper STREAM(TCP) closing handshake mechanism by
+sending the FIN to the peer and the waiting for the peer's FIN to arrive
+for a given timeout. On timeout, it will try to terminate the connection
+(i.e. a RST). This is in-line with other socket providers such as virtio.
 
-Currently only domains with IOMMU_DOMAIN_DMA type initialize their flush
-queue. It's probably worth to init it for static or unmanaged domains
-too, but it may be arguable - I'm leaving it to iommu folks.
+This change does not address the hang in the vmbus_hvsock_device_unregister
+where it waits indefinitely for the host to rescind the channel. That
+should be taken up as a separate fix.
 
-Prevent queuing an iova flush if the domain doesn't have a queue.
-The defensive check seems to be worth to keep even if queue would be
-initialized for all kinds of domains. And is easy backportable.
-
-On 4.19.43 stable kernel it has a user-visible effect: previously for
-devices in si domain there were crashes, on sata devices:
-
- BUG: spinlock bad magic on CPU#6, swapper/0/1
-  lock: 0xffff88844f582008, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
- CPU: 6 PID: 1 Comm: swapper/0 Not tainted 4.19.43 #1
- Call Trace:
-  <IRQ>
-  dump_stack+0x61/0x7e
-  spin_bug+0x9d/0xa3
-  do_raw_spin_lock+0x22/0x8e
-  _raw_spin_lock_irqsave+0x32/0x3a
-  queue_iova+0x45/0x115
-  intel_unmap+0x107/0x113
-  intel_unmap_sg+0x6b/0x76
-  __ata_qc_complete+0x7f/0x103
-  ata_qc_complete+0x9b/0x26a
-  ata_qc_complete_multiple+0xd0/0xe3
-  ahci_handle_port_interrupt+0x3ee/0x48a
-  ahci_handle_port_intr+0x73/0xa9
-  ahci_single_level_irq_intr+0x40/0x60
-  __handle_irq_event_percpu+0x7f/0x19a
-  handle_irq_event_percpu+0x32/0x72
-  handle_irq_event+0x38/0x56
-  handle_edge_irq+0x102/0x121
-  handle_irq+0x147/0x15c
-  do_IRQ+0x66/0xf2
-  common_interrupt+0xf/0xf
- RIP: 0010:__do_softirq+0x8c/0x2df
-
-The same for usb devices that use ehci-pci:
- BUG: spinlock bad magic on CPU#0, swapper/0/1
-  lock: 0xffff88844f402008, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
- CPU: 0 PID: 1 Comm: swapper/0 Not tainted 4.19.43 #4
- Call Trace:
-  <IRQ>
-  dump_stack+0x61/0x7e
-  spin_bug+0x9d/0xa3
-  do_raw_spin_lock+0x22/0x8e
-  _raw_spin_lock_irqsave+0x32/0x3a
-  queue_iova+0x77/0x145
-  intel_unmap+0x107/0x113
-  intel_unmap_page+0xe/0x10
-  usb_hcd_unmap_urb_setup_for_dma+0x53/0x9d
-  usb_hcd_unmap_urb_for_dma+0x17/0x100
-  unmap_urb_for_dma+0x22/0x24
-  __usb_hcd_giveback_urb+0x51/0xc3
-  usb_giveback_urb_bh+0x97/0xde
-  tasklet_action_common.isra.4+0x5f/0xa1
-  tasklet_action+0x2d/0x30
-  __do_softirq+0x138/0x2df
-  irq_exit+0x7d/0x8b
-  smp_apic_timer_interrupt+0x10f/0x151
-  apic_timer_interrupt+0xf/0x20
-  </IRQ>
- RIP: 0010:_raw_spin_unlock_irqrestore+0x17/0x39
-
-Cc: David Woodhouse <dwmw2@infradead.org>
-Cc: Joerg Roedel <joro@8bytes.org>
-Cc: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: iommu@lists.linux-foundation.org
-Cc: <stable@vger.kernel.org> # 4.14+
-Fixes: 13cf01744608 ("iommu/vt-d: Make use of iova deferred flushing")
-Signed-off-by: Dmitry Safonov <dima@arista.com>
-Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-[v4.14-port notes:
-o minor conflict with untrusted IOMMU devices check under if-condition]
-Signed-off-by: Dmitry Safonov <dima@arista.com>
+Signed-off-by: Sunil Muthuswamy <sunilmut@microsoft.com>
+Reviewed-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/iommu/intel-iommu.c |    2 +-
- drivers/iommu/iova.c        |   18 ++++++++++++++----
- include/linux/iova.h        |    6 ++++++
- 3 files changed, 21 insertions(+), 5 deletions(-)
 
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -3721,7 +3721,7 @@ static void intel_unmap(struct device *d
+---
+ net/vmw_vsock/hyperv_transport.c |  110 +++++++++++++++++++++++++++------------
+ 1 file changed, 78 insertions(+), 32 deletions(-)
+
+--- a/net/vmw_vsock/hyperv_transport.c
++++ b/net/vmw_vsock/hyperv_transport.c
+@@ -35,6 +35,9 @@
+ /* The MTU is 16KB per the host side's design */
+ #define HVS_MTU_SIZE		(1024 * 16)
  
- 	freelist = domain_unmap(domain, start_pfn, last_pfn);
- 
--	if (intel_iommu_strict) {
-+	if (intel_iommu_strict || !has_iova_flush_queue(&domain->iovad)) {
- 		iommu_flush_iotlb_psi(iommu, domain, start_pfn,
- 				      nrpages, !freelist, 0);
- 		/* free iova */
---- a/drivers/iommu/iova.c
-+++ b/drivers/iommu/iova.c
-@@ -65,9 +65,14 @@ init_iova_domain(struct iova_domain *iov
++/* How long to wait for graceful shutdown of a connection */
++#define HVS_CLOSE_TIMEOUT (8 * HZ)
++
+ struct vmpipe_proto_header {
+ 	u32 pkt_type;
+ 	u32 data_size;
+@@ -290,19 +293,32 @@ static void hvs_channel_cb(void *ctx)
+ 		sk->sk_write_space(sk);
  }
- EXPORT_SYMBOL_GPL(init_iova_domain);
  
-+bool has_iova_flush_queue(struct iova_domain *iovad)
-+{
-+	return !!iovad->fq;
+-static void hvs_close_connection(struct vmbus_channel *chan)
++static void hvs_do_close_lock_held(struct vsock_sock *vsk,
++				   bool cancel_timeout)
+ {
+-	struct sock *sk = get_per_channel_state(chan);
+-	struct vsock_sock *vsk = vsock_sk(sk);
+-
+-	lock_sock(sk);
++	struct sock *sk = sk_vsock(vsk);
+ 
+-	sk->sk_state = TCP_CLOSE;
+ 	sock_set_flag(sk, SOCK_DONE);
+-	vsk->peer_shutdown |= SEND_SHUTDOWN | RCV_SHUTDOWN;
+-
++	vsk->peer_shutdown = SHUTDOWN_MASK;
++	if (vsock_stream_has_data(vsk) <= 0)
++		sk->sk_state = TCP_CLOSING;
+ 	sk->sk_state_change(sk);
++	if (vsk->close_work_scheduled &&
++	    (!cancel_timeout || cancel_delayed_work(&vsk->close_work))) {
++		vsk->close_work_scheduled = false;
++		vsock_remove_sock(vsk);
++
++		/* Release the reference taken while scheduling the timeout */
++		sock_put(sk);
++	}
 +}
 +
- static void free_iova_flush_queue(struct iova_domain *iovad)
- {
--	if (!iovad->fq)
-+	if (!has_iova_flush_queue(iovad))
- 		return;
++static void hvs_close_connection(struct vmbus_channel *chan)
++{
++	struct sock *sk = get_per_channel_state(chan);
  
- 	if (timer_pending(&iovad->fq_timer))
-@@ -85,13 +90,14 @@ static void free_iova_flush_queue(struct
- int init_iova_flush_queue(struct iova_domain *iovad,
- 			  iova_flush_cb flush_cb, iova_entry_dtor entry_dtor)
- {
-+	struct iova_fq __percpu *queue;
- 	int cpu;
- 
- 	atomic64_set(&iovad->fq_flush_start_cnt,  0);
- 	atomic64_set(&iovad->fq_flush_finish_cnt, 0);
- 
--	iovad->fq = alloc_percpu(struct iova_fq);
--	if (!iovad->fq)
-+	queue = alloc_percpu(struct iova_fq);
-+	if (!queue)
- 		return -ENOMEM;
- 
- 	iovad->flush_cb   = flush_cb;
-@@ -100,13 +106,17 @@ int init_iova_flush_queue(struct iova_do
- 	for_each_possible_cpu(cpu) {
- 		struct iova_fq *fq;
- 
--		fq = per_cpu_ptr(iovad->fq, cpu);
-+		fq = per_cpu_ptr(queue, cpu);
- 		fq->head = 0;
- 		fq->tail = 0;
- 
- 		spin_lock_init(&fq->lock);
- 	}
- 
-+	smp_wmb();
-+
-+	iovad->fq = queue;
-+
- 	timer_setup(&iovad->fq_timer, fq_flush_timeout, 0);
- 	atomic_set(&iovad->fq_timer_on, 0);
- 
---- a/include/linux/iova.h
-+++ b/include/linux/iova.h
-@@ -156,6 +156,7 @@ struct iova *reserve_iova(struct iova_do
- void copy_reserved_iova(struct iova_domain *from, struct iova_domain *to);
- void init_iova_domain(struct iova_domain *iovad, unsigned long granule,
- 	unsigned long start_pfn);
-+bool has_iova_flush_queue(struct iova_domain *iovad);
- int init_iova_flush_queue(struct iova_domain *iovad,
- 			  iova_flush_cb flush_cb, iova_entry_dtor entry_dtor);
- struct iova *find_iova(struct iova_domain *iovad, unsigned long pfn);
-@@ -236,6 +237,11 @@ static inline void init_iova_domain(stru
- {
++	lock_sock(sk);
++	hvs_do_close_lock_held(vsock_sk(sk), true);
+ 	release_sock(sk);
  }
  
-+bool has_iova_flush_queue(struct iova_domain *iovad)
+@@ -446,50 +462,80 @@ static int hvs_connect(struct vsock_sock
+ 	return vmbus_send_tl_connect_request(&h->vm_srv_id, &h->host_srv_id);
+ }
+ 
++static void hvs_shutdown_lock_held(struct hvsock *hvs, int mode)
 +{
++	struct vmpipe_proto_header hdr;
++
++	if (hvs->fin_sent || !hvs->chan)
++		return;
++
++	/* It can't fail: see hvs_channel_writable_bytes(). */
++	(void)hvs_send_data(hvs->chan, (struct hvs_send_buf *)&hdr, 0);
++	hvs->fin_sent = true;
++}
++
+ static int hvs_shutdown(struct vsock_sock *vsk, int mode)
+ {
+ 	struct sock *sk = sk_vsock(vsk);
+-	struct vmpipe_proto_header hdr;
+-	struct hvs_send_buf *send_buf;
+-	struct hvsock *hvs;
+ 
+ 	if (!(mode & SEND_SHUTDOWN))
+ 		return 0;
+ 
+ 	lock_sock(sk);
+-
+-	hvs = vsk->trans;
+-	if (hvs->fin_sent)
+-		goto out;
+-
+-	send_buf = (struct hvs_send_buf *)&hdr;
+-
+-	/* It can't fail: see hvs_channel_writable_bytes(). */
+-	(void)hvs_send_data(hvs->chan, send_buf, 0);
+-
+-	hvs->fin_sent = true;
+-out:
++	hvs_shutdown_lock_held(vsk->trans, mode);
+ 	release_sock(sk);
+ 	return 0;
+ }
+ 
+-static void hvs_release(struct vsock_sock *vsk)
++static void hvs_close_timeout(struct work_struct *work)
+ {
++	struct vsock_sock *vsk =
++		container_of(work, struct vsock_sock, close_work.work);
+ 	struct sock *sk = sk_vsock(vsk);
+-	struct hvsock *hvs = vsk->trans;
+-	struct vmbus_channel *chan;
+ 
++	sock_hold(sk);
+ 	lock_sock(sk);
++	if (!sock_flag(sk, SOCK_DONE))
++		hvs_do_close_lock_held(vsk, false);
+ 
+-	sk->sk_state = TCP_CLOSING;
+-	vsock_remove_sock(vsk);
+-
++	vsk->close_work_scheduled = false;
+ 	release_sock(sk);
++	sock_put(sk);
++}
+ 
+-	chan = hvs->chan;
+-	if (chan)
+-		hvs_shutdown(vsk, RCV_SHUTDOWN | SEND_SHUTDOWN);
++/* Returns true, if it is safe to remove socket; false otherwise */
++static bool hvs_close_lock_held(struct vsock_sock *vsk)
++{
++	struct sock *sk = sk_vsock(vsk);
++
++	if (!(sk->sk_state == TCP_ESTABLISHED ||
++	      sk->sk_state == TCP_CLOSING))
++		return true;
++
++	if ((sk->sk_shutdown & SHUTDOWN_MASK) != SHUTDOWN_MASK)
++		hvs_shutdown_lock_held(vsk->trans, SHUTDOWN_MASK);
++
++	if (sock_flag(sk, SOCK_DONE))
++		return true;
++
++	/* This reference will be dropped by the delayed close routine */
++	sock_hold(sk);
++	INIT_DELAYED_WORK(&vsk->close_work, hvs_close_timeout);
++	vsk->close_work_scheduled = true;
++	schedule_delayed_work(&vsk->close_work, HVS_CLOSE_TIMEOUT);
 +	return false;
 +}
+ 
++static void hvs_release(struct vsock_sock *vsk)
++{
++	struct sock *sk = sk_vsock(vsk);
++	bool remove_sock;
 +
- static inline int init_iova_flush_queue(struct iova_domain *iovad,
- 					iova_flush_cb flush_cb,
- 					iova_entry_dtor entry_dtor)
++	lock_sock(sk);
++	remove_sock = hvs_close_lock_held(vsk);
++	release_sock(sk);
++	if (remove_sock)
++		vsock_remove_sock(vsk);
+ }
+ 
+ static void hvs_destruct(struct vsock_sock *vsk)
 
 
