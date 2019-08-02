@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E31EC7F0CD
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:32:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85F177F0BC
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:32:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391285AbfHBJco (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:32:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59788 "EHLO mail.kernel.org"
+        id S2391143AbfHBJcE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:32:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391279AbfHBJcm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:32:42 -0400
+        id S2391114AbfHBJcE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:32:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55C92217F5;
-        Fri,  2 Aug 2019 09:32:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6D582184B;
+        Fri,  2 Aug 2019 09:32:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738361;
-        bh=MJtsPeYNZsKq49rZtkuN6dD8y6BQyFpESZtcOqsy/lo=;
+        s=default; t=1564738323;
+        bh=1hMfmmA0PNkSO6RzFUnz11bLMpC7ntsOqeilrPYu9yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fueZyInBz77PolrybU+K+Ai9oawWz6q8qZyjOcBvMHuM8sW115HLGzW25hHbfvK/N
-         Bxmvrp90pyE0fT3qj2donHfkkvNSbG7fIZSrM/u6uWGzHAxrF7rJPwp1kiDQg0C7qf
-         88f+oZy40C32i7wXsHCb50A/4mddqfKOU3e2W/Ao=
+        b=nuYA6TRaY+FG3Bw2CaqcxE9iVL6XfH/Xm4Of6ox17BG2FWxSO6jzniFjk8V1ve2sE
+         xFehkYZI0GEnKyIC7Ps22whdUYsadSrEM9i7lWRPTCgAX0PeY98VAUmO7x+SL7xOKw
+         ZO9n0y2eMmKiE3AbFHjepIxDyWGx9lCxOxBDx54I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Elena Petrova <lenaptr@google.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.4 057/158] crypto: arm64/sha2-ce - correct digest for empty data in finup
-Date:   Fri,  2 Aug 2019 11:27:58 +0200
-Message-Id: <20190802092215.642507403@linuxfoundation.org>
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.4 059/158] regulator: s2mps11: Fix buck7 and buck8 wrong voltages
+Date:   Fri,  2 Aug 2019 11:28:00 +0200
+Message-Id: <20190802092216.027230835@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
 References: <20190802092203.671944552@linuxfoundation.org>
@@ -44,41 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Elena Petrova <lenaptr@google.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit 6bd934de1e393466b319d29c4427598fda096c57 upstream.
+commit 16da0eb5ab6ef2dd1d33431199126e63db9997cc upstream.
 
-The sha256-ce finup implementation for ARM64 produces wrong digest
-for empty input (len=0). Expected: the actual digest, result: initial
-value of SHA internal state. The error is in sha256_ce_finup:
-for empty data `finalize` will be 1, so the code is relying on
-sha2_ce_transform to make the final round. However, in
-sha256_base_do_update, the block function will not be called when
-len == 0.
+On S2MPS11 device, the buck7 and buck8 regulator voltages start at 750
+mV, not 600 mV.  Using wrong minimal value caused shifting of these
+regulator values by 150 mV (e.g. buck7 usually configured to v1.35 V was
+reported as 1.2 V).
 
-Fix it by setting finalize to 0 if data is empty.
+On most of the boards these regulators are left in default state so this
+was only affecting reported voltage.  However if any driver wanted to
+change them, then effectively it would set voltage 150 mV higher than
+intended.
 
-Fixes: 03802f6a80b3a ("crypto: arm64/sha2-ce - move SHA-224/256 ARMv8 implementation to base layer")
-Cc: stable@vger.kernel.org
-Signed-off-by: Elena Petrova <lenaptr@google.com>
-Reviewed-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: <stable@vger.kernel.org>
+Fixes: cb74685ecb39 ("regulator: s2mps11: Add samsung s2mps11 regulator driver")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/crypto/sha2-ce-glue.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/regulator/s2mps11.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/crypto/sha2-ce-glue.c
-+++ b/arch/arm64/crypto/sha2-ce-glue.c
-@@ -52,7 +52,7 @@ static int sha256_ce_finup(struct shash_
- 			   unsigned int len, u8 *out)
- {
- 	struct sha256_ce_state *sctx = shash_desc_ctx(desc);
--	bool finalize = !sctx->sst.count && !(len % SHA256_BLOCK_SIZE);
-+	bool finalize = !sctx->sst.count && !(len % SHA256_BLOCK_SIZE) && len;
- 
- 	/*
- 	 * Allow the asm code to perform the finalization if there is no
+--- a/drivers/regulator/s2mps11.c
++++ b/drivers/regulator/s2mps11.c
+@@ -382,8 +382,8 @@ static const struct regulator_desc s2mps
+ 	regulator_desc_s2mps11_buck1_4(4),
+ 	regulator_desc_s2mps11_buck5,
+ 	regulator_desc_s2mps11_buck67810(6, MIN_600_MV, STEP_6_25_MV),
+-	regulator_desc_s2mps11_buck67810(7, MIN_600_MV, STEP_12_5_MV),
+-	regulator_desc_s2mps11_buck67810(8, MIN_600_MV, STEP_12_5_MV),
++	regulator_desc_s2mps11_buck67810(7, MIN_750_MV, STEP_12_5_MV),
++	regulator_desc_s2mps11_buck67810(8, MIN_750_MV, STEP_12_5_MV),
+ 	regulator_desc_s2mps11_buck9,
+ 	regulator_desc_s2mps11_buck67810(10, MIN_750_MV, STEP_12_5_MV),
+ };
 
 
