@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B61817F1B4
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:41:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0846A7F1AE
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:41:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391813AbfHBJlP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:41:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42718 "EHLO mail.kernel.org"
+        id S2391178AbfHBJlE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:41:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391809AbfHBJlP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:41:15 -0400
+        id S2391762AbfHBJlC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:41:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2AB42087E;
-        Fri,  2 Aug 2019 09:41:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE3BA20679;
+        Fri,  2 Aug 2019 09:41:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738874;
-        bh=/sGJVzo98w2BTi+g1+08yolXgzG0Zb45X9JsulVGuRw=;
+        s=default; t=1564738861;
+        bh=pMSYZ5ASEIOc6jdYKToCqL1btEnCcUAMY1gUP1vhC4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IwjNvxnK6+sNBuBpSx77ck9q6jfykqgGPRIXkStWv5KNcdIUqXMT4eE6jmU76IUDz
-         UIQAJDFbXqDtyymmfAGYdAWR1m7t5yL8iNNa0ez6K/VSJAlAySyz9ia5/ycX68KkHq
-         PQtGYXC38og9DO6DIsd0CsPyYmyQkQh0FPcn09fc=
+        b=SXQGsp45F2Lk6mCD4JpAfwykZLyGlzewodg4UqxCGwxfrW+uB/UcMa4GYzYsnHioV
+         1H7c00GulR9dfcYZBJMGdiLw970sAdVxF78CmmFBYe1gTXzbeH3VcihzYXv19sxUn+
+         G96AFQUHlm6XXEmFZ7LilfQChzU6f84W18h/jFmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jungo Lin <jungo.lin@mediatek.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 014/223] media: media_device_enum_links32: clean a reserved field
-Date:   Fri,  2 Aug 2019 11:33:59 +0200
-Message-Id: <20190802092239.891285103@linuxfoundation.org>
+Subject: [PATCH 4.9 024/223] crypto: talitos - Align SEC1 accesses to 32 bits boundaries.
+Date:   Fri,  2 Aug 2019 11:34:09 +0200
+Message-Id: <20190802092240.594604317@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -44,53 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f49308878d7202e07d8761238e01bd0e5fce2750 ]
+[ Upstream commit c9cca7034b34a2d82e9a03b757de2485c294851c ]
 
-In v4l2-compliance utility, test MEDIA_IOC_ENUM_ENTITIES
-will check whether reserved field of media_links_enum filled
-with zero.
+The MPC885 reference manual states:
 
-However, for 32 bit program, the reserved field is missing
-copy from kernel space to user space in media_device_enum_links32
-function.
+SEC Lite-initiated 8xx writes can occur only on 32-bit-word boundaries, but
+reads can occur on any byte boundary. Writing back a header read from a
+non-32-bit-word boundary will yield unpredictable results.
 
-This patch adds the cleaning a reserved field logic in
-media_device_enum_links32 function.
+In order to ensure that, cra_alignmask is set to 3 for SEC1.
 
-Signed-off-by: Jungo Lin <jungo.lin@mediatek.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Fixes: 9c4a79653b35 ("crypto: talitos - Freescale integrated security engine (SEC) driver")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/media-device.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/crypto/talitos.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/media-device.c b/drivers/media/media-device.c
-index 6f46c59415fe..6062c0cfa632 100644
---- a/drivers/media/media-device.c
-+++ b/drivers/media/media-device.c
-@@ -474,6 +474,7 @@ static long media_device_enum_links32(struct media_device *mdev,
- {
- 	struct media_links_enum links;
- 	compat_uptr_t pads_ptr, links_ptr;
-+	int ret;
+diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
+index e7864aa494a1..ea8595d2c3d8 100644
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -3119,7 +3119,10 @@ static struct talitos_crypto_alg *talitos_alg_alloc(struct device *dev,
+ 		alg->cra_priority = t_alg->algt.priority;
+ 	else
+ 		alg->cra_priority = TALITOS_CRA_PRIORITY;
+-	alg->cra_alignmask = 0;
++	if (has_ftr_sec1(priv))
++		alg->cra_alignmask = 3;
++	else
++		alg->cra_alignmask = 0;
+ 	alg->cra_ctxsize = sizeof(struct talitos_ctx);
+ 	alg->cra_flags |= CRYPTO_ALG_KERN_DRIVER_ONLY;
  
- 	memset(&links, 0, sizeof(links));
- 
-@@ -485,7 +486,13 @@ static long media_device_enum_links32(struct media_device *mdev,
- 	links.pads = compat_ptr(pads_ptr);
- 	links.links = compat_ptr(links_ptr);
- 
--	return media_device_enum_links(mdev, &links);
-+	ret = media_device_enum_links(mdev, &links);
-+	if (ret)
-+		return ret;
-+
-+	memset(ulinks->reserved, 0, sizeof(ulinks->reserved));
-+
-+	return 0;
- }
- 
- #define MEDIA_IOC_ENUM_LINKS32		_IOWR('|', 0x02, struct media_links_enum32)
 -- 
 2.20.1
 
