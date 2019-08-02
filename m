@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D0BC7F379
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:59:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE4B47F3B3
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:00:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406206AbfHBJ5U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:57:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36460 "EHLO mail.kernel.org"
+        id S2406822AbfHBJ71 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:59:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406871AbfHBJ5S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:57:18 -0400
+        id S2406644AbfHBJz7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:55:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07E132087E;
-        Fri,  2 Aug 2019 09:57:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF59C2064A;
+        Fri,  2 Aug 2019 09:55:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739837;
-        bh=xhLlzz4sxOyEY/CgzEGQiFoiUeSdMsl0KG0hWp+nAC0=;
+        s=default; t=1564739758;
+        bh=PONTyY3yLHjCIEAn1BHbZyw5ZTwVLy9t4JCMTeN57QU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YSoaHmI25OtdMFO50eMgPxn+vxEIlLtw1wP2YWEtCEaQZDbFs7P+e28N//UnuhEIN
-         /X22DIQ9nFLkBOBs3Fk9nlKc1Ma/8o+zJ/iB3dwoWRVWPaMBmpgQF6NpwS8ZcxTkow
-         dX/+PSYjvPBsO+MrtUGYIiM8TltWzeL6AR6cFkQo=
+        b=mtxoUGNlWj5u1JT1oHplKRNcbTqh6FWYUkiVfUPuc3yLmjiFXLtQka/xVJSxATXE/
+         i64uxinMr543gODPgpS4jZH+s+ev125aA8cdvjTwOYClwK0xZxTNzbyb8qJJHJ/Yjy
+         kOm49h1Bl2WNNS7MyV8ek0J07UEfiakehI+9wMUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sunil Muthuswamy <sunilmut@microsoft.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 01/20] vsock: correct removal of socket from the list
+        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jack Wang <jinpu.wang@cloud.ionos.com>
+Subject: [PATCH 4.19 21/32] vhost_net: fix possible infinite loop
 Date:   Fri,  2 Aug 2019 11:39:55 +0200
-Message-Id: <20190802092057.155486507@linuxfoundation.org>
+Message-Id: <20190802092108.665019390@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190802092055.131876977@linuxfoundation.org>
-References: <20190802092055.131876977@linuxfoundation.org>
+In-Reply-To: <20190802092101.913646560@linuxfoundation.org>
+References: <20190802092101.913646560@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,95 +45,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sunil Muthuswamy <sunilmut@microsoft.com>
+From: Jason Wang <jasowang@redhat.com>
 
-commit d5afa82c977ea06f7119058fa0eb8519ea501031 upstream.
+commit e2412c07f8f3040593dfb88207865a3cd58680c0 upstream.
 
-The current vsock code for removal of socket from the list is both
-subject to race and inefficient. It takes the lock, checks whether
-the socket is in the list, drops the lock and if the socket was on the
-list, deletes it from the list. This is subject to race because as soon
-as the lock is dropped once it is checked for presence, that condition
-cannot be relied upon for any decision. It is also inefficient because
-if the socket is present in the list, it takes the lock twice.
+When the rx buffer is too small for a packet, we will discard the vq
+descriptor and retry it for the next packet:
 
-Signed-off-by: Sunil Muthuswamy <sunilmut@microsoft.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+while ((sock_len = vhost_net_rx_peek_head_len(net, sock->sk,
+					      &busyloop_intr))) {
+...
+	/* On overrun, truncate and discard */
+	if (unlikely(headcount > UIO_MAXIOV)) {
+		iov_iter_init(&msg.msg_iter, READ, vq->iov, 1, 1);
+		err = sock->ops->recvmsg(sock, &msg,
+					 1, MSG_DONTWAIT | MSG_TRUNC);
+		pr_debug("Discarded rx packet: len %zd\n", sock_len);
+		continue;
+	}
+...
+}
+
+This makes it possible to trigger a infinite while..continue loop
+through the co-opreation of two VMs like:
+
+1) Malicious VM1 allocate 1 byte rx buffer and try to slow down the
+   vhost process as much as possible e.g using indirect descriptors or
+   other.
+2) Malicious VM2 generate packets to VM1 as fast as possible
+
+Fixing this by checking against weight at the end of RX and TX
+loop. This also eliminate other similar cases when:
+
+- userspace is consuming the packets in the meanwhile
+- theoretical TOCTOU attack if guest moving avail index back and forth
+  to hit the continue after vhost find guest just add new buffers
+
+This addresses CVE-2019-3900.
+
+Fixes: d8316f3991d20 ("vhost: fix total length when packets are too short")
+Fixes: 3a4d5c94e9593 ("vhost_net: a kernel-level virtio server")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+[jwang: backport to 4.19]
+Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/vmw_vsock/af_vsock.c |   38 +++++++-------------------------------
- 1 file changed, 7 insertions(+), 31 deletions(-)
+ drivers/vhost/net.c |   29 +++++++++++++----------------
+ 1 file changed, 13 insertions(+), 16 deletions(-)
 
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -274,7 +274,8 @@ EXPORT_SYMBOL_GPL(vsock_insert_connected
- void vsock_remove_bound(struct vsock_sock *vsk)
- {
- 	spin_lock_bh(&vsock_table_lock);
--	__vsock_remove_bound(vsk);
-+	if (__vsock_in_bound_table(vsk))
-+		__vsock_remove_bound(vsk);
- 	spin_unlock_bh(&vsock_table_lock);
- }
- EXPORT_SYMBOL_GPL(vsock_remove_bound);
-@@ -282,7 +283,8 @@ EXPORT_SYMBOL_GPL(vsock_remove_bound);
- void vsock_remove_connected(struct vsock_sock *vsk)
- {
- 	spin_lock_bh(&vsock_table_lock);
--	__vsock_remove_connected(vsk);
-+	if (__vsock_in_connected_table(vsk))
-+		__vsock_remove_connected(vsk);
- 	spin_unlock_bh(&vsock_table_lock);
- }
- EXPORT_SYMBOL_GPL(vsock_remove_connected);
-@@ -318,35 +320,10 @@ struct sock *vsock_find_connected_socket
- }
- EXPORT_SYMBOL_GPL(vsock_find_connected_socket);
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -551,7 +551,7 @@ static void handle_tx_copy(struct vhost_
+ 	int err;
+ 	int sent_pkts = 0;
  
--static bool vsock_in_bound_table(struct vsock_sock *vsk)
--{
--	bool ret;
--
--	spin_lock_bh(&vsock_table_lock);
--	ret = __vsock_in_bound_table(vsk);
--	spin_unlock_bh(&vsock_table_lock);
--
--	return ret;
--}
--
--static bool vsock_in_connected_table(struct vsock_sock *vsk)
--{
--	bool ret;
--
--	spin_lock_bh(&vsock_table_lock);
--	ret = __vsock_in_connected_table(vsk);
--	spin_unlock_bh(&vsock_table_lock);
--
--	return ret;
--}
--
- void vsock_remove_sock(struct vsock_sock *vsk)
- {
--	if (vsock_in_bound_table(vsk))
--		vsock_remove_bound(vsk);
--
--	if (vsock_in_connected_table(vsk))
--		vsock_remove_connected(vsk);
-+	vsock_remove_bound(vsk);
-+	vsock_remove_connected(vsk);
+-	for (;;) {
++	do {
+ 		bool busyloop_intr = false;
+ 
+ 		head = get_tx_bufs(net, nvq, &msg, &out, &in, &len,
+@@ -592,9 +592,7 @@ static void handle_tx_copy(struct vhost_
+ 				 err, len);
+ 		if (++nvq->done_idx >= VHOST_NET_BATCH)
+ 			vhost_net_signal_used(nvq);
+-		if (vhost_exceeds_weight(vq, ++sent_pkts, total_len))
+-			break;
+-	}
++	} while (likely(!vhost_exceeds_weight(vq, ++sent_pkts, total_len)));
+ 
+ 	vhost_net_signal_used(nvq);
  }
- EXPORT_SYMBOL_GPL(vsock_remove_sock);
+@@ -618,7 +616,7 @@ static void handle_tx_zerocopy(struct vh
+ 	bool zcopy_used;
+ 	int sent_pkts = 0;
  
-@@ -477,8 +454,7 @@ static void vsock_pending_work(struct wo
- 	 * incoming packets can't find this socket, and to reduce the reference
- 	 * count.
- 	 */
--	if (vsock_in_connected_table(vsk))
--		vsock_remove_connected(vsk);
-+	vsock_remove_connected(vsk);
+-	for (;;) {
++	do {
+ 		bool busyloop_intr;
  
- 	sk->sk_state = TCP_CLOSE;
+ 		/* Release DMAs done buffers first */
+@@ -693,10 +691,7 @@ static void handle_tx_zerocopy(struct vh
+ 		else
+ 			vhost_zerocopy_signal_used(net, vq);
+ 		vhost_net_tx_packet(net);
+-		if (unlikely(vhost_exceeds_weight(vq, ++sent_pkts,
+-						  total_len)))
+-			break;
+-	}
++	} while (likely(!vhost_exceeds_weight(vq, ++sent_pkts, total_len)));
+ }
  
+ /* Expects to be always run from workqueue - which acts as
+@@ -932,8 +927,11 @@ static void handle_rx(struct vhost_net *
+ 		vq->log : NULL;
+ 	mergeable = vhost_has_feature(vq, VIRTIO_NET_F_MRG_RXBUF);
+ 
+-	while ((sock_len = vhost_net_rx_peek_head_len(net, sock->sk,
+-						      &busyloop_intr))) {
++	do {
++		sock_len = vhost_net_rx_peek_head_len(net, sock->sk,
++						      &busyloop_intr);
++		if (!sock_len)
++			break;
+ 		sock_len += sock_hlen;
+ 		vhost_len = sock_len + vhost_hlen;
+ 		headcount = get_rx_bufs(vq, vq->heads + nvq->done_idx,
+@@ -1018,12 +1016,11 @@ static void handle_rx(struct vhost_net *
+ 			vhost_log_write(vq, vq_log, log, vhost_len,
+ 					vq->iov, in);
+ 		total_len += vhost_len;
+-		if (unlikely(vhost_exceeds_weight(vq, ++recv_pkts, total_len)))
+-			goto out;
+-	}
++	} while (likely(!vhost_exceeds_weight(vq, ++recv_pkts, total_len)));
++
+ 	if (unlikely(busyloop_intr))
+ 		vhost_poll_queue(&vq->poll);
+-	else
++	else if (!sock_len)
+ 		vhost_net_enable_vq(net, vq);
+ out:
+ 	vhost_net_signal_used(nvq);
+@@ -1105,7 +1102,7 @@ static int vhost_net_open(struct inode *
+ 	}
+ 	vhost_dev_init(dev, vqs, VHOST_NET_VQ_MAX,
+ 		       UIO_MAXIOV + VHOST_NET_BATCH,
+-		       VHOST_NET_WEIGHT, VHOST_NET_PKT_WEIGHT);
++		       VHOST_NET_PKT_WEIGHT, VHOST_NET_WEIGHT);
+ 
+ 	vhost_poll_init(n->poll + VHOST_NET_VQ_TX, handle_tx_net, EPOLLOUT, dev);
+ 	vhost_poll_init(n->poll + VHOST_NET_VQ_RX, handle_rx_net, EPOLLIN, dev);
 
 
