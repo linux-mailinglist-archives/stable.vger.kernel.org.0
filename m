@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EB797F874
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:20:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A5F97F877
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:20:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393285AbfHBNUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:20:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58392 "EHLO mail.kernel.org"
+        id S2393295AbfHBNUK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:20:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393219AbfHBNUG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:20:06 -0400
+        id S2393281AbfHBNUJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:20:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A7C121850;
-        Fri,  2 Aug 2019 13:20:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2D19218A3;
+        Fri,  2 Aug 2019 13:20:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752005;
-        bh=dHperu63nYS8UK5KTdZoHxwDBf0maf/PLEgDFchR0oU=;
+        s=default; t=1564752008;
+        bh=ritnmQKeXCNUkl00pdK+bMvgCPeyD/nYb7rU9HK3wAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KIXk3N11YxW/5OorTHk/yAqZQTLnSFptneabjynS/Z/uUTxBr0TSGQdfgzcWaxUbD
-         zCa4QPDtx3Hk0r5RrWFVqOWwaIj6yZRP6vFItaR/y2YF4BvmDoxDcgZD0yIRUc5UgN
-         wMY22/rXNakv/5Ym5xl3iMUorn6IlHn8BNgAHk74=
+        b=KvXV1hSIK+Ae3Gj1VvZ8kwBVeWWfKa+aEfIUNKxDJN5vYfnkuIn+Q7Tegab0RUPxO
+         LssHxI/JAZf7sDnhL7ldvHNBZBVVEpOgepEHn3BN1S8HNxPFP0fDhQlY9FEWiCY/2j
+         rGgVlurPZTj0S2uDxEp6d6x3dxZVoHILsXLHjow4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 11/76] scripts/sphinx-pre-install: fix latexmk dependencies
-Date:   Fri,  2 Aug 2019 09:18:45 -0400
-Message-Id: <20190802131951.11600-11-sashal@kernel.org>
+Cc:     Josef Bacik <josef@toxicpanda.com>,
+        Oleg Nesterov <oleg@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 14/76] rq-qos: use a mb for got_token
+Date:   Fri,  2 Aug 2019 09:18:48 -0400
+Message-Id: <20190802131951.11600-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
 References: <20190802131951.11600-1-sashal@kernel.org>
@@ -42,44 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 353290a9eb5362a80bc8e52fcd7eb77a30f48afc ]
+[ Upstream commit ac38297f7038cd5b80d66f8809c7bbf5b70031f3 ]
 
-The name of the package with carries latexmk is different
-on two distros:
+Oleg noticed that our checking of data.got_token is unsafe in the
+cleanup case, and should really use a memory barrier.  Use a wmb on the
+write side, and a rmb() on the read side.  We don't need one in the main
+loop since we're saved by set_current_state().
 
-- On OpenSUSE, latexmk is packaged as "texlive-latexmk-bin"
-- On Mageia, latexmk is packaged at "texlive-collection-basic"
-
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Reviewed-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/sphinx-pre-install | 4 ++++
- 1 file changed, 4 insertions(+)
+ block/blk-rq-qos.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/scripts/sphinx-pre-install b/scripts/sphinx-pre-install
-index 4cc2b3ee5209f..1f9f0a334c24f 100755
---- a/scripts/sphinx-pre-install
-+++ b/scripts/sphinx-pre-install
-@@ -447,6 +447,8 @@ sub give_opensuse_hints()
- 		"texlive-zapfding",
- 	);
+diff --git a/block/blk-rq-qos.c b/block/blk-rq-qos.c
+index e3ab75e4df9ea..06d024204f504 100644
+--- a/block/blk-rq-qos.c
++++ b/block/blk-rq-qos.c
+@@ -202,6 +202,7 @@ static int rq_qos_wake_function(struct wait_queue_entry *curr,
+ 		return -1;
  
-+	$map{"latexmk"} = "texlive-latexmk-bin";
-+
- 	check_rpm_missing(\@suse_tex_pkgs, 2) if ($pdf);
- 	check_missing_tex(2) if ($pdf);
- 	check_missing(\%map);
-@@ -472,6 +474,8 @@ sub give_mageia_hints()
- 		"texlive-fontsextra",
- 	);
+ 	data->got_token = true;
++	smp_wmb();
+ 	list_del_init(&curr->entry);
+ 	wake_up_process(data->task);
+ 	return 1;
+@@ -245,6 +246,7 @@ void rq_qos_wait(struct rq_wait *rqw, void *private_data,
  
-+	$map{"latexmk"} = "texlive-collection-basic";
-+
- 	check_rpm_missing(\@tex_pkgs, 2) if ($pdf);
- 	check_missing(\%map);
- 
+ 	prepare_to_wait_exclusive(&rqw->wait, &data.wq, TASK_UNINTERRUPTIBLE);
+ 	do {
++		/* The memory barrier in set_task_state saves us here. */
+ 		if (data.got_token)
+ 			break;
+ 		if (!has_sleeper && acquire_inflight_cb(rqw, private_data)) {
+@@ -255,6 +257,7 @@ void rq_qos_wait(struct rq_wait *rqw, void *private_data,
+ 			 * which means we now have two. Put our local token
+ 			 * and wake anyone else potentially waiting for one.
+ 			 */
++			smp_rmb();
+ 			if (data.got_token)
+ 				cleanup_cb(rqw, private_data);
+ 			break;
 -- 
 2.20.1
 
