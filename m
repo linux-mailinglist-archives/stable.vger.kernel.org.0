@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4BBE7F3FC
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:02:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 327527F406
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:02:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405169AbfHBKBq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 06:01:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47022 "EHLO mail.kernel.org"
+        id S2391232AbfHBJnV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:43:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405127AbfHBJnz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:43:55 -0400
+        id S2391954AbfHBJnQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:43:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E274820679;
-        Fri,  2 Aug 2019 09:43:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D7BB20679;
+        Fri,  2 Aug 2019 09:43:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739034;
-        bh=9H4D2zV7TSgSKq4UzQXIqE+FNeo85jU3HULh/FQEAcU=;
+        s=default; t=1564738994;
+        bh=BNjn9YxPzNl3/wZkvHFhI70VUuK9qv3cMeiVmH51GzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Epk5Zr1B51WE+9swIuR2EvRGMwa64g8gHgkYkHLroUDg6SskfXUmcVOGA479642R2
-         IwkMXzzwHo6Viw+64aNsrCHvqNPReoXId63Df4/PMNv6oHDHnWHs6AjncnPNGyVDvt
-         gLne+2h6vEZBUzL8tKqYfLgobeapW+rhaypuzvKI=
+        b=0pqyKB1DVj7qjNAL/+YtHdHnY0/0sXUy73SfPiYSXokzqspe41klEg7Cw2qcJRjLF
+         yujfK1zC/PWPanqqlUF9uqHxzs+RjOBFoMrOEx2eJRjED10dvjrWUBMfogFHleIi+c
+         eyGZ9YyAcQhryTL8mN/Q9IQjY/hw2/dlXCRhfDzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 072/223] gtp: fix Illegal context switch in RCU read-side critical section.
-Date:   Fri,  2 Aug 2019 11:34:57 +0200
-Message-Id: <20190802092243.480529444@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Schmitz <schmitzmic@gmail.com>,
+        Finn Thain <fthain@telegraphics.com.au>,
+        Stan Johnson <userm57@yahoo.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.9 076/223] scsi: NCR5380: Always re-enable reselection interrupt
+Date:   Fri,  2 Aug 2019 11:35:01 +0200
+Message-Id: <20190802092243.758580816@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -44,71 +45,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3f167e1921865b379a9becf03828e7202c7b4917 ]
+From: Finn Thain <fthain@telegraphics.com.au>
 
-ipv4_pdp_add() is called in RCU read-side critical section.
-So GFP_KERNEL should not be used in the function.
-This patch make ipv4_pdp_add() to use GFP_ATOMIC instead of GFP_KERNEL.
+commit 57f31326518e98ee4cabf9a04efe00ed57c54147 upstream.
 
-Test commands:
-gtp-link add gtp1 &
-gtp-tunnel add gtp1 v1 100 200 1.1.1.1 2.2.2.2
+The reselection interrupt gets disabled during selection and must be
+re-enabled when hostdata->connected becomes NULL. If it isn't re-enabled a
+disconnected command may time-out or the target may wedge the bus while
+trying to reselect the host. This can happen after a command is aborted.
 
-Splat looks like:
-[  130.618881] =============================
-[  130.626382] WARNING: suspicious RCU usage
-[  130.626994] 5.2.0-rc6+ #50 Not tainted
-[  130.627622] -----------------------------
-[  130.628223] ./include/linux/rcupdate.h:266 Illegal context switch in RCU read-side critical section!
-[  130.629684]
-[  130.629684] other info that might help us debug this:
-[  130.629684]
-[  130.631022]
-[  130.631022] rcu_scheduler_active = 2, debug_locks = 1
-[  130.632136] 4 locks held by gtp-tunnel/1025:
-[  130.632925]  #0: 000000002b93c8b7 (cb_lock){++++}, at: genl_rcv+0x15/0x40
-[  130.634159]  #1: 00000000f17bc999 (genl_mutex){+.+.}, at: genl_rcv_msg+0xfb/0x130
-[  130.635487]  #2: 00000000c644ed8e (rtnl_mutex){+.+.}, at: gtp_genl_new_pdp+0x18c/0x1150 [gtp]
-[  130.636936]  #3: 0000000007a1cde7 (rcu_read_lock){....}, at: gtp_genl_new_pdp+0x187/0x1150 [gtp]
-[  130.638348]
-[  130.638348] stack backtrace:
-[  130.639062] CPU: 1 PID: 1025 Comm: gtp-tunnel Not tainted 5.2.0-rc6+ #50
-[  130.641318] Call Trace:
-[  130.641707]  dump_stack+0x7c/0xbb
-[  130.642252]  ___might_sleep+0x2c0/0x3b0
-[  130.642862]  kmem_cache_alloc_trace+0x1cd/0x2b0
-[  130.643591]  gtp_genl_new_pdp+0x6c5/0x1150 [gtp]
-[  130.644371]  genl_family_rcv_msg+0x63a/0x1030
-[  130.645074]  ? mutex_lock_io_nested+0x1090/0x1090
-[  130.645845]  ? genl_unregister_family+0x630/0x630
-[  130.646592]  ? debug_show_all_locks+0x2d0/0x2d0
-[  130.647293]  ? check_flags.part.40+0x440/0x440
-[  130.648099]  genl_rcv_msg+0xa3/0x130
-[ ... ]
+Fix this by enabling the reselection interrupt in NCR5380_main() after
+calls to NCR5380_select() and NCR5380_information_transfer() return.
 
-Fixes: 459aa660eb1d ("gtp: add initial driver for datapath of GPRS Tunneling Protocol (GTP-U)")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Michael Schmitz <schmitzmic@gmail.com>
+Cc: stable@vger.kernel.org # v4.9+
+Fixes: 8b00c3d5d40d ("ncr5380: Implement new eh_abort_handler")
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Tested-by: Stan Johnson <userm57@yahoo.com>
+Tested-by: Michael Schmitz <schmitzmic@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/gtp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/NCR5380.c |   12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/gtp.c b/drivers/net/gtp.c
-index cb206e5526c4..60df6e391ad2 100644
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -952,7 +952,7 @@ static int ipv4_pdp_add(struct net_device *dev, struct genl_info *info)
- 
+--- a/drivers/scsi/NCR5380.c
++++ b/drivers/scsi/NCR5380.c
+@@ -813,6 +813,8 @@ static void NCR5380_main(struct work_str
+ 			NCR5380_information_transfer(instance);
+ 			done = 0;
+ 		}
++		if (!hostdata->connected)
++			NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
+ 		spin_unlock_irq(&hostdata->lock);
+ 		if (!done)
+ 			cond_resched();
+@@ -1208,8 +1210,6 @@ static struct scsi_cmnd *NCR5380_select(
+ 		spin_lock_irq(&hostdata->lock);
+ 		NCR5380_write(INITIATOR_COMMAND_REG, ICR_BASE);
+ 		NCR5380_reselect(instance);
+-		if (!hostdata->connected)
+-			NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
+ 		shost_printk(KERN_ERR, instance, "reselection after won arbitration?\n");
+ 		goto out;
  	}
+@@ -1217,7 +1217,6 @@ static struct scsi_cmnd *NCR5380_select(
+ 	if (err < 0) {
+ 		spin_lock_irq(&hostdata->lock);
+ 		NCR5380_write(INITIATOR_COMMAND_REG, ICR_BASE);
+-		NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
  
--	pctx = kmalloc(sizeof(struct pdp_ctx), GFP_KERNEL);
-+	pctx = kmalloc(sizeof(*pctx), GFP_ATOMIC);
- 	if (pctx == NULL)
- 		return -ENOMEM;
+ 		/* Can't touch cmd if it has been reclaimed by the scsi ML */
+ 		if (!hostdata->selecting)
+@@ -1255,7 +1254,6 @@ static struct scsi_cmnd *NCR5380_select(
+ 	if (err < 0) {
+ 		shost_printk(KERN_ERR, instance, "select: REQ timeout\n");
+ 		NCR5380_write(INITIATOR_COMMAND_REG, ICR_BASE);
+-		NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
+ 		goto out;
+ 	}
+ 	if (!hostdata->selecting) {
+@@ -1906,9 +1904,6 @@ static void NCR5380_information_transfer
+ 					 */
+ 					NCR5380_write(TARGET_COMMAND_REG, 0);
  
--- 
-2.20.1
-
+-					/* Enable reselect interrupts */
+-					NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
+-
+ 					maybe_release_dma_irq(instance);
+ 					return;
+ 				case MESSAGE_REJECT:
+@@ -1940,8 +1935,6 @@ static void NCR5380_information_transfer
+ 					 */
+ 					NCR5380_write(TARGET_COMMAND_REG, 0);
+ 
+-					/* Enable reselect interrupts */
+-					NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
+ #ifdef SUN3_SCSI_VME
+ 					dregs->csr |= CSR_DMA_ENABLE;
+ #endif
+@@ -2049,7 +2042,6 @@ static void NCR5380_information_transfer
+ 					cmd->result = DID_ERROR << 16;
+ 					complete_cmd(instance, cmd);
+ 					maybe_release_dma_irq(instance);
+-					NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
+ 					return;
+ 				}
+ 				msgout = NOP;
 
 
