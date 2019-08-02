@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 331287F268
+	by mail.lfdr.de (Postfix) with ESMTP id A10217F269
 	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:49:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405129AbfHBJsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:48:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53380 "EHLO mail.kernel.org"
+        id S2405154AbfHBJsM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:48:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405805AbfHBJsI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:48:08 -0400
+        id S2405155AbfHBJsK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:48:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AFD4E20880;
-        Fri,  2 Aug 2019 09:48:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 478552086A;
+        Fri,  2 Aug 2019 09:48:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739287;
-        bh=5WvHmZ3QDdKdwqBsXBI6fuyCsNO0qJMSHN9eYcSFGH0=;
+        s=default; t=1564739289;
+        bh=2OMjR4OVhkOfWDL55i9Z6Nyg3/Of6etqppTqfZ5q5bE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=krGHIlspUiXqfpyGaexCB29oKR/jQILFnfvgxKbXyFDUEAXe7UHO+feXmnyJPYxqO
-         sc+bB9yDywp+LflEDSggVBzJEPjcPavzQj28GvqH0yv5mdGbEde+pL2ekk+07a/chE
-         bqDDZicXyhHzSuUm12FX27jYb5nBJMz3Gl7cJHKI=
+        b=ypvN4iyxrXeiwJaueH2jhYzTPNdjZBj5Rfloj1UoHuHCy9Zp3j/5FT36YG06nYxec
+         zDN2YNapIK96O1PNE4zwaixl8jUlrzpMv2EI7FcWldlxTWsPRuTGFdgS+i/Ilfrj3U
+         coQ0dnDEcVfLgoCNzVwVv9XQOMMriBI8f8z5FH7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Sam Bobroff <sbobroff@linux.ibm.com>,
-        Oliver OHalloran <oohall@gmail.com>,
-        Shawn Anastasio <shawn@anastas.io>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Marek Vasut <marek.vasut+renesas@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Phil Edworthy <phil.edworthy@renesas.com>,
+        Simon Horman <horms+renesas@verge.net.au>,
+        Tejun Heo <tj@kernel.org>, Wolfram Sang <wsa@the-dreams.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 175/223] powerpc/pci/of: Fix OF flags parsing for 64bit BARs
-Date:   Fri,  2 Aug 2019 11:36:40 +0200
-Message-Id: <20190802092249.159759567@linuxfoundation.org>
+Subject: [PATCH 4.9 176/223] PCI: sysfs: Ignore lockdep for remove attribute
+Date:   Fri,  2 Aug 2019 11:36:41 +0200
+Message-Id: <20190802092249.198166070@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -47,63 +49,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit df5be5be8735ef2ae80d5ae1f2453cd81a035c4b ]
+[ Upstream commit dc6b698a86fe40a50525433eb8e92a267847f6f9 ]
 
-When the firmware does PCI BAR resource allocation, it passes the assigned
-addresses and flags (prefetch/64bit/...) via the "reg" property of
-a PCI device device tree node so the kernel does not need to do
-resource allocation.
+With CONFIG_PROVE_LOCKING=y, using sysfs to remove a bridge with a device
+below it causes a lockdep warning, e.g.,
 
-The flags are stored in resource::flags - the lower byte stores
-PCI_BASE_ADDRESS_SPACE/etc bits and the other bytes are IORESOURCE_IO/etc.
-Some flags from PCI_BASE_ADDRESS_xxx and IORESOURCE_xxx are duplicated,
-such as PCI_BASE_ADDRESS_MEM_PREFETCH/PCI_BASE_ADDRESS_MEM_TYPE_64/etc.
-When parsing the "reg" property, we copy the prefetch flag but we skip
-on PCI_BASE_ADDRESS_MEM_TYPE_64 which leaves the flags out of sync.
+  # echo 1 > /sys/class/pci_bus/0000:00/device/0000:00:00.0/remove
+  ============================================
+  WARNING: possible recursive locking detected
+  ...
+  pci_bus 0000:01: busn_res: [bus 01] is released
 
-The missing IORESOURCE_MEM_64 flag comes into play under 2 conditions:
-1. we remove PCI_PROBE_ONLY for pseries (by hacking pSeries_setup_arch()
-or by passing "/chosen/linux,pci-probe-only");
-2. we request resource alignment (by passing pci=resource_alignment=
-via the kernel cmd line to request PAGE_SIZE alignment or defining
-ppc_md.pcibios_default_alignment which returns anything but 0). Note that
-the alignment requests are ignored if PCI_PROBE_ONLY is enabled.
+The remove recursively removes the subtree below the bridge.  Each call
+uses a different lock so there's no deadlock, but the locks were all
+created with the same lockdep key so the lockdep checker can't tell them
+apart.
 
-With 1) and 2), the generic PCI code in the kernel unconditionally
-decides to:
-- reassign the BARs in pci_specified_resource_alignment() (works fine)
-- write new BARs to the device - this fails for 64bit BARs as the generic
-code looks at IORESOURCE_MEM_64 (not set) and writes only lower 32bits
-of the BAR and leaves the upper 32bit unmodified which breaks BAR mapping
-in the hypervisor.
+Mark the "remove" sysfs attribute with __ATTR_IGNORE_LOCKDEP() as it is
+safe to ignore the lockdep check between different "remove" kernfs
+instances.
 
-This fixes the issue by copying the flag. This is useful if we want to
-enforce certain BAR alignment per platform as handling subpage sized BARs
-is proven to cause problems with hotplug (SLOF already aligns BARs to 64k).
+There's discussion about a similar issue in USB at [1], which resulted in
+356c05d58af0 ("sysfs: get rid of some lockdep false positives") and
+e9b526fe7048 ("i2c: suppress lockdep warning on delete_device"), which do
+basically the same thing for USB "remove" and i2c "delete_device" files.
 
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Reviewed-by: Sam Bobroff <sbobroff@linux.ibm.com>
-Reviewed-by: Oliver O'Halloran <oohall@gmail.com>
-Reviewed-by: Shawn Anastasio <shawn@anastas.io>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+[1] https://lore.kernel.org/r/Pine.LNX.4.44L0.1204251436140.1206-100000@iolanthe.rowland.org
+Link: https://lore.kernel.org/r/20190526225151.3865-1-marek.vasut@gmail.com
+Signed-off-by: Marek Vasut <marek.vasut+renesas@gmail.com>
+[bhelgaas: trim commit log, details at above links]
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Phil Edworthy <phil.edworthy@renesas.com>
+Cc: Simon Horman <horms+renesas@verge.net.au>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/pci_of_scan.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pci/pci-sysfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/pci_of_scan.c b/arch/powerpc/kernel/pci_of_scan.c
-index ea3d98115b88..e0648a09d9c8 100644
---- a/arch/powerpc/kernel/pci_of_scan.c
-+++ b/arch/powerpc/kernel/pci_of_scan.c
-@@ -45,6 +45,8 @@ static unsigned int pci_parse_of_flags(u32 addr0, int bridge)
- 	if (addr0 & 0x02000000) {
- 		flags = IORESOURCE_MEM | PCI_BASE_ADDRESS_SPACE_MEMORY;
- 		flags |= (addr0 >> 22) & PCI_BASE_ADDRESS_MEM_TYPE_64;
-+		if (flags & PCI_BASE_ADDRESS_MEM_TYPE_64)
-+			flags |= IORESOURCE_MEM_64;
- 		flags |= (addr0 >> 28) & PCI_BASE_ADDRESS_MEM_TYPE_1M;
- 		if (addr0 & 0x40000000)
- 			flags |= IORESOURCE_PREFETCH
+diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
+index e5d8e2e2bd30..717540161223 100644
+--- a/drivers/pci/pci-sysfs.c
++++ b/drivers/pci/pci-sysfs.c
+@@ -371,7 +371,7 @@ static ssize_t remove_store(struct device *dev, struct device_attribute *attr,
+ 		pci_stop_and_remove_bus_device_locked(to_pci_dev(dev));
+ 	return count;
+ }
+-static struct device_attribute dev_remove_attr = __ATTR(remove,
++static struct device_attribute dev_remove_attr = __ATTR_IGNORE_LOCKDEP(remove,
+ 							(S_IWUSR|S_IWGRP),
+ 							NULL, remove_store);
+ 
 -- 
 2.20.1
 
