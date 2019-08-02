@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 421077F9AF
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:30:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63AE57F9AD
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:30:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727455AbfHBN23 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:28:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36926 "EHLO mail.kernel.org"
+        id S1730766AbfHBN2U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:28:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394504AbfHBN0K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:26:10 -0400
+        id S2394525AbfHBN0P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:26:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D09F321855;
-        Fri,  2 Aug 2019 13:26:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 565EB21852;
+        Fri,  2 Aug 2019 13:26:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752370;
-        bh=9Vfl695oM/fLBnNKaEjVD9CiirqCek4oXA5gnOcAr1M=;
+        s=default; t=1564752375;
+        bh=23B8luakk6bxCcsYaOoRRvGgRBG7IONl/QGkKxDbqvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R7C01Pd/VkUBQjSaazJu7HliCDC3YSG9UdhwtsauxSJx3sw/yrfJFI7GX2fxkXiZ5
-         uqAEnuXlBY9sPVHphMEkZMx5pHkp5a5yaCJ+J1iT4SVhRpTFPtkogiZtyMV5a+hy8z
-         k9LhXC+Mc20Utl4Liy21Q8YrjtgTxnKCBSjkgdEc=
+        b=q4k1GU1DH4aJNt5ax34tXvn2EuLMi+BVwVufL7iQ6vdNu6u3k86a/mM38oAlnvHho
+         F2T7capDVks/rgHeXHPUDxsYaCBq5exQCy0JteXpC+jvhTW+mMvp9UnFQNoCwca5Wb
+         tUgtmF2dDh6v0m6JWXPnCBPgb4rH0ztjW1+UhJuc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Vinod Koul <vkoul@kernel.org>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 11/22] ALSA: compress: Prevent bypasses of set_params
-Date:   Fri,  2 Aug 2019 09:25:35 -0400
-Message-Id: <20190802132547.14517-11-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>,
+        Roland Kammerer <roland.kammerer@linbit.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        drbd-dev@lists.linbit.com, linux-block@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.9 15/22] drbd: dynamically allocate shash descriptor
+Date:   Fri,  2 Aug 2019 09:25:39 -0400
+Message-Id: <20190802132547.14517-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802132547.14517-1-sashal@kernel.org>
 References: <20190802132547.14517-1-sashal@kernel.org>
@@ -43,83 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 26c3f1542f5064310ad26794c09321780d00c57d ]
+[ Upstream commit 77ce56e2bfaa64127ae5e23ef136c0168b818777 ]
 
-Currently, whilst in SNDRV_PCM_STATE_OPEN it is possible to call
-snd_compr_stop, snd_compr_drain and snd_compr_partial_drain, which
-allow a transition to SNDRV_PCM_STATE_SETUP. The stream should
-only be able to move to the setup state once it has received a
-SNDRV_COMPRESS_SET_PARAMS ioctl. Fix this issue by not allowing
-those ioctls whilst in the open state.
+Building with clang and KASAN, we get a warning about an overly large
+stack frame on 32-bit architectures:
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Acked-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+drivers/block/drbd/drbd_receiver.c:921:31: error: stack frame size of 1280 bytes in function 'conn_connect'
+      [-Werror,-Wframe-larger-than=]
+
+We already allocate other data dynamically in this function, so
+just do the same for the shash descriptor, which makes up most of
+this memory.
+
+Link: https://lore.kernel.org/lkml/20190617132440.2721536-1-arnd@arndb.de/
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Roland Kammerer <roland.kammerer@linbit.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/compress_offload.c | 30 ++++++++++++++++++++++++------
- 1 file changed, 24 insertions(+), 6 deletions(-)
+ drivers/block/drbd/drbd_receiver.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/sound/core/compress_offload.c b/sound/core/compress_offload.c
-index cf1317546b0ff..1538fbc7562b8 100644
---- a/sound/core/compress_offload.c
-+++ b/sound/core/compress_offload.c
-@@ -712,9 +712,15 @@ static int snd_compr_stop(struct snd_compr_stream *stream)
- {
- 	int retval;
+diff --git a/drivers/block/drbd/drbd_receiver.c b/drivers/block/drbd/drbd_receiver.c
+index 83957a1e15ed7..8e8e4ccb128f3 100644
+--- a/drivers/block/drbd/drbd_receiver.c
++++ b/drivers/block/drbd/drbd_receiver.c
+@@ -5297,7 +5297,7 @@ static int drbd_do_auth(struct drbd_connection *connection)
+ 	unsigned int key_len;
+ 	char secret[SHARED_SECRET_MAX]; /* 64 byte */
+ 	unsigned int resp_size;
+-	SHASH_DESC_ON_STACK(desc, connection->cram_hmac_tfm);
++	struct shash_desc *desc;
+ 	struct packet_info pi;
+ 	struct net_conf *nc;
+ 	int err, rv;
+@@ -5310,6 +5310,13 @@ static int drbd_do_auth(struct drbd_connection *connection)
+ 	memcpy(secret, nc->shared_secret, key_len);
+ 	rcu_read_unlock();
  
--	if (stream->runtime->state == SNDRV_PCM_STATE_PREPARED ||
--			stream->runtime->state == SNDRV_PCM_STATE_SETUP)
-+	switch (stream->runtime->state) {
-+	case SNDRV_PCM_STATE_OPEN:
-+	case SNDRV_PCM_STATE_SETUP:
-+	case SNDRV_PCM_STATE_PREPARED:
- 		return -EPERM;
-+	default:
-+		break;
++	desc = kmalloc(sizeof(struct shash_desc) +
++		       crypto_shash_descsize(connection->cram_hmac_tfm),
++		       GFP_KERNEL);
++	if (!desc) {
++		rv = -1;
++		goto fail;
 +	}
-+
- 	retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_STOP);
- 	if (!retval) {
- 		snd_compr_drain_notify(stream);
-@@ -802,9 +808,14 @@ static int snd_compr_drain(struct snd_compr_stream *stream)
- {
- 	int retval;
+ 	desc->tfm = connection->cram_hmac_tfm;
+ 	desc->flags = 0;
  
--	if (stream->runtime->state == SNDRV_PCM_STATE_PREPARED ||
--			stream->runtime->state == SNDRV_PCM_STATE_SETUP)
-+	switch (stream->runtime->state) {
-+	case SNDRV_PCM_STATE_OPEN:
-+	case SNDRV_PCM_STATE_SETUP:
-+	case SNDRV_PCM_STATE_PREPARED:
- 		return -EPERM;
-+	default:
-+		break;
+@@ -5452,7 +5459,10 @@ static int drbd_do_auth(struct drbd_connection *connection)
+ 	kfree(peers_ch);
+ 	kfree(response);
+ 	kfree(right_response);
+-	shash_desc_zero(desc);
++	if (desc) {
++		shash_desc_zero(desc);
++		kfree(desc);
 +	}
  
- 	retval = stream->ops->trigger(stream, SND_COMPR_TRIGGER_DRAIN);
- 	if (retval) {
-@@ -841,9 +852,16 @@ static int snd_compr_next_track(struct snd_compr_stream *stream)
- static int snd_compr_partial_drain(struct snd_compr_stream *stream)
- {
- 	int retval;
--	if (stream->runtime->state == SNDRV_PCM_STATE_PREPARED ||
--			stream->runtime->state == SNDRV_PCM_STATE_SETUP)
-+
-+	switch (stream->runtime->state) {
-+	case SNDRV_PCM_STATE_OPEN:
-+	case SNDRV_PCM_STATE_SETUP:
-+	case SNDRV_PCM_STATE_PREPARED:
- 		return -EPERM;
-+	default:
-+		break;
-+	}
-+
- 	/* stream can be drained only when next track has been signalled */
- 	if (stream->next_track == false)
- 		return -EPERM;
+ 	return rv;
+ }
 -- 
 2.20.1
 
