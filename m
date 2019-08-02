@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 166D37F376
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:59:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD3727F37A
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:59:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406851AbfHBJ5M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:57:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36252 "EHLO mail.kernel.org"
+        id S2406889AbfHBJ5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:57:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406834AbfHBJ5L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:57:11 -0400
+        id S2406875AbfHBJ5U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:57:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88F8C2064A;
-        Fri,  2 Aug 2019 09:57:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89B1C2087E;
+        Fri,  2 Aug 2019 09:57:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739830;
-        bh=/cln/WIjzGeqOoKndNBd6i8cjt4pYzNDGCPiUMwudic=;
+        s=default; t=1564739840;
+        bh=ZjDcXP0Wz/sTUK16guHwPbb1e26Bau2spHDEwnTu/GA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q11nj6aYBn9JvjaII22qdcx1Ua2Kk9syF6wu245RZaD+u4Gy6oW9bPvlEfy50gwCk
-         /P8mpD5azMm5id/3HUA+XEx2R52nHryr2Dn9G0EC7ZFV7Fj6RfP70kEfLHTyYK0y3Z
-         ypXdL0qLB+FDsZpJc5uYDbG7NL1AaHUnEneBvALY=
+        b=v9vOoiHEi3TUBe3RSYrdcP4Py74o/ISuHx+ryTHjkuf6u06fJVk2QFxYch35OKjel
+         kjX2ZBMz1epWA1tN+kyKX3qEA96O4CSNGYnKMcy9BeIk4xTNQfZ1oCXd4nXdcaTqEq
+         vr5wjgk7cwxnTf2bATHUP0k6SldpAcYGjKNoRUAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Yan, Zheng" <zyan@redhat.com>,
-        Jeff Layton <jlayton@redhat.com>,
-        Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 4.19 30/32] ceph: hold i_ceph_lock when removing caps for freeing inode
+        stable@vger.kernel.org,
+        Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        syzbot+a4387f5b6b799f6becbf@syzkaller.appspotmail.com
+Subject: [PATCH 5.2 10/20] media: radio-raremono: change devm_k*alloc to k*alloc
 Date:   Fri,  2 Aug 2019 11:40:04 +0200
-Message-Id: <20190802092111.124929517@linuxfoundation.org>
+Message-Id: <20190802092100.285432717@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190802092101.913646560@linuxfoundation.org>
-References: <20190802092101.913646560@linuxfoundation.org>
+In-Reply-To: <20190802092055.131876977@linuxfoundation.org>
+References: <20190802092055.131876977@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +46,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yan, Zheng <zyan@redhat.com>
+From: Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>
 
-commit d6e47819721ae2d9d090058ad5570a66f3c42e39 upstream.
+commit c666355e60ddb4748ead3bdd983e3f7f2224aaf0 upstream.
 
-ceph_d_revalidate(, LOOKUP_RCU) may call __ceph_caps_issued_mask()
-on a freeing inode.
+Change devm_k*alloc to k*alloc to manually allocate memory
 
-Signed-off-by: "Yan, Zheng" <zyan@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@redhat.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+The manual allocation and freeing of memory is necessary because when
+the USB radio is disconnected, the memory associated with devm_k*alloc
+is freed. Meaning if we still have unresolved references to the radio
+device, then we get use-after-free errors.
+
+This patch fixes this by manually allocating memory, and freeing it in
+the v4l2.release callback that gets called when the last radio device
+exits.
+
+Reported-and-tested-by: syzbot+a4387f5b6b799f6becbf@syzkaller.appspotmail.com
+
+Signed-off-by: Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+[hverkuil-cisco@xs4all.nl: cleaned up two small checkpatch.pl warnings]
+[hverkuil-cisco@xs4all.nl: prefix subject with driver name]
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ceph/caps.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/media/radio/radio-raremono.c |   30 +++++++++++++++++++++++-------
+ 1 file changed, 23 insertions(+), 7 deletions(-)
 
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -1237,20 +1237,23 @@ static int send_cap_msg(struct cap_msg_a
+--- a/drivers/media/radio/radio-raremono.c
++++ b/drivers/media/radio/radio-raremono.c
+@@ -271,6 +271,14 @@ static int vidioc_g_frequency(struct fil
+ 	return 0;
  }
  
- /*
-- * Queue cap releases when an inode is dropped from our cache.  Since
-- * inode is about to be destroyed, there is no need for i_ceph_lock.
-+ * Queue cap releases when an inode is dropped from our cache.
-  */
- void ceph_queue_caps_release(struct inode *inode)
- {
- 	struct ceph_inode_info *ci = ceph_inode(inode);
- 	struct rb_node *p;
++static void raremono_device_release(struct v4l2_device *v4l2_dev)
++{
++	struct raremono_device *radio = to_raremono_dev(v4l2_dev);
++
++	kfree(radio->buffer);
++	kfree(radio);
++}
++
+ /* File system interface */
+ static const struct v4l2_file_operations usb_raremono_fops = {
+ 	.owner		= THIS_MODULE,
+@@ -295,12 +303,14 @@ static int usb_raremono_probe(struct usb
+ 	struct raremono_device *radio;
+ 	int retval = 0;
  
-+	/* lock i_ceph_lock, because ceph_d_revalidate(..., LOOKUP_RCU)
-+	 * may call __ceph_caps_issued_mask() on a freeing inode. */
-+	spin_lock(&ci->i_ceph_lock);
- 	p = rb_first(&ci->i_caps);
- 	while (p) {
- 		struct ceph_cap *cap = rb_entry(p, struct ceph_cap, ci_node);
- 		p = rb_next(p);
- 		__ceph_remove_cap(cap, true);
+-	radio = devm_kzalloc(&intf->dev, sizeof(struct raremono_device), GFP_KERNEL);
+-	if (radio)
+-		radio->buffer = devm_kmalloc(&intf->dev, BUFFER_LENGTH, GFP_KERNEL);
+-
+-	if (!radio || !radio->buffer)
++	radio = kzalloc(sizeof(*radio), GFP_KERNEL);
++	if (!radio)
++		return -ENOMEM;
++	radio->buffer = kmalloc(BUFFER_LENGTH, GFP_KERNEL);
++	if (!radio->buffer) {
++		kfree(radio);
+ 		return -ENOMEM;
++	}
+ 
+ 	radio->usbdev = interface_to_usbdev(intf);
+ 	radio->intf = intf;
+@@ -324,7 +334,8 @@ static int usb_raremono_probe(struct usb
+ 	if (retval != 3 ||
+ 	    (get_unaligned_be16(&radio->buffer[1]) & 0xfff) == 0x0242) {
+ 		dev_info(&intf->dev, "this is not Thanko's Raremono.\n");
+-		return -ENODEV;
++		retval = -ENODEV;
++		goto free_mem;
  	}
-+	spin_unlock(&ci->i_ceph_lock);
+ 
+ 	dev_info(&intf->dev, "Thanko's Raremono connected: (%04X:%04X)\n",
+@@ -333,7 +344,7 @@ static int usb_raremono_probe(struct usb
+ 	retval = v4l2_device_register(&intf->dev, &radio->v4l2_dev);
+ 	if (retval < 0) {
+ 		dev_err(&intf->dev, "couldn't register v4l2_device\n");
+-		return retval;
++		goto free_mem;
+ 	}
+ 
+ 	mutex_init(&radio->lock);
+@@ -345,6 +356,7 @@ static int usb_raremono_probe(struct usb
+ 	radio->vdev.ioctl_ops = &usb_raremono_ioctl_ops;
+ 	radio->vdev.lock = &radio->lock;
+ 	radio->vdev.release = video_device_release_empty;
++	radio->v4l2_dev.release = raremono_device_release;
+ 
+ 	usb_set_intfdata(intf, &radio->v4l2_dev);
+ 
+@@ -360,6 +372,10 @@ static int usb_raremono_probe(struct usb
+ 	}
+ 	dev_err(&intf->dev, "could not register video device\n");
+ 	v4l2_device_unregister(&radio->v4l2_dev);
++
++free_mem:
++	kfree(radio->buffer);
++	kfree(radio);
+ 	return retval;
  }
  
- /*
 
 
