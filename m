@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BDC047F171
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:39:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 334987F172
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:39:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391501AbfHBJeO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:34:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34020 "EHLO mail.kernel.org"
+        id S2391514AbfHBJeR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:34:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391499AbfHBJeO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:34:14 -0400
+        id S1729449AbfHBJeR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:34:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B7A6217D4;
-        Fri,  2 Aug 2019 09:34:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6B5A2183F;
+        Fri,  2 Aug 2019 09:34:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738453;
-        bh=2XwdYcvuR1Zdq936dhGMg0cuBMr5jLmnhKag/WIbxJQ=;
+        s=default; t=1564738456;
+        bh=7m3ruUCgKo9KO242W+P8KIiIhfOU3zmmj6FT3Ptvf7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H7Cu2A4/++buXgCnWRiTerMkFrt6igjRpL+LsIQd1m0WOsKVSYHu2BeJ3zi+fIEEE
-         G3B4JMwSY7KrDrlmXhpm/MSyMfx0y7wIPQ3vjTvm/Vm9JKb+YBSjZco0tczW/wLXjc
-         nLohQI6X27hKoWmvMI7V9WQo71NCL8onpmS+aoGU=
+        b=sVSBKqqsDepKPjDGo8cqS73XuDKsOzuCn2xIsidVCigEAwVr+6tj/ucu1p7tajCHl
+         F26EG+IgTNdjjtB9UNksCbxS/vSI7f6dCgMZ8X2uIGMdMpKVTa1PMTErdZLxC1pYL7
+         4BQWH11o32yBXQyNdPAOwxfvkVLZmXyIP3FZUKfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Christoph Paasch <cpaasch@apple.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 095/158] tcp: Reset bytes_acked and bytes_received when disconnecting
-Date:   Fri,  2 Aug 2019 11:28:36 +0200
-Message-Id: <20190802092223.684416709@linuxfoundation.org>
+        stable@vger.kernel.org, Jay Vosburgh <j.vosburgh@gmail.com>,
+        Veaceslav Falico <vfalico@gmail.com>,
+        Andy Gospodarek <andy@greyhouse.net>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+e5be16aa39ad6e755391@syzkaller.appspotmail.com
+Subject: [PATCH 4.4 096/158] bonding: validate ip header before check IPPROTO_IGMP
+Date:   Fri,  2 Aug 2019 11:28:37 +0200
+Message-Id: <20190802092223.896649587@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
 References: <20190802092203.671944552@linuxfoundation.org>
@@ -44,35 +47,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Paasch <cpaasch@apple.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit e858faf556d4e14c750ba1e8852783c6f9520a0e ]
+[ Upstream commit 9d1bc24b52fb8c5d859f9a47084bf1179470e04c ]
 
-If an app is playing tricks to reuse a socket via tcp_disconnect(),
-bytes_acked/received needs to be reset to 0. Otherwise tcp_info will
-report the sum of the current and the old connection..
+bond_xmit_roundrobin() checks for IGMP packets but it parses
+the IP header even before checking skb->protocol.
 
-Cc: Eric Dumazet <edumazet@google.com>
-Fixes: 0df48c26d841 ("tcp: add tcpi_bytes_acked to tcp_info")
-Fixes: bdd1f9edacb5 ("tcp: add tcpi_bytes_received to tcp_info")
-Signed-off-by: Christoph Paasch <cpaasch@apple.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
+We should validate the IP header with pskb_may_pull() before
+using iph->protocol.
+
+Reported-and-tested-by: syzbot+e5be16aa39ad6e755391@syzkaller.appspotmail.com
+Fixes: a2fd940f4cff ("bonding: fix broken multicast with round-robin mode")
+Cc: Jay Vosburgh <j.vosburgh@gmail.com>
+Cc: Veaceslav Falico <vfalico@gmail.com>
+Cc: Andy Gospodarek <andy@greyhouse.net>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/bonding/bond_main.c |   37 +++++++++++++++++++++++--------------
+ 1 file changed, 23 insertions(+), 14 deletions(-)
 
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -2272,6 +2272,8 @@ int tcp_disconnect(struct sock *sk, int
- 	dst_release(sk->sk_rx_dst);
- 	sk->sk_rx_dst = NULL;
- 	tcp_saved_syn_free(tp);
-+	tp->bytes_acked = 0;
-+	tp->bytes_received = 0;
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -3714,8 +3714,8 @@ static u32 bond_rr_gen_slave_id(struct b
+ static int bond_xmit_roundrobin(struct sk_buff *skb, struct net_device *bond_dev)
+ {
+ 	struct bonding *bond = netdev_priv(bond_dev);
+-	struct iphdr *iph = ip_hdr(skb);
+ 	struct slave *slave;
++	int slave_cnt;
+ 	u32 slave_id;
  
- 	WARN_ON(inet->inet_num && !icsk->icsk_bind_hash);
+ 	/* Start with the curr_active_slave that joined the bond as the
+@@ -3724,23 +3724,32 @@ static int bond_xmit_roundrobin(struct s
+ 	 * send the join/membership reports.  The curr_active_slave found
+ 	 * will send all of this type of traffic.
+ 	 */
+-	if (iph->protocol == IPPROTO_IGMP && skb->protocol == htons(ETH_P_IP)) {
+-		slave = rcu_dereference(bond->curr_active_slave);
+-		if (slave)
+-			bond_dev_queue_xmit(bond, skb, slave->dev);
+-		else
+-			bond_xmit_slave_id(bond, skb, 0);
+-	} else {
+-		int slave_cnt = ACCESS_ONCE(bond->slave_cnt);
++	if (skb->protocol == htons(ETH_P_IP)) {
++		int noff = skb_network_offset(skb);
++		struct iphdr *iph;
++
++		if (unlikely(!pskb_may_pull(skb, noff + sizeof(*iph))))
++			goto non_igmp;
+ 
+-		if (likely(slave_cnt)) {
+-			slave_id = bond_rr_gen_slave_id(bond);
+-			bond_xmit_slave_id(bond, skb, slave_id % slave_cnt);
+-		} else {
+-			bond_tx_drop(bond_dev, skb);
++		iph = ip_hdr(skb);
++		if (iph->protocol == IPPROTO_IGMP) {
++			slave = rcu_dereference(bond->curr_active_slave);
++			if (slave)
++				bond_dev_queue_xmit(bond, skb, slave->dev);
++			else
++				bond_xmit_slave_id(bond, skb, 0);
++			return NETDEV_TX_OK;
+ 		}
+ 	}
+ 
++non_igmp:
++	slave_cnt = ACCESS_ONCE(bond->slave_cnt);
++	if (likely(slave_cnt)) {
++		slave_id = bond_rr_gen_slave_id(bond);
++		bond_xmit_slave_id(bond, skb, slave_id % slave_cnt);
++	} else {
++		bond_tx_drop(bond_dev, skb);
++	}
+ 	return NETDEV_TX_OK;
+ }
  
 
 
