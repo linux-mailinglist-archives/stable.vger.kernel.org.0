@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98DA77F0D5
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:33:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75A307F192
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:40:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730194AbfHBJdG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:33:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60406 "EHLO mail.kernel.org"
+        id S2390428AbfHBJdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:33:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388771AbfHBJdF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:33:05 -0400
+        id S1729065AbfHBJdK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:33:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6167921773;
-        Fri,  2 Aug 2019 09:33:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 677A0217D4;
+        Fri,  2 Aug 2019 09:33:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738384;
-        bh=cKjDSc7sORUc5XlPMyByySm1vLC6uJd48jwQGbWQIhk=;
+        s=default; t=1564738389;
+        bh=1cg3bNt/7VlbgSLvssmd7fmo/GrOc/mO6jNgEkCnfhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sBKu7s3O9iyZ79EB+yIPW9UOqOow4nzEjccgdG1Mnh8ACG+xrsT7YoGyupGXKCb/y
-         BHpAiWJU2QN2tsgGjGEuNp5fze4ep2QjAatnps2DNVRNUrla6MK6XW2hHkusiWEufI
-         BHn1Llz9/dP68xa7AmPiu34DNR4J/8BLzvtlTZ+I=
+        b=QYEXX9r4IkZvC09ze3H+kRTbYlD6XrvFPANXFHqORTgkGDW7DhZIWabEjmMIh8h5F
+         W2kOWt0YNv+tzhqgOMlgoN8A0JxKDkV5+BqGcYgW75H/aJ/nq/aSaFSUO/xalk7fjn
+         NWmRVL/B1lUfE5IqYHdxmMaWt4y/Hea8O4B9hCOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Szymon Janc <szymon.janc@codecoup.pl>,
-        Maarten Fonville <maarten.fonville@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 4.4 083/158] Bluetooth: Add SMP workaround Microsoft Surface Precision Mouse bug
-Date:   Fri,  2 Aug 2019 11:28:24 +0200
-Message-Id: <20190802092221.138425434@linuxfoundation.org>
+        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.4 085/158] dm bufio: fix deadlock with loop device
+Date:   Fri,  2 Aug 2019 11:28:26 +0200
+Message-Id: <20190802092221.576013612@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
 References: <20190802092203.671944552@linuxfoundation.org>
@@ -44,67 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Szymon Janc <szymon.janc@codecoup.pl>
+From: Junxiao Bi <junxiao.bi@oracle.com>
 
-commit 1d87b88ba26eabd4745e158ecfd87c93a9b51dc2 upstream.
+commit bd293d071ffe65e645b4d8104f9d8fe15ea13862 upstream.
 
-Microsoft Surface Precision Mouse provides bogus identity address when
-pairing. It connects with Static Random address but provides Public
-Address in SMP Identity Address Information PDU. Address has same
-value but type is different. Workaround this by dropping IRK if ID
-address discrepancy is detected.
+When thin-volume is built on loop device, if available memory is low,
+the following deadlock can be triggered:
 
-> HCI Event: LE Meta Event (0x3e) plen 19
-      LE Connection Complete (0x01)
-        Status: Success (0x00)
-        Handle: 75
-        Role: Master (0x00)
-        Peer address type: Random (0x01)
-        Peer address: E0:52:33:93:3B:21 (Static)
-        Connection interval: 50.00 msec (0x0028)
-        Connection latency: 0 (0x0000)
-        Supervision timeout: 420 msec (0x002a)
-        Master clock accuracy: 0x00
+One process P1 allocates memory with GFP_FS flag, direct alloc fails,
+memory reclaim invokes memory shrinker in dm_bufio, dm_bufio_shrink_scan()
+runs, mutex dm_bufio_client->lock is acquired, then P1 waits for dm_buffer
+IO to complete in __try_evict_buffer().
 
-....
+But this IO may never complete if issued to an underlying loop device
+that forwards it using direct-IO, which allocates memory using
+GFP_KERNEL (see: do_blockdev_direct_IO()).  If allocation fails, memory
+reclaim will invoke memory shrinker in dm_bufio, dm_bufio_shrink_scan()
+will be invoked, and since the mutex is already held by P1 the loop
+thread will hang, and IO will never complete.  Resulting in ABBA
+deadlock.
 
-> ACL Data RX: Handle 75 flags 0x02 dlen 12
-      SMP: Identity Address Information (0x09) len 7
-        Address type: Public (0x00)
-        Address: E0:52:33:93:3B:21
-
-Signed-off-by: Szymon Janc <szymon.janc@codecoup.pl>
-Tested-by: Maarten Fonville <maarten.fonville@gmail.com>
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=199461
 Cc: stable@vger.kernel.org
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bluetooth/smp.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/md/dm-bufio.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/net/bluetooth/smp.c
-+++ b/net/bluetooth/smp.c
-@@ -2532,6 +2532,19 @@ static int smp_cmd_ident_addr_info(struc
- 		goto distribute;
- 	}
+--- a/drivers/md/dm-bufio.c
++++ b/drivers/md/dm-bufio.c
+@@ -1561,9 +1561,7 @@ dm_bufio_shrink_scan(struct shrinker *sh
+ 	unsigned long freed;
  
-+	/* Drop IRK if peer is using identity address during pairing but is
-+	 * providing different address as identity information.
-+	 *
-+	 * Microsoft Surface Precision Mouse is known to have this bug.
-+	 */
-+	if (hci_is_identity_address(&hcon->dst, hcon->dst_type) &&
-+	    (bacmp(&info->bdaddr, &hcon->dst) ||
-+	     info->addr_type != hcon->dst_type)) {
-+		bt_dev_err(hcon->hdev,
-+			   "ignoring IRK with invalid identity address");
-+		goto distribute;
-+	}
-+
- 	bacpy(&smp->id_addr, &info->bdaddr);
- 	smp->id_addr_type = info->addr_type;
+ 	c = container_of(shrink, struct dm_bufio_client, shrinker);
+-	if (sc->gfp_mask & __GFP_FS)
+-		dm_bufio_lock(c);
+-	else if (!dm_bufio_trylock(c))
++	if (!dm_bufio_trylock(c))
+ 		return SHRINK_STOP;
  
+ 	freed  = __scan(c, sc->nr_to_scan, sc->gfp_mask);
 
 
