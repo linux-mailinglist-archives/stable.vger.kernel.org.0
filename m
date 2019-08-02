@@ -2,103 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 690437FDD9
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 17:55:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD0897FDDB
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 17:56:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387653AbfHBPzB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 11:55:01 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:40849 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1733006AbfHBPzA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 11:55:00 -0400
-Received: by mail-wr1-f65.google.com with SMTP id r1so77652602wrl.7
-        for <stable@vger.kernel.org>; Fri, 02 Aug 2019 08:54:58 -0700 (PDT)
+        id S2387920AbfHBP4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 11:56:16 -0400
+Received: from mail-wm1-f50.google.com ([209.85.128.50]:36893 "EHLO
+        mail-wm1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731112AbfHBP4P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 11:56:15 -0400
+Received: by mail-wm1-f50.google.com with SMTP id f17so66784618wme.2
+        for <stable@vger.kernel.org>; Fri, 02 Aug 2019 08:56:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
-         :references:subject:to:from:cc;
-        bh=Lv7QFpyym32Y81fdJu6NtFzt1x5OEGeU7A8SCvtyPV8=;
-        b=2FFXm8I4VD5uaQN81j1OMi5u0WnGE8PTuWf5JAiJObC4EnSBHuad/ez/QFFa5Z7hew
-         oizk+WxcDAsLURnD91ZgNQagiecbUR6WuLoE0vQFtm61XYyGVMMnELNCP8InkBB7aH0/
-         CYAOPOj2Gpz8oLI3BmjPaVSddfAKRxDhSwKzQkLaQXoBFh+4lAh68IKv03Pw/CRFnI6O
-         lpT3W+WFGYwT5juPs2JuNFYRnAPY5B4XHzktaZif3RU/eDiDL45QllhH28hIPhR7s4dm
-         jKH2la6XA6Nzri3ablBBzf/ew5YDdErYimQ6FAgpmBk8Ge13jaXWu6sykmtPQgxRcB7D
-         XcGA==
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=BECnQSoSPZEsLWCAx/dZ+dr8be9NxTZu4qHnEkBCl0A=;
+        b=U7fdOCtBWwljfZIVlDI2ScogGRqa+BmYc7yH4RVPot0hNyyYqxUHQmZgMsBJFj1AUM
+         CGGYFRXuNbjNN0XLno41B1QttqGn7ibRnSz4vcIkZTKoZ2MnVfNJHWiW6X+uP/FUGDFd
+         5BcsJ9hKLPMbYF6B0JWeBRmoDm0cWYxsYUlqU/HhzE5Cs6XiAXccdE2TESCX3oFt9mcv
+         2H+hpo2DsWQZtjrtN42HBc8u9yAvegkMTNCTbe0qF/40jgepkTU3HilqaQLUPFDJ+sOI
+         TbCNVTyFTH0wLJA02+cAfBEsxQ0PK/X3YR/DJM45VHKvvutw0ox8vw+6iKBfcbOBa8OA
+         NzGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
-        bh=Lv7QFpyym32Y81fdJu6NtFzt1x5OEGeU7A8SCvtyPV8=;
-        b=KkiNZY/ciTj17xvycL+YBHdTuw73jlfVOEa3VWlc7UcieBULduFK/FQNOTpcXkoBid
-         ZHp28o0W/MOVGA4eL/xvXYJKnTjw4BtLrHd38xHI3Ql8/01t3rDRyvv+x+ru844+64H1
-         zlOWNGU+GANsuOBZXzuyKmXYSddWHBwXJBnlRy3EAJBNwm05x3dv50UQhIe+mwg+nll7
-         b4xLHVXamdydprDrV/Ferta1jci1Byv3rHU4OUqVfytJQ5iHxsYl0OjTdP5jUP8J8Aao
-         HXr4/HbfXFpC48D0ykHrDFI7Q8+J87C8/fkMFcP3buV3d/Z+hn+H20YVHMlZnaa1rQEn
-         9n6A==
-X-Gm-Message-State: APjAAAWy7iLlIw1sipTfOmHjbUsRfHV/qiL/aetRSIX7aP9nYhu6GMXZ
-        5MEBKSSplb2s93b1cykVLBY=
-X-Google-Smtp-Source: APXvYqylL0rKZCAV/G/jL13mt//zVAvsHbc1xM+R450FX7x1CBo+F3awrZdbYcjPVPsJaUHEm8HCkQ==
-X-Received: by 2002:adf:ce8d:: with SMTP id r13mr55392866wrn.37.1564761298369;
-        Fri, 02 Aug 2019 08:54:58 -0700 (PDT)
+         :content-transfer-encoding:subject:to:from;
+        bh=BECnQSoSPZEsLWCAx/dZ+dr8be9NxTZu4qHnEkBCl0A=;
+        b=BredLoYtXC3GEVXQXFBIKFzCxrLlEu6FckcoJQiEDKe1J7oS9jkvtEb9eL6qvnSaoJ
+         OjsBw4lcKf0ilINy6Q7fx0NKFBW62Ge3W3erdxvR4+qHe9dpNa+zmQN6bBwQkEK7uyDI
+         kiPLBug99/kjf82ujQFp9Gijw412l+p/IUJP1wOBTOXKwP5273jt9xWwDCd0ZcE0FSmY
+         4BofJxm8HB7tOah94UJjqKlppuB+Dbg0YFQPMkmd1Mdd4wIUNU4/CF6YTNnL6BBhIesp
+         RzEMNXU5YhvCRNjZ9VJtSuO6k+8IhqPsyYsnms5V/byKYTI9LfLKdl8ecVMohglTmdUH
+         1bTw==
+X-Gm-Message-State: APjAAAUoZrllASO5lQ7PqgOZ/NYv3y+Pkkeu5WLixG0EPsgj6jaNSASX
+        Dt4hW2ZlTDLreIAc6CUTMXw1V4A/Ifk=
+X-Google-Smtp-Source: APXvYqxMB9DGe3w5AtoPzXSlVa+WYfSj1KtOzsgLEN9hwhN6V+tor7A+dRTLsE9O/7IiopEExj22XA==
+X-Received: by 2002:a1c:dc07:: with SMTP id t7mr5227326wmg.164.1564761373316;
+        Fri, 02 Aug 2019 08:56:13 -0700 (PDT)
 Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id x11sm53685384wmi.26.2019.08.02.08.54.57
+        by smtp.gmail.com with ESMTPSA id i6sm70297281wrv.47.2019.08.02.08.56.12
+        for <stable@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 02 Aug 2019 08:54:57 -0700 (PDT)
-Message-ID: <5d445cd1.1c69fb81.714e6.c928@mx.google.com>
-Date:   Fri, 02 Aug 2019 08:54:57 -0700 (PDT)
+        Fri, 02 Aug 2019 08:56:12 -0700 (PDT)
+Message-ID: <5d445d1c.1c69fb81.18a4f.6f36@mx.google.com>
+Date:   Fri, 02 Aug 2019 08:56:12 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.186-159-gc4286991ea44
-X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Kernel: v5.2.4-236-gdbc7f5c7df28
+X-Kernelci-Branch: linux-5.2.y
 X-Kernelci-Report-Type: boot
-In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
-References: <20190802092203.671944552@linuxfoundation.org>
-Subject: Re: [PATCH 4.4 000/158] 4.4.187-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
+Subject: stable-rc/linux-5.2.y boot: 136 boots: 0 failed,
+ 91 passed with 45 offline (v5.2.4-236-gdbc7f5c7df28)
+To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 92 boots: 1 failed, 59 passed with 32 offline (=
-v4.4.186-159-gc4286991ea44)
+stable-rc/linux-5.2.y boot: 136 boots: 0 failed, 91 passed with 45 offline =
+(v5.2.4-236-gdbc7f5c7df28)
 
 Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.186-159-gc4286991ea44/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.186-159-gc4286991ea44/
+-5.2.y/kernel/v5.2.4-236-gdbc7f5c7df28/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.2.y=
+/kernel/v5.2.4-236-gdbc7f5c7df28/
 
 Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.186-159-gc4286991ea44
-Git Commit: c4286991ea44309c9b2dcf717fd7d04270809eae
+Branch: linux-5.2.y
+Git Describe: v5.2.4-236-gdbc7f5c7df28
+Git Commit: dbc7f5c7df288a6bc587ae08342450a1e7f5cb7e
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Tested: 44 unique boards, 20 SoC families, 14 builds out of 190
-
-Boot Failure Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            qcom-qdf2400: 1 failed lab
+Tested: 79 unique boards, 28 SoC families, 17 builds out of 209
 
 Offline Platforms:
 
-arm:
+riscv:
 
-    tegra_defconfig:
+    defconfig:
         gcc-8
-            tegra20-iris-512: 1 offline lab
+            sifive_fu540: 1 offline lab
+
+arm64:
+
+    defconfig:
+        gcc-8
+            meson-axg-s400: 1 offline lab
+            meson-g12a-u200: 1 offline lab
+            meson-g12a-x96-max: 1 offline lab
+            meson-gxbb-odroidc2: 1 offline lab
+            meson-gxl-s905d-p230: 1 offline lab
+            meson-gxl-s905x-libretech-cc: 1 offline lab
+            meson-gxl-s905x-nexbox-a95x: 1 offline lab
+            meson-gxl-s905x-p212: 1 offline lab
+            meson-gxm-nexbox-a1: 1 offline lab
+            rk3399-firefly: 1 offline lab
+            sun50i-a64-pine64-plus: 1 offline lab
+
+mips:
+
+    pistachio_defconfig:
+        gcc-8
+            pistachio_marduk: 1 offline lab
+
+arm:
 
     exynos_defconfig:
         gcc-8
@@ -116,6 +127,7 @@ arm:
             imx6dl-wandboard_dual: 1 offline lab
             imx6dl-wandboard_solo: 1 offline lab
             imx6q-wandboard: 1 offline lab
+            imx7s-warp: 1 offline lab
             meson8b-odroidc1: 1 offline lab
             omap3-beagle: 1 offline lab
             omap4-panda: 1 offline lab
@@ -123,7 +135,6 @@ arm:
             stih410-b2120: 1 offline lab
             sun4i-a10-cubieboard: 1 offline lab
             sun7i-a20-bananapi: 1 offline lab
-            tegra20-iris-512: 1 offline lab
             vf610-colibri-eval-v3: 1 offline lab
 
     omap2plus_defconfig:
@@ -145,6 +156,7 @@ arm:
             imx6dl-wandboard_dual: 1 offline lab
             imx6dl-wandboard_solo: 1 offline lab
             imx6q-wandboard: 1 offline lab
+            imx7s-warp: 1 offline lab
             vf610-colibri-eval-v3: 1 offline lab
 
     sunxi_defconfig:
