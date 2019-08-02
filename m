@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AC037F13D
+	by mail.lfdr.de (Postfix) with ESMTP id 83EC97F13E
 	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:37:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403882AbfHBJfl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:35:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36274 "EHLO mail.kernel.org"
+        id S2403936AbfHBJfq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:35:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403872AbfHBJfl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:35:41 -0400
+        id S2403912AbfHBJfn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:35:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7E3D21773;
-        Fri,  2 Aug 2019 09:35:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E7CB217D4;
+        Fri,  2 Aug 2019 09:35:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738540;
-        bh=8z0Pnci0HMlED8uESm63Awh14kRUPOnV0hxMCsa1v9M=;
+        s=default; t=1564738542;
+        bh=67+98XHyVYgzKjT/ujjwfb+1qc0Z7sd6t2xbM2uUTZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a6YnQmQeTOk3sUKOzVM7qOGPZK0LNQDx98+wI0Hm1urLUhnG3oqNyKL6Dg5F0ZIYI
-         xruvWslRuERQ4DHse6seeV3ZdOTCx4DsTrMHZn5bkGfK3Uwt7YHHXKZw2Z1GLk6Zb9
-         7W0CkPgfAG5CDOZo4py9oRoOG6UYjvElAfKFu+Ao=
+        b=QjSZsfl8zCXgtdDmlqlfbQPK8n+l1OBg7FIWbL1LDVr0H0i0j7GLyJV31eWTTwkXZ
+         mM01pZId+Z7GoXEVLQ3+K52m7OqoSekq8qAmXHHpyLPASvisshKGQckecr8pvsnnSj
+         DcmYgV/NCHEkeMnbJpUDCKvG5TEqL/ih8XQy8Amc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 127/158] serial: sh-sci: Fix TX DMA buffer flushing and workqueue races
-Date:   Fri,  2 Aug 2019 11:29:08 +0200
-Message-Id: <20190802092229.386945468@linuxfoundation.org>
+Subject: [PATCH 4.4 128/158] kallsyms: exclude kasan local symbols on s390
+Date:   Fri,  2 Aug 2019 11:29:09 +0200
+Message-Id: <20190802092229.574146790@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
 References: <20190802092203.671944552@linuxfoundation.org>
@@ -45,114 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8493eab02608b0e82f67b892aa72882e510c31d0 ]
+[ Upstream commit 33177f01ca3fe550146bb9001bec2fd806b2f40c ]
 
-When uart_flush_buffer() is called, the .flush_buffer() callback zeroes
-the tx_dma_len field.  This may race with the work queue function
-handling transmit DMA requests:
+gcc asan instrumentation emits the following sequence to store frame pc
+when the kernel is built with CONFIG_RELOCATABLE:
+debug/vsprintf.s:
+        .section        .data.rel.ro.local,"aw"
+        .align  8
+.LC3:
+        .quad   .LASANPC4826@GOTOFF
+.text
+        .align  8
+        .type   number, @function
+number:
+.LASANPC4826:
 
-  1. If the buffer is flushed before the first DMA API call,
-     dmaengine_prep_slave_single() may be called with a zero length,
-     causing the DMA request to never complete, leading to messages
-     like:
+and in case reloc is issued for LASANPC label it also gets into .symtab
+with the same address as actual function symbol:
+$ nm -n vmlinux | grep 0000000001397150
+0000000001397150 t .LASANPC4826
+0000000001397150 t number
 
-        rcar-dmac e7300000.dma-controller: Channel Address Error happen
+In the end kernel backtraces are almost unreadable:
+[  143.748476] Call Trace:
+[  143.748484] ([<000000002da3e62c>] .LASANPC2671+0x114/0x190)
+[  143.748492]  [<000000002eca1a58>] .LASANPC2612+0x110/0x160
+[  143.748502]  [<000000002de9d830>] print_address_description+0x80/0x3b0
+[  143.748511]  [<000000002de9dd64>] __kasan_report+0x15c/0x1c8
+[  143.748521]  [<000000002ecb56d4>] strrchr+0x34/0x60
+[  143.748534]  [<000003ff800a9a40>] kasan_strings+0xb0/0x148 [test_kasan]
+[  143.748547]  [<000003ff800a9bba>] kmalloc_tests_init+0xe2/0x528 [test_kasan]
+[  143.748555]  [<000000002da2117c>] .LASANPC4069+0x354/0x748
+[  143.748563]  [<000000002dbfbb16>] do_init_module+0x136/0x3b0
+[  143.748571]  [<000000002dbff3f4>] .LASANPC3191+0x2164/0x25d0
+[  143.748580]  [<000000002dbffc4c>] .LASANPC3196+0x184/0x1b8
+[  143.748587]  [<000000002ecdf2ec>] system_call+0xd8/0x2d8
 
-     and, with debug enabled:
+Since LASANPC labels are not even unique and get into .symtab only due
+to relocs filter them out in kallsyms.
 
-	sh-sci e6e88000.serial: sci_dma_tx_work_fn: ffff800639b55000: 0...0, cookie 126
-
-     and DMA timeouts.
-
-  2. If the buffer is flushed after the first DMA API call, but before
-     the second, dma_sync_single_for_device() may be called with a zero
-     length, causing the transmit data not to be flushed to RAM, and
-     leading to stale data being output.
-
-Fix this by:
-  1. Letting sci_dma_tx_work_fn() return immediately if the transmit
-     buffer is empty,
-  2. Extending the critical section to cover all DMA preparational work,
-     so tx_dma_len stays consistent for all of it,
-  3. Using local copies of circ_buf.head and circ_buf.tail, to make sure
-     they match the actual operation above.
-
-Reported-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Suggested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Tested-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Link: https://lore.kernel.org/r/20190624123540.20629-2-geert+renesas@glider.be
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/sh-sci.c | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ scripts/kallsyms.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
-index 669134e27ed9..c450e32c153d 100644
---- a/drivers/tty/serial/sh-sci.c
-+++ b/drivers/tty/serial/sh-sci.c
-@@ -1203,6 +1203,7 @@ static void work_fn_tx(struct work_struct *work)
- 	struct uart_port *port = &s->port;
- 	struct circ_buf *xmit = &port->state->xmit;
- 	dma_addr_t buf;
-+	int head, tail;
+diff --git a/scripts/kallsyms.c b/scripts/kallsyms.c
+index 8fa81e84e295..d117c68d1607 100644
+--- a/scripts/kallsyms.c
++++ b/scripts/kallsyms.c
+@@ -158,6 +158,9 @@ static int read_symbol(FILE *in, struct sym_entry *s)
+ 	/* exclude debugging symbols */
+ 	else if (stype == 'N')
+ 		return -1;
++	/* exclude s390 kasan local symbols */
++	else if (!strncmp(sym, ".LASANPC", 8))
++		return -1;
  
- 	/*
- 	 * DMA is idle now.
-@@ -1212,16 +1213,23 @@ static void work_fn_tx(struct work_struct *work)
- 	 * consistent xmit buffer state.
- 	 */
- 	spin_lock_irq(&port->lock);
--	buf = s->tx_dma_addr + (xmit->tail & (UART_XMIT_SIZE - 1));
-+	head = xmit->head;
-+	tail = xmit->tail;
-+	buf = s->tx_dma_addr + (tail & (UART_XMIT_SIZE - 1));
- 	s->tx_dma_len = min_t(unsigned int,
--		CIRC_CNT(xmit->head, xmit->tail, UART_XMIT_SIZE),
--		CIRC_CNT_TO_END(xmit->head, xmit->tail, UART_XMIT_SIZE));
--	spin_unlock_irq(&port->lock);
-+		CIRC_CNT(head, tail, UART_XMIT_SIZE),
-+		CIRC_CNT_TO_END(head, tail, UART_XMIT_SIZE));
-+	if (!s->tx_dma_len) {
-+		/* Transmit buffer has been flushed */
-+		spin_unlock_irq(&port->lock);
-+		return;
-+	}
- 
- 	desc = dmaengine_prep_slave_single(chan, buf, s->tx_dma_len,
- 					   DMA_MEM_TO_DEV,
- 					   DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
- 	if (!desc) {
-+		spin_unlock_irq(&port->lock);
- 		dev_warn(port->dev, "Failed preparing Tx DMA descriptor\n");
- 		/* switch to PIO */
- 		sci_tx_dma_release(s, true);
-@@ -1231,20 +1239,20 @@ static void work_fn_tx(struct work_struct *work)
- 	dma_sync_single_for_device(chan->device->dev, buf, s->tx_dma_len,
- 				   DMA_TO_DEVICE);
- 
--	spin_lock_irq(&port->lock);
- 	desc->callback = sci_dma_tx_complete;
- 	desc->callback_param = s;
--	spin_unlock_irq(&port->lock);
- 	s->cookie_tx = dmaengine_submit(desc);
- 	if (dma_submit_error(s->cookie_tx)) {
-+		spin_unlock_irq(&port->lock);
- 		dev_warn(port->dev, "Failed submitting Tx DMA descriptor\n");
- 		/* switch to PIO */
- 		sci_tx_dma_release(s, true);
- 		return;
- 	}
- 
-+	spin_unlock_irq(&port->lock);
- 	dev_dbg(port->dev, "%s: %p: %d...%d, cookie %d\n",
--		__func__, xmit->buf, xmit->tail, xmit->head, s->cookie_tx);
-+		__func__, xmit->buf, tail, head, s->cookie_tx);
- 
- 	dma_async_issue_pending(chan);
- }
+ 	/* include the type field in the symbol name, so that it gets
+ 	 * compressed together */
 -- 
 2.20.1
 
