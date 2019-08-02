@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 690047F3A1
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:59:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EF697F32A
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:57:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404798AbfHBJ4e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:56:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35386 "EHLO mail.kernel.org"
+        id S2406431AbfHBJyY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:54:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406067AbfHBJ4b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:56:31 -0400
+        id S2406433AbfHBJyX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:54:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EEDC2064A;
-        Fri,  2 Aug 2019 09:56:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BC222064A;
+        Fri,  2 Aug 2019 09:54:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739790;
-        bh=LukezhkAZexMh9ppuowhCYMemgbZs+ZVpooAd/NlvZk=;
+        s=default; t=1564739662;
+        bh=1zaRJ0PSqFj4MBSHcHO/rf7/p9uaM/nj57iaOmBpCzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FbdTNsyF5Pzc9az3yRhsKbcwP/aPMUQ3KeeB8Ls/9Rx+wTDeO6e5QFW5EPPvbm/gY
-         g0WKS/se8EVMsZR1qvST3g0CvOjSt6Tsxgv0GHDhNZvxmU8nTPgq5uJS+E2YQsulfc
-         I+O9pMkhCXgNKns08jQDQdyy4AVI3Vl+TjKnPlLc=
+        b=tW6wSFHM2ONlkWhoOjskwgEakORVYS182wwa7BLQKaVuKUWanWuZE0dkBUFMauqhC
+         1fL6TG5tvydr/T+qjg2glusw/lRSMZpDlOPkHgDut+v8p2LYEOuAH+NEkg3sLy06nw
+         b7DwW+Sz/jQBWmdkzJqWl15DL3y2k1SV9GMa4nug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+79337b501d6aa974d0f6@syzkaller.appspotmail.com,
-        Vladis Dronov <vdronov@redhat.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        "Yu-Chen, Cho" <acho@suse.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 20/25] Bluetooth: hci_uart: check for missing tty operations
-Date:   Fri,  2 Aug 2019 11:39:52 +0200
-Message-Id: <20190802092106.172147182@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.14 21/25] sched/fair: Dont free p->numa_faults with concurrent readers
+Date:   Fri,  2 Aug 2019 11:39:53 +0200
+Message-Id: <20190802092106.472311427@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092058.428079740@linuxfoundation.org>
 References: <20190802092058.428079740@linuxfoundation.org>
@@ -47,124 +48,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladis Dronov <vdronov@redhat.com>
+From: Jann Horn <jannh@google.com>
 
-commit b36a1552d7319bbfd5cf7f08726c23c5c66d4f73 upstream.
+commit 16d51a590a8ce3befb1308e0e7ab77f3b661af33 upstream.
 
-Certain ttys operations (pty_unix98_ops) lack tiocmget() and tiocmset()
-functions which are called by the certain HCI UART protocols (hci_ath,
-hci_bcm, hci_intel, hci_mrvl, hci_qca) via hci_uart_set_flow_control()
-or directly. This leads to an execution at NULL and can be triggered by
-an unprivileged user. Fix this by adding a helper function and a check
-for the missing tty operations in the protocols code.
+When going through execve(), zero out the NUMA fault statistics instead of
+freeing them.
 
-This fixes CVE-2019-10207. The Fixes: lines list commits where calls to
-tiocm[gs]et() or hci_uart_set_flow_control() were added to the HCI UART
-protocols.
+During execve, the task is reachable through procfs and the scheduler. A
+concurrent /proc/*/sched reader can read data from a freed ->numa_faults
+allocation (confirmed by KASAN) and write it back to userspace.
+I believe that it would also be possible for a use-after-free read to occur
+through a race between a NUMA fault and execve(): task_numa_fault() can
+lead to task_numa_compare(), which invokes task_weight() on the currently
+running task of a different CPU.
 
-Link: https://syzkaller.appspot.com/bug?id=1b42faa2848963564a5b1b7f8c837ea7b55ffa50
-Reported-by: syzbot+79337b501d6aa974d0f6@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org # v2.6.36+
-Fixes: b3190df62861 ("Bluetooth: Support for Atheros AR300x serial chip")
-Fixes: 118612fb9165 ("Bluetooth: hci_bcm: Add suspend/resume PM functions")
-Fixes: ff2895592f0f ("Bluetooth: hci_intel: Add Intel baudrate configuration support")
-Fixes: 162f812f23ba ("Bluetooth: hci_uart: Add Marvell support")
-Fixes: fa9ad876b8e0 ("Bluetooth: hci_qca: Add support for Qualcomm Bluetooth chip wcn3990")
-Signed-off-by: Vladis Dronov <vdronov@redhat.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Reviewed-by: Yu-Chen, Cho <acho@suse.com>
-Tested-by: Yu-Chen, Cho <acho@suse.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Another way to fix this would be to make ->numa_faults RCU-managed or add
+extra locking, but it seems easier to wipe the NUMA fault statistics on
+execve.
+
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Will Deacon <will@kernel.org>
+Fixes: 82727018b0d3 ("sched/numa: Call task_numa_free() from do_execve()")
+Link: https://lkml.kernel.org/r/20190716152047.14424-1-jannh@google.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/bluetooth/hci_ath.c   |    3 +++
- drivers/bluetooth/hci_bcm.c   |    3 +++
- drivers/bluetooth/hci_intel.c |    3 +++
- drivers/bluetooth/hci_ldisc.c |   13 +++++++++++++
- drivers/bluetooth/hci_mrvl.c  |    3 +++
- drivers/bluetooth/hci_uart.h  |    1 +
- 6 files changed, 26 insertions(+)
+ fs/exec.c                            |    2 +-
+ include/linux/sched/numa_balancing.h |    4 ++--
+ kernel/fork.c                        |    2 +-
+ kernel/sched/fair.c                  |   24 ++++++++++++++++++++----
+ 4 files changed, 24 insertions(+), 8 deletions(-)
 
---- a/drivers/bluetooth/hci_ath.c
-+++ b/drivers/bluetooth/hci_ath.c
-@@ -101,6 +101,9 @@ static int ath_open(struct hci_uart *hu)
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1808,7 +1808,7 @@ static int do_execveat_common(int fd, st
+ 	current->in_execve = 0;
+ 	membarrier_execve(current);
+ 	acct_update_integrals(current);
+-	task_numa_free(current);
++	task_numa_free(current, false);
+ 	free_bprm(bprm);
+ 	kfree(pathbuf);
+ 	putname(filename);
+--- a/include/linux/sched/numa_balancing.h
++++ b/include/linux/sched/numa_balancing.h
+@@ -19,7 +19,7 @@
+ extern void task_numa_fault(int last_node, int node, int pages, int flags);
+ extern pid_t task_numa_group_id(struct task_struct *p);
+ extern void set_numabalancing_state(bool enabled);
+-extern void task_numa_free(struct task_struct *p);
++extern void task_numa_free(struct task_struct *p, bool final);
+ extern bool should_numa_migrate_memory(struct task_struct *p, struct page *page,
+ 					int src_nid, int dst_cpu);
+ #else
+@@ -34,7 +34,7 @@ static inline pid_t task_numa_group_id(s
+ static inline void set_numabalancing_state(bool enabled)
+ {
+ }
+-static inline void task_numa_free(struct task_struct *p)
++static inline void task_numa_free(struct task_struct *p, bool final)
+ {
+ }
+ static inline bool should_numa_migrate_memory(struct task_struct *p,
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -415,7 +415,7 @@ void __put_task_struct(struct task_struc
+ 	WARN_ON(tsk == current);
  
- 	BT_DBG("hu %p", hu);
- 
-+	if (!hci_uart_has_flow_control(hu))
-+		return -EOPNOTSUPP;
-+
- 	ath = kzalloc(sizeof(*ath), GFP_KERNEL);
- 	if (!ath)
- 		return -ENOMEM;
---- a/drivers/bluetooth/hci_bcm.c
-+++ b/drivers/bluetooth/hci_bcm.c
-@@ -305,6 +305,9 @@ static int bcm_open(struct hci_uart *hu)
- 
- 	bt_dev_dbg(hu->hdev, "hu %p", hu);
- 
-+	if (!hci_uart_has_flow_control(hu))
-+		return -EOPNOTSUPP;
-+
- 	bcm = kzalloc(sizeof(*bcm), GFP_KERNEL);
- 	if (!bcm)
- 		return -ENOMEM;
---- a/drivers/bluetooth/hci_intel.c
-+++ b/drivers/bluetooth/hci_intel.c
-@@ -406,6 +406,9 @@ static int intel_open(struct hci_uart *h
- 
- 	BT_DBG("hu %p", hu);
- 
-+	if (!hci_uart_has_flow_control(hu))
-+		return -EOPNOTSUPP;
-+
- 	intel = kzalloc(sizeof(*intel), GFP_KERNEL);
- 	if (!intel)
- 		return -ENOMEM;
---- a/drivers/bluetooth/hci_ldisc.c
-+++ b/drivers/bluetooth/hci_ldisc.c
-@@ -297,6 +297,19 @@ static int hci_uart_send_frame(struct hc
- 	return 0;
+ 	cgroup_free(tsk);
+-	task_numa_free(tsk);
++	task_numa_free(tsk, true);
+ 	security_task_free(tsk);
+ 	exit_creds(tsk);
+ 	delayacct_tsk_free(tsk);
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -2358,13 +2358,23 @@ no_join:
+ 	return;
  }
  
-+/* Check the underlying device or tty has flow control support */
-+bool hci_uart_has_flow_control(struct hci_uart *hu)
-+{
-+	/* serdev nodes check if the needed operations are present */
-+	if (hu->serdev)
-+		return true;
-+
-+	if (hu->tty->driver->ops->tiocmget && hu->tty->driver->ops->tiocmset)
-+		return true;
-+
-+	return false;
-+}
-+
- /* Flow control or un-flow control the device */
- void hci_uart_set_flow_control(struct hci_uart *hu, bool enable)
+-void task_numa_free(struct task_struct *p)
++/*
++ * Get rid of NUMA staticstics associated with a task (either current or dead).
++ * If @final is set, the task is dead and has reached refcount zero, so we can
++ * safely free all relevant data structures. Otherwise, there might be
++ * concurrent reads from places like load balancing and procfs, and we should
++ * reset the data back to default state without freeing ->numa_faults.
++ */
++void task_numa_free(struct task_struct *p, bool final)
  {
---- a/drivers/bluetooth/hci_mrvl.c
-+++ b/drivers/bluetooth/hci_mrvl.c
-@@ -66,6 +66,9 @@ static int mrvl_open(struct hci_uart *hu
+ 	struct numa_group *grp = p->numa_group;
+-	void *numa_faults = p->numa_faults;
++	unsigned long *numa_faults = p->numa_faults;
+ 	unsigned long flags;
+ 	int i;
  
- 	BT_DBG("hu %p", hu);
- 
-+	if (!hci_uart_has_flow_control(hu))
-+		return -EOPNOTSUPP;
++	if (!numa_faults)
++		return;
 +
- 	mrvl = kzalloc(sizeof(*mrvl), GFP_KERNEL);
- 	if (!mrvl)
- 		return -ENOMEM;
---- a/drivers/bluetooth/hci_uart.h
-+++ b/drivers/bluetooth/hci_uart.h
-@@ -117,6 +117,7 @@ void hci_uart_unregister_device(struct h
- int hci_uart_tx_wakeup(struct hci_uart *hu);
- int hci_uart_init_ready(struct hci_uart *hu);
- void hci_uart_set_baudrate(struct hci_uart *hu, unsigned int speed);
-+bool hci_uart_has_flow_control(struct hci_uart *hu);
- void hci_uart_set_flow_control(struct hci_uart *hu, bool enable);
- void hci_uart_set_speeds(struct hci_uart *hu, unsigned int init_speed,
- 			 unsigned int oper_speed);
+ 	if (grp) {
+ 		spin_lock_irqsave(&grp->lock, flags);
+ 		for (i = 0; i < NR_NUMA_HINT_FAULT_STATS * nr_node_ids; i++)
+@@ -2377,8 +2387,14 @@ void task_numa_free(struct task_struct *
+ 		put_numa_group(grp);
+ 	}
+ 
+-	p->numa_faults = NULL;
+-	kfree(numa_faults);
++	if (final) {
++		p->numa_faults = NULL;
++		kfree(numa_faults);
++	} else {
++		p->total_numa_faults = 0;
++		for (i = 0; i < NR_NUMA_HINT_FAULT_STATS * nr_node_ids; i++)
++			numa_faults[i] = 0;
++	}
+ }
+ 
+ /*
 
 
