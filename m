@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99E127FACE
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:35:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 831997FAD0
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393724AbfHBNWT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:22:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60870 "EHLO mail.kernel.org"
+        id S2393732AbfHBNWU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:22:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393723AbfHBNWS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:22:18 -0400
+        id S2393726AbfHBNWT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:22:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A64F3217D4;
-        Fri,  2 Aug 2019 13:22:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12EBB2173E;
+        Fri,  2 Aug 2019 13:22:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752137;
-        bh=UCB85eOHxfzA+lw/aPmFvyb66eypBbWSWN7z8i1UXZU=;
+        s=default; t=1564752139;
+        bh=yPrQMS+7RMJW6ZvOmMUVj0WXisOzt31m6mEW5a5WZSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wRdhLNmzqonKjExJ8L9PUGpkDD6QR6VBO9FmnC5JbSTksZ6/KJuCCCi0lPKyt3jMb
-         SLn34fG2snBQum27G2mk+wvUO4U2abRh47BjxeAoBRCw9pYpqfzpU6//Am8V8ZRMzF
-         bOztqDyxlZLWcfM2uN3rY7KwXWvPj+6zWDgxMpNw=
+        b=wKg9xc9zlePV3tunDNGhedoyKebzshNPOwg9ZZinIJ3HEvK4f6682t+X5hc8/XVau
+         DGHo9J90IGx8mAW6ZHwETB8Sm2grkaQk0uESNsOKeBOI3vmPIOD7hc41LWtk85WtLd
+         Ub6GW7VsmhkWbps1FketUeJ8ZaWMDb/F640+wmuA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 56/76] perf probe: Avoid calling freeing routine multiple times for same pointer
-Date:   Fri,  2 Aug 2019 09:19:30 -0400
-Message-Id: <20190802131951.11600-56-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>,
+        Roland Kammerer <roland.kammerer@linbit.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        drbd-dev@lists.linbit.com, linux-block@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.2 57/76] drbd: dynamically allocate shash descriptor
+Date:   Fri,  2 Aug 2019 09:19:31 -0400
+Message-Id: <20190802131951.11600-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
 References: <20190802131951.11600-1-sashal@kernel.org>
@@ -46,49 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit d95daf5accf4a72005daa13fbb1d1bd8709f2861 ]
+[ Upstream commit 77ce56e2bfaa64127ae5e23ef136c0168b818777 ]
 
-When perf_add_probe_events() we call cleanup_perf_probe_events() for the
-pev pointer it receives, then, as part of handling this failure the main
-'perf probe' goes on and calls cleanup_params() and that will again call
-cleanup_perf_probe_events()for the same pointer, so just set nevents to
-zero when handling the failure of perf_add_probe_events() to avoid the
-double free.
+Building with clang and KASAN, we get a warning about an overly large
+stack frame on 32-bit architectures:
 
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: https://lkml.kernel.org/n/tip-x8qgma4g813z96dvtw9w219q@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+drivers/block/drbd/drbd_receiver.c:921:31: error: stack frame size of 1280 bytes in function 'conn_connect'
+      [-Werror,-Wframe-larger-than=]
+
+We already allocate other data dynamically in this function, so
+just do the same for the shash descriptor, which makes up most of
+this memory.
+
+Link: https://lore.kernel.org/lkml/20190617132440.2721536-1-arnd@arndb.de/
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Roland Kammerer <roland.kammerer@linbit.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-probe.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/block/drbd/drbd_receiver.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/builtin-probe.c b/tools/perf/builtin-probe.c
-index 8bb124e55c6d2..2c376f5b21200 100644
---- a/tools/perf/builtin-probe.c
-+++ b/tools/perf/builtin-probe.c
-@@ -698,6 +698,16 @@ __cmd_probe(int argc, const char **argv)
+diff --git a/drivers/block/drbd/drbd_receiver.c b/drivers/block/drbd/drbd_receiver.c
+index 90ebfcae0ce6e..2b3103c308573 100644
+--- a/drivers/block/drbd/drbd_receiver.c
++++ b/drivers/block/drbd/drbd_receiver.c
+@@ -5417,7 +5417,7 @@ static int drbd_do_auth(struct drbd_connection *connection)
+ 	unsigned int key_len;
+ 	char secret[SHARED_SECRET_MAX]; /* 64 byte */
+ 	unsigned int resp_size;
+-	SHASH_DESC_ON_STACK(desc, connection->cram_hmac_tfm);
++	struct shash_desc *desc;
+ 	struct packet_info pi;
+ 	struct net_conf *nc;
+ 	int err, rv;
+@@ -5430,6 +5430,13 @@ static int drbd_do_auth(struct drbd_connection *connection)
+ 	memcpy(secret, nc->shared_secret, key_len);
+ 	rcu_read_unlock();
  
- 		ret = perf_add_probe_events(params.events, params.nevents);
- 		if (ret < 0) {
-+
-+			/*
-+			 * When perf_add_probe_events() fails it calls
-+			 * cleanup_perf_probe_events(pevs, npevs), i.e.
-+			 * cleanup_perf_probe_events(params.events, params.nevents), which
-+			 * will call clear_perf_probe_event(), so set nevents to zero
-+			 * to avoid cleanup_params() to call clear_perf_probe_event() again
-+			 * on the same pevs.
-+			 */
-+			params.nevents = 0;
- 			pr_err_with_code("  Error: Failed to add events.", ret);
- 			return ret;
- 		}
++	desc = kmalloc(sizeof(struct shash_desc) +
++		       crypto_shash_descsize(connection->cram_hmac_tfm),
++		       GFP_KERNEL);
++	if (!desc) {
++		rv = -1;
++		goto fail;
++	}
+ 	desc->tfm = connection->cram_hmac_tfm;
+ 
+ 	rv = crypto_shash_setkey(connection->cram_hmac_tfm, (u8 *)secret, key_len);
+@@ -5571,7 +5578,10 @@ static int drbd_do_auth(struct drbd_connection *connection)
+ 	kfree(peers_ch);
+ 	kfree(response);
+ 	kfree(right_response);
+-	shash_desc_zero(desc);
++	if (desc) {
++		shash_desc_zero(desc);
++		kfree(desc);
++	}
+ 
+ 	return rv;
+ }
 -- 
 2.20.1
 
