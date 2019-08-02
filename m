@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B8697F214
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:45:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC2EF7F232
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:46:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405299AbfHBJo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:44:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48410 "EHLO mail.kernel.org"
+        id S2405488AbfHBJqI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:46:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405311AbfHBJox (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:44:53 -0400
+        id S2405486AbfHBJqG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:46:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E7BF20B7C;
-        Fri,  2 Aug 2019 09:44:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0B122086A;
+        Fri,  2 Aug 2019 09:46:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739093;
-        bh=k7QKfa6LAB3aq55137f4pRDRtYGr0cL0lak7C6T98mM=;
+        s=default; t=1564739165;
+        bh=QqxshE2Taf0k0xIZzot/QuHMTD8P80Zaz6m6QpJn0Sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DYx/41GA0pdepIRr6YdDVpocvMTgBvud8j4i/Br6be5252BVMS9kqO1c0lX2JdmZk
-         dUufi4D/qDng0Z11nffYaO3yzzSu5KzUm5IVehxm+oe7Uyp+q2EgEz6e64OrVww8yo
-         fob1rDpG0ajTCI8WkJvDyDbMAVL+ysBzmr7QsLw0=
+        b=fkkOJau1YfO38NLpoejlH/hs+zOlxzL1BNo4WGV+uKjry0XdXyash88drIaHXFQS8
+         IZrU4yXnRDS+p0yGFlJER2cPjytUFs2UiHUvg4m+59MTTU7Cd82hEol0XrHOCTD6Rl
+         06BDdSjM51rPrO1wpFAn9eyp0iG7FDqPawUKjhOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cfir Cohen <cfir@google.com>,
-        Gary R Hook <gary.hook@amd.com>,
+        stable@vger.kernel.org, Horia Geanta <horia.geanta@nxp.com>,
+        Iuliana Prodan <iuliana.prodan@nxp.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.9 110/223] crypto: ccp - Validate the the error value used to index error messages
-Date:   Fri,  2 Aug 2019 11:35:35 +0200
-Message-Id: <20190802092246.372422602@linuxfoundation.org>
+Subject: [PATCH 4.9 113/223] crypto: caam - limit output IV to CBC to work around CTR mode DMA issue
+Date:   Fri,  2 Aug 2019 11:35:38 +0200
+Message-Id: <20190802092246.560585727@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -44,151 +46,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hook, Gary <Gary.Hook@amd.com>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 
-commit 52393d617af7b554f03531e6756facf2ea687d2e upstream.
+commit ed527b13d800dd515a9e6c582f0a73eca65b2e1b upstream.
 
-The error code read from the queue status register is only 6 bits wide,
-but we need to verify its value is within range before indexing the error
-messages.
+The CAAM driver currently violates an undocumented and slightly
+controversial requirement imposed by the crypto stack that a buffer
+referred to by the request structure via its virtual address may not
+be modified while any scatterlists passed via the same request
+structure are mapped for inbound DMA.
 
-Fixes: 81422badb3907 ("crypto: ccp - Make syslog errors human-readable")
+This may result in errors like
+
+  alg: aead: decryption failed on test 1 for gcm_base(ctr-aes-caam,ghash-generic): ret=74
+  alg: aead: Failed to load transform for gcm(aes): -2
+
+on non-cache coherent systems, due to the fact that the GCM driver
+passes an IV buffer by virtual address which shares a cacheline with
+the auth_tag buffer passed via a scatterlist, resulting in corruption
+of the auth_tag when the IV is updated while the DMA mapping is live.
+
+Since the IV that is returned to the caller is only valid for CBC mode,
+and given that the in-kernel users of CBC (such as CTS) don't trigger the
+same issue as the GCM driver, let's just disable the output IV generation
+for all modes except CBC for the time being.
+
+Fixes: 854b06f76879 ("crypto: caam - properly set IV after {en,de}crypt")
+Cc: Horia Geanta <horia.geanta@nxp.com>
+Cc: Iuliana Prodan <iuliana.prodan@nxp.com>
+Reported-by: Sascha Hauer <s.hauer@pengutronix.de>
 Cc: <stable@vger.kernel.org>
-Reported-by: Cfir Cohen <cfir@google.com>
-Signed-off-by: Gary R Hook <gary.hook@amd.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Reviewed-by: Horia Geanta <horia.geanta@nxp.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+[ Horia: backported to 4.9 ]
+Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- drivers/crypto/ccp/ccp-dev.c |  102 ++++++++++++++++++++++---------------------
- drivers/crypto/ccp/ccp-dev.h |    2 
- 2 files changed, 55 insertions(+), 49 deletions(-)
+ drivers/crypto/caam/caamalg.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/drivers/crypto/ccp/ccp-dev.c
-+++ b/drivers/crypto/ccp/ccp-dev.c
-@@ -40,57 +40,63 @@ struct ccp_tasklet_data {
- 	struct ccp_cmd *cmd;
- };
+--- a/drivers/crypto/caam/caamalg.c
++++ b/drivers/crypto/caam/caamalg.c
+@@ -2015,6 +2015,7 @@ static void ablkcipher_encrypt_done(stru
+ 	struct ablkcipher_request *req = context;
+ 	struct ablkcipher_edesc *edesc;
+ 	struct crypto_ablkcipher *ablkcipher = crypto_ablkcipher_reqtfm(req);
++	struct caam_ctx *ctx = crypto_ablkcipher_ctx(ablkcipher);
+ 	int ivsize = crypto_ablkcipher_ivsize(ablkcipher);
  
--/* Human-readable error strings */
--char *ccp_error_codes[] = {
--	"",
--	"ERR 01: ILLEGAL_ENGINE",
--	"ERR 02: ILLEGAL_KEY_ID",
--	"ERR 03: ILLEGAL_FUNCTION_TYPE",
--	"ERR 04: ILLEGAL_FUNCTION_MODE",
--	"ERR 05: ILLEGAL_FUNCTION_ENCRYPT",
--	"ERR 06: ILLEGAL_FUNCTION_SIZE",
--	"ERR 07: Zlib_MISSING_INIT_EOM",
--	"ERR 08: ILLEGAL_FUNCTION_RSVD",
--	"ERR 09: ILLEGAL_BUFFER_LENGTH",
--	"ERR 10: VLSB_FAULT",
--	"ERR 11: ILLEGAL_MEM_ADDR",
--	"ERR 12: ILLEGAL_MEM_SEL",
--	"ERR 13: ILLEGAL_CONTEXT_ID",
--	"ERR 14: ILLEGAL_KEY_ADDR",
--	"ERR 15: 0xF Reserved",
--	"ERR 16: Zlib_ILLEGAL_MULTI_QUEUE",
--	"ERR 17: Zlib_ILLEGAL_JOBID_CHANGE",
--	"ERR 18: CMD_TIMEOUT",
--	"ERR 19: IDMA0_AXI_SLVERR",
--	"ERR 20: IDMA0_AXI_DECERR",
--	"ERR 21: 0x15 Reserved",
--	"ERR 22: IDMA1_AXI_SLAVE_FAULT",
--	"ERR 23: IDMA1_AIXI_DECERR",
--	"ERR 24: 0x18 Reserved",
--	"ERR 25: ZLIBVHB_AXI_SLVERR",
--	"ERR 26: ZLIBVHB_AXI_DECERR",
--	"ERR 27: 0x1B Reserved",
--	"ERR 27: ZLIB_UNEXPECTED_EOM",
--	"ERR 27: ZLIB_EXTRA_DATA",
--	"ERR 30: ZLIB_BTYPE",
--	"ERR 31: ZLIB_UNDEFINED_SYMBOL",
--	"ERR 32: ZLIB_UNDEFINED_DISTANCE_S",
--	"ERR 33: ZLIB_CODE_LENGTH_SYMBOL",
--	"ERR 34: ZLIB _VHB_ILLEGAL_FETCH",
--	"ERR 35: ZLIB_UNCOMPRESSED_LEN",
--	"ERR 36: ZLIB_LIMIT_REACHED",
--	"ERR 37: ZLIB_CHECKSUM_MISMATCH0",
--	"ERR 38: ODMA0_AXI_SLVERR",
--	"ERR 39: ODMA0_AXI_DECERR",
--	"ERR 40: 0x28 Reserved",
--	"ERR 41: ODMA1_AXI_SLVERR",
--	"ERR 42: ODMA1_AXI_DECERR",
--	"ERR 43: LSB_PARITY_ERR",
-+ /* Human-readable error strings */
-+#define CCP_MAX_ERROR_CODE	64
-+ static char *ccp_error_codes[] = {
-+ 	"",
-+	"ILLEGAL_ENGINE",
-+	"ILLEGAL_KEY_ID",
-+	"ILLEGAL_FUNCTION_TYPE",
-+	"ILLEGAL_FUNCTION_MODE",
-+	"ILLEGAL_FUNCTION_ENCRYPT",
-+	"ILLEGAL_FUNCTION_SIZE",
-+	"Zlib_MISSING_INIT_EOM",
-+	"ILLEGAL_FUNCTION_RSVD",
-+	"ILLEGAL_BUFFER_LENGTH",
-+	"VLSB_FAULT",
-+	"ILLEGAL_MEM_ADDR",
-+	"ILLEGAL_MEM_SEL",
-+	"ILLEGAL_CONTEXT_ID",
-+	"ILLEGAL_KEY_ADDR",
-+	"0xF Reserved",
-+	"Zlib_ILLEGAL_MULTI_QUEUE",
-+	"Zlib_ILLEGAL_JOBID_CHANGE",
-+	"CMD_TIMEOUT",
-+	"IDMA0_AXI_SLVERR",
-+	"IDMA0_AXI_DECERR",
-+	"0x15 Reserved",
-+	"IDMA1_AXI_SLAVE_FAULT",
-+	"IDMA1_AIXI_DECERR",
-+	"0x18 Reserved",
-+	"ZLIBVHB_AXI_SLVERR",
-+	"ZLIBVHB_AXI_DECERR",
-+	"0x1B Reserved",
-+	"ZLIB_UNEXPECTED_EOM",
-+	"ZLIB_EXTRA_DATA",
-+	"ZLIB_BTYPE",
-+	"ZLIB_UNDEFINED_SYMBOL",
-+	"ZLIB_UNDEFINED_DISTANCE_S",
-+	"ZLIB_CODE_LENGTH_SYMBOL",
-+	"ZLIB _VHB_ILLEGAL_FETCH",
-+	"ZLIB_UNCOMPRESSED_LEN",
-+	"ZLIB_LIMIT_REACHED",
-+	"ZLIB_CHECKSUM_MISMATCH0",
-+	"ODMA0_AXI_SLVERR",
-+	"ODMA0_AXI_DECERR",
-+	"0x28 Reserved",
-+	"ODMA1_AXI_SLVERR",
-+	"ODMA1_AXI_DECERR",
- };
+ #ifdef DEBUG
+@@ -2040,10 +2041,11 @@ static void ablkcipher_encrypt_done(stru
  
--void ccp_log_error(struct ccp_device *d, int e)
-+void ccp_log_error(struct ccp_device *d, unsigned int e)
- {
--	dev_err(d->dev, "CCP error: %s (0x%x)\n", ccp_error_codes[e], e);
-+	if (WARN_ON(e >= CCP_MAX_ERROR_CODE))
-+		return;
-+
-+	if (e < ARRAY_SIZE(ccp_error_codes))
-+		dev_err(d->dev, "CCP error %d: %s\n", e, ccp_error_codes[e]);
-+	else
-+		dev_err(d->dev, "CCP error %d: Unknown Error\n", e);
- }
+ 	/*
+ 	 * The crypto API expects us to set the IV (req->info) to the last
+-	 * ciphertext block. This is used e.g. by the CTS mode.
++	 * ciphertext block when running in CBC mode.
+ 	 */
+-	scatterwalk_map_and_copy(req->info, req->dst, req->nbytes - ivsize,
+-				 ivsize, 0);
++	if ((ctx->class1_alg_type & OP_ALG_AAI_MASK) == OP_ALG_AAI_CBC)
++		scatterwalk_map_and_copy(req->info, req->dst, req->nbytes -
++					 ivsize, ivsize, 0);
  
- /* List of CCPs, CCP count, read-write access lock, and access functions
---- a/drivers/crypto/ccp/ccp-dev.h
-+++ b/drivers/crypto/ccp/ccp-dev.h
-@@ -607,7 +607,7 @@ void ccp_platform_exit(void);
- void ccp_add_device(struct ccp_device *ccp);
- void ccp_del_device(struct ccp_device *ccp);
+ 	kfree(edesc);
  
--extern void ccp_log_error(struct ccp_device *, int);
-+extern void ccp_log_error(struct ccp_device *, unsigned int);
+@@ -2056,6 +2058,7 @@ static void ablkcipher_decrypt_done(stru
+ 	struct ablkcipher_request *req = context;
+ 	struct ablkcipher_edesc *edesc;
+ 	struct crypto_ablkcipher *ablkcipher = crypto_ablkcipher_reqtfm(req);
++	struct caam_ctx *ctx = crypto_ablkcipher_ctx(ablkcipher);
+ 	int ivsize = crypto_ablkcipher_ivsize(ablkcipher);
  
- struct ccp_device *ccp_alloc_struct(struct device *dev);
- bool ccp_queues_suspended(struct ccp_device *ccp);
+ #ifdef DEBUG
+@@ -2080,10 +2083,11 @@ static void ablkcipher_decrypt_done(stru
+ 
+ 	/*
+ 	 * The crypto API expects us to set the IV (req->info) to the last
+-	 * ciphertext block.
++	 * ciphertext block when running in CBC mode.
+ 	 */
+-	scatterwalk_map_and_copy(req->info, req->src, req->nbytes - ivsize,
+-				 ivsize, 0);
++	if ((ctx->class1_alg_type & OP_ALG_AAI_MASK) == OP_ALG_AAI_CBC)
++		scatterwalk_map_and_copy(req->info, req->src, req->nbytes -
++					 ivsize, ivsize, 0);
+ 
+ 	kfree(edesc);
+ 
 
 
