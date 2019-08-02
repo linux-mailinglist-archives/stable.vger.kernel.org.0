@@ -2,109 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C781B7EE91
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 10:16:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BB297EF26
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 10:25:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390775AbfHBIQC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 04:16:02 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:60701 "EHLO
-        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2390761AbfHBIQC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 04:16:02 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 8F0473D7;
-        Fri,  2 Aug 2019 04:16:01 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Fri, 02 Aug 2019 04:16:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=uEocR7cf+uvpM7xnT7yGCqIJVCe
-        VFmNwygWN+t39F6M=; b=KY/Yqr6uoa6gwxMjj7KYxJ2OLsCbhVhmX+ApYAnKx/3
-        nb8hPdipS2RBlavS37ExIOAmpiM4DaHshhZs0Vhnra318g+MTPDMH+5iy7RMgxpL
-        1hgZcXzCiTF4d2NFGD+9k/Kzg+y2MG/j5I9Gw4HR+cKqoPtH/eNGfido8PRffeUe
-        PdXE138mKIvDUYqopdXxTBfbbS0um9X7v5llvdeh1r1jmAeQapLw/2skQImXdjGv
-        H0USsQZKbpq6nawCHIlXCfCUTOMljLPRUNhx9WyvxnX6EPp8iyaaehkVjUGJcWuL
-        bEzD/BrfOrTS4CFyMpWO1z41GwKveO6lPSph2sv+Gpg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=uEocR7
-        cf+uvpM7xnT7yGCqIJVCeVFmNwygWN+t39F6M=; b=Ef8zfcD4NMsKTsSGHJ/Ujl
-        32Unb1sUPOOSRguaoBlmpVOUqTLWWZnIXQRHY/jdZL+3RFPCKm1qCcgXdKoGJEdL
-        SNs5w4CU5YBO9sTgm6A3pyWGxzyomLYoFdrih88Pp3ZMzgiQga+EnDrJGmCbWjaU
-        rSWUl1NZexLZ4zqjFTqPLX3jItShAahOqzwr+YaIWkHHr4zDGttse/aFHfxFAmDQ
-        3I/kBNDrERt82cAhFzUbX8F7wAvC6XB57JxJDJGMYQPet6sQl5tH4ANY8L3ASOYI
-        Ckq7eFaJh0v60v6CcTKQOJO8BpXJceNYM55WIz+H0QLE5M63halAjP2QU/p+iS2w
-        ==
-X-ME-Sender: <xms:QPFDXdpwEYs8kbziCc8yNshgd-f9wTP3XF_Th45DK9HBTXeanujOuA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrleekgddufedtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlh
-    drohhrghenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhr
-    ohhmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:QPFDXdSjaER4fQUQr80utXuFOf1xd1FAqs51RUVLLVhTNP8HWK3oSw>
-    <xmx:QPFDXRnLZtImoSfVnW4HKjJ7bXiNINbjMkQOOASW9KmWh7Yt-jp39w>
-    <xmx:QPFDXRG8cKtnBwx417Meh_dkPbA7bWKCixlqEuRNnO3XurramEY9FA>
-    <xmx:QfFDXdty7WTL6fv2tpxvL8aa7v5l6gO80tS3bzCPbSHtJWbw8MhjEg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 83BBF80061;
-        Fri,  2 Aug 2019 04:16:00 -0400 (EDT)
-Date:   Fri, 2 Aug 2019 10:15:59 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Evalds Iodzevics <evalds.iodzevics@gmail.com>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: missing patch
-Message-ID: <20190802081559.GL26174@kroah.com>
-References: <CADqhmmcCA_UjV899cHn8SOTSp89BvjMgnd5TcijCWqp6KnhdJw@mail.gmail.com>
- <20190401160629.GA20725@kroah.com>
- <20190401165853.GA1929@kroah.com>
- <CADqhmmeCYNpYpCCG6Y0t+0gxacK-834Bshc+bLmav7ei+Xzx9g@mail.gmail.com>
+        id S2404103AbfHBIZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 04:25:06 -0400
+Received: from mx1.emlix.com ([188.40.240.192]:35918 "EHLO mx1.emlix.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726164AbfHBIZG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 04:25:06 -0400
+X-Greylist: delayed 517 seconds by postgrey-1.27 at vger.kernel.org; Fri, 02 Aug 2019 04:25:05 EDT
+Received: from mailer.emlix.com (unknown [81.20.119.6])
+        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mx1.emlix.com (Postfix) with ESMTPS id 9453D608E7;
+        Fri,  2 Aug 2019 10:16:27 +0200 (CEST)
+From:   Rolf Eike Beer <eb@emlix.com>
+To:     Nathan Chancellor <natechancellor@gmail.com>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Matt Fleming <matt@codeblueprint.co.uk>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-efi@vger.kernel.org,
+        Linux Kernel Developers List <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, Matthias Kaehlcke <mka@google.com>,
+        clang-built-linux <clang-built-linux@googlegroups.com>
+Subject: Re: Building arm64 EFI stub with -fpie breaks build of 4.9.x (undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_')
+Date:   Fri, 02 Aug 2019 10:16:23 +0200
+Message-ID: <1730571.CeeFRff0Br@devpool35>
+Organization: emlix GmbH
+In-Reply-To: <20190802080942.GA27595@archlinux-threadripper>
+References: <779905244.a0lJJiZRjM@devpool35> <20190802075745.GI26174@kroah.com> <20190802080942.GA27595@archlinux-threadripper>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CADqhmmeCYNpYpCCG6Y0t+0gxacK-834Bshc+bLmav7ei+Xzx9g@mail.gmail.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Type: multipart/signed; boundary="nextPart5118905.V6sjJquZsO"; micalg="pgp-sha256"; protocol="application/pgp-signature"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, May 26, 2019 at 10:32:29AM +0300, Evalds Iodzevics wrote:
-> Hi, sorry for super long delay i was a little bit busy but i finally
-> got time to work this out in full.
-> This applies to 4.4 and 4.9.
-> 
-> Intel requires CPUID eax=1 for microcode operations, microcode
-> routines use sync_core() for this.
-> Back in December of 2016 Andy Lutomirski submitted few patches
-> https://lore.kernel.org/lkml/cover.1481307769.git.luto@kernel.org/
-> 
-> Second patch does not apply to 4.4 and 4.9 as it is revert
-> 
-> Unfortunately only the first one got backported to 4.4 and 4.9 and
-> broke microcode early loading on 32 bit platforms because it always
-> jumps past cpuid in sync_core() as data structure boot_cpu_data are
-> not populated so early in code.
-> 
-> Thanks to Your recent backport of 4167709bbf826512a52ebd6aafda2be104adaec9
-> the only place that uses sync_core() is
-> arch/x86/include/microcode_intel.h it should use native_cpuid_eax(1)
-> as in original Boris submitt.
-> To make this work we should apply
-> 5dedade6dfa243c130b85d1e4daba6f027805033 witch defines
-> native_cpuid_eax and others.
-> 
-> As for c198b121b1a1d7a7171770c634cd49191bac4477 i think it is a good
-> idea to include this as sync_core in present state behaves differently
-> depending on call time, those compiler warnings can be ignored, on
-> older compiler they are not generated and this compiles fine. I tested
-> it on GCC 5.5
+--nextPart5118905.V6sjJquZsO
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
 
-Can you submit the proper patches backported as a series so that I can
-queue them up correctly?
+Nathan Chancellor wrote:
+> On Fri, Aug 02, 2019 at 09:57:45AM +0200, Greg KH wrote:
+> > On Thu, Jun 06, 2019 at 09:11:00AM +0200, Rolf Eike Beer wrote:
+> > > Nick Desaulniers wrote:
+> > > > On Wed, Jun 5, 2019 at 10:27 AM Nick Desaulniers
+> > > >=20
+> > > > <ndesaulniers@google.com> wrote:
+> > > > > On Wed, Jun 5, 2019 at 9:26 AM Greg KH <gregkh@linuxfoundation.or=
+g>=20
+wrote:
+> > > > > > On Wed, Jun 05, 2019 at 05:19:40PM +0200, Rolf Eike Beer wrote:
+> > > > > > > I decided to dig out a toy project which uses a DragonBoard
+> > > > > > > 410c. This
+> > > > > > > has
+> > > > > > > been "running" with kernel 4.9, which I would keep this way f=
+or
+> > > > > > > unrelated
+> > > > > > > reasons. The vanilla 4.9 kernel wasn't bootable back then, but
+> > > > > > > it was
+> > > > > > > buildable, which was good enough.
+> > > > > > >=20
+> > > > > > > Upgrading the kernel to 4.9.180 caused the boot to suddenly
+> > > > > > > fail:
+> > > > > > >=20
+> > > > > > > aarch64-unknown-linux-gnueabi-ld:
+> > > > > > > ./drivers/firmware/efi/libstub/lib.a(arm64- stub.stub.o): in
+> > > > > > > function
+> > > > > > > `handle_kernel_image':
+> > > > > > > /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm6=
+4-s
+> > > > > > > tub.c:
+> > > > > > > 63:
+> > > > > > > undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_'
+> > > > > > > aarch64-unknown-linux-gnueabi-ld:
+> > > > > > > ./drivers/firmware/efi/libstub/lib.a(arm64- stub.stub.o):
+> > > > > > > relocation
+> > > > > > > R_AARCH64_ADR_PREL_PG_HI21 against symbol
+> > > > > > > `__efistub__GLOBAL_OFFSET_TABLE_' which may bind externally c=
+an
+> > > > > > > not
+> > > > > > > be used when making a shared object; recompile with -fPIC
+> > > > > > > /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm6=
+4-s
+> > > > > > > tub.c:
+> > > > > > > 63:
+> > > > > > > (.init.text+0xc): dangerous relocation: unsupported relocation
+> > > > > > > /tmp/e2/build/linux-4.9.139/Makefile:1001: recipe for target
+> > > > > > > 'vmlinux'
+> > > > > > > failed -make[1]: *** [vmlinux] Error 1
+> > > > > > >=20
+> > > > > > > This is caused by commit
+> > > > > > > 27b5ebf61818749b3568354c64a8ec2d9cd5ecca from
+> > > > > > > linux-4.9.y (which is 91ee5b21ee026c49e4e7483de69b55b8b47042b=
+e),
+> > > > > > > reverting
+> > > > > > > this commit fixes the build.
 
-thanks,
+> > Did this ever get resolved, or is it still an issue?
+>=20
+> This appears to have been resolved by commit 8fca3c364683 ("efi/libstub:
+> Unify command line param parsing") in 4.9.181. I can build defconfig +
+> CONFIG_RANDOMIZE_BASE without any issues.
 
-greg k-h
+I can confirm that 4.9.186 builds without issues with my original config.
+
+Thanks for paying attention.
+
+Eike
+=2D-=20
+Rolf Eike Beer, emlix GmbH, http://www.emlix.com
+=46on +49 551 30664-0, Fax +49 551 30664-11
+Gothaer Platz 3, 37083 G=C3=B6ttingen, Germany
+Sitz der Gesellschaft: G=C3=B6ttingen, Amtsgericht G=C3=B6ttingen HR B 3160
+Gesch=C3=A4ftsf=C3=BChrung: Heike Jordan, Dr. Uwe Kracke =E2=80=93 Ust-IdNr=
+=2E: DE 205 198 055
+
+emlix - smart embedded open source
+--nextPart5118905.V6sjJquZsO
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iLMEAAEIAB0WIQQ/Uctzh31xzAxFCLur5FH7Xu2t/AUCXUPxVwAKCRCr5FH7Xu2t
+/CXdBACxv6k3WGP20X7pZkaOIHLo5u8V/uU0Iq5J+12F91cswWsFojaI8ZtGp9vT
+mluIljCRzuKTSHs0hw+gJVZdjK4z9vLkhdGrZl788pAgJKzqnOsBsxCWl5Gyq/lB
+lyTJcLp5s7uyFCXwNi0Hzpc91wHyy4Zm1WLeFjYwqHBFqOKWiw==
+=f8g+
+-----END PGP SIGNATURE-----
+
+--nextPart5118905.V6sjJquZsO--
+
+
+
