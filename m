@@ -2,167 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD0897FDDB
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 17:56:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0E617FDDF
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 17:56:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387920AbfHBP4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 11:56:16 -0400
-Received: from mail-wm1-f50.google.com ([209.85.128.50]:36893 "EHLO
-        mail-wm1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731112AbfHBP4P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 11:56:15 -0400
-Received: by mail-wm1-f50.google.com with SMTP id f17so66784618wme.2
-        for <stable@vger.kernel.org>; Fri, 02 Aug 2019 08:56:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=BECnQSoSPZEsLWCAx/dZ+dr8be9NxTZu4qHnEkBCl0A=;
-        b=U7fdOCtBWwljfZIVlDI2ScogGRqa+BmYc7yH4RVPot0hNyyYqxUHQmZgMsBJFj1AUM
-         CGGYFRXuNbjNN0XLno41B1QttqGn7ibRnSz4vcIkZTKoZ2MnVfNJHWiW6X+uP/FUGDFd
-         5BcsJ9hKLPMbYF6B0JWeBRmoDm0cWYxsYUlqU/HhzE5Cs6XiAXccdE2TESCX3oFt9mcv
-         2H+hpo2DsWQZtjrtN42HBc8u9yAvegkMTNCTbe0qF/40jgepkTU3HilqaQLUPFDJ+sOI
-         TbCNVTyFTH0wLJA02+cAfBEsxQ0PK/X3YR/DJM45VHKvvutw0ox8vw+6iKBfcbOBa8OA
-         NzGA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=BECnQSoSPZEsLWCAx/dZ+dr8be9NxTZu4qHnEkBCl0A=;
-        b=BredLoYtXC3GEVXQXFBIKFzCxrLlEu6FckcoJQiEDKe1J7oS9jkvtEb9eL6qvnSaoJ
-         OjsBw4lcKf0ilINy6Q7fx0NKFBW62Ge3W3erdxvR4+qHe9dpNa+zmQN6bBwQkEK7uyDI
-         kiPLBug99/kjf82ujQFp9Gijw412l+p/IUJP1wOBTOXKwP5273jt9xWwDCd0ZcE0FSmY
-         4BofJxm8HB7tOah94UJjqKlppuB+Dbg0YFQPMkmd1Mdd4wIUNU4/CF6YTNnL6BBhIesp
-         RzEMNXU5YhvCRNjZ9VJtSuO6k+8IhqPsyYsnms5V/byKYTI9LfLKdl8ecVMohglTmdUH
-         1bTw==
-X-Gm-Message-State: APjAAAUoZrllASO5lQ7PqgOZ/NYv3y+Pkkeu5WLixG0EPsgj6jaNSASX
-        Dt4hW2ZlTDLreIAc6CUTMXw1V4A/Ifk=
-X-Google-Smtp-Source: APXvYqxMB9DGe3w5AtoPzXSlVa+WYfSj1KtOzsgLEN9hwhN6V+tor7A+dRTLsE9O/7IiopEExj22XA==
-X-Received: by 2002:a1c:dc07:: with SMTP id t7mr5227326wmg.164.1564761373316;
-        Fri, 02 Aug 2019 08:56:13 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id i6sm70297281wrv.47.2019.08.02.08.56.12
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 02 Aug 2019 08:56:12 -0700 (PDT)
-Message-ID: <5d445d1c.1c69fb81.18a4f.6f36@mx.google.com>
-Date:   Fri, 02 Aug 2019 08:56:12 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S2388008AbfHBP4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 11:56:33 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:49467 "EHLO
+        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731112AbfHBP4d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 11:56:33 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id BB5AC3FF;
+        Fri,  2 Aug 2019 11:56:31 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Fri, 02 Aug 2019 11:56:32 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=PkUXgLQlD09oEzY3GdKpU9DI7Cs
+        MAGiCOb8Se7FDCdY=; b=MLt9L/b5dqdmde++l8o2G+ndFrHypcTz4RppB8rwMfU
+        GEOWaaDwwa+a1FVZZxzg+pDotPj/XIUdJ3zuE5KNvFUwVXgix6HaotHMP5KhkR7+
+        Aac1+Wyj7shlLrppkQtMRkecZc+oxQz62S4oO2uLp6buXdApRs9EEiq7BC7srswr
+        ca6C4J30mWfscXE3Ee42Fv5HRXUbn5MTgKNK39B5iUdX1XjlBUi7P4ZVMvrzXBcY
+        N+Ix34b1dtDyBFzrB1iJ07QW6uoiv7mdJ1IFNCZkGLCx2qIJWX6rjZWQBM2EySGe
+        0GI3xWjZoMSh1jvw1H43hA6OWPvnGR42da0MjvXgRUw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=PkUXgL
+        QlD09oEzY3GdKpU9DI7CsMAGiCOb8Se7FDCdY=; b=gsMrauo6lYuY2qD/y9+Egx
+        QRBYdd9MvaXevZ5u57X3sHRgP8DxhGfb9zN8EmsWsM1POHqga0md7st3o2p8rhX0
+        oHzh+U54mu6Ydo0tAfMuHmARi8z5s/fHsFjo3iOB2Hktbk4if0ZOO9LGWGMrR/Ee
+        1OYSlWwrVO1YxeYpAwzqLYj83yH2jjVYw40XgMT4p+DTS2dmGZlL82KAPFxhvKwu
+        d710wRMxXPCaiV8jf5NevS8AxePIFIOQMIB9/iJrf3CootHApUOOigemxvm+Z7vT
+        VSYL5Kpa+lShQ03dap2y16Nstz6qNZ/ek3k6o+OgsDPmcQYmEAgv/0W0yxM6eOmg
+        ==
+X-ME-Sender: <xms:Ll1EXQo6PUzXfBFGQ5f6I9gAnNm9m757ZGuFn1XRNX346Tes5WTa2g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrleelgdeikecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
+    ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
+    lhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:Ll1EXa6nk0Y0q_xchL-usSYU9y4yjmGJIt9mgZK5CD01yElgtoeFDA>
+    <xmx:Ll1EXQOml-_Y3sD7gZH7IKuPBz6OLDbi-mcMJudG5GK6OgjgRAzDQQ>
+    <xmx:Ll1EXcNqe_ZlJOQwDO-Rg2PG-bYmVoh4YWKATGVx-ZFwks6Fw0SX5Q>
+    <xmx:L11EXR51v3XObDe4qDp4W_hQlF3XKAmBI9jCiDEatzLqr4QV4DOArw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4E381380085;
+        Fri,  2 Aug 2019 11:56:30 -0400 (EDT)
+Date:   Fri, 2 Aug 2019 17:56:27 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Cc:     Rolf Eike Beer <eb@emlix.com>, stable@vger.kernel.org,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 4.9.180 build fails =?utf-8?Q?wi?=
+ =?utf-8?Q?th_gcc_9_and_'cleanup=5Fmodule'_specifies_less_restrictive_attr?=
+ =?utf-8?Q?ibute_than_its_target_=E2=80=A6?=
+Message-ID: <20190802155627.GB28398@kroah.com>
+References: <259986242.BvXPX32bHu@devpool35>
+ <20190606185900.GA19937@kroah.com>
+ <CANiq72n2E4Ue0MU5mWitSbsscizPQKML0QQx_DBwJVni+eWMHQ@mail.gmail.com>
+ <4007272.nJfEYfeqza@devpool35>
+ <CANiq72=T8nH3HHkYvWF+vPMscgwXki1Ugiq6C9PhVHJUHAwDYw@mail.gmail.com>
+ <20190802103346.GA14255@kroah.com>
+ <CANiq72kcZZwp2MRVF5Ls+drXCzVbCfZ7wZ8Y+rU93oGohVAGsQ@mail.gmail.com>
+ <20190802112542.GA29534@kroah.com>
+ <CANiq72mSLmP-EaOgY0m2qgTMVsAnyE6iuW5Kjdw5mSy1ZH0y-A@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.2.4-236-gdbc7f5c7df28
-X-Kernelci-Branch: linux-5.2.y
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-5.2.y boot: 136 boots: 0 failed,
- 91 passed with 45 offline (v5.2.4-236-gdbc7f5c7df28)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CANiq72mSLmP-EaOgY0m2qgTMVsAnyE6iuW5Kjdw5mSy1ZH0y-A@mail.gmail.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.2.y boot: 136 boots: 0 failed, 91 passed with 45 offline =
-(v5.2.4-236-gdbc7f5c7df28)
+On Fri, Aug 02, 2019 at 03:01:13PM +0200, Miguel Ojeda wrote:
+> On Fri, Aug 2, 2019 at 1:25 PM Greg KH <greg@kroah.com> wrote:
+> >
+> > But it still doesn't work for 4.14.y and 4.19.y, so we are probably
+> > missing something there.  So if you want to fix that up, I'd appreciate
+> > patches to do so :)
+> 
+> Hm... For 4.19.y and 4.14.y, I cannot see the init/exit_module
+> warnings under GCC 9.1.1. What do you mean it does not work?
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.2.y/kernel/v5.2.4-236-gdbc7f5c7df28/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.2.y=
-/kernel/v5.2.4-236-gdbc7f5c7df28/
+I see a ton of warnings on those kernels today.  I'll look into it next
+week after I apply your patches to see what's missing.
 
-Tree: stable-rc
-Branch: linux-5.2.y
-Git Describe: v5.2.4-236-gdbc7f5c7df28
-Git Commit: dbc7f5c7df288a6bc587ae08342450a1e7f5cb7e
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 79 unique boards, 28 SoC families, 17 builds out of 209
+thanks,
 
-Offline Platforms:
-
-riscv:
-
-    defconfig:
-        gcc-8
-            sifive_fu540: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-axg-s400: 1 offline lab
-            meson-g12a-u200: 1 offline lab
-            meson-g12a-x96-max: 1 offline lab
-            meson-gxbb-odroidc2: 1 offline lab
-            meson-gxl-s905d-p230: 1 offline lab
-            meson-gxl-s905x-libretech-cc: 1 offline lab
-            meson-gxl-s905x-nexbox-a95x: 1 offline lab
-            meson-gxl-s905x-p212: 1 offline lab
-            meson-gxm-nexbox-a1: 1 offline lab
-            rk3399-firefly: 1 offline lab
-            sun50i-a64-pine64-plus: 1 offline lab
-
-mips:
-
-    pistachio_defconfig:
-        gcc-8
-            pistachio_marduk: 1 offline lab
-
-arm:
-
-    exynos_defconfig:
-        gcc-8
-            exynos5250-arndale: 1 offline lab
-            exynos5420-arndale-octa: 1 offline lab
-            exynos5800-peach-pi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            bcm72521-bcm97252sffe: 1 offline lab
-            bcm7445-bcm97445c: 1 offline lab
-            exynos5250-arndale: 1 offline lab
-            exynos5420-arndale-octa: 1 offline lab
-            exynos5800-peach-pi: 1 offline lab
-            imx6dl-wandboard_dual: 1 offline lab
-            imx6dl-wandboard_solo: 1 offline lab
-            imx6q-wandboard: 1 offline lab
-            imx7s-warp: 1 offline lab
-            meson8b-odroidc1: 1 offline lab
-            omap3-beagle: 1 offline lab
-            omap4-panda: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            stih410-b2120: 1 offline lab
-            sun4i-a10-cubieboard: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-            vf610-colibri-eval-v3: 1 offline lab
-
-    omap2plus_defconfig:
-        gcc-8
-            omap3-beagle: 1 offline lab
-            omap4-panda: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            da850-evm: 1 offline lab
-            dm365evm,legacy: 1 offline lab
-
-    imx_v6_v7_defconfig:
-        gcc-8
-            imx6dl-wandboard_dual: 1 offline lab
-            imx6dl-wandboard_solo: 1 offline lab
-            imx6q-wandboard: 1 offline lab
-            imx7s-warp: 1 offline lab
-            vf610-colibri-eval-v3: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun4i-a10-cubieboard: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+greg k-h
