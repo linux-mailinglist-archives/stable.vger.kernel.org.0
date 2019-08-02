@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 736367F39D
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:59:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 475617F38A
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:59:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406826AbfHBJ5I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:57:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35864 "EHLO mail.kernel.org"
+        id S2407023AbfHBJ6C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:58:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406770AbfHBJ4v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:56:51 -0400
+        id S2406632AbfHBJ6B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:58:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2478C2067D;
-        Fri,  2 Aug 2019 09:56:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 424572067D;
+        Fri,  2 Aug 2019 09:58:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739810;
-        bh=Wx7HlgrI0sbVQMwiIIkXATehxq7dJ+6vkVkYHxyMk0E=;
+        s=default; t=1564739880;
+        bh=WuWdv+cdRTGK9BAwJuR/u5YIzpoycfaLrawtlrJNX3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ue6qRz00ifV25wWIpKDjeMiw353qEP9kqK72YpAkyREb3YEKOyxmwA3E8T5o+QEKu
-         4weXeZ+Cywa6GBr6bOnoEO1e2eyCSti694IbfITCM0kk0hPI4tXfkTRmj9xPyrq6Gw
-         8niE4xMwAplnKpw2cr/+t/MTjF6t/VdrOBRjL/vU=
+        b=SIw5FVjSw3GqKPaldm8YD898X8UxqM2/1WQFOq0joVrfevmwRZyBqr+wv78+jUtf8
+         sD+GkMxHZa7i6nVmGDmayJBcKaJKsCwdZFfRy90tk+29oq13ZvRSOiN0n5ugnPYaDl
+         pLz+Y2X4vOxW7Kc5fCYTLcou9eRrrjHf9l/Obg5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Jankowski <shasta@toxcorp.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Alexey Izbyshev <izbyshev@ispras.ru>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 27/32] /proc/<pid>/cmdline: add back the setproctitle() special case
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        syzbot+0c90fc937c84f97d0aa6@syzkaller.appspotmail.com,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 5.2 07/20] media: cpia2_usb: first wake up, then free in disconnect
 Date:   Fri,  2 Aug 2019 11:40:01 +0200
-Message-Id: <20190802092110.418148404@linuxfoundation.org>
+Message-Id: <20190802092059.178234119@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190802092101.913646560@linuxfoundation.org>
-References: <20190802092101.913646560@linuxfoundation.org>
+In-Reply-To: <20190802092055.131876977@linuxfoundation.org>
+References: <20190802092055.131876977@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,147 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit d26d0cd97c88eb1a5704b42e41ab443406807810 upstream.
+commit eff73de2b1600ad8230692f00bc0ab49b166512a upstream.
 
-This makes the setproctitle() special case very explicit indeed, and
-handles it with a separate helper function entirely.  In the process, it
-re-instates the original semantics of simply stopping at the first NUL
-character when the original last NUL character is no longer there.
+Kasan reported a use after free in cpia2_usb_disconnect()
+It first freed everything and then woke up those waiting.
+The reverse order is correct.
 
-[ The original semantics can still be seen in mm/util.c: get_cmdline()
-  that is limited to a fixed-size buffer ]
+Fixes: 6c493f8b28c67 ("[media] cpia2: major overhaul to get it in a working state again")
 
-This makes the logic about when we use the string lengths etc much more
-obvious, and makes it easier to see what we do and what the two very
-different cases are.
-
-Note that even when we allow walking past the end of the argument array
-(because the setproctitle() might have overwritten and overflowed the
-original argv[] strings), we only allow it when it overflows into the
-environment region if it is immediately adjacent.
-
-[ Fixed for missing 'count' checks noted by Alexey Izbyshev ]
-
-Link: https://lore.kernel.org/lkml/alpine.LNX.2.21.1904052326230.3249@kich.toxcorp.com/
-Fixes: 5ab827189965 ("fs/proc: simplify and clarify get_mm_cmdline() function")
-Cc: Jakub Jankowski <shasta@toxcorp.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Alexey Izbyshev <izbyshev@ispras.ru>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: syzbot+0c90fc937c84f97d0aa6@syzkaller.appspotmail.com
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/proc/base.c |   81 ++++++++++++++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 77 insertions(+), 4 deletions(-)
+ drivers/media/usb/cpia2/cpia2_usb.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -205,12 +205,53 @@ static int proc_root_link(struct dentry
- 	return result;
+--- a/drivers/media/usb/cpia2/cpia2_usb.c
++++ b/drivers/media/usb/cpia2/cpia2_usb.c
+@@ -893,7 +893,6 @@ static void cpia2_usb_disconnect(struct
+ 	cpia2_unregister_camera(cam);
+ 	v4l2_device_disconnect(&cam->v4l2_dev);
+ 	mutex_unlock(&cam->v4l2_lock);
+-	v4l2_device_put(&cam->v4l2_dev);
+ 
+ 	if(cam->buffers) {
+ 		DBG("Wakeup waiting processes\n");
+@@ -902,6 +901,8 @@ static void cpia2_usb_disconnect(struct
+ 		wake_up_interruptible(&cam->wq_stream);
+ 	}
+ 
++	v4l2_device_put(&cam->v4l2_dev);
++
+ 	LOG("CPiA2 camera disconnected.\n");
  }
  
-+/*
-+ * If the user used setproctitle(), we just get the string from
-+ * user space at arg_start, and limit it to a maximum of one page.
-+ */
-+static ssize_t get_mm_proctitle(struct mm_struct *mm, char __user *buf,
-+				size_t count, unsigned long pos,
-+				unsigned long arg_start)
-+{
-+	char *page;
-+	int ret, got;
-+
-+	if (pos >= PAGE_SIZE)
-+		return 0;
-+
-+	page = (char *)__get_free_page(GFP_KERNEL);
-+	if (!page)
-+		return -ENOMEM;
-+
-+	ret = 0;
-+	got = access_remote_vm(mm, arg_start, page, PAGE_SIZE, FOLL_ANON);
-+	if (got > 0) {
-+		int len = strnlen(page, got);
-+
-+		/* Include the NUL character if it was found */
-+		if (len < got)
-+			len++;
-+
-+		if (len > pos) {
-+			len -= pos;
-+			if (len > count)
-+				len = count;
-+			len -= copy_to_user(buf, page+pos, len);
-+			if (!len)
-+				len = -EFAULT;
-+			ret = len;
-+		}
-+	}
-+	free_page((unsigned long)page);
-+	return ret;
-+}
-+
- static ssize_t get_mm_cmdline(struct mm_struct *mm, char __user *buf,
- 			      size_t count, loff_t *ppos)
- {
--	unsigned long arg_start, arg_end;
-+	unsigned long arg_start, arg_end, env_start, env_end;
- 	unsigned long pos, len;
--	char *page;
-+	char *page, c;
- 
- 	/* Check if process spawned far enough to have cmdline. */
- 	if (!mm->env_end)
-@@ -219,14 +260,46 @@ static ssize_t get_mm_cmdline(struct mm_
- 	spin_lock(&mm->arg_lock);
- 	arg_start = mm->arg_start;
- 	arg_end = mm->arg_end;
-+	env_start = mm->env_start;
-+	env_end = mm->env_end;
- 	spin_unlock(&mm->arg_lock);
- 
- 	if (arg_start >= arg_end)
- 		return 0;
- 
-+	/*
-+	 * We allow setproctitle() to overwrite the argument
-+	 * strings, and overflow past the original end. But
-+	 * only when it overflows into the environment area.
-+	 */
-+	if (env_start != arg_end || env_end < env_start)
-+		env_start = env_end = arg_end;
-+	len = env_end - arg_start;
-+
- 	/* We're not going to care if "*ppos" has high bits set */
--	/* .. but we do check the result is in the proper range */
--	pos = arg_start + *ppos;
-+	pos = *ppos;
-+	if (pos >= len)
-+		return 0;
-+	if (count > len - pos)
-+		count = len - pos;
-+	if (!count)
-+		return 0;
-+
-+	/*
-+	 * Magical special case: if the argv[] end byte is not
-+	 * zero, the user has overwritten it with setproctitle(3).
-+	 *
-+	 * Possible future enhancement: do this only once when
-+	 * pos is 0, and set a flag in the 'struct file'.
-+	 */
-+	if (access_remote_vm(mm, arg_end-1, &c, 1, FOLL_ANON) == 1 && c)
-+		return get_mm_proctitle(mm, buf, count, pos, arg_start);
-+
-+	/*
-+	 * For the non-setproctitle() case we limit things strictly
-+	 * to the [arg_start, arg_end[ range.
-+	 */
-+	pos += arg_start;
- 	if (pos < arg_start || pos >= arg_end)
- 		return 0;
- 	if (count > arg_end - pos)
 
 
