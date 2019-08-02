@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EAAD17F46A
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:05:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 230C17F466
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:05:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391384AbfHBJk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:40:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41382 "EHLO mail.kernel.org"
+        id S2391720AbfHBJkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:40:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390998AbfHBJkY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:40:24 -0400
+        id S2391718AbfHBJkb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:40:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 908D320679;
-        Fri,  2 Aug 2019 09:40:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C11B206A2;
+        Fri,  2 Aug 2019 09:40:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738823;
-        bh=HP3/a2oZIL74Jk6LrFo/J/9++kAyvAYs/l+UguAunkM=;
+        s=default; t=1564738830;
+        bh=71BcrPLlabkDfKXrdoo89ZjZ8+xNHNaqDBG2JLysBp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G3G4Rdy9HP6FPbisan2dQg7eMi2VdnkTvETr+YIFUSCgzRnDuaOvQFRzgPA8Imu+c
-         7eR6FIhivy/gOfozhRHRReKFBdj4lOuSQNTftT89vT3SykKf71+C9xh8D5UT4VjQ7c
-         WBCtO/dCs5prn4PI6/hF9wajh24MfVEDCAm2jeaI=
+        b=n8buXa6sHNSmv81rlR2Xwgc2vqiN46J5R3hZlkZKxHTo08QrDPNoOQo1bNwUlB2UG
+         mhsxWz6A/htO8cLbvfSkwDkxVO/sGK7Qi6IhEIvirlQxCcdydp0MMvIWPFiHHVzx5x
+         EkteZvGKepdNOFiz4dQJMPz3tCARqzCrZxnGUR2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Hellermann <stefan@the2masters.de>,
+        stable@vger.kernel.org, Jo-Philipp Wich <jo@mein.io>,
+        =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>,
+        Kevin Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>,
         Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 001/223] MIPS: ath79: fix ar933x uart parity mode
-Date:   Fri,  2 Aug 2019 11:33:46 +0200
-Message-Id: <20190802092238.781314964@linuxfoundation.org>
+Subject: [PATCH 4.9 002/223] MIPS: fix build on non-linux hosts
+Date:   Fri,  2 Aug 2019 11:33:47 +0200
+Message-Id: <20190802092238.838846545@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,38 +46,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit db13a5ba2732755cf13320f3987b77cf2a71e790 ]
+[ Upstream commit 1196364f21ffe5d1e6d83cafd6a2edb89404a3ae ]
 
-While trying to get the uart with parity working I found setting even
-parity enabled odd parity insted. Fix the register settings to match
-the datasheet of AR9331.
+calc_vmlinuz_load_addr.c requires SZ_64K to be defined for alignment
+purposes.  It included "../../../../include/linux/sizes.h" to define
+that size, however "sizes.h" tries to include <linux/const.h> which
+assumes linux system headers.  These may not exist eg. the following
+error was encountered when building Linux for OpenWrt under macOS:
 
-A similar patch was created by 8devices, but not sent upstream.
-https://github.com/8devices/openwrt-8devices/commit/77c5586ade3bb72cda010afad3f209ed0c98ea7c
+In file included from arch/mips/boot/compressed/calc_vmlinuz_load_addr.c:16:
+arch/mips/boot/compressed/../../../../include/linux/sizes.h:11:10: fatal error: 'linux/const.h' file not found
+         ^~~~~~~~~~
 
-Signed-off-by: Stefan Hellermann <stefan@the2masters.de>
+Change makefile to force building on local linux headers instead of
+system headers.  Also change eye-watering relative reference in include
+file spec.
+
+Thanks to Jo-Philip Wich & Petr Štetiar for assistance in tracking this
+down & fixing.
+
+Suggested-by: Jo-Philipp Wich <jo@mein.io>
+Signed-off-by: Petr Štetiar <ynezz@true.cz>
+Signed-off-by: Kevin Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>
 Signed-off-by: Paul Burton <paul.burton@mips.com>
 Cc: linux-mips@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/mach-ath79/ar933x_uart.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/mips/boot/compressed/Makefile                 | 2 ++
+ arch/mips/boot/compressed/calc_vmlinuz_load_addr.c | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/include/asm/mach-ath79/ar933x_uart.h b/arch/mips/include/asm/mach-ath79/ar933x_uart.h
-index c2917b39966b..bba2c8837951 100644
---- a/arch/mips/include/asm/mach-ath79/ar933x_uart.h
-+++ b/arch/mips/include/asm/mach-ath79/ar933x_uart.h
-@@ -27,8 +27,8 @@
- #define AR933X_UART_CS_PARITY_S		0
- #define AR933X_UART_CS_PARITY_M		0x3
- #define	  AR933X_UART_CS_PARITY_NONE	0
--#define	  AR933X_UART_CS_PARITY_ODD	1
--#define	  AR933X_UART_CS_PARITY_EVEN	2
-+#define	  AR933X_UART_CS_PARITY_ODD	2
-+#define	  AR933X_UART_CS_PARITY_EVEN	3
- #define AR933X_UART_CS_IF_MODE_S	2
- #define AR933X_UART_CS_IF_MODE_M	0x3
- #define	  AR933X_UART_CS_IF_MODE_NONE	0
+diff --git a/arch/mips/boot/compressed/Makefile b/arch/mips/boot/compressed/Makefile
+index 90aca95fe314..ad31c76c7a29 100644
+--- a/arch/mips/boot/compressed/Makefile
++++ b/arch/mips/boot/compressed/Makefile
+@@ -75,6 +75,8 @@ OBJCOPYFLAGS_piggy.o := --add-section=.image=$(obj)/vmlinux.bin.z \
+ $(obj)/piggy.o: $(obj)/dummy.o $(obj)/vmlinux.bin.z FORCE
+ 	$(call if_changed,objcopy)
+ 
++HOSTCFLAGS_calc_vmlinuz_load_addr.o += $(LINUXINCLUDE)
++
+ # Calculate the load address of the compressed kernel image
+ hostprogs-y := calc_vmlinuz_load_addr
+ 
+diff --git a/arch/mips/boot/compressed/calc_vmlinuz_load_addr.c b/arch/mips/boot/compressed/calc_vmlinuz_load_addr.c
+index 542c3ede9722..d14f75ec8273 100644
+--- a/arch/mips/boot/compressed/calc_vmlinuz_load_addr.c
++++ b/arch/mips/boot/compressed/calc_vmlinuz_load_addr.c
+@@ -13,7 +13,7 @@
+ #include <stdint.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+-#include "../../../../include/linux/sizes.h"
++#include <linux/sizes.h>
+ 
+ int main(int argc, char *argv[])
+ {
 -- 
 2.20.1
 
