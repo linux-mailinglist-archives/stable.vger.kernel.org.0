@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 571A57F3C1
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:00:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18A6A7F3C5
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:00:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406128AbfHBJxC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:53:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58882 "EHLO mail.kernel.org"
+        id S2405252AbfHBJwk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:52:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406123AbfHBJxB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:53:01 -0400
+        id S2406046AbfHBJwk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:52:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43D312064A;
-        Fri,  2 Aug 2019 09:53:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B9F121841;
+        Fri,  2 Aug 2019 09:52:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739580;
-        bh=UMGJTc+lamdku+dmlSmj3Q61KR2Yl1xl7GpDs8SjYi0=;
+        s=default; t=1564739559;
+        bh=xhC+EBLiEUwBVPxCByn/+jH0oz/qQWxbe1cYzmuCau8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=smXtQ4/gqf+jebHO2HUTMDF1kPGPn1LWASjZ73hnkuy8kT9NxXL1M+N/j9c4hcjYq
-         c5IuFTjSXcMbch0Pf44UNG+QJbBGcD5nWOd/qOJSxFn0ZinWIW9nSWkLITYWYHyaR4
-         yfC9lwM1+xRCnZe9eQIj9Eh5U7KbXsAdIOzjq4NU=
+        b=qa9QVvLCzV5Vtan4NOQXpRfKiQXBeJIj9itqWPcHdWD2UMOvdSnNDfOZuQIUUyv2J
+         9xFEYRmRcyykuAnFmjaRNSDma56MugO5ayWxrhFWddSm8mgMmbi4PNRTFTF7gxmnsb
+         Vn5CMdifDmx0YvRQD7gSVbAQrgAxdC25X7mALLRU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Morten Borup Petersen <morten_bp@live.dk>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Kees Cook <keescook@chromium.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 194/223] mailbox: handle failed named mailbox channel request
-Date:   Fri,  2 Aug 2019 11:36:59 +0200
-Message-Id: <20190802092249.871886891@linuxfoundation.org>
+Subject: [PATCH 4.9 198/223] 9p: pass the correct prototype to read_cache_page
+Date:   Fri,  2 Aug 2019 11:37:03 +0200
+Message-Id: <20190802092250.026248455@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -44,42 +48,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 25777e5784a7b417967460d4fcf9660d05a0c320 ]
+[ Upstream commit f053cbd4366051d7eb6ba1b8d529d20f719c2963 ]
 
-Previously, if mbox_request_channel_byname was used with a name
-which did not exist in the "mbox-names" property of a mailbox
-client, the mailbox corresponding to the last entry in the
-"mbox-names" list would be incorrectly selected.
-With this patch, -EINVAL is returned if the named mailbox is
-not found.
+Fix the callback 9p passes to read_cache_page to actually have the
+proper type expected.  Casting around function pointers can easily
+hide typing bugs, and defeats control flow protection.
 
-Signed-off-by: Morten Borup Petersen <morten_bp@live.dk>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Link: http://lkml.kernel.org/r/20190520055731.24538-5-hch@lst.de
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: Sami Tolvanen <samitolvanen@google.com>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/mailbox.c | 6 ++++--
+ fs/9p/vfs_addr.c | 6 ++++--
  1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mailbox/mailbox.c b/drivers/mailbox/mailbox.c
-index 87ef465c6947..c1c43800c4aa 100644
---- a/drivers/mailbox/mailbox.c
-+++ b/drivers/mailbox/mailbox.c
-@@ -389,11 +389,13 @@ struct mbox_chan *mbox_request_channel_byname(struct mbox_client *cl,
+diff --git a/fs/9p/vfs_addr.c b/fs/9p/vfs_addr.c
+index 6181ad79e1a5..e45b1a0dd513 100644
+--- a/fs/9p/vfs_addr.c
++++ b/fs/9p/vfs_addr.c
+@@ -49,8 +49,9 @@
+  * @page: structure to page
+  *
+  */
+-static int v9fs_fid_readpage(struct p9_fid *fid, struct page *page)
++static int v9fs_fid_readpage(void *data, struct page *page)
+ {
++	struct p9_fid *fid = data;
+ 	struct inode *inode = page->mapping->host;
+ 	struct bio_vec bvec = {.bv_page = page, .bv_len = PAGE_SIZE};
+ 	struct iov_iter to;
+@@ -121,7 +122,8 @@ static int v9fs_vfs_readpages(struct file *filp, struct address_space *mapping,
+ 	if (ret == 0)
+ 		return ret;
  
- 	of_property_for_each_string(np, "mbox-names", prop, mbox_name) {
- 		if (!strncmp(name, mbox_name, strlen(name)))
--			break;
-+			return mbox_request_channel(cl, index);
- 		index++;
- 	}
- 
--	return mbox_request_channel(cl, index);
-+	dev_err(cl->dev, "%s() could not locate channel named \"%s\"\n",
-+		__func__, name);
-+	return ERR_PTR(-EINVAL);
+-	ret = read_cache_pages(mapping, pages, (void *)v9fs_vfs_readpage, filp);
++	ret = read_cache_pages(mapping, pages, v9fs_fid_readpage,
++			filp->private_data);
+ 	p9_debug(P9_DEBUG_VFS, "  = %d\n", ret);
+ 	return ret;
  }
- EXPORT_SYMBOL_GPL(mbox_request_channel_byname);
- 
 -- 
 2.20.1
 
