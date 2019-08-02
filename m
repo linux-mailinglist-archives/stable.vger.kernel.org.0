@@ -2,46 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C493D7F30C
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:54:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 794117F2FB
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:54:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406296AbfHBJxi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:53:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59836 "EHLO mail.kernel.org"
+        id S2406140AbfHBJxF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:53:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406287AbfHBJxh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:53:37 -0400
+        id S2406136AbfHBJxE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:53:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FD212064A;
-        Fri,  2 Aug 2019 09:53:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D71092064A;
+        Fri,  2 Aug 2019 09:53:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739616;
-        bh=Sm0PfBeQceiwqseCtOSoS8UIGDHm40DFx14/1Oj12PQ=;
+        s=default; t=1564739583;
+        bh=gRW/TUv2wOdygcATenJ4M9ZSJJ7BWq/OFn9IQuJUfq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wG/CU7libzsDJu67gArl15r5SSjXXcjQrazmbx6PjvpbbRnJWFqrPsq2z2nX5Yy3s
-         a1TNdkmiO0u7mHaoGrhQCcxkmA35onibitGsYVEI7EqgERZIz8f0Zm6ttcCYTctbTF
-         MMMYdwSiZiIRBXYvDDAn8IeClD2hBBqct7aWujrA=
+        b=AvuwEXJoHRaQwliR0Dqs0TV0kM5xsDlkQSjPJNZIVz0Ah8f7iDnqMVKm2zvSm9T0U
+         6GwrliQMjgRW1LG9jrxx/yQuxjmjDuynIPcMATKQYYVw1b5MfMCrKL9ShKR8tegWXE
+         2IhdyLe+wF6uwtmC1LK5zBKXimH+tzosOEFKYnXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Eric Dumazet <edumazet@google.com>,
-        "Paul E. McKenney" <paulmck@linux.ibm.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Jan Glauber <jglauber@marvell.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Jayachandran Chandrasekharan Nair <jnair@marvell.com>,
-        Greg KH <greg@kroah.com>, Kees Cook <keescook@chromium.org>,
-        David Howells <dhowells@redhat.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 210/223] access: avoid the RCU grace period for the temporary subjective credentials
-Date:   Fri,  2 Aug 2019 11:37:15 +0200
-Message-Id: <20190802092250.490319974@linuxfoundation.org>
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 211/223] ipv6: check sk sk_type and protocol early in ip_mroute_set/getsockopt
+Date:   Fri,  2 Aug 2019 11:37:16 +0200
+Message-Id: <20190802092250.528687530@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -54,174 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+[ Upstream commit 99253eb750fda6a644d5188fb26c43bad8d5a745 ]
 
-commit d7852fbd0f0423937fa287a598bfde188bb68c22 upstream.
+Commit 5e1859fbcc3c ("ipv4: ipmr: various fixes and cleanups") fixed
+the issue for ipv4 ipmr:
 
-It turns out that 'access()' (and 'faccessat()') can cause a lot of RCU
-work because it installs a temporary credential that gets allocated and
-freed for each system call.
+  ip_mroute_setsockopt() & ip_mroute_getsockopt() should not
+  access/set raw_sk(sk)->ipmr_table before making sure the socket
+  is a raw socket, and protocol is IGMP
 
-The allocation and freeing overhead is mostly benign, but because
-credentials can be accessed under the RCU read lock, the freeing
-involves a RCU grace period.
+The same fix should be done for ipv6 ipmr as well.
 
-Which is not a huge deal normally, but if you have a lot of access()
-calls, this causes a fair amount of seconday damage: instead of having a
-nice alloc/free patterns that hits in hot per-CPU slab caches, you have
-all those delayed free's, and on big machines with hundreds of cores,
-the RCU overhead can end up being enormous.
+This patch can fix the panic caused by overwriting the same offset
+as ipmr_table as in raw_sk(sk) when accessing other type's socket
+by ip_mroute_setsockopt().
 
-But it turns out that all of this is entirely unnecessary.  Exactly
-because access() only installs the credential as the thread-local
-subjective credential, the temporary cred pointer doesn't actually need
-to be RCU free'd at all.  Once we're done using it, we can just free it
-synchronously and avoid all the RCU overhead.
-
-So add a 'non_rcu' flag to 'struct cred', which can be set by users that
-know they only use it in non-RCU context (there are other potential
-users for this).  We can make it a union with the rcu freeing list head
-that we need for the RCU case, so this doesn't need any extra storage.
-
-Note that this also makes 'get_current_cred()' clear the new non_rcu
-flag, in case we have filesystems that take a long-term reference to the
-cred and then expect the RCU delayed freeing afterwards.  It's not
-entirely clear that this is required, but it makes for clear semantics:
-the subjective cred remains non-RCU as long as you only access it
-synchronously using the thread-local accessors, but you _can_ use it as
-a generic cred if you want to.
-
-It is possible that we should just remove the whole RCU markings for
-->cred entirely.  Only ->real_cred is really supposed to be accessed
-through RCU, and the long-term cred copies that nfs uses might want to
-explicitly re-enable RCU freeing if required, rather than have
-get_current_cred() do it implicitly.
-
-But this is a "minimal semantic changes" change for the immediate
-problem.
-
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Paul E. McKenney <paulmck@linux.ibm.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Jan Glauber <jglauber@marvell.com>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Jayachandran Chandrasekharan Nair <jnair@marvell.com>
-Cc: Greg KH <greg@kroah.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Miklos Szeredi <miklos@szeredi.hu>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/open.c            |   19 +++++++++++++++++++
- include/linux/cred.h |    7 ++++++-
- kernel/cred.c        |   21 +++++++++++++++++++--
- 3 files changed, 44 insertions(+), 3 deletions(-)
+ net/ipv6/ip6mr.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/fs/open.c
-+++ b/fs/open.c
-@@ -380,6 +380,25 @@ SYSCALL_DEFINE3(faccessat, int, dfd, con
- 				override_cred->cap_permitted;
- 	}
+--- a/net/ipv6/ip6mr.c
++++ b/net/ipv6/ip6mr.c
+@@ -1668,6 +1668,10 @@ int ip6_mroute_setsockopt(struct sock *s
+ 	struct net *net = sock_net(sk);
+ 	struct mr6_table *mrt;
  
-+	/*
-+	 * The new set of credentials can *only* be used in
-+	 * task-synchronous circumstances, and does not need
-+	 * RCU freeing, unless somebody then takes a separate
-+	 * reference to it.
-+	 *
-+	 * NOTE! This is _only_ true because this credential
-+	 * is used purely for override_creds() that installs
-+	 * it as the subjective cred. Other threads will be
-+	 * accessing ->real_cred, not the subjective cred.
-+	 *
-+	 * If somebody _does_ make a copy of this (using the
-+	 * 'get_current_cred()' function), that will clear the
-+	 * non_rcu field, because now that other user may be
-+	 * expecting RCU freeing. But normal thread-synchronous
-+	 * cred accesses will keep things non-RCY.
-+	 */
-+	override_cred->non_rcu = 1;
++	if (sk->sk_type != SOCK_RAW ||
++	    inet_sk(sk)->inet_num != IPPROTO_ICMPV6)
++		return -EOPNOTSUPP;
 +
- 	old_cred = override_creds(override_cred);
- retry:
- 	res = user_path_at(dfd, filename, lookup_flags, &path);
---- a/include/linux/cred.h
-+++ b/include/linux/cred.h
-@@ -144,7 +144,11 @@ struct cred {
- 	struct user_struct *user;	/* real user ID subscription */
- 	struct user_namespace *user_ns; /* user_ns the caps and keyrings are relative to. */
- 	struct group_info *group_info;	/* supplementary groups for euid/fsgid */
--	struct rcu_head	rcu;		/* RCU deletion hook */
-+	/* RCU deletion */
-+	union {
-+		int non_rcu;			/* Can we skip RCU deletion? */
-+		struct rcu_head	rcu;		/* RCU deletion hook */
-+	};
- };
+ 	mrt = ip6mr_get_table(net, raw6_sk(sk)->ip6mr_table ? : RT6_TABLE_DFLT);
+ 	if (!mrt)
+ 		return -ENOENT;
+@@ -1679,9 +1683,6 @@ int ip6_mroute_setsockopt(struct sock *s
  
- extern void __put_cred(struct cred *);
-@@ -242,6 +246,7 @@ static inline const struct cred *get_cre
- {
- 	struct cred *nonconst_cred = (struct cred *) cred;
- 	validate_creds(cred);
-+	nonconst_cred->non_rcu = 0;
- 	return get_new_cred(nonconst_cred);
- }
+ 	switch (optname) {
+ 	case MRT6_INIT:
+-		if (sk->sk_type != SOCK_RAW ||
+-		    inet_sk(sk)->inet_num != IPPROTO_ICMPV6)
+-			return -EOPNOTSUPP;
+ 		if (optlen < sizeof(int))
+ 			return -EINVAL;
  
---- a/kernel/cred.c
-+++ b/kernel/cred.c
-@@ -146,7 +146,10 @@ void __put_cred(struct cred *cred)
- 	BUG_ON(cred == current->cred);
- 	BUG_ON(cred == current->real_cred);
+@@ -1818,6 +1819,10 @@ int ip6_mroute_getsockopt(struct sock *s
+ 	struct net *net = sock_net(sk);
+ 	struct mr6_table *mrt;
  
--	call_rcu(&cred->rcu, put_cred_rcu);
-+	if (cred->non_rcu)
-+		put_cred_rcu(&cred->rcu);
-+	else
-+		call_rcu(&cred->rcu, put_cred_rcu);
- }
- EXPORT_SYMBOL(__put_cred);
- 
-@@ -257,6 +260,7 @@ struct cred *prepare_creds(void)
- 	old = task->cred;
- 	memcpy(new, old, sizeof(struct cred));
- 
-+	new->non_rcu = 0;
- 	atomic_set(&new->usage, 1);
- 	set_cred_subscribers(new, 0);
- 	get_group_info(new->group_info);
-@@ -536,7 +540,19 @@ const struct cred *override_creds(const
- 
- 	validate_creds(old);
- 	validate_creds(new);
--	get_cred(new);
++	if (sk->sk_type != SOCK_RAW ||
++	    inet_sk(sk)->inet_num != IPPROTO_ICMPV6)
++		return -EOPNOTSUPP;
 +
-+	/*
-+	 * NOTE! This uses 'get_new_cred()' rather than 'get_cred()'.
-+	 *
-+	 * That means that we do not clear the 'non_rcu' flag, since
-+	 * we are only installing the cred into the thread-synchronous
-+	 * '->cred' pointer, not the '->real_cred' pointer that is
-+	 * visible to other threads under RCU.
-+	 *
-+	 * Also note that we did validate_creds() manually, not depending
-+	 * on the validation in 'get_cred()'.
-+	 */
-+	get_new_cred((struct cred *)new);
- 	alter_cred_subscribers(new, 1);
- 	rcu_assign_pointer(current->cred, new);
- 	alter_cred_subscribers(old, -1);
-@@ -619,6 +635,7 @@ struct cred *prepare_kernel_cred(struct
- 	validate_creds(old);
- 
- 	*new = *old;
-+	new->non_rcu = 0;
- 	atomic_set(&new->usage, 1);
- 	set_cred_subscribers(new, 0);
- 	get_uid(new->user);
+ 	mrt = ip6mr_get_table(net, raw6_sk(sk)->ip6mr_table ? : RT6_TABLE_DFLT);
+ 	if (!mrt)
+ 		return -ENOENT;
 
 
