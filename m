@@ -2,43 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91CB67FA0F
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:32:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 490E47FA0C
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:32:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404243AbfHBNa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:30:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35068 "EHLO mail.kernel.org"
+        id S2404071AbfHBNan (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:30:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391007AbfHBNYT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:24:19 -0400
+        id S2394150AbfHBNYV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:24:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CA8B2182B;
-        Fri,  2 Aug 2019 13:24:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAF0320644;
+        Fri,  2 Aug 2019 13:24:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752259;
-        bh=k6TQx6bLxozyYUaY1iC9e7S1UT4ztpVBJ0ouMvqc9pI=;
+        s=default; t=1564752261;
+        bh=dZeEXrzP2FGVY/ahJCjiRXYGxTXCSuAChtIkspnQDrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0H0DhqL4xLxSd9Jd8iPa5wXeLmhHyDnKSybcIaJuBGN8V7pV24fpfLa6rM0+2WULb
-         M46e88F6N86GsKxx5FDU+oxrNnlmwzmAUIK9VGXcRQWmj6J5mGX4rJH9JHkpqVXLCg
-         Kp8MnVT2VGZwc5XmWxjexOUL+EIaxWnGbZCJGnIo=
+        b=KeEtWPhcRxc2NBKfoDV6iatO349wHPAp2ih1bpQDQm0jOGOEMAw68wYwfbDf0rtsi
+         ZjaMLqk2/hMqokDP/Tho9rxLFy4FRVKpmcxPWRpnDhrXGI5tBACanWJbTKvFsVKSN2
+         w82zzR48avbPVT1uCURZD85MwM39sRHX38b+qdfY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Leonard Crestez <leonard.crestez@nxp.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Frank Li <Frank.li@nxp.com>, Jiri Olsa <jolsa@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 41/42] perf/core: Fix creating kernel counters for PMUs that override event->cpu
-Date:   Fri,  2 Aug 2019 09:23:01 -0400
-Message-Id: <20190802132302.13537-41-sashal@kernel.org>
+Cc:     Halil Pasic <pasic@linux.ibm.com>, Petr Tesarik <ptesarik@suse.cz>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 42/42] s390/dma: provide proper ARCH_ZONE_DMA_BITS value
+Date:   Fri,  2 Aug 2019 09:23:02 -0400
+Message-Id: <20190802132302.13537-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802132302.13537-1-sashal@kernel.org>
 References: <20190802132302.13537-1-sashal@kernel.org>
@@ -51,59 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leonard Crestez <leonard.crestez@nxp.com>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-[ Upstream commit 4ce54af8b33d3e21ca935fc1b89b58cbba956051 ]
+[ Upstream commit 1a2dcff881059dedc14fafc8a442664c8dbd60f1 ]
 
-Some hardware PMU drivers will override perf_event.cpu inside their
-event_init callback. This causes a lockdep splat when initialized through
-the kernel API:
+On s390 ZONE_DMA is up to 2G, i.e. ARCH_ZONE_DMA_BITS should be 31 bits.
+The current value is 24 and makes __dma_direct_alloc_pages() take a
+wrong turn first (but __dma_direct_alloc_pages() recovers then).
 
- WARNING: CPU: 0 PID: 250 at kernel/events/core.c:2917 ctx_sched_out+0x78/0x208
- pc : ctx_sched_out+0x78/0x208
- Call trace:
-  ctx_sched_out+0x78/0x208
-  __perf_install_in_context+0x160/0x248
-  remote_function+0x58/0x68
-  generic_exec_single+0x100/0x180
-  smp_call_function_single+0x174/0x1b8
-  perf_install_in_context+0x178/0x188
-  perf_event_create_kernel_counter+0x118/0x160
+Let's correct ARCH_ZONE_DMA_BITS value and avoid wrong turns.
 
-Fix this by calling perf_install_in_context with event->cpu, just like
-perf_event_open
-
-Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Frank Li <Frank.li@nxp.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lkml.kernel.org/r/c4ebe0503623066896d7046def4d6b1e06e0eb2e.1563972056.git.leonard.crestez@nxp.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reported-by: Petr Tesarik <ptesarik@suse.cz>
+Fixes: c61e9637340e ("dma-direct: add support for allocation from ZONE_DMA and ZONE_DMA32")
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/include/asm/page.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index e8979c72514be..7ca44b8523c81 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -10957,7 +10957,7 @@ perf_event_create_kernel_counter(struct perf_event_attr *attr, int cpu,
- 		goto err_unlock;
- 	}
+diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
+index 41e3908b397f8..0d753291c43c0 100644
+--- a/arch/s390/include/asm/page.h
++++ b/arch/s390/include/asm/page.h
+@@ -176,6 +176,8 @@ static inline int devmem_is_allowed(unsigned long pfn)
+ #define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | \
+ 				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
  
--	perf_install_in_context(ctx, event, cpu);
-+	perf_install_in_context(ctx, event, event->cpu);
- 	perf_unpin_context(ctx);
- 	mutex_unlock(&ctx->mutex);
++#define ARCH_ZONE_DMA_BITS	31
++
+ #include <asm-generic/memory_model.h>
+ #include <asm-generic/getorder.h>
  
 -- 
 2.20.1
