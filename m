@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A5F97F877
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:20:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC91D7F87D
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:20:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393295AbfHBNUK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:20:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58484 "EHLO mail.kernel.org"
+        id S2393373AbfHBNU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:20:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393281AbfHBNUJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:20:09 -0400
+        id S2393366AbfHBNU1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:20:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2D19218A3;
-        Fri,  2 Aug 2019 13:20:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 195C721849;
+        Fri,  2 Aug 2019 13:20:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752008;
-        bh=ritnmQKeXCNUkl00pdK+bMvgCPeyD/nYb7rU9HK3wAE=;
+        s=default; t=1564752026;
+        bh=giRhtxYzRCKHMP2+BeUpS3xr1ScaCTAL0Qv/EhoWJ+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KvXV1hSIK+Ae3Gj1VvZ8kwBVeWWfKa+aEfIUNKxDJN5vYfnkuIn+Q7Tegab0RUPxO
-         LssHxI/JAZf7sDnhL7ldvHNBZBVVEpOgepEHn3BN1S8HNxPFP0fDhQlY9FEWiCY/2j
-         rGgVlurPZTj0S2uDxEp6d6x3dxZVoHILsXLHjow4=
+        b=AYReBZ9ypar9TTmqZ6r1bskKK++EVSTODJt1njosat08sW4QkwVPPSSnBK5n40Dor
+         umCWHNDs61yb24kh7z3ZQ1fjG+JJeP68bMeXHKep31fyHONgbTU2hPQnPFZzHotFyc
+         qJX5+MXONVNqR0yaUqe4zDTvF0o3Dtf7ND6Ty8f8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josef Bacik <josef@toxicpanda.com>,
-        Oleg Nesterov <oleg@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 14/76] rq-qos: use a mb for got_token
-Date:   Fri,  2 Aug 2019 09:18:48 -0400
-Message-Id: <20190802131951.11600-14-sashal@kernel.org>
+Cc:     Julian Parkin <julian.parkin@amd.com>,
+        Charlene Liu <Charlene.Liu@amd.com>,
+        Leo Li <sunpeng.li@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.2 23/76] drm/amd/display: Fix dc_create failure handling and 666 color depths
+Date:   Fri,  2 Aug 2019 09:18:57 -0400
+Message-Id: <20190802131951.11600-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
 References: <20190802131951.11600-1-sashal@kernel.org>
@@ -43,50 +46,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Julian Parkin <julian.parkin@amd.com>
 
-[ Upstream commit ac38297f7038cd5b80d66f8809c7bbf5b70031f3 ]
+[ Upstream commit 0905f32977268149f06e3ce6ea4bd6d374dd891f ]
 
-Oleg noticed that our checking of data.got_token is unsafe in the
-cleanup case, and should really use a memory barrier.  Use a wmb on the
-write side, and a rmb() on the read side.  We don't need one in the main
-loop since we're saved by set_current_state().
+[Why]
+It is possible (but very unlikely) that constructing dc fails
+before current_state is created.
 
-Reviewed-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+We support 666 color depth in some scenarios, but this
+isn't handled in get_norm_pix_clk. It uses exactly the
+same pixel clock as the 888 case.
+
+[How]
+Check for non null current_state before destructing.
+
+Add case for 666 color depth to get_norm_pix_clk to
+avoid assertion.
+
+Signed-off-by: Julian Parkin <julian.parkin@amd.com>
+Reviewed-by: Charlene Liu <Charlene.Liu@amd.com>
+Acked-by: Leo Li <sunpeng.li@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-rq-qos.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/display/dc/core/dc.c          | 6 ++++--
+ drivers/gpu/drm/amd/display/dc/core/dc_resource.c | 1 +
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/block/blk-rq-qos.c b/block/blk-rq-qos.c
-index e3ab75e4df9ea..06d024204f504 100644
---- a/block/blk-rq-qos.c
-+++ b/block/blk-rq-qos.c
-@@ -202,6 +202,7 @@ static int rq_qos_wake_function(struct wait_queue_entry *curr,
- 		return -1;
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index ee6b646180b66..0a7adc2925e35 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -608,8 +608,10 @@ const struct dc_link_settings *dc_link_get_link_cap(
  
- 	data->got_token = true;
-+	smp_wmb();
- 	list_del_init(&curr->entry);
- 	wake_up_process(data->task);
- 	return 1;
-@@ -245,6 +246,7 @@ void rq_qos_wait(struct rq_wait *rqw, void *private_data,
+ static void destruct(struct dc *dc)
+ {
+-	dc_release_state(dc->current_state);
+-	dc->current_state = NULL;
++	if (dc->current_state) {
++		dc_release_state(dc->current_state);
++		dc->current_state = NULL;
++	}
  
- 	prepare_to_wait_exclusive(&rqw->wait, &data.wq, TASK_UNINTERRUPTIBLE);
- 	do {
-+		/* The memory barrier in set_task_state saves us here. */
- 		if (data.got_token)
- 			break;
- 		if (!has_sleeper && acquire_inflight_cb(rqw, private_data)) {
-@@ -255,6 +257,7 @@ void rq_qos_wait(struct rq_wait *rqw, void *private_data,
- 			 * which means we now have two. Put our local token
- 			 * and wake anyone else potentially waiting for one.
- 			 */
-+			smp_rmb();
- 			if (data.got_token)
- 				cleanup_cb(rqw, private_data);
+ 	destroy_links(dc);
+ 
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
+index ad82906b99db9..b87e8d80bb6a8 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
+@@ -1872,6 +1872,7 @@ static int get_norm_pix_clk(const struct dc_crtc_timing *timing)
+ 		pix_clk /= 2;
+ 	if (timing->pixel_encoding != PIXEL_ENCODING_YCBCR422) {
+ 		switch (timing->display_color_depth) {
++		case COLOR_DEPTH_666:
+ 		case COLOR_DEPTH_888:
+ 			normalized_pix_clk = pix_clk;
  			break;
 -- 
 2.20.1
