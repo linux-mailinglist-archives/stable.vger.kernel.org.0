@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F5137F388
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:59:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 736367F39D
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:59:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407010AbfHBJ57 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:57:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37442 "EHLO mail.kernel.org"
+        id S2406826AbfHBJ5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:57:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406632AbfHBJ56 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:57:58 -0400
+        id S2406770AbfHBJ4v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:56:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A81FB20B7C;
-        Fri,  2 Aug 2019 09:57:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2478C2067D;
+        Fri,  2 Aug 2019 09:56:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739878;
-        bh=/olJjJNhyVcDYFTUTY7lY3OozBfTbmMUD5nzSvABxKc=;
+        s=default; t=1564739810;
+        bh=Wx7HlgrI0sbVQMwiIIkXATehxq7dJ+6vkVkYHxyMk0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hfdhBwuOwoRvb7y1RiLT1KmyZK9Uz01aBI5pUKTS1ase87ZY+sxd8dsmU2uXOYmdd
-         KkhTQIbQzFtBJN7s7WH1HDoFZmmMfVzC4Q5o0yvJHh3ZnHm1rXmXFm92oBuo/eShUO
-         Q9js57tzkoJVEQelOo60QD/vZZpp3p7APYdjFiYE=
+        b=ue6qRz00ifV25wWIpKDjeMiw353qEP9kqK72YpAkyREb3YEKOyxmwA3E8T5o+QEKu
+         4weXeZ+Cywa6GBr6bOnoEO1e2eyCSti694IbfITCM0kk0hPI4tXfkTRmj9xPyrq6Gw
+         8niE4xMwAplnKpw2cr/+t/MTjF6t/VdrOBRjL/vU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+c1b25598aa60dcd47e78@syzkaller.appspotmail.com,
-        Fabio Estevam <festevam@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.2 06/20] ath10k: Change the warning message string
-Date:   Fri,  2 Aug 2019 11:40:00 +0200
-Message-Id: <20190802092058.774755456@linuxfoundation.org>
+        stable@vger.kernel.org, Jakub Jankowski <shasta@toxcorp.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Alexey Izbyshev <izbyshev@ispras.ru>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 27/32] /proc/<pid>/cmdline: add back the setproctitle() special case
+Date:   Fri,  2 Aug 2019 11:40:01 +0200
+Message-Id: <20190802092110.418148404@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190802092055.131876977@linuxfoundation.org>
-References: <20190802092055.131876977@linuxfoundation.org>
+In-Reply-To: <20190802092101.913646560@linuxfoundation.org>
+References: <20190802092101.913646560@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +45,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 265df32eae5845212ad9f55f5ae6b6dcb68b187b upstream.
+commit d26d0cd97c88eb1a5704b42e41ab443406807810 upstream.
 
-The "WARNING" string confuses syzbot, which thinks it found
-a crash [1].
+This makes the setproctitle() special case very explicit indeed, and
+handles it with a separate helper function entirely.  In the process, it
+re-instates the original semantics of simply stopping at the first NUL
+character when the original last NUL character is no longer there.
 
-Change the string to avoid such problem.
+[ The original semantics can still be seen in mm/util.c: get_cmdline()
+  that is limited to a fixed-size buffer ]
 
-[1] https://lkml.org/lkml/2019/5/9/243
+This makes the logic about when we use the string lengths etc much more
+obvious, and makes it easier to see what we do and what the two very
+different cases are.
 
-Reported-by: syzbot+c1b25598aa60dcd47e78@syzkaller.appspotmail.com
-Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Note that even when we allow walking past the end of the argument array
+(because the setproctitle() might have overwritten and overflowed the
+original argv[] strings), we only allow it when it overflows into the
+environment region if it is immediately adjacent.
+
+[ Fixed for missing 'count' checks noted by Alexey Izbyshev ]
+
+Link: https://lore.kernel.org/lkml/alpine.LNX.2.21.1904052326230.3249@kich.toxcorp.com/
+Fixes: 5ab827189965 ("fs/proc: simplify and clarify get_mm_cmdline() function")
+Cc: Jakub Jankowski <shasta@toxcorp.com>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Alexey Izbyshev <izbyshev@ispras.ru>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/ath/ath10k/usb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/proc/base.c |   81 ++++++++++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 77 insertions(+), 4 deletions(-)
 
---- a/drivers/net/wireless/ath/ath10k/usb.c
-+++ b/drivers/net/wireless/ath/ath10k/usb.c
-@@ -1016,7 +1016,7 @@ static int ath10k_usb_probe(struct usb_i
- 	}
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -205,12 +205,53 @@ static int proc_root_link(struct dentry
+ 	return result;
+ }
  
- 	/* TODO: remove this once USB support is fully implemented */
--	ath10k_warn(ar, "WARNING: ath10k USB support is incomplete, don't expect anything to work!\n");
-+	ath10k_warn(ar, "Warning: ath10k USB support is incomplete, don't expect anything to work!\n");
++/*
++ * If the user used setproctitle(), we just get the string from
++ * user space at arg_start, and limit it to a maximum of one page.
++ */
++static ssize_t get_mm_proctitle(struct mm_struct *mm, char __user *buf,
++				size_t count, unsigned long pos,
++				unsigned long arg_start)
++{
++	char *page;
++	int ret, got;
++
++	if (pos >= PAGE_SIZE)
++		return 0;
++
++	page = (char *)__get_free_page(GFP_KERNEL);
++	if (!page)
++		return -ENOMEM;
++
++	ret = 0;
++	got = access_remote_vm(mm, arg_start, page, PAGE_SIZE, FOLL_ANON);
++	if (got > 0) {
++		int len = strnlen(page, got);
++
++		/* Include the NUL character if it was found */
++		if (len < got)
++			len++;
++
++		if (len > pos) {
++			len -= pos;
++			if (len > count)
++				len = count;
++			len -= copy_to_user(buf, page+pos, len);
++			if (!len)
++				len = -EFAULT;
++			ret = len;
++		}
++	}
++	free_page((unsigned long)page);
++	return ret;
++}
++
+ static ssize_t get_mm_cmdline(struct mm_struct *mm, char __user *buf,
+ 			      size_t count, loff_t *ppos)
+ {
+-	unsigned long arg_start, arg_end;
++	unsigned long arg_start, arg_end, env_start, env_end;
+ 	unsigned long pos, len;
+-	char *page;
++	char *page, c;
  
- 	return 0;
+ 	/* Check if process spawned far enough to have cmdline. */
+ 	if (!mm->env_end)
+@@ -219,14 +260,46 @@ static ssize_t get_mm_cmdline(struct mm_
+ 	spin_lock(&mm->arg_lock);
+ 	arg_start = mm->arg_start;
+ 	arg_end = mm->arg_end;
++	env_start = mm->env_start;
++	env_end = mm->env_end;
+ 	spin_unlock(&mm->arg_lock);
  
+ 	if (arg_start >= arg_end)
+ 		return 0;
+ 
++	/*
++	 * We allow setproctitle() to overwrite the argument
++	 * strings, and overflow past the original end. But
++	 * only when it overflows into the environment area.
++	 */
++	if (env_start != arg_end || env_end < env_start)
++		env_start = env_end = arg_end;
++	len = env_end - arg_start;
++
+ 	/* We're not going to care if "*ppos" has high bits set */
+-	/* .. but we do check the result is in the proper range */
+-	pos = arg_start + *ppos;
++	pos = *ppos;
++	if (pos >= len)
++		return 0;
++	if (count > len - pos)
++		count = len - pos;
++	if (!count)
++		return 0;
++
++	/*
++	 * Magical special case: if the argv[] end byte is not
++	 * zero, the user has overwritten it with setproctitle(3).
++	 *
++	 * Possible future enhancement: do this only once when
++	 * pos is 0, and set a flag in the 'struct file'.
++	 */
++	if (access_remote_vm(mm, arg_end-1, &c, 1, FOLL_ANON) == 1 && c)
++		return get_mm_proctitle(mm, buf, count, pos, arg_start);
++
++	/*
++	 * For the non-setproctitle() case we limit things strictly
++	 * to the [arg_start, arg_end[ range.
++	 */
++	pos += arg_start;
+ 	if (pos < arg_start || pos >= arg_end)
+ 		return 0;
+ 	if (count > arg_end - pos)
 
 
