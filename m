@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C40077F8A8
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:22:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98C617F8AE
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:22:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393571AbfHBNVY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:21:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59882 "EHLO mail.kernel.org"
+        id S2393601AbfHBNVm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:21:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393531AbfHBNVX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:21:23 -0400
+        id S1729866AbfHBNVm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:21:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F4BE21849;
-        Fri,  2 Aug 2019 13:21:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D3862173E;
+        Fri,  2 Aug 2019 13:21:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752082;
-        bh=tfCEAaZ/7wP7IyWf1wpi3ulEwPG2rgB//jXsv3f5eC4=;
+        s=default; t=1564752101;
+        bh=o3wy5nRhYLcAi7lP2oNchUBAb7gBx8iqR6nIER7hnXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OjjHyc4Xsh0LUSdZK2uXSM2L3Yz3mIpVS+KdJGYYDF7vcQNmDp/cFyzJuqoGhZ33k
-         qStkfywsxo65kn52ymy/MrfaxvapY4hJzEAtEuErYRUp/afCi/HuhHMU3XMm9AGgRK
-         VLhhUeLp8trzztoIptLXv9vkds7/PLEMeDR1a8nc=
+        b=ENDeIjx/AufWvzT6xj39MfOZdYby+aRZiRU4Ap6elgBYkAtVIpuc/QpJSEpIt4enO
+         qvid6m7y6iRT8d4QKyS+rV9Cw7G8iugmNiHPwgm1ZWzUY9Uon8QAoohLkubfuAshtC
+         jtq55+iudaYCbqOvProZ2M5B7D+X9zle3jzlBzE8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qian Cai <cai@lca.pw>, Sean Paul <seanpaul@chromium.org>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 43/76] drm: silence variable 'conn' set but not used
-Date:   Fri,  2 Aug 2019 09:19:17 -0400
-Message-Id: <20190802131951.11600-43-sashal@kernel.org>
+Cc:     Anson Huang <Anson.Huang@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 44/76] arm64: dts: imx8mm: Correct SAI3 RXC/TXFS pin's mux option #1
+Date:   Fri,  2 Aug 2019 09:19:18 -0400
+Message-Id: <20190802131951.11600-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
 References: <20190802131951.11600-1-sashal@kernel.org>
@@ -43,41 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Anson Huang <Anson.Huang@nxp.com>
 
-[ Upstream commit bbb6fc43f131f77fcb7ae8081f6d7c51396a2120 ]
+[ Upstream commit 52d09014bb104a9157c0f5530700291052d2955c ]
 
-The "struct drm_connector" iteration cursor from
-"for_each_new_connector_in_state" is never used in atomic_remove_fb()
-which generates a compilation warning,
+According to i.MX8MM reference manual Rev.1, 03/2019:
 
-drivers/gpu/drm/drm_framebuffer.c: In function 'atomic_remove_fb':
-drivers/gpu/drm/drm_framebuffer.c:838:24: warning: variable 'conn' set
-but not used [-Wunused-but-set-variable]
+SAI3_RXC pin's mux option #1 should be GPT1_CLK, NOT GPT1_CAPTURE2;
+SAI3_TXFS pin's mux option #1 should be GPT1_CAPTURE2, NOT GPT1_CLK.
 
-Silence it by marking "conn" __maybe_unused.
-
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/1563822886-13570-1-git-send-email-cai@lca.pw
+Fixes: c1c9d41319c3 ("dt-bindings: imx: Add pinctrl binding doc for imx8mm")
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_framebuffer.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/imx8mm-pinfunc.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_framebuffer.c b/drivers/gpu/drm/drm_framebuffer.c
-index d8d75e25f6fb8..45f6f11a88a74 100644
---- a/drivers/gpu/drm/drm_framebuffer.c
-+++ b/drivers/gpu/drm/drm_framebuffer.c
-@@ -830,7 +830,7 @@ static int atomic_remove_fb(struct drm_framebuffer *fb)
- 	struct drm_device *dev = fb->dev;
- 	struct drm_atomic_state *state;
- 	struct drm_plane *plane;
--	struct drm_connector *conn;
-+	struct drm_connector *conn __maybe_unused;
- 	struct drm_connector_state *conn_state;
- 	int i, ret;
- 	unsigned plane_mask;
+diff --git a/arch/arm64/boot/dts/freescale/imx8mm-pinfunc.h b/arch/arm64/boot/dts/freescale/imx8mm-pinfunc.h
+index e25f7fcd79975..cffa8991880d1 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mm-pinfunc.h
++++ b/arch/arm64/boot/dts/freescale/imx8mm-pinfunc.h
+@@ -462,7 +462,7 @@
+ #define MX8MM_IOMUXC_SAI3_RXFS_GPIO4_IO28                                   0x1CC 0x434 0x000 0x5 0x0
+ #define MX8MM_IOMUXC_SAI3_RXFS_TPSMP_HTRANS0                                0x1CC 0x434 0x000 0x7 0x0
+ #define MX8MM_IOMUXC_SAI3_RXC_SAI3_RX_BCLK                                  0x1D0 0x438 0x000 0x0 0x0
+-#define MX8MM_IOMUXC_SAI3_RXC_GPT1_CAPTURE2                                 0x1D0 0x438 0x000 0x1 0x0
++#define MX8MM_IOMUXC_SAI3_RXC_GPT1_CLK                                      0x1D0 0x438 0x000 0x1 0x0
+ #define MX8MM_IOMUXC_SAI3_RXC_SAI5_RX_BCLK                                  0x1D0 0x438 0x4D0 0x2 0x2
+ #define MX8MM_IOMUXC_SAI3_RXC_GPIO4_IO29                                    0x1D0 0x438 0x000 0x5 0x0
+ #define MX8MM_IOMUXC_SAI3_RXC_TPSMP_HTRANS1                                 0x1D0 0x438 0x000 0x7 0x0
+@@ -472,7 +472,7 @@
+ #define MX8MM_IOMUXC_SAI3_RXD_GPIO4_IO30                                    0x1D4 0x43C 0x000 0x5 0x0
+ #define MX8MM_IOMUXC_SAI3_RXD_TPSMP_HDATA0                                  0x1D4 0x43C 0x000 0x7 0x0
+ #define MX8MM_IOMUXC_SAI3_TXFS_SAI3_TX_SYNC                                 0x1D8 0x440 0x000 0x0 0x0
+-#define MX8MM_IOMUXC_SAI3_TXFS_GPT1_CLK                                     0x1D8 0x440 0x000 0x1 0x0
++#define MX8MM_IOMUXC_SAI3_TXFS_GPT1_CAPTURE2                                0x1D8 0x440 0x000 0x1 0x0
+ #define MX8MM_IOMUXC_SAI3_TXFS_SAI5_RX_DATA1                                0x1D8 0x440 0x4D8 0x2 0x2
+ #define MX8MM_IOMUXC_SAI3_TXFS_GPIO4_IO31                                   0x1D8 0x440 0x000 0x5 0x0
+ #define MX8MM_IOMUXC_SAI3_TXFS_TPSMP_HDATA1                                 0x1D8 0x440 0x000 0x7 0x0
 -- 
 2.20.1
 
