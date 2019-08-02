@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C4957F175
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:39:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F4B87F0FB
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:34:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391530AbfHBJeX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:34:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34196 "EHLO mail.kernel.org"
+        id S2390705AbfHBJeu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:34:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391526AbfHBJeW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:34:22 -0400
+        id S2391567AbfHBJer (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:34:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6A5721773;
-        Fri,  2 Aug 2019 09:34:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97DDD217F5;
+        Fri,  2 Aug 2019 09:34:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738461;
-        bh=S4oTBVZuFHeiVq6QV8mYUwqzth8f1OOuRfK7opNRL30=;
+        s=default; t=1564738487;
+        bh=ocQmBY7ln6jzENd+ILNFkARdD73rtI5W8ETL4JwjVkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eOAl1SpxwN/6Ku/pkXh9T7w2JbqRDOBMsqBZCPxMpB5kUhwVHp7c0eaQYLTQvNVxj
-         Ivw9ryuCFigpIKl0JplJiVRadOouoSbEU8TuOjCj8s7D4YCZ6ZnuwWNykgrUD+1e8X
-         PuqcYyCPfeA8uReeUyVnKNWeMG6EoZATIivUItJk=
+        b=W9WlkOK+4DKefVdhxYuX+u6IDlUgPO9yYYjbOczeUos5o0yVucJhQg7fsoORBdSk2
+         pgdqURuZBel/xhezLgJFuFKGpTiPGSSMShagIKLzH2THde1Q1NhyIiq5xX/2MiZ9m5
+         iM6P6ImRkPWKdtvvSKLN1+br5rxLOCVyL6GqOexU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
-        "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 105/158] nfsd: Fix overflow causing non-working mounts on 1 TB machines
-Date:   Fri,  2 Aug 2019 11:28:46 +0200
-Message-Id: <20190802092225.752747458@linuxfoundation.org>
+Subject: [PATCH 4.4 106/158] drm/panel: simple: Fix panel_simple_dsi_probe
+Date:   Fri,  2 Aug 2019 11:28:47 +0200
+Message-Id: <20190802092225.889845082@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
 References: <20190802092203.671944552@linuxfoundation.org>
@@ -44,65 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3b2d4dcf71c4a91b420f835e52ddea8192300a3b ]
+[ Upstream commit 7ad9db66fafb0f0ad53fd2a66217105da5ddeffe ]
 
-Since commit 10a68cdf10 (nfsd: fix performance-limiting session
-calculation) (Linux 5.1-rc1 and 4.19.31), shares from NFS servers with
-1 TB of memory cannot be mounted anymore. The mount just hangs on the
-client.
+In case mipi_dsi_attach() fails remove the registered panel to avoid added
+panel without corresponding device.
 
-The gist of commit 10a68cdf10 is the change below.
-
-    -avail = clamp_t(int, avail, slotsize, avail/3);
-    +avail = clamp_t(int, avail, slotsize, total_avail/3);
-
-Here are the macros.
-
-    #define min_t(type, x, y)       __careful_cmp((type)(x), (type)(y), <)
-    #define clamp_t(type, val, lo, hi) min_t(type, max_t(type, val, lo), hi)
-
-`total_avail` is 8,434,659,328 on the 1 TB machine. `clamp_t()` casts
-the values to `int`, which for 32-bit integers can only hold values
-−2,147,483,648 (−2^31) through 2,147,483,647 (2^31 − 1).
-
-`avail` (in the function signature) is just 65536, so that no overflow
-was happening. Before the commit the assignment would result in 21845,
-and `num = 4`.
-
-When using `total_avail`, it is causing the assignment to be
-18446744072226137429 (printed as %lu), and `num` is then 4164608182.
-
-My next guess is, that `nfsd_drc_mem_used` is then exceeded, and the
-server thinks there is no memory available any more for this client.
-
-Updating the arguments of `clamp_t()` and `min_t()` to `unsigned long`
-fixes the issue.
-
-Now, `avail = 65536` (before commit 10a68cdf10 `avail = 21845`), but
-`num = 4` remains the same.
-
-Fixes: c54f24e338ed (nfsd: fix performance-limiting session calculation)
-Cc: stable@vger.kernel.org
-Signed-off-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190226081153.31334-1-peter.ujfalusi@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/panel/panel-simple.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index 1e1abf1d5769..ea5cb1ba282f 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -1400,7 +1400,7 @@ static u32 nfsd4_get_drc_mem(struct nfsd4_channel_attrs *ca)
- 	 * Never use more than a third of the remaining memory,
- 	 * unless it's the only way to give this client a slot:
- 	 */
--	avail = clamp_t(int, avail, slotsize, total_avail/3);
-+	avail = clamp_t(unsigned long, avail, slotsize, total_avail/3);
- 	num = min_t(int, num, avail / slotsize);
- 	nfsd_drc_mem_used += num * slotsize;
- 	spin_unlock(&nfsd_drc_lock);
+diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
+index f418c002d323..ecad4d7c6cd1 100644
+--- a/drivers/gpu/drm/panel/panel-simple.c
++++ b/drivers/gpu/drm/panel/panel-simple.c
+@@ -1389,7 +1389,14 @@ static int panel_simple_dsi_probe(struct mipi_dsi_device *dsi)
+ 	dsi->format = desc->format;
+ 	dsi->lanes = desc->lanes;
+ 
+-	return mipi_dsi_attach(dsi);
++	err = mipi_dsi_attach(dsi);
++	if (err) {
++		struct panel_simple *panel = dev_get_drvdata(&dsi->dev);
++
++		drm_panel_remove(&panel->base);
++	}
++
++	return err;
+ }
+ 
+ static int panel_simple_dsi_remove(struct mipi_dsi_device *dsi)
 -- 
 2.20.1
 
