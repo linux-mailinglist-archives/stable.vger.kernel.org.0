@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0C6A7F0B5
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:32:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5D697F0B9
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:32:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391093AbfHBJbs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:31:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58178 "EHLO mail.kernel.org"
+        id S2391123AbfHBJcA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:32:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404743AbfHBJbq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:31:46 -0400
+        id S2391114AbfHBJb4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:31:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 138B821783;
-        Fri,  2 Aug 2019 09:31:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43AB4217D4;
+        Fri,  2 Aug 2019 09:31:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738305;
-        bh=6QaYj1hwO9X8cYBYVzsZl8PDnGSMIwF31I8yblWNh2E=;
+        s=default; t=1564738315;
+        bh=Ml2SiAEKPIbhZjyoReVWSvKjyK4gZdthtZdGGwtk6T0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E4jn3+rEv8de0zJoZckzkAm/jQnpXmvKFs+yI8+QXThd0KuaS0xmTdr08eCGq+tEo
-         tX9Jr/duAZQL10vr2sihL48opsPltAsjrgl67NpSV0RO8mmdeZ9tiI6Qb/QU2/fYP7
-         ayPgNrnusbqpm1fAulysec/V57zUn3D0xxrivLqo=
+        b=EL7k7d4ADXcMdBG4Pe77m/YO2ksJhpxThVhhHHgSz/SABuelz6f0e19pFb4tFDO+9
+         HsQz2pw5EGBG7W6VPE7fTudXAypYoMGNfrIip4FToFuyr5ZT82eUjWCaHgbX+EMCLm
+         u9yfdl+GZv407aVc4Main1HvKn6leIvjkzcHw4Mw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Borislav Petkov <bp@suse.de>,
-        James Morse <james.morse@arm.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-edac <linux-edac@vger.kernel.org>,
+        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Graeme Gregory <graeme.gregory@linaro.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 035/158] EDAC/sysfs: Fix memory leak when creating a csrow object
-Date:   Fri,  2 Aug 2019 11:27:36 +0200
-Message-Id: <20190802092210.979107422@linuxfoundation.org>
+Subject: [PATCH 4.4 039/158] acpi/arm64: ignore 5.1 FADTs that are reported as 5.0
+Date:   Fri,  2 Aug 2019 11:27:40 +0200
+Message-Id: <20190802092211.962722926@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
 References: <20190802092203.671944552@linuxfoundation.org>
@@ -47,50 +49,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 585fb3d93d32dbe89e718b85009f9c322cc554cd ]
+[ Upstream commit 2af22f3ec3ca452f1e79b967f634708ff01ced8a ]
 
-In edac_create_csrow_object(), the reference to the object is not
-released when adding the device to the device hierarchy fails
-(device_add()). This may result in a memory leak.
+Some Qualcomm Snapdragon based laptops built to run Microsoft Windows
+are clearly ACPI 5.1 based, given that that is the first ACPI revision
+that supports ARM, and introduced the FADT 'arm_boot_flags' field,
+which has a non-zero field on those systems.
 
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: James Morse <james.morse@arm.com>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: linux-edac <linux-edac@vger.kernel.org>
-Link: https://lkml.kernel.org/r/1555554438-103953-1-git-send-email-bianpan2016@163.com
+So in these cases, infer from the ARM boot flags that the FADT must be
+5.1 or later, and treat it as 5.1.
+
+Acked-by: Sudeep Holla <sudeep.holla@arm.com>
+Tested-by: Lee Jones <lee.jones@linaro.org>
+Reviewed-by: Graeme Gregory <graeme.gregory@linaro.org>
+Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Hanjun Guo <guohanjun@huawei.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/edac_mc_sysfs.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/acpi.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/edac/edac_mc_sysfs.c b/drivers/edac/edac_mc_sysfs.c
-index 3c8f19f5ac81..0c53f2d54765 100644
---- a/drivers/edac/edac_mc_sysfs.c
-+++ b/drivers/edac/edac_mc_sysfs.c
-@@ -426,6 +426,8 @@ static inline int nr_pages_per_csrow(struct csrow_info *csrow)
- static int edac_create_csrow_object(struct mem_ctl_info *mci,
- 				    struct csrow_info *csrow, int index)
- {
-+	int err;
+diff --git a/arch/arm64/kernel/acpi.c b/arch/arm64/kernel/acpi.c
+index d1ce8e2f98b9..4d0577d09681 100644
+--- a/arch/arm64/kernel/acpi.c
++++ b/arch/arm64/kernel/acpi.c
+@@ -141,10 +141,14 @@ static int __init acpi_fadt_sanity_check(void)
+ 	 */
+ 	if (table->revision < 5 ||
+ 	   (table->revision == 5 && fadt->minor_revision < 1)) {
+-		pr_err("Unsupported FADT revision %d.%d, should be 5.1+\n",
++		pr_err(FW_BUG "Unsupported FADT revision %d.%d, should be 5.1+\n",
+ 		       table->revision, fadt->minor_revision);
+-		ret = -EINVAL;
+-		goto out;
 +
- 	csrow->dev.type = &csrow_attr_type;
- 	csrow->dev.bus = mci->bus;
- 	csrow->dev.groups = csrow_dev_groups;
-@@ -438,7 +440,11 @@ static int edac_create_csrow_object(struct mem_ctl_info *mci,
- 	edac_dbg(0, "creating (virtual) csrow node %s\n",
- 		 dev_name(&csrow->dev));
++		if (!fadt->arm_boot_flags) {
++			ret = -EINVAL;
++			goto out;
++		}
++		pr_err("FADT has ARM boot flags set, assuming 5.1\n");
+ 	}
  
--	return device_add(&csrow->dev);
-+	err = device_add(&csrow->dev);
-+	if (err)
-+		put_device(&csrow->dev);
-+
-+	return err;
- }
- 
- /* Create a CSROW object under specifed edac_mc_device */
+ 	if (!(fadt->flags & ACPI_FADT_HW_REDUCED)) {
 -- 
 2.20.1
 
