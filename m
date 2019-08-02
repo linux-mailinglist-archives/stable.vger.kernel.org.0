@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1D0C7F48F
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:07:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E0857F486
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:07:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729469AbfHBJbF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:31:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56910 "EHLO mail.kernel.org"
+        id S2389534AbfHBJaa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:30:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390999AbfHBJbF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:31:05 -0400
+        id S2389506AbfHBJa3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:30:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF2CF2182B;
-        Fri,  2 Aug 2019 09:31:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29BE22184B;
+        Fri,  2 Aug 2019 09:30:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738264;
-        bh=TJed8jkosXHtrYtgyAE9DH9vGieBDk4XFI/GZmxO9Pc=;
+        s=default; t=1564738228;
+        bh=Tr8aWNKlo2Wgrn6VcEDRPIIWe6L1PIrTNYoas381qJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kbWT2zAHSj/RHgfAJfty3X7xLMM5ZGOx+PyxVeu+AOOBQ6mfvRpfQMNEqg4K+qLXs
-         9BMicsHhP26NL2GWSkIwFOV/OlV7GaTLVqkFgQylJUNtfDjiJ3i3REmrrDhY2l5eZb
-         uPB3ukfa9iIX0tfzUujYa6mCr29h+Ba02P5UASf4=
+        b=PhEWH/2kLF1GGTv1j7cr4Kkw2fyN67aiCxZ7TNQ1Ue0Qk2Uomdz7sjOtfHWSUmkEu
+         x4hmHjvk/Wf5gsxfH8cqodEG4ZvpFCmyvDG+aX+zst/KnXRZhqA2+V6OTkqqGsKXig
+         jGgKGF17qn71T0VKpB22CHS0HHD11rJ/jkPZjDTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Abhishek Goel <huntbag@linux.vnet.ibm.com>,
+        Thomas Renninger <trenn@suse.de>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 019/158] tua6100: Avoid build warnings.
-Date:   Fri,  2 Aug 2019 11:27:20 +0200
-Message-Id: <20190802092207.359242196@linuxfoundation.org>
+Subject: [PATCH 4.4 022/158] cpupower : frequency-set -r option misses the last cpu in related cpu list
+Date:   Fri,  2 Aug 2019 11:27:23 +0200
+Message-Id: <20190802092208.072383980@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
 References: <20190802092203.671944552@linuxfoundation.org>
@@ -43,89 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 621ccc6cc5f8d6730b740d31d4818227866c93c9 ]
+[ Upstream commit 04507c0a9385cc8280f794a36bfff567c8cc1042 ]
 
-Rename _P to _P_VAL and _R to _R_VAL to avoid global
-namespace conflicts:
+To set frequency on specific cpus using cpupower, following syntax can
+be used :
+cpupower -c #i frequency-set -f #f -r
 
-drivers/media/dvb-frontends/tua6100.c: In function ‘tua6100_set_params’:
-drivers/media/dvb-frontends/tua6100.c:79: warning: "_P" redefined
- #define _P 32
+While setting frequency using cpupower frequency-set command, if we use
+'-r' option, it is expected to set frequency for all cpus related to
+cpu #i. But it is observed to be missing the last cpu in related cpu
+list. This patch fixes the problem.
 
-In file included from ./include/acpi/platform/aclinux.h:54,
-                 from ./include/acpi/platform/acenv.h:152,
-                 from ./include/acpi/acpi.h:22,
-                 from ./include/linux/acpi.h:34,
-                 from ./include/linux/i2c.h:17,
-                 from drivers/media/dvb-frontends/tua6100.h:30,
-                 from drivers/media/dvb-frontends/tua6100.c:32:
-./include/linux/ctype.h:14: note: this is the location of the previous definition
- #define _P 0x10 /* punct */
-
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Abhishek Goel <huntbag@linux.vnet.ibm.com>
+Reviewed-by: Thomas Renninger <trenn@suse.de>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/tua6100.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ tools/power/cpupower/utils/cpufreq-set.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/dvb-frontends/tua6100.c b/drivers/media/dvb-frontends/tua6100.c
-index 029384d1fddd..7a3e91cda5df 100644
---- a/drivers/media/dvb-frontends/tua6100.c
-+++ b/drivers/media/dvb-frontends/tua6100.c
-@@ -80,8 +80,8 @@ static int tua6100_set_params(struct dvb_frontend *fe)
- 	struct i2c_msg msg1 = { .addr = priv->i2c_address, .flags = 0, .buf = reg1, .len = 4 };
- 	struct i2c_msg msg2 = { .addr = priv->i2c_address, .flags = 0, .buf = reg2, .len = 3 };
- 
--#define _R 4
--#define _P 32
-+#define _R_VAL 4
-+#define _P_VAL 32
- #define _ri 4000000
- 
- 	// setup register 0
-@@ -96,14 +96,14 @@ static int tua6100_set_params(struct dvb_frontend *fe)
- 	else
- 		reg1[1] = 0x0c;
- 
--	if (_P == 64)
-+	if (_P_VAL == 64)
- 		reg1[1] |= 0x40;
- 	if (c->frequency >= 1525000)
- 		reg1[1] |= 0x80;
- 
- 	// register 2
--	reg2[1] = (_R >> 8) & 0x03;
--	reg2[2] = _R;
-+	reg2[1] = (_R_VAL >> 8) & 0x03;
-+	reg2[2] = _R_VAL;
- 	if (c->frequency < 1455000)
- 		reg2[1] |= 0x1c;
- 	else if (c->frequency < 1630000)
-@@ -115,18 +115,18 @@ static int tua6100_set_params(struct dvb_frontend *fe)
- 	 * The N divisor ratio (note: c->frequency is in kHz, but we
- 	 * need it in Hz)
- 	 */
--	prediv = (c->frequency * _R) / (_ri / 1000);
--	div = prediv / _P;
-+	prediv = (c->frequency * _R_VAL) / (_ri / 1000);
-+	div = prediv / _P_VAL;
- 	reg1[1] |= (div >> 9) & 0x03;
- 	reg1[2] = div >> 1;
- 	reg1[3] = (div << 7);
--	priv->frequency = ((div * _P) * (_ri / 1000)) / _R;
-+	priv->frequency = ((div * _P_VAL) * (_ri / 1000)) / _R_VAL;
- 
- 	// Finally, calculate and store the value for A
--	reg1[3] |= (prediv - (div*_P)) & 0x7f;
-+	reg1[3] |= (prediv - (div*_P_VAL)) & 0x7f;
- 
--#undef _R
--#undef _P
-+#undef _R_VAL
-+#undef _P_VAL
- #undef _ri
- 
- 	if (fe->ops.i2c_gate_ctrl)
+diff --git a/tools/power/cpupower/utils/cpufreq-set.c b/tools/power/cpupower/utils/cpufreq-set.c
+index 0fbd1a22c0a9..2f86935094ca 100644
+--- a/tools/power/cpupower/utils/cpufreq-set.c
++++ b/tools/power/cpupower/utils/cpufreq-set.c
+@@ -306,6 +306,8 @@ int cmd_freq_set(int argc, char **argv)
+ 				bitmask_setbit(cpus_chosen, cpus->cpu);
+ 				cpus = cpus->next;
+ 			}
++			/* Set the last cpu in related cpus list */
++			bitmask_setbit(cpus_chosen, cpus->cpu);
+ 			cpufreq_put_related_cpus(cpus);
+ 		}
+ 	}
 -- 
 2.20.1
 
