@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99E6F7F96C
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:27:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 568F67F967
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:27:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394686AbfHBN0y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:26:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37654 "EHLO mail.kernel.org"
+        id S2394695AbfHBN0z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:26:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394638AbfHBN0x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:26:53 -0400
+        id S2394683AbfHBN0z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:26:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DC7621855;
-        Fri,  2 Aug 2019 13:26:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1FDEE21874;
+        Fri,  2 Aug 2019 13:26:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752412;
-        bh=lVRu5drw9Uzo59lkXq7jFD9QSEgeZnwG5k4rrkToQpw=;
+        s=default; t=1564752413;
+        bh=hX593VyfC/7Z4qDZX8BNdFpN6206bbCN8USs9PuL6qA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H3nkIuCITir6+d43VoPJ1S5TstnE80HoumXohL+LZl2yVG9c/7Ppe0BBqwcvD460K
-         ajnB84Oo5tXFRKpEfgLkPuSDiSHdslJC5N895/fPPHb4QM2t8pOgA7ecBT2W+EwqrZ
-         Uc+6CLALyrjkFC+rIO7B2v1v67oGOp6oGoxS8HX8=
+        b=rsUB9obIG3Pn6rzXuxHCDVKfye7rH6zBYCylQRION9hm+bhdvObxlH5kwDCUY1xBc
+         vycol7ZBfnpCbJJk1bwo0YOlHu7czxMrFoj6rFIoyABnCieNcB23a/9IFzg0ISwyOW
+         DBbZ7OhkimA2ADk4MSh7KNdP+XBZrmFko3UE6/QU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Julian Wiedmann <jwi@linux.ibm.com>,
-        Jens Remus <jremus@linux.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 08/17] s390/qdio: add sanity checks to the fast-requeue path
-Date:   Fri,  2 Aug 2019 09:26:25 -0400
-Message-Id: <20190802132635.14885-8-sashal@kernel.org>
+Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Vinod Koul <vkoul@kernel.org>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 09/17] ALSA: compress: Fix regression on compressed capture streams
+Date:   Fri,  2 Aug 2019 09:26:26 -0400
+Message-Id: <20190802132635.14885-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802132635.14885-1-sashal@kernel.org>
 References: <20190802132635.14885-1-sashal@kernel.org>
@@ -44,50 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit a6ec414a4dd529eeac5c3ea51c661daba3397108 ]
+[ Upstream commit 4475f8c4ab7b248991a60d9c02808dbb813d6be8 ]
 
-If the device driver were to send out a full queue's worth of SBALs,
-current code would end up discovering the last of those SBALs as PRIMED
-and erroneously skip the SIGA-w. This immediately stalls the queue.
+A previous fix to the stop handling on compressed capture streams causes
+some knock on issues. The previous fix updated snd_compr_drain_notify to
+set the state back to PREPARED for capture streams. This causes some
+issues however as the handling for snd_compr_poll differs between the
+two states and some user-space applications were relying on the poll
+failing after the stream had been stopped.
 
-Add a check to not attempt fast-requeue in this case. While at it also
-make sure that the state of the previous SBAL was successfully extracted
-before inspecting it.
+To correct this regression whilst still fixing the original problem the
+patch was addressing, update the capture handling to skip the PREPARED
+state rather than skipping the SETUP state as it has done until now.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Fixes: 4f2ab5e1d13d ("ALSA: compress: Fix stop handling on compressed capture streams")
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Acked-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/qdio_main.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ include/sound/compress_driver.h |  5 +----
+ sound/core/compress_offload.c   | 16 +++++++++++-----
+ 2 files changed, 12 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
-index d64b401f3d058..51cdccaec1648 100644
---- a/drivers/s390/cio/qdio_main.c
-+++ b/drivers/s390/cio/qdio_main.c
-@@ -1575,13 +1575,13 @@ static int handle_outbound(struct qdio_q *q, unsigned int callflags,
- 		rc = qdio_kick_outbound_q(q, phys_aob);
- 	} else if (need_siga_sync(q)) {
- 		rc = qdio_siga_sync_q(q);
-+	} else if (count < QDIO_MAX_BUFFERS_PER_Q &&
-+		   get_buf_state(q, prev_buf(bufnr), &state, 0) > 0 &&
-+		   state == SLSB_CU_OUTPUT_PRIMED) {
-+		/* The previous buffer is not processed yet, tack on. */
-+		qperf_inc(q, fast_requeue);
- 	} else {
--		/* try to fast requeue buffers */
--		get_buf_state(q, prev_buf(bufnr), &state, 0);
--		if (state != SLSB_CU_OUTPUT_PRIMED)
--			rc = qdio_kick_outbound_q(q, 0);
--		else
--			qperf_inc(q, fast_requeue);
-+		rc = qdio_kick_outbound_q(q, 0);
- 	}
+diff --git a/include/sound/compress_driver.h b/include/sound/compress_driver.h
+index 85ff3181e6f11..a5c6e6da3d3d4 100644
+--- a/include/sound/compress_driver.h
++++ b/include/sound/compress_driver.h
+@@ -178,10 +178,7 @@ static inline void snd_compr_drain_notify(struct snd_compr_stream *stream)
+ 	if (snd_BUG_ON(!stream))
+ 		return;
  
- 	/* in case of SIGA errors we must process the error immediately */
+-	if (stream->direction == SND_COMPRESS_PLAYBACK)
+-		stream->runtime->state = SNDRV_PCM_STATE_SETUP;
+-	else
+-		stream->runtime->state = SNDRV_PCM_STATE_PREPARED;
++	stream->runtime->state = SNDRV_PCM_STATE_SETUP;
+ 
+ 	wake_up(&stream->runtime->sleep);
+ }
+diff --git a/sound/core/compress_offload.c b/sound/core/compress_offload.c
+index 3c88a33840645..16269e7ff3904 100644
+--- a/sound/core/compress_offload.c
++++ b/sound/core/compress_offload.c
+@@ -551,10 +551,7 @@ snd_compr_set_params(struct snd_compr_stream *stream, unsigned long arg)
+ 		stream->metadata_set = false;
+ 		stream->next_track = false;
+ 
+-		if (stream->direction == SND_COMPRESS_PLAYBACK)
+-			stream->runtime->state = SNDRV_PCM_STATE_SETUP;
+-		else
+-			stream->runtime->state = SNDRV_PCM_STATE_PREPARED;
++		stream->runtime->state = SNDRV_PCM_STATE_SETUP;
+ 	} else {
+ 		return -EPERM;
+ 	}
+@@ -670,8 +667,17 @@ static int snd_compr_start(struct snd_compr_stream *stream)
+ {
+ 	int retval;
+ 
+-	if (stream->runtime->state != SNDRV_PCM_STATE_PREPARED)
++	switch (stream->runtime->state) {
++	case SNDRV_PCM_STATE_SETUP:
++		if (stream->direction != SND_COMPRESS_CAPTURE)
++			return -EPERM;
++		break;
++	case SNDRV_PCM_STATE_PREPARED:
++		break;
++	default:
+ 		return -EPERM;
++	}
++
+ 	retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_START);
+ 	if (!retval)
+ 		stream->runtime->state = SNDRV_PCM_STATE_RUNNING;
 -- 
 2.20.1
 
