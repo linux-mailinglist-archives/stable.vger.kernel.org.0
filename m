@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 943167F2C7
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:51:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 882187F2C9
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:51:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405361AbfHBJpF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:45:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48676 "EHLO mail.kernel.org"
+        id S2391716AbfHBJvC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:51:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405353AbfHBJpE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:45:04 -0400
+        id S1729283AbfHBJpO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:45:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06C8A20679;
-        Fri,  2 Aug 2019 09:45:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 476A8206A2;
+        Fri,  2 Aug 2019 09:45:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739103;
-        bh=MELHc7NeFRTV+Rr8aDeE6buDLVahjTTMClWcgX8JTqg=;
+        s=default; t=1564739113;
+        bh=2ESkXxAvTvZIfncEBRc3XdXfkRgD3Iqvmv/FnfHq/ts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1TouRBO28FhsGi1CLcAwZyMLMJO2sgWgUQGYVUzZoXGvbbV7VYfvqFhA8yba6adrp
-         L8MW/adEiIsovjeVZbCP3XnP1FT39XKorWPX/8lHMc0a2r3wXo4WvAzVOVYQS8CLGj
-         mlH2sZG7WG0vbYhohHhVXdaU0sN28xVzUpz1wGqo=
+        b=uzIpHuwkLRbmBIrwmT5legzDmMP3O4N1RFhrtUxzQ2vPcifJAXslJSSP2Q3iFE19R
+         pSJBiuu13a03a55A6U3HTiR671ncfciIX+SUWrh53u4lcxgZ/2/rfEHiJki5ryDMZM
+         cqzyaZVdG9UmhHfba01dxXFQw01JLHZJnYiUL1DE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.9 100/223] PCI: Do not poll for PME if the device is in D3cold
-Date:   Fri,  2 Aug 2019 11:35:25 +0200
-Message-Id: <20190802092245.666205344@linuxfoundation.org>
+        stable@vger.kernel.org, Denis Efremov <efremov@ispras.ru>,
+        Willy Tarreau <w@1wt.eu>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 104/223] floppy: fix div-by-zero in setup_format_params
+Date:   Fri,  2 Aug 2019 11:35:29 +0200
+Message-Id: <20190802092245.963045786@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -45,56 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+[ Upstream commit f3554aeb991214cbfafd17d55e2bfddb50282e32 ]
 
-commit 000dd5316e1c756a1c028f22e01d06a38249dd4d upstream.
+This fixes a divide by zero error in the setup_format_params function of
+the floppy driver.
 
-PME polling does not take into account that a device that is directly
-connected to the host bridge may go into D3cold as well. This leads to a
-situation where the PME poll thread reads from a config space of a
-device that is in D3cold and gets incorrect information because the
-config space is not accessible.
+Two consecutive ioctls can trigger the bug: The first one should set the
+drive geometry with such .sect and .rate values for the F_SECT_PER_TRACK
+to become zero.  Next, the floppy format operation should be called.
 
-Here is an example from Intel Ice Lake system where two PCIe root ports
-are in D3cold (I've instrumented the kernel to log the PMCSR register
-contents):
+A floppy disk is not required to be inserted.  An unprivileged user
+could trigger the bug if the device is accessible.
 
-  [   62.971442] pcieport 0000:00:07.1: Check PME status, PMCSR=0xffff
-  [   62.971504] pcieport 0000:00:07.0: Check PME status, PMCSR=0xffff
+The patch checks F_SECT_PER_TRACK for a non-zero value in the
+set_geometry function.  The proper check should involve a reasonable
+upper limit for the .sect and .rate fields, but it could change the
+UAPI.
 
-Since 0xffff is interpreted so that PME is pending, the root ports will
-be runtime resumed. This repeats over and over again essentially
-blocking all runtime power management.
+The patch also checks F_SECT_PER_TRACK in the setup_format_params, and
+cancels the formatting operation in case of zero.
 
-Prevent this from happening by checking whether the device is in D3cold
-before its PME status is read.
+The bug was found by syzkaller.
 
-Fixes: 71a83bd727cc ("PCI/PM: add runtime PM support to PCIe port")
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Lukas Wunner <lukas@wunner.de>
-Cc: 3.6+ <stable@vger.kernel.org> # v3.6+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Denis Efremov <efremov@ispras.ru>
+Tested-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/pci/pci.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/block/floppy.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -1786,6 +1786,13 @@ static void pci_pme_list_scan(struct wor
- 			 */
- 			if (bridge && bridge->current_state != PCI_D0)
- 				continue;
-+			/*
-+			 * If the device is in D3cold it should not be
-+			 * polled either.
-+			 */
-+			if (pme_dev->dev->current_state == PCI_D3cold)
-+				continue;
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -2114,6 +2114,9 @@ static void setup_format_params(int trac
+ 	raw_cmd->kernel_data = floppy_track_buffer;
+ 	raw_cmd->length = 4 * F_SECT_PER_TRACK;
+ 
++	if (!F_SECT_PER_TRACK)
++		return;
 +
- 			pci_pme_wakeup(pme_dev->dev, NULL);
- 		} else {
- 			list_del(&pme_dev->list);
+ 	/* allow for about 30ms for data transport per track */
+ 	head_shift = (F_SECT_PER_TRACK + 5) / 6;
+ 
+@@ -3236,6 +3239,8 @@ static int set_geometry(unsigned int cmd
+ 	/* sanity checking for parameters. */
+ 	if (g->sect <= 0 ||
+ 	    g->head <= 0 ||
++	    /* check for zero in F_SECT_PER_TRACK */
++	    (unsigned char)((g->sect << 2) >> FD_SIZECODE(g)) == 0 ||
+ 	    g->track <= 0 || g->track > UDP->tracks >> STRETCH(g) ||
+ 	    /* check if reserved bits are set */
+ 	    (g->stretch & ~(FD_STRETCH | FD_SWAPSIDES | FD_SECTBASEMASK)) != 0)
 
 
