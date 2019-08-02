@@ -2,163 +2,195 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E00807EE69
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 10:09:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55F4D7EE84
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 10:13:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730509AbfHBIJt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 04:09:49 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:36319 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730124AbfHBIJs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 04:09:48 -0400
-Received: by mail-wm1-f66.google.com with SMTP id g67so61344053wme.1;
-        Fri, 02 Aug 2019 01:09:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=pkiniAbpRIYowvObZzSgzowbMCSR9A1msLp8+g6NbmY=;
-        b=t/55TxhYOnwkgnBw6OrU26YQqR6ENDg0R/MR5E56TfzAkYyYiqlAmOZjLMcBOMrlpU
-         JZp/js/aPWamgbUod4YQGPG22Qyib50OVmQsMHbTEg9xLW2D3rFwiNVEJ4BIbaXY6P/m
-         eIo53ZJLYyFMp+7viZ9AdPWyIlx+g7fp8uUFCUTmAZa8//QcYybcLx4ejoctYdUA+uxE
-         lR9YTVjK4V3xZKh60iTm6mu5KTo7ml7cYZOBwRY8Ud27TqvJ8P8ze9uK5yh7ETyVsYY+
-         macC0BvCvjqxHuPDHiDp0Zs2c/MDjzO3YgQx3Iz2kbuPt5x4DSAoO6bMoRpJH4Y+ibeu
-         EHFA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=pkiniAbpRIYowvObZzSgzowbMCSR9A1msLp8+g6NbmY=;
-        b=KB7f8+tE2hGMWfY1QQ4fvEbjcEkyTlF7qMg1D+9ctwuh2JkLXrMtHHsu2i5BOumX44
-         EqP8bszv+4vv09/f2ZHyoRVp+KW59SMrFhqF5dnopC0Rm7BnN+k54iQhIGE4al3M7c1d
-         099uAyuOFxzsLLYnv9tbOHAwFCe8pnBPhPhd3gXXXkoTqxvWCkfOztL2+bU3CslDcXos
-         6LQHVpB2vIA/KD4JMFDc0c+3sze2SuwZxuwotDkz60BsSjAU0PyDATBj/v18iko3fpd2
-         Zbt156eTCWUMAU6XFBzSlvVcWX4ekOVbmXVX/OLWfmnMv7VkpdG9QrDwqaUwJBx8f1gN
-         PI2A==
-X-Gm-Message-State: APjAAAXmt/jqHxQm7OiiZdzlYlMCZsGDwsn/QM3NUHH0ebs0ZjzNfcWc
-        5bYAZoDlopzeGEjgmfeRg+0=
-X-Google-Smtp-Source: APXvYqybG7FTRlfurFUY6MZcehfpc9LYt6rO9cTZmsS+xJ87Ku6PQ6khMAtPOiGEm6PUcZNVDytNUw==
-X-Received: by 2002:a1c:e90d:: with SMTP id q13mr3304390wmc.89.1564733384959;
-        Fri, 02 Aug 2019 01:09:44 -0700 (PDT)
-Received: from archlinux-threadripper ([2a01:4f8:222:2f1b::2])
-        by smtp.gmail.com with ESMTPSA id j33sm163382443wre.42.2019.08.02.01.09.43
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Fri, 02 Aug 2019 01:09:44 -0700 (PDT)
-Date:   Fri, 2 Aug 2019 01:09:42 -0700
-From:   Nathan Chancellor <natechancellor@gmail.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Rolf Eike Beer <eb@emlix.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Matt Fleming <matt@codeblueprint.co.uk>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-efi@vger.kernel.org,
-        Linux Kernel Developers List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@google.com>,
-        clang-built-linux <clang-built-linux@googlegroups.com>
-Subject: Re: Building arm64 EFI stub with -fpie breaks build of 4.9.x
- (undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_')
-Message-ID: <20190802080942.GA27595@archlinux-threadripper>
-References: <779905244.a0lJJiZRjM@devpool35>
- <CAKwvOdnegLvkAa+-2uc-GM63HLcucWZtN5OoFvocLs50iLNJLg@mail.gmail.com>
- <CAKwvOdn9g2Z=G_qz84S5xmn2GBNK7T-MWOGYT5C52sP0R=M_-Q@mail.gmail.com>
- <2102708.6BiaULqomI@devpool35>
- <20190802075745.GI26174@kroah.com>
+        id S2403942AbfHBINk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 04:13:40 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:54907 "EHLO
+        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2403892AbfHBINj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 04:13:39 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 7EF4A396;
+        Fri,  2 Aug 2019 04:13:38 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Fri, 02 Aug 2019 04:13:38 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=hmlf4bC9Vk0FOVsRROWxGhLGg/u
+        unUQ/nq5d4O95tew=; b=Ny4OHMQMoqcMrY+tWTzIApNCg+FX+KSqJHYj7abssop
+        toh+VaCKe6MTSJLBM1hcilU6kjZD+5SqXJMahC9SnEwrQpTgyP3dH61g1/7wzpLl
+        4pQWIdvqPdasYEjTPT1qo4RL1Jm29I9XQOAkiW8uTz23yyStsbyMYYc/cQ3ZiwL4
+        A3P6mpanGdTrDMvoJRX49eBccssfSYYpz5qvJ4KxKs3opFuL46qFjnf4DXiips0z
+        V6O6TK4uHIqtyVlb9bv+SWhZgBGUg+YIcWd6S2WHY7o40WaErx8JE6kcooE1DZqL
+        9OLainm9hzArFW7WsFumfrjD3ovexPrZLcdKupch8Iw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=hmlf4b
+        C9Vk0FOVsRROWxGhLGg/uunUQ/nq5d4O95tew=; b=K1DePlk6Gqrk4YpHg+l5Qt
+        ZDBeimBKVcY91nhgIa3NC/J1XzDXrI6Kv16gnRGZFJdZ1zICkPyShFcEg7F9JCTQ
+        HkV2x8gyGO2WuqjApL1FR7wr4TB+1ILhG6Xtlw7Lg6hH3hbOCxohwSSSDBujw+4x
+        k4xj475g8gDfzhlFrvn8mcI/K/aMCpycv2XPqSIOJb2MzXc4bF8gmB7egWka1cc2
+        CFRN9jtL/Z8HzumVhjo16vaPz591A+R7hdTyTGwemgUBbYnQPDe9kI3U32B+N5mk
+        H8lWgI37iEdKVQysIqTrGNYTxAi0Cxd50cjjpBACQIuxTJPNJXQyPdbhfKcgqp6g
+        ==
+X-ME-Sender: <xms:sfBDXYi1lQAfIJB3D7Dy1OkGi2UGbez2V5TKswApwmXXs_Oox8Guag>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrleekgdduvdelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
+    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
+    vehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:sfBDXcgNSa1To1MGB_40mcRldwRciEckmE7CBnnIIVCBIE-jIWoJKQ>
+    <xmx:sfBDXWi4fRRj1eQcOYCPkX-jFhZzRLJv5e53P_7WmL5i-OhlrKh_3Q>
+    <xmx:sfBDXUKxKhLsAsLV9gdeFP29kCuUCJJgTsKkR7QOPqMYZX3I5RQUaA>
+    <xmx:svBDXSQ7Kqp33DubGvo4EQ-1rTJhVe1RmWPc6q0PflOtQBUpksQrOg>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 61E788005C;
+        Fri,  2 Aug 2019 04:13:37 -0400 (EDT)
+Date:   Fri, 2 Aug 2019 10:13:35 +0200
+From:   Greg KH <greg@kroah.com>
+To:     "Yan, Zheng" <zyan@redhat.com>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        idryomov@redhat.com, jlayton@redhat.com, stable@vger.kernel.org
+Subject: Re: [PATCH 8/8] ceph: hold i_ceph_lock when removing caps for
+ freeing inode
+Message-ID: <20190802081335.GJ26174@kroah.com>
+References: <20190523080646.19632-8-zyan@redhat.com>
+ <20190529131452.43F372081C@mail.kernel.org>
+ <1fb32a0f-545c-2ace-3dcd-8df6ca9d32e6@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190802075745.GI26174@kroah.com>
+In-Reply-To: <1fb32a0f-545c-2ace-3dcd-8df6ca9d32e6@redhat.com>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 02, 2019 at 09:57:45AM +0200, Greg KH wrote:
-> On Thu, Jun 06, 2019 at 09:11:00AM +0200, Rolf Eike Beer wrote:
-> > Nick Desaulniers wrote:
-> > > On Wed, Jun 5, 2019 at 10:27 AM Nick Desaulniers
-> > > 
-> > > <ndesaulniers@google.com> wrote:
-> > > > On Wed, Jun 5, 2019 at 9:26 AM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > > > On Wed, Jun 05, 2019 at 05:19:40PM +0200, Rolf Eike Beer wrote:
-> > > > > > I decided to dig out a toy project which uses a DragonBoard 410c. This
-> > > > > > has
-> > > > > > been "running" with kernel 4.9, which I would keep this way for
-> > > > > > unrelated
-> > > > > > reasons. The vanilla 4.9 kernel wasn't bootable back then, but it was
-> > > > > > buildable, which was good enough.
-> > > > > > 
-> > > > > > Upgrading the kernel to 4.9.180 caused the boot to suddenly fail:
-> > > > > > 
-> > > > > > aarch64-unknown-linux-gnueabi-ld:
-> > > > > > ./drivers/firmware/efi/libstub/lib.a(arm64- stub.stub.o): in function
-> > > > > > `handle_kernel_image':
-> > > > > > /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm64-stub.c:
-> > > > > > 63:
-> > > > > > undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_'
-> > > > > > aarch64-unknown-linux-gnueabi-ld:
-> > > > > > ./drivers/firmware/efi/libstub/lib.a(arm64- stub.stub.o): relocation
-> > > > > > R_AARCH64_ADR_PREL_PG_HI21 against symbol
-> > > > > > `__efistub__GLOBAL_OFFSET_TABLE_' which may bind externally can not
-> > > > > > be used when making a shared object; recompile with -fPIC
-> > > > > > /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm64-stub.c:
-> > > > > > 63:
-> > > > > > (.init.text+0xc): dangerous relocation: unsupported relocation
-> > > > > > /tmp/e2/build/linux-4.9.139/Makefile:1001: recipe for target 'vmlinux'
-> > > > > > failed -make[1]: *** [vmlinux] Error 1
-> > > > > > 
-> > > > > > This is caused by commit 27b5ebf61818749b3568354c64a8ec2d9cd5ecca from
-> > > > > > linux-4.9.y (which is 91ee5b21ee026c49e4e7483de69b55b8b47042be),
-> > > > > > reverting
-> > > > > > this commit fixes the build.
-> > > > > > 
-> > > > > > This happens with vanilla binutils 2.32 and gcc 8.3.0 as well as
-> > > > > > 9.1.0. See
-> > > > > > the attached .config for reference.
-> > > > > > 
-> > > > > > If you have questions or patches just ping me.
-> > > > > 
-> > > > > Does Linus's latest tree also fail for you (or 5.1)?
-> > > > > 
-> > > > > Nick, do we need to add another fix that is in mainline for this to work
-> > > > > properly?
-> > > > > 
-> > > > > thanks,
-> > > > > 
-> > > > > greg k-h
-> > > > 
-> > > > Doesn't immediately ring any bells for me.
-> > > 
-> > > Upstream commits:
-> > > dd6846d77469 ("arm64: drop linker script hack to hide __efistub_ symbols")
-> > > 1212f7a16af4 ("scripts/kallsyms: filter arm64's __efistub_ symbols")
-> > > 
-> > > Look related to __efistub__ prefixes on symbols and aren't in stable
-> > > 4.9 (maybe Rolf can try cherry picks of those).
+On Thu, May 30, 2019 at 09:46:35AM +0800, Yan, Zheng wrote:
+> On 5/29/19 9:14 PM, Sasha Levin wrote:
+> > Hi,
 > > 
-> > I now have cherry-picked these commits:
+> > [This is an automated email]
 > > 
-> > dd6846d77469
-> > fdfb69a72522e97f9105a6d39a5be0a465951ed8
-> > 1212f7a16af4
-> > 56067812d5b0e737ac2063e94a50f76b810d6ca3
+> > This commit has been processed because it contains a -stable tag.
+> > The stable tag indicates that it's relevant for the following trees: all
 > > 
-> > The 2 additional ones were needed as dependencies of the others. Nothing of 
-> > this has helped.
+> > The bot has tested the following trees: v5.1.4, v5.0.18, v4.19.45, v4.14.121, v4.9.178, v4.4.180, v3.18.140.
+> > 
+> > v5.1.4: Build OK!
+> > v5.0.18: Failed to apply! Possible dependencies:
+> >      e3ec8d6898f71 ("ceph: send cap releases more aggressively")
+> > 
+> > v4.19.45: Failed to apply! Possible dependencies:
+> >      e3ec8d6898f71 ("ceph: send cap releases more aggressively")
+> > 
+> > v4.14.121: Failed to apply! Possible dependencies:
+> >      a1c6b8358171c ("ceph: define argument structure for handle_cap_grant")
+> >      a57d9064e4ee4 ("ceph: flush pending works before shutdown super")
+> >      e3ec8d6898f71 ("ceph: send cap releases more aggressively")
+> > 
+> > v4.9.178: Failed to apply! Possible dependencies:
+> >      a1c6b8358171c ("ceph: define argument structure for handle_cap_grant")
+> >      a57d9064e4ee4 ("ceph: flush pending works before shutdown super")
+> >      e3ec8d6898f71 ("ceph: send cap releases more aggressively")
+> > 
+> > v4.4.180: Failed to apply! Possible dependencies:
+> >      13d1ad16d05ee ("libceph: move message allocation out of ceph_osdc_alloc_request()")
+> >      34b759b4a22b0 ("ceph: kill ceph_empty_snapc")
+> >      3f1af42ad0fad ("libceph: enable large, variable-sized OSD requests")
+> >      5be0389dac662 ("ceph: re-send AIO write request when getting -EOLDSNAP error")
+> >      7627151ea30bc ("libceph: define new ceph_file_layout structure")
+> >      779fe0fb8e188 ("ceph: rados pool namespace support")
+> >      922dab6134178 ("libceph, rbd: ceph_osd_linger_request, watch/notify v2")
+> >      a1c6b8358171c ("ceph: define argument structure for handle_cap_grant")
+> >      ae458f5a171ba ("libceph: make r_request msg_size calculation clearer")
+> >      c41d13a31fefe ("rbd: use header_oid instead of header_name")
+> >      c8fe9b17d055f ("ceph: Asynchronous IO support")
+> >      d30291b985d18 ("libceph: variable-sized ceph_object_id")
+> >      e3ec8d6898f71 ("ceph: send cap releases more aggressively")
+> > 
+> > v3.18.140: Failed to apply! Possible dependencies:
+> >      10183a69551f7 ("ceph: check OSD caps before read/write")
+> >      28127bdd2f843 ("ceph: convert inline data to normal data before data write")
+> >      31c542a199d79 ("ceph: add inline data to pagecache")
+> >      5be0389dac662 ("ceph: re-send AIO write request when getting -EOLDSNAP error")
+> >      70db4f3629b34 ("ceph: introduce a new inode flag indicating if cached dentries are ordered")
+> >      745a8e3bccbc6 ("ceph: don't pre-allocate space for cap release messages")
+> >      7627151ea30bc ("libceph: define new ceph_file_layout structure")
+> >      779fe0fb8e188 ("ceph: rados pool namespace support")
+> >      83701246aee8f ("ceph: sync read inline data")
+> >      a1c6b8358171c ("ceph: define argument structure for handle_cap_grant")
+> >      affbc19a68f99 ("ceph: make sure syncfs flushes all cap snaps")
+> >      c8fe9b17d055f ("ceph: Asynchronous IO support")
+> >      d30291b985d18 ("libceph: variable-sized ceph_object_id")
+> >      d3383a8e37f80 ("ceph: avoid block operation when !TASK_RUNNING (ceph_mdsc_sync)")
+> >      e3ec8d6898f71 ("ceph: send cap releases more aggressively")
+> >      e96a650a8174e ("ceph, rbd: delete unnecessary checks before two function calls")
+> > 
+> > 
+> > How should we proceed with this patch?
+> > 
 > 
-> Did this ever get resolved, or is it still an issue?
+> please use following patch for old kernels
 > 
-> thanks,
+> Regards
+> Yan, Zheng
 > 
-> greg k-h
+> ---
+> From 55937416f12e096621b06ada7554cacb89d06e97 Mon Sep 17 00:00:00 2001
+> From: "Yan, Zheng" <zyan@redhat.com>
+> Date: Thu, 23 May 2019 11:01:37 +0800
+> Subject: [PATCH] ceph: hold i_ceph_lock when removing caps for freeing inode
 > 
+> ceph_d_revalidate(, LOOKUP_RCU) may call __ceph_caps_issued_mask()
+> on a freeing inode.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: "Yan, Zheng" <zyan@redhat.com>
+> Reviewed-by: Jeff Layton <jlayton@redhat.com>
+> ---
+>  fs/ceph/caps.c | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+> 
+> diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+> index ff5d32cf9578..0fb4e919cdce 100644
+> --- a/fs/ceph/caps.c
+> +++ b/fs/ceph/caps.c
+> @@ -1119,20 +1119,23 @@ static int send_cap_msg(struct cap_msg_args *arg)
+>  }
+> 
+>  /*
+> - * Queue cap releases when an inode is dropped from our cache.  Since
+> - * inode is about to be destroyed, there is no need for i_ceph_lock.
+> + * Queue cap releases when an inode is dropped from our cache.
+>   */
+>  void ceph_queue_caps_release(struct inode *inode)
+>  {
+>  	struct ceph_inode_info *ci = ceph_inode(inode);
+>  	struct rb_node *p;
+> 
+> +	/* lock i_ceph_lock, because ceph_d_revalidate(..., LOOKUP_RCU)
+> +	 * may call __ceph_caps_issued_mask() on a freeing inode. */
+> +	spin_lock(&ci->i_ceph_lock);
+>  	p = rb_first(&ci->i_caps);
+>  	while (p) {
+>  		struct ceph_cap *cap = rb_entry(p, struct ceph_cap, ci_node);
+>  		p = rb_next(p);
+>  		__ceph_remove_cap(cap, true);
+>  	}
+> +	spin_unlock(&ci->i_ceph_lock);
+>  }
+> 
+>  /*
+> -- 
+> 2.17.2
 
-This appears to have been resolved by commit 8fca3c364683 ("efi/libstub:
-Unify command line param parsing") in 4.9.181. I can build defconfig +
-CONFIG_RANDOMIZE_BASE without any issues.
+Thanks for the backport, now queued up.
 
-Cheers,
-Nathan
+greg k-h
