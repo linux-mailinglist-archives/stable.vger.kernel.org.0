@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E01F07F145
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:37:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C51497F11E
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:36:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404796AbfHBJgD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:36:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36658 "EHLO mail.kernel.org"
+        id S2404017AbfHBJgU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:36:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404092AbfHBJf7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:35:59 -0400
+        id S2404845AbfHBJgS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:36:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A76B921773;
-        Fri,  2 Aug 2019 09:35:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B32142183F;
+        Fri,  2 Aug 2019 09:36:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738558;
-        bh=nmPTsWkP88e57Ys91exz3DHHrVrBrLe2/K84VB5KA5U=;
+        s=default; t=1564738578;
+        bh=ypH8/ikrrepBuxnryWfkrCGiNNhMh8PmI7wTcODDPxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m3WJvISrOIfsmty87KQjX/l0/qMAELIIVd3wlPuBDag2psry5EEO2tCT8J8KPMuK1
-         xGkCuCkeypjKoEShhjvQbJ0bZZsC9cCZcZ/eiE+cMiYT8X1/X5rrCFBc+BtREMUOSO
-         PjuYG+/e1xJotPoub/ERL7nfQ8Yy2E9ND4RvCn1M=
+        b=i4AFbmhNu+xPG3m2Y37ySXVkeuYNoWD8Y16pM7knHQxeFnVyRZTA7mP2/G8S6gmjK
+         Wd0FeEb/aVCiLKYQotcCjajl1o3Y3y7wciDXlEquNNe3PITFAGwtaV2znglb3GBwOV
+         EiMN71c7MGbLR6dEEGjQ0+aSGD4x22B6OqfWYjn0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Zhang HongJun <zhanghongjun2@huawei.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.4 143/158] hpet: Fix division by zero in hpet_time_div()
-Date:   Fri,  2 Aug 2019 11:29:24 +0200
-Message-Id: <20190802092231.791993826@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 144/158] ALSA: line6: Fix wrong altsetting for LINE6_PODHD500_1
+Date:   Fri,  2 Aug 2019 11:29:25 +0200
+Message-Id: <20190802092231.916878684@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
 References: <20190802092203.671944552@linuxfoundation.org>
@@ -44,67 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 0c7d37f4d9b8446956e97b7c5e61173cdb7c8522 upstream.
+commit 70256b42caaf3e13c2932c2be7903a73fbe8bb8b upstream.
 
-The base value in do_div() called by hpet_time_div() is truncated from
-unsigned long to uint32_t, resulting in a divide-by-zero exception.
+Commit 7b9584fa1c0b ("staging: line6: Move altsetting to properties")
+set a wrong altsetting for LINE6_PODHD500_1 during refactoring.
 
-UBSAN: Undefined behaviour in ../drivers/char/hpet.c:572:2
-division by zero
-CPU: 1 PID: 23682 Comm: syz-executor.3 Not tainted 4.4.184.x86_64+ #4
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
- 0000000000000000 b573382df1853d00 ffff8800a3287b98 ffffffff81ad7561
- ffff8800a3287c00 ffffffff838b35b0 ffffffff838b3860 ffff8800a3287c20
- 0000000000000000 ffff8800a3287bb0 ffffffff81b8f25e ffffffff838b35a0
-Call Trace:
- [<ffffffff81ad7561>] __dump_stack lib/dump_stack.c:15 [inline]
- [<ffffffff81ad7561>] dump_stack+0xc1/0x120 lib/dump_stack.c:51
- [<ffffffff81b8f25e>] ubsan_epilogue+0x12/0x8d lib/ubsan.c:166
- [<ffffffff81b900cb>] __ubsan_handle_divrem_overflow+0x282/0x2c8 lib/ubsan.c:262
- [<ffffffff823560dd>] hpet_time_div drivers/char/hpet.c:572 [inline]
- [<ffffffff823560dd>] hpet_ioctl_common drivers/char/hpet.c:663 [inline]
- [<ffffffff823560dd>] hpet_ioctl_common.cold+0xa8/0xad drivers/char/hpet.c:577
- [<ffffffff81e63d56>] hpet_ioctl+0xc6/0x180 drivers/char/hpet.c:676
- [<ffffffff81711590>] vfs_ioctl fs/ioctl.c:43 [inline]
- [<ffffffff81711590>] file_ioctl fs/ioctl.c:470 [inline]
- [<ffffffff81711590>] do_vfs_ioctl+0x6e0/0xf70 fs/ioctl.c:605
- [<ffffffff81711eb4>] SYSC_ioctl fs/ioctl.c:622 [inline]
- [<ffffffff81711eb4>] SyS_ioctl+0x94/0xc0 fs/ioctl.c:613
- [<ffffffff82846003>] tracesys_phase2+0x90/0x95
+Set the correct altsetting number to fix the issue.
 
-The main C reproducer autogenerated by syzkaller,
-
-  syscall(__NR_mmap, 0x20000000, 0x1000000, 3, 0x32, -1, 0);
-  memcpy((void*)0x20000100, "/dev/hpet\000", 10);
-  syscall(__NR_openat, 0xffffffffffffff9c, 0x20000100, 0, 0);
-  syscall(__NR_ioctl, r[0], 0x40086806, 0x40000000000000);
-
-Fix it by using div64_ul().
-
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Signed-off-by: Zhang HongJun <zhanghongjun2@huawei.com>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20190711132757.130092-1-wangkefeng.wang@huawei.com
+BugLink: https://bugs.launchpad.net/bugs/1790595
+Fixes: 7b9584fa1c0b ("staging: line6: Move altsetting to properties")
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/hpet.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ sound/usb/line6/podhd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/hpet.c
-+++ b/drivers/char/hpet.c
-@@ -569,8 +569,7 @@ static inline unsigned long hpet_time_di
- 	unsigned long long m;
- 
- 	m = hpets->hp_tick_freq + (dis >> 1);
--	do_div(m, dis);
--	return (unsigned long)m;
-+	return div64_ul(m, dis);
- }
- 
- static int
+--- a/sound/usb/line6/podhd.c
++++ b/sound/usb/line6/podhd.c
+@@ -155,7 +155,7 @@ static const struct line6_properties pod
+ 		.capabilities	= LINE6_CAP_CONTROL
+ 				| LINE6_CAP_PCM
+ 				| LINE6_CAP_HWMON,
+-		.altsetting = 1,
++		.altsetting = 0,
+ 		.ep_ctrl_r = 0x81,
+ 		.ep_ctrl_w = 0x01,
+ 		.ep_audio_r = 0x86,
 
 
