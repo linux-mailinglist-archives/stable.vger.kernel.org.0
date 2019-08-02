@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B32937F9DD
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:30:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEB0E7F9D2
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:30:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403916AbfHBNaI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:30:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35218 "EHLO mail.kernel.org"
+        id S1727403AbfHBNYk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:24:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389224AbfHBNY2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:24:28 -0400
+        id S2387722AbfHBNYj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:24:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BAC3217D4;
-        Fri,  2 Aug 2019 13:24:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 316FD20644;
+        Fri,  2 Aug 2019 13:24:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752268;
-        bh=a5PkzckWTg221NMOOt/P5PkDXBIYIDBB3qKCU7mMVE4=;
+        s=default; t=1564752278;
+        bh=U1T719pxBFavE47aqfrtOyDKu+wqDEOi91URDw+I9Xc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=icileZ3pokQibgDsVZBneKXiYQ64K6L2KXtohOFNKJPaiTclHLRuct5+88D70+3ab
-         oDOB+bcMrZ9Tn+gUDPQh9ylG3cABUw/Wx3VRYPaUQ10yjy5/IOs0RrKKZgOmQTr+f4
-         +SNHUWVsuA+LExrRzn0WJAJTnAVUMwnLzUe8Xymo=
+        b=Cf1CebWWkdtMKmUkaW1MdogevWCQOZ5zkCBAgFEwRfL81Xb9AeNZZF+QANhOods+J
+         hWAk1EOu68jqo53tzfYE2iSPeJ7uA19egnzbGqwFaphxZc41PDg2BDgTLp1rf3Vh06
+         NbYJk+e7xfAXAhmtusYKc3DDws4NrF/r7k5LX2hw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Laura Garcia Liebana <nevola@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 04/30] netfilter: nft_hash: fix symhash with modulus one
-Date:   Fri,  2 Aug 2019 09:23:56 -0400
-Message-Id: <20190802132422.13963-4-sashal@kernel.org>
+Cc:     Thomas Tai <thomas.tai@oracle.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 06/30] iscsi_ibft: make ISCSI_IBFT dependson ACPI instead of ISCSI_IBFT_FIND
+Date:   Fri,  2 Aug 2019 09:23:58 -0400
+Message-Id: <20190802132422.13963-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802132422.13963-1-sashal@kernel.org>
 References: <20190802132422.13963-1-sashal@kernel.org>
@@ -45,39 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laura Garcia Liebana <nevola@gmail.com>
+From: Thomas Tai <thomas.tai@oracle.com>
 
-[ Upstream commit 28b1d6ef53e3303b90ca8924bb78f31fa527cafb ]
+[ Upstream commit 94bccc34071094c165c79b515d21b63c78f7e968 ]
 
-The rule below doesn't work as the kernel raises -ERANGE.
+iscsi_ibft can use ACPI to find the iBFT entry during bootup,
+currently, ISCSI_IBFT depends on ISCSI_IBFT_FIND which is
+a X86 legacy way to find the iBFT by searching through the
+low memory. This patch changes the dependency so that other
+arch like ARM64 can use ISCSI_IBFT as long as the arch supports
+ACPI.
 
-nft add rule netdev nftlb lb01 ip daddr set \
-	symhash mod 1 map { 0 : 192.168.0.10 } fwd to "eth0"
+ibft_init() needs to use the global variable ibft_addr declared
+in iscsi_ibft_find.c. A #ifndef CONFIG_ISCSI_IBFT_FIND is needed
+to declare the variable if CONFIG_ISCSI_IBFT_FIND is not selected.
+Moving ibft_addr into the iscsi_ibft.c does not work because if
+ISCSI_IBFT is selected as a module, the arch/x86/kernel/setup.c won't
+be able to find the variable at compile time.
 
-This patch allows to use the symhash modulus with one
-element, in the same way that the other types of hashes and
-algorithms that uses the modulus parameter.
-
-Signed-off-by: Laura Garcia Liebana <nevola@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Thomas Tai <thomas.tai@oracle.com>
+Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_hash.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/firmware/Kconfig      | 5 +++--
+ drivers/firmware/iscsi_ibft.c | 4 ++++
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nft_hash.c b/net/netfilter/nft_hash.c
-index 24f2f7567ddb7..010a565b40001 100644
---- a/net/netfilter/nft_hash.c
-+++ b/net/netfilter/nft_hash.c
-@@ -131,7 +131,7 @@ static int nft_symhash_init(const struct nft_ctx *ctx,
- 	priv->dreg = nft_parse_register(tb[NFTA_HASH_DREG]);
+diff --git a/drivers/firmware/Kconfig b/drivers/firmware/Kconfig
+index 6e4ed5a9c6fdc..42c4ff75281be 100644
+--- a/drivers/firmware/Kconfig
++++ b/drivers/firmware/Kconfig
+@@ -156,7 +156,7 @@ config DMI_SCAN_MACHINE_NON_EFI_FALLBACK
  
- 	priv->modulus = ntohl(nla_get_be32(tb[NFTA_HASH_MODULUS]));
--	if (priv->modulus <= 1)
-+	if (priv->modulus < 1)
- 		return -ERANGE;
+ config ISCSI_IBFT_FIND
+ 	bool "iSCSI Boot Firmware Table Attributes"
+-	depends on X86 && ACPI
++	depends on X86 && ISCSI_IBFT
+ 	default n
+ 	help
+ 	  This option enables the kernel to find the region of memory
+@@ -167,7 +167,8 @@ config ISCSI_IBFT_FIND
+ config ISCSI_IBFT
+ 	tristate "iSCSI Boot Firmware Table Attributes module"
+ 	select ISCSI_BOOT_SYSFS
+-	depends on ISCSI_IBFT_FIND && SCSI && SCSI_LOWLEVEL
++	select ISCSI_IBFT_FIND if X86
++	depends on ACPI && SCSI && SCSI_LOWLEVEL
+ 	default	n
+ 	help
+ 	  This option enables support for detection and exposing of iSCSI
+diff --git a/drivers/firmware/iscsi_ibft.c b/drivers/firmware/iscsi_ibft.c
+index 132b9bae4b6aa..220bbc91cebdb 100644
+--- a/drivers/firmware/iscsi_ibft.c
++++ b/drivers/firmware/iscsi_ibft.c
+@@ -93,6 +93,10 @@ MODULE_DESCRIPTION("sysfs interface to BIOS iBFT information");
+ MODULE_LICENSE("GPL");
+ MODULE_VERSION(IBFT_ISCSI_VERSION);
  
- 	if (priv->offset + priv->modulus - 1 < priv->offset)
++#ifndef CONFIG_ISCSI_IBFT_FIND
++struct acpi_table_ibft *ibft_addr;
++#endif
++
+ struct ibft_hdr {
+ 	u8 id;
+ 	u8 version;
 -- 
 2.20.1
 
