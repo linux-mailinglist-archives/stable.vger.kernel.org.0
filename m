@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BFE97F20B
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:44:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE8BF7F20E
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:44:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731232AbfHBJob (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:44:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47904 "EHLO mail.kernel.org"
+        id S2391526AbfHBJoh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:44:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405252AbfHBJoa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:44:30 -0400
+        id S2405267AbfHBJog (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:44:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C13C120880;
-        Fri,  2 Aug 2019 09:44:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01739206A2;
+        Fri,  2 Aug 2019 09:44:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739070;
-        bh=Ydzo/M4pzNaguWdIFX4/lUmoCl34IQOmszNk0yMUbmw=;
+        s=default; t=1564739075;
+        bh=q9sMUCzCjEnEdAMJ/VmD7ONcEsB2+1D51FFCJLn0kZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CnRJ5jPhQqqWlKrQrR5hjnWwCrOgq7j0bvzQyh+VaUwjuIgyPnbS/o800TEVO/Ala
-         IJFfai0i2QDrNrlTtt3qILRsstS3VWyJNhe/xoPvpxqOunHrjU7H+gcX6ABZFzZl1D
-         CM49EqtEreUeLcFa7fv6dCcqHgbmifaxNMNeV5jM=
+        b=aEOWuYcWFKoe5KtR0f0YhrrJMJMXmbKYMo8R/Nxy8tVBaUMXcjnY9OLAhG26Zwb2z
+         w7AaS19djJdn5bLSFL2lZc88etWMqryCSfS1Yrh/jHHi+yZc740hZDk2C4J3E70q9N
+         74b85Q43/u6if+rGEyspPw/MtdjIiOowYlRLL0HU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>
-Subject: [PATCH 4.9 086/223] iwlwifi: pcie: dont service an interrupt that was masked
-Date:   Fri,  2 Aug 2019 11:35:11 +0200
-Message-Id: <20190802092244.613286921@linuxfoundation.org>
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.9 088/223] NFSv4: Handle the special Linux file open access mode
+Date:   Fri,  2 Aug 2019 11:35:13 +0200
+Message-Id: <20190802092244.762091182@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -44,72 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 3b57a10ca14c619707398dc58fe5ece18c95b20b upstream.
+commit 44942b4e457beda00981f616402a1a791e8c616e upstream.
 
-Sometimes the register status can include interrupts that
-were masked. We can, for example, get the RF-Kill bit set
-in the interrupt status register although this interrupt
-was masked. Then if we get the ALIVE interrupt (for example)
-that was not masked, we need to *not* service the RF-Kill
-interrupt.
-Fix this in the MSI-X interrupt handler.
+According to the open() manpage, Linux reserves the access mode 3
+to mean "check for read and write permission on the file and return
+a file descriptor that can't be used for reading or writing."
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Currently, the NFSv4 code will ask the server to open the file,
+and will use an incorrect share access mode of 0. Since it has
+an incorrect share access mode, the client later forgets to send
+a corresponding close, meaning it can leak stateids on the server.
+
+Fixes: ce4ef7c0a8a05 ("NFS: Split out NFS v4 file operations")
+Cc: stable@vger.kernel.org # 3.6+
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intel/iwlwifi/pcie/rx.c |   27 +++++++++++++++++++++------
- 1 file changed, 21 insertions(+), 6 deletions(-)
+ fs/nfs/inode.c    |    1 +
+ fs/nfs/nfs4file.c |    2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
-@@ -1901,10 +1901,18 @@ irqreturn_t iwl_pcie_irq_msix_handler(in
- 		return IRQ_NONE;
- 	}
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -950,6 +950,7 @@ int nfs_open(struct inode *inode, struct
+ 	nfs_fscache_open_file(inode, filp);
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(nfs_open);
  
--	if (iwl_have_debug_level(IWL_DL_ISR))
--		IWL_DEBUG_ISR(trans, "ISR inta_fh 0x%08x, enabled 0x%08x\n",
--			      inta_fh,
-+	if (iwl_have_debug_level(IWL_DL_ISR)) {
-+		IWL_DEBUG_ISR(trans,
-+			      "ISR inta_fh 0x%08x, enabled (sw) 0x%08x (hw) 0x%08x\n",
-+			      inta_fh, trans_pcie->fh_mask,
- 			      iwl_read32(trans, CSR_MSIX_FH_INT_MASK_AD));
-+		if (inta_fh & ~trans_pcie->fh_mask)
-+			IWL_DEBUG_ISR(trans,
-+				      "We got a masked interrupt (0x%08x)\n",
-+				      inta_fh & ~trans_pcie->fh_mask);
-+	}
-+
-+	inta_fh &= trans_pcie->fh_mask;
+ /*
+  * This function is called whenever some part of NFS notices that
+--- a/fs/nfs/nfs4file.c
++++ b/fs/nfs/nfs4file.c
+@@ -49,7 +49,7 @@ nfs4_file_open(struct inode *inode, stru
+ 		return err;
  
- 	if ((trans_pcie->shared_vec_mask & IWL_SHARED_IRQ_NON_RX) &&
- 	    inta_fh & MSIX_FH_INT_CAUSES_Q0) {
-@@ -1943,11 +1951,18 @@ irqreturn_t iwl_pcie_irq_msix_handler(in
- 	}
+ 	if ((openflags & O_ACCMODE) == 3)
+-		openflags--;
++		return nfs_open(inode, filp);
  
- 	/* After checking FH register check HW register */
--	if (iwl_have_debug_level(IWL_DL_ISR))
-+	if (iwl_have_debug_level(IWL_DL_ISR)) {
- 		IWL_DEBUG_ISR(trans,
--			      "ISR inta_hw 0x%08x, enabled 0x%08x\n",
--			      inta_hw,
-+			      "ISR inta_hw 0x%08x, enabled (sw) 0x%08x (hw) 0x%08x\n",
-+			      inta_hw, trans_pcie->hw_mask,
- 			      iwl_read32(trans, CSR_MSIX_HW_INT_MASK_AD));
-+		if (inta_hw & ~trans_pcie->hw_mask)
-+			IWL_DEBUG_ISR(trans,
-+				      "We got a masked interrupt 0x%08x\n",
-+				      inta_hw & ~trans_pcie->hw_mask);
-+	}
-+
-+	inta_hw &= trans_pcie->hw_mask;
- 
- 	/* Alive notification via Rx interrupt will do the real work */
- 	if (inta_hw & MSIX_HW_INT_CAUSES_REG_ALIVE) {
+ 	/* We can't create new files here */
+ 	openflags &= ~(O_CREAT|O_EXCL);
 
 
