@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB9627F23A
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:46:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 730FC7F28C
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:49:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405597AbfHBJqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:46:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51102 "EHLO mail.kernel.org"
+        id S2392061AbfHBJqr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:46:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405590AbfHBJqj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:46:39 -0400
+        id S2405599AbfHBJql (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:46:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2044206A2;
-        Fri,  2 Aug 2019 09:46:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60CEE2086A;
+        Fri,  2 Aug 2019 09:46:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739198;
-        bh=yv4Z6jqTHYlzkS0iPIq74LRoSFRLc4Abn0+Jl8/RXDU=;
+        s=default; t=1564739200;
+        bh=NZBYPz9/upGof+pf+7aPQwh2oUQ15oTbaqLDqA5xc1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wKJ0CtdKINV6FO7JJNR7qGQB1pHJa5Ho707hl8K5TZCeucHDZqhvkWkVQ1vXtsBSx
-         5TadSzR5JxfMOXKOKGzllN6JLwF5YPqjSGS9Ar+T39okPwmlg87XNX66u4GEzUAT3P
-         begvW/CpAWmvM+j3oQK67aeA+rSmtihrXfaaSxQ0=
+        b=tRQOhlXoNdQIRTUzn/zfkE3k7dYCGQz0hfzCJh0zxPW8FrBGzkbd26zOiKLzXAMpd
+         UzSp06/hae9/sWjqUxBt/qdoTx8BUlXtgN+DmuwBWo3/P5gQYZpNf8b0FS58pxTLLH
+         iCx+YaP51l/dYk9u52nC0Pvmg1E3Q0kCFTWd6TmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Hurley <john.hurley@netronome.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Simon Horman <simon.horman@netronome.com>,
-        Pravin B Shelar <pshelar@ovn.org>,
+        stable@vger.kernel.org, Yang Wei <albin_yang@163.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 137/223] net: openvswitch: fix csum updates for MPLS actions
-Date:   Fri,  2 Aug 2019 11:36:02 +0200
-Message-Id: <20190802092247.694541222@linuxfoundation.org>
+Subject: [PATCH 4.9 138/223] nfc: fix potential illegal memory access
+Date:   Fri,  2 Aug 2019 11:36:03 +0200
+Message-Id: <20190802092247.734370576@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -46,73 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Hurley <john.hurley@netronome.com>
+From: Yang Wei <albin_yang@163.com>
 
-[ Upstream commit 0e3183cd2a64843a95b62f8bd4a83605a4cf0615 ]
+[ Upstream commit dd006fc434e107ef90f7de0db9907cbc1c521645 ]
 
-Skbs may have their checksum value populated by HW. If this is a checksum
-calculated over the entire packet then the CHECKSUM_COMPLETE field is
-marked. Changes to the data pointer on the skb throughout the network
-stack still try to maintain this complete csum value if it is required
-through functions such as skb_postpush_rcsum.
+The frags_q is not properly initialized, it may result in illegal memory
+access when conn_info is NULL.
+The "goto free_exit" should be replaced by "goto exit".
 
-The MPLS actions in Open vSwitch modify a CHECKSUM_COMPLETE value when
-changes are made to packet data without a push or a pull. This occurs when
-the ethertype of the MAC header is changed or when MPLS lse fields are
-modified.
-
-The modification is carried out using the csum_partial function to get the
-csum of a buffer and add it into the larger checksum. The buffer is an
-inversion of the data to be removed followed by the new data. Because the
-csum is calculated over 16 bits and these values align with 16 bits, the
-effect is the removal of the old value from the CHECKSUM_COMPLETE and
-addition of the new value.
-
-However, the csum fed into the function and the outcome of the
-calculation are also inverted. This would only make sense if it was the
-new value rather than the old that was inverted in the input buffer.
-
-Fix the issue by removing the bit inverts in the csum_partial calculation.
-
-The bug was verified and the fix tested by comparing the folded value of
-the updated CHECKSUM_COMPLETE value with the folded value of a full
-software checksum calculation (reset skb->csum to 0 and run
-skb_checksum_complete(skb)). Prior to the fix the outcomes differed but
-after they produce the same result.
-
-Fixes: 25cd9ba0abc0 ("openvswitch: Add basic MPLS support to kernel")
-Fixes: bc7cc5999fd3 ("openvswitch: update checksum in {push,pop}_mpls")
-Signed-off-by: John Hurley <john.hurley@netronome.com>
-Reviewed-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: Simon Horman <simon.horman@netronome.com>
-Acked-by: Pravin B Shelar <pshelar@ovn.org>
+Signed-off-by: Yang Wei <albin_yang@163.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/openvswitch/actions.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ net/nfc/nci/data.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/openvswitch/actions.c
-+++ b/net/openvswitch/actions.c
-@@ -150,8 +150,7 @@ static void update_ethertype(struct sk_b
- 	if (skb->ip_summed == CHECKSUM_COMPLETE) {
- 		__be16 diff[] = { ~(hdr->h_proto), ethertype };
- 
--		skb->csum = ~csum_partial((char *)diff, sizeof(diff),
--					~skb->csum);
-+		skb->csum = csum_partial((char *)diff, sizeof(diff), skb->csum);
+--- a/net/nfc/nci/data.c
++++ b/net/nfc/nci/data.c
+@@ -119,7 +119,7 @@ static int nci_queue_tx_data_frags(struc
+ 	conn_info = nci_get_conn_info_by_conn_id(ndev, conn_id);
+ 	if (!conn_info) {
+ 		rc = -EPROTO;
+-		goto free_exit;
++		goto exit;
  	}
  
- 	hdr->h_proto = ethertype;
-@@ -239,8 +238,7 @@ static int set_mpls(struct sk_buff *skb,
- 	if (skb->ip_summed == CHECKSUM_COMPLETE) {
- 		__be32 diff[] = { ~(stack->label_stack_entry), lse };
- 
--		skb->csum = ~csum_partial((char *)diff, sizeof(diff),
--					  ~skb->csum);
-+		skb->csum = csum_partial((char *)diff, sizeof(diff), skb->csum);
- 	}
- 
- 	stack->label_stack_entry = lse;
+ 	__skb_queue_head_init(&frags_q);
 
 
