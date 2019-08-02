@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2E067F13F
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:37:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E453E7F115
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:35:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403929AbfHBJfq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:35:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36388 "EHLO mail.kernel.org"
+        id S2403972AbfHBJfs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:35:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403872AbfHBJfq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:35:46 -0400
+        id S2403951AbfHBJfs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:35:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B8BED21773;
-        Fri,  2 Aug 2019 09:35:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C43F217D4;
+        Fri,  2 Aug 2019 09:35:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738545;
-        bh=0FbBd3pyZ7Y+Bj0onaTvlclQ+qfFsVs8zuceAJnrOYo=;
+        s=default; t=1564738547;
+        bh=GEH+uPofXaxBZWYuFfTZ7w7GMA0dFFwr7imYVc2tTAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C0AgN/Dg/mCXGXJzKZod4zigASZVPtmndzko+7clE72pndD1B8rF3+FTiJ2sei7cV
-         ZnVSj1nUd0VJ1I0EAq+C3UxFFF0HLudGb2a2P9+FMS7Dpx1VaUpLFZv0Q1pUPra/Uy
-         adXMkCwJM9Cvrr2syrDQk0yg3uxeW5pA/Cz8h8Hw=
+        b=stZB2COi7fQkfq5viOq0Atw1q+thgVZraacZMddMIgqb7eIfNclDryD2gMDDwkgfl
+         niSNV4Ga5J9xrfPJzgxg42j4889xwZfX74yPreKJLGy3ks29Y58K27pHelcvQ3jXpB
+         +TV0sQOZtoL/KUTaceyLRG6Z9Ls48S/oSroxI/30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Numfor Mbiziwo-Tiapo <nums@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Drayton <mbd@fb.com>, Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Ocean Chen <oceanchen@google.com>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 129/158] perf test mmap-thread-lookup: Initialize variable to suppress memory sanitizer warning
-Date:   Fri,  2 Aug 2019 11:29:10 +0200
-Message-Id: <20190802092229.709204067@linuxfoundation.org>
+Subject: [PATCH 4.4 130/158] f2fs: avoid out-of-range memory access
+Date:   Fri,  2 Aug 2019 11:29:11 +0200
+Message-Id: <20190802092229.871546373@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
 References: <20190802092203.671944552@linuxfoundation.org>
@@ -50,51 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4e4cf62b37da5ff45c904a3acf242ab29ed5881d ]
+[ Upstream commit 56f3ce675103e3fb9e631cfb4131fc768bc23e9a ]
 
-Running the 'perf test' command after building perf with a memory
-sanitizer causes a warning that says:
+blkoff_off might over 512 due to fs corrupt or security
+vulnerability. That should be checked before being using.
 
-  WARNING: MemorySanitizer: use-of-uninitialized-value... in mmap-thread-lookup.c
+Use ENTRIES_IN_SUM to protect invalid value in cur_data_blkoff.
 
-Initializing the go variable to 0 silences this harmless warning.
-
-Committer warning:
-
-This was harmless, just a simple test writing whatever was at that
-sizeof(int) memory area just to signal another thread blocked reading
-that file created with pipe(). Initialize it tho so that we don't get
-this warning.
-
-Signed-off-by: Numfor Mbiziwo-Tiapo <nums@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Drayton <mbd@fb.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Link: http://lkml.kernel.org/r/20190702173716.181223-1-nums@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Ocean Chen <oceanchen@google.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/tests/mmap-thread-lookup.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/f2fs/segment.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/tools/perf/tests/mmap-thread-lookup.c b/tools/perf/tests/mmap-thread-lookup.c
-index 145050e2e544..195ba31e2f35 100644
---- a/tools/perf/tests/mmap-thread-lookup.c
-+++ b/tools/perf/tests/mmap-thread-lookup.c
-@@ -49,7 +49,7 @@ static void *thread_fn(void *arg)
- {
- 	struct thread_data *td = arg;
- 	ssize_t ret;
--	int go;
-+	int go = 0;
- 
- 	if (thread_init(td))
- 		return NULL;
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index 6802cd754eda..014bee5c0e75 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -1510,6 +1510,11 @@ static int read_compacted_summaries(struct f2fs_sb_info *sbi)
+ 		seg_i = CURSEG_I(sbi, i);
+ 		segno = le32_to_cpu(ckpt->cur_data_segno[i]);
+ 		blk_off = le16_to_cpu(ckpt->cur_data_blkoff[i]);
++		if (blk_off > ENTRIES_IN_SUM) {
++			f2fs_bug_on(sbi, 1);
++			f2fs_put_page(page, 1);
++			return -EFAULT;
++		}
+ 		seg_i->next_segno = segno;
+ 		reset_curseg(sbi, i, 0);
+ 		seg_i->alloc_type = ckpt->alloc_type[i];
 -- 
 2.20.1
 
