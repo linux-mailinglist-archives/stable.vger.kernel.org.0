@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06AFB7F8A2
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:22:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D1287F8A0
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:22:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393537AbfHBNVO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:21:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59702 "EHLO mail.kernel.org"
+        id S2393535AbfHBNVN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:21:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393531AbfHBNVM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:21:12 -0400
+        id S2393513AbfHBNVN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:21:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B5952173E;
-        Fri,  2 Aug 2019 13:21:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D433B21841;
+        Fri,  2 Aug 2019 13:21:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752071;
-        bh=gijZ38w2GHhnegH5FJ/NBBA0xopWh1T6sTAr9SKBQzI=;
+        s=default; t=1564752072;
+        bh=1kTjorHKug1z3+zFnC5XiWcgikyUykEsK13olvWbKPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=alemIp2yrPVhqs0Jy7y+VV896RVcHemiwGPGfflSjgeMF4rxDPRHTYYV9KUQntETC
-         qYf7Kbf8BjMcGLMcwyFni4AEEFCU0mCuMuZQEThTJrDbZ7KxatszuMhyP6foAUGSYF
-         1AlA5RxOUOx8Cy0G5qr7KOrZXiYSq78RVebcaKYc=
+        b=gQIBhHvuS02pT/aBbxjg/vZDDDhNwLFWzH3U0q9vxl9NMHHkeW7A9jgBqQt18FwC8
+         7tnhiNYNrqTpuNVxj0eN4NOZlGZc/CvcZ7zhWKesXyqUoc/9UJriZKsoKQcTk5NYM3
+         UAoLem/NZ4xMcJICoYiUPawPprs2VqLN0XHw/uWI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Morse <james.morse@arm.com>, Will Deacon <will@kernel.org>,
+Cc:     Dmitry Safonov <dima@arista.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Joerg Roedel <joro@8bytes.org>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        iommu@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 39/76] arm64: entry: SP Alignment Fault doesn't write to FAR_EL1
-Date:   Fri,  2 Aug 2019 09:19:13 -0400
-Message-Id: <20190802131951.11600-39-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 40/76] iommu/vt-d: Check if domain->pgd was allocated
+Date:   Fri,  2 Aug 2019 09:19:14 -0400
+Message-Id: <20190802131951.11600-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
 References: <20190802131951.11600-1-sashal@kernel.org>
@@ -42,103 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Dmitry Safonov <dima@arista.com>
 
-[ Upstream commit 40ca0ce56d4bb889dc43b455c55398468115569a ]
+[ Upstream commit 3ee9eca760e7d0b68c55813243de66bbb499dc3b ]
 
-Comparing the arm-arm's  pseudocode for AArch64.PCAlignmentFault() with
-AArch64.SPAlignmentFault() shows that SP faults don't copy the faulty-SP
-to FAR_EL1, but this is where we read from, and the address we provide
-to user-space with the BUS_ADRALN signal.
+There is a couple of places where on domain_init() failure domain_exit()
+is called. While currently domain_init() can fail only if
+alloc_pgtable_page() has failed.
 
-For user-space this value will be UNKNOWN due to the previous ERET to
-user-space. If the last value is preserved, on systems with KASLR or KPTI
-this will be the user-space link-register left in FAR_EL1 by tramp_exit().
-Fix this to retrieve the original sp_el0 value, and pass this to
-do_sp_pc_fault().
+Make domain_exit() check if domain->pgd present, before calling
+domain_unmap(), as it theoretically should crash on clearing pte entries
+in dma_pte_clear_level().
 
-SP alignment faults from EL1 will cause us to take the fault again when
-trying to store the pt_regs. This eventually takes us to the overflow
-stack. Remove the ESR_ELx_EC_SP_ALIGN check as we will never make it
-this far.
-
-Fixes: 60ffc30d5652 ("arm64: Exception handling")
-Signed-off-by: James Morse <james.morse@arm.com>
-[will: change label name and fleshed out comment]
-Signed-off-by: Will Deacon <will@kernel.org>
+Cc: David Woodhouse <dwmw2@infradead.org>
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: iommu@lists.linux-foundation.org
+Signed-off-by: Dmitry Safonov <dima@arista.com>
+Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/entry.S | 22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ drivers/iommu/intel-iommu.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-index 9cdc4592da3ef..320a30dbe35ef 100644
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -586,10 +586,8 @@ el1_sync:
- 	b.eq	el1_ia
- 	cmp	x24, #ESR_ELx_EC_SYS64		// configurable trap
- 	b.eq	el1_undef
--	cmp	x24, #ESR_ELx_EC_SP_ALIGN	// stack alignment exception
--	b.eq	el1_sp_pc
- 	cmp	x24, #ESR_ELx_EC_PC_ALIGN	// pc alignment exception
--	b.eq	el1_sp_pc
-+	b.eq	el1_pc
- 	cmp	x24, #ESR_ELx_EC_UNKNOWN	// unknown exception in EL1
- 	b.eq	el1_undef
- 	cmp	x24, #ESR_ELx_EC_BREAKPT_CUR	// debug exception in EL1
-@@ -611,9 +609,11 @@ el1_da:
- 	bl	do_mem_abort
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index 2101601adf57d..1ad24367373f4 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -1900,7 +1900,6 @@ static int domain_init(struct dmar_domain *domain, struct intel_iommu *iommu,
  
- 	kernel_exit 1
--el1_sp_pc:
-+el1_pc:
- 	/*
--	 * Stack or PC alignment exception handling
-+	 * PC alignment exception handling. We don't handle SP alignment faults,
-+	 * since we will have hit a recursive exception when trying to push the
-+	 * initial pt_regs.
- 	 */
- 	mrs	x0, far_el1
- 	inherit_daif	pstate=x23, tmp=x2
-@@ -732,9 +732,9 @@ el0_sync:
- 	ccmp	x24, #ESR_ELx_EC_WFx, #4, ne
- 	b.eq	el0_sys
- 	cmp	x24, #ESR_ELx_EC_SP_ALIGN	// stack alignment exception
--	b.eq	el0_sp_pc
-+	b.eq	el0_sp
- 	cmp	x24, #ESR_ELx_EC_PC_ALIGN	// pc alignment exception
--	b.eq	el0_sp_pc
-+	b.eq	el0_pc
- 	cmp	x24, #ESR_ELx_EC_UNKNOWN	// unknown exception in EL0
- 	b.eq	el0_undef
- 	cmp	x24, #ESR_ELx_EC_BREAKPT_LOW	// debug exception in EL0
-@@ -758,7 +758,7 @@ el0_sync_compat:
- 	cmp	x24, #ESR_ELx_EC_FP_EXC32	// FP/ASIMD exception
- 	b.eq	el0_fpsimd_exc
- 	cmp	x24, #ESR_ELx_EC_PC_ALIGN	// pc alignment exception
--	b.eq	el0_sp_pc
-+	b.eq	el0_pc
- 	cmp	x24, #ESR_ELx_EC_UNKNOWN	// unknown exception in EL0
- 	b.eq	el0_undef
- 	cmp	x24, #ESR_ELx_EC_CP15_32	// CP15 MRC/MCR trap
-@@ -858,11 +858,15 @@ el0_fpsimd_exc:
- 	mov	x1, sp
- 	bl	do_fpsimd_exc
- 	b	ret_to_user
-+el0_sp:
-+	ldr	x26, [sp, #S_SP]
-+	b	el0_sp_pc
-+el0_pc:
-+	mrs	x26, far_el1
- el0_sp_pc:
- 	/*
- 	 * Stack or PC alignment exception handling
- 	 */
--	mrs	x26, far_el1
- 	gic_prio_kentry_setup tmp=x0
- 	enable_da_f
- #ifdef CONFIG_TRACE_IRQFLAGS
+ static void domain_exit(struct dmar_domain *domain)
+ {
+-	struct page *freelist;
+ 
+ 	/* Remove associated devices and clear attached or cached domains */
+ 	rcu_read_lock();
+@@ -1910,9 +1909,12 @@ static void domain_exit(struct dmar_domain *domain)
+ 	/* destroy iovas */
+ 	put_iova_domain(&domain->iovad);
+ 
+-	freelist = domain_unmap(domain, 0, DOMAIN_MAX_PFN(domain->gaw));
++	if (domain->pgd) {
++		struct page *freelist;
+ 
+-	dma_free_pagelist(freelist);
++		freelist = domain_unmap(domain, 0, DOMAIN_MAX_PFN(domain->gaw));
++		dma_free_pagelist(freelist);
++	}
+ 
+ 	free_domain_mem(domain);
+ }
 -- 
 2.20.1
 
