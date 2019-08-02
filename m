@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B79C87F4A4
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:07:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A3DD7F480
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:05:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390252AbfHBJcK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:32:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58872 "EHLO mail.kernel.org"
+        id S2391174AbfHBJcM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:32:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391145AbfHBJcJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:32:09 -0400
+        id S2391169AbfHBJcL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:32:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 200B9217F5;
-        Fri,  2 Aug 2019 09:32:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B011B217D7;
+        Fri,  2 Aug 2019 09:32:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738328;
-        bh=C9P/y3eAGQJwazaKIDv0xif61c899R6yFZU2SAGmbxk=;
+        s=default; t=1564738331;
+        bh=JLeOArumhw3pHEpAq0cX2sLAqcrHiDyam2CGdvxGhxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IWw4nnwxacuPHPCW3WTWmQ/VHcKzosnKRppNmUWVmSAnZQhG3b73RgEV6cUnHuyJr
-         D8p5UpQKjJ1Ay/oUMMg8cWln8U9gQ211/5YATud7Zh24W0gqkUvfbPRca1Jx0Ol1kn
-         yEJnH8wUEsuHHtayQ21EOZk/tgDn0yr2A2YyaIOk=
+        b=xFoIkTsgbxuz46FkXzPsVNCqFSz3plMoFZNuqTaCq+VU7uitiYr78vWrxdMXxEm9C
+         zXjZWwNgkfaqu2GYMA4EnLzEVBE5anTzkx0ouxQCbsrJebtc8mh+88MneJPOmKAoEO
+         XDfEEpPNyk0GQX1UJOH+ltOOYG5cYdvccLeINr2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.4 061/158] NFSv4: Handle the special Linux file open access mode
-Date:   Fri,  2 Aug 2019 11:28:02 +0200
-Message-Id: <20190802092216.428259836@linuxfoundation.org>
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.4 062/158] lib/scatterlist: Fix mapping iterator when sg->offset is greater than PAGE_SIZE
+Date:   Fri,  2 Aug 2019 11:28:03 +0200
+Message-Id: <20190802092216.662285387@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
 References: <20190802092203.671944552@linuxfoundation.org>
@@ -43,49 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 44942b4e457beda00981f616402a1a791e8c616e upstream.
+commit aeb87246537a83c2aff482f3f34a2e0991e02cbc upstream.
 
-According to the open() manpage, Linux reserves the access mode 3
-to mean "check for read and write permission on the file and return
-a file descriptor that can't be used for reading or writing."
+All mapping iterator logic is based on the assumption that sg->offset
+is always lower than PAGE_SIZE.
 
-Currently, the NFSv4 code will ask the server to open the file,
-and will use an incorrect share access mode of 0. Since it has
-an incorrect share access mode, the client later forgets to send
-a corresponding close, meaning it can leak stateids on the server.
+But there are situations where sg->offset is such that the SG item
+is on the second page. In that case sg_copy_to_buffer() fails
+properly copying the data into the buffer. One of the reason is
+that the data will be outside the kmapped area used to access that
+data.
 
-Fixes: ce4ef7c0a8a05 ("NFS: Split out NFS v4 file operations")
-Cc: stable@vger.kernel.org # 3.6+
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+This patch fixes the issue by adjusting the mapping iterator
+offset and pgoffset fields such that offset is always lower than
+PAGE_SIZE.
+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Fixes: 4225fc8555a9 ("lib/scatterlist: use page iterator in the mapping iterator")
+Cc: stable@vger.kernel.org
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/inode.c    |    1 +
- fs/nfs/nfs4file.c |    2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ lib/scatterlist.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -935,6 +935,7 @@ int nfs_open(struct inode *inode, struct
- 	nfs_fscache_open_file(inode, filp);
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(nfs_open);
+--- a/lib/scatterlist.c
++++ b/lib/scatterlist.c
+@@ -496,17 +496,18 @@ static bool sg_miter_get_next_page(struc
+ {
+ 	if (!miter->__remaining) {
+ 		struct scatterlist *sg;
+-		unsigned long pgoffset;
  
- /*
-  * This function is called whenever some part of NFS notices that
---- a/fs/nfs/nfs4file.c
-+++ b/fs/nfs/nfs4file.c
-@@ -49,7 +49,7 @@ nfs4_file_open(struct inode *inode, stru
- 		return err;
+ 		if (!__sg_page_iter_next(&miter->piter))
+ 			return false;
  
- 	if ((openflags & O_ACCMODE) == 3)
--		openflags--;
-+		return nfs_open(inode, filp);
+ 		sg = miter->piter.sg;
+-		pgoffset = miter->piter.sg_pgoffset;
  
- 	/* We can't create new files here */
- 	openflags &= ~(O_CREAT|O_EXCL);
+-		miter->__offset = pgoffset ? 0 : sg->offset;
++		miter->__offset = miter->piter.sg_pgoffset ? 0 : sg->offset;
++		miter->piter.sg_pgoffset += miter->__offset >> PAGE_SHIFT;
++		miter->__offset &= PAGE_SIZE - 1;
+ 		miter->__remaining = sg->offset + sg->length -
+-				(pgoffset << PAGE_SHIFT) - miter->__offset;
++				     (miter->piter.sg_pgoffset << PAGE_SHIFT) -
++				     miter->__offset;
+ 		miter->__remaining = min_t(unsigned long, miter->__remaining,
+ 					   PAGE_SIZE - miter->__offset);
+ 	}
 
 
