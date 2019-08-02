@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9C3D7F28F
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:49:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAFA37F23C
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:46:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405572AbfHBJqe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:46:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50972 "EHLO mail.kernel.org"
+        id S2405586AbfHBJqh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:46:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405568AbfHBJqe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:46:34 -0400
+        id S2405581AbfHBJqh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:46:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD3DB2086A;
-        Fri,  2 Aug 2019 09:46:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 542A8206A2;
+        Fri,  2 Aug 2019 09:46:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739193;
-        bh=5lQbMyqxWLMRlZ5M0+0XQOEP+pgYP+IaWdsbpGz/8fM=;
+        s=default; t=1564739195;
+        bh=+aGx93teK49sgP9s+2liXHxJDHCADvwjKFT2BB0hRfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OLPg9QqrT5EGDgTAuFC1iAQqxdFFKBXL7x4SaZhyr15jq4/UcGCgtrtE2LnW3dDPE
-         VRVV04r+cJIggyygBlvwqx7/gvIaR4TzGz/pFOTlQhKwplyniFuf+M3KqOo8ZUokhE
-         cnuaIAIXKERx8gp4GtVtx31Fb3HaF7ONWkZYEpLo=
+        b=ZwVUzVswKyg1TPXZi/iEOIPYXJUzzmf9NXFqYCk2zAgAjEv7mYkkzA9H0UvPl7SDy
+         BtamfYMp0p4gmfQwl1gpMdAzCQJBvSRZH3msnEiPyK6Z+uBNG2P1fBdvtaFq39jZT3
+         XRo/yiEiPecjOFEFSZl1X+igy6OYlnXn5ypDHPKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>,
-        Andrew Lunn <andrew@lunn.ch>,
+        stable@vger.kernel.org, Marek Majkowski <marek@cloudflare.com>,
+        Lorenzo Bianconi <lorenzo.bianconi@redhat.com>,
+        David Ahern <dsahern@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 135/223] net: dsa: mv88e6xxx: wait after reset deactivation
-Date:   Fri,  2 Aug 2019 11:36:00 +0200
-Message-Id: <20190802092247.614793595@linuxfoundation.org>
+Subject: [PATCH 4.9 136/223] net: neigh: fix multiple neigh timer scheduling
+Date:   Fri,  2 Aug 2019 11:36:01 +0200
+Message-Id: <20190802092247.655489587@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -44,31 +45,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baruch Siach <baruch@tkos.co.il>
+From: Lorenzo Bianconi <lorenzo.bianconi@redhat.com>
 
-[ Upstream commit 7b75e49de424ceb53d13e60f35d0a73765626fda ]
+[ Upstream commit 071c37983d99da07797294ea78e9da1a6e287144 ]
 
-Add a 1ms delay after reset deactivation. Otherwise the chip returns
-bogus ID value. This is observed with 88E6390 (Peridot) chip.
+Neigh timer can be scheduled multiple times from userspace adding
+multiple neigh entries and forcing the neigh timer scheduling passing
+NTF_USE in the netlink requests.
+This will result in a refcount leak and in the following dump stack:
 
-Signed-off-by: Baruch Siach <baruch@tkos.co.il>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+[   32.465295] NEIGH: BUG, double timer add, state is 8
+[   32.465308] CPU: 0 PID: 416 Comm: double_timer_ad Not tainted 5.2.0+ #65
+[   32.465311] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.12.0-2.fc30 04/01/2014
+[   32.465313] Call Trace:
+[   32.465318]  dump_stack+0x7c/0xc0
+[   32.465323]  __neigh_event_send+0x20c/0x880
+[   32.465326]  ? ___neigh_create+0x846/0xfb0
+[   32.465329]  ? neigh_lookup+0x2a9/0x410
+[   32.465332]  ? neightbl_fill_info.constprop.0+0x800/0x800
+[   32.465334]  neigh_add+0x4f8/0x5e0
+[   32.465337]  ? neigh_xmit+0x620/0x620
+[   32.465341]  ? find_held_lock+0x85/0xa0
+[   32.465345]  rtnetlink_rcv_msg+0x204/0x570
+[   32.465348]  ? rtnl_dellink+0x450/0x450
+[   32.465351]  ? mark_held_locks+0x90/0x90
+[   32.465354]  ? match_held_lock+0x1b/0x230
+[   32.465357]  netlink_rcv_skb+0xc4/0x1d0
+[   32.465360]  ? rtnl_dellink+0x450/0x450
+[   32.465363]  ? netlink_ack+0x420/0x420
+[   32.465366]  ? netlink_deliver_tap+0x115/0x560
+[   32.465369]  ? __alloc_skb+0xc9/0x2f0
+[   32.465372]  netlink_unicast+0x270/0x330
+[   32.465375]  ? netlink_attachskb+0x2f0/0x2f0
+[   32.465378]  netlink_sendmsg+0x34f/0x5a0
+[   32.465381]  ? netlink_unicast+0x330/0x330
+[   32.465385]  ? move_addr_to_kernel.part.0+0x20/0x20
+[   32.465388]  ? netlink_unicast+0x330/0x330
+[   32.465391]  sock_sendmsg+0x91/0xa0
+[   32.465394]  ___sys_sendmsg+0x407/0x480
+[   32.465397]  ? copy_msghdr_from_user+0x200/0x200
+[   32.465401]  ? _raw_spin_unlock_irqrestore+0x37/0x40
+[   32.465404]  ? lockdep_hardirqs_on+0x17d/0x250
+[   32.465407]  ? __wake_up_common_lock+0xcb/0x110
+[   32.465410]  ? __wake_up_common+0x230/0x230
+[   32.465413]  ? netlink_bind+0x3e1/0x490
+[   32.465416]  ? netlink_setsockopt+0x540/0x540
+[   32.465420]  ? __fget_light+0x9c/0xf0
+[   32.465423]  ? sockfd_lookup_light+0x8c/0xb0
+[   32.465426]  __sys_sendmsg+0xa5/0x110
+[   32.465429]  ? __ia32_sys_shutdown+0x30/0x30
+[   32.465432]  ? __fd_install+0xe1/0x2c0
+[   32.465435]  ? lockdep_hardirqs_off+0xb5/0x100
+[   32.465438]  ? mark_held_locks+0x24/0x90
+[   32.465441]  ? do_syscall_64+0xf/0x270
+[   32.465444]  do_syscall_64+0x63/0x270
+[   32.465448]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Fix the issue unscheduling neigh_timer if selected entry is in 'IN_TIMER'
+receiving a netlink request with NTF_USE flag set
+
+Reported-by: Marek Majkowski <marek@cloudflare.com>
+Fixes: 0c5c2d308906 ("neigh: Allow for user space users of the neighbour table")
+Signed-off-by: Lorenzo Bianconi <lorenzo.bianconi@redhat.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/mv88e6xxx/chip.c |    2 ++
+ net/core/neighbour.c |    2 ++
  1 file changed, 2 insertions(+)
 
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -3846,6 +3846,8 @@ static int mv88e6xxx_probe(struct mdio_d
- 		mv88e6xxx_mdio_unregister(chip);
- 		return err;
- 	}
-+	if (chip->reset)
-+		usleep_range(1000, 2000);
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -982,6 +982,7 @@ int __neigh_event_send(struct neighbour
  
- 	return 0;
- }
+ 			atomic_set(&neigh->probes,
+ 				   NEIGH_VAR(neigh->parms, UCAST_PROBES));
++			neigh_del_timer(neigh);
+ 			neigh->nud_state     = NUD_INCOMPLETE;
+ 			neigh->updated = now;
+ 			next = now + max(NEIGH_VAR(neigh->parms, RETRANS_TIME),
+@@ -998,6 +999,7 @@ int __neigh_event_send(struct neighbour
+ 		}
+ 	} else if (neigh->nud_state & NUD_STALE) {
+ 		neigh_dbg(2, "neigh %p is delayed\n", neigh);
++		neigh_del_timer(neigh);
+ 		neigh->nud_state = NUD_DELAY;
+ 		neigh->updated = jiffies;
+ 		neigh_add_timer(neigh, jiffies +
 
 
