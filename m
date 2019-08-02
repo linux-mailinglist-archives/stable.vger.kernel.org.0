@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EFE07F2D2
+	by mail.lfdr.de (Postfix) with ESMTP id A774F7F2D3
 	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:51:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405266AbfHBJof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:44:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47960 "EHLO mail.kernel.org"
+        id S2405720AbfHBJvd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:51:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405259AbfHBJoe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:44:34 -0400
+        id S2391547AbfHBJoj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:44:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6632F20679;
-        Fri,  2 Aug 2019 09:44:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9080C206A2;
+        Fri,  2 Aug 2019 09:44:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739072;
-        bh=AVjDztU8TIAWYYzprt1TSHO/m+gI/Fk/ggDaXWoVtb4=;
+        s=default; t=1564739078;
+        bh=JLeOArumhw3pHEpAq0cX2sLAqcrHiDyam2CGdvxGhxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zl6dqY/BW8p7cfHlkQcAlz3MmG6JLpmPMsPe0nSOVi3gzG6Iry5GvcC6dBlt0DNPw
-         HVMEfrTCyI3PR/mpix96BWO0uWbpsoJb+B0x+jFbJFvNggc87Ey4MgSD7H4gl/nO5e
-         ElLvkFbkv7YQWxxTPigKNPDSt378N6adjy/6mHpM=
+        b=aC4KywNzdMrEJ4bVo/ofCfFWIvI4cNKZTFtab3+H4yGSSTYbiuyt6bc/HBXdfQePi
+         2v67rjOkaEso70X9B/B1p0VV1at1kKKOU76cUQf5djfVe/RnCk2wLlILF/3RgXi9Zq
+         LxM20/RcChLoBKMfBVrZBjyZxk0/gzdXpGvQYJrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eiichi Tsukata <devel@etsukata.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 4.9 087/223] tracing/snapshot: Resize spare buffer if size changed
-Date:   Fri,  2 Aug 2019 11:35:12 +0200
-Message-Id: <20190802092244.685593999@linuxfoundation.org>
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.9 089/223] lib/scatterlist: Fix mapping iterator when sg->offset is greater than PAGE_SIZE
+Date:   Fri,  2 Aug 2019 11:35:14 +0200
+Message-Id: <20190802092244.851105063@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -44,108 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eiichi Tsukata <devel@etsukata.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 46cc0b44428d0f0e81f11ea98217fc0edfbeab07 upstream.
+commit aeb87246537a83c2aff482f3f34a2e0991e02cbc upstream.
 
-Current snapshot implementation swaps two ring_buffers even though their
-sizes are different from each other, that can cause an inconsistency
-between the contents of buffer_size_kb file and the current buffer size.
+All mapping iterator logic is based on the assumption that sg->offset
+is always lower than PAGE_SIZE.
 
-For example:
+But there are situations where sg->offset is such that the SG item
+is on the second page. In that case sg_copy_to_buffer() fails
+properly copying the data into the buffer. One of the reason is
+that the data will be outside the kmapped area used to access that
+data.
 
-  # cat buffer_size_kb
-  7 (expanded: 1408)
-  # echo 1 > events/enable
-  # grep bytes per_cpu/cpu0/stats
-  bytes: 1441020
-  # echo 1 > snapshot             // current:1408, spare:1408
-  # echo 123 > buffer_size_kb     // current:123,  spare:1408
-  # echo 1 > snapshot             // current:1408, spare:123
-  # grep bytes per_cpu/cpu0/stats
-  bytes: 1443700
-  # cat buffer_size_kb
-  123                             // != current:1408
+This patch fixes the issue by adjusting the mapping iterator
+offset and pgoffset fields such that offset is always lower than
+PAGE_SIZE.
 
-And also, a similar per-cpu case hits the following WARNING:
-
-Reproducer:
-
-  # echo 1 > per_cpu/cpu0/snapshot
-  # echo 123 > buffer_size_kb
-  # echo 1 > per_cpu/cpu0/snapshot
-
-WARNING:
-
-  WARNING: CPU: 0 PID: 1946 at kernel/trace/trace.c:1607 update_max_tr_single.part.0+0x2b8/0x380
-  Modules linked in:
-  CPU: 0 PID: 1946 Comm: bash Not tainted 5.2.0-rc6 #20
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-2.fc30 04/01/2014
-  RIP: 0010:update_max_tr_single.part.0+0x2b8/0x380
-  Code: ff e8 dc da f9 ff 0f 0b e9 88 fe ff ff e8 d0 da f9 ff 44 89 ee bf f5 ff ff ff e8 33 dc f9 ff 41 83 fd f5 74 96 e8 b8 da f9 ff <0f> 0b eb 8d e8 af da f9 ff 0f 0b e9 bf fd ff ff e8 a3 da f9 ff 48
-  RSP: 0018:ffff888063e4fca0 EFLAGS: 00010093
-  RAX: ffff888066214380 RBX: ffffffff99850fe0 RCX: ffffffff964298a8
-  RDX: 0000000000000000 RSI: 00000000fffffff5 RDI: 0000000000000005
-  RBP: 1ffff1100c7c9f96 R08: ffff888066214380 R09: ffffed100c7c9f9b
-  R10: ffffed100c7c9f9a R11: 0000000000000003 R12: 0000000000000000
-  R13: 00000000ffffffea R14: ffff888066214380 R15: ffffffff99851060
-  FS:  00007f9f8173c700(0000) GS:ffff88806d000000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000000000714dc0 CR3: 0000000066fa6000 CR4: 00000000000006f0
-  Call Trace:
-   ? trace_array_printk_buf+0x140/0x140
-   ? __mutex_lock_slowpath+0x10/0x10
-   tracing_snapshot_write+0x4c8/0x7f0
-   ? trace_printk_init_buffers+0x60/0x60
-   ? selinux_file_permission+0x3b/0x540
-   ? tracer_preempt_off+0x38/0x506
-   ? trace_printk_init_buffers+0x60/0x60
-   __vfs_write+0x81/0x100
-   vfs_write+0x1e1/0x560
-   ksys_write+0x126/0x250
-   ? __ia32_sys_read+0xb0/0xb0
-   ? do_syscall_64+0x1f/0x390
-   do_syscall_64+0xc1/0x390
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-This patch adds resize_buffer_duplicate_size() to check if there is a
-difference between current/spare buffer sizes and resize a spare buffer
-if necessary.
-
-Link: http://lkml.kernel.org/r/20190625012910.13109-1-devel@etsukata.com
-
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Fixes: 4225fc8555a9 ("lib/scatterlist: use page iterator in the mapping iterator")
 Cc: stable@vger.kernel.org
-Fixes: ad909e21bbe69 ("tracing: Add internal tracing_snapshot() functions")
-Signed-off-by: Eiichi Tsukata <devel@etsukata.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ lib/scatterlist.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -5820,11 +5820,15 @@ tracing_snapshot_write(struct file *filp
- 			break;
- 		}
- #endif
--		if (!tr->allocated_snapshot) {
-+		if (!tr->allocated_snapshot)
-+			ret = resize_buffer_duplicate_size(&tr->max_buffer,
-+				&tr->trace_buffer, iter->cpu_file);
-+		else
- 			ret = alloc_snapshot(tr);
--			if (ret < 0)
--				break;
--		}
-+
-+		if (ret < 0)
-+			break;
-+
- 		local_irq_disable();
- 		/* Now, we're going to swap */
- 		if (iter->cpu_file == RING_BUFFER_ALL_CPUS)
+--- a/lib/scatterlist.c
++++ b/lib/scatterlist.c
+@@ -496,17 +496,18 @@ static bool sg_miter_get_next_page(struc
+ {
+ 	if (!miter->__remaining) {
+ 		struct scatterlist *sg;
+-		unsigned long pgoffset;
+ 
+ 		if (!__sg_page_iter_next(&miter->piter))
+ 			return false;
+ 
+ 		sg = miter->piter.sg;
+-		pgoffset = miter->piter.sg_pgoffset;
+ 
+-		miter->__offset = pgoffset ? 0 : sg->offset;
++		miter->__offset = miter->piter.sg_pgoffset ? 0 : sg->offset;
++		miter->piter.sg_pgoffset += miter->__offset >> PAGE_SHIFT;
++		miter->__offset &= PAGE_SIZE - 1;
+ 		miter->__remaining = sg->offset + sg->length -
+-				(pgoffset << PAGE_SHIFT) - miter->__offset;
++				     (miter->piter.sg_pgoffset << PAGE_SHIFT) -
++				     miter->__offset;
+ 		miter->__remaining = min_t(unsigned long, miter->__remaining,
+ 					   PAGE_SIZE - miter->__offset);
+ 	}
 
 
