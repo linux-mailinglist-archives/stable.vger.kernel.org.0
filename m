@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 700907F1C5
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:42:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 083147F1CE
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:42:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404953AbfHBJmB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:42:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44054 "EHLO mail.kernel.org"
+        id S2391826AbfHBJmO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:42:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404951AbfHBJmB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:42:01 -0400
+        id S2404977AbfHBJmN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:42:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2226C20679;
-        Fri,  2 Aug 2019 09:42:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA49C216C8;
+        Fri,  2 Aug 2019 09:42:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738920;
-        bh=oaZnE9Jk6GztqufE3LxR85wb6msRuuZ5v6/2wlSDO5I=;
+        s=default; t=1564738933;
+        bh=hdE8titF2WY4dvEkKk5qICBEsXbfJK8hAQUG/j7WOSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y+WcmxCyjS2QlXsBmNwbL0K/vj3TCBAzVZsxCYj16OazXwBRQzeG/X62enfv/DFd5
-         nMsVmhkkwpSCSbKskmOzP8G3uP/CGQ98b1kwavzsJ6Kjvl3ROPuuLt7YQYj84d/mcP
-         YZSZ5FI1vDiea2SrEz+V5ukGeNMTPUPAGolT4AEk=
+        b=CkioJx5l5RBN8c+c8BtfRJEqCVDflNbtcOgkbZxVp3uf+v6t01NVa8XhPdjrQINJZ
+         HP3k8uA/WTOCDv8St28B5n7vh+m2wyPngAChnsYrNwUh0FECbISJPZUFGuCR8yY2Jg
+         ksu39q3qMgLBOz5GVWgHFv9GrIVEqh/x7ZAcHaiY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Suzuki Poulouse <suzuki.poulose@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Valdis Kletnieks <valdis.kletnieks@vt.edu>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 032/223] perf cs-etm: Properly set the value of old and head in snapshot mode
-Date:   Fri,  2 Aug 2019 11:34:17 +0200
-Message-Id: <20190802092241.067466818@linuxfoundation.org>
+Subject: [PATCH 4.9 037/223] bpf: silence warning messages in core
+Date:   Fri,  2 Aug 2019 11:34:22 +0200
+Message-Id: <20190802092241.383772907@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -51,203 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e45c48a9a4d20ebc7b639a62c3ef8f4b08007027 ]
+[ Upstream commit aee450cbe482a8c2f6fa5b05b178ef8b8ff107ca ]
 
-This patch adds the necessary intelligence to properly compute the value
-of 'old' and 'head' when operating in snapshot mode.  That way we can
-get the latest information in the AUX buffer and be compatible with the
-generic AUX ring buffer mechanic.
+Compiling kernel/bpf/core.c with W=1 causes a flood of warnings:
 
-Tester notes:
+kernel/bpf/core.c:1198:65: warning: initialized field overwritten [-Woverride-init]
+ 1198 | #define BPF_INSN_3_TBL(x, y, z) [BPF_##x | BPF_##y | BPF_##z] = true
+      |                                                                 ^~~~
+kernel/bpf/core.c:1087:2: note: in expansion of macro 'BPF_INSN_3_TBL'
+ 1087 |  INSN_3(ALU, ADD,  X),   \
+      |  ^~~~~~
+kernel/bpf/core.c:1202:3: note: in expansion of macro 'BPF_INSN_MAP'
+ 1202 |   BPF_INSN_MAP(BPF_INSN_2_TBL, BPF_INSN_3_TBL),
+      |   ^~~~~~~~~~~~
+kernel/bpf/core.c:1198:65: note: (near initialization for 'public_insntable[12]')
+ 1198 | #define BPF_INSN_3_TBL(x, y, z) [BPF_##x | BPF_##y | BPF_##z] = true
+      |                                                                 ^~~~
+kernel/bpf/core.c:1087:2: note: in expansion of macro 'BPF_INSN_3_TBL'
+ 1087 |  INSN_3(ALU, ADD,  X),   \
+      |  ^~~~~~
+kernel/bpf/core.c:1202:3: note: in expansion of macro 'BPF_INSN_MAP'
+ 1202 |   BPF_INSN_MAP(BPF_INSN_2_TBL, BPF_INSN_3_TBL),
+      |   ^~~~~~~~~~~~
 
-> Leo, have you had the chance to test/review this one? Suzuki?
+98 copies of the above.
 
-Sure.  I applied this patch on the perf/core branch (with latest
-commit 3e4fbf36c1e3 'perf augmented_raw_syscalls: Move reading
-filename to the loop') and passed testing with below steps:
+The attached patch silences the warnings, because we *know* we're overwriting
+the default initializer. That leaves bpf/core.c with only 6 other warnings,
+which become more visible in comparison.
 
-  # perf record -e cs_etm/@tmc_etr0/ -S -m,64 --per-thread ./sort &
-  [1] 19097
-  Bubble sorting array of 30000 elements
-
-  # kill -USR2 19097
-  # kill -USR2 19097
-  # kill -USR2 19097
-  [ perf record: Woken up 4 times to write data ]
-  [ perf record: Captured and wrote 0.753 MB perf.data ]
-
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Tested-by: Leo Yan <leo.yan@linaro.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Link: http://lkml.kernel.org/r/20190605161633.12245-1-mathieu.poirier@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/arch/arm/util/cs-etm.c | 127 +++++++++++++++++++++++++++++-
- 1 file changed, 123 insertions(+), 4 deletions(-)
+ kernel/bpf/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/perf/arch/arm/util/cs-etm.c b/tools/perf/arch/arm/util/cs-etm.c
-index 47d584da5819..f6cff278aa5d 100644
---- a/tools/perf/arch/arm/util/cs-etm.c
-+++ b/tools/perf/arch/arm/util/cs-etm.c
-@@ -41,6 +41,8 @@ struct cs_etm_recording {
- 	struct auxtrace_record	itr;
- 	struct perf_pmu		*cs_etm_pmu;
- 	struct perf_evlist	*evlist;
-+	int			wrapped_cnt;
-+	bool			*wrapped;
- 	bool			snapshot_mode;
- 	size_t			snapshot_size;
- };
-@@ -458,16 +460,131 @@ static int cs_etm_info_fill(struct auxtrace_record *itr,
- 	return 0;
- }
+diff --git a/kernel/bpf/Makefile b/kernel/bpf/Makefile
+index eed911d091da..5a590f22b4d4 100644
+--- a/kernel/bpf/Makefile
++++ b/kernel/bpf/Makefile
+@@ -1,4 +1,5 @@
+ obj-y := core.o
++CFLAGS_core.o += $(call cc-disable-warning, override-init)
  
--static int cs_etm_find_snapshot(struct auxtrace_record *itr __maybe_unused,
-+static int cs_etm_alloc_wrapped_array(struct cs_etm_recording *ptr, int idx)
-+{
-+	bool *wrapped;
-+	int cnt = ptr->wrapped_cnt;
-+
-+	/* Make @ptr->wrapped as big as @idx */
-+	while (cnt <= idx)
-+		cnt++;
-+
-+	/*
-+	 * Free'ed in cs_etm_recording_free().  Using realloc() to avoid
-+	 * cross compilation problems where the host's system supports
-+	 * reallocarray() but not the target.
-+	 */
-+	wrapped = realloc(ptr->wrapped, cnt * sizeof(bool));
-+	if (!wrapped)
-+		return -ENOMEM;
-+
-+	wrapped[cnt - 1] = false;
-+	ptr->wrapped_cnt = cnt;
-+	ptr->wrapped = wrapped;
-+
-+	return 0;
-+}
-+
-+static bool cs_etm_buffer_has_wrapped(unsigned char *buffer,
-+				      size_t buffer_size, u64 head)
-+{
-+	u64 i, watermark;
-+	u64 *buf = (u64 *)buffer;
-+	size_t buf_size = buffer_size;
-+
-+	/*
-+	 * We want to look the very last 512 byte (chosen arbitrarily) in
-+	 * the ring buffer.
-+	 */
-+	watermark = buf_size - 512;
-+
-+	/*
-+	 * @head is continuously increasing - if its value is equal or greater
-+	 * than the size of the ring buffer, it has wrapped around.
-+	 */
-+	if (head >= buffer_size)
-+		return true;
-+
-+	/*
-+	 * The value of @head is somewhere within the size of the ring buffer.
-+	 * This can be that there hasn't been enough data to fill the ring
-+	 * buffer yet or the trace time was so long that @head has numerically
-+	 * wrapped around.  To find we need to check if we have data at the very
-+	 * end of the ring buffer.  We can reliably do this because mmap'ed
-+	 * pages are zeroed out and there is a fresh mapping with every new
-+	 * session.
-+	 */
-+
-+	/* @head is less than 512 byte from the end of the ring buffer */
-+	if (head > watermark)
-+		watermark = head;
-+
-+	/*
-+	 * Speed things up by using 64 bit transactions (see "u64 *buf" above)
-+	 */
-+	watermark >>= 3;
-+	buf_size >>= 3;
-+
-+	/*
-+	 * If we find trace data at the end of the ring buffer, @head has
-+	 * been there and has numerically wrapped around at least once.
-+	 */
-+	for (i = watermark; i < buf_size; i++)
-+		if (buf[i])
-+			return true;
-+
-+	return false;
-+}
-+
-+static int cs_etm_find_snapshot(struct auxtrace_record *itr,
- 				int idx, struct auxtrace_mmap *mm,
--				unsigned char *data __maybe_unused,
-+				unsigned char *data,
- 				u64 *head, u64 *old)
- {
-+	int err;
-+	bool wrapped;
-+	struct cs_etm_recording *ptr =
-+			container_of(itr, struct cs_etm_recording, itr);
-+
-+	/*
-+	 * Allocate memory to keep track of wrapping if this is the first
-+	 * time we deal with this *mm.
-+	 */
-+	if (idx >= ptr->wrapped_cnt) {
-+		err = cs_etm_alloc_wrapped_array(ptr, idx);
-+		if (err)
-+			return err;
-+	}
-+
-+	/*
-+	 * Check to see if *head has wrapped around.  If it hasn't only the
-+	 * amount of data between *head and *old is snapshot'ed to avoid
-+	 * bloating the perf.data file with zeros.  But as soon as *head has
-+	 * wrapped around the entire size of the AUX ring buffer it taken.
-+	 */
-+	wrapped = ptr->wrapped[idx];
-+	if (!wrapped && cs_etm_buffer_has_wrapped(data, mm->len, *head)) {
-+		wrapped = true;
-+		ptr->wrapped[idx] = true;
-+	}
-+
- 	pr_debug3("%s: mmap index %d old head %zu new head %zu size %zu\n",
- 		  __func__, idx, (size_t)*old, (size_t)*head, mm->len);
- 
--	*old = *head;
--	*head += mm->len;
-+	/* No wrap has occurred, we can just use *head and *old. */
-+	if (!wrapped)
-+		return 0;
-+
-+	/*
-+	 * *head has wrapped around - adjust *head and *old to pickup the
-+	 * entire content of the AUX buffer.
-+	 */
-+	if (*head >= mm->len) {
-+		*old = *head - mm->len;
-+	} else {
-+		*head += mm->len;
-+		*old = *head - mm->len;
-+	}
- 
- 	return 0;
- }
-@@ -508,6 +625,8 @@ static void cs_etm_recording_free(struct auxtrace_record *itr)
- {
- 	struct cs_etm_recording *ptr =
- 			container_of(itr, struct cs_etm_recording, itr);
-+
-+	zfree(&ptr->wrapped);
- 	free(ptr);
- }
- 
+ obj-$(CONFIG_BPF_SYSCALL) += syscall.o verifier.o inode.o helpers.o
+ obj-$(CONFIG_BPF_SYSCALL) += hashtab.o arraymap.o percpu_freelist.o
 -- 
 2.20.1
 
