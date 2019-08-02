@@ -2,161 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 224AE8022C
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 23:17:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90545802FA
+	for <lists+stable@lfdr.de>; Sat,  3 Aug 2019 00:50:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729210AbfHBVR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 17:17:57 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:53509 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727611AbfHBVR5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 17:17:57 -0400
-Received: by mail-wm1-f67.google.com with SMTP id x15so69216549wmj.3
-        for <stable@vger.kernel.org>; Fri, 02 Aug 2019 14:17:55 -0700 (PDT)
+        id S2392510AbfHBWuj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 18:50:39 -0400
+Received: from mail-qk1-f193.google.com ([209.85.222.193]:43522 "EHLO
+        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728242AbfHBWuj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 18:50:39 -0400
+Received: by mail-qk1-f193.google.com with SMTP id m14so30364135qka.10
+        for <stable@vger.kernel.org>; Fri, 02 Aug 2019 15:50:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=UPT3G6MPwj+qn6G61hBhHdmhCvAjtlI+CKa1nkb+aoo=;
-        b=xAP6nlh2T0TM2PcNCKlJ1L3pieOInp8WYDS4fA+5a8Ebuarjoc5JFoxqUxASKyFA+n
-         tRbzWzO+ZHPCrqoIv6JDvOcGR1g2uRjV6t7tn7k1GpQg0CQLiB8/A7KirB5runP926E2
-         3hhAu3Cz/IAI8TwuDwjnMCANvldElCnScJHOgYe6JxNEVXk7LnhrLJnA4/omaFKdZWYs
-         ZCjLG6xI0TtO/wpJrYfWstqeyClZ9SkThnuUpQyTXkFTdHa4XrQUmdrtaR/gSGuEPZJY
-         o+LEGICA00urwT2nk8WOL4mPyEe8GzwHr4ptABDRWm/LjIBuDIK0ePAMYtix2ZajEIfc
-         WFgA==
+        d=gaikai-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Tja/rnzyaAh8gsKSK1OOyf54h/AbzBbU3B6v85SaNi0=;
+        b=X7d3mXzXHUe57gBnrolOs41evy2vsrnhtyhp4CcljHPKqmJ3nPDqu3ZYut6mmkwx1h
+         C+omLV004sCHlUP6r6/YCKjD/Fs2oRAuGGqMFCYXHkbEz0Vp0dsI8e8kBz8UuYF/D4gT
+         OVZnf5CUHEEM3SnO2CNYYrgZ/H7uhC+eyBzDmfc3BEmDUvhGSS6iT0OuJVqB4YzHo1WK
+         qBYek2jJ8O+midgVFW5kbulUy5OZL1n4TOC8sjEcslPge/wMvVAAt3MwnSmebinWUoGS
+         F6GahsRx+nRZ5qnJpmNISDersO2ZOHMHCDGW8jpDVprVz7wRsLHA1SHAtHSzLgLYmsrf
+         /I/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=UPT3G6MPwj+qn6G61hBhHdmhCvAjtlI+CKa1nkb+aoo=;
-        b=FS3GyqI9q22YZyi/BPtGjUJ94+QwMP93nQUTPL9usm+9hsAXclj2rA7NjeqRVsFGr+
-         ZTQPKvSPZIlPRexC6rozuN1rIyhxAaXJHfP6CaRRkbGNW9yZk7j90wyFqAZCF6HvOxVZ
-         Hqzlzb+AMhhH3NFdIpRA0XQo99Agv/jWhZ+YcG+1idSH1t13aQ3FVqZmVYFriWlp2Nu0
-         WHDc3zQSAmglGZAdi4a6lIgb6BP06kfAHUTYdcSUlu79frkA/UMzMavlgqtc8t4P/MjI
-         58IxykLv1o+XqVlFrtuSIipmriGLEWokpUsADJ46FHbLSKQwNWWCHAYVxqoQyeOfF9Df
-         rYmA==
-X-Gm-Message-State: APjAAAUZfh3vxh0sMIejXiOYmJmXwUDehP0bY2SSDiOj72z/GjWkn5kA
-        iQCBMuBJxENwgBrmSR87Rd7ZJazTN28=
-X-Google-Smtp-Source: APXvYqxftB5Csiu9otgVZDvdHPgqSRL1w++Y2+RwXS2p09oZTwi3T6+uAt+zTWWQKzdKnwbv6xY9PA==
-X-Received: by 2002:a7b:c5c2:: with SMTP id n2mr5657773wmk.92.1564780675109;
-        Fri, 02 Aug 2019 14:17:55 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id p6sm83035340wrq.97.2019.08.02.14.17.53
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 02 Aug 2019 14:17:54 -0700 (PDT)
-Message-ID: <5d44a882.1c69fb81.c17e8.744b@mx.google.com>
-Date:   Fri, 02 Aug 2019 14:17:54 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Tja/rnzyaAh8gsKSK1OOyf54h/AbzBbU3B6v85SaNi0=;
+        b=VFieGq1CS8kAVRZJ9qzModUg2V0opR8/v08QpKgl7CkMdIbcuUtC0Hbcl6LMRbzRFx
+         lqhibETarOPm41Ey5uZApF9S22AWq70olS0EjuSdKpTNQYQ48kFH5fQ0RujM5xMkVxs3
+         1LJSPy0vrhLnRgEeWgq/PCKGG7gdAGOf2ch5T+y1mjVJW0fqWogqnCvYqNseenqP/1tV
+         qE/q7HvBCTSZTjG2Ea5P6e3C7PH0wjDCqTpHzGYOmT+Iqx8Xjn3ncHaJCO4jfchwgaqv
+         p/lWvSqZ8N9YxPcql0ajVnPQazksT2Waylto7e9hpb65Q06UUiisGbre5Hvbi1+Hzopd
+         reGg==
+X-Gm-Message-State: APjAAAUeuMCl1dugfzJDX+2/ZbtI7CJp1QESWOzf1hMwQMUe5taZZg8S
+        qMRNMY3ab9yzxhkH4e6oa2RtKg==
+X-Google-Smtp-Source: APXvYqw08XievE2j+tzs+ukHUHUGRWwwncwi4TSbAs+j2f1TGZX2BZJbxd9ku+ttp11klIyBrgqdzg==
+X-Received: by 2002:a37:5204:: with SMTP id g4mr87976070qkb.35.1564786238584;
+        Fri, 02 Aug 2019 15:50:38 -0700 (PDT)
+Received: from roderick.ad.gaikai.biz ([100.42.98.196])
+        by smtp.gmail.com with ESMTPSA id t6sm33374168qkh.129.2019.08.02.15.50.35
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Fri, 02 Aug 2019 15:50:36 -0700 (PDT)
+From:   Roderick Colenbrander <roderick@gaikai.com>
+To:     linux-input@vger.kernel.org, jikos@kernel.org,
+        benjamin.tissoires@redhat.com
+Cc:     svv@google.com, pgriffais@valvesoftware.com,
+        Roderick Colenbrander <roderick@gaikai.com>,
+        Roderick Colenbrander <roderick.colenbrander@sony.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] HID: sony: Fix race condition between rumble and device remove.
+Date:   Fri,  2 Aug 2019 15:50:19 -0700
+Message-Id: <20190802225019.2418-1-roderick@gaikai.com>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.186-157-gd9815060e3ec
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.4.y boot: 92 boots: 1 failed,
- 58 passed with 32 offline, 1 conflict (v4.4.186-157-gd9815060e3ec)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 92 boots: 1 failed, 58 passed with 32 offline, =
-1 conflict (v4.4.186-157-gd9815060e3ec)
+Valve reported a kernel crash on Ubuntu 18.04 when disconnecting a DS4
+gamepad while rumble is enabled. This issue is reproducible with a
+frequency of 1 in 3 times in the game Borderlands 2 when using an
+automatic weapon, which triggers many rumble operations.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.186-157-gd9815060e3ec/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.186-157-gd9815060e3ec/
+We found the issue to be a race condition between sony_remove and the
+final device destruction by the HID / input system. The problem was
+that sony_remove didn't clean some of its work_item state in
+"struct sony_sc". After sony_remove work, the corresponding evdev
+node was around for sufficient time for applications to still queue
+rumble work after "sony_remove".
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.186-157-gd9815060e3ec
-Git Commit: d9815060e3ec2433dfffc8a3dcaed9842b1798c7
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 44 unique boards, 20 SoC families, 14 builds out of 190
+On pre-4.19 kernels the race condition caused a kernel crash due to a
+NULL-pointer dereference as "sc->output_report_dmabuf" got freed during
+sony_remove. On newer kernels this crash doesn't happen due the buffer
+now being allocated using devm_kzalloc. However we can still queue work,
+while the driver is an undefined state.
 
-Boot Failure Detected:
+This patch fixes the described problem, by guarding the work_item
+"state_worker" with an initialized variable, which we are setting back
+to 0 on cleanup.
 
-arm64:
-    defconfig:
-        gcc-8:
-            qcom-qdf2400: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    tegra_defconfig:
-        gcc-8
-            tegra20-iris-512: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5250-arndale: 1 offline lab
-            exynos5420-arndale-octa: 1 offline lab
-            exynos5800-peach-pi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            bcm72521-bcm97252sffe: 1 offline lab
-            bcm7445-bcm97445c: 1 offline lab
-            exynos5250-arndale: 1 offline lab
-            exynos5420-arndale-octa: 1 offline lab
-            exynos5800-peach-pi: 1 offline lab
-            imx6dl-wandboard_dual: 1 offline lab
-            imx6dl-wandboard_solo: 1 offline lab
-            imx6q-wandboard: 1 offline lab
-            meson8b-odroidc1: 1 offline lab
-            omap3-beagle: 1 offline lab
-            omap4-panda: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            stih410-b2120: 1 offline lab
-            sun4i-a10-cubieboard: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-            tegra20-iris-512: 1 offline lab
-            vf610-colibri-eval-v3: 1 offline lab
-
-    omap2plus_defconfig:
-        gcc-8
-            omap3-beagle: 1 offline lab
-            omap4-panda: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            da850-evm: 1 offline lab
-            dm365evm,legacy: 1 offline lab
-
-    imx_v6_v7_defconfig:
-        gcc-8
-            imx6dl-wandboard_dual: 1 offline lab
-            imx6dl-wandboard_solo: 1 offline lab
-            imx6q-wandboard: 1 offline lab
-            vf610-colibri-eval-v3: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun4i-a10-cubieboard: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-x86_64:
-    x86_64_defconfig:
-        qemu:
-            lab-drue: PASS (gcc-8)
-            lab-mhart: PASS (gcc-8)
-            lab-baylibre: FAIL (gcc-8)
-            lab-linaro-lkft: PASS (gcc-8)
-            lab-collabora: PASS (gcc-8)
-
+Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+CC: stable@vger.kernel.org
 ---
-For more info write to <info@kernelci.org>
+ drivers/hid/hid-sony.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 9671a4bad643..31f1023214d3 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -587,10 +587,14 @@ static void sony_set_leds(struct sony_sc *sc);
+ static inline void sony_schedule_work(struct sony_sc *sc,
+ 				      enum sony_worker which)
+ {
++	unsigned long flags;
++
+ 	switch (which) {
+ 	case SONY_WORKER_STATE:
+-		if (!sc->defer_initialization)
++		spin_lock_irqsave(&sc->lock, flags);
++		if (!sc->defer_initialization && sc->state_worker_initialized)
+ 			schedule_work(&sc->state_worker);
++		spin_unlock_irqrestore(&sc->lock, flags);
+ 		break;
+ 	case SONY_WORKER_HOTPLUG:
+ 		if (sc->hotplug_worker_initialized)
+@@ -2553,13 +2557,18 @@ static inline void sony_init_output_report(struct sony_sc *sc,
+ 
+ static inline void sony_cancel_work_sync(struct sony_sc *sc)
+ {
++	unsigned long flags;
++
+ 	if (sc->hotplug_worker_initialized)
+ 		cancel_work_sync(&sc->hotplug_worker);
+-	if (sc->state_worker_initialized)
++	if (sc->state_worker_initialized) {
++		spin_lock_irqsave(&sc->lock, flags);
++		sc->state_worker_initialized = 0;
++		spin_unlock_irqrestore(&sc->lock, flags);
+ 		cancel_work_sync(&sc->state_worker);
++	}
+ }
+ 
+-
+ static int sony_input_configured(struct hid_device *hdev,
+ 					struct hid_input *hidinput)
+ {
+-- 
+2.21.0
+
