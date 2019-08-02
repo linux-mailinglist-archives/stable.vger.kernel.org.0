@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D70967F309
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:54:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB2417F359
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:57:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406198AbfHBJxg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:53:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59760 "EHLO mail.kernel.org"
+        id S2406450AbfHBJ43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:56:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730273AbfHBJxe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:53:34 -0400
+        id S2404798AbfHBJ43 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:56:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 193FC2086A;
-        Fri,  2 Aug 2019 09:53:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9927020665;
+        Fri,  2 Aug 2019 09:56:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739613;
-        bh=sYkRc7CabslKUDeXZrJllkXGu9BYtuDCILacWPdqq4U=;
+        s=default; t=1564739788;
+        bh=JSb30u6ZZcU6mTVsvJ37BEW+XfA9T4IV9PfS53PeFsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T8NcMmBfDjiJwTmBGzn+E+KoGpCzwOiE3ahqcwbZLvbtC2xtv6D7yF0pFeJ2R+eO9
-         bICtaZrMBMI31lr6+8DkcfD3ZfcBfcLNpDIf0V38gPClHV9UdKzorsfH9itMGA9pzf
-         gTcq2LSzAo3KbZ37ymAISGR+CRnlwyyCxe7/Ffs4=
+        b=2MbfF/er/8bXqsiVxyQWg663Y+wiRnv5HjH7Ac3e9FB+tD/TC+04ZvVVurTx7pL1A
+         +tkWTnInv/t+NblgWAJAuiiKtq5ruJEyqFWBjG4ZdNT8eDv5ctXqm4Sj+pAZIrN3YO
+         1BWjdzDfn5ofP0JQZkqEp9jhjbHTbTWL5poeiR9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        syzbot+a4387f5b6b799f6becbf@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 219/223] media: radio-raremono: change devm_k*alloc to k*alloc
-Date:   Fri,  2 Aug 2019 11:37:24 +0200
-Message-Id: <20190802092250.836612085@linuxfoundation.org>
+        syzbot+79337b501d6aa974d0f6@syzkaller.appspotmail.com,
+        Vladis Dronov <vdronov@redhat.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        "Yu-Chen, Cho" <acho@suse.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 220/223] Bluetooth: hci_uart: check for missing tty operations
+Date:   Fri,  2 Aug 2019 11:37:25 +0200
+Message-Id: <20190802092250.874085831@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -46,108 +47,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>
+From: Vladis Dronov <vdronov@redhat.com>
 
-commit c666355e60ddb4748ead3bdd983e3f7f2224aaf0 upstream.
+commit b36a1552d7319bbfd5cf7f08726c23c5c66d4f73 upstream.
 
-Change devm_k*alloc to k*alloc to manually allocate memory
+Certain ttys operations (pty_unix98_ops) lack tiocmget() and tiocmset()
+functions which are called by the certain HCI UART protocols (hci_ath,
+hci_bcm, hci_intel, hci_mrvl, hci_qca) via hci_uart_set_flow_control()
+or directly. This leads to an execution at NULL and can be triggered by
+an unprivileged user. Fix this by adding a helper function and a check
+for the missing tty operations in the protocols code.
 
-The manual allocation and freeing of memory is necessary because when
-the USB radio is disconnected, the memory associated with devm_k*alloc
-is freed. Meaning if we still have unresolved references to the radio
-device, then we get use-after-free errors.
+This fixes CVE-2019-10207. The Fixes: lines list commits where calls to
+tiocm[gs]et() or hci_uart_set_flow_control() were added to the HCI UART
+protocols.
 
-This patch fixes this by manually allocating memory, and freeing it in
-the v4l2.release callback that gets called when the last radio device
-exits.
-
-Reported-and-tested-by: syzbot+a4387f5b6b799f6becbf@syzkaller.appspotmail.com
-
-Signed-off-by: Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-[hverkuil-cisco@xs4all.nl: cleaned up two small checkpatch.pl warnings]
-[hverkuil-cisco@xs4all.nl: prefix subject with driver name]
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Link: https://syzkaller.appspot.com/bug?id=1b42faa2848963564a5b1b7f8c837ea7b55ffa50
+Reported-by: syzbot+79337b501d6aa974d0f6@syzkaller.appspotmail.com
+Cc: stable@vger.kernel.org # v2.6.36+
+Fixes: b3190df62861 ("Bluetooth: Support for Atheros AR300x serial chip")
+Fixes: 118612fb9165 ("Bluetooth: hci_bcm: Add suspend/resume PM functions")
+Fixes: ff2895592f0f ("Bluetooth: hci_intel: Add Intel baudrate configuration support")
+Fixes: 162f812f23ba ("Bluetooth: hci_uart: Add Marvell support")
+Fixes: fa9ad876b8e0 ("Bluetooth: hci_qca: Add support for Qualcomm Bluetooth chip wcn3990")
+Signed-off-by: Vladis Dronov <vdronov@redhat.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Reviewed-by: Yu-Chen, Cho <acho@suse.com>
+Tested-by: Yu-Chen, Cho <acho@suse.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/radio/radio-raremono.c |   30 +++++++++++++++++++++++-------
- 1 file changed, 23 insertions(+), 7 deletions(-)
+ drivers/bluetooth/hci_ath.c   |    3 +++
+ drivers/bluetooth/hci_bcm.c   |    3 +++
+ drivers/bluetooth/hci_intel.c |    3 +++
+ drivers/bluetooth/hci_ldisc.c |    9 +++++++++
+ drivers/bluetooth/hci_mrvl.c  |    3 +++
+ drivers/bluetooth/hci_uart.h  |    1 +
+ 6 files changed, 22 insertions(+)
 
---- a/drivers/media/radio/radio-raremono.c
-+++ b/drivers/media/radio/radio-raremono.c
-@@ -283,6 +283,14 @@ static int vidioc_g_frequency(struct fil
+--- a/drivers/bluetooth/hci_ath.c
++++ b/drivers/bluetooth/hci_ath.c
+@@ -101,6 +101,9 @@ static int ath_open(struct hci_uart *hu)
+ 
+ 	BT_DBG("hu %p", hu);
+ 
++	if (!hci_uart_has_flow_control(hu))
++		return -EOPNOTSUPP;
++
+ 	ath = kzalloc(sizeof(*ath), GFP_KERNEL);
+ 	if (!ath)
+ 		return -ENOMEM;
+--- a/drivers/bluetooth/hci_bcm.c
++++ b/drivers/bluetooth/hci_bcm.c
+@@ -279,6 +279,9 @@ static int bcm_open(struct hci_uart *hu)
+ 
+ 	bt_dev_dbg(hu->hdev, "hu %p", hu);
+ 
++	if (!hci_uart_has_flow_control(hu))
++		return -EOPNOTSUPP;
++
+ 	bcm = kzalloc(sizeof(*bcm), GFP_KERNEL);
+ 	if (!bcm)
+ 		return -ENOMEM;
+--- a/drivers/bluetooth/hci_intel.c
++++ b/drivers/bluetooth/hci_intel.c
+@@ -407,6 +407,9 @@ static int intel_open(struct hci_uart *h
+ 
+ 	BT_DBG("hu %p", hu);
+ 
++	if (!hci_uart_has_flow_control(hu))
++		return -EOPNOTSUPP;
++
+ 	intel = kzalloc(sizeof(*intel), GFP_KERNEL);
+ 	if (!intel)
+ 		return -ENOMEM;
+--- a/drivers/bluetooth/hci_ldisc.c
++++ b/drivers/bluetooth/hci_ldisc.c
+@@ -263,6 +263,15 @@ static int hci_uart_send_frame(struct hc
  	return 0;
  }
  
-+static void raremono_device_release(struct v4l2_device *v4l2_dev)
++/* Check the underlying device or tty has flow control support */
++bool hci_uart_has_flow_control(struct hci_uart *hu)
 +{
-+	struct raremono_device *radio = to_raremono_dev(v4l2_dev);
++	if (hu->tty->driver->ops->tiocmget && hu->tty->driver->ops->tiocmset)
++		return true;
 +
-+	kfree(radio->buffer);
-+	kfree(radio);
++	return false;
 +}
 +
- /* File system interface */
- static const struct v4l2_file_operations usb_raremono_fops = {
- 	.owner		= THIS_MODULE,
-@@ -307,12 +315,14 @@ static int usb_raremono_probe(struct usb
- 	struct raremono_device *radio;
- 	int retval = 0;
+ /* Flow control or un-flow control the device */
+ void hci_uart_set_flow_control(struct hci_uart *hu, bool enable)
+ {
+--- a/drivers/bluetooth/hci_mrvl.c
++++ b/drivers/bluetooth/hci_mrvl.c
+@@ -66,6 +66,9 @@ static int mrvl_open(struct hci_uart *hu
  
--	radio = devm_kzalloc(&intf->dev, sizeof(struct raremono_device), GFP_KERNEL);
--	if (radio)
--		radio->buffer = devm_kmalloc(&intf->dev, BUFFER_LENGTH, GFP_KERNEL);
--
--	if (!radio || !radio->buffer)
-+	radio = kzalloc(sizeof(*radio), GFP_KERNEL);
-+	if (!radio)
-+		return -ENOMEM;
-+	radio->buffer = kmalloc(BUFFER_LENGTH, GFP_KERNEL);
-+	if (!radio->buffer) {
-+		kfree(radio);
- 		return -ENOMEM;
-+	}
+ 	BT_DBG("hu %p", hu);
  
- 	radio->usbdev = interface_to_usbdev(intf);
- 	radio->intf = intf;
-@@ -336,7 +346,8 @@ static int usb_raremono_probe(struct usb
- 	if (retval != 3 ||
- 	    (get_unaligned_be16(&radio->buffer[1]) & 0xfff) == 0x0242) {
- 		dev_info(&intf->dev, "this is not Thanko's Raremono.\n");
--		return -ENODEV;
-+		retval = -ENODEV;
-+		goto free_mem;
- 	}
- 
- 	dev_info(&intf->dev, "Thanko's Raremono connected: (%04X:%04X)\n",
-@@ -345,7 +356,7 @@ static int usb_raremono_probe(struct usb
- 	retval = v4l2_device_register(&intf->dev, &radio->v4l2_dev);
- 	if (retval < 0) {
- 		dev_err(&intf->dev, "couldn't register v4l2_device\n");
--		return retval;
-+		goto free_mem;
- 	}
- 
- 	mutex_init(&radio->lock);
-@@ -357,6 +368,7 @@ static int usb_raremono_probe(struct usb
- 	radio->vdev.ioctl_ops = &usb_raremono_ioctl_ops;
- 	radio->vdev.lock = &radio->lock;
- 	radio->vdev.release = video_device_release_empty;
-+	radio->v4l2_dev.release = raremono_device_release;
- 
- 	usb_set_intfdata(intf, &radio->v4l2_dev);
- 
-@@ -372,6 +384,10 @@ static int usb_raremono_probe(struct usb
- 	}
- 	dev_err(&intf->dev, "could not register video device\n");
- 	v4l2_device_unregister(&radio->v4l2_dev);
++	if (!hci_uart_has_flow_control(hu))
++		return -EOPNOTSUPP;
 +
-+free_mem:
-+	kfree(radio->buffer);
-+	kfree(radio);
- 	return retval;
- }
- 
+ 	mrvl = kzalloc(sizeof(*mrvl), GFP_KERNEL);
+ 	if (!mrvl)
+ 		return -ENOMEM;
+--- a/drivers/bluetooth/hci_uart.h
++++ b/drivers/bluetooth/hci_uart.h
+@@ -109,6 +109,7 @@ int hci_uart_tx_wakeup(struct hci_uart *
+ int hci_uart_init_ready(struct hci_uart *hu);
+ void hci_uart_init_tty(struct hci_uart *hu);
+ void hci_uart_set_baudrate(struct hci_uart *hu, unsigned int speed);
++bool hci_uart_has_flow_control(struct hci_uart *hu);
+ void hci_uart_set_flow_control(struct hci_uart *hu, bool enable);
+ void hci_uart_set_speeds(struct hci_uart *hu, unsigned int init_speed,
+ 			 unsigned int oper_speed);
 
 
