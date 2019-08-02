@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2E077F3AB
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:00:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEB397F350
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:57:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406135AbfHBJzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:55:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33588 "EHLO mail.kernel.org"
+        id S2406682AbfHBJ4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:56:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406485AbfHBJzK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:55:10 -0400
+        id S2406675AbfHBJ4H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:56:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE2CC206A2;
-        Fri,  2 Aug 2019 09:55:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 822652064A;
+        Fri,  2 Aug 2019 09:56:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739710;
-        bh=ctxtzsTqbKx85BXupl4d4d0HHrp90z4CQv0kcxHld48=;
+        s=default; t=1564739766;
+        bh=TO/8nnFSSvjptpD6jOWFDtSTYx1GoMZAaSaBFpVcCNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GRrKBZEN74bgKZgc5TD+f4sVQ3ifQCDHiX7Gp/+wInEkoMfPX6YAHuh7MDaweS8+Y
-         uK+xZRESbAnt01aefCQsqECR8mC4yW6VIC+TACWMZpirIzRHgwS6yS/ltg1YT/Vzc7
-         /Gz2ZhgtlRRjAmj7xq0MIhxR31nsjduNRSVO2TAs=
+        b=wTbDhJXIC3rs0GVEoV2afWeGRqNS1ikm8GC78GsnS5Bg6EYDmdaFF32kytPDgGZpE
+         Kuz4GVDsNgdYCOekkdXy43JORGbJcce7vbnj7MzM2tIBJaaNFFR5TsWx9vrm11hYo+
+         x/0VgpeSLhALYluj4Z7QaL4nFqhg8IDx3E0rWL04=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhishek Sahu <absahu@codeaurora.org>,
-        Sricharan R <sricharan@codeaurora.org>,
-        Austin Christ <austinwc@codeaurora.org>,
-        Andy Gross <andy.gross@linaro.org>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Amit Pundir <amit.pundir@linaro.org>
-Subject: [PATCH 4.14 07/25] i2c: qup: fixed releasing dma without flush operation completion
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Qian Lu <luqia@amazon.com>
+Subject: [PATCH 4.19 05/32] NFSv4: Fix lookup revalidate of regular files
 Date:   Fri,  2 Aug 2019 11:39:39 +0200
-Message-Id: <20190802092100.708534648@linuxfoundation.org>
+Message-Id: <20190802092103.334825109@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190802092058.428079740@linuxfoundation.org>
-References: <20190802092058.428079740@linuxfoundation.org>
+In-Reply-To: <20190802092101.913646560@linuxfoundation.org>
+References: <20190802092101.913646560@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,47 +44,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abhishek Sahu <absahu@codeaurora.org>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 7239872fb3400b21a8f5547257f9f86455867bd6 upstream.
+commit c7944ebb9ce9461079659e9e6ec5baaf73724b3b upstream.
 
-The QUP BSLP BAM generates the following error sometimes if the
-current I2C DMA transfer fails and the flush operation has been
-scheduled
+If we're revalidating an existing dentry in order to open a file, we need
+to ensure that we check the directory has not changed before we optimise
+away the lookup.
 
-    “bam-dma-engine 7884000.dma: Cannot free busy channel”
-
-If any I2C error comes during BAM DMA transfer, then the QUP I2C
-interrupt will be generated and the flush operation will be
-carried out to make I2C consume all scheduled DMA transfer.
-Currently, the same completion structure is being used for BAM
-transfer which has already completed without reinit. It will make
-flush operation wait_for_completion_timeout completed immediately
-and will proceed for freeing the DMA resources where the
-descriptors are still in process.
-
-Signed-off-by: Abhishek Sahu <absahu@codeaurora.org>
-Acked-by: Sricharan R <sricharan@codeaurora.org>
-Reviewed-by: Austin Christ <austinwc@codeaurora.org>
-Reviewed-by: Andy Gross <andy.gross@linaro.org>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Amit Pundir <amit.pundir@linaro.org>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Qian Lu <luqia@amazon.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-qup.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/nfs/dir.c |   79 +++++++++++++++++++++++++++++------------------------------
+ 1 file changed, 39 insertions(+), 40 deletions(-)
 
---- a/drivers/i2c/busses/i2c-qup.c
-+++ b/drivers/i2c/busses/i2c-qup.c
-@@ -844,6 +844,8 @@ static int qup_i2c_bam_do_xfer(struct qu
- 	}
+--- a/fs/nfs/dir.c
++++ b/fs/nfs/dir.c
+@@ -1231,7 +1231,8 @@ out_bad:
+ }
  
- 	if (ret || qup->bus_err || qup->qup_err) {
-+		reinit_completion(&qup->xfer);
+ static int
+-nfs_lookup_revalidate(struct dentry *dentry, unsigned int flags)
++__nfs_lookup_revalidate(struct dentry *dentry, unsigned int flags,
++			int (*reval)(struct inode *, struct dentry *, unsigned int))
+ {
+ 	struct dentry *parent;
+ 	struct inode *dir;
+@@ -1242,17 +1243,22 @@ nfs_lookup_revalidate(struct dentry *den
+ 		dir = d_inode_rcu(parent);
+ 		if (!dir)
+ 			return -ECHILD;
+-		ret = nfs_do_lookup_revalidate(dir, dentry, flags);
++		ret = reval(dir, dentry, flags);
+ 		if (parent != READ_ONCE(dentry->d_parent))
+ 			return -ECHILD;
+ 	} else {
+ 		parent = dget_parent(dentry);
+-		ret = nfs_do_lookup_revalidate(d_inode(parent), dentry, flags);
++		ret = reval(d_inode(parent), dentry, flags);
+ 		dput(parent);
+ 	}
+ 	return ret;
+ }
+ 
++static int nfs_lookup_revalidate(struct dentry *dentry, unsigned int flags)
++{
++	return __nfs_lookup_revalidate(dentry, flags, nfs_do_lookup_revalidate);
++}
 +
- 		if (qup_i2c_change_state(qup, QUP_RUN_STATE)) {
- 			dev_err(qup->dev, "change to run state timed out");
- 			goto desc_err;
+ /*
+  * A weaker form of d_revalidate for revalidating just the d_inode(dentry)
+  * when we don't really care about the dentry name. This is called when a
+@@ -1609,62 +1615,55 @@ no_open:
+ }
+ EXPORT_SYMBOL_GPL(nfs_atomic_open);
+ 
+-static int nfs4_lookup_revalidate(struct dentry *dentry, unsigned int flags)
++static int
++nfs4_do_lookup_revalidate(struct inode *dir, struct dentry *dentry,
++			  unsigned int flags)
+ {
+ 	struct inode *inode;
+-	int ret = 0;
+ 
+ 	if (!(flags & LOOKUP_OPEN) || (flags & LOOKUP_DIRECTORY))
+-		goto no_open;
++		goto full_reval;
+ 	if (d_mountpoint(dentry))
+-		goto no_open;
+-	if (NFS_SB(dentry->d_sb)->caps & NFS_CAP_ATOMIC_OPEN_V1)
+-		goto no_open;
++		goto full_reval;
+ 
+ 	inode = d_inode(dentry);
+ 
+ 	/* We can't create new files in nfs_open_revalidate(), so we
+ 	 * optimize away revalidation of negative dentries.
+ 	 */
+-	if (inode == NULL) {
+-		struct dentry *parent;
+-		struct inode *dir;
+-
+-		if (flags & LOOKUP_RCU) {
+-			parent = READ_ONCE(dentry->d_parent);
+-			dir = d_inode_rcu(parent);
+-			if (!dir)
+-				return -ECHILD;
+-		} else {
+-			parent = dget_parent(dentry);
+-			dir = d_inode(parent);
+-		}
+-		if (!nfs_neg_need_reval(dir, dentry, flags))
+-			ret = 1;
+-		else if (flags & LOOKUP_RCU)
+-			ret = -ECHILD;
+-		if (!(flags & LOOKUP_RCU))
+-			dput(parent);
+-		else if (parent != READ_ONCE(dentry->d_parent))
+-			return -ECHILD;
+-		goto out;
+-	}
++	if (inode == NULL)
++		goto full_reval;
++
++	if (NFS_PROTO(dir)->have_delegation(inode, FMODE_READ))
++		return nfs_lookup_revalidate_delegated(dir, dentry, inode);
+ 
+ 	/* NFS only supports OPEN on regular files */
+ 	if (!S_ISREG(inode->i_mode))
+-		goto no_open;
++		goto full_reval;
++
+ 	/* We cannot do exclusive creation on a positive dentry */
+-	if (flags & LOOKUP_EXCL)
+-		goto no_open;
++	if (flags & (LOOKUP_EXCL | LOOKUP_REVAL))
++		goto reval_dentry;
++
++	/* Check if the directory changed */
++	if (!nfs_check_verifier(dir, dentry, flags & LOOKUP_RCU))
++		goto reval_dentry;
+ 
+ 	/* Let f_op->open() actually open (and revalidate) the file */
+-	ret = 1;
++	return 1;
++reval_dentry:
++	if (flags & LOOKUP_RCU)
++		return -ECHILD;
++	return nfs_lookup_revalidate_dentry(dir, dentry, inode);;
+ 
+-out:
+-	return ret;
++full_reval:
++	return nfs_do_lookup_revalidate(dir, dentry, flags);
++}
+ 
+-no_open:
+-	return nfs_lookup_revalidate(dentry, flags);
++static int nfs4_lookup_revalidate(struct dentry *dentry, unsigned int flags)
++{
++	return __nfs_lookup_revalidate(dentry, flags,
++			nfs4_do_lookup_revalidate);
+ }
+ 
+ #endif /* CONFIG_NFSV4 */
 
 
