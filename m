@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BFDD7F8A1
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:22:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B70B57F89D
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:22:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393533AbfHBNVN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:21:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59524 "EHLO mail.kernel.org"
+        id S2393521AbfHBNVE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:21:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393498AbfHBNU5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:20:57 -0400
+        id S2393513AbfHBNVB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:21:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B56B021849;
-        Fri,  2 Aug 2019 13:20:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B07FD21874;
+        Fri,  2 Aug 2019 13:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752057;
-        bh=T2iFgkP0UDzAXbiI2k0wz3wf1VnOxEi+QvaaMJHeMfY=;
+        s=default; t=1564752060;
+        bh=f8G2/wd67YDwZwe/iPPwCfXyLCn6p/rf/hjQ1CysWqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0kF+BRTJZKkb5JLOblpAsbxxZg0n8Zvuc4nU16qfG0+LLsDH7jrEuIz9etLt/N86b
-         qRuWi0dmy095lQ8E112Dyg2G5ZHgaIs3tTy3KwUw5pHqoifdLGHsOFrKCMQgNUqM2Q
-         pKsb99G+cMJdFfUksXwsi9CHQikSKMsfOdOymcvM=
+        b=y+0QzwJtWVb7AXzB2ZbIZZ7oCFJdygy+RnV3QdAeQBUF5yWdq7eyIGWejNgJETQpC
+         JVa++9wji2X4VWJiMn7x1gg9ugmsB3ylw1/S/FOWIIhxaFvLNhWk053gcM2JfyYa2v
+         vFr7RAy5zmobJygv1St9dqsY0dNOJ4rsPJiCRfZo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vaibhav Jain <vaibhav@linux.ibm.com>,
-        "Oliver O'Halloran" <oohall@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.2 37/76] powerpc/papr_scm: Force a scm-unbind if initial scm-bind fails
-Date:   Fri,  2 Aug 2019 09:19:11 -0400
-Message-Id: <20190802131951.11600-37-sashal@kernel.org>
+Cc:     Marc Zyngier <marc.zyngier@arm.com>, Will Deacon <will@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 38/76] arm64: Force SSBS on context switch
+Date:   Fri,  2 Aug 2019 09:19:12 -0400
+Message-Id: <20190802131951.11600-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
 References: <20190802131951.11600-1-sashal@kernel.org>
@@ -44,73 +42,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vaibhav Jain <vaibhav@linux.ibm.com>
+From: Marc Zyngier <marc.zyngier@arm.com>
 
-[ Upstream commit 3a855b7ac7d5021674aa3e1cc9d3bfd6b604e9c0 ]
+[ Upstream commit cbdf8a189a66001c36007bf0f5c975d0376c5c3a ]
 
-In some cases initial bind of scm memory for an lpar can fail if
-previously it wasn't released using a scm-unbind hcall. This situation
-can arise due to panic of the previous kernel or forced lpar
-fadump. In such cases the H_SCM_BIND_MEM return a H_OVERLAP error.
+On a CPU that doesn't support SSBS, PSTATE[12] is RES0.  In a system
+where only some of the CPUs implement SSBS, we end-up losing track of
+the SSBS bit across task migration.
 
-To mitigate such cases the patch updates papr_scm_probe() to force a
-call to drc_pmem_unbind() in case the initial bind of scm memory fails
-with EBUSY error. In case scm-bind operation again fails after the
-forced scm-unbind then we follow the existing error path. We also
-update drc_pmem_bind() to handle the H_OVERLAP error returned by phyp
-and indicate it as a EBUSY error back to the caller.
+To address this issue, let's force the SSBS bit on context switch.
 
-Suggested-by: "Oliver O'Halloran" <oohall@gmail.com>
-Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
-Reviewed-by: Oliver O'Halloran <oohall@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190629160610.23402-4-vaibhav@linux.ibm.com
+Fixes: 8f04e8e6e29c ("arm64: ssbd: Add support for PSTATE.SSBS rather than trapping to EL3")
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+[will: inverted logic and added comments]
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/papr_scm.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ arch/arm64/include/asm/processor.h | 14 ++++++++++++--
+ arch/arm64/kernel/process.c        | 29 ++++++++++++++++++++++++++++-
+ 2 files changed, 40 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/papr_scm.c b/arch/powerpc/platforms/pseries/papr_scm.c
-index 96c53b23e58f9..dad9825e40874 100644
---- a/arch/powerpc/platforms/pseries/papr_scm.c
-+++ b/arch/powerpc/platforms/pseries/papr_scm.c
-@@ -42,8 +42,9 @@ struct papr_scm_priv {
- static int drc_pmem_bind(struct papr_scm_priv *p)
+diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
+index fd5b1a4efc70e..844e2964b0f5e 100644
+--- a/arch/arm64/include/asm/processor.h
++++ b/arch/arm64/include/asm/processor.h
+@@ -193,6 +193,16 @@ static inline void start_thread_common(struct pt_regs *regs, unsigned long pc)
+ 		regs->pmr_save = GIC_PRIO_IRQON;
+ }
+ 
++static inline void set_ssbs_bit(struct pt_regs *regs)
++{
++	regs->pstate |= PSR_SSBS_BIT;
++}
++
++static inline void set_compat_ssbs_bit(struct pt_regs *regs)
++{
++	regs->pstate |= PSR_AA32_SSBS_BIT;
++}
++
+ static inline void start_thread(struct pt_regs *regs, unsigned long pc,
+ 				unsigned long sp)
  {
- 	unsigned long ret[PLPAR_HCALL_BUFSIZE];
--	uint64_t rc, token;
- 	uint64_t saved = 0;
-+	uint64_t token;
-+	int64_t rc;
+@@ -200,7 +210,7 @@ static inline void start_thread(struct pt_regs *regs, unsigned long pc,
+ 	regs->pstate = PSR_MODE_EL0t;
+ 
+ 	if (arm64_get_ssbd_state() != ARM64_SSBD_FORCE_ENABLE)
+-		regs->pstate |= PSR_SSBS_BIT;
++		set_ssbs_bit(regs);
+ 
+ 	regs->sp = sp;
+ }
+@@ -219,7 +229,7 @@ static inline void compat_start_thread(struct pt_regs *regs, unsigned long pc,
+ #endif
+ 
+ 	if (arm64_get_ssbd_state() != ARM64_SSBD_FORCE_ENABLE)
+-		regs->pstate |= PSR_AA32_SSBS_BIT;
++		set_compat_ssbs_bit(regs);
+ 
+ 	regs->compat_sp = sp;
+ }
+diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
+index 6a869d9f304f7..b0c859ca63201 100644
+--- a/arch/arm64/kernel/process.c
++++ b/arch/arm64/kernel/process.c
+@@ -398,7 +398,7 @@ int copy_thread(unsigned long clone_flags, unsigned long stack_start,
+ 			childregs->pstate |= PSR_UAO_BIT;
+ 
+ 		if (arm64_get_ssbd_state() == ARM64_SSBD_FORCE_DISABLE)
+-			childregs->pstate |= PSR_SSBS_BIT;
++			set_ssbs_bit(childregs);
+ 
+ 		if (system_uses_irq_prio_masking())
+ 			childregs->pmr_save = GIC_PRIO_IRQON;
+@@ -442,6 +442,32 @@ void uao_thread_switch(struct task_struct *next)
+ 	}
+ }
+ 
++/*
++ * Force SSBS state on context-switch, since it may be lost after migrating
++ * from a CPU which treats the bit as RES0 in a heterogeneous system.
++ */
++static void ssbs_thread_switch(struct task_struct *next)
++{
++	struct pt_regs *regs = task_pt_regs(next);
++
++	/*
++	 * Nothing to do for kernel threads, but 'regs' may be junk
++	 * (e.g. idle task) so check the flags and bail early.
++	 */
++	if (unlikely(next->flags & PF_KTHREAD))
++		return;
++
++	/* If the mitigation is enabled, then we leave SSBS clear. */
++	if ((arm64_get_ssbd_state() == ARM64_SSBD_FORCE_ENABLE) ||
++	    test_tsk_thread_flag(next, TIF_SSBD))
++		return;
++
++	if (compat_user_mode(regs))
++		set_compat_ssbs_bit(regs);
++	else if (user_mode(regs))
++		set_ssbs_bit(regs);
++}
++
+ /*
+  * We store our current task in sp_el0, which is clobbered by userspace. Keep a
+  * shadow copy so that we can restore this upon entry from userspace.
+@@ -471,6 +497,7 @@ __notrace_funcgraph struct task_struct *__switch_to(struct task_struct *prev,
+ 	entry_task_switch(next);
+ 	uao_thread_switch(next);
+ 	ptrauth_thread_switch(next);
++	ssbs_thread_switch(next);
  
  	/*
- 	 * When the hypervisor cannot map all the requested memory in a single
-@@ -63,6 +64,10 @@ static int drc_pmem_bind(struct papr_scm_priv *p)
- 	} while (rc == H_BUSY);
- 
- 	if (rc) {
-+		/* H_OVERLAP needs a separate error path */
-+		if (rc == H_OVERLAP)
-+			return -EBUSY;
-+
- 		dev_err(&p->pdev->dev, "bind err: %lld\n", rc);
- 		return -ENXIO;
- 	}
-@@ -316,6 +321,14 @@ static int papr_scm_probe(struct platform_device *pdev)
- 
- 	/* request the hypervisor to bind this region to somewhere in memory */
- 	rc = drc_pmem_bind(p);
-+
-+	/* If phyp says drc memory still bound then force unbound and retry */
-+	if (rc == -EBUSY) {
-+		dev_warn(&pdev->dev, "Retrying bind after unbinding\n");
-+		drc_pmem_unbind(p);
-+		rc = drc_pmem_bind(p);
-+	}
-+
- 	if (rc)
- 		goto err;
- 
+ 	 * Complete any pending TLB or cache maintenance on this CPU in case
 -- 
 2.20.1
 
