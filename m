@@ -2,107 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 471357FE61
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 18:14:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B944F7FE6B
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 18:17:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389728AbfHBQOo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 12:14:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49286 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388740AbfHBQOo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 12:14:44 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EB7A20449;
-        Fri,  2 Aug 2019 16:14:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564762483;
-        bh=s7G1CZ11b1xmPb5OcuNjdDc8UfVrOeNGqKNBdFIW5N0=;
-        h=Subject:To:From:Date:From;
-        b=cvDZBQP6AJM8+jhI1oDTspiVJXFwTcQUsv0sjSzUvp9Eolfk5QhKzLdWS/61y0HM0
-         EENlzNsg8k8lQlsAXy+815z14CqOt8qbGrPyO8CAaiTZtYb+xYrdx8V+JHRbrRWQOs
-         yxt9W0nuhEToV4CQ4d/BaV6mTklU3es0kuTzI/bc=
-Subject: patch "usb: host: xhci-rcar: Fix timeout in xhci_suspend()" added to usb-linus
-To:     yoshihiro.shimoda.uh@renesas.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 02 Aug 2019 18:14:40 +0200
-Message-ID: <15647624809311@kroah.com>
+        id S1732465AbfHBQRD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 12:17:03 -0400
+Received: from mail-wm1-f46.google.com ([209.85.128.46]:39448 "EHLO
+        mail-wm1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727758AbfHBQRD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 12:17:03 -0400
+Received: by mail-wm1-f46.google.com with SMTP id u25so56520279wmc.4
+        for <stable@vger.kernel.org>; Fri, 02 Aug 2019 09:17:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=8jC0z1URQ1H0xyCXJDkfPMve8cjcGKBfDhT0uA7E2TE=;
+        b=CpzK62stKuMkXWaFExONCmS0RQbzvZZTVov8VBEzGUUjyLuRRsMpjtB8EaTdc4WAWX
+         zEnfHNzFdAhZzoeBa8PSeh6Tmi0Fx+4heVMpVoG7JUtBtvdutVCRTIyRXp759AWWUFRA
+         b8kQo9GZc/fmkEUZI/HxT7BFLE1UfQuHephAVmULl/DKCRP2idNnSXHPcNbfbWXlpkjc
+         KN2OwpNYZ1GKbu8ieKYViuHX49yd8wii2UXR/UufUClQCfez3PRKKuwDZHG22v93O/qy
+         7mfkGk4qV46yFzWmRCnJO9lCx9HJQTKYBxmx2T4BuRbNHztnC3FzkGRxNtBrXV+nZGNi
+         3n2w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=8jC0z1URQ1H0xyCXJDkfPMve8cjcGKBfDhT0uA7E2TE=;
+        b=AwFW82Bwm2qw+rYahWRGDti/FmbtsEX+1e9DRwKggNQAsNWuBZAXw6ugeEAzRJZL8x
+         6W2inX53uRJyxosJ4UxekNEaJ5h3zTNoJCQJYfeWtR9gXesHrLGY94bPt+803k7/H/3O
+         0A+4dQf0lr4uV5VmG3jpFRFehaVtz/2B5h3AYGsPmTXe6E3l3AudKuy0jhl4vOIN2bsG
+         Cwf5XhKlj25/d1vv0qid+QZdaqYXmmaR5zR15OypUJPzAHcAxWO4d0ZC2JzsTk+ftoQR
+         cNdLXIo2DETsEAa8qQiEyY3e6aPxn+kzsvXBXPHcmRCeI1zk22/1uQMz8jDIRZWA/iUp
+         Ulig==
+X-Gm-Message-State: APjAAAXfGihPosYNTyHG0+CRE3XdD1cbrHXOBRW7e8erOSK6M9me98rl
+        ZdZjqajaKwv4cxZ2MMSQaHHIjmBNPLVfkw==
+X-Google-Smtp-Source: APXvYqyqrDZ6QDFYZ/VIY/JAxoEvkfck0E98f5YeG3io0CgEx5dyjHbQmrJpBk4bLSf03CmKNS532g==
+X-Received: by 2002:a1c:d107:: with SMTP id i7mr5438942wmg.92.1564762620431;
+        Fri, 02 Aug 2019 09:17:00 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id k124sm127616048wmk.47.2019.08.02.09.16.59
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 02 Aug 2019 09:16:59 -0700 (PDT)
+Message-ID: <5d4461fb.1c69fb81.9f97b.176c@mx.google.com>
+Date:   Fri, 02 Aug 2019 09:16:59 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.186-224-g5380ded2525d
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.9.y boot: 101 boots: 0 failed,
+ 66 passed with 35 offline (v4.9.186-224-g5380ded2525d)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.9.y boot: 101 boots: 0 failed, 66 passed with 35 offline =
+(v4.9.186-224-g5380ded2525d)
 
-This is a note to let you know that I've just added the patch titled
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.186-224-g5380ded2525d/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.186-224-g5380ded2525d/
 
-    usb: host: xhci-rcar: Fix timeout in xhci_suspend()
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.186-224-g5380ded2525d
+Git Commit: 5380ded2525da1be5103e3f0f33129dcbffa3add
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 50 unique boards, 23 SoC families, 15 builds out of 197
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+Offline Platforms:
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+arm64:
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+    defconfig:
+        gcc-8
+            meson-gxbb-odroidc2: 1 offline lab
 
-If you have any questions about this process, please let me know.
+arm:
 
+    tegra_defconfig:
+        gcc-8
+            tegra20-iris-512: 1 offline lab
 
-From 783bda5e41acc71f98336e1a402c180f9748e5dc Mon Sep 17 00:00:00 2001
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Date: Fri, 2 Aug 2019 17:33:35 +0900
-Subject: usb: host: xhci-rcar: Fix timeout in xhci_suspend()
+    exynos_defconfig:
+        gcc-8
+            exynos5250-arndale: 1 offline lab
+            exynos5420-arndale-octa: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
 
-When a USB device is connected to the host controller and
-the system enters suspend, the following error happens
-in xhci_suspend():
+    multi_v7_defconfig:
+        gcc-8
+            bcm72521-bcm97252sffe: 1 offline lab
+            bcm7445-bcm97445c: 1 offline lab
+            exynos5250-arndale: 1 offline lab
+            exynos5420-arndale-octa: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
+            imx6dl-wandboard_dual: 1 offline lab
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+            imx7s-warp: 1 offline lab
+            meson8b-odroidc1: 1 offline lab
+            omap3-beagle: 1 offline lab
+            omap4-panda: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            stih410-b2120: 1 offline lab
+            sun4i-a10-cubieboard: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+            tegra20-iris-512: 1 offline lab
+            vf610-colibri-eval-v3: 1 offline lab
 
-	xhci-hcd ee000000.usb: WARN: xHC CMD_RUN timeout
+    omap2plus_defconfig:
+        gcc-8
+            omap3-beagle: 1 offline lab
+            omap4-panda: 1 offline lab
 
-Since the firmware/internal CPU control the USBSTS.STS_HALT
-and the process speed is down when the roothub port enters U3,
-long delay for the handshake of STS_HALT is neeed in xhci_suspend().
-So, this patch adds to set the XHCI_SLOW_SUSPEND.
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-ifc6410: 1 offline lab
 
-Fixes: 435cc1138ec9 ("usb: host: xhci-plat: set resume_quirk() for R-Car controllers")
-Cc: <stable@vger.kernel.org> # v4.12+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/1564734815-17964-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+    imx_v6_v7_defconfig:
+        gcc-8
+            imx6dl-wandboard_dual: 1 offline lab
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+            imx7s-warp: 1 offline lab
+            vf610-colibri-eval-v3: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun4i-a10-cubieboard: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
 ---
- drivers/usb/host/xhci-rcar.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/usb/host/xhci-rcar.c b/drivers/usb/host/xhci-rcar.c
-index 671bce18782c..8616c52849c6 100644
---- a/drivers/usb/host/xhci-rcar.c
-+++ b/drivers/usb/host/xhci-rcar.c
-@@ -238,10 +238,15 @@ int xhci_rcar_init_quirk(struct usb_hcd *hcd)
- 	 * pointers. So, this driver clears the AC64 bit of xhci->hcc_params
- 	 * to call dma_set_coherent_mask(dev, DMA_BIT_MASK(32)) in
- 	 * xhci_gen_setup().
-+	 *
-+	 * And, since the firmware/internal CPU control the USBSTS.STS_HALT
-+	 * and the process speed is down when the roothub port enters U3,
-+	 * long delay for the handshake of STS_HALT is neeed in xhci_suspend().
- 	 */
- 	if (xhci_rcar_is_gen2(hcd->self.controller) ||
--			xhci_rcar_is_gen3(hcd->self.controller))
--		xhci->quirks |= XHCI_NO_64BIT_SUPPORT;
-+			xhci_rcar_is_gen3(hcd->self.controller)) {
-+		xhci->quirks |= XHCI_NO_64BIT_SUPPORT | XHCI_SLOW_SUSPEND;
-+	}
- 
- 	if (!xhci_rcar_wait_for_pll_active(hcd))
- 		return -ETIMEDOUT;
--- 
-2.22.0
-
-
+For more info write to <info@kernelci.org>
