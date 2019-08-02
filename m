@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45CFF7F8E9
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:24:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22C3F7F8EB
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:24:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729708AbfHBNW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:22:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33472 "EHLO mail.kernel.org"
+        id S1732440AbfHBNXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:23:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393864AbfHBNW6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:22:58 -0400
+        id S1731794AbfHBNXF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:23:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37C362182B;
-        Fri,  2 Aug 2019 13:22:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A298217D4;
+        Fri,  2 Aug 2019 13:23:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752177;
-        bh=T29yJ8snlNAdkwvQv7BaxsTHlI9gtx7BlKGKUKsLvY4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cmi/aQuxCo4CoMB/VsCoUKlW6tiUX6hDYrCbGqVdmpRA12PrAB9FctmRn6D+Ah0u/
-         QW3pBih6qWUJkn5Xdjdlm/s8hIUlYCzfotiCKs4pCV7Pst2BquJUirASqnNxe7Fszz
-         xTrgYJxJToqjfF3lZUsSSf8lvhqWQtseF3ag09nQ=
+        s=default; t=1564752184;
+        bh=FiM5YvIzCSvxAqFNHP7gBJ+hf6uOa38n0rEzatyP9WI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=O60CUC+rGeSXycwlOIzIfEtsq8EJghQYe5ThkaUm0sndCwzdBYt6W3nXNLZsiJtj0
+         7n5V5MoTq76P7VrHmvVQsck5NyR+w9Fp/famuHasOXaZm3/SzahWnNxXRSVYNXzmuC
+         LUKi+ie88VG8ZjuL6I+Wxjue0H7Lvpaoqu6i0HwQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 76/76] gen_compile_commands: lower the entry count threshold
-Date:   Fri,  2 Aug 2019 09:19:50 -0400
-Message-Id: <20190802131951.11600-76-sashal@kernel.org>
+Cc:     Florian Westphal <fw@strlen.de>,
+        Thomas Jarosch <thomas.jarosch@intra2net.com>,
+        Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 01/42] netfilter: nfnetlink: avoid deadlock due to synchronous request_module
+Date:   Fri,  2 Aug 2019 09:22:21 -0400
+Message-Id: <20190802132302.13537-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
-References: <20190802131951.11600-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,38 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit cb36955a5569f1ff17a42ae93264ef391c013a97 ]
+[ Upstream commit 1b0890cd60829bd51455dc5ad689ed58c4408227 ]
 
-Running gen_compile_commands.py after building the kernel with
-allnoconfig gave this:
+Thomas and Juliana report a deadlock when running:
 
-$ ./scripts/gen_compile_commands.py
-WARNING: Found 449 entries. Have you compiled the kernel?
+(rmmod nf_conntrack_netlink/xfrm_user)
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+  conntrack -e NEW -E &
+  modprobe -v xfrm_user
+
+They provided following analysis:
+
+conntrack -e NEW -E
+    netlink_bind()
+        netlink_lock_table() -> increases "nl_table_users"
+            nfnetlink_bind()
+            # does not unlock the table as it's locked by netlink_bind()
+                __request_module()
+                    call_usermodehelper_exec()
+
+This triggers "modprobe nf_conntrack_netlink" from kernel, netlink_bind()
+won't return until modprobe process is done.
+
+"modprobe xfrm_user":
+    xfrm_user_init()
+        register_pernet_subsys()
+            -> grab pernet_ops_rwsem
+                ..
+                netlink_table_grab()
+                    calls schedule() as "nl_table_users" is non-zero
+
+so modprobe is blocked because netlink_bind() increased
+nl_table_users while also holding pernet_ops_rwsem.
+
+"modprobe nf_conntrack_netlink" runs and inits nf_conntrack_netlink:
+    ctnetlink_init()
+        register_pernet_subsys()
+            -> blocks on "pernet_ops_rwsem" thanks to xfrm_user module
+
+both modprobe processes wait on one another -- neither can make
+progress.
+
+Switch netlink_bind() to "nowait" modprobe -- this releases the netlink
+table lock, which then allows both modprobe instances to complete.
+
+Reported-by: Thomas Jarosch <thomas.jarosch@intra2net.com>
+Reported-by: Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/gen_compile_commands.py | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/netfilter/nfnetlink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/scripts/gen_compile_commands.py b/scripts/gen_compile_commands.py
-index 7915823b92a5e..c458696ef3a79 100755
---- a/scripts/gen_compile_commands.py
-+++ b/scripts/gen_compile_commands.py
-@@ -21,9 +21,9 @@ _LINE_PATTERN = r'^cmd_[^ ]*\.o := (.* )([^ ]*\.c)$'
- _VALID_LOG_LEVELS = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
- 
- # A kernel build generally has over 2000 entries in its compile_commands.json
--# database. If this code finds 500 or fewer, then warn the user that they might
-+# database. If this code finds 300 or fewer, then warn the user that they might
- # not have all the .cmd files, and they might need to compile the kernel.
--_LOW_COUNT_THRESHOLD = 500
-+_LOW_COUNT_THRESHOLD = 300
- 
- 
- def parse_arguments():
+diff --git a/net/netfilter/nfnetlink.c b/net/netfilter/nfnetlink.c
+index 916913454624f..7f2c1915763f8 100644
+--- a/net/netfilter/nfnetlink.c
++++ b/net/netfilter/nfnetlink.c
+@@ -575,7 +575,7 @@ static int nfnetlink_bind(struct net *net, int group)
+ 	ss = nfnetlink_get_subsys(type << 8);
+ 	rcu_read_unlock();
+ 	if (!ss)
+-		request_module("nfnetlink-subsys-%d", type);
++		request_module_nowait("nfnetlink-subsys-%d", type);
+ 	return 0;
+ }
+ #endif
 -- 
 2.20.1
 
