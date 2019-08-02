@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3047F7F2A3
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:50:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18C3E7F2A5
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:50:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390012AbfHBJpa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:45:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49258 "EHLO mail.kernel.org"
+        id S2391965AbfHBJpd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:45:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405370AbfHBJp3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:45:29 -0400
+        id S2391942AbfHBJpc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:45:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B800720679;
-        Fri,  2 Aug 2019 09:45:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BB032086A;
+        Fri,  2 Aug 2019 09:45:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739129;
-        bh=SipdAuyC52gfeobWDnLZNj0rO8IMaAtTeLAVQJI1mFg=;
+        s=default; t=1564739131;
+        bh=iQP2fSg2U+1c6Xp5RHw7ciIsyiz20F1hyTMk5VXWhX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RyVItj122ALPHJ3/LZR3rNOTM+28FfOEh5yvRGIWNjFMO0JXmmapTTOnTQSzTr87q
-         X1dRInHXsiETxM6I1exttu6p0joZ0EdCY9hMUnyCpPrFpa1XCQpvD1E2R8yuwbTIJt
-         M1Nsm5RQQ3cshNh4FEhSHqr56+xv5F4Vj/QLFy+o=
+        b=d7lCwHbqUso0LxTtAl0T1OXO8S5aPlCmplViZLfSPI21tcWxXyUNERDbtkWPOAmTi
+         TsZx/7gtMcXqRhaolEhmFj5I+ljNV53LaWTMtWnXjIVYq17XaSOvuuEBLCPfd0tKxC
+         KercnQYst2f+Ervm/ToxjKUx7jfGF8QyP0YRa+Bk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.9 124/223] dm bufio: fix deadlock with loop device
-Date:   Fri,  2 Aug 2019 11:35:49 +0200
-Message-Id: <20190802092247.153499892@linuxfoundation.org>
+        stable@vger.kernel.org, Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 125/223] compiler.h, kasan: Avoid duplicating __read_once_size_nocheck()
+Date:   Fri,  2 Aug 2019 11:35:50 +0200
+Message-Id: <20190802092247.195768384@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -43,47 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junxiao Bi <junxiao.bi@oracle.com>
+[ Upstream commit bdb5ac801af3d81d36732c2f640d6a1d3df83826 ]
 
-commit bd293d071ffe65e645b4d8104f9d8fe15ea13862 upstream.
+Instead of having two identical __read_once_size_nocheck() functions
+with different attributes, consolidate all the difference in new macro
+__no_kasan_or_inline and use it. No functional changes.
 
-When thin-volume is built on loop device, if available memory is low,
-the following deadlock can be triggered:
-
-One process P1 allocates memory with GFP_FS flag, direct alloc fails,
-memory reclaim invokes memory shrinker in dm_bufio, dm_bufio_shrink_scan()
-runs, mutex dm_bufio_client->lock is acquired, then P1 waits for dm_buffer
-IO to complete in __try_evict_buffer().
-
-But this IO may never complete if issued to an underlying loop device
-that forwards it using direct-IO, which allocates memory using
-GFP_KERNEL (see: do_blockdev_direct_IO()).  If allocation fails, memory
-reclaim will invoke memory shrinker in dm_bufio, dm_bufio_shrink_scan()
-will be invoked, and since the mutex is already held by P1 the loop
-thread will hang, and IO will never complete.  Resulting in ABBA
-deadlock.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-bufio.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ include/linux/compiler.h | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
---- a/drivers/md/dm-bufio.c
-+++ b/drivers/md/dm-bufio.c
-@@ -1585,9 +1585,7 @@ dm_bufio_shrink_scan(struct shrinker *sh
- 	unsigned long freed;
+diff --git a/include/linux/compiler.h b/include/linux/compiler.h
+index 80a5bc623c47..ced454c03819 100644
+--- a/include/linux/compiler.h
++++ b/include/linux/compiler.h
+@@ -250,23 +250,21 @@ void __read_once_size(const volatile void *p, void *res, int size)
  
- 	c = container_of(shrink, struct dm_bufio_client, shrinker);
--	if (sc->gfp_mask & __GFP_FS)
--		dm_bufio_lock(c);
--	else if (!dm_bufio_trylock(c))
-+	if (!dm_bufio_trylock(c))
- 		return SHRINK_STOP;
+ #ifdef CONFIG_KASAN
+ /*
+- * This function is not 'inline' because __no_sanitize_address confilcts
++ * We can't declare function 'inline' because __no_sanitize_address confilcts
+  * with inlining. Attempt to inline it may cause a build failure.
+  * 	https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67368
+  * '__maybe_unused' allows us to avoid defined-but-not-used warnings.
+  */
+-static __no_sanitize_address __maybe_unused
+-void __read_once_size_nocheck(const volatile void *p, void *res, int size)
+-{
+-	__READ_ONCE_SIZE;
+-}
++# define __no_kasan_or_inline __no_sanitize_address __maybe_unused
+ #else
+-static __always_inline
++# define __no_kasan_or_inline __always_inline
++#endif
++
++static __no_kasan_or_inline
+ void __read_once_size_nocheck(const volatile void *p, void *res, int size)
+ {
+ 	__READ_ONCE_SIZE;
+ }
+-#endif
  
- 	freed  = __scan(c, sc->nr_to_scan, sc->gfp_mask);
+ static __always_inline void __write_once_size(volatile void *p, void *res, int size)
+ {
+-- 
+2.20.1
+
 
 
