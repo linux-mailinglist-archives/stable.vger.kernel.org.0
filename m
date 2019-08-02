@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DBDE17F418
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:04:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D077F419
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:05:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390189AbfHBJlV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:41:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42894 "EHLO mail.kernel.org"
+        id S2404552AbfHBJlX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:41:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391820AbfHBJlU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:41:20 -0400
+        id S2404535AbfHBJlX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:41:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC69520880;
-        Fri,  2 Aug 2019 09:41:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EDD820B7C;
+        Fri,  2 Aug 2019 09:41:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738879;
-        bh=4Ry8K8H4qf2fv5PifWxooMohERMXh9MUkiHHEwcDOvc=;
+        s=default; t=1564738882;
+        bh=QAUEWa1ttEy0uxdwhTrZYW8LSOnb2tc85gFbVnUv+pQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b3zi/xRB8C22n0vuIkvCVy8L30oPOJkUpOi4vVZKMz3nezbOgSd23xf4bc2tYRTSL
-         PwEeu6zc9dC8ItZ2Ud/CNNDIHoUo4aXLE60/eWOAeDX1QwWgEMaY5RgVmTCrrCz/pg
-         MiEb1WFrkxko4ElKciX8tD828qvemYZu1WKPjOcM=
+        b=Iw9mj2AE1AYH0ObyjeF9MqztnxWL7WVLPbemk0ryY5b69de64pSB70J6nnjVMhUjF
+         Wn3r7IwlXNq04kyjy8Q3+ywU5ZztfL8xx25BRlSx2F1l5ok7C/3/OyKASUpAgr6ADb
+         98ll9WhDt4Vk9vmFm+LRwHM/JIGY0UptXAJUNNjk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jose Abreu <joabreu@synopsys.com>,
-        Joao Pinto <jpinto@synopsys.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
+        stable@vger.kernel.org, Daniel Lezcano <daniel.lezcano@free.fr>,
+        Serge Hallyn <serge@hallyn.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 016/223] net: stmmac: dwmac4/5: Clear unused address entries
-Date:   Fri,  2 Aug 2019 11:34:01 +0200
-Message-Id: <20190802092240.060441829@linuxfoundation.org>
+Subject: [PATCH 4.9 017/223] signal/pid_namespace: Fix reboot_pid_ns to use send_sig not force_sig
+Date:   Fri,  2 Aug 2019 11:34:02 +0200
+Message-Id: <20190802092240.148075135@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -47,51 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0620ec6c62a5a07625b65f699adc5d1b90394ee6 ]
+[ Upstream commit f9070dc94542093fd516ae4ccea17ef46a4362c5 ]
 
-In case we don't use a given address entry we need to clear it because
-it could contain previous values that are no longer valid.
+The locking in force_sig_info is not prepared to deal with a task that
+exits or execs (as sighand may change).  The is not a locking problem
+in force_sig as force_sig is only built to handle synchronous
+exceptions.
 
-Found out while running stmmac selftests.
+Further the function force_sig_info changes the signal state if the
+signal is ignored, or blocked or if SIGNAL_UNKILLABLE will prevent the
+delivery of the signal.  The signal SIGKILL can not be ignored and can
+not be blocked and SIGNAL_UNKILLABLE won't prevent it from being
+delivered.
 
-Signed-off-by: Jose Abreu <joabreu@synopsys.com>
-Cc: Joao Pinto <jpinto@synopsys.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Giuseppe Cavallaro <peppe.cavallaro@st.com>
-Cc: Alexandre Torgue <alexandre.torgue@st.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+So using force_sig rather than send_sig for SIGKILL is confusing
+and pointless.
+
+Because it won't impact the sending of the signal and and because
+using force_sig is wrong, replace force_sig with send_sig.
+
+Cc: Daniel Lezcano <daniel.lezcano@free.fr>
+Cc: Serge Hallyn <serge@hallyn.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Fixes: cf3f89214ef6 ("pidns: add reboot_pid_ns() to handle the reboot syscall")
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ kernel/pid_namespace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-index 51019b794be5..f46f2bfc2cc0 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-@@ -173,14 +173,20 @@ static void dwmac4_set_filter(struct mac_device_info *hw,
- 		 * are required
- 		 */
- 		value |= GMAC_PACKET_FILTER_PR;
--	} else if (!netdev_uc_empty(dev)) {
--		int reg = 1;
-+	} else {
- 		struct netdev_hw_addr *ha;
-+		int reg = 1;
- 
- 		netdev_for_each_uc_addr(ha, dev) {
- 			dwmac4_set_umac_addr(hw, ha->addr, reg);
- 			reg++;
- 		}
-+
-+		while (reg <= GMAC_MAX_PERFECT_ADDRESSES) {
-+			writel(0, ioaddr + GMAC_ADDR_HIGH(reg));
-+			writel(0, ioaddr + GMAC_ADDR_LOW(reg));
-+			reg++;
-+		}
+diff --git a/kernel/pid_namespace.c b/kernel/pid_namespace.c
+index 3976dd57db78..0eab538841fd 100644
+--- a/kernel/pid_namespace.c
++++ b/kernel/pid_namespace.c
+@@ -344,7 +344,7 @@ int reboot_pid_ns(struct pid_namespace *pid_ns, int cmd)
  	}
  
- 	writel(value, ioaddr + GMAC_PACKET_FILTER);
+ 	read_lock(&tasklist_lock);
+-	force_sig(SIGKILL, pid_ns->child_reaper);
++	send_sig(SIGKILL, pid_ns->child_reaper, 1);
+ 	read_unlock(&tasklist_lock);
+ 
+ 	do_exit(0);
 -- 
 2.20.1
 
