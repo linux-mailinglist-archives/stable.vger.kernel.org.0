@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 490E47FA0C
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:32:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 701077F9E1
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:30:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404071AbfHBNan (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:30:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35100 "EHLO mail.kernel.org"
+        id S2404130AbfHBNaa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:30:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394150AbfHBNYV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:24:21 -0400
+        id S2394164AbfHBNYZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:24:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAF0320644;
-        Fri,  2 Aug 2019 13:24:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2BC820880;
+        Fri,  2 Aug 2019 13:24:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752261;
-        bh=dZeEXrzP2FGVY/ahJCjiRXYGxTXCSuAChtIkspnQDrc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KeEtWPhcRxc2NBKfoDV6iatO349wHPAp2ih1bpQDQm0jOGOEMAw68wYwfbDf0rtsi
-         ZjaMLqk2/hMqokDP/Tho9rxLFy4FRVKpmcxPWRpnDhrXGI5tBACanWJbTKvFsVKSN2
-         w82zzR48avbPVT1uCURZD85MwM39sRHX38b+qdfY=
+        s=default; t=1564752264;
+        bh=CRT6hjYjLu1G9zSoUf8J0kz6L/Cb4arX6stNuAGgddA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=0/a/k4Mx924kLYZ+YkteEC8IxlgAWcBLSAJCihrR1uidOT6sn0PcpBBY5Qk+1mgWJ
+         vTn6oEQ4mEdZGI+Aw0SB+hQCG5Bc/WbZwYcn4XUTtwD6v+vTn2Im9yyyAgzsJjRDyR
+         KFTEbU0i+DvxovTdJRtUjDxwAIH0TMze4ydOUjPc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Halil Pasic <pasic@linux.ibm.com>, Petr Tesarik <ptesarik@suse.cz>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 42/42] s390/dma: provide proper ARCH_ZONE_DMA_BITS value
-Date:   Fri,  2 Aug 2019 09:23:02 -0400
-Message-Id: <20190802132302.13537-42-sashal@kernel.org>
+Cc:     Florian Westphal <fw@strlen.de>,
+        Thomas Jarosch <thomas.jarosch@intra2net.com>,
+        Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 01/30] netfilter: nfnetlink: avoid deadlock due to synchronous request_module
+Date:   Fri,  2 Aug 2019 09:23:53 -0400
+Message-Id: <20190802132422.13963-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190802132302.13537-1-sashal@kernel.org>
-References: <20190802132302.13537-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,38 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 1a2dcff881059dedc14fafc8a442664c8dbd60f1 ]
+[ Upstream commit 1b0890cd60829bd51455dc5ad689ed58c4408227 ]
 
-On s390 ZONE_DMA is up to 2G, i.e. ARCH_ZONE_DMA_BITS should be 31 bits.
-The current value is 24 and makes __dma_direct_alloc_pages() take a
-wrong turn first (but __dma_direct_alloc_pages() recovers then).
+Thomas and Juliana report a deadlock when running:
 
-Let's correct ARCH_ZONE_DMA_BITS value and avoid wrong turns.
+(rmmod nf_conntrack_netlink/xfrm_user)
 
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reported-by: Petr Tesarik <ptesarik@suse.cz>
-Fixes: c61e9637340e ("dma-direct: add support for allocation from ZONE_DMA and ZONE_DMA32")
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+  conntrack -e NEW -E &
+  modprobe -v xfrm_user
+
+They provided following analysis:
+
+conntrack -e NEW -E
+    netlink_bind()
+        netlink_lock_table() -> increases "nl_table_users"
+            nfnetlink_bind()
+            # does not unlock the table as it's locked by netlink_bind()
+                __request_module()
+                    call_usermodehelper_exec()
+
+This triggers "modprobe nf_conntrack_netlink" from kernel, netlink_bind()
+won't return until modprobe process is done.
+
+"modprobe xfrm_user":
+    xfrm_user_init()
+        register_pernet_subsys()
+            -> grab pernet_ops_rwsem
+                ..
+                netlink_table_grab()
+                    calls schedule() as "nl_table_users" is non-zero
+
+so modprobe is blocked because netlink_bind() increased
+nl_table_users while also holding pernet_ops_rwsem.
+
+"modprobe nf_conntrack_netlink" runs and inits nf_conntrack_netlink:
+    ctnetlink_init()
+        register_pernet_subsys()
+            -> blocks on "pernet_ops_rwsem" thanks to xfrm_user module
+
+both modprobe processes wait on one another -- neither can make
+progress.
+
+Switch netlink_bind() to "nowait" modprobe -- this releases the netlink
+table lock, which then allows both modprobe instances to complete.
+
+Reported-by: Thomas Jarosch <thomas.jarosch@intra2net.com>
+Reported-by: Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/page.h | 2 ++
- 1 file changed, 2 insertions(+)
+ net/netfilter/nfnetlink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
-index 41e3908b397f8..0d753291c43c0 100644
---- a/arch/s390/include/asm/page.h
-+++ b/arch/s390/include/asm/page.h
-@@ -176,6 +176,8 @@ static inline int devmem_is_allowed(unsigned long pfn)
- #define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | \
- 				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
- 
-+#define ARCH_ZONE_DMA_BITS	31
-+
- #include <asm-generic/memory_model.h>
- #include <asm-generic/getorder.h>
- 
+diff --git a/net/netfilter/nfnetlink.c b/net/netfilter/nfnetlink.c
+index 733d3e4a30d85..2cee032af46d2 100644
+--- a/net/netfilter/nfnetlink.c
++++ b/net/netfilter/nfnetlink.c
+@@ -530,7 +530,7 @@ static int nfnetlink_bind(struct net *net, int group)
+ 	ss = nfnetlink_get_subsys(type << 8);
+ 	rcu_read_unlock();
+ 	if (!ss)
+-		request_module("nfnetlink-subsys-%d", type);
++		request_module_nowait("nfnetlink-subsys-%d", type);
+ 	return 0;
+ }
+ #endif
 -- 
 2.20.1
 
