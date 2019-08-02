@@ -2,110 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0DFA7ED35
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 09:12:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 885157ED39
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 09:13:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388083AbfHBHMW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 03:12:22 -0400
-Received: from gwu.lbox.cz ([62.245.111.132]:40828 "EHLO gwu.lbox.cz"
+        id S2389225AbfHBHNp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 03:13:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387657AbfHBHMW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 03:12:22 -0400
-X-Greylist: delayed 614 seconds by postgrey-1.27 at vger.kernel.org; Fri, 02 Aug 2019 03:12:21 EDT
-Received: from linuxbox.linuxbox.cz (linuxbox.linuxbox.cz [10.76.66.10])
-        by gwu.lbox.cz (Sendmail) with ESMTPS id x72721D9032737
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
-        Fri, 2 Aug 2019 09:02:02 +0200
-DKIM-Filter: OpenDKIM Filter v2.11.0 gwu.lbox.cz x72721D9032737
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxbox.cz;
-        s=default; t=1564729322;
-        bh=C5NZMYaiv4veWA0/ujjtthxC1ims9AQV3f4qdHZPCUo=;
+        id S2387657AbfHBHNp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 03:13:45 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 228FD20449;
+        Fri,  2 Aug 2019 07:13:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564730024;
+        bh=KGkwURT6oROtbyiV837UaNWQF3IWYfVz9XdPgpPgzEM=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BXroEnpNCOhF3S7tAm8dwRTbJ8lJ8Vmjd8hhLuJ9j2hJsywZ7a9aqdHpVEK2Tijng
-         ORD/41KqziodM3xKsGQug/EH4xb5xvvIiDMf7cqtm1sJBmc4rkUGhDvELJjRnaBkVv
-         YBMtds9x6k4A+FcC7xUXa9G/yXpOD4yzb1VE6G88=
-Received: from pcnci.linuxbox.cz (pcnci.linuxbox.cz [10.76.3.14])
-        by linuxbox.linuxbox.cz (Sendmail) with ESMTPS id x72721PJ022881
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
-        Fri, 2 Aug 2019 09:02:01 +0200
-Received: from pcnci.linuxbox.cz (localhost [127.0.0.1])
-        by pcnci.linuxbox.cz (8.15.2/8.15.2) with ESMTP id x72721Om028809;
-        Fri, 2 Aug 2019 09:02:01 +0200
-Date:   Fri, 2 Aug 2019 09:02:01 +0200
-From:   Nikola Ciprich <nikola.ciprich@linuxbox.cz>
-To:     Jinpu Wang <jinpuwang@gmail.com>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "v3.14+, only the raid10 part" <stable@vger.kernel.org>,
-        Nikola Ciprich <nikola.ciprich@linuxbox.cz>
+        b=YqqUGxi7fsYUD5QgGW2gMv2RZjaEpjPx024D31ePGhHkifyIi5chsc1cB7MaYxtT7
+         e729SxD8WogSfLdHTDmR/gwEibHgRFSoS1aoIqbd68sxuv4vAOkYpsWhrbwo/+4BOS
+         onGvkVvPNqpwO69DWFfrqa1oRSNZ7v6PeLI4nP/Y=
+Date:   Fri, 2 Aug 2019 09:13:42 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Nikola Ciprich <nikola.ciprich@linuxbox.cz>
+Cc:     Jinpu Wang <jinpuwang@gmail.com>, Sasha Levin <sashal@kernel.org>,
+        "v3.14+, only the raid10 part" <stable@vger.kernel.org>
 Subject: Re: [stable-4.19 0/4] CVE-2019-3900 fixes
-Message-ID: <20190802070201.GA18798@pcnci.linuxbox.cz>
+Message-ID: <20190802071342.GA25871@kroah.com>
 References: <20190722130313.18562-1-jinpuwang@gmail.com>
  <20190722154239.GH1607@sasha-vm>
  <CAD9gYJ+xhujXEHVNAEB5EUO7vwkXuZeU-xf0+g049uk8ucP_tA@mail.gmail.com>
+ <20190802070201.GA18798@pcnci.linuxbox.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAD9gYJ+xhujXEHVNAEB5EUO7vwkXuZeU-xf0+g049uk8ucP_tA@mail.gmail.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
-X-Scanned-By: MIMEDefang 2.84 on 10.76.66.2
-X-Scanned-By: MIMEDefang v2.84/SpamAssassin v3.004000 on lbxovapx.linuxbox.cz (nik)
-X-Scanned-By: MIMEDefang 2.84 on 10.76.66.10
-X-Antivirus: on lbxovapx.linuxbox.cz by F-Secure antivirus, database version 2019-08-01_07
-X-Spam-Score: N/A (imported whitelist)
-X-Milter-Copy-Status: O
+In-Reply-To: <20190802070201.GA18798@pcnci.linuxbox.cz>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-just wanted to ask about the status of those? I'm testing patches on top
-of 4.19.60, not sure about how can I test if the problem is fixed, but at
-least nothing seems to be broken so far..
+A: No.
+Q: Should I include quotations after my reply?
 
-BR
+http://daringfireball.net/2007/07/on_top
 
-nik
-
-
-
-
-On Tue, Jul 23, 2019 at 11:59:16AM +0200, Jinpu Wang wrote:
-> Sasha Levin <sashal@kernel.org> 于2019年7月22日周一 下午5:42写道：
-> >
-> > On Mon, Jul 22, 2019 at 03:03:09PM +0200, Jack Wang wrote:
-> > >Hi, Greg, hi Sasha,
-> > >
-> > >I noticed the fixes for CVE-2019-3900 are only backported to 4.14.133+,
-> > >but not to 4.19, also 5.1, fixes have been included in 5.2.
-> > >
-> > >So I backported to 4.19, only compiles fine, no functional tests.
-> > >
-> > >Please review, and consider to include in next release.
-> >
-> > Thanks Jack. It'll be great if someone can test it and confirm it fixes
-> > the issue (and nothing else breaks).
-> >
-> Agree, thanks
-> > --
-> > Thanks,
-> > Sasha
+On Fri, Aug 02, 2019 at 09:02:01AM +0200, Nikola Ciprich wrote:
+> Hi,
 > 
+> just wanted to ask about the status of those? I'm testing patches on top
+> of 4.19.60, not sure about how can I test if the problem is fixed, but at
+> least nothing seems to be broken so far..
 
--- 
--------------------------------------
-Ing. Nikola CIPRICH
-LinuxBox.cz, s.r.o.
-28.rijna 168, 709 00 Ostrava
+We wanted to get some verification that the issues were really fixed by
+these patches.  If no one knows how to test them, then odds are they are
+not vulnerable, right?  :)
 
-tel.:   +420 591 166 214
-fax:    +420 596 621 273
-mobil:  +420 777 093 799
-www.linuxbox.cz
+thanks,
 
-mobil servis: +420 737 238 656
-email servis: servis@linuxbox.cz
--------------------------------------
+greg k-h
