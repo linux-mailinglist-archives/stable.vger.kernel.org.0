@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC91D7F87D
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:20:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 114A37F88D
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:22:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393373AbfHBNU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:20:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58820 "EHLO mail.kernel.org"
+        id S2393427AbfHBNUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:20:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393366AbfHBNU1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:20:27 -0400
+        id S2393420AbfHBNUj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:20:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 195C721849;
-        Fri,  2 Aug 2019 13:20:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22F1A2173E;
+        Fri,  2 Aug 2019 13:20:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752026;
-        bh=giRhtxYzRCKHMP2+BeUpS3xr1ScaCTAL0Qv/EhoWJ+Q=;
+        s=default; t=1564752038;
+        bh=H/CvaLx9qSHM45AxIiO3zI7n5QsrUsdQZsskzB+VZNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AYReBZ9ypar9TTmqZ6r1bskKK++EVSTODJt1njosat08sW4QkwVPPSSnBK5n40Dor
-         umCWHNDs61yb24kh7z3ZQ1fjG+JJeP68bMeXHKep31fyHONgbTU2hPQnPFZzHotFyc
-         qJX5+MXONVNqR0yaUqe4zDTvF0o3Dtf7ND6Ty8f8=
+        b=pAyBkujlGM2wBPmJCRtbkBl8NNZ5T8U4HqpdjV294DcsCHDYbO0HL2+Www1xGd3Tf
+         lJniBTtTpUneCNjiEsUYEbeVf2aiK1aQ0RrHJyCf5W7Rv2c7kwILaof8JpeaA1h2oR
+         n/RnfVJIHdVEtwvsi9c6cgTcfpU1FLMRiXBGvVZo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Julian Parkin <julian.parkin@amd.com>,
-        Charlene Liu <Charlene.Liu@amd.com>,
-        Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 23/76] drm/amd/display: Fix dc_create failure handling and 666 color depths
-Date:   Fri,  2 Aug 2019 09:18:57 -0400
-Message-Id: <20190802131951.11600-23-sashal@kernel.org>
+Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 30/76] allocate_flower_entry: should check for null deref
+Date:   Fri,  2 Aug 2019 09:19:04 -0400
+Message-Id: <20190802131951.11600-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
 References: <20190802131951.11600-1-sashal@kernel.org>
@@ -46,63 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Parkin <julian.parkin@amd.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 0905f32977268149f06e3ce6ea4bd6d374dd891f ]
+[ Upstream commit bb1320834b8a80c6ac2697ab418d066981ea08ba ]
 
-[Why]
-It is possible (but very unlikely) that constructing dc fails
-before current_state is created.
+allocate_flower_entry does not check for allocation success, but tries
+to deref the result. I only moved the spin_lock under null check, because
+ the caller is checking allocation's status at line 652.
 
-We support 666 color depth in some scenarios, but this
-isn't handled in get_norm_pix_clk. It uses exactly the
-same pixel clock as the 888 case.
-
-[How]
-Check for non null current_state before destructing.
-
-Add case for 666 color depth to get_norm_pix_clk to
-avoid assertion.
-
-Signed-off-by: Julian Parkin <julian.parkin@amd.com>
-Reviewed-by: Charlene Liu <Charlene.Liu@amd.com>
-Acked-by: Leo Li <sunpeng.li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc.c          | 6 ++++--
- drivers/gpu/drm/amd/display/dc/core/dc_resource.c | 1 +
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
-index ee6b646180b66..0a7adc2925e35 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
-@@ -608,8 +608,10 @@ const struct dc_link_settings *dc_link_get_link_cap(
- 
- static void destruct(struct dc *dc)
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
+index cfaf8f618d1f3..56742fa0c1af6 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
+@@ -67,7 +67,8 @@ static struct ch_tc_pedit_fields pedits[] = {
+ static struct ch_tc_flower_entry *allocate_flower_entry(void)
  {
--	dc_release_state(dc->current_state);
--	dc->current_state = NULL;
-+	if (dc->current_state) {
-+		dc_release_state(dc->current_state);
-+		dc->current_state = NULL;
-+	}
+ 	struct ch_tc_flower_entry *new = kzalloc(sizeof(*new), GFP_KERNEL);
+-	spin_lock_init(&new->lock);
++	if (new)
++		spin_lock_init(&new->lock);
+ 	return new;
+ }
  
- 	destroy_links(dc);
- 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-index ad82906b99db9..b87e8d80bb6a8 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-@@ -1872,6 +1872,7 @@ static int get_norm_pix_clk(const struct dc_crtc_timing *timing)
- 		pix_clk /= 2;
- 	if (timing->pixel_encoding != PIXEL_ENCODING_YCBCR422) {
- 		switch (timing->display_color_depth) {
-+		case COLOR_DEPTH_666:
- 		case COLOR_DEPTH_888:
- 			normalized_pix_clk = pix_clk;
- 			break;
 -- 
 2.20.1
 
