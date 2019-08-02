@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 307C77F137
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:37:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBBB67F134
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:37:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404826AbfHBJgM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:36:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36966 "EHLO mail.kernel.org"
+        id S2404831AbfHBJgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:36:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404824AbfHBJgL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:36:11 -0400
+        id S2404829AbfHBJgN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:36:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02BCB217F5;
-        Fri,  2 Aug 2019 09:36:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90AB5217D7;
+        Fri,  2 Aug 2019 09:36:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738570;
-        bh=+NZu1zTblNtFFEbvJ0ETvJhrVxJvu44Ilkp3ZcuF8Dc=;
+        s=default; t=1564738573;
+        bh=oQL3dscuh6qX7Vre1LFBvA27cPXfWucIPTTDPm7CFkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bqcLDAhBShXZL4R8ONt71qE6yCLecaHQVlvwVDSjaXk8SY2dimuu6n+3jGI1tn1GP
-         q9azzd+OMIeViiBGlFkQpxLTSafZmBZefIGvbMn0fzYlVMIwnN9PX6B9pa/HNe7dzU
-         u6B8Wx5LOSg/RbKOtMpnjcxKKNGD9HVEamkbtVIg=
+        b=gBMnueWysJiANqS8qubs/yazsTX2i99C2yhcIvv47F6odu96V+/NI18NpfSV93g5w
+         kxtHDHMfT3VblDjLnnscK9EF0/Tm6LU+yBuVgmI2OMzLW1KLg1DkQ2qQOOorEVJfnu
+         2uNeLYM86stZFCzJmEKF55zSyzKh5M3Ay8jbGYOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        stable@vger.kernel.org, Miroslav Lichvar <mlichvar@redhat.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.4 156/158] sched/fair: Dont free p->numa_faults with concurrent readers
-Date:   Fri,  2 Aug 2019 11:29:37 +0200
-Message-Id: <20190802092233.548358426@linuxfoundation.org>
+        Rodolfo Giometti <giometti@enneenne.com>,
+        Greg KH <greg@kroah.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 157/158] drivers/pps/pps.c: clear offset flags in PPS_SETPARAMS ioctl
+Date:   Fri,  2 Aug 2019 11:29:38 +0200
+Message-Id: <20190802092233.715402130@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
 References: <20190802092203.671944552@linuxfoundation.org>
@@ -48,131 +48,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Miroslav Lichvar <mlichvar@redhat.com>
 
-commit 16d51a590a8ce3befb1308e0e7ab77f3b661af33 upstream.
+commit 5515e9a6273b8c02034466bcbd717ac9f53dab99 upstream.
 
-When going through execve(), zero out the NUMA fault statistics instead of
-freeing them.
+The PPS assert/clear offset corrections are set by the PPS_SETPARAMS
+ioctl in the pps_ktime structs, which also contain flags.  The flags are
+not initialized by applications (using the timepps.h header) and they
+are not used by the kernel for anything except returning them back in
+the PPS_GETPARAMS ioctl.
 
-During execve, the task is reachable through procfs and the scheduler. A
-concurrent /proc/*/sched reader can read data from a freed ->numa_faults
-allocation (confirmed by KASAN) and write it back to userspace.
-I believe that it would also be possible for a use-after-free read to occur
-through a race between a NUMA fault and execve(): task_numa_fault() can
-lead to task_numa_compare(), which invokes task_weight() on the currently
-running task of a different CPU.
+Set the flags to zero to make it clear they are unused and avoid leaking
+uninitialized data of the PPS_SETPARAMS caller to other applications
+that have a read access to the PPS device.
 
-Another way to fix this would be to make ->numa_faults RCU-managed or add
-extra locking, but it seems easier to wipe the NUMA fault statistics on
-execve.
-
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Will Deacon <will@kernel.org>
-Fixes: 82727018b0d3 ("sched/numa: Call task_numa_free() from do_execve()")
-Link: https://lkml.kernel.org/r/20190716152047.14424-1-jannh@google.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: http://lkml.kernel.org/r/20190702092251.24303-1-mlichvar@redhat.com
+Signed-off-by: Miroslav Lichvar <mlichvar@redhat.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Rodolfo Giometti <giometti@enneenne.com>
+Cc: Greg KH <greg@kroah.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/exec.c             |    2 +-
- include/linux/sched.h |    4 ++--
- kernel/fork.c         |    2 +-
- kernel/sched/fair.c   |   24 ++++++++++++++++++++----
- 4 files changed, 24 insertions(+), 8 deletions(-)
+ drivers/pps/pps.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1642,7 +1642,7 @@ static int do_execveat_common(int fd, st
- 	current->fs->in_exec = 0;
- 	current->in_execve = 0;
- 	acct_update_integrals(current);
--	task_numa_free(current);
-+	task_numa_free(current, false);
- 	free_bprm(bprm);
- 	kfree(pathbuf);
- 	putname(filename);
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1860,7 +1860,7 @@ extern int arch_task_struct_size __read_
- extern void task_numa_fault(int last_node, int node, int pages, int flags);
- extern pid_t task_numa_group_id(struct task_struct *p);
- extern void set_numabalancing_state(bool enabled);
--extern void task_numa_free(struct task_struct *p);
-+extern void task_numa_free(struct task_struct *p, bool final);
- extern bool should_numa_migrate_memory(struct task_struct *p, struct page *page,
- 					int src_nid, int dst_cpu);
- #else
-@@ -1875,7 +1875,7 @@ static inline pid_t task_numa_group_id(s
- static inline void set_numabalancing_state(bool enabled)
- {
- }
--static inline void task_numa_free(struct task_struct *p)
-+static inline void task_numa_free(struct task_struct *p, bool final)
- {
- }
- static inline bool should_numa_migrate_memory(struct task_struct *p,
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -254,7 +254,7 @@ void __put_task_struct(struct task_struc
- 	WARN_ON(tsk == current);
+--- a/drivers/pps/pps.c
++++ b/drivers/pps/pps.c
+@@ -129,6 +129,14 @@ static long pps_cdev_ioctl(struct file *
+ 			pps->params.mode |= PPS_CANWAIT;
+ 		pps->params.api_version = PPS_API_VERS;
  
- 	cgroup_free(tsk);
--	task_numa_free(tsk);
-+	task_numa_free(tsk, true);
- 	security_task_free(tsk);
- 	exit_creds(tsk);
- 	delayacct_tsk_free(tsk);
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -2054,13 +2054,23 @@ no_join:
- 	return;
- }
- 
--void task_numa_free(struct task_struct *p)
-+/*
-+ * Get rid of NUMA staticstics associated with a task (either current or dead).
-+ * If @final is set, the task is dead and has reached refcount zero, so we can
-+ * safely free all relevant data structures. Otherwise, there might be
-+ * concurrent reads from places like load balancing and procfs, and we should
-+ * reset the data back to default state without freeing ->numa_faults.
-+ */
-+void task_numa_free(struct task_struct *p, bool final)
- {
- 	struct numa_group *grp = p->numa_group;
--	void *numa_faults = p->numa_faults;
-+	unsigned long *numa_faults = p->numa_faults;
- 	unsigned long flags;
- 	int i;
- 
-+	if (!numa_faults)
-+		return;
++		/*
++		 * Clear unused fields of pps_kparams to avoid leaking
++		 * uninitialized data of the PPS_SETPARAMS caller via
++		 * PPS_GETPARAMS
++		 */
++		pps->params.assert_off_tu.flags = 0;
++		pps->params.clear_off_tu.flags = 0;
 +
- 	if (grp) {
- 		spin_lock_irqsave(&grp->lock, flags);
- 		for (i = 0; i < NR_NUMA_HINT_FAULT_STATS * nr_node_ids; i++)
-@@ -2073,8 +2083,14 @@ void task_numa_free(struct task_struct *
- 		put_numa_group(grp);
- 	}
+ 		spin_unlock_irq(&pps->lock);
  
--	p->numa_faults = NULL;
--	kfree(numa_faults);
-+	if (final) {
-+		p->numa_faults = NULL;
-+		kfree(numa_faults);
-+	} else {
-+		p->total_numa_faults = 0;
-+		for (i = 0; i < NR_NUMA_HINT_FAULT_STATS * nr_node_ids; i++)
-+			numa_faults[i] = 0;
-+	}
- }
- 
- /*
+ 		break;
 
 
