@@ -2,168 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F67A7FFDF
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 19:50:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8D9D80003
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 20:07:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388134AbfHBRuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 13:50:03 -0400
-Received: from mail-wr1-f42.google.com ([209.85.221.42]:39737 "EHLO
-        mail-wr1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388634AbfHBRuC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 13:50:02 -0400
-Received: by mail-wr1-f42.google.com with SMTP id x4so24858156wrt.6
-        for <stable@vger.kernel.org>; Fri, 02 Aug 2019 10:50:01 -0700 (PDT)
+        id S2405601AbfHBSHH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 14:07:07 -0400
+Received: from mail-yb1-f193.google.com ([209.85.219.193]:44219 "EHLO
+        mail-yb1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731545AbfHBSHG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 14:07:06 -0400
+Received: by mail-yb1-f193.google.com with SMTP id a14so27166846ybm.11
+        for <stable@vger.kernel.org>; Fri, 02 Aug 2019 11:07:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=mTsP8u45s6yEGfk0nYr3to4FXJXYScRjLnVF5NOooAY=;
-        b=DCgGUisMEeqmTtBkFZeVTSZzL9WpcVupb6k30mnNUSxkqeHGkxSPEPsXEYb31u2O6U
-         WAZdfYwIf55wOUOU56NM3AM832XiAAwBZX3wMbPX1lAwf1NHGOxuCcvrykX0TAH3jDeR
-         5sqvl7B3Qaew23hggxgLijYhDYk0/+EZSCAEq1aFNVFGkXekKGoThNYCkjR5ZOZ9G/YF
-         LOtSVG7F44qSlLd6mBR1xblSGqMvPouoIWg5iY3CYS6wiT3DgFeS3uyyhhj3Quj8I/jC
-         eOPPBReyWYEk3FK1PEPKcD1eaZlaSu8/kiYqYs1C6SVeh/fV44FKhyXrv+fMDuCM3LG7
-         86cA==
+        d=poorly.run; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=bBn8yXU4CODJjYnhf7GV8IhJVIfOc9c4zo4swZ/RpwM=;
+        b=GUAJxq/57p+FbGnnyKgH4ckcS+4Gar7Xb5JyinSlH3oQYwgDI/Up5w6xlTo4PpnWX0
+         RR9uqukm4jRlFAO+4NVHCNAluAZuXLORoqM0NAObocnJ+OsCaM6Pqa/MK0kARq1U7Fcd
+         a2yENTc1JirjM/hV53s0lDrizQw6/7/fAulvHqAbswm5/v1EHLA1Jmq8elbhlAW8yVA1
+         yExFSdT9fETyaGa3eymRP0joKRInvAzBxg3eLFL49F1FQbfYwe2lh+LKGVVpBoXGlmqb
+         PpgMAco6vDcHtS3t6Q6XYg13hmAA1RbfJzP+r+eS9O1MtmoUl+mZFP89JGBOI7R1ezBi
+         aIxg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=mTsP8u45s6yEGfk0nYr3to4FXJXYScRjLnVF5NOooAY=;
-        b=VJT6Cc8q4reX8hon4Xvmy1+pjdAO7ikzJTSJPtQ0mw6Uj/vhX5hngHpepQ/k+nnUbz
-         Iy7mEcAU0WUOyhN1M9uz0myrQVKsjU1YF1m2xgD2l4qBPgUvTw0qB87f2rCc7DptFqMR
-         yRsc/XvBZUJf7mKF3lFRe/d84rdKutLaMRG3iU8oY2MPCfKltvP2+CR26EoWXgdDl4XL
-         542yguf9IVAHikFNrZjk1U1GJpn8vNYwtoongxg/aHwjakq1h4kFESaAt70/3/kuMsPg
-         7SwgOq9iUkTQqi1wD/4hRXeecX/cHEmRsJYzTZ6eMCpPlH0NY3XPj4C/tuJUyaa18EPB
-         31+g==
-X-Gm-Message-State: APjAAAUTjgYdonWMO+NOjW4X7bhhA2uDtI2WBcWha2AEYOFhVR4DT8Yn
-        pVoBEWkwFXO2buR7Q/VziMDcfqIrJ10=
-X-Google-Smtp-Source: APXvYqz5E9miqyBkAFUG+iThL5AqSa8iq21FZBpEv8xQKn0PHOwnyCGLgi1/3pYS6bk15z4s31BbyQ==
-X-Received: by 2002:a5d:5692:: with SMTP id f18mr102274372wrv.104.1564768200493;
-        Fri, 02 Aug 2019 10:50:00 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id b15sm94091546wrt.77.2019.08.02.10.49.59
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 02 Aug 2019 10:49:59 -0700 (PDT)
-Message-ID: <5d4477c7.1c69fb81.73527.6789@mx.google.com>
-Date:   Fri, 02 Aug 2019 10:49:59 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=bBn8yXU4CODJjYnhf7GV8IhJVIfOc9c4zo4swZ/RpwM=;
+        b=NUymg8ARLkKvsFmrwdzUyxlddpGyZF4/hFVStsektpYRocLHd0Lo8ZnILZv1hpd2EF
+         UHJppWr9SqMOzijHYmyRBNOCMRBY2UkIGogAbXpperG+e5bNDdJp+lOljB+pQs3JNL5G
+         feubMSqkrNHF/8imtJbow/FLxtSs6UTndeabWZihncYCVz3wG4dgIHSTxvaR8/O3OrPD
+         vny4QFdmKBGRkr+gHT+6K1rWgCUFDKLM6pNK5sOhRIrVZNGPuLMstSqCF46vGnG19FQK
+         usd9p0WFHyJB1LnluuytdfJ6KTrsDpRUI4EayeK9nEAXXp7HilsbdfdXT3rwtGTJUV74
+         BXqQ==
+X-Gm-Message-State: APjAAAXoBrrpDxF0ow4uQ8Ul9zeu9jT8319HV1cmA88sJrp2Fh/ETJeT
+        +96PTHqPz2nGogTm3PmymZhOteTWagxCmEx6gfjqCQ==
+X-Google-Smtp-Source: APXvYqyZUNSB3dDoqUhXvtopbmcotnb2jOfF8yNKP88uWWILbMsk39JGIk7khT5TSyEOaynqeMOVMuxRK2BjmKQt6CY=
+X-Received: by 2002:a25:2d43:: with SMTP id s3mr60055319ybe.209.1564769225561;
+ Fri, 02 Aug 2019 11:07:05 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.134-319-g0931704b8bef
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.14.y boot: 119 boots: 1 failed,
- 77 passed with 41 offline (v4.14.134-319-g0931704b8bef)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20190802132422.13963-1-sashal@kernel.org> <20190802132422.13963-11-sashal@kernel.org>
+In-Reply-To: <20190802132422.13963-11-sashal@kernel.org>
+From:   Sean Paul <sean@poorly.run>
+Date:   Fri, 2 Aug 2019 14:06:29 -0400
+Message-ID: <CAMavQKK_DrnefqK4ZP=7yGdjX0q-p=v9Hy4DOvcggma11pLHiA@mail.gmail.com>
+Subject: Re: [Freedreno] [PATCH AUTOSEL 4.14 11/30] drm/msm: stop abusing
+ dma_map/unmap for cache
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        Rob Clark <robdclark@chromium.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Jordan Crouse <jcrouse@codeaurora.org>,
+        Sean Paul <seanpaul@chromium.org>,
+        freedreno <freedreno@lists.freedesktop.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 119 boots: 1 failed, 77 passed with 41 offline=
- (v4.14.134-319-g0931704b8bef)
+On Fri, Aug 2, 2019 at 9:24 AM Sasha Levin <sashal@kernel.org> wrote:
+>
+> From: Rob Clark <robdclark@chromium.org>
+>
+> [ Upstream commit 0036bc73ccbe7e600a3468bf8e8879b122252274 ]
+>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.134-319-g0931704b8bef/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.134-319-g0931704b8bef/
+Hi Sasha,
+FYI, this commit should be paired with
+https://cgit.freedesktop.org/drm/drm/commit/?h=drm-fixes&id=3de433c5b38af49a5fc7602721e2ab5d39f1e69c
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.134-319-g0931704b8bef
-Git Commit: 0931704b8bef6a8df2c0b08bac6f77a17bab0711
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 64 unique boards, 26 SoC families, 16 builds out of 201
+Sean
 
-Boot Failure Detected:
-
-arc:
-    hsdk_defconfig:
-        gcc-8:
-            hsdk: 1 failed lab
-
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-gxbb-odroidc2: 1 offline lab
-            meson-gxl-s905d-p230: 1 offline lab
-            meson-gxl-s905x-libretech-cc: 1 offline lab
-            meson-gxl-s905x-nexbox-a95x: 1 offline lab
-            meson-gxl-s905x-p212: 1 offline lab
-            meson-gxm-nexbox-a1: 1 offline lab
-            rk3399-firefly: 1 offline lab
-            sun50i-a64-pine64-plus: 1 offline lab
-
-mips:
-
-    pistachio_defconfig:
-        gcc-8
-            pistachio_marduk: 1 offline lab
-
-arm:
-
-    tegra_defconfig:
-        gcc-8
-            tegra20-iris-512: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5250-arndale: 1 offline lab
-            exynos5420-arndale-octa: 1 offline lab
-            exynos5800-peach-pi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5250-arndale: 1 offline lab
-            exynos5420-arndale-octa: 1 offline lab
-            exynos5800-peach-pi: 1 offline lab
-            imx6dl-wandboard_dual: 1 offline lab
-            imx6dl-wandboard_solo: 1 offline lab
-            imx6q-wandboard: 1 offline lab
-            imx7s-warp: 1 offline lab
-            meson8b-odroidc1: 1 offline lab
-            omap3-beagle: 1 offline lab
-            omap4-panda: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            stih410-b2120: 1 offline lab
-            sun4i-a10-cubieboard: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-            tegra20-iris-512: 1 offline lab
-            vf610-colibri-eval-v3: 1 offline lab
-
-    omap2plus_defconfig:
-        gcc-8
-            omap3-beagle: 1 offline lab
-            omap4-panda: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            da850-evm: 1 offline lab
-            dm365evm,legacy: 1 offline lab
-
-    imx_v6_v7_defconfig:
-        gcc-8
-            imx6dl-wandboard_dual: 1 offline lab
-            imx6dl-wandboard_solo: 1 offline lab
-            imx6q-wandboard: 1 offline lab
-            imx7s-warp: 1 offline lab
-            vf610-colibri-eval-v3: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun4i-a10-cubieboard: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+> Recently splats like this started showing up:
+>
+>    WARNING: CPU: 4 PID: 251 at drivers/iommu/dma-iommu.c:451 __iommu_dma_unmap+0xb8/0xc0
+>    Modules linked in: ath10k_snoc ath10k_core fuse msm ath mac80211 uvcvideo cfg80211 videobuf2_vmalloc videobuf2_memops vide
+>    CPU: 4 PID: 251 Comm: kworker/u16:4 Tainted: G        W         5.2.0-rc5-next-20190619+ #2317
+>    Hardware name: LENOVO 81JL/LNVNB161216, BIOS 9UCN23WW(V1.06) 10/25/2018
+>    Workqueue: msm msm_gem_free_work [msm]
+>    pstate: 80c00005 (Nzcv daif +PAN +UAO)
+>    pc : __iommu_dma_unmap+0xb8/0xc0
+>    lr : __iommu_dma_unmap+0x54/0xc0
+>    sp : ffff0000119abce0
+>    x29: ffff0000119abce0 x28: 0000000000000000
+>    x27: ffff8001f9946648 x26: ffff8001ec271068
+>    x25: 0000000000000000 x24: ffff8001ea3580a8
+>    x23: ffff8001f95ba010 x22: ffff80018e83ba88
+>    x21: ffff8001e548f000 x20: fffffffffffff000
+>    x19: 0000000000001000 x18: 00000000c00001fe
+>    x17: 0000000000000000 x16: 0000000000000000
+>    x15: ffff000015b70068 x14: 0000000000000005
+>    x13: 0003142cc1be1768 x12: 0000000000000001
+>    x11: ffff8001f6de9100 x10: 0000000000000009
+>    x9 : ffff000015b78000 x8 : 0000000000000000
+>    x7 : 0000000000000001 x6 : fffffffffffff000
+>    x5 : 0000000000000fff x4 : ffff00001065dbc8
+>    x3 : 000000000000000d x2 : 0000000000001000
+>    x1 : fffffffffffff000 x0 : 0000000000000000
+>    Call trace:
+>     __iommu_dma_unmap+0xb8/0xc0
+>     iommu_dma_unmap_sg+0x98/0xb8
+>     put_pages+0x5c/0xf0 [msm]
+>     msm_gem_free_work+0x10c/0x150 [msm]
+>     process_one_work+0x1e0/0x330
+>     worker_thread+0x40/0x438
+>     kthread+0x12c/0x130
+>     ret_from_fork+0x10/0x18
+>    ---[ end trace afc0dc5ab81a06bf ]---
+>
+> Not quite sure what triggered that, but we really shouldn't be abusing
+> dma_{map,unmap}_sg() for cache maint.
+>
+> Cc: Stephen Boyd <sboyd@kernel.org>
+> Tested-by: Stephen Boyd <swboyd@chromium.org>
+> Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
+> Signed-off-by: Rob Clark <robdclark@chromium.org>
+> Signed-off-by: Sean Paul <seanpaul@chromium.org>
+> Link: https://patchwork.freedesktop.org/patch/msgid/20190630124735.27786-1-robdclark@gmail.com
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/gpu/drm/msm/msm_gem.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/msm/msm_gem.c b/drivers/gpu/drm/msm/msm_gem.c
+> index f2df718af370d..3a91ccd92c473 100644
+> --- a/drivers/gpu/drm/msm/msm_gem.c
+> +++ b/drivers/gpu/drm/msm/msm_gem.c
+> @@ -108,7 +108,7 @@ static struct page **get_pages(struct drm_gem_object *obj)
+>                  * because display controller, GPU, etc. are not coherent:
+>                  */
+>                 if (msm_obj->flags & (MSM_BO_WC|MSM_BO_UNCACHED))
+> -                       dma_map_sg(dev->dev, msm_obj->sgt->sgl,
+> +                       dma_sync_sg_for_device(dev->dev, msm_obj->sgt->sgl,
+>                                         msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
+>         }
+>
+> @@ -138,7 +138,7 @@ static void put_pages(struct drm_gem_object *obj)
+>                          * GPU, etc. are not coherent:
+>                          */
+>                         if (msm_obj->flags & (MSM_BO_WC|MSM_BO_UNCACHED))
+> -                               dma_unmap_sg(obj->dev->dev, msm_obj->sgt->sgl,
+> +                               dma_sync_sg_for_cpu(obj->dev->dev, msm_obj->sgt->sgl,
+>                                              msm_obj->sgt->nents,
+>                                              DMA_BIDIRECTIONAL);
+>
+> --
+> 2.20.1
+>
+> _______________________________________________
+> Freedreno mailing list
+> Freedreno@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/freedreno
