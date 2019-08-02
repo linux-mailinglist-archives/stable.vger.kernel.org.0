@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8C2E7F201
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:44:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 085D07F208
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:44:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405186AbfHBJoO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:44:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46130 "EHLO mail.kernel.org"
+        id S2405238AbfHBJoY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:44:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392027AbfHBJnR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:43:17 -0400
+        id S2404851AbfHBJoX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:44:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA37A206A2;
-        Fri,  2 Aug 2019 09:43:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FDCD2087E;
+        Fri,  2 Aug 2019 09:44:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738997;
-        bh=5rFg4wi4Wf+7WlkU5Qd2u3AW6e6MuHvRLSEIxRwV5Ac=;
+        s=default; t=1564739062;
+        bh=OgzOyEycRsQ5tZXTbgiVPzNADZxiQiXmkuy7t8sX45E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fx8hrWo4sHfzcNpP0dppfGsaa0iXNaW2p8pOtdomeCmAqH3w400hsLAOSUShwM0Wc
-         7i2UpXBThDtOZRmRugIYoIDcC6I1Uh1EkDLN8BHiQDxphBCXb8wH03eozlUVYPIKuy
-         qEAFaYIm+Kms22Vtz0xyN9+s3Y2MOsU0mUVmDVSg=
+        b=A3vyW8iKLVpCmKIdrce19s3/WM9QJJbsq4QddVquNx3BzQSJP6D8+sQyrN+42byzE
+         Y47c7nt3H5RJsaATDHvZptsyyG3/qVIpZ4x7pGXNYtagOwke6eRdAcCOoSpL6zqw3U
+         +zL9iRZXEZB5lk7iRO64ZT0FX8sijg27vO8NADOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Schmitz <schmitzmic@gmail.com>,
-        Finn Thain <fthain@telegraphics.com.au>,
-        Stan Johnson <userm57@yahoo.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.9 077/223] scsi: mac_scsi: Increase PIO/PDMA transfer length threshold
-Date:   Fri,  2 Aug 2019 11:35:02 +0200
-Message-Id: <20190802092243.877465809@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Grant Hernandez <granthernandez@google.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.9 083/223] Input: gtco - bounds check collection indent level
+Date:   Fri,  2 Aug 2019 11:35:08 +0200
+Message-Id: <20190802092244.354372737@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -45,62 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@telegraphics.com.au>
+From: Grant Hernandez <granthernandez@google.com>
 
-commit 7398cee4c3e6aea1ba07a6449e5533ecd0b92cdd upstream.
+commit 2a017fd82c5402b3c8df5e3d6e5165d9e6147dc1 upstream.
 
-Some targets introduce delays when handshaking the response to certain
-commands. For example, a disk may send a 96-byte response to an INQUIRY
-command (or a 24-byte response to a MODE SENSE command) too slowly.
+The GTCO tablet input driver configures itself from an HID report sent
+via USB during the initial enumeration process. Some debugging messages
+are generated during the parsing. A debugging message indentation
+counter is not bounds checked, leading to the ability for a specially
+crafted HID report to cause '-' and null bytes be written past the end
+of the indentation array. As long as the kernel has CONFIG_DYNAMIC_DEBUG
+enabled, this code will not be optimized out.  This was discovered
+during code review after a previous syzkaller bug was found in this
+driver.
 
-Apparently the first 12 or 14 bytes are handshaked okay but then the system
-bus error timeout is reached while transferring the next word.
-
-Since the scsi bus phase hasn't changed, the driver then sets the target
-borken flag to prevent further PDMA transfers. The driver also logs the
-warning, "switching to slow handshake".
-
-Raise the PDMA threshold to 512 bytes so that PIO transfers will be used
-for these commands. This default is sufficiently low that PDMA will still
-be used for READ and WRITE commands.
-
-The existing threshold (16 bytes) was chosen more or less at random.
-However, best performance requires the threshold to be as low as possible.
-Those systems that don't need the PIO workaround at all may benefit from
-mac_scsi.setup_use_pdma=1
-
-Cc: Michael Schmitz <schmitzmic@gmail.com>
-Cc: stable@vger.kernel.org # v4.14+
-Fixes: 3a0f64bfa907 ("mac_scsi: Fix pseudo DMA implementation")
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-Tested-by: Stan Johnson <userm57@yahoo.com>
-Tested-by: Michael Schmitz <schmitzmic@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Grant Hernandez <granthernandez@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/mac_scsi.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/tablet/gtco.c |   20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
---- a/drivers/scsi/mac_scsi.c
-+++ b/drivers/scsi/mac_scsi.c
-@@ -54,7 +54,7 @@ static int setup_cmd_per_lun = -1;
- module_param(setup_cmd_per_lun, int, 0);
- static int setup_sg_tablesize = -1;
- module_param(setup_sg_tablesize, int, 0);
--static int setup_use_pdma = -1;
-+static int setup_use_pdma = 512;
- module_param(setup_use_pdma, int, 0);
- static int setup_hostid = -1;
- module_param(setup_hostid, int, 0);
-@@ -325,7 +325,7 @@ static int macscsi_dma_xfer_len(struct S
- 	struct NCR5380_hostdata *hostdata = shost_priv(instance);
+--- a/drivers/input/tablet/gtco.c
++++ b/drivers/input/tablet/gtco.c
+@@ -78,6 +78,7 @@ Scott Hill shill@gtcocalcomp.com
  
- 	if (hostdata->flags & FLAG_NO_PSEUDO_DMA ||
--	    cmd->SCp.this_residual < 16)
-+	    cmd->SCp.this_residual < setup_use_pdma)
- 		return 0;
+ /* Max size of a single report */
+ #define REPORT_MAX_SIZE       10
++#define MAX_COLLECTION_LEVELS  10
  
- 	return cmd->SCp.this_residual;
+ 
+ /* Bitmask whether pen is in range */
+@@ -223,8 +224,7 @@ static void parse_hid_report_descriptor(
+ 	char  maintype = 'x';
+ 	char  globtype[12];
+ 	int   indent = 0;
+-	char  indentstr[10] = "";
+-
++	char  indentstr[MAX_COLLECTION_LEVELS + 1] = { 0 };
+ 
+ 	dev_dbg(ddev, "======>>>>>>PARSE<<<<<<======\n");
+ 
+@@ -350,6 +350,13 @@ static void parse_hid_report_descriptor(
+ 			case TAG_MAIN_COL_START:
+ 				maintype = 'S';
+ 
++				if (indent == MAX_COLLECTION_LEVELS) {
++					dev_err(ddev, "Collection level %d would exceed limit of %d\n",
++						indent + 1,
++						MAX_COLLECTION_LEVELS);
++					break;
++				}
++
+ 				if (data == 0) {
+ 					dev_dbg(ddev, "======>>>>>> Physical\n");
+ 					strcpy(globtype, "Physical");
+@@ -369,8 +376,15 @@ static void parse_hid_report_descriptor(
+ 				break;
+ 
+ 			case TAG_MAIN_COL_END:
+-				dev_dbg(ddev, "<<<<<<======\n");
+ 				maintype = 'E';
++
++				if (indent == 0) {
++					dev_err(ddev, "Collection level already at zero\n");
++					break;
++				}
++
++				dev_dbg(ddev, "<<<<<<======\n");
++
+ 				indent--;
+ 				for (x = 0; x < indent; x++)
+ 					indentstr[x] = '-';
 
 
