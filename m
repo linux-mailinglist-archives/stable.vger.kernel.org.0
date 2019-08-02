@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B70B57F89D
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:22:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06AFB7F8A2
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:22:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393521AbfHBNVE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:21:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59576 "EHLO mail.kernel.org"
+        id S2393537AbfHBNVO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:21:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393513AbfHBNVB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:21:01 -0400
+        id S2393531AbfHBNVM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:21:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B07FD21874;
-        Fri,  2 Aug 2019 13:20:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B5952173E;
+        Fri,  2 Aug 2019 13:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752060;
-        bh=f8G2/wd67YDwZwe/iPPwCfXyLCn6p/rf/hjQ1CysWqo=;
+        s=default; t=1564752071;
+        bh=gijZ38w2GHhnegH5FJ/NBBA0xopWh1T6sTAr9SKBQzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y+0QzwJtWVb7AXzB2ZbIZZ7oCFJdygy+RnV3QdAeQBUF5yWdq7eyIGWejNgJETQpC
-         JVa++9wji2X4VWJiMn7x1gg9ugmsB3ylw1/S/FOWIIhxaFvLNhWk053gcM2JfyYa2v
-         vFr7RAy5zmobJygv1St9dqsY0dNOJ4rsPJiCRfZo=
+        b=alemIp2yrPVhqs0Jy7y+VV896RVcHemiwGPGfflSjgeMF4rxDPRHTYYV9KUQntETC
+         qYf7Kbf8BjMcGLMcwyFni4AEEFCU0mCuMuZQEThTJrDbZ7KxatszuMhyP6foAUGSYF
+         1AlA5RxOUOx8Cy0G5qr7KOrZXiYSq78RVebcaKYc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Zyngier <marc.zyngier@arm.com>, Will Deacon <will@kernel.org>,
+Cc:     James Morse <james.morse@arm.com>, Will Deacon <will@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 38/76] arm64: Force SSBS on context switch
-Date:   Fri,  2 Aug 2019 09:19:12 -0400
-Message-Id: <20190802131951.11600-38-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 39/76] arm64: entry: SP Alignment Fault doesn't write to FAR_EL1
+Date:   Fri,  2 Aug 2019 09:19:13 -0400
+Message-Id: <20190802131951.11600-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
 References: <20190802131951.11600-1-sashal@kernel.org>
@@ -42,119 +42,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <marc.zyngier@arm.com>
+From: James Morse <james.morse@arm.com>
 
-[ Upstream commit cbdf8a189a66001c36007bf0f5c975d0376c5c3a ]
+[ Upstream commit 40ca0ce56d4bb889dc43b455c55398468115569a ]
 
-On a CPU that doesn't support SSBS, PSTATE[12] is RES0.  In a system
-where only some of the CPUs implement SSBS, we end-up losing track of
-the SSBS bit across task migration.
+Comparing the arm-arm's  pseudocode for AArch64.PCAlignmentFault() with
+AArch64.SPAlignmentFault() shows that SP faults don't copy the faulty-SP
+to FAR_EL1, but this is where we read from, and the address we provide
+to user-space with the BUS_ADRALN signal.
 
-To address this issue, let's force the SSBS bit on context switch.
+For user-space this value will be UNKNOWN due to the previous ERET to
+user-space. If the last value is preserved, on systems with KASLR or KPTI
+this will be the user-space link-register left in FAR_EL1 by tramp_exit().
+Fix this to retrieve the original sp_el0 value, and pass this to
+do_sp_pc_fault().
 
-Fixes: 8f04e8e6e29c ("arm64: ssbd: Add support for PSTATE.SSBS rather than trapping to EL3")
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
-[will: inverted logic and added comments]
+SP alignment faults from EL1 will cause us to take the fault again when
+trying to store the pt_regs. This eventually takes us to the overflow
+stack. Remove the ESR_ELx_EC_SP_ALIGN check as we will never make it
+this far.
+
+Fixes: 60ffc30d5652 ("arm64: Exception handling")
+Signed-off-by: James Morse <james.morse@arm.com>
+[will: change label name and fleshed out comment]
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/processor.h | 14 ++++++++++++--
- arch/arm64/kernel/process.c        | 29 ++++++++++++++++++++++++++++-
- 2 files changed, 40 insertions(+), 3 deletions(-)
+ arch/arm64/kernel/entry.S | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
-index fd5b1a4efc70e..844e2964b0f5e 100644
---- a/arch/arm64/include/asm/processor.h
-+++ b/arch/arm64/include/asm/processor.h
-@@ -193,6 +193,16 @@ static inline void start_thread_common(struct pt_regs *regs, unsigned long pc)
- 		regs->pmr_save = GIC_PRIO_IRQON;
- }
+diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
+index 9cdc4592da3ef..320a30dbe35ef 100644
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -586,10 +586,8 @@ el1_sync:
+ 	b.eq	el1_ia
+ 	cmp	x24, #ESR_ELx_EC_SYS64		// configurable trap
+ 	b.eq	el1_undef
+-	cmp	x24, #ESR_ELx_EC_SP_ALIGN	// stack alignment exception
+-	b.eq	el1_sp_pc
+ 	cmp	x24, #ESR_ELx_EC_PC_ALIGN	// pc alignment exception
+-	b.eq	el1_sp_pc
++	b.eq	el1_pc
+ 	cmp	x24, #ESR_ELx_EC_UNKNOWN	// unknown exception in EL1
+ 	b.eq	el1_undef
+ 	cmp	x24, #ESR_ELx_EC_BREAKPT_CUR	// debug exception in EL1
+@@ -611,9 +609,11 @@ el1_da:
+ 	bl	do_mem_abort
  
-+static inline void set_ssbs_bit(struct pt_regs *regs)
-+{
-+	regs->pstate |= PSR_SSBS_BIT;
-+}
-+
-+static inline void set_compat_ssbs_bit(struct pt_regs *regs)
-+{
-+	regs->pstate |= PSR_AA32_SSBS_BIT;
-+}
-+
- static inline void start_thread(struct pt_regs *regs, unsigned long pc,
- 				unsigned long sp)
- {
-@@ -200,7 +210,7 @@ static inline void start_thread(struct pt_regs *regs, unsigned long pc,
- 	regs->pstate = PSR_MODE_EL0t;
- 
- 	if (arm64_get_ssbd_state() != ARM64_SSBD_FORCE_ENABLE)
--		regs->pstate |= PSR_SSBS_BIT;
-+		set_ssbs_bit(regs);
- 
- 	regs->sp = sp;
- }
-@@ -219,7 +229,7 @@ static inline void compat_start_thread(struct pt_regs *regs, unsigned long pc,
- #endif
- 
- 	if (arm64_get_ssbd_state() != ARM64_SSBD_FORCE_ENABLE)
--		regs->pstate |= PSR_AA32_SSBS_BIT;
-+		set_compat_ssbs_bit(regs);
- 
- 	regs->compat_sp = sp;
- }
-diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
-index 6a869d9f304f7..b0c859ca63201 100644
---- a/arch/arm64/kernel/process.c
-+++ b/arch/arm64/kernel/process.c
-@@ -398,7 +398,7 @@ int copy_thread(unsigned long clone_flags, unsigned long stack_start,
- 			childregs->pstate |= PSR_UAO_BIT;
- 
- 		if (arm64_get_ssbd_state() == ARM64_SSBD_FORCE_DISABLE)
--			childregs->pstate |= PSR_SSBS_BIT;
-+			set_ssbs_bit(childregs);
- 
- 		if (system_uses_irq_prio_masking())
- 			childregs->pmr_save = GIC_PRIO_IRQON;
-@@ -442,6 +442,32 @@ void uao_thread_switch(struct task_struct *next)
- 	}
- }
- 
-+/*
-+ * Force SSBS state on context-switch, since it may be lost after migrating
-+ * from a CPU which treats the bit as RES0 in a heterogeneous system.
-+ */
-+static void ssbs_thread_switch(struct task_struct *next)
-+{
-+	struct pt_regs *regs = task_pt_regs(next);
-+
-+	/*
-+	 * Nothing to do for kernel threads, but 'regs' may be junk
-+	 * (e.g. idle task) so check the flags and bail early.
-+	 */
-+	if (unlikely(next->flags & PF_KTHREAD))
-+		return;
-+
-+	/* If the mitigation is enabled, then we leave SSBS clear. */
-+	if ((arm64_get_ssbd_state() == ARM64_SSBD_FORCE_ENABLE) ||
-+	    test_tsk_thread_flag(next, TIF_SSBD))
-+		return;
-+
-+	if (compat_user_mode(regs))
-+		set_compat_ssbs_bit(regs);
-+	else if (user_mode(regs))
-+		set_ssbs_bit(regs);
-+}
-+
- /*
-  * We store our current task in sp_el0, which is clobbered by userspace. Keep a
-  * shadow copy so that we can restore this upon entry from userspace.
-@@ -471,6 +497,7 @@ __notrace_funcgraph struct task_struct *__switch_to(struct task_struct *prev,
- 	entry_task_switch(next);
- 	uao_thread_switch(next);
- 	ptrauth_thread_switch(next);
-+	ssbs_thread_switch(next);
- 
+ 	kernel_exit 1
+-el1_sp_pc:
++el1_pc:
  	/*
- 	 * Complete any pending TLB or cache maintenance on this CPU in case
+-	 * Stack or PC alignment exception handling
++	 * PC alignment exception handling. We don't handle SP alignment faults,
++	 * since we will have hit a recursive exception when trying to push the
++	 * initial pt_regs.
+ 	 */
+ 	mrs	x0, far_el1
+ 	inherit_daif	pstate=x23, tmp=x2
+@@ -732,9 +732,9 @@ el0_sync:
+ 	ccmp	x24, #ESR_ELx_EC_WFx, #4, ne
+ 	b.eq	el0_sys
+ 	cmp	x24, #ESR_ELx_EC_SP_ALIGN	// stack alignment exception
+-	b.eq	el0_sp_pc
++	b.eq	el0_sp
+ 	cmp	x24, #ESR_ELx_EC_PC_ALIGN	// pc alignment exception
+-	b.eq	el0_sp_pc
++	b.eq	el0_pc
+ 	cmp	x24, #ESR_ELx_EC_UNKNOWN	// unknown exception in EL0
+ 	b.eq	el0_undef
+ 	cmp	x24, #ESR_ELx_EC_BREAKPT_LOW	// debug exception in EL0
+@@ -758,7 +758,7 @@ el0_sync_compat:
+ 	cmp	x24, #ESR_ELx_EC_FP_EXC32	// FP/ASIMD exception
+ 	b.eq	el0_fpsimd_exc
+ 	cmp	x24, #ESR_ELx_EC_PC_ALIGN	// pc alignment exception
+-	b.eq	el0_sp_pc
++	b.eq	el0_pc
+ 	cmp	x24, #ESR_ELx_EC_UNKNOWN	// unknown exception in EL0
+ 	b.eq	el0_undef
+ 	cmp	x24, #ESR_ELx_EC_CP15_32	// CP15 MRC/MCR trap
+@@ -858,11 +858,15 @@ el0_fpsimd_exc:
+ 	mov	x1, sp
+ 	bl	do_fpsimd_exc
+ 	b	ret_to_user
++el0_sp:
++	ldr	x26, [sp, #S_SP]
++	b	el0_sp_pc
++el0_pc:
++	mrs	x26, far_el1
+ el0_sp_pc:
+ 	/*
+ 	 * Stack or PC alignment exception handling
+ 	 */
+-	mrs	x26, far_el1
+ 	gic_prio_kentry_setup tmp=x0
+ 	enable_da_f
+ #ifdef CONFIG_TRACE_IRQFLAGS
 -- 
 2.20.1
 
