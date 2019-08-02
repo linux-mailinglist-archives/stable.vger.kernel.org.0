@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A00C7F24D
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:49:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11C917F250
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:49:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405641AbfHBJrL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:47:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51874 "EHLO mail.kernel.org"
+        id S2405639AbfHBJrS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:47:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405639AbfHBJrK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:47:10 -0400
+        id S2404462AbfHBJrR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:47:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B397E206A2;
-        Fri,  2 Aug 2019 09:47:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C23A52086A;
+        Fri,  2 Aug 2019 09:47:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739229;
-        bh=k1DdW9q4s8i60smQGx86EQOHfoeowZDWDTC7zIaE1fw=;
+        s=default; t=1564739237;
+        bh=50K1ZzXDdHnX5+9sEl77HOhXGLmH5cGNDfUEmnxYg34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1FRVMptV33tSBJMERmbxeJmlZxtWDmsSJ+ALggpVv4TLJ4/u4Um+4qGitbjw6UplF
-         SckDleV86oSdfsb30VJG6iXWqwJhAum1w7mWJfr7jScyD8aWxMuYqO1WebTvCM7SYI
-         EpPeV/tYuMAMO0Nh4yOceh5yhzkskJLAdg5jllr8=
+        b=ngb5cfTiHjROk7ASuP73df3WxyQxMtbW/v4yIXVzHDETWDfSw7Fj3SsgtM0poDzid
+         8Za6nIvkyjYT7fAljKhOUD3QsGGpY4+C1cBy7mfNL8dNQikswatgOHB3A5wFRAwW9o
+         8huZunnmxO+Z0lXFvi98C2fA1zqNsCVzSPddBlNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
+        stable@vger.kernel.org, Serge Semin <fancer.lancer@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 160/223] usb: core: hub: Disable hub-initiated U1/U2
-Date:   Fri,  2 Aug 2019 11:36:25 +0200
-Message-Id: <20190802092248.588783817@linuxfoundation.org>
+Subject: [PATCH 4.9 161/223] tty: max310x: Fix invalid baudrate divisors calculator
+Date:   Fri,  2 Aug 2019 11:36:26 +0200
+Message-Id: <20190802092248.627574886@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -43,79 +43,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 561759292774707b71ee61aecc07724905bb7ef1 ]
+[ Upstream commit 35240ba26a932b279a513f66fa4cabfd7af55221 ]
 
-If the device rejects the control transfer to enable device-initiated
-U1/U2 entry, then the device will not initiate U1/U2 transition. To
-improve the performance, the downstream port should not initate
-transition to U1/U2 to avoid the delay from the device link command
-response (no packet can be transmitted while waiting for a response from
-the device). If the device has some quirks and does not implement U1/U2,
-it may reject all the link state change requests, and the downstream
-port may resend and flood the bus with more requests. This will affect
-the device performance even further. This patch disables the
-hub-initated U1/U2 if the device-initiated U1/U2 entry fails.
+Current calculator doesn't do it' job quite correct. First of all the
+max310x baud-rates generator supports the divisor being less than 16.
+In this case the x2/x4 modes can be used to double or quadruple
+the reference frequency. But the current baud-rate setter function
+just filters all these modes out by the first condition and setups
+these modes only if there is a clocks-baud division remainder. The former
+doesn't seem right at all, since enabling the x2/x4 modes causes the line
+noise tolerance reduction and should be only used as a last resort to
+enable a requested too high baud-rate.
 
-Reference: USB 3.2 spec 7.2.4.2.3
+Finally the fraction is supposed to be calculated from D = Fref/(c*baud)
+formulae, but not from D % 16, which causes the precision loss. So to speak
+the current baud-rate calculator code works well only if the baud perfectly
+fits to the uart reference input frequency.
 
-Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Lets fix the calculator by implementing the algo fully compliant with
+the fractional baud-rate generator described in the datasheet:
+D = Fref / (c*baud), where c={16,8,4} is the x1/x2/x4 rate mode
+respectively, Fref - reference input frequency. The divisor fraction is
+calculated from the same formulae, but making sure it is found with a
+resolution of 0.0625 (four bits).
+
+Signed-off-by: Serge Semin <fancer.lancer@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/hub.c | 28 ++++++++++++++++------------
- 1 file changed, 16 insertions(+), 12 deletions(-)
+ drivers/tty/serial/max310x.c | 51 ++++++++++++++++++++++--------------
+ 1 file changed, 31 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index 9f132fac7b2c..63646dc3ca27 100644
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -3879,6 +3879,9 @@ static int usb_set_lpm_timeout(struct usb_device *udev,
-  * control transfers to set the hub timeout or enable device-initiated U1/U2
-  * will be successful.
-  *
-+ * If the control transfer to enable device-initiated U1/U2 entry fails, then
-+ * hub-initiated U1/U2 will be disabled.
-+ *
-  * If we cannot set the parent hub U1/U2 timeout, we attempt to let the xHCI
-  * driver know about it.  If that call fails, it should be harmless, and just
-  * take up more slightly more bus bandwidth for unnecessary U1/U2 exit latency.
-@@ -3933,23 +3936,24 @@ static void usb_enable_link_state(struct usb_hcd *hcd, struct usb_device *udev,
- 		 * host know that this link state won't be enabled.
- 		 */
- 		hcd->driver->disable_usb3_lpm_timeout(hcd, udev, state);
--	} else {
--		/* Only a configured device will accept the Set Feature
--		 * U1/U2_ENABLE
--		 */
--		if (udev->actconfig)
--			usb_set_device_initiated_lpm(udev, state, true);
-+		return;
-+	}
+diff --git a/drivers/tty/serial/max310x.c b/drivers/tty/serial/max310x.c
+index ec3db8d8306c..bacc7e284c0c 100644
+--- a/drivers/tty/serial/max310x.c
++++ b/drivers/tty/serial/max310x.c
+@@ -494,37 +494,48 @@ static bool max310x_reg_precious(struct device *dev, unsigned int reg)
  
--		/* As soon as usb_set_lpm_timeout(timeout) returns 0, the
--		 * hub-initiated LPM is enabled. Thus, LPM is enabled no
--		 * matter the result of usb_set_device_initiated_lpm().
--		 * The only difference is whether device is able to initiate
--		 * LPM.
--		 */
-+	/* Only a configured device will accept the Set Feature
-+	 * U1/U2_ENABLE
+ static int max310x_set_baud(struct uart_port *port, int baud)
+ {
+-	unsigned int mode = 0, clk = port->uartclk, div = clk / baud;
++	unsigned int mode = 0, div = 0, frac = 0, c = 0, F = 0;
+ 
+-	/* Check for minimal value for divider */
+-	if (div < 16)
+-		div = 16;
+-
+-	if (clk % baud && (div / 16) < 0x8000) {
++	/*
++	 * Calculate the integer divisor first. Select a proper mode
++	 * in case if the requested baud is too high for the pre-defined
++	 * clocks frequency.
 +	 */
-+	if (udev->actconfig &&
-+	    usb_set_device_initiated_lpm(udev, state, true) == 0) {
- 		if (state == USB3_LPM_U1)
- 			udev->usb3_lpm_u1_enabled = 1;
- 		else if (state == USB3_LPM_U2)
- 			udev->usb3_lpm_u2_enabled = 1;
++	div = port->uartclk / baud;
++	if (div < 8) {
++		/* Mode x4 */
++		c = 4;
++		mode = MAX310X_BRGCFG_4XMODE_BIT;
++	} else if (div < 16) {
+ 		/* Mode x2 */
++		c = 8;
+ 		mode = MAX310X_BRGCFG_2XMODE_BIT;
+-		clk = port->uartclk * 2;
+-		div = clk / baud;
+-
+-		if (clk % baud && (div / 16) < 0x8000) {
+-			/* Mode x4 */
+-			mode = MAX310X_BRGCFG_4XMODE_BIT;
+-			clk = port->uartclk * 4;
+-			div = clk / baud;
+-		}
 +	} else {
-+		/* Don't request U1/U2 entry if the device
-+		 * cannot transition to U1/U2.
-+		 */
-+		usb_set_lpm_timeout(udev, state, 0);
-+		hcd->driver->disable_usb3_lpm_timeout(hcd, udev, state);
++		c = 16;
  	}
+ 
+-	max310x_port_write(port, MAX310X_BRGDIVMSB_REG, (div / 16) >> 8);
+-	max310x_port_write(port, MAX310X_BRGDIVLSB_REG, div / 16);
+-	max310x_port_write(port, MAX310X_BRGCFG_REG, (div % 16) | mode);
++	/* Calculate the divisor in accordance with the fraction coefficient */
++	div /= c;
++	F = c*baud;
++
++	/* Calculate the baud rate fraction */
++	if (div > 0)
++		frac = (16*(port->uartclk % F)) / F;
++	else
++		div = 1;
++
++	max310x_port_write(port, MAX310X_BRGDIVMSB_REG, div >> 8);
++	max310x_port_write(port, MAX310X_BRGDIVLSB_REG, div);
++	max310x_port_write(port, MAX310X_BRGCFG_REG, frac | mode);
+ 
+-	return DIV_ROUND_CLOSEST(clk, div);
++	/* Return the actual baud rate we just programmed */
++	return (16*port->uartclk) / (c*(16*div + frac));
  }
  
+ static int max310x_update_best_err(unsigned long f, long *besterr)
+ {
+ 	/* Use baudrate 115200 for calculate error */
+-	long err = f % (115200 * 16);
++	long err = f % (460800 * 16);
+ 
+ 	if ((*besterr < 0) || (*besterr > err)) {
+ 		*besterr = err;
 -- 
 2.20.1
 
