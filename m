@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CC2F7F2B5
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:50:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3047F7F2A3
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:50:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405024AbfHBJuh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:50:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49184 "EHLO mail.kernel.org"
+        id S2390012AbfHBJpa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:45:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405439AbfHBJp1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:45:27 -0400
+        id S2405370AbfHBJp3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:45:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 307B420679;
-        Fri,  2 Aug 2019 09:45:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B800720679;
+        Fri,  2 Aug 2019 09:45:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739126;
-        bh=gRUh7r/2kagW87k821dT4UvIbhIkwAbcPWIlzXVFqa4=;
+        s=default; t=1564739129;
+        bh=SipdAuyC52gfeobWDnLZNj0rO8IMaAtTeLAVQJI1mFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D+fCngFYz/49lC13YeSkVHBbzSIwLtDzgtKrz0QsZLiKqCkf9nKNXGCMbpcEhHCnx
-         QK0m1q29M8Qa5jeMipAppzrXn9GhDs/R/ohLu7lv3Ma+EWWj6i/Sb+BIdUv7Zu4GJd
-         XDypqNwYij+6G4Mjx8NkvVpmNhbOj8p4L2veGDbA=
+        b=RyVItj122ALPHJ3/LZR3rNOTM+28FfOEh5yvRGIWNjFMO0JXmmapTTOnTQSzTr87q
+         X1dRInHXsiETxM6I1exttu6p0joZ0EdCY9hMUnyCpPrFpa1XCQpvD1E2R8yuwbTIJt
+         M1Nsm5RQQ3cshNh4FEhSHqr56+xv5F4Vj/QLFy+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Lee, Chiasheng" <chiasheng.lee@intel.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Lee@vger.kernel.org
-Subject: [PATCH 4.9 123/223] usb: Handle USB3 remote wakeup for LPM enabled devices correctly
-Date:   Fri,  2 Aug 2019 11:35:48 +0200
-Message-Id: <20190802092247.109782285@linuxfoundation.org>
+        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.9 124/223] dm bufio: fix deadlock with loop device
+Date:   Fri,  2 Aug 2019 11:35:49 +0200
+Message-Id: <20190802092247.153499892@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -44,59 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee, Chiasheng <chiasheng.lee@intel.com>
+From: Junxiao Bi <junxiao.bi@oracle.com>
 
-commit e244c4699f859cf7149b0781b1894c7996a8a1df upstream.
+commit bd293d071ffe65e645b4d8104f9d8fe15ea13862 upstream.
 
-With Link Power Management (LPM) enabled USB3 links transition to low
-power U1/U2 link states from U0 state automatically.
+When thin-volume is built on loop device, if available memory is low,
+the following deadlock can be triggered:
 
-Current hub code detects USB3 remote wakeups by checking if the software
-state still shows suspended, but the link has transitioned from suspended
-U3 to enabled U0 state.
+One process P1 allocates memory with GFP_FS flag, direct alloc fails,
+memory reclaim invokes memory shrinker in dm_bufio, dm_bufio_shrink_scan()
+runs, mutex dm_bufio_client->lock is acquired, then P1 waits for dm_buffer
+IO to complete in __try_evict_buffer().
 
-As it takes some time before the hub thread reads the port link state
-after a USB3 wake notification, the link may have transitioned from U0
-to U1/U2, and wake is not detected by hub code.
+But this IO may never complete if issued to an underlying loop device
+that forwards it using direct-IO, which allocates memory using
+GFP_KERNEL (see: do_blockdev_direct_IO()).  If allocation fails, memory
+reclaim will invoke memory shrinker in dm_bufio, dm_bufio_shrink_scan()
+will be invoked, and since the mutex is already held by P1 the loop
+thread will hang, and IO will never complete.  Resulting in ABBA
+deadlock.
 
-Fix this by handling U1/U2 states in the same way as U0 in USB3 wakeup
-handling
-
-This patch should be added to stable kernels since 4.13 where LPM was
-kept enabled during suspend/resume
-
-Cc: <stable@vger.kernel.org> # v4.13+
-Signed-off-by: Lee, Chiasheng <chiasheng.lee@intel.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/hub.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/md/dm-bufio.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -3535,6 +3535,7 @@ static int hub_handle_remote_wakeup(stru
- 	struct usb_device *hdev;
- 	struct usb_device *udev;
- 	int connect_change = 0;
-+	u16 link_state;
- 	int ret;
+--- a/drivers/md/dm-bufio.c
++++ b/drivers/md/dm-bufio.c
+@@ -1585,9 +1585,7 @@ dm_bufio_shrink_scan(struct shrinker *sh
+ 	unsigned long freed;
  
- 	hdev = hub->hdev;
-@@ -3544,9 +3545,11 @@ static int hub_handle_remote_wakeup(stru
- 			return 0;
- 		usb_clear_port_feature(hdev, port, USB_PORT_FEAT_C_SUSPEND);
- 	} else {
-+		link_state = portstatus & USB_PORT_STAT_LINK_STATE;
- 		if (!udev || udev->state != USB_STATE_SUSPENDED ||
--				 (portstatus & USB_PORT_STAT_LINK_STATE) !=
--				 USB_SS_PORT_LS_U0)
-+				(link_state != USB_SS_PORT_LS_U0 &&
-+				 link_state != USB_SS_PORT_LS_U1 &&
-+				 link_state != USB_SS_PORT_LS_U2))
- 			return 0;
- 	}
+ 	c = container_of(shrink, struct dm_bufio_client, shrinker);
+-	if (sc->gfp_mask & __GFP_FS)
+-		dm_bufio_lock(c);
+-	else if (!dm_bufio_trylock(c))
++	if (!dm_bufio_trylock(c))
+ 		return SHRINK_STOP;
  
+ 	freed  = __scan(c, sc->nr_to_scan, sc->gfp_mask);
 
 
