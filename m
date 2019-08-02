@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3D6C7FAF3
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:36:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B5657FAEE
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:36:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390653AbfHBNf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:35:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58946 "EHLO mail.kernel.org"
+        id S2406248AbfHBNfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:35:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393378AbfHBNUa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:20:30 -0400
+        id S2393383AbfHBNUc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:20:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05B512173E;
-        Fri,  2 Aug 2019 13:20:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B69821841;
+        Fri,  2 Aug 2019 13:20:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752029;
-        bh=sLxGRHB82ABi8IPvwEJ48S+TkbwPSy9Tse9vCufO+2E=;
+        s=default; t=1564752031;
+        bh=/pFn0OdCI5pP5nVMCvQZm6Dw/yEue9E4JUVrOlgG5j4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jSO4b/GITALvkSAnH+jQ4eOj7bJRU76fskGBG2bpUClmaEm+M1k5DUfbXk0Bf0AWK
-         a95juFbLRtR2g9ta2/u2fBSbCXb/aUcpaBrE4qfdN5rjwSc9ohw729ZZiVY9lfMSoA
-         PSPmlPzuqFCqletJMj5m6mkTdMBr1qeJrWZHYKeE=
+        b=EuHapA3PYKYZRPMC5vozw6sXbAL9kSguS+A5zh0bnjKJZHwdTkjawkA0S3yG+Kms7
+         OfoILHUZad/sB/AEcNNk8IKqwrxhhcuy1jVNSMXMUMfor+qiOa+sB3EfZ1VRD9nJe7
+         DOPkHPgeKIi3WS9mKgNwWW99TwvGaEqg+tpnhxkA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tai Man <taiman.wong@amd.com>,
-        Joshua Aberback <Joshua.Aberback@amd.com>,
-        Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 25/76] drm/amd/display: Increase size of audios array
-Date:   Fri,  2 Aug 2019 09:18:59 -0400
-Message-Id: <20190802131951.11600-25-sashal@kernel.org>
+Cc:     Thomas Tai <thomas.tai@oracle.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 26/76] iscsi_ibft: make ISCSI_IBFT dependson ACPI instead of ISCSI_IBFT_FIND
+Date:   Fri,  2 Aug 2019 09:19:00 -0400
+Message-Id: <20190802131951.11600-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
 References: <20190802131951.11600-1-sashal@kernel.org>
@@ -46,53 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tai Man <taiman.wong@amd.com>
+From: Thomas Tai <thomas.tai@oracle.com>
 
-[ Upstream commit 7352193a33dfc9b69ba3bf6a8caea925b96243b1 ]
+[ Upstream commit 94bccc34071094c165c79b515d21b63c78f7e968 ]
 
-[Why]
-The audios array defined in "struct resource_pool" is only 6 (MAX_PIPES)
-but the max number of audio devices (num_audio) is 7. In some projects,
-it will run out of audios array.
+iscsi_ibft can use ACPI to find the iBFT entry during bootup,
+currently, ISCSI_IBFT depends on ISCSI_IBFT_FIND which is
+a X86 legacy way to find the iBFT by searching through the
+low memory. This patch changes the dependency so that other
+arch like ARM64 can use ISCSI_IBFT as long as the arch supports
+ACPI.
 
-[How]
-Incraese the audios array size to 7.
+ibft_init() needs to use the global variable ibft_addr declared
+in iscsi_ibft_find.c. A #ifndef CONFIG_ISCSI_IBFT_FIND is needed
+to declare the variable if CONFIG_ISCSI_IBFT_FIND is not selected.
+Moving ibft_addr into the iscsi_ibft.c does not work because if
+ISCSI_IBFT is selected as a module, the arch/x86/kernel/setup.c won't
+be able to find the variable at compile time.
 
-Signed-off-by: Tai Man <taiman.wong@amd.com>
-Reviewed-by: Joshua Aberback <Joshua.Aberback@amd.com>
-Acked-by: Leo Li <sunpeng.li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Thomas Tai <thomas.tai@oracle.com>
+Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/inc/core_types.h   | 2 +-
- drivers/gpu/drm/amd/display/dc/inc/hw/hw_shared.h | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/firmware/Kconfig      | 5 +++--
+ drivers/firmware/iscsi_ibft.c | 4 ++++
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/inc/core_types.h b/drivers/gpu/drm/amd/display/dc/inc/core_types.h
-index 6f5ab05d64677..6f0cc718fbd75 100644
---- a/drivers/gpu/drm/amd/display/dc/inc/core_types.h
-+++ b/drivers/gpu/drm/amd/display/dc/inc/core_types.h
-@@ -169,7 +169,7 @@ struct resource_pool {
- 	struct clock_source *clock_sources[MAX_CLOCK_SOURCES];
- 	unsigned int clk_src_count;
+diff --git a/drivers/firmware/Kconfig b/drivers/firmware/Kconfig
+index d40ccc3af9e26..fa7ed01415b72 100644
+--- a/drivers/firmware/Kconfig
++++ b/drivers/firmware/Kconfig
+@@ -157,7 +157,7 @@ config DMI_SCAN_MACHINE_NON_EFI_FALLBACK
  
--	struct audio *audios[MAX_PIPES];
-+	struct audio *audios[MAX_AUDIOS];
- 	unsigned int audio_count;
- 	struct audio_support audio_support;
+ config ISCSI_IBFT_FIND
+ 	bool "iSCSI Boot Firmware Table Attributes"
+-	depends on X86 && ACPI
++	depends on X86 && ISCSI_IBFT
+ 	default n
+ 	help
+ 	  This option enables the kernel to find the region of memory
+@@ -168,7 +168,8 @@ config ISCSI_IBFT_FIND
+ config ISCSI_IBFT
+ 	tristate "iSCSI Boot Firmware Table Attributes module"
+ 	select ISCSI_BOOT_SYSFS
+-	depends on ISCSI_IBFT_FIND && SCSI && SCSI_LOWLEVEL
++	select ISCSI_IBFT_FIND if X86
++	depends on ACPI && SCSI && SCSI_LOWLEVEL
+ 	default	n
+ 	help
+ 	  This option enables support for detection and exposing of iSCSI
+diff --git a/drivers/firmware/iscsi_ibft.c b/drivers/firmware/iscsi_ibft.c
+index ab3aa39838338..7e12cbdf957cc 100644
+--- a/drivers/firmware/iscsi_ibft.c
++++ b/drivers/firmware/iscsi_ibft.c
+@@ -84,6 +84,10 @@ MODULE_DESCRIPTION("sysfs interface to BIOS iBFT information");
+ MODULE_LICENSE("GPL");
+ MODULE_VERSION(IBFT_ISCSI_VERSION);
  
-diff --git a/drivers/gpu/drm/amd/display/dc/inc/hw/hw_shared.h b/drivers/gpu/drm/amd/display/dc/inc/hw/hw_shared.h
-index 4c8e2c6fb6dbc..72266efd826cf 100644
---- a/drivers/gpu/drm/amd/display/dc/inc/hw/hw_shared.h
-+++ b/drivers/gpu/drm/amd/display/dc/inc/hw/hw_shared.h
-@@ -34,6 +34,7 @@
-  * Data types shared between different Virtual HW blocks
-  ******************************************************************************/
- 
-+#define MAX_AUDIOS 7
- #define MAX_PIPES 6
- 
- struct gamma_curve {
++#ifndef CONFIG_ISCSI_IBFT_FIND
++struct acpi_table_ibft *ibft_addr;
++#endif
++
+ struct ibft_hdr {
+ 	u8 id;
+ 	u8 version;
 -- 
 2.20.1
 
