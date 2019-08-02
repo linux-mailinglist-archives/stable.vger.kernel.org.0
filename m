@@ -2,224 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EEE597F3A0
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:59:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9BA37F3B7
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:00:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406747AbfHBJ4h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:56:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35494 "EHLO mail.kernel.org"
+        id S2406611AbfHBJ7t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:59:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406739AbfHBJ4g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:56:36 -0400
+        id S2406528AbfHBJz0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:55:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4AF22064A;
-        Fri,  2 Aug 2019 09:56:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC8442086A;
+        Fri,  2 Aug 2019 09:55:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739795;
-        bh=3/ftI1F64L7MU50EZ4JrnQm3j9tTyy3fmxX/xmaM7Ao=;
-        h=From:To:Cc:Subject:Date:From;
-        b=VCRKDxChSS7J9OjnbcfosKNt9AMRxcNTj8Z1fOBJ+vcgBb9F7IrsOnd4S19fZ/rKB
-         2rLjWfk6WpJ+DQHrDSLVy+avnyLWiyIAlcCW1rVLaT4G7SxrDAb8Gi9mcOglNvK3FO
-         gSCohE0JWLiJIwndc03xoH3Se6h2lNzdRMTUQlwE=
+        s=default; t=1564739725;
+        bh=YYYz1aKx97Ii5R7lI2bmjC8XYExlbd+kK6xQ8flCFfc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=oIuScfaImV8vANWwcpYIYbd0sjUzV7NyZ3KLDWPAJUp6CGzrKPYWGqhTupES1aT0B
+         behDjNmey0UC+SZqAVwQOThoiUfce44VnHVdqeKY//sFsGr7Yt/lUuphDlHAVG5VBJ
+         sqcNRHR27PpxCvTSC6VGY7CzYlaXHfHuRJTXcHBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 4.19 00/32] 4.19.64-stable review
-Date:   Fri,  2 Aug 2019 11:39:34 +0200
-Message-Id: <20190802092101.913646560@linuxfoundation.org>
+        stable@vger.kernel.org, Sunil Muthuswamy <sunilmut@microsoft.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 01/32] hv_sock: Add support for delayed close
+Date:   Fri,  2 Aug 2019 11:39:35 +0200
+Message-Id: <20190802092102.084353778@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-MIME-Version: 1.0
+In-Reply-To: <20190802092101.913646560@linuxfoundation.org>
+References: <20190802092101.913646560@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.64-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.19.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.19.64-rc1
-X-KernelTest-Deadline: 2019-08-04T09:21+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.19.64 release.
-There are 32 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Sunil Muthuswamy <sunilmut@microsoft.com>
 
-Responses should be made by Sun 04 Aug 2019 09:19:34 AM UTC.
-Anything received after that time might be too late.
+commit a9eeb998c28d5506616426bd3a216bd5735a18b8 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.64-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-and the diffstat can be found below.
+Currently, hvsock does not implement any delayed or background close
+logic. Whenever the hvsock socket is closed, a FIN is sent to the peer, and
+the last reference to the socket is dropped, which leads to a call to
+.destruct where the socket can hang indefinitely waiting for the peer to
+close it's side. The can cause the user application to hang in the close()
+call.
 
-thanks,
+This change implements proper STREAM(TCP) closing handshake mechanism by
+sending the FIN to the peer and the waiting for the peer's FIN to arrive
+for a given timeout. On timeout, it will try to terminate the connection
+(i.e. a RST). This is in-line with other socket providers such as virtio.
 
-greg k-h
+This change does not address the hang in the vmbus_hvsock_device_unregister
+where it waits indefinitely for the host to rescind the channel. That
+should be taken up as a separate fix.
 
--------------
-Pseudo-Shortlog of commits:
+Signed-off-by: Sunil Muthuswamy <sunilmut@microsoft.com>
+Reviewed-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.19.64-rc1
+---
+ net/vmw_vsock/hyperv_transport.c |  110 +++++++++++++++++++++++++++------------
+ 1 file changed, 78 insertions(+), 32 deletions(-)
 
-Bart Van Assche <bvanassche@acm.org>
-    scsi: core: Avoid that a kernel warning appears during system resume
-
-Bart Van Assche <bvanassche@acm.org>
-    block, scsi: Change the preempt-only flag into a counter
-
-Yan, Zheng <zyan@redhat.com>
-    ceph: hold i_ceph_lock when removing caps for freeing inode
-
-Yoshinori Sato <ysato@users.sourceforge.jp>
-    Fix allyesconfig output.
-
-Miroslav Lichvar <mlichvar@redhat.com>
-    drivers/pps/pps.c: clear offset flags in PPS_SETPARAMS ioctl
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    /proc/<pid>/cmdline: add back the setproctitle() special case
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    /proc/<pid>/cmdline: remove all the special cases
-
-Jann Horn <jannh@google.com>
-    sched/fair: Use RCU accessors consistently for ->numa_group
-
-Jann Horn <jannh@google.com>
-    sched/fair: Don't free p->numa_faults with concurrent readers
-
-Jason Wang <jasowang@redhat.com>
-    vhost: scsi: add weight support
-
-Jason Wang <jasowang@redhat.com>
-    vhost: vsock: add weight support
-
-Jason Wang <jasowang@redhat.com>
-    vhost_net: fix possible infinite loop
-
-Jason Wang <jasowang@redhat.com>
-    vhost: introduce vhost_exceeds_weight()
-
-Vladis Dronov <vdronov@redhat.com>
-    Bluetooth: hci_uart: check for missing tty operations
-
-Joerg Roedel <jroedel@suse.de>
-    iommu/iova: Fix compilation error with !CONFIG_IOMMU_IOVA
-
-Dmitry Safonov <dima@arista.com>
-    iommu/vt-d: Don't queue_iova() if there is no flush queue
-
-Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>
-    media: radio-raremono: change devm_k*alloc to k*alloc
-
-Benjamin Coddington <bcodding@redhat.com>
-    NFS: Cleanup if nfs_match_client is interrupted
-
-Andrey Konovalov <andreyknvl@google.com>
-    media: pvrusb2: use a different format for warnings
-
-Oliver Neukum <oneukum@suse.com>
-    media: cpia2_usb: first wake up, then free in disconnect
-
-Fabio Estevam <festevam@gmail.com>
-    ath10k: Change the warning message string
-
-Sean Young <sean@mess.org>
-    media: au0828: fix null dereference in error path
-
-Phong Tran <tranmanphong@gmail.com>
-    ISDN: hfcsusb: checking idx of ep configuration
-
-Todd Kjos <tkjos@android.com>
-    binder: fix possible UAF when freeing buffer
-
-Will Deacon <will.deacon@arm.com>
-    arm64: compat: Provide definition for COMPAT_SIGMINSTKSZ
-
-Minas Harutyunyan <minas.harutyunyan@synopsys.com>
-    usb: dwc2: Fix disable all EP's on disconnect
-
-Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-    usb: dwc2: Disable all EP's on disconnect
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    NFSv4: Fix lookup revalidate of regular files
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    NFS: Refactor nfs_lookup_revalidate()
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    NFS: Fix dentry revalidation on NFSv4 lookup
-
-Sunil Muthuswamy <sunilmut@microsoft.com>
-    vsock: correct removal of socket from the list
-
-Sunil Muthuswamy <sunilmut@microsoft.com>
-    hv_sock: Add support for delayed close
-
-
--------------
-
-Diffstat:
-
- Makefile                                     |   4 +-
- arch/arm64/include/asm/compat.h              |   1 +
- arch/sh/boards/Kconfig                       |  14 +-
- block/blk-core.c                             |  35 ++--
- block/blk-mq-debugfs.c                       |  10 +-
- drivers/android/binder.c                     |  16 +-
- drivers/bluetooth/hci_ath.c                  |   3 +
- drivers/bluetooth/hci_bcm.c                  |   3 +
- drivers/bluetooth/hci_intel.c                |   3 +
- drivers/bluetooth/hci_ldisc.c                |  13 ++
- drivers/bluetooth/hci_mrvl.c                 |   3 +
- drivers/bluetooth/hci_qca.c                  |   3 +
- drivers/bluetooth/hci_uart.h                 |   1 +
- drivers/iommu/intel-iommu.c                  |   2 +-
- drivers/iommu/iova.c                         |  18 +-
- drivers/isdn/hardware/mISDN/hfcsusb.c        |   3 +
- drivers/media/radio/radio-raremono.c         |  30 ++-
- drivers/media/usb/au0828/au0828-core.c       |  12 +-
- drivers/media/usb/cpia2/cpia2_usb.c          |   3 +-
- drivers/media/usb/pvrusb2/pvrusb2-hdw.c      |   4 +-
- drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c |   6 +-
- drivers/media/usb/pvrusb2/pvrusb2-std.c      |   2 +-
- drivers/net/wireless/ath/ath10k/usb.c        |   2 +-
- drivers/pps/pps.c                            |   8 +
- drivers/scsi/scsi_lib.c                      |  15 +-
- drivers/usb/dwc2/gadget.c                    |  41 +++-
- drivers/vhost/net.c                          |  41 ++--
- drivers/vhost/scsi.c                         |  15 +-
- drivers/vhost/vhost.c                        |  20 +-
- drivers/vhost/vhost.h                        |   5 +-
- drivers/vhost/vsock.c                        |  28 ++-
- fs/ceph/caps.c                               |   7 +-
- fs/exec.c                                    |   2 +-
- fs/nfs/client.c                              |   4 +-
- fs/nfs/dir.c                                 | 295 +++++++++++++++------------
- fs/nfs/nfs4proc.c                            |  15 +-
- fs/proc/base.c                               | 132 ++++++------
- include/linux/blkdev.h                       |  14 +-
- include/linux/iova.h                         |   6 +
- include/linux/sched.h                        |  10 +-
- include/linux/sched/numa_balancing.h         |   4 +-
- kernel/fork.c                                |   2 +-
- kernel/sched/fair.c                          | 144 +++++++++----
- net/vmw_vsock/af_vsock.c                     |  38 +---
- net/vmw_vsock/hyperv_transport.c             | 108 +++++++---
- 45 files changed, 719 insertions(+), 426 deletions(-)
+--- a/net/vmw_vsock/hyperv_transport.c
++++ b/net/vmw_vsock/hyperv_transport.c
+@@ -35,6 +35,9 @@
+ /* The MTU is 16KB per the host side's design */
+ #define HVS_MTU_SIZE		(1024 * 16)
+ 
++/* How long to wait for graceful shutdown of a connection */
++#define HVS_CLOSE_TIMEOUT (8 * HZ)
++
+ struct vmpipe_proto_header {
+ 	u32 pkt_type;
+ 	u32 data_size;
+@@ -290,19 +293,32 @@ static void hvs_channel_cb(void *ctx)
+ 		sk->sk_write_space(sk);
+ }
+ 
+-static void hvs_close_connection(struct vmbus_channel *chan)
++static void hvs_do_close_lock_held(struct vsock_sock *vsk,
++				   bool cancel_timeout)
+ {
+-	struct sock *sk = get_per_channel_state(chan);
+-	struct vsock_sock *vsk = vsock_sk(sk);
+-
+-	lock_sock(sk);
++	struct sock *sk = sk_vsock(vsk);
+ 
+-	sk->sk_state = TCP_CLOSE;
+ 	sock_set_flag(sk, SOCK_DONE);
+-	vsk->peer_shutdown |= SEND_SHUTDOWN | RCV_SHUTDOWN;
+-
++	vsk->peer_shutdown = SHUTDOWN_MASK;
++	if (vsock_stream_has_data(vsk) <= 0)
++		sk->sk_state = TCP_CLOSING;
+ 	sk->sk_state_change(sk);
++	if (vsk->close_work_scheduled &&
++	    (!cancel_timeout || cancel_delayed_work(&vsk->close_work))) {
++		vsk->close_work_scheduled = false;
++		vsock_remove_sock(vsk);
++
++		/* Release the reference taken while scheduling the timeout */
++		sock_put(sk);
++	}
++}
++
++static void hvs_close_connection(struct vmbus_channel *chan)
++{
++	struct sock *sk = get_per_channel_state(chan);
+ 
++	lock_sock(sk);
++	hvs_do_close_lock_held(vsock_sk(sk), true);
+ 	release_sock(sk);
+ }
+ 
+@@ -445,50 +461,80 @@ static int hvs_connect(struct vsock_sock
+ 	return vmbus_send_tl_connect_request(&h->vm_srv_id, &h->host_srv_id);
+ }
+ 
++static void hvs_shutdown_lock_held(struct hvsock *hvs, int mode)
++{
++	struct vmpipe_proto_header hdr;
++
++	if (hvs->fin_sent || !hvs->chan)
++		return;
++
++	/* It can't fail: see hvs_channel_writable_bytes(). */
++	(void)hvs_send_data(hvs->chan, (struct hvs_send_buf *)&hdr, 0);
++	hvs->fin_sent = true;
++}
++
+ static int hvs_shutdown(struct vsock_sock *vsk, int mode)
+ {
+ 	struct sock *sk = sk_vsock(vsk);
+-	struct vmpipe_proto_header hdr;
+-	struct hvs_send_buf *send_buf;
+-	struct hvsock *hvs;
+ 
+ 	if (!(mode & SEND_SHUTDOWN))
+ 		return 0;
+ 
+ 	lock_sock(sk);
+-
+-	hvs = vsk->trans;
+-	if (hvs->fin_sent)
+-		goto out;
+-
+-	send_buf = (struct hvs_send_buf *)&hdr;
+-
+-	/* It can't fail: see hvs_channel_writable_bytes(). */
+-	(void)hvs_send_data(hvs->chan, send_buf, 0);
+-
+-	hvs->fin_sent = true;
+-out:
++	hvs_shutdown_lock_held(vsk->trans, mode);
+ 	release_sock(sk);
+ 	return 0;
+ }
+ 
+-static void hvs_release(struct vsock_sock *vsk)
++static void hvs_close_timeout(struct work_struct *work)
+ {
++	struct vsock_sock *vsk =
++		container_of(work, struct vsock_sock, close_work.work);
+ 	struct sock *sk = sk_vsock(vsk);
+-	struct hvsock *hvs = vsk->trans;
+-	struct vmbus_channel *chan;
+ 
++	sock_hold(sk);
+ 	lock_sock(sk);
++	if (!sock_flag(sk, SOCK_DONE))
++		hvs_do_close_lock_held(vsk, false);
+ 
+-	sk->sk_state = TCP_CLOSING;
+-	vsock_remove_sock(vsk);
+-
++	vsk->close_work_scheduled = false;
+ 	release_sock(sk);
++	sock_put(sk);
++}
+ 
+-	chan = hvs->chan;
+-	if (chan)
+-		hvs_shutdown(vsk, RCV_SHUTDOWN | SEND_SHUTDOWN);
++/* Returns true, if it is safe to remove socket; false otherwise */
++static bool hvs_close_lock_held(struct vsock_sock *vsk)
++{
++	struct sock *sk = sk_vsock(vsk);
++
++	if (!(sk->sk_state == TCP_ESTABLISHED ||
++	      sk->sk_state == TCP_CLOSING))
++		return true;
++
++	if ((sk->sk_shutdown & SHUTDOWN_MASK) != SHUTDOWN_MASK)
++		hvs_shutdown_lock_held(vsk->trans, SHUTDOWN_MASK);
++
++	if (sock_flag(sk, SOCK_DONE))
++		return true;
++
++	/* This reference will be dropped by the delayed close routine */
++	sock_hold(sk);
++	INIT_DELAYED_WORK(&vsk->close_work, hvs_close_timeout);
++	vsk->close_work_scheduled = true;
++	schedule_delayed_work(&vsk->close_work, HVS_CLOSE_TIMEOUT);
++	return false;
++}
+ 
++static void hvs_release(struct vsock_sock *vsk)
++{
++	struct sock *sk = sk_vsock(vsk);
++	bool remove_sock;
++
++	lock_sock(sk);
++	remove_sock = hvs_close_lock_held(vsk);
++	release_sock(sk);
++	if (remove_sock)
++		vsock_remove_sock(vsk);
+ }
+ 
+ static void hvs_destruct(struct vsock_sock *vsk)
 
 
