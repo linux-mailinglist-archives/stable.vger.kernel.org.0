@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 52D297FAC9
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:35:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 935937FAE5
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:36:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393626AbfHBNVv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:21:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60328 "EHLO mail.kernel.org"
+        id S2406107AbfHBNf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:35:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393419AbfHBNVu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:21:50 -0400
+        id S2393625AbfHBNVw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:21:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3AF32173E;
-        Fri,  2 Aug 2019 13:21:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F178217D4;
+        Fri,  2 Aug 2019 13:21:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752109;
-        bh=q9rs/7qq0AtCKj0n7LPcl7VPkSBWqcJCnchLvQih/Tw=;
+        s=default; t=1564752110;
+        bh=nopyJIrag+tPMdf2wrz1rrKCXw5JMgcHYzSfj2Boglc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AJmXpU8eoGefE2b13zFqc1w9JPzVt9PWecBQ5bs8F1MxE3d4VC0lXMVlgkOdIMnDl
-         T7hK6ZYIvpgrXlQwpaoYmeM/i8T/EnZP6uHaK6ryRb6Os6kXPHGIsfR4TqZszYcDlI
-         hFuu9Mmolpycwzp8uurM7q0VSWv36MJeF7D50hX0=
+        b=PxD64+STnfdSfTjPcVy2aYkS3+rChY16rICVjaBDV38YJmmGLSBzsXwoPAf+I+Y8g
+         CHWLXuRE+UVm8evJDrtPdVm3O251wmvWnFk2y2G8P7+Q/S2QBJD2LGz6B0whuziRUH
+         vslAktsx4kZ5DbHYHCGE+NB25BYNIzJgY6IkKcgY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lucas Stach <l.stach@pengutronix.de>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 45/76] arm64: dts: imx8mq: fix SAI compatible
-Date:   Fri,  2 Aug 2019 09:19:19 -0400
-Message-Id: <20190802131951.11600-45-sashal@kernel.org>
+Cc:     Wen Yang <wen.yang99@zte.com.cn>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
+        linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 46/76] cpufreq/pasemi: fix use-after-free in pas_cpufreq_cpu_init()
+Date:   Fri,  2 Aug 2019 09:19:20 -0400
+Message-Id: <20190802131951.11600-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
 References: <20190802131951.11600-1-sashal@kernel.org>
@@ -44,37 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Wen Yang <wen.yang99@zte.com.cn>
 
-[ Upstream commit 8d0148473dece51675d11dd59b8db5fe4b5d2e7e ]
+[ Upstream commit e0a12445d1cb186d875410d093a00d215bec6a89 ]
 
-The i.MX8M SAI block is not compatible with the i.MX6SX one, as the
-register layout has changed due to two version registers being added
-at the beginning of the address map. Remove the bogus compatible.
+The cpu variable is still being used in the of_get_property() call
+after the of_node_put() call, which may result in use-after-free.
 
-Fixes: 8c61538dc945 ("arm64: dts: imx8mq: Add SAI2 node")
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Daniel Baluta <daniel.baluta@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: a9acc26b75f6 ("cpufreq/pasemi: fix possible object reference leak")
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mq.dtsi | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/cpufreq/pasemi-cpufreq.c | 23 +++++++++--------------
+ 1 file changed, 9 insertions(+), 14 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mq.dtsi b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
-index 6d635ba0904c5..6632cbd88bed3 100644
---- a/arch/arm64/boot/dts/freescale/imx8mq.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
-@@ -675,8 +675,7 @@
+diff --git a/drivers/cpufreq/pasemi-cpufreq.c b/drivers/cpufreq/pasemi-cpufreq.c
+index 6b1e4abe32483..d2f061015323d 100644
+--- a/drivers/cpufreq/pasemi-cpufreq.c
++++ b/drivers/cpufreq/pasemi-cpufreq.c
+@@ -131,10 +131,18 @@ static int pas_cpufreq_cpu_init(struct cpufreq_policy *policy)
+ 	int err = -ENODEV;
  
- 			sai2: sai@308b0000 {
- 				#sound-dai-cells = <0>;
--				compatible = "fsl,imx8mq-sai",
--					     "fsl,imx6sx-sai";
-+				compatible = "fsl,imx8mq-sai";
- 				reg = <0x308b0000 0x10000>;
- 				interrupts = <GIC_SPI 96 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clk IMX8MQ_CLK_SAI2_IPG>,
+ 	cpu = of_get_cpu_node(policy->cpu, NULL);
++	if (!cpu)
++		goto out;
+ 
++	max_freqp = of_get_property(cpu, "clock-frequency", NULL);
+ 	of_node_put(cpu);
+-	if (!cpu)
++	if (!max_freqp) {
++		err = -EINVAL;
+ 		goto out;
++	}
++
++	/* we need the freq in kHz */
++	max_freq = *max_freqp / 1000;
+ 
+ 	dn = of_find_compatible_node(NULL, NULL, "1682m-sdc");
+ 	if (!dn)
+@@ -171,16 +179,6 @@ static int pas_cpufreq_cpu_init(struct cpufreq_policy *policy)
+ 	}
+ 
+ 	pr_debug("init cpufreq on CPU %d\n", policy->cpu);
+-
+-	max_freqp = of_get_property(cpu, "clock-frequency", NULL);
+-	if (!max_freqp) {
+-		err = -EINVAL;
+-		goto out_unmap_sdcpwr;
+-	}
+-
+-	/* we need the freq in kHz */
+-	max_freq = *max_freqp / 1000;
+-
+ 	pr_debug("max clock-frequency is at %u kHz\n", max_freq);
+ 	pr_debug("initializing frequency table\n");
+ 
+@@ -198,9 +196,6 @@ static int pas_cpufreq_cpu_init(struct cpufreq_policy *policy)
+ 
+ 	return cpufreq_generic_init(policy, pas_freqs, get_gizmo_latency());
+ 
+-out_unmap_sdcpwr:
+-	iounmap(sdcpwr_mapbase);
+-
+ out_unmap_sdcasr:
+ 	iounmap(sdcasr_mapbase);
+ out:
 -- 
 2.20.1
 
