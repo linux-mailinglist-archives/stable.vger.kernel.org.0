@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73D2D7F16E
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:39:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDC047F171
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:39:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390603AbfHBJeM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:34:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33932 "EHLO mail.kernel.org"
+        id S2391501AbfHBJeO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:34:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390206AbfHBJeM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:34:12 -0400
+        id S2391499AbfHBJeO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:34:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDAD421773;
-        Fri,  2 Aug 2019 09:34:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B7A6217D4;
+        Fri,  2 Aug 2019 09:34:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738451;
-        bh=t+dt9i0XkcotkLFFiOBjf8HzBorm0ZgOFiq+RG5jY10=;
+        s=default; t=1564738453;
+        bh=2XwdYcvuR1Zdq936dhGMg0cuBMr5jLmnhKag/WIbxJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BVAFoGws6aWrsvSoTFiFsyyC4F5nW3hppDac+GY9puSU/bmNbRH1XWnFqs1T/GWlR
-         JWOZcIf61CgjPHF5Lij1O9BHfBcRgX2VzgXVbrxTJPX0Y8fLfoX/vZRBHbT9Yld6G3
-         JWOUhqmazt9EbXqqo1XykZ4TORgtM6C/RwUL2TvQ=
+        b=H7Cu2A4/++buXgCnWRiTerMkFrt6igjRpL+LsIQd1m0WOsKVSYHu2BeJ3zi+fIEEE
+         G3B4JMwSY7KrDrlmXhpm/MSyMfx0y7wIPQ3vjTvm/Vm9JKb+YBSjZco0tczW/wLXjc
+         nLohQI6X27hKoWmvMI7V9WQo71NCL8onpmS+aoGU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+622bdabb128acc33427d@syzkaller.appspotmail.com,
-        syzbot+6eaef7158b19e3fec3a0@syzkaller.appspotmail.com,
-        syzbot+9399c158fcc09b21d0d2@syzkaller.appspotmail.com,
-        syzbot+a34e5f3d0300163f0c87@syzkaller.appspotmail.com
-Subject: [PATCH 4.4 094/158] netrom: hold sock when setting skb->destructor
-Date:   Fri,  2 Aug 2019 11:28:35 +0200
-Message-Id: <20190802092223.511536567@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Christoph Paasch <cpaasch@apple.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 095/158] tcp: Reset bytes_acked and bytes_received when disconnecting
+Date:   Fri,  2 Aug 2019 11:28:36 +0200
+Message-Id: <20190802092223.684416709@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
 References: <20190802092203.671944552@linuxfoundation.org>
@@ -48,39 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Christoph Paasch <cpaasch@apple.com>
 
-[ Upstream commit 4638faac032756f7eab5524be7be56bee77e426b ]
+[ Upstream commit e858faf556d4e14c750ba1e8852783c6f9520a0e ]
 
-sock_efree() releases the sock refcnt, if we don't hold this refcnt
-when setting skb->destructor to it, the refcnt would not be balanced.
-This leads to several bug reports from syzbot.
+If an app is playing tricks to reuse a socket via tcp_disconnect(),
+bytes_acked/received needs to be reset to 0. Otherwise tcp_info will
+report the sum of the current and the old connection..
 
-I have checked other users of sock_efree(), all of them hold the
-sock refcnt.
-
-Fixes: c8c8218ec5af ("netrom: fix a memory leak in nr_rx_frame()")
-Reported-and-tested-by: <syzbot+622bdabb128acc33427d@syzkaller.appspotmail.com>
-Reported-and-tested-by: <syzbot+6eaef7158b19e3fec3a0@syzkaller.appspotmail.com>
-Reported-and-tested-by: <syzbot+9399c158fcc09b21d0d2@syzkaller.appspotmail.com>
-Reported-and-tested-by: <syzbot+a34e5f3d0300163f0c87@syzkaller.appspotmail.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Fixes: 0df48c26d841 ("tcp: add tcpi_bytes_acked to tcp_info")
+Fixes: bdd1f9edacb5 ("tcp: add tcpi_bytes_received to tcp_info")
+Signed-off-by: Christoph Paasch <cpaasch@apple.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netrom/af_netrom.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/tcp.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/netrom/af_netrom.c
-+++ b/net/netrom/af_netrom.c
-@@ -968,6 +968,7 @@ int nr_rx_frame(struct sk_buff *skb, str
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -2272,6 +2272,8 @@ int tcp_disconnect(struct sock *sk, int
+ 	dst_release(sk->sk_rx_dst);
+ 	sk->sk_rx_dst = NULL;
+ 	tcp_saved_syn_free(tp);
++	tp->bytes_acked = 0;
++	tp->bytes_received = 0;
  
- 	window = skb->data[20];
+ 	WARN_ON(inet->inet_num && !icsk->icsk_bind_hash);
  
-+	sock_hold(make);
- 	skb->sk             = make;
- 	skb->destructor     = sock_efree;
- 	make->sk_state	    = TCP_ESTABLISHED;
 
 
