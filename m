@@ -2,96 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0E617FDDF
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 17:56:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03B9F7FE1D
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 18:06:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388008AbfHBP4d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 11:56:33 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:49467 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731112AbfHBP4d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 11:56:33 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id BB5AC3FF;
-        Fri,  2 Aug 2019 11:56:31 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Fri, 02 Aug 2019 11:56:32 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=PkUXgLQlD09oEzY3GdKpU9DI7Cs
-        MAGiCOb8Se7FDCdY=; b=MLt9L/b5dqdmde++l8o2G+ndFrHypcTz4RppB8rwMfU
-        GEOWaaDwwa+a1FVZZxzg+pDotPj/XIUdJ3zuE5KNvFUwVXgix6HaotHMP5KhkR7+
-        Aac1+Wyj7shlLrppkQtMRkecZc+oxQz62S4oO2uLp6buXdApRs9EEiq7BC7srswr
-        ca6C4J30mWfscXE3Ee42Fv5HRXUbn5MTgKNK39B5iUdX1XjlBUi7P4ZVMvrzXBcY
-        N+Ix34b1dtDyBFzrB1iJ07QW6uoiv7mdJ1IFNCZkGLCx2qIJWX6rjZWQBM2EySGe
-        0GI3xWjZoMSh1jvw1H43hA6OWPvnGR42da0MjvXgRUw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=PkUXgL
-        QlD09oEzY3GdKpU9DI7CsMAGiCOb8Se7FDCdY=; b=gsMrauo6lYuY2qD/y9+Egx
-        QRBYdd9MvaXevZ5u57X3sHRgP8DxhGfb9zN8EmsWsM1POHqga0md7st3o2p8rhX0
-        oHzh+U54mu6Ydo0tAfMuHmARi8z5s/fHsFjo3iOB2Hktbk4if0ZOO9LGWGMrR/Ee
-        1OYSlWwrVO1YxeYpAwzqLYj83yH2jjVYw40XgMT4p+DTS2dmGZlL82KAPFxhvKwu
-        d710wRMxXPCaiV8jf5NevS8AxePIFIOQMIB9/iJrf3CootHApUOOigemxvm+Z7vT
-        VSYL5Kpa+lShQ03dap2y16Nstz6qNZ/ek3k6o+OgsDPmcQYmEAgv/0W0yxM6eOmg
-        ==
-X-ME-Sender: <xms:Ll1EXQo6PUzXfBFGQ5f6I9gAnNm9m757ZGuFn1XRNX346Tes5WTa2g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrleelgdeikecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
-    ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
-    lhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:Ll1EXa6nk0Y0q_xchL-usSYU9y4yjmGJIt9mgZK5CD01yElgtoeFDA>
-    <xmx:Ll1EXQOml-_Y3sD7gZH7IKuPBz6OLDbi-mcMJudG5GK6OgjgRAzDQQ>
-    <xmx:Ll1EXcNqe_ZlJOQwDO-Rg2PG-bYmVoh4YWKATGVx-ZFwks6Fw0SX5Q>
-    <xmx:L11EXR51v3XObDe4qDp4W_hQlF3XKAmBI9jCiDEatzLqr4QV4DOArw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4E381380085;
-        Fri,  2 Aug 2019 11:56:30 -0400 (EDT)
-Date:   Fri, 2 Aug 2019 17:56:27 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Cc:     Rolf Eike Beer <eb@emlix.com>, stable@vger.kernel.org,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 4.9.180 build fails =?utf-8?Q?wi?=
- =?utf-8?Q?th_gcc_9_and_'cleanup=5Fmodule'_specifies_less_restrictive_attr?=
- =?utf-8?Q?ibute_than_its_target_=E2=80=A6?=
-Message-ID: <20190802155627.GB28398@kroah.com>
-References: <259986242.BvXPX32bHu@devpool35>
- <20190606185900.GA19937@kroah.com>
- <CANiq72n2E4Ue0MU5mWitSbsscizPQKML0QQx_DBwJVni+eWMHQ@mail.gmail.com>
- <4007272.nJfEYfeqza@devpool35>
- <CANiq72=T8nH3HHkYvWF+vPMscgwXki1Ugiq6C9PhVHJUHAwDYw@mail.gmail.com>
- <20190802103346.GA14255@kroah.com>
- <CANiq72kcZZwp2MRVF5Ls+drXCzVbCfZ7wZ8Y+rU93oGohVAGsQ@mail.gmail.com>
- <20190802112542.GA29534@kroah.com>
- <CANiq72mSLmP-EaOgY0m2qgTMVsAnyE6iuW5Kjdw5mSy1ZH0y-A@mail.gmail.com>
+        id S2389306AbfHBQGc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 12:06:32 -0400
+Received: from mx2.suse.de ([195.135.220.15]:48314 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2388469AbfHBQGc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 12:06:32 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id BDFEBAC91;
+        Fri,  2 Aug 2019 16:06:29 +0000 (UTC)
+From:   Vlastimil Babka <vbabka@suse.cz>
+To:     stable@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org, x86@kernel.org,
+        Jann Horn <jannh@google.com>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        xen-devel@lists.xenproject.org, Oscar Salvador <osalvador@suse.de>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juergen Gross <jgross@suse.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>
+Subject: [PATCH STABLE 4.9] x86, mm, gup: prevent get_page() race with munmap in paravirt guest
+Date:   Fri,  2 Aug 2019 18:06:14 +0200
+Message-Id: <20190802160614.8089-1-vbabka@suse.cz>
+X-Mailer: git-send-email 2.22.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CANiq72mSLmP-EaOgY0m2qgTMVsAnyE6iuW5Kjdw5mSy1ZH0y-A@mail.gmail.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 02, 2019 at 03:01:13PM +0200, Miguel Ojeda wrote:
-> On Fri, Aug 2, 2019 at 1:25 PM Greg KH <greg@kroah.com> wrote:
-> >
-> > But it still doesn't work for 4.14.y and 4.19.y, so we are probably
-> > missing something there.  So if you want to fix that up, I'd appreciate
-> > patches to do so :)
-> 
-> Hm... For 4.19.y and 4.14.y, I cannot see the init/exit_module
-> warnings under GCC 9.1.1. What do you mean it does not work?
+The x86 version of get_user_pages_fast() relies on disabled interrupts to
+synchronize gup_pte_range() between gup_get_pte(ptep); and get_page() against
+a parallel munmap. The munmap side nulls the pte, then flushes TLBs, then
+releases the page. As TLB flush is done synchronously via IPI disabling
+interrupts blocks the page release, and get_page(), which assumes existing
+reference on page, is thus safe.
+However when TLB flush is done by a hypercall, e.g. in a Xen PV guest, there is
+no blocking thanks to disabled interrupts, and get_page() can succeed on a page
+that was already freed or even reused.
 
-I see a ton of warnings on those kernels today.  I'll look into it next
-week after I apply your patches to see what's missing.
+We have recently seen this happen with our 4.4 and 4.12 based kernels, with
+userspace (java) that exits a thread, where mm_release() performs a futex_wake()
+on tsk->clear_child_tid, and another thread in parallel unmaps the page where
+tsk->clear_child_tid points to. The spurious get_page() succeeds, but futex code
+immediately releases the page again, while it's already on a freelist. Symptoms
+include a bad page state warning, general protection faults acessing a poisoned
+list prev/next pointer in the freelist, or free page pcplists of two cpus joined
+together in a single list. Oscar has also reproduced this scenario, with a
+patch inserting delays before the get_page() to make the race window larger.
 
-thanks,
+Fix this by removing the dependency on TLB flush interrupts the same way as the
+generic get_user_pages_fast() code by using page_cache_add_speculative() and
+revalidating the PTE contents after pinning the page. Mainline is safe since
+4.13 where the x86 gup code was removed in favor of the common code. Accessing
+the page table itself safely also relies on disabled interrupts and TLB flush
+IPIs that don't happen with hypercalls, which was acknowledged in commit
+9e52fc2b50de ("x86/mm: Enable RCU based page table freeing
+(CONFIG_HAVE_RCU_TABLE_FREE=y)"). That commit with follups should also be
+backported for full safety, although our reproducer didn't hit a problem
+without that backport.
 
-greg k-h
+Reproduced-by: Oscar Salvador <osalvador@suse.de>
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+---
+
+Hi, I'm sending this stable-only patch for consideration because it's probably
+unrealistic to backport the 4.13 switch to generic GUP. I can look at 4.4 and
+3.16 if accepted. The RCU page table freeing could be also considered.
+Note the patch also includes page refcount protection. I found out that
+8fde12ca79af ("mm: prevent get_user_pages() from overflowing page refcount")
+backport to 4.9 missed the arch-specific gup implementations:
+https://lore.kernel.org/lkml/6650323f-dbc9-f069-000b-f6b0f941a065@suse.cz/
+
+ arch/x86/mm/gup.c | 32 ++++++++++++++++++++++++++++++--
+ 1 file changed, 30 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/mm/gup.c b/arch/x86/mm/gup.c
+index 1680768d392c..d7db45bdfb3b 100644
+--- a/arch/x86/mm/gup.c
++++ b/arch/x86/mm/gup.c
+@@ -97,6 +97,20 @@ static inline int pte_allows_gup(unsigned long pteval, int write)
+ 	return 1;
+ }
+ 
++/*
++ * Return the compund head page with ref appropriately incremented,
++ * or NULL if that failed.
++ */
++static inline struct page *try_get_compound_head(struct page *page, int refs)
++{
++	struct page *head = compound_head(page);
++	if (WARN_ON_ONCE(page_ref_count(head) < 0))
++		return NULL;
++	if (unlikely(!page_cache_add_speculative(head, refs)))
++		return NULL;
++	return head;
++}
++
+ /*
+  * The performance critical leaf functions are made noinline otherwise gcc
+  * inlines everything into a single function which results in too much
+@@ -112,7 +126,7 @@ static noinline int gup_pte_range(pmd_t pmd, unsigned long addr,
+ 	ptep = pte_offset_map(&pmd, addr);
+ 	do {
+ 		pte_t pte = gup_get_pte(ptep);
+-		struct page *page;
++		struct page *head, *page;
+ 
+ 		/* Similar to the PMD case, NUMA hinting must take slow path */
+ 		if (pte_protnone(pte)) {
+@@ -138,7 +152,21 @@ static noinline int gup_pte_range(pmd_t pmd, unsigned long addr,
+ 		}
+ 		VM_BUG_ON(!pfn_valid(pte_pfn(pte)));
+ 		page = pte_page(pte);
+-		get_page(page);
++
++		head = try_get_compound_head(page, 1);
++		if (!head) {
++			put_dev_pagemap(pgmap);
++			pte_unmap(ptep);
++			return 0;
++		}
++
++		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
++			put_page(head);
++			put_dev_pagemap(pgmap);
++			pte_unmap(ptep);
++			return 0;
++		}
++
+ 		put_dev_pagemap(pgmap);
+ 		SetPageReferenced(page);
+ 		pages[*nr] = page;
+-- 
+2.22.0
+
