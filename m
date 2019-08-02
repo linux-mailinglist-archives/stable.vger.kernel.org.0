@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3F047FB06
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:37:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FD4E7FB01
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:37:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405169AbfHBNg1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:36:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58576 "EHLO mail.kernel.org"
+        id S2393333AbfHBNUT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:20:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393311AbfHBNUP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:20:15 -0400
+        id S2393318AbfHBNUR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:20:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68BE821849;
-        Fri,  2 Aug 2019 13:20:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89D642173E;
+        Fri,  2 Aug 2019 13:20:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752014;
-        bh=MyptE6f8k+92LRAEm6ghXCPrsdPU0qjbt9hN9P9BSic=;
+        s=default; t=1564752016;
+        bh=jv1eVo24L+RI8/jG57GNMt//FucVNI5ykIC/Cwrx+a8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zk2qVf0Y8IHNjJh3bXA9+FLNCZ0dvxweamFczIF0OQZK5J2ywrS2cOKdsgH5JmUyn
-         X2LTowJ+iCGmstPN8uUhPd8TFr6ExitEkgbKHBXPq4DpHtrBw5d2ia/JZrowmKaAQj
-         7Es1Vs+U3ENH+heuzkby/0uYlICrXKWOn7EEigSo=
+        b=zv4wlJd39KtgiQHfGXBLeic+AFwwpCPDqDy6Hyagf8DmvkQM5sPEvQel8PRPm5ntv
+         IkxNANLSXleXem8Y41TR3JJoiAiz+WUOFrURjz3Niya+ArUkZ1GksDd0WYE4TLWqQv
+         rIyx54XwZ069NnuETLQG//Ueg6ianIVyU+EQnJdU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     SivapiriyanKumarasamy <sivapiriyan.kumarasamy@amd.com>,
+Cc:     Zi Yu Liao <ziyu.liao@amd.com>, Eric Yang <eric.yang2@amd.com>,
         Anthony Koo <Anthony.Koo@amd.com>, Leo Li <sunpeng.li@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 18/76] drm/amd/display: Wait for backlight programming completion in set backlight level
-Date:   Fri,  2 Aug 2019 09:18:52 -0400
-Message-Id: <20190802131951.11600-18-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 19/76] drm/amd/display: fix DMCU hang when going into Modern Standby
+Date:   Fri,  2 Aug 2019 09:18:53 -0400
+Message-Id: <20190802131951.11600-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
 References: <20190802131951.11600-1-sashal@kernel.org>
@@ -45,42 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: SivapiriyanKumarasamy <sivapiriyan.kumarasamy@amd.com>
+From: Zi Yu Liao <ziyu.liao@amd.com>
 
-[ Upstream commit c7990daebe71d11a9e360b5c3b0ecd1846a3a4bb ]
+[ Upstream commit 1ca068ed34d6b39d336c1b0d618ed73ba8f04548 ]
 
-[WHY]
-Currently we don't wait for blacklight programming completion in DMCU
-when setting backlight level. Some sequences such as PSR static screen
-event trigger reprogramming requires it to be complete.
+[why]
+When the system is going into suspend, set_backlight gets called
+after the eDP got blanked. Since smooth brightness is enabled,
+the driver will make a call into the DMCU to ramp the brightness.
+The DMCU would try to enable ABM to do so. But since the display is
+blanked, this ends up causing ABM1_ACE_DBUF_REG_UPDATE_PENDING to
+get stuck at 1, which results in a dead lock in the DMCU firmware.
 
-[How]
-Add generic wait for dmcu command completion in set backlight level.
+[how]
+Disable brightness ramping when the eDP display is blanked.
 
-Signed-off-by: SivapiriyanKumarasamy <sivapiriyan.kumarasamy@amd.com>
-Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
+Signed-off-by: Zi Yu Liao <ziyu.liao@amd.com>
+Reviewed-by: Eric Yang <eric.yang2@amd.com>
+Acked-by: Anthony Koo <Anthony.Koo@amd.com>
 Acked-by: Leo Li <sunpeng.li@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dce/dce_abm.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/amd/display/dc/core/dc_link.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_abm.c b/drivers/gpu/drm/amd/display/dc/dce/dce_abm.c
-index 2959c3c9390b9..da30ae04e82bb 100644
---- a/drivers/gpu/drm/amd/display/dc/dce/dce_abm.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce/dce_abm.c
-@@ -234,6 +234,10 @@ static void dmcu_set_backlight_level(
- 	s2 |= (backlight_8_bit << ATOM_S2_CURRENT_BL_LEVEL_SHIFT);
- 
- 	REG_WRITE(BIOS_SCRATCH_2, s2);
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+index a3ff33ff6da16..adf39e3b8d29d 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+@@ -2284,7 +2284,7 @@ bool dc_link_set_backlight_level(const struct dc_link *link,
+ 			if (core_dc->current_state->res_ctx.pipe_ctx[i].stream) {
+ 				if (core_dc->current_state->res_ctx.
+ 						pipe_ctx[i].stream->link
+-						== link)
++						== link) {
+ 					/* DMCU -1 for all controller id values,
+ 					 * therefore +1 here
+ 					 */
+@@ -2292,6 +2292,13 @@ bool dc_link_set_backlight_level(const struct dc_link *link,
+ 						core_dc->current_state->
+ 						res_ctx.pipe_ctx[i].stream_res.tg->inst +
+ 						1;
 +
-+	/* waitDMCUReadyForCmd */
-+	REG_WAIT(MASTER_COMM_CNTL_REG, MASTER_COMM_INTERRUPT,
-+			0, 1, 80000);
- }
- 
- static void dce_abm_init(struct abm *abm)
++					/* Disable brightness ramping when the display is blanked
++					 * as it can hang the DMCU
++					 */
++					if (core_dc->current_state->res_ctx.pipe_ctx[i].plane_state == NULL)
++						frame_ramp = 0;
++				}
+ 			}
+ 		}
+ 		abm->funcs->set_backlight_level_pwm(
 -- 
 2.20.1
 
