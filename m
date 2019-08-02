@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FEFD7F325
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:57:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 019EC7F3AF
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:00:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406370AbfHBJyF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:54:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60402 "EHLO mail.kernel.org"
+        id S2406557AbfHBJze (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:55:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406361AbfHBJyD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:54:03 -0400
+        id S2406567AbfHBJzd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:55:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 473502087E;
-        Fri,  2 Aug 2019 09:54:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D40E42064A;
+        Fri,  2 Aug 2019 09:55:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739642;
-        bh=2M4LsMCYSTJ+DLyD6bGxETD1IqcGUbcDFi3bO237WuI=;
+        s=default; t=1564739733;
+        bh=lTZt4r7kCi74yRtU/qLbL73nW1wDah+lru5/+Pv60Rw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JKP5RaQ5BybSnUvHObz4XZzFoH1mW1xk3Ecoqk2nVQBvgwdGKpGSeHz/wPwGDvSHF
-         vNekRoZyE0NOENPPqW+CLLDu8WsZv5vAqSUG+gHUD74SdBru5flXzLgYXnMZRrcnPe
-         3t24vhamWL0YonaHH8HjweQHVCbQla6bhp3X907E=
+        b=vm6ZeaH2lAtyc0+XGL7+9CnAqwXVEubVuguM/Wt6eOtw1DiWcxfDEW57PBW9ZgoLM
+         lf1ppt+hL1Cfxfs1raeIJm3tNBQzn6sv4UplX39tl4GKhGkkl8UEtqLf9yq9VrTKKd
+         CKECc1DYkQZuYB+6y4cICUIhYfD5YG4Ry+MQCvBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+af8f8d2ac0d39b0ed3a0@syzkaller.appspotmail.com,
-        syzbot+170a86bf206dd2c6217e@syzkaller.appspotmail.com,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.14 14/25] media: pvrusb2: use a different format for warnings
+        syzbot+c1b25598aa60dcd47e78@syzkaller.appspotmail.com,
+        Fabio Estevam <festevam@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.19 12/32] ath10k: Change the warning message string
 Date:   Fri,  2 Aug 2019 11:39:46 +0200
-Message-Id: <20190802092103.999190221@linuxfoundation.org>
+Message-Id: <20190802092105.531633213@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190802092058.428079740@linuxfoundation.org>
-References: <20190802092058.428079740@linuxfoundation.org>
+In-Reply-To: <20190802092101.913646560@linuxfoundation.org>
+References: <20190802092101.913646560@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,87 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Konovalov <andreyknvl@google.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-commit 1753c7c4367aa1201e1e5d0a601897ab33444af1 upstream.
+commit 265df32eae5845212ad9f55f5ae6b6dcb68b187b upstream.
 
-When the pvrusb2 driver detects that there's something wrong with the
-device, it prints a warning message. Right now those message are
-printed in two different formats:
+The "WARNING" string confuses syzbot, which thinks it found
+a crash [1].
 
-1. ***WARNING*** message here
-2. WARNING: message here
+Change the string to avoid such problem.
 
-There's an issue with the second format. Syzkaller recognizes it as a
-message produced by a WARN_ON(), which is used to indicate a bug in the
-kernel. However pvrusb2 prints those warnings to indicate an issue with
-the device, not the bug in the kernel.
+[1] https://lkml.org/lkml/2019/5/9/243
 
-This patch changes the pvrusb2 driver to consistently use the first
-warning message format. This will unblock syzkaller testing of this
-driver.
-
-Reported-by: syzbot+af8f8d2ac0d39b0ed3a0@syzkaller.appspotmail.com
-Reported-by: syzbot+170a86bf206dd2c6217e@syzkaller.appspotmail.com
-Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
+Reported-by: syzbot+c1b25598aa60dcd47e78@syzkaller.appspotmail.com
+Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
 Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/pvrusb2/pvrusb2-hdw.c      |    4 ++--
- drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c |    6 +++---
- drivers/media/usb/pvrusb2/pvrusb2-std.c      |    2 +-
- 3 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/net/wireless/ath/ath10k/usb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-+++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-@@ -1680,7 +1680,7 @@ static int pvr2_decoder_enable(struct pv
+--- a/drivers/net/wireless/ath/ath10k/usb.c
++++ b/drivers/net/wireless/ath/ath10k/usb.c
+@@ -1025,7 +1025,7 @@ static int ath10k_usb_probe(struct usb_i
  	}
- 	if (!hdw->flag_decoder_missed) {
- 		pvr2_trace(PVR2_TRACE_ERROR_LEGS,
--			   "WARNING: No decoder present");
-+			   "***WARNING*** No decoder present");
- 		hdw->flag_decoder_missed = !0;
- 		trace_stbit("flag_decoder_missed",
- 			    hdw->flag_decoder_missed);
-@@ -2365,7 +2365,7 @@ struct pvr2_hdw *pvr2_hdw_create(struct
- 	if (hdw_desc->flag_is_experimental) {
- 		pvr2_trace(PVR2_TRACE_INFO, "**********");
- 		pvr2_trace(PVR2_TRACE_INFO,
--			   "WARNING: Support for this device (%s) is experimental.",
-+			   "***WARNING*** Support for this device (%s) is experimental.",
- 							      hdw_desc->description);
- 		pvr2_trace(PVR2_TRACE_INFO,
- 			   "Important functionality might not be entirely working.");
---- a/drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c
-+++ b/drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c
-@@ -343,11 +343,11 @@ static int i2c_hack_cx25840(struct pvr2_
  
- 	if ((ret != 0) || (*rdata == 0x04) || (*rdata == 0x0a)) {
- 		pvr2_trace(PVR2_TRACE_ERROR_LEGS,
--			   "WARNING: Detected a wedged cx25840 chip; the device will not work.");
-+			   "***WARNING*** Detected a wedged cx25840 chip; the device will not work.");
- 		pvr2_trace(PVR2_TRACE_ERROR_LEGS,
--			   "WARNING: Try power cycling the pvrusb2 device.");
-+			   "***WARNING*** Try power cycling the pvrusb2 device.");
- 		pvr2_trace(PVR2_TRACE_ERROR_LEGS,
--			   "WARNING: Disabling further access to the device to prevent other foul-ups.");
-+			   "***WARNING*** Disabling further access to the device to prevent other foul-ups.");
- 		// This blocks all further communication with the part.
- 		hdw->i2c_func[0x44] = NULL;
- 		pvr2_hdw_render_useless(hdw);
---- a/drivers/media/usb/pvrusb2/pvrusb2-std.c
-+++ b/drivers/media/usb/pvrusb2/pvrusb2-std.c
-@@ -353,7 +353,7 @@ struct v4l2_standard *pvr2_std_create_en
- 		bcnt = pvr2_std_id_to_str(buf,sizeof(buf),fmsk);
- 		pvr2_trace(
- 			PVR2_TRACE_ERROR_LEGS,
--			"WARNING: Failed to classify the following standard(s): %.*s",
-+			"***WARNING*** Failed to classify the following standard(s): %.*s",
- 			bcnt,buf);
- 	}
+ 	/* TODO: remove this once USB support is fully implemented */
+-	ath10k_warn(ar, "WARNING: ath10k USB support is incomplete, don't expect anything to work!\n");
++	ath10k_warn(ar, "Warning: ath10k USB support is incomplete, don't expect anything to work!\n");
+ 
+ 	return 0;
  
 
 
