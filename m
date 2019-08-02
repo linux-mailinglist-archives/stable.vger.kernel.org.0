@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 624A47F2AC
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:50:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CC2F7F2B5
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:50:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405466AbfHBJqB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:46:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49994 "EHLO mail.kernel.org"
+        id S2405024AbfHBJuh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:50:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405460AbfHBJqA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:46:00 -0400
+        id S2405439AbfHBJp1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:45:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F66F2087E;
-        Fri,  2 Aug 2019 09:45:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 307B420679;
+        Fri,  2 Aug 2019 09:45:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739160;
-        bh=MjP5+T4QgA4Dko0e4aMo16WA7kdWEodafDQJ+oqDRZ4=;
+        s=default; t=1564739126;
+        bh=gRUh7r/2kagW87k821dT4UvIbhIkwAbcPWIlzXVFqa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=alv3ZO7VApeSEGp+G9U/NNko0Dei9xZHiIJfMeK0xMIVVYKJCcW2hXVB8gp0XTReO
-         g+gaCD3bf9cCKfHqxqx38LHAKlarzjyMwRCcLCBWHIrm7TS5cwiVtOmMkXxPxtFmta
-         QW+iRPa5i1GYUEbooQFGfyIuDdiYSgTeVHOxFEzs=
+        b=D+fCngFYz/49lC13YeSkVHBbzSIwLtDzgtKrz0QsZLiKqCkf9nKNXGCMbpcEhHCnx
+         QK0m1q29M8Qa5jeMipAppzrXn9GhDs/R/ohLu7lv3Ma+EWWj6i/Sb+BIdUv7Zu4GJd
+         XDypqNwYij+6G4Mjx8NkvVpmNhbOj8p4L2veGDbA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Ammy Yi <ammy.yi@intel.com>
-Subject: [PATCH 4.9 121/223] intel_th: msu: Fix single mode with disabled IOMMU
-Date:   Fri,  2 Aug 2019 11:35:46 +0200
-Message-Id: <20190802092247.012932813@linuxfoundation.org>
+        stable@vger.kernel.org, "Lee, Chiasheng" <chiasheng.lee@intel.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Lee@vger.kernel.org
+Subject: [PATCH 4.9 123/223] usb: Handle USB3 remote wakeup for LPM enabled devices correctly
+Date:   Fri,  2 Aug 2019 11:35:48 +0200
+Message-Id: <20190802092247.109782285@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -45,40 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Lee, Chiasheng <chiasheng.lee@intel.com>
 
-commit 918b8646497b5dba6ae82d4a7325f01b258972b9 upstream.
+commit e244c4699f859cf7149b0781b1894c7996a8a1df upstream.
 
-Commit 4e0eaf239fb3 ("intel_th: msu: Fix single mode with IOMMU") switched
-the single mode code to use dma mapping pages obtained from the page
-allocator, but with IOMMU disabled, that may lead to using SWIOTLB bounce
-buffers and without additional sync'ing, produces empty trace buffers.
+With Link Power Management (LPM) enabled USB3 links transition to low
+power U1/U2 link states from U0 state automatically.
 
-Fix this by using a DMA32 GFP flag to the page allocation in single mode,
-as the device supports full 32-bit DMA addressing.
+Current hub code detects USB3 remote wakeups by checking if the software
+state still shows suspended, but the link has transitioned from suspended
+U3 to enabled U0 state.
 
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Fixes: 4e0eaf239fb3 ("intel_th: msu: Fix single mode with IOMMU")
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reported-by: Ammy Yi <ammy.yi@intel.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190621161930.60785-4-alexander.shishkin@linux.intel.com
+As it takes some time before the hub thread reads the port link state
+after a USB3 wake notification, the link may have transitioned from U0
+to U1/U2, and wake is not detected by hub code.
+
+Fix this by handling U1/U2 states in the same way as U0 in USB3 wakeup
+handling
+
+This patch should be added to stable kernels since 4.13 where LPM was
+kept enabled during suspend/resume
+
+Cc: <stable@vger.kernel.org> # v4.13+
+Signed-off-by: Lee, Chiasheng <chiasheng.lee@intel.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwtracing/intel_th/msu.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/core/hub.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/hwtracing/intel_th/msu.c
-+++ b/drivers/hwtracing/intel_th/msu.c
-@@ -638,7 +638,7 @@ static int msc_buffer_contig_alloc(struc
- 		goto err_out;
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -3535,6 +3535,7 @@ static int hub_handle_remote_wakeup(stru
+ 	struct usb_device *hdev;
+ 	struct usb_device *udev;
+ 	int connect_change = 0;
++	u16 link_state;
+ 	int ret;
  
- 	ret = -ENOMEM;
--	page = alloc_pages(GFP_KERNEL | __GFP_ZERO, order);
-+	page = alloc_pages(GFP_KERNEL | __GFP_ZERO | GFP_DMA32, order);
- 	if (!page)
- 		goto err_free_sgt;
+ 	hdev = hub->hdev;
+@@ -3544,9 +3545,11 @@ static int hub_handle_remote_wakeup(stru
+ 			return 0;
+ 		usb_clear_port_feature(hdev, port, USB_PORT_FEAT_C_SUSPEND);
+ 	} else {
++		link_state = portstatus & USB_PORT_STAT_LINK_STATE;
+ 		if (!udev || udev->state != USB_STATE_SUSPENDED ||
+-				 (portstatus & USB_PORT_STAT_LINK_STATE) !=
+-				 USB_SS_PORT_LS_U0)
++				(link_state != USB_SS_PORT_LS_U0 &&
++				 link_state != USB_SS_PORT_LS_U1 &&
++				 link_state != USB_SS_PORT_LS_U2))
+ 			return 0;
+ 	}
  
 
 
