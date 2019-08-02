@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0B107F407
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:02:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AE147F408
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:02:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405004AbfHBJmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:42:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45466 "EHLO mail.kernel.org"
+        id S2404213AbfHBKCU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 06:02:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404996AbfHBJmx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:42:53 -0400
+        id S2404804AbfHBJmz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:42:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74FB920679;
-        Fri,  2 Aug 2019 09:42:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08C5220679;
+        Fri,  2 Aug 2019 09:42:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738971;
-        bh=ECAy8ZSa5HiuaxBx+YvKVL6+BmeuU6bx4Au3oRq2aVQ=;
+        s=default; t=1564738974;
+        bh=FjKxljAzNCZ8/Q1mr/jvpiOJoPO07xVhPRPdIySrwUk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iYy3fYGqTWKPYM0roB/vLbFPZddwZNFcS0jcqbqhhD3FGKWgnV8PHy7Rrr6oawiPT
-         UM+WQs/3PQAGuPRu3TdA6ru+sVr33wMcp0X0mV0bDWkW/4bKGRYhsOJwE96FsPP105
-         qIFHHYB0e7CKCuYH6pZiPEiLgx9fGD7c22PJCVsg=
+        b=kfDM2WM4TyPBEvllm2Npz6HE2++KHIvk9eIzVIyMbttixDIhIQ4RcyXFHIsJVoPuK
+         0N6bgWJSQeW6aVYM2jQ3+Ph2XAnnpWFJJBwLaJ2gx0JuM+uS4xFjW3UjMry7YGNrRt
+         J+VvIk0HD0r9frAeslgUum39zid0/ZN1/0+S+seU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, Borislav Petkov <bp@alien8.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 052/223] mt7601u: do not schedule rx_tasklet when the device has been disconnected
-Date:   Fri,  2 Aug 2019 11:34:37 +0200
-Message-Id: <20190802092242.262155949@linuxfoundation.org>
+Subject: [PATCH 4.9 053/223] x86/build: Add set -e to mkcapflags.sh to delete broken capflags.c
+Date:   Fri,  2 Aug 2019 11:34:38 +0200
+Message-Id: <20190802092242.320495629@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -44,111 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4079e8ccabc3b6d1b503f2376123cb515d14921f ]
+[ Upstream commit bc53d3d777f81385c1bb08b07bd1c06450ecc2c1 ]
 
-Do not schedule rx_tasklet when the usb dongle is disconnected.
-Moreover do not grub rx_lock in mt7601u_kill_rx since usb_poison_urb
-can run concurrently with urb completion and we can unlink urbs from rx
-ring in any order.
-This patch fixes the common kernel warning reported when
-the device is removed.
+Without 'set -e', shell scripts continue running even after any
+error occurs. The missed 'set -e' is a typical bug in shell scripting.
 
-[   24.921354] usb 3-14: USB disconnect, device number 7
-[   24.921593] ------------[ cut here ]------------
-[   24.921594] RX urb mismatch
-[   24.921675] WARNING: CPU: 4 PID: 163 at drivers/net/wireless/mediatek/mt7601u/dma.c:200 mt7601u_complete_rx+0xcb/0xd0 [mt7601u]
-[   24.921769] CPU: 4 PID: 163 Comm: kworker/4:2 Tainted: G           OE     4.19.31-041931-generic #201903231635
-[   24.921770] Hardware name: To Be Filled By O.E.M. To Be Filled By O.E.M./Z97 Extreme4, BIOS P1.30 05/23/2014
-[   24.921782] Workqueue: usb_hub_wq hub_event
-[   24.921797] RIP: 0010:mt7601u_complete_rx+0xcb/0xd0 [mt7601u]
-[   24.921800] RSP: 0018:ffff9bd9cfd03d08 EFLAGS: 00010086
-[   24.921802] RAX: 0000000000000000 RBX: ffff9bd9bf043540 RCX: 0000000000000006
-[   24.921803] RDX: 0000000000000007 RSI: 0000000000000096 RDI: ffff9bd9cfd16420
-[   24.921804] RBP: ffff9bd9cfd03d28 R08: 0000000000000002 R09: 00000000000003a8
-[   24.921805] R10: 0000002f485fca34 R11: 0000000000000000 R12: ffff9bd9bf043c1c
-[   24.921806] R13: ffff9bd9c62fa3c0 R14: 0000000000000082 R15: 0000000000000000
-[   24.921807] FS:  0000000000000000(0000) GS:ffff9bd9cfd00000(0000) knlGS:0000000000000000
-[   24.921808] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   24.921808] CR2: 00007fb2648b0000 CR3: 0000000142c0a004 CR4: 00000000001606e0
-[   24.921809] Call Trace:
-[   24.921812]  <IRQ>
-[   24.921819]  __usb_hcd_giveback_urb+0x8b/0x140
-[   24.921821]  usb_hcd_giveback_urb+0xca/0xe0
-[   24.921828]  xhci_giveback_urb_in_irq.isra.42+0x82/0xf0
-[   24.921834]  handle_cmd_completion+0xe02/0x10d0
-[   24.921837]  xhci_irq+0x274/0x4a0
-[   24.921838]  xhci_msi_irq+0x11/0x20
-[   24.921851]  __handle_irq_event_percpu+0x44/0x190
-[   24.921856]  handle_irq_event_percpu+0x32/0x80
-[   24.921861]  handle_irq_event+0x3b/0x5a
-[   24.921867]  handle_edge_irq+0x80/0x190
-[   24.921874]  handle_irq+0x20/0x30
-[   24.921889]  do_IRQ+0x4e/0xe0
-[   24.921891]  common_interrupt+0xf/0xf
-[   24.921892]  </IRQ>
-[   24.921900] RIP: 0010:usb_hcd_flush_endpoint+0x78/0x180
-[   24.921354] usb 3-14: USB disconnect, device number 7
+For example, when a disk space shortage occurs while this script is
+running, it actually ends up with generating a truncated capflags.c.
 
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Yet, mkcapflags.sh continues running and exits with 0. So, the build
+system assumes it has succeeded.
+
+It will not be re-generated in the next invocation of Make since its
+timestamp is newer than that of any of the source files.
+
+Add 'set -e' so that any error in this script is caught and propagated
+to the build system.
+
+Since 9c2af1c7377a ("kbuild: add .DELETE_ON_ERROR special target"),
+make automatically deletes the target on any failure. So, the broken
+capflags.c will be deleted automatically.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Link: https://lkml.kernel.org/r/20190625072622.17679-1-yamada.masahiro@socionext.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt7601u/dma.c | 33 +++++++++++----------
- 1 file changed, 18 insertions(+), 15 deletions(-)
+ arch/x86/kernel/cpu/mkcapflags.sh | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt7601u/dma.c b/drivers/net/wireless/mediatek/mt7601u/dma.c
-index a8bc064bc14f..838ad9a4be51 100644
---- a/drivers/net/wireless/mediatek/mt7601u/dma.c
-+++ b/drivers/net/wireless/mediatek/mt7601u/dma.c
-@@ -193,10 +193,23 @@ static void mt7601u_complete_rx(struct urb *urb)
- 	struct mt7601u_rx_queue *q = &dev->rx_q;
- 	unsigned long flags;
+diff --git a/arch/x86/kernel/cpu/mkcapflags.sh b/arch/x86/kernel/cpu/mkcapflags.sh
+index 6988c74409a8..711b74e0e623 100644
+--- a/arch/x86/kernel/cpu/mkcapflags.sh
++++ b/arch/x86/kernel/cpu/mkcapflags.sh
+@@ -3,6 +3,8 @@
+ # Generate the x86_cap/bug_flags[] arrays from include/asm/cpufeatures.h
+ #
  
--	spin_lock_irqsave(&dev->rx_lock, flags);
-+	/* do no schedule rx tasklet if urb has been unlinked
-+	 * or the device has been removed
-+	 */
-+	switch (urb->status) {
-+	case -ECONNRESET:
-+	case -ESHUTDOWN:
-+	case -ENOENT:
-+		return;
-+	default:
-+		dev_err_ratelimited(dev->dev, "rx urb failed: %d\n",
-+				    urb->status);
-+		/* fall through */
-+	case 0:
-+		break;
-+	}
++set -e
++
+ IN=$1
+ OUT=$2
  
--	if (mt7601u_urb_has_error(urb))
--		dev_err(dev->dev, "Error: RX urb failed:%d\n", urb->status);
-+	spin_lock_irqsave(&dev->rx_lock, flags);
- 	if (WARN_ONCE(q->e[q->end].urb != urb, "RX urb mismatch"))
- 		goto out;
- 
-@@ -363,19 +376,9 @@ int mt7601u_dma_enqueue_tx(struct mt7601u_dev *dev, struct sk_buff *skb,
- static void mt7601u_kill_rx(struct mt7601u_dev *dev)
- {
- 	int i;
--	unsigned long flags;
- 
--	spin_lock_irqsave(&dev->rx_lock, flags);
--
--	for (i = 0; i < dev->rx_q.entries; i++) {
--		int next = dev->rx_q.end;
--
--		spin_unlock_irqrestore(&dev->rx_lock, flags);
--		usb_poison_urb(dev->rx_q.e[next].urb);
--		spin_lock_irqsave(&dev->rx_lock, flags);
--	}
--
--	spin_unlock_irqrestore(&dev->rx_lock, flags);
-+	for (i = 0; i < dev->rx_q.entries; i++)
-+		usb_poison_urb(dev->rx_q.e[i].urb);
- }
- 
- static int mt7601u_submit_rx_buf(struct mt7601u_dev *dev,
 -- 
 2.20.1
 
