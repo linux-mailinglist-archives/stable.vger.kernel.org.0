@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 447047F128
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:37:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42B357F12A
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:37:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730407AbfHBJge (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:36:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37530 "EHLO mail.kernel.org"
+        id S2404263AbfHBJgh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:36:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729530AbfHBJge (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:36:34 -0400
+        id S2404436AbfHBJgg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:36:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBC9820679;
-        Fri,  2 Aug 2019 09:36:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8461620679;
+        Fri,  2 Aug 2019 09:36:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738593;
-        bh=VgkyJWjxi4/ryR8FqLPpV4vveEySu8OOX5bC331V+n4=;
+        s=default; t=1564738596;
+        bh=YrsmbeM710Nlib5G9jvOSoHL+ODDwR7Y9ckEQepf5E0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zaMtk0S1Ck/N1gcTw0FWPx30yquxt3nnoPhHsxFEeyFO+LD8UtD7J6ik78osyOQsB
-         4p4WjjCY5N13DJFkS8tEEGr8aWerOWtN3mHdZCzw2XodAYMCxSOuunMkTkqG1A56SI
-         b8TXjeoNIh97Ewc8WoaSsLCpm517Y1O8XKrQBJx8=
+        b=YN2tJIX/SGaC6Ae+lq5/Bg20ca2AplCrvTk8eFjS5Nh6/6bSSZ/wOYzGpDbJDKFHq
+         3/mORdZ+AcWcauDvFJZ7SyFbdj2MjStC6k4SGysW6F1Nn3ITSoEeijuiARyBFQKs7R
+         jTDTJb492/1Rn+8a1mMI/MRR8dBzvHhMD0p0pec8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        stable@vger.kernel.org, Timofey Titovets <nefelim4ag@gmail.com>,
+        Yongjian Xu <yongjianchn@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
         "David S. Miller" <davem@davemloft.net>,
+        Mao Wenan <maowenan@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 150/158] ipv6: check sk sk_type and protocol early in ip_mroute_set/getsockopt
-Date:   Fri,  2 Aug 2019 11:29:31 +0200
-Message-Id: <20190802092232.662779783@linuxfoundation.org>
+Subject: [PATCH 4.4 151/158] tcp: reset sk_send_head in tcp_write_queue_purge
+Date:   Fri,  2 Aug 2019 11:29:32 +0200
+Message-Id: <20190802092232.810221947@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
 References: <20190802092203.671944552@linuxfoundation.org>
@@ -44,62 +48,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 99253eb750fda6a644d5188fb26c43bad8d5a745 ]
+[ Upstream commit dbbf2d1e4077bab0c65ece2765d3fc69cf7d610f ]
 
-Commit 5e1859fbcc3c ("ipv4: ipmr: various fixes and cleanups") fixed
-the issue for ipv4 ipmr:
+tcp_write_queue_purge clears all the SKBs in the write queue
+but does not reset the sk_send_head. As a result, we can have
+a NULL pointer dereference anywhere that we use tcp_send_head
+instead of the tcp_write_queue_tail.
 
-  ip_mroute_setsockopt() & ip_mroute_getsockopt() should not
-  access/set raw_sk(sk)->ipmr_table before making sure the socket
-  is a raw socket, and protocol is IGMP
+For example, after a27fd7a8ed38 (tcp: purge write queue upon RST),
+we can purge the write queue on RST. Prior to
+75c119afe14f (tcp: implement rb-tree based retransmit queue),
+tcp_push will only check tcp_send_head and then accesses
+tcp_write_queue_tail to send the actual SKB. As a result, it will
+dereference a NULL pointer.
 
-The same fix should be done for ipv6 ipmr as well.
+This has been reported twice for 4.14 where we don't have
+75c119afe14f:
 
-This patch can fix the panic caused by overwriting the same offset
-as ipmr_table as in raw_sk(sk) when accessing other type's socket
-by ip_mroute_setsockopt().
+By Timofey Titovets:
 
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
+[  422.081094] BUG: unable to handle kernel NULL pointer dereference
+at 0000000000000038
+[  422.081254] IP: tcp_push+0x42/0x110
+[  422.081314] PGD 0 P4D 0
+[  422.081364] Oops: 0002 [#1] SMP PTI
+
+By Yongjian Xu:
+
+BUG: unable to handle kernel NULL pointer dereference at 0000000000000038
+IP: tcp_push+0x48/0x120
+PGD 80000007ff77b067 P4D 80000007ff77b067 PUD 7fd989067 PMD 0
+Oops: 0002 [#18] SMP PTI
+Modules linked in: tcp_diag inet_diag tcp_bbr sch_fq iTCO_wdt
+iTCO_vendor_support pcspkr ixgbe mdio i2c_i801 lpc_ich joydev input_leds shpchp
+e1000e igb dca ptp pps_core hwmon mei_me mei ipmi_si ipmi_msghandler sg ses
+scsi_transport_sas enclosure ext4 jbd2 mbcache sd_mod ahci libahci megaraid_sas
+wmi ast ttm dm_mirror dm_region_hash dm_log dm_mod dax
+CPU: 6 PID: 14156 Comm: [ET_NET 6] Tainted: G D 4.14.26-1.el6.x86_64 #1
+Hardware name: LENOVO ThinkServer RD440 /ThinkServer RD440, BIOS A0TS80A
+09/22/2014
+task: ffff8807d78d8140 task.stack: ffffc9000e944000
+RIP: 0010:tcp_push+0x48/0x120
+RSP: 0018:ffffc9000e947a88 EFLAGS: 00010246
+RAX: 00000000000005b4 RBX: ffff880f7cce9c00 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: 0000000000000040 RDI: ffff8807d00f5000
+RBP: ffffc9000e947aa8 R08: 0000000000001c84 R09: 0000000000000000
+R10: ffff8807d00f5158 R11: 0000000000000000 R12: ffff8807d00f5000
+R13: 0000000000000020 R14: 00000000000256d4 R15: 0000000000000000
+FS: 00007f5916de9700(0000) GS:ffff88107fd00000(0000) knlGS:0000000000000000
+CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000038 CR3: 00000007f8226004 CR4: 00000000001606e0
+Call Trace:
+tcp_sendmsg_locked+0x33d/0xe50
+tcp_sendmsg+0x37/0x60
+inet_sendmsg+0x39/0xc0
+sock_sendmsg+0x49/0x60
+sock_write_iter+0xb6/0x100
+do_iter_readv_writev+0xec/0x130
+? rw_verify_area+0x49/0xb0
+do_iter_write+0x97/0xd0
+vfs_writev+0x7e/0xe0
+? __wake_up_common_lock+0x80/0xa0
+? __fget_light+0x2c/0x70
+? __do_page_fault+0x1e7/0x530
+do_writev+0x60/0xf0
+? inet_shutdown+0xac/0x110
+SyS_writev+0x10/0x20
+do_syscall_64+0x6f/0x140
+? prepare_exit_to_usermode+0x8b/0xa0
+entry_SYSCALL_64_after_hwframe+0x3d/0xa2
+RIP: 0033:0x3135ce0c57
+RSP: 002b:00007f5916de4b00 EFLAGS: 00000293 ORIG_RAX: 0000000000000014
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 0000003135ce0c57
+RDX: 0000000000000002 RSI: 00007f5916de4b90 RDI: 000000000000606f
+RBP: 0000000000000000 R08: 0000000000000000 R09: 00007f5916de8c38
+R10: 0000000000000000 R11: 0000000000000293 R12: 00000000000464cc
+R13: 00007f5916de8c30 R14: 00007f58d8bef080 R15: 0000000000000002
+Code: 48 8b 97 60 01 00 00 4c 8d 97 58 01 00 00 41 b9 00 00 00 00 41 89 f3 4c 39
+d2 49 0f 44 d1 41 81 e3 00 80 00 00 0f 85 b0 00 00 00 <80> 4a 38 08 44 8b 8f 74
+06 00 00 44 89 8f 7c 06 00 00 83 e6 01
+RIP: tcp_push+0x48/0x120 RSP: ffffc9000e947a88
+CR2: 0000000000000038
+---[ end trace 8d545c2e93515549 ]---
+
+There is other scenario which found in stable 4.4:
+Allocated:
+ [<ffffffff82f380a6>] __alloc_skb+0xe6/0x600 net/core/skbuff.c:218
+ [<ffffffff832466c3>] alloc_skb_fclone include/linux/skbuff.h:856 [inline]
+ [<ffffffff832466c3>] sk_stream_alloc_skb+0xa3/0x5d0 net/ipv4/tcp.c:833
+ [<ffffffff83249164>] tcp_sendmsg+0xd34/0x2b00 net/ipv4/tcp.c:1178
+ [<ffffffff83300ef3>] inet_sendmsg+0x203/0x4d0 net/ipv4/af_inet.c:755
+Freed:
+ [<ffffffff82f372fd>] __kfree_skb+0x1d/0x20 net/core/skbuff.c:676
+ [<ffffffff83288834>] sk_wmem_free_skb include/net/sock.h:1447 [inline]
+ [<ffffffff83288834>] tcp_write_queue_purge include/net/tcp.h:1460 [inline]
+ [<ffffffff83288834>] tcp_connect_init net/ipv4/tcp_output.c:3122 [inline]
+ [<ffffffff83288834>] tcp_connect+0xb24/0x30c0 net/ipv4/tcp_output.c:3261
+ [<ffffffff8329b991>] tcp_v4_connect+0xf31/0x1890 net/ipv4/tcp_ipv4.c:246
+
+BUG: KASAN: use-after-free in tcp_skb_pcount include/net/tcp.h:796 [inline]
+BUG: KASAN: use-after-free in tcp_init_tso_segs net/ipv4/tcp_output.c:1619 [inline]
+BUG: KASAN: use-after-free in tcp_write_xmit+0x3fc2/0x4cb0 net/ipv4/tcp_output.c:2056
+ [<ffffffff81515cd5>] kasan_report.cold.7+0x175/0x2f7 mm/kasan/report.c:408
+ [<ffffffff814f9784>] __asan_report_load2_noabort+0x14/0x20 mm/kasan/report.c:427
+ [<ffffffff83286582>] tcp_skb_pcount include/net/tcp.h:796 [inline]
+ [<ffffffff83286582>] tcp_init_tso_segs net/ipv4/tcp_output.c:1619 [inline]
+ [<ffffffff83286582>] tcp_write_xmit+0x3fc2/0x4cb0 net/ipv4/tcp_output.c:2056
+ [<ffffffff83287a40>] __tcp_push_pending_frames+0xa0/0x290 net/ipv4/tcp_output.c:2307
+
+stable 4.4 and stable 4.9 don't have the commit abb4a8b870b5 ("tcp: purge write queue upon RST")
+which is referred in dbbf2d1e4077,
+in tcp_connect_init, it calls tcp_write_queue_purge, and does not reset sk_send_head, then UAF.
+
+stable 4.14 have the commit abb4a8b870b5 ("tcp: purge write queue upon RST"),
+in tcp_reset, it calls tcp_write_queue_purge(sk), and does not reset sk_send_head, then UAF.
+
+So this patch can be used to fix stable 4.4 and 4.9.
+
+Fixes: a27fd7a8ed38 (tcp: purge write queue upon RST)
+Reported-by: Timofey Titovets <nefelim4ag@gmail.com>
+Reported-by: Yongjian Xu <yongjianchn@gmail.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Soheil Hassas Yeganeh <soheil@google.com>
+Tested-by: Yongjian Xu <yongjianchn@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Mao Wenan <maowenan@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6mr.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ include/net/tcp.h |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/net/ipv6/ip6mr.c
-+++ b/net/ipv6/ip6mr.c
-@@ -1666,6 +1666,10 @@ int ip6_mroute_setsockopt(struct sock *s
- 	struct net *net = sock_net(sk);
- 	struct mr6_table *mrt;
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -1443,6 +1443,11 @@ struct sock *tcp_try_fastopen(struct soc
+ void tcp_fastopen_init_key_once(bool publish);
+ #define TCP_FASTOPEN_KEY_LENGTH 16
  
-+	if (sk->sk_type != SOCK_RAW ||
-+	    inet_sk(sk)->inet_num != IPPROTO_ICMPV6)
-+		return -EOPNOTSUPP;
++static inline void tcp_init_send_head(struct sock *sk)
++{
++	sk->sk_send_head = NULL;
++}
 +
- 	mrt = ip6mr_get_table(net, raw6_sk(sk)->ip6mr_table ? : RT6_TABLE_DFLT);
- 	if (!mrt)
- 		return -ENOENT;
-@@ -1677,9 +1681,6 @@ int ip6_mroute_setsockopt(struct sock *s
+ /* Fastopen key context */
+ struct tcp_fastopen_context {
+ 	struct crypto_cipher	*tfm;
+@@ -1459,6 +1464,7 @@ static inline void tcp_write_queue_purge
+ 		sk_wmem_free_skb(sk, skb);
+ 	sk_mem_reclaim(sk);
+ 	tcp_clear_all_retrans_hints(tcp_sk(sk));
++	tcp_init_send_head(sk);
+ 	inet_csk(sk)->icsk_backoff = 0;
+ }
  
- 	switch (optname) {
- 	case MRT6_INIT:
--		if (sk->sk_type != SOCK_RAW ||
--		    inet_sk(sk)->inet_num != IPPROTO_ICMPV6)
--			return -EOPNOTSUPP;
- 		if (optlen < sizeof(int))
- 			return -EINVAL;
+@@ -1520,11 +1526,6 @@ static inline void tcp_check_send_head(s
+ 		tcp_sk(sk)->highest_sack = NULL;
+ }
  
-@@ -1816,6 +1817,10 @@ int ip6_mroute_getsockopt(struct sock *s
- 	struct net *net = sock_net(sk);
- 	struct mr6_table *mrt;
- 
-+	if (sk->sk_type != SOCK_RAW ||
-+	    inet_sk(sk)->inet_num != IPPROTO_ICMPV6)
-+		return -EOPNOTSUPP;
-+
- 	mrt = ip6mr_get_table(net, raw6_sk(sk)->ip6mr_table ? : RT6_TABLE_DFLT);
- 	if (!mrt)
- 		return -ENOENT;
+-static inline void tcp_init_send_head(struct sock *sk)
+-{
+-	sk->sk_send_head = NULL;
+-}
+-
+ static inline void __tcp_add_write_queue_tail(struct sock *sk, struct sk_buff *skb)
+ {
+ 	__skb_queue_tail(&sk->sk_write_queue, skb);
 
 
