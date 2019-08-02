@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CD927F173
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:39:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D988E7F164
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:39:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390355AbfHBJeT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:34:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34148 "EHLO mail.kernel.org"
+        id S2389588AbfHBJdm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:33:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390357AbfHBJeT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:34:19 -0400
+        id S2390487AbfHBJdi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:33:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5938521773;
-        Fri,  2 Aug 2019 09:34:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73669217D7;
+        Fri,  2 Aug 2019 09:33:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738458;
-        bh=pgIazXNOnkGpteM4RHQyFzjHISWzCTtxmcmsMF/noBo=;
+        s=default; t=1564738417;
+        bh=F9f8+XQ9K6uxWrdp5WlnfE4VLwtyVaBH0OGVXCRB8DI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zLFy6ilNQnbuNqQLnXpcRBk+KGGhesOWu3AdF94M7SgVXAhDFD6xfhUe65LzRh7pO
-         q0TQa26oa/DS+GhkOHQLg/92UY0JeqXMtYMdOpO0W8fbRYEVcT6t8+7kc6Y2OOt9xb
-         jCEfJT0jxAtfxaVSKAvIOjC58xwkszTHajW/TY0E=
+        b=SQ1GHBbUyBHl5fBsBkwVnIgE07e2ORLpZSZGEy2AA0GI2yJBGFJQC6oIbpLWjdDnn
+         nZ5DT48784YaTP1aGSJbggwvp62ajH3Q7A1hYg4Z+dtjiLXrpaxckS8qLyOd3DQZSp
+         XtHLQRqAjyWB15X+lsjeHhjBWH7044iyrHk3XvbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        stable@vger.kernel.org, Matteo Croce <mcroce@redhat.com>,
+        David Ahern <dsahern@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 087/158] caif-hsi: fix possible deadlock in cfhsi_exit_module()
-Date:   Fri,  2 Aug 2019 11:28:28 +0200
-Message-Id: <20190802092222.008978031@linuxfoundation.org>
+Subject: [PATCH 4.4 088/158] ipv4: dont set IPv6 only flags to IPv4 addresses
+Date:   Fri,  2 Aug 2019 11:28:29 +0200
+Message-Id: <20190802092222.217259673@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
 References: <20190802092203.671944552@linuxfoundation.org>
@@ -43,32 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Matteo Croce <mcroce@redhat.com>
 
-[ Upstream commit fdd258d49e88a9e0b49ef04a506a796f1c768a8e ]
+[ Upstream commit 2e60546368165c2449564d71f6005dda9205b5fb ]
 
-cfhsi_exit_module() calls unregister_netdev() under rtnl_lock().
-but unregister_netdev() internally calls rtnl_lock().
-So deadlock would occur.
+Avoid the situation where an IPV6 only flag is applied to an IPv4 address:
 
-Fixes: c41254006377 ("caif-hsi: Add rtnl support")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+    # ip addr add 192.0.2.1/24 dev dummy0 nodad home mngtmpaddr noprefixroute
+    # ip -4 addr show dev dummy0
+    2: dummy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+        inet 192.0.2.1/24 scope global noprefixroute dummy0
+           valid_lft forever preferred_lft forever
+
+Or worse, by sending a malicious netlink command:
+
+    # ip -4 addr show dev dummy0
+    2: dummy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+        inet 192.0.2.1/24 scope global nodad optimistic dadfailed home tentative mngtmpaddr noprefixroute stable-privacy dummy0
+           valid_lft forever preferred_lft forever
+
+Signed-off-by: Matteo Croce <mcroce@redhat.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/caif/caif_hsi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/devinet.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/net/caif/caif_hsi.c
-+++ b/drivers/net/caif/caif_hsi.c
-@@ -1467,7 +1467,7 @@ static void __exit cfhsi_exit_module(voi
- 	rtnl_lock();
- 	list_for_each_safe(list_node, n, &cfhsi_list) {
- 		cfhsi = list_entry(list_node, struct cfhsi, list);
--		unregister_netdev(cfhsi->ndev);
-+		unregister_netdevice(cfhsi->ndev);
- 	}
- 	rtnl_unlock();
- }
+--- a/net/ipv4/devinet.c
++++ b/net/ipv4/devinet.c
+@@ -67,6 +67,11 @@
+ 
+ #include "fib_lookup.h"
+ 
++#define IPV6ONLY_FLAGS	\
++		(IFA_F_NODAD | IFA_F_OPTIMISTIC | IFA_F_DADFAILED | \
++		 IFA_F_HOMEADDRESS | IFA_F_TENTATIVE | \
++		 IFA_F_MANAGETEMPADDR | IFA_F_STABLE_PRIVACY)
++
+ static struct ipv4_devconf ipv4_devconf = {
+ 	.data = {
+ 		[IPV4_DEVCONF_ACCEPT_REDIRECTS - 1] = 1,
+@@ -453,6 +458,9 @@ static int __inet_insert_ifa(struct in_i
+ 	ifa->ifa_flags &= ~IFA_F_SECONDARY;
+ 	last_primary = &in_dev->ifa_list;
+ 
++	/* Don't set IPv6 only flags to IPv4 addresses */
++	ifa->ifa_flags &= ~IPV6ONLY_FLAGS;
++
+ 	for (ifap = &in_dev->ifa_list; (ifa1 = *ifap) != NULL;
+ 	     ifap = &ifa1->ifa_next) {
+ 		if (!(ifa1->ifa_flags & IFA_F_SECONDARY) &&
 
 
