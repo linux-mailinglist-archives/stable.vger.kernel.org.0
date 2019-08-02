@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D80447F899
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:22:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BFDD7F8A1
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:22:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393497AbfHBNU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:20:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59434 "EHLO mail.kernel.org"
+        id S2393533AbfHBNVN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:21:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393483AbfHBNUz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:20:55 -0400
+        id S2393498AbfHBNU5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:20:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 342A421882;
-        Fri,  2 Aug 2019 13:20:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B56B021849;
+        Fri,  2 Aug 2019 13:20:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752054;
-        bh=8LckdS0aV16gjDTP4ua5q1u/mMnZe6SiPr68l2IsRrk=;
+        s=default; t=1564752057;
+        bh=T2iFgkP0UDzAXbiI2k0wz3wf1VnOxEi+QvaaMJHeMfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VRj6f7fndJTYUvq/TPjQNzXAvVfDB7ZxW986FZHbpmQLm9SgQRL8zmstpnoNuWGqL
-         CGWsmqgXJh9lFKlz1kwqUa5y6Tij20Jc5RKkKOqg5+sU6P6jql56b2REA/pbLxtH8L
-         o8jPkE/j7Dg4KAHUaQP/u2CyHXxX+/9sz2XMnSsA=
+        b=0kF+BRTJZKkb5JLOblpAsbxxZg0n8Zvuc4nU16qfG0+LLsDH7jrEuIz9etLt/N86b
+         qRuWi0dmy095lQ8E112Dyg2G5ZHgaIs3tTy3KwUw5pHqoifdLGHsOFrKCMQgNUqM2Q
+         pKsb99G+cMJdFfUksXwsi9CHQikSKMsfOdOymcvM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joerg Roedel <jroedel@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.2 36/76] mm/vmalloc: Sync unmappings in __purge_vmap_area_lazy()
-Date:   Fri,  2 Aug 2019 09:19:10 -0400
-Message-Id: <20190802131951.11600-36-sashal@kernel.org>
+Cc:     Vaibhav Jain <vaibhav@linux.ibm.com>,
+        "Oliver O'Halloran" <oohall@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.2 37/76] powerpc/papr_scm: Force a scm-unbind if initial scm-bind fails
+Date:   Fri,  2 Aug 2019 09:19:11 -0400
+Message-Id: <20190802131951.11600-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
 References: <20190802131951.11600-1-sashal@kernel.org>
@@ -44,61 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Vaibhav Jain <vaibhav@linux.ibm.com>
 
-[ Upstream commit 3f8fd02b1bf1d7ba964485a56f2f4b53ae88c167 ]
+[ Upstream commit 3a855b7ac7d5021674aa3e1cc9d3bfd6b604e9c0 ]
 
-On x86-32 with PTI enabled, parts of the kernel page-tables are not shared
-between processes. This can cause mappings in the vmalloc/ioremap area to
-persist in some page-tables after the region is unmapped and released.
+In some cases initial bind of scm memory for an lpar can fail if
+previously it wasn't released using a scm-unbind hcall. This situation
+can arise due to panic of the previous kernel or forced lpar
+fadump. In such cases the H_SCM_BIND_MEM return a H_OVERLAP error.
 
-When the region is re-used the processes with the old mappings do not fault
-in the new mappings but still access the old ones.
+To mitigate such cases the patch updates papr_scm_probe() to force a
+call to drc_pmem_unbind() in case the initial bind of scm memory fails
+with EBUSY error. In case scm-bind operation again fails after the
+forced scm-unbind then we follow the existing error path. We also
+update drc_pmem_bind() to handle the H_OVERLAP error returned by phyp
+and indicate it as a EBUSY error back to the caller.
 
-This causes undefined behavior, in reality often data corruption, kernel
-oopses and panics and even spontaneous reboots.
-
-Fix this problem by activly syncing unmaps in the vmalloc/ioremap area to
-all page-tables in the system before the regions can be re-used.
-
-References: https://bugzilla.suse.com/show_bug.cgi?id=1118689
-Fixes: 5d72b4fba40ef ('x86, mm: support huge I/O mapping capability I/F')
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
-Link: https://lkml.kernel.org/r/20190719184652.11391-4-joro@8bytes.org
+Suggested-by: "Oliver O'Halloran" <oohall@gmail.com>
+Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
+Reviewed-by: Oliver O'Halloran <oohall@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190629160610.23402-4-vaibhav@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/vmalloc.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/powerpc/platforms/pseries/papr_scm.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index 0f76cca32a1ce..080d30408ce30 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -1213,6 +1213,12 @@ static bool __purge_vmap_area_lazy(unsigned long start, unsigned long end)
- 	if (unlikely(valist == NULL))
- 		return false;
- 
-+	/*
-+	 * First make sure the mappings are removed from all page-tables
-+	 * before they are freed.
-+	 */
-+	vmalloc_sync_all();
-+
- 	/*
- 	 * TODO: to calculate a flush range without looping.
- 	 * The list can be up to lazy_max_pages() elements.
-@@ -3001,6 +3007,9 @@ EXPORT_SYMBOL(remap_vmalloc_range);
- /*
-  * Implement a stub for vmalloc_sync_all() if the architecture chose not to
-  * have one.
-+ *
-+ * The purpose of this function is to make sure the vmalloc area
-+ * mappings are identical in all page-tables in the system.
-  */
- void __weak vmalloc_sync_all(void)
+diff --git a/arch/powerpc/platforms/pseries/papr_scm.c b/arch/powerpc/platforms/pseries/papr_scm.c
+index 96c53b23e58f9..dad9825e40874 100644
+--- a/arch/powerpc/platforms/pseries/papr_scm.c
++++ b/arch/powerpc/platforms/pseries/papr_scm.c
+@@ -42,8 +42,9 @@ struct papr_scm_priv {
+ static int drc_pmem_bind(struct papr_scm_priv *p)
  {
+ 	unsigned long ret[PLPAR_HCALL_BUFSIZE];
+-	uint64_t rc, token;
+ 	uint64_t saved = 0;
++	uint64_t token;
++	int64_t rc;
+ 
+ 	/*
+ 	 * When the hypervisor cannot map all the requested memory in a single
+@@ -63,6 +64,10 @@ static int drc_pmem_bind(struct papr_scm_priv *p)
+ 	} while (rc == H_BUSY);
+ 
+ 	if (rc) {
++		/* H_OVERLAP needs a separate error path */
++		if (rc == H_OVERLAP)
++			return -EBUSY;
++
+ 		dev_err(&p->pdev->dev, "bind err: %lld\n", rc);
+ 		return -ENXIO;
+ 	}
+@@ -316,6 +321,14 @@ static int papr_scm_probe(struct platform_device *pdev)
+ 
+ 	/* request the hypervisor to bind this region to somewhere in memory */
+ 	rc = drc_pmem_bind(p);
++
++	/* If phyp says drc memory still bound then force unbound and retry */
++	if (rc == -EBUSY) {
++		dev_warn(&pdev->dev, "Retrying bind after unbinding\n");
++		drc_pmem_unbind(p);
++		rc = drc_pmem_bind(p);
++	}
++
+ 	if (rc)
+ 		goto err;
+ 
 -- 
 2.20.1
 
