@@ -2,62 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FCF17EC30
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 07:44:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AB877EC36
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 07:45:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387939AbfHBFoo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 01:44:44 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:42394 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732723AbfHBFoo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 01:44:44 -0400
-Received: by mail-pl1-f196.google.com with SMTP id ay6so33244503plb.9
-        for <stable@vger.kernel.org>; Thu, 01 Aug 2019 22:44:43 -0700 (PDT)
+        id S1732636AbfHBFoy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 01:44:54 -0400
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:34596 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732606AbfHBFoy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 01:44:54 -0400
+Received: by mail-pl1-f193.google.com with SMTP id i2so33222102plt.1
+        for <stable@vger.kernel.org>; Thu, 01 Aug 2019 22:44:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=IQiEltWXcaJ4ww5AxptfVEQnJ5UMr5Pimco/lTpuDRE=;
-        b=AWtoJNTQKLi0c8mDS75fkbk24KpEbX7Z3HpsQ5ZCk7Iowak2phz7Hma5th9nwG6rt4
-         5vhCMeeUidwGlPHoROnI+CbVRiNBRdz+8UgqyhDqZC6VSUhnylilIe2CkRhX4fpAj1pS
-         YYPuA6mZEmrhWfPpMVINnKvYF9s+RCU4crV9T0rHo88AMcxll6r6Zn8KdOUobLf3jAgq
-         d7WMo+P9jfqtF5hC4Nf3mzQYLI/P6SrxmrUuPRCy5rlBU9s0Ie9QLJkO72+XYz53sEKC
-         vFRlMGxwV5khY/ApjPR/A4aOn48+zhq7/bINnhSPZSuHjBPdivQtfcCKwLNAFAIyEaH1
-         JNLQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=yjkqVlh93tpY60WVDl/QuqFVLpfL0sHzZ896Xvml+z4=;
+        b=CjPSiFwCyakBTrbLM1unJu3mh6t/OHjXEJsYhOgENLXIMkZfnmMK7kA4LLGRIkBU5N
+         FewiqxHM7ESNfuWy2LjIA4max+VbOFSXBW1I11lkee7ya6yGtzI5G4pqadAGrlKLptjT
+         YUsYi2X+fUKMaCyHazV9Prvo7PrNCv5sBRDoskVTPIGO+CZ+YffAR1wonAWLwe9b966v
+         76f8CYpIul0BJVlnnsDy37Dd3kofpRsC6EUqlYjluPwa/qFkUuWzuquWKxaoNaNJFiOy
+         UnyKRZ17Ukwbmbg5qUIql6Zmb69GtFTP+WFmxAodQ0KI8fm+5phv1vdMnCPHLC5/4bd4
+         bpKQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=IQiEltWXcaJ4ww5AxptfVEQnJ5UMr5Pimco/lTpuDRE=;
-        b=n4T3UWBaBPfnu3UB0i0UwCo6g3g6/rPb6gNEQX8cqoNBw2Wh71Bwzar5y5pMAK0olw
-         u2mFLuFYMdJCGGIfTljYM2xOKuY6fQlwOzyKiCroOGONyEA29cHlAGCPnBQoa5JsvaDx
-         GQr7QbdmZxJMQ6vSkizTQIjJ6VoKJV8kvmDID2WGu89wOFdAGVS1r9Rk2GRx9ffFErv1
-         9KQ98Z5sOq3k7VCv5+QEavc6KB1OFO3V9MHYdj6JTDzQpXbfE8lHWSzobCPh3O35pZSb
-         zvrG+jqVcjBt4GbRmmqsr0n4avBRq7SwH1EQZB/1pCe9cmhW3DMVZXbKMjfNKQOi5Hhl
-         AcaA==
-X-Gm-Message-State: APjAAAWB2Qt8LNRo1DRtQxZ6MrYdNNkNE52RdOSMcSx6nRjFet/GkA9q
-        rrZvr32dFjZJ8qEKyf6u6IzF4g==
-X-Google-Smtp-Source: APXvYqxrNT4X9tZPfwrYCWlcv+1SVd6J5e28alQnoNDdpQ5Eu+SUVRljHw3+ZDcSqVw2+KCs40UTCQ==
-X-Received: by 2002:a17:902:bd06:: with SMTP id p6mr132909092pls.189.1564724683238;
-        Thu, 01 Aug 2019 22:44:43 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=yjkqVlh93tpY60WVDl/QuqFVLpfL0sHzZ896Xvml+z4=;
+        b=WOjeQK1lP5tIdKdAXD0id31W7SdpprYJcX3cdlLmjcx1i9DBwgJHrwRkn5tf6qk5jL
+         oJKOoXNI005fSLG6oi/lfOGjsiQw9YplSZ1lKD5w1B/hhotw+bozpEFy9H0GwSvp7HLw
+         Mg7q75yi+fx7+ilenl04YDx0HWMvJ8g04PC/elpcILYat7S/tMOMnvZeabeNWqjHr7tV
+         jbUMRZQVzFnnMLf9htgr7Qaau0HY+IKIFfmEyIXjaT41UtZvfYpi/I5Ct8ZQaEgfh+7C
+         8567taohIpiH6uFqLq2RZkGqI+DmjS3+xkHlJj+Pch6hK60RveZiqdKUoAPXaIbamf9K
+         XHtg==
+X-Gm-Message-State: APjAAAVSqVQhAdnViH+m+mtmeiBjQ3nZDdO6YPw/F0ugl4nkFLARiYKg
+        jPELfTCITueOnnN1rXqWF3FfAg==
+X-Google-Smtp-Source: APXvYqyZ1krLVASDIdDV11DS2l8tbxmM4spkv0MIrZ/oPkthee5mDfwIoxrJ33RZlFf4CMYGV6/CvQ==
+X-Received: by 2002:a17:902:846:: with SMTP id 64mr129733304plk.265.1564724693243;
+        Thu, 01 Aug 2019 22:44:53 -0700 (PDT)
 Received: from localhost ([122.172.28.117])
-        by smtp.gmail.com with ESMTPSA id g8sm83671355pgk.1.2019.08.01.22.44.41
+        by smtp.gmail.com with ESMTPSA id bg3sm7230593pjb.9.2019.08.01.22.44.52
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 01 Aug 2019 22:44:41 -0700 (PDT)
+        Thu, 01 Aug 2019 22:44:52 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     Rafael Wysocki <rjw@rjwysocki.net>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Len Brown <lenb@kernel.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>
 Cc:     linux-pm@vger.kernel.org,
         Vincent Guittot <vincent.guittot@linaro.org>,
         "v4 . 18+" <stable@vger.kernel.org>,
         Doug Smythies <doug.smythies@gmail.com>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH V3 1/2] cpufreq: schedutil: Don't skip freq update when limits change
-Date:   Fri,  2 Aug 2019 11:14:29 +0530
-Message-Id: <7dedb6bd157b8183c693bb578e25e313cf4f451d.1564724511.git.viresh.kumar@linaro.org>
+Subject: [PATCH V3 2/2] cpufreq: intel_pstate: Implement ->resolve_freq()
+Date:   Fri,  2 Aug 2019 11:14:30 +0530
+Message-Id: <23e3dee8688f5a9767635b686bb7a9c0e09a4438.1564724511.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
+In-Reply-To: <7dedb6bd157b8183c693bb578e25e313cf4f451d.1564724511.git.viresh.kumar@linaro.org>
+References: <7dedb6bd157b8183c693bb578e25e313cf4f451d.1564724511.git.viresh.kumar@linaro.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -65,106 +67,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-To avoid reducing the frequency of a CPU prematurely, we skip reducing
-the frequency if the CPU had been busy recently.
+Intel pstate driver exposes min_perf_pct and max_perf_pct sysfs files,
+which can be used to force a limit on the min/max P state of the driver.
+Though these files eventually control the min/max frequencies that the
+CPUs will run at, they don't make a change to policy->min/max values.
 
-This should not be done when the limits of the policy are changed, for
-example due to thermal throttling. We should always get the frequency
-within the new limits as soon as possible.
+When the values of these files are changed (in passive mode of the
+driver), it leads to calling ->limits() callback of the cpufreq
+governors, like schedutil. On a call to it the governors shall
+forcefully update the frequency to come within the limits. For getting
+the value within limits, the schedutil governor calls
+cpufreq_driver_resolve_freq(), which eventually tries to call
+->resolve_freq() callback for this driver. Since the callback isn't
+present, the schedutil governor fails to get the target freq within
+limit and sometimes aborts the update believing that the frequency is
+already set to the target value.
 
-Trying to fix this by using only one flag, i.e. need_freq_update, can
-lead to a race condition where the flag gets cleared without forcing us
-to change the frequency at least once. And so this patch introduces
-another flag to avoid that race condition.
+This patch implements the resolve_freq() callback, so the correct target
+frequency can be returned by the driver and the schedutil governor gets
+the frequency within limits immediately.
 
 Fixes: ecd288429126 ("cpufreq: schedutil: Don't set next_freq to UINT_MAX")
 Cc: v4.18+ <stable@vger.kernel.org> # v4.18+
 Reported-by: Doug Smythies <doug.smythies@gmail.com>
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
-V2->V3:
-- Updated commit log.
+V3:
+- This was earlier posted as a diff to an email reply and is getting
+  sent for the first time only as a proper patch.
 
-V1->V2:
-- Fixed the race condition using a different flag.
+ drivers/cpufreq/intel_pstate.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-@Doug: I haven't changed the code since you last tested these. Your
-Tested-by tag can be useful while applying the patches. Thanks.
-
- kernel/sched/cpufreq_schedutil.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
-
-diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
-index 636ca6f88c8e..2f382b0959e5 100644
---- a/kernel/sched/cpufreq_schedutil.c
-+++ b/kernel/sched/cpufreq_schedutil.c
-@@ -40,6 +40,7 @@ struct sugov_policy {
- 	struct task_struct	*thread;
- 	bool			work_in_progress;
+diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
+index cc27d4c59dca..2d84361fbebc 100644
+--- a/drivers/cpufreq/intel_pstate.c
++++ b/drivers/cpufreq/intel_pstate.c
+@@ -2314,6 +2314,18 @@ static int intel_cpufreq_target(struct cpufreq_policy *policy,
+ 	return 0;
+ }
  
-+	bool			limits_changed;
- 	bool			need_freq_update;
- };
- 
-@@ -89,8 +90,11 @@ static bool sugov_should_update_freq(struct sugov_policy *sg_policy, u64 time)
- 	    !cpufreq_this_cpu_can_update(sg_policy->policy))
- 		return false;
- 
--	if (unlikely(sg_policy->need_freq_update))
-+	if (unlikely(sg_policy->limits_changed)) {
-+		sg_policy->limits_changed = false;
-+		sg_policy->need_freq_update = true;
- 		return true;
-+	}
- 
- 	delta_ns = time - sg_policy->last_freq_update_time;
- 
-@@ -437,7 +441,7 @@ static inline bool sugov_cpu_is_busy(struct sugov_cpu *sg_cpu) { return false; }
- static inline void ignore_dl_rate_limit(struct sugov_cpu *sg_cpu, struct sugov_policy *sg_policy)
++static unsigned int intel_cpufreq_resolve_freq(struct cpufreq_policy *policy,
++					       unsigned int target_freq)
++{
++	struct cpudata *cpu = all_cpu_data[policy->cpu];
++	int target_pstate;
++
++	target_pstate = DIV_ROUND_UP(target_freq, cpu->pstate.scaling);
++	target_pstate = intel_pstate_prepare_request(cpu, target_pstate);
++
++	return target_pstate * cpu->pstate.scaling;
++}
++
+ static unsigned int intel_cpufreq_fast_switch(struct cpufreq_policy *policy,
+ 					      unsigned int target_freq)
  {
- 	if (cpu_bw_dl(cpu_rq(sg_cpu->cpu)) > sg_cpu->bw_dl)
--		sg_policy->need_freq_update = true;
-+		sg_policy->limits_changed = true;
- }
- 
- static void sugov_update_single(struct update_util_data *hook, u64 time,
-@@ -447,7 +451,7 @@ static void sugov_update_single(struct update_util_data *hook, u64 time,
- 	struct sugov_policy *sg_policy = sg_cpu->sg_policy;
- 	unsigned long util, max;
- 	unsigned int next_f;
--	bool busy;
-+	bool busy = false;
- 
- 	sugov_iowait_boost(sg_cpu, time, flags);
- 	sg_cpu->last_update = time;
-@@ -457,7 +461,9 @@ static void sugov_update_single(struct update_util_data *hook, u64 time,
- 	if (!sugov_should_update_freq(sg_policy, time))
- 		return;
- 
--	busy = sugov_cpu_is_busy(sg_cpu);
-+	/* Limits may have changed, don't skip frequency update */
-+	if (!sg_policy->need_freq_update)
-+		busy = sugov_cpu_is_busy(sg_cpu);
- 
- 	util = sugov_get_util(sg_cpu);
- 	max = sg_cpu->max;
-@@ -831,6 +837,7 @@ static int sugov_start(struct cpufreq_policy *policy)
- 	sg_policy->last_freq_update_time	= 0;
- 	sg_policy->next_freq			= 0;
- 	sg_policy->work_in_progress		= false;
-+	sg_policy->limits_changed		= false;
- 	sg_policy->need_freq_update		= false;
- 	sg_policy->cached_raw_freq		= 0;
- 
-@@ -879,7 +886,7 @@ static void sugov_limits(struct cpufreq_policy *policy)
- 		mutex_unlock(&sg_policy->work_lock);
- 	}
- 
--	sg_policy->need_freq_update = true;
-+	sg_policy->limits_changed = true;
- }
- 
- struct cpufreq_governor schedutil_gov = {
+@@ -2350,6 +2362,7 @@ static struct cpufreq_driver intel_cpufreq = {
+ 	.verify		= intel_cpufreq_verify_policy,
+ 	.target		= intel_cpufreq_target,
+ 	.fast_switch	= intel_cpufreq_fast_switch,
++	.resolve_freq	= intel_cpufreq_resolve_freq,
+ 	.init		= intel_cpufreq_cpu_init,
+ 	.exit		= intel_pstate_cpu_exit,
+ 	.stop_cpu	= intel_cpufreq_stop_cpu,
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
