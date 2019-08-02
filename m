@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AAFE7F96B
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:27:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C59377F968
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:27:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394782AbfHBN1b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:27:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37694 "EHLO mail.kernel.org"
+        id S2394683AbfHBN12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:27:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394692AbfHBN0z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:26:55 -0400
+        id S2394699AbfHBN05 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:26:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66FD521855;
-        Fri,  2 Aug 2019 13:26:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A401521874;
+        Fri,  2 Aug 2019 13:26:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752415;
-        bh=oBD8mlOmTqr2lwydNzzevb3/qEoAgt12d1ygqhPtN/w=;
+        s=default; t=1564752416;
+        bh=212rHPD5TW5Tcjg46O69Jc4OuIMGL5L2p+xkDXR3qG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k1TYU0XuBNnTL1Ufsh+8OsRzs5Nr6o0h6erBV13kKZUWoEjySY+Mwd40dOVvqfhWU
-         eac779JBMQFOoqxKQ+tRDwQERmmoGK/IK6GX5RoNX5v+HZPIbRocJrtDQmTDpbu9nb
-         YQftTz5P2LL4RrJgVuwsfrL6fliwbquPm3l1I3es=
+        b=mkY0ByliTOjIAe6eYJznl6XilD/gOHp1bmb85naMFtFnyXlvNoSz6d59Th85LXoY0
+         PdiJDbRT8lZe4x7CIvXzLB7Fnga/YfXyGSXp/ZtM/LKQbrjUKZlvVJZVBMzBeyIC7G
+         kx1lqWz8RZ22MxJOlRyRA5kCqZ1YfmE6Seohekew=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
         Vinod Koul <vkoul@kernel.org>, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 10/17] ALSA: compress: Prevent bypasses of set_params
-Date:   Fri,  2 Aug 2019 09:26:27 -0400
-Message-Id: <20190802132635.14885-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 11/17] ALSA: compress: Be more restrictive about when a drain is allowed
+Date:   Fri,  2 Aug 2019 09:26:28 -0400
+Message-Id: <20190802132635.14885-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802132635.14885-1-sashal@kernel.org>
 References: <20190802132635.14885-1-sashal@kernel.org>
@@ -45,81 +45,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 26c3f1542f5064310ad26794c09321780d00c57d ]
+[ Upstream commit 3b8179944cb0dd53e5223996966746cdc8a60657 ]
 
-Currently, whilst in SNDRV_PCM_STATE_OPEN it is possible to call
-snd_compr_stop, snd_compr_drain and snd_compr_partial_drain, which
-allow a transition to SNDRV_PCM_STATE_SETUP. The stream should
-only be able to move to the setup state once it has received a
-SNDRV_COMPRESS_SET_PARAMS ioctl. Fix this issue by not allowing
-those ioctls whilst in the open state.
+Draining makes little sense in the situation of hardware overrun, as the
+hardware will have consumed all its available samples. Additionally,
+draining whilst the stream is paused would presumably get stuck as no
+data is being consumed on the DSP side.
 
 Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 Acked-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/compress_offload.c | 30 ++++++++++++++++++++++++------
- 1 file changed, 24 insertions(+), 6 deletions(-)
+ sound/core/compress_offload.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/sound/core/compress_offload.c b/sound/core/compress_offload.c
-index 16269e7ff3904..d0a21a5867673 100644
+index d0a21a5867673..771d7b334ad87 100644
 --- a/sound/core/compress_offload.c
 +++ b/sound/core/compress_offload.c
-@@ -688,9 +688,15 @@ static int snd_compr_stop(struct snd_compr_stream *stream)
- {
- 	int retval;
- 
--	if (stream->runtime->state == SNDRV_PCM_STATE_PREPARED ||
--			stream->runtime->state == SNDRV_PCM_STATE_SETUP)
-+	switch (stream->runtime->state) {
-+	case SNDRV_PCM_STATE_OPEN:
-+	case SNDRV_PCM_STATE_SETUP:
-+	case SNDRV_PCM_STATE_PREPARED:
+@@ -749,7 +749,10 @@ static int snd_compr_drain(struct snd_compr_stream *stream)
+ 	case SNDRV_PCM_STATE_OPEN:
+ 	case SNDRV_PCM_STATE_SETUP:
+ 	case SNDRV_PCM_STATE_PREPARED:
++	case SNDRV_PCM_STATE_PAUSED:
  		return -EPERM;
-+	default:
-+		break;
-+	}
-+
- 	retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_STOP);
- 	if (!retval) {
- 		snd_compr_drain_notify(stream);
-@@ -739,9 +745,14 @@ static int snd_compr_drain(struct snd_compr_stream *stream)
- {
- 	int retval;
- 
--	if (stream->runtime->state == SNDRV_PCM_STATE_PREPARED ||
--			stream->runtime->state == SNDRV_PCM_STATE_SETUP)
-+	switch (stream->runtime->state) {
-+	case SNDRV_PCM_STATE_OPEN:
-+	case SNDRV_PCM_STATE_SETUP:
-+	case SNDRV_PCM_STATE_PREPARED:
++	case SNDRV_PCM_STATE_XRUN:
++		return -EPIPE;
+ 	default:
+ 		break;
+ 	}
+@@ -794,7 +797,10 @@ static int snd_compr_partial_drain(struct snd_compr_stream *stream)
+ 	case SNDRV_PCM_STATE_OPEN:
+ 	case SNDRV_PCM_STATE_SETUP:
+ 	case SNDRV_PCM_STATE_PREPARED:
++	case SNDRV_PCM_STATE_PAUSED:
  		return -EPERM;
-+	default:
-+		break;
-+	}
- 
- 	retval = stream->ops->trigger(stream, SND_COMPR_TRIGGER_DRAIN);
- 	if (retval) {
-@@ -778,9 +789,16 @@ static int snd_compr_next_track(struct snd_compr_stream *stream)
- static int snd_compr_partial_drain(struct snd_compr_stream *stream)
- {
- 	int retval;
--	if (stream->runtime->state == SNDRV_PCM_STATE_PREPARED ||
--			stream->runtime->state == SNDRV_PCM_STATE_SETUP)
-+
-+	switch (stream->runtime->state) {
-+	case SNDRV_PCM_STATE_OPEN:
-+	case SNDRV_PCM_STATE_SETUP:
-+	case SNDRV_PCM_STATE_PREPARED:
- 		return -EPERM;
-+	default:
-+		break;
-+	}
-+
- 	/* stream can be drained only when next track has been signalled */
- 	if (stream->next_track == false)
- 		return -EPERM;
++	case SNDRV_PCM_STATE_XRUN:
++		return -EPIPE;
+ 	default:
+ 		break;
+ 	}
 -- 
 2.20.1
 
