@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B56B7F17D
+	by mail.lfdr.de (Postfix) with ESMTP id EEAB87F17F
 	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:39:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390742AbfHBJek (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:34:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34646 "EHLO mail.kernel.org"
+        id S1728691AbfHBJen (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:34:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391367AbfHBJej (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:34:39 -0400
+        id S2391386AbfHBJem (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:34:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF2B1217D6;
-        Fri,  2 Aug 2019 09:34:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7527F21773;
+        Fri,  2 Aug 2019 09:34:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738479;
-        bh=zulbU9dXVtXT1AOE50P45ok6/U0P6cq2pq+G5ifMQ94=;
+        s=default; t=1564738482;
+        bh=ucdRFPuww9+Vif2YGDPnNBnscdm99AdsOr/ZthvgRfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MyAxhf70Wb+dKt/0C1e6b3myHddy9ALslmioft0WoYnR9KXzJO41D2+Kecf2Mmv5F
-         prQPyze1DvzdxzeIgtoK3nigtdgCKkQLwB8sW8uwpsucZ1+jI7R64KmSURFZ0zRGNI
-         OaF3OrsVgUJx1kfOX7DIwCogqvEw8Fhne30hpji4=
+        b=V3+kPpwudyXh1CoA2X55O2i+R1PH7MnEUaaCzaAGattC08crpBUIwb475MZWHb926
+         TNuvNUJIgX/jhXo9kdEZJ734CqCZtfJVHbwR8AE4hwCxnq+j0oLnm3G5Tp0b1mD4jx
+         kSXHpHd00ZXYF4ge5+yU08/++qC3AP+rgKIEnOaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Vasut <marek.vasut+renesas@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Phil Edworthy <phil.edworthy@renesas.com>,
-        Simon Horman <horms+renesas@verge.net.au>,
-        Tejun Heo <tj@kernel.org>, Wolfram Sang <wsa@the-dreams.de>,
+        stable@vger.kernel.org, Bastien Nocera <hadess@hadess.net>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 120/158] PCI: sysfs: Ignore lockdep for remove attribute
-Date:   Fri,  2 Aug 2019 11:29:01 +0200
-Message-Id: <20190802092228.312209239@linuxfoundation.org>
+Subject: [PATCH 4.4 121/158] iio: iio-utils: Fix possible incorrect mask calculation
+Date:   Fri,  2 Aug 2019 11:29:02 +0200
+Message-Id: <20190802092228.474158921@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
 References: <20190802092203.671944552@linuxfoundation.org>
@@ -49,59 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit dc6b698a86fe40a50525433eb8e92a267847f6f9 ]
+[ Upstream commit 208a68c8393d6041a90862992222f3d7943d44d6 ]
 
-With CONFIG_PROVE_LOCKING=y, using sysfs to remove a bridge with a device
-below it causes a lockdep warning, e.g.,
+On some machines, iio-sensor-proxy was returning all 0's for IIO sensor
+values. It turns out that the bits_used for this sensor is 32, which makes
+the mask calculation:
 
-  # echo 1 > /sys/class/pci_bus/0000:00/device/0000:00:00.0/remove
-  ============================================
-  WARNING: possible recursive locking detected
-  ...
-  pci_bus 0000:01: busn_res: [bus 01] is released
+*mask = (1 << 32) - 1;
 
-The remove recursively removes the subtree below the bridge.  Each call
-uses a different lock so there's no deadlock, but the locks were all
-created with the same lockdep key so the lockdep checker can't tell them
-apart.
+If the compiler interprets the 1 literals as 32-bit ints, it generates
+undefined behavior depending on compiler version and optimization level.
+On my system, it optimizes out the shift, so the mask value becomes
 
-Mark the "remove" sysfs attribute with __ATTR_IGNORE_LOCKDEP() as it is
-safe to ignore the lockdep check between different "remove" kernfs
-instances.
+*mask = (1) - 1;
 
-There's discussion about a similar issue in USB at [1], which resulted in
-356c05d58af0 ("sysfs: get rid of some lockdep false positives") and
-e9b526fe7048 ("i2c: suppress lockdep warning on delete_device"), which do
-basically the same thing for USB "remove" and i2c "delete_device" files.
+With a mask value of 0, iio-sensor-proxy will always return 0 for every axis.
 
-[1] https://lore.kernel.org/r/Pine.LNX.4.44L0.1204251436140.1206-100000@iolanthe.rowland.org
-Link: https://lore.kernel.org/r/20190526225151.3865-1-marek.vasut@gmail.com
-Signed-off-by: Marek Vasut <marek.vasut+renesas@gmail.com>
-[bhelgaas: trim commit log, details at above links]
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Phil Edworthy <phil.edworthy@renesas.com>
-Cc: Simon Horman <horms+renesas@verge.net.au>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>
+Avoid incorrect 0 values caused by compiler optimization.
+
+See original fix by Brett Dutro <brett.dutro@gmail.com> in
+iio-sensor-proxy:
+https://github.com/hadess/iio-sensor-proxy/commit/9615ceac7c134d838660e209726cd86aa2064fd3
+
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci-sysfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/iio/iio_utils.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
-index 5fb4ed6ea322..6ac6618c1c10 100644
---- a/drivers/pci/pci-sysfs.c
-+++ b/drivers/pci/pci-sysfs.c
-@@ -371,7 +371,7 @@ static ssize_t remove_store(struct device *dev, struct device_attribute *attr,
- 		pci_stop_and_remove_bus_device_locked(to_pci_dev(dev));
- 	return count;
- }
--static struct device_attribute dev_remove_attr = __ATTR(remove,
-+static struct device_attribute dev_remove_attr = __ATTR_IGNORE_LOCKDEP(remove,
- 							(S_IWUSR|S_IWGRP),
- 							NULL, remove_store);
+diff --git a/tools/iio/iio_utils.c b/tools/iio/iio_utils.c
+index 5eb6793f3972..2d0dcd6fc64c 100644
+--- a/tools/iio/iio_utils.c
++++ b/tools/iio/iio_utils.c
+@@ -163,9 +163,9 @@ int iioutils_get_type(unsigned *is_signed, unsigned *bytes, unsigned *bits_used,
+ 			*be = (endianchar == 'b');
+ 			*bytes = padint / 8;
+ 			if (*bits_used == 64)
+-				*mask = ~0;
++				*mask = ~(0ULL);
+ 			else
+-				*mask = (1ULL << *bits_used) - 1;
++				*mask = (1ULL << *bits_used) - 1ULL;
  
+ 			*is_signed = (signchar == 's');
+ 			if (fclose(sysfsfp)) {
 -- 
 2.20.1
 
