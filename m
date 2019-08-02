@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CBAF7F2B3
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:50:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 839FA7F2A8
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:50:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404999AbfHBJuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:50:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49422 "EHLO mail.kernel.org"
+        id S2390342AbfHBJpp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:45:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391942AbfHBJpi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:45:38 -0400
+        id S2391999AbfHBJpn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:45:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86C2C206A2;
-        Fri,  2 Aug 2019 09:45:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B84F206A2;
+        Fri,  2 Aug 2019 09:45:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739137;
-        bh=mIUD1UpAOTEIUTEwksaaIW6EKVZYhNbc1zhEQXcWRns=;
+        s=default; t=1564739142;
+        bh=ppr5BAOLZkqvQ0hhuWwGlJX9zzXOdBVO8hauVU+jdio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J5r1jH9frJgid6CO7xmzTH568bkJB4s8QrRfYLYI6gRyDJ+mKvCAS+W52hurI/veL
-         XeoCq8lqsHUgtUy22qM/IbQV/AiSPHykBUsWeyEEheHfwnfxqLvP4YeSL/DN0ngTYb
-         jqeb5oUy4WzYI1TMlkSTmfspZp1n/zhx36m11I/A=
+        b=TxVeltpAJOdRUenZMO+363gmBVH0/3/eWYdsxi4zsxzjf8U90QU+0J7bqJQcNhslx
+         a5ABcnKvFkq1OPWivS+gOrMNi2yYcjVN/tLDULo/fJs2r0mr7P/kHyFroP//XYGBSQ
+         IqyEZo/03qljbBJ6Z+TMI6zLkTHiBAuRkPyC34sM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 127/223] lib/strscpy: Shut up KASAN false-positives in strscpy()
-Date:   Fri,  2 Aug 2019 11:35:52 +0200
-Message-Id: <20190802092247.281302082@linuxfoundation.org>
+        stable@vger.kernel.org, Brian King <brking@linux.vnet.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 129/223] bnx2x: Prevent load reordering in tx completion processing
+Date:   Fri,  2 Aug 2019 11:35:54 +0200
+Message-Id: <20190802092247.364104604@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -44,47 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1a3241ff10d038ecd096d03380327f2a0b5840a6 ]
+From: Brian King <brking@linux.vnet.ibm.com>
 
-strscpy() performs the word-at-a-time optimistic reads.  So it may may
-access the memory past the end of the object, which is perfectly fine
-since strscpy() doesn't use that (past-the-end) data and makes sure the
-optimistic read won't cross a page boundary.
+[ Upstream commit ea811b795df24644a8eb760b493c43fba4450677 ]
 
-Use new read_word_at_a_time() to shut up the KASAN.
+This patch fixes an issue seen on Power systems with bnx2x which results
+in the skb is NULL WARN_ON in bnx2x_free_tx_pkt firing due to the skb
+pointer getting loaded in bnx2x_free_tx_pkt prior to the hw_cons
+load in bnx2x_tx_int. Adding a read memory barrier resolves the issue.
 
-Note that this potentially could hide some bugs.  In example bellow,
-stscpy() will copy more than we should (1-3 extra uninitialized bytes):
-
-        char dst[8];
-        char *src;
-
-        src = kmalloc(5, GFP_KERNEL);
-        memset(src, 0xff, 5);
-        strscpy(dst, src, 8);
-
-Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Brian King <brking@linux.vnet.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/string.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/lib/string.c b/lib/string.c
-index 1cd9757291b1..8f1a2a04e22f 100644
---- a/lib/string.c
-+++ b/lib/string.c
-@@ -202,7 +202,7 @@ ssize_t strscpy(char *dest, const char *src, size_t count)
- 	while (max >= sizeof(unsigned long)) {
- 		unsigned long c, data;
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
+@@ -286,6 +286,9 @@ int bnx2x_tx_int(struct bnx2x *bp, struc
+ 	hw_cons = le16_to_cpu(*txdata->tx_cons_sb);
+ 	sw_cons = txdata->tx_pkt_cons;
  
--		c = *(unsigned long *)(src+res);
-+		c = read_word_at_a_time(src+res);
- 		if (has_zero(c, &data, &constants)) {
- 			data = prep_zero_mask(c, data, &constants);
- 			data = create_zero_mask(data);
--- 
-2.20.1
-
++	/* Ensure subsequent loads occur after hw_cons */
++	smp_rmb();
++
+ 	while (sw_cons != hw_cons) {
+ 		u16 pkt_cons;
+ 
 
 
