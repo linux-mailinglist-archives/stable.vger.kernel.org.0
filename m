@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11D9B7F252
+	by mail.lfdr.de (Postfix) with ESMTP id EE8267F254
 	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:49:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404462AbfHBJrX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:47:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52134 "EHLO mail.kernel.org"
+        id S2405674AbfHBJr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:47:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405660AbfHBJrV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:47:21 -0400
+        id S2405660AbfHBJr0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:47:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86C6C2086A;
-        Fri,  2 Aug 2019 09:47:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9826921726;
+        Fri,  2 Aug 2019 09:47:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739240;
-        bh=MF9yq5HJRtTSML04tXVFwEo57KRqn5sJFHApfteUETo=;
+        s=default; t=1564739245;
+        bh=NNRDplPKVWxRB5lwH3Z2zjZpvOOx1czUX2WfBcdDDKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wZFiMtGaeCgjU0fXeTjrkkvL1OM5g8nR93FicmF0o2nL+LtEo2avOWVb8uE8BkUNg
-         fBbmszxCM5GJMpO+hWCNgnlIU1vpgkmAXttqRoh21sxlPfhfz8AvsnJW/vR3Ekpe7w
-         ZhZ76rfYNvPVCShSbryQY7S4mgJuXmQhMpgk5RWM=
+        b=j2J8oZ9CQnsUMvbkHFRRhit6Yaol1ZNIaqR2Lg6Eu+8ShFyxQkBFFJw6dKK0CMezu
+         FINoXNodwm7PgMk3+YugvErNVqv8nRyPyJBeG0HPFboO5eM232Dj0LGCflLuKlKJpS
+         x1ZeKlwTH6RJpPIM48eFlWnKcIw6IoQlinYIrmr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Weinelt <martin@linuxlounge.net>,
+        stable@vger.kernel.org,
         Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
+        Martin Weinelt <martin@linuxlounge.net>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 148/223] net: bridge: mcast: fix stale nsrcs pointer in igmp3/mld2 report handling
-Date:   Fri,  2 Aug 2019 11:36:13 +0200
-Message-Id: <20190802092248.128317122@linuxfoundation.org>
+Subject: [PATCH 4.9 149/223] net: bridge: mcast: fix stale ipv6 hdr pointer when handling v6 query
+Date:   Fri,  2 Aug 2019 11:36:14 +0200
+Message-Id: <20190802092248.165485757@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -46,171 +47,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-[ Upstream commit e57f61858b7cf478ed6fa23ed4b3876b1c9625c4 ]
+[ Upstream commit 3b26a5d03d35d8f732d75951218983c0f7f68dff ]
 
-We take a pointer to grec prior to calling pskb_may_pull and use it
-afterwards to get nsrcs so record nsrcs before the pull when handling
-igmp3 and we get a pointer to nsrcs and call pskb_may_pull when handling
-mld2 which again could lead to reading 2 bytes out-of-bounds.
+We get a pointer to the ipv6 hdr in br_ip6_multicast_query but we may
+call pskb_may_pull afterwards and end up using a stale pointer.
+So use the header directly, it's just 1 place where it's needed.
 
- ==================================================================
- BUG: KASAN: use-after-free in br_multicast_rcv+0x480c/0x4ad0 [bridge]
- Read of size 2 at addr ffff8880421302b4 by task ksoftirqd/1/16
-
- CPU: 1 PID: 16 Comm: ksoftirqd/1 Tainted: G           OE     5.2.0-rc6+ #1
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/01/2014
- Call Trace:
-  dump_stack+0x71/0xab
-  print_address_description+0x6a/0x280
-  ? br_multicast_rcv+0x480c/0x4ad0 [bridge]
-  __kasan_report+0x152/0x1aa
-  ? br_multicast_rcv+0x480c/0x4ad0 [bridge]
-  ? br_multicast_rcv+0x480c/0x4ad0 [bridge]
-  kasan_report+0xe/0x20
-  br_multicast_rcv+0x480c/0x4ad0 [bridge]
-  ? br_multicast_disable_port+0x150/0x150 [bridge]
-  ? ktime_get_with_offset+0xb4/0x150
-  ? __kasan_kmalloc.constprop.6+0xa6/0xf0
-  ? __netif_receive_skb+0x1b0/0x1b0
-  ? br_fdb_update+0x10e/0x6e0 [bridge]
-  ? br_handle_frame_finish+0x3c6/0x11d0 [bridge]
-  br_handle_frame_finish+0x3c6/0x11d0 [bridge]
-  ? br_pass_frame_up+0x3a0/0x3a0 [bridge]
-  ? virtnet_probe+0x1c80/0x1c80 [virtio_net]
-  br_handle_frame+0x731/0xd90 [bridge]
-  ? select_idle_sibling+0x25/0x7d0
-  ? br_handle_frame_finish+0x11d0/0x11d0 [bridge]
-  __netif_receive_skb_core+0xced/0x2d70
-  ? virtqueue_get_buf_ctx+0x230/0x1130 [virtio_ring]
-  ? do_xdp_generic+0x20/0x20
-  ? virtqueue_napi_complete+0x39/0x70 [virtio_net]
-  ? virtnet_poll+0x94d/0xc78 [virtio_net]
-  ? receive_buf+0x5120/0x5120 [virtio_net]
-  ? __netif_receive_skb_one_core+0x97/0x1d0
-  __netif_receive_skb_one_core+0x97/0x1d0
-  ? __netif_receive_skb_core+0x2d70/0x2d70
-  ? _raw_write_trylock+0x100/0x100
-  ? __queue_work+0x41e/0xbe0
-  process_backlog+0x19c/0x650
-  ? _raw_read_lock_irq+0x40/0x40
-  net_rx_action+0x71e/0xbc0
-  ? __switch_to_asm+0x40/0x70
-  ? napi_complete_done+0x360/0x360
-  ? __switch_to_asm+0x34/0x70
-  ? __switch_to_asm+0x40/0x70
-  ? __schedule+0x85e/0x14d0
-  __do_softirq+0x1db/0x5f9
-  ? takeover_tasklets+0x5f0/0x5f0
-  run_ksoftirqd+0x26/0x40
-  smpboot_thread_fn+0x443/0x680
-  ? sort_range+0x20/0x20
-  ? schedule+0x94/0x210
-  ? __kthread_parkme+0x78/0xf0
-  ? sort_range+0x20/0x20
-  kthread+0x2ae/0x3a0
-  ? kthread_create_worker_on_cpu+0xc0/0xc0
-  ret_from_fork+0x35/0x40
-
- The buggy address belongs to the page:
- page:ffffea0001084c00 refcount:0 mapcount:-128 mapping:0000000000000000 index:0x0
- flags: 0xffffc000000000()
- raw: 00ffffc000000000 ffffea0000cfca08 ffffea0001098608 0000000000000000
- raw: 0000000000000000 0000000000000003 00000000ffffff7f 0000000000000000
- page dumped because: kasan: bad access detected
-
- Memory state around the buggy address:
- ffff888042130180: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
- ffff888042130200: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
- > ffff888042130280: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-                                     ^
- ffff888042130300: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
- ffff888042130380: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
- ==================================================================
- Disabling lock debugging due to kernel taint
-
-Fixes: bc8c20acaea1 ("bridge: multicast: treat igmpv3 report with INCLUDE and no sources as a leave")
-Reported-by: Martin Weinelt <martin@linuxlounge.net>
+Fixes: 08b202b67264 ("bridge br_multicast: IPv6 MLD support.")
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 Tested-by: Martin Weinelt <martin@linuxlounge.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br_multicast.c |   27 ++++++++++++++++-----------
- 1 file changed, 16 insertions(+), 11 deletions(-)
+ net/bridge/br_multicast.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 --- a/net/bridge/br_multicast.c
 +++ b/net/bridge/br_multicast.c
-@@ -1036,6 +1036,7 @@ static int br_ip4_multicast_igmp3_report
- 	int type;
- 	int err = 0;
- 	__be32 group;
-+	u16 nsrcs;
+@@ -1379,7 +1379,6 @@ static int br_ip6_multicast_query(struct
+ 				  struct sk_buff *skb,
+ 				  u16 vid)
+ {
+-	const struct ipv6hdr *ip6h = ipv6_hdr(skb);
+ 	struct mld_msg *mld;
+ 	struct net_bridge_mdb_entry *mp;
+ 	struct mld2_query *mld2q;
+@@ -1423,7 +1422,7 @@ static int br_ip6_multicast_query(struct
  
- 	ih = igmpv3_report_hdr(skb);
- 	num = ntohs(ih->ngrec);
-@@ -1049,8 +1050,9 @@ static int br_ip4_multicast_igmp3_report
- 		grec = (void *)(skb->data + len - sizeof(*grec));
- 		group = grec->grec_mca;
- 		type = grec->grec_type;
-+		nsrcs = ntohs(grec->grec_nsrcs);
+ 	if (is_general_query) {
+ 		saddr.proto = htons(ETH_P_IPV6);
+-		saddr.u.ip6 = ip6h->saddr;
++		saddr.u.ip6 = ipv6_hdr(skb)->saddr;
  
--		len += ntohs(grec->grec_nsrcs) * 4;
-+		len += nsrcs * 4;
- 		if (!pskb_may_pull(skb, len))
- 			return -EINVAL;
- 
-@@ -1070,7 +1072,7 @@ static int br_ip4_multicast_igmp3_report
- 
- 		if ((type == IGMPV3_CHANGE_TO_INCLUDE ||
- 		     type == IGMPV3_MODE_IS_INCLUDE) &&
--		    ntohs(grec->grec_nsrcs) == 0) {
-+		    nsrcs == 0) {
- 			br_ip4_multicast_leave_group(br, port, group, vid);
- 		} else {
- 			err = br_ip4_multicast_add_group(br, port, group, vid);
-@@ -1103,23 +1105,26 @@ static int br_ip6_multicast_mld2_report(
- 	len = skb_transport_offset(skb) + sizeof(*icmp6h);
- 
- 	for (i = 0; i < num; i++) {
--		__be16 *nsrcs, _nsrcs;
-+		__be16 *_nsrcs, __nsrcs;
-+		u16 nsrcs;
- 
--		nsrcs = skb_header_pointer(skb,
--					   len + offsetof(struct mld2_grec,
--							  grec_nsrcs),
--					   sizeof(_nsrcs), &_nsrcs);
--		if (!nsrcs)
-+		_nsrcs = skb_header_pointer(skb,
-+					    len + offsetof(struct mld2_grec,
-+							   grec_nsrcs),
-+					    sizeof(__nsrcs), &__nsrcs);
-+		if (!_nsrcs)
- 			return -EINVAL;
- 
-+		nsrcs = ntohs(*_nsrcs);
-+
- 		if (!pskb_may_pull(skb,
- 				   len + sizeof(*grec) +
--				   sizeof(struct in6_addr) * ntohs(*nsrcs)))
-+				   sizeof(struct in6_addr) * nsrcs))
- 			return -EINVAL;
- 
- 		grec = (struct mld2_grec *)(skb->data + len);
- 		len += sizeof(*grec) +
--		       sizeof(struct in6_addr) * ntohs(*nsrcs);
-+		       sizeof(struct in6_addr) * nsrcs;
- 
- 		/* We treat these as MLDv1 reports for now. */
- 		switch (grec->grec_type) {
-@@ -1137,7 +1142,7 @@ static int br_ip6_multicast_mld2_report(
- 
- 		if ((grec->grec_type == MLD2_CHANGE_TO_INCLUDE ||
- 		     grec->grec_type == MLD2_MODE_IS_INCLUDE) &&
--		    ntohs(*nsrcs) == 0) {
-+		    nsrcs == 0) {
- 			br_ip6_multicast_leave_group(br, port, &grec->grec_mca,
- 						     vid);
- 		} else {
+ 		br_multicast_query_received(br, port, &br->ip6_other_query,
+ 					    &saddr, max_delay);
 
 
