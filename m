@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EA397F989
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:30:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A18C7F937
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:27:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394337AbfHBNZn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:25:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36392 "EHLO mail.kernel.org"
+        id S2388531AbfHBNZu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:25:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394406AbfHBNZn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:25:43 -0400
+        id S2390633AbfHBNZt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:25:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B75721851;
-        Fri,  2 Aug 2019 13:25:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 412A921850;
+        Fri,  2 Aug 2019 13:25:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752342;
-        bh=tgE9qEUA0xbKx/2XjegxyGqUS9aJV2GgF602hqiccm0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RYBdn5V8JS/d3vtdbOTfWgd/j6gRYpkTI+ViMWnWdZqgzc+YpPj1HP2ReOEKFrU/L
-         dlxuGxiX9fuvbMl5apGhENJ4baw1wp40QLgrph7nI8ZsaZu715mmaxU14wGrOIJjjU
-         Sy9pbrjBPq9IergSKS2k+20uFCtndcClVVNP7Sn8=
+        s=default; t=1564752349;
+        bh=tlx84D8sSjVoacLkk/cR5dKVIyxX5S11HGCogWBGsu8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=lt4XdFNCPXD0aRAFi5YHPQ1S1it/aI9tfA9xfm+yNnqAIzD/jttF3S+2gCul4hnte
+         vg0VO3BdV9GQSCQ0YgT2FAcEoHh2i0BksKdoVKOv85EKMBkrp3N1CPNg+qbolAuTfE
+         /BywJOTVooMe5BJ25cyH5IG/ClFAMAvafMXfbCro=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Hurley <peter@hurleysoftware.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 29/30] tty/ldsem, locking/rwsem: Add missing ACQUIRE to read_failed sleep loop
-Date:   Fri,  2 Aug 2019 09:24:21 -0400
-Message-Id: <20190802132422.13963-29-sashal@kernel.org>
+Cc:     Florian Westphal <fw@strlen.de>,
+        Thomas Jarosch <thomas.jarosch@intra2net.com>,
+        Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 01/22] netfilter: nfnetlink: avoid deadlock due to synchronous request_module
+Date:   Fri,  2 Aug 2019 09:25:25 -0400
+Message-Id: <20190802132547.14517-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190802132422.13963-1-sashal@kernel.org>
-References: <20190802132422.13963-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,74 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 952041a8639a7a3a73a2b6573cb8aa8518bc39f8 ]
+[ Upstream commit 1b0890cd60829bd51455dc5ad689ed58c4408227 ]
 
-While reviewing rwsem down_slowpath, Will noticed ldsem had a copy of
-a bug we just found for rwsem.
+Thomas and Juliana report a deadlock when running:
 
-  X = 0;
+(rmmod nf_conntrack_netlink/xfrm_user)
 
-  CPU0			CPU1
+  conntrack -e NEW -E &
+  modprobe -v xfrm_user
 
-  rwsem_down_read()
-    for (;;) {
-      set_current_state(TASK_UNINTERRUPTIBLE);
+They provided following analysis:
 
-                        X = 1;
-                        rwsem_up_write();
-                          rwsem_mark_wake()
-                            atomic_long_add(adjustment, &sem->count);
-                            smp_store_release(&waiter->task, NULL);
+conntrack -e NEW -E
+    netlink_bind()
+        netlink_lock_table() -> increases "nl_table_users"
+            nfnetlink_bind()
+            # does not unlock the table as it's locked by netlink_bind()
+                __request_module()
+                    call_usermodehelper_exec()
 
-      if (!waiter.task)
-        break;
+This triggers "modprobe nf_conntrack_netlink" from kernel, netlink_bind()
+won't return until modprobe process is done.
 
-      ...
-    }
+"modprobe xfrm_user":
+    xfrm_user_init()
+        register_pernet_subsys()
+            -> grab pernet_ops_rwsem
+                ..
+                netlink_table_grab()
+                    calls schedule() as "nl_table_users" is non-zero
 
-  r = X;
+so modprobe is blocked because netlink_bind() increased
+nl_table_users while also holding pernet_ops_rwsem.
 
-Allows 'r == 0'.
+"modprobe nf_conntrack_netlink" runs and inits nf_conntrack_netlink:
+    ctnetlink_init()
+        register_pernet_subsys()
+            -> blocks on "pernet_ops_rwsem" thanks to xfrm_user module
 
-Reported-by: Will Deacon <will@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Will Deacon <will@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Hurley <peter@hurleysoftware.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: 4898e640caf0 ("tty: Add timed, writer-prioritized rw semaphore")
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+both modprobe processes wait on one another -- neither can make
+progress.
+
+Switch netlink_bind() to "nowait" modprobe -- this releases the netlink
+table lock, which then allows both modprobe instances to complete.
+
+Reported-by: Thomas Jarosch <thomas.jarosch@intra2net.com>
+Reported-by: Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/tty_ldsem.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ net/netfilter/nfnetlink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/tty_ldsem.c b/drivers/tty/tty_ldsem.c
-index 5c2cec298816b..c6ce34161281a 100644
---- a/drivers/tty/tty_ldsem.c
-+++ b/drivers/tty/tty_ldsem.c
-@@ -139,8 +139,7 @@ static void __ldsem_wake_readers(struct ld_semaphore *sem)
- 
- 	list_for_each_entry_safe(waiter, next, &sem->read_wait, list) {
- 		tsk = waiter->task;
--		smp_mb();
--		waiter->task = NULL;
-+		smp_store_release(&waiter->task, NULL);
- 		wake_up_process(tsk);
- 		put_task_struct(tsk);
- 	}
-@@ -235,7 +234,7 @@ down_read_failed(struct ld_semaphore *sem, long count, long timeout)
- 	for (;;) {
- 		set_current_state(TASK_UNINTERRUPTIBLE);
- 
--		if (!waiter.task)
-+		if (!smp_load_acquire(&waiter.task))
- 			break;
- 		if (!timeout)
- 			break;
+diff --git a/net/netfilter/nfnetlink.c b/net/netfilter/nfnetlink.c
+index 2278d9ab723bf..9837a61cb3e3b 100644
+--- a/net/netfilter/nfnetlink.c
++++ b/net/netfilter/nfnetlink.c
+@@ -490,7 +490,7 @@ static int nfnetlink_bind(struct net *net, int group)
+ 	ss = nfnetlink_get_subsys(type << 8);
+ 	rcu_read_unlock();
+ 	if (!ss)
+-		request_module("nfnetlink-subsys-%d", type);
++		request_module_nowait("nfnetlink-subsys-%d", type);
+ 	return 0;
+ }
+ #endif
 -- 
 2.20.1
 
