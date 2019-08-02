@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4F3F7F370
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:57:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 929AF7F372
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:57:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406916AbfHBJ5e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:57:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36802 "EHLO mail.kernel.org"
+        id S2406938AbfHBJ5g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:57:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406608AbfHBJ5d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:57:33 -0400
+        id S2406927AbfHBJ5g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:57:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE16A2173E;
-        Fri,  2 Aug 2019 09:57:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D4152087E;
+        Fri,  2 Aug 2019 09:57:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739852;
-        bh=aCsAj4VSIaCi9vpGKy72frkWmv4EWg5QJPP+3n0Zw54=;
+        s=default; t=1564739855;
+        bh=5W4dctkklet+YRqJmdWU9pIKj5QywGjKwTBSpZG1DD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yyaec76tea6m60PZkT2MKaJFzjaoS10cmJHVNhlUAbdArahXkWk7+cdvRt8ZyLTjh
-         NORPXSuGBf6GkCJPAl3BlDznbRatoORhAjYRiWsApZGmh5Hk7oabjjGWKNNe54LEvW
-         UEv1/zpQyNunw/5bBq57FbpOoTz4w+Fo5WdmgnJY=
+        b=vkzUikPbbagiZk0mpGiWrdiDs+eolBqcTwJtZXIvmIuTi/Wj1GIqrKP0fmQP4cI3y
+         4RvYx1fUpEajCJERNim/53q2gxALKoEs5Wugxb/tnGzZat3Lpm+NBc7pW6J8e8ATbc
+         xyP212RPFZCTH2jITyBrN1RaZvUzNSEcSoyhogDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 5.2 15/20] sched/fair: Use RCU accessors consistently for ->numa_group
-Date:   Fri,  2 Aug 2019 11:40:09 +0200
-Message-Id: <20190802092102.928273691@linuxfoundation.org>
+        stable@vger.kernel.org, Alexey Izbyshev <izbyshev@ispras.ru>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.2 16/20] /proc/<pid>/cmdline: remove all the special cases
+Date:   Fri,  2 Aug 2019 11:40:10 +0200
+Message-Id: <20190802092103.111388932@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092055.131876977@linuxfoundation.org>
 References: <20190802092055.131876977@linuxfoundation.org>
@@ -48,386 +44,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit cb361d8cdef69990f6b4504dc1fd9a594d983c97 upstream.
+commit 3d712546d8ba9f25cdf080d79f90482aa4231ed4 upstream.
 
-The old code used RCU annotations and accessors inconsistently for
-->numa_group, which can lead to use-after-frees and NULL dereferences.
+Start off with a clean slate that only reads exactly from arg_start to
+arg_end, without any oddities.  This simplifies the code and in the
+process removes the case that caused us to potentially leak an
+uninitialized byte from the temporary kernel buffer.
 
-Let all accesses to ->numa_group use proper RCU helpers to prevent such
-issues.
+Note that in order to start from scratch with an understandable base,
+this simplifies things _too_ much, and removes all the legacy logic to
+handle setproctitle() having changed the argument strings.
 
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Will Deacon <will@kernel.org>
-Fixes: 8c8a743c5087 ("sched/numa: Use {cpu, pid} to create task groups for shared faults")
-Link: https://lkml.kernel.org/r/20190716152047.14424-3-jannh@google.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+We'll add back those special cases very differently in the next commit.
+
+Link: https://lore.kernel.org/lkml/20190712160913.17727-1-izbyshev@ispras.ru/
+Fixes: f5b65348fd77 ("proc: fix missing final NUL in get_mm_cmdline() rewrite")
+Cc: Alexey Izbyshev <izbyshev@ispras.ru>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/sched.h |   10 +++-
- kernel/sched/fair.c   |  120 +++++++++++++++++++++++++++++++++-----------------
- 2 files changed, 90 insertions(+), 40 deletions(-)
+ fs/proc/base.c |   71 ++++++---------------------------------------------------
+ 1 file changed, 8 insertions(+), 63 deletions(-)
 
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1026,7 +1026,15 @@ struct task_struct {
- 	u64				last_sum_exec_runtime;
- 	struct callback_head		numa_work;
- 
--	struct numa_group		*numa_group;
-+	/*
-+	 * This pointer is only modified for current in syscall and
-+	 * pagefault context (and for tasks being destroyed), so it can be read
-+	 * from any of the following contexts:
-+	 *  - RCU read-side critical section
-+	 *  - current->numa_group from everywhere
-+	 *  - task's runqueue locked, task not running
-+	 */
-+	struct numa_group __rcu		*numa_group;
- 
- 	/*
- 	 * numa_faults is an array split into four regions:
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -1067,6 +1067,21 @@ struct numa_group {
- 	unsigned long faults[0];
- };
- 
-+/*
-+ * For functions that can be called in multiple contexts that permit reading
-+ * ->numa_group (see struct task_struct for locking rules).
-+ */
-+static struct numa_group *deref_task_numa_group(struct task_struct *p)
-+{
-+	return rcu_dereference_check(p->numa_group, p == current ||
-+		(lockdep_is_held(&task_rq(p)->lock) && !READ_ONCE(p->on_cpu)));
-+}
-+
-+static struct numa_group *deref_curr_numa_group(struct task_struct *p)
-+{
-+	return rcu_dereference_protected(p->numa_group, p == current);
-+}
-+
- static inline unsigned long group_faults_priv(struct numa_group *ng);
- static inline unsigned long group_faults_shared(struct numa_group *ng);
- 
-@@ -1110,10 +1125,12 @@ static unsigned int task_scan_start(stru
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -212,7 +212,7 @@ static int proc_root_link(struct dentry
+ static ssize_t get_mm_cmdline(struct mm_struct *mm, char __user *buf,
+ 			      size_t count, loff_t *ppos)
  {
- 	unsigned long smin = task_scan_min(p);
- 	unsigned long period = smin;
-+	struct numa_group *ng;
+-	unsigned long arg_start, arg_end, env_start, env_end;
++	unsigned long arg_start, arg_end;
+ 	unsigned long pos, len;
+ 	char *page;
  
- 	/* Scale the maximum scan period with the amount of shared memory. */
--	if (p->numa_group) {
--		struct numa_group *ng = p->numa_group;
-+	rcu_read_lock();
-+	ng = rcu_dereference(p->numa_group);
-+	if (ng) {
- 		unsigned long shared = group_faults_shared(ng);
- 		unsigned long private = group_faults_priv(ng);
+@@ -223,36 +223,18 @@ static ssize_t get_mm_cmdline(struct mm_
+ 	spin_lock(&mm->arg_lock);
+ 	arg_start = mm->arg_start;
+ 	arg_end = mm->arg_end;
+-	env_start = mm->env_start;
+-	env_end = mm->env_end;
+ 	spin_unlock(&mm->arg_lock);
  
-@@ -1121,6 +1138,7 @@ static unsigned int task_scan_start(stru
- 		period *= shared + 1;
- 		period /= private + shared + 1;
- 	}
-+	rcu_read_unlock();
- 
- 	return max(smin, period);
- }
-@@ -1129,13 +1147,14 @@ static unsigned int task_scan_max(struct
- {
- 	unsigned long smin = task_scan_min(p);
- 	unsigned long smax;
-+	struct numa_group *ng;
- 
- 	/* Watch for min being lower than max due to floor calculations */
- 	smax = sysctl_numa_balancing_scan_period_max / task_nr_scan_windows(p);
- 
- 	/* Scale the maximum scan period with the amount of shared memory. */
--	if (p->numa_group) {
--		struct numa_group *ng = p->numa_group;
-+	ng = deref_curr_numa_group(p);
-+	if (ng) {
- 		unsigned long shared = group_faults_shared(ng);
- 		unsigned long private = group_faults_priv(ng);
- 		unsigned long period = smax;
-@@ -1167,7 +1186,7 @@ void init_numa_balancing(unsigned long c
- 	p->numa_scan_period		= sysctl_numa_balancing_scan_delay;
- 	p->numa_work.next		= &p->numa_work;
- 	p->numa_faults			= NULL;
--	p->numa_group			= NULL;
-+	RCU_INIT_POINTER(p->numa_group, NULL);
- 	p->last_task_numa_placement	= 0;
- 	p->last_sum_exec_runtime	= 0;
- 
-@@ -1214,7 +1233,16 @@ static void account_numa_dequeue(struct
- 
- pid_t task_numa_group_id(struct task_struct *p)
- {
--	return p->numa_group ? p->numa_group->gid : 0;
-+	struct numa_group *ng;
-+	pid_t gid = 0;
-+
-+	rcu_read_lock();
-+	ng = rcu_dereference(p->numa_group);
-+	if (ng)
-+		gid = ng->gid;
-+	rcu_read_unlock();
-+
-+	return gid;
- }
- 
- /*
-@@ -1239,11 +1267,13 @@ static inline unsigned long task_faults(
- 
- static inline unsigned long group_faults(struct task_struct *p, int nid)
- {
--	if (!p->numa_group)
-+	struct numa_group *ng = deref_task_numa_group(p);
-+
-+	if (!ng)
+ 	if (arg_start >= arg_end)
  		return 0;
  
--	return p->numa_group->faults[task_faults_idx(NUMA_MEM, nid, 0)] +
--		p->numa_group->faults[task_faults_idx(NUMA_MEM, nid, 1)];
-+	return ng->faults[task_faults_idx(NUMA_MEM, nid, 0)] +
-+		ng->faults[task_faults_idx(NUMA_MEM, nid, 1)];
- }
- 
- static inline unsigned long group_faults_cpu(struct numa_group *group, int nid)
-@@ -1381,12 +1411,13 @@ static inline unsigned long task_weight(
- static inline unsigned long group_weight(struct task_struct *p, int nid,
- 					 int dist)
- {
-+	struct numa_group *ng = deref_task_numa_group(p);
- 	unsigned long faults, total_faults;
- 
--	if (!p->numa_group)
-+	if (!ng)
+-	/*
+-	 * We have traditionally allowed the user to re-write
+-	 * the argument strings and overflow the end result
+-	 * into the environment section. But only do that if
+-	 * the environment area is contiguous to the arguments.
+-	 */
+-	if (env_start != arg_end || env_start >= env_end)
+-		env_start = env_end = arg_end;
+-
+-	/* .. and limit it to a maximum of one page of slop */
+-	if (env_end >= arg_end + PAGE_SIZE)
+-		env_end = arg_end + PAGE_SIZE - 1;
+-
+ 	/* We're not going to care if "*ppos" has high bits set */
+-	pos = arg_start + *ppos;
+-
+ 	/* .. but we do check the result is in the proper range */
+-	if (pos < arg_start || pos >= env_end)
++	pos = arg_start + *ppos;
++	if (pos < arg_start || pos >= arg_end)
  		return 0;
+-
+-	/* .. and we never go past env_end */
+-	if (env_end - pos < count)
+-		count = env_end - pos;
++	if (count > arg_end - pos)
++		count = arg_end - pos;
  
--	total_faults = p->numa_group->total_faults;
-+	total_faults = ng->total_faults;
+ 	page = (char *)__get_free_page(GFP_KERNEL);
+ 	if (!page)
+@@ -262,48 +244,11 @@ static ssize_t get_mm_cmdline(struct mm_
+ 	while (count) {
+ 		int got;
+ 		size_t size = min_t(size_t, PAGE_SIZE, count);
+-		long offset;
+-
+-		/*
+-		 * Are we already starting past the official end?
+-		 * We always include the last byte that is *supposed*
+-		 * to be NUL
+-		 */
+-		offset = (pos >= arg_end) ? pos - arg_end + 1 : 0;
  
- 	if (!total_faults)
- 		return 0;
-@@ -1400,7 +1431,7 @@ static inline unsigned long group_weight
- bool should_numa_migrate_memory(struct task_struct *p, struct page * page,
- 				int src_nid, int dst_cpu)
- {
--	struct numa_group *ng = p->numa_group;
-+	struct numa_group *ng = deref_curr_numa_group(p);
- 	int dst_nid = cpu_to_node(dst_cpu);
- 	int last_cpupid, this_cpupid;
- 
-@@ -1583,13 +1614,14 @@ static bool load_too_imbalanced(long src
- static void task_numa_compare(struct task_numa_env *env,
- 			      long taskimp, long groupimp, bool maymove)
- {
-+	struct numa_group *cur_ng, *p_ng = deref_curr_numa_group(env->p);
- 	struct rq *dst_rq = cpu_rq(env->dst_cpu);
-+	long imp = p_ng ? groupimp : taskimp;
- 	struct task_struct *cur;
- 	long src_load, dst_load;
--	long load;
--	long imp = env->p->numa_group ? groupimp : taskimp;
--	long moveimp = imp;
- 	int dist = env->dist;
-+	long moveimp = imp;
-+	long load;
- 
- 	if (READ_ONCE(dst_rq->numa_migrate_on))
- 		return;
-@@ -1628,21 +1660,22 @@ static void task_numa_compare(struct tas
- 	 * If dst and source tasks are in the same NUMA group, or not
- 	 * in any group then look only at task weights.
- 	 */
--	if (cur->numa_group == env->p->numa_group) {
-+	cur_ng = rcu_dereference(cur->numa_group);
-+	if (cur_ng == p_ng) {
- 		imp = taskimp + task_weight(cur, env->src_nid, dist) -
- 		      task_weight(cur, env->dst_nid, dist);
- 		/*
- 		 * Add some hysteresis to prevent swapping the
- 		 * tasks within a group over tiny differences.
- 		 */
--		if (cur->numa_group)
-+		if (cur_ng)
- 			imp -= imp / 16;
- 	} else {
- 		/*
- 		 * Compare the group weights. If a task is all by itself
- 		 * (not part of a group), use the task weight instead.
- 		 */
--		if (cur->numa_group && env->p->numa_group)
-+		if (cur_ng && p_ng)
- 			imp += group_weight(cur, env->src_nid, dist) -
- 			       group_weight(cur, env->dst_nid, dist);
- 		else
-@@ -1740,11 +1773,12 @@ static int task_numa_migrate(struct task
- 		.best_imp = 0,
- 		.best_cpu = -1,
- 	};
-+	unsigned long taskweight, groupweight;
- 	struct sched_domain *sd;
-+	long taskimp, groupimp;
-+	struct numa_group *ng;
- 	struct rq *best_rq;
--	unsigned long taskweight, groupweight;
- 	int nid, ret, dist;
--	long taskimp, groupimp;
- 
- 	/*
- 	 * Pick the lowest SD_NUMA domain, as that would have the smallest
-@@ -1790,7 +1824,8 @@ static int task_numa_migrate(struct task
- 	 *   multiple NUMA nodes; in order to better consolidate the group,
- 	 *   we need to check other locations.
- 	 */
--	if (env.best_cpu == -1 || (p->numa_group && p->numa_group->active_nodes > 1)) {
-+	ng = deref_curr_numa_group(p);
-+	if (env.best_cpu == -1 || (ng && ng->active_nodes > 1)) {
- 		for_each_online_node(nid) {
- 			if (nid == env.src_nid || nid == p->numa_preferred_nid)
- 				continue;
-@@ -1823,7 +1858,7 @@ static int task_numa_migrate(struct task
- 	 * A task that migrated to a second choice node will be better off
- 	 * trying for a better one later. Do not set the preferred node here.
- 	 */
--	if (p->numa_group) {
-+	if (ng) {
- 		if (env.best_cpu == -1)
- 			nid = env.src_nid;
- 		else
-@@ -2118,6 +2153,7 @@ static void task_numa_placement(struct t
- 	unsigned long total_faults;
- 	u64 runtime, period;
- 	spinlock_t *group_lock = NULL;
-+	struct numa_group *ng;
- 
- 	/*
- 	 * The p->mm->numa_scan_seq field gets updated without
-@@ -2135,8 +2171,9 @@ static void task_numa_placement(struct t
- 	runtime = numa_get_avg_runtime(p, &period);
- 
- 	/* If the task is part of a group prevent parallel updates to group stats */
--	if (p->numa_group) {
--		group_lock = &p->numa_group->lock;
-+	ng = deref_curr_numa_group(p);
-+	if (ng) {
-+		group_lock = &ng->lock;
- 		spin_lock_irq(group_lock);
- 	}
- 
-@@ -2177,7 +2214,7 @@ static void task_numa_placement(struct t
- 			p->numa_faults[cpu_idx] += f_diff;
- 			faults += p->numa_faults[mem_idx];
- 			p->total_numa_faults += diff;
--			if (p->numa_group) {
-+			if (ng) {
- 				/*
- 				 * safe because we can only change our own group
- 				 *
-@@ -2185,14 +2222,14 @@ static void task_numa_placement(struct t
- 				 * nid and priv in a specific region because it
- 				 * is at the beginning of the numa_faults array.
- 				 */
--				p->numa_group->faults[mem_idx] += diff;
--				p->numa_group->faults_cpu[mem_idx] += f_diff;
--				p->numa_group->total_faults += diff;
--				group_faults += p->numa_group->faults[mem_idx];
-+				ng->faults[mem_idx] += diff;
-+				ng->faults_cpu[mem_idx] += f_diff;
-+				ng->total_faults += diff;
-+				group_faults += ng->faults[mem_idx];
- 			}
- 		}
- 
--		if (!p->numa_group) {
-+		if (!ng) {
- 			if (faults > max_faults) {
- 				max_faults = faults;
- 				max_nid = nid;
-@@ -2203,8 +2240,8 @@ static void task_numa_placement(struct t
- 		}
- 	}
- 
--	if (p->numa_group) {
--		numa_group_count_active_nodes(p->numa_group);
-+	if (ng) {
-+		numa_group_count_active_nodes(ng);
- 		spin_unlock_irq(group_lock);
- 		max_nid = preferred_group_nid(p, max_nid);
- 	}
-@@ -2238,7 +2275,7 @@ static void task_numa_group(struct task_
- 	int cpu = cpupid_to_cpu(cpupid);
- 	int i;
- 
--	if (unlikely(!p->numa_group)) {
-+	if (unlikely(!deref_curr_numa_group(p))) {
- 		unsigned int size = sizeof(struct numa_group) +
- 				    4*nr_node_ids*sizeof(unsigned long);
- 
-@@ -2274,7 +2311,7 @@ static void task_numa_group(struct task_
- 	if (!grp)
- 		goto no_join;
- 
--	my_grp = p->numa_group;
-+	my_grp = deref_curr_numa_group(p);
- 	if (grp == my_grp)
- 		goto no_join;
- 
-@@ -2345,7 +2382,8 @@ no_join:
-  */
- void task_numa_free(struct task_struct *p, bool final)
- {
--	struct numa_group *grp = p->numa_group;
-+	/* safe: p either is current or is being freed by current */
-+	struct numa_group *grp = rcu_dereference_raw(p->numa_group);
- 	unsigned long *numa_faults = p->numa_faults;
- 	unsigned long flags;
- 	int i;
-@@ -2425,7 +2463,7 @@ void task_numa_fault(int last_cpupid, in
- 	 * actively using should be counted as local. This allows the
- 	 * scan rate to slow down when a workload has settled down.
- 	 */
--	ng = p->numa_group;
-+	ng = deref_curr_numa_group(p);
- 	if (!priv && !local && ng && ng->active_nodes > 1 &&
- 				numa_is_active_node(cpu_node, ng) &&
- 				numa_is_active_node(mem_node, ng))
-@@ -10724,18 +10762,22 @@ void show_numa_stats(struct task_struct
- {
- 	int node;
- 	unsigned long tsf = 0, tpf = 0, gsf = 0, gpf = 0;
-+	struct numa_group *ng;
- 
-+	rcu_read_lock();
-+	ng = rcu_dereference(p->numa_group);
- 	for_each_online_node(node) {
- 		if (p->numa_faults) {
- 			tsf = p->numa_faults[task_faults_idx(NUMA_MEM, node, 0)];
- 			tpf = p->numa_faults[task_faults_idx(NUMA_MEM, node, 1)];
- 		}
--		if (p->numa_group) {
--			gsf = p->numa_group->faults[task_faults_idx(NUMA_MEM, node, 0)],
--			gpf = p->numa_group->faults[task_faults_idx(NUMA_MEM, node, 1)];
-+		if (ng) {
-+			gsf = ng->faults[task_faults_idx(NUMA_MEM, node, 0)],
-+			gpf = ng->faults[task_faults_idx(NUMA_MEM, node, 1)];
- 		}
- 		print_numa_stats(m, node, tsf, tpf, gsf, gpf);
- 	}
-+	rcu_read_unlock();
- }
- #endif /* CONFIG_NUMA_BALANCING */
- #endif /* CONFIG_SCHED_DEBUG */
+-		got = access_remote_vm(mm, pos - offset, page, size + offset, FOLL_ANON);
+-		if (got <= offset)
++		got = access_remote_vm(mm, pos, page, size, FOLL_ANON);
++		if (got <= 0)
+ 			break;
+-		got -= offset;
+-
+-		/* Don't walk past a NUL character once you hit arg_end */
+-		if (pos + got >= arg_end) {
+-			int n = 0;
+-
+-			/*
+-			 * If we started before 'arg_end' but ended up
+-			 * at or after it, we start the NUL character
+-			 * check at arg_end-1 (where we expect the normal
+-			 * EOF to be).
+-			 *
+-			 * NOTE! This is smaller than 'got', because
+-			 * pos + got >= arg_end
+-			 */
+-			if (pos < arg_end)
+-				n = arg_end - pos - 1;
+-
+-			/* Cut off at first NUL after 'n' */
+-			got = n + strnlen(page+n, offset+got-n);
+-			if (got < offset)
+-				break;
+-			got -= offset;
+-
+-			/* Include the NUL if it existed */
+-			if (got < size)
+-				got++;
+-		}
+-
+-		got -= copy_to_user(buf, page+offset, got);
++		got -= copy_to_user(buf, page, got);
+ 		if (unlikely(!got)) {
+ 			if (!len)
+ 				len = -EFAULT;
 
 
