@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D3187FF6D
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 19:21:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 595307FF70
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 19:21:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404611AbfHBRVA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 13:21:00 -0400
-Received: from mail-ed1-f67.google.com ([209.85.208.67]:44608 "EHLO
-        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404609AbfHBRU7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 13:20:59 -0400
-Received: by mail-ed1-f67.google.com with SMTP id k8so73046103edr.11;
-        Fri, 02 Aug 2019 10:20:58 -0700 (PDT)
+        id S2404616AbfHBRVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 13:21:09 -0400
+Received: from mail-ed1-f65.google.com ([209.85.208.65]:46058 "EHLO
+        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404613AbfHBRVJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 13:21:09 -0400
+Received: by mail-ed1-f65.google.com with SMTP id x19so67172126eda.12;
+        Fri, 02 Aug 2019 10:21:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=zhFx69iYesqkuCIeX5oZULk6I2Y9LTp5L/03Nb7z1t8=;
-        b=vNon/UxeWt1T0Ri+4vg29KTL6sjs8XKxzb+byna4H3aeaSkdNxj4gdu1OgccG8FOEN
-         xXJcDQZdSoA8h05fSbhxLLIA5a8obsbQ/nxgLXr++vJWsg1H+hdw6kENeIZbUGN52NMF
-         v6uiTBmI2z6SlF6c3oF/FajTP59ZESOnDUqsOqydw8Ej7Bx95fiUmPr6Z1hJfNrGYDcz
-         E2UPDz5NSmuImKtVniZQVLlWDaH1s9GqQemXBiEQZbE7wWK/pGuZCC/n92p8FZvJBsbI
-         6fXUXLHVh+x1EGbJGxiPGgJSN9boZ5rG2rJuodPMcuKNbo3VNutKHOps1u94YRbqSFTw
-         PWrA==
+        bh=inMByTwvV8O4aabJajJH9w/5ZouKzmsoSvqmiPR9bto=;
+        b=idHhUTWIvhb6xC0k3eGhLumLIWXZcJacR+GTy4dO2/RxcQnK4OQ4TVgiVK4dpThYVa
+         nimZ2Oe8fB7G0Q15o0ZO+79NrKFM4JUZ8sYuOYnwdW5nm8dQ5bdZ+8NAMDLBmIx1/jh1
+         ykI5m4tlNe8OHRJRT+Zb7hsvKdQdUePMU9sXfLseAn33FXrrnLSLrjeDQiN8FI35j1Ze
+         yjTB6z3E9LxTMkGoS5TPvFNNC9tGuK1VMKAfk8QsEivV0mfxbbJ1ucWq/QEnqadDoXAP
+         c+LGvyH+YV+S2YHyd9U0JCCu92GB2etjfOI629OS2CYQgcuWIsE7lKt69yPONfsIZuN6
+         r77Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=zhFx69iYesqkuCIeX5oZULk6I2Y9LTp5L/03Nb7z1t8=;
-        b=KENWuGvL+CuC0jJIWL8/jERyTppLxrhDjg2/FmGk8ckok4Y+lj2tLDSXRiWxd9ZgUY
-         zt9UJwovOqcBnjVmU4FglfUCHi/H9eyowLGJWFIaY3oxZdrUs4Ifn5XAxFebvZSZqReJ
-         LkWp9v3vJyOk1gImxbs2zJXRJH9qBId/btnGipmHkXbi6BjlxuGpUdplkLlVoDt0Qpaf
-         EH92iaaNRNqSvY7waL3qPDYFUvfzRb0wktGGrVpETqzBScO7rkXUPfAqQdRYdDkkcllE
-         HKX2iPIUJGg5Kp7ynAOR33wh+MwXqKR31aEeVkD+pUBEfyMqn9CPqaWFnS6vMnSqqucJ
-         vsow==
-X-Gm-Message-State: APjAAAXDMIVOo/BFUoVlIq99813itF9cOsjSqCgftnPWvdN1Rm0giYXs
-        JTXGDGMdhXo/DHIY31sUZA0=
-X-Google-Smtp-Source: APXvYqwM5hReqfrYiVL7qjhcZ9TuisFY+xnAwe2m+8Qbx+TMAst+LLbnXKL8mLNXktxE1Vc4v9HzMw==
-X-Received: by 2002:a17:906:d183:: with SMTP id c3mr18217358ejz.149.1564766457956;
-        Fri, 02 Aug 2019 10:20:57 -0700 (PDT)
+        bh=inMByTwvV8O4aabJajJH9w/5ZouKzmsoSvqmiPR9bto=;
+        b=slQrmnHpMRabBEx08U7ZNVI5T5XCP7pcODal9jBYIZLmLalxg/1O2aRl9Po+FpeEcQ
+         8sertUxU34ICsjHntgQxHheItTT8ESrsHxniWk+5jTfEGWZb9T73cg/baOGjupwaGYnb
+         Ae22+Q7oXm5Jym+ipQAD2eSMe7VSvxbuaOboJ6xYwUcs+b0mbFBaNQC45ZdyUR1rYtzB
+         Dqy7Icrdy2CHsPB15aMIUMOvgsEXXKK63ffGG2UinkrvtHJJ+DVL76uqbMjlrK3UWCFd
+         Sro8VD2EIXOFSFaNnUmVA5EYWhazPq3+k8/YO3EK3KiKcexezOutxa8wzwsx79Pri9K1
+         lLsg==
+X-Gm-Message-State: APjAAAWPUpBQc1TBGPPKGNMaEDRqix1rtXLRpY4d6fpTIK5CzUK1ER3D
+        qLQLeRbzNZbqsOFWzcozy0p7WfuV
+X-Google-Smtp-Source: APXvYqzK0cRQJ9YE8mPvzGB/kRTFoDxdjvW7Ao0/m6JOrKkORGqKhTT5m8yLDw5oOs3R2ZhyUBjHFQ==
+X-Received: by 2002:a50:ba19:: with SMTP id g25mr120278535edc.123.1564766467179;
+        Fri, 02 Aug 2019 10:21:07 -0700 (PDT)
 Received: from localhost (pD9E51890.dip0.t-ipconnect.de. [217.229.24.144])
-        by smtp.gmail.com with ESMTPSA id v12sm13353273ejj.52.2019.08.02.10.20.57
+        by smtp.gmail.com with ESMTPSA id y12sm13205321ejq.40.2019.08.02.10.21.06
         (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Fri, 02 Aug 2019 10:20:57 -0700 (PDT)
+        Fri, 02 Aug 2019 10:21:06 -0700 (PDT)
 From:   Thierry Reding <thierry.reding@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org, linux-tegra@vger.kernel.org
-Subject: Re: [PATCH 4.19 00/32] 4.19.64-stable review
-Date:   Fri,  2 Aug 2019 19:20:56 +0200
-Message-Id: <20190802172056.18906-1-thierry.reding@gmail.com>
+Subject: Re: [PATCH 5.2 00/20] 5.2.6-stable review
+Date:   Fri,  2 Aug 2019 19:21:05 +0200
+Message-Id: <20190802172105.18999-1-thierry.reding@gmail.com>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190802092101.913646560@linuxfoundation.org>
-References: <20190802092101.913646560@linuxfoundation.org>
+In-Reply-To: <20190802092055.131876977@linuxfoundation.org>
+References: <20190802092055.131876977@linuxfoundation.org>
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -66,9 +66,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thierry Reding <treding@nvidia.com>
 
-On Fri, 02 Aug 2019 11:39:34 +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.64 release.
-> There are 32 patches in this series, all will be posted as a response
+On Fri, 02 Aug 2019 11:39:54 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.2.6 release.
+> There are 20 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -76,9 +76,9 @@ On Fri, 02 Aug 2019 11:39:34 +0200, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.64-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.6-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
 > and the diffstat can be found below.
 > 
 > thanks,
@@ -87,12 +87,12 @@ On Fri, 02 Aug 2019 11:39:34 +0200, Greg Kroah-Hartman wrote:
 
 All tests passing for Tegra ...
 
-Test results for stable-v4.19:
+Test results for stable-v5.2:
     12 builds:	12 pass, 0 fail
     22 boots:	22 pass, 0 fail
-    32 tests:	32 pass, 0 fail
+    38 tests:	38 pass, 0 fail
 
-Linux version:	4.19.64-rc1-g63a8dab46af2
+Linux version:	5.2.6-rc1-gbe893953fcc2
 Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
                 tegra194-p2972-0000, tegra20-ventana,
                 tegra210-p2371-2180, tegra30-cardhu-a04
