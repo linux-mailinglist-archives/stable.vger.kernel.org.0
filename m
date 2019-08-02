@@ -2,43 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BF847F3C7
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:00:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FBD77F3C3
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:00:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404800AbfHBKAR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 06:00:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58526 "EHLO mail.kernel.org"
+        id S2406107AbfHBJw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:52:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406065AbfHBJwo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:52:44 -0400
+        id S2406076AbfHBJw5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:52:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 802ED20880;
-        Fri,  2 Aug 2019 09:52:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 211892064A;
+        Fri,  2 Aug 2019 09:52:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739564;
-        bh=sjU39/06cAWp44DyUMSwwUya99C8wbkAQnuEq44IuLc=;
+        s=default; t=1564739575;
+        bh=hrZTVpKYLlJxRlevqnBkuB6HXjFYDdHXF96oTmXPbg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eY6wPkYup9bzX/ceEPQjirBE/GPKzS1EosiGw572J4gMrcILZr0Pmm7VfaRxazrF+
-         riD0A25TF3CCBf6HjCGbGFdSIwYOq53fa12C2t7oh6ZRyKQfDND/r372F3BfdrEI45
-         I5a4qnH2vbmVIos6zC4BdoB+NqidjvqRB9PNWkuc=
+        b=OYkto/SlHMedh0AiMGWnSQool/7N/SdPuGNuqQuvqAGFpIcpCRu2mVArLuwxrr6ms
+         TytqTnTPNqt6ITV+U1MKSzxH8xg97hS3PEOlca0lH9PyYZVeND/zx7c/GsTt/h5d4s
+         RH7VAkRovvIkpL0pCHKIYEDehMnbhaNkF5URYx5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Yuyang Du <duyuyang@gmail.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will.deacon@arm.com>, arnd@arndb.de,
-        frederic@kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 200/223] locking/lockdep: Fix lock used or unused stats error
-Date:   Fri,  2 Aug 2019 11:37:05 +0200
-Message-Id: <20190802092250.101586900@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+fd2bd7df88c606eea4ef@syzkaller.appspotmail.com,
+        Phong Tran <tranmanphong@gmail.com>
+Subject: [PATCH 4.9 202/223] usb: wusbcore: fix unbalanced get/put cluster_id
+Date:   Fri,  2 Aug 2019 11:37:07 +0200
+Message-Id: <20190802092250.178216668@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -51,77 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 68d41d8c94a31dfb8233ab90b9baf41a2ed2da68 ]
+From: Phong Tran <tranmanphong@gmail.com>
 
-The stats variable nr_unused_locks is incremented every time a new lock
-class is register and decremented when the lock is first used in
-__lock_acquire(). And after all, it is shown and checked in lockdep_stats.
+commit f90bf1ece48a736097ea224430578fe586a9544c upstream.
 
-However, under configurations that either CONFIG_TRACE_IRQFLAGS or
-CONFIG_PROVE_LOCKING is not defined:
+syzboot reported that
+https://syzkaller.appspot.com/bug?extid=fd2bd7df88c606eea4ef
 
-The commit:
+There is not consitency parameter in cluste_id_get/put calling.
+In case of getting the id with result is failure, the wusbhc->cluster_id
+will not be updated and this can not be used for wusb_cluster_id_put().
 
-  091806515124b20 ("locking/lockdep: Consolidate lock usage bit initialization")
+Tested report
+https://groups.google.com/d/msg/syzkaller-bugs/0znZopp3-9k/oxOrhLkLEgAJ
 
-missed marking the LOCK_USED flag at IRQ usage initialization because
-as mark_usage() is not called. And the commit:
+Reproduce and gdb got the details:
 
-  886532aee3cd42d ("locking/lockdep: Move mark_lock() inside CONFIG_TRACE_IRQFLAGS && CONFIG_PROVE_LOCKING")
+139		addr = wusb_cluster_id_get();
+(gdb) n
+140		if (addr == 0)
+(gdb) print addr
+$1 = 254 '\376'
+(gdb) n
+142		result = __hwahc_set_cluster_id(hwahc, addr);
+(gdb) print result
+$2 = -71
+(gdb) break wusb_cluster_id_put
+Breakpoint 3 at 0xffffffff836e3f20: file drivers/usb/wusbcore/wusbhc.c, line 384.
+(gdb) s
+Thread 2 hit Breakpoint 3, wusb_cluster_id_put (id=0 '\000') at drivers/usb/wusbcore/wusbhc.c:384
+384		id = 0xff - id;
+(gdb) n
+385		BUG_ON(id >= CLUSTER_IDS);
+(gdb) print id
+$3 = 255 '\377'
 
-further made mark_lock() not defined such that the LOCK_USED cannot be
-marked at all when the lock is first acquired.
+Reported-by: syzbot+fd2bd7df88c606eea4ef@syzkaller.appspotmail.com
+Signed-off-by: Phong Tran <tranmanphong@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20190724020601.15257-1-tranmanphong@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-As a result, we fix this by not showing and checking the stats under such
-configurations for lockdep_stats.
-
-Reported-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Yuyang Du <duyuyang@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: arnd@arndb.de
-Cc: frederic@kernel.org
-Link: https://lkml.kernel.org/r/20190709101522.9117-1-duyuyang@gmail.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/lockdep_proc.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/host/hwa-hc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/locking/lockdep_proc.c b/kernel/locking/lockdep_proc.c
-index a0f61effad25..c482de6f5262 100644
---- a/kernel/locking/lockdep_proc.c
-+++ b/kernel/locking/lockdep_proc.c
-@@ -229,6 +229,7 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
- 		      nr_hardirq_read_safe = 0, nr_hardirq_read_unsafe = 0,
- 		      sum_forward_deps = 0;
+--- a/drivers/usb/host/hwa-hc.c
++++ b/drivers/usb/host/hwa-hc.c
+@@ -173,7 +173,7 @@ out:
+ 	return result;
  
-+#ifdef CONFIG_PROVE_LOCKING
- 	list_for_each_entry(class, &all_lock_classes, lock_entry) {
+ error_set_cluster_id:
+-	wusb_cluster_id_put(wusbhc->cluster_id);
++	wusb_cluster_id_put(addr);
+ error_cluster_id_get:
+ 	goto out;
  
- 		if (class->usage_mask == 0)
-@@ -260,12 +261,12 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
- 		if (class->usage_mask & LOCKF_ENABLED_HARDIRQ_READ)
- 			nr_hardirq_read_unsafe++;
- 
--#ifdef CONFIG_PROVE_LOCKING
- 		sum_forward_deps += lockdep_count_forward_deps(class);
--#endif
- 	}
- #ifdef CONFIG_DEBUG_LOCKDEP
- 	DEBUG_LOCKS_WARN_ON(debug_atomic_read(nr_unused_locks) != nr_unused);
-+#endif
-+
- #endif
- 	seq_printf(m, " lock-classes:                  %11lu [max: %lu]\n",
- 			nr_lock_classes, MAX_LOCKDEP_KEYS);
--- 
-2.20.1
-
 
 
