@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE9487F380
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:59:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2F267F378
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:59:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406974AbfHBJ5s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:57:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37124 "EHLO mail.kernel.org"
+        id S2406861AbfHBJ5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:57:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406642AbfHBJ5p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:57:45 -0400
+        id S2406859AbfHBJ5Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:57:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5C8B2064A;
-        Fri,  2 Aug 2019 09:57:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8236721773;
+        Fri,  2 Aug 2019 09:57:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739865;
-        bh=mBtojOTp1hg0hXz5A1TBIU10LPdZxGISLBS/m3vpjFk=;
+        s=default; t=1564739835;
+        bh=V5MJKdWxbvfMHveL83rIHKBwqsovD/stD4vavj7+vSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vUtLbBU70A5DAEluoCvZX8wvtTAXecI+1AJmZj/IuwvV/jDOtv8GsleXjd7SSc5dp
-         g2r7F0Ixrhv7h4/SbVluPUGE4u+dnv2CDq8NR7itTl7uXMcLkBuTG95vf8wYUx7GCI
-         gFKBpSkUNRmVeb5DJqe9SNJSTO3gn0YxisuvsWfw=
+        b=NZkO6vRZjCW+7Lzz0/6GYwqIIHSWmxv+2i6fawve+93Y/VkwWlGl3eAK/QnnEkBfL
+         ojAhLxzVQovIQYibpTuvtg/92yhnwMmO1JfeJUZ51wWARWoQ9B/9thElX+WBGUXIol
+         cUXxkz03PzmYcx4+6cR1fkjw2rE9OqMD0tKebJAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+8750abbc3a46ef47d509@syzkaller.appspotmail.com,
-        Phong Tran <tranmanphong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 02/20] ISDN: hfcsusb: checking idx of ep configuration
+        stable@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 4.19 22/32] vhost: vsock: add weight support
 Date:   Fri,  2 Aug 2019 11:39:56 +0200
-Message-Id: <20190802092057.454840463@linuxfoundation.org>
+Message-Id: <20190802092108.961740258@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190802092055.131876977@linuxfoundation.org>
-References: <20190802092055.131876977@linuxfoundation.org>
+In-Reply-To: <20190802092101.913646560@linuxfoundation.org>
+References: <20190802092101.913646560@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +44,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phong Tran <tranmanphong@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
 
-commit f384e62a82ba5d85408405fdd6aeff89354deaa9 upstream.
+commit e79b431fb901ba1106670bcc80b9b617b25def7d upstream.
 
-The syzbot test with random endpoint address which made the idx is
-overflow in the table of endpoint configuations.
+This patch will check the weight and exit the loop if we exceeds the
+weight. This is useful for preventing vsock kthread from hogging cpu
+which is guest triggerable. The weight can help to avoid starving the
+request from on direction while another direction is being processed.
 
-this adds the checking for fixing the error report from
-syzbot
+The value of weight is picked from vhost-net.
 
-KASAN: stack-out-of-bounds Read in hfcsusb_probe [1]
-The patch tested by syzbot [2]
+This addresses CVE-2019-3900.
 
-Reported-by: syzbot+8750abbc3a46ef47d509@syzkaller.appspotmail.com
-
-[1]:
-https://syzkaller.appspot.com/bug?id=30a04378dac680c5d521304a00a86156bb913522
-[2]:
-https://groups.google.com/d/msg/syzkaller-bugs/_6HBdge8F3E/OJn7wVNpBAAJ
-
-Signed-off-by: Phong Tran <tranmanphong@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>
+Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/isdn/hardware/mISDN/hfcsusb.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/vhost/vsock.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/drivers/isdn/hardware/mISDN/hfcsusb.c
-+++ b/drivers/isdn/hardware/mISDN/hfcsusb.c
-@@ -1955,6 +1955,9 @@ hfcsusb_probe(struct usb_interface *intf
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -86,6 +86,7 @@ vhost_transport_do_send_pkt(struct vhost
+ 			    struct vhost_virtqueue *vq)
+ {
+ 	struct vhost_virtqueue *tx_vq = &vsock->vqs[VSOCK_VQ_TX];
++	int pkts = 0, total_len = 0;
+ 	bool added = false;
+ 	bool restart_tx = false;
  
- 				/* get endpoint base */
- 				idx = ((ep_addr & 0x7f) - 1) * 2;
-+				if (idx > 15)
-+					return -EIO;
-+
- 				if (ep_addr & 0x80)
- 					idx++;
- 				attr = ep->desc.bmAttributes;
+@@ -97,7 +98,7 @@ vhost_transport_do_send_pkt(struct vhost
+ 	/* Avoid further vmexits, we're already processing the virtqueue */
+ 	vhost_disable_notify(&vsock->dev, vq);
+ 
+-	for (;;) {
++	do {
+ 		struct virtio_vsock_pkt *pkt;
+ 		struct iov_iter iov_iter;
+ 		unsigned out, in;
+@@ -182,8 +183,9 @@ vhost_transport_do_send_pkt(struct vhost
+ 		 */
+ 		virtio_transport_deliver_tap_pkt(pkt);
+ 
++		total_len += pkt->len;
+ 		virtio_transport_free_pkt(pkt);
+-	}
++	} while(likely(!vhost_exceeds_weight(vq, ++pkts, total_len)));
+ 	if (added)
+ 		vhost_signal(&vsock->dev, vq);
+ 
+@@ -358,7 +360,7 @@ static void vhost_vsock_handle_tx_kick(s
+ 	struct vhost_vsock *vsock = container_of(vq->dev, struct vhost_vsock,
+ 						 dev);
+ 	struct virtio_vsock_pkt *pkt;
+-	int head;
++	int head, pkts = 0, total_len = 0;
+ 	unsigned int out, in;
+ 	bool added = false;
+ 
+@@ -368,7 +370,7 @@ static void vhost_vsock_handle_tx_kick(s
+ 		goto out;
+ 
+ 	vhost_disable_notify(&vsock->dev, vq);
+-	for (;;) {
++	do {
+ 		u32 len;
+ 
+ 		if (!vhost_vsock_more_replies(vsock)) {
+@@ -409,9 +411,11 @@ static void vhost_vsock_handle_tx_kick(s
+ 		else
+ 			virtio_transport_free_pkt(pkt);
+ 
+-		vhost_add_used(vq, head, sizeof(pkt->hdr) + len);
++		len += sizeof(pkt->hdr);
++		vhost_add_used(vq, head, len);
++		total_len += len;
+ 		added = true;
+-	}
++	} while(likely(!vhost_exceeds_weight(vq, ++pkts, total_len)));
+ 
+ no_more_replies:
+ 	if (added)
 
 
