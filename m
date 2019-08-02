@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66C547F124
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:37:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ADCB7F126
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:37:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404121AbfHBJg1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:36:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37300 "EHLO mail.kernel.org"
+        id S2404182AbfHBJgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:36:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404403AbfHBJg0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:36:26 -0400
+        id S1729530AbfHBJg3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:36:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 555C92086A;
-        Fri,  2 Aug 2019 09:36:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7B7B20679;
+        Fri,  2 Aug 2019 09:36:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738585;
-        bh=oJEJO+vfELRxo2bRY7qVAMdL14SJ46K1tpZe0cv/ngQ=;
+        s=default; t=1564738588;
+        bh=is7Trm1mO1xeHo+Z3lGqzzJbiQihkmFNJGKiCthNRH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YkadJp3Rny1GKjxt3mYIKVEOPphqpSQ3YuygH0qveScp4PX3AwGIIgArqCqMUiG3m
-         1Uhv+xmnMWZvo7mDoXbpL47Dn02G79H642zHOYtqQ2pZ9vCgTSC2MNw267jLBuE9fW
-         eH/VVut/TvNwl57KfATCkqyMsyXn7EcctMNNbjgk=
+        b=EtV7Ent28hKgjF41ZUbWqcjHtNsmmiXc5ekZyovvj/Q2MzBw7wj/IFYvx886GZ0Mm
+         fOx+0Tk8p3kBhpgVJy1iCWOXRgh8jDoXx5DfbFg61ZBbF9nVapDL88Arkf+8kXOBe9
+         LIPWRVEcyJvBe++qsLQN+/ENVp2W8QRbIGnSOjWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Eric Dumazet <edumazet@google.com>,
-        "Paul E. McKenney" <paulmck@linux.ibm.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Jan Glauber <jglauber@marvell.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Jayachandran Chandrasekharan Nair <jnair@marvell.com>,
-        Greg KH <greg@kroah.com>, Kees Cook <keescook@chromium.org>,
-        David Howells <dhowells@redhat.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 147/158] access: avoid the RCU grace period for the temporary subjective credentials
-Date:   Fri,  2 Aug 2019 11:29:28 +0200
-Message-Id: <20190802092232.293315393@linuxfoundation.org>
+        stable@vger.kernel.org, Sasha Levin <sasha.levin@oracle.com>,
+        Christoph Lameter <cl@linux.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Daniel Wagner <wagi@monom.org>
+Subject: [PATCH 4.4 148/158] vmstat: Remove BUG_ON from vmstat_update
+Date:   Fri,  2 Aug 2019 11:29:29 +0200
+Message-Id: <20190802092232.411961311@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
 References: <20190802092203.671944552@linuxfoundation.org>
@@ -54,174 +49,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Christoph Lameter <cl@linux.com>
 
-commit d7852fbd0f0423937fa287a598bfde188bb68c22 upstream.
+commit 587198ba5206cdf0d30855f7361af950a4172cd6 upstream.
 
-It turns out that 'access()' (and 'faccessat()') can cause a lot of RCU
-work because it installs a temporary credential that gets allocated and
-freed for each system call.
+If we detect that there is nothing to do just set the flag and do not
+check if it was already set before.  Races really do not matter.  If the
+flag is set by any code then the shepherd will start dealing with the
+situation and reenable the vmstat workers when necessary again.
 
-The allocation and freeing overhead is mostly benign, but because
-credentials can be accessed under the RCU read lock, the freeing
-involves a RCU grace period.
+Since commit 0eb77e988032 ("vmstat: make vmstat_updater deferrable again
+and shut down on idle") quiet_vmstat might update cpu_stat_off and mark
+a particular cpu to be handled by vmstat_shepherd.  This might trigger a
+VM_BUG_ON in vmstat_update because the work item might have been
+sleeping during the idle period and see the cpu_stat_off updated after
+the wake up.  The VM_BUG_ON is therefore misleading and no more
+appropriate.  Moreover it doesn't really suite any protection from real
+bugs because vmstat_shepherd will simply reschedule the vmstat_work
+anytime it sees a particular cpu set or vmstat_update would do the same
+from the worker context directly.  Even when the two would race the
+result wouldn't be incorrect as the counters update is fully idempotent.
 
-Which is not a huge deal normally, but if you have a lot of access()
-calls, this causes a fair amount of seconday damage: instead of having a
-nice alloc/free patterns that hits in hot per-CPU slab caches, you have
-all those delayed free's, and on big machines with hundreds of cores,
-the RCU overhead can end up being enormous.
-
-But it turns out that all of this is entirely unnecessary.  Exactly
-because access() only installs the credential as the thread-local
-subjective credential, the temporary cred pointer doesn't actually need
-to be RCU free'd at all.  Once we're done using it, we can just free it
-synchronously and avoid all the RCU overhead.
-
-So add a 'non_rcu' flag to 'struct cred', which can be set by users that
-know they only use it in non-RCU context (there are other potential
-users for this).  We can make it a union with the rcu freeing list head
-that we need for the RCU case, so this doesn't need any extra storage.
-
-Note that this also makes 'get_current_cred()' clear the new non_rcu
-flag, in case we have filesystems that take a long-term reference to the
-cred and then expect the RCU delayed freeing afterwards.  It's not
-entirely clear that this is required, but it makes for clear semantics:
-the subjective cred remains non-RCU as long as you only access it
-synchronously using the thread-local accessors, but you _can_ use it as
-a generic cred if you want to.
-
-It is possible that we should just remove the whole RCU markings for
-->cred entirely.  Only ->real_cred is really supposed to be accessed
-through RCU, and the long-term cred copies that nfs uses might want to
-explicitly re-enable RCU freeing if required, rather than have
-get_current_cred() do it implicitly.
-
-But this is a "minimal semantic changes" change for the immediate
-problem.
-
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Paul E. McKenney <paulmck@linux.ibm.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Jan Glauber <jglauber@marvell.com>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Jayachandran Chandrasekharan Nair <jnair@marvell.com>
-Cc: Greg KH <greg@kroah.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Miklos Szeredi <miklos@szeredi.hu>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
+Reported-by: Sasha Levin <sasha.levin@oracle.com>
+Signed-off-by: Christoph Lameter <cl@linux.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Daniel Wagner <wagi@monom.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/open.c            |   19 +++++++++++++++++++
- include/linux/cred.h |    7 ++++++-
- kernel/cred.c        |   21 +++++++++++++++++++--
- 3 files changed, 44 insertions(+), 3 deletions(-)
+ mm/vmstat.c |   12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
---- a/fs/open.c
-+++ b/fs/open.c
-@@ -363,6 +363,25 @@ SYSCALL_DEFINE3(faccessat, int, dfd, con
- 				override_cred->cap_permitted;
+--- a/mm/vmstat.c
++++ b/mm/vmstat.c
+@@ -1407,17 +1407,7 @@ static void vmstat_update(struct work_st
+ 		 * Defer the checking for differentials to the
+ 		 * shepherd thread on a different processor.
+ 		 */
+-		int r;
+-		/*
+-		 * Shepherd work thread does not race since it never
+-		 * changes the bit if its zero but the cpu
+-		 * online / off line code may race if
+-		 * worker threads are still allowed during
+-		 * shutdown / startup.
+-		 */
+-		r = cpumask_test_and_set_cpu(smp_processor_id(),
+-			cpu_stat_off);
+-		VM_BUG_ON(r);
++		cpumask_set_cpu(smp_processor_id(), cpu_stat_off);
  	}
- 
-+	/*
-+	 * The new set of credentials can *only* be used in
-+	 * task-synchronous circumstances, and does not need
-+	 * RCU freeing, unless somebody then takes a separate
-+	 * reference to it.
-+	 *
-+	 * NOTE! This is _only_ true because this credential
-+	 * is used purely for override_creds() that installs
-+	 * it as the subjective cred. Other threads will be
-+	 * accessing ->real_cred, not the subjective cred.
-+	 *
-+	 * If somebody _does_ make a copy of this (using the
-+	 * 'get_current_cred()' function), that will clear the
-+	 * non_rcu field, because now that other user may be
-+	 * expecting RCU freeing. But normal thread-synchronous
-+	 * cred accesses will keep things non-RCY.
-+	 */
-+	override_cred->non_rcu = 1;
-+
- 	old_cred = override_creds(override_cred);
- retry:
- 	res = user_path_at(dfd, filename, lookup_flags, &path);
---- a/include/linux/cred.h
-+++ b/include/linux/cred.h
-@@ -153,7 +153,11 @@ struct cred {
- 	struct user_struct *user;	/* real user ID subscription */
- 	struct user_namespace *user_ns; /* user_ns the caps and keyrings are relative to. */
- 	struct group_info *group_info;	/* supplementary groups for euid/fsgid */
--	struct rcu_head	rcu;		/* RCU deletion hook */
-+	/* RCU deletion */
-+	union {
-+		int non_rcu;			/* Can we skip RCU deletion? */
-+		struct rcu_head	rcu;		/* RCU deletion hook */
-+	};
- };
- 
- extern void __put_cred(struct cred *);
-@@ -251,6 +255,7 @@ static inline const struct cred *get_cre
- {
- 	struct cred *nonconst_cred = (struct cred *) cred;
- 	validate_creds(cred);
-+	nonconst_cred->non_rcu = 0;
- 	return get_new_cred(nonconst_cred);
  }
  
---- a/kernel/cred.c
-+++ b/kernel/cred.c
-@@ -146,7 +146,10 @@ void __put_cred(struct cred *cred)
- 	BUG_ON(cred == current->cred);
- 	BUG_ON(cred == current->real_cred);
- 
--	call_rcu(&cred->rcu, put_cred_rcu);
-+	if (cred->non_rcu)
-+		put_cred_rcu(&cred->rcu);
-+	else
-+		call_rcu(&cred->rcu, put_cred_rcu);
- }
- EXPORT_SYMBOL(__put_cred);
- 
-@@ -257,6 +260,7 @@ struct cred *prepare_creds(void)
- 	old = task->cred;
- 	memcpy(new, old, sizeof(struct cred));
- 
-+	new->non_rcu = 0;
- 	atomic_set(&new->usage, 1);
- 	set_cred_subscribers(new, 0);
- 	get_group_info(new->group_info);
-@@ -536,7 +540,19 @@ const struct cred *override_creds(const
- 
- 	validate_creds(old);
- 	validate_creds(new);
--	get_cred(new);
-+
-+	/*
-+	 * NOTE! This uses 'get_new_cred()' rather than 'get_cred()'.
-+	 *
-+	 * That means that we do not clear the 'non_rcu' flag, since
-+	 * we are only installing the cred into the thread-synchronous
-+	 * '->cred' pointer, not the '->real_cred' pointer that is
-+	 * visible to other threads under RCU.
-+	 *
-+	 * Also note that we did validate_creds() manually, not depending
-+	 * on the validation in 'get_cred()'.
-+	 */
-+	get_new_cred((struct cred *)new);
- 	alter_cred_subscribers(new, 1);
- 	rcu_assign_pointer(current->cred, new);
- 	alter_cred_subscribers(old, -1);
-@@ -619,6 +635,7 @@ struct cred *prepare_kernel_cred(struct
- 	validate_creds(old);
- 
- 	*new = *old;
-+	new->non_rcu = 0;
- 	atomic_set(&new->usage, 1);
- 	set_cred_subscribers(new, 0);
- 	get_uid(new->user);
 
 
