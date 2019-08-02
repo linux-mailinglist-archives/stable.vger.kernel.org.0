@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 130B07F3D6
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:00:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC87F7F3C0
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:00:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406776AbfHBKA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 06:00:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58238 "EHLO mail.kernel.org"
+        id S2406150AbfHBJxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:53:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405986AbfHBJwc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:52:32 -0400
+        id S2406136AbfHBJxI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:53:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B48320B7C;
-        Fri,  2 Aug 2019 09:52:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F9642064A;
+        Fri,  2 Aug 2019 09:53:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564739551;
-        bh=QX+m9bc2daiQaPYZktOpa4/lnm8a/+CJzVft8iWKPp0=;
+        s=default; t=1564739588;
+        bh=wQTbVWD0hWehFQRGaYAw0lN9RAc85xx/ByvIBOS072w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IUDjPsk+GOpR9i7s7dXcc7cJn5Wq9jqjXfVakMIQrTRI5817cj7OXw1bOReLGmy0z
-         iCMGgjYuRBoufrxblHO2CDzv/t/LzGDoHaanj2qMO01wUbQ7uzGsb00uSxPFLHncF7
-         q+9sW22OaxcpC0zOb3W97rTApRZw8yCZZXpg8CFE=
+        b=jD189B9n/v0qLA8sT86VMSfxMuWcBdQW8vWevvz834Ey6WfV9E/UAosDt2SBQ2st8
+         2ab9qxJqDHuiZ+r+rNXp/CEtoNQWE3JosSP+/+/sk7WxkN8HAFuMqHkyXEvLKAySb5
+         V85hMY3p3QlINMaYa7aWJ9F0zS4EnD6SvWkCrfEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Praveen Pandey <Praveen.Pandey@in.ibm.com>,
-        Michael Neuling <mikey@neuling.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.9 209/223] powerpc/tm: Fix oops on sigreturn on systems without TM
-Date:   Fri,  2 Aug 2019 11:37:14 +0200
-Message-Id: <20190802092250.452016416@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.9 221/223] sched/fair: Dont free p->numa_faults with concurrent readers
+Date:   Fri,  2 Aug 2019 11:37:26 +0200
+Message-Id: <20190802092250.912173369@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -44,91 +48,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Neuling <mikey@neuling.org>
+From: Jann Horn <jannh@google.com>
 
-commit f16d80b75a096c52354c6e0a574993f3b0dfbdfe upstream.
+commit 16d51a590a8ce3befb1308e0e7ab77f3b661af33 upstream.
 
-On systems like P9 powernv where we have no TM (or P8 booted with
-ppc_tm=off), userspace can construct a signal context which still has
-the MSR TS bits set. The kernel tries to restore this context which
-results in the following crash:
+When going through execve(), zero out the NUMA fault statistics instead of
+freeing them.
 
-  Unexpected TM Bad Thing exception at c0000000000022fc (msr 0x8000000102a03031) tm_scratch=800000020280f033
-  Oops: Unrecoverable exception, sig: 6 [#1]
-  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-  Modules linked in:
-  CPU: 0 PID: 1636 Comm: sigfuz Not tainted 5.2.0-11043-g0a8ad0ffa4 #69
-  NIP:  c0000000000022fc LR: 00007fffb2d67e48 CTR: 0000000000000000
-  REGS: c00000003fffbd70 TRAP: 0700   Not tainted  (5.2.0-11045-g7142b497d8)
-  MSR:  8000000102a03031 <SF,VEC,VSX,FP,ME,IR,DR,LE,TM[E]>  CR: 42004242  XER: 00000000
-  CFAR: c0000000000022e0 IRQMASK: 0
-  GPR00: 0000000000000072 00007fffb2b6e560 00007fffb2d87f00 0000000000000669
-  GPR04: 00007fffb2b6e728 0000000000000000 0000000000000000 00007fffb2b6f2a8
-  GPR08: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-  GPR12: 0000000000000000 00007fffb2b76900 0000000000000000 0000000000000000
-  GPR16: 00007fffb2370000 00007fffb2d84390 00007fffea3a15ac 000001000a250420
-  GPR20: 00007fffb2b6f260 0000000010001770 0000000000000000 0000000000000000
-  GPR24: 00007fffb2d843a0 00007fffea3a14a0 0000000000010000 0000000000800000
-  GPR28: 00007fffea3a14d8 00000000003d0f00 0000000000000000 00007fffb2b6e728
-  NIP [c0000000000022fc] rfi_flush_fallback+0x7c/0x80
-  LR [00007fffb2d67e48] 0x7fffb2d67e48
-  Call Trace:
-  Instruction dump:
-  e96a0220 e96a02a8 e96a0330 e96a03b8 394a0400 4200ffdc 7d2903a6 e92d0c00
-  e94d0c08 e96d0c10 e82d0c18 7db242a6 <4c000024> 7db243a6 7db142a6 f82d0c18
+During execve, the task is reachable through procfs and the scheduler. A
+concurrent /proc/*/sched reader can read data from a freed ->numa_faults
+allocation (confirmed by KASAN) and write it back to userspace.
+I believe that it would also be possible for a use-after-free read to occur
+through a race between a NUMA fault and execve(): task_numa_fault() can
+lead to task_numa_compare(), which invokes task_weight() on the currently
+running task of a different CPU.
 
-The problem is the signal code assumes TM is enabled when
-CONFIG_PPC_TRANSACTIONAL_MEM is enabled. This may not be the case as
-with P9 powernv or if `ppc_tm=off` is used on P8.
+Another way to fix this would be to make ->numa_faults RCU-managed or add
+extra locking, but it seems easier to wipe the NUMA fault statistics on
+execve.
 
-This means any local user can crash the system.
-
-Fix the problem by returning a bad stack frame to the user if they try
-to set the MSR TS bits with sigreturn() on systems where TM is not
-supported.
-
-Found with sigfuz kernel selftest on P9.
-
-This fixes CVE-2019-13648.
-
-Fixes: 2b0a576d15e0 ("powerpc: Add new transactional memory state to the signal context")
-Cc: stable@vger.kernel.org # v3.9
-Reported-by: Praveen Pandey <Praveen.Pandey@in.ibm.com>
-Signed-off-by: Michael Neuling <mikey@neuling.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190719050502.405-1-mikey@neuling.org
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Will Deacon <will@kernel.org>
+Fixes: 82727018b0d3 ("sched/numa: Call task_numa_free() from do_execve()")
+Link: https://lkml.kernel.org/r/20190716152047.14424-1-jannh@google.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/signal_32.c |    3 +++
- arch/powerpc/kernel/signal_64.c |    5 +++++
- 2 files changed, 8 insertions(+)
+ fs/exec.c             |    2 +-
+ include/linux/sched.h |    4 ++--
+ kernel/fork.c         |    2 +-
+ kernel/sched/fair.c   |   24 ++++++++++++++++++++----
+ 4 files changed, 24 insertions(+), 8 deletions(-)
 
---- a/arch/powerpc/kernel/signal_32.c
-+++ b/arch/powerpc/kernel/signal_32.c
-@@ -1281,6 +1281,9 @@ long sys_rt_sigreturn(int r3, int r4, in
- 			goto bad;
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1790,7 +1790,7 @@ static int do_execveat_common(int fd, st
+ 	current->fs->in_exec = 0;
+ 	current->in_execve = 0;
+ 	acct_update_integrals(current);
+-	task_numa_free(current);
++	task_numa_free(current, false);
+ 	free_bprm(bprm);
+ 	kfree(pathbuf);
+ 	putname(filename);
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -2044,7 +2044,7 @@ static inline bool in_vfork(struct task_
+ extern void task_numa_fault(int last_node, int node, int pages, int flags);
+ extern pid_t task_numa_group_id(struct task_struct *p);
+ extern void set_numabalancing_state(bool enabled);
+-extern void task_numa_free(struct task_struct *p);
++extern void task_numa_free(struct task_struct *p, bool final);
+ extern bool should_numa_migrate_memory(struct task_struct *p, struct page *page,
+ 					int src_nid, int dst_cpu);
+ #else
+@@ -2059,7 +2059,7 @@ static inline pid_t task_numa_group_id(s
+ static inline void set_numabalancing_state(bool enabled)
+ {
+ }
+-static inline void task_numa_free(struct task_struct *p)
++static inline void task_numa_free(struct task_struct *p, bool final)
+ {
+ }
+ static inline bool should_numa_migrate_memory(struct task_struct *p,
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -389,7 +389,7 @@ void __put_task_struct(struct task_struc
+ 	WARN_ON(tsk == current);
  
- 		if (MSR_TM_ACTIVE(msr_hi<<32)) {
-+			/* Trying to start TM on non TM system */
-+			if (!cpu_has_feature(CPU_FTR_TM))
-+				goto bad;
- 			/* We only recheckpoint on return if we're
- 			 * transaction.
- 			 */
---- a/arch/powerpc/kernel/signal_64.c
-+++ b/arch/powerpc/kernel/signal_64.c
-@@ -741,6 +741,11 @@ int sys_rt_sigreturn(unsigned long r3, u
- 	if (MSR_TM_ACTIVE(msr)) {
- 		/* We recheckpoint on return. */
- 		struct ucontext __user *uc_transact;
+ 	cgroup_free(tsk);
+-	task_numa_free(tsk);
++	task_numa_free(tsk, true);
+ 	security_task_free(tsk);
+ 	exit_creds(tsk);
+ 	delayacct_tsk_free(tsk);
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -2257,13 +2257,23 @@ no_join:
+ 	return;
+ }
+ 
+-void task_numa_free(struct task_struct *p)
++/*
++ * Get rid of NUMA staticstics associated with a task (either current or dead).
++ * If @final is set, the task is dead and has reached refcount zero, so we can
++ * safely free all relevant data structures. Otherwise, there might be
++ * concurrent reads from places like load balancing and procfs, and we should
++ * reset the data back to default state without freeing ->numa_faults.
++ */
++void task_numa_free(struct task_struct *p, bool final)
+ {
+ 	struct numa_group *grp = p->numa_group;
+-	void *numa_faults = p->numa_faults;
++	unsigned long *numa_faults = p->numa_faults;
+ 	unsigned long flags;
+ 	int i;
+ 
++	if (!numa_faults)
++		return;
 +
-+		/* Trying to start TM on non TM system */
-+		if (!cpu_has_feature(CPU_FTR_TM))
-+			goto badframe;
-+
- 		if (__get_user(uc_transact, &uc->uc_link))
- 			goto badframe;
- 		if (restore_tm_sigcontexts(current, &uc->uc_mcontext,
+ 	if (grp) {
+ 		spin_lock_irqsave(&grp->lock, flags);
+ 		for (i = 0; i < NR_NUMA_HINT_FAULT_STATS * nr_node_ids; i++)
+@@ -2276,8 +2286,14 @@ void task_numa_free(struct task_struct *
+ 		put_numa_group(grp);
+ 	}
+ 
+-	p->numa_faults = NULL;
+-	kfree(numa_faults);
++	if (final) {
++		p->numa_faults = NULL;
++		kfree(numa_faults);
++	} else {
++		p->total_numa_faults = 0;
++		for (i = 0; i < NR_NUMA_HINT_FAULT_STATS * nr_node_ids; i++)
++			numa_faults[i] = 0;
++	}
+ }
+ 
+ /*
 
 
