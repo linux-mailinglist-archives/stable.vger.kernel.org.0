@@ -2,36 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE70A7F1C6
+	by mail.lfdr.de (Postfix) with ESMTP id 700907F1C5
 	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 11:42:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404956AbfHBJmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:42:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43984 "EHLO mail.kernel.org"
+        id S2404953AbfHBJmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:42:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404942AbfHBJl7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:41:59 -0400
+        id S2404951AbfHBJmB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:42:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD75D20679;
-        Fri,  2 Aug 2019 09:41:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2226C20679;
+        Fri,  2 Aug 2019 09:42:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738918;
-        bh=7J/y1WK0Kc5VzLEIoJz0rRPaWWB4beZrvepjH6YqJN0=;
+        s=default; t=1564738920;
+        bh=oaZnE9Jk6GztqufE3LxR85wb6msRuuZ5v6/2wlSDO5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cZXduzL6696cyT1pZsBl3dNBh967up2v/UEPTeA9kGdBuIh0dJ4iRXUi1PxblB+7o
-         CZbedw3/IaYbLDXfrhiZJp2ZmrQTumBBXljI2slS1gFbXhTSMHP37uxD3/eeCtQY4D
-         +WscWC9dZ6077949MEjU7iHJ6BGlJisss1my/HLs=
+        b=y+WcmxCyjS2QlXsBmNwbL0K/vj3TCBAzVZsxCYj16OazXwBRQzeG/X62enfv/DFd5
+         nMsVmhkkwpSCSbKskmOzP8G3uP/CGQ98b1kwavzsJ6Kjvl3ROPuuLt7YQYj84d/mcP
+         YZSZ5FI1vDiea2SrEz+V5ukGeNMTPUPAGolT4AEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        stable@vger.kernel.org,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Leo Yan <leo.yan@linaro.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Suzuki Poulouse <suzuki.poulose@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 031/223] s390/qdio: handle PENDING state for QEBSM devices
-Date:   Fri,  2 Aug 2019 11:34:16 +0200
-Message-Id: <20190802092241.012170566@linuxfoundation.org>
+Subject: [PATCH 4.9 032/223] perf cs-etm: Properly set the value of old and head in snapshot mode
+Date:   Fri,  2 Aug 2019 11:34:17 +0200
+Message-Id: <20190802092241.067466818@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092238.692035242@linuxfoundation.org>
 References: <20190802092238.692035242@linuxfoundation.org>
@@ -44,37 +51,203 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 04310324c6f482921c071444833e70fe861b73d9 ]
+[ Upstream commit e45c48a9a4d20ebc7b639a62c3ef8f4b08007027 ]
 
-When a CQ-enabled device uses QEBSM for SBAL state inspection,
-get_buf_states() can return the PENDING state for an Output Queue.
-get_outbound_buffer_frontier() isn't prepared for this, and any PENDING
-buffer will permanently stall all further completion processing on this
-Queue.
+This patch adds the necessary intelligence to properly compute the value
+of 'old' and 'head' when operating in snapshot mode.  That way we can
+get the latest information in the AUX buffer and be compatible with the
+generic AUX ring buffer mechanic.
 
-This isn't a concern for non-QEBSM devices, as get_buf_states() for such
-devices will manually turn PENDING buffers into EMPTY ones.
+Tester notes:
 
-Fixes: 104ea556ee7f ("qdio: support asynchronous delivery of storage blocks")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Leo, have you had the chance to test/review this one? Suzuki?
+
+Sure.  I applied this patch on the perf/core branch (with latest
+commit 3e4fbf36c1e3 'perf augmented_raw_syscalls: Move reading
+filename to the loop') and passed testing with below steps:
+
+  # perf record -e cs_etm/@tmc_etr0/ -S -m,64 --per-thread ./sort &
+  [1] 19097
+  Bubble sorting array of 30000 elements
+
+  # kill -USR2 19097
+  # kill -USR2 19097
+  # kill -USR2 19097
+  [ perf record: Woken up 4 times to write data ]
+  [ perf record: Captured and wrote 0.753 MB perf.data ]
+
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Tested-by: Leo Yan <leo.yan@linaro.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Link: http://lkml.kernel.org/r/20190605161633.12245-1-mathieu.poirier@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/qdio_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/perf/arch/arm/util/cs-etm.c | 127 +++++++++++++++++++++++++++++-
+ 1 file changed, 123 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
-index 18ab84e9c6b2..58cd0e0c9680 100644
---- a/drivers/s390/cio/qdio_main.c
-+++ b/drivers/s390/cio/qdio_main.c
-@@ -758,6 +758,7 @@ static int get_outbound_buffer_frontier(struct qdio_q *q)
+diff --git a/tools/perf/arch/arm/util/cs-etm.c b/tools/perf/arch/arm/util/cs-etm.c
+index 47d584da5819..f6cff278aa5d 100644
+--- a/tools/perf/arch/arm/util/cs-etm.c
++++ b/tools/perf/arch/arm/util/cs-etm.c
+@@ -41,6 +41,8 @@ struct cs_etm_recording {
+ 	struct auxtrace_record	itr;
+ 	struct perf_pmu		*cs_etm_pmu;
+ 	struct perf_evlist	*evlist;
++	int			wrapped_cnt;
++	bool			*wrapped;
+ 	bool			snapshot_mode;
+ 	size_t			snapshot_size;
+ };
+@@ -458,16 +460,131 @@ static int cs_etm_info_fill(struct auxtrace_record *itr,
+ 	return 0;
+ }
  
- 	switch (state) {
- 	case SLSB_P_OUTPUT_EMPTY:
-+	case SLSB_P_OUTPUT_PENDING:
- 		/* the adapter got it */
- 		DBF_DEV_EVENT(DBF_INFO, q->irq_ptr,
- 			"out empty:%1d %02x", q->nr, count);
+-static int cs_etm_find_snapshot(struct auxtrace_record *itr __maybe_unused,
++static int cs_etm_alloc_wrapped_array(struct cs_etm_recording *ptr, int idx)
++{
++	bool *wrapped;
++	int cnt = ptr->wrapped_cnt;
++
++	/* Make @ptr->wrapped as big as @idx */
++	while (cnt <= idx)
++		cnt++;
++
++	/*
++	 * Free'ed in cs_etm_recording_free().  Using realloc() to avoid
++	 * cross compilation problems where the host's system supports
++	 * reallocarray() but not the target.
++	 */
++	wrapped = realloc(ptr->wrapped, cnt * sizeof(bool));
++	if (!wrapped)
++		return -ENOMEM;
++
++	wrapped[cnt - 1] = false;
++	ptr->wrapped_cnt = cnt;
++	ptr->wrapped = wrapped;
++
++	return 0;
++}
++
++static bool cs_etm_buffer_has_wrapped(unsigned char *buffer,
++				      size_t buffer_size, u64 head)
++{
++	u64 i, watermark;
++	u64 *buf = (u64 *)buffer;
++	size_t buf_size = buffer_size;
++
++	/*
++	 * We want to look the very last 512 byte (chosen arbitrarily) in
++	 * the ring buffer.
++	 */
++	watermark = buf_size - 512;
++
++	/*
++	 * @head is continuously increasing - if its value is equal or greater
++	 * than the size of the ring buffer, it has wrapped around.
++	 */
++	if (head >= buffer_size)
++		return true;
++
++	/*
++	 * The value of @head is somewhere within the size of the ring buffer.
++	 * This can be that there hasn't been enough data to fill the ring
++	 * buffer yet or the trace time was so long that @head has numerically
++	 * wrapped around.  To find we need to check if we have data at the very
++	 * end of the ring buffer.  We can reliably do this because mmap'ed
++	 * pages are zeroed out and there is a fresh mapping with every new
++	 * session.
++	 */
++
++	/* @head is less than 512 byte from the end of the ring buffer */
++	if (head > watermark)
++		watermark = head;
++
++	/*
++	 * Speed things up by using 64 bit transactions (see "u64 *buf" above)
++	 */
++	watermark >>= 3;
++	buf_size >>= 3;
++
++	/*
++	 * If we find trace data at the end of the ring buffer, @head has
++	 * been there and has numerically wrapped around at least once.
++	 */
++	for (i = watermark; i < buf_size; i++)
++		if (buf[i])
++			return true;
++
++	return false;
++}
++
++static int cs_etm_find_snapshot(struct auxtrace_record *itr,
+ 				int idx, struct auxtrace_mmap *mm,
+-				unsigned char *data __maybe_unused,
++				unsigned char *data,
+ 				u64 *head, u64 *old)
+ {
++	int err;
++	bool wrapped;
++	struct cs_etm_recording *ptr =
++			container_of(itr, struct cs_etm_recording, itr);
++
++	/*
++	 * Allocate memory to keep track of wrapping if this is the first
++	 * time we deal with this *mm.
++	 */
++	if (idx >= ptr->wrapped_cnt) {
++		err = cs_etm_alloc_wrapped_array(ptr, idx);
++		if (err)
++			return err;
++	}
++
++	/*
++	 * Check to see if *head has wrapped around.  If it hasn't only the
++	 * amount of data between *head and *old is snapshot'ed to avoid
++	 * bloating the perf.data file with zeros.  But as soon as *head has
++	 * wrapped around the entire size of the AUX ring buffer it taken.
++	 */
++	wrapped = ptr->wrapped[idx];
++	if (!wrapped && cs_etm_buffer_has_wrapped(data, mm->len, *head)) {
++		wrapped = true;
++		ptr->wrapped[idx] = true;
++	}
++
+ 	pr_debug3("%s: mmap index %d old head %zu new head %zu size %zu\n",
+ 		  __func__, idx, (size_t)*old, (size_t)*head, mm->len);
+ 
+-	*old = *head;
+-	*head += mm->len;
++	/* No wrap has occurred, we can just use *head and *old. */
++	if (!wrapped)
++		return 0;
++
++	/*
++	 * *head has wrapped around - adjust *head and *old to pickup the
++	 * entire content of the AUX buffer.
++	 */
++	if (*head >= mm->len) {
++		*old = *head - mm->len;
++	} else {
++		*head += mm->len;
++		*old = *head - mm->len;
++	}
+ 
+ 	return 0;
+ }
+@@ -508,6 +625,8 @@ static void cs_etm_recording_free(struct auxtrace_record *itr)
+ {
+ 	struct cs_etm_recording *ptr =
+ 			container_of(itr, struct cs_etm_recording, itr);
++
++	zfree(&ptr->wrapped);
+ 	free(ptr);
+ }
+ 
 -- 
 2.20.1
 
