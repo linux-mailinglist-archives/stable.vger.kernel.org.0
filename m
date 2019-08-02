@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 384867F48E
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:07:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5909C7F48C
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 12:07:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390971AbfHBJa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 05:30:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56632 "EHLO mail.kernel.org"
+        id S2390943AbfHBJa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 05:30:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390933AbfHBJaz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 05:30:55 -0400
+        id S2390967AbfHBJa5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 05:30:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEE982182B;
-        Fri,  2 Aug 2019 09:30:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D0442184B;
+        Fri,  2 Aug 2019 09:30:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564738254;
-        bh=EYH+wJq5Jh9eumxxBMFQEpp0HWPkNeHhXg02xGdpNlw=;
+        s=default; t=1564738256;
+        bh=DBCAkzvffWAKJjgBm7QCyOwr1ldjmM1ESkZdFiDt+ts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wp7JLMmlnEDYrTp2k04yJz1cjAeUeQqy9efArqPgNiFbILC5q75tqFuCF/5wWUh1V
-         tUmikBRSAxLUA5PhPvHDzi7vqsE7vjOciuria08bkAs7Tk2/frrmY+FcLCem2EQatU
-         KhLEit35WKribvqkzikky+Xa5U1DIbEwGFk+tVOA=
+        b=Wy8iWIh+RWUV4UPwAXAomaEUdjX5U9I2VE/tnt9NzvXK2XK6fwAEmpSa86nw1oqDu
+         WzAZfjiQcfH2gCZiQBIc9p7hV/Xvm339VO0nQg7iCorld5kE94Bm/oyNNImheRDvtn
+         wH/IbzoUw6H9Ioaj+BbegraMsiAzSSfJ6SxfpQS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+4f0529365f7f2208d9f0@syzkaller.appspotmail.com,
-        Jeremy Sowden <jeremy@azazel.net>,
+        stable@vger.kernel.org, Anirudh Gupta <anirudh.gupta@sophos.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 015/158] af_key: fix leaks in key_pol_get_resp and dump_sp.
-Date:   Fri,  2 Aug 2019 11:27:16 +0200
-Message-Id: <20190802092206.551843224@linuxfoundation.org>
+Subject: [PATCH 4.4 016/158] xfrm: Fix xfrm sel prefix length validation
+Date:   Fri,  2 Aug 2019 11:27:17 +0200
+Message-Id: <20190802092206.761685549@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
 References: <20190802092203.671944552@linuxfoundation.org>
@@ -46,48 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7c80eb1c7e2b8420477fbc998971d62a648035d9 ]
+[ Upstream commit b38ff4075a80b4da5cb2202d7965332ca0efb213 ]
 
-In both functions, if pfkey_xfrm_policy2msg failed we leaked the newly
-allocated sk_buff.  Free it on error.
+Family of src/dst can be different from family of selector src/dst.
+Use xfrm selector family to validate address prefix length,
+while verifying new sa from userspace.
 
-Fixes: 55569ce256ce ("Fix conversion between IPSEC_MODE_xxx and XFRM_MODE_xxx.")
-Reported-by: syzbot+4f0529365f7f2208d9f0@syzkaller.appspotmail.com
-Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
+Validated patch with this command:
+ip xfrm state add src 1.1.6.1 dst 1.1.6.2 proto esp spi 4260196 \
+reqid 20004 mode tunnel aead "rfc4106(gcm(aes))" \
+0x1111016400000000000000000000000044440001 128 \
+sel src 1011:1:4::2/128 sel dst 1021:1:4::2/128 dev Port5
+
+Fixes: 07bf7908950a ("xfrm: Validate address prefix lengths in the xfrm selector.")
+Signed-off-by: Anirudh Gupta <anirudh.gupta@sophos.com>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/key/af_key.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/xfrm/xfrm_user.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/net/key/af_key.c b/net/key/af_key.c
-index 3ba903ff2bb0..36db179d848e 100644
---- a/net/key/af_key.c
-+++ b/net/key/af_key.c
-@@ -2463,8 +2463,10 @@ static int key_pol_get_resp(struct sock *sk, struct xfrm_policy *xp, const struc
- 		goto out;
- 	}
- 	err = pfkey_xfrm_policy2msg(out_skb, xp, dir);
--	if (err < 0)
-+	if (err < 0) {
-+		kfree_skb(out_skb);
- 		goto out;
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index b04c03043976..10fda9a39cc2 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -150,6 +150,22 @@ static int verify_newsa_info(struct xfrm_usersa_info *p,
+ 
+ 	err = -EINVAL;
+ 	switch (p->family) {
++	case AF_INET:
++		break;
++
++	case AF_INET6:
++#if IS_ENABLED(CONFIG_IPV6)
++		break;
++#else
++		err = -EAFNOSUPPORT;
++		goto out;
++#endif
++
++	default:
++		goto out;
 +	}
- 
- 	out_hdr = (struct sadb_msg *) out_skb->data;
- 	out_hdr->sadb_msg_version = hdr->sadb_msg_version;
-@@ -2717,8 +2719,10 @@ static int dump_sp(struct xfrm_policy *xp, int dir, int count, void *ptr)
- 		return PTR_ERR(out_skb);
- 
- 	err = pfkey_xfrm_policy2msg(out_skb, xp, dir);
--	if (err < 0)
-+	if (err < 0) {
-+		kfree_skb(out_skb);
- 		return err;
-+	}
- 
- 	out_hdr = (struct sadb_msg *) out_skb->data;
- 	out_hdr->sadb_msg_version = pfk->dump.msg_version;
++
++	switch (p->sel.family) {
+ 	case AF_INET:
+ 		if (p->sel.prefixlen_d > 32 || p->sel.prefixlen_s > 32)
+ 			goto out;
 -- 
 2.20.1
 
