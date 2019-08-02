@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D3C87F8C7
-	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:22:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D1807F8E0
+	for <lists+stable@lfdr.de>; Fri,  2 Aug 2019 15:24:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393768AbfHBNWg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 09:22:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32954 "EHLO mail.kernel.org"
+        id S2393836AbfHBNWo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 09:22:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393417AbfHBNWf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:22:35 -0400
+        id S1732878AbfHBNWo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:22:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DAFC20644;
-        Fri,  2 Aug 2019 13:22:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3CD0B2183F;
+        Fri,  2 Aug 2019 13:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564752154;
-        bh=bzZ0UBe6eTaQ9SsWN0eEA6OkXmcqxkCaOQ+baQptsjs=;
+        s=default; t=1564752162;
+        bh=gm46Rsf9FLMSefk/5KC1ip6pkTw64+y4w0j/XgY/aSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QfYka8pVdwkot3WEK4U+zGs41MaRFT8ws1uP0Jf/73wvqKGOCPNMvh5gYnMxV+mWh
-         bXgq/SOgxuXhnLpQOi5IMEbTFhdRetTzl9XUO0IyqKertX1rWOnwMA05klVo8KIHMx
-         fLbbeoBY3LMvXUI1crEP8NN6DTU4WHtM1+mYk7y0=
+        b=geKXbOGBeMXNZA/bRvXl9g56Q9pFwvdR2D8FL1S3mkaUDXux7VVZ1TCRs1wZ33Ynl
+         DYAeJRJpAWa8VfTlWD354KKUzQx2wsnQMqXeb5MCIckBG9SMyL31GGkO9NcFArORDW
+         LwyLST5TpTclBHySTOOYOpNL7c5Um8B9TCNl9bJI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wenwen Wang <wenwen@cs.uga.edu>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Cc:     Jann Horn <jannh@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, Ingo Molnar <mingo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 67/76] test_firmware: fix a memory leak bug
-Date:   Fri,  2 Aug 2019 09:19:41 -0400
-Message-Id: <20190802131951.11600-67-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 69/76] sched/fair: Use RCU accessors consistently for ->numa_group
+Date:   Fri,  2 Aug 2019 09:19:43 -0400
+Message-Id: <20190802131951.11600-69-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
 References: <20190802131951.11600-1-sashal@kernel.org>
@@ -43,46 +48,390 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wenwen@cs.uga.edu>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit d4fddac5a51c378c5d3e68658816c37132611e1f ]
+[ Upstream commit cb361d8cdef69990f6b4504dc1fd9a594d983c97 ]
 
-In test_firmware_init(), the buffer pointed to by the global pointer
-'test_fw_config' is allocated through kzalloc(). Then, the buffer is
-initialized in __test_firmware_config_init(). In the case that the
-initialization fails, the following execution in test_firmware_init() needs
-to be terminated with an error code returned to indicate this failure.
-However, the allocated buffer is not freed on this execution path, leading
-to a memory leak bug.
+The old code used RCU annotations and accessors inconsistently for
+->numa_group, which can lead to use-after-frees and NULL dereferences.
 
-To fix the above issue, free the allocated buffer before returning from
-test_firmware_init().
+Let all accesses to ->numa_group use proper RCU helpers to prevent such
+issues.
 
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Link: https://lore.kernel.org/r/1563084696-6865-1-git-send-email-wang6495@umn.edu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Will Deacon <will@kernel.org>
+Fixes: 8c8a743c5087 ("sched/numa: Use {cpu, pid} to create task groups for shared faults")
+Link: https://lkml.kernel.org/r/20190716152047.14424-3-jannh@google.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_firmware.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ include/linux/sched.h |  10 +++-
+ kernel/sched/fair.c   | 120 ++++++++++++++++++++++++++++--------------
+ 2 files changed, 90 insertions(+), 40 deletions(-)
 
-diff --git a/lib/test_firmware.c b/lib/test_firmware.c
-index 83ea6c4e623cf..6ca97a63b3d6b 100644
---- a/lib/test_firmware.c
-+++ b/lib/test_firmware.c
-@@ -886,8 +886,11 @@ static int __init test_firmware_init(void)
- 		return -ENOMEM;
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 11837410690f0..1157f6e245af4 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1026,7 +1026,15 @@ struct task_struct {
+ 	u64				last_sum_exec_runtime;
+ 	struct callback_head		numa_work;
  
- 	rc = __test_firmware_config_init();
--	if (rc)
-+	if (rc) {
-+		kfree(test_fw_config);
-+		pr_err("could not init firmware test config: %d\n", rc);
- 		return rc;
-+	}
+-	struct numa_group		*numa_group;
++	/*
++	 * This pointer is only modified for current in syscall and
++	 * pagefault context (and for tasks being destroyed), so it can be read
++	 * from any of the following contexts:
++	 *  - RCU read-side critical section
++	 *  - current->numa_group from everywhere
++	 *  - task's runqueue locked, task not running
++	 */
++	struct numa_group __rcu		*numa_group;
  
- 	rc = misc_register(&test_fw_misc_device);
- 	if (rc) {
+ 	/*
+ 	 * numa_faults is an array split into four regions:
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 8adf7b303d04d..9ecf1e4c624b4 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -1067,6 +1067,21 @@ struct numa_group {
+ 	unsigned long faults[0];
+ };
+ 
++/*
++ * For functions that can be called in multiple contexts that permit reading
++ * ->numa_group (see struct task_struct for locking rules).
++ */
++static struct numa_group *deref_task_numa_group(struct task_struct *p)
++{
++	return rcu_dereference_check(p->numa_group, p == current ||
++		(lockdep_is_held(&task_rq(p)->lock) && !READ_ONCE(p->on_cpu)));
++}
++
++static struct numa_group *deref_curr_numa_group(struct task_struct *p)
++{
++	return rcu_dereference_protected(p->numa_group, p == current);
++}
++
+ static inline unsigned long group_faults_priv(struct numa_group *ng);
+ static inline unsigned long group_faults_shared(struct numa_group *ng);
+ 
+@@ -1110,10 +1125,12 @@ static unsigned int task_scan_start(struct task_struct *p)
+ {
+ 	unsigned long smin = task_scan_min(p);
+ 	unsigned long period = smin;
++	struct numa_group *ng;
+ 
+ 	/* Scale the maximum scan period with the amount of shared memory. */
+-	if (p->numa_group) {
+-		struct numa_group *ng = p->numa_group;
++	rcu_read_lock();
++	ng = rcu_dereference(p->numa_group);
++	if (ng) {
+ 		unsigned long shared = group_faults_shared(ng);
+ 		unsigned long private = group_faults_priv(ng);
+ 
+@@ -1121,6 +1138,7 @@ static unsigned int task_scan_start(struct task_struct *p)
+ 		period *= shared + 1;
+ 		period /= private + shared + 1;
+ 	}
++	rcu_read_unlock();
+ 
+ 	return max(smin, period);
+ }
+@@ -1129,13 +1147,14 @@ static unsigned int task_scan_max(struct task_struct *p)
+ {
+ 	unsigned long smin = task_scan_min(p);
+ 	unsigned long smax;
++	struct numa_group *ng;
+ 
+ 	/* Watch for min being lower than max due to floor calculations */
+ 	smax = sysctl_numa_balancing_scan_period_max / task_nr_scan_windows(p);
+ 
+ 	/* Scale the maximum scan period with the amount of shared memory. */
+-	if (p->numa_group) {
+-		struct numa_group *ng = p->numa_group;
++	ng = deref_curr_numa_group(p);
++	if (ng) {
+ 		unsigned long shared = group_faults_shared(ng);
+ 		unsigned long private = group_faults_priv(ng);
+ 		unsigned long period = smax;
+@@ -1167,7 +1186,7 @@ void init_numa_balancing(unsigned long clone_flags, struct task_struct *p)
+ 	p->numa_scan_period		= sysctl_numa_balancing_scan_delay;
+ 	p->numa_work.next		= &p->numa_work;
+ 	p->numa_faults			= NULL;
+-	p->numa_group			= NULL;
++	RCU_INIT_POINTER(p->numa_group, NULL);
+ 	p->last_task_numa_placement	= 0;
+ 	p->last_sum_exec_runtime	= 0;
+ 
+@@ -1214,7 +1233,16 @@ static void account_numa_dequeue(struct rq *rq, struct task_struct *p)
+ 
+ pid_t task_numa_group_id(struct task_struct *p)
+ {
+-	return p->numa_group ? p->numa_group->gid : 0;
++	struct numa_group *ng;
++	pid_t gid = 0;
++
++	rcu_read_lock();
++	ng = rcu_dereference(p->numa_group);
++	if (ng)
++		gid = ng->gid;
++	rcu_read_unlock();
++
++	return gid;
+ }
+ 
+ /*
+@@ -1239,11 +1267,13 @@ static inline unsigned long task_faults(struct task_struct *p, int nid)
+ 
+ static inline unsigned long group_faults(struct task_struct *p, int nid)
+ {
+-	if (!p->numa_group)
++	struct numa_group *ng = deref_task_numa_group(p);
++
++	if (!ng)
+ 		return 0;
+ 
+-	return p->numa_group->faults[task_faults_idx(NUMA_MEM, nid, 0)] +
+-		p->numa_group->faults[task_faults_idx(NUMA_MEM, nid, 1)];
++	return ng->faults[task_faults_idx(NUMA_MEM, nid, 0)] +
++		ng->faults[task_faults_idx(NUMA_MEM, nid, 1)];
+ }
+ 
+ static inline unsigned long group_faults_cpu(struct numa_group *group, int nid)
+@@ -1381,12 +1411,13 @@ static inline unsigned long task_weight(struct task_struct *p, int nid,
+ static inline unsigned long group_weight(struct task_struct *p, int nid,
+ 					 int dist)
+ {
++	struct numa_group *ng = deref_task_numa_group(p);
+ 	unsigned long faults, total_faults;
+ 
+-	if (!p->numa_group)
++	if (!ng)
+ 		return 0;
+ 
+-	total_faults = p->numa_group->total_faults;
++	total_faults = ng->total_faults;
+ 
+ 	if (!total_faults)
+ 		return 0;
+@@ -1400,7 +1431,7 @@ static inline unsigned long group_weight(struct task_struct *p, int nid,
+ bool should_numa_migrate_memory(struct task_struct *p, struct page * page,
+ 				int src_nid, int dst_cpu)
+ {
+-	struct numa_group *ng = p->numa_group;
++	struct numa_group *ng = deref_curr_numa_group(p);
+ 	int dst_nid = cpu_to_node(dst_cpu);
+ 	int last_cpupid, this_cpupid;
+ 
+@@ -1583,13 +1614,14 @@ static bool load_too_imbalanced(long src_load, long dst_load,
+ static void task_numa_compare(struct task_numa_env *env,
+ 			      long taskimp, long groupimp, bool maymove)
+ {
++	struct numa_group *cur_ng, *p_ng = deref_curr_numa_group(env->p);
+ 	struct rq *dst_rq = cpu_rq(env->dst_cpu);
++	long imp = p_ng ? groupimp : taskimp;
+ 	struct task_struct *cur;
+ 	long src_load, dst_load;
+-	long load;
+-	long imp = env->p->numa_group ? groupimp : taskimp;
+-	long moveimp = imp;
+ 	int dist = env->dist;
++	long moveimp = imp;
++	long load;
+ 
+ 	if (READ_ONCE(dst_rq->numa_migrate_on))
+ 		return;
+@@ -1628,21 +1660,22 @@ static void task_numa_compare(struct task_numa_env *env,
+ 	 * If dst and source tasks are in the same NUMA group, or not
+ 	 * in any group then look only at task weights.
+ 	 */
+-	if (cur->numa_group == env->p->numa_group) {
++	cur_ng = rcu_dereference(cur->numa_group);
++	if (cur_ng == p_ng) {
+ 		imp = taskimp + task_weight(cur, env->src_nid, dist) -
+ 		      task_weight(cur, env->dst_nid, dist);
+ 		/*
+ 		 * Add some hysteresis to prevent swapping the
+ 		 * tasks within a group over tiny differences.
+ 		 */
+-		if (cur->numa_group)
++		if (cur_ng)
+ 			imp -= imp / 16;
+ 	} else {
+ 		/*
+ 		 * Compare the group weights. If a task is all by itself
+ 		 * (not part of a group), use the task weight instead.
+ 		 */
+-		if (cur->numa_group && env->p->numa_group)
++		if (cur_ng && p_ng)
+ 			imp += group_weight(cur, env->src_nid, dist) -
+ 			       group_weight(cur, env->dst_nid, dist);
+ 		else
+@@ -1740,11 +1773,12 @@ static int task_numa_migrate(struct task_struct *p)
+ 		.best_imp = 0,
+ 		.best_cpu = -1,
+ 	};
++	unsigned long taskweight, groupweight;
+ 	struct sched_domain *sd;
++	long taskimp, groupimp;
++	struct numa_group *ng;
+ 	struct rq *best_rq;
+-	unsigned long taskweight, groupweight;
+ 	int nid, ret, dist;
+-	long taskimp, groupimp;
+ 
+ 	/*
+ 	 * Pick the lowest SD_NUMA domain, as that would have the smallest
+@@ -1790,7 +1824,8 @@ static int task_numa_migrate(struct task_struct *p)
+ 	 *   multiple NUMA nodes; in order to better consolidate the group,
+ 	 *   we need to check other locations.
+ 	 */
+-	if (env.best_cpu == -1 || (p->numa_group && p->numa_group->active_nodes > 1)) {
++	ng = deref_curr_numa_group(p);
++	if (env.best_cpu == -1 || (ng && ng->active_nodes > 1)) {
+ 		for_each_online_node(nid) {
+ 			if (nid == env.src_nid || nid == p->numa_preferred_nid)
+ 				continue;
+@@ -1823,7 +1858,7 @@ static int task_numa_migrate(struct task_struct *p)
+ 	 * A task that migrated to a second choice node will be better off
+ 	 * trying for a better one later. Do not set the preferred node here.
+ 	 */
+-	if (p->numa_group) {
++	if (ng) {
+ 		if (env.best_cpu == -1)
+ 			nid = env.src_nid;
+ 		else
+@@ -2118,6 +2153,7 @@ static void task_numa_placement(struct task_struct *p)
+ 	unsigned long total_faults;
+ 	u64 runtime, period;
+ 	spinlock_t *group_lock = NULL;
++	struct numa_group *ng;
+ 
+ 	/*
+ 	 * The p->mm->numa_scan_seq field gets updated without
+@@ -2135,8 +2171,9 @@ static void task_numa_placement(struct task_struct *p)
+ 	runtime = numa_get_avg_runtime(p, &period);
+ 
+ 	/* If the task is part of a group prevent parallel updates to group stats */
+-	if (p->numa_group) {
+-		group_lock = &p->numa_group->lock;
++	ng = deref_curr_numa_group(p);
++	if (ng) {
++		group_lock = &ng->lock;
+ 		spin_lock_irq(group_lock);
+ 	}
+ 
+@@ -2177,7 +2214,7 @@ static void task_numa_placement(struct task_struct *p)
+ 			p->numa_faults[cpu_idx] += f_diff;
+ 			faults += p->numa_faults[mem_idx];
+ 			p->total_numa_faults += diff;
+-			if (p->numa_group) {
++			if (ng) {
+ 				/*
+ 				 * safe because we can only change our own group
+ 				 *
+@@ -2185,14 +2222,14 @@ static void task_numa_placement(struct task_struct *p)
+ 				 * nid and priv in a specific region because it
+ 				 * is at the beginning of the numa_faults array.
+ 				 */
+-				p->numa_group->faults[mem_idx] += diff;
+-				p->numa_group->faults_cpu[mem_idx] += f_diff;
+-				p->numa_group->total_faults += diff;
+-				group_faults += p->numa_group->faults[mem_idx];
++				ng->faults[mem_idx] += diff;
++				ng->faults_cpu[mem_idx] += f_diff;
++				ng->total_faults += diff;
++				group_faults += ng->faults[mem_idx];
+ 			}
+ 		}
+ 
+-		if (!p->numa_group) {
++		if (!ng) {
+ 			if (faults > max_faults) {
+ 				max_faults = faults;
+ 				max_nid = nid;
+@@ -2203,8 +2240,8 @@ static void task_numa_placement(struct task_struct *p)
+ 		}
+ 	}
+ 
+-	if (p->numa_group) {
+-		numa_group_count_active_nodes(p->numa_group);
++	if (ng) {
++		numa_group_count_active_nodes(ng);
+ 		spin_unlock_irq(group_lock);
+ 		max_nid = preferred_group_nid(p, max_nid);
+ 	}
+@@ -2238,7 +2275,7 @@ static void task_numa_group(struct task_struct *p, int cpupid, int flags,
+ 	int cpu = cpupid_to_cpu(cpupid);
+ 	int i;
+ 
+-	if (unlikely(!p->numa_group)) {
++	if (unlikely(!deref_curr_numa_group(p))) {
+ 		unsigned int size = sizeof(struct numa_group) +
+ 				    4*nr_node_ids*sizeof(unsigned long);
+ 
+@@ -2274,7 +2311,7 @@ static void task_numa_group(struct task_struct *p, int cpupid, int flags,
+ 	if (!grp)
+ 		goto no_join;
+ 
+-	my_grp = p->numa_group;
++	my_grp = deref_curr_numa_group(p);
+ 	if (grp == my_grp)
+ 		goto no_join;
+ 
+@@ -2345,7 +2382,8 @@ no_join:
+  */
+ void task_numa_free(struct task_struct *p, bool final)
+ {
+-	struct numa_group *grp = p->numa_group;
++	/* safe: p either is current or is being freed by current */
++	struct numa_group *grp = rcu_dereference_raw(p->numa_group);
+ 	unsigned long *numa_faults = p->numa_faults;
+ 	unsigned long flags;
+ 	int i;
+@@ -2425,7 +2463,7 @@ void task_numa_fault(int last_cpupid, int mem_node, int pages, int flags)
+ 	 * actively using should be counted as local. This allows the
+ 	 * scan rate to slow down when a workload has settled down.
+ 	 */
+-	ng = p->numa_group;
++	ng = deref_curr_numa_group(p);
+ 	if (!priv && !local && ng && ng->active_nodes > 1 &&
+ 				numa_is_active_node(cpu_node, ng) &&
+ 				numa_is_active_node(mem_node, ng))
+@@ -10724,18 +10762,22 @@ void show_numa_stats(struct task_struct *p, struct seq_file *m)
+ {
+ 	int node;
+ 	unsigned long tsf = 0, tpf = 0, gsf = 0, gpf = 0;
++	struct numa_group *ng;
+ 
++	rcu_read_lock();
++	ng = rcu_dereference(p->numa_group);
+ 	for_each_online_node(node) {
+ 		if (p->numa_faults) {
+ 			tsf = p->numa_faults[task_faults_idx(NUMA_MEM, node, 0)];
+ 			tpf = p->numa_faults[task_faults_idx(NUMA_MEM, node, 1)];
+ 		}
+-		if (p->numa_group) {
+-			gsf = p->numa_group->faults[task_faults_idx(NUMA_MEM, node, 0)],
+-			gpf = p->numa_group->faults[task_faults_idx(NUMA_MEM, node, 1)];
++		if (ng) {
++			gsf = ng->faults[task_faults_idx(NUMA_MEM, node, 0)],
++			gpf = ng->faults[task_faults_idx(NUMA_MEM, node, 1)];
+ 		}
+ 		print_numa_stats(m, node, tsf, tpf, gsf, gpf);
+ 	}
++	rcu_read_unlock();
+ }
+ #endif /* CONFIG_NUMA_BALANCING */
+ #endif /* CONFIG_SCHED_DEBUG */
 -- 
 2.20.1
 
