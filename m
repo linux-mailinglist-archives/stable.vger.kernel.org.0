@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B53EF80486
-	for <lists+stable@lfdr.de>; Sat,  3 Aug 2019 07:50:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6081280488
+	for <lists+stable@lfdr.de>; Sat,  3 Aug 2019 07:52:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726487AbfHCFuU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Aug 2019 01:50:20 -0400
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:40819 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726481AbfHCFuU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Aug 2019 01:50:20 -0400
-Received: by mail-lf1-f66.google.com with SMTP id b17so54414148lff.7
-        for <stable@vger.kernel.org>; Fri, 02 Aug 2019 22:50:19 -0700 (PDT)
+        id S1726526AbfHCFwx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Aug 2019 01:52:53 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:45655 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726358AbfHCFwx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Aug 2019 01:52:53 -0400
+Received: by mail-lj1-f194.google.com with SMTP id m23so74679414lje.12
+        for <stable@vger.kernel.org>; Fri, 02 Aug 2019 22:52:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=1SSAQj0JAqVNZ89OxICGVwd/tUG1D7d0oLxRMKn0L5M=;
-        b=EMajgYd8HWaKDOKTloVrJV09QHLqIZQkaSMbdzGYcMCo0JziIkgawMw1zUYoNQsopV
-         r2jshU+s9n6RGY+Qv/GlkGYHhH5iodN4IqfaUwn+JlcGsm4HXJgowY1Q8G+6vBADcg8l
-         IkZm+WhWCCLH46Gx0ojOf5d7Y8QrtAZ9BpKx5xU3TEIl6NfhwFkraaCGZD3kxV8IedMr
-         UIA11qr5+bhLiaiiM4FH94nreqFzZBeSfXl8A41v2n/g+Y8ukEatDri0LY5nd8bqXtV3
-         Q+TE/il6t3A7OC7LEDiQVpMPbLGqIcAIVTkQDM6RxJAHsPIwgGGf88qVFqHZlgTH3b6Z
-         bl9w==
+        bh=YSlBGcAw76C1VbyShzFIB1RRXoIsjlJxCaN4hmv3Z0o=;
+        b=kn1nTjqW1CDvMNVfyVZ1RFxz7eLrebdgvcaXz0Ie/RRx0XQtObtmO6CtmebRpq2tVp
+         ypDfIGfP27oDK067dBJS0RV1EGduDyD/ojA6avUQHzg+X4rgyDsbS/qLlWbz4UNC6PZe
+         IZE6GfQA+lsGSeaIekPXiOqeS5m79+ZVy+GQzHnzyXnUeZfZ9IGqPMBphEhqtqV32RqA
+         KnChsLyFhYanGJomU8UwqI+Ymr38lsAoplx36D/NIKFYbbbegTCf1E3fwLho+dZqW3Ts
+         XuyWViUgL5+LP20FuSmZz9OrpTaCN7vSzVKrGOE/YfPDqgxiAPFwaL10AotfB0DLMT4o
+         CcaA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=1SSAQj0JAqVNZ89OxICGVwd/tUG1D7d0oLxRMKn0L5M=;
-        b=AiXNvzmdakw3S9WpEU6Nxv0OBeWK75rwFGXUuYzpE1+YVMuu/6MtMFN/RNfQ5RSBst
-         C1Cw0toCWBUh7cH0i2wD6lgRYU4Bh54h0ewgNRZbhmO3e46mVkUMnWeK/h8Ld/FGf1BH
-         WZrMEvt+4P5lUcCYxQrunFHB6AO71LdMR5y6bdFjzt5eeJlNSzC4/niAXdneo7uhS73V
-         T7p8QMw9BQDpVzcpHuJEU2w5730D/gYORO7Mwp/u4YjLTQQ/HmlM9ushZ/MeIFfy416S
-         oeFDVxk2YAdhZhgLMiQWocGlIt+aGDdEtghZVV4hlPqawJF/QfttETEQXiaGAP+QVk+K
-         uURg==
-X-Gm-Message-State: APjAAAXPA3o+EKIwRcYw/BFq+xByvtbCMty79l3IxPTQT7MOUHJmvgWg
-        rl9WPAfR5A6ogEm5AYvhLP97iD4riR7Ti7ITZpMePQ==
-X-Google-Smtp-Source: APXvYqx0FuHTfjqYLyHkUP/iMRJRl3qBSivHGd698pmIMai0T3UHCifQjN6I5UzyrpoGnGVkAnKfSwM3cfPlHDflHmA=
-X-Received: by 2002:ac2:5596:: with SMTP id v22mr231497lfg.132.1564811418441;
- Fri, 02 Aug 2019 22:50:18 -0700 (PDT)
+        bh=YSlBGcAw76C1VbyShzFIB1RRXoIsjlJxCaN4hmv3Z0o=;
+        b=fapqdmnxMoj92gygL+FVlhmrqNHwTBgvl1wA0yzFgD+SHh8BRTDOdpCg99pEh6cA6m
+         SH8fQ1HP4CvCflHpVKRSseTeS8U1txNrKDH0KP5JaCAcZR7IiwXIfwdv89Q8egRkfVZf
+         ZWu1CrJ/wi6NMOSvg9/4tSFFnGjHKhAFR5m9wN8cP4qTjONenPKy6DZPIohteVDNMcJv
+         pepeqXeJ+Gaod1PwaLeggMPtfKwnbXvM/F3no7E9ImwsIluEzCFd5EVwvBwYqDHWVue+
+         t5+bmOCeyk++Y1LceH3gHxJjVaDDqQjKylEsNpggEKjGWVCr1ehwVfbEX4/pthlscQwm
+         ticQ==
+X-Gm-Message-State: APjAAAWPoi67OAv2aYSEz3sNXnoOGD/aDAir26miDDriwTDYBVH6PEev
+        +6WARJdfrEyAJDvXql0dzeVtk9Y1zZu7HBbCuwT9BA==
+X-Google-Smtp-Source: APXvYqzBTHcDTJcNUArxB1an2THOo2mV4dUYt14d6AZgygv729jMZVU955uQ0T+lDSrF9Rzu5h5oZ9Tn0fJ2/Z121qI=
+X-Received: by 2002:a2e:b0f0:: with SMTP id h16mr49592222ljl.21.1564811570612;
+ Fri, 02 Aug 2019 22:52:50 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190802092055.131876977@linuxfoundation.org>
-In-Reply-To: <20190802092055.131876977@linuxfoundation.org>
+References: <20190802092203.671944552@linuxfoundation.org>
+In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 3 Aug 2019 11:20:05 +0530
-Message-ID: <CA+G9fYsFFZvU74RN-ucQ_P4WZ_Wi1nHdbyiRN77sw6vV9AV+xg@mail.gmail.com>
-Subject: Re: [PATCH 5.2 00/20] 5.2.6-stable review
+Date:   Sat, 3 Aug 2019 11:22:37 +0530
+Message-ID: <CA+G9fYttF9BsfGJennzfrPzVk=H+xGDM9vpFE9gb4vYbhMDWhw@mail.gmail.com>
+Subject: Re: [PATCH 4.4 000/158] 4.4.187-stable review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
@@ -63,11 +63,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2 Aug 2019 at 15:28, Greg Kroah-Hartman
+On Fri, 2 Aug 2019 at 15:00, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.2.6 release.
-> There are 20 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 4.4.187 release.
+> There are 158 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -75,17 +75,16 @@ On Fri, 2 Aug 2019 at 15:28, Greg Kroah-Hartman
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.2.6-rc1.gz
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.4.187-rc1.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.2.y
+-rc.git linux-4.4.y
 > and the diffstat can be found below.
 >
 > thanks,
 >
 > greg k-h
-
 
 Results from Linaro=E2=80=99s test farm.
 No regressions on arm64, arm, x86_64, and i386.
@@ -93,42 +92,39 @@ No regressions on arm64, arm, x86_64, and i386.
 Summary
 ------------------------------------------------------------------------
 
-kernel: 5.2.6-rc1
+kernel: 4.4.187-rc2
 git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
 le-rc.git
-git branch: linux-5.2.y
-git commit: 44397d30b22dd93340c705ef34bb61c16f43503b
-git describe: v5.2.4-235-g44397d30b22d
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.2-oe/bui=
-ld/v5.2.4-235-g44397d30b22d
+git branch: linux-4.4.y
+git commit: d9815060e3ec2433dfffc8a3dcaed9842b1798c7
+git describe: v4.4.186-157-gd9815060e3ec
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.4-oe/bui=
+ld/v4.4.186-157-gd9815060e3ec
 
 
-No regressions (compared to build v5.2.4)
+No regressions (compared to build v4.4.186)
 
 
-No fixes (compared to build v5.2.4)
+No fixes (compared to build v4.4.186)
 
-Ran 21444 total tests in the following environments and test suites.
+Ran 13277 total tests in the following environments and test suites.
 
 Environments
 --------------
-- dragonboard-410c
-- hi6220-hikey
 - i386
-- juno-r2
+- juno-r2 - arm64
 - qemu_arm
 - qemu_arm64
 - qemu_i386
 - qemu_x86_64
-- x15
-- x86
+- x15 - arm
+- x86_64
 
 Test Suites
 -----------
 * build
-* install-android-platform-tools-r2600
 * kselftest
-* libgpiod
+* kvm-unit-tests
 * libhugetlbfs
 * ltp-cap_bounds-tests
 * ltp-commands-tests
@@ -138,6 +134,66 @@ Test Suites
 * ltp-dio-tests
 * ltp-fcntl-locktests-tests
 * ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* network-basic-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* install-android-platform-tools-r2600
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.4.187-rc2
+git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
+git branch: 4.4.187-rc2-hikey-20190802-517
+git commit: 83e555c108c2c8fc5cc0af29c02f47cc2676fb88
+git describe: 4.4.187-rc2-hikey-20190802-517
+Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
+-oe/build/4.4.187-rc2-hikey-20190802-517
+
+
+No regressions (compared to build 4.4.187-rc1-hikey-20190802-516)
+
+
+No fixes (compared to build 4.4.187-rc1-hikey-20190802-516)
+
+Ran 1549 total tests in the following environments and test suites.
+
+Environments
+--------------
+- hi6220-hikey - arm64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
 * ltp-fs_bind-tests
 * ltp-fs_perms_simple-tests
 * ltp-fsx-tests
@@ -152,16 +208,9 @@ Test Suites
 * ltp-securebits-tests
 * ltp-syscalls-tests
 * ltp-timers-tests
-* network-basic-tests
 * perf
 * spectre-meltdown-checker-test
 * v4l2-compliance
-* ltp-fs-tests
-* ltp-open-posix-tests
-* kvm-unit-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-* ssuite
 
 --=20
 Linaro LKFT
