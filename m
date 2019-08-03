@@ -2,85 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13B6B8071F
-	for <lists+stable@lfdr.de>; Sat,  3 Aug 2019 18:00:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4509E8075D
+	for <lists+stable@lfdr.de>; Sat,  3 Aug 2019 19:09:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727961AbfHCQAO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Aug 2019 12:00:14 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:35727 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726300AbfHCQAO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Aug 2019 12:00:14 -0400
-Received: by mail-pf1-f193.google.com with SMTP id u14so37532568pfn.2;
-        Sat, 03 Aug 2019 09:00:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=yTadWe86gKjo9vnan4joaBeNoEwdwBddX6AmXeDPPnk=;
-        b=P23R6vcEPbH7WU3Ildsh+a2PH4O0CM6bPHIz/f8xqiz2+k+8yfsr6vKYxNx+JiVqmH
-         Zmp8bHEMDNP0AaG2aCd1gFjaxku2PkNZxfpMp13NMtHxFJdEr7cEwcv2uijxknq58b4d
-         9XbzIAt/6viyI6Z9k2l0G3KgNMXL5rR8o2z06vO8Ccn6Gmij4MC+pkV6p1HppHg9BOTo
-         ++dfSSjbx+KYG7bNI0iKJ1//GAUhtF4x44+h3J8FHKGNv2pqsZUwWXrR5p+nQnWMJubF
-         Jhg+oRkUjIROEBzOaLlMyR0AZeCZbzI6brQBAKuLrb5gqp63ZHy40qlSMlmSHOSL4BjM
-         6WmQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=yTadWe86gKjo9vnan4joaBeNoEwdwBddX6AmXeDPPnk=;
-        b=U7jmhERifJixxSDfmjZfuRaOJbfzITASq9xi3QSK/yON0xMIpna9x1mZRGU1Pt/wpZ
-         4jgeLkbLIZiQmFL6aFCG0z74n+cqlM1yYqbddnTBilJFvB/PHeHRZ0nWIjEf1jVDMUfH
-         NO5vwwhLGi5hhy6zvD//AGWFvEbu1fSNEBbZkNzMXlIciSnHsO0rFJufBs5itsYTar1J
-         G+sCWvVLb9BK7Aj04YK4gQmuEwGylB1bLFC6FD58fL6o8uqYuy4IOC+/Q7arulnGga4U
-         ypDUIWgl+BVDElJDVbWnmdVzQBKWe9lbTWOVVdSFKeEwozRZ2d6OX/TUJzRzv8eSs5tx
-         U8KQ==
-X-Gm-Message-State: APjAAAXG34o+kcf/xHzc9uKxc0fLryTlRU7IkJNwXbpe/ZEicrz4ECGu
-        abmMNrWJ4vHupwtMrPak/pYgD2hJ
-X-Google-Smtp-Source: APXvYqxCvcYpOCV/sU7Hj00YTUEvZToGSzLWs5hHFJyjSUJ9Uw9+OyJLg8DHn5EMMtY/6kgWSaDPrg==
-X-Received: by 2002:a65:6846:: with SMTP id q6mr90826502pgt.150.1564848013058;
-        Sat, 03 Aug 2019 09:00:13 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id cx22sm10630030pjb.25.2019.08.03.09.00.12
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 03 Aug 2019 09:00:12 -0700 (PDT)
-Subject: Re: [PATCH 5.2 00/20] 5.2.6-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-References: <20190802092055.131876977@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <9492210e-e617-f636-d0f6-6a6381ad9461@roeck-us.net>
-Date:   Sat, 3 Aug 2019 09:00:11 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
-MIME-Version: 1.0
-In-Reply-To: <20190802092055.131876977@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1728108AbfHCRJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Aug 2019 13:09:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60532 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728098AbfHCRJ5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 3 Aug 2019 13:09:57 -0400
+Received: from localhost (unknown [23.100.24.84])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FF3A2073D;
+        Sat,  3 Aug 2019 17:09:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564852196;
+        bh=nnvxeM6zq1OXOD8GQEI8rkyzI6Ll6gVypTEPahNXz+o=;
+        h=Date:From:To:To:To:Cc:Subject:In-Reply-To:References:From;
+        b=B2Yc5WdbTnxrgfm82jc6U3BpxunWgcXNncLmxnQHTyNKE12k2+hS/plf0SPoBlwSd
+         rxRS0tjG07ILYnbgkmVHvGCfKOEcdLmANUep+cBl52uT8wuogPP5Uszwo7EllEb3En
+         6uBqkPCcIhAKEuJ9owFi/fMH+3sIf6jNTxLOvUqw=
+Date:   Sat, 03 Aug 2019 17:09:55 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Trond Myklebust <trondmy@gmail.com>
+To:     linux-nfs@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 2/8] NFSv4: Fix delegation state recovery
+In-Reply-To: <20190803145826.15504-2-trond.myklebust@hammerspace.com>
+References: <20190803145826.15504-2-trond.myklebust@hammerspace.com>
+Message-Id: <20190803170956.3FF3A2073D@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/2/19 2:39 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.2.6 release.
-> There are 20 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun 04 Aug 2019 09:19:34 AM UTC.
-> Anything received after that time might be too late.
-> 
+Hi,
 
-Build results:
-	total: 159 pass: 159 fail: 0
-Qemu test results:
-	total: 364 pass: 364 fail: 0
+[This is an automated email]
 
-Guenter
+This commit has been processed because it contains a "Fixes:" tag,
+fixing commit: 24311f884189 NFSv4: Recovery of recalled read delegations is broken.
+
+The bot has tested the following trees: v5.2.5, v4.19.63, v4.14.135, v4.9.186, v4.4.186.
+
+v5.2.5: Build OK!
+v4.19.63: Failed to apply! Possible dependencies:
+    07d02a67b7fa ("SUNRPC: Simplify lookup code")
+    79b181810285 ("SUNRPC: Convert auth creds to use refcount_t")
+    8276c902bbe9 ("SUNRPC: remove uid and gid from struct auth_cred")
+    95cd623250ad ("SUNRPC: Clean up the AUTH cache code")
+    97f68c6b02e0 ("SUNRPC: add 'struct cred *' to auth_cred and rpc_cred")
+    a52458b48af1 ("NFS/NFSD/SUNRPC: replace generic creds with 'struct cred'.")
+    fc0664fd9bcc ("SUNRPC: remove groupinfo from struct auth_cred.")
+
+v4.14.135: Failed to apply! Possible dependencies:
+    07d02a67b7fa ("SUNRPC: Simplify lookup code")
+    12f275cdd163 ("NFSv4: Retry CLOSE and DELEGRETURN on NFS4ERR_OLD_STATEID.")
+    1eb5d98f16f6 ("nfs: convert to new i_version API")
+    35156bfff3c0 ("NFSv4: Fix the nfs_inode_set_delegation() arguments")
+    79b181810285 ("SUNRPC: Convert auth creds to use refcount_t")
+    95cd623250ad ("SUNRPC: Clean up the AUTH cache code")
+    97f68c6b02e0 ("SUNRPC: add 'struct cred *' to auth_cred and rpc_cred")
+    a52458b48af1 ("NFS/NFSD/SUNRPC: replace generic creds with 'struct cred'.")
+    b3dce6a2f060 ("pnfs/blocklayout: handle transient devices")
+    fc0664fd9bcc ("SUNRPC: remove groupinfo from struct auth_cred.")
+
+v4.9.186: Failed to apply! Possible dependencies:
+    1eb5d98f16f6 ("nfs: convert to new i_version API")
+    35156bfff3c0 ("NFSv4: Fix the nfs_inode_set_delegation() arguments")
+    39bc88e5e38e ("arm64: Disable TTBR0_EL1 during normal kernel execution")
+    7c0f6ba682b9 ("Replace <asm/uaccess.h> with <linux/uaccess.h> globally")
+    9cf09d68b89a ("arm64: xen: Enable user access before a privcmd hvc call")
+    a52458b48af1 ("NFS/NFSD/SUNRPC: replace generic creds with 'struct cred'.")
+    b3dce6a2f060 ("pnfs/blocklayout: handle transient devices")
+    bd38967d406f ("arm64: Factor out PAN enabling/disabling into separate uaccess_* macros")
+
+v4.4.186: Failed to apply! Possible dependencies:
+    0654cc726fc6 ("NFSv4.1/pNFS: Add a helper to mark the layout as returned")
+    10335556c9e6 ("NFSv4.1/pNFS: pnfs_error_mark_layout_for_return() must always return layout")
+    13c13a6ad71f ("pNFS: Fix missing layoutreturn calls")
+    2454dfea0aef ("NFSv4.x/pnfs: Fix a race between layoutget and pnfs_destroy_layout")
+    3982a6a2d0e6 ("pnfs: keep track of the return sequence number in pnfs_layout_hdr")
+    4b0934baf931 ("NFSv4.1/pNFS: Fix a race in initiate_file_draining()")
+    506c0d68269e ("NFSv4.1/pNFS: Cleanup constify struct pnfs_layout_range arguments")
+    50f563ef5d41 ("NFSv4.1/pNFS: Use nfs4_stateid_copy for copying stateids")
+    5c97f5de2c7c ("NFSv4.1/pNFS: pnfs_mark_matching_lsegs_return() should set the iomode")
+    68d264cf02b0 ("NFS42: handle layoutstats stateid error")
+    6d597e175012 ("pnfs: only tear down lsegs that precede seqid in LAYOUTRETURN args")
+    71b39854a500 ("NFSv4.1/pNFS: Cleanup pnfs_mark_matching_lsegs_invalid()")
+    9fd4b9fc7695 ("NFSv4.x/pnfs: Fix a race between layoutget and bulk recalls")
+    a52458b48af1 ("NFS/NFSD/SUNRPC: replace generic creds with 'struct cred'.")
+    b20135d0b243 ("NFSv4.1/pNFS: Don't queue up a new commit if the layout segment is invalid")
+    b3dce6a2f060 ("pnfs/blocklayout: handle transient devices")
+    e036f46453f2 ("NFS: pnfs_mark_matching_lsegs_return() should match the layout sequence id")
+    e0d9243048fd ("NFSv4.1/pNFS: Don't return NFS4ERR_DELAY unnecessarily in CB_LAYOUTRECALL")
+    ed429d6b934d ("NFSv4.1/pNFS: Don't pass stateids by value to pnfs_send_layoutreturn()")
+    fc7ff36747b9 ("pNFS: If we have to delay the layout callback, mark the layout for return")
+
+
+NOTE: The patch will not be queued to stable trees until it is upstream.
+
+How should we proceed with this patch?
+
+--
+Thanks,
+Sasha
