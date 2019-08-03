@@ -2,216 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6081280488
-	for <lists+stable@lfdr.de>; Sat,  3 Aug 2019 07:52:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C8B3804B3
+	for <lists+stable@lfdr.de>; Sat,  3 Aug 2019 08:36:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726526AbfHCFwx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Aug 2019 01:52:53 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:45655 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726358AbfHCFwx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Aug 2019 01:52:53 -0400
-Received: by mail-lj1-f194.google.com with SMTP id m23so74679414lje.12
-        for <stable@vger.kernel.org>; Fri, 02 Aug 2019 22:52:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=YSlBGcAw76C1VbyShzFIB1RRXoIsjlJxCaN4hmv3Z0o=;
-        b=kn1nTjqW1CDvMNVfyVZ1RFxz7eLrebdgvcaXz0Ie/RRx0XQtObtmO6CtmebRpq2tVp
-         ypDfIGfP27oDK067dBJS0RV1EGduDyD/ojA6avUQHzg+X4rgyDsbS/qLlWbz4UNC6PZe
-         IZE6GfQA+lsGSeaIekPXiOqeS5m79+ZVy+GQzHnzyXnUeZfZ9IGqPMBphEhqtqV32RqA
-         KnChsLyFhYanGJomU8UwqI+Ymr38lsAoplx36D/NIKFYbbbegTCf1E3fwLho+dZqW3Ts
-         XuyWViUgL5+LP20FuSmZz9OrpTaCN7vSzVKrGOE/YfPDqgxiAPFwaL10AotfB0DLMT4o
-         CcaA==
+        id S1726869AbfHCGg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Aug 2019 02:36:29 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:40489 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726822AbfHCGg2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Aug 2019 02:36:28 -0400
+Received: by mail-wr1-f66.google.com with SMTP id r1so79267301wrl.7
+        for <stable@vger.kernel.org>; Fri, 02 Aug 2019 23:36:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=YSlBGcAw76C1VbyShzFIB1RRXoIsjlJxCaN4hmv3Z0o=;
-        b=fapqdmnxMoj92gygL+FVlhmrqNHwTBgvl1wA0yzFgD+SHh8BRTDOdpCg99pEh6cA6m
-         SH8fQ1HP4CvCflHpVKRSseTeS8U1txNrKDH0KP5JaCAcZR7IiwXIfwdv89Q8egRkfVZf
-         ZWu1CrJ/wi6NMOSvg9/4tSFFnGjHKhAFR5m9wN8cP4qTjONenPKy6DZPIohteVDNMcJv
-         pepeqXeJ+Gaod1PwaLeggMPtfKwnbXvM/F3no7E9ImwsIluEzCFd5EVwvBwYqDHWVue+
-         t5+bmOCeyk++Y1LceH3gHxJjVaDDqQjKylEsNpggEKjGWVCr1ehwVfbEX4/pthlscQwm
-         ticQ==
-X-Gm-Message-State: APjAAAWPoi67OAv2aYSEz3sNXnoOGD/aDAir26miDDriwTDYBVH6PEev
-        +6WARJdfrEyAJDvXql0dzeVtk9Y1zZu7HBbCuwT9BA==
-X-Google-Smtp-Source: APXvYqzBTHcDTJcNUArxB1an2THOo2mV4dUYt14d6AZgygv729jMZVU955uQ0T+lDSrF9Rzu5h5oZ9Tn0fJ2/Z121qI=
-X-Received: by 2002:a2e:b0f0:: with SMTP id h16mr49592222ljl.21.1564811570612;
- Fri, 02 Aug 2019 22:52:50 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:openpgp:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=CxBS9dU0c4bmMBQFrGHmBgCL8Xa1VLsfjnTYVWRb6Mo=;
+        b=dqoh5jytszscMKeFyuT1WAPm+M8K+IjDh7c2q+SxciQTDb6hLkrHpbm6sDgekEFcYt
+         +C4JW5PcWrmwvjIJIaHbT26xCg5OawSVUMN0Dc8nyzUWU0uBJCX+PiVapnK3zPTOVCW6
+         /4CYlaEdPZR79JvlfGH/M3dJg2aHlEa8KlPzRrPRVrKJkc2RNDznjzSnHo22/CMJn1QH
+         VFejW3cWx2QwH3BxNyTuSWvQ5hmobNFajPXL6s0kQ4nMmAop29LZPU4M2KSqcoYz8xna
+         9XfdZWMR7ptX93ggMIz3Is9jESZC6PEahzp1NxVuBMaMCQj4DY8f73KcBQXlD+T8ED0E
+         Ox5A==
+X-Gm-Message-State: APjAAAWamvPGHHzBf4kgxDedUYvuUwP3RQkIw6ur/rQnZzugQQ9ziNYk
+        rLSl8ja7LaIGN9EVG/Uk4bhtEo6h8gA=
+X-Google-Smtp-Source: APXvYqzZQCJeHqyLw20M7N2TNmKBi8IwDHr1fSzkT1RENNvynG3/SjhC6PDSr6O2Hjklu3bZBeMSuA==
+X-Received: by 2002:a05:6000:4b:: with SMTP id k11mr47230220wrx.82.1564814186606;
+        Fri, 02 Aug 2019 23:36:26 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:4013:e920:9388:c3ff? ([2001:b07:6468:f312:4013:e920:9388:c3ff])
+        by smtp.gmail.com with ESMTPSA id s10sm94948121wmf.8.2019.08.02.23.36.25
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Fri, 02 Aug 2019 23:36:25 -0700 (PDT)
+Subject: Re: [PATCH v3 1/3] KVM: Fix leak vCPU's VMCS value into other pCPU
+To:     Wanpeng Li <kernellwp@gmail.com>, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Marc Zyngier <Marc.Zyngier@arm.com>, stable@vger.kernel.org
+References: <1564630214-28442-1-git-send-email-wanpengli@tencent.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Openpgp: preference=signencrypt
+Message-ID: <a2900ee5-61cf-a35b-7ae5-b326052e0a6d@redhat.com>
+Date:   Sat, 3 Aug 2019 08:36:25 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-References: <20190802092203.671944552@linuxfoundation.org>
-In-Reply-To: <20190802092203.671944552@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 3 Aug 2019 11:22:37 +0530
-Message-ID: <CA+G9fYttF9BsfGJennzfrPzVk=H+xGDM9vpFE9gb4vYbhMDWhw@mail.gmail.com>
-Subject: Re: [PATCH 4.4 000/158] 4.4.187-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <1564630214-28442-1-git-send-email-wanpengli@tencent.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2 Aug 2019 at 15:00, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.4.187 release.
-> There are 158 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun 04 Aug 2019 09:19:34 AM UTC.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.187-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On 01/08/19 05:30, Wanpeng Li wrote:
+> +bool kvm_arch_dy_runnable(struct kvm_vcpu *vcpu)
+> +{
+> +	if (READ_ONCE(vcpu->arch.pv.pv_unhalted))
+> +		return true;
+> +
+> +	if (kvm_test_request(KVM_REQ_NMI, vcpu) ||
+> +	    (READ_ONCE(vcpu->arch.nmi_pending) &&
+> +	     kvm_x86_ops->nmi_allowed(vcpu)))
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+You cannot check kvm_x86_ops->nmi_allowed(vcpu), so just use
+kvm_test_request.
 
-Summary
-------------------------------------------------------------------------
+> +		return true;
+> +
+> +	if (kvm_test_request(KVM_REQ_SMI, vcpu) ||
+> +	    (READ_ONCE(vcpu->arch.smi_pending) && !is_smm(vcpu)))
+> +		return true;
 
-kernel: 4.4.187-rc2
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.4.y
-git commit: d9815060e3ec2433dfffc8a3dcaed9842b1798c7
-git describe: v4.4.186-157-gd9815060e3ec
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.4-oe/bui=
-ld/v4.4.186-157-gd9815060e3ec
+Same here, if only for simplicity.
 
+> +	if (kvm_test_request(KVM_REQ_EVENT, vcpu))
+> +		return true;
+> +
+> +	if (vcpu->arch.apicv_active && kvm_x86_ops->apicv_test_pi_on(vcpu))
+> +		return true;
 
-No regressions (compared to build v4.4.186)
+Let's call it apicv_has_pending_interrupt instead.
 
+Also, please add a comment in kvm_main.c saying that
+kvm_arch_dy_runnable is called outside vcpu_load/vcpu_put.
 
-No fixes (compared to build v4.4.186)
+Paolo
 
-Ran 13277 total tests in the following environments and test suites.
-
-Environments
---------------
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-
-Test Suites
------------
-* build
-* kselftest
-* kvm-unit-tests
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* network-basic-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* install-android-platform-tools-r2600
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.187-rc2
-git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
-git branch: 4.4.187-rc2-hikey-20190802-517
-git commit: 83e555c108c2c8fc5cc0af29c02f47cc2676fb88
-git describe: 4.4.187-rc2-hikey-20190802-517
-Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
--oe/build/4.4.187-rc2-hikey-20190802-517
-
-
-No regressions (compared to build 4.4.187-rc1-hikey-20190802-516)
-
-
-No fixes (compared to build 4.4.187-rc1-hikey-20190802-516)
-
-Ran 1549 total tests in the following environments and test suites.
-
-Environments
---------------
-- hi6220-hikey - arm64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+> +
+> +	return false;
+> +}
