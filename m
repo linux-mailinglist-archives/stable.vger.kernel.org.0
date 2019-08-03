@@ -2,109 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6CC18046E
-	for <lists+stable@lfdr.de>; Sat,  3 Aug 2019 06:48:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A2D88046F
+	for <lists+stable@lfdr.de>; Sat,  3 Aug 2019 06:48:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726301AbfHCEst (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Aug 2019 00:48:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35534 "EHLO mail.kernel.org"
+        id S1726307AbfHCEsx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Aug 2019 00:48:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725283AbfHCEst (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 3 Aug 2019 00:48:49 -0400
+        id S1725283AbfHCEsx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 3 Aug 2019 00:48:53 -0400
 Received: from X1 (unknown [76.191.170.112])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B53B2166E;
-        Sat,  3 Aug 2019 04:48:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6E562067D;
+        Sat,  3 Aug 2019 04:48:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564807728;
-        bh=q0zGOh8sv4iCZgF1t9ZkFXRLYGxTCmf3f38lEFEt00c=;
+        s=default; t=1564807732;
+        bh=tcg13AD6OZHHS9AKZd7phU3x41qSuAOkaAtAZYMLcWc=;
         h=Date:From:To:Subject:From;
-        b=E2oXE8sEgI7HSJ2ZHFBpnTfpcI+QgM/EQIITHjz+ChEdbIMPiAdA0O1yrR6HJp9Jp
-         Gezm6HGdRqVrOP2exfetj5dmtTNJun0mUmijE/ATRJGsofHMA9k1gmahDXl778KZfJ
-         MC+yLU4vzbT21AN9femUbyVjjujSqtLZZ7snBQQI=
-Date:   Fri, 02 Aug 2019 21:48:47 -0700
+        b=0vvT7/6e7d5mAdg1Wsl6HtLLiCIQZP6GyVsGTql5fusnMEdS+mXy7NCi8mHIXnMMv
+         CCAGru+kkkw/WUZ8AtnDf+crdYY+IE8ev2vVly4bHsDzGfdGs0jiCKUJUG+9+WjNOw
+         y8qh9AkG+8cJRi8lVIF+UEpXAqkiEbU3UaqnHuGo=
+Date:   Fri, 02 Aug 2019 21:48:51 -0700
 From:   akpm@linux-foundation.org
-To:     stable@vger.kernel.org, mgorman@techsingularity.net, jack@suse.cz,
-        akpm@linux-foundation.org, mm-commits@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject:  [patch 05/17] mm: migrate: fix reference check race between
- __find_get_block() and migration
-Message-ID: <20190803044847.jzxsm%akpm@linux-foundation.org>
+To:     vbabka@suse.cz, stable@vger.kernel.org,
+        mgorman@techsingularity.net, akpm@linux-foundation.org,
+        mm-commits@vger.kernel.org, torvalds@linux-foundation.org
+Subject:  [patch 06/17] mm: compaction: avoid 100% CPU usage during
+ compaction when a task is killed
+Message-ID: <20190803044851.yVPey%akpm@linux-foundation.org>
 User-Agent: s-nail v14.9.10
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
-Subject: mm: migrate: fix reference check race between __find_get_block() and migration
+From: Mel Gorman <mgorman@techsingularity.net>
+Subject: mm: compaction: avoid 100% CPU usage during compaction when a task is killed
 
-buffer_migrate_page_norefs() can race with bh users in the following way:
+"howaboutsynergy" reported via kernel buzilla number 204165 that
+compact_zone_order was consuming 100% CPU during a stress test for
+prolonged periods of time.  Specifically the following command, which
+should exit in 10 seconds, was taking an excessive time to finish while
+the CPU was pegged at 100%.
 
-CPU1                                    CPU2
-buffer_migrate_page_norefs()
-  buffer_migrate_lock_buffers()
-  checks bh refs
-  spin_unlock(&mapping->private_lock)
-                                        __find_get_block()
-                                          spin_lock(&mapping->private_lock)
-                                          grab bh ref
-                                          spin_unlock(&mapping->private_lock)
-  move page                               do bh work
+  stress -m 220 --vm-bytes 1000000000 --timeout 10
 
-This can result in various issues like lost updates to buffers (i.e. 
-metadata corruption) or use after free issues for the old page.
+Tracing indicated a pattern as follows
 
-This patch closes the race by holding mapping->private_lock while the
-mapping is being moved to a new page.  Ordinarily, a reference can be
-taken outside of the private_lock using the per-cpu BH LRU but the
-references are checked and the LRU invalidated if necessary.  The
-private_lock is held once the references are known so the buffer lookup
-slow path will spin on the private_lock.  Between the page lock and
-private_lock, it should be impossible for other references to be acquired
-and updates to happen during the migration.
+          stress-3923  [007]   519.106208: mm_compaction_isolate_migratepages: range=(0x70bb80 ~ 0x70bb80) nr_scanned=0 nr_taken=0
+          stress-3923  [007]   519.106212: mm_compaction_isolate_migratepages: range=(0x70bb80 ~ 0x70bb80) nr_scanned=0 nr_taken=0
+          stress-3923  [007]   519.106216: mm_compaction_isolate_migratepages: range=(0x70bb80 ~ 0x70bb80) nr_scanned=0 nr_taken=0
+          stress-3923  [007]   519.106219: mm_compaction_isolate_migratepages: range=(0x70bb80 ~ 0x70bb80) nr_scanned=0 nr_taken=0
+          stress-3923  [007]   519.106223: mm_compaction_isolate_migratepages: range=(0x70bb80 ~ 0x70bb80) nr_scanned=0 nr_taken=0
+          stress-3923  [007]   519.106227: mm_compaction_isolate_migratepages: range=(0x70bb80 ~ 0x70bb80) nr_scanned=0 nr_taken=0
+          stress-3923  [007]   519.106231: mm_compaction_isolate_migratepages: range=(0x70bb80 ~ 0x70bb80) nr_scanned=0 nr_taken=0
+          stress-3923  [007]   519.106235: mm_compaction_isolate_migratepages: range=(0x70bb80 ~ 0x70bb80) nr_scanned=0 nr_taken=0
+          stress-3923  [007]   519.106238: mm_compaction_isolate_migratepages: range=(0x70bb80 ~ 0x70bb80) nr_scanned=0 nr_taken=0
+          stress-3923  [007]   519.106242: mm_compaction_isolate_migratepages: range=(0x70bb80 ~ 0x70bb80) nr_scanned=0 nr_taken=0
 
-A user had reported data corruption issues on a distribution kernel with a
-similar page migration implementation as mainline.  The data corruption
-could not be reproduced with this patch applied.  A small number of
-migration-intensive tests were run and no performance problems were noted.
+Note that compaction is entered in rapid succession while scanning and
+isolating nothing.  The problem is that when a task that is compacting
+receives a fatal signal, it retries indefinitely instead of exiting while
+making no progress as a fatal signal is pending.
 
-[mgorman@techsingularity.net: Changelog, removed tracing]
-Link: http://lkml.kernel.org/r/20190718090238.GF24383@techsingularity.net
-Fixes: 89cb0888ca14 "mm: migrate: provide buffer_migrate_page_norefs()"
-Signed-off-by: Jan Kara <jack@suse.cz>
+It's not easy to trigger this condition although enabling zswap helps on
+the basis that the timing is altered.  A very small window has to be hit
+for the problem to occur (signal delivered while compacting and isolating
+a PFN for migration that is not aligned to SWAP_CLUSTER_MAX).
+
+This was reproduced locally -- 16G single socket system, 8G swap, 30%
+zswap configured, vm-bytes 22000000000 using Colin Kings stress-ng
+implementation from github running in a loop until the problem hits). 
+Tracing recorded the problem occurring almost 200K times in a short
+window.  With this patch, the problem hit 4 times but the task existed
+normally instead of consuming CPU.
+
+This problem has existed for some time but it was made worse by
+cf66f0700c8f ("mm, compaction: do not consider a need to reschedule as
+contention").  Before that commit, if the same condition was hit then
+locks would be quickly contended and compaction would exit that way.
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204165
+Link: http://lkml.kernel.org/r/20190718085708.GE24383@techsingularity.net
+Fixes: cf66f0700c8f ("mm, compaction: do not consider a need to reschedule as contention")
 Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
-Cc: <stable@vger.kernel.org>	[5.0+]
+Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org>	[5.1+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/migrate.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ mm/compaction.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/mm/migrate.c~mm-migrate-fix-reference-check-race-between-__find_get_block-and-migration
-+++ a/mm/migrate.c
-@@ -767,12 +767,12 @@ recheck_buffers:
- 			}
- 			bh = bh->b_this_page;
- 		} while (bh != head);
--		spin_unlock(&mapping->private_lock);
- 		if (busy) {
- 			if (invalidated) {
- 				rc = -EAGAIN;
- 				goto unlock_buffers;
- 			}
-+			spin_unlock(&mapping->private_lock);
- 			invalidate_bh_lrus();
- 			invalidated = true;
- 			goto recheck_buffers;
-@@ -805,6 +805,8 @@ recheck_buffers:
+--- a/mm/compaction.c~mm-compaction-avoid-100%-cpu-usage-during-compaction-when-a-task-is-killed
++++ a/mm/compaction.c
+@@ -842,13 +842,15 @@ isolate_migratepages_block(struct compac
  
- 	rc = MIGRATEPAGE_SUCCESS;
- unlock_buffers:
-+	if (check_refs)
-+		spin_unlock(&mapping->private_lock);
- 	bh = head;
- 	do {
- 		unlock_buffer(bh);
+ 		/*
+ 		 * Periodically drop the lock (if held) regardless of its
+-		 * contention, to give chance to IRQs. Abort async compaction
+-		 * if contended.
++		 * contention, to give chance to IRQs. Abort completely if
++		 * a fatal signal is pending.
+ 		 */
+ 		if (!(low_pfn % SWAP_CLUSTER_MAX)
+ 		    && compact_unlock_should_abort(&pgdat->lru_lock,
+-					    flags, &locked, cc))
+-			break;
++					    flags, &locked, cc)) {
++			low_pfn = 0;
++			goto fatal_pending;
++		}
+ 
+ 		if (!pfn_valid_within(low_pfn))
+ 			goto isolate_fail;
+@@ -1060,6 +1062,7 @@ isolate_abort:
+ 	trace_mm_compaction_isolate_migratepages(start_pfn, low_pfn,
+ 						nr_scanned, nr_isolated);
+ 
++fatal_pending:
+ 	cc->total_migrate_scanned += nr_scanned;
+ 	if (nr_isolated)
+ 		count_compact_events(COMPACTISOLATED, nr_isolated);
 _
