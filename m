@@ -2,86 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7C11805CA
-	for <lists+stable@lfdr.de>; Sat,  3 Aug 2019 12:34:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7302C805CC
+	for <lists+stable@lfdr.de>; Sat,  3 Aug 2019 12:37:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388667AbfHCKek (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Aug 2019 06:34:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39352 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388423AbfHCKej (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 3 Aug 2019 06:34:39 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EAE12166E;
-        Sat,  3 Aug 2019 10:34:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564828478;
-        bh=Xc3NPPiP7Nw3Z1ABbHPV9aIEDCt1vmQYX48K7vXTX7k=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=u7y5auBGMYx2/Y8s1awUrB5P0grcXQTl18BUc91X3WJtinpd3itk/rM/mrK/V1FVt
-         lh3gUam5DTUX1lNBxwT+cnZh4bWVK7tW10qXnEIcIpKGxHaP9qbL2MlPTLt8/r/DW2
-         Vhl8cmPsbORTOszPRMC7TB4rAAiLxJLiflUnqGWM=
-Date:   Sat, 3 Aug 2019 12:34:35 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 00/32] 4.19.64-stable review
-Message-ID: <20190803103435.GA16522@kroah.com>
-References: <20190802092101.913646560@linuxfoundation.org>
- <20190803095825.GA28812@amd>
+        id S2388423AbfHCKhv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Aug 2019 06:37:51 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:34224 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727123AbfHCKhv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Aug 2019 06:37:51 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
+        Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Subject:Cc:To:
+        From:Date:Sender:Reply-To:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=lywWmB/x6WbRdpUR+L/zPjYp7f410Ry0vDhEqZpMJ/k=; b=d4ITvMeDkSKOXJwam4ra61CqS
+        iuKUqsdOSxinJjOOD3VVqWDyCZc7kJhqHwu4GfGknWgBBu3KS+8Z7Duh0YeGJLZcUp5ltD8TpyjLU
+        s/XFlugPeKmxePZ7c+zUJbBAQlZl9iR50W4GTw2dn+4E2EG9KTk0nsArYmGLPWyK+ah9paSIZiKjW
+        yc3DpgBv8Bz/ZOaArTm7Vy2JM4ye0CvLj22EENhzhBMYEXFFXSfXJre4gM5TBZ85J0IGJMKPGnqIE
+        jW3gYNq5ZTDRKnv5UP8GaVcJDNlZEznVTdz+wFJQoL0i6X+QDtuCP3/ZIXmqnIQFCeV1sba0ZtePs
+        t/NJN9uFA==;
+Received: from [191.33.150.100] (helo=coco.lan)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
+        id 1htrQ5-0003zU-PL; Sat, 03 Aug 2019 10:37:50 +0000
+Date:   Sat, 3 Aug 2019 07:37:44 -0300
+From:   Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+To:     Alexander Kapshuk <alexander.kapshuk@gmail.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "# 3.9+" <stable@vger.kernel.org>
+Subject: Re: [PATCH AUTOSEL 4.19 06/42] scripts/sphinx-pre-install: fix
+ script for RHEL/CentOS
+Message-ID: <20190803073744.39412f73@coco.lan>
+In-Reply-To: <CAJ1xhMWb6OG0xdBtAQZkX-T0XNmMNaMaS=ScJ4ZRwpv9eHXmCQ@mail.gmail.com>
+References: <20190802132302.13537-1-sashal@kernel.org>
+        <20190802132302.13537-6-sashal@kernel.org>
+        <CAJ1xhMWb6OG0xdBtAQZkX-T0XNmMNaMaS=ScJ4ZRwpv9eHXmCQ@mail.gmail.com>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190803095825.GA28812@amd>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Aug 03, 2019 at 11:58:25AM +0200, Pavel Machek wrote:
-> On Fri 2019-08-02 11:39:34, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 4.19.64 release.
-> > There are 32 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Sun 04 Aug 2019 09:19:34 AM UTC.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.64-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> > and the diffstat can be found below.
-> 
-> The git tree does not seem to correspond to the patches posted. git has:
-> 
-> commit 63a8dab46af2b65ecdb5a83662d94a3a26be973e
-> Author: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Date:   Fri Aug 2 13:30:55 2019 +0200
-> 
->     Linux 4.19.64-rc1
-> 
-> commit 1b35ed42aeacc21a9d21646165333566dd8e181a
-> Author: Xin Long <lucien.xin@gmail.com>
-> Date:   Mon Jun 17 21:34:13 2019 +0800
-> 
->     ip_tunnel: allow not to count pkts on tstats by setting skb's dev
->     to NULL
->     
-> But 1b35ed42aeacc ip_tunnel patch is not mentioned here nor is
-> included in the series on the list AFAICT. (I don't find anything
-> wrong with 1b35ed42aeacc).
+Em Sat, 3 Aug 2019 13:31:30 +0300
+Alexander Kapshuk <alexander.kapshuk@gmail.com> escreveu:
 
-It was added after I did this release, see the stable mailing list for
-the details, it went into the 4.14.y and 4.19.y tree at the same time.
+> > -       if (! $system_release =~ /Fedora/) {
+> > +       if (!($system_release =~ /Fedora/)) {
+> >                 $map{"virtualenv"} = "python-virtualenv";
+> >         }
+> 
+> The negated binding operator '!~' could be used here as well, and it
+> does not require the use of extra parenthesis.
+> Just a thought.
 
-thanks,
+Thanks for the tip! Never used such operator. Will start using
+next time we need to handle a pattern like that.
 
-greg k-h
+Thanks,
+Mauro
