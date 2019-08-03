@@ -2,92 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EDBB80471
-	for <lists+stable@lfdr.de>; Sat,  3 Aug 2019 06:49:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E4E780472
+	for <lists+stable@lfdr.de>; Sat,  3 Aug 2019 06:49:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726328AbfHCEtL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Aug 2019 00:49:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35848 "EHLO mail.kernel.org"
+        id S1726251AbfHCEtR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Aug 2019 00:49:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725283AbfHCEtL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 3 Aug 2019 00:49:11 -0400
+        id S1725283AbfHCEtR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 3 Aug 2019 00:49:17 -0400
 Received: from X1 (unknown [76.191.170.112])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BF862166E;
-        Sat,  3 Aug 2019 04:49:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5877F2166E;
+        Sat,  3 Aug 2019 04:49:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564807750;
-        bh=6kmr6LilcL11hGVeo2VRnM4WKfHmmAPFwTQtcC7b9J8=;
+        s=default; t=1564807756;
+        bh=lzhv0V6MKtfzAcmE7gDLDOzn/9iX/pY/3fBfTr7jeGs=;
         h=Date:From:To:Subject:From;
-        b=b/RbFiifxDTqqpHu6zwJl6/FyXucUr9Df+LaviBd7plCXt8fEIW0eEgsEeitfWnLF
-         pRsYTP+kHB/W3HzDwz5GF8G0EYly1Ae9/ZAtx+0cteIfM9oVsQakPoGqHUebeTrJGJ
-         XM8BQbxx3yGwakIEmXidnCYuAMXchvmbyt0JqAwA=
-Date:   Fri, 02 Aug 2019 21:49:08 -0700
+        b=q6fwvJii31Pyw3bi3HTuHKck9zpaKf2FTe3OlxDr2h+7ad8Yn/7h2odyPbFbLzDSp
+         qvYYwgaqhm/x8OYi320vDJD93noYhmAnxLiBaMl3GvA52DGtHdu+WIpPmNQLVaogUT
+         jiFt/euEIR5pgiOTyr/lCtrG1FNR/PSQk91hT718=
+Date:   Fri, 02 Aug 2019 21:49:15 -0700
 From:   akpm@linux-foundation.org
-To:     stable@vger.kernel.org, mgorman@techsingularity.net,
-        jhubbard@nvidia.com, jglisse@redhat.com, rcampbell@nvidia.com,
-        akpm@linux-foundation.org, mm-commits@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject:  [patch 11/17] mm/migrate.c: initialize pud_entry in
- migrate_vma()
-Message-ID: <20190803044908.DlYVL%akpm@linux-foundation.org>
+To:     tj@kernel.org, stable@vger.kernel.org, hannes@cmpxchg.org,
+        guro@fb.com, chris@chrisdown.name, akpm@linux-foundation.org,
+        mm-commits@vger.kernel.org, torvalds@linux-foundation.org
+Subject:  [patch 13/17] cgroup: kselftest: relax fs_spec checks
+Message-ID: <20190803044915.FHYla%akpm@linux-foundation.org>
 User-Agent: s-nail v14.9.10
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ralph Campbell <rcampbell@nvidia.com>
-Subject: mm/migrate.c: initialize pud_entry in migrate_vma()
+From: Chris Down <chris@chrisdown.name>
+Subject: cgroup: kselftest: relax fs_spec checks
 
-When CONFIG_MIGRATE_VMA_HELPER is enabled, migrate_vma() calls
-migrate_vma_collect() which initializes a struct mm_walk but didn't
-initialize mm_walk.pud_entry.  (Found by code inspection) Use a C
-structure initialization to make sure it is set to NULL.
+On my laptop most memcg kselftests were being skipped because it claimed
+cgroup v2 hierarchy wasn't mounted, but this isn't correct.  Instead, it
+seems current systemd HEAD mounts it with the name "cgroup2" instead of
+"cgroup":
 
-Link: http://lkml.kernel.org/r/20190719233225.12243-1-rcampbell@nvidia.com
-Fixes: 8763cb45ab967 ("mm/migrate: new memory migration helper for use with
-device memory")
-Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: "J=C3=A9r=C3=B4me Glisse" <jglisse@redhat.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
+    % grep cgroup /proc/mounts
+    cgroup2 /sys/fs/cgroup cgroup2 rw,nosuid,nodev,noexec,relatime,nsdelegate 0 0
+
+I can't think of a reason to need to check fs_spec explicitly
+since it's arbitrary, so we can just rely on fs_vfstype.
+
+After these changes, `make TARGETS=cgroup kselftest` actually runs the
+cgroup v2 tests in more cases.
+
+Link: http://lkml.kernel.org/r/20190723210737.GA487@chrisdown.name
+Signed-off-by: Chris Down <chris@chrisdown.name>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Roman Gushchin <guro@fb.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/migrate.c |   17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ tools/testing/selftests/cgroup/cgroup_util.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/mm/migrate.c~mm-migrate-initialize-pud_entry-in-migrate_vma
-+++ a/mm/migrate.c
-@@ -2340,16 +2340,13 @@ next:
- static void migrate_vma_collect(struct migrate_vma *migrate)
- {
- 	struct mmu_notifier_range range;
--	struct mm_walk mm_walk;
--
--	mm_walk.pmd_entry =3D migrate_vma_collect_pmd;
--	mm_walk.pte_entry =3D NULL;
--	mm_walk.pte_hole =3D migrate_vma_collect_hole;
--	mm_walk.hugetlb_entry =3D NULL;
--	mm_walk.test_walk =3D NULL;
--	mm_walk.vma =3D migrate->vma;
--	mm_walk.mm =3D migrate->vma->vm_mm;
--	mm_walk.private =3D migrate;
-+	struct mm_walk mm_walk =3D {
-+		.pmd_entry =3D migrate_vma_collect_pmd,
-+		.pte_hole =3D migrate_vma_collect_hole,
-+		.vma =3D migrate->vma,
-+		.mm =3D migrate->vma->vm_mm,
-+		.private =3D migrate,
-+	};
-=20
- 	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, NULL, mm_walk.mm,
- 				migrate->start,
+--- a/tools/testing/selftests/cgroup/cgroup_util.c~cgroup-kselftest-relax-fs_spec-checks
++++ a/tools/testing/selftests/cgroup/cgroup_util.c
+@@ -191,8 +191,7 @@ int cg_find_unified_root(char *root, siz
+ 		strtok(NULL, delim);
+ 		strtok(NULL, delim);
+ 
+-		if (strcmp(fs, "cgroup") == 0 &&
+-		    strcmp(type, "cgroup2") == 0) {
++		if (strcmp(type, "cgroup2") == 0) {
+ 			strncpy(root, mount, len);
+ 			return 0;
+ 		}
 _
