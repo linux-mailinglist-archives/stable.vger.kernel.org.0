@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76B2480482
-	for <lists+stable@lfdr.de>; Sat,  3 Aug 2019 07:45:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E20DC80483
+	for <lists+stable@lfdr.de>; Sat,  3 Aug 2019 07:47:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726446AbfHCFnl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Aug 2019 01:43:41 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:34521 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726334AbfHCFnl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Aug 2019 01:43:41 -0400
-Received: by mail-lf1-f68.google.com with SMTP id b29so47154684lfq.1
-        for <stable@vger.kernel.org>; Fri, 02 Aug 2019 22:43:40 -0700 (PDT)
+        id S1726387AbfHCFrM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Aug 2019 01:47:12 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:35448 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726377AbfHCFrL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Aug 2019 01:47:11 -0400
+Received: by mail-lj1-f193.google.com with SMTP id x25so74834806ljh.2
+        for <stable@vger.kernel.org>; Fri, 02 Aug 2019 22:47:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=Gphf7jUqGLSt+fSw33wEgpVXiIORRB25dEwThP6m/hY=;
-        b=FVbfHyod4pOR4+BNaq3xCKxsQwwXBzsjlR+gLEBIBo9Jd2ieTuaA3iRKofgSSVLUhv
-         e0F653A6qnX1zisgrIlIJ/LlLg35ojuJA2VEHA28O2tnDuZgxmjfvU1lqYeba9Has/iB
-         d2Sk81m0HReZ850Bmc/LbKw9X2jJ1Gf9noYckAbXrvWXN0HNlpTCVgLrLn7vKrUZXdGl
-         U64uYSTidyogMskvU0h78u0tOar8TjyinrNZYN4xYj+utOAo1JRvdC0E8bO79AdVzt5V
-         4HSFMHhoTBH9gfMhH611J4nhZaeM9wJ5ozqvh2cutyKgdDNQp89u/YcqfwbIUtwjAeZ5
-         tKQg==
+        bh=sp3xBWhCet2uHYhWCL+eN8Xzw3ehozirKeC8djMe/nE=;
+        b=A2Ypxdf2urWjfIdmbkjOgfaBqOUxCTyYlWSQ1leZzJp9wD+4qnIAIl7RtrnYJYPFsM
+         zJ/HqRqDqujQ+SgxUVqmoCoECZ+Kr87wryewMyeY5hUhal/+zEtU8VBa3kVeA0K2cbpG
+         PjmgsxmJNhn4KFbFGTzk0cgzZfipi4JCjk8bEjmDlQN89CkYRlGhoFSGebYnEZxcNmc4
+         0Mvwz6FJyq6tFfspO9Aie6hV/QU1DXP229u3/L3tb7RKxmBl1/SJ+m89EMKTQvVXL7e2
+         8YHYhBEObNCz9n5pVCH+l2QlT2o42U4MztFm+u2+Y0pf2S5BDWnxAvGOtbRq2OhOtzIG
+         cNEQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Gphf7jUqGLSt+fSw33wEgpVXiIORRB25dEwThP6m/hY=;
-        b=Rr+J4LvQjvUVOS92cS9lbbjMHEIW6Qj1m06x/wROHhPN6Qc+jPGUMx1Nge0wXBLyAk
-         ZIHj1M3iJQn6bS+5U1cHqgyYJ5xq3aGh2Qtz5d6N9EKf/8Zjmo67wAsugffTJkEnaz4k
-         K3yPz8oJt+bhKRFb52wU+QpQ6wDrrKDJrUnlnWSFzu7Ed0pzGFyarRceF+J1x1ViwTrb
-         c1Iow3NLL+Bpao/sBu0rme1k7qHaWVuKZMpZhYXYlyicfGfN2EXoM4hOPrH7dqFNfWBp
-         YS8htoJjz3WKBpmgPg9V6hMa0pcEMfLqQU4vHhbNOmHu7WxWHTUn5xoEvsDRdvswe+OS
-         BSfA==
-X-Gm-Message-State: APjAAAWti834wi8gBuIYuB/XYmXlPEnnoNBuSVsCMTwZltuLKHkaHnjl
-        aKTh6nhABqyxBymjOyGJgQnvGicrwpdNfaLTaB9xaJA3vRg=
-X-Google-Smtp-Source: APXvYqy209SeKHqOiZFKU13/MjmarmFuhOy63k8G6bEAxZQvN8YKc+5e76w/klFocL3xLiR3ugf+5BfI7j3PTRrnaTU=
-X-Received: by 2002:a05:6512:51c:: with SMTP id o28mr231727lfb.67.1564811019438;
- Fri, 02 Aug 2019 22:43:39 -0700 (PDT)
+        bh=sp3xBWhCet2uHYhWCL+eN8Xzw3ehozirKeC8djMe/nE=;
+        b=JwXj7L4b2l+AwYMswsirb1r9c7HVCDQb+lS30jGYUgg0nRkeZ+D6JmT8vWU3e9rF7B
+         QPFz9LCrYsot9Nd0TDUHDCZNeUwpwkHJWi1ZEooUZDKLpDFn0Q6mJVhGMtz2PCDZte7t
+         uQEoZlOXp92XdCG/Nq2KJr2GMU+9YoBo/XSfweTJp3d6OMIgBaYFf1uLyjkxasde1ek1
+         86rVEGSq+zc89O3por79buaSEPio1drD1nhLOuJK4cwSfPfXJTeXs/Gy4pQUg+ABjEoe
+         gc0tq4JgZkTcnykvXyMzxGSuSydG0JPnPiNqmMus95wDjdktAZT0wb6GykxB6KYy4xG1
+         xE0w==
+X-Gm-Message-State: APjAAAUvyRKlxNHfdWVJVJkuhgIfjdc4g81uADbcO9hYNQC+JNVrHNRF
+        Y4xi+rqFiM1ljajrn8KL/zwBRMlKN1vD26A2gzwCWQ==
+X-Google-Smtp-Source: APXvYqwfS/HOB8sCMzIaeFFYTNokqRqb8KhJKRXY3B793uno9qKlahv/5kOssC4Eysx/ihpZx23wRWjQ+Z9/RUOQePI=
+X-Received: by 2002:a2e:9b4a:: with SMTP id o10mr16812178ljj.137.1564811229861;
+ Fri, 02 Aug 2019 22:47:09 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190802092058.428079740@linuxfoundation.org> <20190802155020.GA28265@kroah.com>
-In-Reply-To: <20190802155020.GA28265@kroah.com>
+References: <20190802092101.913646560@linuxfoundation.org>
+In-Reply-To: <20190802092101.913646560@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 3 Aug 2019 11:13:26 +0530
-Message-ID: <CA+G9fYvJcZgZaNW3v_Uc+5r-V_Lfp88iMAVTGHhm9HadwYh=vg@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/25] 4.14.136-stable review
+Date:   Sat, 3 Aug 2019 11:16:56 +0530
+Message-ID: <CA+G9fYsgfxjGfPDfnS=Z4V0zv5Xh2bMEdqVu5oULA_ApFKsv6A@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/32] 4.19.64-stable review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
@@ -63,28 +63,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2 Aug 2019 at 21:20, Greg Kroah-Hartman
+On Fri, 2 Aug 2019 at 15:26, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> On Fri, Aug 02, 2019 at 11:39:32AM +0200, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 4.14.136 release.
-> > There are 25 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Sun 04 Aug 2019 09:19:34 AM UTC.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >       https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.136-rc1.gz
-> > or in the git tree and branch at:
-> >       git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> > and the diffstat can be found below.
+> This is the start of the stable review cycle for the 4.19.64 release.
+> There are 32 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> -rc2 is out to match up with the failure of one patch to apply, and the
-> ip tunnel patch added.
+> Responses should be made by Sun 04 Aug 2019 09:19:34 AM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.64-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
 Results from Linaro=E2=80=99s test farm.
 No regressions on arm64, arm, x86_64, and i386.
@@ -92,20 +92,22 @@ No regressions on arm64, arm, x86_64, and i386.
 Summary
 ------------------------------------------------------------------------
 
-kernel: 4.14.136-rc2
+kernel: 4.19.64-rc1
 git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
 le-rc.git
-git branch: linux-4.14.y
-git commit: 8c06cc9d417294ee552cee5025f8dad9a982a026
-git describe: v4.14.134-319-g8c06cc9d4172
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
-ild/v4.14.134-319-g8c06cc9d4172
+git branch: linux-4.19.y
+git commit: 63a8dab46af2b65ecdb5a83662d94a3a26be973e
+git describe: v4.19.62-148-g63a8dab46af2
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
+ild/v4.19.62-148-g63a8dab46af2
 
-No regressions (compared to build v4.14.134)
 
-No fixes (compared to build v4.14.134)
+No regressions (compared to build v4.19.62)
 
-Ran 23868 total tests in the following environments and test suites.
+
+No fixes (compared to build v4.19.62)
+
+Ran 25243 total tests in the following environments and test suites.
 
 Environments
 --------------
@@ -125,6 +127,7 @@ Test Suites
 * build
 * install-android-platform-tools-r2600
 * kselftest
+* libgpiod
 * libhugetlbfs
 * ltp-cap_bounds-tests
 * ltp-commands-tests
@@ -134,12 +137,12 @@ Test Suites
 * ltp-dio-tests
 * ltp-fcntl-locktests-tests
 * ltp-filecaps-tests
-* ltp-fs-tests
 * ltp-fs_bind-tests
 * ltp-fs_perms_simple-tests
 * ltp-fsx-tests
 * ltp-hugetlb-tests
 * ltp-io-tests
+* ltp-ipc-tests
 * ltp-math-tests
 * ltp-mm-tests
 * ltp-nptl-tests
@@ -147,11 +150,11 @@ Test Suites
 * ltp-sched-tests
 * ltp-securebits-tests
 * ltp-syscalls-tests
+* ltp-timers-tests
 * perf
 * spectre-meltdown-checker-test
 * v4l2-compliance
-* ltp-ipc-tests
-* ltp-timers-tests
+* ltp-fs-tests
 * network-basic-tests
 * ltp-open-posix-tests
 * kvm-unit-tests
