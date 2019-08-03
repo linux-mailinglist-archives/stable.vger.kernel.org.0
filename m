@@ -2,79 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E4E780472
-	for <lists+stable@lfdr.de>; Sat,  3 Aug 2019 06:49:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76B2480482
+	for <lists+stable@lfdr.de>; Sat,  3 Aug 2019 07:45:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726251AbfHCEtR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Aug 2019 00:49:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35942 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725283AbfHCEtR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 3 Aug 2019 00:49:17 -0400
-Received: from X1 (unknown [76.191.170.112])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5877F2166E;
-        Sat,  3 Aug 2019 04:49:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564807756;
-        bh=lzhv0V6MKtfzAcmE7gDLDOzn/9iX/pY/3fBfTr7jeGs=;
-        h=Date:From:To:Subject:From;
-        b=q6fwvJii31Pyw3bi3HTuHKck9zpaKf2FTe3OlxDr2h+7ad8Yn/7h2odyPbFbLzDSp
-         qvYYwgaqhm/x8OYi320vDJD93noYhmAnxLiBaMl3GvA52DGtHdu+WIpPmNQLVaogUT
-         jiFt/euEIR5pgiOTyr/lCtrG1FNR/PSQk91hT718=
-Date:   Fri, 02 Aug 2019 21:49:15 -0700
-From:   akpm@linux-foundation.org
-To:     tj@kernel.org, stable@vger.kernel.org, hannes@cmpxchg.org,
-        guro@fb.com, chris@chrisdown.name, akpm@linux-foundation.org,
-        mm-commits@vger.kernel.org, torvalds@linux-foundation.org
-Subject:  [patch 13/17] cgroup: kselftest: relax fs_spec checks
-Message-ID: <20190803044915.FHYla%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        id S1726446AbfHCFnl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Aug 2019 01:43:41 -0400
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:34521 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726334AbfHCFnl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Aug 2019 01:43:41 -0400
+Received: by mail-lf1-f68.google.com with SMTP id b29so47154684lfq.1
+        for <stable@vger.kernel.org>; Fri, 02 Aug 2019 22:43:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Gphf7jUqGLSt+fSw33wEgpVXiIORRB25dEwThP6m/hY=;
+        b=FVbfHyod4pOR4+BNaq3xCKxsQwwXBzsjlR+gLEBIBo9Jd2ieTuaA3iRKofgSSVLUhv
+         e0F653A6qnX1zisgrIlIJ/LlLg35ojuJA2VEHA28O2tnDuZgxmjfvU1lqYeba9Has/iB
+         d2Sk81m0HReZ850Bmc/LbKw9X2jJ1Gf9noYckAbXrvWXN0HNlpTCVgLrLn7vKrUZXdGl
+         U64uYSTidyogMskvU0h78u0tOar8TjyinrNZYN4xYj+utOAo1JRvdC0E8bO79AdVzt5V
+         4HSFMHhoTBH9gfMhH611J4nhZaeM9wJ5ozqvh2cutyKgdDNQp89u/YcqfwbIUtwjAeZ5
+         tKQg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Gphf7jUqGLSt+fSw33wEgpVXiIORRB25dEwThP6m/hY=;
+        b=Rr+J4LvQjvUVOS92cS9lbbjMHEIW6Qj1m06x/wROHhPN6Qc+jPGUMx1Nge0wXBLyAk
+         ZIHj1M3iJQn6bS+5U1cHqgyYJ5xq3aGh2Qtz5d6N9EKf/8Zjmo67wAsugffTJkEnaz4k
+         K3yPz8oJt+bhKRFb52wU+QpQ6wDrrKDJrUnlnWSFzu7Ed0pzGFyarRceF+J1x1ViwTrb
+         c1Iow3NLL+Bpao/sBu0rme1k7qHaWVuKZMpZhYXYlyicfGfN2EXoM4hOPrH7dqFNfWBp
+         YS8htoJjz3WKBpmgPg9V6hMa0pcEMfLqQU4vHhbNOmHu7WxWHTUn5xoEvsDRdvswe+OS
+         BSfA==
+X-Gm-Message-State: APjAAAWti834wi8gBuIYuB/XYmXlPEnnoNBuSVsCMTwZltuLKHkaHnjl
+        aKTh6nhABqyxBymjOyGJgQnvGicrwpdNfaLTaB9xaJA3vRg=
+X-Google-Smtp-Source: APXvYqy209SeKHqOiZFKU13/MjmarmFuhOy63k8G6bEAxZQvN8YKc+5e76w/klFocL3xLiR3ugf+5BfI7j3PTRrnaTU=
+X-Received: by 2002:a05:6512:51c:: with SMTP id o28mr231727lfb.67.1564811019438;
+ Fri, 02 Aug 2019 22:43:39 -0700 (PDT)
+MIME-Version: 1.0
+References: <20190802092058.428079740@linuxfoundation.org> <20190802155020.GA28265@kroah.com>
+In-Reply-To: <20190802155020.GA28265@kroah.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Sat, 3 Aug 2019 11:13:26 +0530
+Message-ID: <CA+G9fYvJcZgZaNW3v_Uc+5r-V_Lfp88iMAVTGHhm9HadwYh=vg@mail.gmail.com>
+Subject: Re: [PATCH 4.14 00/25] 4.14.136-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Down <chris@chrisdown.name>
-Subject: cgroup: kselftest: relax fs_spec checks
+On Fri, 2 Aug 2019 at 21:20, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Fri, Aug 02, 2019 at 11:39:32AM +0200, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 4.14.136 release.
+> > There are 25 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Sun 04 Aug 2019 09:19:34 AM UTC.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >       https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.14.136-rc1.gz
+> > or in the git tree and branch at:
+> >       git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.14.y
+> > and the diffstat can be found below.
+>
+> -rc2 is out to match up with the failure of one patch to apply, and the
+> ip tunnel patch added.
 
-On my laptop most memcg kselftests were being skipped because it claimed
-cgroup v2 hierarchy wasn't mounted, but this isn't correct.  Instead, it
-seems current systemd HEAD mounts it with the name "cgroup2" instead of
-"cgroup":
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-    % grep cgroup /proc/mounts
-    cgroup2 /sys/fs/cgroup cgroup2 rw,nosuid,nodev,noexec,relatime,nsdelegate 0 0
+Summary
+------------------------------------------------------------------------
 
-I can't think of a reason to need to check fs_spec explicitly
-since it's arbitrary, so we can just rely on fs_vfstype.
+kernel: 4.14.136-rc2
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.14.y
+git commit: 8c06cc9d417294ee552cee5025f8dad9a982a026
+git describe: v4.14.134-319-g8c06cc9d4172
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
+ild/v4.14.134-319-g8c06cc9d4172
 
-After these changes, `make TARGETS=cgroup kselftest` actually runs the
-cgroup v2 tests in more cases.
+No regressions (compared to build v4.14.134)
 
-Link: http://lkml.kernel.org/r/20190723210737.GA487@chrisdown.name
-Signed-off-by: Chris Down <chris@chrisdown.name>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+No fixes (compared to build v4.14.134)
 
- tools/testing/selftests/cgroup/cgroup_util.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Ran 23868 total tests in the following environments and test suites.
 
---- a/tools/testing/selftests/cgroup/cgroup_util.c~cgroup-kselftest-relax-fs_spec-checks
-+++ a/tools/testing/selftests/cgroup/cgroup_util.c
-@@ -191,8 +191,7 @@ int cg_find_unified_root(char *root, siz
- 		strtok(NULL, delim);
- 		strtok(NULL, delim);
- 
--		if (strcmp(fs, "cgroup") == 0 &&
--		    strcmp(type, "cgroup2") == 0) {
-+		if (strcmp(type, "cgroup2") == 0) {
- 			strncpy(root, mount, len);
- 			return 0;
- 		}
-_
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* ltp-ipc-tests
+* ltp-timers-tests
+* network-basic-tests
+* ltp-open-posix-tests
+* kvm-unit-tests
+* ssuite
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
