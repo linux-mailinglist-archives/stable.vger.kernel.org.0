@@ -2,160 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE61880387
-	for <lists+stable@lfdr.de>; Sat,  3 Aug 2019 02:35:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F7B580390
+	for <lists+stable@lfdr.de>; Sat,  3 Aug 2019 02:45:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391992AbfHCAf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Aug 2019 20:35:26 -0400
-Received: from aibo.runbox.com ([91.220.196.211]:32998 "EHLO aibo.runbox.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390153AbfHCAf0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Aug 2019 20:35:26 -0400
-X-Greylist: delayed 2543 seconds by postgrey-1.27 at vger.kernel.org; Fri, 02 Aug 2019 20:35:25 EDT
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=runbox.com;
-         s=rbselector1; h=Content-Transfer-Encoding:Content-Type:MIME-Version:
-        References:In-Reply-To:Message-ID:Subject:Cc:To:From:Date;
-        bh=TazsGP7cxXXZSH2JMdVr/ycQv/4+Lei21hIYlZrb6xM=; b=mSZhvIMybaEUGW2OxkQfP8J5QB
-        igMTDE0QXHFlO3lb0R+yQULAbE3S+M1bMoVYT8uGb1mWkLiRm7XegpBzkz8DlRLMY5UCGefdlqo2f
-        0mgXs1D/giWOKJlfyzm8+shV6sYdI6cmF6cMDnoILREV66eFRjMRe3V+aOMe7rdAizXGE2WDZ2xiF
-        vxTNK6a/awBRFGvn2hKDUkVWjdxbxfZ/WEm2Ay+6o5BvE2QDbXmXxPEiwplHhhQ+/6nq2IaTprvkF
-        u2uz+j80/xZ338ZrqqrfuFKEHrWmo0me2j0EMZFuVgAITbhu7NFvsOV4B4qlC1vnvSiXlhkDcMGiu
-        MFQ64LQw==;
-Received: from [10.9.9.203] (helo=mailfront21.runbox)
-        by mailtransmit02.runbox with esmtp (Exim 4.86_2)
-        (envelope-from <m.v.b@runbox.com>)
-        id 1hthM4-0003Go-ED; Sat, 03 Aug 2019 01:53:00 +0200
-Received: by mailfront21.runbox with esmtpsa  (uid:769847 )  (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.90_1)
-        id 1hthLu-0002Rb-L9; Sat, 03 Aug 2019 01:52:51 +0200
-Date:   Fri, 2 Aug 2019 19:52:43 -0400
-From:   "M. Vefa Bicakci" <m.v.b@runbox.com>
-To:     Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc:     linux-kbuild@vger.kernel.org, joonas.kylmala@iki.fi,
-        ulfalizer@gmail.com, linux-stable <stable@vger.kernel.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kconfig: fix missing choice values in auto.conf
-Message-ID: <20190802195243.09a87651@runbox.com>
-In-Reply-To: <20190712060709.20609-1-yamada.masahiro@socionext.com>
-References: <20190712060709.20609-1-yamada.masahiro@socionext.com>
+        id S2389626AbfHCApR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Aug 2019 20:45:17 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:44549 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388048AbfHCApR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Aug 2019 20:45:17 -0400
+Received: by mail-wr1-f65.google.com with SMTP id p17so78835039wrf.11;
+        Fri, 02 Aug 2019 17:45:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=p2nPvXeiMRCbIp019RSfslQHC+wLOXTRda/OBXWWDLk=;
+        b=O9jHmeinzFdk0HUuIlJYgzDWnzM0u/x89eydbjc0Ghqs9dQwrVClCrv9PxjAO+nOgc
+         UOhhFPzo1owoGQIYIbwtLNbSohjjCktGzuHET0iRF2QA2d7mzBqYX5Lub0aXtTk7KCBH
+         5Tq0YAeLRgjykjvHLZFq6LbX21DCzAx/ZZ6ZA72t94EC6LrZ2T3w8YHLFTvBlzdk1Fkv
+         cMDYxoepav+xVwtYSk5C5gClah5xHmXVYLncS/ZqKkmiYw5QYMot3pnZtGB89pH8fGfi
+         PpwhR1YAdNMBP6PvYzcU3lI6yYINT4r0v7cQ3Ml4rUX7CMXfAaqchh909fzszg+/c1D1
+         YDlw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=p2nPvXeiMRCbIp019RSfslQHC+wLOXTRda/OBXWWDLk=;
+        b=knFA99sDtWbxyE41VFtk1Hp0SgyUO/ZRfUa/c23maYcRN7zQcRhCMQPcakUZ70RW4f
+         yMvGC1YMqpG7x7ifNPyp5w1Ax/iXleP6kWvrLPYY71J6I5QIPnjxQBRwz9acyShJMLrl
+         TDldhyD2CSsXb1jR0Fg4RqzmlXjwfafytrHYkPb49g++07/EVsAuy14Tc3QWc+NREKBH
+         hy3HwztlqD+Ei3ojR1rxsoRRH7vGcsi3kD/VWIJXo9/HGMp2uX6SJ86EtFmCOqAM2N1D
+         hQqOd6GdHW5OsBHNkHo9mFM+pnETcdboTlzwC9lHAKtE+AUeJo97YRMvt3syUzWtszOf
+         wEuQ==
+X-Gm-Message-State: APjAAAVUfbEanzh2fJsrYi82JeKr6UwE6siKRpMpGGlfGrsDyyZalHUX
+        t8vMmmlQmtE7CRsppHIJu5GnXiDNBeD2YUvkWllUdFAhfa0=
+X-Google-Smtp-Source: APXvYqycYdpO8LrjkPFP5CxL4/LTWJJoR+m/XspgpFNdlVEJi3FOAxMCgZIZIQCoyJqzoMZul1a4qVtyziPxQ0M2MTA=
+X-Received: by 2002:a5d:50d1:: with SMTP id f17mr17510387wrt.124.1564793115204;
+ Fri, 02 Aug 2019 17:45:15 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20190702080123.904399496@linuxfoundation.org> <20190702080126.138655706@linuxfoundation.org>
+ <0f105a3696611dc10aa4d7c5c22ffac031b3c098.camel@nokia.com>
+ <20190802072834.GC26174@kroah.com> <88c88ec44e93c07170891bdf391d2b6251c7041a.camel@nokia.com>
+In-Reply-To: <88c88ec44e93c07170891bdf391d2b6251c7041a.camel@nokia.com>
+From:   Xin Long <lucien.xin@gmail.com>
+Date:   Sat, 3 Aug 2019 08:45:03 +0800
+Message-ID: <CADvbK_cOU00xqML35NMf3jk+S81kRLteHODf6Y-OsxPRDurSoQ@mail.gmail.com>
+Subject: Re: [PATCH 4.14 43/43] tipc: pass tunnel dev as NULL to udp_tunnel(6)_xmit_skb
+To:     "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>
+Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "davem@davemloft.net" <davem@davemloft.net>,
+        "syzbot+a43d8d4e7e8a7a9e149e@syzkaller.appspotmail.com" 
+        <syzbot+a43d8d4e7e8a7a9e149e@syzkaller.appspotmail.com>,
+        "syzbot+c4c4b2bb358bb936ad7e@syzkaller.appspotmail.com" 
+        <syzbot+c4c4b2bb358bb936ad7e@syzkaller.appspotmail.com>,
+        "syzbot+a47c5f4c6c00fc1ed16e@syzkaller.appspotmail.com" 
+        <syzbot+a47c5f4c6c00fc1ed16e@syzkaller.appspotmail.com>,
+        "syzbot+a9e23ea2aa21044c2798@syzkaller.appspotmail.com" 
+        <syzbot+a9e23ea2aa21044c2798@syzkaller.appspotmail.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "syzbot+0290d2290a607e035ba1@syzkaller.appspotmail.com" 
+        <syzbot+0290d2290a607e035ba1@syzkaller.appspotmail.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "syzbot+9d4c12bfd45a58738d0a@syzkaller.appspotmail.com" 
+        <syzbot+9d4c12bfd45a58738d0a@syzkaller.appspotmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On Fri, Aug 2, 2019 at 7:03 PM Rantala, Tommi T. (Nokia - FI/Espoo)
+<tommi.t.rantala@nokia.com> wrote:
+>
+> On Fri, 2019-08-02 at 09:28 +0200, gregkh@linuxfoundation.org wrote:
+> > On Thu, Aug 01, 2019 at 10:17:30AM +0000, Rantala, Tommi T. (Nokia -
+> > FI/Espoo) wrote:
+> > > Hi,
+> > >
+> > > This tipc patch added in 4.14.132 is triggering a crash for me,
+> > > revert
+> > > fixes it.
+> > >
+> > > Anyone have ideas if some other commits missing in 4.14.x to make
+> > > this
+> > > work...?
+> >
+> > Do you also hav a problem with 4.19.y?  How about 5.2.y?  If not, can
+> > you do 'git bisect' to find the patch that fixes the issue?
+> >
+> > thanks,
+> >
+> > greg k-h
+>
+> Hi, please pick this to 4.14.y and 4.19.y, tested that it fixes the
+> crash in both:
+>
+> commit 5684abf7020dfc5f0b6ba1d68eda3663871fce52
+> Author: Xin Long <lucien.xin@gmail.com>
+> Date:   Mon Jun 17 21:34:13 2019 +0800
+>
+>     ip_tunnel: allow not to count pkts on tstats by setting skb's dev
+> to NULL
+Thanks Rantala,
 
-> conf_write() must be changed accordingly. Currently, it clears
-> SYMBOL_WRITE after the symbol is written into the .config file. This
-> is needed to prevent it from writing the same symbol multiple times in
-> case the symbol is declared in two or more locations. I added the new
-> flag SYMBOL_WRITTEN, to track the symbols that have been written.
-[snip]
-> diff --git a/scripts/kconfig/confdata.c b/scripts/kconfig/confdata.c
-> index cbb6efa4a5a6..e0972b255aac 100644
-> --- a/scripts/kconfig/confdata.c
-> +++ b/scripts/kconfig/confdata.c
-[snip]
-> @@ -903,7 +904,7 @@ int conf_write(const char *name)
->  				fprintf(out, "\n");
->  				need_newline = false;
->  			}
-> -			sym->flags &= ~SYMBOL_WRITE;
-> +			sym->flags |= SYMBOL_WRITTEN;
+sorry for late, I was in a trip.
 
-The SYMBOL_WRITTEN flag is never cleared after being set in this
-function, which unfortunately causes data loss to occur when a user
-starts xconfig, gconfig, or nconfig and saves a config file more than
-once. Every save operation after the first one causes the saved .config
-file to contain only comments.
+The patch belongs to a patchset:
 
-I am appending a patch that resolves this issue. The patch is a bit
-ugly because of the code duplication, but it fixes this bug. (I have
-lightly tested the patch.) Even if the patch is not merged, I would
-appreciate it if this bug could be fixed.
+https://www.spinics.net/lists/netdev/msg578674.html
 
-Thank you,
+So this commit should also be included:
 
-Vefa
+commit 6f6a8622057c92408930c31698394fae1557b188
+Author: Xin Long <lucien.xin@gmail.com>
+Date:   Mon Jun 17 21:34:14 2019 +0800
 
-=== 8< === Patch Follows === >8 ===
+    ip6_tunnel: allow not to count pkts on tstats by passing dev as NULL
 
-From: "M. Vefa Bicakci" <m.v.b@runbox.com>
-Date: Fri, 2 Aug 2019 17:44:40 -0400
-Subject: [PATCH] kconfig: Clear "written" flag to avoid data loss
+Next time I think I should put "Fixes:" flag into each patch.
 
-Prior to this commit, starting nconfig, xconfig or gconfig, and saving
-the .config file more than once caused data loss, where a .config file
-that contained only comments would be written to disk starting from the
-second save operation.
-
-This bug manifests itself because the SYMBOL_WRITTEN flag is never
-cleared after the first call to conf_write, and subsequent calls to
-conf_write then skip all of the configuration symbols due to the
-SYMBOL_WRITTEN flag being set.
-
-This commit resolves this issue by clearing the SYMBOL_WRITTEN flag
-from all symbols before conf_write returns.
-
-Fixes: 8e2442a5f86e ("kconfig: fix missing choice values in auto.conf")
-Cc: linux-stable <stable@vger.kernel.org> # 4.19+
-Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
----
- scripts/kconfig/confdata.c | 31 +++++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
-
-diff --git a/scripts/kconfig/confdata.c b/scripts/kconfig/confdata.c
-index 1134892599da..24fe0c851e8c 100644
---- a/scripts/kconfig/confdata.c
-+++ b/scripts/kconfig/confdata.c
-@@ -840,6 +840,35 @@ int conf_write_defconfig(const char *filename)
- 	return 0;
- }
- 
-+static void conf_clear_written_flag(void)
-+{
-+	struct menu *menu;
-+	struct symbol *sym;
-+
-+	menu = rootmenu.list;
-+	while (menu) {
-+		sym = menu->sym;
-+		if (sym && (sym->flags & SYMBOL_WRITTEN))
-+			sym->flags &= ~SYMBOL_WRITTEN;
-+
-+		if (menu->list) {
-+			menu = menu->list;
-+			continue;
-+		}
-+
-+		if (menu->next) {
-+			menu = menu->next;
-+		} else {
-+			while ((menu = menu->parent)) {
-+				if (menu->next) {
-+					menu = menu->next;
-+					break;
-+				}
-+			}
-+		}
-+	}
-+}
-+
- int conf_write(const char *name)
- {
- 	FILE *out;
-@@ -930,6 +959,8 @@ int conf_write(const char *name)
- 	}
- 	fclose(out);
- 
-+	conf_clear_written_flag();
-+
- 	if (*tmpname) {
- 		if (is_same(name, tmpname)) {
- 			conf_message("No change to %s", name);
--- 
-2.21.0
-
+>
+>
+> For 5.2.y nothing is needed, these commits were in v5.2-rc6 already.
+>
+> -Tommi
+>
