@@ -2,130 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D162480872
-	for <lists+stable@lfdr.de>; Sat,  3 Aug 2019 23:49:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88D15808FF
+	for <lists+stable@lfdr.de>; Sun,  4 Aug 2019 05:51:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728842AbfHCVtd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Aug 2019 17:49:33 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:33183 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728817AbfHCVtd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Aug 2019 17:49:33 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id 2F6AC8029D; Sat,  3 Aug 2019 23:49:19 +0200 (CEST)
-Date:   Sat, 3 Aug 2019 23:49:30 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Jason Wang <jasowang@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jack Wang <jinpu.wang@cloud.ionos.com>
-Subject: Re: [PATCH 4.19 21/32] vhost_net: fix possible infinite loop
-Message-ID: <20190803214930.GB22416@amd>
-References: <20190802092101.913646560@linuxfoundation.org>
- <20190802092108.665019390@linuxfoundation.org>
+        id S1725926AbfHDDu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Aug 2019 23:50:59 -0400
+Received: from conssluserg-04.nifty.com ([210.131.2.83]:22281 "EHLO
+        conssluserg-04.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725283AbfHDDu7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Aug 2019 23:50:59 -0400
+Received: from mail-ua1-f41.google.com (mail-ua1-f41.google.com [209.85.222.41]) (authenticated)
+        by conssluserg-04.nifty.com with ESMTP id x743olnN005896;
+        Sun, 4 Aug 2019 12:50:47 +0900
+DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-04.nifty.com x743olnN005896
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+        s=dec2015msa; t=1564890648;
+        bh=3vS3/5rDcS18Sb1Eug7YS5T01mgblSSYbNpIdtgur6c=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=iF72YwKqnOePS9nerjL2Gy4Q75/TdlZCEsCX9PhzH+f4DSy6R5khaPcRlv1M6vgPq
+         YucD7z2OkRDMMBPELtCRtALjV90LaGCsnmlwI8lh8aOdpWOfq9EfBUMYlNN1OCsYgK
+         DrGvMZcdgmJ9uhG4uR1ChOxhPuEtmyCfD+O265TPgOjhFVnEA9Nl+VTXhPGBWPFwFZ
+         AGfjQrBcBk/Ny2CVVWGCWZGawY3u7cBYqHM3JuRaSDpyD1bNPyLY+4cewRGui0Mpab
+         v7fTkJYZjN4YsAJjyNJfVd64nikNvK6MTapp3BYU8MJ70F4svsOUWBKE0VRj4MGmQc
+         fCJBgbJ+7M5qQ==
+X-Nifty-SrcIP: [209.85.222.41]
+Received: by mail-ua1-f41.google.com with SMTP id a97so31065898uaa.9;
+        Sat, 03 Aug 2019 20:50:47 -0700 (PDT)
+X-Gm-Message-State: APjAAAVwnKXgbYDAMEOWCOquX6yZ6CxtpaCK44H0nT6MOMJcaD0qXwxS
+        uA3BICQCeiRO3osib/uJCBOEp0VrX7PAyFueYQU=
+X-Google-Smtp-Source: APXvYqx8onDg0qzMkVy3xckekMqtp+JwWYueQcaBxSbON6vDfFQxIN1skfZGQVCrNF4p5bz2ZX0sdr0MQKEG4jHmhWE=
+X-Received: by 2002:a9f:25e9:: with SMTP id 96mr74623588uaf.95.1564890646592;
+ Sat, 03 Aug 2019 20:50:46 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="yNb1oOkm5a9FJOVX"
-Content-Disposition: inline
-In-Reply-To: <20190802092108.665019390@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+References: <CAK7LNASPib2GUgjUEwmNYcO9_NgvjyjKSpqwJVZSNhFOJ7Lkfw@mail.gmail.com>
+ <20190803100212.8227-1-m.v.b@runbox.com>
+In-Reply-To: <20190803100212.8227-1-m.v.b@runbox.com>
+From:   Masahiro Yamada <yamada.masahiro@socionext.com>
+Date:   Sun, 4 Aug 2019 12:50:10 +0900
+X-Gmail-Original-Message-ID: <CAK7LNAS3heQA-0FzANyqXGSOR+kZ6zLgoSWYEW_ngrEdH46QsQ@mail.gmail.com>
+Message-ID: <CAK7LNAS3heQA-0FzANyqXGSOR+kZ6zLgoSWYEW_ngrEdH46QsQ@mail.gmail.com>
+Subject: Re: [PATCH v2] kconfig: Clear "written" flag to avoid data loss
+To:     "M. Vefa Bicakci" <m.v.b@runbox.com>
+Cc:     =?UTF-8?B?Sm9vbmFzIEt5bG3DpGzDpA==?= <joonas.kylmala@iki.fi>,
+        Ulf Magnusson <ulfalizer@gmail.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
+        linux-stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Aug 3, 2019 at 7:02 PM M. Vefa Bicakci <m.v.b@runbox.com> wrote:
+>
+> Prior to this commit, starting nconfig, xconfig or gconfig, and saving
+> the .config file more than once caused data loss, where a .config file
+> that contained only comments would be written to disk starting from the
+> second save operation.
+>
+> This bug manifests itself because the SYMBOL_WRITTEN flag is never
+> cleared after the first call to conf_write, and subsequent calls to
+> conf_write then skip all of the configuration symbols due to the
+> SYMBOL_WRITTEN flag being set.
+>
+> This commit resolves this issue by clearing the SYMBOL_WRITTEN flag
+> from all symbols before conf_write returns.
+>
+> Fixes: 8e2442a5f86e ("kconfig: fix missing choice values in auto.conf")
+> Cc: linux-stable <stable@vger.kernel.org> # 4.19+
+> Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
 
---yNb1oOkm5a9FJOVX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hi!
+Applied to linux-kbuild/fixes.
+Thanks.
 
-> This makes it possible to trigger a infinite while..continue loop
-> through the co-opreation of two VMs like:
->=20
-> 1) Malicious VM1 allocate 1 byte rx buffer and try to slow down the
->    vhost process as much as possible e.g using indirect descriptors or
->    other.
-> 2) Malicious VM2 generate packets to VM1 as fast as possible
->=20
-> Fixing this by checking against weight at the end of RX and TX
-> loop. This also eliminate other similar cases when:
->=20
-> - userspace is consuming the packets in the meanwhile
-> - theoretical TOCTOU attack if guest moving avail index back and forth
->   to hit the continue after vhost find guest just add new buffers
->=20
-> This addresses CVE-2019-3900.
->=20
 
-> @@ -551,7 +551,7 @@ static void handle_tx_copy(struct vhost_
->  	int err;
->  	int sent_pkts =3D 0;
-> =20
-> -	for (;;) {
-> +	do {
->  		bool busyloop_intr =3D false;
-> =20
->  		head =3D get_tx_bufs(net, nvq, &msg, &out, &in, &len,
-> @@ -592,9 +592,7 @@ static void handle_tx_copy(struct vhost_
->  				 err, len);
->  		if (++nvq->done_idx >=3D VHOST_NET_BATCH)
->  			vhost_net_signal_used(nvq);
-> -		if (vhost_exceeds_weight(vq, ++sent_pkts, total_len))
-> -			break;
-> -	}
-> +	} while (likely(!vhost_exceeds_weight(vq, ++sent_pkts, total_len)));
-> =20
->  	vhost_net_signal_used(nvq);
->  }
 
-So this part does not really change anything, right?
-
-> @@ -618,7 +616,7 @@ static void handle_tx_zerocopy(struct vh
->  	bool zcopy_used;
->  	int sent_pkts =3D 0;
-> =20
-> -	for (;;) {
-> +	do {
->  		bool busyloop_intr;
-> =20
->  		/* Release DMAs done buffers first */
-> @@ -693,10 +691,7 @@ static void handle_tx_zerocopy(struct vh
->  		else
->  			vhost_zerocopy_signal_used(net, vq);
->  		vhost_net_tx_packet(net);
-> -		if (unlikely(vhost_exceeds_weight(vq, ++sent_pkts,
-> -						  total_len)))
-> -			break;
-> -	}
-> +	} while (likely(!vhost_exceeds_weight(vq, ++sent_pkts, total_len)));
->  }
-> =20
->  /* Expects to be always run from workqueue - which acts as
-
-Neither does this. Equivalent code. Changelog says it fixes something
-for the transmit so... is that intentional?
-
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---yNb1oOkm5a9FJOVX
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl1GAWoACgkQMOfwapXb+vKqLQCeKjbltG2/AnHByP+uOanOB5px
-xo0AoJVoT+xb0rMMp+R2JF4xzzBJDI5N
-=5tkE
------END PGP SIGNATURE-----
-
---yNb1oOkm5a9FJOVX--
+-- 
+Best Regards
+Masahiro Yamada
