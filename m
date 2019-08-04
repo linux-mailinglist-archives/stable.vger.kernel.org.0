@@ -2,186 +2,194 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F267A80C16
-	for <lists+stable@lfdr.de>; Sun,  4 Aug 2019 21:11:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E350280C18
+	for <lists+stable@lfdr.de>; Sun,  4 Aug 2019 21:12:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726524AbfHDTKP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Aug 2019 15:10:15 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:54500 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726474AbfHDTKP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Aug 2019 15:10:15 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 81F5930860BD;
-        Sun,  4 Aug 2019 19:10:14 +0000 (UTC)
-Received: from rh2.redhat.com (ovpn-120-181.rdu2.redhat.com [10.10.120.181])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D02FA5D6B0;
-        Sun,  4 Aug 2019 19:10:13 +0000 (UTC)
-From:   Mike Christie <mchristi@redhat.com>
-To:     josef@toxicpanda.com, linux-block@vger.kernel.org
-Cc:     Mike Christie <mchristi@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH 1/1] nbd: fix max number of supported devs
-Date:   Sun,  4 Aug 2019 14:10:06 -0500
-Message-Id: <20190804191006.5359-1-mchristi@redhat.com>
+        id S1726536AbfHDTMa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Aug 2019 15:12:30 -0400
+Received: from mail-wr1-f41.google.com ([209.85.221.41]:32963 "EHLO
+        mail-wr1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726392AbfHDTMa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 4 Aug 2019 15:12:30 -0400
+Received: by mail-wr1-f41.google.com with SMTP id n9so82348029wru.0
+        for <stable@vger.kernel.org>; Sun, 04 Aug 2019 12:12:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=1oHZ3nrqZmJsCoKqXfu5SgsoRqE9VVMOm26jx3PHEgc=;
+        b=GAGfJ34HONE5qH2pH/fb03zyu6sxjynoox1kr9Z1MphgCgj1aEbQrIgLLI3kiDRSlg
+         uCXAEpKp3vi4IEfu/6/14f4DdBg0VQz9ZHnmg8nscxC5LkOdMBQb9jR/A/gNdmGMXNBP
+         ayvmUs0BVtp8jK81bQrIpLPXsVMstqoe4tL5op5dQ9wSelr0oyWaC/F4Ynz7SmNV+J7d
+         5bSRAZtPfv3VrlFF9kgeBFCinlCIaaGaQYTOQQ9PM9/nxMCB7PDZPhaluUm9rDvrNC3A
+         DJzYJC+Lr8bHW3izkJ+SBLBm1z+1N6QFW355At+Z+xsV/7HWJ6HJLGHEJIegtUD2cRwg
+         F0Lw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=1oHZ3nrqZmJsCoKqXfu5SgsoRqE9VVMOm26jx3PHEgc=;
+        b=BKgSG/LEwpA/8QDOIAwrpgtV/+eHn718lPzA1cUs9+/50wzgbr7xBJKf4rGte6J5Xp
+         5Cb0IEicpjFONFz4hiPO8VgP06Q4W9m3dC1UFgWFMFjXXQxURY1owkZ8bF1hrijTNX8I
+         mZgXV1wWxH3+jPHFJ0R265ffVBHB+Hq+6scDBy/JloZl+9pJDpPDFKpeI9BLlQLc4w5c
+         5UDjb9mo1jYCY7e9bU57PTOrLPyMGN98S8PocC7gP8RFu8CDW9+By6T6A13U8SU/qFpX
+         RseWulYm9KuArq/JSYMVrR5THxTjlMWb2ioSyyrG/e7INCKL0gj+/0jRVZP/O64dmHe1
+         ncFQ==
+X-Gm-Message-State: APjAAAUZBYmwwIgslfPame/Lxik7PtyfR/LooHmXSzAQX/B6BKy3TyWT
+        ebuYL+v/S9zrP75UezHRNi79Dyvh
+X-Google-Smtp-Source: APXvYqx4+jzlaeMVwyW6XtpRkHHmfcopYDm53lCTmIDV6Cnw8rnRVsXvMMma0ct5AvXFYlVT8LJ+ow==
+X-Received: by 2002:adf:f204:: with SMTP id p4mr39799138wro.317.1564945948118;
+        Sun, 04 Aug 2019 12:12:28 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id p14sm67604087wrx.17.2019.08.04.12.12.27
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 04 Aug 2019 12:12:27 -0700 (PDT)
+Message-ID: <5d472e1b.1c69fb81.fc0d4.2f0c@mx.google.com>
+Date:   Sun, 04 Aug 2019 12:12:27 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.44]); Sun, 04 Aug 2019 19:10:14 +0000 (UTC)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.64
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.19.y boot: 122 boots: 1 failed,
+ 75 passed with 45 offline, 1 untried/unknown (v4.19.64)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This fixes a bug added in 4.10 with commit:
+stable-rc/linux-4.19.y boot: 122 boots: 1 failed, 75 passed with 45 offline=
+, 1 untried/unknown (v4.19.64)
 
-commit 9561a7ade0c205bc2ee035a2ac880478dcc1a024
-Author: Josef Bacik <jbacik@fb.com>
-Date:   Tue Nov 22 14:04:40 2016 -0500
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.64/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.64/
 
-    nbd: add multi-connection support
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.64
+Git Commit: b3060a1a313ff7a545d658378f62fe9c250acdee
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 69 unique boards, 26 SoC families, 17 builds out of 206
 
-that limited the number of devices to 256. Before the patch we could
-create 1000s of devices, but the patch switched us from using our
-own thread to using a work queue which has a default limit of 256
-active works.
+Boot Regressions Detected:
 
-The problem is that our recv_work function sits in a loop until
-disconnection but only handles IO for one connection. The work is
-started when the connection is started/restarted, but if we end up
-creating 257 or more connections, the queue_work call just queues
-connection257+'s recv_work and that waits for connection 1 - 256's
-recv_work to be disconnected and that work instance completing.
+arm:
 
-Instead of reverting back to kthreads, this has us allocate a
-workqueue_struct per device, so we can block in the work.
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: new failure (last pass: v4.19.62-148-g6=
+3a8dab46af2)
+          qcom-apq8064-ifc6410:
+              lab-baylibre-seattle: new failure (last pass: v4.19.62-148-g6=
+3a8dab46af2)
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Mike Christie <mchristi@redhat.com>
+    sunxi_defconfig:
+        gcc-8:
+          sun4i-a10-cubieboard:
+              lab-baylibre-seattle: new failure (last pass: v4.19.62-148-g6=
+3a8dab46af2)
+          sun5i-r8-chip:
+              lab-baylibre-seattle: new failure (last pass: v4.19.62-148-g6=
+3a8dab46af2)
+          sun7i-a20-bananapi:
+              lab-baylibre-seattle: new failure (last pass: v4.19.62-148-g6=
+3a8dab46af2)
+
+Boot Failure Detected:
+
+arc:
+    hsdk_defconfig:
+        gcc-8:
+            hsdk: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+            meson-axg-s400: 1 offline lab
+            meson-gxbb-odroidc2: 1 offline lab
+            meson-gxl-s905d-p230: 1 offline lab
+            meson-gxl-s905x-libretech-cc: 1 offline lab
+            meson-gxl-s905x-nexbox-a95x: 1 offline lab
+            meson-gxl-s905x-p212: 1 offline lab
+            meson-gxm-nexbox-a1: 1 offline lab
+            rk3399-firefly: 1 offline lab
+            sun50i-a64-pine64-plus: 1 offline lab
+
+mips:
+
+    pistachio_defconfig:
+        gcc-8
+            pistachio_marduk: 1 offline lab
+
+arm:
+
+    exynos_defconfig:
+        gcc-8
+            exynos5250-arndale: 1 offline lab
+            exynos5420-arndale-octa: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5250-arndale: 1 offline lab
+            exynos5420-arndale-octa: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
+            imx6dl-wandboard_dual: 1 offline lab
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+            imx7s-warp: 1 offline lab
+            meson8b-odroidc1: 1 offline lab
+            omap3-beagle: 1 offline lab
+            omap4-panda: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            stih410-b2120: 1 offline lab
+            sun4i-a10-cubieboard: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+            vf610-colibri-eval-v3: 1 offline lab
+
+    omap2plus_defconfig:
+        gcc-8
+            omap3-beagle: 1 offline lab
+            omap4-panda: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+    imx_v6_v7_defconfig:
+        gcc-8
+            imx6dl-wandboard_dual: 1 offline lab
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+            imx7s-warp: 1 offline lab
+            vf610-colibri-eval-v3: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun4i-a10-cubieboard: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
 ---
- drivers/block/nbd.c | 39 +++++++++++++++++++++++++--------------
- 1 file changed, 25 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 9bcde2325893..cc4b2ae57409 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -108,6 +108,7 @@ struct nbd_device {
- 	struct nbd_config *config;
- 	struct mutex config_lock;
- 	struct gendisk *disk;
-+	struct workqueue_struct *recv_workq;
- 
- 	struct list_head list;
- 	struct task_struct *task_recv;
-@@ -138,7 +139,6 @@ static struct dentry *nbd_dbg_dir;
- 
- static unsigned int nbds_max = 16;
- static int max_part = 16;
--static struct workqueue_struct *recv_workqueue;
- static int part_shift;
- 
- static int nbd_dev_dbg_init(struct nbd_device *nbd);
-@@ -1036,7 +1036,7 @@ static int nbd_reconnect_socket(struct nbd_device *nbd, unsigned long arg)
- 		/* We take the tx_mutex in an error path in the recv_work, so we
- 		 * need to queue_work outside of the tx_mutex.
- 		 */
--		queue_work(recv_workqueue, &args->work);
-+		queue_work(nbd->recv_workq, &args->work);
- 
- 		atomic_inc(&config->live_connections);
- 		wake_up(&config->conn_wait);
-@@ -1137,6 +1137,10 @@ static void nbd_config_put(struct nbd_device *nbd)
- 		kfree(nbd->config);
- 		nbd->config = NULL;
- 
-+		if (nbd->recv_workq)
-+			destroy_workqueue(nbd->recv_workq);
-+		nbd->recv_workq = NULL;
-+
- 		nbd->tag_set.timeout = 0;
- 		nbd->disk->queue->limits.discard_granularity = 0;
- 		nbd->disk->queue->limits.discard_alignment = 0;
-@@ -1165,6 +1169,14 @@ static int nbd_start_device(struct nbd_device *nbd)
- 		return -EINVAL;
- 	}
- 
-+	nbd->recv_workq = alloc_workqueue("knbd%d-recv",
-+					  WQ_MEM_RECLAIM | WQ_HIGHPRI |
-+					  WQ_UNBOUND, 0, nbd->index);
-+	if (!nbd->recv_workq) {
-+		dev_err(disk_to_dev(nbd->disk), "Could not allocate knbd recv work queue.\n");
-+		return -ENOMEM;
-+	}
-+
- 	blk_mq_update_nr_hw_queues(&nbd->tag_set, config->num_connections);
- 	nbd->task_recv = current;
- 
-@@ -1195,7 +1207,7 @@ static int nbd_start_device(struct nbd_device *nbd)
- 		INIT_WORK(&args->work, recv_work);
- 		args->nbd = nbd;
- 		args->index = i;
--		queue_work(recv_workqueue, &args->work);
-+		queue_work(nbd->recv_workq, &args->work);
- 	}
- 	nbd_size_update(nbd);
- 	return error;
-@@ -1215,8 +1227,10 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *b
- 	mutex_unlock(&nbd->config_lock);
- 	ret = wait_event_interruptible(config->recv_wq,
- 					 atomic_read(&config->recv_threads) == 0);
--	if (ret)
-+	if (ret) {
- 		sock_shutdown(nbd);
-+		flush_workqueue(nbd->recv_workq);
-+	}
- 	mutex_lock(&nbd->config_lock);
- 	nbd_bdev_reset(bdev);
- 	/* user requested, ignore socket errors */
-@@ -1875,6 +1889,12 @@ static void nbd_disconnect_and_put(struct nbd_device *nbd)
- 	nbd_disconnect(nbd);
- 	nbd_clear_sock(nbd);
- 	mutex_unlock(&nbd->config_lock);
-+	/*
-+	 * Make sure recv thread has finished, so it does not drop the last
-+	 * config ref and try to destroy the workqueue from inside the work
-+	 * queue.
-+	 */
-+	flush_workqueue(nbd->recv_workq);
- 	if (test_and_clear_bit(NBD_HAS_CONFIG_REF,
- 			       &nbd->config->runtime_flags))
- 		nbd_config_put(nbd);
-@@ -2261,20 +2281,12 @@ static int __init nbd_init(void)
- 
- 	if (nbds_max > 1UL << (MINORBITS - part_shift))
- 		return -EINVAL;
--	recv_workqueue = alloc_workqueue("knbd-recv",
--					 WQ_MEM_RECLAIM | WQ_HIGHPRI |
--					 WQ_UNBOUND, 0);
--	if (!recv_workqueue)
--		return -ENOMEM;
- 
--	if (register_blkdev(NBD_MAJOR, "nbd")) {
--		destroy_workqueue(recv_workqueue);
-+	if (register_blkdev(NBD_MAJOR, "nbd"))
- 		return -EIO;
--	}
- 
- 	if (genl_register_family(&nbd_genl_family)) {
- 		unregister_blkdev(NBD_MAJOR, "nbd");
--		destroy_workqueue(recv_workqueue);
- 		return -EINVAL;
- 	}
- 	nbd_dbg_init();
-@@ -2316,7 +2328,6 @@ static void __exit nbd_cleanup(void)
- 
- 	idr_destroy(&nbd_index_idr);
- 	genl_unregister_family(&nbd_genl_family);
--	destroy_workqueue(recv_workqueue);
- 	unregister_blkdev(NBD_MAJOR, "nbd");
- }
- 
--- 
-2.20.1
-
+For more info write to <info@kernelci.org>
