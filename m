@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CAEB80C32
-	for <lists+stable@lfdr.de>; Sun,  4 Aug 2019 21:35:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B380380C3C
+	for <lists+stable@lfdr.de>; Sun,  4 Aug 2019 21:49:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726530AbfHDTfK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Aug 2019 15:35:10 -0400
-Received: from mail-wr1-f52.google.com ([209.85.221.52]:41129 "EHLO
-        mail-wr1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726392AbfHDTfJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 4 Aug 2019 15:35:09 -0400
-Received: by mail-wr1-f52.google.com with SMTP id c2so79034895wrm.8
-        for <stable@vger.kernel.org>; Sun, 04 Aug 2019 12:35:08 -0700 (PDT)
+        id S1726561AbfHDTta (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Aug 2019 15:49:30 -0400
+Received: from mail-wr1-f44.google.com ([209.85.221.44]:36328 "EHLO
+        mail-wr1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726392AbfHDTta (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 4 Aug 2019 15:49:30 -0400
+Received: by mail-wr1-f44.google.com with SMTP id n4so82354555wrs.3
+        for <stable@vger.kernel.org>; Sun, 04 Aug 2019 12:49:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=ztH2GsDa8MqcDazPLVbRvmmtdIQgoH59KRVRHgLTTW0=;
-        b=TmcbbsDQX9clFyCg48YgvbG7xBIZNFf7yEbraeAOSAmz0OoNd5YfpqRBTNdleW/HFx
-         UJY3WogAcLCLN/gTcKTiR52IEtFZs5Yg+iq6HUMbKj3q1zrbqbvtrWSYqBHLsRQvgpDc
-         cjVmbE9tisxnrdQzK04KxkXmW4MlCVy/fKTdSd/2Mp7GQ+WRGtDg6rlHNvlEt4gGEyt2
-         QaC/IdvRL3BHISqokK0Uc0SmNmE7OEYX8ivllTOGvPjkVt0Jjw6dSsVb7jr7EuwG78yv
-         5Jxni4m7Af5JyEUJ4wdke37lg89m3SkXOtg1PvhRjZ9Nwx2N4afRyBpoAjNT7+Rmrmq1
-         cdVw==
+        bh=NhTGRybWtuUPpfvNNWWl+JVeaxjYEr8I61DYHRBcUqw=;
+        b=TH7rypCmE1q86Y9V1t8jNfK4fU2GK5EOj5bGshDTKeK7DsqJ6laz4XILPdfik2Z1jS
+         QiQVz2Y58uLlSwu57pBUJZ/6VcP3GPllwtBuo0McJBFZ+KmFMnw3UN3SiwaHhm5EDV68
+         PI/mBQlakPu89NsCpU1RB7fo1CQXMW1yfOD69aMK2gMzwEAZ011d0/tEHDIoBJrSfGBF
+         E4RFUYj+dCcXV3zCE/n1xJJuPhs1e/MiGlabXflkmaSc1MNzc9BV2L0RzV1+3ar4gFtc
+         +QOxjvexr1xq5IHd5v/bInLFTk/wyaEQGwS4iRMDuXv/QSeMi6HJVAI6XzBaAhDHxl2m
+         enGg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=ztH2GsDa8MqcDazPLVbRvmmtdIQgoH59KRVRHgLTTW0=;
-        b=dR/i038Tw0qGaD7RccrwREYXi0FyKzeysPRrH0l/ixFXP8rWpA/0UDIgbx596rSMGv
-         dzvKC8fZOEGwoClIl8btVQBfOHRmOyh7O0wJCYR799Heu6IU2AEsVrAgWoTYEKC8oew5
-         2kuCvUCeJWC0pPVF1kGI+0lY2bYOofW6TJX4tXZICZrx7XfEgPWJ05Y9G4c3UMGUiC5p
-         T6eSHUhRlUWVwbR8G6lGWC9+7kjjZDmUcaeYRI4mUifd7pQDBX2aoruHUlTFLJUIStMD
-         EK8jJ12YPQ/fSQrsmdj6IQ8lo5dSB3Fycms4uivsm3R1XZaXqAUq8qyBGzmwmzRyKZUh
-         EgbQ==
-X-Gm-Message-State: APjAAAWqOnz767TVhLRYhBNCFCvcPrvxRMfg7IcJq78ziqi0UImlDcZX
-        0gVgY0svOysMGctlWG7ZdO/smeOc
-X-Google-Smtp-Source: APXvYqzes0OwQeyp6W7YNdPzY3WN2WQbTRnVee5iYe1i1eI6Yy1Xnc0usLgc8K0xwpZLoRtLCUkDNA==
-X-Received: by 2002:a5d:518d:: with SMTP id k13mr62733148wrv.40.1564947307270;
-        Sun, 04 Aug 2019 12:35:07 -0700 (PDT)
+        bh=NhTGRybWtuUPpfvNNWWl+JVeaxjYEr8I61DYHRBcUqw=;
+        b=mWz4OSP0ATSNOPp2I4iDcZWj3JeOtKh+88JeUIHc1i5qfC9NdwVj4ybPzZ50N4N9P4
+         H9hqFDOxT3P3W+O938rnQOO1IvPHXG+udPeSIUy7hqSem9QT9iSTcMR1MDNjMH6BPUas
+         INelZY1q6wLWRDB5G7bKssrdm0JA634fm1TkISiYD/VLSSFtxVIpn7uiBkcxi+0YF7b6
+         jDiArcVbajK4FJmnPLtf8gDw/AZTtwFGDtpvGEzaPO54Og9iP7btHoMnGD1bxWtoq4Jx
+         +tzUG9/W+SBGOXGv1AhGefO/s4K2A9rapgaSSoPQdmp+ojweHWft8Va4bx6MJ6iMrK+H
+         Ip7w==
+X-Gm-Message-State: APjAAAV0L4mv1tNti4h016hUTQnLbnMC/AlwdyaIKvrcSeE46eQc+DZb
+        OddcC07vBCu9aw61BvkULxXD6mND
+X-Google-Smtp-Source: APXvYqz2IvkiKA+mP/t1ypHYau9RtaXnf4KAE5ptE5vSUkSXfFpMla7ljFITctK7FAwM/2/DDYek9w==
+X-Received: by 2002:adf:c003:: with SMTP id z3mr74784516wre.243.1564948168264;
+        Sun, 04 Aug 2019 12:49:28 -0700 (PDT)
 Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id i66sm146412627wmi.11.2019.08.04.12.35.06
+        by smtp.gmail.com with ESMTPSA id o126sm81126835wmo.1.2019.08.04.12.49.27
         for <stable@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 04 Aug 2019 12:35:06 -0700 (PDT)
-Message-ID: <5d47336a.1c69fb81.a5d88.a34d@mx.google.com>
-Date:   Sun, 04 Aug 2019 12:35:06 -0700 (PDT)
+        Sun, 04 Aug 2019 12:49:27 -0700 (PDT)
+Message-ID: <5d4736c7.1c69fb81.f48b6.3243@mx.google.com>
+Date:   Sun, 04 Aug 2019 12:49:27 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.187
-X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Kernel: v4.9.187
+X-Kernelci-Branch: linux-4.9.y
 X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.4.y boot: 91 boots: 2 failed,
- 51 passed with 38 offline (v4.4.187)
+Subject: stable-rc/linux-4.9.y boot: 98 boots: 2 failed,
+ 55 passed with 41 offline (v4.9.187)
 To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
@@ -63,21 +63,21 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 91 boots: 2 failed, 51 passed with 38 offline (=
-v4.4.187)
+stable-rc/linux-4.9.y boot: 98 boots: 2 failed, 55 passed with 41 offline (=
+v4.9.187)
 
 Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.187/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.187/
+-4.9.y/kernel/v4.9.187/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.187/
 
 Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.187
-Git Commit: dc16a7e5f36d65b25a1b66ade14356773ed52875
+Branch: linux-4.9.y
+Git Describe: v4.9.187
+Git Commit: 97d7530b83e3f515d5a3242019fdc2b5848d5a7f
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Tested: 44 unique boards, 20 SoC families, 14 builds out of 190
+Tested: 49 unique boards, 22 SoC families, 15 builds out of 197
 
 Boot Regressions Detected:
 
@@ -86,26 +86,22 @@ arm:
     sunxi_defconfig:
         gcc-8:
           sun4i-a10-cubieboard:
-              lab-baylibre-seattle: new failure (last pass: v4.4.186-157-gd=
-9815060e3ec)
+              lab-baylibre-seattle: new failure (last pass: v4.9.186-224-g5=
+380ded2525d)
           sun5i-r8-chip:
-              lab-baylibre-seattle: new failure (last pass: v4.4.186-157-gd=
-9815060e3ec)
+              lab-baylibre-seattle: new failure (last pass: v4.9.186-224-g5=
+380ded2525d)
           sun7i-a20-bananapi:
-              lab-baylibre-seattle: new failure (last pass: v4.4.186-157-gd=
-9815060e3ec)
+              lab-baylibre-seattle: new failure (last pass: v4.9.186-224-g5=
+380ded2525d)
 
 Boot Failures Detected:
 
-arm64:
-    defconfig:
-        gcc-8:
-            qcom-qdf2400: 1 failed lab
-
 arm:
-    exynos_defconfig:
+    multi_v7_defconfig:
         gcc-8:
             exynos5250-snow: 1 failed lab
+            rk3288-veyron-jaq: 1 failed lab
 
 Offline Platforms:
 
@@ -114,6 +110,7 @@ arm64:
     defconfig:
         gcc-8
             apq8016-sbc: 1 offline lab
+            meson-gxbb-odroidc2: 1 offline lab
 
 arm:
 
@@ -138,6 +135,7 @@ arm:
             imx6dl-wandboard_dual: 1 offline lab
             imx6dl-wandboard_solo: 1 offline lab
             imx6q-wandboard: 1 offline lab
+            imx7s-warp: 1 offline lab
             meson8b-odroidc1: 1 offline lab
             omap3-beagle: 1 offline lab
             omap4-panda: 1 offline lab
@@ -170,6 +168,7 @@ arm:
             imx6dl-wandboard_dual: 1 offline lab
             imx6dl-wandboard_solo: 1 offline lab
             imx6q-wandboard: 1 offline lab
+            imx7s-warp: 1 offline lab
             vf610-colibri-eval-v3: 1 offline lab
 
     sunxi_defconfig:
