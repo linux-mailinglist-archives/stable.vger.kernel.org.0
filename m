@@ -2,83 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88D15808FF
-	for <lists+stable@lfdr.de>; Sun,  4 Aug 2019 05:51:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B156809CA
+	for <lists+stable@lfdr.de>; Sun,  4 Aug 2019 09:16:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725926AbfHDDu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Aug 2019 23:50:59 -0400
-Received: from conssluserg-04.nifty.com ([210.131.2.83]:22281 "EHLO
-        conssluserg-04.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725283AbfHDDu7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Aug 2019 23:50:59 -0400
-Received: from mail-ua1-f41.google.com (mail-ua1-f41.google.com [209.85.222.41]) (authenticated)
-        by conssluserg-04.nifty.com with ESMTP id x743olnN005896;
-        Sun, 4 Aug 2019 12:50:47 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-04.nifty.com x743olnN005896
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1564890648;
-        bh=3vS3/5rDcS18Sb1Eug7YS5T01mgblSSYbNpIdtgur6c=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=iF72YwKqnOePS9nerjL2Gy4Q75/TdlZCEsCX9PhzH+f4DSy6R5khaPcRlv1M6vgPq
-         YucD7z2OkRDMMBPELtCRtALjV90LaGCsnmlwI8lh8aOdpWOfq9EfBUMYlNN1OCsYgK
-         DrGvMZcdgmJ9uhG4uR1ChOxhPuEtmyCfD+O265TPgOjhFVnEA9Nl+VTXhPGBWPFwFZ
-         AGfjQrBcBk/Ny2CVVWGCWZGawY3u7cBYqHM3JuRaSDpyD1bNPyLY+4cewRGui0Mpab
-         v7fTkJYZjN4YsAJjyNJfVd64nikNvK6MTapp3BYU8MJ70F4svsOUWBKE0VRj4MGmQc
-         fCJBgbJ+7M5qQ==
-X-Nifty-SrcIP: [209.85.222.41]
-Received: by mail-ua1-f41.google.com with SMTP id a97so31065898uaa.9;
-        Sat, 03 Aug 2019 20:50:47 -0700 (PDT)
-X-Gm-Message-State: APjAAAVwnKXgbYDAMEOWCOquX6yZ6CxtpaCK44H0nT6MOMJcaD0qXwxS
-        uA3BICQCeiRO3osib/uJCBOEp0VrX7PAyFueYQU=
-X-Google-Smtp-Source: APXvYqx8onDg0qzMkVy3xckekMqtp+JwWYueQcaBxSbON6vDfFQxIN1skfZGQVCrNF4p5bz2ZX0sdr0MQKEG4jHmhWE=
-X-Received: by 2002:a9f:25e9:: with SMTP id 96mr74623588uaf.95.1564890646592;
- Sat, 03 Aug 2019 20:50:46 -0700 (PDT)
+        id S1725914AbfHDHPp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Aug 2019 03:15:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35886 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725893AbfHDHPp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Aug 2019 03:15:45 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA2402070D;
+        Sun,  4 Aug 2019 07:15:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564902944;
+        bh=dLmag7aq+BvGzFJ06j3fOE25hyRcx7tMj0ad4B1fZqM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=HlH0FIsJWFmivgUqDfuwUf+xsCL5TFi4zTYxkPsPmUnQMVEoN1w88fO5TrR0QTKTb
+         4EI9bYs06I8wmDUPrTRFRt2sH/XsTLspW8Z0BddSEstCHeiG/+czaezuaOqSQTllNJ
+         /hTy1++52zE6WAiKtANK5mKKOGIi6Pha3/WHME2I=
+Date:   Sun, 4 Aug 2019 09:15:41 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.2 00/20] 5.2.6-stable review
+Message-ID: <20190804071541.GA29188@kroah.com>
+References: <20190802092055.131876977@linuxfoundation.org>
+ <9492210e-e617-f636-d0f6-6a6381ad9461@roeck-us.net>
 MIME-Version: 1.0
-References: <CAK7LNASPib2GUgjUEwmNYcO9_NgvjyjKSpqwJVZSNhFOJ7Lkfw@mail.gmail.com>
- <20190803100212.8227-1-m.v.b@runbox.com>
-In-Reply-To: <20190803100212.8227-1-m.v.b@runbox.com>
-From:   Masahiro Yamada <yamada.masahiro@socionext.com>
-Date:   Sun, 4 Aug 2019 12:50:10 +0900
-X-Gmail-Original-Message-ID: <CAK7LNAS3heQA-0FzANyqXGSOR+kZ6zLgoSWYEW_ngrEdH46QsQ@mail.gmail.com>
-Message-ID: <CAK7LNAS3heQA-0FzANyqXGSOR+kZ6zLgoSWYEW_ngrEdH46QsQ@mail.gmail.com>
-Subject: Re: [PATCH v2] kconfig: Clear "written" flag to avoid data loss
-To:     "M. Vefa Bicakci" <m.v.b@runbox.com>
-Cc:     =?UTF-8?B?Sm9vbmFzIEt5bG3DpGzDpA==?= <joonas.kylmala@iki.fi>,
-        Ulf Magnusson <ulfalizer@gmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
-        linux-stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9492210e-e617-f636-d0f6-6a6381ad9461@roeck-us.net>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Aug 3, 2019 at 7:02 PM M. Vefa Bicakci <m.v.b@runbox.com> wrote:
->
-> Prior to this commit, starting nconfig, xconfig or gconfig, and saving
-> the .config file more than once caused data loss, where a .config file
-> that contained only comments would be written to disk starting from the
-> second save operation.
->
-> This bug manifests itself because the SYMBOL_WRITTEN flag is never
-> cleared after the first call to conf_write, and subsequent calls to
-> conf_write then skip all of the configuration symbols due to the
-> SYMBOL_WRITTEN flag being set.
->
-> This commit resolves this issue by clearing the SYMBOL_WRITTEN flag
-> from all symbols before conf_write returns.
->
-> Fixes: 8e2442a5f86e ("kconfig: fix missing choice values in auto.conf")
-> Cc: linux-stable <stable@vger.kernel.org> # 4.19+
-> Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
+On Sat, Aug 03, 2019 at 09:00:11AM -0700, Guenter Roeck wrote:
+> On 8/2/19 2:39 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.2.6 release.
+> > There are 20 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Sun 04 Aug 2019 09:19:34 AM UTC.
+> > Anything received after that time might be too late.
+> > 
+> 
+> Build results:
+> 	total: 159 pass: 159 fail: 0
+> Qemu test results:
+> 	total: 364 pass: 364 fail: 0
 
+Great!  Thanks for testing all of these and letting me know.
 
-Applied to linux-kbuild/fixes.
-Thanks.
-
-
-
--- 
-Best Regards
-Masahiro Yamada
+greg k-h
