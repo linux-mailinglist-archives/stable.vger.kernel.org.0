@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FDAD81C9D
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:25:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0973781CC0
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:27:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731279AbfHENZs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:25:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34320 "EHLO mail.kernel.org"
+        id S1731311AbfHENZv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:25:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731288AbfHENZr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:25:47 -0400
+        id S1730916AbfHENZu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:25:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3F2820651;
-        Mon,  5 Aug 2019 13:25:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DD6A20644;
+        Mon,  5 Aug 2019 13:25:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011546;
-        bh=DRDerXr9DW86qLGdmqopt7ynBm6nHUnwaVDipglW7BA=;
+        s=default; t=1565011549;
+        bh=O81cY2+UO09peQGoXM9mbiGl/Zz6yhVdTmLOCrqsWy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=niOxGXooJz3aBI+grsWaEPpuX7RGxjW2F42uCpcQxzVgcahXqBoRN6Up21UbL1Ro1
-         Knhwxc/g6tRXWEqupTDSQjrKoIWH1sUqMYYFH2JzCGwSiU+rHPdIkIpINWxGcu1htg
-         dMInEVnim/tNv456FDGlszgPKhyEVp9uu4WTzXLI=
+        b=fvae2LmQHCdKoqDEewTy59ddlu9mEgPkwaNIgRvG9OUvtD7739cV5Hhbx+0wa6FS7
+         1F3lcmJ3iFAsb05L7nigE5YRiqtqLh722hzn4AIgU+vYmiqY4Lfmper1J498ESiaRT
+         XlN5dWfXgK+r/ywWOP3F4vuJKH2AM5X6DFjpUAJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Kaike Wan <kaike.wan@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.2 129/131] IB/hfi1: Field not zero-ed when allocating TID flow memory
-Date:   Mon,  5 Aug 2019 15:03:36 +0200
-Message-Id: <20190805125000.619598200@linuxfoundation.org>
+        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
+        Kenneth Graunke <kenneth@whitecape.org>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.2 130/131] drm/i915/perf: fix ICL perf register offsets
+Date:   Mon,  5 Aug 2019 15:03:37 +0200
+Message-Id: <20190805125000.682940232@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -45,43 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kaike Wan <kaike.wan@intel.com>
+From: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
 
-commit dc25b239ebeaa3c58e5ceaa732140427d386aa16 upstream.
+commit 95eef14cdad150fed43147bcd4f29eea3d0a3f03 upstream.
 
-The field flow->resync_npkts is added for TID RDMA WRITE request and
-zero-ed when a TID RDMA WRITE RESP packet is received by the requester.
-This field is used to rewind a request during retry in the function
-hfi1_tid_rdma_restart_req() shared by both TID RDMA WRITE and TID RDMA
-READ requests. Therefore, when a TID RDMA READ request is retried, this
-field may not be initialized at all, which causes the retry to start at an
-incorrect psn, leading to the drop of the retry request by the responder.
+We got the wrong offsets (could they have changed?). New values were
+computed off an error state by looking up the register offset in the
+context image as written by the HW.
 
-This patch fixes the problem by zeroing out the field when the flow memory
-is allocated.
-
-Fixes: 838b6fd2d9ca ("IB/hfi1: TID RDMA RcvArray programming and TID allocation")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190715164534.74174.6177.stgit@awfm-01.aw.intel.com
-Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Kaike Wan <kaike.wan@intel.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
+Fixes: 1de401c08fa805 ("drm/i915/perf: enable perf support on ICL")
+Cc: <stable@vger.kernel.org> # v4.18+
+Acked-by: Kenneth Graunke <kenneth@whitecape.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190610081914.25428-1-lionel.g.landwerlin@intel.com
+(cherry picked from commit 8dcfdfb4501012a8d36d2157dc73925715f2befb)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/hfi1/tid_rdma.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/i915/i915_perf.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/infiniband/hw/hfi1/tid_rdma.c
-+++ b/drivers/infiniband/hw/hfi1/tid_rdma.c
-@@ -1620,6 +1620,7 @@ static int hfi1_kern_exp_rcv_alloc_flows
- 		flows[i].req = req;
- 		flows[i].npagesets = 0;
- 		flows[i].pagesets[0].mapped =  0;
-+		flows[i].resync_npkts = 0;
+--- a/drivers/gpu/drm/i915/i915_perf.c
++++ b/drivers/gpu/drm/i915/i915_perf.c
+@@ -3457,9 +3457,13 @@ void i915_perf_init(struct drm_i915_priv
+ 			dev_priv->perf.oa.ops.enable_metric_set = gen8_enable_metric_set;
+ 			dev_priv->perf.oa.ops.disable_metric_set = gen10_disable_metric_set;
+ 
+-			dev_priv->perf.oa.ctx_oactxctrl_offset = 0x128;
+-			dev_priv->perf.oa.ctx_flexeu0_offset = 0x3de;
+-
++			if (IS_GEN(dev_priv, 10)) {
++				dev_priv->perf.oa.ctx_oactxctrl_offset = 0x128;
++				dev_priv->perf.oa.ctx_flexeu0_offset = 0x3de;
++			} else {
++				dev_priv->perf.oa.ctx_oactxctrl_offset = 0x124;
++				dev_priv->perf.oa.ctx_flexeu0_offset = 0x78e;
++			}
+ 			dev_priv->perf.oa.gen8_valid_ctx_bit = (1<<16);
+ 		}
  	}
- 	req->flows = flows;
- 	return 0;
 
 
