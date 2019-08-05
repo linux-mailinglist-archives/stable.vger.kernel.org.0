@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75B3381B3F
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:13:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13BD781BE3
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:18:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730221AbfHENJn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:09:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48292 "EHLO mail.kernel.org"
+        id S1727357AbfHENET (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:04:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730219AbfHENJm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:09:42 -0400
+        id S1728934AbfHENET (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:04:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD9612087B;
-        Mon,  5 Aug 2019 13:09:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4A552147A;
+        Mon,  5 Aug 2019 13:04:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010582;
-        bh=q4u7LCK08Bf47uvI1DHjeukb6cEaq//zBjef9QiYFPg=;
+        s=default; t=1565010258;
+        bh=/cICx+80dZta7bh9CvT/1n+AsO2ktql8iA571OGiJ4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2EI3MgmPJnEdFgT3U2ssIvnneEHVlauEE5KVSmmU7nOvCuvPF5zgJ7LMiMNU2Y9GK
-         DOILi0zu1aVBuPBsE8I+yYghmJOHPUj2HNkGtQMu6DyQhvh5PDaZJbvCF7wskEZU1V
-         X4ZAmOulFghGw1FH7/BL1p+Bp4teRxjtT41zqe9E=
+        b=eyeEVnyiaMGd0LA8Vn6Sje2mDKEbXoPJEqUxLmnUaiQ0PnzO2wTfPFRuYUAVbCrx6
+         xzAKbOsx2OoPMLYHhBnu8X2DwcIrwhlFVy2hJtNeIcG6XRe9dnHSYQjjXGztCnLGuN
+         uS3b6oz0CEjvMfBwq+bM2fp+J3HWX+2Bi4/i1MmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 26/74] x86/apic: Silence -Wtype-limits compiler warnings
+Subject: [PATCH 4.4 02/22] ARM: dts: rockchip: Mark that the rk3288 timer might stop in suspend
 Date:   Mon,  5 Aug 2019 15:02:39 +0200
-Message-Id: <20190805124937.866475588@linuxfoundation.org>
+Message-Id: <20190805124919.374971262@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
-References: <20190805124935.819068648@linuxfoundation.org>
+In-Reply-To: <20190805124918.070468681@linuxfoundation.org>
+References: <20190805124918.070468681@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ec6335586953b0df32f83ef696002063090c7aef ]
+[ Upstream commit 8ef1ba39a9fa53d2205e633bc9b21840a275908e ]
 
-There are many compiler warnings like this,
+This is similar to commit e6186820a745 ("arm64: dts: rockchip: Arch
+counter doesn't tick in system suspend").  Specifically on the rk3288
+it can be seen that the timer stops ticking in suspend if we end up
+running through the "osc_disable" path in rk3288_slp_mode_set().  In
+that path the 24 MHz clock will turn off and the timer stops.
 
-In file included from ./arch/x86/include/asm/smp.h:13,
-                 from ./arch/x86/include/asm/mmzone_64.h:11,
-                 from ./arch/x86/include/asm/mmzone.h:5,
-                 from ./include/linux/mmzone.h:969,
-                 from ./include/linux/gfp.h:6,
-                 from ./include/linux/mm.h:10,
-                 from arch/x86/kernel/apic/io_apic.c:34:
-arch/x86/kernel/apic/io_apic.c: In function 'check_timer':
-./arch/x86/include/asm/apic.h:37:11: warning: comparison of unsigned
-expression >= 0 is always true [-Wtype-limits]
-   if ((v) <= apic_verbosity) \
-           ^~
-arch/x86/kernel/apic/io_apic.c:2160:2: note: in expansion of macro
-'apic_printk'
-  apic_printk(APIC_QUIET, KERN_INFO "..TIMER: vector=0x%02X "
-  ^~~~~~~~~~~
-./arch/x86/include/asm/apic.h:37:11: warning: comparison of unsigned
-expression >= 0 is always true [-Wtype-limits]
-   if ((v) <= apic_verbosity) \
-           ^~
-arch/x86/kernel/apic/io_apic.c:2207:4: note: in expansion of macro
-'apic_printk'
-    apic_printk(APIC_QUIET, KERN_ERR "..MP-BIOS bug: "
-    ^~~~~~~~~~~
+To test this, I ran this on a Chrome OS filesystem:
+  before=$(date); \
+  suspend_stress_test -c1 --suspend_min=30 --suspend_max=31; \
+  echo ${before}; date
 
-APIC_QUIET is 0, so silence them by making apic_verbosity type int.
+...and I found that unless I plug in a device that requests USB wakeup
+to be active that the two calls to "date" would show that fewer than
+30 seconds passed.
 
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/1562621805-24789-1-git-send-email-cai@lca.pw
+NOTE: deep suspend (where the 24 MHz clock gets disabled) isn't
+supported yet on upstream Linux so this was tested on a downstream
+kernel.
+
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/apic.h | 2 +-
- arch/x86/kernel/apic/apic.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/rk3288.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/include/asm/apic.h b/arch/x86/include/asm/apic.h
-index 130e81e10fc7c..050368db9d357 100644
---- a/arch/x86/include/asm/apic.h
-+++ b/arch/x86/include/asm/apic.h
-@@ -48,7 +48,7 @@ static inline void generic_apic_probe(void)
+diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
+index 04ea209f1737f..98abb053b7daf 100644
+--- a/arch/arm/boot/dts/rk3288.dtsi
++++ b/arch/arm/boot/dts/rk3288.dtsi
+@@ -205,6 +205,7 @@
+ 			     <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>,
+ 			     <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
+ 		clock-frequency = <24000000>;
++		arm,no-tick-in-suspend;
+ 	};
  
- #ifdef CONFIG_X86_LOCAL_APIC
- 
--extern unsigned int apic_verbosity;
-+extern int apic_verbosity;
- extern int local_apic_timer_c2_ok;
- 
- extern int disable_apic;
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index 02020f2e00809..272a12865b2aa 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -181,7 +181,7 @@ EXPORT_SYMBOL_GPL(local_apic_timer_c2_ok);
- /*
-  * Debug level, exported for io_apic.c
-  */
--unsigned int apic_verbosity;
-+int apic_verbosity;
- 
- int pic_mode;
- 
+ 	timer: timer@ff810000 {
 -- 
 2.20.1
 
