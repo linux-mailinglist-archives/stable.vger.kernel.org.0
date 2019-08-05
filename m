@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EAC5181D37
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:30:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6076B81D38
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:30:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729060AbfHENU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:20:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56486 "EHLO mail.kernel.org"
+        id S1729233AbfHENUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:20:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728800AbfHENU0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:20:26 -0400
+        id S1728800AbfHENUb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:20:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA34D20657;
-        Mon,  5 Aug 2019 13:20:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D84102067D;
+        Mon,  5 Aug 2019 13:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011225;
-        bh=Suut7lwdLdJ61gbHawlyeba1bXqBVef4rcqN5FBxiIw=;
+        s=default; t=1565011230;
+        bh=6o0ZCo4Zmg0dF9N4Daf8VQszTRUhNoiXuKCDiGqX01M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K3uG/d4eJ2VLGYr2kL9tSmV8xxuy/YBf4T7Mhuj2umxq3CT84kDkcR6hQOsQGfWaB
-         8XwCi2WPlv5uMIzJC2baR+N2rqXpSO9JX9lUtn6MlnmiQPgpIZCEM/t/5gTMgJ+p70
-         69eiNVRuTosKcJN2aFURDqEH9Cuf8iOywWctN6w0=
+        b=ULaq6V8H0kwZ3ehqEhYofYipP3TJKySDHREbauXtDWy/oCuO/IAXJ7TPjAE7/cbaB
+         FUda/KuAglairwc63UQkQAy2HXbfcxS0ZfbgretmLKhRyhL09Uq+y/dNJDESYYQUd8
+         0FRu/GP1vprusYNvrjXxgHigcbYZJrdhM2V/2/wE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
+        stable@vger.kernel.org, Cheng Jian <cj.chengjian@huawei.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 004/131] clk: meson: mpll: properly handle spread spectrum
-Date:   Mon,  5 Aug 2019 15:01:31 +0200
-Message-Id: <20190805124951.724105609@linuxfoundation.org>
+Subject: [PATCH 5.2 006/131] ftrace: Enable trampoline when rec count returns back to one
+Date:   Mon,  5 Aug 2019 15:01:33 +0200
+Message-Id: <20190805124951.850680333@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -45,62 +44,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f9b3eeebef6aabaa37a351715374de53b6da860c ]
+[ Upstream commit a124692b698b00026a58d89831ceda2331b2e1d0 ]
 
-The bit 'SSEN' available on some MPLL DSS outputs is not related to the
-fractional part of the divider but to the function called
-'Spread Spectrum'.
+Custom trampolines can only be enabled if there is only a single ops
+attached to it. If there's only a single callback registered to a function,
+and the ops has a trampoline registered for it, then we can call the
+trampoline directly. This is very useful for improving the performance of
+ftrace and livepatch.
 
-This function might be used to solve EM issues by adding a jitter on
-clock signal. This widens the signal spectrum and weakens the peaks in it.
+If more than one callback is registered to a function, the general
+trampoline is used, and the custom trampoline is not restored back to the
+direct call even if all the other callbacks were unregistered and we are
+back to one callback for the function.
 
-While spread spectrum might be useful for some application, it is
-problematic for others, such as audio.
+To fix this, set FTRACE_FL_TRAMP flag if rec count is decremented
+to one, and the ops that left has a trampoline.
 
-This patch introduce a new flag to the MPLL driver to enable (or not) the
-spread spectrum function.
+Testing After this patch :
 
-Fixes: 1f737ffa13ef ("clk: meson: mpll: fix mpll0 fractional part ignored")
-Tested-by: Martin Blumenstingl<martin.blumenstingl@googlemail.com>
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+insmod livepatch_unshare_files.ko
+cat /sys/kernel/debug/tracing/enabled_functions
+
+	unshare_files (1) R I	tramp: 0xffffffffc0000000(klp_ftrace_handler+0x0/0xa0) ->ftrace_ops_assist_func+0x0/0xf0
+
+echo unshare_files > /sys/kernel/debug/tracing/set_ftrace_filter
+echo function > /sys/kernel/debug/tracing/current_tracer
+cat /sys/kernel/debug/tracing/enabled_functions
+
+	unshare_files (2) R I ->ftrace_ops_list_func+0x0/0x150
+
+echo nop > /sys/kernel/debug/tracing/current_tracer
+cat /sys/kernel/debug/tracing/enabled_functions
+
+	unshare_files (1) R I	tramp: 0xffffffffc0000000(klp_ftrace_handler+0x0/0xa0) ->ftrace_ops_assist_func+0x0/0xf0
+
+Link: http://lkml.kernel.org/r/1556969979-111047-1-git-send-email-cj.chengjian@huawei.com
+
+Signed-off-by: Cheng Jian <cj.chengjian@huawei.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/meson/clk-mpll.c | 9 ++++++---
- drivers/clk/meson/clk-mpll.h | 1 +
- 2 files changed, 7 insertions(+), 3 deletions(-)
+ kernel/trace/ftrace.c | 28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/clk/meson/clk-mpll.c b/drivers/clk/meson/clk-mpll.c
-index f76850d99e591..d3f42e0864313 100644
---- a/drivers/clk/meson/clk-mpll.c
-+++ b/drivers/clk/meson/clk-mpll.c
-@@ -119,9 +119,12 @@ static int mpll_set_rate(struct clk_hw *hw,
- 	meson_parm_write(clk->map, &mpll->sdm, sdm);
- 	meson_parm_write(clk->map, &mpll->sdm_en, 1);
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index 576c41644e77c..208220d526e83 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -1622,6 +1622,11 @@ static bool test_rec_ops_needs_regs(struct dyn_ftrace *rec)
+ 	return  keep_regs;
+ }
  
--	/* Set additional fractional part enable if required */
--	if (MESON_PARM_APPLICABLE(&mpll->ssen))
--		meson_parm_write(clk->map, &mpll->ssen, 1);
-+	/* Set spread spectrum if possible */
-+	if (MESON_PARM_APPLICABLE(&mpll->ssen)) {
-+		unsigned int ss =
-+			mpll->flags & CLK_MESON_MPLL_SPREAD_SPECTRUM ? 1 : 0;
-+		meson_parm_write(clk->map, &mpll->ssen, ss);
-+	}
++static struct ftrace_ops *
++ftrace_find_tramp_ops_any(struct dyn_ftrace *rec);
++static struct ftrace_ops *
++ftrace_find_tramp_ops_next(struct dyn_ftrace *rec, struct ftrace_ops *ops);
++
+ static bool __ftrace_hash_rec_update(struct ftrace_ops *ops,
+ 				     int filter_hash,
+ 				     bool inc)
+@@ -1750,15 +1755,17 @@ static bool __ftrace_hash_rec_update(struct ftrace_ops *ops,
+ 			}
  
- 	/* Set the integer divider part */
- 	meson_parm_write(clk->map, &mpll->n2, n2);
-diff --git a/drivers/clk/meson/clk-mpll.h b/drivers/clk/meson/clk-mpll.h
-index cf79340006dd7..0f948430fed48 100644
---- a/drivers/clk/meson/clk-mpll.h
-+++ b/drivers/clk/meson/clk-mpll.h
-@@ -23,6 +23,7 @@ struct meson_clk_mpll_data {
- };
+ 			/*
+-			 * If the rec had TRAMP enabled, then it needs to
+-			 * be cleared. As TRAMP can only be enabled iff
+-			 * there is only a single ops attached to it.
+-			 * In otherwords, always disable it on decrementing.
+-			 * In the future, we may set it if rec count is
+-			 * decremented to one, and the ops that is left
+-			 * has a trampoline.
++			 * The TRAMP needs to be set only if rec count
++			 * is decremented to one, and the ops that is
++			 * left has a trampoline. As TRAMP can only be
++			 * enabled if there is only a single ops attached
++			 * to it.
+ 			 */
+-			rec->flags &= ~FTRACE_FL_TRAMP;
++			if (ftrace_rec_count(rec) == 1 &&
++			    ftrace_find_tramp_ops_any(rec))
++				rec->flags |= FTRACE_FL_TRAMP;
++			else
++				rec->flags &= ~FTRACE_FL_TRAMP;
  
- #define CLK_MESON_MPLL_ROUND_CLOSEST	BIT(0)
-+#define CLK_MESON_MPLL_SPREAD_SPECTRUM	BIT(1)
+ 			/*
+ 			 * flags will be cleared in ftrace_check_record()
+@@ -1951,11 +1958,6 @@ static void print_ip_ins(const char *fmt, const unsigned char *p)
+ 		printk(KERN_CONT "%s%02x", i ? ":" : "", p[i]);
+ }
  
- extern const struct clk_ops meson_clk_mpll_ro_ops;
- extern const struct clk_ops meson_clk_mpll_ops;
+-static struct ftrace_ops *
+-ftrace_find_tramp_ops_any(struct dyn_ftrace *rec);
+-static struct ftrace_ops *
+-ftrace_find_tramp_ops_next(struct dyn_ftrace *rec, struct ftrace_ops *ops);
+-
+ enum ftrace_bug_type ftrace_bug_type;
+ const void *ftrace_expected;
+ 
 -- 
 2.20.1
 
