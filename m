@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0682181B86
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:15:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B263081AE4
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:10:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729269AbfHENHY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:07:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44810 "EHLO mail.kernel.org"
+        id S1730308AbfHENKT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:10:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729777AbfHENHV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:07:21 -0400
+        id S1729712AbfHENKN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:10:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B66F216B7;
-        Mon,  5 Aug 2019 13:07:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F1852173B;
+        Mon,  5 Aug 2019 13:10:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010440;
-        bh=njhFZQxy19PcglwTow94+N5gzFX0PX+0iAdPg690j6M=;
+        s=default; t=1565010613;
+        bh=Oz6P3yvKf6wkzTeJ2/NqPW8vYc0v2HrdUwmn9CEeN2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=itJdKXjE/j/pPzpV4ZaHz0GkUp3L8Vq2yTOAYSH92NVBqnW6F/QR79Fd3eYeiWp+O
-         WSeerrr/T6wXkfYCql7afrHgGU4yegvcAWJ3ymtDIDzVB3ay92vihYVL+zOafE1fZv
-         xlDQd0Z2GEIZmdtw/HYLHW0n3wkZq6aRc4O4C4ww=
+        b=erXb5E74tv6bBMT/7XUqU0iPBI5RD8DlS8MF5dCXAmPDWdRI3FipIACGtE/WvSxic
+         jhFHnNBDjDpT1YXNAw6EgcOvHQculZDJxaBsn2i6tZFc/J3WdhzYOuRSHu9ml/hLL7
+         3PrMe6h99VZMhhNARqUD2LEeLz2eDINzXU+bJnA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Protsenko <semen.protsenko@linaro.org>,
-        Jan Harkes <jaharkes@cs.cmu.edu>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Colin Ian King <colin.king@canonical.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        David Howells <dhowells@redhat.com>,
-        Fabian Frederick <fabf@skynet.be>,
-        Mikko Rapeli <mikko.rapeli@iki.fi>,
-        Yann Droneaud <ydroneaud@opteya.com>,
-        Zhouyang Jia <jiazhouyang09@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Andrew Cooper <andrew.cooper3@citrix.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 24/53] coda: fix build using bare-metal toolchain
-Date:   Mon,  5 Aug 2019 15:02:49 +0200
-Message-Id: <20190805124930.725959344@linuxfoundation.org>
+Subject: [PATCH 4.19 37/74] xen/pv: Fix a boot up hang revealed by int3 self test
+Date:   Mon,  5 Aug 2019 15:02:50 +0200
+Message-Id: <20190805124938.827633793@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
-References: <20190805124927.973499541@linuxfoundation.org>
+In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
+References: <20190805124935.819068648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +51,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b2a57e334086602be56b74958d9f29b955cd157f ]
+[ Upstream commit b23e5844dfe78a80ba672793187d3f52e4b528d7 ]
 
-The kernel is self-contained project and can be built with bare-metal
-toolchain.  But bare-metal toolchain doesn't define __linux__.  Because
-of this u_quad_t type is not defined when using bare-metal toolchain and
-codafs build fails.  This patch fixes it by defining u_quad_t type
-unconditionally.
+Commit 7457c0da024b ("x86/alternatives: Add int3_emulate_call()
+selftest") is used to ensure there is a gap setup in int3 exception stack
+which could be used for inserting call return address.
 
-Link: http://lkml.kernel.org/r/3cbb40b0a57b6f9923a9d67b53473c0b691a3eaa.1558117389.git.jaharkes@cs.cmu.edu
-Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
-Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Colin Ian King <colin.king@canonical.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Fabian Frederick <fabf@skynet.be>
-Cc: Mikko Rapeli <mikko.rapeli@iki.fi>
-Cc: Yann Droneaud <ydroneaud@opteya.com>
-Cc: Zhouyang Jia <jiazhouyang09@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+This gap is missed in XEN PV int3 exception entry path, then below panic
+triggered:
+
+[    0.772876] general protection fault: 0000 [#1] SMP NOPTI
+[    0.772886] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.2.0+ #11
+[    0.772893] RIP: e030:int3_magic+0x0/0x7
+[    0.772905] RSP: 3507:ffffffff82203e98 EFLAGS: 00000246
+[    0.773334] Call Trace:
+[    0.773334]  alternative_instructions+0x3d/0x12e
+[    0.773334]  check_bugs+0x7c9/0x887
+[    0.773334]  ? __get_locked_pte+0x178/0x1f0
+[    0.773334]  start_kernel+0x4ff/0x535
+[    0.773334]  ? set_init_arg+0x55/0x55
+[    0.773334]  xen_start_kernel+0x571/0x57a
+
+For 64bit PV guests, Xen's ABI enters the kernel with using SYSRET, with
+%rcx/%r11 on the stack. To convert back to "normal" looking exceptions,
+the xen thunks do 'xen_*: pop %rcx; pop %r11; jmp *'.
+
+E.g. Extracting 'xen_pv_trap xenint3' we have:
+xen_xenint3:
+ pop %rcx;
+ pop %r11;
+ jmp xenint3
+
+As xenint3 and int3 entry code are same except xenint3 doesn't generate
+a gap, we can fix it by using int3 and drop useless xenint3.
+
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@oracle.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Stefano Stabellini <sstabellini@kernel.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Andrew Cooper <andrew.cooper3@citrix.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/coda.h | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/x86/entry/entry_64.S    | 1 -
+ arch/x86/include/asm/traps.h | 2 +-
+ arch/x86/xen/enlighten_pv.c  | 2 +-
+ arch/x86/xen/xen-asm_64.S    | 1 -
+ 4 files changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/coda.h b/include/linux/coda.h
-index d30209b9cef81..0ca0c83fdb1c4 100644
---- a/include/linux/coda.h
-+++ b/include/linux/coda.h
-@@ -58,8 +58,7 @@ Mellon the rights to redistribute these changes without encumbrance.
- #ifndef _CODA_HEADER_
- #define _CODA_HEADER_
+diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
+index 206df099950ea..e7572a209fbe7 100644
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -1196,7 +1196,6 @@ idtentry stack_segment		do_stack_segment	has_error_code=1
+ #ifdef CONFIG_XEN
+ idtentry xennmi			do_nmi			has_error_code=0
+ idtentry xendebug		do_debug		has_error_code=0
+-idtentry xenint3		do_int3			has_error_code=0
+ #endif
  
--#if defined(__linux__)
- typedef unsigned long long u_quad_t;
--#endif
-+
- #include <uapi/linux/coda.h>
- #endif 
+ idtentry general_protection	do_general_protection	has_error_code=1
+diff --git a/arch/x86/include/asm/traps.h b/arch/x86/include/asm/traps.h
+index afbc87206886e..b771bb3d159bc 100644
+--- a/arch/x86/include/asm/traps.h
++++ b/arch/x86/include/asm/traps.h
+@@ -40,7 +40,7 @@ asmlinkage void simd_coprocessor_error(void);
+ asmlinkage void xen_divide_error(void);
+ asmlinkage void xen_xennmi(void);
+ asmlinkage void xen_xendebug(void);
+-asmlinkage void xen_xenint3(void);
++asmlinkage void xen_int3(void);
+ asmlinkage void xen_overflow(void);
+ asmlinkage void xen_bounds(void);
+ asmlinkage void xen_invalid_op(void);
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index 782f98b332f05..1730a26ff6abc 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -597,12 +597,12 @@ struct trap_array_entry {
+ 
+ static struct trap_array_entry trap_array[] = {
+ 	{ debug,                       xen_xendebug,                    true },
+-	{ int3,                        xen_xenint3,                     true },
+ 	{ double_fault,                xen_double_fault,                true },
+ #ifdef CONFIG_X86_MCE
+ 	{ machine_check,               xen_machine_check,               true },
+ #endif
+ 	{ nmi,                         xen_xennmi,                      true },
++	{ int3,                        xen_int3,                        false },
+ 	{ overflow,                    xen_overflow,                    false },
+ #ifdef CONFIG_IA32_EMULATION
+ 	{ entry_INT80_compat,          xen_entry_INT80_compat,          false },
+diff --git a/arch/x86/xen/xen-asm_64.S b/arch/x86/xen/xen-asm_64.S
+index 417b339e5c8e1..3a6feed76dfc1 100644
+--- a/arch/x86/xen/xen-asm_64.S
++++ b/arch/x86/xen/xen-asm_64.S
+@@ -30,7 +30,6 @@ xen_pv_trap divide_error
+ xen_pv_trap debug
+ xen_pv_trap xendebug
+ xen_pv_trap int3
+-xen_pv_trap xenint3
+ xen_pv_trap xennmi
+ xen_pv_trap overflow
+ xen_pv_trap bounds
 -- 
 2.20.1
 
