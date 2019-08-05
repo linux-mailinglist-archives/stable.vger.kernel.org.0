@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1441381AD7
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:09:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5680E81A48
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:04:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730259AbfHENJx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:09:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48534 "EHLO mail.kernel.org"
+        id S1729099AbfHENEk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:04:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729035AbfHENJx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:09:53 -0400
+        id S1729094AbfHENEj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:04:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7226F2075B;
-        Mon,  5 Aug 2019 13:09:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EE27216B7;
+        Mon,  5 Aug 2019 13:04:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010593;
-        bh=4Oveecdha/pb64ZWvVOdcWAJv5q/swTY08yW+2J80r8=;
+        s=default; t=1565010278;
+        bh=BFW7DoRAYf7dgaHviXk1Nrn/iOolgbPP3aB044T6Itw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZYs4bL+2+rgbMn2Xh+tdSEMknodjPJCyhSqNh+q30gaAlbYCrm8q69q8Y6XEgIgSk
-         OaaPwtruWQw5iPe2HERaulGmqZltBIx8D/dCNPylPbY4S4wL1lX0VTU/Z1V/h0Qe5T
-         zoRCwpmHwxvjpJ5MvFoxl9dN1GIH21HOEmyIwb+U=
+        b=2cwKgzTlq3xVoOOFA4FfTBtbxtxJRG6nI3WCek7Igoy7zcGs7JVXWLskEB7Kfe6uQ
+         MymXdj5GV9h+ew7hHufxOuVLci5gFdEQPnrc4Ghq1L1uOL+lDx0BIvemErdpqiMdOn
+         4ryHkrsBC9rkk6/99gjWBeLxQ695viKfAwrNHQdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Rosin <peda@axentia.se>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 30/74] lib/test_string.c: avoid masking memset16/32/64 failures
-Date:   Mon,  5 Aug 2019 15:02:43 +0200
-Message-Id: <20190805124938.186161074@linuxfoundation.org>
+Subject: [PATCH 4.4 07/22] btrfs: fix minimum number of chunk errors for DUP
+Date:   Mon,  5 Aug 2019 15:02:44 +0200
+Message-Id: <20190805124920.288101264@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
-References: <20190805124935.819068648@linuxfoundation.org>
+In-Reply-To: <20190805124918.070468681@linuxfoundation.org>
+References: <20190805124918.070468681@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 33d6e0ff68af74be0c846c8e042e84a9a1a0561e ]
+[ Upstream commit 0ee5f8ae082e1f675a2fb6db601c31ac9958a134 ]
 
-If a memsetXX implementation is completely broken and fails in the first
-iteration, when i, j, and k are all zero, the failure is masked as zero
-is returned.  Failing in the first iteration is perhaps the most likely
-failure, so this makes the tests pretty much useless.  Avoid the
-situation by always setting a random unused bit in the result on
-failure.
+The list of profiles in btrfs_chunk_max_errors lists DUP as a profile
+DUP able to tolerate 1 device missing. Though this profile is special
+with 2 copies, it still needs the device, unlike the others.
 
-Link: http://lkml.kernel.org/r/20190506124634.6807-3-peda@axentia.se
-Fixes: 03270c13c5ff ("lib/string.c: add testcases for memset16/32/64")
-Signed-off-by: Peter Rosin <peda@axentia.se>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Looking at the history of changes, thre's no clear reason why DUP is
+there, functions were refactored and blocks of code merged to one
+helper.
+
+d20983b40e828 Btrfs: fix writing data into the seed filesystem
+  - factor code to a helper
+
+de11cc12df173 Btrfs: don't pre-allocate btrfs bio
+  - unrelated change, DUP still in the list with max errors 1
+
+a236aed14ccb0 Btrfs: Deal with failed writes in mirrored configurations
+  - introduced the max errors, leaves DUP and RAID1 in the same group
+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_string.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/btrfs/volumes.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/lib/test_string.c b/lib/test_string.c
-index 0fcdb82dca866..98a787e7a1fd6 100644
---- a/lib/test_string.c
-+++ b/lib/test_string.c
-@@ -35,7 +35,7 @@ static __init int memset16_selftest(void)
- fail:
- 	kfree(p);
- 	if (i < 256)
--		return (i << 24) | (j << 16) | k;
-+		return (i << 24) | (j << 16) | k | 0x8000;
- 	return 0;
- }
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index 4eb7a6ba7e470..55ce6543050d9 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -4942,8 +4942,7 @@ static inline int btrfs_chunk_max_errors(struct map_lookup *map)
  
-@@ -71,7 +71,7 @@ static __init int memset32_selftest(void)
- fail:
- 	kfree(p);
- 	if (i < 256)
--		return (i << 24) | (j << 16) | k;
-+		return (i << 24) | (j << 16) | k | 0x8000;
- 	return 0;
- }
- 
-@@ -107,7 +107,7 @@ static __init int memset64_selftest(void)
- fail:
- 	kfree(p);
- 	if (i < 256)
--		return (i << 24) | (j << 16) | k;
-+		return (i << 24) | (j << 16) | k | 0x8000;
- 	return 0;
- }
- 
+ 	if (map->type & (BTRFS_BLOCK_GROUP_RAID1 |
+ 			 BTRFS_BLOCK_GROUP_RAID10 |
+-			 BTRFS_BLOCK_GROUP_RAID5 |
+-			 BTRFS_BLOCK_GROUP_DUP)) {
++			 BTRFS_BLOCK_GROUP_RAID5)) {
+ 		max_errors = 1;
+ 	} else if (map->type & BTRFS_BLOCK_GROUP_RAID6) {
+ 		max_errors = 2;
 -- 
 2.20.1
 
