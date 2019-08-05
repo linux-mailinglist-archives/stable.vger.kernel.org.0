@@ -2,55 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89834823DB
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 19:18:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9816D823F4
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 19:27:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727830AbfHERS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 13:18:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49974 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726559AbfHERS4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 13:18:56 -0400
-Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A4CB20880;
-        Mon,  5 Aug 2019 17:18:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565025536;
-        bh=7FgdwxmBcW7VdTEvDEF7l/bTa0iUiuqsyuzt1pSCX3k=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=mp0PTeraXcLpRiLPTPGiwxiJp1ya8KiOxBIRnfH4GgKAzw2mVFFDXTOjn4ih/KMR8
-         ENOt1r2RgrCPjf+Ue2B5QWi1pKe9fLXXXAT0BniZjNYAtbCWhTeCc10uDmclpJh3kA
-         8wZHeO8hpHx4WFEJoaQ7z6UjNAttxak+c0hkg5h0=
-Date:   Mon, 5 Aug 2019 18:18:52 +0100
-From:   Will Deacon <will@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     catalin.marinas@arm.com, mark.rutland@arm.com,
-        stable@vger.kernel.org, suzuki.poulose@arm.com
-Subject: Re: FAILED: patch "[PATCH] arm64: cpufeature: Fix feature comparison
- for" failed to apply to 4.4-stable tree
-Message-ID: <20190805171851.7pjvjv5qek4sbfqb@willie-the-truck>
-References: <156498316752100@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <156498316752100@kroah.com>
-User-Agent: NeoMutt/20170113 (1.7.2)
+        id S1728518AbfHER1C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 13:27:02 -0400
+Received: from shards.monkeyblade.net ([23.128.96.9]:59536 "EHLO
+        shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726559AbfHER1C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 13:27:02 -0400
+Received: from localhost (unknown [IPv6:2601:601:9f80:35cd::d71])
+        (using TLSv1 with cipher AES256-SHA (256/256 bits))
+        (Client did not present a certificate)
+        (Authenticated sender: davem-davemloft)
+        by shards.monkeyblade.net (Postfix) with ESMTPSA id 7492715407F00;
+        Mon,  5 Aug 2019 10:27:00 -0700 (PDT)
+Date:   Mon, 05 Aug 2019 10:26:56 -0700 (PDT)
+Message-Id: <20190805.102656.1576923178764860652.davem@davemloft.net>
+To:     johan@kernel.org
+Cc:     netdev@vger.kernel.org, linus.walleij@linaro.org,
+        cuissard@marvell.com, andreyknvl@google.com, dvyukov@google.com,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        syzbot+cf35b76f35e068a1107f@syzkaller.appspotmail.com
+Subject: Re: [PATCH] NFC: nfcmrvl: fix gpio-handling regression
+From:   David Miller <davem@davemloft.net>
+In-Reply-To: <20190805100055.10398-1-johan@kernel.org>
+References: <20190805100055.10398-1-johan@kernel.org>
+X-Mailer: Mew version 6.8 on Emacs 26.1
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.5.12 (shards.monkeyblade.net [149.20.54.216]); Mon, 05 Aug 2019 10:27:00 -0700 (PDT)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 05, 2019 at 07:32:47AM +0200, gregkh@linuxfoundation.org wrote:
+From: Johan Hovold <johan@kernel.org>
+Date: Mon,  5 Aug 2019 12:00:55 +0200
+
+> Fix two reset-gpio sanity checks which were never converted to use
+> gpio_is_valid(), and make sure to use -EINVAL to indicate a missing
+> reset line also for the UART-driver module parameter and for the USB
+> driver.
 > 
-> The patch below does not apply to the 4.4-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+> This specifically prevents the UART and USB drivers from incidentally
+> trying to request and use gpio 0, and also avoids triggering a WARN() in
+> gpio_to_desc() during probe when no valid reset line has been specified.
+> 
+> Fixes: e33a3f84f88f ("NFC: nfcmrvl: allow gpio 0 for reset signalling")
+> Cc: stable <stable@vger.kernel.org>	# 4.13
+> Reported-by: syzbot+cf35b76f35e068a1107f@syzkaller.appspotmail.com
+> Tested-by: syzbot+cf35b76f35e068a1107f@syzkaller.appspotmail.com
+> Signed-off-by: Johan Hovold <johan@kernel.org>
 
-Backport posted to:
-
-https://lore.kernel.org/stable/20190805171308.19249-1-will@kernel.org/T/#t
-
-Will
+Applied and queued up for -stable.
