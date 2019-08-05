@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACE4981D0C
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:29:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E414281C47
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:22:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730621AbfHENWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:22:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58410 "EHLO mail.kernel.org"
+        id S1730637AbfHENWO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:22:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729538AbfHENWH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:22:07 -0400
+        id S1730624AbfHENWK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:22:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27B9B2067D;
-        Mon,  5 Aug 2019 13:22:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9B4320657;
+        Mon,  5 Aug 2019 13:22:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011326;
-        bh=JgM23RMtzN5JcTmzv63FdPMJlaOM6dFaulLmq11JPWI=;
+        s=default; t=1565011329;
+        bh=DisYABNDdL5F7NBGRgcPCFQDZVkr4bandtkDWDPTzeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MtgydtO6U0lSb3orR/OE99etClikkJSLERDtVk04u51+y7eqR0EB5Hdbpzgh532RL
-         jIJbBC1kn/1pu1HVkxMCVvXq50n2FRHyNvhvGfRxPttN2QAi3yZLYzyhnBgUNqEVkx
-         5GorGlrN/nYwc+ewEKNBFfJP6rpCNSU8O+6Ke9U0=
+        b=rmce8MMt7UghRaHYj3roLoolvHxVoi9tKmP++rWPsWPEiGAzu9wrrnW3a4/tqRHRV
+         7BgOENuKGO3vDZulQXPfUx+UZxtVsMFIs+p0+yVHtYai9g1fa20qy7h1FRTPMMlQcW
+         EvInc1yWCab0x4Z3A3a3IH8meHmvUGX6nS0hHw8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 051/131] x86/apic: Silence -Wtype-limits compiler warnings
-Date:   Mon,  5 Aug 2019 15:02:18 +0200
-Message-Id: <20190805124954.850444839@linuxfoundation.org>
+Subject: [PATCH 5.2 052/131] x86: math-emu: Hide clang warnings for 16-bit overflow
+Date:   Mon,  5 Aug 2019 15:02:19 +0200
+Message-Id: <20190805124954.915678051@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -44,72 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ec6335586953b0df32f83ef696002063090c7aef ]
+[ Upstream commit 29e7e9664aec17b94a9c8c5a75f8d216a206aa3a ]
 
-There are many compiler warnings like this,
+clang warns about a few parts of the math-emu implementation
+where a 16-bit integer becomes negative during assignment:
 
-In file included from ./arch/x86/include/asm/smp.h:13,
-                 from ./arch/x86/include/asm/mmzone_64.h:11,
-                 from ./arch/x86/include/asm/mmzone.h:5,
-                 from ./include/linux/mmzone.h:969,
-                 from ./include/linux/gfp.h:6,
-                 from ./include/linux/mm.h:10,
-                 from arch/x86/kernel/apic/io_apic.c:34:
-arch/x86/kernel/apic/io_apic.c: In function 'check_timer':
-./arch/x86/include/asm/apic.h:37:11: warning: comparison of unsigned
-expression >= 0 is always true [-Wtype-limits]
-   if ((v) <= apic_verbosity) \
-           ^~
-arch/x86/kernel/apic/io_apic.c:2160:2: note: in expansion of macro
-'apic_printk'
-  apic_printk(APIC_QUIET, KERN_INFO "..TIMER: vector=0x%02X "
-  ^~~~~~~~~~~
-./arch/x86/include/asm/apic.h:37:11: warning: comparison of unsigned
-expression >= 0 is always true [-Wtype-limits]
-   if ((v) <= apic_verbosity) \
-           ^~
-arch/x86/kernel/apic/io_apic.c:2207:4: note: in expansion of macro
-'apic_printk'
-    apic_printk(APIC_QUIET, KERN_ERR "..MP-BIOS bug: "
-    ^~~~~~~~~~~
+arch/x86/math-emu/poly_tan.c:88:35: error: implicit conversion from 'int' to 'short' changes value from 49216 to -16320 [-Werror,-Wconstant-conversion]
+                                      (0x41 + EXTENDED_Ebias) | SIGN_Negative);
+                                      ~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+arch/x86/math-emu/fpu_emu.h:180:58: note: expanded from macro 'setexponent16'
+ #define setexponent16(x,y)  { (*(short *)&((x)->exp)) = (y); }
+                                                      ~  ^
+arch/x86/math-emu/reg_constant.c:37:32: error: implicit conversion from 'int' to 'short' changes value from 49085 to -16451 [-Werror,-Wconstant-conversion]
+FPU_REG const CONST_PI2extra = MAKE_REG(NEG, -66,
+                               ^~~~~~~~~~~~~~~~~~
+arch/x86/math-emu/reg_constant.c:21:25: note: expanded from macro 'MAKE_REG'
+                ((EXTENDED_Ebias+(e)) | ((SIGN_##s != 0)*0x8000)) }
+                 ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~
+arch/x86/math-emu/reg_constant.c:48:28: error: implicit conversion from 'int' to 'short' changes value from 65535 to -1 [-Werror,-Wconstant-conversion]
+FPU_REG const CONST_QNaN = MAKE_REG(NEG, EXP_OVER, 0x00000000, 0xC0000000);
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+arch/x86/math-emu/reg_constant.c:21:25: note: expanded from macro 'MAKE_REG'
+                ((EXTENDED_Ebias+(e)) | ((SIGN_##s != 0)*0x8000)) }
+                 ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~
 
-APIC_QUIET is 0, so silence them by making apic_verbosity type int.
+The code is correct as is, so add a typecast to shut up the warnings.
 
-Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/1562621805-24789-1-git-send-email-cai@lca.pw
+Link: https://lkml.kernel.org/r/20190712090816.350668-1-arnd@arndb.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/apic.h | 2 +-
- arch/x86/kernel/apic/apic.c | 2 +-
+ arch/x86/math-emu/fpu_emu.h      | 2 +-
+ arch/x86/math-emu/reg_constant.c | 2 +-
  2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/apic.h b/arch/x86/include/asm/apic.h
-index 1340fa53b575b..2e599384abd8c 100644
---- a/arch/x86/include/asm/apic.h
-+++ b/arch/x86/include/asm/apic.h
-@@ -49,7 +49,7 @@ static inline void generic_apic_probe(void)
+diff --git a/arch/x86/math-emu/fpu_emu.h b/arch/x86/math-emu/fpu_emu.h
+index a5a41ec580721..0c122226ca56f 100644
+--- a/arch/x86/math-emu/fpu_emu.h
++++ b/arch/x86/math-emu/fpu_emu.h
+@@ -177,7 +177,7 @@ static inline void reg_copy(FPU_REG const *x, FPU_REG *y)
+ #define setexponentpos(x,y) { (*(short *)&((x)->exp)) = \
+   ((y) + EXTENDED_Ebias) & 0x7fff; }
+ #define exponent16(x)         (*(short *)&((x)->exp))
+-#define setexponent16(x,y)  { (*(short *)&((x)->exp)) = (y); }
++#define setexponent16(x,y)  { (*(short *)&((x)->exp)) = (u16)(y); }
+ #define addexponent(x,y)    { (*(short *)&((x)->exp)) += (y); }
+ #define stdexp(x)           { (*(short *)&((x)->exp)) += EXTENDED_Ebias; }
  
- #ifdef CONFIG_X86_LOCAL_APIC
+diff --git a/arch/x86/math-emu/reg_constant.c b/arch/x86/math-emu/reg_constant.c
+index 8dc9095bab224..742619e94bdf2 100644
+--- a/arch/x86/math-emu/reg_constant.c
++++ b/arch/x86/math-emu/reg_constant.c
+@@ -18,7 +18,7 @@
+ #include "control_w.h"
  
--extern unsigned int apic_verbosity;
-+extern int apic_verbosity;
- extern int local_apic_timer_c2_ok;
+ #define MAKE_REG(s, e, l, h) { l, h, \
+-		((EXTENDED_Ebias+(e)) | ((SIGN_##s != 0)*0x8000)) }
++		(u16)((EXTENDED_Ebias+(e)) | ((SIGN_##s != 0)*0x8000)) }
  
- extern int disable_apic;
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index 16c21ed97cb23..530cf1fd68a2f 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -183,7 +183,7 @@ EXPORT_SYMBOL_GPL(local_apic_timer_c2_ok);
- /*
-  * Debug level, exported for io_apic.c
-  */
--unsigned int apic_verbosity;
-+int apic_verbosity;
- 
- int pic_mode;
- 
+ FPU_REG const CONST_1 = MAKE_REG(POS, 0, 0x00000000, 0x80000000);
+ #if 0
 -- 
 2.20.1
 
