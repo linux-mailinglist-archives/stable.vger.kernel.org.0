@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D70781B57
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:14:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D57E81BF4
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:19:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729478AbfHENIa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:08:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46546 "EHLO mail.kernel.org"
+        id S1729076AbfHENTO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:19:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730034AbfHENI2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:08:28 -0400
+        id S1726779AbfHENTN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:19:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1D472067D;
-        Mon,  5 Aug 2019 13:08:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D78220657;
+        Mon,  5 Aug 2019 13:19:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010507;
-        bh=qFsiztdLDvQWTMxiXFUptRNbM9KiUDEKG8b6B96WFkQ=;
+        s=default; t=1565011152;
+        bh=XdjKbZkgYjgFjMwCW1T4R25cjpYGfCdVncRUR+7CAi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pAVh4R8sJtnR7Un0P0BhVc6X+ZZAzp1w2e8NZFdnqan3dvSPSfr8gCz/5TvIvtkTW
-         gi3GF366mGEZ/R2LLFFJ4RqK5+gUzNwS+fvhwVvmWZFrGB0+7+kimQQzm0QMNMZj8y
-         /rSn0YJXaQuzpum8khMln/HhoPw/2ULM4/WA0eiQ=
+        b=tgZ4vTVgcDdTnonBfRkHZR1CMZ/737cQxNKy2XgDTvpqqKOPrukzdv+aEQg3qdlXa
+         HK0d0D4WAeJ2z1WdSgz4Vv4uvSYnRD1r4pa5JcEJMWyrBz0sVTwN3wR6SIcL1i8qxQ
+         RsrUofxKI7fYFLMAsOUXcWnaWzE8MPa1dBbMPRZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.14 51/53] objtool: Support GCC 9 cold subfunction naming scheme
-Date:   Mon,  5 Aug 2019 15:03:16 +0200
-Message-Id: <20190805124933.521002409@linuxfoundation.org>
+        stable@vger.kernel.org, Yishai Hadas <yishaih@mellanox.com>,
+        Artemy Kovalyov <artemyko@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.19 64/74] IB/mlx5: Move MRs to a kernel PD when freeing them to the MR cache
+Date:   Mon,  5 Aug 2019 15:03:17 +0200
+Message-Id: <20190805124940.995117428@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
-References: <20190805124927.973499541@linuxfoundation.org>
+In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
+References: <20190805124935.819068648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Yishai Hadas <yishaih@mellanox.com>
 
-commit bcb6fb5da77c2a228adf07cc9cb1a0c2aa2001c6 upstream.
+commit 9ec4483a3f0f71a228a5933bc040441322bfb090 upstream.
 
-Starting with GCC 8, a lot of unlikely code was moved out of line to
-"cold" subfunctions in .text.unlikely.
+Fix unreg_umr to move the MR to a kernel owned PD (i.e. the UMR PD) which
+can't be accessed by userspace.
 
-For example, the unlikely bits of:
+This ensures that nothing can continue to access the MR once it has been
+placed in the kernels cache for reuse.
 
-  irq_do_set_affinity()
+MRs in the cache continue to have their HW state, including DMA tables,
+present. Even though the MR has been invalidated, changing the PD provides
+an additional layer of protection against use of the MR.
 
-are moved out to the following subfunction:
-
-  irq_do_set_affinity.cold.49()
-
-Starting with GCC 9, the numbered suffix has been removed.  So in the
-above example, the cold subfunction is instead:
-
-  irq_do_set_affinity.cold()
-
-Tweak the objtool subfunction detection logic so that it detects both
-GCC 8 and GCC 9 naming schemes.
-
-Reported-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/015e9544b1f188d36a7f02fa31e9e95629aa5f50.1541040800.git.jpoimboe@redhat.com
+Link: https://lore.kernel.org/r/20190723065733.4899-5-leon@kernel.org
+Cc: <stable@vger.kernel.org> # 3.10
+Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
+Signed-off-by: Yishai Hadas <yishaih@mellanox.com>
+Reviewed-by: Artemy Kovalyov <artemyko@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/objtool/elf.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/mlx5/mr.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/tools/objtool/elf.c
-+++ b/tools/objtool/elf.c
-@@ -305,7 +305,7 @@ static int read_symbols(struct elf *elf)
- 			if (sym->type != STT_FUNC)
- 				continue;
- 			sym->pfunc = sym->cfunc = sym;
--			coldstr = strstr(sym->name, ".cold.");
-+			coldstr = strstr(sym->name, ".cold");
- 			if (!coldstr)
- 				continue;
+--- a/drivers/infiniband/hw/mlx5/mr.c
++++ b/drivers/infiniband/hw/mlx5/mr.c
+@@ -1410,8 +1410,10 @@ static int unreg_umr(struct mlx5_ib_dev
+ 	if (mdev->state == MLX5_DEVICE_STATE_INTERNAL_ERROR)
+ 		return 0;
+ 
+-	umrwr.wr.send_flags = MLX5_IB_SEND_UMR_DISABLE_MR;
++	umrwr.wr.send_flags = MLX5_IB_SEND_UMR_DISABLE_MR |
++			      MLX5_IB_SEND_UMR_UPDATE_PD_ACCESS;
+ 	umrwr.wr.opcode = MLX5_IB_WR_UMR;
++	umrwr.pd = dev->umrc.pd;
+ 	umrwr.mkey = mr->mmkey.key;
+ 	umrwr.ignore_free_state = 1;
  
 
 
