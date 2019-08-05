@@ -2,41 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2D9E81B2C
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:12:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0682181B86
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:15:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729873AbfHENKM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:10:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49036 "EHLO mail.kernel.org"
+        id S1729269AbfHENHY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:07:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729137AbfHENKL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:10:11 -0400
+        id S1729777AbfHENHV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:07:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FD6B216F4;
-        Mon,  5 Aug 2019 13:10:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B66F216B7;
+        Mon,  5 Aug 2019 13:07:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010610;
-        bh=dB18CKiYDObzg0Q42T65d52HEeNUlXSnKibxNIjXYNA=;
+        s=default; t=1565010440;
+        bh=njhFZQxy19PcglwTow94+N5gzFX0PX+0iAdPg690j6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mlf9G2xs50tuYoEQsTxCdVQCuzwcbBW4Qicw17VfH7VBcfxIaa5UrJ/loHoebgrGM
-         dvKdD9cEZKmOr8SbbfQm3OoO+aHMKSoznrTq5szdKnxDDRzVyzEjEhTQOVI1TK4JVT
-         QgLcpRuUcydzdcrrCnx3oDSZ9tr9KTdD9udGncMU=
+        b=itJdKXjE/j/pPzpV4ZaHz0GkUp3L8Vq2yTOAYSH92NVBqnW6F/QR79Fd3eYeiWp+O
+         WSeerrr/T6wXkfYCql7afrHgGU4yegvcAWJ3ymtDIDzVB3ay92vihYVL+zOafE1fZv
+         xlDQd0Z2GEIZmdtw/HYLHW0n3wkZq6aRc4O4C4ww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Machata <petrm@mellanox.com>,
-        Alex Veber <alexve@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Sam Protsenko <semen.protsenko@linaro.org>,
+        Jan Harkes <jaharkes@cs.cmu.edu>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Colin Ian King <colin.king@canonical.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        David Howells <dhowells@redhat.com>,
+        Fabian Frederick <fabf@skynet.be>,
+        Mikko Rapeli <mikko.rapeli@iki.fi>,
+        Yann Droneaud <ydroneaud@opteya.com>,
+        Zhouyang Jia <jiazhouyang09@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 36/74] mlxsw: spectrum_dcb: Configure DSCP map as the last rule is removed
+Subject: [PATCH 4.14 24/53] coda: fix build using bare-metal toolchain
 Date:   Mon,  5 Aug 2019 15:02:49 +0200
-Message-Id: <20190805124938.737897983@linuxfoundation.org>
+Message-Id: <20190805124930.725959344@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
-References: <20190805124935.819068648@linuxfoundation.org>
+In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
+References: <20190805124927.973499541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,75 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit dedfde2fe1c4ccf27179fcb234e2112d065c39bb ]
+[ Upstream commit b2a57e334086602be56b74958d9f29b955cd157f ]
 
-Spectrum systems use DSCP rewrite map to update DSCP field in egressing
-packets to correspond to priority that the packet has. Whether rewriting
-will take place is determined at the point when the packet ingresses the
-switch: if the port is in Trust L3 mode, packet priority is determined from
-the DSCP map at the port, and DSCP rewrite will happen. If the port is in
-Trust L2 mode, 802.1p is used for packet prioritization, and no DSCP
-rewrite will happen.
+The kernel is self-contained project and can be built with bare-metal
+toolchain.  But bare-metal toolchain doesn't define __linux__.  Because
+of this u_quad_t type is not defined when using bare-metal toolchain and
+codafs build fails.  This patch fixes it by defining u_quad_t type
+unconditionally.
 
-The driver determines the port trust mode based on whether any DSCP
-prioritization rules are in effect at given port. If there are any, trust
-level is L3, otherwise it's L2. When the last DSCP rule is removed, the
-port is switched to trust L2. Under that scenario, if DSCP of a packet
-should be rewritten, it should be rewritten to 0.
-
-However, when switching to Trust L2, the driver neglects to also update the
-DSCP rewrite map. The last DSCP rule thus remains in effect, and packets
-egressing through this port, if they have the right priority, will have
-their DSCP set according to this rule.
-
-Fix by first configuring the rewrite map, and only then switching to trust
-L2 and bailing out.
-
-Fixes: b2b1dab6884e ("mlxsw: spectrum: Support ieee_setapp, ieee_delapp")
-Signed-off-by: Petr Machata <petrm@mellanox.com>
-Reported-by: Alex Veber <alexve@mellanox.com>
-Tested-by: Alex Veber <alexve@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: http://lkml.kernel.org/r/3cbb40b0a57b6f9923a9d67b53473c0b691a3eaa.1558117389.git.jaharkes@cs.cmu.edu
+Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
+Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Colin Ian King <colin.king@canonical.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Fabian Frederick <fabf@skynet.be>
+Cc: Mikko Rapeli <mikko.rapeli@iki.fi>
+Cc: Yann Droneaud <ydroneaud@opteya.com>
+Cc: Zhouyang Jia <jiazhouyang09@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlxsw/spectrum_dcb.c   | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ include/linux/coda.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
-index b25048c6c7618..21296fa7f7fbf 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
-@@ -408,14 +408,6 @@ static int mlxsw_sp_port_dcb_app_update(struct mlxsw_sp_port *mlxsw_sp_port)
- 	have_dscp = mlxsw_sp_port_dcb_app_prio_dscp_map(mlxsw_sp_port,
- 							&prio_map);
+diff --git a/include/linux/coda.h b/include/linux/coda.h
+index d30209b9cef81..0ca0c83fdb1c4 100644
+--- a/include/linux/coda.h
++++ b/include/linux/coda.h
+@@ -58,8 +58,7 @@ Mellon the rights to redistribute these changes without encumbrance.
+ #ifndef _CODA_HEADER_
+ #define _CODA_HEADER_
  
--	if (!have_dscp) {
--		err = mlxsw_sp_port_dcb_toggle_trust(mlxsw_sp_port,
--					MLXSW_REG_QPTS_TRUST_STATE_PCP);
--		if (err)
--			netdev_err(mlxsw_sp_port->dev, "Couldn't switch to trust L2\n");
--		return err;
--	}
--
- 	mlxsw_sp_port_dcb_app_dscp_prio_map(mlxsw_sp_port, default_prio,
- 					    &dscp_map);
- 	err = mlxsw_sp_port_dcb_app_update_qpdpm(mlxsw_sp_port,
-@@ -432,6 +424,14 @@ static int mlxsw_sp_port_dcb_app_update(struct mlxsw_sp_port *mlxsw_sp_port)
- 		return err;
- 	}
- 
-+	if (!have_dscp) {
-+		err = mlxsw_sp_port_dcb_toggle_trust(mlxsw_sp_port,
-+					MLXSW_REG_QPTS_TRUST_STATE_PCP);
-+		if (err)
-+			netdev_err(mlxsw_sp_port->dev, "Couldn't switch to trust L2\n");
-+		return err;
-+	}
+-#if defined(__linux__)
+ typedef unsigned long long u_quad_t;
+-#endif
 +
- 	err = mlxsw_sp_port_dcb_toggle_trust(mlxsw_sp_port,
- 					     MLXSW_REG_QPTS_TRUST_STATE_DSCP);
- 	if (err) {
+ #include <uapi/linux/coda.h>
+ #endif 
 -- 
 2.20.1
 
