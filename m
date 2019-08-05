@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1507E81C50
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:23:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79E9881C53
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:23:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730400AbfHENWe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:22:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59042 "EHLO mail.kernel.org"
+        id S1730713AbfHENWk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:22:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730679AbfHENWd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:22:33 -0400
+        id S1730434AbfHENWg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:22:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF2F120657;
-        Mon,  5 Aug 2019 13:22:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 404A9216B7;
+        Mon,  5 Aug 2019 13:22:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011352;
-        bh=F86ykidCWdaICRidaYLn2HmerqQTkga+35rAYsfXs4Q=;
+        s=default; t=1565011354;
+        bh=seF0PILUTmmVA/4wqivh3/hSdhFRWQkndEHhniBn9kw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ovRASTrLCMx58Eyi6S0tW/getYGYbXl2iHC0ectUBSIm7V0UJJVOl7mr7dY9p4lUG
-         9zD5WQflhDqtDpviRTdB39oJtvcs8Z7abjEKBK7R5JUMAJCpAbVAV73h9ReGsGpgY4
-         OhaHse67+IcVQZ+t3y+55OdmZyDoQkxUfWiCB+50=
+        b=Nc+iIZoVJrrN07HWrzMqy/6wsBVgw1UezqcnVdXt1uZvy8DxU3TqDft1KW0PNfre0
+         01Vh133fw6pDBQ0H8tf7Q9I5TpC+pfL8boKtD4DEgIAQqpSVRDX5jzMBx9aGSm5k0t
+         4lhdxS2xch17XpOv1ZrL20rq8B3AeFoa7OexqnlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Alexandre Bounine <alex.bou9@gmail.com>,
-        Ira Weiny <ira.weiny@intel.com>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Andreas Christoforou <andreaschristofo@gmail.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Manfred Spraul <manfred@colorfullife.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 060/131] drivers/rapidio/devices/rio_mport_cdev.c: NUL terminate some strings
-Date:   Mon,  5 Aug 2019 15:02:27 +0200
-Message-Id: <20190805124955.448039480@linuxfoundation.org>
+Subject: [PATCH 5.2 061/131] ipc/mqueue.c: only perform resource calculation if user valid
+Date:   Mon,  5 Aug 2019 15:02:28 +0200
+Message-Id: <20190805124955.513765459@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -47,45 +51,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 156e0b1a8112b76e351684ac948c59757037ac36 ]
+[ Upstream commit a318f12ed8843cfac53198390c74a565c632f417 ]
 
-The dev_info.name[] array has space for RIO_MAX_DEVNAME_SZ + 1
-characters.  But the problem here is that we don't ensure that the user
-put a NUL terminator on the end of the string.  It could lead to an out
-of bounds read.
+Andreas Christoforou reported:
 
-Link: http://lkml.kernel.org/r/20190529110601.GB19119@mwanda
-Fixes: e8de370188d0 ("rapidio: add mport char device driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Alexandre Bounine <alex.bou9@gmail.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
+  UBSAN: Undefined behaviour in ipc/mqueue.c:414:49 signed integer overflow:
+  9 * 2305843009213693951 cannot be represented in type 'long int'
+  ...
+  Call Trace:
+    mqueue_evict_inode+0x8e7/0xa10 ipc/mqueue.c:414
+    evict+0x472/0x8c0 fs/inode.c:558
+    iput_final fs/inode.c:1547 [inline]
+    iput+0x51d/0x8c0 fs/inode.c:1573
+    mqueue_get_inode+0x8eb/0x1070 ipc/mqueue.c:320
+    mqueue_create_attr+0x198/0x440 ipc/mqueue.c:459
+    vfs_mkobj+0x39e/0x580 fs/namei.c:2892
+    prepare_open ipc/mqueue.c:731 [inline]
+    do_mq_open+0x6da/0x8e0 ipc/mqueue.c:771
+
+Which could be triggered by:
+
+        struct mq_attr attr = {
+                .mq_flags = 0,
+                .mq_maxmsg = 9,
+                .mq_msgsize = 0x1fffffffffffffff,
+                .mq_curmsgs = 0,
+        };
+
+        if (mq_open("/testing", 0x40, 3, &attr) == (mqd_t) -1)
+                perror("mq_open");
+
+mqueue_get_inode() was correctly rejecting the giant mq_msgsize, and
+preparing to return -EINVAL.  During the cleanup, it calls
+mqueue_evict_inode() which performed resource usage tracking math for
+updating "user", before checking if there was a valid "user" at all
+(which would indicate that the calculations would be sane).  Instead,
+delay this check to after seeing a valid "user".
+
+The overflow was real, but the results went unused, so while the flaw is
+harmless, it's noisy for kernel fuzzers, so just fix it by moving the
+calculation under the non-NULL "user" where it actually gets used.
+
+Link: http://lkml.kernel.org/r/201906072207.ECB65450@keescook
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reported-by: Andreas Christoforou <andreaschristofo@gmail.com>
+Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Manfred Spraul <manfred@colorfullife.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rapidio/devices/rio_mport_cdev.c | 2 ++
- 1 file changed, 2 insertions(+)
+ ipc/mqueue.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/rapidio/devices/rio_mport_cdev.c b/drivers/rapidio/devices/rio_mport_cdev.c
-index ce7a90e680422..8155f59ece38d 100644
---- a/drivers/rapidio/devices/rio_mport_cdev.c
-+++ b/drivers/rapidio/devices/rio_mport_cdev.c
-@@ -1686,6 +1686,7 @@ static int rio_mport_add_riodev(struct mport_cdev_priv *priv,
+diff --git a/ipc/mqueue.c b/ipc/mqueue.c
+index 216cad1ff0d0c..65c351564ad08 100644
+--- a/ipc/mqueue.c
++++ b/ipc/mqueue.c
+@@ -438,7 +438,6 @@ static void mqueue_evict_inode(struct inode *inode)
+ {
+ 	struct mqueue_inode_info *info;
+ 	struct user_struct *user;
+-	unsigned long mq_bytes, mq_treesize;
+ 	struct ipc_namespace *ipc_ns;
+ 	struct msg_msg *msg, *nmsg;
+ 	LIST_HEAD(tmp_msg);
+@@ -461,16 +460,18 @@ static void mqueue_evict_inode(struct inode *inode)
+ 		free_msg(msg);
+ 	}
  
- 	if (copy_from_user(&dev_info, arg, sizeof(dev_info)))
- 		return -EFAULT;
-+	dev_info.name[sizeof(dev_info.name) - 1] = '\0';
- 
- 	rmcd_debug(RDEV, "name:%s ct:0x%x did:0x%x hc:0x%x", dev_info.name,
- 		   dev_info.comptag, dev_info.destid, dev_info.hopcount);
-@@ -1817,6 +1818,7 @@ static int rio_mport_del_riodev(struct mport_cdev_priv *priv, void __user *arg)
- 
- 	if (copy_from_user(&dev_info, arg, sizeof(dev_info)))
- 		return -EFAULT;
-+	dev_info.name[sizeof(dev_info.name) - 1] = '\0';
- 
- 	mport = priv->md->mport;
- 
+-	/* Total amount of bytes accounted for the mqueue */
+-	mq_treesize = info->attr.mq_maxmsg * sizeof(struct msg_msg) +
+-		min_t(unsigned int, info->attr.mq_maxmsg, MQ_PRIO_MAX) *
+-		sizeof(struct posix_msg_tree_node);
+-
+-	mq_bytes = mq_treesize + (info->attr.mq_maxmsg *
+-				  info->attr.mq_msgsize);
+-
+ 	user = info->user;
+ 	if (user) {
++		unsigned long mq_bytes, mq_treesize;
++
++		/* Total amount of bytes accounted for the mqueue */
++		mq_treesize = info->attr.mq_maxmsg * sizeof(struct msg_msg) +
++			min_t(unsigned int, info->attr.mq_maxmsg, MQ_PRIO_MAX) *
++			sizeof(struct posix_msg_tree_node);
++
++		mq_bytes = mq_treesize + (info->attr.mq_maxmsg *
++					  info->attr.mq_msgsize);
++
+ 		spin_lock(&mq_lock);
+ 		user->mq_bytes -= mq_bytes;
+ 		/*
 -- 
 2.20.1
 
