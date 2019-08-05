@@ -2,94 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E611B8145A
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 10:36:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 327AF81583
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 11:33:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727358AbfHEIgK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 04:36:10 -0400
-Received: from mail-oi1-f193.google.com ([209.85.167.193]:43713 "EHLO
-        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726423AbfHEIgK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 04:36:10 -0400
-Received: by mail-oi1-f193.google.com with SMTP id w79so61503662oif.10;
-        Mon, 05 Aug 2019 01:36:09 -0700 (PDT)
+        id S1727889AbfHEJdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 05:33:16 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:37563 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726454AbfHEJdQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 05:33:16 -0400
+Received: by mail-wr1-f68.google.com with SMTP id n9so58595121wrr.4
+        for <stable@vger.kernel.org>; Mon, 05 Aug 2019 02:33:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linbit-com.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=e6mpzWuHkNsT3rptUQH52jVRQqHIX7D9o531pV6bORY=;
+        b=hRIlQEDNX2xX5rCHoSv+sGZD59H38Ow/EYR0T1ajP5OaF8L2KA9hQBFUoMpXh0HE0D
+         HWTHxMzmEfrB4IqyQa3yGqNfq4mXnhyIMusHeOGkp4+HUBtc8iTNqXU9vDkI9BIZ95kw
+         V5Vfh+j570DChZJqUnBHLzIpqgGHLJm+0JL1BWcSvVJzyYuiMvzEYRrpgZ78fURUHl3N
+         ovjUGELg40J2Gm0d8pMCnljPsXVktlFARe436/iKTp8psqDnHGt3p3ILoUeA8pd6dAO9
+         ovpfVwtj4qN7LkFnoKf71I32m17M4sE0fJM7zWE/+42S4VhFJq2Of1UsBjFi2ClfbWeY
+         1HfQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=/OtRSIguKOv7zIsZgv8aLGiWOV71DQCuKF1WWLvQ/ts=;
-        b=sDiYfr8NyS7gO+VAZ/tBMzkDRBlvg22YhMutAcg7IZZD8FBJKbTuu0B8zqAm1TFmvO
-         bVqk6ONOSRPhRqGbEBHzD3x+8y1xmpGwfmxtLbcMsXtJZuwc8E8yzgZ67V9iH6H4QHV2
-         KXkTga6XCnGZ7vGhOFuDw9ZQKjwsDXL8u+ZI012aIUoYZKMEFqIKWMgly7JvBZMWG9Zm
-         uiYTmIiYqIQUxgLjLad2ngUO8BnEosBGCkD3lj+wzMnIt5vCLDwB7fsn9Ko/JjnVQwit
-         UDKwU+QjZr0pOVr5pbIkYFyVO1BfvzsEKoiZy0+FRRmaC7S7a4T+WGb8VbkyTyTQjtTN
-         Yi9A==
-X-Gm-Message-State: APjAAAUahoNaeZ2LpcT6Wkb6PkzgmCTAmfSNinHmnS3lIIAXZElczLDL
-        2gPORKDBLDIP3IAUTrLrKmFcUoE18Dj8RGQGl6g=
-X-Google-Smtp-Source: APXvYqzptRCEZ3O3VTh+dWJbaewHGMvttEmampT8Y6ZF/UP5Mp/uYEFm+nFP6TD3n8EPdgwQktQBzUqZ43EkMSyyGww=
-X-Received: by 2002:aca:5a41:: with SMTP id o62mr10383463oib.110.1564994169130;
- Mon, 05 Aug 2019 01:36:09 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=e6mpzWuHkNsT3rptUQH52jVRQqHIX7D9o531pV6bORY=;
+        b=LS0BhN2M+A0I29hFSyK8s1Q2LmaVN4pZoivgvn5JI5GE5ovNRqp/g/ieE6NqQce16a
+         ExJ7du8gPomX9I+7Q+Oma469govOP2MTcHqPfgi+Ca1NoeyreUHLwdwFU+RhHCGEZHzU
+         HOC7Mz/FlGNhbIRbtoQewOIFePJYnEe5D6/Tzq/itIxC2gzMg8agN2dfSOTOnoLlyEX9
+         gCWgmjDiAfUzhVFuG13pDoaO6p6lHVCSSHQyoHtDK5mTFM3f0VON5DNpUX9lq/NhtthS
+         Xz8ssE5s3LlczRHKgxsMM9xHyKg6q0yYdjtej4sq/3yUTZ7SaLajFYFbonYhl0jJ9mFZ
+         Cprw==
+X-Gm-Message-State: APjAAAXByNcDkzsqed4APVsNr25LOCs6gopFj27F1oepUYL0caiM2t1T
+        Ojs7mPVkRo2Y+l97DIkZ8ENl07pMh3omew==
+X-Google-Smtp-Source: APXvYqz6T7cZ7wa/+gLiHZdm5Uiv/PuUcbTNxoUWmZaDsCa8yclPwjoVxW6PV7E51zV0/r2XvX7/NA==
+X-Received: by 2002:adf:f04d:: with SMTP id t13mr45767334wro.133.1564997593542;
+        Mon, 05 Aug 2019 02:33:13 -0700 (PDT)
+Received: from ?IPv6:2001:858:107:1:28f7:ac40:788a:ffa1? ([2001:858:107:1:28f7:ac40:788a:ffa1])
+        by smtp.gmail.com with ESMTPSA id a84sm108098037wmf.29.2019.08.05.02.33.12
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 05 Aug 2019 02:33:13 -0700 (PDT)
+Subject: Re: [PATCH] drbd: do not ignore signals in threads
+To:     David Laight <David.Laight@ACULAB.COM>,
+        Jens Axboe <axboe@kernel.dk>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Philipp Reisner <philipp.reisner@linbit.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Eric W . Biederman" <ebiederm@xmission.com>
+References: <20190729083248.30362-1-christoph.boehmwalder@linbit.com>
+ <6259de605e9246b095233e3984262b93@AcuMS.aculab.com>
+From:   =?UTF-8?Q?Christoph_B=c3=b6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>
+Message-ID: <ad16d006-4382-3f77-8968-6f840e58b8df@linbit.com>
+Date:   Mon, 5 Aug 2019 11:33:01 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-References: <7dedb6bd157b8183c693bb578e25e313cf4f451d.1564724511.git.viresh.kumar@linaro.org>
- <23e3dee8688f5a9767635b686bb7a9c0e09a4438.1564724511.git.viresh.kumar@linaro.org>
- <CAJZ5v0iqztRWyxf1cgiAN1dK4qTGwy9raaGOx5u3tfBTGUKOng@mail.gmail.com>
- <2676200.jfxhmTd764@kreacher> <000401d54a0c$2f03aa50$8d0afef0$@net>
-In-Reply-To: <000401d54a0c$2f03aa50$8d0afef0$@net>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Mon, 5 Aug 2019 10:35:54 +0200
-Message-ID: <CAJZ5v0idOvmYHVYjQ5YYPBH0MYMEPMu+m7kDRgtBi8yqyEuyAQ@mail.gmail.com>
-Subject: Re: [PATCH V3 2/2] cpufreq: intel_pstate: Implement ->resolve_freq()
-To:     Doug Smythies <dsmythies@telus.net>
-Cc:     "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Len Brown <lenb@kernel.org>,
-        Linux PM <linux-pm@vger.kernel.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        "v4 . 18+" <stable@vger.kernel.org>,
-        Doug Smythies <doug.smythies@gmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <6259de605e9246b095233e3984262b93@AcuMS.aculab.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Aug 3, 2019 at 5:00 PM Doug Smythies <dsmythies@telus.net> wrote:
->
-> On 2019.08.02 02:28 Rafael J. Wysocki wrote:
-> > On Friday, August 2, 2019 11:17:55 AM CEST Rafael J. Wysocki wrote:
-> >> On Fri, Aug 2, 2019 at 7:44 AM Viresh Kumar <viresh.kumar@linaro.org> wrote:
-> >>>
-> >>> Intel pstate driver exposes min_perf_pct and max_perf_pct sysfs files,
-> >>> which can be used to force a limit on the min/max P state of the driver.
-> >>> Though these files eventually control the min/max frequencies that the
-> >>> CPUs will run at, they don't make a change to policy->min/max values.
-> >>
-> >> That's correct.
-> >>
-> >>> When the values of these files are changed (in passive mode of the
-> >>> driver), it leads to calling ->limits() callback of the cpufreq
-> >>> governors, like schedutil. On a call to it the governors shall
-> >>> forcefully update the frequency to come within the limits.
-> >>
-> >> OK, so the problem is that it is a bug to invoke the governor's ->limits()
-> >> callback without updating policy->min/max, because that's what
-> >> "limits" mean to the governors.
-> >>
-> >> Fair enough.
-> >
-> > AFAICS this can be addressed by adding PM QoS freq limits requests of each CPU to
-> > intel_pstate in the passive mode such that changing min_perf_pct or max_perf_pct
-> > will cause these requests to be updated.
->
-> All governors for the intel_cpufreq (intel_pstate in passive mode) CPU frequency
-> scaling driver are broken with respect to this issue, not just the schedutil
-> governor.
+On 29.07.19 10:50, David Laight wrote:
+> Doesn't unmasking the signals and using send_sig() instead  of force_sig()
+> have the (probably unwanted) side effect of allowing userspace to send
+> the signal?
 
-Right.
+I have ran some tests, and it does look like it is now possible to send
+signals to the DRBD kthread from userspace. However, ...
 
-My point is that that changing min_perf_pct or max_perf_pct should
-cause policy limits to be updated (which is not the case now) instead
-of running special driver code on every frequency update just in case
-the limits have changed in the meantime.
+> I've certainly got some driver code that uses force_sig() on a kthread
+> that it doesn't (ever) want userspace to signal.
+
+... we don't feel that it is absolutely necessary for userspace to be
+unable to send a signal to our kthreads. This is because the DRBD thread
+independently checks its own state, and (for example) only exits as a
+result of a signal if its thread state was already "EXITING" to begin
+with.
+
+As such, our priority here is to get the main issue -- DRBD hanging upon
+exit -- resolved. I agree that it is not exactly desirable to have userspace
+send random signals to kthreads; not for DRBD and certainly not in general.
+However, we feel like it is more important to have DRBD actually work again
+in 5.3.
+
+That said, there should probably still be a way to be able to send a signal
+to a kthread from the kernel, but not from userspace. I think the author of
+the original patch (Eric) might have some ideas here.
+
+Jens, could you take a look and decide whether or not it's appropriate for you
+to funnel this through the linux-block tree to Linus for rc4?
+
+> The origina1 commit says:
+>> Further force_sig is for delivering synchronous signals (aka exceptions).
+>> The locking in force_sig is not prepared to deal with running processes, as
+>> tsk->sighand may change during exec for a running process.
+> 
+> I think a lot of code has assumed that the only real difference between
+> send_sig() and force_sig() is that the latter ignores the signal mask.
+> 
+> If you need to unblock a kernel thread (eg one blocked in kernel_accept())
+> in order to unload a driver, then you really don't want it to be possible
+> for anything else to signal the kthread.
+> 
+> 	David
+> 
+> -
+> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+> Registration No: 1397386 (Wales)
+--
+Christoph Böhmwalder
+LINBIT | Keeping the Digital World Running
+DRBD HA —  Disaster Recovery — Software defined Storage
