@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30E3C81B43
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:13:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41EE581B94
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:15:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729212AbfHENNI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:13:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48212 "EHLO mail.kernel.org"
+        id S1729195AbfHENGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:06:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729823AbfHENJk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:09:40 -0400
+        id S1729698AbfHENGu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:06:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CD4820880;
-        Mon,  5 Aug 2019 13:09:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 552C0206C1;
+        Mon,  5 Aug 2019 13:06:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010579;
-        bh=aqKz37Eakt9EarZGFpv5j17tzyz1TZjvto7irZCRzVU=;
+        s=default; t=1565010409;
+        bh=1HpjSYwLan9OrxS7SyHBTzZANBPjlOwsdKC5zB/Y+xQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FConHP3y72y99yO3kvjJbCNEE/L58/tu0vM3ycZ1jipPnaWO7Ut6ZLgIKuPgmwwEh
-         YbAdCl6eHlNxMiW4qkE0EGXz1MEsKyhqDoJ2m4uzJNfOm3uQO7rH7sE3uLXyxr1SFI
-         8/3jSvvQ11uVDEe17G2dM85Wpw4CMQCK30dYdqR0=
+        b=vK4sEEUElJD3WHuBsEYXjjzp5Ff/7HPGsWVT6wA3J75ZoItR1TXrcit9bpPbD1th3
+         AgaFK/01ZxRc/oUUFk687D0KyxkDjzQTRCU3gTQAZWaOR9NRLKX3b3mmfhTFcBRU5l
+         j7D8upCkfAqX2mJxTIYhI7/DMNtoHDxSgW5pdhhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Poirier <bpoirier@suse.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andrea Parri <andrea.parri@amarulasolutions.com>,
+        "Yan, Zheng" <zyan@redhat.com>, Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 25/74] be2net: Signal that the device cannot transmit during reconfiguration
+Subject: [PATCH 4.14 13/53] ceph: fix improper use of smp_mb__before_atomic()
 Date:   Mon,  5 Aug 2019 15:02:38 +0200
-Message-Id: <20190805124937.794723659@linuxfoundation.org>
+Message-Id: <20190805124929.575764614@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
-References: <20190805124935.819068648@linuxfoundation.org>
+In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
+References: <20190805124927.973499541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7429c6c0d9cb086d8e79f0d2a48ae14851d2115e ]
+[ Upstream commit 749607731e26dfb2558118038c40e9c0c80d23b5 ]
 
-While changing the number of interrupt channels, be2net stops adapter
-operation (including netif_tx_disable()) but it doesn't signal that it
-cannot transmit. This may lead dev_watchdog() to falsely trigger during
-that time.
+This barrier only applies to the read-modify-write operations; in
+particular, it does not apply to the atomic64_set() primitive.
 
-Add the missing call to netif_carrier_off(), following the pattern used in
-many other drivers. netif_carrier_on() is already taken care of in
-be_open().
+Replace the barrier with an smp_mb().
 
-Signed-off-by: Benjamin Poirier <bpoirier@suse.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: fdd4e15838e59 ("ceph: rework dcache readdir")
+Reported-by: "Paul E. McKenney" <paulmck@linux.ibm.com>
+Reported-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Andrea Parri <andrea.parri@amarulasolutions.com>
+Reviewed-by: "Yan, Zheng" <zyan@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/emulex/benet/be_main.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/ceph/super.h | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/emulex/benet/be_main.c b/drivers/net/ethernet/emulex/benet/be_main.c
-index bff74752cef16..3fe6a28027fe1 100644
---- a/drivers/net/ethernet/emulex/benet/be_main.c
-+++ b/drivers/net/ethernet/emulex/benet/be_main.c
-@@ -4700,8 +4700,12 @@ int be_update_queues(struct be_adapter *adapter)
- 	struct net_device *netdev = adapter->netdev;
- 	int status;
- 
--	if (netif_running(netdev))
-+	if (netif_running(netdev)) {
-+		/* device cannot transmit now, avoid dev_watchdog timeouts */
-+		netif_carrier_off(netdev);
-+
- 		be_close(netdev);
-+	}
- 
- 	be_cancel_worker(adapter);
- 
+diff --git a/fs/ceph/super.h b/fs/ceph/super.h
+index 3e27a28aa44ad..60b70f0985f67 100644
+--- a/fs/ceph/super.h
++++ b/fs/ceph/super.h
+@@ -517,7 +517,12 @@ static inline void __ceph_dir_set_complete(struct ceph_inode_info *ci,
+ 					   long long release_count,
+ 					   long long ordered_count)
+ {
+-	smp_mb__before_atomic();
++	/*
++	 * Makes sure operations that setup readdir cache (update page
++	 * cache and i_size) are strongly ordered w.r.t. the following
++	 * atomic64_set() operations.
++	 */
++	smp_mb();
+ 	atomic64_set(&ci->i_complete_seq[0], release_count);
+ 	atomic64_set(&ci->i_complete_seq[1], ordered_count);
+ }
 -- 
 2.20.1
 
