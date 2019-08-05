@@ -2,56 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 076A3811DA
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:58:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5DCF811DB
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:58:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725951AbfHEF6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 01:58:13 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:57263 "EHLO
+        id S1727267AbfHEF6v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 01:58:51 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:46205 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727300AbfHEF6N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:58:13 -0400
+        by vger.kernel.org with ESMTP id S1727161AbfHEF6v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:58:51 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 14A902151C;
-        Mon,  5 Aug 2019 01:58:12 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 133AA20F44;
+        Mon,  5 Aug 2019 01:58:50 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:58:12 -0400
+  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:58:50 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=+sg7FZ
-        Kc7n4zoUMJUAAbgNKGzITxDi+g/nJqg4U7HX8=; b=bq3e1oyv+r7Rf3BFjzEs8p
-        WWd3BOUDZUqGQGHqqghRC44iwzaWDD5WOPsvDcJJOqvyXWCLrkenp3vnLKSvqBkf
-        +hdbp5WiHAS6hziqHKyhE/U4yJpSbd51uPnwiQVylB4KK5FBXrOwO8vtWWuq+Oue
-        nxjueBTZoQN4ooFiNHyBggzjIpnA2o3wBn+VfXDW3Sz1EqIZnmVDQu21MH+vqQiM
-        AArvvNDf7GaFddk0nOEVSpbVctfNrjpQTcGD25lvGXXgOrMLWIeRpSxJxxu4B+QJ
-        xlggra6Md/9Xfzuf/smWO3ZDo9Qsmp9TacQUZgV/ma+4QsCvIPTz7lQAf1/0+X/A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=OzwnWJ
+        oubGkDtAStsxLnP61MSRosi+wIvN+544MBIIg=; b=tVHiW/wyh/WQyW9t6KxOaY
+        itfdmJBEJXFUxcwTqq89CUA5IdYu6JA78IDp6fMuPJ7VPF3eLCIVFHa/GWVXkYp4
+        DIeCXJAabz2LzJ2mbf2VNzVUOIS0anzoWNngWNX1f7opUmmhF6MgKdrzGTeX+KTW
+        y36ITyok8xOiVRhkpowhdNKjHW/chSUux17Og0eOXhLymufkiBrxOE77SKbUt1JC
+        4BD2lfQjt5wggrtuU0KvLowSCJEsqGiGFv/PsGPUZOva1DNqqZHZ4oIQZrroRppP
+        9jotJ9vKlP245eZzRgV3uAUL3ztI6jgzB0Do6oWN0z0GIntu7JrOHlpo1kZ1N6ow
         ==
-X-ME-Sender: <xms:c8VHXcs9ZqiJUahzZ_eAV_7lTOp3H0CE6WO8VeiYIZZ6-nt-5o8Iig>
+X-ME-Sender: <xms:mcVHXd00OYiJ2zfIOFeJNYhlgdEgSWMo2CLTI0qnWGh8Vf6r_iBn4Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtiedgledtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgpdhkvghrnhgvlhdroh
-    hrghenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhm
-    pehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:c8VHXSTu8JrxTvRGHUvpvHu7UdNUsiHkJIFxbDziFQo84EsxdmXIsw>
-    <xmx:c8VHXeEFI8MfbF9hgfnhZZAzy9QQY1lXyuGExvgovJPLPhu7gmmgAQ>
-    <xmx:c8VHXV0cKghUyE7N-oJlhXkeW6VwxDMy0DMP_8bedzAeOr929AixwA>
-    <xmx:dMVHXbCm5QOerEnYb6A7sVGJgm_VcXicalOfx0C8OoCM3cqL04UJQQ>
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:mcVHXbBtedzjGzPSMyZdEKS9d-NY0YB2IEKb7L0PvseB1EK1T1AC-w>
+    <xmx:mcVHXS8mb2isgk25GjN0WJ9le8BO6YPEMG3nzp8Sfz5Kck6G1ONfxQ>
+    <xmx:mcVHXR-0q213mEEr43FDbwInBGvGjvsaeFrpwfaeLccXSkPpXbuV5g>
+    <xmx:msVHXQ7rtGd5iycUC8g3T5p-b7FobPG7CZqHGN4OVMxioDmrT2e3pg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 66A0280059;
-        Mon,  5 Aug 2019 01:58:11 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915/vbt: Fix VBT parsing for the PSR section" failed to apply to 5.2-stable tree
-To:     dhinakaran.pandiyan@intel.com, jani.nikula@intel.com,
-        jose.souza@intel.com, kubrick@fgv6.net, rodrigo.vivi@intel.com,
-        ville.syrjala@linux.intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 881B98005C;
+        Mon,  5 Aug 2019 01:58:49 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/i915/gvt: Adding ppgtt to GVT GEM context after shadow" failed to apply to 5.2-stable tree
+To:     colin.xu@intel.com, zhenyuw@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 05 Aug 2019 07:58:10 +0200
-Message-ID: <156498469082135@kroah.com>
+Date:   Mon, 05 Aug 2019 07:58:48 +0200
+Message-ID: <15649847280142@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -70,70 +67,134 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6d61f716a01ec0e134de38ae97e71d6fec5a6ff6 Mon Sep 17 00:00:00 2001
-From: Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>
-Date: Wed, 17 Jul 2019 15:34:51 -0700
-Subject: [PATCH] drm/i915/vbt: Fix VBT parsing for the PSR section
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 4187414808095f645ca0661f8dde77617e2e7cb3 Mon Sep 17 00:00:00 2001
+From: Colin Xu <colin.xu@intel.com>
+Date: Thu, 4 Jul 2019 16:45:06 +0800
+Subject: [PATCH] drm/i915/gvt: Adding ppgtt to GVT GEM context after shadow
+ pdps settled.
 
-A single 32-bit PSR2 training pattern field follows the sixteen element
-array of PSR table entries in the VBT spec. But, we incorrectly define
-this PSR2 field for each of the PSR table entries. As a result, the PSR1
-training pattern duration for any panel_type != 0 will be parsed
-incorrectly. Secondly, PSR2 training pattern durations for VBTs with bdb
-version >= 226 will also be wrong.
+Windows guest can't run after force-TDR with host log:
+...
+gvt: vgpu 1: workload shadow ppgtt isn't ready
+gvt: vgpu 1: fail to dispatch workload, skip
+...
 
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: José Roberto de Souza <jose.souza@intel.com>
+The error is raised by set_context_ppgtt_from_shadow(), when it checks
+and found the shadow_mm isn't marked as shadowed.
+
+In work thread before each submission, a shadow_mm is set to shadowed in:
+shadow_ppgtt_mm()
+<-intel_vgpu_pin_mm()
+<-prepare_workload()
+<-dispatch_workload()
+<-workload_thread()
+However checking whether or not shadow_mm is shadowed is prior to it:
+set_context_ppgtt_from_shadow()
+<-dispatch_workload()
+<-workload_thread()
+
+In normal case, create workload will check the existence of shadow_mm,
+if not it will create a new one and marked as shadowed. If already exist
+it will reuse the old one. Since shadow_mm is reused, checking of shadowed
+in set_context_ppgtt_from_shadow() actually always see the state set in
+creation, but not the state set in intel_vgpu_pin_mm().
+
+When force-TDR, all engines are reset, since it's not dmlr level, all
+ppgtt_mm are invalidated but not destroyed. Invalidation will mark all
+reused shadow_mm as not shadowed but still keeps in ppgtt_mm_list_head.
+If workload submission phase those shadow_mm are reused with shadowed
+not set, then set_context_ppgtt_from_shadow() will report error.
+
+Pin for context after shadow_mm pinned and shadow pdps settled.
+
+v2:
+Move set_context_ppgtt_from_shadow() after prepare_workload(). (zhenyu)
+v3:
+Move set_context_ppgtt_from_shadow() after shadow pdps updated.(zhenyu)
+
+Fixes: 4f15665ccbba ("drm/i915: Add ppgtt to GVT GEM context")
 Cc: stable@vger.kernel.org
-Cc: stable@vger.kernel.org #v5.2
-Fixes: 88a0d9606aff ("drm/i915/vbt: Parse and use the new field with PSR2 TP2/3 wakeup time")
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111088
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204183
-Signed-off-by: Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
-Acked-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Tested-by: François Guerraz <kubrick@fgv6.net>
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190717223451.2595-1-dhinakaran.pandiyan@intel.com
-(cherry picked from commit b5ea9c9337007d6e700280c8a60b4e10d070fb53)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Colin Xu <colin.xu@intel.com>
+Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
 
-diff --git a/drivers/gpu/drm/i915/display/intel_bios.c b/drivers/gpu/drm/i915/display/intel_bios.c
-index c4710889cb32..3ef4e9f573cf 100644
---- a/drivers/gpu/drm/i915/display/intel_bios.c
-+++ b/drivers/gpu/drm/i915/display/intel_bios.c
-@@ -765,7 +765,7 @@ parse_psr(struct drm_i915_private *dev_priv, const struct bdb_header *bdb)
+diff --git a/drivers/gpu/drm/i915/gvt/scheduler.c b/drivers/gpu/drm/i915/gvt/scheduler.c
+index 196b4155a309..9f3fd7d96a69 100644
+--- a/drivers/gpu/drm/i915/gvt/scheduler.c
++++ b/drivers/gpu/drm/i915/gvt/scheduler.c
+@@ -364,16 +364,13 @@ static void release_shadow_wa_ctx(struct intel_shadow_wa_ctx *wa_ctx)
+ 	wa_ctx->indirect_ctx.shadow_va = NULL;
+ }
+ 
+-static int set_context_ppgtt_from_shadow(struct intel_vgpu_workload *workload,
+-					 struct i915_gem_context *ctx)
++static void set_context_ppgtt_from_shadow(struct intel_vgpu_workload *workload,
++					  struct i915_gem_context *ctx)
+ {
+ 	struct intel_vgpu_mm *mm = workload->shadow_mm;
+ 	struct i915_ppgtt *ppgtt = i915_vm_to_ppgtt(ctx->vm);
+ 	int i = 0;
+ 
+-	if (mm->type != INTEL_GVT_MM_PPGTT || !mm->ppgtt_mm.shadowed)
+-		return -EINVAL;
+-
+ 	if (mm->ppgtt_mm.root_entry_type == GTT_TYPE_PPGTT_ROOT_L4_ENTRY) {
+ 		px_dma(ppgtt->pd) = mm->ppgtt_mm.shadow_pdps[0];
+ 	} else {
+@@ -384,8 +381,6 @@ static int set_context_ppgtt_from_shadow(struct intel_vgpu_workload *workload,
+ 			px_dma(pd) = mm->ppgtt_mm.shadow_pdps[i];
+ 		}
+ 	}
+-
+-	return 0;
+ }
+ 
+ static int
+@@ -614,6 +609,8 @@ static void release_shadow_batch_buffer(struct intel_vgpu_workload *workload)
+ static int prepare_workload(struct intel_vgpu_workload *workload)
+ {
+ 	struct intel_vgpu *vgpu = workload->vgpu;
++	struct intel_vgpu_submission *s = &vgpu->submission;
++	int ring = workload->ring_id;
+ 	int ret = 0;
+ 
+ 	ret = intel_vgpu_pin_mm(workload->shadow_mm);
+@@ -622,8 +619,16 @@ static int prepare_workload(struct intel_vgpu_workload *workload)
+ 		return ret;
  	}
  
- 	if (bdb->version >= 226) {
--		u32 wakeup_time = psr_table->psr2_tp2_tp3_wakeup_time;
-+		u32 wakeup_time = psr->psr2_tp2_tp3_wakeup_time;
- 
- 		wakeup_time = (wakeup_time >> (2 * panel_type)) & 0x3;
- 		switch (wakeup_time) {
-diff --git a/drivers/gpu/drm/i915/display/intel_vbt_defs.h b/drivers/gpu/drm/i915/display/intel_vbt_defs.h
-index 2f4894e9a03d..5ddbe71ab423 100644
---- a/drivers/gpu/drm/i915/display/intel_vbt_defs.h
-+++ b/drivers/gpu/drm/i915/display/intel_vbt_defs.h
-@@ -478,13 +478,13 @@ struct psr_table {
- 	/* TP wake up time in multiple of 100 */
- 	u16 tp1_wakeup_time;
- 	u16 tp2_tp3_wakeup_time;
--
--	/* PSR2 TP2/TP3 wakeup time for 16 panels */
--	u32 psr2_tp2_tp3_wakeup_time;
- } __packed;
- 
- struct bdb_psr {
- 	struct psr_table psr_table[16];
++	if (workload->shadow_mm->type != INTEL_GVT_MM_PPGTT ||
++	    !workload->shadow_mm->ppgtt_mm.shadowed) {
++		gvt_vgpu_err("workload shadow ppgtt isn't ready\n");
++		return -EINVAL;
++	}
 +
-+	/* PSR2 TP2/TP3 wakeup time for 16 panels */
-+	u32 psr2_tp2_tp3_wakeup_time;
- } __packed;
+ 	update_shadow_pdps(workload);
  
- /*
++	set_context_ppgtt_from_shadow(workload, s->shadow[ring]->gem_context);
++
+ 	ret = intel_vgpu_sync_oos_pages(workload->vgpu);
+ 	if (ret) {
+ 		gvt_vgpu_err("fail to vgpu sync oos pages\n");
+@@ -674,7 +679,6 @@ static int dispatch_workload(struct intel_vgpu_workload *workload)
+ {
+ 	struct intel_vgpu *vgpu = workload->vgpu;
+ 	struct drm_i915_private *dev_priv = vgpu->gvt->dev_priv;
+-	struct intel_vgpu_submission *s = &vgpu->submission;
+ 	struct i915_request *rq;
+ 	int ring_id = workload->ring_id;
+ 	int ret;
+@@ -685,13 +689,6 @@ static int dispatch_workload(struct intel_vgpu_workload *workload)
+ 	mutex_lock(&vgpu->vgpu_lock);
+ 	mutex_lock(&dev_priv->drm.struct_mutex);
+ 
+-	ret = set_context_ppgtt_from_shadow(workload,
+-					    s->shadow[ring_id]->gem_context);
+-	if (ret < 0) {
+-		gvt_vgpu_err("workload shadow ppgtt isn't ready\n");
+-		goto err_req;
+-	}
+-
+ 	ret = intel_gvt_workload_req_alloc(workload);
+ 	if (ret)
+ 		goto err_req;
 
