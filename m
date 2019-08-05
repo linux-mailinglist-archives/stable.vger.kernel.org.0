@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 219D281C3C
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:22:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 562A381D1F
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:30:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729835AbfHENVb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:21:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57616 "EHLO mail.kernel.org"
+        id S1730530AbfHENVc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:21:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730521AbfHENV0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:21:26 -0400
+        id S1729064AbfHENVb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:21:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 849BC20644;
-        Mon,  5 Aug 2019 13:21:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9D592075B;
+        Mon,  5 Aug 2019 13:21:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011285;
-        bh=/kzTnyloOZDoMV+K4jSpJHqoXv0Ymtku2Qm+4QA698Y=;
+        s=default; t=1565011290;
+        bh=6XfijMtwq9SZKtYSWMc/VoRqeg2flrU9/CpoHveNHWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yecyaKFUQOmfQqYTBcdOMAA5IBwDv9v77ELtrl+nBhBj1BWp234HJWWTO2vkrrbN1
-         uvc+vdaPR7PhTBecagKEPYStt97qdvV1K8QF/R9EIsp76AVvaRRD/j2S+YOm070WP5
-         UWiJYZGBTFxpK0dH6rFw/4qkRryIDZa5Q2s5lKjY=
+        b=KuUrrfsu5ldmfMxAEmZjxW+7RGJMU3EcJhJad2SmLrHpiAfoBPeueVr4kXKCIBCLK
+         M1mxCGbBBxb24NrVkrETdAj9EwCagwpgb2lDrSlpsc6PsGpPQZGKo8KHfOrAcPX1ZH
+         A3nxUOVO1hfCWn5J6VScan25nCxbbTeg72BjXp+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        "Yan, Zheng" <zyan@redhat.com>, Ilya Dryomov <idryomov@gmail.com>,
+        stable@vger.kernel.org,
+        Ihor Matushchak <ihor.matushchak@foobox.net>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "Ivan T. Ivanov" <iivanov.xz@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 034/131] ceph: return -ERANGE if virtual xattr value didnt fit in buffer
-Date:   Mon,  5 Aug 2019 15:02:01 +0200
-Message-Id: <20190805124953.713040556@linuxfoundation.org>
+Subject: [PATCH 5.2 035/131] virtio-mmio: add error check for platform_get_irq
+Date:   Mon,  5 Aug 2019 15:02:02 +0200
+Message-Id: <20190805124953.780673514@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -44,67 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3b421018f48c482bdc9650f894aa1747cf90e51d ]
+[ Upstream commit 5e663f0410fa2f355042209154029842ba1abd43 ]
 
-The getxattr manpage states that we should return ERANGE if the
-destination buffer size is too small to hold the value.
-ceph_vxattrcb_layout does this internally, but we should be doing
-this for all vxattrs.
+in vm_find_vqs() irq has a wrong type
+so, in case of no IRQ resource defined,
+wrong parameter will be passed to request_irq()
 
-Fix the only caller of getxattr_cb to check the returned size
-against the buffer length and return -ERANGE if it doesn't fit.
-Drop the same check in ceph_vxattrcb_layout and just rely on the
-caller to handle it.
-
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: "Yan, Zheng" <zyan@redhat.com>
-Acked-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ihor Matushchak <ihor.matushchak@foobox.net>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Ivan T. Ivanov <iivanov.xz@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/xattr.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/virtio/virtio_mmio.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ceph/xattr.c b/fs/ceph/xattr.c
-index 0cc42c8879e9a..0619adbcbe14c 100644
---- a/fs/ceph/xattr.c
-+++ b/fs/ceph/xattr.c
-@@ -79,7 +79,7 @@ static size_t ceph_vxattrcb_layout(struct ceph_inode_info *ci, char *val,
- 	const char *ns_field = " pool_namespace=";
- 	char buf[128];
- 	size_t len, total_len = 0;
--	int ret;
-+	ssize_t ret;
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index f363fbeb5ab0c..e09edb5c5e065 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -463,9 +463,14 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 		       struct irq_affinity *desc)
+ {
+ 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+-	unsigned int irq = platform_get_irq(vm_dev->pdev, 0);
++	int irq = platform_get_irq(vm_dev->pdev, 0);
+ 	int i, err, queue_idx = 0;
  
- 	pool_ns = ceph_try_get_string(ci->i_layout.pool_ns);
- 
-@@ -103,11 +103,8 @@ static size_t ceph_vxattrcb_layout(struct ceph_inode_info *ci, char *val,
- 	if (pool_ns)
- 		total_len += strlen(ns_field) + pool_ns->len;
- 
--	if (!size) {
--		ret = total_len;
--	} else if (total_len > size) {
--		ret = -ERANGE;
--	} else {
-+	ret = total_len;
-+	if (size >= total_len) {
- 		memcpy(val, buf, len);
- 		ret = len;
- 		if (pool_name) {
-@@ -835,8 +832,11 @@ ssize_t __ceph_getxattr(struct inode *inode, const char *name, void *value,
- 		if (err)
- 			return err;
- 		err = -ENODATA;
--		if (!(vxattr->exists_cb && !vxattr->exists_cb(ci)))
-+		if (!(vxattr->exists_cb && !vxattr->exists_cb(ci))) {
- 			err = vxattr->getxattr_cb(ci, value, size);
-+			if (size && size < err)
-+				err = -ERANGE;
-+		}
- 		return err;
- 	}
- 
++	if (irq < 0) {
++		dev_err(&vdev->dev, "Cannot get IRQ resource\n");
++		return irq;
++	}
++
+ 	err = request_irq(irq, vm_interrupt, IRQF_SHARED,
+ 			dev_name(&vdev->dev), vm_dev);
+ 	if (err)
 -- 
 2.20.1
 
