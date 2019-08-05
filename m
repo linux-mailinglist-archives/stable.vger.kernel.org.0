@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9014681B65
+	by mail.lfdr.de (Postfix) with ESMTP id 277BF81B64
 	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:14:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729194AbfHENIK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:08:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46106 "EHLO mail.kernel.org"
+        id S1729981AbfHENIN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:08:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729966AbfHENIK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:08:10 -0400
+        id S1729980AbfHENIN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:08:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCA9521738;
-        Mon,  5 Aug 2019 13:08:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F2242186A;
+        Mon,  5 Aug 2019 13:08:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010489;
-        bh=KwUvsSE3Vwbm/Z9tt0yV4E3TSHCPGF8rDAcRKMC4BQk=;
+        s=default; t=1565010491;
+        bh=8iV7IkP9eDFlim28OUZxqoeY2cd3wq7Xi/YGSs4FFpA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0cS9lQUyZJbo+qC/EHKlCp4g5M3b8xB2z9H0mjPSjyFscCo/pDH+Fpg8NnNWeuuyu
-         Zt6PQ3ajQ4jCVcq0j5W+INaquL0ozp4/Fhx+MPZ+4zsuxNhKrYTLLhA3/NW5avtjrt
-         gSL/je/MxXFenA4U79nqcpRekvmXkpyk8MBfWFsQ=
+        b=vWizIVz2BaahHVke4g4CRfJmLCO65YD6XFRBLaPbdj82+irYmN6/nH7S3edKpWKoR
+         jwiBvHj9y1VJdxsHEKeNZBmzThWtwplKSl5EFFkK0GyaoMi7dBj9kaxtOd/qF3/Nns
+         liyuNqSBRpLrRkgyvX97ZXAKLx54JtKJ9pxx3Cfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: [PATCH 4.14 44/53] xen/swiotlb: fix condition for calling xen_destroy_contiguous_region()
-Date:   Mon,  5 Aug 2019 15:03:09 +0200
-Message-Id: <20190805124932.887791186@linuxfoundation.org>
+        stable@vger.kernel.org, Yishai Hadas <yishaih@mellanox.com>,
+        Artemy Kovalyov <artemyko@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.14 45/53] IB/mlx5: Fix unreg_umr to ignore the mkey state
+Date:   Mon,  5 Aug 2019 15:03:10 +0200
+Message-Id: <20190805124932.970946679@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
 References: <20190805124927.973499541@linuxfoundation.org>
@@ -45,44 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Yishai Hadas <yishaih@mellanox.com>
 
-commit 50f6393f9654c561df4cdcf8e6cfba7260143601 upstream.
+commit 6a053953739d23694474a5f9c81d1a30093da81a upstream.
 
-The condition in xen_swiotlb_free_coherent() for deciding whether to
-call xen_destroy_contiguous_region() is wrong: in case the region to
-be freed is not contiguous calling xen_destroy_contiguous_region() is
-the wrong thing to do: it would result in inconsistent mappings of
-multiple PFNs to the same MFN. This will lead to various strange
-crashes or data corruption.
+Fix unreg_umr to ignore the mkey state and do not fail if was freed.  This
+prevents a case that a user space application already changed the mkey
+state to free and then the UMR operation will fail leaving the mkey in an
+inappropriate state.
 
-Instead of calling xen_destroy_contiguous_region() in that case a
-warning should be issued as that situation should never occur.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Acked-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20190723065733.4899-3-leon@kernel.org
+Cc: <stable@vger.kernel.org> # 3.19
+Fixes: 968e78dd9644 ("IB/mlx5: Enhance UMR support to allow partial page table update")
+Signed-off-by: Yishai Hadas <yishaih@mellanox.com>
+Reviewed-by: Artemy Kovalyov <artemyko@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/swiotlb-xen.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/mlx5/mlx5_ib.h |    1 +
+ drivers/infiniband/hw/mlx5/mr.c      |    4 ++--
+ drivers/infiniband/hw/mlx5/qp.c      |   12 ++++++++----
+ 3 files changed, 11 insertions(+), 6 deletions(-)
 
---- a/drivers/xen/swiotlb-xen.c
-+++ b/drivers/xen/swiotlb-xen.c
-@@ -371,8 +371,8 @@ xen_swiotlb_free_coherent(struct device
- 	/* Convert the size to actually allocated. */
- 	size = 1UL << (order + XEN_PAGE_SHIFT);
+--- a/drivers/infiniband/hw/mlx5/mlx5_ib.h
++++ b/drivers/infiniband/hw/mlx5/mlx5_ib.h
+@@ -427,6 +427,7 @@ struct mlx5_umr_wr {
+ 	u64				length;
+ 	int				access_flags;
+ 	u32				mkey;
++	u8				ignore_free_state:1;
+ };
  
--	if (((dev_addr + size - 1 <= dma_mask)) ||
--	    range_straddles_page_boundary(phys, size))
-+	if (!WARN_ON((dev_addr + size - 1 > dma_mask) ||
-+		     range_straddles_page_boundary(phys, size)))
- 		xen_destroy_contiguous_region(phys, order);
+ static inline struct mlx5_umr_wr *umr_wr(struct ib_send_wr *wr)
+--- a/drivers/infiniband/hw/mlx5/mr.c
++++ b/drivers/infiniband/hw/mlx5/mr.c
+@@ -1302,10 +1302,10 @@ static int unreg_umr(struct mlx5_ib_dev
+ 	if (mdev->state == MLX5_DEVICE_STATE_INTERNAL_ERROR)
+ 		return 0;
  
- 	xen_free_coherent_pages(hwdev, size, vaddr, (dma_addr_t)phys, attrs);
+-	umrwr.wr.send_flags = MLX5_IB_SEND_UMR_DISABLE_MR |
+-			      MLX5_IB_SEND_UMR_FAIL_IF_FREE;
++	umrwr.wr.send_flags = MLX5_IB_SEND_UMR_DISABLE_MR;
+ 	umrwr.wr.opcode = MLX5_IB_WR_UMR;
+ 	umrwr.mkey = mr->mmkey.key;
++	umrwr.ignore_free_state = 1;
+ 
+ 	return mlx5_ib_post_send_wait(dev, &umrwr);
+ }
+--- a/drivers/infiniband/hw/mlx5/qp.c
++++ b/drivers/infiniband/hw/mlx5/qp.c
+@@ -3265,10 +3265,14 @@ static void set_reg_umr_segment(struct m
+ 
+ 	memset(umr, 0, sizeof(*umr));
+ 
+-	if (wr->send_flags & MLX5_IB_SEND_UMR_FAIL_IF_FREE)
+-		umr->flags = MLX5_UMR_CHECK_FREE; /* fail if free */
+-	else
+-		umr->flags = MLX5_UMR_CHECK_NOT_FREE; /* fail if not free */
++	if (!umrwr->ignore_free_state) {
++		if (wr->send_flags & MLX5_IB_SEND_UMR_FAIL_IF_FREE)
++			 /* fail if free */
++			umr->flags = MLX5_UMR_CHECK_FREE;
++		else
++			/* fail if not free */
++			umr->flags = MLX5_UMR_CHECK_NOT_FREE;
++	}
+ 
+ 	umr->xlt_octowords = cpu_to_be16(get_xlt_octo(umrwr->xlt_size));
+ 	if (wr->send_flags & MLX5_IB_SEND_UMR_UPDATE_XLT) {
 
 
