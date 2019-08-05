@@ -2,74 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22165819F1
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 14:47:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C81ED81A20
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:00:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728086AbfHEMr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 08:47:29 -0400
-Received: from mail-lj1-f175.google.com ([209.85.208.175]:36736 "EHLO
-        mail-lj1-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726779AbfHEMr3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 08:47:29 -0400
-Received: by mail-lj1-f175.google.com with SMTP id i21so79193779ljj.3;
-        Mon, 05 Aug 2019 05:47:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=lL3Croan3VsAvdmzwNDatZOL62bT4QU+D/MCPrex0oo=;
-        b=ATyHGFdJW6t6n/bKqnHz3vFzUOhu9uNRejyoHdvgSqforsurcwCC756tzrgXgREw87
-         uzun1aMWRKmX/60nRtpJTK0ndF3WqtcdWDIaY7qrpU3lMDpiz2ZNUklVpKXbpUptxLdN
-         GvAtD7KmJYDy/p1bd1nYzcsTLvZUV1ZKxc0ty9bNjddv5oPOPWG2KBmOEIFs3FOFuxK/
-         QWjcOyNeAl5PUBrDa0SAOtUEuqb1FXiIRXHKOMYl31P0Ug71jLbJuAWZXTg7uCRI2j8m
-         bQmSfpsMr3azx3JIJfOX97A8CbpI7tnWPdp8mUjv9tG4lOfkStP+LdNVbzo3/+uejMcH
-         EubQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=lL3Croan3VsAvdmzwNDatZOL62bT4QU+D/MCPrex0oo=;
-        b=tI3A4nZdYrbIC086QL1I2bj85FdBTpkugaEGY25X1Jzxaz+KYpgyAciL3SIdPB0r62
-         kdctES6uVWPMOUvuq5Hamn4jAXHJPqrL3HqJnxiK7THYjQnrjx49unGVzZO6kBkYZgl7
-         w32rMTBqSvs+fT9iknLilh9saR6blayQdxH8ex3ezZLwG4mqdEF6HSa603hJKafKLxJq
-         9QihV9NkxtVwxR4aDttY9uEd3TdZZmZ4drFT1QZVU0fkpWBZhDO8FqMNqHiidSKEiaGx
-         2uSWD+o16/NcYV5Vmzv0YUTWda/YBtly9ngnSstAlNd1AQnOXtK6am+Gyc6EQmUZCT+7
-         +y/g==
-X-Gm-Message-State: APjAAAURD3J+dWjptbHU0IuAl+yPQxxmJ+Fc9I555S04Qg00Xgh3/Yir
-        D+m/8+VHEeMK3JGFAjKIBul3bfQqzRptutG1jy1Qeg==
-X-Google-Smtp-Source: APXvYqw5b2HMbRc+Zic5cYzHfdzRa07AQdAGvaoc1hRPPEo2ULeTuY4WfOUW8G/0Du+E0E5QtbNjBPo8dRbPIXFb0w4=
-X-Received: by 2002:a2e:8741:: with SMTP id q1mr25763713ljj.144.1565009246427;
- Mon, 05 Aug 2019 05:47:26 -0700 (PDT)
+        id S1726779AbfHENAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:00:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37858 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726508AbfHENAX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:00:23 -0400
+Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87700206C1;
+        Mon,  5 Aug 2019 13:00:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1565010022;
+        bh=kIuzPEzoAQvM9Uzt8oUxERvbNp9WuBy9kkAhfsoxQfw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=0WXj7LphRmsxrayQ/39HNFQ5aoQRrdtb5MvCFwMV7UJgfrg26+KPijqDAInP83KDd
+         O68qTSwzLssidItVFnRLa+70bwx/bSxeFxucg9yxkbwA0u2xZLqJzQK1YKiwtavgaX
+         dNjOsUWdRCQjDpIdx1VDuTtCFjdCsjmK1zsaYk1E=
+Date:   Mon, 5 Aug 2019 14:00:18 +0100
+From:   Will Deacon <will@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] arm64: compat: Allow single-byte
+ watchpoints on all addresses" failed to apply to 4.4-stable tree
+Message-ID: <20190805130017.zxm7ky6fuwgwmifs@willie-the-truck>
+References: <1564983146189130@kroah.com>
 MIME-Version: 1.0
-References: <20190606185900.GA19937@kroah.com> <CANiq72n2E4Ue0MU5mWitSbsscizPQKML0QQx_DBwJVni+eWMHQ@mail.gmail.com>
- <4007272.nJfEYfeqza@devpool35> <CANiq72=T8nH3HHkYvWF+vPMscgwXki1Ugiq6C9PhVHJUHAwDYw@mail.gmail.com>
- <20190802103346.GA14255@kroah.com> <CANiq72kcZZwp2MRVF5Ls+drXCzVbCfZ7wZ8Y+rU93oGohVAGsQ@mail.gmail.com>
- <20190802112542.GA29534@kroah.com> <CANiq72mSLmP-EaOgY0m2qgTMVsAnyE6iuW5Kjdw5mSy1ZH0y-A@mail.gmail.com>
- <20190802155627.GB28398@kroah.com> <CANiq72k-2Gtb8Q_f2Nhy6aud-QwuSiJ8oEJbwt-pjd+bs8qDVg@mail.gmail.com>
- <20190805115540.GB8189@kroah.com>
-In-Reply-To: <20190805115540.GB8189@kroah.com>
-From:   Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Date:   Mon, 5 Aug 2019 14:47:15 +0200
-Message-ID: <CANiq72kUg_Q0VTju=ebs3mgTca1QtYvGt6AKCwS=TUoN3ENuYA@mail.gmail.com>
-Subject: =?UTF-8?Q?Re=3A_Linux_4=2E9=2E180_build_fails_with_gcc_9_and_=27cleanu?=
-        =?UTF-8?Q?p=5Fmodule=27_specifies_less_restrictive_attribute_than_its_targ?=
-        =?UTF-8?Q?et_=E2=80=A6?=
-To:     Greg KH <greg@kroah.com>
-Cc:     Rolf Eike Beer <eb@emlix.com>, stable@vger.kernel.org,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1564983146189130@kroah.com>
+User-Agent: NeoMutt/20170113 (1.7.2)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 5, 2019 at 1:55 PM Greg KH <greg@kroah.com> wrote:
->
-> I think I got it working now, all looks good for 4.9.y, 4.14.y and
-> 4.19.y for gcc9 so far.  I'll leave 4.4.y alone :)
+On Mon, Aug 05, 2019 at 07:32:26AM +0200, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 4.4-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-You are welcome! I am glad we can now use gcc 9 easily. I will be
-keeping a look into gcc 10. :)
+Backport for 4.4, 4.9 and 4.14 below.
 
-Cheers,
-Miguel
+Will
+
+--->8
+
+From 4cf2e5aed205d7a3958e67b9fa1e76be64543b1b Mon Sep 17 00:00:00 2001
+From: Will Deacon <will@kernel.org>
+Date: Mon, 29 Jul 2019 11:06:17 +0100
+Subject: [PATCH] arm64: compat: Allow single-byte watchpoints on all addresses
+
+commit 849adec41203ac5837c40c2d7e08490ffdef3c2c upstream.
+
+Commit d968d2b801d8 ("ARM: 7497/1: hw_breakpoint: allow single-byte
+watchpoints on all addresses") changed the validation requirements for
+hardware watchpoints on arch/arm/. Update our compat layer to implement
+the same relaxation.
+
+Cc: <stable@vger.kernel.org> # 4.4.y, 4.9.y, 4.14.y
+Signed-off-by: Will Deacon <will@kernel.org>
+---
+ arch/arm64/kernel/hw_breakpoint.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm64/kernel/hw_breakpoint.c b/arch/arm64/kernel/hw_breakpoint.c
+index eeebfc315526..036fbb959821 100644
+--- a/arch/arm64/kernel/hw_breakpoint.c
++++ b/arch/arm64/kernel/hw_breakpoint.c
+@@ -504,13 +504,14 @@ int arch_validate_hwbkpt_settings(struct perf_event *bp)
+ 			/* Aligned */
+ 			break;
+ 		case 1:
+-			/* Allow single byte watchpoint. */
+-			if (info->ctrl.len == ARM_BREAKPOINT_LEN_1)
+-				break;
+ 		case 2:
+ 			/* Allow halfword watchpoints and breakpoints. */
+ 			if (info->ctrl.len == ARM_BREAKPOINT_LEN_2)
+ 				break;
++		case 3:
++			/* Allow single byte watchpoint. */
++			if (info->ctrl.len == ARM_BREAKPOINT_LEN_1)
++				break;
+ 		default:
+ 			return -EINVAL;
+ 		}
+-- 
+2.11.0
+
