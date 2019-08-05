@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8766281D05
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:29:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63B8481D09
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:29:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728868AbfHENWN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:22:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58512 "EHLO mail.kernel.org"
+        id S1729538AbfHEN3J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:29:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730634AbfHENWN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:22:13 -0400
+        id S1730638AbfHENWP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:22:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 357222075B;
-        Mon,  5 Aug 2019 13:22:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F407A216B7;
+        Mon,  5 Aug 2019 13:22:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011331;
-        bh=OzrVIW2SNvPlP+RlL0NtWgabG5/XhuUEO1+3IKB8y7w=;
+        s=default; t=1565011334;
+        bh=Y8QJsEx3iQGHlddjHTT8Du+dE5LcgvkKqSkfYJiQt9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r1qa/VCF1moZujjnq4aLfXXLjtEJ+1ztDPo9/mEQN2Rwc9KGRS1HA65BuCMnpZhIT
-         nLvsnlnSEBTFI/heHq9rkrqXIkAhsOA9H43/ElrJ3hjrcOTrRCsNMsgR/k1nB7AXhX
-         pPYUPUupgv53xknzuwMo2lvXQU8AUmZeuzOX9IiM=
+        b=pPfq6Cggo2i5uA/Viul/UNWQNqAm46KXnv0vdf4hn1zrRo0uMQuCdB/UT5hgGPIsK
+         /bRquLo4OpfzMcM3VGc6M9Rltf8U1PzoSymDf2XZNMCkwqjmwuLIMxuHYmHVJJ9Oin
+         fl+StO3Ix703OEnTlCb7L6sXk6TUKXuWyIMKScF8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Michal Nazarewicz <mina86@mina86.com>,
-        Yue Hu <huyue2@yulong.com>, Mike Rapoport <rppt@linux.ibm.com>,
-        Laura Abbott <labbott@redhat.com>, Peng Fan <peng.fan@nxp.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Joe Perches <joe@perches.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 053/131] mm/cma.c: fail if fixed declaration cant be honored
-Date:   Mon,  5 Aug 2019 15:02:20 +0200
-Message-Id: <20190805124954.979804900@linuxfoundation.org>
+Subject: [PATCH 5.2 054/131] lib/test_overflow.c: avoid tainting the kernel and fix wrap size
+Date:   Mon,  5 Aug 2019 15:02:21 +0200
+Message-Id: <20190805124955.049639253@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -51,66 +48,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c633324e311243586675e732249339685e5d6faa ]
+[ Upstream commit 8e060c21ae2c265a2b596e9e7f9f97ec274151a4 ]
 
-The description of cma_declare_contiguous() indicates that if the
-'fixed' argument is true the reserved contiguous area must be exactly at
-the address of the 'base' argument.
+This adds __GFP_NOWARN to the kmalloc()-portions of the overflow test to
+avoid tainting the kernel.  Additionally fixes up the math on wrap size
+to be architecture and page size agnostic.
 
-However, the function currently allows the 'base', 'size', and 'limit'
-arguments to be silently adjusted to meet alignment constraints.  This
-commit enforces the documented behavior through explicit checks that
-return an error if the region does not fit within a specified region.
-
-Link: http://lkml.kernel.org/r/1561422051-16142-1-git-send-email-opendmb@gmail.com
-Fixes: 5ea3b1b2f8ad ("cma: add placement specifier for "cma=" kernel parameter")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Michal Nazarewicz <mina86@mina86.com>
-Cc: Yue Hu <huyue2@yulong.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Laura Abbott <labbott@redhat.com>
-Cc: Peng Fan <peng.fan@nxp.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Andrey Konovalov <andreyknvl@google.com>
+Link: http://lkml.kernel.org/r/201905282012.0A8767E24@keescook
+Fixes: ca90800a91ba ("test_overflow: Add memory allocation overflow tests")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Suggested-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Joe Perches <joe@perches.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/cma.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ lib/test_overflow.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/mm/cma.c b/mm/cma.c
-index 3340ef34c154a..4973d253dc83a 100644
---- a/mm/cma.c
-+++ b/mm/cma.c
-@@ -278,6 +278,12 @@ int __init cma_declare_contiguous(phys_addr_t base,
- 	 */
- 	alignment = max(alignment,  (phys_addr_t)PAGE_SIZE <<
- 			  max_t(unsigned long, MAX_ORDER - 1, pageblock_order));
-+	if (fixed && base & (alignment - 1)) {
-+		ret = -EINVAL;
-+		pr_err("Region at %pa must be aligned to %pa bytes\n",
-+			&base, &alignment);
-+		goto err;
-+	}
- 	base = ALIGN(base, alignment);
- 	size = ALIGN(size, alignment);
- 	limit &= ~(alignment - 1);
-@@ -308,6 +314,13 @@ int __init cma_declare_contiguous(phys_addr_t base,
- 	if (limit == 0 || limit > memblock_end)
- 		limit = memblock_end;
+diff --git a/lib/test_overflow.c b/lib/test_overflow.c
+index fc680562d8b69..7a4b6f6c5473c 100644
+--- a/lib/test_overflow.c
++++ b/lib/test_overflow.c
+@@ -486,16 +486,17 @@ static int __init test_overflow_shift(void)
+  * Deal with the various forms of allocator arguments. See comments above
+  * the DEFINE_TEST_ALLOC() instances for mapping of the "bits".
+  */
+-#define alloc010(alloc, arg, sz) alloc(sz, GFP_KERNEL)
+-#define alloc011(alloc, arg, sz) alloc(sz, GFP_KERNEL, NUMA_NO_NODE)
++#define alloc_GFP		 (GFP_KERNEL | __GFP_NOWARN)
++#define alloc010(alloc, arg, sz) alloc(sz, alloc_GFP)
++#define alloc011(alloc, arg, sz) alloc(sz, alloc_GFP, NUMA_NO_NODE)
+ #define alloc000(alloc, arg, sz) alloc(sz)
+ #define alloc001(alloc, arg, sz) alloc(sz, NUMA_NO_NODE)
+-#define alloc110(alloc, arg, sz) alloc(arg, sz, GFP_KERNEL)
++#define alloc110(alloc, arg, sz) alloc(arg, sz, alloc_GFP)
+ #define free0(free, arg, ptr)	 free(ptr)
+ #define free1(free, arg, ptr)	 free(arg, ptr)
  
-+	if (base + size > limit) {
-+		ret = -EINVAL;
-+		pr_err("Size (%pa) of region at %pa exceeds limit (%pa)\n",
-+			&size, &base, &limit);
-+		goto err;
-+	}
-+
- 	/* Reserve memory */
- 	if (fixed) {
- 		if (memblock_is_region_reserved(base, size) ||
+-/* Wrap around to 8K */
+-#define TEST_SIZE		(9 << PAGE_SHIFT)
++/* Wrap around to 16K */
++#define TEST_SIZE		(5 * 4096)
+ 
+ #define DEFINE_TEST_ALLOC(func, free_func, want_arg, want_gfp, want_node)\
+ static int __init test_ ## func (void *arg)				\
 -- 
 2.20.1
 
