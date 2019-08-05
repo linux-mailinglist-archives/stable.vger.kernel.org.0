@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C199381C6D
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:23:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDA2081D10
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:29:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730866AbfHENXi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:23:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60356 "EHLO mail.kernel.org"
+        id S1729650AbfHENWH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:22:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730858AbfHENXh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:23:37 -0400
+        id S1730614AbfHENWE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:22:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 293F221880;
-        Mon,  5 Aug 2019 13:23:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E5EF20657;
+        Mon,  5 Aug 2019 13:22:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011416;
-        bh=8uCq6Hog5rSLXya+/nTvcvv2RE/+H2+vXoQZB/KOLes=;
+        s=default; t=1565011324;
+        bh=lZ4qH7eMqi86NFse/Iv5+y2ZDI6YfEIJiv4HFmce+Kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BCtQaIzodfI8jEbOZRiaI53O16daspKgrsG+GfLcdlpYjW/HiVPOA7jbYq+RJtvOJ
-         +ZKEz8SmzwjiK1tKlbUdwQRU4IqTPQpc88XiJrP3zP+6ktpjufuK9DeziSvVH0JM29
-         JRk+1cPMRsSFN6tLElk8bC/KvSNUhpJ9JsGAm2JE=
+        b=zr+Vdc8Ak8nYZvYvQKpFZ3ncNBgsh8XXVuw0VgY+uSUXmvrmGMHJIrob5IOck33K5
+         S+66t2mVqaI9LB8JRtOPXS67ybllr1NT0sagnPiPEsfxlJoDuFOKRjAVe+L5qWGeem
+         OtFMNANVx4E+Yp/PuSIFD/jmUqJVnSvrpQ6vQ+k0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yafang Shao <laoar.shao@gmail.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Yafang Shao <shaoyafang@didiglobal.com>,
+        stable@vger.kernel.org, Henry Burns <henryburns@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Vitaly Vul <vitaly.vul@sony.com>,
+        Vitaly Wool <vitalywool@gmail.com>,
+        Jonathan Adams <jwadams@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 049/131] mm/memcontrol.c: keep local VM counters in sync with the hierarchical ones
-Date:   Mon,  5 Aug 2019 15:02:16 +0200
-Message-Id: <20190805124954.714867980@linuxfoundation.org>
+Subject: [PATCH 5.2 050/131] mm/z3fold.c: reinitialize zhdr structs after migration
+Date:   Mon,  5 Aug 2019 15:02:17 +0200
+Message-Id: <20190805124954.784647814@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -49,101 +49,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 766a4c19d880887c457811b86f1f68525e416965 ]
+[ Upstream commit c92d2f38563db20c20c8db2f98fa1349290477d5 ]
 
-After commit 815744d75152 ("mm: memcontrol: don't batch updates of local
-VM stats and events"), the local VM counter are not in sync with the
-hierarchical ones.
+z3fold_page_migration() calls memcpy(new_zhdr, zhdr, PAGE_SIZE).
+However, zhdr contains fields that can't be directly coppied over (ex:
+list_head, a circular linked list).  We only need to initialize the
+linked lists in new_zhdr, as z3fold_isolate_page() already ensures that
+these lists are empty
 
-Below is one example in a leaf memcg on my server (with 8 CPUs):
+Additionally it is possible that zhdr->work has been placed in a
+workqueue.  In this case we shouldn't migrate the page, as zhdr->work
+references zhdr as opposed to new_zhdr.
 
-	inactive_file 3567570944
-	total_inactive_file 3568029696
-
-We find that the deviation is very great because the 'val' in
-__mod_memcg_state() is in pages while the effective value in
-memcg_stat_show() is in bytes.
-
-So the maximum of this deviation between local VM stats and total VM
-stats can be (32 * number_of_cpu * PAGE_SIZE), that may be an
-unacceptably great value.
-
-We should keep the local VM stats in sync with the total stats.  In
-order to keep this behavior the same across counters, this patch updates
-__mod_lruvec_state() and __count_memcg_events() as well.
-
-Link: http://lkml.kernel.org/r/1562851979-10610-1-git-send-email-laoar.shao@gmail.com
-Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Yafang Shao <shaoyafang@didiglobal.com>
+Link: http://lkml.kernel.org/r/20190716000520.230595-1-henryburns@google.com
+Fixes: 1f862989b04ade61d3 ("mm/z3fold.c: support page migration")
+Signed-off-by: Henry Burns <henryburns@google.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Cc: Vitaly Vul <vitaly.vul@sony.com>
+Cc: Vitaly Wool <vitalywool@gmail.com>
+Cc: Jonathan Adams <jwadams@google.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memcontrol.c | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ mm/z3fold.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-index 591eafafbd8cb..902d020aa70e5 100644
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -691,12 +691,15 @@ void __mod_memcg_state(struct mem_cgroup *memcg, int idx, int val)
- 	if (mem_cgroup_disabled())
- 		return;
- 
--	__this_cpu_add(memcg->vmstats_local->stat[idx], val);
--
- 	x = val + __this_cpu_read(memcg->vmstats_percpu->stat[idx]);
- 	if (unlikely(abs(x) > MEMCG_CHARGE_BATCH)) {
- 		struct mem_cgroup *mi;
- 
-+		/*
-+		 * Batch local counters to keep them in sync with
-+		 * the hierarchical ones.
-+		 */
-+		__this_cpu_add(memcg->vmstats_local->stat[idx], x);
- 		for (mi = memcg; mi; mi = parent_mem_cgroup(mi))
- 			atomic_long_add(x, &mi->vmstats[idx]);
- 		x = 0;
-@@ -745,13 +748,15 @@ void __mod_lruvec_state(struct lruvec *lruvec, enum node_stat_item idx,
- 	/* Update memcg */
- 	__mod_memcg_state(memcg, idx, val);
- 
--	/* Update lruvec */
--	__this_cpu_add(pn->lruvec_stat_local->count[idx], val);
--
- 	x = val + __this_cpu_read(pn->lruvec_stat_cpu->count[idx]);
- 	if (unlikely(abs(x) > MEMCG_CHARGE_BATCH)) {
- 		struct mem_cgroup_per_node *pi;
- 
-+		/*
-+		 * Batch local counters to keep them in sync with
-+		 * the hierarchical ones.
-+		 */
-+		__this_cpu_add(pn->lruvec_stat_local->count[idx], x);
- 		for (pi = pn; pi; pi = parent_nodeinfo(pi, pgdat->node_id))
- 			atomic_long_add(x, &pi->lruvec_stat[idx]);
- 		x = 0;
-@@ -773,12 +778,15 @@ void __count_memcg_events(struct mem_cgroup *memcg, enum vm_event_item idx,
- 	if (mem_cgroup_disabled())
- 		return;
- 
--	__this_cpu_add(memcg->vmstats_local->events[idx], count);
--
- 	x = count + __this_cpu_read(memcg->vmstats_percpu->events[idx]);
- 	if (unlikely(x > MEMCG_CHARGE_BATCH)) {
- 		struct mem_cgroup *mi;
- 
-+		/*
-+		 * Batch local counters to keep them in sync with
-+		 * the hierarchical ones.
-+		 */
-+		__this_cpu_add(memcg->vmstats_local->events[idx], x);
- 		for (mi = memcg; mi; mi = parent_mem_cgroup(mi))
- 			atomic_long_add(x, &mi->vmevents[idx]);
- 		x = 0;
+diff --git a/mm/z3fold.c b/mm/z3fold.c
+index 304f2883cdb93..3b27094dc42e1 100644
+--- a/mm/z3fold.c
++++ b/mm/z3fold.c
+@@ -1360,12 +1360,22 @@ static int z3fold_page_migrate(struct address_space *mapping, struct page *newpa
+ 		unlock_page(page);
+ 		return -EBUSY;
+ 	}
++	if (work_pending(&zhdr->work)) {
++		z3fold_page_unlock(zhdr);
++		return -EAGAIN;
++	}
+ 	new_zhdr = page_address(newpage);
+ 	memcpy(new_zhdr, zhdr, PAGE_SIZE);
+ 	newpage->private = page->private;
+ 	page->private = 0;
+ 	z3fold_page_unlock(zhdr);
+ 	spin_lock_init(&new_zhdr->page_lock);
++	INIT_WORK(&new_zhdr->work, compact_page_work);
++	/*
++	 * z3fold_page_isolate() ensures that new_zhdr->buddy is empty,
++	 * so we only have to reinitialize it.
++	 */
++	INIT_LIST_HEAD(&new_zhdr->buddy);
+ 	new_mapping = page_mapping(page);
+ 	__ClearPageMovable(page);
+ 	ClearPagePrivate(page);
 -- 
 2.20.1
 
