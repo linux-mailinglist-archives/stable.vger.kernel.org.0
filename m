@@ -2,45 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98F2F81C82
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:24:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 289D081CDD
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:27:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731032AbfHENYc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:24:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33026 "EHLO mail.kernel.org"
+        id S1730590AbfHENYg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:24:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730590AbfHENYc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:24:32 -0400
+        id S1731039AbfHENYe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:24:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BB1C2087B;
-        Mon,  5 Aug 2019 13:24:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1EB172173C;
+        Mon,  5 Aug 2019 13:24:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011471;
-        bh=D7qIjmi0nDi0uqZ+d6MM7cPHU1t96I4scwoAELhSSD0=;
+        s=default; t=1565011473;
+        bh=cSXLFjvwyHw2gAGDjH+6VhM4Ml2vsJ43WmdVDFlFgTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uK+0mXn1qspgbkkLBIQELtViAbhA33Na5LtHGzDYjClseuQK9WTqw0UH54H15eKeF
-         Hes6s8k6ICvjJo69zjpJKJZGIZZCEUVttU1F9iR7EPs3xriIZEGAVbrvu0fRXvlfYs
-         KxAED85jB0jtsRp2sWShgrqgwDxjNEehO+lzbtKE=
+        b=gVfeUnkHk0kt9LyC7ifSHazZQK9okQRRsUXjvLRi4dHKcP1sYqs7cXOD9sLY83fcT
+         B+04J9iiiOnUIUbQmWlJtKhwrAcobSIizMfUn3Pu+qi32OEKrGXYxsN8LftlYLcFUW
+         TtNWgKLkdHe1vMJMruW0jvw0P6slf3bVe8Nfi4UQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Shi <yang.shi@linux.alibaba.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Jan Hadrava <had@kam.mff.cuni.cz>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Roman Gushchin <guro@fb.com>, Hugh Dickins <hughd@google.com>,
-        Qian Cai <cai@lca.pw>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Mel Gorman <mgorman@techsingularity.net>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.2 100/131] mm: vmscan: check if mem cgroup is disabled or not before calling memcg slab shrinker
-Date:   Mon,  5 Aug 2019 15:03:07 +0200
-Message-Id: <20190805124958.649680836@linuxfoundation.org>
+Subject: [PATCH 5.2 101/131] mm: migrate: fix reference check race between __find_get_block() and migration
+Date:   Mon,  5 Aug 2019 15:03:08 +0200
+Message-Id: <20190805124958.718102251@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -53,61 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shi <yang.shi@linux.alibaba.com>
+From: Jan Kara <jack@suse.cz>
 
-commit fa1e512fac717f34e7c12d7a384c46e90a647392 upstream.
+commit ebdf4de5642fb6580b0763158b6b4b791c4d6a4d upstream.
 
-Shakeel Butt reported premature oom on kernel with
-"cgroup_disable=memory" since mem_cgroup_is_root() returns false even
-though memcg is actually NULL.  The drop_caches is also broken.
+buffer_migrate_page_norefs() can race with bh users in the following
+way:
 
-It is because commit aeed1d325d42 ("mm/vmscan.c: generalize
-shrink_slab() calls in shrink_node()") removed the !memcg check before
-!mem_cgroup_is_root().  And, surprisingly root memcg is allocated even
-though memory cgroup is disabled by kernel boot parameter.
+CPU1                                    CPU2
+buffer_migrate_page_norefs()
+  buffer_migrate_lock_buffers()
+  checks bh refs
+  spin_unlock(&mapping->private_lock)
+                                        __find_get_block()
+                                          spin_lock(&mapping->private_lock)
+                                          grab bh ref
+                                          spin_unlock(&mapping->private_lock)
+  move page                               do bh work
 
-Add mem_cgroup_disabled() check to make reclaimer work as expected.
+This can result in various issues like lost updates to buffers (i.e.
+metadata corruption) or use after free issues for the old page.
 
-Link: http://lkml.kernel.org/r/1563385526-20805-1-git-send-email-yang.shi@linux.alibaba.com
-Fixes: aeed1d325d42 ("mm/vmscan.c: generalize shrink_slab() calls in shrink_node()")
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Reported-by: Shakeel Butt <shakeelb@google.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Jan Hadrava <had@kam.mff.cuni.cz>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Qian Cai <cai@lca.pw>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: <stable@vger.kernel.org>	[4.19+]
+This patch closes the race by holding mapping->private_lock while the
+mapping is being moved to a new page.  Ordinarily, a reference can be
+taken outside of the private_lock using the per-cpu BH LRU but the
+references are checked and the LRU invalidated if necessary.  The
+private_lock is held once the references are known so the buffer lookup
+slow path will spin on the private_lock.  Between the page lock and
+private_lock, it should be impossible for other references to be
+acquired and updates to happen during the migration.
+
+A user had reported data corruption issues on a distribution kernel with
+a similar page migration implementation as mainline.  The data
+corruption could not be reproduced with this patch applied.  A small
+number of migration-intensive tests were run and no performance problems
+were noted.
+
+[mgorman@techsingularity.net: Changelog, removed tracing]
+Link: http://lkml.kernel.org/r/20190718090238.GF24383@techsingularity.net
+Fixes: 89cb0888ca14 "mm: migrate: provide buffer_migrate_page_norefs()"
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+Cc: <stable@vger.kernel.org>	[5.0+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/vmscan.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ mm/migrate.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -684,7 +684,14 @@ static unsigned long shrink_slab(gfp_t g
- 	unsigned long ret, freed = 0;
- 	struct shrinker *shrinker;
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -771,12 +771,12 @@ recheck_buffers:
+ 			}
+ 			bh = bh->b_this_page;
+ 		} while (bh != head);
+-		spin_unlock(&mapping->private_lock);
+ 		if (busy) {
+ 			if (invalidated) {
+ 				rc = -EAGAIN;
+ 				goto unlock_buffers;
+ 			}
++			spin_unlock(&mapping->private_lock);
+ 			invalidate_bh_lrus();
+ 			invalidated = true;
+ 			goto recheck_buffers;
+@@ -809,6 +809,8 @@ recheck_buffers:
  
--	if (!mem_cgroup_is_root(memcg))
-+	/*
-+	 * The root memcg might be allocated even though memcg is disabled
-+	 * via "cgroup_disable=memory" boot parameter.  This could make
-+	 * mem_cgroup_is_root() return false, then just run memcg slab
-+	 * shrink, but skip global shrink.  This may result in premature
-+	 * oom.
-+	 */
-+	if (!mem_cgroup_disabled() && !mem_cgroup_is_root(memcg))
- 		return shrink_slab_memcg(gfp_mask, nid, memcg, priority);
- 
- 	if (!down_read_trylock(&shrinker_rwsem))
+ 	rc = MIGRATEPAGE_SUCCESS;
+ unlock_buffers:
++	if (check_refs)
++		spin_unlock(&mapping->private_lock);
+ 	bh = head;
+ 	do {
+ 		unlock_buffer(bh);
 
 
