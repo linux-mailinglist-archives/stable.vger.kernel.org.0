@@ -2,86 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C73881456
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 10:35:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E611B8145A
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 10:36:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727158AbfHEIfx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 04:35:53 -0400
-Received: from mail-oi1-f194.google.com ([209.85.167.194]:45797 "EHLO
-        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726518AbfHEIfx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 04:35:53 -0400
-Received: by mail-oi1-f194.google.com with SMTP id m206so61464672oib.12
-        for <stable@vger.kernel.org>; Mon, 05 Aug 2019 01:35:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=YvenGluDW+CRQxA9W16JUsv5O7GSdzEd3sfteBA8Wr0=;
-        b=zUgfF5EiUfAXqO6GdFJCqTmsT+W1uHlln/PLA03pUZFNjItrYqiyOfSXxxQ1c9rTP+
-         OB2mnGCSgyv4xWpnQ3AAz5O5Fc809+BE1ksYWgGxIROzIei9Rt8qOKTksutQWNhdteHH
-         h4EkDvZaIMghHcY6UBnmdUv2ZCeU+C2mwUOXozIeKa0UYhNK8QOxP1+DiTC1IddIM7IS
-         oaJMVEa7iBS5KAvLIDevmkUbzd/UPkH7I/icpuuY8a875xFQqigfnO7ScQosZo0/o9jF
-         EQgpG55slJr7d8bhGo+g3AxhL0SeC7SwMyqdWx9dmOVNPFXdYk/WPPBBUHVoShAIO5zl
-         wylA==
+        id S1727358AbfHEIgK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 04:36:10 -0400
+Received: from mail-oi1-f193.google.com ([209.85.167.193]:43713 "EHLO
+        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726423AbfHEIgK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 04:36:10 -0400
+Received: by mail-oi1-f193.google.com with SMTP id w79so61503662oif.10;
+        Mon, 05 Aug 2019 01:36:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=YvenGluDW+CRQxA9W16JUsv5O7GSdzEd3sfteBA8Wr0=;
-        b=tiSoRvSMz5x72Mo2PvoPc7oilu6NTQseSVuMpLWra+Gnlwqf31SxJIAgXo9uRNwRZk
-         4jLvt3fqv1K7dfUlZRIi1gEEvLfz+mPYtT+dJLZsjehlIKJdyZhMqLtQKpntiWidun9r
-         CH3NYNIyl00kRmFgeukybbKJg6+hwOPq+g/w/ZjbgM2+eG3e6+aSZbccX2NoDnlS+Nb0
-         WCh19qQpWsrTWQJzGMKIXBwE6LlhlJmKm7Faj+GmKm7u1G5xEVlsc6mq2p+ExQhd43dr
-         BYZbx4A67PiyPkCVb1JAPvLiiuCOuo0jVKYxkigvEb9CCjXZMcb0bQbJC8Lh0wMlo5Ui
-         l1Ig==
-X-Gm-Message-State: APjAAAVpt7bKWwOYo/YJB+RyO4mRvRvWl7zH41w9kr/DMD1epj7uPiHW
-        w/7Jlu6Zow1SkFXvyIAa73XylNYY5RPjW0j2lNABgxIc
-X-Google-Smtp-Source: APXvYqycx2y9AbPf8hskWcFGHI21Aaue5Vvx3NwqCaAvCRBtMlzBtQi0Hzhp5MT0Flod+gHRpI07lU5B8peY6tnOVNY=
-X-Received: by 2002:aca:450:: with SMTP id 77mr10721170oie.114.1564994152061;
- Mon, 05 Aug 2019 01:35:52 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=/OtRSIguKOv7zIsZgv8aLGiWOV71DQCuKF1WWLvQ/ts=;
+        b=sDiYfr8NyS7gO+VAZ/tBMzkDRBlvg22YhMutAcg7IZZD8FBJKbTuu0B8zqAm1TFmvO
+         bVqk6ONOSRPhRqGbEBHzD3x+8y1xmpGwfmxtLbcMsXtJZuwc8E8yzgZ67V9iH6H4QHV2
+         KXkTga6XCnGZ7vGhOFuDw9ZQKjwsDXL8u+ZI012aIUoYZKMEFqIKWMgly7JvBZMWG9Zm
+         uiYTmIiYqIQUxgLjLad2ngUO8BnEosBGCkD3lj+wzMnIt5vCLDwB7fsn9Ko/JjnVQwit
+         UDKwU+QjZr0pOVr5pbIkYFyVO1BfvzsEKoiZy0+FRRmaC7S7a4T+WGb8VbkyTyTQjtTN
+         Yi9A==
+X-Gm-Message-State: APjAAAUahoNaeZ2LpcT6Wkb6PkzgmCTAmfSNinHmnS3lIIAXZElczLDL
+        2gPORKDBLDIP3IAUTrLrKmFcUoE18Dj8RGQGl6g=
+X-Google-Smtp-Source: APXvYqzptRCEZ3O3VTh+dWJbaewHGMvttEmampT8Y6ZF/UP5Mp/uYEFm+nFP6TD3n8EPdgwQktQBzUqZ43EkMSyyGww=
+X-Received: by 2002:aca:5a41:: with SMTP id o62mr10383463oib.110.1564994169130;
+ Mon, 05 Aug 2019 01:36:09 -0700 (PDT)
 MIME-Version: 1.0
-References: <1564982748230183@kroah.com> <20190805103242.4816abcc@endymion>
-In-Reply-To: <20190805103242.4816abcc@endymion>
-From:   Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Date:   Mon, 5 Aug 2019 10:35:41 +0200
-Message-ID: <CAMpxmJUfPKwmhBD_cNHUA9m_AZ3a0ekX+6oeptU6z6COGBwV4w@mail.gmail.com>
-Subject: Re: FAILED: patch "[PATCH] eeprom: at24: make spd world-readable
- again" failed to apply to 4.19-stable tree
-To:     Jean Delvare <jdelvare@suse.de>
-Cc:     Greg KH <gregkh@linuxfoundation.org>, Andrew Lunn <andrew@lunn.ch>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        "Stable # 4 . 20+" <stable@vger.kernel.org>
+References: <7dedb6bd157b8183c693bb578e25e313cf4f451d.1564724511.git.viresh.kumar@linaro.org>
+ <23e3dee8688f5a9767635b686bb7a9c0e09a4438.1564724511.git.viresh.kumar@linaro.org>
+ <CAJZ5v0iqztRWyxf1cgiAN1dK4qTGwy9raaGOx5u3tfBTGUKOng@mail.gmail.com>
+ <2676200.jfxhmTd764@kreacher> <000401d54a0c$2f03aa50$8d0afef0$@net>
+In-Reply-To: <000401d54a0c$2f03aa50$8d0afef0$@net>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Mon, 5 Aug 2019 10:35:54 +0200
+Message-ID: <CAJZ5v0idOvmYHVYjQ5YYPBH0MYMEPMu+m7kDRgtBi8yqyEuyAQ@mail.gmail.com>
+Subject: Re: [PATCH V3 2/2] cpufreq: intel_pstate: Implement ->resolve_freq()
+To:     Doug Smythies <dsmythies@telus.net>
+Cc:     "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Len Brown <lenb@kernel.org>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        "v4 . 18+" <stable@vger.kernel.org>,
+        Doug Smythies <doug.smythies@gmail.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-pon., 5 sie 2019 o 10:32 Jean Delvare <jdelvare@suse.de> napisa=C5=82(a):
+On Sat, Aug 3, 2019 at 5:00 PM Doug Smythies <dsmythies@telus.net> wrote:
 >
-> Hi Greg,
+> On 2019.08.02 02:28 Rafael J. Wysocki wrote:
+> > On Friday, August 2, 2019 11:17:55 AM CEST Rafael J. Wysocki wrote:
+> >> On Fri, Aug 2, 2019 at 7:44 AM Viresh Kumar <viresh.kumar@linaro.org> wrote:
+> >>>
+> >>> Intel pstate driver exposes min_perf_pct and max_perf_pct sysfs files,
+> >>> which can be used to force a limit on the min/max P state of the driver.
+> >>> Though these files eventually control the min/max frequencies that the
+> >>> CPUs will run at, they don't make a change to policy->min/max values.
+> >>
+> >> That's correct.
+> >>
+> >>> When the values of these files are changed (in passive mode of the
+> >>> driver), it leads to calling ->limits() callback of the cpufreq
+> >>> governors, like schedutil. On a call to it the governors shall
+> >>> forcefully update the frequency to come within the limits.
+> >>
+> >> OK, so the problem is that it is a bug to invoke the governor's ->limits()
+> >> callback without updating policy->min/max, because that's what
+> >> "limits" mean to the governors.
+> >>
+> >> Fair enough.
+> >
+> > AFAICS this can be addressed by adding PM QoS freq limits requests of each CPU to
+> > intel_pstate in the passive mode such that changing min_perf_pct or max_perf_pct
+> > will cause these requests to be updated.
 >
-> On Mon, 05 Aug 2019 07:25:48 +0200, gregkh@linuxfoundation.org wrote:
-> > The patch below does not apply to the 4.19-stable tree.
->
-> Technically it applies. Just it doesn't build ;-)
->
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
->
-> The backport is trivial, I'll take care of it, thanks.
->
-> --
-> Jean Delvare
-> SUSE L3 Support
+> All governors for the intel_cpufreq (intel_pstate in passive mode) CPU frequency
+> scaling driver are broken with respect to this issue, not just the schedutil
+> governor.
 
-Hi Jean,
+Right.
 
-I already sent backports for v4.9, v4.14 and v4.19 earlier today.
-
-Bart
+My point is that that changing min_perf_pct or max_perf_pct should
+cause policy limits to be updated (which is not the case now) instead
+of running special driver code on every frequency update just in case
+the limits have changed in the meantime.
