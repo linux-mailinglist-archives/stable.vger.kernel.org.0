@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 783FF81137
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 06:58:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E2E281138
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 06:59:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725959AbfHEE6t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 00:58:49 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:46525 "EHLO
+        id S1725951AbfHEE7S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 00:59:18 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:34435 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725902AbfHEE6t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 00:58:49 -0400
+        by vger.kernel.org with ESMTP id S1725902AbfHEE7R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 00:59:17 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 870AF21903;
-        Mon,  5 Aug 2019 00:58:47 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 05 Aug 2019 00:58:47 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 8F7EC210D8;
+        Mon,  5 Aug 2019 00:59:16 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 05 Aug 2019 00:59:16 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=VTIfpq
-        R4dI5rcxdzhFGG9FwAG0C2PFI46Gc6dCyJTrg=; b=YukM9HbnvmHjHptnxVvrRx
-        lrzqqcFYvVKxOkIzQyhLk8AoNqPmVc6OZvht4fLfO8v8QxuhaUQh/hlAWXWOH+Dn
-        y6gip8bzBdTYsI14RNC5ZQ6SBlD2L/26QwQgzpMP6X1+d8N+3Qx9LYYea8atLxgj
-        u+02XUnIGkW2chtS9nYB/32MJYMrBLD1QP67PnQvYauxozdt3aikXUMLfC9DujU5
-        Fg96wC0/zyiCvgc9CvG2EQfEb5zz5tz4KiMaoPzfp5ZdJzh+29F9O2VLhNw4r/Ii
-        FMlO6n3i1Rg76bntr1+I3AdgarFuq+B6P1RGnzCTdHXRXpxaZr+YAGxP7Ll8weFA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=9RF/ua
+        mNolevxUxbPqau3uREeLqvm+W8F8zzNKlVsHw=; b=JTpObtd7YWBgY0x4utgLaa
+        Shn/ErxCf/uIPMzQ7PERNFaTiy0bVXndqw4SZ//sHCzhGmIaqTL0ApgM/c40qLpO
+        S+/MfzVmNNg2F73bFoEyguACzMTnGPYvzLjpdAe+EM4bpf7+n5P820fn297Vrk5i
+        yee4fpYWIJypScN7HDrGvb0Fefhe0ZR/mqJVmXq2hwozveOT/t9uM0mLAY+MMNXt
+        jql5Bfu6E1IQPYff89C2v/DOWwu9BYU93mxf46Qjgka41TrHFQtjHiM3v58IeotA
+        4bGmMpNDMECwVqyxbHTsATOGMLiIsQt55I+WSPAN9UEendpIkrcNRoHHjR5K4EWA
         ==
-X-ME-Sender: <xms:h7dHXdwcQ6-i4k53nUR8voWwjQAYpGuDfa8OIRhS91cyhff7UHiwkg>
+X-ME-Sender: <xms:pLdHXZPqL2W0gEtiWEUqkQfI2mU4k8Mngu2v3ZUZZMh-bTDPS1yD1g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtiedgkedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:h7dHXf3Cvu1ilNdZY0mO_y1J7uEZ63X1y_56pxseQ_reL7JyCSqdew>
-    <xmx:h7dHXYRSirRHvPvhediFAxFGfFyUpBOsVrUtLlse1GcmolAaIuqCGQ>
-    <xmx:h7dHXUjYmTcjg0DVSPXw_CsSccBZhzoo27vVtJZVB6omYNuYvNA0Vw>
-    <xmx:h7dHXZMp9PLM0KrQhu0SLtQ21PUb3tpY2Vk6YTIuSD2L0bTbpsT0dg>
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:pLdHXYTfVZ0DO7gSWn7jrH3oCnZcBa-AnLKhHhcfr72wPsucx2IrIw>
+    <xmx:pLdHXbDMD7lKgGbH9AVjKG91Gwc91CF27ttFjbzAvQQ0Doe38XXWEg>
+    <xmx:pLdHXXjmcygtOU62sg4PbLwQGHSZAOYz1IoCzl2D5LxrpfdPNzM7zA>
+    <xmx:pLdHXa-sF-7QtfsYZxDiBfIhzalsTeh9OsurtzK3tlALd1oc9KorjQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D81C48005A;
-        Mon,  5 Aug 2019 00:58:46 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Btrfs: fix incremental send failure after deduplication" failed to apply to 4.4-stable tree
-To:     fdmanana@suse.com, dsterba@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id F097B380076;
+        Mon,  5 Aug 2019 00:59:15 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Btrfs: fix race leading to fs corruption after transaction" failed to apply to 4.9-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com, josef@toxicpanda.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 05 Aug 2019 06:58:45 +0200
-Message-ID: <156498112513896@kroah.com>
+Date:   Mon, 05 Aug 2019 06:59:14 +0200
+Message-ID: <1564981154143101@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,177 +67,140 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b4f9a1a87a48c255bb90d8a6c3d555a1abb88130 Mon Sep 17 00:00:00 2001
+From cb2d3daddbfb6318d170e79aac1f7d5e4d49f0d7 Mon Sep 17 00:00:00 2001
 From: Filipe Manana <fdmanana@suse.com>
-Date: Wed, 17 Jul 2019 13:23:39 +0100
-Subject: [PATCH] Btrfs: fix incremental send failure after deduplication
+Date: Thu, 25 Jul 2019 11:27:04 +0100
+Subject: [PATCH] Btrfs: fix race leading to fs corruption after transaction
+ abort
 
-When doing an incremental send operation we can fail if we previously did
-deduplication operations against a file that exists in both snapshots. In
-that case we will fail the send operation with -EIO and print a message
-to dmesg/syslog like the following:
+When one transaction is finishing its commit, it is possible for another
+transaction to start and enter its initial commit phase as well. If the
+first ends up getting aborted, we have a small time window where the second
+transaction commit does not notice that the previous transaction aborted
+and ends up committing, writing a superblock that points to btrees that
+reference extent buffers (nodes and leafs) that were not persisted to disk.
+The consequence is that after mounting the filesystem again, we will be
+unable to load some btree nodes/leafs, either because the content on disk
+is either garbage (or just zeroes) or corresponds to the old content of a
+previouly COWed or deleted node/leaf, resulting in the well known error
+messages "parent transid verify failed on ...".
+The following sequence diagram illustrates how this can happen.
 
-  BTRFS error (device sdc): Send: inconsistent snapshot, found updated \
-  extent for inode 257 without updated inode item, send root is 258, \
-  parent root is 257
+        CPU 1                                           CPU 2
 
-This requires that we deduplicate to the same file in both snapshots for
-the same amount of times on each snapshot. The issue happens because a
-deduplication only updates the iversion of an inode and does not update
-any other field of the inode, therefore if we deduplicate the file on
-each snapshot for the same amount of time, the inode will have the same
-iversion value (stored as the "sequence" field on the inode item) on both
-snapshots, therefore it will be seen as unchanged between in the send
-snapshot while there are new/updated/deleted extent items when comparing
-to the parent snapshot. This makes the send operation return -EIO and
-print an error message.
+ <at transaction N>
 
-Example reproducer:
+ btrfs_commit_transaction()
+   (...)
+   --> sets transaction state to
+       TRANS_STATE_UNBLOCKED
+   --> sets fs_info->running_transaction
+       to NULL
 
-  $ mkfs.btrfs -f /dev/sdb
-  $ mount /dev/sdb /mnt
+                                                    (...)
+                                                    btrfs_start_transaction()
+                                                      start_transaction()
+                                                        wait_current_trans()
+                                                          --> returns immediately
+                                                              because
+                                                              fs_info->running_transaction
+                                                              is NULL
+                                                        join_transaction()
+                                                          --> creates transaction N + 1
+                                                          --> sets
+                                                              fs_info->running_transaction
+                                                              to transaction N + 1
+                                                          --> adds transaction N + 1 to
+                                                              the fs_info->trans_list list
+                                                        --> returns transaction handle
+                                                            pointing to the new
+                                                            transaction N + 1
+                                                    (...)
 
-  # Create our first file. The first half of the file has several 64Kb
-  # extents while the second half as a single 512Kb extent.
-  $ xfs_io -f -s -c "pwrite -S 0xb8 -b 64K 0 512K" /mnt/foo
-  $ xfs_io -c "pwrite -S 0xb8 512K 512K" /mnt/foo
+                                                    btrfs_sync_file()
+                                                      btrfs_start_transaction()
+                                                        --> returns handle to
+                                                            transaction N + 1
+                                                      (...)
 
-  # Create the base snapshot and the parent send stream from it.
-  $ btrfs subvolume snapshot -r /mnt /mnt/mysnap1
-  $ btrfs send -f /tmp/1.snap /mnt/mysnap1
+   btrfs_write_and_wait_transaction()
+     --> writeback of some extent
+         buffer fails, returns an
+	 error
+   btrfs_handle_fs_error()
+     --> sets BTRFS_FS_STATE_ERROR in
+         fs_info->fs_state
+   --> jumps to label "scrub_continue"
+   cleanup_transaction()
+     btrfs_abort_transaction(N)
+       --> sets BTRFS_FS_STATE_TRANS_ABORTED
+           flag in fs_info->fs_state
+       --> sets aborted field in the
+           transaction and transaction
+	   handle structures, for
+           transaction N only
+     --> removes transaction from the
+         list fs_info->trans_list
+                                                      btrfs_commit_transaction(N + 1)
+                                                        --> transaction N + 1 was not
+							    aborted, so it proceeds
+                                                        (...)
+                                                        --> sets the transaction's state
+                                                            to TRANS_STATE_COMMIT_START
+                                                        --> does not find the previous
+                                                            transaction (N) in the
+                                                            fs_info->trans_list, so it
+                                                            doesn't know that transaction
+                                                            was aborted, and the commit
+                                                            of transaction N + 1 proceeds
+                                                        (...)
+                                                        --> sets transaction N + 1 state
+                                                            to TRANS_STATE_UNBLOCKED
+                                                        btrfs_write_and_wait_transaction()
+                                                          --> succeeds writing all extent
+                                                              buffers created in the
+                                                              transaction N + 1
+                                                        write_all_supers()
+                                                           --> succeeds
+                                                           --> we now have a superblock on
+                                                               disk that points to trees
+                                                               that refer to at least one
+                                                               extent buffer that was
+                                                               never persisted
 
-  # Create our second file, that has exactly the same data as the first
-  # file.
-  $ xfs_io -f -c "pwrite -S 0xb8 0 1M" /mnt/bar
+So fix this by updating the transaction commit path to check if the flag
+BTRFS_FS_STATE_TRANS_ABORTED is set on fs_info->fs_state if after setting
+the transaction to the TRANS_STATE_COMMIT_START we do not find any previous
+transaction in the fs_info->trans_list. If the flag is set, just fail the
+transaction commit with -EROFS, as we do in other places. The exact error
+code for the previous transaction abort was already logged and reported.
 
-  # Create the second snapshot, used for the incremental send, before
-  # doing the file deduplication.
-  $ btrfs subvolume snapshot -r /mnt /mnt/mysnap2
-
-  # Now before creating the incremental send stream:
-  #
-  # 1) Deduplicate into a subrange of file foo in snapshot mysnap1. This
-  #    will drop several extent items and add a new one, also updating
-  #    the inode's iversion (sequence field in inode item) by 1, but not
-  #    any other field of the inode;
-  #
-  # 2) Deduplicate into a different subrange of file foo in snapshot
-  #    mysnap2. This will replace an extent item with a new one, also
-  #    updating the inode's iversion by 1 but not any other field of the
-  #    inode.
-  #
-  # After these two deduplication operations, the inode items, for file
-  # foo, are identical in both snapshots, but we have different extent
-  # items for this inode in both snapshots. We want to check this doesn't
-  # cause send to fail with an error or produce an incorrect stream.
-
-  $ xfs_io -r -c "dedupe /mnt/bar 0 0 512K" /mnt/mysnap1/foo
-  $ xfs_io -r -c "dedupe /mnt/bar 512K 512K 512K" /mnt/mysnap2/foo
-
-  # Create the incremental send stream.
-  $ btrfs send -p /mnt/mysnap1 -f /tmp/2.snap /mnt/mysnap2
-  ERROR: send ioctl failed with -5: Input/output error
-
-This issue started happening back in 2015 when deduplication was updated
-to not update the inode's ctime and mtime and update only the iversion.
-Back then we would hit a BUG_ON() in send, but later in 2016 send was
-updated to return -EIO and print the error message instead of doing the
-BUG_ON().
-
-A test case for fstests follows soon.
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203933
-Fixes: 1c919a5e13702c ("btrfs: don't update mtime/ctime on deduped inodes")
+Fixes: 49b25e0540904b ("btrfs: enhance transaction abort infrastructure")
 CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
-index 69b59bf75882..c3c0c064c25d 100644
---- a/fs/btrfs/send.c
-+++ b/fs/btrfs/send.c
-@@ -6322,68 +6322,21 @@ static int changed_extent(struct send_ctx *sctx,
- {
- 	int ret = 0;
+diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
+index 3b8ae1a8f02d..39b7bcde3c6f 100644
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -2037,6 +2037,16 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
+ 		}
+ 	} else {
+ 		spin_unlock(&fs_info->trans_lock);
++		/*
++		 * The previous transaction was aborted and was already removed
++		 * from the list of transactions at fs_info->trans_list. So we
++		 * abort to prevent writing a new superblock that reflects a
++		 * corrupt state (pointing to trees with unwritten nodes/leafs).
++		 */
++		if (test_bit(BTRFS_FS_STATE_TRANS_ABORTED, &fs_info->fs_state)) {
++			ret = -EROFS;
++			goto cleanup_transaction;
++		}
+ 	}
  
--	if (sctx->cur_ino != sctx->cmp_key->objectid) {
--
--		if (result == BTRFS_COMPARE_TREE_CHANGED) {
--			struct extent_buffer *leaf_l;
--			struct extent_buffer *leaf_r;
--			struct btrfs_file_extent_item *ei_l;
--			struct btrfs_file_extent_item *ei_r;
--
--			leaf_l = sctx->left_path->nodes[0];
--			leaf_r = sctx->right_path->nodes[0];
--			ei_l = btrfs_item_ptr(leaf_l,
--					      sctx->left_path->slots[0],
--					      struct btrfs_file_extent_item);
--			ei_r = btrfs_item_ptr(leaf_r,
--					      sctx->right_path->slots[0],
--					      struct btrfs_file_extent_item);
--
--			/*
--			 * We may have found an extent item that has changed
--			 * only its disk_bytenr field and the corresponding
--			 * inode item was not updated. This case happens due to
--			 * very specific timings during relocation when a leaf
--			 * that contains file extent items is COWed while
--			 * relocation is ongoing and its in the stage where it
--			 * updates data pointers. So when this happens we can
--			 * safely ignore it since we know it's the same extent,
--			 * but just at different logical and physical locations
--			 * (when an extent is fully replaced with a new one, we
--			 * know the generation number must have changed too,
--			 * since snapshot creation implies committing the current
--			 * transaction, and the inode item must have been updated
--			 * as well).
--			 * This replacement of the disk_bytenr happens at
--			 * relocation.c:replace_file_extents() through
--			 * relocation.c:btrfs_reloc_cow_block().
--			 */
--			if (btrfs_file_extent_generation(leaf_l, ei_l) ==
--			    btrfs_file_extent_generation(leaf_r, ei_r) &&
--			    btrfs_file_extent_ram_bytes(leaf_l, ei_l) ==
--			    btrfs_file_extent_ram_bytes(leaf_r, ei_r) &&
--			    btrfs_file_extent_compression(leaf_l, ei_l) ==
--			    btrfs_file_extent_compression(leaf_r, ei_r) &&
--			    btrfs_file_extent_encryption(leaf_l, ei_l) ==
--			    btrfs_file_extent_encryption(leaf_r, ei_r) &&
--			    btrfs_file_extent_other_encoding(leaf_l, ei_l) ==
--			    btrfs_file_extent_other_encoding(leaf_r, ei_r) &&
--			    btrfs_file_extent_type(leaf_l, ei_l) ==
--			    btrfs_file_extent_type(leaf_r, ei_r) &&
--			    btrfs_file_extent_disk_bytenr(leaf_l, ei_l) !=
--			    btrfs_file_extent_disk_bytenr(leaf_r, ei_r) &&
--			    btrfs_file_extent_disk_num_bytes(leaf_l, ei_l) ==
--			    btrfs_file_extent_disk_num_bytes(leaf_r, ei_r) &&
--			    btrfs_file_extent_offset(leaf_l, ei_l) ==
--			    btrfs_file_extent_offset(leaf_r, ei_r) &&
--			    btrfs_file_extent_num_bytes(leaf_l, ei_l) ==
--			    btrfs_file_extent_num_bytes(leaf_r, ei_r))
--				return 0;
--		}
--
--		inconsistent_snapshot_error(sctx, result, "extent");
--		return -EIO;
--	}
-+	/*
-+	 * We have found an extent item that changed without the inode item
-+	 * having changed. This can happen either after relocation (where the
-+	 * disk_bytenr of an extent item is replaced at
-+	 * relocation.c:replace_file_extents()) or after deduplication into a
-+	 * file in both the parent and send snapshots (where an extent item can
-+	 * get modified or replaced with a new one). Note that deduplication
-+	 * updates the inode item, but it only changes the iversion (sequence
-+	 * field in the inode item) of the inode, so if a file is deduplicated
-+	 * the same amount of times in both the parent and send snapshots, its
-+	 * iversion becames the same in both snapshots, whence the inode item is
-+	 * the same on both snapshots.
-+	 */
-+	if (sctx->cur_ino != sctx->cmp_key->objectid)
-+		return 0;
- 
- 	if (!sctx->cur_inode_new_gen && !sctx->cur_inode_deleted) {
- 		if (result != BTRFS_COMPARE_TREE_DELETED)
+ 	extwriter_counter_dec(cur_trans, trans->type);
 
