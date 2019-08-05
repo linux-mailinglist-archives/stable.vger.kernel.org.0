@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EFFE581D06
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:29:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0820F81CFD
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:28:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730663AbfHENWU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:22:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58714 "EHLO mail.kernel.org"
+        id S1730675AbfHENWX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:22:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728888AbfHENWU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:22:20 -0400
+        id S1730669AbfHENWX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:22:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13CC520657;
-        Mon,  5 Aug 2019 13:22:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 927C720651;
+        Mon,  5 Aug 2019 13:22:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011339;
-        bh=dW5DkAzkHpksuzWKswpNCfk3LhCBfQVWwPOA114BGVs=;
+        s=default; t=1565011342;
+        bh=qvA1gHxkj/CNi0qBGV1bcW02M86NbXpfXLbhdcGmyzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xyCx/XMIK2qCNwvQk7NAwL44hHunYP5bOE9E5vjHh7ocPNfnjClw6UymvZcX6Jwyd
-         olqA/QHdgDGSFb3rXVswj59FR71eRqMhhuciqjnstBYhiD8ALOELyMqAxlFdfs1mFa
-         o7SdG/YY47qyrbqPjUATA4S3ZwDnSJ1/IFE75k7I=
+        b=QT31eeH5zqtibE8TPYcNwI19/txC1VuRtwt5FsIzFFupLummXWJt0pMUI1yAnDA6j
+         DStXJgm6cmPy3aTCBXZEvw3QwXmJLE6bmuq1nuMilnUSV9V2+oKQ9K0a/KJhRvW8xk
+         3nyxzLjexRoQOTe7piyBMqiLiwLuVlCAIraNgIi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Toshi Kani <toshi.kani@hpe.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Chintan Pandya <cpandya@codeaurora.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Zhouyang Jia <jiazhouyang09@gmail.com>,
+        Jan Harkes <jaharkes@cs.cmu.edu>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Colin Ian King <colin.king@canonical.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        David Howells <dhowells@redhat.com>,
+        Fabian Frederick <fabf@skynet.be>,
+        Mikko Rapeli <mikko.rapeli@iki.fi>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Yann Droneaud <ydroneaud@opteya.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 056/131] mm/ioremap: check virtual address alignment while creating huge mappings
-Date:   Mon,  5 Aug 2019 15:02:23 +0200
-Message-Id: <20190805124955.183073760@linuxfoundation.org>
+Subject: [PATCH 5.2 057/131] coda: add error handling for fget
+Date:   Mon,  5 Aug 2019 15:02:24 +0200
+Message-Id: <20190805124955.250507231@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -51,61 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6b95ab4218bfa59bc315105127ffe03aef3b5742 ]
+[ Upstream commit 02551c23bcd85f0c68a8259c7b953d49d44f86af ]
 
-Virtual address alignment is essential in ensuring correct clearing for
-all intermediate level pgtable entries and freeing associated pgtable
-pages.  An unaligned address can end up randomly freeing pgtable page
-that potentially still contains valid mappings.  Hence also check it's
-alignment along with existing phys_addr check.
+When fget fails, the lack of error-handling code may cause unexpected
+results.
 
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Toshi Kani <toshi.kani@hpe.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Chintan Pandya <cpandya@codeaurora.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
+This patch adds error-handling code after calling fget.
+
+Link: http://lkml.kernel.org/r/2514ec03df9c33b86e56748513267a80dd8004d9.1558117389.git.jaharkes@cs.cmu.edu
+Signed-off-by: Zhouyang Jia <jiazhouyang09@gmail.com>
+Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Colin Ian King <colin.king@canonical.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Fabian Frederick <fabf@skynet.be>
+Cc: Mikko Rapeli <mikko.rapeli@iki.fi>
+Cc: Sam Protsenko <semen.protsenko@linaro.org>
+Cc: Yann Droneaud <ydroneaud@opteya.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/ioremap.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ fs/coda/psdev.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/lib/ioremap.c b/lib/ioremap.c
-index 063213685563c..a95161d9c883c 100644
---- a/lib/ioremap.c
-+++ b/lib/ioremap.c
-@@ -86,6 +86,9 @@ static int ioremap_try_huge_pmd(pmd_t *pmd, unsigned long addr,
- 	if ((end - addr) != PMD_SIZE)
- 		return 0;
+diff --git a/fs/coda/psdev.c b/fs/coda/psdev.c
+index 0ceef32e6fae0..241f7e04ad04d 100644
+--- a/fs/coda/psdev.c
++++ b/fs/coda/psdev.c
+@@ -182,8 +182,11 @@ static ssize_t coda_psdev_write(struct file *file, const char __user *buf,
+ 	if (req->uc_opcode == CODA_OPEN_BY_FD) {
+ 		struct coda_open_by_fd_out *outp =
+ 			(struct coda_open_by_fd_out *)req->uc_data;
+-		if (!outp->oh.result)
++		if (!outp->oh.result) {
+ 			outp->fh = fget(outp->fd);
++			if (!outp->fh)
++				return -EBADF;
++		}
+ 	}
  
-+	if (!IS_ALIGNED(addr, PMD_SIZE))
-+		return 0;
-+
- 	if (!IS_ALIGNED(phys_addr, PMD_SIZE))
- 		return 0;
- 
-@@ -126,6 +129,9 @@ static int ioremap_try_huge_pud(pud_t *pud, unsigned long addr,
- 	if ((end - addr) != PUD_SIZE)
- 		return 0;
- 
-+	if (!IS_ALIGNED(addr, PUD_SIZE))
-+		return 0;
-+
- 	if (!IS_ALIGNED(phys_addr, PUD_SIZE))
- 		return 0;
- 
-@@ -166,6 +172,9 @@ static int ioremap_try_huge_p4d(p4d_t *p4d, unsigned long addr,
- 	if ((end - addr) != P4D_SIZE)
- 		return 0;
- 
-+	if (!IS_ALIGNED(addr, P4D_SIZE))
-+		return 0;
-+
- 	if (!IS_ALIGNED(phys_addr, P4D_SIZE))
- 		return 0;
- 
+         wake_up(&req->uc_sleep);
 -- 
 2.20.1
 
