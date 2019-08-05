@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0841581B03
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:11:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F48481B06
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:11:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729887AbfHENLK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:11:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50424 "EHLO mail.kernel.org"
+        id S1729875AbfHENLN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:11:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729875AbfHENLK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:11:10 -0400
+        id S1730483AbfHENLN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:11:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF5E32186A;
-        Mon,  5 Aug 2019 13:11:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 786072075B;
+        Mon,  5 Aug 2019 13:11:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010669;
-        bh=C3BKCTmCRN8NbJIBpcJImXNFNlZCvo5O6jaof3h0hO4=;
+        s=default; t=1565010672;
+        bh=KnrFv3vDarcaPhQcdemoJlumUpCpVGh+3zak/sjMUo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PG2CPE79I2WUunGVUeEKlWOfFRLFtOtnCJKd48JDDrAPVPDRvtfx8T9F/vKygKT61
-         6erHVrv2/a3zlxIIbq2qw0Sah4L0B9/6mRCo/9gnxL9yHbwIDT/a9hrP660Ob57kI1
-         XFaGqZ7BcepxK4IBcfaGJxLAHkNF7aiFXQxTZQb0=
+        b=qnMKDvt899UrATZEZrj2gSAA9lvefcI72rCMvr7D+iC9T4jpgfF6jvYfYtICyMfXy
+         0HIcTYd1KcZQHYnRcz0abP/VSdf1rE7w5XpY5fB7gQBn9mCDPuVN7z4bEk6nvTQL0Q
+         Q/n3ORhCL9nCFzHGbMlYWiAEQg1MCvRJJaqDUhqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 4.19 59/74] arm64: cpufeature: Fix feature comparison for CTR_EL0.{CWG,ERG}
-Date:   Mon,  5 Aug 2019 15:03:12 +0200
-Message-Id: <20190805124940.628708569@linuxfoundation.org>
+        stable@vger.kernel.org, linux-block@vger.kernel.org,
+        Ratna Manoj Bolla <manoj.br@gmail.com>, nbd@other.debian.org,
+        David Woodhouse <dwmw@amazon.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Munehisa Kamata <kamatam@amazon.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 60/74] nbd: replace kill_bdev() with __invalidate_device() again
+Date:   Mon,  5 Aug 2019 15:03:13 +0200
+Message-Id: <20190805124940.695248947@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
 References: <20190805124935.819068648@linuxfoundation.org>
@@ -45,70 +47,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Munehisa Kamata <kamatam@amazon.com>
 
-commit 147b9635e6347104b91f48ca9dca61eb0fbf2a54 upstream.
+commit 2b5c8f0063e4b263cf2de82029798183cf85c320 upstream.
 
-If CTR_EL0.{CWG,ERG} are 0b0000 then they must be interpreted to have
-their architecturally maximum values, which defeats the use of
-FTR_HIGHER_SAFE when sanitising CPU ID registers on heterogeneous
-machines.
+Commit abbbdf12497d ("replace kill_bdev() with __invalidate_device()")
+once did this, but 29eaadc03649 ("nbd: stop using the bdev everywhere")
+resurrected kill_bdev() and it has been there since then. So buffer_head
+mappings still get killed on a server disconnection, and we can still
+hit the BUG_ON on a filesystem on the top of the nbd device.
 
-Introduce FTR_HIGHER_OR_ZERO_SAFE so that these fields effectively
-saturate at zero.
+  EXT4-fs (nbd0): mounted filesystem with ordered data mode. Opts: (null)
+  block nbd0: Receive control failed (result -32)
+  block nbd0: shutting down sockets
+  print_req_error: I/O error, dev nbd0, sector 66264 flags 3000
+  EXT4-fs warning (device nbd0): htree_dirblock_to_tree:979: inode #2: lblock 0: comm ls: error -5 reading directory block
+  print_req_error: I/O error, dev nbd0, sector 2264 flags 3000
+  EXT4-fs error (device nbd0): __ext4_get_inode_loc:4690: inode #2: block 283: comm ls: unable to read itable block
+  EXT4-fs error (device nbd0) in ext4_reserve_inode_write:5894: IO failure
+  ------------[ cut here ]------------
+  kernel BUG at fs/buffer.c:3057!
+  invalid opcode: 0000 [#1] SMP PTI
+  CPU: 7 PID: 40045 Comm: jbd2/nbd0-8 Not tainted 5.1.0-rc3+ #4
+  Hardware name: Amazon EC2 m5.12xlarge/, BIOS 1.0 10/16/2017
+  RIP: 0010:submit_bh_wbc+0x18b/0x190
+  ...
+  Call Trace:
+   jbd2_write_superblock+0xf1/0x230 [jbd2]
+   ? account_entity_enqueue+0xc5/0xf0
+   jbd2_journal_update_sb_log_tail+0x94/0xe0 [jbd2]
+   jbd2_journal_commit_transaction+0x12f/0x1d20 [jbd2]
+   ? __switch_to_asm+0x40/0x70
+   ...
+   ? lock_timer_base+0x67/0x80
+   kjournald2+0x121/0x360 [jbd2]
+   ? remove_wait_queue+0x60/0x60
+   kthread+0xf8/0x130
+   ? commit_timeout+0x10/0x10 [jbd2]
+   ? kthread_bind+0x10/0x10
+   ret_from_fork+0x35/0x40
 
-Fixes: 3c739b571084 ("arm64: Keep track of CPU feature registers")
-Cc: <stable@vger.kernel.org> # 4.4.x-
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+With __invalidate_device(), I no longer hit the BUG_ON with sync or
+unmount on the disconnected device.
+
+Fixes: 29eaadc03649 ("nbd: stop using the bdev everywhere")
+Cc: linux-block@vger.kernel.org
+Cc: Ratna Manoj Bolla <manoj.br@gmail.com>
+Cc: nbd@other.debian.org
+Cc: stable@vger.kernel.org
+Cc: David Woodhouse <dwmw@amazon.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Munehisa Kamata <kamatam@amazon.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/cpufeature.h |    7 ++++---
- arch/arm64/kernel/cpufeature.c      |    8 ++++++--
- 2 files changed, 10 insertions(+), 5 deletions(-)
+ drivers/block/nbd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/include/asm/cpufeature.h
-+++ b/arch/arm64/include/asm/cpufeature.h
-@@ -45,9 +45,10 @@
-  */
- 
- enum ftr_type {
--	FTR_EXACT,	/* Use a predefined safe value */
--	FTR_LOWER_SAFE,	/* Smaller value is safe */
--	FTR_HIGHER_SAFE,/* Bigger value is safe */
-+	FTR_EXACT,			/* Use a predefined safe value */
-+	FTR_LOWER_SAFE,			/* Smaller value is safe */
-+	FTR_HIGHER_SAFE,		/* Bigger value is safe */
-+	FTR_HIGHER_OR_ZERO_SAFE,	/* Bigger value is safe, but 0 is biggest */
- };
- 
- #define FTR_STRICT	true	/* SANITY check strict matching required */
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -206,8 +206,8 @@ static const struct arm64_ftr_bits ftr_c
- 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_EXACT, 31, 1, 1), /* RES1 */
- 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, CTR_DIC_SHIFT, 1, 1),
- 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, CTR_IDC_SHIFT, 1, 1),
--	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_HIGHER_SAFE, CTR_CWG_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_HIGHER_SAFE, CTR_ERG_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_HIGHER_OR_ZERO_SAFE, CTR_CWG_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_HIGHER_OR_ZERO_SAFE, CTR_ERG_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, CTR_DMINLINE_SHIFT, 4, 1),
- 	/*
- 	 * Linux can handle differing I-cache policies. Userspace JITs will
-@@ -449,6 +449,10 @@ static s64 arm64_ftr_safe_value(const st
- 	case FTR_LOWER_SAFE:
- 		ret = new < cur ? new : cur;
- 		break;
-+	case FTR_HIGHER_OR_ZERO_SAFE:
-+		if (!cur || !new)
-+			break;
-+		/* Fallthrough */
- 	case FTR_HIGHER_SAFE:
- 		ret = new > cur ? new : cur;
- 		break;
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -1218,7 +1218,7 @@ static void nbd_clear_sock_ioctl(struct
+ 				 struct block_device *bdev)
+ {
+ 	sock_shutdown(nbd);
+-	kill_bdev(bdev);
++	__invalidate_device(bdev, true);
+ 	nbd_bdev_reset(bdev);
+ 	if (test_and_clear_bit(NBD_HAS_CONFIG_REF,
+ 			       &nbd->config->runtime_flags))
 
 
