@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 335B381CBC
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:27:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2778981CBE
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:27:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730783AbfHENZk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:25:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34196 "EHLO mail.kernel.org"
+        id S1731271AbfHENZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:25:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731259AbfHENZj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:25:39 -0400
+        id S1730661AbfHENZm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:25:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D7A020651;
-        Mon,  5 Aug 2019 13:25:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2CF220644;
+        Mon,  5 Aug 2019 13:25:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011538;
-        bh=c2wy1AO2I1DZgtEL8bkjda/NJMoKVwJhSI0f/fFwy+k=;
+        s=default; t=1565011541;
+        bh=jEn+wxUjfcgpGi49PFhTR5A1N/uFke//IAptykdhFCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yZxdN/nbImm7ny7PSlGgvN8SNcYmLeL/VAwqFD/vxwUhqxC7h+gA6C+WgHFHtZCJk
-         Q1CG1YgmSDfU6ydk7IdMAbnxDQFaZIjoApUR3hVQg7PBRnB2t45SUScK9YsQiARXg/
-         lYcGesoc9XbGabNoj0WL8jgdO2kqrsPpdoSlv8MA=
+        b=pvdKtic7ODzpiIWC6wVl6P68CyjXC1f1/7XpbsyQE5xTRHbF/IKJtc5/1hHhYLYji
+         TMdUOwoM/r+/u0Ac9btiE8oWVxVCXpskv6roTcE83GZlW08134u0UC2CdJ6ce7z2BA
+         zIpXyWnVa1O//tmA6G2fRnHiDLbekjplABACQNog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yishai Hadas <yishaih@mellanox.com>,
-        Alex Vainman <alexv@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
+        stable@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        John Fleck <john.fleck@intel.com>,
         Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.2 126/131] IB/mlx5: Fix RSS Toeplitz setup to be aligned with the HW specification
-Date:   Mon,  5 Aug 2019 15:03:33 +0200
-Message-Id: <20190805125000.415246995@linuxfoundation.org>
+Subject: [PATCH 5.2 127/131] IB/hfi1: Check for error on call to alloc_rsm_map_table
+Date:   Mon,  5 Aug 2019 15:03:34 +0200
+Message-Id: <20190805125000.483589754@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -45,39 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yishai Hadas <yishaih@mellanox.com>
+From: John Fleck <john.fleck@intel.com>
 
-commit b7165bd0d6cbb93732559be6ea8774653b204480 upstream.
+commit cd48a82087231fdba0e77521102386c6ed0168d6 upstream.
 
-The specification for the Toeplitz function doesn't require to set the key
-explicitly to be symmetric. In case a symmetric functionality is required
-a symmetric key can be simply used.
+The call to alloc_rsm_map_table does not check if the kmalloc fails.
+Check for a NULL on alloc, and bail if it fails.
 
-Wrongly forcing the algorithm to symmetric causes the wrong packet
-distribution and a performance degradation.
-
-Link: https://lore.kernel.org/r/20190723065733.4899-7-leon@kernel.org
-Cc: <stable@vger.kernel.org> # 4.7
-Fixes: 28d6137008b2 ("IB/mlx5: Add RSS QP support")
-Signed-off-by: Yishai Hadas <yishaih@mellanox.com>
-Reviewed-by: Alex Vainman <alexv@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Fixes: 372cc85a13c9 ("IB/hfi1: Extract RSM map table init from QOS")
+Link: https://lore.kernel.org/r/20190715164521.74174.27047.stgit@awfm-01.aw.intel.com
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: John Fleck <john.fleck@intel.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/mlx5/qp.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/infiniband/hw/hfi1/chip.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/drivers/infiniband/hw/mlx5/qp.c
-+++ b/drivers/infiniband/hw/mlx5/qp.c
-@@ -1718,7 +1718,6 @@ static int create_rss_raw_qp_tir(struct
- 		}
+--- a/drivers/infiniband/hw/hfi1/chip.c
++++ b/drivers/infiniband/hw/hfi1/chip.c
+@@ -14452,7 +14452,7 @@ void hfi1_deinit_vnic_rsm(struct hfi1_de
+ 		clear_rcvctrl(dd, RCV_CTRL_RCV_RSM_ENABLE_SMASK);
+ }
  
- 		MLX5_SET(tirc, tirc, rx_hash_fn, MLX5_RX_HASH_FN_TOEPLITZ);
--		MLX5_SET(tirc, tirc, rx_hash_symmetric, 1);
- 		memcpy(rss_key, ucmd.rx_hash_key, len);
- 		break;
- 	}
+-static void init_rxe(struct hfi1_devdata *dd)
++static int init_rxe(struct hfi1_devdata *dd)
+ {
+ 	struct rsm_map_table *rmt;
+ 	u64 val;
+@@ -14461,6 +14461,9 @@ static void init_rxe(struct hfi1_devdata
+ 	write_csr(dd, RCV_ERR_MASK, ~0ull);
+ 
+ 	rmt = alloc_rsm_map_table(dd);
++	if (!rmt)
++		return -ENOMEM;
++
+ 	/* set up QOS, including the QPN map table */
+ 	init_qos(dd, rmt);
+ 	init_fecn_handling(dd, rmt);
+@@ -14487,6 +14490,7 @@ static void init_rxe(struct hfi1_devdata
+ 	val |= ((4ull & RCV_BYPASS_HDR_SIZE_MASK) <<
+ 		RCV_BYPASS_HDR_SIZE_SHIFT);
+ 	write_csr(dd, RCV_BYPASS, val);
++	return 0;
+ }
+ 
+ static void init_other(struct hfi1_devdata *dd)
+@@ -15024,7 +15028,10 @@ int hfi1_init_dd(struct hfi1_devdata *dd
+ 		goto bail_cleanup;
+ 
+ 	/* set initial RXE CSRs */
+-	init_rxe(dd);
++	ret = init_rxe(dd);
++	if (ret)
++		goto bail_cleanup;
++
+ 	/* set initial TXE CSRs */
+ 	init_txe(dd);
+ 	/* set initial non-RXE, non-TXE CSRs */
 
 
