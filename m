@@ -2,54 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53CB48197A
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 14:39:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D9A68197F
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 14:40:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726834AbfHEMjY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 08:39:24 -0400
-Received: from mga01.intel.com ([192.55.52.88]:21458 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726508AbfHEMjY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 08:39:24 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 05:39:23 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,349,1559545200"; 
-   d="scan'208";a="192411599"
-Received: from lahna.fi.intel.com (HELO lahna) ([10.237.72.157])
-  by fmsmga001.fm.intel.com with SMTP; 05 Aug 2019 05:39:20 -0700
-Received: by lahna (sSMTP sendmail emulation); Mon, 05 Aug 2019 15:39:20 +0300
-Date:   Mon, 5 Aug 2019 15:39:20 +0300
-From:   Mika Westerberg <mika.westerberg@linux.intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Justin Forbes <jmforbes@linuxtx.org>,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
+        id S1728735AbfHEMk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 08:40:27 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:36478 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726508AbfHEMk1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 08:40:27 -0400
+Received: by mail-wr1-f67.google.com with SMTP id n4so84339547wrs.3
+        for <stable@vger.kernel.org>; Mon, 05 Aug 2019 05:40:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxtx.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=UdQU2LNs2WON3Vt60bs7CKwiHR02niZ+H4AAxmnM/dY=;
+        b=WhcKxDHBYRpdhLSieAnMup2VetdXxyDDW1zzo14wUlmZriLfqHYy+caiHLHRXpyla1
+         H8wSiq1+G4tO6UhneL1qUxp10ldWmjUVkL6ftdMM/Q7WQPN5sBZJsehy+0bZ3ZxReMAs
+         4/l9ODtk3c4RBlu0TGPyRjitGLi9xjdNpLmxE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=UdQU2LNs2WON3Vt60bs7CKwiHR02niZ+H4AAxmnM/dY=;
+        b=L94GUkru9iB5v59oBiBp6arAevm6Q1dMj3qI04u72aKoKSxeZfz7orv4G85xt2Co1S
+         UyiWF/BVA1LVyF2x5w8qGOI6EN4mjoPs866uwnQEVY6QxZEOAW/GA872IjQRbbULtdhj
+         k/sSgqqMO405uL0kWAP4pbchvmKYsFFvvlu+N09r5pvmHVv+8Ck2eR2auJvTnqEI/FSm
+         y8P5fboqScclIorrYd3yFbfqLsD8Nbl7MUlip3AWokHnJYutSGqwk38x31yd69tU1NYA
+         uUHae7yT3vrdvWUMQFUqnRryes5qE2JaOZrjEzXRgavKkNcjBdzTFcxxGwY7GP5D2KiR
+         CLuw==
+X-Gm-Message-State: APjAAAUjjATmHs6KZgXcVejALyst2PS5nDKzXaR/MUKz3Ggk/D4V076X
+        twDKBic2aN4ZdFZXb+X0x0o4WC8aQZcYOCPNzs/tj7+Rihw=
+X-Google-Smtp-Source: APXvYqwlf1NEcM+8K5YzHoi1SQveOUSuhe3tSXl8BxumRKpFzZkBOo/dJXdv2YQTBn3O4Udg1iFXxWiEkT6lVzzPDjM=
+X-Received: by 2002:adf:df90:: with SMTP id z16mr23358981wrl.331.1565008823491;
+ Mon, 05 Aug 2019 05:40:23 -0700 (PDT)
+MIME-Version: 1.0
+References: <20190724191735.096702571@linuxfoundation.org> <20190724191743.977277445@linuxfoundation.org>
+ <CAFxkdApc6V=7qS+XEVSLy-v0AgqUQ8faKbjFXv18Px7VcxHgBw@mail.gmail.com> <20190803065000.GE10855@kroah.com>
+In-Reply-To: <20190803065000.GE10855@kroah.com>
+From:   Justin Forbes <jmforbes@linuxtx.org>
+Date:   Mon, 5 Aug 2019 07:40:12 -0500
+Message-ID: <CAFxkdAoagyQRDVvGKuVuckDkGRNHM-oHe+uhKyZrF1-DqraGAw@mail.gmail.com>
 Subject: Re: [PATCH 5.2 123/413] PCI: Add missing link delays required by the
  PCIe spec
-Message-ID: <20190805123920.GN2640@lahna.fi.intel.com>
-References: <20190724191735.096702571@linuxfoundation.org>
- <20190724191743.977277445@linuxfoundation.org>
- <CAFxkdApc6V=7qS+XEVSLy-v0AgqUQ8faKbjFXv18Px7VcxHgBw@mail.gmail.com>
- <20190803065000.GE10855@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190803065000.GE10855@kroah.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-User-Agent: Mutt/1.11.4 (2019-03-13)
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-
-On Sat, Aug 03, 2019 at 08:50:00AM +0200, Greg Kroah-Hartman wrote:
+On Sat, Aug 3, 2019 at 1:50 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
 > On Fri, Aug 02, 2019 at 12:06:39PM -0500, Justin Forbes wrote:
 > > On Wed, Jul 24, 2019 at 3:31 PM Greg Kroah-Hartman
 > > <gregkh@linuxfoundation.org> wrote:
@@ -202,14 +212,15 @@ On Sat, Aug 03, 2019 at 08:50:00AM +0200, Greg Kroah-Hartman wrote:
 > > > otherwise pciehp might find that the link is not up (even if it is just
 > > > training) and tears-down the hierarchy.
 > > >
-> > 
+> >
 > > We have gotten multiple reports in Fedora that this patch has broken
 > > suspend for users of 5.1.20 and 5.2 stable kernels.
-> 
+>
 > And is the issue also in 5.3-rcX kernels?  If so, can we either get this
 > reverted there, or find the fix for it?
+>
+Yes, testers have reported the issue is still present in 5.3-rc2
+(vanilla upstream) and a Fedora snapshot from Thursday.
+https://bugzilla.kernel.org/show_bug.cgi?id=204413 was also opened.
 
-AFAIK the issue is also in v5.3-rcX.
-
-I started looking at the issue now. Hopefully there is a better solution
-than revert but let's see.
+Justin
