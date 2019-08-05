@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1055481A8E
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:07:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1441381AD7
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:09:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728837AbfHENHF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:07:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44222 "EHLO mail.kernel.org"
+        id S1730259AbfHENJx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:09:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729226AbfHENHD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:07:03 -0400
+        id S1729035AbfHENJx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:09:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 419D02087B;
-        Mon,  5 Aug 2019 13:07:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7226F2075B;
+        Mon,  5 Aug 2019 13:09:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010422;
-        bh=blRLmnAgq9vIKbAm3Qr4/7wU19D31dejsERhS5dUFT4=;
+        s=default; t=1565010593;
+        bh=4Oveecdha/pb64ZWvVOdcWAJv5q/swTY08yW+2J80r8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1kNEQ8kFPmuPKdvAzw29YdzUv2c53mhVa6Hhb7A5zVU5Pi1waVWwM61I2czNarVoo
-         gaUB65eN7ldyJGaTlYXKVZX6fZQvqyGDRqNNnxeSoCEoGjMrjq9KdDhIrO2ERs5gkt
-         6HoMoD+E7fEkO9Epk0y7yt2xjJitbVUWLI4aH+Rc=
+        b=ZYs4bL+2+rgbMn2Xh+tdSEMknodjPJCyhSqNh+q30gaAlbYCrm8q69q8Y6XEgIgSk
+         OaaPwtruWQw5iPe2HERaulGmqZltBIx8D/dCNPylPbY4S4wL1lX0VTU/Z1V/h0Qe5T
+         zoRCwpmHwxvjpJ5MvFoxl9dN1GIH21HOEmyIwb+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Peter Rosin <peda@axentia.se>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 18/53] ACPI: fix false-positive -Wuninitialized warning
+Subject: [PATCH 4.19 30/74] lib/test_string.c: avoid masking memset16/32/64 failures
 Date:   Mon,  5 Aug 2019 15:02:43 +0200
-Message-Id: <20190805124930.125473107@linuxfoundation.org>
+Message-Id: <20190805124938.186161074@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
-References: <20190805124927.973499541@linuxfoundation.org>
+In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
+References: <20190805124935.819068648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,56 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit dfd6f9ad36368b8dbd5f5a2b2f0a4705ae69a323 ]
+[ Upstream commit 33d6e0ff68af74be0c846c8e042e84a9a1a0561e ]
 
-clang gets confused by an uninitialized variable in what looks
-to it like a never executed code path:
+If a memsetXX implementation is completely broken and fails in the first
+iteration, when i, j, and k are all zero, the failure is masked as zero
+is returned.  Failing in the first iteration is perhaps the most likely
+failure, so this makes the tests pretty much useless.  Avoid the
+situation by always setting a random unused bit in the result on
+failure.
 
-arch/x86/kernel/acpi/boot.c:618:13: error: variable 'polarity' is uninitialized when used here [-Werror,-Wuninitialized]
-        polarity = polarity ? ACPI_ACTIVE_LOW : ACPI_ACTIVE_HIGH;
-                   ^~~~~~~~
-arch/x86/kernel/acpi/boot.c:606:32: note: initialize the variable 'polarity' to silence this warning
-        int rc, irq, trigger, polarity;
-                                      ^
-                                       = 0
-arch/x86/kernel/acpi/boot.c:617:12: error: variable 'trigger' is uninitialized when used here [-Werror,-Wuninitialized]
-        trigger = trigger ? ACPI_LEVEL_SENSITIVE : ACPI_EDGE_SENSITIVE;
-                  ^~~~~~~
-arch/x86/kernel/acpi/boot.c:606:22: note: initialize the variable 'trigger' to silence this warning
-        int rc, irq, trigger, polarity;
-                            ^
-                             = 0
-
-This is unfortunately a design decision in clang and won't be fixed.
-
-Changing the acpi_get_override_irq() macro to an inline function
-reliably avoids the issue.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: http://lkml.kernel.org/r/20190506124634.6807-3-peda@axentia.se
+Fixes: 03270c13c5ff ("lib/string.c: add testcases for memset16/32/64")
+Signed-off-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/acpi.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ lib/test_string.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index 13c105121a185..d7a9700b93339 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -324,7 +324,10 @@ void acpi_set_irq_model(enum acpi_irq_model_id model,
- #ifdef CONFIG_X86_IO_APIC
- extern int acpi_get_override_irq(u32 gsi, int *trigger, int *polarity);
- #else
--#define acpi_get_override_irq(gsi, trigger, polarity) (-1)
-+static inline int acpi_get_override_irq(u32 gsi, int *trigger, int *polarity)
-+{
-+	return -1;
-+}
- #endif
- /*
-  * This function undoes the effect of one call to acpi_register_gsi().
+diff --git a/lib/test_string.c b/lib/test_string.c
+index 0fcdb82dca866..98a787e7a1fd6 100644
+--- a/lib/test_string.c
++++ b/lib/test_string.c
+@@ -35,7 +35,7 @@ static __init int memset16_selftest(void)
+ fail:
+ 	kfree(p);
+ 	if (i < 256)
+-		return (i << 24) | (j << 16) | k;
++		return (i << 24) | (j << 16) | k | 0x8000;
+ 	return 0;
+ }
+ 
+@@ -71,7 +71,7 @@ static __init int memset32_selftest(void)
+ fail:
+ 	kfree(p);
+ 	if (i < 256)
+-		return (i << 24) | (j << 16) | k;
++		return (i << 24) | (j << 16) | k | 0x8000;
+ 	return 0;
+ }
+ 
+@@ -107,7 +107,7 @@ static __init int memset64_selftest(void)
+ fail:
+ 	kfree(p);
+ 	if (i < 256)
+-		return (i << 24) | (j << 16) | k;
++		return (i << 24) | (j << 16) | k | 0x8000;
+ 	return 0;
+ }
+ 
 -- 
 2.20.1
 
