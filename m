@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 834A881C5E
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:23:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E9EC81CF7
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:28:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730506AbfHENW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:22:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59576 "EHLO mail.kernel.org"
+        id S1729041AbfHENXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:23:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730776AbfHENWz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:22:55 -0400
+        id S1729489AbfHENXQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:23:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 720F62067D;
-        Mon,  5 Aug 2019 13:22:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56CB1214C6;
+        Mon,  5 Aug 2019 13:23:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011374;
-        bh=ziQjtn5gXG10OVKMmQ0S3B2FYf9YyrWr4BVzu/gLGOI=;
+        s=default; t=1565011395;
+        bh=6u/5CzAsoBRTXh0ATg4gQebDJPRLmvMbCMGyW2Ae3/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0hXpoucwlbYIFfvw99WZ3z1TXPsass/HOdHeEOsu4Z7qI9x+g0LGBBB4GGSUgwMxk
-         GDyc3Pp5Xp2wIHfF+H38yKESLnvtXpIntAc4a9xsIoffbD2NnmmiyioDmYv7C8bqU3
-         iieFm4jTKQG27+PPB0VRYTF7o3ijIYgQA3OsHz+Q=
+        b=Jy2/Gw2UitFoVsdU/guypWaj0C6r2Mlg4SGz609ZC+i77kqQg2COtR9UGMqJzIbw9
+         AYzPqZACdri/Q0kbAyxuRwGveE/hfbwLbS2/A6ypB0o0jX5+nVDLRuZSibo9LdsgJE
+         ASizj5qWQUOj4PgKQ66be0WN+d8Q2HKLKYs624BU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
+        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@oracle.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Juergen Gross <jgross@suse.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 069/131] x86/paravirt: Fix callee-saved function ELF sizes
-Date:   Mon,  5 Aug 2019 15:02:36 +0200
-Message-Id: <20190805124956.123542064@linuxfoundation.org>
+Subject: [PATCH 5.2 070/131] x86, boot: Remove multiple copy of static function sanitize_boot_params()
+Date:   Mon,  5 Aug 2019 15:02:37 +0200
+Message-Id: <20190805124956.205378657@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -46,53 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 083db6764821996526970e42d09c1ab2f4155dd4 ]
+[ Upstream commit 8c5477e8046ca139bac250386c08453da37ec1ae ]
 
-The __raw_callee_save_*() functions have an ELF symbol size of zero,
-which confuses objtool and other tools.
+Kernel build warns:
+ 'sanitize_boot_params' defined but not used [-Wunused-function]
 
-Fixes a bunch of warnings like the following:
+at below files:
+  arch/x86/boot/compressed/cmdline.c
+  arch/x86/boot/compressed/error.c
+  arch/x86/boot/compressed/early_serial_console.c
+  arch/x86/boot/compressed/acpi.c
 
-  arch/x86/xen/mmu_pv.o: warning: objtool: __raw_callee_save_xen_pte_val() is missing an ELF size annotation
-  arch/x86/xen/mmu_pv.o: warning: objtool: __raw_callee_save_xen_pgd_val() is missing an ELF size annotation
-  arch/x86/xen/mmu_pv.o: warning: objtool: __raw_callee_save_xen_make_pte() is missing an ELF size annotation
-  arch/x86/xen/mmu_pv.o: warning: objtool: __raw_callee_save_xen_make_pgd() is missing an ELF size annotation
+That's becausethey each include misc.h which includes a definition of
+sanitize_boot_params() via bootparam_utils.h.
 
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Remove the inclusion from misc.h and have the c file including
+bootparam_utils.h directly.
+
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@oracle.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/afa6d49bb07497ca62e4fc3b27a2d0cece545b4e.1563413318.git.jpoimboe@redhat.com
+Link: https://lkml.kernel.org/r/1563283092-1189-1-git-send-email-zhenzhong.duan@oracle.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/paravirt.h | 1 +
- arch/x86/kernel/kvm.c           | 1 +
- 2 files changed, 2 insertions(+)
+ arch/x86/boot/compressed/misc.c | 1 +
+ arch/x86/boot/compressed/misc.h | 1 -
+ 2 files changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index c25c38a05c1c9..d6f5ae2c79ab9 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -746,6 +746,7 @@ bool __raw_callee_save___native_vcpu_is_preempted(long cpu);
- 	    PV_RESTORE_ALL_CALLER_REGS					\
- 	    FRAME_END							\
- 	    "ret;"							\
-+	    ".size " PV_THUNK_NAME(func) ", .-" PV_THUNK_NAME(func) ";"	\
- 	    ".popsection")
+diff --git a/arch/x86/boot/compressed/misc.c b/arch/x86/boot/compressed/misc.c
+index 5a237e8dbf8d5..0de54a1d25c0a 100644
+--- a/arch/x86/boot/compressed/misc.c
++++ b/arch/x86/boot/compressed/misc.c
+@@ -17,6 +17,7 @@
+ #include "pgtable.h"
+ #include "../string.h"
+ #include "../voffset.h"
++#include <asm/bootparam_utils.h>
  
- /* Get a reference to a callee-save function */
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index 5169b8cc35bb2..320b70acb2119 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -817,6 +817,7 @@ asm(
- "cmpb	$0, " __stringify(KVM_STEAL_TIME_preempted) "+steal_time(%rax);"
- "setne	%al;"
- "ret;"
-+".size __raw_callee_save___kvm_vcpu_is_preempted, .-__raw_callee_save___kvm_vcpu_is_preempted;"
- ".popsection");
+ /*
+  * WARNING!!
+diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
+index d2f184165934c..c8181392f70d7 100644
+--- a/arch/x86/boot/compressed/misc.h
++++ b/arch/x86/boot/compressed/misc.h
+@@ -23,7 +23,6 @@
+ #include <asm/page.h>
+ #include <asm/boot.h>
+ #include <asm/bootparam.h>
+-#include <asm/bootparam_utils.h>
  
- #endif
+ #define BOOT_CTYPE_H
+ #include <linux/acpi.h>
 -- 
 2.20.1
 
