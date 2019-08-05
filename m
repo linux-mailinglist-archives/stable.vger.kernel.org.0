@@ -2,77 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E63781210
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 08:02:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A81CE813CA
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 10:01:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726423AbfHEGC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 02:02:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44864 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725951AbfHEGC1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 02:02:27 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B36B206C1;
-        Mon,  5 Aug 2019 06:02:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564984945;
-        bh=yQX7YAlJ45FZwBgTl9rdH0N9X0UpxWT3t+wfvZobwSM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zSXgYL75mNTG7YL12V8C5eDoiC89Hf9Kaiia7s6JjkSUHCF3x6/Ak018i3ohQQ3O1
-         C+6GAAKghAvtLBKxUDxhRUd0DUmvkM7dGI43mf/Q1DPFk7szO3cfjFWxrD2gdHXb7D
-         6dlcetc0SFH7Yf9LWrJm/9N7xnUQ/WeVSCP7gH38=
-Date:   Mon, 5 Aug 2019 08:02:23 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ajay Kaher <akaher@vmware.com>
-Cc:     aarcange@redhat.com, jannh@google.com, oleg@redhat.com,
-        peterx@redhat.com, rppt@linux.ibm.com, jgg@mellanox.com,
-        mhocko@suse.com, srinidhir@vmware.com,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        amakhalov@vmware.com, sean.hefty@intel.com, srivatsa@csail.mit.edu,
-        srivatsab@vmware.com, devel@driverdev.osuosl.org,
-        linux-rdma@vger.kernel.org, bvikas@vmware.com, dledford@redhat.com,
-        riandrews@android.com, hal.rosenstock@gmail.com,
-        vsirnapalli@vmware.com, leonro@mellanox.com, jglisse@redhat.com,
-        viro@zeniv.linux.org.uk, yishaih@mellanox.com, matanb@mellanox.com,
-        stable@vger.kernel.org, arve@android.com,
-        linux-fsdevel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, mike.kravetz@oracle.com
-Subject: Re: [PATCH v6 0/3] [v4.9.y] coredump: fix race condition between
- mmget_not_zero()/get_task_mm() and core dumping
-Message-ID: <20190805060223.GA4947@kroah.com>
-References: <1564891168-30016-1-git-send-email-akaher@vmware.com>
- <1564891168-30016-4-git-send-email-akaher@vmware.com>
+        id S1726659AbfHEIBk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 04:01:40 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:55002 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726656AbfHEIBk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 04:01:40 -0400
+Received: by mail-wm1-f68.google.com with SMTP id p74so73723513wme.4
+        for <stable@vger.kernel.org>; Mon, 05 Aug 2019 01:01:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=tLTq55G+8HM5id3F6PTEq7vm1jOe6eDLF+mAtsGbVn8=;
+        b=jUah69i7szH9MKt+wlpPATO2iSXZ8TY9Lni/PdErU9oRBj16CWbb2Hcc8dFA+lsVnm
+         0vPAzyA+Be5IGDrm4OpHBclDlR63C7kCBHTbJKTRIyczD/fCy6dFghz0Mpy+AWtyqCea
+         NuC2WPuSpWdKr5kBVrhMjaiC2GdIquMK80fTt9RsyFClJKRnMVlW5Ip5u2v6ja+Zr8QA
+         RO1yt4R83HSadVKjgugvYk2ekup3v4AQE8zhYrwZKtLIlFsopzm1BSUXhSek/Njz2Q25
+         9JkydhRqiXn1bMRwtjwvDZF/f4dBRq7PkzstRsmDoQs9hxENbdJl8sfTq9tNs6kGF3JH
+         AbrQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=tLTq55G+8HM5id3F6PTEq7vm1jOe6eDLF+mAtsGbVn8=;
+        b=FyL3yMb7dqJlAxP+TAqAjqfqC3ndUnNzkgig0kKIbjwveBC26nJtxaVDChm5g2QvQc
+         BQj8DyiiP/6xI+a9d1TqYu654+sJb/hGCquQ2Z5ptbzPyFi8UImtm9oApiz2ItqlFPjU
+         afpCbd/fsWyIxjanEHQFbEniHHJQM9+acOCcGgg2zi0LKLLHUkFXJ/PCr8IHVEIOHLHO
+         Oc1C5P6jpCpGMnQPdcyqI9elGEsQ+c9QDVaSlraXWy/s7CJyPo2v1+MPSeuXiQyCFeD1
+         073LVLrZ0Aqk9wkOUPvtM/pv98BKvooJX+0sImW5+jO8pvv1MUpjzVu8LZL45Oygbh/e
+         H+Ew==
+X-Gm-Message-State: APjAAAVpa8rgvec1g+T0mzu7snAz7KbksADpmSWm+aujXBwiBR5kBf7M
+        TrtFfiY8PZPyp7OrUToOIaayyw==
+X-Google-Smtp-Source: APXvYqw4mn9gu4bHlXL9JlRLmR/VRheqqFndxlo7p//U5SPq5PS12svDIp3Sp3aF3WqL0pRMF7kSaQ==
+X-Received: by 2002:a1c:acc8:: with SMTP id v191mr17726531wme.177.1564992098303;
+        Mon, 05 Aug 2019 01:01:38 -0700 (PDT)
+Received: from localhost.localdomain (amontpellier-652-1-281-69.w109-210.abo.wanadoo.fr. [109.210.96.69])
+        by smtp.gmail.com with ESMTPSA id o26sm177570979wro.53.2019.08.05.01.01.37
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Mon, 05 Aug 2019 01:01:37 -0700 (PDT)
+From:   Bartosz Golaszewski <brgl@bgdev.pl>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, linux-i2c@vger.kernel.org,
+        Jean Delvare <jdelvare@suse.de>, Andrew Lunn <andrew@lunn.ch>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH][v4.9.y, v4.14.y] eeprom: at24: make spd world-readable again
+Date:   Mon,  5 Aug 2019 10:01:25 +0200
+Message-Id: <20190805080125.20943-1-brgl@bgdev.pl>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1564891168-30016-4-git-send-email-akaher@vmware.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Aug 04, 2019 at 09:29:28AM +0530, Ajay Kaher wrote:
-> coredump: fix race condition between mmget_not_zero()/get_task_mm()
-> and core dumping
-> 
-> [PATCH v5 1/3]:
-> Backporting of commit 04f5866e41fb70690e28397487d8bd8eea7d712a upstream.
-> 
-> [PATCH v5 2/3]:
-> Extension of commit 04f5866e41fb to fix the race condition between
-> get_task_mm() and core dumping for IB->mlx4 and IB->mlx5 drivers.
-> 
-> [PATCH v5 3/3]
-> Backporting of commit 59ea6d06cfa9247b586a695c21f94afa7183af74 upstream.
-> 
-> [diff from v5]:
-> - Recreated [PATCH v6 1/3], to solve patch apply error.
+From: Jean Delvare <jdelvare@suse.de>
 
-Now queued up, let's see what breaks :)
+The integration of the at24 driver into the nvmem framework broke the
+world-readability of spd EEPROMs. Fix it.
 
-thanks,
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Cc: stable@vger.kernel.org
+Fixes: 57d155506dd5 ("eeprom: at24: extend driver to plug into the NVMEM framework")
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Arnd Bergmann <arnd@arndb.de>
+[Bartosz: backported the patch to older branches]
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+---
+ drivers/misc/eeprom/at24.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-greg k-h
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index a37b9b6a315a..2eef811764ad 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -777,7 +777,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	at24->nvmem_config.name = dev_name(&client->dev);
+ 	at24->nvmem_config.dev = &client->dev;
+ 	at24->nvmem_config.read_only = !writable;
+-	at24->nvmem_config.root_only = true;
++	at24->nvmem_config.root_only = !(chip.flags & AT24_FLAG_IRUGO);
+ 	at24->nvmem_config.owner = THIS_MODULE;
+ 	at24->nvmem_config.compat = true;
+ 	at24->nvmem_config.base_dev = &client->dev;
+-- 
+2.21.0
+
