@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5A1E81AD0
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:09:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67BDD81AC2
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:09:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730200AbfHENJe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:09:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48080 "EHLO mail.kernel.org"
+        id S1730124AbfHENJD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:09:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730198AbfHENJd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:09:33 -0400
+        id S1730121AbfHENJB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:09:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85AD62173B;
-        Mon,  5 Aug 2019 13:09:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E3BE2067D;
+        Mon,  5 Aug 2019 13:09:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010572;
-        bh=kZYsUvZPEFAO+1Wqs/U1YjvMKOisBABTzQtkmJgkDWQ=;
+        s=default; t=1565010540;
+        bh=f1WaR3tSARaSVDFRiJ7S+mftWy4gyhuDPSgOpNyxiVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z7niredCQlyNL8355sByXX0MmQzd2AQbcpJENV9tLkjbHYXfyw/OqYrVFNz6ZWorK
-         FddFEiYGzdvsjLifyplPOp3H2WUU8NIDULcFP68kvGNwvjV1KwJM+uqaDc8yF/Xw2C
-         LvmUTnE0j4kkRM5uNvPRw94YPCRIoAHci1lR1k/E=
+        b=ecGrG6MdpgvScpyRC2+yinDYz1NQlECQyBbiYtg7dJdurr6soSJd0nZourFB1MXlh
+         qfP8yZ1DTBIEAfMnzxNvnKuHVKf34QYmBJAXuPw9/hYnpzeAkagv5a/w4k++4tz2Gd
+         lOrB6hIWeqaGaxTWhzb4evvtszTd5RVjI8sVcNBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Olof Johansson <olof@lixom.net>,
+        stable@vger.kernel.org, Petr Cvek <petrcvekcz@gmail.com>,
+        Paul Burton <paul.burton@mips.com>, hauke@hauke-m.de,
+        john@phrozen.org, linux-mips@vger.kernel.org,
+        openwrt-devel@lists.openwrt.org, pakahmar@hotmail.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 09/74] firmware/psci: psci_checker: Park kthreads before stopping them
-Date:   Mon,  5 Aug 2019 15:02:22 +0200
-Message-Id: <20190805124936.551733894@linuxfoundation.org>
+Subject: [PATCH 4.19 10/74] MIPS: lantiq: Fix bitfield masking
+Date:   Mon,  5 Aug 2019 15:02:23 +0200
+Message-Id: <20190805124936.628894906@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
 References: <20190805124935.819068648@linuxfoundation.org>
@@ -47,77 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 92e074acf6f7694e96204265eb18ac113f546e80 ]
+[ Upstream commit ba1bc0fcdeaf3bf583c1517bd2e3e29cf223c969 ]
 
-Since commit 85f1abe0019f ("kthread, sched/wait: Fix kthread_parkme()
-completion issue"), kthreads that are bound to a CPU must be parked
-before being stopped. At the moment the PSCI checker calls
-kthread_stop() directly on the suspend kthread, which triggers the
-following warning:
+The modification of EXIN register doesn't clean the bitfield before
+the writing of a new value. After a few modifications the bitfield would
+accumulate only '1's.
 
-[    6.068288] WARNING: CPU: 1 PID: 1 at kernel/kthread.c:398 __kthread_bind_mask+0x20/0x78
-               ...
-[    6.190151] Call trace:
-[    6.192566]  __kthread_bind_mask+0x20/0x78
-[    6.196615]  kthread_unpark+0x74/0x80
-[    6.200235]  kthread_stop+0x44/0x1d8
-[    6.203769]  psci_checker+0x3bc/0x484
-[    6.207389]  do_one_initcall+0x48/0x260
-[    6.211180]  kernel_init_freeable+0x2c8/0x368
-[    6.215488]  kernel_init+0x10/0x100
-[    6.218935]  ret_from_fork+0x10/0x1c
-[    6.222467] ---[ end trace e05e22863d043cd3 ]---
-
-kthread_unpark() tries to bind the thread to its CPU and aborts with a
-WARN() if the thread wasn't in TASK_PARKED state. Park the kthreads
-before stopping them.
-
-Fixes: 85f1abe0019f ("kthread, sched/wait: Fix kthread_parkme() completion issue")
-Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
-Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Olof Johansson <olof@lixom.net>
+Signed-off-by: Petr Cvek <petrcvekcz@gmail.com>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: hauke@hauke-m.de
+Cc: john@phrozen.org
+Cc: linux-mips@vger.kernel.org
+Cc: openwrt-devel@lists.openwrt.org
+Cc: pakahmar@hotmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/psci_checker.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ arch/mips/lantiq/irq.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/firmware/psci_checker.c b/drivers/firmware/psci_checker.c
-index 3469436579622..cbd53cb1b2d47 100644
---- a/drivers/firmware/psci_checker.c
-+++ b/drivers/firmware/psci_checker.c
-@@ -366,16 +366,16 @@ static int suspend_test_thread(void *arg)
- 	for (;;) {
- 		/* Needs to be set first to avoid missing a wakeup. */
- 		set_current_state(TASK_INTERRUPTIBLE);
--		if (kthread_should_stop()) {
--			__set_current_state(TASK_RUNNING);
-+		if (kthread_should_park())
- 			break;
--		}
- 		schedule();
+diff --git a/arch/mips/lantiq/irq.c b/arch/mips/lantiq/irq.c
+index c4ef1c31e0c4f..37caeadb2964c 100644
+--- a/arch/mips/lantiq/irq.c
++++ b/arch/mips/lantiq/irq.c
+@@ -156,8 +156,9 @@ static int ltq_eiu_settype(struct irq_data *d, unsigned int type)
+ 			if (edge)
+ 				irq_set_handler(d->hwirq, handle_edge_irq);
+ 
+-			ltq_eiu_w32(ltq_eiu_r32(LTQ_EIU_EXIN_C) |
+-				(val << (i * 4)), LTQ_EIU_EXIN_C);
++			ltq_eiu_w32((ltq_eiu_r32(LTQ_EIU_EXIN_C) &
++				    (~(7 << (i * 4)))) | (val << (i * 4)),
++				    LTQ_EIU_EXIN_C);
+ 		}
  	}
  
- 	pr_info("CPU %d suspend test results: success %d, shallow states %d, errors %d\n",
- 		cpu, nb_suspend, nb_shallow_sleep, nb_err);
- 
-+	kthread_parkme();
-+
- 	return nb_err;
- }
- 
-@@ -440,8 +440,10 @@ static int suspend_tests(void)
- 
- 
- 	/* Stop and destroy all threads, get return status. */
--	for (i = 0; i < nb_threads; ++i)
-+	for (i = 0; i < nb_threads; ++i) {
-+		err += kthread_park(threads[i]);
- 		err += kthread_stop(threads[i]);
-+	}
-  out:
- 	cpuidle_resume_and_unlock();
- 	kfree(threads);
 -- 
 2.20.1
 
