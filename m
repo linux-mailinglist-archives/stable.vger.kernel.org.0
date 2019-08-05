@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A81CE813CA
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 10:01:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DF2A813F3
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 10:08:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726659AbfHEIBk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 04:01:40 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:55002 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726656AbfHEIBk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 04:01:40 -0400
-Received: by mail-wm1-f68.google.com with SMTP id p74so73723513wme.4
-        for <stable@vger.kernel.org>; Mon, 05 Aug 2019 01:01:39 -0700 (PDT)
+        id S1727739AbfHEIIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 04:08:37 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:46006 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726518AbfHEIIh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 04:08:37 -0400
+Received: by mail-wr1-f67.google.com with SMTP id f9so4482283wre.12
+        for <stable@vger.kernel.org>; Mon, 05 Aug 2019 01:08:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=tLTq55G+8HM5id3F6PTEq7vm1jOe6eDLF+mAtsGbVn8=;
-        b=jUah69i7szH9MKt+wlpPATO2iSXZ8TY9Lni/PdErU9oRBj16CWbb2Hcc8dFA+lsVnm
-         0vPAzyA+Be5IGDrm4OpHBclDlR63C7kCBHTbJKTRIyczD/fCy6dFghz0Mpy+AWtyqCea
-         NuC2WPuSpWdKr5kBVrhMjaiC2GdIquMK80fTt9RsyFClJKRnMVlW5Ip5u2v6ja+Zr8QA
-         RO1yt4R83HSadVKjgugvYk2ekup3v4AQE8zhYrwZKtLIlFsopzm1BSUXhSek/Njz2Q25
-         9JkydhRqiXn1bMRwtjwvDZF/f4dBRq7PkzstRsmDoQs9hxENbdJl8sfTq9tNs6kGF3JH
-         AbrQ==
+        bh=vgLjv1nCww8791VcRdUZize4N+pz9H+H0mFxYoQg1Bs=;
+        b=fCibp5QhZzCJUJb6fpPrgbUGadeUS7m+LHz63o1X7WuWDv3vjictaNE+XNX8PGuzm3
+         jM7kbRtvbyk0uLiS+AFw5GvV6FLuU0gP+KpEvBowcXqPZH4zZU6oZrIqL9CHNeYAAH/7
+         jU8F2kGEeAGMbGkif9Bk5FZ94gG1j0XzSSdE2T7/Tdoa+xpJkRxTEYWVF02eqfgxGgbO
+         htWbVKZumSlZKVO93aQAlvnRCETMORxtzirbDK6KdyLLtOfnoRqS3ZMf2KDVzeaw16CN
+         2dI7DhR5r0ZaZOOHQHah4g2r8GpEyvVqC6i9FzYSBFhK2B1KJv2XkJPAUYE4DvcsunTP
+         afAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=tLTq55G+8HM5id3F6PTEq7vm1jOe6eDLF+mAtsGbVn8=;
-        b=FyL3yMb7dqJlAxP+TAqAjqfqC3ndUnNzkgig0kKIbjwveBC26nJtxaVDChm5g2QvQc
-         BQj8DyiiP/6xI+a9d1TqYu654+sJb/hGCquQ2Z5ptbzPyFi8UImtm9oApiz2ItqlFPjU
-         afpCbd/fsWyIxjanEHQFbEniHHJQM9+acOCcGgg2zi0LKLLHUkFXJ/PCr8IHVEIOHLHO
-         Oc1C5P6jpCpGMnQPdcyqI9elGEsQ+c9QDVaSlraXWy/s7CJyPo2v1+MPSeuXiQyCFeD1
-         073LVLrZ0Aqk9wkOUPvtM/pv98BKvooJX+0sImW5+jO8pvv1MUpjzVu8LZL45Oygbh/e
-         H+Ew==
-X-Gm-Message-State: APjAAAVpa8rgvec1g+T0mzu7snAz7KbksADpmSWm+aujXBwiBR5kBf7M
-        TrtFfiY8PZPyp7OrUToOIaayyw==
-X-Google-Smtp-Source: APXvYqw4mn9gu4bHlXL9JlRLmR/VRheqqFndxlo7p//U5SPq5PS12svDIp3Sp3aF3WqL0pRMF7kSaQ==
-X-Received: by 2002:a1c:acc8:: with SMTP id v191mr17726531wme.177.1564992098303;
-        Mon, 05 Aug 2019 01:01:38 -0700 (PDT)
+        bh=vgLjv1nCww8791VcRdUZize4N+pz9H+H0mFxYoQg1Bs=;
+        b=pLKRAwoE5gXGxTZT6elW67Hr4QWT2nO1EgqOnBSh4MT/37qUtVgMBazPOQMtzEOl7Y
+         qodJExFTqK0PfYPVSpjRihb36WQTDnj4rinlY02d/dgfEkHef5VXtfp1fbxT3dslquhB
+         KK8KmGJQhZZcphzI3kVcq6DOmxtu9UcFZ3UYIWIZiDzbco6FkKO0YrP/5GdzYJKxtM8k
+         0cDzb07EdoVk/axOTFqedS/Swz5ZDtwCHq26WsX3IPZ31kKdmjFIser6et68gUkMtezx
+         QWXPXKeKGBamcQWNBzKzmxmnAqqmZMXMXznytrenQA6XsJiewqILmhadHFFynRgSRlL9
+         +PUw==
+X-Gm-Message-State: APjAAAVsqtfGsvChWF/jWRg6N7jLwlXUEuRQIarPQg/QPkS5Dp8USR1F
+        wgcMwMq75RNmK6P80IHDMWA=
+X-Google-Smtp-Source: APXvYqxUQs2hbc6aZY7Cb1LTbwB3p6UHrIH5yJbtzj7wJhAIEjGCLhjS5+skKnteeEnuArgN5ppDgw==
+X-Received: by 2002:adf:df8b:: with SMTP id z11mr103437181wrl.62.1564992515157;
+        Mon, 05 Aug 2019 01:08:35 -0700 (PDT)
 Received: from localhost.localdomain (amontpellier-652-1-281-69.w109-210.abo.wanadoo.fr. [109.210.96.69])
-        by smtp.gmail.com with ESMTPSA id o26sm177570979wro.53.2019.08.05.01.01.37
+        by smtp.gmail.com with ESMTPSA id y12sm57598408wru.30.2019.08.05.01.08.33
         (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 05 Aug 2019 01:01:37 -0700 (PDT)
+        Mon, 05 Aug 2019 01:08:34 -0700 (PDT)
 From:   Bartosz Golaszewski <brgl@bgdev.pl>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, linux-i2c@vger.kernel.org,
@@ -52,9 +52,9 @@ Cc:     stable@vger.kernel.org, linux-i2c@vger.kernel.org,
         Bartosz Golaszewski <brgl@bgdev.pl>,
         Arnd Bergmann <arnd@arndb.de>,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH][v4.9.y, v4.14.y] eeprom: at24: make spd world-readable again
-Date:   Mon,  5 Aug 2019 10:01:25 +0200
-Message-Id: <20190805080125.20943-1-brgl@bgdev.pl>
+Subject: [PATCH][v4.19.y] eeprom: at24: make spd world-readable again
+Date:   Mon,  5 Aug 2019 10:08:31 +0200
+Message-Id: <20190805080831.23092-1-brgl@bgdev.pl>
 X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -76,25 +76,25 @@ Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: Bartosz Golaszewski <brgl@bgdev.pl>
 Cc: Arnd Bergmann <arnd@arndb.de>
-[Bartosz: backported the patch to older branches]
+[Bartosz: backported to v4.19.y]
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
  drivers/misc/eeprom/at24.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index a37b9b6a315a..2eef811764ad 100644
+index ddfcf4ade7bf..dc3537651b80 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -777,7 +777,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	at24->nvmem_config.name = dev_name(&client->dev);
- 	at24->nvmem_config.dev = &client->dev;
- 	at24->nvmem_config.read_only = !writable;
--	at24->nvmem_config.root_only = true;
-+	at24->nvmem_config.root_only = !(chip.flags & AT24_FLAG_IRUGO);
- 	at24->nvmem_config.owner = THIS_MODULE;
- 	at24->nvmem_config.compat = true;
- 	at24->nvmem_config.base_dev = &client->dev;
+@@ -724,7 +724,7 @@ static int at24_probe(struct i2c_client *client)
+ 	nvmem_config.name = dev_name(dev);
+ 	nvmem_config.dev = dev;
+ 	nvmem_config.read_only = !writable;
+-	nvmem_config.root_only = true;
++	nvmem_config.root_only = !(pdata.flags & AT24_FLAG_IRUGO);
+ 	nvmem_config.owner = THIS_MODULE;
+ 	nvmem_config.compat = true;
+ 	nvmem_config.base_dev = dev;
 -- 
 2.21.0
 
