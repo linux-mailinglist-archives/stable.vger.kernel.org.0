@@ -2,199 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5DCF811DB
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:58:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E63781210
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 08:02:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727267AbfHEF6v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 01:58:51 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:46205 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727161AbfHEF6v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:58:51 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 133AA20F44;
-        Mon,  5 Aug 2019 01:58:50 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:58:50 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=OzwnWJ
-        oubGkDtAStsxLnP61MSRosi+wIvN+544MBIIg=; b=tVHiW/wyh/WQyW9t6KxOaY
-        itfdmJBEJXFUxcwTqq89CUA5IdYu6JA78IDp6fMuPJ7VPF3eLCIVFHa/GWVXkYp4
-        DIeCXJAabz2LzJ2mbf2VNzVUOIS0anzoWNngWNX1f7opUmmhF6MgKdrzGTeX+KTW
-        y36ITyok8xOiVRhkpowhdNKjHW/chSUux17Og0eOXhLymufkiBrxOE77SKbUt1JC
-        4BD2lfQjt5wggrtuU0KvLowSCJEsqGiGFv/PsGPUZOva1DNqqZHZ4oIQZrroRppP
-        9jotJ9vKlP245eZzRgV3uAUL3ztI6jgzB0Do6oWN0z0GIntu7JrOHlpo1kZ1N6ow
-        ==
-X-ME-Sender: <xms:mcVHXd00OYiJ2zfIOFeJNYhlgdEgSWMo2CLTI0qnWGh8Vf6r_iBn4Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtiedgledtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:mcVHXbBtedzjGzPSMyZdEKS9d-NY0YB2IEKb7L0PvseB1EK1T1AC-w>
-    <xmx:mcVHXS8mb2isgk25GjN0WJ9le8BO6YPEMG3nzp8Sfz5Kck6G1ONfxQ>
-    <xmx:mcVHXR-0q213mEEr43FDbwInBGvGjvsaeFrpwfaeLccXSkPpXbuV5g>
-    <xmx:msVHXQ7rtGd5iycUC8g3T5p-b7FobPG7CZqHGN4OVMxioDmrT2e3pg>
+        id S1726423AbfHEGC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 02:02:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44864 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725951AbfHEGC1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 02:02:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 881B98005C;
-        Mon,  5 Aug 2019 01:58:49 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915/gvt: Adding ppgtt to GVT GEM context after shadow" failed to apply to 5.2-stable tree
-To:     colin.xu@intel.com, zhenyuw@linux.intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 05 Aug 2019 07:58:48 +0200
-Message-ID: <15649847280142@kroah.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B36B206C1;
+        Mon,  5 Aug 2019 06:02:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564984945;
+        bh=yQX7YAlJ45FZwBgTl9rdH0N9X0UpxWT3t+wfvZobwSM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=zSXgYL75mNTG7YL12V8C5eDoiC89Hf9Kaiia7s6JjkSUHCF3x6/Ak018i3ohQQ3O1
+         C+6GAAKghAvtLBKxUDxhRUd0DUmvkM7dGI43mf/Q1DPFk7szO3cfjFWxrD2gdHXb7D
+         6dlcetc0SFH7Yf9LWrJm/9N7xnUQ/WeVSCP7gH38=
+Date:   Mon, 5 Aug 2019 08:02:23 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Ajay Kaher <akaher@vmware.com>
+Cc:     aarcange@redhat.com, jannh@google.com, oleg@redhat.com,
+        peterx@redhat.com, rppt@linux.ibm.com, jgg@mellanox.com,
+        mhocko@suse.com, srinidhir@vmware.com,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        amakhalov@vmware.com, sean.hefty@intel.com, srivatsa@csail.mit.edu,
+        srivatsab@vmware.com, devel@driverdev.osuosl.org,
+        linux-rdma@vger.kernel.org, bvikas@vmware.com, dledford@redhat.com,
+        riandrews@android.com, hal.rosenstock@gmail.com,
+        vsirnapalli@vmware.com, leonro@mellanox.com, jglisse@redhat.com,
+        viro@zeniv.linux.org.uk, yishaih@mellanox.com, matanb@mellanox.com,
+        stable@vger.kernel.org, arve@android.com,
+        linux-fsdevel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, mike.kravetz@oracle.com
+Subject: Re: [PATCH v6 0/3] [v4.9.y] coredump: fix race condition between
+ mmget_not_zero()/get_task_mm() and core dumping
+Message-ID: <20190805060223.GA4947@kroah.com>
+References: <1564891168-30016-1-git-send-email-akaher@vmware.com>
+ <1564891168-30016-4-git-send-email-akaher@vmware.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1564891168-30016-4-git-send-email-akaher@vmware.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, Aug 04, 2019 at 09:29:28AM +0530, Ajay Kaher wrote:
+> coredump: fix race condition between mmget_not_zero()/get_task_mm()
+> and core dumping
+> 
+> [PATCH v5 1/3]:
+> Backporting of commit 04f5866e41fb70690e28397487d8bd8eea7d712a upstream.
+> 
+> [PATCH v5 2/3]:
+> Extension of commit 04f5866e41fb to fix the race condition between
+> get_task_mm() and core dumping for IB->mlx4 and IB->mlx5 drivers.
+> 
+> [PATCH v5 3/3]
+> Backporting of commit 59ea6d06cfa9247b586a695c21f94afa7183af74 upstream.
+> 
+> [diff from v5]:
+> - Recreated [PATCH v6 1/3], to solve patch apply error.
 
-The patch below does not apply to the 5.2-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Now queued up, let's see what breaks :)
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 4187414808095f645ca0661f8dde77617e2e7cb3 Mon Sep 17 00:00:00 2001
-From: Colin Xu <colin.xu@intel.com>
-Date: Thu, 4 Jul 2019 16:45:06 +0800
-Subject: [PATCH] drm/i915/gvt: Adding ppgtt to GVT GEM context after shadow
- pdps settled.
-
-Windows guest can't run after force-TDR with host log:
-...
-gvt: vgpu 1: workload shadow ppgtt isn't ready
-gvt: vgpu 1: fail to dispatch workload, skip
-...
-
-The error is raised by set_context_ppgtt_from_shadow(), when it checks
-and found the shadow_mm isn't marked as shadowed.
-
-In work thread before each submission, a shadow_mm is set to shadowed in:
-shadow_ppgtt_mm()
-<-intel_vgpu_pin_mm()
-<-prepare_workload()
-<-dispatch_workload()
-<-workload_thread()
-However checking whether or not shadow_mm is shadowed is prior to it:
-set_context_ppgtt_from_shadow()
-<-dispatch_workload()
-<-workload_thread()
-
-In normal case, create workload will check the existence of shadow_mm,
-if not it will create a new one and marked as shadowed. If already exist
-it will reuse the old one. Since shadow_mm is reused, checking of shadowed
-in set_context_ppgtt_from_shadow() actually always see the state set in
-creation, but not the state set in intel_vgpu_pin_mm().
-
-When force-TDR, all engines are reset, since it's not dmlr level, all
-ppgtt_mm are invalidated but not destroyed. Invalidation will mark all
-reused shadow_mm as not shadowed but still keeps in ppgtt_mm_list_head.
-If workload submission phase those shadow_mm are reused with shadowed
-not set, then set_context_ppgtt_from_shadow() will report error.
-
-Pin for context after shadow_mm pinned and shadow pdps settled.
-
-v2:
-Move set_context_ppgtt_from_shadow() after prepare_workload(). (zhenyu)
-v3:
-Move set_context_ppgtt_from_shadow() after shadow pdps updated.(zhenyu)
-
-Fixes: 4f15665ccbba ("drm/i915: Add ppgtt to GVT GEM context")
-Cc: stable@vger.kernel.org
-Signed-off-by: Colin Xu <colin.xu@intel.com>
-Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-
-diff --git a/drivers/gpu/drm/i915/gvt/scheduler.c b/drivers/gpu/drm/i915/gvt/scheduler.c
-index 196b4155a309..9f3fd7d96a69 100644
---- a/drivers/gpu/drm/i915/gvt/scheduler.c
-+++ b/drivers/gpu/drm/i915/gvt/scheduler.c
-@@ -364,16 +364,13 @@ static void release_shadow_wa_ctx(struct intel_shadow_wa_ctx *wa_ctx)
- 	wa_ctx->indirect_ctx.shadow_va = NULL;
- }
- 
--static int set_context_ppgtt_from_shadow(struct intel_vgpu_workload *workload,
--					 struct i915_gem_context *ctx)
-+static void set_context_ppgtt_from_shadow(struct intel_vgpu_workload *workload,
-+					  struct i915_gem_context *ctx)
- {
- 	struct intel_vgpu_mm *mm = workload->shadow_mm;
- 	struct i915_ppgtt *ppgtt = i915_vm_to_ppgtt(ctx->vm);
- 	int i = 0;
- 
--	if (mm->type != INTEL_GVT_MM_PPGTT || !mm->ppgtt_mm.shadowed)
--		return -EINVAL;
--
- 	if (mm->ppgtt_mm.root_entry_type == GTT_TYPE_PPGTT_ROOT_L4_ENTRY) {
- 		px_dma(ppgtt->pd) = mm->ppgtt_mm.shadow_pdps[0];
- 	} else {
-@@ -384,8 +381,6 @@ static int set_context_ppgtt_from_shadow(struct intel_vgpu_workload *workload,
- 			px_dma(pd) = mm->ppgtt_mm.shadow_pdps[i];
- 		}
- 	}
--
--	return 0;
- }
- 
- static int
-@@ -614,6 +609,8 @@ static void release_shadow_batch_buffer(struct intel_vgpu_workload *workload)
- static int prepare_workload(struct intel_vgpu_workload *workload)
- {
- 	struct intel_vgpu *vgpu = workload->vgpu;
-+	struct intel_vgpu_submission *s = &vgpu->submission;
-+	int ring = workload->ring_id;
- 	int ret = 0;
- 
- 	ret = intel_vgpu_pin_mm(workload->shadow_mm);
-@@ -622,8 +619,16 @@ static int prepare_workload(struct intel_vgpu_workload *workload)
- 		return ret;
- 	}
- 
-+	if (workload->shadow_mm->type != INTEL_GVT_MM_PPGTT ||
-+	    !workload->shadow_mm->ppgtt_mm.shadowed) {
-+		gvt_vgpu_err("workload shadow ppgtt isn't ready\n");
-+		return -EINVAL;
-+	}
-+
- 	update_shadow_pdps(workload);
- 
-+	set_context_ppgtt_from_shadow(workload, s->shadow[ring]->gem_context);
-+
- 	ret = intel_vgpu_sync_oos_pages(workload->vgpu);
- 	if (ret) {
- 		gvt_vgpu_err("fail to vgpu sync oos pages\n");
-@@ -674,7 +679,6 @@ static int dispatch_workload(struct intel_vgpu_workload *workload)
- {
- 	struct intel_vgpu *vgpu = workload->vgpu;
- 	struct drm_i915_private *dev_priv = vgpu->gvt->dev_priv;
--	struct intel_vgpu_submission *s = &vgpu->submission;
- 	struct i915_request *rq;
- 	int ring_id = workload->ring_id;
- 	int ret;
-@@ -685,13 +689,6 @@ static int dispatch_workload(struct intel_vgpu_workload *workload)
- 	mutex_lock(&vgpu->vgpu_lock);
- 	mutex_lock(&dev_priv->drm.struct_mutex);
- 
--	ret = set_context_ppgtt_from_shadow(workload,
--					    s->shadow[ring_id]->gem_context);
--	if (ret < 0) {
--		gvt_vgpu_err("workload shadow ppgtt isn't ready\n");
--		goto err_req;
--	}
--
- 	ret = intel_gvt_workload_req_alloc(workload);
- 	if (ret)
- 		goto err_req;
-
