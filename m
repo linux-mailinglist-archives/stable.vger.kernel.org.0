@@ -2,41 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A08881A4A
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:04:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C793581ADB
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:10:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729115AbfHENEm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:04:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40488 "EHLO mail.kernel.org"
+        id S1729780AbfHENKA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:10:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729094AbfHENEm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:04:42 -0400
+        id S1729153AbfHENJ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:09:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07D8D216F4;
-        Mon,  5 Aug 2019 13:04:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A7462075B;
+        Mon,  5 Aug 2019 13:09:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010281;
-        bh=6R9GIXWOrlQN+Ea92Fdg4492sTE786I2GV5BiHqHYfo=;
+        s=default; t=1565010597;
+        bh=njhFZQxy19PcglwTow94+N5gzFX0PX+0iAdPg690j6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VNXiZsYsqWOBHcMMqG+XHLG+es2JnBqo/xyOnD0tKape9tsB0gwMlS4S32OhLD3O5
-         b0lVF89sUtKkjuxgIcqvrj7awB5E1U3QUZry4r+NAh9OjvJUorCM/35VDdjW3WwAN9
-         3T2mDCROZvWXRjkqth0luD6csjFYEAf+CqwpkpHs=
+        b=0pDmwWS+OXPZFoTPX/1ed8iM+JM+88qc+FhzoosY8qcwo0aj/XhDSIk7KocWHfyYO
+         iNorkJCXE3YeY9UFzqMJMgno9cKJ+vwEhsK42i46V1XOTobG18YrGInKtpSZi5H6+p
+         culX0MjP43tzd7uClSqhURXbYQMw4/J/V8L8eRao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@linux.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andrea Parri <andrea.parri@amarulasolutions.com>,
-        "Yan, Zheng" <zyan@redhat.com>, Ilya Dryomov <idryomov@gmail.com>,
+        stable@vger.kernel.org, Sam Protsenko <semen.protsenko@linaro.org>,
+        Jan Harkes <jaharkes@cs.cmu.edu>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Colin Ian King <colin.king@canonical.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        David Howells <dhowells@redhat.com>,
+        Fabian Frederick <fabf@skynet.be>,
+        Mikko Rapeli <mikko.rapeli@iki.fi>,
+        Yann Droneaud <ydroneaud@opteya.com>,
+        Zhouyang Jia <jiazhouyang09@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 08/22] ceph: fix improper use of smp_mb__before_atomic()
+Subject: [PATCH 4.19 32/74] coda: fix build using bare-metal toolchain
 Date:   Mon,  5 Aug 2019 15:02:45 +0200
-Message-Id: <20190805124920.487403360@linuxfoundation.org>
+Message-Id: <20190805124938.374434965@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124918.070468681@linuxfoundation.org>
-References: <20190805124918.070468681@linuxfoundation.org>
+In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
+References: <20190805124935.819068648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 749607731e26dfb2558118038c40e9c0c80d23b5 ]
+[ Upstream commit b2a57e334086602be56b74958d9f29b955cd157f ]
 
-This barrier only applies to the read-modify-write operations; in
-particular, it does not apply to the atomic64_set() primitive.
+The kernel is self-contained project and can be built with bare-metal
+toolchain.  But bare-metal toolchain doesn't define __linux__.  Because
+of this u_quad_t type is not defined when using bare-metal toolchain and
+codafs build fails.  This patch fixes it by defining u_quad_t type
+unconditionally.
 
-Replace the barrier with an smp_mb().
-
-Fixes: fdd4e15838e59 ("ceph: rework dcache readdir")
-Reported-by: "Paul E. McKenney" <paulmck@linux.ibm.com>
-Reported-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Andrea Parri <andrea.parri@amarulasolutions.com>
-Reviewed-by: "Yan, Zheng" <zyan@redhat.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Link: http://lkml.kernel.org/r/3cbb40b0a57b6f9923a9d67b53473c0b691a3eaa.1558117389.git.jaharkes@cs.cmu.edu
+Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
+Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Colin Ian King <colin.king@canonical.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Fabian Frederick <fabf@skynet.be>
+Cc: Mikko Rapeli <mikko.rapeli@iki.fi>
+Cc: Yann Droneaud <ydroneaud@opteya.com>
+Cc: Zhouyang Jia <jiazhouyang09@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/super.h | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ include/linux/coda.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/ceph/super.h b/fs/ceph/super.h
-index 8c8cb8fe3d32f..5d05c77c158d4 100644
---- a/fs/ceph/super.h
-+++ b/fs/ceph/super.h
-@@ -474,7 +474,12 @@ static inline void __ceph_dir_set_complete(struct ceph_inode_info *ci,
- 					   long long release_count,
- 					   long long ordered_count)
- {
--	smp_mb__before_atomic();
-+	/*
-+	 * Makes sure operations that setup readdir cache (update page
-+	 * cache and i_size) are strongly ordered w.r.t. the following
-+	 * atomic64_set() operations.
-+	 */
-+	smp_mb();
- 	atomic64_set(&ci->i_complete_seq[0], release_count);
- 	atomic64_set(&ci->i_complete_seq[1], ordered_count);
- }
+diff --git a/include/linux/coda.h b/include/linux/coda.h
+index d30209b9cef81..0ca0c83fdb1c4 100644
+--- a/include/linux/coda.h
++++ b/include/linux/coda.h
+@@ -58,8 +58,7 @@ Mellon the rights to redistribute these changes without encumbrance.
+ #ifndef _CODA_HEADER_
+ #define _CODA_HEADER_
+ 
+-#if defined(__linux__)
+ typedef unsigned long long u_quad_t;
+-#endif
++
+ #include <uapi/linux/coda.h>
+ #endif 
 -- 
 2.20.1
 
