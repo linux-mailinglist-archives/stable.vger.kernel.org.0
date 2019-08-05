@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48A8881C08
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:21:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAD7B81C93
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:25:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729567AbfHENTk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:19:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55754 "EHLO mail.kernel.org"
+        id S1730883AbfHENZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:25:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729672AbfHENTj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:19:39 -0400
+        id S1731197AbfHENZT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:25:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BF00216F4;
-        Mon,  5 Aug 2019 13:19:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67FC620644;
+        Mon,  5 Aug 2019 13:25:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011179;
-        bh=eeFIHSL2xp6/VvCSYq3PlJ1aasNV2jep2XmQvnOX6eg=;
+        s=default; t=1565011517;
+        bh=/Dx7ANAA6hN9wxWi6f/n3vKkYD7HxxDIeNOQP/47imU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wE7/Wte9VDmTxACJ5fmXwcvlrTVwfY3X9jckfN6Wu8qyGVkvgq1qFItK6rp7Lw14v
-         FPoEp75YaVgnqCwc1sMBrREOIsrtTbPrWUWVKrLDuAAVWQyb2c4FN6NQonHJgx68Ri
-         z55vuJcsoXXkELjSLjWVh5Kk1Ldvxbi/ITXRO8Lg=
+        b=Kizo4rJuMGLwjfRjOYKD8ZbyqZA7HbTOJutCiUDJEoH53z9jpPNahlIO0/tsngIOm
+         5VIk6IuDTmhHUrUhgWGeqVQ3Ym8lhhhDgeFuGUvA9SRC+ixh6zVsNzcNQ1+t3UllVj
+         0HdChAh8YML2jdn+RGb5J2dSFKsEQnqnX6y2jIOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, x86@kernel.org,
-        Borislav Petkov <bp@alien8.de>,
-        Duncan Roe <duncan_roe@optusnet.com.au>,
-        Andy Lutomirski <luto@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 73/74] x86/vdso: Prevent segfaults due to hoisted vclock reads
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>,
+        Souptick Joarder <jrdr.linux@gmail.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.2 119/131] xen/gntdev.c: Replace vm_map_pages() with vm_map_pages_zero()
 Date:   Mon,  5 Aug 2019 15:03:26 +0200
-Message-Id: <20190805124941.688410363@linuxfoundation.org>
+Message-Id: <20190805124959.927342582@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
-References: <20190805124935.819068648@linuxfoundation.org>
+In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
+References: <20190805124951.453337465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,67 +47,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Souptick Joarder <jrdr.linux@gmail.com>
 
-commit ff17bbe0bb405ad8b36e55815d381841f9fdeebc upstream.
+commit 8d1502f629c9966743de45744f4c1ba93a57d105 upstream.
 
-GCC 5.5.0 sometimes cleverly hoists reads of the pvclock and/or hvclock
-pages before the vclock mode checks.  This creates a path through
-vclock_gettime() in which no vclock is enabled at all (due to disabled
-TSC on old CPUs, for example) but the pvclock or hvclock page
-nevertheless read.  This will segfault on bare metal.
+'commit df9bde015a72 ("xen/gntdev.c: convert to use vm_map_pages()")'
+breaks gntdev driver. If vma->vm_pgoff > 0, vm_map_pages()
+will:
+ - use map->pages starting at vma->vm_pgoff instead of 0
+ - verify map->count against vma_pages()+vma->vm_pgoff instead of just
+   vma_pages().
 
-This fixes commit 459e3a21535a ("gcc-9: properly declare the
-{pv,hv}clock_page storage") in the sense that, before that commit, GCC
-didn't seem to generate the offending code.  There was nothing wrong
-with that commit per se, and -stable maintainers should backport this to
-all supported kernels regardless of whether the offending commit was
-present, since the same crash could just as easily be triggered by the
-phase of the moon.
+In practice, this breaks using a single gntdev FD for mapping multiple
+grants.
 
-On GCC 9.1.1, this doesn't seem to affect the generated code at all, so
-I'm not too concerned about performance regressions from this fix.
+relevant strace output:
+[pid   857] ioctl(7, IOCTL_GNTDEV_MAP_GRANT_REF, 0x7ffd3407b6d0) = 0
+[pid   857] mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_SHARED, 7, 0) =
+0x777f1211b000
+[pid   857] ioctl(7, IOCTL_GNTDEV_SET_UNMAP_NOTIFY, 0x7ffd3407b710) = 0
+[pid   857] ioctl(7, IOCTL_GNTDEV_MAP_GRANT_REF, 0x7ffd3407b6d0) = 0
+[pid   857] mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_SHARED, 7,
+0x1000) = -1 ENXIO (No such device or address)
 
-Cc: stable@vger.kernel.org
-Cc: x86@kernel.org
-Cc: Borislav Petkov <bp@alien8.de>
-Reported-by: Duncan Roe <duncan_roe@optusnet.com.au>
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+details here:
+https://github.com/QubesOS/qubes-issues/issues/5199
+
+The reason is -> ( copying Marek's word from discussion)
+
+vma->vm_pgoff is used as index passed to gntdev_find_map_index. It's
+basically using this parameter for "which grant reference to map".
+map struct returned by gntdev_find_map_index() describes just the pages
+to be mapped. Specifically map->pages[0] should be mapped at
+vma->vm_start, not vma->vm_start+vma->vm_pgoff*PAGE_SIZE.
+
+When trying to map grant with index (aka vma->vm_pgoff) > 1,
+__vm_map_pages() will refuse to map it because it will expect map->count
+to be at least vma_pages(vma)+vma->vm_pgoff, while it is exactly
+vma_pages(vma).
+
+Converting vm_map_pages() to use vm_map_pages_zero() will fix the
+problem.
+
+Marek has tested and confirmed the same.
+
+Cc: stable@vger.kernel.org # v5.2+
+Fixes: df9bde015a72 ("xen/gntdev.c: convert to use vm_map_pages()")
+
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
+Tested-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/entry/vdso/vclock_gettime.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/xen/gntdev.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/entry/vdso/vclock_gettime.c
-+++ b/arch/x86/entry/vdso/vclock_gettime.c
-@@ -191,13 +191,24 @@ notrace static inline u64 vgetsns(int *m
+--- a/drivers/xen/gntdev.c
++++ b/drivers/xen/gntdev.c
+@@ -1145,7 +1145,7 @@ static int gntdev_mmap(struct file *flip
+ 		goto out_put_map;
  
- 	if (gtod->vclock_mode == VCLOCK_TSC)
- 		cycles = vread_tsc();
-+
-+	/*
-+	 * For any memory-mapped vclock type, we need to make sure that gcc
-+	 * doesn't cleverly hoist a load before the mode check.  Otherwise we
-+	 * might end up touching the memory-mapped page even if the vclock in
-+	 * question isn't enabled, which will segfault.  Hence the barriers.
-+	 */
- #ifdef CONFIG_PARAVIRT_CLOCK
--	else if (gtod->vclock_mode == VCLOCK_PVCLOCK)
-+	else if (gtod->vclock_mode == VCLOCK_PVCLOCK) {
-+		barrier();
- 		cycles = vread_pvclock(mode);
-+	}
- #endif
- #ifdef CONFIG_HYPERV_TSCPAGE
--	else if (gtod->vclock_mode == VCLOCK_HVCLOCK)
-+	else if (gtod->vclock_mode == VCLOCK_HVCLOCK) {
-+		barrier();
- 		cycles = vread_hvclock(mode);
-+	}
- #endif
- 	else
- 		return 0;
+ 	if (!use_ptemod) {
+-		err = vm_map_pages(vma, map->pages, map->count);
++		err = vm_map_pages_zero(vma, map->pages, map->count);
+ 		if (err)
+ 			goto out_put_map;
+ 	} else {
 
 
