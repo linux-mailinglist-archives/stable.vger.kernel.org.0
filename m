@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A40D81C0F
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:21:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEC5781C12
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:21:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729972AbfHENTx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:19:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56024 "EHLO mail.kernel.org"
+        id S1730045AbfHENT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:19:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729942AbfHENTx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:19:53 -0400
+        id S1730013AbfHENTz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:19:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 987742075B;
-        Mon,  5 Aug 2019 13:19:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4962C20657;
+        Mon,  5 Aug 2019 13:19:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011192;
-        bh=xdCYdjfiBaSQZRO9aUNInNiabgYff/7tlTke98MlrR0=;
+        s=default; t=1565011194;
+        bh=DfTlh4hBVU3O1J3/0AvaO8iFXFFIPu/0VhA469P66pM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LDEXqrpyqp6BujLhpnnmmmh+eBd889w4C6Lje44j35+/qJC6zDC/2dGzth9W69GSC
-         gMmLQno+Qs+ays/ilga+JKLDD2qnm1rf95nns27/be9fQ3TUt9zCSldHec8t8md0CG
-         I7837q7x6gK3WzWKBHxoszeglkcyNex97trXFzus=
+        b=tjnkC5C1pCLOk6v47PD+0q+r3G5WYQihEvs/Yw+lvAoT9VpRD0EPzJSB3ecojkrup
+         jcl9rsYD0KRyhp04jIEB1nt9Fs5fTsEYskn1IZXJOv85l6qWdErZ0eDTvNCO36ztQ6
+         R7KIKm1UHJ7R5Gw+oetdwPnDlR7ZJX0ZMPSKSNpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Down <chris@chrisdown.name>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Tejun Heo <tj@kernel.org>, Roman Gushchin <guro@fb.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 55/74] cgroup: kselftest: relax fs_spec checks
-Date:   Mon,  5 Aug 2019 15:03:08 +0200
-Message-Id: <20190805124940.331222447@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.19 56/74] parisc: Fix build of compressed kernel even with debug enabled
+Date:   Mon,  5 Aug 2019 15:03:09 +0200
+Message-Id: <20190805124940.401662872@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
 References: <20190805124935.819068648@linuxfoundation.org>
@@ -46,49 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Down <chris@chrisdown.name>
+From: Helge Deller <deller@gmx.de>
 
-commit b59b1baab789eacdde809135542e3d4f256f6878 upstream.
+commit 3fe6c873af2f2247544debdbe51ec29f690a2ccf upstream.
 
-On my laptop most memcg kselftests were being skipped because it claimed
-cgroup v2 hierarchy wasn't mounted, but this isn't correct.  Instead, it
-seems current systemd HEAD mounts it with the name "cgroup2" instead of
-"cgroup":
+With debug info enabled (CONFIG_DEBUG_INFO=y) the resulting vmlinux may get
+that huge that we need to increase the start addresss for the decompression
+text section otherwise one will face a linker error.
 
-    % grep cgroup /proc/mounts
-    cgroup2 /sys/fs/cgroup cgroup2 rw,nosuid,nodev,noexec,relatime,nsdelegate 0 0
-
-I can't think of a reason to need to check fs_spec explicitly
-since it's arbitrary, so we can just rely on fs_vfstype.
-
-After these changes, `make TARGETS=cgroup kselftest` actually runs the
-cgroup v2 tests in more cases.
-
-Link: http://lkml.kernel.org/r/20190723210737.GA487@chrisdown.name
-Signed-off-by: Chris Down <chris@chrisdown.name>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Sven Schnelle <svens@stackframe.org>
+Tested-by: Sven Schnelle <svens@stackframe.org>
+Cc: stable@vger.kernel.org # v4.14+
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/testing/selftests/cgroup/cgroup_util.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/parisc/boot/compressed/vmlinux.lds.S |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/tools/testing/selftests/cgroup/cgroup_util.c
-+++ b/tools/testing/selftests/cgroup/cgroup_util.c
-@@ -181,8 +181,7 @@ int cg_find_unified_root(char *root, siz
- 		strtok(NULL, delim);
- 		strtok(NULL, delim);
+--- a/arch/parisc/boot/compressed/vmlinux.lds.S
++++ b/arch/parisc/boot/compressed/vmlinux.lds.S
+@@ -42,8 +42,8 @@ SECTIONS
+ #endif
+ 	_startcode_end = .;
  
--		if (strcmp(fs, "cgroup") == 0 &&
--		    strcmp(type, "cgroup2") == 0) {
-+		if (strcmp(type, "cgroup2") == 0) {
- 			strncpy(root, mount, len);
- 			return 0;
- 		}
+-	/* bootloader code and data starts behind area of extracted kernel */
+-	. = (SZ_end - SZparisc_kernel_start + KERNEL_BINARY_TEXT_START);
++	/* bootloader code and data starts at least behind area of extracted kernel */
++	. = MAX(ABSOLUTE(.), (SZ_end - SZparisc_kernel_start + KERNEL_BINARY_TEXT_START));
+ 
+ 	/* align on next page boundary */
+ 	. = ALIGN(4096);
 
 
