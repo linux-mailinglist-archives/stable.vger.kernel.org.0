@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CEC0381BCD
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:17:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 932C181B2A
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:12:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729027AbfHENRO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:17:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41654 "EHLO mail.kernel.org"
+        id S1726620AbfHENM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:12:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728842AbfHENFd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:05:33 -0400
+        id S1730317AbfHENKW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:10:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A409021734;
-        Mon,  5 Aug 2019 13:05:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC5E7216F4;
+        Mon,  5 Aug 2019 13:10:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010333;
-        bh=55kzN6cH4e2VjwxG5P8WucW3r+7cEWtq7OITjexsbm8=;
+        s=default; t=1565010621;
+        bh=/0xk2gHnCvIfVuMEUs3c7iLXShhDkwFJ79DbXu5ckCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oUYXmpNWjIEPm+9f73wRu1r4JrB1FkqKK6iO78Kiiwj9mAPtEQ9unArljDn5JgBCa
-         ui8w3qtBlE4YuYPGqmkafydod68EdPxJKsNE/Rj/wE0IeaFAYelkNMOcfP7bfe0Yom
-         iW4IuM3uCEe9ZKm4Wx+GyVvPZX2mofQ8y8hrqcII=
+        b=aTMcYuFePiog14R60Qrbj5eMBcUEl2Ucq+7/hXqQsNFulZYsu2ls1KxvfBAGpigm9
+         1pCSWhRY9uC8uC6sISctaGm2Wygsxndbu9XvGq4F+/C9h9d7fcv7TUV17i5zoZz0U4
+         uYYyYrOjsZenWFls378EiVIvueLdk1Za4SN/YuMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Subject: [PATCH 4.9 26/42] kbuild: initialize CLANG_FLAGS correctly in the top Makefile
-Date:   Mon,  5 Aug 2019 15:02:52 +0200
-Message-Id: <20190805124928.061617180@linuxfoundation.org>
+        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@oracle.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 40/74] x86, boot: Remove multiple copy of static function sanitize_boot_params()
+Date:   Mon,  5 Aug 2019 15:02:53 +0200
+Message-Id: <20190805124939.100786922@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124924.788666484@linuxfoundation.org>
-References: <20190805124924.788666484@linuxfoundation.org>
+In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
+References: <20190805124935.819068648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+[ Upstream commit 8c5477e8046ca139bac250386c08453da37ec1ae ]
 
-commit 5241ab4cf42d3a93b933b55d3d53f43049081fa1 upstream.
+Kernel build warns:
+ 'sanitize_boot_params' defined but not used [-Wunused-function]
 
-CLANG_FLAGS is initialized by the following line:
+at below files:
+  arch/x86/boot/compressed/cmdline.c
+  arch/x86/boot/compressed/error.c
+  arch/x86/boot/compressed/early_serial_console.c
+  arch/x86/boot/compressed/acpi.c
 
-  CLANG_FLAGS     := --target=$(notdir $(CROSS_COMPILE:%-=%))
+That's becausethey each include misc.h which includes a definition of
+sanitize_boot_params() via bootparam_utils.h.
 
-..., which is run only when CROSS_COMPILE is set.
+Remove the inclusion from misc.h and have the c file including
+bootparam_utils.h directly.
 
-Some build targets (bindeb-pkg etc.) recurse to the top Makefile.
-
-When you build the kernel with Clang but without CROSS_COMPILE,
-the same compiler flags such as -no-integrated-as are accumulated
-into CLANG_FLAGS.
-
-If you run 'make CC=clang' and then 'make CC=clang bindeb-pkg',
-Kbuild will recompile everything needlessly due to the build command
-change.
-
-Fix this by correctly initializing CLANG_FLAGS.
-
-Fixes: 238bcbc4e07f ("kbuild: consolidate Clang compiler flags")
-Cc: <stable@vger.kernel.org> # v5.0+
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@oracle.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/1563283092-1189-1-git-send-email-zhenzhong.duan@oracle.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/boot/compressed/misc.c | 1 +
+ arch/x86/boot/compressed/misc.h | 1 -
+ 2 files changed, 1 insertion(+), 1 deletion(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -400,6 +400,7 @@ KBUILD_AFLAGS_MODULE  := -DMODULE
- KBUILD_CFLAGS_MODULE  := -DMODULE
- KBUILD_LDFLAGS_MODULE := -T $(srctree)/scripts/module-common.lds
- GCC_PLUGINS_CFLAGS :=
-+CLANG_FLAGS :=
+diff --git a/arch/x86/boot/compressed/misc.c b/arch/x86/boot/compressed/misc.c
+index 8dd1d5ccae580..0387d7a96c842 100644
+--- a/arch/x86/boot/compressed/misc.c
++++ b/arch/x86/boot/compressed/misc.c
+@@ -17,6 +17,7 @@
+ #include "pgtable.h"
+ #include "../string.h"
+ #include "../voffset.h"
++#include <asm/bootparam_utils.h>
  
- # Read KERNELRELEASE from include/config/kernel.release (if it exists)
- KERNELRELEASE = $(shell cat include/config/kernel.release 2> /dev/null)
-@@ -506,7 +507,7 @@ endif
+ /*
+  * WARNING!!
+diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
+index a423bdb426862..47fd18db6b3bf 100644
+--- a/arch/x86/boot/compressed/misc.h
++++ b/arch/x86/boot/compressed/misc.h
+@@ -22,7 +22,6 @@
+ #include <asm/page.h>
+ #include <asm/boot.h>
+ #include <asm/bootparam.h>
+-#include <asm/bootparam_utils.h>
  
- ifeq ($(cc-name),clang)
- ifneq ($(CROSS_COMPILE),)
--CLANG_FLAGS	:= --target=$(notdir $(CROSS_COMPILE:%-=%))
-+CLANG_FLAGS	+= --target=$(notdir $(CROSS_COMPILE:%-=%))
- GCC_TOOLCHAIN_DIR := $(dir $(shell which $(CROSS_COMPILE)elfedit))
- CLANG_FLAGS	+= --prefix=$(GCC_TOOLCHAIN_DIR)
- GCC_TOOLCHAIN	:= $(realpath $(GCC_TOOLCHAIN_DIR)/..)
+ #define BOOT_BOOT_H
+ #include "../ctype.h"
+-- 
+2.20.1
+
 
 
