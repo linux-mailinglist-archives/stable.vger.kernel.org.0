@@ -2,96 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CE1D815C7
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 11:45:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C60238163D
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 12:02:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727340AbfHEJp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 05:45:26 -0400
-Received: from paleale.coelho.fi ([176.9.41.70]:34072 "EHLO
-        farmhouse.coelho.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726454AbfHEJp0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 05:45:26 -0400
-Received: from [91.156.6.193] (helo=redipa)
-        by farmhouse.coelho.fi with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.92)
-        (envelope-from <luca@coelho.fi>)
-        id 1huZYQ-0003TU-GL; Mon, 05 Aug 2019 12:45:23 +0300
-Message-ID: <f6d6c216e20d5179964b0d5afb92affe3318d639.camel@coelho.fi>
-From:   Luca Coelho <luca@coelho.fi>
-To:     Sasha Levin <sashal@kernel.org>, kvalo@codeaurora.org
-Cc:     linux-wireless@vger.kernel.org, stable@vger.kernel.org
-Date:   Mon, 05 Aug 2019 12:45:20 +0300
-In-Reply-To: <20190720122332.E229E2186A@mail.kernel.org>
-References: <20190720102545.5952-2-luca@coelho.fi>
-         <20190720122332.E229E2186A@mail.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.30.5-1.1 
+        id S1727868AbfHEKCI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 06:02:08 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:37429 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726454AbfHEKCI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 06:02:08 -0400
+Received: by mail-lf1-f66.google.com with SMTP id c9so57389589lfh.4;
+        Mon, 05 Aug 2019 03:02:06 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=li7rAXwzGIseE3k6zJ4TEp7sKBdJ70w/9wU60C+koC0=;
+        b=LfRfNqEeTfHw0NHOa3++OwT+jaktCDOWXpGsuKcL0eXwedve86mzTxi1+PqVOF24v5
+         omN+7m0tSud+MaaWRS+6WXJ+okxNjwBz3/Wyx/zd+q33YU+vG9jxF9cWQkaMhWdgipsc
+         /eUDj7KjGIqmBzbENrkwyiO2DE57wAC/VCeU9RVmxkCwKkqp5uidt1PdklXZPBbFH2RN
+         2A7oAWHBVhIB+/GWU+QMYn9mSfACxVKCZXPd+WExq+TbTslY8I/ICifETuWrND34ovI6
+         Yu0CQyogerfrfc6WF8Fxqqbc9AHbN4sUM/GI+sJwr+XqYVZ9uuWgcvFab38DI8PrXclC
+         7E7g==
+X-Gm-Message-State: APjAAAUpdLTmuhl6J7ADDLjHpPX5dKjcUAwNhJGpcZ0YKjo+/F9hmI3q
+        lML+BUUwcRkNt76n1RGt4XP2Ian3TzI=
+X-Google-Smtp-Source: APXvYqyZ2HhoG5S0/h1MUvxqxPEHIwE0R6bU/2rM+TH4csl1FppMShqCGDVL3IVgpPzpDs7MAvkO/g==
+X-Received: by 2002:a19:6557:: with SMTP id c23mr28622087lfj.12.1564999325428;
+        Mon, 05 Aug 2019 03:02:05 -0700 (PDT)
+Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
+        by smtp.gmail.com with ESMTPSA id j30sm1254982lfk.48.2019.08.05.03.02.04
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 05 Aug 2019 03:02:04 -0700 (PDT)
+Received: from johan by xi.terra with local (Exim 4.92)
+        (envelope-from <johan@xi.terra>)
+        id 1huZoZ-0002il-Ca; Mon, 05 Aug 2019 12:02:03 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     netdev@vger.kernel.org
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        Vincent Cuissard <cuissard@marvell.com>,
+        Andrey Konovalov <andreyknvl@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        stable <stable@vger.kernel.org>,
+        syzbot+cf35b76f35e068a1107f@syzkaller.appspotmail.com
+Subject: [PATCH] NFC: nfcmrvl: fix gpio-handling regression
+Date:   Mon,  5 Aug 2019 12:00:55 +0200
+Message-Id: <20190805100055.10398-1-johan@kernel.org>
+X-Mailer: git-send-email 2.22.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on farmhouse.coelho.fi
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=5.0 tests=ALL_TRUSTED,BAYES_00
-        autolearn=ham autolearn_force=no version=3.4.2
-Subject: Re: [PATCH 01/16] iwlwifi: mvm: don't send GEO_TX_POWER_LIMIT on
- version < 41
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 2019-07-20 at 12:23 +0000, Sasha Levin wrote:
-> Hi,
-> 
-> [This is an automated email]
-> 
-> This commit has been processed because it contains a -stable tag.
-> The stable tag indicates that it's relevant for the following trees: all
-> 
-> The bot has tested the following trees: v5.2.1, v5.1.18, v4.19.59, v4.14.133, v4.9.185, v4.4.185.
-> 
-> v5.2.1: Build OK!
-> v5.1.18: Build OK!
-> v4.19.59: Build OK!
-> v4.14.133: Build OK!
-> v4.9.185: Failed to apply! Possible dependencies:
->     1f3706508395 ("iwlwifi: mvm: support unification of INIT and RT images")
->     42ce76d615e7 ("iwlwifi: mvm: spin off SAR profile selection function")
->     6996490501ed ("iwlwifi: mvm: add support for EWRD (Dynamic SAR) ACPI table")
->     7fe90e0e3d60 ("iwlwifi: mvm: refactor geo init")
->     a6bff3cb19b7 ("iwlwifi: mvm: add GEO_TX_POWER_LIMIT cmd for geographic tx power table")
->     c386dacb4ed6 ("iwlwifi: mvm: refactor SAR init to prepare for dynamic SAR")
-> 
-> v4.4.185: Failed to apply! Possible dependencies:
->     13555e8ba2f4 ("iwlwifi: mvm: add 9000-series RX API")
->     1a616dd2f171 ("iwlwifi: dump prph registers in a common place for all transports")
->     2f89a5d7d377 ("iwlwifi: mvm: move fw-dbg code to separate file")
->     321c2104f2f1 ("iwlwifi: mvm: Support setting continuous recording debug mode")
->     39bdb17ebb5b ("iwlwifi: update host command messages to new format")
->     42ce76d615e7 ("iwlwifi: mvm: spin off SAR profile selection function")
->     43413a975d06 ("iwlwifi: mvm: support rss queues configuration command")
->     4707fde5cdef ("iwlwifi: mvm: use build-time assertion for fw trigger ID")
->     6c4fbcbc1c95 ("iwlwifi: add support for 12K Receive Buffers")
->     854d773e4ab5 ("iwlwifi: mvm: improve RSS configuration")
->     92fe83430b89 ("iwlwifi: uninline iwl_trans_send_cmd")
->     9e7dce286595 ("iwlwifi: mvm: allow to limit the A-MSDU from debugfs")
->     da2830acf15a ("iwlwifi: mvm: read SAR BIOS table from ACPI")
->     dcbb4746286a ("iwlwifi: trans: support a callback for ASYNC commands")
->     dd4d3161d0f2 ("iwlwifi: mvm: fix RSS key sizing")
-> 
-> 
-> NOTE: The patch will not be queued to stable trees until it is upstream.
-> 
-> How should we proceed with this patch?
+Fix two reset-gpio sanity checks which were never converted to use
+gpio_is_valid(), and make sure to use -EINVAL to indicate a missing
+reset line also for the UART-driver module parameter and for the USB
+driver.
 
-Hi Sasha,
+This specifically prevents the UART and USB drivers from incidentally
+trying to request and use gpio 0, and also avoids triggering a WARN() in
+gpio_to_desc() during probe when no valid reset line has been specified.
 
-In this specific case, the patch does not have to be applied on 4.9 and
-4.4.  What is the right way to handle these cases? Should I simply
-ignore them, so they won't go into those kernels by default or do you
-want me to follow up somehow and let you know that those kernels can be
-ignore?
+Fixes: e33a3f84f88f ("NFC: nfcmrvl: allow gpio 0 for reset signalling")
+Cc: stable <stable@vger.kernel.org>	# 4.13
+Reported-by: syzbot+cf35b76f35e068a1107f@syzkaller.appspotmail.com
+Tested-by: syzbot+cf35b76f35e068a1107f@syzkaller.appspotmail.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/nfc/nfcmrvl/main.c | 4 ++--
+ drivers/nfc/nfcmrvl/uart.c | 4 ++--
+ drivers/nfc/nfcmrvl/usb.c  | 1 +
+ 3 files changed, 5 insertions(+), 4 deletions(-)
 
---
-Cheers,
-Luca.
+diff --git a/drivers/nfc/nfcmrvl/main.c b/drivers/nfc/nfcmrvl/main.c
+index e65d027b91fa..529be35ac178 100644
+--- a/drivers/nfc/nfcmrvl/main.c
++++ b/drivers/nfc/nfcmrvl/main.c
+@@ -244,7 +244,7 @@ void nfcmrvl_chip_reset(struct nfcmrvl_private *priv)
+ 	/* Reset possible fault of previous session */
+ 	clear_bit(NFCMRVL_PHY_ERROR, &priv->flags);
+ 
+-	if (priv->config.reset_n_io) {
++	if (gpio_is_valid(priv->config.reset_n_io)) {
+ 		nfc_info(priv->dev, "reset the chip\n");
+ 		gpio_set_value(priv->config.reset_n_io, 0);
+ 		usleep_range(5000, 10000);
+@@ -255,7 +255,7 @@ void nfcmrvl_chip_reset(struct nfcmrvl_private *priv)
+ 
+ void nfcmrvl_chip_halt(struct nfcmrvl_private *priv)
+ {
+-	if (priv->config.reset_n_io)
++	if (gpio_is_valid(priv->config.reset_n_io))
+ 		gpio_set_value(priv->config.reset_n_io, 0);
+ }
+ 
+diff --git a/drivers/nfc/nfcmrvl/uart.c b/drivers/nfc/nfcmrvl/uart.c
+index 9a22056e8d9e..e5a622ce4b95 100644
+--- a/drivers/nfc/nfcmrvl/uart.c
++++ b/drivers/nfc/nfcmrvl/uart.c
+@@ -26,7 +26,7 @@
+ static unsigned int hci_muxed;
+ static unsigned int flow_control;
+ static unsigned int break_control;
+-static unsigned int reset_n_io;
++static int reset_n_io = -EINVAL;
+ 
+ /*
+ ** NFCMRVL NCI OPS
+@@ -231,5 +231,5 @@ MODULE_PARM_DESC(break_control, "Tell if UART driver must drive break signal.");
+ module_param(hci_muxed, uint, 0);
+ MODULE_PARM_DESC(hci_muxed, "Tell if transport is muxed in HCI one.");
+ 
+-module_param(reset_n_io, uint, 0);
++module_param(reset_n_io, int, 0);
+ MODULE_PARM_DESC(reset_n_io, "GPIO that is wired to RESET_N signal.");
+diff --git a/drivers/nfc/nfcmrvl/usb.c b/drivers/nfc/nfcmrvl/usb.c
+index 945cc903d8f1..888e298f610b 100644
+--- a/drivers/nfc/nfcmrvl/usb.c
++++ b/drivers/nfc/nfcmrvl/usb.c
+@@ -305,6 +305,7 @@ static int nfcmrvl_probe(struct usb_interface *intf,
+ 
+ 	/* No configuration for USB */
+ 	memset(&config, 0, sizeof(config));
++	config.reset_n_io = -EINVAL;
+ 
+ 	nfc_info(&udev->dev, "intf %p id %p\n", intf, id);
+ 
+-- 
+2.22.0
 
