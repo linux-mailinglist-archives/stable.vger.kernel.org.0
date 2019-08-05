@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8191781B7E
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:15:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 578F181B72
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:15:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729210AbfHENO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:14:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45104 "EHLO mail.kernel.org"
+        id S1729825AbfHENHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:07:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729316AbfHENHb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:07:31 -0400
+        id S1729325AbfHENHd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:07:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E882D216F4;
-        Mon,  5 Aug 2019 13:07:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82D4221738;
+        Mon,  5 Aug 2019 13:07:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010450;
-        bh=ftwEtVmXyEP3joIhCIHtyAXxsY6NzXQywrQe+5/0ptE=;
+        s=default; t=1565010453;
+        bh=xbtRgzuo03sj2At33CiqxEMVoJhFtnftBmdSzxJn/ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eZ4iSL2JKrpRlF8UZQfVhh+Q2hibEQsw1nr2yK2Y6ApW/AIWHOHxh1qwnR4veB2Je
-         LJpS4XPQayyWFx4uLwsgjOUhIKIaw7ns87JAFQzSEnt9gxJW/FqbFVZIWPtFn74uJm
-         7oq4D0Ow0QB5o93zls8S/aM1U+dAk3NVITDVPudg=
+        b=DWL5k0AWZVKitrtWBcplPhsNcKwUzmIoJPtuAEHsFYIu0lA44NVMadANDC9GD4dnz
+         gzlxS9Pk4VF/HYtpeYbK4zVWnVaVwTwLk2B8eDXaecJBgjfO+uzVePhgBVxCGcshwB
+         GbpKL3r6f8Aaf/tHry2dpR13CqZTn+v0Zj2oyBEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Andrew Cooper <andrew.cooper3@citrix.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 28/53] xen/pv: Fix a boot up hang revealed by int3 self test
-Date:   Mon,  5 Aug 2019 15:02:53 +0200
-Message-Id: <20190805124931.147684946@linuxfoundation.org>
+Subject: [PATCH 4.14 29/53] x86/kvm: Dont call kvm_spurious_fault() from .fixup
+Date:   Mon,  5 Aug 2019 15:02:54 +0200
+Message-Id: <20190805124931.249046629@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
 References: <20190805124927.973499541@linuxfoundation.org>
@@ -51,115 +46,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b23e5844dfe78a80ba672793187d3f52e4b528d7 ]
+[ Upstream commit 3901336ed9887b075531bffaeef7742ba614058b ]
 
-Commit 7457c0da024b ("x86/alternatives: Add int3_emulate_call()
-selftest") is used to ensure there is a gap setup in int3 exception stack
-which could be used for inserting call return address.
+After making a change to improve objtool's sibling call detection, it
+started showing the following warning:
 
-This gap is missed in XEN PV int3 exception entry path, then below panic
-triggered:
+  arch/x86/kvm/vmx/nested.o: warning: objtool: .fixup+0x15: sibling call from callable instruction with modified stack frame
 
-[    0.772876] general protection fault: 0000 [#1] SMP NOPTI
-[    0.772886] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.2.0+ #11
-[    0.772893] RIP: e030:int3_magic+0x0/0x7
-[    0.772905] RSP: 3507:ffffffff82203e98 EFLAGS: 00000246
-[    0.773334] Call Trace:
-[    0.773334]  alternative_instructions+0x3d/0x12e
-[    0.773334]  check_bugs+0x7c9/0x887
-[    0.773334]  ? __get_locked_pte+0x178/0x1f0
-[    0.773334]  start_kernel+0x4ff/0x535
-[    0.773334]  ? set_init_arg+0x55/0x55
-[    0.773334]  xen_start_kernel+0x571/0x57a
+The problem is the ____kvm_handle_fault_on_reboot() macro.  It does a
+fake call by pushing a fake RIP and doing a jump.  That tricks the
+unwinder into printing the function which triggered the exception,
+rather than the .fixup code.
 
-For 64bit PV guests, Xen's ABI enters the kernel with using SYSRET, with
-%rcx/%r11 on the stack. To convert back to "normal" looking exceptions,
-the xen thunks do 'xen_*: pop %rcx; pop %r11; jmp *'.
+Instead of the hack to make it look like the original function made the
+call, just change the macro so that the original function actually does
+make the call.  This allows removal of the hack, and also makes objtool
+happy.
 
-E.g. Extracting 'xen_pv_trap xenint3' we have:
-xen_xenint3:
- pop %rcx;
- pop %r11;
- jmp xenint3
+I triggered a vmx instruction exception and verified that the stack
+trace is still sane:
 
-As xenint3 and int3 entry code are same except xenint3 doesn't generate
-a gap, we can fix it by using int3 and drop useless xenint3.
+  kernel BUG at arch/x86/kvm/x86.c:358!
+  invalid opcode: 0000 [#1] SMP PTI
+  CPU: 28 PID: 4096 Comm: qemu-kvm Not tainted 5.2.0+ #16
+  Hardware name: Lenovo THINKSYSTEM SD530 -[7X2106Z000]-/-[7X2106Z000]-, BIOS -[TEE113Z-1.00]- 07/17/2017
+  RIP: 0010:kvm_spurious_fault+0x5/0x10
+  Code: 00 00 00 00 00 8b 44 24 10 89 d2 45 89 c9 48 89 44 24 10 8b 44 24 08 48 89 44 24 08 e9 d4 40 22 00 0f 1f 40 00 0f 1f 44 00 00 <0f> 0b 66 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 41 55 49 89 fd 41
+  RSP: 0018:ffffbf91c683bd00 EFLAGS: 00010246
+  RAX: 000061f040000000 RBX: ffff9e159c77bba0 RCX: ffff9e15a5c87000
+  RDX: 0000000665c87000 RSI: ffff9e15a5c87000 RDI: ffff9e159c77bba0
+  RBP: 0000000000000000 R08: 0000000000000000 R09: ffff9e15a5c87000
+  R10: 0000000000000000 R11: fffff8f2d99721c0 R12: ffff9e159c77bba0
+  R13: ffffbf91c671d960 R14: ffff9e159c778000 R15: 0000000000000000
+  FS:  00007fa341cbe700(0000) GS:ffff9e15b7400000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007fdd38356804 CR3: 00000006759de003 CR4: 00000000007606e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  PKRU: 55555554
+  Call Trace:
+   loaded_vmcs_init+0x4f/0xe0
+   alloc_loaded_vmcs+0x38/0xd0
+   vmx_create_vcpu+0xf7/0x600
+   kvm_vm_ioctl+0x5e9/0x980
+   ? __switch_to_asm+0x40/0x70
+   ? __switch_to_asm+0x34/0x70
+   ? __switch_to_asm+0x40/0x70
+   ? __switch_to_asm+0x34/0x70
+   ? free_one_page+0x13f/0x4e0
+   do_vfs_ioctl+0xa4/0x630
+   ksys_ioctl+0x60/0x90
+   __x64_sys_ioctl+0x16/0x20
+   do_syscall_64+0x55/0x1c0
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  RIP: 0033:0x7fa349b1ee5b
 
-Signed-off-by: Zhenzhong Duan <zhenzhong.duan@oracle.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Stefano Stabellini <sstabellini@kernel.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Andrew Cooper <andrew.cooper3@citrix.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/64a9b64d127e87b6920a97afde8e96ea76f6524e.1563413318.git.jpoimboe@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/entry/entry_64.S    | 1 -
- arch/x86/include/asm/traps.h | 2 +-
- arch/x86/xen/enlighten_pv.c  | 2 +-
- arch/x86/xen/xen-asm_64.S    | 1 -
- 4 files changed, 2 insertions(+), 4 deletions(-)
+ arch/x86/include/asm/kvm_host.h | 34 ++++++++++++++++++---------------
+ 1 file changed, 19 insertions(+), 15 deletions(-)
 
-diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
-index e09ba4bc8b98f..b2524d349595c 100644
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -1113,7 +1113,6 @@ idtentry stack_segment		do_stack_segment	has_error_code=1
- #ifdef CONFIG_XEN
- idtentry xennmi			do_nmi			has_error_code=0
- idtentry xendebug		do_debug		has_error_code=0
--idtentry xenint3		do_int3			has_error_code=0
- #endif
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index f9a4b85d7309b..9f3eb334c818e 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1353,25 +1353,29 @@ enum {
+ #define kvm_arch_vcpu_memslots_id(vcpu) ((vcpu)->arch.hflags & HF_SMM_MASK ? 1 : 0)
+ #define kvm_memslots_for_spte_role(kvm, role) __kvm_memslots(kvm, (role).smm)
  
- idtentry general_protection	do_general_protection	has_error_code=1
-diff --git a/arch/x86/include/asm/traps.h b/arch/x86/include/asm/traps.h
-index afbc87206886e..b771bb3d159bc 100644
---- a/arch/x86/include/asm/traps.h
-+++ b/arch/x86/include/asm/traps.h
-@@ -40,7 +40,7 @@ asmlinkage void simd_coprocessor_error(void);
- asmlinkage void xen_divide_error(void);
- asmlinkage void xen_xennmi(void);
- asmlinkage void xen_xendebug(void);
--asmlinkage void xen_xenint3(void);
-+asmlinkage void xen_int3(void);
- asmlinkage void xen_overflow(void);
- asmlinkage void xen_bounds(void);
- asmlinkage void xen_invalid_op(void);
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index 481d7920ea244..f79a0cdc6b4e7 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -598,12 +598,12 @@ struct trap_array_entry {
++asmlinkage void __noreturn kvm_spurious_fault(void);
++
+ /*
+  * Hardware virtualization extension instructions may fault if a
+  * reboot turns off virtualization while processes are running.
+- * Trap the fault and ignore the instruction if that happens.
++ * Usually after catching the fault we just panic; during reboot
++ * instead the instruction is ignored.
+  */
+-asmlinkage void kvm_spurious_fault(void);
+-
+-#define ____kvm_handle_fault_on_reboot(insn, cleanup_insn)	\
+-	"666: " insn "\n\t" \
+-	"668: \n\t"                           \
+-	".pushsection .fixup, \"ax\" \n" \
+-	"667: \n\t" \
+-	cleanup_insn "\n\t"		      \
+-	"cmpb $0, kvm_rebooting \n\t"	      \
+-	"jne 668b \n\t"      		      \
+-	__ASM_SIZE(push) " $666b \n\t"	      \
+-	"jmp kvm_spurious_fault \n\t"	      \
+-	".popsection \n\t" \
+-	_ASM_EXTABLE(666b, 667b)
++#define ____kvm_handle_fault_on_reboot(insn, cleanup_insn)		\
++	"666: \n\t"							\
++	insn "\n\t"							\
++	"jmp	668f \n\t"						\
++	"667: \n\t"							\
++	"call	kvm_spurious_fault \n\t"				\
++	"668: \n\t"							\
++	".pushsection .fixup, \"ax\" \n\t"				\
++	"700: \n\t"							\
++	cleanup_insn "\n\t"						\
++	"cmpb	$0, kvm_rebooting\n\t"					\
++	"je	667b \n\t"						\
++	"jmp	668b \n\t"						\
++	".popsection \n\t"						\
++	_ASM_EXTABLE(666b, 700b)
  
- static struct trap_array_entry trap_array[] = {
- 	{ debug,                       xen_xendebug,                    true },
--	{ int3,                        xen_xenint3,                     true },
- 	{ double_fault,                xen_double_fault,                true },
- #ifdef CONFIG_X86_MCE
- 	{ machine_check,               xen_machine_check,               true },
- #endif
- 	{ nmi,                         xen_xennmi,                      true },
-+	{ int3,                        xen_int3,                        false },
- 	{ overflow,                    xen_overflow,                    false },
- #ifdef CONFIG_IA32_EMULATION
- 	{ entry_INT80_compat,          xen_entry_INT80_compat,          false },
-diff --git a/arch/x86/xen/xen-asm_64.S b/arch/x86/xen/xen-asm_64.S
-index 417b339e5c8e1..3a6feed76dfc1 100644
---- a/arch/x86/xen/xen-asm_64.S
-+++ b/arch/x86/xen/xen-asm_64.S
-@@ -30,7 +30,6 @@ xen_pv_trap divide_error
- xen_pv_trap debug
- xen_pv_trap xendebug
- xen_pv_trap int3
--xen_pv_trap xenint3
- xen_pv_trap xennmi
- xen_pv_trap overflow
- xen_pv_trap bounds
+ #define __kvm_handle_fault_on_reboot(insn)		\
+ 	____kvm_handle_fault_on_reboot(insn, "")
 -- 
 2.20.1
 
