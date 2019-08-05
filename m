@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5E3881BF2
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:18:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C54ED81B8C
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:15:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728759AbfHENDy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:03:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39272 "EHLO mail.kernel.org"
+        id S1729120AbfHENPX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:15:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726508AbfHENDx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:03:53 -0400
+        id S1728884AbfHENHQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:07:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B77C20880;
-        Mon,  5 Aug 2019 13:03:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3345F2173B;
+        Mon,  5 Aug 2019 13:07:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010232;
-        bh=+xYzXsA5dBL/9Q4gj7VRyki57+akABZ9kem6yiZUNk4=;
+        s=default; t=1565010435;
+        bh=CPidt5qYrKRZHVWOKAKvDOcmkxJnxtGZPC+iMWtWdFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1xj3GQuwBvbHrXzusm71ZJ9P6ll9vBg7c5dyFncw68du6E4nFh5yOyCuPWnoUe1wU
-         QtXSn9oRMj1mdEB4J2Vv15lHPu/H0Bz3icIdfkph0P9sXAShGuQabrQu8FO8CoOqEh
-         zEGZXGVR4ytKEnk7fJgjO7wusDfP0rsFuHMLs8Ls=
+        b=LzUb+SWaKiaZjJbEqASoki4fC5bcTmZAv4P1wshiSrkPVUT661BtUW5kuCI2dQiq1
+         eZMkBoBGSZbU/NKKrGFVjPmy2cbPUjdoQ3e93GQaF19s2RF81IUqGYl3CgXXu08gHG
+         mTZG9gxbz92/KMxG6NKFriqHnn7BUlgufvY+843I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
+        Michal Nazarewicz <mina86@mina86.com>,
+        Yue Hu <huyue2@yulong.com>, Mike Rapoport <rppt@linux.ibm.com>,
+        Laura Abbott <labbott@redhat.com>, Peng Fan <peng.fan@nxp.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Andrey Konovalov <andreyknvl@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 10/22] ACPI: fix false-positive -Wuninitialized warning
+Subject: [PATCH 4.14 22/53] mm/cma.c: fail if fixed declaration cant be honored
 Date:   Mon,  5 Aug 2019 15:02:47 +0200
-Message-Id: <20190805124920.863235287@linuxfoundation.org>
+Message-Id: <20190805124930.521354885@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124918.070468681@linuxfoundation.org>
-References: <20190805124918.070468681@linuxfoundation.org>
+In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
+References: <20190805124927.973499541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,56 +51,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit dfd6f9ad36368b8dbd5f5a2b2f0a4705ae69a323 ]
+[ Upstream commit c633324e311243586675e732249339685e5d6faa ]
 
-clang gets confused by an uninitialized variable in what looks
-to it like a never executed code path:
+The description of cma_declare_contiguous() indicates that if the
+'fixed' argument is true the reserved contiguous area must be exactly at
+the address of the 'base' argument.
 
-arch/x86/kernel/acpi/boot.c:618:13: error: variable 'polarity' is uninitialized when used here [-Werror,-Wuninitialized]
-        polarity = polarity ? ACPI_ACTIVE_LOW : ACPI_ACTIVE_HIGH;
-                   ^~~~~~~~
-arch/x86/kernel/acpi/boot.c:606:32: note: initialize the variable 'polarity' to silence this warning
-        int rc, irq, trigger, polarity;
-                                      ^
-                                       = 0
-arch/x86/kernel/acpi/boot.c:617:12: error: variable 'trigger' is uninitialized when used here [-Werror,-Wuninitialized]
-        trigger = trigger ? ACPI_LEVEL_SENSITIVE : ACPI_EDGE_SENSITIVE;
-                  ^~~~~~~
-arch/x86/kernel/acpi/boot.c:606:22: note: initialize the variable 'trigger' to silence this warning
-        int rc, irq, trigger, polarity;
-                            ^
-                             = 0
+However, the function currently allows the 'base', 'size', and 'limit'
+arguments to be silently adjusted to meet alignment constraints.  This
+commit enforces the documented behavior through explicit checks that
+return an error if the region does not fit within a specified region.
 
-This is unfortunately a design decision in clang and won't be fixed.
-
-Changing the acpi_get_override_irq() macro to an inline function
-reliably avoids the issue.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: http://lkml.kernel.org/r/1561422051-16142-1-git-send-email-opendmb@gmail.com
+Fixes: 5ea3b1b2f8ad ("cma: add placement specifier for "cma=" kernel parameter")
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Acked-by: Michal Nazarewicz <mina86@mina86.com>
+Cc: Yue Hu <huyue2@yulong.com>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Laura Abbott <labbott@redhat.com>
+Cc: Peng Fan <peng.fan@nxp.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Andrey Konovalov <andreyknvl@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/acpi.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ mm/cma.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index 3672893b275ed..6a30f1e03aa9e 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -226,7 +226,10 @@ void acpi_set_irq_model(enum acpi_irq_model_id model,
- #ifdef CONFIG_X86_IO_APIC
- extern int acpi_get_override_irq(u32 gsi, int *trigger, int *polarity);
- #else
--#define acpi_get_override_irq(gsi, trigger, polarity) (-1)
-+static inline int acpi_get_override_irq(u32 gsi, int *trigger, int *polarity)
-+{
-+	return -1;
-+}
- #endif
- /*
-  * This function undoes the effect of one call to acpi_register_gsi().
+diff --git a/mm/cma.c b/mm/cma.c
+index 56761e40d1918..c4a34c813d470 100644
+--- a/mm/cma.c
++++ b/mm/cma.c
+@@ -277,6 +277,12 @@ int __init cma_declare_contiguous(phys_addr_t base,
+ 	 */
+ 	alignment = max(alignment,  (phys_addr_t)PAGE_SIZE <<
+ 			  max_t(unsigned long, MAX_ORDER - 1, pageblock_order));
++	if (fixed && base & (alignment - 1)) {
++		ret = -EINVAL;
++		pr_err("Region at %pa must be aligned to %pa bytes\n",
++			&base, &alignment);
++		goto err;
++	}
+ 	base = ALIGN(base, alignment);
+ 	size = ALIGN(size, alignment);
+ 	limit &= ~(alignment - 1);
+@@ -307,6 +313,13 @@ int __init cma_declare_contiguous(phys_addr_t base,
+ 	if (limit == 0 || limit > memblock_end)
+ 		limit = memblock_end;
+ 
++	if (base + size > limit) {
++		ret = -EINVAL;
++		pr_err("Size (%pa) of region at %pa exceeds limit (%pa)\n",
++			&size, &base, &limit);
++		goto err;
++	}
++
+ 	/* Reserve memory */
+ 	if (fixed) {
+ 		if (memblock_is_region_reserved(base, size) ||
 -- 
 2.20.1
 
