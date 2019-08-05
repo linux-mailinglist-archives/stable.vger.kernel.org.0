@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6393181D0D
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:29:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B296B81D16
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:29:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729700AbfHENV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:21:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58128 "EHLO mail.kernel.org"
+        id S1730321AbfHEN3V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:29:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729521AbfHENVw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:21:52 -0400
+        id S1729353AbfHENVy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:21:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0334216B7;
-        Mon,  5 Aug 2019 13:21:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 53C952067D;
+        Mon,  5 Aug 2019 13:21:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011311;
-        bh=o4RdtS8peYX1vZgURCwJ52gSxyDAkZK4kl537ZJN4JI=;
+        s=default; t=1565011313;
+        bh=1V6EgHECcJ2657FjYfWl2si5OLvZWbuAkA+gcyhoQtg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l7M59+5R6llRE53Ya9blBP1No/ZgZyAnH6i7NyM6iuMYXp+lL/taOsE9e73t6a6ft
-         1DIBdMSaK4ENeoPSExH/fae2qJO0HjztZGck91cBDEKTN1HnaGvHo7YNYuE+EN+4KO
-         B/zOMNhFVaq+rf8TqvdP9JfsCSt+wXyZjJdKi8lM=
+        b=CeR5RwcrPJa5RrZqd7LgUmCbUM5esFaVuCbJdbNH0dpWQSONX9y9MEc4kXY95eC0L
+         m6d1rG+mfwc7UOxBFIvKCV4zP7eN6D4pGIO3lo5kYTLh2xFt0AulxQ65UO+4+87nQp
+         JGUT/s6eTzcUmHx70VMAUfgkCoxOr7qoNX/b8ygY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helen Koike <helen.koike@collabora.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Prarit Bhargava <prarit@redhat.com>,
+        Barret Rhoden <brho@google.com>,
+        David Arcari <darcari@redhat.com>,
+        Jessica Yu <jeyu@kernel.org>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 012/131] arm64: dts: rockchip: fix isp iommu clocks and power domain
-Date:   Mon,  5 Aug 2019 15:01:39 +0200
-Message-Id: <20190805124952.252087844@linuxfoundation.org>
+Subject: [PATCH 5.2 013/131] kernel/module.c: Only return -EEXIST for modules that have finished loading
+Date:   Mon,  5 Aug 2019 15:01:40 +0200
+Message-Id: <20190805124952.322262893@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -45,61 +47,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c432a29d3fc9ee928caeca2f5cf68b3aebfa6817 ]
+[ Upstream commit 6e6de3dee51a439f76eb73c22ae2ffd2c9384712 ]
 
-isp iommu requires wrapper variants of the clocks.
-noc variants are always on and using the wrapper variants will activate
-{A,H}CLK_ISP{0,1} due to the hierarchy.
+Microsoft HyperV disables the X86_FEATURE_SMCA bit on AMD systems, and
+linux guests boot with repeated errors:
 
-Tested using the pending isp patch set (which is not upstream
-yet). Without this patch, streaming from the isp stalls.
+amd64_edac_mod: Unknown symbol amd_unregister_ecc_decoder (err -2)
+amd64_edac_mod: Unknown symbol amd_register_ecc_decoder (err -2)
+amd64_edac_mod: Unknown symbol amd_report_gart_errors (err -2)
+amd64_edac_mod: Unknown symbol amd_unregister_ecc_decoder (err -2)
+amd64_edac_mod: Unknown symbol amd_register_ecc_decoder (err -2)
+amd64_edac_mod: Unknown symbol amd_report_gart_errors (err -2)
 
-Also add the respective power domain and remove the "disabled" status.
+The warnings occur because the module code erroneously returns -EEXIST
+for modules that have failed to load and are in the process of being
+removed from the module list.
 
-Refer:
- RK3399 TRM v1.4 Fig. 2-4 RK3399 Clock Architecture Diagram
- RK3399 TRM v1.4 Fig. 8-1 RK3399 Power Domain Partition
+module amd64_edac_mod has a dependency on module edac_mce_amd.  Using
+modules.dep, systemd will load edac_mce_amd for every request of
+amd64_edac_mod.  When the edac_mce_amd module loads, the module has
+state MODULE_STATE_UNFORMED and once the module load fails and the state
+becomes MODULE_STATE_GOING.  Another request for edac_mce_amd module
+executes and add_unformed_module() will erroneously return -EEXIST even
+though the previous instance of edac_mce_amd has MODULE_STATE_GOING.
+Upon receiving -EEXIST, systemd attempts to load amd64_edac_mod, which
+fails because of unknown symbols from edac_mce_amd.
 
-Signed-off-by: Helen Koike <helen.koike@collabora.com>
-Tested-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+add_unformed_module() must wait to return for any case other than
+MODULE_STATE_LIVE to prevent a race between multiple loads of
+dependent modules.
+
+Signed-off-by: Prarit Bhargava <prarit@redhat.com>
+Signed-off-by: Barret Rhoden <brho@google.com>
+Cc: David Arcari <darcari@redhat.com>
+Cc: Jessica Yu <jeyu@kernel.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399.dtsi | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ kernel/module.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-index 196ac9b780768..89594a7276f40 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-@@ -1706,11 +1706,11 @@
- 		reg = <0x0 0xff914000 0x0 0x100>, <0x0 0xff915000 0x0 0x100>;
- 		interrupts = <GIC_SPI 43 IRQ_TYPE_LEVEL_HIGH 0>;
- 		interrupt-names = "isp0_mmu";
--		clocks = <&cru ACLK_ISP0_NOC>, <&cru HCLK_ISP0_NOC>;
-+		clocks = <&cru ACLK_ISP0_WRAPPER>, <&cru HCLK_ISP0_WRAPPER>;
- 		clock-names = "aclk", "iface";
- 		#iommu-cells = <0>;
-+		power-domains = <&power RK3399_PD_ISP0>;
- 		rockchip,disable-mmu-reset;
--		status = "disabled";
- 	};
+diff --git a/kernel/module.c b/kernel/module.c
+index 80c7c09584cf9..8431c3d47c97b 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -3385,8 +3385,7 @@ static bool finished_loading(const char *name)
+ 	sched_annotate_sleep();
+ 	mutex_lock(&module_mutex);
+ 	mod = find_module_all(name, strlen(name), true);
+-	ret = !mod || mod->state == MODULE_STATE_LIVE
+-		|| mod->state == MODULE_STATE_GOING;
++	ret = !mod || mod->state == MODULE_STATE_LIVE;
+ 	mutex_unlock(&module_mutex);
  
- 	isp1_mmu: iommu@ff924000 {
-@@ -1718,11 +1718,11 @@
- 		reg = <0x0 0xff924000 0x0 0x100>, <0x0 0xff925000 0x0 0x100>;
- 		interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_HIGH 0>;
- 		interrupt-names = "isp1_mmu";
--		clocks = <&cru ACLK_ISP1_NOC>, <&cru HCLK_ISP1_NOC>;
-+		clocks = <&cru ACLK_ISP1_WRAPPER>, <&cru HCLK_ISP1_WRAPPER>;
- 		clock-names = "aclk", "iface";
- 		#iommu-cells = <0>;
-+		power-domains = <&power RK3399_PD_ISP1>;
- 		rockchip,disable-mmu-reset;
--		status = "disabled";
- 	};
- 
- 	hdmi_sound: hdmi-sound {
+ 	return ret;
+@@ -3576,8 +3575,7 @@ again:
+ 	mutex_lock(&module_mutex);
+ 	old = find_module_all(mod->name, strlen(mod->name), true);
+ 	if (old != NULL) {
+-		if (old->state == MODULE_STATE_COMING
+-		    || old->state == MODULE_STATE_UNFORMED) {
++		if (old->state != MODULE_STATE_LIVE) {
+ 			/* Wait in case it fails to load. */
+ 			mutex_unlock(&module_mutex);
+ 			err = wait_event_interruptible(module_wq,
 -- 
 2.20.1
 
