@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF17B81BD3
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:17:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2D9E81B2C
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:12:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729299AbfHENF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:05:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41488 "EHLO mail.kernel.org"
+        id S1729873AbfHENKM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:10:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729296AbfHENF0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:05:26 -0400
+        id S1729137AbfHENKL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:10:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDB01216B7;
-        Mon,  5 Aug 2019 13:05:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1FD6B216F4;
+        Mon,  5 Aug 2019 13:10:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010325;
-        bh=w121SKm28VtyLycjqIt6tSeDVk3l9HfcjiPticrwHh4=;
+        s=default; t=1565010610;
+        bh=dB18CKiYDObzg0Q42T65d52HEeNUlXSnKibxNIjXYNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YPDs3YsLVGxxsiFd2peXNylqKDYkOWIjV0mLbP5ZLJyezfe8Yd26tvk3h6+I1Fla9
-         TK4XeWGgBa9i2bKoZ2Et3QDi7/puGADCzCcQF1YzdJSk+e2MH9H6eNhDdmHLfhgJy9
-         nhVqHqRp3pVPj5f7hmV5btviBw4i0CbB77cE8jyI=
+        b=Mlf9G2xs50tuYoEQsTxCdVQCuzwcbBW4Qicw17VfH7VBcfxIaa5UrJ/loHoebgrGM
+         dvKdD9cEZKmOr8SbbfQm3OoO+aHMKSoznrTq5szdKnxDDRzVyzEjEhTQOVI1TK4JVT
+         QgLcpRuUcydzdcrrCnx3oDSZ9tr9KTdD9udGncMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Andreas Christoforou <andreaschristofo@gmail.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Petr Machata <petrm@mellanox.com>,
+        Alex Veber <alexve@mellanox.com>,
+        Ido Schimmel <idosch@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 23/42] ipc/mqueue.c: only perform resource calculation if user valid
+Subject: [PATCH 4.19 36/74] mlxsw: spectrum_dcb: Configure DSCP map as the last rule is removed
 Date:   Mon,  5 Aug 2019 15:02:49 +0200
-Message-Id: <20190805124927.673910632@linuxfoundation.org>
+Message-Id: <20190805124938.737897983@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124924.788666484@linuxfoundation.org>
-References: <20190805124924.788666484@linuxfoundation.org>
+In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
+References: <20190805124935.819068648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,101 +46,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a318f12ed8843cfac53198390c74a565c632f417 ]
+[ Upstream commit dedfde2fe1c4ccf27179fcb234e2112d065c39bb ]
 
-Andreas Christoforou reported:
+Spectrum systems use DSCP rewrite map to update DSCP field in egressing
+packets to correspond to priority that the packet has. Whether rewriting
+will take place is determined at the point when the packet ingresses the
+switch: if the port is in Trust L3 mode, packet priority is determined from
+the DSCP map at the port, and DSCP rewrite will happen. If the port is in
+Trust L2 mode, 802.1p is used for packet prioritization, and no DSCP
+rewrite will happen.
 
-  UBSAN: Undefined behaviour in ipc/mqueue.c:414:49 signed integer overflow:
-  9 * 2305843009213693951 cannot be represented in type 'long int'
-  ...
-  Call Trace:
-    mqueue_evict_inode+0x8e7/0xa10 ipc/mqueue.c:414
-    evict+0x472/0x8c0 fs/inode.c:558
-    iput_final fs/inode.c:1547 [inline]
-    iput+0x51d/0x8c0 fs/inode.c:1573
-    mqueue_get_inode+0x8eb/0x1070 ipc/mqueue.c:320
-    mqueue_create_attr+0x198/0x440 ipc/mqueue.c:459
-    vfs_mkobj+0x39e/0x580 fs/namei.c:2892
-    prepare_open ipc/mqueue.c:731 [inline]
-    do_mq_open+0x6da/0x8e0 ipc/mqueue.c:771
+The driver determines the port trust mode based on whether any DSCP
+prioritization rules are in effect at given port. If there are any, trust
+level is L3, otherwise it's L2. When the last DSCP rule is removed, the
+port is switched to trust L2. Under that scenario, if DSCP of a packet
+should be rewritten, it should be rewritten to 0.
 
-Which could be triggered by:
+However, when switching to Trust L2, the driver neglects to also update the
+DSCP rewrite map. The last DSCP rule thus remains in effect, and packets
+egressing through this port, if they have the right priority, will have
+their DSCP set according to this rule.
 
-        struct mq_attr attr = {
-                .mq_flags = 0,
-                .mq_maxmsg = 9,
-                .mq_msgsize = 0x1fffffffffffffff,
-                .mq_curmsgs = 0,
-        };
+Fix by first configuring the rewrite map, and only then switching to trust
+L2 and bailing out.
 
-        if (mq_open("/testing", 0x40, 3, &attr) == (mqd_t) -1)
-                perror("mq_open");
-
-mqueue_get_inode() was correctly rejecting the giant mq_msgsize, and
-preparing to return -EINVAL.  During the cleanup, it calls
-mqueue_evict_inode() which performed resource usage tracking math for
-updating "user", before checking if there was a valid "user" at all
-(which would indicate that the calculations would be sane).  Instead,
-delay this check to after seeing a valid "user".
-
-The overflow was real, but the results went unused, so while the flaw is
-harmless, it's noisy for kernel fuzzers, so just fix it by moving the
-calculation under the non-NULL "user" where it actually gets used.
-
-Link: http://lkml.kernel.org/r/201906072207.ECB65450@keescook
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reported-by: Andreas Christoforou <andreaschristofo@gmail.com>
-Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Manfred Spraul <manfred@colorfullife.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: b2b1dab6884e ("mlxsw: spectrum: Support ieee_setapp, ieee_delapp")
+Signed-off-by: Petr Machata <petrm@mellanox.com>
+Reported-by: Alex Veber <alexve@mellanox.com>
+Tested-by: Alex Veber <alexve@mellanox.com>
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- ipc/mqueue.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ .../net/ethernet/mellanox/mlxsw/spectrum_dcb.c   | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/ipc/mqueue.c b/ipc/mqueue.c
-index d5491a8807515..3f7dc5f341f7e 100644
---- a/ipc/mqueue.c
-+++ b/ipc/mqueue.c
-@@ -369,7 +369,6 @@ static void mqueue_evict_inode(struct inode *inode)
- {
- 	struct mqueue_inode_info *info;
- 	struct user_struct *user;
--	unsigned long mq_bytes, mq_treesize;
- 	struct ipc_namespace *ipc_ns;
- 	struct msg_msg *msg, *nmsg;
- 	LIST_HEAD(tmp_msg);
-@@ -392,16 +391,18 @@ static void mqueue_evict_inode(struct inode *inode)
- 		free_msg(msg);
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
+index b25048c6c7618..21296fa7f7fbf 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
+@@ -408,14 +408,6 @@ static int mlxsw_sp_port_dcb_app_update(struct mlxsw_sp_port *mlxsw_sp_port)
+ 	have_dscp = mlxsw_sp_port_dcb_app_prio_dscp_map(mlxsw_sp_port,
+ 							&prio_map);
+ 
+-	if (!have_dscp) {
+-		err = mlxsw_sp_port_dcb_toggle_trust(mlxsw_sp_port,
+-					MLXSW_REG_QPTS_TRUST_STATE_PCP);
+-		if (err)
+-			netdev_err(mlxsw_sp_port->dev, "Couldn't switch to trust L2\n");
+-		return err;
+-	}
+-
+ 	mlxsw_sp_port_dcb_app_dscp_prio_map(mlxsw_sp_port, default_prio,
+ 					    &dscp_map);
+ 	err = mlxsw_sp_port_dcb_app_update_qpdpm(mlxsw_sp_port,
+@@ -432,6 +424,14 @@ static int mlxsw_sp_port_dcb_app_update(struct mlxsw_sp_port *mlxsw_sp_port)
+ 		return err;
  	}
  
--	/* Total amount of bytes accounted for the mqueue */
--	mq_treesize = info->attr.mq_maxmsg * sizeof(struct msg_msg) +
--		min_t(unsigned int, info->attr.mq_maxmsg, MQ_PRIO_MAX) *
--		sizeof(struct posix_msg_tree_node);
--
--	mq_bytes = mq_treesize + (info->attr.mq_maxmsg *
--				  info->attr.mq_msgsize);
--
- 	user = info->user;
- 	if (user) {
-+		unsigned long mq_bytes, mq_treesize;
++	if (!have_dscp) {
++		err = mlxsw_sp_port_dcb_toggle_trust(mlxsw_sp_port,
++					MLXSW_REG_QPTS_TRUST_STATE_PCP);
++		if (err)
++			netdev_err(mlxsw_sp_port->dev, "Couldn't switch to trust L2\n");
++		return err;
++	}
 +
-+		/* Total amount of bytes accounted for the mqueue */
-+		mq_treesize = info->attr.mq_maxmsg * sizeof(struct msg_msg) +
-+			min_t(unsigned int, info->attr.mq_maxmsg, MQ_PRIO_MAX) *
-+			sizeof(struct posix_msg_tree_node);
-+
-+		mq_bytes = mq_treesize + (info->attr.mq_maxmsg *
-+					  info->attr.mq_msgsize);
-+
- 		spin_lock(&mq_lock);
- 		user->mq_bytes -= mq_bytes;
- 		/*
+ 	err = mlxsw_sp_port_dcb_toggle_trust(mlxsw_sp_port,
+ 					     MLXSW_REG_QPTS_TRUST_STATE_DSCP);
+ 	if (err) {
 -- 
 2.20.1
 
