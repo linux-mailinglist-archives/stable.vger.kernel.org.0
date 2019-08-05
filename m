@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3083181B63
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:14:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0841581B03
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:11:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729251AbfHENIP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:08:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46238 "EHLO mail.kernel.org"
+        id S1729887AbfHENLK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:11:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729988AbfHENIP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:08:15 -0400
+        id S1729875AbfHENLK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:11:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03BD121743;
-        Mon,  5 Aug 2019 13:08:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF5E32186A;
+        Mon,  5 Aug 2019 13:11:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010494;
-        bh=Ap2H5CQO9aDb8ZQtV7wn10As0qwPXWvFFEfaAB3hdpc=;
+        s=default; t=1565010669;
+        bh=C3BKCTmCRN8NbJIBpcJImXNFNlZCvo5O6jaof3h0hO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hCX7El45Y1NYloDGAWAenri9IHlL5UttGHPJyw+sfEXFfpRLjWg+ZcFcFbusY3JcV
-         hCkycOQH7DLMvvkpN6ialslNcrXJfGCYLcM+OL49aCN2R6FREY0mpwG6M6jbmfhw9o
-         yu3arl42yFUFai7OPRccCnATTG/kLwpgaCfgbuIE=
+        b=PG2CPE79I2WUunGVUeEKlWOfFRLFtOtnCJKd48JDDrAPVPDRvtfx8T9F/vKygKT61
+         6erHVrv2/a3zlxIIbq2qw0Sah4L0B9/6mRCo/9gnxL9yHbwIDT/a9hrP660Ob57kI1
+         XFaGqZ7BcepxK4IBcfaGJxLAHkNF7aiFXQxTZQb0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yishai Hadas <yishaih@mellanox.com>,
-        Artemy Kovalyov <artemyko@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.14 46/53] IB/mlx5: Use direct mkey destroy command upon UMR unreg failure
-Date:   Mon,  5 Aug 2019 15:03:11 +0200
-Message-Id: <20190805124933.060025951@linuxfoundation.org>
+        stable@vger.kernel.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 4.19 59/74] arm64: cpufeature: Fix feature comparison for CTR_EL0.{CWG,ERG}
+Date:   Mon,  5 Aug 2019 15:03:12 +0200
+Message-Id: <20190805124940.628708569@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
-References: <20190805124927.973499541@linuxfoundation.org>
+In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
+References: <20190805124935.819068648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yishai Hadas <yishaih@mellanox.com>
+From: Will Deacon <will@kernel.org>
 
-commit afd1417404fba6dbfa6c0a8e5763bd348da682e4 upstream.
+commit 147b9635e6347104b91f48ca9dca61eb0fbf2a54 upstream.
 
-Use a direct firmware command to destroy the mkey in case the unreg UMR
-operation has failed.
+If CTR_EL0.{CWG,ERG} are 0b0000 then they must be interpreted to have
+their architecturally maximum values, which defeats the use of
+FTR_HIGHER_SAFE when sanitising CPU ID registers on heterogeneous
+machines.
 
-This prevents a case that a mkey will leak out from the cache post a
-failure to be destroyed by a UMR WR.
+Introduce FTR_HIGHER_OR_ZERO_SAFE so that these fields effectively
+saturate at zero.
 
-In case the MR cache limit didn't reach a call to add another entry to the
-cache instead of the destroyed one is issued.
-
-In addition, replaced a warn message to WARN_ON() as this flow is fatal
-and can't happen unless some bug around.
-
-Link: https://lore.kernel.org/r/20190723065733.4899-4-leon@kernel.org
-Cc: <stable@vger.kernel.org> # 4.10
-Fixes: 49780d42dfc9 ("IB/mlx5: Expose MR cache for mlx5_ib")
-Signed-off-by: Yishai Hadas <yishaih@mellanox.com>
-Reviewed-by: Artemy Kovalyov <artemyko@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 3c739b571084 ("arm64: Keep track of CPU feature registers")
+Cc: <stable@vger.kernel.org> # 4.4.x-
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/mlx5/mr.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/arm64/include/asm/cpufeature.h |    7 ++++---
+ arch/arm64/kernel/cpufeature.c      |    8 ++++++--
+ 2 files changed, 10 insertions(+), 5 deletions(-)
 
---- a/drivers/infiniband/hw/mlx5/mr.c
-+++ b/drivers/infiniband/hw/mlx5/mr.c
-@@ -538,13 +538,16 @@ void mlx5_mr_cache_free(struct mlx5_ib_d
- 	int c;
+--- a/arch/arm64/include/asm/cpufeature.h
++++ b/arch/arm64/include/asm/cpufeature.h
+@@ -45,9 +45,10 @@
+  */
  
- 	c = order2idx(dev, mr->order);
--	if (c < 0 || c >= MAX_MR_CACHE_ENTRIES) {
--		mlx5_ib_warn(dev, "order %d, cache index %d\n", mr->order, c);
--		return;
--	}
-+	WARN_ON(c < 0 || c >= MAX_MR_CACHE_ENTRIES);
+ enum ftr_type {
+-	FTR_EXACT,	/* Use a predefined safe value */
+-	FTR_LOWER_SAFE,	/* Smaller value is safe */
+-	FTR_HIGHER_SAFE,/* Bigger value is safe */
++	FTR_EXACT,			/* Use a predefined safe value */
++	FTR_LOWER_SAFE,			/* Smaller value is safe */
++	FTR_HIGHER_SAFE,		/* Bigger value is safe */
++	FTR_HIGHER_OR_ZERO_SAFE,	/* Bigger value is safe, but 0 is biggest */
+ };
  
--	if (unreg_umr(dev, mr))
-+	if (unreg_umr(dev, mr)) {
-+		mr->allocated_from_cache = false;
-+		destroy_mkey(dev, mr);
-+		ent = &cache->ent[c];
-+		if (ent->cur < ent->limit)
-+			queue_work(cache->wq, &ent->work);
- 		return;
-+	}
- 
- 	ent = &cache->ent[c];
- 	spin_lock_irq(&ent->lock);
+ #define FTR_STRICT	true	/* SANITY check strict matching required */
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -206,8 +206,8 @@ static const struct arm64_ftr_bits ftr_c
+ 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_EXACT, 31, 1, 1), /* RES1 */
+ 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, CTR_DIC_SHIFT, 1, 1),
+ 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, CTR_IDC_SHIFT, 1, 1),
+-	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_HIGHER_SAFE, CTR_CWG_SHIFT, 4, 0),
+-	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_HIGHER_SAFE, CTR_ERG_SHIFT, 4, 0),
++	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_HIGHER_OR_ZERO_SAFE, CTR_CWG_SHIFT, 4, 0),
++	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_HIGHER_OR_ZERO_SAFE, CTR_ERG_SHIFT, 4, 0),
+ 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, CTR_DMINLINE_SHIFT, 4, 1),
+ 	/*
+ 	 * Linux can handle differing I-cache policies. Userspace JITs will
+@@ -449,6 +449,10 @@ static s64 arm64_ftr_safe_value(const st
+ 	case FTR_LOWER_SAFE:
+ 		ret = new < cur ? new : cur;
+ 		break;
++	case FTR_HIGHER_OR_ZERO_SAFE:
++		if (!cur || !new)
++			break;
++		/* Fallthrough */
+ 	case FTR_HIGHER_SAFE:
+ 		ret = new > cur ? new : cur;
+ 		break;
 
 
