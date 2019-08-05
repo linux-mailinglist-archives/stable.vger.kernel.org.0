@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 730EA81B4C
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:13:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4738181BAB
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:16:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729580AbfHENIt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:08:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47040 "EHLO mail.kernel.org"
+        id S1729301AbfHENQV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:16:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729621AbfHENIt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:08:49 -0400
+        id S1729524AbfHENGM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:06:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 804C02087B;
-        Mon,  5 Aug 2019 13:08:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C83D206C1;
+        Mon,  5 Aug 2019 13:06:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010528;
-        bh=Vl6OPnb9Fexr5uG2WQcqeRCcoYoD+Utx6wUVCjijQ8Y=;
+        s=default; t=1565010371;
+        bh=+5Js5A2JtGGZrWLC2jdZDIp+gwKVT9ufZ+BqhvtRjBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dcaenoE9nskvM0OA/pAMs4OeaTJJbsEmfRP9a49xGHCQysjoJyseceU9OvBFeM2I5
-         yJb5e+cK0rOMCD7JT291FDIpuzHxzYhbIqNDn/RcP8MVF13cTEcYtpsXd6Snhye0am
-         3tNg+mT2A8L/6XkguH38zXkYCFGG3Raz9hH0z+1M=
+        b=2FY2gHIbbnEI0ad7CiBWItPUQum5Be/301esA0/qJNe1ajKIUvG5vwr6w6G9qgb4J
+         qmQJ5rsmzPbHQr5zdaoQvQBNkRVwNOSefotpV7cl6un50yIXNvM6M4u+VtTcL1vwYA
+         CG2XRFTiOCGU17Wrl7IlFebv0g3PCOaKYywO4ru0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.14 40/53] s390/dasd: fix endless loop after read unit address configuration
-Date:   Mon,  5 Aug 2019 15:03:05 +0200
-Message-Id: <20190805124932.496816209@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "stable@vger.kernel.org, Miguel Ojeda" 
+        <miguel.ojeda.sandonis@gmail.com>,
+        Martin Sebor <msebor@gcc.gnu.org>,
+        Jessica Yu <jeyu@kernel.org>,
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Subject: [PATCH 4.9 40/42] include/linux/module.h: copy __init/__exit attrs to init/cleanup_module
+Date:   Mon,  5 Aug 2019 15:03:06 +0200
+Message-Id: <20190805124929.717616311@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
-References: <20190805124927.973499541@linuxfoundation.org>
+In-Reply-To: <20190805124924.788666484@linuxfoundation.org>
+References: <20190805124924.788666484@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,73 +47,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
 
-commit 41995342b40c418a47603e1321256d2c4a2ed0fb upstream.
+commit a6e60d84989fa0e91db7f236eda40453b0e44afa upstream.
 
-After getting a storage server event that causes the DASD device driver
-to update its unit address configuration during a device shutdown there is
-the possibility of an endless loop in the device driver.
+The upcoming GCC 9 release extends the -Wmissing-attributes warnings
+(enabled by -Wall) to C and aliases: it warns when particular function
+attributes are missing in the aliases but not in their target.
 
-In the system log there will be ongoing DASD error messages with RC: -19.
+In particular, it triggers for all the init/cleanup_module
+aliases in the kernel (defined by the module_init/exit macros),
+ending up being very noisy.
 
-The reason is that the loop starting the ruac request only terminates when
-the retry counter is decreased to 0. But in the sleep_on function there are
-early exit paths that do not decrease the retry counter.
+These aliases point to the __init/__exit functions of a module,
+which are defined as __cold (among other attributes). However,
+the aliases themselves do not have the __cold attribute.
 
-Prevent an endless loop by handling those cases separately.
+Since the compiler behaves differently when compiling a __cold
+function as well as when compiling paths leading to calls
+to __cold functions, the warning is trying to point out
+the possibly-forgotten attribute in the alias.
 
-Remove the unnecessary do..while loop since the sleep_on function takes
-care of retries by itself.
+In order to keep the warning enabled, we decided to silence
+this case. Ideally, we would mark the aliases directly
+as __init/__exit. However, there are currently around 132 modules
+in the kernel which are missing __init/__exit in their init/cleanup
+functions (either because they are missing, or for other reasons,
+e.g. the functions being called from somewhere else); and
+a section mismatch is a hard error.
 
-Fixes: 8e09f21574ea ("[S390] dasd: add hyper PAV support to DASD device driver, part 1")
-Cc: stable@vger.kernel.org # 2.6.25+
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+A conservative alternative was to mark the aliases as __cold only.
+However, since we would like to eventually enforce __init/__exit
+to be always marked,  we chose to use the new __copy function
+attribute (introduced by GCC 9 as well to deal with this).
+With it, we copy the attributes used by the target functions
+into the aliases. This way, functions that were not marked
+as __init/__exit won't have their aliases marked either,
+and therefore there won't be a section mismatch.
+
+Note that the warning would go away marking either the extern
+declaration, the definition, or both. However, we only mark
+the definition of the alias, since we do not want callers
+(which only see the declaration) to be compiled as if the function
+was __cold (and therefore the paths leading to those calls
+would be assumed to be unlikely).
+
+Link: https://lore.kernel.org/lkml/259986242.BvXPX32bHu@devpool35/
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/lkml/20190123173707.GA16603@gmail.com/
+Link: https://lore.kernel.org/lkml/20190206175627.GA20399@gmail.com/
+Suggested-by: Martin Sebor <msebor@gcc.gnu.org>
+Acked-by: Jessica Yu <jeyu@kernel.org>
+Signed-off-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/s390/block/dasd_alias.c |   22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ include/linux/module.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/s390/block/dasd_alias.c
-+++ b/drivers/s390/block/dasd_alias.c
-@@ -383,6 +383,20 @@ suborder_not_supported(struct dasd_ccw_r
- 	char msg_format;
- 	char msg_no;
+--- a/include/linux/module.h
++++ b/include/linux/module.h
+@@ -129,13 +129,13 @@ extern void cleanup_module(void);
+ #define module_init(initfn)					\
+ 	static inline initcall_t __maybe_unused __inittest(void)		\
+ 	{ return initfn; }					\
+-	int init_module(void) __attribute__((alias(#initfn)));
++	int init_module(void) __copy(initfn) __attribute__((alias(#initfn)));
  
-+	/*
-+	 * intrc values ENODEV, ENOLINK and EPERM
-+	 * will be optained from sleep_on to indicate that no
-+	 * IO operation can be started
-+	 */
-+	if (cqr->intrc == -ENODEV)
-+		return 1;
-+
-+	if (cqr->intrc == -ENOLINK)
-+		return 1;
-+
-+	if (cqr->intrc == -EPERM)
-+		return 1;
-+
- 	sense = dasd_get_sense(&cqr->irb);
- 	if (!sense)
- 		return 0;
-@@ -447,12 +461,8 @@ static int read_unit_address_configurati
- 	lcu->flags &= ~NEED_UAC_UPDATE;
- 	spin_unlock_irqrestore(&lcu->lock, flags);
+ /* This is only required if you want to be unloadable. */
+ #define module_exit(exitfn)					\
+ 	static inline exitcall_t __maybe_unused __exittest(void)		\
+ 	{ return exitfn; }					\
+-	void cleanup_module(void) __attribute__((alias(#exitfn)));
++	void cleanup_module(void) __copy(exitfn) __attribute__((alias(#exitfn)));
  
--	do {
--		rc = dasd_sleep_on(cqr);
--		if (rc && suborder_not_supported(cqr))
--			return -EOPNOTSUPP;
--	} while (rc && (cqr->retries > 0));
--	if (rc) {
-+	rc = dasd_sleep_on(cqr);
-+	if (rc && !suborder_not_supported(cqr)) {
- 		spin_lock_irqsave(&lcu->lock, flags);
- 		lcu->flags |= NEED_UAC_UPDATE;
- 		spin_unlock_irqrestore(&lcu->lock, flags);
+ #endif
+ 
 
 
