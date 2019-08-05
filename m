@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 05C6081A40
+	by mail.lfdr.de (Postfix) with ESMTP id E1C3381A42
 	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:04:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729010AbfHENEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:04:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40036 "EHLO mail.kernel.org"
+        id S1729027AbfHENE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:04:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729003AbfHENEX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:04:23 -0400
+        id S1729022AbfHENE0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:04:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBB082147A;
-        Mon,  5 Aug 2019 13:04:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9461B206C1;
+        Mon,  5 Aug 2019 13:04:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010263;
-        bh=JVbvcF1ZlEUlRek4Wl2AbDuSGRAtfBt/8Th29uWfSaI=;
+        s=default; t=1565010266;
+        bh=HI8Bcj0/Y78Lr5nke/yKwlk1lz1igip0lnZrf8wQm2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CQwUmUIAicHwHBamupG3E+WHhngAJxdnqDifEpZGLF/F+8RY+ZzMmuYDdvMGOJrG4
-         Xm/djdoZN5DtsD+iL0NUIGZTK84AMj/TTcznl1iH9+FYbH7sYzfaHWKKujJzKx7Enz
-         klqnxuaTvuNDV1lojhBcvKLpRfXjzaVoyNJJ2XRA=
+        b=qwiefaUMP2YDR3owS3iMFUvAW1e3mdddojQN/t7Rmb+jg39Ke3nS71sA/yl08fTqY
+         EpCzZPqjUZ3aXOhPc6m6T/iZom3aher1gJbYzyILrE5mX5vJKCdq+BN8KH52oMwQRD
+         n0u5kRSFc9InguOVbF0rIz3tDkOHKOD3DBLWrOuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.4 21/22] s390/dasd: fix endless loop after read unit address configuration
-Date:   Mon,  5 Aug 2019 15:02:58 +0200
-Message-Id: <20190805124923.291513679@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Jan Beulich <jbeulich@suse.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: [PATCH 4.4 22/22] xen/swiotlb: fix condition for calling xen_destroy_contiguous_region()
+Date:   Mon,  5 Aug 2019 15:02:59 +0200
+Message-Id: <20190805124923.549465086@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124918.070468681@linuxfoundation.org>
 References: <20190805124918.070468681@linuxfoundation.org>
@@ -44,73 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 41995342b40c418a47603e1321256d2c4a2ed0fb upstream.
+commit 50f6393f9654c561df4cdcf8e6cfba7260143601 upstream.
 
-After getting a storage server event that causes the DASD device driver
-to update its unit address configuration during a device shutdown there is
-the possibility of an endless loop in the device driver.
+The condition in xen_swiotlb_free_coherent() for deciding whether to
+call xen_destroy_contiguous_region() is wrong: in case the region to
+be freed is not contiguous calling xen_destroy_contiguous_region() is
+the wrong thing to do: it would result in inconsistent mappings of
+multiple PFNs to the same MFN. This will lead to various strange
+crashes or data corruption.
 
-In the system log there will be ongoing DASD error messages with RC: -19.
+Instead of calling xen_destroy_contiguous_region() in that case a
+warning should be issued as that situation should never occur.
 
-The reason is that the loop starting the ruac request only terminates when
-the retry counter is decreased to 0. But in the sleep_on function there are
-early exit paths that do not decrease the retry counter.
-
-Prevent an endless loop by handling those cases separately.
-
-Remove the unnecessary do..while loop since the sleep_on function takes
-care of retries by itself.
-
-Fixes: 8e09f21574ea ("[S390] dasd: add hyper PAV support to DASD device driver, part 1")
-Cc: stable@vger.kernel.org # 2.6.25+
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: stable@vger.kernel.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Acked-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/s390/block/dasd_alias.c |   22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ drivers/xen/swiotlb-xen.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/s390/block/dasd_alias.c
-+++ b/drivers/s390/block/dasd_alias.c
-@@ -396,6 +396,20 @@ suborder_not_supported(struct dasd_ccw_r
- 	char msg_format;
- 	char msg_no;
+--- a/drivers/xen/swiotlb-xen.c
++++ b/drivers/xen/swiotlb-xen.c
+@@ -365,8 +365,8 @@ xen_swiotlb_free_coherent(struct device
+ 	/* Convert the size to actually allocated. */
+ 	size = 1UL << (order + XEN_PAGE_SHIFT);
  
-+	/*
-+	 * intrc values ENODEV, ENOLINK and EPERM
-+	 * will be optained from sleep_on to indicate that no
-+	 * IO operation can be started
-+	 */
-+	if (cqr->intrc == -ENODEV)
-+		return 1;
-+
-+	if (cqr->intrc == -ENOLINK)
-+		return 1;
-+
-+	if (cqr->intrc == -EPERM)
-+		return 1;
-+
- 	sense = dasd_get_sense(&cqr->irb);
- 	if (!sense)
- 		return 0;
-@@ -460,12 +474,8 @@ static int read_unit_address_configurati
- 	lcu->flags &= ~NEED_UAC_UPDATE;
- 	spin_unlock_irqrestore(&lcu->lock, flags);
+-	if (((dev_addr + size - 1 <= dma_mask)) ||
+-	    range_straddles_page_boundary(phys, size))
++	if (!WARN_ON((dev_addr + size - 1 > dma_mask) ||
++		     range_straddles_page_boundary(phys, size)))
+ 		xen_destroy_contiguous_region(phys, order);
  
--	do {
--		rc = dasd_sleep_on(cqr);
--		if (rc && suborder_not_supported(cqr))
--			return -EOPNOTSUPP;
--	} while (rc && (cqr->retries > 0));
--	if (rc) {
-+	rc = dasd_sleep_on(cqr);
-+	if (rc && !suborder_not_supported(cqr)) {
- 		spin_lock_irqsave(&lcu->lock, flags);
- 		lcu->flags |= NEED_UAC_UPDATE;
- 		spin_unlock_irqrestore(&lcu->lock, flags);
+ 	xen_free_coherent_pages(hwdev, size, vaddr, (dma_addr_t)phys, attrs);
 
 
