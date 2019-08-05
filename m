@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CCE581BD9
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:17:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5290481B1F
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:12:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729095AbfHENRg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:17:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41056 "EHLO mail.kernel.org"
+        id S1730404AbfHENKs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:10:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728665AbfHENFI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:05:08 -0400
+        id S1729781AbfHENKs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:10:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E751B2087B;
-        Mon,  5 Aug 2019 13:05:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B22962173B;
+        Mon,  5 Aug 2019 13:10:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010307;
-        bh=HyhJNyLicfjSVkgqD+X8Uvkq/6ZNGQXGo3GkiCTdH7k=;
+        s=default; t=1565010647;
+        bh=ObF09PEldkspaLUW+MIYiqOE8+Q42gtENzpbGpd5d0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yijPOfWLnNLX8Q2vQjsDSoGo2Kd35U9cWRSHHChP/8uOACQkpRdQJIJzRKQew7bt1
-         ViTwzjKZjxyLtzNyToQwbGyo8sp0spl8jkl1fuPKk0IWFWH6olofxY/9nl4MF8dT2k
-         dbrH9b9z7zpwv+EyvtyuD6INtdcjJJgGapKLzSyY=
+        b=pZeMFxRAw4cfbulJDXn6xL8Hvn7l/XiPypkONmtYssKy7zZq40RmybL3CW+Z1wz5j
+         7XTYXP/2vrqT/wtKAvrW58y1/7Yi+ejhPn9rSliHoKojDVSsNCPpKSbGzGHnJNnBBX
+         wqvPB+51bh1oiyBuOvFtzoAwrZED+QCkad5SZlBI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cheng Jian <cj.chengjian@huawei.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
+        "Yan, Zheng" <zyan@redhat.com>, Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 05/42] ftrace: Enable trampoline when rec count returns back to one
-Date:   Mon,  5 Aug 2019 15:02:31 +0200
-Message-Id: <20190805124925.489989989@linuxfoundation.org>
+Subject: [PATCH 4.19 19/74] ceph: return -ERANGE if virtual xattr value didnt fit in buffer
+Date:   Mon,  5 Aug 2019 15:02:32 +0200
+Message-Id: <20190805124937.343935663@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124924.788666484@linuxfoundation.org>
-References: <20190805124924.788666484@linuxfoundation.org>
+In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
+References: <20190805124935.819068648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,102 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a124692b698b00026a58d89831ceda2331b2e1d0 ]
+[ Upstream commit 3b421018f48c482bdc9650f894aa1747cf90e51d ]
 
-Custom trampolines can only be enabled if there is only a single ops
-attached to it. If there's only a single callback registered to a function,
-and the ops has a trampoline registered for it, then we can call the
-trampoline directly. This is very useful for improving the performance of
-ftrace and livepatch.
+The getxattr manpage states that we should return ERANGE if the
+destination buffer size is too small to hold the value.
+ceph_vxattrcb_layout does this internally, but we should be doing
+this for all vxattrs.
 
-If more than one callback is registered to a function, the general
-trampoline is used, and the custom trampoline is not restored back to the
-direct call even if all the other callbacks were unregistered and we are
-back to one callback for the function.
+Fix the only caller of getxattr_cb to check the returned size
+against the buffer length and return -ERANGE if it doesn't fit.
+Drop the same check in ceph_vxattrcb_layout and just rely on the
+caller to handle it.
 
-To fix this, set FTRACE_FL_TRAMP flag if rec count is decremented
-to one, and the ops that left has a trampoline.
-
-Testing After this patch :
-
-insmod livepatch_unshare_files.ko
-cat /sys/kernel/debug/tracing/enabled_functions
-
-	unshare_files (1) R I	tramp: 0xffffffffc0000000(klp_ftrace_handler+0x0/0xa0) ->ftrace_ops_assist_func+0x0/0xf0
-
-echo unshare_files > /sys/kernel/debug/tracing/set_ftrace_filter
-echo function > /sys/kernel/debug/tracing/current_tracer
-cat /sys/kernel/debug/tracing/enabled_functions
-
-	unshare_files (2) R I ->ftrace_ops_list_func+0x0/0x150
-
-echo nop > /sys/kernel/debug/tracing/current_tracer
-cat /sys/kernel/debug/tracing/enabled_functions
-
-	unshare_files (1) R I	tramp: 0xffffffffc0000000(klp_ftrace_handler+0x0/0xa0) ->ftrace_ops_assist_func+0x0/0xf0
-
-Link: http://lkml.kernel.org/r/1556969979-111047-1-git-send-email-cj.chengjian@huawei.com
-
-Signed-off-by: Cheng Jian <cj.chengjian@huawei.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: "Yan, Zheng" <zyan@redhat.com>
+Acked-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ftrace.c | 28 +++++++++++++++-------------
- 1 file changed, 15 insertions(+), 13 deletions(-)
+ fs/ceph/xattr.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 0043aef0ed8dc..77109b9cf7332 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -1631,6 +1631,11 @@ static bool test_rec_ops_needs_regs(struct dyn_ftrace *rec)
- 	return  keep_regs;
- }
+diff --git a/fs/ceph/xattr.c b/fs/ceph/xattr.c
+index 5cc8b94f82069..0a2d4898ee163 100644
+--- a/fs/ceph/xattr.c
++++ b/fs/ceph/xattr.c
+@@ -79,7 +79,7 @@ static size_t ceph_vxattrcb_layout(struct ceph_inode_info *ci, char *val,
+ 	const char *ns_field = " pool_namespace=";
+ 	char buf[128];
+ 	size_t len, total_len = 0;
+-	int ret;
++	ssize_t ret;
  
-+static struct ftrace_ops *
-+ftrace_find_tramp_ops_any(struct dyn_ftrace *rec);
-+static struct ftrace_ops *
-+ftrace_find_tramp_ops_next(struct dyn_ftrace *rec, struct ftrace_ops *ops);
-+
- static bool __ftrace_hash_rec_update(struct ftrace_ops *ops,
- 				     int filter_hash,
- 				     bool inc)
-@@ -1759,15 +1764,17 @@ static bool __ftrace_hash_rec_update(struct ftrace_ops *ops,
- 			}
+ 	pool_ns = ceph_try_get_string(ci->i_layout.pool_ns);
  
- 			/*
--			 * If the rec had TRAMP enabled, then it needs to
--			 * be cleared. As TRAMP can only be enabled iff
--			 * there is only a single ops attached to it.
--			 * In otherwords, always disable it on decrementing.
--			 * In the future, we may set it if rec count is
--			 * decremented to one, and the ops that is left
--			 * has a trampoline.
-+			 * The TRAMP needs to be set only if rec count
-+			 * is decremented to one, and the ops that is
-+			 * left has a trampoline. As TRAMP can only be
-+			 * enabled if there is only a single ops attached
-+			 * to it.
- 			 */
--			rec->flags &= ~FTRACE_FL_TRAMP;
-+			if (ftrace_rec_count(rec) == 1 &&
-+			    ftrace_find_tramp_ops_any(rec))
-+				rec->flags |= FTRACE_FL_TRAMP;
-+			else
-+				rec->flags &= ~FTRACE_FL_TRAMP;
+@@ -103,11 +103,8 @@ static size_t ceph_vxattrcb_layout(struct ceph_inode_info *ci, char *val,
+ 	if (pool_ns)
+ 		total_len += strlen(ns_field) + pool_ns->len;
  
- 			/*
- 			 * flags will be cleared in ftrace_check_record()
-@@ -1960,11 +1967,6 @@ static void print_ip_ins(const char *fmt, const unsigned char *p)
- 		printk(KERN_CONT "%s%02x", i ? ":" : "", p[i]);
- }
- 
--static struct ftrace_ops *
--ftrace_find_tramp_ops_any(struct dyn_ftrace *rec);
--static struct ftrace_ops *
--ftrace_find_tramp_ops_next(struct dyn_ftrace *rec, struct ftrace_ops *ops);
--
- enum ftrace_bug_type ftrace_bug_type;
- const void *ftrace_expected;
+-	if (!size) {
+-		ret = total_len;
+-	} else if (total_len > size) {
+-		ret = -ERANGE;
+-	} else {
++	ret = total_len;
++	if (size >= total_len) {
+ 		memcpy(val, buf, len);
+ 		ret = len;
+ 		if (pool_name) {
+@@ -817,8 +814,11 @@ ssize_t __ceph_getxattr(struct inode *inode, const char *name, void *value,
+ 		if (err)
+ 			return err;
+ 		err = -ENODATA;
+-		if (!(vxattr->exists_cb && !vxattr->exists_cb(ci)))
++		if (!(vxattr->exists_cb && !vxattr->exists_cb(ci))) {
+ 			err = vxattr->getxattr_cb(ci, value, size);
++			if (size && size < err)
++				err = -ERANGE;
++		}
+ 		return err;
+ 	}
  
 -- 
 2.20.1
