@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B292481B0B
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:11:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D70781B57
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:14:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729747AbfHENLW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:11:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50672 "EHLO mail.kernel.org"
+        id S1729478AbfHENIa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:08:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730493AbfHENLW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:11:22 -0400
+        id S1730034AbfHENI2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:08:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80D2F2075B;
-        Mon,  5 Aug 2019 13:11:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1D472067D;
+        Mon,  5 Aug 2019 13:08:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010681;
-        bh=QysK84hquV/fn9GV/zWxjrS2fStoVIEKU6R3FzEDvEI=;
+        s=default; t=1565010507;
+        bh=qFsiztdLDvQWTMxiXFUptRNbM9KiUDEKG8b6B96WFkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tk6NXz6rPWfeuyEqdNNeEjvqlpFd8kHA+cnZFQaF1Y32T5mtkdBm52hveP4JduJCg
-         wOj+/2A/w3ZFEWV7WtqxBkmLLiIN+oop6BLBCBKZGc3YUVCEwH7vLpqgFPP/Zj6zD2
-         TY5Mlpsz+4hrkGe+BeiezJ0uBiHIReLi1f6VneJA=
+        b=pAVh4R8sJtnR7Un0P0BhVc6X+ZZAzp1w2e8NZFdnqan3dvSPSfr8gCz/5TvIvtkTW
+         gi3GF366mGEZ/R2LLFFJ4RqK5+gUzNwS+fvhwVvmWZFrGB0+7+kimQQzm0QMNMZj8y
+         /rSn0YJXaQuzpum8khMln/HhoPw/2ULM4/WA0eiQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yishai Hadas <yishaih@mellanox.com>,
-        Artemy Kovalyov <artemyko@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.19 63/74] IB/mlx5: Use direct mkey destroy command upon UMR unreg failure
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.14 51/53] objtool: Support GCC 9 cold subfunction naming scheme
 Date:   Mon,  5 Aug 2019 15:03:16 +0200
-Message-Id: <20190805124940.921823433@linuxfoundation.org>
+Message-Id: <20190805124933.521002409@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
-References: <20190805124935.819068648@linuxfoundation.org>
+In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
+References: <20190805124927.973499541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yishai Hadas <yishaih@mellanox.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit afd1417404fba6dbfa6c0a8e5763bd348da682e4 upstream.
+commit bcb6fb5da77c2a228adf07cc9cb1a0c2aa2001c6 upstream.
 
-Use a direct firmware command to destroy the mkey in case the unreg UMR
-operation has failed.
+Starting with GCC 8, a lot of unlikely code was moved out of line to
+"cold" subfunctions in .text.unlikely.
 
-This prevents a case that a mkey will leak out from the cache post a
-failure to be destroyed by a UMR WR.
+For example, the unlikely bits of:
 
-In case the MR cache limit didn't reach a call to add another entry to the
-cache instead of the destroyed one is issued.
+  irq_do_set_affinity()
 
-In addition, replaced a warn message to WARN_ON() as this flow is fatal
-and can't happen unless some bug around.
+are moved out to the following subfunction:
 
-Link: https://lore.kernel.org/r/20190723065733.4899-4-leon@kernel.org
-Cc: <stable@vger.kernel.org> # 4.10
-Fixes: 49780d42dfc9 ("IB/mlx5: Expose MR cache for mlx5_ib")
-Signed-off-by: Yishai Hadas <yishaih@mellanox.com>
-Reviewed-by: Artemy Kovalyov <artemyko@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+  irq_do_set_affinity.cold.49()
+
+Starting with GCC 9, the numbered suffix has been removed.  So in the
+above example, the cold subfunction is instead:
+
+  irq_do_set_affinity.cold()
+
+Tweak the objtool subfunction detection logic so that it detects both
+GCC 8 and GCC 9 naming schemes.
+
+Reported-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/015e9544b1f188d36a7f02fa31e9e95629aa5f50.1541040800.git.jpoimboe@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/mlx5/mr.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ tools/objtool/elf.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/infiniband/hw/mlx5/mr.c
-+++ b/drivers/infiniband/hw/mlx5/mr.c
-@@ -548,13 +548,16 @@ void mlx5_mr_cache_free(struct mlx5_ib_d
- 		return;
+--- a/tools/objtool/elf.c
++++ b/tools/objtool/elf.c
+@@ -305,7 +305,7 @@ static int read_symbols(struct elf *elf)
+ 			if (sym->type != STT_FUNC)
+ 				continue;
+ 			sym->pfunc = sym->cfunc = sym;
+-			coldstr = strstr(sym->name, ".cold.");
++			coldstr = strstr(sym->name, ".cold");
+ 			if (!coldstr)
+ 				continue;
  
- 	c = order2idx(dev, mr->order);
--	if (c < 0 || c >= MAX_MR_CACHE_ENTRIES) {
--		mlx5_ib_warn(dev, "order %d, cache index %d\n", mr->order, c);
--		return;
--	}
-+	WARN_ON(c < 0 || c >= MAX_MR_CACHE_ENTRIES);
- 
--	if (unreg_umr(dev, mr))
-+	if (unreg_umr(dev, mr)) {
-+		mr->allocated_from_cache = false;
-+		destroy_mkey(dev, mr);
-+		ent = &cache->ent[c];
-+		if (ent->cur < ent->limit)
-+			queue_work(cache->wq, &ent->work);
- 		return;
-+	}
- 
- 	ent = &cache->ent[c];
- 	spin_lock_irq(&ent->lock);
 
 
