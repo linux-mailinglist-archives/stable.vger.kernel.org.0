@@ -2,114 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22B5B827B7
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 00:50:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D1DA827D7
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 01:17:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728483AbfHEWuB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 18:50:01 -0400
-Received: from mga04.intel.com ([192.55.52.120]:12684 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727928AbfHEWuB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 18:50:01 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 15:50:00 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,350,1559545200"; 
-   d="scan'208";a="257852004"
-Received: from josouza-mobl.jf.intel.com (HELO josouza-MOBL.intel.com) ([10.24.9.51])
-  by orsmga001.jf.intel.com with ESMTP; 05 Aug 2019 15:49:59 -0700
-From:   =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
-        Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        =?UTF-8?q?Fran=C3=A7ois=20Guerraz?= <kubrick@fgv6.net>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH] drm/i915/vbt: Fix VBT parsing for the PSR section
-Date:   Mon,  5 Aug 2019 15:49:51 -0700
-Message-Id: <20190805224951.6523-1-jose.souza@intel.com>
-X-Mailer: git-send-email 2.22.0
-In-Reply-To: <156498469082135@kroah.com>
-References: <156498469082135@kroah.com>
+        id S1730906AbfHEXRb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 19:17:31 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:44891 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730893AbfHEXRb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 19:17:31 -0400
+Received: by mail-wr1-f67.google.com with SMTP id p17so85971372wrf.11
+        for <stable@vger.kernel.org>; Mon, 05 Aug 2019 16:17:30 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:openpgp:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=PeMpHB1UaVYGh8oqL7/+H8waTPb/Jq8dxVIPc4CJ+Qk=;
+        b=KxDSS0ichObj8dAWttUXli4wdm2uyFqksPeaMdZPXeV+sQQbpnEbexHu662AsmPt0T
+         i/GWDK2phghLatw9QQU1UlFzok80LpMROpEkWSR8VWTf3SUtXYnkHYQBg9c3aDNib0Ie
+         4r/5UXJsnN0mq9u/MuaJqos4R3Tr5n2Td9NssoujFUzo0k2e3jeevfqo+2sgycgVWlMF
+         +EbkgAjeWGStmVYBJxUO5TXfh/1KnyI1d+C5zjI17JqBQkJ92XjCgNqOJ71k5h3rxcEI
+         CIN9aPh3XIg9OnXQOj7FfDBS4l7rExyQBZZZ9VYO44lJck09ztWQOX4vkHIG1J781TWp
+         rgug==
+X-Gm-Message-State: APjAAAV0uQQpSqNSTyLnOAkeuJWPDlSqYPhsJJrENh7cpOZtKntNsdoU
+        8Fk8hn5HBuEiBSu2qJiCKo+2WaIAd78=
+X-Google-Smtp-Source: APXvYqxCLIfa99wR63hAGf/aZH8p3Qjmcyz3+bBsnzEqVWm1qaEhqTrx+w5t3jeY/vvTd63LA9R0og==
+X-Received: by 2002:a5d:67cd:: with SMTP id n13mr342350wrw.138.1565047049292;
+        Mon, 05 Aug 2019 16:17:29 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:dc26:ed70:9e4c:3810? ([2001:b07:6468:f312:dc26:ed70:9e4c:3810])
+        by smtp.gmail.com with ESMTPSA id h14sm85951308wrs.66.2019.08.05.16.17.28
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Mon, 05 Aug 2019 16:17:28 -0700 (PDT)
+Subject: Re: [PATCH v4 1/6] KVM: Fix leak vCPU's VMCS value into other pCPU
+To:     Wanpeng Li <kernellwp@gmail.com>, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Marc Zyngier <Marc.Zyngier@arm.com>, stable@vger.kernel.org
+References: <1564970604-10044-1-git-send-email-wanpengli@tencent.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Openpgp: preference=signencrypt
+Message-ID: <9acbc733-442f-0f65-9b56-ff800a3fa0f5@redhat.com>
+Date:   Tue, 6 Aug 2019 01:17:27 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1564970604-10044-1-git-send-email-wanpengli@tencent.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>
+On 05/08/19 04:03, Wanpeng Li wrote:
+> From: Wanpeng Li <wanpengli@tencent.com>
+> 
+> After commit d73eb57b80b (KVM: Boost vCPUs that are delivering interrupts), a 
+> five years old bug is exposed. Running ebizzy benchmark in three 80 vCPUs VMs 
+> on one 80 pCPUs Skylake server, a lot of rcu_sched stall warning splatting 
+> in the VMs after stress testing:
+> 
+>  INFO: rcu_sched detected stalls on CPUs/tasks: { 4 41 57 62 77} (detected by 15, t=60004 jiffies, g=899, c=898, q=15073)
+>  Call Trace:
+>    flush_tlb_mm_range+0x68/0x140
+>    tlb_flush_mmu.part.75+0x37/0xe0
+>    tlb_finish_mmu+0x55/0x60
+>    zap_page_range+0x142/0x190
+>    SyS_madvise+0x3cd/0x9c0
+>    system_call_fastpath+0x1c/0x21
+> 
+> swait_active() sustains to be true before finish_swait() is called in 
+> kvm_vcpu_block(), voluntarily preempted vCPUs are taken into account 
+> by kvm_vcpu_on_spin() loop greatly increases the probability condition 
+> kvm_arch_vcpu_runnable(vcpu) is checked and can be true, when APICv 
+> is enabled the yield-candidate vCPU's VMCS RVI field leaks(by 
+> vmx_sync_pir_to_irr()) into spinning-on-a-taken-lock vCPU's current 
+> VMCS.
+> 
+> This patch fixes it by checking conservatively a subset of events.
+> 
+> Cc: Paolo Bonzini <pbonzini@redhat.com>
+> Cc: Radim Krčmář <rkrcmar@redhat.com>
+> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+> Cc: Marc Zyngier <Marc.Zyngier@arm.com>
+> Cc: stable@vger.kernel.org
+> Fixes: 98f4a1467 (KVM: add kvm_arch_vcpu_runnable() test to kvm_vcpu_on_spin() loop)
+> Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+> ---
+> v3 -> v4:
+>  * just test KVM_REQ_*
+>  * rename the hook to apicv_has_pending_interrupt
+>  * wrap with #ifdef CONFIG_KVM_ASYNC_PF 
+> v2 -> v3:
+>  * check conservatively a subset of events
+> v1 -> v2:
+>  * checking swait_active(&vcpu->wq) for involuntary preemption
+> 
+>  arch/mips/kvm/mips.c            |  5 +++++
+>  arch/powerpc/kvm/powerpc.c      |  5 +++++
+>  arch/s390/kvm/kvm-s390.c        |  5 +++++
+>  arch/x86/include/asm/kvm_host.h |  1 +
+>  arch/x86/kvm/svm.c              |  6 ++++++
+>  arch/x86/kvm/vmx/vmx.c          |  6 ++++++
+>  arch/x86/kvm/x86.c              | 16 ++++++++++++++++
+>  include/linux/kvm_host.h        |  1 +
+>  virt/kvm/arm/arm.c              |  5 +++++
+>  virt/kvm/kvm_main.c             | 16 +++++++++++++++-
+>  10 files changed, 65 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
+> index 2cfe839..95a4642 100644
+> --- a/arch/mips/kvm/mips.c
+> +++ b/arch/mips/kvm/mips.c
+> @@ -98,6 +98,11 @@ int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu)
+>  	return !!(vcpu->arch.pending_exceptions);
+>  }
+>  
+> +bool kvm_arch_dy_runnable(struct kvm_vcpu *vcpu)
 
-A single 32-bit PSR2 training pattern field follows the sixteen element
-array of PSR table entries in the VBT spec. But, we incorrectly define
-this PSR2 field for each of the PSR table entries. As a result, the PSR1
-training pattern duration for any panel_type != 0 will be parsed
-incorrectly. Secondly, PSR2 training pattern durations for VBTs with bdb
-version >= 226 will also be wrong.
+Using a __weak definition for the default implementation is a bit more
+concise.  Queued with that change.
 
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: José Roberto de Souza <jose.souza@intel.com>
-Cc: stable@vger.kernel.org
-Cc: stable@vger.kernel.org #v5.2
-Fixes: 88a0d9606aff ("drm/i915/vbt: Parse and use the new field with PSR2 TP2/3 wakeup time")
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111088
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204183
-Signed-off-by: Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
-Acked-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Tested-by: François Guerraz <kubrick@fgv6.net>
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190717223451.2595-1-dhinakaran.pandiyan@intel.com
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-(cherry picked from commit 6d61f716a01ec0e134de38ae97e71d6fec5a6ff6)
----
-
-Sending it for Dhinakaran, let me know if something is wrong.
-
- drivers/gpu/drm/i915/intel_bios.c     | 2 +-
- drivers/gpu/drm/i915/intel_vbt_defs.h | 6 +++---
- 2 files changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/gpu/drm/i915/intel_bios.c b/drivers/gpu/drm/i915/intel_bios.c
-index 1dc8d03ff127..ee6fa75d65a2 100644
---- a/drivers/gpu/drm/i915/intel_bios.c
-+++ b/drivers/gpu/drm/i915/intel_bios.c
-@@ -762,7 +762,7 @@ parse_psr(struct drm_i915_private *dev_priv, const struct bdb_header *bdb)
- 	}
- 
- 	if (bdb->version >= 226) {
--		u32 wakeup_time = psr_table->psr2_tp2_tp3_wakeup_time;
-+		u32 wakeup_time = psr->psr2_tp2_tp3_wakeup_time;
- 
- 		wakeup_time = (wakeup_time >> (2 * panel_type)) & 0x3;
- 		switch (wakeup_time) {
-diff --git a/drivers/gpu/drm/i915/intel_vbt_defs.h b/drivers/gpu/drm/i915/intel_vbt_defs.h
-index fdbbb9a53804..796c070bbe6f 100644
---- a/drivers/gpu/drm/i915/intel_vbt_defs.h
-+++ b/drivers/gpu/drm/i915/intel_vbt_defs.h
-@@ -772,13 +772,13 @@ struct psr_table {
- 	/* TP wake up time in multiple of 100 */
- 	u16 tp1_wakeup_time;
- 	u16 tp2_tp3_wakeup_time;
--
--	/* PSR2 TP2/TP3 wakeup time for 16 panels */
--	u32 psr2_tp2_tp3_wakeup_time;
- } __packed;
- 
- struct bdb_psr {
- 	struct psr_table psr_table[16];
-+
-+	/* PSR2 TP2/TP3 wakeup time for 16 panels */
-+	u32 psr2_tp2_tp3_wakeup_time;
- } __packed;
- 
- /*
--- 
-2.22.0
-
+Paolo
