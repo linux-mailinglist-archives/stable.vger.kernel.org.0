@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E838A81C54
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:23:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3707A81CFB
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:28:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730714AbfHENWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:22:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59252 "EHLO mail.kernel.org"
+        id S1729639AbfHEN2d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:28:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729989AbfHENWk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:22:40 -0400
+        id S1730723AbfHENWm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:22:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D2E421871;
-        Mon,  5 Aug 2019 13:22:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CEFF20651;
+        Mon,  5 Aug 2019 13:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011359;
-        bh=abVtm5R4TC05I+ifUy0dsctYKFHWSDncpsOa7i8Gpus=;
+        s=default; t=1565011362;
+        bh=WCr2C9SvA6NcF0TyMrkE44OCdazKei7aqczCmdnv1ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F7aimuNtg43x3v1JjLY8GRgBYpwTfhi3Qdmlfp89RAabddXyHjrFwuTFwU8A2xNu7
-         D3X82YPWVPsJ2tv0PIZ9KRjUvKL1F5SEGe3/QLkDELdW5F4FysYrANQgL/Rhzz6UVy
-         Q1IuMTx9pc+iUA+pmtSUWVWgk5RwurCTXngRpowQ=
+        b=dei+GJRSHPxVOW1YNzO+hl0OHkmuTpOf1dtvCeAN73gg/vvieASbE3K1BOx70swP+
+         HnjXeTn+iuTGPRAi9vUoCGpRZL5RkezyDGW0hCzXz++IYJX/ZuG91NsQim9j4ImVCK
+         UV8md/mSZQnceJkCOiQehRWvk9tpQKNolPsYjudc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Dave Hansen <dave.hansen@intel.com>,
+        David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@suse.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
         Borislav Petkov <bp@suse.de>,
         Dan Williams <dan.j.williams@intel.com>,
+        Dave Hansen <dave.hansen@intel.com>,
         Dave Hansen <dave.hansen@linux.intel.com>,
         Dave Jiang <dave.jiang@intel.com>,
-        David Hildenbrand <david@redhat.com>,
         Fengguang Wu <fengguang.wu@intel.com>,
         Huang Ying <ying.huang@intel.com>,
         James Morris <jmorris@namei.org>,
         =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
         Keith Busch <keith.busch@intel.com>,
-        Michal Hocko <mhocko@suse.com>,
         Ross Zwisler <zwisler@kernel.org>,
         Sasha Levin <sashal@kernel.org>, Takashi Iwai <tiwai@suse.de>,
         Tom Lendacky <thomas.lendacky@amd.com>,
@@ -47,9 +47,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Yaowei Bai <baiyaowei@cmss.chinamobile.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.2 063/131] device-dax: fix memory and resource leak if hotplug fails
-Date:   Mon,  5 Aug 2019 15:02:30 +0200
-Message-Id: <20190805124955.668151080@linuxfoundation.org>
+Subject: [PATCH 5.2 064/131] mm/hotplug: make remove_memory() interface usable
+Date:   Mon,  5 Aug 2019 15:02:31 +0200
+Message-Id: <20190805124955.739647249@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -62,69 +62,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 31e4ca92a7dd4cdebd7fe1456b3b0b6ace9a816f ]
+[ Upstream commit eca499ab3749a4537dee77ffead47a1a2c0dee19 ]
 
-Patch series ""Hotremove" persistent memory", v6.
+Presently the remove_memory() interface is inherently broken.  It tries
+to remove memory but panics if some memory is not offline.  The problem
+is that it is impossible to ensure that all memory blocks are offline as
+this function also takes lock_device_hotplug that is required to change
+memory state via sysfs.
 
-Recently, adding a persistent memory to be used like a regular RAM was
-added to Linux.  This work extends this functionality to also allow hot
-removing persistent memory.
+So, between calling this function and offlining all memory blocks there
+is always a window when lock_device_hotplug is released, and therefore,
+there is always a chance for a panic during this window.
 
-We (Microsoft) have an important use case for this functionality.
+Make this interface to return an error if memory removal fails.  This
+way it is safe to call this function without panicking machine, and also
+makes it symmetric to add_memory() which already returns an error.
 
-The requirement is for physical machines with small amount of RAM (~8G)
-to be able to reboot in a very short period of time (<1s).  Yet, there
-is a userland state that is expensive to recreate (~2G).
-
-The solution is to boot machines with 2G preserved for persistent
-memory.
-
-Copy the state, and hotadd the persistent memory so machine still has
-all 8G available for runtime.  Before reboot, offline and hotremove
-device-dax 2G, copy the memory that is needed to be preserved to pmem0
-device, and reboot.
-
-The series of operations look like this:
-
-1. After boot restore /dev/pmem0 to ramdisk to be consumed by apps.
-   and free ramdisk.
-2. Convert raw pmem0 to devdax
-   ndctl create-namespace --mode devdax --map mem -e namespace0.0 -f
-3. Hotadd to System RAM
-   echo dax0.0 > /sys/bus/dax/drivers/device_dax/unbind
-   echo dax0.0 > /sys/bus/dax/drivers/kmem/new_id
-   echo online_movable > /sys/devices/system/memoryXXX/state
-4. Before reboot hotremove device-dax memory from System RAM
-   echo offline > /sys/devices/system/memoryXXX/state
-   echo dax0.0 > /sys/bus/dax/drivers/kmem/unbind
-5. Create raw pmem0 device
-   ndctl create-namespace --mode raw  -e namespace0.0 -f
-6. Copy the state that was stored by apps to ramdisk to pmem device
-7. Do kexec reboot or reboot through firmware if firmware does not
-   zero memory in pmem0 region (These machines have only regular
-   volatile memory). So to have pmem0 device either memmap kernel
-   parameter is used, or devices nodes in dtb are specified.
-
-This patch (of 3):
-
-When add_memory() fails, the resource and the memory should be freed.
-
-Link: http://lkml.kernel.org/r/20190517215438.6487-2-pasha.tatashin@soleen.com
-Fixes: c221c0b0308f ("device-dax: "Hotplug" persistent memory for use like normal RAM")
+Link: http://lkml.kernel.org/r/20190517215438.6487-3-pasha.tatashin@soleen.com
 Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
-Reviewed-by: Dave Hansen <dave.hansen@intel.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
 Cc: Bjorn Helgaas <bhelgaas@google.com>
 Cc: Borislav Petkov <bp@suse.de>
 Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Dave Hansen <dave.hansen@intel.com>
 Cc: Dave Hansen <dave.hansen@linux.intel.com>
 Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: David Hildenbrand <david@redhat.com>
 Cc: Fengguang Wu <fengguang.wu@intel.com>
 Cc: Huang Ying <ying.huang@intel.com>
 Cc: James Morris <jmorris@namei.org>
 Cc: Jérôme Glisse <jglisse@redhat.com>
 Cc: Keith Busch <keith.busch@intel.com>
-Cc: Michal Hocko <mhocko@suse.com>
 Cc: Ross Zwisler <zwisler@kernel.org>
 Cc: Sasha Levin <sashal@kernel.org>
 Cc: Takashi Iwai <tiwai@suse.de>
@@ -135,26 +103,142 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dax/kmem.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ include/linux/memory_hotplug.h |  8 +++--
+ mm/memory_hotplug.c            | 64 +++++++++++++++++++++++-----------
+ 2 files changed, 49 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/dax/kmem.c b/drivers/dax/kmem.c
-index a02318c6d28ab..4c0131857133d 100644
---- a/drivers/dax/kmem.c
-+++ b/drivers/dax/kmem.c
-@@ -66,8 +66,11 @@ int dev_dax_kmem_probe(struct device *dev)
- 	new_res->name = dev_name(dev);
+diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
+index ae892eef8b825..988fde33cd7f5 100644
+--- a/include/linux/memory_hotplug.h
++++ b/include/linux/memory_hotplug.h
+@@ -324,7 +324,7 @@ static inline void pgdat_resize_init(struct pglist_data *pgdat) {}
+ extern bool is_mem_section_removable(unsigned long pfn, unsigned long nr_pages);
+ extern void try_offline_node(int nid);
+ extern int offline_pages(unsigned long start_pfn, unsigned long nr_pages);
+-extern void remove_memory(int nid, u64 start, u64 size);
++extern int remove_memory(int nid, u64 start, u64 size);
+ extern void __remove_memory(int nid, u64 start, u64 size);
  
- 	rc = add_memory(numa_node, new_res->start, resource_size(new_res));
--	if (rc)
-+	if (rc) {
-+		release_resource(new_res);
-+		kfree(new_res);
- 		return rc;
-+	}
- 
- 	return 0;
+ #else
+@@ -341,7 +341,11 @@ static inline int offline_pages(unsigned long start_pfn, unsigned long nr_pages)
+ 	return -EINVAL;
  }
+ 
+-static inline void remove_memory(int nid, u64 start, u64 size) {}
++static inline int remove_memory(int nid, u64 start, u64 size)
++{
++	return -EBUSY;
++}
++
+ static inline void __remove_memory(int nid, u64 start, u64 size) {}
+ #endif /* CONFIG_MEMORY_HOTREMOVE */
+ 
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index e096c987d2614..77d1f69cdeadd 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -1736,9 +1736,10 @@ static int check_memblock_offlined_cb(struct memory_block *mem, void *arg)
+ 		endpa = PFN_PHYS(section_nr_to_pfn(mem->end_section_nr + 1))-1;
+ 		pr_warn("removing memory fails, because memory [%pa-%pa] is onlined\n",
+ 			&beginpa, &endpa);
+-	}
+ 
+-	return ret;
++		return -EBUSY;
++	}
++	return 0;
+ }
+ 
+ static int check_cpu_on_node(pg_data_t *pgdat)
+@@ -1821,19 +1822,9 @@ static void __release_memory_resource(resource_size_t start,
+ 	}
+ }
+ 
+-/**
+- * remove_memory
+- * @nid: the node ID
+- * @start: physical address of the region to remove
+- * @size: size of the region to remove
+- *
+- * NOTE: The caller must call lock_device_hotplug() to serialize hotplug
+- * and online/offline operations before this call, as required by
+- * try_offline_node().
+- */
+-void __ref __remove_memory(int nid, u64 start, u64 size)
++static int __ref try_remove_memory(int nid, u64 start, u64 size)
+ {
+-	int ret;
++	int rc = 0;
+ 
+ 	BUG_ON(check_hotplug_memory_range(start, size));
+ 
+@@ -1841,13 +1832,13 @@ void __ref __remove_memory(int nid, u64 start, u64 size)
+ 
+ 	/*
+ 	 * All memory blocks must be offlined before removing memory.  Check
+-	 * whether all memory blocks in question are offline and trigger a BUG()
++	 * whether all memory blocks in question are offline and return error
+ 	 * if this is not the case.
+ 	 */
+-	ret = walk_memory_range(PFN_DOWN(start), PFN_UP(start + size - 1), NULL,
+-				check_memblock_offlined_cb);
+-	if (ret)
+-		BUG();
++	rc = walk_memory_range(PFN_DOWN(start), PFN_UP(start + size - 1), NULL,
++			       check_memblock_offlined_cb);
++	if (rc)
++		goto done;
+ 
+ 	/* remove memmap entry */
+ 	firmware_map_remove(start, start + size, "System RAM");
+@@ -1859,14 +1850,45 @@ void __ref __remove_memory(int nid, u64 start, u64 size)
+ 
+ 	try_offline_node(nid);
+ 
++done:
+ 	mem_hotplug_done();
++	return rc;
+ }
+ 
+-void remove_memory(int nid, u64 start, u64 size)
++/**
++ * remove_memory
++ * @nid: the node ID
++ * @start: physical address of the region to remove
++ * @size: size of the region to remove
++ *
++ * NOTE: The caller must call lock_device_hotplug() to serialize hotplug
++ * and online/offline operations before this call, as required by
++ * try_offline_node().
++ */
++void __remove_memory(int nid, u64 start, u64 size)
++{
++
++	/*
++	 * trigger BUG() is some memory is not offlined prior to calling this
++	 * function
++	 */
++	if (try_remove_memory(nid, start, size))
++		BUG();
++}
++
++/*
++ * Remove memory if every memory block is offline, otherwise return -EBUSY is
++ * some memory is not offline
++ */
++int remove_memory(int nid, u64 start, u64 size)
+ {
++	int rc;
++
+ 	lock_device_hotplug();
+-	__remove_memory(nid, start, size);
++	rc  = try_remove_memory(nid, start, size);
+ 	unlock_device_hotplug();
++
++	return rc;
+ }
+ EXPORT_SYMBOL_GPL(remove_memory);
+ #endif /* CONFIG_MEMORY_HOTREMOVE */
 -- 
 2.20.1
 
