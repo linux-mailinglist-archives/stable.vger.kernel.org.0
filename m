@@ -2,110 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 528F1823C0
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 19:14:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ED89823D7
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 19:17:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728885AbfHEROQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 13:14:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48808 "EHLO mail.kernel.org"
+        id S1728851AbfHERRk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 13:17:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727460AbfHEROP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 13:14:15 -0400
-Received: from localhost.localdomain (236.31.169.217.in-addr.arpa [217.169.31.236])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1728831AbfHERRk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 13:17:40 -0400
+Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A91B720880;
-        Mon,  5 Aug 2019 17:14:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5E2120880;
+        Mon,  5 Aug 2019 17:17:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565025254;
-        bh=S6XS9QqzRWirxhzhYbvAO6UEoBuI+7mjxaOioIwgDF8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Z9QfhjOf/vgsiS7v4VQ7JPzYIcxpju1eVDzEtV2/6z7scQ9Vk9IvyOKLPN1RdtPJJ
-         kXRSICTy1F/+fm5OmejsmJnLWC6B8a69AGbOPZsyKSNW3MPtsUzaZkqFDm0NXTB2k5
-         oXP2+5VqcG96rcVWeWPGc3+e3yFAT/aBMncfmPQI=
+        s=default; t=1565025459;
+        bh=2yuQ9UZ9WKb3pFZYzsjGYCPYd9aRaY5K2g7+noCoIzo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=DUo44L6NhWAGRHTlmkrBGjI9SzB0EUjUCLfQ4vNaAxAYqGmLxmyUnmXwkPLGuFDXq
+         WFitDjMBral/MzXIjCEVNW5s2J15qF+06Fnb3nKcombWPzJiOaBtUPfEuyUdwq+04h
+         W20yDycOYYcYXKdGXTMHAqOwi54xGEZ7iuvgBmT8=
+Date:   Mon, 5 Aug 2019 18:17:36 +0100
 From:   Will Deacon <will@kernel.org>
 To:     gregkh@linuxfoundation.org
-Cc:     stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH] arm64: cpufeature: Fix feature comparison for CTR_EL0.{CWG,ERG}
-Date:   Mon,  5 Aug 2019 18:14:10 +0100
-Message-Id: <20190805171410.19358-1-will@kernel.org>
-X-Mailer: git-send-email 2.11.0
+Cc:     catalin.marinas@arm.com, mark.rutland@arm.com,
+        stable@vger.kernel.org, suzuki.poulose@arm.com
+Subject: Re: FAILED: patch "[PATCH] arm64: cpufeature: Fix feature comparison
+ for" failed to apply to 4.9-stable tree
+Message-ID: <20190805171735.rpfqg7mjhj7oaadf@willie-the-truck>
+References: <156498316660175@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <156498316660175@kroah.com>
+User-Agent: NeoMutt/20170113 (1.7.2)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 147b9635e6347104b91f48ca9dca61eb0fbf2a54 upstream.
+On Mon, Aug 05, 2019 at 07:32:46AM +0200, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 4.9-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-If CTR_EL0.{CWG,ERG} are 0b0000 then they must be interpreted to have
-their architecturally maximum values, which defeats the use of
-FTR_HIGHER_SAFE when sanitising CPU ID registers on heterogeneous
-machines.
+Backport posted to:
 
-Introduce FTR_HIGHER_OR_ZERO_SAFE so that these fields effectively
-saturate at zero.
+  https://lore.kernel.org/stable/20190805171355.19308-1-will@kernel.org/T/#t
 
-Fixes: 3c739b571084 ("arm64: Keep track of CPU feature registers")
-Cc: <stable@vger.kernel.org> # 4.14.y only
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
----
-
-Backport for 4.14.y -stable kernel, after original failed to apply:
-
-  https://lkml.kernel.org/r/156498316678190@kroah.com
-
- arch/arm64/include/asm/cpufeature.h | 7 ++++---
- arch/arm64/kernel/cpufeature.c      | 8 ++++++--
- 2 files changed, 10 insertions(+), 5 deletions(-)
-
-diff --git a/arch/arm64/include/asm/cpufeature.h b/arch/arm64/include/asm/cpufeature.h
-index c5bc80a03515..5048c7a55eef 100644
---- a/arch/arm64/include/asm/cpufeature.h
-+++ b/arch/arm64/include/asm/cpufeature.h
-@@ -44,9 +44,10 @@
-  */
- 
- enum ftr_type {
--	FTR_EXACT,	/* Use a predefined safe value */
--	FTR_LOWER_SAFE,	/* Smaller value is safe */
--	FTR_HIGHER_SAFE,/* Bigger value is safe */
-+	FTR_EXACT,			/* Use a predefined safe value */
-+	FTR_LOWER_SAFE,			/* Smaller value is safe */
-+	FTR_HIGHER_SAFE,		/* Bigger value is safe */
-+	FTR_HIGHER_OR_ZERO_SAFE,	/* Bigger value is safe, but 0 is biggest */
- };
- 
- #define FTR_STRICT	true	/* SANITY check strict matching required */
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 29b5b72b7877..3312d46fa29e 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -178,8 +178,8 @@ static const struct arm64_ftr_bits ftr_ctr[] = {
- 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_EXACT, 31, 1, 1),		/* RES1 */
- 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, 29, 1, 1),	/* DIC */
- 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, 28, 1, 1),	/* IDC */
--	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_HIGHER_SAFE, 24, 4, 0),	/* CWG */
--	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_HIGHER_SAFE, 20, 4, 0),	/* ERG */
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_HIGHER_OR_ZERO_SAFE, 24, 4, 0),	/* CWG */
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_HIGHER_OR_ZERO_SAFE, 20, 4, 0),	/* ERG */
- 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, CTR_DMINLINE_SHIFT, 4, 1),
- 	/*
- 	 * Linux can handle differing I-cache policies. Userspace JITs will
-@@ -411,6 +411,10 @@ static s64 arm64_ftr_safe_value(const struct arm64_ftr_bits *ftrp, s64 new,
- 	case FTR_LOWER_SAFE:
- 		ret = new < cur ? new : cur;
- 		break;
-+	case FTR_HIGHER_OR_ZERO_SAFE:
-+		if (!cur || !new)
-+			break;
-+		/* Fallthrough */
- 	case FTR_HIGHER_SAFE:
- 		ret = new > cur ? new : cur;
- 		break;
--- 
-2.11.0
-
+Will
