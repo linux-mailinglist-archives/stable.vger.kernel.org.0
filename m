@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3528381CCA
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:27:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F72681CCE
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:27:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730698AbfHENZL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:25:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33650 "EHLO mail.kernel.org"
+        id S1729664AbfHEN1M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:27:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730841AbfHENZL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:25:11 -0400
+        id S1730189AbfHENZN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:25:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B030820880;
-        Mon,  5 Aug 2019 13:25:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 576FE20644;
+        Mon,  5 Aug 2019 13:25:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011510;
-        bh=GNhqgG+H+h+1PissY8jYbYKYbFIfURpMKzetJOjLhs4=;
+        s=default; t=1565011512;
+        bh=xpJM/gqp3zYrSfs70sHH80p2hZCGqfxlZBzlDuDyikQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2tkGSqighlNwWFejrS8zXLrYDHRNvpxbdgP0Q1J0K9hc00heEuIEFgg2Vcjx/Wqze
-         ZyK3038pWyU4MnO3YUWPeREOldBsZR1PsjW368MO6a/vfzFWSSeJCVo9kJJuZoQSz4
-         oNEVvjjfFmPNkDg4CHGXgbl81Y6+io0hikxw8M/0=
+        b=yKeqRwbqXoYBlzX7wfNiHiZkV52HFJFESa68nYxWSSXDFcIuUu/MlsR3JRHuRAc+6
+         D35tMl80icwIIfiiYXsSHiTvsMiXWQI8Jc2KxFVcaoxNvEGvvlxn3l8HZNKYWcBq0R
+         BeWzW3Dk4EGLhqwfQ8B2N7euLqHnCdHpzlZOopfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Suganath Prabu <suganath-prabu.subramani@broadcom.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.2 116/131] scsi: mpt3sas: Use 63-bit DMA addressing on SAS35 HBA
-Date:   Mon,  5 Aug 2019 15:03:23 +0200
-Message-Id: <20190805124959.723352420@linuxfoundation.org>
+        stable@vger.kernel.org, linux-block@vger.kernel.org,
+        Ratna Manoj Bolla <manoj.br@gmail.com>, nbd@other.debian.org,
+        David Woodhouse <dwmw@amazon.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Munehisa Kamata <kamatam@amazon.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.2 117/131] nbd: replace kill_bdev() with __invalidate_device() again
+Date:   Mon,  5 Aug 2019 15:03:24 +0200
+Message-Id: <20190805124959.791932900@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -45,80 +47,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
+From: Munehisa Kamata <kamatam@amazon.com>
 
-commit df9a606184bfdb5ae3ca9d226184e9489f5c24f7 upstream.
+commit 2b5c8f0063e4b263cf2de82029798183cf85c320 upstream.
 
-Although SAS3 & SAS3.5 IT HBA controllers support 64-bit DMA addressing, as
-per hardware design, if DMA-able range contains all 64-bits
-set (0xFFFFFFFF-FFFFFFFF) then it results in a firmware fault.
+Commit abbbdf12497d ("replace kill_bdev() with __invalidate_device()")
+once did this, but 29eaadc03649 ("nbd: stop using the bdev everywhere")
+resurrected kill_bdev() and it has been there since then. So buffer_head
+mappings still get killed on a server disconnection, and we can still
+hit the BUG_ON on a filesystem on the top of the nbd device.
 
-E.g. SGE's start address is 0xFFFFFFFF-FFFF000 and data length is 0x1000
-bytes. when HBA tries to DMA the data at 0xFFFFFFFF-FFFFFFFF location then
-HBA will fault the firmware.
+  EXT4-fs (nbd0): mounted filesystem with ordered data mode. Opts: (null)
+  block nbd0: Receive control failed (result -32)
+  block nbd0: shutting down sockets
+  print_req_error: I/O error, dev nbd0, sector 66264 flags 3000
+  EXT4-fs warning (device nbd0): htree_dirblock_to_tree:979: inode #2: lblock 0: comm ls: error -5 reading directory block
+  print_req_error: I/O error, dev nbd0, sector 2264 flags 3000
+  EXT4-fs error (device nbd0): __ext4_get_inode_loc:4690: inode #2: block 283: comm ls: unable to read itable block
+  EXT4-fs error (device nbd0) in ext4_reserve_inode_write:5894: IO failure
+  ------------[ cut here ]------------
+  kernel BUG at fs/buffer.c:3057!
+  invalid opcode: 0000 [#1] SMP PTI
+  CPU: 7 PID: 40045 Comm: jbd2/nbd0-8 Not tainted 5.1.0-rc3+ #4
+  Hardware name: Amazon EC2 m5.12xlarge/, BIOS 1.0 10/16/2017
+  RIP: 0010:submit_bh_wbc+0x18b/0x190
+  ...
+  Call Trace:
+   jbd2_write_superblock+0xf1/0x230 [jbd2]
+   ? account_entity_enqueue+0xc5/0xf0
+   jbd2_journal_update_sb_log_tail+0x94/0xe0 [jbd2]
+   jbd2_journal_commit_transaction+0x12f/0x1d20 [jbd2]
+   ? __switch_to_asm+0x40/0x70
+   ...
+   ? lock_timer_base+0x67/0x80
+   kjournald2+0x121/0x360 [jbd2]
+   ? remove_wait_queue+0x60/0x60
+   kthread+0xf8/0x130
+   ? commit_timeout+0x10/0x10 [jbd2]
+   ? kthread_bind+0x10/0x10
+   ret_from_fork+0x35/0x40
 
-Driver will set 63-bit DMA mask to ensure the above address will not be
-used.
+With __invalidate_device(), I no longer hit the BUG_ON with sync or
+unmount on the disconnected device.
 
-Cc: <stable@vger.kernel.org> # 5.1.20+
-Signed-off-by: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 29eaadc03649 ("nbd: stop using the bdev everywhere")
+Cc: linux-block@vger.kernel.org
+Cc: Ratna Manoj Bolla <manoj.br@gmail.com>
+Cc: nbd@other.debian.org
+Cc: stable@vger.kernel.org
+Cc: David Woodhouse <dwmw@amazon.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Munehisa Kamata <kamatam@amazon.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/mpt3sas/mpt3sas_base.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/block/nbd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/mpt3sas/mpt3sas_base.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
-@@ -2683,6 +2683,8 @@ _base_config_dma_addressing(struct MPT3S
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -1229,7 +1229,7 @@ static void nbd_clear_sock_ioctl(struct
+ 				 struct block_device *bdev)
  {
- 	u64 required_mask, coherent_mask;
- 	struct sysinfo s;
-+	/* Set 63 bit DMA mask for all SAS3 and SAS35 controllers */
-+	int dma_mask = (ioc->hba_mpi_version_belonged > MPI2_VERSION) ? 63 : 64;
- 
- 	if (ioc->is_mcpu_endpoint)
- 		goto try_32bit;
-@@ -2692,17 +2694,17 @@ _base_config_dma_addressing(struct MPT3S
- 		goto try_32bit;
- 
- 	if (ioc->dma_mask)
--		coherent_mask = DMA_BIT_MASK(64);
-+		coherent_mask = DMA_BIT_MASK(dma_mask);
- 	else
- 		coherent_mask = DMA_BIT_MASK(32);
- 
--	if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(64)) ||
-+	if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(dma_mask)) ||
- 	    dma_set_coherent_mask(&pdev->dev, coherent_mask))
- 		goto try_32bit;
- 
- 	ioc->base_add_sg_single = &_base_add_sg_single_64;
- 	ioc->sge_size = sizeof(Mpi2SGESimple64_t);
--	ioc->dma_mask = 64;
-+	ioc->dma_mask = dma_mask;
- 	goto out;
- 
-  try_32bit:
-@@ -2724,7 +2726,7 @@ static int
- _base_change_consistent_dma_mask(struct MPT3SAS_ADAPTER *ioc,
- 				      struct pci_dev *pdev)
- {
--	if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64))) {
-+	if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(ioc->dma_mask))) {
- 		if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32)))
- 			return -ENODEV;
- 	}
-@@ -4631,7 +4633,7 @@ _base_allocate_memory_pools(struct MPT3S
- 		total_sz += sz;
- 	} while (ioc->rdpq_array_enable && (++i < ioc->reply_queue_count));
- 
--	if (ioc->dma_mask == 64) {
-+	if (ioc->dma_mask > 32) {
- 		if (_base_change_consistent_dma_mask(ioc, ioc->pdev) != 0) {
- 			ioc_warn(ioc, "no suitable consistent DMA mask for %s\n",
- 				 pci_name(ioc->pdev));
+ 	sock_shutdown(nbd);
+-	kill_bdev(bdev);
++	__invalidate_device(bdev, true);
+ 	nbd_bdev_reset(bdev);
+ 	if (test_and_clear_bit(NBD_HAS_CONFIG_REF,
+ 			       &nbd->config->runtime_flags))
 
 
