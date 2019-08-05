@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 578F181B72
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:15:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE43181BBE
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:17:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729825AbfHENHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:07:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45174 "EHLO mail.kernel.org"
+        id S1729373AbfHENFk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:05:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729325AbfHENHd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:07:33 -0400
+        id S1729322AbfHENFj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:05:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82D4221738;
-        Mon,  5 Aug 2019 13:07:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA117214C6;
+        Mon,  5 Aug 2019 13:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010453;
-        bh=xbtRgzuo03sj2At33CiqxEMVoJhFtnftBmdSzxJn/ac=;
+        s=default; t=1565010338;
+        bh=Nmlb5wfC42tddgRjfyYBWRqNjGCK8Cczaz7880C1yDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DWL5k0AWZVKitrtWBcplPhsNcKwUzmIoJPtuAEHsFYIu0lA44NVMadANDC9GD4dnz
-         gzlxS9Pk4VF/HYtpeYbK4zVWnVaVwTwLk2B8eDXaecJBgjfO+uzVePhgBVxCGcshwB
-         GbpKL3r6f8Aaf/tHry2dpR13CqZTn+v0Zj2oyBEc=
+        b=dJbaRMCB4VskP6eEgXVeCvepb37wgUQ1Hn7BEC7IobH4duiLBFc7TCDkpwTNrtAwJ
+         w9ApHYBc751EuNmVL5p6FXMAT+fWrrXdK1Y2THlePxKa3xUVSTqldQVJ1C8A0yCDDN
+         jxHBttmkcn4YthTqVXd+BmnyAAIcqcQuH7mHJbXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 29/53] x86/kvm: Dont call kvm_spurious_fault() from .fixup
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Alim Akhtar <alim.akhtar@gmail.com>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.9 28/42] mmc: dw_mmc: Fix occasional hang after tuning on eMMC
 Date:   Mon,  5 Aug 2019 15:02:54 +0200
-Message-Id: <20190805124931.249046629@linuxfoundation.org>
+Message-Id: <20190805124928.333036879@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
-References: <20190805124927.973499541@linuxfoundation.org>
+In-Reply-To: <20190805124924.788666484@linuxfoundation.org>
+References: <20190805124924.788666484@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,122 +46,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3901336ed9887b075531bffaeef7742ba614058b ]
+From: Douglas Anderson <dianders@chromium.org>
 
-After making a change to improve objtool's sibling call detection, it
-started showing the following warning:
+commit ba2d139b02ba684c6c101de42fed782d6cd2b997 upstream.
 
-  arch/x86/kvm/vmx/nested.o: warning: objtool: .fixup+0x15: sibling call from callable instruction with modified stack frame
+In commit 46d179525a1f ("mmc: dw_mmc: Wait for data transfer after
+response errors.") we fixed a tuning-induced hang that I saw when
+stress testing tuning on certain SD cards.  I won't re-hash that whole
+commit, but the summary is that as a normal part of tuning you need to
+deal with transfer errors and there were cases where these transfer
+errors was putting my system into a bad state causing all future
+transfers to fail.  That commit fixed handling of the transfer errors
+for me.
 
-The problem is the ____kvm_handle_fault_on_reboot() macro.  It does a
-fake call by pushing a fake RIP and doing a jump.  That tricks the
-unwinder into printing the function which triggered the exception,
-rather than the .fixup code.
+In downstream Chrome OS my fix landed and had the same behavior for
+all SD/MMC commands.  However, it looks like when the commit landed
+upstream we limited it to only SD tuning commands.  Presumably this
+was to try to get around problems that Alim Akhtar reported on exynos
+[1].
 
-Instead of the hack to make it look like the original function made the
-call, just change the macro so that the original function actually does
-make the call.  This allows removal of the hack, and also makes objtool
-happy.
+Unfortunately while stress testing reboots (and suspend/resume) on
+some rk3288-based Chromebooks I found the same problem on the eMMC on
+some of my Chromebooks (the ones with Hynix eMMC).  Since the eMMC
+tuning command is different (MMC_SEND_TUNING_BLOCK_HS200
+vs. MMC_SEND_TUNING_BLOCK) we were basically getting back into the
+same situation.
 
-I triggered a vmx instruction exception and verified that the stack
-trace is still sane:
+I'm hoping that whatever problems exynos was having in the past are
+somehow magically fixed now and we can make the behavior the same for
+all commands.
 
-  kernel BUG at arch/x86/kvm/x86.c:358!
-  invalid opcode: 0000 [#1] SMP PTI
-  CPU: 28 PID: 4096 Comm: qemu-kvm Not tainted 5.2.0+ #16
-  Hardware name: Lenovo THINKSYSTEM SD530 -[7X2106Z000]-/-[7X2106Z000]-, BIOS -[TEE113Z-1.00]- 07/17/2017
-  RIP: 0010:kvm_spurious_fault+0x5/0x10
-  Code: 00 00 00 00 00 8b 44 24 10 89 d2 45 89 c9 48 89 44 24 10 8b 44 24 08 48 89 44 24 08 e9 d4 40 22 00 0f 1f 40 00 0f 1f 44 00 00 <0f> 0b 66 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 41 55 49 89 fd 41
-  RSP: 0018:ffffbf91c683bd00 EFLAGS: 00010246
-  RAX: 000061f040000000 RBX: ffff9e159c77bba0 RCX: ffff9e15a5c87000
-  RDX: 0000000665c87000 RSI: ffff9e15a5c87000 RDI: ffff9e159c77bba0
-  RBP: 0000000000000000 R08: 0000000000000000 R09: ffff9e15a5c87000
-  R10: 0000000000000000 R11: fffff8f2d99721c0 R12: ffff9e159c77bba0
-  R13: ffffbf91c671d960 R14: ffff9e159c778000 R15: 0000000000000000
-  FS:  00007fa341cbe700(0000) GS:ffff9e15b7400000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007fdd38356804 CR3: 00000006759de003 CR4: 00000000007606e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  PKRU: 55555554
-  Call Trace:
-   loaded_vmcs_init+0x4f/0xe0
-   alloc_loaded_vmcs+0x38/0xd0
-   vmx_create_vcpu+0xf7/0x600
-   kvm_vm_ioctl+0x5e9/0x980
-   ? __switch_to_asm+0x40/0x70
-   ? __switch_to_asm+0x34/0x70
-   ? __switch_to_asm+0x40/0x70
-   ? __switch_to_asm+0x34/0x70
-   ? free_one_page+0x13f/0x4e0
-   do_vfs_ioctl+0xa4/0x630
-   ksys_ioctl+0x60/0x90
-   __x64_sys_ioctl+0x16/0x20
-   do_syscall_64+0x55/0x1c0
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7fa349b1ee5b
+[1] https://lkml.kernel.org/r/CAGOxZ53WfNbaMe0_AM0qBqU47kAfgmPBVZC8K8Y-_J3mDMqW4A@mail.gmail.com
 
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/64a9b64d127e87b6920a97afde8e96ea76f6524e.1563413318.git.jpoimboe@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 46d179525a1f ("mmc: dw_mmc: Wait for data transfer after response errors.")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Alim Akhtar <alim.akhtar@gmail.com>
+Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/x86/include/asm/kvm_host.h | 34 ++++++++++++++++++---------------
- 1 file changed, 19 insertions(+), 15 deletions(-)
+ drivers/mmc/host/dw_mmc.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index f9a4b85d7309b..9f3eb334c818e 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1353,25 +1353,29 @@ enum {
- #define kvm_arch_vcpu_memslots_id(vcpu) ((vcpu)->arch.hflags & HF_SMM_MASK ? 1 : 0)
- #define kvm_memslots_for_spte_role(kvm, role) __kvm_memslots(kvm, (role).smm)
- 
-+asmlinkage void __noreturn kvm_spurious_fault(void);
-+
- /*
-  * Hardware virtualization extension instructions may fault if a
-  * reboot turns off virtualization while processes are running.
-- * Trap the fault and ignore the instruction if that happens.
-+ * Usually after catching the fault we just panic; during reboot
-+ * instead the instruction is ignored.
-  */
--asmlinkage void kvm_spurious_fault(void);
--
--#define ____kvm_handle_fault_on_reboot(insn, cleanup_insn)	\
--	"666: " insn "\n\t" \
--	"668: \n\t"                           \
--	".pushsection .fixup, \"ax\" \n" \
--	"667: \n\t" \
--	cleanup_insn "\n\t"		      \
--	"cmpb $0, kvm_rebooting \n\t"	      \
--	"jne 668b \n\t"      		      \
--	__ASM_SIZE(push) " $666b \n\t"	      \
--	"jmp kvm_spurious_fault \n\t"	      \
--	".popsection \n\t" \
--	_ASM_EXTABLE(666b, 667b)
-+#define ____kvm_handle_fault_on_reboot(insn, cleanup_insn)		\
-+	"666: \n\t"							\
-+	insn "\n\t"							\
-+	"jmp	668f \n\t"						\
-+	"667: \n\t"							\
-+	"call	kvm_spurious_fault \n\t"				\
-+	"668: \n\t"							\
-+	".pushsection .fixup, \"ax\" \n\t"				\
-+	"700: \n\t"							\
-+	cleanup_insn "\n\t"						\
-+	"cmpb	$0, kvm_rebooting\n\t"					\
-+	"je	667b \n\t"						\
-+	"jmp	668b \n\t"						\
-+	".popsection \n\t"						\
-+	_ASM_EXTABLE(666b, 700b)
- 
- #define __kvm_handle_fault_on_reboot(insn)		\
- 	____kvm_handle_fault_on_reboot(insn, "")
--- 
-2.20.1
-
+--- a/drivers/mmc/host/dw_mmc.c
++++ b/drivers/mmc/host/dw_mmc.c
+@@ -1864,8 +1864,7 @@ static void dw_mci_tasklet_func(unsigned
+ 				 * delayed. Allowing the transfer to take place
+ 				 * avoids races and keeps things simple.
+ 				 */
+-				if ((err != -ETIMEDOUT) &&
+-				    (cmd->opcode == MMC_SEND_TUNING_BLOCK)) {
++				if (err != -ETIMEDOUT) {
+ 					state = STATE_SENDING_DATA;
+ 					continue;
+ 				}
 
 
