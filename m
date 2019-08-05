@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2E2981B4B
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:13:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D95781BC6
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:17:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729625AbfHENIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:08:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46974 "EHLO mail.kernel.org"
+        id S1729485AbfHENGH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:06:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729292AbfHENIq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:08:46 -0400
+        id S1729001AbfHENGH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:06:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA7982087B;
-        Mon,  5 Aug 2019 13:08:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07528216F4;
+        Mon,  5 Aug 2019 13:06:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010525;
-        bh=MzY3GTrzMHFCOZgbaePkw1i7Fuq60WcQXcMJR8PmiuA=;
+        s=default; t=1565010366;
+        bh=FWoUa6QGEHljtX1mICapLiOgk3Kjd8lcwmBXppSTx8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VmaN0WMtVrgOIwrgL4AGeP/RTV5/T6jeTQ6wYof+0TyKtBfbvGP0dne4JDxBWgSQy
-         1pLE+01PekhUDKE30cGL6wa/1zGrWc1K+VdHhPpL0wQVqOOwXasBTH76zsRAmj9noS
-         0CQONXHO8fMvNTnBLjkx5CWCP63M0bOPlr5kvcwo=
+        b=WEts65OxaCx15tHHFflkcPXVC6MN5oQ3h8m11szd/SZFOeUdfYQ6ngckztK3yxohZ
+         3jj0UFUc0rHtYaVBbpQsir9T7v5PA+cBudNhrBnImCzt5MXq1yutVpZEozJNnnS5ub
+         pYgF/liqW29tns4CQteFAmtnDvphoApyWiyRfi5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+fee3a14d4cdf92646287@syzkaller.appspotmail.com,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 4.14 39/53] selinux: fix memory leak in policydb_init()
+        stable@vger.kernel.org, Jean Delvare <jdelvare@suse.de>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 4.9 38/42] eeprom: at24: make spd world-readable again
 Date:   Mon,  5 Aug 2019 15:03:04 +0200
-Message-Id: <20190805124932.418968972@linuxfoundation.org>
+Message-Id: <20190805124929.501553610@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
-References: <20190805124927.973499541@linuxfoundation.org>
+In-Reply-To: <20190805124924.788666484@linuxfoundation.org>
+References: <20190805124924.788666484@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +47,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Jean Delvare <jdelvare@suse.de>
 
-commit 45385237f65aeee73641f1ef737d7273905a233f upstream.
+commit 25e5ef302c24a6fead369c0cfe88c073d7b97ca8 upstream.
 
-Since roles_init() adds some entries to the role hash table, we need to
-destroy also its keys/values on error, otherwise we get a memory leak in
-the error path.
+The integration of the at24 driver into the nvmem framework broke the
+world-readability of spd EEPROMs. Fix it.
 
-Cc: <stable@vger.kernel.org>
-Reported-by: syzbot+fee3a14d4cdf92646287@syzkaller.appspotmail.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Cc: stable@vger.kernel.org
+Fixes: 57d155506dd5 ("eeprom: at24: extend driver to plug into the NVMEM framework")
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+[Bartosz: backported the patch to older branches]
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/selinux/ss/policydb.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/misc/eeprom/at24.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -275,6 +275,8 @@ static int rangetr_cmp(struct hashtab *h
- 	return v;
- }
- 
-+static int (*destroy_f[SYM_NUM]) (void *key, void *datum, void *datap);
-+
- /*
-  * Initialize a policy database structure.
-  */
-@@ -322,8 +324,10 @@ static int policydb_init(struct policydb
- out:
- 	hashtab_destroy(p->filename_trans);
- 	hashtab_destroy(p->range_tr);
--	for (i = 0; i < SYM_NUM; i++)
-+	for (i = 0; i < SYM_NUM; i++) {
-+		hashtab_map(p->symtab[i].table, destroy_f[i], NULL);
- 		hashtab_destroy(p->symtab[i].table);
-+	}
- 	return rc;
- }
- 
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -777,7 +777,7 @@ static int at24_probe(struct i2c_client
+ 	at24->nvmem_config.name = dev_name(&client->dev);
+ 	at24->nvmem_config.dev = &client->dev;
+ 	at24->nvmem_config.read_only = !writable;
+-	at24->nvmem_config.root_only = true;
++	at24->nvmem_config.root_only = !(chip.flags & AT24_FLAG_IRUGO);
+ 	at24->nvmem_config.owner = THIS_MODULE;
+ 	at24->nvmem_config.compat = true;
+ 	at24->nvmem_config.base_dev = &client->dev;
 
 
