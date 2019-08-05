@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63B8481D09
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:29:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46C3B81C4A
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:22:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729538AbfHEN3J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:29:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58594 "EHLO mail.kernel.org"
+        id S1730624AbfHENWS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:22:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730638AbfHENWP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:22:15 -0400
+        id S1730649AbfHENWR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:22:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F407A216B7;
-        Mon,  5 Aug 2019 13:22:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9842720651;
+        Mon,  5 Aug 2019 13:22:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011334;
-        bh=Y8QJsEx3iQGHlddjHTT8Du+dE5LcgvkKqSkfYJiQt9c=;
+        s=default; t=1565011337;
+        bh=lPwyNVnIRzEaWGHLLwcdEhNRYl4mScGqRovi7S8MVyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pPfq6Cggo2i5uA/Viul/UNWQNqAm46KXnv0vdf4hn1zrRo0uMQuCdB/UT5hgGPIsK
-         /bRquLo4OpfzMcM3VGc6M9Rltf8U1PzoSymDf2XZNMCkwqjmwuLIMxuHYmHVJJ9Oin
-         fl+StO3Ix703OEnTlCb7L6sXk6TUKXuWyIMKScF8=
+        b=cLVylhLb69hE6YfpfQ1dR5I2H/QnsC9mXKrwpmkaiRC1kfarMa/dWiIIkirtCGUpe
+         YYBqCh0wtTk2QTmPAijk+DialGMipAjZqt11EiwWvqB4uchL7cajeD8PaUwyP90h3c
+         WsXK5LFDbJ9/B4p+I+V2uh3KqupsHdN5vOgxw6MM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Joe Perches <joe@perches.com>,
+        stable@vger.kernel.org, Peter Rosin <peda@axentia.se>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 054/131] lib/test_overflow.c: avoid tainting the kernel and fix wrap size
-Date:   Mon,  5 Aug 2019 15:02:21 +0200
-Message-Id: <20190805124955.049639253@linuxfoundation.org>
+Subject: [PATCH 5.2 055/131] lib/test_string.c: avoid masking memset16/32/64 failures
+Date:   Mon,  5 Aug 2019 15:02:22 +0200
+Message-Id: <20190805124955.119100635@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -48,52 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8e060c21ae2c265a2b596e9e7f9f97ec274151a4 ]
+[ Upstream commit 33d6e0ff68af74be0c846c8e042e84a9a1a0561e ]
 
-This adds __GFP_NOWARN to the kmalloc()-portions of the overflow test to
-avoid tainting the kernel.  Additionally fixes up the math on wrap size
-to be architecture and page size agnostic.
+If a memsetXX implementation is completely broken and fails in the first
+iteration, when i, j, and k are all zero, the failure is masked as zero
+is returned.  Failing in the first iteration is perhaps the most likely
+failure, so this makes the tests pretty much useless.  Avoid the
+situation by always setting a random unused bit in the result on
+failure.
 
-Link: http://lkml.kernel.org/r/201905282012.0A8767E24@keescook
-Fixes: ca90800a91ba ("test_overflow: Add memory allocation overflow tests")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Suggested-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Joe Perches <joe@perches.com>
+Link: http://lkml.kernel.org/r/20190506124634.6807-3-peda@axentia.se
+Fixes: 03270c13c5ff ("lib/string.c: add testcases for memset16/32/64")
+Signed-off-by: Peter Rosin <peda@axentia.se>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_overflow.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ lib/test_string.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/lib/test_overflow.c b/lib/test_overflow.c
-index fc680562d8b69..7a4b6f6c5473c 100644
---- a/lib/test_overflow.c
-+++ b/lib/test_overflow.c
-@@ -486,16 +486,17 @@ static int __init test_overflow_shift(void)
-  * Deal with the various forms of allocator arguments. See comments above
-  * the DEFINE_TEST_ALLOC() instances for mapping of the "bits".
-  */
--#define alloc010(alloc, arg, sz) alloc(sz, GFP_KERNEL)
--#define alloc011(alloc, arg, sz) alloc(sz, GFP_KERNEL, NUMA_NO_NODE)
-+#define alloc_GFP		 (GFP_KERNEL | __GFP_NOWARN)
-+#define alloc010(alloc, arg, sz) alloc(sz, alloc_GFP)
-+#define alloc011(alloc, arg, sz) alloc(sz, alloc_GFP, NUMA_NO_NODE)
- #define alloc000(alloc, arg, sz) alloc(sz)
- #define alloc001(alloc, arg, sz) alloc(sz, NUMA_NO_NODE)
--#define alloc110(alloc, arg, sz) alloc(arg, sz, GFP_KERNEL)
-+#define alloc110(alloc, arg, sz) alloc(arg, sz, alloc_GFP)
- #define free0(free, arg, ptr)	 free(ptr)
- #define free1(free, arg, ptr)	 free(arg, ptr)
+diff --git a/lib/test_string.c b/lib/test_string.c
+index bf8def01ed204..b5117ae596931 100644
+--- a/lib/test_string.c
++++ b/lib/test_string.c
+@@ -36,7 +36,7 @@ static __init int memset16_selftest(void)
+ fail:
+ 	kfree(p);
+ 	if (i < 256)
+-		return (i << 24) | (j << 16) | k;
++		return (i << 24) | (j << 16) | k | 0x8000;
+ 	return 0;
+ }
  
--/* Wrap around to 8K */
--#define TEST_SIZE		(9 << PAGE_SHIFT)
-+/* Wrap around to 16K */
-+#define TEST_SIZE		(5 * 4096)
+@@ -72,7 +72,7 @@ static __init int memset32_selftest(void)
+ fail:
+ 	kfree(p);
+ 	if (i < 256)
+-		return (i << 24) | (j << 16) | k;
++		return (i << 24) | (j << 16) | k | 0x8000;
+ 	return 0;
+ }
  
- #define DEFINE_TEST_ALLOC(func, free_func, want_arg, want_gfp, want_node)\
- static int __init test_ ## func (void *arg)				\
+@@ -108,7 +108,7 @@ static __init int memset64_selftest(void)
+ fail:
+ 	kfree(p);
+ 	if (i < 256)
+-		return (i << 24) | (j << 16) | k;
++		return (i << 24) | (j << 16) | k | 0x8000;
+ 	return 0;
+ }
+ 
 -- 
 2.20.1
 
