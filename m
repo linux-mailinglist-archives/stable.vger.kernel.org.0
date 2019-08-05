@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB48181B7F
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:15:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEC0381BCD
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:17:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729290AbfHENHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:07:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45024 "EHLO mail.kernel.org"
+        id S1729027AbfHENRO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:17:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729264AbfHENH2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:07:28 -0400
+        id S1728842AbfHENFd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:05:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E9C82173B;
-        Mon,  5 Aug 2019 13:07:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A409021734;
+        Mon,  5 Aug 2019 13:05:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010448;
-        bh=z/iIGjQWhg+fNgqW19KPoU3voIdGwp4u3fqY7YfdqyQ=;
+        s=default; t=1565010333;
+        bh=55kzN6cH4e2VjwxG5P8WucW3r+7cEWtq7OITjexsbm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fxka1TnL3m2lKc8rEdkHZw8QIAMIxGFk7bQ15OjalnoxjP0BqUzn3QPoMsCYQlYIh
-         /PiyWJzq9fYe8vg2W520klaQA6PFZHHYSNLfoHOT8YTFl6RrGRDFkqL4UwFyscRate
-         ygY+tNK7VVEh4/VQ2OibtpiZ3p1uswJXDyWuJhk4=
+        b=oUYXmpNWjIEPm+9f73wRu1r4JrB1FkqKK6iO78Kiiwj9mAPtEQ9unArljDn5JgBCa
+         ui8w3qtBlE4YuYPGqmkafydod68EdPxJKsNE/Rj/wE0IeaFAYelkNMOcfP7bfe0Yom
+         iW4IuM3uCEe9ZKm4Wx+GyVvPZX2mofQ8y8hrqcII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Andreas Christoforou <andreaschristofo@gmail.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 27/53] ipc/mqueue.c: only perform resource calculation if user valid
+        stable@vger.kernel.org,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Subject: [PATCH 4.9 26/42] kbuild: initialize CLANG_FLAGS correctly in the top Makefile
 Date:   Mon,  5 Aug 2019 15:02:52 +0200
-Message-Id: <20190805124931.057378053@linuxfoundation.org>
+Message-Id: <20190805124928.061617180@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
-References: <20190805124927.973499541@linuxfoundation.org>
+In-Reply-To: <20190805124924.788666484@linuxfoundation.org>
+References: <20190805124924.788666484@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,103 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a318f12ed8843cfac53198390c74a565c632f417 ]
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-Andreas Christoforou reported:
+commit 5241ab4cf42d3a93b933b55d3d53f43049081fa1 upstream.
 
-  UBSAN: Undefined behaviour in ipc/mqueue.c:414:49 signed integer overflow:
-  9 * 2305843009213693951 cannot be represented in type 'long int'
-  ...
-  Call Trace:
-    mqueue_evict_inode+0x8e7/0xa10 ipc/mqueue.c:414
-    evict+0x472/0x8c0 fs/inode.c:558
-    iput_final fs/inode.c:1547 [inline]
-    iput+0x51d/0x8c0 fs/inode.c:1573
-    mqueue_get_inode+0x8eb/0x1070 ipc/mqueue.c:320
-    mqueue_create_attr+0x198/0x440 ipc/mqueue.c:459
-    vfs_mkobj+0x39e/0x580 fs/namei.c:2892
-    prepare_open ipc/mqueue.c:731 [inline]
-    do_mq_open+0x6da/0x8e0 ipc/mqueue.c:771
+CLANG_FLAGS is initialized by the following line:
 
-Which could be triggered by:
+  CLANG_FLAGS     := --target=$(notdir $(CROSS_COMPILE:%-=%))
 
-        struct mq_attr attr = {
-                .mq_flags = 0,
-                .mq_maxmsg = 9,
-                .mq_msgsize = 0x1fffffffffffffff,
-                .mq_curmsgs = 0,
-        };
+..., which is run only when CROSS_COMPILE is set.
 
-        if (mq_open("/testing", 0x40, 3, &attr) == (mqd_t) -1)
-                perror("mq_open");
+Some build targets (bindeb-pkg etc.) recurse to the top Makefile.
 
-mqueue_get_inode() was correctly rejecting the giant mq_msgsize, and
-preparing to return -EINVAL.  During the cleanup, it calls
-mqueue_evict_inode() which performed resource usage tracking math for
-updating "user", before checking if there was a valid "user" at all
-(which would indicate that the calculations would be sane).  Instead,
-delay this check to after seeing a valid "user".
+When you build the kernel with Clang but without CROSS_COMPILE,
+the same compiler flags such as -no-integrated-as are accumulated
+into CLANG_FLAGS.
 
-The overflow was real, but the results went unused, so while the flaw is
-harmless, it's noisy for kernel fuzzers, so just fix it by moving the
-calculation under the non-NULL "user" where it actually gets used.
+If you run 'make CC=clang' and then 'make CC=clang bindeb-pkg',
+Kbuild will recompile everything needlessly due to the build command
+change.
 
-Link: http://lkml.kernel.org/r/201906072207.ECB65450@keescook
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reported-by: Andreas Christoforou <andreaschristofo@gmail.com>
-Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Manfred Spraul <manfred@colorfullife.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by correctly initializing CLANG_FLAGS.
+
+Fixes: 238bcbc4e07f ("kbuild: consolidate Clang compiler flags")
+Cc: <stable@vger.kernel.org> # v5.0+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- ipc/mqueue.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ Makefile |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/ipc/mqueue.c b/ipc/mqueue.c
-index 5c0ae912f2f25..dccd4ecb786ac 100644
---- a/ipc/mqueue.c
-+++ b/ipc/mqueue.c
-@@ -372,7 +372,6 @@ static void mqueue_evict_inode(struct inode *inode)
- {
- 	struct mqueue_inode_info *info;
- 	struct user_struct *user;
--	unsigned long mq_bytes, mq_treesize;
- 	struct ipc_namespace *ipc_ns;
- 	struct msg_msg *msg, *nmsg;
- 	LIST_HEAD(tmp_msg);
-@@ -395,16 +394,18 @@ static void mqueue_evict_inode(struct inode *inode)
- 		free_msg(msg);
- 	}
+--- a/Makefile
++++ b/Makefile
+@@ -400,6 +400,7 @@ KBUILD_AFLAGS_MODULE  := -DMODULE
+ KBUILD_CFLAGS_MODULE  := -DMODULE
+ KBUILD_LDFLAGS_MODULE := -T $(srctree)/scripts/module-common.lds
+ GCC_PLUGINS_CFLAGS :=
++CLANG_FLAGS :=
  
--	/* Total amount of bytes accounted for the mqueue */
--	mq_treesize = info->attr.mq_maxmsg * sizeof(struct msg_msg) +
--		min_t(unsigned int, info->attr.mq_maxmsg, MQ_PRIO_MAX) *
--		sizeof(struct posix_msg_tree_node);
--
--	mq_bytes = mq_treesize + (info->attr.mq_maxmsg *
--				  info->attr.mq_msgsize);
--
- 	user = info->user;
- 	if (user) {
-+		unsigned long mq_bytes, mq_treesize;
-+
-+		/* Total amount of bytes accounted for the mqueue */
-+		mq_treesize = info->attr.mq_maxmsg * sizeof(struct msg_msg) +
-+			min_t(unsigned int, info->attr.mq_maxmsg, MQ_PRIO_MAX) *
-+			sizeof(struct posix_msg_tree_node);
-+
-+		mq_bytes = mq_treesize + (info->attr.mq_maxmsg *
-+					  info->attr.mq_msgsize);
-+
- 		spin_lock(&mq_lock);
- 		user->mq_bytes -= mq_bytes;
- 		/*
--- 
-2.20.1
-
+ # Read KERNELRELEASE from include/config/kernel.release (if it exists)
+ KERNELRELEASE = $(shell cat include/config/kernel.release 2> /dev/null)
+@@ -506,7 +507,7 @@ endif
+ 
+ ifeq ($(cc-name),clang)
+ ifneq ($(CROSS_COMPILE),)
+-CLANG_FLAGS	:= --target=$(notdir $(CROSS_COMPILE:%-=%))
++CLANG_FLAGS	+= --target=$(notdir $(CROSS_COMPILE:%-=%))
+ GCC_TOOLCHAIN_DIR := $(dir $(shell which $(CROSS_COMPILE)elfedit))
+ CLANG_FLAGS	+= --prefix=$(GCC_TOOLCHAIN_DIR)
+ GCC_TOOLCHAIN	:= $(realpath $(GCC_TOOLCHAIN_DIR)/..)
 
 
