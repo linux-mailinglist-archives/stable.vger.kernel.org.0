@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 19A1681D30
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:30:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BDB281D32
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:30:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729415AbfHENUo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:20:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56842 "EHLO mail.kernel.org"
+        id S1730441AbfHENaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:30:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730319AbfHENUo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:20:44 -0400
+        id S1730365AbfHENU5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:20:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DEB9020880;
-        Mon,  5 Aug 2019 13:20:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D25522173B;
+        Mon,  5 Aug 2019 13:20:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011243;
-        bh=WQ6IdJnGylUw5D3tDviDE6y2TF7w0s6NvKTzLHZJjnU=;
+        s=default; t=1565011256;
+        bh=BFA5KkJp4vIV/V6KNLMZnNb7Da08HBmuiJBDgQVvN4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ah51SoobktcbSasrrVRnjjcU0Efq0vfhxAUfQYrL7+hnddDe16i0cbZb01zmGc/7z
-         ev3N6Ho86GX7azuXQgX8zY2+MzCrAy48gJxInBjDSjk/e0UTUAwxFA5ImEEtodpB/q
-         Q8UF5Q2Qq8/eKMliKs6kspOk3CxtiCkHj8r4D9LU=
+        b=1XRd9GTlZkJk2D+HOsvH/drL9DE0+QHDU1g6vGCgLYhtcOtvy/smX0gbt55404FwC
+         omNIaZnNd48kIkf8t0hNh+T+gYd3T2RRTnOfEoVT3VyrW7ub/ai3xd4Dyel4+0z2Tp
+         bvUw400K68pnGibqVyM78frHdSSAMIcLdeeTrzX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Cvek <petrcvekcz@gmail.com>,
-        Paul Burton <paul.burton@mips.com>, hauke@hauke-m.de,
-        john@phrozen.org, linux-mips@vger.kernel.org,
-        openwrt-devel@lists.openwrt.org, pakahmar@hotmail.com,
+        stable@vger.kernel.org, Chunyan Zhang <zhang.chunyan@linaro.org>,
+        Baolin Wang <baolin.wang@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 019/131] MIPS: lantiq: Fix bitfield masking
-Date:   Mon,  5 Aug 2019 15:01:46 +0200
-Message-Id: <20190805124952.718096980@linuxfoundation.org>
+Subject: [PATCH 5.2 024/131] clk: sprd: Add check for return value of sprd_clk_regmap_init()
+Date:   Mon,  5 Aug 2019 15:01:51 +0200
+Message-Id: <20190805124953.060478312@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -46,40 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ba1bc0fcdeaf3bf583c1517bd2e3e29cf223c969 ]
+[ Upstream commit c974c48deeb969c5e4250e4f06af91edd84b1f10 ]
 
-The modification of EXIN register doesn't clean the bitfield before
-the writing of a new value. After a few modifications the bitfield would
-accumulate only '1's.
+sprd_clk_regmap_init() doesn't always return success, adding check
+for its return value should make the code more strong.
 
-Signed-off-by: Petr Cvek <petrcvekcz@gmail.com>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: hauke@hauke-m.de
-Cc: john@phrozen.org
-Cc: linux-mips@vger.kernel.org
-Cc: openwrt-devel@lists.openwrt.org
-Cc: pakahmar@hotmail.com
+Signed-off-by: Chunyan Zhang <zhang.chunyan@linaro.org>
+Reviewed-by: Baolin Wang <baolin.wang@linaro.org>
+[sboyd@kernel.org: Add a missing int ret]
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/lantiq/irq.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/clk/sprd/sc9860-clk.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/lantiq/irq.c b/arch/mips/lantiq/irq.c
-index cfd87e662fcf4..9c95097557c75 100644
---- a/arch/mips/lantiq/irq.c
-+++ b/arch/mips/lantiq/irq.c
-@@ -154,8 +154,9 @@ static int ltq_eiu_settype(struct irq_data *d, unsigned int type)
- 			if (edge)
- 				irq_set_handler(d->hwirq, handle_edge_irq);
+diff --git a/drivers/clk/sprd/sc9860-clk.c b/drivers/clk/sprd/sc9860-clk.c
+index 9980ab55271ba..f76305b4bc8df 100644
+--- a/drivers/clk/sprd/sc9860-clk.c
++++ b/drivers/clk/sprd/sc9860-clk.c
+@@ -2023,6 +2023,7 @@ static int sc9860_clk_probe(struct platform_device *pdev)
+ {
+ 	const struct of_device_id *match;
+ 	const struct sprd_clk_desc *desc;
++	int ret;
  
--			ltq_eiu_w32(ltq_eiu_r32(LTQ_EIU_EXIN_C) |
--				(val << (i * 4)), LTQ_EIU_EXIN_C);
-+			ltq_eiu_w32((ltq_eiu_r32(LTQ_EIU_EXIN_C) &
-+				    (~(7 << (i * 4)))) | (val << (i * 4)),
-+				    LTQ_EIU_EXIN_C);
- 		}
+ 	match = of_match_node(sprd_sc9860_clk_ids, pdev->dev.of_node);
+ 	if (!match) {
+@@ -2031,7 +2032,9 @@ static int sc9860_clk_probe(struct platform_device *pdev)
  	}
  
+ 	desc = match->data;
+-	sprd_clk_regmap_init(pdev, desc);
++	ret = sprd_clk_regmap_init(pdev, desc);
++	if (ret)
++		return ret;
+ 
+ 	return sprd_clk_probe(&pdev->dev, desc->hw_clks);
+ }
 -- 
 2.20.1
 
