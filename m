@@ -2,70 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AAD9881032
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 04:08:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FB4A81040
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 04:22:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726666AbfHECIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Aug 2019 22:08:50 -0400
-Received: from mx.socionext.com ([202.248.49.38]:10465 "EHLO mx.socionext.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726561AbfHECIu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Aug 2019 22:08:50 -0400
-Received: from unknown (HELO iyokan-ex.css.socionext.com) ([172.31.9.54])
-  by mx.socionext.com with ESMTP; 05 Aug 2019 11:08:48 +0900
-Received: from mail.mfilter.local (m-filter-2 [10.213.24.62])
-        by iyokan-ex.css.socionext.com (Postfix) with ESMTP id C3C7160629;
-        Mon,  5 Aug 2019 11:08:48 +0900 (JST)
-Received: from 10.213.24.1 (10.213.24.1) by m-FILTER with ESMTP; Mon, 5 Aug 2019 11:08:48 +0900
-Received: from SOC-EX01V.e01.socionext.com (10.213.24.21) by
- SOC-EX03V.e01.socionext.com (10.213.24.23) with Microsoft SMTP Server (TLS)
- id 15.0.995.29; Mon, 5 Aug 2019 11:08:48 +0900
-Received: from SOC-EX01V.e01.socionext.com ([10.213.24.21]) by
- SOC-EX01V.e01.socionext.com ([10.213.24.21]) with mapi id 15.00.0995.028;
- Mon, 5 Aug 2019 11:08:47 +0900
-From:   <yamada.masahiro@socionext.com>
-To:     <sashal@kernel.org>, <m.v.b@runbox.com>
-CC:     <stable@vger.kernel.org>
-Subject: RE: [PATCH v2] kconfig: Clear "written" flag to avoid data loss
-Thread-Topic: [PATCH v2] kconfig: Clear "written" flag to avoid data loss
-Thread-Index: AQHVSeKTgbguKTggi0CvgT1Bp7Xeaqbo0kSAgAL8nMA=
-Date:   Mon, 5 Aug 2019 02:08:47 +0000
-Message-ID: <3f2c04dc61d24816b57189256af1dda5@SOC-EX01V.e01.socionext.com>
-References: <20190803100212.8227-1-m.v.b@runbox.com>
- <20190803132212.1849D2075C@mail.kernel.org>
-In-Reply-To: <20190803132212.1849D2075C@mail.kernel.org>
-Accept-Language: ja-JP, en-US
-Content-Language: ja-JP
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-securitypolicycheck: OK by SHieldMailChecker v2.5.2
-x-shieldmailcheckerpolicyversion: POLICY190801
-x-originating-ip: [10.213.24.1]
-Content-Type: text/plain; charset="iso-2022-jp"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+        id S1726766AbfHECWf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Aug 2019 22:22:35 -0400
+Received: from conuserg-11.nifty.com ([210.131.2.78]:64913 "EHLO
+        conuserg-11.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726757AbfHECWf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 4 Aug 2019 22:22:35 -0400
+Received: from localhost.localdomain (p14092-ipngnfx01kyoto.kyoto.ocn.ne.jp [153.142.97.92]) (authenticated)
+        by conuserg-11.nifty.com with ESMTP id x752M7pW025642;
+        Mon, 5 Aug 2019 11:22:07 +0900
+DKIM-Filter: OpenDKIM Filter v2.10.3 conuserg-11.nifty.com x752M7pW025642
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+        s=dec2015msa; t=1564971727;
+        bh=TbK6VAq503EXh72UIZZuMWC50YcF7dIdIDwOWGY2OTM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=NauSU16L91uGEVC0RMjF/rt4fU0xPLH+c/bhjoLq3uqc8PL0pBz92uV8vb/rkNSZP
+         QDgiALzJQh881aARtRB0xhbN7kBH9bwpGmuhDl6RLEM+GHgnXMneLfEnp6oULs0gSk
+         S6PGj8ZRAIf9MlUL9CS5H1DYTWbCoM/0wncnTZzc6L+mgxr3tmzpyjXUHlQMXQSSfa
+         PmUQhNRKYQ1XPorKgssGJOrTJwXpMWbBu7u4cvE4mRXLKAQdSB1qQHA5WYQ8D/t654
+         sQ5pbLQy5IQNpakLxTXF1ZC5df5SErqG2ufY6VGFrHIgaQ1RMz2YwzmiMnSeKFBedi
+         jwQPe+d1y7Hfw==
+X-Nifty-SrcIP: [153.142.97.92]
+From:   Masahiro Yamada <yamada.masahiro@socionext.com>
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-stable <stable@vger.kernel.org>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        "M. Vefa Bicakci" <m.v.b@runbox.com>
+Subject: [PATCH 4.19.x] kconfig: Clear "written" flag to avoid data loss
+Date:   Mon,  5 Aug 2019 11:21:43 +0900
+Message-Id: <20190805022143.8657-1-yamada.masahiro@socionext.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogU2FzaGEgTGV2aW4gW21h
-aWx0bzpzYXNoYWxAa2VybmVsLm9yZ10NCj4gU2VudDogU2F0dXJkYXksIEF1Z3VzdCAwMywgMjAx
-OSAxMDoyMiBQTQ0KPiBUbzogU2FzaGEgTGV2aW4gPHNhc2hhbEBrZXJuZWwub3JnPjsgTS4gVmVm
-YSBCaWNha2NpIDxtLnYuYkBydW5ib3guY29tPjsNCj4gWWFtYWRhLCBNYXNhaGlyby8bJEI7M0VE
-GyhCIBskQj8/OTAbKEIgPHlhbWFkYS5tYXNhaGlyb0Bzb2Npb25leHQuY29tPg0KPiBDYzogc3Rh
-YmxlQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTogW1BBVENIIHYyXSBrY29uZmlnOiBD
-bGVhciAid3JpdHRlbiIgZmxhZyB0byBhdm9pZCBkYXRhIGxvc3MNCj4gDQo+IEhpLA0KPiANCj4g
-W1RoaXMgaXMgYW4gYXV0b21hdGVkIGVtYWlsXQ0KPiANCj4gVGhpcyBjb21taXQgaGFzIGJlZW4g
-cHJvY2Vzc2VkIGJlY2F1c2UgaXQgY29udGFpbnMgYSAiRml4ZXM6IiB0YWcsDQo+IGZpeGluZyBj
-b21taXQ6IDhlMjQ0MmE1Zjg2ZSBrY29uZmlnOiBmaXggbWlzc2luZyBjaG9pY2UgdmFsdWVzIGlu
-DQo+IGF1dG8uY29uZi4NCj4gDQo+IFRoZSBib3QgaGFzIHRlc3RlZCB0aGUgZm9sbG93aW5nIHRy
-ZWVzOiB2NS4yLjUsIHY0LjE5LjYzLg0KPiANCj4gdjUuMi41OiBCdWlsZCBPSyENCj4gdjQuMTku
-NjM6IEZhaWxlZCB0byBhcHBseSEgUG9zc2libGUgZGVwZW5kZW5jaWVzOg0KPiAgICAgYWZmMTFj
-ZDk4M2VjICgia2NvbmZpZzogVGVybWluYXRlIG1lbnUgYmxvY2tzIHdpdGggYSBjb21tZW50IGlu
-IHRoZQ0KPiBnZW5lcmF0ZWQgY29uZmlnIikNCj4gDQo+IA0KPiBOT1RFOiBUaGUgcGF0Y2ggd2ls
-bCBub3QgYmUgcXVldWVkIHRvIHN0YWJsZSB0cmVlcyB1bnRpbCBpdCBpcyB1cHN0cmVhbS4NCj4g
-DQo+IEhvdyBzaG91bGQgd2UgcHJvY2VlZCB3aXRoIHRoaXMgcGF0Y2g/DQoNCg0KSXQgaGFzIGxh
-bmRlZCBpbiBMaW51cycgdHJlZSBub3cuDQoNCkNvbW1pdCAwYzViNmMyOGVkNjhiZWNiNjkyYjQz
-ZWFlNWU0NGQ1YWE3ZTE2MGMgdXBzdHJlYW0NCg0KDQpJIHdpbGwgcmVzb2x2ZSB0aGUgY29uZmxp
-Y3QgZm9yIDQuMTkueCBsYXRlci4NCg0KVGhhbmtzLg0KDQo=
+From: "M. Vefa Bicakci" <m.v.b@runbox.com>
+
+commit 0c5b6c28ed68becb692b43eae5e44d5aa7e160ce upstream.
+
+Prior to this commit, starting nconfig, xconfig or gconfig, and saving
+the .config file more than once caused data loss, where a .config file
+that contained only comments would be written to disk starting from the
+second save operation.
+
+This bug manifests itself because the SYMBOL_WRITTEN flag is never
+cleared after the first call to conf_write, and subsequent calls to
+conf_write then skip all of the configuration symbols due to the
+SYMBOL_WRITTEN flag being set.
+
+This commit resolves this issue by clearing the SYMBOL_WRITTEN flag
+from all symbols before conf_write returns.
+
+Fixes: 8e2442a5f86e ("kconfig: fix missing choice values in auto.conf")
+Cc: linux-stable <stable@vger.kernel.org> # 4.19+
+Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+---
+ scripts/kconfig/confdata.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/scripts/kconfig/confdata.c b/scripts/kconfig/confdata.c
+index fd99ae90a618..0dde19cf7486 100644
+--- a/scripts/kconfig/confdata.c
++++ b/scripts/kconfig/confdata.c
+@@ -784,6 +784,7 @@ int conf_write(const char *name)
+ 	const char *str;
+ 	char dirname[PATH_MAX+1], tmpname[PATH_MAX+22], newname[PATH_MAX+8];
+ 	char *env;
++	int i;
+ 
+ 	dirname[0] = 0;
+ 	if (name && name[0]) {
+@@ -860,6 +861,9 @@ int conf_write(const char *name)
+ 	}
+ 	fclose(out);
+ 
++	for_all_symbols(i, sym)
++		sym->flags &= ~SYMBOL_WRITTEN;
++
+ 	if (*tmpname) {
+ 		strcat(dirname, basename);
+ 		strcat(dirname, ".old");
+-- 
+2.17.1
+
