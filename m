@@ -2,125 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB1908119B
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:31:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A21BA8119A
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:30:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725992AbfHEFbb convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 5 Aug 2019 01:31:31 -0400
-Received: from tyo162.gate.nec.co.jp ([114.179.232.162]:44486 "EHLO
-        tyo162.gate.nec.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725976AbfHEFbb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:31:31 -0400
-Received: from mailgate01.nec.co.jp ([114.179.233.122])
-        by tyo162.gate.nec.co.jp (8.15.1/8.15.1) with ESMTPS id x755V8XK004238
-        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
-        Mon, 5 Aug 2019 14:31:08 +0900
-Received: from mailsv01.nec.co.jp (mailgate-v.nec.co.jp [10.204.236.94])
-        by mailgate01.nec.co.jp (8.15.1/8.15.1) with ESMTP id x755V8sK019089;
-        Mon, 5 Aug 2019 14:31:08 +0900
-Received: from mail03.kamome.nec.co.jp (mail03.kamome.nec.co.jp [10.25.43.7])
-        by mailsv01.nec.co.jp (8.15.1/8.15.1) with ESMTP id x755M4TE002674;
-        Mon, 5 Aug 2019 14:31:08 +0900
-Received: from bpxc99gp.gisp.nec.co.jp ([10.38.151.152] [10.38.151.152]) by mail02.kamome.nec.co.jp with ESMTP id BT-MMP-7394443; Mon, 5 Aug 2019 14:12:41 +0900
-Received: from BPXM20GP.gisp.nec.co.jp ([10.38.151.212]) by
- BPXC24GP.gisp.nec.co.jp ([10.38.151.152]) with mapi id 14.03.0439.000; Mon, 5
- Aug 2019 14:12:41 +0900
-From:   Toshiki Fukasawa <t-fukasawa@vx.jp.nec.com>
-To:     Michal Hocko <mhocko@kernel.org>
-CC:     Toshiki Fukasawa <t-fukasawa@vx.jp.nec.com>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "dan.j.williams@intel.com" <dan.j.williams@intel.com>,
-        "adobriyan@gmail.com" <adobriyan@gmail.com>,
-        "hch@lst.de" <hch@lst.de>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Junichi Nomura <j-nomura@ce.jp.nec.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH 2/2] /proc/kpageflags: do not use uninitialized struct
- pages
-Thread-Topic: [PATCH 2/2] /proc/kpageflags: do not use uninitialized struct
- pages
-Thread-Index: AQHVQpEKFGt+j6P+NkKoSe72QQuzoKbac7OAgAFmX4CAAAsmgIAPl5OA
-Date:   Mon, 5 Aug 2019 05:12:40 +0000
-Message-ID: <3a926ce5-75b9-ea94-d6e4-6888872e0dc4@vx.jp.nec.com>
-References: <20190725023100.31141-1-t-fukasawa@vx.jp.nec.com>
- <20190725023100.31141-3-t-fukasawa@vx.jp.nec.com>
- <20190725090341.GC13855@dhcp22.suse.cz>
- <40b3078e-fb8b-87ef-5c4e-6321956cc940@vx.jp.nec.com>
- <20190726070615.GB6142@dhcp22.suse.cz>
-In-Reply-To: <20190726070615.GB6142@dhcp22.suse.cz>
-Accept-Language: ja-JP, en-US
-Content-Language: ja-JP
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.178.21.43]
-Content-Type: text/plain; charset="iso-2022-jp"
-Content-ID: <092F480E631D4C46AA067F5ECBA30C88@gisp.nec.co.jp>
-Content-Transfer-Encoding: 8BIT
+        id S1726375AbfHEFa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 01:30:59 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:55695 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725976AbfHEFa6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:30:58 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id AAC7B21785;
+        Mon,  5 Aug 2019 01:30:57 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:30:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=noPXGu
+        iGKuy+BfZ2TnOrbS8RP8ll9LKeGjuBJbniTzY=; b=eP8DrUPy/UBU9vDEAFy9Y+
+        oNQxLI3ZCRloqc1PmH8+s6XNJxolO+Dd4N7vRUWFnyXD4ynALEKkeCSJfTb1cOfe
+        GnMb+7Elr0x22RnjQrqwUGT8nFERZXmqqGd0UX+i/N+s9jFAfHJZJ+cE93Tu7Zt8
+        0QbqWw6Fhvf++CL7WRoNCzKVKe1/Y0m47Aq94RB5rhX0nF8tQcDRPb6ebkRefhna
+        Rzy5NA1Wdn3vYnSfUUnKaC4rx6H4rTVoDqwI3W6pVE6+8oQnmjM3mT6a8m1MKdfC
+        zNU432fm2blw81rrQvMgu8lI2hYm+nccRq2Qpo68WbaBpJXVCuyZuFovPi+UjGfQ
+        ==
+X-ME-Sender: <xms:Eb9HXTXT18KQXceElZgEXyCzyaDMtg_OZ3x_JhAIrYH6rjm3LC3Q0A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtiedgkeejucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:Eb9HXXRizyPh-9O15F7fS5mbkGcMrkQfDjqYiOKFGXVa58M6hfmSgQ>
+    <xmx:Eb9HXWQbI7kd7NMbgl1MbQxRpqdH7rlvJQIcjtAvbRBSXcBtciF7mg>
+    <xmx:Eb9HXTJCq6Rf7Vz822pOSp3BRn8jciealrqzviRITFsWiGSg_tR1MQ>
+    <xmx:Eb9HXTXaEbWlls0ESoLk813E73eKMmj_-AQqCD5MURpusNtPaXRQZw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id BCE6680062;
+        Mon,  5 Aug 2019 01:30:56 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] parisc: fix race condition in patching code" failed to apply to 5.2-stable tree
+To:     svens@stackframe.org, deller@gmx.de, stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 05 Aug 2019 07:30:55 +0200
+Message-ID: <1564983055189121@kroah.com>
 MIME-Version: 1.0
-X-TM-AS-MML: disable
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2019/07/26 16:06, Michal Hocko wrote:
-> On Fri 26-07-19 06:25:49, Toshiki Fukasawa wrote:
->>
->>
->> On 2019/07/25 18:03, Michal Hocko wrote:
->>> On Thu 25-07-19 02:31:18, Toshiki Fukasawa wrote:
->>>> A kernel panic was observed during reading /proc/kpageflags for
->>>> first few pfns allocated by pmem namespace:
->>>>
->>>> BUG: unable to handle page fault for address: fffffffffffffffe
->>>> [  114.495280] #PF: supervisor read access in kernel mode
->>>> [  114.495738] #PF: error_code(0x0000) - not-present page
->>>> [  114.496203] PGD 17120e067 P4D 17120e067 PUD 171210067 PMD 0
->>>> [  114.496713] Oops: 0000 [#1] SMP PTI
->>>> [  114.497037] CPU: 9 PID: 1202 Comm: page-types Not tainted 5.3.0-rc1 #1
->>>> [  114.497621] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.0-0-g63451fca13-prebuilt.qemu-project.org 04/01/2014
->>>> [  114.498706] RIP: 0010:stable_page_flags+0x27/0x3f0
->>>> [  114.499142] Code: 82 66 90 66 66 66 66 90 48 85 ff 0f 84 d1 03 00 00 41 54 55 48 89 fd 53 48 8b 57 08 48 8b 1f 48 8d 42 ff 83 e2 01 48 0f 44 c7 <48> 8b 00 f6 c4 02 0f 84 57 03 00 00 45 31 e4 48 8b 55 08 48 89 ef
->>>> [  114.500788] RSP: 0018:ffffa5e601a0fe60 EFLAGS: 00010202
->>>> [  114.501373] RAX: fffffffffffffffe RBX: ffffffffffffffff RCX: 0000000000000000
->>>> [  114.502009] RDX: 0000000000000001 RSI: 00007ffca13a7310 RDI: ffffd07489000000
->>>> [  114.502637] RBP: ffffd07489000000 R08: 0000000000000001 R09: 0000000000000000
->>>> [  114.503270] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000240000
->>>> [  114.503896] R13: 0000000000080000 R14: 00007ffca13a7310 R15: ffffa5e601a0ff08
->>>> [  114.504530] FS:  00007f0266c7f540(0000) GS:ffff962dbbac0000(0000) knlGS:0000000000000000
->>>> [  114.505245] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->>>> [  114.505754] CR2: fffffffffffffffe CR3: 000000023a204000 CR4: 00000000000006e0
->>>> [  114.506401] Call Trace:
->>>> [  114.506660]  kpageflags_read+0xb1/0x130
->>>> [  114.507051]  proc_reg_read+0x39/0x60
->>>> [  114.507387]  vfs_read+0x8a/0x140
->>>> [  114.507686]  ksys_pread64+0x61/0xa0
->>>> [  114.508021]  do_syscall_64+0x5f/0x1a0
->>>> [  114.508372]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
->>>> [  114.508844] RIP: 0033:0x7f0266ba426b
->>>>
->>>> The reason for the panic is that stable_page_flags() which parses
->>>> the page flags uses uninitialized struct pages reserved by the
->>>> ZONE_DEVICE driver.
->>>
->>> Why pmem hasn't initialized struct pages?
->>
->> We proposed to initialize in previous approach but that wasn't merged.
->> (See https://marc.info/?l=linux-mm&m=152964792500739&w=2)
->>
->>> Isn't that a bug that should be addressed rather than paper over it like this?
->>
->> I'm not sure. What do you think, Dan?
-> 
-> Yeah, I am really curious about details. Why do we keep uninitialized
-> struct pages at all? What is a random pfn walker supposed to do? What
-> kind of metadata would be clobbered? In other words much more details
-> please.
-> 
-I also want to know. I do not think that initializing struct pages will
-clobber any metadata.
 
-Best regards,
-Toshiki Fukasawa
+The patch below does not apply to the 5.2-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 740f05f30a8c49ec63668055d28feedd906d3c50 Mon Sep 17 00:00:00 2001
+From: Sven Schnelle <svens@stackframe.org>
+Date: Tue, 23 Jul 2019 22:37:54 +0200
+Subject: [PATCH] parisc: fix race condition in patching code
+
+Assume the following ftrace code sequence that was patched in earlier by
+ftrace_make_call():
+
+PAGE A:
+ffc:	addr of ftrace_caller()
+PAGE B:
+000:	0x6fc10080 /* stw,ma r1,40(sp) */
+004:	0x48213fd1 /* ldw -18(r1),r1 */
+008:	0xe820c002 /* bv,n r0(r1) */
+00c:	0xe83f1fdf /* b,l,n .-c,r1 */
+
+When a Code sequences that is to be patched spans a page break, we might
+have already cleared the part on the PAGE A. If an interrupt is coming in
+during the remap of the fixed mapping to PAGE B, it might execute the
+patched function with only parts of the FTRACE code cleared. To prevent
+this, clear the jump to our mini trampoline first, and clear the remaining
+parts after this. This might also happen when patch_text() patches a
+function that it calls during remap.
+
+Signed-off-by: Sven Schnelle <svens@stackframe.org>
+Cc: <stable@vger.kernel.org> # 5.2+
+Signed-off-by: Helge Deller <deller@gmx.de>
+
+diff --git a/arch/parisc/kernel/ftrace.c b/arch/parisc/kernel/ftrace.c
+index d784ccdd8fef..b6fb30f2e4bf 100644
+--- a/arch/parisc/kernel/ftrace.c
++++ b/arch/parisc/kernel/ftrace.c
+@@ -181,8 +181,9 @@ int ftrace_make_nop(struct module *mod, struct dyn_ftrace *rec,
+ 	for (i = 0; i < ARRAY_SIZE(insn); i++)
+ 		insn[i] = INSN_NOP;
+ 
++	__patch_text((void *)rec->ip, INSN_NOP);
+ 	__patch_text_multiple((void *)rec->ip + 4 - sizeof(insn),
+-			      insn, sizeof(insn));
++			      insn, sizeof(insn)-4);
+ 	return 0;
+ }
+ #endif
+
