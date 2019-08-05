@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A94F81CB1
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:26:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E22A81CB4
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:26:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731335AbfHEN0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:26:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34612 "EHLO mail.kernel.org"
+        id S1730715AbfHEN0I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:26:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731354AbfHEN0C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:26:02 -0400
+        id S1731372AbfHEN0F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:26:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD5E220651;
-        Mon,  5 Aug 2019 13:26:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7029B20644;
+        Mon,  5 Aug 2019 13:26:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011562;
-        bh=3Z6DPYk7EHqMo4PyHu7aIciu77HSTlyXUMfDnn5ZPgg=;
+        s=default; t=1565011564;
+        bh=2iqeMQ6BayS9bS2utCwM9RRUDsXLJkPpLTa6/n5JQOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V/X1n+SI1TcWLR67MNhOmjKlC9Qm7nLxJJJm6xRj/e0ADK4SLXOHs9KjdsDcX9v4d
-         VcUwmZ1G23r5+rZ7aBxesJpKRqwxdXtKEGpYKdNcaNK3kDkbbt2Q/KoUYAKTDdCXVe
-         jVU3GwlxeYLt221y5PySFaLW2if6L8y3KBqgpkkQ=
+        b=VDxmqlkamfkYSvWpWvAycQgGBRwZAWqNJCMUEtgfUDt4E7R3GGDfHea/NlJt6TVwf
+         NQJS/J4uhXBeSB05t2WPbPlIYgplq+UiFll7o1rFipN6PwsR0Wla9j8b8qEVL6F6oF
+         3RFtraxGyZnisFW+PLLBYaC1DZCAbtq+yU1wTLyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Sven Schnelle <svens@stackframe.org>,
+        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
         Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.2 109/131] parisc: Strip debug info from kernel before creating compressed vmlinuz
-Date:   Mon,  5 Aug 2019 15:03:16 +0200
-Message-Id: <20190805124959.261847620@linuxfoundation.org>
+Subject: [PATCH 5.2 110/131] parisc: Fix build of compressed kernel even with debug enabled
+Date:   Mon,  5 Aug 2019 15:03:17 +0200
+Message-Id: <20190805124959.330035289@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -47,32 +45,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Helge Deller <deller@gmx.de>
 
-commit e50beea8e7738377b4fa664078547be338038ff9 upstream.
+commit 3fe6c873af2f2247544debdbe51ec29f690a2ccf upstream.
 
-Same as on x86-64, strip the .comment, .note and debug sections from the
-Linux kernel before creating the compressed image for the boot loader.
+With debug info enabled (CONFIG_DEBUG_INFO=y) the resulting vmlinux may get
+that huge that we need to increase the start addresss for the decompression
+text section otherwise one will face a linker error.
 
-Reported-by: James Bottomley <James.Bottomley@HansenPartnership.com>
 Reported-by: Sven Schnelle <svens@stackframe.org>
-Cc: stable@vger.kernel.org # v4.20+
+Tested-by: Sven Schnelle <svens@stackframe.org>
+Cc: stable@vger.kernel.org # v4.14+
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/parisc/boot/compressed/Makefile |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/parisc/boot/compressed/vmlinux.lds.S |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/parisc/boot/compressed/Makefile
-+++ b/arch/parisc/boot/compressed/Makefile
-@@ -56,7 +56,8 @@ $(obj)/misc.o: $(obj)/sizes.h
- CPPFLAGS_vmlinux.lds += -I$(objtree)/$(obj) -DBOOTLOADER
- $(obj)/vmlinux.lds: $(obj)/sizes.h
+--- a/arch/parisc/boot/compressed/vmlinux.lds.S
++++ b/arch/parisc/boot/compressed/vmlinux.lds.S
+@@ -48,8 +48,8 @@ SECTIONS
+ 		*(.rodata.compressed)
+ 	}
  
--$(obj)/vmlinux.bin: vmlinux
-+OBJCOPYFLAGS_vmlinux.bin := -R .comment -R .note -S
-+$(obj)/vmlinux.bin: vmlinux FORCE
- 	$(call if_changed,objcopy)
+-	/* bootloader code and data starts behind area of extracted kernel */
+-	. = (SZ_end - SZparisc_kernel_start + KERNEL_BINARY_TEXT_START);
++	/* bootloader code and data starts at least behind area of extracted kernel */
++	. = MAX(ABSOLUTE(.), (SZ_end - SZparisc_kernel_start + KERNEL_BINARY_TEXT_START));
  
- vmlinux.bin.all-y := $(obj)/vmlinux.bin
+ 	/* align on next page boundary */
+ 	. = ALIGN(4096);
 
 
