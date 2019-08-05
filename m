@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 61D4181A5B
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:05:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FB2981A2F
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:03:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728799AbfHENFR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:05:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41296 "EHLO mail.kernel.org"
+        id S1726693AbfHENDv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:03:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729261AbfHENFQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:05:16 -0400
+        id S1726508AbfHENDv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:03:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD5E4206C1;
-        Mon,  5 Aug 2019 13:05:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC54C206C1;
+        Mon,  5 Aug 2019 13:03:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010315;
-        bh=fampBdmvc6C9LDTjDlqixoNpsemgYuvhH//ZsTqdaO0=;
+        s=default; t=1565010230;
+        bh=zmi6DxT3EhLOR5sEtz3wlVtU2AHbkSBARiH7Prqw1qY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iHTSgpIyygLDPt0da55WpjTXS6YPXPSu9BQ3yC1bX5VlwjABLFpK5eCPlPmHRwe1W
-         hatXpgTTJyMr/1FMtyjs22vjW5+/X1+J4K2+bYZvx4JBoSUxnV5+I2xYWyOWV0obhl
-         193u9x0z4t2dmBfn/myTpQjGeiiBkJaVb6XNJs94=
+        b=YF3rHnmthCmKUJspnEPG9x3VpFiQr8fDPdWdBEpIQ2hYrP6fgJIItvYYdyo2Xr3U6
+         AM+r+v/nXPXJEeVB4iu+xC8vXhpV8iTS+Oc1GxuGhZUBHZgFVICnhzD7dE9BULJlsA
+         BwBn1mz5KVn1LqPHN6mMzVQjmJ4lkIHcwbcCqmOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH 4.9 08/42] dmaengine: rcar-dmac: Reject zero-length slave DMA requests
-Date:   Mon,  5 Aug 2019 15:02:34 +0200
-Message-Id: <20190805124925.840128759@linuxfoundation.org>
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 01/22] ARM: riscpc: fix DMA
+Date:   Mon,  5 Aug 2019 15:02:38 +0200
+Message-Id: <20190805124919.055226395@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124924.788666484@linuxfoundation.org>
-References: <20190805124924.788666484@linuxfoundation.org>
+In-Reply-To: <20190805124918.070468681@linuxfoundation.org>
+References: <20190805124918.070468681@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,44 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 78efb76ab4dfb8f74f290ae743f34162cd627f19 ]
+[ Upstream commit ffd9a1ba9fdb7f2bd1d1ad9b9243d34e96756ba2 ]
 
-While the .device_prep_slave_sg() callback rejects empty scatterlists,
-it still accepts single-entry scatterlists with a zero-length segment.
-These may happen if a driver calls dmaengine_prep_slave_single() with a
-zero len parameter.  The corresponding DMA request will never complete,
-leading to messages like:
+DMA got broken a while back in two different ways:
+1) a change in the behaviour of disable_irq() to wait for the interrupt
+   to finish executing causes us to deadlock at the end of DMA.
+2) a change to avoid modifying the scatterlist left the first transfer
+   uninitialised.
 
-    rcar-dmac e7300000.dma-controller: Channel Address Error happen
+DMA is only used with expansion cards, so has gone unnoticed.
 
-and DMA timeouts.
-
-Although requesting a zero-length DMA request is a driver bug, rejecting
-it early eases debugging.  Note that the .device_prep_dma_memcpy()
-callback already rejects requests to copy zero bytes.
-
-Reported-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Analyzed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: fa4e99899932 ("[ARM] dma: RiscPC: don't modify DMA SG entries")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sh/rcar-dmac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-rpc/dma.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/sh/rcar-dmac.c b/drivers/dma/sh/rcar-dmac.c
-index f37a6ef4f5441..e4fe24be3d7a4 100644
---- a/drivers/dma/sh/rcar-dmac.c
-+++ b/drivers/dma/sh/rcar-dmac.c
-@@ -1111,7 +1111,7 @@ rcar_dmac_prep_slave_sg(struct dma_chan *chan, struct scatterlist *sgl,
- 	struct rcar_dmac_chan *rchan = to_rcar_dmac_chan(chan);
+diff --git a/arch/arm/mach-rpc/dma.c b/arch/arm/mach-rpc/dma.c
+index 6d3517dc4772a..82aac38fa2cff 100644
+--- a/arch/arm/mach-rpc/dma.c
++++ b/arch/arm/mach-rpc/dma.c
+@@ -131,7 +131,7 @@ static irqreturn_t iomd_dma_handle(int irq, void *dev_id)
+ 	} while (1);
  
- 	/* Someone calling slave DMA on a generic channel? */
--	if (rchan->mid_rid < 0 || !sg_len) {
-+	if (rchan->mid_rid < 0 || !sg_len || !sg_dma_len(sgl)) {
- 		dev_warn(chan->device->dev,
- 			 "%s: bad parameter: len=%d, id=%d\n",
- 			 __func__, sg_len, rchan->mid_rid);
+ 	idma->state = ~DMA_ST_AB;
+-	disable_irq(irq);
++	disable_irq_nosync(irq);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -174,6 +174,9 @@ static void iomd_enable_dma(unsigned int chan, dma_t *dma)
+ 				DMA_FROM_DEVICE : DMA_TO_DEVICE);
+ 		}
+ 
++		idma->dma_addr = idma->dma.sg->dma_address;
++		idma->dma_len = idma->dma.sg->length;
++
+ 		iomd_writeb(DMA_CR_C, dma_base + CR);
+ 		idma->state = DMA_ST_AB;
+ 	}
 -- 
 2.20.1
 
