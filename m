@@ -2,49 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B4BA81BA5
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:16:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 284D681B35
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:13:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729374AbfHENQC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:16:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43306 "EHLO mail.kernel.org"
+        id S1729516AbfHENMn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:12:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729611AbfHENG3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:06:29 -0400
+        id S1729153AbfHENKD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:10:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A49A3206C1;
-        Mon,  5 Aug 2019 13:06:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 713F72173B;
+        Mon,  5 Aug 2019 13:10:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010389;
-        bh=njhFZQxy19PcglwTow94+N5gzFX0PX+0iAdPg690j6M=;
+        s=default; t=1565010602;
+        bh=k2Eu4AtNfLVBB+3ReNjOJ55pY8hm1o606I6hLFu+uso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hPatOKDxLgcjXhmSmYN6RUjQpZ7ZNkEMFzSR8wH8vI4Bxc0bjdObV03KbGyHfAZ30
-         M0BZzjyC3kC+Q632Je2ionI6vqFgNbxQ2gb98NNVQI6c+UPrie5S9myubb/foJ+AJs
-         aNpYZo2505AVNhsJkz7h71uB2D0LdsZaN94DbsFQ=
+        b=pduLCgr2sZhGb9sEM//M/Wo6sjidHAFh5ALYs7GoWODVKnlhLZb3EGcfZbWiYyCuz
+         J2sh3F3UMrjbJoVzf1/Snf81QMRNo+ZV7AfJ3aOSvZX8PAPeJq6Cz2Rnj34dHvQkWg
+         1jyUmZbv962vbpA4IQMyyi0hI8XUHVrC079xCYDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Protsenko <semen.protsenko@linaro.org>,
-        Jan Harkes <jaharkes@cs.cmu.edu>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Colin Ian King <colin.king@canonical.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        David Howells <dhowells@redhat.com>,
-        Fabian Frederick <fabf@skynet.be>,
-        Mikko Rapeli <mikko.rapeli@iki.fi>,
-        Yann Droneaud <ydroneaud@opteya.com>,
-        Zhouyang Jia <jiazhouyang09@gmail.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Alexandre Bounine <alex.bou9@gmail.com>,
+        Ira Weiny <ira.weiny@intel.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 20/42] coda: fix build using bare-metal toolchain
-Date:   Mon,  5 Aug 2019 15:02:46 +0200
-Message-Id: <20190805124927.323238471@linuxfoundation.org>
+Subject: [PATCH 4.19 34/74] drivers/rapidio/devices/rio_mport_cdev.c: NUL terminate some strings
+Date:   Mon,  5 Aug 2019 15:02:47 +0200
+Message-Id: <20190805124938.547554946@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124924.788666484@linuxfoundation.org>
-References: <20190805124924.788666484@linuxfoundation.org>
+In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
+References: <20190805124935.819068648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b2a57e334086602be56b74958d9f29b955cd157f ]
+[ Upstream commit 156e0b1a8112b76e351684ac948c59757037ac36 ]
 
-The kernel is self-contained project and can be built with bare-metal
-toolchain.  But bare-metal toolchain doesn't define __linux__.  Because
-of this u_quad_t type is not defined when using bare-metal toolchain and
-codafs build fails.  This patch fixes it by defining u_quad_t type
-unconditionally.
+The dev_info.name[] array has space for RIO_MAX_DEVNAME_SZ + 1
+characters.  But the problem here is that we don't ensure that the user
+put a NUL terminator on the end of the string.  It could lead to an out
+of bounds read.
 
-Link: http://lkml.kernel.org/r/3cbb40b0a57b6f9923a9d67b53473c0b691a3eaa.1558117389.git.jaharkes@cs.cmu.edu
-Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
-Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Colin Ian King <colin.king@canonical.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Fabian Frederick <fabf@skynet.be>
-Cc: Mikko Rapeli <mikko.rapeli@iki.fi>
-Cc: Yann Droneaud <ydroneaud@opteya.com>
-Cc: Zhouyang Jia <jiazhouyang09@gmail.com>
+Link: http://lkml.kernel.org/r/20190529110601.GB19119@mwanda
+Fixes: e8de370188d0 ("rapidio: add mport char device driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Alexandre Bounine <alex.bou9@gmail.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/coda.h | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/rapidio/devices/rio_mport_cdev.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/include/linux/coda.h b/include/linux/coda.h
-index d30209b9cef81..0ca0c83fdb1c4 100644
---- a/include/linux/coda.h
-+++ b/include/linux/coda.h
-@@ -58,8 +58,7 @@ Mellon the rights to redistribute these changes without encumbrance.
- #ifndef _CODA_HEADER_
- #define _CODA_HEADER_
+diff --git a/drivers/rapidio/devices/rio_mport_cdev.c b/drivers/rapidio/devices/rio_mport_cdev.c
+index cbe467ff1aba9..fa0bbda4b3f2e 100644
+--- a/drivers/rapidio/devices/rio_mport_cdev.c
++++ b/drivers/rapidio/devices/rio_mport_cdev.c
+@@ -1688,6 +1688,7 @@ static int rio_mport_add_riodev(struct mport_cdev_priv *priv,
  
--#if defined(__linux__)
- typedef unsigned long long u_quad_t;
--#endif
-+
- #include <uapi/linux/coda.h>
- #endif 
+ 	if (copy_from_user(&dev_info, arg, sizeof(dev_info)))
+ 		return -EFAULT;
++	dev_info.name[sizeof(dev_info.name) - 1] = '\0';
+ 
+ 	rmcd_debug(RDEV, "name:%s ct:0x%x did:0x%x hc:0x%x", dev_info.name,
+ 		   dev_info.comptag, dev_info.destid, dev_info.hopcount);
+@@ -1819,6 +1820,7 @@ static int rio_mport_del_riodev(struct mport_cdev_priv *priv, void __user *arg)
+ 
+ 	if (copy_from_user(&dev_info, arg, sizeof(dev_info)))
+ 		return -EFAULT;
++	dev_info.name[sizeof(dev_info.name) - 1] = '\0';
+ 
+ 	mport = priv->md->mport;
+ 
 -- 
 2.20.1
 
