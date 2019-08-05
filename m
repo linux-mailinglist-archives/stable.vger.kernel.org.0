@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 78D4081EBF
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 16:11:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0865B81EC2
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 16:12:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729051AbfHEOL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 10:11:57 -0400
-Received: from mout.gmx.net ([212.227.17.21]:38767 "EHLO mout.gmx.net"
+        id S1728818AbfHEOMb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 10:12:31 -0400
+Received: from mout.gmx.net ([212.227.17.21]:52685 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726508AbfHEOL5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 10:11:57 -0400
+        id S1726508AbfHEOMb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 10:12:31 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1565014315;
-        bh=7qGUGvG9eztDZmM8KYBS8i4Uz4eBvtlYbDA+bmuOtSI=;
+        s=badeba3b8450; t=1565014349;
+        bh=PMiwrYf+1U3+NqDOHfly6kFQ5JSMZwJ7W36qbKvHzQA=;
         h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=IhuyGtKXm2ty067dr7jsnlS4d2ogKsbYAWKrAxZx0aeCuuiO7hDk1Qx+p8g1RbtyM
-         3k3voFi27RgANjXa3qGjEX5x6XQbQBSEV065vR28FJZFlaa5M7wNZptOo2K7uTnnKx
-         bzv14dujCYIWMXFJul4xa54sg34strSd8ZxSqC50=
+        b=TJ/WGVFx3rkZtwMjD/y5fKi+RbT/UFwjcfco6PEBrH4j+YgpXLwESrBVznPcDtRCP
+         OqXaaT74qQmY5o12i2R7EXBlvxssB9MiZk2TARKJ+72QSfHmmnNEhkx6o2dIQ1ZL4o
+         kXOLyGVfPTEYN+UlNAbMt9cK5JfrHJCKB0qa6eWM=
 X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
 Received: from localhost.localdomain ([95.91.214.154]) by mail.gmx.com
- (mrgmx102 [212.227.17.168]) with ESMTPSA (Nemesis) id
- 0LgNGi-1iiE8s3sWq-00ndm9; Mon, 05 Aug 2019 16:11:55 +0200
+ (mrgmx101 [212.227.17.168]) with ESMTPSA (Nemesis) id
+ 0MWgND-1hosI22bCF-00Xqrx; Mon, 05 Aug 2019 16:12:29 +0200
 From:   Sebastian Parschauer <s.parschauer@gmx.de>
 To:     stable@vger.kernel.org
 Cc:     Sebastian Parschauer <s.parschauer@gmx.de>,
         Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.14] HID: Add quirk for HP X1200 PIXART OEM mouse
-Date:   Mon,  5 Aug 2019 16:10:56 +0200
-Message-Id: <20190805141056.8764-1-s.parschauer@gmx.de>
+Subject: [PATCH 4.4, 4.9] HID: Add quirk for HP X1200 PIXART OEM mouse
+Date:   Mon,  5 Aug 2019 16:12:01 +0200
+Message-Id: <20190805141201.8822-1-s.parschauer@gmx.de>
 X-Mailer: git-send-email 2.16.4
 In-Reply-To: <20190724210324.4868F218B8@mail.kernel.org>
 References: <20190724210324.4868F218B8@mail.kernel.org>
-X-Provags-ID: V03:K1:bQUYknMypS7uuxQjFqvpwRh3uVG9eyT0yp6BYV0mGCXNxArPfV0
- +zr1WrLckieQ3XOE4QOIcIuI571cd7KaY6jZJ9wYPj5yJlgui7CRxZ/62UZegNI+ub5CmAe
- xz+OT8MvUOoyuq/aSUj0Qyo5DPPeuxuqYTmvY7534mLvBxI7CHHafa9hQHBqHHecbjdq0qP
- bXxt4PoiIEsZOT3IsbZxA==
+X-Provags-ID: V03:K1:e5Yz1VSrQZKbuBD+1BK6FMyBnBo+VaU3Qk0jF08CdC79vNmK+pi
+ RU5Lw9PySslfEbcc8cAEMtgPrXzpRebxrcU4ePwmJ23WZedvijkiWRfdqN4/PE2llNsm59Q
+ 6vffTjq7jvT3ODkB0WgBMiEdtw4/AHSrH62A4YP1EHrKO014nrg79ISrjcXCQENg+z6A/C4
+ N8/+Dnj44dWUTMJfgqPqA==
 X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:gqLUoX94IM4=:gbyQb70rWTv+XbiABWV6Jk
- X68vz5bengu3XQwJ3ggoPMQ70ig9i5TxUc8bPVFO5C98oNDYz+Mow/QK029wQ71841s40CkhM
- Ypas0f8K+ZO0bUBJIaO5ABYULiPaP7A0pr95lwtwaYN12n/XloSxGt4u6bQ5LOkxmcdAGREUt
- FN9S/1IWcYe2VcuQP92LlF7JaGRASpi0OJOybLRxFe9i/BGPhhxyuWUB/u07gdY173ct1zubT
- W0LuFFrhL9rnmjomj6D98LM1GMO7livIn2PKsZqGomVdyyOwYqxYW9DKhmI9auNSNnuqo12nd
- q3xCzkDApNaMIDVCZ3U6VYkvVAMzyFAV52yvOdJ0AUyh9FohUhyEKFiAhGbGdlr6fqP7ejRvO
- ClTrF44XpGoLnl/mHZmDiE2h8ne/w+XWWTYeRiqvjj4uKA6ZTLEA6kzVNLoF7sDO5P9mTBzBi
- fFDioeDeSNQ+usOT83oS8LLH+Dhiu1qnCb38RvO1puQaxbm+ZBMvdtSPwDVP65v8Ny15Obu4K
- VZJDaDUZoJirxnN6mN8Xgw8NEYaiNcbOLUkpcI0Z/97snU2A1VujNKrNNsxEi35DvvVXQMe9k
- WSFhaSLcu/aLFmRX6uVy+HICrymMG/tMaDCi3uWmDzLwyImqQT7qCZvMT6xmt1M43LuCfWtg0
- hI3fCejiY5GWTGytsAkNyamwhSeD0tuxaxV5UO4QmU6XkiZa0RqvpVJbv5UYMrhp4bWTRNbY0
- xHuTATa74dngZsMq06Oc71i3rG500psS/vjTkSXof/fJ3lK42YpwoLrsuld32FEYKFqbOhfq5
- XohB0/y4Soy3+rZ15HrsglmLSI3dfpGbpo2plYUuKKhOTbZIis+buqZKOwQSPILQVk1abWyGn
- RLfaoDY4s9j8Ad05yvx8tvydQ/PRj/TdedTnkkfuUDoLIgiUd/o6Ra4aHKhfyfNHQIe9R5Fbb
- lSDl53CbGrvE8SC9Z0Lwt8N54L4sqVatkGnhcWduQOa/WR+SBynrgIEqMCsOyFAIZY5aoFljN
- 3qoxs5gymJfmCTsG3iz2AUaaEzxBQXh+AOQtPgHDjnaecSYpywYmsN4G4U8SiciF/B6sUug0u
- COwrGlugs8cqJTMfwWFAdkVQ166ezVQkK8hzhqYkXaOY4YrznzfKua/zw==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:ow3sUCAhYJk=:pcooU79vZJDRPUtSl/iFEs
+ Pk+8RAh1N9zgO5D0dlNsRcHSIHzv4uMPg7Ky34OUBJvPfM+cXU8aqeccz+JmOFsDvv4A1UVoJ
+ jhF7PKpJOPbuyWZ3xINdTCXXpUhncFZBeUsom3xKcv5yUBjgyeVVR9xoKKKsQq520hDqhO9Pz
+ hiHNqYJuDGEcoS2VBQL913CqZToxjTKXzGKS/bmq2MR8DsszA9M2wmYgmFDcZtzwYl5MFFzj6
+ qWGgcoQ/cxPuW+3H3XO3x1bxiIJp+S+ZXXgmasFPUgFe2yntcJWs8ZjjV17DadRmPuTWqMSB3
+ OXUQszrw5PIXpncJngiZGlHvwgPe7cgk0TI6XVsoLcLBqLSEOCt5vHaHUztY3sdVc+sQBBG09
+ jja6HSZvaRi8UrwxWp4Js/qlIV/dPgNoFA27MyTBzCL/mV9Hep7HFnLJ19oLjd0G79Pi/djkh
+ 49Rvd8dx2YatHyrd4Z2rCVb+sQevSmghyc3i2hT5YgYVoZVTWkVNObZjqEIjNmktWOocqvhnY
+ AbSMC65HikUQRGMEwLPOIFv4vizfI+8x9VBgYIrlgiygCvIly36xrwblVfHEc/iJgUrOKqPux
+ xQ8pVPleKGjc5BTIdGLEBjw7Iq6vVqa/IeFsCeKSlOn5e8ySoW19Cf5ic/rHtInK1FNrAh8pi
+ VCL4KAaE1Smp3UsBnk+8O4NfINX7rIhIf1j1AzWfKp4T6vlzufbIDo8oJWGmbaQmhcy7TCkSF
+ D39ar4g5wH5oxKicnjbp18K1GiHVeoLmKLgU/RCi7Xudc5NL0MMJythZ5LGsn+A2jnxcWu+jy
+ wqOKpgwqYfffMq04Roa5jykk1QAKOQyPksPCrYc/APzjpwkQBYqC1aPfWFn4Gz/hR85bdAqFs
+ VtY7dIw2CtiWXgPtTlbvhiOdeLAdC62EdIa0K48UnvAEsxW1U2SmOwELbqe+P14LXYllIMaMs
+ xDRMSyIbl0I06UlDJea1TBluKwpYp6LKI7Cxu6ndSuuzJ0ri0KV1SyHEqoC9mXPR31zNJIZHB
+ 4yz5rl1FUzrS14YwVxgHbhfICSsWe4xLatOQzLtnjYPg1ygGIm9nhO3k677y0NNgs9JnkBJYN
+ xPGUW4MEGZK33mWgA4MT/9orlGtRoXBZmejWQtsUNNb/hTZKjc3+W/bhg==
 Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -68,7 +68,7 @@ Jonathan Teh (@jonathan-teh) reported and tested the quirk.
 Reference: https://github.com/sriemer/fix-linux-mouse/issues/15
 
 Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
-CC: stable@vger.kernel.org # v4.14.x
+CC: stable@vger.kernel.org # v4.4.x, v4.9.x
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 [sparschauer: Backport to < v4.16 hid_blacklist]
 Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
@@ -78,37 +78,37 @@ Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
  2 files changed, 2 insertions(+)
 
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 28ae3dc57103..1e2e6e58256a 100644
+index 6f4c84d824e6..25c006338100 100644
 =2D-- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -537,6 +537,7 @@
+@@ -509,6 +509,7 @@
+ #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A	0x0a4a
  #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A	0x0b4a
  #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE		0x134a
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A	0x094a
 +#define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641	0x0641
 
  #define USB_VENDOR_ID_HUION		0x256c
  #define USB_DEVICE_ID_HUION_TABLET	0x006e
 diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quir=
 ks.c
-index e10eda031b01..7b5c6bd92d56 100644
+index 617ae294a318..e851926be8b0 100644
 =2D-- a/drivers/hid/usbhid/hid-quirks.c
 +++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -100,6 +100,7 @@ static const struct hid_blacklist {
+@@ -98,6 +98,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4=
+A, HID_QUIRK_ALWAYS_POLL },
  	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4=
 A, HID_QUIRK_ALWAYS_POLL },
  	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE, HID_=
 QUIRK_ALWAYS_POLL },
- 	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A,=
- HID_QUIRK_ALWAYS_POLL },
 +	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641,=
  HID_QUIRK_ALWAYS_POLL },
- 	{ USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680, HID_QUIRK_MULTI_=
-INPUT },
- 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_C007, HID_QUIRK_ALWAYS_=
-POLL },
  	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_C077, HID_QUIRK_ALWAYS_=
 POLL },
+ 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_KEYBOARD_G710_PLUS, HID=
+_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C01A, HID_QUIRK_A=
+LWAYS_POLL },
 =2D-
 2.16.4
 
