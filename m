@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C01B881CE1
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:27:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CEB481C80
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:24:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730764AbfHEN1o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:27:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32956 "EHLO mail.kernel.org"
+        id S1730182AbfHENY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:24:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731001AbfHENY1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:24:27 -0400
+        id S1731014AbfHENY3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:24:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 787F2214C6;
-        Mon,  5 Aug 2019 13:24:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1827D20651;
+        Mon,  5 Aug 2019 13:24:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011466;
-        bh=COiR/sBkvowXV4Nyw0r0JT5XhVpATUrlVCDXRX0ia6E=;
+        s=default; t=1565011468;
+        bh=kDASm8+AuMPNY/cREAHlH2bRIsXBL4K8DG62KX5A/mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tatl0CeQt7PxSxhTIHQVG53oKHFn9c25cdbwKnwn7t6kPcvUgKSCCFc1zSCbxDWH3
-         XHLVqA4SvG3lSEEeJZXfsATKFGp86zu6gJU0S0AlX/XaDrpWnN0bqdwdRHt2aSEzvC
-         fzJxHmabG/PAXscBPC/lEGhUBWFfFnX0xdRhDuCM=
+        b=zlMRCpHGgGdSJjOGuTZCstlI+yAnznsEcvao72KYDk/2WYyUsPGRDtubcKDZjTWNp
+         DLvSTLCrH7nVWUq8LG0SSE5I8KYjuwjLc69i4LdiOvLPytTDqMT2V9YokmFpXLkhyN
+         iKEp7NvqrViDyjFwp7S18y4XvZqidtENTWFC2oVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+fee3a14d4cdf92646287@syzkaller.appspotmail.com,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.2 098/131] selinux: fix memory leak in policydb_init()
-Date:   Mon,  5 Aug 2019 15:03:05 +0200
-Message-Id: <20190805124958.523237547@linuxfoundation.org>
+        Samuel Thibault <samuel.thibault@ens-lyon.org>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.2 099/131] ALSA: hda: Fix 1-minute detection delay when i915 module is not available
+Date:   Mon,  5 Aug 2019 15:03:06 +0200
+Message-Id: <20190805124958.585858607@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -45,47 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
 
-commit 45385237f65aeee73641f1ef737d7273905a233f upstream.
+commit 74bf71ed792ab0f64631cc65ccdb54c356c36d45 upstream.
 
-Since roles_init() adds some entries to the role hash table, we need to
-destroy also its keys/values on error, otherwise we get a memory leak in
-the error path.
+Distribution installation images such as Debian include different sets
+of modules which can be downloaded dynamically.  Such images may notably
+include the hda sound modules but not the i915 DRM module, even if the
+latter was enabled at build time, as reported on
+https://bugs.debian.org/931507
 
+In such a case hdac_i915 would be linked in and try to load the i915
+module, fail since it is not there, but still wait for a whole minute
+before giving up binding with it.
+
+This fixes such as case by only waiting for the binding if the module
+was properly loaded (or module support is disabled, in which case i915
+is already compiled-in anyway).
+
+Fixes: f9b54e1961c7 ("ALSA: hda/i915: Allow delayed i915 audio component binding")
+Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
 Cc: <stable@vger.kernel.org>
-Reported-by: syzbot+fee3a14d4cdf92646287@syzkaller.appspotmail.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/selinux/ss/policydb.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ sound/hda/hdac_i915.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -272,6 +272,8 @@ static int rangetr_cmp(struct hashtab *h
- 	return v;
- }
- 
-+static int (*destroy_f[SYM_NUM]) (void *key, void *datum, void *datap);
-+
- /*
-  * Initialize a policy database structure.
-  */
-@@ -319,8 +321,10 @@ static int policydb_init(struct policydb
- out:
- 	hashtab_destroy(p->filename_trans);
- 	hashtab_destroy(p->range_tr);
--	for (i = 0; i < SYM_NUM; i++)
-+	for (i = 0; i < SYM_NUM; i++) {
-+		hashtab_map(p->symtab[i].table, destroy_f[i], NULL);
- 		hashtab_destroy(p->symtab[i].table);
-+	}
- 	return rc;
- }
- 
+--- a/sound/hda/hdac_i915.c
++++ b/sound/hda/hdac_i915.c
+@@ -136,10 +136,12 @@ int snd_hdac_i915_init(struct hdac_bus *
+ 	if (!acomp)
+ 		return -ENODEV;
+ 	if (!acomp->ops) {
+-		request_module("i915");
+-		/* 60s timeout */
+-		wait_for_completion_timeout(&bind_complete,
+-					    msecs_to_jiffies(60 * 1000));
++		if (!IS_ENABLED(CONFIG_MODULES) ||
++		    !request_module("i915")) {
++			/* 60s timeout */
++			wait_for_completion_timeout(&bind_complete,
++						   msecs_to_jiffies(60 * 1000));
++		}
+ 	}
+ 	if (!acomp->ops) {
+ 		dev_info(bus->dev, "couldn't bind with audio component\n");
 
 
