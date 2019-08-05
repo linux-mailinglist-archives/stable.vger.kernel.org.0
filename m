@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF59E811D2
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:57:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BE6E811D5
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:57:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727294AbfHEF5a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 01:57:30 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:36611 "EHLO
+        id S1726423AbfHEF55 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 01:57:57 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:60443 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726423AbfHEF5a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:57:30 -0400
+        by vger.kernel.org with ESMTP id S1725951AbfHEF55 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:57:57 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id BA1A920F44;
-        Mon,  5 Aug 2019 01:57:28 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:57:28 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id A9E8320D56;
+        Mon,  5 Aug 2019 01:57:56 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:57:56 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=QCXBtT
-        09eu6On8oomOVzo29mcHA/3u7PHMZ/SmP8aHo=; b=u/G8ptS4DdXOSFkQRjz27Y
-        HiA5bp3/qvQlTPvHezv2c6Hj2fLYMccE80FV4EyrKdI5x4yRJVSxIvcg2jf2KHjk
-        EK/XuyNxedojWadOXZvpP6knUFM3ppOD/pvgrc83OgEUUcSI4W6tpwTIxKdkyjxU
-        8O4Aq94CWaZ0i1Tj8Ym6veuJmVACr+Tb/fT+xVzEtAdCE0bFo+XOMhVH+Cwj2B7t
-        SzckLq5VTSjuqGw5u6X7uA24fEz8oWpimeiAgEIKpsuSGe6i7F77NTcuODHz82c5
-        pi+MUuYKrSFu1D7BGDL9qqpE1/l7sFh9vHCUf24PeacKOtw1J3hI9yIoaeN+kv5w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Nj92AV
+        A7H1A5YzV1F3T+YOP1lppYym36q0tunoOZEWE=; b=F6ddHAe1YjhbzZVSc64mBt
+        a2FA7TeHOSpZASdiwzf9mMyZ6lHP2zSEwbnABXj3keAGS5AuZXGEVpPCUeEg5FpQ
+        5McYgcmraOTk1KvF/TtV8CZUK2yeY7IDfkg5SE9eFHwTZlIvxRV5uqDQPJiGzEED
+        9dIQNKV5uIJOYabNPO8C6Kl7tJ2UY/J3z8vckoavrJB+XYXdrCb7tg8aGUWsMh6y
+        Tq+3bizyeo8NdePGpYgxuF5oIURJH6CoFsWrVn9M3ezCiwy7tqzXZB5jdFdCOCUz
+        BZpgBxmgpHX/THQQmd8VIqayvPC6b4WRLvFRYJCNfC7SwqXp/V+YL+1qwwo6I6IQ
         ==
-X-ME-Sender: <xms:SMVHXam8_D2-PG3zMEgsIoiSikUs55y53K-P1v6RyWE2goeMNksqfw>
+X-ME-Sender: <xms:ZMVHXQZW0XCT78EpCqi8nUqoLjP4091mSKu343mzjPvHDn7W-6iwpg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtiedgledtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgnecukfhppeekfedrke
-    eirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
-    rdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:SMVHXZeFwmP8L0k7rJU9O5Ne0woxZYRcvU2Ina6WRM7usKz30cYk6Q>
-    <xmx:SMVHXWSGdeVOEjTw5K0PLC5XX-wYy5STZghCEnMZTVL4EuiEDy3O6w>
-    <xmx:SMVHXYvOhHke4eXDfnqPOiin531fqM1jIvXS-qnAyl1u4_XQ0C38fQ>
-    <xmx:SMVHXToqHaCyaEeNvgRe-BKq0_yXRzujKUJyNCyu0kZONJcSVhK7eQ>
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgpdhkvghrnhgvlhdroh
+    hrghenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhm
+    pehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:ZMVHXYyEh_hAYtckIOZB0hlXD_xgbsiPIvUN4BrBTCSUnIyn6LRgdg>
+    <xmx:ZMVHXQLy1jc6rggHngjHCwFw0r7pbmxqz3Jsrj1Oiwyk3arTx74WMw>
+    <xmx:ZMVHXYDxnwwmqnkSgFyK3n-F1NaqhB0PXYQnr-ymeN7tercyXY-PPQ>
+    <xmx:ZMVHXS_ZYWoGE-6VqXoJvUZ7IHh2LDOlfXtL4rPyW-HbGG80Mxa3ZA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0345E380083;
-        Mon,  5 Aug 2019 01:57:27 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915: Make sure cdclk is high enough for DP audio on" failed to apply to 5.2-stable tree
-To:     ville.syrjala@linux.intel.com, chris@chris-wilson.co.uk,
-        gottwald@igel.com, jani.nikula@intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2807580059;
+        Mon,  5 Aug 2019 01:57:56 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/i915/userptr: Acquire the page lock around" failed to apply to 5.2-stable tree
+To:     chris@chris-wilson.co.uk, jani.nikula@intel.com,
+        tvrtko.ursulin@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 05 Aug 2019 07:57:26 +0200
-Message-ID: <156498464623047@kroah.com>
+Date:   Mon, 05 Aug 2019 07:57:54 +0200
+Message-ID: <1564984674165140@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -69,65 +69,53 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a8f196a0fa6391a436f63f360a1fb57031fdf26c Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
-Date: Wed, 17 Jul 2019 14:45:36 +0300
-Subject: [PATCH] drm/i915: Make sure cdclk is high enough for DP audio on
- VLV/CHV
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From aa56a292ce623734ddd30f52d73f527d1f3529b5 Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Date: Mon, 8 Jul 2019 15:03:27 +0100
+Subject: [PATCH] drm/i915/userptr: Acquire the page lock around
+ set_page_dirty()
 
-On VLV/CHV there is some kind of linkage between the cdclk frequency
-and the DP link frequency. The spec says:
-"For DP audio configuration, cdclk frequency shall be set to
- meet the following requirements:
- DP Link Frequency(MHz) | Cdclk frequency(MHz)
- 270                    | 320 or higher
- 162                    | 200 or higher"
+set_page_dirty says:
 
-I suspect that would more accurately be expressed as
-"cdclk >= DP link clock", and in any case we can express it like
-that in the code because of the limited set of cdclk (200, 266,
-320, 400 MHz) and link frequencies (162 and 270 MHz) we support.
+	For pages with a mapping this should be done under the page lock
+	for the benefit of asynchronous memory errors who prefer a
+	consistent dirty state. This rule can be broken in some special
+	cases, but should be better not to.
 
-Without this we can end up in a situation where the cdclk
-is too low and enabling DP audio will kill the pipe. Happens
-eg. with 2560x1440 modes where the 266MHz cdclk is sufficient
-to pump the pixels (241.5 MHz dotclock) but is too low for
-the DP audio due to the link frequency being 270 MHz.
+Under those rules, it is only safe for us to use the plain set_page_dirty
+calls for shmemfs/anonymous memory. Userptr may be used with real
+mappings and so needs to use the locked version (set_page_dirty_lock).
 
-v2: Spell out the cdclk and link frequencies we actually support
-
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203317
+Fixes: 5cc9ed4b9a7a ("drm/i915: Introduce mapping of user pages into video memory (userptr) ioctl")
+References: 6dcc693bc57f ("ext4: warn when page is dirtied without buffers")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Cc: stable@vger.kernel.org
-Tested-by: Stefan Gottwald <gottwald@igel.com>
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111149
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190717114536.22937-1-ville.syrjala@linux.intel.com
-Acked-by: Chris Wilson <chris@chris-wilson.co.uk>
-(cherry picked from commit bffb31f73b29a60ef693842d8744950c2819851d)
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190708140327.26825-1-chris@chris-wilson.co.uk
+(cherry picked from commit cb6d7c7dc7ff8cace666ddec66334117a6068ce2)
 Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 
-diff --git a/drivers/gpu/drm/i915/display/intel_cdclk.c b/drivers/gpu/drm/i915/display/intel_cdclk.c
-index 8993ab283562..0d19bbd08122 100644
---- a/drivers/gpu/drm/i915/display/intel_cdclk.c
-+++ b/drivers/gpu/drm/i915/display/intel_cdclk.c
-@@ -2239,6 +2239,17 @@ int intel_crtc_compute_min_cdclk(const struct intel_crtc_state *crtc_state)
- 	if (crtc_state->has_audio && INTEL_GEN(dev_priv) >= 9)
- 		min_cdclk = max(2 * 96000, min_cdclk);
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
+index 528b61678334..2caa594322bc 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
+@@ -664,7 +664,15 @@ i915_gem_userptr_put_pages(struct drm_i915_gem_object *obj,
  
-+	/*
-+	 * "For DP audio configuration, cdclk frequency shall be set to
-+	 *  meet the following requirements:
-+	 *  DP Link Frequency(MHz) | Cdclk frequency(MHz)
-+	 *  270                    | 320 or higher
-+	 *  162                    | 200 or higher"
-+	 */
-+	if ((IS_VALLEYVIEW(dev_priv) || IS_CHERRYVIEW(dev_priv)) &&
-+	    intel_crtc_has_dp_encoder(crtc_state) && crtc_state->has_audio)
-+		min_cdclk = max(crtc_state->port_clock, min_cdclk);
-+
- 	/*
- 	 * On Valleyview some DSI panels lose (v|h)sync when the clock is lower
- 	 * than 320000KHz.
+ 	for_each_sgt_page(page, sgt_iter, pages) {
+ 		if (obj->mm.dirty)
+-			set_page_dirty(page);
++			/*
++			 * As this may not be anonymous memory (e.g. shmem)
++			 * but exist on a real mapping, we have to lock
++			 * the page in order to dirty it -- holding
++			 * the page reference is not sufficient to
++			 * prevent the inode from being truncated.
++			 * Play safe and take the lock.
++			 */
++			set_page_dirty_lock(page);
+ 
+ 		mark_page_accessed(page);
+ 		put_page(page);
 
