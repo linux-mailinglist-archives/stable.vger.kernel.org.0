@@ -2,98 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D662D818A5
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 13:59:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6A5F818A7
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 14:00:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727357AbfHEL7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 07:59:46 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:60543 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727349AbfHEL7p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 07:59:45 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 9317821C1C;
-        Mon,  5 Aug 2019 07:59:44 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 05 Aug 2019 07:59:44 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=QAdrxyccERv3sIpHVxH7zok3MEa
-        ldMyI79OJlAJ8vJs=; b=hPwmONQtyhx21Nnd7zBJqBCL3dHblOEwqDB5WiN/3gv
-        Vm3DMh1DVRdH8thC0+0tSnX1vPaiIeU1RySr+zPxB+5qd0YXPa/Rt6qh5ytr6F3T
-        SM808M9BP4N2jYMUQ2GWwLXbpt8Zs8fJrVDsDVZ7fXK+AAXfKS6AGbovV0R6KRxf
-        sKYzGeWzDQumfV8WC9RT7IoDyBeB7fhVWdLscN3tqCDaIBascScqWGmzW4WD9WZh
-        SJGHRT6GPFnBKfV/vD99oVkIXCCFdtZuz+JNThUr9MlE9sC6KQM9Uemk8hyGKK5P
-        IN8IqXX/0KGOhNH2Mr6Z/ZEBdi3YgYur5674/tOUqnA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=QAdrxy
-        ccERv3sIpHVxH7zok3MEaldMyI79OJlAJ8vJs=; b=ww51hEiQUJn9OttTtHXtFJ
-        cHgDsX7/7eezGX6S6nltKIYrbNkJ+bHY0urh0PLQECmyku9g0wMC3PU4iQaLsRJD
-        DMe6yjkzuvOR0BDj0dfUCR7qTfpLE+jGpZL9yenqemCpA+MnAn3h1bWePY3jxCGn
-        xHT9rv91/PQDM+BKrgzl5DZH3rSN+GQ6M83szP5h426kAebfZQ4cMJAGocpgZv22
-        EE9n4bIZAeBnKLyE8WQFp24I8P6sORMp9pP4g0pv+nHv1TWe6Pk9sMs2gqOJSSGh
-        bWoFgFtV+ILe35HcdJE9TTcopvgVDCHAukR6FP/7JXD2wuMyNr6Qn+ulNYIuSaVg
-        ==
-X-ME-Sender: <xms:MBpIXS1KZy6sJtsLM2auN4-ERlLPQUCvg6FgVFNxYvJ9S8bmxnLbQQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtjedggeeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpeffhffvuffkfhggtggujggfsehttd
-    ertddtredvnecuhfhrohhmpefirhgvghcumffjuceoghhrvghgsehkrhhorghhrdgtohhm
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:MBpIXZX4P5d-5ohrtEpX254aZA0igW7M69qcoFoMDcUJeeerr0xpbA>
-    <xmx:MBpIXV6imQCPSep2KMD25UXxtPFxnIinPIu-vmY2BuccPSPTrT-jzA>
-    <xmx:MBpIXYKf8Yo9LAaFLO3ZsjzYFf4tp40Z7wibAZjtVYZ8KuncHSwjlQ>
-    <xmx:MBpIXcFHfiRp_dGHBmL29pPJj5pZRNYLCbLBQzUKkyYPOQtxTtvzXQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E915C380074;
-        Mon,  5 Aug 2019 07:59:43 -0400 (EDT)
-Date:   Mon, 5 Aug 2019 13:59:38 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Suganath Prabu <suganath-prabu.subramani@broadcom.com>
-Cc:     stable@vger.kernel.org, sreekanth.reddy@broadcom.com,
-        Sathya.Prakash@broadcom.com, kashyap.desai@broadcom.com
-Subject: Re: [PATCH] mpt3sas: Use 63-bit DMA addressing on SAS35 HBA
-Message-ID: <20190805115938.GD8189@kroah.com>
-References: <1564567129-9503-1-git-send-email-suganath-prabu.subramani@broadcom.com>
- <1564567129-9503-2-git-send-email-suganath-prabu.subramani@broadcom.com>
+        id S1728086AbfHEMAd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 08:00:33 -0400
+Received: from mout.gmx.net ([212.227.15.18]:53083 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727349AbfHEMAd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 08:00:33 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1565006431;
+        bh=+SEcsacXGngFRkwZyyIPdyTaT0xrgG+iTarq/0msyEY=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=OkxMFFc54bRCnzpNJi0aF6bFw0dvcz+NaP5Enp4E8YVBK5LYFBXSKAsohZOA+qE05
+         dQd4Jt6gj9kMPFTAUquzlIST7DfFW/2+x/HbutOU3UFrfwykMn7APIdcApFrYKZ/QB
+         TmVb1Fkudaj7nCrYBZxoFPorlUuHEtBvuv+bM1I8=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [193.16.224.11] ([193.16.224.11]) by web-mail.gmx.net
+ (3c-app-gmx-bs20.server.lan [172.19.170.72]) (via HTTP); Mon, 5 Aug 2019
+ 14:00:31 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1564567129-9503-2-git-send-email-suganath-prabu.subramani@broadcom.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Message-ID: <trinity-7b912746-02d0-4a32-8e6a-95f3e3d07f93-1565006431207@3c-app-gmx-bs20>
+From:   "Helge Deller" <deller@gmx.de>
+To:     "Sven Schnelle" <svens@stackframe.org>
+Cc:     "Greg KH" <gregkh@linuxfoundation.org>, stable@vger.kernel.org
+Subject: Aw: Re: FAILED: patch "[PATCH] parisc: fix race condition in
+ patching code" failed to apply to 5.2-stable tree
+Content-Type: text/plain; charset=UTF-8
+Date:   Mon, 5 Aug 2019 14:00:31 +0200
+Importance: normal
+Sensitivity: Normal
+In-Reply-To: <20190805111233.GB10502@t470p.stackframe.org>
+References: <1564983055189121@kroah.com>
+ <20190805074524.GA10502@t470p.stackframe.org>
+ <20190805105701.GA1157@kroah.com>
+ <20190805111233.GB10502@t470p.stackframe.org>
+X-UI-Message-Type: mail
+X-Priority: 3
+X-Provags-ID: V03:K1:qhAHG/qsPJ5MW5q8KJux1xH4v5lWTBXHo7Ki3Yo3ATKYKM/gaIPOTfQI/nN0p0WyQy0e2
+ tJZauMvba9zvqo70yUOEMtMmGZYrs6Sj9VS+Xe+G6t55dgN4NPRfyRjqAmUvYyjqx20UwKUxC4W5
+ axW+OnTX/WBzRlIoeduP5tzbtfc20hfhv1nxw632W2T59lqbddGxMrxckc49jyAazN75fQac4LVo
+ xSh1guM/QlAnx9zy4sgETIZmLkSrxmkGA0FCTZpt1xqjMp7bRLv0rG43KSbmhMNrdfpr7JD6wqJu
+ Vc=
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:xo0C/8x5w3I=:H18DVi/MxzQYzGSp/srGRw
+ //37SB3fg0R68F2OsYO/DUBpWevPjeWoJNFRHP59DTPLriaMMuIcRMPZpVlXYQKYZVf9dIf1x
+ XuNSz4BiE4c7nTeJMqkgP4597H3OO1hxsrA2wIB7srgcsEnYRQ+QbJk2egF/pWgzVIT1cl3P0
+ 1dhgazJHTsTvW5q0APa2qaWrh2DLIrvfXzkRuLyBkvfNGU4ttku4/7beKiGjiTMwNH6D2Naym
+ WtrEpOwvJ4TtQVElNeSQAOdvPAGGWyBo4+ba3yKstI7CtV0IFpv3VRA2ywoFdz2xTgLZxohW3
+ r7FKCC4Yew4RsnTqgV+AunOj8yHL949Tg56xrJMG6zd/IsyF4RNVcperf+TJI4BK4P8VU2zQn
+ 9KinEC1LwXp7OjwSZVnmroA2gUbC7yGV29+VFtul2AnSQnb9hvDg+HMKgX/kBQ59EB9985hkw
+ t8QTh3+TWdL4K/TnXKXHe2NQlBNoc/OfjGbiKdmBhHxldr8IMui5zjpJ0fn1R0neUxG/UGMC3
+ a7ozCfV84NVwAlXUvQ+T/AYMTqIxpCaVNRkNJ+KTFBIF/3xHAYtg8wtBxLTXxoMtw85cmklje
+ 6EsUTW3JN1SnUOhCADGrY4Qxe0dy9WVeGpsGg2oLyr7F0C/k1+sfqlmmaApxqaHlUVGjVyxST
+ dMFM0KPWj80K7woa2deMAVnIQ
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 31, 2019 at 05:58:49AM -0400, Suganath Prabu wrote:
-> From: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
-> 
-> Although SAS3 & SAS3.5 IT HBA controllers support
-> 64-bit DMA addressing, as per hardware design,
-> if DMA able range contains all 64-bits set (0xFFFFFFFF-FFFFFFFF) then
-> it results in a firmware fault.
-> 
-> e.g. SGE's start address is 0xFFFFFFFF-FFFF000 and
-> data length is 0x1000 bytes. when HBA tries to DMA the data
-> at 0xFFFFFFFF-FFFFFFFF location then HBA will
-> fault the firmware.
-> 
-> Fix:
-> Driver will set 63-bit DMA mask to ensure the above address
-> will not be used.
-> 
-> Cc: <stable@vger.kernel.org> # 4.19.63
-> Signed-off-by: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
-> ---
-> Note:
-> This Patch is for stable kernel 4.19.63.
-> Original patch is applied to 5.3/scsi-fixes.
-> commit ID:  df9a606184bfdb5ae3ca9d226184e9489f5c24f7
+> On Mon, Aug 05, 2019 at 12:57:01PM +0200, Greg KH wrote:
+> > On Mon, Aug 05, 2019 at 09:45:24AM +0200, Sven Schnelle wrote:
+> > > On Mon, Aug 05, 2019 at 07:30:55AM +0200, gregkh@linuxfoundation.org=
+ wrote:
+> > > >
+> > > > The patch below does not apply to the 5.2-stable tree.
+> > > > If someone wants it applied there, or to any other stable or longt=
+erm
+> > > > tree, then please email the backport, including the original git c=
+ommit
+> > > > id to <stable@vger.kernel.org>.
+> > >
+> > > The reason is that 5.2 doesn't have DYNAMIC_FTRACE suport, so this c=
+an be
+> > > ignored.
+> >
+> > Then why did the patch have:
+> > 	    Cc: <stable@vger.kernel.org> # 5.2+
+> > in it?
+>
+> My Fault. Helge asked me whether this patch should be added to 5.2 stabl=
+e,
+> and i said "yes", assuming that DYNAMIC_FTRACE for PA-RISC is already in
+> Linux-5.2, which isn't the case. It got merged in 5.3.
 
-Found this one.  Now queued up,t hanks.
-
-greg k-h
+Greg, It's actually my fault.
+I did asked Sven, but usually I do test if the patches apply cleanly too.
+So either I did missed that testing for this patch, or something else must=
+ have
+been wrong on my side.
+Sorry for that.
+Helge
