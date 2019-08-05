@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CF5481C41
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:22:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6393181D0D
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:29:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729152AbfHENVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:21:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58080 "EHLO mail.kernel.org"
+        id S1729700AbfHENV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:21:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729353AbfHENVt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:21:49 -0400
+        id S1729521AbfHENVw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:21:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 237F32067D;
-        Mon,  5 Aug 2019 13:21:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0334216B7;
+        Mon,  5 Aug 2019 13:21:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011308;
-        bh=RXq82yXBtpwWT7EC+LA8Ru3p7SQOpZ4Adeaw98q+AbA=;
+        s=default; t=1565011311;
+        bh=o4RdtS8peYX1vZgURCwJ52gSxyDAkZK4kl537ZJN4JI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZGnI2N964EhzcUj/8TCZx5ot0NnHMzHU1nh7eoatTscRAfe3/h0uOeIz+n1VdCoXL
-         7UPc0XRDpSbNU8ceV4ktv1HY0QaMhsDPpZ48UGzHho6iIw8nqDS0sIqKgBgpQy4BlT
-         AXsuI7wqUCOHEU2UQihPslzv4zGLjAxV9Z5u4RjA=
+        b=l7M59+5R6llRE53Ya9blBP1No/ZgZyAnH6i7NyM6iuMYXp+lL/taOsE9e73t6a6ft
+         1DIBdMSaK4ENeoPSExH/fae2qJO0HjztZGck91cBDEKTN1HnaGvHo7YNYuE+EN+4KO
+         B/zOMNhFVaq+rf8TqvdP9JfsCSt+wXyZjJdKi8lM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 011/131] dmaengine: tegra-apb: Error out if DMA_PREP_INTERRUPT flag is unset
-Date:   Mon,  5 Aug 2019 15:01:38 +0200
-Message-Id: <20190805124952.183362810@linuxfoundation.org>
+        stable@vger.kernel.org, Helen Koike <helen.koike@collabora.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 012/131] arm64: dts: rockchip: fix isp iommu clocks and power domain
+Date:   Mon,  5 Aug 2019 15:01:39 +0200
+Message-Id: <20190805124952.252087844@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -44,56 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit dc161064beb83c668e0f85766b92b1e7ed186e58 ]
+[ Upstream commit c432a29d3fc9ee928caeca2f5cf68b3aebfa6817 ]
 
-Apparently driver was never tested with DMA_PREP_INTERRUPT flag being
-unset since it completely disables interrupt handling instead of skipping
-the callbacks invocations, hence putting channel into unusable state.
+isp iommu requires wrapper variants of the clocks.
+noc variants are always on and using the wrapper variants will activate
+{A,H}CLK_ISP{0,1} due to the hierarchy.
 
-The flag is always set by all of kernel drivers that use APB DMA, so let's
-error out in otherwise case for consistency. It won't be difficult to
-support that case properly if ever will be needed.
+Tested using the pending isp patch set (which is not upstream
+yet). Without this patch, streaming from the isp stalls.
 
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Acked-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Also add the respective power domain and remove the "disabled" status.
+
+Refer:
+ RK3399 TRM v1.4 Fig. 2-4 RK3399 Clock Architecture Diagram
+ RK3399 TRM v1.4 Fig. 8-1 RK3399 Power Domain Partition
+
+Signed-off-by: Helen Koike <helen.koike@collabora.com>
+Tested-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/tegra20-apb-dma.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/rockchip/rk3399.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/dma/tegra20-apb-dma.c b/drivers/dma/tegra20-apb-dma.c
-index ef317c90fbe1e..79e9593815f12 100644
---- a/drivers/dma/tegra20-apb-dma.c
-+++ b/drivers/dma/tegra20-apb-dma.c
-@@ -977,8 +977,12 @@ static struct dma_async_tx_descriptor *tegra_dma_prep_slave_sg(
- 		csr |= tdc->slave_id << TEGRA_APBDMA_CSR_REQ_SEL_SHIFT;
- 	}
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
+index 196ac9b780768..89594a7276f40 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
+@@ -1706,11 +1706,11 @@
+ 		reg = <0x0 0xff914000 0x0 0x100>, <0x0 0xff915000 0x0 0x100>;
+ 		interrupts = <GIC_SPI 43 IRQ_TYPE_LEVEL_HIGH 0>;
+ 		interrupt-names = "isp0_mmu";
+-		clocks = <&cru ACLK_ISP0_NOC>, <&cru HCLK_ISP0_NOC>;
++		clocks = <&cru ACLK_ISP0_WRAPPER>, <&cru HCLK_ISP0_WRAPPER>;
+ 		clock-names = "aclk", "iface";
+ 		#iommu-cells = <0>;
++		power-domains = <&power RK3399_PD_ISP0>;
+ 		rockchip,disable-mmu-reset;
+-		status = "disabled";
+ 	};
  
--	if (flags & DMA_PREP_INTERRUPT)
-+	if (flags & DMA_PREP_INTERRUPT) {
- 		csr |= TEGRA_APBDMA_CSR_IE_EOC;
-+	} else {
-+		WARN_ON_ONCE(1);
-+		return NULL;
-+	}
+ 	isp1_mmu: iommu@ff924000 {
+@@ -1718,11 +1718,11 @@
+ 		reg = <0x0 0xff924000 0x0 0x100>, <0x0 0xff925000 0x0 0x100>;
+ 		interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_HIGH 0>;
+ 		interrupt-names = "isp1_mmu";
+-		clocks = <&cru ACLK_ISP1_NOC>, <&cru HCLK_ISP1_NOC>;
++		clocks = <&cru ACLK_ISP1_WRAPPER>, <&cru HCLK_ISP1_WRAPPER>;
+ 		clock-names = "aclk", "iface";
+ 		#iommu-cells = <0>;
++		power-domains = <&power RK3399_PD_ISP1>;
+ 		rockchip,disable-mmu-reset;
+-		status = "disabled";
+ 	};
  
- 	apb_seq |= TEGRA_APBDMA_APBSEQ_WRAP_WORD_1;
- 
-@@ -1120,8 +1124,12 @@ static struct dma_async_tx_descriptor *tegra_dma_prep_dma_cyclic(
- 		csr |= tdc->slave_id << TEGRA_APBDMA_CSR_REQ_SEL_SHIFT;
- 	}
- 
--	if (flags & DMA_PREP_INTERRUPT)
-+	if (flags & DMA_PREP_INTERRUPT) {
- 		csr |= TEGRA_APBDMA_CSR_IE_EOC;
-+	} else {
-+		WARN_ON_ONCE(1);
-+		return NULL;
-+	}
- 
- 	apb_seq |= TEGRA_APBDMA_APBSEQ_WRAP_WORD_1;
- 
+ 	hdmi_sound: hdmi-sound {
 -- 
 2.20.1
 
