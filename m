@@ -2,125 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7415581198
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:27:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB1908119B
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:31:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726877AbfHEF1R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 01:27:17 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:51623 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726454AbfHEF1Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:27:16 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 66EC2209E5;
-        Mon,  5 Aug 2019 01:27:16 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:27:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=GkYx/5
-        51CX+Kf6XsytKIX7RhSNathBw3QydafG3jMbE=; b=DwZlOZfHOFnzZvJUkPs3yn
-        08KUbJsBy8aCceI41k2c3yiaX+zgCC0vLgg4X2HLSgnUznAaz3jAbaNIdlIEDyQ6
-        I5wuMjMfYJHzVRZNZAVIZzv5jiySOkQ89zPPJ/49JsahkCHNhZdx+D2rx7/SHeDe
-        nc8z9QSdCmxOOqN34/vwd9Br50dkYnZZ/hmFUqhs73T3+VfKQ2f/7ySO1Ncar+ty
-        /zZx/yNRt30ETlN7C5lwVrRgN0Qj4GPFfzx1nzTbUKW6ae2PFKwhZgCT84RBWXYN
-        nTIozIpoui+B8h90PJV6Y+V/ey2Ep4ZPFXe7IheucQN4/8dCPkWn6Xa2kSC76u1g
-        ==
-X-ME-Sender: <xms:NL5HXfX-HiqG8XDnbPzvwz0zSUZwZ10wNurWaejcCVlni_lLIb8-3g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtiedgkeeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:NL5HXc21HVezk5BbWszDA56oaFNRm9mCVrayN4id_a6pjyEKf1Ey-A>
-    <xmx:NL5HXdE1jADihMeQ0vo0kidtUFcCxRF5u-R24Lbd6kQkIHCHPDB24g>
-    <xmx:NL5HXSimAUPdEyHOYibr2-7Ee_I2-xzszklu-dJs_LhzC8py-aEZTA>
-    <xmx:NL5HXV6LH8gRO_BfWPYcDM6j5E8qAqRfxaUMfatsmOQGvqjGLEythw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C90B2380086;
-        Mon,  5 Aug 2019 01:27:15 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm/migrate.c: initialize pud_entry in migrate_vma()" failed to apply to 4.14-stable tree
-To:     rcampbell@nvidia.com, akpm@linux-foundation.org,
-        jglisse@redhat.com, jhubbard@nvidia.com,
-        mgorman@techsingularity.net, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 05 Aug 2019 07:27:06 +0200
-Message-ID: <1564982826146134@kroah.com>
+        id S1725992AbfHEFbb convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 5 Aug 2019 01:31:31 -0400
+Received: from tyo162.gate.nec.co.jp ([114.179.232.162]:44486 "EHLO
+        tyo162.gate.nec.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725976AbfHEFbb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:31:31 -0400
+Received: from mailgate01.nec.co.jp ([114.179.233.122])
+        by tyo162.gate.nec.co.jp (8.15.1/8.15.1) with ESMTPS id x755V8XK004238
+        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
+        Mon, 5 Aug 2019 14:31:08 +0900
+Received: from mailsv01.nec.co.jp (mailgate-v.nec.co.jp [10.204.236.94])
+        by mailgate01.nec.co.jp (8.15.1/8.15.1) with ESMTP id x755V8sK019089;
+        Mon, 5 Aug 2019 14:31:08 +0900
+Received: from mail03.kamome.nec.co.jp (mail03.kamome.nec.co.jp [10.25.43.7])
+        by mailsv01.nec.co.jp (8.15.1/8.15.1) with ESMTP id x755M4TE002674;
+        Mon, 5 Aug 2019 14:31:08 +0900
+Received: from bpxc99gp.gisp.nec.co.jp ([10.38.151.152] [10.38.151.152]) by mail02.kamome.nec.co.jp with ESMTP id BT-MMP-7394443; Mon, 5 Aug 2019 14:12:41 +0900
+Received: from BPXM20GP.gisp.nec.co.jp ([10.38.151.212]) by
+ BPXC24GP.gisp.nec.co.jp ([10.38.151.152]) with mapi id 14.03.0439.000; Mon, 5
+ Aug 2019 14:12:41 +0900
+From:   Toshiki Fukasawa <t-fukasawa@vx.jp.nec.com>
+To:     Michal Hocko <mhocko@kernel.org>
+CC:     Toshiki Fukasawa <t-fukasawa@vx.jp.nec.com>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "dan.j.williams@intel.com" <dan.j.williams@intel.com>,
+        "adobriyan@gmail.com" <adobriyan@gmail.com>,
+        "hch@lst.de" <hch@lst.de>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Junichi Nomura <j-nomura@ce.jp.nec.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH 2/2] /proc/kpageflags: do not use uninitialized struct
+ pages
+Thread-Topic: [PATCH 2/2] /proc/kpageflags: do not use uninitialized struct
+ pages
+Thread-Index: AQHVQpEKFGt+j6P+NkKoSe72QQuzoKbac7OAgAFmX4CAAAsmgIAPl5OA
+Date:   Mon, 5 Aug 2019 05:12:40 +0000
+Message-ID: <3a926ce5-75b9-ea94-d6e4-6888872e0dc4@vx.jp.nec.com>
+References: <20190725023100.31141-1-t-fukasawa@vx.jp.nec.com>
+ <20190725023100.31141-3-t-fukasawa@vx.jp.nec.com>
+ <20190725090341.GC13855@dhcp22.suse.cz>
+ <40b3078e-fb8b-87ef-5c4e-6321956cc940@vx.jp.nec.com>
+ <20190726070615.GB6142@dhcp22.suse.cz>
+In-Reply-To: <20190726070615.GB6142@dhcp22.suse.cz>
+Accept-Language: ja-JP, en-US
+Content-Language: ja-JP
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.178.21.43]
+Content-Type: text/plain; charset="iso-2022-jp"
+Content-ID: <092F480E631D4C46AA067F5ECBA30C88@gisp.nec.co.jp>
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-TM-AS-MML: disable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 2019/07/26 16:06, Michal Hocko wrote:
+> On Fri 26-07-19 06:25:49, Toshiki Fukasawa wrote:
+>>
+>>
+>> On 2019/07/25 18:03, Michal Hocko wrote:
+>>> On Thu 25-07-19 02:31:18, Toshiki Fukasawa wrote:
+>>>> A kernel panic was observed during reading /proc/kpageflags for
+>>>> first few pfns allocated by pmem namespace:
+>>>>
+>>>> BUG: unable to handle page fault for address: fffffffffffffffe
+>>>> [  114.495280] #PF: supervisor read access in kernel mode
+>>>> [  114.495738] #PF: error_code(0x0000) - not-present page
+>>>> [  114.496203] PGD 17120e067 P4D 17120e067 PUD 171210067 PMD 0
+>>>> [  114.496713] Oops: 0000 [#1] SMP PTI
+>>>> [  114.497037] CPU: 9 PID: 1202 Comm: page-types Not tainted 5.3.0-rc1 #1
+>>>> [  114.497621] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.0-0-g63451fca13-prebuilt.qemu-project.org 04/01/2014
+>>>> [  114.498706] RIP: 0010:stable_page_flags+0x27/0x3f0
+>>>> [  114.499142] Code: 82 66 90 66 66 66 66 90 48 85 ff 0f 84 d1 03 00 00 41 54 55 48 89 fd 53 48 8b 57 08 48 8b 1f 48 8d 42 ff 83 e2 01 48 0f 44 c7 <48> 8b 00 f6 c4 02 0f 84 57 03 00 00 45 31 e4 48 8b 55 08 48 89 ef
+>>>> [  114.500788] RSP: 0018:ffffa5e601a0fe60 EFLAGS: 00010202
+>>>> [  114.501373] RAX: fffffffffffffffe RBX: ffffffffffffffff RCX: 0000000000000000
+>>>> [  114.502009] RDX: 0000000000000001 RSI: 00007ffca13a7310 RDI: ffffd07489000000
+>>>> [  114.502637] RBP: ffffd07489000000 R08: 0000000000000001 R09: 0000000000000000
+>>>> [  114.503270] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000240000
+>>>> [  114.503896] R13: 0000000000080000 R14: 00007ffca13a7310 R15: ffffa5e601a0ff08
+>>>> [  114.504530] FS:  00007f0266c7f540(0000) GS:ffff962dbbac0000(0000) knlGS:0000000000000000
+>>>> [  114.505245] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>>>> [  114.505754] CR2: fffffffffffffffe CR3: 000000023a204000 CR4: 00000000000006e0
+>>>> [  114.506401] Call Trace:
+>>>> [  114.506660]  kpageflags_read+0xb1/0x130
+>>>> [  114.507051]  proc_reg_read+0x39/0x60
+>>>> [  114.507387]  vfs_read+0x8a/0x140
+>>>> [  114.507686]  ksys_pread64+0x61/0xa0
+>>>> [  114.508021]  do_syscall_64+0x5f/0x1a0
+>>>> [  114.508372]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+>>>> [  114.508844] RIP: 0033:0x7f0266ba426b
+>>>>
+>>>> The reason for the panic is that stable_page_flags() which parses
+>>>> the page flags uses uninitialized struct pages reserved by the
+>>>> ZONE_DEVICE driver.
+>>>
+>>> Why pmem hasn't initialized struct pages?
+>>
+>> We proposed to initialize in previous approach but that wasn't merged.
+>> (See https://marc.info/?l=linux-mm&m=152964792500739&w=2)
+>>
+>>> Isn't that a bug that should be addressed rather than paper over it like this?
+>>
+>> I'm not sure. What do you think, Dan?
+> 
+> Yeah, I am really curious about details. Why do we keep uninitialized
+> struct pages at all? What is a random pfn walker supposed to do? What
+> kind of metadata would be clobbered? In other words much more details
+> please.
+> 
+I also want to know. I do not think that initializing struct pages will
+clobber any metadata.
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 7b358c6f12dc82364f6d317f8c8f1d794adbc3f5 Mon Sep 17 00:00:00 2001
-From: Ralph Campbell <rcampbell@nvidia.com>
-Date: Fri, 2 Aug 2019 21:49:08 -0700
-Subject: [PATCH] mm/migrate.c: initialize pud_entry in migrate_vma()
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-When CONFIG_MIGRATE_VMA_HELPER is enabled, migrate_vma() calls
-migrate_vma_collect() which initializes a struct mm_walk but didn't
-initialize mm_walk.pud_entry.  (Found by code inspection) Use a C
-structure initialization to make sure it is set to NULL.
-
-Link: http://lkml.kernel.org/r/20190719233225.12243-1-rcampbell@nvidia.com
-Fixes: 8763cb45ab967 ("mm/migrate: new memory migration helper for use with device memory")
-Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: "Jérôme Glisse" <jglisse@redhat.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-
-diff --git a/mm/migrate.c b/mm/migrate.c
-index 515718392b24..a42858d8e00b 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -2340,16 +2340,13 @@ static int migrate_vma_collect_pmd(pmd_t *pmdp,
- static void migrate_vma_collect(struct migrate_vma *migrate)
- {
- 	struct mmu_notifier_range range;
--	struct mm_walk mm_walk;
--
--	mm_walk.pmd_entry = migrate_vma_collect_pmd;
--	mm_walk.pte_entry = NULL;
--	mm_walk.pte_hole = migrate_vma_collect_hole;
--	mm_walk.hugetlb_entry = NULL;
--	mm_walk.test_walk = NULL;
--	mm_walk.vma = migrate->vma;
--	mm_walk.mm = migrate->vma->vm_mm;
--	mm_walk.private = migrate;
-+	struct mm_walk mm_walk = {
-+		.pmd_entry = migrate_vma_collect_pmd,
-+		.pte_hole = migrate_vma_collect_hole,
-+		.vma = migrate->vma,
-+		.mm = migrate->vma->vm_mm,
-+		.private = migrate,
-+	};
- 
- 	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, NULL, mm_walk.mm,
- 				migrate->start,
-
+Best regards,
+Toshiki Fukasawa
