@@ -2,122 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 327AF81583
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 11:33:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABB90815AE
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 11:41:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727889AbfHEJdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 05:33:16 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:37563 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726454AbfHEJdQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 05:33:16 -0400
-Received: by mail-wr1-f68.google.com with SMTP id n9so58595121wrr.4
-        for <stable@vger.kernel.org>; Mon, 05 Aug 2019 02:33:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linbit-com.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=e6mpzWuHkNsT3rptUQH52jVRQqHIX7D9o531pV6bORY=;
-        b=hRIlQEDNX2xX5rCHoSv+sGZD59H38Ow/EYR0T1ajP5OaF8L2KA9hQBFUoMpXh0HE0D
-         HWTHxMzmEfrB4IqyQa3yGqNfq4mXnhyIMusHeOGkp4+HUBtc8iTNqXU9vDkI9BIZ95kw
-         V5Vfh+j570DChZJqUnBHLzIpqgGHLJm+0JL1BWcSvVJzyYuiMvzEYRrpgZ78fURUHl3N
-         ovjUGELg40J2Gm0d8pMCnljPsXVktlFARe436/iKTp8psqDnHGt3p3ILoUeA8pd6dAO9
-         ovpfVwtj4qN7LkFnoKf71I32m17M4sE0fJM7zWE/+42S4VhFJq2Of1UsBjFi2ClfbWeY
-         1HfQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=e6mpzWuHkNsT3rptUQH52jVRQqHIX7D9o531pV6bORY=;
-        b=LS0BhN2M+A0I29hFSyK8s1Q2LmaVN4pZoivgvn5JI5GE5ovNRqp/g/ieE6NqQce16a
-         ExJ7du8gPomX9I+7Q+Oma469govOP2MTcHqPfgi+Ca1NoeyreUHLwdwFU+RhHCGEZHzU
-         HOC7Mz/FlGNhbIRbtoQewOIFePJYnEe5D6/Tzq/itIxC2gzMg8agN2dfSOTOnoLlyEX9
-         gCWgmjDiAfUzhVFuG13pDoaO6p6lHVCSSHQyoHtDK5mTFM3f0VON5DNpUX9lq/NhtthS
-         Xz8ssE5s3LlczRHKgxsMM9xHyKg6q0yYdjtej4sq/3yUTZ7SaLajFYFbonYhl0jJ9mFZ
-         Cprw==
-X-Gm-Message-State: APjAAAXByNcDkzsqed4APVsNr25LOCs6gopFj27F1oepUYL0caiM2t1T
-        Ojs7mPVkRo2Y+l97DIkZ8ENl07pMh3omew==
-X-Google-Smtp-Source: APXvYqz6T7cZ7wa/+gLiHZdm5Uiv/PuUcbTNxoUWmZaDsCa8yclPwjoVxW6PV7E51zV0/r2XvX7/NA==
-X-Received: by 2002:adf:f04d:: with SMTP id t13mr45767334wro.133.1564997593542;
-        Mon, 05 Aug 2019 02:33:13 -0700 (PDT)
-Received: from ?IPv6:2001:858:107:1:28f7:ac40:788a:ffa1? ([2001:858:107:1:28f7:ac40:788a:ffa1])
-        by smtp.gmail.com with ESMTPSA id a84sm108098037wmf.29.2019.08.05.02.33.12
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 05 Aug 2019 02:33:13 -0700 (PDT)
-Subject: Re: [PATCH] drbd: do not ignore signals in threads
-To:     David Laight <David.Laight@ACULAB.COM>,
-        Jens Axboe <axboe@kernel.dk>
-Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Philipp Reisner <philipp.reisner@linbit.com>,
+        id S1727349AbfHEJlL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 05:41:11 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:52076 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726454AbfHEJlK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 05:41:10 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-236-iiCZ4_0kN0uCcHgQ-ApRbg-1; Mon, 05 Aug 2019 10:41:07 +0100
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Mon, 5 Aug 2019 10:41:07 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Mon, 5 Aug 2019 10:41:07 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     =?utf-8?B?J0NocmlzdG9waCBCw7ZobXdhbGRlcic=?= 
+        <christoph.boehmwalder@linbit.com>, Jens Axboe <axboe@kernel.dk>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Philipp Reisner" <philipp.reisner@linbit.com>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>,
         "Eric W . Biederman" <ebiederm@xmission.com>
+Subject: RE: [PATCH] drbd: do not ignore signals in threads
+Thread-Topic: [PATCH] drbd: do not ignore signals in threads
+Thread-Index: AQHVRehdZ3MFgEc+dUGpXqE3QyW7xKbhRpmwgAr+X4CAABFvoA==
+Date:   Mon, 5 Aug 2019 09:41:06 +0000
+Message-ID: <6f8c0d1e51c242a288fbf9b32240e4c1@AcuMS.aculab.com>
 References: <20190729083248.30362-1-christoph.boehmwalder@linbit.com>
  <6259de605e9246b095233e3984262b93@AcuMS.aculab.com>
-From:   =?UTF-8?Q?Christoph_B=c3=b6hmwalder?= 
-        <christoph.boehmwalder@linbit.com>
-Message-ID: <ad16d006-4382-3f77-8968-6f840e58b8df@linbit.com>
-Date:   Mon, 5 Aug 2019 11:33:01 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
-MIME-Version: 1.0
-In-Reply-To: <6259de605e9246b095233e3984262b93@AcuMS.aculab.com>
-Content-Type: text/plain; charset=utf-8
+ <ad16d006-4382-3f77-8968-6f840e58b8df@linbit.com>
+In-Reply-To: <ad16d006-4382-3f77-8968-6f840e58b8df@linbit.com>
+Accept-Language: en-GB, en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
+MIME-Version: 1.0
+X-MC-Unique: iiCZ4_0kN0uCcHgQ-ApRbg-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 29.07.19 10:50, David Laight wrote:
-> Doesn't unmasking the signals and using send_sig() instead  of force_sig()
-> have the (probably unwanted) side effect of allowing userspace to send
-> the signal?
+RnJvbTogQ2hyaXN0b3BoIELDtmhtd2FsZGVyDQo+IFNlbnQ6IDA1IEF1Z3VzdCAyMDE5IDEwOjMz
+DQo+IA0KPiBPbiAyOS4wNy4xOSAxMDo1MCwgRGF2aWQgTGFpZ2h0IHdyb3RlOg0KPiA+IERvZXNu
+J3QgdW5tYXNraW5nIHRoZSBzaWduYWxzIGFuZCB1c2luZyBzZW5kX3NpZygpIGluc3RlYWQgIG9m
+IGZvcmNlX3NpZygpDQo+ID4gaGF2ZSB0aGUgKHByb2JhYmx5IHVud2FudGVkKSBzaWRlIGVmZmVj
+dCBvZiBhbGxvd2luZyB1c2Vyc3BhY2UgdG8gc2VuZA0KPiA+IHRoZSBzaWduYWw/DQo+IA0KPiBJ
+IGhhdmUgcmFuIHNvbWUgdGVzdHMsIGFuZCBpdCBkb2VzIGxvb2sgbGlrZSBpdCBpcyBub3cgcG9z
+c2libGUgdG8gc2VuZA0KPiBzaWduYWxzIHRvIHRoZSBEUkJEIGt0aHJlYWQgZnJvbSB1c2Vyc3Bh
+Y2UuIEhvd2V2ZXIsIC4uLg0KPiANCj4gPiBJJ3ZlIGNlcnRhaW5seSBnb3Qgc29tZSBkcml2ZXIg
+Y29kZSB0aGF0IHVzZXMgZm9yY2Vfc2lnKCkgb24gYSBrdGhyZWFkDQo+ID4gdGhhdCBpdCBkb2Vz
+bid0IChldmVyKSB3YW50IHVzZXJzcGFjZSB0byBzaWduYWwuDQo+IA0KPiAuLi4gd2UgZG9uJ3Qg
+ZmVlbCB0aGF0IGl0IGlzIGFic29sdXRlbHkgbmVjZXNzYXJ5IGZvciB1c2Vyc3BhY2UgdG8gYmUN
+Cj4gdW5hYmxlIHRvIHNlbmQgYSBzaWduYWwgdG8gb3VyIGt0aHJlYWRzLiBUaGlzIGlzIGJlY2F1
+c2UgdGhlIERSQkQgdGhyZWFkDQo+IGluZGVwZW5kZW50bHkgY2hlY2tzIGl0cyBvd24gc3RhdGUs
+IGFuZCAoZm9yIGV4YW1wbGUpIG9ubHkgZXhpdHMgYXMgYQ0KPiByZXN1bHQgb2YgYSBzaWduYWwg
+aWYgaXRzIHRocmVhZCBzdGF0ZSB3YXMgYWxyZWFkeSAiRVhJVElORyIgdG8gYmVnaW4NCj4gd2l0
+aC4NCg0KSW4gbXVzdCAnY2xlYXInIHRoZSBzaWduYWwgLSBvdGhlcndpc2UgaXQgd29uJ3QgYmxv
+Y2sgYWdhaW4uDQoNCkkndmUgYWxzbyBnb3QgdGhpcyBob3JyaWQgY29kZSBmcmFnbWVudDoNCg0K
+ICAgIGluaXRfd2FpdHF1ZXVlX2VudHJ5KCZ3LCBjdXJyZW50KTsNCg0KICAgIC8qIFRlbGwgc2No
+ZWR1bGVyIHdlIGFyZSBnb2luZyB0byBzbGVlcC4uLiAqLw0KICAgIGlmIChzaWduYWxfcGVuZGlu
+ZyhjdXJyZW50KSAmJiAhaW50ZXJydXB0aWJsZSkNCiAgICAgICAgLyogV2UgZG9uJ3Qgd2FudCB3
+YWtpbmcgaW1tZWRpYXRlbHkgKGFnYWluKSAqLw0KICAgICAgICBzbGVlcF9zdGF0ZSA9IFRBU0tf
+VU5JTlRFUlJVUFRJQkxFOw0KICAgIGVsc2UNCiAgICAgICAgc2xlZXBfc3RhdGUgPSBUQVNLX0lO
+VEVSUlVQVElCTEU7DQogICAgc2V0X2N1cnJlbnRfc3RhdGUoc2xlZXBfc3RhdGUpOw0KDQogICAg
+LyogQ29ubmVjdCB0byBjb25kaXRpb24gdmFyaWFibGUgLi4uICovDQogICAgYWRkX3dhaXRfcXVl
+dWUoY3ZwLCAmdyk7DQogICAgbXV0ZXhfdW5sb2NrKG10eHApOyAvKiBSZWxlYXNlIG11dGV4ICov
+DQoNCndoZXJlIHdlIHdhbnQgdG8gc2xlZXAgVEFTS19VTklOVEVSUlVQVElCTEUgYnV0IHRoYXQg
+Zipja3MgdXAgdGhlICdsb2FkIGF2ZXJhZ2UnLA0Kc28gc2xlZXAgVEFTS19JTlRFUlJVUFRJQkxF
+IHVubGVzcyB0aGVyZSBpcyBhIHNpZ25hbCBwZW5kaW5nIHRoYXQgd2Ugd2FudCB0bw0KaWdub3Jl
+Lg0KDQoJRGF2aWQNCg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBCcmFtbGV5IFJv
+YWQsIE1vdW50IEZhcm0sIE1pbHRvbiBLZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdpc3RyYXRpb24g
+Tm86IDEzOTczODYgKFdhbGVzKQ0K
 
-I have ran some tests, and it does look like it is now possible to send
-signals to the DRBD kthread from userspace. However, ...
-
-> I've certainly got some driver code that uses force_sig() on a kthread
-> that it doesn't (ever) want userspace to signal.
-
-... we don't feel that it is absolutely necessary for userspace to be
-unable to send a signal to our kthreads. This is because the DRBD thread
-independently checks its own state, and (for example) only exits as a
-result of a signal if its thread state was already "EXITING" to begin
-with.
-
-As such, our priority here is to get the main issue -- DRBD hanging upon
-exit -- resolved. I agree that it is not exactly desirable to have userspace
-send random signals to kthreads; not for DRBD and certainly not in general.
-However, we feel like it is more important to have DRBD actually work again
-in 5.3.
-
-That said, there should probably still be a way to be able to send a signal
-to a kthread from the kernel, but not from userspace. I think the author of
-the original patch (Eric) might have some ideas here.
-
-Jens, could you take a look and decide whether or not it's appropriate for you
-to funnel this through the linux-block tree to Linus for rc4?
-
-> The origina1 commit says:
->> Further force_sig is for delivering synchronous signals (aka exceptions).
->> The locking in force_sig is not prepared to deal with running processes, as
->> tsk->sighand may change during exec for a running process.
-> 
-> I think a lot of code has assumed that the only real difference between
-> send_sig() and force_sig() is that the latter ignores the signal mask.
-> 
-> If you need to unblock a kernel thread (eg one blocked in kernel_accept())
-> in order to unload a driver, then you really don't want it to be possible
-> for anything else to signal the kthread.
-> 
-> 	David
-> 
-> -
-> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-> Registration No: 1397386 (Wales)
---
-Christoph Böhmwalder
-LINBIT | Keeping the Digital World Running
-DRBD HA —  Disaster Recovery — Software defined Storage
