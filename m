@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C4B081CE0
+	by mail.lfdr.de (Postfix) with ESMTP id C01B881CE1
 	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:27:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731000AbfHENYY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:24:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32932 "EHLO mail.kernel.org"
+        id S1730764AbfHEN1o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:27:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730182AbfHENYY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:24:24 -0400
+        id S1731001AbfHENY1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:24:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D079A2067D;
-        Mon,  5 Aug 2019 13:24:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 787F2214C6;
+        Mon,  5 Aug 2019 13:24:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011463;
-        bh=Mul0E8HVTIwUIJumJMenw8NuqJ7QN5bugakid710Lpg=;
+        s=default; t=1565011466;
+        bh=COiR/sBkvowXV4Nyw0r0JT5XhVpATUrlVCDXRX0ia6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vOq9b7q0gzZB5STY7HSIPEjX2P5CR0Uj0wnoqeYkDutiJX/fifF+ltMIp3NDbieYv
-         DQZFQi+j1xMiqf/tSD9WNWM02eKMOrZx/g2G4yoAS6cL53ORg5QNS5UqK5/Fk2LJ6K
-         0t8eUOJjZb+sCQX1hs6hhA2S/67Gw2uAkrT8wjXY=
+        b=Tatl0CeQt7PxSxhTIHQVG53oKHFn9c25cdbwKnwn7t6kPcvUgKSCCFc1zSCbxDWH3
+         XHLVqA4SvG3lSEEeJZXfsATKFGp86zu6gJU0S0AlX/XaDrpWnN0bqdwdRHt2aSEzvC
+         fzJxHmabG/PAXscBPC/lEGhUBWFfFnX0xdRhDuCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Erhard F." <erhard_f@mailbox.org>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.2 097/131] powerpc/kasan: fix early boot failure on PPC32
-Date:   Mon,  5 Aug 2019 15:03:04 +0200
-Message-Id: <20190805124958.459176172@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+fee3a14d4cdf92646287@syzkaller.appspotmail.com,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.2 098/131] selinux: fix memory leak in policydb_init()
+Date:   Mon,  5 Aug 2019 15:03:05 +0200
+Message-Id: <20190805124958.523237547@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -44,50 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Ondrej Mosnacek <omosnace@redhat.com>
 
-commit d7e23b887f67178c4f840781be7a6aa6aeb52ab1 upstream.
+commit 45385237f65aeee73641f1ef737d7273905a233f upstream.
 
-Due to commit 4a6d8cf90017 ("powerpc/mm: don't use pte_alloc_kernel()
-until slab is available on PPC32"), pte_alloc_kernel() cannot be used
-during early KASAN init.
+Since roles_init() adds some entries to the role hash table, we need to
+destroy also its keys/values on error, otherwise we get a memory leak in
+the error path.
 
-Fix it by using memblock_alloc() instead.
-
-Fixes: 2edb16efc899 ("powerpc/32: Add KASAN support")
-Cc: stable@vger.kernel.org # v5.2+
-Reported-by: Erhard F. <erhard_f@mailbox.org>
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/da89670093651437f27d2975224712e0a130b055.1564552796.git.christophe.leroy@c-s.fr
+Cc: <stable@vger.kernel.org>
+Reported-by: syzbot+fee3a14d4cdf92646287@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/mm/kasan/kasan_init_32.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ security/selinux/ss/policydb.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/mm/kasan/kasan_init_32.c
-+++ b/arch/powerpc/mm/kasan/kasan_init_32.c
-@@ -21,7 +21,7 @@ static void kasan_populate_pte(pte_t *pt
- 		__set_pte_at(&init_mm, va, ptep, pfn_pte(PHYS_PFN(pa), prot), 0);
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -272,6 +272,8 @@ static int rangetr_cmp(struct hashtab *h
+ 	return v;
  }
  
--static int kasan_init_shadow_page_tables(unsigned long k_start, unsigned long k_end)
-+static int __ref kasan_init_shadow_page_tables(unsigned long k_start, unsigned long k_end)
- {
- 	pmd_t *pmd;
- 	unsigned long k_cur, k_next;
-@@ -35,7 +35,10 @@ static int kasan_init_shadow_page_tables
- 		if ((void *)pmd_page_vaddr(*pmd) != kasan_early_shadow_pte)
- 			continue;
++static int (*destroy_f[SYM_NUM]) (void *key, void *datum, void *datap);
++
+ /*
+  * Initialize a policy database structure.
+  */
+@@ -319,8 +321,10 @@ static int policydb_init(struct policydb
+ out:
+ 	hashtab_destroy(p->filename_trans);
+ 	hashtab_destroy(p->range_tr);
+-	for (i = 0; i < SYM_NUM; i++)
++	for (i = 0; i < SYM_NUM; i++) {
++		hashtab_map(p->symtab[i].table, destroy_f[i], NULL);
+ 		hashtab_destroy(p->symtab[i].table);
++	}
+ 	return rc;
+ }
  
--		new = pte_alloc_one_kernel(&init_mm);
-+		if (slab_is_available())
-+			new = pte_alloc_one_kernel(&init_mm);
-+		else
-+			new = memblock_alloc(PTE_FRAG_SIZE, PTE_FRAG_SIZE);
- 
- 		if (!new)
- 			return -ENOMEM;
 
 
