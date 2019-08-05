@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C4D981AFF
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:11:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2E2981B4B
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:13:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729840AbfHENLI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:11:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50342 "EHLO mail.kernel.org"
+        id S1729625AbfHENIs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:08:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729841AbfHENLH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:11:07 -0400
+        id S1729292AbfHENIq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:08:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45AFB216F4;
-        Mon,  5 Aug 2019 13:11:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA7982087B;
+        Mon,  5 Aug 2019 13:08:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010666;
-        bh=4pL1hx2ppMTBaKCpsGaTGvaIoDclQ1WBXEy5XCKPB3Y=;
+        s=default; t=1565010525;
+        bh=MzY3GTrzMHFCOZgbaePkw1i7Fuq60WcQXcMJR8PmiuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VLFnHfDsHwnrnaI879Qcg6q6PKRRMnPdQxt/SyXMIbvYENO/fJxBj/O7pFhJyarBY
-         iJKZAsvDSuH9E4DlqKV+Z20BRVT0T/rChq/4UVfBQkeAqECV0hVlyPylELF3zPpqQn
-         2WE2ykxgDUVm9eNignUtXQ6xDOmI8YUPOw+TCxNs=
+        b=VmaN0WMtVrgOIwrgL4AGeP/RTV5/T6jeTQ6wYof+0TyKtBfbvGP0dne4JDxBWgSQy
+         1pLE+01PekhUDKE30cGL6wa/1zGrWc1K+VdHhPpL0wQVqOOwXasBTH76zsRAmj9noS
+         0CQONXHO8fMvNTnBLjkx5CWCP63M0bOPlr5kvcwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 4.19 50/74] mtd: rawnand: micron: handle on-die "ECC-off" devices correctly
-Date:   Mon,  5 Aug 2019 15:03:03 +0200
-Message-Id: <20190805124939.943312281@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+fee3a14d4cdf92646287@syzkaller.appspotmail.com,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 4.14 39/53] selinux: fix memory leak in policydb_init()
+Date:   Mon,  5 Aug 2019 15:03:04 +0200
+Message-Id: <20190805124932.418968972@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
-References: <20190805124935.819068648@linuxfoundation.org>
+In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
+References: <20190805124927.973499541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Felsch <m.felsch@pengutronix.de>
+From: Ondrej Mosnacek <omosnace@redhat.com>
 
-commit 8493b2a06fc5b77ef5c579dc32b12761f7b7a84c upstream.
+commit 45385237f65aeee73641f1ef737d7273905a233f upstream.
 
-Some devices are not supposed to support on-die ECC but experience
-shows that internal ECC machinery can actually be enabled through the
-"SET FEATURE (EFh)" command, even if a read of the "READ ID Parameter
-Tables" returns that it is not.
+Since roles_init() adds some entries to the role hash table, we need to
+destroy also its keys/values on error, otherwise we get a memory leak in
+the error path.
 
-Currently, the driver checks the "READ ID Parameter" field directly
-after having enabled the feature. If the check fails it returns
-immediately but leaves the ECC on. When using buggy chips like
-MT29F2G08ABAGA and MT29F2G08ABBGA, all future read/program cycles will
-go through the on-die ECC, confusing the host controller which is
-supposed to be the one handling correction.
-
-To address this in a common way we need to turn off the on-die ECC
-directly after reading the "READ ID Parameter" and before checking the
-"ECC status".
-
-Cc: stable@vger.kernel.org
-Fixes: dbc44edbf833 ("mtd: rawnand: micron: Fix on-die ECC detection logic")
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: <stable@vger.kernel.org>
+Reported-by: syzbot+fee3a14d4cdf92646287@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/raw/nand_micron.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ security/selinux/ss/policydb.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/mtd/nand/raw/nand_micron.c
-+++ b/drivers/mtd/nand/raw/nand_micron.c
-@@ -400,6 +400,14 @@ static int micron_supports_on_die_ecc(st
- 	    (chip->id.data[4] & MICRON_ID_INTERNAL_ECC_MASK) != 0x2)
- 		return MICRON_ON_DIE_UNSUPPORTED;
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -275,6 +275,8 @@ static int rangetr_cmp(struct hashtab *h
+ 	return v;
+ }
  
-+	/*
-+	 * It seems that there are devices which do not support ECC officially.
-+	 * At least the MT29F2G08ABAGA / MT29F2G08ABBGA devices supports
-+	 * enabling the ECC feature but don't reflect that to the READ_ID table.
-+	 * So we have to guarantee that we disable the ECC feature directly
-+	 * after we did the READ_ID table command. Later we can evaluate the
-+	 * ECC_ENABLE support.
-+	 */
- 	ret = micron_nand_on_die_ecc_setup(chip, true);
- 	if (ret)
- 		return MICRON_ON_DIE_UNSUPPORTED;
-@@ -408,13 +416,13 @@ static int micron_supports_on_die_ecc(st
- 	if (ret)
- 		return MICRON_ON_DIE_UNSUPPORTED;
- 
--	if (!(id[4] & MICRON_ID_ECC_ENABLED))
--		return MICRON_ON_DIE_UNSUPPORTED;
--
- 	ret = micron_nand_on_die_ecc_setup(chip, false);
- 	if (ret)
- 		return MICRON_ON_DIE_UNSUPPORTED;
- 
-+	if (!(id[4] & MICRON_ID_ECC_ENABLED))
-+		return MICRON_ON_DIE_UNSUPPORTED;
++static int (*destroy_f[SYM_NUM]) (void *key, void *datum, void *datap);
 +
- 	ret = nand_readid_op(chip, 0, id, sizeof(id));
- 	if (ret)
- 		return MICRON_ON_DIE_UNSUPPORTED;
+ /*
+  * Initialize a policy database structure.
+  */
+@@ -322,8 +324,10 @@ static int policydb_init(struct policydb
+ out:
+ 	hashtab_destroy(p->filename_trans);
+ 	hashtab_destroy(p->range_tr);
+-	for (i = 0; i < SYM_NUM; i++)
++	for (i = 0; i < SYM_NUM; i++) {
++		hashtab_map(p->symtab[i].table, destroy_f[i], NULL);
+ 		hashtab_destroy(p->symtab[i].table);
++	}
+ 	return rc;
+ }
+ 
 
 
