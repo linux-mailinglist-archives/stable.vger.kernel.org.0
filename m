@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6335981BDD
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:17:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E09EA81AFC
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:11:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729175AbfHENEz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:04:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40762 "EHLO mail.kernel.org"
+        id S1729363AbfHENLC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:11:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729171AbfHENEz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:04:55 -0400
+        id S1729395AbfHENLA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:11:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13CA5214C6;
-        Mon,  5 Aug 2019 13:04:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EAB8C2067D;
+        Mon,  5 Aug 2019 13:10:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010294;
-        bh=iOD5e/7hmLfDGVKf/IPE7v43E5I8yZYwjWofb09Bq5M=;
+        s=default; t=1565010660;
+        bh=4zEpKdz+rfZs1RYrhQvvy9qvGnk0zp3xePetVtTNG5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F8oMmSIUTCIE1uC/gcxa7D/oIkWOBPQI0nnTF6EFBwiohYkU9jYVlxVvaiJ3RNs1h
-         1sO/DZNi8m/wWhoFMgSlUz7wbR4bH1oB9up5CXFdz5BDMdKc8IrkkNeiHWDfuqS0vx
-         B/GNXSDFO+bmg+tNG/BGp8f8SFtpFfSPsZBo2sPI=
+        b=YYht+Yac55Qd/lUfVeMcsOvedHqD2fvfKsfH2Q6qqnPwiWZ67EaIrna/wGsokX8NX
+         vgjizeso9vlMjCb6xwmZhS/tPN0soQnRTZ0QfKziG5JN/jZTTyhbQhQwMWo/BDejQZ
+         6Di4PG5V3/OtodDk9SUtBlKB3hbFFL+5sZ+QFKTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@linux.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andrea Parri <andrea.parri@amarulasolutions.com>,
-        "Yan, Zheng" <zyan@redhat.com>, Ilya Dryomov <idryomov@gmail.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 11/42] ceph: fix improper use of smp_mb__before_atomic()
+Subject: [PATCH 4.19 24/74] ACPI: fix false-positive -Wuninitialized warning
 Date:   Mon,  5 Aug 2019 15:02:37 +0200
-Message-Id: <20190805124926.168358583@linuxfoundation.org>
+Message-Id: <20190805124937.719064769@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124924.788666484@linuxfoundation.org>
-References: <20190805124924.788666484@linuxfoundation.org>
+In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
+References: <20190805124935.819068648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 749607731e26dfb2558118038c40e9c0c80d23b5 ]
+[ Upstream commit dfd6f9ad36368b8dbd5f5a2b2f0a4705ae69a323 ]
 
-This barrier only applies to the read-modify-write operations; in
-particular, it does not apply to the atomic64_set() primitive.
+clang gets confused by an uninitialized variable in what looks
+to it like a never executed code path:
 
-Replace the barrier with an smp_mb().
+arch/x86/kernel/acpi/boot.c:618:13: error: variable 'polarity' is uninitialized when used here [-Werror,-Wuninitialized]
+        polarity = polarity ? ACPI_ACTIVE_LOW : ACPI_ACTIVE_HIGH;
+                   ^~~~~~~~
+arch/x86/kernel/acpi/boot.c:606:32: note: initialize the variable 'polarity' to silence this warning
+        int rc, irq, trigger, polarity;
+                                      ^
+                                       = 0
+arch/x86/kernel/acpi/boot.c:617:12: error: variable 'trigger' is uninitialized when used here [-Werror,-Wuninitialized]
+        trigger = trigger ? ACPI_LEVEL_SENSITIVE : ACPI_EDGE_SENSITIVE;
+                  ^~~~~~~
+arch/x86/kernel/acpi/boot.c:606:22: note: initialize the variable 'trigger' to silence this warning
+        int rc, irq, trigger, polarity;
+                            ^
+                             = 0
 
-Fixes: fdd4e15838e59 ("ceph: rework dcache readdir")
-Reported-by: "Paul E. McKenney" <paulmck@linux.ibm.com>
-Reported-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Andrea Parri <andrea.parri@amarulasolutions.com>
-Reviewed-by: "Yan, Zheng" <zyan@redhat.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+This is unfortunately a design decision in clang and won't be fixed.
+
+Changing the acpi_get_override_irq() macro to an inline function
+reliably avoids the issue.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/super.h | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ include/linux/acpi.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ceph/super.h b/fs/ceph/super.h
-index 622d5dd9f6169..9bd0d928057b7 100644
---- a/fs/ceph/super.h
-+++ b/fs/ceph/super.h
-@@ -476,7 +476,12 @@ static inline void __ceph_dir_set_complete(struct ceph_inode_info *ci,
- 					   long long release_count,
- 					   long long ordered_count)
- {
--	smp_mb__before_atomic();
-+	/*
-+	 * Makes sure operations that setup readdir cache (update page
-+	 * cache and i_size) are strongly ordered w.r.t. the following
-+	 * atomic64_set() operations.
-+	 */
-+	smp_mb();
- 	atomic64_set(&ci->i_complete_seq[0], release_count);
- 	atomic64_set(&ci->i_complete_seq[1], ordered_count);
- }
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index de8d3d3fa6512..b4d23b3a2ef2d 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -326,7 +326,10 @@ void acpi_set_irq_model(enum acpi_irq_model_id model,
+ #ifdef CONFIG_X86_IO_APIC
+ extern int acpi_get_override_irq(u32 gsi, int *trigger, int *polarity);
+ #else
+-#define acpi_get_override_irq(gsi, trigger, polarity) (-1)
++static inline int acpi_get_override_irq(u32 gsi, int *trigger, int *polarity)
++{
++	return -1;
++}
+ #endif
+ /*
+  * This function undoes the effect of one call to acpi_register_gsi().
 -- 
 2.20.1
 
