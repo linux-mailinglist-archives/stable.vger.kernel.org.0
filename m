@@ -2,165 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FAE8811B5
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:38:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77594811BC
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:45:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727250AbfHEFie (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 01:38:34 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:37831 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725951AbfHEFie (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:38:34 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id ADA5E20D56;
-        Mon,  5 Aug 2019 01:38:33 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:38:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=G7edFW
-        3YgReExtzdx1kNY1MA6F/M8kiu6pQJO4Ak0xI=; b=qV/R/1E+bT0Y7ZPNcExHLb
-        o8KlYYEBpv3E3kK3+OUksvIzKiLRlznIRSzfoEcB3kQlzk7dJczImdU3In3TpVRD
-        zHSsILD2Sgq2krvUrMn6yTHu0FVaAayUoAJ0+RTCMKAr65T0JwXD2w6tS8u/TJTj
-        xvL4HKsC0K5To4HAZjQjNXb8nh4wqjNuSmU33LyxZ1kUXoqHbxKRRbMe6/rJqzBg
-        P5ZsjtHMc8ZiaHjzuCYxCeVc6NGvmyzxnU4QbJqX04UMP05+R14o4tVW1VNa9DKK
-        TfNaUmG8H/3321iXIk7T2KQVFfL98s3ukGQ03r03mgRGJGeDGFxi7qlDtCJXR5mw
-        ==
-X-ME-Sender: <xms:2cBHXTL2nw1UX1K_qaMrUUygjacy_eNJX3hJRpW9l0T4Ox58JnSpuQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtiedgkeekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedutd
-X-ME-Proxy: <xmx:2cBHXba0iXc5gEbT8rkze6S76nm0VpblklpeNy50o0ptBCvviYATWA>
-    <xmx:2cBHXWticMvoQ96Q7TLaqv9-x6In7EI895oE8robSgAMhicxM88YuA>
-    <xmx:2cBHXQsT6SphD6wyFigBB3dK6k46SB9gWCpfJaVjQ4EpHe3GJxc09Q>
-    <xmx:2cBHXWpD8z14N4AhY1iABCPM6PP1-h3jUKezEJZLtFwvhA7akDAUCA>
+        id S1725976AbfHEFpF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 01:45:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39790 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725951AbfHEFpF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 01:45:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 253A58005B;
-        Mon,  5 Aug 2019 01:38:33 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] IB/hfi1: Unreserve a flushed OPFN request" failed to apply to 5.2-stable tree
-To:     kaike.wan@intel.com, dennis.dalessandro@intel.com,
-        jgg@mellanox.com, mike.marciniszyn@intel.com,
-        stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 05 Aug 2019 07:38:22 +0200
-Message-ID: <1564983502232248@kroah.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3CAA820679;
+        Mon,  5 Aug 2019 05:45:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1564983904;
+        bh=+/7GAYdBTvoe+DdJ1pTP7FOLkMyX2Uh5QzREr4X/EVg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=JV+5WlG3BUZJhCxYRfVHqENDleN9S5nhfBy1BLYOOaNwa6OXKKodln21uvarpGjDZ
+         xccezCttKjYWILl/N1VHWiSLCDOjlyLnwfoZVVtmeoG4ck+ldx+NoDArrFZ+MoMNvu
+         pKaOuzMbI1bzkbt8yz+4PXoBjEQkXicMvHC6kaOk=
+Date:   Mon, 5 Aug 2019 07:44:23 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        linux-stable <stable@vger.kernel.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        "M. Vefa Bicakci" <m.v.b@runbox.com>
+Subject: Re: [PATCH 5.1.x] kconfig: Clear "written" flag to avoid data loss
+Message-ID: <20190805054423.GA30534@kroah.com>
+References: <20190805053513.29629-1-yamada.masahiro@socionext.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190805053513.29629-1-yamada.masahiro@socionext.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Aug 05, 2019 at 02:35:13PM +0900, Masahiro Yamada wrote:
+> From: "M. Vefa Bicakci" <m.v.b@runbox.com>
+> 
+> commit 0c5b6c28ed68becb692b43eae5e44d5aa7e160ce upstream.
+> 
+> Prior to this commit, starting nconfig, xconfig or gconfig, and saving
+> the .config file more than once caused data loss, where a .config file
+> that contained only comments would be written to disk starting from the
+> second save operation.
+> 
+> This bug manifests itself because the SYMBOL_WRITTEN flag is never
+> cleared after the first call to conf_write, and subsequent calls to
+> conf_write then skip all of the configuration symbols due to the
+> SYMBOL_WRITTEN flag being set.
+> 
+> This commit resolves this issue by clearing the SYMBOL_WRITTEN flag
+> from all symbols before conf_write returns.
+> 
+> Fixes: 8e2442a5f86e ("kconfig: fix missing choice values in auto.conf")
+> Cc: linux-stable <stable@vger.kernel.org> # 4.19+
+> Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
+> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+> ---
+>  scripts/kconfig/confdata.c | 4 ++++
+>  1 file changed, 4 insertions(+)
 
-The patch below does not apply to the 5.2-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+5.1.y is end-of-life, so no need for this backport.
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 2b74c878b0eae4c32629c2d5ba69a29f69048313 Mon Sep 17 00:00:00 2001
-From: Kaike Wan <kaike.wan@intel.com>
-Date: Mon, 15 Jul 2019 12:45:28 -0400
-Subject: [PATCH] IB/hfi1: Unreserve a flushed OPFN request
-
-When an OPFN request is flushed, the request is completed without
-unreserving itself from the send queue. Subsequently, when a new
-request is post sent, the following warning will be triggered:
-
-WARNING: CPU: 4 PID: 8130 at rdmavt/qp.c:1761 rvt_post_send+0x72a/0x880 [rdmavt]
-Call Trace:
-[<ffffffffbbb61e41>] dump_stack+0x19/0x1b
-[<ffffffffbb497688>] __warn+0xd8/0x100
-[<ffffffffbb4977cd>] warn_slowpath_null+0x1d/0x20
-[<ffffffffc01c941a>] rvt_post_send+0x72a/0x880 [rdmavt]
-[<ffffffffbb4dcabe>] ? account_entity_dequeue+0xae/0xd0
-[<ffffffffbb61d645>] ? __kmalloc+0x55/0x230
-[<ffffffffc04e1a4c>] ib_uverbs_post_send+0x37c/0x5d0 [ib_uverbs]
-[<ffffffffc04e5e36>] ? rdma_lookup_put_uobject+0x26/0x60 [ib_uverbs]
-[<ffffffffc04dbce6>] ib_uverbs_write+0x286/0x460 [ib_uverbs]
-[<ffffffffbb6f9457>] ? security_file_permission+0x27/0xa0
-[<ffffffffbb641650>] vfs_write+0xc0/0x1f0
-[<ffffffffbb64246f>] SyS_write+0x7f/0xf0
-[<ffffffffbbb74ddb>] system_call_fastpath+0x22/0x27
-
-This patch fixes the problem by moving rvt_qp_wqe_unreserve() into
-rvt_qp_complete_swqe() to simplify the code and make it less
-error-prone.
-
-Fixes: ca95f802ef51 ("IB/hfi1: Unreserve a reserved request when it is completed")
-Link: https://lore.kernel.org/r/20190715164528.74174.31364.stgit@awfm-01.aw.intel.com
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Kaike Wan <kaike.wan@intel.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-
-diff --git a/drivers/infiniband/hw/hfi1/rc.c b/drivers/infiniband/hw/hfi1/rc.c
-index 0477c14633ab..024a7c2b6124 100644
---- a/drivers/infiniband/hw/hfi1/rc.c
-+++ b/drivers/infiniband/hw/hfi1/rc.c
-@@ -1835,7 +1835,6 @@ void hfi1_rc_send_complete(struct rvt_qp *qp, struct hfi1_opa_header *opah)
- 		    cmp_psn(qp->s_sending_psn, qp->s_sending_hpsn) <= 0)
- 			break;
- 		trdma_clean_swqe(qp, wqe);
--		rvt_qp_wqe_unreserve(qp, wqe);
- 		trace_hfi1_qp_send_completion(qp, wqe, qp->s_last);
- 		rvt_qp_complete_swqe(qp,
- 				     wqe,
-@@ -1882,7 +1881,6 @@ struct rvt_swqe *do_rc_completion(struct rvt_qp *qp,
- 	if (cmp_psn(wqe->lpsn, qp->s_sending_psn) < 0 ||
- 	    cmp_psn(qp->s_sending_psn, qp->s_sending_hpsn) > 0) {
- 		trdma_clean_swqe(qp, wqe);
--		rvt_qp_wqe_unreserve(qp, wqe);
- 		trace_hfi1_qp_send_completion(qp, wqe, qp->s_last);
- 		rvt_qp_complete_swqe(qp,
- 				     wqe,
-diff --git a/include/rdma/rdmavt_qp.h b/include/rdma/rdmavt_qp.h
-index 0eeea520a853..e06c77d76463 100644
---- a/include/rdma/rdmavt_qp.h
-+++ b/include/rdma/rdmavt_qp.h
-@@ -608,7 +608,7 @@ static inline void rvt_qp_wqe_reserve(
- /**
-  * rvt_qp_wqe_unreserve - clean reserved operation
-  * @qp - the rvt qp
-- * @wqe - the send wqe
-+ * @flags - send wqe flags
-  *
-  * This decrements the reserve use count.
-  *
-@@ -620,11 +620,9 @@ static inline void rvt_qp_wqe_reserve(
-  * the compiler does not juggle the order of the s_last
-  * ring index and the decrementing of s_reserved_used.
-  */
--static inline void rvt_qp_wqe_unreserve(
--	struct rvt_qp *qp,
--	struct rvt_swqe *wqe)
-+static inline void rvt_qp_wqe_unreserve(struct rvt_qp *qp, int flags)
- {
--	if (unlikely(wqe->wr.send_flags & RVT_SEND_RESERVE_USED)) {
-+	if (unlikely(flags & RVT_SEND_RESERVE_USED)) {
- 		atomic_dec(&qp->s_reserved_used);
- 		/* insure no compiler re-order up to s_last change */
- 		smp_mb__after_atomic();
-@@ -853,6 +851,7 @@ rvt_qp_complete_swqe(struct rvt_qp *qp,
- 	u32 byte_len, last;
- 	int flags = wqe->wr.send_flags;
- 
-+	rvt_qp_wqe_unreserve(qp, flags);
- 	rvt_put_qp_swqe(qp, wqe);
- 
- 	need_completion =
-
