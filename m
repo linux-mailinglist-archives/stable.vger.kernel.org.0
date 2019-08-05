@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 108B381CF0
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:28:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BC0D81CEF
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:28:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728885AbfHEN2I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:28:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60632 "EHLO mail.kernel.org"
+        id S1729986AbfHENX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:23:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730891AbfHENXx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:23:53 -0400
+        id S1730829AbfHENXz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:23:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB78F20651;
-        Mon,  5 Aug 2019 13:23:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51C0D2075B;
+        Mon,  5 Aug 2019 13:23:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011432;
-        bh=WpezVymSj/ZV62kDHi1BueDKYGV80SbgQzs2YmGL4sc=;
+        s=default; t=1565011434;
+        bh=98Gw3ryYRwW6Hx9FWJo/zpazlqMbKHmNgldd9ahoWuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uxNbZKIgORFiii1VLgR9tTdRwS7UhK2eLVF459i0eA6f2oT9irI3qcoSyYQ9XGQ2d
-         lWBr6EWe8hXcJdtw6XhAIy+epWVvhSoCRjvOUFsL6tnypZMPNfS+VVJjq5PQxTQDYe
-         LiXgLkDXY0QMrKJi8ZWgSdmKh4rqkGufhssxo3YU=
+        b=xerpHe6DSva+7cLKowXgcr4x9PX5N1VKJZwVGYSYet7ft2M9jtaDwuqic/mm10qCh
+         BsrHpFO7gmE+l3a8OJLh1loyQu8bTUex+opdcIIAMyCxMNcFd0N2dhA8nfviFNP5uu
+         rdTHvaM4378enUtan4h1ExCARRJZIIVEd8fuzmks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Koop <andreas.koop@zf.com>,
-        ShihPo Hung <shihpo.hung@sifive.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.2 086/131] mmc: mmc_spi: Enable stable writes
-Date:   Mon,  5 Aug 2019 15:02:53 +0200
-Message-Id: <20190805124957.722761571@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.2 087/131] gpiolib: Preserve desc->flags when setting state
+Date:   Mon,  5 Aug 2019 15:02:54 +0200
+Message-Id: <20190805124957.794130953@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -45,59 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Koop <andreas.koop@zf.com>
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-commit 3a6ffb3c8c3274a39dc8f2514526e645c5d21753 upstream.
+commit d95da993383c78f7efd25957ba3af23af4b1c613 upstream.
 
-While using the mmc_spi driver occasionally errors like this popped up:
+desc->flags may already have values set by of_gpiochip_add() so make
+sure that this isn't undone when setting the initial direction.
 
-mmcblk0: error -84 transferring data end_request: I/O error, dev mmcblk0, sector 581756
-
-I looked on the Internet for occurrences of the same problem and came
-across a helpful post [1]. It includes source code to reproduce the bug.
-There is also an analysis about the cause. During transmission data in the
-supplied buffer is being modified. Thus the previously calculated checksum
-is not correct anymore.
-
-After some digging I found out that device drivers are supposed to report
-they need stable writes. To fix this I set the appropriate flag at queue
-initialization if CRC checksumming is enabled for that SPI host.
-
-[1]
-https://groups.google.com/forum/#!msg/sim1/gLlzWeXGFr8/KevXinUXfc8J
-
-Signed-off-by: Andreas Koop <andreas.koop@zf.com>
-[shihpo: Rebase on top of v5.3-rc1]
-Signed-off-by: ShihPo Hung <shihpo.hung@sifive.com>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-CC: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: stable@vger.kernel.org
+Fixes: 3edfb7bd76bd1cba ("gpiolib: Show correct direction from the beginning")
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Link: https://lore.kernel.org/r/20190707203558.10993-1-chris.packham@alliedtelesis.co.nz
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/core/queue.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/gpio/gpiolib.c |   17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
---- a/drivers/mmc/core/queue.c
-+++ b/drivers/mmc/core/queue.c
-@@ -10,6 +10,7 @@
- #include <linux/kthread.h>
- #include <linux/scatterlist.h>
- #include <linux/dma-mapping.h>
-+#include <linux/backing-dev.h>
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -1392,12 +1392,17 @@ int gpiochip_add_data_with_key(struct gp
+ 	for (i = 0; i < chip->ngpio; i++) {
+ 		struct gpio_desc *desc = &gdev->descs[i];
  
- #include <linux/mmc/card.h>
- #include <linux/mmc/host.h>
-@@ -430,6 +431,10 @@ int mmc_init_queue(struct mmc_queue *mq,
- 		goto free_tag_set;
+-		if (chip->get_direction && gpiochip_line_is_valid(chip, i))
+-			desc->flags = !chip->get_direction(chip, i) ?
+-					(1 << FLAG_IS_OUT) : 0;
+-		else
+-			desc->flags = !chip->direction_input ?
+-					(1 << FLAG_IS_OUT) : 0;
++		if (chip->get_direction && gpiochip_line_is_valid(chip, i)) {
++			if (!chip->get_direction(chip, i))
++				set_bit(FLAG_IS_OUT, &desc->flags);
++			else
++				clear_bit(FLAG_IS_OUT, &desc->flags);
++		} else {
++			if (!chip->direction_input)
++				set_bit(FLAG_IS_OUT, &desc->flags);
++			else
++				clear_bit(FLAG_IS_OUT, &desc->flags);
++		}
  	}
  
-+	if (mmc_host_is_spi(host) && host->use_spi_crc)
-+		mq->queue->backing_dev_info->capabilities |=
-+			BDI_CAP_STABLE_WRITES;
-+
- 	mq->queue->queuedata = mq;
- 	blk_queue_rq_timeout(mq->queue, 60 * HZ);
- 
+ 	acpi_gpiochip_add(chip);
 
 
