@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4791381D11
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:29:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CCF981D17
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:29:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730263AbfHEN3U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:29:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58250 "EHLO mail.kernel.org"
+        id S1730580AbfHENVo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:21:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729521AbfHENV7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:21:59 -0400
+        id S1729152AbfHENVo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:21:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F1AE20657;
-        Mon,  5 Aug 2019 13:21:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9F9C2067D;
+        Mon,  5 Aug 2019 13:21:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011318;
-        bh=o6jECbd2EVMdLcJQkzMk83SqAzqrv5t5ccuMHCqAbDg=;
+        s=default; t=1565011303;
+        bh=n9eGEAa/Nk6aJ2s5kj9FdOmQGguQr2mEbKZzmIwVJVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=09Rv0V6udxjniV3WcK/H+eHMMIfztyZutqSvWHrstMJww0UzkrxrGKcxkjUQrKQdh
-         UAcQHjId6asRoOlNxZ2W+g3lDXeFQrVxnF+d+A368FaBCk+8v/MSW6qL7fsgY4NnUW
-         HS6mr4x45edvTNGosM5Doi8ibwsCnSHw9OkC86uw=
+        b=Lw/1I0JpxZgzmWwU+lnnxqf51jkoL0vO/rpFivTfowgJ49mE6/pzH6RgyzHKdC/X4
+         M6QjWlJB1ykZIgE/MjflC21BkJhBfiAdb8EuGBCtsesqI57qK1xUNBrIkz1Dg9Nipx
+         1rlsDrDHgoH0iP1XAOswfVhDCyW3cOfpnKb6kq0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Heinrich Schuchardt <xypron.glpk@gmx.de>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 005/131] ARM: dts: rockchip: Mark that the rk3288 timer might stop in suspend
-Date:   Mon,  5 Aug 2019 15:01:32 +0200
-Message-Id: <20190805124951.787798602@linuxfoundation.org>
+Subject: [PATCH 5.2 009/131] arm64: dts: marvell: mcbin: enlarge PCI memory window
+Date:   Mon,  5 Aug 2019 15:01:36 +0200
+Message-Id: <20190805124952.053910776@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -44,46 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8ef1ba39a9fa53d2205e633bc9b21840a275908e ]
+[ Upstream commit d3446b266a8c72a7bbc94b65f5fc6d206be77d24 ]
 
-This is similar to commit e6186820a745 ("arm64: dts: rockchip: Arch
-counter doesn't tick in system suspend").  Specifically on the rk3288
-it can be seen that the timer stops ticking in suspend if we end up
-running through the "osc_disable" path in rk3288_slp_mode_set().  In
-that path the 24 MHz clock will turn off and the timer stops.
+Running a graphics adapter on the MACCHIATObin fails due to an
+insufficiently sized memory window.
 
-To test this, I ran this on a Chrome OS filesystem:
-  before=$(date); \
-  suspend_stress_test -c1 --suspend_min=30 --suspend_max=31; \
-  echo ${before}; date
+Enlarge the memory window for the PCIe slot to 512 MiB.
 
-...and I found that unless I plug in a device that requests USB wakeup
-to be active that the two calls to "date" would show that fewer than
-30 seconds passed.
+With the patch I am able to use a GT710 graphics adapter with 1 GB onboard
+memory.
 
-NOTE: deep suspend (where the 24 MHz clock gets disabled) isn't
-supported yet on upstream Linux so this was tested on a downstream
-kernel.
+These are the mapped memory areas that the graphics adapter is actually
+using:
 
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Region 0: Memory at cc000000 (32-bit, non-prefetchable) [size=16M]
+Region 1: Memory at c0000000 (64-bit, prefetchable) [size=128M]
+Region 3: Memory at c8000000 (64-bit, prefetchable) [size=32M]
+Region 5: I/O ports at 1000 [size=128]
+Expansion ROM at ca000000 [disabled] [size=512K]
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3288.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/marvell/armada-8040-mcbin.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
-index aa017abf4f421..f7bc886a4b513 100644
---- a/arch/arm/boot/dts/rk3288.dtsi
-+++ b/arch/arm/boot/dts/rk3288.dtsi
-@@ -231,6 +231,7 @@
- 			     <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>,
- 			     <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
- 		clock-frequency = <24000000>;
-+		arm,no-tick-in-suspend;
- 	};
+diff --git a/arch/arm64/boot/dts/marvell/armada-8040-mcbin.dtsi b/arch/arm64/boot/dts/marvell/armada-8040-mcbin.dtsi
+index 329f8ceeebea1..205071b45a324 100644
+--- a/arch/arm64/boot/dts/marvell/armada-8040-mcbin.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-8040-mcbin.dtsi
+@@ -184,6 +184,8 @@
+ 	num-lanes = <4>;
+ 	num-viewport = <8>;
+ 	reset-gpios = <&cp0_gpio2 20 GPIO_ACTIVE_LOW>;
++	ranges = <0x81000000 0x0 0xf9010000 0x0 0xf9010000 0x0 0x10000
++		  0x82000000 0x0 0xc0000000 0x0 0xc0000000 0x0 0x20000000>;
+ 	status = "okay";
+ };
  
- 	timer: timer@ff810000 {
 -- 
 2.20.1
 
