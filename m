@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90B99811D7
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:58:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD811811D8
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:58:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727297AbfHEF6A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 01:58:00 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:35105 "EHLO
+        id S1727298AbfHEF6B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 01:58:01 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:36939 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725951AbfHEF6A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:58:00 -0400
+        by vger.kernel.org with ESMTP id S1725951AbfHEF6B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:58:01 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 97738214DB;
-        Mon,  5 Aug 2019 01:57:59 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:57:59 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 1082620D56;
+        Mon,  5 Aug 2019 01:58:01 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:58:01 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=7q3GaE
-        hSktfNqXmL6u5lLoASFDOKfQ9KEMhPRlZwXxw=; b=z2Td+pCC301qVwHhUE9kva
-        SfJPn6X+FunRDm0m9uQYsfKysJT7jo1wExDOCOh40vVRSnb6LNkniyHbQO/6icEB
-        e7YnGehZJ3eM9w4oEkF3uSe1UV3dPSFRPKoz7qJAqt1D2C+u1Ix0F4tglI7JgdEj
-        IwemxvV3aGKsGyAxYiBrZWm5jiSVzER+TRxTnb4s1SmanygvEdFbJnb8UcLQprbe
-        TnBgguSa3UQevynpDnC9z+CBDmYEGses+jk+l+5egLW8aXZHWINS+ERheHupMPsQ
-        KkrmP+YF7JZUf3eeT+glzY1IhKcmeq0+NIngzTYXeCgOuZDyMVDDY2gOAhKY0Q7A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=DannVE
+        5GFeJcQ+gTnktFD0+T06tB6edY+cRpQzuSyuM=; b=wOWsd9PdX+pNXYuVoYqWOM
+        rqsDcUhk3qdLXm6Gx0qsWLlS/ywKMScl54HxnSRNq7BVUORxhdCNYjHT2lDYn4va
+        BEwdeRsKCgp02qan1ePH61LMedPJM/62pDSxkB9tmDR2gt5f+V7Okmqe4c8XkMGd
+        loAgwRwEsxDZ3Qrx9pJBE67SQlgNjoyV9Q2vKwYwTw+T1w340p3jWoh3kykKhPFg
+        GZelgpLS2dV8S5yk060X+YcBrs67uX0TqNYXBv5XXm1c0aety2npHI+aq4FfHxkl
+        WaBgebU+r7v6Dq9lr9ST6dUIC9o3/WFOkApGki/mCgP1hKyqONu1U0Qgn4We88+w
         ==
-X-ME-Sender: <xms:Z8VHXb4gn0baULvR11fwLR6SZEWq6jnEnKCDnfwq3_vbLvWx0HYMbA>
+X-ME-Sender: <xms:aMVHXWJt5VG3xwYkhXltVKaLPyPtc4gnTr31YLlgUL-LfbV5on67og>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtiedgledtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -35,20 +35,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtiedgledtucetufdoteggod
     gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgpdhkvghrnhgvlhdroh
     hrghenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhm
     pehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:Z8VHXWrtny_ewUnz7urPW8pCptcftXqn9FwMqqrVrINHSHra7Shoyg>
-    <xmx:Z8VHXQihIJzRmfdgeia_wcgECTQMBwMqhPx6YVsl5XLrbBa5Jozd_g>
-    <xmx:Z8VHXWunBTdNri6bUX0TveRybUzOe5hGyZI0m1ZyP8AKjnz9XX-mjg>
-    <xmx:Z8VHXdziP2KehlI5rIaCjuqC-VQPFlt4oIAGkGeAwbXuwFX4wgflww>
+X-ME-Proxy: <xmx:aMVHXe6iFVTHUe0IIhd7zuU36jXAgg8cYIv6RZtA15wdNTj9cJ7pCQ>
+    <xmx:aMVHXWVEcSdPmuGHcXZb2UEXcvO9sYUWPQ36a2KhxBxOf7PKbfuw5A>
+    <xmx:aMVHXUlkNTGYqQmSQJpCNfpEgH8XvZj9sF3qI5yCMdlQZ9H61h3UMA>
+    <xmx:acVHXXlOa7ZWCtuLJcPoF30hsIjJPujPrxa03Qrt8xA2900U7bmRSQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1749B380074;
-        Mon,  5 Aug 2019 01:57:58 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915/userptr: Acquire the page lock around" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 85ECE80059;
+        Mon,  5 Aug 2019 01:58:00 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/i915/userptr: Acquire the page lock around" failed to apply to 4.14-stable tree
 To:     chris@chris-wilson.co.uk, jani.nikula@intel.com,
         tvrtko.ursulin@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 05 Aug 2019 07:57:56 +0200
-Message-ID: <1564984676244180@kroah.com>
+Message-ID: <1564984676228147@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
