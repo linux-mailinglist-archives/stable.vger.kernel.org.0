@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0B0681A54
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:05:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3F7F81AD4
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:09:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729206AbfHENFD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:05:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40898 "EHLO mail.kernel.org"
+        id S1729800AbfHENJj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:09:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729199AbfHENFA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:05:00 -0400
+        id S1730212AbfHENJi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:09:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43EC82087B;
-        Mon,  5 Aug 2019 13:04:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC69B2087B;
+        Mon,  5 Aug 2019 13:09:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010299;
-        bh=s0M71e9t8BQi3mVk1o/b37D/2SaTNFQ47ibDCkdIHWk=;
+        s=default; t=1565010577;
+        bh=0hAbLWTW/yVolJvGTI6Zh+Ggi3W4xj+7N+B0QfpVsm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BPxuU8NFLTG11byLy9KOUV/gpvnObYVq2/z6vpFsDJTaIDZsAwc680qvINh2vJ3Q6
-         kfmOejHsDjJ8xLJz2kEawe93H42JFcJIDmXdx2meEIMa6Xd/5wwQiDm428Grvj6wuh
-         7DE0eLvlaq6yaLMcRMAmlHKUvRKcouPDpp5F+ZrA=
+        b=xVG7oOdPCaX14WjfgKclFt6xSF8bqWyCc7jTVCIOS7H2a271YKG1OAVR1fcCRrwNB
+         HK6iip6bl4GaiBp9rEEHMamjqG3DckcFVBofVVN0yOJpyzN9o438lYXwYounV07Pg6
+         IL+QDcWTAmcxWoed8hCmlQ5nxhNXhj6IMGuoAcuw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 02/42] ARM: dts: rockchip: Make rk3288-veyron-minnie run at hs200
-Date:   Mon,  5 Aug 2019 15:02:28 +0200
-Message-Id: <20190805124925.088251923@linuxfoundation.org>
+Subject: [PATCH 4.19 16/74] btrfs: qgroup: Dont hold qgroup_ioctl_lock in btrfs_qgroup_inherit()
+Date:   Mon,  5 Aug 2019 15:02:29 +0200
+Message-Id: <20190805124937.103902140@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124924.788666484@linuxfoundation.org>
-References: <20190805124924.788666484@linuxfoundation.org>
+In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
+References: <20190805124935.819068648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +44,189 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1c0479023412ab7834f2e98b796eb0d8c627cd62 ]
+[ Upstream commit e88439debd0a7f969b3ddba6f147152cd0732676 ]
 
-As some point hs200 was failing on rk3288-veyron-minnie.  See commit
-984926781122 ("ARM: dts: rockchip: temporarily remove emmc hs200 speed
-from rk3288 minnie").  Although I didn't track down exactly when it
-started working, it seems to work OK now, so let's turn it back on.
+[BUG]
+Lockdep will report the following circular locking dependency:
 
-To test this, I booted from SD card and then used this script to
-stress the enumeration process after fixing a memory leak [1]:
-  cd /sys/bus/platform/drivers/dwmmc_rockchip
-  for i in $(seq 1 3000); do
-    echo "========================" $i
-    echo ff0f0000.dwmmc > unbind
-    sleep .5
-    echo ff0f0000.dwmmc > bind
-    while true; do
-      if [ -e /dev/mmcblk2 ]; then
-        break;
-      fi
-      sleep .1
-    done
-  done
+  WARNING: possible circular locking dependency detected
+  5.2.0-rc2-custom #24 Tainted: G           O
+  ------------------------------------------------------
+  btrfs/8631 is trying to acquire lock:
+  000000002536438c (&fs_info->qgroup_ioctl_lock#2){+.+.}, at: btrfs_qgroup_inherit+0x40/0x620 [btrfs]
 
-It worked fine.
+  but task is already holding lock:
+  000000003d52cc23 (&fs_info->tree_log_mutex){+.+.}, at: create_pending_snapshot+0x8b6/0xe60 [btrfs]
 
-[1] https://lkml.kernel.org/r/20190503233526.226272-1-dianders@chromium.org
+  which lock already depends on the new lock.
 
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+  the existing dependency chain (in reverse order) is:
+
+  -> #2 (&fs_info->tree_log_mutex){+.+.}:
+         __mutex_lock+0x76/0x940
+         mutex_lock_nested+0x1b/0x20
+         btrfs_commit_transaction+0x475/0xa00 [btrfs]
+         btrfs_commit_super+0x71/0x80 [btrfs]
+         close_ctree+0x2bd/0x320 [btrfs]
+         btrfs_put_super+0x15/0x20 [btrfs]
+         generic_shutdown_super+0x72/0x110
+         kill_anon_super+0x18/0x30
+         btrfs_kill_super+0x16/0xa0 [btrfs]
+         deactivate_locked_super+0x3a/0x80
+         deactivate_super+0x51/0x60
+         cleanup_mnt+0x3f/0x80
+         __cleanup_mnt+0x12/0x20
+         task_work_run+0x94/0xb0
+         exit_to_usermode_loop+0xd8/0xe0
+         do_syscall_64+0x210/0x240
+         entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+  -> #1 (&fs_info->reloc_mutex){+.+.}:
+         __mutex_lock+0x76/0x940
+         mutex_lock_nested+0x1b/0x20
+         btrfs_commit_transaction+0x40d/0xa00 [btrfs]
+         btrfs_quota_enable+0x2da/0x730 [btrfs]
+         btrfs_ioctl+0x2691/0x2b40 [btrfs]
+         do_vfs_ioctl+0xa9/0x6d0
+         ksys_ioctl+0x67/0x90
+         __x64_sys_ioctl+0x1a/0x20
+         do_syscall_64+0x65/0x240
+         entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+  -> #0 (&fs_info->qgroup_ioctl_lock#2){+.+.}:
+         lock_acquire+0xa7/0x190
+         __mutex_lock+0x76/0x940
+         mutex_lock_nested+0x1b/0x20
+         btrfs_qgroup_inherit+0x40/0x620 [btrfs]
+         create_pending_snapshot+0x9d7/0xe60 [btrfs]
+         create_pending_snapshots+0x94/0xb0 [btrfs]
+         btrfs_commit_transaction+0x415/0xa00 [btrfs]
+         btrfs_mksubvol+0x496/0x4e0 [btrfs]
+         btrfs_ioctl_snap_create_transid+0x174/0x180 [btrfs]
+         btrfs_ioctl_snap_create_v2+0x11c/0x180 [btrfs]
+         btrfs_ioctl+0xa90/0x2b40 [btrfs]
+         do_vfs_ioctl+0xa9/0x6d0
+         ksys_ioctl+0x67/0x90
+         __x64_sys_ioctl+0x1a/0x20
+         do_syscall_64+0x65/0x240
+         entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+  other info that might help us debug this:
+
+  Chain exists of:
+    &fs_info->qgroup_ioctl_lock#2 --> &fs_info->reloc_mutex --> &fs_info->tree_log_mutex
+
+   Possible unsafe locking scenario:
+
+         CPU0                    CPU1
+         ----                    ----
+    lock(&fs_info->tree_log_mutex);
+                                 lock(&fs_info->reloc_mutex);
+                                 lock(&fs_info->tree_log_mutex);
+    lock(&fs_info->qgroup_ioctl_lock#2);
+
+   *** DEADLOCK ***
+
+  6 locks held by btrfs/8631:
+   #0: 00000000ed8f23f6 (sb_writers#12){.+.+}, at: mnt_want_write_file+0x28/0x60
+   #1: 000000009fb1597a (&type->i_mutex_dir_key#10/1){+.+.}, at: btrfs_mksubvol+0x70/0x4e0 [btrfs]
+   #2: 0000000088c5ad88 (&fs_info->subvol_sem){++++}, at: btrfs_mksubvol+0x128/0x4e0 [btrfs]
+   #3: 000000009606fc3e (sb_internal#2){.+.+}, at: start_transaction+0x37a/0x520 [btrfs]
+   #4: 00000000f82bbdf5 (&fs_info->reloc_mutex){+.+.}, at: btrfs_commit_transaction+0x40d/0xa00 [btrfs]
+   #5: 000000003d52cc23 (&fs_info->tree_log_mutex){+.+.}, at: create_pending_snapshot+0x8b6/0xe60 [btrfs]
+
+[CAUSE]
+Due to the delayed subvolume creation, we need to call
+btrfs_qgroup_inherit() inside commit transaction code, with a lot of
+other mutex hold.
+This hell of lock chain can lead to above problem.
+
+[FIX]
+On the other hand, we don't really need to hold qgroup_ioctl_lock if
+we're in the context of create_pending_snapshot().
+As in that context, we're the only one being able to modify qgroup.
+
+All other qgroup functions which needs qgroup_ioctl_lock are either
+holding a transaction handle, or will start a new transaction:
+  Functions will start a new transaction():
+  * btrfs_quota_enable()
+  * btrfs_quota_disable()
+  Functions hold a transaction handler:
+  * btrfs_add_qgroup_relation()
+  * btrfs_del_qgroup_relation()
+  * btrfs_create_qgroup()
+  * btrfs_remove_qgroup()
+  * btrfs_limit_qgroup()
+  * btrfs_qgroup_inherit() call inside create_subvol()
+
+So we have a higher level protection provided by transaction, thus we
+don't need to always hold qgroup_ioctl_lock in btrfs_qgroup_inherit().
+
+Only the btrfs_qgroup_inherit() call in create_subvol() needs to hold
+qgroup_ioctl_lock, while the btrfs_qgroup_inherit() call in
+create_pending_snapshot() is already protected by transaction.
+
+So the fix is to detect the context by checking
+trans->transaction->state.
+If we're at TRANS_STATE_COMMIT_DOING, then we're in commit transaction
+context and no need to get the mutex.
+
+Reported-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3288-veyron-minnie.dts | 4 ----
- 1 file changed, 4 deletions(-)
+ fs/btrfs/qgroup.c | 24 ++++++++++++++++++++++--
+ 1 file changed, 22 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/rk3288-veyron-minnie.dts b/arch/arm/boot/dts/rk3288-veyron-minnie.dts
-index f72d616d1bf8d..9647d9b6b299c 100644
---- a/arch/arm/boot/dts/rk3288-veyron-minnie.dts
-+++ b/arch/arm/boot/dts/rk3288-veyron-minnie.dts
-@@ -125,10 +125,6 @@
- 	power-supply = <&backlight_regulator>;
- };
+diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
+index e46e83e876001..734866ab51941 100644
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -2249,6 +2249,7 @@ int btrfs_qgroup_inherit(struct btrfs_trans_handle *trans, u64 srcid,
+ 	int ret = 0;
+ 	int i;
+ 	u64 *i_qgroups;
++	bool committing = false;
+ 	struct btrfs_fs_info *fs_info = trans->fs_info;
+ 	struct btrfs_root *quota_root;
+ 	struct btrfs_qgroup *srcgroup;
+@@ -2256,7 +2257,25 @@ int btrfs_qgroup_inherit(struct btrfs_trans_handle *trans, u64 srcid,
+ 	u32 level_size = 0;
+ 	u64 nums;
  
--&emmc {
--	/delete-property/mmc-hs200-1_8v;
--};
--
- &gpio_keys {
- 	pinctrl-0 = <&pwr_key_l &ap_lid_int_l &volum_down_l &volum_up_l>;
+-	mutex_lock(&fs_info->qgroup_ioctl_lock);
++	/*
++	 * There are only two callers of this function.
++	 *
++	 * One in create_subvol() in the ioctl context, which needs to hold
++	 * the qgroup_ioctl_lock.
++	 *
++	 * The other one in create_pending_snapshot() where no other qgroup
++	 * code can modify the fs as they all need to either start a new trans
++	 * or hold a trans handler, thus we don't need to hold
++	 * qgroup_ioctl_lock.
++	 * This would avoid long and complex lock chain and make lockdep happy.
++	 */
++	spin_lock(&fs_info->trans_lock);
++	if (trans->transaction->state == TRANS_STATE_COMMIT_DOING)
++		committing = true;
++	spin_unlock(&fs_info->trans_lock);
++
++	if (!committing)
++		mutex_lock(&fs_info->qgroup_ioctl_lock);
+ 	if (!test_bit(BTRFS_FS_QUOTA_ENABLED, &fs_info->flags))
+ 		goto out;
+ 
+@@ -2420,7 +2439,8 @@ int btrfs_qgroup_inherit(struct btrfs_trans_handle *trans, u64 srcid,
+ unlock:
+ 	spin_unlock(&fs_info->qgroup_lock);
+ out:
+-	mutex_unlock(&fs_info->qgroup_ioctl_lock);
++	if (!committing)
++		mutex_unlock(&fs_info->qgroup_ioctl_lock);
+ 	return ret;
+ }
  
 -- 
 2.20.1
