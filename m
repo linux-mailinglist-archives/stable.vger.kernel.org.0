@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E1C3381A42
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:04:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD10C81A6E
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:06:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729027AbfHENE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:04:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40100 "EHLO mail.kernel.org"
+        id S1729441AbfHENF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:05:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729022AbfHENE0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:04:26 -0400
+        id S1729431AbfHENF5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:05:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9461B206C1;
-        Mon,  5 Aug 2019 13:04:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA6FB2147A;
+        Mon,  5 Aug 2019 13:05:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010266;
-        bh=HI8Bcj0/Y78Lr5nke/yKwlk1lz1igip0lnZrf8wQm2U=;
+        s=default; t=1565010356;
+        bh=NQIdsaqGJG1+mqhzdm9eqcHGVNKfs7UgqWMllKAhssk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qwiefaUMP2YDR3owS3iMFUvAW1e3mdddojQN/t7Rmb+jg39Ke3nS71sA/yl08fTqY
-         EpCzZPqjUZ3aXOhPc6m6T/iZom3aher1gJbYzyILrE5mX5vJKCdq+BN8KH52oMwQRD
-         n0u5kRSFc9InguOVbF0rIz3tDkOHKOD3DBLWrOuM=
+        b=xl3sB7/wMC66zEJzzMOON9yzeukSInOdIwS7vDCjtym+DQP5mQYXkoC26D2Y9rpKg
+         VLsbYXs8uiKInPLsM1fLAGJ9bIVyCKzdtQK9D3kwg6NtqpIL3dka8XX1084UjfwiTh
+         tRHd6XDbose5RGPzpsL2VLT5Jnt3Jrr7ug5BYCPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: [PATCH 4.4 22/22] xen/swiotlb: fix condition for calling xen_destroy_contiguous_region()
-Date:   Mon,  5 Aug 2019 15:02:59 +0200
-Message-Id: <20190805124923.549465086@linuxfoundation.org>
+        stable@vger.kernel.org, Yishai Hadas <yishaih@mellanox.com>,
+        Alex Vainman <alexv@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.9 34/42] IB/mlx5: Fix RSS Toeplitz setup to be aligned with the HW specification
+Date:   Mon,  5 Aug 2019 15:03:00 +0200
+Message-Id: <20190805124928.986545641@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124918.070468681@linuxfoundation.org>
-References: <20190805124918.070468681@linuxfoundation.org>
+In-Reply-To: <20190805124924.788666484@linuxfoundation.org>
+References: <20190805124924.788666484@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Yishai Hadas <yishaih@mellanox.com>
 
-commit 50f6393f9654c561df4cdcf8e6cfba7260143601 upstream.
+commit b7165bd0d6cbb93732559be6ea8774653b204480 upstream.
 
-The condition in xen_swiotlb_free_coherent() for deciding whether to
-call xen_destroy_contiguous_region() is wrong: in case the region to
-be freed is not contiguous calling xen_destroy_contiguous_region() is
-the wrong thing to do: it would result in inconsistent mappings of
-multiple PFNs to the same MFN. This will lead to various strange
-crashes or data corruption.
+The specification for the Toeplitz function doesn't require to set the key
+explicitly to be symmetric. In case a symmetric functionality is required
+a symmetric key can be simply used.
 
-Instead of calling xen_destroy_contiguous_region() in that case a
-warning should be issued as that situation should never occur.
+Wrongly forcing the algorithm to symmetric causes the wrong packet
+distribution and a performance degradation.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Acked-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20190723065733.4899-7-leon@kernel.org
+Cc: <stable@vger.kernel.org> # 4.7
+Fixes: 28d6137008b2 ("IB/mlx5: Add RSS QP support")
+Signed-off-by: Yishai Hadas <yishaih@mellanox.com>
+Reviewed-by: Alex Vainman <alexv@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/swiotlb-xen.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/mlx5/qp.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/xen/swiotlb-xen.c
-+++ b/drivers/xen/swiotlb-xen.c
-@@ -365,8 +365,8 @@ xen_swiotlb_free_coherent(struct device
- 	/* Convert the size to actually allocated. */
- 	size = 1UL << (order + XEN_PAGE_SHIFT);
+--- a/drivers/infiniband/hw/mlx5/qp.c
++++ b/drivers/infiniband/hw/mlx5/qp.c
+@@ -1421,7 +1421,6 @@ static int create_rss_raw_qp_tir(struct
+ 		}
  
--	if (((dev_addr + size - 1 <= dma_mask)) ||
--	    range_straddles_page_boundary(phys, size))
-+	if (!WARN_ON((dev_addr + size - 1 > dma_mask) ||
-+		     range_straddles_page_boundary(phys, size)))
- 		xen_destroy_contiguous_region(phys, order);
- 
- 	xen_free_coherent_pages(hwdev, size, vaddr, (dma_addr_t)phys, attrs);
+ 		MLX5_SET(tirc, tirc, rx_hash_fn, MLX5_RX_HASH_FN_TOEPLITZ);
+-		MLX5_SET(tirc, tirc, rx_hash_symmetric, 1);
+ 		memcpy(rss_key, ucmd.rx_hash_key, len);
+ 		break;
+ 	}
 
 
