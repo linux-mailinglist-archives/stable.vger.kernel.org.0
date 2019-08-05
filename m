@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0973781CC0
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:27:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63AB081CA0
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:26:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731311AbfHENZv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:25:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34398 "EHLO mail.kernel.org"
+        id S1731011AbfHENZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:25:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730916AbfHENZu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:25:50 -0400
+        id S1731320AbfHENZw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:25:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DD6A20644;
-        Mon,  5 Aug 2019 13:25:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E67C20644;
+        Mon,  5 Aug 2019 13:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011549;
-        bh=O81cY2+UO09peQGoXM9mbiGl/Zz6yhVdTmLOCrqsWy0=;
+        s=default; t=1565011551;
+        bh=F5nmWI4N3L3upEYEKPWEfR2p0H16olBUXqf9oPpehg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fvae2LmQHCdKoqDEewTy59ddlu9mEgPkwaNIgRvG9OUvtD7739cV5Hhbx+0wa6FS7
-         1F3lcmJ3iFAsb05L7nigE5YRiqtqLh722hzn4AIgU+vYmiqY4Lfmper1J498ESiaRT
-         XlN5dWfXgK+r/ywWOP3F4vuJKH2AM5X6DFjpUAJ4=
+        b=agS+SWwhHadZWRNEWN23iIOihG4/mqofXKFDdAvxHcPkjVVJrSGZHz7NKCHRxP9Hl
+         mmMxnFHOmqDdiKfaU2zxQvthemcHs+NCeuSxEGYKWKdDQ2xPwyIOt0HvuJQsBz9KWj
+         9N8hu4GenlocGb2NvOI14T9pHKX70Fimhq98NLuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
-        Kenneth Graunke <kenneth@whitecape.org>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.2 130/131] drm/i915/perf: fix ICL perf register offsets
-Date:   Mon,  5 Aug 2019 15:03:37 +0200
-Message-Id: <20190805125000.682940232@linuxfoundation.org>
+        stable@vger.kernel.org, Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Xiaolin Zhang <xiaolin.zhang@intel.com>
+Subject: [PATCH 5.2 131/131] drm/i915/gvt: fix incorrect cache entry for guest page mapping
+Date:   Mon,  5 Aug 2019 15:03:38 +0200
+Message-Id: <20190805125000.899343807@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -45,45 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
+From: Xiaolin Zhang <xiaolin.zhang@intel.com>
 
-commit 95eef14cdad150fed43147bcd4f29eea3d0a3f03 upstream.
+commit 7366aeb77cd840f3edea02c65065d40affaa7f45 upstream.
 
-We got the wrong offsets (could they have changed?). New values were
-computed off an error state by looking up the register offset in the
-context image as written by the HW.
+GPU hang observed during the guest OCL conformance test which is caused
+by THP GTT feature used durning the test.
 
-Signed-off-by: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-Fixes: 1de401c08fa805 ("drm/i915/perf: enable perf support on ICL")
-Cc: <stable@vger.kernel.org> # v4.18+
-Acked-by: Kenneth Graunke <kenneth@whitecape.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190610081914.25428-1-lionel.g.landwerlin@intel.com
-(cherry picked from commit 8dcfdfb4501012a8d36d2157dc73925715f2befb)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+It was observed the same GFN with different size (4K and 2M) requested
+from the guest in GVT. So during the guest page dma map stage, it is
+required to unmap first with orginal size and then remap again with
+requested size.
+
+Fixes: b901b252b6cf ("drm/i915/gvt: Add 2M huge gtt support")
+Cc: stable@vger.kernel.org
+Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Signed-off-by: Xiaolin Zhang <xiaolin.zhang@intel.com>
+Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/i915_perf.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/gvt/kvmgt.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/gpu/drm/i915/i915_perf.c
-+++ b/drivers/gpu/drm/i915/i915_perf.c
-@@ -3457,9 +3457,13 @@ void i915_perf_init(struct drm_i915_priv
- 			dev_priv->perf.oa.ops.enable_metric_set = gen8_enable_metric_set;
- 			dev_priv->perf.oa.ops.disable_metric_set = gen10_disable_metric_set;
- 
--			dev_priv->perf.oa.ctx_oactxctrl_offset = 0x128;
--			dev_priv->perf.oa.ctx_flexeu0_offset = 0x3de;
--
-+			if (IS_GEN(dev_priv, 10)) {
-+				dev_priv->perf.oa.ctx_oactxctrl_offset = 0x128;
-+				dev_priv->perf.oa.ctx_flexeu0_offset = 0x3de;
-+			} else {
-+				dev_priv->perf.oa.ctx_oactxctrl_offset = 0x124;
-+				dev_priv->perf.oa.ctx_flexeu0_offset = 0x78e;
-+			}
- 			dev_priv->perf.oa.gen8_valid_ctx_bit = (1<<16);
- 		}
- 	}
+--- a/drivers/gpu/drm/i915/gvt/kvmgt.c
++++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
+@@ -1911,6 +1911,18 @@ static int kvmgt_dma_map_guest_page(unsi
+ 		ret = __gvt_cache_add(info->vgpu, gfn, *dma_addr, size);
+ 		if (ret)
+ 			goto err_unmap;
++	} else if (entry->size != size) {
++		/* the same gfn with different size: unmap and re-map */
++		gvt_dma_unmap_page(vgpu, gfn, entry->dma_addr, entry->size);
++		__gvt_cache_remove_entry(vgpu, entry);
++
++		ret = gvt_dma_map_page(vgpu, gfn, dma_addr, size);
++		if (ret)
++			goto err_unlock;
++
++		ret = __gvt_cache_add(info->vgpu, gfn, *dma_addr, size);
++		if (ret)
++			goto err_unmap;
+ 	} else {
+ 		kref_get(&entry->ref);
+ 		*dma_addr = entry->dma_addr;
 
 
