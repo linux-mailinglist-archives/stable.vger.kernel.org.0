@@ -2,36 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CEB481C80
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:24:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98F2F81C82
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:24:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730182AbfHENY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:24:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32980 "EHLO mail.kernel.org"
+        id S1731032AbfHENYc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:24:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731014AbfHENY3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:24:29 -0400
+        id S1730590AbfHENYc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:24:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1827D20651;
-        Mon,  5 Aug 2019 13:24:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BB1C2087B;
+        Mon,  5 Aug 2019 13:24:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011468;
-        bh=kDASm8+AuMPNY/cREAHlH2bRIsXBL4K8DG62KX5A/mw=;
+        s=default; t=1565011471;
+        bh=D7qIjmi0nDi0uqZ+d6MM7cPHU1t96I4scwoAELhSSD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zlMRCpHGgGdSJjOGuTZCstlI+yAnznsEcvao72KYDk/2WYyUsPGRDtubcKDZjTWNp
-         DLvSTLCrH7nVWUq8LG0SSE5I8KYjuwjLc69i4LdiOvLPytTDqMT2V9YokmFpXLkhyN
-         iKEp7NvqrViDyjFwp7S18y4XvZqidtENTWFC2oVc=
+        b=uK+0mXn1qspgbkkLBIQELtViAbhA33Na5LtHGzDYjClseuQK9WTqw0UH54H15eKeF
+         Hes6s8k6ICvjJo69zjpJKJZGIZZCEUVttU1F9iR7EPs3xriIZEGAVbrvu0fRXvlfYs
+         KxAED85jB0jtsRp2sWShgrqgwDxjNEehO+lzbtKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Samuel Thibault <samuel.thibault@ens-lyon.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.2 099/131] ALSA: hda: Fix 1-minute detection delay when i915 module is not available
-Date:   Mon,  5 Aug 2019 15:03:06 +0200
-Message-Id: <20190805124958.585858607@linuxfoundation.org>
+        stable@vger.kernel.org, Yang Shi <yang.shi@linux.alibaba.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Kirill Tkhai <ktkhai@virtuozzo.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Jan Hadrava <had@kam.mff.cuni.cz>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Roman Gushchin <guro@fb.com>, Hugh Dickins <hughd@google.com>,
+        Qian Cai <cai@lca.pw>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.2 100/131] mm: vmscan: check if mem cgroup is disabled or not before calling memcg slab shrinker
+Date:   Mon,  5 Aug 2019 15:03:07 +0200
+Message-Id: <20190805124958.649680836@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -44,52 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+From: Yang Shi <yang.shi@linux.alibaba.com>
 
-commit 74bf71ed792ab0f64631cc65ccdb54c356c36d45 upstream.
+commit fa1e512fac717f34e7c12d7a384c46e90a647392 upstream.
 
-Distribution installation images such as Debian include different sets
-of modules which can be downloaded dynamically.  Such images may notably
-include the hda sound modules but not the i915 DRM module, even if the
-latter was enabled at build time, as reported on
-https://bugs.debian.org/931507
+Shakeel Butt reported premature oom on kernel with
+"cgroup_disable=memory" since mem_cgroup_is_root() returns false even
+though memcg is actually NULL.  The drop_caches is also broken.
 
-In such a case hdac_i915 would be linked in and try to load the i915
-module, fail since it is not there, but still wait for a whole minute
-before giving up binding with it.
+It is because commit aeed1d325d42 ("mm/vmscan.c: generalize
+shrink_slab() calls in shrink_node()") removed the !memcg check before
+!mem_cgroup_is_root().  And, surprisingly root memcg is allocated even
+though memory cgroup is disabled by kernel boot parameter.
 
-This fixes such as case by only waiting for the binding if the module
-was properly loaded (or module support is disabled, in which case i915
-is already compiled-in anyway).
+Add mem_cgroup_disabled() check to make reclaimer work as expected.
 
-Fixes: f9b54e1961c7 ("ALSA: hda/i915: Allow delayed i915 audio component binding")
-Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: http://lkml.kernel.org/r/1563385526-20805-1-git-send-email-yang.shi@linux.alibaba.com
+Fixes: aeed1d325d42 ("mm/vmscan.c: generalize shrink_slab() calls in shrink_node()")
+Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+Reported-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Jan Hadrava <had@kam.mff.cuni.cz>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: <stable@vger.kernel.org>	[4.19+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/hda/hdac_i915.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ mm/vmscan.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/sound/hda/hdac_i915.c
-+++ b/sound/hda/hdac_i915.c
-@@ -136,10 +136,12 @@ int snd_hdac_i915_init(struct hdac_bus *
- 	if (!acomp)
- 		return -ENODEV;
- 	if (!acomp->ops) {
--		request_module("i915");
--		/* 60s timeout */
--		wait_for_completion_timeout(&bind_complete,
--					    msecs_to_jiffies(60 * 1000));
-+		if (!IS_ENABLED(CONFIG_MODULES) ||
-+		    !request_module("i915")) {
-+			/* 60s timeout */
-+			wait_for_completion_timeout(&bind_complete,
-+						   msecs_to_jiffies(60 * 1000));
-+		}
- 	}
- 	if (!acomp->ops) {
- 		dev_info(bus->dev, "couldn't bind with audio component\n");
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -684,7 +684,14 @@ static unsigned long shrink_slab(gfp_t g
+ 	unsigned long ret, freed = 0;
+ 	struct shrinker *shrinker;
+ 
+-	if (!mem_cgroup_is_root(memcg))
++	/*
++	 * The root memcg might be allocated even though memcg is disabled
++	 * via "cgroup_disable=memory" boot parameter.  This could make
++	 * mem_cgroup_is_root() return false, then just run memcg slab
++	 * shrink, but skip global shrink.  This may result in premature
++	 * oom.
++	 */
++	if (!mem_cgroup_disabled() && !mem_cgroup_is_root(memcg))
+ 		return shrink_slab_memcg(gfp_mask, nid, memcg, priority);
+ 
+ 	if (!down_read_trylock(&shrinker_rwsem))
 
 
