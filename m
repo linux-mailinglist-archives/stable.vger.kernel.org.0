@@ -2,39 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 05B6D81AE7
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:10:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B04C381BEB
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:18:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729432AbfHENKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:10:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49310 "EHLO mail.kernel.org"
+        id S1726559AbfHENEN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:04:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729712AbfHENKY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:10:24 -0400
+        id S1728887AbfHENEL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:04:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67F5D2075B;
-        Mon,  5 Aug 2019 13:10:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B86021734;
+        Mon,  5 Aug 2019 13:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010623;
-        bh=gyW6hqBHgxS9UATd8iYnBBFQ6Gx6Cl2pEKQbSIN47Sg=;
+        s=default; t=1565010250;
+        bh=m3AUNa45QmVDF2VHITaB9pzyD5ROiFTPHFTLG+IWK0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2hMCL7bsf0KuPWUEE1Y/ikPfjYnIPPTrYykKYv00NSfUR/tDeQVFqTj2RtwD/0yn1
-         +kv/U4lAZHi3FcDzoISvRF8GDJgroQvpIANFHO686iskNSAN8sjZcEYkN26xWTRVVh
-         MJC5UnSOlxKv/ECAdgEjrNjC1vQ0L36a0f4Lanco=
+        b=L2vd/gs0HTLa/NQVBYU01THSQR7/PviqxK+5DalgecKQcf864Ckmg1dnoWwK84TOa
+         6fx93WFwp8fjhBkC6NcgXfKtGtsBxutlxLLh0qGuJVDdlqoI9D4OhgXT7fw6pIrbv7
+         yE+zYZ+LWNMg+BjwtpTYqFPYj20m8oT/mRarr0kM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yongxin Liu <yongxin.liu@windriver.com>,
-        Ben Skeggs <bskeggs@redhat.com>,
+        stable@vger.kernel.org, Mikko Rapeli <mikko.rapeli@iki.fi>,
+        Jan Harkes <jaharkes@cs.cmu.edu>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Colin Ian King <colin.king@canonical.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        David Howells <dhowells@redhat.com>,
+        Fabian Frederick <fabf@skynet.be>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Yann Droneaud <ydroneaud@opteya.com>,
+        Zhouyang Jia <jiazhouyang09@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 41/74] drm/nouveau: fix memory leak in nouveau_conn_reset()
+Subject: [PATCH 4.4 17/22] uapi linux/coda_psdev.h: move upc_req definition from uapi to kernel side headers
 Date:   Mon,  5 Aug 2019 15:02:54 +0200
-Message-Id: <20190805124939.182347763@linuxfoundation.org>
+Message-Id: <20190805124922.534306524@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
-References: <20190805124935.819068648@linuxfoundation.org>
+In-Reply-To: <20190805124918.070468681@linuxfoundation.org>
+References: <20190805124918.070468681@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +54,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 09b90e2fe35faeace2488234e2a7728f2ea8ba26 ]
+[ Upstream commit f90fb3c7e2c13ae829db2274b88b845a75038b8a ]
 
-In nouveau_conn_reset(), if connector->state is true,
-__drm_atomic_helper_connector_destroy_state() will be called,
-but the memory pointed by asyc isn't freed. Memory leak happens
-in the following function __drm_atomic_helper_connector_reset(),
-where newly allocated asyc->state will be assigned to connector->state.
+Only users of upc_req in kernel side fs/coda/psdev.c and
+fs/coda/upcall.c already include linux/coda_psdev.h.
 
-So using nouveau_conn_atomic_destroy_state() instead of
-__drm_atomic_helper_connector_destroy_state to free the "old" asyc.
+Suggested by Jan Harkes <jaharkes@cs.cmu.edu> in
+  https://lore.kernel.org/lkml/20150531111913.GA23377@cs.cmu.edu/
 
-Here the is the log showing memory leak.
+Fixes these include/uapi/linux/coda_psdev.h compilation errors in userspace:
 
-unreferenced object 0xffff8c5480483c80 (size 192):
-  comm "kworker/0:2", pid 188, jiffies 4294695279 (age 53.179s)
-  hex dump (first 32 bytes):
-    00 f0 ba 7b 54 8c ff ff 00 00 00 00 00 00 00 00  ...{T...........
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000005005c0d0>] kmem_cache_alloc_trace+0x195/0x2c0
-    [<00000000a122baed>] nouveau_conn_reset+0x25/0xc0 [nouveau]
-    [<000000004fd189a2>] nouveau_connector_create+0x3a7/0x610 [nouveau]
-    [<00000000c73343a8>] nv50_display_create+0x343/0x980 [nouveau]
-    [<000000002e2b03c3>] nouveau_display_create+0x51f/0x660 [nouveau]
-    [<00000000c924699b>] nouveau_drm_device_init+0x182/0x7f0 [nouveau]
-    [<00000000cc029436>] nouveau_drm_probe+0x20c/0x2c0 [nouveau]
-    [<000000007e961c3e>] local_pci_probe+0x47/0xa0
-    [<00000000da14d569>] work_for_cpu_fn+0x1a/0x30
-    [<0000000028da4805>] process_one_work+0x27c/0x660
-    [<000000001d415b04>] worker_thread+0x22b/0x3f0
-    [<0000000003b69f1f>] kthread+0x12f/0x150
-    [<00000000c94c29b7>] ret_from_fork+0x3a/0x50
+  linux/coda_psdev.h:12:19: error: field `uc_chain' has incomplete type
+  struct list_head    uc_chain;
+                   ^
+  linux/coda_psdev.h:13:2: error: unknown type name `caddr_t'
+  caddr_t             uc_data;
+  ^
+  linux/coda_psdev.h:14:2: error: unknown type name `u_short'
+  u_short             uc_flags;
+  ^
+  linux/coda_psdev.h:15:2: error: unknown type name `u_short'
+  u_short             uc_inSize;  /* Size is at most 5000 bytes */
+  ^
+  linux/coda_psdev.h:16:2: error: unknown type name `u_short'
+  u_short             uc_outSize;
+  ^
+  linux/coda_psdev.h:17:2: error: unknown type name `u_short'
+  u_short             uc_opcode;  /* copied from data to save lookup */
+  ^
+  linux/coda_psdev.h:19:2: error: unknown type name `wait_queue_head_t'
+  wait_queue_head_t   uc_sleep;   /* process' wait queue */
+  ^
 
-Signed-off-by: Yongxin Liu <yongxin.liu@windriver.com>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Link: http://lkml.kernel.org/r/9f99f5ce6a0563d5266e6cf7aa9585aac2cae971.1558117389.git.jaharkes@cs.cmu.edu
+Signed-off-by: Mikko Rapeli <mikko.rapeli@iki.fi>
+Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Colin Ian King <colin.king@canonical.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Fabian Frederick <fabf@skynet.be>
+Cc: Sam Protsenko <semen.protsenko@linaro.org>
+Cc: Yann Droneaud <ydroneaud@opteya.com>
+Cc: Zhouyang Jia <jiazhouyang09@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_connector.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/coda_psdev.h      | 11 +++++++++++
+ include/uapi/linux/coda_psdev.h | 13 -------------
+ 2 files changed, 11 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.c b/drivers/gpu/drm/nouveau/nouveau_connector.c
-index 247f72cc4d10a..fb0094fc55834 100644
---- a/drivers/gpu/drm/nouveau/nouveau_connector.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
-@@ -251,7 +251,7 @@ nouveau_conn_reset(struct drm_connector *connector)
- 		return;
+diff --git a/include/linux/coda_psdev.h b/include/linux/coda_psdev.h
+index 5b8721efa948e..fe1466daf2918 100644
+--- a/include/linux/coda_psdev.h
++++ b/include/linux/coda_psdev.h
+@@ -19,6 +19,17 @@ struct venus_comm {
+ 	struct mutex	    vc_mutex;
+ };
  
- 	if (connector->state)
--		__drm_atomic_helper_connector_destroy_state(connector->state);
-+		nouveau_conn_atomic_destroy_state(connector, connector->state);
- 	__drm_atomic_helper_connector_reset(connector, &asyc->state);
- 	asyc->dither.mode = DITHERING_MODE_AUTO;
- 	asyc->dither.depth = DITHERING_DEPTH_AUTO;
++/* messages between coda filesystem in kernel and Venus */
++struct upc_req {
++	struct list_head	uc_chain;
++	caddr_t			uc_data;
++	u_short			uc_flags;
++	u_short			uc_inSize;  /* Size is at most 5000 bytes */
++	u_short			uc_outSize;
++	u_short			uc_opcode;  /* copied from data to save lookup */
++	int			uc_unique;
++	wait_queue_head_t	uc_sleep;   /* process' wait queue */
++};
+ 
+ static inline struct venus_comm *coda_vcp(struct super_block *sb)
+ {
+diff --git a/include/uapi/linux/coda_psdev.h b/include/uapi/linux/coda_psdev.h
+index 79d05981fc4b0..e2c44d2f7d5bd 100644
+--- a/include/uapi/linux/coda_psdev.h
++++ b/include/uapi/linux/coda_psdev.h
+@@ -6,19 +6,6 @@
+ #define CODA_PSDEV_MAJOR 67
+ #define MAX_CODADEVS  5	   /* how many do we allow */
+ 
+-
+-/* messages between coda filesystem in kernel and Venus */
+-struct upc_req {
+-	struct list_head    uc_chain;
+-	caddr_t	            uc_data;
+-	u_short	            uc_flags;
+-	u_short             uc_inSize;  /* Size is at most 5000 bytes */
+-	u_short	            uc_outSize;
+-	u_short	            uc_opcode;  /* copied from data to save lookup */
+-	int		    uc_unique;
+-	wait_queue_head_t   uc_sleep;   /* process' wait queue */
+-};
+-
+ #define CODA_REQ_ASYNC  0x1
+ #define CODA_REQ_READ   0x2
+ #define CODA_REQ_WRITE  0x4
 -- 
 2.20.1
 
