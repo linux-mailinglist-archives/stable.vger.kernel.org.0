@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED23B8113B
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:01:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79E898113C
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:02:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725976AbfHEFBx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 01:01:53 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:45217 "EHLO
+        id S1726378AbfHEFCB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 01:02:01 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:41663 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726375AbfHEFBx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:01:53 -0400
+        by vger.kernel.org with ESMTP id S1726375AbfHEFCB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:02:01 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 14ACD21903;
-        Mon,  5 Aug 2019 01:01:52 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 384E32026A;
+        Mon,  5 Aug 2019 01:02:00 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:01:52 -0400
+  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:02:00 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=5VtnAy
-        PbCxPXpEljn7F3jMojpx178nLICmfx0Gl7wAc=; b=unW0B4iLYX4liIGoKjJ3Y3
-        MQMZ8suQfF73HHVPGvoHNVk5q2U95yO6L9Hn4FoBbUVa7vAo4A3ovCIREjBUhzTK
-        9me16UwMa/t3QXOtpMlfzJclV4DyCBSkdR4vRvtJiZ2p1bOHQyNNQfNSNAEmV+2t
-        yp5ZhTNypmA1+mr9KhLalNOyaUxHgSmolHi4dg7TfN7aUQxjvFGqYly+OdS+6hkq
-        dClUYMnVXrmWf3md9//P1Am+JO0O3gP3Yx/N6AUk90yh240Uo9AsW4TyDzs3HN3m
-        wDcm3EMzghE6w7eEfBJjAuyT7m0T7YWkRar2p0606dufzo1T6rJYSyskRUWRKTeg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=45IVzh
+        05alr1MDvMAiH3iAzPLFBwFVL3B3JGXwffKNY=; b=xdBNeiGytboeiK3aAdeHzn
+        zA8l324jGJJOe5K1ZOxSpeWSnDrg3w3BcwYPoRsFkUkZ2a3zaGX+SoVJADSADjyx
+        Pz6UsDnWsQ5n2KBYD+v0WDKA/hWMqZQzz9xHobGGd0nZe+P6kD9s7CFYHu0rotf9
+        ZL9E4Nq3MOqUtjA3GCrFhen5wAMDqf87oIgKq1yrsdEePYFw9EcllYZ0K0Yh76ff
+        f9s4gVsJjNFOY6TKZ04JEpcBrmR+k6m7zSRIRwER3hNm8JxqkinrW+isGE0p6CQp
+        FMqIo2hHHZpoxGqJQaK+/Iv0Y67DGoRKsVz2j8xyn+h9oUheM32y+hH1AZk1+c2Q
         ==
-X-ME-Sender: <xms:P7hHXZtutQVwRDAS2B1Lj24JJB77EJqAsE8gaBc0jVvgSgaI0p1b5g>
+X-ME-Sender: <xms:SLhHXWiUOwAHCBMP1_fz7jg8yu7H_9azY0AnrUPpy__3fGV2ZWyeFg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtiedgkeefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:P7hHXXtjgt_3PfEmF-q74PIJGeZb3KWOQl8y8qhWjatKCVp0kzzp1w>
-    <xmx:P7hHXed83IcGWawUYj0gdHaRxIKWouDLpe7_jDTxZfRlPkaJqcZdJA>
-    <xmx:P7hHXYauVZwjSTdQbAhstsqVATXk5Yte3OLW3V-no2dt3MJlNq3j9w>
-    <xmx:QLhHXdox3O4hrPiINTzhNvGKk-8UQT_JqX-F4WbHdkg3lnKwEnrs1Q>
+    ucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:SLhHXSa_0r5I2gukcL4vqVIHYhgyBw9vBPLrn8BWp5Kl5ROxwECpyA>
+    <xmx:SLhHXXeNMO-WGxLDNxFzd8NgDl0qH6uF2YCCqOyn-IV6CZ_dphYAHQ>
+    <xmx:SLhHXXBt5IUZL3_01lJPXzaGry-zib91_OW9If7uOFirr-Zt5rUfIw>
+    <xmx:SLhHXXaHgSvVqFNF-gLEzufLze-gMC_IPqBXXnN1nVG88f2zmJTBhQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1A6DE380086;
-        Mon,  5 Aug 2019 01:01:51 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] gpiolib: Preserve desc->flags when setting state" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id ABF84380085;
+        Mon,  5 Aug 2019 01:01:59 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] gpiolib: Preserve desc->flags when setting state" failed to apply to 4.19-stable tree
 To:     chris.packham@alliedtelesis.co.nz, linus.walleij@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 05 Aug 2019 07:01:49 +0200
-Message-ID: <1564981309157220@kroah.com>
+Date:   Mon, 05 Aug 2019 07:01:50 +0200
+Message-ID: <15649813101539@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
