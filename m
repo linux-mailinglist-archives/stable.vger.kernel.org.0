@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9FDF81BC4
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:17:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43F1E81B55
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:14:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728919AbfHENGC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:06:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42374 "EHLO mail.kernel.org"
+        id S1729256AbfHENNx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:13:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728984AbfHENGC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:06:02 -0400
+        id S1729469AbfHENIk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:08:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F07FB2147A;
-        Mon,  5 Aug 2019 13:06:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C815721738;
+        Mon,  5 Aug 2019 13:08:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010361;
-        bh=T3yUBOYGKMU/N3Fg7zdm+pGfbdwpGg75Fm5Tr0WeYSc=;
+        s=default; t=1565010520;
+        bh=7J2XoBzKP5scn2LlImnhb61wldOIirXPvxS9/4fXm5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bHMr/PxAYk9T4nxOlHma1qSPuxIdHA87/QS8uPdo7oInumypLYbLbhPYPo8tp0gwQ
-         48Ylg8E/SuvMn73sNjw3cyWf04K1uf952S4rwynvtq6yjOyGTZbWdqBo596e74jDUS
-         xyDyOUpFa455LGfsccdbHKNaLvU0hEPQXcD7nW3k=
+        b=VsSJ9DN+KK0TlAhLsFJw9KNM4+IzkFGVhX6XbsnflTpPetGipLsW4fGbOxPVeNwjl
+         UfcQygjVjSVWBE3qxjSvf/L7Htvi4Qx5C+1DbECwgQ3LcwL/Jz0vB3Zp1ep9lGtHFi
+         S+sRx0pLehiobWzSUz/pCvhiV//EVwmQhoPGJnwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ajay Kaher <akaher@vmware.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.9 36/42] infiniband: fix race condition between infiniband mlx4, mlx5  driver and core dumping
+        stable@vger.kernel.org, Michael Wu <michael.wu@vatics.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 4.14 37/53] gpiolib: fix incorrect IRQ requesting of an active-low lineevent
 Date:   Mon,  5 Aug 2019 15:03:02 +0200
-Message-Id: <20190805124929.227277266@linuxfoundation.org>
+Message-Id: <20190805124932.242656121@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124924.788666484@linuxfoundation.org>
-References: <20190805124924.788666484@linuxfoundation.org>
+In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
+References: <20190805124927.973499541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ajay Kaher <akaher@vmware.com>
+From: Michael Wu <michael.wu@vatics.com>
 
-This patch is the extension of following upstream commit to fix
-the race condition between get_task_mm() and core dumping
-for IB->mlx4 and IB->mlx5 drivers:
+commit 223ecaf140b1dd1c1d2a1a1d96281efc5c906984 upstream.
 
-commit 04f5866e41fb ("coredump: fix race condition between
-mmget_not_zero()/get_task_mm() and core dumping")'
+When a pin is active-low, logical trigger edge should be inverted to match
+the same interrupt opportunity.
 
-Thanks to Jason for pointing this.
+For example, a button pushed triggers falling edge in ACTIVE_HIGH case; in
+ACTIVE_LOW case, the button pushed triggers rising edge. For user space the
+IRQ requesting doesn't need to do any modification except to configuring
+GPIOHANDLE_REQUEST_ACTIVE_LOW.
 
-Signed-off-by: Ajay Kaher <akaher@vmware.com>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+For example, we want to catch the event when the button is pushed. The
+button on the original board drives level to be low when it is pushed, and
+drives level to be high when it is released.
+
+In user space we can do:
+
+	req.handleflags = GPIOHANDLE_REQUEST_INPUT;
+	req.eventflags = GPIOEVENT_REQUEST_FALLING_EDGE;
+
+	while (1) {
+		read(fd, &dat, sizeof(dat));
+		if (dat.id == GPIOEVENT_EVENT_FALLING_EDGE)
+			printf("button pushed\n");
+	}
+
+Run the same logic on another board which the polarity of the button is
+inverted; it drives level to be high when pushed, and level to be low when
+released. For this inversion we add flag GPIOHANDLE_REQUEST_ACTIVE_LOW:
+
+	req.handleflags = GPIOHANDLE_REQUEST_INPUT |
+		GPIOHANDLE_REQUEST_ACTIVE_LOW;
+	req.eventflags = GPIOEVENT_REQUEST_FALLING_EDGE;
+
+At the result, there are no any events caught when the button is pushed.
+By the way, button releasing will emit a "falling" event. The timing of
+"falling" catching is not expected.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Michael Wu <michael.wu@vatics.com>
+Tested-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/infiniband/hw/mlx4/main.c |    4 +++-
- drivers/infiniband/hw/mlx5/main.c |    3 +++
- 2 files changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/infiniband/hw/mlx4/main.c
-+++ b/drivers/infiniband/hw/mlx4/main.c
-@@ -1172,6 +1172,8 @@ static void mlx4_ib_disassociate_ucontex
- 	 * mlx4_ib_vma_close().
- 	 */
- 	down_write(&owning_mm->mmap_sem);
-+	if (!mmget_still_valid(owning_mm))
-+		goto skip_mm;
- 	for (i = 0; i < HW_BAR_COUNT; i++) {
- 		vma = context->hw_bar_info[i].vma;
- 		if (!vma)
-@@ -1190,7 +1192,7 @@ static void mlx4_ib_disassociate_ucontex
- 		/* context going to be destroyed, should not access ops any more */
- 		context->hw_bar_info[i].vma->vm_ops = NULL;
+---
+ drivers/gpio/gpiolib.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -835,9 +835,11 @@ static int lineevent_create(struct gpio_
  	}
--
-+skip_mm:
- 	up_write(&owning_mm->mmap_sem);
- 	mmput(owning_mm);
- 	put_task_struct(owning_process);
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -1307,6 +1307,8 @@ static void mlx5_ib_disassociate_ucontex
- 	 * mlx5_ib_vma_close.
- 	 */
- 	down_write(&owning_mm->mmap_sem);
-+	if (!mmget_still_valid(owning_mm))
-+		goto skip_mm;
- 	list_for_each_entry_safe(vma_private, n, &context->vma_private_list,
- 				 list) {
- 		vma = vma_private->vma;
-@@ -1321,6 +1323,7 @@ static void mlx5_ib_disassociate_ucontex
- 		list_del(&vma_private->list);
- 		kfree(vma_private);
- 	}
-+skip_mm:
- 	up_write(&owning_mm->mmap_sem);
- 	mmput(owning_mm);
- 	put_task_struct(owning_process);
+ 
+ 	if (eflags & GPIOEVENT_REQUEST_RISING_EDGE)
+-		irqflags |= IRQF_TRIGGER_RISING;
++		irqflags |= test_bit(FLAG_ACTIVE_LOW, &desc->flags) ?
++			IRQF_TRIGGER_FALLING : IRQF_TRIGGER_RISING;
+ 	if (eflags & GPIOEVENT_REQUEST_FALLING_EDGE)
+-		irqflags |= IRQF_TRIGGER_FALLING;
++		irqflags |= test_bit(FLAG_ACTIVE_LOW, &desc->flags) ?
++			IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
+ 	irqflags |= IRQF_ONESHOT;
+ 	irqflags |= IRQF_SHARED;
+ 
 
 
