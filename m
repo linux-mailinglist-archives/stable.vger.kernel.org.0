@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB18B81AB8
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:09:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A9DC81A73
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:06:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730076AbfHENIo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:08:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46912 "EHLO mail.kernel.org"
+        id S1729512AbfHENGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:06:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729578AbfHENIn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:08:43 -0400
+        id S1729507AbfHENGK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:06:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 559252067D;
-        Mon,  5 Aug 2019 13:08:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BB20206C1;
+        Mon,  5 Aug 2019 13:06:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010522;
-        bh=MOuKC8I1RoB4fNZwnZbzsS0b8tFGJ5lvAPB/Q8JQVmw=;
+        s=default; t=1565010369;
+        bh=CYvkzKEU1nyUw5Pdr5OI8fZUul+Ab5odDtLyQv/4T6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yV6Z585Ig0c9RHab2z+RLMvUoMFqyPM+8yuGNmWoqPb28PO64+vq5OdlUiaZCL16e
-         iKUlGY+h4AxPRzQZlOTbHLAf0u1WcP7B16sZzVib8HJ6mge9+a1MWU5PjvkRN5xu/y
-         C03PCnR7cl5COW2NM4aql0NU4J0YHVyl20VhLsSc=
+        b=ZNGvRM+1Ftjzh4iqC9UtE640eNnDoxsxKX/QjgHxMJxu8+SyUV6R0+kYaWTS0s7mh
+         Ermz9+k2CREUYyFpPO4xD4EuUFrTmyUL90lsZDbVl8h1v4em3Mt4iOr80KIHNF+gJb
+         7balmMkZLuTtgq/xmMjo+yURCZA4usAcHoupe+J8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Doug Ledford <dledford@redhat.com>
-Subject: [PATCH 4.14 38/53] IB/hfi1: Fix Spectre v1 vulnerability
-Date:   Mon,  5 Aug 2019 15:03:03 +0200
-Message-Id: <20190805124932.331142598@linuxfoundation.org>
+        "stable@vger.kernel.org, Miguel Ojeda" 
+        <miguel.ojeda.sandonis@gmail.com>, Rolf Eike Beer <eb@emlix.com>,
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Subject: [PATCH 4.9 39/42] Backport minimal compiler_attributes.h to support GCC 9
+Date:   Mon,  5 Aug 2019 15:03:05 +0200
+Message-Id: <20190805124929.606014897@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
-References: <20190805124927.973499541@linuxfoundation.org>
+In-Reply-To: <20190805124924.788666484@linuxfoundation.org>
+References: <20190805124924.788666484@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavo@embeddedor.com>
+From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
 
-commit 6497d0a9c53df6e98b25e2b79f2295d7caa47b6e upstream.
+This adds support for __copy to v4.9.y so that we can use it in
+init/exit_module to avoid -Werror=missing-attributes errors on GCC 9.
 
-sl is controlled by user-space, hence leading to a potential
-exploitation of the Spectre variant 1 vulnerability.
-
-Fix this by sanitizing sl before using it to index ibp->sl_to_sc.
-
-Notice that given that speculation windows are large, the policy is
-to kill the speculation on the first load and not worry if it can be
-completed with a dependent load/store [1].
-
-[1] https://lore.kernel.org/lkml/20180423164740.GY17484@dhcp22.suse.cz/
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Link: https://lore.kernel.org/r/20190731175428.GA16736@embeddedor
-Signed-off-by: Doug Ledford <dledford@redhat.com>
+Link: https://lore.kernel.org/lkml/259986242.BvXPX32bHu@devpool35/
+Cc: <stable@vger.kernel.org>
+Suggested-by: Rolf Eike Beer <eb@emlix.com>
+Signed-off-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/hfi1/verbs.c |    2 ++
- 1 file changed, 2 insertions(+)
+ include/linux/compiler.h |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/drivers/infiniband/hw/hfi1/verbs.c
-+++ b/drivers/infiniband/hw/hfi1/verbs.c
-@@ -54,6 +54,7 @@
- #include <linux/mm.h>
- #include <linux/vmalloc.h>
- #include <rdma/opa_addr.h>
-+#include <linux/nospec.h>
+--- a/include/linux/compiler.h
++++ b/include/linux/compiler.h
+@@ -54,6 +54,22 @@ extern void __chk_io_ptr(const volatile
  
- #include "hfi.h"
- #include "common.h"
-@@ -1587,6 +1588,7 @@ static int hfi1_check_ah(struct ib_devic
- 	sl = rdma_ah_get_sl(ah_attr);
- 	if (sl >= ARRAY_SIZE(ibp->sl_to_sc))
- 		return -EINVAL;
-+	sl = array_index_nospec(sl, ARRAY_SIZE(ibp->sl_to_sc));
+ #ifdef __KERNEL__
  
- 	sc5 = ibp->sl_to_sc[sl];
- 	if (sc_to_vlt(dd, sc5) > num_vls && sc_to_vlt(dd, sc5) != 0xf)
++/*
++ * Minimal backport of compiler_attributes.h to add support for __copy
++ * to v4.9.y so that we can use it in init/exit_module to avoid
++ * -Werror=missing-attributes errors on GCC 9.
++ */
++#ifndef __has_attribute
++# define __has_attribute(x) __GCC4_has_attribute_##x
++# define __GCC4_has_attribute___copy__                0
++#endif
++
++#if __has_attribute(__copy__)
++# define __copy(symbol)                 __attribute__((__copy__(symbol)))
++#else
++# define __copy(symbol)
++#endif
++
+ #ifdef __GNUC__
+ #include <linux/compiler-gcc.h>
+ #endif
 
 
