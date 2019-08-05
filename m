@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C54ED81B8C
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:15:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1578381B2F
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:12:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729120AbfHENPX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:15:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44662 "EHLO mail.kernel.org"
+        id S1729472AbfHENKL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:10:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728884AbfHENHQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:07:16 -0400
+        id S1729703AbfHENKJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:10:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3345F2173B;
-        Mon,  5 Aug 2019 13:07:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82A0520880;
+        Mon,  5 Aug 2019 13:10:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010435;
-        bh=CPidt5qYrKRZHVWOKAKvDOcmkxJnxtGZPC+iMWtWdFI=;
+        s=default; t=1565010608;
+        bh=53Gmy9eQSTJU/x71vf2YST5rKco6rnVzifnPWFRyBKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LzUb+SWaKiaZjJbEqASoki4fC5bcTmZAv4P1wshiSrkPVUT661BtUW5kuCI2dQiq1
-         eZMkBoBGSZbU/NKKrGFVjPmy2cbPUjdoQ3e93GQaF19s2RF81IUqGYl3CgXXu08gHG
-         mTZG9gxbz92/KMxG6NKFriqHnn7BUlgufvY+843I=
+        b=lIetp0fFrlpJuRk0UQj7b2MaXG+xBAOqilr1PS88UgMayIDwi01y+6Q/FM/PL+a4h
+         FTetbSICH4xGlm3Bt7Qtdn714U7pEdS6aIXOlDiotqe7uaEkr03q5ElmjBsueItOE1
+         oPw2QBSY4yvw6J2HiOCdFQLrRHyjEGbVLnVOhH5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Michal Nazarewicz <mina86@mina86.com>,
-        Yue Hu <huyue2@yulong.com>, Mike Rapoport <rppt@linux.ibm.com>,
-        Laura Abbott <labbott@redhat.com>, Peng Fan <peng.fan@nxp.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Andreas Christoforou <andreaschristofo@gmail.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Manfred Spraul <manfred@colorfullife.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 22/53] mm/cma.c: fail if fixed declaration cant be honored
-Date:   Mon,  5 Aug 2019 15:02:47 +0200
-Message-Id: <20190805124930.521354885@linuxfoundation.org>
+Subject: [PATCH 4.19 35/74] ipc/mqueue.c: only perform resource calculation if user valid
+Date:   Mon,  5 Aug 2019 15:02:48 +0200
+Message-Id: <20190805124938.654653556@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
-References: <20190805124927.973499541@linuxfoundation.org>
+In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
+References: <20190805124935.819068648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,66 +51,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c633324e311243586675e732249339685e5d6faa ]
+[ Upstream commit a318f12ed8843cfac53198390c74a565c632f417 ]
 
-The description of cma_declare_contiguous() indicates that if the
-'fixed' argument is true the reserved contiguous area must be exactly at
-the address of the 'base' argument.
+Andreas Christoforou reported:
 
-However, the function currently allows the 'base', 'size', and 'limit'
-arguments to be silently adjusted to meet alignment constraints.  This
-commit enforces the documented behavior through explicit checks that
-return an error if the region does not fit within a specified region.
+  UBSAN: Undefined behaviour in ipc/mqueue.c:414:49 signed integer overflow:
+  9 * 2305843009213693951 cannot be represented in type 'long int'
+  ...
+  Call Trace:
+    mqueue_evict_inode+0x8e7/0xa10 ipc/mqueue.c:414
+    evict+0x472/0x8c0 fs/inode.c:558
+    iput_final fs/inode.c:1547 [inline]
+    iput+0x51d/0x8c0 fs/inode.c:1573
+    mqueue_get_inode+0x8eb/0x1070 ipc/mqueue.c:320
+    mqueue_create_attr+0x198/0x440 ipc/mqueue.c:459
+    vfs_mkobj+0x39e/0x580 fs/namei.c:2892
+    prepare_open ipc/mqueue.c:731 [inline]
+    do_mq_open+0x6da/0x8e0 ipc/mqueue.c:771
 
-Link: http://lkml.kernel.org/r/1561422051-16142-1-git-send-email-opendmb@gmail.com
-Fixes: 5ea3b1b2f8ad ("cma: add placement specifier for "cma=" kernel parameter")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Michal Nazarewicz <mina86@mina86.com>
-Cc: Yue Hu <huyue2@yulong.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Laura Abbott <labbott@redhat.com>
-Cc: Peng Fan <peng.fan@nxp.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Andrey Konovalov <andreyknvl@google.com>
+Which could be triggered by:
+
+        struct mq_attr attr = {
+                .mq_flags = 0,
+                .mq_maxmsg = 9,
+                .mq_msgsize = 0x1fffffffffffffff,
+                .mq_curmsgs = 0,
+        };
+
+        if (mq_open("/testing", 0x40, 3, &attr) == (mqd_t) -1)
+                perror("mq_open");
+
+mqueue_get_inode() was correctly rejecting the giant mq_msgsize, and
+preparing to return -EINVAL.  During the cleanup, it calls
+mqueue_evict_inode() which performed resource usage tracking math for
+updating "user", before checking if there was a valid "user" at all
+(which would indicate that the calculations would be sane).  Instead,
+delay this check to after seeing a valid "user".
+
+The overflow was real, but the results went unused, so while the flaw is
+harmless, it's noisy for kernel fuzzers, so just fix it by moving the
+calculation under the non-NULL "user" where it actually gets used.
+
+Link: http://lkml.kernel.org/r/201906072207.ECB65450@keescook
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reported-by: Andreas Christoforou <andreaschristofo@gmail.com>
+Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Manfred Spraul <manfred@colorfullife.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/cma.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ ipc/mqueue.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/mm/cma.c b/mm/cma.c
-index 56761e40d1918..c4a34c813d470 100644
---- a/mm/cma.c
-+++ b/mm/cma.c
-@@ -277,6 +277,12 @@ int __init cma_declare_contiguous(phys_addr_t base,
- 	 */
- 	alignment = max(alignment,  (phys_addr_t)PAGE_SIZE <<
- 			  max_t(unsigned long, MAX_ORDER - 1, pageblock_order));
-+	if (fixed && base & (alignment - 1)) {
-+		ret = -EINVAL;
-+		pr_err("Region at %pa must be aligned to %pa bytes\n",
-+			&base, &alignment);
-+		goto err;
-+	}
- 	base = ALIGN(base, alignment);
- 	size = ALIGN(size, alignment);
- 	limit &= ~(alignment - 1);
-@@ -307,6 +313,13 @@ int __init cma_declare_contiguous(phys_addr_t base,
- 	if (limit == 0 || limit > memblock_end)
- 		limit = memblock_end;
+diff --git a/ipc/mqueue.c b/ipc/mqueue.c
+index bce7af1546d9c..de4070d5472f2 100644
+--- a/ipc/mqueue.c
++++ b/ipc/mqueue.c
+@@ -389,7 +389,6 @@ static void mqueue_evict_inode(struct inode *inode)
+ {
+ 	struct mqueue_inode_info *info;
+ 	struct user_struct *user;
+-	unsigned long mq_bytes, mq_treesize;
+ 	struct ipc_namespace *ipc_ns;
+ 	struct msg_msg *msg, *nmsg;
+ 	LIST_HEAD(tmp_msg);
+@@ -412,16 +411,18 @@ static void mqueue_evict_inode(struct inode *inode)
+ 		free_msg(msg);
+ 	}
  
-+	if (base + size > limit) {
-+		ret = -EINVAL;
-+		pr_err("Size (%pa) of region at %pa exceeds limit (%pa)\n",
-+			&size, &base, &limit);
-+		goto err;
-+	}
+-	/* Total amount of bytes accounted for the mqueue */
+-	mq_treesize = info->attr.mq_maxmsg * sizeof(struct msg_msg) +
+-		min_t(unsigned int, info->attr.mq_maxmsg, MQ_PRIO_MAX) *
+-		sizeof(struct posix_msg_tree_node);
+-
+-	mq_bytes = mq_treesize + (info->attr.mq_maxmsg *
+-				  info->attr.mq_msgsize);
+-
+ 	user = info->user;
+ 	if (user) {
++		unsigned long mq_bytes, mq_treesize;
 +
- 	/* Reserve memory */
- 	if (fixed) {
- 		if (memblock_is_region_reserved(base, size) ||
++		/* Total amount of bytes accounted for the mqueue */
++		mq_treesize = info->attr.mq_maxmsg * sizeof(struct msg_msg) +
++			min_t(unsigned int, info->attr.mq_maxmsg, MQ_PRIO_MAX) *
++			sizeof(struct posix_msg_tree_node);
++
++		mq_bytes = mq_treesize + (info->attr.mq_maxmsg *
++					  info->attr.mq_msgsize);
++
+ 		spin_lock(&mq_lock);
+ 		user->mq_bytes -= mq_bytes;
+ 		/*
 -- 
 2.20.1
 
