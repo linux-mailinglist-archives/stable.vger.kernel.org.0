@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 364EB81B23
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:12:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0F4381B51
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:13:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730046AbfHENKi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:10:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49620 "EHLO mail.kernel.org"
+        id S1729129AbfHENNi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:13:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730353AbfHENKh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:10:37 -0400
+        id S1729321AbfHENI4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:08:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D2BF21738;
-        Mon,  5 Aug 2019 13:10:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 33E5B2067D;
+        Mon,  5 Aug 2019 13:08:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010636;
-        bh=jzVLDuVem1d4gjgkeRqF0oymqX9LgfTyIHdZAEMFhos=;
+        s=default; t=1565010535;
+        bh=sEKyctDPn526D1KeohGJuIE9HPDNiKe2i4pehAkUN48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q3tIgSUij6lS2lleFplF++bApHotxKcpMsfiEzRYZOCrdKJPtjPT8NqRG7XggJPbo
-         B1GpAJbiVzODua0/MSwiHN0FAa/j+ulQIo2daQP41NA7XenSdWqSOEOAWlRNNtA1d4
-         JoR+OZdmYmuJA+mgvU8qpUxJwKZ30JfS5ew9nd44=
+        b=TapZCQzW9XqoBeq6mlslgqTtEIUrDJG39nSicyFP7Za0tMn4zZhGNufVNI7yq9CZz
+         usJJ0ubyadxpjkXXNEIKKiwvI7iosdAc46sXg+RllxfNZrPfMnprNqvkdUI1qCmA9c
+         xoxoqFw9PJXtCAeH6dWGwbgw0DGW6s/516IZU8fE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 45/74] Btrfs: fix race leading to fs corruption after transaction abort
+        stable@vger.kernel.org,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Subject: [PATCH 4.14 33/53] kbuild: initialize CLANG_FLAGS correctly in the top Makefile
 Date:   Mon,  5 Aug 2019 15:02:58 +0200
-Message-Id: <20190805124939.528802586@linuxfoundation.org>
+Message-Id: <20190805124931.821959546@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
-References: <20190805124935.819068648@linuxfoundation.org>
+In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
+References: <20190805124927.973499541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,142 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-commit cb2d3daddbfb6318d170e79aac1f7d5e4d49f0d7 upstream.
+commit 5241ab4cf42d3a93b933b55d3d53f43049081fa1 upstream.
 
-When one transaction is finishing its commit, it is possible for another
-transaction to start and enter its initial commit phase as well. If the
-first ends up getting aborted, we have a small time window where the second
-transaction commit does not notice that the previous transaction aborted
-and ends up committing, writing a superblock that points to btrees that
-reference extent buffers (nodes and leafs) that were not persisted to disk.
-The consequence is that after mounting the filesystem again, we will be
-unable to load some btree nodes/leafs, either because the content on disk
-is either garbage (or just zeroes) or corresponds to the old content of a
-previouly COWed or deleted node/leaf, resulting in the well known error
-messages "parent transid verify failed on ...".
-The following sequence diagram illustrates how this can happen.
+CLANG_FLAGS is initialized by the following line:
 
-        CPU 1                                           CPU 2
+  CLANG_FLAGS     := --target=$(notdir $(CROSS_COMPILE:%-=%))
 
- <at transaction N>
+..., which is run only when CROSS_COMPILE is set.
 
- btrfs_commit_transaction()
-   (...)
-   --> sets transaction state to
-       TRANS_STATE_UNBLOCKED
-   --> sets fs_info->running_transaction
-       to NULL
+Some build targets (bindeb-pkg etc.) recurse to the top Makefile.
 
-                                                    (...)
-                                                    btrfs_start_transaction()
-                                                      start_transaction()
-                                                        wait_current_trans()
-                                                          --> returns immediately
-                                                              because
-                                                              fs_info->running_transaction
-                                                              is NULL
-                                                        join_transaction()
-                                                          --> creates transaction N + 1
-                                                          --> sets
-                                                              fs_info->running_transaction
-                                                              to transaction N + 1
-                                                          --> adds transaction N + 1 to
-                                                              the fs_info->trans_list list
-                                                        --> returns transaction handle
-                                                            pointing to the new
-                                                            transaction N + 1
-                                                    (...)
+When you build the kernel with Clang but without CROSS_COMPILE,
+the same compiler flags such as -no-integrated-as are accumulated
+into CLANG_FLAGS.
 
-                                                    btrfs_sync_file()
-                                                      btrfs_start_transaction()
-                                                        --> returns handle to
-                                                            transaction N + 1
-                                                      (...)
+If you run 'make CC=clang' and then 'make CC=clang bindeb-pkg',
+Kbuild will recompile everything needlessly due to the build command
+change.
 
-   btrfs_write_and_wait_transaction()
-     --> writeback of some extent
-         buffer fails, returns an
-	 error
-   btrfs_handle_fs_error()
-     --> sets BTRFS_FS_STATE_ERROR in
-         fs_info->fs_state
-   --> jumps to label "scrub_continue"
-   cleanup_transaction()
-     btrfs_abort_transaction(N)
-       --> sets BTRFS_FS_STATE_TRANS_ABORTED
-           flag in fs_info->fs_state
-       --> sets aborted field in the
-           transaction and transaction
-	   handle structures, for
-           transaction N only
-     --> removes transaction from the
-         list fs_info->trans_list
-                                                      btrfs_commit_transaction(N + 1)
-                                                        --> transaction N + 1 was not
-							    aborted, so it proceeds
-                                                        (...)
-                                                        --> sets the transaction's state
-                                                            to TRANS_STATE_COMMIT_START
-                                                        --> does not find the previous
-                                                            transaction (N) in the
-                                                            fs_info->trans_list, so it
-                                                            doesn't know that transaction
-                                                            was aborted, and the commit
-                                                            of transaction N + 1 proceeds
-                                                        (...)
-                                                        --> sets transaction N + 1 state
-                                                            to TRANS_STATE_UNBLOCKED
-                                                        btrfs_write_and_wait_transaction()
-                                                          --> succeeds writing all extent
-                                                              buffers created in the
-                                                              transaction N + 1
-                                                        write_all_supers()
-                                                           --> succeeds
-                                                           --> we now have a superblock on
-                                                               disk that points to trees
-                                                               that refer to at least one
-                                                               extent buffer that was
-                                                               never persisted
+Fix this by correctly initializing CLANG_FLAGS.
 
-So fix this by updating the transaction commit path to check if the flag
-BTRFS_FS_STATE_TRANS_ABORTED is set on fs_info->fs_state if after setting
-the transaction to the TRANS_STATE_COMMIT_START we do not find any previous
-transaction in the fs_info->trans_list. If the flag is set, just fail the
-transaction commit with -EROFS, as we do in other places. The exact error
-code for the previous transaction abort was already logged and reported.
-
-Fixes: 49b25e0540904b ("btrfs: enhance transaction abort infrastructure")
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 238bcbc4e07f ("kbuild: consolidate Clang compiler flags")
+Cc: <stable@vger.kernel.org> # v5.0+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/transaction.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ Makefile |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -2027,6 +2027,16 @@ int btrfs_commit_transaction(struct btrf
- 		}
- 	} else {
- 		spin_unlock(&fs_info->trans_lock);
-+		/*
-+		 * The previous transaction was aborted and was already removed
-+		 * from the list of transactions at fs_info->trans_list. So we
-+		 * abort to prevent writing a new superblock that reflects a
-+		 * corrupt state (pointing to trees with unwritten nodes/leafs).
-+		 */
-+		if (test_bit(BTRFS_FS_STATE_TRANS_ABORTED, &fs_info->fs_state)) {
-+			ret = -EROFS;
-+			goto cleanup_transaction;
-+		}
- 	}
+--- a/Makefile
++++ b/Makefile
+@@ -427,6 +427,7 @@ KBUILD_AFLAGS_MODULE  := -DMODULE
+ KBUILD_CFLAGS_MODULE  := -DMODULE
+ KBUILD_LDFLAGS_MODULE := -T $(srctree)/scripts/module-common.lds
+ GCC_PLUGINS_CFLAGS :=
++CLANG_FLAGS :=
  
- 	extwriter_counter_dec(cur_trans, trans->type);
+ export ARCH SRCARCH CONFIG_SHELL HOSTCC HOSTCFLAGS CROSS_COMPILE AS LD CC
+ export CPP AR NM STRIP OBJCOPY OBJDUMP HOSTLDFLAGS HOST_LOADLIBES
+@@ -479,7 +480,7 @@ endif
+ 
+ ifeq ($(cc-name),clang)
+ ifneq ($(CROSS_COMPILE),)
+-CLANG_FLAGS	:= --target=$(notdir $(CROSS_COMPILE:%-=%))
++CLANG_FLAGS	+= --target=$(notdir $(CROSS_COMPILE:%-=%))
+ GCC_TOOLCHAIN_DIR := $(dir $(shell which $(CROSS_COMPILE)elfedit))
+ CLANG_FLAGS	+= --prefix=$(GCC_TOOLCHAIN_DIR)
+ GCC_TOOLCHAIN	:= $(realpath $(GCC_TOOLCHAIN_DIR)/..)
 
 
