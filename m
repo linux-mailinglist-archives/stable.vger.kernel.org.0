@@ -2,48 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EB8C81BC5
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:17:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C4D981AFF
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:11:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728984AbfHENGF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:06:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42456 "EHLO mail.kernel.org"
+        id S1729840AbfHENLI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:11:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729464AbfHENGF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:06:05 -0400
+        id S1729841AbfHENLH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:11:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64134214C6;
-        Mon,  5 Aug 2019 13:06:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45AFB216F4;
+        Mon,  5 Aug 2019 13:11:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010363;
-        bh=+ZBO3H0BUQdx7MgxjFLxJ8cL4JIdW5aUO6C05obMmKE=;
+        s=default; t=1565010666;
+        bh=4pL1hx2ppMTBaKCpsGaTGvaIoDclQ1WBXEy5XCKPB3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LFJxO4genz6Szlu7Obxgm8vnDAxZxybH9urPakE46dFkKab++9ZRdEkQ7BGNKzZin
-         dpOBF7pSPF4Qrci2AaMIg1o72sw5Xz8wbpXYgmjArFmBN99BI0UGdqaYP1aTM4mfrf
-         QxqVATgdSnZxc83/pKY0GMPG5VmePM2Uw/Q57J+o=
+        b=VLFnHfDsHwnrnaI879Qcg6q6PKRRMnPdQxt/SyXMIbvYENO/fJxBj/O7pFhJyarBY
+         iJKZAsvDSuH9E4DlqKV+Z20BRVT0T/rChq/4UVfBQkeAqECV0hVlyPylELF3zPpqQn
+         2WE2ykxgDUVm9eNignUtXQ6xDOmI8YUPOw+TCxNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Arcangeli <aarcange@redhat.com>,
-        Michal Hocko <mhocko@suse.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Oleg Nesterov <oleg@redhat.com>, Jann Horn <jannh@google.com>,
-        Hugh Dickins <hughd@google.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Peter Xu <peterx@redhat.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Ajay Kaher <akaher@vmware.com>
-Subject: [PATCH 4.9 37/42] coredump: fix race condition between collapse_huge_page() and core dumping
+        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 4.19 50/74] mtd: rawnand: micron: handle on-die "ECC-off" devices correctly
 Date:   Mon,  5 Aug 2019 15:03:03 +0200
-Message-Id: <20190805124929.390092782@linuxfoundation.org>
+Message-Id: <20190805124939.943312281@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124924.788666484@linuxfoundation.org>
-References: <20190805124924.788666484@linuxfoundation.org>
+In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
+References: <20190805124935.819068648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,99 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Arcangeli <aarcange@redhat.com>
+From: Marco Felsch <m.felsch@pengutronix.de>
 
-commit 59ea6d06cfa9247b586a695c21f94afa7183af74 upstream.
+commit 8493b2a06fc5b77ef5c579dc32b12761f7b7a84c upstream.
 
-When fixing the race conditions between the coredump and the mmap_sem
-holders outside the context of the process, we focused on
-mmget_not_zero()/get_task_mm() callers in 04f5866e41fb70 ("coredump: fix
-race condition between mmget_not_zero()/get_task_mm() and core
-dumping"), but those aren't the only cases where the mmap_sem can be
-taken outside of the context of the process as Michal Hocko noticed
-while backporting that commit to older -stable kernels.
+Some devices are not supposed to support on-die ECC but experience
+shows that internal ECC machinery can actually be enabled through the
+"SET FEATURE (EFh)" command, even if a read of the "READ ID Parameter
+Tables" returns that it is not.
 
-If mmgrab() is called in the context of the process, but then the
-mm_count reference is transferred outside the context of the process,
-that can also be a problem if the mmap_sem has to be taken for writing
-through that mm_count reference.
+Currently, the driver checks the "READ ID Parameter" field directly
+after having enabled the feature. If the check fails it returns
+immediately but leaves the ECC on. When using buggy chips like
+MT29F2G08ABAGA and MT29F2G08ABBGA, all future read/program cycles will
+go through the on-die ECC, confusing the host controller which is
+supposed to be the one handling correction.
 
-khugepaged registration calls mmgrab() in the context of the process,
-but the mmap_sem for writing is taken later in the context of the
-khugepaged kernel thread.
+To address this in a common way we need to turn off the on-die ECC
+directly after reading the "READ ID Parameter" and before checking the
+"ECC status".
 
-collapse_huge_page() after taking the mmap_sem for writing doesn't
-modify any vma, so it's not obvious that it could cause a problem to the
-coredump, but it happens to modify the pmd in a way that breaks an
-invariant that pmd_trans_huge_lock() relies upon.  collapse_huge_page()
-needs the mmap_sem for writing just to block concurrent page faults that
-call pmd_trans_huge_lock().
-
-Specifically the invariant that "!pmd_trans_huge()" cannot become a
-"pmd_trans_huge()" doesn't hold while collapse_huge_page() runs.
-
-The coredump will call __get_user_pages() without mmap_sem for reading,
-which eventually can invoke a lockless page fault which will need a
-functional pmd_trans_huge_lock().
-
-So collapse_huge_page() needs to use mmget_still_valid() to check it's
-not running concurrently with the coredump...  as long as the coredump
-can invoke page faults without holding the mmap_sem for reading.
-
-This has "Fixes: khugepaged" to facilitate backporting, but in my view
-it's more a bug in the coredump code that will eventually have to be
-rewritten to stop invoking page faults without the mmap_sem for reading.
-So the long term plan is still to drop all mmget_still_valid().
-
-Link: http://lkml.kernel.org/r/20190607161558.32104-1-aarcange@redhat.com
-Fixes: ba76149f47d8 ("thp: khugepaged")
-Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
-Reported-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[Ajay: Just adjusted to apply on v4.9]
-Signed-off-by: Ajay Kaher <akaher@vmware.com>
+Cc: stable@vger.kernel.org
+Fixes: dbc44edbf833 ("mtd: rawnand: micron: Fix on-die ECC detection logic")
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/mm.h |    4 ++++
- mm/khugepaged.c    |    3 +++
- 2 files changed, 7 insertions(+)
+ drivers/mtd/nand/raw/nand_micron.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1197,6 +1197,10 @@ void unmap_vmas(struct mmu_gather *tlb,
-  * followed by taking the mmap_sem for writing before modifying the
-  * vmas or anything the coredump pretends not to change from under it.
-  *
-+ * It also has to be called when mmgrab() is used in the context of
-+ * the process, but then the mm_count refcount is transferred outside
-+ * the context of the process to run down_write() on that pinned mm.
-+ *
-  * NOTE: find_extend_vma() called from GUP context is the only place
-  * that can modify the "mm" (notably the vm_start/end) under mmap_sem
-  * for reading and outside the context of the process, so it is also
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -1004,6 +1004,9 @@ static void collapse_huge_page(struct mm
- 	 * handled by the anon_vma lock + PG_lock.
- 	 */
- 	down_write(&mm->mmap_sem);
-+	result = SCAN_ANY_PROCESS;
-+	if (!mmget_still_valid(mm))
-+		goto out;
- 	result = hugepage_vma_revalidate(mm, address, &vma);
- 	if (result)
- 		goto out;
+--- a/drivers/mtd/nand/raw/nand_micron.c
++++ b/drivers/mtd/nand/raw/nand_micron.c
+@@ -400,6 +400,14 @@ static int micron_supports_on_die_ecc(st
+ 	    (chip->id.data[4] & MICRON_ID_INTERNAL_ECC_MASK) != 0x2)
+ 		return MICRON_ON_DIE_UNSUPPORTED;
+ 
++	/*
++	 * It seems that there are devices which do not support ECC officially.
++	 * At least the MT29F2G08ABAGA / MT29F2G08ABBGA devices supports
++	 * enabling the ECC feature but don't reflect that to the READ_ID table.
++	 * So we have to guarantee that we disable the ECC feature directly
++	 * after we did the READ_ID table command. Later we can evaluate the
++	 * ECC_ENABLE support.
++	 */
+ 	ret = micron_nand_on_die_ecc_setup(chip, true);
+ 	if (ret)
+ 		return MICRON_ON_DIE_UNSUPPORTED;
+@@ -408,13 +416,13 @@ static int micron_supports_on_die_ecc(st
+ 	if (ret)
+ 		return MICRON_ON_DIE_UNSUPPORTED;
+ 
+-	if (!(id[4] & MICRON_ID_ECC_ENABLED))
+-		return MICRON_ON_DIE_UNSUPPORTED;
+-
+ 	ret = micron_nand_on_die_ecc_setup(chip, false);
+ 	if (ret)
+ 		return MICRON_ON_DIE_UNSUPPORTED;
+ 
++	if (!(id[4] & MICRON_ID_ECC_ENABLED))
++		return MICRON_ON_DIE_UNSUPPORTED;
++
+ 	ret = nand_readid_op(chip, 0, id, sizeof(id));
+ 	if (ret)
+ 		return MICRON_ON_DIE_UNSUPPORTED;
 
 
