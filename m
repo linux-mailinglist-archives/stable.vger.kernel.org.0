@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C040281D12
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:29:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CF5481C41
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:22:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729780AbfHEN3W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:29:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58028 "EHLO mail.kernel.org"
+        id S1729152AbfHENVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:21:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729429AbfHENVq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:21:46 -0400
+        id S1729353AbfHENVt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:21:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B02D2147A;
-        Mon,  5 Aug 2019 13:21:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 237F32067D;
+        Mon,  5 Aug 2019 13:21:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011306;
-        bh=sfgv1YlKYs8U5wCzWy0rcS718/zQIJ0vqqxrCHmH5Ds=;
+        s=default; t=1565011308;
+        bh=RXq82yXBtpwWT7EC+LA8Ru3p7SQOpZ4Adeaw98q+AbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NaV+KbsQefke2HvG4AkHJEPoRLDVOdR2yQV8uKgVXPz0s/Ls7APsY0b7dhc+lid7y
-         BJkc+jCKoD2HUjQuOfd+IlM/ahzMxWg+Xo7yQOl7+vbQXwOf2Cw+X8j9aacos2KCYe
-         l4nvBn1sGVjf4pi5kjc0h74r8h0OoEJgFxnZLFl8=
+        b=ZGnI2N964EhzcUj/8TCZx5ot0NnHMzHU1nh7eoatTscRAfe3/h0uOeIz+n1VdCoXL
+         7UPc0XRDpSbNU8ceV4ktv1HY0QaMhsDPpZ48UGzHho6iIw8nqDS0sIqKgBgpQy4BlT
+         AXsuI7wqUCOHEU2UQihPslzv4zGLjAxV9Z5u4RjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
-        Leonard Crestez <leonard.crestez@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 010/131] soc: imx: soc-imx8: Correct return value of error handle
-Date:   Mon,  5 Aug 2019 15:01:37 +0200
-Message-Id: <20190805124952.117799984@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 011/131] dmaengine: tegra-apb: Error out if DMA_PREP_INTERRUPT flag is unset
+Date:   Mon,  5 Aug 2019 15:01:38 +0200
+Message-Id: <20190805124952.183362810@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -45,73 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4c396a604a57da8f883a8b3368d83181680d6907 ]
+[ Upstream commit dc161064beb83c668e0f85766b92b1e7ed186e58 ]
 
-Current implementation of i.MX8 SoC driver returns -ENODEV
-for all cases of error during initialization, this is incorrect.
-This patch fixes them using correct return value according
-to different errors.
+Apparently driver was never tested with DMA_PREP_INTERRUPT flag being
+unset since it completely disables interrupt handling instead of skipping
+the callbacks invocations, hence putting channel into unusable state.
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+The flag is always set by all of kernel drivers that use APB DMA, so let's
+error out in otherwise case for consistency. It won't be difficult to
+support that case properly if ever will be needed.
+
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Acked-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/imx/soc-imx8.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/dma/tegra20-apb-dma.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/soc/imx/soc-imx8.c b/drivers/soc/imx/soc-imx8.c
-index fc6429f9170a6..e567d866a9d31 100644
---- a/drivers/soc/imx/soc-imx8.c
-+++ b/drivers/soc/imx/soc-imx8.c
-@@ -73,7 +73,7 @@ static int __init imx8_soc_init(void)
- 
- 	soc_dev_attr = kzalloc(sizeof(*soc_dev_attr), GFP_KERNEL);
- 	if (!soc_dev_attr)
--		return -ENODEV;
-+		return -ENOMEM;
- 
- 	soc_dev_attr->family = "Freescale i.MX";
- 
-@@ -83,8 +83,10 @@ static int __init imx8_soc_init(void)
- 		goto free_soc;
- 
- 	id = of_match_node(imx8_soc_match, root);
--	if (!id)
-+	if (!id) {
-+		ret = -ENODEV;
- 		goto free_soc;
-+	}
- 
- 	of_node_put(root);
- 
-@@ -96,12 +98,16 @@ static int __init imx8_soc_init(void)
+diff --git a/drivers/dma/tegra20-apb-dma.c b/drivers/dma/tegra20-apb-dma.c
+index ef317c90fbe1e..79e9593815f12 100644
+--- a/drivers/dma/tegra20-apb-dma.c
++++ b/drivers/dma/tegra20-apb-dma.c
+@@ -977,8 +977,12 @@ static struct dma_async_tx_descriptor *tegra_dma_prep_slave_sg(
+ 		csr |= tdc->slave_id << TEGRA_APBDMA_CSR_REQ_SEL_SHIFT;
  	}
  
- 	soc_dev_attr->revision = imx8_revision(soc_rev);
--	if (!soc_dev_attr->revision)
-+	if (!soc_dev_attr->revision) {
-+		ret = -ENOMEM;
- 		goto free_soc;
+-	if (flags & DMA_PREP_INTERRUPT)
++	if (flags & DMA_PREP_INTERRUPT) {
+ 		csr |= TEGRA_APBDMA_CSR_IE_EOC;
++	} else {
++		WARN_ON_ONCE(1);
++		return NULL;
 +	}
  
- 	soc_dev = soc_device_register(soc_dev_attr);
--	if (IS_ERR(soc_dev))
-+	if (IS_ERR(soc_dev)) {
-+		ret = PTR_ERR(soc_dev);
- 		goto free_rev;
+ 	apb_seq |= TEGRA_APBDMA_APBSEQ_WRAP_WORD_1;
+ 
+@@ -1120,8 +1124,12 @@ static struct dma_async_tx_descriptor *tegra_dma_prep_dma_cyclic(
+ 		csr |= tdc->slave_id << TEGRA_APBDMA_CSR_REQ_SEL_SHIFT;
+ 	}
+ 
+-	if (flags & DMA_PREP_INTERRUPT)
++	if (flags & DMA_PREP_INTERRUPT) {
+ 		csr |= TEGRA_APBDMA_CSR_IE_EOC;
++	} else {
++		WARN_ON_ONCE(1);
++		return NULL;
 +	}
  
- 	return 0;
+ 	apb_seq |= TEGRA_APBDMA_APBSEQ_WRAP_WORD_1;
  
-@@ -110,6 +116,6 @@ free_rev:
- free_soc:
- 	kfree(soc_dev_attr);
- 	of_node_put(root);
--	return -ENODEV;
-+	return ret;
- }
- device_initcall(imx8_soc_init);
 -- 
 2.20.1
 
