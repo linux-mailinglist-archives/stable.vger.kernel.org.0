@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AF9381A59
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:05:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B94081AA5
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:08:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728662AbfHENFL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:05:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41134 "EHLO mail.kernel.org"
+        id S1729431AbfHENIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:08:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729246AbfHENFL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:05:11 -0400
+        id S1729921AbfHENIA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:08:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 815CA206C1;
-        Mon,  5 Aug 2019 13:05:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D3F321738;
+        Mon,  5 Aug 2019 13:07:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010310;
-        bh=TqnifPeWFcqsVHSip/uFpPPI4gb3Qj12me9k3CbRWJ8=;
+        s=default; t=1565010479;
+        bh=JHWoNxLRxvvvMpCyKs4R/Jde1pjue9xU/PxCK7tbiKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yXRHyBNoGijq3z0hcnZM9O6Soy7E6qSesEKduUCu25+PgPFnaGC5vGRy/QxOwKFn4
-         nQ0/6xprQc9zFrdT28lnUd8MdVvNIKxAqg5YSmnlN4noQ0qJALVerzgKoPuQTk+jtW
-         do7S3jLum9xGK0tcQwIjEePB3jTyq+0DQs3i7Jg4=
+        b=bgOhEsvfMibtmAqkovRcMErxMQ3k7rt0gVD5c1tK9K/nSHRbHCDrSVp+g7x9rZ+yB
+         dmgvASmsSrJUb7AZj8eF8ZmazwcdvVPlUdxYBNtJEI4y+2bX5TrFDCT0gSpX1IwpPx
+         4vQaIW7rwouzPjPx+5zdUH9bZQRxUZk8JHZhqbBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prarit Bhargava <prarit@redhat.com>,
-        Barret Rhoden <brho@google.com>,
-        David Arcari <darcari@redhat.com>,
-        Jessica Yu <jeyu@kernel.org>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        stable@vger.kernel.org, JC Kuo <jckuo@nvidia.com>,
+        Peter De Schrijver <pdeschrijver@nvidia.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 06/42] kernel/module.c: Only return -EEXIST for modules that have finished loading
-Date:   Mon,  5 Aug 2019 15:02:32 +0200
-Message-Id: <20190805124925.612535283@linuxfoundation.org>
+Subject: [PATCH 4.14 09/53] clk: tegra210: fix PLLU and PLLU_OUT1
+Date:   Mon,  5 Aug 2019 15:02:34 +0200
+Message-Id: <20190805124929.079048088@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124924.788666484@linuxfoundation.org>
-References: <20190805124924.788666484@linuxfoundation.org>
+In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
+References: <20190805124927.973499541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,71 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6e6de3dee51a439f76eb73c22ae2ffd2c9384712 ]
+[ Upstream commit 0d34dfbf3023cf119b83f6470692c0b10c832495 ]
 
-Microsoft HyperV disables the X86_FEATURE_SMCA bit on AMD systems, and
-linux guests boot with repeated errors:
+Full-speed and low-speed USB devices do not work with Tegra210
+platforms because of incorrect PLLU/PLLU_OUT1 clock settings.
 
-amd64_edac_mod: Unknown symbol amd_unregister_ecc_decoder (err -2)
-amd64_edac_mod: Unknown symbol amd_register_ecc_decoder (err -2)
-amd64_edac_mod: Unknown symbol amd_report_gart_errors (err -2)
-amd64_edac_mod: Unknown symbol amd_unregister_ecc_decoder (err -2)
-amd64_edac_mod: Unknown symbol amd_register_ecc_decoder (err -2)
-amd64_edac_mod: Unknown symbol amd_report_gart_errors (err -2)
+When full-speed device is connected:
+[   14.059886] usb 1-3: new full-speed USB device number 2 using tegra-xusb
+[   14.196295] usb 1-3: device descriptor read/64, error -71
+[   14.436311] usb 1-3: device descriptor read/64, error -71
+[   14.675749] usb 1-3: new full-speed USB device number 3 using tegra-xusb
+[   14.812335] usb 1-3: device descriptor read/64, error -71
+[   15.052316] usb 1-3: device descriptor read/64, error -71
+[   15.164799] usb usb1-port3: attempt power cycle
 
-The warnings occur because the module code erroneously returns -EEXIST
-for modules that have failed to load and are in the process of being
-removed from the module list.
+When low-speed device is connected:
+[   37.610949] usb usb1-port3: Cannot enable. Maybe the USB cable is bad?
+[   38.557376] usb usb1-port3: Cannot enable. Maybe the USB cable is bad?
+[   38.564977] usb usb1-port3: attempt power cycle
 
-module amd64_edac_mod has a dependency on module edac_mce_amd.  Using
-modules.dep, systemd will load edac_mce_amd for every request of
-amd64_edac_mod.  When the edac_mce_amd module loads, the module has
-state MODULE_STATE_UNFORMED and once the module load fails and the state
-becomes MODULE_STATE_GOING.  Another request for edac_mce_amd module
-executes and add_unformed_module() will erroneously return -EEXIST even
-though the previous instance of edac_mce_amd has MODULE_STATE_GOING.
-Upon receiving -EEXIST, systemd attempts to load amd64_edac_mod, which
-fails because of unknown symbols from edac_mce_amd.
+This commit fixes the issue by:
+ 1. initializing PLLU_OUT1 before initializing XUSB_FS_SRC clock
+    because PLLU_OUT1 is parent of XUSB_FS_SRC.
+ 2. changing PLLU post-divider to /2 (DIVP=1) according to Technical
+    Reference Manual.
 
-add_unformed_module() must wait to return for any case other than
-MODULE_STATE_LIVE to prevent a race between multiple loads of
-dependent modules.
-
-Signed-off-by: Prarit Bhargava <prarit@redhat.com>
-Signed-off-by: Barret Rhoden <brho@google.com>
-Cc: David Arcari <darcari@redhat.com>
-Cc: Jessica Yu <jeyu@kernel.org>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
+Fixes: e745f992cf4b ("clk: tegra: Rework pll_u")
+Signed-off-by: JC Kuo <jckuo@nvidia.com>
+Acked-By: Peter De Schrijver <pdeschrijver@nvidia.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/module.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/clk/tegra/clk-tegra210.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/module.c b/kernel/module.c
-index 2325c9821f2a1..fb9e07aec49e0 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -3351,8 +3351,7 @@ static bool finished_loading(const char *name)
- 	sched_annotate_sleep();
- 	mutex_lock(&module_mutex);
- 	mod = find_module_all(name, strlen(name), true);
--	ret = !mod || mod->state == MODULE_STATE_LIVE
--		|| mod->state == MODULE_STATE_GOING;
-+	ret = !mod || mod->state == MODULE_STATE_LIVE;
- 	mutex_unlock(&module_mutex);
+diff --git a/drivers/clk/tegra/clk-tegra210.c b/drivers/clk/tegra/clk-tegra210.c
+index b92867814e2d5..cb2be154db3bc 100644
+--- a/drivers/clk/tegra/clk-tegra210.c
++++ b/drivers/clk/tegra/clk-tegra210.c
+@@ -2057,9 +2057,9 @@ static struct div_nmp pllu_nmp = {
+ };
  
- 	return ret;
-@@ -3515,8 +3514,7 @@ again:
- 	mutex_lock(&module_mutex);
- 	old = find_module_all(mod->name, strlen(mod->name), true);
- 	if (old != NULL) {
--		if (old->state == MODULE_STATE_COMING
--		    || old->state == MODULE_STATE_UNFORMED) {
-+		if (old->state != MODULE_STATE_LIVE) {
- 			/* Wait in case it fails to load. */
- 			mutex_unlock(&module_mutex);
- 			err = wait_event_interruptible(module_wq,
+ static struct tegra_clk_pll_freq_table pll_u_freq_table[] = {
+-	{ 12000000, 480000000, 40, 1, 0, 0 },
+-	{ 13000000, 480000000, 36, 1, 0, 0 }, /* actual: 468.0 MHz */
+-	{ 38400000, 480000000, 25, 2, 0, 0 },
++	{ 12000000, 480000000, 40, 1, 1, 0 },
++	{ 13000000, 480000000, 36, 1, 1, 0 }, /* actual: 468.0 MHz */
++	{ 38400000, 480000000, 25, 2, 1, 0 },
+ 	{        0,         0,  0, 0, 0, 0 },
+ };
+ 
+@@ -2983,6 +2983,7 @@ static struct tegra_clk_init_table init_table[] __initdata = {
+ 	{ TEGRA210_CLK_DFLL_REF, TEGRA210_CLK_PLL_P, 51000000, 1 },
+ 	{ TEGRA210_CLK_SBC4, TEGRA210_CLK_PLL_P, 12000000, 1 },
+ 	{ TEGRA210_CLK_PLL_RE_VCO, TEGRA210_CLK_CLK_MAX, 672000000, 1 },
++	{ TEGRA210_CLK_PLL_U_OUT1, TEGRA210_CLK_CLK_MAX, 48000000, 1 },
+ 	{ TEGRA210_CLK_XUSB_GATE, TEGRA210_CLK_CLK_MAX, 0, 1 },
+ 	{ TEGRA210_CLK_XUSB_SS_SRC, TEGRA210_CLK_PLL_U_480M, 120000000, 0 },
+ 	{ TEGRA210_CLK_XUSB_FS_SRC, TEGRA210_CLK_PLL_U_48M, 48000000, 0 },
+@@ -3008,7 +3009,6 @@ static struct tegra_clk_init_table init_table[] __initdata = {
+ 	{ TEGRA210_CLK_PLL_DP, TEGRA210_CLK_CLK_MAX, 270000000, 0 },
+ 	{ TEGRA210_CLK_SOC_THERM, TEGRA210_CLK_PLL_P, 51000000, 0 },
+ 	{ TEGRA210_CLK_CCLK_G, TEGRA210_CLK_CLK_MAX, 0, 1 },
+-	{ TEGRA210_CLK_PLL_U_OUT1, TEGRA210_CLK_CLK_MAX, 48000000, 1 },
+ 	{ TEGRA210_CLK_PLL_U_OUT2, TEGRA210_CLK_CLK_MAX, 60000000, 1 },
+ 	/* This MUST be the last entry. */
+ 	{ TEGRA210_CLK_CLK_MAX, TEGRA210_CLK_CLK_MAX, 0, 0 },
 -- 
 2.20.1
 
