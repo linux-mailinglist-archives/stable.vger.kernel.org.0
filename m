@@ -2,92 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 086D381098
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 05:42:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B4EB810CB
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 06:17:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726757AbfHEDm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Aug 2019 23:42:29 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:34209 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726767AbfHEDm3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 4 Aug 2019 23:42:29 -0400
-Received: by mail-pl1-f195.google.com with SMTP id i2so35926306plt.1
-        for <stable@vger.kernel.org>; Sun, 04 Aug 2019 20:42:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=TyxUsFy0g0AoyoXbyHa8cG3SKeSFUmzhTiNZ1jvQoMY=;
-        b=b94eJbBllBeKjACUA7ZSo9nWNoeamDyyUJLzT5V6v2JKv/tL0pgq/kK9PjSqL7kVdG
-         NRyIUFYJD9QLfNkDvHAKSWO4GdpQqnzN2cVDZvRKuPzztSkAmUQquyQ6GllHwmIzkm+u
-         mdoRQiDfAdpO1Nb6kouGlS5XcrVWJ+Rg6l3PZJeBxvrBiJpwRVAJ8ps46Kv8ww45//Fj
-         RTQhPKHbmhlRJEfz0d8Vvcr35cQoymlOc6gj7yKoS3vLu90eSPOVGu8fHrdKg0dmXOQf
-         gu0Tekg9SDldJlVdFqtOyeiFy0/CAjRAysgOaYSgOnmvRC4AKJNKeb2GMEuN59RJm4xF
-         HfeA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=TyxUsFy0g0AoyoXbyHa8cG3SKeSFUmzhTiNZ1jvQoMY=;
-        b=T5oM52vgPcEkvURLJCZ8BFBZcXv0hwNHYNgQhIrGvf7ech5uw0q/qk6sSWpdflP777
-         C+8pA/C9WyBWNkr67kySc284n6xrygcSM6erwI4vI4en23HAsLQ8ZisEIloC3cf///fw
-         spDyC9Q6ed8V0rIT4Wbt3qFacXxEJ7h4ZOENZH7kdLFLXudz8Wa2TvAovMOVNUDmGsSW
-         lNKBpTjSn8qK9FMkhGs+B/suoLpwJhyIkvXpMNQGm0lRAPTeogFcBmJsxsf7JtAYALln
-         KyXutPO8G13VXe1TGQQGwfpxpLL7IJXBqjUPpbeeUXUDFJivihWVxGR7OI/seSdBH+oE
-         5y3w==
-X-Gm-Message-State: APjAAAWcHlh2pmNTnSiTVKBObufQZcW+6EdWwG5EdCtqjd3QABvQ3bcf
-        yyb4tb17a70QV5h9Nl3HNkDQdrfqNIA=
-X-Google-Smtp-Source: APXvYqwLmx/zPu6DfQ6/dzDHZTfJz/tMSWimusqin+r7kDygU7dS7M/pjBgVPVIyhYb8fBZ8W3K+7Q==
-X-Received: by 2002:a17:902:ac87:: with SMTP id h7mr21880581plr.36.1564976548565;
-        Sun, 04 Aug 2019 20:42:28 -0700 (PDT)
-Received: from ?IPv6:2605:e000:100e:83a1:61e6:1197:7c18:827e? ([2605:e000:100e:83a1:61e6:1197:7c18:827e])
-        by smtp.gmail.com with ESMTPSA id o3sm14505866pje.1.2019.08.04.20.42.26
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 04 Aug 2019 20:42:27 -0700 (PDT)
-Subject: Re: [PATCH V4 0/2] block/scsi/dm-rq: fix leak of request private data
- in dm-mpath
-To:     Ming Lei <ming.lei@redhat.com>
-Cc:     linux-block@vger.kernel.org, "Ewan D . Milne" <emilne@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Hannes Reinecke <hare@suse.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com,
-        stable@vger.kernel.org
-References: <20190725020500.4317-1-ming.lei@redhat.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <c7bd89e5-6fa9-2b3c-94f5-ca7ff9004e6a@kernel.dk>
-Date:   Sun, 4 Aug 2019 20:42:26 -0700
+        id S1726045AbfHEERb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 00:17:31 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:55776 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725782AbfHEERb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 00:17:31 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id A5A373082A49;
+        Mon,  5 Aug 2019 04:17:30 +0000 (UTC)
+Received: from [10.72.12.115] (ovpn-12-115.pek2.redhat.com [10.72.12.115])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 4087B5D9E2;
+        Mon,  5 Aug 2019 04:17:22 +0000 (UTC)
+Subject: Re: [PATCH 4.19 21/32] vhost_net: fix possible infinite loop
+To:     Pavel Machek <pavel@denx.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jack Wang <jinpu.wang@cloud.ionos.com>
+References: <20190802092101.913646560@linuxfoundation.org>
+ <20190802092108.665019390@linuxfoundation.org> <20190803214930.GB22416@amd>
+From:   Jason Wang <jasowang@redhat.com>
+Message-ID: <8ccb9b02-2dbd-4e80-3d55-998fb1045446@redhat.com>
+Date:   Mon, 5 Aug 2019 12:17:21 +0800
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.8.0
 MIME-Version: 1.0
-In-Reply-To: <20190725020500.4317-1-ming.lei@redhat.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20190803214930.GB22416@amd>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.45]); Mon, 05 Aug 2019 04:17:30 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/24/19 7:04 PM, Ming Lei wrote:
-> Hi,
-> 
-> When one request is dispatched to LLD via dm-rq, if the result is
-> BLK_STS_*RESOURCE, dm-rq will free the request. However, LLD may allocate
-> private data for this request, so this way will cause memory leak.
-> 
-> Add .cleanup_rq() callback and implement it in SCSI for fixing the issue,
-> since SCSI is the only driver which allocates private requst data in
-> .queue_rq() path.
-> 
-> Another use case of this callback is to free the request and re-submit
-> bios during cpu hotplug when the hctx is dead, see the following link:
-> 
-> https://lore.kernel.org/linux-block/f122e8f2-5ede-2d83-9ca0-bc713ce66d01@huawei.com/T/#t
 
-Applied for 5.4, thanks.
+On 2019/8/4 上午5:49, Pavel Machek wrote:
+> Hi!
+>
+>> This makes it possible to trigger a infinite while..continue loop
+>> through the co-opreation of two VMs like:
+>>
+>> 1) Malicious VM1 allocate 1 byte rx buffer and try to slow down the
+>>     vhost process as much as possible e.g using indirect descriptors or
+>>     other.
+>> 2) Malicious VM2 generate packets to VM1 as fast as possible
+>>
+>> Fixing this by checking against weight at the end of RX and TX
+>> loop. This also eliminate other similar cases when:
+>>
+>> - userspace is consuming the packets in the meanwhile
+>> - theoretical TOCTOU attack if guest moving avail index back and forth
+>>    to hit the continue after vhost find guest just add new buffers
+>>
+>> This addresses CVE-2019-3900.
+>>
+>> @@ -551,7 +551,7 @@ static void handle_tx_copy(struct vhost_
+>>   	int err;
+>>   	int sent_pkts = 0;
+>>   
+>> -	for (;;) {
+>> +	do {
+>>   		bool busyloop_intr = false;
+>>   
+>>   		head = get_tx_bufs(net, nvq, &msg, &out, &in, &len,
+>> @@ -592,9 +592,7 @@ static void handle_tx_copy(struct vhost_
+>>   				 err, len);
+>>   		if (++nvq->done_idx >= VHOST_NET_BATCH)
+>>   			vhost_net_signal_used(nvq);
+>> -		if (vhost_exceeds_weight(vq, ++sent_pkts, total_len))
+>> -			break;
+>> -	}
+>> +	} while (likely(!vhost_exceeds_weight(vq, ++sent_pkts, total_len)));
+>>   
+>>   	vhost_net_signal_used(nvq);
+>>   }
+> So this part does not really change anything, right?
 
--- 
-Jens Axboe
+
+Nope, if you check the loop you can see we used to use "continue" inside 
+the loop which may bypass the check:
+
+
+         head = get_tx_bufs(net, nvq, &msg, &out, &in, &len,
+                    &busyloop_intr);
+         /* On error, stop handling until the next kick. */
+         if (unlikely(head < 0))
+             break;
+         /* Nothing new?  Wait for eventfd to tell us they refilled. */
+         if (head == vq->num) {
+             if (unlikely(busyloop_intr)) {
+                 vhost_poll_queue(&vq->poll);
+             } else if (unlikely(vhost_enable_notify(&net->dev,
+                                 vq))) {
+                 vhost_disable_notify(&net->dev, vq);
+                 continue;
+             }
+             break;
+         }
+
+
+>
+>> @@ -618,7 +616,7 @@ static void handle_tx_zerocopy(struct vh
+>>   	bool zcopy_used;
+>>   	int sent_pkts = 0;
+>>   
+>> -	for (;;) {
+>> +	do {
+>>   		bool busyloop_intr;
+>>   
+>>   		/* Release DMAs done buffers first */
+>> @@ -693,10 +691,7 @@ static void handle_tx_zerocopy(struct vh
+>>   		else
+>>   			vhost_zerocopy_signal_used(net, vq);
+>>   		vhost_net_tx_packet(net);
+>> -		if (unlikely(vhost_exceeds_weight(vq, ++sent_pkts,
+>> -						  total_len)))
+>> -			break;
+>> -	}
+>> +	} while (likely(!vhost_exceeds_weight(vq, ++sent_pkts, total_len)));
+>>   }
+>>   
+>>   /* Expects to be always run from workqueue - which acts as
+> Neither does this. Equivalent code. Changelog says it fixes something
+> for the transmit so... is that intentional?
+>
+> 									Pavel
+
+
+The same as above. So yes.
+
+Thanks
 
