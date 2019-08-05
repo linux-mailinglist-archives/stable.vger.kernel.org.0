@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 32A79811A4
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:32:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C16B8811A5
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:32:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727229AbfHEFcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 01:32:50 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:52129 "EHLO
+        id S1727081AbfHEFcw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 01:32:52 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:41877 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725951AbfHEFcu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:32:50 -0400
+        by vger.kernel.org with ESMTP id S1725951AbfHEFcw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:32:52 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 6602321111;
-        Mon,  5 Aug 2019 01:32:49 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id D74F920EF7;
+        Mon,  5 Aug 2019 01:32:50 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:32:49 -0400
+  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:32:50 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=FunDLL
-        4tndJLjChbOvp0tT/QV2PU/wtMWiT1bXtxt+Y=; b=x2wRJlUnayviZpcZrrB9zO
-        cMDaicTEq+ju/Bzhxf7rDAumlJLsk39LYup97X2Pac+OdSXoNsv/oMBDfWOwHllz
-        xpdz7qNwAWAOv9NeulQdoESmR+41OsqQHFcAG0GfNwzYO9d/POenZQkHgQnnNH31
-        ouz4k5/hYmD3IkiAmM9/+2r4Xb7NOpf8Q46sXf2zqFF+Lgz7d2f/p64w0/Ilz4vD
-        EecCpzBDzI6EV6YyglICyRhEFJcM+SlApMWEwyu8XGpnAK8ofKaWJuf1V6SrF2uA
-        jFNnVF9A/iU6t55SodS/NzcLjxPXu6PRcsleePgE7bgeYLFjR1TKF1uD74TZy/LQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=KX4bFb
+        OVzrOYvZ393zsHoTwUxgti7uXUNPvRUaPhchU=; b=UUaXMIVsOA31ZqI3lj0ASq
+        EMuEkFThQoThFVXofKvmWJ0cewsogbU9Wd/2iQHzSWEQXc2zmWu2TZ9MFhnq4cFN
+        rbirpNTGo7y7lZJd/It/gnZHdaJXfTvfGfxRMfXbarerWJ0S046MoOp1XlK2x5Qv
+        w/ShQQAQtqlGFmBNzdNcEXz1ITHVDvWZdjFw2AT+XLF1w3TGID2e9/Krt7U8soTb
+        +ffpXoZnFU/pbX8m0i/bvhaMI9j4gmoTSFcsPNcXtEHClZ5BrmfhO4ANKuSZjExL
+        XUXMGSiq0n3Yxy1hykKl5jucLRTyWX0kv7uFWw6mSU9I3SCG0XDY/zO3Gs+DMO3g
         ==
-X-ME-Sender: <xms:gb9HXWdL-cZ_4l56yT85ZS6O0mhhRok9-RmNdKPWkB_48JtOVdAFKg>
+X-ME-Sender: <xms:gr9HXV10vQr3gZPwgmGkYtM80r4IbxL5CVJELXCB02YfLgFhBQkSKA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtiedgkeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
     epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepge
-X-ME-Proxy: <xmx:gb9HXbUHQg5d1Y5e-urtVo6tBeenoZ3NzzygE8if3dimCd8H5UDztQ>
-    <xmx:gb9HXW4qv8rH_9D0OE3XK3Vx_onUZC2e-0JqNYlfYnLKMBpWvyxBWA>
-    <xmx:gb9HXTPTfYvGY_OCWW6rfJA3JaJmG82-PqXSo9rD78lepLWip19Kkg>
-    <xmx:gb9HXc1HExN5svievoQeZIl8pbFuNVjyXqViuaEgn_aPjy2mb0oU5A>
+X-ME-Proxy: <xmx:gr9HXRivioU3d6OGz2rvx4TBBBLgN7WhQ4Xh-aCU7cL4-oqHvVm-6w>
+    <xmx:gr9HXao8g4Ib60MtW8_mntGnkTJVzi_VcmhRJ7XgI_TqAf_ZZVOaBw>
+    <xmx:gr9HXTz5jBcMqVxpnH2u8_k_eciCuQxoF21YY8ZylprCD5-RVBCp1g>
+    <xmx:gr9HXUrZxqB3B4-gPSJS7ibM0iy-jm267ayhHzVD_lH_o708TecyeQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EBB5D80059;
-        Mon,  5 Aug 2019 01:32:48 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] arm64: cpufeature: Fix feature comparison for" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5CD8E80059;
+        Mon,  5 Aug 2019 01:32:50 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] arm64: cpufeature: Fix feature comparison for" failed to apply to 4.4-stable tree
 To:     will@kernel.org, catalin.marinas@arm.com, mark.rutland@arm.com,
         stable@vger.kernel.org, suzuki.poulose@arm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 05 Aug 2019 07:32:46 +0200
-Message-ID: <156498316660175@kroah.com>
+Date:   Mon, 05 Aug 2019 07:32:47 +0200
+Message-ID: <156498316752100@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
