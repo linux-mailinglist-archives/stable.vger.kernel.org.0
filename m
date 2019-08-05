@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03E1E81A45
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:04:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27C6981A8C
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:07:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729067AbfHENEd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:04:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40238 "EHLO mail.kernel.org"
+        id S1728907AbfHENHB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:07:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729053AbfHENEc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:04:32 -0400
+        id S1729719AbfHENG6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:06:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0921214C6;
-        Mon,  5 Aug 2019 13:04:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24C932087B;
+        Mon,  5 Aug 2019 13:06:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010271;
-        bh=kGX1jxzuDNRJqOod9t7QrMG4O+Bd/lEDlWmeu/BAsbA=;
+        s=default; t=1565010417;
+        bh=6cUTJ9hOG4hFlZQL4U7UUrVvT7iFDGHmlQIoMQtzX2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l7MmsMMQe14UJLfBK5IeGJNA/cqBr2X7wNHpLLOjsAu8qor6vbTjQvrqY87Six/IK
-         dzhStr47peCyEQIXPn+NUZSVXcW3JIrYJf3Oe6yRvgYnxxntkq74O0moPNMA9khjDZ
-         7k3NOpdJNM26W+ehsIVRhiHra8j0+FlHAafmtiPs=
+        b=OvXTUJ+w3NlwnZR47TtDxSAg04QqqS+P5pUJZ1n/YbPK6upnQgfqNTsrKb41Qxd3B
+         MkFVoSdg9+R475Ww/ydw8LaRhMQPw9I6QUU8eoMB1yomvL0blsDF3/Lz1eQs6eTr7V
+         ZhT8olS9TNTZFuzDwSkj3fmvSbJN4Mn40we/lrw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Cvek <petrcvekcz@gmail.com>,
-        Paul Burton <paul.burton@mips.com>, hauke@hauke-m.de,
-        john@phrozen.org, linux-mips@vger.kernel.org,
-        openwrt-devel@lists.openwrt.org, pakahmar@hotmail.com,
+        stable@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>,
+        Jens Remus <jremus@linux.ibm.com>,
+        Steffen Maier <maier@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 04/22] MIPS: lantiq: Fix bitfield masking
+Subject: [PATCH 4.14 16/53] scsi: zfcp: fix GCC compiler warning emitted with -Wmaybe-uninitialized
 Date:   Mon,  5 Aug 2019 15:02:41 +0200
-Message-Id: <20190805124919.695465347@linuxfoundation.org>
+Message-Id: <20190805124929.885292766@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124918.070468681@linuxfoundation.org>
-References: <20190805124918.070468681@linuxfoundation.org>
+In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
+References: <20190805124927.973499541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,40 +46,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ba1bc0fcdeaf3bf583c1517bd2e3e29cf223c969 ]
+[ Upstream commit 484647088826f2f651acbda6bcf9536b8a466703 ]
 
-The modification of EXIN register doesn't clean the bitfield before
-the writing of a new value. After a few modifications the bitfield would
-accumulate only '1's.
+GCC v9 emits this warning:
+      CC      drivers/s390/scsi/zfcp_erp.o
+    drivers/s390/scsi/zfcp_erp.c: In function 'zfcp_erp_action_enqueue':
+    drivers/s390/scsi/zfcp_erp.c:217:26: warning: 'erp_action' may be used uninitialized in this function [-Wmaybe-uninitialized]
+      217 |  struct zfcp_erp_action *erp_action;
+          |                          ^~~~~~~~~~
 
-Signed-off-by: Petr Cvek <petrcvekcz@gmail.com>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: hauke@hauke-m.de
-Cc: john@phrozen.org
-Cc: linux-mips@vger.kernel.org
-Cc: openwrt-devel@lists.openwrt.org
-Cc: pakahmar@hotmail.com
+This is a possible false positive case, as also documented in the GCC
+documentations:
+    https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wmaybe-uninitialized
+
+The actual code-sequence is like this:
+    Various callers can invoke the function below with the argument "want"
+    being one of:
+    ZFCP_ERP_ACTION_REOPEN_ADAPTER,
+    ZFCP_ERP_ACTION_REOPEN_PORT_FORCED,
+    ZFCP_ERP_ACTION_REOPEN_PORT, or
+    ZFCP_ERP_ACTION_REOPEN_LUN.
+
+    zfcp_erp_action_enqueue(want, ...)
+        ...
+        need = zfcp_erp_required_act(want, ...)
+            need = want
+            ...
+            maybe: need = ZFCP_ERP_ACTION_REOPEN_PORT
+            maybe: need = ZFCP_ERP_ACTION_REOPEN_ADAPTER
+            ...
+            return need
+        ...
+        zfcp_erp_setup_act(need, ...)
+            struct zfcp_erp_action *erp_action; // <== line 217
+            ...
+            switch(need) {
+            case ZFCP_ERP_ACTION_REOPEN_LUN:
+                    ...
+                    erp_action = &zfcp_sdev->erp_action;
+                    WARN_ON_ONCE(erp_action->port != port); // <== access
+                    ...
+                    break;
+            case ZFCP_ERP_ACTION_REOPEN_PORT:
+            case ZFCP_ERP_ACTION_REOPEN_PORT_FORCED:
+                    ...
+                    erp_action = &port->erp_action;
+                    WARN_ON_ONCE(erp_action->port != port); // <== access
+                    ...
+                    break;
+            case ZFCP_ERP_ACTION_REOPEN_ADAPTER:
+                    ...
+                    erp_action = &adapter->erp_action;
+                    WARN_ON_ONCE(erp_action->port != NULL); // <== access
+                    ...
+                    break;
+            }
+            ...
+            WARN_ON_ONCE(erp_action->adapter != adapter); // <== access
+
+When zfcp_erp_setup_act() is called, 'need' will never be anything else
+than one of the 4 possible enumeration-names that are used in the
+switch-case, and 'erp_action' is initialized for every one of them, before
+it is used. Thus the warning is a false positive, as documented.
+
+We introduce the extra if{} in the beginning to create an extra code-flow,
+so the compiler can be convinced that the switch-case will never see any
+other value.
+
+BUG_ON()/BUG() is intentionally not used to not crash anything, should
+this ever happen anyway - right now it's impossible, as argued above; and
+it doesn't introduce a 'default:' switch-case to retain warnings should
+'enum zfcp_erp_act_type' ever be extended and no explicit case be
+introduced. See also v5.0 commit 399b6c8bc9f7 ("scsi: zfcp: drop old
+default switch case which might paper over missing case").
+
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+Reviewed-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/lantiq/irq.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/s390/scsi/zfcp_erp.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/mips/lantiq/irq.c b/arch/mips/lantiq/irq.c
-index 2e7f60c9fc5df..a7057a06c0961 100644
---- a/arch/mips/lantiq/irq.c
-+++ b/arch/mips/lantiq/irq.c
-@@ -160,8 +160,9 @@ static int ltq_eiu_settype(struct irq_data *d, unsigned int type)
- 			if (edge)
- 				irq_set_handler(d->hwirq, handle_edge_irq);
+diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
+index 6d5065f679acf..64d70de98cdb6 100644
+--- a/drivers/s390/scsi/zfcp_erp.c
++++ b/drivers/s390/scsi/zfcp_erp.c
+@@ -11,6 +11,7 @@
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
  
--			ltq_eiu_w32(ltq_eiu_r32(LTQ_EIU_EXIN_C) |
--				(val << (i * 4)), LTQ_EIU_EXIN_C);
-+			ltq_eiu_w32((ltq_eiu_r32(LTQ_EIU_EXIN_C) &
-+				    (~(7 << (i * 4)))) | (val << (i * 4)),
-+				    LTQ_EIU_EXIN_C);
- 		}
- 	}
+ #include <linux/kthread.h>
++#include <linux/bug.h>
+ #include "zfcp_ext.h"
+ #include "zfcp_reqlist.h"
  
+@@ -245,6 +246,12 @@ static struct zfcp_erp_action *zfcp_erp_setup_act(int need, u32 act_status,
+ 	struct zfcp_erp_action *erp_action;
+ 	struct zfcp_scsi_dev *zfcp_sdev;
+ 
++	if (WARN_ON_ONCE(need != ZFCP_ERP_ACTION_REOPEN_LUN &&
++			 need != ZFCP_ERP_ACTION_REOPEN_PORT &&
++			 need != ZFCP_ERP_ACTION_REOPEN_PORT_FORCED &&
++			 need != ZFCP_ERP_ACTION_REOPEN_ADAPTER))
++		return NULL;
++
+ 	switch (need) {
+ 	case ZFCP_ERP_ACTION_REOPEN_LUN:
+ 		zfcp_sdev = sdev_to_zfcp(sdev);
 -- 
 2.20.1
 
