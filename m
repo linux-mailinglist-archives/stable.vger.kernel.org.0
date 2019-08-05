@@ -2,109 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CDAAD817A2
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 12:55:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EFEF817AC
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 12:57:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727259AbfHEKze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 06:55:34 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:34319 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727158AbfHEKzd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 06:55:33 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 5D4FA21785;
-        Mon,  5 Aug 2019 06:55:32 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 05 Aug 2019 06:55:32 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=SzmGll
-        cDDVzce+r/2Q3VWiIzlS8VfsJYgtdv99j/t08=; b=RfjMIMbqCxr3evY5tNgaTQ
-        z9AFTqnAnfFwgPnexAwIDciyW70KO+TFaS+WuUnrhM70o51SOTUoGaMnU8qHOIzr
-        7EngFpgiEn63gxdPyAZWx6yDHPcsppl1xJ9seNYRY/NknJixeIPHuLbUTO5ceZKM
-        jANIdpARDAuWv9hY7apAzGgK+ofXM6Cw7J+aZVQVAgtwojXiCdemQM2XAmpmuKvi
-        AZ2G0wz2vHB/PwTT7emGm85n+FYPKxr1ldOED9Q2oE3QREY4JPwaCkBoNQlaXeEu
-        lTidypAFsPfeNEW0ENRSgel/zYvJjT5FEScfTwcfSlgg6fz2tbtq9M/vFgg8AI1Q
-        ==
-X-ME-Sender: <xms:IwtIXdLguE4diKtsnf-0MBi85qVGg3HbbxbiATPrFaRbABKKrWKLhQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtjedgfeefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgnecukfhppeekfedrke
-    eirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
-    rdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:IwtIXTMKFqPlh_EvVjrDPGt_RkDQGCSAkBpVcv4wdgfDL-UBlipvJA>
-    <xmx:IwtIXYmCDS_klaaRVacJ6TvYZTHZEReq8lwq1fewTSOT7kgZsaRY9Q>
-    <xmx:IwtIXWWVuBnYp2Y3eUumkQWjz4qMYaYQFrVxJ9Ke2OpKx5TP9uW2_Q>
-    <xmx:JAtIXeAGA7PBm9__dCvEYMTqaHvWp6nnKcjpMJg-J9EdjNCEAoARJA>
+        id S1728372AbfHEK5F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 06:57:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37316 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727158AbfHEK5E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 06:57:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 9CC9F80064;
-        Mon,  5 Aug 2019 06:55:31 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915/perf: fix ICL perf register offsets" failed to apply to 4.19-stable tree
-To:     lionel.g.landwerlin@intel.com, jani.nikula@intel.com,
-        kenneth@whitecape.org, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 05 Aug 2019 12:55:29 +0200
-Message-ID: <156500252979126@kroah.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A280E2087B;
+        Mon,  5 Aug 2019 10:57:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1565002624;
+        bh=X7hImIlrZjdhW+FN4I1aEpWqZHGvzKMyyDHXfMP3yUc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=UjslKoL+NzitFCxRXuY81v9WZTbwy9IVtGcuLwsmE9I/TtBmmlyElFu8uQDkH+006
+         3VPKEhxIKT3thAEcs9LFxqEEXNHaeh6hl2v30MtGcg9r6FUwgHShLepbOUw/LoBh6b
+         ika82Ok1SUJkT+B8wbrXsBVSbekVODPf8TiXElNU=
+Date:   Mon, 5 Aug 2019 12:57:01 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Sven Schnelle <svens@stackframe.org>
+Cc:     deller@gmx.de, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] parisc: fix race condition in patching
+ code" failed to apply to 5.2-stable tree
+Message-ID: <20190805105701.GA1157@kroah.com>
+References: <1564983055189121@kroah.com>
+ <20190805074524.GA10502@t470p.stackframe.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190805074524.GA10502@t470p.stackframe.org>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Aug 05, 2019 at 09:45:24AM +0200, Sven Schnelle wrote:
+> On Mon, Aug 05, 2019 at 07:30:55AM +0200, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 5.2-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+>  
+> The reason is that 5.2 doesn't have DYNAMIC_FTRACE suport, so this can be
+> ignored.
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Then why did the patch have:
+	    Cc: <stable@vger.kernel.org> # 5.2+
+in it?
 
-thanks,
+confused,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 95eef14cdad150fed43147bcd4f29eea3d0a3f03 Mon Sep 17 00:00:00 2001
-From: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-Date: Mon, 10 Jun 2019 11:19:14 +0300
-Subject: [PATCH] drm/i915/perf: fix ICL perf register offsets
-
-We got the wrong offsets (could they have changed?). New values were
-computed off an error state by looking up the register offset in the
-context image as written by the HW.
-
-Signed-off-by: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-Fixes: 1de401c08fa805 ("drm/i915/perf: enable perf support on ICL")
-Cc: <stable@vger.kernel.org> # v4.18+
-Acked-by: Kenneth Graunke <kenneth@whitecape.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190610081914.25428-1-lionel.g.landwerlin@intel.com
-(cherry picked from commit 8dcfdfb4501012a8d36d2157dc73925715f2befb)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-
-diff --git a/drivers/gpu/drm/i915/i915_perf.c b/drivers/gpu/drm/i915/i915_perf.c
-index a700c5c3d167..1ae06a1b6749 100644
---- a/drivers/gpu/drm/i915/i915_perf.c
-+++ b/drivers/gpu/drm/i915/i915_perf.c
-@@ -3477,9 +3477,13 @@ void i915_perf_init(struct drm_i915_private *dev_priv)
- 			dev_priv->perf.oa.ops.enable_metric_set = gen8_enable_metric_set;
- 			dev_priv->perf.oa.ops.disable_metric_set = gen10_disable_metric_set;
- 
--			dev_priv->perf.oa.ctx_oactxctrl_offset = 0x128;
--			dev_priv->perf.oa.ctx_flexeu0_offset = 0x3de;
--
-+			if (IS_GEN(dev_priv, 10)) {
-+				dev_priv->perf.oa.ctx_oactxctrl_offset = 0x128;
-+				dev_priv->perf.oa.ctx_flexeu0_offset = 0x3de;
-+			} else {
-+				dev_priv->perf.oa.ctx_oactxctrl_offset = 0x124;
-+				dev_priv->perf.oa.ctx_flexeu0_offset = 0x78e;
-+			}
- 			dev_priv->perf.oa.gen8_valid_ctx_bit = (1<<16);
- 		}
- 	}
-
