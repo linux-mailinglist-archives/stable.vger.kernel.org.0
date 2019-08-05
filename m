@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CC3781CF2
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:28:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0479681CE4
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:28:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730146AbfHEN2P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:28:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60446 "EHLO mail.kernel.org"
+        id S1730160AbfHENYL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:24:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729639AbfHENXn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:23:43 -0400
+        id S1730966AbfHENYK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:24:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5581A2075B;
-        Mon,  5 Aug 2019 13:23:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE6552067D;
+        Mon,  5 Aug 2019 13:24:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011421;
-        bh=nVedtNDPaa5HnmHFEjyS9OmOu48P9cjjF2bUk2TVMiQ=;
+        s=default; t=1565011450;
+        bh=but4/aoqQhAlVg1ekjeuY57oNWH9FIgLys4thN8s+3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MBhbByeNeuRfxGPyt5LFyhj+ZXVI8Y765Xc7WZMJUyP+UAHSxFqDxTRci//6TPw12
-         2oNtxTTx+CCdCFZJaEsMKAZv4cEWiEJiKolM+hbWcJ1jWWX/Mg/zF6g0Ia/Qw2NOXy
-         AqO42C89HTRS8M5Uz2JYCU08apgm7AWaVrfyJ+oM=
+        b=xX3aoLKqronXYjk9Q/tF3vHOtuoZU6zLbctkDoaCtguH294qcapWTqR/Svcc6Xl+j
+         0uGAR+dLBj16YNCN1s0qSCDaj0NApWMBTX2nR03eUoPNGhnNXHIwD7i11pNOEJQo83
+         886d6u+ewS+m7//F73ABSWDD2EdtxmME1t9Km91Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ralph Campbell <rcampbell@nvidia.com>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 074/131] drm/nouveau/dmem: missing mutex_lock in error path
-Date:   Mon,  5 Aug 2019 15:02:41 +0200
-Message-Id: <20190805124956.645009219@linuxfoundation.org>
+        stable@vger.kernel.org, "M. Vefa Bicakci" <m.v.b@runbox.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>
+Subject: [PATCH 5.2 075/131] kconfig: Clear "written" flag to avoid data loss
+Date:   Mon,  5 Aug 2019 15:02:42 +0200
+Message-Id: <20190805124956.731138588@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -44,109 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d304654bd79332ace9ac46b9a3d8de60acb15da3 ]
+From: M. Vefa Bicakci <m.v.b@runbox.com>
 
-In nouveau_dmem_pages_alloc(), the drm->dmem->mutex is unlocked before
-calling nouveau_dmem_chunk_alloc() as shown when CONFIG_PROVE_LOCKING
-is enabled:
+commit 0c5b6c28ed68becb692b43eae5e44d5aa7e160ce upstream.
 
-[ 1294.871933] =====================================
-[ 1294.876656] WARNING: bad unlock balance detected!
-[ 1294.881375] 5.2.0-rc3+ #5 Not tainted
-[ 1294.885048] -------------------------------------
-[ 1294.889773] test-malloc-vra/6299 is trying to release lock (&drm->dmem->mutex) at:
-[ 1294.897482] [<ffffffffa01a220f>] nouveau_dmem_migrate_alloc_and_copy+0x79f/0xbf0 [nouveau]
-[ 1294.905782] but there are no more locks to release!
-[ 1294.910690]
-[ 1294.910690] other info that might help us debug this:
-[ 1294.917249] 1 lock held by test-malloc-vra/6299:
-[ 1294.921881]  #0: 0000000016e10454 (&mm->mmap_sem#2){++++}, at: nouveau_svmm_bind+0x142/0x210 [nouveau]
-[ 1294.931313]
-[ 1294.931313] stack backtrace:
-[ 1294.935702] CPU: 4 PID: 6299 Comm: test-malloc-vra Not tainted 5.2.0-rc3+ #5
-[ 1294.942786] Hardware name: ASUS X299-A/PRIME X299-A, BIOS 1401 05/21/2018
-[ 1294.949590] Call Trace:
-[ 1294.952059]  dump_stack+0x7c/0xc0
-[ 1294.955469]  ? nouveau_dmem_migrate_alloc_and_copy+0x79f/0xbf0 [nouveau]
-[ 1294.962213]  print_unlock_imbalance_bug.cold.52+0xca/0xcf
-[ 1294.967641]  lock_release+0x306/0x380
-[ 1294.971383]  ? nouveau_dmem_migrate_alloc_and_copy+0x79f/0xbf0 [nouveau]
-[ 1294.978089]  ? lock_downgrade+0x2d0/0x2d0
-[ 1294.982121]  ? find_held_lock+0xac/0xd0
-[ 1294.985979]  __mutex_unlock_slowpath+0x8f/0x3f0
-[ 1294.990540]  ? wait_for_completion+0x230/0x230
-[ 1294.995002]  ? rwlock_bug.part.2+0x60/0x60
-[ 1294.999197]  nouveau_dmem_migrate_alloc_and_copy+0x79f/0xbf0 [nouveau]
-[ 1295.005751]  ? page_mapping+0x98/0x110
-[ 1295.009511]  migrate_vma+0xa74/0x1090
-[ 1295.013186]  ? move_to_new_page+0x480/0x480
-[ 1295.017400]  ? __kmalloc+0x153/0x300
-[ 1295.021052]  ? nouveau_dmem_migrate_vma+0xd8/0x1e0 [nouveau]
-[ 1295.026796]  nouveau_dmem_migrate_vma+0x157/0x1e0 [nouveau]
-[ 1295.032466]  ? nouveau_dmem_init+0x490/0x490 [nouveau]
-[ 1295.037612]  ? vmacache_find+0xc2/0x110
-[ 1295.041537]  nouveau_svmm_bind+0x1b4/0x210 [nouveau]
-[ 1295.046583]  ? nouveau_svm_fault+0x13e0/0x13e0 [nouveau]
-[ 1295.051912]  drm_ioctl_kernel+0x14d/0x1a0
-[ 1295.055930]  ? drm_setversion+0x330/0x330
-[ 1295.059971]  drm_ioctl+0x308/0x530
-[ 1295.063384]  ? drm_version+0x150/0x150
-[ 1295.067153]  ? find_held_lock+0xac/0xd0
-[ 1295.070996]  ? __pm_runtime_resume+0x3f/0xa0
-[ 1295.075285]  ? mark_held_locks+0x29/0xa0
-[ 1295.079230]  ? _raw_spin_unlock_irqrestore+0x3c/0x50
-[ 1295.084232]  ? lockdep_hardirqs_on+0x17d/0x250
-[ 1295.088768]  nouveau_drm_ioctl+0x9a/0x100 [nouveau]
-[ 1295.093661]  do_vfs_ioctl+0x137/0x9a0
-[ 1295.097341]  ? ioctl_preallocate+0x140/0x140
-[ 1295.101623]  ? match_held_lock+0x1b/0x230
-[ 1295.105646]  ? match_held_lock+0x1b/0x230
-[ 1295.109660]  ? find_held_lock+0xac/0xd0
-[ 1295.113512]  ? __do_page_fault+0x324/0x630
-[ 1295.117617]  ? lock_downgrade+0x2d0/0x2d0
-[ 1295.121648]  ? mark_held_locks+0x79/0xa0
-[ 1295.125583]  ? handle_mm_fault+0x352/0x430
-[ 1295.129687]  ksys_ioctl+0x60/0x90
-[ 1295.133020]  ? mark_held_locks+0x29/0xa0
-[ 1295.136964]  __x64_sys_ioctl+0x3d/0x50
-[ 1295.140726]  do_syscall_64+0x68/0x250
-[ 1295.144400]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-[ 1295.149465] RIP: 0033:0x7f1a3495809b
-[ 1295.153053] Code: 0f 1e fa 48 8b 05 ed bd 0c 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 0f 1f 44 00 00 f3 0f 1e fa b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d bd bd 0c 00 f7 d8 64 89 01 48
-[ 1295.171850] RSP: 002b:00007ffef7ed1358 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-[ 1295.179451] RAX: ffffffffffffffda RBX: 00007ffef7ed1628 RCX: 00007f1a3495809b
-[ 1295.186601] RDX: 00007ffef7ed13b0 RSI: 0000000040406449 RDI: 0000000000000004
-[ 1295.193759] RBP: 00007ffef7ed13b0 R08: 0000000000000000 R09: 000000000157e770
-[ 1295.200917] R10: 000000000151c010 R11: 0000000000000246 R12: 0000000040406449
-[ 1295.208083] R13: 0000000000000004 R14: 0000000000000000 R15: 0000000000000000
+Prior to this commit, starting nconfig, xconfig or gconfig, and saving
+the .config file more than once caused data loss, where a .config file
+that contained only comments would be written to disk starting from the
+second save operation.
 
-Reacquire the lock before continuing to the next page.
+This bug manifests itself because the SYMBOL_WRITTEN flag is never
+cleared after the first call to conf_write, and subsequent calls to
+conf_write then skip all of the configuration symbols due to the
+SYMBOL_WRITTEN flag being set.
 
-Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This commit resolves this issue by clearing the SYMBOL_WRITTEN flag
+from all symbols before conf_write returns.
+
+Fixes: 8e2442a5f86e ("kconfig: fix missing choice values in auto.conf")
+Cc: linux-stable <stable@vger.kernel.org> # 4.19+
+Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/nouveau/nouveau_dmem.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ scripts/kconfig/confdata.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_dmem.c b/drivers/gpu/drm/nouveau/nouveau_dmem.c
-index 40c47d6a7d783..745e197a47751 100644
---- a/drivers/gpu/drm/nouveau/nouveau_dmem.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_dmem.c
-@@ -385,9 +385,10 @@ nouveau_dmem_pages_alloc(struct nouveau_drm *drm,
- 			ret = nouveau_dmem_chunk_alloc(drm);
- 			if (ret) {
- 				if (c)
--					break;
-+					return 0;
- 				return ret;
- 			}
-+			mutex_lock(&drm->dmem->mutex);
- 			continue;
- 		}
+--- a/scripts/kconfig/confdata.c
++++ b/scripts/kconfig/confdata.c
+@@ -867,6 +867,7 @@ int conf_write(const char *name)
+ 	const char *str;
+ 	char tmpname[PATH_MAX + 1], oldname[PATH_MAX + 1];
+ 	char *env;
++	int i;
+ 	bool need_newline = false;
  
--- 
-2.20.1
-
+ 	if (!name)
+@@ -949,6 +950,9 @@ next:
+ 	}
+ 	fclose(out);
+ 
++	for_all_symbols(i, sym)
++		sym->flags &= ~SYMBOL_WRITTEN;
++
+ 	if (*tmpname) {
+ 		if (is_same(name, tmpname)) {
+ 			conf_message("No change to %s", name);
 
 
