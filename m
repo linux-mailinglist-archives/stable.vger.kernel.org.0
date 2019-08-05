@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18FAC811A8
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:35:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59D40811AA
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:35:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725976AbfHEFfp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 01:35:45 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:56995 "EHLO
+        id S1726375AbfHEFfw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 01:35:52 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:49337 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725951AbfHEFfp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:35:45 -0400
+        by vger.kernel.org with ESMTP id S1725951AbfHEFfw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:35:52 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id B725620F44;
-        Mon,  5 Aug 2019 01:35:43 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id D24B221ACF;
+        Mon,  5 Aug 2019 01:35:51 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:35:43 -0400
+  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:35:51 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=b2isCH
-        E3y2o4MWLpjUyEkG0gcSBj8rDTGe2kND/2uMg=; b=KFC6L7GKj1Ixr8tj6d48h4
-        SEZiEgkZU7uuwOKEsdh4svYBmGh3H16w5joI2BIQvQGxlzWqXH2TfjVrLf12l3Ip
-        yj6POdopvmdbUIy5E0cq4uVar7ZHIsOmtKzsvaTilF4vvA0jPWeuoTdr3nekksSN
-        onBadpJenMOaGEfF/+8oGLzYxfCoeqrTAQvlntpkXgZFCseWci7m8WMFwOfNIjbb
-        BqWEZ8WIeu2e3/M9NAMUNN+VczsegKH3R3s5EDytoDaSVCBiOfv3jE+/ztp+o1HM
-        EnZsG+Ne3zruglLdxe2brts9E7bRtxm5NzgiTkePA70RsFQ+V0speSdTg1YBKwsA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=DONOd6
+        0pYvdqVzOMzc4zgWi67UbCU94uBv/bRDAXLSw=; b=OkBlwCAAiGDTfcIQlvSrjZ
+        eGBgRawN4KJ4i/zsp5asZ+ZKEhlJBPLj3BMgcuGmJ6DIv+DKGNMX/jMygP7OGN6y
+        EPLnExzMByKrgf5PPzRLHaZc0yp15EjQztVoAgmB1turt1J2ENoYYU6jbOp2Sl6/
+        zC2WfYdi8sehIHMhplJYlnyONxM+jAlqkkH0F0KXK2LeLRDVvLPsE7pRDB3uxKfP
+        DAsr2ZwweCygQjR42+YXq5u2ppd+dEY5YYddgM+HHMEozbrhNiFv0I/w+8tyzNsw
+        YdJMHPCwowttqtnqqNw7i2cO9gOocSlbZXl+VetdQWFXmJBaB0Hh1EcG5/5j2OfQ
         ==
-X-ME-Sender: <xms:L8BHXfgQFY-A5mYt_vJBOc5QNhNaUFLG0xZcLh8pxaApHOi5OrBi3A>
+X-ME-Sender: <xms:N8BHXYbg-feXqXY6KIXj4jf6zfZJAP2f9RRXQy0OoOaeu6V8VFuwdQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtiedgkeekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:L8BHXenpisDZvxnh6J34oL-mmmFR3sg4lGu9JU292FT8BmJOWSJL3g>
-    <xmx:L8BHXSvDNgHqFqkWKllrABonDSI2Tv75_WWw2GJRxAIogq2dfJl6wg>
-    <xmx:L8BHXcZw2vpexyTD4OgAAH-zaVBILgDs_zYNRciVJf1nell-AHMryQ>
-    <xmx:L8BHXYMELhiUP7GVk5APF5BhdLcLQkFMcwNNGHfXL02mVXyHczPn-w>
+    ucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:N8BHXc0y5vHzR0vmZR2zabYDjd--ErF-UUAHki_UHHYF7t6RGk5ERw>
+    <xmx:N8BHXSgdOrqVDEKG7T3aB6MWMFfjheZoa-cq_h-wey8sh1ja4orWIQ>
+    <xmx:N8BHXYZtu5l0wfmSBeLwwPT7Bk961CXo8chcTUkk8SYOTB7BKmUj9Q>
+    <xmx:N8BHXQZKcKopuPQED84ahkKlStya70n8cuTwS0AZ9qEO9yoARtriqg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 11B7D380083;
-        Mon,  5 Aug 2019 01:35:42 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] IB/mlx5: Fix unreg_umr to ignore the mkey state" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 52B5C380086;
+        Mon,  5 Aug 2019 01:35:51 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] IB/mlx5: Fix unreg_umr to ignore the mkey state" failed to apply to 4.4-stable tree
 To:     yishaih@mellanox.com, artemyko@mellanox.com, jgg@mellanox.com,
         leonro@mellanox.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 05 Aug 2019 07:35:41 +0200
-Message-ID: <156498334110788@kroah.com>
+Date:   Mon, 05 Aug 2019 07:35:42 +0200
+Message-ID: <156498334217081@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
