@@ -2,152 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2113E8268F
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 23:05:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22B5B827B7
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 00:50:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730633AbfHEVFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 17:05:06 -0400
-Received: from mga04.intel.com ([192.55.52.120]:6081 "EHLO mga04.intel.com"
+        id S1728483AbfHEWuB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 18:50:01 -0400
+Received: from mga04.intel.com ([192.55.52.120]:12684 "EHLO mga04.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730454AbfHEVFG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 17:05:06 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
+        id S1727928AbfHEWuB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 18:50:01 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 14:05:06 -0700
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 15:50:00 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.64,350,1559545200"; 
-   d="scan'208";a="181784680"
-Received: from unknown (HELO localhost) ([10.252.52.83])
-  by FMSMGA003.fm.intel.com with ESMTP; 05 Aug 2019 14:05:02 -0700
-Date:   Tue, 6 Aug 2019 00:05:01 +0300
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Doug Anderson <dianders@chromium.org>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        "# 4.0+" <stable@vger.kernel.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Vadim Sukhomlinov <sukhomlinov@google.com>,
-        Arnd Bergmann <arnd@arndb.de>, Peter Huewe <peterhuewe@gmx.de>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-integrity@vger.kernel.org
-Subject: Re: [PATCH] tpm: Fix TPM 1.2 Shutdown sequence to prevent future TPM
- operations
-Message-ID: <20190805210501.vjtmwgxjg334vtnc@linux.intel.com>
-References: <20190711162919.23813-1-dianders@chromium.org>
- <20190711163915.GD25807@ziepe.ca>
- <20190711170437.GA7544@kroah.com>
- <20190711171726.GE25807@ziepe.ca>
- <20190711172630.GA11371@kroah.com>
- <CAD=FV=U0ue_4FyS7MO+iaKQ5gr0PhuLZaTV1adPY3ZtNhKTmHA@mail.gmail.com>
- <20190712115025.GA8221@kroah.com>
- <CAD=FV=UBOWHrEFQRhxsnK-PmVkFjcvnEruuy0sYHh0p-Qnk8pA@mail.gmail.com>
- <20190712152734.GA13940@kroah.com>
+   d="scan'208";a="257852004"
+Received: from josouza-mobl.jf.intel.com (HELO josouza-MOBL.intel.com) ([10.24.9.51])
+  by orsmga001.jf.intel.com with ESMTP; 05 Aug 2019 15:49:59 -0700
+From:   =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        =?UTF-8?q?Fran=C3=A7ois=20Guerraz?= <kubrick@fgv6.net>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH] drm/i915/vbt: Fix VBT parsing for the PSR section
+Date:   Mon,  5 Aug 2019 15:49:51 -0700
+Message-Id: <20190805224951.6523-1-jose.souza@intel.com>
+X-Mailer: git-send-email 2.22.0
+In-Reply-To: <156498469082135@kroah.com>
+References: <156498469082135@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190712152734.GA13940@kroah.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-User-Agent: NeoMutt/20180716
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 12, 2019 at 05:27:34PM +0200, Greg KH wrote:
-> On Fri, Jul 12, 2019 at 08:00:12AM -0700, Doug Anderson wrote:
-> > Hi,
-> > 
-> > On Fri, Jul 12, 2019 at 4:50 AM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > On Thu, Jul 11, 2019 at 10:28:01AM -0700, Doug Anderson wrote:
-> > > > Hi,
-> > > >
-> > > > On Thu, Jul 11, 2019 at 10:26 AM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > > >
-> > > > > On Thu, Jul 11, 2019 at 02:17:26PM -0300, Jason Gunthorpe wrote:
-> > > > > > On Thu, Jul 11, 2019 at 07:04:37PM +0200, Greg KH wrote:
-> > > > > > > On Thu, Jul 11, 2019 at 01:39:15PM -0300, Jason Gunthorpe wrote:
-> > > > > > > > On Thu, Jul 11, 2019 at 09:29:19AM -0700, Douglas Anderson wrote:
-> > > > > > > > > From: Vadim Sukhomlinov <sukhomlinov@google.com>
-> > > > > > > > >
-> > > > > > > > > commit db4d8cb9c9f2af71c4d087817160d866ed572cc9 upstream.
-> > > > > > > > >
-> > > > > > > > > TPM 2.0 Shutdown involve sending TPM2_Shutdown to TPM chip and disabling
-> > > > > > > > > future TPM operations. TPM 1.2 behavior was different, future TPM
-> > > > > > > > > operations weren't disabled, causing rare issues. This patch ensures
-> > > > > > > > > that future TPM operations are disabled.
-> > > > > > > > >
-> > > > > > > > > Fixes: d1bd4a792d39 ("tpm: Issue a TPM2_Shutdown for TPM2 devices.")
-> > > > > > > > > Cc: stable@vger.kernel.org
-> > > > > > > > > Signed-off-by: Vadim Sukhomlinov <sukhomlinov@google.com>
-> > > > > > > > > [dianders: resolved merge conflicts with mainline]
-> > > > > > > > > Signed-off-by: Douglas Anderson <dianders@chromium.org>
-> > > > > > > > > Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> > > > > > > > > Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> > > > > > > > > This is the backport of the patch referenced above to 4.19 as was done
-> > > > > > > > > in Chrome OS.  See <https://crrev.com/c/1495114> for details.  It
-> > > > > > > > > presumably applies to some older kernels.  NOTE that the problem
-> > > > > > > > > itself has existed for a long time, but continuing to backport this
-> > > > > > > > > exact solution to super old kernels is out of scope for me.  For those
-> > > > > > > > > truly interested feel free to reference the past discussion [1].
-> > > > > > > > >
-> > > > > > > > > Reason for backport: mainline has commit a3fbfae82b4c ("tpm: take TPM
-> > > > > > > > > chip power gating out of tpm_transmit()") and commit 719b7d81f204
-> > > > > > > > > ("tpm: introduce tpm_chip_start() and tpm_chip_stop()") and it didn't
-> > > > > > > > > seem like a good idea to backport 17 patches to avoid the conflict.
-> > > > > > > >
-> > > > > > > > Careful with this, you can't backport this to any kernels that don't
-> > > > > > > > have the sysfs ops locking changes or they will crash in sysfs code.
-> > > > > > >
-> > > > > > > And what commit added that?
-> > > > > >
-> > > > > > commit 2677ca98ae377517930c183248221f69f771c921
-> > > > > > Author: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> > > > > > Date:   Sun Nov 4 11:38:27 2018 +0200
-> > > > > >
-> > > > > >     tpm: use tpm_try_get_ops() in tpm-sysfs.c.
-> > > > > >
-> > > > > >     Use tpm_try_get_ops() in tpm-sysfs.c so that we can consider moving
-> > > > > >     other decorations (locking, localities, power management for example)
-> > > > > >     inside it. This direction can be of course taken only after other call
-> > > > > >     sites for tpm_transmit() have been treated in the same way.
-> > > > > >
-> > > > > > The last sentence suggests there are other patches needed too though..
-> > > > >
-> > > > > So 5.1.  So does this original patch need to go into the 5.2 and 5.1
-> > > > > kernels?
-> > > >
-> > > > The patch ("Fix TPM 1.2 Shutdown sequence to prevent future TPM
-> > > > operations")?  It's already done.  It just got merge conflicts when
-> > > > going back to 4.19 which is why I sent the backport.
-> > >
-> > > But the sysfs comment means I should not apply this backport then?
-> > >
-> > > Totally confused by this long thread, sorry.
-> > >
-> > > What am I supposed to do for the stable trees here?
-> > 
-> > I think the answer is to drop my backport for now and Jarkko says
-> > he'll take a fresh look at it in 2 weeks when he's back from his
-> > leave.  Thus my understanding:
-> > 
-> > * On mainline: fixed
-> > 
-> > * On 5.2 / 5.1: you've already got this picked to stable.  Good
-> > 
-> > * On 4.14 / 4.19: Jarkko will look at in 2 weeks.
-> > 
-> > * On 4.9 and older: I'd propose skipping unless someone is known to
-> > need a solution here.
-> 
-> Thanks, that makes sense now.
-> 
-> greg k-h
+From: Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>
 
-I have not forgotten this but might have to postpone the backport after
-Linux Plumbers. Just have lots of stuff in my queue ATM but right after
-the conference I have good slot to do the backports.
+A single 32-bit PSR2 training pattern field follows the sixteen element
+array of PSR table entries in the VBT spec. But, we incorrectly define
+this PSR2 field for each of the PSR table entries. As a result, the PSR1
+training pattern duration for any panel_type != 0 will be parsed
+incorrectly. Secondly, PSR2 training pattern durations for VBTs with bdb
+version >= 226 will also be wrong.
 
-/Jarkko
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: José Roberto de Souza <jose.souza@intel.com>
+Cc: stable@vger.kernel.org
+Cc: stable@vger.kernel.org #v5.2
+Fixes: 88a0d9606aff ("drm/i915/vbt: Parse and use the new field with PSR2 TP2/3 wakeup time")
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111088
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204183
+Signed-off-by: Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
+Acked-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Tested-by: François Guerraz <kubrick@fgv6.net>
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190717223451.2595-1-dhinakaran.pandiyan@intel.com
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+(cherry picked from commit 6d61f716a01ec0e134de38ae97e71d6fec5a6ff6)
+---
+
+Sending it for Dhinakaran, let me know if something is wrong.
+
+ drivers/gpu/drm/i915/intel_bios.c     | 2 +-
+ drivers/gpu/drm/i915/intel_vbt_defs.h | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/gpu/drm/i915/intel_bios.c b/drivers/gpu/drm/i915/intel_bios.c
+index 1dc8d03ff127..ee6fa75d65a2 100644
+--- a/drivers/gpu/drm/i915/intel_bios.c
++++ b/drivers/gpu/drm/i915/intel_bios.c
+@@ -762,7 +762,7 @@ parse_psr(struct drm_i915_private *dev_priv, const struct bdb_header *bdb)
+ 	}
+ 
+ 	if (bdb->version >= 226) {
+-		u32 wakeup_time = psr_table->psr2_tp2_tp3_wakeup_time;
++		u32 wakeup_time = psr->psr2_tp2_tp3_wakeup_time;
+ 
+ 		wakeup_time = (wakeup_time >> (2 * panel_type)) & 0x3;
+ 		switch (wakeup_time) {
+diff --git a/drivers/gpu/drm/i915/intel_vbt_defs.h b/drivers/gpu/drm/i915/intel_vbt_defs.h
+index fdbbb9a53804..796c070bbe6f 100644
+--- a/drivers/gpu/drm/i915/intel_vbt_defs.h
++++ b/drivers/gpu/drm/i915/intel_vbt_defs.h
+@@ -772,13 +772,13 @@ struct psr_table {
+ 	/* TP wake up time in multiple of 100 */
+ 	u16 tp1_wakeup_time;
+ 	u16 tp2_tp3_wakeup_time;
+-
+-	/* PSR2 TP2/TP3 wakeup time for 16 panels */
+-	u32 psr2_tp2_tp3_wakeup_time;
+ } __packed;
+ 
+ struct bdb_psr {
+ 	struct psr_table psr_table[16];
++
++	/* PSR2 TP2/TP3 wakeup time for 16 panels */
++	u32 psr2_tp2_tp3_wakeup_time;
+ } __packed;
+ 
+ /*
+-- 
+2.22.0
+
