@@ -2,81 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80FDB824C8
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 20:19:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D27B0824D5
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 20:27:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729383AbfHESTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 14:19:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37394 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728701AbfHESTb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 14:19:31 -0400
-Received: from localhost (unknown [23.100.24.84])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB86F214C6;
-        Mon,  5 Aug 2019 18:19:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565029170;
-        bh=JcOyHGnvJbkKZAaNNwgc9g3yP2z3wX2Ay4Kx76HjVQU=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=tTQcM4Yja+YjnDgwLWJ7lDTeAFzlebskea74Hf5kuPAqQFC5CPbrfLbAjBZ28dsI4
-         11w6bAdpSWg0lyLxcYnZmHT50xVvadOMgi/lTlh8JqX6jnhF/9fJ8sN2p2h79SywPX
-         oBU5wae9g3mb6dUZ7vEIhucp7HHxoOrJ2fQCSTkU=
-Date:   Mon, 05 Aug 2019 18:19:29 +0000
-From:   Sasha Levin <sashal@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-To:     Mike Christie <mchristi@redhat.com>
-To:     josef@toxicpanda.com, linux-block@vger.kernel.org
-Cc:     Mike Christie <mchristi@redhat.com>, stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 1/1] nbd: fix max number of supported devs
-In-Reply-To: <20190804191006.5359-1-mchristi@redhat.com>
-References: <20190804191006.5359-1-mchristi@redhat.com>
-Message-Id: <20190805181930.AB86F214C6@mail.kernel.org>
+        id S1728885AbfHES1N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 14:27:13 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:45049 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726779AbfHES1N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 14:27:13 -0400
+Received: by mail-wr1-f66.google.com with SMTP id p17so85354658wrf.11
+        for <stable@vger.kernel.org>; Mon, 05 Aug 2019 11:27:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=LIQ+BTAfYOlvy4ObHsv0M1Pyx3cDYno+rPPuaXC9he0=;
+        b=olMmDoeXgFg0rtDpZ8yE1f0yLPfwPLbM2bqNexuB7hU52vT7hzT2VxUG9dH2mfyO/C
+         AkIEgeQQD4Et2uvh/9zlOjLR3ontn/x1w9/2lhmYFri4MXGwyuS3ATFWH3w4IBSCm6As
+         1ceceVPd6lSNafomm4wF7W0rCArx+dfud4VptrYfv5TmCAmNToWw/0AOwSmCL40ggS4x
+         5Gp5LnPi+3Iptno3MO9x6qFuzGZ/azxftCCoHT1umPzjI3aVF+BFlk3/lHcyYwiIGcb3
+         n4TndaknBaKMkVLihsurM3lYY1X+g5+seZsEU77u8dTERFKTlbJFTL/6K8ew5La0LsOh
+         Fgeg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=LIQ+BTAfYOlvy4ObHsv0M1Pyx3cDYno+rPPuaXC9he0=;
+        b=go+ineyvaVG9SPpy868dZGYTjkmy42/1b4Q4GfIVxQ3aOt8OGKdqK4Voy37XRBMpA9
+         cCuultjqfK3eK43hRLaxCdX4++xXsfl7GDT1k9lP9bjCmUc7Q3FbXA7a4W0tLs3p53B+
+         1MFUVsXSPYJ2Uw+15Vf0dk+mNHRwArH6XwsOXJV/1JQKN4qvEnWQNcHHCYs/7GxJlhjC
+         gFyk9ZocZocLj3kRU8wIBqQkIcb3rWLEnHeFWJm+L5taVD5KwHBssylnQZI7swK40x4M
+         Z5BjLHVgQF5wdKMWRbm/NLicgr1KjFk1B7CObSkGcqhRr2lqaNahrtClp5gyLPvj6KgM
+         qLwQ==
+X-Gm-Message-State: APjAAAVUkvUMjr9C6bGoinUpDAR8s6xI7uSUXqwJOA+QSAmWrITDWdCG
+        NjDBbxD4Oa3Om9ofR15bKu+aNdqdqmI=
+X-Google-Smtp-Source: APXvYqxa7TlXz5imr956Vf8nenNVomCCC/ZSAH26N2M/dv4aA9HJrlTAS6VTLmPN7z+eRfRygPMnhw==
+X-Received: by 2002:adf:e6c5:: with SMTP id y5mr23125137wrm.235.1565029630753;
+        Mon, 05 Aug 2019 11:27:10 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id a84sm110310708wmf.29.2019.08.05.11.27.09
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 05 Aug 2019 11:27:10 -0700 (PDT)
+Message-ID: <5d4874fe.1c69fb81.14163.7147@mx.google.com>
+Date:   Mon, 05 Aug 2019 11:27:10 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.2.6-132-ga312bfbb74da
+X-Kernelci-Branch: linux-5.2.y
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-5.2.y boot: 134 boots: 0 failed,
+ 93 passed with 41 offline (v5.2.6-132-ga312bfbb74da)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+stable-rc/linux-5.2.y boot: 134 boots: 0 failed, 93 passed with 41 offline =
+(v5.2.6-132-ga312bfbb74da)
 
-[This is an automated email]
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.2.y/kernel/v5.2.6-132-ga312bfbb74da/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.2.y=
+/kernel/v5.2.6-132-ga312bfbb74da/
 
-This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: all
+Tree: stable-rc
+Branch: linux-5.2.y
+Git Describe: v5.2.6-132-ga312bfbb74da
+Git Commit: a312bfbb74da87b0c6822845b2cb9932d43c9208
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 77 unique boards, 28 SoC families, 17 builds out of 209
 
-The bot has tested the following trees: v5.2.6, v4.19.64, v4.14.136, v4.9.187, v4.4.187.
+Boot Regressions Detected:
 
-v5.2.6: Build OK!
-v4.19.64: Build OK!
-v4.14.136: Failed to apply! Possible dependencies:
-    2189c97cdbed ("block/ndb: add WQ_UNBOUND to the knbd-recv workqueue")
+arm:
 
-v4.9.187: Failed to apply! Possible dependencies:
-    20032ec38d16 ("nbd: reset the setup task for NBD_CLEAR_SOCK")
-    5ea8d10802ec ("nbd: separate out the config information")
-    9442b739207a ("nbd: cleanup ioctl handling")
-    9561a7ade0c2 ("nbd: add multi-connection support")
-    feffa5cc7b47 ("nbd: fix setting of 'error' in NBD_DO_IT ioctl")
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 1 day (last pass: v5.2.4-=
+235-g44397d30b22d - first fail: v5.2.6)
+          qcom-apq8064-ifc6410:
+              lab-baylibre-seattle: failing since 1 day (last pass: v5.2.4-=
+235-g44397d30b22d - first fail: v5.2.6)
 
-v4.4.187: Failed to apply! Possible dependencies:
-    0e4f0f6f63d3 ("nbd: Cleanup reset of nbd and bdev after a disconnect")
-    1f7b5cf1be43 ("nbd: Timeouts are not user requested disconnects")
-    23272a6754b8 ("nbd: Remove signal usage")
-    37091fdd831f ("nbd: Create size change events for userspace")
-    5ea8d10802ec ("nbd: separate out the config information")
-    9561a7ade0c2 ("nbd: add multi-connection support")
-    97240963eb30 ("nbd: fix race in ioctl")
-    9b4a6ba9185a ("nbd: use flags instead of bool")
-    fd8383fd88a2 ("nbd: convert to blkmq")
+    sunxi_defconfig:
+        gcc-8:
+          sun4i-a10-cubieboard:
+              lab-baylibre-seattle: failing since 1 day (last pass: v5.2.4-=
+235-g44397d30b22d - first fail: v5.2.6)
+          sun5i-r8-chip:
+              lab-baylibre-seattle: failing since 1 day (last pass: v5.2.4-=
+235-g44397d30b22d - first fail: v5.2.6)
+          sun7i-a20-bananapi:
+              lab-baylibre-seattle: failing since 1 day (last pass: v5.2.4-=
+235-g44397d30b22d - first fail: v5.2.6)
 
+Offline Platforms:
 
-NOTE: The patch will not be queued to stable trees until it is upstream.
+riscv:
 
-How should we proceed with this patch?
+    defconfig:
+        gcc-8
+            sifive_fu540: 1 offline lab
 
---
-Thanks,
-Sasha
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+            meson-axg-s400: 1 offline lab
+            meson-g12a-u200: 1 offline lab
+            meson-g12a-x96-max: 1 offline lab
+            meson-gxbb-odroidc2: 1 offline lab
+            meson-gxl-s905d-p230: 1 offline lab
+            meson-gxl-s905x-libretech-cc: 1 offline lab
+            meson-gxl-s905x-nexbox-a95x: 1 offline lab
+            meson-gxl-s905x-p212: 1 offline lab
+            meson-gxm-nexbox-a1: 1 offline lab
+            rk3399-firefly: 1 offline lab
+            sun50i-a64-pine64-plus: 1 offline lab
+
+mips:
+
+    pistachio_defconfig:
+        gcc-8
+            pistachio_marduk: 1 offline lab
+
+arm:
+
+    exynos_defconfig:
+        gcc-8
+            exynos5250-arndale: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            bcm4708-smartrg-sr400ac: 1 offline lab
+            bcm72521-bcm97252sffe: 1 offline lab
+            bcm7445-bcm97445c: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+            imx7s-warp: 1 offline lab
+            meson8b-odroidc1: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            stih410-b2120: 1 offline lab
+            sun4i-a10-cubieboard: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+            vf610-colibri-eval-v3: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+    imx_v6_v7_defconfig:
+        gcc-8
+            imx6dl-wandboard_solo: 1 offline lab
+            imx7s-warp: 1 offline lab
+            vf610-colibri-eval-v3: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun4i-a10-cubieboard: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
