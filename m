@@ -2,113 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 134928255D
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 21:12:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8AE282567
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 21:15:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728885AbfHETMt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 15:12:49 -0400
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:44613 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728870AbfHETMt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 15:12:49 -0400
-Received: by mail-pf1-f194.google.com with SMTP id t16so40088014pfe.11
-        for <stable@vger.kernel.org>; Mon, 05 Aug 2019 12:12:48 -0700 (PDT)
+        id S1730011AbfHETPt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 15:15:49 -0400
+Received: from mail-wm1-f46.google.com ([209.85.128.46]:34939 "EHLO
+        mail-wm1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729566AbfHETPs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 15:15:48 -0400
+Received: by mail-wm1-f46.google.com with SMTP id l2so74030798wmg.0
+        for <stable@vger.kernel.org>; Mon, 05 Aug 2019 12:15:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id;
-        bh=vtitsEfCLIcgWDSU/Pqr9Ff/BPWz7Dz8Ou3pTEj7AjI=;
-        b=Sb69XAQ3sWqeF/XYUrorYl/eDRvd8KIxIwjvYnKTz8DBBKRsub8+sOUHCy3/El9F3w
-         KmmKlCToeXJum7XzBngrYNKOm7n8vSCrwq3gFugYQ0mM6WsQ7o0IPZqBBElZdIleJqSK
-         auktsYLyP2jfkoLYtJpLIbXhk6V6+TtnJGQozYl/vT/FtClkLNVj2LQZ5LlFY1E39On3
-         RlI1KOzkbmYcMbjUia/6eC0h80Lzh9Vv2+nL1UYcSEXS2f8/dm6h6wRIsdBLYYt6gZYr
-         6kbhj64Wp/reObecov4drAqs0cFmWPgxZfF6hk06xwmAgTx7ulW3DlQ5cPeDPH/hensL
-         Gjmg==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=w1t9ecRFuxuteq9NZKtOaPNl+UPiIqybhQpuoST//JE=;
+        b=LlC2j3cOZ72TPEtRDxienW7lROUEyYiX19odd8n4tf+ri3Ln0XED+UuJTLitrjZaAl
+         F55AlZ6VQqha9C3t9HXgt/p7pboDNau8iHDidzqyWhAXr3waYtGQYqeYoDjc0JKNNShd
+         uVVSioWKckfE2sicgFG8LTFyjxxXbE8WPBE3FdOMcXr/l/NBakxIg0zF0sdhMfq4DBzh
+         x+1rTEKN9ZFSdao+uylWenK/qKD2mN2rzKTIGU86niDTUbVA2zZE5q6kNEjhQpL/FoS2
+         z/ZLmeaiRbnG3ZDoq1OxFLz93La4eZMNk5SxHu0wy4uSsLr+ISZb1RHqGCffm71erLjJ
+         ADVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
-        bh=vtitsEfCLIcgWDSU/Pqr9Ff/BPWz7Dz8Ou3pTEj7AjI=;
-        b=tychVME/MjbsYJPOSUAEXPs51dq/YS3WjcOAcH2hVQtZDQLMDEBo+oOQzZntB70Jli
-         A93qVz+6RtiYzE3uWCmcyUWRFMXHZqQHK5lnU66Hbu7aL8USBDJXqCRW+quk/2sQyh7f
-         D9elTmMZncZ0Wz8qwUbjj6FBkRRWZS5htUrtCIC1Is7D/xOBLP9xcSh1+zoNhoCtC0Tp
-         nvQ0v15x9jqGvcV49ZWIJdhyjrxy3siIzhmONVtXyuxvOOOvGapIMnYUhjpPjr8h7Dw4
-         6S5zToLfKgtPDoVxwAf0HLAqp3GKndzqWvnFf0MYdfu7SsBF3uZrOsrKOnZxzvWk1S1E
-         3m/Q==
-X-Gm-Message-State: APjAAAUKWs/nAR3uE9Rt1BwyMm4zcvSzkrbMRTRR2SCOX12bmwMcjX84
-        L69/K/+BGOBm9gMPB47kXGk=
-X-Google-Smtp-Source: APXvYqwThzcuvMVSD51IeJhYxMyoyGorVqVyi2lsDq19xyzGjSvwckkS6ORzKZ67P+bzLrmzYtsdvQ==
-X-Received: by 2002:a17:90a:30aa:: with SMTP id h39mr19813788pjb.32.1565032368433;
-        Mon, 05 Aug 2019 12:12:48 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 131sm103433958pfx.57.2019.08.05.12.12.47
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=w1t9ecRFuxuteq9NZKtOaPNl+UPiIqybhQpuoST//JE=;
+        b=Od1D78k5clo/JtaLHH2zt0b0S88weiIbdwpbhQyuXZi9iZQY47kHOKN3/RiKZzEGIO
+         Ui0zt7NST/nPXuPGqHNc75s6U81AWMiZn9OT6sKWzWY9X6sg2HYh1dYJX4dEr2CCjAUJ
+         LYo50HTP5VG4PcwDuJd9ucATuR/GM5NJqy7gicaJrWICC54QSTz2ab+I+L+Zp0s2jSWQ
+         z7owF9IRXpDifolUqHsaX0k9Ug4ILtEGLOOIoaH7hnsRYwwbRs+yOQqzQcLZSPX1JEIg
+         o0TUvaMdr77sAv5fyjzUlwjNTwN2JkbFZ8ChemTYadbHibKhz8zVPQvhs04giTDRSNPe
+         S8jQ==
+X-Gm-Message-State: APjAAAXQP2id2H0dEBzJ+PxbaXvLb0stANR79iQoV73M+nKnEZge8o5K
+        mOD4w6ow+oIsk0nrA6gCaLCcVST5Tcc5gA==
+X-Google-Smtp-Source: APXvYqwbqsllK13jO3S3fcoz4iF1pv4sYVK7Hum7h1wf756i30lMz7dG0pgwBoOhdPnLoV6i45DZuA==
+X-Received: by 2002:a7b:cd8e:: with SMTP id y14mr19942126wmj.155.1565032546445;
+        Mon, 05 Aug 2019 12:15:46 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id f12sm93044604wrg.5.2019.08.05.12.15.45
+        for <stable@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 05 Aug 2019 12:12:47 -0700 (PDT)
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, xiao jin <jin.xiao@intel.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v4.4.y, v4.9.y] block: blk_init_allocated_queue() set q->fq as NULL in the fail case
-Date:   Mon,  5 Aug 2019 12:12:45 -0700
-Message-Id: <1565032365-7089-1-git-send-email-linux@roeck-us.net>
-X-Mailer: git-send-email 2.7.4
+        Mon, 05 Aug 2019 12:15:45 -0700 (PDT)
+Message-ID: <5d488061.1c69fb81.b1ff5.545e@mx.google.com>
+Date:   Mon, 05 Aug 2019 12:15:45 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.136-54-g20d3ec30650b
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.14.y boot: 119 boots: 4 failed,
+ 104 passed with 11 offline (v4.14.136-54-g20d3ec30650b)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xiao jin <jin.xiao@intel.com>
+stable-rc/linux-4.14.y boot: 119 boots: 4 failed, 104 passed with 11 offlin=
+e (v4.14.136-54-g20d3ec30650b)
 
-commit 54648cf1ec2d7f4b6a71767799c45676a138ca24 upstream
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.136-54-g20d3ec30650b/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.136-54-g20d3ec30650b/
 
-We find the memory use-after-free issue in __blk_drain_queue()
-on the kernel 4.14. After read the latest kernel 4.18-rc6 we
-think it has the same problem.
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.136-54-g20d3ec30650b
+Git Commit: 20d3ec30650b0c33377164def17390367716d4c8
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 64 unique boards, 26 SoC families, 16 builds out of 201
 
-Memory is allocated for q->fq in the blk_init_allocated_queue().
-If the elevator init function called with error return, it will
-run into the fail case to free the q->fq.
+Boot Failures Detected:
 
-Then the __blk_drain_queue() uses the same memory after the free
-of the q->fq, it will lead to the unpredictable event.
+arm64:
+    defconfig:
+        gcc-8:
+            rk3399-firefly: 1 failed lab
 
-The patch is to set q->fq as NULL in the fail case of
-blk_init_allocated_queue().
+arc:
+    hsdk_defconfig:
+        gcc-8:
+            hsdk: 1 failed lab
 
-Fixes: commit 7c94e1c157a2 ("block: introduce blk_flush_queue to drive flush machinery")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Bart Van Assche <bart.vanassche@wdc.com>
-Signed-off-by: xiao jin <jin.xiao@intel.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[groeck: backport to v4.4.y/v4.9.y (context change)]
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            sun7i-a20-bananapi: 1 failed lab
+
+    exynos_defconfig:
+        gcc-8:
+            exynos5420-arndale-octa: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+            meson-gxbb-odroidc2: 1 offline lab
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+
+    omap2plus_defconfig:
+        gcc-8
+            omap3-beagle: 1 offline lab
+            omap4-panda: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+
 ---
-This patch was not applied to v4.4.y and v4.9.y due to a context conflict.
-See https://lore.kernel.org/stable/1536310209129100@kroah.com/ and
-https://lore.kernel.org/stable/153631018011582@kroah.com/ for details.
-It was applied to v4.14.y and to v4.18.y.
-
-Please consider applying this backport. It is relevant because it fixes
-CVE-2018-20856.
-
-Thanks,
-Guenter
-
- block/blk-core.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/block/blk-core.c b/block/blk-core.c
-index 50d77c90070d..7662f97dded6 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -870,6 +870,7 @@ blk_init_allocated_queue(struct request_queue *q, request_fn_proc *rfn,
- 
- fail:
- 	blk_free_flush_queue(q->fq);
-+	q->fq = NULL;
- 	return NULL;
- }
- EXPORT_SYMBOL(blk_init_allocated_queue);
--- 
-2.7.4
-
+For more info write to <info@kernelci.org>
