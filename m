@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3111381139
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 06:59:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED23B8113B
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:01:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725992AbfHEE7X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 00:59:23 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:50675 "EHLO
+        id S1725976AbfHEFBx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 01:01:53 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:45217 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725902AbfHEE7X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 00:59:23 -0400
+        by vger.kernel.org with ESMTP id S1726375AbfHEFBx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:01:53 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 986D42026A;
-        Mon,  5 Aug 2019 00:59:22 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 14ACD21903;
+        Mon,  5 Aug 2019 01:01:52 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 05 Aug 2019 00:59:22 -0400
+  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:01:52 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=NR1k7A
-        gGhE91IbkiqRm9p0LsuNeNDMtiKV2UcGwQlYc=; b=h81nLHvrcY2dty5cZ/LXZL
-        meBV2tudDznZT5UaG5sbjkzUkH8Dy/jIVl/p6SL8mLFi8nArlNcXZTzqhZxhpoAj
-        VV8/S144FQ9y8DQXKaRf6b1Fjf5vJSJu2o0NyDGVll7c33rqDYstzPGcxfhtqiOK
-        X5SDDDBiOhAHWHtlD6yMnm45Sf21/jJbr/K0PG2wa8DEvdGghzKtV7IKynuUyMoJ
-        No8c8zevI/9zHRguuB8fVBCUuduStWgqIncXW1YS+ZaENXv+U9WHicm547upLZUC
-        h+7ScOOuF2l4u/UqyS8XdR+MvpSxUiUTPsexUduyKbJZkZA/jlDGHonWLf6sqJ+w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=5VtnAy
+        PbCxPXpEljn7F3jMojpx178nLICmfx0Gl7wAc=; b=unW0B4iLYX4liIGoKjJ3Y3
+        MQMZ8suQfF73HHVPGvoHNVk5q2U95yO6L9Hn4FoBbUVa7vAo4A3ovCIREjBUhzTK
+        9me16UwMa/t3QXOtpMlfzJclV4DyCBSkdR4vRvtJiZ2p1bOHQyNNQfNSNAEmV+2t
+        yp5ZhTNypmA1+mr9KhLalNOyaUxHgSmolHi4dg7TfN7aUQxjvFGqYly+OdS+6hkq
+        dClUYMnVXrmWf3md9//P1Am+JO0O3gP3Yx/N6AUk90yh240Uo9AsW4TyDzs3HN3m
+        wDcm3EMzghE6w7eEfBJjAuyT7m0T7YWkRar2p0606dufzo1T6rJYSyskRUWRKTeg
         ==
-X-ME-Sender: <xms:qrdHXQrLpqxQmJt44H-D7Rugf_Ebq4KIhJXU6fCEnQjKcbL7a45bIA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtiedgkedvucetufdoteggodetrfdotf
+X-ME-Sender: <xms:P7hHXZtutQVwRDAS2B1Lj24JJB77EJqAsE8gaBc0jVvgSgaI0p1b5g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtiedgkeefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:qrdHXSGB8DWaRCcsqekPSFsNsMw4I96LfOWHzUKSpCLjZ6s_Yn9raw>
-    <xmx:qrdHXT7HxwNOdHSmZ3yGhcmiEr0-ElooL2ku-neZ9T-Too2bhnWlJA>
-    <xmx:qrdHXVC42-LA6TgQTdpRETWh5ooDOkx_9TkQs0psRxGBslUChHwmVQ>
-    <xmx:qrdHXZyPAn2Mg06PWGDyRr9tLbc9IFv_HDuS9Cl-4mcsLYd4DfvT6g>
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:P7hHXXtjgt_3PfEmF-q74PIJGeZb3KWOQl8y8qhWjatKCVp0kzzp1w>
+    <xmx:P7hHXed83IcGWawUYj0gdHaRxIKWouDLpe7_jDTxZfRlPkaJqcZdJA>
+    <xmx:P7hHXYauVZwjSTdQbAhstsqVATXk5Yte3OLW3V-no2dt3MJlNq3j9w>
+    <xmx:QLhHXdox3O4hrPiINTzhNvGKk-8UQT_JqX-F4WbHdkg3lnKwEnrs1Q>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 14D44380085;
-        Mon,  5 Aug 2019 00:59:21 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Btrfs: fix race leading to fs corruption after transaction" failed to apply to 4.4-stable tree
-To:     fdmanana@suse.com, dsterba@suse.com, josef@toxicpanda.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1A6DE380086;
+        Mon,  5 Aug 2019 01:01:51 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] gpiolib: Preserve desc->flags when setting state" failed to apply to 4.14-stable tree
+To:     chris.packham@alliedtelesis.co.nz, linus.walleij@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 05 Aug 2019 06:59:20 +0200
-Message-ID: <156498116016221@kroah.com>
+Date:   Mon, 05 Aug 2019 07:01:49 +0200
+Message-ID: <1564981309157220@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,140 +68,46 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From cb2d3daddbfb6318d170e79aac1f7d5e4d49f0d7 Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Thu, 25 Jul 2019 11:27:04 +0100
-Subject: [PATCH] Btrfs: fix race leading to fs corruption after transaction
- abort
+From d95da993383c78f7efd25957ba3af23af4b1c613 Mon Sep 17 00:00:00 2001
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Date: Mon, 8 Jul 2019 08:35:58 +1200
+Subject: [PATCH] gpiolib: Preserve desc->flags when setting state
 
-When one transaction is finishing its commit, it is possible for another
-transaction to start and enter its initial commit phase as well. If the
-first ends up getting aborted, we have a small time window where the second
-transaction commit does not notice that the previous transaction aborted
-and ends up committing, writing a superblock that points to btrees that
-reference extent buffers (nodes and leafs) that were not persisted to disk.
-The consequence is that after mounting the filesystem again, we will be
-unable to load some btree nodes/leafs, either because the content on disk
-is either garbage (or just zeroes) or corresponds to the old content of a
-previouly COWed or deleted node/leaf, resulting in the well known error
-messages "parent transid verify failed on ...".
-The following sequence diagram illustrates how this can happen.
+desc->flags may already have values set by of_gpiochip_add() so make
+sure that this isn't undone when setting the initial direction.
 
-        CPU 1                                           CPU 2
+Cc: stable@vger.kernel.org
+Fixes: 3edfb7bd76bd1cba ("gpiolib: Show correct direction from the beginning")
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Link: https://lore.kernel.org/r/20190707203558.10993-1-chris.packham@alliedtelesis.co.nz
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 
- <at transaction N>
-
- btrfs_commit_transaction()
-   (...)
-   --> sets transaction state to
-       TRANS_STATE_UNBLOCKED
-   --> sets fs_info->running_transaction
-       to NULL
-
-                                                    (...)
-                                                    btrfs_start_transaction()
-                                                      start_transaction()
-                                                        wait_current_trans()
-                                                          --> returns immediately
-                                                              because
-                                                              fs_info->running_transaction
-                                                              is NULL
-                                                        join_transaction()
-                                                          --> creates transaction N + 1
-                                                          --> sets
-                                                              fs_info->running_transaction
-                                                              to transaction N + 1
-                                                          --> adds transaction N + 1 to
-                                                              the fs_info->trans_list list
-                                                        --> returns transaction handle
-                                                            pointing to the new
-                                                            transaction N + 1
-                                                    (...)
-
-                                                    btrfs_sync_file()
-                                                      btrfs_start_transaction()
-                                                        --> returns handle to
-                                                            transaction N + 1
-                                                      (...)
-
-   btrfs_write_and_wait_transaction()
-     --> writeback of some extent
-         buffer fails, returns an
-	 error
-   btrfs_handle_fs_error()
-     --> sets BTRFS_FS_STATE_ERROR in
-         fs_info->fs_state
-   --> jumps to label "scrub_continue"
-   cleanup_transaction()
-     btrfs_abort_transaction(N)
-       --> sets BTRFS_FS_STATE_TRANS_ABORTED
-           flag in fs_info->fs_state
-       --> sets aborted field in the
-           transaction and transaction
-	   handle structures, for
-           transaction N only
-     --> removes transaction from the
-         list fs_info->trans_list
-                                                      btrfs_commit_transaction(N + 1)
-                                                        --> transaction N + 1 was not
-							    aborted, so it proceeds
-                                                        (...)
-                                                        --> sets the transaction's state
-                                                            to TRANS_STATE_COMMIT_START
-                                                        --> does not find the previous
-                                                            transaction (N) in the
-                                                            fs_info->trans_list, so it
-                                                            doesn't know that transaction
-                                                            was aborted, and the commit
-                                                            of transaction N + 1 proceeds
-                                                        (...)
-                                                        --> sets transaction N + 1 state
-                                                            to TRANS_STATE_UNBLOCKED
-                                                        btrfs_write_and_wait_transaction()
-                                                          --> succeeds writing all extent
-                                                              buffers created in the
-                                                              transaction N + 1
-                                                        write_all_supers()
-                                                           --> succeeds
-                                                           --> we now have a superblock on
-                                                               disk that points to trees
-                                                               that refer to at least one
-                                                               extent buffer that was
-                                                               never persisted
-
-So fix this by updating the transaction commit path to check if the flag
-BTRFS_FS_STATE_TRANS_ABORTED is set on fs_info->fs_state if after setting
-the transaction to the TRANS_STATE_COMMIT_START we do not find any previous
-transaction in the fs_info->trans_list. If the flag is set, just fail the
-transaction commit with -EROFS, as we do in other places. The exact error
-code for the previous transaction abort was already logged and reported.
-
-Fixes: 49b25e0540904b ("btrfs: enhance transaction abort infrastructure")
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
-index 3b8ae1a8f02d..39b7bcde3c6f 100644
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -2037,6 +2037,16 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
- 		}
- 	} else {
- 		spin_unlock(&fs_info->trans_lock);
-+		/*
-+		 * The previous transaction was aborted and was already removed
-+		 * from the list of transactions at fs_info->trans_list. So we
-+		 * abort to prevent writing a new superblock that reflects a
-+		 * corrupt state (pointing to trees with unwritten nodes/leafs).
-+		 */
-+		if (test_bit(BTRFS_FS_STATE_TRANS_ABORTED, &fs_info->fs_state)) {
-+			ret = -EROFS;
-+			goto cleanup_transaction;
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index bf05c29b53be..f497003f119c 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -1394,12 +1394,17 @@ int gpiochip_add_data_with_key(struct gpio_chip *chip, void *data,
+ 	for (i = 0; i < chip->ngpio; i++) {
+ 		struct gpio_desc *desc = &gdev->descs[i];
+ 
+-		if (chip->get_direction && gpiochip_line_is_valid(chip, i))
+-			desc->flags = !chip->get_direction(chip, i) ?
+-					(1 << FLAG_IS_OUT) : 0;
+-		else
+-			desc->flags = !chip->direction_input ?
+-					(1 << FLAG_IS_OUT) : 0;
++		if (chip->get_direction && gpiochip_line_is_valid(chip, i)) {
++			if (!chip->get_direction(chip, i))
++				set_bit(FLAG_IS_OUT, &desc->flags);
++			else
++				clear_bit(FLAG_IS_OUT, &desc->flags);
++		} else {
++			if (!chip->direction_input)
++				set_bit(FLAG_IS_OUT, &desc->flags);
++			else
++				clear_bit(FLAG_IS_OUT, &desc->flags);
 +		}
  	}
  
- 	extwriter_counter_dec(cur_trans, trans->type);
+ 	acpi_gpiochip_add(chip);
 
