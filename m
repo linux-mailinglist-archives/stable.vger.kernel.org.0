@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6259D811D9
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:58:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 076A3811DA
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:58:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727299AbfHEF6G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 01:58:06 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:53199 "EHLO
+        id S1725951AbfHEF6N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 01:58:13 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:57263 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725951AbfHEF6F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:58:05 -0400
+        by vger.kernel.org with ESMTP id S1727300AbfHEF6N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:58:13 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 312BE2148D;
-        Mon,  5 Aug 2019 01:58:05 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:58:05 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 14A902151C;
+        Mon,  5 Aug 2019 01:58:12 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:58:12 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=umRoe+
-        n4bpGncnnVYdCru/jg52mFZ2/7+/s/jVtA9nk=; b=dloG34NmfzgYo0+6sljZ5y
-        UMZYEzZtq3vN8W2OmlV2W3UxKwtkQGKz5Wuew7C0VZ8I8wipnxMxYWKPXOZfsKJ0
-        vDz5I72FHjeiDk0TZDi900+RsYTFbOHJmHgfGlwrXbSt6z3mv3UYizsGn8n4fMjB
-        KsYScO9Jbw8deDxUcZz+u0XXRkMMndt2iwT6H2Q0irve6/fR60WTeA10MAf5Vx+R
-        xOHqfFvZ8N/2TzaonI2M0Y9+f1ej5HfmpsYZhZPUNw9fsZ03jq2RXs2uNMKEdmtR
-        8ScP1oq0A59pjd+6u1ZfmYd+RCogyqNp1No6DlmEiV8GsOSiDtO0NbU4G3JaFlwg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=+sg7FZ
+        Kc7n4zoUMJUAAbgNKGzITxDi+g/nJqg4U7HX8=; b=bq3e1oyv+r7Rf3BFjzEs8p
+        WWd3BOUDZUqGQGHqqghRC44iwzaWDD5WOPsvDcJJOqvyXWCLrkenp3vnLKSvqBkf
+        +hdbp5WiHAS6hziqHKyhE/U4yJpSbd51uPnwiQVylB4KK5FBXrOwO8vtWWuq+Oue
+        nxjueBTZoQN4ooFiNHyBggzjIpnA2o3wBn+VfXDW3Sz1EqIZnmVDQu21MH+vqQiM
+        AArvvNDf7GaFddk0nOEVSpbVctfNrjpQTcGD25lvGXXgOrMLWIeRpSxJxxu4B+QJ
+        xlggra6Md/9Xfzuf/smWO3ZDo9Qsmp9TacQUZgV/ma+4QsCvIPTz7lQAf1/0+X/A
         ==
-X-ME-Sender: <xms:bMVHXTJllF8CATEIFUa9kry6TEBSNyK6PNah-z39O3MMeihfGPFV8Q>
+X-ME-Sender: <xms:c8VHXcs9ZqiJUahzZ_eAV_7lTOp3H0CE6WO8VeiYIZZ6-nt-5o8Iig>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtiedgledtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgpdhkvghrnhgvlhdroh
     hrghenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhm
-    pehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeeg
-X-ME-Proxy: <xmx:bcVHXcYLMboP3Jd5o0elm3jmXYnZE-Pj0HoD7KqjUJqyvuvCFDQ9FQ>
-    <xmx:bcVHXdaGkb5KwhjWV9PmgUmR-RYn9h9FKUx7-EdCOEskzmdvDqFivw>
-    <xmx:bcVHXUmjq_j-aiKZ8xQIorOEq2_jASXUNZAQ_iGIiz1MSDfPdHcatQ>
-    <xmx:bcVHXUVSWtEmtZqSHEEkeQljRDDcBFI2nsbJnfXeh3iD2ekjQig6yQ>
+    pehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:c8VHXSTu8JrxTvRGHUvpvHu7UdNUsiHkJIFxbDziFQo84EsxdmXIsw>
+    <xmx:c8VHXeEFI8MfbF9hgfnhZZAzy9QQY1lXyuGExvgovJPLPhu7gmmgAQ>
+    <xmx:c8VHXV0cKghUyE7N-oJlhXkeW6VwxDMy0DMP_8bedzAeOr929AixwA>
+    <xmx:dMVHXbCm5QOerEnYb6A7sVGJgm_VcXicalOfx0C8OoCM3cqL04UJQQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 769AE380084;
-        Mon,  5 Aug 2019 01:58:04 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915/userptr: Acquire the page lock around" failed to apply to 4.4-stable tree
-To:     chris@chris-wilson.co.uk, jani.nikula@intel.com,
-        tvrtko.ursulin@intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 66A0280059;
+        Mon,  5 Aug 2019 01:58:11 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/i915/vbt: Fix VBT parsing for the PSR section" failed to apply to 5.2-stable tree
+To:     dhinakaran.pandiyan@intel.com, jani.nikula@intel.com,
+        jose.souza@intel.com, kubrick@fgv6.net, rodrigo.vivi@intel.com,
+        ville.syrjala@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 05 Aug 2019 07:57:57 +0200
-Message-ID: <156498467713717@kroah.com>
+Date:   Mon, 05 Aug 2019 07:58:10 +0200
+Message-ID: <156498469082135@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -58,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 5.2-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,53 +70,70 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From aa56a292ce623734ddd30f52d73f527d1f3529b5 Mon Sep 17 00:00:00 2001
-From: Chris Wilson <chris@chris-wilson.co.uk>
-Date: Mon, 8 Jul 2019 15:03:27 +0100
-Subject: [PATCH] drm/i915/userptr: Acquire the page lock around
- set_page_dirty()
+From 6d61f716a01ec0e134de38ae97e71d6fec5a6ff6 Mon Sep 17 00:00:00 2001
+From: Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>
+Date: Wed, 17 Jul 2019 15:34:51 -0700
+Subject: [PATCH] drm/i915/vbt: Fix VBT parsing for the PSR section
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-set_page_dirty says:
+A single 32-bit PSR2 training pattern field follows the sixteen element
+array of PSR table entries in the VBT spec. But, we incorrectly define
+this PSR2 field for each of the PSR table entries. As a result, the PSR1
+training pattern duration for any panel_type != 0 will be parsed
+incorrectly. Secondly, PSR2 training pattern durations for VBTs with bdb
+version >= 226 will also be wrong.
 
-	For pages with a mapping this should be done under the page lock
-	for the benefit of asynchronous memory errors who prefer a
-	consistent dirty state. This rule can be broken in some special
-	cases, but should be better not to.
-
-Under those rules, it is only safe for us to use the plain set_page_dirty
-calls for shmemfs/anonymous memory. Userptr may be used with real
-mappings and so needs to use the locked version (set_page_dirty_lock).
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203317
-Fixes: 5cc9ed4b9a7a ("drm/i915: Introduce mapping of user pages into video memory (userptr) ioctl")
-References: 6dcc693bc57f ("ext4: warn when page is dirtied without buffers")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: José Roberto de Souza <jose.souza@intel.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190708140327.26825-1-chris@chris-wilson.co.uk
-(cherry picked from commit cb6d7c7dc7ff8cace666ddec66334117a6068ce2)
+Cc: stable@vger.kernel.org #v5.2
+Fixes: 88a0d9606aff ("drm/i915/vbt: Parse and use the new field with PSR2 TP2/3 wakeup time")
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111088
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204183
+Signed-off-by: Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
+Acked-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Tested-by: François Guerraz <kubrick@fgv6.net>
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190717223451.2595-1-dhinakaran.pandiyan@intel.com
+(cherry picked from commit b5ea9c9337007d6e700280c8a60b4e10d070fb53)
 Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
-index 528b61678334..2caa594322bc 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
-@@ -664,7 +664,15 @@ i915_gem_userptr_put_pages(struct drm_i915_gem_object *obj,
+diff --git a/drivers/gpu/drm/i915/display/intel_bios.c b/drivers/gpu/drm/i915/display/intel_bios.c
+index c4710889cb32..3ef4e9f573cf 100644
+--- a/drivers/gpu/drm/i915/display/intel_bios.c
++++ b/drivers/gpu/drm/i915/display/intel_bios.c
+@@ -765,7 +765,7 @@ parse_psr(struct drm_i915_private *dev_priv, const struct bdb_header *bdb)
+ 	}
  
- 	for_each_sgt_page(page, sgt_iter, pages) {
- 		if (obj->mm.dirty)
--			set_page_dirty(page);
-+			/*
-+			 * As this may not be anonymous memory (e.g. shmem)
-+			 * but exist on a real mapping, we have to lock
-+			 * the page in order to dirty it -- holding
-+			 * the page reference is not sufficient to
-+			 * prevent the inode from being truncated.
-+			 * Play safe and take the lock.
-+			 */
-+			set_page_dirty_lock(page);
+ 	if (bdb->version >= 226) {
+-		u32 wakeup_time = psr_table->psr2_tp2_tp3_wakeup_time;
++		u32 wakeup_time = psr->psr2_tp2_tp3_wakeup_time;
  
- 		mark_page_accessed(page);
- 		put_page(page);
+ 		wakeup_time = (wakeup_time >> (2 * panel_type)) & 0x3;
+ 		switch (wakeup_time) {
+diff --git a/drivers/gpu/drm/i915/display/intel_vbt_defs.h b/drivers/gpu/drm/i915/display/intel_vbt_defs.h
+index 2f4894e9a03d..5ddbe71ab423 100644
+--- a/drivers/gpu/drm/i915/display/intel_vbt_defs.h
++++ b/drivers/gpu/drm/i915/display/intel_vbt_defs.h
+@@ -478,13 +478,13 @@ struct psr_table {
+ 	/* TP wake up time in multiple of 100 */
+ 	u16 tp1_wakeup_time;
+ 	u16 tp2_tp3_wakeup_time;
+-
+-	/* PSR2 TP2/TP3 wakeup time for 16 panels */
+-	u32 psr2_tp2_tp3_wakeup_time;
+ } __packed;
+ 
+ struct bdb_psr {
+ 	struct psr_table psr_table[16];
++
++	/* PSR2 TP2/TP3 wakeup time for 16 panels */
++	u32 psr2_tp2_tp3_wakeup_time;
+ } __packed;
+ 
+ /*
 
