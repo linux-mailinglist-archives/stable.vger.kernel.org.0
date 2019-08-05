@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1240A81B97
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:16:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBBE481B4D
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:13:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729031AbfHENGP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:06:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42774 "EHLO mail.kernel.org"
+        id S1729661AbfHENI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:08:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729541AbfHENGP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:06:15 -0400
+        id S1729675AbfHENIx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:08:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4C1D2147A;
-        Mon,  5 Aug 2019 13:06:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9313621738;
+        Mon,  5 Aug 2019 13:08:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010374;
-        bh=qFsiztdLDvQWTMxiXFUptRNbM9KiUDEKG8b6B96WFkQ=;
+        s=default; t=1565010533;
+        bh=VfcaByF7r95+yEsTsJOfHLZKb5vPPTHlHaR+VpYo8vM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WMdR7BxhAFFQwq5SmDlWrCLmWPlPlmMHPZ/zvugs4tn10eniLwAZKg8d1k63FFdQH
-         ZdqseStTou59eKXdSEs2+5ufMgd58ATYDXenyibTL2Ln2eFsLUh7vP6D6Th/O/1xIX
-         1sQs2g6GD4tXmaOooWoAQEhtjVlRbmDjlyebnA6w=
+        b=IrsnswP480g+xix10oSQbQ8+T+IYksYb5eF/kntb/uMHIoBkN51j6Z/TYI9NyebM6
+         PXPZe0ndwwRShyROfx/C2ocHdUhYkgcMp2BP8otgPMWooflRnASYL5SQNIJ64HrgT7
+         6fqoPQHyr/oFjf39mWnRKIfhtvHSUF7AFljTvkZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.9 41/42] objtool: Support GCC 9 cold subfunction naming scheme
+        stable@vger.kernel.org, Anders Roxell <anders.roxell@linaro.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 4.14 42/53] drivers/perf: arm_pmu: Fix failure path in PM notifier
 Date:   Mon,  5 Aug 2019 15:03:07 +0200
-Message-Id: <20190805124929.851335655@linuxfoundation.org>
+Message-Id: <20190805124932.694154877@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124924.788666484@linuxfoundation.org>
-References: <20190805124924.788666484@linuxfoundation.org>
+In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
+References: <20190805124927.973499541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Will Deacon <will@kernel.org>
 
-commit bcb6fb5da77c2a228adf07cc9cb1a0c2aa2001c6 upstream.
+commit 0d7fd70f26039bd4b33444ca47f0e69ce3ae0354 upstream.
 
-Starting with GCC 8, a lot of unlikely code was moved out of line to
-"cold" subfunctions in .text.unlikely.
+Handling of the CPU_PM_ENTER_FAILED transition in the Arm PMU PM
+notifier code incorrectly skips restoration of the counters. Fix the
+logic so that CPU_PM_ENTER_FAILED follows the same path as CPU_PM_EXIT.
 
-For example, the unlikely bits of:
-
-  irq_do_set_affinity()
-
-are moved out to the following subfunction:
-
-  irq_do_set_affinity.cold.49()
-
-Starting with GCC 9, the numbered suffix has been removed.  So in the
-above example, the cold subfunction is instead:
-
-  irq_do_set_affinity.cold()
-
-Tweak the objtool subfunction detection logic so that it detects both
-GCC 8 and GCC 9 naming schemes.
-
-Reported-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/015e9544b1f188d36a7f02fa31e9e95629aa5f50.1541040800.git.jpoimboe@redhat.com
+Cc: <stable@vger.kernel.org>
+Fixes: da4e4f18afe0f372 ("drivers/perf: arm_pmu: implement CPU_PM notifier")
+Reported-by: Anders Roxell <anders.roxell@linaro.org>
+Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/objtool/elf.c |    2 +-
+ drivers/perf/arm_pmu.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/objtool/elf.c
-+++ b/tools/objtool/elf.c
-@@ -305,7 +305,7 @@ static int read_symbols(struct elf *elf)
- 			if (sym->type != STT_FUNC)
- 				continue;
- 			sym->pfunc = sym->cfunc = sym;
--			coldstr = strstr(sym->name, ".cold.");
-+			coldstr = strstr(sym->name, ".cold");
- 			if (!coldstr)
- 				continue;
- 
+--- a/drivers/perf/arm_pmu.c
++++ b/drivers/perf/arm_pmu.c
+@@ -751,8 +751,8 @@ static int cpu_pm_pmu_notify(struct noti
+ 		cpu_pm_pmu_setup(armpmu, cmd);
+ 		break;
+ 	case CPU_PM_EXIT:
+-		cpu_pm_pmu_setup(armpmu, cmd);
+ 	case CPU_PM_ENTER_FAILED:
++		cpu_pm_pmu_setup(armpmu, cmd);
+ 		armpmu->start(armpmu);
+ 		break;
+ 	default:
 
 
