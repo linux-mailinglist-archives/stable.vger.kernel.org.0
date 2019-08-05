@@ -2,53 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE59811B1
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:37:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 055CF811B4
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 07:38:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727158AbfHEFha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 01:37:30 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:55783 "EHLO
+        id S1727249AbfHEFid (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 01:38:33 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:42671 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725951AbfHEFha (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:37:30 -0400
+        by vger.kernel.org with ESMTP id S1725951AbfHEFid (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 01:38:33 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id B931920C86;
-        Mon,  5 Aug 2019 01:37:29 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 2D25620D56;
+        Mon,  5 Aug 2019 01:38:32 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:37:29 -0400
+  by compute6.internal (MEProxy); Mon, 05 Aug 2019 01:38:32 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=2d+fUA
-        mUMppvBq3ni2LV6Bz5JRwdWf6vwP1JTm5DyG8=; b=eREpdaIuRNJw/mctbiMCoh
-        3xqUCeyJV8zAhWpixs+Fw9649qRa902IzuYVP4f5lsVkIgCAM4BukB+n5cQ6Iy8J
-        AZpIH41+2AA2ztG6/B8LMiiC2XJx4ZHRJg+OaIZuwFdzQ0GAWhS8LR5RSCMJJFYU
-        U+qrpgHcVPdtmOVenO61JdApryb3vxj3UpdRPnEXmLo5MdObQlfZtjs+8GaT1uVK
-        +Yz851r4a/EG6vJq51UWhK4j9b7JlX9zUpljOCU4tvQDusiqWbOItMl78rwHkHsf
-        KSSE/RPxOOfhhq0JOxay+Af9OmBlb910OmUkU9F5YZnyVl0xdUKask2PompvXtvQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=9b7hp3
+        +0nXQc6s19L7eXAAbj3j6lSzKgQonhRs0SeAQ=; b=G/jcL3GvgNOcJqaTiG+VMU
+        WgujlNrNiTJHxUggRa8nJIzJ9IZj3/H0cgrkwrLjJIFIkva/jDhOFX+phdYgyeOr
+        g1oASfdLTtCaMkKTF5ySEgUN2/cmHYf+EnalBajPcPz8SqG3yWKklm/lJSxoMWR8
+        Oh3mUgOmnt4VeZa3qt5r4TUVNRnt/svJ1nnnaENRvt3Kq2unr2lHjlW6nzNeGkq9
+        eFzXBrKX+/dQyDkH2Txzojozm58T0WcjO/cI/9IqzeD8ms5FMdhtblUlN3Ry3D5/
+        yY+TybrZVc/1gvdTlexMkCKdKjXOqAWC99aqp074lHsgTqC1m9ZEPqLmpdvnIyeA
         ==
-X-ME-Sender: <xms:mcBHXeclXyDqEVK9tOvb9vv5OsKjxBTLtZtYAQkkNp8HIgd5q3deUg>
+X-ME-Sender: <xms:18BHXffeuA7-Jd6tsNK0PyPi6ebSYcfgBhgG9luVwiCeNKUl0r34Zw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtiedgkeekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpeej
-X-ME-Proxy: <xmx:mcBHXYpjJpkNvjFNX--dE6rliv5CdTAThUcFzi6MB1cb3ssRmk8_GQ>
-    <xmx:mcBHXQNaBetlrnnt8tN1bwXr5SnXIbH8AcrCT0-5p1Qvqrjn99DSgg>
-    <xmx:mcBHXTjstezXfNPAKr3Va5FZjhVEcFAbzjmlCpYTST4tRKahB5bHIg>
-    <xmx:mcBHXT63M1nyDBIjoYyDbeL0ga4Tw70-oVi3YC545FztoQGoyMS4pA>
+    ucevlhhushhtvghrufhiiigvpeel
+X-ME-Proxy: <xmx:18BHXbNQv_N2k-Y2bSACGGEhXoprRe2DkHwV9G9AmzMGxpdBFIL9UQ>
+    <xmx:18BHXTWXut0bm9PBJStj7bMyU7nDye2bvjGHPMi-xvC1PkKTUAOIEw>
+    <xmx:18BHXTwQmimfFhuszW8LzI0ao3tFuvtzCkmd4uV33Cxv49biqPqL9Q>
+    <xmx:2MBHXeKOGVMWPEGnHzCTTHoeoMvv71F38ofVzF0WwirKFXXewBQIiA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1B2ED80059;
-        Mon,  5 Aug 2019 01:37:29 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] IB/hfi1: Check for error on call to alloc_rsm_map_table" failed to apply to 4.9-stable tree
-To:     john.fleck@intel.com, jgg@mellanox.com, mike.marciniszyn@intel.com,
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8E0AD8005B;
+        Mon,  5 Aug 2019 01:38:31 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] IB/hfi1: Unreserve a flushed OPFN request" failed to apply to 4.19-stable tree
+To:     kaike.wan@intel.com, dennis.dalessandro@intel.com,
+        jgg@mellanox.com, mike.marciniszyn@intel.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 05 Aug 2019 07:37:27 +0200
-Message-ID: <156498344719618@kroah.com>
+Date:   Mon, 05 Aug 2019 07:38:21 +0200
+Message-ID: <15649835016938@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,63 +70,97 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From cd48a82087231fdba0e77521102386c6ed0168d6 Mon Sep 17 00:00:00 2001
-From: John Fleck <john.fleck@intel.com>
-Date: Mon, 15 Jul 2019 12:45:21 -0400
-Subject: [PATCH] IB/hfi1: Check for error on call to alloc_rsm_map_table
+From 2b74c878b0eae4c32629c2d5ba69a29f69048313 Mon Sep 17 00:00:00 2001
+From: Kaike Wan <kaike.wan@intel.com>
+Date: Mon, 15 Jul 2019 12:45:28 -0400
+Subject: [PATCH] IB/hfi1: Unreserve a flushed OPFN request
 
-The call to alloc_rsm_map_table does not check if the kmalloc fails.
-Check for a NULL on alloc, and bail if it fails.
+When an OPFN request is flushed, the request is completed without
+unreserving itself from the send queue. Subsequently, when a new
+request is post sent, the following warning will be triggered:
 
-Fixes: 372cc85a13c9 ("IB/hfi1: Extract RSM map table init from QOS")
-Link: https://lore.kernel.org/r/20190715164521.74174.27047.stgit@awfm-01.aw.intel.com
+WARNING: CPU: 4 PID: 8130 at rdmavt/qp.c:1761 rvt_post_send+0x72a/0x880 [rdmavt]
+Call Trace:
+[<ffffffffbbb61e41>] dump_stack+0x19/0x1b
+[<ffffffffbb497688>] __warn+0xd8/0x100
+[<ffffffffbb4977cd>] warn_slowpath_null+0x1d/0x20
+[<ffffffffc01c941a>] rvt_post_send+0x72a/0x880 [rdmavt]
+[<ffffffffbb4dcabe>] ? account_entity_dequeue+0xae/0xd0
+[<ffffffffbb61d645>] ? __kmalloc+0x55/0x230
+[<ffffffffc04e1a4c>] ib_uverbs_post_send+0x37c/0x5d0 [ib_uverbs]
+[<ffffffffc04e5e36>] ? rdma_lookup_put_uobject+0x26/0x60 [ib_uverbs]
+[<ffffffffc04dbce6>] ib_uverbs_write+0x286/0x460 [ib_uverbs]
+[<ffffffffbb6f9457>] ? security_file_permission+0x27/0xa0
+[<ffffffffbb641650>] vfs_write+0xc0/0x1f0
+[<ffffffffbb64246f>] SyS_write+0x7f/0xf0
+[<ffffffffbbb74ddb>] system_call_fastpath+0x22/0x27
+
+This patch fixes the problem by moving rvt_qp_wqe_unreserve() into
+rvt_qp_complete_swqe() to simplify the code and make it less
+error-prone.
+
+Fixes: ca95f802ef51 ("IB/hfi1: Unreserve a reserved request when it is completed")
+Link: https://lore.kernel.org/r/20190715164528.74174.31364.stgit@awfm-01.aw.intel.com
 Cc: <stable@vger.kernel.org>
 Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: John Fleck <john.fleck@intel.com>
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Kaike Wan <kaike.wan@intel.com>
 Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 
-diff --git a/drivers/infiniband/hw/hfi1/chip.c b/drivers/infiniband/hw/hfi1/chip.c
-index d5b643a1d9fd..67052dc3100c 100644
---- a/drivers/infiniband/hw/hfi1/chip.c
-+++ b/drivers/infiniband/hw/hfi1/chip.c
-@@ -14452,7 +14452,7 @@ void hfi1_deinit_vnic_rsm(struct hfi1_devdata *dd)
- 		clear_rcvctrl(dd, RCV_CTRL_RCV_RSM_ENABLE_SMASK);
- }
- 
--static void init_rxe(struct hfi1_devdata *dd)
-+static int init_rxe(struct hfi1_devdata *dd)
+diff --git a/drivers/infiniband/hw/hfi1/rc.c b/drivers/infiniband/hw/hfi1/rc.c
+index 0477c14633ab..024a7c2b6124 100644
+--- a/drivers/infiniband/hw/hfi1/rc.c
++++ b/drivers/infiniband/hw/hfi1/rc.c
+@@ -1835,7 +1835,6 @@ void hfi1_rc_send_complete(struct rvt_qp *qp, struct hfi1_opa_header *opah)
+ 		    cmp_psn(qp->s_sending_psn, qp->s_sending_hpsn) <= 0)
+ 			break;
+ 		trdma_clean_swqe(qp, wqe);
+-		rvt_qp_wqe_unreserve(qp, wqe);
+ 		trace_hfi1_qp_send_completion(qp, wqe, qp->s_last);
+ 		rvt_qp_complete_swqe(qp,
+ 				     wqe,
+@@ -1882,7 +1881,6 @@ struct rvt_swqe *do_rc_completion(struct rvt_qp *qp,
+ 	if (cmp_psn(wqe->lpsn, qp->s_sending_psn) < 0 ||
+ 	    cmp_psn(qp->s_sending_psn, qp->s_sending_hpsn) > 0) {
+ 		trdma_clean_swqe(qp, wqe);
+-		rvt_qp_wqe_unreserve(qp, wqe);
+ 		trace_hfi1_qp_send_completion(qp, wqe, qp->s_last);
+ 		rvt_qp_complete_swqe(qp,
+ 				     wqe,
+diff --git a/include/rdma/rdmavt_qp.h b/include/rdma/rdmavt_qp.h
+index 0eeea520a853..e06c77d76463 100644
+--- a/include/rdma/rdmavt_qp.h
++++ b/include/rdma/rdmavt_qp.h
+@@ -608,7 +608,7 @@ static inline void rvt_qp_wqe_reserve(
+ /**
+  * rvt_qp_wqe_unreserve - clean reserved operation
+  * @qp - the rvt qp
+- * @wqe - the send wqe
++ * @flags - send wqe flags
+  *
+  * This decrements the reserve use count.
+  *
+@@ -620,11 +620,9 @@ static inline void rvt_qp_wqe_reserve(
+  * the compiler does not juggle the order of the s_last
+  * ring index and the decrementing of s_reserved_used.
+  */
+-static inline void rvt_qp_wqe_unreserve(
+-	struct rvt_qp *qp,
+-	struct rvt_swqe *wqe)
++static inline void rvt_qp_wqe_unreserve(struct rvt_qp *qp, int flags)
  {
- 	struct rsm_map_table *rmt;
- 	u64 val;
-@@ -14461,6 +14461,9 @@ static void init_rxe(struct hfi1_devdata *dd)
- 	write_csr(dd, RCV_ERR_MASK, ~0ull);
+-	if (unlikely(wqe->wr.send_flags & RVT_SEND_RESERVE_USED)) {
++	if (unlikely(flags & RVT_SEND_RESERVE_USED)) {
+ 		atomic_dec(&qp->s_reserved_used);
+ 		/* insure no compiler re-order up to s_last change */
+ 		smp_mb__after_atomic();
+@@ -853,6 +851,7 @@ rvt_qp_complete_swqe(struct rvt_qp *qp,
+ 	u32 byte_len, last;
+ 	int flags = wqe->wr.send_flags;
  
- 	rmt = alloc_rsm_map_table(dd);
-+	if (!rmt)
-+		return -ENOMEM;
-+
- 	/* set up QOS, including the QPN map table */
- 	init_qos(dd, rmt);
- 	init_fecn_handling(dd, rmt);
-@@ -14487,6 +14490,7 @@ static void init_rxe(struct hfi1_devdata *dd)
- 	val |= ((4ull & RCV_BYPASS_HDR_SIZE_MASK) <<
- 		RCV_BYPASS_HDR_SIZE_SHIFT);
- 	write_csr(dd, RCV_BYPASS, val);
-+	return 0;
- }
++	rvt_qp_wqe_unreserve(qp, flags);
+ 	rvt_put_qp_swqe(qp, wqe);
  
- static void init_other(struct hfi1_devdata *dd)
-@@ -15024,7 +15028,10 @@ int hfi1_init_dd(struct hfi1_devdata *dd)
- 		goto bail_cleanup;
- 
- 	/* set initial RXE CSRs */
--	init_rxe(dd);
-+	ret = init_rxe(dd);
-+	if (ret)
-+		goto bail_cleanup;
-+
- 	/* set initial TXE CSRs */
- 	init_txe(dd);
- 	/* set initial non-RXE, non-TXE CSRs */
+ 	need_completion =
 
