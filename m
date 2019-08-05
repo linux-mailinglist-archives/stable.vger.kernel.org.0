@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF8B081BA1
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:16:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4915181B3A
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:13:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729055AbfHENGl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:06:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43592 "EHLO mail.kernel.org"
+        id S1729444AbfHENJO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:09:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729644AbfHENGk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:06:40 -0400
+        id S1730143AbfHENJM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:09:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BD8E2087B;
-        Mon,  5 Aug 2019 13:06:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A23C921743;
+        Mon,  5 Aug 2019 13:09:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010399;
-        bh=7BSbn3tM72/0DGPULT67fewpqTSUU33aag1yFIWmkl0=;
+        s=default; t=1565010551;
+        bh=BFA5KkJp4vIV/V6KNLMZnNb7Da08HBmuiJBDgQVvN4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S2JZbArBeSVDGkardDut3sUHii/d5lrdmtMXEklavMQP0322xhAtR3P6dRcUqVLGw
-         c3ByOEtYuMvW7Q2fO1hVhjVyq4VJ41ygkWNn0xG84p8YsNivWqOzW8+MaXi5ux6rlc
-         aWkPHkUJ2BmTeSY4JNSU64ypOHDgGaNmJUtaN+Bc=
+        b=bbHPusZnxfOvSWswoDlHiEn3Y5DezWadx5jWH1ms0eBvYTY6Zg3leTT37RK6iHyK6
+         opcxjWixVpMvODmd90Y89lTZW6Qem8QDy4GuUIgDrpWZz8Xn+uZzndWeb4OZ1gMHQ5
+         GX7NnTj37ZnPCp8zfc1zPA3dopKn9zWehZKdwX7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Chunyan Zhang <zhang.chunyan@linaro.org>,
+        Baolin Wang <baolin.wang@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 01/53] ARM: riscpc: fix DMA
-Date:   Mon,  5 Aug 2019 15:02:26 +0200
-Message-Id: <20190805124928.140314304@linuxfoundation.org>
+Subject: [PATCH 4.19 14/74] clk: sprd: Add check for return value of sprd_clk_regmap_init()
+Date:   Mon,  5 Aug 2019 15:02:27 +0200
+Message-Id: <20190805124936.940055780@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
-References: <20190805124927.973499541@linuxfoundation.org>
+In-Reply-To: <20190805124935.819068648@linuxfoundation.org>
+References: <20190805124935.819068648@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,46 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ffd9a1ba9fdb7f2bd1d1ad9b9243d34e96756ba2 ]
+[ Upstream commit c974c48deeb969c5e4250e4f06af91edd84b1f10 ]
 
-DMA got broken a while back in two different ways:
-1) a change in the behaviour of disable_irq() to wait for the interrupt
-   to finish executing causes us to deadlock at the end of DMA.
-2) a change to avoid modifying the scatterlist left the first transfer
-   uninitialised.
+sprd_clk_regmap_init() doesn't always return success, adding check
+for its return value should make the code more strong.
 
-DMA is only used with expansion cards, so has gone unnoticed.
-
-Fixes: fa4e99899932 ("[ARM] dma: RiscPC: don't modify DMA SG entries")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Chunyan Zhang <zhang.chunyan@linaro.org>
+Reviewed-by: Baolin Wang <baolin.wang@linaro.org>
+[sboyd@kernel.org: Add a missing int ret]
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-rpc/dma.c | 5 ++++-
+ drivers/clk/sprd/sc9860-clk.c | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-rpc/dma.c b/arch/arm/mach-rpc/dma.c
-index fb48f3141fb4d..c4c96661eb89a 100644
---- a/arch/arm/mach-rpc/dma.c
-+++ b/arch/arm/mach-rpc/dma.c
-@@ -131,7 +131,7 @@ static irqreturn_t iomd_dma_handle(int irq, void *dev_id)
- 	} while (1);
+diff --git a/drivers/clk/sprd/sc9860-clk.c b/drivers/clk/sprd/sc9860-clk.c
+index 9980ab55271ba..f76305b4bc8df 100644
+--- a/drivers/clk/sprd/sc9860-clk.c
++++ b/drivers/clk/sprd/sc9860-clk.c
+@@ -2023,6 +2023,7 @@ static int sc9860_clk_probe(struct platform_device *pdev)
+ {
+ 	const struct of_device_id *match;
+ 	const struct sprd_clk_desc *desc;
++	int ret;
  
- 	idma->state = ~DMA_ST_AB;
--	disable_irq(irq);
-+	disable_irq_nosync(irq);
- 
- 	return IRQ_HANDLED;
- }
-@@ -174,6 +174,9 @@ static void iomd_enable_dma(unsigned int chan, dma_t *dma)
- 				DMA_FROM_DEVICE : DMA_TO_DEVICE);
- 		}
- 
-+		idma->dma_addr = idma->dma.sg->dma_address;
-+		idma->dma_len = idma->dma.sg->length;
-+
- 		iomd_writeb(DMA_CR_C, dma_base + CR);
- 		idma->state = DMA_ST_AB;
+ 	match = of_match_node(sprd_sc9860_clk_ids, pdev->dev.of_node);
+ 	if (!match) {
+@@ -2031,7 +2032,9 @@ static int sc9860_clk_probe(struct platform_device *pdev)
  	}
+ 
+ 	desc = match->data;
+-	sprd_clk_regmap_init(pdev, desc);
++	ret = sprd_clk_regmap_init(pdev, desc);
++	if (ret)
++		return ret;
+ 
+ 	return sprd_clk_probe(&pdev->dev, desc->hw_clks);
+ }
 -- 
 2.20.1
 
