@@ -2,41 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 94C3E81A4C
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:04:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3989881A7C
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:06:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729129AbfHENEq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:04:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40550 "EHLO mail.kernel.org"
+        id S1729120AbfHENGe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:06:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729121AbfHENEp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:04:45 -0400
+        id S1729606AbfHENGc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:06:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0D3020880;
-        Mon,  5 Aug 2019 13:04:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 192852075B;
+        Mon,  5 Aug 2019 13:06:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565010284;
-        bh=Q0r+99K5J7kIeiEntfm7cv9iuAgk3irlIKMtudbxTh8=;
+        s=default; t=1565010391;
+        bh=m3AUNa45QmVDF2VHITaB9pzyD5ROiFTPHFTLG+IWK0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ak5VNg1uZV4irNNxov7S6a6XzKRagsMDzERPttYy+UCszXV8tdHV7IsbEl1OMXe5N
-         a34O466FDecSY5PrYFzXvnjsebKMO4nZ7IGOGK4sHO0MM73dy8YqJwaN6//CWhKEWO
-         lKPIrQGZVIcQjxN36+MsC3UzMyTnw1+HBv+YUj84=
+        b=nPodm97exKO3XmRK6ImMypOz8S1sY0r+6K5FVxv7qI+O3xnUkf89+FOtCT5GQqghq
+         TseWGBrvgBZKDXPZ8wouMvPPeu1naDLh9eP3bly5ZTFBlfGBYGNRpMN5RuAfaw4Nh5
+         OQq2hoQfnZ5Vr5tESSunKcbHw9WVgfFTsZFy0lHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>,
-        Jens Remus <jremus@linux.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Mikko Rapeli <mikko.rapeli@iki.fi>,
+        Jan Harkes <jaharkes@cs.cmu.edu>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Colin Ian King <colin.king@canonical.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        David Howells <dhowells@redhat.com>,
+        Fabian Frederick <fabf@skynet.be>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Yann Droneaud <ydroneaud@opteya.com>,
+        Zhouyang Jia <jiazhouyang09@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 09/22] scsi: zfcp: fix GCC compiler warning emitted with -Wmaybe-uninitialized
-Date:   Mon,  5 Aug 2019 15:02:46 +0200
-Message-Id: <20190805124920.647834364@linuxfoundation.org>
+Subject: [PATCH 4.9 21/42] uapi linux/coda_psdev.h: move upc_req definition from uapi to kernel side headers
+Date:   Mon,  5 Aug 2019 15:02:47 +0200
+Message-Id: <20190805124927.429028298@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190805124918.070468681@linuxfoundation.org>
-References: <20190805124918.070468681@linuxfoundation.org>
+In-Reply-To: <20190805124924.788666484@linuxfoundation.org>
+References: <20190805124924.788666484@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,114 +54,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 484647088826f2f651acbda6bcf9536b8a466703 ]
+[ Upstream commit f90fb3c7e2c13ae829db2274b88b845a75038b8a ]
 
-GCC v9 emits this warning:
-      CC      drivers/s390/scsi/zfcp_erp.o
-    drivers/s390/scsi/zfcp_erp.c: In function 'zfcp_erp_action_enqueue':
-    drivers/s390/scsi/zfcp_erp.c:217:26: warning: 'erp_action' may be used uninitialized in this function [-Wmaybe-uninitialized]
-      217 |  struct zfcp_erp_action *erp_action;
-          |                          ^~~~~~~~~~
+Only users of upc_req in kernel side fs/coda/psdev.c and
+fs/coda/upcall.c already include linux/coda_psdev.h.
 
-This is a possible false positive case, as also documented in the GCC
-documentations:
-    https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wmaybe-uninitialized
+Suggested by Jan Harkes <jaharkes@cs.cmu.edu> in
+  https://lore.kernel.org/lkml/20150531111913.GA23377@cs.cmu.edu/
 
-The actual code-sequence is like this:
-    Various callers can invoke the function below with the argument "want"
-    being one of:
-    ZFCP_ERP_ACTION_REOPEN_ADAPTER,
-    ZFCP_ERP_ACTION_REOPEN_PORT_FORCED,
-    ZFCP_ERP_ACTION_REOPEN_PORT, or
-    ZFCP_ERP_ACTION_REOPEN_LUN.
+Fixes these include/uapi/linux/coda_psdev.h compilation errors in userspace:
 
-    zfcp_erp_action_enqueue(want, ...)
-        ...
-        need = zfcp_erp_required_act(want, ...)
-            need = want
-            ...
-            maybe: need = ZFCP_ERP_ACTION_REOPEN_PORT
-            maybe: need = ZFCP_ERP_ACTION_REOPEN_ADAPTER
-            ...
-            return need
-        ...
-        zfcp_erp_setup_act(need, ...)
-            struct zfcp_erp_action *erp_action; // <== line 217
-            ...
-            switch(need) {
-            case ZFCP_ERP_ACTION_REOPEN_LUN:
-                    ...
-                    erp_action = &zfcp_sdev->erp_action;
-                    WARN_ON_ONCE(erp_action->port != port); // <== access
-                    ...
-                    break;
-            case ZFCP_ERP_ACTION_REOPEN_PORT:
-            case ZFCP_ERP_ACTION_REOPEN_PORT_FORCED:
-                    ...
-                    erp_action = &port->erp_action;
-                    WARN_ON_ONCE(erp_action->port != port); // <== access
-                    ...
-                    break;
-            case ZFCP_ERP_ACTION_REOPEN_ADAPTER:
-                    ...
-                    erp_action = &adapter->erp_action;
-                    WARN_ON_ONCE(erp_action->port != NULL); // <== access
-                    ...
-                    break;
-            }
-            ...
-            WARN_ON_ONCE(erp_action->adapter != adapter); // <== access
+  linux/coda_psdev.h:12:19: error: field `uc_chain' has incomplete type
+  struct list_head    uc_chain;
+                   ^
+  linux/coda_psdev.h:13:2: error: unknown type name `caddr_t'
+  caddr_t             uc_data;
+  ^
+  linux/coda_psdev.h:14:2: error: unknown type name `u_short'
+  u_short             uc_flags;
+  ^
+  linux/coda_psdev.h:15:2: error: unknown type name `u_short'
+  u_short             uc_inSize;  /* Size is at most 5000 bytes */
+  ^
+  linux/coda_psdev.h:16:2: error: unknown type name `u_short'
+  u_short             uc_outSize;
+  ^
+  linux/coda_psdev.h:17:2: error: unknown type name `u_short'
+  u_short             uc_opcode;  /* copied from data to save lookup */
+  ^
+  linux/coda_psdev.h:19:2: error: unknown type name `wait_queue_head_t'
+  wait_queue_head_t   uc_sleep;   /* process' wait queue */
+  ^
 
-When zfcp_erp_setup_act() is called, 'need' will never be anything else
-than one of the 4 possible enumeration-names that are used in the
-switch-case, and 'erp_action' is initialized for every one of them, before
-it is used. Thus the warning is a false positive, as documented.
-
-We introduce the extra if{} in the beginning to create an extra code-flow,
-so the compiler can be convinced that the switch-case will never see any
-other value.
-
-BUG_ON()/BUG() is intentionally not used to not crash anything, should
-this ever happen anyway - right now it's impossible, as argued above; and
-it doesn't introduce a 'default:' switch-case to retain warnings should
-'enum zfcp_erp_act_type' ever be extended and no explicit case be
-introduced. See also v5.0 commit 399b6c8bc9f7 ("scsi: zfcp: drop old
-default switch case which might paper over missing case").
-
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Reviewed-by: Steffen Maier <maier@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: http://lkml.kernel.org/r/9f99f5ce6a0563d5266e6cf7aa9585aac2cae971.1558117389.git.jaharkes@cs.cmu.edu
+Signed-off-by: Mikko Rapeli <mikko.rapeli@iki.fi>
+Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Colin Ian King <colin.king@canonical.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Fabian Frederick <fabf@skynet.be>
+Cc: Sam Protsenko <semen.protsenko@linaro.org>
+Cc: Yann Droneaud <ydroneaud@opteya.com>
+Cc: Zhouyang Jia <jiazhouyang09@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/scsi/zfcp_erp.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ include/linux/coda_psdev.h      | 11 +++++++++++
+ include/uapi/linux/coda_psdev.h | 13 -------------
+ 2 files changed, 11 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
-index abe460eac7126..cc62d8cc8cfdd 100644
---- a/drivers/s390/scsi/zfcp_erp.c
-+++ b/drivers/s390/scsi/zfcp_erp.c
-@@ -10,6 +10,7 @@
- #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+diff --git a/include/linux/coda_psdev.h b/include/linux/coda_psdev.h
+index 5b8721efa948e..fe1466daf2918 100644
+--- a/include/linux/coda_psdev.h
++++ b/include/linux/coda_psdev.h
+@@ -19,6 +19,17 @@ struct venus_comm {
+ 	struct mutex	    vc_mutex;
+ };
  
- #include <linux/kthread.h>
-+#include <linux/bug.h>
- #include "zfcp_ext.h"
- #include "zfcp_reqlist.h"
++/* messages between coda filesystem in kernel and Venus */
++struct upc_req {
++	struct list_head	uc_chain;
++	caddr_t			uc_data;
++	u_short			uc_flags;
++	u_short			uc_inSize;  /* Size is at most 5000 bytes */
++	u_short			uc_outSize;
++	u_short			uc_opcode;  /* copied from data to save lookup */
++	int			uc_unique;
++	wait_queue_head_t	uc_sleep;   /* process' wait queue */
++};
  
-@@ -244,6 +245,12 @@ static struct zfcp_erp_action *zfcp_erp_setup_act(int need, u32 act_status,
- 	struct zfcp_erp_action *erp_action;
- 	struct zfcp_scsi_dev *zfcp_sdev;
+ static inline struct venus_comm *coda_vcp(struct super_block *sb)
+ {
+diff --git a/include/uapi/linux/coda_psdev.h b/include/uapi/linux/coda_psdev.h
+index 79d05981fc4b0..e2c44d2f7d5bd 100644
+--- a/include/uapi/linux/coda_psdev.h
++++ b/include/uapi/linux/coda_psdev.h
+@@ -6,19 +6,6 @@
+ #define CODA_PSDEV_MAJOR 67
+ #define MAX_CODADEVS  5	   /* how many do we allow */
  
-+	if (WARN_ON_ONCE(need != ZFCP_ERP_ACTION_REOPEN_LUN &&
-+			 need != ZFCP_ERP_ACTION_REOPEN_PORT &&
-+			 need != ZFCP_ERP_ACTION_REOPEN_PORT_FORCED &&
-+			 need != ZFCP_ERP_ACTION_REOPEN_ADAPTER))
-+		return NULL;
-+
- 	switch (need) {
- 	case ZFCP_ERP_ACTION_REOPEN_LUN:
- 		zfcp_sdev = sdev_to_zfcp(sdev);
+-
+-/* messages between coda filesystem in kernel and Venus */
+-struct upc_req {
+-	struct list_head    uc_chain;
+-	caddr_t	            uc_data;
+-	u_short	            uc_flags;
+-	u_short             uc_inSize;  /* Size is at most 5000 bytes */
+-	u_short	            uc_outSize;
+-	u_short	            uc_opcode;  /* copied from data to save lookup */
+-	int		    uc_unique;
+-	wait_queue_head_t   uc_sleep;   /* process' wait queue */
+-};
+-
+ #define CODA_REQ_ASYNC  0x1
+ #define CODA_REQ_READ   0x2
+ #define CODA_REQ_WRITE  0x4
 -- 
 2.20.1
 
