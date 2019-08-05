@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6294D81C36
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:21:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A5BB81C34
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 15:21:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730384AbfHENVR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 09:21:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57256 "EHLO mail.kernel.org"
+        id S1729423AbfHENVK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 09:21:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730449AbfHENVH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 09:21:07 -0400
+        id S1730464AbfHENVK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 09:21:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 437B320657;
-        Mon,  5 Aug 2019 13:21:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4A772067D;
+        Mon,  5 Aug 2019 13:21:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565011266;
-        bh=2anYfaSMEW9hwR3HSdQR1JHRUgCCY3/Xz79c8TsQN2Q=;
+        s=default; t=1565011269;
+        bh=cHYcYpRX38VyjXDP1Qyh/hdD+iEaZNZ/xlqBy1Xp3vQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cCwYEf39Wu084CzJH0msksYQCSFyo6VfCdf1pfPjFT/hvbeyDsbhSf0s6Pd2rHNly
-         9ywyKvtrRe9T/ZQSpONLbE2qk1MEcKsPux8Ts15SWs94NDC0+JUPe2yXICNxiZgMbZ
-         iTnlR521KU8DOEyQSzlF83rwlJ8KA1GOJbX9c/xg=
+        b=kgSOpiWX8mWnIZN0iwZMTafGMKa6SxdpeuX/l0MCiUDH+JJmYN3+vxtxwTpN8cHN7
+         HyqT8wzgWMz6FFdS2QNDrItKYoh66GYC2xiwvbb/iq49tJTHe/iRt5bZzhLnbG5DCE
+         ikL/WSSkQDoYbBXb5EgXEY+MPRdmPE2hE2cQW/cc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 027/131] btrfs: fix minimum number of chunk errors for DUP
-Date:   Mon,  5 Aug 2019 15:01:54 +0200
-Message-Id: <20190805124953.257152699@linuxfoundation.org>
+Subject: [PATCH 5.2 028/131] btrfs: Flush before reflinking any extent to prevent NOCOW write falling back to COW without data reservation
+Date:   Mon,  5 Aug 2019 15:01:55 +0200
+Message-Id: <20190805124953.324574894@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
 References: <20190805124951.453337465@linuxfoundation.org>
@@ -44,46 +44,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0ee5f8ae082e1f675a2fb6db601c31ac9958a134 ]
+[ Upstream commit a94d1d0cb3bf1983fcdf05b59d914dbff4f1f52c ]
 
-The list of profiles in btrfs_chunk_max_errors lists DUP as a profile
-DUP able to tolerate 1 device missing. Though this profile is special
-with 2 copies, it still needs the device, unlike the others.
+[BUG]
+The following script can cause unexpected fsync failure:
 
-Looking at the history of changes, thre's no clear reason why DUP is
-there, functions were refactored and blocks of code merged to one
-helper.
+  #!/bin/bash
 
-d20983b40e828 Btrfs: fix writing data into the seed filesystem
-  - factor code to a helper
+  dev=/dev/test/test
+  mnt=/mnt/btrfs
 
-de11cc12df173 Btrfs: don't pre-allocate btrfs bio
-  - unrelated change, DUP still in the list with max errors 1
+  mkfs.btrfs -f $dev -b 512M > /dev/null
+  mount $dev $mnt -o nospace_cache
 
-a236aed14ccb0 Btrfs: Deal with failed writes in mirrored configurations
-  - introduced the max errors, leaves DUP and RAID1 in the same group
+  # Prealloc one extent
+  xfs_io -f -c "falloc 8k 64m" $mnt/file1
+  # Fill the remaining data space
+  xfs_io -f -c "pwrite 0 -b 4k 512M" $mnt/padding
+  sync
 
-Reviewed-by: Qu Wenruo <wqu@suse.com>
+  # Write into the prealloc extent
+  xfs_io -c "pwrite 1m 16m" $mnt/file1
+
+  # Reflink then fsync, fsync would fail due to ENOSPC
+  xfs_io -c "reflink $mnt/file1 8k 0 4k" -c "fsync" $mnt/file1
+  umount $dev
+
+The fsync fails with ENOSPC, and the last page of the buffered write is
+lost.
+
+[CAUSE]
+This is caused by:
+- Btrfs' back reference only has extent level granularity
+  So write into shared extent must be COWed even only part of the extent
+  is shared.
+
+So for above script we have:
+- fallocate
+  Create a preallocated extent where we can do NOCOW write.
+
+- fill all the remaining data and unallocated space
+
+- buffered write into preallocated space
+  As we have not enough space available for data and the extent is not
+  shared (yet) we fall into NOCOW mode.
+
+- reflink
+  Now part of the large preallocated extent is shared, later write
+  into that extent must be COWed.
+
+- fsync triggers writeback
+  But now the extent is shared and therefore we must fallback into COW
+  mode, which fails with ENOSPC since there's not enough space to
+  allocate data extents.
+
+[WORKAROUND]
+The workaround is to ensure any buffered write in the related extents
+(not just the reflink source range) get flushed before reflink/dedupe,
+so that NOCOW writes succeed that happened before reflinking succeed.
+
+The workaround is expensive, we could do it better by only flushing
+NOCOW range, but that needs extra accounting for NOCOW range.
+For now, fix the possible data loss first.
+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/btrfs/ioctl.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index 1c2a6e4b39da7..8508f6028c8d2 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -5328,8 +5328,7 @@ static inline int btrfs_chunk_max_errors(struct map_lookup *map)
+diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
+index 2a1be0d1a6986..5b4beebf138ce 100644
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -3999,6 +3999,27 @@ static int btrfs_remap_file_range_prep(struct file *file_in, loff_t pos_in,
+ 	if (!same_inode)
+ 		inode_dio_wait(inode_out);
  
- 	if (map->type & (BTRFS_BLOCK_GROUP_RAID1 |
- 			 BTRFS_BLOCK_GROUP_RAID10 |
--			 BTRFS_BLOCK_GROUP_RAID5 |
--			 BTRFS_BLOCK_GROUP_DUP)) {
-+			 BTRFS_BLOCK_GROUP_RAID5)) {
- 		max_errors = 1;
- 	} else if (map->type & BTRFS_BLOCK_GROUP_RAID6) {
- 		max_errors = 2;
++	/*
++	 * Workaround to make sure NOCOW buffered write reach disk as NOCOW.
++	 *
++	 * Btrfs' back references do not have a block level granularity, they
++	 * work at the whole extent level.
++	 * NOCOW buffered write without data space reserved may not be able
++	 * to fall back to CoW due to lack of data space, thus could cause
++	 * data loss.
++	 *
++	 * Here we take a shortcut by flushing the whole inode, so that all
++	 * nocow write should reach disk as nocow before we increase the
++	 * reference of the extent. We could do better by only flushing NOCOW
++	 * data, but that needs extra accounting.
++	 *
++	 * Also we don't need to check ASYNC_EXTENT, as async extent will be
++	 * CoWed anyway, not affecting nocow part.
++	 */
++	ret = filemap_flush(inode_in->i_mapping);
++	if (ret < 0)
++		return ret;
++
+ 	ret = btrfs_wait_ordered_range(inode_in, ALIGN_DOWN(pos_in, bs),
+ 				       wb_len);
+ 	if (ret < 0)
 -- 
 2.20.1
 
