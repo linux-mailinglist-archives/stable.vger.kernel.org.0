@@ -2,59 +2,214 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C826181938
-	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 14:25:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53CB48197A
+	for <lists+stable@lfdr.de>; Mon,  5 Aug 2019 14:39:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728028AbfHEMZs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 08:25:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58692 "EHLO mail.kernel.org"
+        id S1726834AbfHEMjY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 08:39:24 -0400
+Received: from mga01.intel.com ([192.55.52.88]:21458 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727259AbfHEMZr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 08:25:47 -0400
-Received: from pobox.suse.cz (prg-ext-pat.suse.com [213.151.95.130])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 399262086D;
-        Mon,  5 Aug 2019 12:25:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565007947;
-        bh=z/rXzK3fVSHKaQ3W0t1WANwveIskt8hBss5bKhDSdXU=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=fwW/JW4PPdK344AWUoKB45NQ9nRSps6rs2winulERO1bBadTWAdHDyQdnTWGpssqB
-         Es0BExOYPXj/I+pdmQAGQsL9nVxOndPCX4I0e020w01ONpp/gRKXCKeEC0PLbdWdQB
-         ojwmXi+nL2h37vsFm91aD1IGh7f0BS44ja0KJwhE=
-Date:   Mon, 5 Aug 2019 14:25:43 +0200 (CEST)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Sebastian Parschauer <s.parschauer@gmx.de>
-cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] HID: Add quirk for HP X1200 PIXART OEM mouse
-In-Reply-To: <20190724184003.12402-1-s.parschauer@gmx.de>
-Message-ID: <nycvar.YFH.7.76.1908051425350.5899@cbobk.fhfr.pm>
-References: <20190724184003.12402-1-s.parschauer@gmx.de>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        id S1726508AbfHEMjY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 08:39:24 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 05:39:23 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,349,1559545200"; 
+   d="scan'208";a="192411599"
+Received: from lahna.fi.intel.com (HELO lahna) ([10.237.72.157])
+  by fmsmga001.fm.intel.com with SMTP; 05 Aug 2019 05:39:20 -0700
+Received: by lahna (sSMTP sendmail emulation); Mon, 05 Aug 2019 15:39:20 +0300
+Date:   Mon, 5 Aug 2019 15:39:20 +0300
+From:   Mika Westerberg <mika.westerberg@linux.intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Justin Forbes <jmforbes@linuxtx.org>,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.2 123/413] PCI: Add missing link delays required by the
+ PCIe spec
+Message-ID: <20190805123920.GN2640@lahna.fi.intel.com>
+References: <20190724191735.096702571@linuxfoundation.org>
+ <20190724191743.977277445@linuxfoundation.org>
+ <CAFxkdApc6V=7qS+XEVSLy-v0AgqUQ8faKbjFXv18Px7VcxHgBw@mail.gmail.com>
+ <20190803065000.GE10855@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190803065000.GE10855@kroah.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 24 Jul 2019, Sebastian Parschauer wrote:
+Hi,
 
-> The PixArt OEM mice are known for disconnecting every minute in
-> runlevel 1 or 3 if they are not always polled. So add quirk
-> ALWAYS_POLL for this one as well.
+On Sat, Aug 03, 2019 at 08:50:00AM +0200, Greg Kroah-Hartman wrote:
+> On Fri, Aug 02, 2019 at 12:06:39PM -0500, Justin Forbes wrote:
+> > On Wed, Jul 24, 2019 at 3:31 PM Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> > >
+> > > [ Upstream commit c2bf1fc212f7e6f25ace1af8f0b3ac061ea48ba5 ]
+> > >
+> > > Currently Linux does not follow PCIe spec regarding the required delays
+> > > after reset. A concrete example is a Thunderbolt add-in-card that
+> > > consists of a PCIe switch and two PCIe endpoints:
+> > >
+> > >   +-1b.0-[01-6b]----00.0-[02-6b]--+-00.0-[03]----00.0 TBT controller
+> > >                                   +-01.0-[04-36]-- DS hotplug port
+> > >                                   +-02.0-[37]----00.0 xHCI controller
+> > >                                   \-04.0-[38-6b]-- DS hotplug port
+> > >
+> > > The root port (1b.0) and the PCIe switch downstream ports are all PCIe
+> > > gen3 so they support 8GT/s link speeds.
+> > >
+> > > We wait for the PCIe hierarchy to enter D3cold (runtime):
+> > >
+> > >   pcieport 0000:00:1b.0: power state changed by ACPI to D3cold
+> > >
+> > > When it wakes up from D3cold, according to the PCIe 4.0 section 5.8 the
+> > > PCIe switch is put to reset and its power is re-applied. This means that
+> > > we must follow the rules in PCIe 4.0 section 6.6.1.
+> > >
+> > > For the PCIe gen3 ports we are dealing with here, the following applies:
+> > >
+> > >   With a Downstream Port that supports Link speeds greater than 5.0
+> > >   GT/s, software must wait a minimum of 100 ms after Link training
+> > >   completes before sending a Configuration Request to the device
+> > >   immediately below that Port. Software can determine when Link training
+> > >   completes by polling the Data Link Layer Link Active bit or by setting
+> > >   up an associated interrupt (see Section 6.7.3.3).
+> > >
+> > > Translating this into the above topology we would need to do this (DLLLA
+> > > stands for Data Link Layer Link Active):
+> > >
+> > >   pcieport 0000:00:1b.0: wait for 100ms after DLLLA is set before access to 0000:01:00.0
+> > >   pcieport 0000:02:00.0: wait for 100ms after DLLLA is set before access to 0000:03:00.0
+> > >   pcieport 0000:02:02.0: wait for 100ms after DLLLA is set before access to 0000:37:00.0
+> > >
+> > > I've instrumented the kernel with additional logging so we can see the
+> > > actual delays the kernel performs:
+> > >
+> > >   pcieport 0000:00:1b.0: power state changed by ACPI to D0
+> > >   pcieport 0000:00:1b.0: waiting for D3cold delay of 100 ms
+> > >   pcieport 0000:00:1b.0: waking up bus
+> > >   pcieport 0000:00:1b.0: waiting for D3hot delay of 10 ms
+> > >   pcieport 0000:00:1b.0: restoring config space at offset 0x2c (was 0x60, writing 0x60)
+> > >   ...
+> > >   pcieport 0000:00:1b.0: PME# disabled
+> > >   pcieport 0000:01:00.0: restoring config space at offset 0x3c (was 0x1ff, writing 0x201ff)
+> > >   ...
+> > >   pcieport 0000:01:00.0: PME# disabled
+> > >   pcieport 0000:02:00.0: restoring config space at offset 0x3c (was 0x1ff, writing 0x201ff)
+> > >   ...
+> > >   pcieport 0000:02:00.0: PME# disabled
+> > >   pcieport 0000:02:01.0: restoring config space at offset 0x3c (was 0x1ff, writing 0x201ff)
+> > >   ...
+> > >   pcieport 0000:02:01.0: restoring config space at offset 0x4 (was 0x100000, writing 0x100407)
+> > >   pcieport 0000:02:01.0: PME# disabled
+> > >   pcieport 0000:02:02.0: restoring config space at offset 0x3c (was 0x1ff, writing 0x201ff)
+> > >   ...
+> > >   pcieport 0000:02:02.0: PME# disabled
+> > >   pcieport 0000:02:04.0: restoring config space at offset 0x3c (was 0x1ff, writing 0x201ff)
+> > >   ...
+> > >   pcieport 0000:02:04.0: PME# disabled
+> > >   pcieport 0000:02:01.0: PME# enabled
+> > >   pcieport 0000:02:01.0: waiting for D3hot delay of 10 ms
+> > >   pcieport 0000:02:04.0: PME# enabled
+> > >   pcieport 0000:02:04.0: waiting for D3hot delay of 10 ms
+> > >   thunderbolt 0000:03:00.0: restoring config space at offset 0x14 (was 0x0, writing 0x8a040000)
+> > >   ...
+> > >   thunderbolt 0000:03:00.0: PME# disabled
+> > >   xhci_hcd 0000:37:00.0: restoring config space at offset 0x10 (was 0x0, writing 0x73f00000)
+> > >   ...
+> > >   xhci_hcd 0000:37:00.0: PME# disabled
+> > >
+> > > For the switch upstream port (01:00.0) we wait for 100ms but not taking
+> > > into account the DLLLA requirement. We then wait 10ms for D3hot -> D0
+> > > transition of the root port and the two downstream hotplug ports. This
+> > > means that we deviate from what the spec requires.
+> > >
+> > > Performing the same check for system sleep (s2idle) transitions we can
+> > > see following when resuming from s2idle:
+> > >
+> > >   pcieport 0000:00:1b.0: power state changed by ACPI to D0
+> > >   pcieport 0000:00:1b.0: restoring config space at offset 0x2c (was 0x60, writing 0x60)
+> > >   ...
+> > >   pcieport 0000:01:00.0: restoring config space at offset 0x3c (was 0x1ff, writing 0x201ff)
+> > >   ...
+> > >   pcieport 0000:02:02.0: restoring config space at offset 0x3c (was 0x1ff, writing 0x201ff)
+> > >   pcieport 0000:02:02.0: restoring config space at offset 0x2c (was 0x0, writing 0x0)
+> > >   pcieport 0000:02:01.0: restoring config space at offset 0x3c (was 0x1ff, writing 0x201ff)
+> > >   pcieport 0000:02:04.0: restoring config space at offset 0x3c (was 0x1ff, writing 0x201ff)
+> > >   pcieport 0000:02:02.0: restoring config space at offset 0x28 (was 0x0, writing 0x0)
+> > >   pcieport 0000:02:00.0: restoring config space at offset 0x3c (was 0x1ff, writing 0x201ff)
+> > >   pcieport 0000:02:02.0: restoring config space at offset 0x24 (was 0x10001, writing 0x1fff1)
+> > >   pcieport 0000:02:01.0: restoring config space at offset 0x2c (was 0x0, writing 0x60)
+> > >   pcieport 0000:02:02.0: restoring config space at offset 0x20 (was 0x0, writing 0x73f073f0)
+> > >   pcieport 0000:02:04.0: restoring config space at offset 0x2c (was 0x0, writing 0x60)
+> > >   pcieport 0000:02:01.0: restoring config space at offset 0x28 (was 0x0, writing 0x60)
+> > >   pcieport 0000:02:00.0: restoring config space at offset 0x2c (was 0x0, writing 0x0)
+> > >   pcieport 0000:02:02.0: restoring config space at offset 0x1c (was 0x101, writing 0x1f1)
+> > >   pcieport 0000:02:04.0: restoring config space at offset 0x28 (was 0x0, writing 0x60)
+> > >   pcieport 0000:02:01.0: restoring config space at offset 0x24 (was 0x10001, writing 0x1ff10001)
+> > >   pcieport 0000:02:00.0: restoring config space at offset 0x28 (was 0x0, writing 0x0)
+> > >   pcieport 0000:02:02.0: restoring config space at offset 0x18 (was 0x0, writing 0x373702)
+> > >   pcieport 0000:02:04.0: restoring config space at offset 0x24 (was 0x10001, writing 0x49f12001)
+> > >   pcieport 0000:02:01.0: restoring config space at offset 0x20 (was 0x0, writing 0x73e05c00)
+> > >   pcieport 0000:02:00.0: restoring config space at offset 0x24 (was 0x10001, writing 0x1fff1)
+> > >   pcieport 0000:02:04.0: restoring config space at offset 0x20 (was 0x0, writing 0x89f07400)
+> > >   pcieport 0000:02:01.0: restoring config space at offset 0x1c (was 0x101, writing 0x5151)
+> > >   pcieport 0000:02:00.0: restoring config space at offset 0x20 (was 0x0, writing 0x8a008a00)
+> > >   pcieport 0000:02:02.0: restoring config space at offset 0xc (was 0x10000, writing 0x10020)
+> > >   pcieport 0000:02:04.0: restoring config space at offset 0x1c (was 0x101, writing 0x6161)
+> > >   pcieport 0000:02:01.0: restoring config space at offset 0x18 (was 0x0, writing 0x360402)
+> > >   pcieport 0000:02:00.0: restoring config space at offset 0x1c (was 0x101, writing 0x1f1)
+> > >   pcieport 0000:02:04.0: restoring config space at offset 0x18 (was 0x0, writing 0x6b3802)
+> > >   pcieport 0000:02:02.0: restoring config space at offset 0x4 (was 0x100000, writing 0x100407)
+> > >   pcieport 0000:02:00.0: restoring config space at offset 0x18 (was 0x0, writing 0x30302)
+> > >   pcieport 0000:02:01.0: restoring config space at offset 0xc (was 0x10000, writing 0x10020)
+> > >   pcieport 0000:02:04.0: restoring config space at offset 0xc (was 0x10000, writing 0x10020)
+> > >   pcieport 0000:02:00.0: restoring config space at offset 0xc (was 0x10000, writing 0x10020)
+> > >   pcieport 0000:02:01.0: restoring config space at offset 0x4 (was 0x100000, writing 0x100407)
+> > >   pcieport 0000:02:04.0: restoring config space at offset 0x4 (was 0x100000, writing 0x100407)
+> > >   pcieport 0000:02:00.0: restoring config space at offset 0x4 (was 0x100000, writing 0x100407)
+> > >   xhci_hcd 0000:37:00.0: restoring config space at offset 0x10 (was 0x0, writing 0x73f00000)
+> > >   ...
+> > >   thunderbolt 0000:03:00.0: restoring config space at offset 0x14 (was 0x0, writing 0x8a040000)
+> > >
+> > > This is even worse. None of the mandatory delays are performed. If this
+> > > would be S3 instead of s2idle then according to PCI FW spec 3.2 section
+> > > 4.6.8.  there is a specific _DSM that allows the OS to skip the delays
+> > > but this platform does not provide the _DSM and does not go to S3 anyway
+> > > so no firmware is involved that could already handle these delays.
+> > >
+> > > In this particular Intel Coffee Lake platform these delays are not
+> > > actually needed because there is an additional delay as part of the ACPI
+> > > power resource that is used to turn on power to the hierarchy but since
+> > > that additional delay is not required by any of standards (PCIe, ACPI)
+> > > it is not present in the Intel Ice Lake, for example where missing the
+> > > mandatory delays causes pciehp to start tearing down the stack too early
+> > > (links are not yet trained).
+> > >
+> > > For this reason, change the PCIe portdrv PM resume hooks so that they
+> > > perform the mandatory delays before the downstream component gets
+> > > resumed. We perform the delays before port services are resumed because
+> > > otherwise pciehp might find that the link is not up (even if it is just
+> > > training) and tears-down the hierarchy.
+> > >
+> > 
+> > We have gotten multiple reports in Fedora that this patch has broken
+> > suspend for users of 5.1.20 and 5.2 stable kernels.
 > 
-> Jonathan Teh (@jonathan-teh) reported and tested the quirk.
-> Reference: https://github.com/sriemer/fix-linux-mouse/issues/15
-> 
-> Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
-> CC: stable@vger.kernel.org
+> And is the issue also in 5.3-rcX kernels?  If so, can we either get this
+> reverted there, or find the fix for it?
 
-Applied, thanks.
+AFAIK the issue is also in v5.3-rcX.
 
--- 
-Jiri Kosina
-SUSE Labs
-
+I started looking at the issue now. Hopefully there is a better solution
+than revert but let's see.
