@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A0CA83C5D
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:42:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FBDD83C5B
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:42:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727784AbfHFVlX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:41:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54064 "EHLO mail.kernel.org"
+        id S1728015AbfHFVlR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:41:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728887AbfHFVgQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:36:16 -0400
+        id S1728898AbfHFVgS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:36:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB00A21871;
-        Tue,  6 Aug 2019 21:36:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C30912187F;
+        Tue,  6 Aug 2019 21:36:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127375;
-        bh=l9lNgHY2O3o2XR+hkENaOk5pAlN16gJqUbwHG1j/Euk=;
+        s=default; t=1565127377;
+        bh=vMeXn4r8zIRk/kbjlB9xWUci9fJf1v22wI04NOoZ6+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xomnEifnu/s7IvJWZcqozrz45vbTOMICJnPNfVq1CnMyvRAS3h6A0p8P41druEvbZ
-         qaOzTje5J1VjXAaNY4LYjzJeYkUIcC8tyHtg0cW0MmS/bO3TQ5p3KFTj2atg/r0X7m
-         7tu4cSUeTfZ3V/n1gFj1AHckz/y6HDPLzwNwAnlA=
+        b=s+QePJ3G06ESw8aXi3AbyVzNAALiman8kJSlLUU11pPkqeVACDTcDRcuUb299xkem
+         SACiha8S5L1mLVsOvrjbO+ymWI3QsR7gAMYiTigI1fyUNXXsCeAgKwMYWNwpXp9mGs
+         PQYn5Mgz7s4vjVS2JSOWmhHbI/IiSuF+jtF8nxjE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Inki Dae <inki.dae@samsung.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 28/32] drm/exynos: fix missing decrement of retry counter
-Date:   Tue,  6 Aug 2019 17:35:16 -0400
-Message-Id: <20190806213522.19859-28-sashal@kernel.org>
+Cc:     Yang Shi <yang.shi@linux.alibaba.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Matthew Wilcox <willy@infradead.org>, Qian Cai <cai@lca.pw>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 4.19 29/32] Revert "kmemleak: allow to coexist with fault injection"
+Date:   Tue,  6 Aug 2019 17:35:17 -0400
+Message-Id: <20190806213522.19859-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213522.19859-1-sashal@kernel.org>
 References: <20190806213522.19859-1-sashal@kernel.org>
@@ -44,41 +49,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Yang Shi <yang.shi@linux.alibaba.com>
 
-[ Upstream commit 1bbbab097a05276e312dd2462791d32b21ceb1ee ]
+[ Upstream commit df9576def004d2cd5beedc00cb6e8901427634b9 ]
 
-Currently the retry counter is not being decremented, leading to a
-potential infinite spin if the scalar_reads don't change state.
+When running ltp's oom test with kmemleak enabled, the below warning was
+triggerred since kernel detects __GFP_NOFAIL & ~__GFP_DIRECT_RECLAIM is
+passed in:
 
-Addresses-Coverity: ("Infinite loop")
-Fixes: 280e54c9f614 ("drm/exynos: scaler: Reset hardware before starting the operation")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Inki Dae <inki.dae@samsung.com>
+  WARNING: CPU: 105 PID: 2138 at mm/page_alloc.c:4608 __alloc_pages_nodemask+0x1c31/0x1d50
+  Modules linked in: loop dax_pmem dax_pmem_core ip_tables x_tables xfs virtio_net net_failover virtio_blk failover ata_generic virtio_pci virtio_ring virtio libata
+  CPU: 105 PID: 2138 Comm: oom01 Not tainted 5.2.0-next-20190710+ #7
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.10.2-0-g5f4c7b1-prebuilt.qemu-project.org 04/01/2014
+  RIP: 0010:__alloc_pages_nodemask+0x1c31/0x1d50
+  ...
+   kmemleak_alloc+0x4e/0xb0
+   kmem_cache_alloc+0x2a7/0x3e0
+   mempool_alloc_slab+0x2d/0x40
+   mempool_alloc+0x118/0x2b0
+   bio_alloc_bioset+0x19d/0x350
+   get_swap_bio+0x80/0x230
+   __swap_writepage+0x5ff/0xb20
+
+The mempool_alloc_slab() clears __GFP_DIRECT_RECLAIM, however kmemleak
+has __GFP_NOFAIL set all the time due to d9570ee3bd1d4f2 ("kmemleak:
+allow to coexist with fault injection").  But, it doesn't make any sense
+to have __GFP_NOFAIL and ~__GFP_DIRECT_RECLAIM specified at the same
+time.
+
+According to the discussion on the mailing list, the commit should be
+reverted for short term solution.  Catalin Marinas would follow up with
+a better solution for longer term.
+
+The failure rate of kmemleak metadata allocation may increase in some
+circumstances, but this should be expected side effect.
+
+Link: http://lkml.kernel.org/r/1563299431-111710-1-git-send-email-yang.shi@linux.alibaba.com
+Fixes: d9570ee3bd1d4f2 ("kmemleak: allow to coexist with fault injection")
+Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Qian Cai <cai@lca.pw>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/exynos/exynos_drm_scaler.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/kmemleak.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/exynos/exynos_drm_scaler.c b/drivers/gpu/drm/exynos/exynos_drm_scaler.c
-index 0ddb6eec7b113..df228436a03d9 100644
---- a/drivers/gpu/drm/exynos/exynos_drm_scaler.c
-+++ b/drivers/gpu/drm/exynos/exynos_drm_scaler.c
-@@ -108,12 +108,12 @@ static inline int scaler_reset(struct scaler_context *scaler)
- 	scaler_write(SCALER_CFG_SOFT_RESET, SCALER_CFG);
- 	do {
- 		cpu_relax();
--	} while (retry > 1 &&
-+	} while (--retry > 1 &&
- 		 scaler_read(SCALER_CFG) & SCALER_CFG_SOFT_RESET);
- 	do {
- 		cpu_relax();
- 		scaler_write(1, SCALER_INT_EN);
--	} while (retry > 0 && scaler_read(SCALER_INT_EN) != 1);
-+	} while (--retry > 0 && scaler_read(SCALER_INT_EN) != 1);
+diff --git a/mm/kmemleak.c b/mm/kmemleak.c
+index 6c94b6865ac22..5eeabece0c178 100644
+--- a/mm/kmemleak.c
++++ b/mm/kmemleak.c
+@@ -126,7 +126,7 @@
+ /* GFP bitmask for kmemleak internal allocations */
+ #define gfp_kmemleak_mask(gfp)	(((gfp) & (GFP_KERNEL | GFP_ATOMIC)) | \
+ 				 __GFP_NORETRY | __GFP_NOMEMALLOC | \
+-				 __GFP_NOWARN | __GFP_NOFAIL)
++				 __GFP_NOWARN)
  
- 	return retry ? 0 : -EIO;
- }
+ /* scanning area inside a memory block */
+ struct kmemleak_scan_area {
 -- 
 2.20.1
 
