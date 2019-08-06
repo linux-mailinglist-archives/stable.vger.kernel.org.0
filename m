@@ -2,139 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E04C682A38
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 06:21:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 907CC82ABF
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 07:16:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726092AbfHFEVG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 00:21:06 -0400
-Received: from emh03.mail.saunalahti.fi ([62.142.5.109]:58750 "EHLO
-        emh03.mail.saunalahti.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725747AbfHFEVF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Aug 2019 00:21:05 -0400
-Received: from toshiba (85-76-131-212-nat.elisa-mobile.fi [85.76.131.212])
-        by emh03.mail.saunalahti.fi (Postfix) with ESMTP id 0A83540021;
-        Tue,  6 Aug 2019 07:21:02 +0300 (EEST)
-Message-ID: <5D490021.F1CCC042@users.sourceforge.net>
-Date:   Tue, 06 Aug 2019 07:20:49 +0300
-From:   Jari Ruusu <jariruusu@users.sourceforge.net>
-MIME-Version: 1.0
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        id S1726036AbfHFFQj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 01:16:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42634 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725798AbfHFFQj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 01:16:39 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id F05242147A;
+        Tue,  6 Aug 2019 05:16:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1565068598;
+        bh=o/TrSHzdSPhTYDkhxb6OehuJTgPmBqEkHNHSSX5LqfM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=qbdhTgRCp30p+7KwqPCnPTzvuDcBDxBPUkkoHcvcWmkSvv4FwzNk4RWGgbAzrUz8r
+         RWAHd3mQgY3zOR93MJ8d8wnNvzkauY0IDJXbn2UGT4WmLhFlbbGaIVdUEBqBtDlBop
+         l3gXUIobNA1Xu/r3o4n9KGa6mluy0/BNjqoTmtLA=
+Date:   Tue, 6 Aug 2019 07:16:35 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jari Ruusu <jariruusu@users.sourceforge.net>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
         akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
         patches@kernelci.org, ben.hutchings@codethink.co.uk,
         lkft-triage@lists.linaro.org, stable@vger.kernel.org,
         Peter Zijlstra <peterz@infradead.org>
 Subject: Re: [PATCH 4.9 00/42] 4.9.188-stable review
+Message-ID: <20190806051635.GA8525@kroah.com>
 References: <20190805124924.788666484@linuxfoundation.org>
-                 <5D488D55.B84FC098@users.sourceforge.net> <20190805201847.GA31714@kroah.com>
+ <5D488D55.B84FC098@users.sourceforge.net>
+ <20190805201847.GA31714@kroah.com>
+ <5D490021.F1CCC042@users.sourceforge.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <5D490021.F1CCC042@users.sourceforge.net>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greg Kroah-Hartman wrote:
-> On Mon, Aug 05, 2019 at 11:11:01PM +0300, Jari Ruusu wrote:
-> > Peter Zijlstra's "x86/atomic: Fix smp_mb__{before,after}_atomic()"
-> > upstream commit 69d927bba39517d0980462efc051875b7f4db185 seems to
-> > be missing/lost from 4.9 and older stable kernels.
+On Tue, Aug 06, 2019 at 07:20:49AM +0300, Jari Ruusu wrote:
+> Greg Kroah-Hartman wrote:
+> > On Mon, Aug 05, 2019 at 11:11:01PM +0300, Jari Ruusu wrote:
+> > > Peter Zijlstra's "x86/atomic: Fix smp_mb__{before,after}_atomic()"
+> > > upstream commit 69d927bba39517d0980462efc051875b7f4db185 seems to
+> > > be missing/lost from 4.9 and older stable kernels.
+> > 
+> > Can you send properly backported and tested patches?
 > 
-> Can you send properly backported and tested patches?
+> linux-4.4 backport of "x86/atomic: Fix smp_mb__{before,after}_atomic()".
+> Tested.
+> 
+> Signed-off-by: Jari Ruusu <jari.ruusu@gmail.com>
 
-linux-4.4 backport of "x86/atomic: Fix smp_mb__{before,after}_atomic()".
-Tested.
+Thanks for these, I'll review them after the next releases happen in a
+day or so.
 
-Signed-off-by: Jari Ruusu <jari.ruusu@gmail.com>
+thanks,
 
---- a/arch/x86/include/asm/atomic.h
-+++ b/arch/x86/include/asm/atomic.h
-@@ -49,7 +49,7 @@
- {
- 	asm volatile(LOCK_PREFIX "addl %1,%0"
- 		     : "+m" (v->counter)
--		     : "ir" (i));
-+		     : "ir" (i) : "memory");
- }
- 
- /**
-@@ -63,7 +63,7 @@
- {
- 	asm volatile(LOCK_PREFIX "subl %1,%0"
- 		     : "+m" (v->counter)
--		     : "ir" (i));
-+		     : "ir" (i) : "memory");
- }
- 
- /**
-@@ -89,7 +89,7 @@
- static __always_inline void atomic_inc(atomic_t *v)
- {
- 	asm volatile(LOCK_PREFIX "incl %0"
--		     : "+m" (v->counter));
-+		     : "+m" (v->counter) :: "memory");
- }
- 
- /**
-@@ -101,7 +101,7 @@
- static __always_inline void atomic_dec(atomic_t *v)
- {
- 	asm volatile(LOCK_PREFIX "decl %0"
--		     : "+m" (v->counter));
-+		     : "+m" (v->counter) :: "memory");
- }
- 
- /**
---- a/arch/x86/include/asm/atomic64_64.h
-+++ b/arch/x86/include/asm/atomic64_64.h
-@@ -44,7 +44,7 @@
- {
- 	asm volatile(LOCK_PREFIX "addq %1,%0"
- 		     : "=m" (v->counter)
--		     : "er" (i), "m" (v->counter));
-+		     : "er" (i), "m" (v->counter) : "memory");
- }
- 
- /**
-@@ -58,7 +58,7 @@
- {
- 	asm volatile(LOCK_PREFIX "subq %1,%0"
- 		     : "=m" (v->counter)
--		     : "er" (i), "m" (v->counter));
-+		     : "er" (i), "m" (v->counter) : "memory");
- }
- 
- /**
-@@ -85,7 +85,7 @@
- {
- 	asm volatile(LOCK_PREFIX "incq %0"
- 		     : "=m" (v->counter)
--		     : "m" (v->counter));
-+		     : "m" (v->counter) : "memory");
- }
- 
- /**
-@@ -98,7 +98,7 @@
- {
- 	asm volatile(LOCK_PREFIX "decq %0"
- 		     : "=m" (v->counter)
--		     : "m" (v->counter));
-+		     : "m" (v->counter) : "memory");
- }
- 
- /**
---- a/arch/x86/include/asm/barrier.h
-+++ b/arch/x86/include/asm/barrier.h
-@@ -116,7 +116,7 @@
- #endif
- 
- /* Atomic operations are already serializing on x86 */
--#define smp_mb__before_atomic()	barrier()
--#define smp_mb__after_atomic()	barrier()
-+#define smp_mb__before_atomic()	do { } while (0)
-+#define smp_mb__after_atomic()	do { } while (0)
- 
- #endif /* _ASM_X86_BARRIER_H */
-
--- 
-Jari Ruusu  4096R/8132F189 12D6 4C3A DCDA 0AA4 27BD  ACDF F073 3C80 8132 F189
+greg k-h
