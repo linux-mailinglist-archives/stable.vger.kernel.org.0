@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4088783B6F
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:35:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7408D83C7D
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:42:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728193AbfHFVfP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:35:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53032 "EHLO mail.kernel.org"
+        id S1728302AbfHFVfR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:35:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726431AbfHFVfP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:35:15 -0400
+        id S1727235AbfHFVfQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:35:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9FD3217D9;
-        Tue,  6 Aug 2019 21:35:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E2FE217F4;
+        Tue,  6 Aug 2019 21:35:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127314;
-        bh=IB6SHesi+A+4IuSaCxBprlGHXn7PaDRVN21talzL+Qg=;
+        s=default; t=1565127315;
+        bh=XOsntVnNfMkLhw6tQAGDyCjKPrCj1CGnibvOE8yWoXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZKXvf3D62mJWxNaWzGWXyJxt9xCCSI+axvqfo4YAIfLzKbFdoW3gWEEFkl4GW6xuU
-         3NmSNWdYLO7igq02iRH8h1GH11RMakxicVRz+WjaRG8UJDvs4WCCA0OLshAespTE62
-         +n9B0OceBYWjD+EjQ33XuZIoj38RHxmuYf0hbKio=
+        b=raHPJOLIno3BeSF5pMwGLMgA6fC5JW9sx+F01Ql0ZxdO7GOI/X3y53gtGD6WM6egq
+         MCttZE2rB2Stf+ir2OwiEl6Q+8hHyWenmJLvzqGYjzoIYzWEwhPBKn0lq0kHonuKGa
+         VFsTN8L0wHYjM6Lbg1GqwTukzjOq1CPLL28MQ0AQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Christoph Lameter <cl@linux.com>,
-        Mark Rutland <mark.rutland@arm.com>,
+Cc:     Paul Wise <pabs3@bonedaddy.net>, Jakub Wilk <jwilk@jwilk.net>,
+        Neil Horman <nhorman@tuxdriver.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 56/59] page flags: prioritize kasan bits over last-cpuid
-Date:   Tue,  6 Aug 2019 17:33:16 -0400
-Message-Id: <20190806213319.19203-56-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 57/59] coredump: split pipe command whitespace before expanding template
+Date:   Tue,  6 Aug 2019 17:33:17 -0400
+Message-Id: <20190806213319.19203-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213319.19203-1-sashal@kernel.org>
 References: <20190806213319.19203-1-sashal@kernel.org>
@@ -50,110 +45,196 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Paul Wise <pabs3@bonedaddy.net>
 
-[ Upstream commit ee38d94a0ad89890b770f6c876263cf9fcbfde84 ]
+[ Upstream commit 315c69261dd3fa12dbc830d4fa00d1fad98d3b03 ]
 
-ARM64 randdconfig builds regularly run into a build error, especially
-when NUMA_BALANCING and SPARSEMEM are enabled but not SPARSEMEM_VMEMMAP:
+Save the offsets of the start of each argument to avoid having to update
+pointers to each argument after every corename krealloc and to avoid
+having to duplicate the memory for the dump command.
 
-  #error "KASAN: not enough bits in page flags for tag"
+Executable names containing spaces were previously being expanded from
+%e or %E and then split in the middle of the filename.  This is
+incorrect behaviour since an argument list can represent arguments with
+spaces.
 
-The last-cpuid bits are already contitional on the available space, so
-the result of the calculation is a bit random on whether they were
-already left out or not.
+The splitting could lead to extra arguments being passed to the core
+dump handler that it might have interpreted as options or ignored
+completely.
 
-Adding the kasan tag bits before last-cpuid makes it much more likely to
-end up with a successful build here, and should be reliable for
-randconfig at least, as long as that does not randomize NR_CPUS or
-NODES_SHIFT but uses the defaults.
+Core dump handlers that are not aware of this Linux kernel issue will be
+using %e or %E without considering that it may be split and so they will
+be vulnerable to processes with spaces in their names breaking their
+argument list.  If their internals are otherwise well written, such as
+if they are written in shell but quote arguments, they will work better
+after this change than before.  If they are not well written, then there
+is a slight chance of breakage depending on the details of the code but
+they will already be fairly broken by the split filenames.
 
-In order for the modified check to not trigger in the x86 vdso32 code
-where all constants are wrong (building with -m32), enclose all the
-definitions with an #ifdef.
+Core dump handlers that are aware of this Linux kernel issue will be
+placing %e or %E as the last item in their core_pattern and then
+aggregating all of the remaining arguments into one, separated by
+spaces.  Alternatively they will be obtaining the filename via other
+methods.  Both of these will be compatible with the new arrangement.
 
-[arnd@arndb.de: build fix]
-  Link: http://lkml.kernel.org/r/CAK8P3a3Mno1SWTcuAOT0Wa9VS15pdU6EfnkxLbDpyS55yO04+g@mail.gmail.com
-Link: http://lkml.kernel.org/r/20190722115520.3743282-1-arnd@arndb.de
-Link: https://lore.kernel.org/lkml/20190618095347.3850490-1-arnd@arndb.de/
-Fixes: 2813b9c02962 ("kasan, mm, arm64: tag non slab memory allocated via pagealloc")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Andrey Konovalov <andreyknvl@google.com>
-Reviewed-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Andrey Konovalov <andreyknvl@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
+A side effect from this change is that unknown template types (for
+example %z) result in an empty argument to the dump handler instead of
+the argument being dropped.  This is a desired change as:
+
+It is easier for dump handlers to process empty arguments than dropped
+ones, especially if they are written in shell or don't pass each
+template item with a preceding command-line option in order to
+differentiate between individual template types.  Most core_patterns in
+the wild do not use options so they can confuse different template types
+(especially numeric ones) if an earlier one gets dropped in old kernels.
+If the kernel introduces a new template type and a core_pattern uses it,
+the core dump handler might not expect that the argument can be dropped
+in old kernels.
+
+For example, this can result in security issues when %d is dropped in
+old kernels.  This happened with the corekeeper package in Debian and
+resulted in the interface between corekeeper and Linux having to be
+rewritten to use command-line options to differentiate between template
+types.
+
+The core_pattern for most core dump handlers is written by the handler
+author who would generally not insert unknown template types so this
+change should be compatible with all the core dump handlers that exist.
+
+Link: http://lkml.kernel.org/r/20190528051142.24939-1-pabs3@bonedaddy.net
+Fixes: 74aadce98605 ("core_pattern: allow passing of arguments to user mode helper when core_pattern is a pipe")
+Signed-off-by: Paul Wise <pabs3@bonedaddy.net>
+Reported-by: Jakub Wilk <jwilk@jwilk.net> [https://bugs.debian.org/924398]
+Reported-by: Paul Wise <pabs3@bonedaddy.net> [https://lore.kernel.org/linux-fsdevel/c8b7ecb8508895bf4adb62a748e2ea2c71854597.camel@bonedaddy.net/]
+Suggested-by: Jakub Wilk <jwilk@jwilk.net>
+Acked-by: Neil Horman <nhorman@tuxdriver.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/vdso/vdso.h             |  1 +
- include/linux/page-flags-layout.h | 18 +++++++++++-------
- 2 files changed, 12 insertions(+), 7 deletions(-)
+ fs/coredump.c | 44 +++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 39 insertions(+), 5 deletions(-)
 
-diff --git a/arch/mips/vdso/vdso.h b/arch/mips/vdso/vdso.h
-index 14b1931be69c3..b65b169778e31 100644
---- a/arch/mips/vdso/vdso.h
-+++ b/arch/mips/vdso/vdso.h
-@@ -9,6 +9,7 @@
- #if _MIPS_SIM != _MIPS_SIM_ABI64 && defined(CONFIG_64BIT)
+diff --git a/fs/coredump.c b/fs/coredump.c
+index e42e17e55bfd5..b1ea7dfbd1494 100644
+--- a/fs/coredump.c
++++ b/fs/coredump.c
+@@ -7,6 +7,7 @@
+ #include <linux/stat.h>
+ #include <linux/fcntl.h>
+ #include <linux/swap.h>
++#include <linux/ctype.h>
+ #include <linux/string.h>
+ #include <linux/init.h>
+ #include <linux/pagemap.h>
+@@ -187,11 +188,13 @@ static int cn_print_exe_file(struct core_name *cn)
+  * name into corename, which must have space for at least
+  * CORENAME_MAX_SIZE bytes plus one byte for the zero terminator.
+  */
+-static int format_corename(struct core_name *cn, struct coredump_params *cprm)
++static int format_corename(struct core_name *cn, struct coredump_params *cprm,
++			   size_t **argv, int *argc)
+ {
+ 	const struct cred *cred = current_cred();
+ 	const char *pat_ptr = core_pattern;
+ 	int ispipe = (*pat_ptr == '|');
++	bool was_space = false;
+ 	int pid_in_pattern = 0;
+ 	int err = 0;
  
- /* Building 32-bit VDSO for the 64-bit kernel. Fake a 32-bit Kconfig. */
-+#define BUILD_VDSO32_64
- #undef CONFIG_64BIT
- #define CONFIG_32BIT 1
- #ifndef __ASSEMBLY__
-diff --git a/include/linux/page-flags-layout.h b/include/linux/page-flags-layout.h
-index 1dda31825ec4a..71283739ffd23 100644
---- a/include/linux/page-flags-layout.h
-+++ b/include/linux/page-flags-layout.h
-@@ -32,6 +32,7 @@
+@@ -201,12 +204,35 @@ static int format_corename(struct core_name *cn, struct coredump_params *cprm)
+ 		return -ENOMEM;
+ 	cn->corename[0] = '\0';
  
- #endif /* CONFIG_SPARSEMEM */
+-	if (ispipe)
++	if (ispipe) {
++		int argvs = sizeof(core_pattern) / 2;
++		(*argv) = kmalloc_array(argvs, sizeof(**argv), GFP_KERNEL);
++		if (!(*argv))
++			return -ENOMEM;
++		(*argv)[(*argc)++] = 0;
+ 		++pat_ptr;
++	}
  
-+#ifndef BUILD_VDSO32_64
- /*
-  * page->flags layout:
-  *
-@@ -76,20 +77,22 @@
- #define LAST_CPUPID_SHIFT 0
- #endif
+ 	/* Repeat as long as we have more pattern to process and more output
+ 	   space */
+ 	while (*pat_ptr) {
++		/*
++		 * Split on spaces before doing template expansion so that
++		 * %e and %E don't get split if they have spaces in them
++		 */
++		if (ispipe) {
++			if (isspace(*pat_ptr)) {
++				was_space = true;
++				pat_ptr++;
++				continue;
++			} else if (was_space) {
++				was_space = false;
++				err = cn_printf(cn, "%c", '\0');
++				if (err)
++					return err;
++				(*argv)[(*argc)++] = cn->used;
++			}
++		}
+ 		if (*pat_ptr != '%') {
+ 			err = cn_printf(cn, "%c", *pat_ptr++);
+ 		} else {
+@@ -546,6 +572,8 @@ void do_coredump(const kernel_siginfo_t *siginfo)
+ 	struct cred *cred;
+ 	int retval = 0;
+ 	int ispipe;
++	size_t *argv = NULL;
++	int argc = 0;
+ 	struct files_struct *displaced;
+ 	/* require nonrelative corefile path and be extra careful */
+ 	bool need_suid_safe = false;
+@@ -592,9 +620,10 @@ void do_coredump(const kernel_siginfo_t *siginfo)
  
--#if SECTIONS_WIDTH+ZONES_WIDTH+NODES_SHIFT+LAST_CPUPID_SHIFT <= BITS_PER_LONG - NR_PAGEFLAGS
-+#ifdef CONFIG_KASAN_SW_TAGS
-+#define KASAN_TAG_WIDTH 8
-+#else
-+#define KASAN_TAG_WIDTH 0
-+#endif
-+
-+#if SECTIONS_WIDTH+ZONES_WIDTH+NODES_SHIFT+LAST_CPUPID_SHIFT+KASAN_TAG_WIDTH \
-+	<= BITS_PER_LONG - NR_PAGEFLAGS
- #define LAST_CPUPID_WIDTH LAST_CPUPID_SHIFT
- #else
- #define LAST_CPUPID_WIDTH 0
- #endif
+ 	old_cred = override_creds(cred);
  
--#ifdef CONFIG_KASAN_SW_TAGS
--#define KASAN_TAG_WIDTH 8
- #if SECTIONS_WIDTH+NODES_WIDTH+ZONES_WIDTH+LAST_CPUPID_WIDTH+KASAN_TAG_WIDTH \
- 	> BITS_PER_LONG - NR_PAGEFLAGS
--#error "KASAN: not enough bits in page flags for tag"
--#endif
--#else
--#define KASAN_TAG_WIDTH 0
-+#error "Not enough bits in page flags"
- #endif
+-	ispipe = format_corename(&cn, &cprm);
++	ispipe = format_corename(&cn, &cprm, &argv, &argc);
  
- /*
-@@ -104,4 +107,5 @@
- #define LAST_CPUPID_NOT_IN_PAGE_FLAGS
- #endif
+ 	if (ispipe) {
++		int argi;
+ 		int dump_count;
+ 		char **helper_argv;
+ 		struct subprocess_info *sub_info;
+@@ -637,12 +666,16 @@ void do_coredump(const kernel_siginfo_t *siginfo)
+ 			goto fail_dropcount;
+ 		}
  
-+#endif
- #endif /* _LINUX_PAGE_FLAGS_LAYOUT */
+-		helper_argv = argv_split(GFP_KERNEL, cn.corename, NULL);
++		helper_argv = kmalloc_array(argc + 1, sizeof(*helper_argv),
++					    GFP_KERNEL);
+ 		if (!helper_argv) {
+ 			printk(KERN_WARNING "%s failed to allocate memory\n",
+ 			       __func__);
+ 			goto fail_dropcount;
+ 		}
++		for (argi = 0; argi < argc; argi++)
++			helper_argv[argi] = cn.corename + argv[argi];
++		helper_argv[argi] = NULL;
+ 
+ 		retval = -ENOMEM;
+ 		sub_info = call_usermodehelper_setup(helper_argv[0],
+@@ -652,7 +685,7 @@ void do_coredump(const kernel_siginfo_t *siginfo)
+ 			retval = call_usermodehelper_exec(sub_info,
+ 							  UMH_WAIT_EXEC);
+ 
+-		argv_free(helper_argv);
++		kfree(helper_argv);
+ 		if (retval) {
+ 			printk(KERN_INFO "Core dump to |%s pipe failed\n",
+ 			       cn.corename);
+@@ -766,6 +799,7 @@ void do_coredump(const kernel_siginfo_t *siginfo)
+ 	if (ispipe)
+ 		atomic_dec(&core_dump_count);
+ fail_unlock:
++	kfree(argv);
+ 	kfree(cn.corename);
+ 	coredump_finish(mm, core_dumped);
+ 	revert_creds(old_cred);
 -- 
 2.20.1
 
