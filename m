@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E616183C65
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:42:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A135283C46
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:42:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727496AbfHFVlx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:41:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53640 "EHLO mail.kernel.org"
+        id S1728745AbfHFVfy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:35:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728718AbfHFVfu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:35:50 -0400
+        id S1728652AbfHFVfy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:35:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7015E217D9;
-        Tue,  6 Aug 2019 21:35:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64A09217D9;
+        Tue,  6 Aug 2019 21:35:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127350;
-        bh=PLr8k4TWW+G7xVQIGP2VSxN/aJZHk3HpXCqOe3yDu7Q=;
+        s=default; t=1565127353;
+        bh=sLYG0LYrflSu3iY1UZXemJUKsxG0IIDikOYOm9YDNvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I024dj+7Attu6TFnLvr0OgrgjTf+WiFeq61k1vxeN6xkaBDyFUzBK+Xs7DAbNWThk
-         jXSKS+W72djbUA9VHIrH4oSzGmWGQIGyuv+ZueeqX7U+hvCL2V/DvnDInjFtSDc5el
-         ZLWKIViJ5bBZpn54DyHoNVVyrOTF+qQrTa8IpTew=
+        b=KMMmFy8XC/J/tEMHtzMrhMXmTnLGjJ03h8RYOSRoFlKexginBnoG9E/ZU+jIS1rEJ
+         mR3eiKZCAnUhSk7ezmdkt8hHtKAEOInUayDhQaJ4kuEcvbfxqP1idoh888lRfvbTyv
+         i0LyxVjlJByMAhfSniJW+s8eyxeVMe6Ah8vgUnMA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christian Brauner <christian@brauner.io>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 15/32] exit: make setting exit_state consistent
-Date:   Tue,  6 Aug 2019 17:35:03 -0400
-Message-Id: <20190806213522.19859-15-sashal@kernel.org>
+Cc:     Wang Xiayang <xywang.sjtu@sjtu.edu.cn>,
+        Chunming Zhou <david1.zhou@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 16/32] drm/amdgpu: fix a potential information leaking bug
+Date:   Tue,  6 Aug 2019 17:35:04 -0400
+Message-Id: <20190806213522.19859-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213522.19859-1-sashal@kernel.org>
 References: <20190806213522.19859-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,51 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Brauner <christian@brauner.io>
+From: Wang Xiayang <xywang.sjtu@sjtu.edu.cn>
 
-[ Upstream commit 30b692d3b390c6fe78a5064be0c4bbd44a41be59 ]
+[ Upstream commit 929e571c04c285861e0bb049a396a2bdaea63282 ]
 
-Since commit b191d6491be6 ("pidfd: fix a poll race when setting exit_state")
-we unconditionally set exit_state to EXIT_ZOMBIE before calling into
-do_notify_parent(). This was done to eliminate a race when querying
-exit_state in do_notify_pidfd().
-Back then we decided to do the absolute minimal thing to fix this and
-not touch the rest of the exit_notify() function where exit_state is
-set.
-Since this fix has not caused any issues change the setting of
-exit_state to EXIT_DEAD in the autoreap case to account for the fact hat
-exit_state is set to EXIT_ZOMBIE unconditionally. This fix was planned
-but also explicitly requested in [1] and makes the whole code more
-consistent.
+Coccinelle reports a path that the array "data" is never initialized.
+The path skips the checks in the conditional branches when either
+of callback functions, read_wave_vgprs and read_wave_sgprs, is not
+registered. Later, the uninitialized "data" array is read
+in the while-loop below and passed to put_user().
 
-/* References */
-[1]: https://lore.kernel.org/lkml/CAHk-=wigcxGFR2szue4wavJtH5cYTTeNES=toUBVGsmX0rzX+g@mail.gmail.com
+Fix the path by allocating the array with kcalloc().
 
-Signed-off-by: Christian Brauner <christian@brauner.io>
-Acked-by: Oleg Nesterov <oleg@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
+The patch is simplier than adding a fall-back branch that explicitly
+calls memset(data, 0, ...). Also it does not need the multiplication
+1024*sizeof(*data) as the size parameter for memset() though there is
+no risk of integer overflow.
+
+Signed-off-by: Wang Xiayang <xywang.sjtu@sjtu.edu.cn>
+Reviewed-by: Chunming Zhou <david1.zhou@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/exit.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/exit.c b/kernel/exit.c
-index 5c0964dc805ac..d9cfc39e5f97b 100644
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -732,9 +732,10 @@ static void exit_notify(struct task_struct *tsk, int group_dead)
- 		autoreap = true;
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
+index f5fb93795a69a..65cecfdd9b454 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
+@@ -707,7 +707,7 @@ static ssize_t amdgpu_debugfs_gpr_read(struct file *f, char __user *buf,
+ 	thread = (*pos & GENMASK_ULL(59, 52)) >> 52;
+ 	bank = (*pos & GENMASK_ULL(61, 60)) >> 60;
  
--	tsk->exit_state = autoreap ? EXIT_DEAD : EXIT_ZOMBIE;
--	if (tsk->exit_state == EXIT_DEAD)
-+	if (autoreap) {
-+		tsk->exit_state = EXIT_DEAD;
- 		list_add(&tsk->ptrace_entry, &dead);
-+	}
+-	data = kmalloc_array(1024, sizeof(*data), GFP_KERNEL);
++	data = kcalloc(1024, sizeof(*data), GFP_KERNEL);
+ 	if (!data)
+ 		return -ENOMEM;
  
- 	/* mt-exec, de_thread() is waiting for group leader */
- 	if (unlikely(tsk->signal->notify_count < 0))
 -- 
 2.20.1
 
