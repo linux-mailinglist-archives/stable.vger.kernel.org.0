@@ -2,68 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D508283D88
-	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 00:48:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31D9C83DA0
+	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 01:14:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726069AbfHFWsV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 18:48:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50872 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726044AbfHFWsU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 18:48:20 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EA83216F4;
-        Tue,  6 Aug 2019 22:48:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565131699;
-        bh=Y6rSVjtU51HL7lb/M4xvIrBasd9WZXh1oW73VdEI3rs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ewDEjorwCcYbSjcQ161+1mbHdROByeOLc+oI/GjwQyLpp0rAV9O6tGjCI672ync4r
-         NTteRUHoB5eCIuB1RC7ZzmBifNAMcPhQQL27ycB2fEVWecv/u+P5YAyILh1d87r8Si
-         CDx9U9JXqNdyrsETB9nSog4RDgVcZVCPpjq/Z6sg=
-Date:   Tue, 6 Aug 2019 18:48:18 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Douglas Anderson <dianders@chromium.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Alim Akhtar <alim.akhtar@gmail.com>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH 4.19 46/74] mmc: dw_mmc: Fix occasional hang after tuning
- on eMMC
-Message-ID: <20190806224818.GQ17747@sasha-vm>
-References: <20190805124935.819068648@linuxfoundation.org>
- <20190805124939.613665562@linuxfoundation.org>
- <20190806223139.GA9937@amd>
+        id S1726334AbfHFXOL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 19:14:11 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:53542 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726085AbfHFXOL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Aug 2019 19:14:11 -0400
+Received: by mail-wm1-f68.google.com with SMTP id 10so713783wmp.3
+        for <stable@vger.kernel.org>; Tue, 06 Aug 2019 16:14:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=tqMEpMMCz2AXEHACpZwnMrSX/TnL2o3DpzD4JiJpInc=;
+        b=KK+d10q0wKuz4P/XZjwWLp9eijkC6zjCeL4DOXvo7frZ5jNRrj5aeu1aH3lNK4+Lol
+         CFaDM82HTU/pZrHjBI1BtvywpqzcS3hZvDwNhhBSJL+wB/1mO+txPOWzR/tf2iHak0Gq
+         1q0IcnJmRwars6ThkBm6m18Vcqp7AJVWZgcTwaKvWXiplt3Ckf9LnTaMID8TG0J3GdOz
+         CxRpeplvyNTJ/UsM3waEQOSgCxiB7qFfwRUMOD+X6oY2J9o6phtyqe3VkvA0WhCPiBWE
+         vmKjmm6kImc2kr9ydA8NlFObWn2ScHgzPC/YmzalM8EsfqWe9LoYL0GPnLRVQS3dynYQ
+         z1Wg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=tqMEpMMCz2AXEHACpZwnMrSX/TnL2o3DpzD4JiJpInc=;
+        b=nsNx+RqtV0sWh6nV/UdTvvCqLoAZx0nzI1880GS04SU6M5LLGarrPaX7jxOFnm5ylS
+         iK8hfurE1nEbr48KNh80O1WzamAdcr9CqVip7yH3TQpJ9YMVpwR8q6F8+4qGozTPf/YG
+         YOKfF5Tb4ROPB90cVC6I4Xi5k5F29jgf+50Lgof0W8FwC8Gu4MMv/zVWGddX4eAN8M5w
+         Z6iA9DYrd5tV2EE8pfr0DQU7fHfgzh6LirkDtnK5mKpK8tjtsTFZOyDMbvUiE2vQVT9E
+         g+1sWs7bDDuEoHMuMFMg6n4kJMDzG1Eg3lEjZj1kCyTsNSHAxuQv7rV0CB8tvKACDvDu
+         sqUg==
+X-Gm-Message-State: APjAAAU92yyQCLRmCECy7QyxDCbavIVRRTXyg8xq+WyUv5Oi190NspV9
+        +beh7ZdlJY05DMSws9YK4B28hCHGdi6wKg==
+X-Google-Smtp-Source: APXvYqzi63dSRCHjm3gzis9kwA/5RT0BnWisPHBK25WlZ9e26C7r3S3EjF/qerR7fcNfqx0nPcrNWQ==
+X-Received: by 2002:a1c:b706:: with SMTP id h6mr6381133wmf.119.1565133248833;
+        Tue, 06 Aug 2019 16:14:08 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id c4sm71538692wrt.86.2019.08.06.16.14.08
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 06 Aug 2019 16:14:08 -0700 (PDT)
+Message-ID: <5d4a09c0.1c69fb81.c3714.4e25@mx.google.com>
+Date:   Tue, 06 Aug 2019 16:14:08 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190806223139.GA9937@amd>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable
+X-Kernelci-Kernel: v4.9.188
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Report-Type: boot
+Subject: stable/linux-4.9.y boot: 50 boots: 0 failed,
+ 49 passed with 1 untried/unknown (v4.9.188)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 07, 2019 at 12:31:39AM +0200, Pavel Machek wrote:
->Hi!
->
->> I'm hoping that whatever problems exynos was having in the past are
->> somehow magically fixed now and we can make the behavior the same for
->> all commands.
->
->Dunno. Maybe they are in mainline, but are they fixed in all the
->stable releases this is being applied to?
+stable/linux-4.9.y boot: 50 boots: 0 failed, 49 passed with 1 untried/unkno=
+wn (v4.9.188)
 
-Are they not? If they're broken, then no one is using them now anyways.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+9.y/kernel/v4.9.188/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
+rnel/v4.9.188/
 
-If anyone tries, and it's still broken, we'll at least have a chance to
-get it fixed.
+Tree: stable
+Branch: linux-4.9.y
+Git Describe: v4.9.188
+Git Commit: fa897d17313ce94d8d368d29900455e2ce941106
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 21 unique boards, 12 SoC families, 9 builds out of 196
 
---
-Thanks,
-Sasha
+---
+For more info write to <info@kernelci.org>
