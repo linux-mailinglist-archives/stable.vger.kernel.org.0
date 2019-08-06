@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A15B83C4C
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:42:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E74C83C50
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:42:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728819AbfHFVgH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:36:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53926 "EHLO mail.kernel.org"
+        id S1726529AbfHFVgK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:36:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726529AbfHFVgH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:36:07 -0400
+        id S1728834AbfHFVgJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:36:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7765217D9;
-        Tue,  6 Aug 2019 21:36:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 583F32089E;
+        Tue,  6 Aug 2019 21:36:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127366;
-        bh=f4dGjI3OrhNRjV5gnLp4EV0MkcL7DBhSXrN5oYy7s0M=;
+        s=default; t=1565127369;
+        bh=9aCRpZT8DjlVtUi6fvLsq6fR02nt0NnpDox/0cUDlfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cp/AdDBCrcgoxLSZ5SQYTiwV3m8WXERsUSunM3tC4nonSMHzYPLPjaZppn+EgcQu8
-         l4gWuOsAzyMgOZLFYslmDyBT+4KIJvABrGdptdD5Z1Ip9vHh2EqTbaa2u72Y7Y+vgr
-         s298M4bC2e4wC2dDyU9a/za4tZS3l6m+if+Myudk=
+        b=zsIpRrJOQRMDeQHbqquzC8b9OTfG/wrcoxBA3Ef/hk4gnYDcoeBqj0pC8prERdHWz
+         s4/Zv2iVgSEbUPeyMA8YcIsJCFslml2NccraDmm2osLFF/NJXCx7cArn385PuXJYPO
+         1PZ1MCj6cr0rvxH8IUHlXXxVyk5BWQKRlmvE4K2s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qian Cai <cai@lca.pw>, Will Deacon <will@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 23/32] arm64/mm: fix variable 'pud' set but not used
-Date:   Tue,  6 Aug 2019 17:35:11 -0400
-Message-Id: <20190806213522.19859-23-sashal@kernel.org>
+Cc:     "Luck, Tony" <tony.luck@intel.com>,
+        Doug Ledford <dledford@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 24/32] IB/core: Add mitigation for Spectre V1
+Date:   Tue,  6 Aug 2019 17:35:12 -0400
+Message-Id: <20190806213522.19859-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213522.19859-1-sashal@kernel.org>
 References: <20190806213522.19859-1-sashal@kernel.org>
@@ -42,43 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: "Luck, Tony" <tony.luck@intel.com>
 
-[ Upstream commit 7d4e2dcf311d3b98421d1f119efe5964cafa32fc ]
+[ Upstream commit 61f259821dd3306e49b7d42a3f90fb5a4ff3351b ]
 
-GCC throws a warning,
+Some processors may mispredict an array bounds check and
+speculatively access memory that they should not. With
+a user supplied array index we like to play things safe
+by masking the value with the array size before it is
+used as an index.
 
-arch/arm64/mm/mmu.c: In function 'pud_free_pmd_page':
-arch/arm64/mm/mmu.c:1033:8: warning: variable 'pud' set but not used
-[-Wunused-but-set-variable]
-  pud_t pud;
-        ^~~
-
-because pud_table() is a macro and compiled away. Fix it by making it a
-static inline function and for pud_sect() as well.
-
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Link: https://lore.kernel.org/r/20190731043957.GA1600@agluck-desk2.amr.corp.intel.com
+Signed-off-by: Doug Ledford <dledford@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/pgtable.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/core/user_mad.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
-index ea423db393644..2214a403f39b9 100644
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -419,8 +419,8 @@ extern pgprot_t phys_mem_access_prot(struct file *file, unsigned long pfn,
- 				 PMD_TYPE_SECT)
+diff --git a/drivers/infiniband/core/user_mad.c b/drivers/infiniband/core/user_mad.c
+index c34a6852d691f..a18f3f8ad77fe 100644
+--- a/drivers/infiniband/core/user_mad.c
++++ b/drivers/infiniband/core/user_mad.c
+@@ -49,6 +49,7 @@
+ #include <linux/sched.h>
+ #include <linux/semaphore.h>
+ #include <linux/slab.h>
++#include <linux/nospec.h>
  
- #if defined(CONFIG_ARM64_64K_PAGES) || CONFIG_PGTABLE_LEVELS < 3
--#define pud_sect(pud)		(0)
--#define pud_table(pud)		(1)
-+static inline bool pud_sect(pud_t pud) { return false; }
-+static inline bool pud_table(pud_t pud) { return true; }
- #else
- #define pud_sect(pud)		((pud_val(pud) & PUD_TYPE_MASK) == \
- 				 PUD_TYPE_SECT)
+ #include <linux/uaccess.h>
+ 
+@@ -868,11 +869,14 @@ static int ib_umad_unreg_agent(struct ib_umad_file *file, u32 __user *arg)
+ 
+ 	if (get_user(id, arg))
+ 		return -EFAULT;
++	if (id >= IB_UMAD_MAX_AGENTS)
++		return -EINVAL;
+ 
+ 	mutex_lock(&file->port->file_mutex);
+ 	mutex_lock(&file->mutex);
+ 
+-	if (id >= IB_UMAD_MAX_AGENTS || !__get_agent(file, id)) {
++	id = array_index_nospec(id, IB_UMAD_MAX_AGENTS);
++	if (!__get_agent(file, id)) {
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
 -- 
 2.20.1
 
