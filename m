@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A729883C8E
+	by mail.lfdr.de (Postfix) with ESMTP id 33BD883C8D
 	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:44:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727532AbfHFVeK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727541AbfHFVeK (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 6 Aug 2019 17:34:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51932 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727498AbfHFVeF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:34:05 -0400
+        id S1726375AbfHFVeI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:34:08 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 878BE2089E;
-        Tue,  6 Aug 2019 21:34:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5084B217D7;
+        Tue,  6 Aug 2019 21:34:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127244;
-        bh=pLnDJTQhnpdXSEjLDUcXDftSa5atnaXw1zNrsUQeBwQ=;
+        s=default; t=1565127247;
+        bh=1dnYI/3MT890Qsd/tNhEdkKwlKhwvfGuHH4UYCwVyWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OMr9KdLBrAGoypF3Dt99YzutwlAeIilxmT0DEtJ//OVg+Pe9s9Z3Mwk/P3mKVPUhA
-         Rsc0VZd1x2NsBB19d3BCCMsDOVdlB+W3OyVzd8dtOts5xHc7hgeJllb8Wo2SpkGu+L
-         wWeemILWCH3ADAIpiG1vGKogOO61sKG9ByBu0C2c=
+        b=FlFvwqll7qCvgevWuJ7iUlOzZhZcnx0sRwDa41DD5hlPkemInjXqqLZ9sY6UExdg9
+         ag8Qr+rMW8pi8GYrodVBpJtGchNC/kZ76vgLe52PBqZywx1to7ExukdSb32mJ2KzDC
+         KMbP/a7Mpt/f1TQVznxyN59TR/0lgF+K3NBGWSDw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 26/59] scsi: qla2xxx: Fix possible fcport null-pointer dereferences
-Date:   Tue,  6 Aug 2019 17:32:46 -0400
-Message-Id: <20190806213319.19203-26-sashal@kernel.org>
+Cc:     Christian Brauner <christian@brauner.io>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 27/59] exit: make setting exit_state consistent
+Date:   Tue,  6 Aug 2019 17:32:47 -0400
+Message-Id: <20190806213319.19203-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213319.19203-1-sashal@kernel.org>
 References: <20190806213319.19203-1-sashal@kernel.org>
@@ -44,48 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Christian Brauner <christian@brauner.io>
 
-[ Upstream commit e82f04ec6ba91065fd33a6201ffd7cab840e1475 ]
+[ Upstream commit 30b692d3b390c6fe78a5064be0c4bbd44a41be59 ]
 
-In qla2x00_alloc_fcport(), fcport is assigned to NULL in the error
-handling code on line 4880:
-    fcport = NULL;
+Since commit b191d6491be6 ("pidfd: fix a poll race when setting exit_state")
+we unconditionally set exit_state to EXIT_ZOMBIE before calling into
+do_notify_parent(). This was done to eliminate a race when querying
+exit_state in do_notify_pidfd().
+Back then we decided to do the absolute minimal thing to fix this and
+not touch the rest of the exit_notify() function where exit_state is
+set.
+Since this fix has not caused any issues change the setting of
+exit_state to EXIT_DEAD in the autoreap case to account for the fact hat
+exit_state is set to EXIT_ZOMBIE unconditionally. This fix was planned
+but also explicitly requested in [1] and makes the whole code more
+consistent.
 
-Then fcport is used on lines 4883-4886:
-    INIT_WORK(&fcport->del_work, qla24xx_delete_sess_fn);
-	INIT_WORK(&fcport->reg_work, qla_register_fcport_fn);
-	INIT_LIST_HEAD(&fcport->gnl_entry);
-	INIT_LIST_HEAD(&fcport->list);
+/* References */
+[1]: https://lore.kernel.org/lkml/CAHk-=wigcxGFR2szue4wavJtH5cYTTeNES=toUBVGsmX0rzX+g@mail.gmail.com
 
-Thus, possible null-pointer dereferences may occur.
-
-To fix these bugs, qla2x00_alloc_fcport() directly returns NULL
-in the error handling code.
-
-These bugs are found by a static analysis tool STCheck written by us.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Acked-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Christian Brauner <christian@brauner.io>
+Acked-by: Oleg Nesterov <oleg@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/exit.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
-index 54772d4c377f9..6a4c719497ca1 100644
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -4877,7 +4877,7 @@ qla2x00_alloc_fcport(scsi_qla_host_t *vha, gfp_t flags)
- 		ql_log(ql_log_warn, vha, 0xd049,
- 		    "Failed to allocate ct_sns request.\n");
- 		kfree(fcport);
--		fcport = NULL;
-+		return NULL;
+diff --git a/kernel/exit.c b/kernel/exit.c
+index a75b6a7f458a7..0922e84ba6c1f 100644
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -733,9 +733,10 @@ static void exit_notify(struct task_struct *tsk, int group_dead)
+ 		autoreap = true;
  	}
  
- 	INIT_WORK(&fcport->del_work, qla24xx_delete_sess_fn);
+-	tsk->exit_state = autoreap ? EXIT_DEAD : EXIT_ZOMBIE;
+-	if (tsk->exit_state == EXIT_DEAD)
++	if (autoreap) {
++		tsk->exit_state = EXIT_DEAD;
+ 		list_add(&tsk->ptrace_entry, &dead);
++	}
+ 
+ 	/* mt-exec, de_thread() is waiting for group leader */
+ 	if (unlikely(tsk->signal->notify_count < 0))
 -- 
 2.20.1
 
