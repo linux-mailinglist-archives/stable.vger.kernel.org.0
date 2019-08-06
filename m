@@ -2,104 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CED9183D24
-	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 00:04:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4676883D44
+	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 00:18:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726612AbfHFWEu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 18:04:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35002 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726716AbfHFWEu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 18:04:50 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7657121880;
-        Tue,  6 Aug 2019 22:04:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565129089;
-        bh=AuqdTVytYqGwq/gm5yHhPwjwfhHe1pLTnzeuDh1BmAo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=kUuYVb6xuyzs4OnPtaiKRTKPuzMpF5WG8+SnMfOoePE+aHCgTx55/ym/eXIQA3b9O
-         K9a5bvTZL1N9WU0Qm2HjEiV5SCCqiYirLBV4H3S0jvF5rohkl9F6dq7MFMnY/8hl+j
-         5PSu+wp/SJNVAA5v8ca3g746OP2auWkvQ39K2mIo=
-Date:   Tue, 6 Aug 2019 18:04:48 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Robin Murphy <robin.murphy@arm.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Fugang Duan <fugang.duan@nxp.com>,
-        Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 5.2 073/131] dma-direct: correct the physical addr in
- dma_direct_sync_sg_for_cpu/device
-Message-ID: <20190806220448.GN17747@sasha-vm>
-References: <20190805124951.453337465@linuxfoundation.org>
- <20190805124956.543654128@linuxfoundation.org>
- <20190806124143.GF17747@sasha-vm>
- <9dd82745-1673-afc3-5eb4-8b79ddb5824b@arm.com>
+        id S1726542AbfHFWSU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 18:18:20 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:38630 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726419AbfHFWSU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Aug 2019 18:18:20 -0400
+Received: by mail-lj1-f195.google.com with SMTP id r9so83561908ljg.5
+        for <stable@vger.kernel.org>; Tue, 06 Aug 2019 15:18:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=bgewXXxxhY/dAfBGFMPvrzGizAhrJK4ewhsHFFY/ZXc=;
+        b=S7Xmi1DIjpcc1NyZ1euHM9kbzVqM1CVov4LeTusvdshoFAvVWX2NW0xhDTbpTxPMrD
+         F7/LCPShWklAmxPw+ZcI2kxGXmv9K9+L08AoQI9dFlQYVFnOYSub7m4UKm1+siM0tYEg
+         QVqSH1iJP+cLOAbmK71a2wYQT7CyhUoE2UeVA=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=bgewXXxxhY/dAfBGFMPvrzGizAhrJK4ewhsHFFY/ZXc=;
+        b=H6Y1CVXT72CsKkWFb9l1+sizAY0DcO7GqHwk6qcweJ+w+rrp86o3r39GOeRs+Kw6/5
+         qTnQjpYD4HnZp3/1qYAtCMI93HJwLvHpKk5hrNe+BCz4bgk+aWh6vqhlBxcZ7+ebqXnm
+         hPaDciudUlJvWHV0/dyi9KPf+/cQJaVbEY+PZVKuduia4n2ZOj5sV83lQwN3qCXwK0ol
+         Nmg6UUc96fu2sSXoSrnAPAC9wYXhcLwKuURoF8yR1KNLbNldFxJ9jiWPu/KDpjsOLm+t
+         ALImHTjtiPTNbKH1VnQOfgqv0Whx0ifh10aoaX4tO08XoaZrQpV1qVg+Aqvux5ut5Bzg
+         w7wQ==
+X-Gm-Message-State: APjAAAWYKIgLetZKv0N42A0I/tZNW8HObyuz/Sn7cYvEsDi5Ipfzpby9
+        7tRH7vF1Bop9DIOqpHq9SlOSygUn5g8=
+X-Google-Smtp-Source: APXvYqxCgqpwJcLQA5EXLPnLWfUgom3dEycn/gPBmEMe9SYmLLRs+/6/+cQB0oklyi93JS73P4vOug==
+X-Received: by 2002:a2e:9ac6:: with SMTP id p6mr3031745ljj.100.1565129898276;
+        Tue, 06 Aug 2019 15:18:18 -0700 (PDT)
+Received: from mail-lj1-f173.google.com (mail-lj1-f173.google.com. [209.85.208.173])
+        by smtp.gmail.com with ESMTPSA id p13sm18081087ljc.39.2019.08.06.15.18.18
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Tue, 06 Aug 2019 15:18:18 -0700 (PDT)
+Received: by mail-lj1-f173.google.com with SMTP id y17so59015981ljk.10
+        for <stable@vger.kernel.org>; Tue, 06 Aug 2019 15:18:18 -0700 (PDT)
+X-Received: by 2002:a2e:3602:: with SMTP id d2mr3006585lja.112.1565129417010;
+ Tue, 06 Aug 2019 15:10:17 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <9dd82745-1673-afc3-5eb4-8b79ddb5824b@arm.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20190729204954.25510-1-briannorris@chromium.org>
+In-Reply-To: <20190729204954.25510-1-briannorris@chromium.org>
+From:   Brian Norris <briannorris@chromium.org>
+Date:   Tue, 6 Aug 2019 15:10:05 -0700
+X-Gmail-Original-Message-ID: <CA+ASDXPZxD6D2P_7vucseZS=Fe8KDEyNGvNQySvJYu_-fGxk5A@mail.gmail.com>
+Message-ID: <CA+ASDXPZxD6D2P_7vucseZS=Fe8KDEyNGvNQySvJYu_-fGxk5A@mail.gmail.com>
+Subject: Re: [PATCH] driver core: platform: return -ENXIO for missing GpioInt
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Salvatore Bellizzi <salvatore.bellizzi@linux.seppia.net>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Enrico Granata <egranata@chromium.org>,
+        Enrico Granata <egranata@google.com>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Gwendal Grignou <gwendal@chromium.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        Benson Leung <bleung@chromium.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 06, 2019 at 01:57:56PM +0100, Robin Murphy wrote:
->On 06/08/2019 13:41, Sasha Levin wrote:
->>On Mon, Aug 05, 2019 at 03:02:40PM +0200, Greg Kroah-Hartman wrote:
->>>[ Upstream commit 449fa54d6815be8c2c1f68fa9dbbae9384a7c03e ]
->>>
->>>dma_map_sg() may use swiotlb buffer when the kernel command line includes
->>>"swiotlb=force" or the dma_addr is out of dev->dma_mask range.  After
->>>DMA complete the memory moving from device to memory, then user call
->>>dma_sync_sg_for_cpu() to sync with DMA buffer, and copy the original
->>>virtual buffer to other space.
->>>
->>>So dma_direct_sync_sg_for_cpu() should use swiotlb physical addr, not
->>>the original physical addr from sg_phys(sg).
->>>
->>>dma_direct_sync_sg_for_device() also has the same issue, correct it as
->>>well.
->>>
->>>Fixes: 55897af63091("dma-direct: merge swiotlb_dma_ops into the 
->>>dma_direct code")
->>>Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
->>>Reviewed-by: Robin Murphy <robin.murphy@arm.com>
->>>Signed-off-by: Christoph Hellwig <hch@lst.de>
->>>Signed-off-by: Sasha Levin <sashal@kernel.org>
->>
->>I'm going to drop this one. There's a fix to it upstream, but the fix
->>also seems to want 0036bc73ccbe ("drm/msm: stop abusing dma_map/unmap for
->>cache") which we're not taking, so I'm just going to drop this one as
->>well.
->
->Given that the two commits touch entirely separate files I'm not sure 
->what the imagined dependency could be :/
+On Mon, Jul 29, 2019 at 1:50 PM Brian Norris <briannorris@chromium.org> wrote:
+> Side note: it might have helped alleviate some of this pain if there
+> were email notifications to the mailing list when a patch gets applied.
+> I didn't realize (and I'm not sure if Enrico did) that v2 was already
+> merged by the time I noted its mistakes. If I had known, I would have
+> suggested a follow-up patch, not a v3.
 
-From the commit message of 3de433c5b38a ("drm/msm: Use the correct
-dma_sync calls in msm_gem"):
+I guess I'll be the bot this time: 'twas applied by Greg on Tuesday,
+July 30 UTC-07:00.
 
-    Fixes the combination of two patches:
-
-    Fixes: 0036bc73ccbe (drm/msm: stop abusing dma_map/unmap for cache)
-    Fixes: 449fa54d6815 (dma-direct: correct the physical addr in dma_direct_sync_sg_for_cpu/device)
-
->0036bc73ccbe is indeed not a fix (frankly I'm not convinced it's even 
->a valid change at all) but even conceptually it bears no relation 
->whatsoever to the genuine bug fixed by 449fa54d6815.
-
-Given that Rob Clark asked me to drop 0036bc73ccbe not because it's
-irrelevant but because it's potentially dangerous, I did not feel
-confident enough ignoring the statement in the commit message and
-dropped this patch instead.
-
-If I'm  wrong here, I'd be happy to take these two patches if someone
-acks it.
-
---
 Thanks,
-Sasha
+Brian
