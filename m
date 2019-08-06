@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87EFD83BE5
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:39:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B327483BE1
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:39:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728475AbfHFVin (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:38:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55796 "EHLO mail.kernel.org"
+        id S1727565AbfHFVie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:38:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729624AbfHFViG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:38:06 -0400
+        id S1729636AbfHFViI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:38:08 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A05332189E;
-        Tue,  6 Aug 2019 21:38:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE9CF2189D;
+        Tue,  6 Aug 2019 21:38:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127486;
-        bh=TVfTkcJ8KkVOiUsmcxKFMFDoP6IU3vPc4t5JMQzWKuQ=;
+        s=default; t=1565127487;
+        bh=kZNJw0eCXlGn7+HslIMV99ipbELnDDDiwrkO3ZxK5Aw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sj4yVEHoRUVLcMpK4KEErnAf8wkPy0OL8zzCJXJXJ3ZyoSIkJl04jzLve+Orm1o/1
-         AxjsFQTbRxywpmmjZkodhaE9hWvOlicXG+U+vHuNBj6tZ/HyA1XoxhbMBW3Ug8amkO
-         GNCsF6hdtEjZYgj+AH8u93g4PqhLWMCylW9bXm5Y=
+        b=aFj+RKc5IA2jEbvGbxSpYBXVPKotqPrapTwQpDUz8vzWYgmb8euASD2v7pxSKWapr
+         0GNkES8BWowyASymDj4SS9+ziLMoDJHy3jRPFeP4dO+6yEVMa/90xnr38kihZFyfZv
+         cU36iNChqX/eWRFoOhWvuOvXAprVrJb5oYfNtKro=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-ide@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 09/14] ata: libahci: do not complain in case of deferred probe
-Date:   Tue,  6 Aug 2019 17:37:43 -0400
-Message-Id: <20190806213749.20689-9-sashal@kernel.org>
+Cc:     Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 10/14] kbuild: modpost: handle KBUILD_EXTRA_SYMBOLS only for external modules
+Date:   Tue,  6 Aug 2019 17:37:44 -0400
+Message-Id: <20190806213749.20689-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213749.20689-1-sashal@kernel.org>
 References: <20190806213749.20689-1-sashal@kernel.org>
@@ -44,36 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-[ Upstream commit 090bb803708198e5ab6b0046398c7ed9f4d12d6b ]
+[ Upstream commit cb4819934a7f9b87876f11ed05b8624c0114551b ]
 
-Retrieving PHYs can defer the probe, do not spawn an error when
--EPROBE_DEFER is returned, it is normal behavior.
+KBUILD_EXTRA_SYMBOLS makes sense only when building external modules.
+Moreover, the modpost sets 'external_module' if the -e option is given.
 
-Fixes: b1a9edbda040 ("ata: libahci: allow to use multiple PHYs")
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+I replaced $(patsubst %, -e %,...) with simpler $(addprefix -e,...)
+while I was here.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libahci_platform.c | 3 +++
- 1 file changed, 3 insertions(+)
+ scripts/Makefile.modpost | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/ata/libahci_platform.c b/drivers/ata/libahci_platform.c
-index cd2eab6aa92ea..65371e1befe8a 100644
---- a/drivers/ata/libahci_platform.c
-+++ b/drivers/ata/libahci_platform.c
-@@ -300,6 +300,9 @@ static int ahci_platform_get_phy(struct ahci_host_priv *hpriv, u32 port,
- 		hpriv->phys[port] = NULL;
- 		rc = 0;
- 		break;
-+	case -EPROBE_DEFER:
-+		/* Do not complain yet */
-+		break;
- 
- 	default:
- 		dev_err(dev,
+diff --git a/scripts/Makefile.modpost b/scripts/Makefile.modpost
+index 1366a94b6c395..7718a64b1cd15 100644
+--- a/scripts/Makefile.modpost
++++ b/scripts/Makefile.modpost
+@@ -74,7 +74,7 @@ modpost = scripts/mod/modpost                    \
+  $(if $(CONFIG_MODULE_SRCVERSION_ALL),-a,)       \
+  $(if $(KBUILD_EXTMOD),-i,-o) $(kernelsymfile)   \
+  $(if $(KBUILD_EXTMOD),-I $(modulesymfile))      \
+- $(if $(KBUILD_EXTRA_SYMBOLS), $(patsubst %, -e %,$(KBUILD_EXTRA_SYMBOLS))) \
++ $(if $(KBUILD_EXTMOD),$(addprefix -e ,$(KBUILD_EXTRA_SYMBOLS))) \
+  $(if $(KBUILD_EXTMOD),-o $(modulesymfile))      \
+  $(if $(CONFIG_DEBUG_SECTION_MISMATCH),,-S)      \
+  $(if $(CONFIG_SECTION_MISMATCH_WARN_ONLY),,-E)  \
 -- 
 2.20.1
 
