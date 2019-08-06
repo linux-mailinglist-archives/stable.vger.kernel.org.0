@@ -2,97 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BDD2838A0
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 20:31:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EE18838C5
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 20:41:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728927AbfHFSaw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 14:30:52 -0400
-Received: from hqemgate15.nvidia.com ([216.228.121.64]:5216 "EHLO
-        hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1733207AbfHFSav (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Aug 2019 14:30:51 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate15.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5d49c7640000>; Tue, 06 Aug 2019 11:31:00 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Tue, 06 Aug 2019 11:30:50 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Tue, 06 Aug 2019 11:30:50 -0700
-Received: from [10.21.132.143] (10.124.1.5) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 6 Aug
- 2019 18:30:48 +0000
-Subject: Re: [PATCH 5.2 000/131] 5.2.7-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20190805124951.453337465@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <c01bc729-c9c1-fe90-4850-7907fee27a2b@nvidia.com>
-Date:   Tue, 6 Aug 2019 19:30:45 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1726481AbfHFSlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 14:41:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38540 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725798AbfHFSlr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 14:41:47 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 713F220C01;
+        Tue,  6 Aug 2019 18:41:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1565116907;
+        bh=Y8rOeUIQT1VhBQQvs72EzdeVir4CjttwJHAzvg3kzsA=;
+        h=Date:From:To:Cc:Subject:From;
+        b=0cQ/+EFe5By94WbNy6ITl/y+sJutU0NnYQxV2ohcG42H494Y796eq2RD7ka/Jqfod
+         ML2QPOoWal3erGaqy+BTKKHiaXQUO6Q62Pw1TgMZdz6QSAKmkyMSB7kkT5DIeVqKzb
+         Pkr4Lwo+Nw33SsD8RLUWOrxhG/g1msRV57E0D+Js=
+Date:   Tue, 6 Aug 2019 20:41:44 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, Jiri Slaby <jslaby@suse.cz>
+Subject: Linux 4.4.188
+Message-ID: <20190806184144.GA27426@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
-X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL104.nvidia.com (172.18.146.11) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1565116261; bh=bQOMsPRpWfX8AcWHZv8yqa6y1pTvG4iIz83aVeLmSHM=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=j9iJQxwONCUniRP6oKAT3E7Vi5l1xngB9tkKirz4yOBLy6vYgHjWq7AL5pPLSa/SN
-         Zyt6K4bWotsdwzMIce+N2mpbHKKPrIGMwdcLUqmEJFKNhC6Eqb4kH/uxSwsD8/eyJS
-         9z3szsjKKVp+LWHzk14EE+gBaD0zQ2X6+F0+1Uxrn34WAR2scsPCGiy1r8N1OUratb
-         MS8cz98QIfTZFKTmZcuL0AJIaLqT5tdXrJ/8NYIQ1VECTItPJOhI54012vjGudx1YN
-         3SStUhzKeF69Anf6L30D0RHzLJzErMhrGNWHh84AJ0q43LgS9Q7ELw/rdeu/y0v/Dn
-         YsL7xziI4/y0Q==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+I'm announcing the release of the 4.4.188 kernel.
 
-On 05/08/2019 14:01, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.2.7 release.
-> There are 131 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed 07 Aug 2019 12:47:58 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.7-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+All users of the 4.4 kernel series must upgrade.
 
-All tests passing for Tegra ...
+The updated 4.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-Test results for stable-v5.2:
-    12 builds:	12 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    38 tests:	38 pass, 0 fail
+thanks,
 
-Linux version:	5.2.7-rc1-g22499a291939
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
+greg k-h
 
-Cheers
-Jon
+------------
 
--- 
-nvpublic
+ Makefile                                    |    2 -
+ arch/arm/boot/dts/rk3288.dtsi               |    1 
+ arch/arm/mach-rpc/dma.c                     |    5 +++-
+ arch/mips/lantiq/irq.c                      |    5 ++--
+ arch/x86/include/asm/apic.h                 |    2 -
+ arch/x86/include/asm/kvm_host.h             |   34 +++++++++++++++-------------
+ arch/x86/kernel/apic/apic.c                 |    2 -
+ arch/x86/math-emu/fpu_emu.h                 |    2 -
+ arch/x86/math-emu/reg_constant.c            |    2 -
+ drivers/dma/sh/rcar-dmac.c                  |    2 -
+ drivers/net/ethernet/emulex/benet/be_main.c |    6 ++++
+ drivers/s390/block/dasd_alias.c             |   22 +++++++++++++-----
+ drivers/s390/scsi/zfcp_erp.c                |    7 +++++
+ drivers/xen/swiotlb-xen.c                   |    4 +--
+ fs/adfs/super.c                             |    5 +++-
+ fs/btrfs/volumes.c                          |    3 --
+ fs/ceph/super.h                             |    7 ++++-
+ fs/coda/psdev.c                             |    5 +++-
+ include/linux/acpi.h                        |    5 +++-
+ include/linux/coda.h                        |    3 --
+ include/linux/coda_psdev.h                  |   11 +++++++++
+ include/uapi/linux/coda_psdev.h             |   13 ----------
+ ipc/mqueue.c                                |   19 ++++++++-------
+ kernel/module.c                             |    6 +---
+ mm/cma.c                                    |   13 ++++++++++
+ security/selinux/ss/policydb.c              |    6 ++++
+ 26 files changed, 124 insertions(+), 68 deletions(-)
+
+Andrea Parri (1):
+      ceph: fix improper use of smp_mb__before_atomic()
+
+Arnd Bergmann (2):
+      ACPI: fix false-positive -Wuninitialized warning
+      x86: math-emu: Hide clang warnings for 16-bit overflow
+
+Benjamin Block (1):
+      scsi: zfcp: fix GCC compiler warning emitted with -Wmaybe-uninitialized
+
+Benjamin Poirier (1):
+      be2net: Signal that the device cannot transmit during reconfiguration
+
+David Sterba (1):
+      btrfs: fix minimum number of chunk errors for DUP
+
+Doug Berger (1):
+      mm/cma.c: fail if fixed declaration can't be honored
+
+Douglas Anderson (1):
+      ARM: dts: rockchip: Mark that the rk3288 timer might stop in suspend
+
+Geert Uytterhoeven (1):
+      dmaengine: rcar-dmac: Reject zero-length slave DMA requests
+
+Greg Kroah-Hartman (1):
+      Linux 4.4.188
+
+Josh Poimboeuf (1):
+      x86/kvm: Don't call kvm_spurious_fault() from .fixup
+
+Juergen Gross (1):
+      xen/swiotlb: fix condition for calling xen_destroy_contiguous_region()
+
+Kees Cook (1):
+      ipc/mqueue.c: only perform resource calculation if user valid
+
+Mikko Rapeli (1):
+      uapi linux/coda_psdev.h: move upc_req definition from uapi to kernel side headers
+
+Ondrej Mosnacek (1):
+      selinux: fix memory leak in policydb_init()
+
+Petr Cvek (1):
+      MIPS: lantiq: Fix bitfield masking
+
+Prarit Bhargava (1):
+      kernel/module.c: Only return -EEXIST for modules that have finished loading
+
+Qian Cai (1):
+      x86/apic: Silence -Wtype-limits compiler warnings
+
+Russell King (2):
+      ARM: riscpc: fix DMA
+      fs/adfs: super: fix use-after-free bug
+
+Sam Protsenko (1):
+      coda: fix build using bare-metal toolchain
+
+Stefan Haberland (1):
+      s390/dasd: fix endless loop after read unit address configuration
+
+Zhouyang Jia (1):
+      coda: add error handling for fget
+
