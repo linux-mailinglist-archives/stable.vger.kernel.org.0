@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B9E083B34
+	by mail.lfdr.de (Postfix) with ESMTP id C560D83B35
 	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:33:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727302AbfHFVdv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:33:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51676 "EHLO mail.kernel.org"
+        id S1727312AbfHFVdw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:33:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726238AbfHFVdt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:33:49 -0400
+        id S1727301AbfHFVdu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:33:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 858952089E;
-        Tue,  6 Aug 2019 21:33:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DCC0217D9;
+        Tue,  6 Aug 2019 21:33:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127228;
-        bh=IrSPkdOFNLVvzypNG0n03D0Y8Azmy/p852QGNEcsraw=;
+        s=default; t=1565127229;
+        bh=9ci3Ug3FGCxgxpgteG3x+RIRrG59YRYacjNFOQOS1IQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O6IO+vNV721LKt3fv7JWQr0YxlJfTYU67q8IxB/B0xbKeNh4lRjqeEo8eVoOTx0Hq
-         PWuK6Io5Yukf3xsR8KRKIZIriuEK8L95rzr0it8Jp/e5nTmbNt2rJLUXBVv6HYAubx
-         qrSkVLe3B+7avjt7mLRAMayVrYd2GLn0dXAR9Qmk=
+        b=POo0CNL7ksEVb4TlGSIYT68WRztaPHNyCP/F4uugg/gwaFU4pLw9g42ENbvDPJTqU
+         pBP9ysFo0sJ/a9yLwA2zV2kFj7401jv6g9h1YgPSrRFcEIRPSSTjPDm1odxLdzLnYy
+         stLKKrJS14Dy8Kp5i5njcImvL4EQ+9BIGvrn9+CI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Numfor Mbiziwo-Tiapo <nums@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Drayton <mbd@fb.com>, Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.2 17/59] perf header: Fix use of unitialized value warning
-Date:   Tue,  6 Aug 2019 17:32:37 -0400
-Message-Id: <20190806213319.19203-17-sashal@kernel.org>
+Cc:     Michal Kalderon <michal.kalderon@marvell.com>,
+        Doug Ledford <dledford@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 18/59] RDMA/qedr: Fix the hca_type and hca_rev returned in device attributes
+Date:   Tue,  6 Aug 2019 17:32:38 -0400
+Message-Id: <20190806213319.19203-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213319.19203-1-sashal@kernel.org>
 References: <20190806213319.19203-1-sashal@kernel.org>
@@ -50,68 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Numfor Mbiziwo-Tiapo <nums@google.com>
+From: Michal Kalderon <michal.kalderon@marvell.com>
 
-[ Upstream commit 20f9781f491360e7459c589705a2e4b1f136bee9 ]
+[ Upstream commit 15fe6a8dcc3b48358c28e17b485fc837f9605ec4 ]
 
-When building our local version of perf with MSAN (Memory Sanitizer) and
-running the perf record command, MSAN throws a use of uninitialized
-value warning in "tools/perf/util/util.c:333:6".
+There was a place holder for hca_type and vendor was returned
+in hca_rev. Fix the hca_rev to return the hw revision and fix
+the hca_type to return an informative string representing the
+hca.
 
-This warning stems from the "buf" variable being passed into "write".
-It originated as the variable "ev" with the type union perf_event*
-defined in the "perf_event__synthesize_attr" function in
-"tools/perf/util/header.c".
-
-In the "perf_event__synthesize_attr" function they allocate space with a malloc
-call using ev, then go on to only assign some of the member variables before
-passing "ev" on as a parameter to the "process" function therefore "ev"
-contains uninitialized memory. Changing the malloc call to zalloc to initialize
-all the members of "ev" which gets rid of the warning.
-
-To reproduce this warning, build perf by running:
-make -C tools/perf CLANG=1 CC=clang EXTRA_CFLAGS="-fsanitize=memory\
- -fsanitize-memory-track-origins"
-
-(Additionally, llvm might have to be installed and clang might have to
-be specified as the compiler - export CC=/usr/bin/clang)
-
-then running:
-tools/perf/perf record -o - ls / | tools/perf/perf --no-pager annotate\
- -i - --stdio
-
-Please see the cover letter for why false positive warnings may be
-generated.
-
-Signed-off-by: Numfor Mbiziwo-Tiapo <nums@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Drayton <mbd@fb.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Link: http://lkml.kernel.org/r/20190724234500.253358-2-nums@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
+Link: https://lore.kernel.org/r/20190728111338.21930-1-michal.kalderon@marvell.com
+Signed-off-by: Doug Ledford <dledford@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/header.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/qedr/main.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
-index fd543f209bd0a..1156ebda47c3f 100644
---- a/tools/perf/util/header.c
-+++ b/tools/perf/util/header.c
-@@ -3565,7 +3565,7 @@ int perf_event__synthesize_attr(struct perf_tool *tool,
- 	size += sizeof(struct perf_event_header);
- 	size += ids * sizeof(u64);
+diff --git a/drivers/infiniband/hw/qedr/main.c b/drivers/infiniband/hw/qedr/main.c
+index 083c2c00a8e91..dfdd1e16de7f5 100644
+--- a/drivers/infiniband/hw/qedr/main.c
++++ b/drivers/infiniband/hw/qedr/main.c
+@@ -125,14 +125,20 @@ static ssize_t hw_rev_show(struct device *device, struct device_attribute *attr,
+ 	struct qedr_dev *dev =
+ 		rdma_device_to_drv_device(device, struct qedr_dev, ibdev);
  
--	ev = malloc(size);
-+	ev = zalloc(size);
+-	return scnprintf(buf, PAGE_SIZE, "0x%x\n", dev->pdev->vendor);
++	return scnprintf(buf, PAGE_SIZE, "0x%x\n", dev->attr.hw_ver);
+ }
+ static DEVICE_ATTR_RO(hw_rev);
  
- 	if (ev == NULL)
- 		return -ENOMEM;
+ static ssize_t hca_type_show(struct device *device,
+ 			     struct device_attribute *attr, char *buf)
+ {
+-	return scnprintf(buf, PAGE_SIZE, "%s\n", "HCA_TYPE_TO_SET");
++	struct qedr_dev *dev =
++		rdma_device_to_drv_device(device, struct qedr_dev, ibdev);
++
++	return scnprintf(buf, PAGE_SIZE, "FastLinQ QL%x %s\n",
++			 dev->pdev->device,
++			 rdma_protocol_iwarp(&dev->ibdev, 1) ?
++			 "iWARP" : "RoCE");
+ }
+ static DEVICE_ATTR_RO(hca_type);
+ 
 -- 
 2.20.1
 
