@@ -2,141 +2,234 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C729A828BB
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 02:36:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B8B5828CB
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 02:43:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731113AbfHFAf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 20:35:57 -0400
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:46554 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728870AbfHFAf5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 20:35:57 -0400
-Received: by mail-ot1-f67.google.com with SMTP id z23so59945506ote.13;
-        Mon, 05 Aug 2019 17:35:56 -0700 (PDT)
+        id S1731099AbfHFAnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 20:43:01 -0400
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:46273 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730875AbfHFAnB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 20:43:01 -0400
+Received: by mail-pf1-f193.google.com with SMTP id c3so17358643pfa.13
+        for <stable@vger.kernel.org>; Mon, 05 Aug 2019 17:43:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Z9NTvWBCg6Eq31qvrM6xnHz2Uar1qkqJe1rdCMMJAYQ=;
-        b=fq19oDdB3Z+CqaxXIcSgiosGBMsWrfwO45aYTJuV2pCNYTAO3zsqv4DE1WVvNCBowR
-         G1qsu9Kgd9o6qQ5oBZpRkNvtTYCDbRpsUIz3yxRG3lAhyPRPhAKH6dw1V7IzoCoJ4Rrt
-         EenmaWr6VfMtlVQNfAUrnB9My/kVt8yBc3+3wENQS1vISf1sroE30SCgcavTa4MruFRU
-         InUFQkRlzs/hffNkIdXss8JMNaFXVad9XjJf3tvzWN1d9D8pWlIKO3ZNpryC3zxNqQT6
-         qcNF6JHHQttGFAzfD2eNCPeO5DFvnmz5j9jUOvYbHoCG1rez+kars4rT91/sxyw4BHM3
-         hejQ==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=ueOERlEtYBgX0GLBCId/GHdBVP4Bxw4qttSqTD9yYIo=;
+        b=J6ADLRqwbznZafl9dA+zR/2eExHzMsBD6jFL0wDfzPnnQ9Kn9zyIvETW9D6pmsJk5O
+         eDfBAcq6htpwC1PVmviIBQLnqxBP+Xm7Ve6RCCtmmkAKAx6V4uqJ7aJTxgW2p8mefxsz
+         uJ2iB5ztDWE8rG4N8DXEkckrOwR5YeZiDbtOFPTBKJ/GYIewMyaeV0cgr0c6DQJBc11H
+         YPpirIiPuYTyJmW0GIZQERcg9NrnGIPcv32fuYfVXCJnkOaOO40Hq0IPjb4KJYZadKo2
+         4QPPvB2bv1r6bJGtbVpquIrYJHgTTwAUkso9Fj8W94yN3IM3LbOPhy5CPdH3KLTef74J
+         R1Vw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Z9NTvWBCg6Eq31qvrM6xnHz2Uar1qkqJe1rdCMMJAYQ=;
-        b=SefCVXwwlWU3JnJ8NxZTYAq8GgG+bdUre1iuZYMxJq1URGOlaXllcU/D0W387/CjjN
-         1zC3h3o6aF4eNUWGblGEusyknQudLIkLvDli6GHACvhYjMDlrsjYcAZKlfy4bMWNM9Fe
-         Xf4fCGQodkkIG4AYerUTKF9KMeuo/4bR3mq3pJivlO5XOB4Tb8zK/fny4lfyo+NvzEk1
-         fd9cHMUeb+gqOzejot694W+LKeJYe48hlbWj9hD9vNrET/G7SwXPO8wgF60plnH0Rtsa
-         NHzjSclk3EAXTKXCLrKz1u1kSGK0I/0hfwk6gXveC3nMWdMLBg9x1P+uxSEz5BwahGYG
-         OVRQ==
-X-Gm-Message-State: APjAAAUnIFFwsm44dnlo6+iyq8xmX37jTE5OCd+xl/MjVs4tfgeoAvb9
-        YHX97ZtBNhHN9m8Hz+mcsCdKVCno55IS2/RXw1WmzQ==
-X-Google-Smtp-Source: APXvYqyVm6G9MWttRZ2MuXzLawro8vn5XN33ftVOxoe3go0cI6eGaCe95KJzUOtKGkK/1d9w4yxvpdef/zIeI+eSuHw=
-X-Received: by 2002:a9d:62c4:: with SMTP id z4mr594082otk.56.1565051755954;
- Mon, 05 Aug 2019 17:35:55 -0700 (PDT)
-MIME-Version: 1.0
-References: <1564970604-10044-1-git-send-email-wanpengli@tencent.com> <9acbc733-442f-0f65-9b56-ff800a3fa0f5@redhat.com>
-In-Reply-To: <9acbc733-442f-0f65-9b56-ff800a3fa0f5@redhat.com>
-From:   Wanpeng Li <kernellwp@gmail.com>
-Date:   Tue, 6 Aug 2019 08:35:44 +0800
-Message-ID: <CANRm+CwH54S555nw-Zik-3NFDH9yqe+SOZrGc3mPoAU_qGxP-A@mail.gmail.com>
-Subject: Re: [PATCH v4 1/6] KVM: Fix leak vCPU's VMCS value into other pCPU
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, kvm <kvm@vger.kernel.org>,
-        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Marc Zyngier <Marc.Zyngier@arm.com>,
-        "# v3 . 10+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=ueOERlEtYBgX0GLBCId/GHdBVP4Bxw4qttSqTD9yYIo=;
+        b=uB9XSFKdGWsxi2BBPNDFeIdWqoSIS52VWIwWxXIb12bNjJrP4ElMZI6jdKcGnlEqfm
+         CDHDJp+5qFz/1EkePU3aS/lxrJ0zEYtEeZDc2oJSgtOGQEvekzk9d63KXxfX4xP1H3Ew
+         +Wl2pwJEd4IQGeY6eVtkzq4DqWc6dn//duvwQlTWbO25g5ZctX6aGiil3la8vFUAEnQK
+         Rsz6AsWwoGMNsQ10t2csFQF9C43kubS9GmAra53yKJC4+w18SLibT/ChyrFjSxu9/k+9
+         0GBi28JXaVdpOQMjW6RQuox+MRCCxVED9Lnt5cAvuj5Lnm+fUBbcAwiyXucgNbzBWPap
+         zF+g==
+X-Gm-Message-State: APjAAAUELemh8mqEO6VUoQHyPuLkRnb5jKBxFdbngsK11gN6aXe0/J4H
+        Eo10rPbVMOZiD1iiJv9zJEnNrg==
+X-Google-Smtp-Source: APXvYqxal+OsTtvFj4HRmsoSYr/SwRw4CC3u6NOxtF7px8Njr/YvDoTKVjcN7oYFWsNucTfvjhg02Q==
+X-Received: by 2002:a65:5202:: with SMTP id o2mr497163pgp.29.1565052180144;
+        Mon, 05 Aug 2019 17:43:00 -0700 (PDT)
+Received: from localhost.localdomain (104-188-17-28.lightspeed.sndgca.sbcglobal.net. [104.188.17.28])
+        by smtp.gmail.com with ESMTPSA id h6sm81898821pfb.20.2019.08.05.17.42.58
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 05 Aug 2019 17:42:59 -0700 (PDT)
+From:   Bjorn Andersson <bjorn.andersson@linaro.org>
+To:     Kishon Vijay Abraham I <kishon@ti.com>,
+        Marc Gonzalez <marc.w.gonzalez@free.fr>
+Cc:     linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Vivek Gautam <vivek.gautam@codeaurora.org>,
+        Evan Green <evgreen@chromium.org>,
+        Niklas Cassel <niklas.cassel@linaro.org>
+Subject: [PATCH] phy: qcom-qmp: Correct ready status, again
+Date:   Mon,  5 Aug 2019 17:42:56 -0700
+Message-Id: <20190806004256.20152-1-bjorn.andersson@linaro.org>
+X-Mailer: git-send-email 2.18.0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 6 Aug 2019 at 07:17, Paolo Bonzini <pbonzini@redhat.com> wrote:
->
-> On 05/08/19 04:03, Wanpeng Li wrote:
-> > From: Wanpeng Li <wanpengli@tencent.com>
-> >
-> > After commit d73eb57b80b (KVM: Boost vCPUs that are delivering interrup=
-ts), a
-> > five years old bug is exposed. Running ebizzy benchmark in three 80 vCP=
-Us VMs
-> > on one 80 pCPUs Skylake server, a lot of rcu_sched stall warning splatt=
-ing
-> > in the VMs after stress testing:
-> >
-> >  INFO: rcu_sched detected stalls on CPUs/tasks: { 4 41 57 62 77} (detec=
-ted by 15, t=3D60004 jiffies, g=3D899, c=3D898, q=3D15073)
-> >  Call Trace:
-> >    flush_tlb_mm_range+0x68/0x140
-> >    tlb_flush_mmu.part.75+0x37/0xe0
-> >    tlb_finish_mmu+0x55/0x60
-> >    zap_page_range+0x142/0x190
-> >    SyS_madvise+0x3cd/0x9c0
-> >    system_call_fastpath+0x1c/0x21
-> >
-> > swait_active() sustains to be true before finish_swait() is called in
-> > kvm_vcpu_block(), voluntarily preempted vCPUs are taken into account
-> > by kvm_vcpu_on_spin() loop greatly increases the probability condition
-> > kvm_arch_vcpu_runnable(vcpu) is checked and can be true, when APICv
-> > is enabled the yield-candidate vCPU's VMCS RVI field leaks(by
-> > vmx_sync_pir_to_irr()) into spinning-on-a-taken-lock vCPU's current
-> > VMCS.
-> >
-> > This patch fixes it by checking conservatively a subset of events.
-> >
-> > Cc: Paolo Bonzini <pbonzini@redhat.com>
-> > Cc: Radim Kr=C4=8Dm=C3=A1=C5=99 <rkrcmar@redhat.com>
-> > Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> > Cc: Marc Zyngier <Marc.Zyngier@arm.com>
-> > Cc: stable@vger.kernel.org
-> > Fixes: 98f4a1467 (KVM: add kvm_arch_vcpu_runnable() test to kvm_vcpu_on=
-_spin() loop)
-> > Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-> > ---
-> > v3 -> v4:
-> >  * just test KVM_REQ_*
-> >  * rename the hook to apicv_has_pending_interrupt
-> >  * wrap with #ifdef CONFIG_KVM_ASYNC_PF
-> > v2 -> v3:
-> >  * check conservatively a subset of events
-> > v1 -> v2:
-> >  * checking swait_active(&vcpu->wq) for involuntary preemption
-> >
-> >  arch/mips/kvm/mips.c            |  5 +++++
-> >  arch/powerpc/kvm/powerpc.c      |  5 +++++
-> >  arch/s390/kvm/kvm-s390.c        |  5 +++++
-> >  arch/x86/include/asm/kvm_host.h |  1 +
-> >  arch/x86/kvm/svm.c              |  6 ++++++
-> >  arch/x86/kvm/vmx/vmx.c          |  6 ++++++
-> >  arch/x86/kvm/x86.c              | 16 ++++++++++++++++
-> >  include/linux/kvm_host.h        |  1 +
-> >  virt/kvm/arm/arm.c              |  5 +++++
-> >  virt/kvm/kvm_main.c             | 16 +++++++++++++++-
-> >  10 files changed, 65 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
-> > index 2cfe839..95a4642 100644
-> > --- a/arch/mips/kvm/mips.c
-> > +++ b/arch/mips/kvm/mips.c
-> > @@ -98,6 +98,11 @@ int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu)
-> >       return !!(vcpu->arch.pending_exceptions);
-> >  }
-> >
-> > +bool kvm_arch_dy_runnable(struct kvm_vcpu *vcpu)
->
-> Using a __weak definition for the default implementation is a bit more
-> concise.  Queued with that change.
+Despite extensive testing of 885bd765963b ("phy: qcom-qmp: Correct
+READY_STATUS poll break condition") I failed to conclude that the
+PHYSTATUS bit of the PCS_STATUS register used in PCIe and USB3 falls as
+the PHY gets ready. Similar to the prior bug with UFS the code will
+generally get past the check before the transition and thereby
+"succeed".
 
-Thank you, Paolo! Btw, how about other 5 patches?
+Correct the name of the register used PCIe and USB3 PHYs, replace
+mask_pcs_ready with a constant expression depending on the type of the
+PHY and check for the appropriate ready state.
 
-Regards,
-Wanpeng Li
+Cc: stable@vger.kernel.org
+Cc: Vivek Gautam <vivek.gautam@codeaurora.org>
+Cc: Evan Green <evgreen@chromium.org>
+Cc: Niklas Cassel <niklas.cassel@linaro.org>
+Reported-by: Marc Gonzalez <marc.w.gonzalez@free.fr>
+Fixes: 885bd765963b ("phy: qcom-qmp: Correct READY_STATUS poll break condition")
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+---
+ drivers/phy/qualcomm/phy-qcom-qmp.c | 33 ++++++++++++++---------------
+ 1 file changed, 16 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/phy/qualcomm/phy-qcom-qmp.c b/drivers/phy/qualcomm/phy-qcom-qmp.c
+index 34ff6434da8f..6bb49cc25c63 100644
+--- a/drivers/phy/qualcomm/phy-qcom-qmp.c
++++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
+@@ -35,7 +35,7 @@
+ #define PLL_READY_GATE_EN			BIT(3)
+ /* QPHY_PCS_STATUS bit */
+ #define PHYSTATUS				BIT(6)
+-/* QPHY_COM_PCS_READY_STATUS bit */
++/* QPHY_PCS_READY_STATUS & QPHY_COM_PCS_READY_STATUS bit */
+ #define PCS_READY				BIT(0)
+ 
+ /* QPHY_V3_DP_COM_RESET_OVRD_CTRL register bits */
+@@ -115,6 +115,7 @@ enum qphy_reg_layout {
+ 	QPHY_SW_RESET,
+ 	QPHY_START_CTRL,
+ 	QPHY_PCS_READY_STATUS,
++	QPHY_PCS_STATUS,
+ 	QPHY_PCS_AUTONOMOUS_MODE_CTRL,
+ 	QPHY_PCS_LFPS_RXTERM_IRQ_CLEAR,
+ 	QPHY_PCS_LFPS_RXTERM_IRQ_STATUS,
+@@ -133,7 +134,7 @@ static const unsigned int pciephy_regs_layout[] = {
+ 	[QPHY_FLL_MAN_CODE]		= 0xd4,
+ 	[QPHY_SW_RESET]			= 0x00,
+ 	[QPHY_START_CTRL]		= 0x08,
+-	[QPHY_PCS_READY_STATUS]		= 0x174,
++	[QPHY_PCS_STATUS]		= 0x174,
+ };
+ 
+ static const unsigned int usb3phy_regs_layout[] = {
+@@ -144,7 +145,7 @@ static const unsigned int usb3phy_regs_layout[] = {
+ 	[QPHY_FLL_MAN_CODE]		= 0xd0,
+ 	[QPHY_SW_RESET]			= 0x00,
+ 	[QPHY_START_CTRL]		= 0x08,
+-	[QPHY_PCS_READY_STATUS]		= 0x17c,
++	[QPHY_PCS_STATUS]		= 0x17c,
+ 	[QPHY_PCS_AUTONOMOUS_MODE_CTRL]	= 0x0d4,
+ 	[QPHY_PCS_LFPS_RXTERM_IRQ_CLEAR]  = 0x0d8,
+ 	[QPHY_PCS_LFPS_RXTERM_IRQ_STATUS] = 0x178,
+@@ -153,7 +154,7 @@ static const unsigned int usb3phy_regs_layout[] = {
+ static const unsigned int qmp_v3_usb3phy_regs_layout[] = {
+ 	[QPHY_SW_RESET]			= 0x00,
+ 	[QPHY_START_CTRL]		= 0x08,
+-	[QPHY_PCS_READY_STATUS]		= 0x174,
++	[QPHY_PCS_STATUS]		= 0x174,
+ 	[QPHY_PCS_AUTONOMOUS_MODE_CTRL]	= 0x0d8,
+ 	[QPHY_PCS_LFPS_RXTERM_IRQ_CLEAR]  = 0x0dc,
+ 	[QPHY_PCS_LFPS_RXTERM_IRQ_STATUS] = 0x170,
+@@ -911,7 +912,6 @@ struct qmp_phy_cfg {
+ 
+ 	unsigned int start_ctrl;
+ 	unsigned int pwrdn_ctrl;
+-	unsigned int mask_pcs_ready;
+ 	unsigned int mask_com_pcs_ready;
+ 
+ 	/* true, if PHY has a separate PHY_COM control block */
+@@ -1074,7 +1074,6 @@ static const struct qmp_phy_cfg msm8996_pciephy_cfg = {
+ 
+ 	.start_ctrl		= PCS_START | PLL_READY_GATE_EN,
+ 	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
+-	.mask_pcs_ready		= PHYSTATUS,
+ 	.mask_com_pcs_ready	= PCS_READY,
+ 
+ 	.has_phy_com_ctrl	= true,
+@@ -1106,7 +1105,6 @@ static const struct qmp_phy_cfg msm8996_usb3phy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.mask_pcs_ready		= PHYSTATUS,
+ };
+ 
+ /* list of resets */
+@@ -1136,7 +1134,6 @@ static const struct qmp_phy_cfg ipq8074_pciephy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
+-	.mask_pcs_ready		= PHYSTATUS,
+ 
+ 	.has_phy_com_ctrl	= false,
+ 	.has_lane_rst		= false,
+@@ -1167,7 +1164,6 @@ static const struct qmp_phy_cfg qmp_v3_usb3phy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.mask_pcs_ready		= PHYSTATUS,
+ 
+ 	.has_pwrdn_delay	= true,
+ 	.pwrdn_delay_min	= POWER_DOWN_DELAY_US_MIN,
+@@ -1199,7 +1195,6 @@ static const struct qmp_phy_cfg qmp_v3_usb3_uniphy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.mask_pcs_ready		= PHYSTATUS,
+ 
+ 	.has_pwrdn_delay	= true,
+ 	.pwrdn_delay_min	= POWER_DOWN_DELAY_US_MIN,
+@@ -1226,7 +1221,6 @@ static const struct qmp_phy_cfg sdm845_ufsphy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.mask_pcs_ready		= PCS_READY,
+ 
+ 	.is_dual_lane_phy	= true,
+ 	.no_pcs_sw_reset	= true,
+@@ -1254,7 +1248,6 @@ static const struct qmp_phy_cfg msm8998_pciephy_cfg = {
+ 
+ 	.start_ctrl             = SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
+-	.mask_pcs_ready		= PHYSTATUS,
+ };
+ 
+ static const struct qmp_phy_cfg msm8998_usb3phy_cfg = {
+@@ -1279,7 +1272,6 @@ static const struct qmp_phy_cfg msm8998_usb3phy_cfg = {
+ 
+ 	.start_ctrl             = SERDES_START | PCS_START,
+ 	.pwrdn_ctrl             = SW_PWRDN,
+-	.mask_pcs_ready         = PHYSTATUS,
+ 
+ 	.is_dual_lane_phy       = true,
+ };
+@@ -1457,7 +1449,7 @@ static int qcom_qmp_phy_enable(struct phy *phy)
+ 	void __iomem *pcs = qphy->pcs;
+ 	void __iomem *dp_com = qmp->dp_com;
+ 	void __iomem *status;
+-	unsigned int mask, val;
++	unsigned int mask, val, ready;
+ 	int ret;
+ 
+ 	dev_vdbg(qmp->dev, "Initializing QMP phy\n");
+@@ -1545,10 +1537,17 @@ static int qcom_qmp_phy_enable(struct phy *phy)
+ 	/* start SerDes and Phy-Coding-Sublayer */
+ 	qphy_setbits(pcs, cfg->regs[QPHY_START_CTRL], cfg->start_ctrl);
+ 
+-	status = pcs + cfg->regs[QPHY_PCS_READY_STATUS];
+-	mask = cfg->mask_pcs_ready;
++	if (cfg->type == PHY_TYPE_UFS) {
++		status = pcs + cfg->regs[QPHY_PCS_READY_STATUS];
++		mask = PCS_READY;
++		ready = PCS_READY;
++	} else {
++		status = pcs + cfg->regs[QPHY_PCS_STATUS];
++		mask = PHYSTATUS;
++		ready = 0;
++	}
+ 
+-	ret = readl_poll_timeout(status, val, val & mask, 10,
++	ret = readl_poll_timeout(status, val, (val & mask) == ready, 10,
+ 				 PHY_INIT_COMPLETE_TIMEOUT);
+ 	if (ret) {
+ 		dev_err(qmp->dev, "phy initialization timed-out\n");
+-- 
+2.18.0
+
