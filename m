@@ -2,135 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03ED082BF4
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 08:46:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F62B82C6E
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 09:17:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731735AbfHFGql (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 02:46:41 -0400
-Received: from mx2.suse.de ([195.135.220.15]:47612 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1731731AbfHFGql (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 02:46:41 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 1979AB602;
-        Tue,  6 Aug 2019 06:46:39 +0000 (UTC)
-Date:   Tue, 6 Aug 2019 08:46:36 +0200
-From:   Michal Hocko <mhocko@kernel.org>
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     Toshiki Fukasawa <t-fukasawa@vx.jp.nec.com>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "adobriyan@gmail.com" <adobriyan@gmail.com>,
-        "hch@lst.de" <hch@lst.de>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Junichi Nomura <j-nomura@ce.jp.nec.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH 2/2] /proc/kpageflags: do not use uninitialized struct
- pages
-Message-ID: <20190806064636.GU7597@dhcp22.suse.cz>
-References: <20190725023100.31141-1-t-fukasawa@vx.jp.nec.com>
- <20190725023100.31141-3-t-fukasawa@vx.jp.nec.com>
- <20190725090341.GC13855@dhcp22.suse.cz>
- <40b3078e-fb8b-87ef-5c4e-6321956cc940@vx.jp.nec.com>
- <20190726070615.GB6142@dhcp22.suse.cz>
- <3a926ce5-75b9-ea94-d6e4-6888872e0dc4@vx.jp.nec.com>
- <CAPcyv4iCXWgxkLi3eM_EaqD0cuzmRyg5k4c9CeS1TyN+bajXFw@mail.gmail.com>
+        id S1731735AbfHFHRF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 03:17:05 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:37968 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731734AbfHFHRF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Aug 2019 03:17:05 -0400
+Received: by mail-lj1-f194.google.com with SMTP id r9so81366554ljg.5;
+        Tue, 06 Aug 2019 00:17:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=aCHExauS+6Dyffx1L1clQWEUIQT1dcM2oHQ+r37woEI=;
+        b=SSctfUSLDVBcE+BumDkxvf5g4OG4yv2b/XASm8pEv6hiz85l5yQ9/mHyIHEewK4cls
+         lLiBoOwJC4cK9Vjs4hxkOR4n43iR5leyuKaD828mwnckAYyn122x61daCbvKwybkBbJm
+         WR+aQ+BdZxQguPF9GCmg8qzAh+wUxGGfkm0BsLaK1XU+wPWhk0sd5itkbJtmN73Tv4L5
+         7Ew2dCFCQJlzSnjN7t5amb95rlzXNoqCqRCtMoMcBa6A3pV1dxG+x/uV/QpKfNEo1lK0
+         ZYxTWysYcR1Iwny7zR0BhkT8ALNYy0nu31F3Iy46LSHm9D6gaE8Yp+JUbac5/n08cdUY
+         OAxA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=aCHExauS+6Dyffx1L1clQWEUIQT1dcM2oHQ+r37woEI=;
+        b=Jg4q8kTv2P+OEBQrYlEMa5fVmDsQRNfzifRbbBGoGe3SHZFr0PpazNa0UQi2Uhagwi
+         Cy8nPBWSBnxyVbM8rXTYyW/POcSJdOK3G9Egr9BuO+NjDvAKcG3SDXFoEH19f4JFxziE
+         igoTj1FIk8yAyxPwGLJCpy8KdhrSFnv43QIEkrD/UaLU0nRWTHH3dKql5o1KMtCp6JzT
+         EKcaKDmpZKAY4IdcxXe3uCzJ9F7Ro2M4iA2LCB3inax/byJO4aewVH2qxpYTAoabhHUN
+         74dqDzqOC6PCaXMZWXXjuC5aYTyxq3ZAvGhBWVxOCY4Gxw1epLpPCPKKI5wEWcAjB/AE
+         t/CQ==
+X-Gm-Message-State: APjAAAX4wk0fr1YhY7SxN9INJaDjBWjK85/foTFtpnG7szfeUHbT9gq6
+        MTCjYtf2rc8FpZGzX/zpaq+Y+s36JDGRW1hgG65BpWsg
+X-Google-Smtp-Source: APXvYqwDzILiqd/Kd08oGGeNcSI+mkFtAyYu5xi0QPQbcuFVAFLUBmavrjVeYJeAfsHlOJ6q3lSmnS9ulQy82UL2j1w=
+X-Received: by 2002:a2e:814e:: with SMTP id t14mr996325ljg.167.1565075823138;
+ Tue, 06 Aug 2019 00:17:03 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAPcyv4iCXWgxkLi3eM_EaqD0cuzmRyg5k4c9CeS1TyN+bajXFw@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20190805124927.973499541@linuxfoundation.org>
+In-Reply-To: <20190805124927.973499541@linuxfoundation.org>
+From:   Jack Wang <jack.wang.usish@gmail.com>
+Date:   Tue, 6 Aug 2019 09:16:51 +0200
+Message-ID: <CA+res+QCH9gy0uJBTYd5uc_9uMGwb3STcox3Tw4ZqZgh=5o=WA@mail.gmail.com>
+Subject: Re: [PATCH 4.14 00/53] 4.14.137-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon 05-08-19 20:27:03, Dan Williams wrote:
-> On Sun, Aug 4, 2019 at 10:31 PM Toshiki Fukasawa
-> <t-fukasawa@vx.jp.nec.com> wrote:
-> >
-> > On 2019/07/26 16:06, Michal Hocko wrote:
-> > > On Fri 26-07-19 06:25:49, Toshiki Fukasawa wrote:
-> > >>
-> > >>
-> > >> On 2019/07/25 18:03, Michal Hocko wrote:
-> > >>> On Thu 25-07-19 02:31:18, Toshiki Fukasawa wrote:
-> > >>>> A kernel panic was observed during reading /proc/kpageflags for
-> > >>>> first few pfns allocated by pmem namespace:
-> > >>>>
-> > >>>> BUG: unable to handle page fault for address: fffffffffffffffe
-> > >>>> [  114.495280] #PF: supervisor read access in kernel mode
-> > >>>> [  114.495738] #PF: error_code(0x0000) - not-present page
-> > >>>> [  114.496203] PGD 17120e067 P4D 17120e067 PUD 171210067 PMD 0
-> > >>>> [  114.496713] Oops: 0000 [#1] SMP PTI
-> > >>>> [  114.497037] CPU: 9 PID: 1202 Comm: page-types Not tainted 5.3.0-rc1 #1
-> > >>>> [  114.497621] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.0-0-g63451fca13-prebuilt.qemu-project.org 04/01/2014
-> > >>>> [  114.498706] RIP: 0010:stable_page_flags+0x27/0x3f0
-> > >>>> [  114.499142] Code: 82 66 90 66 66 66 66 90 48 85 ff 0f 84 d1 03 00 00 41 54 55 48 89 fd 53 48 8b 57 08 48 8b 1f 48 8d 42 ff 83 e2 01 48 0f 44 c7 <48> 8b 00 f6 c4 02 0f 84 57 03 00 00 45 31 e4 48 8b 55 08 48 89 ef
-> > >>>> [  114.500788] RSP: 0018:ffffa5e601a0fe60 EFLAGS: 00010202
-> > >>>> [  114.501373] RAX: fffffffffffffffe RBX: ffffffffffffffff RCX: 0000000000000000
-> > >>>> [  114.502009] RDX: 0000000000000001 RSI: 00007ffca13a7310 RDI: ffffd07489000000
-> > >>>> [  114.502637] RBP: ffffd07489000000 R08: 0000000000000001 R09: 0000000000000000
-> > >>>> [  114.503270] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000240000
-> > >>>> [  114.503896] R13: 0000000000080000 R14: 00007ffca13a7310 R15: ffffa5e601a0ff08
-> > >>>> [  114.504530] FS:  00007f0266c7f540(0000) GS:ffff962dbbac0000(0000) knlGS:0000000000000000
-> > >>>> [  114.505245] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > >>>> [  114.505754] CR2: fffffffffffffffe CR3: 000000023a204000 CR4: 00000000000006e0
-> > >>>> [  114.506401] Call Trace:
-> > >>>> [  114.506660]  kpageflags_read+0xb1/0x130
-> > >>>> [  114.507051]  proc_reg_read+0x39/0x60
-> > >>>> [  114.507387]  vfs_read+0x8a/0x140
-> > >>>> [  114.507686]  ksys_pread64+0x61/0xa0
-> > >>>> [  114.508021]  do_syscall_64+0x5f/0x1a0
-> > >>>> [  114.508372]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> > >>>> [  114.508844] RIP: 0033:0x7f0266ba426b
-> > >>>>
-> > >>>> The reason for the panic is that stable_page_flags() which parses
-> > >>>> the page flags uses uninitialized struct pages reserved by the
-> > >>>> ZONE_DEVICE driver.
-> > >>>
-> > >>> Why pmem hasn't initialized struct pages?
-> > >>
-> > >> We proposed to initialize in previous approach but that wasn't merged.
-> > >> (See https://marc.info/?l=linux-mm&m=152964792500739&w=2)
-> > >>
-> > >>> Isn't that a bug that should be addressed rather than paper over it like this?
-> > >>
-> > >> I'm not sure. What do you think, Dan?
-> > >
-> > > Yeah, I am really curious about details. Why do we keep uninitialized
-> > > struct pages at all? What is a random pfn walker supposed to do? What
-> > > kind of metadata would be clobbered? In other words much more details
-> > > please.
-> > >
-> > I also want to know. I do not think that initializing struct pages will
-> > clobber any metadata.
-> 
-> The nvdimm implementation uses vmem_altmap to arrange for the 'struct
-> page' array to be allocated from a reservation of a pmem namespace. A
-> namespace in this mode contains an info-block that consumes the first
-> 8K of the namespace capacity, capacity designated for page mapping,
-> capacity for padding the start of data to optionally 4K, 2MB, or 1GB
-> (on x86), and then the namespace data itself. The implementation
-> specifies a section aligned (now sub-section aligned) address to
-> arch_add_memory() to establish the linear mapping to map the metadata,
-> and then vmem_altmap indicates to memmap_init_zone() which pfns
-> represent data. The implementation only specifies enough 'struct page'
-> capacity for pfn_to_page() to operate on the data space, not the
-> namespace metadata space.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org> =E4=BA=8E2019=E5=B9=B48=E6=
+=9C=885=E6=97=A5=E5=91=A8=E4=B8=80 =E4=B8=8B=E5=8D=883:14=E5=86=99=E9=81=93=
+=EF=BC=9A
+>
+> This is the start of the stable review cycle for the 4.14.137 release.
+> There are 53 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed 07 Aug 2019 12:47:58 PM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.14.137-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.14.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
-Maybe I am dense but I do not really understand what prevents those
-struct pages to be initialized to whatever state nvidimm subsystem
-expects them to be? Is that a initialization speed up optimization?
- 
-> The proposal to validate ZONE_DEVICE pfns against the altmap seems the
-> right approach to me.
+Merge, and regression tested on my test machines,  all looks good!
 
-This however means that all pfn walkers have to be aware of these
-special struct pages somehow and that is error prone.
-
--- 
-Michal Hocko
-SUSE Labs
+Thanks,
+Jack Wang
