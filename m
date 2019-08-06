@@ -2,115 +2,624 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73E7F83D6B
-	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 00:40:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37BA183D74
+	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 00:42:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726810AbfHFWkT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 18:40:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49992 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726238AbfHFWkT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 18:40:19 -0400
-Received: from localhost.localdomain (c-73-223-200-170.hsd1.ca.comcast.net [73.223.200.170])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDDB3216F4;
-        Tue,  6 Aug 2019 22:40:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565131218;
-        bh=J8x3ojkJ3cL3WMdPvOUhiog7H9OPjAVC2lkPgYJAH7M=;
-        h=Date:From:To:Subject:From;
-        b=zsQegc+cORao2htxM4QRkxrZPRGtfFvb4asd3mOjHuxyGPSZPiYfQRfsvOcHXU/nd
-         2tC8BZuw31M5nQW84s4qK5AHgo32HFqEGtcdoG3uQSrRRuq/QmU2ttzMBZ5wJypiR7
-         DmLzVkdHocAJAqQdnMUaPPB88i3+QCx0NiPSSrwI=
-Date:   Tue, 06 Aug 2019 15:40:17 -0700
-From:   akpm@linux-foundation.org
-To:     Markus.Elfring@web.de, mm-commits@vger.kernel.org, neilb@suse.com,
-        stable@vger.kernel.org, turchanov@farpost.com,
-        viro@zeniv.linux.org.uk
-Subject:  + seq_file-fix-problem-when-seeking-mid-record.patch
- added to -mm tree
-Message-ID: <20190806224017.-1PMHb2Wb%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726867AbfHFWmn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 18:42:43 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:40793 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725974AbfHFWmn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Aug 2019 18:42:43 -0400
+Received: by mail-pg1-f193.google.com with SMTP id w10so42348442pgj.7;
+        Tue, 06 Aug 2019 15:42:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=JlfWyngd7jI9jD7GsrojyDZQcFqvTRmvekEaJVP6B0E=;
+        b=cxqgjI232hxHf50CXGz2vyexBmK3haRtWoYHP8UaIjdKuHpD1WtvJOqdEalSDpdD2A
+         qkVoCElWwFpBhWq4poareqcpwMzmChUtCxW+hjdJARBDpUBoKgk6Np06UxjXDDdnUCTH
+         f/F+FYp0LXMy3+IeX76rUnMmygE8EkLUqWWg14m39iSZK+SouNV7ZBvEP5PH5cVQ+bND
+         9LnxZANj+EAttxhDp9bp6r+FF/cWCALNnx8gTOfGFD+qPG/pVjVNNTora18e5Y3ozM5D
+         FFujIFYItxfs1sBgfxZUu1Rc3MK9XpG1FXUKQq/QoathlCwyOOZIEtsj6xPL53PcmezB
+         3HLA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=JlfWyngd7jI9jD7GsrojyDZQcFqvTRmvekEaJVP6B0E=;
+        b=JjIi9ToD1Bb5YDICoWuKae8rIsj+4VZcbFYwUXiaSSo9vmIsHAVwTiwzNpkuvzj9yt
+         MLw5wUMspqWbKpk/Q4Zdbs3dLnq0fBugFmkXETYul+i7hhcdbZhkA13q2ED70IaBsiV+
+         ooGhZW799CXeMvOGYOFhhebc2WxdIf8DZQnSAi+qw0d6oQzD8FfTU5lk/T42yh3CfAdA
+         tdLmLhZ+XXZpHqMzdQmSyQbt1rxEI++KfU7SqsDkwpY8Vw/+/u3EvxlSxdMN2Qab9G2u
+         Xqejcxviw4FkOmdoIRMfPK+z2l4icDj5FoxQNAJcopk07+EJCfeXwxiFd62RcA3AzqtG
+         QUHw==
+X-Gm-Message-State: APjAAAX0aU9U4YdSHCGKtvN3K4FpPIwR8oFD6OpZ3Bp8DLdcw7g1WMoO
+        10YiFj1Q8XozPiqFeaUL5MDrk3KZ3nkz4Q==
+X-Google-Smtp-Source: APXvYqzMmSOxH9HUAbGv6ufsRjRdT/DELaQ1XGFNTV3H2AcBKIB/sNcPRMeNSL1duYTOD8vRVsO6hg==
+X-Received: by 2002:a63:5c7:: with SMTP id 190mr4911322pgf.67.1565131361833;
+        Tue, 06 Aug 2019 15:42:41 -0700 (PDT)
+Received: from Gentoo ([103.231.90.172])
+        by smtp.gmail.com with ESMTPSA id r1sm98922566pfq.100.2019.08.06.15.42.34
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 06 Aug 2019 15:42:40 -0700 (PDT)
+Date:   Wed, 7 Aug 2019 04:12:27 +0530
+From:   Bhaskar Chowdhury <unixbhaskar@gmail.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        torvalds@linux-foundation.org, stable@vger.kernel.org, lwn@lwn.net,
+        Jiri Slaby <jslaby@suse.cz>
+Subject: Re: Linux 5.2.7
+Message-ID: <20190806224224.GA9255@Gentoo>
+References: <20190806184302.GA27969@kroah.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
+Content-Disposition: inline
+In-Reply-To: <20190806184302.GA27969@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: seq_file: fix problem when seeking mid-record
-has been added to the -mm tree.  Its filename is
-     seq_file-fix-problem-when-seeking-mid-record.patch
+--wRRV7LY7NUeQGEoC
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/seq_file-fix-problem-when-seeking-mid-record.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/seq_file-fix-problem-when-seeking-mid-record.patch
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Thanks , a bunch Greg! :)
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+On 20:43 Tue 06 Aug 2019, Greg KH wrote:
+>I'm announcing the release of the 5.2.7 kernel.
+>
+>All users of the 5.2 kernel series must upgrade.
+>
+>The updated 5.2.y git tree can be found at:
+>	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git lin=
+ux-5.2.y
+>and can be browsed at the normal kernel.org git web browser:
+>	https://git.kernel.org/?p=3Dlinux/kernel/git/stable/linux-stable.git;a=3D=
+summary
+>
+>thanks,
+>
+>greg k-h
+>
+>------------
+>
+> Documentation/admin-guide/hw-vuln/spectre.rst      |   88 +++++++++++++++=
++-
+> Documentation/admin-guide/kernel-parameters.txt    |    8 -
+> Makefile                                           |    5 -
+> arch/arm/boot/dts/rk3288-veyron-mickey.dts         |    4
+> arch/arm/boot/dts/rk3288-veyron-minnie.dts         |    4
+> arch/arm/boot/dts/rk3288.dtsi                      |    1
+> arch/arm/mach-exynos/Kconfig                       |    6 +
+> arch/arm/mach-exynos/Makefile                      |    2
+> arch/arm/mach-exynos/suspend.c                     |    6 -
+> arch/arm/mach-rpc/dma.c                            |    5 -
+> arch/arm64/boot/dts/marvell/armada-8040-mcbin.dtsi |    2
+> arch/arm64/boot/dts/qcom/qcs404-evb.dtsi           |    2
+> arch/arm64/boot/dts/qcom/qcs404.dtsi               |    1
+> arch/arm64/boot/dts/rockchip/rk3399-sapphire.dtsi  |    5 -
+> arch/arm64/boot/dts/rockchip/rk3399.dtsi           |    8 -
+> arch/arm64/include/asm/cpufeature.h                |    7 -
+> arch/arm64/kernel/cpufeature.c                     |    8 +
+> arch/arm64/kernel/hw_breakpoint.c                  |    7 -
+> arch/mips/lantiq/irq.c                             |    5 -
+> arch/nds32/include/asm/syscall.h                   |   27 +++--
+> arch/parisc/Makefile                               |    3
+> arch/parisc/boot/compressed/Makefile               |    4
+> arch/parisc/boot/compressed/vmlinux.lds.S          |    4
+> arch/powerpc/mm/kasan/kasan_init_32.c              |    7 +
+> arch/x86/boot/compressed/misc.c                    |    1
+> arch/x86/boot/compressed/misc.h                    |    1
+> arch/x86/entry/calling.h                           |   17 +++
+> arch/x86/entry/entry_64.S                          |   22 +++-
+> arch/x86/include/asm/apic.h                        |    2
+> arch/x86/include/asm/cpufeature.h                  |    4
+> arch/x86/include/asm/cpufeatures.h                 |   20 ++--
+> arch/x86/include/asm/kvm_host.h                    |   34 +++---
+> arch/x86/include/asm/paravirt.h                    |    1
+> arch/x86/include/asm/traps.h                       |    2
+> arch/x86/kernel/apic/apic.c                        |    2
+> arch/x86/kernel/cpu/bugs.c                         |  105 +++++++++++++++=
+++++--
+> arch/x86/kernel/cpu/common.c                       |   96 ++++++++++-----=
+----
+> arch/x86/kernel/cpu/cpuid-deps.c                   |    3
+> arch/x86/kernel/cpu/scattered.c                    |    4
+> arch/x86/kernel/kvm.c                              |    1
+> arch/x86/kvm/cpuid.h                               |    2
+> arch/x86/kvm/mmu.c                                 |    6 -
+> arch/x86/kvm/vmx/nested.c                          |    5 -
+> arch/x86/math-emu/fpu_emu.h                        |    2
+> arch/x86/math-emu/reg_constant.c                   |    2
+> arch/x86/xen/enlighten_pv.c                        |    2
+> arch/x86/xen/xen-asm_64.S                          |    1
+> drivers/acpi/blacklist.c                           |    4
+> drivers/block/loop.c                               |   16 +--
+> drivers/block/nbd.c                                |    2
+> drivers/char/tpm/tpm-chip.c                        |   23 +++-
+> drivers/clk/mediatek/clk-mt8183.c                  |   46 ++++++---
+> drivers/clk/meson/clk-mpll.c                       |    9 +
+> drivers/clk/meson/clk-mpll.h                       |    1
+> drivers/clk/sprd/sc9860-clk.c                      |    5 -
+> drivers/clk/tegra/clk-tegra210.c                   |    8 -
+> drivers/crypto/ccp/psp-dev.c                       |   19 ++-
+> drivers/dax/kmem.c                                 |    5 -
+> drivers/dma/sh/rcar-dmac.c                         |    2
+> drivers/dma/tegra20-apb-dma.c                      |   12 ++
+> drivers/firmware/psci/psci_checker.c               |   10 +-
+> drivers/gpio/gpiolib.c                             |   23 +++-
+> drivers/gpu/drm/amd/display/dc/core/dc_resource.c  |    3
+> drivers/gpu/drm/amd/display/dc/dc_stream.h         |    1
+> drivers/gpu/drm/i915/gvt/kvmgt.c                   |   12 ++
+> drivers/gpu/drm/i915/i915_perf.c                   |   10 +-
+> drivers/gpu/drm/nouveau/dispnv50/disp.c            |    2
+> drivers/gpu/drm/nouveau/nouveau_connector.c        |    2
+> drivers/gpu/drm/nouveau/nouveau_dmem.c             |    3
+> drivers/i2c/busses/i2c-at91-core.c                 |    2
+> drivers/i2c/busses/i2c-at91-master.c               |    9 +
+> drivers/i2c/busses/i2c-bcm-iproc.c                 |   10 +-
+> drivers/infiniband/core/device.c                   |   54 ++++++++--
+> drivers/infiniband/hw/bnxt_re/ib_verbs.c           |    7 +
+> drivers/infiniband/hw/bnxt_re/qplib_res.c          |   13 +-
+> drivers/infiniband/hw/bnxt_re/qplib_res.h          |    2
+> drivers/infiniband/hw/bnxt_re/qplib_sp.c           |   14 +-
+> drivers/infiniband/hw/bnxt_re/qplib_sp.h           |    7 +
+> drivers/infiniband/hw/hfi1/chip.c                  |   11 +-
+> drivers/infiniband/hw/hfi1/tid_rdma.c              |   43 --------
+> drivers/infiniband/hw/hfi1/verbs.c                 |    2
+> drivers/infiniband/hw/mlx5/mlx5_ib.h               |    1
+> drivers/infiniband/hw/mlx5/mr.c                    |   23 ++--
+> drivers/infiniband/hw/mlx5/qp.c                    |   13 +-
+> drivers/misc/eeprom/at24.c                         |    2
+> drivers/mmc/core/queue.c                           |    5 +
+> drivers/mmc/host/dw_mmc.c                          |    3
+> drivers/mmc/host/meson-mx-sdio.c                   |    2
+> drivers/mmc/host/sdhci-sprd.c                      |    1
+> drivers/mtd/nand/raw/nand_micron.c                 |   14 ++
+> drivers/net/ethernet/emulex/benet/be_main.c        |    6 +
+> drivers/pci/of.c                                   |    8 +
+> drivers/perf/arm_pmu.c                             |    2
+> drivers/rapidio/devices/rio_mport_cdev.c           |    2
+> drivers/remoteproc/remoteproc_core.c               |    1
+> drivers/s390/block/dasd_alias.c                    |   22 +++-
+> drivers/s390/scsi/zfcp_erp.c                       |    7 +
+> drivers/scsi/mpt3sas/mpt3sas_base.c                |   12 +-
+> drivers/soc/imx/soc-imx8.c                         |   19 ++-
+> drivers/soc/qcom/rpmpd.c                           |    2
+> drivers/virtio/virtio_mmio.c                       |    7 +
+> drivers/xen/gntdev.c                               |    2
+> drivers/xen/swiotlb-xen.c                          |    6 -
+> fs/adfs/super.c                                    |    5 -
+> fs/block_dev.c                                     |   83 +++++++++++-----
+> fs/btrfs/ioctl.c                                   |   21 ++++
+> fs/btrfs/qgroup.c                                  |   24 ++++
+> fs/btrfs/send.c                                    |   77 +++------------
+> fs/btrfs/transaction.c                             |   10 ++
+> fs/btrfs/tree-checker.c                            |   11 ++
+> fs/btrfs/volumes.c                                 |    3
+> fs/ceph/dir.c                                      |   26 +++--
+> fs/ceph/super.h                                    |    7 +
+> fs/ceph/xattr.c                                    |   14 +-
+> fs/cifs/connect.c                                  |   24 +++-
+> fs/coda/psdev.c                                    |    5 -
+> fs/dax.c                                           |    2
+> fs/io_uring.c                                      |    3
+> include/linux/acpi.h                               |    5 -
+> include/linux/coda.h                               |    3
+> include/linux/coda_psdev.h                         |   11 ++
+> include/linux/compiler-gcc.h                       |    2
+> include/linux/compiler_types.h                     |    4
+> include/linux/fs.h                                 |    6 +
+> include/linux/gpio/consumer.h                      |   64 ++++++------
+> include/linux/memory_hotplug.h                     |    8 +
+> include/rdma/ib_verbs.h                            |    3
+> include/uapi/linux/coda_psdev.h                    |   13 --
+> ipc/mqueue.c                                       |   19 ++-
+> kernel/bpf/btf.c                                   |   19 ++-
+> kernel/bpf/core.c                                  |    2
+> kernel/dma/swiotlb.c                               |    4
+> kernel/module.c                                    |    6 -
+> kernel/stacktrace.c                                |    5 +
+> kernel/trace/ftrace.c                              |   28 +++--
+> kernel/trace/trace_functions_graph.c               |   17 +--
+> lib/Makefile                                       |    3
+> lib/ioremap.c                                      |    9 +
+> lib/test_overflow.c                                |   11 +-
+> lib/test_string.c                                  |    6 -
+> mm/cma.c                                           |   13 ++
+> mm/compaction.c                                    |   11 +-
+> mm/memcontrol.c                                    |   22 +++-
+> mm/memory_hotplug.c                                |   64 ++++++++----
+> mm/migrate.c                                       |   21 ++--
+> mm/slab_common.c                                   |    3
+> mm/vmscan.c                                        |    9 +
+> mm/z3fold.c                                        |   15 ++-
+> scripts/Makefile.modpost                           |    6 -
+> scripts/kconfig/confdata.c                         |    4
+> security/selinux/ss/policydb.c                     |    6 +
+> sound/hda/hdac_i915.c                              |   10 +-
+> tools/perf/builtin-version.c                       |    1
+> tools/testing/selftests/bpf/Makefile               |   13 +-
+> tools/testing/selftests/cgroup/cgroup_util.c       |    3
+> 155 files changed, 1239 insertions(+), 631 deletions(-)
+>
+>Andrea Parri (1):
+>      ceph: fix improper use of smp_mb__before_atomic()
+>
+>Andreas Koop (1):
+>      mmc: mmc_spi: Enable stable writes
+>
+>Andrii Nakryiko (1):
+>      bpf: fix BTF verifier size resolution logic
+>
+>Andy Gross (1):
+>      arm64: qcom: qcs404: Add reset-cells to GCC node
+>
+>Anshuman Khandual (1):
+>      mm/ioremap: check virtual address alignment while creating huge mapp=
+ings
+>
+>Anson Huang (2):
+>      soc: imx: soc-imx8: Correct return value of error handle
+>      soc: imx8: Fix potential kernel dump in error path
+>
+>Arnd Bergmann (8):
+>      swiotlb: fix phys_addr_t overflow warning
+>      ARM: exynos: Only build MCPM support if used
+>      ACPI: blacklist: fix clang warning for unused DMI table
+>      x86: kvm: avoid constant-conversion warning
+>      ACPI: fix false-positive -Wuninitialized warning
+>      mm/slab_common.c: work around clang bug #42570
+>      x86: math-emu: Hide clang warnings for 16-bit overflow
+>      ubsan: build ubsan.c more conservatively
+>
+>Baolin Wang (1):
+>      mmc: host: sdhci-sprd: Fix the missing pm_runtime_put_noidle()
+>
+>Bartosz Golaszewski (1):
+>      gpio: don't WARN() on NULL descs if gpiolib is disabled
+>
+>Benjamin Block (1):
+>      scsi: zfcp: fix GCC compiler warning emitted with -Wmaybe-uninitiali=
+zed
+>
+>Benjamin Poirier (1):
+>      be2net: Signal that the device cannot transmit during reconfiguration
+>
+>Borislav Petkov (1):
+>      x86/cpufeatures: Carve out CQM features retrieval
+>
+>Changbin Du (1):
+>      fgraph: Remove redundant ftrace_graph_notrace_addr() test
+>
+>Cheng Jian (1):
+>      ftrace: Enable trampoline when rec count returns back to one
+>
+>Chris Down (1):
+>      cgroup: kselftest: relax fs_spec checks
+>
+>Chris Packham (1):
+>      gpiolib: Preserve desc->flags when setting state
+>
+>Christophe Leroy (1):
+>      powerpc/kasan: fix early boot failure on PPC32
+>
+>Chunyan Zhang (1):
+>      clk: sprd: Add check for return value of sprd_clk_regmap_init()
+>
+>Clement Leger (1):
+>      remoteproc: copy parent dma_pfn_offset for vdev
+>
+>Dan Carpenter (1):
+>      drivers/rapidio/devices/rio_mport_cdev.c: NUL terminate some strings
+>
+>David Rientjes (1):
+>      crypto: ccp - Fix SEV_VERSION_GREATER_OR_EQUAL
+>
+>David Sterba (1):
+>      btrfs: fix minimum number of chunk errors for DUP
+>
+>Dmitry Osipenko (1):
+>      dmaengine: tegra-apb: Error out if DMA_PREP_INTERRUPT flag is unset
+>
+>Dmitry V. Levin (1):
+>      nds32: fix asm/syscall.h
+>
+>Doug Berger (1):
+>      mm/cma.c: fail if fixed declaration can't be honored
+>
+>Douglas Anderson (4):
+>      ARM: dts: rockchip: Make rk3288-veyron-minnie run at hs200
+>      ARM: dts: rockchip: Make rk3288-veyron-mickey's emmc work again
+>      ARM: dts: rockchip: Mark that the rk3288 timer might stop in suspend
+>      mmc: dw_mmc: Fix occasional hang after tuning on eMMC
+>
+>Fenghua Yu (1):
+>      x86/cpufeatures: Combine word 11 and 12 into a new scattered feature=
+s word
+>
+>Filipe Manana (2):
+>      Btrfs: fix incremental send failure after deduplication
+>      Btrfs: fix race leading to fs corruption after transaction abort
+>
+>Geert Uytterhoeven (1):
+>      dmaengine: rcar-dmac: Reject zero-length slave DMA requests
+>
+>Greg Kroah-Hartman (1):
+>      Linux 5.2.7
+>
+>Gustavo A. R. Silva (1):
+>      IB/hfi1: Fix Spectre v1 vulnerability
+>
+>Heinrich Schuchardt (1):
+>      arm64: dts: marvell: mcbin: enlarge PCI memory window
+>
+>Helen Koike (1):
+>      arm64: dts: rockchip: fix isp iommu clocks and power domain
+>
+>Helge Deller (2):
+>      parisc: Strip debug info from kernel before creating compressed vmli=
+nuz
+>      parisc: Fix build of compressed kernel even with debug enabled
+>
+>Henry Burns (1):
+>      mm/z3fold.c: reinitialize zhdr structs after migration
+>
+>Ihor Matushchak (1):
+>      virtio-mmio: add error check for platform_get_irq
+>
+>Ilya Leoshkevich (1):
+>      selftests/bpf: do not ignore clang failures
+>
+>JC Kuo (1):
+>      clk: tegra210: fix PLLU and PLLU_OUT1
+>
+>Jackie Liu (1):
+>      io_uring: fix KASAN use after free in io_sq_wq_submit_work
+>
+>James Bottomley (1):
+>      parisc: Add archclean Makefile target
+>
+>Jan Kara (3):
+>      dax: Fix missed wakeup in put_unlocked_entry()
+>      mm: migrate: fix reference check race between __find_get_block() and=
+ migration
+>      loop: Fix mount(2) failure due to race with LOOP_SET_FD
+>
+>Jason Gunthorpe (1):
+>      RDMA/devices: Do not deadlock during client removal
+>
+>Jean Delvare (1):
+>      eeprom: at24: make spd world-readable again
+>
+>Jean-Philippe Brucker (2):
+>      PCI: OF: Initialize dev->fwnode appropriately
+>      firmware/psci: psci_checker: Park kthreads before stopping them
+>
+>Jeff Layton (1):
+>      ceph: return -ERANGE if virtual xattr value didn't fit in buffer
+>
+>Jerome Brunet (1):
+>      clk: meson: mpll: properly handle spread spectrum
+>
+>Joe Perches (1):
+>      mmc: meson-mx-sdio: Fix misuse of GENMASK macro
+>
+>John Fleck (1):
+>      IB/hfi1: Check for error on call to alloc_rsm_map_table
+>
+>Josh Poimboeuf (7):
+>      x86/kvm: Don't call kvm_spurious_fault() from .fixup
+>      x86/paravirt: Fix callee-saved function ELF sizes
+>      bpf: Disable GCC -fgcse optimization for ___bpf_prog_run()
+>      x86/speculation: Prepare entry code for Spectre v1 swapgs mitigations
+>      x86/speculation: Enable Spectre v1 swapgs mitigations
+>      x86/entry/64: Use JMP instead of JMPQ
+>      Documentation: Add swapgs description to the Spectre v1 documentation
+>
+>Juergen Gross (1):
+>      xen/swiotlb: fix condition for calling xen_destroy_contiguous_region=
+()
+>
+>Kaike Wan (2):
+>      IB/hfi1: Drop all TID RDMA READ RESP packets after r_next_psn
+>      IB/hfi1: Field not zero-ed when allocating TID flow memory
+>
+>Kees Cook (2):
+>      lib/test_overflow.c: avoid tainting the kernel and fix wrap size
+>      ipc/mqueue.c: only perform resource calculation if user valid
+>
+>Lionel Landwerlin (1):
+>      drm/i915/perf: fix ICL perf register offsets
+>
+>Liran Alon (1):
+>      KVM: nVMX: Ignore segment base for VMX memory operand when segment n=
+ot FS or GS
+>
+>Lyude Paul (1):
+>      drm/nouveau: Only release VCPI slots on mode changes
+>
+>M. Vefa Bicakci (1):
+>      kconfig: Clear "written" flag to avoid data loss
+>
+>Marco Felsch (1):
+>      mtd: rawnand: micron: handle on-die "ECC-off" devices correctly
+>
+>Masahiro Yamada (2):
+>      kbuild: initialize CLANG_FLAGS correctly in the top Makefile
+>      kbuild: modpost: include .*.cmd files only when targets exist
+>
+>Mel Gorman (1):
+>      mm: compaction: avoid 100% CPU usage during compaction when a task i=
+s killed
+>
+>Michael Wu (1):
+>      gpiolib: fix incorrect IRQ requesting of an active-low lineevent
+>
+>Micha=C5=82 Miros=C5=82aw (2):
+>      i2c: at91: disable TXRDY interrupt after sending data
+>      i2c: at91: fix clk_offset for sama5d2
+>
+>Mikko Rapeli (1):
+>      uapi linux/coda_psdev.h: move upc_req definition from uapi to kernel=
+ side headers
+>
+>Milan Broz (1):
+>      tpm: Fix null pointer dereference on chip register error path
+>
+>Munehisa Kamata (1):
+>      nbd: replace kill_bdev() with __invalidate_device() again
+>
+>Nicholas Kazlauskas (1):
+>      drm/amd/display: Expose audio inst from DC to DM
+>
+>Niklas Cassel (1):
+>      arm64: dts: qcom: qcs404-evb: fix l3 min voltage
+>
+>Ondrej Mosnacek (1):
+>      selinux: fix memory leak in policydb_init()
+>
+>Pavel Tatashin (2):
+>      device-dax: fix memory and resource leak if hotplug fails
+>      mm/hotplug: make remove_memory() interface usable
+>
+>Peter Rosin (1):
+>      lib/test_string.c: avoid masking memset16/32/64 failures
+>
+>Peter Zijlstra (1):
+>      stacktrace: Force USER_DS for stack_trace_save_user()
+>
+>Petr Cvek (1):
+>      MIPS: lantiq: Fix bitfield masking
+>
+>Prarit Bhargava (1):
+>      kernel/module.c: Only return -EEXIST for modules that have finished =
+loading
+>
+>Qian Cai (1):
+>      x86/apic: Silence -Wtype-limits compiler warnings
+>
+>Qu Wenruo (3):
+>      btrfs: tree-checker: Check if the file extent end overflows
+>      btrfs: Flush before reflinking any extent to prevent NOCOW write fal=
+ling back to COW without data reservation
+>      btrfs: qgroup: Don't hold qgroup_ioctl_lock in btrfs_qgroup_inherit()
+>
+>Ralph Campbell (2):
+>      drm/nouveau/dmem: missing mutex_lock in error path
+>      mm/migrate.c: initialize pud_entry in migrate_vma()
+>
+>Ravi Bangoria (1):
+>      perf version: Fix segfault due to missing OPT_END()
+>
+>Rayagonda Kokatanur (1):
+>      i2c: iproc: Fix i2c master read more than 63 bytes
+>
+>Ronnie Sahlberg (2):
+>      cifs: Fix a race condition with cifs_echo_request
+>      cifs: fix crash in cifs_dfs_do_automount
+>
+>Russell King (2):
+>      ARM: riscpc: fix DMA
+>      fs/adfs: super: fix use-after-free bug
+>
+>Sam Protsenko (1):
+>      coda: fix build using bare-metal toolchain
+>
+>Samuel Thibault (1):
+>      ALSA: hda: Fix 1-minute detection delay when i915 module is not avai=
+lable
+>
+>Selvin Xavier (1):
+>      RDMA/bnxt_re: Honor vlan_id in GID entry comparison
+>
+>Sibi Sankar (1):
+>      soc: qcom: rpmpd: fixup rpmpd set performance state
+>
+>Souptick Joarder (1):
+>      xen/gntdev.c: Replace vm_map_pages() with vm_map_pages_zero()
+>
+>Stefan Haberland (1):
+>      s390/dasd: fix endless loop after read unit address configuration
+>
+>Suganath Prabu (1):
+>      scsi: mpt3sas: Use 63-bit DMA addressing on SAS35 HBA
+>
+>Thomas Gleixner (1):
+>      x86/speculation/swapgs: Exclude ATOMs from speculation through SWAPGS
+>
+>Vicente Bergas (1):
+>      arm64: dts: rockchip: Fix USB3 Type-C on rk3399-sapphire
+>
+>Vitaly Wool (1):
+>      mm/z3fold: don't try to use buddy slots after free
+>
+>Weiyi Lu (1):
+>      clk: mediatek: mt8183: Register 13MHz clock earlier for clocksource
+>
+>Will Deacon (3):
+>      drivers/perf: arm_pmu: Fix failure path in PM notifier
+>      arm64: compat: Allow single-byte watchpoints on all addresses
+>      arm64: cpufeature: Fix feature comparison for CTR_EL0.{CWG,ERG}
+>
+>Xiaolin Zhang (1):
+>      drm/i915/gvt: fix incorrect cache entry for guest page mapping
+>
+>Yafang Shao (1):
+>      mm/memcontrol.c: keep local VM counters in sync with the hierarchica=
+l ones
+>
+>Yan, Zheng (1):
+>      ceph: fix dir_lease_is_valid()
+>
+>Yang Shi (1):
+>      mm: vmscan: check if mem cgroup is disabled or not before calling me=
+mcg slab shrinker
+>
+>Yishai Hadas (5):
+>      IB/mlx5: Fix unreg_umr to ignore the mkey state
+>      IB/mlx5: Use direct mkey destroy command upon UMR unreg failure
+>      IB/mlx5: Move MRs to a kernel PD when freeing them to the MR cache
+>      IB/mlx5: Fix clean_mr() to work in the expected order
+>      IB/mlx5: Fix RSS Toeplitz setup to be aligned with the HW specificat=
+ion
+>
+>Yongxin Liu (1):
+>      drm/nouveau: fix memory leak in nouveau_conn_reset()
+>
+>Zhenzhong Duan (2):
+>      xen/pv: Fix a boot up hang revealed by int3 self test
+>      x86, boot: Remove multiple copy of static function sanitize_boot_par=
+ams()
+>
+>Zhouyang Jia (1):
+>      coda: add error handling for fget
+>
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
 
-------------------------------------------------------
-From: NeilBrown <neilb@suse.com>
-Subject: seq_file: fix problem when seeking mid-record
 
-If you use lseek or similar (e.g.  pread) to access a location in a
-seq_file file that is within a record, rather than at a record boundary,
-then the first read will return the remainder of the record, and the
-second read will return the whole of that same record (instead of the next
-record).  When seeking to a record boundary, the next record is correctly
-returned.
+--wRRV7LY7NUeQGEoC
+Content-Type: application/pgp-signature; name="signature.asc"
 
-This bug was introduced by a recent patch (identified below).  Before that
-patch, seq_read() would increment m->index when the last of the buffer was
-returned (m->count == 0).  After that patch, we rely on ->next to
-increment m->index after filling the buffer - but there was one place
-where that didn't happen.
+-----BEGIN PGP SIGNATURE-----
 
-Link: https://lkml.kernel.org/lkml/877e7xl029.fsf@notabene.neil.brown.name/
-Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code and interface")
-Signed-off-by: NeilBrown <neilb@suse.com>
-Reported-by: Sergei Turchanov <turchanov@farpost.com>
-Tested-by: Sergei Turchanov <turchanov@farpost.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Markus Elfring <Markus.Elfring@web.de>
-Cc: <stable@vger.kernel.org>	[4.19+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+iQEzBAABCAAdFiEEnwF+nWawchZUPOuwsjqdtxFLKRUFAl1KAkwACgkQsjqdtxFL
+KRVp+wf/ae+d99qO8XJkoUanjQ/+zhCkGI/4RkwoXtzwSLE4VetX2Cu/g0bxtU40
+cMKrT/SRV5R8wAz9l5WKCt2eIsAhRrKIUDeRCxC9kCmx8EesSBBFr1cXvSSHKEYJ
+n7UIqBHRhoHlO1xJNeHG/S0+sa5DhbhGE+xE0HAIkLN0Yq1vbE7X8OMizLVO5arY
+K0Men4ImoXAyw3SGgT6cyRloeirYY4pA3JykrWm1+78iPmevgIkBtMcu6Dy6wjMN
+fgsNfaNcuR1Js27NiSPKZp5Vq82WB90VHuaqLS7pHbCaiPMrDs+dUgkodhhANF/a
+GPT7KL2WFG7IqrNua2rZng1Li5SRdw==
+=yHLP
+-----END PGP SIGNATURE-----
 
- fs/seq_file.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/fs/seq_file.c~seq_file-fix-problem-when-seeking-mid-record
-+++ a/fs/seq_file.c
-@@ -119,6 +119,7 @@ static int traverse(struct seq_file *m,
- 		}
- 		if (seq_has_overflowed(m))
- 			goto Eoverflow;
-+		p = m->op->next(m, p, &m->index);
- 		if (pos + m->count > offset) {
- 			m->from = offset - pos;
- 			m->count -= m->from;
-@@ -126,7 +127,6 @@ static int traverse(struct seq_file *m,
- 		}
- 		pos += m->count;
- 		m->count = 0;
--		p = m->op->next(m, p, &m->index);
- 		if (pos == offset)
- 			break;
- 	}
-_
-
-Patches currently in -mm which might be from neilb@suse.com are
-
-seq_file-fix-problem-when-seeking-mid-record.patch
-
+--wRRV7LY7NUeQGEoC--
