@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A71DF83CC1
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:45:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E6D983B3E
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:34:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728700AbfHFVpi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:45:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51840 "EHLO mail.kernel.org"
+        id S1727471AbfHFVeC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:34:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727324AbfHFVeA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:34:00 -0400
+        id S1726542AbfHFVeB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:34:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C6A0216F4;
-        Tue,  6 Aug 2019 21:33:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1AA7217D7;
+        Tue,  6 Aug 2019 21:33:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127239;
-        bh=ZKAkj2PBDzbgmpcPQyxVaFn971P85QAkn1irCUYBn+0=;
+        s=default; t=1565127240;
+        bh=tX3+3B/kq+FNOebC/0HT2A+XLEXbQHn4wNEEh5n8x30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xe81UfOuf9SmJXbSoYGQBNXKpSTSERsLAVJ5hxUzqK3xSVXzl8e/WaHWJW2U0GPFL
-         BqJZMx/BMwBF/P8d8+D0ywAL2XAKP5cVNh4aaL3yUh8yA5qhf5gPA9jbGHWzl23oVy
-         987y68+/Qg194VWwTO8TgBEODQx2kpM6JWJa2Zvo=
+        b=gX4cHNQyMNSy1yXOlXBcHXLLueFK7M45r7mY4ePUlzB2rpr/yrTC8m4gX5gawm08J
+         3PsaNHFFyAHRIReKJHavKlO6twagKP6MGASauxSO4rT4hi2nFLl9XJ5hYnPA/tJjNz
+         Aa/ZEtnfnheu+zagDCMTAs9fPJcJI95VJxMKEMEg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Neil Armstrong <narmstrong@baylibre.com>,
         Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 22/59] drm/bridge: lvds-encoder: Fix build error while CONFIG_DRM_KMS_HELPER=m
-Date:   Tue,  6 Aug 2019 17:32:42 -0400
-Message-Id: <20190806213319.19203-22-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 23/59] drm/bridge: tc358764: Fix build error
+Date:   Tue,  6 Aug 2019 17:32:43 -0400
+Message-Id: <20190806213319.19203-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213319.19203-1-sashal@kernel.org>
 References: <20190806213319.19203-1-sashal@kernel.org>
@@ -46,37 +47,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit f4cc743a98136df3c3763050a0e8223b52d9a960 ]
+[ Upstream commit e1ae72a21e5f0d1846e26e3f5963930664702071 ]
 
-If DRM_LVDS_ENCODER=y but CONFIG_DRM_KMS_HELPER=m,
-build fails:
+If CONFIG_DRM_TOSHIBA_TC358764=y but CONFIG_DRM_KMS_HELPER=m,
+building fails:
 
-drivers/gpu/drm/bridge/lvds-encoder.o: In function `lvds_encoder_probe':
-lvds-encoder.c:(.text+0x155): undefined reference to `devm_drm_panel_bridge_add'
+drivers/gpu/drm/bridge/tc358764.o:(.rodata+0x228): undefined reference to `drm_atomic_helper_connector_reset'
+drivers/gpu/drm/bridge/tc358764.o:(.rodata+0x240): undefined reference to `drm_helper_probe_single_connector_modes'
+drivers/gpu/drm/bridge/tc358764.o:(.rodata+0x268): undefined reference to `drm_atomic_helper_connector_duplicate_state'
+drivers/gpu/drm/bridge/tc358764.o:(.rodata+0x270): undefined reference to `drm_atomic_helper_connector_destroy_state'
+
+Like TC358767, select DRM_KMS_HELPER to fix this, and
+change to select DRM_PANEL to avoid recursive dependency.
 
 Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: dbb58bfd9ae6 ("drm/bridge: Fix lvds-encoder since the panel_bridge rework.")
+Fixes: f38b7cca6d0e ("drm/bridge: tc358764: Add DSI to LVDS bridge driver")
 Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
 Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190729071216.27488-1-yuehaibing@huawei.com
+Link: https://patchwork.freedesktop.org/patch/msgid/20190729090520.25968-1-yuehaibing@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/bridge/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/bridge/Kconfig b/drivers/gpu/drm/bridge/Kconfig
-index ee777469293a4..cc62603b87c59 100644
+index cc62603b87c59..e4e22bbae2a7c 100644
 --- a/drivers/gpu/drm/bridge/Kconfig
 +++ b/drivers/gpu/drm/bridge/Kconfig
-@@ -48,6 +48,7 @@ config DRM_DUMB_VGA_DAC
- config DRM_LVDS_ENCODER
- 	tristate "Transparent parallel to LVDS encoder support"
+@@ -117,9 +117,10 @@ config DRM_THINE_THC63LVD1024
+ 
+ config DRM_TOSHIBA_TC358764
+ 	tristate "TC358764 DSI/LVDS bridge"
+-	depends on DRM && DRM_PANEL
  	depends on OF
+ 	select DRM_MIPI_DSI
 +	select DRM_KMS_HELPER
- 	select DRM_PANEL_BRIDGE
++	select DRM_PANEL
  	help
- 	  Support for transparent parallel to LVDS encoders that don't require
+ 	  Toshiba TC358764 DSI/LVDS bridge driver.
+ 
 -- 
 2.20.1
 
