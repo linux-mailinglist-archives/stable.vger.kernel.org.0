@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46DE883BCD
+	by mail.lfdr.de (Postfix) with ESMTP id B659083BCE
 	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:39:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729589AbfHFViE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:38:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55746 "EHLO mail.kernel.org"
+        id S1729631AbfHFViG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:38:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729583AbfHFViD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:38:03 -0400
+        id S1729604AbfHFViG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:38:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0360B2189E;
-        Tue,  6 Aug 2019 21:38:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A78A20C01;
+        Tue,  6 Aug 2019 21:38:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127483;
-        bh=6++WtZkK6nDEnlyx/al3i56a+F9edKAwW/l6M1rHbpI=;
+        s=default; t=1565127485;
+        bh=OSDZjGF/Qz2AU+ibnMfKOlSobEgeyAk25LXtXkBD0/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HVIiqojLZPxcmkrX6U0jmQ0Y4yH3YYdv46cxtTi7br5SZPXVZww7S+hXEYIL3F/A4
-         9C1xMpCeef9XdUkgD8ueK0gipUaKOi0fS14Y2qjRElnC3Jbq1um3iGcXkZpdf/DbB9
-         BDsyDr+QJqAzL9PqIMBebcsls3BtR6IcQ5uVNbQg=
+        b=sIC4Hrm4Y2b+mH5yJDEVLMA77c6ylNgSUugPw+W+suic9OHrVDjoUTI+zEyAuYlQx
+         u019R9iPJSSUJjDiwfMZdlVeDz7fhuuhlvSHkBfaDu6JL/L+WdsnP49MDD3GbNS+68
+         UlwWoztCqnxTWBrodu668XvYQ4sZPpJ6W42jo6sI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Don Brace <don.brace@microsemi.com>,
-        Bader Ali - Saleh <bader.alisaleh@microsemi.com>,
-        Scott Teel <scott.teel@microsemi.com>,
-        Scott Benesh <scott.benesh@microsemi.com>,
-        Kevin Barnett <kevin.barnett@microsemi.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, esc.storagedev@microsemi.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 07/14] scsi: hpsa: correct scsi command status issue after reset
-Date:   Tue,  6 Aug 2019 17:37:41 -0400
-Message-Id: <20190806213749.20689-7-sashal@kernel.org>
+Cc:     Christian Brauner <christian@brauner.io>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 08/14] exit: make setting exit_state consistent
+Date:   Tue,  6 Aug 2019 17:37:42 -0400
+Message-Id: <20190806213749.20689-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213749.20689-1-sashal@kernel.org>
 References: <20190806213749.20689-1-sashal@kernel.org>
@@ -48,59 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Don Brace <don.brace@microsemi.com>
+From: Christian Brauner <christian@brauner.io>
 
-[ Upstream commit eeebce1862970653cdf5c01e98bc669edd8f529a ]
+[ Upstream commit 30b692d3b390c6fe78a5064be0c4bbd44a41be59 ]
 
-Reviewed-by: Bader Ali - Saleh <bader.alisaleh@microsemi.com>
-Reviewed-by: Scott Teel <scott.teel@microsemi.com>
-Reviewed-by: Scott Benesh <scott.benesh@microsemi.com>
-Reviewed-by: Kevin Barnett <kevin.barnett@microsemi.com>
-Signed-off-by: Don Brace <don.brace@microsemi.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Since commit b191d6491be6 ("pidfd: fix a poll race when setting exit_state")
+we unconditionally set exit_state to EXIT_ZOMBIE before calling into
+do_notify_parent(). This was done to eliminate a race when querying
+exit_state in do_notify_pidfd().
+Back then we decided to do the absolute minimal thing to fix this and
+not touch the rest of the exit_notify() function where exit_state is
+set.
+Since this fix has not caused any issues change the setting of
+exit_state to EXIT_DEAD in the autoreap case to account for the fact hat
+exit_state is set to EXIT_ZOMBIE unconditionally. This fix was planned
+but also explicitly requested in [1] and makes the whole code more
+consistent.
+
+/* References */
+[1]: https://lore.kernel.org/lkml/CAHk-=wigcxGFR2szue4wavJtH5cYTTeNES=toUBVGsmX0rzX+g@mail.gmail.com
+
+Signed-off-by: Christian Brauner <christian@brauner.io>
+Acked-by: Oleg Nesterov <oleg@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hpsa.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ kernel/exit.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
-index e0952882e1320..fcce3ae119fa4 100644
---- a/drivers/scsi/hpsa.c
-+++ b/drivers/scsi/hpsa.c
-@@ -2153,6 +2153,8 @@ static int handle_ioaccel_mode2_error(struct ctlr_info *h,
- 	case IOACCEL2_SERV_RESPONSE_COMPLETE:
- 		switch (c2->error_data.status) {
- 		case IOACCEL2_STATUS_SR_TASK_COMP_GOOD:
-+			if (cmd)
-+				cmd->result = 0;
- 			break;
- 		case IOACCEL2_STATUS_SR_TASK_COMP_CHK_COND:
- 			cmd->result |= SAM_STAT_CHECK_CONDITION;
-@@ -2320,8 +2322,10 @@ static void process_ioaccel2_completion(struct ctlr_info *h,
+diff --git a/kernel/exit.c b/kernel/exit.c
+index 03f6722302b54..14c2f0717ee4b 100644
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -619,9 +619,10 @@ static void exit_notify(struct task_struct *tsk, int group_dead)
+ 		autoreap = true;
+ 	}
  
- 	/* check for good status */
- 	if (likely(c2->error_data.serv_response == 0 &&
--			c2->error_data.status == 0))
-+			c2->error_data.status == 0)) {
-+		cmd->result = 0;
- 		return hpsa_cmd_free_and_done(h, c, cmd);
+-	tsk->exit_state = autoreap ? EXIT_DEAD : EXIT_ZOMBIE;
+-	if (tsk->exit_state == EXIT_DEAD)
++	if (autoreap) {
++		tsk->exit_state = EXIT_DEAD;
+ 		list_add(&tsk->ptrace_entry, &dead);
 +	}
  
- 	/*
- 	 * Any RAID offload error results in retry which will use
-@@ -5236,6 +5240,12 @@ static int hpsa_scsi_queue_command(struct Scsi_Host *sh, struct scsi_cmnd *cmd)
- 	}
- 	c = cmd_tagged_alloc(h, cmd);
- 
-+	/*
-+	 * This is necessary because the SML doesn't zero out this field during
-+	 * error recovery.
-+	 */
-+	cmd->result = 0;
-+
- 	/*
- 	 * Call alternate submit routine for I/O accelerated commands.
- 	 * Retries always go down the normal I/O path.
+ 	/* mt-exec, de_thread() is waiting for group leader */
+ 	if (unlikely(tsk->signal->notify_count < 0))
 -- 
 2.20.1
 
