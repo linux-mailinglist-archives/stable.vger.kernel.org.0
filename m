@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5230483C39
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:41:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 143D983B9E
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:37:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727593AbfHFVlB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:41:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54288 "EHLO mail.kernel.org"
+        id S1727823AbfHFVgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:36:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728983AbfHFVg2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:36:28 -0400
+        id S1728994AbfHFVga (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:36:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A31172187F;
-        Tue,  6 Aug 2019 21:36:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 565F621882;
+        Tue,  6 Aug 2019 21:36:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127387;
-        bh=2BVVPK4xbTgUYFuMIDpQMlpYil7ViUX1Y+o86OQez4c=;
+        s=default; t=1565127389;
+        bh=KjztCobuz6R+897JVZYDB0wFkX/1VeAOtxNjOM3jEMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KKxUnSIjJo702n4sCYhA6jDUve3uAWRIL1YW7S5WcbxX32DXRB9Tx5ozEq9gvEEcR
-         gE4m1VvSi7hovVC9rNaFut/uBYygArv7uQdTeJiplpPgXrcx65E5uTBT++llaMhqcQ
-         d+okmhHk1E+dsxdJlIP7K/K1L3/Zr3VhPNeRGsvE=
+        b=nJWYpkelxjqTdZG3YIC2Lkv/Y5QrcSUl1PWeVC4EDSYtcL7CQfNrC0aEQsqtW8g9a
+         wRiG4WVyOJaPl61uXJA447szcKdx1mxItUP53kvHE7a/vYADuWIYc2YhlK/lYq5dVj
+         mPmn6GxTTUBq/+VwSf706MZZSC/8wp3tmolyvlbU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Yao Lihua <Lihua.Yao@desay-svautomotive.com>,
-        Linh Phung <linh.phung.jy@renesas.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-renesas-soc@vger.kernel.org, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 02/25] clk: renesas: cpg-mssr: Fix reset control race condition
-Date:   Tue,  6 Aug 2019 17:35:59 -0400
-Message-Id: <20190806213624.20194-2-sashal@kernel.org>
+Cc:     Max Filippov <jcmvbkbc@gmail.com>, Sasha Levin <sashal@kernel.org>,
+        linux-xtensa@linux-xtensa.org
+Subject: [PATCH AUTOSEL 4.14 03/25] xtensa: fix build for cores with coprocessors
+Date:   Tue,  6 Aug 2019 17:36:00 -0400
+Message-Id: <20190806213624.20194-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213624.20194-1-sashal@kernel.org>
 References: <20190806213624.20194-1-sashal@kernel.org>
@@ -46,109 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-[ Upstream commit e1f1ae8002e4b06addc52443fcd975bbf554ae92 ]
+[ Upstream commit e3cacb73e626d885b8cf24103fed0ae26518e3c4 ]
 
-The module reset code in the Renesas CPG/MSSR driver uses
-read-modify-write (RMW) operations to write to a Software Reset Register
-(SRCRn), and simple writes to write to a Software Reset Clearing
-Register (SRSTCLRn), as was mandated by the R-Car Gen2 and Gen3 Hardware
-User's Manuals.
+Assembly entry/return abstraction change didn't add asmmacro.h include
+statement to coprocessor.S, resulting in references to undefined macros
+abi_entry and abi_ret on cores that define XTENSA_HAVE_COPROCESSORS.
+Fix that by including asm/asmmacro.h from the coprocessor.S.
 
-However, this may cause a race condition when two devices are reset in
-parallel: if the reset for device A completes in the middle of the RMW
-operation for device B, device A may be reset again, causing subtle
-failures (e.g. i2c timeouts):
-
-	thread A			thread B
-	--------			--------
-
-	val = SRCRn
-	val |= bit A
-	SRCRn = val
-
-	delay
-
-					val = SRCRn (bit A is set)
-
-	SRSTCLRn = bit A
-	(bit A in SRCRn is cleared)
-
-					val |= bit B
-					SRCRn = val (bit A and B are set)
-
-This can be reproduced on e.g. Salvator-XS using:
-
-    $ while true; do i2cdump -f -y 4 0x6A b > /dev/null; done &
-    $ while true; do i2cdump -f -y 2 0x10 b > /dev/null; done &
-
-    i2c-rcar e6510000.i2c: error -110 : 40000002
-    i2c-rcar e66d8000.i2c: error -110 : 40000002
-
-According to the R-Car Gen3 Hardware Manual Errata for Rev.
-0.80 of Feb 28, 2018, reflected in Rev. 1.00 of the R-Car Gen3 Hardware
-User's Manual, writes to SRCRn do not require read-modify-write cycles.
-
-Note that the R-Car Gen2 Hardware User's Manual has not been updated
-yet, and still says a read-modify-write sequence is required.  According
-to the hardware team, the reset hardware block is the same on both R-Car
-Gen2 and Gen3, though.
-
-Hence fix the issue by replacing the read-modify-write operations on
-SRCRn by simple writes.
-
-Reported-by: Yao Lihua <Lihua.Yao@desay-svautomotive.com>
-Fixes: 6197aa65c4905532 ("clk: renesas: cpg-mssr: Add support for reset control")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Tested-by: Linh Phung <linh.phung.jy@renesas.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/renesas/renesas-cpg-mssr.c | 16 ++--------------
- 1 file changed, 2 insertions(+), 14 deletions(-)
+ arch/xtensa/kernel/coprocessor.S | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/renesas/renesas-cpg-mssr.c b/drivers/clk/renesas/renesas-cpg-mssr.c
-index 30c23b882675a..fe25d37ce9d39 100644
---- a/drivers/clk/renesas/renesas-cpg-mssr.c
-+++ b/drivers/clk/renesas/renesas-cpg-mssr.c
-@@ -522,17 +522,11 @@ static int cpg_mssr_reset(struct reset_controller_dev *rcdev,
- 	unsigned int reg = id / 32;
- 	unsigned int bit = id % 32;
- 	u32 bitmask = BIT(bit);
--	unsigned long flags;
--	u32 value;
+diff --git a/arch/xtensa/kernel/coprocessor.S b/arch/xtensa/kernel/coprocessor.S
+index 3a98503ad11a6..1ba6f37f90f0c 100644
+--- a/arch/xtensa/kernel/coprocessor.S
++++ b/arch/xtensa/kernel/coprocessor.S
+@@ -14,6 +14,7 @@
  
- 	dev_dbg(priv->dev, "reset %u%02u\n", reg, bit);
- 
- 	/* Reset module */
--	spin_lock_irqsave(&priv->rmw_lock, flags);
--	value = readl(priv->base + SRCR(reg));
--	value |= bitmask;
--	writel(value, priv->base + SRCR(reg));
--	spin_unlock_irqrestore(&priv->rmw_lock, flags);
-+	writel(bitmask, priv->base + SRCR(reg));
- 
- 	/* Wait for at least one cycle of the RCLK clock (@ ca. 32 kHz) */
- 	udelay(35);
-@@ -549,16 +543,10 @@ static int cpg_mssr_assert(struct reset_controller_dev *rcdev, unsigned long id)
- 	unsigned int reg = id / 32;
- 	unsigned int bit = id % 32;
- 	u32 bitmask = BIT(bit);
--	unsigned long flags;
--	u32 value;
- 
- 	dev_dbg(priv->dev, "assert %u%02u\n", reg, bit);
- 
--	spin_lock_irqsave(&priv->rmw_lock, flags);
--	value = readl(priv->base + SRCR(reg));
--	value |= bitmask;
--	writel(value, priv->base + SRCR(reg));
--	spin_unlock_irqrestore(&priv->rmw_lock, flags);
-+	writel(bitmask, priv->base + SRCR(reg));
- 	return 0;
- }
- 
+ #include <linux/linkage.h>
+ #include <asm/asm-offsets.h>
++#include <asm/asmmacro.h>
+ #include <asm/processor.h>
+ #include <asm/coprocessor.h>
+ #include <asm/thread_info.h>
 -- 
 2.20.1
 
