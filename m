@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8AE283A06
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 22:07:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1334A83A07
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 22:07:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726414AbfHFUHY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 16:07:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58642 "EHLO mail.kernel.org"
+        id S1726485AbfHFUHa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 16:07:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725948AbfHFUHY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 16:07:24 -0400
+        id S1725948AbfHFUHa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 16:07:30 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5B3F216F4;
-        Tue,  6 Aug 2019 20:07:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF50F216F4;
+        Tue,  6 Aug 2019 20:07:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565122042;
-        bh=VZj6bWiUUIO0yyXH3mGw8dljrV9XeMq+9Ab6tGKmhgw=;
+        s=default; t=1565122049;
+        bh=sy+cMgHPkc2RH0vGYwWv3/9L5clHN0NjHOn8WXyiA+A=;
         h=Date:From:To:Subject:From;
-        b=F51EsjVRXvmqaV6H8xTlV6CFBjkQbnM39UI2aulmBPiwYfUaQGgMA/Ap+5Jm23oYI
-         tZDNMAtMb0OOyJEhqaWWZZ30VRe9Bku8IB2nCoPDfqqzo5qTCXjY4KRb/xeyxnICWx
-         odwrr5xvabwyRAEkc5oi9rsCSZpv5BFeS1e6eHxE=
-Date:   Tue, 06 Aug 2019 13:07:22 -0700
+        b=XqbUDqssiNj5zKPlnIv1QEz3A/lYslE5bXdMsQKV4aX+URNMUL3G3MPKYJq1atjLi
+         Po9jOPfK2VXM2yP4k64LftN+8bRBYxks7JPIugujX+I/X3uveyW2D4riqX8LAGxz3Q
+         Ny+7K6xkXIN5Ei+zo82Zb2cW+3YXrBNzEFx+noHw=
+Date:   Tue, 06 Aug 2019 13:07:28 -0700
 From:   akpm@linux-foundation.org
-To:     mgorman@techsingularity.net, mm-commits@vger.kernel.org,
-        stable@vger.kernel.org, vbabka@suse.cz
-Subject:  [merged]
- =?US-ASCII?Q?mm-compaction-avoid-100%-cpu-usage-during-compaction-when-a-?=
- =?US-ASCII?Q?task-is-killed.patch?= removed from -mm tree
-Message-ID: <20190806200722.7ox86bCBy%akpm@linux-foundation.org>
+To:     andriy.shevchenko@linux.intel.com, ard.biesheuvel@linaro.org,
+        arnd@arndb.de, aryabinin@virtuozzo.com, bp@alien8.de,
+        dvyukov@google.com, jpoimboe@redhat.com, keescook@chromium.org,
+        mingo@kernel.org, mm-commits@vger.kernel.org, peterz@infradead.org,
+        stable@vger.kernel.org, tglx@linutronix.de, willy@infradead.org
+Subject:  [merged] ubsan-build-ubsanc-more-conservatively.patch
+ removed from -mm tree
+Message-ID: <20190806200728.2EVPsVmkC%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -41,103 +41,77 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm: compaction: avoid 100% CPU usage during compaction when a task is killed
+     Subject: ubsan: build ubsan.c more conservatively
 has been removed from the -mm tree.  Its filename was
-     mm-compaction-avoid-100%-cpu-usage-during-compaction-when-a-task-is-killed.patch
+     ubsan-build-ubsanc-more-conservatively.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Mel Gorman <mgorman@techsingularity.net>
-Subject: mm: compaction: avoid 100% CPU usage during compaction when a task is killed
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: ubsan: build ubsan.c more conservatively
 
-"howaboutsynergy" reported via kernel buzilla number 204165 that
-compact_zone_order was consuming 100% CPU during a stress test for
-prolonged periods of time.  Specifically the following command, which
-should exit in 10 seconds, was taking an excessive time to finish while
-the CPU was pegged at 100%.
+objtool points out several conditions that it does not like, depending on
+the combination with other configuration options and compiler variants:
 
-  stress -m 220 --vm-bytes 1000000000 --timeout 10
+stack protector:
+lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0xbf: call to __stack_chk_fail() with UACCESS enabled
+lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0xbe: call to __stack_chk_fail() with UACCESS enabled
 
-Tracing indicated a pattern as follows
+stackleak plugin:
+lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0x4a: call to stackleak_track_stack() with UACCESS enabled
+lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0x4a: call to stackleak_track_stack() with UACCESS enabled
 
-          stress-3923  [007]   519.106208: mm_compaction_isolate_migratepages: range=(0x70bb80 ~ 0x70bb80) nr_scanned=0 nr_taken=0
-          stress-3923  [007]   519.106212: mm_compaction_isolate_migratepages: range=(0x70bb80 ~ 0x70bb80) nr_scanned=0 nr_taken=0
-          stress-3923  [007]   519.106216: mm_compaction_isolate_migratepages: range=(0x70bb80 ~ 0x70bb80) nr_scanned=0 nr_taken=0
-          stress-3923  [007]   519.106219: mm_compaction_isolate_migratepages: range=(0x70bb80 ~ 0x70bb80) nr_scanned=0 nr_taken=0
-          stress-3923  [007]   519.106223: mm_compaction_isolate_migratepages: range=(0x70bb80 ~ 0x70bb80) nr_scanned=0 nr_taken=0
-          stress-3923  [007]   519.106227: mm_compaction_isolate_migratepages: range=(0x70bb80 ~ 0x70bb80) nr_scanned=0 nr_taken=0
-          stress-3923  [007]   519.106231: mm_compaction_isolate_migratepages: range=(0x70bb80 ~ 0x70bb80) nr_scanned=0 nr_taken=0
-          stress-3923  [007]   519.106235: mm_compaction_isolate_migratepages: range=(0x70bb80 ~ 0x70bb80) nr_scanned=0 nr_taken=0
-          stress-3923  [007]   519.106238: mm_compaction_isolate_migratepages: range=(0x70bb80 ~ 0x70bb80) nr_scanned=0 nr_taken=0
-          stress-3923  [007]   519.106242: mm_compaction_isolate_migratepages: range=(0x70bb80 ~ 0x70bb80) nr_scanned=0 nr_taken=0
+kasan:
+lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0x25: call to memcpy() with UACCESS enabled
+lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0x25: call to memcpy() with UACCESS enabled
 
-Note that compaction is entered in rapid succession while scanning and
-isolating nothing.  The problem is that when a task that is compacting
-receives a fatal signal, it retries indefinitely instead of exiting while
-making no progress as a fatal signal is pending.
+The stackleak and kasan options just need to be disabled for this file as
+we do for other files already.  For the stack protector, we already
+attempt to disable it, but this fails on clang because the check is mixed
+with the gcc specific -fno-conserve-stack option.  According to Andrey
+Ryabinin, that option is not even needed, dropping it here fixes the
+stackprotector issue.
 
-It's not easy to trigger this condition although enabling zswap helps on
-the basis that the timing is altered.  A very small window has to be hit
-for the problem to occur (signal delivered while compacting and isolating
-a PFN for migration that is not aligned to SWAP_CLUSTER_MAX).
-
-This was reproduced locally -- 16G single socket system, 8G swap, 30%
-zswap configured, vm-bytes 22000000000 using Colin Kings stress-ng
-implementation from github running in a loop until the problem hits). 
-Tracing recorded the problem occurring almost 200K times in a short
-window.  With this patch, the problem hit 4 times but the task existed
-normally instead of consuming CPU.
-
-This problem has existed for some time but it was made worse by
-cf66f0700c8f ("mm, compaction: do not consider a need to reschedule as
-contention").  Before that commit, if the same condition was hit then
-locks would be quickly contended and compaction would exit that way.
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204165
-Link: http://lkml.kernel.org/r/20190718085708.GE24383@techsingularity.net
-Fixes: cf66f0700c8f ("mm, compaction: do not consider a need to reschedule as contention")
-Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>	[5.1+]
+Link: http://lkml.kernel.org/r/20190722125139.1335385-1-arnd@arndb.de
+Link: https://lore.kernel.org/lkml/20190617123109.667090-1-arnd@arndb.de/t/
+Link: https://lore.kernel.org/lkml/20190722091050.2188664-1-arnd@arndb.de/t/
+Fixes: d08965a27e84 ("x86/uaccess, ubsan: Fix UBSAN vs. SMAP")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/compaction.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ lib/Makefile |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/mm/compaction.c~mm-compaction-avoid-100%-cpu-usage-during-compaction-when-a-task-is-killed
-+++ a/mm/compaction.c
-@@ -842,13 +842,15 @@ isolate_migratepages_block(struct compac
+--- a/lib/Makefile~ubsan-build-ubsanc-more-conservatively
++++ a/lib/Makefile
+@@ -279,7 +279,8 @@ obj-$(CONFIG_UCS2_STRING) += ucs2_string
+ obj-$(CONFIG_UBSAN) += ubsan.o
  
- 		/*
- 		 * Periodically drop the lock (if held) regardless of its
--		 * contention, to give chance to IRQs. Abort async compaction
--		 * if contended.
-+		 * contention, to give chance to IRQs. Abort completely if
-+		 * a fatal signal is pending.
- 		 */
- 		if (!(low_pfn % SWAP_CLUSTER_MAX)
- 		    && compact_unlock_should_abort(&pgdat->lru_lock,
--					    flags, &locked, cc))
--			break;
-+					    flags, &locked, cc)) {
-+			low_pfn = 0;
-+			goto fatal_pending;
-+		}
+ UBSAN_SANITIZE_ubsan.o := n
+-CFLAGS_ubsan.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
++KASAN_SANITIZE_ubsan.o := n
++CFLAGS_ubsan.o := $(call cc-option, -fno-stack-protector) $(DISABLE_STACKLEAK_PLUGIN)
  
- 		if (!pfn_valid_within(low_pfn))
- 			goto isolate_fail;
-@@ -1060,6 +1062,7 @@ isolate_abort:
- 	trace_mm_compaction_isolate_migratepages(start_pfn, low_pfn,
- 						nr_scanned, nr_isolated);
+ obj-$(CONFIG_SBITMAP) += sbitmap.o
  
-+fatal_pending:
- 	cc->total_migrate_scanned += nr_scanned;
- 	if (nr_isolated)
- 		count_compact_events(COMPACTISOLATED, nr_isolated);
 _
 
-Patches currently in -mm which might be from mgorman@techsingularity.net are
+Patches currently in -mm which might be from arnd@arndb.de are
 
+mm-sparse-fix-memory-leak-of-sparsemap_buf-in-aliged-memory-fix.patch
 
