@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA7D983CAA
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:44:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14EB983B5A
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:34:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727519AbfHFVn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:43:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52448 "EHLO mail.kernel.org"
+        id S1727818AbfHFVek (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:34:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727766AbfHFVeh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:34:37 -0400
+        id S1727779AbfHFVej (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:34:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A000D217D9;
-        Tue,  6 Aug 2019 21:34:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F6B121874;
+        Tue,  6 Aug 2019 21:34:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127276;
-        bh=qMAinlzQ7+uEcv47sCj80Tt1am1WRdCpsOCm4BaZJ0w=;
+        s=default; t=1565127278;
+        bh=3L+IQwvQDdqWZRQVsDruL1DOw6e+QLjGDZNG9Teckc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YxKJE3y5+YrfIFQPuqAMZdB3WE8RyPjMYLOPbujAVqzAxrWCu61wGz4weOgoUisGU
-         GpLJuXHDIWVUTws82JhRWFgURh7U+c6SGdGK+RD9BEOZfdFdok620c3iG3sqYrrcaW
-         gOTeHGqMgyNvcCxRckGpTO/gzcbvJUacqcrJhkDg=
+        b=Sma3zHcegCHyxkYKpAyo4F/W55axHJl/A9ZG/jkEWTxtKeFMxIUllkIMc498AvLb4
+         7F/QBSIZWnJSPKnfKdr6/H8UUeWn/G+oq7WERynL3gcV4mhytjiJnvQ7xoAqgdhNyR
+         NYJv7XawWSgD4OUddcdELgWv+pCGZcniad9xp/fs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>,
-        stable@kernel.org, Ray Jui <ray.jui@broadcom.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 39/59] i2c: iproc: Fix i2c master read more than 63 bytes
-Date:   Tue,  6 Aug 2019 17:32:59 -0400
-Message-Id: <20190806213319.19203-39-sashal@kernel.org>
+Cc:     Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 40/59] arm64: Lower priority mask for GIC_PRIO_IRQON
+Date:   Tue,  6 Aug 2019 17:33:00 -0400
+Message-Id: <20190806213319.19203-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213319.19203-1-sashal@kernel.org>
 References: <20190806213319.19203-1-sashal@kernel.org>
@@ -44,52 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+From: Julien Thierry <julien.thierry.kdev@gmail.com>
 
-[ Upstream commit fd01eecdf9591453177d7b06faaabef8c300114a ]
+[ Upstream commit 677379bc9139ac24b310a281fcb21a2f04288353 ]
 
-Use SMBUS_MASTER_DATA_READ.MASTER_RD_STATUS bit to check for RX
-FIFO empty condition because SMBUS_MASTER_FIFO_CONTROL.MASTER_RX_PKT_COUNT
-is not updated for read >= 64 bytes. This fixes the issue when trying to
-read from the I2C slave more than 63 bytes.
+On a system with two security states, if SCR_EL3.FIQ is cleared,
+non-secure IRQ priorities get shifted to fit the secure view but
+priority masks aren't.
 
-Fixes: c24b8d574b7c ("i2c: iproc: Extend I2C read up to 255 bytes")
-Cc: stable@kernel.org
-Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Reviewed-by: Ray Jui <ray.jui@broadcom.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+On such system, it turns out that GIC_PRIO_IRQON masks the priority of
+normal interrupts, which obviously ends up in a hang.
+
+Increase GIC_PRIO_IRQON value (i.e. lower priority) to make sure
+interrupts are not blocked by it.
+
+Cc: Oleg Nesterov <oleg@redhat.com>
+Fixes: bd82d4bd21880b7c ("arm64: Fix incorrect irqflag restore for priority masking")
+Acked-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Julien Thierry <julien.thierry.kdev@gmail.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+[will: fixed Fixes: tag]
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-bcm-iproc.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ arch/arm64/include/asm/arch_gicv3.h | 6 ++++++
+ arch/arm64/include/asm/ptrace.h     | 2 +-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
-index a845b8decac8f..ad1681872e39d 100644
---- a/drivers/i2c/busses/i2c-bcm-iproc.c
-+++ b/drivers/i2c/busses/i2c-bcm-iproc.c
-@@ -403,16 +403,18 @@ static bool bcm_iproc_i2c_slave_isr(struct bcm_iproc_i2c_dev *iproc_i2c,
- static void bcm_iproc_i2c_read_valid_bytes(struct bcm_iproc_i2c_dev *iproc_i2c)
- {
- 	struct i2c_msg *msg = iproc_i2c->msg;
-+	uint32_t val;
- 
- 	/* Read valid data from RX FIFO */
- 	while (iproc_i2c->rx_bytes < msg->len) {
--		if (!((iproc_i2c_rd_reg(iproc_i2c, M_FIFO_CTRL_OFFSET) >> M_FIFO_RX_CNT_SHIFT)
--		      & M_FIFO_RX_CNT_MASK))
-+		val = iproc_i2c_rd_reg(iproc_i2c, M_RX_OFFSET);
-+
-+		/* rx fifo empty */
-+		if (!((val >> M_RX_STATUS_SHIFT) & M_RX_STATUS_MASK))
- 			break;
- 
- 		msg->buf[iproc_i2c->rx_bytes] =
--			(iproc_i2c_rd_reg(iproc_i2c, M_RX_OFFSET) >>
--			M_RX_DATA_SHIFT) & M_RX_DATA_MASK;
-+			(val >> M_RX_DATA_SHIFT) & M_RX_DATA_MASK;
- 		iproc_i2c->rx_bytes++;
- 	}
+diff --git a/arch/arm64/include/asm/arch_gicv3.h b/arch/arm64/include/asm/arch_gicv3.h
+index 79155a8cfe7c0..89e4c8b793490 100644
+--- a/arch/arm64/include/asm/arch_gicv3.h
++++ b/arch/arm64/include/asm/arch_gicv3.h
+@@ -155,6 +155,12 @@ static inline void gic_pmr_mask_irqs(void)
+ 	BUILD_BUG_ON(GICD_INT_DEF_PRI < (GIC_PRIO_IRQOFF |
+ 					 GIC_PRIO_PSR_I_SET));
+ 	BUILD_BUG_ON(GICD_INT_DEF_PRI >= GIC_PRIO_IRQON);
++	/*
++	 * Need to make sure IRQON allows IRQs when SCR_EL3.FIQ is cleared
++	 * and non-secure PMR accesses are not subject to the shifts that
++	 * are applied to IRQ priorities
++	 */
++	BUILD_BUG_ON((0x80 | (GICD_INT_DEF_PRI >> 1)) >= GIC_PRIO_IRQON);
+ 	gic_write_pmr(GIC_PRIO_IRQOFF);
  }
+ 
+diff --git a/arch/arm64/include/asm/ptrace.h b/arch/arm64/include/asm/ptrace.h
+index 81693244f58d6..701eaa7381876 100644
+--- a/arch/arm64/include/asm/ptrace.h
++++ b/arch/arm64/include/asm/ptrace.h
+@@ -30,7 +30,7 @@
+  * in the  the priority mask, it indicates that PSR.I should be set and
+  * interrupt disabling temporarily does not rely on IRQ priorities.
+  */
+-#define GIC_PRIO_IRQON			0xc0
++#define GIC_PRIO_IRQON			0xe0
+ #define GIC_PRIO_IRQOFF			(GIC_PRIO_IRQON & ~0x80)
+ #define GIC_PRIO_PSR_I_SET		(1 << 4)
+ 
 -- 
 2.20.1
 
