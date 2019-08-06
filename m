@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CB2082958
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 03:43:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57C7E8295D
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 03:46:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730037AbfHFBn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 21:43:27 -0400
-Received: from mga14.intel.com ([192.55.52.115]:16273 "EHLO mga14.intel.com"
+        id S1731066AbfHFBqD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 21:46:03 -0400
+Received: from mga14.intel.com ([192.55.52.115]:16400 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728870AbfHFBn1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 21:43:27 -0400
+        id S1728870AbfHFBqD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 21:46:03 -0400
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 18:43:26 -0700
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 18:46:03 -0700
 X-IronPort-AV: E=Sophos;i="5.64,350,1559545200"; 
-   d="scan'208";a="176484010"
+   d="scan'208";a="185497079"
 Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
-  by orsmga003-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 18:43:26 -0700
-Subject: [5.2-stable PATCH 2/2] libnvdimm/bus: Fix
- wait_nvdimm_bus_probe_idle() ABBA deadlock
+  by orsmga002-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 18:46:03 -0700
+Subject: [4.19-stable PATCH 1/6] driver core: Establish order of operations
+ for device_add and device_del via bitflag
 From:   Dan Williams <dan.j.williams@intel.com>
 To:     stable@vger.kernel.org
-Cc:     Vishal Verma <vishal.l.verma@intel.com>,
-        Jane Chu <jane.chu@oracle.com>
-Date:   Mon, 05 Aug 2019 18:29:09 -0700
-Message-ID: <156505494950.1043830.444478975420152528.stgit@dwillia2-desk3.amr.corp.intel.com>
-In-Reply-To: <156505494437.1043830.9239219668937125315.stgit@dwillia2-desk3.amr.corp.intel.com>
-References: <156505494437.1043830.9239219668937125315.stgit@dwillia2-desk3.amr.corp.intel.com>
+Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        vishal.l.verma@intel.com
+Date:   Mon, 05 Aug 2019 18:31:45 -0700
+Message-ID: <156505510583.1044139.614343013775015214.stgit@dwillia2-desk3.amr.corp.intel.com>
 User-Agent: StGit/0.18-2-gc94f
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -38,147 +38,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit ca6bf264f6d856f959c4239cda1047b587745c67 upstream.
+From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
 
-A multithreaded namespace creation/destruction stress test currently
-deadlocks with the following lockup signature:
+commit 3451a495ef244a88ed6317a035299d835554d579 upstream.
 
-    INFO: task ndctl:2924 blocked for more than 122 seconds.
-          Tainted: G           OE     5.2.0-rc4+ #3382
-    "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-    ndctl           D    0  2924   1176 0x00000000
-    Call Trace:
-     ? __schedule+0x27e/0x780
-     schedule+0x30/0xb0
-     wait_nvdimm_bus_probe_idle+0x8a/0xd0 [libnvdimm]
-     ? finish_wait+0x80/0x80
-     uuid_store+0xe6/0x2e0 [libnvdimm]
-     kernfs_fop_write+0xf0/0x1a0
-     vfs_write+0xb7/0x1b0
-     ksys_write+0x5c/0xd0
-     do_syscall_64+0x60/0x240
+Add an additional bit flag to the device_private struct named "dead".
 
-     INFO: task ndctl:2923 blocked for more than 122 seconds.
-           Tainted: G           OE     5.2.0-rc4+ #3382
-     "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-     ndctl           D    0  2923   1175 0x00000000
-     Call Trace:
-      ? __schedule+0x27e/0x780
-      ? __mutex_lock+0x489/0x910
-      schedule+0x30/0xb0
-      schedule_preempt_disabled+0x11/0x20
-      __mutex_lock+0x48e/0x910
-      ? nvdimm_namespace_common_probe+0x95/0x4d0 [libnvdimm]
-      ? __lock_acquire+0x23f/0x1710
-      ? nvdimm_namespace_common_probe+0x95/0x4d0 [libnvdimm]
-      nvdimm_namespace_common_probe+0x95/0x4d0 [libnvdimm]
-      __dax_pmem_probe+0x5e/0x210 [dax_pmem_core]
-      ? nvdimm_bus_probe+0x1d0/0x2c0 [libnvdimm]
-      dax_pmem_probe+0xc/0x20 [dax_pmem]
-      nvdimm_bus_probe+0x90/0x2c0 [libnvdimm]
-      really_probe+0xef/0x390
-      driver_probe_device+0xb4/0x100
+This additional flag provides a guarantee that when a device_del is
+executed on a given interface an async worker will not attempt to attach
+the driver following the earlier device_del call. Previously this
+guarantee was not present and could result in the device_del call
+attempting to remove a driver from an interface only to have the async
+worker attempt to probe the driver later when it finally completes the
+asynchronous probe call.
 
-In this sequence an 'nd_dax' device is being probed and trying to take
-the lock on its backing namespace to validate that the 'nd_dax' device
-indeed has exclusive access to the backing namespace. Meanwhile, another
-thread is trying to update the uuid property of that same backing
-namespace. So one thread is in the probe path trying to acquire the
-lock, and the other thread has acquired the lock and tries to flush the
-probe path.
+One additional change added was that I pulled the check for dev->driver
+out of the __device_attach_driver call and instead placed it in the
+__device_attach_async_helper call. This was motivated by the fact that the
+only other caller of this, __device_attach, had already taken the
+device_lock() and checked for dev->driver. Instead of testing for this
+twice in this path it makes more sense to just consolidate the dev->dead
+and dev->driver checks together into one set of checks.
 
-Fix this deadlock by not holding the namespace device_lock over the
-wait_nvdimm_bus_probe_idle() synchronization step. In turn this requires
-the device_lock to be held on entry to wait_nvdimm_bus_probe_idle() and
-subsequently dropped internally to wait_nvdimm_bus_probe_idle().
-
-Cc: <stable@vger.kernel.org>
-Fixes: bf9bccc14c05 ("libnvdimm: pmem label sets and namespace instantiation")
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Tested-by: Jane Chu <jane.chu@oracle.com>
-Link: https://lore.kernel.org/r/156341210094.292348.2384694131126767789.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvdimm/bus.c         |   14 +++++++++-----
- drivers/nvdimm/region_devs.c |    4 ++++
- 2 files changed, 13 insertions(+), 5 deletions(-)
+ drivers/base/base.h |    4 ++++
+ drivers/base/core.c |   11 +++++++++++
+ drivers/base/dd.c   |   22 +++++++++++-----------
+ 3 files changed, 26 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
-index a38572bf486b..df41f3571dc9 100644
---- a/drivers/nvdimm/bus.c
-+++ b/drivers/nvdimm/bus.c
-@@ -887,10 +887,12 @@ void wait_nvdimm_bus_probe_idle(struct device *dev)
- 	do {
- 		if (nvdimm_bus->probe_active == 0)
- 			break;
--		nvdimm_bus_unlock(&nvdimm_bus->dev);
-+		nvdimm_bus_unlock(dev);
-+		device_unlock(dev);
- 		wait_event(nvdimm_bus->wait,
- 				nvdimm_bus->probe_active == 0);
--		nvdimm_bus_lock(&nvdimm_bus->dev);
-+		device_lock(dev);
-+		nvdimm_bus_lock(dev);
- 	} while (true);
- }
+diff --git a/drivers/base/base.h b/drivers/base/base.h
+index 7a419a7a6235..559b047de9f7 100644
+--- a/drivers/base/base.h
++++ b/drivers/base/base.h
+@@ -66,6 +66,9 @@ struct driver_private {
+  *	probed first.
+  * @device - pointer back to the struct device that this structure is
+  * associated with.
++ * @dead - This device is currently either in the process of or has been
++ *	removed from the system. Any asynchronous events scheduled for this
++ *	device should exit without taking any action.
+  *
+  * Nothing outside of the driver core should ever touch these fields.
+  */
+@@ -76,6 +79,7 @@ struct device_private {
+ 	struct klist_node knode_bus;
+ 	struct list_head deferred_probe;
+ 	struct device *device;
++	u8 dead:1;
+ };
+ #define to_device_private_parent(obj)	\
+ 	container_of(obj, struct device_private, knode_parent)
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index 92e2c32c2227..37a90d72f373 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -2050,6 +2050,17 @@ void device_del(struct device *dev)
+ 	struct kobject *glue_dir = NULL;
+ 	struct class_interface *class_intf;
  
-@@ -1016,7 +1018,7 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 		case ND_CMD_ARS_START:
- 		case ND_CMD_CLEAR_ERROR:
- 		case ND_CMD_CALL:
--			dev_dbg(&nvdimm_bus->dev, "'%s' command while read-only.\n",
-+			dev_dbg(dev, "'%s' command while read-only.\n",
- 					nvdimm ? nvdimm_cmd_name(cmd)
- 					: nvdimm_bus_cmd_name(cmd));
- 			return -EPERM;
-@@ -1105,7 +1107,8 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 		goto out;
- 	}
- 
--	nvdimm_bus_lock(&nvdimm_bus->dev);
++	/*
++	 * Hold the device lock and set the "dead" flag to guarantee that
++	 * the update behavior is consistent with the other bitfields near
++	 * it and that we cannot have an asynchronous probe routine trying
++	 * to run while we are tearing out the bus/class/sysfs from
++	 * underneath the device.
++	 */
 +	device_lock(dev);
-+	nvdimm_bus_lock(dev);
- 	rc = nd_cmd_clear_to_send(nvdimm_bus, nvdimm, func, buf);
- 	if (rc)
- 		goto out_unlock;
-@@ -1125,7 +1128,8 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 		rc = -EFAULT;
- 
- out_unlock:
--	nvdimm_bus_unlock(&nvdimm_bus->dev);
-+	nvdimm_bus_unlock(dev);
++	dev->p->dead = true;
 +	device_unlock(dev);
- out:
- 	kfree(in_env);
- 	kfree(out_env);
-diff --git a/drivers/nvdimm/region_devs.c b/drivers/nvdimm/region_devs.c
-index 4fed9ce9c2fe..a15276cdec7d 100644
---- a/drivers/nvdimm/region_devs.c
-+++ b/drivers/nvdimm/region_devs.c
-@@ -422,10 +422,12 @@ static ssize_t available_size_show(struct device *dev,
- 	 * memory nvdimm_bus_lock() is dropped, but that's userspace's
- 	 * problem to not race itself.
++
+ 	/* Notify clients of device removal.  This call must come
+ 	 * before dpm_sysfs_remove().
  	 */
-+	device_lock(dev);
- 	nvdimm_bus_lock(dev);
- 	wait_nvdimm_bus_probe_idle(dev);
- 	available = nd_region_available_dpa(nd_region);
- 	nvdimm_bus_unlock(dev);
-+	device_unlock(dev);
+diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+index d48b310c4760..11d24a552ee4 100644
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -725,15 +725,6 @@ static int __device_attach_driver(struct device_driver *drv, void *_data)
+ 	bool async_allowed;
+ 	int ret;
  
- 	return sprintf(buf, "%llu\n", available);
- }
-@@ -437,10 +439,12 @@ static ssize_t max_available_extent_show(struct device *dev,
- 	struct nd_region *nd_region = to_nd_region(dev);
- 	unsigned long long available = 0;
+-	/*
+-	 * Check if device has already been claimed. This may
+-	 * happen with driver loading, device discovery/registration,
+-	 * and deferred probe processing happens all at once with
+-	 * multiple threads.
+-	 */
+-	if (dev->driver)
+-		return -EBUSY;
+-
+ 	ret = driver_match_device(drv, dev);
+ 	if (ret == 0) {
+ 		/* no match */
+@@ -768,6 +759,15 @@ static void __device_attach_async_helper(void *_dev, async_cookie_t cookie)
  
-+	device_lock(dev);
- 	nvdimm_bus_lock(dev);
- 	wait_nvdimm_bus_probe_idle(dev);
- 	available = nd_region_allocatable_dpa(nd_region);
- 	nvdimm_bus_unlock(dev);
-+	device_unlock(dev);
+ 	device_lock(dev);
  
- 	return sprintf(buf, "%llu\n", available);
- }
++	/*
++	 * Check if device has already been removed or claimed. This may
++	 * happen with driver loading, device discovery/registration,
++	 * and deferred probe processing happens all at once with
++	 * multiple threads.
++	 */
++	if (dev->p->dead || dev->driver)
++		goto out_unlock;
++
+ 	if (dev->parent)
+ 		pm_runtime_get_sync(dev->parent);
+ 
+@@ -778,7 +778,7 @@ static void __device_attach_async_helper(void *_dev, async_cookie_t cookie)
+ 
+ 	if (dev->parent)
+ 		pm_runtime_put(dev->parent);
+-
++out_unlock:
+ 	device_unlock(dev);
+ 
+ 	put_device(dev);
+@@ -891,7 +891,7 @@ static int __driver_attach(struct device *dev, void *data)
+ 	if (dev->parent && dev->bus->need_parent_lock)
+ 		device_lock(dev->parent);
+ 	device_lock(dev);
+-	if (!dev->driver)
++	if (!dev->p->dead && !dev->driver)
+ 		driver_probe_device(drv, dev);
+ 	device_unlock(dev);
+ 	if (dev->parent && dev->bus->need_parent_lock)
 
