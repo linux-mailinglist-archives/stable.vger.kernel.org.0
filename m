@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E399283C7E
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:42:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A47F183B72
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:35:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726663AbfHFVmj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:42:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53110 "EHLO mail.kernel.org"
+        id S1728351AbfHFVfU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:35:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728312AbfHFVfR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:35:17 -0400
+        id S1728333AbfHFVfU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:35:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B104E21871;
-        Tue,  6 Aug 2019 21:35:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A53D62089E;
+        Tue,  6 Aug 2019 21:35:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127317;
-        bh=OH/rAetBAQwRVBiv9x4rHjv5FcgOgcVHMsUgQT8RD6g=;
+        s=default; t=1565127318;
+        bh=cPivkqwnQ1OdRMluIbubqEiTl3DSailklhPA6Iw5au4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NI7yR+R6GTKoWKp+9PhteE1Lku4VylhSSs/WjdiOvbGA9AQI30Y0nuOjr4Y0AXH07
-         RdmGUfPiLpcY8eH6Zm0qa/o3rmmB57ohTP7dTEHDodhEl8DSfVirC5RdgGiSE2lHx9
-         WdHpLWU4U4/QOfwe4LsKN0qbGDEWRkh3KrC4PNSg=
+        b=oldEed+hx2SsGGcigoPJ5DkGtmF2H+whCxo8x7JcEq4GCNSdyiSK6BEyefJwEIane
+         GnRnV0btWFkjUOMfdUtas2FqJk1Pt4LzF7SXLozF3Q8py+uUGpGVPZmfEO5MS8zZks
+         poox7QAuOqPW2IugRLnjQYmjoJAnAyhjzsH0LhUU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qian Cai <cai@lca.pw>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Arnd Bergmann <arnd@arndb.de>,
-        David Howells <dhowells@redhat.com>,
-        Jakub Jelinek <jakub@redhat.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Bill Wendling <morbo@google.com>,
-        James Y Knight <jyknight@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arch@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 58/59] asm-generic: fix -Wtype-limits compiler warnings
-Date:   Tue,  6 Aug 2019 17:33:18 -0400
-Message-Id: <20190806213319.19203-58-sashal@kernel.org>
+Cc:     Nayna Jain <nayna@linux.ibm.com>,
+        Michal Suchanek <msuchanek@suse.de>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Sachin Sant <sachinp@linux.vnet.ibm.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-integrity@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 59/59] tpm: tpm_ibm_vtpm: Fix unallocated banks
+Date:   Tue,  6 Aug 2019 17:33:19 -0400
+Message-Id: <20190806213319.19203-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213319.19203-1-sashal@kernel.org>
 References: <20190806213319.19203-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -52,132 +48,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Nayna Jain <nayna@linux.ibm.com>
 
-[ Upstream commit cbedfe11347fe418621bd188d58a206beb676218 ]
+[ Upstream commit fa4f99c05320eb28bf6ba52a9adf64d888da1f9e ]
 
-Commit d66acc39c7ce ("bitops: Optimise get_order()") introduced a
-compilation warning because "rx_frag_size" is an "ushort" while
-PAGE_SHIFT here is 16.
+The nr_allocated_banks and allocated banks are initialized as part of
+tpm_chip_register. Currently, this is done as part of auto startup
+function. However, some drivers, like the ibm vtpm driver, do not run
+auto startup during initialization. This results in uninitialized memory
+issue and causes a kernel panic during boot.
 
-The commit changed the get_order() to be a multi-line macro where
-compilers insist to check all statements in the macro even when
-__builtin_constant_p(rx_frag_size) will return false as "rx_frag_size"
-is a module parameter.
+This patch moves the pcr allocation outside the auto startup function
+into tpm_chip_register. This ensures that allocated banks are initialized
+in any case.
 
-In file included from ./arch/powerpc/include/asm/page_64.h:107,
-                 from ./arch/powerpc/include/asm/page.h:242,
-                 from ./arch/powerpc/include/asm/mmu.h:132,
-                 from ./arch/powerpc/include/asm/lppaca.h:47,
-                 from ./arch/powerpc/include/asm/paca.h:17,
-                 from ./arch/powerpc/include/asm/current.h:13,
-                 from ./include/linux/thread_info.h:21,
-                 from ./arch/powerpc/include/asm/processor.h:39,
-                 from ./include/linux/prefetch.h:15,
-                 from drivers/net/ethernet/emulex/benet/be_main.c:14:
-drivers/net/ethernet/emulex/benet/be_main.c: In function 'be_rx_cqs_create':
-./include/asm-generic/getorder.h:54:9: warning: comparison is always
-true due to limited range of data type [-Wtype-limits]
-   (((n) < (1UL << PAGE_SHIFT)) ? 0 :  \
-         ^
-drivers/net/ethernet/emulex/benet/be_main.c:3138:33: note: in expansion
-of macro 'get_order'
-  adapter->big_page_size = (1 << get_order(rx_frag_size)) * PAGE_SIZE;
-                                 ^~~~~~~~~
-
-Fix it by moving all of this multi-line macro into a proper function,
-and killing __get_order() off.
-
-[akpm@linux-foundation.org: remove __get_order() altogether]
-[cai@lca.pw: v2]
-  Link: http://lkml.kernel.org/r/1564000166-31428-1-git-send-email-cai@lca.pw
-Link: http://lkml.kernel.org/r/1563914986-26502-1-git-send-email-cai@lca.pw
-Fixes: d66acc39c7ce ("bitops: Optimise get_order()")
-Signed-off-by: Qian Cai <cai@lca.pw>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Jakub Jelinek <jakub@redhat.com>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Bill Wendling <morbo@google.com>
-Cc: James Y Knight <jyknight@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 879b589210a9 ("tpm: retrieve digest size of unknown algorithms with PCR read")
+Reported-by: Michal Suchanek <msuchanek@suse.de>
+Signed-off-by: Nayna Jain <nayna@linux.ibm.com>
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Tested-by: Michal Suchánek <msuchanek@suse.de>
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/asm-generic/getorder.h | 50 ++++++++++++++--------------------
- 1 file changed, 20 insertions(+), 30 deletions(-)
+ drivers/char/tpm/tpm-chip.c | 20 ++++++++++++++++++++
+ drivers/char/tpm/tpm.h      |  2 ++
+ drivers/char/tpm/tpm1-cmd.c | 36 ++++++++++++++++++++++++------------
+ drivers/char/tpm/tpm2-cmd.c |  6 +-----
+ 4 files changed, 47 insertions(+), 17 deletions(-)
 
-diff --git a/include/asm-generic/getorder.h b/include/asm-generic/getorder.h
-index c64bea7a52beb..e9f20b813a699 100644
---- a/include/asm-generic/getorder.h
-+++ b/include/asm-generic/getorder.h
-@@ -7,24 +7,6 @@
- #include <linux/compiler.h>
- #include <linux/log2.h>
+diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
+index d47ad10a35fe3..1d3c25831604a 100644
+--- a/drivers/char/tpm/tpm-chip.c
++++ b/drivers/char/tpm/tpm-chip.c
+@@ -545,6 +545,20 @@ static int tpm_add_hwrng(struct tpm_chip *chip)
+ 	return hwrng_register(&chip->hwrng);
+ }
  
--/*
-- * Runtime evaluation of get_order()
-- */
--static inline __attribute_const__
--int __get_order(unsigned long size)
--{
--	int order;
--
--	size--;
--	size >>= PAGE_SHIFT;
--#if BITS_PER_LONG == 32
--	order = fls(size);
--#else
--	order = fls64(size);
--#endif
--	return order;
--}
--
- /**
-  * get_order - Determine the allocation order of a memory size
-  * @size: The size for which to get the order
-@@ -43,19 +25,27 @@ int __get_order(unsigned long size)
-  * to hold an object of the specified size.
-  *
-  * The result is undefined if the size is 0.
-- *
-- * This function may be used to initialise variables with compile time
-- * evaluations of constants.
-  */
--#define get_order(n)						\
--(								\
--	__builtin_constant_p(n) ? (				\
--		((n) == 0UL) ? BITS_PER_LONG - PAGE_SHIFT :	\
--		(((n) < (1UL << PAGE_SHIFT)) ? 0 :		\
--		 ilog2((n) - 1) - PAGE_SHIFT + 1)		\
--	) :							\
--	__get_order(n)						\
--)
-+static inline __attribute_const__ int get_order(unsigned long size)
++static int tpm_get_pcr_allocation(struct tpm_chip *chip)
 +{
-+	if (__builtin_constant_p(size)) {
-+		if (!size)
-+			return BITS_PER_LONG - PAGE_SHIFT;
++	int rc;
 +
-+		if (size < (1UL << PAGE_SHIFT))
-+			return 0;
++	rc = (chip->flags & TPM_CHIP_FLAG_TPM2) ?
++	     tpm2_get_pcr_allocation(chip) :
++	     tpm1_get_pcr_allocation(chip);
 +
-+		return ilog2((size) - 1) - PAGE_SHIFT + 1;
++	if (rc > 0)
++		return -ENODEV;
++
++	return rc;
++}
++
+ /*
+  * tpm_chip_register() - create a character device for the TPM chip
+  * @chip: TPM chip to use.
+@@ -564,6 +578,12 @@ int tpm_chip_register(struct tpm_chip *chip)
+ 	if (rc)
+ 		return rc;
+ 	rc = tpm_auto_startup(chip);
++	if (rc) {
++		tpm_chip_stop(chip);
++		return rc;
 +	}
 +
-+	size--;
-+	size >>= PAGE_SHIFT;
-+#if BITS_PER_LONG == 32
-+	return fls(size);
-+#else
-+	return fls64(size);
-+#endif
++	rc = tpm_get_pcr_allocation(chip);
+ 	tpm_chip_stop(chip);
+ 	if (rc)
+ 		return rc;
+diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
+index e503ffc3aa39c..a7fea3e0ca86a 100644
+--- a/drivers/char/tpm/tpm.h
++++ b/drivers/char/tpm/tpm.h
+@@ -394,6 +394,7 @@ int tpm1_pcr_read(struct tpm_chip *chip, u32 pcr_idx, u8 *res_buf);
+ ssize_t tpm1_getcap(struct tpm_chip *chip, u32 subcap_id, cap_t *cap,
+ 		    const char *desc, size_t min_cap_length);
+ int tpm1_get_random(struct tpm_chip *chip, u8 *out, size_t max);
++int tpm1_get_pcr_allocation(struct tpm_chip *chip);
+ unsigned long tpm_calc_ordinal_duration(struct tpm_chip *chip, u32 ordinal);
+ int tpm_pm_suspend(struct device *dev);
+ int tpm_pm_resume(struct device *dev);
+@@ -449,6 +450,7 @@ int tpm2_unseal_trusted(struct tpm_chip *chip,
+ ssize_t tpm2_get_tpm_pt(struct tpm_chip *chip, u32 property_id,
+ 			u32 *value, const char *desc);
+ 
++ssize_t tpm2_get_pcr_allocation(struct tpm_chip *chip);
+ int tpm2_auto_startup(struct tpm_chip *chip);
+ void tpm2_shutdown(struct tpm_chip *chip, u16 shutdown_type);
+ unsigned long tpm2_calc_ordinal_duration(struct tpm_chip *chip, u32 ordinal);
+diff --git a/drivers/char/tpm/tpm1-cmd.c b/drivers/char/tpm/tpm1-cmd.c
+index faacbe1ffa1a9..149e953ca3699 100644
+--- a/drivers/char/tpm/tpm1-cmd.c
++++ b/drivers/char/tpm/tpm1-cmd.c
+@@ -699,18 +699,6 @@ int tpm1_auto_startup(struct tpm_chip *chip)
+ 		goto out;
+ 	}
+ 
+-	chip->allocated_banks = kcalloc(1, sizeof(*chip->allocated_banks),
+-					GFP_KERNEL);
+-	if (!chip->allocated_banks) {
+-		rc = -ENOMEM;
+-		goto out;
+-	}
+-
+-	chip->allocated_banks[0].alg_id = TPM_ALG_SHA1;
+-	chip->allocated_banks[0].digest_size = hash_digest_size[HASH_ALGO_SHA1];
+-	chip->allocated_banks[0].crypto_id = HASH_ALGO_SHA1;
+-	chip->nr_allocated_banks = 1;
+-
+ 	return rc;
+ out:
+ 	if (rc > 0)
+@@ -779,3 +767,27 @@ int tpm1_pm_suspend(struct tpm_chip *chip, u32 tpm_suspend_pcr)
+ 	return rc;
+ }
+ 
++/**
++ * tpm1_get_pcr_allocation() - initialize the allocated bank
++ * @chip: TPM chip to use.
++ *
++ * The function initializes the SHA1 allocated bank to extend PCR
++ *
++ * Return:
++ * * 0 on success,
++ * * < 0 on error.
++ */
++int tpm1_get_pcr_allocation(struct tpm_chip *chip)
++{
++	chip->allocated_banks = kcalloc(1, sizeof(*chip->allocated_banks),
++					GFP_KERNEL);
++	if (!chip->allocated_banks)
++		return -ENOMEM;
++
++	chip->allocated_banks[0].alg_id = TPM_ALG_SHA1;
++	chip->allocated_banks[0].digest_size = hash_digest_size[HASH_ALGO_SHA1];
++	chip->allocated_banks[0].crypto_id = HASH_ALGO_SHA1;
++	chip->nr_allocated_banks = 1;
++
++	return 0;
 +}
+diff --git a/drivers/char/tpm/tpm2-cmd.c b/drivers/char/tpm/tpm2-cmd.c
+index d103545e40550..ba9acae83bff1 100644
+--- a/drivers/char/tpm/tpm2-cmd.c
++++ b/drivers/char/tpm/tpm2-cmd.c
+@@ -840,7 +840,7 @@ struct tpm2_pcr_selection {
+ 	u8  pcr_select[3];
+ } __packed;
  
- #endif	/* __ASSEMBLY__ */
+-static ssize_t tpm2_get_pcr_allocation(struct tpm_chip *chip)
++ssize_t tpm2_get_pcr_allocation(struct tpm_chip *chip)
+ {
+ 	struct tpm2_pcr_selection pcr_selection;
+ 	struct tpm_buf buf;
+@@ -1040,10 +1040,6 @@ int tpm2_auto_startup(struct tpm_chip *chip)
+ 			goto out;
+ 	}
  
+-	rc = tpm2_get_pcr_allocation(chip);
+-	if (rc)
+-		goto out;
+-
+ 	rc = tpm2_get_cc_attrs_tbl(chip);
+ 
+ out:
 -- 
 2.20.1
 
