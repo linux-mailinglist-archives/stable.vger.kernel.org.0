@@ -2,105 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA22D830E0
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 13:41:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBDFD8313B
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 14:18:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726713AbfHFLl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 07:41:58 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:35350 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726877AbfHFLl6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Aug 2019 07:41:58 -0400
-Received: by mail-wm1-f67.google.com with SMTP id l2so76093239wmg.0
-        for <stable@vger.kernel.org>; Tue, 06 Aug 2019 04:41:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=2DCMYBq+pxZ/Dj8XcN6IF/62A4O2vc3YmFZ6P0x1qdo=;
-        b=L/fAQmJ1Gcwovw+x078Z87MKPgpV91JkI70OmcwxZLAhjX/deQD41f6d13FN2SP+yb
-         Cj+XsyoBUeJekuCCz2n8/GglW/nX1Djs9dlW0XJzkwypbIkWJQtuYBv9atCoVnnfx9ov
-         tpy2muSwklScvqxECXiDMNzfQJiryMULbOTSYeVc/+TgTkDqSjCmDLHS7Y8C1UgQxhhw
-         BvcZCdSLnZLTDKsX6mWnEpIDov+X27judMqHS7+CwwLeSVk8nh/CLye6ekEkUW8B+nLH
-         3NVCN6JO0ZwqbXVJJoRIwlDmTZt2wb5uzhFkM+F41bTwUPmTDMHkQAJ0JFrdsr/pNSKh
-         fCvg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=2DCMYBq+pxZ/Dj8XcN6IF/62A4O2vc3YmFZ6P0x1qdo=;
-        b=UqjA1n8aP3EI8Qlbx69RS1GggAYMyw+a3JNgUSbGV8gzM/ZTO80HulSOU6ahvDrSoP
-         pcnJr5wHrmzY1tuzxK34j+niFZJnkpteH/XcXCkp2R9g6rZv5GqbeMeNCSR0kJpJnDON
-         wHy4Q/8QrKkFHfJ9ySFJMYsZYHN9AQSZJ4hwdJNMH4liDNOuZxqOfutQ5oc8zwBfdjQi
-         jNVL7B65Gkf95LK/ZI05eGPsusterlwUgROtZA+7UI8IoCURyQFhDbtOLX/xmPUNOYEU
-         Q2DhK7yiiEQsR6Eo/b5sLfH2Y0Yjwj7l72ke8QoZPk4pr3tgnrpwsloPKd0WJAPDxOis
-         bKaw==
-X-Gm-Message-State: APjAAAUJzzH+Il9SDLheR0gSZxg2YjkLj1AxbQ+LnHkJH/ulQKigDnVu
-        w2tI+y8FIGgX4nB7AO5J6XooSay4ZEI=
-X-Google-Smtp-Source: APXvYqx3uccU6bYsBYdR8MHaUzUGEmX7pclvm00Ym/7OwwysIooUn/qbl7App0I3ZXpofOStV1gz1A==
-X-Received: by 2002:a7b:c247:: with SMTP id b7mr4574523wmj.13.1565091715612;
-        Tue, 06 Aug 2019 04:41:55 -0700 (PDT)
-Received: from debian-brgl.home ([2a01:cb1d:af:5b00:6d6c:8493:1ab5:dad7])
-        by smtp.gmail.com with ESMTPSA id h1sm68075604wrt.20.2019.08.06.04.41.54
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Tue, 06 Aug 2019 04:41:54 -0700 (PDT)
-From:   Bartosz Golaszewski <brgl@bgdev.pl>
-To:     Linus Walleij <linus.walleij@linaro.org>
-Cc:     linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        stable <stable@vger.kernel.org>
-Subject: [PATCH] gpiolib: never report open-drain/source lines as 'input' to user-space
-Date:   Tue,  6 Aug 2019 13:41:51 +0200
-Message-Id: <20190806114151.17652-1-brgl@bgdev.pl>
-X-Mailer: git-send-email 2.21.0
+        id S1726373AbfHFMSV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 08:18:21 -0400
+Received: from foss.arm.com ([217.140.110.172]:60826 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726036AbfHFMSV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 08:18:21 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 29E7028;
+        Tue,  6 Aug 2019 05:18:20 -0700 (PDT)
+Received: from lakrids.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CA6EE3F694;
+        Tue,  6 Aug 2019 05:18:18 -0700 (PDT)
+Date:   Tue, 6 Aug 2019 13:18:16 +0100
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     Viresh Kumar <viresh.kumar@linaro.org>
+Cc:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        mark.brown@arm.com
+Subject: Re: [PATCH v4.4 V2 24/43] arm64: Add skeleton to harden the branch
+ predictor against aliasing attacks
+Message-ID: <20190806121816.GD475@lakrids.cambridge.arm.com>
+References: <cover.1562908074.git.viresh.kumar@linaro.org>
+ <4349161f0ed572bbc6bff64bad94aa96d07b27ff.1562908075.git.viresh.kumar@linaro.org>
+ <20190731164556.GI39768@lakrids.cambridge.arm.com>
+ <20190801052011.2hrei36v4zntyfn5@vireshk-i7>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190801052011.2hrei36v4zntyfn5@vireshk-i7>
+User-Agent: Mutt/1.11.1+11 (2f07cb52) (2018-12-01)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+On Thu, Aug 01, 2019 at 10:50:11AM +0530, Viresh Kumar wrote:
+> On 31-07-19, 17:45, Mark Rutland wrote:
+> > On Fri, Jul 12, 2019 at 10:58:12AM +0530, Viresh Kumar wrote:
+> > > From: Will Deacon <will.deacon@arm.com>
+> > > 
+> > > commit 0f15adbb2861ce6f75ccfc5a92b19eae0ef327d0 upstream.
+> > > 
+> > > Aliasing attacks against CPU branch predictors can allow an attacker to
+> > > redirect speculative control flow on some CPUs and potentially divulge
+> > > information from one context to another.
+> > > 
+> > > This patch adds initial skeleton code behind a new Kconfig option to
+> > > enable implementation-specific mitigations against these attacks for
+> > > CPUs that are affected.
+> > > 
+> > > Co-developed-by: Marc Zyngier <marc.zyngier@arm.com>
+> > > Signed-off-by: Will Deacon <will.deacon@arm.com>
+> > > Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+> > > [ v4.4: Changes made according to 4.4 codebase ]
+> > > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+> > 
+> > [...]
+> > 
+> > >  /* id_aa64pfr0 */
+> > > +#define ID_AA64PFR0_CSV2_SHIFT		56
+> > 
+> > Note: CSV3 is bits 63-60, 
+> > 
+> > > diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+> > > index 474b34243521..040a42d79990 100644
+> > > --- a/arch/arm64/kernel/cpufeature.c
+> > > +++ b/arch/arm64/kernel/cpufeature.c
+> > > @@ -83,7 +83,8 @@ static struct arm64_ftr_bits ftr_id_aa64isar0[] = {
+> > >  };
+> > >  
+> > >  static struct arm64_ftr_bits ftr_id_aa64pfr0[] = {
+> > > -	ARM64_FTR_BITS(FTR_STRICT, FTR_EXACT, 32, 32, 0),
+> > > +	ARM64_FTR_BITS(FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_CSV2_SHIFT, 4, 0),
+> > > +	ARM64_FTR_BITS(FTR_STRICT, FTR_EXACT, 32, 28, 0),
+> > 
+> > This line should be:
+> > 
+> > 	ARM64_FTR_BITS(FTR_STRICT, FTR_EXACT, 32, 24, 0),
+> > 
+> > ... as it was in the v4.9 backbort, making it cover bits 55:32. As in
+> > this patch, it covers 59:32, overlapping with CSV2.
+> 
+> Fixed thanks.
+> 
+> > We also need to cater for bits 63:60. In the v4.9 backport, the meltdown
+> > bits were applied first, so nothing special was necessary.
+> > 
+> > What's the plan w.r.t. meltdown mitigations and v4.4?
+> 
+> I haven't started looking at meltdown patches yet and so that will be
+> done at a later point of time, if at all done by me. I have been asked
+> to backport both Spectre and Meltdown though to 4.4.
 
-If the driver doesn't support open-drain/source config options, we
-emulate this behavior when setting the direction by calling
-gpiod_direction_input() if the default value is 0 (open-source) or
-1 (open-drain), thus not actively driving the line in those cases.
+Upstream and in v4.9, the meltdown patches came before the spectre
+patches, and doing this in the opposite order causes context problems
+like the above.
 
-This however clears the FLAG_IS_OUT bit for the GPIO line descriptor
-and makes the LINEINFO ioctl() incorrectly report this line's mode as
-'input' to user-space.
+Given that, I think it would be less surprising to do the meltdown
+backport first, though I apprecaite that's more work to get these
+patches in. :/
 
-This commit modifies the ioctl() to always set the GPIOLINE_FLAG_IS_OUT
-bit in the lineinfo structure's flags field. Since it's impossible to
-use the input mode and open-drain/source options at the same time, we
-can be sure the reported information will be correct.
-
-Fixes: 521a2ad6f862 ("gpio: add userspace ABI for GPIO line information")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
----
- drivers/gpio/gpiolib.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index f497003f119c..80a2a2cb673b 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -1091,9 +1091,11 @@ static long gpio_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
- 		if (test_bit(FLAG_ACTIVE_LOW, &desc->flags))
- 			lineinfo.flags |= GPIOLINE_FLAG_ACTIVE_LOW;
- 		if (test_bit(FLAG_OPEN_DRAIN, &desc->flags))
--			lineinfo.flags |= GPIOLINE_FLAG_OPEN_DRAIN;
-+			lineinfo.flags |= (GPIOLINE_FLAG_OPEN_DRAIN |
-+					   GPIOLINE_FLAG_IS_OUT);
- 		if (test_bit(FLAG_OPEN_SOURCE, &desc->flags))
--			lineinfo.flags |= GPIOLINE_FLAG_OPEN_SOURCE;
-+			lineinfo.flags |= (GPIOLINE_FLAG_OPEN_SOURCE |
-+					   GPIOLINE_FLAG_IS_OUT);
- 
- 		if (copy_to_user(ip, &lineinfo, sizeof(lineinfo)))
- 			return -EFAULT;
--- 
-2.21.0
-
+Thanks,
+Mark.
