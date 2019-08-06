@@ -2,72 +2,194 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD91382917
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 03:14:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AEC082957
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 03:43:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730733AbfHFBOD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 21:14:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36112 "EHLO mail.kernel.org"
+        id S1729921AbfHFBnW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 21:43:22 -0400
+Received: from mga09.intel.com ([134.134.136.24]:26001 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728851AbfHFBOD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 21:14:03 -0400
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9FBBD20B1F;
-        Tue,  6 Aug 2019 01:14:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565054042;
-        bh=NjNQjzsF+w3NkUgDSG1k8bEfRSGcJK92LYZmXcSdcZs=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=WIIVeIINSmvFFRAhWP46K/cgFgiHe7kXl9mAvih3Yg9j/CHj60+vFasToqlHcb0+T
-         F/EDyR9JTbKTr1zbhGHKo1wJWKT3zq+XOx7AU8A9BGQvLbQzoGrszhUp8DghLKyE9w
-         eMN7tqUtICeEDO3UYkaB1jDjz/x0QC1R1cvfHZw0=
-Subject: Re: [PATCH 4.4 00/22] 4.4.188-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, shuah <shuah@kernel.org>
-References: <20190805124918.070468681@linuxfoundation.org>
-From:   shuah <shuah@kernel.org>
-Message-ID: <feafe6cf-4dfc-3d78-4010-a9af38aeb590@kernel.org>
-Date:   Mon, 5 Aug 2019 19:14:00 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1728870AbfHFBnW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 21:43:22 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 18:43:21 -0700
+X-IronPort-AV: E=Sophos;i="5.64,350,1559545200"; 
+   d="scan'208";a="325490371"
+Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 18:43:21 -0700
+Subject: [5.2-stable PATCH 1/2] libnvdimm/bus: Prepare the nd_ioctl() path
+ to be re-entrant
+From:   Dan Williams <dan.j.williams@intel.com>
+To:     stable@vger.kernel.org
+Cc:     Vishal Verma <vishal.l.verma@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>
+Date:   Mon, 05 Aug 2019 18:29:04 -0700
+Message-ID: <156505494437.1043830.9239219668937125315.stgit@dwillia2-desk3.amr.corp.intel.com>
+User-Agent: StGit/0.18-2-gc94f
 MIME-Version: 1.0
-In-Reply-To: <20190805124918.070468681@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/5/19 7:02 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.4.188 release.
-> There are 22 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed 07 Aug 2019 12:47:58 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.188-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+commit 6de5d06e657acdbcf9637dac37916a4a5309e0f4 upstream.
 
-Compiled and booted on my test system. No dmesg regressions.
+In preparation for not holding a lock over the execution of nd_ioctl(),
+update the implementation to allow multiple threads to be attempting
+ioctls at the same time. The bus lock still prevents multiple in-flight
+->ndctl() invocations from corrupting each other's state, but static
+global staging buffers are moved to the heap.
 
-thanks,
--- Shuah
+Reported-by: Vishal Verma <vishal.l.verma@intel.com>
+Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
+Tested-by: Vishal Verma <vishal.l.verma@intel.com>
+Link: https://lore.kernel.org/r/156341208947.292348.10560140326807607481.stgit@dwillia2-desk3.amr.corp.intel.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+---
+ drivers/nvdimm/bus.c |   59 +++++++++++++++++++++++++++++++-------------------
+ 1 file changed, 37 insertions(+), 22 deletions(-)
+
+diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
+index dfb93228d6a7..a38572bf486b 100644
+--- a/drivers/nvdimm/bus.c
++++ b/drivers/nvdimm/bus.c
+@@ -973,20 +973,19 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 		int read_only, unsigned int ioctl_cmd, unsigned long arg)
+ {
+ 	struct nvdimm_bus_descriptor *nd_desc = nvdimm_bus->nd_desc;
+-	static char out_env[ND_CMD_MAX_ENVELOPE];
+-	static char in_env[ND_CMD_MAX_ENVELOPE];
+ 	const struct nd_cmd_desc *desc = NULL;
+ 	unsigned int cmd = _IOC_NR(ioctl_cmd);
+ 	struct device *dev = &nvdimm_bus->dev;
+ 	void __user *p = (void __user *) arg;
++	char *out_env = NULL, *in_env = NULL;
+ 	const char *cmd_name, *dimm_name;
+ 	u32 in_len = 0, out_len = 0;
+ 	unsigned int func = cmd;
+ 	unsigned long cmd_mask;
+ 	struct nd_cmd_pkg pkg;
+ 	int rc, i, cmd_rc;
++	void *buf = NULL;
+ 	u64 buf_len = 0;
+-	void *buf;
+ 
+ 	if (nvdimm) {
+ 		desc = nd_cmd_dimm_desc(cmd);
+@@ -1026,6 +1025,9 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 		}
+ 
+ 	/* process an input envelope */
++	in_env = kzalloc(ND_CMD_MAX_ENVELOPE, GFP_KERNEL);
++	if (!in_env)
++		return -ENOMEM;
+ 	for (i = 0; i < desc->in_num; i++) {
+ 		u32 in_size, copy;
+ 
+@@ -1033,14 +1035,17 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 		if (in_size == UINT_MAX) {
+ 			dev_err(dev, "%s:%s unknown input size cmd: %s field: %d\n",
+ 					__func__, dimm_name, cmd_name, i);
+-			return -ENXIO;
++			rc = -ENXIO;
++			goto out;
+ 		}
+-		if (in_len < sizeof(in_env))
+-			copy = min_t(u32, sizeof(in_env) - in_len, in_size);
++		if (in_len < ND_CMD_MAX_ENVELOPE)
++			copy = min_t(u32, ND_CMD_MAX_ENVELOPE - in_len, in_size);
+ 		else
+ 			copy = 0;
+-		if (copy && copy_from_user(&in_env[in_len], p + in_len, copy))
+-			return -EFAULT;
++		if (copy && copy_from_user(&in_env[in_len], p + in_len, copy)) {
++			rc = -EFAULT;
++			goto out;
++		}
+ 		in_len += in_size;
+ 	}
+ 
+@@ -1052,6 +1057,12 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 	}
+ 
+ 	/* process an output envelope */
++	out_env = kzalloc(ND_CMD_MAX_ENVELOPE, GFP_KERNEL);
++	if (!out_env) {
++		rc = -ENOMEM;
++		goto out;
++	}
++
+ 	for (i = 0; i < desc->out_num; i++) {
+ 		u32 out_size = nd_cmd_out_size(nvdimm, cmd, desc, i,
+ 				(u32 *) in_env, (u32 *) out_env, 0);
+@@ -1060,15 +1071,18 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 		if (out_size == UINT_MAX) {
+ 			dev_dbg(dev, "%s unknown output size cmd: %s field: %d\n",
+ 					dimm_name, cmd_name, i);
+-			return -EFAULT;
++			rc = -EFAULT;
++			goto out;
+ 		}
+-		if (out_len < sizeof(out_env))
+-			copy = min_t(u32, sizeof(out_env) - out_len, out_size);
++		if (out_len < ND_CMD_MAX_ENVELOPE)
++			copy = min_t(u32, ND_CMD_MAX_ENVELOPE - out_len, out_size);
+ 		else
+ 			copy = 0;
+ 		if (copy && copy_from_user(&out_env[out_len],
+-					p + in_len + out_len, copy))
+-			return -EFAULT;
++					p + in_len + out_len, copy)) {
++			rc = -EFAULT;
++			goto out;
++		}
+ 		out_len += out_size;
+ 	}
+ 
+@@ -1076,12 +1090,15 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 	if (buf_len > ND_IOCTL_MAX_BUFLEN) {
+ 		dev_dbg(dev, "%s cmd: %s buf_len: %llu > %d\n", dimm_name,
+ 				cmd_name, buf_len, ND_IOCTL_MAX_BUFLEN);
+-		return -EINVAL;
++		rc = -EINVAL;
++		goto out;
+ 	}
+ 
+ 	buf = vmalloc(buf_len);
+-	if (!buf)
+-		return -ENOMEM;
++	if (!buf) {
++		rc = -ENOMEM;
++		goto out;
++	}
+ 
+ 	if (copy_from_user(buf, p, buf_len)) {
+ 		rc = -EFAULT;
+@@ -1103,17 +1120,15 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 		nvdimm_account_cleared_poison(nvdimm_bus, clear_err->address,
+ 				clear_err->cleared);
+ 	}
+-	nvdimm_bus_unlock(&nvdimm_bus->dev);
+ 
+ 	if (copy_to_user(p, buf, buf_len))
+ 		rc = -EFAULT;
+ 
+-	vfree(buf);
+-	return rc;
+-
+- out_unlock:
++out_unlock:
+ 	nvdimm_bus_unlock(&nvdimm_bus->dev);
+- out:
++out:
++	kfree(in_env);
++	kfree(out_env);
+ 	vfree(buf);
+ 	return rc;
+ }
 
