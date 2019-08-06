@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AEC082957
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 03:43:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CB2082958
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 03:43:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729921AbfHFBnW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 21:43:22 -0400
-Received: from mga09.intel.com ([134.134.136.24]:26001 "EHLO mga09.intel.com"
+        id S1730037AbfHFBn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 21:43:27 -0400
+Received: from mga14.intel.com ([192.55.52.115]:16273 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728870AbfHFBnW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 21:43:22 -0400
+        id S1728870AbfHFBn1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 21:43:27 -0400
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 18:43:21 -0700
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 18:43:26 -0700
 X-IronPort-AV: E=Sophos;i="5.64,350,1559545200"; 
-   d="scan'208";a="325490371"
+   d="scan'208";a="176484010"
 Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
-  by orsmga004-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 18:43:21 -0700
-Subject: [5.2-stable PATCH 1/2] libnvdimm/bus: Prepare the nd_ioctl() path
- to be re-entrant
+  by orsmga003-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 18:43:26 -0700
+Subject: [5.2-stable PATCH 2/2] libnvdimm/bus: Fix
+ wait_nvdimm_bus_probe_idle() ABBA deadlock
 From:   Dan Williams <dan.j.williams@intel.com>
 To:     stable@vger.kernel.org
 Cc:     Vishal Verma <vishal.l.verma@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>
-Date:   Mon, 05 Aug 2019 18:29:04 -0700
-Message-ID: <156505494437.1043830.9239219668937125315.stgit@dwillia2-desk3.amr.corp.intel.com>
+        Jane Chu <jane.chu@oracle.com>
+Date:   Mon, 05 Aug 2019 18:29:09 -0700
+Message-ID: <156505494950.1043830.444478975420152528.stgit@dwillia2-desk3.amr.corp.intel.com>
+In-Reply-To: <156505494437.1043830.9239219668937125315.stgit@dwillia2-desk3.amr.corp.intel.com>
+References: <156505494437.1043830.9239219668937125315.stgit@dwillia2-desk3.amr.corp.intel.com>
 User-Agent: StGit/0.18-2-gc94f
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -37,159 +38,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 6de5d06e657acdbcf9637dac37916a4a5309e0f4 upstream.
+commit ca6bf264f6d856f959c4239cda1047b587745c67 upstream.
 
-In preparation for not holding a lock over the execution of nd_ioctl(),
-update the implementation to allow multiple threads to be attempting
-ioctls at the same time. The bus lock still prevents multiple in-flight
-->ndctl() invocations from corrupting each other's state, but static
-global staging buffers are moved to the heap.
+A multithreaded namespace creation/destruction stress test currently
+deadlocks with the following lockup signature:
 
-Reported-by: Vishal Verma <vishal.l.verma@intel.com>
-Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
-Tested-by: Vishal Verma <vishal.l.verma@intel.com>
-Link: https://lore.kernel.org/r/156341208947.292348.10560140326807607481.stgit@dwillia2-desk3.amr.corp.intel.com
+    INFO: task ndctl:2924 blocked for more than 122 seconds.
+          Tainted: G           OE     5.2.0-rc4+ #3382
+    "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+    ndctl           D    0  2924   1176 0x00000000
+    Call Trace:
+     ? __schedule+0x27e/0x780
+     schedule+0x30/0xb0
+     wait_nvdimm_bus_probe_idle+0x8a/0xd0 [libnvdimm]
+     ? finish_wait+0x80/0x80
+     uuid_store+0xe6/0x2e0 [libnvdimm]
+     kernfs_fop_write+0xf0/0x1a0
+     vfs_write+0xb7/0x1b0
+     ksys_write+0x5c/0xd0
+     do_syscall_64+0x60/0x240
+
+     INFO: task ndctl:2923 blocked for more than 122 seconds.
+           Tainted: G           OE     5.2.0-rc4+ #3382
+     "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+     ndctl           D    0  2923   1175 0x00000000
+     Call Trace:
+      ? __schedule+0x27e/0x780
+      ? __mutex_lock+0x489/0x910
+      schedule+0x30/0xb0
+      schedule_preempt_disabled+0x11/0x20
+      __mutex_lock+0x48e/0x910
+      ? nvdimm_namespace_common_probe+0x95/0x4d0 [libnvdimm]
+      ? __lock_acquire+0x23f/0x1710
+      ? nvdimm_namespace_common_probe+0x95/0x4d0 [libnvdimm]
+      nvdimm_namespace_common_probe+0x95/0x4d0 [libnvdimm]
+      __dax_pmem_probe+0x5e/0x210 [dax_pmem_core]
+      ? nvdimm_bus_probe+0x1d0/0x2c0 [libnvdimm]
+      dax_pmem_probe+0xc/0x20 [dax_pmem]
+      nvdimm_bus_probe+0x90/0x2c0 [libnvdimm]
+      really_probe+0xef/0x390
+      driver_probe_device+0xb4/0x100
+
+In this sequence an 'nd_dax' device is being probed and trying to take
+the lock on its backing namespace to validate that the 'nd_dax' device
+indeed has exclusive access to the backing namespace. Meanwhile, another
+thread is trying to update the uuid property of that same backing
+namespace. So one thread is in the probe path trying to acquire the
+lock, and the other thread has acquired the lock and tries to flush the
+probe path.
+
+Fix this deadlock by not holding the namespace device_lock over the
+wait_nvdimm_bus_probe_idle() synchronization step. In turn this requires
+the device_lock to be held on entry to wait_nvdimm_bus_probe_idle() and
+subsequently dropped internally to wait_nvdimm_bus_probe_idle().
+
+Cc: <stable@vger.kernel.org>
+Fixes: bf9bccc14c05 ("libnvdimm: pmem label sets and namespace instantiation")
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Tested-by: Jane Chu <jane.chu@oracle.com>
+Link: https://lore.kernel.org/r/156341210094.292348.2384694131126767789.stgit@dwillia2-desk3.amr.corp.intel.com
 Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 ---
- drivers/nvdimm/bus.c |   59 +++++++++++++++++++++++++++++++-------------------
- 1 file changed, 37 insertions(+), 22 deletions(-)
+ drivers/nvdimm/bus.c         |   14 +++++++++-----
+ drivers/nvdimm/region_devs.c |    4 ++++
+ 2 files changed, 13 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
-index dfb93228d6a7..a38572bf486b 100644
+index a38572bf486b..df41f3571dc9 100644
 --- a/drivers/nvdimm/bus.c
 +++ b/drivers/nvdimm/bus.c
-@@ -973,20 +973,19 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 		int read_only, unsigned int ioctl_cmd, unsigned long arg)
- {
- 	struct nvdimm_bus_descriptor *nd_desc = nvdimm_bus->nd_desc;
--	static char out_env[ND_CMD_MAX_ENVELOPE];
--	static char in_env[ND_CMD_MAX_ENVELOPE];
- 	const struct nd_cmd_desc *desc = NULL;
- 	unsigned int cmd = _IOC_NR(ioctl_cmd);
- 	struct device *dev = &nvdimm_bus->dev;
- 	void __user *p = (void __user *) arg;
-+	char *out_env = NULL, *in_env = NULL;
- 	const char *cmd_name, *dimm_name;
- 	u32 in_len = 0, out_len = 0;
- 	unsigned int func = cmd;
- 	unsigned long cmd_mask;
- 	struct nd_cmd_pkg pkg;
- 	int rc, i, cmd_rc;
-+	void *buf = NULL;
- 	u64 buf_len = 0;
--	void *buf;
+@@ -887,10 +887,12 @@ void wait_nvdimm_bus_probe_idle(struct device *dev)
+ 	do {
+ 		if (nvdimm_bus->probe_active == 0)
+ 			break;
+-		nvdimm_bus_unlock(&nvdimm_bus->dev);
++		nvdimm_bus_unlock(dev);
++		device_unlock(dev);
+ 		wait_event(nvdimm_bus->wait,
+ 				nvdimm_bus->probe_active == 0);
+-		nvdimm_bus_lock(&nvdimm_bus->dev);
++		device_lock(dev);
++		nvdimm_bus_lock(dev);
+ 	} while (true);
+ }
  
- 	if (nvdimm) {
- 		desc = nd_cmd_dimm_desc(cmd);
-@@ -1026,6 +1025,9 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 		}
- 
- 	/* process an input envelope */
-+	in_env = kzalloc(ND_CMD_MAX_ENVELOPE, GFP_KERNEL);
-+	if (!in_env)
-+		return -ENOMEM;
- 	for (i = 0; i < desc->in_num; i++) {
- 		u32 in_size, copy;
- 
-@@ -1033,14 +1035,17 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 		if (in_size == UINT_MAX) {
- 			dev_err(dev, "%s:%s unknown input size cmd: %s field: %d\n",
- 					__func__, dimm_name, cmd_name, i);
--			return -ENXIO;
-+			rc = -ENXIO;
-+			goto out;
- 		}
--		if (in_len < sizeof(in_env))
--			copy = min_t(u32, sizeof(in_env) - in_len, in_size);
-+		if (in_len < ND_CMD_MAX_ENVELOPE)
-+			copy = min_t(u32, ND_CMD_MAX_ENVELOPE - in_len, in_size);
- 		else
- 			copy = 0;
--		if (copy && copy_from_user(&in_env[in_len], p + in_len, copy))
--			return -EFAULT;
-+		if (copy && copy_from_user(&in_env[in_len], p + in_len, copy)) {
-+			rc = -EFAULT;
-+			goto out;
-+		}
- 		in_len += in_size;
+@@ -1016,7 +1018,7 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 		case ND_CMD_ARS_START:
+ 		case ND_CMD_CLEAR_ERROR:
+ 		case ND_CMD_CALL:
+-			dev_dbg(&nvdimm_bus->dev, "'%s' command while read-only.\n",
++			dev_dbg(dev, "'%s' command while read-only.\n",
+ 					nvdimm ? nvdimm_cmd_name(cmd)
+ 					: nvdimm_bus_cmd_name(cmd));
+ 			return -EPERM;
+@@ -1105,7 +1107,8 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 		goto out;
  	}
  
-@@ -1052,6 +1057,12 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 	}
- 
- 	/* process an output envelope */
-+	out_env = kzalloc(ND_CMD_MAX_ENVELOPE, GFP_KERNEL);
-+	if (!out_env) {
-+		rc = -ENOMEM;
-+		goto out;
-+	}
-+
- 	for (i = 0; i < desc->out_num; i++) {
- 		u32 out_size = nd_cmd_out_size(nvdimm, cmd, desc, i,
- 				(u32 *) in_env, (u32 *) out_env, 0);
-@@ -1060,15 +1071,18 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 		if (out_size == UINT_MAX) {
- 			dev_dbg(dev, "%s unknown output size cmd: %s field: %d\n",
- 					dimm_name, cmd_name, i);
--			return -EFAULT;
-+			rc = -EFAULT;
-+			goto out;
- 		}
--		if (out_len < sizeof(out_env))
--			copy = min_t(u32, sizeof(out_env) - out_len, out_size);
-+		if (out_len < ND_CMD_MAX_ENVELOPE)
-+			copy = min_t(u32, ND_CMD_MAX_ENVELOPE - out_len, out_size);
- 		else
- 			copy = 0;
- 		if (copy && copy_from_user(&out_env[out_len],
--					p + in_len + out_len, copy))
--			return -EFAULT;
-+					p + in_len + out_len, copy)) {
-+			rc = -EFAULT;
-+			goto out;
-+		}
- 		out_len += out_size;
- 	}
- 
-@@ -1076,12 +1090,15 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 	if (buf_len > ND_IOCTL_MAX_BUFLEN) {
- 		dev_dbg(dev, "%s cmd: %s buf_len: %llu > %d\n", dimm_name,
- 				cmd_name, buf_len, ND_IOCTL_MAX_BUFLEN);
--		return -EINVAL;
-+		rc = -EINVAL;
-+		goto out;
- 	}
- 
- 	buf = vmalloc(buf_len);
--	if (!buf)
--		return -ENOMEM;
-+	if (!buf) {
-+		rc = -ENOMEM;
-+		goto out;
-+	}
- 
- 	if (copy_from_user(buf, p, buf_len)) {
+-	nvdimm_bus_lock(&nvdimm_bus->dev);
++	device_lock(dev);
++	nvdimm_bus_lock(dev);
+ 	rc = nd_cmd_clear_to_send(nvdimm_bus, nvdimm, func, buf);
+ 	if (rc)
+ 		goto out_unlock;
+@@ -1125,7 +1128,8 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
  		rc = -EFAULT;
-@@ -1103,17 +1120,15 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 		nvdimm_account_cleared_poison(nvdimm_bus, clear_err->address,
- 				clear_err->cleared);
- 	}
+ 
+ out_unlock:
 -	nvdimm_bus_unlock(&nvdimm_bus->dev);
++	nvdimm_bus_unlock(dev);
++	device_unlock(dev);
+ out:
+ 	kfree(in_env);
+ 	kfree(out_env);
+diff --git a/drivers/nvdimm/region_devs.c b/drivers/nvdimm/region_devs.c
+index 4fed9ce9c2fe..a15276cdec7d 100644
+--- a/drivers/nvdimm/region_devs.c
++++ b/drivers/nvdimm/region_devs.c
+@@ -422,10 +422,12 @@ static ssize_t available_size_show(struct device *dev,
+ 	 * memory nvdimm_bus_lock() is dropped, but that's userspace's
+ 	 * problem to not race itself.
+ 	 */
++	device_lock(dev);
+ 	nvdimm_bus_lock(dev);
+ 	wait_nvdimm_bus_probe_idle(dev);
+ 	available = nd_region_available_dpa(nd_region);
+ 	nvdimm_bus_unlock(dev);
++	device_unlock(dev);
  
- 	if (copy_to_user(p, buf, buf_len))
- 		rc = -EFAULT;
+ 	return sprintf(buf, "%llu\n", available);
+ }
+@@ -437,10 +439,12 @@ static ssize_t max_available_extent_show(struct device *dev,
+ 	struct nd_region *nd_region = to_nd_region(dev);
+ 	unsigned long long available = 0;
  
--	vfree(buf);
--	return rc;
--
-- out_unlock:
-+out_unlock:
- 	nvdimm_bus_unlock(&nvdimm_bus->dev);
-- out:
-+out:
-+	kfree(in_env);
-+	kfree(out_env);
- 	vfree(buf);
- 	return rc;
++	device_lock(dev);
+ 	nvdimm_bus_lock(dev);
+ 	wait_nvdimm_bus_probe_idle(dev);
+ 	available = nd_region_allocatable_dpa(nd_region);
+ 	nvdimm_bus_unlock(dev);
++	device_unlock(dev);
+ 
+ 	return sprintf(buf, "%llu\n", available);
  }
 
