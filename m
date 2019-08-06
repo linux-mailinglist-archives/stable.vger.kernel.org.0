@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AFC683CC5
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:46:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAB3A83CB4
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:45:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727197AbfHFVdj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:33:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51486 "EHLO mail.kernel.org"
+        id S1727243AbfHFVdo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:33:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727165AbfHFVdi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:33:38 -0400
+        id S1727165AbfHFVdn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:33:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5D0B21881;
-        Tue,  6 Aug 2019 21:33:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7029B217D9;
+        Tue,  6 Aug 2019 21:33:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127217;
-        bh=gx8SFavgzOTEOESs7rzfvsJIXbtJJ880k7HdXMQfhM4=;
+        s=default; t=1565127223;
+        bh=s6L8OP4RVDz/IuSN61W9whRCpF375hdigkwWMzjI6no=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u6G51MKZHQ57aE2syMLXLyUoPCsf3qQorT7zMGnm6BXenRoej37TS8p+Ytss2MMnR
-         iFnQzDrerYR+h3QKYZMKyLQtz3W91Nxisvl9vCd8oYvO4KjED+9CpAo0eclIYgw0Gf
-         iCudtjEcXerCI0L9ncIT2Hnb9npcDG8WSzptXDVU=
+        b=QqfOXtOk78kkbxny5O0kidMS95u0awEirmQeZjDhwS5AEJrNlJk+L5MshdGSsMu1C
+         VcE3o8tlP5nJb61vFXfbOF3o3BPXIJhILMqqqQm+MxWfdTznVyrGg2OSEL79HFox4l
+         uW1zj6nMzNIPtFS7UzwHP/SrajCgk7ZEzIrGLyUM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, Chao Yu <yuchao0@huawei.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.2 14/59] f2fs: fix to read source block before invalidating it
-Date:   Tue,  6 Aug 2019 17:32:34 -0400
-Message-Id: <20190806213319.19203-14-sashal@kernel.org>
+Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        =?UTF-8?q?Luis=20Cl=C3=A1udio=20Gon=C3=A7alves?= 
+        <lclaudio@redhat.com>, Namhyung Kim <namhyung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 15/59] tools perf beauty: Fix usbdevfs_ioctl table generator to handle _IOC()
+Date:   Tue,  6 Aug 2019 17:32:35 -0400
+Message-Id: <20190806213319.19203-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213319.19203-1-sashal@kernel.org>
 References: <20190806213319.19203-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,125 +47,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit 543b8c468f55f27f3c0178a22a91a51aabbbc428 ]
+[ Upstream commit 7ee526152db7a75d7b8713346dac76ffc3662b29 ]
 
-f2fs_allocate_data_block() invalidates old block address and enable new block
-address. Then, if we try to read old block by f2fs_submit_page_bio(), it will
-give WARN due to reading invalid blocks.
+In addition to _IOW() and _IOR(), to handle this case:
 
-Let's make the order sanely back.
+  #define USBDEVFS_CONNINFO_EX(len)  _IOC(_IOC_READ, 'U', 32, len)
 
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+That will happen in the next sync of this header file.
+
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Luis Cláudio Gonçalves <lclaudio@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: https://lkml.kernel.org/n/tip-3br5e4t64e4lp0goo84che3s@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/gc.c | 70 +++++++++++++++++++++++++---------------------------
- 1 file changed, 34 insertions(+), 36 deletions(-)
+ tools/perf/trace/beauty/usbdevfs_ioctl.sh | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
-index 963fb4571fd98..bb6fd5a506d39 100644
---- a/fs/f2fs/gc.c
-+++ b/fs/f2fs/gc.c
-@@ -794,6 +794,29 @@ static int move_data_block(struct inode *inode, block_t bidx,
- 	if (lfs_mode)
- 		down_write(&fio.sbi->io_order_lock);
+diff --git a/tools/perf/trace/beauty/usbdevfs_ioctl.sh b/tools/perf/trace/beauty/usbdevfs_ioctl.sh
+index 930b80f422e83..aa597ae537470 100755
+--- a/tools/perf/trace/beauty/usbdevfs_ioctl.sh
++++ b/tools/perf/trace/beauty/usbdevfs_ioctl.sh
+@@ -3,10 +3,13 @@
  
-+	mpage = f2fs_grab_cache_page(META_MAPPING(fio.sbi),
-+					fio.old_blkaddr, false);
-+	if (!mpage)
-+		goto up_out;
-+
-+	fio.encrypted_page = mpage;
-+
-+	/* read source block in mpage */
-+	if (!PageUptodate(mpage)) {
-+		err = f2fs_submit_page_bio(&fio);
-+		if (err) {
-+			f2fs_put_page(mpage, 1);
-+			goto up_out;
-+		}
-+		lock_page(mpage);
-+		if (unlikely(mpage->mapping != META_MAPPING(fio.sbi) ||
-+						!PageUptodate(mpage))) {
-+			err = -EIO;
-+			f2fs_put_page(mpage, 1);
-+			goto up_out;
-+		}
-+	}
-+
- 	f2fs_allocate_data_block(fio.sbi, NULL, fio.old_blkaddr, &newaddr,
- 					&sum, CURSEG_COLD_DATA, NULL, false);
+ [ $# -eq 1 ] && header_dir=$1 || header_dir=tools/include/uapi/linux/
  
-@@ -801,44 +824,18 @@ static int move_data_block(struct inode *inode, block_t bidx,
- 				newaddr, FGP_LOCK | FGP_CREAT, GFP_NOFS);
- 	if (!fio.encrypted_page) {
- 		err = -ENOMEM;
--		goto recover_block;
--	}
--
--	mpage = f2fs_pagecache_get_page(META_MAPPING(fio.sbi),
--					fio.old_blkaddr, FGP_LOCK, GFP_NOFS);
--	if (mpage) {
--		bool updated = false;
--
--		if (PageUptodate(mpage)) {
--			memcpy(page_address(fio.encrypted_page),
--					page_address(mpage), PAGE_SIZE);
--			updated = true;
--		}
- 		f2fs_put_page(mpage, 1);
--		invalidate_mapping_pages(META_MAPPING(fio.sbi),
--					fio.old_blkaddr, fio.old_blkaddr);
--		if (updated)
--			goto write_page;
--	}
--
--	err = f2fs_submit_page_bio(&fio);
--	if (err)
--		goto put_page_out;
--
--	/* write page */
--	lock_page(fio.encrypted_page);
--
--	if (unlikely(fio.encrypted_page->mapping != META_MAPPING(fio.sbi))) {
--		err = -EIO;
--		goto put_page_out;
--	}
--	if (unlikely(!PageUptodate(fio.encrypted_page))) {
--		err = -EIO;
--		goto put_page_out;
-+		goto recover_block;
- 	}
- 
--write_page:
-+	/* write target block */
- 	f2fs_wait_on_page_writeback(fio.encrypted_page, DATA, true, true);
-+	memcpy(page_address(fio.encrypted_page),
-+				page_address(mpage), PAGE_SIZE);
-+	f2fs_put_page(mpage, 1);
-+	invalidate_mapping_pages(META_MAPPING(fio.sbi),
-+				fio.old_blkaddr, fio.old_blkaddr);
++# also as:
++# #define USBDEVFS_CONNINFO_EX(len)  _IOC(_IOC_READ, 'U', 32, len)
 +
- 	set_page_dirty(fio.encrypted_page);
- 	if (clear_page_dirty_for_io(fio.encrypted_page))
- 		dec_page_count(fio.sbi, F2FS_DIRTY_META);
-@@ -869,11 +866,12 @@ static int move_data_block(struct inode *inode, block_t bidx,
- put_page_out:
- 	f2fs_put_page(fio.encrypted_page, 1);
- recover_block:
--	if (lfs_mode)
--		up_write(&fio.sbi->io_order_lock);
- 	if (err)
- 		f2fs_do_replace_block(fio.sbi, &sum, newaddr, fio.old_blkaddr,
- 								true, true);
-+up_out:
-+	if (lfs_mode)
-+		up_write(&fio.sbi->io_order_lock);
- put_out:
- 	f2fs_put_dnode(&dn);
- out:
+ printf "static const char *usbdevfs_ioctl_cmds[] = {\n"
+-regex="^#[[:space:]]*define[[:space:]]+USBDEVFS_(\w+)[[:space:]]+_IO[WR]{0,2}\([[:space:]]*'U'[[:space:]]*,[[:space:]]*([[:digit:]]+).*"
+-egrep $regex ${header_dir}/usbdevice_fs.h | egrep -v 'USBDEVFS_\w+32[[:space:]]' | \
+-	sed -r "s/$regex/\2 \1/g"	| \
++regex="^#[[:space:]]*define[[:space:]]+USBDEVFS_(\w+)(\(\w+\))?[[:space:]]+_IO[CWR]{0,2}\([[:space:]]*(_IOC_\w+,[[:space:]]*)?'U'[[:space:]]*,[[:space:]]*([[:digit:]]+).*"
++egrep "$regex" ${header_dir}/usbdevice_fs.h | egrep -v 'USBDEVFS_\w+32[[:space:]]' | \
++	sed -r "s/$regex/\4 \1/g"	| \
+ 	sort | xargs printf "\t[%s] = \"%s\",\n"
+ printf "};\n\n"
+ printf "#if 0\n"
 -- 
 2.20.1
 
