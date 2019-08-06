@@ -2,182 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E68BC83C19
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:40:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 100CA83C2D
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:40:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729277AbfHFVhP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:37:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55010 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729265AbfHFVhO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:37:14 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C18F218A2;
-        Tue,  6 Aug 2019 21:37:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127433;
-        bh=OH/rAetBAQwRVBiv9x4rHjv5FcgOgcVHMsUgQT8RD6g=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lsJN/3qFxZnrp2VilpN8/Ett3j3iTdg9w/GMtGjAn+sbA3i1+NkV/wW82uGjczzTS
-         EoNA4PZodTIE9EqzrX0sM9uhf4GhSENWw7sPpd83K5G3ZzPUK77Ugh1YobUftSW9p1
-         GMlJOQ5hacG7CFmqvrgx0GFFwAOtZ7RhSgCK6lGI=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qian Cai <cai@lca.pw>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Arnd Bergmann <arnd@arndb.de>,
-        David Howells <dhowells@redhat.com>,
-        Jakub Jelinek <jakub@redhat.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Bill Wendling <morbo@google.com>,
-        James Y Knight <jyknight@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arch@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 25/25] asm-generic: fix -Wtype-limits compiler warnings
-Date:   Tue,  6 Aug 2019 17:36:22 -0400
-Message-Id: <20190806213624.20194-25-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190806213624.20194-1-sashal@kernel.org>
-References: <20190806213624.20194-1-sashal@kernel.org>
+        id S1726485AbfHFVkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:40:40 -0400
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:43542 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729104AbfHFVgs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Aug 2019 17:36:48 -0400
+Received: by mail-pf1-f196.google.com with SMTP id i189so42213541pfg.10
+        for <stable@vger.kernel.org>; Tue, 06 Aug 2019 14:36:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=message-id:mime-version:content-transfer-encoding:in-reply-to
+         :references:subject:from:cc:to:user-agent:date;
+        bh=sBUBN0HUJIZIc0mN4TKD7pQCJPPlngOTzkG4tsBEHQ8=;
+        b=dqYBXo2iI80lp7HI/aQ+4TEJ3+6YGbaMGSLfCX5yRQ1xyPIxYYF0jAIw7jAvfmZck+
+         VVVLR3JPxdakG9bGLYORyCDvj1r8IyC2mfFa5yNhZJJURLDPhGkEBlicdkSZTffCF7Pb
+         mG8cqcnXLUN7eRzGjzFocQxh52GYsCIsE8hKk=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:mime-version
+         :content-transfer-encoding:in-reply-to:references:subject:from:cc:to
+         :user-agent:date;
+        bh=sBUBN0HUJIZIc0mN4TKD7pQCJPPlngOTzkG4tsBEHQ8=;
+        b=am6S2YhlP0HHGgqvevqJPuwFKzyhPC9TO6pMUcANstR00ItCI08KGjDrNxQ5sRz4XP
+         4ii67GW+P8P+nduRS14/l76DCxeaOMAcyQHD3357U71sVmVvDRF0hi1dqxb/3Xxk70SA
+         ygNbHuxKWqHeD+rRom8gyYCYcwS1xo3V/ewY3DF2kTKCdySSuERlHxUkIf8vMEMolydY
+         AlcUQm6TJZwUlpPsd5+Wa55qO0Z8zlQPRA3MtDDq+nPif9l5PmbN3iJ9CPRfcQzbjdiI
+         pqJphAdP2C1os3obgrjnC9PX9Z2k1P8jrxaaszZcLZRvhWFN6LwVdbnwHzIFxqZ+Vgc0
+         lylQ==
+X-Gm-Message-State: APjAAAU6YNDDiogtSLx441I/A95F/ZcbGWw3BJZDUbPoEl6fpGKNX3tz
+        M6NtT0gFo74Ae1C8dzh28aZ9lB2WD0I=
+X-Google-Smtp-Source: APXvYqx2v/Npwsw5HQ1lbRkveEdPoaGHJWsJF/WOnckfF74AKjXuJJIAxEcpNUNzYFEXHu6vs59ZxA==
+X-Received: by 2002:a62:4d85:: with SMTP id a127mr5858389pfb.148.1565127406818;
+        Tue, 06 Aug 2019 14:36:46 -0700 (PDT)
+Received: from chromium.org ([2620:15c:202:1:fa53:7765:582b:82b9])
+        by smtp.gmail.com with ESMTPSA id u23sm91643036pfn.140.2019.08.06.14.36.46
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Tue, 06 Aug 2019 14:36:46 -0700 (PDT)
+Message-ID: <5d49f2ee.1c69fb81.881ec.1cf7@mx.google.com>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20190806204752.GG17747@sasha-vm>
+References: <20190806175940.156412-1-swboyd@chromium.org> <20190806204752.GG17747@sasha-vm>
+Subject: Re: [PATCH 4.19] Revert "initramfs: free initrd memory if opening /initrd.image fails"
+From:   Stephen Boyd <swboyd@chromium.org>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Steven Price <steven.price@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Christoph Hellwig <hch@lst.de>
+To:     Sasha Levin <sashal@kernel.org>
+User-Agent: alot/0.8.1
+Date:   Tue, 06 Aug 2019 14:36:45 -0700
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+Quoting Sasha Levin (2019-08-06 13:47:52)
+> On Tue, Aug 06, 2019 at 10:59:40AM -0700, Stephen Boyd wrote:
+> >This reverts commit 25511676362d8f7d4b8805730a3d29484ceab1ec in the 4.19
+> >stable trees. From what I can tell this commit doesn't do anything to
+> >improve the situation, mostly just reordering code to call free_initrd()
+> >from one place instead of many. In doing that, it causes free_initrd()
+> >to be called even in the case when there isn't an initrd present. That
+> >leads to virtual memory bugs that manifest on arm64 devices.
+> >
+> >The fix has been merged upstream in commit 5d59aa8f9ce9 ("initramfs:
+> >don't free a non-existent initrd"), but backporting that here is more
+> >complicated because the patch is stacked upon this patch being reverted
+> >along with more patches that rewrites the logic in this area.
+> >
+> >Let's just revert the patch from the stable tree instead of trying to
+> >backport a collection of fixes to get the final fix from upstream.
+>=20
+> The only dependency for taking the fix, 5d59aa8f9ce9, into 4.19 is
+> 23091e28735 ("initramfs: cleanup initrd freeing") which is not too
+> scary.
+>=20
+> Is it the case that 25511676362d8 shouldn't have been backported to 4.19
+> for some reason? If it fixes something on 4.19, I think it's better to
+> take the dependency and the fix instead of reverting.
+>=20
 
-[ Upstream commit cbedfe11347fe418621bd188d58a206beb676218 ]
-
-Commit d66acc39c7ce ("bitops: Optimise get_order()") introduced a
-compilation warning because "rx_frag_size" is an "ushort" while
-PAGE_SHIFT here is 16.
-
-The commit changed the get_order() to be a multi-line macro where
-compilers insist to check all statements in the macro even when
-__builtin_constant_p(rx_frag_size) will return false as "rx_frag_size"
-is a module parameter.
-
-In file included from ./arch/powerpc/include/asm/page_64.h:107,
-                 from ./arch/powerpc/include/asm/page.h:242,
-                 from ./arch/powerpc/include/asm/mmu.h:132,
-                 from ./arch/powerpc/include/asm/lppaca.h:47,
-                 from ./arch/powerpc/include/asm/paca.h:17,
-                 from ./arch/powerpc/include/asm/current.h:13,
-                 from ./include/linux/thread_info.h:21,
-                 from ./arch/powerpc/include/asm/processor.h:39,
-                 from ./include/linux/prefetch.h:15,
-                 from drivers/net/ethernet/emulex/benet/be_main.c:14:
-drivers/net/ethernet/emulex/benet/be_main.c: In function 'be_rx_cqs_create':
-./include/asm-generic/getorder.h:54:9: warning: comparison is always
-true due to limited range of data type [-Wtype-limits]
-   (((n) < (1UL << PAGE_SHIFT)) ? 0 :  \
-         ^
-drivers/net/ethernet/emulex/benet/be_main.c:3138:33: note: in expansion
-of macro 'get_order'
-  adapter->big_page_size = (1 << get_order(rx_frag_size)) * PAGE_SIZE;
-                                 ^~~~~~~~~
-
-Fix it by moving all of this multi-line macro into a proper function,
-and killing __get_order() off.
-
-[akpm@linux-foundation.org: remove __get_order() altogether]
-[cai@lca.pw: v2]
-  Link: http://lkml.kernel.org/r/1564000166-31428-1-git-send-email-cai@lca.pw
-Link: http://lkml.kernel.org/r/1563914986-26502-1-git-send-email-cai@lca.pw
-Fixes: d66acc39c7ce ("bitops: Optimise get_order()")
-Signed-off-by: Qian Cai <cai@lca.pw>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Jakub Jelinek <jakub@redhat.com>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Bill Wendling <morbo@google.com>
-Cc: James Y Knight <jyknight@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- include/asm-generic/getorder.h | 50 ++++++++++++++--------------------
- 1 file changed, 20 insertions(+), 30 deletions(-)
-
-diff --git a/include/asm-generic/getorder.h b/include/asm-generic/getorder.h
-index c64bea7a52beb..e9f20b813a699 100644
---- a/include/asm-generic/getorder.h
-+++ b/include/asm-generic/getorder.h
-@@ -7,24 +7,6 @@
- #include <linux/compiler.h>
- #include <linux/log2.h>
- 
--/*
-- * Runtime evaluation of get_order()
-- */
--static inline __attribute_const__
--int __get_order(unsigned long size)
--{
--	int order;
--
--	size--;
--	size >>= PAGE_SHIFT;
--#if BITS_PER_LONG == 32
--	order = fls(size);
--#else
--	order = fls64(size);
--#endif
--	return order;
--}
--
- /**
-  * get_order - Determine the allocation order of a memory size
-  * @size: The size for which to get the order
-@@ -43,19 +25,27 @@ int __get_order(unsigned long size)
-  * to hold an object of the specified size.
-  *
-  * The result is undefined if the size is 0.
-- *
-- * This function may be used to initialise variables with compile time
-- * evaluations of constants.
-  */
--#define get_order(n)						\
--(								\
--	__builtin_constant_p(n) ? (				\
--		((n) == 0UL) ? BITS_PER_LONG - PAGE_SHIFT :	\
--		(((n) < (1UL << PAGE_SHIFT)) ? 0 :		\
--		 ilog2((n) - 1) - PAGE_SHIFT + 1)		\
--	) :							\
--	__get_order(n)						\
--)
-+static inline __attribute_const__ int get_order(unsigned long size)
-+{
-+	if (__builtin_constant_p(size)) {
-+		if (!size)
-+			return BITS_PER_LONG - PAGE_SHIFT;
-+
-+		if (size < (1UL << PAGE_SHIFT))
-+			return 0;
-+
-+		return ilog2((size) - 1) - PAGE_SHIFT + 1;
-+	}
-+
-+	size--;
-+	size >>= PAGE_SHIFT;
-+#if BITS_PER_LONG == 32
-+	return fls(size);
-+#else
-+	return fls64(size);
-+#endif
-+}
- 
- #endif	/* __ASSEMBLY__ */
- 
--- 
-2.20.1
+Ah thanks for taking a second look. I missed that we call free_initrd()
+in one more case when unpack_to_rootfs() fails and goes into the else
+statement. I suppose bringing in 23091e28735 ("initramfs: cleanup initrd
+freeing") in addition to 5d59aa8f9ce9 works just as well, but I'll defer
+to the persons working in this area.
 
