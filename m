@@ -2,34 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0C2383C1B
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:40:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8AAF83C04
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:39:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727858AbfHFVjr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:39:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55134 "EHLO mail.kernel.org"
+        id S1728428AbfHFVh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:37:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726576AbfHFVhV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:37:21 -0400
+        id S1728435AbfHFVhZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:37:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED34B21874;
-        Tue,  6 Aug 2019 21:37:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7423B20C01;
+        Tue,  6 Aug 2019 21:37:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127441;
-        bh=EvCSsJWI/XMqsNjvcfOoKaxR/N0uPcaJBeJXu9zYGmE=;
+        s=default; t=1565127444;
+        bh=Iq98oOKoHJJwRc5AANOrAlLmSZS5/8uWOUXH8bP2Zho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sxrwg0G/vc7p9T3s9/Fa6qwcLM/ninPi5uSqoajBpPfGAIS7IiG55bcMvczLvQPdP
-         QBEKkVTymMH1U0+xvfzd8FnL6PP3btPZ7GqxRVrqGV7lbupCGd6mpvwFdCaXeI2x8a
-         DsyEKVYr9eJnjMN/hf610L5Hdp4OrvoMpLpUA/QU=
+        b=FXdjxR1aIr/Ez58JU4rXeAlQC2AfYhtsoMf5vyG8wyonkDnghbPILzsI+jiN48pmK
+         Z/DOTTpWUnAFR0VK7pjD5yCmaF7l9WMENx48kJNxjnClfFcEDlgG+Wb6LnFD/KPRc2
+         buYAE/O2ykppX/LZCkK/1KkDDsXAYcIeci4MMeAc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lucas Stach <l.stach@pengutronix.de>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 03/17] irqchip/irq-imx-gpcv2: Forward irq type to parent
-Date:   Tue,  6 Aug 2019 17:37:00 -0400
-Message-Id: <20190806213715.20487-3-sashal@kernel.org>
+Cc:     Vince Weaver <vincent.weaver@maine.edu>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 04/17] perf header: Fix divide by zero error if f_header.attr_size==0
+Date:   Tue,  6 Aug 2019 17:37:01 -0400
+Message-Id: <20190806213715.20487-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213715.20487-1-sashal@kernel.org>
 References: <20190806213715.20487-1-sashal@kernel.org>
@@ -42,33 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Vince Weaver <vincent.weaver@maine.edu>
 
-[ Upstream commit 9a446ef08f3bfc0c3deb9c6be840af2528ef8cf8 ]
+[ Upstream commit 7622236ceb167aa3857395f9bdaf871442aa467e ]
 
-The GPCv2 is a stacked IRQ controller below the ARM GIC. It doesn't
-care about the IRQ type itself, but needs to forward the type to the
-parent IRQ controller, so this one can be configured correctly.
+So I have been having lots of trouble with hand-crafted perf.data files
+causing segfaults and the like, so I have started fuzzing the perf tool.
 
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+First issue found:
+
+If f_header.attr_size is 0 in the perf.data file, then perf will crash
+with a divide-by-zero error.
+
+Committer note:
+
+Added a pr_err() to tell the user why the command failed.
+
+Signed-off-by: Vince Weaver <vincent.weaver@maine.edu>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lkml.kernel.org/r/alpine.DEB.2.21.1907231100440.14532@macbook-air
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-imx-gpcv2.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/perf/util/header.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/irqchip/irq-imx-gpcv2.c b/drivers/irqchip/irq-imx-gpcv2.c
-index 2d203b422129e..c56da0b13da5d 100644
---- a/drivers/irqchip/irq-imx-gpcv2.c
-+++ b/drivers/irqchip/irq-imx-gpcv2.c
-@@ -145,6 +145,7 @@ static struct irq_chip gpcv2_irqchip_data_chip = {
- 	.irq_unmask		= imx_gpcv2_irq_unmask,
- 	.irq_set_wake		= imx_gpcv2_irq_set_wake,
- 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
-+	.irq_set_type		= irq_chip_set_type_parent,
- #ifdef CONFIG_SMP
- 	.irq_set_affinity	= irq_chip_set_affinity_parent,
- #endif
+diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
+index 283148104ffbe..693dcd4ea6a38 100644
+--- a/tools/perf/util/header.c
++++ b/tools/perf/util/header.c
+@@ -2854,6 +2854,13 @@ int perf_session__read_header(struct perf_session *session)
+ 			   file->path);
+ 	}
+ 
++	if (f_header.attr_size == 0) {
++		pr_err("ERROR: The %s file's attr size field is 0 which is unexpected.\n"
++		       "Was the 'perf record' command properly terminated?\n",
++		       data->file.path);
++		return -EINVAL;
++	}
++
+ 	nr_attrs = f_header.attrs.size / f_header.attr_size;
+ 	lseek(fd, f_header.attrs.offset, SEEK_SET);
+ 
 -- 
 2.20.1
 
