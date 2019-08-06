@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BAB3A83CB4
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:45:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E656683B33
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:33:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727243AbfHFVdo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:33:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51560 "EHLO mail.kernel.org"
+        id S1727165AbfHFVdq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:33:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727165AbfHFVdn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:33:43 -0400
+        id S1726238AbfHFVdq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:33:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7029B217D9;
-        Tue,  6 Aug 2019 21:33:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC6EA217D7;
+        Tue,  6 Aug 2019 21:33:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127223;
-        bh=s6L8OP4RVDz/IuSN61W9whRCpF375hdigkwWMzjI6no=;
+        s=default; t=1565127225;
+        bh=9bJwhWoAq+fbPmlFOuszd3F4ICZ/q/B+B0LzeDuXGVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QqfOXtOk78kkbxny5O0kidMS95u0awEirmQeZjDhwS5AEJrNlJk+L5MshdGSsMu1C
-         VcE3o8tlP5nJb61vFXfbOF3o3BPXIJhILMqqqQm+MxWfdTznVyrGg2OSEL79HFox4l
-         uW1zj6nMzNIPtFS7UzwHP/SrajCgk7ZEzIrGLyUM=
+        b=z1xIFCY5QIJwI7NJj+d7QEcg3nErrJo8nzUN+dTdyEoIga+j89p494sFG++UahHI1
+         fz//Lx2gHii3ObvRish8qDarCLH6RdIXVtc+r26lPxFScZIzIswyESMp75YdxY/vHS
+         oKUvYz81Yas8tjOM3u6nMV1IpN9bdDJHRtGoK9aE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        =?UTF-8?q?Luis=20Cl=C3=A1udio=20Gon=C3=A7alves?= 
-        <lclaudio@redhat.com>, Namhyung Kim <namhyung@kernel.org>,
+Cc:     Vince Weaver <vincent.weaver@maine.edu>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 15/59] tools perf beauty: Fix usbdevfs_ioctl table generator to handle _IOC()
-Date:   Tue,  6 Aug 2019 17:32:35 -0400
-Message-Id: <20190806213319.19203-15-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 16/59] perf header: Fix divide by zero error if f_header.attr_size==0
+Date:   Tue,  6 Aug 2019 17:32:36 -0400
+Message-Id: <20190806213319.19203-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213319.19203-1-sashal@kernel.org>
 References: <20190806213319.19203-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,48 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Vince Weaver <vincent.weaver@maine.edu>
 
-[ Upstream commit 7ee526152db7a75d7b8713346dac76ffc3662b29 ]
+[ Upstream commit 7622236ceb167aa3857395f9bdaf871442aa467e ]
 
-In addition to _IOW() and _IOR(), to handle this case:
+So I have been having lots of trouble with hand-crafted perf.data files
+causing segfaults and the like, so I have started fuzzing the perf tool.
 
-  #define USBDEVFS_CONNINFO_EX(len)  _IOC(_IOC_READ, 'U', 32, len)
+First issue found:
 
-That will happen in the next sync of this header file.
+If f_header.attr_size is 0 in the perf.data file, then perf will crash
+with a divide-by-zero error.
 
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Luis Cláudio Gonçalves <lclaudio@redhat.com>
+Committer note:
+
+Added a pr_err() to tell the user why the command failed.
+
+Signed-off-by: Vince Weaver <vincent.weaver@maine.edu>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
-Link: https://lkml.kernel.org/n/tip-3br5e4t64e4lp0goo84che3s@git.kernel.org
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lkml.kernel.org/r/alpine.DEB.2.21.1907231100440.14532@macbook-air
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/trace/beauty/usbdevfs_ioctl.sh | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ tools/perf/util/header.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/tools/perf/trace/beauty/usbdevfs_ioctl.sh b/tools/perf/trace/beauty/usbdevfs_ioctl.sh
-index 930b80f422e83..aa597ae537470 100755
---- a/tools/perf/trace/beauty/usbdevfs_ioctl.sh
-+++ b/tools/perf/trace/beauty/usbdevfs_ioctl.sh
-@@ -3,10 +3,13 @@
+diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
+index b82d4577d9694..fd543f209bd0a 100644
+--- a/tools/perf/util/header.c
++++ b/tools/perf/util/header.c
+@@ -3478,6 +3478,13 @@ int perf_session__read_header(struct perf_session *session)
+ 			   data->file.path);
+ 	}
  
- [ $# -eq 1 ] && header_dir=$1 || header_dir=tools/include/uapi/linux/
- 
-+# also as:
-+# #define USBDEVFS_CONNINFO_EX(len)  _IOC(_IOC_READ, 'U', 32, len)
++	if (f_header.attr_size == 0) {
++		pr_err("ERROR: The %s file's attr size field is 0 which is unexpected.\n"
++		       "Was the 'perf record' command properly terminated?\n",
++		       data->file.path);
++		return -EINVAL;
++	}
 +
- printf "static const char *usbdevfs_ioctl_cmds[] = {\n"
--regex="^#[[:space:]]*define[[:space:]]+USBDEVFS_(\w+)[[:space:]]+_IO[WR]{0,2}\([[:space:]]*'U'[[:space:]]*,[[:space:]]*([[:digit:]]+).*"
--egrep $regex ${header_dir}/usbdevice_fs.h | egrep -v 'USBDEVFS_\w+32[[:space:]]' | \
--	sed -r "s/$regex/\2 \1/g"	| \
-+regex="^#[[:space:]]*define[[:space:]]+USBDEVFS_(\w+)(\(\w+\))?[[:space:]]+_IO[CWR]{0,2}\([[:space:]]*(_IOC_\w+,[[:space:]]*)?'U'[[:space:]]*,[[:space:]]*([[:digit:]]+).*"
-+egrep "$regex" ${header_dir}/usbdevice_fs.h | egrep -v 'USBDEVFS_\w+32[[:space:]]' | \
-+	sed -r "s/$regex/\4 \1/g"	| \
- 	sort | xargs printf "\t[%s] = \"%s\",\n"
- printf "};\n\n"
- printf "#if 0\n"
+ 	nr_attrs = f_header.attrs.size / f_header.attr_size;
+ 	lseek(fd, f_header.attrs.offset, SEEK_SET);
+ 
 -- 
 2.20.1
 
