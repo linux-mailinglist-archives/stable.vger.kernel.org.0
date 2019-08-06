@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 190A983C2F
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:40:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0416983C31
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:40:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727163AbfHFVgk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:36:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54454 "EHLO mail.kernel.org"
+        id S1727938AbfHFVgo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:36:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727901AbfHFVgj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:36:39 -0400
+        id S1727954AbfHFVgn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:36:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4F2E21873;
-        Tue,  6 Aug 2019 21:36:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E545621874;
+        Tue,  6 Aug 2019 21:36:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127398;
-        bh=7zP639Yf+JAZfevormF1ky6aQLsAHxhcE9zk56ebQ14=;
+        s=default; t=1565127402;
+        bh=ZYa+k17RJXfbbcqFPq9IwDXjhOi5CzyHoi9u/5eofKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c63xiqmLcBCbWhXDtmxPfWSubPlvdW7aJZVnLaCh2n2liRE0xwEN23n1TLgf/dHm5
-         kwBXZHRPFexfPPdrETUmqLOY3mz2UtP69ZyzizdFQ6cnTXeAG9hdqHoZo1y0Gyqguw
-         8wBEmEp7wLczWivctBn+CcnN+I9YODKm1ABSMS5I=
+        b=0x02gF6iR86lC+gZX7MNG0VoSCBUTJgScte4Mtr5bVn3odSfzs+A9sV3FWL5aYfk9
+         TwWBVVBMp5UDVwkykmekM7p1CM5xRlUzlhoaRtvIehj5t5AIlW0PeYpTvviVdDMlAO
+         EpxDjT9OrmojwB1prbZ2AVkQOY+66XRJ/K8jCdEc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vince Weaver <vincent.weaver@maine.edu>,
+Cc:     Numfor Mbiziwo-Tiapo <nums@google.com>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Mark Drayton <mbd@fb.com>, Namhyung Kim <namhyung@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
+        Song Liu <songliubraving@fb.com>,
+        Stephane Eranian <eranian@google.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 07/25] perf header: Fix divide by zero error if f_header.attr_size==0
-Date:   Tue,  6 Aug 2019 17:36:04 -0400
-Message-Id: <20190806213624.20194-7-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.14 08/25] perf header: Fix use of unitialized value warning
+Date:   Tue,  6 Aug 2019 17:36:05 -0400
+Message-Id: <20190806213624.20194-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213624.20194-1-sashal@kernel.org>
 References: <20190806213624.20194-1-sashal@kernel.org>
@@ -47,52 +50,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vince Weaver <vincent.weaver@maine.edu>
+From: Numfor Mbiziwo-Tiapo <nums@google.com>
 
-[ Upstream commit 7622236ceb167aa3857395f9bdaf871442aa467e ]
+[ Upstream commit 20f9781f491360e7459c589705a2e4b1f136bee9 ]
 
-So I have been having lots of trouble with hand-crafted perf.data files
-causing segfaults and the like, so I have started fuzzing the perf tool.
+When building our local version of perf with MSAN (Memory Sanitizer) and
+running the perf record command, MSAN throws a use of uninitialized
+value warning in "tools/perf/util/util.c:333:6".
 
-First issue found:
+This warning stems from the "buf" variable being passed into "write".
+It originated as the variable "ev" with the type union perf_event*
+defined in the "perf_event__synthesize_attr" function in
+"tools/perf/util/header.c".
 
-If f_header.attr_size is 0 in the perf.data file, then perf will crash
-with a divide-by-zero error.
+In the "perf_event__synthesize_attr" function they allocate space with a malloc
+call using ev, then go on to only assign some of the member variables before
+passing "ev" on as a parameter to the "process" function therefore "ev"
+contains uninitialized memory. Changing the malloc call to zalloc to initialize
+all the members of "ev" which gets rid of the warning.
 
-Committer note:
+To reproduce this warning, build perf by running:
+make -C tools/perf CLANG=1 CC=clang EXTRA_CFLAGS="-fsanitize=memory\
+ -fsanitize-memory-track-origins"
 
-Added a pr_err() to tell the user why the command failed.
+(Additionally, llvm might have to be installed and clang might have to
+be specified as the compiler - export CC=/usr/bin/clang)
 
-Signed-off-by: Vince Weaver <vincent.weaver@maine.edu>
+then running:
+tools/perf/perf record -o - ls / | tools/perf/perf --no-pager annotate\
+ -i - --stdio
+
+Please see the cover letter for why false positive warnings may be
+generated.
+
+Signed-off-by: Numfor Mbiziwo-Tiapo <nums@google.com>
 Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Drayton <mbd@fb.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lkml.kernel.org/r/alpine.DEB.2.21.1907231100440.14532@macbook-air
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lkml.kernel.org/r/20190724234500.253358-2-nums@google.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/header.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ tools/perf/util/header.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
-index 26437143c9406..c78c2ed009ea0 100644
+index c78c2ed009ea0..cdbc877b79d4e 100644
 --- a/tools/perf/util/header.c
 +++ b/tools/perf/util/header.c
-@@ -2901,6 +2901,13 @@ int perf_session__read_header(struct perf_session *session)
- 			   file->path);
- 	}
+@@ -2990,7 +2990,7 @@ int perf_event__synthesize_attr(struct perf_tool *tool,
+ 	size += sizeof(struct perf_event_header);
+ 	size += ids * sizeof(u64);
  
-+	if (f_header.attr_size == 0) {
-+		pr_err("ERROR: The %s file's attr size field is 0 which is unexpected.\n"
-+		       "Was the 'perf record' command properly terminated?\n",
-+		       data->file.path);
-+		return -EINVAL;
-+	}
-+
- 	nr_attrs = f_header.attrs.size / f_header.attr_size;
- 	lseek(fd, f_header.attrs.offset, SEEK_SET);
+-	ev = malloc(size);
++	ev = zalloc(size);
  
+ 	if (ev == NULL)
+ 		return -ENOMEM;
 -- 
 2.20.1
 
