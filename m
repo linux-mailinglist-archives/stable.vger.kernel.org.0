@@ -2,101 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DF0983D0C
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:56:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CED9183D24
+	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 00:04:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726518AbfHFV4h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:56:37 -0400
-Received: from mail-wr1-f54.google.com ([209.85.221.54]:43499 "EHLO
-        mail-wr1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726133AbfHFV4h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Aug 2019 17:56:37 -0400
-Received: by mail-wr1-f54.google.com with SMTP id p13so14749422wru.10
-        for <stable@vger.kernel.org>; Tue, 06 Aug 2019 14:56:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=fYL3VRmze7Hpc9OwmfSAwEr9bx9mdDwlcF3JEn73tvM=;
-        b=mUfXdrPBK5Vav+JUzRQmfZc0PWudN2w9sCB2RtXfnxHwek+IJhDQIDlLmKjtmUmKra
-         qPZ3oMOs4cxC/NeD6XAP8vvHCiD1NaRpiCo7RgT7YqHbAWe7C72mQMYnI1jlm+SiMmcO
-         gyjVF2WXts8L4DCwOZNM/3iBFQLmRlsFq+rKDAi4H2YvaBrVNTqBa2WEJZ/NivygVvjY
-         Zz2Y+J+qwIHBiJXvVereOvjG+hNkLR7QBtzs+79M2MS4DsW2qS3FKcQ1IGLnfIky/PqY
-         zA7U3nKtzcocb5Y3MbB16Ga8AYUWurbsZxQUI1maUZUzPWQyNLImjSpZ/xmbtS6U7+85
-         cKYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=fYL3VRmze7Hpc9OwmfSAwEr9bx9mdDwlcF3JEn73tvM=;
-        b=Y01HrJOYff4wnnfzEKQELveOT5oAKZXjiOXJKHfxLTTNt3uSYmoz+RKEld3guzWugc
-         EQxZwlNnJXoVeC8fknsJqw+mQ9w6VooNWcLiubUidro/ZzCVDIyLwJ7mJUfRXGOU9Iod
-         rqIe1cTCN0cZ9BSYUqW+VygUUsNNWCmeOT+iy4/5epalLTqbkj9hFhvxXyCM4PbCC7fL
-         ug7KhbMMjwFZiURxGTp1lQxJov+Noii01a/lqiMCbijzlyamT5cxiRTftCIdFQ1IcB4z
-         E91xpl+l3C0FMGa/+BVXYXIjrqlz4hXcQrrsuRRolLEzi8Y87lJ/qXKk8jJdCkMwF2hS
-         sLtA==
-X-Gm-Message-State: APjAAAX00Vqofi0+Gc4hz33hC4WtnOo+FfjzVFCA+daOAbvTjJnQaRsr
-        TmCgjuPx1lkIgNdbt1Xes1oJ/3vcdusi0Q==
-X-Google-Smtp-Source: APXvYqz+DAszG6tDDvCT+Cu7RgqYTE39FHwl5afevQXzikH3rnsZjNvZVXfNCdYK6SeMHyVRlvW5Rg==
-X-Received: by 2002:adf:de8e:: with SMTP id w14mr6403804wrl.79.1565128595086;
-        Tue, 06 Aug 2019 14:56:35 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id j33sm204836237wre.42.2019.08.06.14.56.34
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 06 Aug 2019 14:56:34 -0700 (PDT)
-Message-ID: <5d49f792.1c69fb81.a4d2f.e685@mx.google.com>
-Date:   Tue, 06 Aug 2019 14:56:34 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726612AbfHFWEu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 18:04:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35002 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726716AbfHFWEu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 18:04:50 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7657121880;
+        Tue,  6 Aug 2019 22:04:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1565129089;
+        bh=AuqdTVytYqGwq/gm5yHhPwjwfhHe1pLTnzeuDh1BmAo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=kUuYVb6xuyzs4OnPtaiKRTKPuzMpF5WG8+SnMfOoePE+aHCgTx55/ym/eXIQA3b9O
+         K9a5bvTZL1N9WU0Qm2HjEiV5SCCqiYirLBV4H3S0jvF5rohkl9F6dq7MFMnY/8hl+j
+         5PSu+wp/SJNVAA5v8ca3g746OP2auWkvQ39K2mIo=
+Date:   Tue, 6 Aug 2019 18:04:48 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Robin Murphy <robin.murphy@arm.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Fugang Duan <fugang.duan@nxp.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 5.2 073/131] dma-direct: correct the physical addr in
+ dma_direct_sync_sg_for_cpu/device
+Message-ID: <20190806220448.GN17747@sasha-vm>
+References: <20190805124951.453337465@linuxfoundation.org>
+ <20190805124956.543654128@linuxfoundation.org>
+ <20190806124143.GF17747@sasha-vm>
+ <9dd82745-1673-afc3-5eb4-8b79ddb5824b@arm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v4.4.188
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Report-Type: boot
-Subject: stable/linux-4.4.y boot: 46 boots: 3 failed,
- 42 passed with 1 conflict (v4.4.188)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <9dd82745-1673-afc3-5eb4-8b79ddb5824b@arm.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.4.y boot: 46 boots: 3 failed, 42 passed with 1 conflict (v4.=
-4.188)
+On Tue, Aug 06, 2019 at 01:57:56PM +0100, Robin Murphy wrote:
+>On 06/08/2019 13:41, Sasha Levin wrote:
+>>On Mon, Aug 05, 2019 at 03:02:40PM +0200, Greg Kroah-Hartman wrote:
+>>>[ Upstream commit 449fa54d6815be8c2c1f68fa9dbbae9384a7c03e ]
+>>>
+>>>dma_map_sg() may use swiotlb buffer when the kernel command line includes
+>>>"swiotlb=force" or the dma_addr is out of dev->dma_mask range.  After
+>>>DMA complete the memory moving from device to memory, then user call
+>>>dma_sync_sg_for_cpu() to sync with DMA buffer, and copy the original
+>>>virtual buffer to other space.
+>>>
+>>>So dma_direct_sync_sg_for_cpu() should use swiotlb physical addr, not
+>>>the original physical addr from sg_phys(sg).
+>>>
+>>>dma_direct_sync_sg_for_device() also has the same issue, correct it as
+>>>well.
+>>>
+>>>Fixes: 55897af63091("dma-direct: merge swiotlb_dma_ops into the 
+>>>dma_direct code")
+>>>Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+>>>Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+>>>Signed-off-by: Christoph Hellwig <hch@lst.de>
+>>>Signed-off-by: Sasha Levin <sashal@kernel.org>
+>>
+>>I'm going to drop this one. There's a fix to it upstream, but the fix
+>>also seems to want 0036bc73ccbe ("drm/msm: stop abusing dma_map/unmap for
+>>cache") which we're not taking, so I'm just going to drop this one as
+>>well.
+>
+>Given that the two commits touch entirely separate files I'm not sure 
+>what the imagined dependency could be :/
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-4.y/kernel/v4.4.188/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.4.y/ke=
-rnel/v4.4.188/
+From the commit message of 3de433c5b38a ("drm/msm: Use the correct
+dma_sync calls in msm_gem"):
 
-Tree: stable
-Branch: linux-4.4.y
-Git Describe: v4.4.188
-Git Commit: d63f4f2588b2a87ac763de9a427816301c5b1caf
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 18 unique boards, 10 SoC families, 9 builds out of 190
+    Fixes the combination of two patches:
 
-Boot Failures Detected:
+    Fixes: 0036bc73ccbe (drm/msm: stop abusing dma_map/unmap for cache)
+    Fixes: 449fa54d6815 (dma-direct: correct the physical addr in dma_direct_sync_sg_for_cpu/device)
 
-arm64:
-    defconfig:
-        gcc-8:
-            qcom-qdf2400: 1 failed lab
+>0036bc73ccbe is indeed not a fix (frankly I'm not convinced it's even 
+>a valid change at all) but even conceptually it bears no relation 
+>whatsoever to the genuine bug fixed by 449fa54d6815.
 
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
+Given that Rob Clark asked me to drop 0036bc73ccbe not because it's
+irrelevant but because it's potentially dangerous, I did not feel
+confident enough ignoring the statement in the commit message and
+dropped this patch instead.
 
-x86_64:
-    x86_64_defconfig:
-        qemu:
-            lab-linaro-lkft: FAIL (gcc-8)
-            lab-mhart: PASS (gcc-8)
-            lab-baylibre: FAIL (gcc-8)
-            lab-drue: PASS (gcc-8)
-            lab-collabora: FAIL (gcc-8)
+If I'm  wrong here, I'd be happy to take these two patches if someone
+acks it.
 
----
-For more info write to <info@kernelci.org>
+--
+Thanks,
+Sasha
