@@ -2,183 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 561AF82962
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 03:46:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AED7829CA
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 04:56:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730037AbfHFBqb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 21:46:31 -0400
-Received: from mga04.intel.com ([192.55.52.120]:1352 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728870AbfHFBqb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 21:46:31 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 18:46:30 -0700
-X-IronPort-AV: E=Sophos;i="5.64,350,1559545200"; 
-   d="scan'208";a="373264557"
-Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
-  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 18:46:30 -0700
-Subject: [4.19-stable PATCH 6/6] libnvdimm/bus: Fix
- wait_nvdimm_bus_probe_idle() ABBA deadlock
-From:   Dan Williams <dan.j.williams@intel.com>
-To:     stable@vger.kernel.org
-Cc:     Vishal Verma <vishal.l.verma@intel.com>,
-        Jane Chu <jane.chu@oracle.com>
-Date:   Mon, 05 Aug 2019 18:32:13 -0700
-Message-ID: <156505513321.1044139.11290821448834168161.stgit@dwillia2-desk3.amr.corp.intel.com>
-In-Reply-To: <156505510583.1044139.614343013775015214.stgit@dwillia2-desk3.amr.corp.intel.com>
-References: <156505510583.1044139.614343013775015214.stgit@dwillia2-desk3.amr.corp.intel.com>
-User-Agent: StGit/0.18-2-gc94f
+        id S1730915AbfHFC4J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 22:56:09 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:36307 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728922AbfHFC4J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 22:56:09 -0400
+Received: by mail-lf1-f66.google.com with SMTP id j17so5681303lfp.3
+        for <stable@vger.kernel.org>; Mon, 05 Aug 2019 19:56:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=fUbewNNWBu8KxHxIxmY/jB338Bct994oQhtq8xv2Fuo=;
+        b=G5in/5gSFRYg8ditk3q110p+ZMAT55Wb2kKlEjEC8bhtOdiwYBIfWQsFZrVfZtdgmz
+         9Jnd6OY0S1xpK+lO/mu6osGp4lf2MZ4zYtnaKnJ3WHcl8VaQgKrIytG9kLU41R7e0yD9
+         4xY1WF0b0fKruJcc9fwpcvi66EbHChfmC7PBdUeMzY/yAwkVPr+dMUJ8yU+SnAmeIPg2
+         b3mXViVeutvQZMUYcLYgJnwhOd5D9gglAmOmlvZZH7COh4WAAriW5QGlIqUBmiACSYRe
+         TFC8qL0aOjavs3P5QYly5hE8YmKUaKPPhx3ZiFYgiyUPyEpqAwpcafaHm50HUAM+u+UY
+         BIJw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=fUbewNNWBu8KxHxIxmY/jB338Bct994oQhtq8xv2Fuo=;
+        b=B7syKG+kpdBQfeB+mvnf8v7iE0lCNT+mfNGEuI+VTo4Fmc4xsSd3oGjyKizN1lC0fP
+         S3nlsgeUH/26/bX52Gci3q17Z38cf4kMaLfFAuT5MHuB4fuR1y8HVK8RIA5lZ1K2W7qY
+         Tj4BRURlzf82EpwYKKHfyJKZY9c2BNQiIOUlhN1r6fi88bYo6dM0SfQMh9C8tiofyFSC
+         CLkvT5G8MCMamht5cjjcQYQY8NW+3+y8DzPCaXFv7vFSkO8MaZ0mqejPosCNmFbAAogM
+         WejRltBH5/Ejbwf9F7D2VRWzojCl4NyhDHeYhxrZV93FKnHG8Sr2SMU9j3oD8PaPGAL7
+         i7kw==
+X-Gm-Message-State: APjAAAW9+MWr7YOt/2OeAjdrEJHoFyibnHrF3d3Bq+67em9rWehvz7P+
+        iwwX38mySFKIr6zTFdhv82ATlJTPDW5dUQS4uoXxzQ==
+X-Google-Smtp-Source: APXvYqzcjRgHMf9fRhFjMaTNQW1G44RsNIx3V5RrUyXOxU8YCPZ8vv8WVyEtWYcLMgdZKT58Xha4h2DLtOGp/8ULRFs=
+X-Received: by 2002:a19:750b:: with SMTP id y11mr516966lfe.99.1565060166813;
+ Mon, 05 Aug 2019 19:56:06 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+References: <20190805124924.788666484@linuxfoundation.org>
+In-Reply-To: <20190805124924.788666484@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 6 Aug 2019 08:25:55 +0530
+Message-ID: <CA+G9fYsZn1BT46yDjxMi1=HDSmc_Kdrw2ZwcZ8MD6+RZUBS5Og@mail.gmail.com>
+Subject: Re: [PATCH 4.9 00/42] 4.9.188-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit ca6bf264f6d856f959c4239cda1047b587745c67 upstream.
+On Mon, 5 Aug 2019 at 18:35, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.9.188 release.
+> There are 42 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed 07 Aug 2019 12:47:58 PM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.9.188-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.9.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-A multithreaded namespace creation/destruction stress test currently
-deadlocks with the following lockup signature:
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-    INFO: task ndctl:2924 blocked for more than 122 seconds.
-          Tainted: G           OE     5.2.0-rc4+ #3382
-    "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-    ndctl           D    0  2924   1176 0x00000000
-    Call Trace:
-     ? __schedule+0x27e/0x780
-     schedule+0x30/0xb0
-     wait_nvdimm_bus_probe_idle+0x8a/0xd0 [libnvdimm]
-     ? finish_wait+0x80/0x80
-     uuid_store+0xe6/0x2e0 [libnvdimm]
-     kernfs_fop_write+0xf0/0x1a0
-     vfs_write+0xb7/0x1b0
-     ksys_write+0x5c/0xd0
-     do_syscall_64+0x60/0x240
+Summary
+------------------------------------------------------------------------
 
-     INFO: task ndctl:2923 blocked for more than 122 seconds.
-           Tainted: G           OE     5.2.0-rc4+ #3382
-     "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-     ndctl           D    0  2923   1175 0x00000000
-     Call Trace:
-      ? __schedule+0x27e/0x780
-      ? __mutex_lock+0x489/0x910
-      schedule+0x30/0xb0
-      schedule_preempt_disabled+0x11/0x20
-      __mutex_lock+0x48e/0x910
-      ? nvdimm_namespace_common_probe+0x95/0x4d0 [libnvdimm]
-      ? __lock_acquire+0x23f/0x1710
-      ? nvdimm_namespace_common_probe+0x95/0x4d0 [libnvdimm]
-      nvdimm_namespace_common_probe+0x95/0x4d0 [libnvdimm]
-      __dax_pmem_probe+0x5e/0x210 [dax_pmem_core]
-      ? nvdimm_bus_probe+0x1d0/0x2c0 [libnvdimm]
-      dax_pmem_probe+0xc/0x20 [dax_pmem]
-      nvdimm_bus_probe+0x90/0x2c0 [libnvdimm]
-      really_probe+0xef/0x390
-      driver_probe_device+0xb4/0x100
+kernel: 4.9.188-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.9.y
+git commit: 228fba508ff1bf754e9bc4b3e72a327620ffacf2
+git describe: v4.9.187-43-g228fba508ff1
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
+ld/v4.9.187-43-g228fba508ff1
 
-In this sequence an 'nd_dax' device is being probed and trying to take
-the lock on its backing namespace to validate that the 'nd_dax' device
-indeed has exclusive access to the backing namespace. Meanwhile, another
-thread is trying to update the uuid property of that same backing
-namespace. So one thread is in the probe path trying to acquire the
-lock, and the other thread has acquired the lock and tries to flush the
-probe path.
 
-Fix this deadlock by not holding the namespace device_lock over the
-wait_nvdimm_bus_probe_idle() synchronization step. In turn this requires
-the device_lock to be held on entry to wait_nvdimm_bus_probe_idle() and
-subsequently dropped internally to wait_nvdimm_bus_probe_idle().
+No regressions (compared to build v4.9.187)
 
-Cc: <stable@vger.kernel.org>
-Fixes: bf9bccc14c05 ("libnvdimm: pmem label sets and namespace instantiation")
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Tested-by: Jane Chu <jane.chu@oracle.com>
-Link: https://lore.kernel.org/r/156341210094.292348.2384694131126767789.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
----
- drivers/nvdimm/bus.c         |   14 +++++++++-----
- drivers/nvdimm/region_devs.c |    4 ++++
- 2 files changed, 13 insertions(+), 5 deletions(-)
+No fixes (compared to build v4.9.187)
 
-diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
-index 5abcdb4faa64..2ba22cd1331b 100644
---- a/drivers/nvdimm/bus.c
-+++ b/drivers/nvdimm/bus.c
-@@ -865,10 +865,12 @@ void wait_nvdimm_bus_probe_idle(struct device *dev)
- 	do {
- 		if (nvdimm_bus->probe_active == 0)
- 			break;
--		nvdimm_bus_unlock(&nvdimm_bus->dev);
-+		nvdimm_bus_unlock(dev);
-+		device_unlock(dev);
- 		wait_event(nvdimm_bus->wait,
- 				nvdimm_bus->probe_active == 0);
--		nvdimm_bus_lock(&nvdimm_bus->dev);
-+		device_lock(dev);
-+		nvdimm_bus_lock(dev);
- 	} while (true);
- }
- 
-@@ -994,7 +996,7 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 		case ND_CMD_ARS_START:
- 		case ND_CMD_CLEAR_ERROR:
- 		case ND_CMD_CALL:
--			dev_dbg(&nvdimm_bus->dev, "'%s' command while read-only.\n",
-+			dev_dbg(dev, "'%s' command while read-only.\n",
- 					nvdimm ? nvdimm_cmd_name(cmd)
- 					: nvdimm_bus_cmd_name(cmd));
- 			return -EPERM;
-@@ -1083,7 +1085,8 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 		goto out;
- 	}
- 
--	nvdimm_bus_lock(&nvdimm_bus->dev);
-+	device_lock(dev);
-+	nvdimm_bus_lock(dev);
- 	rc = nd_cmd_clear_to_send(nvdimm_bus, nvdimm, func, buf);
- 	if (rc)
- 		goto out_unlock;
-@@ -1103,7 +1106,8 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 		rc = -EFAULT;
- 
- out_unlock:
--	nvdimm_bus_unlock(&nvdimm_bus->dev);
-+	nvdimm_bus_unlock(dev);
-+	device_unlock(dev);
- out:
- 	kfree(in_env);
- 	kfree(out_env);
-diff --git a/drivers/nvdimm/region_devs.c b/drivers/nvdimm/region_devs.c
-index e7377f1028ef..0303296e6d5b 100644
---- a/drivers/nvdimm/region_devs.c
-+++ b/drivers/nvdimm/region_devs.c
-@@ -425,10 +425,12 @@ static ssize_t available_size_show(struct device *dev,
- 	 * memory nvdimm_bus_lock() is dropped, but that's userspace's
- 	 * problem to not race itself.
- 	 */
-+	device_lock(dev);
- 	nvdimm_bus_lock(dev);
- 	wait_nvdimm_bus_probe_idle(dev);
- 	available = nd_region_available_dpa(nd_region);
- 	nvdimm_bus_unlock(dev);
-+	device_unlock(dev);
- 
- 	return sprintf(buf, "%llu\n", available);
- }
-@@ -440,10 +442,12 @@ static ssize_t max_available_extent_show(struct device *dev,
- 	struct nd_region *nd_region = to_nd_region(dev);
- 	unsigned long long available = 0;
- 
-+	device_lock(dev);
- 	nvdimm_bus_lock(dev);
- 	wait_nvdimm_bus_probe_idle(dev);
- 	available = nd_region_allocatable_dpa(nd_region);
- 	nvdimm_bus_unlock(dev);
-+	device_unlock(dev);
- 
- 	return sprintf(buf, "%llu\n", available);
- }
 
+Ran 23616 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* network-basic-tests
+* ltp-open-posix-tests
+* prep-tmp-disk
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
