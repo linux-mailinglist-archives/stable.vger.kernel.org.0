@@ -2,276 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F3B683D78
-	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 00:46:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 373C783D85
+	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 00:47:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727067AbfHFWqA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 18:46:00 -0400
-Received: from mail-oi1-f193.google.com ([209.85.167.193]:42152 "EHLO
-        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726044AbfHFWqA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Aug 2019 18:46:00 -0400
-Received: by mail-oi1-f193.google.com with SMTP id s184so69084487oie.9
-        for <stable@vger.kernel.org>; Tue, 06 Aug 2019 15:45:59 -0700 (PDT)
+        id S1726340AbfHFWrt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 18:47:49 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:40673 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726133AbfHFWrt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Aug 2019 18:47:49 -0400
+Received: by mail-wr1-f66.google.com with SMTP id r1so89376987wrl.7
+        for <stable@vger.kernel.org>; Tue, 06 Aug 2019 15:47:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=dt4aiSrkRERX1Bfp8k3z3Xn3AM67tm5WpoUKfvE2/lw=;
-        b=O9b4Y0ALJLQfgNjuXwl/+eKwVHhroXtjWSmezluXfLLMNQgPp8TuqVh0vlpMLoyrrE
-         /flMTEyZWMQJActUEFPwrTzmTj+dZNXTnabHvzKghqZFM4hLa2Lsib9oV2afBxCmnJ3d
-         WtSZKeJhJ1YQiWQ2GhBmifWC90Bdabjk6RalM=
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=2OtBhyxZz51uzLQ8AFKV+B896C5yQilEcFJLalpFQrM=;
+        b=P6AH/U9Dj8Ker2Si03xHMKot5qa24PDPewih6whLkmWs1qWMGJHMDDOyRgYe9klJbM
+         IioGatVXvVStbkXb1ye0pv6No2iti4cic8BnjRuiz5P4rnPntfzDaGtRuvde8RMZQGpE
+         gLo5Ob8sou1aHHdVcZdVJq3VPChr/e298Vyby/uiACQxEtY2f0y8ydvPHANLlNmS05xd
+         RZij7xi2RwoeGQiH2mDdY7Dc4q2Vaj+6aq3zKDW0942Rs7dIWLfFICHrxHsLjxSe27fL
+         oCCpXHw87IJhbrGxkiPnwfi4RQvMEm8R+u1IWT/dH0LazSeytYgaP3pkksM5fbcnqBl2
+         7ssg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=dt4aiSrkRERX1Bfp8k3z3Xn3AM67tm5WpoUKfvE2/lw=;
-        b=riCIjTHika36lwDcat3TwLIgznRNMun3qvdhIIm78ECH5PvZfqWE4X5Utj53uRtKdO
-         96c/SdYn17M98/TUGoA/MKSk1QMzAIZ6ks7sGAHZ953LYFkvdy/qTiiJ5Fo4QJn0x+UJ
-         8VEu/TnZM/UU4lgRmRVx66Z8inKnikquKOr+lhgPv/L0xhLvUpgUE/Ckaxh8AnwBMTlo
-         T0ff9hWIBfzlG1yfAGuCP3mOch9uucQeUPq5m76JKSY/lKcbaV2kNCcOrbS2WiDBEwQh
-         ryHCQRZNArxVbUt0N3zM8dnXBNR9CxnttsIbA6XlAjPh+BKLyjefw12iJsJKd44qBdu+
-         9tRA==
-X-Gm-Message-State: APjAAAX2ZPMh9FS5gUnxTboZAgwSqWQVmmduDu2wQRzx5SJ6um3PeMx+
-        Bm2Htz2OQUmQ1FA8ukX2N2ajzIhocV0A2pFzfeq5tQ==
-X-Google-Smtp-Source: APXvYqxLlSOHTSyILonwS6wVkz5p/KQXRjYB80bDESDnW0Pe43KmYkFcn08gNzz1iuCYMODwuRL6JnBVVREOF+NHWXY=
-X-Received: by 2002:a05:6638:303:: with SMTP id w3mr6640136jap.103.1565131559097;
- Tue, 06 Aug 2019 15:45:59 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=2OtBhyxZz51uzLQ8AFKV+B896C5yQilEcFJLalpFQrM=;
+        b=sHMjp2waoKE/316Hw0IjbEKy2QfC2Z++nhe2qB87Eh3We5G5krD+ex4OYNwjnyDQH6
+         a9cCHHfQ26yd9BBLdkdzBU+fSoTDGUA+6e36+gQma5JEqt7EI02/p3uVgUPeGmSR4/kO
+         NVU/oJYvWFlDuiPd9k5FatGfdI7TfF3WkV+mZrr2VR3AFMRV+73iGKZ7se0H3WvW+mKE
+         4t6J10pggZpCrOxkBpK5LPVTWK5WntyoYKHiCxgFRZQdDhcih0uClSiAs/8CqL1JFB4b
+         qGQm+3kugCLdNPCTZ7QvAWdtmKeOtfj9MNsAcp8s13I14YIdd82P0ohntkoODif+XmBX
+         sVrg==
+X-Gm-Message-State: APjAAAXlvqvOtxwmIdQ5iTlkYuRPdmLu802G4QJy9wc5e9gVfVcYDd0+
+        F+qTQbFgH0Fvvbvp5tYlSKKIprB3+7f1IA==
+X-Google-Smtp-Source: APXvYqzafgWnSuyOrbeQGbDtjVv1bshr87HXfHvzIieBJEzLB0O+YZaUQNPVTrt4VQfdK54w0G2z0A==
+X-Received: by 2002:a5d:4108:: with SMTP id l8mr6460029wrp.113.1565131666799;
+        Tue, 06 Aug 2019 15:47:46 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id i24sm7258299wrc.45.2019.08.06.15.47.45
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 06 Aug 2019 15:47:46 -0700 (PDT)
+Message-ID: <5d4a0392.1c69fb81.d9648.4228@mx.google.com>
+Date:   Tue, 06 Aug 2019 15:47:46 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20190806213319.19203-1-sashal@kernel.org> <20190806213319.19203-37-sashal@kernel.org>
-In-Reply-To: <20190806213319.19203-37-sashal@kernel.org>
-From:   Rob Clark <robdclark@chromium.org>
-Date:   Tue, 6 Aug 2019 15:45:48 -0700
-Message-ID: <CAJs_Fx5rj45yJ5kh5vLHRMWLYi=qmnMJ919LKdX8icTnvLwgoA@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.2 37/59] drm/vgem: fix cache synchronization on arm/arm64
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sean Paul <seanpaul@chromium.org>,
-        dri-devel <dri-devel@lists.freedesktop.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable
+X-Kernelci-Kernel: v4.14.137
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Report-Type: boot
+Subject: stable/linux-4.14.y boot: 46 boots: 1 failed, 45 passed (v4.14.137)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-please don't queue this one for stable branches.. it was causing
-problems in intel CI
+stable/linux-4.14.y boot: 46 boots: 1 failed, 45 passed (v4.14.137)
 
-BR,
--R
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+14.y/kernel/v4.14.137/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
+ernel/v4.14.137/
 
-On Tue, Aug 6, 2019 at 2:34 PM Sasha Levin <sashal@kernel.org> wrote:
->
-> From: Rob Clark <robdclark@chromium.org>
->
-> [ Upstream commit 7e9e5ead55beacc11116b3fb90b0de6e7cf55a69 ]
->
-> drm_cflush_pages() is no-op on arm/arm64.  But instead we can use
-> dma_sync API.
->
-> Fixes failures w/ vgem_test.
->
-> Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-> Signed-off-by: Rob Clark <robdclark@chromium.org>
-> Signed-off-by: Sean Paul <seanpaul@chromium.org>
-> Link: https://patchwork.freedesktop.org/patch/msgid/20190717211542.30482-1-robdclark@gmail.com
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/gpu/drm/vgem/vgem_drv.c | 130 ++++++++++++++++++++------------
->  1 file changed, 83 insertions(+), 47 deletions(-)
->
-> diff --git a/drivers/gpu/drm/vgem/vgem_drv.c b/drivers/gpu/drm/vgem/vgem_drv.c
-> index 11a8f99ba18c5..fc04803ff4035 100644
-> --- a/drivers/gpu/drm/vgem/vgem_drv.c
-> +++ b/drivers/gpu/drm/vgem/vgem_drv.c
-> @@ -47,10 +47,16 @@ static struct vgem_device {
->         struct platform_device *platform;
->  } *vgem_device;
->
-> +static void sync_and_unpin(struct drm_vgem_gem_object *bo);
-> +static struct page **pin_and_sync(struct drm_vgem_gem_object *bo);
-> +
->  static void vgem_gem_free_object(struct drm_gem_object *obj)
->  {
->         struct drm_vgem_gem_object *vgem_obj = to_vgem_bo(obj);
->
-> +       if (!obj->import_attach)
-> +               sync_and_unpin(vgem_obj);
-> +
->         kvfree(vgem_obj->pages);
->         mutex_destroy(&vgem_obj->pages_lock);
->
-> @@ -78,40 +84,15 @@ static vm_fault_t vgem_gem_fault(struct vm_fault *vmf)
->                 return VM_FAULT_SIGBUS;
->
->         mutex_lock(&obj->pages_lock);
-> +       if (!obj->pages)
-> +               pin_and_sync(obj);
->         if (obj->pages) {
->                 get_page(obj->pages[page_offset]);
->                 vmf->page = obj->pages[page_offset];
->                 ret = 0;
->         }
->         mutex_unlock(&obj->pages_lock);
-> -       if (ret) {
-> -               struct page *page;
-> -
-> -               page = shmem_read_mapping_page(
-> -                                       file_inode(obj->base.filp)->i_mapping,
-> -                                       page_offset);
-> -               if (!IS_ERR(page)) {
-> -                       vmf->page = page;
-> -                       ret = 0;
-> -               } else switch (PTR_ERR(page)) {
-> -                       case -ENOSPC:
-> -                       case -ENOMEM:
-> -                               ret = VM_FAULT_OOM;
-> -                               break;
-> -                       case -EBUSY:
-> -                               ret = VM_FAULT_RETRY;
-> -                               break;
-> -                       case -EFAULT:
-> -                       case -EINVAL:
-> -                               ret = VM_FAULT_SIGBUS;
-> -                               break;
-> -                       default:
-> -                               WARN_ON(PTR_ERR(page));
-> -                               ret = VM_FAULT_SIGBUS;
-> -                               break;
-> -               }
->
-> -       }
->         return ret;
->  }
->
-> @@ -277,32 +258,93 @@ static const struct file_operations vgem_driver_fops = {
->         .release        = drm_release,
->  };
->
-> -static struct page **vgem_pin_pages(struct drm_vgem_gem_object *bo)
-> +/* Called under pages_lock, except in free path (where it can't race): */
-> +static void sync_and_unpin(struct drm_vgem_gem_object *bo)
->  {
-> -       mutex_lock(&bo->pages_lock);
-> -       if (bo->pages_pin_count++ == 0) {
-> -               struct page **pages;
-> +       struct drm_device *dev = bo->base.dev;
-> +
-> +       if (bo->table) {
-> +               dma_sync_sg_for_cpu(dev->dev, bo->table->sgl,
-> +                               bo->table->nents, DMA_BIDIRECTIONAL);
-> +               sg_free_table(bo->table);
-> +               kfree(bo->table);
-> +               bo->table = NULL;
-> +       }
-> +
-> +       if (bo->pages) {
-> +               drm_gem_put_pages(&bo->base, bo->pages, true, true);
-> +               bo->pages = NULL;
-> +       }
-> +}
-> +
-> +static struct page **pin_and_sync(struct drm_vgem_gem_object *bo)
-> +{
-> +       struct drm_device *dev = bo->base.dev;
-> +       int npages = bo->base.size >> PAGE_SHIFT;
-> +       struct page **pages;
-> +       struct sg_table *sgt;
-> +
-> +       WARN_ON(!mutex_is_locked(&bo->pages_lock));
-> +
-> +       pages = drm_gem_get_pages(&bo->base);
-> +       if (IS_ERR(pages)) {
-> +               bo->pages_pin_count--;
-> +               mutex_unlock(&bo->pages_lock);
-> +               return pages;
-> +       }
->
-> -               pages = drm_gem_get_pages(&bo->base);
-> -               if (IS_ERR(pages)) {
-> -                       bo->pages_pin_count--;
-> -                       mutex_unlock(&bo->pages_lock);
-> -                       return pages;
-> -               }
-> +       sgt = drm_prime_pages_to_sg(pages, npages);
-> +       if (IS_ERR(sgt)) {
-> +               dev_err(dev->dev,
-> +                       "failed to allocate sgt: %ld\n",
-> +                       PTR_ERR(bo->table));
-> +               drm_gem_put_pages(&bo->base, pages, false, false);
-> +               mutex_unlock(&bo->pages_lock);
-> +               return ERR_CAST(bo->table);
-> +       }
-> +
-> +       /*
-> +        * Flush the object from the CPU cache so that importers
-> +        * can rely on coherent indirect access via the exported
-> +        * dma-address.
-> +        */
-> +       dma_sync_sg_for_device(dev->dev, sgt->sgl,
-> +                       sgt->nents, DMA_BIDIRECTIONAL);
-> +
-> +       bo->pages = pages;
-> +       bo->table = sgt;
-> +
-> +       return pages;
-> +}
-> +
-> +static struct page **vgem_pin_pages(struct drm_vgem_gem_object *bo)
-> +{
-> +       struct page **pages;
->
-> -               bo->pages = pages;
-> +       mutex_lock(&bo->pages_lock);
-> +       if (bo->pages_pin_count++ == 0 && !bo->pages) {
-> +               pages = pin_and_sync(bo);
-> +       } else {
-> +               WARN_ON(!bo->pages);
-> +               pages = bo->pages;
->         }
->         mutex_unlock(&bo->pages_lock);
->
-> -       return bo->pages;
-> +       return pages;
->  }
->
->  static void vgem_unpin_pages(struct drm_vgem_gem_object *bo)
->  {
-> +       /*
-> +        * We shouldn't hit this for imported bo's.. in the import
-> +        * case we don't own the scatter-table
-> +        */
-> +       WARN_ON(bo->base.import_attach);
-> +
->         mutex_lock(&bo->pages_lock);
->         if (--bo->pages_pin_count == 0) {
-> -               drm_gem_put_pages(&bo->base, bo->pages, true, true);
-> -               bo->pages = NULL;
-> +               WARN_ON(!bo->table);
-> +               sync_and_unpin(bo);
->         }
->         mutex_unlock(&bo->pages_lock);
->  }
-> @@ -310,18 +352,12 @@ static void vgem_unpin_pages(struct drm_vgem_gem_object *bo)
->  static int vgem_prime_pin(struct drm_gem_object *obj)
->  {
->         struct drm_vgem_gem_object *bo = to_vgem_bo(obj);
-> -       long n_pages = obj->size >> PAGE_SHIFT;
->         struct page **pages;
->
->         pages = vgem_pin_pages(bo);
->         if (IS_ERR(pages))
->                 return PTR_ERR(pages);
->
-> -       /* Flush the object from the CPU cache so that importers can rely
-> -        * on coherent indirect access via the exported dma-address.
-> -        */
-> -       drm_clflush_pages(pages, n_pages);
-> -
->         return 0;
->  }
->
-> --
-> 2.20.1
->
+Tree: stable
+Branch: linux-4.14.y
+Git Describe: v4.14.137
+Git Commit: b19ffe6e7205c0b0d26b750673873f3f9f61da35
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 24 unique boards, 15 SoC families, 10 builds out of 201
+
+Boot Failure Detected:
+
+arc:
+    hsdk_defconfig:
+        gcc-8:
+            hsdk: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
