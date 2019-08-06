@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63A0283BBE
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:39:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CB6383BF0
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:39:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728683AbfHFVhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729472AbfHFVhq (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 6 Aug 2019 17:37:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55450 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727781AbfHFVho (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:37:44 -0400
+        id S1727128AbfHFVhp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:37:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B11521874;
-        Tue,  6 Aug 2019 21:37:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56A802187F;
+        Tue,  6 Aug 2019 21:37:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127463;
-        bh=NUZggXvPBEy/q3q5YoXf8umnkLf7FMDxEdABCmsqVG0=;
+        s=default; t=1565127464;
+        bh=Y4h+XE7xxckM9vxjU2i7IpMs0sq0dR3huYDgy9zxLyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sv9KYiZZI2i4mA0OaRWsZnxQp2XR5xRrLKrITPqiqVEULeuCxLpLkBBp5HocXq80i
-         jVQe8N2xRxFg3TF1IQwKw/SYgZ8WpL1UFCoKeyZWpAcyROFgX0dGUfGVklild0LQ1F
-         9StRrAkJHNctlmdnMWfho8jR0d1bgxrt0dxTgTmk=
+        b=OjCTLiZWkrYMPyZDg3SGFJz49tmT+ZZXGQi5/d07oBqhtq9ksCu4bbNlqV5ywKoJU
+         14nTpxnA+uU0+oj5OIdPXU5ncXIITXIWCCkrWuhC5WtKRQFtWjyBt6ltbpE2mmm6mi
+         /cAZsbbNHGj7s9nWwTDaPS+xtm/fvImYpgjDnR0o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jack Morgenstein <jackm@dev.mellanox.co.il>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Doug Ledford <dledford@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 14/17] IB/mad: Fix use-after-free in ib mad completion handling
-Date:   Tue,  6 Aug 2019 17:37:11 -0400
-Message-Id: <20190806213715.20487-14-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 15/17] ocfs2: remove set but not used variable 'last_hash'
+Date:   Tue,  6 Aug 2019 17:37:12 -0400
+Message-Id: <20190806213715.20487-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213715.20487-1-sashal@kernel.org>
 References: <20190806213715.20487-1-sashal@kernel.org>
@@ -44,150 +50,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Morgenstein <jackm@dev.mellanox.co.il>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 770b7d96cfff6a8bf6c9f261ba6f135dc9edf484 ]
+[ Upstream commit 7bc36e3ce91471b6377c8eadc0a2f220a2280083 ]
 
-We encountered a use-after-free bug when unloading the driver:
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-[ 3562.116059] BUG: KASAN: use-after-free in ib_mad_post_receive_mads+0xddc/0xed0 [ib_core]
-[ 3562.117233] Read of size 4 at addr ffff8882ca5aa868 by task kworker/u13:2/23862
-[ 3562.118385]
-[ 3562.119519] CPU: 2 PID: 23862 Comm: kworker/u13:2 Tainted: G           OE     5.1.0-for-upstream-dbg-2019-05-19_16-44-30-13 #1
-[ 3562.121806] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu2 04/01/2014
-[ 3562.123075] Workqueue: ib-comp-unb-wq ib_cq_poll_work [ib_core]
-[ 3562.124383] Call Trace:
-[ 3562.125640]  dump_stack+0x9a/0xeb
-[ 3562.126911]  print_address_description+0xe3/0x2e0
-[ 3562.128223]  ? ib_mad_post_receive_mads+0xddc/0xed0 [ib_core]
-[ 3562.129545]  __kasan_report+0x15c/0x1df
-[ 3562.130866]  ? ib_mad_post_receive_mads+0xddc/0xed0 [ib_core]
-[ 3562.132174]  kasan_report+0xe/0x20
-[ 3562.133514]  ib_mad_post_receive_mads+0xddc/0xed0 [ib_core]
-[ 3562.134835]  ? find_mad_agent+0xa00/0xa00 [ib_core]
-[ 3562.136158]  ? qlist_free_all+0x51/0xb0
-[ 3562.137498]  ? mlx4_ib_sqp_comp_worker+0x1970/0x1970 [mlx4_ib]
-[ 3562.138833]  ? quarantine_reduce+0x1fa/0x270
-[ 3562.140171]  ? kasan_unpoison_shadow+0x30/0x40
-[ 3562.141522]  ib_mad_recv_done+0xdf6/0x3000 [ib_core]
-[ 3562.142880]  ? _raw_spin_unlock_irqrestore+0x46/0x70
-[ 3562.144277]  ? ib_mad_send_done+0x1810/0x1810 [ib_core]
-[ 3562.145649]  ? mlx4_ib_destroy_cq+0x2a0/0x2a0 [mlx4_ib]
-[ 3562.147008]  ? _raw_spin_unlock_irqrestore+0x46/0x70
-[ 3562.148380]  ? debug_object_deactivate+0x2b9/0x4a0
-[ 3562.149814]  __ib_process_cq+0xe2/0x1d0 [ib_core]
-[ 3562.151195]  ib_cq_poll_work+0x45/0xf0 [ib_core]
-[ 3562.152577]  process_one_work+0x90c/0x1860
-[ 3562.153959]  ? pwq_dec_nr_in_flight+0x320/0x320
-[ 3562.155320]  worker_thread+0x87/0xbb0
-[ 3562.156687]  ? __kthread_parkme+0xb6/0x180
-[ 3562.158058]  ? process_one_work+0x1860/0x1860
-[ 3562.159429]  kthread+0x320/0x3e0
-[ 3562.161391]  ? kthread_park+0x120/0x120
-[ 3562.162744]  ret_from_fork+0x24/0x30
-...
-[ 3562.187615] Freed by task 31682:
-[ 3562.188602]  save_stack+0x19/0x80
-[ 3562.189586]  __kasan_slab_free+0x11d/0x160
-[ 3562.190571]  kfree+0xf5/0x2f0
-[ 3562.191552]  ib_mad_port_close+0x200/0x380 [ib_core]
-[ 3562.192538]  ib_mad_remove_device+0xf0/0x230 [ib_core]
-[ 3562.193538]  remove_client_context+0xa6/0xe0 [ib_core]
-[ 3562.194514]  disable_device+0x14e/0x260 [ib_core]
-[ 3562.195488]  __ib_unregister_device+0x79/0x150 [ib_core]
-[ 3562.196462]  ib_unregister_device+0x21/0x30 [ib_core]
-[ 3562.197439]  mlx4_ib_remove+0x162/0x690 [mlx4_ib]
-[ 3562.198408]  mlx4_remove_device+0x204/0x2c0 [mlx4_core]
-[ 3562.199381]  mlx4_unregister_interface+0x49/0x1d0 [mlx4_core]
-[ 3562.200356]  mlx4_ib_cleanup+0xc/0x1d [mlx4_ib]
-[ 3562.201329]  __x64_sys_delete_module+0x2d2/0x400
-[ 3562.202288]  do_syscall_64+0x95/0x470
-[ 3562.203277]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+  fs/ocfs2/xattr.c: In function ocfs2_xattr_bucket_find:
+  fs/ocfs2/xattr.c:3828:6: warning: variable last_hash set but not used [-Wunused-but-set-variable]
 
-The problem was that the MAD PD was deallocated before the MAD CQ.
-There was completion work pending for the CQ when the PD got deallocated.
-When the mad completion handling reached procedure
-ib_mad_post_receive_mads(), we got a use-after-free bug in the following
-line of code in that procedure:
-   sg_list.lkey = qp_info->port_priv->pd->local_dma_lkey;
-(the pd pointer in the above line is no longer valid, because the
-pd has been deallocated).
+It's never used and can be removed.
 
-We fix this by allocating the PD before the CQ in procedure
-ib_mad_port_open(), and deallocating the PD after freeing the CQ
-in procedure ib_mad_port_close().
-
-Since the CQ completion work queue is flushed during ib_free_cq(),
-no completions will be pending for that CQ when the PD is later
-deallocated.
-
-Note that freeing the CQ before deallocating the PD is the practice
-in the ULPs.
-
-Fixes: 4be90bc60df4 ("IB/mad: Remove ib_get_dma_mr calls")
-Signed-off-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Link: https://lore.kernel.org/r/20190801121449.24973-1-leon@kernel.org
-Signed-off-by: Doug Ledford <dledford@redhat.com>
+Link: http://lkml.kernel.org/r/20190716132110.34836-1-yuehaibing@huawei.com
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/mad.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ fs/ocfs2/xattr.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/infiniband/core/mad.c b/drivers/infiniband/core/mad.c
-index 3e2ab04201e2c..25a28e7060725 100644
---- a/drivers/infiniband/core/mad.c
-+++ b/drivers/infiniband/core/mad.c
-@@ -3155,18 +3155,18 @@ static int ib_mad_port_open(struct ib_device *device,
- 	if (has_smi)
- 		cq_size *= 2;
+diff --git a/fs/ocfs2/xattr.c b/fs/ocfs2/xattr.c
+index 01932763b4d10..e108c945ac1f8 100644
+--- a/fs/ocfs2/xattr.c
++++ b/fs/ocfs2/xattr.c
+@@ -3832,7 +3832,6 @@ static int ocfs2_xattr_bucket_find(struct inode *inode,
+ 	u16 blk_per_bucket = ocfs2_blocks_per_xattr_bucket(inode->i_sb);
+ 	int low_bucket = 0, bucket, high_bucket;
+ 	struct ocfs2_xattr_bucket *search;
+-	u32 last_hash;
+ 	u64 blkno, lower_blkno = 0;
  
-+	port_priv->pd = ib_alloc_pd(device, 0);
-+	if (IS_ERR(port_priv->pd)) {
-+		dev_err(&device->dev, "Couldn't create ib_mad PD\n");
-+		ret = PTR_ERR(port_priv->pd);
-+		goto error3;
-+	}
-+
- 	port_priv->cq = ib_alloc_cq(port_priv->device, port_priv, cq_size, 0,
- 			IB_POLL_WORKQUEUE);
- 	if (IS_ERR(port_priv->cq)) {
- 		dev_err(&device->dev, "Couldn't create ib_mad CQ\n");
- 		ret = PTR_ERR(port_priv->cq);
--		goto error3;
--	}
+ 	search = ocfs2_xattr_bucket_new(inode);
+@@ -3876,8 +3875,6 @@ static int ocfs2_xattr_bucket_find(struct inode *inode,
+ 		if (xh->xh_count)
+ 			xe = &xh->xh_entries[le16_to_cpu(xh->xh_count) - 1];
+ 
+-		last_hash = le32_to_cpu(xe->xe_name_hash);
 -
--	port_priv->pd = ib_alloc_pd(device, 0);
--	if (IS_ERR(port_priv->pd)) {
--		dev_err(&device->dev, "Couldn't create ib_mad PD\n");
--		ret = PTR_ERR(port_priv->pd);
- 		goto error4;
- 	}
+ 		/* record lower_blkno which may be the insert place. */
+ 		lower_blkno = blkno;
  
-@@ -3209,11 +3209,11 @@ static int ib_mad_port_open(struct ib_device *device,
- error7:
- 	destroy_mad_qp(&port_priv->qp_info[0]);
- error6:
--	ib_dealloc_pd(port_priv->pd);
--error4:
- 	ib_free_cq(port_priv->cq);
- 	cleanup_recv_queue(&port_priv->qp_info[1]);
- 	cleanup_recv_queue(&port_priv->qp_info[0]);
-+error4:
-+	ib_dealloc_pd(port_priv->pd);
- error3:
- 	kfree(port_priv);
- 
-@@ -3243,8 +3243,8 @@ static int ib_mad_port_close(struct ib_device *device, int port_num)
- 	destroy_workqueue(port_priv->wq);
- 	destroy_mad_qp(&port_priv->qp_info[1]);
- 	destroy_mad_qp(&port_priv->qp_info[0]);
--	ib_dealloc_pd(port_priv->pd);
- 	ib_free_cq(port_priv->cq);
-+	ib_dealloc_pd(port_priv->pd);
- 	cleanup_recv_queue(&port_priv->qp_info[1]);
- 	cleanup_recv_queue(&port_priv->qp_info[0]);
- 	/* XXX: Handle deallocation of MAD registration tables */
 -- 
 2.20.1
 
