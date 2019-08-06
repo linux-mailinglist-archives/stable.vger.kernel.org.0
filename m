@@ -2,78 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F224C83D08
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:55:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78D7083D09
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:55:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726381AbfHFVzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:55:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33934 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726133AbfHFVzX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:55:23 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 592302173C;
-        Tue,  6 Aug 2019 21:55:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565128522;
-        bh=CPWKcAELCTCKzC1m7jwsP+d5ONXblTt+WK1aiO484xM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=0r+sWLR9ZD7bnHHN9EYSbjhQYoEEsCDOBx9roAgwcRsmL9bBRQ7hLn82dsaH+1sI0
-         6KwL1dOT1OabEHxS/hnMZztDF/tk9CZ+fJQj8NhFs1xiNLobD2v7g4SqCfqemt/EOs
-         BHvPyAUurYFlfp1C12SQAWot6dpO33FncoPjSP4I=
-Date:   Tue, 6 Aug 2019 17:55:21 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Zubin Mithra <zsm@chromium.org>
-Cc:     stable@vger.kernel.org, gregkh@google.com, groeck@chromium.org,
-        phil.turnbull@oracle.com, pablo@netfilter.org, davem@davemloft.net
-Subject: Re: eda3fc50daa9 ("netfilter: nfnetlink_acct: validate NFACCT_QUOTA
- parameter")
-Message-ID: <20190806215521.GM17747@sasha-vm>
-References: <20190806163254.GA176933@google.com>
+        id S1726412AbfHFVzk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:55:40 -0400
+Received: from mail-yb1-f195.google.com ([209.85.219.195]:38845 "EHLO
+        mail-yb1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726133AbfHFVzk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Aug 2019 17:55:40 -0400
+Received: by mail-yb1-f195.google.com with SMTP id j199so31247078ybg.5;
+        Tue, 06 Aug 2019 14:55:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=k+AWtp//iZQHBUSYNSKib/pmDOCkaOgoiXvpRJP7gmA=;
+        b=tVu/AVxPuKr2O9yi66GUMZ0XXx4MnVzRGiRb5hTa+JT7ywAQfE41BLvGoUUMIyghG8
+         SZ5XiFa529n7Okj5ezJgKeksYJiR2YLmFzz1SxrI7LtG8se1O+RwTMhODC4QE8K+ZYx5
+         JBcR2ucDj+u/vRCXz0HKWyQ9s3QM6rS5U9Oca6MJmamX1aP7SY3Dli5qL6VEasaerW+u
+         +wpk7a5Mc/GzmW6VS1nPI2XFJ7WxW8qWuDUabl0ZP+W31PbcppyijXI6/E6QIf+i4J1H
+         Nm/SYfASp5hYQHFAaMZdipAZyocGfVwf0FOVfmOCJuVwPTp2NHWKM5+3EjVAwTxBTj9/
+         H4nw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=k+AWtp//iZQHBUSYNSKib/pmDOCkaOgoiXvpRJP7gmA=;
+        b=UOqeNtAUuiV36y0rHH5VbkM+DGK6iFB3UM0A2W3qO6hpSd9VrSQHBGaG2RDyxWMBEQ
+         HiJ4cxcwhAh3i7abuusNgq1ZI1LTYHtR5sqh/FIGgW5aaKektvwUSFnSwNAOXcJOPxCE
+         CFOSlLPVasdgFZlUMpYBRHRPK9gr78FhqTrhfndVBf91qWo+OK14aq7KLSi9OzwYG6tI
+         52a2n+dYWk8J4rHtB1Y16cSoipbOOsiMMtTT1GoKn3s4zmdmobD/xcPAH2z4F8UgexTb
+         F2fGq5LeAA9Da1EaGOIKZHg2/BJgR7nbT97rl0BjdwHb0Z0+RRn97g20VHDcGeJ0PJv+
+         ec1Q==
+X-Gm-Message-State: APjAAAWgb6UjcslD6PEiuysBFiISBfAIOZ0ryre5Z6WhhB+5RblEYzVV
+        I3MX9cD75Yp0Hk8fOh10Nutjy9Uy0yZ/vv3SJSe7iw==
+X-Google-Smtp-Source: APXvYqyzY27IzFJgojA2HdRgeqD+9agkpOGxxQswUtP53SFdrOWfXL20fObGcfS/l1k/+lQ8mZ6T/nAWZqzVrK+oCHs=
+X-Received: by 2002:a25:6602:: with SMTP id a2mr4085214ybc.119.1565128539683;
+ Tue, 06 Aug 2019 14:55:39 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190806163254.GA176933@google.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20190806213319.19203-1-sashal@kernel.org> <20190806213319.19203-7-sashal@kernel.org>
+In-Reply-To: <20190806213319.19203-7-sashal@kernel.org>
+From:   Max Filippov <jcmvbkbc@gmail.com>
+Date:   Tue, 6 Aug 2019 14:55:29 -0700
+Message-ID: <CAMo8BfJZ1aQoyjpfUE-WT=OpW7EvNC+vu878BPqON0u7E5Ujiw@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.2 07/59] xtensa: fix build for cores with coprocessors
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        "open list:TENSILICA XTENSA PORT (xtensa)" 
+        <linux-xtensa@linux-xtensa.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 06, 2019 at 09:32:55AM -0700, Zubin Mithra wrote:
->Hello,
->
->Syzkaller has triggered a GPF when fuzzing a 4.4 kernel with the following stacktrace.
->
->Call Trace:
-> [<ffffffff823d9bfe>] nla_get_be64 include/net/netlink.h:1130 [inline]
-> [<ffffffff823d9bfe>] nfnl_acct_new+0x3ae/0x720 net/netfilter/nfnetlink_acct.c:111
-> [<ffffffff823d81c7>] nfnetlink_rcv_msg+0xa27/0xc30 net/netfilter/nfnetlink.c:215
-> [<ffffffff823c7ebf>] netlink_rcv_skb+0xdf/0x2f0 net/netlink/af_netlink.c:2361
-> [<ffffffff823d6e89>] nfnetlink_rcv+0x939/0x1000 net/netfilter/nfnetlink.c:479
-> [<ffffffff823c6974>] netlink_unicast_kernel net/netlink/af_netlink.c:1277 [inline]
-> [<ffffffff823c6974>] netlink_unicast+0x474/0x7c0 net/netlink/af_netlink.c:1303
-> [<ffffffff823c7461>] netlink_sendmsg+0x7a1/0xc50 net/netlink/af_netlink.c:1859
-> [<ffffffff82239fe5>] sock_sendmsg_nosec net/socket.c:627 [inline]
-> [<ffffffff82239fe5>] sock_sendmsg+0xd5/0x110 net/socket.c:637
-> [<ffffffff8223da67>] ___sys_sendmsg+0x767/0x890 net/socket.c:1964
-> [<ffffffff822405db>] __sys_sendmsg+0xbb/0x150 net/socket.c:1998
-> [<ffffffff822406a2>] SYSC_sendmsg net/socket.c:2009 [inline]
-> [<ffffffff822406a2>] SyS_sendmsg+0x32/0x50 net/socket.c:2005
-> [<ffffffff82a44e67>] entry_SYSCALL_64_fastpath+0x1e/0xa0
->RIP  [<ffffffff81d4931c>] nla_memcpy+0x2c/0xa0 lib/nlattr.c:279
->
->Could the following patch be applied in order to v4.4.y? It is present in v4.9.y.
->* eda3fc50daa9 ("netfilter: nfnetlink_acct: validate NFACCT_QUOTA parameter")
->
->Tests run:
->* Syzkaller reproducer
->* Chrome OS tryjobs
+Hello,
 
-Queued up for 4.4, thanks.
+On Tue, Aug 6, 2019 at 2:33 PM Sasha Levin <sashal@kernel.org> wrote:
+> From: Max Filippov <jcmvbkbc@gmail.com>
+>
+> [ Upstream commit e3cacb73e626d885b8cf24103fed0ae26518e3c4 ]
+>
+> Assembly entry/return abstraction change didn't add asmmacro.h include
+> statement to coprocessor.S, resulting in references to undefined macros
+> abi_entry and abi_ret on cores that define XTENSA_HAVE_COPROCESSORS.
+> Fix that by including asm/asmmacro.h from the coprocessor.S.
+>
+> Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  arch/xtensa/kernel/coprocessor.S | 1 +
+>  1 file changed, 1 insertion(+)
 
---
-Thanks,
-Sasha
+This fix is only relevant to 5.3, as it fixes a bug introduced in 5.3-rc1.
+
+-- 
+Thanks.
+-- Max
