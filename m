@@ -2,88 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 058D182CD6
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 09:32:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E73F82D0F
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 09:46:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731834AbfHFHcr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 03:32:47 -0400
-Received: from szxga05-in.huawei.com ([45.249.212.191]:3766 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1731576AbfHFHcq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 03:32:46 -0400
-Received: from DGGEMS413-HUB.china.huawei.com (unknown [172.30.72.59])
-        by Forcepoint Email with ESMTP id 803F17FA8FB05895B325;
-        Tue,  6 Aug 2019 15:32:44 +0800 (CST)
-Received: from use12-sp2.huawei.com (10.67.189.177) by
- DGGEMS413-HUB.china.huawei.com (10.3.19.213) with Microsoft SMTP Server id
- 14.3.439.0; Tue, 6 Aug 2019 15:32:38 +0800
-From:   chenzefeng <chenzefeng2@huawei.com>
-To:     <linux@armlinux.org.uk>, <kstewart@linuxfoundation.org>,
-        <tglx@linutronix.de>, <allison@lohutok.net>, <jeyu@kernel.org>,
-        <gregkh@linuxfoundation.org>, <matthias.schiffer@ew.tq-group.com>
-CC:     <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        <chenzefeng2@huawei.com>, <nixiaoming@huawei.com>
-Subject: [PATCH] arm:unwind: fix backtrace error with unwind_table
-Date:   Tue, 6 Aug 2019 15:32:36 +0800
-Message-ID: <1565076756-71682-1-git-send-email-chenzefeng2@huawei.com>
-X-Mailer: git-send-email 1.8.5.6
+        id S1728056AbfHFHqr convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 6 Aug 2019 03:46:47 -0400
+Received: from mga18.intel.com ([134.134.136.126]:52055 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726834AbfHFHqr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 03:46:47 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 06 Aug 2019 00:40:20 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,352,1559545200"; 
+   d="scan'208";a="192605995"
+Received: from jnikula-mobl3.fi.intel.com (HELO localhost) ([10.237.66.150])
+  by fmsmga001.fm.intel.com with ESMTP; 06 Aug 2019 00:40:18 -0700
+From:   Jani Nikula <jani.nikula@intel.com>
+To:     =?utf-8?Q?Jos=C3=A9?= Roberto de Souza <jose.souza@intel.com>,
+        stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        =?utf-8?Q?Jos=C3=A9?= Roberto de Souza <jose.souza@intel.com>,
+        Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>,
+        Ville =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
+        =?utf-8?Q?Fran=C3=A7ois?= Guerraz <kubrick@fgv6.net>
+Subject: Re: [PATCH] drm/i915/vbt: Fix VBT parsing for the PSR section
+In-Reply-To: <20190805224951.6523-1-jose.souza@intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+References: <156498469082135@kroah.com> <20190805224951.6523-1-jose.souza@intel.com>
+Date:   Tue, 06 Aug 2019 10:44:33 +0300
+Message-ID: <87mugmkaam.fsf@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.67.189.177]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-For arm, when load_module success, the mod->init_layout.base would
-be free in function do_free_init, but do not remove it's unwind table
-from the unwind_tables' list. And later the above mod->init_layout.base
-would alloc for another module's text section, and add to the
-unwind_tables which cause one address can found more than two unwind table
-in the unwind_tables' list, therefore may get to errror unwind table to
-backtrace, and get an error backtrace.
+On Mon, 05 Aug 2019, José Roberto de Souza <jose.souza@intel.com> wrote:
+> From: Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>
+>
 
-Signed-off-by: chenzefeng <chenzefeng2@huawei.com>
----
- arch/arm/kernel/module.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+commit 6d61f716a01ec0e134de38ae97e71d6fec5a6ff6 upstream.
 
-diff --git a/arch/arm/kernel/module.c b/arch/arm/kernel/module.c
-index deef17f..a4eb5f4 100644
---- a/arch/arm/kernel/module.c
-+++ b/arch/arm/kernel/module.c
-@@ -403,14 +403,24 @@ int module_finalize(const Elf32_Ehdr *hdr, const Elf_Shdr *sechdrs,
- 	return 0;
- }
- 
--void
--module_arch_cleanup(struct module *mod)
--{
-+
- #ifdef CONFIG_ARM_UNWIND
-+void module_arch_cleanup(struct module *mod)
-+{
- 	int i;
- 
- 	for (i = 0; i < ARM_SEC_MAX; i++)
--		if (mod->arch.unwind[i])
-+		if (mod->arch.unwind[i]) {
- 			unwind_table_del(mod->arch.unwind[i]);
--#endif
-+			mod->arch.unwind[i] = NULL;
-+		}
- }
-+
-+void module_arch_freeing_init(struct module *mod)
-+{
-+	if (mod->arch.unwind[ARM_SEC_INIT]) {
-+		unwind_table_del(mod->arch.unwind[ARM_SEC_INIT]);
-+		mod->arch.unwind[ARM_SEC_INIT] = NULL;
-+	}
-+}
-+#endif
+> A single 32-bit PSR2 training pattern field follows the sixteen element
+> array of PSR table entries in the VBT spec. But, we incorrectly define
+> this PSR2 field for each of the PSR table entries. As a result, the PSR1
+> training pattern duration for any panel_type != 0 will be parsed
+> incorrectly. Secondly, PSR2 training pattern durations for VBTs with bdb
+> version >= 226 will also be wrong.
+>
+> Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> Cc: José Roberto de Souza <jose.souza@intel.com>
+> Cc: stable@vger.kernel.org
+> Cc: stable@vger.kernel.org #v5.2
+> Fixes: 88a0d9606aff ("drm/i915/vbt: Parse and use the new field with PSR2 TP2/3 wakeup time")
+> Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111088
+> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204183
+> Signed-off-by: Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>
+> Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
+> Acked-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> Tested-by: François Guerraz <kubrick@fgv6.net>
+> Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> Link: https://patchwork.freedesktop.org/patch/msgid/20190717223451.2595-1-dhinakaran.pandiyan@intel.com
+> Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+> (cherry picked from commit 6d61f716a01ec0e134de38ae97e71d6fec5a6ff6)
+> ---
+>
+> Sending it for Dhinakaran, let me know if something is wrong.
+>
+>  drivers/gpu/drm/i915/intel_bios.c     | 2 +-
+>  drivers/gpu/drm/i915/intel_vbt_defs.h | 6 +++---
+>  2 files changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/i915/intel_bios.c b/drivers/gpu/drm/i915/intel_bios.c
+> index 1dc8d03ff127..ee6fa75d65a2 100644
+> --- a/drivers/gpu/drm/i915/intel_bios.c
+> +++ b/drivers/gpu/drm/i915/intel_bios.c
+> @@ -762,7 +762,7 @@ parse_psr(struct drm_i915_private *dev_priv, const struct bdb_header *bdb)
+>  	}
+>  
+>  	if (bdb->version >= 226) {
+> -		u32 wakeup_time = psr_table->psr2_tp2_tp3_wakeup_time;
+> +		u32 wakeup_time = psr->psr2_tp2_tp3_wakeup_time;
+>  
+>  		wakeup_time = (wakeup_time >> (2 * panel_type)) & 0x3;
+>  		switch (wakeup_time) {
+> diff --git a/drivers/gpu/drm/i915/intel_vbt_defs.h b/drivers/gpu/drm/i915/intel_vbt_defs.h
+> index fdbbb9a53804..796c070bbe6f 100644
+> --- a/drivers/gpu/drm/i915/intel_vbt_defs.h
+> +++ b/drivers/gpu/drm/i915/intel_vbt_defs.h
+> @@ -772,13 +772,13 @@ struct psr_table {
+>  	/* TP wake up time in multiple of 100 */
+>  	u16 tp1_wakeup_time;
+>  	u16 tp2_tp3_wakeup_time;
+> -
+> -	/* PSR2 TP2/TP3 wakeup time for 16 panels */
+> -	u32 psr2_tp2_tp3_wakeup_time;
+>  } __packed;
+>  
+>  struct bdb_psr {
+>  	struct psr_table psr_table[16];
+> +
+> +	/* PSR2 TP2/TP3 wakeup time for 16 panels */
+> +	u32 psr2_tp2_tp3_wakeup_time;
+>  } __packed;
+>  
+>  /*
+
 -- 
-1.8.5.6
-
+Jani Nikula, Intel Open Source Graphics Center
