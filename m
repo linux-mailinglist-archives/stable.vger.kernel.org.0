@@ -2,114 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBDFD8313B
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 14:18:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6121383193
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 14:42:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726373AbfHFMSV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 08:18:21 -0400
-Received: from foss.arm.com ([217.140.110.172]:60826 "EHLO foss.arm.com"
+        id S1726783AbfHFMlp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 08:41:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726036AbfHFMSV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 08:18:21 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 29E7028;
-        Tue,  6 Aug 2019 05:18:20 -0700 (PDT)
-Received: from lakrids.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CA6EE3F694;
-        Tue,  6 Aug 2019 05:18:18 -0700 (PDT)
-Date:   Tue, 6 Aug 2019 13:18:16 +0100
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Viresh Kumar <viresh.kumar@linaro.org>
-Cc:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Russell King <rmk+kernel@arm.linux.org.uk>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        mark.brown@arm.com
-Subject: Re: [PATCH v4.4 V2 24/43] arm64: Add skeleton to harden the branch
- predictor against aliasing attacks
-Message-ID: <20190806121816.GD475@lakrids.cambridge.arm.com>
-References: <cover.1562908074.git.viresh.kumar@linaro.org>
- <4349161f0ed572bbc6bff64bad94aa96d07b27ff.1562908075.git.viresh.kumar@linaro.org>
- <20190731164556.GI39768@lakrids.cambridge.arm.com>
- <20190801052011.2hrei36v4zntyfn5@vireshk-i7>
+        id S1726036AbfHFMlp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 08:41:45 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84A9120818;
+        Tue,  6 Aug 2019 12:41:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1565095304;
+        bh=xNSlvXtmO8YI+JCDc0+g/z1qw41BP+LTgmlaJunBWPI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Pb4DE6Yk5/x+GwL6UoJAwpE0fPujt/dU0EmepiQHPs8z8yjoKN9XeTDFVTvuUnaVj
+         94JfSTjz2ShLdTkptQEOLgXD8qopcptbejyWH8J62oE39KdnEW/tsOpvSLIg52EAGW
+         m2KWNBvJYHuR3ZexgA6cXgjTEOxWPOi69oKUU184=
+Date:   Tue, 6 Aug 2019 08:41:43 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Fugang Duan <fugang.duan@nxp.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 5.2 073/131] dma-direct: correct the physical addr in
+ dma_direct_sync_sg_for_cpu/device
+Message-ID: <20190806124143.GF17747@sasha-vm>
+References: <20190805124951.453337465@linuxfoundation.org>
+ <20190805124956.543654128@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20190801052011.2hrei36v4zntyfn5@vireshk-i7>
-User-Agent: Mutt/1.11.1+11 (2f07cb52) (2018-12-01)
+In-Reply-To: <20190805124956.543654128@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 01, 2019 at 10:50:11AM +0530, Viresh Kumar wrote:
-> On 31-07-19, 17:45, Mark Rutland wrote:
-> > On Fri, Jul 12, 2019 at 10:58:12AM +0530, Viresh Kumar wrote:
-> > > From: Will Deacon <will.deacon@arm.com>
-> > > 
-> > > commit 0f15adbb2861ce6f75ccfc5a92b19eae0ef327d0 upstream.
-> > > 
-> > > Aliasing attacks against CPU branch predictors can allow an attacker to
-> > > redirect speculative control flow on some CPUs and potentially divulge
-> > > information from one context to another.
-> > > 
-> > > This patch adds initial skeleton code behind a new Kconfig option to
-> > > enable implementation-specific mitigations against these attacks for
-> > > CPUs that are affected.
-> > > 
-> > > Co-developed-by: Marc Zyngier <marc.zyngier@arm.com>
-> > > Signed-off-by: Will Deacon <will.deacon@arm.com>
-> > > Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> > > [ v4.4: Changes made according to 4.4 codebase ]
-> > > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-> > 
-> > [...]
-> > 
-> > >  /* id_aa64pfr0 */
-> > > +#define ID_AA64PFR0_CSV2_SHIFT		56
-> > 
-> > Note: CSV3 is bits 63-60, 
-> > 
-> > > diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-> > > index 474b34243521..040a42d79990 100644
-> > > --- a/arch/arm64/kernel/cpufeature.c
-> > > +++ b/arch/arm64/kernel/cpufeature.c
-> > > @@ -83,7 +83,8 @@ static struct arm64_ftr_bits ftr_id_aa64isar0[] = {
-> > >  };
-> > >  
-> > >  static struct arm64_ftr_bits ftr_id_aa64pfr0[] = {
-> > > -	ARM64_FTR_BITS(FTR_STRICT, FTR_EXACT, 32, 32, 0),
-> > > +	ARM64_FTR_BITS(FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_CSV2_SHIFT, 4, 0),
-> > > +	ARM64_FTR_BITS(FTR_STRICT, FTR_EXACT, 32, 28, 0),
-> > 
-> > This line should be:
-> > 
-> > 	ARM64_FTR_BITS(FTR_STRICT, FTR_EXACT, 32, 24, 0),
-> > 
-> > ... as it was in the v4.9 backbort, making it cover bits 55:32. As in
-> > this patch, it covers 59:32, overlapping with CSV2.
-> 
-> Fixed thanks.
-> 
-> > We also need to cater for bits 63:60. In the v4.9 backport, the meltdown
-> > bits were applied first, so nothing special was necessary.
-> > 
-> > What's the plan w.r.t. meltdown mitigations and v4.4?
-> 
-> I haven't started looking at meltdown patches yet and so that will be
-> done at a later point of time, if at all done by me. I have been asked
-> to backport both Spectre and Meltdown though to 4.4.
+On Mon, Aug 05, 2019 at 03:02:40PM +0200, Greg Kroah-Hartman wrote:
+>[ Upstream commit 449fa54d6815be8c2c1f68fa9dbbae9384a7c03e ]
+>
+>dma_map_sg() may use swiotlb buffer when the kernel command line includes
+>"swiotlb=force" or the dma_addr is out of dev->dma_mask range.  After
+>DMA complete the memory moving from device to memory, then user call
+>dma_sync_sg_for_cpu() to sync with DMA buffer, and copy the original
+>virtual buffer to other space.
+>
+>So dma_direct_sync_sg_for_cpu() should use swiotlb physical addr, not
+>the original physical addr from sg_phys(sg).
+>
+>dma_direct_sync_sg_for_device() also has the same issue, correct it as
+>well.
+>
+>Fixes: 55897af63091("dma-direct: merge swiotlb_dma_ops into the dma_direct code")
+>Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+>Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+>Signed-off-by: Christoph Hellwig <hch@lst.de>
+>Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-Upstream and in v4.9, the meltdown patches came before the spectre
-patches, and doing this in the opposite order causes context problems
-like the above.
+I'm going to drop this one. There's a fix to it upstream, but the fix
+also seems to want 0036bc73ccbe ("drm/msm: stop abusing dma_map/unmap for
+cache") which we're not taking, so I'm just going to drop this one as
+well.
 
-Given that, I think it would be less surprising to do the meltdown
-backport first, though I apprecaite that's more work to get these
-patches in. :/
+If someone wants it in the stable trees, please send a tested backport.
 
+--
 Thanks,
-Mark.
+Sasha
