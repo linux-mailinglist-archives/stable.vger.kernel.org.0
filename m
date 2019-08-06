@@ -2,81 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7641835AA
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 17:50:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08EA28361A
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 18:02:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731608AbfHFPuX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 11:50:23 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:46669 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728041AbfHFPuX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Aug 2019 11:50:23 -0400
-Received: by mail-pl1-f194.google.com with SMTP id c2so38010644plz.13;
-        Tue, 06 Aug 2019 08:50:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=u6dMmkj149gP9miv8zHDNNMFxn9m6BrDvxKXAqMzwEI=;
-        b=jhpBffvhPSCf3In/Wz50tsgAGUBC3BQ0Qlf7ouWoE5TXvjnd0Usp2S+XZQt0QZ/i22
-         mAMLBxJs8Xv2L4vCPggXPK9U2DcY/ge+OzlOyxOlHLKzToI8sk9A02IHZHZaehVKqhk/
-         1o52A6FYUnE0B9FMis8k62hNWY1b8IQzR/4zit67MLekuh+CPQX/J5Z4K4WX1MW2jHlt
-         RUEz7y6PmUFwCkhRzj5lr/FeotQ3GRrfGFPFXaFk7jE6fTV0jpvOob1wsCVDI5eKr9an
-         NcRp8Q+jJXpsaOEK+nRPCLdhByatAks64YCeXy/dbh9Lipw1fVL+rWM1czjUwXv5HxbE
-         RUrA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=u6dMmkj149gP9miv8zHDNNMFxn9m6BrDvxKXAqMzwEI=;
-        b=Yt0tSWkvakZBgpWxVvQtBChiQ5Med9yyfb2kGRg4JscRQWcyLDJzbBQQMpRtnS3yef
-         Dd3BvbXgCZek3zThLUU0L2pB65mPeWHshhS34gNAZH6fP7Ys3UZ4Oh4GDQ+0kvHil9El
-         t2pSh/590rHTPL9dYTzZFBSPbEK5+PlrrgRx90+EFdD5Th89kdSSjBDLZyp8rrkTSv9m
-         SB2+tqeA/3Ls3WNpxA1F8thknj05yPxdZYtkPo7049NeAz66Xrd/ihJRk7EA0/mubb8T
-         rezJr21BxxG3pNRGXTE04EubBmvE/YJHgX09WP9ycKMRIzNaeMgTP22VlkWga3nitZrL
-         EKjQ==
-X-Gm-Message-State: APjAAAXaIN62hg0frW55NoYBqCUsdipWGref5qFoUGmbDHMzHdgE3xHe
-        f/I+Uurk1AL3cx9qTylSNW8=
-X-Google-Smtp-Source: APXvYqwXTfTWcMTHnb8iFDeDq6YX5vcra5uOdK9UmjmFGKkzVuPr4IzB9htp53hUE6hZf+lvY+DdnQ==
-X-Received: by 2002:a17:902:2ec5:: with SMTP id r63mr3800478plb.21.1565106622445;
-        Tue, 06 Aug 2019 08:50:22 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 67sm65790348pfd.177.2019.08.06.08.50.21
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 06 Aug 2019 08:50:21 -0700 (PDT)
-Date:   Tue, 6 Aug 2019 08:50:20 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        id S1732676AbfHFQCB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 12:02:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46884 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728756AbfHFQCB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 12:02:01 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 724DA20818;
+        Tue,  6 Aug 2019 16:01:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1565107319;
+        bh=HOrSVJmekUuoCcV/AI4yIkSlnbHhBNxOYMrMq6QoUfA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=p1wdzBKALR62tUMD+QaTFEmzmEaW/8ZtLkwmt1k0SZpOfKlq8F7+00YtT0PDB671O
+         6MCbL6mxtDPl/Pm1xnT3zD9QAOfdVoyNYCokwpqFYdpH7cNXhUex7HHgh++7A4cFhk
+         kRXe/2bFa4GIKUztyTDJD0mY2eJ5H4q9xqTXxgWQ=
+Date:   Tue, 6 Aug 2019 18:01:57 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
 Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
         akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
 Subject: Re: [PATCH 5.2 000/131] 5.2.7-stable review
-Message-ID: <20190806155020.GE12156@roeck-us.net>
+Message-ID: <20190806160157.GA1988@kroah.com>
 References: <20190805124951.453337465@linuxfoundation.org>
+ <20190806155020.GE12156@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190805124951.453337465@linuxfoundation.org>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+In-Reply-To: <20190806155020.GE12156@roeck-us.net>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 05, 2019 at 03:01:27PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.2.7 release.
-> There are 131 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, Aug 06, 2019 at 08:50:20AM -0700, Guenter Roeck wrote:
+> On Mon, Aug 05, 2019 at 03:01:27PM +0200, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.2.7 release.
+> > There are 131 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Wed 07 Aug 2019 12:47:58 PM UTC.
+> > Anything received after that time might be too late.
+> > 
 > 
-> Responses should be made by Wed 07 Aug 2019 12:47:58 PM UTC.
-> Anything received after that time might be too late.
-> 
+> Build results:
+> 	total: 159 pass: 159 fail: 0
+> Qemu test results:
+> 	total: 364 pass: 364 fail: 0
 
-Build results:
-	total: 159 pass: 159 fail: 0
-Qemu test results:
-	total: 364 pass: 364 fail: 0
+Wonderful, thanks for testing all of these and letting me know.
 
-Guenter
+greg k-h
