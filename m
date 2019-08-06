@@ -2,124 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 253E1833F6
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 16:30:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88EB683478
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 16:56:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730869AbfHFOaW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 10:30:22 -0400
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:42257 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730489AbfHFOaW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Aug 2019 10:30:22 -0400
-Received: by mail-pg1-f196.google.com with SMTP id t132so41689673pgb.9
-        for <stable@vger.kernel.org>; Tue, 06 Aug 2019 07:30:22 -0700 (PDT)
+        id S1733065AbfHFO4j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 10:56:39 -0400
+Received: from mail-ot1-f54.google.com ([209.85.210.54]:38894 "EHLO
+        mail-ot1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732976AbfHFO4j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Aug 2019 10:56:39 -0400
+Received: by mail-ot1-f54.google.com with SMTP id d17so93266342oth.5
+        for <stable@vger.kernel.org>; Tue, 06 Aug 2019 07:56:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=8aURNyM9/Ye1wwG53oOlkzXvtkizQeODSJiH9nVgXG0=;
-        b=HQHR+2FOKymXOLPHb71ljdUtw7d6SR8sttCC6WREABI84NsKWaKC2x+OS2MZaSzefW
-         I1PJ7C+eOTj3jeP1eO1XC1a01U/sGTHqNPWINdq76wCxHScWgzlBF3mpbEPEpLUEMtw+
-         1I5H3oFpljqdfCkF+IOj7hHShmIJ/oT+K2bGlJTrAHiQ4DfRhQTngzgJuc8C6L7SnSdr
-         ePbwYe5bY0tfoX/hrm2B3NP3gZVahK65S9MoRkM9MjPXZSlnfMfy9d0ya1+dkvhIOC6k
-         ieEw72Rk0tOmbwG2yFvG2Ex0s1VJylpgaQdkywZ1ZcDcEgfk9fwSDxJLUWJ/56F3MrA6
-         TDZQ==
+        h=mime-version:from:date:message-id:subject:to;
+        bh=gT1v112V4KiPIlW0FjGcMSYpAyH3mKR6rypffiWhHdQ=;
+        b=qizMGl1fGRLFYkl7eGq+4+vIx7xZuFSrPota45TeHZFckzyc75D0sWoCSEXBy+27Tc
+         2fDZce+7pU/HgiDVvVueeuyj+cN/Mxf9rfcEDg2FY1WYWRczvdvrma228yFxEGCZYn14
+         kzXnzw6Q7QJFov173hYf3JON2f28HZ7//8W5chh/fJyJvIAZmhPWsUjkvtCrj+mppt7U
+         FK+zJ49b+YDvasMT0KrKYyRmroh5LrrHE4AqqDEMzNaH6BeNG/5OFQBRG96BtKcjRVrZ
+         rZ8UFS0GeS1JDe1E5cajfpT05jU4PxPW+2vUcm+5j8V3DKO6Ow1NSulU6QzMEtDzoXEx
+         Jt5w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=8aURNyM9/Ye1wwG53oOlkzXvtkizQeODSJiH9nVgXG0=;
-        b=EH1ot18jjjgFCkDFmrQpytLKU2IJndlcZ7lbWZ68rt01s4iAU9dUdIuXfYC2Z0FCzx
-         C1cHrCLvDG+q+OJj1FsQuABBkR3IlkzK6U2MeXRr2dtoEpdEgVh0T7Jf7JHc4mWQCpDb
-         703ssIXzABjPwrumeIXZjgpdgaVScRw4FdqfTcm9qAmwPQWHQuHDRcSgTZ4QEiTiLfA5
-         oLNsefhypiGTrS5jy3VoUp9O5od24+VkUVSUrthNx9jfAXW24dniB3oz+lDi5yHQHUAq
-         3I5gllE7FSDIqJeymj4HMndyk2lzEPOjW41QcDahzqkEi1lladxKS4084TB1oYKS/zEh
-         o88w==
-X-Gm-Message-State: APjAAAUvAjdQWXi7kzgZZ7XbL65jevRZ3ltjPnaUF2yX35jYAejghA/q
-        fCdZXdxOHy+d0ShJneB+BaLnY/zu
-X-Google-Smtp-Source: APXvYqyNdiA+wjhQca2uOA0zVHrUw1zh3P5/ttIIjx98GImGfTr6+ex0O0OtkB3fm/cjwPxIhoW1Dg==
-X-Received: by 2002:a63:1f03:: with SMTP id f3mr3237884pgf.249.1565101821165;
-        Tue, 06 Aug 2019 07:30:21 -0700 (PDT)
-Received: from ?IPv6:240b:10:2720:5510:e0e6:163b:d8bf:4871? ([240b:10:2720:5510:e0e6:163b:d8bf:4871])
-        by smtp.gmail.com with ESMTPSA id i123sm120412452pfe.147.2019.08.06.07.30.18
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 06 Aug 2019 07:30:20 -0700 (PDT)
-Subject: Re: [PATCH v8 1/9] mtd: cfi_cmdset_0002: Use chip_good() to retry in
- do_write_oneword()
-To:     Sasha Levin <sashal@kernel.org>,
-        Vignesh Raghavendra <vigneshr@ti.com>
-Cc:     Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Joakim Tjernlund <Joakim.Tjernlund@infinera.com>,
-        linux-mtd@lists.infradead.org, stable@vger.kernel.org
-References: <20190805190326.28772-2-ikegami.t@gmail.com>
- <20190806004303.EBEF82147A@mail.kernel.org>
-From:   Tokunori Ikegami <ikegami.t@gmail.com>
-Message-ID: <9fd8b17b-abb4-114e-d6fb-252430d98432@gmail.com>
-Date:   Tue, 6 Aug 2019 23:30:15 +0900
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=gT1v112V4KiPIlW0FjGcMSYpAyH3mKR6rypffiWhHdQ=;
+        b=Iu28dZrlLRQsNSvgm5yqZfXzjVo0xy7XhiE1bowkZS1htN2jPhNDbaMftJXuEPTrgV
+         HI+1R79Vx4D0hN2wuAuK3Y/pT4/vDxi9TBHuvW+fpT/Z2lRKVfdjyQ5a+/03LqnklCpH
+         iKldjmjG8JOdpX3OWffVEJbLkrP5qdv3ceytNigzg6zldU6TIYZRujM6Juyk78wBtU+I
+         SVooEXmZ8wjo9XK3ZKbUUnnPst5Rwd/JTL7MOwDhX8MLaa4iCk6ROsR0dGAsySjVejNA
+         04NEYetaU16obu0kFui9arpJx15VGqHfLI5Bq804oo5QDY2FUe8AabDBD+M0rJlEevum
+         d+cw==
+X-Gm-Message-State: APjAAAVDTiLB9N6i5rBBGSnj50g/cezro3kC1A+zEvW31no8fiQn2blG
+        vaxPgpwBqZKUWmIq79BburONLqC4Gv2fpc/msjRucHSk
+X-Google-Smtp-Source: APXvYqxcleDvCXPKObdsTeN9HM0ev3koYlJd50Sg78U/GaHLiXn2p3gwRZ2KQQnQgHWKNvjXeRqA39KkfPedPd+wF2U=
+X-Received: by 2002:a6b:621a:: with SMTP id f26mr3166993iog.127.1565103398326;
+ Tue, 06 Aug 2019 07:56:38 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20190806004303.EBEF82147A@mail.kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+From:   Adam Ford <aford173@gmail.com>
+Date:   Tue, 6 Aug 2019 09:56:27 -0500
+Message-ID: <CAHCN7xLyZAxK2L0+bjT9a+aZXtjmCtTRP9kC2Org9=R1rwf8yg@mail.gmail.com>
+Subject: ARM: dts: Add pinmuxing for i2c2 and i2c3 for LogicPD torpedo
+To:     stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+Please apply a135a392acbec7ecda782981788e8c03767a1571 ("ARM: dts: Add
+pinmuxing for i2c2 and i2c3 for LogicPD torpedo") to 4.9.y branch.
 
-Thanks for the mail.
+Ideally, it would be applied to 4.4, but It doesn't apply cleanly to
+4.4.  I can do a separate patch to do that, but I am not sure of the
+proper procedure.
 
-On 2019/08/06 9:43, Sasha Levin wrote:
-> Hi,
->
-> [This is an automated email]
->
-> This commit has been processed because it contains a -stable tag.
-> The stable tag indicates that it's relevant for the following trees: all
->
-> The bot has tested the following trees: v5.2.6, v4.19.64, v4.14.136, v4.9.187, v4.4.187.
->
-> v5.2.6: Failed to apply! Possible dependencies:
->      4844ef80305d ("mtd: cfi_cmdset_0002: Add support for polling status register")
->
-> v4.19.64: Failed to apply! Possible dependencies:
->      4844ef80305d ("mtd: cfi_cmdset_0002: Add support for polling status register")
->      d9b8a67b3b95 ("mtd: cfi: fix deadloop in cfi_cmdset_0002.c do_write_buffer")
->
-> v4.14.136: Failed to apply! Possible dependencies:
->      4844ef80305d ("mtd: cfi_cmdset_0002: Add support for polling status register")
->      c64d4419a17c ("mtd: cfi_cmdset_0002: Change erase one block to enable XIP once")
->      d9b8a67b3b95 ("mtd: cfi: fix deadloop in cfi_cmdset_0002.c do_write_buffer")
->      ea092fb3ce66 ("mtd: cfi_cmdset_0002: Fix coding style issues")
->
-> v4.9.187: Failed to apply! Possible dependencies:
->      4844ef80305d ("mtd: cfi_cmdset_0002: Add support for polling status register")
->      c64d4419a17c ("mtd: cfi_cmdset_0002: Change erase one block to enable XIP once")
->      d9b8a67b3b95 ("mtd: cfi: fix deadloop in cfi_cmdset_0002.c do_write_buffer")
->      ea092fb3ce66 ("mtd: cfi_cmdset_0002: Fix coding style issues")
->
-> v4.4.187: Failed to apply! Possible dependencies:
->      4844ef80305d ("mtd: cfi_cmdset_0002: Add support for polling status register")
->      c64d4419a17c ("mtd: cfi_cmdset_0002: Change erase one block to enable XIP once")
->      d9b8a67b3b95 ("mtd: cfi: fix deadloop in cfi_cmdset_0002.c do_write_buffer")
->      ea092fb3ce66 ("mtd: cfi_cmdset_0002: Fix coding style issues")
->
->
-> NOTE: The patch will not be queued to stable trees until it is upstream.
->
-> How should we proceed with this patch?
+Due to some changes in the bootloader, I2C2 and 3 may not necessarily
+be muxed properly.  This patch will ensure it's working for the
+various devices connected to it.
 
-Yes I will do fix the patch for the trees failed to apply if it was 
-upstream.
-
-Regards,
-Ikegami
-
->
-> --
-> Thanks,
-> Sasha
+adam
