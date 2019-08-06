@@ -2,37 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 066AE83C58
+	by mail.lfdr.de (Postfix) with ESMTP id E50B483C5A
 	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:42:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728939AbfHFVgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:36:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54178 "EHLO mail.kernel.org"
+        id S1728971AbfHFVgY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:36:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728924AbfHFVgV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:36:21 -0400
+        id S1728943AbfHFVgX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:36:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10D9321871;
-        Tue,  6 Aug 2019 21:36:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5EA522089E;
+        Tue,  6 Aug 2019 21:36:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127380;
-        bh=oJOEMwsZoX/xWx+CpnsPqB9DVgy5xHbAmtXkcSQYgSI=;
+        s=default; t=1565127381;
+        bh=OH/rAetBAQwRVBiv9x4rHjv5FcgOgcVHMsUgQT8RD6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K+rBDOQktY2mPwM8xx2DPWRXGOT6KCyo9TRfLyeNSLn7G/CSunASSBhXB5RrtiwLg
-         GK07v4U5jBXa9gqEZRy2apT6Lmwaj664RAvXSPNxZTKvp2+lD49IOIUJgD79DtI50m
-         ogMZsaCLGmg53rhPKeiMTklR8RgkNaEtMWgtLjQw=
+        b=M+xwqwC3juXPjQsE2bg/8TsKDEOrVqVgVtKQJO6Co0oWl82VZ3O2rzUwDboq59G69
+         A5+j9FAWIYItqBAhYaX/oTY0BuQeh8yxZNGGHvMp04JPd5zVcEZYxx+UkX9NgggclW
+         f3+vYXWE3JtvPBJIxnakI8NUk2+JXUFY5T4ZvGzs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul Wise <pabs3@bonedaddy.net>, Jakub Wilk <jwilk@jwilk.net>,
-        Neil Horman <nhorman@tuxdriver.com>,
+Cc:     Qian Cai <cai@lca.pw>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Arnd Bergmann <arnd@arndb.de>,
+        David Howells <dhowells@redhat.com>,
+        Jakub Jelinek <jakub@redhat.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Bill Wendling <morbo@google.com>,
+        James Y Knight <jyknight@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 31/32] coredump: split pipe command whitespace before expanding template
-Date:   Tue,  6 Aug 2019 17:35:19 -0400
-Message-Id: <20190806213522.19859-31-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-arch@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 32/32] asm-generic: fix -Wtype-limits compiler warnings
+Date:   Tue,  6 Aug 2019 17:35:20 -0400
+Message-Id: <20190806213522.19859-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213522.19859-1-sashal@kernel.org>
 References: <20190806213522.19859-1-sashal@kernel.org>
@@ -45,196 +52,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Wise <pabs3@bonedaddy.net>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 315c69261dd3fa12dbc830d4fa00d1fad98d3b03 ]
+[ Upstream commit cbedfe11347fe418621bd188d58a206beb676218 ]
 
-Save the offsets of the start of each argument to avoid having to update
-pointers to each argument after every corename krealloc and to avoid
-having to duplicate the memory for the dump command.
+Commit d66acc39c7ce ("bitops: Optimise get_order()") introduced a
+compilation warning because "rx_frag_size" is an "ushort" while
+PAGE_SHIFT here is 16.
 
-Executable names containing spaces were previously being expanded from
-%e or %E and then split in the middle of the filename.  This is
-incorrect behaviour since an argument list can represent arguments with
-spaces.
+The commit changed the get_order() to be a multi-line macro where
+compilers insist to check all statements in the macro even when
+__builtin_constant_p(rx_frag_size) will return false as "rx_frag_size"
+is a module parameter.
 
-The splitting could lead to extra arguments being passed to the core
-dump handler that it might have interpreted as options or ignored
-completely.
+In file included from ./arch/powerpc/include/asm/page_64.h:107,
+                 from ./arch/powerpc/include/asm/page.h:242,
+                 from ./arch/powerpc/include/asm/mmu.h:132,
+                 from ./arch/powerpc/include/asm/lppaca.h:47,
+                 from ./arch/powerpc/include/asm/paca.h:17,
+                 from ./arch/powerpc/include/asm/current.h:13,
+                 from ./include/linux/thread_info.h:21,
+                 from ./arch/powerpc/include/asm/processor.h:39,
+                 from ./include/linux/prefetch.h:15,
+                 from drivers/net/ethernet/emulex/benet/be_main.c:14:
+drivers/net/ethernet/emulex/benet/be_main.c: In function 'be_rx_cqs_create':
+./include/asm-generic/getorder.h:54:9: warning: comparison is always
+true due to limited range of data type [-Wtype-limits]
+   (((n) < (1UL << PAGE_SHIFT)) ? 0 :  \
+         ^
+drivers/net/ethernet/emulex/benet/be_main.c:3138:33: note: in expansion
+of macro 'get_order'
+  adapter->big_page_size = (1 << get_order(rx_frag_size)) * PAGE_SIZE;
+                                 ^~~~~~~~~
 
-Core dump handlers that are not aware of this Linux kernel issue will be
-using %e or %E without considering that it may be split and so they will
-be vulnerable to processes with spaces in their names breaking their
-argument list.  If their internals are otherwise well written, such as
-if they are written in shell but quote arguments, they will work better
-after this change than before.  If they are not well written, then there
-is a slight chance of breakage depending on the details of the code but
-they will already be fairly broken by the split filenames.
+Fix it by moving all of this multi-line macro into a proper function,
+and killing __get_order() off.
 
-Core dump handlers that are aware of this Linux kernel issue will be
-placing %e or %E as the last item in their core_pattern and then
-aggregating all of the remaining arguments into one, separated by
-spaces.  Alternatively they will be obtaining the filename via other
-methods.  Both of these will be compatible with the new arrangement.
-
-A side effect from this change is that unknown template types (for
-example %z) result in an empty argument to the dump handler instead of
-the argument being dropped.  This is a desired change as:
-
-It is easier for dump handlers to process empty arguments than dropped
-ones, especially if they are written in shell or don't pass each
-template item with a preceding command-line option in order to
-differentiate between individual template types.  Most core_patterns in
-the wild do not use options so they can confuse different template types
-(especially numeric ones) if an earlier one gets dropped in old kernels.
-If the kernel introduces a new template type and a core_pattern uses it,
-the core dump handler might not expect that the argument can be dropped
-in old kernels.
-
-For example, this can result in security issues when %d is dropped in
-old kernels.  This happened with the corekeeper package in Debian and
-resulted in the interface between corekeeper and Linux having to be
-rewritten to use command-line options to differentiate between template
-types.
-
-The core_pattern for most core dump handlers is written by the handler
-author who would generally not insert unknown template types so this
-change should be compatible with all the core dump handlers that exist.
-
-Link: http://lkml.kernel.org/r/20190528051142.24939-1-pabs3@bonedaddy.net
-Fixes: 74aadce98605 ("core_pattern: allow passing of arguments to user mode helper when core_pattern is a pipe")
-Signed-off-by: Paul Wise <pabs3@bonedaddy.net>
-Reported-by: Jakub Wilk <jwilk@jwilk.net> [https://bugs.debian.org/924398]
-Reported-by: Paul Wise <pabs3@bonedaddy.net> [https://lore.kernel.org/linux-fsdevel/c8b7ecb8508895bf4adb62a748e2ea2c71854597.camel@bonedaddy.net/]
-Suggested-by: Jakub Wilk <jwilk@jwilk.net>
-Acked-by: Neil Horman <nhorman@tuxdriver.com>
+[akpm@linux-foundation.org: remove __get_order() altogether]
+[cai@lca.pw: v2]
+  Link: http://lkml.kernel.org/r/1564000166-31428-1-git-send-email-cai@lca.pw
+Link: http://lkml.kernel.org/r/1563914986-26502-1-git-send-email-cai@lca.pw
+Fixes: d66acc39c7ce ("bitops: Optimise get_order()")
+Signed-off-by: Qian Cai <cai@lca.pw>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Jakub Jelinek <jakub@redhat.com>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Bill Wendling <morbo@google.com>
+Cc: James Y Knight <jyknight@google.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/coredump.c | 44 +++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 39 insertions(+), 5 deletions(-)
+ include/asm-generic/getorder.h | 50 ++++++++++++++--------------------
+ 1 file changed, 20 insertions(+), 30 deletions(-)
 
-diff --git a/fs/coredump.c b/fs/coredump.c
-index 1e2c87acac9b0..a49acb49dce03 100644
---- a/fs/coredump.c
-+++ b/fs/coredump.c
-@@ -7,6 +7,7 @@
- #include <linux/stat.h>
- #include <linux/fcntl.h>
- #include <linux/swap.h>
-+#include <linux/ctype.h>
- #include <linux/string.h>
- #include <linux/init.h>
- #include <linux/pagemap.h>
-@@ -187,11 +188,13 @@ static int cn_print_exe_file(struct core_name *cn)
-  * name into corename, which must have space for at least
-  * CORENAME_MAX_SIZE bytes plus one byte for the zero terminator.
+diff --git a/include/asm-generic/getorder.h b/include/asm-generic/getorder.h
+index c64bea7a52beb..e9f20b813a699 100644
+--- a/include/asm-generic/getorder.h
++++ b/include/asm-generic/getorder.h
+@@ -7,24 +7,6 @@
+ #include <linux/compiler.h>
+ #include <linux/log2.h>
+ 
+-/*
+- * Runtime evaluation of get_order()
+- */
+-static inline __attribute_const__
+-int __get_order(unsigned long size)
+-{
+-	int order;
+-
+-	size--;
+-	size >>= PAGE_SHIFT;
+-#if BITS_PER_LONG == 32
+-	order = fls(size);
+-#else
+-	order = fls64(size);
+-#endif
+-	return order;
+-}
+-
+ /**
+  * get_order - Determine the allocation order of a memory size
+  * @size: The size for which to get the order
+@@ -43,19 +25,27 @@ int __get_order(unsigned long size)
+  * to hold an object of the specified size.
+  *
+  * The result is undefined if the size is 0.
+- *
+- * This function may be used to initialise variables with compile time
+- * evaluations of constants.
   */
--static int format_corename(struct core_name *cn, struct coredump_params *cprm)
-+static int format_corename(struct core_name *cn, struct coredump_params *cprm,
-+			   size_t **argv, int *argc)
- {
- 	const struct cred *cred = current_cred();
- 	const char *pat_ptr = core_pattern;
- 	int ispipe = (*pat_ptr == '|');
-+	bool was_space = false;
- 	int pid_in_pattern = 0;
- 	int err = 0;
- 
-@@ -201,12 +204,35 @@ static int format_corename(struct core_name *cn, struct coredump_params *cprm)
- 		return -ENOMEM;
- 	cn->corename[0] = '\0';
- 
--	if (ispipe)
-+	if (ispipe) {
-+		int argvs = sizeof(core_pattern) / 2;
-+		(*argv) = kmalloc_array(argvs, sizeof(**argv), GFP_KERNEL);
-+		if (!(*argv))
-+			return -ENOMEM;
-+		(*argv)[(*argc)++] = 0;
- 		++pat_ptr;
+-#define get_order(n)						\
+-(								\
+-	__builtin_constant_p(n) ? (				\
+-		((n) == 0UL) ? BITS_PER_LONG - PAGE_SHIFT :	\
+-		(((n) < (1UL << PAGE_SHIFT)) ? 0 :		\
+-		 ilog2((n) - 1) - PAGE_SHIFT + 1)		\
+-	) :							\
+-	__get_order(n)						\
+-)
++static inline __attribute_const__ int get_order(unsigned long size)
++{
++	if (__builtin_constant_p(size)) {
++		if (!size)
++			return BITS_PER_LONG - PAGE_SHIFT;
++
++		if (size < (1UL << PAGE_SHIFT))
++			return 0;
++
++		return ilog2((size) - 1) - PAGE_SHIFT + 1;
 +	}
++
++	size--;
++	size >>= PAGE_SHIFT;
++#if BITS_PER_LONG == 32
++	return fls(size);
++#else
++	return fls64(size);
++#endif
++}
  
- 	/* Repeat as long as we have more pattern to process and more output
- 	   space */
- 	while (*pat_ptr) {
-+		/*
-+		 * Split on spaces before doing template expansion so that
-+		 * %e and %E don't get split if they have spaces in them
-+		 */
-+		if (ispipe) {
-+			if (isspace(*pat_ptr)) {
-+				was_space = true;
-+				pat_ptr++;
-+				continue;
-+			} else if (was_space) {
-+				was_space = false;
-+				err = cn_printf(cn, "%c", '\0');
-+				if (err)
-+					return err;
-+				(*argv)[(*argc)++] = cn->used;
-+			}
-+		}
- 		if (*pat_ptr != '%') {
- 			err = cn_printf(cn, "%c", *pat_ptr++);
- 		} else {
-@@ -546,6 +572,8 @@ void do_coredump(const siginfo_t *siginfo)
- 	struct cred *cred;
- 	int retval = 0;
- 	int ispipe;
-+	size_t *argv = NULL;
-+	int argc = 0;
- 	struct files_struct *displaced;
- 	/* require nonrelative corefile path and be extra careful */
- 	bool need_suid_safe = false;
-@@ -592,9 +620,10 @@ void do_coredump(const siginfo_t *siginfo)
+ #endif	/* __ASSEMBLY__ */
  
- 	old_cred = override_creds(cred);
- 
--	ispipe = format_corename(&cn, &cprm);
-+	ispipe = format_corename(&cn, &cprm, &argv, &argc);
- 
- 	if (ispipe) {
-+		int argi;
- 		int dump_count;
- 		char **helper_argv;
- 		struct subprocess_info *sub_info;
-@@ -637,12 +666,16 @@ void do_coredump(const siginfo_t *siginfo)
- 			goto fail_dropcount;
- 		}
- 
--		helper_argv = argv_split(GFP_KERNEL, cn.corename, NULL);
-+		helper_argv = kmalloc_array(argc + 1, sizeof(*helper_argv),
-+					    GFP_KERNEL);
- 		if (!helper_argv) {
- 			printk(KERN_WARNING "%s failed to allocate memory\n",
- 			       __func__);
- 			goto fail_dropcount;
- 		}
-+		for (argi = 0; argi < argc; argi++)
-+			helper_argv[argi] = cn.corename + argv[argi];
-+		helper_argv[argi] = NULL;
- 
- 		retval = -ENOMEM;
- 		sub_info = call_usermodehelper_setup(helper_argv[0],
-@@ -652,7 +685,7 @@ void do_coredump(const siginfo_t *siginfo)
- 			retval = call_usermodehelper_exec(sub_info,
- 							  UMH_WAIT_EXEC);
- 
--		argv_free(helper_argv);
-+		kfree(helper_argv);
- 		if (retval) {
- 			printk(KERN_INFO "Core dump to |%s pipe failed\n",
- 			       cn.corename);
-@@ -766,6 +799,7 @@ void do_coredump(const siginfo_t *siginfo)
- 	if (ispipe)
- 		atomic_dec(&core_dump_count);
- fail_unlock:
-+	kfree(argv);
- 	kfree(cn.corename);
- 	coredump_finish(mm, core_dumped);
- 	revert_creds(old_cred);
 -- 
 2.20.1
 
