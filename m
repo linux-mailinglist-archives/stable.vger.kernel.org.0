@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77B28834DA
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 17:15:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C97EF834FF
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 17:19:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728156AbfHFPPP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 11:15:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58302 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726877AbfHFPPP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 11:15:15 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 475DA20717;
-        Tue,  6 Aug 2019 15:15:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565104514;
-        bh=I9Bf8CCcuS/F1rOk/abaMRdQEiZ8r0dTOJjcA1V/iCw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FaNAJ17+xabayWk7QGl5C8KvziMTp2EPw/MpUqPdVBDEMO5+uCDvlKjsKPf1CIIdi
-         bVwMKh+nBMjzJwRXuThkWeAHj8pRisrrOtWchfVMRJtKRAaQiZMzvx2zVWeJANVUH2
-         /vzhggC7y7HSb+IGdsr+MQJP+CJSugLbOcKWWiCg=
-Date:   Tue, 6 Aug 2019 17:15:12 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Adam Ford <aford173@gmail.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: ARM: dts: Add pinmuxing for i2c2 and i2c3 for LogicPD SOM-LV
-Message-ID: <20190806151512.GA6051@kroah.com>
-References: <CAHCN7xJUd0ZmC86_NsS+8j+o5M0iQipGJuh00nV0=V=qt5Jtaw@mail.gmail.com>
+        id S1731378AbfHFPTh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 11:19:37 -0400
+Received: from mail-oi1-f169.google.com ([209.85.167.169]:36670 "EHLO
+        mail-oi1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728156AbfHFPTh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Aug 2019 11:19:37 -0400
+Received: by mail-oi1-f169.google.com with SMTP id c15so11723197oic.3
+        for <stable@vger.kernel.org>; Tue, 06 Aug 2019 08:19:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=5rQbCxotG8j0awemigJ/cJzhrv15WBVwcFj93s0RfY0=;
+        b=AdjSKOzm6Z6omu2+C3QRNXbzBXSvWJt9T9gE2kTQe8UYNxN8cxk9YRscMCKZ74cErC
+         j6NNLujq7Vp0XGoyKMYKC8AilYMpq8N42qpZ6fxzciMs0CUHHjFXGZSWyqnk668qK5br
+         kEsSzeCalGOe271XhBj1eWPyYvIiJcg/HZp3sWbKi6nqACMYnAU+xinCM/ZsAb9kvC8B
+         4WnO0TPsv3QZPmGZhWv9AHhoeLV9aeAJf8qvx/dMSIeB7N/oYLjWgZdL3CEBDJSc4Tcb
+         hfiYR+bVyaVD2i9SaPTfo2+uhHRPrlTSlenSGW3xCeyPUvAycyG6VJVSEjgnq8MN+4ix
+         XE+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=5rQbCxotG8j0awemigJ/cJzhrv15WBVwcFj93s0RfY0=;
+        b=G8XC4yp8AltKtyMC8sBExrKxl/t/ttLZrxneeRXN0gjJqCMovOtQWOxDEqccaQZaDC
+         h1lKmU5yZ3WlCHnRN6uLE71Dm251zfiyKrrmn32XVyWAmPWbs9CP9a/yKRh4FfQC9voG
+         D41nBsEmGTGo1lasQjqGW9WtNve3brut5cChwhDY7gYhzQmDHF9mT5fboMhGdOCLW7Ep
+         Rbiwg6+8BsDnbhWYz9Rcm9QnXTQIC5IIYz1sj5kAinmWYsieVYPiryDWF+2vSj1XO1Cc
+         41sQl/4Wx+ZzkCzpvD6eJuRZPqEx4sawEt80bemRaV3kXxwiGhUvGeKIiwWITZ25gupH
+         1X3Q==
+X-Gm-Message-State: APjAAAVlKQw4W/MKqqYbDUaD/X1lYk8Q2dW8rneyuihR88z56qYGuUdm
+        xf+RO6tZ/jJuJlz0q8CrrTXA0a5IXkc1wz8gVt7fHuhw
+X-Google-Smtp-Source: APXvYqw6HCFftGBzTIWlohCDQpQk2MsmdxYJU+ZRoRTJtqP4OEJkrQ/NAAd1sKwe/jlVc9bXmM1YQh0Q0YCpWgZznz8=
+X-Received: by 2002:a02:1a86:: with SMTP id 128mr4746675jai.95.1565104775627;
+ Tue, 06 Aug 2019 08:19:35 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHCN7xJUd0ZmC86_NsS+8j+o5M0iQipGJuh00nV0=V=qt5Jtaw@mail.gmail.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+From:   Adam Ford <aford173@gmail.com>
+Date:   Tue, 6 Aug 2019 10:19:24 -0500
+Message-ID: <CAHCN7x+Mbu=g1CgV2pbaojiwbej49aAmc5ufj8eacd-mcezEKQ@mail.gmail.com>
+Subject: ARM: dts: logicpd-som-lv: Fix Audio Mute
+To:     stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 06, 2019 at 10:06:24AM -0500, Adam Ford wrote:
-> Please apply 5fe3c0fa0d54877c65e7c9b4442aeeb25cdf469a
->  ("ARM: dts: Add pinmuxing for i2c2 and i2c3 for LogicPD SOM-LV") to
-> 4.9.y branch.
-> 
-> Ideally, it would be applied to 4.4, but It doesn't apply cleanly to
-> 4.4.  I can do a separate patch to do that, but I am not sure of the
-> proper procedure.
+Please apply 95e59fc3c3fa3187a07a75f40b21637deb4bd12d ("ARM: dts:
+logicpd-som-lv: Fix Audio Mute") to 4.9 branch.
 
-Just send a backported patch to the list, saying what the git commit id
-was in Linus's tree.  THere are loads of examples in the archives for
-how to do this properly.
+Thank you,
 
-thanks,
-
-greg k-h
+adam
