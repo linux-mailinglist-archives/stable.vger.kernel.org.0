@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 33B6B83C5F
+	by mail.lfdr.de (Postfix) with ESMTP id A2DAD83C60
 	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:42:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729024AbfHFVlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728358AbfHFVlj (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 6 Aug 2019 17:41:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53750 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728764AbfHFVf6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:35:58 -0400
+        id S1728773AbfHFVf7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:35:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C97B221881;
-        Tue,  6 Aug 2019 21:35:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41BA421874;
+        Tue,  6 Aug 2019 21:35:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127356;
-        bh=ICW1EZWYyolokCIk894k1nfiyeOYuE8gOC7+rgj4iQ0=;
+        s=default; t=1565127358;
+        bh=7En+Uebl9aJbjV40+FjObfOWb+/DYw9Rh6wiEK6ch5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XArS8nSq0SDOyQZ9bgSZtZbQfFbfn3VvAp1yeHjsjVvHPc76rVIN0LOokQHmVExbt
-         nC6tm+xCvMdTSqjpfBq4bfisEdngx9s5UyQ5f09Vblp4aAc93vbT5eROMIn8wNTQRn
-         LbniFUfaEcAeNiDUYRX7ax8CxPvJ0e2uG2d/NjLo=
+        b=Mv1pGGQsnobeO4rm419t/SK3sWftBN38arr/T1nAZ242tnFm4viEuIch2zcFK//cE
+         x+IZu9h+1tPjQZATYUnLStgBqaEcN5ytX+hoTXJo33jSGrEKq82TMryhxNhWTYmQkA
+         GI/8lZ93yfOA+TVUejWdEdw3T9H8tAM8V71Fwxgw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephen Boyd <swboyd@chromium.org>,
-        Peter Smith <peter.smith@linaro.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 19/32] kbuild: Check for unknown options with cc-option usage in Kconfig and clang
-Date:   Tue,  6 Aug 2019 17:35:07 -0400
-Message-Id: <20190806213522.19859-19-sashal@kernel.org>
+Cc:     Qian Cai <cai@lca.pw>, Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-efi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 20/32] arm64/efi: fix variable 'si' set but not used
+Date:   Tue,  6 Aug 2019 17:35:08 -0400
+Message-Id: <20190806213522.19859-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213522.19859-1-sashal@kernel.org>
 References: <20190806213522.19859-1-sashal@kernel.org>
@@ -48,65 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit e8de12fb7cde2c85bc31097cd098da79a4818305 ]
+[ Upstream commit f1d4836201543e88ebe70237e67938168d5fab19 ]
 
-If the particular version of clang a user has doesn't enable
--Werror=unknown-warning-option by default, even though it is the
-default[1], then make sure to pass the option to the Kconfig cc-option
-command so that testing options from Kconfig files works properly.
-Otherwise, depending on the default values setup in the clang toolchain
-we will silently assume options such as -Wmaybe-uninitialized are
-supported by clang, when they really aren't.
+GCC throws out this warning on arm64.
 
-A compilation issue only started happening for me once commit
-589834b3a009 ("kbuild: Add -Werror=unknown-warning-option to
-CLANG_FLAGS") was applied on top of commit b303c6df80c9 ("kbuild:
-compute false-positive -Wmaybe-uninitialized cases in Kconfig"). This
-leads kbuild to try and test for the existence of the
--Wmaybe-uninitialized flag with the cc-option command in
-scripts/Kconfig.include, and it doesn't see an error returned from the
-option test so it sets the config value to Y. Then the Makefile tries to
-pass the unknown option on the command line and
--Werror=unknown-warning-option catches the invalid option and breaks the
-build. Before commit 589834b3a009 ("kbuild: Add
--Werror=unknown-warning-option to CLANG_FLAGS") the build works fine,
-but any cc-option test of a warning option in Kconfig files silently
-evaluates to true, even if the warning option flag isn't supported on
-clang.
+drivers/firmware/efi/libstub/arm-stub.c: In function 'efi_entry':
+drivers/firmware/efi/libstub/arm-stub.c:132:22: warning: variable 'si'
+set but not used [-Wunused-but-set-variable]
 
-Note: This doesn't change cc-option usages in Makefiles because those
-use a different rule that includes KBUILD_CFLAGS by default (see the
-__cc-option command in scripts/Kbuild.incluide). The KBUILD_CFLAGS
-variable already has the -Werror=unknown-warning-option flag set. Thanks
-to Doug for pointing out the different rule.
+Fix it by making free_screen_info() a static inline function.
 
-[1] https://clang.llvm.org/docs/DiagnosticsReference.html#wunknown-warning-option
-Cc: Peter Smith <peter.smith@linaro.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/Kconfig.include | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/efi.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/scripts/Kconfig.include b/scripts/Kconfig.include
-index dad5583451afb..3b2861f47709b 100644
---- a/scripts/Kconfig.include
-+++ b/scripts/Kconfig.include
-@@ -20,7 +20,7 @@ success = $(if-success,$(1),y,n)
+diff --git a/arch/arm64/include/asm/efi.h b/arch/arm64/include/asm/efi.h
+index 7ed320895d1f4..f52a2968a3b69 100644
+--- a/arch/arm64/include/asm/efi.h
++++ b/arch/arm64/include/asm/efi.h
+@@ -94,7 +94,11 @@ static inline unsigned long efi_get_max_initrd_addr(unsigned long dram_base,
+ 	((protocol##_t *)instance)->f(instance, ##__VA_ARGS__)
  
- # $(cc-option,<flag>)
- # Return y if the compiler supports <flag>, n otherwise
--cc-option = $(success,$(CC) -Werror $(1) -E -x c /dev/null -o /dev/null)
-+cc-option = $(success,$(CC) -Werror $(CLANG_FLAGS) $(1) -E -x c /dev/null -o /dev/null)
+ #define alloc_screen_info(x...)		&screen_info
+-#define free_screen_info(x...)
++
++static inline void free_screen_info(efi_system_table_t *sys_table_arg,
++				    struct screen_info *si)
++{
++}
  
- # $(ld-option,<flag>)
- # Return y if the linker supports <flag>, n otherwise
+ /* redeclare as 'hidden' so the compiler will generate relative references */
+ extern struct screen_info screen_info __attribute__((__visibility__("hidden")));
 -- 
 2.20.1
 
