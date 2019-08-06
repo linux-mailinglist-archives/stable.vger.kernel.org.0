@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E9FB83C86
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:42:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35A6083C83
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:42:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727727AbfHFVmw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:42:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52796 "EHLO mail.kernel.org"
+        id S1728130AbfHFVfF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:35:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728069AbfHFVfA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:35:00 -0400
+        id S1727103AbfHFVfF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:35:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70A4C21874;
-        Tue,  6 Aug 2019 21:34:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C4122089E;
+        Tue,  6 Aug 2019 21:35:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127300;
-        bh=0/I9yaWwLfbVKWZtR4EeIsv5AWU4gyl+tYZMLtkaT/A=;
+        s=default; t=1565127303;
+        bh=vflVOD8EJIT9+3S/Swb39tn2qxmGSfyQdQ1zzz8gUfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y3eA7Ptb2ZX3rT3jh+daN44b6WbHR2C8pT0EDF1OjPDpy0fOw/Z/lLwfUjqd/0foG
-         0v6OerFKBZm0LSG6w8RYNaAewa/SxJnYcUnUC3GRqWHos9K7hxaFpoBZogDQeLPLpx
-         IHm4RQ2btxo2qMxqToQvYFIbMP3xrfS9DhPQNDds=
+        b=bkCd6vpOlsPOea26JnRbkjawV8CQIp/gjJ3T3tUBclpfnDHnO5yOJV4U9H1qM1yJq
+         p9F+VIIeGfHfD/41a4nZzj/amLKqOAD3y8JxsQi6PcGyTs9Bz7ZzqMHh+udFhZgSfU
+         dz196+Dhw/K4cGcwggw0htoOUmBccMqEW2fHVhg8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Inki Dae <inki.dae@samsung.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 51/59] drm/exynos: fix missing decrement of retry counter
-Date:   Tue,  6 Aug 2019 17:33:11 -0400
-Message-Id: <20190806213319.19203-51-sashal@kernel.org>
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        James Morse <james.morse@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 52/59] arm64: kprobes: Recover pstate.D in single-step exception handler
+Date:   Tue,  6 Aug 2019 17:33:12 -0400
+Message-Id: <20190806213319.19203-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213319.19203-1-sashal@kernel.org>
 References: <20190806213319.19203-1-sashal@kernel.org>
@@ -44,41 +44,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 1bbbab097a05276e312dd2462791d32b21ceb1ee ]
+[ Upstream commit b3980e48528c4d2a9e70b145a5bba328b73a0f93 ]
 
-Currently the retry counter is not being decremented, leading to a
-potential infinite spin if the scalar_reads don't change state.
+kprobes manipulates the interrupted PSTATE for single step, and
+doesn't restore it. Thus, if we put a kprobe where the pstate.D
+(debug) masked, the mask will be cleared after the kprobe hits.
 
-Addresses-Coverity: ("Infinite loop")
-Fixes: 280e54c9f614 ("drm/exynos: scaler: Reset hardware before starting the operation")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Inki Dae <inki.dae@samsung.com>
+Moreover, in the most complicated case, this can lead a kernel
+crash with below message when a nested kprobe hits.
+
+[  152.118921] Unexpected kernel single-step exception at EL1
+
+When the 1st kprobe hits, do_debug_exception() will be called.
+At this point, debug exception (= pstate.D) must be masked (=1).
+But if another kprobes hits before single-step of the first kprobe
+(e.g. inside user pre_handler), it unmask the debug exception
+(pstate.D = 0) and return.
+Then, when the 1st kprobe setting up single-step, it saves current
+DAIF, mask DAIF, enable single-step, and restore DAIF.
+However, since "D" flag in DAIF is cleared by the 2nd kprobe, the
+single-step exception happens soon after restoring DAIF.
+
+This has been introduced by commit 7419333fa15e ("arm64: kprobe:
+Always clear pstate.D in breakpoint exception handler")
+
+To solve this issue, this stores all DAIF bits and restore it
+after single stepping.
+
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Fixes: 7419333fa15e ("arm64: kprobe: Always clear pstate.D in breakpoint exception handler")
+Reviewed-by: James Morse <james.morse@arm.com>
+Tested-by: James Morse <james.morse@arm.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/exynos/exynos_drm_scaler.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/daifflags.h |  2 ++
+ arch/arm64/kernel/probes/kprobes.c | 40 +++++-------------------------
+ 2 files changed, 8 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/gpu/drm/exynos/exynos_drm_scaler.c b/drivers/gpu/drm/exynos/exynos_drm_scaler.c
-index ec9c1b7d31033..8989f8af716b7 100644
---- a/drivers/gpu/drm/exynos/exynos_drm_scaler.c
-+++ b/drivers/gpu/drm/exynos/exynos_drm_scaler.c
-@@ -94,12 +94,12 @@ static inline int scaler_reset(struct scaler_context *scaler)
- 	scaler_write(SCALER_CFG_SOFT_RESET, SCALER_CFG);
- 	do {
- 		cpu_relax();
--	} while (retry > 1 &&
-+	} while (--retry > 1 &&
- 		 scaler_read(SCALER_CFG) & SCALER_CFG_SOFT_RESET);
- 	do {
- 		cpu_relax();
- 		scaler_write(1, SCALER_INT_EN);
--	} while (retry > 0 && scaler_read(SCALER_INT_EN) != 1);
-+	} while (--retry > 0 && scaler_read(SCALER_INT_EN) != 1);
+diff --git a/arch/arm64/include/asm/daifflags.h b/arch/arm64/include/asm/daifflags.h
+index ae7e605085d71..9c0e0178ea291 100644
+--- a/arch/arm64/include/asm/daifflags.h
++++ b/arch/arm64/include/asm/daifflags.h
+@@ -13,6 +13,8 @@
+ #define DAIF_PROCCTX		0
+ #define DAIF_PROCCTX_NOIRQ	PSR_I_BIT
+ #define DAIF_ERRCTX		(PSR_I_BIT | PSR_A_BIT)
++#define DAIF_MASK		(PSR_D_BIT | PSR_A_BIT | PSR_I_BIT | PSR_F_BIT)
++
  
- 	return retry ? 0 : -EIO;
+ /* mask/save/unmask/restore all exceptions, including interrupts. */
+ static inline void local_daif_mask(void)
+diff --git a/arch/arm64/kernel/probes/kprobes.c b/arch/arm64/kernel/probes/kprobes.c
+index 88ce502c8e6f1..624f2501f3f87 100644
+--- a/arch/arm64/kernel/probes/kprobes.c
++++ b/arch/arm64/kernel/probes/kprobes.c
+@@ -21,6 +21,7 @@
+ #include <asm/ptrace.h>
+ #include <asm/cacheflush.h>
+ #include <asm/debug-monitors.h>
++#include <asm/daifflags.h>
+ #include <asm/system_misc.h>
+ #include <asm/insn.h>
+ #include <linux/uaccess.h>
+@@ -165,33 +166,6 @@ static void __kprobes set_current_kprobe(struct kprobe *p)
+ 	__this_cpu_write(current_kprobe, p);
  }
+ 
+-/*
+- * When PSTATE.D is set (masked), then software step exceptions can not be
+- * generated.
+- * SPSR's D bit shows the value of PSTATE.D immediately before the
+- * exception was taken. PSTATE.D is set while entering into any exception
+- * mode, however software clears it for any normal (none-debug-exception)
+- * mode in the exception entry. Therefore, when we are entering into kprobe
+- * breakpoint handler from any normal mode then SPSR.D bit is already
+- * cleared, however it is set when we are entering from any debug exception
+- * mode.
+- * Since we always need to generate single step exception after a kprobe
+- * breakpoint exception therefore we need to clear it unconditionally, when
+- * we become sure that the current breakpoint exception is for kprobe.
+- */
+-static void __kprobes
+-spsr_set_debug_flag(struct pt_regs *regs, int mask)
+-{
+-	unsigned long spsr = regs->pstate;
+-
+-	if (mask)
+-		spsr |= PSR_D_BIT;
+-	else
+-		spsr &= ~PSR_D_BIT;
+-
+-	regs->pstate = spsr;
+-}
+-
+ /*
+  * Interrupts need to be disabled before single-step mode is set, and not
+  * reenabled until after single-step mode ends.
+@@ -203,17 +177,17 @@ spsr_set_debug_flag(struct pt_regs *regs, int mask)
+ static void __kprobes kprobes_save_local_irqflag(struct kprobe_ctlblk *kcb,
+ 						struct pt_regs *regs)
+ {
+-	kcb->saved_irqflag = regs->pstate;
++	kcb->saved_irqflag = regs->pstate & DAIF_MASK;
+ 	regs->pstate |= PSR_I_BIT;
++	/* Unmask PSTATE.D for enabling software step exceptions. */
++	regs->pstate &= ~PSR_D_BIT;
+ }
+ 
+ static void __kprobes kprobes_restore_local_irqflag(struct kprobe_ctlblk *kcb,
+ 						struct pt_regs *regs)
+ {
+-	if (kcb->saved_irqflag & PSR_I_BIT)
+-		regs->pstate |= PSR_I_BIT;
+-	else
+-		regs->pstate &= ~PSR_I_BIT;
++	regs->pstate &= ~DAIF_MASK;
++	regs->pstate |= kcb->saved_irqflag;
+ }
+ 
+ static void __kprobes
+@@ -250,8 +224,6 @@ static void __kprobes setup_singlestep(struct kprobe *p,
+ 
+ 		set_ss_context(kcb, slot);	/* mark pending ss */
+ 
+-		spsr_set_debug_flag(regs, 0);
+-
+ 		/* IRQs and single stepping do not mix well. */
+ 		kprobes_save_local_irqflag(kcb, regs);
+ 		kernel_enable_single_step(regs);
 -- 
 2.20.1
 
