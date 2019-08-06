@@ -2,149 +2,586 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EE18838C5
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 20:41:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D25A838C8
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 20:42:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726481AbfHFSlx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 14:41:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38540 "EHLO mail.kernel.org"
+        id S1726044AbfHFSmA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 14:42:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725798AbfHFSlr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 14:41:47 -0400
+        id S1726488AbfHFSly (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 14:41:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 713F220C01;
-        Tue,  6 Aug 2019 18:41:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9A3520818;
+        Tue,  6 Aug 2019 18:41:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565116907;
-        bh=Y8rOeUIQT1VhBQQvs72EzdeVir4CjttwJHAzvg3kzsA=;
-        h=Date:From:To:Cc:Subject:From;
-        b=0cQ/+EFe5By94WbNy6ITl/y+sJutU0NnYQxV2ohcG42H494Y796eq2RD7ka/Jqfod
-         ML2QPOoWal3erGaqy+BTKKHiaXQUO6Q62Pw1TgMZdz6QSAKmkyMSB7kkT5DIeVqKzb
-         Pkr4Lwo+Nw33SsD8RLUWOrxhG/g1msRV57E0D+Js=
-Date:   Tue, 6 Aug 2019 20:41:44 +0200
+        s=default; t=1565116913;
+        bh=8Z6wKr3QGuwONPhCn2T1s5tcxg7wrNwgBkkZmE+mqU0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=BdXEHOepRhhs4gKOePYH0TGM+xFs4/KYe/NlF1DdMtFAW93/qwiTXXv60uqsiWkRX
+         78EVj1lXwQnvcJeaeslEndr7a0abHs/8UtxCdbCzmLwJ4aUJrZkEuAbunjNaD+JUjC
+         9u/zoQ5fRKUGrhIqYoayCN4zmw5gBGt6pO58oWe0=
+Date:   Tue, 6 Aug 2019 20:41:51 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, Jiri Slaby <jslaby@suse.cz>
-Subject: Linux 4.4.188
-Message-ID: <20190806184144.GA27426@kroah.com>
+Subject: Re: Linux 4.4.188
+Message-ID: <20190806184151.GB27426@kroah.com>
+References: <20190806184144.GA27426@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20190806184144.GA27426@kroah.com>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 4.4.188 kernel.
-
-All users of the 4.4 kernel series must upgrade.
-
-The updated 4.4.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.4.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                    |    2 -
- arch/arm/boot/dts/rk3288.dtsi               |    1 
- arch/arm/mach-rpc/dma.c                     |    5 +++-
- arch/mips/lantiq/irq.c                      |    5 ++--
- arch/x86/include/asm/apic.h                 |    2 -
- arch/x86/include/asm/kvm_host.h             |   34 +++++++++++++++-------------
- arch/x86/kernel/apic/apic.c                 |    2 -
- arch/x86/math-emu/fpu_emu.h                 |    2 -
- arch/x86/math-emu/reg_constant.c            |    2 -
- drivers/dma/sh/rcar-dmac.c                  |    2 -
- drivers/net/ethernet/emulex/benet/be_main.c |    6 ++++
- drivers/s390/block/dasd_alias.c             |   22 +++++++++++++-----
- drivers/s390/scsi/zfcp_erp.c                |    7 +++++
- drivers/xen/swiotlb-xen.c                   |    4 +--
- fs/adfs/super.c                             |    5 +++-
- fs/btrfs/volumes.c                          |    3 --
- fs/ceph/super.h                             |    7 ++++-
- fs/coda/psdev.c                             |    5 +++-
- include/linux/acpi.h                        |    5 +++-
- include/linux/coda.h                        |    3 --
- include/linux/coda_psdev.h                  |   11 +++++++++
- include/uapi/linux/coda_psdev.h             |   13 ----------
- ipc/mqueue.c                                |   19 ++++++++-------
- kernel/module.c                             |    6 +---
- mm/cma.c                                    |   13 ++++++++++
- security/selinux/ss/policydb.c              |    6 ++++
- 26 files changed, 124 insertions(+), 68 deletions(-)
-
-Andrea Parri (1):
-      ceph: fix improper use of smp_mb__before_atomic()
-
-Arnd Bergmann (2):
-      ACPI: fix false-positive -Wuninitialized warning
-      x86: math-emu: Hide clang warnings for 16-bit overflow
-
-Benjamin Block (1):
-      scsi: zfcp: fix GCC compiler warning emitted with -Wmaybe-uninitialized
-
-Benjamin Poirier (1):
-      be2net: Signal that the device cannot transmit during reconfiguration
-
-David Sterba (1):
-      btrfs: fix minimum number of chunk errors for DUP
-
-Doug Berger (1):
-      mm/cma.c: fail if fixed declaration can't be honored
-
-Douglas Anderson (1):
-      ARM: dts: rockchip: Mark that the rk3288 timer might stop in suspend
-
-Geert Uytterhoeven (1):
-      dmaengine: rcar-dmac: Reject zero-length slave DMA requests
-
-Greg Kroah-Hartman (1):
-      Linux 4.4.188
-
-Josh Poimboeuf (1):
-      x86/kvm: Don't call kvm_spurious_fault() from .fixup
-
-Juergen Gross (1):
-      xen/swiotlb: fix condition for calling xen_destroy_contiguous_region()
-
-Kees Cook (1):
-      ipc/mqueue.c: only perform resource calculation if user valid
-
-Mikko Rapeli (1):
-      uapi linux/coda_psdev.h: move upc_req definition from uapi to kernel side headers
-
-Ondrej Mosnacek (1):
-      selinux: fix memory leak in policydb_init()
-
-Petr Cvek (1):
-      MIPS: lantiq: Fix bitfield masking
-
-Prarit Bhargava (1):
-      kernel/module.c: Only return -EEXIST for modules that have finished loading
-
-Qian Cai (1):
-      x86/apic: Silence -Wtype-limits compiler warnings
-
-Russell King (2):
-      ARM: riscpc: fix DMA
-      fs/adfs: super: fix use-after-free bug
-
-Sam Protsenko (1):
-      coda: fix build using bare-metal toolchain
-
-Stefan Haberland (1):
-      s390/dasd: fix endless loop after read unit address configuration
-
-Zhouyang Jia (1):
-      coda: add error handling for fget
-
+diff --git a/Makefile b/Makefile
+index fdfe65eefa36..87d663191986 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,6 +1,6 @@
+ VERSION = 4
+ PATCHLEVEL = 4
+-SUBLEVEL = 187
++SUBLEVEL = 188
+ EXTRAVERSION =
+ NAME = Blurry Fish Butt
+ 
+diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
+index 04ea209f1737..98abb053b7da 100644
+--- a/arch/arm/boot/dts/rk3288.dtsi
++++ b/arch/arm/boot/dts/rk3288.dtsi
+@@ -205,6 +205,7 @@
+ 			     <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>,
+ 			     <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
+ 		clock-frequency = <24000000>;
++		arm,no-tick-in-suspend;
+ 	};
+ 
+ 	timer: timer@ff810000 {
+diff --git a/arch/arm/mach-rpc/dma.c b/arch/arm/mach-rpc/dma.c
+index 6d3517dc4772..82aac38fa2cf 100644
+--- a/arch/arm/mach-rpc/dma.c
++++ b/arch/arm/mach-rpc/dma.c
+@@ -131,7 +131,7 @@ static irqreturn_t iomd_dma_handle(int irq, void *dev_id)
+ 	} while (1);
+ 
+ 	idma->state = ~DMA_ST_AB;
+-	disable_irq(irq);
++	disable_irq_nosync(irq);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -174,6 +174,9 @@ static void iomd_enable_dma(unsigned int chan, dma_t *dma)
+ 				DMA_FROM_DEVICE : DMA_TO_DEVICE);
+ 		}
+ 
++		idma->dma_addr = idma->dma.sg->dma_address;
++		idma->dma_len = idma->dma.sg->length;
++
+ 		iomd_writeb(DMA_CR_C, dma_base + CR);
+ 		idma->state = DMA_ST_AB;
+ 	}
+diff --git a/arch/mips/lantiq/irq.c b/arch/mips/lantiq/irq.c
+index 2e7f60c9fc5d..a7057a06c096 100644
+--- a/arch/mips/lantiq/irq.c
++++ b/arch/mips/lantiq/irq.c
+@@ -160,8 +160,9 @@ static int ltq_eiu_settype(struct irq_data *d, unsigned int type)
+ 			if (edge)
+ 				irq_set_handler(d->hwirq, handle_edge_irq);
+ 
+-			ltq_eiu_w32(ltq_eiu_r32(LTQ_EIU_EXIN_C) |
+-				(val << (i * 4)), LTQ_EIU_EXIN_C);
++			ltq_eiu_w32((ltq_eiu_r32(LTQ_EIU_EXIN_C) &
++				    (~(7 << (i * 4)))) | (val << (i * 4)),
++				    LTQ_EIU_EXIN_C);
+ 		}
+ 	}
+ 
+diff --git a/arch/x86/include/asm/apic.h b/arch/x86/include/asm/apic.h
+index fd810a57ab1b..3328a37ddc75 100644
+--- a/arch/x86/include/asm/apic.h
++++ b/arch/x86/include/asm/apic.h
+@@ -44,7 +44,7 @@ static inline void generic_apic_probe(void)
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 
+-extern unsigned int apic_verbosity;
++extern int apic_verbosity;
+ extern int local_apic_timer_c2_ok;
+ 
+ extern int disable_apic;
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 2cb49ac1b2b2..39f202462029 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1184,25 +1184,29 @@ enum {
+ #define kvm_arch_vcpu_memslots_id(vcpu) ((vcpu)->arch.hflags & HF_SMM_MASK ? 1 : 0)
+ #define kvm_memslots_for_spte_role(kvm, role) __kvm_memslots(kvm, (role).smm)
+ 
++asmlinkage void __noreturn kvm_spurious_fault(void);
++
+ /*
+  * Hardware virtualization extension instructions may fault if a
+  * reboot turns off virtualization while processes are running.
+- * Trap the fault and ignore the instruction if that happens.
++ * Usually after catching the fault we just panic; during reboot
++ * instead the instruction is ignored.
+  */
+-asmlinkage void kvm_spurious_fault(void);
+-
+-#define ____kvm_handle_fault_on_reboot(insn, cleanup_insn)	\
+-	"666: " insn "\n\t" \
+-	"668: \n\t"                           \
+-	".pushsection .fixup, \"ax\" \n" \
+-	"667: \n\t" \
+-	cleanup_insn "\n\t"		      \
+-	"cmpb $0, kvm_rebooting \n\t"	      \
+-	"jne 668b \n\t"      		      \
+-	__ASM_SIZE(push) " $666b \n\t"	      \
+-	"jmp kvm_spurious_fault \n\t"	      \
+-	".popsection \n\t" \
+-	_ASM_EXTABLE(666b, 667b)
++#define ____kvm_handle_fault_on_reboot(insn, cleanup_insn)		\
++	"666: \n\t"							\
++	insn "\n\t"							\
++	"jmp	668f \n\t"						\
++	"667: \n\t"							\
++	"call	kvm_spurious_fault \n\t"				\
++	"668: \n\t"							\
++	".pushsection .fixup, \"ax\" \n\t"				\
++	"700: \n\t"							\
++	cleanup_insn "\n\t"						\
++	"cmpb	$0, kvm_rebooting\n\t"					\
++	"je	667b \n\t"						\
++	"jmp	668b \n\t"						\
++	".popsection \n\t"						\
++	_ASM_EXTABLE(666b, 700b)
+ 
+ #define __kvm_handle_fault_on_reboot(insn)		\
+ 	____kvm_handle_fault_on_reboot(insn, "")
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index deddc9b93299..cc6c33249850 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -171,7 +171,7 @@ int first_system_vector = FIRST_SYSTEM_VECTOR;
+ /*
+  * Debug level, exported for io_apic.c
+  */
+-unsigned int apic_verbosity;
++int apic_verbosity;
+ 
+ int pic_mode;
+ 
+diff --git a/arch/x86/math-emu/fpu_emu.h b/arch/x86/math-emu/fpu_emu.h
+index afbc4d805d66..df5aee5402c4 100644
+--- a/arch/x86/math-emu/fpu_emu.h
++++ b/arch/x86/math-emu/fpu_emu.h
+@@ -176,7 +176,7 @@ static inline void reg_copy(FPU_REG const *x, FPU_REG *y)
+ #define setexponentpos(x,y) { (*(short *)&((x)->exp)) = \
+   ((y) + EXTENDED_Ebias) & 0x7fff; }
+ #define exponent16(x)         (*(short *)&((x)->exp))
+-#define setexponent16(x,y)  { (*(short *)&((x)->exp)) = (y); }
++#define setexponent16(x,y)  { (*(short *)&((x)->exp)) = (u16)(y); }
+ #define addexponent(x,y)    { (*(short *)&((x)->exp)) += (y); }
+ #define stdexp(x)           { (*(short *)&((x)->exp)) += EXTENDED_Ebias; }
+ 
+diff --git a/arch/x86/math-emu/reg_constant.c b/arch/x86/math-emu/reg_constant.c
+index 00548354912f..382093c5072b 100644
+--- a/arch/x86/math-emu/reg_constant.c
++++ b/arch/x86/math-emu/reg_constant.c
+@@ -17,7 +17,7 @@
+ #include "control_w.h"
+ 
+ #define MAKE_REG(s, e, l, h) { l, h, \
+-		((EXTENDED_Ebias+(e)) | ((SIGN_##s != 0)*0x8000)) }
++		(u16)((EXTENDED_Ebias+(e)) | ((SIGN_##s != 0)*0x8000)) }
+ 
+ FPU_REG const CONST_1 = MAKE_REG(POS, 0, 0x00000000, 0x80000000);
+ #if 0
+diff --git a/drivers/dma/sh/rcar-dmac.c b/drivers/dma/sh/rcar-dmac.c
+index 2b36d1c63aa5..956189a1ba81 100644
+--- a/drivers/dma/sh/rcar-dmac.c
++++ b/drivers/dma/sh/rcar-dmac.c
+@@ -1030,7 +1030,7 @@ rcar_dmac_prep_slave_sg(struct dma_chan *chan, struct scatterlist *sgl,
+ 	dma_addr_t dev_addr;
+ 
+ 	/* Someone calling slave DMA on a generic channel? */
+-	if (rchan->mid_rid < 0 || !sg_len) {
++	if (rchan->mid_rid < 0 || !sg_len || !sg_dma_len(sgl)) {
+ 		dev_warn(chan->device->dev,
+ 			 "%s: bad parameter: len=%d, id=%d\n",
+ 			 __func__, sg_len, rchan->mid_rid);
+diff --git a/drivers/net/ethernet/emulex/benet/be_main.c b/drivers/net/ethernet/emulex/benet/be_main.c
+index 26255862d1cf..7524a33b7032 100644
+--- a/drivers/net/ethernet/emulex/benet/be_main.c
++++ b/drivers/net/ethernet/emulex/benet/be_main.c
+@@ -4307,8 +4307,12 @@ int be_update_queues(struct be_adapter *adapter)
+ 	struct net_device *netdev = adapter->netdev;
+ 	int status;
+ 
+-	if (netif_running(netdev))
++	if (netif_running(netdev)) {
++		/* device cannot transmit now, avoid dev_watchdog timeouts */
++		netif_carrier_off(netdev);
++
+ 		be_close(netdev);
++	}
+ 
+ 	be_cancel_worker(adapter);
+ 
+diff --git a/drivers/s390/block/dasd_alias.c b/drivers/s390/block/dasd_alias.c
+index 286782c60da4..6601047d4b65 100644
+--- a/drivers/s390/block/dasd_alias.c
++++ b/drivers/s390/block/dasd_alias.c
+@@ -396,6 +396,20 @@ suborder_not_supported(struct dasd_ccw_req *cqr)
+ 	char msg_format;
+ 	char msg_no;
+ 
++	/*
++	 * intrc values ENODEV, ENOLINK and EPERM
++	 * will be optained from sleep_on to indicate that no
++	 * IO operation can be started
++	 */
++	if (cqr->intrc == -ENODEV)
++		return 1;
++
++	if (cqr->intrc == -ENOLINK)
++		return 1;
++
++	if (cqr->intrc == -EPERM)
++		return 1;
++
+ 	sense = dasd_get_sense(&cqr->irb);
+ 	if (!sense)
+ 		return 0;
+@@ -460,12 +474,8 @@ static int read_unit_address_configuration(struct dasd_device *device,
+ 	lcu->flags &= ~NEED_UAC_UPDATE;
+ 	spin_unlock_irqrestore(&lcu->lock, flags);
+ 
+-	do {
+-		rc = dasd_sleep_on(cqr);
+-		if (rc && suborder_not_supported(cqr))
+-			return -EOPNOTSUPP;
+-	} while (rc && (cqr->retries > 0));
+-	if (rc) {
++	rc = dasd_sleep_on(cqr);
++	if (rc && !suborder_not_supported(cqr)) {
+ 		spin_lock_irqsave(&lcu->lock, flags);
+ 		lcu->flags |= NEED_UAC_UPDATE;
+ 		spin_unlock_irqrestore(&lcu->lock, flags);
+diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
+index abe460eac712..cc62d8cc8cfd 100644
+--- a/drivers/s390/scsi/zfcp_erp.c
++++ b/drivers/s390/scsi/zfcp_erp.c
+@@ -10,6 +10,7 @@
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+ 
+ #include <linux/kthread.h>
++#include <linux/bug.h>
+ #include "zfcp_ext.h"
+ #include "zfcp_reqlist.h"
+ 
+@@ -244,6 +245,12 @@ static struct zfcp_erp_action *zfcp_erp_setup_act(int need, u32 act_status,
+ 	struct zfcp_erp_action *erp_action;
+ 	struct zfcp_scsi_dev *zfcp_sdev;
+ 
++	if (WARN_ON_ONCE(need != ZFCP_ERP_ACTION_REOPEN_LUN &&
++			 need != ZFCP_ERP_ACTION_REOPEN_PORT &&
++			 need != ZFCP_ERP_ACTION_REOPEN_PORT_FORCED &&
++			 need != ZFCP_ERP_ACTION_REOPEN_ADAPTER))
++		return NULL;
++
+ 	switch (need) {
+ 	case ZFCP_ERP_ACTION_REOPEN_LUN:
+ 		zfcp_sdev = sdev_to_zfcp(sdev);
+diff --git a/drivers/xen/swiotlb-xen.c b/drivers/xen/swiotlb-xen.c
+index a8a388382347..80e292227cef 100644
+--- a/drivers/xen/swiotlb-xen.c
++++ b/drivers/xen/swiotlb-xen.c
+@@ -365,8 +365,8 @@ xen_swiotlb_free_coherent(struct device *hwdev, size_t size, void *vaddr,
+ 	/* Convert the size to actually allocated. */
+ 	size = 1UL << (order + XEN_PAGE_SHIFT);
+ 
+-	if (((dev_addr + size - 1 <= dma_mask)) ||
+-	    range_straddles_page_boundary(phys, size))
++	if (!WARN_ON((dev_addr + size - 1 > dma_mask) ||
++		     range_straddles_page_boundary(phys, size)))
+ 		xen_destroy_contiguous_region(phys, order);
+ 
+ 	xen_free_coherent_pages(hwdev, size, vaddr, (dma_addr_t)phys, attrs);
+diff --git a/fs/adfs/super.c b/fs/adfs/super.c
+index 4d4a0df8344f..b00ae922ece2 100644
+--- a/fs/adfs/super.c
++++ b/fs/adfs/super.c
+@@ -368,6 +368,7 @@ static int adfs_fill_super(struct super_block *sb, void *data, int silent)
+ 	struct buffer_head *bh;
+ 	struct object_info root_obj;
+ 	unsigned char *b_data;
++	unsigned int blocksize;
+ 	struct adfs_sb_info *asb;
+ 	struct inode *root;
+ 	int ret = -EINVAL;
+@@ -419,8 +420,10 @@ static int adfs_fill_super(struct super_block *sb, void *data, int silent)
+ 		goto error_free_bh;
+ 	}
+ 
++	blocksize = 1 << dr->log2secsize;
+ 	brelse(bh);
+-	if (sb_set_blocksize(sb, 1 << dr->log2secsize)) {
++
++	if (sb_set_blocksize(sb, blocksize)) {
+ 		bh = sb_bread(sb, ADFS_DISCRECORD / sb->s_blocksize);
+ 		if (!bh) {
+ 			adfs_error(sb, "couldn't read superblock on "
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index 4eb7a6ba7e47..55ce6543050d 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -4942,8 +4942,7 @@ static inline int btrfs_chunk_max_errors(struct map_lookup *map)
+ 
+ 	if (map->type & (BTRFS_BLOCK_GROUP_RAID1 |
+ 			 BTRFS_BLOCK_GROUP_RAID10 |
+-			 BTRFS_BLOCK_GROUP_RAID5 |
+-			 BTRFS_BLOCK_GROUP_DUP)) {
++			 BTRFS_BLOCK_GROUP_RAID5)) {
+ 		max_errors = 1;
+ 	} else if (map->type & BTRFS_BLOCK_GROUP_RAID6) {
+ 		max_errors = 2;
+diff --git a/fs/ceph/super.h b/fs/ceph/super.h
+index 8c8cb8fe3d32..5d05c77c158d 100644
+--- a/fs/ceph/super.h
++++ b/fs/ceph/super.h
+@@ -474,7 +474,12 @@ static inline void __ceph_dir_set_complete(struct ceph_inode_info *ci,
+ 					   long long release_count,
+ 					   long long ordered_count)
+ {
+-	smp_mb__before_atomic();
++	/*
++	 * Makes sure operations that setup readdir cache (update page
++	 * cache and i_size) are strongly ordered w.r.t. the following
++	 * atomic64_set() operations.
++	 */
++	smp_mb();
+ 	atomic64_set(&ci->i_complete_seq[0], release_count);
+ 	atomic64_set(&ci->i_complete_seq[1], ordered_count);
+ }
+diff --git a/fs/coda/psdev.c b/fs/coda/psdev.c
+index 822629126e89..ff9b5cf8ff01 100644
+--- a/fs/coda/psdev.c
++++ b/fs/coda/psdev.c
+@@ -187,8 +187,11 @@ static ssize_t coda_psdev_write(struct file *file, const char __user *buf,
+ 	if (req->uc_opcode == CODA_OPEN_BY_FD) {
+ 		struct coda_open_by_fd_out *outp =
+ 			(struct coda_open_by_fd_out *)req->uc_data;
+-		if (!outp->oh.result)
++		if (!outp->oh.result) {
+ 			outp->fh = fget(outp->fd);
++			if (!outp->fh)
++				return -EBADF;
++		}
+ 	}
+ 
+         wake_up(&req->uc_sleep);
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index 3672893b275e..6a30f1e03aa9 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -226,7 +226,10 @@ void acpi_set_irq_model(enum acpi_irq_model_id model,
+ #ifdef CONFIG_X86_IO_APIC
+ extern int acpi_get_override_irq(u32 gsi, int *trigger, int *polarity);
+ #else
+-#define acpi_get_override_irq(gsi, trigger, polarity) (-1)
++static inline int acpi_get_override_irq(u32 gsi, int *trigger, int *polarity)
++{
++	return -1;
++}
+ #endif
+ /*
+  * This function undoes the effect of one call to acpi_register_gsi().
+diff --git a/include/linux/coda.h b/include/linux/coda.h
+index d30209b9cef8..0ca0c83fdb1c 100644
+--- a/include/linux/coda.h
++++ b/include/linux/coda.h
+@@ -58,8 +58,7 @@ Mellon the rights to redistribute these changes without encumbrance.
+ #ifndef _CODA_HEADER_
+ #define _CODA_HEADER_
+ 
+-#if defined(__linux__)
+ typedef unsigned long long u_quad_t;
+-#endif
++
+ #include <uapi/linux/coda.h>
+ #endif 
+diff --git a/include/linux/coda_psdev.h b/include/linux/coda_psdev.h
+index 5b8721efa948..fe1466daf291 100644
+--- a/include/linux/coda_psdev.h
++++ b/include/linux/coda_psdev.h
+@@ -19,6 +19,17 @@ struct venus_comm {
+ 	struct mutex	    vc_mutex;
+ };
+ 
++/* messages between coda filesystem in kernel and Venus */
++struct upc_req {
++	struct list_head	uc_chain;
++	caddr_t			uc_data;
++	u_short			uc_flags;
++	u_short			uc_inSize;  /* Size is at most 5000 bytes */
++	u_short			uc_outSize;
++	u_short			uc_opcode;  /* copied from data to save lookup */
++	int			uc_unique;
++	wait_queue_head_t	uc_sleep;   /* process' wait queue */
++};
+ 
+ static inline struct venus_comm *coda_vcp(struct super_block *sb)
+ {
+diff --git a/include/uapi/linux/coda_psdev.h b/include/uapi/linux/coda_psdev.h
+index 79d05981fc4b..e2c44d2f7d5b 100644
+--- a/include/uapi/linux/coda_psdev.h
++++ b/include/uapi/linux/coda_psdev.h
+@@ -6,19 +6,6 @@
+ #define CODA_PSDEV_MAJOR 67
+ #define MAX_CODADEVS  5	   /* how many do we allow */
+ 
+-
+-/* messages between coda filesystem in kernel and Venus */
+-struct upc_req {
+-	struct list_head    uc_chain;
+-	caddr_t	            uc_data;
+-	u_short	            uc_flags;
+-	u_short             uc_inSize;  /* Size is at most 5000 bytes */
+-	u_short	            uc_outSize;
+-	u_short	            uc_opcode;  /* copied from data to save lookup */
+-	int		    uc_unique;
+-	wait_queue_head_t   uc_sleep;   /* process' wait queue */
+-};
+-
+ #define CODA_REQ_ASYNC  0x1
+ #define CODA_REQ_READ   0x2
+ #define CODA_REQ_WRITE  0x4
+diff --git a/ipc/mqueue.c b/ipc/mqueue.c
+index 6ed74825ab54..2a39784d5704 100644
+--- a/ipc/mqueue.c
++++ b/ipc/mqueue.c
+@@ -371,7 +371,6 @@ static void mqueue_evict_inode(struct inode *inode)
+ {
+ 	struct mqueue_inode_info *info;
+ 	struct user_struct *user;
+-	unsigned long mq_bytes, mq_treesize;
+ 	struct ipc_namespace *ipc_ns;
+ 	struct msg_msg *msg, *nmsg;
+ 	LIST_HEAD(tmp_msg);
+@@ -394,16 +393,18 @@ static void mqueue_evict_inode(struct inode *inode)
+ 		free_msg(msg);
+ 	}
+ 
+-	/* Total amount of bytes accounted for the mqueue */
+-	mq_treesize = info->attr.mq_maxmsg * sizeof(struct msg_msg) +
+-		min_t(unsigned int, info->attr.mq_maxmsg, MQ_PRIO_MAX) *
+-		sizeof(struct posix_msg_tree_node);
+-
+-	mq_bytes = mq_treesize + (info->attr.mq_maxmsg *
+-				  info->attr.mq_msgsize);
+-
+ 	user = info->user;
+ 	if (user) {
++		unsigned long mq_bytes, mq_treesize;
++
++		/* Total amount of bytes accounted for the mqueue */
++		mq_treesize = info->attr.mq_maxmsg * sizeof(struct msg_msg) +
++			min_t(unsigned int, info->attr.mq_maxmsg, MQ_PRIO_MAX) *
++			sizeof(struct posix_msg_tree_node);
++
++		mq_bytes = mq_treesize + (info->attr.mq_maxmsg *
++					  info->attr.mq_msgsize);
++
+ 		spin_lock(&mq_lock);
+ 		user->mq_bytes -= mq_bytes;
+ 		/*
+diff --git a/kernel/module.c b/kernel/module.c
+index bcc78f4c15e9..b940b2825b7b 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -3225,8 +3225,7 @@ static bool finished_loading(const char *name)
+ 	sched_annotate_sleep();
+ 	mutex_lock(&module_mutex);
+ 	mod = find_module_all(name, strlen(name), true);
+-	ret = !mod || mod->state == MODULE_STATE_LIVE
+-		|| mod->state == MODULE_STATE_GOING;
++	ret = !mod || mod->state == MODULE_STATE_LIVE;
+ 	mutex_unlock(&module_mutex);
+ 
+ 	return ret;
+@@ -3385,8 +3384,7 @@ again:
+ 	mutex_lock(&module_mutex);
+ 	old = find_module_all(mod->name, strlen(mod->name), true);
+ 	if (old != NULL) {
+-		if (old->state == MODULE_STATE_COMING
+-		    || old->state == MODULE_STATE_UNFORMED) {
++		if (old->state != MODULE_STATE_LIVE) {
+ 			/* Wait in case it fails to load. */
+ 			mutex_unlock(&module_mutex);
+ 			err = wait_event_interruptible(module_wq,
+diff --git a/mm/cma.c b/mm/cma.c
+index 5ae4452656cd..65c7aa419048 100644
+--- a/mm/cma.c
++++ b/mm/cma.c
+@@ -268,6 +268,12 @@ int __init cma_declare_contiguous(phys_addr_t base,
+ 	 */
+ 	alignment = max(alignment,  (phys_addr_t)PAGE_SIZE <<
+ 			  max_t(unsigned long, MAX_ORDER - 1, pageblock_order));
++	if (fixed && base & (alignment - 1)) {
++		ret = -EINVAL;
++		pr_err("Region at %pa must be aligned to %pa bytes\n",
++			&base, &alignment);
++		goto err;
++	}
+ 	base = ALIGN(base, alignment);
+ 	size = ALIGN(size, alignment);
+ 	limit &= ~(alignment - 1);
+@@ -298,6 +304,13 @@ int __init cma_declare_contiguous(phys_addr_t base,
+ 	if (limit == 0 || limit > memblock_end)
+ 		limit = memblock_end;
+ 
++	if (base + size > limit) {
++		ret = -EINVAL;
++		pr_err("Size (%pa) of region at %pa exceeds limit (%pa)\n",
++			&size, &base, &limit);
++		goto err;
++	}
++
+ 	/* Reserve memory */
+ 	if (fixed) {
+ 		if (memblock_is_region_reserved(base, size) ||
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 965a55eacaba..01fbbbf89f41 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -266,6 +266,8 @@ static int rangetr_cmp(struct hashtab *h, const void *k1, const void *k2)
+ 	return v;
+ }
+ 
++static int (*destroy_f[SYM_NUM]) (void *key, void *datum, void *datap);
++
+ /*
+  * Initialize a policy database structure.
+  */
+@@ -313,8 +315,10 @@ static int policydb_init(struct policydb *p)
+ out:
+ 	hashtab_destroy(p->filename_trans);
+ 	hashtab_destroy(p->range_tr);
+-	for (i = 0; i < SYM_NUM; i++)
++	for (i = 0; i < SYM_NUM; i++) {
++		hashtab_map(p->symtab[i].table, destroy_f[i], NULL);
+ 		hashtab_destroy(p->symtab[i].table);
++	}
+ 	return rc;
+ }
+ 
