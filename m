@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E77E83C14
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:40:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB1EB83C1D
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:40:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729254AbfHFVhM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:37:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54926 "EHLO mail.kernel.org"
+        id S1726576AbfHFVkB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:40:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729240AbfHFVhK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:37:10 -0400
+        id S1728242AbfHFVhL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:37:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17ED1217F5;
-        Tue,  6 Aug 2019 21:37:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E00C2186A;
+        Tue,  6 Aug 2019 21:37:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127429;
-        bh=ioeiOBeJWkKHkbgEEoKfZMOyEj0+R5WHsDnYwqLm8aQ=;
+        s=default; t=1565127430;
+        bh=xExYZlj16QTL8K2BGncB++iPUVhpTo03XydSzUlUYrs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fn8S7sgupFnXIq+8xexL76JwOxrKXo3rqo9BQQHjU6VSkkW26Pj4WgyMMr0sUgP9J
-         kmF0isouzy+WuOxiB4bAK9RCkbjzbFaPYmyCWTsLLvOAfwA/SVCrBrwEmki5JllEtB
-         eBgNCUAIUu3BqDYhy2FcDauO/HEQpAgbVTRpWiao=
+        b=XAwaarHpV717TG1nAICwOukhfIqjeeYR0tSgg6T0nQr9k77qyAu+clRmplXqF0ywb
+         EO90tN1z9HmtovbWNvfYYPA5ik85fODDyTBtytLaMPiFfA1mBm/KsEKe0VmeDR7EW5
+         ypkS7zG9Ii5xTZDCD8uXjKJvf0a51gun02xFN7jA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Sean Paul <seanpaul@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 22/25] drm: msm: Fix add_gpu_components
-Date:   Tue,  6 Aug 2019 17:36:19 -0400
-Message-Id: <20190806213624.20194-22-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 23/25] ocfs2: remove set but not used variable 'last_hash'
+Date:   Tue,  6 Aug 2019 17:36:20 -0400
+Message-Id: <20190806213624.20194-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213624.20194-1-sashal@kernel.org>
 References: <20190806213624.20194-1-sashal@kernel.org>
@@ -45,41 +50,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 9ca7ad6c7706edeae331c1632d0c63897418ebad ]
+[ Upstream commit 7bc36e3ce91471b6377c8eadc0a2f220a2280083 ]
 
-add_gpu_components() adds found GPU nodes from the DT to the match list,
-regardless of the status of the nodes.  This is a problem, because if the
-nodes are disabled, they should not be on the match list because they will
-not be matched.  This prevents display from initing if a GPU node is
-defined, but it's status is disabled.
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-Fix this by checking the node's status before adding it to the match list.
+  fs/ocfs2/xattr.c: In function ocfs2_xattr_bucket_find:
+  fs/ocfs2/xattr.c:3828:6: warning: variable last_hash set but not used [-Wunused-but-set-variable]
 
-Fixes: dc3ea265b856 (drm/msm: Drop the gpu binding)
-Reviewed-by: Rob Clark <robdclark@gmail.com>
-Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190626180015.45242-1-jeffrey.l.hugo@gmail.com
+It's never used and can be removed.
+
+Link: http://lkml.kernel.org/r/20190716132110.34836-1-yuehaibing@huawei.com
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_drv.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/ocfs2/xattr.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
-index b970427e53a7a..77c45a2ebd833 100644
---- a/drivers/gpu/drm/msm/msm_drv.c
-+++ b/drivers/gpu/drm/msm/msm_drv.c
-@@ -1060,7 +1060,8 @@ static int add_gpu_components(struct device *dev,
- 	if (!np)
- 		return 0;
+diff --git a/fs/ocfs2/xattr.c b/fs/ocfs2/xattr.c
+index fb0a4eec310ce..77740ef5a8e85 100644
+--- a/fs/ocfs2/xattr.c
++++ b/fs/ocfs2/xattr.c
+@@ -3832,7 +3832,6 @@ static int ocfs2_xattr_bucket_find(struct inode *inode,
+ 	u16 blk_per_bucket = ocfs2_blocks_per_xattr_bucket(inode->i_sb);
+ 	int low_bucket = 0, bucket, high_bucket;
+ 	struct ocfs2_xattr_bucket *search;
+-	u32 last_hash;
+ 	u64 blkno, lower_blkno = 0;
  
--	drm_of_component_match_add(dev, matchptr, compare_of, np);
-+	if (of_device_is_available(np))
-+		drm_of_component_match_add(dev, matchptr, compare_of, np);
+ 	search = ocfs2_xattr_bucket_new(inode);
+@@ -3876,8 +3875,6 @@ static int ocfs2_xattr_bucket_find(struct inode *inode,
+ 		if (xh->xh_count)
+ 			xe = &xh->xh_entries[le16_to_cpu(xh->xh_count) - 1];
  
- 	of_node_put(np);
+-		last_hash = le32_to_cpu(xe->xe_name_hash);
+-
+ 		/* record lower_blkno which may be the insert place. */
+ 		lower_blkno = blkno;
  
 -- 
 2.20.1
