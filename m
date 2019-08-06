@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57C7E8295D
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 03:46:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69B608295E
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 03:46:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731066AbfHFBqD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 21:46:03 -0400
-Received: from mga14.intel.com ([192.55.52.115]:16400 "EHLO mga14.intel.com"
+        id S1731119AbfHFBqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 21:46:09 -0400
+Received: from mga03.intel.com ([134.134.136.65]:42553 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728870AbfHFBqD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Aug 2019 21:46:03 -0400
+        id S1728870AbfHFBqI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Aug 2019 21:46:08 -0400
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 18:46:03 -0700
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 18:46:08 -0700
 X-IronPort-AV: E=Sophos;i="5.64,350,1559545200"; 
-   d="scan'208";a="185497079"
+   d="scan'208";a="257888422"
 Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
-  by orsmga002-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 18:46:03 -0700
-Subject: [4.19-stable PATCH 1/6] driver core: Establish order of operations
- for device_add and device_del via bitflag
+  by orsmga001-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Aug 2019 18:46:08 -0700
+Subject: [4.19-stable PATCH 2/6] drivers/base: Introduce kill_device()
 From:   Dan Williams <dan.j.williams@intel.com>
 To:     stable@vger.kernel.org
-Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Jane Chu <jane.chu@oracle.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         vishal.l.verma@intel.com
-Date:   Mon, 05 Aug 2019 18:31:45 -0700
-Message-ID: <156505510583.1044139.614343013775015214.stgit@dwillia2-desk3.amr.corp.intel.com>
+Date:   Mon, 05 Aug 2019 18:31:51 -0700
+Message-ID: <156505511104.1044139.11018220089455479994.stgit@dwillia2-desk3.amr.corp.intel.com>
+In-Reply-To: <156505510583.1044139.614343013775015214.stgit@dwillia2-desk3.amr.corp.intel.com>
+References: <156505510583.1044139.614343013775015214.stgit@dwillia2-desk3.amr.corp.intel.com>
 User-Agent: StGit/0.18-2-gc94f
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -38,134 +40,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+commit 00289cd87676e14913d2d8492d1ce05c4baafdae upstream.
 
-commit 3451a495ef244a88ed6317a035299d835554d579 upstream.
+The libnvdimm subsystem arranges for devices to be destroyed as a result
+of a sysfs operation. Since device_unregister() cannot be called from
+an actively running sysfs attribute of the same device libnvdimm
+arranges for device_unregister() to be performed in an out-of-line async
+context.
 
-Add an additional bit flag to the device_private struct named "dead".
+The driver core maintains a 'dead' state for coordinating its own racing
+async registration / de-registration requests. Rather than add local
+'dead' state tracking infrastructure to libnvdimm device objects, export
+the existing state tracking via a new kill_device() helper.
 
-This additional flag provides a guarantee that when a device_del is
-executed on a given interface an async worker will not attempt to attach
-the driver following the earlier device_del call. Previously this
-guarantee was not present and could result in the device_del call
-attempting to remove a driver from an interface only to have the async
-worker attempt to probe the driver later when it finally completes the
-asynchronous probe call.
+The kill_device() helper simply marks the device as dead, i.e. that it
+is on its way to device_del(), or returns that the device was already
+dead. This can be used in advance of calling device_unregister() for
+subsystems like libnvdimm that might need to handle multiple user
+threads racing to delete a device.
 
-One additional change added was that I pulled the check for dev->driver
-out of the __device_attach_driver call and instead placed it in the
-__device_attach_async_helper call. This was motivated by the fact that the
-only other caller of this, __device_attach, had already taken the
-device_lock() and checked for dev->driver. Instead of testing for this
-twice in this path it makes more sense to just consolidate the dev->dead
-and dev->driver checks together into one set of checks.
+This refactoring does not change any behavior, but it is a pre-requisite
+for follow-on fixes and therefore marked for -stable.
 
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Fixes: 4d88a97aa9e8 ("libnvdimm, nvdimm: dimm driver and base libnvdimm device-driver...")
+Cc: <stable@vger.kernel.org>
+Tested-by: Jane Chu <jane.chu@oracle.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/156341207332.292348.14959761496009347574.stgit@dwillia2-desk3.amr.corp.intel.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 ---
- drivers/base/base.h |    4 ++++
- drivers/base/core.c |   11 +++++++++++
- drivers/base/dd.c   |   22 +++++++++++-----------
- 3 files changed, 26 insertions(+), 11 deletions(-)
+ drivers/base/core.c    |   27 +++++++++++++++++++--------
+ include/linux/device.h |    1 +
+ 2 files changed, 20 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/base/base.h b/drivers/base/base.h
-index 7a419a7a6235..559b047de9f7 100644
---- a/drivers/base/base.h
-+++ b/drivers/base/base.h
-@@ -66,6 +66,9 @@ struct driver_private {
-  *	probed first.
-  * @device - pointer back to the struct device that this structure is
-  * associated with.
-+ * @dead - This device is currently either in the process of or has been
-+ *	removed from the system. Any asynchronous events scheduled for this
-+ *	device should exit without taking any action.
-  *
-  * Nothing outside of the driver core should ever touch these fields.
-  */
-@@ -76,6 +79,7 @@ struct device_private {
- 	struct klist_node knode_bus;
- 	struct list_head deferred_probe;
- 	struct device *device;
-+	u8 dead:1;
- };
- #define to_device_private_parent(obj)	\
- 	container_of(obj, struct device_private, knode_parent)
 diff --git a/drivers/base/core.c b/drivers/base/core.c
-index 92e2c32c2227..37a90d72f373 100644
+index 37a90d72f373..e1a8d5c06f65 100644
 --- a/drivers/base/core.c
 +++ b/drivers/base/core.c
-@@ -2050,6 +2050,17 @@ void device_del(struct device *dev)
- 	struct kobject *glue_dir = NULL;
- 	struct class_interface *class_intf;
+@@ -2031,6 +2031,24 @@ void put_device(struct device *dev)
+ }
+ EXPORT_SYMBOL_GPL(put_device);
  
++bool kill_device(struct device *dev)
++{
 +	/*
-+	 * Hold the device lock and set the "dead" flag to guarantee that
++	 * Require the device lock and set the "dead" flag to guarantee that
 +	 * the update behavior is consistent with the other bitfields near
 +	 * it and that we cannot have an asynchronous probe routine trying
 +	 * to run while we are tearing out the bus/class/sysfs from
 +	 * underneath the device.
 +	 */
-+	device_lock(dev);
-+	dev->p->dead = true;
-+	device_unlock(dev);
++	lockdep_assert_held(&dev->mutex);
 +
- 	/* Notify clients of device removal.  This call must come
- 	 * before dpm_sysfs_remove().
- 	 */
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index d48b310c4760..11d24a552ee4 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -725,15 +725,6 @@ static int __device_attach_driver(struct device_driver *drv, void *_data)
- 	bool async_allowed;
- 	int ret;
++	if (dev->p->dead)
++		return false;
++	dev->p->dead = true;
++	return true;
++}
++EXPORT_SYMBOL_GPL(kill_device);
++
+ /**
+  * device_del - delete device from system.
+  * @dev: device.
+@@ -2050,15 +2068,8 @@ void device_del(struct device *dev)
+ 	struct kobject *glue_dir = NULL;
+ 	struct class_interface *class_intf;
  
 -	/*
--	 * Check if device has already been claimed. This may
--	 * happen with driver loading, device discovery/registration,
--	 * and deferred probe processing happens all at once with
--	 * multiple threads.
+-	 * Hold the device lock and set the "dead" flag to guarantee that
+-	 * the update behavior is consistent with the other bitfields near
+-	 * it and that we cannot have an asynchronous probe routine trying
+-	 * to run while we are tearing out the bus/class/sysfs from
+-	 * underneath the device.
 -	 */
--	if (dev->driver)
--		return -EBUSY;
--
- 	ret = driver_match_device(drv, dev);
- 	if (ret == 0) {
- 		/* no match */
-@@ -768,6 +759,15 @@ static void __device_attach_async_helper(void *_dev, async_cookie_t cookie)
- 
  	device_lock(dev);
- 
-+	/*
-+	 * Check if device has already been removed or claimed. This may
-+	 * happen with driver loading, device discovery/registration,
-+	 * and deferred probe processing happens all at once with
-+	 * multiple threads.
-+	 */
-+	if (dev->p->dead || dev->driver)
-+		goto out_unlock;
-+
- 	if (dev->parent)
- 		pm_runtime_get_sync(dev->parent);
- 
-@@ -778,7 +778,7 @@ static void __device_attach_async_helper(void *_dev, async_cookie_t cookie)
- 
- 	if (dev->parent)
- 		pm_runtime_put(dev->parent);
--
-+out_unlock:
+-	dev->p->dead = true;
++	kill_device(dev);
  	device_unlock(dev);
  
- 	put_device(dev);
-@@ -891,7 +891,7 @@ static int __driver_attach(struct device *dev, void *data)
- 	if (dev->parent && dev->bus->need_parent_lock)
- 		device_lock(dev->parent);
- 	device_lock(dev);
--	if (!dev->driver)
-+	if (!dev->p->dead && !dev->driver)
- 		driver_probe_device(drv, dev);
- 	device_unlock(dev);
- 	if (dev->parent && dev->bus->need_parent_lock)
+ 	/* Notify clients of device removal.  This call must come
+diff --git a/include/linux/device.h b/include/linux/device.h
+index 3f1066a9e1c3..19dd8852602c 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -1332,6 +1332,7 @@ extern int (*platform_notify_remove)(struct device *dev);
+  */
+ extern struct device *get_device(struct device *dev);
+ extern void put_device(struct device *dev);
++extern bool kill_device(struct device *dev);
+ 
+ #ifdef CONFIG_DEVTMPFS
+ extern int devtmpfs_create_node(struct device *dev);
 
