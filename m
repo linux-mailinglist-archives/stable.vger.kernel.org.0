@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1334A83A07
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 22:07:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1F1283A08
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 22:07:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726485AbfHFUHa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 16:07:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58700 "EHLO mail.kernel.org"
+        id S1726518AbfHFUHi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 16:07:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725948AbfHFUHa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 16:07:30 -0400
+        id S1725948AbfHFUHi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 16:07:38 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF50F216F4;
-        Tue,  6 Aug 2019 20:07:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9356520717;
+        Tue,  6 Aug 2019 20:07:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565122049;
-        bh=sy+cMgHPkc2RH0vGYwWv3/9L5clHN0NjHOn8WXyiA+A=;
+        s=default; t=1565122057;
+        bh=hghdK29MzWKYpKmobEsOGyi4C9TgVe3LksvTfBSZFe8=;
         h=Date:From:To:Subject:From;
-        b=XqbUDqssiNj5zKPlnIv1QEz3A/lYslE5bXdMsQKV4aX+URNMUL3G3MPKYJq1atjLi
-         Po9jOPfK2VXM2yP4k64LftN+8bRBYxks7JPIugujX+I/X3uveyW2D4riqX8LAGxz3Q
-         Ny+7K6xkXIN5Ei+zo82Zb2cW+3YXrBNzEFx+noHw=
-Date:   Tue, 06 Aug 2019 13:07:28 -0700
+        b=Nh1CMKh2cHAx0jqIkI6kQoNfmSb4bpmmxB7T4xaZ7lIu1jVa562TeeaCUvwa+DnfP
+         SSsheQxmufgpZBm4Blcwdsk+gorzRp30Za4vDmn4Ix127S1ttq8wkZEHxM2jBu5JLQ
+         ZlQLH7j29M8SiWhCXctTUuAHuoocs6Z+QX9ZLw5w=
+Date:   Tue, 06 Aug 2019 13:07:37 -0700
 From:   akpm@linux-foundation.org
-To:     andriy.shevchenko@linux.intel.com, ard.biesheuvel@linaro.org,
-        arnd@arndb.de, aryabinin@virtuozzo.com, bp@alien8.de,
-        dvyukov@google.com, jpoimboe@redhat.com, keescook@chromium.org,
-        mingo@kernel.org, mm-commits@vger.kernel.org, peterz@infradead.org,
-        stable@vger.kernel.org, tglx@linutronix.de, willy@infradead.org
-Subject:  [merged] ubsan-build-ubsanc-more-conservatively.patch
- removed from -mm tree
-Message-ID: <20190806200728.2EVPsVmkC%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, jglisse@redhat.com, jhubbard@nvidia.com,
+        mgorman@techsingularity.net, mm-commits@vger.kernel.org,
+        rcampbell@nvidia.com, stable@vger.kernel.org
+Subject:  [merged]
+ mm-migrate-initialize-pud_entry-in-migrate_vma.patch removed from -mm tree
+Message-ID: <20190806200737.8sMeKiAFC%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -41,77 +42,69 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: ubsan: build ubsan.c more conservatively
+     Subject: mm/migrate.c: initialize pud_entry in migrate_vma()
 has been removed from the -mm tree.  Its filename was
-     ubsan-build-ubsanc-more-conservatively.patch
+     mm-migrate-initialize-pud_entry-in-migrate_vma.patch
 
-This patch was dropped because it was merged into mainline or a subsystem tree
+This patch was dropped because it was merged into mainline or a subsystem t=
+ree
 
 ------------------------------------------------------
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: ubsan: build ubsan.c more conservatively
+=46rom: Ralph Campbell <rcampbell@nvidia.com>
+Subject: mm/migrate.c: initialize pud_entry in migrate_vma()
 
-objtool points out several conditions that it does not like, depending on
-the combination with other configuration options and compiler variants:
+When CONFIG_MIGRATE_VMA_HELPER is enabled, migrate_vma() calls
+migrate_vma_collect() which initializes a struct mm_walk but didn't
+initialize mm_walk.pud_entry.  (Found by code inspection) Use a C
+structure initialization to make sure it is set to NULL.
 
-stack protector:
-lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0xbf: call to __stack_chk_fail() with UACCESS enabled
-lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0xbe: call to __stack_chk_fail() with UACCESS enabled
-
-stackleak plugin:
-lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0x4a: call to stackleak_track_stack() with UACCESS enabled
-lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0x4a: call to stackleak_track_stack() with UACCESS enabled
-
-kasan:
-lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0x25: call to memcpy() with UACCESS enabled
-lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0x25: call to memcpy() with UACCESS enabled
-
-The stackleak and kasan options just need to be disabled for this file as
-we do for other files already.  For the stack protector, we already
-attempt to disable it, but this fails on clang because the check is mixed
-with the gcc specific -fno-conserve-stack option.  According to Andrey
-Ryabinin, that option is not even needed, dropping it here fixes the
-stackprotector issue.
-
-Link: http://lkml.kernel.org/r/20190722125139.1335385-1-arnd@arndb.de
-Link: https://lore.kernel.org/lkml/20190617123109.667090-1-arnd@arndb.de/t/
-Link: https://lore.kernel.org/lkml/20190722091050.2188664-1-arnd@arndb.de/t/
-Fixes: d08965a27e84 ("x86/uaccess, ubsan: Fix UBSAN vs. SMAP")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: http://lkml.kernel.org/r/20190719233225.12243-1-rcampbell@nvidia.com
+Fixes: 8763cb45ab967 ("mm/migrate: new memory migration helper for use with
+device memory")
+Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: "J=C3=A9r=C3=B4me Glisse" <jglisse@redhat.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- lib/Makefile |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ mm/migrate.c |   17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
---- a/lib/Makefile~ubsan-build-ubsanc-more-conservatively
-+++ a/lib/Makefile
-@@ -279,7 +279,8 @@ obj-$(CONFIG_UCS2_STRING) += ucs2_string
- obj-$(CONFIG_UBSAN) += ubsan.o
- 
- UBSAN_SANITIZE_ubsan.o := n
--CFLAGS_ubsan.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
-+KASAN_SANITIZE_ubsan.o := n
-+CFLAGS_ubsan.o := $(call cc-option, -fno-stack-protector) $(DISABLE_STACKLEAK_PLUGIN)
- 
- obj-$(CONFIG_SBITMAP) += sbitmap.o
- 
+--- a/mm/migrate.c~mm-migrate-initialize-pud_entry-in-migrate_vma
++++ a/mm/migrate.c
+@@ -2340,16 +2340,13 @@ next:
+ static void migrate_vma_collect(struct migrate_vma *migrate)
+ {
+ 	struct mmu_notifier_range range;
+-	struct mm_walk mm_walk;
+-
+-	mm_walk.pmd_entry =3D migrate_vma_collect_pmd;
+-	mm_walk.pte_entry =3D NULL;
+-	mm_walk.pte_hole =3D migrate_vma_collect_hole;
+-	mm_walk.hugetlb_entry =3D NULL;
+-	mm_walk.test_walk =3D NULL;
+-	mm_walk.vma =3D migrate->vma;
+-	mm_walk.mm =3D migrate->vma->vm_mm;
+-	mm_walk.private =3D migrate;
++	struct mm_walk mm_walk =3D {
++		.pmd_entry =3D migrate_vma_collect_pmd,
++		.pte_hole =3D migrate_vma_collect_hole,
++		.vma =3D migrate->vma,
++		.mm =3D migrate->vma->vm_mm,
++		.private =3D migrate,
++	};
+=20
+ 	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, NULL, mm_walk.mm,
+ 				migrate->start,
 _
 
-Patches currently in -mm which might be from arnd@arndb.de are
+Patches currently in -mm which might be from rcampbell@nvidia.com are
 
-mm-sparse-fix-memory-leak-of-sparsemap_buf-in-aliged-memory-fix.patch
+mm-document-zone-device-struct-page-field-usage.patch
+mm-hmm-fix-zone_device-anon-page-mapping-reuse.patch
+mm-hmm-fix-bad-subpage-pointer-in-try_to_unmap_one.patch
+mm-hmm-fix-bad-subpage-pointer-in-try_to_unmap_one-v3.patch
 
