@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D94183B56
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:34:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D39A883C95
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:44:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726867AbfHFVed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:34:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52360 "EHLO mail.kernel.org"
+        id S1727793AbfHFVeh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:34:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727766AbfHFVec (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:34:32 -0400
+        id S1727779AbfHFVee (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:34:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9933D217D9;
-        Tue,  6 Aug 2019 21:34:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E00472186A;
+        Tue,  6 Aug 2019 21:34:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127271;
-        bh=L0qH2xuYaLGHGVGpZsR8NfgkXxZmwE0sfE4wA2PK214=;
+        s=default; t=1565127273;
+        bh=BA+UGscKPxuHl3GcdkS7m3JOxOxCmTFTvrCrso1YyF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1NjRvde0bVnHx2azYdWBqbFIof64kgYWVnzJHFw8Zo5WQZMXStkvkhV9/hldeZ0PQ
-         AoYT5UG92ZZiweDFegaZlF4cLUNnPJspEWyHyuBeKti2UK1jahI75xT5Eru1aBY+zy
-         y+lnLYmloP9WYACI/29rOqtuUrNhbAril1D+FJD8=
+        b=WOH2o4JDkeT5aoSs9KFR8S9XHuUmM3HGCoHFjFeTGf1f8GD8ehcu6/7qxEZN8LcL8
+         IKXF9VdGmhZCFzGcY4/wNiCATSTIQXflaCji6G0TPhAGXWrhuBiV0TdyV9VQbEkEgL
+         RDrC3fXcqTAzU+l8Ai6p48opgkk2bTEUkTlaxuU0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rob Clark <robdclark@chromium.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sean Paul <seanpaul@chromium.org>,
+Cc:     Mao Han <han_mao@c-sky.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@sifive.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 37/59] drm/vgem: fix cache synchronization on arm/arm64
-Date:   Tue,  6 Aug 2019 17:32:57 -0400
-Message-Id: <20190806213319.19203-37-sashal@kernel.org>
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.2 38/59] riscv: Fix perf record without libelf support
+Date:   Tue,  6 Aug 2019 17:32:58 -0400
+Message-Id: <20190806213319.19203-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213319.19203-1-sashal@kernel.org>
 References: <20190806213319.19203-1-sashal@kernel.org>
@@ -45,214 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Mao Han <han_mao@c-sky.com>
 
-[ Upstream commit 7e9e5ead55beacc11116b3fb90b0de6e7cf55a69 ]
+[ Upstream commit b399abe7c21e248dc6224cadc9a378a2beb10cfd ]
 
-drm_cflush_pages() is no-op on arm/arm64.  But instead we can use
-dma_sync API.
+This patch fix following perf record error by linking vdso.so with
+build id.
 
-Fixes failures w/ vgem_test.
+perf.data      perf.data.old
+[ perf record: Woken up 1 times to write data ]
+free(): double free detected in tcache 2
+Aborted
 
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190717211542.30482-1-robdclark@gmail.com
+perf record use filename__read_build_id(util/symbol-minimal.c) to get
+build id when libelf is not supported. When vdso.so is linked without
+build id, the section size of PT_NOTE will be zero, buf size will
+realloc to zero and cause memory corruption.
+
+Signed-off-by: Mao Han <han_mao@c-sky.com>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@sifive.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vgem/vgem_drv.c | 130 ++++++++++++++++++++------------
- 1 file changed, 83 insertions(+), 47 deletions(-)
+ arch/riscv/kernel/vdso/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/vgem/vgem_drv.c b/drivers/gpu/drm/vgem/vgem_drv.c
-index 11a8f99ba18c5..fc04803ff4035 100644
---- a/drivers/gpu/drm/vgem/vgem_drv.c
-+++ b/drivers/gpu/drm/vgem/vgem_drv.c
-@@ -47,10 +47,16 @@ static struct vgem_device {
- 	struct platform_device *platform;
- } *vgem_device;
+diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
+index f1d6ffe43e428..49a5852fd07dd 100644
+--- a/arch/riscv/kernel/vdso/Makefile
++++ b/arch/riscv/kernel/vdso/Makefile
+@@ -37,7 +37,7 @@ $(obj)/vdso.so.dbg: $(src)/vdso.lds $(obj-vdso) FORCE
+ # these symbols in the kernel code rather than hand-coded addresses.
  
-+static void sync_and_unpin(struct drm_vgem_gem_object *bo);
-+static struct page **pin_and_sync(struct drm_vgem_gem_object *bo);
-+
- static void vgem_gem_free_object(struct drm_gem_object *obj)
- {
- 	struct drm_vgem_gem_object *vgem_obj = to_vgem_bo(obj);
- 
-+	if (!obj->import_attach)
-+		sync_and_unpin(vgem_obj);
-+
- 	kvfree(vgem_obj->pages);
- 	mutex_destroy(&vgem_obj->pages_lock);
- 
-@@ -78,40 +84,15 @@ static vm_fault_t vgem_gem_fault(struct vm_fault *vmf)
- 		return VM_FAULT_SIGBUS;
- 
- 	mutex_lock(&obj->pages_lock);
-+	if (!obj->pages)
-+		pin_and_sync(obj);
- 	if (obj->pages) {
- 		get_page(obj->pages[page_offset]);
- 		vmf->page = obj->pages[page_offset];
- 		ret = 0;
- 	}
- 	mutex_unlock(&obj->pages_lock);
--	if (ret) {
--		struct page *page;
--
--		page = shmem_read_mapping_page(
--					file_inode(obj->base.filp)->i_mapping,
--					page_offset);
--		if (!IS_ERR(page)) {
--			vmf->page = page;
--			ret = 0;
--		} else switch (PTR_ERR(page)) {
--			case -ENOSPC:
--			case -ENOMEM:
--				ret = VM_FAULT_OOM;
--				break;
--			case -EBUSY:
--				ret = VM_FAULT_RETRY;
--				break;
--			case -EFAULT:
--			case -EINVAL:
--				ret = VM_FAULT_SIGBUS;
--				break;
--			default:
--				WARN_ON(PTR_ERR(page));
--				ret = VM_FAULT_SIGBUS;
--				break;
--		}
- 
--	}
- 	return ret;
- }
- 
-@@ -277,32 +258,93 @@ static const struct file_operations vgem_driver_fops = {
- 	.release	= drm_release,
- };
- 
--static struct page **vgem_pin_pages(struct drm_vgem_gem_object *bo)
-+/* Called under pages_lock, except in free path (where it can't race): */
-+static void sync_and_unpin(struct drm_vgem_gem_object *bo)
- {
--	mutex_lock(&bo->pages_lock);
--	if (bo->pages_pin_count++ == 0) {
--		struct page **pages;
-+	struct drm_device *dev = bo->base.dev;
-+
-+	if (bo->table) {
-+		dma_sync_sg_for_cpu(dev->dev, bo->table->sgl,
-+				bo->table->nents, DMA_BIDIRECTIONAL);
-+		sg_free_table(bo->table);
-+		kfree(bo->table);
-+		bo->table = NULL;
-+	}
-+
-+	if (bo->pages) {
-+		drm_gem_put_pages(&bo->base, bo->pages, true, true);
-+		bo->pages = NULL;
-+	}
-+}
-+
-+static struct page **pin_and_sync(struct drm_vgem_gem_object *bo)
-+{
-+	struct drm_device *dev = bo->base.dev;
-+	int npages = bo->base.size >> PAGE_SHIFT;
-+	struct page **pages;
-+	struct sg_table *sgt;
-+
-+	WARN_ON(!mutex_is_locked(&bo->pages_lock));
-+
-+	pages = drm_gem_get_pages(&bo->base);
-+	if (IS_ERR(pages)) {
-+		bo->pages_pin_count--;
-+		mutex_unlock(&bo->pages_lock);
-+		return pages;
-+	}
- 
--		pages = drm_gem_get_pages(&bo->base);
--		if (IS_ERR(pages)) {
--			bo->pages_pin_count--;
--			mutex_unlock(&bo->pages_lock);
--			return pages;
--		}
-+	sgt = drm_prime_pages_to_sg(pages, npages);
-+	if (IS_ERR(sgt)) {
-+		dev_err(dev->dev,
-+			"failed to allocate sgt: %ld\n",
-+			PTR_ERR(bo->table));
-+		drm_gem_put_pages(&bo->base, pages, false, false);
-+		mutex_unlock(&bo->pages_lock);
-+		return ERR_CAST(bo->table);
-+	}
-+
-+	/*
-+	 * Flush the object from the CPU cache so that importers
-+	 * can rely on coherent indirect access via the exported
-+	 * dma-address.
-+	 */
-+	dma_sync_sg_for_device(dev->dev, sgt->sgl,
-+			sgt->nents, DMA_BIDIRECTIONAL);
-+
-+	bo->pages = pages;
-+	bo->table = sgt;
-+
-+	return pages;
-+}
-+
-+static struct page **vgem_pin_pages(struct drm_vgem_gem_object *bo)
-+{
-+	struct page **pages;
- 
--		bo->pages = pages;
-+	mutex_lock(&bo->pages_lock);
-+	if (bo->pages_pin_count++ == 0 && !bo->pages) {
-+		pages = pin_and_sync(bo);
-+	} else {
-+		WARN_ON(!bo->pages);
-+		pages = bo->pages;
- 	}
- 	mutex_unlock(&bo->pages_lock);
- 
--	return bo->pages;
-+	return pages;
- }
- 
- static void vgem_unpin_pages(struct drm_vgem_gem_object *bo)
- {
-+	/*
-+	 * We shouldn't hit this for imported bo's.. in the import
-+	 * case we don't own the scatter-table
-+	 */
-+	WARN_ON(bo->base.import_attach);
-+
- 	mutex_lock(&bo->pages_lock);
- 	if (--bo->pages_pin_count == 0) {
--		drm_gem_put_pages(&bo->base, bo->pages, true, true);
--		bo->pages = NULL;
-+		WARN_ON(!bo->table);
-+		sync_and_unpin(bo);
- 	}
- 	mutex_unlock(&bo->pages_lock);
- }
-@@ -310,18 +352,12 @@ static void vgem_unpin_pages(struct drm_vgem_gem_object *bo)
- static int vgem_prime_pin(struct drm_gem_object *obj)
- {
- 	struct drm_vgem_gem_object *bo = to_vgem_bo(obj);
--	long n_pages = obj->size >> PAGE_SHIFT;
- 	struct page **pages;
- 
- 	pages = vgem_pin_pages(bo);
- 	if (IS_ERR(pages))
- 		return PTR_ERR(pages);
- 
--	/* Flush the object from the CPU cache so that importers can rely
--	 * on coherent indirect access via the exported dma-address.
--	 */
--	drm_clflush_pages(pages, n_pages);
--
- 	return 0;
- }
+ SYSCFLAGS_vdso.so.dbg = -shared -s -Wl,-soname=linux-vdso.so.1 \
+-	-Wl,--hash-style=both
++	-Wl,--build-id -Wl,--hash-style=both
+ $(obj)/vdso-dummy.o: $(src)/vdso.lds $(obj)/rt_sigreturn.o FORCE
+ 	$(call if_changed,vdsold)
  
 -- 
 2.20.1
