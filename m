@@ -2,165 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AED7829CA
-	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 04:56:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F223829E4
+	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 05:08:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730915AbfHFC4J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Aug 2019 22:56:09 -0400
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:36307 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728922AbfHFC4J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 22:56:09 -0400
-Received: by mail-lf1-f66.google.com with SMTP id j17so5681303lfp.3
-        for <stable@vger.kernel.org>; Mon, 05 Aug 2019 19:56:07 -0700 (PDT)
+        id S1730034AbfHFDII (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Aug 2019 23:08:08 -0400
+Received: from mail-vs1-f68.google.com ([209.85.217.68]:34307 "EHLO
+        mail-vs1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729334AbfHFDII (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Aug 2019 23:08:08 -0400
+Received: by mail-vs1-f68.google.com with SMTP id m23so57398103vso.1;
+        Mon, 05 Aug 2019 20:08:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=fUbewNNWBu8KxHxIxmY/jB338Bct994oQhtq8xv2Fuo=;
-        b=G5in/5gSFRYg8ditk3q110p+ZMAT55Wb2kKlEjEC8bhtOdiwYBIfWQsFZrVfZtdgmz
-         9Jnd6OY0S1xpK+lO/mu6osGp4lf2MZ4zYtnaKnJ3WHcl8VaQgKrIytG9kLU41R7e0yD9
-         4xY1WF0b0fKruJcc9fwpcvi66EbHChfmC7PBdUeMzY/yAwkVPr+dMUJ8yU+SnAmeIPg2
-         b3mXViVeutvQZMUYcLYgJnwhOd5D9gglAmOmlvZZH7COh4WAAriW5QGlIqUBmiACSYRe
-         TFC8qL0aOjavs3P5QYly5hE8YmKUaKPPhx3ZiFYgiyUPyEpqAwpcafaHm50HUAM+u+UY
-         BIJw==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=iMT+gT6D225+qp+FOpL46f/S7PPq1vz7DseBHSVYmg4=;
+        b=bW3Z8KnWBEnHEkaAOnQu1G1oz1vEnFHUV44VZgEk6A6RyTeiTbPcVF+5RVXkXiFZ7N
+         0P0qobpRriowWkEQ95AQxs1wnYa3+e4oiAwlkFD1eUjMKCB8mlX4zyK4nXMnDf+WgI+b
+         aPw1WUONRkQxd+hKEbjV3ecd7u+DmTSj58r4tZ+0NhUlenskHHa9eIQ7kHj3uZr52lA0
+         6JmY6LOhP4eAuxTURl98Oa6Mn+4TIyG2VrBCGKhpt/ugSm+SZTyGsFafeoPnakX1AJd7
+         a50cwiwqoQhcQZQ2bw4tRG5On+C2gPCl55D9LrRtLgdYn0zDzvvsU4b4KJyarJIRO1X+
+         mVCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=fUbewNNWBu8KxHxIxmY/jB338Bct994oQhtq8xv2Fuo=;
-        b=B7syKG+kpdBQfeB+mvnf8v7iE0lCNT+mfNGEuI+VTo4Fmc4xsSd3oGjyKizN1lC0fP
-         S3nlsgeUH/26/bX52Gci3q17Z38cf4kMaLfFAuT5MHuB4fuR1y8HVK8RIA5lZ1K2W7qY
-         Tj4BRURlzf82EpwYKKHfyJKZY9c2BNQiIOUlhN1r6fi88bYo6dM0SfQMh9C8tiofyFSC
-         CLkvT5G8MCMamht5cjjcQYQY8NW+3+y8DzPCaXFv7vFSkO8MaZ0mqejPosCNmFbAAogM
-         WejRltBH5/Ejbwf9F7D2VRWzojCl4NyhDHeYhxrZV93FKnHG8Sr2SMU9j3oD8PaPGAL7
-         i7kw==
-X-Gm-Message-State: APjAAAW9+MWr7YOt/2OeAjdrEJHoFyibnHrF3d3Bq+67em9rWehvz7P+
-        iwwX38mySFKIr6zTFdhv82ATlJTPDW5dUQS4uoXxzQ==
-X-Google-Smtp-Source: APXvYqzcjRgHMf9fRhFjMaTNQW1G44RsNIx3V5RrUyXOxU8YCPZ8vv8WVyEtWYcLMgdZKT58Xha4h2DLtOGp/8ULRFs=
-X-Received: by 2002:a19:750b:: with SMTP id y11mr516966lfe.99.1565060166813;
- Mon, 05 Aug 2019 19:56:06 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=iMT+gT6D225+qp+FOpL46f/S7PPq1vz7DseBHSVYmg4=;
+        b=b8+rCZg/6AS0xyFzrbf5hd7JzM2Yy9TxMIemFDGsLgfFVzcQlUHs8zOB6lHwRBmyzq
+         p6ZxtQ5yafptLyMBtQd5N8MYSVyhC4TLnTccUgTMo4neNjxRDvxr2ekGO20VI2VutJqv
+         M20Rh0ykl8El80sZ17H+hfbknm+X0IOwrw2FYMuUYh83YvFW1/8d0vABlBcWfBy69R4E
+         Dvat/rwD7p3Z12+HTg+PkcWHsQgGLqmO6RNimL7sZQBGkwNgJQVQ3rVzKtJd23Xxa9pd
+         /Q4Byu2BSBmd5bCmsj94qKNsOG4HVffZHJSydf1gyFq0qG751PNpdEtlLtaAYYJ9mdAq
+         9q8Q==
+X-Gm-Message-State: APjAAAU4vByJekziShE7KU/bnPRds5NpF/9VL0RV1cyprD0CKJ7uu/Bo
+        3Iq5KGI/+vOeJjDD3F2A6bo=
+X-Google-Smtp-Source: APXvYqyQhSa41qyKIL5M4jJigx57/1DGGRJ0WESsNgcXpaf1vNoLqbRgtkVv9vmQZX05GnjCZCqW1w==
+X-Received: by 2002:a67:f8d4:: with SMTP id c20mr853660vsp.239.1565060886854;
+        Mon, 05 Aug 2019 20:08:06 -0700 (PDT)
+Received: from asus-S451LA.lan ([190.22.46.249])
+        by smtp.gmail.com with ESMTPSA id v190sm22683156vkd.37.2019.08.05.20.08.05
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Mon, 05 Aug 2019 20:08:06 -0700 (PDT)
+From:   Luis Araneda <luaraneda@gmail.com>
+To:     linux@armlinux.org.uk, michal.simek@xilinx.com
+Cc:     stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, Luis Araneda <luaraneda@gmail.com>
+Subject: [PATCH 0/2] ARM: zynq: smp improvements
+Date:   Mon,  5 Aug 2019 23:07:16 -0400
+Message-Id: <20190806030718.29048-1-luaraneda@gmail.com>
+X-Mailer: git-send-email 2.22.0
 MIME-Version: 1.0
-References: <20190805124924.788666484@linuxfoundation.org>
-In-Reply-To: <20190805124924.788666484@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 6 Aug 2019 08:25:55 +0530
-Message-ID: <CA+G9fYsZn1BT46yDjxMi1=HDSmc_Kdrw2ZwcZ8MD6+RZUBS5Og@mail.gmail.com>
-Subject: Re: [PATCH 4.9 00/42] 4.9.188-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 5 Aug 2019 at 18:35, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.9.188 release.
-> There are 42 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed 07 Aug 2019 12:47:58 PM UTC.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.9.188-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.9.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+This series adds support for kernel compiled in Thumb mode
+and fixes a kernel panic on smp bring-up when FORTIFY_SOURCE
+is enabled.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+The series started with the second patch as an RFC, and
+the first patch were suggested on the review to complement
+the fix.
 
-Summary
-------------------------------------------------------------------------
+The changes were run-tested on a Digilent Zybo Z7 board
 
-kernel: 4.9.188-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.9.y
-git commit: 228fba508ff1bf754e9bc4b3e72a327620ffacf2
-git describe: v4.9.187-43-g228fba508ff1
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
-ld/v4.9.187-43-g228fba508ff1
+Luis Araneda (2):
+  ARM: zynq: support smp in thumb mode
+  ARM: zynq: Use memcpy_toio instead of memcpy on smp bring-up
 
+ arch/arm/mach-zynq/headsmp.S | 2 ++
+ arch/arm/mach-zynq/platsmp.c | 4 ++--
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-No regressions (compared to build v4.9.187)
+-- 
+2.22.0
 
-No fixes (compared to build v4.9.187)
-
-
-Ran 23616 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* network-basic-tests
-* ltp-open-posix-tests
-* prep-tmp-disk
-* kvm-unit-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
