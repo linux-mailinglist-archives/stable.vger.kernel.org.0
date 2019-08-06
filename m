@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7158C83C71
+	by mail.lfdr.de (Postfix) with ESMTP id 024A483C70
 	for <lists+stable@lfdr.de>; Tue,  6 Aug 2019 23:42:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728557AbfHFVff (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Aug 2019 17:35:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53322 "EHLO mail.kernel.org"
+        id S1728581AbfHFVfi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Aug 2019 17:35:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728548AbfHFVfe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Aug 2019 17:35:34 -0400
+        id S1728522AbfHFVfg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Aug 2019 17:35:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 159C12186A;
-        Tue,  6 Aug 2019 21:35:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31B08217D9;
+        Tue,  6 Aug 2019 21:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565127333;
-        bh=JRxs4CjZsR9Mwk1SkqyAGfhLAqxCj8GtLVUw0Wj+tr8=;
+        s=default; t=1565127335;
+        bh=hnjPdept+35vMcFmZGvmNQcR4/QsLjxDNRb8z2SIzBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pkYZTHqlZtmxGsGp8569PEWPL933Zt7+RBpk67D7wTWvHYpoLgDppAugCxSNy6+YG
-         KnjxsxKeL0t71zTN1cyE6oL266qYJ2JbSFPirkvmwwJyVy94pBSlP3kbtMlz+tiXCY
-         P4LfvPBx0iBrs/VwQe601yO+zeDx25rzCxCYu1s4=
+        b=yN1jEisrw3+8W85T9HRqmOlb60qgOmvLlQsRl1LnucOkam9gPLKzu+U4vplOpv5PH
+         uj8GZr5hnqc8p9BYUWVjTfQrZo/Wqc8SPPrUgWRA3ERqcu456xun7lRVcXkGKhS9wB
+         KQQ5scvPZhmmgosPUPkD68uxu6H/WMnUG3Y3rJjc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 05/32] xen/pciback: remove set but not used variable 'old_state'
-Date:   Tue,  6 Aug 2019 17:34:53 -0400
-Message-Id: <20190806213522.19859-5-sashal@kernel.org>
+Cc:     Nianyao Tang <tangnianyao@huawei.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jason Cooper <jason@lakedaemon.net>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Shaokun Zhang <zhangshaokun@hisilicon.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 06/32] irqchip/gic-v3-its: Free unused vpt_page when alloc vpe table fail
+Date:   Tue,  6 Aug 2019 17:34:54 -0400
+Message-Id: <20190806213522.19859-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190806213522.19859-1-sashal@kernel.org>
 References: <20190806213522.19859-1-sashal@kernel.org>
@@ -44,46 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Nianyao Tang <tangnianyao@huawei.com>
 
-[ Upstream commit 09e088a4903bd0dd911b4f1732b250130cdaffed ]
+[ Upstream commit 34f8eb92ca053cbba2887bb7e4dbf2b2cd6eb733 ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+In its_vpe_init, when its_alloc_vpe_table fails, we should free
+vpt_page allocated just before, instead of vpe->vpt_page.
+Let's fix it.
 
-drivers/xen/xen-pciback/conf_space_capability.c: In function pm_ctrl_write:
-drivers/xen/xen-pciback/conf_space_capability.c:119:25: warning:
- variable old_state set but not used [-Wunused-but-set-variable]
-
-It is never used so can be removed.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Jason Cooper <jason@lakedaemon.net>
+Cc: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Nianyao Tang <tangnianyao@huawei.com>
+Signed-off-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/xen-pciback/conf_space_capability.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/irqchip/irq-gic-v3-its.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/xen/xen-pciback/conf_space_capability.c b/drivers/xen/xen-pciback/conf_space_capability.c
-index 73427d8e01161..e5694133ebe57 100644
---- a/drivers/xen/xen-pciback/conf_space_capability.c
-+++ b/drivers/xen/xen-pciback/conf_space_capability.c
-@@ -116,13 +116,12 @@ static int pm_ctrl_write(struct pci_dev *dev, int offset, u16 new_value,
- {
- 	int err;
- 	u16 old_value;
--	pci_power_t new_state, old_state;
-+	pci_power_t new_state;
+diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
+index ee30e8965d1be..9ba73e11757d9 100644
+--- a/drivers/irqchip/irq-gic-v3-its.c
++++ b/drivers/irqchip/irq-gic-v3-its.c
+@@ -2883,7 +2883,7 @@ static int its_vpe_init(struct its_vpe *vpe)
  
- 	err = pci_read_config_word(dev, offset, &old_value);
- 	if (err)
- 		goto out;
+ 	if (!its_alloc_vpe_table(vpe_id)) {
+ 		its_vpe_id_free(vpe_id);
+-		its_free_pending_table(vpe->vpt_page);
++		its_free_pending_table(vpt_page);
+ 		return -ENOMEM;
+ 	}
  
--	old_state = (pci_power_t)(old_value & PCI_PM_CTRL_STATE_MASK);
- 	new_state = (pci_power_t)(new_value & PCI_PM_CTRL_STATE_MASK);
- 
- 	new_value &= PM_OK_BITS;
 -- 
 2.20.1
 
