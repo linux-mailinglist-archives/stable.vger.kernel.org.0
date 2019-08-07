@@ -2,103 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 809D68516C
-	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 18:49:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 161A685341
+	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 20:52:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388801AbfHGQth (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Aug 2019 12:49:37 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:50667 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388783AbfHGQth (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Aug 2019 12:49:37 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 529ED21B7C;
-        Wed,  7 Aug 2019 12:49:36 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Wed, 07 Aug 2019 12:49:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=B
-        fSCjn82aAb29n20rYVaN6jtI5PnXM2npbAFgVtJyqU=; b=h8+9YrFv5Dv3lgVSO
-        4uXhIKCmIS6Yk0un1gAqjVcHnJiyQCNusEoj03KEjYaY+Ndy7rtMYwI3U4MRDDYd
-        sC6jeXNn0Ymi4j84lnOChGvc8JMHLsN9B2iKug/c8LXS781p4xn2MA2IvG9lIRBW
-        1gpt56VW+Rs0P3dv1jA7HUmxqElUUnB43yOIMxHuB9pUpg1vZTmxlHPGosFhmat9
-        aJGcXRUiqB9VSMQi9BHPY3V8qKPbLmaCIuRfonEgOeoAKRhpGawXzW5Iu+OMMMrX
-        TPHEKpCQXwa4+dMcm1TTlfoRLYXZ56p0sK/LcXTzLOzMwwVCyEvRtsWytzI3d4ae
-        unwiA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=BfSCjn82aAb29n20rYVaN6jtI5PnXM2npbAFgVtJy
-        qU=; b=wTMim2E8A1So7qS7h4f/3LIfqowzgsjjOBhPDtEKcEAWr/8p5kpimjzET
-        QJihE5igdeQAjKIWWxgp5edvGHrskE48qFVVIC1FAUiH/7u1cyziG3Gv01LrrKpI
-        di7yGPgAgTJbOmfhVYJ1/33ajyXE8ep/8Z34kQCdpZF6WjdL27iLC+OFW/kceHQg
-        QzJybFA8BiPGfr0jhcNkjmj9L0nlp6PKBOqHB2hcT3g7g28KweJV2VZmF0w89voO
-        HQgFViuTZUneJNCbnQ4RNT1mSqpO2actuVvGWdgStd4dCFIxpxYzKatE/M2+Wz+6
-        jetixAZ5btthLOm6uSRPEdL0ML1OA==
-X-ME-Sender: <xms:HwFLXVFWDjpAHU4pBWzzWNPauH4Rf4dGqyUYHJzy3cVDX3QW-6B50w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudduvddguddthecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggugfgjfgesthekredttderjeenucfhrhhomhepifhr
-    vghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekle
-    druddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-    necuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:IAFLXR5W5cC95qAwkeipVvyUOoHX2TUqbrcoo4BussCGxfX_SxGCfw>
-    <xmx:IAFLXWypV6-fV5XeswwokwuAUqGEnZYhUSlK0Q9ja9dTYFDxm7RmMw>
-    <xmx:IAFLXX2KzfVlWJfI2xTBnlOdtSUYJVg_wqVZn-E1eISALzShgVzJAA>
-    <xmx:IAFLXdXaLo4nmMMziZi7D8sT-mYonviBGKiwN1m_3xJAZOyTaJWUOQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 909E9380079;
-        Wed,  7 Aug 2019 12:49:35 -0400 (EDT)
-Date:   Wed, 7 Aug 2019 18:49:34 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Major Hayden <major@redhat.com>
-Cc:     Stable <stable@vger.kernel.org>
-Subject: Re: Fwd: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Stable queue:
- queue-5.2
-Message-ID: <20190807164934.GA31226@kroah.com>
-References: <cki.81AEF59787.PJG8MSVVDT@redhat.com>
- <a3630be0-6df0-1421-2e30-39ee138cf9a2@redhat.com>
+        id S2389384AbfHGSwD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Aug 2019 14:52:03 -0400
+Received: from mail-yw1-f68.google.com ([209.85.161.68]:44503 "EHLO
+        mail-yw1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389245AbfHGSwD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Aug 2019 14:52:03 -0400
+Received: by mail-yw1-f68.google.com with SMTP id l79so32811388ywe.11
+        for <stable@vger.kernel.org>; Wed, 07 Aug 2019 11:52:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=poorly.run; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=uBJnbcNgXL4Ewt9aXEKXXTybz6mgacmlW9xupC/bPsc=;
+        b=OBhAk4Pt26i2GgK6u2y94cEldEvtZoBVr3PpcqvWMNCMP6HulT4f78bxyX/lOT8XKn
+         kqpb+5re5/nFIrPpIi5i/4mjIweIMh+P5h2tirVbmynk3utJX/HmtlIpcS1ZBEsjIVM8
+         fQIJvH7GRYCBaPDgYsHx/G+ozoKKY4Y7JCN0hFvJphK11AN7GCR4izHCrVJWPVja6Vpv
+         bujaV0FA1QJUszApem6HCR0mBa7LB+xqDcNjMCVjIPAEVjUB19/rLjgFUQCrsPsZ+Y/p
+         TSQPGn7M83PVj/JtYfogXPxe3icU1L7oeCS48ITWJMlpcm+tL+IRPXIr6d++P8Oi5FZy
+         elSw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=uBJnbcNgXL4Ewt9aXEKXXTybz6mgacmlW9xupC/bPsc=;
+        b=MdAdbIJdzkPxyEgOkJU/Fr8jVd/k3aOFOkZrHFvgQYWA/kfiDs3xIpT+OqP/N1Wuqd
+         2hBXW2jBnrrHODuxiBwoOk3cNvKZF+tzoxRM9SZXbGHV1G3wGK8+wlu15iNLhfzZ80Hr
+         33QVnvNv1/Sg4gW0kTa/b1NPAHAia32j5IOUNAD89tk87Fyz9aRywKyC104ZoxiIW7Ky
+         kzuHE1kjr8ItvYArDoCS+Lmmyq1wJIlwyVxhmjKMun1dgaS5V8wFJxf+5zyl3SxQEgaD
+         aOOb/6SP3eEDDHUTs4jeqCSjMZaUOqsrmxRn0XGfNO7iAVoVG1ShsLxskC71VUul+mji
+         cEjA==
+X-Gm-Message-State: APjAAAVfmUStRTYNABgetDicN1mxvjlT2ndUot1M4TCoNS78PwRLrVFB
+        mW4m+h11Uh52vJx2ixO08My4Ig==
+X-Google-Smtp-Source: APXvYqybR9mHxZg127Kte6AYTK7OAVaW22KUyjQarf6IV6TetInW4a+GbgKCDa1r0Ey/tvuSRyQjYw==
+X-Received: by 2002:a81:5f82:: with SMTP id t124mr6836554ywb.344.1565203922409;
+        Wed, 07 Aug 2019 11:52:02 -0700 (PDT)
+Received: from rosewood.cam.corp.google.com ([2620:0:1013:11:89c6:2139:5435:371d])
+        by smtp.gmail.com with ESMTPSA id d127sm20174910ywb.27.2019.08.07.11.52.01
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Wed, 07 Aug 2019 11:52:02 -0700 (PDT)
+From:   Sean Paul <sean@poorly.run>
+To:     freedreno@lists.freedesktop.org
+Cc:     Sean Paul <seanpaul@chromium.org>,
+        Sibi Sankar <sibis@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>, stable@vger.kernel.org,
+        Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>, linux-arm-msm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH] drm/msm/dsi: Fix return value check for clk_get_parent
+Date:   Wed,  7 Aug 2019 14:51:50 -0400
+Message-Id: <20190807185201.16072-1-sean@poorly.run>
+X-Mailer: git-send-email 2.23.0.rc1.153.gdeed80330f-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <a3630be0-6df0-1421-2e30-39ee138cf9a2@redhat.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 07, 2019 at 11:28:30AM -0500, Major Hayden wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA256
-> 
-> Hey there,
-> 
-> We are still working through some improvements on our platform and we haven't re-enabled automated emails to the list yet.
-> 
-> However, we did just stumble into this compile error for aarch64 with the latest patches in stable-queue:
-> 
-> > 00:03:02   CC [M]  drivers/net/wireless/realtek/rtlwifi/rtl8723ae/table.o
-> > 00:03:02 drivers/spi/spi-bcm2835.c: In function ‘bcm2835_spi_transfer_one’:
-> > 00:03:02 drivers/spi/spi-bcm2835.c:768:21: error: ‘ctlr’ undeclared (first use in this function)
-> > 00:03:02   768 |      tfr->rx_buf != ctlr->dummy_rx)
-> > 00:03:02       |                     ^~~~
-> > 00:03:02 drivers/spi/spi-bcm2835.c:768:21: note: each undeclared identifier is reported only once for each function it appears in
-> > 00:03:02   CC [M]  drivers/net/ethernet/mellanox/mlxsw/spectrum2_acl_tcam.o
-> > 00:03:02 make[4]: *** [scripts/Makefile.build:284: drivers/spi/spi-bcm2835.o] Error 1
-> 
-> Please let me know if anyone has more questions! The full build log is attached to this email.
-> 
+From: Sean Paul <seanpaul@chromium.org>
 
-Welcome back!  Yes, this is a real error, your systems caught this at
-the same exact time mine did :)
+clk_get_parent returns an error pointer upon failure, not NULL. So the
+checks as they exist won't catch a failure. This patch changes the
+checks and the return values to properly handle an error pointer.
 
-I'll go drop this patch from everywhere now.
+Fixes: c4d8cfe516dc ("drm/msm/dsi: add implementation for helper functions")
+Cc: Sibi Sankar <sibis@codeaurora.org>
+Cc: Sean Paul <seanpaul@chromium.org>
+Cc: Rob Clark <robdclark@chromium.org>
+Cc: <stable@vger.kernel.org> # v4.19+
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
+---
+ drivers/gpu/drm/msm/dsi/dsi_host.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-thanks,
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
+index aa35d18ab43c9..02acb4338721a 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_host.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
+@@ -421,15 +421,15 @@ static int dsi_clk_init(struct msm_dsi_host *msm_host)
+ 	}
+ 
+ 	msm_host->byte_clk_src = clk_get_parent(msm_host->byte_clk);
+-	if (!msm_host->byte_clk_src) {
+-		ret = -ENODEV;
++	if (IS_ERR(msm_host->byte_clk_src)) {
++		ret = PTR_ERR(msm_host->byte_clk_src);
+ 		pr_err("%s: can't find byte_clk clock. ret=%d\n", __func__, ret);
+ 		goto exit;
+ 	}
+ 
+ 	msm_host->pixel_clk_src = clk_get_parent(msm_host->pixel_clk);
+-	if (!msm_host->pixel_clk_src) {
+-		ret = -ENODEV;
++	if (IS_ERR(msm_host->pixel_clk_src)) {
++		ret = PTR_ERR(msm_host->pixel_clk_src);
+ 		pr_err("%s: can't find pixel_clk clock. ret=%d\n", __func__, ret);
+ 		goto exit;
+ 	}
+-- 
+Sean Paul, Software Engineer, Google / Chromium OS
 
-greg k-h
