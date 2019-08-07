@@ -2,117 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEEE0854EC
-	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 23:07:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51435854FC
+	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 23:12:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730117AbfHGVHi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Aug 2019 17:07:38 -0400
-Received: from bmailout3.hostsharing.net ([176.9.242.62]:54747 "EHLO
-        bmailout3.hostsharing.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729960AbfHGVHi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Aug 2019 17:07:38 -0400
-X-Greylist: delayed 525 seconds by postgrey-1.27 at vger.kernel.org; Wed, 07 Aug 2019 17:07:36 EDT
-Received: from h08.hostsharing.net (h08.hostsharing.net [IPv6:2a01:37:1000::53df:5f1c:0])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client CN "*.hostsharing.net", Issuer "COMODO RSA Domain Validation Secure Server CA" (not verified))
-        by bmailout3.hostsharing.net (Postfix) with ESMTPS id 31454100AF90C;
-        Wed,  7 Aug 2019 22:58:50 +0200 (CEST)
-Received: by h08.hostsharing.net (Postfix, from userid 100393)
-        id D94C4263D6; Wed,  7 Aug 2019 22:58:49 +0200 (CEST)
-Date:   Wed, 7 Aug 2019 22:58:49 +0200
-From:   Lukas Wunner <lukas@wunner.de>
-To:     gregkh@linuxfoundation.org
-Cc:     broonie@kernel.org, kernel@martin.sperl.org, nuno.sa@analog.com,
-        wahrenst@gmx.net, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] spi: bcm2835: Fix 3-wire mode if DMA is
- enabled" failed to apply to 5.2-stable tree
-Message-ID: <20190807205849.ualpzgp52crdmdol@wunner.de>
-References: <156519648724814@kroah.com>
+        id S1730363AbfHGVMV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Aug 2019 17:12:21 -0400
+Received: from mail-pf1-f177.google.com ([209.85.210.177]:38294 "EHLO
+        mail-pf1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729714AbfHGVMV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Aug 2019 17:12:21 -0400
+Received: by mail-pf1-f177.google.com with SMTP id y15so42807953pfn.5;
+        Wed, 07 Aug 2019 14:12:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=J1+VJ4niA/UgLG1ksIGoQZvmRO/g/peOr4UQIkN8vIs=;
+        b=LnRYBRS1LHJpKoI3Lw8PI9mx7Ov7TuO6NZNOOQi7L/MH3BByN2kh7Gx+AzVyp2CNh/
+         6g45oDCE2xr9YtFTuUnuiyBl1xonhfdBa931cq/h7MICF4vIBZ7jbezFvYiF6e+uMBEP
+         9dyB9wicWQZL7sH30LeiJLu23hMKKs8WJo1848YIC6/KQIpuY9ZXb0igKVUMTBvm7KxD
+         sN6NmvM4+1e8Bjq0SCZrijls1L6bxQlFV53XCOFrGJeOMkosd2NbVFrzp7k7gbR2UmG4
+         5aaSQ3JzSnMRfXAHjBXUifLSIN6Dgpa+atFKX250w1PZLunEAAqb59KZmDrE5Ecpq7WQ
+         t87Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=J1+VJ4niA/UgLG1ksIGoQZvmRO/g/peOr4UQIkN8vIs=;
+        b=f85maHRTtDZXPFf7wKkGY6FrYxd/Hf2ceW6wsLrw06VR9isFgxLKsYIwCVWdEhNUL7
+         N5/II7CrbCKQ6yGLMsHt0PY7EdbKLJFx7c/uxItQ2J/0OmBZ6nqf1XLaYMiaRrR2F1kV
+         UjBbaJGXVbxvCmbuoJP9sg367wN7sOnpvyKdLu+5oMk02wMSy3iidi5yyytD8SRH/c+K
+         jaZzZII5kjrUnYzX92V9ILRe4iuWp2TrAoz/2A7uJ9p20AyuHTt2pkqhpzcVE+G+NZ9T
+         ZuWj+Kn808j/j2jvXnlrZ+k2l4nA1HZI1UaZhGGk9dINR8Ng8TKrBMZtzhn5kAJH6jng
+         HEHg==
+X-Gm-Message-State: APjAAAU6K6cWUpzeAju3NeKJUDwR9dXhIv1QnYm5+qThUiKM8tdXjAgK
+        zVsXHJ27Dv+Uk0RgAyMsYnL7gw+1
+X-Google-Smtp-Source: APXvYqxi0FHFgLsJQ0OdxFKfN0IznT7yo1Pw88vEiiYOuKUVNDMtmrnecK/uDj+vORiQpjQW2U1dcQ==
+X-Received: by 2002:a17:90a:bf03:: with SMTP id c3mr390067pjs.112.1565212340188;
+        Wed, 07 Aug 2019 14:12:20 -0700 (PDT)
+Received: from US-191-ENG0002.corp.onewacom.com ([50.225.60.4])
+        by smtp.gmail.com with ESMTPSA id v63sm95562122pfv.174.2019.08.07.14.12.18
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Wed, 07 Aug 2019 14:12:18 -0700 (PDT)
+From:   "Gerecke, Jason" <killertofu@gmail.com>
+X-Google-Original-From: "Gerecke, Jason" <jason.gerecke@wacom.com>
+To:     linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Ping Cheng <pinglinux@gmail.com>,
+        Aaron Armstrong Skomra <skomra@gmail.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Jason Gerecke <jason.gerecke@wacom.com>, stable@vger.kernel.org
+Subject: [PATCH v2] HID: wacom: Correct distance scale for 2nd-gen Intuos devices
+Date:   Wed,  7 Aug 2019 14:11:55 -0700
+Message-Id: <20190807211155.4280-1-jason.gerecke@wacom.com>
+X-Mailer: git-send-email 2.22.0
+In-Reply-To: <20190807051839.GA26833@kroah.com>
+References: <20190807051839.GA26833@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <156519648724814@kroah.com>
-User-Agent: NeoMutt/20170113 (1.7.2)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 07, 2019 at 06:48:07PM +0200, gregkh@linuxfoundation.org wrote:
-> The patch below does not apply to the 5.2-stable tree.
+From: Jason Gerecke <jason.gerecke@wacom.com>
 
-That's odd, it works for me:
+Distance values reported by 2nd-gen Intuos tablets are on an inverted
+scale (0 == far, 63 == near). We need to change them over to a normal
+scale before reporting to userspace or else userspace drivers and
+applications can get confused.
 
-$ git fetch linux-stable
-$ git checkout linux-stable/linux-5.2.y
-Checking out files: 100% (43562/43562), done.
-HEAD is now at 5697a9d... Linux 5.2.7
-$ git am /tmp/pt
-Applying: spi: bcm2835: Fix 3-wire mode if DMA is enabled
+Ref: https://github.com/linuxwacom/input-wacom/issues/98
+Fixes: eda01dab53 ("HID: wacom: Add four new Intuos devices")
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Cc: <stable@vger.kernel.org> # v4.4+
+---
+Make checkpatch happy -- *doh!*
 
-Could you be a little more specific why it couldn't be applied
-when you tried it?
+ drivers/hid/wacom_wac.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Thanks,
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 7a8ddc999a8e..8e5063492242 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -846,6 +846,8 @@ static int wacom_intuos_general(struct wacom_wac *wacom)
+ 		y >>= 1;
+ 		distance >>= 1;
+ 	}
++	if (features->type == INTUOSHT2)
++		distance = features->distance_max - distance;
+ 	input_report_abs(input, ABS_X, x);
+ 	input_report_abs(input, ABS_Y, y);
+ 	input_report_abs(input, ABS_DISTANCE, distance);
+-- 
+2.22.0
 
-Lukas
-
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> ------------------ original commit in Linus's tree ------------------
-> 
-> From 8d8bef50365847134b51c1ec46786bc2873e4e47 Mon Sep 17 00:00:00 2001
-> From: Lukas Wunner <lukas@wunner.de>
-> Date: Wed, 3 Jul 2019 12:29:31 +0200
-> Subject: [PATCH] spi: bcm2835: Fix 3-wire mode if DMA is enabled
-> MIME-Version: 1.0
-> Content-Type: text/plain; charset=UTF-8
-> Content-Transfer-Encoding: 8bit
-> 
-> Commit 6935224da248 ("spi: bcm2835: enable support of 3-wire mode")
-> added 3-wire support to the BCM2835 SPI driver by setting the REN bit
-> (Read Enable) in the CS register when receiving data.  The REN bit puts
-> the transmitter in high-impedance state.  The driver recognizes that
-> data is to be received by checking whether the rx_buf of a transfer is
-> non-NULL.
-> 
-> Commit 3ecd37edaa2a ("spi: bcm2835: enable dma modes for transfers
-> meeting certain conditions") subsequently broke 3-wire support because
-> it set the SPI_MASTER_MUST_RX flag which causes spi_map_msg() to replace
-> rx_buf with a dummy buffer if it is NULL.  As a result, rx_buf is
-> *always* non-NULL if DMA is enabled.
-> 
-> Reinstate 3-wire support by not only checking whether rx_buf is non-NULL,
-> but also checking that it is not the dummy buffer.
-> 
-> Fixes: 3ecd37edaa2a ("spi: bcm2835: enable dma modes for transfers meeting certain conditions")
-> Reported-by: Nuno Sá <nuno.sa@analog.com>
-> Signed-off-by: Lukas Wunner <lukas@wunner.de>
-> Cc: stable@vger.kernel.org # v4.2+
-> Cc: Martin Sperl <kernel@martin.sperl.org>
-> Acked-by: Stefan Wahren <wahrenst@gmx.net>
-> Link: https://lore.kernel.org/r/328318841455e505370ef8ecad97b646c033dc8a.1562148527.git.lukas@wunner.de
-> Signed-off-by: Mark Brown <broonie@kernel.org>
-> 
-> diff --git a/drivers/spi/spi-bcm2835.c b/drivers/spi/spi-bcm2835.c
-> index 6f243a90c844..840b1b8ff3dc 100644
-> --- a/drivers/spi/spi-bcm2835.c
-> +++ b/drivers/spi/spi-bcm2835.c
-> @@ -834,7 +834,8 @@ static int bcm2835_spi_transfer_one(struct spi_controller *ctlr,
->  	bcm2835_wr(bs, BCM2835_SPI_CLK, cdiv);
->  
->  	/* handle all the 3-wire mode */
-> -	if ((spi->mode & SPI_3WIRE) && (tfr->rx_buf))
-> +	if (spi->mode & SPI_3WIRE && tfr->rx_buf &&
-> +	    tfr->rx_buf != ctlr->dummy_rx)
->  		cs |= BCM2835_SPI_CS_REN;
->  	else
->  		cs &= ~BCM2835_SPI_CS_REN;
-> 
