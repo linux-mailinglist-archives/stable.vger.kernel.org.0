@@ -2,101 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4E138481B
-	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 10:49:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D596848D3
+	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 11:47:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728774AbfHGItz convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 7 Aug 2019 04:49:55 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([146.101.78.151]:36985 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728360AbfHGItz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Aug 2019 04:49:55 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-219-Xw5AdrD2MRiS34lGOcsHNg-1; Wed, 07 Aug 2019 09:49:52 +0100
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Wed, 7 Aug 2019 09:49:52 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Wed, 7 Aug 2019 09:49:52 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Sasha Levin' <sashal@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-CC:     Colin Ian King <colin.king@canonical.com>,
-        Inki Dae <inki.dae@samsung.com>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
-Subject: RE: [PATCH AUTOSEL 5.2 51/59] drm/exynos: fix missing decrement of
- retry counter
-Thread-Topic: [PATCH AUTOSEL 5.2 51/59] drm/exynos: fix missing decrement of
- retry counter
-Thread-Index: AQHVTJ/1OP2tfkMm3E2/Hf9p02kXJabvYCkQ
-Date:   Wed, 7 Aug 2019 08:49:52 +0000
-Message-ID: <2ecde45912fc44b88df2ff5129b8ab67@AcuMS.aculab.com>
-References: <20190806213319.19203-1-sashal@kernel.org>
- <20190806213319.19203-51-sashal@kernel.org>
-In-Reply-To: <20190806213319.19203-51-sashal@kernel.org>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S1727541AbfHGJr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Aug 2019 05:47:29 -0400
+Received: from mx2.suse.de ([195.135.220.15]:44850 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726612AbfHGJr2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 7 Aug 2019 05:47:28 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 7F98EB0B6;
+        Wed,  7 Aug 2019 09:47:27 +0000 (UTC)
+Received: by ds.suse.cz (Postfix, from userid 10065)
+        id 4F512DA7D7; Wed,  7 Aug 2019 11:47:59 +0200 (CEST)
+Date:   Wed, 7 Aug 2019 11:47:59 +0200
+From:   David Sterba <dsterba@suse.cz>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        David Sterba <dsterba@suse.com>,
+        Filipe Manana <fdmanana@suse.com>, linux-btrfs@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.19 12/32] Btrfs: fix deadlock between fiemap
+ and transaction commits
+Message-ID: <20190807094759.GQ28208@suse.cz>
+Reply-To: dsterba@suse.cz
+Mail-Followup-To: dsterba@suse.cz, Sasha Levin <sashal@kernel.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        David Sterba <dsterba@suse.com>, Filipe Manana <fdmanana@suse.com>,
+        linux-btrfs@vger.kernel.org
+References: <20190806213522.19859-1-sashal@kernel.org>
+ <20190806213522.19859-12-sashal@kernel.org>
 MIME-Version: 1.0
-X-MC-Unique: Xw5AdrD2MRiS34lGOcsHNg-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190806213522.19859-12-sashal@kernel.org>
+User-Agent: Mutt/1.5.23.1 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sasha Levin
-> Sent: 06 August 2019 22:33
+On Tue, Aug 06, 2019 at 05:35:00PM -0400, Sasha Levin wrote:
+> From: Filipe Manana <fdmanana@suse.com>
 > 
-> From: Colin Ian King <colin.king@canonical.com>
+> [ Upstream commit a6d155d2e363f26290ffd50591169cb96c2a609e ]
 > 
-> [ Upstream commit 1bbbab097a05276e312dd2462791d32b21ceb1ee ]
-> 
-> Currently the retry counter is not being decremented, leading to a
-> potential infinite spin if the scalar_reads don't change state.
-> 
-> Addresses-Coverity: ("Infinite loop")
-> Fixes: 280e54c9f614 ("drm/exynos: scaler: Reset hardware before starting the operation")
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> Signed-off-by: Inki Dae <inki.dae@samsung.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/gpu/drm/exynos/exynos_drm_scaler.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/exynos/exynos_drm_scaler.c b/drivers/gpu/drm/exynos/exynos_drm_scaler.c
-> index ec9c1b7d31033..8989f8af716b7 100644
-> --- a/drivers/gpu/drm/exynos/exynos_drm_scaler.c
-> +++ b/drivers/gpu/drm/exynos/exynos_drm_scaler.c
-> @@ -94,12 +94,12 @@ static inline int scaler_reset(struct scaler_context *scaler)
->  	scaler_write(SCALER_CFG_SOFT_RESET, SCALER_CFG);
->  	do {
->  		cpu_relax();
-> -	} while (retry > 1 &&
-> +	} while (--retry > 1 &&
->  		 scaler_read(SCALER_CFG) & SCALER_CFG_SOFT_RESET);
->  	do {
->  		cpu_relax();
->  		scaler_write(1, SCALER_INT_EN);
-> -	} while (retry > 0 && scaler_read(SCALER_INT_EN) != 1);
-> +	} while (--retry > 0 && scaler_read(SCALER_INT_EN) != 1);
-> 
->  	return retry ? 0 : -EIO;
+> Fixes: 03628cdbc64db6 ("Btrfs: do not start a transaction during fiemap")
 
-If the first loop hits the retry limit the second loop won't be right
-and the final return value will be 0.
+The commit is a regression fix during the 5.2 cycle, how it could end up
+in a 4.19 stable candidate?
 
-	David
+$ git describe  03628cdbc64db6
+v5.1-rc7-201-g03628cdbc64d
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+$ git describe --contains 03628cdbc64db6
+v5.2-rc1~163^2~26
 
+And it does not belong to 5.2 either, git cherry-pick on top of 5.2
+fails.
+
+I think such sanity check can be done automatically so the patches don't
+accidentally land in trees where don't belong.
