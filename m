@@ -2,76 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D8998439E
-	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 07:18:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10534843FE
+	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 07:44:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725812AbfHGFSn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Aug 2019 01:18:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50642 "EHLO mail.kernel.org"
+        id S1725995AbfHGFof (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Aug 2019 01:44:35 -0400
+Received: from verein.lst.de ([213.95.11.211]:34469 "EHLO verein.lst.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725809AbfHGFSn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 7 Aug 2019 01:18:43 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C13CB217D7;
-        Wed,  7 Aug 2019 05:18:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565155122;
-        bh=2CHfavmayPi4Q4Um/B9uDR6af4m0sXzNVY+hOxvF/2Q=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ELMc1W/w9+8/qniSuJqkm8jtd6FIrqbZg4moXipZSWpr3rxRNRNZ5ug+0fFX562c0
-         34tHnsMPlVbEKY2XF2MKoKWMKMcHAtu+Zk7aw9PlBBwgu1etBQ1a9ayJn4cExFBcoN
-         LYak4MKSoz1UiS3CXIsDKtV2bukFAd3QfHXa3iqw=
-Date:   Wed, 7 Aug 2019 07:18:39 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Gerecke, Jason" <killertofu@gmail.com>
-Cc:     linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Ping Cheng <pinglinux@gmail.com>,
-        Aaron Armstrong Skomra <skomra@gmail.com>,
-        Jason Gerecke <jason.gerecke@wacom.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] HID: wacom: Correct distance scale for 2nd-gen Intuos
- devices
-Message-ID: <20190807051839.GA26833@kroah.com>
-References: <20190806205805.21168-1-jason.gerecke@wacom.com>
+        id S1725972AbfHGFof (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 7 Aug 2019 01:44:35 -0400
+Received: by verein.lst.de (Postfix, from userid 2407)
+        id 843B768B05; Wed,  7 Aug 2019 07:44:31 +0200 (CEST)
+Date:   Wed, 7 Aug 2019 07:44:31 +0200
+From:   Christoph Hellwig <hch@lst.de>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Robin Murphy <robin.murphy@arm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Fugang Duan <fugang.duan@nxp.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 5.2 073/131] dma-direct: correct the physical addr in
+ dma_direct_sync_sg_for_cpu/device
+Message-ID: <20190807054431.GA6475@lst.de>
+References: <20190805124951.453337465@linuxfoundation.org> <20190805124956.543654128@linuxfoundation.org> <20190806124143.GF17747@sasha-vm> <9dd82745-1673-afc3-5eb4-8b79ddb5824b@arm.com> <20190806220448.GN17747@sasha-vm>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190806205805.21168-1-jason.gerecke@wacom.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <20190806220448.GN17747@sasha-vm>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 06, 2019 at 01:58:05PM -0700, Gerecke, Jason wrote:
-> From: Jason Gerecke <jason.gerecke@wacom.com>
-> 
-> Distance values reported by 2nd-gen Intuos tablets are on an inveted scale
-> (0 == far, 63 == near). We need to change them over to a normal scale before
-> reporting to userspace or else userspace drivers and applications can get
-> confused.
-> 
-> Ref: https://github.com/linuxwacom/input-wacom/issues/98
-> Fixes: eda01dab53 ("HID: wacom: Add four new Intuos devices")
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-> Cc: <stable@vger.kernel.org> # v4.4+
-> ---
->  drivers/hid/wacom_wac.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index 7a8ddc999a8e..879e41fbf604 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -846,6 +846,9 @@ static int wacom_intuos_general(struct wacom_wac *wacom)
->  		y >>= 1;
->  		distance >>= 1;
->  	}
-> +	if (features->type == INTUOSHT2) {
-> +		distance = features->distance_max - distance;
-> +	}
+On Tue, Aug 06, 2019 at 06:04:48PM -0400, Sasha Levin wrote:
+> On Tue, Aug 06, 2019 at 01:57:56PM +0100, Robin Murphy wrote:
+>> Given that the two commits touch entirely separate files I'm not sure what 
+>> the imagined dependency could be :/
+>
+>> From the commit message of 3de433c5b38a ("drm/msm: Use the correct
+> dma_sync calls in msm_gem"):
+>
+>    Fixes the combination of two patches:
+>
+>    Fixes: 0036bc73ccbe (drm/msm: stop abusing dma_map/unmap for cache)
+>    Fixes: 449fa54d6815 (dma-direct: correct the physical addr in dma_direct_sync_sg_for_cpu/device)
+>
+>> 0036bc73ccbe is indeed not a fix (frankly I'm not convinced it's even a 
+>> valid change at all) but even conceptually it bears no relation whatsoever 
+>> to the genuine bug fixed by 449fa54d6815.
+>
+> Given that Rob Clark asked me to drop 0036bc73ccbe not because it's
+> irrelevant but because it's potentially dangerous, I did not feel
+> confident enough ignoring the statement in the commit message and
+> dropped this patch instead.
 
-{ } not needed, always run checkpatch.pl before sending stuff out :(
-
+449fa54d6815 fixes swiotlb misbehaving vs the API spec for the call,
+something that real users on x86 cought.  Robs fix works around the
+fact that msm is badly abusing dma API.  So even if both are genuine
+bugs it is pretty clear we need to decide the match for the proper
+users of the API and not the single abuser.
