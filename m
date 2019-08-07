@@ -2,67 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4F3A84C21
-	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 14:56:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B16384CA2
+	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 15:17:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729781AbfHGM4N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Aug 2019 08:56:13 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:49619 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727213AbfHGM4N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Aug 2019 08:56:13 -0400
-Received: from p200300ddd742df588d2c07822b9f4274.dip0.t-ipconnect.de ([2003:dd:d742:df58:8d2c:782:2b9f:4274])
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tglx@linutronix.de>)
-        id 1hvLU7-0000Iq-HK; Wed, 07 Aug 2019 14:56:07 +0200
-Date:   Wed, 7 Aug 2019 14:56:01 +0200 (CEST)
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     Austin Kim <austindh.kim@gmail.com>
-cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>, peterz@infradead.org,
-        mingo@kernel.org, tj@kernel.org, jiangshanlai@gmail.com,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: NULL ptr deref in wq_worker_sleeping on 4.19
-In-Reply-To: <CADLLry6a9a0TKOEEPxOW_DS+XXwk5qUuaH+W9cmbLwvudXAV8A@mail.gmail.com>
-Message-ID: <alpine.DEB.2.21.1908071452350.24014@nanos.tec.linutronix.de>
-References: <20190719135352.GF4240@sasha-vm> <20190807114649.fjfaj4oytcxaua7o@linutronix.de> <CADLLry6a9a0TKOEEPxOW_DS+XXwk5qUuaH+W9cmbLwvudXAV8A@mail.gmail.com>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+        id S2387981AbfHGNRK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Aug 2019 09:17:10 -0400
+Received: from mx2.suse.de ([195.135.220.15]:34638 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2387982AbfHGNRJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 7 Aug 2019 09:17:09 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id CD87EAE34;
+        Wed,  7 Aug 2019 13:17:07 +0000 (UTC)
+Date:   Wed, 7 Aug 2019 15:17:06 +0200
+From:   Michal Hocko <mhocko@kernel.org>
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     Toshiki Fukasawa <t-fukasawa@vx.jp.nec.com>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "adobriyan@gmail.com" <adobriyan@gmail.com>,
+        "hch@lst.de" <hch@lst.de>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Junichi Nomura <j-nomura@ce.jp.nec.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH 2/2] /proc/kpageflags: do not use uninitialized struct
+ pages
+Message-ID: <20190807131706.GA11812@dhcp22.suse.cz>
+References: <20190725023100.31141-1-t-fukasawa@vx.jp.nec.com>
+ <20190725023100.31141-3-t-fukasawa@vx.jp.nec.com>
+ <20190725090341.GC13855@dhcp22.suse.cz>
+ <40b3078e-fb8b-87ef-5c4e-6321956cc940@vx.jp.nec.com>
+ <20190726070615.GB6142@dhcp22.suse.cz>
+ <3a926ce5-75b9-ea94-d6e4-6888872e0dc4@vx.jp.nec.com>
+ <CAPcyv4iCXWgxkLi3eM_EaqD0cuzmRyg5k4c9CeS1TyN+bajXFw@mail.gmail.com>
+ <20190806064636.GU7597@dhcp22.suse.cz>
+ <CAPcyv4i5FjTOnPbXNcTzvt+e6RQYow0JRQwSFuxaa62LSuvzHQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAPcyv4i5FjTOnPbXNcTzvt+e6RQYow0JRQwSFuxaa62LSuvzHQ@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 7 Aug 2019, Austin Kim wrote:
-
-  A: Because it messes up the order in which people normally read text.
-  Q: Why is top-posting such a bad thing?
-  A: Top-posting.
-  Q: What is the most annoying thing in e-mail?
-
-  A: No.
-  Q: Should I include quotations after my reply?
-
-  http://daringfireball.net/2007/07/on_top
-
-> I wonder what kinds of workqueue is used in case of this panic.
+On Tue 06-08-19 09:15:25, Dan Williams wrote:
+> On Mon, Aug 5, 2019 at 11:47 PM Michal Hocko <mhocko@kernel.org> wrote:
+> >
+> > On Mon 05-08-19 20:27:03, Dan Williams wrote:
+> > > On Sun, Aug 4, 2019 at 10:31 PM Toshiki Fukasawa
+> > > <t-fukasawa@vx.jp.nec.com> wrote:
+> > > >
+> > > > On 2019/07/26 16:06, Michal Hocko wrote:
+> > > > > On Fri 26-07-19 06:25:49, Toshiki Fukasawa wrote:
+> > > > >>
+> > > > >>
+> > > > >> On 2019/07/25 18:03, Michal Hocko wrote:
+> > > > >>> On Thu 25-07-19 02:31:18, Toshiki Fukasawa wrote:
+> > > > >>>> A kernel panic was observed during reading /proc/kpageflags for
+> > > > >>>> first few pfns allocated by pmem namespace:
+> > > > >>>>
+> > > > >>>> BUG: unable to handle page fault for address: fffffffffffffffe
+> > > > >>>> [  114.495280] #PF: supervisor read access in kernel mode
+> > > > >>>> [  114.495738] #PF: error_code(0x0000) - not-present page
+> > > > >>>> [  114.496203] PGD 17120e067 P4D 17120e067 PUD 171210067 PMD 0
+> > > > >>>> [  114.496713] Oops: 0000 [#1] SMP PTI
+> > > > >>>> [  114.497037] CPU: 9 PID: 1202 Comm: page-types Not tainted 5.3.0-rc1 #1
+> > > > >>>> [  114.497621] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.0-0-g63451fca13-prebuilt.qemu-project.org 04/01/2014
+> > > > >>>> [  114.498706] RIP: 0010:stable_page_flags+0x27/0x3f0
+> > > > >>>> [  114.499142] Code: 82 66 90 66 66 66 66 90 48 85 ff 0f 84 d1 03 00 00 41 54 55 48 89 fd 53 48 8b 57 08 48 8b 1f 48 8d 42 ff 83 e2 01 48 0f 44 c7 <48> 8b 00 f6 c4 02 0f 84 57 03 00 00 45 31 e4 48 8b 55 08 48 89 ef
+> > > > >>>> [  114.500788] RSP: 0018:ffffa5e601a0fe60 EFLAGS: 00010202
+> > > > >>>> [  114.501373] RAX: fffffffffffffffe RBX: ffffffffffffffff RCX: 0000000000000000
+> > > > >>>> [  114.502009] RDX: 0000000000000001 RSI: 00007ffca13a7310 RDI: ffffd07489000000
+> > > > >>>> [  114.502637] RBP: ffffd07489000000 R08: 0000000000000001 R09: 0000000000000000
+> > > > >>>> [  114.503270] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000240000
+> > > > >>>> [  114.503896] R13: 0000000000080000 R14: 00007ffca13a7310 R15: ffffa5e601a0ff08
+> > > > >>>> [  114.504530] FS:  00007f0266c7f540(0000) GS:ffff962dbbac0000(0000) knlGS:0000000000000000
+> > > > >>>> [  114.505245] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > > > >>>> [  114.505754] CR2: fffffffffffffffe CR3: 000000023a204000 CR4: 00000000000006e0
+> > > > >>>> [  114.506401] Call Trace:
+> > > > >>>> [  114.506660]  kpageflags_read+0xb1/0x130
+> > > > >>>> [  114.507051]  proc_reg_read+0x39/0x60
+> > > > >>>> [  114.507387]  vfs_read+0x8a/0x140
+> > > > >>>> [  114.507686]  ksys_pread64+0x61/0xa0
+> > > > >>>> [  114.508021]  do_syscall_64+0x5f/0x1a0
+> > > > >>>> [  114.508372]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> > > > >>>> [  114.508844] RIP: 0033:0x7f0266ba426b
+> > > > >>>>
+> > > > >>>> The reason for the panic is that stable_page_flags() which parses
+> > > > >>>> the page flags uses uninitialized struct pages reserved by the
+> > > > >>>> ZONE_DEVICE driver.
+> > > > >>>
+> > > > >>> Why pmem hasn't initialized struct pages?
+> > > > >>
+> > > > >> We proposed to initialize in previous approach but that wasn't merged.
+> > > > >> (See https://marc.info/?l=linux-mm&m=152964792500739&w=2)
+> > > > >>
+> > > > >>> Isn't that a bug that should be addressed rather than paper over it like this?
+> > > > >>
+> > > > >> I'm not sure. What do you think, Dan?
+> > > > >
+> > > > > Yeah, I am really curious about details. Why do we keep uninitialized
+> > > > > struct pages at all? What is a random pfn walker supposed to do? What
+> > > > > kind of metadata would be clobbered? In other words much more details
+> > > > > please.
+> > > > >
+> > > > I also want to know. I do not think that initializing struct pages will
+> > > > clobber any metadata.
+> > >
+> > > The nvdimm implementation uses vmem_altmap to arrange for the 'struct
+> > > page' array to be allocated from a reservation of a pmem namespace. A
+> > > namespace in this mode contains an info-block that consumes the first
+> > > 8K of the namespace capacity, capacity designated for page mapping,
+> > > capacity for padding the start of data to optionally 4K, 2MB, or 1GB
+> > > (on x86), and then the namespace data itself. The implementation
+> > > specifies a section aligned (now sub-section aligned) address to
+> > > arch_add_memory() to establish the linear mapping to map the metadata,
+> > > and then vmem_altmap indicates to memmap_init_zone() which pfns
+> > > represent data. The implementation only specifies enough 'struct page'
+> > > capacity for pfn_to_page() to operate on the data space, not the
+> > > namespace metadata space.
+> >
+> > Maybe I am dense but I do not really understand what prevents those
+> > struct pages to be initialized to whatever state nvidimm subsystem
+> > expects them to be? Is that a initialization speed up optimization?
 > 
-> If system workqueue(system_wq) is used for this case, it would be a
-> help to replace it with high priority workqueue(system_highpri_wq). If
-> panic disappers with high priority workqueue(system_highpri_wq), we
-> would think about another scenario.
+> No, not an optimization. If anything a regrettable choice in the
+> initial implementation to not reserve struct page space for the
+> metadata area. Certainly the kernel could fix this going forward, and
+> there are some configurations where even the existing allocation could
+> store those pfns, but there are others that need that reservation. So
+> there is a regression risk for some currently working configurations.
+> 
+> As always we could try making the reservation change and fail to
+> instantiate old namespaces that don't reserve enough capacity to see
+> who screams. I think the risk is low, but non-zero. That makes my
+> first choice to teach kpageflags_read() about the constraint.
 
-How would that help? As Sebastian explained, something overwrote memory or
-it is a Use After Free. How would a high priority workqueue 'fix' that?
+Thanks for the explanation!
 
-You need to find the root cause, which is either memory corruption or a use
-after free.
+> > > The proposal to validate ZONE_DEVICE pfns against the altmap seems the
+> > > right approach to me.
+> >
+> > This however means that all pfn walkers have to be aware of these
+> > special struct pages somehow and that is error prone.
+> 
+> True, but what other blind pfn walkers do we have besides
+> kpageflags_read()? I expect most other pfn_to_page() code paths are
+> constrained to known pfns and avoid this surprise, but yes I need to
+> go audit those.
 
-Thanks,
+Well, most pfn walkers in the MM code do go within a zone boundary. Many
+check also the zone to ensure interleaving zones are handled properly. I
+hope that these special zone device ranges are not going to interleave
+with other normal zones. But as always having a subtle land mine like
+this is really not nice. All valid pfns should have a real and
+initialized struct pages.
 
-	tglx
+-- 
+Michal Hocko
+SUSE Labs
