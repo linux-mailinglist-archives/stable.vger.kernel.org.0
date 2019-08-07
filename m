@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8CE385165
-	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 18:48:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B37CD85167
+	for <lists+stable@lfdr.de>; Wed,  7 Aug 2019 18:48:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388448AbfHGQsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Aug 2019 12:48:14 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:60553 "EHLO
+        id S2387985AbfHGQsP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Aug 2019 12:48:15 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:54313 "EHLO
         out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2387985AbfHGQsO (ORCPT
+        by vger.kernel.org with ESMTP id S2388414AbfHGQsO (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 7 Aug 2019 12:48:14 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id BBCF921F69;
-        Wed,  7 Aug 2019 12:48:11 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 07 Aug 2019 12:48:11 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 5D28D22054;
+        Wed,  7 Aug 2019 12:48:12 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Wed, 07 Aug 2019 12:48:12 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=yaLuov
-        3R2VOAoMXOZ5BUdZWQrdqxmM5wh02p09G/QTM=; b=BSpVjX2DSiBLSpFPUh78Qg
-        ex0iZAdCgCVghpSwX7K82TeTEd+UBgyBRa5C9alrOuwLXYTN5lSjwf+TkDPaXhNQ
-        lK7BjBhQEX2ONHFT2SBW2WHkIKbXg8Zxv9O3mrSveXTQTsac+GS71kqbzwi7Gkkr
-        dLXCBPGjEhmUda06RwBke2OezNs7R5wet7KbTY4quYen+X9y5/J8PotMKaNxKb4l
-        XAL6qnOCkTiFURFGcIRhTB+yiC4ygShpwq1UpqlUfm8NqZ+pqb/cFubbljPIrheo
-        zULKViD0rEMfLNM2HskNC8yZREo1XbIhNG7ootBol4t5qEs3vscHU9Q3cLFQElng
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=LhIcyS
+        vAtDsxt8Zjg4Ra/fGbrUvHcrFHwNh4yewgI3Q=; b=ArKxFp0njwgw5pdZ9NBvOv
+        8YxWPre6O5j396nG69N63Lpp1nP5qGLZkdLSFOcS6FYodEcksudKhefKzsHp0qHr
+        cwflmvx/FnPnQppO1B8eGnCeZeFoYmJP47+22ZIfJvt48gjQB+Pj+ZLkAMBVZMa9
+        279SQk2NG496L72zsvALvJKsyc9k6rQQcmf2095f+Q3MXTqpZHBeGuddBLhs3lMv
+        zCdA0F2Q5EOKnBvSeZ0h/yG1XSUjS8UwRPTGMDB4BcZU/dTcYUJhM6Y/ba2t+mRG
+        koo5MGMD6OVBDbLvv0C0fOo0buAGblwSTuwVGbGsvoR4tgD8rqfN/EM6gvKu9Neg
         ==
-X-ME-Sender: <xms:ygBLXeqK0o7XRwOpIhN72uplmOINCjFdfVIVbTYg-zd0KhPDSUtptw>
+X-ME-Sender: <xms:zABLXVN1xUYkZIyD7IsZOtB9c04hDBzsW3uf2uHGFdLwUUhnWuVxtg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudduvddguddthecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekle
     druddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-    necuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:ygBLXf5ZjcE5VDjShkHZcQu3xeEkEA8OIkfN43LIk9uTrMImdJrYAg>
-    <xmx:ygBLXathVCamGViG7pcM_DU_wQ4IfOVoSkztqCPJbIbu3dhjWk-UYw>
-    <xmx:ygBLXbhKZne9cx84z1lc_T7M3EBUowjZvYt4Omyz9MZAsjLofw6W7g>
-    <xmx:ywBLXbl5h8DQCHoQs6N3xA-IC8GLCk-3ubtUokPbcwYNAkMjz4_kUg>
+    necuvehluhhsthgvrhfuihiivgepud
+X-ME-Proxy: <xmx:zABLXcW_UHTH6CZGuDtRqJH6t5Zei5Q7nP-1S_DjH8s0b_3DGLaUHg>
+    <xmx:zABLXSLi9uTVMsRd9v9ruBiV7Tv9whaJ0-ocZZP0IbFLScDQRigbng>
+    <xmx:zABLXfpqK4YVcsCJDSiQJ8eaMPgH_QW2hj1jB6A0r3puJ0ShebXcMw>
+    <xmx:zABLXategDonJoduuIONWRrAJkg86CDPJ-Lw9280tAsOhjeHWafiMw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8316E8005B;
-        Wed,  7 Aug 2019 12:48:09 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] spi: bcm2835: Fix 3-wire mode if DMA is enabled" failed to apply to 5.2-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id BA48F380076;
+        Wed,  7 Aug 2019 12:48:11 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] spi: bcm2835: Fix 3-wire mode if DMA is enabled" failed to apply to 4.19-stable tree
 To:     lukas@wunner.de, broonie@kernel.org, kernel@martin.sperl.org,
         nuno.sa@analog.com, wahrenst@gmx.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 07 Aug 2019 18:48:07 +0200
-Message-ID: <156519648724814@kroah.com>
+Date:   Wed, 07 Aug 2019 18:48:08 +0200
+Message-ID: <1565196488192173@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.2-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
