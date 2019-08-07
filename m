@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7568385641
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 01:01:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1D1285664
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 01:18:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730045AbfHGXBy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Aug 2019 19:01:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39576 "EHLO mail.kernel.org"
+        id S1730280AbfHGXRS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Aug 2019 19:17:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729960AbfHGXBy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 7 Aug 2019 19:01:54 -0400
+        id S1729219AbfHGXRS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 7 Aug 2019 19:17:18 -0400
 Received: from localhost (unknown [69.71.4.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B4882171F;
-        Wed,  7 Aug 2019 23:01:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0B31217F5;
+        Wed,  7 Aug 2019 23:17:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565218913;
-        bh=880CjrWqcw/b0n8e8loUwkiYFlbtOJVJsxG1uGHV1Ps=;
+        s=default; t=1565219837;
+        bh=K1FJY/IQnp3Rp2g6nct/42+G5hsZ3RWLWUgCgs6+SaQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BbLvpPEMmpazhnJCMsxKGQMri/b6UwTY2G01eANjdrk1kgPgQjO5BcVdhwrMtdD8Q
-         ZqpwBCoCCS3SkcIdXzMH9Sk8xyumGYznOE02Oaq9WTjmtRmkG6n2jHH4feWHLT9Vie
-         YPBkPOIdMFQ79/+nv6Zs9xYpheC8VcJcyAN7zlnw=
-Date:   Wed, 7 Aug 2019 18:01:49 -0500
+        b=ODbxlCebJsygJ1/G3zlnObtY2Y5GSrOCMNOKt1jzIQGZOvAy8obmibl9XQRf2iCeU
+         uvMLbkRDS0jRDqLlNQgI7ApTT6yVJAl+CkBdJsO0L4UOWN/wHCG8o6Kady5/4131jV
+         KFT6jRwp2ia8DtQvtfkZ+ASyFopRNIAYpP6ZYs7U=
+Date:   Wed, 7 Aug 2019 18:17:13 -0500
 From:   Bjorn Helgaas <helgaas@kernel.org>
 To:     Sumit Saxena <sumit.saxena@broadcom.com>
 Cc:     Christian.Koenig@amd.com, linux-pci@vger.kernel.org,
         stable@vger.kernel.org
 Subject: Re: [PATCH V2] PCI: set BAR size bits correctly in Resize BAR
  control register
-Message-ID: <20190807230149.GA151852@google.com>
+Message-ID: <20190807231713.GB151852@google.com>
 References: <20190725192552.24295-1-sumit.saxena@broadcom.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -65,8 +65,16 @@ On Fri, Jul 26, 2019 at 12:55:52AM +0530, Sumit Saxena wrote:
 > -Simplified calculation of BAR size bits as suggested by Christian Koenig.
 > 
 > CC: stable@vger.kernel.org # v4.16+
+
+Also, d3252ace0bc6 ("PCI: Restore resized BAR state on resume") didn't
+appear until v4.19.  I updated this to "v4.19+"; let me know if that's
+wrong.
+
 > Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203939
 > Fixes: d3252ace0bc652a1a244455556b6a549f969bf99 ("PCI: Restore resized BAR state on resume")
+
+I updated this to conventional format as above (12-char SHA1).
+
 > Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
 > ---
 >  drivers/pci/pci.c | 2 +-
@@ -82,13 +90,6 @@ On Fri, Jul 26, 2019 at 12:55:52AM +0530, Sumit Saxena wrote:
 >  		res = pdev->resource + bar_idx;
 > -		size = order_base_2((resource_size(res) >> 20) | 1) - 1;
 > +		size = order_base_2(resource_size(res) >> 20);
-
-Since BAR sizes are always powers of 2, wouldn't this be simpler as:
-
-		size = ilog2(resource_size(res)) - 20;
-
-which nicely matches the table in PCIe r5.0, sec 7.8.6.3?
-
 >  		ctrl &= ~PCI_REBAR_CTRL_BAR_SIZE;
 >  		ctrl |= size << PCI_REBAR_CTRL_BAR_SHIFT;
 >  		pci_write_config_dword(pdev, pos + PCI_REBAR_CTRL, ctrl);
