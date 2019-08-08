@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E92086A51
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:15:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83EF786A11
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:14:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404477AbfHHTIX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:08:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42464 "EHLO mail.kernel.org"
+        id S2404825AbfHHTKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:10:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404896AbfHHTIX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:08:23 -0400
+        id S2405220AbfHHTKE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:10:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F3EF2184E;
-        Thu,  8 Aug 2019 19:08:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 259E12184E;
+        Thu,  8 Aug 2019 19:10:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291302;
-        bh=+hWlT7uUS4AlLaEPkmLlas7EoQBPeqvXeM/SV4hytTI=;
+        s=default; t=1565291403;
+        bh=dCo7Hn3FnBaU7BDkKUIb8HX1BVD0+opIn/t0ZiHg9TA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XM4nHnl1CaA0R2oJL202jAD9g/La0VdP1xmawsrud0E23IA892eCpC+urvl1Q5soi
-         4F7U31tp/tWKHCcmifY6BjV2XSul8HqL1lSSxtPhiR1lC6LovCFSc5GtKxenm66J8T
-         Wc08KtgVKXmZg0E0WRLAbbMWcjEMcr5q9diWJWkM=
+        b=BHmr1xqiV2J/jG9CxDo08+/vBcXVbxF3cyXt23CK1pbw1k/3rTJ31hynhayZteSb5
+         5g3DJyV8TolvCeve09CMMA9neG/fl4aPc//gywIHhWTsMJMjH16El/63PgFKtyF1PA
+         ZfaLDBX8GDbUG1yo7Pphq774vF4evKJ2njQcTsMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexis Bauvin <abauvin@scaleway.com>,
-        Jason Wang <jasowang@redhat.com>,
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Matteo Croce <mcroce@redhat.com>,
+        Antoine Tenart <antoine.tenart@bootlin.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 38/56] tun: mark small packets as owned by the tap sock
-Date:   Thu,  8 Aug 2019 21:05:04 +0200
-Message-Id: <20190808190454.585476147@linuxfoundation.org>
+Subject: [PATCH 4.19 19/45] mvpp2: fix panic on module removal
+Date:   Thu,  8 Aug 2019 21:05:05 +0200
+Message-Id: <20190808190454.812378944@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190808190452.867062037@linuxfoundation.org>
-References: <20190808190452.867062037@linuxfoundation.org>
+In-Reply-To: <20190808190453.827571908@linuxfoundation.org>
+References: <20190808190453.827571908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +45,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexis Bauvin <abauvin@scaleway.com>
+From: Matteo Croce <mcroce@redhat.com>
 
-[ Upstream commit 4b663366246be1d1d4b1b8b01245b2e88ad9e706 ]
+[ Upstream commit 944a83a2669ae8aa2c7664e79376ca7468eb0a2b ]
 
-- v1 -> v2: Move skb_set_owner_w to __tun_build_skb to reduce patch size
+mvpp2 uses a delayed workqueue to gather traffic statistics.
+On module removal the workqueue can be destroyed before calling
+cancel_delayed_work_sync() on its works.
+Fix it by moving the destroy_workqueue() call after mvpp2_port_remove().
+Also remove an unneeded call to flush_workqueue()
 
-Small packets going out of a tap device go through an optimized code
-path that uses build_skb() rather than sock_alloc_send_pskb(). The
-latter calls skb_set_owner_w(), but the small packet code path does not.
+    # rmmod mvpp2
+    [ 2743.311722] mvpp2 f4000000.ethernet eth1: phy link down 10gbase-kr/10Gbps/Full
+    [ 2743.320063] mvpp2 f4000000.ethernet eth1: Link is Down
+    [ 2743.572263] mvpp2 f4000000.ethernet eth2: phy link down sgmii/1Gbps/Full
+    [ 2743.580076] mvpp2 f4000000.ethernet eth2: Link is Down
+    [ 2744.102169] mvpp2 f2000000.ethernet eth0: phy link down 10gbase-kr/10Gbps/Full
+    [ 2744.110441] mvpp2 f2000000.ethernet eth0: Link is Down
+    [ 2744.115614] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+    [ 2744.115615] Mem abort info:
+    [ 2744.115616]   ESR = 0x96000005
+    [ 2744.115617]   Exception class = DABT (current EL), IL = 32 bits
+    [ 2744.115618]   SET = 0, FnV = 0
+    [ 2744.115619]   EA = 0, S1PTW = 0
+    [ 2744.115620] Data abort info:
+    [ 2744.115621]   ISV = 0, ISS = 0x00000005
+    [ 2744.115622]   CM = 0, WnR = 0
+    [ 2744.115624] user pgtable: 4k pages, 39-bit VAs, pgdp=0000000422681000
+    [ 2744.115626] [0000000000000000] pgd=0000000000000000, pud=0000000000000000
+    [ 2744.115630] Internal error: Oops: 96000005 [#1] SMP
+    [ 2744.115632] Modules linked in: mvpp2(-) algif_hash af_alg nls_iso8859_1 nls_cp437 vfat fat xhci_plat_hcd m25p80 spi_nor xhci_hcd mtd usbcore i2c_mv64xxx sfp usb_common marvell10g phy_generic spi_orion mdio_i2c i2c_core mvmdio phylink sbsa_gwdt ip_tables x_tables autofs4 [last unloaded: mvpp2]
+    [ 2744.115654] CPU: 3 PID: 8357 Comm: kworker/3:2 Not tainted 5.3.0-rc2 #1
+    [ 2744.115655] Hardware name: Marvell 8040 MACCHIATOBin Double-shot (DT)
+    [ 2744.115665] Workqueue: events_power_efficient phylink_resolve [phylink]
+    [ 2744.115669] pstate: a0000085 (NzCv daIf -PAN -UAO)
+    [ 2744.115675] pc : __queue_work+0x9c/0x4d8
+    [ 2744.115677] lr : __queue_work+0x170/0x4d8
+    [ 2744.115678] sp : ffffff801001bd50
+    [ 2744.115680] x29: ffffff801001bd50 x28: ffffffc422597600
+    [ 2744.115684] x27: ffffff80109ae6f0 x26: ffffff80108e4018
+    [ 2744.115688] x25: 0000000000000003 x24: 0000000000000004
+    [ 2744.115691] x23: ffffff80109ae6e0 x22: 0000000000000017
+    [ 2744.115694] x21: ffffffc42c030000 x20: ffffffc42209e8f8
+    [ 2744.115697] x19: 0000000000000000 x18: 0000000000000000
+    [ 2744.115699] x17: 0000000000000000 x16: 0000000000000000
+    [ 2744.115701] x15: 0000000000000010 x14: ffffffffffffffff
+    [ 2744.115702] x13: ffffff8090e2b95f x12: ffffff8010e2b967
+    [ 2744.115704] x11: ffffff8010906000 x10: 0000000000000040
+    [ 2744.115706] x9 : ffffff80109223b8 x8 : ffffff80109223b0
+    [ 2744.115707] x7 : ffffffc42bc00068 x6 : 0000000000000000
+    [ 2744.115709] x5 : ffffffc42bc00000 x4 : 0000000000000000
+    [ 2744.115710] x3 : 0000000000000000 x2 : 0000000000000000
+    [ 2744.115712] x1 : 0000000000000008 x0 : ffffffc42c030000
+    [ 2744.115714] Call trace:
+    [ 2744.115716]  __queue_work+0x9c/0x4d8
+    [ 2744.115718]  delayed_work_timer_fn+0x28/0x38
+    [ 2744.115722]  call_timer_fn+0x3c/0x180
+    [ 2744.115723]  expire_timers+0x60/0x168
+    [ 2744.115724]  run_timer_softirq+0xbc/0x1e8
+    [ 2744.115727]  __do_softirq+0x128/0x320
+    [ 2744.115731]  irq_exit+0xa4/0xc0
+    [ 2744.115734]  __handle_domain_irq+0x70/0xc0
+    [ 2744.115735]  gic_handle_irq+0x58/0xa8
+    [ 2744.115737]  el1_irq+0xb8/0x140
+    [ 2744.115738]  console_unlock+0x3a0/0x568
+    [ 2744.115740]  vprintk_emit+0x200/0x2a0
+    [ 2744.115744]  dev_vprintk_emit+0x1c8/0x1e4
+    [ 2744.115747]  dev_printk_emit+0x6c/0x7c
+    [ 2744.115751]  __netdev_printk+0x104/0x1d8
+    [ 2744.115752]  netdev_printk+0x60/0x70
+    [ 2744.115756]  phylink_resolve+0x38c/0x3c8 [phylink]
+    [ 2744.115758]  process_one_work+0x1f8/0x448
+    [ 2744.115760]  worker_thread+0x54/0x500
+    [ 2744.115762]  kthread+0x12c/0x130
+    [ 2744.115764]  ret_from_fork+0x10/0x1c
+    [ 2744.115768] Code: aa1403e0 97fffbbe aa0003f5 b4000700 (f9400261)
 
-The net effect is that small packets are not owned by the userland
-application's socket (e.g. QEMU), while large packets are.
-This can be seen with a TCP session, where packets are not owned when
-the window size is small enough (around PAGE_SIZE), while they are once
-the window grows (note that this requires the host to support virtio
-tso for the guest to offload segmentation).
-All this leads to inconsistent behaviour in the kernel, especially on
-netfilter modules that uses sk->socket (e.g. xt_owner).
-
-Fixes: 66ccbc9c87c2 ("tap: use build_skb() for small packet")
-Signed-off-by: Alexis Bauvin <abauvin@scaleway.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+Fixes: 118d6298f6f0 ("net: mvpp2: add ethtool GOP statistics")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Matteo Croce <mcroce@redhat.com>
+Acked-by: Antoine Tenart <antoine.tenart@bootlin.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/tun.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -1600,7 +1600,8 @@ static bool tun_can_build_skb(struct tun
- 	return true;
- }
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+@@ -5358,9 +5358,6 @@ static int mvpp2_remove(struct platform_
  
--static struct sk_buff *__tun_build_skb(struct page_frag *alloc_frag, char *buf,
-+static struct sk_buff *__tun_build_skb(struct tun_file *tfile,
-+				       struct page_frag *alloc_frag, char *buf,
- 				       int buflen, int len, int pad)
- {
- 	struct sk_buff *skb = build_skb(buf, buflen);
-@@ -1610,6 +1611,7 @@ static struct sk_buff *__tun_build_skb(s
+ 	mvpp2_dbgfs_cleanup(priv);
  
- 	skb_reserve(skb, pad);
- 	skb_put(skb, len);
-+	skb_set_owner_w(skb, tfile->socket.sk);
- 
- 	get_page(alloc_frag->page);
- 	alloc_frag->offset += buflen;
-@@ -1687,7 +1689,8 @@ static struct sk_buff *tun_build_skb(str
- 	 */
- 	if (hdr->gso_type || !xdp_prog) {
- 		*skb_xdp = 1;
--		return __tun_build_skb(alloc_frag, buf, buflen, len, pad);
-+		return __tun_build_skb(tfile, alloc_frag, buf, buflen, len,
-+				       pad);
+-	flush_workqueue(priv->stats_queue);
+-	destroy_workqueue(priv->stats_queue);
+-
+ 	fwnode_for_each_available_child_node(fwnode, port_fwnode) {
+ 		if (priv->port_list[i]) {
+ 			mutex_destroy(&priv->port_list[i]->gather_stats_lock);
+@@ -5369,6 +5366,8 @@ static int mvpp2_remove(struct platform_
+ 		i++;
  	}
  
- 	*skb_xdp = 0;
-@@ -1724,7 +1727,7 @@ static struct sk_buff *tun_build_skb(str
- 	rcu_read_unlock();
- 	local_bh_enable();
++	destroy_workqueue(priv->stats_queue);
++
+ 	for (i = 0; i < MVPP2_BM_POOLS_NUM; i++) {
+ 		struct mvpp2_bm_pool *bm_pool = &priv->bm_pools[i];
  
--	return __tun_build_skb(alloc_frag, buf, buflen, len, pad);
-+	return __tun_build_skb(tfile, alloc_frag, buf, buflen, len, pad);
- 
- err_xdp:
- 	put_page(alloc_frag->page);
 
 
