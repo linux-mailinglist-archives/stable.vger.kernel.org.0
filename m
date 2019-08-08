@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BDDC869DC
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:11:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A003D869EA
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:12:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405521AbfHHTLi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:11:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46220 "EHLO mail.kernel.org"
+        id S2405194AbfHHTMA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:12:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405519AbfHHTLh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:11:37 -0400
+        id S2405523AbfHHTLk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:11:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23184208C3;
-        Thu,  8 Aug 2019 19:11:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6689214C6;
+        Thu,  8 Aug 2019 19:11:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291496;
-        bh=nK/QWR1Q5YrqwgIC/8cdUrjiGRT2MF5KQwFZ137YDgo=;
+        s=default; t=1565291499;
+        bh=hKTPgVco64fFZS4H1RKTSfv9q8WWlhmr9XebO6ZIbGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lPdevfBbfN9LeZgrJmZJoI7AKkJCNZla8o80A3iR3ZblXmub8TJz7RjwH4QcPzR0j
-         RrEGG4s0O2SFAdCnd9eJR5sjhPiQR4LpGn7tB/nmYpjo3/6wFWpVaKWnJiBY+20pW4
-         uvtQjflWHn1jYdPSTwSsmYL1voREJh5fqkxtX9Sg=
+        b=SrWPd3V5ui4xfdt9iDjRaAeuE+RQhHSBYNZV1vAggz95vyAB4D/D2Pfvv9+ogLlDv
+         neTPsrZlSRhbMIWBjLMK1ywNk0UudeUBvQQD0aeLJpQsCTwXgDmhAhp44g//ntGcET
+         zgUhYKVqF3R4CsZD5J9cpNNbh2EuabFYKT7P1Fw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Oleg Nesterov <oleg@redhat.com>
-Subject: [PATCH 4.14 29/33] cgroup: Implement css_task_iter_skip()
-Date:   Thu,  8 Aug 2019 21:05:36 +0200
-Message-Id: <20190808190455.102830007@linuxfoundation.org>
+        Oleg Nesterov <oleg@redhat.com>,
+        Topi Miettinen <toiwoton@gmail.com>
+Subject: [PATCH 4.14 30/33] cgroup: Include dying leaders with live threads in PROCS iterations
+Date:   Thu,  8 Aug 2019 21:05:37 +0200
+Message-Id: <20190808190455.151177736@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190808190453.582417307@linuxfoundation.org>
 References: <20190808190453.582417307@linuxfoundation.org>
@@ -45,148 +46,154 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tejun Heo <tj@kernel.org>
 
-commit b636fd38dc40113f853337a7d2a6885ad23b8811 upstream.
+commit c03cd7738a83b13739f00546166969342c8ff014 upstream.
 
-When a task is moved out of a cset, task iterators pointing to the
-task are advanced using the normal css_task_iter_advance() call.  This
-is fine but we'll be tracking dying tasks on csets and thus moving
-tasks from cset->tasks to (to be added) cset->dying_tasks.  When we
-remove a task from cset->tasks, if we advance the iterators, they may
-move over to the next cset before we had the chance to add the task
-back on the dying list, which can allow the task to escape iteration.
+CSS_TASK_ITER_PROCS currently iterates live group leaders; however,
+this means that a process with dying leader and live threads will be
+skipped.  IOW, cgroup.procs might be empty while cgroup.threads isn't,
+which is confusing to say the least.
 
-This patch separates out skipping from advancing.  Skipping only moves
-the affected iterators to the next pointer rather than fully advancing
-it and the following advancing will recognize that the cursor has
-already been moved forward and do the rest of advancing.  This ensures
-that when a task moves from one list to another in its cset, as long
-as it moves in the right direction, it's always visible to iteration.
-
-This doesn't cause any visible behavior changes.
+Fix it by making cset track dying tasks and include dying leaders with
+live threads in PROCS iteration.
 
 Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-and-tested-by: Topi Miettinen <toiwoton@gmail.com>
 Cc: Oleg Nesterov <oleg@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/cgroup.h |    3 ++
- kernel/cgroup/cgroup.c |   60 +++++++++++++++++++++++++++++--------------------
- 2 files changed, 39 insertions(+), 24 deletions(-)
+ include/linux/cgroup-defs.h |    1 +
+ include/linux/cgroup.h      |    1 +
+ kernel/cgroup/cgroup.c      |   44 +++++++++++++++++++++++++++++++++++++-------
+ 3 files changed, 39 insertions(+), 7 deletions(-)
 
+--- a/include/linux/cgroup-defs.h
++++ b/include/linux/cgroup-defs.h
+@@ -201,6 +201,7 @@ struct css_set {
+ 	 */
+ 	struct list_head tasks;
+ 	struct list_head mg_tasks;
++	struct list_head dying_tasks;
+ 
+ 	/* all css_task_iters currently walking this cset */
+ 	struct list_head task_iters;
 --- a/include/linux/cgroup.h
 +++ b/include/linux/cgroup.h
-@@ -42,6 +42,9 @@
- /* walk all threaded css_sets in the domain */
- #define CSS_TASK_ITER_THREADED		(1U << 1)
+@@ -59,6 +59,7 @@ struct css_task_iter {
+ 	struct list_head		*task_pos;
+ 	struct list_head		*tasks_head;
+ 	struct list_head		*mg_tasks_head;
++	struct list_head		*dying_tasks_head;
  
-+/* internal flags */
-+#define CSS_TASK_ITER_SKIPPED		(1U << 16)
-+
- /* a css_task_iter should be treated as an opaque object */
- struct css_task_iter {
- 	struct cgroup_subsys		*ss;
+ 	struct css_set			*cur_cset;
+ 	struct css_set			*cur_dcset;
 --- a/kernel/cgroup/cgroup.c
 +++ b/kernel/cgroup/cgroup.c
-@@ -204,7 +204,8 @@ static struct cftype cgroup_base_files[]
+@@ -643,6 +643,7 @@ struct css_set init_css_set = {
+ 	.dom_cset		= &init_css_set,
+ 	.tasks			= LIST_HEAD_INIT(init_css_set.tasks),
+ 	.mg_tasks		= LIST_HEAD_INIT(init_css_set.mg_tasks),
++	.dying_tasks		= LIST_HEAD_INIT(init_css_set.dying_tasks),
+ 	.task_iters		= LIST_HEAD_INIT(init_css_set.task_iters),
+ 	.threaded_csets		= LIST_HEAD_INIT(init_css_set.threaded_csets),
+ 	.cgrp_links		= LIST_HEAD_INIT(init_css_set.cgrp_links),
+@@ -1107,6 +1108,7 @@ static struct css_set *find_css_set(stru
+ 	cset->dom_cset = cset;
+ 	INIT_LIST_HEAD(&cset->tasks);
+ 	INIT_LIST_HEAD(&cset->mg_tasks);
++	INIT_LIST_HEAD(&cset->dying_tasks);
+ 	INIT_LIST_HEAD(&cset->task_iters);
+ 	INIT_LIST_HEAD(&cset->threaded_csets);
+ 	INIT_HLIST_NODE(&cset->hlist);
+@@ -4046,15 +4048,18 @@ static void css_task_iter_advance_css_se
+ 			it->task_pos = NULL;
+ 			return;
+ 		}
+-	} while (!css_set_populated(cset));
++	} while (!css_set_populated(cset) && !list_empty(&cset->dying_tasks));
  
- static int cgroup_apply_control(struct cgroup *cgrp);
- static void cgroup_finalize_control(struct cgroup *cgrp, int ret);
--static void css_task_iter_advance(struct css_task_iter *it);
-+static void css_task_iter_skip(struct css_task_iter *it,
-+			       struct task_struct *task);
- static int cgroup_destroy_locked(struct cgroup *cgrp);
- static struct cgroup_subsys_state *css_create(struct cgroup *cgrp,
- 					      struct cgroup_subsys *ss);
-@@ -737,6 +738,21 @@ static void css_set_update_populated(str
- 		cgroup_update_populated(link->cgrp, populated);
- }
+ 	if (!list_empty(&cset->tasks))
+ 		it->task_pos = cset->tasks.next;
+-	else
++	else if (!list_empty(&cset->mg_tasks))
+ 		it->task_pos = cset->mg_tasks.next;
++	else
++		it->task_pos = cset->dying_tasks.next;
  
-+/*
-+ * @task is leaving, advance task iterators which are pointing to it so
-+ * that they can resume at the next position.  Advancing an iterator might
-+ * remove it from the list, use safe walk.  See css_task_iter_skip() for
-+ * details.
-+ */
-+static void css_set_skip_task_iters(struct css_set *cset,
-+				    struct task_struct *task)
-+{
-+	struct css_task_iter *it, *pos;
-+
-+	list_for_each_entry_safe(it, pos, &cset->task_iters, iters_node)
-+		css_task_iter_skip(it, task);
-+}
-+
- /**
-  * css_set_move_task - move a task from one css_set to another
-  * @task: task being moved
-@@ -762,22 +778,9 @@ static void css_set_move_task(struct tas
- 		css_set_update_populated(to_cset, true);
+ 	it->tasks_head = &cset->tasks;
+ 	it->mg_tasks_head = &cset->mg_tasks;
++	it->dying_tasks_head = &cset->dying_tasks;
  
- 	if (from_cset) {
--		struct css_task_iter *it, *pos;
--
- 		WARN_ON_ONCE(list_empty(&task->cg_list));
+ 	/*
+ 	 * We don't keep css_sets locked across iteration steps and thus
+@@ -4093,6 +4098,8 @@ static void css_task_iter_skip(struct cs
  
--		/*
--		 * @task is leaving, advance task iterators which are
--		 * pointing to it so that they can resume at the next
--		 * position.  Advancing an iterator might remove it from
--		 * the list, use safe walk.  See css_task_iter_advance*()
--		 * for details.
--		 */
--		list_for_each_entry_safe(it, pos, &from_cset->task_iters,
--					 iters_node)
--			if (it->task_pos == &task->cg_list)
--				css_task_iter_advance(it);
--
-+		css_set_skip_task_iters(from_cset, task);
- 		list_del_init(&task->cg_list);
- 		if (!css_set_populated(from_cset))
- 			css_set_update_populated(from_cset, false);
-@@ -4077,10 +4080,19 @@ static void css_task_iter_advance_css_se
- 	list_add(&it->iters_node, &cset->task_iters);
- }
- 
--static void css_task_iter_advance(struct css_task_iter *it)
-+static void css_task_iter_skip(struct css_task_iter *it,
-+			       struct task_struct *task)
+ static void css_task_iter_advance(struct css_task_iter *it)
  {
--	struct list_head *next;
-+	lockdep_assert_held(&css_set_lock);
++	struct task_struct *task;
 +
-+	if (it->task_pos == &task->cg_list) {
-+		it->task_pos = it->task_pos->next;
-+		it->flags |= CSS_TASK_ITER_SKIPPED;
-+	}
-+}
- 
-+static void css_task_iter_advance(struct css_task_iter *it)
-+{
  	lockdep_assert_held(&css_set_lock);
  repeat:
  	if (it->task_pos) {
-@@ -4089,15 +4101,15 @@ repeat:
- 		 * consumed first and then ->mg_tasks.  After ->mg_tasks,
- 		 * we move onto the next cset.
- 		 */
--		next = it->task_pos->next;
--
--		if (next == it->tasks_head)
--			next = it->mg_tasks_head->next;
-+		if (it->flags & CSS_TASK_ITER_SKIPPED)
-+			it->flags &= ~CSS_TASK_ITER_SKIPPED;
-+		else
-+			it->task_pos = it->task_pos->next;
- 
--		if (next == it->mg_tasks_head)
-+		if (it->task_pos == it->tasks_head)
-+			it->task_pos = it->mg_tasks_head->next;
-+		if (it->task_pos == it->mg_tasks_head)
+@@ -4109,17 +4116,32 @@ repeat:
+ 		if (it->task_pos == it->tasks_head)
+ 			it->task_pos = it->mg_tasks_head->next;
+ 		if (it->task_pos == it->mg_tasks_head)
++			it->task_pos = it->dying_tasks_head->next;
++		if (it->task_pos == it->dying_tasks_head)
  			css_task_iter_advance_css_set(it);
--		else
--			it->task_pos = next;
  	} else {
  		/* called from start, proceed to the first cset */
  		css_task_iter_advance_css_set(it);
+ 	}
+ 
+-	/* if PROCS, skip over tasks which aren't group leaders */
+-	if ((it->flags & CSS_TASK_ITER_PROCS) && it->task_pos &&
+-	    !thread_group_leader(list_entry(it->task_pos, struct task_struct,
+-					    cg_list)))
+-		goto repeat;
++	if (!it->task_pos)
++		return;
++
++	task = list_entry(it->task_pos, struct task_struct, cg_list);
++
++	if (it->flags & CSS_TASK_ITER_PROCS) {
++		/* if PROCS, skip over tasks which aren't group leaders */
++		if (!thread_group_leader(task))
++			goto repeat;
++
++		/* and dying leaders w/o live member threads */
++		if (!atomic_read(&task->signal->live))
++			goto repeat;
++	} else {
++		/* skip all dying ones */
++		if (task->flags & PF_EXITING)
++			goto repeat;
++	}
+ }
+ 
+ /**
+@@ -5552,6 +5574,7 @@ void cgroup_exit(struct task_struct *tsk
+ 	if (!list_empty(&tsk->cg_list)) {
+ 		spin_lock_irq(&css_set_lock);
+ 		css_set_move_task(tsk, cset, NULL, false);
++		list_add_tail(&tsk->cg_list, &cset->dying_tasks);
+ 		cset->nr_tasks--;
+ 		spin_unlock_irq(&css_set_lock);
+ 	} else {
+@@ -5572,6 +5595,13 @@ void cgroup_release(struct task_struct *
+ 	do_each_subsys_mask(ss, ssid, have_release_callback) {
+ 		ss->release(task);
+ 	} while_each_subsys_mask();
++
++	if (use_task_css_set_links) {
++		spin_lock_irq(&css_set_lock);
++		css_set_skip_task_iters(task_css_set(task), task);
++		list_del_init(&task->cg_list);
++		spin_unlock_irq(&css_set_lock);
++	}
+ }
+ 
+ void cgroup_free(struct task_struct *task)
 
 
