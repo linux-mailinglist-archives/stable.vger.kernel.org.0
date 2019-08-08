@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DD27869A4
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:09:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0641E8697B
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:07:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404514AbfHHTJW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:09:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43628 "EHLO mail.kernel.org"
+        id S2404756AbfHHTHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:07:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404670AbfHHTJV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:09:21 -0400
+        id S2404355AbfHHTHu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:07:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5126321874;
-        Thu,  8 Aug 2019 19:09:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17DC321882;
+        Thu,  8 Aug 2019 19:07:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291359;
-        bh=ilvKKxKL7Cm2Zc9zsp/EPLvBxp+r61MY/fUXLqbT1Us=;
+        s=default; t=1565291269;
+        bh=vwITCSGikeICWvUzt5e1E3wwo+vGJLDOMpFwh8ucRrA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l8p/u9nLN6MCms1TwrryGrEvwmAGCVat5XNvh/1tkC/qEUXjWddvv6zmp8W4rC+wM
-         QhBTHD1Cude/fHKmu4ytaLfi6P2H3yw0pu/xJxqxaBxB6Uzuz3dFju//fYQHTqaQdn
-         WgcW/5hlbVp6chQMCzzrw3eTv55GbbJGpK3tIQsY=
+        b=iA/Zm8qF2fkGwgWjs3NOybZFe1QGY3+ew1x1NRNCKW27rZVG157Mt/chw+6Ukf4SK
+         E3sPOLRD0W3P3RY2C0WNiACrrl/a151d4pFr6wOYxari7fdHezICVxichj9gennY43
+         Sd3By1QRILqZ2YikQ3OecyfuV3XPCnUmg/lKeNiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmytro Linkin <dmitrolin@mellanox.com>,
-        Vlad Buslov <vladbu@mellanox.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 30/45] net: sched: use temporary variable for actions indexes
-Date:   Thu,  8 Aug 2019 21:05:16 +0200
-Message-Id: <20190808190455.440274706@linuxfoundation.org>
+        stable@vger.kernel.org, Aya Levin <ayal@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 5.2 52/56] net/mlx5e: Fix matching of speed to PRM link modes
+Date:   Thu,  8 Aug 2019 21:05:18 +0200
+Message-Id: <20190808190455.347243359@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190808190453.827571908@linuxfoundation.org>
-References: <20190808190453.827571908@linuxfoundation.org>
+In-Reply-To: <20190808190452.867062037@linuxfoundation.org>
+References: <20190808190452.867062037@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,606 +43,284 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmytro Linkin <dmitrolin@mellanox.com>
+From: Aya Levin <ayal@mellanox.com>
 
-[ Upstream commit 7be8ef2cdbfe41a2e524b7c6cc3f8e6cfaa906e4 ]
+[ Upstream commit 4b95840a6ced0634082f6d962ba9aa0ce797f12f ]
 
-Currently init call of all actions (except ipt) init their 'parm'
-structure as a direct pointer to nla data in skb. This leads to race
-condition when some of the filter actions were initialized successfully
-(and were assigned with idr action index that was written directly
-into nla data), but then were deleted and retried (due to following
-action module missing or classifier-initiated retry), in which case
-action init code tries to insert action to idr with index that was
-assigned on previous iteration. During retry the index can be reused
-by another action that was inserted concurrently, which causes
-unintended action sharing between filters.
-To fix described race condition, save action idr index to temporary
-stack-allocated variable instead on nla data.
+Speed translation is performed based on legacy or extended PTYS
+register. Translate speed with respect to:
+1) Capability bit of extended PTYS table.
+2) User request:
+ a) When auto-negotiation is turned on, inspect advertisement whether it
+ contains extended link modes.
+ b) When auto-negotiation is turned off, speed > 100Gbps (maximal
+ speed supported in legacy mode).
+With both conditions fulfilled translation is done with extended PTYS
+table otherwise use legacy PTYS table.
+Without this patch 25/50/100 Gbps speed cannot be set, since try to
+configure in extended mode but read from legacy mode.
 
-Fixes: 0190c1d452a9 ("net: sched: atomically check-allocate action")
-Signed-off-by: Dmytro Linkin <dmitrolin@mellanox.com>
-Signed-off-by: Vlad Buslov <vladbu@mellanox.com>
-Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: dd1b9e09c12b ("net/mlx5: ethtool, Allow legacy link-modes configuration via non-extended ptys")
+Signed-off-by: Aya Levin <ayal@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/act_bpf.c        |    9 +++++----
- net/sched/act_connmark.c   |    9 +++++----
- net/sched/act_csum.c       |    9 +++++----
- net/sched/act_gact.c       |    8 +++++---
- net/sched/act_ife.c        |    8 +++++---
- net/sched/act_mirred.c     |   13 +++++++------
- net/sched/act_nat.c        |    9 +++++----
- net/sched/act_pedit.c      |   10 ++++++----
- net/sched/act_police.c     |    8 +++++---
- net/sched/act_sample.c     |   10 +++++-----
- net/sched/act_simple.c     |   10 ++++++----
- net/sched/act_skbedit.c    |   11 ++++++-----
- net/sched/act_skbmod.c     |   11 ++++++-----
- net/sched/act_tunnel_key.c |    8 +++++---
- net/sched/act_vlan.c       |   16 +++++++++-------
- 15 files changed, 85 insertions(+), 64 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/port.c    |   27 +++++--
+ drivers/net/ethernet/mellanox/mlx5/core/en/port.h    |    6 +
+ drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c |   67 +++++++++++++------
+ 3 files changed, 68 insertions(+), 32 deletions(-)
 
---- a/net/sched/act_bpf.c
-+++ b/net/sched/act_bpf.c
-@@ -287,6 +287,7 @@ static int tcf_bpf_init(struct net *net,
- 	struct tcf_bpf *prog;
- 	bool is_bpf, is_ebpf;
- 	int ret, res = 0;
-+	u32 index;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/port.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/port.c
+@@ -78,9 +78,10 @@ static const u32 mlx5e_ext_link_speed[ML
+ };
  
- 	if (!nla)
- 		return -EINVAL;
-@@ -299,13 +300,13 @@ static int tcf_bpf_init(struct net *net,
- 		return -EINVAL;
+ static void mlx5e_port_get_speed_arr(struct mlx5_core_dev *mdev,
+-				     const u32 **arr, u32 *size)
++				     const u32 **arr, u32 *size,
++				     bool force_legacy)
+ {
+-	bool ext = MLX5_CAP_PCAM_FEATURE(mdev, ptys_extended_ethernet);
++	bool ext = force_legacy ? false : MLX5_CAP_PCAM_FEATURE(mdev, ptys_extended_ethernet);
  
- 	parm = nla_data(tb[TCA_ACT_BPF_PARMS]);
--
--	ret = tcf_idr_check_alloc(tn, &parm->index, act, bind);
-+	index = parm->index;
-+	ret = tcf_idr_check_alloc(tn, &index, act, bind);
- 	if (!ret) {
--		ret = tcf_idr_create(tn, parm->index, est, act,
-+		ret = tcf_idr_create(tn, index, est, act,
- 				     &act_bpf_ops, bind, true);
- 		if (ret < 0) {
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 			return ret;
- 		}
- 
---- a/net/sched/act_connmark.c
-+++ b/net/sched/act_connmark.c
-@@ -104,6 +104,7 @@ static int tcf_connmark_init(struct net
- 	struct tcf_connmark_info *ci;
- 	struct tc_connmark *parm;
- 	int ret = 0;
-+	u32 index;
- 
- 	if (!nla)
- 		return -EINVAL;
-@@ -117,13 +118,13 @@ static int tcf_connmark_init(struct net
- 		return -EINVAL;
- 
- 	parm = nla_data(tb[TCA_CONNMARK_PARMS]);
--
--	ret = tcf_idr_check_alloc(tn, &parm->index, a, bind);
-+	index = parm->index;
-+	ret = tcf_idr_check_alloc(tn, &index, a, bind);
- 	if (!ret) {
--		ret = tcf_idr_create(tn, parm->index, est, a,
-+		ret = tcf_idr_create(tn, index, est, a,
- 				     &act_connmark_ops, bind, false);
- 		if (ret) {
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 			return ret;
- 		}
- 
---- a/net/sched/act_csum.c
-+++ b/net/sched/act_csum.c
-@@ -55,6 +55,7 @@ static int tcf_csum_init(struct net *net
- 	struct tc_csum *parm;
- 	struct tcf_csum *p;
- 	int ret = 0, err;
-+	u32 index;
- 
- 	if (nla == NULL)
- 		return -EINVAL;
-@@ -66,13 +67,13 @@ static int tcf_csum_init(struct net *net
- 	if (tb[TCA_CSUM_PARMS] == NULL)
- 		return -EINVAL;
- 	parm = nla_data(tb[TCA_CSUM_PARMS]);
--
--	err = tcf_idr_check_alloc(tn, &parm->index, a, bind);
-+	index = parm->index;
-+	err = tcf_idr_check_alloc(tn, &index, a, bind);
- 	if (!err) {
--		ret = tcf_idr_create(tn, parm->index, est, a,
-+		ret = tcf_idr_create(tn, index, est, a,
- 				     &act_csum_ops, bind, true);
- 		if (ret) {
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 			return ret;
- 		}
- 		ret = ACT_P_CREATED;
---- a/net/sched/act_gact.c
-+++ b/net/sched/act_gact.c
-@@ -64,6 +64,7 @@ static int tcf_gact_init(struct net *net
- 	struct tc_gact *parm;
- 	struct tcf_gact *gact;
- 	int ret = 0;
-+	u32 index;
- 	int err;
- #ifdef CONFIG_GACT_PROB
- 	struct tc_gact_p *p_parm = NULL;
-@@ -79,6 +80,7 @@ static int tcf_gact_init(struct net *net
- 	if (tb[TCA_GACT_PARMS] == NULL)
- 		return -EINVAL;
- 	parm = nla_data(tb[TCA_GACT_PARMS]);
-+	index = parm->index;
- 
- #ifndef CONFIG_GACT_PROB
- 	if (tb[TCA_GACT_PROB] != NULL)
-@@ -91,12 +93,12 @@ static int tcf_gact_init(struct net *net
- 	}
- #endif
- 
--	err = tcf_idr_check_alloc(tn, &parm->index, a, bind);
-+	err = tcf_idr_check_alloc(tn, &index, a, bind);
- 	if (!err) {
--		ret = tcf_idr_create(tn, parm->index, est, a,
-+		ret = tcf_idr_create(tn, index, est, a,
- 				     &act_gact_ops, bind, true);
- 		if (ret) {
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 			return ret;
- 		}
- 		ret = ACT_P_CREATED;
---- a/net/sched/act_ife.c
-+++ b/net/sched/act_ife.c
-@@ -482,6 +482,7 @@ static int tcf_ife_init(struct net *net,
- 	u8 *saddr = NULL;
- 	bool exists = false;
- 	int ret = 0;
-+	u32 index;
- 	int err;
- 
- 	if (!nla) {
-@@ -509,7 +510,8 @@ static int tcf_ife_init(struct net *net,
- 	if (!p)
- 		return -ENOMEM;
- 
--	err = tcf_idr_check_alloc(tn, &parm->index, a, bind);
-+	index = parm->index;
-+	err = tcf_idr_check_alloc(tn, &index, a, bind);
- 	if (err < 0) {
- 		kfree(p);
- 		return err;
-@@ -521,10 +523,10 @@ static int tcf_ife_init(struct net *net,
- 	}
- 
- 	if (!exists) {
--		ret = tcf_idr_create(tn, parm->index, est, a, &act_ife_ops,
-+		ret = tcf_idr_create(tn, index, est, a, &act_ife_ops,
- 				     bind, true);
- 		if (ret) {
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 			kfree(p);
- 			return ret;
- 		}
---- a/net/sched/act_mirred.c
-+++ b/net/sched/act_mirred.c
-@@ -104,6 +104,7 @@ static int tcf_mirred_init(struct net *n
- 	struct net_device *dev;
- 	bool exists = false;
- 	int ret, err;
-+	u32 index;
- 
- 	if (!nla) {
- 		NL_SET_ERR_MSG_MOD(extack, "Mirred requires attributes to be passed");
-@@ -117,8 +118,8 @@ static int tcf_mirred_init(struct net *n
- 		return -EINVAL;
- 	}
- 	parm = nla_data(tb[TCA_MIRRED_PARMS]);
--
--	err = tcf_idr_check_alloc(tn, &parm->index, a, bind);
-+	index = parm->index;
-+	err = tcf_idr_check_alloc(tn, &index, a, bind);
- 	if (err < 0)
- 		return err;
- 	exists = err;
-@@ -135,21 +136,21 @@ static int tcf_mirred_init(struct net *n
- 		if (exists)
- 			tcf_idr_release(*a, bind);
- 		else
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 		NL_SET_ERR_MSG_MOD(extack, "Unknown mirred option");
- 		return -EINVAL;
- 	}
- 
- 	if (!exists) {
- 		if (!parm->ifindex) {
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 			NL_SET_ERR_MSG_MOD(extack, "Specified device does not exist");
- 			return -EINVAL;
- 		}
--		ret = tcf_idr_create(tn, parm->index, est, a,
-+		ret = tcf_idr_create(tn, index, est, a,
- 				     &act_mirred_ops, bind, true);
- 		if (ret) {
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 			return ret;
- 		}
- 		ret = ACT_P_CREATED;
---- a/net/sched/act_nat.c
-+++ b/net/sched/act_nat.c
-@@ -45,6 +45,7 @@ static int tcf_nat_init(struct net *net,
- 	struct tc_nat *parm;
- 	int ret = 0, err;
- 	struct tcf_nat *p;
-+	u32 index;
- 
- 	if (nla == NULL)
- 		return -EINVAL;
-@@ -56,13 +57,13 @@ static int tcf_nat_init(struct net *net,
- 	if (tb[TCA_NAT_PARMS] == NULL)
- 		return -EINVAL;
- 	parm = nla_data(tb[TCA_NAT_PARMS]);
--
--	err = tcf_idr_check_alloc(tn, &parm->index, a, bind);
-+	index = parm->index;
-+	err = tcf_idr_check_alloc(tn, &index, a, bind);
- 	if (!err) {
--		ret = tcf_idr_create(tn, parm->index, est, a,
-+		ret = tcf_idr_create(tn, index, est, a,
- 				     &act_nat_ops, bind, false);
- 		if (ret) {
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 			return ret;
- 		}
- 		ret = ACT_P_CREATED;
---- a/net/sched/act_pedit.c
-+++ b/net/sched/act_pedit.c
-@@ -149,6 +149,7 @@ static int tcf_pedit_init(struct net *ne
- 	struct tcf_pedit *p;
- 	int ret = 0, err;
- 	int ksize;
-+	u32 index;
- 
- 	if (!nla) {
- 		NL_SET_ERR_MSG_MOD(extack, "Pedit requires attributes to be passed");
-@@ -178,18 +179,19 @@ static int tcf_pedit_init(struct net *ne
- 	if (IS_ERR(keys_ex))
- 		return PTR_ERR(keys_ex);
- 
--	err = tcf_idr_check_alloc(tn, &parm->index, a, bind);
-+	index = parm->index;
-+	err = tcf_idr_check_alloc(tn, &index, a, bind);
- 	if (!err) {
- 		if (!parm->nkeys) {
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 			NL_SET_ERR_MSG_MOD(extack, "Pedit requires keys to be passed");
- 			ret = -EINVAL;
- 			goto out_free;
- 		}
--		ret = tcf_idr_create(tn, parm->index, est, a,
-+		ret = tcf_idr_create(tn, index, est, a,
- 				     &act_pedit_ops, bind, false);
- 		if (ret) {
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 			goto out_free;
- 		}
- 		ret = ACT_P_CREATED;
---- a/net/sched/act_police.c
-+++ b/net/sched/act_police.c
-@@ -85,6 +85,7 @@ static int tcf_police_init(struct net *n
- 	struct qdisc_rate_table *R_tab = NULL, *P_tab = NULL;
- 	struct tc_action_net *tn = net_generic(net, police_net_id);
- 	bool exists = false;
-+	u32 index;
- 	int size;
- 
- 	if (nla == NULL)
-@@ -101,7 +102,8 @@ static int tcf_police_init(struct net *n
- 		return -EINVAL;
- 
- 	parm = nla_data(tb[TCA_POLICE_TBF]);
--	err = tcf_idr_check_alloc(tn, &parm->index, a, bind);
-+	index = parm->index;
-+	err = tcf_idr_check_alloc(tn, &index, a, bind);
- 	if (err < 0)
- 		return err;
- 	exists = err;
-@@ -109,10 +111,10 @@ static int tcf_police_init(struct net *n
- 		return 0;
- 
- 	if (!exists) {
--		ret = tcf_idr_create(tn, parm->index, NULL, a,
-+		ret = tcf_idr_create(tn, index, NULL, a,
- 				     &act_police_ops, bind, false);
- 		if (ret) {
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 			return ret;
- 		}
- 		ret = ACT_P_CREATED;
---- a/net/sched/act_sample.c
-+++ b/net/sched/act_sample.c
-@@ -43,7 +43,7 @@ static int tcf_sample_init(struct net *n
- 	struct tc_action_net *tn = net_generic(net, sample_net_id);
- 	struct nlattr *tb[TCA_SAMPLE_MAX + 1];
- 	struct psample_group *psample_group;
--	u32 psample_group_num, rate;
-+	u32 psample_group_num, rate, index;
- 	struct tc_sample *parm;
- 	struct tcf_sample *s;
- 	bool exists = false;
-@@ -59,8 +59,8 @@ static int tcf_sample_init(struct net *n
- 		return -EINVAL;
- 
- 	parm = nla_data(tb[TCA_SAMPLE_PARMS]);
--
--	err = tcf_idr_check_alloc(tn, &parm->index, a, bind);
-+	index = parm->index;
-+	err = tcf_idr_check_alloc(tn, &index, a, bind);
- 	if (err < 0)
- 		return err;
- 	exists = err;
-@@ -68,10 +68,10 @@ static int tcf_sample_init(struct net *n
- 		return 0;
- 
- 	if (!exists) {
--		ret = tcf_idr_create(tn, parm->index, est, a,
-+		ret = tcf_idr_create(tn, index, est, a,
- 				     &act_sample_ops, bind, true);
- 		if (ret) {
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 			return ret;
- 		}
- 		ret = ACT_P_CREATED;
---- a/net/sched/act_simple.c
-+++ b/net/sched/act_simple.c
-@@ -88,6 +88,7 @@ static int tcf_simp_init(struct net *net
- 	struct tcf_defact *d;
- 	bool exists = false;
- 	int ret = 0, err;
-+	u32 index;
- 
- 	if (nla == NULL)
- 		return -EINVAL;
-@@ -100,7 +101,8 @@ static int tcf_simp_init(struct net *net
- 		return -EINVAL;
- 
- 	parm = nla_data(tb[TCA_DEF_PARMS]);
--	err = tcf_idr_check_alloc(tn, &parm->index, a, bind);
-+	index = parm->index;
-+	err = tcf_idr_check_alloc(tn, &index, a, bind);
- 	if (err < 0)
- 		return err;
- 	exists = err;
-@@ -111,15 +113,15 @@ static int tcf_simp_init(struct net *net
- 		if (exists)
- 			tcf_idr_release(*a, bind);
- 		else
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 		return -EINVAL;
- 	}
- 
- 	if (!exists) {
--		ret = tcf_idr_create(tn, parm->index, est, a,
-+		ret = tcf_idr_create(tn, index, est, a,
- 				     &act_simp_ops, bind, false);
- 		if (ret) {
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 			return ret;
- 		}
- 
---- a/net/sched/act_skbedit.c
-+++ b/net/sched/act_skbedit.c
-@@ -107,6 +107,7 @@ static int tcf_skbedit_init(struct net *
- 	u16 *queue_mapping = NULL, *ptype = NULL;
- 	bool exists = false;
- 	int ret = 0, err;
-+	u32 index;
- 
- 	if (nla == NULL)
- 		return -EINVAL;
-@@ -153,8 +154,8 @@ static int tcf_skbedit_init(struct net *
- 	}
- 
- 	parm = nla_data(tb[TCA_SKBEDIT_PARMS]);
--
--	err = tcf_idr_check_alloc(tn, &parm->index, a, bind);
-+	index = parm->index;
-+	err = tcf_idr_check_alloc(tn, &index, a, bind);
- 	if (err < 0)
- 		return err;
- 	exists = err;
-@@ -165,15 +166,15 @@ static int tcf_skbedit_init(struct net *
- 		if (exists)
- 			tcf_idr_release(*a, bind);
- 		else
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 		return -EINVAL;
- 	}
- 
- 	if (!exists) {
--		ret = tcf_idr_create(tn, parm->index, est, a,
-+		ret = tcf_idr_create(tn, index, est, a,
- 				     &act_skbedit_ops, bind, true);
- 		if (ret) {
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 			return ret;
- 		}
- 
---- a/net/sched/act_skbmod.c
-+++ b/net/sched/act_skbmod.c
-@@ -88,12 +88,12 @@ static int tcf_skbmod_init(struct net *n
- 	struct nlattr *tb[TCA_SKBMOD_MAX + 1];
- 	struct tcf_skbmod_params *p, *p_old;
- 	struct tc_skbmod *parm;
-+	u32 lflags = 0, index;
- 	struct tcf_skbmod *d;
- 	bool exists = false;
- 	u8 *daddr = NULL;
- 	u8 *saddr = NULL;
- 	u16 eth_type = 0;
--	u32 lflags = 0;
- 	int ret = 0, err;
- 
- 	if (!nla)
-@@ -122,10 +122,11 @@ static int tcf_skbmod_init(struct net *n
- 	}
- 
- 	parm = nla_data(tb[TCA_SKBMOD_PARMS]);
-+	index = parm->index;
- 	if (parm->flags & SKBMOD_F_SWAPMAC)
- 		lflags = SKBMOD_F_SWAPMAC;
- 
--	err = tcf_idr_check_alloc(tn, &parm->index, a, bind);
-+	err = tcf_idr_check_alloc(tn, &index, a, bind);
- 	if (err < 0)
- 		return err;
- 	exists = err;
-@@ -136,15 +137,15 @@ static int tcf_skbmod_init(struct net *n
- 		if (exists)
- 			tcf_idr_release(*a, bind);
- 		else
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 		return -EINVAL;
- 	}
- 
- 	if (!exists) {
--		ret = tcf_idr_create(tn, parm->index, est, a,
-+		ret = tcf_idr_create(tn, index, est, a,
- 				     &act_skbmod_ops, bind, true);
- 		if (ret) {
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 			return ret;
- 		}
- 
---- a/net/sched/act_tunnel_key.c
-+++ b/net/sched/act_tunnel_key.c
-@@ -224,6 +224,7 @@ static int tunnel_key_init(struct net *n
- 	__be16 flags;
- 	u8 tos, ttl;
- 	int ret = 0;
-+	u32 index;
- 	int err;
- 
- 	if (!nla) {
-@@ -244,7 +245,8 @@ static int tunnel_key_init(struct net *n
- 	}
- 
- 	parm = nla_data(tb[TCA_TUNNEL_KEY_PARMS]);
--	err = tcf_idr_check_alloc(tn, &parm->index, a, bind);
-+	index = parm->index;
-+	err = tcf_idr_check_alloc(tn, &index, a, bind);
- 	if (err < 0)
- 		return err;
- 	exists = err;
-@@ -338,7 +340,7 @@ static int tunnel_key_init(struct net *n
- 	}
- 
- 	if (!exists) {
--		ret = tcf_idr_create(tn, parm->index, est, a,
-+		ret = tcf_idr_create(tn, index, est, a,
- 				     &act_tunnel_key_ops, bind, true);
- 		if (ret) {
- 			NL_SET_ERR_MSG(extack, "Cannot create TC IDR");
-@@ -384,7 +386,7 @@ err_out:
- 	if (exists)
- 		tcf_idr_release(*a, bind);
- 	else
--		tcf_idr_cleanup(tn, parm->index);
-+		tcf_idr_cleanup(tn, index);
- 	return ret;
+ 	*size = ext ? ARRAY_SIZE(mlx5e_ext_link_speed) :
+ 		      ARRAY_SIZE(mlx5e_link_speed);
+@@ -152,7 +153,8 @@ int mlx5_port_set_eth_ptys(struct mlx5_c
+ 			    sizeof(out), MLX5_REG_PTYS, 0, 1);
  }
  
---- a/net/sched/act_vlan.c
-+++ b/net/sched/act_vlan.c
-@@ -118,6 +118,7 @@ static int tcf_vlan_init(struct net *net
- 	u8 push_prio = 0;
- 	bool exists = false;
- 	int ret = 0, err;
-+	u32 index;
+-u32 mlx5e_port_ptys2speed(struct mlx5_core_dev *mdev, u32 eth_proto_oper)
++u32 mlx5e_port_ptys2speed(struct mlx5_core_dev *mdev, u32 eth_proto_oper,
++			  bool force_legacy)
+ {
+ 	unsigned long temp = eth_proto_oper;
+ 	const u32 *table;
+@@ -160,7 +162,7 @@ u32 mlx5e_port_ptys2speed(struct mlx5_co
+ 	u32 max_size;
+ 	int i;
  
- 	if (!nla)
- 		return -EINVAL;
-@@ -129,7 +130,8 @@ static int tcf_vlan_init(struct net *net
- 	if (!tb[TCA_VLAN_PARMS])
- 		return -EINVAL;
- 	parm = nla_data(tb[TCA_VLAN_PARMS]);
--	err = tcf_idr_check_alloc(tn, &parm->index, a, bind);
-+	index = parm->index;
-+	err = tcf_idr_check_alloc(tn, &index, a, bind);
- 	if (err < 0)
+-	mlx5e_port_get_speed_arr(mdev, &table, &max_size);
++	mlx5e_port_get_speed_arr(mdev, &table, &max_size, force_legacy);
+ 	i = find_first_bit(&temp, max_size);
+ 	if (i < max_size)
+ 		speed = table[i];
+@@ -170,6 +172,7 @@ u32 mlx5e_port_ptys2speed(struct mlx5_co
+ int mlx5e_port_linkspeed(struct mlx5_core_dev *mdev, u32 *speed)
+ {
+ 	struct mlx5e_port_eth_proto eproto;
++	bool force_legacy = false;
+ 	bool ext;
+ 	int err;
+ 
+@@ -177,8 +180,13 @@ int mlx5e_port_linkspeed(struct mlx5_cor
+ 	err = mlx5_port_query_eth_proto(mdev, 1, ext, &eproto);
+ 	if (err)
+ 		goto out;
+-
+-	*speed = mlx5e_port_ptys2speed(mdev, eproto.oper);
++	if (ext && !eproto.admin) {
++		force_legacy = true;
++		err = mlx5_port_query_eth_proto(mdev, 1, false, &eproto);
++		if (err)
++			goto out;
++	}
++	*speed = mlx5e_port_ptys2speed(mdev, eproto.oper, force_legacy);
+ 	if (!(*speed))
+ 		err = -EINVAL;
+ 
+@@ -201,7 +209,7 @@ int mlx5e_port_max_linkspeed(struct mlx5
+ 	if (err)
  		return err;
- 	exists = err;
-@@ -145,7 +147,7 @@ static int tcf_vlan_init(struct net *net
- 			if (exists)
- 				tcf_idr_release(*a, bind);
- 			else
--				tcf_idr_cleanup(tn, parm->index);
-+				tcf_idr_cleanup(tn, index);
- 			return -EINVAL;
- 		}
- 		push_vid = nla_get_u16(tb[TCA_VLAN_PUSH_VLAN_ID]);
-@@ -153,7 +155,7 @@ static int tcf_vlan_init(struct net *net
- 			if (exists)
- 				tcf_idr_release(*a, bind);
- 			else
--				tcf_idr_cleanup(tn, parm->index);
-+				tcf_idr_cleanup(tn, index);
- 			return -ERANGE;
- 		}
  
-@@ -167,7 +169,7 @@ static int tcf_vlan_init(struct net *net
- 				if (exists)
- 					tcf_idr_release(*a, bind);
- 				else
--					tcf_idr_cleanup(tn, parm->index);
-+					tcf_idr_cleanup(tn, index);
- 				return -EPROTONOSUPPORT;
- 			}
- 		} else {
-@@ -181,16 +183,16 @@ static int tcf_vlan_init(struct net *net
- 		if (exists)
- 			tcf_idr_release(*a, bind);
- 		else
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 		return -EINVAL;
+-	mlx5e_port_get_speed_arr(mdev, &table, &max_size);
++	mlx5e_port_get_speed_arr(mdev, &table, &max_size, false);
+ 	for (i = 0; i < max_size; ++i)
+ 		if (eproto.cap & MLX5E_PROT_MASK(i))
+ 			max_speed = max(max_speed, table[i]);
+@@ -210,14 +218,15 @@ int mlx5e_port_max_linkspeed(struct mlx5
+ 	return 0;
+ }
+ 
+-u32 mlx5e_port_speed2linkmodes(struct mlx5_core_dev *mdev, u32 speed)
++u32 mlx5e_port_speed2linkmodes(struct mlx5_core_dev *mdev, u32 speed,
++			       bool force_legacy)
+ {
+ 	u32 link_modes = 0;
+ 	const u32 *table;
+ 	u32 max_size;
+ 	int i;
+ 
+-	mlx5e_port_get_speed_arr(mdev, &table, &max_size);
++	mlx5e_port_get_speed_arr(mdev, &table, &max_size, force_legacy);
+ 	for (i = 0; i < max_size; ++i) {
+ 		if (table[i] == speed)
+ 			link_modes |= MLX5E_PROT_MASK(i);
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/port.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/port.h
+@@ -48,10 +48,12 @@ void mlx5_port_query_eth_autoneg(struct
+ 				 u8 *an_disable_cap, u8 *an_disable_admin);
+ int mlx5_port_set_eth_ptys(struct mlx5_core_dev *dev, bool an_disable,
+ 			   u32 proto_admin, bool ext);
+-u32 mlx5e_port_ptys2speed(struct mlx5_core_dev *mdev, u32 eth_proto_oper);
++u32 mlx5e_port_ptys2speed(struct mlx5_core_dev *mdev, u32 eth_proto_oper,
++			  bool force_legacy);
+ int mlx5e_port_linkspeed(struct mlx5_core_dev *mdev, u32 *speed);
+ int mlx5e_port_max_linkspeed(struct mlx5_core_dev *mdev, u32 *speed);
+-u32 mlx5e_port_speed2linkmodes(struct mlx5_core_dev *mdev, u32 speed);
++u32 mlx5e_port_speed2linkmodes(struct mlx5_core_dev *mdev, u32 speed,
++			       bool force_legacy);
+ 
+ int mlx5e_port_query_pbmc(struct mlx5_core_dev *mdev, void *out);
+ int mlx5e_port_set_pbmc(struct mlx5_core_dev *mdev, void *in);
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+@@ -764,7 +764,7 @@ static void ptys2ethtool_supported_adver
+ }
+ 
+ static void get_speed_duplex(struct net_device *netdev,
+-			     u32 eth_proto_oper,
++			     u32 eth_proto_oper, bool force_legacy,
+ 			     struct ethtool_link_ksettings *link_ksettings)
+ {
+ 	struct mlx5e_priv *priv = netdev_priv(netdev);
+@@ -774,7 +774,7 @@ static void get_speed_duplex(struct net_
+ 	if (!netif_carrier_ok(netdev))
+ 		goto out;
+ 
+-	speed = mlx5e_port_ptys2speed(priv->mdev, eth_proto_oper);
++	speed = mlx5e_port_ptys2speed(priv->mdev, eth_proto_oper, force_legacy);
+ 	if (!speed) {
+ 		speed = SPEED_UNKNOWN;
+ 		goto out;
+@@ -893,8 +893,8 @@ int mlx5e_ethtool_get_link_ksettings(str
+ 	/* Fields: eth_proto_admin and ext_eth_proto_admin  are
+ 	 * mutually exclusive. Hence try reading legacy advertising
+ 	 * when extended advertising is zero.
+-	 * admin_ext indicates how eth_proto_admin should be
+-	 * interpreted
++	 * admin_ext indicates which proto_admin (ext vs. legacy)
++	 * should be read and interpreted
+ 	 */
+ 	admin_ext = ext;
+ 	if (ext && !eth_proto_admin) {
+@@ -903,7 +903,7 @@ int mlx5e_ethtool_get_link_ksettings(str
+ 		admin_ext = false;
  	}
- 	action = parm->v_action;
  
- 	if (!exists) {
--		ret = tcf_idr_create(tn, parm->index, est, a,
-+		ret = tcf_idr_create(tn, index, est, a,
- 				     &act_vlan_ops, bind, true);
- 		if (ret) {
--			tcf_idr_cleanup(tn, parm->index);
-+			tcf_idr_cleanup(tn, index);
- 			return ret;
- 		}
+-	eth_proto_oper   = MLX5_GET_ETH_PROTO(ptys_reg, out, ext,
++	eth_proto_oper   = MLX5_GET_ETH_PROTO(ptys_reg, out, admin_ext,
+ 					      eth_proto_oper);
+ 	eth_proto_lp	    = MLX5_GET(ptys_reg, out, eth_proto_lp_advertise);
+ 	an_disable_admin    = MLX5_GET(ptys_reg, out, an_disable_admin);
+@@ -918,7 +918,8 @@ int mlx5e_ethtool_get_link_ksettings(str
+ 	get_supported(mdev, eth_proto_cap, link_ksettings);
+ 	get_advertising(eth_proto_admin, tx_pause, rx_pause, link_ksettings,
+ 			admin_ext);
+-	get_speed_duplex(priv->netdev, eth_proto_oper, link_ksettings);
++	get_speed_duplex(priv->netdev, eth_proto_oper, !admin_ext,
++			 link_ksettings);
  
+ 	eth_proto_oper = eth_proto_oper ? eth_proto_oper : eth_proto_cap;
+ 
+@@ -995,45 +996,69 @@ static u32 mlx5e_ethtool2ptys_ext_adver_
+ 	return ptys_modes;
+ }
+ 
++static bool ext_link_mode_requested(const unsigned long *adver)
++{
++#define MLX5E_MIN_PTYS_EXT_LINK_MODE_BIT ETHTOOL_LINK_MODE_50000baseKR_Full_BIT
++	int size = __ETHTOOL_LINK_MODE_MASK_NBITS - MLX5E_MIN_PTYS_EXT_LINK_MODE_BIT;
++	__ETHTOOL_DECLARE_LINK_MODE_MASK(modes);
++
++	bitmap_set(modes, MLX5E_MIN_PTYS_EXT_LINK_MODE_BIT, size);
++	return bitmap_intersects(modes, adver, __ETHTOOL_LINK_MODE_MASK_NBITS);
++}
++
++static bool ext_speed_requested(u32 speed)
++{
++#define MLX5E_MAX_PTYS_LEGACY_SPEED 100000
++	return !!(speed > MLX5E_MAX_PTYS_LEGACY_SPEED);
++}
++
++static bool ext_requested(u8 autoneg, const unsigned long *adver, u32 speed)
++{
++	bool ext_link_mode = ext_link_mode_requested(adver);
++	bool ext_speed = ext_speed_requested(speed);
++
++	return  autoneg == AUTONEG_ENABLE ? ext_link_mode : ext_speed;
++}
++
+ int mlx5e_ethtool_set_link_ksettings(struct mlx5e_priv *priv,
+ 				     const struct ethtool_link_ksettings *link_ksettings)
+ {
+ 	struct mlx5_core_dev *mdev = priv->mdev;
+ 	struct mlx5e_port_eth_proto eproto;
++	const unsigned long *adver;
+ 	bool an_changes = false;
+ 	u8 an_disable_admin;
+ 	bool ext_supported;
+-	bool ext_requested;
+ 	u8 an_disable_cap;
+ 	bool an_disable;
+ 	u32 link_modes;
+ 	u8 an_status;
++	u8 autoneg;
+ 	u32 speed;
++	bool ext;
+ 	int err;
+ 
+ 	u32 (*ethtool2ptys_adver_func)(const unsigned long *adver);
+ 
+-#define MLX5E_PTYS_EXT ((1ULL << ETHTOOL_LINK_MODE_50000baseKR_Full_BIT) - 1)
++	adver = link_ksettings->link_modes.advertising;
++	autoneg = link_ksettings->base.autoneg;
++	speed = link_ksettings->base.speed;
+ 
+-	ext_requested = !!(link_ksettings->link_modes.advertising[0] >
+-			MLX5E_PTYS_EXT ||
+-			link_ksettings->link_modes.advertising[1]);
++	ext = ext_requested(autoneg, adver, speed),
+ 	ext_supported = MLX5_CAP_PCAM_FEATURE(mdev, ptys_extended_ethernet);
+-	ext_requested &= ext_supported;
++	if (!ext_supported && ext)
++		return -EOPNOTSUPP;
+ 
+-	speed = link_ksettings->base.speed;
+-	ethtool2ptys_adver_func = ext_requested ?
+-				  mlx5e_ethtool2ptys_ext_adver_link :
++	ethtool2ptys_adver_func = ext ? mlx5e_ethtool2ptys_ext_adver_link :
+ 				  mlx5e_ethtool2ptys_adver_link;
+-	err = mlx5_port_query_eth_proto(mdev, 1, ext_requested, &eproto);
++	err = mlx5_port_query_eth_proto(mdev, 1, ext, &eproto);
+ 	if (err) {
+ 		netdev_err(priv->netdev, "%s: query port eth proto failed: %d\n",
+ 			   __func__, err);
+ 		goto out;
+ 	}
+-	link_modes = link_ksettings->base.autoneg == AUTONEG_ENABLE ?
+-		ethtool2ptys_adver_func(link_ksettings->link_modes.advertising) :
+-		mlx5e_port_speed2linkmodes(mdev, speed);
++	link_modes = autoneg == AUTONEG_ENABLE ? ethtool2ptys_adver_func(adver) :
++		mlx5e_port_speed2linkmodes(mdev, speed, !ext);
+ 
+ 	link_modes = link_modes & eproto.cap;
+ 	if (!link_modes) {
+@@ -1046,14 +1071,14 @@ int mlx5e_ethtool_set_link_ksettings(str
+ 	mlx5_port_query_eth_autoneg(mdev, &an_status, &an_disable_cap,
+ 				    &an_disable_admin);
+ 
+-	an_disable = link_ksettings->base.autoneg == AUTONEG_DISABLE;
++	an_disable = autoneg == AUTONEG_DISABLE;
+ 	an_changes = ((!an_disable && an_disable_admin) ||
+ 		      (an_disable && !an_disable_admin));
+ 
+ 	if (!an_changes && link_modes == eproto.admin)
+ 		goto out;
+ 
+-	mlx5_port_set_eth_ptys(mdev, an_disable, link_modes, ext_requested);
++	mlx5_port_set_eth_ptys(mdev, an_disable, link_modes, ext);
+ 	mlx5_toggle_port_link(mdev);
+ 
+ out:
 
 
