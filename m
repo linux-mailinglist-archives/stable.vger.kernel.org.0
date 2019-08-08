@@ -2,212 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B21A086219
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 14:44:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D40B86251
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 14:54:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732424AbfHHMoD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 08:44:03 -0400
-Received: from mga03.intel.com ([134.134.136.65]:38983 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732254AbfHHMoD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 08:44:03 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 08 Aug 2019 05:43:37 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,361,1559545200"; 
-   d="asc'?scan'208";a="326298207"
-Received: from pipin.fi.intel.com (HELO pipin) ([10.237.72.175])
-  by orsmga004.jf.intel.com with ESMTP; 08 Aug 2019 05:43:34 -0700
-From:   Felipe Balbi <felipe.balbi@linux.intel.com>
-To:     John Stultz <john.stultz@linaro.org>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Cc:     "fei.yang\@intel.com" <fei.yang@intel.com>,
-        "andrzej.p\@collabora.com" <andrzej.p@collabora.com>,
-        "linux-usb\@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-kernel\@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "gregkh\@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "stable\@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v3] usb: dwc3: gadget: trb_dequeue is not updated properly
-In-Reply-To: <CALAqxLURCLHf3UJsMWKZUirDE9bWNYEhv-sKb01g7cTfCz5tOg@mail.gmail.com>
-References: <1563497183-7114-1-git-send-email-fei.yang@intel.com> <CY4PR1201MB003708ADAD79BF4FD24D3445AACB0@CY4PR1201MB0037.namprd12.prod.outlook.com> <CALAqxLURCLHf3UJsMWKZUirDE9bWNYEhv-sKb01g7cTfCz5tOg@mail.gmail.com>
-Date:   Thu, 08 Aug 2019 15:43:30 +0300
-Message-ID: <87k1bnn7yl.fsf@gmail.com>
+        id S1732687AbfHHMyL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 08:54:11 -0400
+Received: from mail-vs1-f66.google.com ([209.85.217.66]:44309 "EHLO
+        mail-vs1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732678AbfHHMyL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Aug 2019 08:54:11 -0400
+Received: by mail-vs1-f66.google.com with SMTP id v129so62949734vsb.11;
+        Thu, 08 Aug 2019 05:54:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=liwJ5aBiFK+WFsWUhJbvVPIczbQXc8RXANMWyv0DLGg=;
+        b=kr5FQNqrT2Rg5Alzm8XnB07yLORUhHTijvKBwfOdk8JR/91h0GkAVli3s1oqUsOubx
+         Iq4v64T7GbVQoJV9exfZHUZjTRDKtlJ8kXoZPjaJoCbLPa32KzzSppNSbsrU9v0+cFfk
+         erqO++npLx/NrD+3IbANNkuHP4Oi3pyzfOMhy6DBO50cX6bl4gSfi8xLnGJxL8qziMSf
+         ZalqO03UMfJkLpgUBiPfoXeskZ4jFO3UUgfuQlHIYCNG370o6P8AaKemiZoeicScpKCb
+         Uw1P7aBcqzrsFvHBweB1Xm2ze7AwhypMpi9SCvflABonpF8gg2BJO7rTJzqUhd7gZrwc
+         Aogw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=liwJ5aBiFK+WFsWUhJbvVPIczbQXc8RXANMWyv0DLGg=;
+        b=nGLd3E++fx6tOKXJ3XK1lHOM1plpKckNYaKUK/MVvHaHmEitmypJbS4uI+bZhIQqGA
+         bzoTk9AExJW265b8oxCenW7WAT+q6aHMPUiX7yfYQMghp8mpOeesXsg74wgpTyEN5/T4
+         xQZRY1tL8mCUXHpjgdyyNdLjMFMNcN383y7Ttrv3oYA0/yZBIXmBKcmz4pd3Q4EBUsVa
+         TqDxHMkyIFE66cFQm/PX38J8I5bSPD+t/9MacvsM69NWRJ0Je+YAStiFkCMO+WWBN+py
+         7R/sCXVNeGlXo8q+9cfnzPnQDlEXCI/I2TLfHByMGJ5kytlwRrVo4QdS855L9hZqzWp2
+         LcLw==
+X-Gm-Message-State: APjAAAWeN3oIdCk4vJvuJs/rcTzKyoyterl7M+ueddSVwLI/gRrCSpZl
+        Dm7fPhbIVXD+ml+MSKuHBsI=
+X-Google-Smtp-Source: APXvYqzUT4Jt9+UwYU5M6TPMDU1CqLQBhj07YUvs0GMfXEdfhpZ1/tEoercQdL79kkRiJPS4q41IZw==
+X-Received: by 2002:a67:f9c1:: with SMTP id c1mr9615438vsq.22.1565268850029;
+        Thu, 08 Aug 2019 05:54:10 -0700 (PDT)
+Received: from asus-S451LA.lan ([190.22.21.218])
+        by smtp.gmail.com with ESMTPSA id r190sm26961692vkr.8.2019.08.08.05.54.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Aug 2019 05:54:09 -0700 (PDT)
+From:   Luis Araneda <luaraneda@gmail.com>
+To:     linux@armlinux.org.uk, michal.simek@xilinx.com
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Luis Araneda <luaraneda@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH v2 2/2] ARM: zynq: Use memcpy_toio instead of memcpy on smp bring-up
+Date:   Thu,  8 Aug 2019 08:52:43 -0400
+Message-Id: <20190808125243.31046-3-luaraneda@gmail.com>
+X-Mailer: git-send-email 2.22.0
+In-Reply-To: <20190808125243.31046-1-luaraneda@gmail.com>
+References: <20190808125243.31046-1-luaraneda@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha256; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+This fixes a kernel panic on memcpy when
+FORTIFY_SOURCE is enabled.
 
+The initial smp implementation on commit aa7eb2bb4e4a
+("arm: zynq: Add smp support")
+used memcpy, which worked fine until commit ee333554fed5
+("ARM: 8749/1: Kconfig: Add ARCH_HAS_FORTIFY_SOURCE")
+enabled overflow checks at runtime, producing a read
+overflow panic.
 
-Hi,
+The computed size of memcpy args are:
+- p_size (dst): 4294967295 = (size_t) -1
+- q_size (src): 1
+- size (len): 8
 
-John Stultz <john.stultz@linaro.org> writes:
-> On Thu, Jul 18, 2019 at 6:12 PM Thinh Nguyen <Thinh.Nguyen@synopsys.com> =
-wrote:
->> fei.yang@intel.com wrote:
->> > From: Fei Yang <fei.yang@intel.com>
->> >
->> > If scatter-gather operation is allowed, a large USB request is split i=
-nto
->> > multiple TRBs. These TRBs are chained up by setting DWC3_TRB_CTRL_CHN =
-bit
->> > except the last one which has DWC3_TRB_CTRL_IOC bit set instead.
->> > Since only the last TRB has IOC set for the whole USB request, the
->> > dwc3_gadget_ep_reclaim_trb_sg() gets called only once after the last T=
-RB
->> > completes and all the TRBs allocated for this request are supposed to =
-be
->> > reclaimed. However that is not what the current code does.
->> >
->> > dwc3_gadget_ep_reclaim_trb_sg() is trying to reclaim all the TRBs in t=
-he
->> > following for-loop,
->> >       for_each_sg(sg, s, pending, i) {
->> >               trb =3D &dep->trb_pool[dep->trb_dequeue];
->> >
->> >                 if (trb->ctrl & DWC3_TRB_CTRL_HWO)
->> >                         break;
->> >
->> >                 req->sg =3D sg_next(s);
->> >                 req->num_pending_sgs--;
->> >
->> >                 ret =3D dwc3_gadget_ep_reclaim_completed_trb(dep, req,
->> >                                 trb, event, status, chain);
->> >                 if (ret)
->> >                         break;
->> >         }
->> > but since the interrupt comes only after the last TRB completes, the
->> > event->status has DEPEVT_STATUS_IOC bit set, so that the for-loop ends=
- for
->> > the first TRB due to dwc3_gadget_ep_reclaim_completed_trb() returns 1.
->> >       if (event->status & DEPEVT_STATUS_IOC)
->> >               return 1;
->> >
->> > This patch addresses the issue by checking each TRB in function
->> > dwc3_gadget_ep_reclaim_trb_sg() and maing sure the chained ones are pr=
-operly
->> > reclaimed. dwc3_gadget_ep_reclaim_completed_trb() will return 1 Only f=
-or the
->> > last TRB.
->> >
->> > Signed-off-by: Fei Yang <fei.yang@intel.com>
->> > Cc: stable <stable@vger.kernel.org>
->> > ---
->> > v2: Better solution is to reclaim chained TRBs in dwc3_gadget_ep_recla=
-im_trb_sg()
->> >     and leave the last TRB to the dwc3_gadget_ep_reclaim_completed_trb=
-().
->> > v3: Checking DWC3_TRB_CTRL_CHN bit for each TRB instead, and making su=
-re that
->> >     dwc3_gadget_ep_reclaim_completed_trb() returns 1 only for the last=
- TRB.
->> > ---
->> >  drivers/usb/dwc3/gadget.c | 11 ++++++++---
->> >  1 file changed, 8 insertions(+), 3 deletions(-)
->> >
->> > diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
->> > index 173f532..88eed49 100644
->> > --- a/drivers/usb/dwc3/gadget.c
->> > +++ b/drivers/usb/dwc3/gadget.c
->> > @@ -2394,7 +2394,7 @@ static int dwc3_gadget_ep_reclaim_completed_trb(=
-struct dwc3_ep *dep,
->> >       if (event->status & DEPEVT_STATUS_SHORT && !chain)
->> >               return 1;
->> >
->> > -     if (event->status & DEPEVT_STATUS_IOC)
->> > +     if (event->status & DEPEVT_STATUS_IOC && !chain)
->> >               return 1;
->> >
->> >       return 0;
->> > @@ -2404,11 +2404,12 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struc=
-t dwc3_ep *dep,
->> >               struct dwc3_request *req, const struct dwc3_event_depevt=
- *event,
->> >               int status)
->> >  {
->> > -     struct dwc3_trb *trb =3D &dep->trb_pool[dep->trb_dequeue];
->> > +     struct dwc3_trb *trb;
->> >       struct scatterlist *sg =3D req->sg;
->> >       struct scatterlist *s;
->> >       unsigned int pending =3D req->num_pending_sgs;
->> >       unsigned int i;
->> > +     int chain =3D false;
->> >       int ret =3D 0;
->> >
->> >       for_each_sg(sg, s, pending, i) {
->> > @@ -2419,9 +2420,13 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struct=
- dwc3_ep *dep,
->> >
->> >               req->sg =3D sg_next(s);
->> >               req->num_pending_sgs--;
->> > +             if (trb->ctrl & DWC3_TRB_CTRL_CHN)
->> > +                     chain =3D true;
->> > +             else
->> > +                     chain =3D false;
->> >
->> >               ret =3D dwc3_gadget_ep_reclaim_completed_trb(dep, req,
->> > -                             trb, event, status, true);
->> > +                             trb, event, status, chain);
->> >               if (ret)
->> >                       break;
->> >       }
->>
->> There was already a fix a long time ago by Anurag. But it never made it
->> to the kernel mainline. You can check this out:
->> https://patchwork.kernel.org/patch/10640137/
->
-> So, back from a vacation last week, and just validated that both Fei's
-> patch and a forward ported version of this patch Thinh pointed out
-> both seem to resolve the usb stalls I've been seeing sinice 4.20 w/
-> dwc3 hardware on both hikey960 and dragonboard 845c.
->
-> Felipe: Does Anurag's patch above make more sense as a proper fix?
+Additionally, the memory is marked as __iomem, so one of
+the memcpy_* functions should be used for read/write.
 
-I think it's enough to check only the TRB. We won't get events for bits
-we didn't enable on the TRB. The only problem here is when we get IOC
-event for multiple TRBs where only the last one has IOC.
+Fixes: aa7eb2bb4e4a ("arm: zynq: Add smp support")
+Signed-off-by: Luis Araneda <luaraneda@gmail.com>
+Cc: stable@vger.kernel.org
+---
+Changes:
+v1 -> v2:
+- Reword commit message to include related commits
+- Add Fixes tag
+- Add Cc to stable
+---
+ arch/arm/mach-zynq/platsmp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-So, instead of checking:
+diff --git a/arch/arm/mach-zynq/platsmp.c b/arch/arm/mach-zynq/platsmp.c
+index 38728badabd4..a10085be9073 100644
+--- a/arch/arm/mach-zynq/platsmp.c
++++ b/arch/arm/mach-zynq/platsmp.c
+@@ -57,7 +57,7 @@ int zynq_cpun_start(u32 address, int cpu)
+ 			* 0x4: Jump by mov instruction
+ 			* 0x8: Jumping address
+ 			*/
+-			memcpy((__force void *)zero, &zynq_secondary_trampoline,
++			memcpy_toio(zero, &zynq_secondary_trampoline,
+ 							trampoline_size);
+ 			writel(address, zero + trampoline_size);
+ 
+-- 
+2.22.0
 
-	if (event->status & IOC && trb->ctrl & IOC)
-
-It's probably enough to check:
-
-	if (tbc->ctrl & IOC)
-
-Could you check that?
-
-Cheers
-
-=2D-=20
-balbi
-
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEElLzh7wn96CXwjh2IzL64meEamQYFAl1MGPIACgkQzL64meEa
-mQY12w//SoBl8a0P9l1wQvjbp66d9nq+DfniJ1P0ZR+OZ49AjsagOTTlGxTOUifR
-TGtVC346hs1OjMMElsrOIKkfyE8J3yzLxbYzLemDdDw6eY5b0rZjqiAfF5S/zZzq
-DyrEH1o+kwKyhCzNvjZIOP3Y/Ugy2XO1J/bDlBcNBtphX8TDpC9p1Dxg6swhRNvp
-vX0FQW/MsE+R6wIftW6XG63bYB5aAM+kqQH4j0MR64b2nFGYAWx7WXJsViMCeK58
-TnKYLEOtkMe4qXbpYFWwiIsIDTY/w4k9jNvVKreFfyTB/cmE4kL9PtgIg+LhUfK/
-phudV1NTCQ6qKeCrgK/zSoT3FLGs5ZxuB60bPL4NFa2PgHeAccC6iwmS+AoMyVK3
-FIWaU2HHqoJSV6M11dDHlXtgzvz/IRD5Uk6M1vdXEDMnG4PAD4IqOfinaWSd+s0y
-H4Bm+jJfH5y/QmbZhLj64ciybsu9VDGNTvgWWu1vr1dZIn2lvNKWl6jBoG9/1KWq
-RFtDWuCgp8cJSZlVHnnTf9q2fVO2DrNYi3WnGhUqp678bhyQjwqwTTQT0kwzrkHc
-m0rgfy5R+pTfJmfy8KIF+HdUMFMVeaKEl/GiVJK7JhUqTHyonv6JEssG1m5u2C8L
-uJn+WRM9wYpSy6Rjqc6PqlzabRppIPwXqWnoBFMbneUhtVt3YfI=
-=SP19
------END PGP SIGNATURE-----
---=-=-=--
