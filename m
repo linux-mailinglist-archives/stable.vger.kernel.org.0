@@ -2,95 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 187098614E
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 14:06:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27416861BC
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 14:31:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727096AbfHHMGF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 08:06:05 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:43467 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726156AbfHHMGF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Aug 2019 08:06:05 -0400
-Received: by mail-pg1-f194.google.com with SMTP id r26so8012161pgl.10
-        for <stable@vger.kernel.org>; Thu, 08 Aug 2019 05:06:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=QY0vLTd/DtI+BoLweHV1eyVNR0ivfIadKEaonMSKMLc=;
-        b=jIWEMf5er9+tizK+48ReAsiaE2Mx+XlmpxAjYYpH8V4xa24nefI94dko4/5d8RKzsB
-         hp2mpx2wUrJaM/EgGqO+IUY9/2/oDHY8eMGH98DTznmhLr4vUzERTdyTZdguwxVwflD0
-         nIORxE1+1nG2rj1yb7P75bpC8YmecV9XVOw4OgCnOpVHc6d8xMu3XIwwex6PUtJfpRdK
-         9nrFUy51veES1U2I8U9JMEoEtdoIC9KXXZy0UgFGtULnWrxtnc06Tl5RGm3cnXsUbLou
-         MN7fa0dAxafGXqCJqoDuPk1ErOcsCQ98uqKesoQzpd4mKEf8mKs3KR+xxTk4YVtIda16
-         nzpg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=QY0vLTd/DtI+BoLweHV1eyVNR0ivfIadKEaonMSKMLc=;
-        b=bWYB96pCCLW9gjBi8WT64JhhHxhcRWfVmjzsYgJcP+JVeL7AFTQq/6nKA66/1QmKqz
-         ljulr5zdCIfS2BwN9Q/bWSUrkCM6wIQxAgQW36mjjg+LCTPfr/HcWSpPTdaqOEqWNvza
-         tuFTZaj6xFGAgh+l95J0GPeSlhh8CjEKfB3iB8QZ51NqFE8wqGBsFgz7rMU+wtemwmsj
-         TDDJvs9BQpOWKc2EoV1duqF4NlLURU5uwfpYv31mOZZCtxGj9ZlinMq9DmGZJkpD/uZr
-         pGw6j/5wVLddnlD146XlPaXysg5kK4XF+nGVX8MAxcxmkU6OSTK6HKfMRk5bv5Y3QRyR
-         00qw==
-X-Gm-Message-State: APjAAAXFvB34IbaQYEH0ICG9PxBVlodCWorU3eLVa2IskxTGMsff5IcR
-        g/Ahm9Qs4mjYo3L9OCJnF5WWt5m0E7M=
-X-Google-Smtp-Source: APXvYqwgaHdyFFRt/3UHo8TtFBzfu7jVV1XBtXs2OzBXhleDGl37AKrxd6WRcphUmYdBbpg0Hx3MWA==
-X-Received: by 2002:a17:90a:ab0b:: with SMTP id m11mr3838423pjq.73.1565265963879;
-        Thu, 08 Aug 2019 05:06:03 -0700 (PDT)
-Received: from localhost ([122.172.76.219])
-        by smtp.gmail.com with ESMTPSA id y23sm100491085pfo.106.2019.08.08.05.06.01
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 08 Aug 2019 05:06:02 -0700 (PDT)
-Date:   Thu, 8 Aug 2019 17:36:00 +0530
-From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     Mark Rutland <mark.rutland@arm.com>
-Cc:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Russell King <rmk+kernel@arm.linux.org.uk>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        mark.brown@arm.com
-Subject: Re: [PATCH v4.4 V2 24/43] arm64: Add skeleton to harden the branch
- predictor against aliasing attacks
-Message-ID: <20190808120600.qhbhopvp4e5w33at@vireshk-i7>
-References: <cover.1562908074.git.viresh.kumar@linaro.org>
- <4349161f0ed572bbc6bff64bad94aa96d07b27ff.1562908075.git.viresh.kumar@linaro.org>
- <20190731164556.GI39768@lakrids.cambridge.arm.com>
- <20190801052011.2hrei36v4zntyfn5@vireshk-i7>
- <20190806121816.GD475@lakrids.cambridge.arm.com>
+        id S2403786AbfHHMb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 08:31:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45196 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2389951AbfHHMb1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 08:31:27 -0400
+Received: from localhost (173-25-83-245.client.mchsi.com [173.25.83.245])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2E4221881;
+        Thu,  8 Aug 2019 12:31:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1565267486;
+        bh=jPRA8WwVIBP3PqkfhSy/TiRINN02YI/sp1jGz5LU1/c=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=E3/gFSiVht9KFJplSMpjko42etxgYXQisDrbuN818/Pn67cENeQhcfvA0qJjCyNnb
+         4xvPZDFxFGNMVYPAGBi7FP301evhJWdbGR94yX6FjfW8h+/Ims0jgaeSvm1o/uh7mp
+         A6i5AwHZqhucwkbw9Jy8kehJvnkZ7EhxuJHokVTw=
+Date:   Thu, 8 Aug 2019 07:31:24 -0500
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     "Koenig, Christian" <Christian.Koenig@amd.com>
+Cc:     Sumit Saxena <sumit.saxena@broadcom.com>,
+        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH V2] PCI: set BAR size bits correctly in Resize BAR
+ control register
+Message-ID: <20190808123124.GD151852@google.com>
+References: <20190725192552.24295-1-sumit.saxena@broadcom.com>
+ <20190807230149.GA151852@google.com>
+ <ed70bffc-eed8-c3c5-ee9b-22e1cad1ae06@amd.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190806121816.GD475@lakrids.cambridge.arm.com>
-User-Agent: NeoMutt/20180716-391-311a52
+In-Reply-To: <ed70bffc-eed8-c3c5-ee9b-22e1cad1ae06@amd.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 06-08-19, 13:18, Mark Rutland wrote:
-> Upstream and in v4.9, the meltdown patches came before the spectre
-> patches, and doing this in the opposite order causes context problems
-> like the above.
+On Thu, Aug 08, 2019 at 07:01:03AM +0000, Koenig, Christian wrote:
+> Am 08.08.19 um 01:01 schrieb Bjorn Helgaas:
+> > On Fri, Jul 26, 2019 at 12:55:52AM +0530, Sumit Saxena wrote:
+> >> In Resize BAR control register, bits[8:12] represents size of BAR.
+> >> As per PCIe specification, below is encoded values in register bits
+> >> to actual BAR size table:
+> >>
+> >> Bits  BAR size
+> >> 0     1 MB
+> >> 1     2 MB
+> >> 2     4 MB
+> >> 3     8 MB
+> >> --
+> >>
+> >> For 1 MB BAR size, BAR size bits should be set to 0 but incorrectly
+> >> these bits are set to "1f". Latest megaraid_sas and mpt3sas adapters
+> >> which support Resizable BAR with 1 MB BAR size fails to initialize
+> >> during system resume from S3 sleep.
+> >>
+> >> Fix: Correctly calculate BAR size bits for Resize BAR control register.
+> >>
+> >> V2:
+> >> -Simplified calculation of BAR size bits as suggested by Christian Koenig.
+> >>
+> >> CC: stable@vger.kernel.org # v4.16+
+> >> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203939
+> >> Fixes: d3252ace0bc652a1a244455556b6a549f969bf99 ("PCI: Restore resized BAR state on resume")
+> >> Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
+> >> ---
+> >>   drivers/pci/pci.c | 2 +-
+> >>   1 file changed, 1 insertion(+), 1 deletion(-)
+> >>
+> >> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+> >> index 29ed5ec1ac27..e59921296125 100644
+> >> --- a/drivers/pci/pci.c
+> >> +++ b/drivers/pci/pci.c
+> >> @@ -1438,7 +1438,7 @@ static void pci_restore_rebar_state(struct pci_dev *pdev)
+> >>   		pci_read_config_dword(pdev, pos + PCI_REBAR_CTRL, &ctrl);
+> >>   		bar_idx = ctrl & PCI_REBAR_CTRL_BAR_IDX;
+> >>   		res = pdev->resource + bar_idx;
+> >> -		size = order_base_2((resource_size(res) >> 20) | 1) - 1;
+> >> +		size = order_base_2(resource_size(res) >> 20);
+> > Since BAR sizes are always powers of 2, wouldn't this be simpler as:
+> >
+> > 		size = ilog2(resource_size(res)) - 20;
+> >
+> > which nicely matches the table in PCIe r5.0, sec 7.8.6.3?
 > 
-> Given that, I think it would be less surprising to do the meltdown
-> backport first, though I apprecaite that's more work to get these
-> patches in. :/
+> Yeah, that should obviously work as well.
+> 
+> We would have a serious problem in the resource management if the 
+> resource size is smaller than 1MB or not a power of two.
 
-I attempted meltdown backport in the last two days and the amount of
-extra patches to be backported is enormous. And I am not sure if
-everything is alright as well now, and things will greatly rely on
-reviews from you for it.
+Yes, definitely.  Resizable BARs are required by spec to be 1MB or
+larger, but this does niggle at me a little bit, too.  It probably
+saves a few bits in pci_dev to recompute this at restore-time, but
+honestly, I think it would be more obviously correct to just do the
+simple-minded thing of saving and restoring the entire register.
 
-For this series, what about just backporting for now to account for
-CSV3 ? And attempting meltdown backport separately later ?
+> Feel free to add my r-b.
 
-179a56f6f9fb arm64: Take into account ID_AA64PFR0_EL1.CSV3
+Done, thanks!
 
--- 
-viresh
+> Regards,
+> Christian.
+> 
+> >
+> >>   		ctrl &= ~PCI_REBAR_CTRL_BAR_SIZE;
+> >>   		ctrl |= size << PCI_REBAR_CTRL_BAR_SHIFT;
+> >>   		pci_write_config_dword(pdev, pos + PCI_REBAR_CTRL, ctrl);
+> >> -- 
+> >> 2.18.1
+> >>
+> 
