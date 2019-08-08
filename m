@@ -2,68 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF76785F27
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 12:01:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C303A8604B
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 12:43:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389745AbfHHKBc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 06:01:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47944 "EHLO mail.kernel.org"
+        id S1728289AbfHHKnh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 06:43:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387815AbfHHKBc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 06:01:32 -0400
+        id S1731839AbfHHKng (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 06:43:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E75CC21880;
-        Thu,  8 Aug 2019 10:01:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D4662084D;
+        Thu,  8 Aug 2019 10:43:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565258491;
-        bh=xZV/d4sQHs2BhErm+RBDsxf6P6yrHJoDVH0LIb3zn9A=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=aTEN92HO92079+IxH17uv81ZoMQRMFJQgGj3loJS+7qN4G2+m7/9gEtgU9zd1Ibfr
-         udJ7LkQQw+BHh1WJhpX/FSH9z3dKUFs7TS7mme3lu9s1S3m+c0jW2uZjYesWt+2ixn
-         UevMgK1hFLNXJUCbeC0RGx+Xwndk8Z6OAW9jK/Ro=
-Date:   Thu, 8 Aug 2019 12:01:29 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Lukas Wunner <lukas@wunner.de>
-Cc:     broonie@kernel.org, kernel@martin.sperl.org, nuno.sa@analog.com,
-        wahrenst@gmx.net, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] spi: bcm2835: Fix 3-wire mode if DMA is
- enabled" failed to apply to 5.2-stable tree
-Message-ID: <20190808100129.GA23844@kroah.com>
-References: <156519648724814@kroah.com>
- <20190807205849.ualpzgp52crdmdol@wunner.de>
- <20190808055625.GA24491@kroah.com>
- <20190808062329.njfou4kfqwlz24qn@wunner.de>
+        s=default; t=1565261015;
+        bh=pTMgT2+jISMvwig0rgnybBNKaQv2EiluveHjJyy9Ljs=;
+        h=Subject:To:From:Date:From;
+        b=Ls05l4CdHhze+Fyhm2NYFLjYglhszD7lkmwlRqBFxYlAGJQyIB6RtNUXr4Hl/r4Qk
+         S+9gNczdHwJNVehOu2sMNlfuDGyh1MNjvYjIFGwU/gdXvHwsUJOho+kPNjxq1PHgrR
+         dl2NbaxO2U/JpzcMQOHqWd/tBC3/raalo0PKqjIo=
+Subject: patch "usb: iowarrior: fix deadlock on disconnect" added to usb-linus
+To:     oneukum@suse.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 08 Aug 2019 12:43:25 +0200
+Message-ID: <1565261005223225@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190808062329.njfou4kfqwlz24qn@wunner.de>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 08, 2019 at 08:23:29AM +0200, Lukas Wunner wrote:
-> On Thu, Aug 08, 2019 at 07:56:25AM +0200, Greg KH wrote:
-> > On Wed, Aug 07, 2019 at 10:58:49PM +0200, Lukas Wunner wrote:
-> > > On Wed, Aug 07, 2019 at 06:48:07PM +0200, gregkh@linuxfoundation.org wrote:
-> > > > The patch below does not apply to the 5.2-stable tree.
-> > 
-> > The patch applies everywhere, but breaks the build in all trees.
-> 
-> Ugh, yes you are right, my apologies.
-> 
-> The reason is that v5.3 converted spi-bcm2835.c to use the
-> "spi_controller" nomenclature instead of "spi_master" with
-> commit 5f336ea53b6b ("spi: bcm2835: Replace spi_master by
-> spi_controller").
-> 
-> The replacement patch below should hopefully not break the
-> build.  It's the same as upstream commit 8d8bef503658,
-> except one occurrence of "ctlr" is replaced by "master".
 
-Thanks for this, now queued up.
+This is a note to let you know that I've just added the patch titled
 
-greg k-h
+    usb: iowarrior: fix deadlock on disconnect
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From c468a8aa790e0dfe0a7f8a39db282d39c2c00b46 Mon Sep 17 00:00:00 2001
+From: Oliver Neukum <oneukum@suse.com>
+Date: Thu, 8 Aug 2019 11:27:28 +0200
+Subject: usb: iowarrior: fix deadlock on disconnect
+
+We have to drop the mutex before we close() upon disconnect()
+as close() needs the lock. This is safe to do by dropping the
+mutex as intfdata is already set to NULL, so open() will fail.
+
+Fixes: 03f36e885fc26 ("USB: open disconnect race in iowarrior")
+Reported-by: syzbot+a64a382964bf6c71a9c0@syzkaller.appspotmail.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20190808092728.23417-1-oneukum@suse.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/misc/iowarrior.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/usb/misc/iowarrior.c b/drivers/usb/misc/iowarrior.c
+index ba05dd80a020..f5bed9f29e56 100644
+--- a/drivers/usb/misc/iowarrior.c
++++ b/drivers/usb/misc/iowarrior.c
+@@ -866,19 +866,20 @@ static void iowarrior_disconnect(struct usb_interface *interface)
+ 	dev = usb_get_intfdata(interface);
+ 	mutex_lock(&iowarrior_open_disc_lock);
+ 	usb_set_intfdata(interface, NULL);
++	/* prevent device read, write and ioctl */
++	dev->present = 0;
+ 
+ 	minor = dev->minor;
++	mutex_unlock(&iowarrior_open_disc_lock);
++	/* give back our minor - this will call close() locks need to be dropped at this point*/
+ 
+-	/* give back our minor */
+ 	usb_deregister_dev(interface, &iowarrior_class);
+ 
+ 	mutex_lock(&dev->mutex);
+ 
+ 	/* prevent device read, write and ioctl */
+-	dev->present = 0;
+ 
+ 	mutex_unlock(&dev->mutex);
+-	mutex_unlock(&iowarrior_open_disc_lock);
+ 
+ 	if (dev->opened) {
+ 		/* There is a process that holds a filedescriptor to the device ,
+-- 
+2.22.0
+
+
