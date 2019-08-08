@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5785B8694D
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:06:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E01B88695C
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:06:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390243AbfHHTGA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:06:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39270 "EHLO mail.kernel.org"
+        id S2404437AbfHHTG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:06:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390203AbfHHTGA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:06:00 -0400
+        id S2404424AbfHHTG2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:06:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 655222173E;
-        Thu,  8 Aug 2019 19:05:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD94E214C6;
+        Thu,  8 Aug 2019 19:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291158;
-        bh=Ct6yfhpM0EHnkzsIo0k2BPaUHmJED0DtYiZUiip0UzY=;
+        s=default; t=1565291187;
+        bh=S6rnoFGWuzDCfGr1eTT+I1+cR/pQ1pXPahYjQFmKkFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fZe30Y4R33cVpioBdu+x8O3E14E17OvrDdfdoV5E9MTC/4NOCQd+EFUkZQDMwIhdA
-         BgohJ7vWxRqVDPYzVGJve1iSFRk6WZX6XkX6AGIvKgYVH3FQyC9KUnZtoTx12Tyk/+
-         Ae9bpTQHfnM07PG9sJdTsTiibS1LznsvxBy+/OAw=
+        b=GehwHTizMD3fGTjMq9Xg42IfW5IrwsQT9W5ArjG2qhXDEu/2U4c/7vOFDvWmcMJhg
+         FHYRebaNtF3Tr2gvdaGK0u4kTDVWGC/16j7aXU99pHWWqojYykIcdp5SxW48dKckJ7
+         P90Qr1UwSp7ir9NV28toqZxXDdj1XaeOaXraDMrE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.2 01/56] scsi: fcoe: Embed fc_rport_priv in fcoe_rport structure
-Date:   Thu,  8 Aug 2019 21:04:27 +0200
-Message-Id: <20190808190452.926558107@linuxfoundation.org>
+        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 02/56] libnvdimm/bus: Prepare the nd_ioctl() path to be re-entrant
+Date:   Thu,  8 Aug 2019 21:04:28 +0200
+Message-Id: <20190808190452.965692020@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190808190452.867062037@linuxfoundation.org>
 References: <20190808190452.867062037@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,221 +44,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+commit 6de5d06e657acdbcf9637dac37916a4a5309e0f4 upstream.
 
-commit 023358b136d490ca91735ac6490db3741af5a8bd upstream.
+In preparation for not holding a lock over the execution of nd_ioctl(),
+update the implementation to allow multiple threads to be attempting
+ioctls at the same time. The bus lock still prevents multiple in-flight
+->ndctl() invocations from corrupting each other's state, but static
+global staging buffers are moved to the heap.
 
-Gcc-9 complains for a memset across pointer boundaries, which happens as
-the code tries to allocate a flexible array on the stack.  Turns out we
-cannot do this without relying on gcc-isms, so with this patch we'll embed
-the fc_rport_priv structure into fcoe_rport, can use the normal
-'container_of' outcast, and will only have to do a memset over one
-structure.
-
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Vishal Verma <vishal.l.verma@intel.com>
+Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
+Tested-by: Vishal Verma <vishal.l.verma@intel.com>
+Link: https://lore.kernel.org/r/156341208947.292348.10560140326807607481.stgit@dwillia2-desk3.amr.corp.intel.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/fcoe/fcoe_ctlr.c |   51 ++++++++++++++++--------------------------
- drivers/scsi/libfc/fc_rport.c |    5 +++-
- include/scsi/libfcoe.h        |    1 
- 3 files changed, 25 insertions(+), 32 deletions(-)
+ drivers/nvdimm/bus.c | 59 +++++++++++++++++++++++++++-----------------
+ 1 file changed, 37 insertions(+), 22 deletions(-)
 
---- a/drivers/scsi/fcoe/fcoe_ctlr.c
-+++ b/drivers/scsi/fcoe/fcoe_ctlr.c
-@@ -2005,7 +2005,7 @@ EXPORT_SYMBOL_GPL(fcoe_wwn_from_mac);
-  */
- static inline struct fcoe_rport *fcoe_ctlr_rport(struct fc_rport_priv *rdata)
+diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
+index dfb93228d6a73..a38572bf486bb 100644
+--- a/drivers/nvdimm/bus.c
++++ b/drivers/nvdimm/bus.c
+@@ -973,20 +973,19 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 		int read_only, unsigned int ioctl_cmd, unsigned long arg)
  {
--	return (struct fcoe_rport *)(rdata + 1);
-+	return container_of(rdata, struct fcoe_rport, rdata);
+ 	struct nvdimm_bus_descriptor *nd_desc = nvdimm_bus->nd_desc;
+-	static char out_env[ND_CMD_MAX_ENVELOPE];
+-	static char in_env[ND_CMD_MAX_ENVELOPE];
+ 	const struct nd_cmd_desc *desc = NULL;
+ 	unsigned int cmd = _IOC_NR(ioctl_cmd);
+ 	struct device *dev = &nvdimm_bus->dev;
+ 	void __user *p = (void __user *) arg;
++	char *out_env = NULL, *in_env = NULL;
+ 	const char *cmd_name, *dimm_name;
+ 	u32 in_len = 0, out_len = 0;
+ 	unsigned int func = cmd;
+ 	unsigned long cmd_mask;
+ 	struct nd_cmd_pkg pkg;
+ 	int rc, i, cmd_rc;
++	void *buf = NULL;
+ 	u64 buf_len = 0;
+-	void *buf;
+ 
+ 	if (nvdimm) {
+ 		desc = nd_cmd_dimm_desc(cmd);
+@@ -1026,6 +1025,9 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 		}
+ 
+ 	/* process an input envelope */
++	in_env = kzalloc(ND_CMD_MAX_ENVELOPE, GFP_KERNEL);
++	if (!in_env)
++		return -ENOMEM;
+ 	for (i = 0; i < desc->in_num; i++) {
+ 		u32 in_size, copy;
+ 
+@@ -1033,14 +1035,17 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 		if (in_size == UINT_MAX) {
+ 			dev_err(dev, "%s:%s unknown input size cmd: %s field: %d\n",
+ 					__func__, dimm_name, cmd_name, i);
+-			return -ENXIO;
++			rc = -ENXIO;
++			goto out;
+ 		}
+-		if (in_len < sizeof(in_env))
+-			copy = min_t(u32, sizeof(in_env) - in_len, in_size);
++		if (in_len < ND_CMD_MAX_ENVELOPE)
++			copy = min_t(u32, ND_CMD_MAX_ENVELOPE - in_len, in_size);
+ 		else
+ 			copy = 0;
+-		if (copy && copy_from_user(&in_env[in_len], p + in_len, copy))
+-			return -EFAULT;
++		if (copy && copy_from_user(&in_env[in_len], p + in_len, copy)) {
++			rc = -EFAULT;
++			goto out;
++		}
+ 		in_len += in_size;
+ 	}
+ 
+@@ -1052,6 +1057,12 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 	}
+ 
+ 	/* process an output envelope */
++	out_env = kzalloc(ND_CMD_MAX_ENVELOPE, GFP_KERNEL);
++	if (!out_env) {
++		rc = -ENOMEM;
++		goto out;
++	}
++
+ 	for (i = 0; i < desc->out_num; i++) {
+ 		u32 out_size = nd_cmd_out_size(nvdimm, cmd, desc, i,
+ 				(u32 *) in_env, (u32 *) out_env, 0);
+@@ -1060,15 +1071,18 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 		if (out_size == UINT_MAX) {
+ 			dev_dbg(dev, "%s unknown output size cmd: %s field: %d\n",
+ 					dimm_name, cmd_name, i);
+-			return -EFAULT;
++			rc = -EFAULT;
++			goto out;
+ 		}
+-		if (out_len < sizeof(out_env))
+-			copy = min_t(u32, sizeof(out_env) - out_len, out_size);
++		if (out_len < ND_CMD_MAX_ENVELOPE)
++			copy = min_t(u32, ND_CMD_MAX_ENVELOPE - out_len, out_size);
+ 		else
+ 			copy = 0;
+ 		if (copy && copy_from_user(&out_env[out_len],
+-					p + in_len + out_len, copy))
+-			return -EFAULT;
++					p + in_len + out_len, copy)) {
++			rc = -EFAULT;
++			goto out;
++		}
+ 		out_len += out_size;
+ 	}
+ 
+@@ -1076,12 +1090,15 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 	if (buf_len > ND_IOCTL_MAX_BUFLEN) {
+ 		dev_dbg(dev, "%s cmd: %s buf_len: %llu > %d\n", dimm_name,
+ 				cmd_name, buf_len, ND_IOCTL_MAX_BUFLEN);
+-		return -EINVAL;
++		rc = -EINVAL;
++		goto out;
+ 	}
+ 
+ 	buf = vmalloc(buf_len);
+-	if (!buf)
+-		return -ENOMEM;
++	if (!buf) {
++		rc = -ENOMEM;
++		goto out;
++	}
+ 
+ 	if (copy_from_user(buf, p, buf_len)) {
+ 		rc = -EFAULT;
+@@ -1103,17 +1120,15 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 		nvdimm_account_cleared_poison(nvdimm_bus, clear_err->address,
+ 				clear_err->cleared);
+ 	}
+-	nvdimm_bus_unlock(&nvdimm_bus->dev);
+ 
+ 	if (copy_to_user(p, buf, buf_len))
+ 		rc = -EFAULT;
+ 
+-	vfree(buf);
+-	return rc;
+-
+- out_unlock:
++out_unlock:
+ 	nvdimm_bus_unlock(&nvdimm_bus->dev);
+- out:
++out:
++	kfree(in_env);
++	kfree(out_env);
+ 	vfree(buf);
+ 	return rc;
  }
- 
- /**
-@@ -2269,7 +2269,7 @@ static void fcoe_ctlr_vn_start(struct fc
-  */
- static int fcoe_ctlr_vn_parse(struct fcoe_ctlr *fip,
- 			      struct sk_buff *skb,
--			      struct fc_rport_priv *rdata)
-+			      struct fcoe_rport *frport)
- {
- 	struct fip_header *fiph;
- 	struct fip_desc *desc = NULL;
-@@ -2277,16 +2277,12 @@ static int fcoe_ctlr_vn_parse(struct fco
- 	struct fip_wwn_desc *wwn = NULL;
- 	struct fip_vn_desc *vn = NULL;
- 	struct fip_size_desc *size = NULL;
--	struct fcoe_rport *frport;
- 	size_t rlen;
- 	size_t dlen;
- 	u32 desc_mask = 0;
- 	u32 dtype;
- 	u8 sub;
- 
--	memset(rdata, 0, sizeof(*rdata) + sizeof(*frport));
--	frport = fcoe_ctlr_rport(rdata);
--
- 	fiph = (struct fip_header *)skb->data;
- 	frport->flags = ntohs(fiph->fip_flags);
- 
-@@ -2349,15 +2345,17 @@ static int fcoe_ctlr_vn_parse(struct fco
- 			if (dlen != sizeof(struct fip_wwn_desc))
- 				goto len_err;
- 			wwn = (struct fip_wwn_desc *)desc;
--			rdata->ids.node_name = get_unaligned_be64(&wwn->fd_wwn);
-+			frport->rdata.ids.node_name =
-+				get_unaligned_be64(&wwn->fd_wwn);
- 			break;
- 		case FIP_DT_VN_ID:
- 			if (dlen != sizeof(struct fip_vn_desc))
- 				goto len_err;
- 			vn = (struct fip_vn_desc *)desc;
- 			memcpy(frport->vn_mac, vn->fd_mac, ETH_ALEN);
--			rdata->ids.port_id = ntoh24(vn->fd_fc_id);
--			rdata->ids.port_name = get_unaligned_be64(&vn->fd_wwpn);
-+			frport->rdata.ids.port_id = ntoh24(vn->fd_fc_id);
-+			frport->rdata.ids.port_name =
-+				get_unaligned_be64(&vn->fd_wwpn);
- 			break;
- 		case FIP_DT_FC4F:
- 			if (dlen != sizeof(struct fip_fc4_feat))
-@@ -2738,10 +2736,7 @@ static int fcoe_ctlr_vn_recv(struct fcoe
- {
- 	struct fip_header *fiph;
- 	enum fip_vn2vn_subcode sub;
--	struct {
--		struct fc_rport_priv rdata;
--		struct fcoe_rport frport;
--	} buf;
-+	struct fcoe_rport frport = { };
- 	int rc, vlan_id = 0;
- 
- 	fiph = (struct fip_header *)skb->data;
-@@ -2757,7 +2752,7 @@ static int fcoe_ctlr_vn_recv(struct fcoe
- 		goto drop;
- 	}
- 
--	rc = fcoe_ctlr_vn_parse(fip, skb, &buf.rdata);
-+	rc = fcoe_ctlr_vn_parse(fip, skb, &frport);
- 	if (rc) {
- 		LIBFCOE_FIP_DBG(fip, "vn_recv vn_parse error %d\n", rc);
- 		goto drop;
-@@ -2766,19 +2761,19 @@ static int fcoe_ctlr_vn_recv(struct fcoe
- 	mutex_lock(&fip->ctlr_mutex);
- 	switch (sub) {
- 	case FIP_SC_VN_PROBE_REQ:
--		fcoe_ctlr_vn_probe_req(fip, &buf.rdata);
-+		fcoe_ctlr_vn_probe_req(fip, &frport.rdata);
- 		break;
- 	case FIP_SC_VN_PROBE_REP:
--		fcoe_ctlr_vn_probe_reply(fip, &buf.rdata);
-+		fcoe_ctlr_vn_probe_reply(fip, &frport.rdata);
- 		break;
- 	case FIP_SC_VN_CLAIM_NOTIFY:
--		fcoe_ctlr_vn_claim_notify(fip, &buf.rdata);
-+		fcoe_ctlr_vn_claim_notify(fip, &frport.rdata);
- 		break;
- 	case FIP_SC_VN_CLAIM_REP:
--		fcoe_ctlr_vn_claim_resp(fip, &buf.rdata);
-+		fcoe_ctlr_vn_claim_resp(fip, &frport.rdata);
- 		break;
- 	case FIP_SC_VN_BEACON:
--		fcoe_ctlr_vn_beacon(fip, &buf.rdata);
-+		fcoe_ctlr_vn_beacon(fip, &frport.rdata);
- 		break;
- 	default:
- 		LIBFCOE_FIP_DBG(fip, "vn_recv unknown subcode %d\n", sub);
-@@ -2802,22 +2797,18 @@ drop:
-  */
- static int fcoe_ctlr_vlan_parse(struct fcoe_ctlr *fip,
- 			      struct sk_buff *skb,
--			      struct fc_rport_priv *rdata)
-+			      struct fcoe_rport *frport)
- {
- 	struct fip_header *fiph;
- 	struct fip_desc *desc = NULL;
- 	struct fip_mac_desc *macd = NULL;
- 	struct fip_wwn_desc *wwn = NULL;
--	struct fcoe_rport *frport;
- 	size_t rlen;
- 	size_t dlen;
- 	u32 desc_mask = 0;
- 	u32 dtype;
- 	u8 sub;
- 
--	memset(rdata, 0, sizeof(*rdata) + sizeof(*frport));
--	frport = fcoe_ctlr_rport(rdata);
--
- 	fiph = (struct fip_header *)skb->data;
- 	frport->flags = ntohs(fiph->fip_flags);
- 
-@@ -2871,7 +2862,8 @@ static int fcoe_ctlr_vlan_parse(struct f
- 			if (dlen != sizeof(struct fip_wwn_desc))
- 				goto len_err;
- 			wwn = (struct fip_wwn_desc *)desc;
--			rdata->ids.node_name = get_unaligned_be64(&wwn->fd_wwn);
-+			frport->rdata.ids.node_name =
-+				get_unaligned_be64(&wwn->fd_wwn);
- 			break;
- 		default:
- 			LIBFCOE_FIP_DBG(fip, "unexpected descriptor type %x "
-@@ -2982,22 +2974,19 @@ static int fcoe_ctlr_vlan_recv(struct fc
- {
- 	struct fip_header *fiph;
- 	enum fip_vlan_subcode sub;
--	struct {
--		struct fc_rport_priv rdata;
--		struct fcoe_rport frport;
--	} buf;
-+	struct fcoe_rport frport = { };
- 	int rc;
- 
- 	fiph = (struct fip_header *)skb->data;
- 	sub = fiph->fip_subcode;
--	rc = fcoe_ctlr_vlan_parse(fip, skb, &buf.rdata);
-+	rc = fcoe_ctlr_vlan_parse(fip, skb, &frport);
- 	if (rc) {
- 		LIBFCOE_FIP_DBG(fip, "vlan_recv vlan_parse error %d\n", rc);
- 		goto drop;
- 	}
- 	mutex_lock(&fip->ctlr_mutex);
- 	if (sub == FIP_SC_VL_REQ)
--		fcoe_ctlr_vlan_disc_reply(fip, &buf.rdata);
-+		fcoe_ctlr_vlan_disc_reply(fip, &frport.rdata);
- 	mutex_unlock(&fip->ctlr_mutex);
- 
- drop:
---- a/drivers/scsi/libfc/fc_rport.c
-+++ b/drivers/scsi/libfc/fc_rport.c
-@@ -128,6 +128,7 @@ EXPORT_SYMBOL(fc_rport_lookup);
- struct fc_rport_priv *fc_rport_create(struct fc_lport *lport, u32 port_id)
- {
- 	struct fc_rport_priv *rdata;
-+	size_t rport_priv_size = sizeof(*rdata);
- 
- 	lockdep_assert_held(&lport->disc.disc_mutex);
- 
-@@ -135,7 +136,9 @@ struct fc_rport_priv *fc_rport_create(st
- 	if (rdata)
- 		return rdata;
- 
--	rdata = kzalloc(sizeof(*rdata) + lport->rport_priv_size, GFP_KERNEL);
-+	if (lport->rport_priv_size > 0)
-+		rport_priv_size = lport->rport_priv_size;
-+	rdata = kzalloc(rport_priv_size, GFP_KERNEL);
- 	if (!rdata)
- 		return NULL;
- 
---- a/include/scsi/libfcoe.h
-+++ b/include/scsi/libfcoe.h
-@@ -229,6 +229,7 @@ struct fcoe_fcf {
-  * @vn_mac:	VN_Node assigned MAC address for data
-  */
- struct fcoe_rport {
-+	struct fc_rport_priv rdata;
- 	unsigned long time;
- 	u16 fcoe_len;
- 	u16 flags;
+-- 
+2.20.1
+
 
 
