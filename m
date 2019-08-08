@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C5BD86A04
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:14:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E92086A51
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:15:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405051AbfHHTJI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:09:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43404 "EHLO mail.kernel.org"
+        id S2404477AbfHHTIX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:08:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405045AbfHHTJH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:09:07 -0400
+        id S2404896AbfHHTIX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:08:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FA5021874;
-        Thu,  8 Aug 2019 19:09:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F3EF2184E;
+        Thu,  8 Aug 2019 19:08:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291346;
-        bh=L1UbzN2FbxpMe/YNMfeHccBGcpbxvsiodflnULxUm50=;
+        s=default; t=1565291302;
+        bh=+hWlT7uUS4AlLaEPkmLlas7EoQBPeqvXeM/SV4hytTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qiqFXIDkkAnTUbC3AMUEFPBclya98BzADmMTTDWBoTkAAKwSEaPOnJ/1fPxLB4VV8
-         fVz0iRcPIBfPId5Sg/1EHc514J3G3T4eyvL/S+6ge+7RDEAAB/sbSt5LuQLHcrednF
-         +6rcE2UY6RE85E6fbMhuWijEfAxL5sQxJDkHW6vw=
+        b=XM4nHnl1CaA0R2oJL202jAD9g/La0VdP1xmawsrud0E23IA892eCpC+urvl1Q5soi
+         4F7U31tp/tWKHCcmifY6BjV2XSul8HqL1lSSxtPhiR1lC6LovCFSc5GtKxenm66J8T
+         Wc08KtgVKXmZg0E0WRLAbbMWcjEMcr5q9diWJWkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Haishuang Yan <yanhaishuang@cmss.chinamobile.com>,
+        stable@vger.kernel.org, Alexis Bauvin <abauvin@scaleway.com>,
+        Jason Wang <jasowang@redhat.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 17/45] ipip: validate header length in ipip_tunnel_xmit
-Date:   Thu,  8 Aug 2019 21:05:03 +0200
-Message-Id: <20190808190454.703655997@linuxfoundation.org>
+Subject: [PATCH 5.2 38/56] tun: mark small packets as owned by the tap sock
+Date:   Thu,  8 Aug 2019 21:05:04 +0200
+Message-Id: <20190808190454.585476147@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190808190453.827571908@linuxfoundation.org>
-References: <20190808190453.827571908@linuxfoundation.org>
+In-Reply-To: <20190808190452.867062037@linuxfoundation.org>
+References: <20190808190452.867062037@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
+From: Alexis Bauvin <abauvin@scaleway.com>
 
-[ Upstream commit 47d858d0bdcd47cc1c6c9eeca91b091dd9e55637 ]
+[ Upstream commit 4b663366246be1d1d4b1b8b01245b2e88ad9e706 ]
 
-We need the same checks introduced by commit cb9f1b783850
-("ip: validate header length on virtual device xmit") for
-ipip tunnel.
+- v1 -> v2: Move skb_set_owner_w to __tun_build_skb to reduce patch size
 
-Fixes: cb9f1b783850b ("ip: validate header length on virtual device xmit")
-Signed-off-by: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
+Small packets going out of a tap device go through an optimized code
+path that uses build_skb() rather than sock_alloc_send_pskb(). The
+latter calls skb_set_owner_w(), but the small packet code path does not.
+
+The net effect is that small packets are not owned by the userland
+application's socket (e.g. QEMU), while large packets are.
+This can be seen with a TCP session, where packets are not owned when
+the window size is small enough (around PAGE_SIZE), while they are once
+the window grows (note that this requires the host to support virtio
+tso for the guest to offload segmentation).
+All this leads to inconsistent behaviour in the kernel, especially on
+netfilter modules that uses sk->socket (e.g. xt_owner).
+
+Fixes: 66ccbc9c87c2 ("tap: use build_skb() for small packet")
+Signed-off-by: Alexis Bauvin <abauvin@scaleway.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/ipip.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/tun.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/net/ipv4/ipip.c
-+++ b/net/ipv4/ipip.c
-@@ -281,6 +281,9 @@ static netdev_tx_t ipip_tunnel_xmit(stru
- 	const struct iphdr  *tiph = &tunnel->parms.iph;
- 	u8 ipproto;
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -1600,7 +1600,8 @@ static bool tun_can_build_skb(struct tun
+ 	return true;
+ }
  
-+	if (!pskb_inet_may_pull(skb))
-+		goto tx_error;
-+
- 	switch (skb->protocol) {
- 	case htons(ETH_P_IP):
- 		ipproto = IPPROTO_IPIP;
+-static struct sk_buff *__tun_build_skb(struct page_frag *alloc_frag, char *buf,
++static struct sk_buff *__tun_build_skb(struct tun_file *tfile,
++				       struct page_frag *alloc_frag, char *buf,
+ 				       int buflen, int len, int pad)
+ {
+ 	struct sk_buff *skb = build_skb(buf, buflen);
+@@ -1610,6 +1611,7 @@ static struct sk_buff *__tun_build_skb(s
+ 
+ 	skb_reserve(skb, pad);
+ 	skb_put(skb, len);
++	skb_set_owner_w(skb, tfile->socket.sk);
+ 
+ 	get_page(alloc_frag->page);
+ 	alloc_frag->offset += buflen;
+@@ -1687,7 +1689,8 @@ static struct sk_buff *tun_build_skb(str
+ 	 */
+ 	if (hdr->gso_type || !xdp_prog) {
+ 		*skb_xdp = 1;
+-		return __tun_build_skb(alloc_frag, buf, buflen, len, pad);
++		return __tun_build_skb(tfile, alloc_frag, buf, buflen, len,
++				       pad);
+ 	}
+ 
+ 	*skb_xdp = 0;
+@@ -1724,7 +1727,7 @@ static struct sk_buff *tun_build_skb(str
+ 	rcu_read_unlock();
+ 	local_bh_enable();
+ 
+-	return __tun_build_skb(alloc_frag, buf, buflen, len, pad);
++	return __tun_build_skb(tfile, alloc_frag, buf, buflen, len, pad);
+ 
+ err_xdp:
+ 	put_page(alloc_frag->page);
 
 
