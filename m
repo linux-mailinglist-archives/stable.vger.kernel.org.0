@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8477A86A1C
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:14:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3856786A46
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:15:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405325AbfHHTKf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:10:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44934 "EHLO mail.kernel.org"
+        id S2404355AbfHHTHx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:07:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405312AbfHHTKc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:10:32 -0400
+        id S2404766AbfHHTHx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:07:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DE752173E;
-        Thu,  8 Aug 2019 19:10:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8638621883;
+        Thu,  8 Aug 2019 19:07:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291431;
-        bh=MTFwszCrmSaCj63SpvMh7Xi8g7NApYngPDhIgzx0W1A=;
+        s=default; t=1565291272;
+        bh=pLMZ0R39s6sqErT9cP49pt4d3kGmb9ZL0meTJmLHSx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oS67qREMf2qzJtVoYLZ5FBU1/8LbTlbC/rRZ22F2NxIGaR8rHq7yMuYK1RNys18mV
-         UuAettCxkHbUvoM3/LksoVkA1eY7spkcgHg8OYyhkLcU5LBSmLfslokwtVlFLSIzMT
-         8R8eHVoMNciyMsdqIMa637NPVUDWbyzSt0cS7k/A=
+        b=dLHpcumuCOKsM65oXpUK18Lhd/gI99FuTQK++6NvRxOzDB36AO7kLMW8PpIUfMZyU
+         jzylDgInH37X7gD5aJtI6gO/0q9O6srx0VJ7zxQJabQCBs04vo1wq5z4bcx/7chVsl
+         8CuHysBAlHeDyHvbSB1hf50Y0JQp3G7g+5f4Z1HA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        stable@vger.kernel.org, Guillaume Nault <g.nault@alphalink.fr>,
+        Arnd Bergmann <arnd@arndb.de>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 12/33] atm: iphase: Fix Spectre v1 vulnerability
+Subject: [PATCH 5.2 53/56] compat_ioctl: pppoe: fix PPPOEIOCSFWD handling
 Date:   Thu,  8 Aug 2019 21:05:19 +0200
-Message-Id: <20190808190454.169203652@linuxfoundation.org>
+Message-Id: <20190808190455.418256875@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190808190453.582417307@linuxfoundation.org>
-References: <20190808190453.582417307@linuxfoundation.org>
+In-Reply-To: <20190808190452.867062037@linuxfoundation.org>
+References: <20190808190452.867062037@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +44,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit ea443e5e98b5b74e317ef3d26bcaea54931ccdee ]
+[ Upstream commit 055d88242a6046a1ceac3167290f054c72571cd9 ]
 
-board is controlled by user-space, hence leading to a potential
-exploitation of the Spectre variant 1 vulnerability.
+Support for handling the PPPOEIOCSFWD ioctl in compat mode was added in
+linux-2.5.69 along with hundreds of other commands, but was always broken
+sincen only the structure is compatible, but the command number is not,
+due to the size being sizeof(size_t), or at first sizeof(sizeof((struct
+sockaddr_pppox)), which is different on 64-bit architectures.
 
-This issue was detected with the help of Smatch:
+Guillaume Nault adds:
 
-drivers/atm/iphase.c:2765 ia_ioctl() warn: potential spectre issue 'ia_dev' [r] (local cap)
-drivers/atm/iphase.c:2774 ia_ioctl() warn: possible spectre second half.  'iadev'
-drivers/atm/iphase.c:2782 ia_ioctl() warn: possible spectre second half.  'iadev'
-drivers/atm/iphase.c:2816 ia_ioctl() warn: possible spectre second half.  'iadev'
-drivers/atm/iphase.c:2823 ia_ioctl() warn: possible spectre second half.  'iadev'
-drivers/atm/iphase.c:2830 ia_ioctl() warn: potential spectre issue '_ia_dev' [r] (local cap)
-drivers/atm/iphase.c:2845 ia_ioctl() warn: possible spectre second half.  'iadev'
-drivers/atm/iphase.c:2856 ia_ioctl() warn: possible spectre second half.  'iadev'
+  And the implementation was broken until 2016 (see 29e73269aa4d ("pppoe:
+  fix reference counting in PPPoE proxy")), and nobody ever noticed. I
+  should probably have removed this ioctl entirely instead of fixing it.
+  Clearly, it has never been used.
 
-Fix this by sanitizing board before using it to index ia_dev and _ia_dev
+Fix it by adding a compat_ioctl handler for all pppoe variants that
+translates the command number and then calls the regular ioctl function.
 
-Notice that given that speculation windows are large, the policy is
-to kill the speculation on the first load and not worry if it can be
-completed with a dependent load/store [1].
+All other ioctl commands handled by pppoe are compatible between 32-bit
+and 64-bit, and require compat_ptr() conversion.
 
-[1] https://lore.kernel.org/lkml/20180423164740.GY17484@dhcp22.suse.cz/
+This should apply to all stable kernels.
 
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Acked-by: Guillaume Nault <g.nault@alphalink.fr>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/atm/iphase.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ppp/pppoe.c  |    3 +++
+ drivers/net/ppp/pppox.c  |   13 +++++++++++++
+ drivers/net/ppp/pptp.c   |    3 +++
+ fs/compat_ioctl.c        |    3 ---
+ include/linux/if_pppox.h |    3 +++
+ net/l2tp/l2tp_ppp.c      |    3 +++
+ 6 files changed, 25 insertions(+), 3 deletions(-)
 
---- a/drivers/atm/iphase.c
-+++ b/drivers/atm/iphase.c
-@@ -63,6 +63,7 @@
- #include <asm/byteorder.h>  
- #include <linux/vmalloc.h>
- #include <linux/jiffies.h>
-+#include <linux/nospec.h>
- #include "iphase.h"		  
- #include "suni.h"		  
- #define swap_byte_order(x) (((x & 0xff) << 8) | ((x & 0xff00) >> 8))
-@@ -2760,8 +2761,11 @@ static int ia_ioctl(struct atm_dev *dev,
-    }
-    if (copy_from_user(&ia_cmds, arg, sizeof ia_cmds)) return -EFAULT; 
-    board = ia_cmds.status;
--   if ((board < 0) || (board > iadev_count))
--         board = 0;    
+--- a/drivers/net/ppp/pppoe.c
++++ b/drivers/net/ppp/pppoe.c
+@@ -1115,6 +1115,9 @@ static const struct proto_ops pppoe_ops
+ 	.recvmsg	= pppoe_recvmsg,
+ 	.mmap		= sock_no_mmap,
+ 	.ioctl		= pppox_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl	= pppox_compat_ioctl,
++#endif
+ };
+ 
+ static const struct pppox_proto pppoe_proto = {
+--- a/drivers/net/ppp/pppox.c
++++ b/drivers/net/ppp/pppox.c
+@@ -17,6 +17,7 @@
+ #include <linux/string.h>
+ #include <linux/module.h>
+ #include <linux/kernel.h>
++#include <linux/compat.h>
+ #include <linux/errno.h>
+ #include <linux/netdevice.h>
+ #include <linux/net.h>
+@@ -98,6 +99,18 @@ int pppox_ioctl(struct socket *sock, uns
+ 
+ EXPORT_SYMBOL(pppox_ioctl);
+ 
++#ifdef CONFIG_COMPAT
++int pppox_compat_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
++{
++	if (cmd == PPPOEIOCSFWD32)
++		cmd = PPPOEIOCSFWD;
 +
-+	if ((board < 0) || (board > iadev_count))
-+		board = 0;
-+	board = array_index_nospec(board, iadev_count + 1);
++	return pppox_ioctl(sock, cmd, (unsigned long)compat_ptr(arg));
++}
 +
-    iadev = ia_dev[board];
-    switch (ia_cmds.cmd) {
-    case MEMDUMP:
++EXPORT_SYMBOL(pppox_compat_ioctl);
++#endif
++
+ static int pppox_create(struct net *net, struct socket *sock, int protocol,
+ 			int kern)
+ {
+--- a/drivers/net/ppp/pptp.c
++++ b/drivers/net/ppp/pptp.c
+@@ -623,6 +623,9 @@ static const struct proto_ops pptp_ops =
+ 	.recvmsg    = sock_no_recvmsg,
+ 	.mmap       = sock_no_mmap,
+ 	.ioctl      = pppox_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl = pppox_compat_ioctl,
++#endif
+ };
+ 
+ static const struct pppox_proto pppox_pptp_proto = {
+--- a/fs/compat_ioctl.c
++++ b/fs/compat_ioctl.c
+@@ -638,9 +638,6 @@ COMPATIBLE_IOCTL(PPPIOCDISCONN)
+ COMPATIBLE_IOCTL(PPPIOCATTCHAN)
+ COMPATIBLE_IOCTL(PPPIOCGCHAN)
+ COMPATIBLE_IOCTL(PPPIOCGL2TPSTATS)
+-/* PPPOX */
+-COMPATIBLE_IOCTL(PPPOEIOCSFWD)
+-COMPATIBLE_IOCTL(PPPOEIOCDFWD)
+ /* Big A */
+ /* sparc only */
+ /* Big Q for sound/OSS */
+--- a/include/linux/if_pppox.h
++++ b/include/linux/if_pppox.h
+@@ -80,6 +80,9 @@ extern int register_pppox_proto(int prot
+ extern void unregister_pppox_proto(int proto_num);
+ extern void pppox_unbind_sock(struct sock *sk);/* delete ppp-channel binding */
+ extern int pppox_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg);
++extern int pppox_compat_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg);
++
++#define PPPOEIOCSFWD32    _IOW(0xB1 ,0, compat_size_t)
+ 
+ /* PPPoX socket states */
+ enum {
+--- a/net/l2tp/l2tp_ppp.c
++++ b/net/l2tp/l2tp_ppp.c
+@@ -1681,6 +1681,9 @@ static const struct proto_ops pppol2tp_o
+ 	.recvmsg	= pppol2tp_recvmsg,
+ 	.mmap		= sock_no_mmap,
+ 	.ioctl		= pppox_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl = pppox_compat_ioctl,
++#endif
+ };
+ 
+ static const struct pppox_proto pppol2tp_proto = {
 
 
