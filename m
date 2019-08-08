@@ -2,48 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACA4486A03
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:14:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CDA186A52
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:15:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404628AbfHHTJG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:09:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43344 "EHLO mail.kernel.org"
+        id S2404909AbfHHTI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:08:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405040AbfHHTJF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:09:05 -0400
+        id S2404896AbfHHTI0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:08:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE9CD2189F;
-        Thu,  8 Aug 2019 19:09:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0430214C6;
+        Thu,  8 Aug 2019 19:08:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291344;
-        bh=mythW7S1Z7RXbOzhzL7g68fGp2IQlUOHoH75/kDHOSc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=UstiLB4tPaY5m39ORkjzO94kuUZ5lXqe5vnu+l8yr5rcM/q2xYrZf/G6D05J+tKFD
-         LUaHiA6kdilk6Qdkx5WBiSMnWuaedew/IaOyaBHX5obZowJSJfWpf0qkxwllDI6GWs
-         JJ/e7WK5ikQLBMSfCIoXM7oj04E9o9ePhP/+nHt0=
+        s=default; t=1565291305;
+        bh=5GQK4tbEBpsRJ1Xb01Mt9JtuVecFHESZrPyggF16xIQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=FIfSUfnl9UYwEohYJKg9hQm/V8cWKTTtslWNjXuDTn4Ah1rmQGIDh7MSrABYIrK8o
+         8wB7RZ302JfX543v0zHVmfzLjY0S8KEBtLNuaqaB88YEA+6IlnvBbzQC+p2eJj1Pji
+         PR4nvGa1CRoM8fLbESxPrHd3S2qTJW6XMW3xQWAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 4.19 00/45] 4.19.66-stable review
-Date:   Thu,  8 Aug 2019 21:04:46 +0200
-Message-Id: <20190808190453.827571908@linuxfoundation.org>
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 01/45] scsi: fcoe: Embed fc_rport_priv in fcoe_rport structure
+Date:   Thu,  8 Aug 2019 21:04:47 +0200
+Message-Id: <20190808190453.902816027@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-MIME-Version: 1.0
+In-Reply-To: <20190808190453.827571908@linuxfoundation.org>
+References: <20190808190453.827571908@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.66-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.19.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.19.66-rc1
-X-KernelTest-Deadline: 2019-08-10T19:04+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -51,240 +45,221 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.19.66 release.
-There are 45 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Hannes Reinecke <hare@suse.de>
 
-Responses should be made by Sat 10 Aug 2019 07:03:19 PM UTC.
-Anything received after that time might be too late.
+commit 023358b136d490ca91735ac6490db3741af5a8bd upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.66-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-and the diffstat can be found below.
+Gcc-9 complains for a memset across pointer boundaries, which happens as
+the code tries to allocate a flexible array on the stack.  Turns out we
+cannot do this without relying on gcc-isms, so with this patch we'll embed
+the fc_rport_priv structure into fcoe_rport, can use the normal
+'container_of' outcast, and will only have to do a memset over one
+structure.
 
-thanks,
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-greg k-h
+---
+ drivers/scsi/fcoe/fcoe_ctlr.c |   51 ++++++++++++++++--------------------------
+ drivers/scsi/libfc/fc_rport.c |    5 +++-
+ include/scsi/libfcoe.h        |    1 
+ 3 files changed, 25 insertions(+), 32 deletions(-)
 
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.19.66-rc1
-
-Lukas Wunner <lukas@wunner.de>
-    spi: bcm2835: Fix 3-wire mode if DMA is enabled
-
-Tejun Heo <tj@kernel.org>
-    cgroup: Fix css_task_iter_advance_css_set() cset skip condition
-
-Tejun Heo <tj@kernel.org>
-    cgroup: css_task_iter_skip()'d iterators must be advanced before accessed
-
-Tejun Heo <tj@kernel.org>
-    cgroup: Include dying leaders with live threads in PROCS iterations
-
-Tejun Heo <tj@kernel.org>
-    cgroup: Implement css_task_iter_skip()
-
-Tejun Heo <tj@kernel.org>
-    cgroup: Call cgroup_release() before __exit_signal()
-
-Arnd Bergmann <arnd@arndb.de>
-    compat_ioctl: pppoe: fix PPPOEIOCSFWD handling
-
-Heiner Kallweit <hkallweit1@gmail.com>
-    r8169: don't use MSI before RTL8168d
-
-Ariel Levkovich <lariel@mellanox.com>
-    net/mlx5e: Prevent encap flow counter update async to user query
-
-Edward Srouji <edwards@mellanox.com>
-    net/mlx5: Fix modify_cq_in alignment
-
-Alexis Bauvin <abauvin@scaleway.com>
-    tun: mark small packets as owned by the tap sock
-
-Taras Kondratiuk <takondra@cisco.com>
-    tipc: compat: allow tipc commands without arguments
-
-Claudiu Manoil <claudiu.manoil@nxp.com>
-    ocelot: Cancel delayed work before wq destruction
-
-Johan Hovold <johan@kernel.org>
-    NFC: nfcmrvl: fix gpio-handling regression
-
-Ursula Braun <ubraun@linux.ibm.com>
-    net/smc: do not schedule tx_work in SMC_CLOSED state
-
-Dmytro Linkin <dmitrolin@mellanox.com>
-    net: sched: use temporary variable for actions indexes
-
-Roman Mashak <mrv@mojatatu.com>
-    net sched: update vlan action for batched events operations
-
-Jia-Ju Bai <baijiaju1990@gmail.com>
-    net: sched: Fix a possible null-pointer dereference in dequeue_func()
-
-Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
-    net: qualcomm: rmnet: Fix incorrect UL checksum offload logic
-
-René van Dorst <opensource@vdorst.com>
-    net: phylink: Fix flow control for fixed-link
-
-Mark Zhang <markz@mellanox.com>
-    net/mlx5: Use reversed order when unregister devices
-
-Qian Cai <cai@lca.pw>
-    net/mlx5e: always initialize frag->last_in_page
-
-Jiri Pirko <jiri@mellanox.com>
-    net: fix ifindex collision during namespace removal
-
-Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-    net: bridge: mcast: don't delete permanent entries when fast leave is enabled
-
-Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-    net: bridge: delete local fdb on device init failure
-
-Matteo Croce <mcroce@redhat.com>
-    mvpp2: refactor MTU change code
-
-Matteo Croce <mcroce@redhat.com>
-    mvpp2: fix panic on module removal
-
-Jiri Pirko <jiri@mellanox.com>
-    mlxsw: spectrum: Fix error path in mlxsw_sp_module_init()
-
-Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
-    ipip: validate header length in ipip_tunnel_xmit
-
-Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
-    ip6_tunnel: fix possible use-after-free on xmit
-
-Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
-    ip6_gre: reload ipv6h in prepare_ip6gre_xmit_ipv6
-
-Cong Wang <xiyou.wangcong@gmail.com>
-    ife: error out when nla attributes are empty
-
-Sudarsana Reddy Kalluru <skalluru@marvell.com>
-    bnx2x: Disable multi-cos feature.
-
-Gustavo A. R. Silva <gustavo@embeddedor.com>
-    atm: iphase: Fix Spectre v1 vulnerability
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    IB: directly cast the sockaddr union to aockaddr
-
-Sebastian Parschauer <s.parschauer@gmx.de>
-    HID: Add quirk for HP X1200 PIXART OEM mouse
-
-Aaron Armstrong Skomra <skomra@gmail.com>
-    HID: wacom: fix bit shift for Cintiq Companion 2
-
-Dan Williams <dan.j.williams@intel.com>
-    libnvdimm/bus: Fix wait_nvdimm_bus_probe_idle() ABBA deadlock
-
-Dan Williams <dan.j.williams@intel.com>
-    libnvdimm/bus: Prepare the nd_ioctl() path to be re-entrant
-
-Dan Williams <dan.j.williams@intel.com>
-    libnvdimm/region: Register badblocks before namespaces
-
-Dan Williams <dan.j.williams@intel.com>
-    libnvdimm/bus: Prevent duplicate device_unregister() calls
-
-Dan Williams <dan.j.williams@intel.com>
-    drivers/base: Introduce kill_device()
-
-Alexander Duyck <alexander.h.duyck@linux.intel.com>
-    driver core: Establish order of operations for device_add and device_del via bitflag
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    gcc-9: don't warn about uninitialized variable
-
-Hannes Reinecke <hare@suse.de>
-    scsi: fcoe: Embed fc_rport_priv in fcoe_rport structure
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |   4 +-
- drivers/atm/iphase.c                               |   8 +-
- drivers/base/base.h                                |   4 +
- drivers/base/core.c                                |  22 +++++
- drivers/base/dd.c                                  |  22 ++---
- drivers/hid/hid-ids.h                              |   1 +
- drivers/hid/hid-quirks.c                           |   1 +
- drivers/hid/wacom_wac.c                            |  12 +--
- drivers/i2c/i2c-core-base.c                        |   2 +-
- drivers/infiniband/core/sa_query.c                 |   9 +-
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c    |   3 +-
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c    |  46 +++------
- drivers/net/ethernet/mellanox/mlx5/core/dev.c      |   2 +-
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c  |   5 +-
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c    |   4 +-
- .../net/ethernet/mellanox/mlx5/core/fs_counters.c  |   5 +
- drivers/net/ethernet/mellanox/mlxsw/spectrum.c     |   2 +-
- drivers/net/ethernet/mscc/ocelot.c                 |   1 +
- drivers/net/ethernet/qualcomm/rmnet/rmnet_map.h    |   2 +-
- .../net/ethernet/qualcomm/rmnet/rmnet_map_data.c   |  13 ++-
- drivers/net/ethernet/realtek/r8169.c               |   9 +-
- drivers/net/phy/phylink.c                          |   2 +
- drivers/net/ppp/pppoe.c                            |   3 +
- drivers/net/ppp/pppox.c                            |  13 +++
- drivers/net/ppp/pptp.c                             |   3 +
- drivers/net/tun.c                                  |   1 +
- drivers/nfc/nfcmrvl/main.c                         |   4 +-
- drivers/nfc/nfcmrvl/uart.c                         |   4 +-
- drivers/nfc/nfcmrvl/usb.c                          |   1 +
- drivers/nvdimm/bus.c                               |  98 +++++++++++++------
- drivers/nvdimm/region.c                            |  22 ++---
- drivers/nvdimm/region_devs.c                       |   4 +
- drivers/scsi/fcoe/fcoe_ctlr.c                      |  51 ++++------
- drivers/scsi/libfc/fc_rport.c                      |   5 +-
- drivers/spi/spi-bcm2835.c                          |   3 +-
- fs/compat_ioctl.c                                  |   3 -
- include/linux/cgroup-defs.h                        |   1 +
- include/linux/cgroup.h                             |   4 +
- include/linux/device.h                             |   1 +
- include/linux/if_pppox.h                           |   3 +
- include/linux/mlx5/fs.h                            |   1 +
- include/linux/mlx5/mlx5_ifc.h                      |   7 +-
- include/scsi/libfcoe.h                             |   1 +
- kernel/cgroup/cgroup.c                             | 106 +++++++++++++++------
- kernel/exit.c                                      |   2 +-
- net/bridge/br_multicast.c                          |   3 +
- net/bridge/br_vlan.c                               |   5 +
- net/core/dev.c                                     |   2 +
- net/ipv4/ipip.c                                    |   3 +
- net/ipv6/ip6_gre.c                                 |   3 +-
- net/ipv6/ip6_tunnel.c                              |   6 +-
- net/l2tp/l2tp_ppp.c                                |   3 +
- net/sched/act_bpf.c                                |   9 +-
- net/sched/act_connmark.c                           |   9 +-
- net/sched/act_csum.c                               |   9 +-
- net/sched/act_gact.c                               |   8 +-
- net/sched/act_ife.c                                |  13 ++-
- net/sched/act_mirred.c                             |  13 +--
- net/sched/act_nat.c                                |   9 +-
- net/sched/act_pedit.c                              |  10 +-
- net/sched/act_police.c                             |   8 +-
- net/sched/act_sample.c                             |  10 +-
- net/sched/act_simple.c                             |  10 +-
- net/sched/act_skbedit.c                            |  11 ++-
- net/sched/act_skbmod.c                             |  11 ++-
- net/sched/act_tunnel_key.c                         |   8 +-
- net/sched/act_vlan.c                               |  25 +++--
- net/sched/sch_codel.c                              |   6 +-
- net/smc/af_smc.c                                   |   8 +-
- net/tipc/netlink_compat.c                          |  11 ++-
- 70 files changed, 471 insertions(+), 262 deletions(-)
+--- a/drivers/scsi/fcoe/fcoe_ctlr.c
++++ b/drivers/scsi/fcoe/fcoe_ctlr.c
+@@ -2017,7 +2017,7 @@ EXPORT_SYMBOL_GPL(fcoe_wwn_from_mac);
+  */
+ static inline struct fcoe_rport *fcoe_ctlr_rport(struct fc_rport_priv *rdata)
+ {
+-	return (struct fcoe_rport *)(rdata + 1);
++	return container_of(rdata, struct fcoe_rport, rdata);
+ }
+ 
+ /**
+@@ -2281,7 +2281,7 @@ static void fcoe_ctlr_vn_start(struct fc
+  */
+ static int fcoe_ctlr_vn_parse(struct fcoe_ctlr *fip,
+ 			      struct sk_buff *skb,
+-			      struct fc_rport_priv *rdata)
++			      struct fcoe_rport *frport)
+ {
+ 	struct fip_header *fiph;
+ 	struct fip_desc *desc = NULL;
+@@ -2289,16 +2289,12 @@ static int fcoe_ctlr_vn_parse(struct fco
+ 	struct fip_wwn_desc *wwn = NULL;
+ 	struct fip_vn_desc *vn = NULL;
+ 	struct fip_size_desc *size = NULL;
+-	struct fcoe_rport *frport;
+ 	size_t rlen;
+ 	size_t dlen;
+ 	u32 desc_mask = 0;
+ 	u32 dtype;
+ 	u8 sub;
+ 
+-	memset(rdata, 0, sizeof(*rdata) + sizeof(*frport));
+-	frport = fcoe_ctlr_rport(rdata);
+-
+ 	fiph = (struct fip_header *)skb->data;
+ 	frport->flags = ntohs(fiph->fip_flags);
+ 
+@@ -2361,15 +2357,17 @@ static int fcoe_ctlr_vn_parse(struct fco
+ 			if (dlen != sizeof(struct fip_wwn_desc))
+ 				goto len_err;
+ 			wwn = (struct fip_wwn_desc *)desc;
+-			rdata->ids.node_name = get_unaligned_be64(&wwn->fd_wwn);
++			frport->rdata.ids.node_name =
++				get_unaligned_be64(&wwn->fd_wwn);
+ 			break;
+ 		case FIP_DT_VN_ID:
+ 			if (dlen != sizeof(struct fip_vn_desc))
+ 				goto len_err;
+ 			vn = (struct fip_vn_desc *)desc;
+ 			memcpy(frport->vn_mac, vn->fd_mac, ETH_ALEN);
+-			rdata->ids.port_id = ntoh24(vn->fd_fc_id);
+-			rdata->ids.port_name = get_unaligned_be64(&vn->fd_wwpn);
++			frport->rdata.ids.port_id = ntoh24(vn->fd_fc_id);
++			frport->rdata.ids.port_name =
++				get_unaligned_be64(&vn->fd_wwpn);
+ 			break;
+ 		case FIP_DT_FC4F:
+ 			if (dlen != sizeof(struct fip_fc4_feat))
+@@ -2750,10 +2748,7 @@ static int fcoe_ctlr_vn_recv(struct fcoe
+ {
+ 	struct fip_header *fiph;
+ 	enum fip_vn2vn_subcode sub;
+-	struct {
+-		struct fc_rport_priv rdata;
+-		struct fcoe_rport frport;
+-	} buf;
++	struct fcoe_rport frport = { };
+ 	int rc, vlan_id = 0;
+ 
+ 	fiph = (struct fip_header *)skb->data;
+@@ -2769,7 +2764,7 @@ static int fcoe_ctlr_vn_recv(struct fcoe
+ 		goto drop;
+ 	}
+ 
+-	rc = fcoe_ctlr_vn_parse(fip, skb, &buf.rdata);
++	rc = fcoe_ctlr_vn_parse(fip, skb, &frport);
+ 	if (rc) {
+ 		LIBFCOE_FIP_DBG(fip, "vn_recv vn_parse error %d\n", rc);
+ 		goto drop;
+@@ -2778,19 +2773,19 @@ static int fcoe_ctlr_vn_recv(struct fcoe
+ 	mutex_lock(&fip->ctlr_mutex);
+ 	switch (sub) {
+ 	case FIP_SC_VN_PROBE_REQ:
+-		fcoe_ctlr_vn_probe_req(fip, &buf.rdata);
++		fcoe_ctlr_vn_probe_req(fip, &frport.rdata);
+ 		break;
+ 	case FIP_SC_VN_PROBE_REP:
+-		fcoe_ctlr_vn_probe_reply(fip, &buf.rdata);
++		fcoe_ctlr_vn_probe_reply(fip, &frport.rdata);
+ 		break;
+ 	case FIP_SC_VN_CLAIM_NOTIFY:
+-		fcoe_ctlr_vn_claim_notify(fip, &buf.rdata);
++		fcoe_ctlr_vn_claim_notify(fip, &frport.rdata);
+ 		break;
+ 	case FIP_SC_VN_CLAIM_REP:
+-		fcoe_ctlr_vn_claim_resp(fip, &buf.rdata);
++		fcoe_ctlr_vn_claim_resp(fip, &frport.rdata);
+ 		break;
+ 	case FIP_SC_VN_BEACON:
+-		fcoe_ctlr_vn_beacon(fip, &buf.rdata);
++		fcoe_ctlr_vn_beacon(fip, &frport.rdata);
+ 		break;
+ 	default:
+ 		LIBFCOE_FIP_DBG(fip, "vn_recv unknown subcode %d\n", sub);
+@@ -2814,22 +2809,18 @@ drop:
+  */
+ static int fcoe_ctlr_vlan_parse(struct fcoe_ctlr *fip,
+ 			      struct sk_buff *skb,
+-			      struct fc_rport_priv *rdata)
++			      struct fcoe_rport *frport)
+ {
+ 	struct fip_header *fiph;
+ 	struct fip_desc *desc = NULL;
+ 	struct fip_mac_desc *macd = NULL;
+ 	struct fip_wwn_desc *wwn = NULL;
+-	struct fcoe_rport *frport;
+ 	size_t rlen;
+ 	size_t dlen;
+ 	u32 desc_mask = 0;
+ 	u32 dtype;
+ 	u8 sub;
+ 
+-	memset(rdata, 0, sizeof(*rdata) + sizeof(*frport));
+-	frport = fcoe_ctlr_rport(rdata);
+-
+ 	fiph = (struct fip_header *)skb->data;
+ 	frport->flags = ntohs(fiph->fip_flags);
+ 
+@@ -2883,7 +2874,8 @@ static int fcoe_ctlr_vlan_parse(struct f
+ 			if (dlen != sizeof(struct fip_wwn_desc))
+ 				goto len_err;
+ 			wwn = (struct fip_wwn_desc *)desc;
+-			rdata->ids.node_name = get_unaligned_be64(&wwn->fd_wwn);
++			frport->rdata.ids.node_name =
++				get_unaligned_be64(&wwn->fd_wwn);
+ 			break;
+ 		default:
+ 			LIBFCOE_FIP_DBG(fip, "unexpected descriptor type %x "
+@@ -2994,22 +2986,19 @@ static int fcoe_ctlr_vlan_recv(struct fc
+ {
+ 	struct fip_header *fiph;
+ 	enum fip_vlan_subcode sub;
+-	struct {
+-		struct fc_rport_priv rdata;
+-		struct fcoe_rport frport;
+-	} buf;
++	struct fcoe_rport frport = { };
+ 	int rc;
+ 
+ 	fiph = (struct fip_header *)skb->data;
+ 	sub = fiph->fip_subcode;
+-	rc = fcoe_ctlr_vlan_parse(fip, skb, &buf.rdata);
++	rc = fcoe_ctlr_vlan_parse(fip, skb, &frport);
+ 	if (rc) {
+ 		LIBFCOE_FIP_DBG(fip, "vlan_recv vlan_parse error %d\n", rc);
+ 		goto drop;
+ 	}
+ 	mutex_lock(&fip->ctlr_mutex);
+ 	if (sub == FIP_SC_VL_REQ)
+-		fcoe_ctlr_vlan_disc_reply(fip, &buf.rdata);
++		fcoe_ctlr_vlan_disc_reply(fip, &frport.rdata);
+ 	mutex_unlock(&fip->ctlr_mutex);
+ 
+ drop:
+--- a/drivers/scsi/libfc/fc_rport.c
++++ b/drivers/scsi/libfc/fc_rport.c
+@@ -140,6 +140,7 @@ EXPORT_SYMBOL(fc_rport_lookup);
+ struct fc_rport_priv *fc_rport_create(struct fc_lport *lport, u32 port_id)
+ {
+ 	struct fc_rport_priv *rdata;
++	size_t rport_priv_size = sizeof(*rdata);
+ 
+ 	lockdep_assert_held(&lport->disc.disc_mutex);
+ 
+@@ -147,7 +148,9 @@ struct fc_rport_priv *fc_rport_create(st
+ 	if (rdata)
+ 		return rdata;
+ 
+-	rdata = kzalloc(sizeof(*rdata) + lport->rport_priv_size, GFP_KERNEL);
++	if (lport->rport_priv_size > 0)
++		rport_priv_size = lport->rport_priv_size;
++	rdata = kzalloc(rport_priv_size, GFP_KERNEL);
+ 	if (!rdata)
+ 		return NULL;
+ 
+--- a/include/scsi/libfcoe.h
++++ b/include/scsi/libfcoe.h
+@@ -241,6 +241,7 @@ struct fcoe_fcf {
+  * @vn_mac:	VN_Node assigned MAC address for data
+  */
+ struct fcoe_rport {
++	struct fc_rport_priv rdata;
+ 	unsigned long time;
+ 	u16 fcoe_len;
+ 	u16 flags;
 
 
