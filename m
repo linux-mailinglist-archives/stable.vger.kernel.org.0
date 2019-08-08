@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96F1986A3B
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:15:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8D2386A54
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:15:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404651AbfHHTHW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:07:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41050 "EHLO mail.kernel.org"
+        id S2404615AbfHHTPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:15:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404647AbfHHTHV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:07:21 -0400
+        id S2404262AbfHHTH0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:07:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA10F214C6;
-        Thu,  8 Aug 2019 19:07:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F00D3214C6;
+        Thu,  8 Aug 2019 19:07:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291241;
-        bh=sKb2ant9Jf6tIi2b62WRaEOi0Q9/FpMvLtGoIIhoLdM=;
+        s=default; t=1565291246;
+        bh=i+No/v5lAkCodta36V5I1H31ENzL9BPkUEng+6jrXHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iWetKm5JVrjMrIg/EVVJWFT+UdBg8ueybPQmMqkB0Hz5dmZ7EEZ6iv/hZcX1X4JYW
-         sKbTeABst4AUUngkbwOOKDWLtzFTIapfC1pHhjm6gDQ/qm+TarKfHlXOp+4Zqw/ogN
-         2IUaWU2aqwUW8XwUR52JmxKelKWHRgmDa+t4YZLE=
+        b=nJfXSSote8gcvU6voiEv4TCV45LfUDiB9oDGHLitZwW5bpdAOzvRyROQTy9sD4/bP
+         vHA1lysc1XZkZgbYfHX+2IJHFQv8e3NYDkzESEwxsoP8XAe/OpiFpZsX5aq0BMBhK2
+         fndTlIfxRuWw/dxCaJi0tHx9BNXnZJo8D1se5sr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+d59c4387bfb6eced94e2@syzkaller.appspotmail.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Hillf Danton <hdanton@sina.com>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 05/56] ALSA: usb-audio: Fix gpf in snd_usb_pipe_sanity_check
-Date:   Thu,  8 Aug 2019 21:04:31 +0200
-Message-Id: <20190808190453.077297569@linuxfoundation.org>
+        stable@vger.kernel.org, Sebastian Parschauer <s.parschauer@gmx.de>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.2 07/56] HID: Add quirk for HP X1200 PIXART OEM mouse
+Date:   Thu,  8 Aug 2019 21:04:33 +0200
+Message-Id: <20190808190453.156076010@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190808190452.867062037@linuxfoundation.org>
 References: <20190808190452.867062037@linuxfoundation.org>
@@ -46,50 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5d78e1c2b7f4be00bbe62141603a631dc7812f35 ]
+From: Sebastian Parschauer <s.parschauer@gmx.de>
 
-syzbot found the following crash on:
+commit 49869d2ea9eecc105a10724c1abf035151a3c4e2 upstream.
 
-  general protection fault: 0000 [#1] SMP KASAN
-  RIP: 0010:snd_usb_pipe_sanity_check+0x80/0x130 sound/usb/helper.c:75
-  Call Trace:
-    snd_usb_motu_microbookii_communicate.constprop.0+0xa0/0x2fb  sound/usb/quirks.c:1007
-    snd_usb_motu_microbookii_boot_quirk sound/usb/quirks.c:1051 [inline]
-    snd_usb_apply_boot_quirk.cold+0x163/0x370 sound/usb/quirks.c:1280
-    usb_audio_probe+0x2ec/0x2010 sound/usb/card.c:576
-    usb_probe_interface+0x305/0x7a0 drivers/usb/core/driver.c:361
-    really_probe+0x281/0x650 drivers/base/dd.c:548
-    ....
+The PixArt OEM mice are known for disconnecting every minute in
+runlevel 1 or 3 if they are not always polled. So add quirk
+ALWAYS_POLL for this one as well.
 
-It was introduced in commit 801ebf1043ae for checking pipe and endpoint
-types. It is fixed by adding a check of the ep pointer in question.
+Jonathan Teh (@jonathan-teh) reported and tested the quirk.
+Reference: https://github.com/sriemer/fix-linux-mouse/issues/15
 
-BugLink: https://syzkaller.appspot.com/bug?extid=d59c4387bfb6eced94e2
-Reported-by: syzbot <syzbot+d59c4387bfb6eced94e2@syzkaller.appspotmail.com>
-Fixes: 801ebf1043ae ("ALSA: usb-audio: Sanity checks for each pipe and EP types")
-Cc: Andrey Konovalov <andreyknvl@google.com>
-Signed-off-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
+CC: stable@vger.kernel.org
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/usb/helper.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-ids.h    |    1 +
+ drivers/hid/hid-quirks.c |    1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/sound/usb/helper.c b/sound/usb/helper.c
-index 71d5f540334a2..4c12cc5b53fda 100644
---- a/sound/usb/helper.c
-+++ b/sound/usb/helper.c
-@@ -72,7 +72,7 @@ int snd_usb_pipe_sanity_check(struct usb_device *dev, unsigned int pipe)
- 	struct usb_host_endpoint *ep;
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -568,6 +568,7 @@
+ #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A	0x0b4a
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE		0x134a
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A	0x094a
++#define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641	0x0641
  
- 	ep = usb_pipe_endpoint(dev, pipe);
--	if (usb_pipetype(pipe) != pipetypes[usb_endpoint_type(&ep->desc)])
-+	if (!ep || usb_pipetype(pipe) != pipetypes[usb_endpoint_type(&ep->desc)])
- 		return -EINVAL;
- 	return 0;
- }
--- 
-2.20.1
-
+ #define USB_VENDOR_ID_HUION		0x256c
+ #define USB_DEVICE_ID_HUION_TABLET	0x006e
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -91,6 +91,7 @@ static const struct hid_device_id hid_qu
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A), HID_QUIRK_ALWAYS_POLL },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_INNOMEDIA, USB_DEVICE_ID_INNEX_GENESIS_ATARI), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M610X), HID_QUIRK_MULTI_INPUT },
 
 
