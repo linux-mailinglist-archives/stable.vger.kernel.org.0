@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFDA3869FD
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:12:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCB6186A4E
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:15:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405366AbfHHTKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:10:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45358 "EHLO mail.kernel.org"
+        id S2404323AbfHHTIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:08:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405377AbfHHTKx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:10:53 -0400
+        id S2404840AbfHHTIK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:08:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 153C02189D;
-        Thu,  8 Aug 2019 19:10:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B8CD2173E;
+        Thu,  8 Aug 2019 19:08:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291452;
-        bh=4H+subCqWSgNGzwA3FFNRessZN5E10AR53Wr3To421k=;
+        s=default; t=1565291289;
+        bh=CUF0Gohx7c3dZQvPvrbrwwn/4m6ke1fBY+li/C7lnTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pI7daKXoSYAgE3L24gyZ4wXnaY5vUPQyCW3kFaTciO/7HQD/7ZSHSpY3lrcV2AAPu
-         EtKGVi2dlMxjYdW6QY7gnnIq5ZnKOVqKsocIVW4sneIU+CJK4m4ntrT7Hv8VawCZZt
-         XtFeLpgwIxPZzutTQ9LAuTo71xNQmVDMBcwDlTFU=
+        b=ybQDAcxluHpB+kI6U9gLb2XBhuIn3cIywVSvBWhgpFHl6P/4MtrAD3yoD9ArFGx3P
+         GbfpWNpv0AIM2c9oU7tyOWNpTUlnrtMiYvVSi/zwgfFkt75A42ehTEQU7ijk7lZmeg
+         SSFaDgXpWug/XqZv5S+uLqIZxM0U9ZWiGey0mbeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 02/33] ARM: dts: Add pinmuxing for i2c2 and i2c3 for LogicPD SOM-LV
+        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.2 43/56] selftests/bpf: add wrapper scripts for test_xdp_vlan.sh
 Date:   Thu,  8 Aug 2019 21:05:09 +0200
-Message-Id: <20190808190453.686077414@linuxfoundation.org>
+Message-Id: <20190808190454.847959086@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190808190453.582417307@linuxfoundation.org>
-References: <20190808190453.582417307@linuxfoundation.org>
+In-Reply-To: <20190808190452.867062037@linuxfoundation.org>
+References: <20190808190452.867062037@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5fe3c0fa0d54877c65e7c9b4442aeeb25cdf469a ]
+From: Jesper Dangaard Brouer <brouer@redhat.com>
 
-Since I2C1 and I2C4 have explicit pinmuxing set, let's be on the
-safe side and set the pin muxing for I2C2 and I2C3.
+[ Upstream commit d35661fcf95d8818c1f9acc818a1bad23dda4e1c ]
 
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In-order to test both native-XDP (xdpdrv) and generic-XDP (xdpgeneric)
+create two wrapper test scripts, that start the test_xdp_vlan.sh script
+with these modes.
+
+Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/logicpd-som-lv.dtsi | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ tools/testing/selftests/bpf/Makefile                      |    3 ++-
+ tools/testing/selftests/bpf/test_xdp_vlan.sh              |    5 ++++-
+ tools/testing/selftests/bpf/test_xdp_vlan_mode_generic.sh |    9 +++++++++
+ tools/testing/selftests/bpf/test_xdp_vlan_mode_native.sh  |    9 +++++++++
+ 4 files changed, 24 insertions(+), 2 deletions(-)
+ create mode 100755 tools/testing/selftests/bpf/test_xdp_vlan_mode_generic.sh
+ create mode 100755 tools/testing/selftests/bpf/test_xdp_vlan_mode_native.sh
 
-diff --git a/arch/arm/boot/dts/logicpd-som-lv.dtsi b/arch/arm/boot/dts/logicpd-som-lv.dtsi
-index a7883676f675c..b144a6a5d3523 100644
---- a/arch/arm/boot/dts/logicpd-som-lv.dtsi
-+++ b/arch/arm/boot/dts/logicpd-som-lv.dtsi
-@@ -115,10 +115,14 @@
- };
+--- a/tools/testing/selftests/bpf/Makefile
++++ b/tools/testing/selftests/bpf/Makefile
+@@ -51,7 +51,8 @@ TEST_PROGS := test_kmod.sh \
+ 	test_lirc_mode2.sh \
+ 	test_skb_cgroup_id.sh \
+ 	test_flow_dissector.sh \
+-	test_xdp_vlan.sh \
++	test_xdp_vlan_mode_generic.sh \
++	test_xdp_vlan_mode_native.sh \
+ 	test_lwt_ip_encap.sh \
+ 	test_tcp_check_syncookie.sh \
+ 	test_tc_tunnel.sh \
+--- a/tools/testing/selftests/bpf/test_xdp_vlan.sh
++++ b/tools/testing/selftests/bpf/test_xdp_vlan.sh
+@@ -2,7 +2,10 @@
+ # SPDX-License-Identifier: GPL-2.0
+ # Author: Jesper Dangaard Brouer <hawk@kernel.org>
  
- &i2c2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c2_pins>;
- 	clock-frequency = <400000>;
- };
+-TESTNAME=xdp_vlan
++# Allow wrapper scripts to name test
++if [ -z "$TESTNAME" ]; then
++    TESTNAME=xdp_vlan
++fi
  
- &i2c3 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c3_pins>;
- 	clock-frequency = <400000>;
- };
- 
-@@ -241,6 +245,18 @@
- 			OMAP3_WKUP_IOPAD(0x2a0c, PIN_OUTPUT | MUX_MODE4)	/* sys_boot1.gpio_3 */
- 		>;
- 	};
-+	i2c2_pins: pinmux_i2c2_pins {
-+		pinctrl-single,pins = <
-+			OMAP3_CORE1_IOPAD(0x21be, PIN_INPUT | MUX_MODE0)	/* i2c2_scl */
-+			OMAP3_CORE1_IOPAD(0x21c0, PIN_INPUT | MUX_MODE0)	/* i2c2_sda */
-+		>;
-+	};
-+	i2c3_pins: pinmux_i2c3_pins {
-+		pinctrl-single,pins = <
-+			OMAP3_CORE1_IOPAD(0x21c2, PIN_INPUT | MUX_MODE0)	/* i2c3_scl */
-+			OMAP3_CORE1_IOPAD(0x21c4, PIN_INPUT | MUX_MODE0)	/* i2c3_sda */
-+		>;
-+	};
- };
- 
- &omap3_pmx_core2 {
--- 
-2.20.1
-
+ # Default XDP mode
+ XDP_MODE=xdpgeneric
+--- /dev/null
++++ b/tools/testing/selftests/bpf/test_xdp_vlan_mode_generic.sh
+@@ -0,0 +1,9 @@
++#!/bin/bash
++# SPDX-License-Identifier: GPL-2.0
++
++# Exit on failure
++set -e
++
++# Wrapper script to test generic-XDP
++export TESTNAME=xdp_vlan_mode_generic
++./test_xdp_vlan.sh --mode=xdpgeneric
+--- /dev/null
++++ b/tools/testing/selftests/bpf/test_xdp_vlan_mode_native.sh
+@@ -0,0 +1,9 @@
++#!/bin/bash
++# SPDX-License-Identifier: GPL-2.0
++
++# Exit on failure
++set -e
++
++# Wrapper script to test native-XDP
++export TESTNAME=xdp_vlan_mode_native
++./test_xdp_vlan.sh --mode=xdpdrv
 
 
