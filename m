@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4958B86A5C
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:15:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C9FB86A02
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:14:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404537AbfHHTGy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:06:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40492 "EHLO mail.kernel.org"
+        id S2405031AbfHHTJD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:09:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404508AbfHHTGx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:06:53 -0400
+        id S2405026AbfHHTJC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:09:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8766221882;
-        Thu,  8 Aug 2019 19:06:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4921021874;
+        Thu,  8 Aug 2019 19:09:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291213;
-        bh=5O/qCdf5EeoEXV+hINy4coar5n+yKm8x+R7wXINU+U8=;
+        s=default; t=1565291341;
+        bh=QR/+RiJBu5Vz2MvmCgi2zdsjQkqaeIi+8tB8wySTYGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CN4Izx6tu9E3HqkGibwo9PpO+MitKY4x7mF6uaWAXFO4+15aJQm7Zqibt6EDFH9RN
-         vhA0cdRS9edbzKvHve/20XET/W2KkoE2SNGCZJpXF1FxbGcdumadnLP57z9fc8Nq2S
-         AyI2pIkGBKWpgI0iTwYwbAenBHv5Mrww4XzUTy/s=
+        b=DR4YxRrHwS1Pq4jktr/ZoW++qu2vU/PcElliuChecxxWMrgGW608jrHJENbehsySi
+         Y2VJ01+x/YpuhhqY8aqoPuEm5meTBvprZiuyImZWql6i7RNJLcPM89K0qEeDwDJCOA
+         6nuMmZOS72tyXBdGwsUa0B7oKB5ui9HW++upPgX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 29/56] net: sched: Fix a possible null-pointer dereference in dequeue_func()
+        stable@vger.kernel.org,
+        Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
+        Ping Cheng <ping.cheng@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.19 09/45] HID: wacom: fix bit shift for Cintiq Companion 2
 Date:   Thu,  8 Aug 2019 21:04:55 +0200
-Message-Id: <20190808190454.110747246@linuxfoundation.org>
+Message-Id: <20190808190454.290553805@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190808190452.867062037@linuxfoundation.org>
-References: <20190808190452.867062037@linuxfoundation.org>
+In-Reply-To: <20190808190453.827571908@linuxfoundation.org>
+References: <20190808190453.827571908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Aaron Armstrong Skomra <skomra@gmail.com>
 
-[ Upstream commit 051c7b39be4a91f6b7d8c4548444e4b850f1f56c ]
+commit 693c3dab4e50403f91bca4b52fc6d8562a3180f6 upstream.
 
-In dequeue_func(), there is an if statement on line 74 to check whether
-skb is NULL:
-    if (skb)
+The bit indicating BTN_6 on this device is overshifted
+by 2 bits, resulting in the incorrect button being
+reported.
 
-When skb is NULL, it is used on line 77:
-    prefetch(&skb->end);
+Also fix copy-paste mistake in comments.
 
-Thus, a possible null-pointer dereference may occur.
-
-To fix this bug, skb->end is used when skb is not NULL.
-
-This bug is found by a static analysis tool STCheck written by us.
-
-Fixes: 76e3cc126bb2 ("codel: Controlled Delay AQM")
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+Link: https://github.com/linuxwacom/xf86-input-wacom/issues/71
+Fixes: c7f0522a1ad1 ("HID: wacom: Slim down wacom_intuos_pad processing")
+Cc: <stable@vger.kernel.org> # v4.5+
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/sched/sch_codel.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/net/sched/sch_codel.c
-+++ b/net/sched/sch_codel.c
-@@ -71,10 +71,10 @@ static struct sk_buff *dequeue_func(stru
- 	struct Qdisc *sch = ctx;
- 	struct sk_buff *skb = __qdisc_dequeue_head(&sch->q);
- 
--	if (skb)
-+	if (skb) {
- 		sch->qstats.backlog -= qdisc_pkt_len(skb);
--
--	prefetch(&skb->end); /* we'll need skb_shinfo() */
-+		prefetch(&skb->end); /* we'll need skb_shinfo() */
-+	}
- 	return skb;
- }
- 
+---
+ drivers/hid/wacom_wac.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -537,14 +537,14 @@ static int wacom_intuos_pad(struct wacom
+ 		 */
+ 		buttons = (data[4] << 1) | (data[3] & 0x01);
+ 	} else if (features->type == CINTIQ_COMPANION_2) {
+-		/* d-pad right  -> data[4] & 0x10
+-		 * d-pad up     -> data[4] & 0x20
+-		 * d-pad left   -> data[4] & 0x40
+-		 * d-pad down   -> data[4] & 0x80
+-		 * d-pad center -> data[3] & 0x01
++		/* d-pad right  -> data[2] & 0x10
++		 * d-pad up     -> data[2] & 0x20
++		 * d-pad left   -> data[2] & 0x40
++		 * d-pad down   -> data[2] & 0x80
++		 * d-pad center -> data[1] & 0x01
+ 		 */
+ 		buttons = ((data[2] >> 4) << 7) |
+-		          ((data[1] & 0x04) << 6) |
++		          ((data[1] & 0x04) << 4) |
+ 		          ((data[2] & 0x0F) << 2) |
+ 		          (data[1] & 0x03);
+ 	} else if (features->type >= INTUOS5S && features->type <= INTUOSPL) {
 
 
