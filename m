@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF087869F9
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:12:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AD17869D8
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:11:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405494AbfHHTLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:11:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46094 "EHLO mail.kernel.org"
+        id S2405479AbfHHTLc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:11:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405488AbfHHTL3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:11:29 -0400
+        id S2405497AbfHHTLb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:11:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D661208C3;
-        Thu,  8 Aug 2019 19:11:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3018208C3;
+        Thu,  8 Aug 2019 19:11:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291488;
-        bh=L1b5hdrCd1bDfjgrb5QgqYINlK0j1YxrUpz8BS+Hu5s=;
+        s=default; t=1565291491;
+        bh=2N7kHPHpGsyEPaH5C63j1jxu1GHQKJ0tKBPUI2dspZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ws4vKtE3CztgX1ayRfmeRsDja7ZQeVrTTilKw6jamuruAncnlkTQiH0hE6ZjS1ayx
-         WatHrzLKpuuDdDNUYQ+yoBlsk2MDZvLMb170gAA1G6uG00Gt/92baDvFVSB+5Rz/rU
-         HseVPTiD+EB+uXlsPa7coSI0+ci63bGqRWg1ENrU=
+        b=CqaFNQCofAtrXPAUVax34hW5+8zVcHcEAp/5E7KNlQaoDZugzZLGQryaBEeQiRtR3
+         Q+E7/Lc+oFSS8W03qeCw5g77NJf0vWlBZrfs1vM3uytVEqwh3/2ZZJC8Hn5zlW9ZyM
+         3x7r8RmvIr6rThJBYbDscoeCXoAFmEZ66XnPkXog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matteo Croce <mcroce@redhat.com>,
+        stable@vger.kernel.org,
+        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
+        Manish Chopra <manishc@marvell.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 26/33] mvpp2: refactor MTU change code
-Date:   Thu,  8 Aug 2019 21:05:33 +0200
-Message-Id: <20190808190454.926578477@linuxfoundation.org>
+Subject: [PATCH 4.14 27/33] bnx2x: Disable multi-cos feature.
+Date:   Thu,  8 Aug 2019 21:05:34 +0200
+Message-Id: <20190808190454.984476363@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190808190453.582417307@linuxfoundation.org>
 References: <20190808190453.582417307@linuxfoundation.org>
@@ -43,85 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matteo Croce <mcroce@redhat.com>
+From: Sudarsana Reddy Kalluru <skalluru@marvell.com>
 
-[ Upstream commit 230bd958c2c846ee292aa38bc6b006296c24ca01 ]
+[ Upstream commit d1f0b5dce8fda09a7f5f04c1878f181d548e42f5 ]
 
-The MTU change code can call napi_disable() with the device already down,
-leading to a deadlock. Also, lot of code is duplicated unnecessarily.
+Commit 3968d38917eb ("bnx2x: Fix Multi-Cos.") which enabled multi-cos
+feature after prolonged time in driver added some regression causing
+numerous issues (sudden reboots, tx timeout etc.) reported by customers.
+We plan to backout this commit and submit proper fix once we have root
+cause of issues reported with this feature enabled.
 
-Rework mvpp2_change_mtu() to avoid the deadlock and remove duplicated code.
-
-Fixes: 3f518509dedc ("ethernet: Add new driver for Marvell Armada 375 network unit")
-Signed-off-by: Matteo Croce <mcroce@redhat.com>
+Fixes: 3968d38917eb ("bnx2x: Fix Multi-Cos.")
+Signed-off-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
+Signed-off-by: Manish Chopra <manishc@marvell.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/mvpp2.c |   41 +++++++++++------------------------
- 1 file changed, 13 insertions(+), 28 deletions(-)
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/marvell/mvpp2.c
-+++ b/drivers/net/ethernet/marvell/mvpp2.c
-@@ -6952,6 +6952,7 @@ log_error:
- static int mvpp2_change_mtu(struct net_device *dev, int mtu)
- {
- 	struct mvpp2_port *port = netdev_priv(dev);
-+	bool running = netif_running(dev);
- 	int err;
- 
- 	if (!IS_ALIGNED(MVPP2_RX_PKT_SIZE(mtu), 8)) {
-@@ -6960,40 +6961,24 @@ static int mvpp2_change_mtu(struct net_d
- 		mtu = ALIGN(MVPP2_RX_PKT_SIZE(mtu), 8);
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
+@@ -1934,7 +1934,7 @@ u16 bnx2x_select_queue(struct net_device
  	}
  
--	if (!netif_running(dev)) {
--		err = mvpp2_bm_update_mtu(dev, mtu);
--		if (!err) {
--			port->pkt_size =  MVPP2_RX_PKT_SIZE(mtu);
--			return 0;
--		}
-+	if (running)
-+		mvpp2_stop_dev(port);
- 
-+	err = mvpp2_bm_update_mtu(dev, mtu);
-+	if (err) {
-+		netdev_err(dev, "failed to change MTU\n");
- 		/* Reconfigure BM to the original MTU */
--		err = mvpp2_bm_update_mtu(dev, dev->mtu);
--		if (err)
--			goto log_error;
-+		mvpp2_bm_update_mtu(dev, dev->mtu);
-+	} else {
-+		port->pkt_size =  MVPP2_RX_PKT_SIZE(mtu);
- 	}
- 
--	mvpp2_stop_dev(port);
--
--	err = mvpp2_bm_update_mtu(dev, mtu);
--	if (!err) {
--		port->pkt_size =  MVPP2_RX_PKT_SIZE(mtu);
--		goto out_start;
-+	if (running) {
-+		mvpp2_start_dev(port);
-+		mvpp2_egress_enable(port);
-+		mvpp2_ingress_enable(port);
- 	}
- 
--	/* Reconfigure BM to the original MTU */
--	err = mvpp2_bm_update_mtu(dev, dev->mtu);
--	if (err)
--		goto log_error;
--
--out_start:
--	mvpp2_start_dev(port);
--	mvpp2_egress_enable(port);
--	mvpp2_ingress_enable(port);
--
--	return 0;
--log_error:
--	netdev_err(dev, "failed to change MTU\n");
- 	return err;
+ 	/* select a non-FCoE queue */
+-	return fallback(dev, skb) % (BNX2X_NUM_ETH_QUEUES(bp) * bp->max_cos);
++	return fallback(dev, skb) % (BNX2X_NUM_ETH_QUEUES(bp));
  }
  
+ void bnx2x_set_num_queues(struct bnx2x *bp)
 
 
