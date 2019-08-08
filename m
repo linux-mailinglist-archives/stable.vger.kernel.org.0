@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46B7486A4F
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:15:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 577A886A15
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:14:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404433AbfHHTIO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:08:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42218 "EHLO mail.kernel.org"
+        id S2405262AbfHHTKR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:10:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404851AbfHHTIN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:08:13 -0400
+        id S2405258AbfHHTKR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:10:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EAA1E2189E;
-        Thu,  8 Aug 2019 19:08:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD66E2173E;
+        Thu,  8 Aug 2019 19:10:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291292;
-        bh=s6GFSmA/8yXWLOplHTaprjXne1sJJ38SREKr2hd5Roo=;
+        s=default; t=1565291416;
+        bh=71bXpPWIS2fJrK8CEpVP4B8xiOQgtraTTJI76LPQ7Ug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZB0GX7teQ+Ve7t3ZVz8AtnVnaq0QRqSg0tXxk3JLOzbHzV95B5g4uNHiVUeQ2TFGR
-         ukb4OcuaZZ7iVs4hQNvy0EGropZhTdo3OyLONEoF/85rhveyBHxINuMqUMBPsoqRcY
-         5mItg7j8AIkxnjp9oR34HnIB3VpP2umhdbsYQWlM=
+        b=LJbu7nfmpnEI8h8SeQ8gKmCgb96OchzalEwTsY5dOcoOUwUGhZCuBIyzztTwsjAe6
+         usoa1lBrzuoUF0Z9j7AyuE1Bam/6CyAK8Ic4YcwOXzsIBzg/R+JkLdhZO02a0e+E7k
+         jC1xSZo902A10RrwLUZV3zbdE+qSWKMC+NaDiz60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Tariq Toukan <tariqt@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 44/56] selftests/bpf: reduce time to execute test_xdp_vlan.sh
+Subject: [PATCH 4.19 24/45] net/mlx5e: always initialize frag->last_in_page
 Date:   Thu,  8 Aug 2019 21:05:10 +0200
-Message-Id: <20190808190454.902151470@linuxfoundation.org>
+Message-Id: <20190808190455.081180292@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190808190452.867062037@linuxfoundation.org>
-References: <20190808190452.867062037@linuxfoundation.org>
+In-Reply-To: <20190808190453.827571908@linuxfoundation.org>
+References: <20190808190453.827571908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesper Dangaard Brouer <brouer@redhat.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 13978d1e73d2fcfb6addcf3392707ad68fa88ccb ]
+[ Upstream commit 60d60c8fbd8d1acf25b041ecd72ae4fa16e9405b ]
 
-Given the increasing number of BPF selftests, it makes sense to
-reduce the time to execute these tests.  The ping parameters are
-adjusted to reduce the time from measures 9 sec to approx 2.8 sec.
+The commit 069d11465a80 ("net/mlx5e: RX, Enhance legacy Receive Queue
+memory scheme") introduced an undefined behaviour below due to
+"frag->last_in_page" is only initialized in mlx5e_init_frags_partition()
+when,
 
-Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
+if (next_frag.offset + frag_info[f].frag_stride > PAGE_SIZE)
+
+or after bailed out the loop,
+
+for (i = 0; i < mlx5_wq_cyc_get_size(&rq->wqe.wq); i++)
+
+As the result, there could be some "frag" have uninitialized
+value of "last_in_page".
+
+Later, get_frag() obtains those "frag" and check "frag->last_in_page" in
+mlx5e_put_rx_frag() and triggers the error during boot. Fix it by always
+initializing "frag->last_in_page" to "false" in
+mlx5e_init_frags_partition().
+
+UBSAN: Undefined behaviour in
+drivers/net/ethernet/mellanox/mlx5/core/en_rx.c:325:12
+load of value 170 is not a valid value for type 'bool' (aka '_Bool')
+Call trace:
+ dump_backtrace+0x0/0x264
+ show_stack+0x20/0x2c
+ dump_stack+0xb0/0x104
+ __ubsan_handle_load_invalid_value+0x104/0x128
+ mlx5e_handle_rx_cqe+0x8e8/0x12cc [mlx5_core]
+ mlx5e_poll_rx_cq+0xca8/0x1a94 [mlx5_core]
+ mlx5e_napi_poll+0x17c/0xa30 [mlx5_core]
+ net_rx_action+0x248/0x940
+ __do_softirq+0x350/0x7b8
+ irq_exit+0x200/0x26c
+ __handle_domain_irq+0xc8/0x128
+ gic_handle_irq+0x138/0x228
+ el1_irq+0xb8/0x140
+ arch_cpu_idle+0x1a4/0x348
+ do_idle+0x114/0x1b0
+ cpu_startup_entry+0x24/0x28
+ rest_init+0x1ac/0x1dc
+ arch_call_rest_init+0x10/0x18
+ start_kernel+0x4d4/0x57c
+
+Fixes: 069d11465a80 ("net/mlx5e: RX, Enhance legacy Receive Queue memory scheme")
+Signed-off-by: Qian Cai <cai@lca.pw>
+Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/test_xdp_vlan.sh |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/tools/testing/selftests/bpf/test_xdp_vlan.sh
-+++ b/tools/testing/selftests/bpf/test_xdp_vlan.sh
-@@ -188,7 +188,7 @@ ip netns exec ns2 ip link set lo up
- # At this point, the hosts cannot reach each-other,
- # because ns2 are using VLAN tags on the packets.
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -420,12 +420,11 @@ static inline u64 mlx5e_get_mpwqe_offset
  
--ip netns exec ns2 sh -c 'ping -W 1 -c 1 100.64.41.1 || echo "Okay ping fails"'
-+ip netns exec ns2 sh -c 'ping -W 1 -c 1 100.64.41.1 || echo "Success: First ping must fail"'
+ static void mlx5e_init_frags_partition(struct mlx5e_rq *rq)
+ {
+-	struct mlx5e_wqe_frag_info next_frag, *prev;
++	struct mlx5e_wqe_frag_info next_frag = {};
++	struct mlx5e_wqe_frag_info *prev = NULL;
+ 	int i;
  
+ 	next_frag.di = &rq->wqe.di[0];
+-	next_frag.offset = 0;
+-	prev = NULL;
  
- # Now we can use the test_xdp_vlan.c program to pop/push these VLAN tags
-@@ -210,8 +210,8 @@ ip netns exec ns1 tc filter add dev $DEV
-   prio 1 handle 1 bpf da obj $FILE sec tc_vlan_push
- 
- # Now the namespaces can reach each-other, test with ping:
--ip netns exec ns2 ping -W 2 -c 3 $IPADDR1
--ip netns exec ns1 ping -W 2 -c 3 $IPADDR2
-+ip netns exec ns2 ping -i 0.2 -W 2 -c 2 $IPADDR1
-+ip netns exec ns1 ping -i 0.2 -W 2 -c 2 $IPADDR2
- 
- # Second test: Replace xdp prog, that fully remove vlan header
- #
-@@ -224,5 +224,5 @@ ip netns exec ns1 ip link set $DEVNS1 $X
- ip netns exec ns1 ip link set $DEVNS1 $XDP_MODE object $FILE section $XDP_PROG
- 
- # Now the namespaces should still be able reach each-other, test with ping:
--ip netns exec ns2 ping -W 2 -c 3 $IPADDR1
--ip netns exec ns1 ping -W 2 -c 3 $IPADDR2
-+ip netns exec ns2 ping -i 0.2 -W 2 -c 2 $IPADDR1
-+ip netns exec ns1 ping -i 0.2 -W 2 -c 2 $IPADDR2
+ 	for (i = 0; i < mlx5_wq_cyc_get_size(&rq->wqe.wq); i++) {
+ 		struct mlx5e_rq_frag_info *frag_info = &rq->wqe.info.arr[0];
 
 
