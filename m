@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A960E86A5F
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:15:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47A3F86A2D
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:14:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404500AbfHHTGo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:06:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40308 "EHLO mail.kernel.org"
+        id S2404997AbfHHTIx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:08:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404495AbfHHTGn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:06:43 -0400
+        id S2404509AbfHHTIw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:08:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 366D72184E;
-        Thu,  8 Aug 2019 19:06:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D457D2173E;
+        Thu,  8 Aug 2019 19:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291202;
-        bh=RjhTNkbeX9uHaKqCBT5RS6ytzd/WV3yV9vnWh8ueMlI=;
+        s=default; t=1565291331;
+        bh=aBxhkRVwXoJii8tFWAHj3MDQzysyn97ow8IFtXxjJ9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qT4qBDceW8Pyco0uaax26K0uRVz1sKHV373CRxuBWEi/ODKRhoaAOOepPOiHYnc7z
-         tN4+gRX6mofkz+cjWL3rpXWlQohb92EszosQGRqK3rPuPCWBN5e/okBHcp4Px2/2nT
-         +ri09uPq/et+2EB147fOXm3zA0bQcQqrt4K2LrXo=
+        b=WSLc9UihNWDMhg+6SAVy75ZbaKQwgYqZoLCGc/3Z6EhSXRiJ6HIRUJmfQ0BwdnixQ
+         HdFjSPeTMsBGwnwTAX0S4M4ucC2gpIpLaP32EvYo3g4YfxdipCZCNlWE+3zQZ218fi
+         U3UVCMX8uHDjvPr6wVJefhBitR9MUaYGvSCvCf/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arseny Solokha <asolokha@kb.kras.ru>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 25/56] net: phylink: dont start and stop SGMII PHYs in SFP modules twice
+        stable@vger.kernel.org, Jane Chu <jane.chu@oracle.com>,
+        Erwin Tsaur <erwin.tsaur@oracle.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 05/45] libnvdimm/bus: Prevent duplicate device_unregister() calls
 Date:   Thu,  8 Aug 2019 21:04:51 +0200
-Message-Id: <20190808190453.926761189@linuxfoundation.org>
+Message-Id: <20190808190454.092926881@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190808190452.867062037@linuxfoundation.org>
-References: <20190808190452.867062037@linuxfoundation.org>
+In-Reply-To: <20190808190453.827571908@linuxfoundation.org>
+References: <20190808190453.827571908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,145 +45,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arseny Solokha <asolokha@kb.kras.ru>
+commit 8aac0e2338916e273ccbd438a2b7a1e8c61749f5 upstream.
 
-[ Upstream commit c7fa7f567cab6532be285a5df104617d80bce245 ]
+A multithreaded namespace creation/destruction stress test currently
+fails with signatures like the following:
 
-SFP modules connected using the SGMII interface have their own PHYs which
-are handled by the struct phylink's phydev field. On the other hand, for
-the modules connected using 1000Base-X interface that field is not set.
+    sysfs group 'power' not found for kobject 'dax1.1'
+    RIP: 0010:sysfs_remove_group+0x76/0x80
+    Call Trace:
+     device_del+0x73/0x370
+     device_unregister+0x16/0x50
+     nd_async_device_unregister+0x1e/0x30 [libnvdimm]
+     async_run_entry_fn+0x39/0x160
+     process_one_work+0x23c/0x5e0
+     worker_thread+0x3c/0x390
 
-Since commit ce0aa27ff3f6 ("sfp: add sfp-bus to bridge between network
-devices and sfp cages") phylink_start() ends up setting the phydev field
-using the sfp-bus infrastructure, which eventually calls phy_start() on it,
-and then calling phy_start() again on the same phydev from phylink_start()
-itself. Similar call sequence holds for phylink_stop(), only in the reverse
-order. This results in WARNs during network interface bringup and shutdown
-when a copper SFP module is connected, as phy_start() and phy_stop() are
-called twice in a row for the same phy_device:
+    BUG: kernel NULL pointer dereference, address: 0000000000000020
+    RIP: 0010:klist_put+0x1b/0x6c
+    Call Trace:
+     klist_del+0xe/0x10
+     device_del+0x8a/0x2c9
+     ? __switch_to_asm+0x34/0x70
+     ? __switch_to_asm+0x40/0x70
+     device_unregister+0x44/0x4f
+     nd_async_device_unregister+0x22/0x2d [libnvdimm]
+     async_run_entry_fn+0x47/0x15a
+     process_one_work+0x1a2/0x2eb
+     worker_thread+0x1b8/0x26e
 
-  % ip link set up dev eth0
-  ------------[ cut here ]------------
-  called from state UP
-  WARNING: CPU: 1 PID: 155 at drivers/net/phy/phy.c:895 phy_start+0x74/0xc0
-  Modules linked in:
-  CPU: 1 PID: 155 Comm: backend Not tainted 5.2.0+ #1
-  NIP:  c0227bf0 LR: c0227bf0 CTR: c004d224
-  REGS: df547720 TRAP: 0700   Not tainted  (5.2.0+)
-  MSR:  00029000 <CE,EE,ME>  CR: 24002822  XER: 00000000
+Use the kill_device() helper to atomically resolve the race of multiple
+threads issuing kill, device_unregister(), requests.
 
-  GPR00: c0227bf0 df5477d8 df5d7080 00000014 df9d2370 df9d5ac4 1f4eb000 00000001
-  GPR08: c061fe58 00000000 00000000 df5477d8 0000003c 100c8768 00000000 00000000
-  GPR16: df486a00 c046f1c8 c046eea0 00000000 c046e904 c0239604 db68449c 00000000
-  GPR24: e9083204 00000000 00000001 db684460 e9083404 00000000 db6dce00 db6dcc00
-  NIP [c0227bf0] phy_start+0x74/0xc0
-  LR [c0227bf0] phy_start+0x74/0xc0
-  Call Trace:
-  [df5477d8] [c0227bf0] phy_start+0x74/0xc0 (unreliable)
-  [df5477e8] [c023cad0] startup_gfar+0x398/0x3f4
-  [df547828] [c023cf08] gfar_enet_open+0x364/0x374
-  [df547898] [c029d870] __dev_open+0xe4/0x140
-  [df5478c8] [c029db70] __dev_change_flags+0xf0/0x188
-  [df5478f8] [c029dc28] dev_change_flags+0x20/0x54
-  [df547918] [c02ae304] do_setlink+0x310/0x818
-  [df547a08] [c02b1eb8] __rtnl_newlink+0x384/0x6b0
-  [df547c28] [c02b222c] rtnl_newlink+0x48/0x68
-  [df547c48] [c02ad7c8] rtnetlink_rcv_msg+0x240/0x27c
-  [df547c98] [c02cc068] netlink_rcv_skb+0x8c/0xf0
-  [df547cd8] [c02cba3c] netlink_unicast+0x114/0x19c
-  [df547d08] [c02cbd74] netlink_sendmsg+0x2b0/0x2c0
-  [df547d58] [c027b668] sock_sendmsg_nosec+0x20/0x40
-  [df547d68] [c027d080] ___sys_sendmsg+0x17c/0x1dc
-  [df547e98] [c027df7c] __sys_sendmsg+0x68/0x84
-  [df547ef8] [c027e430] sys_socketcall+0x1a0/0x204
-  [df547f38] [c000d1d8] ret_from_syscall+0x0/0x38
-  --- interrupt: c01 at 0xfd4e030
-      LR = 0xfd4e010
-  Instruction dump:
-  813f0188 38800000 2b890005 419d0014 3d40c046 5529103a 394aa208 7c8a482e
-  3c60c046 3863a1b8 4cc63182 4be009a1 <0fe00000> 48000030 3c60c046 3863a1d0
-  ---[ end trace d4c095aeaf6ea998 ]---
-
-and
-
-  % ip link set down dev eth0
-  ------------[ cut here ]------------
-  called from state HALTED
-  WARNING: CPU: 1 PID: 184 at drivers/net/phy/phy.c:858 phy_stop+0x3c/0x88
-
-  <...>
-
-  Call Trace:
-  [df581788] [c0228450] phy_stop+0x3c/0x88 (unreliable)
-  [df581798] [c022d548] sfp_sm_phy_detach+0x1c/0x44
-  [df5817a8] [c022e8cc] sfp_sm_event+0x4b0/0x87c
-  [df581848] [c022f04c] sfp_upstream_stop+0x34/0x44
-  [df581858] [c0225608] phylink_stop+0x7c/0xe4
-  [df581868] [c023c57c] stop_gfar+0x7c/0x94
-  [df581888] [c023c5b8] gfar_close+0x24/0x94
-  [df5818a8] [c0298688] __dev_close_many+0xdc/0xf8
-  [df5818c8] [c029db58] __dev_change_flags+0xd8/0x188
-  [df5818f8] [c029dc28] dev_change_flags+0x20/0x54
-  [df581918] [c02ae304] do_setlink+0x310/0x818
-  [df581a08] [c02b1eb8] __rtnl_newlink+0x384/0x6b0
-  [df581c28] [c02b222c] rtnl_newlink+0x48/0x68
-  [df581c48] [c02ad7c8] rtnetlink_rcv_msg+0x240/0x27c
-  [df581c98] [c02cc068] netlink_rcv_skb+0x8c/0xf0
-  [df581cd8] [c02cba3c] netlink_unicast+0x114/0x19c
-  [df581d08] [c02cbd74] netlink_sendmsg+0x2b0/0x2c0
-  [df581d58] [c027b668] sock_sendmsg_nosec+0x20/0x40
-  [df581d68] [c027d080] ___sys_sendmsg+0x17c/0x1dc
-  [df581e98] [c027df7c] __sys_sendmsg+0x68/0x84
-  [df581ef8] [c027e430] sys_socketcall+0x1a0/0x204
-  [df581f38] [c000d1d8] ret_from_syscall+0x0/0x38
-
-  <...>
-
-  ---[ end trace d4c095aeaf6ea999 ]---
-
-SFP modules with the 1000Base-X interface are not affected.
-
-Place explicit calls to phy_start() and phy_stop() before enabling or after
-disabling an attached SFP module, where phydev is not yet set (or is
-already unset), so they will be made only from the inside of sfp-bus, if
-needed.
-
-Fixes: 217962615662 ("net: phy: warn if phy_start is called from invalid state")
-Signed-off-by: Arseny Solokha <asolokha@kb.kras.ru>
-Acked-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Jane Chu <jane.chu@oracle.com>
+Reported-by: Erwin Tsaur <erwin.tsaur@oracle.com>
+Fixes: 4d88a97aa9e8 ("libnvdimm, nvdimm: dimm driver and base libnvdimm device-driver...")
+Cc: <stable@vger.kernel.org>
+Link: https://github.com/pmem/ndctl/issues/96
+Tested-by: Tested-by: Jane Chu <jane.chu@oracle.com>
+Link: https://lore.kernel.org/r/156341207846.292348.10435719262819764054.stgit@dwillia2-desk3.amr.corp.intel.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phylink.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/nvdimm/bus.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
---- a/drivers/net/phy/phylink.c
-+++ b/drivers/net/phy/phylink.c
-@@ -912,10 +912,10 @@ void phylink_start(struct phylink *pl)
+diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
+index ee39e2c1644ae..11cfd23e5aff7 100644
+--- a/drivers/nvdimm/bus.c
++++ b/drivers/nvdimm/bus.c
+@@ -528,13 +528,38 @@ EXPORT_SYMBOL(nd_device_register);
  
- 	if (pl->link_an_mode == MLO_AN_FIXED && !IS_ERR(pl->link_gpio))
- 		mod_timer(&pl->link_poll, jiffies + HZ);
--	if (pl->sfp_bus)
--		sfp_upstream_start(pl->sfp_bus);
- 	if (pl->phydev)
- 		phy_start(pl->phydev);
-+	if (pl->sfp_bus)
-+		sfp_upstream_start(pl->sfp_bus);
- }
- EXPORT_SYMBOL_GPL(phylink_start);
- 
-@@ -932,10 +932,10 @@ void phylink_stop(struct phylink *pl)
+ void nd_device_unregister(struct device *dev, enum nd_async_mode mode)
  {
- 	ASSERT_RTNL();
- 
--	if (pl->phydev)
--		phy_stop(pl->phydev);
- 	if (pl->sfp_bus)
- 		sfp_upstream_stop(pl->sfp_bus);
-+	if (pl->phydev)
-+		phy_stop(pl->phydev);
- 	if (pl->link_an_mode == MLO_AN_FIXED && !IS_ERR(pl->link_gpio))
- 		del_timer_sync(&pl->link_poll);
- 
++	bool killed;
++
+ 	switch (mode) {
+ 	case ND_ASYNC:
++		/*
++		 * In the async case this is being triggered with the
++		 * device lock held and the unregistration work needs to
++		 * be moved out of line iff this is thread has won the
++		 * race to schedule the deletion.
++		 */
++		if (!kill_device(dev))
++			return;
++
+ 		get_device(dev);
+ 		async_schedule_domain(nd_async_device_unregister, dev,
+ 				&nd_async_domain);
+ 		break;
+ 	case ND_SYNC:
++		/*
++		 * In the sync case the device is being unregistered due
++		 * to a state change of the parent. Claim the kill state
++		 * to synchronize against other unregistration requests,
++		 * or otherwise let the async path handle it if the
++		 * unregistration was already queued.
++		 */
++		device_lock(dev);
++		killed = kill_device(dev);
++		device_unlock(dev);
++
++		if (!killed)
++			return;
++
+ 		nd_synchronize();
+ 		device_unregister(dev);
+ 		break;
+-- 
+2.20.1
+
 
 
