@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1834869F1
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:12:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C597E86A05
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:14:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405037AbfHHTLM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:11:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45744 "EHLO mail.kernel.org"
+        id S2404653AbfHHTJN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:09:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405432AbfHHTLL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:11:11 -0400
+        id S2405054AbfHHTJK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:09:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36C102189D;
-        Thu,  8 Aug 2019 19:11:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0F0A2173E;
+        Thu,  8 Aug 2019 19:09:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291470;
-        bh=1JmtSuEEbFURk9cb8GNhQDlYrEA99dP6Nu8iiDUHtRY=;
+        s=default; t=1565291349;
+        bh=8ENjWFfUfTAXG63YmnXa2SuLcNCqlbcW4RGfdmVmPJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R4bEztXGj3Ek6+AbnG82xFIO+68z/Te/7KW6trUePZ1rjEoC5KGtSo3Tz7vUWUdn4
-         4UBXiKW9YsDp/Bv22AfVrXIDu8Rx7Uf66JQW1g4Ay830mrurenx/0HUzUhNSQzd+O6
-         aLalj0ENSnEyG+fG994S8opyFUW88RwQ8T8vkJOg=
+        b=wZ3o8UsA/OQxNaPKKp/psHeKFV+bYq2nPn1C6sImguAmaLOOCJXJHdhc6uDsvKuq0
+         IbkSjZQgyTJrj3zK6SF8E/ZqAmB9G31SR7cJMk1cofYZZ3tliKMcrQCUgpegm8IkRy
+         bjAgfZ8BfHAv9wG4eshHUbhtWbOl0ImHUqG+Bc3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 4.14 05/33] arm64: cpufeature: Fix feature comparison for CTR_EL0.{CWG,ERG}
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ren=C3=A9=20van=20Dorst?= <opensource@vdorst.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 26/45] net: phylink: Fix flow control for fixed-link
 Date:   Thu,  8 Aug 2019 21:05:12 +0200
-Message-Id: <20190808190453.833416677@linuxfoundation.org>
+Message-Id: <20190808190455.188589554@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190808190453.582417307@linuxfoundation.org>
-References: <20190808190453.582417307@linuxfoundation.org>
+In-Reply-To: <20190808190453.827571908@linuxfoundation.org>
+References: <20190808190453.827571908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: "Ren� van Dorst" <opensource@vdorst.com>
 
-commit 147b9635e6347104b91f48ca9dca61eb0fbf2a54 upstream.
+[ Upstream commit 8aace4f3eba2a3ceb431e18683ea0e1ecbade5cd ]
 
-If CTR_EL0.{CWG,ERG} are 0b0000 then they must be interpreted to have
-their architecturally maximum values, which defeats the use of
-FTR_HIGHER_SAFE when sanitising CPU ID registers on heterogeneous
-machines.
+In phylink_parse_fixedlink() the pl->link_config.advertising bits are AND
+with pl->supported, pl->supported is zeroed and only the speed/duplex
+modes and MII bits are set.
+So pl->link_config.advertising always loses the flow control/pause bits.
 
-Introduce FTR_HIGHER_OR_ZERO_SAFE so that these fields effectively
-saturate at zero.
+By setting Pause and Asym_Pause bits in pl->supported, the flow control
+work again when devicetree "pause" is set in fixes-link node and the MAC
+advertise that is supports pause.
 
-Fixes: 3c739b571084 ("arm64: Keep track of CPU feature registers")
-Cc: <stable@vger.kernel.org> # 4.4.x-
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Results with this patch.
+
+Legend:
+- DT = 'Pause' is set in the fixed-link in devicetree.
+- validate() = ‘Yes’ means phylink_set(mask, Pause) is set in the
+  validate().
+- flow = results reported my link is Up line.
+
++-----+------------+-------+
+| DT  | validate() | flow  |
++-----+------------+-------+
+| Yes | Yes        | rx/tx |
+| No  | Yes        | off   |
+| Yes | No         | off   |
++-----+------------+-------+
+
+Fixes: 9525ae83959b ("phylink: add phylink infrastructure")
+Signed-off-by: René van Dorst <opensource@vdorst.com>
+Acked-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/cpufeature.h |    7 ++++---
- arch/arm64/kernel/cpufeature.c      |    8 ++++++--
- 2 files changed, 10 insertions(+), 5 deletions(-)
+ drivers/net/phy/phylink.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/arm64/include/asm/cpufeature.h
-+++ b/arch/arm64/include/asm/cpufeature.h
-@@ -44,9 +44,10 @@
-  */
- 
- enum ftr_type {
--	FTR_EXACT,	/* Use a predefined safe value */
--	FTR_LOWER_SAFE,	/* Smaller value is safe */
--	FTR_HIGHER_SAFE,/* Bigger value is safe */
-+	FTR_EXACT,			/* Use a predefined safe value */
-+	FTR_LOWER_SAFE,			/* Smaller value is safe */
-+	FTR_HIGHER_SAFE,		/* Bigger value is safe */
-+	FTR_HIGHER_OR_ZERO_SAFE,	/* Bigger value is safe, but 0 is biggest */
- };
- 
- #define FTR_STRICT	true	/* SANITY check strict matching required */
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -178,8 +178,8 @@ static const struct arm64_ftr_bits ftr_c
- 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_EXACT, 31, 1, 1),		/* RES1 */
- 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, 29, 1, 1),	/* DIC */
- 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, 28, 1, 1),	/* IDC */
--	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_HIGHER_SAFE, 24, 4, 0),	/* CWG */
--	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_HIGHER_SAFE, 20, 4, 0),	/* ERG */
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_HIGHER_OR_ZERO_SAFE, 24, 4, 0),	/* CWG */
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_HIGHER_OR_ZERO_SAFE, 20, 4, 0),	/* ERG */
- 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, CTR_DMINLINE_SHIFT, 4, 1),
- 	/*
- 	 * Linux can handle differing I-cache policies. Userspace JITs will
-@@ -411,6 +411,10 @@ static s64 arm64_ftr_safe_value(const st
- 	case FTR_LOWER_SAFE:
- 		ret = new < cur ? new : cur;
- 		break;
-+	case FTR_HIGHER_OR_ZERO_SAFE:
-+		if (!cur || !new)
-+			break;
-+		/* Fallthrough */
- 	case FTR_HIGHER_SAFE:
- 		ret = new > cur ? new : cur;
- 		break;
+--- a/drivers/net/phy/phylink.c
++++ b/drivers/net/phy/phylink.c
+@@ -226,6 +226,8 @@ static int phylink_parse_fixedlink(struc
+ 			       __ETHTOOL_LINK_MODE_MASK_NBITS, true);
+ 	linkmode_zero(pl->supported);
+ 	phylink_set(pl->supported, MII);
++	phylink_set(pl->supported, Pause);
++	phylink_set(pl->supported, Asym_Pause);
+ 	if (s) {
+ 		__set_bit(s->bit, pl->supported);
+ 	} else {
 
 
