@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD1B986969
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:07:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6633786970
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:07:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404529AbfHHTG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:06:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40546 "EHLO mail.kernel.org"
+        id S2404034AbfHHTHV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:07:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404545AbfHHTG5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:06:57 -0400
+        id S2404644AbfHHTHU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:07:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D7502184E;
-        Thu,  8 Aug 2019 19:06:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4028421743;
+        Thu,  8 Aug 2019 19:07:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291215;
-        bh=3tOaQ23ZXyCFaoBEo6pA518i46PEHOrm9BuK7B+aqzQ=;
+        s=default; t=1565291238;
+        bh=Clibos2ndImP2TC+gjFNxYMfns6QYix0Q/2ADXJrq8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L+y8vXTOOiOFvZ8ppxGH59zbUiOuZTeGPx3XWuJ1cOWo5wcg+rZ0Ym5AxiXsoxpOE
-         OTcHogjKZWlkvl4B4/pH/NCm+4ylJRW+NEoM+BAOyLCSGMwDcaQfWIapXbRAh34QOg
-         5l+ZoictQPvZE1GYan4oYeiHqUKN2PWDaHPvvLLI=
+        b=OdCu1rW+sQRbpY8RlxMOaOqIWGfNj88ocYsoR+8XgfLHkRS3A54S+Z1vsJkVSq0qg
+         TQBqcBJNqR1oMSxbAqw2lr+NUTJrG0Q/HRa7d+CWO2DC9qluteuHO+E/wmio90RJ3g
+         aZQJWvhfYbjbnc/lLcFKARjdItConBM6zq3h0tFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
-        Jane Chu <jane.chu@oracle.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 03/56] libnvdimm/bus: Fix wait_nvdimm_bus_probe_idle() ABBA deadlock
-Date:   Thu,  8 Aug 2019 21:04:29 +0200
-Message-Id: <20190808190453.001560072@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+d952e5e28f5fb7718d23@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 04/56] ALSA: usb-audio: Sanity checks for each pipe and EP types
+Date:   Thu,  8 Aug 2019 21:04:30 +0200
+Message-Id: <20190808190453.046050584@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190808190452.867062037@linuxfoundation.org>
 References: <20190808190452.867062037@linuxfoundation.org>
@@ -45,150 +44,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit ca6bf264f6d856f959c4239cda1047b587745c67 upstream.
+[ Upstream commit 801ebf1043ae7b182588554cc9b9ad3c14bc2ab5 ]
 
-A multithreaded namespace creation/destruction stress test currently
-deadlocks with the following lockup signature:
+The recent USB core code performs sanity checks for the given pipe and
+EP types, and it can be hit by manipulated USB descriptors by syzbot.
+For making syzbot happier, this patch introduces a local helper for a
+sanity check in the driver side and calls it at each place before the
+message handling, so that we can avoid the WARNING splats.
 
-    INFO: task ndctl:2924 blocked for more than 122 seconds.
-          Tainted: G           OE     5.2.0-rc4+ #3382
-    "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-    ndctl           D    0  2924   1176 0x00000000
-    Call Trace:
-     ? __schedule+0x27e/0x780
-     schedule+0x30/0xb0
-     wait_nvdimm_bus_probe_idle+0x8a/0xd0 [libnvdimm]
-     ? finish_wait+0x80/0x80
-     uuid_store+0xe6/0x2e0 [libnvdimm]
-     kernfs_fop_write+0xf0/0x1a0
-     vfs_write+0xb7/0x1b0
-     ksys_write+0x5c/0xd0
-     do_syscall_64+0x60/0x240
-
-     INFO: task ndctl:2923 blocked for more than 122 seconds.
-           Tainted: G           OE     5.2.0-rc4+ #3382
-     "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-     ndctl           D    0  2923   1175 0x00000000
-     Call Trace:
-      ? __schedule+0x27e/0x780
-      ? __mutex_lock+0x489/0x910
-      schedule+0x30/0xb0
-      schedule_preempt_disabled+0x11/0x20
-      __mutex_lock+0x48e/0x910
-      ? nvdimm_namespace_common_probe+0x95/0x4d0 [libnvdimm]
-      ? __lock_acquire+0x23f/0x1710
-      ? nvdimm_namespace_common_probe+0x95/0x4d0 [libnvdimm]
-      nvdimm_namespace_common_probe+0x95/0x4d0 [libnvdimm]
-      __dax_pmem_probe+0x5e/0x210 [dax_pmem_core]
-      ? nvdimm_bus_probe+0x1d0/0x2c0 [libnvdimm]
-      dax_pmem_probe+0xc/0x20 [dax_pmem]
-      nvdimm_bus_probe+0x90/0x2c0 [libnvdimm]
-      really_probe+0xef/0x390
-      driver_probe_device+0xb4/0x100
-
-In this sequence an 'nd_dax' device is being probed and trying to take
-the lock on its backing namespace to validate that the 'nd_dax' device
-indeed has exclusive access to the backing namespace. Meanwhile, another
-thread is trying to update the uuid property of that same backing
-namespace. So one thread is in the probe path trying to acquire the
-lock, and the other thread has acquired the lock and tries to flush the
-probe path.
-
-Fix this deadlock by not holding the namespace device_lock over the
-wait_nvdimm_bus_probe_idle() synchronization step. In turn this requires
-the device_lock to be held on entry to wait_nvdimm_bus_probe_idle() and
-subsequently dropped internally to wait_nvdimm_bus_probe_idle().
-
-Cc: <stable@vger.kernel.org>
-Fixes: bf9bccc14c05 ("libnvdimm: pmem label sets and namespace instantiation")
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Tested-by: Jane Chu <jane.chu@oracle.com>
-Link: https://lore.kernel.org/r/156341210094.292348.2384694131126767789.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Reported-by: syzbot+d952e5e28f5fb7718d23@syzkaller.appspotmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/bus.c         | 14 +++++++++-----
- drivers/nvdimm/region_devs.c |  4 ++++
- 2 files changed, 13 insertions(+), 5 deletions(-)
+ sound/usb/helper.c | 17 +++++++++++++++++
+ sound/usb/helper.h |  1 +
+ sound/usb/quirks.c | 18 +++++++++++++++---
+ 3 files changed, 33 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
-index a38572bf486bb..df41f3571dc97 100644
---- a/drivers/nvdimm/bus.c
-+++ b/drivers/nvdimm/bus.c
-@@ -887,10 +887,12 @@ void wait_nvdimm_bus_probe_idle(struct device *dev)
- 	do {
- 		if (nvdimm_bus->probe_active == 0)
- 			break;
--		nvdimm_bus_unlock(&nvdimm_bus->dev);
-+		nvdimm_bus_unlock(dev);
-+		device_unlock(dev);
- 		wait_event(nvdimm_bus->wait,
- 				nvdimm_bus->probe_active == 0);
--		nvdimm_bus_lock(&nvdimm_bus->dev);
-+		device_lock(dev);
-+		nvdimm_bus_lock(dev);
- 	} while (true);
+diff --git a/sound/usb/helper.c b/sound/usb/helper.c
+index 84aa265dd802c..71d5f540334a2 100644
+--- a/sound/usb/helper.c
++++ b/sound/usb/helper.c
+@@ -63,6 +63,20 @@ void *snd_usb_find_csint_desc(void *buffer, int buflen, void *after, u8 dsubtype
+ 	return NULL;
  }
  
-@@ -1016,7 +1018,7 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 		case ND_CMD_ARS_START:
- 		case ND_CMD_CLEAR_ERROR:
- 		case ND_CMD_CALL:
--			dev_dbg(&nvdimm_bus->dev, "'%s' command while read-only.\n",
-+			dev_dbg(dev, "'%s' command while read-only.\n",
- 					nvdimm ? nvdimm_cmd_name(cmd)
- 					: nvdimm_bus_cmd_name(cmd));
- 			return -EPERM;
-@@ -1105,7 +1107,8 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 		goto out;
- 	}
++/* check the validity of pipe and EP types */
++int snd_usb_pipe_sanity_check(struct usb_device *dev, unsigned int pipe)
++{
++	static const int pipetypes[4] = {
++		PIPE_CONTROL, PIPE_ISOCHRONOUS, PIPE_BULK, PIPE_INTERRUPT
++	};
++	struct usb_host_endpoint *ep;
++
++	ep = usb_pipe_endpoint(dev, pipe);
++	if (usb_pipetype(pipe) != pipetypes[usb_endpoint_type(&ep->desc)])
++		return -EINVAL;
++	return 0;
++}
++
+ /*
+  * Wrapper for usb_control_msg().
+  * Allocates a temp buffer to prevent dmaing from/to the stack.
+@@ -75,6 +89,9 @@ int snd_usb_ctl_msg(struct usb_device *dev, unsigned int pipe, __u8 request,
+ 	void *buf = NULL;
+ 	int timeout;
  
--	nvdimm_bus_lock(&nvdimm_bus->dev);
-+	device_lock(dev);
-+	nvdimm_bus_lock(dev);
- 	rc = nd_cmd_clear_to_send(nvdimm_bus, nvdimm, func, buf);
- 	if (rc)
- 		goto out_unlock;
-@@ -1125,7 +1128,8 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 		rc = -EFAULT;
++	if (snd_usb_pipe_sanity_check(dev, pipe))
++		return -EINVAL;
++
+ 	if (size > 0) {
+ 		buf = kmemdup(data, size, GFP_KERNEL);
+ 		if (!buf)
+diff --git a/sound/usb/helper.h b/sound/usb/helper.h
+index d338bd0e0ca60..6afb70156ec4f 100644
+--- a/sound/usb/helper.h
++++ b/sound/usb/helper.h
+@@ -7,6 +7,7 @@ unsigned int snd_usb_combine_bytes(unsigned char *bytes, int size);
+ void *snd_usb_find_desc(void *descstart, int desclen, void *after, u8 dtype);
+ void *snd_usb_find_csint_desc(void *descstart, int desclen, void *after, u8 dsubtype);
  
- out_unlock:
--	nvdimm_bus_unlock(&nvdimm_bus->dev);
-+	nvdimm_bus_unlock(dev);
-+	device_unlock(dev);
- out:
- 	kfree(in_env);
- 	kfree(out_env);
-diff --git a/drivers/nvdimm/region_devs.c b/drivers/nvdimm/region_devs.c
-index 4fed9ce9c2fe1..a15276cdec7d4 100644
---- a/drivers/nvdimm/region_devs.c
-+++ b/drivers/nvdimm/region_devs.c
-@@ -422,10 +422,12 @@ static ssize_t available_size_show(struct device *dev,
- 	 * memory nvdimm_bus_lock() is dropped, but that's userspace's
- 	 * problem to not race itself.
- 	 */
-+	device_lock(dev);
- 	nvdimm_bus_lock(dev);
- 	wait_nvdimm_bus_probe_idle(dev);
- 	available = nd_region_available_dpa(nd_region);
- 	nvdimm_bus_unlock(dev);
-+	device_unlock(dev);
++int snd_usb_pipe_sanity_check(struct usb_device *dev, unsigned int pipe);
+ int snd_usb_ctl_msg(struct usb_device *dev, unsigned int pipe,
+ 		    __u8 request, __u8 requesttype, __u16 value, __u16 index,
+ 		    void *data, __u16 size);
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index cf5cff10c08e8..78858918cbc10 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -828,11 +828,13 @@ static int snd_usb_novation_boot_quirk(struct usb_device *dev)
+ static int snd_usb_accessmusic_boot_quirk(struct usb_device *dev)
+ {
+ 	int err, actual_length;
+-
+ 	/* "midi send" enable */
+ 	static const u8 seq[] = { 0x4e, 0x73, 0x52, 0x01 };
++	void *buf;
  
- 	return sprintf(buf, "%llu\n", available);
- }
-@@ -437,10 +439,12 @@ static ssize_t max_available_extent_show(struct device *dev,
- 	struct nd_region *nd_region = to_nd_region(dev);
- 	unsigned long long available = 0;
+-	void *buf = kmemdup(seq, ARRAY_SIZE(seq), GFP_KERNEL);
++	if (snd_usb_pipe_sanity_check(dev, usb_sndintpipe(dev, 0x05)))
++		return -EINVAL;
++	buf = kmemdup(seq, ARRAY_SIZE(seq), GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 	err = usb_interrupt_msg(dev, usb_sndintpipe(dev, 0x05), buf,
+@@ -857,7 +859,11 @@ static int snd_usb_accessmusic_boot_quirk(struct usb_device *dev)
  
-+	device_lock(dev);
- 	nvdimm_bus_lock(dev);
- 	wait_nvdimm_bus_probe_idle(dev);
- 	available = nd_region_allocatable_dpa(nd_region);
- 	nvdimm_bus_unlock(dev);
-+	device_unlock(dev);
+ static int snd_usb_nativeinstruments_boot_quirk(struct usb_device *dev)
+ {
+-	int ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
++	int ret;
++
++	if (snd_usb_pipe_sanity_check(dev, usb_sndctrlpipe(dev, 0)))
++		return -EINVAL;
++	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+ 				  0xaf, USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 				  1, 0, NULL, 0, 1000);
  
- 	return sprintf(buf, "%llu\n", available);
- }
+@@ -964,6 +970,8 @@ static int snd_usb_axefx3_boot_quirk(struct usb_device *dev)
+ 
+ 	dev_dbg(&dev->dev, "Waiting for Axe-Fx III to boot up...\n");
+ 
++	if (snd_usb_pipe_sanity_check(dev, usb_sndctrlpipe(dev, 0)))
++		return -EINVAL;
+ 	/* If the Axe-Fx III has not fully booted, it will timeout when trying
+ 	 * to enable the audio streaming interface. A more generous timeout is
+ 	 * used here to detect when the Axe-Fx III has finished booting as the
+@@ -996,6 +1004,8 @@ static int snd_usb_motu_microbookii_communicate(struct usb_device *dev, u8 *buf,
+ {
+ 	int err, actual_length;
+ 
++	if (snd_usb_pipe_sanity_check(dev, usb_sndintpipe(dev, 0x01)))
++		return -EINVAL;
+ 	err = usb_interrupt_msg(dev, usb_sndintpipe(dev, 0x01), buf, *length,
+ 				&actual_length, 1000);
+ 	if (err < 0)
+@@ -1006,6 +1016,8 @@ static int snd_usb_motu_microbookii_communicate(struct usb_device *dev, u8 *buf,
+ 
+ 	memset(buf, 0, buf_size);
+ 
++	if (snd_usb_pipe_sanity_check(dev, usb_rcvintpipe(dev, 0x82)))
++		return -EINVAL;
+ 	err = usb_interrupt_msg(dev, usb_rcvintpipe(dev, 0x82), buf, buf_size,
+ 				&actual_length, 1000);
+ 	if (err < 0)
 -- 
 2.20.1
 
