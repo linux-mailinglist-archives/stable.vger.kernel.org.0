@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCC9886A2C
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:14:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B45086A5E
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:15:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404530AbfHHTOE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:14:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43184 "EHLO mail.kernel.org"
+        id S2404504AbfHHTPg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:15:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405007AbfHHTI5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:08:57 -0400
+        id S2404515AbfHHTGs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:06:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13881214C6;
-        Thu,  8 Aug 2019 19:08:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5917421882;
+        Thu,  8 Aug 2019 19:06:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291336;
-        bh=rxiTNpmN3JfowyIDYyku5rB8rgfj5MmDvzXltVZD1vU=;
+        s=default; t=1565291207;
+        bh=P/54bSpCJpUwxgQUnW/OJbhwuoF+50j/V8zB5zTi/SE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yy58jnSV+W267cOjRACNfs6Q2J+iAbIsacloXvVjac6zm96hi3Ed1Gc3BOws5jXS6
-         CFz4g6v//s2J/7vkOXMCeRS35N/YGYA+x7bYjxLBG2l4EWk1lVHCcH0PpeLM2VtPvw
-         jZnsFm+AnshGoUSCtYTsx/34/ZF1om8kqINm1h+0=
+        b=OgUbf2AGeSLivJt9yK/omvmAFz1S7xsDHWhatun/nR247jCIBaNL0mrvB4OZf3WA1
+         YbOxXulR9EIuMXzZrQFdWV0L2dq16h/xxsnJjI+ru4GpBvSJaHRBMjprSxQWEYv0ZO
+         HvjzCKwLhKNB9DjUwEYK8C1U0dLoc3Uq8V+QY0hY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 07/45] libnvdimm/bus: Prepare the nd_ioctl() path to be re-entrant
+        stable@vger.kernel.org, Andreas Schwab <schwab@suse.de>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.2 27/56] net: phy: mscc: initialize stats array
 Date:   Thu,  8 Aug 2019 21:04:53 +0200
-Message-Id: <20190808190454.189996943@linuxfoundation.org>
+Message-Id: <20190808190454.020579894@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190808190453.827571908@linuxfoundation.org>
-References: <20190808190453.827571908@linuxfoundation.org>
+In-Reply-To: <20190808190452.867062037@linuxfoundation.org>
+References: <20190808190452.867062037@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,164 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 6de5d06e657acdbcf9637dac37916a4a5309e0f4 upstream.
+From: Andreas Schwab <schwab@suse.de>
 
-In preparation for not holding a lock over the execution of nd_ioctl(),
-update the implementation to allow multiple threads to be attempting
-ioctls at the same time. The bus lock still prevents multiple in-flight
-->ndctl() invocations from corrupting each other's state, but static
-global staging buffers are moved to the heap.
+[ Upstream commit f972037e71246c5e0916eef835174d58ffc517e4 ]
 
-Reported-by: Vishal Verma <vishal.l.verma@intel.com>
-Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
-Tested-by: Vishal Verma <vishal.l.verma@intel.com>
-Link: https://lore.kernel.org/r/156341208947.292348.10560140326807607481.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The memory allocated for the stats array may contain arbitrary data.
+
+Fixes: e4f9ba642f0b ("net: phy: mscc: add support for VSC8514 PHY.")
+Fixes: 00d70d8e0e78 ("net: phy: mscc: add support for VSC8574 PHY")
+Fixes: a5afc1678044 ("net: phy: mscc: add support for VSC8584 PHY")
+Fixes: f76178dc5218 ("net: phy: mscc: add ethtool statistics counters")
+Signed-off-by: Andreas Schwab <schwab@suse.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvdimm/bus.c | 59 +++++++++++++++++++++++++++-----------------
- 1 file changed, 37 insertions(+), 22 deletions(-)
+ drivers/net/phy/mscc.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
-index 11cfd23e5aff7..5abcdb4faa644 100644
---- a/drivers/nvdimm/bus.c
-+++ b/drivers/nvdimm/bus.c
-@@ -951,20 +951,19 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 		int read_only, unsigned int ioctl_cmd, unsigned long arg)
- {
- 	struct nvdimm_bus_descriptor *nd_desc = nvdimm_bus->nd_desc;
--	static char out_env[ND_CMD_MAX_ENVELOPE];
--	static char in_env[ND_CMD_MAX_ENVELOPE];
- 	const struct nd_cmd_desc *desc = NULL;
- 	unsigned int cmd = _IOC_NR(ioctl_cmd);
- 	struct device *dev = &nvdimm_bus->dev;
- 	void __user *p = (void __user *) arg;
-+	char *out_env = NULL, *in_env = NULL;
- 	const char *cmd_name, *dimm_name;
- 	u32 in_len = 0, out_len = 0;
- 	unsigned int func = cmd;
- 	unsigned long cmd_mask;
- 	struct nd_cmd_pkg pkg;
- 	int rc, i, cmd_rc;
-+	void *buf = NULL;
- 	u64 buf_len = 0;
--	void *buf;
+--- a/drivers/net/phy/mscc.c
++++ b/drivers/net/phy/mscc.c
+@@ -2226,8 +2226,8 @@ static int vsc8514_probe(struct phy_devi
+ 	vsc8531->supp_led_modes = VSC85XX_SUPP_LED_MODES;
+ 	vsc8531->hw_stats = vsc85xx_hw_stats;
+ 	vsc8531->nstats = ARRAY_SIZE(vsc85xx_hw_stats);
+-	vsc8531->stats = devm_kmalloc_array(&phydev->mdio.dev, vsc8531->nstats,
+-					    sizeof(u64), GFP_KERNEL);
++	vsc8531->stats = devm_kcalloc(&phydev->mdio.dev, vsc8531->nstats,
++				      sizeof(u64), GFP_KERNEL);
+ 	if (!vsc8531->stats)
+ 		return -ENOMEM;
  
- 	if (nvdimm) {
- 		desc = nd_cmd_dimm_desc(cmd);
-@@ -1004,6 +1003,9 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 		}
+@@ -2251,8 +2251,8 @@ static int vsc8574_probe(struct phy_devi
+ 	vsc8531->supp_led_modes = VSC8584_SUPP_LED_MODES;
+ 	vsc8531->hw_stats = vsc8584_hw_stats;
+ 	vsc8531->nstats = ARRAY_SIZE(vsc8584_hw_stats);
+-	vsc8531->stats = devm_kmalloc_array(&phydev->mdio.dev, vsc8531->nstats,
+-					    sizeof(u64), GFP_KERNEL);
++	vsc8531->stats = devm_kcalloc(&phydev->mdio.dev, vsc8531->nstats,
++				      sizeof(u64), GFP_KERNEL);
+ 	if (!vsc8531->stats)
+ 		return -ENOMEM;
  
- 	/* process an input envelope */
-+	in_env = kzalloc(ND_CMD_MAX_ENVELOPE, GFP_KERNEL);
-+	if (!in_env)
-+		return -ENOMEM;
- 	for (i = 0; i < desc->in_num; i++) {
- 		u32 in_size, copy;
+@@ -2281,8 +2281,8 @@ static int vsc8584_probe(struct phy_devi
+ 	vsc8531->supp_led_modes = VSC8584_SUPP_LED_MODES;
+ 	vsc8531->hw_stats = vsc8584_hw_stats;
+ 	vsc8531->nstats = ARRAY_SIZE(vsc8584_hw_stats);
+-	vsc8531->stats = devm_kmalloc_array(&phydev->mdio.dev, vsc8531->nstats,
+-					    sizeof(u64), GFP_KERNEL);
++	vsc8531->stats = devm_kcalloc(&phydev->mdio.dev, vsc8531->nstats,
++				      sizeof(u64), GFP_KERNEL);
+ 	if (!vsc8531->stats)
+ 		return -ENOMEM;
  
-@@ -1011,14 +1013,17 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 		if (in_size == UINT_MAX) {
- 			dev_err(dev, "%s:%s unknown input size cmd: %s field: %d\n",
- 					__func__, dimm_name, cmd_name, i);
--			return -ENXIO;
-+			rc = -ENXIO;
-+			goto out;
- 		}
--		if (in_len < sizeof(in_env))
--			copy = min_t(u32, sizeof(in_env) - in_len, in_size);
-+		if (in_len < ND_CMD_MAX_ENVELOPE)
-+			copy = min_t(u32, ND_CMD_MAX_ENVELOPE - in_len, in_size);
- 		else
- 			copy = 0;
--		if (copy && copy_from_user(&in_env[in_len], p + in_len, copy))
--			return -EFAULT;
-+		if (copy && copy_from_user(&in_env[in_len], p + in_len, copy)) {
-+			rc = -EFAULT;
-+			goto out;
-+		}
- 		in_len += in_size;
- 	}
+@@ -2311,8 +2311,8 @@ static int vsc85xx_probe(struct phy_devi
+ 	vsc8531->supp_led_modes = VSC85XX_SUPP_LED_MODES;
+ 	vsc8531->hw_stats = vsc85xx_hw_stats;
+ 	vsc8531->nstats = ARRAY_SIZE(vsc85xx_hw_stats);
+-	vsc8531->stats = devm_kmalloc_array(&phydev->mdio.dev, vsc8531->nstats,
+-					    sizeof(u64), GFP_KERNEL);
++	vsc8531->stats = devm_kcalloc(&phydev->mdio.dev, vsc8531->nstats,
++				      sizeof(u64), GFP_KERNEL);
+ 	if (!vsc8531->stats)
+ 		return -ENOMEM;
  
-@@ -1030,6 +1035,12 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 	}
- 
- 	/* process an output envelope */
-+	out_env = kzalloc(ND_CMD_MAX_ENVELOPE, GFP_KERNEL);
-+	if (!out_env) {
-+		rc = -ENOMEM;
-+		goto out;
-+	}
-+
- 	for (i = 0; i < desc->out_num; i++) {
- 		u32 out_size = nd_cmd_out_size(nvdimm, cmd, desc, i,
- 				(u32 *) in_env, (u32 *) out_env, 0);
-@@ -1038,15 +1049,18 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 		if (out_size == UINT_MAX) {
- 			dev_dbg(dev, "%s unknown output size cmd: %s field: %d\n",
- 					dimm_name, cmd_name, i);
--			return -EFAULT;
-+			rc = -EFAULT;
-+			goto out;
- 		}
--		if (out_len < sizeof(out_env))
--			copy = min_t(u32, sizeof(out_env) - out_len, out_size);
-+		if (out_len < ND_CMD_MAX_ENVELOPE)
-+			copy = min_t(u32, ND_CMD_MAX_ENVELOPE - out_len, out_size);
- 		else
- 			copy = 0;
- 		if (copy && copy_from_user(&out_env[out_len],
--					p + in_len + out_len, copy))
--			return -EFAULT;
-+					p + in_len + out_len, copy)) {
-+			rc = -EFAULT;
-+			goto out;
-+		}
- 		out_len += out_size;
- 	}
- 
-@@ -1054,12 +1068,15 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 	if (buf_len > ND_IOCTL_MAX_BUFLEN) {
- 		dev_dbg(dev, "%s cmd: %s buf_len: %llu > %d\n", dimm_name,
- 				cmd_name, buf_len, ND_IOCTL_MAX_BUFLEN);
--		return -EINVAL;
-+		rc = -EINVAL;
-+		goto out;
- 	}
- 
- 	buf = vmalloc(buf_len);
--	if (!buf)
--		return -ENOMEM;
-+	if (!buf) {
-+		rc = -ENOMEM;
-+		goto out;
-+	}
- 
- 	if (copy_from_user(buf, p, buf_len)) {
- 		rc = -EFAULT;
-@@ -1081,17 +1098,15 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 		nvdimm_account_cleared_poison(nvdimm_bus, clear_err->address,
- 				clear_err->cleared);
- 	}
--	nvdimm_bus_unlock(&nvdimm_bus->dev);
- 
- 	if (copy_to_user(p, buf, buf_len))
- 		rc = -EFAULT;
- 
--	vfree(buf);
--	return rc;
--
-- out_unlock:
-+out_unlock:
- 	nvdimm_bus_unlock(&nvdimm_bus->dev);
-- out:
-+out:
-+	kfree(in_env);
-+	kfree(out_env);
- 	vfree(buf);
- 	return rc;
- }
--- 
-2.20.1
-
 
 
