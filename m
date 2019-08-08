@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80926869F8
+	by mail.lfdr.de (Postfix) with ESMTP id EF087869F9
 	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:12:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405483AbfHHTL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:11:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46036 "EHLO mail.kernel.org"
+        id S2405494AbfHHTLa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:11:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405479AbfHHTL1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:11:27 -0400
+        id S2405488AbfHHTL3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:11:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6A3A208C3;
-        Thu,  8 Aug 2019 19:11:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D661208C3;
+        Thu,  8 Aug 2019 19:11:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291486;
-        bh=j5jpMjo5oEaoUSdMS8Fct4KzjrEEhl9gdTlH/ZDSijY=;
+        s=default; t=1565291488;
+        bh=L1b5hdrCd1bDfjgrb5QgqYINlK0j1YxrUpz8BS+Hu5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0PlyTUmeNbbclV3uhqXOIfJM2s6Pjm9WQ1X2G5l9iqRcehhkX8hmFDC/de94lSwFC
-         /H5UNMx17rYSaFaJRDf3d1/OO79HXWG/HSHVzuNjJa48hHwS8vrRUhJBZz6X/eq/hH
-         QMFM8cX00cSTy4qirLPCxSIcitnRom+0tPc12xs0=
+        b=Ws4vKtE3CztgX1ayRfmeRsDja7ZQeVrTTilKw6jamuruAncnlkTQiH0hE6ZjS1ayx
+         WatHrzLKpuuDdDNUYQ+yoBlsk2MDZvLMb170gAA1G6uG00Gt/92baDvFVSB+5Rz/rU
+         HseVPTiD+EB+uXlsPa7coSI0+ci63bGqRWg1ENrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexis Bauvin <abauvin@scaleway.com>,
-        Jason Wang <jasowang@redhat.com>,
+        stable@vger.kernel.org, Matteo Croce <mcroce@redhat.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 25/33] tun: mark small packets as owned by the tap sock
-Date:   Thu,  8 Aug 2019 21:05:32 +0200
-Message-Id: <20190808190454.870452369@linuxfoundation.org>
+Subject: [PATCH 4.14 26/33] mvpp2: refactor MTU change code
+Date:   Thu,  8 Aug 2019 21:05:33 +0200
+Message-Id: <20190808190454.926578477@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190808190453.582417307@linuxfoundation.org>
 References: <20190808190453.582417307@linuxfoundation.org>
@@ -44,43 +43,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexis Bauvin <abauvin@scaleway.com>
+From: Matteo Croce <mcroce@redhat.com>
 
-[ Upstream commit 4b663366246be1d1d4b1b8b01245b2e88ad9e706 ]
+[ Upstream commit 230bd958c2c846ee292aa38bc6b006296c24ca01 ]
 
-- v1 -> v2: Move skb_set_owner_w to __tun_build_skb to reduce patch size
+The MTU change code can call napi_disable() with the device already down,
+leading to a deadlock. Also, lot of code is duplicated unnecessarily.
 
-Small packets going out of a tap device go through an optimized code
-path that uses build_skb() rather than sock_alloc_send_pskb(). The
-latter calls skb_set_owner_w(), but the small packet code path does not.
+Rework mvpp2_change_mtu() to avoid the deadlock and remove duplicated code.
 
-The net effect is that small packets are not owned by the userland
-application's socket (e.g. QEMU), while large packets are.
-This can be seen with a TCP session, where packets are not owned when
-the window size is small enough (around PAGE_SIZE), while they are once
-the window grows (note that this requires the host to support virtio
-tso for the guest to offload segmentation).
-All this leads to inconsistent behaviour in the kernel, especially on
-netfilter modules that uses sk->socket (e.g. xt_owner).
-
-Fixes: 66ccbc9c87c2 ("tap: use build_skb() for small packet")
-Signed-off-by: Alexis Bauvin <abauvin@scaleway.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+Fixes: 3f518509dedc ("ethernet: Add new driver for Marvell Armada 375 network unit")
+Signed-off-by: Matteo Croce <mcroce@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/tun.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/marvell/mvpp2.c |   41 +++++++++++------------------------
+ 1 file changed, 13 insertions(+), 28 deletions(-)
 
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -1350,6 +1350,7 @@ static struct sk_buff *tun_build_skb(str
+--- a/drivers/net/ethernet/marvell/mvpp2.c
++++ b/drivers/net/ethernet/marvell/mvpp2.c
+@@ -6952,6 +6952,7 @@ log_error:
+ static int mvpp2_change_mtu(struct net_device *dev, int mtu)
+ {
+ 	struct mvpp2_port *port = netdev_priv(dev);
++	bool running = netif_running(dev);
+ 	int err;
  
- 	skb_reserve(skb, pad - delta);
- 	skb_put(skb, len + delta);
-+	skb_set_owner_w(skb, tfile->socket.sk);
- 	get_page(alloc_frag->page);
- 	alloc_frag->offset += buflen;
+ 	if (!IS_ALIGNED(MVPP2_RX_PKT_SIZE(mtu), 8)) {
+@@ -6960,40 +6961,24 @@ static int mvpp2_change_mtu(struct net_d
+ 		mtu = ALIGN(MVPP2_RX_PKT_SIZE(mtu), 8);
+ 	}
+ 
+-	if (!netif_running(dev)) {
+-		err = mvpp2_bm_update_mtu(dev, mtu);
+-		if (!err) {
+-			port->pkt_size =  MVPP2_RX_PKT_SIZE(mtu);
+-			return 0;
+-		}
++	if (running)
++		mvpp2_stop_dev(port);
+ 
++	err = mvpp2_bm_update_mtu(dev, mtu);
++	if (err) {
++		netdev_err(dev, "failed to change MTU\n");
+ 		/* Reconfigure BM to the original MTU */
+-		err = mvpp2_bm_update_mtu(dev, dev->mtu);
+-		if (err)
+-			goto log_error;
++		mvpp2_bm_update_mtu(dev, dev->mtu);
++	} else {
++		port->pkt_size =  MVPP2_RX_PKT_SIZE(mtu);
+ 	}
+ 
+-	mvpp2_stop_dev(port);
+-
+-	err = mvpp2_bm_update_mtu(dev, mtu);
+-	if (!err) {
+-		port->pkt_size =  MVPP2_RX_PKT_SIZE(mtu);
+-		goto out_start;
++	if (running) {
++		mvpp2_start_dev(port);
++		mvpp2_egress_enable(port);
++		mvpp2_ingress_enable(port);
+ 	}
+ 
+-	/* Reconfigure BM to the original MTU */
+-	err = mvpp2_bm_update_mtu(dev, dev->mtu);
+-	if (err)
+-		goto log_error;
+-
+-out_start:
+-	mvpp2_start_dev(port);
+-	mvpp2_egress_enable(port);
+-	mvpp2_ingress_enable(port);
+-
+-	return 0;
+-log_error:
+-	netdev_err(dev, "failed to change MTU\n");
+ 	return err;
+ }
  
 
 
