@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 577A886A15
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:14:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6EB6869FB
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:12:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405262AbfHHTKR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:10:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44612 "EHLO mail.kernel.org"
+        id S2404087AbfHHTM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:12:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405258AbfHHTKR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:10:17 -0400
+        id S2405023AbfHHTLG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:11:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD66E2173E;
-        Thu,  8 Aug 2019 19:10:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1974A21882;
+        Thu,  8 Aug 2019 19:11:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291416;
-        bh=71bXpPWIS2fJrK8CEpVP4B8xiOQgtraTTJI76LPQ7Ug=;
+        s=default; t=1565291465;
+        bh=BP/tS18VTE6N5HHmLwif1oOT9QhY3RzIxw3IeNrq2Ko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LJbu7nfmpnEI8h8SeQ8gKmCgb96OchzalEwTsY5dOcoOUwUGhZCuBIyzztTwsjAe6
-         usoa1lBrzuoUF0Z9j7AyuE1Bam/6CyAK8Ic4YcwOXzsIBzg/R+JkLdhZO02a0e+E7k
-         jC1xSZo902A10RrwLUZV3zbdE+qSWKMC+NaDiz60=
+        b=ZSipWUmv7v6CP88zMD05YornGzzGbBemXzparK2vWiTQh4qhCdXgz0Hb8qLEFCu0U
+         IPoMpF3Df3t1sy3S0iCfDJS/5XIu5v1rfsabD6ymgdDuIV69Ehx8B6zw8vJngxKhXz
+         J89K3wWZ5DymG+CM/cZ0ZcYFm6W37J3ORl+pRMSI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Tariq Toukan <tariqt@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 24/45] net/mlx5e: always initialize frag->last_in_page
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 03/33] ARM: dts: Add pinmuxing for i2c2 and i2c3 for LogicPD torpedo
 Date:   Thu,  8 Aug 2019 21:05:10 +0200
-Message-Id: <20190808190455.081180292@linuxfoundation.org>
+Message-Id: <20190808190453.732688214@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190808190453.827571908@linuxfoundation.org>
-References: <20190808190453.827571908@linuxfoundation.org>
+In-Reply-To: <20190808190453.582417307@linuxfoundation.org>
+References: <20190808190453.582417307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,78 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+[ Upstream commit a135a392acbec7ecda782981788e8c03767a1571 ]
 
-[ Upstream commit 60d60c8fbd8d1acf25b041ecd72ae4fa16e9405b ]
+Since I2C1 and I2C4 have explicit pinmuxing set, let's be on the
+safe side and set the pin muxing for I2C2 and I2C3.
 
-The commit 069d11465a80 ("net/mlx5e: RX, Enhance legacy Receive Queue
-memory scheme") introduced an undefined behaviour below due to
-"frag->last_in_page" is only initialized in mlx5e_init_frags_partition()
-when,
-
-if (next_frag.offset + frag_info[f].frag_stride > PAGE_SIZE)
-
-or after bailed out the loop,
-
-for (i = 0; i < mlx5_wq_cyc_get_size(&rq->wqe.wq); i++)
-
-As the result, there could be some "frag" have uninitialized
-value of "last_in_page".
-
-Later, get_frag() obtains those "frag" and check "frag->last_in_page" in
-mlx5e_put_rx_frag() and triggers the error during boot. Fix it by always
-initializing "frag->last_in_page" to "false" in
-mlx5e_init_frags_partition().
-
-UBSAN: Undefined behaviour in
-drivers/net/ethernet/mellanox/mlx5/core/en_rx.c:325:12
-load of value 170 is not a valid value for type 'bool' (aka '_Bool')
-Call trace:
- dump_backtrace+0x0/0x264
- show_stack+0x20/0x2c
- dump_stack+0xb0/0x104
- __ubsan_handle_load_invalid_value+0x104/0x128
- mlx5e_handle_rx_cqe+0x8e8/0x12cc [mlx5_core]
- mlx5e_poll_rx_cq+0xca8/0x1a94 [mlx5_core]
- mlx5e_napi_poll+0x17c/0xa30 [mlx5_core]
- net_rx_action+0x248/0x940
- __do_softirq+0x350/0x7b8
- irq_exit+0x200/0x26c
- __handle_domain_irq+0xc8/0x128
- gic_handle_irq+0x138/0x228
- el1_irq+0xb8/0x140
- arch_cpu_idle+0x1a4/0x348
- do_idle+0x114/0x1b0
- cpu_startup_entry+0x24/0x28
- rest_init+0x1ac/0x1dc
- arch_call_rest_init+0x10/0x18
- start_kernel+0x4d4/0x57c
-
-Fixes: 069d11465a80 ("net/mlx5e: RX, Enhance legacy Receive Queue memory scheme")
-Signed-off-by: Qian Cai <cai@lca.pw>
-Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/logicpd-torpedo-som.dtsi | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -420,12 +420,11 @@ static inline u64 mlx5e_get_mpwqe_offset
+diff --git a/arch/arm/boot/dts/logicpd-torpedo-som.dtsi b/arch/arm/boot/dts/logicpd-torpedo-som.dtsi
+index cf22b35f0a289..fe4cbdc72359e 100644
+--- a/arch/arm/boot/dts/logicpd-torpedo-som.dtsi
++++ b/arch/arm/boot/dts/logicpd-torpedo-som.dtsi
+@@ -121,10 +121,14 @@
+ };
  
- static void mlx5e_init_frags_partition(struct mlx5e_rq *rq)
- {
--	struct mlx5e_wqe_frag_info next_frag, *prev;
-+	struct mlx5e_wqe_frag_info next_frag = {};
-+	struct mlx5e_wqe_frag_info *prev = NULL;
- 	int i;
+ &i2c2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c2_pins>;
+ 	clock-frequency = <400000>;
+ };
  
- 	next_frag.di = &rq->wqe.di[0];
--	next_frag.offset = 0;
--	prev = NULL;
+ &i2c3 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c3_pins>;
+ 	clock-frequency = <400000>;
+ 	at24@50 {
+ 		compatible = "atmel,24c64";
+@@ -219,6 +223,18 @@
+ 			OMAP3_CORE1_IOPAD(0x21bc, PIN_INPUT | MUX_MODE0)        /* i2c1_sda.i2c1_sda */
+ 		>;
+ 	};
++	i2c2_pins: pinmux_i2c2_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x21be, PIN_INPUT | MUX_MODE0)	/* i2c2_scl */
++			OMAP3_CORE1_IOPAD(0x21c0, PIN_INPUT | MUX_MODE0)	/* i2c2_sda */
++		>;
++	};
++	i2c3_pins: pinmux_i2c3_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x21c2, PIN_INPUT | MUX_MODE0)	/* i2c3_scl */
++			OMAP3_CORE1_IOPAD(0x21c4, PIN_INPUT | MUX_MODE0)	/* i2c3_sda */
++		>;
++	};
+ };
  
- 	for (i = 0; i < mlx5_wq_cyc_get_size(&rq->wqe.wq); i++) {
- 		struct mlx5e_rq_frag_info *frag_info = &rq->wqe.info.arr[0];
+ &uart2 {
+-- 
+2.20.1
+
 
 
