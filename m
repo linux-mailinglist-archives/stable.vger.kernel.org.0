@@ -2,64 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE2DD8639E
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 15:47:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54D7B863A6
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 15:49:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733197AbfHHNr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 09:47:26 -0400
-Received: from mail-qt1-f196.google.com ([209.85.160.196]:40538 "EHLO
+        id S1733231AbfHHNts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 09:49:48 -0400
+Received: from mail-qt1-f196.google.com ([209.85.160.196]:44467 "EHLO
         mail-qt1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732727AbfHHNr0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Aug 2019 09:47:26 -0400
-Received: by mail-qt1-f196.google.com with SMTP id a15so92124780qtn.7;
-        Thu, 08 Aug 2019 06:47:25 -0700 (PDT)
+        with ESMTP id S1732727AbfHHNts (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Aug 2019 09:49:48 -0400
+Received: by mail-qt1-f196.google.com with SMTP id 44so61113026qtg.11;
+        Thu, 08 Aug 2019 06:49:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:date:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=C6WFPVXGyocEIIrcTDuM4IDv1J5Bc4drJaACPbDYG1I=;
-        b=WN/KRTxGCIva6p3X00xjaE70ElLoP8c9PUb/PtYminSAk1wwVwebUNm6H8xQ4IUCJ6
-         iufh+Ex2vRlMS1Rr/9iQO+pa6PbUQfxpern6I2HlRcB0vnhHY3N6tJ+7aCrbx0npAbJf
-         h/9QMzlT5n+oPiJp9rPgRLlb61VW5pj9u02chyXjIBKtxCt8ZqWPNZArxeFGdTKkyGUV
-         lyNu90kSyzr3BkFhJnIPVAfhFS5t52V5F8ZqYgMiK4Nnf+iyoyD0/eG9g83kTa9kOetG
-         RhobiEpwL753m6K7dGmmjV5XFXQUvsJzCBk/cC44ZnyZJGI3UUHhcYfy8/XlMMWrNXsv
-         KVSw==
+        bh=BJR6qeJXxoFFGSFwXNKEUG5cs5VPmvvEARn7vgHEr5Q=;
+        b=UoZl+e9cJy/Dj5F6qfIHH4cKJ43rqRY5SS9Q7l/NTrivqVMud95qp+Mlv9pSxP47mw
+         mjGQdBMjO+J71NuNQSh3F3TMgJu9CXEAOMoP5HaE5Q5tApUIrYPaPxgpekk0oQXlBeuQ
+         ZsdG7GPlSFM8ajGRs9BXfAcY86h9EJ2u/dY+FLzM52FidEJ0E1WFxfKIa1lJzHN3rZAE
+         6Fk+xwVdbydwKV0Pu8VNi5qF2Fjq/hO/NZ+bGWrKlm/og1nunNUd5J5cM6usHWrvMLDI
+         8n/C3tr78NPhG0nRuCnW9RJPKD9q4uuuBn6i+q66S6PGWqycjtPmceaH3CgCTFXy39Bb
+         HOtw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:date:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=C6WFPVXGyocEIIrcTDuM4IDv1J5Bc4drJaACPbDYG1I=;
-        b=kDkQJJhGbmSLR+qaJ3mXeGCYXVhmjCfQGmpAbaNAWO8IXxNVeFf52cuGaBG1kIdVI5
-         SvWuEg6f9MGS/hGK6+6YDQBtTJYJ/Pa7Wf0itbhE7YaSrnExH3FLGgaU5o0FPAig2jjl
-         y6LDkm20nznMNv7bdL2qZWbXKmkfNkCGG6gUGH5mwww1LBhkgXXkqYYe593rHZs3eNfS
-         0X28nOm0eBNnhhCui+5QXJhkFX8XKY38bIZ4l/A2c4csM+qTzYTULIAbzWUryzao/QdV
-         LIdwrLawHksX4AVQx9kuieckqKxy0JSf5vRoQOenGt6ihntrZSwxH+xg9g/bNCni425o
-         loUA==
-X-Gm-Message-State: APjAAAWYnl5xupWSIYdjoEl6IM7asaMP3qSiwnnlF4lZseLOerAVi/GN
-        +YcQCnJrBdNKTQGz4IUELB4=
-X-Google-Smtp-Source: APXvYqwXajS0dWZ56dnedSiwni6MsvOA7HG8BHtpoidglv6YaTkxD0aR893aSrQtzuTTBNCtVsWTlQ==
-X-Received: by 2002:ac8:6d0c:: with SMTP id o12mr8563160qtt.74.1565272045090;
-        Thu, 08 Aug 2019 06:47:25 -0700 (PDT)
+        bh=BJR6qeJXxoFFGSFwXNKEUG5cs5VPmvvEARn7vgHEr5Q=;
+        b=oy+wEtYrkd2/Fz50G4gouW72afZAQub2utFlCmg46W94LTKqxEJ3Th+90VQL+Kxah8
+         ARwjNVh0135YiQZAKJaW0+A0ICBrkzB39cNTo8Np5W8s4eC0OzFMx1T7aAtxuU+19l6+
+         KGNTs6bkTXqDEtGThMmrYqS2HdRD60No4W63zL+hQLhYtXcI6VmtuCsa5v6XAhUzXp5q
+         ST4o82TFD3Q7viMasHZ1x5JGlLtwHNBkR5WKh2qwZcnf79ofhZhwv1hvLqdZO6o1VUbS
+         hS5UmgxXolo8K/Em2S+7r9y51kQCRQj2hB9R6w4iBBIOZtQ0zINQr1odJZ/VWQ6DMog8
+         nOHA==
+X-Gm-Message-State: APjAAAW4xi7K3m1ltLIbIsDAL7qcg66QnWZexoRfqQB22GRhwxlQAgj5
+        J/gF1tihd0kd0W1NadOio0dxRUih
+X-Google-Smtp-Source: APXvYqykKN3c6mqJ7uxzkWdSt/aHfTWep3daUc17R/ezCWKD8U6+sKP6VOiPGJO9sOd/oStRgcdVrw==
+X-Received: by 2002:a0c:af8a:: with SMTP id s10mr13433300qvc.182.1565272186872;
+        Thu, 08 Aug 2019 06:49:46 -0700 (PDT)
 Received: from quaco.ghostprotocols.net ([179.97.35.50])
-        by smtp.gmail.com with ESMTPSA id r189sm42039415qkc.60.2019.08.08.06.47.23
+        by smtp.gmail.com with ESMTPSA id g2sm37053218qkm.31.2019.08.08.06.49.45
         (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Thu, 08 Aug 2019 06:47:23 -0700 (PDT)
+        Thu, 08 Aug 2019 06:49:46 -0700 (PDT)
 From:   Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>
 X-Google-Original-From: Arnaldo Carvalho de Melo <acme@kernel.org>
 Received: by quaco.ghostprotocols.net (Postfix, from userid 1000)
-        id C199340340; Thu,  8 Aug 2019 10:47:21 -0300 (-03)
-Date:   Thu, 8 Aug 2019 10:47:21 -0300
+        id 0928440340; Thu,  8 Aug 2019 10:49:43 -0300 (-03)
+Date:   Thu, 8 Aug 2019 10:49:43 -0300
 To:     Thomas Richter <tmricht@linux.ibm.com>
 Cc:     linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
         brueckner@linux.ibm.com, gor@linux.ibm.com,
         heiko.carstens@de.ibm.com, stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] perf/record: Fix module size on s390
-Message-ID: <20190808134721.GF19444@kernel.org>
+Subject: Re: [PATCH 2/2] perf/top: Fix s390 gap between kernel end and module
+ start
+Message-ID: <20190808134943.GG19444@kernel.org>
 References: <20190724122703.3996-1-tmricht@linux.ibm.com>
+ <20190724122703.3996-2-tmricht@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190724122703.3996-1-tmricht@linux.ibm.com>
+In-Reply-To: <20190724122703.3996-2-tmricht@linux.ibm.com>
 X-Url:  http://acmel.wordpress.com
 User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
@@ -67,140 +69,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Em Wed, Jul 24, 2019 at 02:27:02PM +0200, Thomas Richter escreveu:
-> On s390 the modules loaded in memory have the text segment
-> located after the GOT and Relocation table. This can be seen
-> with this output:
->   [root@m35lp76 perf]# fgrep qeth /proc/modules
->   qeth 151552 1 qeth_l2, Live 0x000003ff800b2000
->   ...
->   [root@m35lp76 perf]# cat /sys/module/qeth/sections/.text
->   0x000003ff800b3990
->   [root@m35lp76 perf]#
+Em Wed, Jul 24, 2019 at 02:27:03PM +0200, Thomas Richter escreveu:
+> During execution of command 'perf top' the error message:
+> 
+>    Not enough memory for annotating '__irf_end' symbol!)
+> 
+> is emitted from this call sequence:
+>   __cmd_top
+>     perf_top__mmap_read
+>       perf_top__mmap_read_idx
+>         perf_event__process_sample
+>           hist_entry_iter__add
+>             hist_iter__top_callback
+>               perf_top__record_precise_ip
+>                 hist_entry__inc_addr_samples
+>                   symbol__inc_addr_samples
+>                     symbol__get_annotation
+>                       symbol__alloc_hist
 
 Thanks, applied.
 
 - Arnaldo
  
-> There is an offset of 0x1990 bytes. The size of the qeth module
-> is 151552 bytes (0x25000 in hex).
-> The location of the GOT/relocation table at the beginning of a
-> module is unique to s390.
+> In this function the size of symbol __irf_end is calculated. The size
+> of a symbol is the difference between its start and end address.
+> When the symbol was read the first time, its start and end was set to:
+>    symbol__new: __irf_end 0xe954d0-0xe954d0
+> which is correct and maps with /proc/kallsyms:
 > 
-> commit 203d8a4aa6ed ("perf s390: Fix 'start' address of module's map")
-> adjusts the start address of a module in the map structures, but
-> does not adjust the size of the modules. This leads to overlapping
-> of module maps as this example shows:
+>    root@s8360046:~/linux-4.15.0/tools/perf# fgrep _irf_end /proc/kallsyms
+>    0000000000e954d0 t __irf_end
+>    root@s8360046:~/linux-4.15.0/tools/perf#
 > 
-> [root@m35lp76 perf] # ./perf report -D
->      0 0 0xfb0 [0xa0]: PERF_RECORD_MMAP -1/0: [0x3ff800b3990(0x25000)
->           @ 0]:  x /lib/modules/.../qeth.ko.xz
->      0 0 0x1050 [0xb0]: PERF_RECORD_MMAP -1/0: [0x3ff800d85a0(0x8000)
->           @ 0]:  x /lib/modules/.../ip6_tables.ko.xz
+> In function symbol__alloc_hist() the end of symbol __irf_end is
 > 
-> The module qeth.ko has an adjusted start address modified to b3990,
-> but its size is unchanged and the module ends at 0x3ff800d8990.
-> This end address overlaps with the next modules start address of
-> 0x3ff800d85a0.
+>   symbol__alloc_hist sym:__irf_end start:0xe954d0 end:0x3ff80045a8
 > 
-> When the size of the leading GOT/Relocation table stored in the
-> beginning of the text segment (0x1990 bytes) is subtracted from
-> module qeth end address, there are no overlaps anymore:
+> which is identical with the first module entry in /proc/kallsyms
 > 
->    0x3ff800d8990 - 0x1990 = 0x0x3ff800d7000
+> This results in a symbol size of __irf_req for histogram analyses of
+> 70334140059072 bytes and a malloc() for this requested size fails.
 > 
-> which is the same as
+> The root cause of this is function
+>   __dso__load_kallsyms()
+>   +-> symbols__fixup_end()
 > 
->    0x3ff800b2000 + 0x25000 = 0x0x3ff800d7000.
+> Function symbols__fixup_end() enlarges the last symbol in the
+> kallsyms map
+>    # fgrep __irf_end /proc/kallsyms
+>    0000000000e954d0 t __irf_end
+>    #
 > 
-> To fix this issue, also adjust the modules size in function
-> arch__fix_module_text_start(). Add another function parameter
-> named size and reduce the size of the module when the text segment
-> start address is changed.
+> to the start address of the first module:
+>    # cat /proc/kallsyms | sort  | egrep ' [tT] '
+>    ....
+>    0000000000e952d0 T __security_initcall_end
+>    0000000000e954d0 T __initramfs_size
+>    0000000000e954d0 t __irf_end
+>    000003ff800045a8 T fc_get_event_number       [scsi_transport_fc]
+>    000003ff800045d0 t store_fc_vport_disable    [scsi_transport_fc]
+>    000003ff800046a8 T scsi_is_fc_rport  [scsi_transport_fc]
+>    000003ff800046d0 t fc_target_setup   [scsi_transport_fc]
 > 
-> Output after:
->      0 0 0xfb0 [0xa0]: PERF_RECORD_MMAP -1/0: [0x3ff800b3990(0x23670)
->           @ 0]:  x /lib/modules/.../qeth.ko.xz
->      0 0 0x1050 [0xb0]: PERF_RECORD_MMAP -1/0: [0x3ff800d85a0(0x7a60)
->           @ 0]:  x /lib/modules/.../ip6_tables.ko.xz
+> On s390 the kernel is located around memory address 0x200, 0x10000
+> or 0x100000, depending on linux version. Modules however start some-
+> where around 0x3ff xxxx xxxx.
 > 
-> Fixes: 203d8a4aa6ed ("perf s390: Fix 'start' address of module's map")
-> Cc: <stable@vger.kernel.org> # v4.9+
-> Reported-by: Stefan Liebler <stli@linux.ibm.com>
+> This is different than x86 and produces a large gap for which
+> histogram allocation fails.
+> 
+> Fix this by detecting the kernel's last symbol and do no
+> adjustment for it. Introduce a weak function and handle s390 specifics.
+> 
+> Cc: <stable@vger.kernel.org>
+> Reported-by: Klaus Theurich <klaus.theurich@de.ibm.com>
 > Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
 > Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 > ---
->  tools/perf/arch/s390/util/machine.c | 14 +++++++++++++-
->  tools/perf/util/machine.c           |  3 ++-
->  tools/perf/util/machine.h           |  2 +-
->  3 files changed, 16 insertions(+), 3 deletions(-)
+>  tools/perf/arch/s390/util/machine.c | 17 +++++++++++++++++
+>  tools/perf/util/symbol.c            |  7 ++++++-
+>  tools/perf/util/symbol.h            |  1 +
+>  3 files changed, 24 insertions(+), 1 deletion(-)
 > 
 > diff --git a/tools/perf/arch/s390/util/machine.c b/tools/perf/arch/s390/util/machine.c
-> index a19690a17291..de26b1441a48 100644
+> index de26b1441a48..c8c86a0c9b79 100644
 > --- a/tools/perf/arch/s390/util/machine.c
 > +++ b/tools/perf/arch/s390/util/machine.c
-> @@ -7,7 +7,7 @@
+> @@ -6,6 +6,7 @@
+>  #include "machine.h"
 >  #include "api/fs/fs.h"
 >  #include "debug.h"
+> +#include "symbol.h"
 >  
-> -int arch__fix_module_text_start(u64 *start, const char *name)
-> +int arch__fix_module_text_start(u64 *start, u64 *size, const char *name)
+>  int arch__fix_module_text_start(u64 *start, u64 *size, const char *name)
 >  {
->  	u64 m_start = *start;
->  	char path[PATH_MAX];
-> @@ -17,6 +17,18 @@ int arch__fix_module_text_start(u64 *start, const char *name)
->  	if (sysfs__read_ull(path, (unsigned long long *)start) < 0) {
->  		pr_debug2("Using module %s start:%#lx\n", path, m_start);
->  		*start = m_start;
-> +	} else {
-> +		/* Successful read of the modules segment text start address.
-> +		 * Calculate difference between module start address
-> +		 * in memory and module text segment start address.
-> +		 * For example module load address is 0x3ff8011b000
-> +		 * (from /proc/modules) and module text segment start
-> +		 * address is 0x3ff8011b870 (from file above).
-> +		 *
-> +		 * Adjust the module size and subtract the GOT table
-> +		 * size located at the beginning of the module.
-> +		 */
-> +		*size -= (*start - m_start);
+> @@ -33,3 +34,19 @@ int arch__fix_module_text_start(u64 *start, u64 *size, const char *name)
+>  
+>  	return 0;
+>  }
+> +
+> +/* On s390 kernel text segment start is located at very low memory addresses,
+> + * for example 0x10000. Modules are located at very high memory addresses,
+> + * for example 0x3ff xxxx xxxx. The gap between end of kernel text segment
+> + * and beginning of first module's text segment is very big.
+> + * Therefore do not fill this gap and do not assign it to the kernel dso map.
+> + */
+> +void arch__symbols__fixup_end(struct symbol *p, struct symbol *c)
+> +{
+> +	if (strchr(p->name, '[') == NULL && strchr(c->name, '['))
+> +		/* Last kernel symbol mapped to end of page */
+> +		p->end = roundup(p->end, page_size);
+> +	else
+> +		p->end = c->start;
+> +	pr_debug4("%s sym:%s end:%#lx\n", __func__, p->name, p->end);
+> +}
+> diff --git a/tools/perf/util/symbol.c b/tools/perf/util/symbol.c
+> index 5cbad55cd99d..3b49eb4e3ed9 100644
+> --- a/tools/perf/util/symbol.c
+> +++ b/tools/perf/util/symbol.c
+> @@ -91,6 +91,11 @@ static int prefix_underscores_count(const char *str)
+>  	return tail - str;
+>  }
+>  
+> +void __weak arch__symbols__fixup_end(struct symbol *p, struct symbol *c)
+> +{
+> +	p->end = c->start;
+> +}
+> +
+>  const char * __weak arch__normalize_symbol_name(const char *name)
+>  {
+>  	return name;
+> @@ -217,7 +222,7 @@ void symbols__fixup_end(struct rb_root_cached *symbols)
+>  		curr = rb_entry(nd, struct symbol, rb_node);
+>  
+>  		if (prev->end == prev->start && prev->end != curr->start)
+> -			prev->end = curr->start;
+> +			arch__symbols__fixup_end(prev, curr);
 >  	}
 >  
->  	return 0;
-> diff --git a/tools/perf/util/machine.c b/tools/perf/util/machine.c
-> index dc7aafe45a2b..081fe4bdebaa 100644
-> --- a/tools/perf/util/machine.c
-> +++ b/tools/perf/util/machine.c
-> @@ -1365,6 +1365,7 @@ static int machine__set_modules_path(struct machine *machine)
->  	return map_groups__set_modules_path_dir(&machine->kmaps, modules_path, 0);
->  }
->  int __weak arch__fix_module_text_start(u64 *start __maybe_unused,
-> +				u64 *size __maybe_unused,
->  				const char *name __maybe_unused)
->  {
->  	return 0;
-> @@ -1376,7 +1377,7 @@ static int machine__create_module(void *arg, const char *name, u64 start,
->  	struct machine *machine = arg;
->  	struct map *map;
+>  	/* Last entry */
+> diff --git a/tools/perf/util/symbol.h b/tools/perf/util/symbol.h
+> index 9a8fe012910a..f30ab608ea54 100644
+> --- a/tools/perf/util/symbol.h
+> +++ b/tools/perf/util/symbol.h
+> @@ -277,6 +277,7 @@ const char *arch__normalize_symbol_name(const char *name);
+>  #define SYMBOL_A 0
+>  #define SYMBOL_B 1
 >  
-> -	if (arch__fix_module_text_start(&start, name) < 0)
-> +	if (arch__fix_module_text_start(&start, &size, name) < 0)
->  		return -1;
->  
->  	map = machine__findnew_module_map(machine, start, name);
-> diff --git a/tools/perf/util/machine.h b/tools/perf/util/machine.h
-> index f70ab98a7bde..7aa38da26427 100644
-> --- a/tools/perf/util/machine.h
-> +++ b/tools/perf/util/machine.h
-> @@ -222,7 +222,7 @@ struct symbol *machine__find_kernel_symbol_by_name(struct machine *machine,
->  
->  struct map *machine__findnew_module_map(struct machine *machine, u64 start,
->  					const char *filename);
-> -int arch__fix_module_text_start(u64 *start, const char *name);
-> +int arch__fix_module_text_start(u64 *start, u64 *size, const char *name);
->  
->  int machine__load_kallsyms(struct machine *machine, const char *filename);
->  
+> +void arch__symbols__fixup_end(struct symbol *p, struct symbol *c);
+>  int arch__compare_symbol_names(const char *namea, const char *nameb);
+>  int arch__compare_symbol_names_n(const char *namea, const char *nameb,
+>  				 unsigned int n);
 > -- 
 > 2.21.0
 
