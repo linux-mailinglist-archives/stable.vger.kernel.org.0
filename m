@@ -2,282 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0DDE86049
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 12:43:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 187098614E
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 14:06:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731715AbfHHKn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 06:43:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37836 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728289AbfHHKn2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 06:43:28 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 358062084D;
-        Thu,  8 Aug 2019 10:43:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565261007;
-        bh=njdDYQdbblAsY+EAzZlJvU5Pep8o85Nomejto1bRD7Q=;
-        h=Subject:To:From:Date:From;
-        b=Ah2SMZeZSY3GKlTwYgN4lg38tywrSE5XBhAnGP4aH8knDC/lDzcOCk+IB0KSBXt/s
-         EB0oLy4rLt2LQWoW/hDPxF8MGB3c+s4TD0g81QfmiuNzfGVD3RMUnMj+px3vpGA2aI
-         BMH4gD8OkSC7Lw2LkEF+D5Akce5G/WeRcqNMaTq0=
-Subject: patch "Revert "USB: rio500: simplify locking"" added to usb-linus
-To:     oneukum@suse.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 08 Aug 2019 12:43:25 +0200
-Message-ID: <1565261005779@kroah.com>
+        id S1727096AbfHHMGF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 08:06:05 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:43467 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726156AbfHHMGF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Aug 2019 08:06:05 -0400
+Received: by mail-pg1-f194.google.com with SMTP id r26so8012161pgl.10
+        for <stable@vger.kernel.org>; Thu, 08 Aug 2019 05:06:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=QY0vLTd/DtI+BoLweHV1eyVNR0ivfIadKEaonMSKMLc=;
+        b=jIWEMf5er9+tizK+48ReAsiaE2Mx+XlmpxAjYYpH8V4xa24nefI94dko4/5d8RKzsB
+         hp2mpx2wUrJaM/EgGqO+IUY9/2/oDHY8eMGH98DTznmhLr4vUzERTdyTZdguwxVwflD0
+         nIORxE1+1nG2rj1yb7P75bpC8YmecV9XVOw4OgCnOpVHc6d8xMu3XIwwex6PUtJfpRdK
+         9nrFUy51veES1U2I8U9JMEoEtdoIC9KXXZy0UgFGtULnWrxtnc06Tl5RGm3cnXsUbLou
+         MN7fa0dAxafGXqCJqoDuPk1ErOcsCQ98uqKesoQzpd4mKEf8mKs3KR+xxTk4YVtIda16
+         nzpg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=QY0vLTd/DtI+BoLweHV1eyVNR0ivfIadKEaonMSKMLc=;
+        b=bWYB96pCCLW9gjBi8WT64JhhHxhcRWfVmjzsYgJcP+JVeL7AFTQq/6nKA66/1QmKqz
+         ljulr5zdCIfS2BwN9Q/bWSUrkCM6wIQxAgQW36mjjg+LCTPfr/HcWSpPTdaqOEqWNvza
+         tuFTZaj6xFGAgh+l95J0GPeSlhh8CjEKfB3iB8QZ51NqFE8wqGBsFgz7rMU+wtemwmsj
+         TDDJvs9BQpOWKc2EoV1duqF4NlLURU5uwfpYv31mOZZCtxGj9ZlinMq9DmGZJkpD/uZr
+         pGw6j/5wVLddnlD146XlPaXysg5kK4XF+nGVX8MAxcxmkU6OSTK6HKfMRk5bv5Y3QRyR
+         00qw==
+X-Gm-Message-State: APjAAAXFvB34IbaQYEH0ICG9PxBVlodCWorU3eLVa2IskxTGMsff5IcR
+        g/Ahm9Qs4mjYo3L9OCJnF5WWt5m0E7M=
+X-Google-Smtp-Source: APXvYqwgaHdyFFRt/3UHo8TtFBzfu7jVV1XBtXs2OzBXhleDGl37AKrxd6WRcphUmYdBbpg0Hx3MWA==
+X-Received: by 2002:a17:90a:ab0b:: with SMTP id m11mr3838423pjq.73.1565265963879;
+        Thu, 08 Aug 2019 05:06:03 -0700 (PDT)
+Received: from localhost ([122.172.76.219])
+        by smtp.gmail.com with ESMTPSA id y23sm100491085pfo.106.2019.08.08.05.06.01
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 08 Aug 2019 05:06:02 -0700 (PDT)
+Date:   Thu, 8 Aug 2019 17:36:00 +0530
+From:   Viresh Kumar <viresh.kumar@linaro.org>
+To:     Mark Rutland <mark.rutland@arm.com>
+Cc:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        mark.brown@arm.com
+Subject: Re: [PATCH v4.4 V2 24/43] arm64: Add skeleton to harden the branch
+ predictor against aliasing attacks
+Message-ID: <20190808120600.qhbhopvp4e5w33at@vireshk-i7>
+References: <cover.1562908074.git.viresh.kumar@linaro.org>
+ <4349161f0ed572bbc6bff64bad94aa96d07b27ff.1562908075.git.viresh.kumar@linaro.org>
+ <20190731164556.GI39768@lakrids.cambridge.arm.com>
+ <20190801052011.2hrei36v4zntyfn5@vireshk-i7>
+ <20190806121816.GD475@lakrids.cambridge.arm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190806121816.GD475@lakrids.cambridge.arm.com>
+User-Agent: NeoMutt/20180716-391-311a52
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 06-08-19, 13:18, Mark Rutland wrote:
+> Upstream and in v4.9, the meltdown patches came before the spectre
+> patches, and doing this in the opposite order causes context problems
+> like the above.
+> 
+> Given that, I think it would be less surprising to do the meltdown
+> backport first, though I apprecaite that's more work to get these
+> patches in. :/
 
-This is a note to let you know that I've just added the patch titled
+I attempted meltdown backport in the last two days and the amount of
+extra patches to be backported is enormous. And I am not sure if
+everything is alright as well now, and things will greatly rely on
+reviews from you for it.
 
-    Revert "USB: rio500: simplify locking"
+For this series, what about just backporting for now to account for
+CSV3 ? And attempting meltdown backport separately later ?
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+179a56f6f9fb arm64: Take into account ID_AA64PFR0_EL1.CSV3
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 2ca359f4f8b954b3a9d15a89f22a8b7283e7669f Mon Sep 17 00:00:00 2001
-From: Oliver Neukum <oneukum@suse.com>
-Date: Thu, 8 Aug 2019 11:28:54 +0200
-Subject: Revert "USB: rio500: simplify locking"
-
-This reverts commit d710734b06770814de2bfa2819420fb5df7f3a81.
-This simplification causes a deadlock.
-
-Reported-by: syzbot+7bbcbe9c9ff0cd49592a@syzkaller.appspotmail.com
-Fixes: d710734b0677 ("USB: rio500: simplify locking")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/20190808092854.23519-1-oneukum@suse.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/misc/rio500.c | 43 ++++++++++++++++++++++++---------------
- 1 file changed, 27 insertions(+), 16 deletions(-)
-
-diff --git a/drivers/usb/misc/rio500.c b/drivers/usb/misc/rio500.c
-index 27e9c78a791e..a32d61a79ab8 100644
---- a/drivers/usb/misc/rio500.c
-+++ b/drivers/usb/misc/rio500.c
-@@ -51,6 +51,7 @@ struct rio_usb_data {
-         char *obuf, *ibuf;              /* transfer buffers */
-         char bulk_in_ep, bulk_out_ep;   /* Endpoint assignments */
-         wait_queue_head_t wait_q;       /* for timeouts */
-+	struct mutex lock;          /* general race avoidance */
- };
- 
- static DEFINE_MUTEX(rio500_mutex);
-@@ -62,8 +63,10 @@ static int open_rio(struct inode *inode, struct file *file)
- 
- 	/* against disconnect() */
- 	mutex_lock(&rio500_mutex);
-+	mutex_lock(&(rio->lock));
- 
- 	if (rio->isopen || !rio->present) {
-+		mutex_unlock(&(rio->lock));
- 		mutex_unlock(&rio500_mutex);
- 		return -EBUSY;
- 	}
-@@ -71,6 +74,7 @@ static int open_rio(struct inode *inode, struct file *file)
- 
- 	init_waitqueue_head(&rio->wait_q);
- 
-+	mutex_unlock(&(rio->lock));
- 
- 	dev_info(&rio->rio_dev->dev, "Rio opened.\n");
- 	mutex_unlock(&rio500_mutex);
-@@ -84,6 +88,7 @@ static int close_rio(struct inode *inode, struct file *file)
- 
- 	/* against disconnect() */
- 	mutex_lock(&rio500_mutex);
-+	mutex_lock(&(rio->lock));
- 
- 	rio->isopen = 0;
- 	if (!rio->present) {
-@@ -95,6 +100,7 @@ static int close_rio(struct inode *inode, struct file *file)
- 	} else {
- 		dev_info(&rio->rio_dev->dev, "Rio closed.\n");
- 	}
-+	mutex_unlock(&(rio->lock));
- 	mutex_unlock(&rio500_mutex);
- 	return 0;
- }
-@@ -109,7 +115,7 @@ static long ioctl_rio(struct file *file, unsigned int cmd, unsigned long arg)
- 	int retries;
- 	int retval=0;
- 
--	mutex_lock(&rio500_mutex);
-+	mutex_lock(&(rio->lock));
-         /* Sanity check to make sure rio is connected, powered, etc */
-         if (rio->present == 0 || rio->rio_dev == NULL) {
- 		retval = -ENODEV;
-@@ -253,7 +259,7 @@ static long ioctl_rio(struct file *file, unsigned int cmd, unsigned long arg)
- 
- 
- err_out:
--	mutex_unlock(&rio500_mutex);
-+	mutex_unlock(&(rio->lock));
- 	return retval;
- }
- 
-@@ -273,12 +279,12 @@ write_rio(struct file *file, const char __user *buffer,
- 	int errn = 0;
- 	int intr;
- 
--	intr = mutex_lock_interruptible(&rio500_mutex);
-+	intr = mutex_lock_interruptible(&(rio->lock));
- 	if (intr)
- 		return -EINTR;
-         /* Sanity check to make sure rio is connected, powered, etc */
-         if (rio->present == 0 || rio->rio_dev == NULL) {
--		mutex_unlock(&rio500_mutex);
-+		mutex_unlock(&(rio->lock));
- 		return -ENODEV;
- 	}
- 
-@@ -301,7 +307,7 @@ write_rio(struct file *file, const char __user *buffer,
- 				goto error;
- 			}
- 			if (signal_pending(current)) {
--				mutex_unlock(&rio500_mutex);
-+				mutex_unlock(&(rio->lock));
- 				return bytes_written ? bytes_written : -EINTR;
- 			}
- 
-@@ -339,12 +345,12 @@ write_rio(struct file *file, const char __user *buffer,
- 		buffer += copy_size;
- 	} while (count > 0);
- 
--	mutex_unlock(&rio500_mutex);
-+	mutex_unlock(&(rio->lock));
- 
- 	return bytes_written ? bytes_written : -EIO;
- 
- error:
--	mutex_unlock(&rio500_mutex);
-+	mutex_unlock(&(rio->lock));
- 	return errn;
- }
- 
-@@ -361,12 +367,12 @@ read_rio(struct file *file, char __user *buffer, size_t count, loff_t * ppos)
- 	char *ibuf;
- 	int intr;
- 
--	intr = mutex_lock_interruptible(&rio500_mutex);
-+	intr = mutex_lock_interruptible(&(rio->lock));
- 	if (intr)
- 		return -EINTR;
- 	/* Sanity check to make sure rio is connected, powered, etc */
-         if (rio->present == 0 || rio->rio_dev == NULL) {
--		mutex_unlock(&rio500_mutex);
-+		mutex_unlock(&(rio->lock));
- 		return -ENODEV;
- 	}
- 
-@@ -377,11 +383,11 @@ read_rio(struct file *file, char __user *buffer, size_t count, loff_t * ppos)
- 
- 	while (count > 0) {
- 		if (signal_pending(current)) {
--			mutex_unlock(&rio500_mutex);
-+			mutex_unlock(&(rio->lock));
- 			return read_count ? read_count : -EINTR;
- 		}
- 		if (!rio->rio_dev) {
--			mutex_unlock(&rio500_mutex);
-+			mutex_unlock(&(rio->lock));
- 			return -ENODEV;
- 		}
- 		this_read = (count >= IBUF_SIZE) ? IBUF_SIZE : count;
-@@ -399,7 +405,7 @@ read_rio(struct file *file, char __user *buffer, size_t count, loff_t * ppos)
- 			count = this_read = partial;
- 		} else if (result == -ETIMEDOUT || result == 15) {	/* FIXME: 15 ??? */
- 			if (!maxretry--) {
--				mutex_unlock(&rio500_mutex);
-+				mutex_unlock(&(rio->lock));
- 				dev_err(&rio->rio_dev->dev,
- 					"read_rio: maxretry timeout\n");
- 				return -ETIME;
-@@ -409,19 +415,19 @@ read_rio(struct file *file, char __user *buffer, size_t count, loff_t * ppos)
- 			finish_wait(&rio->wait_q, &wait);
- 			continue;
- 		} else if (result != -EREMOTEIO) {
--			mutex_unlock(&rio500_mutex);
-+			mutex_unlock(&(rio->lock));
- 			dev_err(&rio->rio_dev->dev,
- 				"Read Whoops - result:%d partial:%u this_read:%u\n",
- 				result, partial, this_read);
- 			return -EIO;
- 		} else {
--			mutex_unlock(&rio500_mutex);
-+			mutex_unlock(&(rio->lock));
- 			return (0);
- 		}
- 
- 		if (this_read) {
- 			if (copy_to_user(buffer, ibuf, this_read)) {
--				mutex_unlock(&rio500_mutex);
-+				mutex_unlock(&(rio->lock));
- 				return -EFAULT;
- 			}
- 			count -= this_read;
-@@ -429,7 +435,7 @@ read_rio(struct file *file, char __user *buffer, size_t count, loff_t * ppos)
- 			buffer += this_read;
- 		}
- 	}
--	mutex_unlock(&rio500_mutex);
-+	mutex_unlock(&(rio->lock));
- 	return read_count;
- }
- 
-@@ -494,6 +500,8 @@ static int probe_rio(struct usb_interface *intf,
- 	}
- 	dev_dbg(&intf->dev, "ibuf address:%p\n", rio->ibuf);
- 
-+	mutex_init(&(rio->lock));
-+
- 	usb_set_intfdata (intf, rio);
- 	rio->present = 1;
- bail_out:
-@@ -511,10 +519,12 @@ static void disconnect_rio(struct usb_interface *intf)
- 	if (rio) {
- 		usb_deregister_dev(intf, &usb_rio_class);
- 
-+		mutex_lock(&(rio->lock));
- 		if (rio->isopen) {
- 			rio->isopen = 0;
- 			/* better let it finish - the release will do whats needed */
- 			rio->rio_dev = NULL;
-+			mutex_unlock(&(rio->lock));
- 			mutex_unlock(&rio500_mutex);
- 			return;
- 		}
-@@ -524,6 +534,7 @@ static void disconnect_rio(struct usb_interface *intf)
- 		dev_info(&intf->dev, "USB Rio disconnected.\n");
- 
- 		rio->present = 0;
-+		mutex_unlock(&(rio->lock));
- 	}
- 	mutex_unlock(&rio500_mutex);
- }
 -- 
-2.22.0
-
-
+viresh
