@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD44786A0D
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:14:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6DE4869ED
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:12:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405171AbfHHTJy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:09:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44244 "EHLO mail.kernel.org"
+        id S2405395AbfHHTK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:10:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405186AbfHHTJx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:09:53 -0400
+        id S2405398AbfHHTK6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:10:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCF142173E;
-        Thu,  8 Aug 2019 19:09:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 453E3214C6;
+        Thu,  8 Aug 2019 19:10:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291393;
-        bh=SmPRD6NLtLfkZn7PQ79HocHTS2DXrJWNgunAhGJjvRs=;
+        s=default; t=1565291457;
+        bh=3utsidPywQwbBISYQFaw+ixCRRG1nbJWVSopK7tycjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQARlqRC9rGjgEN2g6eNUVF16+Mx86LZOZsePJVa08KfLJlzJ6jQwFK3fIPAhWim6
-         ME3BGcveF1bGCkTqSzMbCbMDxDWc3k5vFnDPFy4UPiW4oaRCwcabnsqgK1BHT0EQpw
-         rQ9GEABdMb3Y0tirfj9BdhpLmz6hxL7zkLxqPnFw=
+        b=G0Y/f3W5v0hDYyENxZE8BWccY4kLYE2dYhOaq6bewe1Xx8VkGaTpi7BQagupqqn9u
+         W5w3ubdc9Ok45NwrOxVOwdX9Y/8z7SmSwJiKEUdcMmoiglD+rFnsrcA8CaVR98HtAO
+         lhkA5PEb+RbAriDen6FlWDFzm3SHv7Mzedd29/l0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Topi Miettinen <toiwoton@gmail.com>
-Subject: [PATCH 4.19 42/45] cgroup: Include dying leaders with live threads in PROCS iterations
+        stable@vger.kernel.org,
+        syzbot+cf35b76f35e068a1107f@syzkaller.appspotmail.com,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 21/33] NFC: nfcmrvl: fix gpio-handling regression
 Date:   Thu,  8 Aug 2019 21:05:28 +0200
-Message-Id: <20190808190456.269142070@linuxfoundation.org>
+Message-Id: <20190808190454.661075725@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190808190453.827571908@linuxfoundation.org>
-References: <20190808190453.827571908@linuxfoundation.org>
+In-Reply-To: <20190808190453.582417307@linuxfoundation.org>
+References: <20190808190453.582417307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,156 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Johan Hovold <johan@kernel.org>
 
-commit c03cd7738a83b13739f00546166969342c8ff014 upstream.
+[ Upstream commit c3953a3c2d3175d2f9f0304c9a1ba89e7743c5e4 ]
 
-CSS_TASK_ITER_PROCS currently iterates live group leaders; however,
-this means that a process with dying leader and live threads will be
-skipped.  IOW, cgroup.procs might be empty while cgroup.threads isn't,
-which is confusing to say the least.
+Fix two reset-gpio sanity checks which were never converted to use
+gpio_is_valid(), and make sure to use -EINVAL to indicate a missing
+reset line also for the UART-driver module parameter and for the USB
+driver.
 
-Fix it by making cset track dying tasks and include dying leaders with
-live threads in PROCS iteration.
+This specifically prevents the UART and USB drivers from incidentally
+trying to request and use gpio 0, and also avoids triggering a WARN() in
+gpio_to_desc() during probe when no valid reset line has been specified.
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reported-and-tested-by: Topi Miettinen <toiwoton@gmail.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
+Fixes: e33a3f84f88f ("NFC: nfcmrvl: allow gpio 0 for reset signalling")
+Reported-by: syzbot+cf35b76f35e068a1107f@syzkaller.appspotmail.com
+Tested-by: syzbot+cf35b76f35e068a1107f@syzkaller.appspotmail.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/linux/cgroup-defs.h |    1 +
- include/linux/cgroup.h      |    1 +
- kernel/cgroup/cgroup.c      |   44 +++++++++++++++++++++++++++++++++++++-------
- 3 files changed, 39 insertions(+), 7 deletions(-)
+ drivers/nfc/nfcmrvl/main.c |    4 ++--
+ drivers/nfc/nfcmrvl/uart.c |    4 ++--
+ drivers/nfc/nfcmrvl/usb.c  |    1 +
+ 3 files changed, 5 insertions(+), 4 deletions(-)
 
---- a/include/linux/cgroup-defs.h
-+++ b/include/linux/cgroup-defs.h
-@@ -207,6 +207,7 @@ struct css_set {
- 	 */
- 	struct list_head tasks;
- 	struct list_head mg_tasks;
-+	struct list_head dying_tasks;
+--- a/drivers/nfc/nfcmrvl/main.c
++++ b/drivers/nfc/nfcmrvl/main.c
+@@ -244,7 +244,7 @@ void nfcmrvl_chip_reset(struct nfcmrvl_p
+ 	/* Reset possible fault of previous session */
+ 	clear_bit(NFCMRVL_PHY_ERROR, &priv->flags);
  
- 	/* all css_task_iters currently walking this cset */
- 	struct list_head task_iters;
---- a/include/linux/cgroup.h
-+++ b/include/linux/cgroup.h
-@@ -60,6 +60,7 @@ struct css_task_iter {
- 	struct list_head		*task_pos;
- 	struct list_head		*tasks_head;
- 	struct list_head		*mg_tasks_head;
-+	struct list_head		*dying_tasks_head;
+-	if (priv->config.reset_n_io) {
++	if (gpio_is_valid(priv->config.reset_n_io)) {
+ 		nfc_info(priv->dev, "reset the chip\n");
+ 		gpio_set_value(priv->config.reset_n_io, 0);
+ 		usleep_range(5000, 10000);
+@@ -255,7 +255,7 @@ void nfcmrvl_chip_reset(struct nfcmrvl_p
  
- 	struct css_set			*cur_cset;
- 	struct css_set			*cur_dcset;
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -673,6 +673,7 @@ struct css_set init_css_set = {
- 	.dom_cset		= &init_css_set,
- 	.tasks			= LIST_HEAD_INIT(init_css_set.tasks),
- 	.mg_tasks		= LIST_HEAD_INIT(init_css_set.mg_tasks),
-+	.dying_tasks		= LIST_HEAD_INIT(init_css_set.dying_tasks),
- 	.task_iters		= LIST_HEAD_INIT(init_css_set.task_iters),
- 	.threaded_csets		= LIST_HEAD_INIT(init_css_set.threaded_csets),
- 	.cgrp_links		= LIST_HEAD_INIT(init_css_set.cgrp_links),
-@@ -1145,6 +1146,7 @@ static struct css_set *find_css_set(stru
- 	cset->dom_cset = cset;
- 	INIT_LIST_HEAD(&cset->tasks);
- 	INIT_LIST_HEAD(&cset->mg_tasks);
-+	INIT_LIST_HEAD(&cset->dying_tasks);
- 	INIT_LIST_HEAD(&cset->task_iters);
- 	INIT_LIST_HEAD(&cset->threaded_csets);
- 	INIT_HLIST_NODE(&cset->hlist);
-@@ -4152,15 +4154,18 @@ static void css_task_iter_advance_css_se
- 			it->task_pos = NULL;
- 			return;
- 		}
--	} while (!css_set_populated(cset));
-+	} while (!css_set_populated(cset) && !list_empty(&cset->dying_tasks));
- 
- 	if (!list_empty(&cset->tasks))
- 		it->task_pos = cset->tasks.next;
--	else
-+	else if (!list_empty(&cset->mg_tasks))
- 		it->task_pos = cset->mg_tasks.next;
-+	else
-+		it->task_pos = cset->dying_tasks.next;
- 
- 	it->tasks_head = &cset->tasks;
- 	it->mg_tasks_head = &cset->mg_tasks;
-+	it->dying_tasks_head = &cset->dying_tasks;
- 
- 	/*
- 	 * We don't keep css_sets locked across iteration steps and thus
-@@ -4199,6 +4204,8 @@ static void css_task_iter_skip(struct cs
- 
- static void css_task_iter_advance(struct css_task_iter *it)
+ void nfcmrvl_chip_halt(struct nfcmrvl_private *priv)
  {
-+	struct task_struct *task;
-+
- 	lockdep_assert_held(&css_set_lock);
- repeat:
- 	if (it->task_pos) {
-@@ -4215,17 +4222,32 @@ repeat:
- 		if (it->task_pos == it->tasks_head)
- 			it->task_pos = it->mg_tasks_head->next;
- 		if (it->task_pos == it->mg_tasks_head)
-+			it->task_pos = it->dying_tasks_head->next;
-+		if (it->task_pos == it->dying_tasks_head)
- 			css_task_iter_advance_css_set(it);
- 	} else {
- 		/* called from start, proceed to the first cset */
- 		css_task_iter_advance_css_set(it);
- 	}
- 
--	/* if PROCS, skip over tasks which aren't group leaders */
--	if ((it->flags & CSS_TASK_ITER_PROCS) && it->task_pos &&
--	    !thread_group_leader(list_entry(it->task_pos, struct task_struct,
--					    cg_list)))
--		goto repeat;
-+	if (!it->task_pos)
-+		return;
-+
-+	task = list_entry(it->task_pos, struct task_struct, cg_list);
-+
-+	if (it->flags & CSS_TASK_ITER_PROCS) {
-+		/* if PROCS, skip over tasks which aren't group leaders */
-+		if (!thread_group_leader(task))
-+			goto repeat;
-+
-+		/* and dying leaders w/o live member threads */
-+		if (!atomic_read(&task->signal->live))
-+			goto repeat;
-+	} else {
-+		/* skip all dying ones */
-+		if (task->flags & PF_EXITING)
-+			goto repeat;
-+	}
+-	if (priv->config.reset_n_io)
++	if (gpio_is_valid(priv->config.reset_n_io))
+ 		gpio_set_value(priv->config.reset_n_io, 0);
  }
  
- /**
-@@ -5682,6 +5704,7 @@ void cgroup_exit(struct task_struct *tsk
- 	if (!list_empty(&tsk->cg_list)) {
- 		spin_lock_irq(&css_set_lock);
- 		css_set_move_task(tsk, cset, NULL, false);
-+		list_add_tail(&tsk->cg_list, &cset->dying_tasks);
- 		cset->nr_tasks--;
- 		spin_unlock_irq(&css_set_lock);
- 	} else {
-@@ -5702,6 +5725,13 @@ void cgroup_release(struct task_struct *
- 	do_each_subsys_mask(ss, ssid, have_release_callback) {
- 		ss->release(task);
- 	} while_each_subsys_mask();
-+
-+	if (use_task_css_set_links) {
-+		spin_lock_irq(&css_set_lock);
-+		css_set_skip_task_iters(task_css_set(task), task);
-+		list_del_init(&task->cg_list);
-+		spin_unlock_irq(&css_set_lock);
-+	}
- }
+--- a/drivers/nfc/nfcmrvl/uart.c
++++ b/drivers/nfc/nfcmrvl/uart.c
+@@ -26,7 +26,7 @@
+ static unsigned int hci_muxed;
+ static unsigned int flow_control;
+ static unsigned int break_control;
+-static unsigned int reset_n_io;
++static int reset_n_io = -EINVAL;
  
- void cgroup_free(struct task_struct *task)
+ /*
+ ** NFCMRVL NCI OPS
+@@ -231,5 +231,5 @@ MODULE_PARM_DESC(break_control, "Tell if
+ module_param(hci_muxed, uint, 0);
+ MODULE_PARM_DESC(hci_muxed, "Tell if transport is muxed in HCI one.");
+ 
+-module_param(reset_n_io, uint, 0);
++module_param(reset_n_io, int, 0);
+ MODULE_PARM_DESC(reset_n_io, "GPIO that is wired to RESET_N signal.");
+--- a/drivers/nfc/nfcmrvl/usb.c
++++ b/drivers/nfc/nfcmrvl/usb.c
+@@ -304,6 +304,7 @@ static int nfcmrvl_probe(struct usb_inte
+ 
+ 	/* No configuration for USB */
+ 	memset(&config, 0, sizeof(config));
++	config.reset_n_io = -EINVAL;
+ 
+ 	nfc_info(&udev->dev, "intf %p id %p\n", intf, id);
+ 
 
 
