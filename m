@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A52186A08
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:14:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65E77869BE
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:10:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405101AbfHHTJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:09:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43724 "EHLO mail.kernel.org"
+        id S2405301AbfHHTKa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:10:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405100AbfHHTJZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:09:25 -0400
+        id S2405286AbfHHTKa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:10:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D3DE2184E;
-        Thu,  8 Aug 2019 19:09:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAAD5214C6;
+        Thu,  8 Aug 2019 19:10:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291365;
-        bh=X2mMx/M9Iz+bGpyx5Xo/mfNKmf2dnlq8TrSOT8/N1k8=;
+        s=default; t=1565291429;
+        bh=zVXtUSMMLf5kQNv2o0MQ6TzFMU207uN96pyBGf1T2vM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=07sli8w8SkIW85DiUnlZgyODUuZuUhVbTRQ3MEUNxVDrIElqfqhv0RrDxZwiZ2+AQ
-         M34P9z2ywvB0qANFGMoIx1vYWV0G2n2KSfteaax2ogNV43Lq2Fpr+gD5BFRnHX04hV
-         NAlhkw3dcTBcfWA2PjkMq2H1W7vF2dGchnKUp8mQ=
+        b=x5b3ypBtZJBoQLUsApwVRQODji1u1WS/2XGg8Rog/tT6B1m1iP1oD2e10SCxRpkNM
+         T7o3kNGpkxbaYcfdmQwVaM3IQdMDluW85GAan2hqezeFPU1VhfD4oU+3YLM0PZurFL
+         5TLTltQpAjdqOUcthYetEQX0i8TKzhzOZVtrw6jw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+cf35b76f35e068a1107f@syzkaller.appspotmail.com,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 32/45] NFC: nfcmrvl: fix gpio-handling regression
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 4.14 11/33] objtool: Add rewind_stack_do_exit() to the noreturn list
 Date:   Thu,  8 Aug 2019 21:05:18 +0200
-Message-Id: <20190808190455.577204678@linuxfoundation.org>
+Message-Id: <20190808190454.122580323@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190808190453.827571908@linuxfoundation.org>
-References: <20190808190453.827571908@linuxfoundation.org>
+In-Reply-To: <20190808190453.582417307@linuxfoundation.org>
+References: <20190808190453.582417307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,77 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit c3953a3c2d3175d2f9f0304c9a1ba89e7743c5e4 ]
+commit 4fa5ecda2bf96be7464eb406df8aba9d89260227 upstream.
 
-Fix two reset-gpio sanity checks which were never converted to use
-gpio_is_valid(), and make sure to use -EINVAL to indicate a missing
-reset line also for the UART-driver module parameter and for the USB
-driver.
+This fixes the following warning seen on GCC 7.3:
 
-This specifically prevents the UART and USB drivers from incidentally
-trying to request and use gpio 0, and also avoids triggering a WARN() in
-gpio_to_desc() during probe when no valid reset line has been specified.
+  arch/x86/kernel/dumpstack.o: warning: objtool: oops_end() falls through to next function show_regs()
 
-Fixes: e33a3f84f88f ("NFC: nfcmrvl: allow gpio 0 for reset signalling")
-Reported-by: syzbot+cf35b76f35e068a1107f@syzkaller.appspotmail.com
-Tested-by: syzbot+cf35b76f35e068a1107f@syzkaller.appspotmail.com
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/3418ebf5a5a9f6ed7e80954c741c0b904b67b5dc.1554398240.git.jpoimboe@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/nfc/nfcmrvl/main.c |    4 ++--
- drivers/nfc/nfcmrvl/uart.c |    4 ++--
- drivers/nfc/nfcmrvl/usb.c  |    1 +
- 3 files changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/nfc/nfcmrvl/main.c
-+++ b/drivers/nfc/nfcmrvl/main.c
-@@ -244,7 +244,7 @@ void nfcmrvl_chip_reset(struct nfcmrvl_p
- 	/* Reset possible fault of previous session */
- 	clear_bit(NFCMRVL_PHY_ERROR, &priv->flags);
+---
+ tools/objtool/check.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -166,6 +166,7 @@ static int __dead_end_function(struct ob
+ 		"lbug_with_loc",
+ 		"fortify_panic",
+ 		"machine_real_restart",
++		"rewind_stack_do_exit",
+ 	};
  
--	if (priv->config.reset_n_io) {
-+	if (gpio_is_valid(priv->config.reset_n_io)) {
- 		nfc_info(priv->dev, "reset the chip\n");
- 		gpio_set_value(priv->config.reset_n_io, 0);
- 		usleep_range(5000, 10000);
-@@ -255,7 +255,7 @@ void nfcmrvl_chip_reset(struct nfcmrvl_p
- 
- void nfcmrvl_chip_halt(struct nfcmrvl_private *priv)
- {
--	if (priv->config.reset_n_io)
-+	if (gpio_is_valid(priv->config.reset_n_io))
- 		gpio_set_value(priv->config.reset_n_io, 0);
- }
- 
---- a/drivers/nfc/nfcmrvl/uart.c
-+++ b/drivers/nfc/nfcmrvl/uart.c
-@@ -26,7 +26,7 @@
- static unsigned int hci_muxed;
- static unsigned int flow_control;
- static unsigned int break_control;
--static unsigned int reset_n_io;
-+static int reset_n_io = -EINVAL;
- 
- /*
- ** NFCMRVL NCI OPS
-@@ -231,5 +231,5 @@ MODULE_PARM_DESC(break_control, "Tell if
- module_param(hci_muxed, uint, 0);
- MODULE_PARM_DESC(hci_muxed, "Tell if transport is muxed in HCI one.");
- 
--module_param(reset_n_io, uint, 0);
-+module_param(reset_n_io, int, 0);
- MODULE_PARM_DESC(reset_n_io, "GPIO that is wired to RESET_N signal.");
---- a/drivers/nfc/nfcmrvl/usb.c
-+++ b/drivers/nfc/nfcmrvl/usb.c
-@@ -305,6 +305,7 @@ static int nfcmrvl_probe(struct usb_inte
- 
- 	/* No configuration for USB */
- 	memset(&config, 0, sizeof(config));
-+	config.reset_n_io = -EINVAL;
- 
- 	nfc_info(&udev->dev, "intf %p id %p\n", intf, id);
- 
+ 	if (func->bind == STB_WEAK)
 
 
