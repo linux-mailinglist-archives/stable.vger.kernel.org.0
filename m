@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47A3F86A2D
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:14:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCC9886A2C
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:14:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404997AbfHHTIx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:08:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43068 "EHLO mail.kernel.org"
+        id S2404530AbfHHTOE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:14:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404509AbfHHTIw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:08:52 -0400
+        id S2405007AbfHHTI5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:08:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D457D2173E;
-        Thu,  8 Aug 2019 19:08:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13881214C6;
+        Thu,  8 Aug 2019 19:08:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291331;
-        bh=aBxhkRVwXoJii8tFWAHj3MDQzysyn97ow8IFtXxjJ9I=;
+        s=default; t=1565291336;
+        bh=rxiTNpmN3JfowyIDYyku5rB8rgfj5MmDvzXltVZD1vU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WSLc9UihNWDMhg+6SAVy75ZbaKQwgYqZoLCGc/3Z6EhSXRiJ6HIRUJmfQ0BwdnixQ
-         HdFjSPeTMsBGwnwTAX0S4M4ucC2gpIpLaP32EvYo3g4YfxdipCZCNlWE+3zQZ218fi
-         U3UVCMX8uHDjvPr6wVJefhBitR9MUaYGvSCvCf/o=
+        b=yy58jnSV+W267cOjRACNfs6Q2J+iAbIsacloXvVjac6zm96hi3Ed1Gc3BOws5jXS6
+         CFz4g6v//s2J/7vkOXMCeRS35N/YGYA+x7bYjxLBG2l4EWk1lVHCcH0PpeLM2VtPvw
+         jZnsFm+AnshGoUSCtYTsx/34/ZF1om8kqINm1h+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jane Chu <jane.chu@oracle.com>,
-        Erwin Tsaur <erwin.tsaur@oracle.com>,
+        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
         Dan Williams <dan.j.williams@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 05/45] libnvdimm/bus: Prevent duplicate device_unregister() calls
-Date:   Thu,  8 Aug 2019 21:04:51 +0200
-Message-Id: <20190808190454.092926881@linuxfoundation.org>
+Subject: [PATCH 4.19 07/45] libnvdimm/bus: Prepare the nd_ioctl() path to be re-entrant
+Date:   Thu,  8 Aug 2019 21:04:53 +0200
+Message-Id: <20190808190454.189996943@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190808190453.827571908@linuxfoundation.org>
 References: <20190808190453.827571908@linuxfoundation.org>
@@ -45,93 +44,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 8aac0e2338916e273ccbd438a2b7a1e8c61749f5 upstream.
+commit 6de5d06e657acdbcf9637dac37916a4a5309e0f4 upstream.
 
-A multithreaded namespace creation/destruction stress test currently
-fails with signatures like the following:
+In preparation for not holding a lock over the execution of nd_ioctl(),
+update the implementation to allow multiple threads to be attempting
+ioctls at the same time. The bus lock still prevents multiple in-flight
+->ndctl() invocations from corrupting each other's state, but static
+global staging buffers are moved to the heap.
 
-    sysfs group 'power' not found for kobject 'dax1.1'
-    RIP: 0010:sysfs_remove_group+0x76/0x80
-    Call Trace:
-     device_del+0x73/0x370
-     device_unregister+0x16/0x50
-     nd_async_device_unregister+0x1e/0x30 [libnvdimm]
-     async_run_entry_fn+0x39/0x160
-     process_one_work+0x23c/0x5e0
-     worker_thread+0x3c/0x390
-
-    BUG: kernel NULL pointer dereference, address: 0000000000000020
-    RIP: 0010:klist_put+0x1b/0x6c
-    Call Trace:
-     klist_del+0xe/0x10
-     device_del+0x8a/0x2c9
-     ? __switch_to_asm+0x34/0x70
-     ? __switch_to_asm+0x40/0x70
-     device_unregister+0x44/0x4f
-     nd_async_device_unregister+0x22/0x2d [libnvdimm]
-     async_run_entry_fn+0x47/0x15a
-     process_one_work+0x1a2/0x2eb
-     worker_thread+0x1b8/0x26e
-
-Use the kill_device() helper to atomically resolve the race of multiple
-threads issuing kill, device_unregister(), requests.
-
-Reported-by: Jane Chu <jane.chu@oracle.com>
-Reported-by: Erwin Tsaur <erwin.tsaur@oracle.com>
-Fixes: 4d88a97aa9e8 ("libnvdimm, nvdimm: dimm driver and base libnvdimm device-driver...")
-Cc: <stable@vger.kernel.org>
-Link: https://github.com/pmem/ndctl/issues/96
-Tested-by: Tested-by: Jane Chu <jane.chu@oracle.com>
-Link: https://lore.kernel.org/r/156341207846.292348.10435719262819764054.stgit@dwillia2-desk3.amr.corp.intel.com
+Reported-by: Vishal Verma <vishal.l.verma@intel.com>
+Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
+Tested-by: Vishal Verma <vishal.l.verma@intel.com>
+Link: https://lore.kernel.org/r/156341208947.292348.10560140326807607481.stgit@dwillia2-desk3.amr.corp.intel.com
 Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/bus.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ drivers/nvdimm/bus.c | 59 +++++++++++++++++++++++++++-----------------
+ 1 file changed, 37 insertions(+), 22 deletions(-)
 
 diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
-index ee39e2c1644ae..11cfd23e5aff7 100644
+index 11cfd23e5aff7..5abcdb4faa644 100644
 --- a/drivers/nvdimm/bus.c
 +++ b/drivers/nvdimm/bus.c
-@@ -528,13 +528,38 @@ EXPORT_SYMBOL(nd_device_register);
- 
- void nd_device_unregister(struct device *dev, enum nd_async_mode mode)
+@@ -951,20 +951,19 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 		int read_only, unsigned int ioctl_cmd, unsigned long arg)
  {
-+	bool killed;
+ 	struct nvdimm_bus_descriptor *nd_desc = nvdimm_bus->nd_desc;
+-	static char out_env[ND_CMD_MAX_ENVELOPE];
+-	static char in_env[ND_CMD_MAX_ENVELOPE];
+ 	const struct nd_cmd_desc *desc = NULL;
+ 	unsigned int cmd = _IOC_NR(ioctl_cmd);
+ 	struct device *dev = &nvdimm_bus->dev;
+ 	void __user *p = (void __user *) arg;
++	char *out_env = NULL, *in_env = NULL;
+ 	const char *cmd_name, *dimm_name;
+ 	u32 in_len = 0, out_len = 0;
+ 	unsigned int func = cmd;
+ 	unsigned long cmd_mask;
+ 	struct nd_cmd_pkg pkg;
+ 	int rc, i, cmd_rc;
++	void *buf = NULL;
+ 	u64 buf_len = 0;
+-	void *buf;
+ 
+ 	if (nvdimm) {
+ 		desc = nd_cmd_dimm_desc(cmd);
+@@ -1004,6 +1003,9 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 		}
+ 
+ 	/* process an input envelope */
++	in_env = kzalloc(ND_CMD_MAX_ENVELOPE, GFP_KERNEL);
++	if (!in_env)
++		return -ENOMEM;
+ 	for (i = 0; i < desc->in_num; i++) {
+ 		u32 in_size, copy;
+ 
+@@ -1011,14 +1013,17 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 		if (in_size == UINT_MAX) {
+ 			dev_err(dev, "%s:%s unknown input size cmd: %s field: %d\n",
+ 					__func__, dimm_name, cmd_name, i);
+-			return -ENXIO;
++			rc = -ENXIO;
++			goto out;
+ 		}
+-		if (in_len < sizeof(in_env))
+-			copy = min_t(u32, sizeof(in_env) - in_len, in_size);
++		if (in_len < ND_CMD_MAX_ENVELOPE)
++			copy = min_t(u32, ND_CMD_MAX_ENVELOPE - in_len, in_size);
+ 		else
+ 			copy = 0;
+-		if (copy && copy_from_user(&in_env[in_len], p + in_len, copy))
+-			return -EFAULT;
++		if (copy && copy_from_user(&in_env[in_len], p + in_len, copy)) {
++			rc = -EFAULT;
++			goto out;
++		}
+ 		in_len += in_size;
+ 	}
+ 
+@@ -1030,6 +1035,12 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 	}
+ 
+ 	/* process an output envelope */
++	out_env = kzalloc(ND_CMD_MAX_ENVELOPE, GFP_KERNEL);
++	if (!out_env) {
++		rc = -ENOMEM;
++		goto out;
++	}
 +
- 	switch (mode) {
- 	case ND_ASYNC:
-+		/*
-+		 * In the async case this is being triggered with the
-+		 * device lock held and the unregistration work needs to
-+		 * be moved out of line iff this is thread has won the
-+		 * race to schedule the deletion.
-+		 */
-+		if (!kill_device(dev))
-+			return;
-+
- 		get_device(dev);
- 		async_schedule_domain(nd_async_device_unregister, dev,
- 				&nd_async_domain);
- 		break;
- 	case ND_SYNC:
-+		/*
-+		 * In the sync case the device is being unregistered due
-+		 * to a state change of the parent. Claim the kill state
-+		 * to synchronize against other unregistration requests,
-+		 * or otherwise let the async path handle it if the
-+		 * unregistration was already queued.
-+		 */
-+		device_lock(dev);
-+		killed = kill_device(dev);
-+		device_unlock(dev);
-+
-+		if (!killed)
-+			return;
-+
- 		nd_synchronize();
- 		device_unregister(dev);
- 		break;
+ 	for (i = 0; i < desc->out_num; i++) {
+ 		u32 out_size = nd_cmd_out_size(nvdimm, cmd, desc, i,
+ 				(u32 *) in_env, (u32 *) out_env, 0);
+@@ -1038,15 +1049,18 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 		if (out_size == UINT_MAX) {
+ 			dev_dbg(dev, "%s unknown output size cmd: %s field: %d\n",
+ 					dimm_name, cmd_name, i);
+-			return -EFAULT;
++			rc = -EFAULT;
++			goto out;
+ 		}
+-		if (out_len < sizeof(out_env))
+-			copy = min_t(u32, sizeof(out_env) - out_len, out_size);
++		if (out_len < ND_CMD_MAX_ENVELOPE)
++			copy = min_t(u32, ND_CMD_MAX_ENVELOPE - out_len, out_size);
+ 		else
+ 			copy = 0;
+ 		if (copy && copy_from_user(&out_env[out_len],
+-					p + in_len + out_len, copy))
+-			return -EFAULT;
++					p + in_len + out_len, copy)) {
++			rc = -EFAULT;
++			goto out;
++		}
+ 		out_len += out_size;
+ 	}
+ 
+@@ -1054,12 +1068,15 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 	if (buf_len > ND_IOCTL_MAX_BUFLEN) {
+ 		dev_dbg(dev, "%s cmd: %s buf_len: %llu > %d\n", dimm_name,
+ 				cmd_name, buf_len, ND_IOCTL_MAX_BUFLEN);
+-		return -EINVAL;
++		rc = -EINVAL;
++		goto out;
+ 	}
+ 
+ 	buf = vmalloc(buf_len);
+-	if (!buf)
+-		return -ENOMEM;
++	if (!buf) {
++		rc = -ENOMEM;
++		goto out;
++	}
+ 
+ 	if (copy_from_user(buf, p, buf_len)) {
+ 		rc = -EFAULT;
+@@ -1081,17 +1098,15 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 		nvdimm_account_cleared_poison(nvdimm_bus, clear_err->address,
+ 				clear_err->cleared);
+ 	}
+-	nvdimm_bus_unlock(&nvdimm_bus->dev);
+ 
+ 	if (copy_to_user(p, buf, buf_len))
+ 		rc = -EFAULT;
+ 
+-	vfree(buf);
+-	return rc;
+-
+- out_unlock:
++out_unlock:
+ 	nvdimm_bus_unlock(&nvdimm_bus->dev);
+- out:
++out:
++	kfree(in_env);
++	kfree(out_env);
+ 	vfree(buf);
+ 	return rc;
+ }
 -- 
 2.20.1
 
