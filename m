@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFF6A86986
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:08:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A5E08699F
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:09:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404870AbfHHTIS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:08:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42350 "EHLO mail.kernel.org"
+        id S2405064AbfHHTJN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:09:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404866AbfHHTIS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:08:18 -0400
+        id S2404649AbfHHTJM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:09:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14137214C6;
-        Thu,  8 Aug 2019 19:08:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93FEB21743;
+        Thu,  8 Aug 2019 19:09:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291297;
-        bh=GO944Vpxi6hLaivkOV6+1MtsnIIXDbWFeObHenW4B/8=;
+        s=default; t=1565291352;
+        bh=9AGNDiFGuoVv33UzIPs5eYd4Nji75eLh6NNA55ASf/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kMvixmqKajo1TdKFS4lawTp6OtVtUDKxnVXwLE2AiS+O9FNtiPkBXcbDcljji2L5v
-         DYzICfUGcfP9+SO+7P7hByjGkl8x3MIzgEW7sju920GW6IVJLCoy7/Tg4HHoq5/IHG
-         GiAWVKo2SrJ6nq5ED+R0H/E5T+IHTXB3eFpSpthk=
+        b=KubZJTLf4uUr1A44WXP8iX6Q2GIgAYaCHl4NdgyO6UEdN2wcsOCfF/0YRQNz+bBlf
+         pXBMP6wycaDjdmNl33pvFo9JgFa3RIIUnuscXW2wS1Fk+t+8xoMc9zoOacHV50/GaP
+         cn+t0O/SnRg0eUIf5mk1hlOpadrqFQ4HCV96yO6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        Sunil Muthuswamy <sunilmut@microsoft.com>,
+        stable@vger.kernel.org, Sean Tranchetti <stranche@codeaurora.org>,
+        Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 46/56] hv_sock: Fix hang when a connection is closed
-Date:   Thu,  8 Aug 2019 21:05:12 +0200
-Message-Id: <20190808190455.008606190@linuxfoundation.org>
+Subject: [PATCH 4.19 27/45] net: qualcomm: rmnet: Fix incorrect UL checksum offload logic
+Date:   Thu,  8 Aug 2019 21:05:13 +0200
+Message-Id: <20190808190455.254936047@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190808190452.867062037@linuxfoundation.org>
-References: <20190808190452.867062037@linuxfoundation.org>
+In-Reply-To: <20190808190453.827571908@linuxfoundation.org>
+References: <20190808190453.827571908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,66 +44,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com>
+From: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
 
-[ Upstream commit 8c7885e5690be9a27231ebebf82ef29fbf46c4e4 ]
+[ Upstream commit a7cf3d24ee6081930feb4c830a7f6f16ebe31c49 ]
 
-There is a race condition for an established connection that is being closed
-by the guest: the refcnt is 4 at the end of hvs_release() (Note: here the
-'remove_sock' is false):
+The udp_ip4_ind bit is set only for IPv4 UDP non-fragmented packets
+so that the hardware can flip the checksum to 0xFFFF if the computed
+checksum is 0 per RFC768.
 
-1 for the initial value;
-1 for the sk being in the bound list;
-1 for the sk being in the connected list;
-1 for the delayed close_work.
+However, this bit had to be set for IPv6 UDP non fragmented packets
+as well per hardware requirements. Otherwise, IPv6 UDP packets
+with computed checksum as 0 were transmitted by hardware and were
+dropped in the network.
 
-After hvs_release() finishes, __vsock_release() -> sock_put(sk) *may*
-decrease the refcnt to 3.
+In addition to setting this bit for IPv6 UDP, the field is also
+appropriately renamed to udp_ind as part of this change.
 
-Concurrently, hvs_close_connection() runs in another thread:
-  calls vsock_remove_sock() to decrease the refcnt by 2;
-  call sock_put() to decrease the refcnt to 0, and free the sk;
-  next, the "release_sock(sk)" may hang due to use-after-free.
-
-In the above, after hvs_release() finishes, if hvs_close_connection() runs
-faster than "__vsock_release() -> sock_put(sk)", then there is not any issue,
-because at the beginning of hvs_close_connection(), the refcnt is still 4.
-
-The issue can be resolved if an extra reference is taken when the
-connection is established.
-
-Fixes: a9eeb998c28d ("hv_sock: Add support for delayed close")
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Reviewed-by: Sunil Muthuswamy <sunilmut@microsoft.com>
+Fixes: 5eb5f8608ef1 ("net: qualcomm: rmnet: Add support for TX checksum offload")
+Cc: Sean Tranchetti <stranche@codeaurora.org>
+Signed-off-by: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/vmw_vsock/hyperv_transport.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/ethernet/qualcomm/rmnet/rmnet_map.h      |    2 +-
+ drivers/net/ethernet/qualcomm/rmnet/rmnet_map_data.c |   13 +++++++++----
+ 2 files changed, 10 insertions(+), 5 deletions(-)
 
---- a/net/vmw_vsock/hyperv_transport.c
-+++ b/net/vmw_vsock/hyperv_transport.c
-@@ -311,6 +311,11 @@ static void hvs_close_connection(struct
- 	lock_sock(sk);
- 	hvs_do_close_lock_held(vsock_sk(sk), true);
- 	release_sock(sk);
+--- a/drivers/net/ethernet/qualcomm/rmnet/rmnet_map.h
++++ b/drivers/net/ethernet/qualcomm/rmnet/rmnet_map.h
+@@ -59,7 +59,7 @@ struct rmnet_map_dl_csum_trailer {
+ struct rmnet_map_ul_csum_header {
+ 	__be16 csum_start_offset;
+ 	u16 csum_insert_offset:14;
+-	u16 udp_ip4_ind:1;
++	u16 udp_ind:1;
+ 	u16 csum_enabled:1;
+ } __aligned(1);
+ 
+--- a/drivers/net/ethernet/qualcomm/rmnet/rmnet_map_data.c
++++ b/drivers/net/ethernet/qualcomm/rmnet/rmnet_map_data.c
+@@ -215,9 +215,9 @@ rmnet_map_ipv4_ul_csum_header(void *iphd
+ 	ul_header->csum_insert_offset = skb->csum_offset;
+ 	ul_header->csum_enabled = 1;
+ 	if (ip4h->protocol == IPPROTO_UDP)
+-		ul_header->udp_ip4_ind = 1;
++		ul_header->udp_ind = 1;
+ 	else
+-		ul_header->udp_ip4_ind = 0;
++		ul_header->udp_ind = 0;
+ 
+ 	/* Changing remaining fields to network order */
+ 	hdr++;
+@@ -248,6 +248,7 @@ rmnet_map_ipv6_ul_csum_header(void *ip6h
+ 			      struct rmnet_map_ul_csum_header *ul_header,
+ 			      struct sk_buff *skb)
+ {
++	struct ipv6hdr *ip6h = (struct ipv6hdr *)ip6hdr;
+ 	__be16 *hdr = (__be16 *)ul_header, offset;
+ 
+ 	offset = htons((__force u16)(skb_transport_header(skb) -
+@@ -255,7 +256,11 @@ rmnet_map_ipv6_ul_csum_header(void *ip6h
+ 	ul_header->csum_start_offset = offset;
+ 	ul_header->csum_insert_offset = skb->csum_offset;
+ 	ul_header->csum_enabled = 1;
+-	ul_header->udp_ip4_ind = 0;
 +
-+	/* Release the refcnt for the channel that's opened in
-+	 * hvs_open_connection().
-+	 */
-+	sock_put(sk);
++	if (ip6h->nexthdr == IPPROTO_UDP)
++		ul_header->udp_ind = 1;
++	else
++		ul_header->udp_ind = 0;
+ 
+ 	/* Changing remaining fields to network order */
+ 	hdr++;
+@@ -428,7 +433,7 @@ sw_csum:
+ 	ul_header->csum_start_offset = 0;
+ 	ul_header->csum_insert_offset = 0;
+ 	ul_header->csum_enabled = 0;
+-	ul_header->udp_ip4_ind = 0;
++	ul_header->udp_ind = 0;
+ 
+ 	priv->stats.csum_sw++;
  }
- 
- static void hvs_open_connection(struct vmbus_channel *chan)
-@@ -378,6 +383,9 @@ static void hvs_open_connection(struct v
- 	}
- 
- 	set_per_channel_state(chan, conn_from_host ? new : sk);
-+
-+	/* This reference will be dropped by hvs_close_connection(). */
-+	sock_hold(conn_from_host ? new : sk);
- 	vmbus_set_chn_rescind_callback(chan, hvs_close_connection);
- 
- 	/* Set the pending send size to max packet size to always get
 
 
