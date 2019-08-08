@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9364C86A41
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:15:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E42D4869D4
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:11:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404716AbfHHTHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:07:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41432 "EHLO mail.kernel.org"
+        id S2405442AbfHHTLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:11:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404713AbfHHTHj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:07:39 -0400
+        id S2405084AbfHHTLQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:11:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D85BA218A4;
-        Thu,  8 Aug 2019 19:07:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5631A21743;
+        Thu,  8 Aug 2019 19:11:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291259;
-        bh=dBj3rOiVMKozMP5s+ljrpfpFrI7VYhQabjg66rnUpw8=;
+        s=default; t=1565291475;
+        bh=c2Igk6UtaX5oNKCxUGV6GFvxDUsT6dELgHlujMAeG4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ePAvmAlJXttDJGB+3LJ1RyX/J8q6b8AK4Iockd8GBJqoBm36ZAB0qHvXbUVcX2Phv
-         uv8LOHUCY3IwXYlw9ZosERTAmP0WZf+bNicETpIEWxLM22Bj6ZQnDemRJfn+zfNoTz
-         guikWsCE5wlSPfO4dgfqhv1Q0Cil6wmpQiuFjb+w=
+        b=BNDetbUFoQosbA3vFp5umB8L4PMmhVVRYvyuYsHojaRFsGFCbDNGA9kUFaaOmpsHt
+         X+JCaxgV2cU3SkvWMtam7yzrOHOV8tJOXZziDOKALt5WLngVyDhVixoDdeST+xCImq
+         6yr3zbmGtZ7hxuJnZPrGyI4ApkvxpcoHOX49efTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+bd8cc73d665590a1fcad@syzkaller.appspotmail.com,
-        Ursula Braun <ubraun@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 48/56] net/smc: avoid fallback in case of non-blocking connect
+        stable@vger.kernel.org, Sebastian Parschauer <s.parschauer@gmx.de>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.14 07/33] HID: Add quirk for HP X1200 PIXART OEM mouse
 Date:   Thu,  8 Aug 2019 21:05:14 +0200
-Message-Id: <20190808190455.120071274@linuxfoundation.org>
+Message-Id: <20190808190453.930236428@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190808190452.867062037@linuxfoundation.org>
-References: <20190808190452.867062037@linuxfoundation.org>
+In-Reply-To: <20190808190453.582417307@linuxfoundation.org>
+References: <20190808190453.582417307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,57 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+From: Sebastian Parschauer <s.parschauer@gmx.de>
 
-[ Upstream commit cd2063604ea6a8c2683b4eb9b5f4c4da74592d87 ]
+commit 49869d2ea9eecc105a10724c1abf035151a3c4e2 upstream.
 
-FASTOPEN is not possible with SMC. sendmsg() with msg_flag MSG_FASTOPEN
-triggers a fallback to TCP if the socket is in state SMC_INIT.
-But if a nonblocking connect is already started, fallback to TCP
-is no longer possible, even though the socket may still be in state
-SMC_INIT.
-And if a nonblocking connect is already started, a listen() call
-does not make sense.
+The PixArt OEM mice are known for disconnecting every minute in
+runlevel 1 or 3 if they are not always polled. So add quirk
+ALWAYS_POLL for this one as well.
 
-Reported-by: syzbot+bd8cc73d665590a1fcad@syzkaller.appspotmail.com
-Fixes: 50717a37db032 ("net/smc: nonblocking connect rework")
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Jonathan Teh (@jonathan-teh) reported and tested the quirk.
+Reference: https://github.com/sriemer/fix-linux-mouse/issues/15
+
+Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
+CC: stable@vger.kernel.org
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/smc/af_smc.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -253,7 +253,7 @@ static int smc_bind(struct socket *sock,
+
+---
+ drivers/hid/hid-ids.h           |    1 +
+ drivers/hid/usbhid/hid-quirks.c |    1 +
+ 2 files changed, 2 insertions(+)
+
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -537,6 +537,7 @@
+ #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A	0x0b4a
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE		0x134a
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A	0x094a
++#define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641	0x0641
  
- 	/* Check if socket is already active */
- 	rc = -EINVAL;
--	if (sk->sk_state != SMC_INIT)
-+	if (sk->sk_state != SMC_INIT || smc->connect_nonblock)
- 		goto out_rel;
- 
- 	smc->clcsock->sk->sk_reuse = sk->sk_reuse;
-@@ -1399,7 +1399,8 @@ static int smc_listen(struct socket *soc
- 	lock_sock(sk);
- 
- 	rc = -EINVAL;
--	if ((sk->sk_state != SMC_INIT) && (sk->sk_state != SMC_LISTEN))
-+	if ((sk->sk_state != SMC_INIT && sk->sk_state != SMC_LISTEN) ||
-+	    smc->connect_nonblock)
- 		goto out;
- 
- 	rc = 0;
-@@ -1527,7 +1528,7 @@ static int smc_sendmsg(struct socket *so
- 		goto out;
- 
- 	if (msg->msg_flags & MSG_FASTOPEN) {
--		if (sk->sk_state == SMC_INIT) {
-+		if (sk->sk_state == SMC_INIT && !smc->connect_nonblock) {
- 			smc_switch_to_fallback(smc);
- 			smc->fallback_rsn = SMC_CLC_DECL_OPTUNSUPP;
- 		} else {
+ #define USB_VENDOR_ID_HUION		0x256c
+ #define USB_DEVICE_ID_HUION_TABLET	0x006e
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -100,6 +100,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A, HID_QUIRK_ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE, HID_QUIRK_ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A, HID_QUIRK_ALWAYS_POLL },
++	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641, HID_QUIRK_ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_C007, HID_QUIRK_ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_C077, HID_QUIRK_ALWAYS_POLL },
 
 
