@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AEAD8695D
+	by mail.lfdr.de (Postfix) with ESMTP id C9B588695E
 	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:06:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404453AbfHHTGd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:06:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39990 "EHLO mail.kernel.org"
+        id S2404455AbfHHTGe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:06:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404450AbfHHTGa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:06:30 -0400
+        id S2404424AbfHHTGd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:06:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43BCD2184E;
-        Thu,  8 Aug 2019 19:06:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9C51214C6;
+        Thu,  8 Aug 2019 19:06:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291189;
-        bh=hhpOaXceY8XZTtD7LA9VCiHAjNYrgkjZ+W051FOLOPE=;
+        s=default; t=1565291192;
+        bh=rk6tcLs2L2UIlcvgNRZk3BQfsJ/va8mSvpxFd/vUt9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QfLSa41KtgFwoHZJhVpMpPC05K+cZtz53bdmJv4PVzcRBV5O2uCsNehAZZIL+Gsn3
-         RHvyz3MMaH0rFwKQcIWD0fbdDdtZ4YSt4aGDN2WFQC+inZMLiNZlpO+shDMYg+3jOX
-         RDGG12sPhgCAKZoqD5DEE4xyxhMZVepVkkADzNMg=
+        b=omSqvL9QSwRqPtpetFhZUp0NVUfgC9oJlqjPpglhLpZFQbO+9G4fw4MDiv74E2J3r
+         2YbHRJrO8pL9lFvWz4fKWQDzIxIH4+u9HNuce8U3F+HwkR6ZnfxYns6eA+QES4MPgQ
+         0/NLP/k2k9UcI881UeX01ah4qt46MEQPnjUR+3FY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, michael-dev <michael-dev@fami-braun.de>,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
-        Roopa Prabhu <roopa@cumulusnetworks.com>,
+        stable@vger.kernel.org, Jiri Pirko <jiri@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 20/56] net: bridge: move default pvid init/deinit to NETDEV_REGISTER/UNREGISTER
-Date:   Thu,  8 Aug 2019 21:04:46 +0200
-Message-Id: <20190808190453.680894540@linuxfoundation.org>
+Subject: [PATCH 5.2 21/56] net: fix ifindex collision during namespace removal
+Date:   Thu,  8 Aug 2019 21:04:47 +0200
+Message-Id: <20190808190453.725834754@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190808190452.867062037@linuxfoundation.org>
 References: <20190808190452.867062037@linuxfoundation.org>
@@ -45,187 +43,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+From: Jiri Pirko <jiri@mellanox.com>
 
-[ Upstream commit 091adf9ba6cdb432cbcc217b47e4ffb8aa0d8865 ]
+[ Upstream commit 55b40dbf0e76b4bfb9d8b3a16a0208640a9a45df ]
 
-Most of the bridge device's vlan init bugs come from the fact that its
-default pvid is created at the wrong time, way too early in ndo_init()
-before the device is even assigned an ifindex. It introduces a bug when the
-bridge's dev_addr is added as fdb during the initial default pvid creation
-the notification has ifindex/NDA_MASTER both equal to 0 (see example below)
-which really makes no sense for user-space[0] and is wrong.
-Usually user-space software would ignore such entries, but they are
-actually valid and will eventually have all necessary attributes.
-It makes much more sense to send a notification *after* the device has
-registered and has a proper ifindex allocated rather than before when
-there's a chance that the registration might still fail or to receive
-it with ifindex/NDA_MASTER == 0. Note that we can remove the fdb flush
-from br_vlan_flush() since that case can no longer happen. At
-NETDEV_REGISTER br->default_pvid is always == 1 as it's initialized by
-br_vlan_init() before that and at NETDEV_UNREGISTER it can be anything
-depending why it was called (if called due to NETDEV_REGISTER error
-it'll still be == 1, otherwise it could be any value changed during the
-device life time).
+Commit aca51397d014 ("netns: Fix arbitrary net_device-s corruptions
+on net_ns stop.") introduced a possibility to hit a BUG in case device
+is returning back to init_net and two following conditions are met:
+1) dev->ifindex value is used in a name of another "dev%d"
+   device in init_net.
+2) dev->name is used by another device in init_net.
 
-For the demonstration below a small change to iproute2 for printing all fdb
-notifications is added, because it contained a workaround not to show
-entries with ifindex == 0.
-Command executed while monitoring: $ ip l add br0 type bridge
-Before (both ifindex and master == 0):
-$ bridge monitor fdb
-36:7e:8a:b3:56:ba dev * vlan 1 master * permanent
+Under real life circumstances this is hard to get. Therefore this has
+been present happily for over 10 years. To reproduce:
 
-After (proper br0 ifindex):
-$ bridge monitor fdb
-e6:2a:ae:7a:b7:48 dev br0 vlan 1 master br0 permanent
+$ ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: dummy0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 86:89:3f:86:61:29 brd ff:ff:ff:ff:ff:ff
+3: enp0s2: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 52:54:00:12:34:56 brd ff:ff:ff:ff:ff:ff
+$ ip netns add ns1
+$ ip -n ns1 link add dummy1ns1 type dummy
+$ ip -n ns1 link add dummy2ns1 type dummy
+$ ip link set enp0s2 netns ns1
+$ ip -n ns1 link set enp0s2 name dummy0
+[  100.858894] virtio_net virtio0 dummy0: renamed from enp0s2
+$ ip link add dev4 type dummy
+$ ip -n ns1 a
+1: lo: <LOOPBACK> mtu 65536 qdisc noop state DOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: dummy1ns1: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 16:63:4c:38:3e:ff brd ff:ff:ff:ff:ff:ff
+3: dummy2ns1: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether aa:9e:86:dd:6b:5d brd ff:ff:ff:ff:ff:ff
+4: dummy0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 52:54:00:12:34:56 brd ff:ff:ff:ff:ff:ff
+$ ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: dummy0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 86:89:3f:86:61:29 brd ff:ff:ff:ff:ff:ff
+4: dev4: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 5a:e1:4a:b6:ec:f8 brd ff:ff:ff:ff:ff:ff
+$ ip netns del ns1
+[  158.717795] default_device_exit: failed to move dummy0 to init_net: -17
+[  158.719316] ------------[ cut here ]------------
+[  158.720591] kernel BUG at net/core/dev.c:9824!
+[  158.722260] invalid opcode: 0000 [#1] SMP KASAN PTI
+[  158.723728] CPU: 0 PID: 56 Comm: kworker/u2:1 Not tainted 5.3.0-rc1+ #18
+[  158.725422] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-2.fc30 04/01/2014
+[  158.727508] Workqueue: netns cleanup_net
+[  158.728915] RIP: 0010:default_device_exit.cold+0x1d/0x1f
+[  158.730683] Code: 84 e8 18 c9 3e fe 0f 0b e9 70 90 ff ff e8 36 e4 52 fe 89 d9 4c 89 e2 48 c7 c6 80 d6 25 84 48 c7 c7 20 c0 25 84 e8 f4 c8 3e
+[  158.736854] RSP: 0018:ffff8880347e7b90 EFLAGS: 00010282
+[  158.738752] RAX: 000000000000003b RBX: 00000000ffffffef RCX: 0000000000000000
+[  158.741369] RDX: 0000000000000000 RSI: ffffffff8128013d RDI: ffffed10068fcf64
+[  158.743418] RBP: ffff888033550170 R08: 000000000000003b R09: fffffbfff0b94b9c
+[  158.745626] R10: fffffbfff0b94b9b R11: ffffffff85ca5cdf R12: ffff888032f28000
+[  158.748405] R13: dffffc0000000000 R14: ffff8880335501b8 R15: 1ffff110068fcf72
+[  158.750638] FS:  0000000000000000(0000) GS:ffff888036000000(0000) knlGS:0000000000000000
+[  158.752944] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  158.755245] CR2: 00007fe8b45d21d0 CR3: 00000000340b4005 CR4: 0000000000360ef0
+[  158.757654] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  158.760012] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  158.762758] Call Trace:
+[  158.763882]  ? dev_change_net_namespace+0xbb0/0xbb0
+[  158.766148]  ? devlink_nl_cmd_set_doit+0x520/0x520
+[  158.768034]  ? dev_change_net_namespace+0xbb0/0xbb0
+[  158.769870]  ops_exit_list.isra.0+0xa8/0x150
+[  158.771544]  cleanup_net+0x446/0x8f0
+[  158.772945]  ? unregister_pernet_operations+0x4a0/0x4a0
+[  158.775294]  process_one_work+0xa1a/0x1740
+[  158.776896]  ? pwq_dec_nr_in_flight+0x310/0x310
+[  158.779143]  ? do_raw_spin_lock+0x11b/0x280
+[  158.780848]  worker_thread+0x9e/0x1060
+[  158.782500]  ? process_one_work+0x1740/0x1740
+[  158.784454]  kthread+0x31b/0x420
+[  158.786082]  ? __kthread_create_on_node+0x3f0/0x3f0
+[  158.788286]  ret_from_fork+0x3a/0x50
+[  158.789871] ---[ end trace defd6c657c71f936 ]---
+[  158.792273] RIP: 0010:default_device_exit.cold+0x1d/0x1f
+[  158.795478] Code: 84 e8 18 c9 3e fe 0f 0b e9 70 90 ff ff e8 36 e4 52 fe 89 d9 4c 89 e2 48 c7 c6 80 d6 25 84 48 c7 c7 20 c0 25 84 e8 f4 c8 3e
+[  158.804854] RSP: 0018:ffff8880347e7b90 EFLAGS: 00010282
+[  158.807865] RAX: 000000000000003b RBX: 00000000ffffffef RCX: 0000000000000000
+[  158.811794] RDX: 0000000000000000 RSI: ffffffff8128013d RDI: ffffed10068fcf64
+[  158.816652] RBP: ffff888033550170 R08: 000000000000003b R09: fffffbfff0b94b9c
+[  158.820930] R10: fffffbfff0b94b9b R11: ffffffff85ca5cdf R12: ffff888032f28000
+[  158.825113] R13: dffffc0000000000 R14: ffff8880335501b8 R15: 1ffff110068fcf72
+[  158.829899] FS:  0000000000000000(0000) GS:ffff888036000000(0000) knlGS:0000000000000000
+[  158.834923] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  158.838164] CR2: 00007fe8b45d21d0 CR3: 00000000340b4005 CR4: 0000000000360ef0
+[  158.841917] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  158.845149] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 
-v4: move only the default pvid init/deinit to NETDEV_REGISTER/UNREGISTER
-v3: send the correct v2 patch with all changes (stub should return 0)
-v2: on error in br_vlan_init set br->vlgrp to NULL and return 0 in
-    the br_vlan_bridge_event stub when bridge vlans are disabled
+Fix this by checking if a device with the same name exists in init_net
+and fallback to original code - dev%d to allocate name - in case it does.
 
-[0] https://bugzilla.kernel.org/show_bug.cgi?id=204389
+This was found using syzkaller.
 
-Reported-by: michael-dev <michael-dev@fami-braun.de>
-Fixes: 5be5a2df40f0 ("bridge: Add filtering support for default_pvid")
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Acked-by: Roopa Prabhu <roopa@cumulusnetworks.com>
+Fixes: aca51397d014 ("netns: Fix arbitrary net_device-s corruptions on net_ns stop.")
+Signed-off-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br.c         |    5 ++++-
- net/bridge/br_private.h |    9 +++++----
- net/bridge/br_vlan.c    |   34 ++++++++++++++++------------------
- 3 files changed, 25 insertions(+), 23 deletions(-)
+ net/core/dev.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/bridge/br.c
-+++ b/net/bridge/br.c
-@@ -37,12 +37,15 @@ static int br_device_event(struct notifi
- 	int err;
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -9711,6 +9711,8 @@ static void __net_exit default_device_ex
  
- 	if (dev->priv_flags & IFF_EBRIDGE) {
-+		err = br_vlan_bridge_event(dev, event, ptr);
-+		if (err)
-+			return notifier_from_errno(err);
-+
- 		if (event == NETDEV_REGISTER) {
- 			/* register of bridge completed, add sysfs entries */
- 			br_sysfs_addbr(dev);
- 			return NOTIFY_DONE;
- 		}
--		br_vlan_bridge_event(dev, event, ptr);
- 	}
- 
- 	/* not a port of a bridge */
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -893,8 +893,8 @@ int nbp_get_num_vlan_infos(struct net_br
- void br_vlan_get_stats(const struct net_bridge_vlan *v,
- 		       struct br_vlan_stats *stats);
- void br_vlan_port_event(struct net_bridge_port *p, unsigned long event);
--void br_vlan_bridge_event(struct net_device *dev, unsigned long event,
--			  void *ptr);
-+int br_vlan_bridge_event(struct net_device *dev, unsigned long event,
-+			 void *ptr);
- 
- static inline struct net_bridge_vlan_group *br_vlan_group(
- 					const struct net_bridge *br)
-@@ -1084,9 +1084,10 @@ static inline void br_vlan_port_event(st
- {
- }
- 
--static inline void br_vlan_bridge_event(struct net_device *dev,
--					unsigned long event, void *ptr)
-+static inline int br_vlan_bridge_event(struct net_device *dev,
-+				       unsigned long event, void *ptr)
- {
-+	return 0;
- }
- #endif
- 
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -715,11 +715,6 @@ void br_vlan_flush(struct net_bridge *br
- 
- 	ASSERT_RTNL();
- 
--	/* delete auto-added default pvid local fdb before flushing vlans
--	 * otherwise it will be leaked on bridge device init failure
--	 */
--	br_fdb_delete_by_port(br, NULL, 0, 1);
--
- 	vg = br_vlan_group(br);
- 	__vlan_flush(vg);
- 	RCU_INIT_POINTER(br->vlgrp, NULL);
-@@ -1048,7 +1043,6 @@ int br_vlan_init(struct net_bridge *br)
- {
- 	struct net_bridge_vlan_group *vg;
- 	int ret = -ENOMEM;
--	bool changed;
- 
- 	vg = kzalloc(sizeof(*vg), GFP_KERNEL);
- 	if (!vg)
-@@ -1063,17 +1057,10 @@ int br_vlan_init(struct net_bridge *br)
- 	br->vlan_proto = htons(ETH_P_8021Q);
- 	br->default_pvid = 1;
- 	rcu_assign_pointer(br->vlgrp, vg);
--	ret = br_vlan_add(br, 1,
--			  BRIDGE_VLAN_INFO_PVID | BRIDGE_VLAN_INFO_UNTAGGED |
--			  BRIDGE_VLAN_INFO_BRENTRY, &changed, NULL);
--	if (ret)
--		goto err_vlan_add;
- 
- out:
- 	return ret;
- 
--err_vlan_add:
--	vlan_tunnel_deinit(vg);
- err_tunnel_init:
- 	rhashtable_destroy(&vg->vlan_hash);
- err_rhtbl:
-@@ -1448,13 +1435,23 @@ static void nbp_vlan_set_vlan_dev_state(
- }
- 
- /* Must be protected by RTNL. */
--void br_vlan_bridge_event(struct net_device *dev, unsigned long event,
--			  void *ptr)
-+int br_vlan_bridge_event(struct net_device *dev, unsigned long event, void *ptr)
- {
- 	struct netdev_notifier_changeupper_info *info;
--	struct net_bridge *br;
-+	struct net_bridge *br = netdev_priv(dev);
-+	bool changed;
-+	int ret = 0;
- 
- 	switch (event) {
-+	case NETDEV_REGISTER:
-+		ret = br_vlan_add(br, br->default_pvid,
-+				  BRIDGE_VLAN_INFO_PVID |
-+				  BRIDGE_VLAN_INFO_UNTAGGED |
-+				  BRIDGE_VLAN_INFO_BRENTRY, &changed, NULL);
-+		break;
-+	case NETDEV_UNREGISTER:
-+		br_vlan_delete(br, br->default_pvid);
-+		break;
- 	case NETDEV_CHANGEUPPER:
- 		info = ptr;
- 		br_vlan_upper_change(dev, info->upper_dev, info->linking);
-@@ -1462,12 +1459,13 @@ void br_vlan_bridge_event(struct net_dev
- 
- 	case NETDEV_CHANGE:
- 	case NETDEV_UP:
--		br = netdev_priv(dev);
- 		if (!br_opt_get(br, BROPT_VLAN_BRIDGE_BINDING))
--			return;
-+			break;
- 		br_vlan_link_state_change(dev, br);
- 		break;
- 	}
-+
-+	return ret;
- }
- 
- /* Must be protected by RTNL. */
+ 		/* Push remaining network devices to init_net */
+ 		snprintf(fb_name, IFNAMSIZ, "dev%d", dev->ifindex);
++		if (__dev_get_by_name(&init_net, fb_name))
++			snprintf(fb_name, IFNAMSIZ, "dev%%d");
+ 		err = dev_change_net_namespace(dev, &init_net, fb_name);
+ 		if (err) {
+ 			pr_emerg("%s: failed to move %s to init_net: %d\n",
 
 
