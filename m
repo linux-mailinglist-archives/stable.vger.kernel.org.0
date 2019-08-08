@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FD3786A48
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:15:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B92A086A09
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:14:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404796AbfHHTIB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:08:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41864 "EHLO mail.kernel.org"
+        id S2405127AbfHHTJg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:09:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404391AbfHHTH6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:07:58 -0400
+        id S2405119AbfHHTJd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:09:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE88B214C6;
-        Thu,  8 Aug 2019 19:07:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B46C21743;
+        Thu,  8 Aug 2019 19:09:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291277;
-        bh=9kmlft1CQdZPtgpeBxTcJEBanms8b+x93peniWoSeK4=;
+        s=default; t=1565291372;
+        bh=Nl+kRXkxWwMQ9iim9Tca5FCr6yfWrfnErkAgEcd9sRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZgJ/G1p/RCB77vGLcPpJYwSDIs2bbMllHc+Qh+l9byAbdEU3UYLx2+oR91if+2r48
-         8KrOvrBsDf7/TJ/CGIe6ogM6rmDVhg09XHfLEiGA66OIZ6iqx/hl2I6JSt3OC9x3jZ
-         D++Iv+gQYaFBWBAVS9s0AQCBxFdJvS9uhDwv6b/k=
+        b=UqgdpfK34WsZJFOBkhAbi25jGhflRZeVX2GC4KtLskaWLe95nD4UdiwlK5F8PvQwD
+         PUrLn2J5t5AwUYcgkxltZetJR1IVL/yqYf7APM5xJvZGnu5yeYx3L5pICno2qTv1IG
+         fWc1zgnW/mPhFQ57hnUrlEfprjmg887XlLVitOQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jean Delvare <jdelvare@suse.de>,
-        Peter Lebbing <peter@digitalbrains.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.2 55/56] Revert "mac80211: set NETIF_F_LLTX when using intermediate tx queues"
+        stable@vger.kernel.org, Alexis Bauvin <abauvin@scaleway.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 35/45] tun: mark small packets as owned by the tap sock
 Date:   Thu,  8 Aug 2019 21:05:21 +0200
-Message-Id: <20190808190455.554583542@linuxfoundation.org>
+Message-Id: <20190808190455.784595339@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190808190452.867062037@linuxfoundation.org>
-References: <20190808190452.867062037@linuxfoundation.org>
+In-Reply-To: <20190808190453.827571908@linuxfoundation.org>
+References: <20190808190453.827571908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Alexis Bauvin <abauvin@scaleway.com>
 
-commit eef347f846ee8f7296a6f84e3866c057ca6bcce0 upstream.
+[ Upstream commit 4b663366246be1d1d4b1b8b01245b2e88ad9e706 ]
 
-Revert this for now, it has been reported multiple times that it
-completely breaks connectivity on various devices.
+- v1 -> v2: Move skb_set_owner_w to __tun_build_skb to reduce patch size
 
-Cc: stable@vger.kernel.org
-Fixes: 8dbb000ee73b ("mac80211: set NETIF_F_LLTX when using intermediate tx queues")
-Reported-by: Jean Delvare <jdelvare@suse.de>
-Reported-by: Peter Lebbing <peter@digitalbrains.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Small packets going out of a tap device go through an optimized code
+path that uses build_skb() rather than sock_alloc_send_pskb(). The
+latter calls skb_set_owner_w(), but the small packet code path does not.
+
+The net effect is that small packets are not owned by the userland
+application's socket (e.g. QEMU), while large packets are.
+This can be seen with a TCP session, where packets are not owned when
+the window size is small enough (around PAGE_SIZE), while they are once
+the window grows (note that this requires the host to support virtio
+tso for the guest to offload segmentation).
+All this leads to inconsistent behaviour in the kernel, especially on
+netfilter modules that uses sk->socket (e.g. xt_owner).
+
+Fixes: 66ccbc9c87c2 ("tap: use build_skb() for small packet")
+Signed-off-by: Alexis Bauvin <abauvin@scaleway.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/mac80211/iface.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/tun.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/mac80211/iface.c
-+++ b/net/mac80211/iface.c
-@@ -1222,7 +1222,6 @@ static void ieee80211_if_setup(struct ne
- static void ieee80211_if_setup_no_queue(struct net_device *dev)
- {
- 	ieee80211_if_setup(dev);
--	dev->features |= NETIF_F_LLTX;
- 	dev->priv_flags |= IFF_NO_QUEUE;
- }
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -1682,6 +1682,7 @@ static struct sk_buff *tun_build_skb(str
+ 
+ 	skb_reserve(skb, pad - delta);
+ 	skb_put(skb, len);
++	skb_set_owner_w(skb, tfile->socket.sk);
+ 	get_page(alloc_frag->page);
+ 	alloc_frag->offset += buflen;
  
 
 
