@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 326E386A66
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:16:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CA5886A69
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:16:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404206AbfHHTGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:06:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39366 "EHLO mail.kernel.org"
+        id S2404197AbfHHTGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:06:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404142AbfHHTGE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:06:04 -0400
+        id S2404196AbfHHTGH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:06:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 947512173E;
-        Thu,  8 Aug 2019 19:06:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 352012184E;
+        Thu,  8 Aug 2019 19:06:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291164;
-        bh=kE+APflZXVKBi88zg/ds609nqfZ49BLod9mXTr2oUYg=;
+        s=default; t=1565291166;
+        bh=WLBYh0GoRhp9dzJDdv30zfp8sCdMj1MIp8GArBRONlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FKKprx0ukGzBWvMkWCARUjZAxgDnHKa8hTHABVtoJY+seQF0qD9xt5GSnoY9HV47w
-         ZfUgVHp/BFgG7VcoAWxzu97m6l1I+TfnHoBvEI6YN11kykZZU0z5A7GlqmYv7sUmpl
-         NlSIXYhLuUfNa0XfBzJGpF4CN0ljwQZxmdVayCJM=
+        b=kUSCDxGxn1EOFzUfm/HXow9Mf6GDPoJjzwk8FfaQMPfd+JN/oBoGC81B9MbfNZXqC
+         1EABAV/S5wRVYDIbaWAybs5H45prZe4ecaisPAyiL+JQGk006c3NPxGKunJITbhBfl
+         kTTTWhQrKVyFfUA+6IJpjYk+aw3Z/uNmXtTmY4VQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+fbb5b288c9cb6a2eeac4@syzkaller.appspotmail.com,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
+        stable@vger.kernel.org, William Tu <u9012063@gmail.com>,
+        Haishuang Yan <yanhaishuang@cmss.chinamobile.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 11/56] ife: error out when nla attributes are empty
-Date:   Thu,  8 Aug 2019 21:04:37 +0200
-Message-Id: <20190808190453.321356252@linuxfoundation.org>
+Subject: [PATCH 5.2 12/56] ip6_gre: reload ipv6h in prepare_ip6gre_xmit_ipv6
+Date:   Thu,  8 Aug 2019 21:04:38 +0200
+Message-Id: <20190808190453.354245914@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190808190452.867062037@linuxfoundation.org>
 References: <20190808190452.867062037@linuxfoundation.org>
@@ -47,37 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
 
-[ Upstream commit c8ec4632c6ac9cda0e8c3d51aa41eeab66585bd5 ]
+[ Upstream commit 3bc817d665ac6d9de89f59df522ad86f5b5dfc03 ]
 
-act_ife at least requires TCA_IFE_PARMS, so we have to bail out
-when there is no attribute passed in.
+Since ip6_tnl_parse_tlv_enc_lim() can call pskb_may_pull()
+which may change skb->data, so we need to re-load ipv6h at
+the right place.
 
-Reported-by: syzbot+fbb5b288c9cb6a2eeac4@syzkaller.appspotmail.com
-Fixes: ef6980b6becb ("introduce IFE action")
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Fixes: 898b29798e36 ("ip6_gre: Refactor ip6gre xmit codes")
+Cc: William Tu <u9012063@gmail.com>
+Signed-off-by: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
+Acked-by: William Tu <u9012063@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/act_ife.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ net/ipv6/ip6_gre.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/sched/act_ife.c
-+++ b/net/sched/act_ife.c
-@@ -481,6 +481,11 @@ static int tcf_ife_init(struct net *net,
- 	int ret = 0;
- 	int err;
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -660,12 +660,13 @@ static int prepare_ip6gre_xmit_ipv6(stru
+ 				    struct flowi6 *fl6, __u8 *dsfield,
+ 				    int *encap_limit)
+ {
+-	struct ipv6hdr *ipv6h = ipv6_hdr(skb);
++	struct ipv6hdr *ipv6h;
+ 	struct ip6_tnl *t = netdev_priv(dev);
+ 	__u16 offset;
  
-+	if (!nla) {
-+		NL_SET_ERR_MSG_MOD(extack, "IFE requires attributes to be passed");
-+		return -EINVAL;
-+	}
-+
- 	err = nla_parse_nested_deprecated(tb, TCA_IFE_MAX, nla, ife_policy,
- 					  NULL);
- 	if (err < 0)
+ 	offset = ip6_tnl_parse_tlv_enc_lim(skb, skb_network_header(skb));
+ 	/* ip6_tnl_parse_tlv_enc_lim() might have reallocated skb->head */
++	ipv6h = ipv6_hdr(skb);
+ 
+ 	if (offset > 0) {
+ 		struct ipv6_tlv_tnl_enc_lim *tel;
 
 
