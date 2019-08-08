@@ -2,120 +2,212 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27416861BC
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 14:31:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B21A086219
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 14:44:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403786AbfHHMb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 08:31:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45196 "EHLO mail.kernel.org"
+        id S1732424AbfHHMoD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 08:44:03 -0400
+Received: from mga03.intel.com ([134.134.136.65]:38983 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389951AbfHHMb1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 08:31:27 -0400
-Received: from localhost (173-25-83-245.client.mchsi.com [173.25.83.245])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2E4221881;
-        Thu,  8 Aug 2019 12:31:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565267486;
-        bh=jPRA8WwVIBP3PqkfhSy/TiRINN02YI/sp1jGz5LU1/c=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=E3/gFSiVht9KFJplSMpjko42etxgYXQisDrbuN818/Pn67cENeQhcfvA0qJjCyNnb
-         4xvPZDFxFGNMVYPAGBi7FP301evhJWdbGR94yX6FjfW8h+/Ims0jgaeSvm1o/uh7mp
-         A6i5AwHZqhucwkbw9Jy8kehJvnkZ7EhxuJHokVTw=
-Date:   Thu, 8 Aug 2019 07:31:24 -0500
-From:   Bjorn Helgaas <helgaas@kernel.org>
-To:     "Koenig, Christian" <Christian.Koenig@amd.com>
-Cc:     Sumit Saxena <sumit.saxena@broadcom.com>,
-        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH V2] PCI: set BAR size bits correctly in Resize BAR
- control register
-Message-ID: <20190808123124.GD151852@google.com>
-References: <20190725192552.24295-1-sumit.saxena@broadcom.com>
- <20190807230149.GA151852@google.com>
- <ed70bffc-eed8-c3c5-ee9b-22e1cad1ae06@amd.com>
+        id S1732254AbfHHMoD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 08:44:03 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 08 Aug 2019 05:43:37 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,361,1559545200"; 
+   d="asc'?scan'208";a="326298207"
+Received: from pipin.fi.intel.com (HELO pipin) ([10.237.72.175])
+  by orsmga004.jf.intel.com with ESMTP; 08 Aug 2019 05:43:34 -0700
+From:   Felipe Balbi <felipe.balbi@linux.intel.com>
+To:     John Stultz <john.stultz@linaro.org>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Cc:     "fei.yang\@intel.com" <fei.yang@intel.com>,
+        "andrzej.p\@collabora.com" <andrzej.p@collabora.com>,
+        "linux-usb\@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        "linux-kernel\@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "gregkh\@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "stable\@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v3] usb: dwc3: gadget: trb_dequeue is not updated properly
+In-Reply-To: <CALAqxLURCLHf3UJsMWKZUirDE9bWNYEhv-sKb01g7cTfCz5tOg@mail.gmail.com>
+References: <1563497183-7114-1-git-send-email-fei.yang@intel.com> <CY4PR1201MB003708ADAD79BF4FD24D3445AACB0@CY4PR1201MB0037.namprd12.prod.outlook.com> <CALAqxLURCLHf3UJsMWKZUirDE9bWNYEhv-sKb01g7cTfCz5tOg@mail.gmail.com>
+Date:   Thu, 08 Aug 2019 15:43:30 +0300
+Message-ID: <87k1bnn7yl.fsf@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ed70bffc-eed8-c3c5-ee9b-22e1cad1ae06@amd.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha256; protocol="application/pgp-signature"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 08, 2019 at 07:01:03AM +0000, Koenig, Christian wrote:
-> Am 08.08.19 um 01:01 schrieb Bjorn Helgaas:
-> > On Fri, Jul 26, 2019 at 12:55:52AM +0530, Sumit Saxena wrote:
-> >> In Resize BAR control register, bits[8:12] represents size of BAR.
-> >> As per PCIe specification, below is encoded values in register bits
-> >> to actual BAR size table:
-> >>
-> >> Bits  BAR size
-> >> 0     1 MB
-> >> 1     2 MB
-> >> 2     4 MB
-> >> 3     8 MB
-> >> --
-> >>
-> >> For 1 MB BAR size, BAR size bits should be set to 0 but incorrectly
-> >> these bits are set to "1f". Latest megaraid_sas and mpt3sas adapters
-> >> which support Resizable BAR with 1 MB BAR size fails to initialize
-> >> during system resume from S3 sleep.
-> >>
-> >> Fix: Correctly calculate BAR size bits for Resize BAR control register.
-> >>
-> >> V2:
-> >> -Simplified calculation of BAR size bits as suggested by Christian Koenig.
-> >>
-> >> CC: stable@vger.kernel.org # v4.16+
-> >> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203939
-> >> Fixes: d3252ace0bc652a1a244455556b6a549f969bf99 ("PCI: Restore resized BAR state on resume")
-> >> Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
-> >> ---
-> >>   drivers/pci/pci.c | 2 +-
-> >>   1 file changed, 1 insertion(+), 1 deletion(-)
-> >>
-> >> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-> >> index 29ed5ec1ac27..e59921296125 100644
-> >> --- a/drivers/pci/pci.c
-> >> +++ b/drivers/pci/pci.c
-> >> @@ -1438,7 +1438,7 @@ static void pci_restore_rebar_state(struct pci_dev *pdev)
-> >>   		pci_read_config_dword(pdev, pos + PCI_REBAR_CTRL, &ctrl);
-> >>   		bar_idx = ctrl & PCI_REBAR_CTRL_BAR_IDX;
-> >>   		res = pdev->resource + bar_idx;
-> >> -		size = order_base_2((resource_size(res) >> 20) | 1) - 1;
-> >> +		size = order_base_2(resource_size(res) >> 20);
-> > Since BAR sizes are always powers of 2, wouldn't this be simpler as:
-> >
-> > 		size = ilog2(resource_size(res)) - 20;
-> >
-> > which nicely matches the table in PCIe r5.0, sec 7.8.6.3?
-> 
-> Yeah, that should obviously work as well.
-> 
-> We would have a serious problem in the resource management if the 
-> resource size is smaller than 1MB or not a power of two.
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Yes, definitely.  Resizable BARs are required by spec to be 1MB or
-larger, but this does niggle at me a little bit, too.  It probably
-saves a few bits in pci_dev to recompute this at restore-time, but
-honestly, I think it would be more obviously correct to just do the
-simple-minded thing of saving and restoring the entire register.
 
-> Feel free to add my r-b.
+Hi,
 
-Done, thanks!
+John Stultz <john.stultz@linaro.org> writes:
+> On Thu, Jul 18, 2019 at 6:12 PM Thinh Nguyen <Thinh.Nguyen@synopsys.com> =
+wrote:
+>> fei.yang@intel.com wrote:
+>> > From: Fei Yang <fei.yang@intel.com>
+>> >
+>> > If scatter-gather operation is allowed, a large USB request is split i=
+nto
+>> > multiple TRBs. These TRBs are chained up by setting DWC3_TRB_CTRL_CHN =
+bit
+>> > except the last one which has DWC3_TRB_CTRL_IOC bit set instead.
+>> > Since only the last TRB has IOC set for the whole USB request, the
+>> > dwc3_gadget_ep_reclaim_trb_sg() gets called only once after the last T=
+RB
+>> > completes and all the TRBs allocated for this request are supposed to =
+be
+>> > reclaimed. However that is not what the current code does.
+>> >
+>> > dwc3_gadget_ep_reclaim_trb_sg() is trying to reclaim all the TRBs in t=
+he
+>> > following for-loop,
+>> >       for_each_sg(sg, s, pending, i) {
+>> >               trb =3D &dep->trb_pool[dep->trb_dequeue];
+>> >
+>> >                 if (trb->ctrl & DWC3_TRB_CTRL_HWO)
+>> >                         break;
+>> >
+>> >                 req->sg =3D sg_next(s);
+>> >                 req->num_pending_sgs--;
+>> >
+>> >                 ret =3D dwc3_gadget_ep_reclaim_completed_trb(dep, req,
+>> >                                 trb, event, status, chain);
+>> >                 if (ret)
+>> >                         break;
+>> >         }
+>> > but since the interrupt comes only after the last TRB completes, the
+>> > event->status has DEPEVT_STATUS_IOC bit set, so that the for-loop ends=
+ for
+>> > the first TRB due to dwc3_gadget_ep_reclaim_completed_trb() returns 1.
+>> >       if (event->status & DEPEVT_STATUS_IOC)
+>> >               return 1;
+>> >
+>> > This patch addresses the issue by checking each TRB in function
+>> > dwc3_gadget_ep_reclaim_trb_sg() and maing sure the chained ones are pr=
+operly
+>> > reclaimed. dwc3_gadget_ep_reclaim_completed_trb() will return 1 Only f=
+or the
+>> > last TRB.
+>> >
+>> > Signed-off-by: Fei Yang <fei.yang@intel.com>
+>> > Cc: stable <stable@vger.kernel.org>
+>> > ---
+>> > v2: Better solution is to reclaim chained TRBs in dwc3_gadget_ep_recla=
+im_trb_sg()
+>> >     and leave the last TRB to the dwc3_gadget_ep_reclaim_completed_trb=
+().
+>> > v3: Checking DWC3_TRB_CTRL_CHN bit for each TRB instead, and making su=
+re that
+>> >     dwc3_gadget_ep_reclaim_completed_trb() returns 1 only for the last=
+ TRB.
+>> > ---
+>> >  drivers/usb/dwc3/gadget.c | 11 ++++++++---
+>> >  1 file changed, 8 insertions(+), 3 deletions(-)
+>> >
+>> > diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+>> > index 173f532..88eed49 100644
+>> > --- a/drivers/usb/dwc3/gadget.c
+>> > +++ b/drivers/usb/dwc3/gadget.c
+>> > @@ -2394,7 +2394,7 @@ static int dwc3_gadget_ep_reclaim_completed_trb(=
+struct dwc3_ep *dep,
+>> >       if (event->status & DEPEVT_STATUS_SHORT && !chain)
+>> >               return 1;
+>> >
+>> > -     if (event->status & DEPEVT_STATUS_IOC)
+>> > +     if (event->status & DEPEVT_STATUS_IOC && !chain)
+>> >               return 1;
+>> >
+>> >       return 0;
+>> > @@ -2404,11 +2404,12 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struc=
+t dwc3_ep *dep,
+>> >               struct dwc3_request *req, const struct dwc3_event_depevt=
+ *event,
+>> >               int status)
+>> >  {
+>> > -     struct dwc3_trb *trb =3D &dep->trb_pool[dep->trb_dequeue];
+>> > +     struct dwc3_trb *trb;
+>> >       struct scatterlist *sg =3D req->sg;
+>> >       struct scatterlist *s;
+>> >       unsigned int pending =3D req->num_pending_sgs;
+>> >       unsigned int i;
+>> > +     int chain =3D false;
+>> >       int ret =3D 0;
+>> >
+>> >       for_each_sg(sg, s, pending, i) {
+>> > @@ -2419,9 +2420,13 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struct=
+ dwc3_ep *dep,
+>> >
+>> >               req->sg =3D sg_next(s);
+>> >               req->num_pending_sgs--;
+>> > +             if (trb->ctrl & DWC3_TRB_CTRL_CHN)
+>> > +                     chain =3D true;
+>> > +             else
+>> > +                     chain =3D false;
+>> >
+>> >               ret =3D dwc3_gadget_ep_reclaim_completed_trb(dep, req,
+>> > -                             trb, event, status, true);
+>> > +                             trb, event, status, chain);
+>> >               if (ret)
+>> >                       break;
+>> >       }
+>>
+>> There was already a fix a long time ago by Anurag. But it never made it
+>> to the kernel mainline. You can check this out:
+>> https://patchwork.kernel.org/patch/10640137/
+>
+> So, back from a vacation last week, and just validated that both Fei's
+> patch and a forward ported version of this patch Thinh pointed out
+> both seem to resolve the usb stalls I've been seeing sinice 4.20 w/
+> dwc3 hardware on both hikey960 and dragonboard 845c.
+>
+> Felipe: Does Anurag's patch above make more sense as a proper fix?
 
-> Regards,
-> Christian.
-> 
-> >
-> >>   		ctrl &= ~PCI_REBAR_CTRL_BAR_SIZE;
-> >>   		ctrl |= size << PCI_REBAR_CTRL_BAR_SHIFT;
-> >>   		pci_write_config_dword(pdev, pos + PCI_REBAR_CTRL, ctrl);
-> >> -- 
-> >> 2.18.1
-> >>
-> 
+I think it's enough to check only the TRB. We won't get events for bits
+we didn't enable on the TRB. The only problem here is when we get IOC
+event for multiple TRBs where only the last one has IOC.
+
+So, instead of checking:
+
+	if (event->status & IOC && trb->ctrl & IOC)
+
+It's probably enough to check:
+
+	if (tbc->ctrl & IOC)
+
+Could you check that?
+
+Cheers
+
+=2D-=20
+balbi
+
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEElLzh7wn96CXwjh2IzL64meEamQYFAl1MGPIACgkQzL64meEa
+mQY12w//SoBl8a0P9l1wQvjbp66d9nq+DfniJ1P0ZR+OZ49AjsagOTTlGxTOUifR
+TGtVC346hs1OjMMElsrOIKkfyE8J3yzLxbYzLemDdDw6eY5b0rZjqiAfF5S/zZzq
+DyrEH1o+kwKyhCzNvjZIOP3Y/Ugy2XO1J/bDlBcNBtphX8TDpC9p1Dxg6swhRNvp
+vX0FQW/MsE+R6wIftW6XG63bYB5aAM+kqQH4j0MR64b2nFGYAWx7WXJsViMCeK58
+TnKYLEOtkMe4qXbpYFWwiIsIDTY/w4k9jNvVKreFfyTB/cmE4kL9PtgIg+LhUfK/
+phudV1NTCQ6qKeCrgK/zSoT3FLGs5ZxuB60bPL4NFa2PgHeAccC6iwmS+AoMyVK3
+FIWaU2HHqoJSV6M11dDHlXtgzvz/IRD5Uk6M1vdXEDMnG4PAD4IqOfinaWSd+s0y
+H4Bm+jJfH5y/QmbZhLj64ciybsu9VDGNTvgWWu1vr1dZIn2lvNKWl6jBoG9/1KWq
+RFtDWuCgp8cJSZlVHnnTf9q2fVO2DrNYi3WnGhUqp678bhyQjwqwTTQT0kwzrkHc
+m0rgfy5R+pTfJmfy8KIF+HdUMFMVeaKEl/GiVJK7JhUqTHyonv6JEssG1m5u2C8L
+uJn+WRM9wYpSy6Rjqc6PqlzabRppIPwXqWnoBFMbneUhtVt3YfI=
+=SP19
+-----END PGP SIGNATURE-----
+--=-=-=--
