@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B507A86A50
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:15:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B636869F3
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:12:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404887AbfHHTIV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:08:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42404 "EHLO mail.kernel.org"
+        id S2405432AbfHHTLO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:11:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404882AbfHHTIU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:08:20 -0400
+        id S2405442AbfHHTLO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:11:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A51B5214C6;
-        Thu,  8 Aug 2019 19:08:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF35121743;
+        Thu,  8 Aug 2019 19:11:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291300;
-        bh=8CrwL/5KPh4jpq0cJdyOmWbgJuCj/OZSfxl+4Ileh7k=;
+        s=default; t=1565291473;
+        bh=QR/+RiJBu5Vz2MvmCgi2zdsjQkqaeIi+8tB8wySTYGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SnQQPNIDlIv/7qNniDh7sdgAXTSahGE5aru9IQcMc9TcHkh7PwP1L7LHXk8ah+FDd
-         4y2+KICa5F2x6xAfz/p0FZvzmbigPVCXL1sAzTta4bsIraEP/pMMX7ovG6l1T2hPAX
-         aY8j51SfOJqO6+Y5iNLx9UjiAybvuTAR9KZb87bQ=
+        b=h6GuvJOFoBEF0Ojvj9GEMdNp2quWtd2GEoPldSv1f3X9PWVBiKQNFg3OW1q3MLfbC
+         gopkfNKxityhlKy/SLxSRTDl1W5VeQVwblCbwuYE5GtTv5GOugY+CXp5vV7dWDDeLA
+         FrI40E2JijIS6Suroa07X0YAyXxQD7APMDzdvPGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, liuyonglong <liuyonglong@huawei.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 47/56] net: phy: fix race in genphy_update_link
+        stable@vger.kernel.org,
+        Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
+        Ping Cheng <ping.cheng@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.14 06/33] HID: wacom: fix bit shift for Cintiq Companion 2
 Date:   Thu,  8 Aug 2019 21:05:13 +0200
-Message-Id: <20190808190455.068957361@linuxfoundation.org>
+Message-Id: <20190808190453.875321199@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190808190452.867062037@linuxfoundation.org>
-References: <20190808190452.867062037@linuxfoundation.org>
+In-Reply-To: <20190808190453.582417307@linuxfoundation.org>
+References: <20190808190453.582417307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Aaron Armstrong Skomra <skomra@gmail.com>
 
-[ Upstream commit aa6b1956158f1afc52761137620d4b3f8a058d24 ]
+commit 693c3dab4e50403f91bca4b52fc6d8562a3180f6 upstream.
 
-In phy_start_aneg() autoneg is started, and immediately after that
-link and autoneg status are read. As reported in [0] it can happen that
-at time of this read the PHY has reset the "aneg complete" bit but not
-yet the "link up" bit, what can result in a false link-up detection.
-To fix this don't report link as up if we're in aneg mode and PHY
-doesn't signal "aneg complete".
+The bit indicating BTN_6 on this device is overshifted
+by 2 bits, resulting in the incorrect button being
+reported.
 
-[0] https://marc.info/?t=156413509900003&r=1&w=2
+Also fix copy-paste mistake in comments.
 
-Fixes: 4950c2ba49cc ("net: phy: fix autoneg mismatch case in genphy_read_status")
-Reported-by: liuyonglong <liuyonglong@huawei.com>
-Tested-by: liuyonglong <liuyonglong@huawei.com>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+Link: https://github.com/linuxwacom/xf86-input-wacom/issues/71
+Fixes: c7f0522a1ad1 ("HID: wacom: Slim down wacom_intuos_pad processing")
+Cc: <stable@vger.kernel.org> # v4.5+
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/phy/phy_device.c |    6 ++++++
- 1 file changed, 6 insertions(+)
 
---- a/drivers/net/phy/phy_device.c
-+++ b/drivers/net/phy/phy_device.c
-@@ -1730,6 +1730,12 @@ done:
- 	phydev->link = status & BMSR_LSTATUS ? 1 : 0;
- 	phydev->autoneg_complete = status & BMSR_ANEGCOMPLETE ? 1 : 0;
- 
-+	/* Consider the case that autoneg was started and "aneg complete"
-+	 * bit has been reset, but "link up" bit not yet.
-+	 */
-+	if (phydev->autoneg == AUTONEG_ENABLE && !phydev->autoneg_complete)
-+		phydev->link = 0;
-+
- 	return 0;
- }
- EXPORT_SYMBOL(genphy_update_link);
+---
+ drivers/hid/wacom_wac.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -537,14 +537,14 @@ static int wacom_intuos_pad(struct wacom
+ 		 */
+ 		buttons = (data[4] << 1) | (data[3] & 0x01);
+ 	} else if (features->type == CINTIQ_COMPANION_2) {
+-		/* d-pad right  -> data[4] & 0x10
+-		 * d-pad up     -> data[4] & 0x20
+-		 * d-pad left   -> data[4] & 0x40
+-		 * d-pad down   -> data[4] & 0x80
+-		 * d-pad center -> data[3] & 0x01
++		/* d-pad right  -> data[2] & 0x10
++		 * d-pad up     -> data[2] & 0x20
++		 * d-pad left   -> data[2] & 0x40
++		 * d-pad down   -> data[2] & 0x80
++		 * d-pad center -> data[1] & 0x01
+ 		 */
+ 		buttons = ((data[2] >> 4) << 7) |
+-		          ((data[1] & 0x04) << 6) |
++		          ((data[1] & 0x04) << 4) |
+ 		          ((data[2] & 0x0F) << 2) |
+ 		          (data[1] & 0x03);
+ 	} else if (features->type >= INTUOS5S && features->type <= INTUOSPL) {
 
 
