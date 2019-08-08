@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8D2386A54
-	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:15:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AF8586A3C
+	for <lists+stable@lfdr.de>; Thu,  8 Aug 2019 21:15:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404615AbfHHTPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 15:15:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41140 "EHLO mail.kernel.org"
+        id S2404676AbfHHTHa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 15:07:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404262AbfHHTH0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 8 Aug 2019 15:07:26 -0400
+        id S2404250AbfHHTH3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 15:07:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F00D3214C6;
-        Thu,  8 Aug 2019 19:07:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F6B62189D;
+        Thu,  8 Aug 2019 19:07:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565291246;
-        bh=i+No/v5lAkCodta36V5I1H31ENzL9BPkUEng+6jrXHo=;
+        s=default; t=1565291249;
+        bh=MTFwszCrmSaCj63SpvMh7Xi8g7NApYngPDhIgzx0W1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nJfXSSote8gcvU6voiEv4TCV45LfUDiB9oDGHLitZwW5bpdAOzvRyROQTy9sD4/bP
-         vHA1lysc1XZkZgbYfHX+2IJHFQv8e3NYDkzESEwxsoP8XAe/OpiFpZsX5aq0BMBhK2
-         fndTlIfxRuWw/dxCaJi0tHx9BNXnZJo8D1se5sr0=
+        b=CA1q8RhxX4ftsR2FGdhMjobLSwWUqWceFDeX2cYSswTSkq4r3LefiZ9fhVcs7dmW6
+         uzJGBe/3BZhr8bgroqvLeHhkmdkb56Y48Qy2SgZ3Jbco5WmdlKwO5VHq2umWBX42cB
+         AMIFi7LOq+cvsB/OfeJjSuSIce9mbdlPFfRFK9ow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sebastian Parschauer <s.parschauer@gmx.de>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.2 07/56] HID: Add quirk for HP X1200 PIXART OEM mouse
-Date:   Thu,  8 Aug 2019 21:04:33 +0200
-Message-Id: <20190808190453.156076010@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.2 08/56] atm: iphase: Fix Spectre v1 vulnerability
+Date:   Thu,  8 Aug 2019 21:04:34 +0200
+Message-Id: <20190808190453.197021495@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190808190452.867062037@linuxfoundation.org>
 References: <20190808190452.867062037@linuxfoundation.org>
@@ -43,46 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Parschauer <s.parschauer@gmx.de>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 
-commit 49869d2ea9eecc105a10724c1abf035151a3c4e2 upstream.
+[ Upstream commit ea443e5e98b5b74e317ef3d26bcaea54931ccdee ]
 
-The PixArt OEM mice are known for disconnecting every minute in
-runlevel 1 or 3 if they are not always polled. So add quirk
-ALWAYS_POLL for this one as well.
+board is controlled by user-space, hence leading to a potential
+exploitation of the Spectre variant 1 vulnerability.
 
-Jonathan Teh (@jonathan-teh) reported and tested the quirk.
-Reference: https://github.com/sriemer/fix-linux-mouse/issues/15
+This issue was detected with the help of Smatch:
 
-Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
-CC: stable@vger.kernel.org
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+drivers/atm/iphase.c:2765 ia_ioctl() warn: potential spectre issue 'ia_dev' [r] (local cap)
+drivers/atm/iphase.c:2774 ia_ioctl() warn: possible spectre second half.  'iadev'
+drivers/atm/iphase.c:2782 ia_ioctl() warn: possible spectre second half.  'iadev'
+drivers/atm/iphase.c:2816 ia_ioctl() warn: possible spectre second half.  'iadev'
+drivers/atm/iphase.c:2823 ia_ioctl() warn: possible spectre second half.  'iadev'
+drivers/atm/iphase.c:2830 ia_ioctl() warn: potential spectre issue '_ia_dev' [r] (local cap)
+drivers/atm/iphase.c:2845 ia_ioctl() warn: possible spectre second half.  'iadev'
+drivers/atm/iphase.c:2856 ia_ioctl() warn: possible spectre second half.  'iadev'
+
+Fix this by sanitizing board before using it to index ia_dev and _ia_dev
+
+Notice that given that speculation windows are large, the policy is
+to kill the speculation on the first load and not worry if it can be
+completed with a dependent load/store [1].
+
+[1] https://lore.kernel.org/lkml/20180423164740.GY17484@dhcp22.suse.cz/
+
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/hid/hid-ids.h    |    1 +
- drivers/hid/hid-quirks.c |    1 +
- 2 files changed, 2 insertions(+)
+ drivers/atm/iphase.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -568,6 +568,7 @@
- #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A	0x0b4a
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE		0x134a
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A	0x094a
-+#define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641	0x0641
- 
- #define USB_VENDOR_ID_HUION		0x256c
- #define USB_DEVICE_ID_HUION_TABLET	0x006e
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -91,6 +91,7 @@ static const struct hid_device_id hid_qu
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A), HID_QUIRK_ALWAYS_POLL },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_INNOMEDIA, USB_DEVICE_ID_INNEX_GENESIS_ATARI), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M610X), HID_QUIRK_MULTI_INPUT },
+--- a/drivers/atm/iphase.c
++++ b/drivers/atm/iphase.c
+@@ -63,6 +63,7 @@
+ #include <asm/byteorder.h>  
+ #include <linux/vmalloc.h>
+ #include <linux/jiffies.h>
++#include <linux/nospec.h>
+ #include "iphase.h"		  
+ #include "suni.h"		  
+ #define swap_byte_order(x) (((x & 0xff) << 8) | ((x & 0xff00) >> 8))
+@@ -2760,8 +2761,11 @@ static int ia_ioctl(struct atm_dev *dev,
+    }
+    if (copy_from_user(&ia_cmds, arg, sizeof ia_cmds)) return -EFAULT; 
+    board = ia_cmds.status;
+-   if ((board < 0) || (board > iadev_count))
+-         board = 0;    
++
++	if ((board < 0) || (board > iadev_count))
++		board = 0;
++	board = array_index_nospec(board, iadev_count + 1);
++
+    iadev = ia_dev[board];
+    switch (ia_cmds.cmd) {
+    case MEMDUMP:
 
 
