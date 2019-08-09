@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CBEDD87C0A
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:49:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CA8987BBC
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:46:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406861AbfHINqF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Aug 2019 09:46:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35564 "EHLO mail.kernel.org"
+        id S2407113AbfHINqp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Aug 2019 09:46:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406518AbfHINqE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Aug 2019 09:46:04 -0400
+        id S2407111AbfHINqp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Aug 2019 09:46:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2161D2171F;
-        Fri,  9 Aug 2019 13:46:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38253217F4;
+        Fri,  9 Aug 2019 13:46:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565358363;
-        bh=KNH5LTo6U6LPt5LDid7xgLtnO528JweYiwo3EJ02Dd0=;
+        s=default; t=1565358404;
+        bh=9vbAtmwkV6nGuXRLP7kAsW6PRaz19BaYWsVYfJ6tnAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Imetlo+7vokpctZdr/p6MJk0OIQN3p7m9TBcZLY6mrS2NRegJa2PYt+G2Y29hvhHj
-         iSsWV0isF20eCkvfgpWkAdpo6BuY7pe3YZ2oFUrt20J1LHv88h71C4wF/CEs71T6p7
-         7Vhe2CdI5XN0do1RSc58igHB5O/nv4dlvlUfxvQg=
+        b=toGwfifALf7VFqqlGHiwfsF+ygLG8ae0KZsy+JSDsJzEYLjpiH2ku0N7fR7mPqt2J
+         Z9XQOTaWprJGkT2SrIuO51+6xybD/jkwcO/eai1NVXHgk6zTIjZ9U3J/JTBicTzEIc
+         aKhJq3m3QyQLGORQIFF+6+sf0ZXoZsVmwj6uy9Dg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 02/21] arm64: cpufeature: Fix feature comparison for CTR_EL0.{CWG,ERG}
+Subject: [PATCH 4.9 03/32] ARM: dts: Add pinmuxing for i2c2 and i2c3 for LogicPD torpedo
 Date:   Fri,  9 Aug 2019 15:45:06 +0200
-Message-Id: <20190809134241.664708388@linuxfoundation.org>
+Message-Id: <20190809133923.068360068@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190809134241.565496442@linuxfoundation.org>
-References: <20190809134241.565496442@linuxfoundation.org>
+In-Reply-To: <20190809133922.945349906@linuxfoundation.org>
+References: <20190809133922.945349906@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,72 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 147b9635e6347104b91f48ca9dca61eb0fbf2a54 upstream.
+[ Upstream commit a135a392acbec7ecda782981788e8c03767a1571 ]
 
-If CTR_EL0.{CWG,ERG} are 0b0000 then they must be interpreted to have
-their architecturally maximum values, which defeats the use of
-FTR_HIGHER_SAFE when sanitising CPU ID registers on heterogeneous
-machines.
+Since I2C1 and I2C4 have explicit pinmuxing set, let's be on the
+safe side and set the pin muxing for I2C2 and I2C3.
 
-Introduce FTR_HIGHER_OR_ZERO_SAFE so that these fields effectively
-saturate at zero.
-
-Fixes: 3c739b571084 ("arm64: Keep track of CPU feature registers")
-Cc: <stable@vger.kernel.org> # 4.4.y only
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/cpufeature.h | 7 ++++---
- arch/arm64/kernel/cpufeature.c      | 8 ++++++--
- 2 files changed, 10 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/logicpd-torpedo-som.dtsi | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/arch/arm64/include/asm/cpufeature.h b/arch/arm64/include/asm/cpufeature.h
-index ad83c245781c3..0a66f8241f185 100644
---- a/arch/arm64/include/asm/cpufeature.h
-+++ b/arch/arm64/include/asm/cpufeature.h
-@@ -41,9 +41,10 @@
- 
- /* CPU feature register tracking */
- enum ftr_type {
--	FTR_EXACT,	/* Use a predefined safe value */
--	FTR_LOWER_SAFE,	/* Smaller value is safe */
--	FTR_HIGHER_SAFE,/* Bigger value is safe */
-+	FTR_EXACT,			/* Use a predefined safe value */
-+	FTR_LOWER_SAFE,			/* Smaller value is safe */
-+	FTR_HIGHER_SAFE,		/* Bigger value is safe */
-+	FTR_HIGHER_OR_ZERO_SAFE,	/* Bigger value is safe, but 0 is biggest */
+diff --git a/arch/arm/boot/dts/logicpd-torpedo-som.dtsi b/arch/arm/boot/dts/logicpd-torpedo-som.dtsi
+index 08f0a35dc0d1e..ceb49d15d243c 100644
+--- a/arch/arm/boot/dts/logicpd-torpedo-som.dtsi
++++ b/arch/arm/boot/dts/logicpd-torpedo-som.dtsi
+@@ -117,10 +117,14 @@
  };
  
- #define FTR_STRICT	true	/* SANITY check strict matching required */
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index fff0bf2f889e1..062484d344509 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -130,8 +130,8 @@ static struct arm64_ftr_bits ftr_ctr[] = {
- 	ARM64_FTR_BITS(FTR_STRICT, FTR_EXACT, 30, 1, 0),
- 	U_ARM64_FTR_BITS(FTR_STRICT, FTR_LOWER_SAFE, 29, 1, 1),	/* DIC */
- 	U_ARM64_FTR_BITS(FTR_STRICT, FTR_LOWER_SAFE, 28, 1, 1),	/* IDC */
--	U_ARM64_FTR_BITS(FTR_STRICT, FTR_HIGHER_SAFE, 24, 4, 0),	/* CWG */
--	U_ARM64_FTR_BITS(FTR_STRICT, FTR_HIGHER_SAFE, 20, 4, 0),	/* ERG */
-+	U_ARM64_FTR_BITS(FTR_STRICT, FTR_HIGHER_OR_ZERO_SAFE, 24, 4, 0),	/* CWG */
-+	U_ARM64_FTR_BITS(FTR_STRICT, FTR_HIGHER_OR_ZERO_SAFE, 20, 4, 0),	/* ERG */
- 	U_ARM64_FTR_BITS(FTR_STRICT, FTR_LOWER_SAFE, 16, 4, 1),	/* DminLine */
- 	/*
- 	 * Linux can handle differing I-cache policies. Userspace JITs will
-@@ -341,6 +341,10 @@ static s64 arm64_ftr_safe_value(struct arm64_ftr_bits *ftrp, s64 new, s64 cur)
- 	case FTR_LOWER_SAFE:
- 		ret = new < cur ? new : cur;
- 		break;
-+	case FTR_HIGHER_OR_ZERO_SAFE:
-+		if (!cur || !new)
-+			break;
-+		/* Fallthrough */
- 	case FTR_HIGHER_SAFE:
- 		ret = new > cur ? new : cur;
- 		break;
+ &i2c2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c2_pins>;
+ 	clock-frequency = <400000>;
+ };
+ 
+ &i2c3 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c3_pins>;
+ 	clock-frequency = <400000>;
+ 	at24@50 {
+ 		compatible = "atmel,24c64";
+@@ -215,6 +219,18 @@
+ 			OMAP3_CORE1_IOPAD(0x21bc, PIN_INPUT | MUX_MODE0)        /* i2c1_sda.i2c1_sda */
+ 		>;
+ 	};
++	i2c2_pins: pinmux_i2c2_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x21be, PIN_INPUT | MUX_MODE0)	/* i2c2_scl */
++			OMAP3_CORE1_IOPAD(0x21c0, PIN_INPUT | MUX_MODE0)	/* i2c2_sda */
++		>;
++	};
++	i2c3_pins: pinmux_i2c3_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x21c2, PIN_INPUT | MUX_MODE0)	/* i2c3_scl */
++			OMAP3_CORE1_IOPAD(0x21c4, PIN_INPUT | MUX_MODE0)	/* i2c3_sda */
++		>;
++	};
+ };
+ 
+ &uart2 {
 -- 
 2.20.1
 
