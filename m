@@ -2,147 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D306287E7B
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 17:50:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2502B87FBA
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 18:22:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436790AbfHIPuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Aug 2019 11:50:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33304 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726255AbfHIPuD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Aug 2019 11:50:03 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B158C20C01;
-        Fri,  9 Aug 2019 15:50:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565365802;
-        bh=GBvcC4H9ZYzRjc5I7cZjAnSCulmVNW7ss5o5V6v8NDU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=O5aTw8LGbLg5poB3h/+9RXvF8+xi45tn0fuq758bQ4fLwFffvHY5cX5wYdIwoihpk
-         OrzYk3WQGEBuj0CEHNBSuHh/5bkjxew+QtA8O1Z0m8gLRejFKIeG33lJ0AUPpelEta
-         KTgQZi9w8LP1H1X1Eq3Q+T8V36XfK12KM9wBPpL4=
-Date:   Fri, 9 Aug 2019 17:49:59 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Thierry Reding <thierry.reding@gmail.com>
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, linux-tegra@vger.kernel.org
-Subject: Re: [PATCH 5.2 00/20] 5.2.6-stable review
-Message-ID: <20190809154959.GD22879@kroah.com>
-References: <20190802092055.131876977@linuxfoundation.org>
- <20190802172105.18999-1-thierry.reding@gmail.com>
- <20190803070932.GB24334@kroah.com>
- <20190805114821.GA24378@ulmo>
- <20190809085253.GA25046@kroah.com>
- <20190809130449.GA27957@ulmo>
+        id S2437068AbfHIQWY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Aug 2019 12:22:24 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:46469 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2436626AbfHIQWY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Aug 2019 12:22:24 -0400
+Received: by mail-wr1-f66.google.com with SMTP id z1so98778863wru.13
+        for <stable@vger.kernel.org>; Fri, 09 Aug 2019 09:22:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=AU9vZvu9KrO493IK2Hg6fvf/kCH0br7d9CdKBjTXtoM=;
+        b=HQ3RD1OkTOAWVqGRaw+D0mimzyuBXmQm1oZZY9SK29tsZSE2NIQ2nHWjN5kuAs/W7m
+         esH+8c9NrYU6dHzOMSWfmrMDq2Cib2RH7Vzx9ivp74hHxFD1cU4W+Q/7qLSnbu4e4FBP
+         8F+aR09xPlPbVgpSVgwSKIsbQ6n0XMHC36f3whW5nB5m6/nxcRY0+F4wcyVHTIgQu5C9
+         vAW3HE8ndAozizVr/r1NUNoGY0Gzd3iRzAUtftCpBbrw9QvPuY3H0N1Nyuoq2umHC4ju
+         noUTsrpZ7hEDyZdsOEjKYYii8sKLA7x7/9AA1ezZP43wQ8HeSkdTTfFh1qyL6U5TZI5O
+         0uNA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=AU9vZvu9KrO493IK2Hg6fvf/kCH0br7d9CdKBjTXtoM=;
+        b=tfu/4P7EKH0uCajbZTlqEktYThq0PJFVzZn2qJQIRPI0AnxmusMtopDCSZyPgeke0l
+         UbLDjTjq+n/oqnLk9oLZeMp7jxLtezwPq7dMk2VANn4Y3Up2EOwm9EdrqMO/K60t5b1O
+         lpCvGeJAnCzadP1jab2i+kQoSPaPCkNCnV1xG5Bbm6Re2452Q48fUw21e3G824F+t/QS
+         A0pUvQ4dtQ7crFfXSGgGhAIwkdtsGxasY5lTuaFXulLhg25uOBP4nXwBO1oh6tfC/d3U
+         oX6Rdqwro/87ttXg/N640E0tqecD3zbFdVtKlS8GBPWpwKOiyqRXJ6eVb1JQ2stx+JD7
+         WZ8A==
+X-Gm-Message-State: APjAAAWIBfuYIWHEx9aJNETRTXRrDYc8Ov8ktN+YIHA+HOcLsrduKjay
+        aXpKgGLqx7qMCP/kdghc6xw94MCcsRH/8g==
+X-Google-Smtp-Source: APXvYqy1mBfoMZ+wxJnewTvnZLIqoQYQ679nfHSYuHGsK2cPiEXSTMk24N6YElGmvPyJKktqFYPoTA==
+X-Received: by 2002:a5d:460a:: with SMTP id t10mr23975999wrq.83.1565367741743;
+        Fri, 09 Aug 2019 09:22:21 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id a84sm8579675wmf.29.2019.08.09.09.22.19
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 09 Aug 2019 09:22:20 -0700 (PDT)
+Message-ID: <5d4d9dbc.1c69fb81.f4831.c758@mx.google.com>
+Date:   Fri, 09 Aug 2019 09:22:20 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190809130449.GA27957@ulmo>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.136-54-g33934fd98b51
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable-rc/linux-4.14.y boot: 119 boots: 2 failed,
+ 106 passed with 11 offline (v4.14.136-54-g33934fd98b51)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 09, 2019 at 03:04:49PM +0200, Thierry Reding wrote:
-> On Fri, Aug 09, 2019 at 10:52:53AM +0200, Greg Kroah-Hartman wrote:
-> > On Mon, Aug 05, 2019 at 01:48:21PM +0200, Thierry Reding wrote:
-> > > Hi Greg,
-> > 
-> > Sorry for the delay, this got pushed down my queue...
-> > 
-> > > I stumbled across something as I was attempting to automate more parts
-> > > of our process to generate these reports. The original test results were
-> > > from a different version of the tree: 5.2.6-rc1-gdbc7f5c7df28. I suspect
-> > > that's the same thing that you were discussing with Pavel regarding the
-> > > IP tunnel patch that was added subsequent to the announcement.
-> > > 
-> > > Just for my understanding, does this mean that the patch still makes it
-> > > into the 5.2.6 release, or was it supposed to go into 5.2.7?
-> > > 
-> > > One problem that I ran into was that when I tried to correlate the test
-> > > results with your announcement email, there's no indication other than
-> > > the branch name and the release candidate name (5.2.6-rc1 in this case),
-> > > so there's no way to uniquely identify which test run belongs to the
-> > > announcement. Given that there are no tags for the release candidates
-> > > means that that's also not an option to uniquely associate with the
-> > > builds and tests.
-> > > 
-> > > While the differences between the two builds are very minor here, I
-> > > wonder if there could perhaps in the future be a problem where I report
-> > > successful results for a test, but the same tests would be broken by a
-> > > patch added to the stable-rc branch subsequent to the announcement. The
-> > > test report would be misleading in that case.
-> > > 
-> > > I noticed that you do add a couple of X-KernelTest-* headers to your
-> > > announcement emails, so I'm wondering if perhaps it was possible for you
-> > > to add another one that contains the exact SHA1 that corresponds to the
-> > > snapshot that's the release candidate. That would allow everyone to
-> > > uniquely associate test results with a specific release candidate.
-> > > 
-> > > That said, perhaps I've just got this all wrong and there's already a
-> > > way to connect all the dots that I'm not aware of. Or maybe I'm being
-> > > too pedantic here?
-> > 
-> > You aren't being pedantic, I think you are missing exactly what the
-> > linux-stable-rc tree is for and how it is created.
-> > 
-> > Granted, it's not really documented anywhere so it's not your fault :)
-> > 
-> > The linux-stable-rc tree is there ONLY for people who want to test the
-> > -rc kernels and can not, or do not want to, use the quilt tree of
-> > patches in the stable-queue.git tree on kernel.org.  I generate the
-> > branches there from a script that throws away the current -rc branch and
-> > rebuilds it "from scratch" by applying the patches that are in the
-> > stable-quilt tree and then adds the -rc patch as well.  This tree is
-> > generated multiple times when I am working on the queues and then when I
-> > want to do a "real" -rc release.
-> > 
-> > The branches are constantly rebased, so you can not rely on 'git pull'
-> > doing the right thing (unless you add --rebase to it), and are there for
-> > testing only.
-> > 
-> > Yes, you will see different results of a "-rc1" release in the tree
-> > depending on the time of day/week when I created the tree, and sometimes
-> > I generate them multiple times a day just to have some of the
-> > auto-builders give me results quickly (Linaro does pull from it and
-> > sends me results within the hour usually).
-> > 
-> > So does that help?  Ideally everyone would just use the quilt trees from
-> > stable-queue.git, but no everyone likes that, so the -rc git tree is
-> > there to make automated testing "easier".  If that works with your
-> > workflow, wonderful, feel free to use it.  If not, then go with the
-> > stable-quilt.git tree, or the tarballs on kernel.org.
-> 
-> I'll have to look into that, to see if that'd work. I have to admit that
-> having a git tree to point scripts at is rather convenient for
-> automation.
-> 
-> > And as for the SHA1 being in the emails, that doesn't make all that much
-> > sense as that SHA1 doesn't live very long.  When I create the trees
-> > locally, I instantly delete them after pushing them to kernel.org so I
-> > can't regenerate them or do anything with them.
-> 
-> Fair enough. I suppose the worst thing that could happen is that we may
-> fail to test a couple of commits occasionally. In the rare case where
-> this actually matters we'll likely end up reporting the failure for the
-> stable release, in which case it can be fixed in the next one.
-> 
-> > DOes that help explain things better?
-> 
-> Yes, makes a lot more sense now. Thanks for taking the time to explain
-> it. Do you want me to snapshot this and submit it as documentation
-> somewhere for later reference?
+stable-rc/linux-4.14.y boot: 119 boots: 2 failed, 106 passed with 11 offlin=
+e (v4.14.136-54-g33934fd98b51)
 
-It probably should go somewhere, but as the number of people that do
-"test stable kernels in an automated way" is very low, so far I've been
-doing ok with a one-by-one explaination.  I guess if it's more obvious,
-more people would test, so sure, this should be cleaned up...
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.136-54-g33934fd98b51/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.136-54-g33934fd98b51/
 
-thanks,
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.136-54-g33934fd98b51
+Git Commit: 33934fd98b5139de6051ccdb4018a9bbeb475f58
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 65 unique boards, 25 SoC families, 16 builds out of 200
 
-greg k-h
+Boot Regressions Detected:
+
+arm:
+
+    bcm2835_defconfig:
+        gcc-8:
+          bcm2835-rpi-b:
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.14.1=
+36-54-g20d3ec30650b - first fail: v4.14.136-94-g4ec3ef9505a3)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.14.1=
+36-54-g20d3ec30650b - first fail: v4.14.136-94-g4ec3ef9505a3)
+
+Boot Failures Detected:
+
+arc:
+    hsdk_defconfig:
+        gcc-8:
+            hsdk: 1 failed lab
+
+arm64:
+    defconfig:
+        gcc-8:
+            rk3399-firefly: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+            juno-r2: 1 offline lab
+            meson-gxbb-odroidc2: 1 offline lab
+            mt7622-rfb1: 1 offline lab
+
+arm:
+
+    bcm2835_defconfig:
+        gcc-8
+            bcm2835-rpi-b: 1 offline lab
+
+    sama5_defconfig:
+        gcc-8
+            at91-sama5d4_xplained: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            alpine-db: 1 offline lab
+            at91-sama5d4_xplained: 1 offline lab
+            socfpga_cyclone5_de0_sockit: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
