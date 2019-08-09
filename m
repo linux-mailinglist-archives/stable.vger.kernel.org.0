@@ -2,124 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1641786EEF
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 02:47:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AF6786EF7
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 02:53:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404422AbfHIArK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 20:47:10 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:46115 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2403901AbfHIArK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Aug 2019 20:47:10 -0400
-Received: by mail-wr1-f68.google.com with SMTP id z1so96628393wru.13
-        for <stable@vger.kernel.org>; Thu, 08 Aug 2019 17:47:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=cYhAT8o1cDrRi0HvLS0O3wiC93WJuICHNxPKc9R5E7I=;
-        b=sSm2fcxrZDLgXTDYvQKvWJTXTZ1ribyLahaBkuwvTI7Nm+Kd+22F9Ti2l3Kzen1E5d
-         r7UeNJJuYC7YsBziJPJ6dShR3Gqr5+dkv2Lk4VrnSnTTHHaOp4sm4n8PXhMQ39acJlxE
-         F4+mqeteyUU98NfcI5aYGZIQDiCxvhkNSX7fG4DGO8M0XPwNnX6pyVTYwn9RAjjiCx6v
-         FAvUnpxKgl/Afqks2D9NhX3uDrt2qvVqt9+PSabE7A5gbV7L9qpS2YTjLokrnO000/1o
-         3/f0PaqpNldko2IkSq6ndzA4jSIHMyNTNnbI1CvjIGTPHeZcnbE93nRZ1YQOE83lN1Nn
-         sE8w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=cYhAT8o1cDrRi0HvLS0O3wiC93WJuICHNxPKc9R5E7I=;
-        b=F8scsY5x19XpNzb5H/jGpNCtgiBoSdO1LnuHnF56WcfMSS8NUuKJOJoOTCRYpZ1hqu
-         uf8B6bvRBhmk0CzDpMMP591kUwYx4exPmZGXwsj/nUHYVqrbwihcwZRriHe9+qrYoPD0
-         E2sNgcGNzjBMSfphGujQY8nFffbEh4NGNCZ0aTGh/xl34FvZm8qFIDfRb13jrpjfXOUo
-         LDWlY5dv052vC3wp4jjkDDlcfTJ+3R6Q8cuk4AuACd3+bus1qQc2QF6TyByRw0+JnL8v
-         UIFbQE/u6Jt6QbtufoeS6WaoL8+tNWGY1Rnk/YEPuaQdjYNXyI4E2hj4H5TPosjMuxMZ
-         xXeQ==
-X-Gm-Message-State: APjAAAVl+vq9YwGPif3JGMwBs8NczCTq37IzbNRVIh6JG97uu/4SlrG9
-        rlPcAXpLFZm9O8tPioTf7lS/bmP6YOapEA==
-X-Google-Smtp-Source: APXvYqziDm4gs9aHTxZ8+lFA0GHaNv40U86gR+oac3Gd8ewx1w4iOXisHCK2iLus1UfVqYSZfmqByw==
-X-Received: by 2002:a5d:494d:: with SMTP id r13mr13324706wrs.82.1565311627724;
-        Thu, 08 Aug 2019 17:47:07 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id g7sm7301613wmg.8.2019.08.08.17.47.06
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 08 Aug 2019 17:47:07 -0700 (PDT)
-Message-ID: <5d4cc28b.1c69fb81.fd2f6.5c19@mx.google.com>
-Date:   Thu, 08 Aug 2019 17:47:07 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S2404422AbfHIAxV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 20:53:21 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:55492 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1733258AbfHIAxV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Aug 2019 20:53:21 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 7822AC08EC00;
+        Fri,  9 Aug 2019 00:53:20 +0000 (UTC)
+Received: from whitewolf.redhat.com (ovpn-120-190.rdu2.redhat.com [10.10.120.190])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id DFB3360BEC;
+        Fri,  9 Aug 2019 00:53:13 +0000 (UTC)
+From:   Lyude Paul <lyude@redhat.com>
+To:     nouveau@lists.freedesktop.org
+Cc:     William Lewis <minutemaidpark@hotmail.com>,
+        Bohdan Milar <bmilar@redhat.com>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        David Airlie <airlied@redhat.com>,
+        Jerry Zuo <Jerry.Zuo@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Juston Li <juston.li@intel.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Karol Herbst <karolherbst@gmail.com>,
+        Ilia Mirkin <imirkin@alum.mit.edu>, stable@vger.kernel.org,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v2] drm/nouveau: Only recalculate PBN/VCPI on mode/connector changes
+Date:   Thu,  8 Aug 2019 20:53:05 -0400
+Message-Id: <20190809005307.18391-1-lyude@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.2.6-195-gbd703501e2df
-X-Kernelci-Branch: linux-5.2.y
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-5.2.y boot: 137 boots: 1 failed,
- 120 passed with 14 offline, 2 untried/unknown (v5.2.6-195-gbd703501e2df)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.31]); Fri, 09 Aug 2019 00:53:20 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.2.y boot: 137 boots: 1 failed, 120 passed with 14 offline=
-, 2 untried/unknown (v5.2.6-195-gbd703501e2df)
+I -thought- I had fixed this entirely, but it looks like that I didn't
+test this thoroughly enough as we apparently still make one big mistake
+with nv50_msto_atomic_check() - we don't handle the following scenario:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.2.y/kernel/v5.2.6-195-gbd703501e2df/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.2.y=
-/kernel/v5.2.6-195-gbd703501e2df/
+* CRTC #1 has n VCPI allocated to it, is attached to connector DP-4
+  which is attached to encoder #1. enabled=y active=n
+* CRTC #1 is changed from DP-4 to DP-5, causing:
+  * DP-4 crtc=#1→NULL (VCPI n→0)
+  * DP-5 crtc=NULL→#1
+  * CRTC #1 steals encoder #1 back from DP-4 and gives it to DP-5
+  * CRTC #1 maintains the same mode as before, just with a different
+    connector
+* mode_changed=n connectors_changed=y
+  (we _SHOULD_ do VCPI 0→n here, but don't)
 
-Tree: stable-rc
-Branch: linux-5.2.y
-Git Describe: v5.2.6-195-gbd703501e2df
-Git Commit: bd703501e2dfb5d3a64222f9a9a9921ac1c96b6d
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 79 unique boards, 28 SoC families, 17 builds out of 209
+Once the above scenario is repeated once, we'll attempt freeing VCPI
+from the connector that we didn't allocate due to the connectors
+changing, but the mode staying the same. Sigh.
 
-Boot Failure Detected:
+Since nv50_msto_atomic_check() has broken a few times now, let's rethink
+things a bit to be more careful: limit both VCPI/PBN allocations to
+mode_changed || connectors_changed, since neither VCPI or PBN should
+ever need to change outside of routing and mode changes.
 
-arm64:
-    defconfig:
-        gcc-8:
-            rk3399-firefly: 1 failed lab
+Changes since v1:
+* Fix accidental reversal of clock and bpp arguments in
+  drm_dp_calc_pbn_mode() - William Lewis
 
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-            juno-r2: 1 offline lab
-            meson-gxbb-odroidc2: 1 offline lab
-            mt7622-rfb1: 1 offline lab
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            alpine-db: 1 offline lab
-            at91-sama5d4_xplained: 1 offline lab
-            at91-sama5d4ek: 1 offline lab
-            bcm4708-smartrg-sr400ac: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    sama5_defconfig:
-        gcc-8
-            at91-sama5d4_xplained: 1 offline lab
-            at91-sama5d4ek: 1 offline lab
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Reported-by: Bohdan Milar <bmilar@redhat.com>
+Tested-by: Bohdan Milar <bmilar@redhat.com>
+Fixes: 232c9eec417a ("drm/nouveau: Use atomic VCPI helpers for MST")
+References: 412e85b60531 ("drm/nouveau: Only release VCPI slots on mode changes")
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: David Airlie <airlied@redhat.com>
+Cc: Jerry Zuo <Jerry.Zuo@amd.com>
+Cc: Harry Wentland <harry.wentland@amd.com>
+Cc: Juston Li <juston.li@intel.com>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Karol Herbst <karolherbst@gmail.com>
+Cc: Ilia Mirkin <imirkin@alum.mit.edu>
+Cc: <stable@vger.kernel.org> # v5.1+
 ---
-For more info write to <info@kernelci.org>
+ drivers/gpu/drm/nouveau/dispnv50/disp.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+index 126703816794..5c36c75232e6 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+@@ -771,16 +771,20 @@ nv50_msto_atomic_check(struct drm_encoder *encoder,
+ 	struct nv50_head_atom *asyh = nv50_head_atom(crtc_state);
+ 	int slots;
+ 
+-	/* When restoring duplicated states, we need to make sure that the
+-	 * bw remains the same and avoid recalculating it, as the connector's
+-	 * bpc may have changed after the state was duplicated
+-	 */
+-	if (!state->duplicated)
+-		asyh->dp.pbn =
+-			drm_dp_calc_pbn_mode(crtc_state->adjusted_mode.clock,
+-					     connector->display_info.bpc * 3);
++	if (crtc_state->mode_changed || crtc_state->connectors_changed) {
++		/*
++		 * When restoring duplicated states, we need to make sure that
++		 * the bw remains the same and avoid recalculating it, as the
++		 * connector's bpc may have changed after the state was
++		 * duplicated
++		 */
++		if (!state->duplicated) {
++			const int bpp = connector->display_info.bpc * 3;
++			const int clock = crtc_state->adjusted_mode.clock;
++
++			asyh->dp.pbn = drm_dp_calc_pbn_mode(clock, bpp);
++		}
+ 
+-	if (crtc_state->mode_changed) {
+ 		slots = drm_dp_atomic_find_vcpi_slots(state, &mstm->mgr,
+ 						      mstc->port,
+ 						      asyh->dp.pbn);
+-- 
+2.21.0
+
