@@ -2,160 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AB9386EE9
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 02:43:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E19EB86EEE
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 02:46:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404676AbfHIAnS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Aug 2019 20:43:18 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:39388 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728032AbfHIAnS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Aug 2019 20:43:18 -0400
-Received: by mail-wr1-f65.google.com with SMTP id t16so6493541wra.6
-        for <stable@vger.kernel.org>; Thu, 08 Aug 2019 17:43:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=B2aPCwYfw3FnQHeaxAnATXyCwwwNQTJA/ZXVopyLBaY=;
-        b=UaMno/xtIVQ7FQxL9LKAPddo2kPt6a9FURqhLJw1AOeeQaJLZ4rZNW+hd/bKWNquvi
-         TEBcWJQOBc4PsWCs7sVqO8a0i0nVlcx6oDWRbr8iqQgfCIJaSWXx0+tR8lsove6UriS7
-         5fZx0SGML23Ghxw8+xZpdLvmr6mt7sXOrq3xBn/NlCAkDWihwRJ7237hmTIUNqHtRh52
-         3meF+MOZz0M9ANAEgMTygOt93Kvou3Lcf9bDINppCMXKPz97iKl9sJUk1YLbe0R6E3fs
-         nuRU+7SdeNkXjz1Hys5QTxgX9tIWfsqh9lzjUxc9720lTjJ2VNSq+lg+sTaoTrsRL40e
-         ZVSQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=B2aPCwYfw3FnQHeaxAnATXyCwwwNQTJA/ZXVopyLBaY=;
-        b=aPsIXwh0kCO3FzPYkoXQ1N7gdUcOXozRho+bWe8ZuPNIQzhy1Q+FFgP3TqK0jHNyto
-         Q7A+Awzmu9CYwq61xK2+31F0QkhX1GUEadGscjc/Jq4UJ4hIZLUagv/lMyYmGJ1my80g
-         frmx0NS7wXjwTHwS4Zg9QSjpQ0Tl+jDXnWeLF7nDMD78479tRyGXz4tM5leeTyRv4GdY
-         nmXxopa+9OVxByIsX2+gfRb24ic26WGs8ymQj+3iDvECfu6PFZdtwNEMi76kIDgGhcaq
-         yiO1ij2NO9xVxBxyQM36MstOEp6ZVg4I7H3kwjhXRNm2400afPvX/D+4+5rjCg5j47Ye
-         SRuw==
-X-Gm-Message-State: APjAAAW/GQYYbhUeLw1WN5swVq3xahfOKJCiWhi2HbsWCZzwzdplpYNm
-        ua1mLEjtKcR23dUZ/UWwYiNTYGcZVEPxRA==
-X-Google-Smtp-Source: APXvYqy6myu87QsGtbgqaiuqcvids5Lygku9hWnwrAlijab5z0pETLyyI9ADnoIU4tMBp3FJ5jeN/g==
-X-Received: by 2002:adf:9787:: with SMTP id s7mr20493999wrb.229.1565311396147;
-        Thu, 08 Aug 2019 17:43:16 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id l15sm9341021wrq.64.2019.08.08.17.43.15
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 08 Aug 2019 17:43:15 -0700 (PDT)
-Message-ID: <5d4cc1a3.1c69fb81.e52f4.f816@mx.google.com>
-Date:   Thu, 08 Aug 2019 17:43:15 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S2404676AbfHIAqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Aug 2019 20:46:25 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22954 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2405077AbfHIAqY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Aug 2019 20:46:24 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x790g06o036766
+        for <stable@vger.kernel.org>; Thu, 8 Aug 2019 20:46:23 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2u8t3hhfw2-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Thu, 08 Aug 2019 20:46:23 -0400
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <alastair@au1.ibm.com>;
+        Fri, 9 Aug 2019 01:46:21 +0100
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (9.149.109.194)
+        by e06smtp07.uk.ibm.com (192.168.101.137) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Fri, 9 Aug 2019 01:46:16 +0100
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x790kFjm40632548
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 9 Aug 2019 00:46:15 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C07F411C052;
+        Fri,  9 Aug 2019 00:46:15 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 705FC11C050;
+        Fri,  9 Aug 2019 00:46:15 +0000 (GMT)
+Received: from ozlabs.au.ibm.com (unknown [9.192.253.14])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  9 Aug 2019 00:46:15 +0000 (GMT)
+Received: from adsilva.ozlabs.ibm.com (haven.au.ibm.com [9.192.254.114])
+        (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ozlabs.au.ibm.com (Postfix) with ESMTPSA id 6F82CA01F3;
+        Fri,  9 Aug 2019 10:46:12 +1000 (AEST)
+From:   "Alastair D'Silva" <alastair@au1.ibm.com>
+To:     alastair@d-silva.org
+Cc:     stable@vger.kernel.org,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] powerpc: Allow flush_icache_range to work across ranges >4GB
+Date:   Fri,  9 Aug 2019 10:45:47 +1000
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.187-40-geae076a61a51
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.4.y boot: 94 boots: 2 failed,
- 82 passed with 9 offline, 1 conflict (v4.4.187-40-geae076a61a51)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 19080900-0028-0000-0000-0000038D8163
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19080900-0029-0000-0000-0000244F8599
+Message-Id: <20190809004548.22445-1-alastair@au1.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-08-08_10:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=785 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1906280000 definitions=main-1908090004
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 94 boots: 2 failed, 82 passed with 9 offline, 1=
- conflict (v4.4.187-40-geae076a61a51)
+From: Alastair D'Silva <alastair@d-silva.org>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.187-40-geae076a61a51/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.187-40-geae076a61a51/
+When calling flush_icache_range with a size >4GB, we were masking
+off the upper 32 bits, so we would incorrectly flush a range smaller
+than intended.
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.187-40-geae076a61a51
-Git Commit: eae076a61a513f87ceca92c1878c9de1f1d2db37
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 45 unique boards, 20 SoC families, 14 builds out of 190
+This patch replaces the 32 bit shifts with 64 bit ones, so that
+the full size is accounted for.
 
-Boot Regressions Detected:
+Heads-up for backporters: the old version of flush_dcache_range is
+subject to a similar bug (this has since been replaced with a C
+implementation).
 
-arm:
-
-    bcm2835_defconfig:
-        gcc-8:
-          bcm2835-rpi-b:
-              lab-baylibre-seattle: new failure (last pass: v4.4.187-23-g46=
-2a4b2bd3bf)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre-seattle: new failure (last pass: v4.4.187-23-g46=
-2a4b2bd3bf)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          apq8016-sbc:
-              lab-baylibre-seattle: new failure (last pass: v4.4.187-23-g46=
-2a4b2bd3bf)
-
-Boot Failures Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            qcom-qdf2400: 1 failed lab
-
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            stih410-b2120: 1 failed lab
-
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            alpine-db: 1 offline lab
-            at91-sama5d4_xplained: 1 offline lab
-            bcm4708-smartrg-sr400ac: 1 offline lab
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    sama5_defconfig:
-        gcc-8
-            at91-sama5d4_xplained: 1 offline lab
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-x86_64:
-    x86_64_defconfig:
-        qemu:
-            lab-linaro-lkft: FAIL (gcc-8)
-            lab-mhart: PASS (gcc-8)
-            lab-baylibre: PASS (gcc-8)
-            lab-drue: PASS (gcc-8)
-            lab-collabora: PASS (gcc-8)
-
+Signed-off-by: Alastair D'Silva <alastair@d-silva.org>
 ---
-For more info write to <info@kernelci.org>
+ arch/powerpc/kernel/misc_64.S | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/powerpc/kernel/misc_64.S b/arch/powerpc/kernel/misc_64.S
+index b55a7b4cb543..9bc0aa9aeb65 100644
+--- a/arch/powerpc/kernel/misc_64.S
++++ b/arch/powerpc/kernel/misc_64.S
+@@ -82,7 +82,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_COHERENT_ICACHE)
+ 	subf	r8,r6,r4		/* compute length */
+ 	add	r8,r8,r5		/* ensure we get enough */
+ 	lwz	r9,DCACHEL1LOGBLOCKSIZE(r10)	/* Get log-2 of cache block size */
+-	srw.	r8,r8,r9		/* compute line count */
++	srd.	r8,r8,r9		/* compute line count */
+ 	beqlr				/* nothing to do? */
+ 	mtctr	r8
+ 1:	dcbst	0,r6
+@@ -98,7 +98,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_COHERENT_ICACHE)
+ 	subf	r8,r6,r4		/* compute length */
+ 	add	r8,r8,r5
+ 	lwz	r9,ICACHEL1LOGBLOCKSIZE(r10)	/* Get log-2 of Icache block size */
+-	srw.	r8,r8,r9		/* compute line count */
++	srd.	r8,r8,r9		/* compute line count */
+ 	beqlr				/* nothing to do? */
+ 	mtctr	r8
+ 2:	icbi	0,r6
+-- 
+2.21.0
+
