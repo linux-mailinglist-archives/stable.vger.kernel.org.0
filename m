@@ -2,93 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7928587D30
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 16:49:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92FF687E22
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 17:36:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726342AbfHIOtR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Aug 2019 10:49:17 -0400
-Received: from hqemgate16.nvidia.com ([216.228.121.65]:2537 "EHLO
-        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726152AbfHIOtR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Aug 2019 10:49:17 -0400
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqemgate16.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5d4d87ee0000>; Fri, 09 Aug 2019 07:49:18 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Fri, 09 Aug 2019 07:49:16 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Fri, 09 Aug 2019 07:49:16 -0700
-Received: from localhost (10.124.1.5) by HQMAIL107.nvidia.com (172.20.187.13)
- with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 9 Aug 2019 14:49:15
- +0000
-From:   Thierry Reding <treding@nvidia.com>
+        id S2436665AbfHIPgr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Aug 2019 11:36:47 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:46357 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2436647AbfHIPgr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Aug 2019 11:36:47 -0400
+Received: by mail-pl1-f196.google.com with SMTP id c2so45090918plz.13;
+        Fri, 09 Aug 2019 08:36:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=kIsfn1cHexosA2amwU2vZ25ZZTkSoeu7iIbObHsLJWE=;
+        b=EVE36FFxpkAzEZS576eT+dO7wNy60OgrMowGbTBV7R7lncd/9Akw5AyvzRV0OQuCLM
+         69OCjU3cwKvUwPvXt1ygsT60oijQVcl7pdN2z/8H+VPnbn3Oc3Zeped4Tem/QweuUTZO
+         gxUQULGI9CO3VpZ+hfk3Y8qKMgzzaO78zJhjVIbClPgLI6urt/By3nLcA+yPjE1S6rxd
+         yvzzBUgnvhjh1WoD9GBGp13A4q93ZwFWyC9RfIK9Hz3m+7fGOnltOoYSfeOUMNvSYXkj
+         7kA40G7ZCm4u85yEysarIP4W2KosPdZsarPFCAXAH7B3mPlFYgBQImJHQbqjsV3oTk9/
+         1vig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=kIsfn1cHexosA2amwU2vZ25ZZTkSoeu7iIbObHsLJWE=;
+        b=P+y0pehzskR6StUABHQAUhj/OloUYC1nBppgoUJsuENV6gHA6hSCX1heyPzOexVjNM
+         7fu31fOIBvaBJ2wd6w21CROlStPPefTCvZn1aCKKKLM5rnHvl7+3oHLCJ41BKnTXqv9/
+         I/oASB7hDWVaJaJ3fcDEROSegvKfZgeUlzD4+e+lQyZFfV/G9R3ty6AvyWkmV1CPZEc7
+         V2GjCTmCvAM7M5sFLJJocQWLz5m/d+QiOwKOzq1EzfRPuzgBgXYe3ip4az8NX2VdWkbd
+         +pIiBwl/O8cKmvl0nlvGNVqFx5Rc0RziqusRRoAmkQydVWqjlJLMfrv8sd6lfTc3AApE
+         T7xQ==
+X-Gm-Message-State: APjAAAUO5aeqFH3vo86gsQnVh5n/iESadCxxyApYTp3VNqjHlXlGPys3
+        pP8deSPaH5V4niScqv+wDfs=
+X-Google-Smtp-Source: APXvYqwLX4VJ2RWwcO7y/Vrcun6CgzaD4sBSHZhvtjTkV1LkwAau2StXD3gaHXnQAEcx3KF54VgWbA==
+X-Received: by 2002:a17:902:5c3:: with SMTP id f61mr18193958plf.98.1565365006788;
+        Fri, 09 Aug 2019 08:36:46 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id r13sm167351403pfr.25.2019.08.09.08.36.45
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 09 Aug 2019 08:36:45 -0700 (PDT)
+Date:   Fri, 9 Aug 2019 08:36:44 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 4.19 00/45] 4.19.66-stable review
-Date:   Fri, 9 Aug 2019 16:49:13 +0200
-Message-ID: <20190809144913.25249-1-treding@nvidia.com>
-X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190808190453.827571908@linuxfoundation.org>
-References: <20190808190453.827571908@linuxfoundation.org>
-X-NVConfidentiality: public
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.14 00/33] 4.14.138-stable review
+Message-ID: <20190809153644.GA3823@roeck-us.net>
+References: <20190808190453.582417307@linuxfoundation.org>
 MIME-Version: 1.0
-X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL104.nvidia.com (172.18.146.11) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1565362158; bh=19xIYnUdXuiKJ7E9/TfhcsjiWB9hdbnX8vtsYhIqhGI=;
-        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
-         In-Reply-To:References:X-NVConfidentiality:MIME-Version:
-         X-Originating-IP:X-ClientProxiedBy:Content-Type:
-         Content-Transfer-Encoding;
-        b=oc95wNrgdWoESV5E5QaaJduBIoLs34cnKDHGKqRopanlS9r4Lg0fJtFFJelCwHrYa
-         7qziVKjLMRcWtPKXYxyfg6g35uBA2wzr9mXYEGIlugZOPBa7cVg5w9U8g8fNadzxD0
-         RBNzCZXWhCLxRqhA1fMcofF6NHwH5EEd4wYXXu53U5WMv8QPday/4/rwjxm1VaWrvl
-         oDYM/Ry/vORrMvYAwgzTjSBG+QxzmZnkcOUGPsUeb5sLkaB4bifczKOeYi6ro6EO8I
-         gB5gdhkjJEu3L+ZGn43Ow++9jYv9VkIyiHZx25Gtlgw0vCXD7Uq+sjHL9uT3qPO6gW
-         AqkT8YfznFEWA==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190808190453.582417307@linuxfoundation.org>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 08 Aug 2019 21:04:46 +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.66 release.
-> There are 45 patches in this series, all will be posted as a response
+On Thu, Aug 08, 2019 at 09:05:07PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.138 release.
+> There are 33 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
->=20
+> 
 > Responses should be made by Sat 10 Aug 2019 07:03:19 PM UTC.
 > Anything received after that time might be too late.
->=20
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.66=
--rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git=
- linux-4.19.y
-> and the diffstat can be found below.
->=20
-> thanks,
->=20
-> greg k-h
+> 
 
-All tests passing for Tegra ...
+Build results:
+	total: 172 pass: 172 fail: 0
+Qemu test results:
+	total: 372 pass: 372 fail: 0
 
-Test results for stable-v4.19:
-    12 builds:	12 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    32 tests:	32 pass, 0 fail
-
-Linux version:	4.19.66-rc1-gd43238541496
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
-
-Thierry
-
+Guenter
