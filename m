@@ -2,260 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 673CA87BFE
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:49:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88F3687C05
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:49:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406835AbfHINtF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Aug 2019 09:49:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36400 "EHLO mail.kernel.org"
+        id S2406700AbfHINtU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Aug 2019 09:49:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406599AbfHINqk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Aug 2019 09:46:40 -0400
+        id S2436474AbfHINqY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Aug 2019 09:46:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CFA821783;
-        Fri,  9 Aug 2019 13:46:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A303821880;
+        Fri,  9 Aug 2019 13:46:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565358399;
-        bh=JRJVzti7Tmrfl8P7VV+NTCqTq97sX3M4T117wwdkuxU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dh5SyEk/6bZAU7utqSaK0RrZ7oo5Xcgxm4rg/pW+L5zwRXTRo7Ygugi3Xnl3oc9aQ
-         mGBQM8vlQ8rR62CEUHJYtmyARaGqtGV+8XXYcidMMP8ik0Z11vRLHlxYU50+vE3XyG
-         OLCIgPTij7o9SxoqMByJYO9Nnq9NyNf5O2sWIzlQ=
+        s=default; t=1565358384;
+        bh=pDnEv89MTmjq9zqtFA/aMxeIGaNa/R9eyQsnDJUV+9c=;
+        h=From:To:Cc:Subject:Date:From;
+        b=wjMaAWhGsu6iZlXOl0UCjuyufA4phMi4j03vkrW5NL86n5rT0Tuvcod9K4cBRJIdW
+         IWSx8vk46lfICL6Sw7AeSrvX2+6W1DOMhwXGQ/VZazD2mKtrHl5JFTjdb9CxgG5/78
+         ssUeIxjGt2w3WnEwyl/sdHC11vGNX+JcAQhm0YEU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.9 01/32] scsi: fcoe: Embed fc_rport_priv in fcoe_rport structure
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 4.4 00/21] 4.4.189-stable review
 Date:   Fri,  9 Aug 2019 15:45:04 +0200
-Message-Id: <20190809133923.010789078@linuxfoundation.org>
+Message-Id: <20190809134241.565496442@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190809133922.945349906@linuxfoundation.org>
-References: <20190809133922.945349906@linuxfoundation.org>
+MIME-Version: 1.0
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.189-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.4.189-rc1
+X-KernelTest-Deadline: 2019-08-11T13:42+00:00
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+This is the start of the stable review cycle for the 4.4.189 release.
+There are 21 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 023358b136d490ca91735ac6490db3741af5a8bd upstream.
+Responses should be made by Sun 11 Aug 2019 01:42:28 PM UTC.
+Anything received after that time might be too late.
 
-Gcc-9 complains for a memset across pointer boundaries, which happens as
-the code tries to allocate a flexible array on the stack.  Turns out we
-cannot do this without relying on gcc-isms, so with this patch we'll embed
-the fc_rport_priv structure into fcoe_rport, can use the normal
-'container_of' outcast, and will only have to do a memset over one
-structure.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.189-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+and the diffstat can be found below.
 
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+thanks,
 
----
- drivers/scsi/fcoe/fcoe_ctlr.c |   51 ++++++++++++++++--------------------------
- drivers/scsi/libfc/fc_rport.c |    5 +++-
- include/scsi/libfcoe.h        |    1 
- 3 files changed, 25 insertions(+), 32 deletions(-)
+greg k-h
 
---- a/drivers/scsi/fcoe/fcoe_ctlr.c
-+++ b/drivers/scsi/fcoe/fcoe_ctlr.c
-@@ -1984,7 +1984,7 @@ EXPORT_SYMBOL_GPL(fcoe_wwn_from_mac);
-  */
- static inline struct fcoe_rport *fcoe_ctlr_rport(struct fc_rport_priv *rdata)
- {
--	return (struct fcoe_rport *)(rdata + 1);
-+	return container_of(rdata, struct fcoe_rport, rdata);
- }
- 
- /**
-@@ -2244,7 +2244,7 @@ static void fcoe_ctlr_vn_start(struct fc
-  */
- static int fcoe_ctlr_vn_parse(struct fcoe_ctlr *fip,
- 			      struct sk_buff *skb,
--			      struct fc_rport_priv *rdata)
-+			      struct fcoe_rport *frport)
- {
- 	struct fip_header *fiph;
- 	struct fip_desc *desc = NULL;
-@@ -2252,16 +2252,12 @@ static int fcoe_ctlr_vn_parse(struct fco
- 	struct fip_wwn_desc *wwn = NULL;
- 	struct fip_vn_desc *vn = NULL;
- 	struct fip_size_desc *size = NULL;
--	struct fcoe_rport *frport;
- 	size_t rlen;
- 	size_t dlen;
- 	u32 desc_mask = 0;
- 	u32 dtype;
- 	u8 sub;
- 
--	memset(rdata, 0, sizeof(*rdata) + sizeof(*frport));
--	frport = fcoe_ctlr_rport(rdata);
--
- 	fiph = (struct fip_header *)skb->data;
- 	frport->flags = ntohs(fiph->fip_flags);
- 
-@@ -2324,15 +2320,17 @@ static int fcoe_ctlr_vn_parse(struct fco
- 			if (dlen != sizeof(struct fip_wwn_desc))
- 				goto len_err;
- 			wwn = (struct fip_wwn_desc *)desc;
--			rdata->ids.node_name = get_unaligned_be64(&wwn->fd_wwn);
-+			frport->rdata.ids.node_name =
-+				get_unaligned_be64(&wwn->fd_wwn);
- 			break;
- 		case FIP_DT_VN_ID:
- 			if (dlen != sizeof(struct fip_vn_desc))
- 				goto len_err;
- 			vn = (struct fip_vn_desc *)desc;
- 			memcpy(frport->vn_mac, vn->fd_mac, ETH_ALEN);
--			rdata->ids.port_id = ntoh24(vn->fd_fc_id);
--			rdata->ids.port_name = get_unaligned_be64(&vn->fd_wwpn);
-+			frport->rdata.ids.port_id = ntoh24(vn->fd_fc_id);
-+			frport->rdata.ids.port_name =
-+				get_unaligned_be64(&vn->fd_wwpn);
- 			break;
- 		case FIP_DT_FC4F:
- 			if (dlen != sizeof(struct fip_fc4_feat))
-@@ -2670,16 +2668,13 @@ static int fcoe_ctlr_vn_recv(struct fcoe
- {
- 	struct fip_header *fiph;
- 	enum fip_vn2vn_subcode sub;
--	struct {
--		struct fc_rport_priv rdata;
--		struct fcoe_rport frport;
--	} buf;
-+	struct fcoe_rport frport = { };
- 	int rc;
- 
- 	fiph = (struct fip_header *)skb->data;
- 	sub = fiph->fip_subcode;
- 
--	rc = fcoe_ctlr_vn_parse(fip, skb, &buf.rdata);
-+	rc = fcoe_ctlr_vn_parse(fip, skb, &frport);
- 	if (rc) {
- 		LIBFCOE_FIP_DBG(fip, "vn_recv vn_parse error %d\n", rc);
- 		goto drop;
-@@ -2688,19 +2683,19 @@ static int fcoe_ctlr_vn_recv(struct fcoe
- 	mutex_lock(&fip->ctlr_mutex);
- 	switch (sub) {
- 	case FIP_SC_VN_PROBE_REQ:
--		fcoe_ctlr_vn_probe_req(fip, &buf.rdata);
-+		fcoe_ctlr_vn_probe_req(fip, &frport.rdata);
- 		break;
- 	case FIP_SC_VN_PROBE_REP:
--		fcoe_ctlr_vn_probe_reply(fip, &buf.rdata);
-+		fcoe_ctlr_vn_probe_reply(fip, &frport.rdata);
- 		break;
- 	case FIP_SC_VN_CLAIM_NOTIFY:
--		fcoe_ctlr_vn_claim_notify(fip, &buf.rdata);
-+		fcoe_ctlr_vn_claim_notify(fip, &frport.rdata);
- 		break;
- 	case FIP_SC_VN_CLAIM_REP:
--		fcoe_ctlr_vn_claim_resp(fip, &buf.rdata);
-+		fcoe_ctlr_vn_claim_resp(fip, &frport.rdata);
- 		break;
- 	case FIP_SC_VN_BEACON:
--		fcoe_ctlr_vn_beacon(fip, &buf.rdata);
-+		fcoe_ctlr_vn_beacon(fip, &frport.rdata);
- 		break;
- 	default:
- 		LIBFCOE_FIP_DBG(fip, "vn_recv unknown subcode %d\n", sub);
-@@ -2724,22 +2719,18 @@ drop:
-  */
- static int fcoe_ctlr_vlan_parse(struct fcoe_ctlr *fip,
- 			      struct sk_buff *skb,
--			      struct fc_rport_priv *rdata)
-+			      struct fcoe_rport *frport)
- {
- 	struct fip_header *fiph;
- 	struct fip_desc *desc = NULL;
- 	struct fip_mac_desc *macd = NULL;
- 	struct fip_wwn_desc *wwn = NULL;
--	struct fcoe_rport *frport;
- 	size_t rlen;
- 	size_t dlen;
- 	u32 desc_mask = 0;
- 	u32 dtype;
- 	u8 sub;
- 
--	memset(rdata, 0, sizeof(*rdata) + sizeof(*frport));
--	frport = fcoe_ctlr_rport(rdata);
--
- 	fiph = (struct fip_header *)skb->data;
- 	frport->flags = ntohs(fiph->fip_flags);
- 
-@@ -2793,7 +2784,8 @@ static int fcoe_ctlr_vlan_parse(struct f
- 			if (dlen != sizeof(struct fip_wwn_desc))
- 				goto len_err;
- 			wwn = (struct fip_wwn_desc *)desc;
--			rdata->ids.node_name = get_unaligned_be64(&wwn->fd_wwn);
-+			frport->rdata.ids.node_name =
-+				get_unaligned_be64(&wwn->fd_wwn);
- 			break;
- 		default:
- 			LIBFCOE_FIP_DBG(fip, "unexpected descriptor type %x "
-@@ -2904,22 +2896,19 @@ static int fcoe_ctlr_vlan_recv(struct fc
- {
- 	struct fip_header *fiph;
- 	enum fip_vlan_subcode sub;
--	struct {
--		struct fc_rport_priv rdata;
--		struct fcoe_rport frport;
--	} buf;
-+	struct fcoe_rport frport = { };
- 	int rc;
- 
- 	fiph = (struct fip_header *)skb->data;
- 	sub = fiph->fip_subcode;
--	rc = fcoe_ctlr_vlan_parse(fip, skb, &buf.rdata);
-+	rc = fcoe_ctlr_vlan_parse(fip, skb, &frport);
- 	if (rc) {
- 		LIBFCOE_FIP_DBG(fip, "vlan_recv vlan_parse error %d\n", rc);
- 		goto drop;
- 	}
- 	mutex_lock(&fip->ctlr_mutex);
- 	if (sub == FIP_SC_VL_REQ)
--		fcoe_ctlr_vlan_disc_reply(fip, &buf.rdata);
-+		fcoe_ctlr_vlan_disc_reply(fip, &frport.rdata);
- 	mutex_unlock(&fip->ctlr_mutex);
- 
- drop:
---- a/drivers/scsi/libfc/fc_rport.c
-+++ b/drivers/scsi/libfc/fc_rport.c
-@@ -127,12 +127,15 @@ static struct fc_rport_priv *fc_rport_cr
- 					     u32 port_id)
- {
- 	struct fc_rport_priv *rdata;
-+	size_t rport_priv_size = sizeof(*rdata);
- 
- 	rdata = lport->tt.rport_lookup(lport, port_id);
- 	if (rdata)
- 		return rdata;
- 
--	rdata = kzalloc(sizeof(*rdata) + lport->rport_priv_size, GFP_KERNEL);
-+	if (lport->rport_priv_size > 0)
-+		rport_priv_size = lport->rport_priv_size;
-+	rdata = kzalloc(rport_priv_size, GFP_KERNEL);
- 	if (!rdata)
- 		return NULL;
- 
---- a/include/scsi/libfcoe.h
-+++ b/include/scsi/libfcoe.h
-@@ -241,6 +241,7 @@ struct fcoe_fcf {
-  * @vn_mac:	VN_Node assigned MAC address for data
-  */
- struct fcoe_rport {
-+	struct fc_rport_priv rdata;
- 	unsigned long time;
- 	u16 fcoe_len;
- 	u16 flags;
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.4.189-rc1
+
+Thomas Gleixner <tglx@linutronix.de>
+    x86/speculation/swapgs: Exclude ATOMs from speculation through SWAPGS
+
+Josh Poimboeuf <jpoimboe@redhat.com>
+    x86/entry/64: Use JMP instead of JMPQ
+
+Josh Poimboeuf <jpoimboe@redhat.com>
+    x86/speculation: Enable Spectre v1 swapgs mitigations
+
+Josh Poimboeuf <jpoimboe@redhat.com>
+    x86/speculation: Prepare entry code for Spectre v1 swapgs mitigations
+
+Wanpeng Li <wanpeng.li@hotmail.com>
+    x86/entry/64: Fix context tracking state warning when load_gs_index fails
+
+Ben Hutchings <ben@decadent.org.uk>
+    x86: cpufeatures: Sort feature word 7
+
+Lukas Wunner <lukas@wunner.de>
+    spi: bcm2835: Fix 3-wire mode if DMA is enabled
+
+xiao jin <jin.xiao@intel.com>
+    block: blk_init_allocated_queue() set q->fq as NULL in the fail case
+
+Arnd Bergmann <arnd@arndb.de>
+    compat_ioctl: pppoe: fix PPPOEIOCSFWD handling
+
+Sudarsana Reddy Kalluru <skalluru@marvell.com>
+    bnx2x: Disable multi-cos feature.
+
+Mark Zhang <markz@mellanox.com>
+    net/mlx5: Use reversed order when unregister devices
+
+Jia-Ju Bai <baijiaju1990@gmail.com>
+    net: sched: Fix a possible null-pointer dereference in dequeue_func()
+
+Taras Kondratiuk <takondra@cisco.com>
+    tipc: compat: allow tipc commands without arguments
+
+Jiri Pirko <jiri@mellanox.com>
+    net: fix ifindex collision during namespace removal
+
+Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+    net: bridge: delete local fdb on device init failure
+
+Gustavo A. R. Silva <gustavo@embeddedor.com>
+    atm: iphase: Fix Spectre v1 vulnerability
+
+Eric Dumazet <edumazet@google.com>
+    tcp: be more careful in tcp_fragment()
+
+Sebastian Parschauer <s.parschauer@gmx.de>
+    HID: Add quirk for HP X1200 PIXART OEM mouse
+
+Phil Turnbull <phil.turnbull@oracle.com>
+    netfilter: nfnetlink_acct: validate NFACCT_QUOTA parameter
+
+Will Deacon <will@kernel.org>
+    arm64: cpufeature: Fix feature comparison for CTR_EL0.{CWG,ERG}
+
+Will Deacon <will.deacon@arm.com>
+    arm64: cpufeature: Fix CTR_EL0 field definitions
+
+
+-------------
+
+Diffstat:
+
+ Documentation/kernel-parameters.txt             |   7 +-
+ Makefile                                        |   4 +-
+ arch/arm64/include/asm/cpufeature.h             |   7 +-
+ arch/arm64/kernel/cpufeature.c                  |  14 +++-
+ arch/x86/entry/calling.h                        |  19 +++++
+ arch/x86/entry/entry_64.S                       |  25 +++++-
+ arch/x86/include/asm/cpufeatures.h              |  10 ++-
+ arch/x86/kernel/cpu/bugs.c                      | 105 ++++++++++++++++++++++--
+ arch/x86/kernel/cpu/common.c                    |  42 ++++++----
+ block/blk-core.c                                |   1 +
+ drivers/atm/iphase.c                            |   8 +-
+ drivers/hid/hid-ids.h                           |   1 +
+ drivers/hid/usbhid/hid-quirks.c                 |   1 +
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c |   2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/main.c  |   2 +-
+ drivers/net/ppp/pppoe.c                         |   3 +
+ drivers/net/ppp/pppox.c                         |  13 +++
+ drivers/net/ppp/pptp.c                          |   3 +
+ drivers/spi/spi-bcm2835.c                       |   3 +-
+ fs/compat_ioctl.c                               |   3 -
+ include/linux/if_pppox.h                        |   3 +
+ include/net/tcp.h                               |  17 ++++
+ net/bridge/br_vlan.c                            |   5 ++
+ net/core/dev.c                                  |   2 +
+ net/ipv4/tcp_output.c                           |  11 ++-
+ net/l2tp/l2tp_ppp.c                             |   3 +
+ net/netfilter/nfnetlink_acct.c                  |   2 +
+ net/sched/sch_codel.c                           |   3 +-
+ net/tipc/netlink_compat.c                       |  11 ++-
+ 29 files changed, 272 insertions(+), 58 deletions(-)
 
 
