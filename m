@@ -2,142 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2502B87FBA
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 18:22:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB9EE8810C
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 19:20:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437068AbfHIQWY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Aug 2019 12:22:24 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:46469 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2436626AbfHIQWY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Aug 2019 12:22:24 -0400
-Received: by mail-wr1-f66.google.com with SMTP id z1so98778863wru.13
-        for <stable@vger.kernel.org>; Fri, 09 Aug 2019 09:22:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=AU9vZvu9KrO493IK2Hg6fvf/kCH0br7d9CdKBjTXtoM=;
-        b=HQ3RD1OkTOAWVqGRaw+D0mimzyuBXmQm1oZZY9SK29tsZSE2NIQ2nHWjN5kuAs/W7m
-         esH+8c9NrYU6dHzOMSWfmrMDq2Cib2RH7Vzx9ivp74hHxFD1cU4W+Q/7qLSnbu4e4FBP
-         8F+aR09xPlPbVgpSVgwSKIsbQ6n0XMHC36f3whW5nB5m6/nxcRY0+F4wcyVHTIgQu5C9
-         vAW3HE8ndAozizVr/r1NUNoGY0Gzd3iRzAUtftCpBbrw9QvPuY3H0N1Nyuoq2umHC4ju
-         noUTsrpZ7hEDyZdsOEjKYYii8sKLA7x7/9AA1ezZP43wQ8HeSkdTTfFh1qyL6U5TZI5O
-         0uNA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=AU9vZvu9KrO493IK2Hg6fvf/kCH0br7d9CdKBjTXtoM=;
-        b=tfu/4P7EKH0uCajbZTlqEktYThq0PJFVzZn2qJQIRPI0AnxmusMtopDCSZyPgeke0l
-         UbLDjTjq+n/oqnLk9oLZeMp7jxLtezwPq7dMk2VANn4Y3Up2EOwm9EdrqMO/K60t5b1O
-         lpCvGeJAnCzadP1jab2i+kQoSPaPCkNCnV1xG5Bbm6Re2452Q48fUw21e3G824F+t/QS
-         A0pUvQ4dtQ7crFfXSGgGhAIwkdtsGxasY5lTuaFXulLhg25uOBP4nXwBO1oh6tfC/d3U
-         oX6Rdqwro/87ttXg/N640E0tqecD3zbFdVtKlS8GBPWpwKOiyqRXJ6eVb1JQ2stx+JD7
-         WZ8A==
-X-Gm-Message-State: APjAAAWIBfuYIWHEx9aJNETRTXRrDYc8Ov8ktN+YIHA+HOcLsrduKjay
-        aXpKgGLqx7qMCP/kdghc6xw94MCcsRH/8g==
-X-Google-Smtp-Source: APXvYqy1mBfoMZ+wxJnewTvnZLIqoQYQ679nfHSYuHGsK2cPiEXSTMk24N6YElGmvPyJKktqFYPoTA==
-X-Received: by 2002:a5d:460a:: with SMTP id t10mr23975999wrq.83.1565367741743;
-        Fri, 09 Aug 2019 09:22:21 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id a84sm8579675wmf.29.2019.08.09.09.22.19
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 09 Aug 2019 09:22:20 -0700 (PDT)
-Message-ID: <5d4d9dbc.1c69fb81.f4831.c758@mx.google.com>
-Date:   Fri, 09 Aug 2019 09:22:20 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S2407548AbfHIRUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Aug 2019 13:20:54 -0400
+Received: from kirsty.vergenet.net ([202.4.237.240]:33776 "EHLO
+        kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2405999AbfHIRUy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Aug 2019 13:20:54 -0400
+Received: from penelope.horms.nl (unknown [66.60.152.14])
+        by kirsty.vergenet.net (Postfix) with ESMTPA id 12A2E25AD78;
+        Sat, 10 Aug 2019 03:20:52 +1000 (AEST)
+Received: by penelope.horms.nl (Postfix, from userid 7100)
+        id 33539E21A9A; Fri,  9 Aug 2019 19:20:50 +0200 (CEST)
+Date:   Fri, 9 Aug 2019 10:20:50 -0700
+From:   Simon Horman <horms@verge.net.au>
+To:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Cc:     gregkh@linuxfoundation.org, mathias.nyman@intel.com,
+        linux-usb@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] usb: host: xhci-rcar: Fix timeout in xhci_suspend()
+Message-ID: <20190809172042.ce5oxx2iwj4r7s4k@verge.net.au>
+References: <1564734815-17964-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.136-54-g33934fd98b51
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y boot: 119 boots: 2 failed,
- 106 passed with 11 offline (v4.14.136-54-g33934fd98b51)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1564734815-17964-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
+Organisation: Horms Solutions BV
+User-Agent: NeoMutt/20170113 (1.7.2)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 119 boots: 2 failed, 106 passed with 11 offlin=
-e (v4.14.136-54-g33934fd98b51)
+On Fri, Aug 02, 2019 at 05:33:35PM +0900, Yoshihiro Shimoda wrote:
+> When a USB device is connected to the host controller and
+> the system enters suspend, the following error happens
+> in xhci_suspend():
+> 
+> 	xhci-hcd ee000000.usb: WARN: xHC CMD_RUN timeout
+> 
+> Since the firmware/internal CPU control the USBSTS.STS_HALT
+> and the process speed is down when the roothub port enters U3,
+> long delay for the handshake of STS_HALT is neeed in xhci_suspend().
+> So, this patch adds to set the XHCI_SLOW_SUSPEND.
+> 
+> Fixes: 435cc1138ec9 ("usb: host: xhci-plat: set resume_quirk() for R-Car controllers")
+> Cc: <stable@vger.kernel.org> # v4.12+
+> Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.136-54-g33934fd98b51/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.136-54-g33934fd98b51/
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.136-54-g33934fd98b51
-Git Commit: 33934fd98b5139de6051ccdb4018a9bbeb475f58
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 65 unique boards, 25 SoC families, 16 builds out of 200
+> ---
+>  drivers/usb/host/xhci-rcar.c | 9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/usb/host/xhci-rcar.c b/drivers/usb/host/xhci-rcar.c
+> index 671bce1..8616c52 100644
+> --- a/drivers/usb/host/xhci-rcar.c
+> +++ b/drivers/usb/host/xhci-rcar.c
+> @@ -238,10 +238,15 @@ int xhci_rcar_init_quirk(struct usb_hcd *hcd)
+>  	 * pointers. So, this driver clears the AC64 bit of xhci->hcc_params
+>  	 * to call dma_set_coherent_mask(dev, DMA_BIT_MASK(32)) in
+>  	 * xhci_gen_setup().
+> +	 *
+> +	 * And, since the firmware/internal CPU control the USBSTS.STS_HALT
+> +	 * and the process speed is down when the roothub port enters U3,
+> +	 * long delay for the handshake of STS_HALT is neeed in xhci_suspend().
+>  	 */
+>  	if (xhci_rcar_is_gen2(hcd->self.controller) ||
+> -			xhci_rcar_is_gen3(hcd->self.controller))
+> -		xhci->quirks |= XHCI_NO_64BIT_SUPPORT;
+> +			xhci_rcar_is_gen3(hcd->self.controller)) {
+> +		xhci->quirks |= XHCI_NO_64BIT_SUPPORT | XHCI_SLOW_SUSPEND;
+> +	}
 
-Boot Regressions Detected:
 
-arm:
+nit: As there is still only one line guarded by the conditional I don't
+think that { } need to be added.
 
-    bcm2835_defconfig:
-        gcc-8:
-          bcm2835-rpi-b:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.14.1=
-36-54-g20d3ec30650b - first fail: v4.14.136-94-g4ec3ef9505a3)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.14.1=
-36-54-g20d3ec30650b - first fail: v4.14.136-94-g4ec3ef9505a3)
-
-Boot Failures Detected:
-
-arc:
-    hsdk_defconfig:
-        gcc-8:
-            hsdk: 1 failed lab
-
-arm64:
-    defconfig:
-        gcc-8:
-            rk3399-firefly: 1 failed lab
-
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-            juno-r2: 1 offline lab
-            meson-gxbb-odroidc2: 1 offline lab
-            mt7622-rfb1: 1 offline lab
-
-arm:
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-    sama5_defconfig:
-        gcc-8
-            at91-sama5d4_xplained: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            alpine-db: 1 offline lab
-            at91-sama5d4_xplained: 1 offline lab
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+>  
+>  	if (!xhci_rcar_wait_for_pll_active(hcd))
+>  		return -ETIMEDOUT;
+> -- 
+> 2.7.4
+> 
