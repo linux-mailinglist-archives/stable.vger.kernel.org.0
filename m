@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6977487C07
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:49:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14E3687BC4
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:47:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406978AbfHINqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Aug 2019 09:46:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35854 "EHLO mail.kernel.org"
+        id S2407178AbfHINq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Aug 2019 09:46:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406974AbfHINqR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Aug 2019 09:46:17 -0400
+        id S2407157AbfHINq6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Aug 2019 09:46:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CEDD3214C6;
-        Fri,  9 Aug 2019 13:46:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F55521874;
+        Fri,  9 Aug 2019 13:46:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565358376;
-        bh=bimm+zK+Ln8qfkQwGYxMtibcauyXdXr3p1cE6K/abgA=;
+        s=default; t=1565358417;
+        bh=Bll61FBxQFEAZ7jzNiAdReu8C4E77sdRKdifBhJ4bmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yuENZHGEAsIiNQbFefd71A/58hfm4SYJdS8BwhHWTlMmxrR6nNFhJ9FBmbliRnIm/
-         Y9bluI/em38uSUm6MGD7ZnXeUqZVvA+aCMpAghyWG2E3dgJuHkrIw6XSfj83O2kZK9
-         AGYXBAYWM1AxXWqqLV8jIKb2/DomKAs+ZIDopkuQ=
+        b=zlsv9G6MuhFBr3zXmIqrQilQynDk8SQUYPHbpWhInyIDW+6R9B7svjNsXtZbFJgVC
+         h3hke56vMjZITSNYC1knMIaZ/d4dFW/j6379UG1IjNYN+8e2FawaK5YuH2fPg5Jfcx
+         8MtP0t8mh2iLO8D8RfICeFy56RUtoXOV6HF1+fYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+88533dc8b582309bf3ee@syzkaller.appspotmail.com,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 07/21] net: bridge: delete local fdb on device init failure
+        Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
+        Ping Cheng <ping.cheng@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.9 08/32] HID: wacom: fix bit shift for Cintiq Companion 2
 Date:   Fri,  9 Aug 2019 15:45:11 +0200
-Message-Id: <20190809134241.885705585@linuxfoundation.org>
+Message-Id: <20190809133923.218536897@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190809134241.565496442@linuxfoundation.org>
-References: <20190809134241.565496442@linuxfoundation.org>
+In-Reply-To: <20190809133922.945349906@linuxfoundation.org>
+References: <20190809133922.945349906@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+From: Aaron Armstrong Skomra <skomra@gmail.com>
 
-[ Upstream commit d7bae09fa008c6c9a489580db0a5a12063b97f97 ]
+commit 693c3dab4e50403f91bca4b52fc6d8562a3180f6 upstream.
 
-On initialization failure we have to delete the local fdb which was
-inserted due to the default pvid creation. This problem has been present
-since the inception of default_pvid. Note that currently there are 2 cases:
-1) in br_dev_init() when br_multicast_init() fails
-2) if register_netdevice() fails after calling ndo_init()
+The bit indicating BTN_6 on this device is overshifted
+by 2 bits, resulting in the incorrect button being
+reported.
 
-This patch takes care of both since br_vlan_flush() is called on both
-occasions. Also the new fdb delete would be a no-op on normal bridge
-device destruction since the local fdb would've been already flushed by
-br_dev_delete(). This is not an issue for ports since nbp_vlan_init() is
-called last when adding a port thus nothing can fail after it.
+Also fix copy-paste mistake in comments.
 
-Reported-by: syzbot+88533dc8b582309bf3ee@syzkaller.appspotmail.com
-Fixes: 5be5a2df40f0 ("bridge: Add filtering support for default_pvid")
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+Link: https://github.com/linuxwacom/xf86-input-wacom/issues/71
+Fixes: c7f0522a1ad1 ("HID: wacom: Slim down wacom_intuos_pad processing")
+Cc: <stable@vger.kernel.org> # v4.5+
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/bridge/br_vlan.c |    5 +++++
- 1 file changed, 5 insertions(+)
 
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -580,6 +580,11 @@ void br_vlan_flush(struct net_bridge *br
- 
- 	ASSERT_RTNL();
- 
-+	/* delete auto-added default pvid local fdb before flushing vlans
-+	 * otherwise it will be leaked on bridge device init failure
-+	 */
-+	br_fdb_delete_by_port(br, NULL, 0, 1);
-+
- 	vg = br_vlan_group(br);
- 	__vlan_flush(vg);
- 	RCU_INIT_POINTER(br->vlgrp, NULL);
+---
+ drivers/hid/wacom_wac.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -529,14 +529,14 @@ static int wacom_intuos_pad(struct wacom
+ 		 */
+ 		buttons = (data[4] << 1) | (data[3] & 0x01);
+ 	} else if (features->type == CINTIQ_COMPANION_2) {
+-		/* d-pad right  -> data[4] & 0x10
+-		 * d-pad up     -> data[4] & 0x20
+-		 * d-pad left   -> data[4] & 0x40
+-		 * d-pad down   -> data[4] & 0x80
+-		 * d-pad center -> data[3] & 0x01
++		/* d-pad right  -> data[2] & 0x10
++		 * d-pad up     -> data[2] & 0x20
++		 * d-pad left   -> data[2] & 0x40
++		 * d-pad down   -> data[2] & 0x80
++		 * d-pad center -> data[1] & 0x01
+ 		 */
+ 		buttons = ((data[2] >> 4) << 7) |
+-		          ((data[1] & 0x04) << 6) |
++		          ((data[1] & 0x04) << 4) |
+ 		          ((data[2] & 0x0F) << 2) |
+ 		          (data[1] & 0x03);
+ 	} else if (features->type >= INTUOS5S && features->type <= INTUOSPL) {
 
 
