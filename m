@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4CD787BF0
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:48:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B49587BB1
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:46:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436604AbfHINr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Aug 2019 09:47:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37460 "EHLO mail.kernel.org"
+        id S2407014AbfHINqX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Aug 2019 09:46:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407250AbfHINr0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Aug 2019 09:47:26 -0400
+        id S2406994AbfHINqW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Aug 2019 09:46:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79E312086D;
-        Fri,  9 Aug 2019 13:47:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1477921773;
+        Fri,  9 Aug 2019 13:46:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565358446;
-        bh=xX/SrCJ3apGXbDfEE6AWqJiExOw9IYv7bvYaVh6py3w=;
+        s=default; t=1565358381;
+        bh=9wN9JrVFYDFNBYWRcwBDglMOdMwuJf9QjnLxMyzYnxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LsGQeZfESHTvjSnGwwGxQyQ8R4mIXkK9ONxzZWqH+6MxvQqaXeG8K6xJdPNn/OE0A
-         EEIdeGdfCA4XfLDVSQQnmBHbpVf7cePKfxgPa9xNxXDL+5jDFUDg7/95xYJPErE6Kc
-         bAN7RzraDN6e6J25Wf1P+N0qguKZPn1zQfTgGp00=
+        b=SQHLKo8OlE8SwErLuJsbyXHZYkQ8sAjExtv5FZzA0H1uBRqBaQk8wa8g9BOX+kAhj
+         AVQfcJI4QXWerYYZf8apDI4LcEERwjQZjuBfrU7QFCFNN9w8WrgUaqD+d0XwGOKNvs
+         ty1DfvLEXIFvqHHDlvc+EyDgcMH5b0ji/QQZB0XY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sebastian Parschauer <s.parschauer@gmx.de>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.9 09/32] HID: Add quirk for HP X1200 PIXART OEM mouse
-Date:   Fri,  9 Aug 2019 15:45:12 +0200
-Message-Id: <20190809133923.247902230@linuxfoundation.org>
+        stable@vger.kernel.org, Taras Kondratiuk <takondra@cisco.com>,
+        Ying Xue <ying.xue@windriver.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 09/21] tipc: compat: allow tipc commands without arguments
+Date:   Fri,  9 Aug 2019 15:45:13 +0200
+Message-Id: <20190809134241.960788942@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190809133922.945349906@linuxfoundation.org>
-References: <20190809133922.945349906@linuxfoundation.org>
+In-Reply-To: <20190809134241.565496442@linuxfoundation.org>
+References: <20190809134241.565496442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Parschauer <s.parschauer@gmx.de>
+From: Taras Kondratiuk <takondra@cisco.com>
 
-commit 49869d2ea9eecc105a10724c1abf035151a3c4e2 upstream.
+[ Upstream commit 4da5f0018eef4c0de31675b670c80e82e13e99d1 ]
 
-The PixArt OEM mice are known for disconnecting every minute in
-runlevel 1 or 3 if they are not always polled. So add quirk
-ALWAYS_POLL for this one as well.
+Commit 2753ca5d9009 ("tipc: fix uninit-value in tipc_nl_compat_doit")
+broke older tipc tools that use compat interface (e.g. tipc-config from
+tipcutils package):
 
-Jonathan Teh (@jonathan-teh) reported and tested the quirk.
-Reference: https://github.com/sriemer/fix-linux-mouse/issues/15
+% tipc-config -p
+operation not supported
 
-Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
-CC: stable@vger.kernel.org
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+The commit started to reject TIPC netlink compat messages that do not
+have attributes. It is too restrictive because some of such messages are
+valid (they don't need any arguments):
+
+% grep 'tx none' include/uapi/linux/tipc_config.h
+#define  TIPC_CMD_NOOP              0x0000    /* tx none, rx none */
+#define  TIPC_CMD_GET_MEDIA_NAMES   0x0002    /* tx none, rx media_name(s) */
+#define  TIPC_CMD_GET_BEARER_NAMES  0x0003    /* tx none, rx bearer_name(s) */
+#define  TIPC_CMD_SHOW_PORTS        0x0006    /* tx none, rx ultra_string */
+#define  TIPC_CMD_GET_REMOTE_MNG    0x4003    /* tx none, rx unsigned */
+#define  TIPC_CMD_GET_MAX_PORTS     0x4004    /* tx none, rx unsigned */
+#define  TIPC_CMD_GET_NETID         0x400B    /* tx none, rx unsigned */
+#define  TIPC_CMD_NOT_NET_ADMIN     0xC001    /* tx none, rx none */
+
+This patch relaxes the original fix and rejects messages without
+arguments only if such arguments are expected by a command (reg_type is
+non zero).
+
+Fixes: 2753ca5d9009 ("tipc: fix uninit-value in tipc_nl_compat_doit")
+Cc: stable@vger.kernel.org
+Signed-off-by: Taras Kondratiuk <takondra@cisco.com>
+Acked-by: Ying Xue <ying.xue@windriver.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/hid/hid-ids.h           |    1 +
- drivers/hid/usbhid/hid-quirks.c |    1 +
- 2 files changed, 2 insertions(+)
+ net/tipc/netlink_compat.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -509,6 +509,7 @@
- #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A	0x0a4a
- #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A	0x0b4a
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE		0x134a
-+#define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641	0x0641
+--- a/net/tipc/netlink_compat.c
++++ b/net/tipc/netlink_compat.c
+@@ -55,6 +55,7 @@ struct tipc_nl_compat_msg {
+ 	int rep_type;
+ 	int rep_size;
+ 	int req_type;
++	int req_size;
+ 	struct net *net;
+ 	struct sk_buff *rep;
+ 	struct tlv_desc *req;
+@@ -252,7 +253,8 @@ static int tipc_nl_compat_dumpit(struct
+ 	int err;
+ 	struct sk_buff *arg;
  
- #define USB_VENDOR_ID_HUION		0x256c
- #define USB_DEVICE_ID_HUION_TABLET	0x006e
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -98,6 +98,7 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A, HID_QUIRK_ALWAYS_POLL },
- 	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A, HID_QUIRK_ALWAYS_POLL },
- 	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE, HID_QUIRK_ALWAYS_POLL },
-+	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641, HID_QUIRK_ALWAYS_POLL },
- 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_C077, HID_QUIRK_ALWAYS_POLL },
- 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_KEYBOARD_G710_PLUS, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C01A, HID_QUIRK_ALWAYS_POLL },
+-	if (msg->req_type && !TLV_CHECK_TYPE(msg->req, msg->req_type))
++	if (msg->req_type && (!msg->req_size ||
++			      !TLV_CHECK_TYPE(msg->req, msg->req_type)))
+ 		return -EINVAL;
+ 
+ 	msg->rep = tipc_tlv_alloc(msg->rep_size);
+@@ -345,7 +347,8 @@ static int tipc_nl_compat_doit(struct ti
+ {
+ 	int err;
+ 
+-	if (msg->req_type && !TLV_CHECK_TYPE(msg->req, msg->req_type))
++	if (msg->req_type && (!msg->req_size ||
++			      !TLV_CHECK_TYPE(msg->req, msg->req_type)))
+ 		return -EINVAL;
+ 
+ 	err = __tipc_nl_compat_doit(cmd, msg);
+@@ -1192,8 +1195,8 @@ static int tipc_nl_compat_recv(struct sk
+ 		goto send;
+ 	}
+ 
+-	len = nlmsg_attrlen(req_nlh, GENL_HDRLEN + TIPC_GENL_HDRLEN);
+-	if (!len || !TLV_OK(msg.req, len)) {
++	msg.req_size = nlmsg_attrlen(req_nlh, GENL_HDRLEN + TIPC_GENL_HDRLEN);
++	if (msg.req_size && !TLV_OK(msg.req, msg.req_size)) {
+ 		msg.rep = tipc_get_err_tlv(TIPC_CFG_NOT_SUPPORTED);
+ 		err = -EOPNOTSUPP;
+ 		goto send;
 
 
