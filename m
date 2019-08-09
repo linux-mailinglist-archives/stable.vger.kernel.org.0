@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41B6787BDA
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:47:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B29B487C0C
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:49:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436645AbfHINru (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Aug 2019 09:47:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37934 "EHLO mail.kernel.org"
+        id S2406721AbfHINpt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Aug 2019 09:45:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436640AbfHINrt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Aug 2019 09:47:49 -0400
+        id S1726037AbfHINpt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Aug 2019 09:45:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6D6021874;
-        Fri,  9 Aug 2019 13:47:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B30F020B7C;
+        Fri,  9 Aug 2019 13:45:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565358469;
-        bh=hCOQ/3o6yVkNnmohc565drS708u0WeyH1cciRFIEELU=;
+        s=default; t=1565358348;
+        bh=W4LqLQ2WO2/HA7R28cJPumw2OufW3NPRZYQsMC5iLgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C30VaVVFz9AxHZPmodx53XX+LOeZo+hUK504mW94NFKO4t91FubcW6U/iifTpw3+z
-         RUOttRmV9BymgNamz2mtMgxySQLrAOvj4VWXn7rWZ9Dp4qiOf4q1HlKJY+juKjbpaN
-         rJ3uCu2ljEA57YXm/6RBqEtVQMgoW4ms8+mm394Y=
+        b=ef5NB0BRnj2Tq0vqKQxtjLhEnlJysVYCqlwjENOiV4nKj2/5axmVjXh41V7ckOczr
+         ZyN1PdYg5Y0vzY5UV47nMdxpsjycVjV6Hx4MtPvLTIRIRgnQCR1IQ3mbNsTT6neggs
+         eReo/OsOq+IiryWSz7YLm2nw9KvxgZuCV0nADpZ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.9 12/32] objtool: Add machine_real_restart() to the noreturn list
+        stable@vger.kernel.org, Parav Pandit <parav@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Mark Zhang <markz@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 4.4 11/21] net/mlx5: Use reversed order when unregister devices
 Date:   Fri,  9 Aug 2019 15:45:15 +0200
-Message-Id: <20190809133923.356917728@linuxfoundation.org>
+Message-Id: <20190809134242.048117200@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190809133922.945349906@linuxfoundation.org>
-References: <20190809133922.945349906@linuxfoundation.org>
+In-Reply-To: <20190809134241.565496442@linuxfoundation.org>
+References: <20190809134241.565496442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Mark Zhang <markz@mellanox.com>
 
-commit 684fb246578b9e81fc7b4ca5c71eae22edb650b2 upstream.
+[ Upstream commit 08aa5e7da6bce1a1963f63cf32c2e7ad434ad578 ]
 
-machine_real_restart() is annotated as '__noreturn", so add it to the
-objtool noreturn list.  This fixes the following warning with clang and
-CONFIG_CC_OPTIMIZE_FOR_SIZE=y:
+When lag is active, which is controlled by the bonded mlx5e netdev, mlx5
+interface unregestering must happen in the reverse order where rdma is
+unregistered (unloaded) first, to guarantee all references to the lag
+context in hardware is removed, then remove mlx5e netdev interface which
+will cleanup the lag context from hardware.
 
-  arch/x86/kernel/reboot.o: warning: objtool: native_machine_emergency_restart() falls through to next function machine_power_off()
+Without this fix during destroy of LAG interface, we observed following
+errors:
+ * mlx5_cmd_check:752:(pid 12556): DESTROY_LAG(0x843) op_mod(0x0) failed,
+   status bad parameter(0x3), syndrome (0xe4ac33)
+ * mlx5_cmd_check:752:(pid 12556): DESTROY_LAG(0x843) op_mod(0x0) failed,
+   status bad parameter(0x3), syndrome (0xa5aee8).
 
-Reported-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Link: https://lkml.kernel.org/r/791712792aa4431bdd55bf1beb33a169ddf3b4a2.1529423255.git.jpoimboe@redhat.com
+Fixes: a31208b1e11d ("net/mlx5_core: New init and exit flow for mlx5_core")
+Reviewed-by: Parav Pandit <parav@mellanox.com>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Mark Zhang <markz@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- tools/objtool/check.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlx5/core/main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -165,6 +165,7 @@ static int __dead_end_function(struct ob
- 		"__reiserfs_panic",
- 		"lbug_with_loc",
- 		"fortify_panic",
-+		"machine_real_restart",
- 	};
+--- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+@@ -778,7 +778,7 @@ static void mlx5_unregister_device(struc
+ 	struct mlx5_interface *intf;
  
- 	if (func->bind == STB_WEAK)
+ 	mutex_lock(&intf_mutex);
+-	list_for_each_entry(intf, &intf_list, list)
++	list_for_each_entry_reverse(intf, &intf_list, list)
+ 		mlx5_remove_device(intf, priv);
+ 	list_del(&priv->dev_list);
+ 	mutex_unlock(&intf_mutex);
 
 
