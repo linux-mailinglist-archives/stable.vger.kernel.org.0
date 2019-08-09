@@ -2,39 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7B0D87BEE
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:48:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F09F887BEC
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:48:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407262AbfHINsg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Aug 2019 09:48:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37506 "EHLO mail.kernel.org"
+        id S2407303AbfHINsb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Aug 2019 09:48:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407254AbfHINr3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Aug 2019 09:47:29 -0400
+        id S2407262AbfHINrc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Aug 2019 09:47:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C7A72086D;
-        Fri,  9 Aug 2019 13:47:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A263821783;
+        Fri,  9 Aug 2019 13:47:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565358448;
-        bh=9I+jFTe4CVg4SBn5kIG4JbU+BfzvJ6nCCHzgfhtmeII=;
+        s=default; t=1565358451;
+        bh=DRrNaQE8bB20GDFUYchsc3cTbYAGQ0SQNFxLbULFpOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yek1Y90zATwVsSSv58GiD7fAcmOepLO67y8iotRaNAzI2gjs0GtgtJP7U4UoJAATv
-         JduTGwM+jAjdFdglSsQrEzCXfKjN6l7C+C4b09r1rI9/vcz9C3eZO26d5VNK047DWK
-         1lF6552bIBBFbIICfd2ixbVoU6MArSxqEDVBvzz0=
+        b=OOxkfa/mseT1OogJlXtIUo+RL4WBZfQrcKiH3lBPjivCMo9veVOQtXvcNXYNGCrQq
+         nc8hKkVWB5hG2wEvcHQJnDSUlD6F0LjQWM1fPccVVr6cMpp5WjSt9YqYUHwilBAJk7
+         1G/sCnbhSd1VVPsPB+k2S1FdFNeAcKTNKZpIcIbc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        Martin Sperl <kernel@martin.sperl.org>,
-        Stefan Wahren <wahrenst@gmx.net>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.9 27/32] spi: bcm2835: Fix 3-wire mode if DMA is enabled
-Date:   Fri,  9 Aug 2019 15:45:30 +0200
-Message-Id: <20190809133923.804420993@linuxfoundation.org>
+        stable@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 28/32] x86: cpufeatures: Sort feature word 7
+Date:   Fri,  9 Aug 2019 15:45:31 +0200
+Message-Id: <20190809133923.834933284@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190809133922.945349906@linuxfoundation.org>
 References: <20190809133922.945349906@linuxfoundation.org>
@@ -47,51 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Ben Hutchings <ben@decadent.org.uk>
 
-commit 8d8bef50365847134b51c1ec46786bc2873e4e47 upstream.
+This will make it clearer which bits are allocated, in case we need to
+assign more feature bits for later backports.
 
-Commit 6935224da248 ("spi: bcm2835: enable support of 3-wire mode")
-added 3-wire support to the BCM2835 SPI driver by setting the REN bit
-(Read Enable) in the CS register when receiving data.  The REN bit puts
-the transmitter in high-impedance state.  The driver recognizes that
-data is to be received by checking whether the rx_buf of a transfer is
-non-NULL.
-
-Commit 3ecd37edaa2a ("spi: bcm2835: enable dma modes for transfers
-meeting certain conditions") subsequently broke 3-wire support because
-it set the SPI_MASTER_MUST_RX flag which causes spi_map_msg() to replace
-rx_buf with a dummy buffer if it is NULL.  As a result, rx_buf is
-*always* non-NULL if DMA is enabled.
-
-Reinstate 3-wire support by not only checking whether rx_buf is non-NULL,
-but also checking that it is not the dummy buffer.
-
-Fixes: 3ecd37edaa2a ("spi: bcm2835: enable dma modes for transfers meeting certain conditions")
-Reported-by: Nuno Sá <nuno.sa@analog.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v4.2+
-Cc: Martin Sperl <kernel@martin.sperl.org>
-Acked-by: Stefan Wahren <wahrenst@gmx.net>
-Link: https://lore.kernel.org/r/328318841455e505370ef8ecad97b646c033dc8a.1562148527.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/spi/spi-bcm2835.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/cpufeatures.h |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/spi/spi-bcm2835.c
-+++ b/drivers/spi/spi-bcm2835.c
-@@ -554,7 +554,8 @@ static int bcm2835_spi_transfer_one(stru
- 	bcm2835_wr(bs, BCM2835_SPI_CLK, cdiv);
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -201,9 +201,6 @@
  
- 	/* handle all the 3-wire mode */
--	if ((spi->mode & SPI_3WIRE) && (tfr->rx_buf))
-+	if (spi->mode & SPI_3WIRE && tfr->rx_buf &&
-+	    tfr->rx_buf != master->dummy_rx)
- 		cs |= BCM2835_SPI_CS_REN;
- 	else
- 		cs &= ~BCM2835_SPI_CS_REN;
+ #define X86_FEATURE_RSB_CTXSW	( 7*32+19) /* "" Fill RSB on context switches */
+ 
+-/* Because the ALTERNATIVE scheme is for members of the X86_FEATURE club... */
+-#define X86_FEATURE_KAISER	( 7*32+31) /* CONFIG_PAGE_TABLE_ISOLATION w/o nokaiser */
+-
+ #define X86_FEATURE_USE_IBPB	( 7*32+21) /* "" Indirect Branch Prediction Barrier enabled */
+ #define X86_FEATURE_USE_IBRS_FW	( 7*32+22) /* "" Use IBRS during runtime firmware calls */
+ #define X86_FEATURE_SPEC_STORE_BYPASS_DISABLE ( 7*32+23) /* "" Disable Speculative Store Bypass. */
+@@ -214,6 +211,7 @@
+ #define X86_FEATURE_ZEN		( 7*32+28) /* "" CPU is AMD family 0x17 (Zen) */
+ #define X86_FEATURE_L1TF_PTEINV	( 7*32+29) /* "" L1TF workaround PTE inversion */
+ #define X86_FEATURE_IBRS_ENHANCED	( 7*32+30) /* Enhanced IBRS */
++#define X86_FEATURE_KAISER	( 7*32+31) /* CONFIG_PAGE_TABLE_ISOLATION w/o nokaiser */
+ 
+ /* Virtualization flags: Linux defined, word 8 */
+ #define X86_FEATURE_TPR_SHADOW  ( 8*32+ 0) /* Intel TPR Shadow */
 
 
