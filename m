@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 226EC87BDD
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:48:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E357D87C08
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:49:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406928AbfHINr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Aug 2019 09:47:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38136 "EHLO mail.kernel.org"
+        id S2406779AbfHINp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Aug 2019 09:45:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436660AbfHINr5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Aug 2019 09:47:57 -0400
+        id S2406518AbfHINp7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Aug 2019 09:45:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76DE1214C6;
-        Fri,  9 Aug 2019 13:47:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EACB820B7C;
+        Fri,  9 Aug 2019 13:45:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565358477;
-        bh=MTFwszCrmSaCj63SpvMh7Xi8g7NApYngPDhIgzx0W1A=;
+        s=default; t=1565358358;
+        bh=9I+jFTe4CVg4SBn5kIG4JbU+BfzvJ6nCCHzgfhtmeII=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hIct4kHuOXH4Su1+mgLH2rgQjvCfoaTrvPjZjlXNRU7XQRsmjB2UotZhVdA6Ti0xp
-         D+C5V/gXzFzVvnpNDsBfx5EajsNlMWpW6uOATlJo9kRJfX5KFyQ8NuSIzGBPPfsNRa
-         lteoyluWjxTPLYOK2rqGp30wCmWkvz9sO0scjgbI=
+        b=MWZDm30JAicLH6IV/C8MRnt0u05ubfre9Xj8yX8NFrvayxVsN1NFqFUToJIlHYWE1
+         f8Lud7JuI/i4VAO4PLYdGzfoO2ZOp4tHUEcb0GrSH0+CCLxejNO36dPw8RZnoy9B2o
+         wLlK55oX/FgEbWoc0QP8tg+DGM9cLbGyF/B3MKao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 15/32] atm: iphase: Fix Spectre v1 vulnerability
-Date:   Fri,  9 Aug 2019 15:45:18 +0200
-Message-Id: <20190809133923.456414485@linuxfoundation.org>
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Lukas Wunner <lukas@wunner.de>,
+        Martin Sperl <kernel@martin.sperl.org>,
+        Stefan Wahren <wahrenst@gmx.net>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.4 15/21] spi: bcm2835: Fix 3-wire mode if DMA is enabled
+Date:   Fri,  9 Aug 2019 15:45:19 +0200
+Message-Id: <20190809134242.195463204@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190809133922.945349906@linuxfoundation.org>
-References: <20190809133922.945349906@linuxfoundation.org>
+In-Reply-To: <20190809134241.565496442@linuxfoundation.org>
+References: <20190809134241.565496442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +47,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit ea443e5e98b5b74e317ef3d26bcaea54931ccdee ]
+commit 8d8bef50365847134b51c1ec46786bc2873e4e47 upstream.
 
-board is controlled by user-space, hence leading to a potential
-exploitation of the Spectre variant 1 vulnerability.
+Commit 6935224da248 ("spi: bcm2835: enable support of 3-wire mode")
+added 3-wire support to the BCM2835 SPI driver by setting the REN bit
+(Read Enable) in the CS register when receiving data.  The REN bit puts
+the transmitter in high-impedance state.  The driver recognizes that
+data is to be received by checking whether the rx_buf of a transfer is
+non-NULL.
 
-This issue was detected with the help of Smatch:
+Commit 3ecd37edaa2a ("spi: bcm2835: enable dma modes for transfers
+meeting certain conditions") subsequently broke 3-wire support because
+it set the SPI_MASTER_MUST_RX flag which causes spi_map_msg() to replace
+rx_buf with a dummy buffer if it is NULL.  As a result, rx_buf is
+*always* non-NULL if DMA is enabled.
 
-drivers/atm/iphase.c:2765 ia_ioctl() warn: potential spectre issue 'ia_dev' [r] (local cap)
-drivers/atm/iphase.c:2774 ia_ioctl() warn: possible spectre second half.  'iadev'
-drivers/atm/iphase.c:2782 ia_ioctl() warn: possible spectre second half.  'iadev'
-drivers/atm/iphase.c:2816 ia_ioctl() warn: possible spectre second half.  'iadev'
-drivers/atm/iphase.c:2823 ia_ioctl() warn: possible spectre second half.  'iadev'
-drivers/atm/iphase.c:2830 ia_ioctl() warn: potential spectre issue '_ia_dev' [r] (local cap)
-drivers/atm/iphase.c:2845 ia_ioctl() warn: possible spectre second half.  'iadev'
-drivers/atm/iphase.c:2856 ia_ioctl() warn: possible spectre second half.  'iadev'
+Reinstate 3-wire support by not only checking whether rx_buf is non-NULL,
+but also checking that it is not the dummy buffer.
 
-Fix this by sanitizing board before using it to index ia_dev and _ia_dev
-
-Notice that given that speculation windows are large, the policy is
-to kill the speculation on the first load and not worry if it can be
-completed with a dependent load/store [1].
-
-[1] https://lore.kernel.org/lkml/20180423164740.GY17484@dhcp22.suse.cz/
-
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 3ecd37edaa2a ("spi: bcm2835: enable dma modes for transfers meeting certain conditions")
+Reported-by: Nuno Sá <nuno.sa@analog.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v4.2+
+Cc: Martin Sperl <kernel@martin.sperl.org>
+Acked-by: Stefan Wahren <wahrenst@gmx.net>
+Link: https://lore.kernel.org/r/328318841455e505370ef8ecad97b646c033dc8a.1562148527.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/atm/iphase.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/atm/iphase.c
-+++ b/drivers/atm/iphase.c
-@@ -63,6 +63,7 @@
- #include <asm/byteorder.h>  
- #include <linux/vmalloc.h>
- #include <linux/jiffies.h>
-+#include <linux/nospec.h>
- #include "iphase.h"		  
- #include "suni.h"		  
- #define swap_byte_order(x) (((x & 0xff) << 8) | ((x & 0xff00) >> 8))
-@@ -2760,8 +2761,11 @@ static int ia_ioctl(struct atm_dev *dev,
-    }
-    if (copy_from_user(&ia_cmds, arg, sizeof ia_cmds)) return -EFAULT; 
-    board = ia_cmds.status;
--   if ((board < 0) || (board > iadev_count))
--         board = 0;    
-+
-+	if ((board < 0) || (board > iadev_count))
-+		board = 0;
-+	board = array_index_nospec(board, iadev_count + 1);
-+
-    iadev = ia_dev[board];
-    switch (ia_cmds.cmd) {
-    case MEMDUMP:
+---
+ drivers/spi/spi-bcm2835.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/drivers/spi/spi-bcm2835.c
++++ b/drivers/spi/spi-bcm2835.c
+@@ -554,7 +554,8 @@ static int bcm2835_spi_transfer_one(stru
+ 	bcm2835_wr(bs, BCM2835_SPI_CLK, cdiv);
+ 
+ 	/* handle all the 3-wire mode */
+-	if ((spi->mode & SPI_3WIRE) && (tfr->rx_buf))
++	if (spi->mode & SPI_3WIRE && tfr->rx_buf &&
++	    tfr->rx_buf != master->dummy_rx)
+ 		cs |= BCM2835_SPI_CS_REN;
+ 	else
+ 		cs &= ~BCM2835_SPI_CS_REN;
 
 
