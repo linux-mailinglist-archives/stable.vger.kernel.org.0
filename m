@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88225871F5
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 08:09:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0791987207
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 08:14:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405239AbfHIGJG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Aug 2019 02:09:06 -0400
-Received: from mx2.suse.de ([195.135.220.15]:57846 "EHLO mx1.suse.de"
+        id S2405339AbfHIGOU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Aug 2019 02:14:20 -0400
+Received: from mx2.suse.de ([195.135.220.15]:58694 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725850AbfHIGJF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Aug 2019 02:09:05 -0400
+        id S1725920AbfHIGOU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Aug 2019 02:14:20 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 6AFC0AF00;
-        Fri,  9 Aug 2019 06:09:03 +0000 (UTC)
+        by mx1.suse.de (Postfix) with ESMTP id 629D5AC67;
+        Fri,  9 Aug 2019 06:14:18 +0000 (UTC)
 From:   Coly Li <colyli@suse.de>
 To:     axboe@kernel.dk
 Cc:     linux-bcache@vger.kernel.org, linux-block@vger.kernel.org,
         Coly Li <colyli@suse.de>, stable@vger.kernel.org,
         Alexandru Ardelean <alexandru.ardelean@analog.com>
-Subject: [PATCH 1/1] bcache: Revert "bcache: use sysfs_match_string() instead of __sysfs_match_string()"
-Date:   Fri,  9 Aug 2019 14:08:29 +0800
-Message-Id: <20190809060829.73489-2-colyli@suse.de>
+Subject: [PATCH v2 1/1] bcache: Revert "bcache: use sysfs_match_string() instead of __sysfs_match_string()"
+Date:   Fri,  9 Aug 2019 14:14:05 +0800
+Message-Id: <20190809061405.73653-2-colyli@suse.de>
 X-Mailer: git-send-email 2.16.4
-In-Reply-To: <20190809060829.73489-1-colyli@suse.de>
-References: <20190809060829.73489-1-colyli@suse.de>
+In-Reply-To: <20190809061405.73653-1-colyli@suse.de>
+References: <20190809061405.73653-1-colyli@suse.de>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -87,6 +87,7 @@ sysfs_match_string() instead of __sysfs_match_string()").
 This bug was introduced in Linux v5.2, so this fix only applies to
 Linux v5.2 is enough for stable tree maintainer.
 
+Fixes: 89e0341af082 ("bcache: use sysfs_match_string() instead of __sysfs_match_string()")
 Signed-off-by: Coly Li <colyli@suse.de>
 Reported-by: Peifeng Lin <pflin@suse.com>
 Cc: stable@vger.kernel.org
