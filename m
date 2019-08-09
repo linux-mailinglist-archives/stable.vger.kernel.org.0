@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4040E87C02
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:49:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2EB887BCA
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:47:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406562AbfHINtL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Aug 2019 09:49:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36072 "EHLO mail.kernel.org"
+        id S2407209AbfHINrM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Aug 2019 09:47:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436499AbfHINq1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Aug 2019 09:46:27 -0400
+        id S2407191AbfHINrG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Aug 2019 09:47:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A3902086D;
-        Fri,  9 Aug 2019 13:46:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6CD521882;
+        Fri,  9 Aug 2019 13:47:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565358386;
-        bh=SD3gc0RxDtOmEAVSJ/BEmU++zbgiLp/zqEl+cGGU/aU=;
+        s=default; t=1565358425;
+        bh=GMqdQoXIWjF57ZTZWSOEgTW3aV1UfI7oxWttN+HsNz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0DtGeGh6WNH445O+iblZFNp71+F4sT9y8kKAfs/CTZWbYeux22fsRn79HDGbNRO0o
-         pvigfr4OV9aLeKsM8arCBn58vgDX+k30eY4xCkhc+Q41ACkXzX/PLV2T3ffMVSfvG/
-         BbffJoc7/sJOyTQMjlGntP4TNEBVu1JmaWbipb74=
+        b=kvdrkSwhp39LVy0K1nmGeFTddUB+oI2xMjABLffstUVav9+wZj/PbvsXCpG+9cpVP
+         n5RCC13qq4rQS4i96dYWqBZTicSiA10UegFbPyOMdZzs8lVJrYnIZPaqdV33mbLUvV
+         wPg90arML8LfuhgjyACrpviXRsWnAxD+aBBRKnR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.4 18/21] x86/speculation: Prepare entry code for Spectre v1 swapgs mitigations
+        stable@vger.kernel.org, Parav Pandit <parav@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Mark Zhang <markz@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 4.9 19/32] net/mlx5: Use reversed order when unregister devices
 Date:   Fri,  9 Aug 2019 15:45:22 +0200
-Message-Id: <20190809134242.317726553@linuxfoundation.org>
+Message-Id: <20190809133923.571819099@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190809134241.565496442@linuxfoundation.org>
-References: <20190809134241.565496442@linuxfoundation.org>
+In-Reply-To: <20190809133922.945349906@linuxfoundation.org>
+References: <20190809133922.945349906@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,213 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Mark Zhang <markz@mellanox.com>
 
-commit 18ec54fdd6d18d92025af097cd042a75cf0ea24c upstream.
+[ Upstream commit 08aa5e7da6bce1a1963f63cf32c2e7ad434ad578 ]
 
-Spectre v1 isn't only about array bounds checks.  It can affect any
-conditional checks.  The kernel entry code interrupt, exception, and NMI
-handlers all have conditional swapgs checks.  Those may be problematic in
-the context of Spectre v1, as kernel code can speculatively run with a user
-GS.
+When lag is active, which is controlled by the bonded mlx5e netdev, mlx5
+interface unregestering must happen in the reverse order where rdma is
+unregistered (unloaded) first, to guarantee all references to the lag
+context in hardware is removed, then remove mlx5e netdev interface which
+will cleanup the lag context from hardware.
 
-For example:
+Without this fix during destroy of LAG interface, we observed following
+errors:
+ * mlx5_cmd_check:752:(pid 12556): DESTROY_LAG(0x843) op_mod(0x0) failed,
+   status bad parameter(0x3), syndrome (0xe4ac33)
+ * mlx5_cmd_check:752:(pid 12556): DESTROY_LAG(0x843) op_mod(0x0) failed,
+   status bad parameter(0x3), syndrome (0xa5aee8).
 
-	if (coming from user space)
-		swapgs
-	mov %gs:<percpu_offset>, %reg
-	mov (%reg), %reg1
-
-When coming from user space, the CPU can speculatively skip the swapgs, and
-then do a speculative percpu load using the user GS value.  So the user can
-speculatively force a read of any kernel value.  If a gadget exists which
-uses the percpu value as an address in another load/store, then the
-contents of the kernel value may become visible via an L1 side channel
-attack.
-
-A similar attack exists when coming from kernel space.  The CPU can
-speculatively do the swapgs, causing the user GS to get used for the rest
-of the speculative window.
-
-The mitigation is similar to a traditional Spectre v1 mitigation, except:
-
-  a) index masking isn't possible; because the index (percpu offset)
-     isn't user-controlled; and
-
-  b) an lfence is needed in both the "from user" swapgs path and the
-     "from kernel" non-swapgs path (because of the two attacks described
-     above).
-
-The user entry swapgs paths already have SWITCH_TO_KERNEL_CR3, which has a
-CR3 write when PTI is enabled.  Since CR3 writes are serializing, the
-lfences can be skipped in those cases.
-
-On the other hand, the kernel entry swapgs paths don't depend on PTI.
-
-To avoid unnecessary lfences for the user entry case, create two separate
-features for alternative patching:
-
-  X86_FEATURE_FENCE_SWAPGS_USER
-  X86_FEATURE_FENCE_SWAPGS_KERNEL
-
-Use these features in entry code to patch in lfences where needed.
-
-The features aren't enabled yet, so there's no functional change.
-
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Dave Hansen <dave.hansen@intel.com>
-[bwh: Backported to 4.4:
- - Assign the CPU feature bits from word 7
- - Add FENCE_SWAPGS_KERNEL_ENTRY to NMI entry, since it does not
-   use paranoid_entry
- - Include <asm/cpufeatures.h> in calling.h
- - Adjust context]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Fixes: a31208b1e11d ("net/mlx5_core: New init and exit flow for mlx5_core")
+Reviewed-by: Parav Pandit <parav@mellanox.com>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Mark Zhang <markz@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/entry/calling.h           |   19 +++++++++++++++++++
- arch/x86/entry/entry_64.S          |   21 +++++++++++++++++++--
- arch/x86/include/asm/cpufeatures.h |    3 +++
- 3 files changed, 41 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/dev.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/entry/calling.h
-+++ b/arch/x86/entry/calling.h
-@@ -1,3 +1,5 @@
-+#include <asm/cpufeatures.h>
-+
- /*
+--- a/drivers/net/ethernet/mellanox/mlx5/core/dev.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/dev.c
+@@ -207,7 +207,7 @@ void mlx5_unregister_device(struct mlx5_
+ 	struct mlx5_interface *intf;
  
-  x86 function call convention, 64-bit:
-@@ -199,6 +201,23 @@ For 32-bit we have the following convent
- 	.byte 0xf1
- 	.endm
- 
-+/*
-+ * Mitigate Spectre v1 for conditional swapgs code paths.
-+ *
-+ * FENCE_SWAPGS_USER_ENTRY is used in the user entry swapgs code path, to
-+ * prevent a speculative swapgs when coming from kernel space.
-+ *
-+ * FENCE_SWAPGS_KERNEL_ENTRY is used in the kernel entry non-swapgs code path,
-+ * to prevent the swapgs from getting speculatively skipped when coming from
-+ * user space.
-+ */
-+.macro FENCE_SWAPGS_USER_ENTRY
-+	ALTERNATIVE "", "lfence", X86_FEATURE_FENCE_SWAPGS_USER
-+.endm
-+.macro FENCE_SWAPGS_KERNEL_ENTRY
-+	ALTERNATIVE "", "lfence", X86_FEATURE_FENCE_SWAPGS_KERNEL
-+.endm
-+
- #else /* CONFIG_X86_64 */
- 
- /*
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -551,6 +551,7 @@ END(irq_entries_start)
- 	 * tracking that we're in kernel mode.
- 	 */
- 	SWAPGS
-+	FENCE_SWAPGS_USER_ENTRY
- 	SWITCH_KERNEL_CR3
- 
- 	/*
-@@ -566,8 +567,10 @@ END(irq_entries_start)
- #ifdef CONFIG_CONTEXT_TRACKING
- 	call enter_from_user_mode
- #endif
--
-+	jmpq	2f
- 1:
-+	FENCE_SWAPGS_KERNEL_ENTRY
-+2:
- 	/*
- 	 * Save previous stack pointer, optionally switch to interrupt stack.
- 	 * irq_count is used to check if a CPU is already on an interrupt stack
-@@ -1077,6 +1080,13 @@ ENTRY(paranoid_entry)
- 	movq	%rax, %cr3
- 2:
- #endif
-+	/*
-+	 * The above doesn't do an unconditional CR3 write, even in the PTI
-+	 * case.  So do an lfence to prevent GS speculation, regardless of
-+	 * whether PTI is enabled.
-+	 */
-+	FENCE_SWAPGS_KERNEL_ENTRY
-+
- 	ret
- END(paranoid_entry)
- 
-@@ -1138,6 +1148,7 @@ ENTRY(error_entry)
- 	 * from user mode due to an IRET fault.
- 	 */
- 	SWAPGS
-+	FENCE_SWAPGS_USER_ENTRY
- 
- .Lerror_entry_from_usermode_after_swapgs:
- 	/*
-@@ -1151,6 +1162,8 @@ ENTRY(error_entry)
- #endif
- 	ret
- 
-+.Lerror_entry_done_lfence:
-+	FENCE_SWAPGS_KERNEL_ENTRY
- .Lerror_entry_done:
- 	TRACE_IRQS_OFF
- 	ret
-@@ -1169,7 +1182,7 @@ ENTRY(error_entry)
- 	cmpq	%rax, RIP+8(%rsp)
- 	je	.Lbstep_iret
- 	cmpq	$gs_change, RIP+8(%rsp)
--	jne	.Lerror_entry_done
-+	jne	.Lerror_entry_done_lfence
- 
- 	/*
- 	 * hack: gs_change can fail with user gsbase.  If this happens, fix up
-@@ -1177,6 +1190,7 @@ ENTRY(error_entry)
- 	 * gs_change's error handler with kernel gsbase.
- 	 */
- 	SWAPGS
-+	FENCE_SWAPGS_USER_ENTRY
- 	jmp .Lerror_entry_done
- 
- .Lbstep_iret:
-@@ -1190,6 +1204,7 @@ ENTRY(error_entry)
- 	 * Switch to kernel gsbase:
- 	 */
- 	SWAPGS
-+	FENCE_SWAPGS_USER_ENTRY
- 
- 	/*
- 	 * Pretend that the exception came from user mode: set up pt_regs
-@@ -1286,6 +1301,7 @@ ENTRY(nmi)
- 	 * to switch CR3 here.
- 	 */
- 	cld
-+	FENCE_SWAPGS_USER_ENTRY
- 	movq	%rsp, %rdx
- 	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
- 	pushq	5*8(%rdx)	/* pt_regs->ss */
-@@ -1574,6 +1590,7 @@ end_repeat_nmi:
- 	movq	%rax, %cr3
- 2:
- #endif
-+	FENCE_SWAPGS_KERNEL_ENTRY
- 
- 	/* paranoidentry do_nmi, 0; without TRACE_IRQS_OFF */
- 	call	do_nmi
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -192,6 +192,9 @@
- #define X86_FEATURE_HW_PSTATE	( 7*32+ 8) /* AMD HW-PState */
- #define X86_FEATURE_PROC_FEEDBACK ( 7*32+ 9) /* AMD ProcFeedbackInterface */
- 
-+#define X86_FEATURE_FENCE_SWAPGS_USER	( 7*32+10) /* "" LFENCE in user entry SWAPGS path */
-+#define X86_FEATURE_FENCE_SWAPGS_KERNEL	( 7*32+11) /* "" LFENCE in kernel entry SWAPGS path */
-+
- #define X86_FEATURE_RETPOLINE	( 7*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
- #define X86_FEATURE_RETPOLINE_AMD ( 7*32+13) /* "" AMD Retpoline mitigation for Spectre variant 2 */
- 
+ 	mutex_lock(&mlx5_intf_mutex);
+-	list_for_each_entry(intf, &intf_list, list)
++	list_for_each_entry_reverse(intf, &intf_list, list)
+ 		mlx5_remove_device(intf, priv);
+ 	list_del(&priv->dev_list);
+ 	mutex_unlock(&mlx5_intf_mutex);
 
 
