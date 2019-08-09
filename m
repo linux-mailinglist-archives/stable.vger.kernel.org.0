@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E66DA87BF5
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:48:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7B0D87BEE
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436595AbfHINrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Aug 2019 09:47:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37410 "EHLO mail.kernel.org"
+        id S2407262AbfHINsg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Aug 2019 09:48:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406726AbfHINrY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Aug 2019 09:47:24 -0400
+        id S2407254AbfHINr3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Aug 2019 09:47:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCB68218BE;
-        Fri,  9 Aug 2019 13:47:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C7A72086D;
+        Fri,  9 Aug 2019 13:47:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565358443;
-        bh=e2DIQVMMi3yR2vEVsSG5Vk16/gOOU9jsKQN4DNooXhM=;
+        s=default; t=1565358448;
+        bh=9I+jFTe4CVg4SBn5kIG4JbU+BfzvJ6nCCHzgfhtmeII=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uJF+SvxaisyqF05yMBVpcDEKNXaaolvVZBrLoILvetoqBiq9VF6XbB/swN6AL5X3A
-         UWOXcX1A8RnA3oVaKXg8nKcd2z6N0RNpsJHqsV/3D4aW+CLeoPoi1prlLG10EMgUob
-         mCy39thsx/cuJhAU/Ly+gXvGHF8idWEYk1K9Oa/0=
+        b=Yek1Y90zATwVsSSv58GiD7fAcmOepLO67y8iotRaNAzI2gjs0GtgtJP7U4UoJAATv
+         JduTGwM+jAjdFdglSsQrEzCXfKjN6l7C+C4b09r1rI9/vcz9C3eZO26d5VNK047DWK
+         1lF6552bIBBFbIICfd2ixbVoU6MArSxqEDVBvzz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Bart Van Assche <bart.vanassche@wdc.com>,
-        xiao jin <jin.xiao@intel.com>, Jens Axboe <axboe@kernel.dk>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Alessio Balsini <balsini@android.com>
-Subject: [PATCH 4.9 26/32] block: blk_init_allocated_queue() set q->fq as NULL in the fail case
-Date:   Fri,  9 Aug 2019 15:45:29 +0200
-Message-Id: <20190809133923.771602436@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Lukas Wunner <lukas@wunner.de>,
+        Martin Sperl <kernel@martin.sperl.org>,
+        Stefan Wahren <wahrenst@gmx.net>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 27/32] spi: bcm2835: Fix 3-wire mode if DMA is enabled
+Date:   Fri,  9 Aug 2019 15:45:30 +0200
+Message-Id: <20190809133923.804420993@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190809133922.945349906@linuxfoundation.org>
 References: <20190809133922.945349906@linuxfoundation.org>
@@ -46,48 +47,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xiao jin <jin.xiao@intel.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 54648cf1ec2d7f4b6a71767799c45676a138ca24 upstream.
+commit 8d8bef50365847134b51c1ec46786bc2873e4e47 upstream.
 
-We find the memory use-after-free issue in __blk_drain_queue()
-on the kernel 4.14. After read the latest kernel 4.18-rc6 we
-think it has the same problem.
+Commit 6935224da248 ("spi: bcm2835: enable support of 3-wire mode")
+added 3-wire support to the BCM2835 SPI driver by setting the REN bit
+(Read Enable) in the CS register when receiving data.  The REN bit puts
+the transmitter in high-impedance state.  The driver recognizes that
+data is to be received by checking whether the rx_buf of a transfer is
+non-NULL.
 
-Memory is allocated for q->fq in the blk_init_allocated_queue().
-If the elevator init function called with error return, it will
-run into the fail case to free the q->fq.
+Commit 3ecd37edaa2a ("spi: bcm2835: enable dma modes for transfers
+meeting certain conditions") subsequently broke 3-wire support because
+it set the SPI_MASTER_MUST_RX flag which causes spi_map_msg() to replace
+rx_buf with a dummy buffer if it is NULL.  As a result, rx_buf is
+*always* non-NULL if DMA is enabled.
 
-Then the __blk_drain_queue() uses the same memory after the free
-of the q->fq, it will lead to the unpredictable event.
+Reinstate 3-wire support by not only checking whether rx_buf is non-NULL,
+but also checking that it is not the dummy buffer.
 
-The patch is to set q->fq as NULL in the fail case of
-blk_init_allocated_queue().
-
-Fixes: commit 7c94e1c157a2 ("block: introduce blk_flush_queue to drive flush machinery")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Bart Van Assche <bart.vanassche@wdc.com>
-Signed-off-by: xiao jin <jin.xiao@intel.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[groeck: backport to v4.4.y/v4.9.y (context change)]
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Alessio Balsini <balsini@android.com>
+Fixes: 3ecd37edaa2a ("spi: bcm2835: enable dma modes for transfers meeting certain conditions")
+Reported-by: Nuno Sá <nuno.sa@analog.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v4.2+
+Cc: Martin Sperl <kernel@martin.sperl.org>
+Acked-by: Stefan Wahren <wahrenst@gmx.net>
+Link: https://lore.kernel.org/r/328318841455e505370ef8ecad97b646c033dc8a.1562148527.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk-core.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/spi/spi-bcm2835.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -881,6 +881,7 @@ blk_init_allocated_queue(struct request_
+--- a/drivers/spi/spi-bcm2835.c
++++ b/drivers/spi/spi-bcm2835.c
+@@ -554,7 +554,8 @@ static int bcm2835_spi_transfer_one(stru
+ 	bcm2835_wr(bs, BCM2835_SPI_CLK, cdiv);
  
- fail:
- 	blk_free_flush_queue(q->fq);
-+	q->fq = NULL;
- 	return NULL;
- }
- EXPORT_SYMBOL(blk_init_allocated_queue);
+ 	/* handle all the 3-wire mode */
+-	if ((spi->mode & SPI_3WIRE) && (tfr->rx_buf))
++	if (spi->mode & SPI_3WIRE && tfr->rx_buf &&
++	    tfr->rx_buf != master->dummy_rx)
+ 		cs |= BCM2835_SPI_CS_REN;
+ 	else
+ 		cs &= ~BCM2835_SPI_CS_REN;
 
 
