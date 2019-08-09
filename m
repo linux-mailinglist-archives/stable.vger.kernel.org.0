@@ -2,80 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9020887E76
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 17:49:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D306287E7B
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 17:50:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436836AbfHIPtE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Aug 2019 11:49:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32790 "EHLO mail.kernel.org"
+        id S2436790AbfHIPuD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Aug 2019 11:50:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436655AbfHIPtE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Aug 2019 11:49:04 -0400
+        id S1726255AbfHIPuD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Aug 2019 11:50:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10D6A214C6;
-        Fri,  9 Aug 2019 15:49:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B158C20C01;
+        Fri,  9 Aug 2019 15:50:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565365743;
-        bh=L0lHJ8jW+AhQXl+lJraOaNnNIWVCBRVByQboI5E+1XM=;
+        s=default; t=1565365802;
+        bh=GBvcC4H9ZYzRjc5I7cZjAnSCulmVNW7ss5o5V6v8NDU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=aCIUvessXBGskz8SabBb4lbM/+KCk2PRNSnHsSeOwyXbdlh/oDCGC0W3sKvq2G/YB
-         yPktEkI1OKxmRhc2mJqa70JzZeEfa9aOBbxlJ/D0+rZnMKjwo1mA17qoh4NgMQ/AhS
-         0xK23T5p3Dzi+saC7bUvIiJf2qfHK81uV8zlxwaM=
-Date:   Fri, 9 Aug 2019 17:49:01 +0200
+        b=O5aTw8LGbLg5poB3h/+9RXvF8+xi45tn0fuq758bQ4fLwFffvHY5cX5wYdIwoihpk
+         OrzYk3WQGEBuj0CEHNBSuHh/5bkjxew+QtA8O1Z0m8gLRejFKIeG33lJ0AUPpelEta
+         KTgQZi9w8LP1H1X1Eq3Q+T8V36XfK12KM9wBPpL4=
+Date:   Fri, 9 Aug 2019 17:49:59 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Thierry Reding <treding@nvidia.com>
+To:     Thierry Reding <thierry.reding@gmail.com>
 Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org, linux-tegra@vger.kernel.org
-Subject: Re: [PATCH 5.2 00/56] 5.2.8-stable review
-Message-ID: <20190809154901.GC22879@kroah.com>
-References: <20190808190452.867062037@linuxfoundation.org>
- <20190809144846.25144-1-treding@nvidia.com>
+Subject: Re: [PATCH 5.2 00/20] 5.2.6-stable review
+Message-ID: <20190809154959.GD22879@kroah.com>
+References: <20190802092055.131876977@linuxfoundation.org>
+ <20190802172105.18999-1-thierry.reding@gmail.com>
+ <20190803070932.GB24334@kroah.com>
+ <20190805114821.GA24378@ulmo>
+ <20190809085253.GA25046@kroah.com>
+ <20190809130449.GA27957@ulmo>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190809144846.25144-1-treding@nvidia.com>
+In-Reply-To: <20190809130449.GA27957@ulmo>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 09, 2019 at 04:48:46PM +0200, Thierry Reding wrote:
-> On Thu, 08 Aug 2019 21:04:26 +0200, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.2.8 release.
-> > There are 56 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
+On Fri, Aug 09, 2019 at 03:04:49PM +0200, Thierry Reding wrote:
+> On Fri, Aug 09, 2019 at 10:52:53AM +0200, Greg Kroah-Hartman wrote:
+> > On Mon, Aug 05, 2019 at 01:48:21PM +0200, Thierry Reding wrote:
+> > > Hi Greg,
 > > 
-> > Responses should be made by Sat 10 Aug 2019 07:03:19 PM UTC.
-> > Anything received after that time might be too late.
+> > Sorry for the delay, this got pushed down my queue...
 > > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.8-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
-> > and the diffstat can be found below.
+> > > I stumbled across something as I was attempting to automate more parts
+> > > of our process to generate these reports. The original test results were
+> > > from a different version of the tree: 5.2.6-rc1-gdbc7f5c7df28. I suspect
+> > > that's the same thing that you were discussing with Pavel regarding the
+> > > IP tunnel patch that was added subsequent to the announcement.
+> > > 
+> > > Just for my understanding, does this mean that the patch still makes it
+> > > into the 5.2.6 release, or was it supposed to go into 5.2.7?
+> > > 
+> > > One problem that I ran into was that when I tried to correlate the test
+> > > results with your announcement email, there's no indication other than
+> > > the branch name and the release candidate name (5.2.6-rc1 in this case),
+> > > so there's no way to uniquely identify which test run belongs to the
+> > > announcement. Given that there are no tags for the release candidates
+> > > means that that's also not an option to uniquely associate with the
+> > > builds and tests.
+> > > 
+> > > While the differences between the two builds are very minor here, I
+> > > wonder if there could perhaps in the future be a problem where I report
+> > > successful results for a test, but the same tests would be broken by a
+> > > patch added to the stable-rc branch subsequent to the announcement. The
+> > > test report would be misleading in that case.
+> > > 
+> > > I noticed that you do add a couple of X-KernelTest-* headers to your
+> > > announcement emails, so I'm wondering if perhaps it was possible for you
+> > > to add another one that contains the exact SHA1 that corresponds to the
+> > > snapshot that's the release candidate. That would allow everyone to
+> > > uniquely associate test results with a specific release candidate.
+> > > 
+> > > That said, perhaps I've just got this all wrong and there's already a
+> > > way to connect all the dots that I'm not aware of. Or maybe I'm being
+> > > too pedantic here?
 > > 
-> > thanks,
+> > You aren't being pedantic, I think you are missing exactly what the
+> > linux-stable-rc tree is for and how it is created.
 > > 
-> > greg k-h
+> > Granted, it's not really documented anywhere so it's not your fault :)
+> > 
+> > The linux-stable-rc tree is there ONLY for people who want to test the
+> > -rc kernels and can not, or do not want to, use the quilt tree of
+> > patches in the stable-queue.git tree on kernel.org.  I generate the
+> > branches there from a script that throws away the current -rc branch and
+> > rebuilds it "from scratch" by applying the patches that are in the
+> > stable-quilt tree and then adds the -rc patch as well.  This tree is
+> > generated multiple times when I am working on the queues and then when I
+> > want to do a "real" -rc release.
+> > 
+> > The branches are constantly rebased, so you can not rely on 'git pull'
+> > doing the right thing (unless you add --rebase to it), and are there for
+> > testing only.
+> > 
+> > Yes, you will see different results of a "-rc1" release in the tree
+> > depending on the time of day/week when I created the tree, and sometimes
+> > I generate them multiple times a day just to have some of the
+> > auto-builders give me results quickly (Linaro does pull from it and
+> > sends me results within the hour usually).
+> > 
+> > So does that help?  Ideally everyone would just use the quilt trees from
+> > stable-queue.git, but no everyone likes that, so the -rc git tree is
+> > there to make automated testing "easier".  If that works with your
+> > workflow, wonderful, feel free to use it.  If not, then go with the
+> > stable-quilt.git tree, or the tarballs on kernel.org.
 > 
-> All tests passing for Tegra ...
+> I'll have to look into that, to see if that'd work. I have to admit that
+> having a git tree to point scripts at is rather convenient for
+> automation.
 > 
-> Test results for stable-v5.2:
->     12 builds:	12 pass, 0 fail
->     22 boots:	22 pass, 0 fail
->     38 tests:	38 pass, 0 fail
+> > And as for the SHA1 being in the emails, that doesn't make all that much
+> > sense as that SHA1 doesn't live very long.  When I create the trees
+> > locally, I instantly delete them after pushing them to kernel.org so I
+> > can't regenerate them or do anything with them.
 > 
-> Linux version:	5.2.8-rc1-gbd703501e2df
-> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
->                 tegra194-p2972-0000, tegra20-ventana,
->                 tegra210-p2371-2180, tegra30-cardhu-a04
+> Fair enough. I suppose the worst thing that could happen is that we may
+> fail to test a couple of commits occasionally. In the rare case where
+> this actually matters we'll likely end up reporting the failure for the
+> stable release, in which case it can be fixed in the next one.
+> 
+> > DOes that help explain things better?
+> 
+> Yes, makes a lot more sense now. Thanks for taking the time to explain
+> it. Do you want me to snapshot this and submit it as documentation
+> somewhere for later reference?
 
-Great!  Thanks for testing these and letting me know.
+It probably should go somewhere, but as the number of people that do
+"test stable kernels in an automated way" is very low, so far I've been
+doing ok with a one-by-one explaination.  I guess if it's more obvious,
+more people would test, so sure, this should be cleaned up...
+
+thanks,
 
 greg k-h
