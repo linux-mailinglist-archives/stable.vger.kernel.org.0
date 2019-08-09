@@ -2,173 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0791987207
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 08:14:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3CF487359
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 09:45:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405339AbfHIGOU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Aug 2019 02:14:20 -0400
-Received: from mx2.suse.de ([195.135.220.15]:58694 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725920AbfHIGOU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Aug 2019 02:14:20 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 629D5AC67;
-        Fri,  9 Aug 2019 06:14:18 +0000 (UTC)
-From:   Coly Li <colyli@suse.de>
-To:     axboe@kernel.dk
-Cc:     linux-bcache@vger.kernel.org, linux-block@vger.kernel.org,
-        Coly Li <colyli@suse.de>, stable@vger.kernel.org,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>
-Subject: [PATCH v2 1/1] bcache: Revert "bcache: use sysfs_match_string() instead of __sysfs_match_string()"
-Date:   Fri,  9 Aug 2019 14:14:05 +0800
-Message-Id: <20190809061405.73653-2-colyli@suse.de>
-X-Mailer: git-send-email 2.16.4
-In-Reply-To: <20190809061405.73653-1-colyli@suse.de>
-References: <20190809061405.73653-1-colyli@suse.de>
+        id S2405831AbfHIHpk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Aug 2019 03:45:40 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:38846 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725985AbfHIHpj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Aug 2019 03:45:39 -0400
+Received: by mail-lj1-f195.google.com with SMTP id r9so91223966ljg.5
+        for <stable@vger.kernel.org>; Fri, 09 Aug 2019 00:45:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=UKjqWVTr3C0h3J0Gp1sJ/fu+v2mH08178mLseAx4SEg=;
+        b=zV887WZ71uphJqnEtqJVRd5LDIKGEbZwoVbc+JsGW7qUdVJ23nKQ3ENwCQG/UpNy3g
+         SgDwHFRvXV0CJukLVYAdRDPNw218VPF+VUOP4ocsewVnvDUaOBks65UgXF3ffo/SwGi9
+         9R426gam0A5xgE41ONhVf7Jp6z2bEBC7HuJEUEl2hCkNkxvkCTuduj4km/n5fTXu2ZyW
+         heQrLiGKbJmFHn9VSH839xzKkG/DdH2CFpfAXtSX+lMO8Jg9DYBqpFbhXf33PJrZWz3q
+         Own8UBYbD7TAiYibQnQ9pqMN4hRWOdJXG6Ovzfj4ZptBkxcdAz8KPL6XzyTCtcsXhBhB
+         Z46A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=UKjqWVTr3C0h3J0Gp1sJ/fu+v2mH08178mLseAx4SEg=;
+        b=R99SrncXgLNokEq/z4mCD2E1Sq6psVExMmJe16H/mXgC55sKwG7MRYk+fkIwzL7hLV
+         Zv64iiL8AtguxB1jnRcBr0uGTOHNS7FiMkdCgo9ZkcKcP1mBbqhCnXTjZN4Fcyj8RTkC
+         dc4PfjrpfVFHPxV61VBP6lZzzPuZFjlVKb34aDERRZXwkb96GnRcttZFj5QQtz83GT6u
+         1ZJPliiecrMKIRhCkl7jnF8eJi8WWNr/wS3zpE2BvP1Vg4sTVMpeuT3HjJjtefYm6HRX
+         emtSnUVff1zh3AeJtBcbC5oEuUyc0DsqsOuJVmhgXRxiyvG/4WqgxsgfwDlbD8sS/15y
+         xX3w==
+X-Gm-Message-State: APjAAAU4UKuFuxbPy2L0R2ddVmyxBRIypnslbKjN7uvhnghioHARxNhX
+        aw+z5P45pMA71/49FB4bbQA7ZGJ7TNbhSv/rEVgJSw==
+X-Google-Smtp-Source: APXvYqxQF3/llLZUEjwl9FOWOaGb6gHftmmhIfPXJkdJcrA4FUOkHo+lbOSXCamIxalOcNksaViXfhjysqRQIXrXEPk=
+X-Received: by 2002:a2e:85d7:: with SMTP id h23mr10823578ljj.53.1565336737777;
+ Fri, 09 Aug 2019 00:45:37 -0700 (PDT)
+MIME-Version: 1.0
+References: <20190808190452.867062037@linuxfoundation.org>
+In-Reply-To: <20190808190452.867062037@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 9 Aug 2019 13:15:26 +0530
+Message-ID: <CA+G9fYuAYB11dZefGa7bY27Dz3GrKZWQurLaCwOehx1mLDWTOA@mail.gmail.com>
+Subject: Re: [PATCH 5.2 00/56] 5.2.8-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 89e0341af082dbc170019f908846f4a424efc86b.
+On Fri, 9 Aug 2019 at 00:38, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.2.8 release.
+> There are 56 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat 10 Aug 2019 07:03:19 PM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.2.8-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.2.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-In drivers/md/bcache/sysfs.c:bch_snprint_string_list(), NULL pointer at
-the end of list is necessary. Remove the NULL from last element of each
-lists will cause the following panic,
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-[ 4340.455652] bcache: register_cache() registered cache device nvme0n1
-[ 4340.464603] bcache: register_bdev() registered backing device sdk
-[ 4421.587335] bcache: bch_cached_dev_run() cached dev sdk is running already
-[ 4421.587348] bcache: bch_cached_dev_attach() Caching sdk as bcache0 on set 354e1d46-d99f-4d8b-870b-078b80dc88a6
-[ 5139.247950] general protection fault: 0000 [#1] SMP NOPTI
-[ 5139.247970] CPU: 9 PID: 5896 Comm: cat Not tainted 4.12.14-95.29-default #1 SLE12-SP4
-[ 5139.247988] Hardware name: HPE ProLiant DL380 Gen10/ProLiant DL380 Gen10, BIOS U30 04/18/2019
-[ 5139.248006] task: ffff888fb25c0b00 task.stack: ffff9bbacc704000
-[ 5139.248021] RIP: 0010:string+0x21/0x70
-[ 5139.248030] RSP: 0018:ffff9bbacc707bf0 EFLAGS: 00010286
-[ 5139.248043] RAX: ffffffffa7e432e3 RBX: ffff8881c20da02a RCX: ffff0a00ffffff04
-[ 5139.248058] RDX: 3f00656863616362 RSI: ffff8881c20db000 RDI: ffffffffffffffff
-[ 5139.248075] RBP: ffff8881c20db000 R08: 0000000000000000 R09: ffff8881c20da02a
-[ 5139.248090] R10: 0000000000000004 R11: 0000000000000000 R12: ffff9bbacc707c48
-[ 5139.248104] R13: 0000000000000fd6 R14: ffffffffc0665855 R15: ffffffffc0665855
-[ 5139.248119] FS:  00007faf253b8700(0000) GS:ffff88903f840000(0000) knlGS:0000000000000000
-[ 5139.248137] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 5139.248149] CR2: 00007faf25395008 CR3: 0000000f72150006 CR4: 00000000007606e0
-[ 5139.248164] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[ 5139.248179] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[ 5139.248193] PKRU: 55555554
-[ 5139.248200] Call Trace:
-[ 5139.248210]  vsnprintf+0x1fb/0x510
-[ 5139.248221]  snprintf+0x39/0x40
-[ 5139.248238]  bch_snprint_string_list.constprop.15+0x5b/0x90 [bcache]
-[ 5139.248256]  __bch_cached_dev_show+0x44d/0x5f0 [bcache]
-[ 5139.248270]  ? __alloc_pages_nodemask+0xb2/0x210
-[ 5139.248284]  bch_cached_dev_show+0x2c/0x50 [bcache]
-[ 5139.248297]  sysfs_kf_seq_show+0xbb/0x190
-[ 5139.248308]  seq_read+0xfc/0x3c0
-[ 5139.248317]  __vfs_read+0x26/0x140
-[ 5139.248327]  vfs_read+0x87/0x130
-[ 5139.248336]  SyS_read+0x42/0x90
-[ 5139.248346]  do_syscall_64+0x74/0x160
-[ 5139.248358]  entry_SYSCALL_64_after_hwframe+0x3d/0xa2
-[ 5139.248370] RIP: 0033:0x7faf24eea370
-[ 5139.248379] RSP: 002b:00007fff82d03f38 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
-[ 5139.248395] RAX: ffffffffffffffda RBX: 0000000000020000 RCX: 00007faf24eea370
-[ 5139.248411] RDX: 0000000000020000 RSI: 00007faf25396000 RDI: 0000000000000003
-[ 5139.248426] RBP: 00007faf25396000 R08: 00000000ffffffff R09: 0000000000000000
-[ 5139.248441] R10: 000000007c9d4d41 R11: 0000000000000246 R12: 00007faf25396000
-[ 5139.248456] R13: 0000000000000003 R14: 0000000000000000 R15: 0000000000000fff
-[ 5139.248892] Code: ff ff ff 0f 1f 80 00 00 00 00 49 89 f9 48 89 cf 48 c7 c0 e3 32 e4 a7 48 c1 ff 30 48 81 fa ff 0f 00 00 48 0f 46 d0 48 85 ff 74 45 <44> 0f b6 02 48 8d 42 01 45 84 c0 74 38 48 01 fa 4c 89 cf eb 0e
+Summary
+------------------------------------------------------------------------
 
-The simplest way to fix is to revert commit 89e0341af082 ("bcache: use
-sysfs_match_string() instead of __sysfs_match_string()").
+kernel: 5.2.8-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.2.y
+git commit: bd703501e2dfb5d3a64222f9a9a9921ac1c96b6d
+git describe: v5.2.6-195-gbd703501e2df
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.2-oe/bui=
+ld/v5.2.6-195-gbd703501e2df
 
-This bug was introduced in Linux v5.2, so this fix only applies to
-Linux v5.2 is enough for stable tree maintainer.
 
-Fixes: 89e0341af082 ("bcache: use sysfs_match_string() instead of __sysfs_match_string()")
-Signed-off-by: Coly Li <colyli@suse.de>
-Reported-by: Peifeng Lin <pflin@suse.com>
-Cc: stable@vger.kernel.org
-Cc: Alexandru Ardelean <alexandru.ardelean@analog.com>
----
- drivers/md/bcache/sysfs.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+No regressions (compared to build v5.2.6)
 
-diff --git a/drivers/md/bcache/sysfs.c b/drivers/md/bcache/sysfs.c
-index 9f0826712845..e2059af90791 100644
---- a/drivers/md/bcache/sysfs.c
-+++ b/drivers/md/bcache/sysfs.c
-@@ -23,24 +23,28 @@ static const char * const bch_cache_modes[] = {
- 	"writethrough",
- 	"writeback",
- 	"writearound",
--	"none"
-+	"none",
-+	NULL
- };
- 
- /* Default is 0 ("auto") */
- static const char * const bch_stop_on_failure_modes[] = {
- 	"auto",
--	"always"
-+	"always",
-+	NULL
- };
- 
- static const char * const cache_replacement_policies[] = {
- 	"lru",
- 	"fifo",
--	"random"
-+	"random",
-+	NULL
- };
- 
- static const char * const error_actions[] = {
- 	"unregister",
--	"panic"
-+	"panic",
-+	NULL
- };
- 
- write_attribute(attach);
-@@ -338,7 +342,7 @@ STORE(__cached_dev)
- 	}
- 
- 	if (attr == &sysfs_cache_mode) {
--		v = sysfs_match_string(bch_cache_modes, buf);
-+		v = __sysfs_match_string(bch_cache_modes, -1, buf);
- 		if (v < 0)
- 			return v;
- 
-@@ -349,7 +353,7 @@ STORE(__cached_dev)
- 	}
- 
- 	if (attr == &sysfs_stop_when_cache_set_failed) {
--		v = sysfs_match_string(bch_stop_on_failure_modes, buf);
-+		v = __sysfs_match_string(bch_stop_on_failure_modes, -1, buf);
- 		if (v < 0)
- 			return v;
- 
-@@ -816,7 +820,7 @@ STORE(__bch_cache_set)
- 			    0, UINT_MAX);
- 
- 	if (attr == &sysfs_errors) {
--		v = sysfs_match_string(error_actions, buf);
-+		v = __sysfs_match_string(error_actions, -1, buf);
- 		if (v < 0)
- 			return v;
- 
-@@ -1088,7 +1092,7 @@ STORE(__bch_cache)
- 	}
- 
- 	if (attr == &sysfs_cache_replacement_policy) {
--		v = sysfs_match_string(cache_replacement_policies, buf);
-+		v = __sysfs_match_string(cache_replacement_policies, -1, buf);
- 		if (v < 0)
- 			return v;
- 
--- 
-2.16.4
+No fixes (compared to build v5.2.6)
 
+
+Ran 21266 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libgpiod
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* libhugetlbfs
+* network-basic-tests
+* ltp-open-posix-tests
+* kvm-unit-tests
+* ssuite
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
