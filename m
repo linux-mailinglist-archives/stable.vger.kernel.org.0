@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C6E587BA1
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:45:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CC3187BE5
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:48:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406739AbfHINpw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Aug 2019 09:45:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35320 "EHLO mail.kernel.org"
+        id S2406981AbfHINsP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Aug 2019 09:48:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726037AbfHINpv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Aug 2019 09:45:51 -0400
+        id S2436640AbfHINrz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Aug 2019 09:47:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44067214C6;
-        Fri,  9 Aug 2019 13:45:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDFF52086D;
+        Fri,  9 Aug 2019 13:47:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565358350;
-        bh=ffO+6krTQU9boY6/1ecq4KfowMD+tJ0GV06nU+/fuJ0=;
+        s=default; t=1565358474;
+        bh=XnHpOzwAsLZq2SZatfzb3BcPviuZ9W76W8V6MKSCvv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sJL3LzB35llayGqgs6TbUl4pOqsHEkWKHEnrLjv+RZO6xLiWUGbuaUlDQKrnR08HH
-         6VRaGJthofqM0Bi6cYYXgfdeGOgDEpdnOD3fiIsIyii8i3q8rscAQLp+qY7Cx/ZH6z
-         E4rusWNQ301QK0EQF5K2NYaz8w5GU2Qv547bQzu0=
+        b=XQx03a4bPqHS5h2rBm1e166TdW5qW9sSqsB28G0PLcYpGInnixkYgN8vTfXwXrPuN
+         gD50Mlgbh0h8pq1Ls9VYUNpEMfU5/fMsOVscthPwtEaIDBYVxkxjD+Ug3nZqtKS2Bt
+         RfSTm7qMcb0NHm1hR8Dk2WA+eYHs6LWOhFi6wA44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
-        Manish Chopra <manishc@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 12/21] bnx2x: Disable multi-cos feature.
-Date:   Fri,  9 Aug 2019 15:45:16 +0200
-Message-Id: <20190809134242.085004682@linuxfoundation.org>
+        stable@vger.kernel.org, Ilya Dryomov <idryomov@gmail.com>,
+        Alex Elder <elder@linaro.org>
+Subject: [PATCH 4.9 14/32] libceph: use kbasename() and kill ceph_file_part()
+Date:   Fri,  9 Aug 2019 15:45:17 +0200
+Message-Id: <20190809133923.428258389@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190809134241.565496442@linuxfoundation.org>
-References: <20190809134241.565496442@linuxfoundation.org>
+In-Reply-To: <20190809133922.945349906@linuxfoundation.org>
+References: <20190809133922.945349906@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudarsana Reddy Kalluru <skalluru@marvell.com>
+From: Ilya Dryomov <idryomov@gmail.com>
 
-[ Upstream commit d1f0b5dce8fda09a7f5f04c1878f181d548e42f5 ]
+commit 6f4dbd149d2a151b89d1a5bbf7530ee5546c7908 upstream.
 
-Commit 3968d38917eb ("bnx2x: Fix Multi-Cos.") which enabled multi-cos
-feature after prolonged time in driver added some regression causing
-numerous issues (sudden reboots, tx timeout etc.) reported by customers.
-We plan to backout this commit and submit proper fix once we have root
-cause of issues reported with this feature enabled.
-
-Fixes: 3968d38917eb ("bnx2x: Fix Multi-Cos.")
-Signed-off-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Reviewed-by: Alex Elder <elder@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-@@ -1957,7 +1957,7 @@ u16 bnx2x_select_queue(struct net_device
- 	}
+---
+ include/linux/ceph/ceph_debug.h |    6 +++---
+ net/ceph/ceph_common.c          |   13 -------------
+ 2 files changed, 3 insertions(+), 16 deletions(-)
+
+--- a/include/linux/ceph/ceph_debug.h
++++ b/include/linux/ceph/ceph_debug.h
+@@ -3,6 +3,8 @@
  
- 	/* select a non-FCoE queue */
--	return fallback(dev, skb) % (BNX2X_NUM_ETH_QUEUES(bp) * bp->max_cos);
-+	return fallback(dev, skb) % (BNX2X_NUM_ETH_QUEUES(bp));
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+ 
++#include <linux/string.h>
++
+ #ifdef CONFIG_CEPH_LIB_PRETTYDEBUG
+ 
+ /*
+@@ -12,12 +14,10 @@
+  */
+ 
+ # if defined(DEBUG) || defined(CONFIG_DYNAMIC_DEBUG)
+-extern const char *ceph_file_part(const char *s, int len);
+ #  define dout(fmt, ...)						\
+ 	pr_debug("%.*s %12.12s:%-4d : " fmt,				\
+ 		 8 - (int)sizeof(KBUILD_MODNAME), "    ",		\
+-		 ceph_file_part(__FILE__, sizeof(__FILE__)),		\
+-		 __LINE__, ##__VA_ARGS__)
++		 kbasename(__FILE__), __LINE__, ##__VA_ARGS__)
+ # else
+ /* faux printk call just to see any compiler warnings. */
+ #  define dout(fmt, ...)	do {				\
+--- a/net/ceph/ceph_common.c
++++ b/net/ceph/ceph_common.c
+@@ -45,19 +45,6 @@ bool libceph_compatible(void *data)
  }
+ EXPORT_SYMBOL(libceph_compatible);
  
- void bnx2x_set_num_queues(struct bnx2x *bp)
+-/*
+- * find filename portion of a path (/foo/bar/baz -> baz)
+- */
+-const char *ceph_file_part(const char *s, int len)
+-{
+-	const char *e = s + len;
+-
+-	while (e != s && *(e-1) != '/')
+-		e--;
+-	return e;
+-}
+-EXPORT_SYMBOL(ceph_file_part);
+-
+ const char *ceph_msg_type_name(int type)
+ {
+ 	switch (type) {
 
 
