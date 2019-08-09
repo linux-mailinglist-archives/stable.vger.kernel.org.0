@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EDA1A87BDC
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:48:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C6E587BA1
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:45:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436655AbfHINr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Aug 2019 09:47:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38004 "EHLO mail.kernel.org"
+        id S2406739AbfHINpw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Aug 2019 09:45:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406889AbfHINrw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Aug 2019 09:47:52 -0400
+        id S1726037AbfHINpv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Aug 2019 09:45:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57A3C21882;
-        Fri,  9 Aug 2019 13:47:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44067214C6;
+        Fri,  9 Aug 2019 13:45:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565358471;
-        bh=zVXtUSMMLf5kQNv2o0MQ6TzFMU207uN96pyBGf1T2vM=;
+        s=default; t=1565358350;
+        bh=ffO+6krTQU9boY6/1ecq4KfowMD+tJ0GV06nU+/fuJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lQJsZf9rCuD4VFkTldZCrJIza6sP9JCnF3U6UtsiorFBea7DsFzHsVJjdsmCcia7H
-         CjTrJtIpnpdw79zrwirREX1toleBpK2A7kG6Vg6pAdEJL7KtySy9wZiVcIDmZPtlq7
-         hzVVuyek06UJP2dFSDAjo01niPHnudZJahtAumEg=
+        b=sJL3LzB35llayGqgs6TbUl4pOqsHEkWKHEnrLjv+RZO6xLiWUGbuaUlDQKrnR08HH
+         6VRaGJthofqM0Bi6cYYXgfdeGOgDEpdnOD3fiIsIyii8i3q8rscAQLp+qY7Cx/ZH6z
+         E4rusWNQ301QK0EQF5K2NYaz8w5GU2Qv547bQzu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 4.9 13/32] objtool: Add rewind_stack_do_exit() to the noreturn list
+        stable@vger.kernel.org,
+        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
+        Manish Chopra <manishc@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 12/21] bnx2x: Disable multi-cos feature.
 Date:   Fri,  9 Aug 2019 15:45:16 +0200
-Message-Id: <20190809133923.396660809@linuxfoundation.org>
+Message-Id: <20190809134242.085004682@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190809133922.945349906@linuxfoundation.org>
-References: <20190809133922.945349906@linuxfoundation.org>
+In-Reply-To: <20190809134241.565496442@linuxfoundation.org>
+References: <20190809134241.565496442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Sudarsana Reddy Kalluru <skalluru@marvell.com>
 
-commit 4fa5ecda2bf96be7464eb406df8aba9d89260227 upstream.
+[ Upstream commit d1f0b5dce8fda09a7f5f04c1878f181d548e42f5 ]
 
-This fixes the following warning seen on GCC 7.3:
+Commit 3968d38917eb ("bnx2x: Fix Multi-Cos.") which enabled multi-cos
+feature after prolonged time in driver added some regression causing
+numerous issues (sudden reboots, tx timeout etc.) reported by customers.
+We plan to backout this commit and submit proper fix once we have root
+cause of issues reported with this feature enabled.
 
-  arch/x86/kernel/dumpstack.o: warning: objtool: oops_end() falls through to next function show_regs()
-
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/3418ebf5a5a9f6ed7e80954c741c0b904b67b5dc.1554398240.git.jpoimboe@redhat.com
+Fixes: 3968d38917eb ("bnx2x: Fix Multi-Cos.")
+Signed-off-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
+Signed-off-by: Manish Chopra <manishc@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- tools/objtool/check.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -166,6 +166,7 @@ static int __dead_end_function(struct ob
- 		"lbug_with_loc",
- 		"fortify_panic",
- 		"machine_real_restart",
-+		"rewind_stack_do_exit",
- 	};
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
+@@ -1957,7 +1957,7 @@ u16 bnx2x_select_queue(struct net_device
+ 	}
  
- 	if (func->bind == STB_WEAK)
+ 	/* select a non-FCoE queue */
+-	return fallback(dev, skb) % (BNX2X_NUM_ETH_QUEUES(bp) * bp->max_cos);
++	return fallback(dev, skb) % (BNX2X_NUM_ETH_QUEUES(bp));
+ }
+ 
+ void bnx2x_set_num_queues(struct bnx2x *bp)
 
 
