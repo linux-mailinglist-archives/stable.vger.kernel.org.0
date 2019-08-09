@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 382BD87BC2
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:47:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0BF987BAC
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:46:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407166AbfHINqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Aug 2019 09:46:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36710 "EHLO mail.kernel.org"
+        id S2406518AbfHINqN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Aug 2019 09:46:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407157AbfHINqx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Aug 2019 09:46:53 -0400
+        id S2406924AbfHINqM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Aug 2019 09:46:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB6B521874;
-        Fri,  9 Aug 2019 13:46:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ACAE02171F;
+        Fri,  9 Aug 2019 13:46:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565358412;
-        bh=p3K6yhj/p8Um1/Dv9UruoqC3qn4xf3XEZrGCUPmytTM=;
+        s=default; t=1565358371;
+        bh=RkWgbaP0z7+WD+QgWN07YaCbTxNTfwFHr/z1yWrNCgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xrNNE/O5w25P5+470+7Y5j0mELJYh87FbC0AN/4NgN3mdF0MGoNOTIGQQmqkhKI1b
-         ODyLmZdAsnYqZ6FBnHoTgRUrlHUBkv0xBtT+J0qcX70sAOHDRVbBnH89bvEtGocMKS
-         vB+U2xFNTR4XvT3JUWNPBIPMKZuFxJmglaNJ4Fsc=
+        b=RW5GcGOKxHFoOmnKdJ91AnIQVi87szU6YeLt2rpDAr9bOKtVT5gHSx0+Bb+jiGVUb
+         b/IqQ9i5ZcaaBh0vmFTzr0uG7gnVrYL2TNGTUIImyQAAlyw7i8th5gcRVex7fIh3cn
+         bgOJA8r/C8qS6F0MrBLvay7hL77U4wbOcajarEPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Andrew Prout <aprout@ll.mit.edu>,
+        Jonathan Lemon <jonathan.lemon@gmail.com>,
+        Michal Kubecek <mkubecek@suse.cz>,
+        Neal Cardwell <ncardwell@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Christoph Paasch <cpaasch@apple.com>,
+        Jonathan Looney <jtl@netflix.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 06/32] arm64: cpufeature: Fix feature comparison for CTR_EL0.{CWG,ERG}
+Subject: [PATCH 4.4 05/21] tcp: be more careful in tcp_fragment()
 Date:   Fri,  9 Aug 2019 15:45:09 +0200
-Message-Id: <20190809133923.154305701@linuxfoundation.org>
+Message-Id: <20190809134241.798600233@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190809133922.945349906@linuxfoundation.org>
-References: <20190809133922.945349906@linuxfoundation.org>
+In-Reply-To: <20190809134241.565496442@linuxfoundation.org>
+References: <20190809134241.565496442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,72 +51,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 147b9635e6347104b91f48ca9dca61eb0fbf2a54 upstream.
+[ Upstream commit b617158dc096709d8600c53b6052144d12b89fab ]
 
-If CTR_EL0.{CWG,ERG} are 0b0000 then they must be interpreted to have
-their architecturally maximum values, which defeats the use of
-FTR_HIGHER_SAFE when sanitising CPU ID registers on heterogeneous
-machines.
+Some applications set tiny SO_SNDBUF values and expect
+TCP to just work. Recent patches to address CVE-2019-11478
+broke them in case of losses, since retransmits might
+be prevented.
 
-Introduce FTR_HIGHER_OR_ZERO_SAFE so that these fields effectively
-saturate at zero.
+We should allow these flows to make progress.
 
-Fixes: 3c739b571084 ("arm64: Keep track of CPU feature registers")
-Cc: <stable@vger.kernel.org> # 4.9.y only
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+This patch allows the first and last skb in retransmit queue
+to be split even if memory limits are hit.
+
+It also adds the some room due to the fact that tcp_sendmsg()
+and tcp_sendpage() might overshoot sk_wmem_queued by about one full
+TSO skb (64KB size). Note this allowance was already present
+in stable backports for kernels < 4.15
+
+Note for < 4.15 backports :
+ tcp_rtx_queue_tail() will probably look like :
+
+static inline struct sk_buff *tcp_rtx_queue_tail(const struct sock *sk)
+{
+	struct sk_buff *skb = tcp_send_head(sk);
+
+	return skb ? tcp_write_queue_prev(sk, skb) : tcp_write_queue_tail(sk);
+}
+
+Fixes: f070ef2ac667 ("tcp: tcp_fragment() should apply sane memory limits")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Andrew Prout <aprout@ll.mit.edu>
+Tested-by: Andrew Prout <aprout@ll.mit.edu>
+Tested-by: Jonathan Lemon <jonathan.lemon@gmail.com>
+Tested-by: Michal Kubecek <mkubecek@suse.cz>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Acked-by: Yuchung Cheng <ycheng@google.com>
+Acked-by: Christoph Paasch <cpaasch@apple.com>
+Cc: Jonathan Looney <jtl@netflix.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/cpufeature.h | 7 ++++---
- arch/arm64/kernel/cpufeature.c      | 8 ++++++--
- 2 files changed, 10 insertions(+), 5 deletions(-)
+ include/net/tcp.h     | 17 +++++++++++++++++
+ net/ipv4/tcp_output.c | 11 ++++++++++-
+ 2 files changed, 27 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/include/asm/cpufeature.h b/arch/arm64/include/asm/cpufeature.h
-index 15868eca58de0..e7bef3d936d87 100644
---- a/arch/arm64/include/asm/cpufeature.h
-+++ b/arch/arm64/include/asm/cpufeature.h
-@@ -31,9 +31,10 @@
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+index 77438a8406ecf..0410fd29d5695 100644
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -1526,6 +1526,23 @@ static inline void tcp_check_send_head(struct sock *sk, struct sk_buff *skb_unli
+ 		tcp_sk(sk)->highest_sack = NULL;
+ }
  
- /* CPU feature register tracking */
- enum ftr_type {
--	FTR_EXACT,	/* Use a predefined safe value */
--	FTR_LOWER_SAFE,	/* Smaller value is safe */
--	FTR_HIGHER_SAFE,/* Bigger value is safe */
-+	FTR_EXACT,			/* Use a predefined safe value */
-+	FTR_LOWER_SAFE,			/* Smaller value is safe */
-+	FTR_HIGHER_SAFE,		/* Bigger value is safe */
-+	FTR_HIGHER_OR_ZERO_SAFE,	/* Bigger value is safe, but 0 is biggest */
- };
++static inline struct sk_buff *tcp_rtx_queue_head(const struct sock *sk)
++{
++	struct sk_buff *skb = tcp_write_queue_head(sk);
++
++	if (skb == tcp_send_head(sk))
++		skb = NULL;
++
++	return skb;
++}
++
++static inline struct sk_buff *tcp_rtx_queue_tail(const struct sock *sk)
++{
++	struct sk_buff *skb = tcp_send_head(sk);
++
++	return skb ? tcp_write_queue_prev(sk, skb) : tcp_write_queue_tail(sk);
++}
++
+ static inline void __tcp_add_write_queue_tail(struct sock *sk, struct sk_buff *skb)
+ {
+ 	__skb_queue_tail(&sk->sk_write_queue, skb);
+diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
+index 53edd60fd3817..76ffce0c18aeb 100644
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -1151,6 +1151,7 @@ int tcp_fragment(struct sock *sk, struct sk_buff *skb, u32 len,
+ 	struct tcp_sock *tp = tcp_sk(sk);
+ 	struct sk_buff *buff;
+ 	int nsize, old_factor;
++	long limit;
+ 	int nlen;
+ 	u8 flags;
  
- #define FTR_STRICT	true	/* SANITY check strict matching required */
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index e2ac72b7e89ca..9a8e45dc36bd0 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -152,8 +152,8 @@ static const struct arm64_ftr_bits ftr_ctr[] = {
- 	ARM64_FTR_BITS(FTR_STRICT, FTR_EXACT, 30, 1, 0),
- 	ARM64_FTR_BITS(FTR_STRICT, FTR_LOWER_SAFE, 29, 1, 1),	/* DIC */
- 	ARM64_FTR_BITS(FTR_STRICT, FTR_LOWER_SAFE, 28, 1, 1),	/* IDC */
--	ARM64_FTR_BITS(FTR_STRICT, FTR_HIGHER_SAFE, 24, 4, 0),	/* CWG */
--	ARM64_FTR_BITS(FTR_STRICT, FTR_HIGHER_SAFE, 20, 4, 0),	/* ERG */
-+	ARM64_FTR_BITS(FTR_STRICT, FTR_HIGHER_OR_ZERO_SAFE, 24, 4, 0),	/* CWG */
-+	ARM64_FTR_BITS(FTR_STRICT, FTR_HIGHER_OR_ZERO_SAFE, 20, 4, 0),	/* ERG */
- 	ARM64_FTR_BITS(FTR_STRICT, FTR_LOWER_SAFE, CTR_DMINLINE_SHIFT, 4, 1),
- 	/*
- 	 * Linux can handle differing I-cache policies. Userspace JITs will
-@@ -392,6 +392,10 @@ static s64 arm64_ftr_safe_value(const struct arm64_ftr_bits *ftrp, s64 new,
- 	case FTR_LOWER_SAFE:
- 		ret = new < cur ? new : cur;
- 		break;
-+	case FTR_HIGHER_OR_ZERO_SAFE:
-+		if (!cur || !new)
-+			break;
-+		/* Fallthrough */
- 	case FTR_HIGHER_SAFE:
- 		ret = new > cur ? new : cur;
- 		break;
+@@ -1161,7 +1162,15 @@ int tcp_fragment(struct sock *sk, struct sk_buff *skb, u32 len,
+ 	if (nsize < 0)
+ 		nsize = 0;
+ 
+-	if (unlikely((sk->sk_wmem_queued >> 1) > sk->sk_sndbuf + 0x20000)) {
++	/* tcp_sendmsg() can overshoot sk_wmem_queued by one full size skb.
++	 * We need some allowance to not penalize applications setting small
++	 * SO_SNDBUF values.
++	 * Also allow first and last skb in retransmit queue to be split.
++	 */
++	limit = sk->sk_sndbuf + 2 * SKB_TRUESIZE(GSO_MAX_SIZE);
++	if (unlikely((sk->sk_wmem_queued >> 1) > limit &&
++		     skb != tcp_rtx_queue_head(sk) &&
++		     skb != tcp_rtx_queue_tail(sk))) {
+ 		NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPWQUEUETOOBIG);
+ 		return -ENOMEM;
+ 	}
 -- 
 2.20.1
 
