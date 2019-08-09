@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EFF5B87BC8
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:47:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4040E87C02
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:49:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436569AbfHINrG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Aug 2019 09:47:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36960 "EHLO mail.kernel.org"
+        id S2406562AbfHINtL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Aug 2019 09:49:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436568AbfHINrE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Aug 2019 09:47:04 -0400
+        id S2436499AbfHINq1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Aug 2019 09:46:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DA48214C6;
-        Fri,  9 Aug 2019 13:47:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A3902086D;
+        Fri,  9 Aug 2019 13:46:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565358422;
-        bh=ysiWeaoHbrPiKXosfAsunSS0T59udO5eWCZTrhZjvbQ=;
+        s=default; t=1565358386;
+        bh=SD3gc0RxDtOmEAVSJ/BEmU++zbgiLp/zqEl+cGGU/aU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i5R9RL3fy2gH8DMZx010CArOuALEYsYvlV9tyASH8JvnQNI94Dav2PIz2sqo922W9
-         wn4K25TetUyZM3epytsSFKHun/2sMU2iYKPwSX7V2Fv0k5+12tBdj9nq2/gOEVNwui
-         pp05eSRrRbeXnF+568EUnI+JmDO3TxUP/J66cT/A=
+        b=0DtGeGh6WNH445O+iblZFNp71+F4sT9y8kKAfs/CTZWbYeux22fsRn79HDGbNRO0o
+         pvigfr4OV9aLeKsM8arCBn58vgDX+k30eY4xCkhc+Q41ACkXzX/PLV2T3ffMVSfvG/
+         BbffJoc7/sJOyTQMjlGntP4TNEBVu1JmaWbipb74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Pirko <jiri@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 18/32] net: fix ifindex collision during namespace removal
-Date:   Fri,  9 Aug 2019 15:45:21 +0200
-Message-Id: <20190809133923.543227438@linuxfoundation.org>
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.4 18/21] x86/speculation: Prepare entry code for Spectre v1 swapgs mitigations
+Date:   Fri,  9 Aug 2019 15:45:22 +0200
+Message-Id: <20190809134242.317726553@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190809133922.945349906@linuxfoundation.org>
-References: <20190809133922.945349906@linuxfoundation.org>
+In-Reply-To: <20190809134241.565496442@linuxfoundation.org>
+References: <20190809134241.565496442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,132 +45,213 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Pirko <jiri@mellanox.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit 55b40dbf0e76b4bfb9d8b3a16a0208640a9a45df ]
+commit 18ec54fdd6d18d92025af097cd042a75cf0ea24c upstream.
 
-Commit aca51397d014 ("netns: Fix arbitrary net_device-s corruptions
-on net_ns stop.") introduced a possibility to hit a BUG in case device
-is returning back to init_net and two following conditions are met:
-1) dev->ifindex value is used in a name of another "dev%d"
-   device in init_net.
-2) dev->name is used by another device in init_net.
+Spectre v1 isn't only about array bounds checks.  It can affect any
+conditional checks.  The kernel entry code interrupt, exception, and NMI
+handlers all have conditional swapgs checks.  Those may be problematic in
+the context of Spectre v1, as kernel code can speculatively run with a user
+GS.
 
-Under real life circumstances this is hard to get. Therefore this has
-been present happily for over 10 years. To reproduce:
+For example:
 
-$ ip a
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host
-       valid_lft forever preferred_lft forever
-2: dummy0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN group default qlen 1000
-    link/ether 86:89:3f:86:61:29 brd ff:ff:ff:ff:ff:ff
-3: enp0s2: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
-    link/ether 52:54:00:12:34:56 brd ff:ff:ff:ff:ff:ff
-$ ip netns add ns1
-$ ip -n ns1 link add dummy1ns1 type dummy
-$ ip -n ns1 link add dummy2ns1 type dummy
-$ ip link set enp0s2 netns ns1
-$ ip -n ns1 link set enp0s2 name dummy0
-[  100.858894] virtio_net virtio0 dummy0: renamed from enp0s2
-$ ip link add dev4 type dummy
-$ ip -n ns1 a
-1: lo: <LOOPBACK> mtu 65536 qdisc noop state DOWN group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-2: dummy1ns1: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN group default qlen 1000
-    link/ether 16:63:4c:38:3e:ff brd ff:ff:ff:ff:ff:ff
-3: dummy2ns1: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN group default qlen 1000
-    link/ether aa:9e:86:dd:6b:5d brd ff:ff:ff:ff:ff:ff
-4: dummy0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
-    link/ether 52:54:00:12:34:56 brd ff:ff:ff:ff:ff:ff
-$ ip a
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host
-       valid_lft forever preferred_lft forever
-2: dummy0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN group default qlen 1000
-    link/ether 86:89:3f:86:61:29 brd ff:ff:ff:ff:ff:ff
-4: dev4: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN group default qlen 1000
-    link/ether 5a:e1:4a:b6:ec:f8 brd ff:ff:ff:ff:ff:ff
-$ ip netns del ns1
-[  158.717795] default_device_exit: failed to move dummy0 to init_net: -17
-[  158.719316] ------------[ cut here ]------------
-[  158.720591] kernel BUG at net/core/dev.c:9824!
-[  158.722260] invalid opcode: 0000 [#1] SMP KASAN PTI
-[  158.723728] CPU: 0 PID: 56 Comm: kworker/u2:1 Not tainted 5.3.0-rc1+ #18
-[  158.725422] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-2.fc30 04/01/2014
-[  158.727508] Workqueue: netns cleanup_net
-[  158.728915] RIP: 0010:default_device_exit.cold+0x1d/0x1f
-[  158.730683] Code: 84 e8 18 c9 3e fe 0f 0b e9 70 90 ff ff e8 36 e4 52 fe 89 d9 4c 89 e2 48 c7 c6 80 d6 25 84 48 c7 c7 20 c0 25 84 e8 f4 c8 3e
-[  158.736854] RSP: 0018:ffff8880347e7b90 EFLAGS: 00010282
-[  158.738752] RAX: 000000000000003b RBX: 00000000ffffffef RCX: 0000000000000000
-[  158.741369] RDX: 0000000000000000 RSI: ffffffff8128013d RDI: ffffed10068fcf64
-[  158.743418] RBP: ffff888033550170 R08: 000000000000003b R09: fffffbfff0b94b9c
-[  158.745626] R10: fffffbfff0b94b9b R11: ffffffff85ca5cdf R12: ffff888032f28000
-[  158.748405] R13: dffffc0000000000 R14: ffff8880335501b8 R15: 1ffff110068fcf72
-[  158.750638] FS:  0000000000000000(0000) GS:ffff888036000000(0000) knlGS:0000000000000000
-[  158.752944] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  158.755245] CR2: 00007fe8b45d21d0 CR3: 00000000340b4005 CR4: 0000000000360ef0
-[  158.757654] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  158.760012] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  158.762758] Call Trace:
-[  158.763882]  ? dev_change_net_namespace+0xbb0/0xbb0
-[  158.766148]  ? devlink_nl_cmd_set_doit+0x520/0x520
-[  158.768034]  ? dev_change_net_namespace+0xbb0/0xbb0
-[  158.769870]  ops_exit_list.isra.0+0xa8/0x150
-[  158.771544]  cleanup_net+0x446/0x8f0
-[  158.772945]  ? unregister_pernet_operations+0x4a0/0x4a0
-[  158.775294]  process_one_work+0xa1a/0x1740
-[  158.776896]  ? pwq_dec_nr_in_flight+0x310/0x310
-[  158.779143]  ? do_raw_spin_lock+0x11b/0x280
-[  158.780848]  worker_thread+0x9e/0x1060
-[  158.782500]  ? process_one_work+0x1740/0x1740
-[  158.784454]  kthread+0x31b/0x420
-[  158.786082]  ? __kthread_create_on_node+0x3f0/0x3f0
-[  158.788286]  ret_from_fork+0x3a/0x50
-[  158.789871] ---[ end trace defd6c657c71f936 ]---
-[  158.792273] RIP: 0010:default_device_exit.cold+0x1d/0x1f
-[  158.795478] Code: 84 e8 18 c9 3e fe 0f 0b e9 70 90 ff ff e8 36 e4 52 fe 89 d9 4c 89 e2 48 c7 c6 80 d6 25 84 48 c7 c7 20 c0 25 84 e8 f4 c8 3e
-[  158.804854] RSP: 0018:ffff8880347e7b90 EFLAGS: 00010282
-[  158.807865] RAX: 000000000000003b RBX: 00000000ffffffef RCX: 0000000000000000
-[  158.811794] RDX: 0000000000000000 RSI: ffffffff8128013d RDI: ffffed10068fcf64
-[  158.816652] RBP: ffff888033550170 R08: 000000000000003b R09: fffffbfff0b94b9c
-[  158.820930] R10: fffffbfff0b94b9b R11: ffffffff85ca5cdf R12: ffff888032f28000
-[  158.825113] R13: dffffc0000000000 R14: ffff8880335501b8 R15: 1ffff110068fcf72
-[  158.829899] FS:  0000000000000000(0000) GS:ffff888036000000(0000) knlGS:0000000000000000
-[  158.834923] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  158.838164] CR2: 00007fe8b45d21d0 CR3: 00000000340b4005 CR4: 0000000000360ef0
-[  158.841917] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  158.845149] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+	if (coming from user space)
+		swapgs
+	mov %gs:<percpu_offset>, %reg
+	mov (%reg), %reg1
 
-Fix this by checking if a device with the same name exists in init_net
-and fallback to original code - dev%d to allocate name - in case it does.
+When coming from user space, the CPU can speculatively skip the swapgs, and
+then do a speculative percpu load using the user GS value.  So the user can
+speculatively force a read of any kernel value.  If a gadget exists which
+uses the percpu value as an address in another load/store, then the
+contents of the kernel value may become visible via an L1 side channel
+attack.
 
-This was found using syzkaller.
+A similar attack exists when coming from kernel space.  The CPU can
+speculatively do the swapgs, causing the user GS to get used for the rest
+of the speculative window.
 
-Fixes: aca51397d014 ("netns: Fix arbitrary net_device-s corruptions on net_ns stop.")
-Signed-off-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The mitigation is similar to a traditional Spectre v1 mitigation, except:
+
+  a) index masking isn't possible; because the index (percpu offset)
+     isn't user-controlled; and
+
+  b) an lfence is needed in both the "from user" swapgs path and the
+     "from kernel" non-swapgs path (because of the two attacks described
+     above).
+
+The user entry swapgs paths already have SWITCH_TO_KERNEL_CR3, which has a
+CR3 write when PTI is enabled.  Since CR3 writes are serializing, the
+lfences can be skipped in those cases.
+
+On the other hand, the kernel entry swapgs paths don't depend on PTI.
+
+To avoid unnecessary lfences for the user entry case, create two separate
+features for alternative patching:
+
+  X86_FEATURE_FENCE_SWAPGS_USER
+  X86_FEATURE_FENCE_SWAPGS_KERNEL
+
+Use these features in entry code to patch in lfences where needed.
+
+The features aren't enabled yet, so there's no functional change.
+
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Dave Hansen <dave.hansen@intel.com>
+[bwh: Backported to 4.4:
+ - Assign the CPU feature bits from word 7
+ - Add FENCE_SWAPGS_KERNEL_ENTRY to NMI entry, since it does not
+   use paranoid_entry
+ - Include <asm/cpufeatures.h> in calling.h
+ - Adjust context]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/dev.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/entry/calling.h           |   19 +++++++++++++++++++
+ arch/x86/entry/entry_64.S          |   21 +++++++++++++++++++--
+ arch/x86/include/asm/cpufeatures.h |    3 +++
+ 3 files changed, 41 insertions(+), 2 deletions(-)
 
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -8296,6 +8296,8 @@ static void __net_exit default_device_ex
+--- a/arch/x86/entry/calling.h
++++ b/arch/x86/entry/calling.h
+@@ -1,3 +1,5 @@
++#include <asm/cpufeatures.h>
++
+ /*
  
- 		/* Push remaining network devices to init_net */
- 		snprintf(fb_name, IFNAMSIZ, "dev%d", dev->ifindex);
-+		if (__dev_get_by_name(&init_net, fb_name))
-+			snprintf(fb_name, IFNAMSIZ, "dev%%d");
- 		err = dev_change_net_namespace(dev, &init_net, fb_name);
- 		if (err) {
- 			pr_emerg("%s: failed to move %s to init_net: %d\n",
+  x86 function call convention, 64-bit:
+@@ -199,6 +201,23 @@ For 32-bit we have the following convent
+ 	.byte 0xf1
+ 	.endm
+ 
++/*
++ * Mitigate Spectre v1 for conditional swapgs code paths.
++ *
++ * FENCE_SWAPGS_USER_ENTRY is used in the user entry swapgs code path, to
++ * prevent a speculative swapgs when coming from kernel space.
++ *
++ * FENCE_SWAPGS_KERNEL_ENTRY is used in the kernel entry non-swapgs code path,
++ * to prevent the swapgs from getting speculatively skipped when coming from
++ * user space.
++ */
++.macro FENCE_SWAPGS_USER_ENTRY
++	ALTERNATIVE "", "lfence", X86_FEATURE_FENCE_SWAPGS_USER
++.endm
++.macro FENCE_SWAPGS_KERNEL_ENTRY
++	ALTERNATIVE "", "lfence", X86_FEATURE_FENCE_SWAPGS_KERNEL
++.endm
++
+ #else /* CONFIG_X86_64 */
+ 
+ /*
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -551,6 +551,7 @@ END(irq_entries_start)
+ 	 * tracking that we're in kernel mode.
+ 	 */
+ 	SWAPGS
++	FENCE_SWAPGS_USER_ENTRY
+ 	SWITCH_KERNEL_CR3
+ 
+ 	/*
+@@ -566,8 +567,10 @@ END(irq_entries_start)
+ #ifdef CONFIG_CONTEXT_TRACKING
+ 	call enter_from_user_mode
+ #endif
+-
++	jmpq	2f
+ 1:
++	FENCE_SWAPGS_KERNEL_ENTRY
++2:
+ 	/*
+ 	 * Save previous stack pointer, optionally switch to interrupt stack.
+ 	 * irq_count is used to check if a CPU is already on an interrupt stack
+@@ -1077,6 +1080,13 @@ ENTRY(paranoid_entry)
+ 	movq	%rax, %cr3
+ 2:
+ #endif
++	/*
++	 * The above doesn't do an unconditional CR3 write, even in the PTI
++	 * case.  So do an lfence to prevent GS speculation, regardless of
++	 * whether PTI is enabled.
++	 */
++	FENCE_SWAPGS_KERNEL_ENTRY
++
+ 	ret
+ END(paranoid_entry)
+ 
+@@ -1138,6 +1148,7 @@ ENTRY(error_entry)
+ 	 * from user mode due to an IRET fault.
+ 	 */
+ 	SWAPGS
++	FENCE_SWAPGS_USER_ENTRY
+ 
+ .Lerror_entry_from_usermode_after_swapgs:
+ 	/*
+@@ -1151,6 +1162,8 @@ ENTRY(error_entry)
+ #endif
+ 	ret
+ 
++.Lerror_entry_done_lfence:
++	FENCE_SWAPGS_KERNEL_ENTRY
+ .Lerror_entry_done:
+ 	TRACE_IRQS_OFF
+ 	ret
+@@ -1169,7 +1182,7 @@ ENTRY(error_entry)
+ 	cmpq	%rax, RIP+8(%rsp)
+ 	je	.Lbstep_iret
+ 	cmpq	$gs_change, RIP+8(%rsp)
+-	jne	.Lerror_entry_done
++	jne	.Lerror_entry_done_lfence
+ 
+ 	/*
+ 	 * hack: gs_change can fail with user gsbase.  If this happens, fix up
+@@ -1177,6 +1190,7 @@ ENTRY(error_entry)
+ 	 * gs_change's error handler with kernel gsbase.
+ 	 */
+ 	SWAPGS
++	FENCE_SWAPGS_USER_ENTRY
+ 	jmp .Lerror_entry_done
+ 
+ .Lbstep_iret:
+@@ -1190,6 +1204,7 @@ ENTRY(error_entry)
+ 	 * Switch to kernel gsbase:
+ 	 */
+ 	SWAPGS
++	FENCE_SWAPGS_USER_ENTRY
+ 
+ 	/*
+ 	 * Pretend that the exception came from user mode: set up pt_regs
+@@ -1286,6 +1301,7 @@ ENTRY(nmi)
+ 	 * to switch CR3 here.
+ 	 */
+ 	cld
++	FENCE_SWAPGS_USER_ENTRY
+ 	movq	%rsp, %rdx
+ 	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
+ 	pushq	5*8(%rdx)	/* pt_regs->ss */
+@@ -1574,6 +1590,7 @@ end_repeat_nmi:
+ 	movq	%rax, %cr3
+ 2:
+ #endif
++	FENCE_SWAPGS_KERNEL_ENTRY
+ 
+ 	/* paranoidentry do_nmi, 0; without TRACE_IRQS_OFF */
+ 	call	do_nmi
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -192,6 +192,9 @@
+ #define X86_FEATURE_HW_PSTATE	( 7*32+ 8) /* AMD HW-PState */
+ #define X86_FEATURE_PROC_FEEDBACK ( 7*32+ 9) /* AMD ProcFeedbackInterface */
+ 
++#define X86_FEATURE_FENCE_SWAPGS_USER	( 7*32+10) /* "" LFENCE in user entry SWAPGS path */
++#define X86_FEATURE_FENCE_SWAPGS_KERNEL	( 7*32+11) /* "" LFENCE in kernel entry SWAPGS path */
++
+ #define X86_FEATURE_RETPOLINE	( 7*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
+ #define X86_FEATURE_RETPOLINE_AMD ( 7*32+13) /* "" AMD Retpoline mitigation for Spectre variant 2 */
+ 
 
 
