@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 683C887BE0
-	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:48:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BF3887BAD
+	for <lists+stable@lfdr.de>; Fri,  9 Aug 2019 15:46:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436671AbfHINsD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Aug 2019 09:48:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38214 "EHLO mail.kernel.org"
+        id S2406963AbfHINqP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Aug 2019 09:46:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436666AbfHINsC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Aug 2019 09:48:02 -0400
+        id S2406957AbfHINqO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Aug 2019 09:46:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 887972086D;
-        Fri,  9 Aug 2019 13:48:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4166820B7C;
+        Fri,  9 Aug 2019 13:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565358482;
-        bh=wghxmeAPHzsujAz79/ipyVQr0oFzQXLpRvGjhXLRHZM=;
+        s=default; t=1565358373;
+        bh=J7gzan5qHoIbhkoGqZtZB4kPNPASZYRxxJmcrKw6k8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WJUs7m8sN3ZUh0mxuG9PdGwo4OA2F62sfS8Fjvy+26WMothE2wmDiujmSn903TxVd
-         lgnN5JcfkDtvXmWbkg1zRtE6v13FbV3n4nmjRKxji05yr/g139SVMQkErvpuJx9qL7
-         NWTaV0Biid+tn1bIpsP3r7Lp14P6f/y2t2U1jo1I=
+        b=InxWQ6Ds5WNtt0qlzJBNgRVqw1vfy0PYRQmBqOTY2rV0eJC/RvxC/qkOAsOLR32HI
+         2zgqiY534bOh8dLnA+JHWMr9TVULnLi8c39gGZRW6R5cHU+eMhduvKKijFPuileNQV
+         OpAHHoxF6rWLRFzFPoVvGKic+zPjnbgFemkH6svg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Andrew Prout <aprout@ll.mit.edu>,
-        Jonathan Lemon <jonathan.lemon@gmail.com>,
-        Michal Kubecek <mkubecek@suse.cz>,
-        Neal Cardwell <ncardwell@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        Christoph Paasch <cpaasch@apple.com>,
-        Jonathan Looney <jtl@netflix.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 07/32] tcp: be more careful in tcp_fragment()
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 06/21] atm: iphase: Fix Spectre v1 vulnerability
 Date:   Fri,  9 Aug 2019 15:45:10 +0200
-Message-Id: <20190809133923.184065453@linuxfoundation.org>
+Message-Id: <20190809134241.839852892@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190809133922.945349906@linuxfoundation.org>
-References: <20190809133922.945349906@linuxfoundation.org>
+In-Reply-To: <20190809134241.565496442@linuxfoundation.org>
+References: <20190809134241.565496442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,109 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b617158dc096709d8600c53b6052144d12b89fab ]
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 
-Some applications set tiny SO_SNDBUF values and expect
-TCP to just work. Recent patches to address CVE-2019-11478
-broke them in case of losses, since retransmits might
-be prevented.
+[ Upstream commit ea443e5e98b5b74e317ef3d26bcaea54931ccdee ]
 
-We should allow these flows to make progress.
+board is controlled by user-space, hence leading to a potential
+exploitation of the Spectre variant 1 vulnerability.
 
-This patch allows the first and last skb in retransmit queue
-to be split even if memory limits are hit.
+This issue was detected with the help of Smatch:
 
-It also adds the some room due to the fact that tcp_sendmsg()
-and tcp_sendpage() might overshoot sk_wmem_queued by about one full
-TSO skb (64KB size). Note this allowance was already present
-in stable backports for kernels < 4.15
+drivers/atm/iphase.c:2765 ia_ioctl() warn: potential spectre issue 'ia_dev' [r] (local cap)
+drivers/atm/iphase.c:2774 ia_ioctl() warn: possible spectre second half.  'iadev'
+drivers/atm/iphase.c:2782 ia_ioctl() warn: possible spectre second half.  'iadev'
+drivers/atm/iphase.c:2816 ia_ioctl() warn: possible spectre second half.  'iadev'
+drivers/atm/iphase.c:2823 ia_ioctl() warn: possible spectre second half.  'iadev'
+drivers/atm/iphase.c:2830 ia_ioctl() warn: potential spectre issue '_ia_dev' [r] (local cap)
+drivers/atm/iphase.c:2845 ia_ioctl() warn: possible spectre second half.  'iadev'
+drivers/atm/iphase.c:2856 ia_ioctl() warn: possible spectre second half.  'iadev'
 
-Note for < 4.15 backports :
- tcp_rtx_queue_tail() will probably look like :
+Fix this by sanitizing board before using it to index ia_dev and _ia_dev
 
-static inline struct sk_buff *tcp_rtx_queue_tail(const struct sock *sk)
-{
-	struct sk_buff *skb = tcp_send_head(sk);
+Notice that given that speculation windows are large, the policy is
+to kill the speculation on the first load and not worry if it can be
+completed with a dependent load/store [1].
 
-	return skb ? tcp_write_queue_prev(sk, skb) : tcp_write_queue_tail(sk);
-}
+[1] https://lore.kernel.org/lkml/20180423164740.GY17484@dhcp22.suse.cz/
 
-Fixes: f070ef2ac667 ("tcp: tcp_fragment() should apply sane memory limits")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Andrew Prout <aprout@ll.mit.edu>
-Tested-by: Andrew Prout <aprout@ll.mit.edu>
-Tested-by: Jonathan Lemon <jonathan.lemon@gmail.com>
-Tested-by: Michal Kubecek <mkubecek@suse.cz>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Acked-by: Yuchung Cheng <ycheng@google.com>
-Acked-by: Christoph Paasch <cpaasch@apple.com>
-Cc: Jonathan Looney <jtl@netflix.com>
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/tcp.h     | 17 +++++++++++++++++
- net/ipv4/tcp_output.c | 11 ++++++++++-
- 2 files changed, 27 insertions(+), 1 deletion(-)
+ drivers/atm/iphase.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index 1eda31f7f013b..a474213ca015b 100644
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -1595,6 +1595,23 @@ static inline void tcp_check_send_head(struct sock *sk, struct sk_buff *skb_unli
- 		tcp_sk(sk)->highest_sack = NULL;
- }
- 
-+static inline struct sk_buff *tcp_rtx_queue_head(const struct sock *sk)
-+{
-+	struct sk_buff *skb = tcp_write_queue_head(sk);
+--- a/drivers/atm/iphase.c
++++ b/drivers/atm/iphase.c
+@@ -63,6 +63,7 @@
+ #include <asm/byteorder.h>  
+ #include <linux/vmalloc.h>
+ #include <linux/jiffies.h>
++#include <linux/nospec.h>
+ #include "iphase.h"		  
+ #include "suni.h"		  
+ #define swap_byte_order(x) (((x & 0xff) << 8) | ((x & 0xff00) >> 8))
+@@ -2755,8 +2756,11 @@ static int ia_ioctl(struct atm_dev *dev,
+    }
+    if (copy_from_user(&ia_cmds, arg, sizeof ia_cmds)) return -EFAULT; 
+    board = ia_cmds.status;
+-   if ((board < 0) || (board > iadev_count))
+-         board = 0;    
 +
-+	if (skb == tcp_send_head(sk))
-+		skb = NULL;
++	if ((board < 0) || (board > iadev_count))
++		board = 0;
++	board = array_index_nospec(board, iadev_count + 1);
 +
-+	return skb;
-+}
-+
-+static inline struct sk_buff *tcp_rtx_queue_tail(const struct sock *sk)
-+{
-+	struct sk_buff *skb = tcp_send_head(sk);
-+
-+	return skb ? tcp_write_queue_prev(sk, skb) : tcp_write_queue_tail(sk);
-+}
-+
- static inline void __tcp_add_write_queue_tail(struct sock *sk, struct sk_buff *skb)
- {
- 	__skb_queue_tail(&sk->sk_write_queue, skb);
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 0c195b0f42169..9ddb05b98312c 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -1175,6 +1175,7 @@ int tcp_fragment(struct sock *sk, struct sk_buff *skb, u32 len,
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	struct sk_buff *buff;
- 	int nsize, old_factor;
-+	long limit;
- 	int nlen;
- 	u8 flags;
- 
-@@ -1185,7 +1186,15 @@ int tcp_fragment(struct sock *sk, struct sk_buff *skb, u32 len,
- 	if (nsize < 0)
- 		nsize = 0;
- 
--	if (unlikely((sk->sk_wmem_queued >> 1) > sk->sk_sndbuf + 0x20000)) {
-+	/* tcp_sendmsg() can overshoot sk_wmem_queued by one full size skb.
-+	 * We need some allowance to not penalize applications setting small
-+	 * SO_SNDBUF values.
-+	 * Also allow first and last skb in retransmit queue to be split.
-+	 */
-+	limit = sk->sk_sndbuf + 2 * SKB_TRUESIZE(GSO_MAX_SIZE);
-+	if (unlikely((sk->sk_wmem_queued >> 1) > limit &&
-+		     skb != tcp_rtx_queue_head(sk) &&
-+		     skb != tcp_rtx_queue_tail(sk))) {
- 		NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPWQUEUETOOBIG);
- 		return -ENOMEM;
- 	}
--- 
-2.20.1
-
+    iadev = ia_dev[board];
+    switch (ia_cmds.cmd) {
+    case MEMDUMP:
 
 
