@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A65A88E21
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:52:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33E3588E23
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:52:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726765AbfHJUwM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:52:12 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54150 "EHLO
+        id S1727350AbfHJUwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:52:13 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54144 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726587AbfHJUnw (ORCPT
+        by vger.kernel.org with ESMTP id S1726584AbfHJUnw (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:52 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDM-00053e-Q6; Sat, 10 Aug 2019 21:43:48 +0100
+        id 1hwYDM-00053a-Q8; Sat, 10 Aug 2019 21:43:48 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDJ-0003b8-SR; Sat, 10 Aug 2019 21:43:45 +0100
+        id 1hwYDJ-0003bG-VE; Sat, 10 Aug 2019 21:43:45 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Sven Eckelmann" <sven@narfation.org>,
-        "Simon Wunderlich" <sw@simonwunderlich.de>
+        "Takashi Iwai" <tiwai@suse.de>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.336708598@decadent.org.uk>
+Message-ID: <lsq.1565469607.28313327@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 046/157] batman-adv: Reduce tt_local hash refcnt only
- for removed entry
+Subject: [PATCH 3.16 048/157] ALSA: pcm: Don't suspend stream in
+ unrecoverable PCM state
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,75 +46,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 3d65b9accab4a7ed5038f6df403fbd5e298398c7 upstream.
+commit 113ce08109f8e3b091399e7cc32486df1cff48e7 upstream.
 
-The batadv_hash_remove is a function which searches the hashtable for an
-entry using a needle, a hashtable bucket selection function and a compare
-function. It will lock the bucket list and delete an entry when the compare
-function matches it with the needle. It returns the pointer to the
-hlist_node which matches or NULL when no entry matches the needle.
+Currently PCM core sets each opened stream forcibly to SUSPENDED state
+via snd_pcm_suspend_all() call, and the user-space is responsible for
+re-triggering the resume manually either via snd_pcm_resume() or
+prepare call.  The scheme works fine usually, but there are corner
+cases where the stream can't be resumed by that call: the streams
+still in OPEN state before finishing hw_params.  When they are
+suspended, user-space cannot perform resume or prepare because they
+haven't been set up yet.  The only possible recovery is to re-open the
+device, which isn't nice at all.  Similarly, when a stream is in
+DISCONNECTED state, it makes no sense to change it to SUSPENDED
+state.  Ditto for in SETUP state; which you can re-prepare directly.
 
-The batadv_tt_local_remove is not itself protected in anyway to avoid that
-any other function is modifying the hashtable between the search for the
-entry and the call to batadv_hash_remove. It can therefore happen that the
-entry either doesn't exist anymore or an entry was deleted which is not the
-same object as the needle. In such an situation, the reference counter (for
-the reference stored in the hashtable) must not be reduced for the needle.
-Instead the reference counter of the actually removed entry has to be
-reduced.
+So, this patch addresses these issues by filtering the PCM streams to
+be suspended by checking the PCM state.  When a stream is in either
+OPEN, SETUP or DISCONNECTED as well as already SUSPENDED, the suspend
+action is skipped.
 
-Otherwise the reference counter will underflow and the object might be
-freed before all its references were dropped. The kref helpers reported
-this problem as:
+To be noted, this problem was originally reported for the PCM runtime
+PM on HD-audio.  And, the runtime PM problem itself was already
+addressed (although not intended) by the code refactoring commits
+3d21ef0b49f8 ("ALSA: pcm: Suspend streams globally via device type PM
+ops") and 17bc4815de58 ("ALSA: pci: Remove superfluous
+snd_pcm_suspend*() calls").  These commits eliminated the
+snd_pcm_suspend*() calls from the runtime PM suspend callback code
+path, hence the racy OPEN state won't appear while runtime PM.
+(FWIW, the race window is between snd_pcm_open_substream() and the
+first power up in azx_pcm_open().)
 
-  refcount_t: underflow; use-after-free.
+Although the runtime PM issue was already "fixed", the same problem is
+still present for the system PM, hence this patch is still needed.
+And for stable trees, this patch alone should suffice for fixing the
+runtime PM problem, too.
 
-Fixes: ef72706a0543 ("batman-adv: protect tt_local_entry from concurrent delete events")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-[bwh: Backported to 3.16: adjust context]
+Reported-and-tested-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- net/batman-adv/translation-table.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ sound/core/pcm_native.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/net/batman-adv/translation-table.c
-+++ b/net/batman-adv/translation-table.c
-@@ -1021,9 +1021,10 @@ uint16_t batadv_tt_local_remove(struct b
- 				const uint8_t *addr, unsigned short vid,
- 				const char *message, bool roaming)
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -1063,8 +1063,15 @@ static int snd_pcm_pause(struct snd_pcm_
+ static int snd_pcm_pre_suspend(struct snd_pcm_substream *substream, int state)
  {
-+	struct batadv_tt_local_entry *tt_removed_entry;
- 	struct batadv_tt_local_entry *tt_local_entry;
- 	uint16_t flags, curr_flags = BATADV_NO_FLAGS;
--	void *tt_entry_exists;
-+	struct hlist_node *tt_removed_node;
- 
- 	tt_local_entry = batadv_tt_local_hash_find(bat_priv, addr, vid);
- 	if (!tt_local_entry)
-@@ -1052,15 +1053,18 @@ uint16_t batadv_tt_local_remove(struct b
- 	 */
- 	batadv_tt_local_event(bat_priv, tt_local_entry, BATADV_TT_CLIENT_DEL);
- 
--	tt_entry_exists = batadv_hash_remove(bat_priv->tt.local_hash,
-+	tt_removed_node = batadv_hash_remove(bat_priv->tt.local_hash,
- 					     batadv_compare_tt,
- 					     batadv_choose_tt,
- 					     &tt_local_entry->common);
--	if (!tt_entry_exists)
-+	if (!tt_removed_node)
- 		goto out;
- 
--	/* extra call to free the local tt entry */
--	batadv_tt_local_entry_free_ref(tt_local_entry);
-+	/* drop reference of remove hash entry */
-+	tt_removed_entry = hlist_entry(tt_removed_node,
-+				       struct batadv_tt_local_entry,
-+				       common.hash_entry);
-+	batadv_tt_local_entry_free_ref(tt_removed_entry);
- 
- out:
- 	if (tt_local_entry)
+ 	struct snd_pcm_runtime *runtime = substream->runtime;
+-	if (runtime->status->state == SNDRV_PCM_STATE_SUSPENDED)
++	switch (runtime->status->state) {
++	case SNDRV_PCM_STATE_SUSPENDED:
+ 		return -EBUSY;
++	/* unresumable PCM state; return -EBUSY for skipping suspend */
++	case SNDRV_PCM_STATE_OPEN:
++	case SNDRV_PCM_STATE_SETUP:
++	case SNDRV_PCM_STATE_DISCONNECTED:
++		return -EBUSY;
++	}
+ 	runtime->trigger_master = substream;
+ 	return 0;
+ }
 
