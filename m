@@ -2,84 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 709CB88BF2
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 17:42:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49CCE88BF6
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 17:45:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726112AbfHJPma (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 11:42:30 -0400
-Received: from mail-qt1-f193.google.com ([209.85.160.193]:34133 "EHLO
-        mail-qt1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726055AbfHJPma (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 11:42:30 -0400
-Received: by mail-qt1-f193.google.com with SMTP id q4so1647176qtp.1;
-        Sat, 10 Aug 2019 08:42:29 -0700 (PDT)
+        id S1726145AbfHJPpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 11:45:09 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:39892 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726024AbfHJPpJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 11:45:09 -0400
+Received: by mail-pl1-f196.google.com with SMTP id b7so46214825pls.6;
+        Sat, 10 Aug 2019 08:45:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=mwsS2ZsTKCEtenoWuLBWP+hTnBEfiLyyggIfIFvVfjw=;
-        b=KVFKwVwGAdQ+rlpFo+lKcwVU52kK/iIaZbeoc5J5G6kWJ26LTiNn7FnkgAlYvw3BMc
-         dEKihvAHwF//CJSl3JHPH/YzNuyRNGyHOl+MNTnA+0R4CPY+sFEmyFDoLZ1bF7RkV3GW
-         McIpYbMvnxiNiiIFONCAHeM2CHN04N4D4BJCLUPWjmwAELs0Wkln4N37zO5/A0x2rExi
-         2Z5VW99XUq3ojHNU0apfbPe3TdnMBJo2a5fQk6Z1PORA5aes8CMmweFuGSm4LgU7n0n3
-         owo1End+3d9KiTiZkBLy86T6p5k6JLpbOXHOOxVdM4VNpvmaNInSz9DhSzXPCo/IArw0
-         53EQ==
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=dLBBNfump4UN5F64u7m1ARwm4mgYf8HSTxVYTCPwdrE=;
+        b=fn3a+Vigu0F345Nvy8BfDZR2GlLO2vcoHa1d8+qv12RPugeqsuu0pjM5sonnPqnNnH
+         iRAIZ1ktlUjxX7kcnQZU9rwtKAlNR3642tPPSWzew7yB8ecRFwn4WZfOKHpjQjsB6gMP
+         6wpxPGcqR0lGfDjyO9m9Qmz3P4P+z3czW0ubxpi6+Xhz1uhNrxsZHuR6itVETwwC4O8U
+         0tBlNAN75nxr+8FC+x3HAagOKK0nc3LIvsOQ2S5Q027Cm1ZWbbtiry3LzWSHQ1bdGyXe
+         pEidox9aOqgbnx8dHY8z8f+5G8/JJn4S/tHLaAMKSbxTu8sWEHfBuuJKkvNqdhc4pWDD
+         JlNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=mwsS2ZsTKCEtenoWuLBWP+hTnBEfiLyyggIfIFvVfjw=;
-        b=HeBZSoNhNiwtbYXD9cIgWBnbuvX2zj1xtZ6nKLZYLlKKwqS50m/hmuiChmhIqKf132
-         k7WmnXyLa7dKnGfkId6mHFDTP4Eciw2BpXpfW7Q+LAD3Q3lW38owFqeGpDvpSAbUbVCj
-         7xMWJYf2fY5pKuIXQN5ix1W3TmzL6tqybHoV5tCOyCWyHftTTjsVvOnlJBbauNyy46Va
-         DfzHX0MaLJWuCAsbx4KuAUXCTx0T6/OQLE7D1GZMkWngG5v9h5BWAD5EFidzRToJfhsg
-         GVr8CCndPte8aRiBBVQXZs6PHNRBQEeEtRtcQLm7ObGlVkFtSb435WdoKPdY6rHcASgB
-         /Kfg==
-X-Gm-Message-State: APjAAAWq7Y5R8ahgtIOlMIT/eyLdmRhexRrGngvFIhx7bVk1hKxq6e14
-        gGJZE/AvJRV6Wys142VmoYo=
-X-Google-Smtp-Source: APXvYqwm8IwMbT3NuhKV33K5D8G/9g0qt/WXx7uhs1Ot7wh+CR+mBOcFhf1tzXBgVzMLx19EZ8PBCQ==
-X-Received: by 2002:a0c:8690:: with SMTP id 16mr23713158qvf.228.1565451749188;
-        Sat, 10 Aug 2019 08:42:29 -0700 (PDT)
-Received: from fabio-Latitude-E5450.am.freescale.net ([2804:14c:482:22a::1])
-        by smtp.gmail.com with ESMTPSA id o50sm16534808qtj.17.2019.08.10.08.42.25
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Sat, 10 Aug 2019 08:42:28 -0700 (PDT)
-From:   Fabio Estevam <festevam@gmail.com>
-To:     lee.jones@linaro.org
-Cc:     linux-kernel@vger.kernel.org, andrew.smirnov@gmail.com,
-        cphealy@gmail.com, l.stach@pengutronix.de, stable@vger.kernel.org,
-        Fabio Estevam <festevam@gmail.com>
-Subject: [PATCH 1/2] mfd: rave-sp: Bump command timeout to 5 seconds
-Date:   Sat, 10 Aug 2019 12:42:59 -0300
-Message-Id: <20190810154300.25950-1-festevam@gmail.com>
-X-Mailer: git-send-email 2.17.1
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=dLBBNfump4UN5F64u7m1ARwm4mgYf8HSTxVYTCPwdrE=;
+        b=rMv7unS8HhBeOawSdHHOGiST8fuSaT5/NLf7EXmBte0k1FcIoRPg6NPQIyEGvxz/Jg
+         GZfMypEYY55wNeKdSZiskzrHqNDMXs8uuWDKuf3wGCV23/jPCBw8vlLFL/S9/K0QVssn
+         AZijmcnYANNGZBCGInaL8+EaP2crXQuFct/MI4EXTn6rDi048KaXnFBkymvTIaS/gMGu
+         2kOLHzi8Uzph/bYswo/XWJgcNJAQIXcwJ3IeeLWWH8FRCkSfSOqmihEbv6MEMVpTR8G8
+         X8rbGe7s2V1gbIBWLEcimwL4I31SOSbDwT3dQv6ikV9pdYF1008BmCkeQcKKiesmJdzE
+         vA2A==
+X-Gm-Message-State: APjAAAXS74ZHVPV32HTBAfbF8aOlTOZ3io/W7SIBApCnBZLHsrivMl6/
+        h7MhIPX1Idf9twj8uV3EdL4=
+X-Google-Smtp-Source: APXvYqzbHmqw1sPeV82B2yd2YGEYtDADfc9dQIgJ4ipL5gbMM4Wwk+LQAYQSzfurbdS29KWNDHqQRw==
+X-Received: by 2002:a17:902:d90a:: with SMTP id c10mr23985905plz.208.1565451908664;
+        Sat, 10 Aug 2019 08:45:08 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id g1sm164147092pgg.27.2019.08.10.08.45.06
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 10 Aug 2019 08:45:07 -0700 (PDT)
+Date:   Sat, 10 Aug 2019 08:45:06 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 00/21] 4.4.189-stable review
+Message-ID: <20190810154506.GA11992@roeck-us.net>
+References: <20190809134241.565496442@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190809134241.565496442@linuxfoundation.org>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
+On Fri, Aug 09, 2019 at 03:45:04PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.189 release.
+> There are 21 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun 11 Aug 2019 01:42:28 PM UTC.
+> Anything received after that time might be too late.
+> 
 
-Command to erase application firmware on RAVE SP takes longer than one
-second (it takes ~3s). Bump command timeout duration to 5 seconds in
-order to avoid bogus timeouts.
+Build results:
+	total: 170 pass: 170 fail: 0
+Qemu test results:
+	total: 324 pass: 324 fail: 0
 
-Cc: <stable@vger.kernel.org>
-Fixes: 538ee27290fa ("mfd: Add driver for RAVE Supervisory Processor")
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
----
- drivers/mfd/rave-sp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/mfd/rave-sp.c b/drivers/mfd/rave-sp.c
-index 26c7b63e008a..546763d8a3e5 100644
---- a/drivers/mfd/rave-sp.c
-+++ b/drivers/mfd/rave-sp.c
-@@ -371,7 +371,7 @@ int rave_sp_exec(struct rave_sp *sp,
- 
- 	rave_sp_write(sp, data, data_size);
- 
--	if (!wait_for_completion_timeout(&reply.received, HZ)) {
-+	if (!wait_for_completion_timeout(&reply.received, 5 * HZ)) {
- 		dev_err(&sp->serdev->dev, "Command timeout\n");
- 		ret = -ETIMEDOUT;
- 
+Guenter
