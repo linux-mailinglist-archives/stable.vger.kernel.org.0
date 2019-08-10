@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D9C388DF7
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:50:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F8B788E04
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:51:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726813AbfHJUup (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:50:45 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54398 "EHLO
+        id S1727352AbfHJUvM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:51:12 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54318 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726702AbfHJUnz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:55 -0400
+        by vger.kernel.org with ESMTP id S1726671AbfHJUny (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:54 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDP-00053Y-Sb; Sat, 10 Aug 2019 21:43:51 +0100
+        id 1hwYDP-00053W-Nq; Sat, 10 Aug 2019 21:43:51 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDM-0003hA-Vy; Sat, 10 Aug 2019 21:43:48 +0100
+        id 1hwYDM-0003h0-VI; Sat, 10 Aug 2019 21:43:48 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "syzbot" <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Eric Dumazet" <edumazet@google.com>
+        "Steve French" <stfrench@microsoft.com>,
+        "Frank Sorenson" <sorenson@redhat.com>,
+        "Ronnie Sahlberg" <lsahlber@redhat.com>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.374628338@decadent.org.uk>
+Message-ID: <lsq.1565469607.231193852@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 106/157] net/rose: fix unbound loop in
- rose_loopback_timer()
+Subject: [PATCH 3.16 105/157] cifs: do not attempt cifs operation on smb2+
+ rename error
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,179 +48,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Eric Dumazet <edumazet@google.com>
+From: Frank Sorenson <sorenson@redhat.com>
 
-commit 0453c682459583910d611a96de928f4442205493 upstream.
+commit 652727bbe1b17993636346716ae5867627793647 upstream.
 
-This patch adds a limit on the number of skbs that fuzzers can queue
-into loopback_queue. 1000 packets for rose loopback seems more than enough.
+A path-based rename returning EBUSY will incorrectly try opening
+the file with a cifs (NT Create AndX) operation on an smb2+ mount,
+which causes the server to force a session close.
 
-Then, since we now have multiple cpus in most linux hosts,
-we also need to limit the number of skbs rose_loopback_timer()
-can dequeue at each round.
+If the mount is smb2+, skip the fallback.
 
-rose_loopback_queue() can be drop-monitor friendly, calling
-consume_skb() or kfree_skb() appropriately.
-
-Finally, use mod_timer() instead of del_timer() + add_timer()
-
-syzbot report was :
-
-rcu: INFO: rcu_preempt self-detected stall on CPU
-rcu:    0-...!: (10499 ticks this GP) idle=536/1/0x4000000000000002 softirq=103291/103291 fqs=34
-rcu:     (t=10500 jiffies g=140321 q=323)
-rcu: rcu_preempt kthread starved for 10426 jiffies! g140321 f0x0 RCU_GP_WAIT_FQS(5) ->state=0x402 ->cpu=1
-rcu: RCU grace-period kthread stack dump:
-rcu_preempt     I29168    10      2 0x80000000
-Call Trace:
- context_switch kernel/sched/core.c:2877 [inline]
- __schedule+0x813/0x1cc0 kernel/sched/core.c:3518
- schedule+0x92/0x180 kernel/sched/core.c:3562
- schedule_timeout+0x4db/0xfd0 kernel/time/timer.c:1803
- rcu_gp_fqs_loop kernel/rcu/tree.c:1971 [inline]
- rcu_gp_kthread+0x962/0x17b0 kernel/rcu/tree.c:2128
- kthread+0x357/0x430 kernel/kthread.c:253
- ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:352
-NMI backtrace for cpu 0
-CPU: 0 PID: 7632 Comm: kworker/0:4 Not tainted 5.1.0-rc5+ #172
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: events iterate_cleanup_work
-Call Trace:
- <IRQ>
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x172/0x1f0 lib/dump_stack.c:113
- nmi_cpu_backtrace.cold+0x63/0xa4 lib/nmi_backtrace.c:101
- nmi_trigger_cpumask_backtrace+0x1be/0x236 lib/nmi_backtrace.c:62
- arch_trigger_cpumask_backtrace+0x14/0x20 arch/x86/kernel/apic/hw_nmi.c:38
- trigger_single_cpu_backtrace include/linux/nmi.h:164 [inline]
- rcu_dump_cpu_stacks+0x183/0x1cf kernel/rcu/tree.c:1223
- print_cpu_stall kernel/rcu/tree.c:1360 [inline]
- check_cpu_stall kernel/rcu/tree.c:1434 [inline]
- rcu_pending kernel/rcu/tree.c:3103 [inline]
- rcu_sched_clock_irq.cold+0x500/0xa4a kernel/rcu/tree.c:2544
- update_process_times+0x32/0x80 kernel/time/timer.c:1635
- tick_sched_handle+0xa2/0x190 kernel/time/tick-sched.c:161
- tick_sched_timer+0x47/0x130 kernel/time/tick-sched.c:1271
- __run_hrtimer kernel/time/hrtimer.c:1389 [inline]
- __hrtimer_run_queues+0x33e/0xde0 kernel/time/hrtimer.c:1451
- hrtimer_interrupt+0x314/0x770 kernel/time/hrtimer.c:1509
- local_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1035 [inline]
- smp_apic_timer_interrupt+0x120/0x570 arch/x86/kernel/apic/apic.c:1060
- apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:807
-RIP: 0010:__sanitizer_cov_trace_pc+0x0/0x50 kernel/kcov.c:95
-Code: 89 25 b4 6e ec 08 41 bc f4 ff ff ff e8 cd 5d ea ff 48 c7 05 9e 6e ec 08 00 00 00 00 e9 a4 e9 ff ff 90 90 90 90 90 90 90 90 90 <55> 48 89 e5 48 8b 75 08 65 48 8b 04 25 00 ee 01 00 65 8b 15 c8 60
-RSP: 0018:ffff8880ae807ce0 EFLAGS: 00000286 ORIG_RAX: ffffffffffffff13
-RAX: ffff88806fd40640 RBX: dffffc0000000000 RCX: ffffffff863fbc56
-RDX: 0000000000000100 RSI: ffffffff863fbc1d RDI: ffff88808cf94228
-RBP: ffff8880ae807d10 R08: ffff88806fd40640 R09: ffffed1015d00f8b
-R10: ffffed1015d00f8a R11: 0000000000000003 R12: ffff88808cf941c0
-R13: 00000000fffff034 R14: ffff8882166cd840 R15: 0000000000000000
- rose_loopback_timer+0x30d/0x3f0 net/rose/rose_loopback.c:91
- call_timer_fn+0x190/0x720 kernel/time/timer.c:1325
- expire_timers kernel/time/timer.c:1362 [inline]
- __run_timers kernel/time/timer.c:1681 [inline]
- __run_timers kernel/time/timer.c:1649 [inline]
- run_timer_softirq+0x652/0x1700 kernel/time/timer.c:1694
- __do_softirq+0x266/0x95a kernel/softirq.c:293
- do_softirq_own_stack+0x2a/0x40 arch/x86/entry/entry_64.S:1027
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[bwh: Backported to 3.16: Also move assignments to
- loopback_timer.{data,function} into rose_loopback_init(), done upstream
- in commit 4966babd904d "net/rose: Convert timers to use timer_setup()".]
+Signed-off-by: Frank Sorenson <sorenson@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- net/rose/rose_loopback.c | 27 ++++++++++++++++-----------
- 1 file changed, 16 insertions(+), 11 deletions(-)
+ fs/cifs/inode.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/net/rose/rose_loopback.c
-+++ b/net/rose/rose_loopback.c
-@@ -16,15 +16,19 @@
- #include <linux/init.h>
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -1627,6 +1627,10 @@ cifs_do_rename(const unsigned int xid, s
+ 	if (rc == 0 || rc != -EBUSY)
+ 		goto do_rename_exit;
  
- static struct sk_buff_head loopback_queue;
-+#define ROSE_LOOPBACK_LIMIT 1000
- static struct timer_list loopback_timer;
- 
- static void rose_set_loopback_timer(void);
-+static void rose_loopback_timer(unsigned long);
- 
- void rose_loopback_init(void)
- {
- 	skb_queue_head_init(&loopback_queue);
- 
- 	init_timer(&loopback_timer);
-+	loopback_timer.data     = 0;
-+	loopback_timer.function = &rose_loopback_timer;
- }
- 
- static int rose_loopback_running(void)
-@@ -34,33 +38,27 @@ static int rose_loopback_running(void)
- 
- int rose_loopback_queue(struct sk_buff *skb, struct rose_neigh *neigh)
- {
--	struct sk_buff *skbn;
-+	struct sk_buff *skbn = NULL;
- 
--	skbn = skb_clone(skb, GFP_ATOMIC);
-+	if (skb_queue_len(&loopback_queue) < ROSE_LOOPBACK_LIMIT)
-+		skbn = skb_clone(skb, GFP_ATOMIC);
- 
--	kfree_skb(skb);
--
--	if (skbn != NULL) {
-+	if (skbn) {
-+		consume_skb(skb);
- 		skb_queue_tail(&loopback_queue, skbn);
- 
- 		if (!rose_loopback_running())
- 			rose_set_loopback_timer();
-+	} else {
-+		kfree_skb(skb);
- 	}
- 
- 	return 1;
- }
- 
--static void rose_loopback_timer(unsigned long);
--
- static void rose_set_loopback_timer(void)
- {
--	del_timer(&loopback_timer);
--
--	loopback_timer.data     = 0;
--	loopback_timer.function = &rose_loopback_timer;
--	loopback_timer.expires  = jiffies + 10;
--
--	add_timer(&loopback_timer);
-+	mod_timer(&loopback_timer, jiffies + 10);
- }
- 
- static void rose_loopback_timer(unsigned long param)
-@@ -71,8 +69,12 @@ static void rose_loopback_timer(unsigned
- 	struct sock *sk;
- 	unsigned short frametype;
- 	unsigned int lci_i, lci_o;
-+	int count;
- 
--	while ((skb = skb_dequeue(&loopback_queue)) != NULL) {
-+	for (count = 0; count < ROSE_LOOPBACK_LIMIT; count++) {
-+		skb = skb_dequeue(&loopback_queue);
-+		if (!skb)
-+			return;
- 		if (skb->len < ROSE_MIN_LEN) {
- 			kfree_skb(skb);
- 			continue;
-@@ -109,6 +111,8 @@ static void rose_loopback_timer(unsigned
- 			kfree_skb(skb);
- 		}
- 	}
-+	if (!skb_queue_empty(&loopback_queue))
-+		mod_timer(&loopback_timer, jiffies + 1);
- }
- 
- void __exit rose_loopback_clear(void)
++	/* Don't fall back to using SMB on SMB 2+ mount */
++	if (server->vals->protocol_id != 0)
++		goto do_rename_exit;
++
+ 	/* open-file renames don't work across directories */
+ 	if (to_dentry->d_parent != from_dentry->d_parent)
+ 		goto do_rename_exit;
 
