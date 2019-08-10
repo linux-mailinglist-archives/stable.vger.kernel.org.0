@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0879488E5A
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:54:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F84088E60
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:54:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726654AbfHJUyM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:54:12 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:53788 "EHLO
+        id S1727282AbfHJUyW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:54:22 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:53806 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726472AbfHJUns (ORCPT
+        by vger.kernel.org with ESMTP id S1726481AbfHJUns (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:48 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDI-00052r-Li; Sat, 10 Aug 2019 21:43:44 +0100
+        id 1hwYDK-00053m-8X; Sat, 10 Aug 2019 21:43:46 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDI-0003Xf-Bc; Sat, 10 Aug 2019 21:43:44 +0100
+        id 1hwYDJ-0003a0-DP; Sat, 10 Aug 2019 21:43:45 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Michael Hennerich" <michael.hennerich@analog.com>,
-        "Leonard Pollak" <leonardp@tr-host.de>,
-        "Jonathan Cameron" <Jonathan.Cameron@huawei.com>
+        "David S. Miller" <davem@davemloft.net>,
+        "Arnd Bergmann" <arnd@arndb.de>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.393019235@decadent.org.uk>
+Message-ID: <lsq.1565469607.966493490@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 003/157] Staging: iio: meter: fixed typo
+Subject: [PATCH 3.16 032/157] 3c515: fix integer overflow warning
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,31 +46,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Leonard Pollak <leonardp@tr-host.de>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 0a8a29be499cbb67df79370aaf5109085509feb8 upstream.
+commit fb6fafbc7de4a813bb5364358bbe27f71e62b24a upstream.
 
-This patch fixes an obvious typo, which will cause erroneously returning the Peak
-Voltage instead of the Peak Current.
+clang points out a harmless signed integer overflow:
 
-Signed-off-by: Leonard Pollak <leonardp@tr-host.de>
-Acked-by: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-[bwh: Backported to 3.16: adjust context]
+drivers/net/ethernet/3com/3c515.c:1530:66: error: implicit conversion from 'int' to 'short' changes value from 32783 to -32753 [-Werror,-Wconstant-conversion]
+                new_mode = SetRxFilter | RxStation | RxMulticast | RxBroadcast | RxProm;
+                         ~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+drivers/net/ethernet/3com/3c515.c:1532:52: error: implicit conversion from 'int' to 'short' changes value from 32775 to -32761 [-Werror,-Wconstant-conversion]
+                new_mode = SetRxFilter | RxStation | RxMulticast | RxBroadcast;
+                         ~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
+drivers/net/ethernet/3com/3c515.c:1534:38: error: implicit conversion from 'int' to 'short' changes value from 32773 to -32763 [-Werror,-Wconstant-conversion]
+                new_mode = SetRxFilter | RxStation | RxBroadcast;
+                         ~ ~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
+
+Make the variable unsigned to avoid the overflow.
+
+Fixes: Linux-2.1.128pre1
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/staging/iio/meter/ade7854.c | 2 +-
+ drivers/net/ethernet/3com/3c515.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/iio/meter/ade7854.c
-+++ b/drivers/staging/iio/meter/ade7854.c
-@@ -269,7 +269,7 @@ static IIO_DEV_ATTR_VPEAK(S_IWUSR | S_IR
- static IIO_DEV_ATTR_IPEAK(S_IWUSR | S_IRUGO,
- 		ade7854_read_32bit,
- 		ade7854_write_32bit,
--		ADE7854_VPEAK);
-+		ADE7854_IPEAK);
- static IIO_DEV_ATTR_APHCAL(S_IWUSR | S_IRUGO,
- 		ade7854_read_16bit,
- 		ade7854_write_16bit,
+--- a/drivers/net/ethernet/3com/3c515.c
++++ b/drivers/net/ethernet/3com/3c515.c
+@@ -1524,7 +1524,7 @@ static void update_stats(int ioaddr, str
+ static void set_rx_mode(struct net_device *dev)
+ {
+ 	int ioaddr = dev->base_addr;
+-	short new_mode;
++	unsigned short new_mode;
+ 
+ 	if (dev->flags & IFF_PROMISC) {
+ 		if (corkscrew_debug > 3)
 
