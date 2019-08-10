@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ECCD688E6F
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:55:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 713B188DEA
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:50:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727755AbfHJUyh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:54:37 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:53794 "EHLO
+        id S1727369AbfHJUuB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:50:01 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54558 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726477AbfHJUns (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:48 -0400
+        by vger.kernel.org with ESMTP id S1726736AbfHJUn5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:57 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDK-00053h-4F; Sat, 10 Aug 2019 21:43:46 +0100
+        id 1hwYDS-00053t-LB; Sat, 10 Aug 2019 21:43:54 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDJ-0003Zl-9Z; Sat, 10 Aug 2019 21:43:45 +0100
+        id 1hwYDO-0003l9-Vp; Sat, 10 Aug 2019 21:43:50 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Hulk Robot" <hulkci@huawei.com>,
-        "YueHaibing" <yuehaibing@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
+        "David S. Miller" <davem@davemloft.net>,
+        "Vlad Yasevich" <vyasevich@gmail.com>,
+        "Vladislav Yasevich" <vyasevic@redhat.com>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.156035753@decadent.org.uk>
+Message-ID: <lsq.1565469607.416808818@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 029/157] net-sysfs: call dev_hold if kobject_init_and_add
- success
+Subject: [PATCH 3.16 148/157] ipv6: Fix fragment id assignment on LE arches.
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,62 +47,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Vlad Yasevich <vyasevich@gmail.com>
 
-commit a3e23f719f5c4a38ffb3d30c8d7632a4ed8ccd9e upstream.
+commit 51f30770e50eb787200f30a79105e2615b379334 upstream.
 
-In netdev_queue_add_kobject and rx_queue_add_kobject,
-if sysfs_create_group failed, kobject_put will call
-netdev_queue_release to decrease dev refcont, however
-dev_hold has not be called. So we will see this while
-unregistering dev:
+Recent commit:
+0508c07f5e0c94f38afd5434e8b2a55b84553077
+Author: Vlad Yasevich <vyasevich@gmail.com>
+Date:   Tue Feb 3 16:36:15 2015 -0500
 
-unregister_netdevice: waiting for bcsh0 to become free. Usage count = -1
+    ipv6: Select fragment id during UFO segmentation if not set.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: d0d668371679 ("net: don't decrement kobj reference count on init failure")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Introduced a bug on LE in how ipv6 fragment id is assigned.
+This was cought by nightly sparce check:
+
+Resolve the following sparce error:
+ net/ipv6/output_core.c:57:38: sparse: incorrect type in assignment
+ (different base types)
+   net/ipv6/output_core.c:57:38:    expected restricted __be32
+[usertype] ip6_frag_id
+   net/ipv6/output_core.c:57:38:    got unsigned int [unsigned]
+[assigned] [usertype] id
+
+Fixes: 0508c07f5e0c9 (ipv6: Select fragment id during UFO segmentation if not set.)
+Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- net/core/net-sysfs.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/ipv6/output_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/core/net-sysfs.c
-+++ b/net/core/net-sysfs.c
-@@ -788,6 +788,8 @@ static int rx_queue_add_kobject(struct n
- 	if (error)
- 		return error;
+--- a/net/ipv6/output_core.c
++++ b/net/ipv6/output_core.c
+@@ -54,7 +54,7 @@ void ipv6_proxy_select_ident(struct sk_b
  
-+	dev_hold(queue->dev);
-+
- 	if (net->sysfs_rx_queue_group) {
- 		error = sysfs_create_group(kobj, net->sysfs_rx_queue_group);
- 		if (error) {
-@@ -797,7 +799,6 @@ static int rx_queue_add_kobject(struct n
- 	}
- 
- 	kobject_uevent(kobj, KOBJ_ADD);
--	dev_hold(queue->dev);
- 
- 	return error;
+ 	id = __ipv6_select_ident(ip6_proxy_idents_hashrnd,
+ 				 &addrs[1], &addrs[0]);
+-	skb_shinfo(skb)->ip6_frag_id = id;
++	skb_shinfo(skb)->ip6_frag_id = htonl(id);
  }
-@@ -1146,6 +1147,8 @@ static int netdev_queue_add_kobject(stru
- 	if (error)
- 		return error;
+ EXPORT_SYMBOL_GPL(ipv6_proxy_select_ident);
  
-+	dev_hold(queue->dev);
-+
- #ifdef CONFIG_BQL
- 	error = sysfs_create_group(kobj, &dql_group);
- 	if (error) {
-@@ -1155,7 +1158,6 @@ static int netdev_queue_add_kobject(stru
- #endif
- 
- 	kobject_uevent(kobj, KOBJ_ADD);
--	dev_hold(queue->dev);
- 
- 	return 0;
- }
 
