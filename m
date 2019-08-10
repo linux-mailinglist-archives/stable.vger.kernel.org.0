@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CFBC88DA6
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:48:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA0C688DAF
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:48:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726805AbfHJUr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:47:57 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:55014 "EHLO
+        id S1727014AbfHJUsK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:48:10 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54992 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726835AbfHJUoD (ORCPT
+        by vger.kernel.org with ESMTP id S1726825AbfHJUoD (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:03 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDY-00053h-Ec; Sat, 10 Aug 2019 21:44:00 +0100
+        id 1hwYDY-00053L-9x; Sat, 10 Aug 2019 21:44:00 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDM-0003fZ-Br; Sat, 10 Aug 2019 21:43:48 +0100
+        id 1hwYDM-0003gM-JK; Sat, 10 Aug 2019 21:43:48 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,19 +26,19 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Ingo Molnar" <mingo@kernel.org>,
+        "Masami Hiramatsu" <mhiramat@kernel.org>,
         "Thomas Gleixner" <tglx@linutronix.de>,
-        "Ben Segall" <bsegall@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Phil Auld" <pauld@redhat.com>,
+        "Ingo Molnar" <mingo@kernel.org>,
+        "Andrea Righi" <righi.andrea@gmail.com>,
         "Linus Torvalds" <torvalds@linux-foundation.org>,
-        "Anton Blanchard" <anton@ozlabs.org>
+        "Steven Rostedt" <rostedt@goodmis.org>,
+        "Peter Zijlstra" <peterz@infradead.org>,
+        "Mathieu Desnoyers" <mathieu.desnoyers@efficios.com>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.586954811@decadent.org.uk>
+Message-ID: <lsq.1565469607.507169080@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 093/157] sched/fair: Limit sched_cfs_period_timer()
- loop to avoid hard lockup
+Subject: [PATCH 3.16 098/157] x86/kprobes: Avoid kretprobe recursion bug
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -52,98 +52,105 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Phil Auld <pauld@redhat.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 2e8e19226398db8265a8e675fcc0118b9e80c9e8 upstream.
+commit b191fa96ea6dc00d331dcc28c1f7db5e075693a0 upstream.
 
-With extremely short cfs_period_us setting on a parent task group with a large
-number of children the for loop in sched_cfs_period_timer() can run until the
-watchdog fires. There is no guarantee that the call to hrtimer_forward_now()
-will ever return 0.  The large number of children can make
-do_sched_cfs_period_timer() take longer than the period.
+Avoid kretprobe recursion loop bg by setting a dummy
+kprobes to current_kprobe per-CPU variable.
 
- NMI watchdog: Watchdog detected hard LOCKUP on cpu 24
- RIP: 0010:tg_nop+0x0/0x10
-  <IRQ>
-  walk_tg_tree_from+0x29/0xb0
-  unthrottle_cfs_rq+0xe0/0x1a0
-  distribute_cfs_runtime+0xd3/0xf0
-  sched_cfs_period_timer+0xcb/0x160
-  ? sched_cfs_slack_timer+0xd0/0xd0
-  __hrtimer_run_queues+0xfb/0x270
-  hrtimer_interrupt+0x122/0x270
-  smp_apic_timer_interrupt+0x6a/0x140
-  apic_timer_interrupt+0xf/0x20
-  </IRQ>
+This bug has been introduced with the asm-coded trampoline
+code, since previously it used another kprobe for hooking
+the function return placeholder (which only has a nop) and
+trampoline handler was called from that kprobe.
 
-To prevent this we add protection to the loop that detects when the loop has run
-too many times and scales the period and quota up, proportionally, so that the timer
-can complete before then next period expires.  This preserves the relative runtime
-quota while preventing the hard lockup.
+This revives the old lost kprobe again.
 
-A warning is issued reporting this state and the new values.
+With this fix, we don't see deadlock anymore.
 
-Signed-off-by: Phil Auld <pauld@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Anton Blanchard <anton@ozlabs.org>
-Cc: Ben Segall <bsegall@google.com>
+And you can see that all inner-called kretprobe are skipped.
+
+  event_1                                  235               0
+  event_2                                19375           19612
+
+The 1st column is recorded count and the 2nd is missed count.
+Above shows (event_1 rec) + (event_2 rec) ~= (event_2 missed)
+(some difference are here because the counter is racy)
+
+Reported-by: Andrea Righi <righi.andrea@gmail.com>
+Tested-by: Andrea Righi <righi.andrea@gmail.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Acked-by: Steven Rostedt <rostedt@goodmis.org>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20190319130005.25492-1-pauld@redhat.com
+Fixes: c9becf58d935 ("[PATCH] kretprobe: kretprobe-booster")
+Link: http://lkml.kernel.org/r/155094064889.6137.972160690963039.stgit@devbox
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 [bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- kernel/sched/fair.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ arch/x86/kernel/kprobes/core.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -3704,6 +3704,8 @@ static enum hrtimer_restart sched_cfs_sl
- 	return HRTIMER_NORESTART;
- }
+--- a/arch/x86/kernel/kprobes/core.c
++++ b/arch/x86/kernel/kprobes/core.c
+@@ -686,11 +686,16 @@ static void __used kretprobe_trampoline_
+ NOKPROBE_SYMBOL(kretprobe_trampoline_holder);
+ NOKPROBE_SYMBOL(kretprobe_trampoline);
  
-+extern const u64 max_cfs_quota_period;
++static struct kprobe kretprobe_kprobe = {
++	.addr = (void *)kretprobe_trampoline,
++};
 +
- static enum hrtimer_restart sched_cfs_period_timer(struct hrtimer *timer)
+ /*
+  * Called from kretprobe_trampoline
+  */
+ __visible __used void *trampoline_handler(struct pt_regs *regs)
  {
- 	struct cfs_bandwidth *cfs_b =
-@@ -3711,6 +3713,7 @@ static enum hrtimer_restart sched_cfs_pe
- 	ktime_t now;
- 	int overrun;
- 	int idle = 0;
-+	int count = 0;
++	struct kprobe_ctlblk *kcb;
+ 	struct kretprobe_instance *ri = NULL;
+ 	struct hlist_head *head, empty_rp;
+ 	struct hlist_node *tmp;
+@@ -700,6 +705,17 @@ __visible __used void *trampoline_handle
+ 	void *frame_pointer;
+ 	bool skipped = false;
  
- 	raw_spin_lock(&cfs_b->lock);
- 	for (;;) {
-@@ -3720,6 +3723,28 @@ static enum hrtimer_restart sched_cfs_pe
- 		if (!overrun)
- 			break;
++	preempt_disable();
++
++	/*
++	 * Set a dummy kprobe for avoiding kretprobe recursion.
++	 * Since kretprobe never run in kprobe handler, kprobe must not
++	 * be running at this point.
++	 */
++	kcb = get_kprobe_ctlblk();
++	__this_cpu_write(current_kprobe, &kretprobe_kprobe);
++	kcb->kprobe_status = KPROBE_HIT_ACTIVE;
++
+ 	INIT_HLIST_HEAD(&empty_rp);
+ 	kretprobe_hash_lock(current, &head, &flags);
+ 	/* fixup registers */
+@@ -775,10 +791,9 @@ __visible __used void *trampoline_handle
+ 		orig_ret_address = (unsigned long)ri->ret_addr;
+ 		if (ri->rp && ri->rp->handler) {
+ 			__this_cpu_write(current_kprobe, &ri->rp->kp);
+-			get_kprobe_ctlblk()->kprobe_status = KPROBE_HIT_ACTIVE;
+ 			ri->ret_addr = correct_ret_addr;
+ 			ri->rp->handler(ri, regs);
+-			__this_cpu_write(current_kprobe, NULL);
++			__this_cpu_write(current_kprobe, &kretprobe_kprobe);
+ 		}
  
-+		if (++count > 3) {
-+			u64 new, old = ktime_to_ns(cfs_b->period);
+ 		recycle_rp_inst(ri, &empty_rp);
+@@ -794,6 +809,9 @@ __visible __used void *trampoline_handle
+ 
+ 	kretprobe_hash_unlock(current, &flags);
+ 
++	__this_cpu_write(current_kprobe, NULL);
++	preempt_enable();
 +
-+			new = (old * 147) / 128; /* ~115% */
-+			new = min(new, max_cfs_quota_period);
-+
-+			cfs_b->period = ns_to_ktime(new);
-+
-+			/* since max is 1s, this is limited to 1e9^2, which fits in u64 */
-+			cfs_b->quota *= new;
-+			cfs_b->quota = div64_u64(cfs_b->quota, old);
-+
-+			pr_warn_ratelimited(
-+	"cfs_period_timer[cpu%d]: period too short, scaling up (new cfs_period_us %lld, cfs_quota_us = %lld)\n",
-+				smp_processor_id(),
-+				div_u64(new, NSEC_PER_USEC),
-+				div_u64(cfs_b->quota, NSEC_PER_USEC));
-+
-+			/* reset count so we don't come right back in here */
-+			count = 0;
-+		}
-+
- 		idle = do_sched_cfs_period_timer(cfs_b, overrun);
- 	}
- 	raw_spin_unlock(&cfs_b->lock);
+ 	hlist_for_each_entry_safe(ri, tmp, &empty_rp, hlist) {
+ 		hlist_del(&ri->hlist);
+ 		kfree(ri);
 
