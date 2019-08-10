@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF2A488E00
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:51:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAE5E88DEB
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:50:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727621AbfHJUuq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:50:46 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54372 "EHLO
+        id S1727233AbfHJUuB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:50:01 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54538 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726693AbfHJUnz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:55 -0400
+        by vger.kernel.org with ESMTP id S1726729AbfHJUn5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:57 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDQ-00053q-5v; Sat, 10 Aug 2019 21:43:52 +0100
+        id 1hwYDS-00053P-9R; Sat, 10 Aug 2019 21:43:54 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDN-0003hZ-89; Sat, 10 Aug 2019 21:43:49 +0100
+        id 1hwYDP-0003lq-6Q; Sat, 10 Aug 2019 21:43:51 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
+        "Hannes Frederic Sowa" <hannes@stressinduktion.org>,
         "David S. Miller" <davem@davemloft.net>,
-        "Eric Dumazet" <edumazet@google.com>,
-        "James Chapman" <jchapman@katalix.com>
+        "Rick Jones" <rick.jones2@hp.com>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.411478542@decadent.org.uk>
+Message-ID: <lsq.1565469607.179170197@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 111/157] l2tp: use rcu_dereference_sk_user_data() in
- l2tp_udp_encap_recv()
+Subject: [PATCH 3.16 152/157] ipv4: ip_tunnel: use net namespace from
+ rtable not socket
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,32 +48,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Eric Dumazet <edumazet@google.com>
+From: Hannes Frederic Sowa <hannes@stressinduktion.org>
 
-commit c1c477217882c610a2ba0268f5faf36c9c092528 upstream.
+commit 926a882f6916fd76b6f8ee858d45a2241c5e7999 upstream.
 
-Canonical way to fetch sk_user_data from an encap_rcv() handler called
-from UDP stack in rcu protected section is to use rcu_dereference_sk_user_data(),
-otherwise compiler might read it multiple times.
+The socket parameter might legally be NULL, thus sock_net is sometimes
+causing a NULL pointer dereference. Using net_device pointer in dst_entry
+is more reliable.
 
-Fixes: d00fa9adc528 ("il2tp: fix races with tunnel socket close")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: James Chapman <jchapman@katalix.com>
+Fixes: b6a7719aedd7e5c ("ipv4: hash net ptr into fragmentation bucket selection")
+Reported-by: Rick Jones <rick.jones2@hp.com>
+Cc: Rick Jones <rick.jones2@hp.com>
+Cc: David S. Miller <davem@davemloft.net>
+Signed-off-by: Hannes Frederic Sowa <hannes@stressinduktion.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- net/l2tp/l2tp_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/ip_tunnel_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/l2tp/l2tp_core.c
-+++ b/net/l2tp/l2tp_core.c
-@@ -997,7 +997,7 @@ int l2tp_udp_encap_recv(struct sock *sk,
- {
- 	struct l2tp_tunnel *tunnel;
+--- a/net/ipv4/ip_tunnel_core.c
++++ b/net/ipv4/ip_tunnel_core.c
+@@ -74,7 +74,8 @@ int iptunnel_xmit(struct sock *sk, struc
+ 	iph->daddr	=	dst;
+ 	iph->saddr	=	src;
+ 	iph->ttl	=	ttl;
+-	__ip_select_ident(sock_net(sk), iph, skb_shinfo(skb)->gso_segs ?: 1);
++	__ip_select_ident(dev_net(rt->dst.dev), iph,
++			  skb_shinfo(skb)->gso_segs ?: 1);
  
--	tunnel = l2tp_tunnel(sk);
-+	tunnel = rcu_dereference_sk_user_data(sk);
- 	if (tunnel == NULL)
- 		goto pass_up;
- 
+ 	err = ip_local_out_sk(sk, skb);
+ 	if (unlikely(net_xmit_eval(err)))
 
