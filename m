@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60DD288DB5
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:48:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C93688D5A
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:45:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726992AbfHJUsU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:48:20 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54850 "EHLO
+        id S1726233AbfHJUp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:45:26 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:55470 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726800AbfHJUoB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:01 -0400
+        by vger.kernel.org with ESMTP id S1726924AbfHJUoJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:09 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDV-00053W-KH; Sat, 10 Aug 2019 21:43:57 +0100
+        id 1hwYDf-00053p-04; Sat, 10 Aug 2019 21:44:07 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDO-0003j2-3v; Sat, 10 Aug 2019 21:43:50 +0100
+        id 1hwYDK-0003c1-DA; Sat, 10 Aug 2019 21:43:46 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,18 +26,22 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Yunfang Tai" <yunfangtai@tencent.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Lidong Chen" <lidongchen@tencent.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        "=?UTF-8?q?haibinzhang=28=E5=BC=A0=E6=B5=B7=E6=96=8C=29?=" 
-        <haibinzhang@tencent.com>
+        "Alexei Starovoitov" <ast@kernel.org>,
+        "Daniel Borkmann" <daniel@iogearbox.net>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "Kees Cook" <keescook@chromium.org>,
+        "YueHaibing" <yuehaibing@huawei.com>,
+        "Alexey Dobriyan" <adobriyan@gmail.com>,
+        "Hulk Robot" <hulkci@huawei.com>,
+        "Luis Chamberlain" <mcgrof@kernel.org>,
+        "Al Viro" <viro@zeniv.linux.org.uk>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.318549544@decadent.org.uk>
+Message-ID: <lsq.1565469607.769359793@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 129/157] vhost-net: set packet weight of tx polling
- to 2 * vq size
+Subject: [PATCH 3.16 057/157] fs/proc/proc_sysctl.c: fix NULL pointer
+ dereference in put_links
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -51,134 +55,96 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: haibinzhang(张海斌)
- <haibinzhang@tencent.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-commit a2ac99905f1ea8b15997a6ec39af69aa28a3653b upstream.
+commit 23da9588037ecdd4901db76a5b79a42b529c4ec3 upstream.
 
-handle_tx will delay rx for tens or even hundreds of milliseconds when tx busy
-polling udp packets with small length(e.g. 1byte udp payload), because setting
-VHOST_NET_WEIGHT takes into account only sent-bytes but no single packet length.
+Syzkaller reports:
 
-Ping-Latencies shown below were tested between two Virtual Machines using
-netperf (UDP_STREAM, len=1), and then another machine pinged the client:
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] SMP KASAN PTI
+CPU: 1 PID: 5373 Comm: syz-executor.0 Not tainted 5.0.0-rc8+ #3
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+RIP: 0010:put_links+0x101/0x440 fs/proc/proc_sysctl.c:1599
+Code: 00 0f 85 3a 03 00 00 48 8b 43 38 48 89 44 24 20 48 83 c0 38 48 89 c2 48 89 44 24 28 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f 85 fe 02 00 00 48 8b 74 24 20 48 c7 c7 60 2a 9d 91
+RSP: 0018:ffff8881d828f238 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: ffff8881e01b1140 RCX: ffffffff8ee98267
+RDX: 0000000000000007 RSI: ffffc90001479000 RDI: ffff8881e01b1178
+RBP: dffffc0000000000 R08: ffffed103ee27259 R09: ffffed103ee27259
+R10: 0000000000000001 R11: ffffed103ee27258 R12: fffffffffffffff4
+R13: 0000000000000006 R14: ffff8881f59838c0 R15: dffffc0000000000
+FS:  00007f072254f700(0000) GS:ffff8881f7100000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fff8b286668 CR3: 00000001f0542002 CR4: 00000000007606e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ drop_sysctl_table+0x152/0x9f0 fs/proc/proc_sysctl.c:1629
+ get_subdir fs/proc/proc_sysctl.c:1022 [inline]
+ __register_sysctl_table+0xd65/0x1090 fs/proc/proc_sysctl.c:1335
+ br_netfilter_init+0xbc/0x1000 [br_netfilter]
+ do_one_initcall+0xfa/0x5ca init/main.c:887
+ do_init_module+0x204/0x5f6 kernel/module.c:3460
+ load_module+0x66b2/0x8570 kernel/module.c:3808
+ __do_sys_finit_module+0x238/0x2a0 kernel/module.c:3902
+ do_syscall_64+0x147/0x600 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x462e99
+Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f072254ec58 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+RAX: ffffffffffffffda RBX: 000000000073bf00 RCX: 0000000000462e99
+RDX: 0000000000000000 RSI: 0000000020000280 RDI: 0000000000000003
+RBP: 00007f072254ec70 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f072254f6bc
+R13: 00000000004bcefa R14: 00000000006f6fb0 R15: 0000000000000004
+Modules linked in: br_netfilter(+) dvb_usb_dibusb_mc_common dib3000mc dibx000_common dvb_usb_dibusb_common dvb_usb_dw2102 dvb_usb classmate_laptop palmas_regulator cn videobuf2_v4l2 v4l2_common snd_soc_bd28623 mptbase snd_usb_usx2y snd_usbmidi_lib snd_rawmidi wmi libnvdimm lockd sunrpc grace rc_kworld_pc150u rc_core rtc_da9063 sha1_ssse3 i2c_cros_ec_tunnel adxl34x_spi adxl34x nfnetlink lib80211 i5500_temp dvb_as102 dvb_core videobuf2_common videodev media videobuf2_vmalloc videobuf2_memops udc_core lnbp22 leds_lp3952 hid_roccat_ryos s1d13xxxfb mtd vport_geneve openvswitch nf_conncount nf_nat_ipv6 nsh geneve udp_tunnel ip6_udp_tunnel snd_soc_mt6351 sis_agp phylink snd_soc_adau1761_spi snd_soc_adau1761 snd_soc_adau17x1 snd_soc_core snd_pcm_dmaengine ac97_bus snd_compress snd_soc_adau_utils snd_soc_sigmadsp_regmap snd_soc_sigmadsp raid_class hid_roccat_konepure hid_roccat_common hid_roccat c2port_duramar2150 core mdio_bcm_unimac iptable_security iptable_raw iptable_mangle
+ iptable_nat nf_nat_ipv4 nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 iptable_filter bpfilter ip6_vti ip_vti ip_gre ipip sit tunnel4 ip_tunnel hsr veth netdevsim devlink vxcan batman_adv cfg80211 rfkill chnl_net caif nlmon dummy team bonding vcan bridge stp llc ip6_gre gre ip6_tunnel tunnel6 tun crct10dif_pclmul crc32_pclmul crc32c_intel ghash_clmulni_intel joydev mousedev ide_pci_generic piix aesni_intel aes_x86_64 ide_core crypto_simd atkbd cryptd glue_helper serio_raw ata_generic pata_acpi i2c_piix4 floppy sch_fq_codel ip_tables x_tables ipv6 [last unloaded: lm73]
+Dumping ftrace buffer:
+   (ftrace buffer empty)
+---[ end trace 770020de38961fd0 ]---
 
-vq size=256
-Packet-Weight   Ping-Latencies(millisecond)
-                   min      avg       max
-Origin           3.319   18.489    57.303
-64               1.643    2.021     2.552
-128              1.825    2.600     3.224
-256              1.997    2.710     4.295
-512              1.860    3.171     4.631
-1024             2.002    4.173     9.056
-2048             2.257    5.650     9.688
-4096             2.093    8.508    15.943
+A new dir entry can be created in get_subdir and its 'header->parent' is
+set to NULL.  Only after insert_header success, it will be set to 'dir',
+otherwise 'header->parent' is set to NULL and drop_sysctl_table is called.
+However in err handling path of get_subdir, drop_sysctl_table also be
+called on 'new->header' regardless its value of parent pointer.  Then
+put_links is called, which triggers NULL-ptr deref when access member of
+header->parent.
 
-vq size=512
-Packet-Weight   Ping-Latencies(millisecond)
-                   min      avg       max
-Origin           6.537   29.177    66.245
-64               2.798    3.614     4.403
-128              2.861    3.820     4.775
-256              3.008    4.018     4.807
-512              3.254    4.523     5.824
-1024             3.079    5.335     7.747
-2048             3.944    8.201    12.762
-4096             4.158   11.057    19.985
+In fact we have multiple error paths which call drop_sysctl_table() there,
+upon failure on insert_links() we also call drop_sysctl_table().And even
+in the successful case on __register_sysctl_table() we still always call
+drop_sysctl_table().This patch fix it.
 
-Seems pretty consistent, a small dip at 2 VQ sizes.
-Ring size is a hint from device about a burst size it can tolerate. Based on
-benchmarks, set the weight to 2 * vq size.
-
-To evaluate this change, another tests were done using netperf(RR, TX) between
-two machines with Intel(R) Xeon(R) Gold 6133 CPU @ 2.50GHz, and vq size was
-tweaked through qemu. Results shown below does not show obvious changes.
-
-vq size=256 TCP_RR                vq size=512 TCP_RR
-size/sessions/+thu%/+normalize%   size/sessions/+thu%/+normalize%
-   1/       1/  -7%/        -2%      1/       1/   0%/        -2%
-   1/       4/  +1%/         0%      1/       4/  +1%/         0%
-   1/       8/  +1%/        -2%      1/       8/   0%/        +1%
-  64/       1/  -6%/         0%     64/       1/  +7%/        +3%
-  64/       4/   0%/        +2%     64/       4/  -1%/        +1%
-  64/       8/   0%/         0%     64/       8/  -1%/        -2%
- 256/       1/  -3%/        -4%    256/       1/  -4%/        -2%
- 256/       4/  +3%/        +4%    256/       4/  +1%/        +2%
- 256/       8/  +2%/         0%    256/       8/  +1%/        -1%
-
-vq size=256 UDP_RR                vq size=512 UDP_RR
-size/sessions/+thu%/+normalize%   size/sessions/+thu%/+normalize%
-   1/       1/  -5%/        +1%      1/       1/  -3%/        -2%
-   1/       4/  +4%/        +1%      1/       4/  -2%/        +2%
-   1/       8/  -1%/        -1%      1/       8/  -1%/         0%
-  64/       1/  -2%/        -3%     64/       1/  +1%/        +1%
-  64/       4/  -5%/        -1%     64/       4/  +2%/         0%
-  64/       8/   0%/        -1%     64/       8/  -2%/        +1%
- 256/       1/  +7%/        +1%    256/       1/  -7%/         0%
- 256/       4/  +1%/        +1%    256/       4/  -3%/        -4%
- 256/       8/  +2%/        +2%    256/       8/  +1%/        +1%
-
-vq size=256 TCP_STREAM            vq size=512 TCP_STREAM
-size/sessions/+thu%/+normalize%   size/sessions/+thu%/+normalize%
-  64/       1/   0%/        -3%     64/       1/   0%/         0%
-  64/       4/  +3%/        -1%     64/       4/  -2%/        +4%
-  64/       8/  +9%/        -4%     64/       8/  -1%/        +2%
- 256/       1/  +1%/        -4%    256/       1/  +1%/        +1%
- 256/       4/  -1%/        -1%    256/       4/  -3%/         0%
- 256/       8/  +7%/        +5%    256/       8/  -3%/         0%
- 512/       1/  +1%/         0%    512/       1/  -1%/        -1%
- 512/       4/  +1%/        -1%    512/       4/   0%/         0%
- 512/       8/  +7%/        -5%    512/       8/  +6%/        -1%
-1024/       1/   0%/        -1%   1024/       1/   0%/        +1%
-1024/       4/  +3%/         0%   1024/       4/  +1%/         0%
-1024/       8/  +8%/        +5%   1024/       8/  -1%/         0%
-2048/       1/  +2%/        +2%   2048/       1/  -1%/         0%
-2048/       4/  +1%/         0%   2048/       4/   0%/        -1%
-2048/       8/  -2%/         0%   2048/       8/   5%/        -1%
-4096/       1/  -2%/         0%   4096/       1/  -2%/         0%
-4096/       4/  +2%/         0%   4096/       4/   0%/         0%
-4096/       8/  +9%/        -2%   4096/       8/  -5%/        -1%
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Haibin Zhang <haibinzhang@tencent.com>
-Signed-off-by: Yunfang Tai <yunfangtai@tencent.com>
-Signed-off-by: Lidong Chen <lidongchen@tencent.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: http://lkml.kernel.org/r/20190314085527.13244-1-yuehaibing@huawei.com
+Fixes: 0e47c99d7fe25 ("sysctl: Replace root_list with links between sysctl_table_sets")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/vhost/net.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/proc/proc_sysctl.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -39,6 +39,10 @@ MODULE_PARM_DESC(experimental_zcopytx, "
-  * Using this limit prevents one virtqueue from starving others. */
- #define VHOST_NET_WEIGHT 0x80000
+--- a/fs/proc/proc_sysctl.c
++++ b/fs/proc/proc_sysctl.c
+@@ -1550,7 +1550,8 @@ static void drop_sysctl_table(struct ctl
+ 	if (--header->nreg)
+ 		return;
  
-+/* Max number of packets transferred before requeueing the job.
-+ * Using this limit prevents one virtqueue from starving rx. */
-+#define VHOST_NET_PKT_WEIGHT(vq) ((vq)->num * 2)
-+
- /* MAX number of TX used buffers for outstanding zerocopy */
- #define VHOST_MAX_PEND 128
- #define VHOST_GOODCOPY_LEN 256
-@@ -351,6 +355,7 @@ static void handle_tx(struct vhost_net *
- 	struct socket *sock;
- 	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
- 	bool zcopy, zcopy_used;
-+	int sent_pkts = 0;
- 
- 	mutex_lock(&vq->mutex);
- 	sock = vq->private_data;
-@@ -450,7 +455,8 @@ static void handle_tx(struct vhost_net *
- 			vhost_zerocopy_signal_used(net, vq);
- 		total_len += len;
- 		vhost_net_tx_packet(net);
--		if (unlikely(total_len >= VHOST_NET_WEIGHT)) {
-+		if (unlikely(total_len >= VHOST_NET_WEIGHT) ||
-+		    unlikely(++sent_pkts >= VHOST_NET_PKT_WEIGHT(vq))) {
- 			vhost_poll_queue(&vq->poll);
- 			break;
- 		}
+-	put_links(header);
++	if (parent)
++		put_links(header);
+ 	start_unregistering(header);
+ 	if (!--header->count)
+ 		kfree_rcu(header, rcu);
 
