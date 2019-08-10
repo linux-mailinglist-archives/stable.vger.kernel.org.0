@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA0C688DAF
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:48:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74C7988DA4
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:47:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727014AbfHJUsK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:48:10 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54992 "EHLO
+        id S1727150AbfHJUrn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:47:43 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:55056 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726825AbfHJUoD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:03 -0400
+        by vger.kernel.org with ESMTP id S1726840AbfHJUoE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:04 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDY-00053L-9x; Sat, 10 Aug 2019 21:44:00 +0100
+        id 1hwYDY-00053Y-K7; Sat, 10 Aug 2019 21:44:00 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDM-0003gM-JK; Sat, 10 Aug 2019 21:43:48 +0100
+        id 1hwYDM-0003fj-CV; Sat, 10 Aug 2019 21:43:48 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,19 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Masami Hiramatsu" <mhiramat@kernel.org>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        "Ingo Molnar" <mingo@kernel.org>,
-        "Andrea Righi" <righi.andrea@gmail.com>,
-        "Linus Torvalds" <torvalds@linux-foundation.org>,
-        "Steven Rostedt" <rostedt@goodmis.org>,
-        "Peter Zijlstra" <peterz@infradead.org>,
-        "Mathieu Desnoyers" <mathieu.desnoyers@efficios.com>
+        syzbot+48df349490c36f9f54ab@syzkaller.appspotmail.com,
+        "Takashi Iwai" <tiwai@suse.de>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.507169080@decadent.org.uk>
+Message-ID: <lsq.1565469607.329556158@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 098/157] x86/kprobes: Avoid kretprobe recursion bug
+Subject: [PATCH 3.16 094/157] ALSA: core: Fix card races between register
+ and disconnect
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -52,105 +47,73 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit b191fa96ea6dc00d331dcc28c1f7db5e075693a0 upstream.
+commit 2a3f7221acddfe1caa9ff09b3a8158c39b2fdeac upstream.
 
-Avoid kretprobe recursion loop bg by setting a dummy
-kprobes to current_kprobe per-CPU variable.
+There is a small race window in the card disconnection code that
+allows the registration of another card with the very same card id.
+This leads to a warning in procfs creation as caught by syzkaller.
 
-This bug has been introduced with the asm-coded trampoline
-code, since previously it used another kprobe for hooking
-the function return placeholder (which only has a nop) and
-trampoline handler was called from that kprobe.
+The problem is that we delete snd_cards and snd_cards_lock entries at
+the very beginning of the disconnection procedure.  This makes the
+slot available to be assigned for another card object while the
+disconnection procedure is being processed.  Then it becomes possible
+to issue a procfs registration with the existing file name although we
+check the conflict beforehand.
 
-This revives the old lost kprobe again.
+The fix is simply to move the snd_cards and snd_cards_lock clearances
+at the end of the disconnection procedure.  The references to these
+entries are merely either from the global proc files like
+/proc/asound/cards or from the card registration / disconnection, so
+it should be fine to shift at the very end.
 
-With this fix, we don't see deadlock anymore.
-
-And you can see that all inner-called kretprobe are skipped.
-
-  event_1                                  235               0
-  event_2                                19375           19612
-
-The 1st column is recorded count and the 2nd is missed count.
-Above shows (event_1 rec) + (event_2 rec) ~= (event_2 missed)
-(some difference are here because the counter is racy)
-
-Reported-by: Andrea Righi <righi.andrea@gmail.com>
-Tested-by: Andrea Righi <righi.andrea@gmail.com>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Acked-by: Steven Rostedt <rostedt@goodmis.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: c9becf58d935 ("[PATCH] kretprobe: kretprobe-booster")
-Link: http://lkml.kernel.org/r/155094064889.6137.972160690963039.stgit@devbox
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-[bwh: Backported to 3.16: adjust context]
+Reported-by: syzbot+48df349490c36f9f54ab@syzkaller.appspotmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/x86/kernel/kprobes/core.c | 22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ sound/core/init.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
---- a/arch/x86/kernel/kprobes/core.c
-+++ b/arch/x86/kernel/kprobes/core.c
-@@ -686,11 +686,16 @@ static void __used kretprobe_trampoline_
- NOKPROBE_SYMBOL(kretprobe_trampoline_holder);
- NOKPROBE_SYMBOL(kretprobe_trampoline);
+--- a/sound/core/init.c
++++ b/sound/core/init.c
+@@ -389,14 +389,7 @@ int snd_card_disconnect(struct snd_card
+ 	card->shutdown = 1;
+ 	spin_unlock(&card->files_lock);
  
-+static struct kprobe kretprobe_kprobe = {
-+	.addr = (void *)kretprobe_trampoline,
-+};
+-	/* phase 1: disable fops (user space) operations for ALSA API */
+-	mutex_lock(&snd_card_mutex);
+-	snd_cards[card->number] = NULL;
+-	clear_bit(card->number, snd_cards_lock);
+-	mutex_unlock(&snd_card_mutex);
+-	
+-	/* phase 2: replace file->f_op with special dummy operations */
+-	
++	/* replace file->f_op with special dummy operations */
+ 	spin_lock(&card->files_lock);
+ 	list_for_each_entry(mfile, &card->files_list, list) {
+ 		/* it's critical part, use endless loop */
+@@ -412,7 +405,7 @@ int snd_card_disconnect(struct snd_card
+ 	}
+ 	spin_unlock(&card->files_lock);	
+ 
+-	/* phase 3: notify all connected devices about disconnection */
++	/* notify all connected devices about disconnection */
+ 	/* at this point, they cannot respond to any calls except release() */
+ 
+ #if IS_ENABLED(CONFIG_SND_MIXER_OSS)
+@@ -430,6 +423,13 @@ int snd_card_disconnect(struct snd_card
+ 		device_del(&card->card_dev);
+ 		card->registered = false;
+ 	}
 +
- /*
-  * Called from kretprobe_trampoline
-  */
- __visible __used void *trampoline_handler(struct pt_regs *regs)
- {
-+	struct kprobe_ctlblk *kcb;
- 	struct kretprobe_instance *ri = NULL;
- 	struct hlist_head *head, empty_rp;
- 	struct hlist_node *tmp;
-@@ -700,6 +705,17 @@ __visible __used void *trampoline_handle
- 	void *frame_pointer;
- 	bool skipped = false;
- 
-+	preempt_disable();
++	/* disable fops (user space) operations for ALSA API */
++	mutex_lock(&snd_card_mutex);
++	snd_cards[card->number] = NULL;
++	clear_bit(card->number, snd_cards_lock);
++	mutex_unlock(&snd_card_mutex);
 +
-+	/*
-+	 * Set a dummy kprobe for avoiding kretprobe recursion.
-+	 * Since kretprobe never run in kprobe handler, kprobe must not
-+	 * be running at this point.
-+	 */
-+	kcb = get_kprobe_ctlblk();
-+	__this_cpu_write(current_kprobe, &kretprobe_kprobe);
-+	kcb->kprobe_status = KPROBE_HIT_ACTIVE;
-+
- 	INIT_HLIST_HEAD(&empty_rp);
- 	kretprobe_hash_lock(current, &head, &flags);
- 	/* fixup registers */
-@@ -775,10 +791,9 @@ __visible __used void *trampoline_handle
- 		orig_ret_address = (unsigned long)ri->ret_addr;
- 		if (ri->rp && ri->rp->handler) {
- 			__this_cpu_write(current_kprobe, &ri->rp->kp);
--			get_kprobe_ctlblk()->kprobe_status = KPROBE_HIT_ACTIVE;
- 			ri->ret_addr = correct_ret_addr;
- 			ri->rp->handler(ri, regs);
--			__this_cpu_write(current_kprobe, NULL);
-+			__this_cpu_write(current_kprobe, &kretprobe_kprobe);
- 		}
- 
- 		recycle_rp_inst(ri, &empty_rp);
-@@ -794,6 +809,9 @@ __visible __used void *trampoline_handle
- 
- 	kretprobe_hash_unlock(current, &flags);
- 
-+	__this_cpu_write(current_kprobe, NULL);
-+	preempt_enable();
-+
- 	hlist_for_each_entry_safe(ri, tmp, &empty_rp, hlist) {
- 		hlist_del(&ri->hlist);
- 		kfree(ri);
+ #ifdef CONFIG_PM
+ 	wake_up(&card->power_sleep);
+ #endif
 
