@@ -2,71 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD6E4888FB
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 09:09:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6488888A1D
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 10:44:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725601AbfHJHJL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 03:09:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48250 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725497AbfHJHJL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 10 Aug 2019 03:09:11 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 641712089E;
-        Sat, 10 Aug 2019 07:09:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565420950;
-        bh=p0UXi5jlbcF7bmE2fgD2iuaEiQDHVwlnBHdKGXSI3JU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=e53XEIDXaB5XYUVveX3PR6Zu8miEigROCFbI962PF8rpoxs/X6CCLmBOMezLmRRJT
-         Pk9amNebvkGrK/5Qg4z+aODFQkzsf3eda/h72omXrYHs5HzBD6waws41p9JwVWumNm
-         XadIexPe7qg894jsvEm6ptSqVUOQTq5PegknJoh0=
-Date:   Sat, 10 Aug 2019 09:09:08 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     shuah <shuah@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 4.9 00/32] 4.9.189-stable review
-Message-ID: <20190810070908.GE6896@kroah.com>
-References: <20190809133922.945349906@linuxfoundation.org>
- <f6ab9977-49df-af3f-6bab-0eafc1b4c44f@kernel.org>
+        id S1726147AbfHJIoY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 04:44:24 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:44459 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726145AbfHJIoY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 04:44:24 -0400
+Received: by mail-lj1-f194.google.com with SMTP id k18so94133452ljc.11
+        for <stable@vger.kernel.org>; Sat, 10 Aug 2019 01:44:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=eACVUSS6+kAuWMY6Y/Rvo5Ji9wXuF3LroigfQBmD9vM=;
+        b=oA5JEsdC41+s5RweLFg45IzYtNnPq9TNmX85NxMWvR0pTBpna+G5NWFjVmOcnruRqn
+         f3qR5OKx65vyqv/yJYpMondb0D1IinIqKpTwnaigRPEe408fvOOPwsidd1KHv0F7uxoL
+         58vefLhJjAjAJQOsFKvaA/1qOhN3zHelwOQZ9oW2SgwOlfD4wzaez7p+DlTfY6Cv3fpp
+         cBouMUYjGoFP9B63HF1LW4YBojlh4OVVyWI8iJEsIhfoErIpNPi7RY8/epCL1yZuztuT
+         EwqTMl31cY2RluT7fu+tU++M4arxSCpPZRYSPw27r7Dly+eRvrCuETDnv5rULexTJJpG
+         U/rA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=eACVUSS6+kAuWMY6Y/Rvo5Ji9wXuF3LroigfQBmD9vM=;
+        b=PjMTjHRV6QqRsLghWbRYuas1dt9ptZbvJ/meZIterYEiwsmFEri6A6R+Zd3PAUjMcO
+         OWFgiHvJm653n7xYQnNfPEQLin603ruydLOijnN3y40DVXMIs98JIxd3wjyCMp3YTAv+
+         rqqMork5MlyMnHHsBKgZN411F3sX5CYl+4gE4vdjVUkArW6tKjwzUZGG37B6QZepYp4q
+         Pb1Ei2mief8PZY+duymAPYp9mSTlALOSmy3Z1+jhnMEDvfRH9TjKK56qo8elSlrb9irK
+         5wnBnDK0fX+qOfAbIiPjuS7StQ5ze8I72xslVxYljxQ5QfS/3nyhdyVS/LJ452Vr2uoF
+         hj5g==
+X-Gm-Message-State: APjAAAUfxMUjgeq7pX8YqvfcfzNUdazR4CrXXzR3Ml5TsxKoO6J38m1m
+        O9g4esnIRuY9tRaTgqqwTAuAe44Ce+y0H7ii70v6mg==
+X-Google-Smtp-Source: APXvYqx8DYOfkDJBjcHKVDAcXMoxEOcXJ6v6qd9HP3C6lAYrPiO62m35YRBlOniLQdezYdxDNUwJpj6n3Iz9K0My3wM=
+X-Received: by 2002:a2e:8744:: with SMTP id q4mr13547144ljj.77.1565426662425;
+ Sat, 10 Aug 2019 01:44:22 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f6ab9977-49df-af3f-6bab-0eafc1b4c44f@kernel.org>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Received: by 2002:a19:8c0b:0:0:0:0:0 with HTTP; Sat, 10 Aug 2019 01:44:22
+ -0700 (PDT)
+Reply-To: sgt.hester33@gmail.com
+From:   Ann Hester <sgthester612@gmail.com>
+Date:   Sat, 10 Aug 2019 08:44:22 +0000
+Message-ID: <CAJdfrwreWOV59DitESc11oAkiQ7E1HsWAfMuk0rPdaqK6+2_4A@mail.gmail.com>
+Subject: Greetings
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 09, 2019 at 04:07:14PM -0600, shuah wrote:
-> On 8/9/19 7:45 AM, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 4.9.189 release.
-> > There are 32 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Sun 11 Aug 2019 01:38:45 PM UTC.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.189-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> 
-> Compiled and booted on my test system. No dmesg regressions.
-
-Thanks for testing both of these and letting me know.
-
-greg k-h
+How are you? I hope you are well. My name is Ann Leigh, please reply
+back to confirm your email address so I can tell you my reason for
+contacting you.
