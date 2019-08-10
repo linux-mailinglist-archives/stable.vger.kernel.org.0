@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B949288D3D
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:44:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F92188D7E
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:47:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726758AbfHJUn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:43:58 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54542 "EHLO
+        id S1727120AbfHJUq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:46:26 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:55258 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726730AbfHJUn5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:57 -0400
+        by vger.kernel.org with ESMTP id S1726881AbfHJUoH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:07 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDS-00053e-LR; Sat, 10 Aug 2019 21:43:54 +0100
+        id 1hwYDb-00053h-Uv; Sat, 10 Aug 2019 21:44:04 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDO-0003l3-UX; Sat, 10 Aug 2019 21:43:50 +0100
+        id 1hwYDL-0003dw-MZ; Sat, 10 Aug 2019 21:43:47 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Vlad Yasevich" <vyasevich@gmail.com>,
-        "Vladislav Yasevich" <vyasevic@redhat.com>
+        "Kalle Valo" <kvalo@codeaurora.org>,
+        "Stanislaw Gruszka" <sgruszka@redhat.com>,
+        "Vijayakumar Durai" <vijayakumar.durai1@vivint.com>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.265297102@decadent.org.uk>
+Message-ID: <lsq.1565469607.156309352@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 147/157] Revert "drivers/net, ipv6: Select IPv6
- fragment idents for virtio UFO packets"
+Subject: [PATCH 3.16 081/157] rt2x00: do not increment sequence number
+ while re-transmitting
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,79 +48,97 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Vlad Yasevich <vyasevich@gmail.com>
+From: Vijayakumar Durai <vijayakumar.durai1@vivint.com>
 
-commit 72f6510745592c87f612f62ae4f16bb002934df4 upstream.
+commit 746ba11f170603bf1eaade817553a6c2e9135bbe upstream.
 
-This reverts commit 5188cd44c55db3e92cd9e77a40b5baa7ed4340f7.
+Currently rt2x00 devices retransmit the management frames with
+incremented sequence number if hardware is assigning the sequence.
 
-Now that GSO layer can track if fragment id has been selected
-and can allocate one if necessary, we don't need to do this in
-tap and macvtap.  This reverts most of the code and only keeps
-the new ipv6 fragment id generation function that is still needed.
+This is HW bug fixed already for non-QOS data frames, but it should
+be fixed for management frames except beacon.
 
-Fixes: 3d0ad09412ff (drivers/net: Disable UFO through virtio)
-Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Without fix retransmitted frames have wrong SN:
+
+ AlphaNet_e8:fb:36 Vivotek_52:31:51 Authentication, SN=1648, FN=0, Flags=........C Frame is not being retransmitted 1648 1
+ AlphaNet_e8:fb:36 Vivotek_52:31:51 Authentication, SN=1649, FN=0, Flags=....R...C Frame is being retransmitted 1649 1
+ AlphaNet_e8:fb:36 Vivotek_52:31:51 Authentication, SN=1650, FN=0, Flags=....R...C Frame is being retransmitted 1650 1
+
+With the fix SN stays correctly the same:
+
+ 88:6a:e3:e8:f9:a2 8c:f5:a3:88:76:87 Authentication, SN=1450, FN=0, Flags=........C
+ 88:6a:e3:e8:f9:a2 8c:f5:a3:88:76:87 Authentication, SN=1450, FN=0, Flags=....R...C
+ 88:6a:e3:e8:f9:a2 8c:f5:a3:88:76:87 Authentication, SN=1450, FN=0, Flags=....R...C
+
+Signed-off-by: Vijayakumar Durai <vijayakumar.durai1@vivint.com>
+[sgruszka: simplify code, change comments and changelog]
+Signed-off-by: Stanislaw Gruszka <sgruszka@redhat.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+[bwh: Backported to 3.16: adjust filenames, context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/net/macvtap.c | 3 ---
- drivers/net/tun.c     | 6 +-----
- 2 files changed, 1 insertion(+), 8 deletions(-)
+ drivers/net/wireless/rt2x00/rt2x00.h      |  1 -
+ drivers/net/wireless/rt2x00/rt2x00mac.c   | 10 ----------
+ drivers/net/wireless/rt2x00/rt2x00queue.c | 15 +++++++++------
+ 3 files changed, 9 insertions(+), 17 deletions(-)
 
---- a/drivers/net/macvtap.c
-+++ b/drivers/net/macvtap.c
-@@ -16,7 +16,6 @@
- #include <linux/idr.h>
- #include <linux/fs.h>
+--- a/drivers/net/wireless/rt2x00/rt2x00.h
++++ b/drivers/net/wireless/rt2x00/rt2x00.h
+@@ -666,7 +666,6 @@ enum rt2x00_state_flags {
+ 	CONFIG_CHANNEL_HT40,
+ 	CONFIG_POWERSAVING,
+ 	CONFIG_HT_DISABLED,
+-	CONFIG_QOS_DISABLED,
  
--#include <net/ipv6.h>
- #include <net/net_namespace.h>
- #include <net/rtnetlink.h>
- #include <net/sock.h>
-@@ -571,8 +570,6 @@ static int macvtap_skb_from_vnet_hdr(str
- 			break;
- 		case VIRTIO_NET_HDR_GSO_UDP:
- 			gso_type = SKB_GSO_UDP;
--			if (skb->protocol == htons(ETH_P_IPV6))
--				ipv6_proxy_select_ident(skb);
- 			break;
- 		default:
- 			return -EINVAL;
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -65,7 +65,6 @@
- #include <linux/nsproxy.h>
- #include <linux/virtio_net.h>
- #include <linux/rcupdate.h>
--#include <net/ipv6.h>
- #include <net/net_namespace.h>
- #include <net/netns/generic.h>
- #include <net/rtnetlink.h>
-@@ -1143,8 +1142,6 @@ static ssize_t tun_get_user(struct tun_s
- 		break;
- 	}
+ 	/*
+ 	 * Mark we currently are sequentially reading TX_STA_FIFO register
+--- a/drivers/net/wireless/rt2x00/rt2x00mac.c
++++ b/drivers/net/wireless/rt2x00/rt2x00mac.c
+@@ -682,19 +682,9 @@ void rt2x00mac_bss_info_changed(struct i
+ 			rt2x00dev->intf_associated--;
  
--	skb_reset_network_header(skb);
+ 		rt2x00leds_led_assoc(rt2x00dev, !!rt2x00dev->intf_associated);
 -
- 	if (gso.gso_type != VIRTIO_NET_HDR_GSO_NONE) {
- 		pr_debug("GSO!\n");
- 		switch (gso.gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
-@@ -1156,8 +1153,6 @@ static ssize_t tun_get_user(struct tun_s
- 			break;
- 		case VIRTIO_NET_HDR_GSO_UDP:
- 			skb_shinfo(skb)->gso_type = SKB_GSO_UDP;
--			if (skb->protocol == htons(ETH_P_IPV6))
--				ipv6_proxy_select_ident(skb);
- 			break;
- 		default:
- 			tun->dev->stats.rx_frame_errors++;
-@@ -1187,6 +1182,7 @@ static ssize_t tun_get_user(struct tun_s
- 		skb_shinfo(skb)->tx_flags |= SKBTX_SHARED_FRAG;
+-		clear_bit(CONFIG_QOS_DISABLED, &rt2x00dev->flags);
  	}
  
-+	skb_reset_network_header(skb);
- 	skb_probe_transport_header(skb, 0);
+ 	/*
+-	 * Check for access point which do not support 802.11e . We have to
+-	 * generate data frames sequence number in S/W for such AP, because
+-	 * of H/W bug.
+-	 */
+-	if (changes & BSS_CHANGED_QOS && !bss_conf->qos)
+-		set_bit(CONFIG_QOS_DISABLED, &rt2x00dev->flags);
+-
+-	/*
+ 	 * When the erp information has changed, we should perform
+ 	 * additional configuration steps. For all other changes we are done.
+ 	 */
+--- a/drivers/net/wireless/rt2x00/rt2x00queue.c
++++ b/drivers/net/wireless/rt2x00/rt2x00queue.c
+@@ -201,15 +201,18 @@ static void rt2x00queue_create_tx_descri
+ 	if (!test_bit(REQUIRE_SW_SEQNO, &rt2x00dev->cap_flags)) {
+ 		/*
+ 		 * rt2800 has a H/W (or F/W) bug, device incorrectly increase
+-		 * seqno on retransmited data (non-QOS) frames. To workaround
+-		 * the problem let's generate seqno in software if QOS is
+-		 * disabled.
++		 * seqno on retransmitted data (non-QOS) and management frames.
++		 * To workaround the problem let's generate seqno in software.
++		 * Except for beacons which are transmitted periodically by H/W
++		 * hence hardware has to assign seqno for them.
+ 		 */
+-		if (test_bit(CONFIG_QOS_DISABLED, &rt2x00dev->flags))
+-			__clear_bit(ENTRY_TXD_GENERATE_SEQ, &txdesc->flags);
+-		else
++	    	if (ieee80211_is_beacon(hdr->frame_control)) {
++			__set_bit(ENTRY_TXD_GENERATE_SEQ, &txdesc->flags);
+ 			/* H/W will generate sequence number */
+ 			return;
++		}
++
++		__clear_bit(ENTRY_TXD_GENERATE_SEQ, &txdesc->flags);
+ 	}
  
- 	rxhash = skb_get_hash(skb);
+ 	/*
 
