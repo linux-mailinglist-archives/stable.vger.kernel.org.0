@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A290488DB1
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:48:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAD9A88D44
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:44:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726825AbfHJUsP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:48:15 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54878 "EHLO
+        id S1726932AbfHJUoK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:44:10 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:55388 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726807AbfHJUoB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:01 -0400
+        by vger.kernel.org with ESMTP id S1726912AbfHJUoI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:08 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDW-00053q-Qz; Sat, 10 Aug 2019 21:43:58 +0100
+        id 1hwYDb-00053L-W7; Sat, 10 Aug 2019 21:44:04 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDN-0003i8-IC; Sat, 10 Aug 2019 21:43:49 +0100
+        id 1hwYDL-0003dO-71; Sat, 10 Aug 2019 21:43:47 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,26 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Willem de Bruijn" <willemb@google.com>,
-        "David Laight" <David.Laight@aculab.com>
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        "James Y Knight" <jyknight@google.com>,
+        "David Laight" <David.Laight@ACULAB.COM>,
+        "Masahiro Yamada" <yamada.masahiro@socionext.com>,
+        "Namhyung Kim" <namhyung@kernel.org>,
+        "Dan Williams" <dan.j.williams@intel.com>,
+        "Rasmus Villemoes" <linux@rasmusvillemoes.dk>,
+        "Alexander Shishkin" <alexander.shishkin@linux.intel.com>,
+        "Arnd Bergmann" <arnd@arndb.de>,
+        "Andy Shevchenko" <andriy.shevchenko@linux.intel.com>,
+        "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "Adhemerval Zanella" <adhemerval.zanella@linaro.org>,
+        "Nick Desaulniers" <ndesaulniers@google.com>,
+        "Nathan Chancellor" <natechancellor@gmail.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.702055650@decadent.org.uk>
+Message-ID: <lsq.1565469607.98827667@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 118/157] packet: in recvmsg msg_name return at least
- sizeof sockaddr_ll
+Subject: [PATCH 3.16 074/157] lib/string.c: implement a basic bcmp
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,63 +59,104 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Willem de Bruijn <willemb@google.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit b2cf86e1563e33a14a1c69b3e508d15dc12f804c upstream.
+commit 5f074f3e192f10c9fade898b9b3b8812e3d83342 upstream.
 
-Packet send checks that msg_name is at least sizeof sockaddr_ll.
-Packet recv must return at least this length, so that its output
-can be passed unmodified to packet send.
+A recent optimization in Clang (r355672) lowers comparisons of the
+return value of memcmp against zero to comparisons of the return value
+of bcmp against zero.  This helps some platforms that implement bcmp
+more efficiently than memcmp.  glibc simply aliases bcmp to memcmp, but
+an optimized implementation is in the works.
 
-This ceased to be true since adding support for lladdr longer than
-sll_addr. Since, the return value uses true address length.
+This results in linkage failures for all targets with Clang due to the
+undefined symbol.  For now, just implement bcmp as a tailcail to memcmp
+to unbreak the build.  This routine can be further optimized in the
+future.
 
-Always return at least sizeof sockaddr_ll, even if address length
-is shorter. Zero the padding bytes.
+Other ideas discussed:
 
-Change v1->v2: do not overwrite zeroed padding again. use copy_len.
+ * A weak alias was discussed, but breaks for architectures that define
+   their own implementations of memcmp since aliases to declarations are
+   not permitted (only definitions). Arch-specific memcmp
+   implementations typically declare memcmp in C headers, but implement
+   them in assembly.
 
-Fixes: 0fb375fb9b93 ("[AF_PACKET]: Allow for > 8 byte hardware addresses.")
-Suggested-by: David Laight <David.Laight@aculab.com>
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[bwh: Backported to 3.16: adjust context]
+ * -ffreestanding also is used sporadically throughout the kernel.
+
+ * -fno-builtin-bcmp doesn't work when doing LTO.
+
+Link: https://bugs.llvm.org/show_bug.cgi?id=41035
+Link: https://code.woboq.org/userspace/glibc/string/memcmp.c.html#bcmp
+Link: https://github.com/llvm/llvm-project/commit/8e16d73346f8091461319a7dfc4ddd18eedcff13
+Link: https://github.com/ClangBuiltLinux/linux/issues/416
+Link: http://lkml.kernel.org/r/20190313211335.165605-1-ndesaulniers@google.com
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Reported-by: Adhemerval Zanella <adhemerval.zanella@linaro.org>
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Suggested-by: James Y Knight <jyknight@google.com>
+Suggested-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Suggested-by: Nathan Chancellor <natechancellor@gmail.com>
+Suggested-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: David Laight <David.Laight@ACULAB.COM>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- net/packet/af_packet.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ include/linux/string.h |  3 +++
+ lib/string.c           | 20 ++++++++++++++++++++
+ 2 files changed, 23 insertions(+)
 
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -3027,19 +3027,28 @@ static int packet_recvmsg(struct kiocb *
- 	sock_recv_ts_and_drops(msg, sk, skb);
+--- a/include/linux/string.h
++++ b/include/linux/string.h
+@@ -113,6 +113,9 @@ extern void * memscan(void *,int,__kerne
+ #ifndef __HAVE_ARCH_MEMCMP
+ extern int memcmp(const void *,const void *,__kernel_size_t);
+ #endif
++#ifndef __HAVE_ARCH_BCMP
++extern int bcmp(const void *,const void *,__kernel_size_t);
++#endif
+ #ifndef __HAVE_ARCH_MEMCHR
+ extern void * memchr(const void *,int,__kernel_size_t);
+ #endif
+--- a/lib/string.c
++++ b/lib/string.c
+@@ -776,6 +776,26 @@ __visible int memcmp(const void *cs, con
+ EXPORT_SYMBOL(memcmp);
+ #endif
  
- 	if (msg->msg_name) {
-+		int copy_len;
++#ifndef __HAVE_ARCH_BCMP
++/**
++ * bcmp - returns 0 if and only if the buffers have identical contents.
++ * @a: pointer to first buffer.
++ * @b: pointer to second buffer.
++ * @len: size of buffers.
++ *
++ * The sign or magnitude of a non-zero return value has no particular
++ * meaning, and architectures may implement their own more efficient bcmp(). So
++ * while this particular implementation is a simple (tail) call to memcmp, do
++ * not rely on anything but whether the return value is zero or non-zero.
++ */
++#undef bcmp
++int bcmp(const void *a, const void *b, size_t len)
++{
++	return memcmp(a, b, len);
++}
++EXPORT_SYMBOL(bcmp);
++#endif
 +
- 		/* If the address length field is there to be filled
- 		 * in, we fill it in now.
- 		 */
- 		if (sock->type == SOCK_PACKET) {
- 			__sockaddr_check_size(sizeof(struct sockaddr_pkt));
- 			msg->msg_namelen = sizeof(struct sockaddr_pkt);
-+			copy_len = msg->msg_namelen;
- 		} else {
- 			struct sockaddr_ll *sll = &PACKET_SKB_CB(skb)->sa.ll;
- 			msg->msg_namelen = sll->sll_halen +
- 				offsetof(struct sockaddr_ll, sll_addr);
-+			copy_len = msg->msg_namelen;
-+			if (msg->msg_namelen < sizeof(struct sockaddr_ll)) {
-+				memset(msg->msg_name +
-+				       offsetof(struct sockaddr_ll, sll_addr),
-+				       0, sizeof(sll->sll_addr));
-+				msg->msg_namelen = sizeof(struct sockaddr_ll);
-+			}
- 		}
--		memcpy(msg->msg_name, &PACKET_SKB_CB(skb)->sa,
--		       msg->msg_namelen);
-+		memcpy(msg->msg_name, &PACKET_SKB_CB(skb)->sa, copy_len);
- 	}
- 
- 	if (pkt_sk(sk)->auxdata) {
+ #ifndef __HAVE_ARCH_MEMSCAN
+ /**
+  * memscan - Find a character in an area of memory.
 
