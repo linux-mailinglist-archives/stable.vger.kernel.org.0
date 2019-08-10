@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58F4A88E13
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:51:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10EB688E37
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:53:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726674AbfHJUv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:51:28 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54316 "EHLO
+        id S1726212AbfHJUwl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:52:41 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54086 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726672AbfHJUny (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:54 -0400
+        by vger.kernel.org with ESMTP id S1726177AbfHJUnv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:51 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDK-00053e-1u; Sat, 10 Aug 2019 21:43:46 +0100
+        id 1hwYDM-00053O-H4; Sat, 10 Aug 2019 21:43:48 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDJ-0003Zg-8G; Sat, 10 Aug 2019 21:43:45 +0100
+        id 1hwYDJ-0003ao-Mt; Sat, 10 Aug 2019 21:43:45 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,20 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Alexei Starovoitov" <ast@kernel.org>,
-        "Peter Zijlstra" <peterz@infradead.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        "Daniel Borkmann" <daniel@iogearbox.net>,
-        "Changbin Du" <changbin.du@gmail.com>,
-        "Jiri Olsa" <jolsa@kernel.org>,
-        "Namhyung Kim" <namhyung@kernel.org>,
-        "Arnaldo Carvalho de Melo" <acme@redhat.com>
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        "Mathias Nyman" <mathias.nyman@linux.intel.com>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.899433724@decadent.org.uk>
+Message-ID: <lsq.1565469607.630985287@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 028/157] perf tests: Fix a memory leak in
- test__perf_evsel__tp_sched_test()
+Subject: [PATCH 3.16 042/157] xhci: Don't let USB3 ports stuck in polling
+ state prevent suspend
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -53,55 +47,88 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Changbin Du <changbin.du@gmail.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit d982b33133284fa7efa0e52ae06b88f9be3ea764 upstream.
+commit d92f2c59cc2cbca6bfb2cc54882b58ba76b15fd4 upstream.
 
-  =================================================================
-  ==20875==ERROR: LeakSanitizer: detected memory leaks
+Commit 2f31a67f01a8 ("usb: xhci: Prevent bus suspend if a port connect
+change or polling state is detected") was intended to prevent ports that
+were still link training from being forced to U3 suspend state mid
+enumeration.
+This solved enumeration issues for devices with slow link training.
 
-  Direct leak of 1160 byte(s) in 1 object(s) allocated from:
-      #0 0x7f1b6fc84138 in calloc (/usr/lib/x86_64-linux-gnu/libasan.so.5+0xee138)
-      #1 0x55bd50005599 in zalloc util/util.h:23
-      #2 0x55bd500068f5 in perf_evsel__newtp_idx util/evsel.c:327
-      #3 0x55bd4ff810fc in perf_evsel__newtp /home/work/linux/tools/perf/util/evsel.h:216
-      #4 0x55bd4ff81608 in test__perf_evsel__tp_sched_test tests/evsel-tp-sched.c:69
-      #5 0x55bd4ff528e6 in run_test tests/builtin-test.c:358
-      #6 0x55bd4ff52baf in test_and_print tests/builtin-test.c:388
-      #7 0x55bd4ff543fe in __cmd_test tests/builtin-test.c:583
-      #8 0x55bd4ff5572f in cmd_test tests/builtin-test.c:722
-      #9 0x55bd4ffc4087 in run_builtin /home/changbin/work/linux/tools/perf/perf.c:302
-      #10 0x55bd4ffc45c6 in handle_internal_command /home/changbin/work/linux/tools/perf/perf.c:354
-      #11 0x55bd4ffc49ca in run_argv /home/changbin/work/linux/tools/perf/perf.c:398
-      #12 0x55bd4ffc5138 in main /home/changbin/work/linux/tools/perf/perf.c:520
-      #13 0x7f1b6e34809a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2409a)
+Turns out some devices are stuck in the link training/polling state,
+and thus that patch will prevent suspend completely for these devices.
+This is seen with USB3 card readers in some MacBooks.
 
-  Indirect leak of 19 byte(s) in 1 object(s) allocated from:
-      #0 0x7f1b6fc83f30 in __interceptor_malloc (/usr/lib/x86_64-linux-gnu/libasan.so.5+0xedf30)
-      #1 0x7f1b6e3ac30f in vasprintf (/lib/x86_64-linux-gnu/libc.so.6+0x8830f)
+Instead of preventing suspend, give some time to complete the link
+training. On successful training the port will end up as connected
+and enabled.
+If port instead is stuck in link training the bus suspend will continue
+suspending after 360ms (10 * 36ms) timeout (tPollingLFPSTimeout).
 
-Signed-off-by: Changbin Du <changbin.du@gmail.com>
-Reviewed-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Fixes: 6a6cd11d4e57 ("perf test: Add test for the sched tracepoint format fields")
-Link: http://lkml.kernel.org/r/20190316080556.3075-17-changbin.du@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Original patch was sent to stable, this one should go there as well
+
+Fixes: 2f31a67f01a8 ("usb: xhci: Prevent bus suspend if a port connect change or polling state is detected")
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- tools/perf/tests/evsel-tp-sched.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/host/xhci-hub.c | 19 ++++++++++++-------
+ drivers/usb/host/xhci.h     |  8 ++++++++
+ 2 files changed, 20 insertions(+), 7 deletions(-)
 
---- a/tools/perf/tests/evsel-tp-sched.c
-+++ b/tools/perf/tests/evsel-tp-sched.c
-@@ -77,5 +77,6 @@ int test__perf_evsel__tp_sched_test(void
- 	if (perf_evsel__test_field(evsel, "target_cpu", 4, true))
- 		ret = -1;
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -1199,20 +1199,25 @@ int xhci_bus_suspend(struct usb_hcd *hcd
+ 	port_index = max_ports;
+ 	while (port_index--) {
+ 		u32 t1, t2;
+-
++		int retries = 10;
++retry:
+ 		t1 = readl(port_array[port_index]);
+ 		t2 = xhci_port_state_to_neutral(t1);
+ 		portsc_buf[port_index] = 0;
  
-+	perf_evsel__delete(evsel);
- 	return ret;
- }
+-		/* Bail out if a USB3 port has a new device in link training */
+-		if ((hcd->speed >= HCD_USB3) &&
++		/*
++		 * Give a USB3 port in link training time to finish, but don't
++		 * prevent suspend as port might be stuck
++		 */
++		if ((hcd->speed >= HCD_USB3) && retries-- &&
+ 		    (t1 & PORT_PLS_MASK) == XDEV_POLLING) {
+-			bus_state->bus_suspended = 0;
+ 			spin_unlock_irqrestore(&xhci->lock, flags);
+-			xhci_dbg(xhci, "Bus suspend bailout, port in polling\n");
+-			return -EBUSY;
++			msleep(XHCI_PORT_POLLING_LFPS_TIME);
++			spin_lock_irqsave(&xhci->lock, flags);
++			xhci_dbg(xhci, "port %d polling in bus suspend, waiting\n",
++				 port_index);
++			goto retry;
+ 		}
+-
+ 		/* suspend ports in U0, or bail out for new connect changes */
+ 		if ((t1 & PORT_PE) && (t1 & PORT_PLS_MASK) == XDEV_U0) {
+ 			if ((t1 & PORT_CSC) && wake_enabled) {
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -413,6 +413,14 @@ struct xhci_op_regs {
+  */
+ #define XHCI_DEFAULT_BESL	4
+ 
++/*
++ * USB3 specification define a 360ms tPollingLFPSTiemout for USB3 ports
++ * to complete link training. usually link trainig completes much faster
++ * so check status 10 times with 36ms sleep in places we need to wait for
++ * polling to complete.
++ */
++#define XHCI_PORT_POLLING_LFPS_TIME  36
++
+ /**
+  * struct xhci_intr_reg - Interrupt Register Set
+  * @irq_pending:	IMAN - Interrupt Management Register.  Used to enable
 
