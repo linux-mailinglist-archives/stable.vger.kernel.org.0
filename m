@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 255B188D94
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:47:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64B0E88DD3
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:49:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726818AbfHJUrV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:47:21 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:55038 "EHLO
+        id S1727061AbfHJUt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:49:28 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54636 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726837AbfHJUoE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:04 -0400
+        by vger.kernel.org with ESMTP id S1726755AbfHJUn6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:58 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDY-00053a-KX; Sat, 10 Aug 2019 21:44:00 +0100
+        id 1hwYDT-00053u-9y; Sat, 10 Aug 2019 21:43:55 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDM-0003f0-6T; Sat, 10 Aug 2019 21:43:48 +0100
+        id 1hwYDO-0003jf-G0; Sat, 10 Aug 2019 21:43:50 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Paolo Bonzini" <pbonzini@redhat.com>,
-        "Ben Gardon" <bgardon@google.com>
+        "Michael Ellerman" <mpe@ellerman.id.au>,
+        "Michael Neuling" <mikey@neuling.org>,
+        "Praveen Pandey" <Praveen.Pandey@in.ibm.com>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.279874124@decadent.org.uk>
+Message-ID: <lsq.1565469607.372546052@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 089/157] kvm: mmu: Fix overflow on kvm mmu page limit
- calculation
+Subject: [PATCH 3.16 137/157] powerpc/tm: Fix oops on sigreturn on systems
+ without TM
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,140 +48,88 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Ben Gardon <bgardon@google.com>
+From: Michael Neuling <mikey@neuling.org>
 
-commit bc8a3d8925a8fa09fa550e0da115d95851ce33c6 upstream.
+commit f16d80b75a096c52354c6e0a574993f3b0dfbdfe upstream.
 
-KVM bases its memory usage limits on the total number of guest pages
-across all memslots. However, those limits, and the calculations to
-produce them, use 32 bit unsigned integers. This can result in overflow
-if a VM has more guest pages that can be represented by a u32. As a
-result of this overflow, KVM can use a low limit on the number of MMU
-pages it will allocate. This makes KVM unable to map all of guest memory
-at once, prompting spurious faults.
+On systems like P9 powernv where we have no TM (or P8 booted with
+ppc_tm=off), userspace can construct a signal context which still has
+the MSR TS bits set. The kernel tries to restore this context which
+results in the following crash:
 
-Tested: Ran all kvm-unit-tests on an Intel Haswell machine. This patch
-	introduced no new failures.
+  Unexpected TM Bad Thing exception at c0000000000022fc (msr 0x8000000102a03031) tm_scratch=800000020280f033
+  Oops: Unrecoverable exception, sig: 6 [#1]
+  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+  Modules linked in:
+  CPU: 0 PID: 1636 Comm: sigfuz Not tainted 5.2.0-11043-g0a8ad0ffa4 #69
+  NIP:  c0000000000022fc LR: 00007fffb2d67e48 CTR: 0000000000000000
+  REGS: c00000003fffbd70 TRAP: 0700   Not tainted  (5.2.0-11045-g7142b497d8)
+  MSR:  8000000102a03031 <SF,VEC,VSX,FP,ME,IR,DR,LE,TM[E]>  CR: 42004242  XER: 00000000
+  CFAR: c0000000000022e0 IRQMASK: 0
+  GPR00: 0000000000000072 00007fffb2b6e560 00007fffb2d87f00 0000000000000669
+  GPR04: 00007fffb2b6e728 0000000000000000 0000000000000000 00007fffb2b6f2a8
+  GPR08: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+  GPR12: 0000000000000000 00007fffb2b76900 0000000000000000 0000000000000000
+  GPR16: 00007fffb2370000 00007fffb2d84390 00007fffea3a15ac 000001000a250420
+  GPR20: 00007fffb2b6f260 0000000010001770 0000000000000000 0000000000000000
+  GPR24: 00007fffb2d843a0 00007fffea3a14a0 0000000000010000 0000000000800000
+  GPR28: 00007fffea3a14d8 00000000003d0f00 0000000000000000 00007fffb2b6e728
+  NIP [c0000000000022fc] rfi_flush_fallback+0x7c/0x80
+  LR [00007fffb2d67e48] 0x7fffb2d67e48
+  Call Trace:
+  Instruction dump:
+  e96a0220 e96a02a8 e96a0330 e96a03b8 394a0400 4200ffdc 7d2903a6 e92d0c00
+  e94d0c08 e96d0c10 e82d0c18 7db242a6 <4c000024> 7db243a6 7db142a6 f82d0c18
 
-Signed-off-by: Ben Gardon <bgardon@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[bwh: Backported to 3.16: adjust context]
+The problem is the signal code assumes TM is enabled when
+CONFIG_PPC_TRANSACTIONAL_MEM is enabled. This may not be the case as
+with P9 powernv or if `ppc_tm=off` is used on P8.
+
+This means any local user can crash the system.
+
+Fix the problem by returning a bad stack frame to the user if they try
+to set the MSR TS bits with sigreturn() on systems where TM is not
+supported.
+
+Found with sigfuz kernel selftest on P9.
+
+This fixes CVE-2019-13648.
+
+Fixes: 2b0a576d15e0 ("powerpc: Add new transactional memory state to the signal context")
+Reported-by: Praveen Pandey <Praveen.Pandey@in.ibm.com>
+Signed-off-by: Michael Neuling <mikey@neuling.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190719050502.405-1-mikey@neuling.org
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/x86/include/asm/kvm_host.h | 12 ++++++------
- arch/x86/kvm/mmu.c              | 13 ++++++-------
- arch/x86/kvm/mmu.h              |  2 +-
- arch/x86/kvm/x86.c              |  4 ++--
- 4 files changed, 15 insertions(+), 16 deletions(-)
+ arch/powerpc/kernel/signal_32.c | 3 +++
+ arch/powerpc/kernel/signal_64.c | 5 +++++
+ 2 files changed, 8 insertions(+)
 
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -88,7 +88,7 @@ static inline gfn_t gfn_to_index(gfn_t g
- #define IOPL_SHIFT 12
+--- a/arch/powerpc/kernel/signal_32.c
++++ b/arch/powerpc/kernel/signal_32.c
+@@ -1274,6 +1274,9 @@ long sys_rt_sigreturn(int r3, int r4, in
+ 			goto bad;
  
- #define KVM_PERMILLE_MMU_PAGES 20
--#define KVM_MIN_ALLOC_MMU_PAGES 64
-+#define KVM_MIN_ALLOC_MMU_PAGES 64UL
- #define KVM_MMU_HASH_SHIFT 10
- #define KVM_NUM_MMU_PAGES (1 << KVM_MMU_HASH_SHIFT)
- #define KVM_MIN_FREE_MMU_PAGES 5
-@@ -552,9 +552,9 @@ struct kvm_apic_map {
- };
- 
- struct kvm_arch {
--	unsigned int n_used_mmu_pages;
--	unsigned int n_requested_mmu_pages;
--	unsigned int n_max_mmu_pages;
-+	unsigned long n_used_mmu_pages;
-+	unsigned long n_requested_mmu_pages;
-+	unsigned long n_max_mmu_pages;
- 	unsigned int indirect_shadow_pages;
- 	unsigned long mmu_valid_gen;
- 	struct hlist_head mmu_page_hash[KVM_NUM_MMU_PAGES];
-@@ -810,8 +810,8 @@ void kvm_mmu_write_protect_pt_masked(str
- 				     gfn_t gfn_offset, unsigned long mask);
- void kvm_mmu_zap_all(struct kvm *kvm);
- void kvm_mmu_invalidate_mmio_sptes(struct kvm *kvm);
--unsigned int kvm_mmu_calculate_mmu_pages(struct kvm *kvm);
--void kvm_mmu_change_mmu_pages(struct kvm *kvm, unsigned int kvm_nr_mmu_pages);
-+unsigned long kvm_mmu_calculate_mmu_pages(struct kvm *kvm);
-+void kvm_mmu_change_mmu_pages(struct kvm *kvm, unsigned long kvm_nr_mmu_pages);
- 
- int load_pdptrs(struct kvm_vcpu *vcpu, struct kvm_mmu *mmu, unsigned long cr3);
- 
---- a/arch/x86/kvm/mmu.c
-+++ b/arch/x86/kvm/mmu.c
-@@ -1492,7 +1492,7 @@ static int is_empty_shadow_page(u64 *spt
-  * aggregate version in order to make the slab shrinker
-  * faster
-  */
--static inline void kvm_mod_used_mmu_pages(struct kvm *kvm, int nr)
-+static inline void kvm_mod_used_mmu_pages(struct kvm *kvm, unsigned long nr)
- {
- 	kvm->arch.n_used_mmu_pages += nr;
- 	percpu_counter_add(&kvm_total_used_mmu_pages, nr);
-@@ -2207,7 +2207,7 @@ static bool prepare_zap_oldest_mmu_page(
-  * Changing the number of mmu pages allocated to the vm
-  * Note: if goal_nr_mmu_pages is too small, you will get dead lock
-  */
--void kvm_mmu_change_mmu_pages(struct kvm *kvm, unsigned int goal_nr_mmu_pages)
-+void kvm_mmu_change_mmu_pages(struct kvm *kvm, unsigned long goal_nr_mmu_pages)
- {
- 	LIST_HEAD(invalid_list);
- 
-@@ -4505,10 +4505,10 @@ nomem:
- /*
-  * Caculate mmu pages needed for kvm.
-  */
--unsigned int kvm_mmu_calculate_mmu_pages(struct kvm *kvm)
-+unsigned long kvm_mmu_calculate_mmu_pages(struct kvm *kvm)
- {
--	unsigned int nr_mmu_pages;
--	unsigned int  nr_pages = 0;
-+	unsigned long nr_mmu_pages;
-+	unsigned long nr_pages = 0;
- 	struct kvm_memslots *slots;
- 	struct kvm_memory_slot *memslot;
- 
-@@ -4518,8 +4518,7 @@ unsigned int kvm_mmu_calculate_mmu_pages
- 		nr_pages += memslot->npages;
- 
- 	nr_mmu_pages = nr_pages * KVM_PERMILLE_MMU_PAGES / 1000;
--	nr_mmu_pages = max(nr_mmu_pages,
--			(unsigned int) KVM_MIN_ALLOC_MMU_PAGES);
-+	nr_mmu_pages = max(nr_mmu_pages, KVM_MIN_ALLOC_MMU_PAGES);
- 
- 	return nr_mmu_pages;
- }
---- a/arch/x86/kvm/mmu.h
-+++ b/arch/x86/kvm/mmu.h
-@@ -81,7 +81,7 @@ void kvm_init_shadow_ept_mmu(struct kvm_
- 		bool execonly);
- bool kvm_can_do_async_pf(struct kvm_vcpu *vcpu);
- 
--static inline unsigned int kvm_mmu_available_pages(struct kvm *kvm)
-+static inline unsigned long kvm_mmu_available_pages(struct kvm *kvm)
- {
- 	if (kvm->arch.n_max_mmu_pages > kvm->arch.n_used_mmu_pages)
- 		return kvm->arch.n_max_mmu_pages -
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3529,7 +3529,7 @@ static int kvm_vm_ioctl_set_identity_map
- }
- 
- static int kvm_vm_ioctl_set_nr_mmu_pages(struct kvm *kvm,
--					  u32 kvm_nr_mmu_pages)
-+					 unsigned long kvm_nr_mmu_pages)
- {
- 	if (kvm_nr_mmu_pages < KVM_MIN_ALLOC_MMU_PAGES)
- 		return -EINVAL;
-@@ -3543,7 +3543,7 @@ static int kvm_vm_ioctl_set_nr_mmu_pages
- 	return 0;
- }
- 
--static int kvm_vm_ioctl_get_nr_mmu_pages(struct kvm *kvm)
-+static unsigned long kvm_vm_ioctl_get_nr_mmu_pages(struct kvm *kvm)
- {
- 	return kvm->arch.n_max_mmu_pages;
- }
+ 		if (MSR_TM_ACTIVE(msr_hi<<32)) {
++			/* Trying to start TM on non TM system */
++			if (!cpu_has_feature(CPU_FTR_TM))
++				goto bad;
+ 			/* We only recheckpoint on return if we're
+ 			 * transaction.
+ 			 */
+--- a/arch/powerpc/kernel/signal_64.c
++++ b/arch/powerpc/kernel/signal_64.c
+@@ -702,6 +702,11 @@ int sys_rt_sigreturn(unsigned long r3, u
+ 	if (MSR_TM_ACTIVE(msr)) {
+ 		/* We recheckpoint on return. */
+ 		struct ucontext __user *uc_transact;
++
++		/* Trying to start TM on non TM system */
++		if (!cpu_has_feature(CPU_FTR_TM))
++			goto badframe;
++
+ 		if (__get_user(uc_transact, &uc->uc_link))
+ 			goto badframe;
+ 		if (restore_tm_sigcontexts(regs, &uc->uc_mcontext,
 
