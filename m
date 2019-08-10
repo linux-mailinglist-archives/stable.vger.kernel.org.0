@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8003A88D71
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:46:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 409F488D3A
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:44:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726982AbfHJUqB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:46:01 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:55286 "EHLO
+        id S1726756AbfHJUn5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:43:57 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54470 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726892AbfHJUoH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:07 -0400
+        by vger.kernel.org with ESMTP id S1726712AbfHJUn4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:56 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDb-00053j-W8; Sat, 10 Aug 2019 21:44:04 +0100
+        id 1hwYDQ-00053m-5v; Sat, 10 Aug 2019 21:43:52 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDL-0003dY-Ah; Sat, 10 Aug 2019 21:43:47 +0100
+        id 1hwYDN-0003hj-9p; Sat, 10 Aug 2019 21:43:49 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,20 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Christophe Leroy" <christophe.leroy@c-s.fr>,
-        "Michael Ellerman" <mpe@ellerman.id.au>,
-        "Christian Zigotzky" <chzigotzky@xenosoft.de>
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "Kees Cook" <keescook@chromium.org>,
+        "YueHaibing" <yuehaibing@huawei.com>,
+        "Luis Chamberlain" <mcgrof@kernel.org>,
+        "Alexey Dobriyan" <adobriyan@gmail.com>,
+        "Hulk Robot" <hulkci@huawei.com>,
+        "Al Viro" <viro@zeniv.linux.org.uk>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.253685011@decadent.org.uk>
+Message-ID: <lsq.1565469607.734328974@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 076/157] powerpc/vdso32: fix CLOCK_MONOTONIC on PPC64
+Subject: [PATCH 3.16 113/157] fs/proc/proc_sysctl.c: Fix a NULL pointer
+ dereference
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,33 +53,95 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: YueHaibing <yuehaibing@huawei.com>
 
-commit dd9a994fc68d196a052b73747e3366c57d14a09e upstream.
+commit 89189557b47b35683a27c80ee78aef18248eefb4 upstream.
 
-Commit b5b4453e7912 ("powerpc/vdso64: Fix CLOCK_MONOTONIC
-inconsistencies across Y2038") changed the type of wtom_clock_sec
-to s64 on PPC64. Therefore, VDSO32 needs to read it with a 4 bytes
-shift in order to retrieve the lower part of it.
+Syzkaller report this:
 
-Fixes: b5b4453e7912 ("powerpc/vdso64: Fix CLOCK_MONOTONIC inconsistencies across Y2038")
-Reported-by: Christian Zigotzky <chzigotzky@xenosoft.de>
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+  sysctl could not get directory: /net//bridge -12
+  kasan: CONFIG_KASAN_INLINE enabled
+  kasan: GPF could be caused by NULL-ptr deref or user memory access
+  general protection fault: 0000 [#1] SMP KASAN PTI
+  CPU: 1 PID: 7027 Comm: syz-executor.0 Tainted: G         C        5.1.0-rc3+ #8
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+  RIP: 0010:__write_once_size include/linux/compiler.h:220 [inline]
+  RIP: 0010:__rb_change_child include/linux/rbtree_augmented.h:144 [inline]
+  RIP: 0010:__rb_erase_augmented include/linux/rbtree_augmented.h:186 [inline]
+  RIP: 0010:rb_erase+0x5f4/0x19f0 lib/rbtree.c:459
+  Code: 00 0f 85 60 13 00 00 48 89 1a 48 83 c4 18 5b 5d 41 5c 41 5d 41 5e 41 5f c3 48 89 f2 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f 85 75 0c 00 00 4d 85 ed 4c 89 2e 74 ce 4c 89 ea 48
+  RSP: 0018:ffff8881bb507778 EFLAGS: 00010206
+  RAX: dffffc0000000000 RBX: ffff8881f224b5b8 RCX: ffffffff818f3f6a
+  RDX: 000000000000000a RSI: 0000000000000050 RDI: ffff8881f224b568
+  RBP: 0000000000000000 R08: ffffed10376a0ef4 R09: ffffed10376a0ef4
+  R10: 0000000000000001 R11: ffffed10376a0ef4 R12: ffff8881f224b558
+  R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+  FS:  00007f3e7ce13700(0000) GS:ffff8881f7300000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007fd60fbe9398 CR3: 00000001cb55c001 CR4: 00000000007606e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  PKRU: 55555554
+  Call Trace:
+   erase_entry fs/proc/proc_sysctl.c:178 [inline]
+   erase_header+0xe3/0x160 fs/proc/proc_sysctl.c:207
+   start_unregistering fs/proc/proc_sysctl.c:331 [inline]
+   drop_sysctl_table+0x558/0x880 fs/proc/proc_sysctl.c:1631
+   get_subdir fs/proc/proc_sysctl.c:1022 [inline]
+   __register_sysctl_table+0xd65/0x1090 fs/proc/proc_sysctl.c:1335
+   br_netfilter_init+0x68/0x1000 [br_netfilter]
+   do_one_initcall+0xbc/0x47d init/main.c:901
+   do_init_module+0x1b5/0x547 kernel/module.c:3456
+   load_module+0x6405/0x8c10 kernel/module.c:3804
+   __do_sys_finit_module+0x162/0x190 kernel/module.c:3898
+   do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+  Modules linked in: br_netfilter(+) backlight comedi(C) hid_sensor_hub max3100 ti_ads8688 udc_core fddi snd_mona leds_gpio rc_streamzap mtd pata_netcell nf_log_common rc_winfast udp_tunnel snd_usbmidi_lib snd_usb_toneport snd_usb_line6 snd_rawmidi snd_seq_device snd_hwdep videobuf2_v4l2 videobuf2_common videodev media videobuf2_vmalloc videobuf2_memops rc_gadmei_rm008z 8250_of smm665 hid_tmff hid_saitek hwmon_vid rc_ati_tv_wonder_hd_600 rc_core pata_pdc202xx_old dn_rtmsg as3722 ad714x_i2c ad714x snd_soc_cs4265 hid_kensington panel_ilitek_ili9322 drm drm_panel_orientation_quirks ipack cdc_phonet usbcore phonet hid_jabra hid extcon_arizona can_dev industrialio_triggered_buffer kfifo_buf industrialio adm1031 i2c_mux_ltc4306 i2c_mux ipmi_msghandler mlxsw_core snd_soc_cs35l34 snd_soc_core snd_pcm_dmaengine snd_pcm snd_timer ac97_bus snd_compress snd soundcore gpio_da9055 uio ecdh_generic mdio_thunder of_mdio fixed_phy libphy mdio_cavium iptable_security iptable_raw iptable_mangle
+   iptable_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 iptable_filter bpfilter ip6_vti ip_vti ip_gre ipip sit tunnel4 ip_tunnel hsr veth netdevsim vxcan batman_adv cfg80211 rfkill chnl_net caif nlmon dummy team bonding vcan bridge stp llc ip6_gre gre ip6_tunnel tunnel6 tun joydev mousedev ppdev tpm kvm_intel kvm irqbypass crct10dif_pclmul crc32_pclmul crc32c_intel ghash_clmulni_intel aesni_intel ide_pci_generic piix aes_x86_64 crypto_simd cryptd ide_core glue_helper input_leds psmouse intel_agp intel_gtt serio_raw ata_generic i2c_piix4 agpgart pata_acpi parport_pc parport floppy rtc_cmos sch_fq_codel ip_tables x_tables sha1_ssse3 sha1_generic ipv6 [last unloaded: br_netfilter]
+  Dumping ftrace buffer:
+     (ftrace buffer empty)
+  ---[ end trace 68741688d5fbfe85 ]---
+
+commit 23da9588037e ("fs/proc/proc_sysctl.c: fix NULL pointer
+dereference in put_links") forgot to handle start_unregistering() case,
+while header->parent is NULL, it calls erase_header() and as seen in the
+above syzkaller call trace, accessing &header->parent->root will trigger
+a NULL pointer dereference.
+
+As that commit explained, there is also no need to call
+start_unregistering() if header->parent is NULL.
+
+Link: http://lkml.kernel.org/r/20190409153622.28112-1-yuehaibing@huawei.com
+Fixes: 23da9588037e ("fs/proc/proc_sysctl.c: fix NULL pointer dereference in put_links")
+Fixes: 0e47c99d7fe25 ("sysctl: Replace root_list with links between sysctl_table_sets")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/powerpc/kernel/vdso32/gettimeofday.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/proc/proc_sysctl.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/kernel/vdso32/gettimeofday.S
-+++ b/arch/powerpc/kernel/vdso32/gettimeofday.S
-@@ -98,7 +98,7 @@ V_FUNCTION_BEGIN(__kernel_clock_gettime)
- 	 * can be used, r7 contains NSEC_PER_SEC.
- 	 */
+--- a/fs/proc/proc_sysctl.c
++++ b/fs/proc/proc_sysctl.c
+@@ -1550,9 +1550,11 @@ static void drop_sysctl_table(struct ctl
+ 	if (--header->nreg)
+ 		return;
  
--	lwz	r5,WTOM_CLOCK_SEC(r9)
-+	lwz	r5,(WTOM_CLOCK_SEC+LOPART)(r9)
- 	lwz	r6,WTOM_CLOCK_NSEC(r9)
+-	if (parent)
++	if (parent) {
+ 		put_links(header);
+-	start_unregistering(header);
++		start_unregistering(header);
++	}
++
+ 	if (!--header->count)
+ 		kfree_rcu(header, rcu);
  
- 	/* We now have our offset in r5,r6. We create a fake dependency
 
