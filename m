@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5245188DE3
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:50:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B93DB88E22
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:52:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727403AbfHJUuB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:50:01 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54522 "EHLO
+        id S1727245AbfHJUwM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:52:12 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54148 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726727AbfHJUn5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:57 -0400
+        by vger.kernel.org with ESMTP id S1726582AbfHJUnw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:52 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDS-00058O-7q; Sat, 10 Aug 2019 21:43:54 +0100
+        id 1hwYDM-00053h-Q6; Sat, 10 Aug 2019 21:43:48 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDP-0003m0-86; Sat, 10 Aug 2019 21:43:51 +0100
+        id 1hwYDJ-0003b3-Rm; Sat, 10 Aug 2019 21:43:45 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,16 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Flavio Leitner" <fbl@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Eric Dumazet" <edumazet@google.com>,
-        "Hannes Frederic Sowa" <hannes@stressinduktion.org>
+        "Simon Wunderlich" <sw@simonwunderlich.de>,
+        "Sven Eckelmann" <sven@narfation.org>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.563481538@decadent.org.uk>
+Message-ID: <lsq.1565469607.970365987@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 153/157] ipv6: hash net ptr into fragmentation bucket
- selection
+Subject: [PATCH 3.16 045/157] batman-adv: Reduce claim hash refcnt only
+ for removed entry
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -49,140 +47,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Hannes Frederic Sowa <hannes@stressinduktion.org>
+From: Sven Eckelmann <sven@narfation.org>
 
-commit 5a352dd0a3aac03b443c94828dfd7144261c8636 upstream.
+commit 4ba104f468bbfc27362c393815d03aa18fb7a20f upstream.
 
-As namespaces are sometimes used with overlapping ip address ranges,
-we should also use the namespace as input to the hash to select the ip
-fragmentation counter bucket.
+The batadv_hash_remove is a function which searches the hashtable for an
+entry using a needle, a hashtable bucket selection function and a compare
+function. It will lock the bucket list and delete an entry when the compare
+function matches it with the needle. It returns the pointer to the
+hlist_node which matches or NULL when no entry matches the needle.
 
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Flavio Leitner <fbl@redhat.com>
-Signed-off-by: Hannes Frederic Sowa <hannes@stressinduktion.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The batadv_bla_del_claim is not itself protected in anyway to avoid that
+any other function is modifying the hashtable between the search for the
+entry and the call to batadv_hash_remove. It can therefore happen that the
+entry either doesn't exist anymore or an entry was deleted which is not the
+same object as the needle. In such an situation, the reference counter (for
+the reference stored in the hashtable) must not be reduced for the needle.
+Instead the reference counter of the actually removed entry has to be
+reduced.
+
+Otherwise the reference counter will underflow and the object might be
+freed before all its references were dropped. The kref helpers reported
+this problem as:
+
+  refcount_t: underflow; use-after-free.
+
+Fixes: 23721387c409 ("batman-adv: add basic bridge loop avoidance code")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+[bwh: Backported to 3.16: keep using batadv_claim_free_ref()]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- include/net/ipv6.h     |  5 +++--
- net/ipv6/ip6_output.c  |  6 +++---
- net/ipv6/output_core.c | 14 ++++++++------
- net/ipv6/udp_offload.c |  4 ++--
- 4 files changed, 16 insertions(+), 13 deletions(-)
+ net/batman-adv/bridge_loop_avoidance.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
---- a/include/net/ipv6.h
-+++ b/include/net/ipv6.h
-@@ -688,8 +688,9 @@ static inline int ipv6_addr_diff(const s
- 	return __ipv6_addr_diff(a1, a2, sizeof(struct in6_addr));
- }
- 
--void ipv6_select_ident(struct frag_hdr *fhdr, struct rt6_info *rt);
--void ipv6_proxy_select_ident(struct sk_buff *skb);
-+void ipv6_select_ident(struct net *net, struct frag_hdr *fhdr,
-+		       struct rt6_info *rt);
-+void ipv6_proxy_select_ident(struct net *net, struct sk_buff *skb);
- 
- int ip6_dst_hoplimit(struct dst_entry *dst);
- 
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -632,7 +632,7 @@ int ip6_fragment(struct sk_buff *skb, in
- 		skb_reset_network_header(skb);
- 		memcpy(skb_network_header(skb), tmp_hdr, hlen);
- 
--		ipv6_select_ident(fh, rt);
-+		ipv6_select_ident(net, fh, rt);
- 		fh->nexthdr = nexthdr;
- 		fh->reserved = 0;
- 		fh->frag_off = htons(IP6_MF);
-@@ -785,7 +785,7 @@ slow_path:
- 		fh->nexthdr = nexthdr;
- 		fh->reserved = 0;
- 		if (!frag_id) {
--			ipv6_select_ident(fh, rt);
-+			ipv6_select_ident(net, fh, rt);
- 			frag_id = fh->identification;
- 		} else
- 			fh->identification = frag_id;
-@@ -1079,7 +1079,7 @@ static inline int ip6_ufo_append_data(st
- 	skb_shinfo(skb)->gso_size = (mtu - fragheaderlen -
- 				     sizeof(struct frag_hdr)) & ~7;
- 	skb_shinfo(skb)->gso_type = SKB_GSO_UDP;
--	ipv6_select_ident(&fhdr, rt);
-+	ipv6_select_ident(sock_net(sk), &fhdr, rt);
- 	skb_shinfo(skb)->ip6_frag_id = fhdr.identification;
- 
- append:
---- a/net/ipv6/output_core.c
-+++ b/net/ipv6/output_core.c
-@@ -9,13 +9,14 @@
- #include <net/addrconf.h>
- #include <net/secure_seq.h>
- 
--static u32 __ipv6_select_ident(u32 hashrnd, struct in6_addr *dst,
--			       struct in6_addr *src)
-+static u32 __ipv6_select_ident(struct net *net, u32 hashrnd,
-+			       struct in6_addr *dst, struct in6_addr *src)
+--- a/net/batman-adv/bridge_loop_avoidance.c
++++ b/net/batman-adv/bridge_loop_avoidance.c
+@@ -677,6 +677,8 @@ static void batadv_bla_del_claim(struct
+ 				 const uint8_t *mac, const unsigned short vid)
  {
- 	u32 hash, id;
+ 	struct batadv_bla_claim search_claim, *claim;
++	struct batadv_bla_claim *claim_removed_entry;
++	struct hlist_node *claim_removed_node;
  
- 	hash = __ipv6_addr_jhash(dst, hashrnd);
- 	hash = __ipv6_addr_jhash(src, hash);
-+	hash ^= net_hash_mix(net);
+ 	ether_addr_copy(search_claim.addr, mac);
+ 	search_claim.vid = vid;
+@@ -687,10 +689,18 @@ static void batadv_bla_del_claim(struct
+ 	batadv_dbg(BATADV_DBG_BLA, bat_priv, "bla_del_claim(): %pM, vid %d\n",
+ 		   mac, BATADV_PRINT_VID(vid));
  
- 	/* Treat id of 0 as unset and if we get 0 back from ip_idents_reserve,
- 	 * set the hight order instead thus minimizing possible future
-@@ -36,7 +37,7 @@ static u32 __ipv6_select_ident(u32 hashr
-  *
-  * The network header must be set before calling this.
-  */
--void ipv6_proxy_select_ident(struct sk_buff *skb)
-+void ipv6_proxy_select_ident(struct net *net, struct sk_buff *skb)
- {
- 	static u32 ip6_proxy_idents_hashrnd __read_mostly;
- 	struct in6_addr buf[2];
-@@ -53,20 +54,21 @@ void ipv6_proxy_select_ident(struct sk_b
- 	net_get_random_once(&ip6_proxy_idents_hashrnd,
- 			    sizeof(ip6_proxy_idents_hashrnd));
+-	batadv_hash_remove(bat_priv->bla.claim_hash, batadv_compare_claim,
+-			   batadv_choose_claim, claim);
+-	batadv_claim_free_ref(claim); /* reference from the hash is gone */
++	claim_removed_node = batadv_hash_remove(bat_priv->bla.claim_hash,
++						batadv_compare_claim,
++						batadv_choose_claim, claim);
++	if (!claim_removed_node)
++		goto free_claim;
  
--	id = __ipv6_select_ident(ip6_proxy_idents_hashrnd,
-+	id = __ipv6_select_ident(net, ip6_proxy_idents_hashrnd,
- 				 &addrs[1], &addrs[0]);
- 	skb_shinfo(skb)->ip6_frag_id = htonl(id);
++	/* reference from the hash is gone */
++	claim_removed_entry = hlist_entry(claim_removed_node,
++					  struct batadv_bla_claim, hash_entry);
++	batadv_claim_free_ref(claim_removed_entry);
++
++free_claim:
+ 	/* don't need the reference from hash_find() anymore */
+ 	batadv_claim_free_ref(claim);
  }
- EXPORT_SYMBOL_GPL(ipv6_proxy_select_ident);
- 
--void ipv6_select_ident(struct frag_hdr *fhdr, struct rt6_info *rt)
-+void ipv6_select_ident(struct net *net, struct frag_hdr *fhdr,
-+		       struct rt6_info *rt)
- {
- 	static u32 ip6_idents_hashrnd __read_mostly;
- 	u32 id;
- 
- 	net_get_random_once(&ip6_idents_hashrnd, sizeof(ip6_idents_hashrnd));
- 
--	id = __ipv6_select_ident(ip6_idents_hashrnd, &rt->rt6i_dst.addr,
-+	id = __ipv6_select_ident(net, ip6_idents_hashrnd, &rt->rt6i_dst.addr,
- 				 &rt->rt6i_src.addr);
- 	fhdr->identification = htonl(id);
- }
---- a/net/ipv6/udp_offload.c
-+++ b/net/ipv6/udp_offload.c
-@@ -77,7 +77,7 @@ static struct sk_buff *udp6_ufo_fragment
- 
- 		/* Set the IPv6 fragment id if not set yet */
- 		if (!skb_shinfo(skb)->ip6_frag_id)
--			ipv6_proxy_select_ident(skb);
-+			ipv6_proxy_select_ident(dev_net(skb->dev), skb);
- 
- 		segs = NULL;
- 		goto out;
-@@ -125,7 +125,7 @@ static struct sk_buff *udp6_ufo_fragment
- 		fptr->nexthdr = nexthdr;
- 		fptr->reserved = 0;
- 		if (!skb_shinfo(skb)->ip6_frag_id)
--			ipv6_proxy_select_ident(skb);
-+			ipv6_proxy_select_ident(dev_net(skb->dev), skb);
- 		fptr->identification = skb_shinfo(skb)->ip6_frag_id;
- 
- 		/* Fragment the skb. ipv6 header and the remaining fields of the
 
