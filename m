@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BAF9388E46
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:53:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58F4A88E13
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:51:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726976AbfHJUxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:53:24 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:53880 "EHLO
+        id S1726674AbfHJUv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:51:28 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54316 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726510AbfHJUnt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:49 -0400
+        by vger.kernel.org with ESMTP id S1726672AbfHJUny (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:54 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDK-00053r-8E; Sat, 10 Aug 2019 21:43:46 +0100
+        id 1hwYDK-00053e-1u; Sat, 10 Aug 2019 21:43:46 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDJ-0003aF-Fl; Sat, 10 Aug 2019 21:43:45 +0100
+        id 1hwYDJ-0003Zg-8G; Sat, 10 Aug 2019 21:43:45 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,20 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Dan Carpenter" <dan.carpenter@oracle.com>,
-        "Colin Ian King" <colin.king@canonical.com>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
+        "Alexei Starovoitov" <ast@kernel.org>,
+        "Peter Zijlstra" <peterz@infradead.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        "Daniel Borkmann" <daniel@iogearbox.net>,
+        "Changbin Du" <changbin.du@gmail.com>,
+        "Jiri Olsa" <jolsa@kernel.org>,
+        "Namhyung Kim" <namhyung@kernel.org>,
+        "Arnaldo Carvalho de Melo" <acme@redhat.com>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.92622742@decadent.org.uk>
+Message-ID: <lsq.1565469607.899433724@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 035/157] staging: rtl8712: uninitialized memory in
- read_bbreg_hdl()
+Subject: [PATCH 3.16 028/157] perf tests: Fix a memory leak in
+ test__perf_evsel__tp_sched_test()
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,64 +53,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Changbin Du <changbin.du@gmail.com>
 
-commit 22c971db7dd4b0ad8dd88e99c407f7a1f4231a2e upstream.
+commit d982b33133284fa7efa0e52ae06b88f9be3ea764 upstream.
 
-Colin King reported a bug in read_bbreg_hdl():
+  =================================================================
+  ==20875==ERROR: LeakSanitizer: detected memory leaks
 
-	memcpy(pcmd->rsp, (u8 *)&val, pcmd->rspsz);
+  Direct leak of 1160 byte(s) in 1 object(s) allocated from:
+      #0 0x7f1b6fc84138 in calloc (/usr/lib/x86_64-linux-gnu/libasan.so.5+0xee138)
+      #1 0x55bd50005599 in zalloc util/util.h:23
+      #2 0x55bd500068f5 in perf_evsel__newtp_idx util/evsel.c:327
+      #3 0x55bd4ff810fc in perf_evsel__newtp /home/work/linux/tools/perf/util/evsel.h:216
+      #4 0x55bd4ff81608 in test__perf_evsel__tp_sched_test tests/evsel-tp-sched.c:69
+      #5 0x55bd4ff528e6 in run_test tests/builtin-test.c:358
+      #6 0x55bd4ff52baf in test_and_print tests/builtin-test.c:388
+      #7 0x55bd4ff543fe in __cmd_test tests/builtin-test.c:583
+      #8 0x55bd4ff5572f in cmd_test tests/builtin-test.c:722
+      #9 0x55bd4ffc4087 in run_builtin /home/changbin/work/linux/tools/perf/perf.c:302
+      #10 0x55bd4ffc45c6 in handle_internal_command /home/changbin/work/linux/tools/perf/perf.c:354
+      #11 0x55bd4ffc49ca in run_argv /home/changbin/work/linux/tools/perf/perf.c:398
+      #12 0x55bd4ffc5138 in main /home/changbin/work/linux/tools/perf/perf.c:520
+      #13 0x7f1b6e34809a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2409a)
 
-The problem is that "val" is uninitialized.
+  Indirect leak of 19 byte(s) in 1 object(s) allocated from:
+      #0 0x7f1b6fc83f30 in __interceptor_malloc (/usr/lib/x86_64-linux-gnu/libasan.so.5+0xedf30)
+      #1 0x7f1b6e3ac30f in vasprintf (/lib/x86_64-linux-gnu/libc.so.6+0x8830f)
 
-This code is obviously not useful, but so far as I can tell
-"pcmd->cmdcode" is never GEN_CMD_CODE(_Read_BBREG) so it's not harmful
-either.  For now the easiest fix is to just call r8712_free_cmd_obj()
-and return.
-
-Fixes: 2865d42c78a9 ("staging: r8712u: Add the new driver to the mainline kernel")
-Reported-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[bwh: Backported to 3.16: adjust context]
+Signed-off-by: Changbin Du <changbin.du@gmail.com>
+Reviewed-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 6a6cd11d4e57 ("perf test: Add test for the sched tracepoint format fields")
+Link: http://lkml.kernel.org/r/20190316080556.3075-17-changbin.du@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/staging/rtl8712/rtl8712_cmd.c | 10 +---------
- drivers/staging/rtl8712/rtl8712_cmd.h |  2 +-
- 2 files changed, 2 insertions(+), 10 deletions(-)
+ tools/perf/tests/evsel-tp-sched.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/staging/rtl8712/rtl8712_cmd.c
-+++ b/drivers/staging/rtl8712/rtl8712_cmd.c
-@@ -155,19 +155,11 @@ static u8 write_macreg_hdl(struct _adapt
+--- a/tools/perf/tests/evsel-tp-sched.c
++++ b/tools/perf/tests/evsel-tp-sched.c
+@@ -77,5 +77,6 @@ int test__perf_evsel__tp_sched_test(void
+ 	if (perf_evsel__test_field(evsel, "target_cpu", 4, true))
+ 		ret = -1;
  
- static u8 read_bbreg_hdl(struct _adapter *padapter, u8 *pbuf)
- {
--	u32 val;
--	void (*pcmd_callback)(struct _adapter *dev, struct cmd_obj	*pcmd);
- 	struct readBB_parm *prdbbparm;
- 	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
- 
- 	prdbbparm = (struct readBB_parm *)pcmd->parmbuf;
--	if (pcmd->rsp && pcmd->rspsz > 0)
--		memcpy(pcmd->rsp, (u8 *)&val, pcmd->rspsz);
--	pcmd_callback = cmd_callback[pcmd->cmdcode].callback;
--	if (pcmd_callback == NULL)
--		r8712_free_cmd_obj(pcmd);
--	else
--		pcmd_callback(padapter, pcmd);
-+	r8712_free_cmd_obj(pcmd);
- 	return H2C_SUCCESS;
++	perf_evsel__delete(evsel);
+ 	return ret;
  }
- 
---- a/drivers/staging/rtl8712/rtl8712_cmd.h
-+++ b/drivers/staging/rtl8712/rtl8712_cmd.h
-@@ -152,7 +152,7 @@ enum rtl8712_h2c_cmd {
- static struct _cmd_callback	cmd_callback[] = {
- 	{GEN_CMD_CODE(_Read_MACREG), NULL}, /*0*/
- 	{GEN_CMD_CODE(_Write_MACREG), NULL},
--	{GEN_CMD_CODE(_Read_BBREG), &r8712_getbbrfreg_cmdrsp_callback},
-+	{GEN_CMD_CODE(_Read_BBREG), NULL},
- 	{GEN_CMD_CODE(_Write_BBREG), NULL},
- 	{GEN_CMD_CODE(_Read_RFREG), &r8712_getbbrfreg_cmdrsp_callback},
- 	{GEN_CMD_CODE(_Write_RFREG), NULL}, /*5*/
 
