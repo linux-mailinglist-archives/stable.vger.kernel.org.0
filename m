@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3F1E88D42
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:44:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F098588D84
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:47:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726872AbfHJUoE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:44:04 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:55066 "EHLO
+        id S1727085AbfHJUql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:46:41 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:55344 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726845AbfHJUoE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:04 -0400
+        by vger.kernel.org with ESMTP id S1726900AbfHJUoH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:07 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDY-00053e-Ke; Sat, 10 Aug 2019 21:44:00 +0100
+        id 1hwYDd-00053q-4A; Sat, 10 Aug 2019 21:44:05 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDM-0003ee-41; Sat, 10 Aug 2019 21:43:48 +0100
+        id 1hwYDK-0003ck-Sp; Sat, 10 Aug 2019 21:43:46 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Ian Abbott" <abbotti@mev.co.uk>,
-        syzbot+54c2f58f15fe6876b6ad@syzkaller.appspotmail.com,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
+        "Johannes Thumshirn" <jthumshirn@suse.de>,
+        "Nikolay Borisov" <nborisov@suse.com>,
+        "David Sterba" <dsterba@suse.com>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.121049315@decadent.org.uk>
+Message-ID: <lsq.1565469607.354797597@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 087/157] staging: comedi: vmk80xx: Fix use of
- uninitialized semaphore
+Subject: [PATCH 3.16 066/157] btrfs: correctly validate compression type
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,107 +47,173 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Johannes Thumshirn <jthumshirn@suse.de>
 
-commit 08b7c2f9208f0e2a32159e4e7a4831b7adb10a3e upstream.
+commit aa53e3bfac7205fb3a8815ac1c937fd6ed01b41e upstream.
 
-If `vmk80xx_auto_attach()` returns an error, the core comedi module code
-will call `vmk80xx_detach()` to clean up.  If `vmk80xx_auto_attach()`
-successfully allocated the comedi device private data,
-`vmk80xx_detach()` assumes that a `struct semaphore limit_sem` contained
-in the private data has been initialized and uses it.  Unfortunately,
-there are a couple of places where `vmk80xx_auto_attach()` can return an
-error after allocating the device private data but before initializing
-the semaphore, so this assumption is invalid.  Fix it by initializing
-the semaphore just after allocating the private data in
-`vmk80xx_auto_attach()` before any other errors can be returned.
+Nikolay reported the following KASAN splat when running btrfs/048:
 
-I believe this was the cause of the following syzbot crash report
-<https://syzkaller.appspot.com/bug?extid=54c2f58f15fe6876b6ad>:
+[ 1843.470920] ==================================================================
+[ 1843.471971] BUG: KASAN: slab-out-of-bounds in strncmp+0x66/0xb0
+[ 1843.472775] Read of size 1 at addr ffff888111e369e2 by task btrfs/3979
 
-usb 1-1: config 0 has no interface number 0
-usb 1-1: New USB device found, idVendor=10cf, idProduct=8068, bcdDevice=e6.8d
-usb 1-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
-usb 1-1: config 0 descriptor??
-vmk80xx 1-1:0.117: driver 'vmk80xx' failed to auto-configure device.
-INFO: trying to register non-static key.
-the code is fine but needs lockdep annotation.
-turning off the locking correctness validator.
-CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.1.0-rc4-319354-g9a33b36 #3
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: usb_hub_wq hub_event
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0xe8/0x16e lib/dump_stack.c:113
- assign_lock_key kernel/locking/lockdep.c:786 [inline]
- register_lock_class+0x11b8/0x1250 kernel/locking/lockdep.c:1095
- __lock_acquire+0xfb/0x37c0 kernel/locking/lockdep.c:3582
- lock_acquire+0x10d/0x2f0 kernel/locking/lockdep.c:4211
- __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
- _raw_spin_lock_irqsave+0x44/0x60 kernel/locking/spinlock.c:152
- down+0x12/0x80 kernel/locking/semaphore.c:58
- vmk80xx_detach+0x59/0x100 drivers/staging/comedi/drivers/vmk80xx.c:829
- comedi_device_detach+0xed/0x800 drivers/staging/comedi/drivers.c:204
- comedi_device_cleanup.part.0+0x68/0x140 drivers/staging/comedi/comedi_fops.c:156
- comedi_device_cleanup drivers/staging/comedi/comedi_fops.c:187 [inline]
- comedi_free_board_dev.part.0+0x16/0x90 drivers/staging/comedi/comedi_fops.c:190
- comedi_free_board_dev drivers/staging/comedi/comedi_fops.c:189 [inline]
- comedi_release_hardware_device+0x111/0x140 drivers/staging/comedi/comedi_fops.c:2880
- comedi_auto_config.cold+0x124/0x1b0 drivers/staging/comedi/drivers.c:1068
- usb_probe_interface+0x31d/0x820 drivers/usb/core/driver.c:361
- really_probe+0x2da/0xb10 drivers/base/dd.c:509
- driver_probe_device+0x21d/0x350 drivers/base/dd.c:671
- __device_attach_driver+0x1d8/0x290 drivers/base/dd.c:778
- bus_for_each_drv+0x163/0x1e0 drivers/base/bus.c:454
- __device_attach+0x223/0x3a0 drivers/base/dd.c:844
- bus_probe_device+0x1f1/0x2a0 drivers/base/bus.c:514
- device_add+0xad2/0x16e0 drivers/base/core.c:2106
- usb_set_configuration+0xdf7/0x1740 drivers/usb/core/message.c:2021
- generic_probe+0xa2/0xda drivers/usb/core/generic.c:210
- usb_probe_device+0xc0/0x150 drivers/usb/core/driver.c:266
- really_probe+0x2da/0xb10 drivers/base/dd.c:509
- driver_probe_device+0x21d/0x350 drivers/base/dd.c:671
- __device_attach_driver+0x1d8/0x290 drivers/base/dd.c:778
- bus_for_each_drv+0x163/0x1e0 drivers/base/bus.c:454
- __device_attach+0x223/0x3a0 drivers/base/dd.c:844
- bus_probe_device+0x1f1/0x2a0 drivers/base/bus.c:514
- device_add+0xad2/0x16e0 drivers/base/core.c:2106
- usb_new_device.cold+0x537/0xccf drivers/usb/core/hub.c:2534
- hub_port_connect drivers/usb/core/hub.c:5089 [inline]
- hub_port_connect_change drivers/usb/core/hub.c:5204 [inline]
- port_event drivers/usb/core/hub.c:5350 [inline]
- hub_event+0x138e/0x3b00 drivers/usb/core/hub.c:5432
- process_one_work+0x90f/0x1580 kernel/workqueue.c:2269
- worker_thread+0x9b/0xe20 kernel/workqueue.c:2415
- kthread+0x313/0x420 kernel/kthread.c:253
- ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:352
+[ 1843.473904] CPU: 3 PID: 3979 Comm: btrfs Not tainted 5.2.0-rc3-default #536
+[ 1843.475009] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+[ 1843.476322] Call Trace:
+[ 1843.476674]  dump_stack+0x7c/0xbb
+[ 1843.477132]  ? strncmp+0x66/0xb0
+[ 1843.477587]  print_address_description+0x114/0x320
+[ 1843.478256]  ? strncmp+0x66/0xb0
+[ 1843.478740]  ? strncmp+0x66/0xb0
+[ 1843.479185]  __kasan_report+0x14e/0x192
+[ 1843.479759]  ? strncmp+0x66/0xb0
+[ 1843.480209]  kasan_report+0xe/0x20
+[ 1843.480679]  strncmp+0x66/0xb0
+[ 1843.481105]  prop_compression_validate+0x24/0x70
+[ 1843.481798]  btrfs_xattr_handler_set_prop+0x65/0x160
+[ 1843.482509]  __vfs_setxattr+0x71/0x90
+[ 1843.483012]  __vfs_setxattr_noperm+0x84/0x130
+[ 1843.483606]  vfs_setxattr+0xac/0xb0
+[ 1843.484085]  setxattr+0x18c/0x230
+[ 1843.484546]  ? vfs_setxattr+0xb0/0xb0
+[ 1843.485048]  ? __mod_node_page_state+0x1f/0xa0
+[ 1843.485672]  ? _raw_spin_unlock+0x24/0x40
+[ 1843.486233]  ? __handle_mm_fault+0x988/0x1290
+[ 1843.486823]  ? lock_acquire+0xb4/0x1e0
+[ 1843.487330]  ? lock_acquire+0xb4/0x1e0
+[ 1843.487842]  ? mnt_want_write_file+0x3c/0x80
+[ 1843.488442]  ? debug_lockdep_rcu_enabled+0x22/0x40
+[ 1843.489089]  ? rcu_sync_lockdep_assert+0xe/0x70
+[ 1843.489707]  ? __sb_start_write+0x158/0x200
+[ 1843.490278]  ? mnt_want_write_file+0x3c/0x80
+[ 1843.490855]  ? __mnt_want_write+0x98/0xe0
+[ 1843.491397]  __x64_sys_fsetxattr+0xba/0xe0
+[ 1843.492201]  ? trace_hardirqs_off_thunk+0x1a/0x1c
+[ 1843.493201]  do_syscall_64+0x6c/0x230
+[ 1843.493988]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[ 1843.495041] RIP: 0033:0x7fa7a8a7707a
+[ 1843.495819] Code: 48 8b 0d 21 de 2b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 be 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d ee dd 2b 00 f7 d8 64 89 01 48
+[ 1843.499203] RSP: 002b:00007ffcb73bca38 EFLAGS: 00000202 ORIG_RAX: 00000000000000be
+[ 1843.500210] RAX: ffffffffffffffda RBX: 00007ffcb73bda9d RCX: 00007fa7a8a7707a
+[ 1843.501170] RDX: 00007ffcb73bda9d RSI: 00000000006dc050 RDI: 0000000000000003
+[ 1843.502152] RBP: 00000000006dc050 R08: 0000000000000000 R09: 0000000000000000
+[ 1843.503109] R10: 0000000000000002 R11: 0000000000000202 R12: 00007ffcb73bda91
+[ 1843.504055] R13: 0000000000000003 R14: 00007ffcb73bda82 R15: ffffffffffffffff
 
-Reported-by: syzbot+54c2f58f15fe6876b6ad@syzkaller.appspotmail.com
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[ 1843.505268] Allocated by task 3979:
+[ 1843.505771]  save_stack+0x19/0x80
+[ 1843.506211]  __kasan_kmalloc.constprop.5+0xa0/0xd0
+[ 1843.506836]  setxattr+0xeb/0x230
+[ 1843.507264]  __x64_sys_fsetxattr+0xba/0xe0
+[ 1843.507886]  do_syscall_64+0x6c/0x230
+[ 1843.508429]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+[ 1843.509558] Freed by task 0:
+[ 1843.510188] (stack is not available)
+
+[ 1843.511309] The buggy address belongs to the object at ffff888111e369e0
+                which belongs to the cache kmalloc-8 of size 8
+[ 1843.514095] The buggy address is located 2 bytes inside of
+                8-byte region [ffff888111e369e0, ffff888111e369e8)
+[ 1843.516524] The buggy address belongs to the page:
+[ 1843.517561] page:ffff88813f478d80 refcount:1 mapcount:0 mapping:ffff88811940c300 index:0xffff888111e373b8 compound_mapcount: 0
+[ 1843.519993] flags: 0x4404000010200(slab|head)
+[ 1843.520951] raw: 0004404000010200 ffff88813f48b008 ffff888119403d50 ffff88811940c300
+[ 1843.522616] raw: ffff888111e373b8 000000000016000f 00000001ffffffff 0000000000000000
+[ 1843.524281] page dumped because: kasan: bad access detected
+
+[ 1843.525936] Memory state around the buggy address:
+[ 1843.526975]  ffff888111e36880: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.528479]  ffff888111e36900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.530138] >ffff888111e36980: fc fc fc fc fc fc fc fc fc fc fc fc 02 fc fc fc
+[ 1843.531877]                                                        ^
+[ 1843.533287]  ffff888111e36a00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.534874]  ffff888111e36a80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.536468] ==================================================================
+
+This is caused by supplying a too short compression value ('lz') in the
+test-case and comparing it to 'lzo' with strncmp() and a length of 3.
+strncmp() read past the 'lz' when looking for the 'o' and thus caused an
+out-of-bounds read.
+
+Introduce a new check 'btrfs_compress_is_valid_type()' which not only
+checks the user-supplied value against known compression types, but also
+employs checks for too short values.
+
+Reported-by: Nikolay Borisov <nborisov@suse.com>
+Fixes: 272e5326c783 ("btrfs: prop: fix vanished compression property after failed set")
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+[bwh: Backported to 3.16:
+ - "zstd" is not supported
+ - Add definition of btrfs_compression_types[]
+ - Include compression.h in props.c
+ - Adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/staging/comedi/drivers/vmk80xx.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- a/drivers/staging/comedi/drivers/vmk80xx.c
-+++ b/drivers/staging/comedi/drivers/vmk80xx.c
-@@ -872,6 +872,8 @@ static int vmk80xx_auto_attach(struct co
+--- a/fs/btrfs/compression.c
++++ b/fs/btrfs/compression.c
+@@ -42,6 +42,8 @@
+ #include "extent_io.h"
+ #include "extent_map.h"
  
- 	devpriv->model = boardinfo->model;
- 
-+	sema_init(&devpriv->limit_sem, 8);
++static const char* const btrfs_compress_types[] = { "", "zlib", "lzo" };
 +
- 	ret = vmk80xx_find_usb_endpoints(dev);
- 	if (ret)
- 		return ret;
-@@ -880,8 +882,6 @@ static int vmk80xx_auto_attach(struct co
- 	if (ret)
- 		return ret;
+ struct compressed_bio {
+ 	/* number of bios pending for this compressed extent */
+ 	atomic_t pending_bios;
+@@ -81,6 +83,22 @@ struct compressed_bio {
+ 	u32 sums;
+ };
  
--	sema_init(&devpriv->limit_sem, 8);
--
- 	usb_set_intfdata(intf, devpriv);
++bool btrfs_compress_is_valid_type(const char *str, size_t len)
++{
++	int i;
++
++	for (i = 1; i < ARRAY_SIZE(btrfs_compress_types); i++) {
++		size_t comp_len = strlen(btrfs_compress_types[i]);
++
++		if (len < comp_len)
++			continue;
++
++		if (!strncmp(btrfs_compress_types[i], str, comp_len))
++			return true;
++	}
++	return false;
++}
++
+ static int btrfs_decompress_biovec(int type, struct page **pages_in,
+ 				   u64 disk_start, struct bio_vec *bvec,
+ 				   int vcnt, size_t srclen);
+--- a/fs/btrfs/compression.h
++++ b/fs/btrfs/compression.h
+@@ -80,4 +80,5 @@ struct btrfs_compress_op {
+ extern struct btrfs_compress_op btrfs_zlib_compress;
+ extern struct btrfs_compress_op btrfs_lzo_compress;
  
- 	if (devpriv->model == VMK8061_MODEL) {
++bool btrfs_compress_is_valid_type(const char *str, size_t len);
+ #endif
+--- a/fs/btrfs/props.c
++++ b/fs/btrfs/props.c
+@@ -22,6 +22,7 @@
+ #include "hash.h"
+ #include "transaction.h"
+ #include "xattr.h"
++#include "compression.h"
+ 
+ #define BTRFS_PROP_HANDLERS_HT_BITS 8
+ static DEFINE_HASHTABLE(prop_handlers_ht, BTRFS_PROP_HANDLERS_HT_BITS);
+@@ -378,9 +379,7 @@ int btrfs_subvol_inherit_props(struct bt
+ 
+ static int prop_compression_validate(const char *value, size_t len)
+ {
+-	if (!strncmp("lzo", value, 3))
+-		return 0;
+-	else if (!strncmp("zlib", value, 4))
++	if (btrfs_compress_is_valid_type(value, len))
+ 		return 0;
+ 
+ 	return -EINVAL;
 
