@@ -2,218 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6671D88C1D
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 18:02:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B37C88D92
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:47:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726112AbfHJQCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 12:02:51 -0400
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:46874 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726066AbfHJQCv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 12:02:51 -0400
-Received: by mail-ot1-f65.google.com with SMTP id z17so25848829otk.13
-        for <stable@vger.kernel.org>; Sat, 10 Aug 2019 09:02:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:mail-followup-to:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=+RIEl06ySyLSnlx8jSsdqHWCv3Y0byPqxjldRRobvLM=;
-        b=ujgT0NfZs3NhG8cLMnUlIJzkdkAudel90cnisjM24pLGXv8ON9I6oTn11XFTe0OXt8
-         rzY1PnXuJoO2K+qIb/CDY88xUggcL9q/uCl0eJUvuRF8w+aLVLOvhJdl1b5HTAstv92F
-         og1AapRKUwQWceXQOF139omG11h5SYalG2IEVxOD0dd44ac0ac7VwgM6LaYi31/rnLgT
-         ICEP+diL/OYDKM7HgnBRZ78XCFruCKvmKqTHZwKfIXLNciQHRoJ+dfNBeVpBRxlI2oBC
-         c4OwKVLySyQNCdwFQLaOX5dthSg+ULkBK4/aL4IttViMICckb8BAREPbC+Tj69S9kDTC
-         gBAQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id
-         :mail-followup-to:references:mime-version:content-disposition
-         :content-transfer-encoding:in-reply-to:user-agent;
-        bh=+RIEl06ySyLSnlx8jSsdqHWCv3Y0byPqxjldRRobvLM=;
-        b=eJ171pBkt9yAu2GKJpZFiuTMkPss/o/Uytx9RL0VusaonaLqHls1Sj1AHgwiD21Lxp
-         uxvcuJgzakuCgM936hlyZvCLtPnqa2R448z13cgN7Fg5twKNAz+47mkGmU3hXOOs82bV
-         thcTddJs/BIdceMpqgw7v4CdFVpUSRkGkzt7ylOZjvUPTlidEWONDZEQEQNv7FAJXznh
-         ksb7Rdj9PcmvhcxonfUXMa4bIqtlzuTY4MuB4jQuQo6oKYcHHr8nrVlhrKQiCio/iw6s
-         hEJyl8KTMR+uhlE59/x/Q1W0Aelyu9mb+6gHF82KDpAcCwTttChYn333T+0v5DucCtVW
-         3JSQ==
-X-Gm-Message-State: APjAAAWTrgQsfwcQuQ2/M2GuuR9UOb78DkikdnomCCgIwekx8MvixccT
-        995/kE+OQqqQ9JyHt/VaF2f3fFtrvIE=
-X-Google-Smtp-Source: APXvYqx59ifhEPEV2tLfxvbXw9OBiOOBi47mUgYWtczqhpttzemRCHxW3xpeq/WPzFYQypsRrj/bMw==
-X-Received: by 2002:a02:a703:: with SMTP id k3mr28032262jam.12.1565452969652;
-        Sat, 10 Aug 2019 09:02:49 -0700 (PDT)
-Received: from localhost (c-75-72-120-115.hsd1.mn.comcast.net. [75.72.120.115])
-        by smtp.gmail.com with ESMTPSA id p3sm156289916iom.7.2019.08.10.09.02.48
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Sat, 10 Aug 2019 09:02:48 -0700 (PDT)
-Date:   Sat, 10 Aug 2019 11:02:47 -0500
-From:   Dan Rue <dan.rue@linaro.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org,
-        ben.hutchings@codethink.co.uk, stable@vger.kernel.org,
-        akpm@linux-foundation.org, torvalds@linux-foundation.org,
-        linux@roeck-us.net
-Subject: Re: [PATCH 4.4 00/21] 4.4.189-stable review
-Message-ID: <20190810160247.6dx3k63wwps7gdpr@xps.therub.org>
-Mail-Followup-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org,
-        ben.hutchings@codethink.co.uk, stable@vger.kernel.org,
-        akpm@linux-foundation.org, torvalds@linux-foundation.org,
-        linux@roeck-us.net
-References: <20190809134241.565496442@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+        id S1726562AbfHJUrI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:47:08 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:55094 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726859AbfHJUoE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:04 -0400
+Received: from [192.168.4.242] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1hwYDZ-00053m-TS; Sat, 10 Aug 2019 21:44:02 +0100
+Received: from ben by deadeye with local (Exim 4.92)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1hwYDL-0003eJ-SS; Sat, 10 Aug 2019 21:43:47 +0100
+Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190809134241.565496442@linuxfoundation.org>
-User-Agent: NeoMutt/20180716
+MIME-Version: 1.0
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
+        "Thomas Lendacky" <thomas.lendacky@amd.com>,
+        "Thomas Gleixner" <tglx@linutronix.de>,
+        "Mikhail Gavrilov" <mikhail.v.gavrilov@gmail.com>
+Date:   Sat, 10 Aug 2019 21:40:07 +0100
+Message-ID: <lsq.1565469607.972476944@decadent.org.uk>
+X-Mailer: LinuxStableQueue (scripts by bwh)
+X-Patchwork-Hint: ignore
+Subject: [PATCH 3.16 084/157] x86/speculation: Prevent deadlock on
+ ssb_state::lock
+In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
+X-SA-Exim-Connect-IP: 192.168.4.242
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 09, 2019 at 03:45:04PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.4.189 release.
-> There are 21 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun 11 Aug 2019 01:42:28 PM UTC.
-> Anything received after that time might be too late.
+3.16.72-rc1 review patch.  If anyone has any objections, please let me know.
 
-Results from Linaro’s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+------------------
 
-Note that test counts are a bit lower than previous because we are
-having some infrastructure/lab issue with our qemu/x86 environments.
-There is no evidence that it's kernel related.
+From: Thomas Gleixner <tglx@linutronix.de>
 
-Summary
-------------------------------------------------------------------------
+commit 2f5fb19341883bb6e37da351bc3700489d8506a7 upstream.
 
-kernel: 4.4.189-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-git branch: linux-4.4.y
-git commit: ab9a14a0618d99ad7e0b7e589a97f3421ac4d662
-git describe: v4.4.187-45-gab9a14a0618d
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.4-oe/build/v4.4.187-45-gab9a14a0618d
+Mikhail reported a lockdep splat related to the AMD specific ssb_state
+lock:
 
+  CPU0                       CPU1
+  lock(&st->lock);
+                             local_irq_disable();
+                             lock(&(&sighand->siglock)->rlock);
+                             lock(&st->lock);
+  <Interrupt>
+     lock(&(&sighand->siglock)->rlock);
 
-No regressions (compared to build v4.4.187)
+  *** DEADLOCK ***
 
+The connection between sighand->siglock and st->lock comes through seccomp,
+which takes st->lock while holding sighand->siglock.
 
-No fixes (compared to build v4.4.187)
+Make sure interrupts are disabled when __speculation_ctrl_update() is
+invoked via prctl() -> speculation_ctrl_update(). Add a lockdep assert to
+catch future offenders.
 
-Ran 16774 total tests in the following environments and test suites.
+Fixes: 1f50ddb4f418 ("x86/speculation: Handle HT correctly on AMD")
+Reported-by: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+Cc: Thomas Lendacky <thomas.lendacky@amd.com>
+Link: https://lkml.kernel.org/r/alpine.DEB.2.21.1904141948200.4917@nanos.tec.linutronix.de
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+---
+ arch/x86/kernel/process.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-Environments
---------------
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -351,6 +351,8 @@ static __always_inline void __speculatio
+ 	u64 msr = x86_spec_ctrl_base;
+ 	bool updmsr = false;
+ 
++	lockdep_assert_irqs_disabled();
++
+ 	/*
+ 	 * If TIF_SSBD is different, select the proper mitigation
+ 	 * method. Note that if SSBD mitigation is disabled or permanentely
+@@ -402,10 +404,12 @@ static unsigned long speculation_ctrl_up
+ 
+ void speculation_ctrl_update(unsigned long tif)
+ {
++	unsigned long flags;
++
+ 	/* Forced update. Make sure all relevant TIF flags are different */
+-	preempt_disable();
++	local_irq_save(flags);
+ 	__speculation_ctrl_update(~tif, tif);
+-	preempt_enable();
++	local_irq_restore(flags);
+ }
+ 
+ /* Called from seccomp/prctl update */
 
-Test Suites
------------
-* build
-* kselftest
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* network-basic-tests
-* perf
-* prep-tmp-disk
-* spectre-meltdown-checker-test
-* kvm-unit-tests
-* v4l2-compliance
-* install-android-platform-tools-r2600
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-* ssuite
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.189-rc1
-git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
-git branch: 4.4.189-rc1-hikey-20190809-523
-git commit: ffbfd13890f25f989c107e0a79063ff644d02753
-git describe: 4.4.189-rc1-hikey-20190809-523
-Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4-oe/build/4.4.189-rc1-hikey-20190809-523
-
-
-No regressions (compared to build 4.4.189-rc1-hikey-20190809-522)
-
-
-No fixes (compared to build 4.4.189-rc1-hikey-20190809-522)
-
-Ran 1550 total tests in the following environments and test suites.
-
-Environments
---------------
-- hi6220-hikey - arm64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-
--- 
-Linaro LKFT
-https://lkft.linaro.org
