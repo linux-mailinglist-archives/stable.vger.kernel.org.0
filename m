@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6CFC88D65
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:45:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFE3988D91
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:47:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726948AbfHJUpo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:45:44 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:55306 "EHLO
+        id S1726566AbfHJUoE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:44:04 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54988 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726898AbfHJUoH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:07 -0400
+        by vger.kernel.org with ESMTP id S1726826AbfHJUoD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:03 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDZ-00053s-P1; Sat, 10 Aug 2019 21:44:01 +0100
+        id 1hwYDY-00053j-Dd; Sat, 10 Aug 2019 21:44:00 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDL-0003eS-Ur; Sat, 10 Aug 2019 21:43:47 +0100
+        id 1hwYDN-0003hK-2s; Sat, 10 Aug 2019 21:43:49 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,17 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Philippe Mathieu-=?UTF-8?Q?Daud=C3=A9?=" <f4bug@amsat.org>,
-        "Ralf Baechle" <ralf@linux-mips.org>, linux-mips@vger.kernel.org,
-        "James Hogan" <jhogan@kernel.org>,
-        "Paul Burton" <paul.burton@mips.com>,
-        "Aurelien Jarno" <aurelien@aurel32.net>
+        "Alan Stern" <stern@rowland.harvard.edu>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.636182256@decadent.org.uk>
+Message-ID: <lsq.1565469607.699496363@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 085/157] MIPS: scall64-o32: Fix indirect syscall
- number load
+Subject: [PATCH 3.16 108/157] USB: w1 ds2490: Fix bug caused by improper
+ use of altsetting array
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -50,47 +47,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Aurelien Jarno <aurelien@aurel32.net>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 79b4a9cf0e2ea8203ce777c8d5cfa86c71eae86e upstream.
+commit c114944d7d67f24e71562fcfc18d550ab787e4d4 upstream.
 
-Commit 4c21b8fd8f14 (MIPS: seccomp: Handle indirect system calls (o32))
-added indirect syscall detection for O32 processes running on MIPS64,
-but it did not work correctly for big endian kernel/processes. The
-reason is that the syscall number is loaded from ARG1 using the lw
-instruction while this is a 64-bit value, so zero is loaded instead of
-the syscall number.
+The syzkaller USB fuzzer spotted a slab-out-of-bounds bug in the
+ds2490 driver.  This bug is caused by improper use of the altsetting
+array in the usb_interface structure (the array's entries are not
+always stored in numerical order), combined with a naive assumption
+that all interfaces probed by the driver will have the expected number
+of altsettings.
 
-Fix the code by using the ld instruction instead. When running a 32-bit
-processes on a 64 bit CPU, the values are properly sign-extended, so it
-ensures the value passed to syscall_trace_enter is correct.
+The bug can be fixed by replacing references to the possibly
+non-existent intf->altsetting[alt] entry with the guaranteed-to-exist
+intf->cur_altsetting entry.
 
-Recent systemd versions with seccomp enabled whitelist the getpid
-syscall for their internal  processes (e.g. systemd-journald), but call
-it through syscall(SYS_getpid). This fix therefore allows O32 big endian
-systems with a 64-bit kernel to run recent systemd versions.
-
-Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
-Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-and-tested-by: syzbot+d65f673b847a1a96cdba@syzkaller.appspotmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/mips/kernel/scall64-o32.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/w1/masters/ds2490.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/mips/kernel/scall64-o32.S
-+++ b/arch/mips/kernel/scall64-o32.S
-@@ -124,7 +124,7 @@ trace_a_syscall:
- 	subu	t1, v0,  __NR_O32_Linux
- 	move	a1, v0
- 	bnez	t1, 1f /* __NR_syscall at offset 0 */
--	lw	a1, PT_R4(sp) /* Arg1 for __NR_syscall case */
-+	ld	a1, PT_R4(sp) /* Arg1 for __NR_syscall case */
- 	.set	pop
+--- a/drivers/w1/masters/ds2490.c
++++ b/drivers/w1/masters/ds2490.c
+@@ -1041,15 +1041,15 @@ static int ds_probe(struct usb_interface
+ 	/* alternative 3, 1ms interrupt (greatly speeds search), 64 byte bulk */
+ 	alt = 3;
+ 	err = usb_set_interface(dev->udev,
+-		intf->altsetting[alt].desc.bInterfaceNumber, alt);
++		intf->cur_altsetting->desc.bInterfaceNumber, alt);
+ 	if (err) {
+ 		dev_err(&dev->udev->dev, "Failed to set alternative setting %d "
+ 			"for %d interface: err=%d.\n", alt,
+-			intf->altsetting[alt].desc.bInterfaceNumber, err);
++			intf->cur_altsetting->desc.bInterfaceNumber, err);
+ 		goto err_out_clear;
+ 	}
  
- 1:	jal	syscall_trace_enter
+-	iface_desc = &intf->altsetting[alt];
++	iface_desc = intf->cur_altsetting;
+ 	if (iface_desc->desc.bNumEndpoints != NUM_EP-1) {
+ 		printk(KERN_INFO "Num endpoints=%d. It is not DS9490R.\n", iface_desc->desc.bNumEndpoints);
+ 		err = -EINVAL;
 
