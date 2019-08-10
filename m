@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 928AC88E07
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:51:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC1B288E15
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:52:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727262AbfHJUvM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:51:12 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54348 "EHLO
+        id S1726603AbfHJUnw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:43:52 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54114 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726677AbfHJUny (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:54 -0400
+        by vger.kernel.org with ESMTP id S1726566AbfHJUnv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:51 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDP-00053O-62; Sat, 10 Aug 2019 21:43:51 +0100
+        id 1hwYDM-00053t-V1; Sat, 10 Aug 2019 21:43:49 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDM-0003gE-II; Sat, 10 Aug 2019 21:43:48 +0100
+        id 1hwYDJ-0003at-Pu; Sat, 10 Aug 2019 21:43:45 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,21 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Linus Torvalds" <torvalds@linux-foundation.org>,
-        "Steven Rostedt" <rostedt@goodmis.org>,
-        "Mathieu Desnoyers" <mathieu.desnoyers@efficios.com>,
-        "Peter Zijlstra" <peterz@infradead.org>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        "Masami Hiramatsu" <mhiramat@kernel.org>,
-        "Ingo Molnar" <mingo@kernel.org>,
-        "Francis Deslauriers" <francis.deslauriers@efficios.com>,
-        "Andrea Righi" <righi.andrea@gmail.com>
+        "Hulk Robot" <hulkci@huawei.com>, "Jan Kara" <jack@suse.cz>,
+        "zhangyi (F)" <yi.zhang@huawei.com>,
+        "Theodore Ts'o" <tytso@mit.edu>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.139165272@decadent.org.uk>
+Message-ID: <lsq.1565469607.761898531@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 097/157] kprobes: Mark ftrace mcount handler
- functions nokprobe
+Subject: [PATCH 3.16 043/157] ext4: brelse all indirect buffer in
+ ext4_ind_remove_space()
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -54,59 +48,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: "zhangyi (F)" <yi.zhang@huawei.com>
 
-commit fabe38ab6b2bd9418350284c63825f13b8a6abba upstream.
+commit 674a2b27234d1b7afcb0a9162e81b2e53aeef217 upstream.
 
-Mark ftrace mcount handler functions nokprobe since
-probing on these functions with kretprobe pushes
-return address incorrectly on kretprobe shadow stack.
+All indirect buffers get by ext4_find_shared() should be released no
+mater the branch should be freed or not. But now, we forget to release
+the lower depth indirect buffers when removing space from the same
+higher depth indirect block. It will lead to buffer leak and futher
+more, it may lead to quota information corruption when using old quota,
+consider the following case.
 
-Reported-by: Francis Deslauriers <francis.deslauriers@efficios.com>
-Tested-by: Andrea Righi <righi.andrea@gmail.com>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Acked-by: Steven Rostedt <rostedt@goodmis.org>
-Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lkml.kernel.org/r/155094062044.6137.6419622920568680640.stgit@devbox
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-[bwh: Backported to 3.16: there is no ftrace_ops_assist_func()]
+ - Create and mount an empty ext4 filesystem without extent and quota
+   features,
+ - quotacheck and enable the user & group quota,
+ - Create some files and write some data to them, and then punch hole
+   to some files of them, it may trigger the buffer leak problem
+   mentioned above.
+ - Disable quota and run quotacheck again, it will create two new
+   aquota files and write the checked quota information to them, which
+   probably may reuse the freed indirect block(the buffer and page
+   cache was not freed) as data block.
+ - Enable quota again, it will invoke
+   vfs_load_quota_inode()->invalidate_bdev() to try to clean unused
+   buffers and pagecache. Unfortunately, because of the buffer of quota
+   data block is still referenced, quota code cannot read the up to date
+   quota info from the device and lead to quota information corruption.
+
+This problem can be reproduced by xfstests generic/231 on ext3 file
+system or ext4 file system without extent and quota features.
+
+This patch fix this problem by releasing the missing indirect buffers,
+in ext4_ind_remove_space().
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -32,6 +32,7 @@
- #include <linux/list.h>
- #include <linux/hash.h>
- #include <linux/rcupdate.h>
-+#include <linux/kprobes.h>
+ fs/ext4/indirect.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+--- a/fs/ext4/indirect.c
++++ b/fs/ext4/indirect.c
+@@ -1481,10 +1481,14 @@ end_range:
+ 					   partial->p + 1,
+ 					   partial2->p,
+ 					   (chain+n-1) - partial);
+-			BUFFER_TRACE(partial->bh, "call brelse");
+-			brelse(partial->bh);
+-			BUFFER_TRACE(partial2->bh, "call brelse");
+-			brelse(partial2->bh);
++			while (partial > chain) {
++				BUFFER_TRACE(partial->bh, "call brelse");
++				brelse(partial->bh);
++			}
++			while (partial2 > chain2) {
++				BUFFER_TRACE(partial2->bh, "call brelse");
++				brelse(partial2->bh);
++			}
+ 			return 0;
+ 		}
  
- #include <trace/events/sched.h>
- 
-@@ -4508,7 +4509,7 @@ static struct ftrace_ops control_ops = {
- 	INIT_OPS_HASH(control_ops)
- };
- 
--static inline void
-+static nokprobe_inline void
- __ftrace_ops_list_func(unsigned long ip, unsigned long parent_ip,
- 		       struct ftrace_ops *ignored, struct pt_regs *regs)
- {
-@@ -4561,11 +4562,13 @@ static void ftrace_ops_list_func(unsigne
- {
- 	__ftrace_ops_list_func(ip, parent_ip, NULL, regs);
- }
-+NOKPROBE_SYMBOL(ftrace_ops_list_func);
- #else
- static void ftrace_ops_no_ops(unsigned long ip, unsigned long parent_ip)
- {
- 	__ftrace_ops_list_func(ip, parent_ip, NULL, NULL);
- }
-+NOKPROBE_SYMBOL(ftrace_ops_no_ops);
- #endif
- 
- static void clear_ftrace_swapper(void)
 
