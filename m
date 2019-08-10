@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 307DF88D79
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:46:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFE2288D86
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:47:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727103AbfHJUqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:46:25 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:55266 "EHLO
+        id S1727148AbfHJUqm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:46:42 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:55354 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726882AbfHJUoH (ORCPT
+        by vger.kernel.org with ESMTP id S1726909AbfHJUoH (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:07 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDc-00053e-04; Sat, 10 Aug 2019 21:44:04 +0100
+        id 1hwYDc-00053P-0z; Sat, 10 Aug 2019 21:44:04 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDL-0003d4-24; Sat, 10 Aug 2019 21:43:47 +0100
+        id 1hwYDL-0003dc-EA; Sat, 10 Aug 2019 21:43:47 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,16 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Juergen Gross" <jgross@suse.com>,
-        "Dan Carpenter" <dan.carpenter@oracle.com>,
-        "Boris Ostrovsky" <boris.ostrovsky@oracle.com>
+        "Bob Moore" <robert.moore@intel.com>,
+        "Erik Schmauss" <erik.schmauss@intel.com>,
+        "Michael J Gruber" <mjg@fedoraproject.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.426255235@decadent.org.uk>
+Message-ID: <lsq.1565469607.941232992@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 070/157] xen: Prevent buffer overflow in privcmd ioctl
+Subject: [PATCH 3.16 077/157] ACPICA: Namespace: remove address node from
+ global list after method termination
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,35 +49,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Erik Schmauss <erik.schmauss@intel.com>
 
-commit 42d8644bd77dd2d747e004e367cb0c895a606f39 upstream.
+commit c5781ffbbd4f742a58263458145fe7f0ac01d9e0 upstream.
 
-The "call" variable comes from the user in privcmd_ioctl_hypercall().
-It's an offset into the hypercall_page[] which has (PAGE_SIZE / 32)
-elements.  We need to put an upper bound on it to prevent an out of
-bounds access.
+ACPICA commit b233720031a480abd438f2e9c643080929d144c3
 
-Fixes: 1246ae0bb992 ("xen: add variable hypercall caller")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-[bwh: Backported to 3.16: adjust context]
+ASL operation_regions declare a range of addresses that it uses. In a
+perfect world, the range of addresses should be used exclusively by
+the AML interpreter. The OS can use this information to decide which
+drivers to load so that the AML interpreter and device drivers use
+different regions of memory.
+
+During table load, the address information is added to a global
+address range list. Each node in this list contains an address range
+as well as a namespace node of the operation_region. This list is
+deleted at ACPI shutdown.
+
+Unfortunately, ASL operation_regions can be declared inside of control
+methods. Although this is not recommended, modern firmware contains
+such code. New module level code changes unintentionally removed the
+functionality of adding and removing nodes to the global address
+range list.
+
+A few months ago, support for adding addresses has been re-
+implemented. However, the removal of the address range list was
+missed and resulted in some systems to crash due to the address list
+containing bogus namespace nodes from operation_regions declared in
+control methods. In order to fix the crash, this change removes
+dynamic operation_regions after control method termination.
+
+Link: https://github.com/acpica/acpica/commit/b2337200
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=202475
+Fixes: 4abb951b73ff ("ACPICA: AML interpreter: add region addresses in global list during initialization")
+Reported-by: Michael J Gruber <mjg@fedoraproject.org>
+Signed-off-by: Erik Schmauss <erik.schmauss@intel.com>
+Signed-off-by: Bob Moore <robert.moore@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/x86/include/asm/xen/hypercall.h | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/acpi/acpica/nsobject.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/x86/include/asm/xen/hypercall.h
-+++ b/arch/x86/include/asm/xen/hypercall.h
-@@ -215,6 +215,9 @@ privcmd_call(unsigned call,
- 	__HYPERCALL_DECLS;
- 	__HYPERCALL_5ARG(a1, a2, a3, a4, a5);
+--- a/drivers/acpi/acpica/nsobject.c
++++ b/drivers/acpi/acpica/nsobject.c
+@@ -222,6 +222,10 @@ void acpi_ns_detach_object(struct acpi_n
+ 		}
+ 	}
  
-+	if (call >= PAGE_SIZE / sizeof(hypercall_page[0]))
-+		return -EINVAL;
++	if (obj_desc->common.type == ACPI_TYPE_REGION) {
++		acpi_ut_remove_address_range(obj_desc->region.space_id, node);
++	}
 +
- 	stac();
- 	asm volatile(CALL_NOSPEC
- 		     : __HYPERCALL_5PARAM
+ 	/* Clear the Node entry in all cases */
+ 
+ 	node->object = NULL;
 
