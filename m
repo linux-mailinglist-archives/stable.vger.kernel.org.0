@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C04D88D69
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:46:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 924E488D3B
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:44:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726889AbfHJUpn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:45:43 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:55416 "EHLO
+        id S1726722AbfHJUn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:43:56 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54438 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726913AbfHJUoI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:08 -0400
+        by vger.kernel.org with ESMTP id S1726704AbfHJUnz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:55 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDb-00053t-W6; Sat, 10 Aug 2019 21:44:04 +0100
+        id 1hwYDP-00058O-Ba; Sat, 10 Aug 2019 21:43:51 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDL-0003cz-0r; Sat, 10 Aug 2019 21:43:47 +0100
+        id 1hwYDO-0003jv-Lg; Sat, 10 Aug 2019 21:43:50 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,16 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Tokunori Ikegami" <ikegami_to@yahoo.co.jp>,
-        "Richard Weinberger" <richard@nod.at>,
-        "Liu Jian" <liujian56@huawei.com>,
-        "Yi Huaijie" <yihuaijie@huawei.com>
+        "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "Denis Efremov" <efremov@ispras.ru>, "Willy Tarreau" <w@1wt.eu>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.292130683@decadent.org.uk>
+Message-ID: <lsq.1565469607.686847966@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 069/157] mtd: cfi: fix deadloop in cfi_cmdset_0002.c
- do_write_buffer
+Subject: [PATCH 3.16 140/157] floppy: fix invalid pointer dereference in
+ drive_name
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -49,39 +47,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Liu Jian <liujian56@huawei.com>
+From: Denis Efremov <efremov@ispras.ru>
 
-commit d9b8a67b3b95a5c5aae6422b8113adc1c2485f2b upstream.
+commit 9b04609b784027968348796a18f601aed9db3789 upstream.
 
-In function do_write_buffer(), in the for loop, there is a case
-chip_ready() returns 1 while chip_good() returns 0, so it never
-break the loop.
-To fix this, chip_good() is enough and it should timeout if it stay
-bad for a while.
+This fixes the invalid pointer dereference in the drive_name function of
+the floppy driver.
 
-Fixes: dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to check correct value")
-Signed-off-by: Yi Huaijie <yihuaijie@huawei.com>
-Signed-off-by: Liu Jian <liujian56@huawei.com>
-Reviewed-by: Tokunori Ikegami <ikegami_to@yahoo.co.jp>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+The native_format field of the struct floppy_drive_params is used as
+floppy_type array index in the drive_name function.  Thus, the field
+should be checked the same way as the autodetect field.
+
+To trigger the bug, one could use a value out of range and set the drive
+parameters with the FDSETDRVPRM ioctl.  Next, FDGETDRVTYP ioctl should
+be used to call the drive_name.  A floppy disk is not required to be
+inserted.
+
+CAP_SYS_ADMIN is required to call FDSETDRVPRM.
+
+The patch adds the check for a value of the native_format field to be in
+the '0 <= x < ARRAY_SIZE(floppy_type)' range of the floppy_type array
+indices.
+
+The bug was found by syzkaller.
+
+Signed-off-by: Denis Efremov <efremov@ispras.ru>
+Tested-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[bwh: Backported to 3.16: Drop changes in compat_setdrvprm(), as compat
+ ioctls go via fd_ioctl_locked() after translation in compat_ioctl.c.]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/mtd/chips/cfi_cmdset_0002.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
---- a/drivers/mtd/chips/cfi_cmdset_0002.c
-+++ b/drivers/mtd/chips/cfi_cmdset_0002.c
-@@ -1538,7 +1538,11 @@ static int __xipram do_write_buffer(stru
- 			continue;
- 		}
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -3383,7 +3383,8 @@ static int fd_getgeo(struct block_device
+ 	return 0;
+ }
  
--		if (time_after(jiffies, timeo) && !chip_ready(map, adr))
-+		/*
-+		 * We check "time_after" and "!chip_good" before checking "chip_good" to avoid
-+		 * the failure due to scheduling.
-+		 */
-+		if (time_after(jiffies, timeo) && !chip_good(map, adr, datum))
- 			break;
+-static bool valid_floppy_drive_params(const short autodetect[8])
++static bool valid_floppy_drive_params(const short autodetect[8],
++		int native_format)
+ {
+ 	size_t floppy_type_size = ARRAY_SIZE(floppy_type);
+ 	size_t i = 0;
+@@ -3394,6 +3395,9 @@ static bool valid_floppy_drive_params(co
+ 			return false;
+ 	}
  
- 		if (chip_good(map, adr, datum)) {
++	if (native_format < 0 || native_format >= floppy_type_size)
++		return false;
++
+ 	return true;
+ }
+ 
+@@ -3523,7 +3527,8 @@ static int fd_locked_ioctl(struct block_
+ 		SUPBOUND(size, strlen((const char *)outparam) + 1);
+ 		break;
+ 	case FDSETDRVPRM:
+-		if (!valid_floppy_drive_params(inparam.dp.autodetect))
++		if (!valid_floppy_drive_params(inparam.dp.autodetect,
++				inparam.dp.native_format))
+ 			return -EINVAL;
+ 		*UDP = inparam.dp;
+ 		break;
 
