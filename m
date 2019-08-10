@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2040F88DBE
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:49:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A217188DBD
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:49:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727494AbfHJUso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:48:44 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54772 "EHLO
+        id S1727137AbfHJUsn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:48:43 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54780 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726776AbfHJUoA (ORCPT
+        by vger.kernel.org with ESMTP id S1726785AbfHJUoA (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:00 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDV-00053t-KC; Sat, 10 Aug 2019 21:43:57 +0100
+        id 1hwYDT-00053q-9P; Sat, 10 Aug 2019 21:43:55 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDO-0003is-0J; Sat, 10 Aug 2019 21:43:50 +0100
+        id 1hwYDO-0003kW-Om; Sat, 10 Aug 2019 21:43:50 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,13 +26,16 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Josh Poimboeuf" <jpoimboe@redhat.com>,
-        "Thomas Gleixner" <tglx@linutronix.de>
+        "Johannes Weiner" <hannes@cmpxchg.org>,
+        "Rik van Riel" <riel@redhat.com>, "Michal Hocko" <mhocko@suse.com>,
+        "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "Mel Gorman" <mgorman@suse.de>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.171840140@decadent.org.uk>
+Message-ID: <lsq.1565469607.576161906@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 127/157] x86/entry/64: Use JMP instead of JMPQ
+Subject: [PATCH 3.16 142/157] proc: meminfo: estimate available memory
+ more conservatively
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -46,36 +49,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Johannes Weiner <hannes@cmpxchg.org>
 
-commit 64dbc122b20f75183d8822618c24f85144a5a94d upstream.
+commit 84ad5802a33a4964a49b8f7d24d80a214a096b19 upstream.
 
-Somehow the swapgs mitigation entry code patch ended up with a JMPQ
-instruction instead of JMP, where only the short jump is needed.  Some
-assembler versions apparently fail to optimize JMPQ into a two-byte JMP
-when possible, instead always using a 7-byte JMP with relocation.  For
-some reason that makes the entry code explode with a #GP during boot.
+The MemAvailable item in /proc/meminfo is to give users a hint of how
+much memory is allocatable without causing swapping, so it excludes the
+zones' low watermarks as unavailable to userspace.
 
-Change it back to "JMP" as originally intended.
+However, for a userspace allocation, kswapd will actually reclaim until
+the free pages hit a combination of the high watermark and the page
+allocator's lowmem protection that keeps a certain amount of DMA and
+DMA32 memory from userspace as well.
 
-Fixes: 18ec54fdd6d1 ("x86/speculation: Prepare entry code for Spectre v1 swapgs mitigations")
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-[bwh: Backported to 3.16: adjust filename, context]
+Subtract the full amount we know to be unavailable to userspace from the
+number of free pages when calculating MemAvailable.
+
+Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Rik van Riel <riel@redhat.com>
+Cc: Mel Gorman <mgorman@suse.de>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/x86/kernel/entry_64.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/proc/meminfo.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/arch/x86/kernel/entry_64.S
-+++ b/arch/x86/kernel/entry_64.S
-@@ -267,7 +267,7 @@ ENDPROC(native_usergs_sysret64)
- 	SWAPGS
- 	FENCE_SWAPGS_USER_ENTRY
- 	SWITCH_KERNEL_CR3
--	jmpq	2f
-+	jmp	2f
- 1:
- 	FENCE_SWAPGS_KERNEL_ENTRY
- 2:
+--- a/fs/proc/meminfo.c
++++ b/fs/proc/meminfo.c
+@@ -57,11 +57,8 @@ static int meminfo_proc_show(struct seq_
+ 	/*
+ 	 * Estimate the amount of memory available for userspace allocations,
+ 	 * without causing swapping.
+-	 *
+-	 * Free memory cannot be taken below the low watermark, before the
+-	 * system starts swapping.
+ 	 */
+-	available = i.freeram - wmark_low;
++	available = i.freeram - totalreserve_pages;
+ 
+ 	/*
+ 	 * Not all the page cache can be freed, otherwise the system will
 
