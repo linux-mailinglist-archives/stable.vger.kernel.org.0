@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A41F88E40
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:53:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B5CA88E03
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:51:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727097AbfHJUxE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:53:04 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:53910 "EHLO
+        id S1726690AbfHJUny (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:43:54 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54288 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726515AbfHJUnt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:49 -0400
+        by vger.kernel.org with ESMTP id S1726634AbfHJUny (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:54 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDK-00053u-9q; Sat, 10 Aug 2019 21:43:46 +0100
+        id 1hwYDP-00053L-66; Sat, 10 Aug 2019 21:43:51 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDJ-0003aU-ID; Sat, 10 Aug 2019 21:43:45 +0100
+        id 1hwYDM-0003fo-Eo; Sat, 10 Aug 2019 21:43:48 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,16 +26,17 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Ashok Raj" <ashok.raj@intel.com>,
-        "Joerg Roedel" <jroedel@suse.de>, "mark gross" <mgross@intel.com>,
-        "Lu Baolu" <baolu.lu@linux.intel.com>,
-        "Jacob Pan" <jacob.jun.pan@linux.intel.com>
+        "Zhiqiang Liu" <liuzhiqiang26@huawei.com>,
+        "Jie Liu" <liujie165@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        "Miaohe Lin" <linmiaohe@huawei.com>,
+        "Qiang Ning" <ningqiang1@huawei.com>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.357977088@decadent.org.uk>
+Message-ID: <lsq.1565469607.25428937@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 038/157] iommu/vt-d: Check capability before
- disabling protected memory
+Subject: [PATCH 3.16 095/157] tipc: set sysctl_tipc_rmem and named_timeout
+ right range
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -49,36 +50,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Lu Baolu <baolu.lu@linux.intel.com>
+From: Jie Liu <liujie165@huawei.com>
 
-commit 5bb71fc790a88d063507dc5d445ab8b14e845591 upstream.
+commit 4bcd4ec1017205644a2697bccbc3b5143f522f5f upstream.
 
-The spec states in 10.4.16 that the Protected Memory Enable
-Register should be treated as read-only for implementations
-not supporting protected memory regions (PLMR and PHMR fields
-reported as Clear in the Capability register).
+We find that sysctl_tipc_rmem and named_timeout do not have the right minimum
+setting. sysctl_tipc_rmem should be larger than zero, like sysctl_tcp_rmem.
+And named_timeout as a timeout setting should be not less than zero.
 
-Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Cc: mark gross <mgross@intel.com>
-Suggested-by: Ashok Raj <ashok.raj@intel.com>
-Fixes: f8bab73515ca5 ("intel-iommu: PMEN support")
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: cc79dd1ba9c10 ("tipc: change socket buffer overflow control to respect sk_rcvbuf")
+Fixes: a5325ae5b8bff ("tipc: add name distributor resiliency queue")
+Signed-off-by: Jie Liu <liujie165@huawei.com>
+Reported-by: Qiang Ning <ningqiang1@huawei.com>
+Reviewed-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[bwh: Backported to 3.16: only the tipc_rmem sysctl exists here]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/iommu/intel-iommu.c | 3 +++
- 1 file changed, 3 insertions(+)
-
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -1394,6 +1394,9 @@ static void iommu_disable_protect_mem_re
- 	u32 pmen;
- 	unsigned long flags;
+--- a/net/tipc/sysctl.c
++++ b/net/tipc/sysctl.c
+@@ -37,6 +37,7 @@
  
-+	if (!cap_plmr(iommu->cap) && !cap_phmr(iommu->cap))
-+		return;
-+
- 	raw_spin_lock_irqsave(&iommu->register_lock, flags);
- 	pmen = readl(iommu->reg + DMAR_PMEN_REG);
- 	pmen &= ~DMA_PMEN_EPM;
+ #include <linux/sysctl.h>
+ 
++static int one = 1;
+ static struct ctl_table_header *tipc_ctl_hdr;
+ 
+ static struct ctl_table tipc_table[] = {
+@@ -45,7 +46,8 @@ static struct ctl_table tipc_table[] = {
+ 		.data		= &sysctl_tipc_rmem,
+ 		.maxlen		= sizeof(sysctl_tipc_rmem),
+ 		.mode		= 0644,
+-		.proc_handler	= proc_dointvec,
++		.proc_handler	= proc_dointvec_minmax,
++		.extra1         = &one,
+ 	},
+ 	{}
+ };
 
