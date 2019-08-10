@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC2FD88E0E
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:51:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5154688E45
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:53:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727057AbfHJUv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:51:29 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54302 "EHLO
+        id S1726783AbfHJUxX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:53:23 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:53898 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726668AbfHJUny (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:54 -0400
+        by vger.kernel.org with ESMTP id S1726512AbfHJUnt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:49 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDP-00053p-IH; Sat, 10 Aug 2019 21:43:51 +0100
+        id 1hwYDJ-00053O-Lv; Sat, 10 Aug 2019 21:43:45 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDM-0003gk-QC; Sat, 10 Aug 2019 21:43:48 +0100
+        id 1hwYDJ-0003Z1-03; Sat, 10 Aug 2019 21:43:45 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Florian Westphal" <fw@strlen.de>,
-        syzbot+659574e7bcc7f7eb4df7@syzkaller.appspotmail.com,
-        "Pablo Neira Ayuso" <pablo@netfilter.org>
+        "NeilBrown" <neilb@suse.com>,
+        "Trond Myklebust" <trond.myklebust@hammerspace.com>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.328511265@decadent.org.uk>
+Message-ID: <lsq.1565469607.524991198@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 102/157] netfilter: ebtables: CONFIG_COMPAT: drop a
- bogus WARN_ON
+Subject: [PATCH 3.16 020/157] NFS: fix mount/umount race in nlmclnt.
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,32 +46,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Florian Westphal <fw@strlen.de>
+From: NeilBrown <neilb@suse.com>
 
-commit 7caa56f006e9d712b44f27b32520c66420d5cbc6 upstream.
+commit 4a9be28c45bf02fa0436808bb6c0baeba30e120e upstream.
 
-It means userspace gave us a ruleset where there is some other
-data after the ebtables target but before the beginning of the next rule.
+If the last NFSv3 unmount from a given host races with a mount from the
+same host, we can destroy an nlm_host that is still in use.
 
-Fixes: 81e675c227ec ("netfilter: ebtables: add CONFIG_COMPAT support")
-Reported-by: syzbot+659574e7bcc7f7eb4df7@syzkaller.appspotmail.com
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Specifically nlmclnt_lookup_host() can increment h_count on
+an nlm_host that nlmclnt_release_host() has just successfully called
+refcount_dec_and_test() on.
+Once nlmclnt_lookup_host() drops the mutex, nlm_destroy_host_lock()
+will be called to destroy the nlmclnt which is now in use again.
+
+The cause of the problem is that the dec_and_test happens outside the
+locked region.  This is easily fixed by using
+refcount_dec_and_mutex_lock().
+
+Fixes: 8ea6ecc8b075 ("lockd: Create client-side nlm_host cache")
+Signed-off-by: NeilBrown <neilb@suse.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+[bwh: Backported to 3.16: use atomic instead of refcount API]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- net/bridge/netfilter/ebtables.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/lockd/host.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/net/bridge/netfilter/ebtables.c
-+++ b/net/bridge/netfilter/ebtables.c
-@@ -2011,7 +2011,8 @@ static int ebt_size_mwt(struct compat_eb
- 		if (match_kern)
- 			match_kern->match_size = ret;
+--- a/fs/lockd/host.c
++++ b/fs/lockd/host.c
+@@ -288,12 +288,11 @@ void nlmclnt_release_host(struct nlm_hos
  
--		if (WARN_ON(type == EBT_COMPAT_TARGET && size_left))
-+		/* rule should have no remaining data after target */
-+		if (type == EBT_COMPAT_TARGET && size_left)
- 			return -EINVAL;
+ 	WARN_ON_ONCE(host->h_server);
  
- 		match32 = (struct compat_ebt_entry_mwt *) buf;
+-	if (atomic_dec_and_test(&host->h_count)) {
++	if (atomic_dec_and_mutex_lock(&host->h_count, &nlm_host_mutex)) {
+ 		WARN_ON_ONCE(!list_empty(&host->h_lockowners));
+ 		WARN_ON_ONCE(!list_empty(&host->h_granted));
+ 		WARN_ON_ONCE(!list_empty(&host->h_reclaim));
+ 
+-		mutex_lock(&nlm_host_mutex);
+ 		nlm_destroy_host_locked(host);
+ 		mutex_unlock(&nlm_host_mutex);
+ 	}
 
