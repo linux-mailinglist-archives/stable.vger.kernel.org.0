@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EDF7788DA7
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:48:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F43A88D96
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:47:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726812AbfHJUoB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:44:01 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54766 "EHLO
+        id S1726944AbfHJUrW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:47:22 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:55034 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726780AbfHJUoA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:00 -0400
+        by vger.kernel.org with ESMTP id S1726836AbfHJUoE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:04 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDV-00053e-Kk; Sat, 10 Aug 2019 21:43:57 +0100
+        id 1hwYDY-00058O-Eh; Sat, 10 Aug 2019 21:44:00 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDN-0003il-UB; Sat, 10 Aug 2019 21:43:49 +0100
+        id 1hwYDN-0003hy-EP; Sat, 10 Aug 2019 21:43:49 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,16 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Josh Poimboeuf" <jpoimboe@redhat.com>,
-        "Dave Hansen" <dave.hansen@intel.com>,
-        "Thomas Gleixner" <tglx@linutronix.de>
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        "Eric Dumazet" <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        "syzbot" <syzkaller@googlegroups.com>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.23673488@decadent.org.uk>
+Message-ID: <lsq.1565469607.485122702@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 126/157] x86/speculation: Enable Spectre v1 swapgs
- mitigations
+Subject: [PATCH 3.16 116/157] ipv6/flowlabel: wait rcu grace period before
+ put_pid()
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,261 +49,151 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit a2059825986a1c8143fd6698774fa9d83733bb11 upstream.
+commit 6c0afef5fb0c27758f4d52b2210c61b6bd8b4470 upstream.
 
-The previous commit added macro calls in the entry code which mitigate the
-Spectre v1 swapgs issue if the X86_FEATURE_FENCE_SWAPGS_* features are
-enabled.  Enable those features where applicable.
+syzbot was able to catch a use-after-free read in pid_nr_ns() [1]
 
-The mitigations may be disabled with "nospectre_v1" or "mitigations=off".
+ip6fl_seq_show() seems to use RCU protection, dereferencing fl->owner.pid
+but fl_free() releases fl->owner.pid before rcu grace period is started.
 
-There are different features which can affect the risk of attack:
+[1]
 
-- When FSGSBASE is enabled, unprivileged users are able to place any
-  value in GS, using the wrgsbase instruction.  This means they can
-  write a GS value which points to any value in kernel space, which can
-  be useful with the following gadget in an interrupt/exception/NMI
-  handler:
+BUG: KASAN: use-after-free in pid_nr_ns+0x128/0x140 kernel/pid.c:407
+Read of size 4 at addr ffff888094012a04 by task syz-executor.0/18087
 
-	if (coming from user space)
-		swapgs
-	mov %gs:<percpu_offset>, %reg1
-	// dependent load or store based on the value of %reg
-	// for example: mov %(reg1), %reg2
+CPU: 0 PID: 18087 Comm: syz-executor.0 Not tainted 5.1.0-rc6+ #89
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x172/0x1f0 lib/dump_stack.c:113
+ print_address_description.cold+0x7c/0x20d mm/kasan/report.c:187
+ kasan_report.cold+0x1b/0x40 mm/kasan/report.c:317
+ __asan_report_load4_noabort+0x14/0x20 mm/kasan/generic_report.c:131
+ pid_nr_ns+0x128/0x140 kernel/pid.c:407
+ ip6fl_seq_show+0x2f8/0x4f0 net/ipv6/ip6_flowlabel.c:794
+ seq_read+0xad3/0x1130 fs/seq_file.c:268
+ proc_reg_read+0x1fe/0x2c0 fs/proc/inode.c:227
+ do_loop_readv_writev fs/read_write.c:701 [inline]
+ do_loop_readv_writev fs/read_write.c:688 [inline]
+ do_iter_read+0x4a9/0x660 fs/read_write.c:922
+ vfs_readv+0xf0/0x160 fs/read_write.c:984
+ kernel_readv fs/splice.c:358 [inline]
+ default_file_splice_read+0x475/0x890 fs/splice.c:413
+ do_splice_to+0x12a/0x190 fs/splice.c:876
+ splice_direct_to_actor+0x2d2/0x970 fs/splice.c:953
+ do_splice_direct+0x1da/0x2a0 fs/splice.c:1062
+ do_sendfile+0x597/0xd00 fs/read_write.c:1443
+ __do_sys_sendfile64 fs/read_write.c:1498 [inline]
+ __se_sys_sendfile64 fs/read_write.c:1490 [inline]
+ __x64_sys_sendfile64+0x15a/0x220 fs/read_write.c:1490
+ do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x458da9
+Code: ad b8 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b8 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f300d24bc78 EFLAGS: 00000246 ORIG_RAX: 0000000000000028
+RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 0000000000458da9
+RDX: 00000000200000c0 RSI: 0000000000000008 RDI: 0000000000000007
+RBP: 000000000073bf00 R08: 0000000000000000 R09: 0000000000000000
+R10: 000000000000005a R11: 0000000000000246 R12: 00007f300d24c6d4
+R13: 00000000004c5fa3 R14: 00000000004da748 R15: 00000000ffffffff
 
-  If an interrupt is coming from user space, and the entry code
-  speculatively skips the swapgs (due to user branch mistraining), it
-  may speculatively execute the GS-based load and a subsequent dependent
-  load or store, exposing the kernel data to an L1 side channel leak.
+Allocated by task 17543:
+ save_stack+0x45/0xd0 mm/kasan/common.c:75
+ set_track mm/kasan/common.c:87 [inline]
+ __kasan_kmalloc mm/kasan/common.c:497 [inline]
+ __kasan_kmalloc.constprop.0+0xcf/0xe0 mm/kasan/common.c:470
+ kasan_slab_alloc+0xf/0x20 mm/kasan/common.c:505
+ slab_post_alloc_hook mm/slab.h:437 [inline]
+ slab_alloc mm/slab.c:3393 [inline]
+ kmem_cache_alloc+0x11a/0x6f0 mm/slab.c:3555
+ alloc_pid+0x55/0x8f0 kernel/pid.c:168
+ copy_process.part.0+0x3b08/0x7980 kernel/fork.c:1932
+ copy_process kernel/fork.c:1709 [inline]
+ _do_fork+0x257/0xfd0 kernel/fork.c:2226
+ __do_sys_clone kernel/fork.c:2333 [inline]
+ __se_sys_clone kernel/fork.c:2327 [inline]
+ __x64_sys_clone+0xbf/0x150 kernel/fork.c:2327
+ do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-  Note that, on Intel, a similar attack exists in the above gadget when
-  coming from kernel space, if the swapgs gets speculatively executed to
-  switch back to the user GS.  On AMD, this variant isn't possible
-  because swapgs is serializing with respect to future GS-based
-  accesses.
+Freed by task 7789:
+ save_stack+0x45/0xd0 mm/kasan/common.c:75
+ set_track mm/kasan/common.c:87 [inline]
+ __kasan_slab_free+0x102/0x150 mm/kasan/common.c:459
+ kasan_slab_free+0xe/0x10 mm/kasan/common.c:467
+ __cache_free mm/slab.c:3499 [inline]
+ kmem_cache_free+0x86/0x260 mm/slab.c:3765
+ put_pid.part.0+0x111/0x150 kernel/pid.c:111
+ put_pid+0x20/0x30 kernel/pid.c:105
+ fl_free+0xbe/0xe0 net/ipv6/ip6_flowlabel.c:102
+ ip6_fl_gc+0x295/0x3e0 net/ipv6/ip6_flowlabel.c:152
+ call_timer_fn+0x190/0x720 kernel/time/timer.c:1325
+ expire_timers kernel/time/timer.c:1362 [inline]
+ __run_timers kernel/time/timer.c:1681 [inline]
+ __run_timers kernel/time/timer.c:1649 [inline]
+ run_timer_softirq+0x652/0x1700 kernel/time/timer.c:1694
+ __do_softirq+0x266/0x95a kernel/softirq.c:293
 
-  NOTE: The FSGSBASE patch set hasn't been merged yet, so the above case
-	doesn't exist quite yet.
+The buggy address belongs to the object at ffff888094012a00
+ which belongs to the cache pid_2 of size 88
+The buggy address is located 4 bytes inside of
+ 88-byte region [ffff888094012a00, ffff888094012a58)
+The buggy address belongs to the page:
+page:ffffea0002500480 count:1 mapcount:0 mapping:ffff88809a483080 index:0xffff888094012980
+flags: 0x1fffc0000000200(slab)
+raw: 01fffc0000000200 ffffea00018a3508 ffffea0002524a88 ffff88809a483080
+raw: ffff888094012980 ffff888094012000 000000010000001b 0000000000000000
+page dumped because: kasan: bad access detected
 
-- When FSGSBASE is disabled, the issue is mitigated somewhat because
-  unprivileged users must use prctl(ARCH_SET_GS) to set GS, which
-  restricts GS values to user space addresses only.  That means the
-  gadget would need an additional step, since the target kernel address
-  needs to be read from user space first.  Something like:
+Memory state around the buggy address:
+ ffff888094012900: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
+ ffff888094012980: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
+>ffff888094012a00: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
+                   ^
+ ffff888094012a80: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
+ ffff888094012b00: fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc
 
-	if (coming from user space)
-		swapgs
-	mov %gs:<percpu_offset>, %reg1
-	mov (%reg1), %reg2
-	// dependent load or store based on the value of %reg2
-	// for example: mov %(reg2), %reg3
-
-  It's difficult to audit for this gadget in all the handlers, so while
-  there are no known instances of it, it's entirely possible that it
-  exists somewhere (or could be introduced in the future).  Without
-  tooling to analyze all such code paths, consider it vulnerable.
-
-  Effects of SMAP on the !FSGSBASE case:
-
-  - If SMAP is enabled, and the CPU reports RDCL_NO (i.e., not
-    susceptible to Meltdown), the kernel is prevented from speculatively
-    reading user space memory, even L1 cached values.  This effectively
-    disables the !FSGSBASE attack vector.
-
-  - If SMAP is enabled, but the CPU *is* susceptible to Meltdown, SMAP
-    still prevents the kernel from speculatively reading user space
-    memory.  But it does *not* prevent the kernel from reading the
-    user value from L1, if it has already been cached.  This is probably
-    only a small hurdle for an attacker to overcome.
-
-Thanks to Dave Hansen for contributing the speculative_smap() function.
-
-Thanks to Andrew Cooper for providing the inside scoop on whether swapgs
-is serializing on AMD.
-
-[ tglx: Fixed the USER fence decision and polished the comment as suggested
-  	by Dave Hansen ]
-
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Dave Hansen <dave.hansen@intel.com>
-[bwh: Backported to 3.16:
- - Check for X86_FEATURE_KAISER instead of X86_FEATURE_PTI
- - mitigations= parameter is x86-only here
- - powerpc doesn't have Spectre mitigations
- - Don't use __ro_after_init
- - Adjust filename, context]
+Fixes: 4f82f45730c6 ("net ip6 flowlabel: Make owner a union of struct pid * and kuid_t")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[bwh: Backported to 3.16: Move the release_net() call too, not that it does
+ anything.]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -1917,6 +1917,7 @@ bytes respectively. Such letter suffixes
- 				improves system performance, but it may also
- 				expose users to several CPU vulnerabilities.
- 				Equivalent to: nopti [X86]
-+					       nospectre_v1 [X86]
- 					       nospectre_v2 [X86]
- 					       spectre_v2_user=off [X86]
- 					       spec_store_bypass_disable=off [X86]
-@@ -2215,6 +2216,10 @@ bytes respectively. Such letter suffixes
- 			register save and restore. The kernel will only save
- 			legacy floating-point registers on task switch.
+--- a/net/ipv6/ip6_flowlabel.c
++++ b/net/ipv6/ip6_flowlabel.c
+@@ -94,16 +94,22 @@ static struct ip6_flowlabel *fl_lookup(s
+ 	return fl;
+ }
  
-+	nospectre_v1	[X86] Disable mitigations for Spectre Variant 1
-+			(bounds check bypass). With this option data leaks are
-+			possible in the system.
-+
- 	nospectre_v2	[X86] Disable all mitigations for the Spectre variant 2
- 			(indirect branch prediction) vulnerability. System may
- 			allow data leaks with this option, which is equivalent
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -30,6 +30,7 @@
- #include <asm/intel-family.h>
- #include <asm/e820.h>
- 
-+static void __init spectre_v1_select_mitigation(void);
- static void __init spectre_v2_select_mitigation(void);
- static void __init ssb_select_mitigation(void);
- static void __init l1tf_select_mitigation(void);
-@@ -148,17 +149,11 @@ void __init check_bugs(void)
- 	if (boot_cpu_has(X86_FEATURE_STIBP))
- 		x86_spec_ctrl_mask |= SPEC_CTRL_STIBP;
- 
--	/* Select the proper spectre mitigation before patching alternatives */
-+	/* Select the proper CPU mitigations before patching alternatives: */
-+	spectre_v1_select_mitigation();
- 	spectre_v2_select_mitigation();
--
--	/*
--	 * Select proper mitigation for any exposure to the Speculative Store
--	 * Bypass vulnerability.
--	 */
- 	ssb_select_mitigation();
--
- 	l1tf_select_mitigation();
--
- 	mds_select_mitigation();
- 
- 	arch_smt_update();
-@@ -318,6 +313,108 @@ static int __init mds_cmdline(char *str)
- early_param("mds", mds_cmdline);
- 
- #undef pr_fmt
-+#define pr_fmt(fmt)     "Spectre V1 : " fmt
-+
-+enum spectre_v1_mitigation {
-+	SPECTRE_V1_MITIGATION_NONE,
-+	SPECTRE_V1_MITIGATION_AUTO,
-+};
-+
-+static enum spectre_v1_mitigation spectre_v1_mitigation =
-+	SPECTRE_V1_MITIGATION_AUTO;
-+
-+static const char * const spectre_v1_strings[] = {
-+	[SPECTRE_V1_MITIGATION_NONE] = "Vulnerable: __user pointer sanitization and usercopy barriers only; no swapgs barriers",
-+	[SPECTRE_V1_MITIGATION_AUTO] = "Mitigation: usercopy/swapgs barriers and __user pointer sanitization",
-+};
-+
-+static bool is_swapgs_serializing(void)
++static void fl_free_rcu(struct rcu_head *head)
 +{
-+	/*
-+	 * Technically, swapgs isn't serializing on AMD (despite it previously
-+	 * being documented as such in the APM).  But according to AMD, %gs is
-+	 * updated non-speculatively, and the issuing of %gs-relative memory
-+	 * operands will be blocked until the %gs update completes, which is
-+	 * good enough for our purposes.
-+	 */
-+	return boot_cpu_data.x86_vendor == X86_VENDOR_AMD;
++	struct ip6_flowlabel *fl = container_of(head, struct ip6_flowlabel, rcu);
++
++	if (fl->share == IPV6_FL_S_PROCESS)
++		put_pid(fl->owner.pid);
++	release_net(fl->fl_net);
++	kfree(fl->opt);
++	kfree(fl);
 +}
 +
-+/*
-+ * Does SMAP provide full mitigation against speculative kernel access to
-+ * userspace?
-+ */
-+static bool smap_works_speculatively(void)
-+{
-+	if (!boot_cpu_has(X86_FEATURE_SMAP))
-+		return false;
-+
-+	/*
-+	 * On CPUs which are vulnerable to Meltdown, SMAP does not
-+	 * prevent speculative access to user data in the L1 cache.
-+	 * Consider SMAP to be non-functional as a mitigation on these
-+	 * CPUs.
-+	 */
-+	if (boot_cpu_has(X86_BUG_CPU_MELTDOWN))
-+		return false;
-+
-+	return true;
-+}
-+
-+static void __init spectre_v1_select_mitigation(void)
-+{
-+	if (!boot_cpu_has_bug(X86_BUG_SPECTRE_V1) || cpu_mitigations_off()) {
-+		spectre_v1_mitigation = SPECTRE_V1_MITIGATION_NONE;
-+		return;
-+	}
-+
-+	if (spectre_v1_mitigation == SPECTRE_V1_MITIGATION_AUTO) {
-+		/*
-+		 * With Spectre v1, a user can speculatively control either
-+		 * path of a conditional swapgs with a user-controlled GS
-+		 * value.  The mitigation is to add lfences to both code paths.
-+		 *
-+		 * If FSGSBASE is enabled, the user can put a kernel address in
-+		 * GS, in which case SMAP provides no protection.
-+		 *
-+		 * [ NOTE: Don't check for X86_FEATURE_FSGSBASE until the
-+		 *	   FSGSBASE enablement patches have been merged. ]
-+		 *
-+		 * If FSGSBASE is disabled, the user can only put a user space
-+		 * address in GS.  That makes an attack harder, but still
-+		 * possible if there's no SMAP protection.
-+		 */
-+		if (!smap_works_speculatively()) {
-+			/*
-+			 * Mitigation can be provided from SWAPGS itself or
-+			 * PTI as the CR3 write in the Meltdown mitigation
-+			 * is serializing.
-+			 *
-+			 * If neither is there, mitigate with an LFENCE.
-+			 */
-+			if (!is_swapgs_serializing() && !boot_cpu_has(X86_FEATURE_KAISER))
-+				setup_force_cpu_cap(X86_FEATURE_FENCE_SWAPGS_USER);
-+
-+			/*
-+			 * Enable lfences in the kernel entry (non-swapgs)
-+			 * paths, to prevent user entry from speculatively
-+			 * skipping swapgs.
-+			 */
-+			setup_force_cpu_cap(X86_FEATURE_FENCE_SWAPGS_KERNEL);
-+		}
-+	}
-+
-+	pr_info("%s\n", spectre_v1_strings[spectre_v1_mitigation]);
-+}
-+
-+static int __init nospectre_v1_cmdline(char *str)
-+{
-+	spectre_v1_mitigation = SPECTRE_V1_MITIGATION_NONE;
-+	return 0;
-+}
-+early_param("nospectre_v1", nospectre_v1_cmdline);
-+
-+#undef pr_fmt
- #define pr_fmt(fmt)     "Spectre V2 : " fmt
  
- static enum spectre_v2_mitigation spectre_v2_enabled = SPECTRE_V2_NONE;
-@@ -1210,7 +1307,7 @@ static ssize_t cpu_show_common(struct de
- 		break;
+ static void fl_free(struct ip6_flowlabel *fl)
+ {
+-	if (fl) {
+-		if (fl->share == IPV6_FL_S_PROCESS)
+-			put_pid(fl->owner.pid);
+-		release_net(fl->fl_net);
+-		kfree(fl->opt);
+-		kfree_rcu(fl, rcu);
+-	}
++	if (fl)
++		call_rcu(&fl->rcu, fl_free_rcu);
+ }
  
- 	case X86_BUG_SPECTRE_V1:
--		return sprintf(buf, "Mitigation: __user pointer sanitization\n");
-+		return sprintf(buf, "%s\n", spectre_v1_strings[spectre_v1_mitigation]);
- 
- 	case X86_BUG_SPECTRE_V2:
- 		return sprintf(buf, "%s%s%s%s%s%s\n", spectre_v2_strings[spectre_v2_enabled],
+ static void fl_release(struct ip6_flowlabel *fl)
 
