@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0D0388D9F
-	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:47:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6C4188DC9
+	for <lists+stable@lfdr.de>; Sat, 10 Aug 2019 22:49:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726872AbfHJUrn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Aug 2019 16:47:43 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:55058 "EHLO
+        id S1726791AbfHJUtH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Aug 2019 16:49:07 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54682 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726842AbfHJUoE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:44:04 -0400
+        by vger.kernel.org with ESMTP id S1726760AbfHJUn7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Aug 2019 16:43:59 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDZ-00053r-KD; Sat, 10 Aug 2019 21:44:01 +0100
+        id 1hwYDV-00058M-Bv; Sat, 10 Aug 2019 21:43:57 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hwYDM-0003eW-0E; Sat, 10 Aug 2019 21:43:48 +0100
+        id 1hwYDO-0003jQ-AS; Sat, 10 Aug 2019 21:43:50 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        syzbot+b75b85111c10b8d680f1@syzkaller.appspotmail.com,
-        "Alan Stern" <stern@rowland.harvard.edu>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "Jason Wang" <jasowang@redhat.com>,
+        "Paolo Bonzini" <pbonzini@redhat.com>,
+        "Stefan Hajnoczi" <stefanha@redhat.com>
 Date:   Sat, 10 Aug 2019 21:40:07 +0100
-Message-ID: <lsq.1565469607.299747206@decadent.org.uk>
+Message-ID: <lsq.1565469607.621186972@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 086/157] USB: core: Fix unterminated string returned
- by usb_string()
+Subject: [PATCH 3.16 134/157] vhost: scsi: add weight support
 In-Reply-To: <lsq.1565469607.188083258@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,47 +48,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Jason Wang <jasowang@redhat.com>
 
-commit c01c348ecdc66085e44912c97368809612231520 upstream.
+commit c1ea02f15ab5efb3e93fc3144d895410bf79fcf2 upstream.
 
-Some drivers (such as the vub300 MMC driver) expect usb_string() to
-return a properly NUL-terminated string, even when an error occurs.
-(In fact, vub300's probe routine doesn't bother to check the return
-code from usb_string().)  When the driver goes on to use an
-unterminated string, it leads to kernel errors such as
-stack-out-of-bounds, as found by the syzkaller USB fuzzer.
+This patch will check the weight and exit the loop if we exceeds the
+weight. This is useful for preventing scsi kthread from hogging cpu
+which is guest triggerable.
 
-An out-of-range string index argument is not at all unlikely, given
-that some devices don't provide string descriptors and therefore list
-0 as the value for their string indexes.  This patch makes
-usb_string() return a properly terminated empty string along with the
--EINVAL error code when an out-of-range index is encountered.
+This addresses CVE-2019-3900.
 
-And since a USB string index is a single-byte value, indexes >= 256
-are just as invalid as values of 0 or below.
-
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-by: syzbot+b75b85111c10b8d680f1@syzkaller.appspotmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>
+Fixes: 057cbf49a1f0 ("tcm_vhost: Initial merge for vhost level target fabric driver")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+[bwh: Backported to 3.16:
+ - Drop changes in vhost_scsi_ctl_handle_vq()
+ - Adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/usb/core/message.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/vhost/scsi.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/core/message.c
-+++ b/drivers/usb/core/message.c
-@@ -822,9 +822,11 @@ int usb_string(struct usb_device *dev, i
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -998,7 +998,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *
+ 	u64 tag;
+ 	u32 exp_data_len, data_first, data_num, data_direction, prot_first;
+ 	unsigned out, in, i;
+-	int head, ret, data_niov, prot_niov, prot_bytes;
++	int head, ret, data_niov, prot_niov, prot_bytes, c = 0;
+ 	size_t req_size;
+ 	u16 lun;
+ 	u8 *target, *lunp, task_attr;
+@@ -1016,7 +1016,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *
  
- 	if (dev->state == USB_STATE_SUSPENDED)
- 		return -EHOSTUNREACH;
--	if (size <= 0 || !buf || !index)
-+	if (size <= 0 || !buf)
- 		return -EINVAL;
- 	buf[0] = 0;
-+	if (index <= 0 || index >= 256)
-+		return -EINVAL;
- 	tbuf = kmalloc(256, GFP_NOIO);
- 	if (!tbuf)
- 		return -ENOMEM;
+ 	vhost_disable_notify(&vs->dev, vq);
+ 
+-	for (;;) {
++	do {
+ 		head = vhost_get_vq_desc(vq, vq->iov,
+ 					ARRAY_SIZE(vq->iov), &out, &in,
+ 					NULL, NULL);
+@@ -1219,7 +1219,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *
+ 		 */
+ 		INIT_WORK(&cmd->work, tcm_vhost_submission_work);
+ 		queue_work(tcm_vhost_workqueue, &cmd->work);
+-	}
++	} while (likely(!vhost_exceeds_weight(vq, ++c, 0)));
+ 
+ 	mutex_unlock(&vq->mutex);
+ 	return;
 
