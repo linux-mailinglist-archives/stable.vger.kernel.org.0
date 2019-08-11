@@ -2,63 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 092B2891E8
-	for <lists+stable@lfdr.de>; Sun, 11 Aug 2019 15:49:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3964C891EA
+	for <lists+stable@lfdr.de>; Sun, 11 Aug 2019 15:57:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726463AbfHKNts (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Aug 2019 09:49:48 -0400
-Received: from sonic306-36.consmr.mail.bf2.yahoo.com ([74.6.132.235]:44759
-        "EHLO sonic306-36.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726424AbfHKNts (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Aug 2019 09:49:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1565531385; bh=htovBLz5U/wZNtK4y33o/qn0sSywA4sdsgISl7jGIIQ=; h=Date:From:Reply-To:Subject:From:Subject; b=tbFpdyxS+Snxi+1SLIKUqNE1be9Vmxj+xuegR/mVkpG5ivt00BVLp6cVF1ebS/G3xB/Il6QzODUI42fMKD52WKCP67nx29YxG5Y3F3e6eP9k0LGAoxEzWtXqS9nNI8vzcz1sVHBHCOIrvHCiURhIDFYcvWxNDgctu/C419+nqs6jvt/0PJeBz3o6y2FbRLTrmbqPHJj+GXIDjRPoqhiRagRAAW6NvLIdn/0gtauq2ivOEB20gNUB5HBnYGto0oPGHovAcx+BRWD+8DGw68QOn1QdnrzaZhxYLSRTEdEWxR6EycGaZ+OZ1krAJSxQDklIFo9spNb/Avwhua5Ws4aofw==
-X-YMail-OSG: _1g_zRkVM1muMpu4p4ufODXW9_VHztfIfe1m76wnSO8DBbn5Z2Od6WBiw83tjhZ
- 6Z7WscvspVg_Lp1UDY7lBBWQyZUbcbHkrFx9okfUbP3hSCNqtB3m0gdw83DuS39XxdKTqfw00hZB
- gU7UjMTeywUOyeqJKqNuiWb5WC2NhQ30e2ECTW4djSd6tTdZk3qfanSDzRvDGUR.yqoEKsjPQDlh
- tjMiUfeNxo_s20LaUah08Uow0eNZsEHznliu9vpt.WoUiWKRk9isRSf7_h5bIGYu8aSHTI8th3Zt
- 2quuDes03gIqL3dPXJp9BPsX6eLgcdfXvSQ_BP_gvNn2WVcVaLlg.QZoG8h7TqysT5ghKv8eAaIn
- 4FQuv7jZbPnqldezQwDw0M.UNh2Om_btUob3YasLt7EGjtJYxHye7wO.4YIjmASKR2QZsDve_5PW
- 2ncXdkoHhzfg8CPBlLUZDJzjXcxGtQyhHPxwL6kiVxW2pnZdIhyTbmtmAx.9RSLezCgXHOXpE4_4
- 2J2a5vvrf2gehq1gjfBp.sNo3glEikbu_GRfpOglcvfefk8uvVdPJ76sbZGfJsnPf.iLKwnJgWLB
- 2htJZyK5YHo794EzKA5PGSXRZPqABcBaAY.MotwZX6s.IVPdsMA7W_7D909nqW_3uHqYHv3XFitb
- 7LPhVvyT.XVFwQeCFTVE2cpqIaYtT_1NZppiIaAsx.DkflD0UVGJoVtKXMkCTcnEHTAnZNlmA6X_
- w9euDGS.2Gi3eB1HhkYa9nMl7YG28Cy6zp4qy16OFEIJi0UkR74rCj3f55nnzkk_o2s0AUa9hUdm
- KlizhKGu0PrAxNvfRg1M6tyfE.6uK0LRb5TygJafiBdvq4OSElupOu3fZ_Wtbu8ufTTBvd16pNmL
- KZg9a7oB4lfI85GTZUuEoDeIsi1QG7NKbkb8_tmm7hmnuqH561_UWJJD3dcuEL1v6Vl1moAEwNkZ
- 7AH8ljvVwKOSjzPdmmfV7Tzc7N1ac7BMZtcSHGe47ucE2hbQvpNZaBVxc8L1sgF6TjXbAmLkV5M0
- rdo2huQFGySo80StdZW34oQQOizYJPy.tPPYgEG9wPziLop8TpmmEuyIsMmnue2jlSsQ2YVJfpJE
- M8uiivpShF9a.tvBzX9l2ZeRqONLRId6luBrT34azhXyF6OR8.Tp1UcTCDq8xLid5xgk1_uo13Bw
- 4.z5s18YVcetijn0GJgjosO0e.wBAS2Y6TGkZKhEMn2dveSw08K0e2o2K_Irh_wUinCCoSO0CJnO
- STRSJwWa1HeiMjZ2M6T1oAjIe3ofJ2jlyJCcmDB4f8L88
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.bf2.yahoo.com with HTTP; Sun, 11 Aug 2019 13:49:45 +0000
-Date:   Sun, 11 Aug 2019 13:47:44 +0000 (UTC)
-From:   Jessica Penman <cc12@shsbbk.in>
-Reply-To: jp.loaninvestment255@gmail.com
-Message-ID: <206521393.2837541.1565531264523@mail.yahoo.com>
-Subject: 
+        id S1726231AbfHKN5U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Aug 2019 09:57:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45254 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726164AbfHKN5T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 11 Aug 2019 09:57:19 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10733216F4;
+        Sun, 11 Aug 2019 13:57:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1565531838;
+        bh=EKhbEXkuN2ZDGDQDDOeHR5yEUXMTrmt9kFJSq7Yr/c4=;
+        h=Date:From:To:Cc:Subject:From;
+        b=dEUo6gFgpCW5qwrNSy2i1ariezzngOi0dDqvHVhIVtJrCVwJxq/CIBGmjtJcHp2Xx
+         5yrCFXFR+82q+CEoh5qkOguBCGR6f9gw4bM9Ztgl3+ns31ULYsv0W6UmFqS32TcQhA
+         3x08Ig6vyu3TQvysg6OTIULIrt61XP90fxTD41YM=
+Date:   Sun, 11 Aug 2019 15:57:16 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, Jiri Slaby <jslaby@suse.cz>
+Subject: Linux 4.4.189
+Message-ID: <20190811135716.GA23065@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+I'm announcing the release of the 4.4.189 kernel.
 
+All users of the 4.4 kernel series must upgrade.
 
-Sind Sie finanziell unten? Auf der Suche nach DARLEHEN ? Wir bieten Privatk=
-redite, Business-Darlehen, Studentendarlehen, Autokredite Und Darlehen zu z=
-ahlen Rechnungen zu 3% Zinssatz.Bei Interesse, f=C3=BCllen Sie die details =
-unten:
+The updated 4.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-ERSTE INFORMATIONEN SIND ERFORDERLICH:
-Volle Namen.
-Kreditbetrag Ben=C3=B6tigt.
-Telefonnummer.
-Land.
-Dauer.
+thanks,
 
-Sie sind uns zu Kontaktieren, um Ihre Kredit-Verarbeitung zu beginnen.
+greg k-h
 
-DO YOU NEED ANY TYPE OF LOAN? IF YES, APPLY NOW
+------------
+
+ Documentation/kernel-parameters.txt             |    7 -
+ Makefile                                        |    2 
+ arch/arm64/include/asm/cpufeature.h             |    7 -
+ arch/arm64/kernel/cpufeature.c                  |   14 ++-
+ arch/x86/entry/calling.h                        |   19 ++++
+ arch/x86/entry/entry_64.S                       |   25 ++++-
+ arch/x86/include/asm/cpufeatures.h              |   10 +-
+ arch/x86/kernel/cpu/bugs.c                      |  105 +++++++++++++++++++++---
+ arch/x86/kernel/cpu/common.c                    |   42 ++++++---
+ block/blk-core.c                                |    1 
+ drivers/atm/iphase.c                            |    8 +
+ drivers/hid/hid-ids.h                           |    1 
+ drivers/hid/usbhid/hid-quirks.c                 |    1 
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c |    2 
+ drivers/net/ethernet/mellanox/mlx5/core/main.c  |    2 
+ drivers/net/ppp/pppoe.c                         |    3 
+ drivers/net/ppp/pppox.c                         |   13 ++
+ drivers/net/ppp/pptp.c                          |    3 
+ drivers/spi/spi-bcm2835.c                       |    3 
+ fs/compat_ioctl.c                               |    3 
+ include/linux/if_pppox.h                        |    3 
+ include/net/tcp.h                               |   17 +++
+ net/bridge/br_vlan.c                            |    5 +
+ net/core/dev.c                                  |    2 
+ net/ipv4/tcp_output.c                           |   11 ++
+ net/l2tp/l2tp_ppp.c                             |    3 
+ net/netfilter/nfnetlink_acct.c                  |    2 
+ net/sched/sch_codel.c                           |    3 
+ net/tipc/netlink_compat.c                       |   11 +-
+ 29 files changed, 271 insertions(+), 57 deletions(-)
+
+Arnd Bergmann (1):
+      compat_ioctl: pppoe: fix PPPOEIOCSFWD handling
+
+Ben Hutchings (1):
+      x86: cpufeatures: Sort feature word 7
+
+Eric Dumazet (1):
+      tcp: be more careful in tcp_fragment()
+
+Greg Kroah-Hartman (1):
+      Linux 4.4.189
+
+Gustavo A. R. Silva (1):
+      atm: iphase: Fix Spectre v1 vulnerability
+
+Jia-Ju Bai (1):
+      net: sched: Fix a possible null-pointer dereference in dequeue_func()
+
+Jiri Pirko (1):
+      net: fix ifindex collision during namespace removal
+
+Josh Poimboeuf (3):
+      x86/speculation: Prepare entry code for Spectre v1 swapgs mitigations
+      x86/speculation: Enable Spectre v1 swapgs mitigations
+      x86/entry/64: Use JMP instead of JMPQ
+
+Lukas Wunner (1):
+      spi: bcm2835: Fix 3-wire mode if DMA is enabled
+
+Mark Zhang (1):
+      net/mlx5: Use reversed order when unregister devices
+
+Nikolay Aleksandrov (1):
+      net: bridge: delete local fdb on device init failure
+
+Phil Turnbull (1):
+      netfilter: nfnetlink_acct: validate NFACCT_QUOTA parameter
+
+Sebastian Parschauer (1):
+      HID: Add quirk for HP X1200 PIXART OEM mouse
+
+Sudarsana Reddy Kalluru (1):
+      bnx2x: Disable multi-cos feature.
+
+Taras Kondratiuk (1):
+      tipc: compat: allow tipc commands without arguments
+
+Thomas Gleixner (1):
+      x86/speculation/swapgs: Exclude ATOMs from speculation through SWAPGS
+
+Wanpeng Li (1):
+      x86/entry/64: Fix context tracking state warning when load_gs_index fails
+
+Will Deacon (2):
+      arm64: cpufeature: Fix CTR_EL0 field definitions
+      arm64: cpufeature: Fix feature comparison for CTR_EL0.{CWG,ERG}
+
+xiao jin (1):
+      block: blk_init_allocated_queue() set q->fq as NULL in the fail case
+
