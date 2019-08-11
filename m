@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DED289215
-	for <lists+stable@lfdr.de>; Sun, 11 Aug 2019 16:56:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0995489218
+	for <lists+stable@lfdr.de>; Sun, 11 Aug 2019 16:59:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726014AbfHKO4m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Aug 2019 10:56:42 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:39873 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726231AbfHKO4m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Aug 2019 10:56:42 -0400
+        id S1726313AbfHKO7i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Aug 2019 10:59:38 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:55929 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726231AbfHKO7i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Aug 2019 10:59:38 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 184F0203ED;
-        Sun, 11 Aug 2019 10:56:41 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 11 Aug 2019 10:56:41 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 233E3308;
+        Sun, 11 Aug 2019 10:59:37 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 11 Aug 2019 10:59:37 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=zgHYvw
-        UGAgF+Jw7dkrHlY9VM3DwK/A9IHcCv7CzgzfY=; b=gawZBVBuPSE71AHpdV1Ykl
-        ZDQ/jx0Hi88Mg/nXfj1CMDwc5ttRKlkGU/cJcy8hshiABbEzQqyZo4xEObuzPgLL
-        ahtlh12FKorMes/HSnY+zuuHO9xkRVNzzu5GIiz/A/3hMbNn7y736FPB2KsiZ0Ep
-        vLy2FYw1b8AlsPIbFatz/I+/rghACKzIh/DWSG2kqq0w9uyUEBjWXRpFUmh2YxGr
-        4h99w9jblesDkTfBdxQZrfpWCZfID+u2OaTIPnaildEmAsDWGnGrXUDarwAH88oc
-        I7PDgdKC+Jue+G7H7sfRiUao4Nlt25nvSUssTQ9jB3KYPQpCEL19DWKPKGpG2k1A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=GzuUsb
+        tn0LFXkfbYNyfoLqCBLOoX8fTL3JIvKrOvcMk=; b=kURtHk7NPaNxOUpx/vPEFM
+        7Zehv6cMyq87WIgeHHGcuIdCEeUChQx+/bR72oPBewvIJLjunRBx8NAy0FYo1MiO
+        bUTMRijVjCKNQBMeUa7reNwyBerMsA/K3QCVvWvya7tjm2d275XcNtWY4xw+LsIE
+        2FFLsXKcWlrRkDhk5d4TrWTb7utwnw0a9DlXT5EIFRi4O6lLvoUfYHEzgFCHb3sX
+        CKm4OlqCRNrns0dmy+dD3fW5toQomoj9cse35pqxk68362bNVhwco38zyxs5dWdi
+        /rgkkp3Dlk5nc4uU5eM2ucj+C2OqYCZ0czb5hZbktVAv0DWas5vvnh5QH+TE1Cqg
         ==
-X-ME-Sender: <xms:pyxQXbalHhCSfKlXpPiViNJuhLQ4201_-He315GwlRNi8OzZdM5OoA>
+X-ME-Sender: <xms:WC1QXTTqO1z8pgWXCyD-y5f-AwjTlOGl7TuzpIuC8qlUbDxBPKv_hA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddvvddgkeefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:pyxQXUqw8bfkWyf41h1pXE4ABT9IO5XgPtoVqdu-raWGa5KX2UBNHw>
-    <xmx:pyxQXftZhBP0se8d2xYd3mU4xZ4ex50z5GK91iLY_rz7ItM9SxVkTQ>
-    <xmx:pyxQXWMXvMCXkH0m5XuZbPuddOHXw8wDVKGpG1qEDIhYQltgpkPQbA>
-    <xmx:qSxQXf-ZsXVhtOdwubFa9Fw1mdnL6nN8gOI2U5E4G7Elt9krmO-YyA>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
+X-ME-Proxy: <xmx:WC1QXckrLji_pv-TKc-m4fBA_QvPWAPRhHdIHMPSu0WZfVu7MyPikw>
+    <xmx:WC1QXUPTj3w49T028lggdRfiL_o0lpCtqF3CUsmyDa8iywqKgc4ucg>
+    <xmx:WC1QXc19k0dM9ooZHNe0mb8_-UI3i2BN3Un-RmbqgmFzroDdK5F6aA>
+    <xmx:WC1QXQyYmDgaeVc2X-WnEBVZ75yoUHR094oT8ARj9Z29g0TlNXrbIw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5488080060;
-        Sun, 11 Aug 2019 10:56:39 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] crypto: ccp - Add support for valid authsize values less than" failed to apply to 4.14-stable tree
-To:     gary.hook@amd.com, herbert@gondor.apana.org.au,
-        stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id E1296380083;
+        Sun, 11 Aug 2019 10:59:35 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mmc: sdhci-sprd: Fix the incorrect soft reset operation when" failed to apply to 5.2-stable tree
+To:     baolin.wang@linaro.org, ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Aug 2019 16:56:38 +0200
-Message-ID: <15655353989018@kroah.com>
+Date:   Sun, 11 Aug 2019 16:59:34 +0200
+Message-ID: <15655355741187@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.2-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,131 +67,178 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9f00baf74e4b6f79a3a3dfab44fb7bb2e797b551 Mon Sep 17 00:00:00 2001
-From: Gary R Hook <gary.hook@amd.com>
-Date: Tue, 30 Jul 2019 16:05:24 +0000
-Subject: [PATCH] crypto: ccp - Add support for valid authsize values less than
- 16
+From c6303c5d52d5ec3e5bce2e6a5480fa2a1baa45e6 Mon Sep 17 00:00:00 2001
+From: Baolin Wang <baolin.wang@linaro.org>
+Date: Thu, 25 Jul 2019 11:14:22 +0800
+Subject: [PATCH] mmc: sdhci-sprd: Fix the incorrect soft reset operation when
+ runtime resuming
 
-AES GCM encryption allows for authsize values of 4, 8, and 12-16 bytes.
-Validate the requested authsize, and retain it to save in the request
-context.
+The SD host controller specification defines 3 types software reset:
+software reset for data line, software reset for command line and software
+reset for all. Software reset for all means this reset affects the entire
+Host controller except for the card detection circuit.
 
-Fixes: 36cf515b9bbe2 ("crypto: ccp - Enable support for AES GCM on v5 CCPs")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Gary R Hook <gary.hook@amd.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+In sdhci_runtime_resume_host() we always do a software "reset for all",
+which causes the Spreadtrum variant controller to work abnormally after
+resuming. To fix the problem, let's do a software reset for the data and
+the command part, rather than "for all".
 
-diff --git a/drivers/crypto/ccp/ccp-crypto-aes-galois.c b/drivers/crypto/ccp/ccp-crypto-aes-galois.c
-index d22631cb2bb3..02eba84028b3 100644
---- a/drivers/crypto/ccp/ccp-crypto-aes-galois.c
-+++ b/drivers/crypto/ccp/ccp-crypto-aes-galois.c
-@@ -58,6 +58,19 @@ static int ccp_aes_gcm_setkey(struct crypto_aead *tfm, const u8 *key,
- static int ccp_aes_gcm_setauthsize(struct crypto_aead *tfm,
- 				   unsigned int authsize)
- {
-+	switch (authsize) {
-+	case 16:
-+	case 15:
-+	case 14:
-+	case 13:
-+	case 12:
-+	case 8:
-+	case 4:
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
- 	return 0;
+However, as sdhci_runtime_resume() is a common sdhci function and we don't
+want to change the behaviour for other variants, let's introduce a new
+in-parameter for it. This enables the caller to decide if a "reset for all"
+shall be done or not.
+
+Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+Fixes: fb8bd90f83c4 ("mmc: sdhci-sprd: Add Spreadtrum's initial host controller")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+
+diff --git a/drivers/mmc/host/sdhci-acpi.c b/drivers/mmc/host/sdhci-acpi.c
+index b3a130a9ee23..1604f512c7bd 100644
+--- a/drivers/mmc/host/sdhci-acpi.c
++++ b/drivers/mmc/host/sdhci-acpi.c
+@@ -883,7 +883,7 @@ static int sdhci_acpi_runtime_resume(struct device *dev)
+ 
+ 	sdhci_acpi_byt_setting(&c->pdev->dev);
+ 
+-	return sdhci_runtime_resume_host(c->host);
++	return sdhci_runtime_resume_host(c->host, 0);
  }
  
-@@ -104,6 +117,7 @@ static int ccp_aes_gcm_crypt(struct aead_request *req, bool encrypt)
- 	memset(&rctx->cmd, 0, sizeof(rctx->cmd));
- 	INIT_LIST_HEAD(&rctx->cmd.entry);
- 	rctx->cmd.engine = CCP_ENGINE_AES;
-+	rctx->cmd.u.aes.authsize = crypto_aead_authsize(tfm);
- 	rctx->cmd.u.aes.type = ctx->u.aes.type;
- 	rctx->cmd.u.aes.mode = ctx->u.aes.mode;
- 	rctx->cmd.u.aes.action = encrypt;
-diff --git a/drivers/crypto/ccp/ccp-ops.c b/drivers/crypto/ccp/ccp-ops.c
-index 59f9849c3662..ef723e2722a8 100644
---- a/drivers/crypto/ccp/ccp-ops.c
-+++ b/drivers/crypto/ccp/ccp-ops.c
-@@ -622,6 +622,7 @@ static int ccp_run_aes_gcm_cmd(struct ccp_cmd_queue *cmd_q,
- 
- 	unsigned long long *final;
- 	unsigned int dm_offset;
-+	unsigned int authsize;
- 	unsigned int jobid;
- 	unsigned int ilen;
- 	bool in_place = true; /* Default value */
-@@ -643,6 +644,21 @@ static int ccp_run_aes_gcm_cmd(struct ccp_cmd_queue *cmd_q,
- 	if (!aes->key) /* Gotta have a key SGL */
- 		return -EINVAL;
- 
-+	/* Zero defaults to 16 bytes, the maximum size */
-+	authsize = aes->authsize ? aes->authsize : AES_BLOCK_SIZE;
-+	switch (authsize) {
-+	case 16:
-+	case 15:
-+	case 14:
-+	case 13:
-+	case 12:
-+	case 8:
-+	case 4:
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
- 	/* First, decompose the source buffer into AAD & PT,
- 	 * and the destination buffer into AAD, CT & tag, or
- 	 * the input into CT & tag.
-@@ -657,7 +673,7 @@ static int ccp_run_aes_gcm_cmd(struct ccp_cmd_queue *cmd_q,
- 		p_tag = scatterwalk_ffwd(sg_tag, p_outp, ilen);
- 	} else {
- 		/* Input length for decryption includes tag */
--		ilen = aes->src_len - AES_BLOCK_SIZE;
-+		ilen = aes->src_len - authsize;
- 		p_tag = scatterwalk_ffwd(sg_tag, p_inp, ilen);
+ #endif
+diff --git a/drivers/mmc/host/sdhci-esdhc-imx.c b/drivers/mmc/host/sdhci-esdhc-imx.c
+index c391510e9ef4..776a94216248 100644
+--- a/drivers/mmc/host/sdhci-esdhc-imx.c
++++ b/drivers/mmc/host/sdhci-esdhc-imx.c
+@@ -1705,7 +1705,7 @@ static int sdhci_esdhc_runtime_resume(struct device *dev)
+ 		esdhc_pltfm_set_clock(host, imx_data->actual_clock);
  	}
  
-@@ -839,19 +855,19 @@ static int ccp_run_aes_gcm_cmd(struct ccp_cmd_queue *cmd_q,
+-	err = sdhci_runtime_resume_host(host);
++	err = sdhci_runtime_resume_host(host, 0);
+ 	if (err)
+ 		goto disable_ipg_clk;
  
- 	if (aes->action == CCP_AES_ACTION_ENCRYPT) {
- 		/* Put the ciphered tag after the ciphertext. */
--		ccp_get_dm_area(&final_wa, 0, p_tag, 0, AES_BLOCK_SIZE);
-+		ccp_get_dm_area(&final_wa, 0, p_tag, 0, authsize);
- 	} else {
- 		/* Does this ciphered tag match the input? */
--		ret = ccp_init_dm_workarea(&tag, cmd_q, AES_BLOCK_SIZE,
-+		ret = ccp_init_dm_workarea(&tag, cmd_q, authsize,
- 					   DMA_BIDIRECTIONAL);
- 		if (ret)
- 			goto e_tag;
--		ret = ccp_set_dm_area(&tag, 0, p_tag, 0, AES_BLOCK_SIZE);
-+		ret = ccp_set_dm_area(&tag, 0, p_tag, 0, authsize);
- 		if (ret)
- 			goto e_tag;
- 
- 		ret = crypto_memneq(tag.address, final_wa.address,
--				    AES_BLOCK_SIZE) ? -EBADMSG : 0;
-+				    authsize) ? -EBADMSG : 0;
- 		ccp_dm_free(&tag);
+diff --git a/drivers/mmc/host/sdhci-of-at91.c b/drivers/mmc/host/sdhci-of-at91.c
+index e377b9bc55a4..d4e7e8b7be77 100644
+--- a/drivers/mmc/host/sdhci-of-at91.c
++++ b/drivers/mmc/host/sdhci-of-at91.c
+@@ -289,7 +289,7 @@ static int sdhci_at91_runtime_resume(struct device *dev)
  	}
  
-diff --git a/include/linux/ccp.h b/include/linux/ccp.h
-index 7e9c991c95e0..43ed9e77cf81 100644
---- a/include/linux/ccp.h
-+++ b/include/linux/ccp.h
-@@ -173,6 +173,8 @@ struct ccp_aes_engine {
- 	enum ccp_aes_mode mode;
- 	enum ccp_aes_action action;
+ out:
+-	return sdhci_runtime_resume_host(host);
++	return sdhci_runtime_resume_host(host, 0);
+ }
+ #endif /* CONFIG_PM */
  
-+	u32 authsize;
-+
- 	struct scatterlist *key;
- 	u32 key_len;		/* In bytes */
+diff --git a/drivers/mmc/host/sdhci-pci-core.c b/drivers/mmc/host/sdhci-pci-core.c
+index 4041878eb0f3..7d06e2860c36 100644
+--- a/drivers/mmc/host/sdhci-pci-core.c
++++ b/drivers/mmc/host/sdhci-pci-core.c
+@@ -167,7 +167,7 @@ static int sdhci_pci_runtime_suspend_host(struct sdhci_pci_chip *chip)
  
+ err_pci_runtime_suspend:
+ 	while (--i >= 0)
+-		sdhci_runtime_resume_host(chip->slots[i]->host);
++		sdhci_runtime_resume_host(chip->slots[i]->host, 0);
+ 	return ret;
+ }
+ 
+@@ -181,7 +181,7 @@ static int sdhci_pci_runtime_resume_host(struct sdhci_pci_chip *chip)
+ 		if (!slot)
+ 			continue;
+ 
+-		ret = sdhci_runtime_resume_host(slot->host);
++		ret = sdhci_runtime_resume_host(slot->host, 0);
+ 		if (ret)
+ 			return ret;
+ 	}
+diff --git a/drivers/mmc/host/sdhci-pxav3.c b/drivers/mmc/host/sdhci-pxav3.c
+index 3ddecf479295..e55037ceda73 100644
+--- a/drivers/mmc/host/sdhci-pxav3.c
++++ b/drivers/mmc/host/sdhci-pxav3.c
+@@ -554,7 +554,7 @@ static int sdhci_pxav3_runtime_resume(struct device *dev)
+ 	if (!IS_ERR(pxa->clk_core))
+ 		clk_prepare_enable(pxa->clk_core);
+ 
+-	return sdhci_runtime_resume_host(host);
++	return sdhci_runtime_resume_host(host, 0);
+ }
+ #endif
+ 
+diff --git a/drivers/mmc/host/sdhci-s3c.c b/drivers/mmc/host/sdhci-s3c.c
+index 8e4a8ba33f05..f5753aef7151 100644
+--- a/drivers/mmc/host/sdhci-s3c.c
++++ b/drivers/mmc/host/sdhci-s3c.c
+@@ -745,7 +745,7 @@ static int sdhci_s3c_runtime_resume(struct device *dev)
+ 	clk_prepare_enable(busclk);
+ 	if (ourhost->cur_clk >= 0)
+ 		clk_prepare_enable(ourhost->clk_bus[ourhost->cur_clk]);
+-	ret = sdhci_runtime_resume_host(host);
++	ret = sdhci_runtime_resume_host(host, 0);
+ 	return ret;
+ }
+ #endif
+diff --git a/drivers/mmc/host/sdhci-sprd.c b/drivers/mmc/host/sdhci-sprd.c
+index 603a5d9f045a..83a4767ca680 100644
+--- a/drivers/mmc/host/sdhci-sprd.c
++++ b/drivers/mmc/host/sdhci-sprd.c
+@@ -696,7 +696,7 @@ static int sdhci_sprd_runtime_resume(struct device *dev)
+ 	if (ret)
+ 		goto clk_disable;
+ 
+-	sdhci_runtime_resume_host(host);
++	sdhci_runtime_resume_host(host, 1);
+ 	return 0;
+ 
+ clk_disable:
+diff --git a/drivers/mmc/host/sdhci-xenon.c b/drivers/mmc/host/sdhci-xenon.c
+index 8a18f14cf842..1dea1ba66f7b 100644
+--- a/drivers/mmc/host/sdhci-xenon.c
++++ b/drivers/mmc/host/sdhci-xenon.c
+@@ -638,7 +638,7 @@ static int xenon_runtime_resume(struct device *dev)
+ 		priv->restore_needed = false;
+ 	}
+ 
+-	ret = sdhci_runtime_resume_host(host);
++	ret = sdhci_runtime_resume_host(host, 0);
+ 	if (ret)
+ 		goto out;
+ 	return 0;
+diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
+index 59acf8e3331e..a5dc5aae973e 100644
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -3320,7 +3320,7 @@ int sdhci_runtime_suspend_host(struct sdhci_host *host)
+ }
+ EXPORT_SYMBOL_GPL(sdhci_runtime_suspend_host);
+ 
+-int sdhci_runtime_resume_host(struct sdhci_host *host)
++int sdhci_runtime_resume_host(struct sdhci_host *host, int soft_reset)
+ {
+ 	struct mmc_host *mmc = host->mmc;
+ 	unsigned long flags;
+@@ -3331,7 +3331,7 @@ int sdhci_runtime_resume_host(struct sdhci_host *host)
+ 			host->ops->enable_dma(host);
+ 	}
+ 
+-	sdhci_init(host, 0);
++	sdhci_init(host, soft_reset);
+ 
+ 	if (mmc->ios.power_mode != MMC_POWER_UNDEFINED &&
+ 	    mmc->ios.power_mode != MMC_POWER_OFF) {
+diff --git a/drivers/mmc/host/sdhci.h b/drivers/mmc/host/sdhci.h
+index 89fd96596a1f..902f855efe8f 100644
+--- a/drivers/mmc/host/sdhci.h
++++ b/drivers/mmc/host/sdhci.h
+@@ -781,7 +781,7 @@ void sdhci_adma_write_desc(struct sdhci_host *host, void **desc,
+ int sdhci_suspend_host(struct sdhci_host *host);
+ int sdhci_resume_host(struct sdhci_host *host);
+ int sdhci_runtime_suspend_host(struct sdhci_host *host);
+-int sdhci_runtime_resume_host(struct sdhci_host *host);
++int sdhci_runtime_resume_host(struct sdhci_host *host, int soft_reset);
+ #endif
+ 
+ void sdhci_cqe_enable(struct mmc_host *mmc);
 
