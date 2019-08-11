@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0995489218
-	for <lists+stable@lfdr.de>; Sun, 11 Aug 2019 16:59:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C33B8921B
+	for <lists+stable@lfdr.de>; Sun, 11 Aug 2019 17:01:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726313AbfHKO7i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Aug 2019 10:59:38 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:55929 "EHLO
+        id S1726164AbfHKPBu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Aug 2019 11:01:50 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:56459 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726231AbfHKO7i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Aug 2019 10:59:38 -0400
+        by vger.kernel.org with ESMTP id S1726014AbfHKPBu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Aug 2019 11:01:50 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 233E3308;
-        Sun, 11 Aug 2019 10:59:37 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id 40F372FD;
+        Sun, 11 Aug 2019 11:01:49 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 11 Aug 2019 10:59:37 -0400
+  by compute6.internal (MEProxy); Sun, 11 Aug 2019 11:01:49 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=GzuUsb
-        tn0LFXkfbYNyfoLqCBLOoX8fTL3JIvKrOvcMk=; b=kURtHk7NPaNxOUpx/vPEFM
-        7Zehv6cMyq87WIgeHHGcuIdCEeUChQx+/bR72oPBewvIJLjunRBx8NAy0FYo1MiO
-        bUTMRijVjCKNQBMeUa7reNwyBerMsA/K3QCVvWvya7tjm2d275XcNtWY4xw+LsIE
-        2FFLsXKcWlrRkDhk5d4TrWTb7utwnw0a9DlXT5EIFRi4O6lLvoUfYHEzgFCHb3sX
-        CKm4OlqCRNrns0dmy+dD3fW5toQomoj9cse35pqxk68362bNVhwco38zyxs5dWdi
-        /rgkkp3Dlk5nc4uU5eM2ucj+C2OqYCZ0czb5hZbktVAv0DWas5vvnh5QH+TE1Cqg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=HwePrH
+        MyZLdCplDGOdqp2aVDXxnMXEQ+Nrg2PkNqfRo=; b=Go76jNFtMP+PG16YmqoWfo
+        7NbqJNK7yB3U0yly9LqiGr+uY3NuAajiZHdcaS47qBl5fBwQX7tnjStG3wKwMFlU
+        mLRSr8HFrwHRCjVso6+FzF4a1zW6J837LJ1CCIetJ5YUgwfcjPpEjBY8M24mOB10
+        XEDzlQjaAz3sNAv3Rpr/IkEmokrxi7sE7jey+5WF1LfG9Fx7u5NerfxANQbccUgc
+        WGQoPuqyHVvWvzkA+kg+zeVbWqcSw0RLf+Aqyp9OO/x1jVzV0mGwFjhipukFU40s
+        LOfpv7ReRR2FecYsBdcFwz6aOszIUlgNddcE33PtZ1SkGHYfSkCTiSvblCOxzEMg
         ==
-X-ME-Sender: <xms:WC1QXTTqO1z8pgWXCyD-y5f-AwjTlOGl7TuzpIuC8qlUbDxBPKv_hA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddvvddgkeefucetufdoteggodetrfdotf
+X-ME-Sender: <xms:3C1QXUMmNRCaCDjPa74VgQg4t5dKh7khVAf3PonWgUFhm6vigkVRww>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddvvddgkeegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:WC1QXckrLji_pv-TKc-m4fBA_QvPWAPRhHdIHMPSu0WZfVu7MyPikw>
-    <xmx:WC1QXUPTj3w49T028lggdRfiL_o0lpCtqF3CUsmyDa8iywqKgc4ucg>
-    <xmx:WC1QXc19k0dM9ooZHNe0mb8_-UI3i2BN3Un-RmbqgmFzroDdK5F6aA>
-    <xmx:WC1QXQyYmDgaeVc2X-WnEBVZ75yoUHR094oT8ARj9Z29g0TlNXrbIw>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:3C1QXfNx6qfiQ03ep2uV5kE8mNEh0fTTegZnPEhOxjdxa3es7QO9qA>
+    <xmx:3C1QXWTD4ahNp7NjLu3hEb5t2yY_8tRzQnz_B1YLtc5nXck9R2FsRQ>
+    <xmx:3C1QXRAT26Tl0r2fA-OsFABrcxrYN4xwAPCT2S2Z8Vu9-C5Ozr8ctA>
+    <xmx:3C1QXQ9f4V9ktOmC0i7uCYUfxtV8EnRrdP6sfP2Ff4V0gLwaEgzZNA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E1296380083;
-        Sun, 11 Aug 2019 10:59:35 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mmc: sdhci-sprd: Fix the incorrect soft reset operation when" failed to apply to 5.2-stable tree
-To:     baolin.wang@linaro.org, ulf.hansson@linaro.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8EC0C380084;
+        Sun, 11 Aug 2019 11:01:47 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] bcache: Revert "bcache: use sysfs_match_string() instead of" failed to apply to 5.2-stable tree
+To:     colyli@suse.de, alexandru.ardelean@analog.com, axboe@kernel.dk,
+        pflin@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Aug 2019 16:59:34 +0200
-Message-ID: <15655355741187@kroah.com>
+Date:   Sun, 11 Aug 2019 17:01:46 +0200
+Message-ID: <156553570618483@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -67,178 +68,147 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c6303c5d52d5ec3e5bce2e6a5480fa2a1baa45e6 Mon Sep 17 00:00:00 2001
-From: Baolin Wang <baolin.wang@linaro.org>
-Date: Thu, 25 Jul 2019 11:14:22 +0800
-Subject: [PATCH] mmc: sdhci-sprd: Fix the incorrect soft reset operation when
- runtime resuming
+From 20621fedb2a696e4dc60bc1c5de37cf21976abcb Mon Sep 17 00:00:00 2001
+From: Coly Li <colyli@suse.de>
+Date: Fri, 9 Aug 2019 14:14:05 +0800
+Subject: [PATCH] bcache: Revert "bcache: use sysfs_match_string() instead of
+ __sysfs_match_string()"
 
-The SD host controller specification defines 3 types software reset:
-software reset for data line, software reset for command line and software
-reset for all. Software reset for all means this reset affects the entire
-Host controller except for the card detection circuit.
+This reverts commit 89e0341af082dbc170019f908846f4a424efc86b.
 
-In sdhci_runtime_resume_host() we always do a software "reset for all",
-which causes the Spreadtrum variant controller to work abnormally after
-resuming. To fix the problem, let's do a software reset for the data and
-the command part, rather than "for all".
+In drivers/md/bcache/sysfs.c:bch_snprint_string_list(), NULL pointer at
+the end of list is necessary. Remove the NULL from last element of each
+lists will cause the following panic,
 
-However, as sdhci_runtime_resume() is a common sdhci function and we don't
-want to change the behaviour for other variants, let's introduce a new
-in-parameter for it. This enables the caller to decide if a "reset for all"
-shall be done or not.
+[ 4340.455652] bcache: register_cache() registered cache device nvme0n1
+[ 4340.464603] bcache: register_bdev() registered backing device sdk
+[ 4421.587335] bcache: bch_cached_dev_run() cached dev sdk is running already
+[ 4421.587348] bcache: bch_cached_dev_attach() Caching sdk as bcache0 on set 354e1d46-d99f-4d8b-870b-078b80dc88a6
+[ 5139.247950] general protection fault: 0000 [#1] SMP NOPTI
+[ 5139.247970] CPU: 9 PID: 5896 Comm: cat Not tainted 4.12.14-95.29-default #1 SLE12-SP4
+[ 5139.247988] Hardware name: HPE ProLiant DL380 Gen10/ProLiant DL380 Gen10, BIOS U30 04/18/2019
+[ 5139.248006] task: ffff888fb25c0b00 task.stack: ffff9bbacc704000
+[ 5139.248021] RIP: 0010:string+0x21/0x70
+[ 5139.248030] RSP: 0018:ffff9bbacc707bf0 EFLAGS: 00010286
+[ 5139.248043] RAX: ffffffffa7e432e3 RBX: ffff8881c20da02a RCX: ffff0a00ffffff04
+[ 5139.248058] RDX: 3f00656863616362 RSI: ffff8881c20db000 RDI: ffffffffffffffff
+[ 5139.248075] RBP: ffff8881c20db000 R08: 0000000000000000 R09: ffff8881c20da02a
+[ 5139.248090] R10: 0000000000000004 R11: 0000000000000000 R12: ffff9bbacc707c48
+[ 5139.248104] R13: 0000000000000fd6 R14: ffffffffc0665855 R15: ffffffffc0665855
+[ 5139.248119] FS:  00007faf253b8700(0000) GS:ffff88903f840000(0000) knlGS:0000000000000000
+[ 5139.248137] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 5139.248149] CR2: 00007faf25395008 CR3: 0000000f72150006 CR4: 00000000007606e0
+[ 5139.248164] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 5139.248179] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[ 5139.248193] PKRU: 55555554
+[ 5139.248200] Call Trace:
+[ 5139.248210]  vsnprintf+0x1fb/0x510
+[ 5139.248221]  snprintf+0x39/0x40
+[ 5139.248238]  bch_snprint_string_list.constprop.15+0x5b/0x90 [bcache]
+[ 5139.248256]  __bch_cached_dev_show+0x44d/0x5f0 [bcache]
+[ 5139.248270]  ? __alloc_pages_nodemask+0xb2/0x210
+[ 5139.248284]  bch_cached_dev_show+0x2c/0x50 [bcache]
+[ 5139.248297]  sysfs_kf_seq_show+0xbb/0x190
+[ 5139.248308]  seq_read+0xfc/0x3c0
+[ 5139.248317]  __vfs_read+0x26/0x140
+[ 5139.248327]  vfs_read+0x87/0x130
+[ 5139.248336]  SyS_read+0x42/0x90
+[ 5139.248346]  do_syscall_64+0x74/0x160
+[ 5139.248358]  entry_SYSCALL_64_after_hwframe+0x3d/0xa2
+[ 5139.248370] RIP: 0033:0x7faf24eea370
+[ 5139.248379] RSP: 002b:00007fff82d03f38 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
+[ 5139.248395] RAX: ffffffffffffffda RBX: 0000000000020000 RCX: 00007faf24eea370
+[ 5139.248411] RDX: 0000000000020000 RSI: 00007faf25396000 RDI: 0000000000000003
+[ 5139.248426] RBP: 00007faf25396000 R08: 00000000ffffffff R09: 0000000000000000
+[ 5139.248441] R10: 000000007c9d4d41 R11: 0000000000000246 R12: 00007faf25396000
+[ 5139.248456] R13: 0000000000000003 R14: 0000000000000000 R15: 0000000000000fff
+[ 5139.248892] Code: ff ff ff 0f 1f 80 00 00 00 00 49 89 f9 48 89 cf 48 c7 c0 e3 32 e4 a7 48 c1 ff 30 48 81 fa ff 0f 00 00 48 0f 46 d0 48 85 ff 74 45 <44> 0f b6 02 48 8d 42 01 45 84 c0 74 38 48 01 fa 4c 89 cf eb 0e
 
-Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-Fixes: fb8bd90f83c4 ("mmc: sdhci-sprd: Add Spreadtrum's initial host controller")
+The simplest way to fix is to revert commit 89e0341af082 ("bcache: use
+sysfs_match_string() instead of __sysfs_match_string()").
+
+This bug was introduced in Linux v5.2, so this fix only applies to
+Linux v5.2 is enough for stable tree maintainer.
+
+Fixes: 89e0341af082 ("bcache: use sysfs_match_string() instead of __sysfs_match_string()")
 Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Reported-by: Peifeng Lin <pflin@suse.com>
+Acked-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-diff --git a/drivers/mmc/host/sdhci-acpi.c b/drivers/mmc/host/sdhci-acpi.c
-index b3a130a9ee23..1604f512c7bd 100644
---- a/drivers/mmc/host/sdhci-acpi.c
-+++ b/drivers/mmc/host/sdhci-acpi.c
-@@ -883,7 +883,7 @@ static int sdhci_acpi_runtime_resume(struct device *dev)
+diff --git a/drivers/md/bcache/sysfs.c b/drivers/md/bcache/sysfs.c
+index 9f0826712845..e2059af90791 100644
+--- a/drivers/md/bcache/sysfs.c
++++ b/drivers/md/bcache/sysfs.c
+@@ -23,24 +23,28 @@ static const char * const bch_cache_modes[] = {
+ 	"writethrough",
+ 	"writeback",
+ 	"writearound",
+-	"none"
++	"none",
++	NULL
+ };
  
- 	sdhci_acpi_byt_setting(&c->pdev->dev);
+ /* Default is 0 ("auto") */
+ static const char * const bch_stop_on_failure_modes[] = {
+ 	"auto",
+-	"always"
++	"always",
++	NULL
+ };
  
--	return sdhci_runtime_resume_host(c->host);
-+	return sdhci_runtime_resume_host(c->host, 0);
- }
+ static const char * const cache_replacement_policies[] = {
+ 	"lru",
+ 	"fifo",
+-	"random"
++	"random",
++	NULL
+ };
  
- #endif
-diff --git a/drivers/mmc/host/sdhci-esdhc-imx.c b/drivers/mmc/host/sdhci-esdhc-imx.c
-index c391510e9ef4..776a94216248 100644
---- a/drivers/mmc/host/sdhci-esdhc-imx.c
-+++ b/drivers/mmc/host/sdhci-esdhc-imx.c
-@@ -1705,7 +1705,7 @@ static int sdhci_esdhc_runtime_resume(struct device *dev)
- 		esdhc_pltfm_set_clock(host, imx_data->actual_clock);
+ static const char * const error_actions[] = {
+ 	"unregister",
+-	"panic"
++	"panic",
++	NULL
+ };
+ 
+ write_attribute(attach);
+@@ -338,7 +342,7 @@ STORE(__cached_dev)
  	}
  
--	err = sdhci_runtime_resume_host(host);
-+	err = sdhci_runtime_resume_host(host, 0);
- 	if (err)
- 		goto disable_ipg_clk;
+ 	if (attr == &sysfs_cache_mode) {
+-		v = sysfs_match_string(bch_cache_modes, buf);
++		v = __sysfs_match_string(bch_cache_modes, -1, buf);
+ 		if (v < 0)
+ 			return v;
  
-diff --git a/drivers/mmc/host/sdhci-of-at91.c b/drivers/mmc/host/sdhci-of-at91.c
-index e377b9bc55a4..d4e7e8b7be77 100644
---- a/drivers/mmc/host/sdhci-of-at91.c
-+++ b/drivers/mmc/host/sdhci-of-at91.c
-@@ -289,7 +289,7 @@ static int sdhci_at91_runtime_resume(struct device *dev)
+@@ -349,7 +353,7 @@ STORE(__cached_dev)
  	}
  
- out:
--	return sdhci_runtime_resume_host(host);
-+	return sdhci_runtime_resume_host(host, 0);
- }
- #endif /* CONFIG_PM */
+ 	if (attr == &sysfs_stop_when_cache_set_failed) {
+-		v = sysfs_match_string(bch_stop_on_failure_modes, buf);
++		v = __sysfs_match_string(bch_stop_on_failure_modes, -1, buf);
+ 		if (v < 0)
+ 			return v;
  
-diff --git a/drivers/mmc/host/sdhci-pci-core.c b/drivers/mmc/host/sdhci-pci-core.c
-index 4041878eb0f3..7d06e2860c36 100644
---- a/drivers/mmc/host/sdhci-pci-core.c
-+++ b/drivers/mmc/host/sdhci-pci-core.c
-@@ -167,7 +167,7 @@ static int sdhci_pci_runtime_suspend_host(struct sdhci_pci_chip *chip)
+@@ -816,7 +820,7 @@ STORE(__bch_cache_set)
+ 			    0, UINT_MAX);
  
- err_pci_runtime_suspend:
- 	while (--i >= 0)
--		sdhci_runtime_resume_host(chip->slots[i]->host);
-+		sdhci_runtime_resume_host(chip->slots[i]->host, 0);
- 	return ret;
- }
+ 	if (attr == &sysfs_errors) {
+-		v = sysfs_match_string(error_actions, buf);
++		v = __sysfs_match_string(error_actions, -1, buf);
+ 		if (v < 0)
+ 			return v;
  
-@@ -181,7 +181,7 @@ static int sdhci_pci_runtime_resume_host(struct sdhci_pci_chip *chip)
- 		if (!slot)
- 			continue;
- 
--		ret = sdhci_runtime_resume_host(slot->host);
-+		ret = sdhci_runtime_resume_host(slot->host, 0);
- 		if (ret)
- 			return ret;
- 	}
-diff --git a/drivers/mmc/host/sdhci-pxav3.c b/drivers/mmc/host/sdhci-pxav3.c
-index 3ddecf479295..e55037ceda73 100644
---- a/drivers/mmc/host/sdhci-pxav3.c
-+++ b/drivers/mmc/host/sdhci-pxav3.c
-@@ -554,7 +554,7 @@ static int sdhci_pxav3_runtime_resume(struct device *dev)
- 	if (!IS_ERR(pxa->clk_core))
- 		clk_prepare_enable(pxa->clk_core);
- 
--	return sdhci_runtime_resume_host(host);
-+	return sdhci_runtime_resume_host(host, 0);
- }
- #endif
- 
-diff --git a/drivers/mmc/host/sdhci-s3c.c b/drivers/mmc/host/sdhci-s3c.c
-index 8e4a8ba33f05..f5753aef7151 100644
---- a/drivers/mmc/host/sdhci-s3c.c
-+++ b/drivers/mmc/host/sdhci-s3c.c
-@@ -745,7 +745,7 @@ static int sdhci_s3c_runtime_resume(struct device *dev)
- 	clk_prepare_enable(busclk);
- 	if (ourhost->cur_clk >= 0)
- 		clk_prepare_enable(ourhost->clk_bus[ourhost->cur_clk]);
--	ret = sdhci_runtime_resume_host(host);
-+	ret = sdhci_runtime_resume_host(host, 0);
- 	return ret;
- }
- #endif
-diff --git a/drivers/mmc/host/sdhci-sprd.c b/drivers/mmc/host/sdhci-sprd.c
-index 603a5d9f045a..83a4767ca680 100644
---- a/drivers/mmc/host/sdhci-sprd.c
-+++ b/drivers/mmc/host/sdhci-sprd.c
-@@ -696,7 +696,7 @@ static int sdhci_sprd_runtime_resume(struct device *dev)
- 	if (ret)
- 		goto clk_disable;
- 
--	sdhci_runtime_resume_host(host);
-+	sdhci_runtime_resume_host(host, 1);
- 	return 0;
- 
- clk_disable:
-diff --git a/drivers/mmc/host/sdhci-xenon.c b/drivers/mmc/host/sdhci-xenon.c
-index 8a18f14cf842..1dea1ba66f7b 100644
---- a/drivers/mmc/host/sdhci-xenon.c
-+++ b/drivers/mmc/host/sdhci-xenon.c
-@@ -638,7 +638,7 @@ static int xenon_runtime_resume(struct device *dev)
- 		priv->restore_needed = false;
+@@ -1088,7 +1092,7 @@ STORE(__bch_cache)
  	}
  
--	ret = sdhci_runtime_resume_host(host);
-+	ret = sdhci_runtime_resume_host(host, 0);
- 	if (ret)
- 		goto out;
- 	return 0;
-diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
-index 59acf8e3331e..a5dc5aae973e 100644
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -3320,7 +3320,7 @@ int sdhci_runtime_suspend_host(struct sdhci_host *host)
- }
- EXPORT_SYMBOL_GPL(sdhci_runtime_suspend_host);
+ 	if (attr == &sysfs_cache_replacement_policy) {
+-		v = sysfs_match_string(cache_replacement_policies, buf);
++		v = __sysfs_match_string(cache_replacement_policies, -1, buf);
+ 		if (v < 0)
+ 			return v;
  
--int sdhci_runtime_resume_host(struct sdhci_host *host)
-+int sdhci_runtime_resume_host(struct sdhci_host *host, int soft_reset)
- {
- 	struct mmc_host *mmc = host->mmc;
- 	unsigned long flags;
-@@ -3331,7 +3331,7 @@ int sdhci_runtime_resume_host(struct sdhci_host *host)
- 			host->ops->enable_dma(host);
- 	}
- 
--	sdhci_init(host, 0);
-+	sdhci_init(host, soft_reset);
- 
- 	if (mmc->ios.power_mode != MMC_POWER_UNDEFINED &&
- 	    mmc->ios.power_mode != MMC_POWER_OFF) {
-diff --git a/drivers/mmc/host/sdhci.h b/drivers/mmc/host/sdhci.h
-index 89fd96596a1f..902f855efe8f 100644
---- a/drivers/mmc/host/sdhci.h
-+++ b/drivers/mmc/host/sdhci.h
-@@ -781,7 +781,7 @@ void sdhci_adma_write_desc(struct sdhci_host *host, void **desc,
- int sdhci_suspend_host(struct sdhci_host *host);
- int sdhci_resume_host(struct sdhci_host *host);
- int sdhci_runtime_suspend_host(struct sdhci_host *host);
--int sdhci_runtime_resume_host(struct sdhci_host *host);
-+int sdhci_runtime_resume_host(struct sdhci_host *host, int soft_reset);
- #endif
- 
- void sdhci_cqe_enable(struct mmc_host *mmc);
 
