@@ -2,78 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EEA6F891C6
-	for <lists+stable@lfdr.de>; Sun, 11 Aug 2019 15:12:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 092B2891E8
+	for <lists+stable@lfdr.de>; Sun, 11 Aug 2019 15:49:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726458AbfHKNMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Aug 2019 09:12:53 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:40880 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726070AbfHKNMx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Aug 2019 09:12:53 -0400
-Received: by mail-lf1-f68.google.com with SMTP id b17so72571549lff.7;
-        Sun, 11 Aug 2019 06:12:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=CMKiwn+LopYZfx+swOzbhUCh782S/3ZSXMB0o7HZBQI=;
-        b=OmPxjkou+UfWkb7ONLmGZRygvLUkAxw0oB7nz51nV2H9LkGP5ZsGw8u2XrcvVJvc08
-         X9t65J2x0TiWxP8vuXket1hhudk6E/m1klN677+ugyGKIY0y5+saA/qf9x2sXeF/jYPj
-         1MBltklI+Mek2itg31mFK1DXx20E0TVSKxdyVe5+AXfQgBGf4P7X5GAJc+ZI8m/91Egx
-         9MLbsJjnYoolUgVhnotAOxnZja82QrdrY8wUAE1ZFguuzhyB+RC9bHDzi4G6oL5xGaBx
-         mPm1/xRgKPs9wDHnD+aab/WJYmpzq6b5IUwSXKeYqaQaeVbMEBkyvCSiPE9NpafX0Dse
-         9Gjw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=CMKiwn+LopYZfx+swOzbhUCh782S/3ZSXMB0o7HZBQI=;
-        b=QiOT4lonDmixm39NNdH/Sua+FE2JXOCDO1kk9QG3rZJHMbY1FXzJX+w/mRzmV56gFu
-         amLUkHAvYE+lktpkDz939M4GX0VasNNXoH+Khgbi8QSMUKfm38gv85weba6fvlXkqjbi
-         vTikFIJp/kvUb4YhmoFjxJO7oNKdz4gYsdAECsIzQQZHSrBv7gxkoE5HQj6B+basSvYg
-         BW1H05IOXwtWSVGQbFSQblPQvYuf8gjSKztU4nZyoIaJPiyZUbJHfk5zwApP2pz2PdKV
-         kYWTjQ/U90a3GYLX0LYZ8V5dTfeLDvL5AQ0qFQ3TIEOfl+8KVFNnlWw6Z7lYxtkbtsdN
-         HW8g==
-X-Gm-Message-State: APjAAAXEIlz5+3Kok8qHA/LdORllGZhfzH1TA0Jasi2Vu80nwC1XR2mh
-        g5BhfSbCqLARUz3a3BYEqmNM4V53ssgt1+h8vGe82l7D
-X-Google-Smtp-Source: APXvYqx6ffj+7tDrhRn0wQehL4p4O21GD2nTpaNqWwxRrICL+UNYZIQJs0tCruTdGr0bQMqnYlj1hk3w6tWqEAp18/o=
-X-Received: by 2002:ac2:5ec3:: with SMTP id d3mr17208280lfq.44.1565529170986;
- Sun, 11 Aug 2019 06:12:50 -0700 (PDT)
+        id S1726463AbfHKNts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Aug 2019 09:49:48 -0400
+Received: from sonic306-36.consmr.mail.bf2.yahoo.com ([74.6.132.235]:44759
+        "EHLO sonic306-36.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726424AbfHKNts (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Aug 2019 09:49:48 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1565531385; bh=htovBLz5U/wZNtK4y33o/qn0sSywA4sdsgISl7jGIIQ=; h=Date:From:Reply-To:Subject:From:Subject; b=tbFpdyxS+Snxi+1SLIKUqNE1be9Vmxj+xuegR/mVkpG5ivt00BVLp6cVF1ebS/G3xB/Il6QzODUI42fMKD52WKCP67nx29YxG5Y3F3e6eP9k0LGAoxEzWtXqS9nNI8vzcz1sVHBHCOIrvHCiURhIDFYcvWxNDgctu/C419+nqs6jvt/0PJeBz3o6y2FbRLTrmbqPHJj+GXIDjRPoqhiRagRAAW6NvLIdn/0gtauq2ivOEB20gNUB5HBnYGto0oPGHovAcx+BRWD+8DGw68QOn1QdnrzaZhxYLSRTEdEWxR6EycGaZ+OZ1krAJSxQDklIFo9spNb/Avwhua5Ws4aofw==
+X-YMail-OSG: _1g_zRkVM1muMpu4p4ufODXW9_VHztfIfe1m76wnSO8DBbn5Z2Od6WBiw83tjhZ
+ 6Z7WscvspVg_Lp1UDY7lBBWQyZUbcbHkrFx9okfUbP3hSCNqtB3m0gdw83DuS39XxdKTqfw00hZB
+ gU7UjMTeywUOyeqJKqNuiWb5WC2NhQ30e2ECTW4djSd6tTdZk3qfanSDzRvDGUR.yqoEKsjPQDlh
+ tjMiUfeNxo_s20LaUah08Uow0eNZsEHznliu9vpt.WoUiWKRk9isRSf7_h5bIGYu8aSHTI8th3Zt
+ 2quuDes03gIqL3dPXJp9BPsX6eLgcdfXvSQ_BP_gvNn2WVcVaLlg.QZoG8h7TqysT5ghKv8eAaIn
+ 4FQuv7jZbPnqldezQwDw0M.UNh2Om_btUob3YasLt7EGjtJYxHye7wO.4YIjmASKR2QZsDve_5PW
+ 2ncXdkoHhzfg8CPBlLUZDJzjXcxGtQyhHPxwL6kiVxW2pnZdIhyTbmtmAx.9RSLezCgXHOXpE4_4
+ 2J2a5vvrf2gehq1gjfBp.sNo3glEikbu_GRfpOglcvfefk8uvVdPJ76sbZGfJsnPf.iLKwnJgWLB
+ 2htJZyK5YHo794EzKA5PGSXRZPqABcBaAY.MotwZX6s.IVPdsMA7W_7D909nqW_3uHqYHv3XFitb
+ 7LPhVvyT.XVFwQeCFTVE2cpqIaYtT_1NZppiIaAsx.DkflD0UVGJoVtKXMkCTcnEHTAnZNlmA6X_
+ w9euDGS.2Gi3eB1HhkYa9nMl7YG28Cy6zp4qy16OFEIJi0UkR74rCj3f55nnzkk_o2s0AUa9hUdm
+ KlizhKGu0PrAxNvfRg1M6tyfE.6uK0LRb5TygJafiBdvq4OSElupOu3fZ_Wtbu8ufTTBvd16pNmL
+ KZg9a7oB4lfI85GTZUuEoDeIsi1QG7NKbkb8_tmm7hmnuqH561_UWJJD3dcuEL1v6Vl1moAEwNkZ
+ 7AH8ljvVwKOSjzPdmmfV7Tzc7N1ac7BMZtcSHGe47ucE2hbQvpNZaBVxc8L1sgF6TjXbAmLkV5M0
+ rdo2huQFGySo80StdZW34oQQOizYJPy.tPPYgEG9wPziLop8TpmmEuyIsMmnue2jlSsQ2YVJfpJE
+ M8uiivpShF9a.tvBzX9l2ZeRqONLRId6luBrT34azhXyF6OR8.Tp1UcTCDq8xLid5xgk1_uo13Bw
+ 4.z5s18YVcetijn0GJgjosO0e.wBAS2Y6TGkZKhEMn2dveSw08K0e2o2K_Irh_wUinCCoSO0CJnO
+ STRSJwWa1HeiMjZ2M6T1oAjIe3ofJ2jlyJCcmDB4f8L88
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.bf2.yahoo.com with HTTP; Sun, 11 Aug 2019 13:49:45 +0000
+Date:   Sun, 11 Aug 2019 13:47:44 +0000 (UTC)
+From:   Jessica Penman <cc12@shsbbk.in>
+Reply-To: jp.loaninvestment255@gmail.com
+Message-ID: <206521393.2837541.1565531264523@mail.yahoo.com>
+Subject: 
 MIME-Version: 1.0
-References: <20190810154300.25950-1-festevam@gmail.com>
-In-Reply-To: <20190810154300.25950-1-festevam@gmail.com>
-From:   Fabio Estevam <festevam@gmail.com>
-Date:   Sun, 11 Aug 2019 10:13:21 -0300
-Message-ID: <CAOMZO5DRUP5=LRHzqqX5x2uCvhzUt1aBSC4ODA5g2as8XYhuWQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] mfd: rave-sp: Bump command timeout to 5 seconds
-To:     Lee Jones <lee.jones@linaro.org>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Andrey Smirnov <andrew.smirnov@gmail.com>,
-        Chris Healy <cphealy@gmail.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Lee,
 
-On Sat, Aug 10, 2019 at 12:42 PM Fabio Estevam <festevam@gmail.com> wrote:
->
-> From: Andrey Smirnov <andrew.smirnov@gmail.com>
->
-> Command to erase application firmware on RAVE SP takes longer than one
-> second (it takes ~3s). Bump command timeout duration to 5 seconds in
-> order to avoid bogus timeouts.
->
-> Cc: <stable@vger.kernel.org>
-> Fixes: 538ee27290fa ("mfd: Add driver for RAVE Supervisory Processor")
-> Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-> Signed-off-by: Fabio Estevam <festevam@gmail.com>
 
-Please put this series on hold for now. We still have some things to address.
+Sind Sie finanziell unten? Auf der Suche nach DARLEHEN ? Wir bieten Privatk=
+redite, Business-Darlehen, Studentendarlehen, Autokredite Und Darlehen zu z=
+ahlen Rechnungen zu 3% Zinssatz.Bei Interesse, f=C3=BCllen Sie die details =
+unten:
 
-Thanks
+ERSTE INFORMATIONEN SIND ERFORDERLICH:
+Volle Namen.
+Kreditbetrag Ben=C3=B6tigt.
+Telefonnummer.
+Land.
+Dauer.
+
+Sie sind uns zu Kontaktieren, um Ihre Kredit-Verarbeitung zu beginnen.
+
+DO YOU NEED ANY TYPE OF LOAN? IF YES, APPLY NOW
