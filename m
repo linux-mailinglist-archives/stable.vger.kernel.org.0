@@ -2,213 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C33B8921B
-	for <lists+stable@lfdr.de>; Sun, 11 Aug 2019 17:01:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6DC78921C
+	for <lists+stable@lfdr.de>; Sun, 11 Aug 2019 17:05:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726164AbfHKPBu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Aug 2019 11:01:50 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:56459 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726014AbfHKPBu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Aug 2019 11:01:50 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 40F372FD;
-        Sun, 11 Aug 2019 11:01:49 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 11 Aug 2019 11:01:49 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=HwePrH
-        MyZLdCplDGOdqp2aVDXxnMXEQ+Nrg2PkNqfRo=; b=Go76jNFtMP+PG16YmqoWfo
-        7NbqJNK7yB3U0yly9LqiGr+uY3NuAajiZHdcaS47qBl5fBwQX7tnjStG3wKwMFlU
-        mLRSr8HFrwHRCjVso6+FzF4a1zW6J837LJ1CCIetJ5YUgwfcjPpEjBY8M24mOB10
-        XEDzlQjaAz3sNAv3Rpr/IkEmokrxi7sE7jey+5WF1LfG9Fx7u5NerfxANQbccUgc
-        WGQoPuqyHVvWvzkA+kg+zeVbWqcSw0RLf+Aqyp9OO/x1jVzV0mGwFjhipukFU40s
-        LOfpv7ReRR2FecYsBdcFwz6aOszIUlgNddcE33PtZ1SkGHYfSkCTiSvblCOxzEMg
-        ==
-X-ME-Sender: <xms:3C1QXUMmNRCaCDjPa74VgQg4t5dKh7khVAf3PonWgUFhm6vigkVRww>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddvvddgkeegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:3C1QXfNx6qfiQ03ep2uV5kE8mNEh0fTTegZnPEhOxjdxa3es7QO9qA>
-    <xmx:3C1QXWTD4ahNp7NjLu3hEb5t2yY_8tRzQnz_B1YLtc5nXck9R2FsRQ>
-    <xmx:3C1QXRAT26Tl0r2fA-OsFABrcxrYN4xwAPCT2S2Z8Vu9-C5Ozr8ctA>
-    <xmx:3C1QXQ9f4V9ktOmC0i7uCYUfxtV8EnRrdP6sfP2Ff4V0gLwaEgzZNA>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8EC0C380084;
-        Sun, 11 Aug 2019 11:01:47 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] bcache: Revert "bcache: use sysfs_match_string() instead of" failed to apply to 5.2-stable tree
-To:     colyli@suse.de, alexandru.ardelean@analog.com, axboe@kernel.dk,
-        pflin@suse.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Aug 2019 17:01:46 +0200
-Message-ID: <156553570618483@kroah.com>
+        id S1726506AbfHKPF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Aug 2019 11:05:56 -0400
+Received: from mail-wr1-f45.google.com ([209.85.221.45]:33652 "EHLO
+        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726492AbfHKPF4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Aug 2019 11:05:56 -0400
+Received: by mail-wr1-f45.google.com with SMTP id n9so102607849wru.0
+        for <stable@vger.kernel.org>; Sun, 11 Aug 2019 08:05:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=545DtWsuTcxZMT8/BCGD+hgq+QpW0kwGaI2hShK3gAU=;
+        b=Clu82ZNyrKIx+rvgIY8sWsPf4hHp8kGSaHtgFJ6fbP/4z6jx53bf2MS+Wu3p7DwGKM
+         5f7wMMs05etuhRE93ks4nJO+Rps39e+XZnqaCJ06hfwNcG834vv4d8vDW7TmMYKoJ5CN
+         TyeYDn0GzznPMeXi68EuLQlCTu3zPj1gEJX29zZQXWYQZQ/fwsyiQ+Fqola/fKmONk3C
+         aReQnGSvhizUwLhkkRFpuruVrkUasox9appycPJErRuunNinJ0N6nXmOy+XPSumWEx0a
+         tAKs9cX0nYEfGQK3IgL/EaMfQA0nNKNUgd+5iI7a3XfA4LiLYPDXyVzMGkarxkIE96ei
+         ViuQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=545DtWsuTcxZMT8/BCGD+hgq+QpW0kwGaI2hShK3gAU=;
+        b=c7XG/6xUoNrXhqQTGHte5rJLdjJZyjaU5Qe53c7Ged0i5lVf0tAEW0FxZeOGwiXFeT
+         FkAgVRW9jVp9/8vhMOolD2Ov0iGCQ0RsOkxTAg7sjz/W66CiHnGzaZpen9WtcxyYhUQd
+         G3to7JsMkcBwVKHZB7onf3IoClsgX9VttwrjWYPxly2FV+K/npXmcaD5XrGeUtTW8gcY
+         eihq17Fsh3/+I+QAS1ZFJsELj1dHXJUPzTjaO3ggA1arAnv2DUybiHjq4psL4henztVa
+         QCfTmKRsTWHOTp82BQtYFhz2IN0xAnWIexijC7/AYDHBl9vAyI5+Gjy135PX/+IjA/5k
+         Oi7A==
+X-Gm-Message-State: APjAAAUFfQHCW4IjV9HmvvzUtbAU5xXIg/d+VXXbq9IzZu0HnTeXVYpT
+        NCQYaoBOLj543WJDhCRrBq22o0XYrI8=
+X-Google-Smtp-Source: APXvYqxcZvm3igcUgrv4gFNsFOVFyOPdRSMeJ7YjK+KHDSA74J19ypZugkWyfJfROzr9CiHAOAOMcQ==
+X-Received: by 2002:adf:c594:: with SMTP id m20mr38065375wrg.126.1565535954502;
+        Sun, 11 Aug 2019 08:05:54 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id v5sm166392620wre.50.2019.08.11.08.05.52
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 11 Aug 2019 08:05:53 -0700 (PDT)
+Message-ID: <5d502ed1.1c69fb81.5beb3.533d@mx.google.com>
+Date:   Sun, 11 Aug 2019 08:05:53 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.189
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable/linux-4.9.y boot: 49 boots: 0 failed, 49 passed (v4.9.189)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable/linux-4.9.y boot: 49 boots: 0 failed, 49 passed (v4.9.189)
 
-The patch below does not apply to the 5.2-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+9.y/kernel/v4.9.189/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
+rnel/v4.9.189/
 
-thanks,
+Tree: stable
+Branch: linux-4.9.y
+Git Describe: v4.9.189
+Git Commit: 4bd718dba6581ebd392539ad659642552fb5826c
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 22 unique boards, 11 SoC families, 9 builds out of 197
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 20621fedb2a696e4dc60bc1c5de37cf21976abcb Mon Sep 17 00:00:00 2001
-From: Coly Li <colyli@suse.de>
-Date: Fri, 9 Aug 2019 14:14:05 +0800
-Subject: [PATCH] bcache: Revert "bcache: use sysfs_match_string() instead of
- __sysfs_match_string()"
-
-This reverts commit 89e0341af082dbc170019f908846f4a424efc86b.
-
-In drivers/md/bcache/sysfs.c:bch_snprint_string_list(), NULL pointer at
-the end of list is necessary. Remove the NULL from last element of each
-lists will cause the following panic,
-
-[ 4340.455652] bcache: register_cache() registered cache device nvme0n1
-[ 4340.464603] bcache: register_bdev() registered backing device sdk
-[ 4421.587335] bcache: bch_cached_dev_run() cached dev sdk is running already
-[ 4421.587348] bcache: bch_cached_dev_attach() Caching sdk as bcache0 on set 354e1d46-d99f-4d8b-870b-078b80dc88a6
-[ 5139.247950] general protection fault: 0000 [#1] SMP NOPTI
-[ 5139.247970] CPU: 9 PID: 5896 Comm: cat Not tainted 4.12.14-95.29-default #1 SLE12-SP4
-[ 5139.247988] Hardware name: HPE ProLiant DL380 Gen10/ProLiant DL380 Gen10, BIOS U30 04/18/2019
-[ 5139.248006] task: ffff888fb25c0b00 task.stack: ffff9bbacc704000
-[ 5139.248021] RIP: 0010:string+0x21/0x70
-[ 5139.248030] RSP: 0018:ffff9bbacc707bf0 EFLAGS: 00010286
-[ 5139.248043] RAX: ffffffffa7e432e3 RBX: ffff8881c20da02a RCX: ffff0a00ffffff04
-[ 5139.248058] RDX: 3f00656863616362 RSI: ffff8881c20db000 RDI: ffffffffffffffff
-[ 5139.248075] RBP: ffff8881c20db000 R08: 0000000000000000 R09: ffff8881c20da02a
-[ 5139.248090] R10: 0000000000000004 R11: 0000000000000000 R12: ffff9bbacc707c48
-[ 5139.248104] R13: 0000000000000fd6 R14: ffffffffc0665855 R15: ffffffffc0665855
-[ 5139.248119] FS:  00007faf253b8700(0000) GS:ffff88903f840000(0000) knlGS:0000000000000000
-[ 5139.248137] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 5139.248149] CR2: 00007faf25395008 CR3: 0000000f72150006 CR4: 00000000007606e0
-[ 5139.248164] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[ 5139.248179] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[ 5139.248193] PKRU: 55555554
-[ 5139.248200] Call Trace:
-[ 5139.248210]  vsnprintf+0x1fb/0x510
-[ 5139.248221]  snprintf+0x39/0x40
-[ 5139.248238]  bch_snprint_string_list.constprop.15+0x5b/0x90 [bcache]
-[ 5139.248256]  __bch_cached_dev_show+0x44d/0x5f0 [bcache]
-[ 5139.248270]  ? __alloc_pages_nodemask+0xb2/0x210
-[ 5139.248284]  bch_cached_dev_show+0x2c/0x50 [bcache]
-[ 5139.248297]  sysfs_kf_seq_show+0xbb/0x190
-[ 5139.248308]  seq_read+0xfc/0x3c0
-[ 5139.248317]  __vfs_read+0x26/0x140
-[ 5139.248327]  vfs_read+0x87/0x130
-[ 5139.248336]  SyS_read+0x42/0x90
-[ 5139.248346]  do_syscall_64+0x74/0x160
-[ 5139.248358]  entry_SYSCALL_64_after_hwframe+0x3d/0xa2
-[ 5139.248370] RIP: 0033:0x7faf24eea370
-[ 5139.248379] RSP: 002b:00007fff82d03f38 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
-[ 5139.248395] RAX: ffffffffffffffda RBX: 0000000000020000 RCX: 00007faf24eea370
-[ 5139.248411] RDX: 0000000000020000 RSI: 00007faf25396000 RDI: 0000000000000003
-[ 5139.248426] RBP: 00007faf25396000 R08: 00000000ffffffff R09: 0000000000000000
-[ 5139.248441] R10: 000000007c9d4d41 R11: 0000000000000246 R12: 00007faf25396000
-[ 5139.248456] R13: 0000000000000003 R14: 0000000000000000 R15: 0000000000000fff
-[ 5139.248892] Code: ff ff ff 0f 1f 80 00 00 00 00 49 89 f9 48 89 cf 48 c7 c0 e3 32 e4 a7 48 c1 ff 30 48 81 fa ff 0f 00 00 48 0f 46 d0 48 85 ff 74 45 <44> 0f b6 02 48 8d 42 01 45 84 c0 74 38 48 01 fa 4c 89 cf eb 0e
-
-The simplest way to fix is to revert commit 89e0341af082 ("bcache: use
-sysfs_match_string() instead of __sysfs_match_string()").
-
-This bug was introduced in Linux v5.2, so this fix only applies to
-Linux v5.2 is enough for stable tree maintainer.
-
-Fixes: 89e0341af082 ("bcache: use sysfs_match_string() instead of __sysfs_match_string()")
-Cc: stable@vger.kernel.org
-Cc: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Reported-by: Peifeng Lin <pflin@suse.com>
-Acked-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
-diff --git a/drivers/md/bcache/sysfs.c b/drivers/md/bcache/sysfs.c
-index 9f0826712845..e2059af90791 100644
---- a/drivers/md/bcache/sysfs.c
-+++ b/drivers/md/bcache/sysfs.c
-@@ -23,24 +23,28 @@ static const char * const bch_cache_modes[] = {
- 	"writethrough",
- 	"writeback",
- 	"writearound",
--	"none"
-+	"none",
-+	NULL
- };
- 
- /* Default is 0 ("auto") */
- static const char * const bch_stop_on_failure_modes[] = {
- 	"auto",
--	"always"
-+	"always",
-+	NULL
- };
- 
- static const char * const cache_replacement_policies[] = {
- 	"lru",
- 	"fifo",
--	"random"
-+	"random",
-+	NULL
- };
- 
- static const char * const error_actions[] = {
- 	"unregister",
--	"panic"
-+	"panic",
-+	NULL
- };
- 
- write_attribute(attach);
-@@ -338,7 +342,7 @@ STORE(__cached_dev)
- 	}
- 
- 	if (attr == &sysfs_cache_mode) {
--		v = sysfs_match_string(bch_cache_modes, buf);
-+		v = __sysfs_match_string(bch_cache_modes, -1, buf);
- 		if (v < 0)
- 			return v;
- 
-@@ -349,7 +353,7 @@ STORE(__cached_dev)
- 	}
- 
- 	if (attr == &sysfs_stop_when_cache_set_failed) {
--		v = sysfs_match_string(bch_stop_on_failure_modes, buf);
-+		v = __sysfs_match_string(bch_stop_on_failure_modes, -1, buf);
- 		if (v < 0)
- 			return v;
- 
-@@ -816,7 +820,7 @@ STORE(__bch_cache_set)
- 			    0, UINT_MAX);
- 
- 	if (attr == &sysfs_errors) {
--		v = sysfs_match_string(error_actions, buf);
-+		v = __sysfs_match_string(error_actions, -1, buf);
- 		if (v < 0)
- 			return v;
- 
-@@ -1088,7 +1092,7 @@ STORE(__bch_cache)
- 	}
- 
- 	if (attr == &sysfs_cache_replacement_policy) {
--		v = sysfs_match_string(cache_replacement_policies, buf);
-+		v = __sysfs_match_string(cache_replacement_policies, -1, buf);
- 		if (v < 0)
- 			return v;
- 
-
+---
+For more info write to <info@kernelci.org>
