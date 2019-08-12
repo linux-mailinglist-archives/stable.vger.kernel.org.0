@@ -2,67 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B00C6899C8
-	for <lists+stable@lfdr.de>; Mon, 12 Aug 2019 11:23:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAB7689BE1
+	for <lists+stable@lfdr.de>; Mon, 12 Aug 2019 12:49:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727401AbfHLJXB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Aug 2019 05:23:01 -0400
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:33028 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727371AbfHLJXA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Aug 2019 05:23:00 -0400
-Received: by mail-pl1-f193.google.com with SMTP id c14so47552419plo.0
-        for <stable@vger.kernel.org>; Mon, 12 Aug 2019 02:23:00 -0700 (PDT)
+        id S1727829AbfHLKtk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Aug 2019 06:49:40 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:40230 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727917AbfHLKtj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Aug 2019 06:49:39 -0400
+Received: by mail-wr1-f65.google.com with SMTP id r1so5048904wrl.7
+        for <stable@vger.kernel.org>; Mon, 12 Aug 2019 03:49:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fossix-org.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=D2tlN+71g8bWt9oQlVT6rxO2X/4rsSsVdmtXxR74abA=;
-        b=F5CmZV6EuwezAv08fzounW3xIvyloE7TlTR3tVWuYiBzOiJBzQ4hZyORvwevbNCedR
-         At8cTrfsKhbqblHowUbN2jF0OWda/Lh5sVSPmkFPPHqUy38Dcdjc3450zFYUTqb3KA6O
-         jjvY0jVTDfT7EqeHoOYEnJowTT8eUha4UlZHkLR6hWz65yO1jBCBhpZjKL8gbsJb9RZp
-         nQe3zjcON2XlzE22kIOom7j8W8V6P8QOeMvLsTqAiID0wil0VcKuLAXxm6iDYOp7cF0p
-         Ijhf+3fzH0vNX0YedSZ48Xp2nUPnI9Z7IqbXJYiD7cDZnspQ1vN+Y/kLr20FI4jW6ujf
-         d7sg==
+        d=android.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=bdFcpRX51nTJgSYeh6YwoFQsGKr/8XxEpuqMCCI0TMA=;
+        b=FUFyk0OXJt9AVBPVL0bewi/ZDRrfXTmeiOu/O9xHQICm6YE2z2AQ5/Q4M+vH/y/vS4
+         btUFDCIj4Y4r5Gs1mDEz+8lE/UrRmGgTamgetmJtOQ9MDlpPR2+0UR9Kg0l2FUfJWZMQ
+         GNKxGjkaXMqTqQNkdB6xkthtiun6tWeywwZ8m4J3GEK5o1GosqJ/M68SNKkhhF2tUjmF
+         l7UMS8MS/my6K3WhrOb1A36naP1DH+RLSpxbMBCFcrzB+ljAnq1X1S/EEYi30a1x1qqS
+         ycDhydgYPGDcB/07vc6FRJumvCqSOvs+URk01aglo5NegQJnFjU1Yl5mzt+fnJuaxjs8
+         x9CQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=D2tlN+71g8bWt9oQlVT6rxO2X/4rsSsVdmtXxR74abA=;
-        b=PYLM4IzLOM+n+p1LUAEdTNg5zzvMjGHRMqRllP1HlIW49QdlrA86pkuJsdi/aLEaHU
-         OO9QpgkYZomQBopA2/lVux06TVQrVNXTViv5cKGcvFpyrcmIE98FW9COb6qe0J4nbMJb
-         uBr4mgjOi/GD8RLNVOZYq/axhOsboES2QLI+aah9CzRQs5vv2VqpNxuzlJDDmn1H6NOq
-         2hXGDuig6+FlLx9jWMtnowC4hthh9vv5CXE6qkVE9iFBpqeg2Rsvo8xssF0B9UoxI04y
-         bxyOqH5A8jL22UC/mqV2Vd2ClYgalxrf/g/epL9e7BbJ2IXMARfK5euuTVdWLQDa07nS
-         bJtQ==
-X-Gm-Message-State: APjAAAVhd1PNPw9ZoQdKiM3sjvR6trUiIGn8Go3qtOfgvZ9bywdVF+C5
-        1qCLcs3Z/LgSCoqa7GpIuKBDtw==
-X-Google-Smtp-Source: APXvYqyqd0nTPYOnCU40TAZwVXTB79YQa/gqPN4Oo6WYkoB5nyyofR4VfcO9VgyytTcOrayPv8tgEQ==
-X-Received: by 2002:a17:902:30d:: with SMTP id 13mr22076112pld.284.1565601779847;
-        Mon, 12 Aug 2019 02:22:59 -0700 (PDT)
-Received: from santosiv.in.ibm.com ([129.41.84.75])
-        by smtp.gmail.com with ESMTPSA id y188sm10543517pfb.115.2019.08.12.02.22.56
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=bdFcpRX51nTJgSYeh6YwoFQsGKr/8XxEpuqMCCI0TMA=;
+        b=XPDilDo7/7IJB/HYrUDjHVbyYzXq1QAhtz0wA3iFmhj3UeEXQqBXzEdHAiWm1lmrR1
+         fYG+Ehg6QeL/z5J5nheHihhS+6vBEFIm+kPSoCznk5NNcK9KOwNSryk84ONmQ513VJgP
+         Eo0PNJjA/cMNmfPgxCJGhBgCpoULYLaOoydrwcx+X+r+OUzPS7cL0BxhhdZH7ZfOnKkT
+         sLN2C8TjSOYvU7xKNLK6Y+pA2D+078wi+oyIcMnzPKBROZiBQMb/BrGgRbxVeEemAzmv
+         0dxwm6PWbT1CCR8ZCHLkCRNZvbh/942XwT9mmnuBwNfVhMEauFb1Y9NQr/mEpplWbOQA
+         mqwg==
+X-Gm-Message-State: APjAAAXNbrRpapDjetwsGcwqqJMsqFbr1W5L+ewbDVEbGnYGZPrEtXDf
+        RkbfLOoZWZqOqXTPqAZG76ZP9v+HiZ4=
+X-Google-Smtp-Source: APXvYqydkRjPp0cw1dNKy/JKTL6ZcK7VSUfljff+XkY2B/KtSlMeD7PmsI/XLbJSO2jN5NETGOm7IA==
+X-Received: by 2002:a05:6000:1186:: with SMTP id g6mr41532651wrx.17.1565606977391;
+        Mon, 12 Aug 2019 03:49:37 -0700 (PDT)
+Received: from balsini.lon.corp.google.com ([2a00:79e0:d:210:e751:37a0:1e95:e65d])
+        by smtp.gmail.com with ESMTPSA id p13sm37637661wrw.90.2019.08.12.03.49.36
         (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 12 Aug 2019 02:22:59 -0700 (PDT)
-From:   Santosh Sivaraj <santosh@fossix.org>
-To:     linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Cc:     "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Mahesh Salgaonkar <mahesh@linux.ibm.com>,
-        Reza Arbab <arbab@linux.ibm.com>,
-        Balbir Singh <bsingharora@gmail.com>,
-        Chandan Rajendra <chandan@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        christophe leroy <christophe.leroy@c-s.fr>,
-        Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v9 2/7] powerpc/mce: Fix MCE handling for huge pages
-Date:   Mon, 12 Aug 2019 14:52:31 +0530
-Message-Id: <20190812092236.16648-3-santosh@fossix.org>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190812092236.16648-1-santosh@fossix.org>
-References: <20190812092236.16648-1-santosh@fossix.org>
+        Mon, 12 Aug 2019 03:49:36 -0700 (PDT)
+From:   Alessio Balsini <balsini@android.com>
+To:     gregkh@linuxfoundation.org
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel-team@android.com, Jason Gunthorpe <jgg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Alessio Balsini <balsini@android.com>
+Subject: [PATCH 3.18.y] IB/mlx5: Fix leaking stack memory to userspace
+Date:   Mon, 12 Aug 2019 11:48:43 +0100
+Message-Id: <20190812104843.150191-1-balsini@android.com>
+X-Mailer: git-send-email 2.23.0.rc1.153.gdeed80330f-goog
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -70,173 +61,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Balbir Singh <bsingharora@gmail.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-The current code would fail on huge pages addresses, since the shift would
-be incorrect. Use the correct page shift value returned by
-__find_linux_pte() to get the correct physical address. The code is more
-generic and can handle both regular and compound pages.
+mlx5_ib_create_qp_resp was never initialized and only the first 4 bytes
+were written.
 
-Fixes: ba41e1e1ccb9 ("powerpc/mce: Hookup derror (load/store) UE errors")
-Signed-off-by: Balbir Singh <bsingharora@gmail.com>
-[arbab@linux.ibm.com: Fixup pseries_do_memory_failure()]
-Signed-off-by: Reza Arbab <arbab@linux.ibm.com>
-Co-developed-by: Santosh Sivaraj <santosh@fossix.org>
-Signed-off-by: Santosh Sivaraj <santosh@fossix.org>
-Tested-by: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
-Cc: stable@vger.kernel.org # v4.15+
+Fixes: 41d902cb7c32 ("RDMA/mlx5: Fix definition of mlx5_ib_create_qp_resp")
+Cc: <stable@vger.kernel.org>
+Acked-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Alessio Balsini <balsini@android.com>
 ---
- arch/powerpc/include/asm/mce.h       |  2 +-
- arch/powerpc/kernel/mce_power.c      | 55 ++++++++++++++--------------
- arch/powerpc/platforms/pseries/ras.c |  9 ++---
- 3 files changed, 32 insertions(+), 34 deletions(-)
+ drivers/infiniband/hw/mlx5/qp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/mce.h b/arch/powerpc/include/asm/mce.h
-index a4c6a74ad2fb..f3a6036b6bc0 100644
---- a/arch/powerpc/include/asm/mce.h
-+++ b/arch/powerpc/include/asm/mce.h
-@@ -209,7 +209,7 @@ extern void release_mce_event(void);
- extern void machine_check_queue_event(void);
- extern void machine_check_print_event_info(struct machine_check_event *evt,
- 					   bool user_mode, bool in_guest);
--unsigned long addr_to_pfn(struct pt_regs *regs, unsigned long addr);
-+unsigned long addr_to_phys(struct pt_regs *regs, unsigned long addr);
- #ifdef CONFIG_PPC_BOOK3S_64
- void flush_and_reload_slb(void);
- #endif /* CONFIG_PPC_BOOK3S_64 */
-diff --git a/arch/powerpc/kernel/mce_power.c b/arch/powerpc/kernel/mce_power.c
-index a814d2dfb5b0..e74816f045f8 100644
---- a/arch/powerpc/kernel/mce_power.c
-+++ b/arch/powerpc/kernel/mce_power.c
-@@ -20,13 +20,14 @@
- #include <asm/exception-64s.h>
- 
- /*
-- * Convert an address related to an mm to a PFN. NOTE: we are in real
-- * mode, we could potentially race with page table updates.
-+ * Convert an address related to an mm to a physical address.
-+ * NOTE: we are in real mode, we could potentially race with page table updates.
-  */
--unsigned long addr_to_pfn(struct pt_regs *regs, unsigned long addr)
-+unsigned long addr_to_phys(struct pt_regs *regs, unsigned long addr)
+diff --git a/drivers/infiniband/hw/mlx5/qp.c b/drivers/infiniband/hw/mlx5/qp.c
+index 5edb09e674a6..82c4e29c1213 100644
+--- a/drivers/infiniband/hw/mlx5/qp.c
++++ b/drivers/infiniband/hw/mlx5/qp.c
+@@ -811,7 +811,7 @@ static int create_qp_common(struct mlx5_ib_dev *dev, struct ib_pd *pd,
+ 			    struct ib_udata *udata, struct mlx5_ib_qp *qp)
  {
--	pte_t *ptep;
--	unsigned long flags;
-+	pte_t *ptep, pte;
-+	unsigned int shift;
-+	unsigned long flags, phys_addr;
- 	struct mm_struct *mm;
- 
- 	if (user_mode(regs))
-@@ -35,14 +36,21 @@ unsigned long addr_to_pfn(struct pt_regs *regs, unsigned long addr)
- 		mm = &init_mm;
- 
- 	local_irq_save(flags);
--	if (mm == current->mm)
--		ptep = find_current_mm_pte(mm->pgd, addr, NULL, NULL);
--	else
--		ptep = find_init_mm_pte(addr, NULL);
-+	ptep = __find_linux_pte(mm->pgd, addr, NULL, &shift);
- 	local_irq_restore(flags);
-+
- 	if (!ptep || pte_special(*ptep))
- 		return ULONG_MAX;
--	return pte_pfn(*ptep);
-+
-+	pte = *ptep;
-+	if (shift > PAGE_SHIFT) {
-+		unsigned long rpnmask = (1ul << shift) - PAGE_SIZE;
-+
-+		pte = __pte(pte_val(pte) | (addr & rpnmask));
-+	}
-+	phys_addr = pte_pfn(pte) << PAGE_SHIFT;
-+
-+	return phys_addr;
- }
- 
- /* flush SLBs and reload */
-@@ -344,7 +352,7 @@ static const struct mce_derror_table mce_p9_derror_table[] = {
-   MCE_INITIATOR_CPU,   MCE_SEV_SEVERE, true },
- { 0, false, 0, 0, 0, 0, 0 } };
- 
--static int mce_find_instr_ea_and_pfn(struct pt_regs *regs, uint64_t *addr,
-+static int mce_find_instr_ea_and_phys(struct pt_regs *regs, uint64_t *addr,
- 					uint64_t *phys_addr)
- {
- 	/*
-@@ -354,18 +362,16 @@ static int mce_find_instr_ea_and_pfn(struct pt_regs *regs, uint64_t *addr,
- 	 * faults
- 	 */
- 	int instr;
--	unsigned long pfn, instr_addr;
-+	unsigned long instr_addr;
- 	struct instruction_op op;
- 	struct pt_regs tmp = *regs;
- 
--	pfn = addr_to_pfn(regs, regs->nip);
--	if (pfn != ULONG_MAX) {
--		instr_addr = (pfn << PAGE_SHIFT) + (regs->nip & ~PAGE_MASK);
-+	instr_addr = addr_to_phys(regs, regs->nip) + (regs->nip & ~PAGE_MASK);
-+	if (instr_addr != ULONG_MAX) {
- 		instr = *(unsigned int *)(instr_addr);
- 		if (!analyse_instr(&op, &tmp, instr)) {
--			pfn = addr_to_pfn(regs, op.ea);
- 			*addr = op.ea;
--			*phys_addr = (pfn << PAGE_SHIFT);
-+			*phys_addr = addr_to_phys(regs, op.ea);
- 			return 0;
- 		}
- 		/*
-@@ -440,15 +446,9 @@ static int mce_handle_ierror(struct pt_regs *regs,
- 			*addr = regs->nip;
- 			if (mce_err->sync_error &&
- 				table[i].error_type == MCE_ERROR_TYPE_UE) {
--				unsigned long pfn;
--
--				if (get_paca()->in_mce < MAX_MCE_DEPTH) {
--					pfn = addr_to_pfn(regs, regs->nip);
--					if (pfn != ULONG_MAX) {
--						*phys_addr =
--							(pfn << PAGE_SHIFT);
--					}
--				}
-+				if (get_paca()->in_mce < MAX_MCE_DEPTH)
-+					*phys_addr = addr_to_phys(regs,
-+								 regs->nip);
- 			}
- 		}
- 		return handled;
-@@ -541,7 +541,8 @@ static int mce_handle_derror(struct pt_regs *regs,
- 			 * kernel/exception-64s.h
- 			 */
- 			if (get_paca()->in_mce < MAX_MCE_DEPTH)
--				mce_find_instr_ea_and_pfn(regs, addr, phys_addr);
-+				mce_find_instr_ea_and_phys(regs, addr,
-+							   phys_addr);
- 		}
- 		found = 1;
- 	}
-diff --git a/arch/powerpc/platforms/pseries/ras.c b/arch/powerpc/platforms/pseries/ras.c
-index f16fdd0f71f7..5743f6353638 100644
---- a/arch/powerpc/platforms/pseries/ras.c
-+++ b/arch/powerpc/platforms/pseries/ras.c
-@@ -739,13 +739,10 @@ static void pseries_do_memory_failure(struct pt_regs *regs,
- 	if (mce_log->sub_err_type & UE_LOGICAL_ADDR_PROVIDED) {
- 		paddr = be64_to_cpu(mce_log->logical_address);
- 	} else if (mce_log->sub_err_type & UE_EFFECTIVE_ADDR_PROVIDED) {
--		unsigned long pfn;
--
--		pfn = addr_to_pfn(regs,
--				  be64_to_cpu(mce_log->effective_address));
--		if (pfn == ULONG_MAX)
-+		paddr = addr_to_phys(regs,
-+				     be64_to_cpu(mce_log->effective_address));
-+		if (paddr == ULONG_MAX)
- 			return;
--		paddr = pfn << PAGE_SHIFT;
- 	} else {
- 		return;
- 	}
+ 	struct mlx5_ib_resources *devr = &dev->devr;
+-	struct mlx5_ib_create_qp_resp resp;
++	struct mlx5_ib_create_qp_resp resp = {};
+ 	struct mlx5_create_qp_mbox_in *in;
+ 	struct mlx5_general_caps *gen;
+ 	struct mlx5_ib_create_qp ucmd;
 -- 
-2.21.0
+2.23.0.rc1.153.gdeed80330f-goog
 
