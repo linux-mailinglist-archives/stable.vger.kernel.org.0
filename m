@@ -2,94 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97F118A89F
-	for <lists+stable@lfdr.de>; Mon, 12 Aug 2019 22:48:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC3068A926
+	for <lists+stable@lfdr.de>; Mon, 12 Aug 2019 23:17:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726824AbfHLUsn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Aug 2019 16:48:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47982 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726648AbfHLUsn (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Mon, 12 Aug 2019 16:48:43 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD40720684;
-        Mon, 12 Aug 2019 20:48:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565642922;
-        bh=YbirVaVYrd59KNcjW116Oa7bxc83FMhjV/byQmHfmXE=;
-        h=Subject:To:From:Date:From;
-        b=dLpcsJcPMthQNzhyptKgwk+TobnuV5bMgUyELk5yRaLlh5hBD+a37L2eWSqFSW9O+
-         8NDmCg4oq/YUozDjZK7rXJAE0lZZjxxMgH6Mr6JE7Vwo1iW8lf6Xr5QLHYzNX5XFuj
-         Xq+gO5rZsmNUrmnmDwNHhoEf/xPPGEY1mmxCm6B4=
-Subject: patch "iio: adc: max9611: Fix temperature reading in probe" added to staging-linus
-To:     jacopo+renesas@jmondi.org, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 12 Aug 2019 22:48:32 +0200
-Message-ID: <156564291279229@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+        id S1726500AbfHLVR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Aug 2019 17:17:56 -0400
+Received: from mail-pl1-f201.google.com ([209.85.214.201]:42483 "EHLO
+        mail-pl1-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726144AbfHLVR4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Aug 2019 17:17:56 -0400
+Received: by mail-pl1-f201.google.com with SMTP id x1so19314086plm.9
+        for <stable@vger.kernel.org>; Mon, 12 Aug 2019 14:17:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=YTDGC6oAA/dTzgXBrTYj01WvG2SerqNpZqjkel+Et1E=;
+        b=kJiV4Lw4QO9Q0JpAHWuuiG5fSTYnUMJQjMqJpMivZ+TP/kX/tpuILtZzbdDxWpFMTc
+         BNwr7B5+0E36xZgzrS7yBmwWf1AMf0LCIynPY/GT25YIAKE7BReWsAQ7wT7r+FqUYUVa
+         JkUArmrL5O5cHp9hjEVxcHsrYlefJmlO9Qxp6vKyJ73XqrgUW4MoSi3zUw4HpNUhS89m
+         6eeyGbNCZpOOLYC+M3U0seHB3Yk8hD4k12X+8O3IUaYPeOApzQccRT0N/2Ub2A4xdWNl
+         n0fSfYFILO/5bAwW/o1KPzBBGn7Bmuhgb5+BVLvuWgPZDhjw6JrbBCvA/X12VHE7BcuX
+         sqXw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=YTDGC6oAA/dTzgXBrTYj01WvG2SerqNpZqjkel+Et1E=;
+        b=J8gU4uL78Pen9t06YaEwqdmFUwJAPliyFgf8pPbOEbWv62KNll/jodqFokjpPkGeOW
+         UFdA7xZw606QPc3LVnPXrCkTDsx3jzYFcWYgsSiLVMXdoyNL1Y6zfUFBxhC9U9gswuE5
+         2To5Zc3fp/5femsVW2fsz3Xk9hp5VnLJODxz+F0O2EFMgTlTmED2JKpuz+ZX/92rFfT8
+         Iz/z786knknNp+Nn0Fe9YTa0mqYmcq++QMIeqC7UR6fF6CwK6OU/InRDsweFWBwwbxRG
+         WBPBUb2Ty6HFJGaSx86s8fMjZ4qqD54Z5A1mH/c60WAoW7CNL2+PfnLlPOLlR3YQfdbM
+         2BEA==
+X-Gm-Message-State: APjAAAWS06mZaUd6HERiXS/6KwNmJfaERw5ghHgnCSCX40kzrXnkoXnw
+        dZBeNOVPQyaQfM4a2SrVw8BWcC1HaJ2hEoPVdeM0yWBDYc9WLdR9diX3Y3UoSHgtU4SgxiBQYca
+        CD+CEyej6EegbrwhmaDZcSlwBl4CTv9PGW1hwnHzj2W54e2GYtsKZ+v13aLBzmZbS7iyT1v/6AV
+        I2CA==
+X-Google-Smtp-Source: APXvYqzXsbEq5Hpn58bGBgMM1wbNU8eVbWXoRWZ/H6v5OtO2CJlBBg7swUvb6uOExop/BkXI0wxhsqfZyxNh4uVFtjM=
+X-Received: by 2002:a65:4808:: with SMTP id h8mr14748082pgs.22.1565644675027;
+ Mon, 12 Aug 2019 14:17:55 -0700 (PDT)
+Date:   Mon, 12 Aug 2019 14:17:50 -0700
+Message-Id: <20190812211750.61025-1-ndesaulniers@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.23.0.rc1.153.gdeed80330f-goog
+Subject: [4.14 PATCH] lkdtm: support llvm-objcopy
+From:   Nick Desaulniers <ndesaulniers@google.com>
+To:     stable@vger.kernel.org
+Cc:     pcc@google.com, Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Alan Modra <amodra@gmail.com>,
+        Jordan Rupprect <rupprecht@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+commit e9e08a07385e08f1a7f85c5d1e345c21c9564963 upstream.
 
-This is a note to let you know that I've just added the patch titled
+With CONFIG_LKDTM=y and make OBJCOPY=llvm-objcopy, llvm-objcopy errors:
+llvm-objcopy: error: --set-section-flags=.text conflicts with
+--rename-section=.text=.rodata
 
-    iio: adc: max9611: Fix temperature reading in probe
+Rather than support setting flags then renaming sections vs renaming
+then setting flags, it's simpler to just change both at the same time
+via --rename-section. Adding the load flag is required for GNU objcopy
+to mark .rodata Type as PROGBITS after the rename.
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-linus branch.
+This can be verified with:
+$ readelf -S drivers/misc/lkdtm/rodata_objcopy.o
+...
+Section Headers:
+  [Nr] Name              Type             Address           Offset
+       Size              EntSize          Flags  Link  Info  Align
+...
+  [ 1] .rodata           PROGBITS         0000000000000000  00000040
+       0000000000000004  0000000000000000   A       0     0     4
+...
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+Which shows that .text is now renamed .rodata, the alloc flag A is set,
+the type is PROGBITS, and the section is not flagged as writeable W.
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From b9ddd5091160793ee9fac10da765cf3f53d2aaf0 Mon Sep 17 00:00:00 2001
-From: Jacopo Mondi <jacopo+renesas@jmondi.org>
-Date: Mon, 5 Aug 2019 17:55:15 +0200
-Subject: iio: adc: max9611: Fix temperature reading in probe
-
-The max9611 driver reads the die temperature at probe time to validate
-the communication channel. Use the actual read value to perform the test
-instead of the read function return value, which was mistakenly used so
-far.
-
-The temperature reading test was only successful because the 0 return
-value is in the range of supported temperatures.
-
-Fixes: 69780a3bbc0b ("iio: adc: Add Maxim max9611 ADC driver")
-Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: stable@vger.kernel.org
+Link: https://sourceware.org/bugzilla/show_bug.cgi?id=24554
+Link: https://github.com/ClangBuiltLinux/linux/issues/448
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Suggested-by: Alan Modra <amodra@gmail.com>
+Suggested-by: Jordan Rupprect <rupprecht@google.com>
+Suggested-by: Kees Cook <keescook@chromium.org>
+Acked-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/max9611.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This backport is for 4.14.  It should allow us to use llvm-objcopy for
+RELR relocations on arm64 in Android.
 
-diff --git a/drivers/iio/adc/max9611.c b/drivers/iio/adc/max9611.c
-index 0e3c6529fc4c..da073d72f649 100644
---- a/drivers/iio/adc/max9611.c
-+++ b/drivers/iio/adc/max9611.c
-@@ -480,7 +480,7 @@ static int max9611_init(struct max9611_dev *max9611)
- 	if (ret)
- 		return ret;
+ drivers/misc/Makefile | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
+index ad0e64fdba34..76f6a4f628b3 100644
+--- a/drivers/misc/Makefile
++++ b/drivers/misc/Makefile
+@@ -69,8 +69,7 @@ KCOV_INSTRUMENT_lkdtm_rodata.o	:= n
  
--	regval = ret & MAX9611_TEMP_MASK;
-+	regval &= MAX9611_TEMP_MASK;
- 
- 	if ((regval > MAX9611_TEMP_MAX_POS &&
- 	     regval < MAX9611_TEMP_MIN_NEG) ||
+ OBJCOPYFLAGS :=
+ OBJCOPYFLAGS_lkdtm_rodata_objcopy.o := \
+-			--set-section-flags .text=alloc,readonly \
+-			--rename-section .text=.rodata
++	--rename-section .text=.rodata,alloc,readonly,load
+ targets += lkdtm_rodata.o lkdtm_rodata_objcopy.o
+ $(obj)/lkdtm_rodata_objcopy.o: $(obj)/lkdtm_rodata.o FORCE
+ 	$(call if_changed,objcopy)
 -- 
-2.22.0
-
+2.23.0.rc1.153.gdeed80330f-goog
 
