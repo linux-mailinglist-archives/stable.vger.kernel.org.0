@@ -2,102 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 000B38A010
-	for <lists+stable@lfdr.de>; Mon, 12 Aug 2019 15:50:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADEEC8A01A
+	for <lists+stable@lfdr.de>; Mon, 12 Aug 2019 15:53:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727066AbfHLNuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Aug 2019 09:50:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36088 "EHLO mail.kernel.org"
+        id S1727084AbfHLNxd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Aug 2019 09:53:33 -0400
+Received: from foss.arm.com ([217.140.110.172]:50496 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726703AbfHLNuU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Aug 2019 09:50:20 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FE1B20665;
-        Mon, 12 Aug 2019 13:50:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565617819;
-        bh=+Ao2T+JW9I6b1V3DbH8L0V6nvIU+r21oCDVsEQiKJlM=;
-        h=Subject:To:From:Date:From;
-        b=Rrd3OFF7pmHWLHfpWVJVEZYeDtTnyW7556Kd48XuUUQsdpxNaAuPGkIWjXcol/adZ
-         T+acpsIeSREmiiKaCUt9c9YFUUiyhoCYAgknTImR9ATlPtapcWShUrG5pSm2b8YGtT
-         MuwUvQrH75gLDkr6BrwlwF9BmcQozDegiCgWrpoU=
-Subject: patch "usb: gadget: udc: renesas_usb3: Fix sysfs interface of "role"" added to usb-linus
-To:     yoshihiro.shimoda.uh@renesas.com, felipe.balbi@linux.intel.com,
-        geert+renesas@glider.be, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 12 Aug 2019 15:50:17 +0200
-Message-ID: <15656178172162@kroah.com>
+        id S1726558AbfHLNxd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Aug 2019 09:53:33 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id F320915A2;
+        Mon, 12 Aug 2019 06:53:32 -0700 (PDT)
+Received: from dawn-kernel.cambridge.arm.com (unknown [10.1.197.116])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 3226B3F718;
+        Mon, 12 Aug 2019 06:53:32 -0700 (PDT)
+From:   Suzuki K Poulose <suzuki.poulose@arm.com>
+To:     stable@vger.kernel.org
+Cc:     suzuki.poulose@arm.com, mathieu.poirier@linaro.org,
+        linux-arm-kernel@lists.infradead.org, gregkh@linuxfoundation.org
+Subject: [PATCH] coresight: Fix DEBUG_LOCKS_WARN_ON for uninitialized attribute
+Date:   Mon, 12 Aug 2019 14:53:28 +0100
+Message-Id: <20190812135328.30952-1-suzuki.poulose@arm.com>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+commit 5511c0c309db4c526a6e9f8b2b8a1483771574bc upstream
 
-This is a note to let you know that I've just added the patch titled
+While running the linux-next with CONFIG_DEBUG_LOCKS_ALLOC enabled,
+I get the following splat.
 
-    usb: gadget: udc: renesas_usb3: Fix sysfs interface of "role"
+ BUG: key ffffcb5636929298 has not been registered!
+ ------------[ cut here ]------------
+ DEBUG_LOCKS_WARN_ON(1)
+ WARNING: CPU: 1 PID: 53 at kernel/locking/lockdep.c:3669 lockdep_init_map+0x164/0x1f0
+ CPU: 1 PID: 53 Comm: kworker/1:1 Tainted: G  W  5.2.0-next-20190712-00015-g00ad4634222e-dirty #603
+ Workqueue: events amba_deferred_retry_func
+ pstate: 60c00005 (nZCv daif +PAN +UAO)
+ pc : lockdep_init_map+0x164/0x1f0
+ lr : lockdep_init_map+0x164/0x1f0
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+ [ trimmed ]
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+ Call trace:
+  lockdep_init_map+0x164/0x1f0
+  __kernfs_create_file+0x9c/0x158
+  sysfs_add_file_mode_ns+0xa8/0x1d0
+  sysfs_add_file_to_group+0x88/0xd8
+  etm_perf_add_symlink_sink+0xcc/0x138
+  coresight_register+0x110/0x280
+  tmc_probe+0x160/0x420
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+ [ trimmed ]
 
-If you have any questions about this process, please let me know.
+ ---[ end trace ab4cc669615ba1b0 ]---
 
+Fix this by initialising the dynamically allocated attribute properly.
 
-From 5dac665cf403967bb79a7aeb8c182a621fe617ff Mon Sep 17 00:00:00 2001
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Date: Wed, 31 Jul 2019 19:15:43 +0900
-Subject: usb: gadget: udc: renesas_usb3: Fix sysfs interface of "role"
-
-Since the role_store() uses strncmp(), it's possible to refer
-out-of-memory if the sysfs data size is smaller than strlen("host").
-This patch fixes it by using sysfs_streq() instead of strncmp().
-
-Fixes: cc995c9ec118 ("usb: gadget: udc: renesas_usb3: add support for usb role swap")
-Cc: <stable@vger.kernel.org> # v4.12+
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Fixes: bb8e370bdc14 ("coresight: perf: Add "sinks" group to PMU directory")
+Cc: stable@vger.kernel.org # 5.2.x-
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
 ---
- drivers/usb/gadget/udc/renesas_usb3.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/hwtracing/coresight/coresight-etm-perf.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/gadget/udc/renesas_usb3.c b/drivers/usb/gadget/udc/renesas_usb3.c
-index 87062d22134d..1f4c3fbd1df8 100644
---- a/drivers/usb/gadget/udc/renesas_usb3.c
-+++ b/drivers/usb/gadget/udc/renesas_usb3.c
-@@ -19,6 +19,7 @@
- #include <linux/pm_runtime.h>
- #include <linux/sizes.h>
- #include <linux/slab.h>
-+#include <linux/string.h>
- #include <linux/sys_soc.h>
- #include <linux/uaccess.h>
- #include <linux/usb/ch9.h>
-@@ -2450,9 +2451,9 @@ static ssize_t role_store(struct device *dev, struct device_attribute *attr,
- 	if (usb3->forced_b_device)
- 		return -EBUSY;
+diff --git a/drivers/hwtracing/coresight/coresight-etm-perf.c b/drivers/hwtracing/coresight/coresight-etm-perf.c
+index 3c6294432748..1ef098ff27c3 100644
+--- a/drivers/hwtracing/coresight/coresight-etm-perf.c
++++ b/drivers/hwtracing/coresight/coresight-etm-perf.c
+@@ -544,6 +544,7 @@ int etm_perf_add_symlink_sink(struct coresight_device *csdev)
+ 	/* See function coresight_get_sink_by_id() to know where this is used */
+ 	hash = hashlen_hash(hashlen_string(NULL, name));
  
--	if (!strncmp(buf, "host", strlen("host")))
-+	if (sysfs_streq(buf, "host"))
- 		new_mode_is_host = true;
--	else if (!strncmp(buf, "peripheral", strlen("peripheral")))
-+	else if (sysfs_streq(buf, "peripheral"))
- 		new_mode_is_host = false;
- 	else
- 		return -EINVAL;
++	sysfs_attr_init(&ea->attr.attr);
+ 	ea->attr.attr.name = devm_kstrdup(pdev, name, GFP_KERNEL);
+ 	if (!ea->attr.attr.name)
+ 		return -ENOMEM;
 -- 
-2.22.0
-
+2.21.0
 
