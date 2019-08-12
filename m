@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D93088A184
-	for <lists+stable@lfdr.de>; Mon, 12 Aug 2019 16:48:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C683E8A182
+	for <lists+stable@lfdr.de>; Mon, 12 Aug 2019 16:48:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726823AbfHLOsl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Aug 2019 10:48:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59298 "EHLO mail.kernel.org"
+        id S1726537AbfHLOsd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Aug 2019 10:48:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726710AbfHLOsl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Aug 2019 10:48:41 -0400
+        id S1726710AbfHLOsd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Aug 2019 10:48:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8307A206A2;
-        Mon, 12 Aug 2019 14:48:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 307B7206A2;
+        Mon, 12 Aug 2019 14:48:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565621321;
-        bh=+20T8bH0VYxGwsIK5+QBxKxyw9ebWZ3pUVfP530MSBI=;
+        s=default; t=1565621312;
+        bh=nSx2VtkkIFSCQ9VzHGXwUxoMmn9vUIkc8WGbPO6iN2k=;
         h=Subject:To:From:Date:From;
-        b=dUwAanj6OrL5p2OPvbo6rTKrCzXs1qlJ+a9kCNOsgdDzGPQGnE61w884qL0UMMb68
-         IuxUCWlz8BN8MdyKUAfhWQMfG5QaRNkxOY+j02lyw8ORJPh7L96B3EM6SbLEX++xhT
-         h3lywO9tI0CL1wkXR/v9w9OakVlGvMWFRMfz2hls=
-Subject: patch "staging: comedi: dt3000: Fix rounding up of timer divisor" added to staging-linus
-To:     abbotti@mev.co.uk, gregkh@linuxfoundation.org,
+        b=dCI8cr/e92Y8vDwd1s5Bo+Ich06Xc5/CKbAaCbDT6ehyiqO2PR3IQX1e2sSAZqEkC
+         ccXN/zbswAaIYEmTDWx8l0H8oUlkZ2JWxO/giiJfgiIwmlhxJBmvMsNflF9IObgTzp
+         Vje8FAr1w3sPD0YXtMhCNq1R5i+rB5Sorhb83zQE=
+Subject: patch "staging: comedi: dt3000: Fix signed integer overflow 'divider * base'" added to staging-linus
+To:     abbotti@mev.co.uk, dcb314@hotmail.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 12 Aug 2019 16:48:30 +0200
-Message-ID: <1565621310822@kroah.com>
+Message-ID: <156562131020573@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: comedi: dt3000: Fix rounding up of timer divisor
+    staging: comedi: dt3000: Fix signed integer overflow 'divider * base'
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -55,57 +55,53 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 8e2a589a3fc36ce858d42e767c3bcd8fc62a512b Mon Sep 17 00:00:00 2001
+From b4d98bc3fc93ec3a58459948a2c0e0c9b501cd88 Mon Sep 17 00:00:00 2001
 From: Ian Abbott <abbotti@mev.co.uk>
-Date: Mon, 12 Aug 2019 13:08:14 +0100
-Subject: staging: comedi: dt3000: Fix rounding up of timer divisor
+Date: Mon, 12 Aug 2019 12:15:17 +0100
+Subject: staging: comedi: dt3000: Fix signed integer overflow 'divider * base'
 
-`dt3k_ns_to_timer()` determines the prescaler and divisor to use to
-produce a desired timing period.  It is influenced by a rounding mode
-and can round the divisor up, down, or to the nearest value.  However,
-the code for rounding up currently does the same as rounding down!  Fix
-ir by using the `DIV_ROUND_UP()` macro to calculate the divisor when
-rounding up.
+In `dt3k_ns_to_timer()` the following lines near the end of the function
+result in a signed integer overflow:
 
-Also, change the types of the `divider`, `base` and `prescale` variables
-from `int` to `unsigned int` to avoid mixing signed and unsigned types
-in the calculations.
+	prescale = 15;
+	base = timer_base * (1 << prescale);
+	divider = 65535;
+	*nanosec = divider * base;
 
-Also fix a typo in a nearby comment: "improvment" => "improvement".
+(`divider`, `base` and `prescale` are type `int`, `timer_base` and
+`*nanosec` are type `unsigned int`.  The value of `timer_base` will be
+either 50 or 100.)
 
+The main reason for the overflow is that the calculation for `base` is
+completely wrong.  It should be:
+
+	base = timer_base * (prescale + 1);
+
+which matches an earlier instance of this calculation in the same
+function.
+
+Reported-by: David Binderman <dcb314@hotmail.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190812120814.21188-1-abbotti@mev.co.uk
+Link: https://lore.kernel.org/r/20190812111517.26803-1-abbotti@mev.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/comedi/drivers/dt3000.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/staging/comedi/drivers/dt3000.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/staging/comedi/drivers/dt3000.c b/drivers/staging/comedi/drivers/dt3000.c
-index 4ad176fc14ad..caf4d4df4bd3 100644
+index 2edf3ee91300..4ad176fc14ad 100644
 --- a/drivers/staging/comedi/drivers/dt3000.c
 +++ b/drivers/staging/comedi/drivers/dt3000.c
-@@ -342,9 +342,9 @@ static irqreturn_t dt3k_interrupt(int irq, void *d)
- static int dt3k_ns_to_timer(unsigned int timer_base, unsigned int *nanosec,
- 			    unsigned int flags)
- {
--	int divider, base, prescale;
-+	unsigned int divider, base, prescale;
+@@ -368,7 +368,7 @@ static int dt3k_ns_to_timer(unsigned int timer_base, unsigned int *nanosec,
+ 	}
  
--	/* This function needs improvment */
-+	/* This function needs improvement */
- 	/* Don't know if divider==0 works. */
- 
- 	for (prescale = 0; prescale < 16; prescale++) {
-@@ -358,7 +358,7 @@ static int dt3k_ns_to_timer(unsigned int timer_base, unsigned int *nanosec,
- 			divider = (*nanosec) / base;
- 			break;
- 		case CMDF_ROUND_UP:
--			divider = (*nanosec) / base;
-+			divider = DIV_ROUND_UP(*nanosec, base);
- 			break;
- 		}
- 		if (divider < 65536) {
+ 	prescale = 15;
+-	base = timer_base * (1 << prescale);
++	base = timer_base * (prescale + 1);
+ 	divider = 65535;
+ 	*nanosec = divider * base;
+ 	return (prescale << 16) | (divider);
 -- 
 2.22.0
 
