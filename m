@@ -2,82 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86A048A193
-	for <lists+stable@lfdr.de>; Mon, 12 Aug 2019 16:53:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 093198A287
+	for <lists+stable@lfdr.de>; Mon, 12 Aug 2019 17:42:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726710AbfHLOxe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Aug 2019 10:53:34 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:45767 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726689AbfHLOxe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Aug 2019 10:53:34 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 5A0C8210DC;
-        Mon, 12 Aug 2019 10:53:33 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 12 Aug 2019 10:53:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=B3I7YIzP126Whgj9tF1BCT1Cx4w
-        EV7hz3a/rHtzIpVE=; b=nOJ+ana2vL8IYj945Ruz1PStQGeuJtAI1wlYrfvGLio
-        sfW3sZZ/nhP/jqxnJyGJmylsKpXOzeiHbuWJtox5xrFJJxIiq/tRk/a6h3HhV7Gm
-        tsKSkLAET6zI2hd2JRm6U9WJ/5Rnld3+Vaj9CctLsqSrl01B0BbBLZGiVa+AMHe5
-        YLmwWoouWQOSaKHA+YtuqcscHI8vi1c6d97K2bkRTmFPJogZ8dxxN6ZWLMoAbWRN
-        3lnqBHw8kTrTBKaUwSlAHZPk9UeBt9FmpVvKh42u9kNI+fchm8ZeRc3UGZpcLjhW
-        r6mc6/tmiBmrfaKNuXbugdbJ/et4A2pZZitpHvwHa0g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=B3I7YI
-        zP126Whgj9tF1BCT1Cx4wEV7hz3a/rHtzIpVE=; b=j7KwKNJGhTCxhbikQ2kJ9w
-        PhsGkE+H5L7eX3f0SC7nSSC+SjiGRiOveQnt+oSS8NqfkyIvDnZIRfHVPcd+hiaE
-        mCgpdOa7pCUNYymHEKXpdKA3g7ynNmEXNoKc0CUgUTgSdWkNtW9pnpIkJUhQZ99+
-        LX5k4HzWQRCAB/FWDp4DXcivetED3dKTRMXjpohtJ9Ucp9ey9w7fsc0yz2gUPEz1
-        VPxMbjMNFKISUc8rim8UjxbGXNICRsZtMPOSeMgKjRBhXU5dGLPyuD3+dg7BwMCM
-        QWrrsturwcjwAmBkv4OcJpMXFkPBFBA24Q1W2gvEaV+lx3CTrrqJCaNuYZwbjUhw
-        ==
-X-ME-Sender: <xms:bX1RXZYtQgpowiclvaaG5fOdXptKIdgXUxKdEiXu3YAmoKxRc0JY8Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddvgedgkeefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
-    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:bX1RXXUu_eavnbf4FzTOMEoNCERQIg0g0o7uEhcHWiemvYPbYzX8dA>
-    <xmx:bX1RXSaRJqfB8xjxpFgdEfYdDzNksglk45GXlZsqWQKLfNqhbsNV6Q>
-    <xmx:bX1RXWL6Ttaj9T_Q7JyE2bYphgJRSAax0CsYUGZcWbnotCgVSUYEbg>
-    <xmx:bX1RXVShVG-0LyzG3mMqL8bdFXwdHfH1YqaW1GMTmuPcV6EPxioEEg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 926C880063;
-        Mon, 12 Aug 2019 10:53:32 -0400 (EDT)
-Date:   Mon, 12 Aug 2019 16:53:30 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Major Hayden <major@redhat.com>
-Cc:     Stable <stable@vger.kernel.org>
-Subject: Re: Reports from the CKI Project are back!
-Message-ID: <20190812145330.GC22363@kroah.com>
-References: <166c8369-e09f-6395-ca0e-e8825767ca75@redhat.com>
+        id S1726200AbfHLPmy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Aug 2019 11:42:54 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:65245 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725648AbfHLPmy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Aug 2019 11:42:54 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 17971654-1500050 
+        for multiple; Mon, 12 Aug 2019 16:42:48 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     dri-devel@lists.freedesktop.org
+Cc:     intel-gfx@lists.freedesktop.org,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        Sean Paul <seanpaul@chromium.org>,
+        Gustavo Padovan <gustavo@padovan.org>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] dma-buf/sw_sync: Synchronize signal vs syncpt free
+Date:   Mon, 12 Aug 2019 16:42:47 +0100
+Message-Id: <20190812154247.20508-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.23.0.rc1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <166c8369-e09f-6395-ca0e-e8825767ca75@redhat.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 12, 2019 at 09:43:39AM -0500, Major Hayden wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA256
-> 
-> Hello there,
-> 
-> The CKI is pleased to announce that we are enabling automated reports
-> again for the stable mailing list! We now upload more logs to help
-> with troubleshooting failures.
+During release of the syncpt, we remove it from the list of syncpt and
+the tree, but only if it is not already been removed. However, during
+signaling, we first remove the syncpt from the list. So, if we
+concurrently free and signal the syncpt, the free may decide that it is
+not part of the tree and immediately free itself -- meanwhile the
+signaler goes onto to use the now freed datastructure.
 
-Great, good luck with this!
+In particular, we get struct by commit 0e2f733addbf ("dma-buf: make
+dma_fence structure a bit smaller v2") as the cb_list is immediately
+clobbered by the kfree_rcu.
 
-greg k-h
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111381
+Fixes: d3862e44daa7 ("dma-buf/sw-sync: Fix locking around sync_timeline lists")
+References: 0e2f733addbf ("dma-buf: make dma_fence structure a bit smaller v2")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Sumit Semwal <sumit.semwal@linaro.org>
+Cc: Sean Paul <seanpaul@chromium.org>
+Cc: Gustavo Padovan <gustavo@padovan.org>
+Cc: Christian König <christian.koenig@amd.com>
+Cc: <stable@vger.kernel.org> # v4.14+
+---
+ drivers/dma-buf/sw_sync.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/dma-buf/sw_sync.c b/drivers/dma-buf/sw_sync.c
+index 051f6c2873c7..27b1d549ed38 100644
+--- a/drivers/dma-buf/sw_sync.c
++++ b/drivers/dma-buf/sw_sync.c
+@@ -132,17 +132,14 @@ static void timeline_fence_release(struct dma_fence *fence)
+ {
+ 	struct sync_pt *pt = dma_fence_to_sync_pt(fence);
+ 	struct sync_timeline *parent = dma_fence_parent(fence);
++	unsigned long flags;
+ 
++	spin_lock_irqsave(fence->lock, flags);
+ 	if (!list_empty(&pt->link)) {
+-		unsigned long flags;
+-
+-		spin_lock_irqsave(fence->lock, flags);
+-		if (!list_empty(&pt->link)) {
+-			list_del(&pt->link);
+-			rb_erase(&pt->node, &parent->pt_tree);
+-		}
+-		spin_unlock_irqrestore(fence->lock, flags);
++		list_del(&pt->link);
++		rb_erase(&pt->node, &parent->pt_tree);
+ 	}
++	spin_unlock_irqrestore(fence->lock, flags);
+ 
+ 	sync_timeline_put(parent);
+ 	dma_fence_free(fence);
+-- 
+2.23.0.rc1
+
