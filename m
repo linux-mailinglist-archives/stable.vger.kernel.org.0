@@ -2,164 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F5008A6CB
-	for <lists+stable@lfdr.de>; Mon, 12 Aug 2019 21:03:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CFAF8A89D
+	for <lists+stable@lfdr.de>; Mon, 12 Aug 2019 22:48:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726595AbfHLTDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Aug 2019 15:03:16 -0400
-Received: from smtp.codeaurora.org ([198.145.29.96]:56200 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726533AbfHLTDP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Aug 2019 15:03:15 -0400
-Received: by smtp.codeaurora.org (Postfix, from userid 1000)
-        id CDD146050D; Mon, 12 Aug 2019 19:03:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1565636594;
-        bh=+MD5LElchqMbgLC+3+P9vMAxbocPXBlWdeP3RWd6oDk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=l3asKrudoUAE7CgF87q2VGkOkp4swtEZhNPb+uskZNC2m8+HvtjsIJni+IGkUJNLI
-         V5tIjeQZegsYj1k0i6cnArr7Wa9nam2m9l+VVnk8dIvzuNBUoYF06hzooz1c9Z5JIj
-         ttLqRPrl9VyCeBLf2RunXtqMdhk29MR+m9Yc+Mjk=
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        pdx-caf-mail.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.7 required=2.0 tests=ALL_TRUSTED,BAYES_00,
-        DKIM_INVALID,DKIM_SIGNED,SPF_NONE autolearn=no autolearn_force=no
-        version=3.4.0
-Received: from isaacm-linux.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        id S1726768AbfHLUsV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Aug 2019 16:48:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47880 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726749AbfHLUsV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Aug 2019 16:48:21 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: isaacm@smtp.codeaurora.org)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 740ED6050D;
-        Mon, 12 Aug 2019 19:03:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1565636593;
-        bh=+MD5LElchqMbgLC+3+P9vMAxbocPXBlWdeP3RWd6oDk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=nlmdTbTvm32M7IXOQXJw6f7XJyYZXQETneNM0FW5ObkoIM+j+m8FlGrtWXDJj+0Xf
-         +wc1WsVcko+Bar7TibcAMab3/EpgSkldzfbi+hdKrACo/EgwnMAQzYoYKnJ0j8hnPu
-         QGOfORFJQXHhb/t7H6KvvVCjJqksG6JMcct8+T3M=
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 740ED6050D
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=isaacm@codeaurora.org
-From:   "Isaac J. Manjarres" <isaacm@codeaurora.org>
-To:     hch@lst.de, m.szyprowski@samsung.com, robin.murphy@arm.com
-Cc:     "Isaac J. Manjarres" <isaacm@codeaurora.org>,
-        iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
-        pratikp@codeaurora.org, lmark@codeaurora.org,
+        by mail.kernel.org (Postfix) with ESMTPSA id A384B20684;
+        Mon, 12 Aug 2019 20:48:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1565642900;
+        bh=IQ6m/2x6AYyn+rloEAo8VT1suRYXCgWQUr4Fwc1Af/M=;
+        h=Subject:To:From:Date:From;
+        b=vGqef24pvTL7QF8R+KPnJZFb1PSWWi4cW2JWuSJLXbwXG5q7aO6pIOW713g25AvEl
+         YRts35DpEklR5sEgw1KtbYmGkjcy5OhcAtpl66DN7wtVKGisvVmH/q1Rq4MnZ7oiB0
+         EBOff/SRFRjyKI/EcsFLTGT5ZqHSzrFLnZa9ljbM=
+Subject: patch "USB: core: Fix races in character device registration and" added to usb-linus
+To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
-Subject: [PATCH] dma-mapping: Use unsigned types for size checks
-Date:   Mon, 12 Aug 2019 12:03:02 -0700
-Message-Id: <1565636582-9802-1-git-send-email-isaacm@codeaurora.org>
-X-Mailer: git-send-email 1.9.1
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 12 Aug 2019 22:48:17 +0200
+Message-ID: <1565642897141251@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Both the size parameter in the dma_alloc_from_[dev/global]_coherent()
-functions and the size field in the dma_coherent_mem structure
-are represented by a signed quantity, which makes it so that any
-comparisons between these two quantities is a signed comparison.
 
-When a reserved memory region is larger than or equal to 2GB in
-size, this will cause the most significant bit to be set to 1,
-thus, treating the size as a negative number in signed
-comparisons.
+This is a note to let you know that I've just added the patch titled
 
-This can result in allocation failures when an amount of
-memory that is strictly less than 2 GB is requested from
-this region. The allocation fails because the signed comparison
-to prevent from allocating more memory than what is in the
-region in __dma_alloc_from_coherent() evaluates to true since
-the size of the region is treated as a negative number, but the
-size of the request is treated as a positive number.
+    USB: core: Fix races in character device registration and
 
-Thus, change the type of the size parameter in the allocation
-functions to an unsigned type, and change the type of the
-size field in the dma_coherent_mem structure to an unsigned type
-as well, as it does not make sense for sizes to be represented
-by signed quantities.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-Fixes: ee7e5516be4f ("generic: per-device coherent dma allocator")
-Signed-off-by: Isaac J. Manjarres <isaacm@codeaurora.org>
-Cc: stable@vger.kernel.org
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 303911cfc5b95d33687d9046133ff184cf5043ff Mon Sep 17 00:00:00 2001
+From: Alan Stern <stern@rowland.harvard.edu>
+Date: Mon, 12 Aug 2019 16:11:07 -0400
+Subject: USB: core: Fix races in character device registration and
+ deregistraion
+
+The syzbot fuzzer has found two (!) races in the USB character device
+registration and deregistration routines.  This patch fixes the races.
+
+The first race results from the fact that usb_deregister_dev() sets
+usb_minors[intf->minor] to NULL before calling device_destroy() on the
+class device.  This leaves a window during which another thread can
+allocate the same minor number but will encounter a duplicate name
+error when it tries to register its own class device.  A typical error
+message in the system log would look like:
+
+    sysfs: cannot create duplicate filename '/class/usbmisc/ldusb0'
+
+The patch fixes this race by destroying the class device first.
+
+The second race is in usb_register_dev().  When that routine runs, it
+first allocates a minor number, then drops minor_rwsem, and then
+creates the class device.  If the device creation fails, the minor
+number is deallocated and the whole routine returns an error.  But
+during the time while minor_rwsem was dropped, there is a window in
+which the minor number is allocated and so another thread can
+successfully open the device file.  Typically this results in
+use-after-free errors or invalid accesses when the other thread closes
+its open file reference, because the kernel then tries to release
+resources that were already deallocated when usb_register_dev()
+failed.  The patch fixes this race by keeping minor_rwsem locked
+throughout the entire routine.
+
+Reported-and-tested-by: syzbot+30cf45ebfe0b0c4847a1@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+CC: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.1908121607590.1659-100000@iolanthe.rowland.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/dma-mapping.h | 6 +++---
- kernel/dma/coherent.c       | 8 ++++----
- 2 files changed, 7 insertions(+), 7 deletions(-)
+ drivers/usb/core/file.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-index f7d1eea..06d446d 100644
---- a/include/linux/dma-mapping.h
-+++ b/include/linux/dma-mapping.h
-@@ -159,14 +159,14 @@ static inline int is_device_dma_capable(struct device *dev)
-  * These three functions are only for dma allocator.
-  * Don't use them in device drivers.
-  */
--int dma_alloc_from_dev_coherent(struct device *dev, ssize_t size,
-+int dma_alloc_from_dev_coherent(struct device *dev, size_t size,
- 				       dma_addr_t *dma_handle, void **ret);
- int dma_release_from_dev_coherent(struct device *dev, int order, void *vaddr);
+diff --git a/drivers/usb/core/file.c b/drivers/usb/core/file.c
+index 65de6f73b672..558890ada0e5 100644
+--- a/drivers/usb/core/file.c
++++ b/drivers/usb/core/file.c
+@@ -193,9 +193,10 @@ int usb_register_dev(struct usb_interface *intf,
+ 		intf->minor = minor;
+ 		break;
+ 	}
+-	up_write(&minor_rwsem);
+-	if (intf->minor < 0)
++	if (intf->minor < 0) {
++		up_write(&minor_rwsem);
+ 		return -EXFULL;
++	}
  
- int dma_mmap_from_dev_coherent(struct device *dev, struct vm_area_struct *vma,
- 			    void *cpu_addr, size_t size, int *ret);
- 
--void *dma_alloc_from_global_coherent(ssize_t size, dma_addr_t *dma_handle);
-+void *dma_alloc_from_global_coherent(size_t size, dma_addr_t *dma_handle);
- int dma_release_from_global_coherent(int order, void *vaddr);
- int dma_mmap_from_global_coherent(struct vm_area_struct *vma, void *cpu_addr,
- 				  size_t size, int *ret);
-@@ -176,7 +176,7 @@ int dma_mmap_from_global_coherent(struct vm_area_struct *vma, void *cpu_addr,
- #define dma_release_from_dev_coherent(dev, order, vaddr) (0)
- #define dma_mmap_from_dev_coherent(dev, vma, vaddr, order, ret) (0)
- 
--static inline void *dma_alloc_from_global_coherent(ssize_t size,
-+static inline void *dma_alloc_from_global_coherent(size_t size,
- 						   dma_addr_t *dma_handle)
- {
- 	return NULL;
-diff --git a/kernel/dma/coherent.c b/kernel/dma/coherent.c
-index 29fd659..c671d5c 100644
---- a/kernel/dma/coherent.c
-+++ b/kernel/dma/coherent.c
-@@ -13,7 +13,7 @@ struct dma_coherent_mem {
- 	void		*virt_base;
- 	dma_addr_t	device_base;
- 	unsigned long	pfn_base;
--	int		size;
-+	unsigned long	size;
- 	unsigned long	*bitmap;
- 	spinlock_t	spinlock;
- 	bool		use_dev_dma_pfn_offset;
-@@ -136,7 +136,7 @@ void dma_release_declared_memory(struct device *dev)
- EXPORT_SYMBOL(dma_release_declared_memory);
- 
- static void *__dma_alloc_from_coherent(struct dma_coherent_mem *mem,
--		ssize_t size, dma_addr_t *dma_handle)
-+		size_t size, dma_addr_t *dma_handle)
- {
- 	int order = get_order(size);
- 	unsigned long flags;
-@@ -179,7 +179,7 @@ static void *__dma_alloc_from_coherent(struct dma_coherent_mem *mem,
-  * Returns 0 if dma_alloc_coherent should continue with allocating from
-  * generic memory areas, or !0 if dma_alloc_coherent should return @ret.
-  */
--int dma_alloc_from_dev_coherent(struct device *dev, ssize_t size,
-+int dma_alloc_from_dev_coherent(struct device *dev, size_t size,
- 		dma_addr_t *dma_handle, void **ret)
- {
- 	struct dma_coherent_mem *mem = dev_get_coherent_memory(dev);
-@@ -191,7 +191,7 @@ int dma_alloc_from_dev_coherent(struct device *dev, ssize_t size,
- 	return 1;
+ 	/* create a usb class device for this usb interface */
+ 	snprintf(name, sizeof(name), class_driver->name, minor - minor_base);
+@@ -203,12 +204,11 @@ int usb_register_dev(struct usb_interface *intf,
+ 				      MKDEV(USB_MAJOR, minor), class_driver,
+ 				      "%s", kbasename(name));
+ 	if (IS_ERR(intf->usb_dev)) {
+-		down_write(&minor_rwsem);
+ 		usb_minors[minor] = NULL;
+ 		intf->minor = -1;
+-		up_write(&minor_rwsem);
+ 		retval = PTR_ERR(intf->usb_dev);
+ 	}
++	up_write(&minor_rwsem);
+ 	return retval;
  }
+ EXPORT_SYMBOL_GPL(usb_register_dev);
+@@ -234,12 +234,12 @@ void usb_deregister_dev(struct usb_interface *intf,
+ 		return;
  
--void *dma_alloc_from_global_coherent(ssize_t size, dma_addr_t *dma_handle)
-+void *dma_alloc_from_global_coherent(size_t size, dma_addr_t *dma_handle)
- {
- 	if (!dma_coherent_default_memory)
- 		return NULL;
+ 	dev_dbg(&intf->dev, "removing %d minor\n", intf->minor);
++	device_destroy(usb_class->class, MKDEV(USB_MAJOR, intf->minor));
+ 
+ 	down_write(&minor_rwsem);
+ 	usb_minors[intf->minor] = NULL;
+ 	up_write(&minor_rwsem);
+ 
+-	device_destroy(usb_class->class, MKDEV(USB_MAJOR, intf->minor));
+ 	intf->usb_dev = NULL;
+ 	intf->minor = -1;
+ 	destroy_usb_class();
 -- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project
+2.22.0
+
 
