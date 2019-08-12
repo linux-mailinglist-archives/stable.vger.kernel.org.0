@@ -2,105 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1212389FAE
-	for <lists+stable@lfdr.de>; Mon, 12 Aug 2019 15:28:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 000B38A010
+	for <lists+stable@lfdr.de>; Mon, 12 Aug 2019 15:50:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728743AbfHLN2o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Aug 2019 09:28:44 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:38776 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726219AbfHLN2o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Aug 2019 09:28:44 -0400
-Received: by mail-wm1-f66.google.com with SMTP id m125so7717323wmm.3
-        for <stable@vger.kernel.org>; Mon, 12 Aug 2019 06:28:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linbit-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=bTg0D8gCcPG/JWmmX96yNXeO3DHquJW5Hs2qALYKWxs=;
-        b=SFMQ3KM36HmwXFALuuEhARJ+72KsCWPKLULLLUZjmohl1bYPWj6f+aj9313omcBxxh
-         8y25z8oTlYZFtkI4GRsxOQm6wy/vqeW4WsZhCg1psKUs3giA2C6JKBAGyWKQ0ymR9KMe
-         1YXobo5NIgvhKRf7GYMofDs0oyVNYOIAFS1mFfv+f/eK25aFVlv1qeZuBx/1vHQJ98Zz
-         fLhG3DATXHq2U1bYzD80l0wzhxNV/nD2Cti355fsh+/crFu3O1JD9Jv0M1Yn1ML4uJ4C
-         eZhsItAWowF+ev2D1aQJn7ObpEgq9kOPsrMzNuvup7h6qARV/wax9RMfahNApjUX1fbb
-         krQw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=bTg0D8gCcPG/JWmmX96yNXeO3DHquJW5Hs2qALYKWxs=;
-        b=punyaGGKeuAaBgD+C+eVIFNjKW3LxxkoKzFnbxW9DAMHnx8mW3B8lk+RuDPwNnYtW0
-         +xNtRUrsOxPP1cw3NyMP/Bum7ztXZNSmex2xf59TV/frtjvd9S0qeR75YJZjhYD0uZhR
-         ZvEX8ZnVF5pB4KPNfWgLhZX2Xae3adxaFIK3QvCumVjnaVRCPWvxbHk+uXJMz8kmdoMJ
-         yjvQTAT1rotunCPZ0er0oLELcY47mswuKtQiwAEHEUyDdjx23W6t2gie9aPiGTDmoJ0H
-         dc4s4yh06YIVxTHn+7f+RPvCPD2Yl4xyUZcc8xfP2gge910Hp7rDZlpoh+66QKbocc5R
-         rqTg==
-X-Gm-Message-State: APjAAAUG2g5bKu3JmxlTIBqC/oMwUBtQenA1X3zlFyC/hGBpK/k8aEZT
-        zwadCybR9Sqnvfrut683yPomRg==
-X-Google-Smtp-Source: APXvYqws6dx8eZj3ZAJKpzyyf1lqVM1zMx4B42Q9uEyJIfjcwovxR7fdXw1IKrlKLhJUsCozhr0QnQ==
-X-Received: by 2002:a7b:c947:: with SMTP id i7mr28764649wml.77.1565616522204;
-        Mon, 12 Aug 2019 06:28:42 -0700 (PDT)
-Received: from fat-tyre.localnet ([2001:858:107:1:7139:36a7:c14f:e911])
-        by smtp.gmail.com with ESMTPSA id e13sm10539700wmh.44.2019.08.12.06.28.41
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 12 Aug 2019 06:28:41 -0700 (PDT)
-From:   Philipp Reisner <philipp.reisner@linbit.com>
-To:     David Laight <David.Laight@aculab.com>
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        'Christoph =?ISO-8859-1?Q?B=F6hmwalder=27?= 
-        <christoph.boehmwalder@linbit.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Eric W . Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] drbd: do not ignore signals in threads
-Date:   Mon, 12 Aug 2019 15:28:40 +0200
-Message-ID: <2789113.VEJ2NpTmzX@fat-tyre>
-In-Reply-To: <1fcbb94c5f264c17af3394807438ad50@AcuMS.aculab.com>
-References: <20190729083248.30362-1-christoph.boehmwalder@linbit.com> <1761552.9xIroHqhk7@fat-tyre> <1fcbb94c5f264c17af3394807438ad50@AcuMS.aculab.com>
+        id S1727066AbfHLNuV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Aug 2019 09:50:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36088 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726703AbfHLNuU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Aug 2019 09:50:20 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FE1B20665;
+        Mon, 12 Aug 2019 13:50:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1565617819;
+        bh=+Ao2T+JW9I6b1V3DbH8L0V6nvIU+r21oCDVsEQiKJlM=;
+        h=Subject:To:From:Date:From;
+        b=Rrd3OFF7pmHWLHfpWVJVEZYeDtTnyW7556Kd48XuUUQsdpxNaAuPGkIWjXcol/adZ
+         T+acpsIeSREmiiKaCUt9c9YFUUiyhoCYAgknTImR9ATlPtapcWShUrG5pSm2b8YGtT
+         MuwUvQrH75gLDkr6BrwlwF9BmcQozDegiCgWrpoU=
+Subject: patch "usb: gadget: udc: renesas_usb3: Fix sysfs interface of "role"" added to usb-linus
+To:     yoshihiro.shimoda.uh@renesas.com, felipe.balbi@linux.intel.com,
+        geert+renesas@glider.be, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 12 Aug 2019 15:50:17 +0200
+Message-ID: <15656178172162@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi David,
 
-[...]
-> While our code is 'out of tree' (you really don't want it - and since
-> it still uses force_sig() is fine) I suspect that the 'drdb' code
-> (with Christoph's allow_signal() patch) now loops in kernel if a user
-> sends it a signal.
+This is a note to let you know that I've just added the patch titled
 
-I am not asking for that out of tree code. But you are welcome to learn
-from the drbd code that is in the upstream kernel.
-It does not loop if a root sends a signal, it receives it and ignores it.
+    usb: gadget: udc: renesas_usb3: Fix sysfs interface of "role"
 
-> If the driver (eg drdb) is using (say) SIGINT to break a thread out of
-> (say) a blocking kernel_accept() call then it can detect the unexpected
-> signal (maybe double-checking with signal_pending()) but I don't think
-> it can clear down the pending signal so that kernel_accept() blocks
-> again.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-You do that with flush_signals(current)
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-What we have do is, somewhere in the main loop:
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-  if (signal_pending(current)) {
-			flush_signals(current);
-			if (!terminate_condition()) {
-				warn(connection, "Ignoring an unexpected signal\n");
-				continue;
-			}
-			break;
-		}
-  }
+If you have any questions about this process, please let me know.
 
-=2D-=20
-LINBIT | Keeping The Digital World Running
 
-DRBD=AE and LINBIT=AE are registered trademarks of LINBIT, Austria.
+From 5dac665cf403967bb79a7aeb8c182a621fe617ff Mon Sep 17 00:00:00 2001
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Date: Wed, 31 Jul 2019 19:15:43 +0900
+Subject: usb: gadget: udc: renesas_usb3: Fix sysfs interface of "role"
 
+Since the role_store() uses strncmp(), it's possible to refer
+out-of-memory if the sysfs data size is smaller than strlen("host").
+This patch fixes it by using sysfs_streq() instead of strncmp().
+
+Fixes: cc995c9ec118 ("usb: gadget: udc: renesas_usb3: add support for usb role swap")
+Cc: <stable@vger.kernel.org> # v4.12+
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+---
+ drivers/usb/gadget/udc/renesas_usb3.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/usb/gadget/udc/renesas_usb3.c b/drivers/usb/gadget/udc/renesas_usb3.c
+index 87062d22134d..1f4c3fbd1df8 100644
+--- a/drivers/usb/gadget/udc/renesas_usb3.c
++++ b/drivers/usb/gadget/udc/renesas_usb3.c
+@@ -19,6 +19,7 @@
+ #include <linux/pm_runtime.h>
+ #include <linux/sizes.h>
+ #include <linux/slab.h>
++#include <linux/string.h>
+ #include <linux/sys_soc.h>
+ #include <linux/uaccess.h>
+ #include <linux/usb/ch9.h>
+@@ -2450,9 +2451,9 @@ static ssize_t role_store(struct device *dev, struct device_attribute *attr,
+ 	if (usb3->forced_b_device)
+ 		return -EBUSY;
+ 
+-	if (!strncmp(buf, "host", strlen("host")))
++	if (sysfs_streq(buf, "host"))
+ 		new_mode_is_host = true;
+-	else if (!strncmp(buf, "peripheral", strlen("peripheral")))
++	else if (sysfs_streq(buf, "peripheral"))
+ 		new_mode_is_host = false;
+ 	else
+ 		return -EINVAL;
+-- 
+2.22.0
 
 
