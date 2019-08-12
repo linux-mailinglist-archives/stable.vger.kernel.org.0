@@ -2,107 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C683E8A182
-	for <lists+stable@lfdr.de>; Mon, 12 Aug 2019 16:48:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86A048A193
+	for <lists+stable@lfdr.de>; Mon, 12 Aug 2019 16:53:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726537AbfHLOsd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Aug 2019 10:48:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59232 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726710AbfHLOsd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Aug 2019 10:48:33 -0400
+        id S1726710AbfHLOxe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Aug 2019 10:53:34 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:45767 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726689AbfHLOxe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Aug 2019 10:53:34 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 5A0C8210DC;
+        Mon, 12 Aug 2019 10:53:33 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 12 Aug 2019 10:53:33 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=B3I7YIzP126Whgj9tF1BCT1Cx4w
+        EV7hz3a/rHtzIpVE=; b=nOJ+ana2vL8IYj945Ruz1PStQGeuJtAI1wlYrfvGLio
+        sfW3sZZ/nhP/jqxnJyGJmylsKpXOzeiHbuWJtox5xrFJJxIiq/tRk/a6h3HhV7Gm
+        tsKSkLAET6zI2hd2JRm6U9WJ/5Rnld3+Vaj9CctLsqSrl01B0BbBLZGiVa+AMHe5
+        YLmwWoouWQOSaKHA+YtuqcscHI8vi1c6d97K2bkRTmFPJogZ8dxxN6ZWLMoAbWRN
+        3lnqBHw8kTrTBKaUwSlAHZPk9UeBt9FmpVvKh42u9kNI+fchm8ZeRc3UGZpcLjhW
+        r6mc6/tmiBmrfaKNuXbugdbJ/et4A2pZZitpHvwHa0g==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=B3I7YI
+        zP126Whgj9tF1BCT1Cx4wEV7hz3a/rHtzIpVE=; b=j7KwKNJGhTCxhbikQ2kJ9w
+        PhsGkE+H5L7eX3f0SC7nSSC+SjiGRiOveQnt+oSS8NqfkyIvDnZIRfHVPcd+hiaE
+        mCgpdOa7pCUNYymHEKXpdKA3g7ynNmEXNoKc0CUgUTgSdWkNtW9pnpIkJUhQZ99+
+        LX5k4HzWQRCAB/FWDp4DXcivetED3dKTRMXjpohtJ9Ucp9ey9w7fsc0yz2gUPEz1
+        VPxMbjMNFKISUc8rim8UjxbGXNICRsZtMPOSeMgKjRBhXU5dGLPyuD3+dg7BwMCM
+        QWrrsturwcjwAmBkv4OcJpMXFkPBFBA24Q1W2gvEaV+lx3CTrrqJCaNuYZwbjUhw
+        ==
+X-ME-Sender: <xms:bX1RXZYtQgpowiclvaaG5fOdXptKIdgXUxKdEiXu3YAmoKxRc0JY8Q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddvgedgkeefucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
+    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
+    vehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:bX1RXXUu_eavnbf4FzTOMEoNCERQIg0g0o7uEhcHWiemvYPbYzX8dA>
+    <xmx:bX1RXSaRJqfB8xjxpFgdEfYdDzNksglk45GXlZsqWQKLfNqhbsNV6Q>
+    <xmx:bX1RXWL6Ttaj9T_Q7JyE2bYphgJRSAax0CsYUGZcWbnotCgVSUYEbg>
+    <xmx:bX1RXVShVG-0LyzG3mMqL8bdFXwdHfH1YqaW1GMTmuPcV6EPxioEEg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 307B7206A2;
-        Mon, 12 Aug 2019 14:48:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565621312;
-        bh=nSx2VtkkIFSCQ9VzHGXwUxoMmn9vUIkc8WGbPO6iN2k=;
-        h=Subject:To:From:Date:From;
-        b=dCI8cr/e92Y8vDwd1s5Bo+Ich06Xc5/CKbAaCbDT6ehyiqO2PR3IQX1e2sSAZqEkC
-         ccXN/zbswAaIYEmTDWx8l0H8oUlkZ2JWxO/giiJfgiIwmlhxJBmvMsNflF9IObgTzp
-         Vje8FAr1w3sPD0YXtMhCNq1R5i+rB5Sorhb83zQE=
-Subject: patch "staging: comedi: dt3000: Fix signed integer overflow 'divider * base'" added to staging-linus
-To:     abbotti@mev.co.uk, dcb314@hotmail.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 12 Aug 2019 16:48:30 +0200
-Message-ID: <156562131020573@kroah.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 926C880063;
+        Mon, 12 Aug 2019 10:53:32 -0400 (EDT)
+Date:   Mon, 12 Aug 2019 16:53:30 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Major Hayden <major@redhat.com>
+Cc:     Stable <stable@vger.kernel.org>
+Subject: Re: Reports from the CKI Project are back!
+Message-ID: <20190812145330.GC22363@kroah.com>
+References: <166c8369-e09f-6395-ca0e-e8825767ca75@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <166c8369-e09f-6395-ca0e-e8825767ca75@redhat.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Aug 12, 2019 at 09:43:39AM -0500, Major Hayden wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA256
+> 
+> Hello there,
+> 
+> The CKI is pleased to announce that we are enabling automated reports
+> again for the stable mailing list! We now upload more logs to help
+> with troubleshooting failures.
 
-This is a note to let you know that I've just added the patch titled
+Great, good luck with this!
 
-    staging: comedi: dt3000: Fix signed integer overflow 'divider * base'
-
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From b4d98bc3fc93ec3a58459948a2c0e0c9b501cd88 Mon Sep 17 00:00:00 2001
-From: Ian Abbott <abbotti@mev.co.uk>
-Date: Mon, 12 Aug 2019 12:15:17 +0100
-Subject: staging: comedi: dt3000: Fix signed integer overflow 'divider * base'
-
-In `dt3k_ns_to_timer()` the following lines near the end of the function
-result in a signed integer overflow:
-
-	prescale = 15;
-	base = timer_base * (1 << prescale);
-	divider = 65535;
-	*nanosec = divider * base;
-
-(`divider`, `base` and `prescale` are type `int`, `timer_base` and
-`*nanosec` are type `unsigned int`.  The value of `timer_base` will be
-either 50 or 100.)
-
-The main reason for the overflow is that the calculation for `base` is
-completely wrong.  It should be:
-
-	base = timer_base * (prescale + 1);
-
-which matches an earlier instance of this calculation in the same
-function.
-
-Reported-by: David Binderman <dcb314@hotmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20190812111517.26803-1-abbotti@mev.co.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/staging/comedi/drivers/dt3000.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/staging/comedi/drivers/dt3000.c b/drivers/staging/comedi/drivers/dt3000.c
-index 2edf3ee91300..4ad176fc14ad 100644
---- a/drivers/staging/comedi/drivers/dt3000.c
-+++ b/drivers/staging/comedi/drivers/dt3000.c
-@@ -368,7 +368,7 @@ static int dt3k_ns_to_timer(unsigned int timer_base, unsigned int *nanosec,
- 	}
- 
- 	prescale = 15;
--	base = timer_base * (1 << prescale);
-+	base = timer_base * (prescale + 1);
- 	divider = 65535;
- 	*nanosec = divider * base;
- 	return (prescale << 16) | (divider);
--- 
-2.22.0
-
-
+greg k-h
