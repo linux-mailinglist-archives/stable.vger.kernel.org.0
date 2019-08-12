@@ -2,154 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96E278A4BD
-	for <lists+stable@lfdr.de>; Mon, 12 Aug 2019 19:36:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36DC98A4DD
+	for <lists+stable@lfdr.de>; Mon, 12 Aug 2019 19:50:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726506AbfHLRgI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Aug 2019 13:36:08 -0400
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:41225 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726267AbfHLRgI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Aug 2019 13:36:08 -0400
-Received: by mail-pg1-f196.google.com with SMTP id x15so39495221pgg.8
-        for <stable@vger.kernel.org>; Mon, 12 Aug 2019 10:36:08 -0700 (PDT)
+        id S1726603AbfHLRt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Aug 2019 13:49:59 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:40269 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726263AbfHLRt7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Aug 2019 13:49:59 -0400
+Received: by mail-pg1-f193.google.com with SMTP id w10so49859337pgj.7
+        for <stable@vger.kernel.org>; Mon, 12 Aug 2019 10:49:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=oZi4p9sU++IMNyLOoMu4O4MSpldoBC3la4O/D+JmVeE=;
-        b=RsNkwjciAZJFroOX5ILBuBvMy8TWcIT9hJzrTA5xuOZfMYJaav94/bNa1G1AZHA/sx
-         IqeuX0m5wrq1olWYnCUFdWcRs4HHNmD+fSaxGCDngxV9gs9hEaGvpwiel6l6FYROI+wM
-         b2h/J/0MtTn4wk+24P+lye5PvT7SR216V5ztbRz1yijbJD2TeXZKy39Wwf+AkV8DYbM0
-         CP6fjXz/iairhkQqUorj+Ear31cpwrY8D8/ls28sODMfPbYKCYDBl2dAo83EtHCePTLH
-         MGmTVzL/6+j8BOjr0vRr/sKO1HKHpXTj0Kqk+R5o3T3ezXSVTGqzUJFXtYU7FXUZdbq9
-         iK5Q==
+        bh=UlfP/u75yTdzDQjbiZ58yMYBve2dKK0PO4ky5mg2Pt0=;
+        b=qmuOq+hrlYJyS+vFN+69sgI30ksAbee60jkJJ3WGqGrXS5apAC4Yi90vHmloPuvkaH
+         mGSjgnfR70Bu4SB5b1TK3mmrao8nbkWVtuSeSNNIkVxeC7MyEK3ALrTGVVxu4Il1Y3sv
+         MGX2JA8Zt7e78swfgqC11/ky5vg60b+zL4JPO+mF7+1pYna5rmSxDn5LUbeouYnYM9zx
+         R8kt7JFWu/oESws3uE5EADp39XMZjDCi2ud1juNuf8aQbNTQWfr2zhXfRVqpT1KYNsiH
+         Lr6gfMg48tgwq0aJFMgQGursfyHFgL1Kz7u1TLitR8vY1Cj8VUmAlWl+kFtXE8OuEEqN
+         GqgA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=oZi4p9sU++IMNyLOoMu4O4MSpldoBC3la4O/D+JmVeE=;
-        b=VrPlIDqgBj7VcqBkPZNhPa4lzAksthUTElJqJ00qyJbal581K9WOe2d+WeFe5cWE99
-         CAJugBqaOQMBHjVPC5VhZfmu/Hq5N+UNcwJuN+7aNmD9cpHc/gVSgmL8i9Sc4cefvT/n
-         MbS3fivVmgdi34nmdiVD2Mp1o7Om1+gcFaTKG9Nmr42MUtWJxq087n9RZIG2aUhGeLQA
-         qvtpXxAEF9U/D0NQkznUc4HCV6kaZSzQkJ1bV60l/FtbR4gHuY8tolkNxX0c5HfxQhms
-         lGoxWo+L+Ch8MIrnJHz2vMe/r7VFzhs2nGemfLIhbxzqfzt8smm7NJQFIHGNaO5tQ7sm
-         e7Og==
-X-Gm-Message-State: APjAAAW0rrap8Ylt82SebGa/C117x6QIG9DccZCpHlf9hxaHqG5Aac6M
-        SOrq+qV6vyPecm/gfqP1M2Nq+QWSN/gHG+w0252xeA==
-X-Google-Smtp-Source: APXvYqy2zouhlUGYS7Kh1lajVcXBTrIvaZyDmn96K5pB0TaQUQP3OryMKFONA/xS83RgDSxvOsb01vVyUXq5xlXLvmE=
-X-Received: by 2002:a63:f94c:: with SMTP id q12mr30736518pgk.10.1565631367302;
- Mon, 12 Aug 2019 10:36:07 -0700 (PDT)
+        bh=UlfP/u75yTdzDQjbiZ58yMYBve2dKK0PO4ky5mg2Pt0=;
+        b=PL97qzULheAIS9LQxDTIMMxHpVzlykneXph3/u00oAdWj9kwjO4pMyooSRQpbmpzel
+         MiWNs+4t/jZKO1J5wLMwcqDby9KobIZY3Xu/GvIXqe3ICDKOUtKHbtgnVvugbPcHSom5
+         7C0gMwwB4QbORLedxdTds9Os2kxkx17o9dyj41niGP5XudjyVcotUy+519AW75BEBCS1
+         wdUv9XZesRwTCneIHyumbBepJWL0p3Sj16hFSGklw57NSDxEDV1HCGPAsAf0q4n6vpi2
+         HzsOqVZgGd+zuckKH1VmTi1FdxaWOZu27L0Aoh0xiPWzoIRaqiZOeg2ULodHcm/WKEl8
+         wI7g==
+X-Gm-Message-State: APjAAAV7ono4U6rSiCLjBAi6EnvoKydv7Oa7PDR6+qQBIMUBlRDY701N
+        85Pbg3RoJNhOWS4ox+0vmPQEK+q918yqx5pxL7VEfw==
+X-Google-Smtp-Source: APXvYqx1SwvKUl8H4rYfsiPpLm9g3LPSk2ZZAkjvlUrFNQLWf1l/fYlG11WXSEmEdbwPA1SbUFwnjmGEHYt6R4ethx4=
+X-Received: by 2002:aa7:984a:: with SMTP id n10mr8591359pfq.3.1565632198197;
+ Mon, 12 Aug 2019 10:49:58 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190812023214.107817-1-natechancellor@gmail.com>
-In-Reply-To: <20190812023214.107817-1-natechancellor@gmail.com>
+References: <201908120108.9KdVOsTD%lkp@intel.com>
+In-Reply-To: <201908120108.9KdVOsTD%lkp@intel.com>
 From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Mon, 12 Aug 2019 10:35:56 -0700
-Message-ID: <CAKwvOd=RzY2bkOOYUrvNSxZxz6B2VPn2siXA8pRFc9EP-W77qQ@mail.gmail.com>
-Subject: Re: [PATCH] powerpc: Avoid clang warnings around setjmp and longjmp
-To:     Nathan Chancellor <natechancellor@gmail.com>
-Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        LKML <linux-kernel@vger.kernel.org>,
+Date:   Mon, 12 Aug 2019 10:49:47 -0700
+Message-ID: <CAKwvOd=JpUsD1XDSBzgwDWcAO+1VuGOLjbGNCTFne-WAqjGzXQ@mail.gmail.com>
+Subject: Re: [stable:linux-4.14.y 8386/9999] drivers/gpu/drm/i915/gvt/opregion.o:
+ warning: objtool: intel_vgpu_emulate_opregion_request()+0xbe: can't find jump
+ dest instruction at .text+0x6dd
+To:     Daniel Borkmann <daniel@iogearbox.net>
+Cc:     kbuild@01.org,
         clang-built-linux <clang-built-linux@googlegroups.com>,
-        "# 3.4.x" <stable@vger.kernel.org>
+        Greg KH <gregkh@linuxfoundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        kbuild test robot <lkp@intel.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Aug 11, 2019 at 7:42 PM Nathan Chancellor
-<natechancellor@gmail.com> wrote:
+On Sun, Aug 11, 2019 at 10:08 AM kbuild test robot <lkp@intel.com> wrote:
 >
-> Commit aea447141c7e ("powerpc: Disable -Wbuiltin-requires-header when
-> setjmp is used") disabled -Wbuiltin-requires-header because of a warning
-> about the setjmp and longjmp declarations.
+> CC: kbuild-all@01.org
+> TO: Daniel Borkmann <daniel@iogearbox.net>
+> CC: "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
+> CC: Thomas Gleixner <tglx@linutronix.de>
 >
-> r367387 in clang added another diagnostic around this, complaining that
-> there is no jmp_buf declaration.
+> tree:   https://kernel.googlesource.com/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.14.y
+> head:   3ffe1e79c174b2093f7ee3df589a7705572c9620
+> commit: e28951100515c9fd8f8d4b06ed96576e3527ad82 [8386/9999] x86/retpolines: Disable switch jump tables when retpolines are enabled
+> config: x86_64-rhel-7.6 (attached as .config)
+> compiler: clang version 10.0.0 (git://gitmirror/llvm_project 45a3fd206fb06f77a08968c99a8172cbf2ccdd0f)
+> reproduce:
+>         git checkout e28951100515c9fd8f8d4b06ed96576e3527ad82
+>         # save the attached .config to linux build tree
+>         make ARCH=x86_64
 >
-> In file included from ../arch/powerpc/xmon/xmon.c:47:
-> ../arch/powerpc/include/asm/setjmp.h:10:13: error: declaration of
-> built-in function 'setjmp' requires the declaration of the 'jmp_buf'
-> type, commonly provided in the header <setjmp.h>.
-> [-Werror,-Wincomplete-setjmp-declaration]
-> extern long setjmp(long *);
->             ^
-> ../arch/powerpc/include/asm/setjmp.h:11:13: error: declaration of
-> built-in function 'longjmp' requires the declaration of the 'jmp_buf'
-> type, commonly provided in the header <setjmp.h>.
-> [-Werror,-Wincomplete-setjmp-declaration]
-> extern void longjmp(long *, long);
->             ^
-> 2 errors generated.
+> If you fix the issue, kindly add following tag
+> Reported-by: kbuild test robot <lkp@intel.com>
 >
-> Take the same approach as the above commit by disabling the warning for
-> the same reason, we provide our own longjmp/setjmp function.
+> All warnings (new ones prefixed by >>):
 >
-> Cc: stable@vger.kernel.org # 4.19+
-> Link: https://github.com/ClangBuiltLinux/linux/issues/625
-> Link: https://github.com/llvm/llvm-project/commit/3be25e79477db2d31ac46493d97eca8c20592b07
-> Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+>    In file included from drivers/gpu/drm/i915/gvt/opregion.c:25:
+>    In file included from drivers/gpu/drm/i915/i915_drv.h:61:
+>    In file included from drivers/gpu/drm/i915/intel_uc.h:31:
+>    In file included from drivers/gpu/drm/i915/i915_vma.h:34:
+>    drivers/gpu/drm/i915/i915_gem_object.h:290:1: warning: attribute declaration must precede definition [-Wignored-attributes]
+>    __deprecated
+>    ^
 
-Thanks for the patch, Nathan.
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Was there another patch that fixes this that should have been
+backported to stable (4.14) along with this?
 
+>    include/linux/compiler-gcc.h:106:37: note: expanded from macro '__deprecated'
+>    #define __deprecated    __attribute__((deprecated))
+>                                           ^
+>    include/drm/drm_gem.h:247:20: note: previous definition is here
+>    static inline void drm_gem_object_reference(struct drm_gem_object *obj)
+>                       ^
+>    In file included from drivers/gpu/drm/i915/gvt/opregion.c:25:
+>    In file included from drivers/gpu/drm/i915/i915_drv.h:61:
+>    In file included from drivers/gpu/drm/i915/intel_uc.h:31:
+>    In file included from drivers/gpu/drm/i915/i915_vma.h:34:
+>    drivers/gpu/drm/i915/i915_gem_object.h:300:1: warning: attribute declaration must precede definition [-Wignored-attributes]
+>    __deprecated
+>    ^
+>    include/linux/compiler-gcc.h:106:37: note: expanded from macro '__deprecated'
+>    #define __deprecated    __attribute__((deprecated))
+>                                           ^
+>    include/drm/drm_gem.h:285:20: note: previous definition is here
+>    static inline void drm_gem_object_unreference(struct drm_gem_object *obj)
+>                       ^
+>    In file included from drivers/gpu/drm/i915/gvt/opregion.c:25:
+>    In file included from drivers/gpu/drm/i915/i915_drv.h:61:
+>    In file included from drivers/gpu/drm/i915/intel_uc.h:31:
+>    In file included from drivers/gpu/drm/i915/i915_vma.h:34:
+>    drivers/gpu/drm/i915/i915_gem_object.h:303:1: warning: attribute declaration must precede definition [-Wignored-attributes]
+>    __deprecated
+>    ^
+>    include/linux/compiler-gcc.h:106:37: note: expanded from macro '__deprecated'
+>    #define __deprecated    __attribute__((deprecated))
+>                                           ^
+>    include/drm/drm_gem.h:273:1: note: previous definition is here
+>    drm_gem_object_unreference_unlocked(struct drm_gem_object *obj)
+>    ^
+>    3 warnings generated.
+> >> drivers/gpu/drm/i915/gvt/opregion.o: warning: objtool: intel_vgpu_emulate_opregion_request()+0xbe: can't find jump dest instruction at .text+0x6dd
+>
 > ---
->
-> It may be worth using -fno-builtin-setjmp and -fno-builtin-longjmp
-> instead as it makes it clear to clang that we are not using the builtin
-> longjmp and setjmp functions, which I think is why these warnings are
-> appearing (at least according to the commit that introduced this waring).
->
-> Sample patch:
-> https://github.com/ClangBuiltLinux/linux/issues/625#issuecomment-519251372
->
-> However, this is the most conservative approach, as I have already had
-> someone notice this error when building LLVM with PGO on tip of tree
-> LLVM.
->
->  arch/powerpc/kernel/Makefile | 5 +++--
->  arch/powerpc/xmon/Makefile   | 5 +++--
->  2 files changed, 6 insertions(+), 4 deletions(-)
->
-> diff --git a/arch/powerpc/kernel/Makefile b/arch/powerpc/kernel/Makefile
-> index ea0c69236789..44e340ed4722 100644
-> --- a/arch/powerpc/kernel/Makefile
-> +++ b/arch/powerpc/kernel/Makefile
-> @@ -5,8 +5,9 @@
->
->  CFLAGS_ptrace.o                += -DUTS_MACHINE='"$(UTS_MACHINE)"'
->
-> -# Disable clang warning for using setjmp without setjmp.h header
-> -CFLAGS_crash.o         += $(call cc-disable-warning, builtin-requires-header)
-> +# Avoid clang warnings about longjmp and setjmp built-ins (inclusion of setjmp.h and declaration of jmp_buf type)
-> +CFLAGS_crash.o         += $(call cc-disable-warning, builtin-requires-header) \
-> +                          $(call cc-disable-warning, incomplete-setjmp-declaration)
->
->  ifdef CONFIG_PPC64
->  CFLAGS_prom_init.o     += $(NO_MINIMAL_TOC)
-> diff --git a/arch/powerpc/xmon/Makefile b/arch/powerpc/xmon/Makefile
-> index f142570ad860..53f341391210 100644
-> --- a/arch/powerpc/xmon/Makefile
-> +++ b/arch/powerpc/xmon/Makefile
-> @@ -1,8 +1,9 @@
->  # SPDX-License-Identifier: GPL-2.0
->  # Makefile for xmon
->
-> -# Disable clang warning for using setjmp without setjmp.h header
-> -subdir-ccflags-y := $(call cc-disable-warning, builtin-requires-header)
-> +# Avoid clang warnings about longjmp and setjmp built-ins (inclusion of setjmp.h and declaration of jmp_buf type)
-> +subdir-ccflags-y := $(call cc-disable-warning, builtin-requires-header) \
-> +                   $(call cc-disable-warning, incomplete-setjmp-declaration)
->
->  GCOV_PROFILE := n
->  KCOV_INSTRUMENT := n
-> --
-> 2.23.0.rc2
->
+> 0-DAY kernel test infrastructure                Open Source Technology Center
+> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+
 
 
 -- 
