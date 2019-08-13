@@ -2,91 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9FDA8BD13
-	for <lists+stable@lfdr.de>; Tue, 13 Aug 2019 17:28:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F6B28BE0C
+	for <lists+stable@lfdr.de>; Tue, 13 Aug 2019 18:16:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728193AbfHMP2U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 11:28:20 -0400
-Received: from 8bytes.org ([81.169.241.247]:49064 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727945AbfHMP2T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 11:28:19 -0400
-Received: by theia.8bytes.org (Postfix, from userid 1000)
-        id C319C391; Tue, 13 Aug 2019 17:28:17 +0200 (CEST)
-From:   Joerg Roedel <joro@8bytes.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        id S1726986AbfHMQQI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 12:16:08 -0400
+Received: from mail-qt1-f195.google.com ([209.85.160.195]:45547 "EHLO
+        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727679AbfHMQQI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Aug 2019 12:16:08 -0400
+Received: by mail-qt1-f195.google.com with SMTP id k13so9608452qtm.12
+        for <stable@vger.kernel.org>; Tue, 13 Aug 2019 09:16:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=toxicpanda-com.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=26Jan7zsP3flWJT/a+lsUdj+wOGb1yxAvmrDzfd5D4s=;
+        b=HI8nrpZQvAGP5ubPIaZ9IeOs6xrVe135CaNwT9DR5n+FZUk7Ssf+CpCZg4j3t0JRZ3
+         dBcWuNv06AO5aogk+Q129HsWAubWfWm6yxRbyAiLP0HQs+g4mujC/ZpemEv5iYzTuRyW
+         iuPQ51kN4jbnjJyfLq/ZmlRV4Eicq7EEU0y7AZDfafJTtCFQDsiO7muBQQCAIZK3F5cG
+         YmQqPcIWnINgbC00nyrjKXiM29wO5ZH+xji/d+7tZCcv72LWNbcWwBQ9JNcz78Pj5J1b
+         NGqJJUX4crnRt3B664tC4K0NBzEJEn9VFwagi9bv00U/v8yx4vLnlfsQgODCgL1fMkgc
+         uGHg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=26Jan7zsP3flWJT/a+lsUdj+wOGb1yxAvmrDzfd5D4s=;
+        b=WJ8xRjjZoQg5fJhPBmTDiF+GZ+f+VRY9/kCw35LGCJrzCXj0fPoOe53hnG7q/Pts+C
+         niaAX6Kwr50o+HzCnf573fE6AH6CwR7Mvh9Dlfv8nT6dC4sc5Rv4V2Icvz7Na5MM0dFH
+         mosgImKI3iuP1LwvByl98LnNOrZ9jBRIUQd8mU/I/MiLwAsSJnkUe+kOoriN+JQSu7Ec
+         xlczdx9wGs8dCzqzwBXQAoY2KjWgzFHBbqxwmFqcCXFxCs2G6QtUNOYERuw7r8PXMVtR
+         77lgrV6rGnXgC+FcGUjWxZGhXRIKWPDLg7T17LsouIfZi0HVAiCLwZLoQEKZVyvjcXeg
+         t4mA==
+X-Gm-Message-State: APjAAAVGZbHY1mIgOzk+2W+iCKOyezWtZyTBA5eg1atgOoHlwasVWVjG
+        simhNqh4uemIDfDrFRC55+9E5A==
+X-Google-Smtp-Source: APXvYqwWPWfUSCTIPEF+PdPEkt5dwm78QDH5CjAcEjrybJSkwfmDnEmnd5QoBbjUjpeoSXbFhI4RIw==
+X-Received: by 2002:ac8:30f3:: with SMTP id w48mr33102787qta.216.1565712967126;
+        Tue, 13 Aug 2019 09:16:07 -0700 (PDT)
+Received: from localhost ([107.15.81.208])
+        by smtp.gmail.com with ESMTPSA id d12sm45016082qtj.50.2019.08.13.09.16.06
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 13 Aug 2019 09:16:06 -0700 (PDT)
+Date:   Tue, 13 Aug 2019 12:16:05 -0400
+From:   Josef Bacik <josef@toxicpanda.com>
+To:     Mike Christie <mchristi@redhat.com>
+Cc:     josef@toxicpanda.com, linux-block@vger.kernel.org,
         stable@vger.kernel.org
-Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        linux-kernel@vger.kernel.org, Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 3/3] mm/vmalloc: Sync unmappings in __purge_vmap_area_lazy()
-Date:   Tue, 13 Aug 2019 17:28:14 +0200
-Message-Id: <20190813152814.5354-4-joro@8bytes.org>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20190813152814.5354-1-joro@8bytes.org>
-References: <20190813152814.5354-1-joro@8bytes.org>
+Subject: Re: [PATCH 1/1] nbd: fix max number of supported devs
+Message-ID: <20190813161605.gohrcsl7hxoqiozn@MacBook-Pro-91.local>
+References: <20190804191006.5359-1-mchristi@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190804191006.5359-1-mchristi@redhat.com>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+On Sun, Aug 04, 2019 at 02:10:06PM -0500, Mike Christie wrote:
+> This fixes a bug added in 4.10 with commit:
+> 
+> commit 9561a7ade0c205bc2ee035a2ac880478dcc1a024
+> Author: Josef Bacik <jbacik@fb.com>
+> Date:   Tue Nov 22 14:04:40 2016 -0500
+> 
+>     nbd: add multi-connection support
+> 
+> that limited the number of devices to 256. Before the patch we could
+> create 1000s of devices, but the patch switched us from using our
+> own thread to using a work queue which has a default limit of 256
+> active works.
+> 
+> The problem is that our recv_work function sits in a loop until
+> disconnection but only handles IO for one connection. The work is
+> started when the connection is started/restarted, but if we end up
+> creating 257 or more connections, the queue_work call just queues
+> connection257+'s recv_work and that waits for connection 1 - 256's
+> recv_work to be disconnected and that work instance completing.
+> 
+> Instead of reverting back to kthreads, this has us allocate a
+> workqueue_struct per device, so we can block in the work.
 
-commit 3f8fd02b1bf1d7ba964485a56f2f4b53ae88c167 upstream.
+Woops, thanks for fixing this.  Sorry I was out of the office when this went
+through and forgot to come back to it.
 
-On x86-32 with PTI enabled, parts of the kernel page-tables are not shared
-between processes. This can cause mappings in the vmalloc/ioremap area to
-persist in some page-tables after the region is unmapped and released.
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
 
-When the region is re-used the processes with the old mappings do not fault
-in the new mappings but still access the old ones.
+Thanks,
 
-This causes undefined behavior, in reality often data corruption, kernel
-oopses and panics and even spontaneous reboots.
-
-Fix this problem by activly syncing unmaps in the vmalloc/ioremap area to
-all page-tables in the system before the regions can be re-used.
-
-References: https://bugzilla.suse.com/show_bug.cgi?id=1118689
-Fixes: 5d72b4fba40ef ('x86, mm: support huge I/O mapping capability I/F')
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
-Link: https://lkml.kernel.org/r/20190719184652.11391-4-joro@8bytes.org
----
- mm/vmalloc.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
-
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index 0f76cca32a1c..080d30408ce3 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -1213,6 +1213,12 @@ static bool __purge_vmap_area_lazy(unsigned long start, unsigned long end)
- 	if (unlikely(valist == NULL))
- 		return false;
- 
-+	/*
-+	 * First make sure the mappings are removed from all page-tables
-+	 * before they are freed.
-+	 */
-+	vmalloc_sync_all();
-+
- 	/*
- 	 * TODO: to calculate a flush range without looping.
- 	 * The list can be up to lazy_max_pages() elements.
-@@ -3001,6 +3007,9 @@ EXPORT_SYMBOL(remap_vmalloc_range);
- /*
-  * Implement a stub for vmalloc_sync_all() if the architecture chose not to
-  * have one.
-+ *
-+ * The purpose of this function is to make sure the vmalloc area
-+ * mappings are identical in all page-tables in the system.
-  */
- void __weak vmalloc_sync_all(void)
- {
--- 
-2.16.4
-
+Josef
