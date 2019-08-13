@@ -2,53 +2,191 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AAFD8C0C3
-	for <lists+stable@lfdr.de>; Tue, 13 Aug 2019 20:38:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE8368C0DE
+	for <lists+stable@lfdr.de>; Tue, 13 Aug 2019 20:40:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726458AbfHMSh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 14:37:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35632 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726195AbfHMSh6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 14:37:58 -0400
+        id S1726903AbfHMSkN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 14:40:13 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:45583 "EHLO
+        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726427AbfHMSkN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Aug 2019 14:40:13 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id D23E9390;
+        Tue, 13 Aug 2019 14:40:11 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 13 Aug 2019 14:40:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=b5cKnR
+        JwIyHESIJaHfzxiE3yZcNmEqE6+GwJn1oYdJk=; b=XT4DcP5ZvjAdRG7LUnXeKY
+        OhkqjY9D24yH/J1ZFTJeZQK/5RDbfQZpvYkNeCgLu+Y1FHuAxU/CHl3I2xL/xKwP
+        I7QxizNbe0dg99/gNkIHFM4jUIhSTyC3PKDGYiGwojqfV+da7G8XiS0q7l7nylIi
+        YJvZ95v/HCYgawQlAFUM3/lfhKzv9JnfCv2mD+MHV471muzRBwxRkbCreOIJ+IMo
+        1aBkm+4eaMp8ZcZkFJhe3OFT9Pviof8VhJK4FOy2h3uDXs2/qWanhQs0sRRf67Wb
+        haJV6u3cL3PVswC/1b4FaHnRaWgY5zbd4qGPayJMA6cqGurqntZq2XFTooiZAtIA
+        ==
+X-ME-Sender: <xms:CgRTXRXR1jiBKRlpFPnU67yvKxmFOVBfta8pr4sFXpm8soe6BV7ijw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddviedguddvfecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
+    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
+    rhhgqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdgthhhrohhmihhumhdrohhrgh
+    enucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
+    rhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:CgRTXR-rCnPU-gJr0XouMQmJy3wnYxPUSJF8TFoIw29hVX1NtkW9Yg>
+    <xmx:CgRTXVR8zTLh9NJMYSpMn9T0n4wdvpsFHfznsxmSvCByWiim-zt4Iw>
+    <xmx:CgRTXSBIjulz_IDOb2cRAO0SP_HoZVpXU1261vAEPkiE6yb0KFHxvg>
+    <xmx:CwRTXftrasHs1y-0-Zo6WJpgyaQT5PNKlLbecESUzwMjHGb0C1ibdg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3CB22064A;
-        Tue, 13 Aug 2019 18:37:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565721478;
-        bh=O6RKQJ/j6cRpcnAVTNHmol+XRXnvK/WIJ5ApLiBdhes=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lTBZlZSsGCNJBJUkb2isnHVaAbBp10OnDoqk4uBpWJmJiKLNWLX1ombgiOB8wNdMb
-         NstjyPikTjPb85Xd2IEVP+J5I/4LGez7y4Q7HlGe1UeahHF8DkbAvUwluxJ3/1Rtt/
-         sljN82Nm4TXysFKCK5Bt7BJWvLfhqB/m34geUKFs=
-Date:   Tue, 13 Aug 2019 20:37:55 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc:     stable@vger.kernel.org, mathieu.poirier@linaro.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH] coresight: Fix DEBUG_LOCKS_WARN_ON for uninitialized
- attribute
-Message-ID: <20190813183755.GD6582@kroah.com>
-References: <20190812135328.30952-1-suzuki.poulose@arm.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id E67E9380088;
+        Tue, 13 Aug 2019 14:40:09 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] x86/purgatory: Do not use __builtin_memcpy and" failed to apply to 4.19-stable tree
+To:     ndesaulniers@google.com, adelva@google.com, manojgupta@google.com,
+        tglx@linutronix.de, vaibhavrustagi@google.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 13 Aug 2019 20:40:08 +0200
+Message-ID: <1565721608151140@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190812135328.30952-1-suzuki.poulose@arm.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 12, 2019 at 02:53:28PM +0100, Suzuki K Poulose wrote:
-> commit 5511c0c309db4c526a6e9f8b2b8a1483771574bc upstream
-> 
-> While running the linux-next with CONFIG_DEBUG_LOCKS_ALLOC enabled,
-> I get the following splat.
-> 
 
-Thanks for the backport, now queued up.
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 4ce97317f41d38584fb93578e922fcd19e535f5b Mon Sep 17 00:00:00 2001
+From: Nick Desaulniers <ndesaulniers@google.com>
+Date: Wed, 7 Aug 2019 15:15:32 -0700
+Subject: [PATCH] x86/purgatory: Do not use __builtin_memcpy and
+ __builtin_memset
+
+Implementing memcpy and memset in terms of __builtin_memcpy and
+__builtin_memset is problematic.
+
+GCC at -O2 will replace calls to the builtins with calls to memcpy and
+memset (but will generate an inline implementation at -Os).  Clang will
+replace the builtins with these calls regardless of optimization level.
+$ llvm-objdump -dr arch/x86/purgatory/string.o | tail
+
+0000000000000339 memcpy:
+     339: 48 b8 00 00 00 00 00 00 00 00 movabsq $0, %rax
+                000000000000033b:  R_X86_64_64  memcpy
+     343: ff e0                         jmpq    *%rax
+
+0000000000000345 memset:
+     345: 48 b8 00 00 00 00 00 00 00 00 movabsq $0, %rax
+                0000000000000347:  R_X86_64_64  memset
+     34f: ff e0
+
+Such code results in infinite recursion at runtime. This is observed
+when doing kexec.
+
+Instead, reuse an implementation from arch/x86/boot/compressed/string.c.
+This requires to implement a stub function for warn(). Also, Clang may
+lower memcmp's that compare against 0 to bcmp's, so add a small definition,
+too. See also: commit 5f074f3e192f ("lib/string.c: implement a basic bcmp")
+
+Fixes: 8fc5b4d4121c ("purgatory: core purgatory functionality")
+Reported-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
+Debugged-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
+Debugged-by: Manoj Gupta <manojgupta@google.com>
+Suggested-by: Alistair Delva <adelva@google.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
+Cc: stable@vger.kernel.org
+Link: https://bugs.chromium.org/p/chromium/issues/detail?id=984056
+Link: https://lkml.kernel.org/r/20190807221539.94583-1-ndesaulniers@google.com
+
+diff --git a/arch/x86/boot/string.c b/arch/x86/boot/string.c
+index 401e30ca0a75..8272a4492844 100644
+--- a/arch/x86/boot/string.c
++++ b/arch/x86/boot/string.c
+@@ -37,6 +37,14 @@ int memcmp(const void *s1, const void *s2, size_t len)
+ 	return diff;
+ }
+ 
++/*
++ * Clang may lower `memcmp == 0` to `bcmp == 0`.
++ */
++int bcmp(const void *s1, const void *s2, size_t len)
++{
++	return memcmp(s1, s2, len);
++}
++
+ int strcmp(const char *str1, const char *str2)
+ {
+ 	const unsigned char *s1 = (const unsigned char *)str1;
+diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
+index 3cf302b26332..91ef244026d2 100644
+--- a/arch/x86/purgatory/Makefile
++++ b/arch/x86/purgatory/Makefile
+@@ -6,6 +6,9 @@ purgatory-y := purgatory.o stack.o setup-x86_$(BITS).o sha256.o entry64.o string
+ targets += $(purgatory-y)
+ PURGATORY_OBJS = $(addprefix $(obj)/,$(purgatory-y))
+ 
++$(obj)/string.o: $(srctree)/arch/x86/boot/compressed/string.c FORCE
++	$(call if_changed_rule,cc_o_c)
++
+ $(obj)/sha256.o: $(srctree)/lib/sha256.c FORCE
+ 	$(call if_changed_rule,cc_o_c)
+ 
+diff --git a/arch/x86/purgatory/purgatory.c b/arch/x86/purgatory/purgatory.c
+index 6d8d5a34c377..b607bda786f6 100644
+--- a/arch/x86/purgatory/purgatory.c
++++ b/arch/x86/purgatory/purgatory.c
+@@ -68,3 +68,9 @@ void purgatory(void)
+ 	}
+ 	copy_backup_region();
+ }
++
++/*
++ * Defined in order to reuse memcpy() and memset() from
++ * arch/x86/boot/compressed/string.c
++ */
++void warn(const char *msg) {}
+diff --git a/arch/x86/purgatory/string.c b/arch/x86/purgatory/string.c
+deleted file mode 100644
+index 01ad43873ad9..000000000000
+--- a/arch/x86/purgatory/string.c
++++ /dev/null
+@@ -1,23 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-only
+-/*
+- * Simple string functions.
+- *
+- * Copyright (C) 2014 Red Hat Inc.
+- *
+- * Author:
+- *       Vivek Goyal <vgoyal@redhat.com>
+- */
+-
+-#include <linux/types.h>
+-
+-#include "../boot/string.c"
+-
+-void *memcpy(void *dst, const void *src, size_t len)
+-{
+-	return __builtin_memcpy(dst, src, len);
+-}
+-
+-void *memset(void *dst, int c, size_t len)
+-{
+-	return __builtin_memset(dst, c, len);
+-}
+
