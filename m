@@ -2,252 +2,187 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5C5F8BAFD
-	for <lists+stable@lfdr.de>; Tue, 13 Aug 2019 16:00:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 115688BBD1
+	for <lists+stable@lfdr.de>; Tue, 13 Aug 2019 16:44:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729070AbfHMOAk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 10:00:40 -0400
-Received: from mail-eopbgr730079.outbound.protection.outlook.com ([40.107.73.79]:52770
-        "EHLO NAM05-DM3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727724AbfHMOAk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 10:00:40 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=daEQOa2nNmSBtpJtQcYXP6Z6qMBZf+I8bYNJdvHl18PGcvkb8KFQilwN8EOPxV7xUxihKJidpP4ulgEDtEQVH7eAiBE7J6uWNWEATjBGdE1Kd8Yi6Zy+wx2RQq5D92eH0a+bfsPIcDrk+eCLEtV2J5xph0jk/rbnaJPL+R0pQy7z8ojah+elt+nMdAEKQlGI2oRQlsarb36l+mZ+lgthp6VvEZ4oP+5sxQo81nBUtJRJQyGadw1D4e0ETi1WTPXn6mcCkMxzk+SJI+MzEkdQqxT/ziQSmMhaleUVPOt+apmEy1pdqUjucmM851UrXm9Kz/MtCMIeFIgsbfsGHYyGRw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=VYLkkP8+dbm4kjG9uEIr2DY4cDvs88pd2PQaPm9WB54=;
- b=LD11FSCOZwc95Dn6UNayC40C8VK1m7zk0nflv4p3zo676yo2DshQMuDdOK3hB6y21g3ULP7MO3RTwuPNEQeIZjbvkWzf8utO1URJlfYslTJ00BsBfhtv7RARDUKWY9lkyAaFp0Cc+wdSU5CQbcQqXoRvR9/sfuokrYAvTSSGr7u3wJ/YO29ketG2Gbp1LdoD+gie90ebUVeR3Qlkii1hTv+3R1zCgw8CHyNcg+W67zvvfmHxyYAmEKN4cGuOMBzRsQDLfYDlD/oMUJeonTSdSJ1ZkuuH6ixt9fox9CeIMhc9Z1l4THkI3QOCxqPGqn5i2sMrxlmTgI/WlCsck99RKg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
+        id S1729661AbfHMOoY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 10:44:24 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:39981 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729612AbfHMOoY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Aug 2019 10:44:24 -0400
+Received: by mail-pl1-f194.google.com with SMTP id a93so49319306pla.7
+        for <stable@vger.kernel.org>; Tue, 13 Aug 2019 07:44:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=VYLkkP8+dbm4kjG9uEIr2DY4cDvs88pd2PQaPm9WB54=;
- b=a16X0K9W/6jL1BxEFCuLhxlYUHgwinXsba/DHrUmsW6baJjINssDxb6m4ED4u52SHHgt1TdxUawyn4XpzJwXB5G/EoKybkhqOd9M5esBo0AAS4dFooBuTkDblDn8kLd5rxhiVXf7cmzxwdz6mhBPeYe0DZ4y7OfsBIwU5lp/vxQ=
-Received: from DM5PR12MB1449.namprd12.prod.outlook.com (10.172.40.14) by
- DM5PR12MB1386.namprd12.prod.outlook.com (10.168.238.137) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2157.21; Tue, 13 Aug 2019 14:00:36 +0000
-Received: from DM5PR12MB1449.namprd12.prod.outlook.com
- ([fe80::f9ec:92b6:9a0f:30ca]) by DM5PR12MB1449.namprd12.prod.outlook.com
- ([fe80::f9ec:92b6:9a0f:30ca%6]) with mapi id 15.20.2157.022; Tue, 13 Aug 2019
- 14:00:36 +0000
-From:   "Hook, Gary" <Gary.Hook@amd.com>
-To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: FAILED: patch "[PATCH] crypto: ccp - Add support for valid
- authsize values less than" failed to apply to 4.14-stable tree
-Thread-Topic: FAILED: patch "[PATCH] crypto: ccp - Add support for valid
- authsize values less than" failed to apply to 4.14-stable tree
-Thread-Index: AQHVUFT+GRvE15e99EyvL7H9nzAzFab5HaUw
-Date:   Tue, 13 Aug 2019 14:00:35 +0000
-Message-ID: <DM5PR12MB144907F9F3D95886640325F8FDD20@DM5PR12MB1449.namprd12.prod.outlook.com>
-References: <15655353989018@kroah.com>
-In-Reply-To: <15655353989018@kroah.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=Gary.Hook@amd.com; 
-x-originating-ip: [165.204.77.1]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: abb89d10-ea86-4c0b-df2b-08d71ff69d82
-x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(4618075)(2017052603328)(7193020);SRVR:DM5PR12MB1386;
-x-ms-traffictypediagnostic: DM5PR12MB1386:
-x-microsoft-antispam-prvs: <DM5PR12MB13866184C4CFDBBB4F4A06B2FDD20@DM5PR12MB1386.namprd12.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:5516;
-x-forefront-prvs: 01283822F8
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(346002)(39860400002)(396003)(136003)(366004)(376002)(189003)(199004)(13464003)(2351001)(14454004)(6116002)(8676002)(2501003)(3846002)(1730700003)(52536014)(81156014)(81166006)(76176011)(74316002)(33656002)(9686003)(7696005)(6436002)(66476007)(5640700003)(66556008)(7736002)(446003)(66946007)(66446008)(86362001)(64756008)(305945005)(99286004)(53936002)(55016002)(478600001)(14444005)(71200400001)(256004)(4326008)(66066001)(186003)(11346002)(316002)(2906002)(229853002)(102836004)(486006)(6506007)(53546011)(5660300002)(76116006)(6916009)(476003)(8936002)(26005)(71190400001)(6246003)(25786009);DIR:OUT;SFP:1101;SCL:1;SRVR:DM5PR12MB1386;H:DM5PR12MB1449.namprd12.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: amd.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: ZO/Zf6VGRIwQBiuQOme0h6WFkwKRVCDNW5UEaMscVIdl9p+v79dQcRKQohk3P7XfnLpIUiPFyVNVuZspcG0lFdrUs16ZybWJ4UG5Prs76h9nK80zRP6Jud/yZHHE/FZeyaqGMg8w5gbmWDUwN4T+qp/NDBeI6wqTvmi8hNe9pLMWUo7BWyHTgwe/6JwGaJr6aC6e9DnxMVYG1LDj3jU6usEZlvnNIhFeZuLsYBW0q/kGlZV7So25S1yjiIuzEL2K3Lp8ufRrR2Vrw76Eo7d9Ss3UX+ianAgHABpbliTeduA5NFgoCeJk8oQ8qjr2R+FR251NwNo2UuSU7xfxL5s+piEUhXDZ+KDEKKdzNGIKmKM6bWSicZ/V8FTpA6tjHI/iN5rUdgvYyJGrbF9Qv953h7n1Ib3N3kxvuHej5tcJnm0=
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        d=android.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=XKUXA8eyW+BaQrw7w0qbUBRN/bnvPttZ1UXO1rs4J4c=;
+        b=YJttE/9RWvcMqefXhYgIPeeC4h4DhPhCyq7DAqhgJnT4NeqYX33FdzkIXpYYQDYp2O
+         YXxGxvKBXu+uFVIGpz2bEYuEzhl45raNm+FADwcVL/WQaOWGTdEcsBSAl8tBdpuQ6frH
+         eKFf5NTX9WITSszxDRCrNitnYMsi+IfMYYZrNzvcXW5C2XekztyT4H1px4+BEUjF2F3Z
+         jwPOvqxG4IEwd0f2S1jkL54zGLowbCTw8jT4WBpV5WpyLUQc3UGAKXEJop5daA72tSE9
+         OCS1ij+lXO6ZqoFsleptE3lztOsU11WLD+6M2N5RPP7ew+aOVTbA6a7rAJwqbe4BpKk4
+         8UoA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=XKUXA8eyW+BaQrw7w0qbUBRN/bnvPttZ1UXO1rs4J4c=;
+        b=XLJSRW99e+sPQyX7LZSBRWGEgAy016ZIK0yxjkd0ynB9D3JCAMYysEr12jR0xr7Y7p
+         jbHCHhHFpL7YGOFPZ562WhQg2E7MlTCX1UtrQi574Arx8l0d9qfsM54z4qLdzlBSVTK3
+         WVaGNlXQeeG8XRzqA072BQWvma85F0Rt6ytqHVyTbJp+RX5dXMiv++RZzUdKrOX+N7de
+         ix+uEA9PqDc1VGuHhDh0zK/Ykrn/1WP/4R9F5gj+cyxBlcHq/qYtrw3Kv1BWryd6p+8n
+         1DKIb0sIRnPrkqrr38gE/pZqOtHGYS9NpQFPVxTanCdo58OzhMmOxJeEsXOVmt+UWwUF
+         42MQ==
+X-Gm-Message-State: APjAAAUHtnlxNIDGImyi09fXRyduqju+Fq3Oa+wp9oscVg3xxr8ae4Fx
+        0Eo+XTGSwA+6OSjROgEZbvsmf8T1U3ynVA==
+X-Google-Smtp-Source: APXvYqyZJum8U+t53Mjh4x2zKudYcaUbDz9KuBq/6d7BWPPdIOsyFv8VBMCBvsYvsKsh6n0jliUGKg==
+X-Received: by 2002:a17:902:be15:: with SMTP id r21mr36859002pls.293.1565707463024;
+        Tue, 13 Aug 2019 07:44:23 -0700 (PDT)
+Received: from nebulus.mtv.corp.google.com ([2620:15c:211:200:5404:91ba:59dc:9400])
+        by smtp.googlemail.com with ESMTPSA id o4sm5349667pje.28.2019.08.13.07.44.22
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Tue, 13 Aug 2019 07:44:22 -0700 (PDT)
+Subject: Re: [PATCH] Add flags option to get xattr method paired to
+ __vfs_getxattr
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org
+Cc:     kernel-team@android.com, Stephen Smalley <sds@tycho.nsa.gov>,
+        linux-security-module@vger.kernel.org, stable@vger.kernel.org
+References: <20190812193320.200472-1-salyzyn@android.com>
+ <20190813124817.0B9EF2085A@mail.kernel.org>
+From:   Mark Salyzyn <salyzyn@android.com>
+Message-ID: <081260c7-17ff-a575-a706-4e181334d25f@android.com>
+Date:   Tue, 13 Aug 2019 07:44:21 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: abb89d10-ea86-4c0b-df2b-08d71ff69d82
-X-MS-Exchange-CrossTenant-originalarrivaltime: 13 Aug 2019 14:00:35.8811
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: tQoeLSToRfJNpge3/nnHUEW9n6/snSFcB8NRGFFxDVBPbQDfttptBsb9GXaTajB0
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR12MB1386
+In-Reply-To: <20190813124817.0B9EF2085A@mail.kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-GB
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It turns out that this patch has a pre-req that wasn't properly marked as "=
-Fixes" for 4.14 stable.
+On 8/13/19 5:48 AM, Sasha Levin wrote:
+> Hi,
+>
+> [This is an automated email]
+>
+> This commit has been processed because it contains a -stable tag.
+> The stable tag indicates that it's relevant for the following trees: all
+>
+> The bot has tested the following trees: v5.2.8, v4.19.66, v4.14.138, v4.9.189, v4.4.189.
+>
+> v5.2.8: Build failed! Errors:
+>      fs/afs/xattr.c:156:12: error: initialization of â€˜int (*)(const struct xattr_handler *, struct dentry *, struct inode *, const char *, void *, size_t,  int)â€™ {aka â€˜int (*)(const struct xattr_handler *, struct dentry *, struct inode *, const char *, void *, long unsigned int,  int)â€™} from incompatible pointer type â€˜int (*)(const struct xattr_handler *, struct dentry *, struct inode *, const char *, void *, size_t)â€™ {aka â€˜int (*)(const struct xattr_handler *, struct dentry *, struct inode *, const char *, void *, long unsigned int)â€™} [-Werror=incompatible-pointer-types]
+>      fs/afs/xattr.c:327:9: error: initialization of â€˜int (*)(const struct xattr_handler *, struct dentry *, struct inode *, const char *, void *, size_t,  int)â€™ {aka â€˜int (*)(const struct xattr_handler *, struct dentry *, struct inode *, const char *, void *, long unsigned int,  int)â€™} from incompatible pointer type â€˜int (*)(const struct xattr_handler *, struct dentry *, struct inode *, const char *, void *, size_t)â€™ {aka â€˜int (*)(const struct xattr_handler *, struct dentry *, struct inode *, const char *, void *, long unsigned int)â€™} [-Werror=incompatible-pointer-types]
+>      drivers/staging/erofs/xattr.c:492:9: error: initialization of â€˜int (*)(const struct xattr_handler *, struct dentry *, struct inode *, const char *, void *, size_t,  int)â€™ {aka â€˜int (*)(const struct xattr_handler *, struct dentry *, struct inode *, const char *, void *, long unsigned int,  int)â€™} from incompatible pointer type â€˜int (*)(const struct xattr_handler *, struct dentry *, struct inode *, const char *, void *, size_t)â€™ {aka â€˜int (*)(const struct xattr_handler *, struct dentry *, struct inode *, const char *, void *, long unsigned int)â€™} [-Werror=incompatible-pointer-types]
+>      drivers/staging/erofs/xattr.c:499:9: error: initialization of â€˜int (*)(const struct xattr_handler *, struct dentry *, struct inode *, const char *, void *, size_t,  int)â€™ {aka â€˜int (*)(const struct xattr_handler *, struct dentry *, struct inode *, const char *, void *, long unsigned int,  int)â€™} from incompatible pointer type â€˜int (*)(const struct xattr_handler *, struct dentry *, struct inode *, const char *, void *, size_t)â€™ {aka â€˜int (*)(const struct xattr_handler *, struct dentry *, struct inode *, const char *, void *, long unsigned int)â€™} [-Werror=incompatible-pointer-types]
+>      drivers/staging/erofs/xattr.c:506:9: error: initialization of â€˜int (*)(const struct xattr_handler *, struct dentry *, struct inode *, const char *, void *, size_t,  int)â€™ {aka â€˜int (*)(const struct xattr_handler *, struct dentry *, struct inode *, const char *, void *, long unsigned int,  int)â€™} from incompatible pointer type â€˜int (*)(const struct xattr_handler *, struct dentry *, struct inode *, const char *, void *, size_t)â€™ {aka â€˜int (*)(const struct xattr_handler *, struct dentry *, struct inode *, const char *, void *, long unsigned int)â€™} [-Werror=incompatible-pointer-types]
+>
+> v4.19.66: Failed to apply! Possible dependencies:
+>      05895219627c ("kernfs: clean up struct kernfs_iattrs")
+>      0ac6075a32fc ("kernfs: use simple_xattrs for security attributes")
+>      1537ad15c9c5 ("kernfs: fix xattr name handling in LSM helpers")
+>      426dcd4b600f ("hexagon: switch to NO_BOOTMEM")
+>      57c8a661d95d ("mm: remove include/linux/bootmem.h")
+>      6471f52af786 ("alpha: switch to NO_BOOTMEM")
+>      b230d5aba2d1 ("LSM: add new hook for kernfs node initialization")
+>      bcec54bf3118 ("mips: switch to NO_BOOTMEM")
+>      d0c9c153b4bd ("kernfs: do not alloc iattrs in kernfs_xattr_get")
+>      e0a9317d9004 ("hexagon: use generic dma_noncoherent_ops")
+>      e262e32d6bde ("vfs: Suppress MS_* flag defs within the kernel unless explicitly enabled")
+>      ec882da5cda9 ("selinux: implement the kernfs_init_security hook")
+>      f406f222d4b2 ("hexagon: implement the sync_sg_for_device DMA operation")
+>
+> v4.14.138: Failed to apply! Possible dependencies:
+>      05895219627c ("kernfs: clean up struct kernfs_iattrs")
+>      067cae47771c ("bpf: Use char in prog and map name")
+>      0ac6075a32fc ("kernfs: use simple_xattrs for security attributes")
+>      1537ad15c9c5 ("kernfs: fix xattr name handling in LSM helpers")
+>      488dee96bb62 ("kernfs: allow creating kernfs objects with arbitrary uid/gid")
+>      5cf9dd55a0ec ("afs: Prospectively look up extra files when doing a single lookup")
+>      88cda1c9da02 ("bpf: libbpf: Provide basic API support to specify BPF obj name")
+>      95582b008388 ("vfs: change inode times to use struct timespec64")
+>      ad5b177bd73f ("bpf: Add map_name to bpf_map_info")
+>      afdb09c720b6 ("security: bpf: Add LSM hooks for bpf object related syscall")
+>      b230d5aba2d1 ("LSM: add new hook for kernfs node initialization")
+>      cb4d2b3f03d8 ("bpf: Add name, load_time, uid and map_ids to bpf_prog_info")
+>      d0c9c153b4bd ("kernfs: do not alloc iattrs in kernfs_xattr_get")
+>      dd9fbcb8e103 ("afs: Rearrange status mapping")
+>      df0ce17331e2 ("security: convert security hooks to use hlist")
+>      e45b2546e23c ("fuse: Ensure posix acls are translated outside of init_user_ns")
+>
+> v4.9.189: Failed to apply! Possible dependencies:
+>      1537ad15c9c5 ("kernfs: fix xattr name handling in LSM helpers")
+>      4eb5aaa3af8a ("sched/headers: Prepare for new header dependencies before moving code to <linux/sched/autogroup.h>")
+>      4f17722c7256 ("sched/headers: Prepare for new header dependencies before moving code to <linux/sched/loadavg.h>")
+>      5eca1c10cbaa ("sched/headers: Clean up <linux/sched.h>")
+>      6e84f31522f9 ("sched/headers: Prepare for new header dependencies before moving code to <linux/sched/mm.h>")
+>      91b467e0a3f5 ("afs: Make afs_readpages() fetch data in bulk")
+>      944c74f472f9 ("afs: Distinguish mountpoints from symlinks by file mode alone")
+>      acb04058de49 ("sched/clock: Fix hotplug crash")
+>      ae7e81c077d6 ("sched/headers: Prepare for new header dependencies before moving code to <uapi/linux/sched/types.h>")
+>      b230d5aba2d1 ("LSM: add new hook for kernfs node initialization")
+>      b5a062344419 ("kernfs: Declare two local data structures static")
+>      d3e3b7eac886 ("afs: Add metadata xattrs")
+>      df0ce17331e2 ("security: convert security hooks to use hlist")
+>      e45b2546e23c ("fuse: Ensure posix acls are translated outside of init_user_ns")
+>      e4e55b47ed9a ("LSM: Revive security_task_alloc() hook and per "struct task_struct" security blob.")
+>      e601757102cf ("sched/headers: Prepare for new header dependencies before moving code to <linux/sched/clock.h>")
+>      ea8b1c4a6019 ("drivers: psci: PSCI checker module")
+>      edd3ba94c4e5 ("afs: Convert to separately allocated bdi")
+>      ee6a3d19f15b ("sched/headers: Remove the <linux/topology.h> include from <linux/sched.h>")
+>      fd7712337ff0 ("sched/headers: Prepare to remove the <linux/gfp.h> include from <linux/sched.h>")
+>
+> v4.4.189: Failed to apply! Possible dependencies:
+>      1182fca3bc00 ("Orangefs: kernel client part 5")
+>      24c8d0804be0 ("Orangefs: Clean up pvfs2_devreq_read.")
+>      274dcf55bd4a ("Orangefs: kernel client part 3")
+>      2c590d5fb698 ("Orangefs: kernel client update 1.")
+>      3c2fcfcb6858 ("orangefs: make wait_for_direct_io() take iov_iter")
+>      4d1c44043b26 ("Orangefs: use iov_iter interface")
+>      548049495cb4 ("Orangefs: fix some checkpatch.pl complaints that had creeped in.")
+>      5c278228bbfe ("orangefs: explicitly pass the size to pvfs_bufmap_copy_to_iovec()")
+>      5db11c21a929 ("Orangefs: kernel client part 2")
+>      5f0e3c953fd9 ("orangefs: make postcopy_buffers() take iov_iter")
+>      8092895f759e ("orangefs: validate the response in decode_dirents()")
+>      84d02150dea7 ("Orangefs: sooth most sparse complaints")
+>      88309aae3ddb ("Orangefs: fix dir_emit code in pvfs2_readdir.")
+>      894ac432b48b ("Orangefs: Clean up error decoding.")
+>      8bb8aefd5afb ("OrangeFS: Change almost all instances of the string PVFS2 to OrangeFS.")
+>      9172abbcd371 ("btrfs: Use xattr handler infrastructure")
+>      9be68b08719c ("orangefs: get rid of dec_string and enc_string")
+>      a5c126a52269 ("orangefs: make precopy_buffers() take iov_iter")
+>      b296821a7c42 ("xattr_handler: pass dentry and inode as separate arguments of ->get()")
+>      ef4af94edcf8 ("orangefs: switch decode_dirents() to use of kcalloc()")
+>      f0ed4418d46d ("Orangefs: Remove upcall trailers which are not used.")
+>      f7ab093f74bf ("Orangefs: kernel client part 1")
+>      f7be4ee07fb7 ("Orangefs: kernel client part 4")
+>
+>
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+>
+> How should we proceed with this patch?
+>
+> --
+> Thanks,
+> Sasha
 
-If you first apply b698a9f4c5c52, then apply 9f00baf74e4b6, then this be cl=
-ean.
+Wait for upstream of course.
 
-Mea culpa,
+Given the conflicts, I can provide back-ports once upstream upon 
+request. It should be noted that the backports should be mechanical and 
+trivial (skip non-existent filesystems like orangfs, drop separate inode 
+argument that did not exist in earlier kernels).
 
-grh
+I will submit the next spin (missed a few filesystems, build errors) 
+with references to the requested stable trees again, so noise will continue.
 
------Original Message-----
-From: gregkh@linuxfoundation.org <gregkh@linuxfoundation.org>=20
-Sent: Sunday, August 11, 2019 9:57 AM
-To: Hook, Gary <Gary.Hook@amd.com>; herbert@gondor.apana.org.au; stable@vge=
-r.kernel.org
-Cc: stable@vger.kernel.org
-Subject: FAILED: patch "[PATCH] crypto: ccp - Add support for valid authsiz=
-e values less than" failed to apply to 4.14-stable tree
+Sincerely -- Mark Salyzyn
 
-
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm tree,=
- then please email the backport, including the original git commit id to <s=
-table@vger.kernel.org>.
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 9f00baf74e4b6f79a3a3dfab44fb7bb2e797b551 Mon Sep 17 00:00:00 2001
-From: Gary R Hook <gary.hook@amd.com>
-Date: Tue, 30 Jul 2019 16:05:24 +0000
-Subject: [PATCH] crypto: ccp - Add support for valid authsize values less t=
-han
- 16
-
-AES GCM encryption allows for authsize values of 4, 8, and 12-16 bytes.
-Validate the requested authsize, and retain it to save in the request conte=
-xt.
-
-Fixes: 36cf515b9bbe2 ("crypto: ccp - Enable support for AES GCM on v5 CCPs"=
-)
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Gary R Hook <gary.hook@amd.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-
-diff --git a/drivers/crypto/ccp/ccp-crypto-aes-galois.c b/drivers/crypto/cc=
-p/ccp-crypto-aes-galois.c
-index d22631cb2bb3..02eba84028b3 100644
---- a/drivers/crypto/ccp/ccp-crypto-aes-galois.c
-+++ b/drivers/crypto/ccp/ccp-crypto-aes-galois.c
-@@ -58,6 +58,19 @@ static int ccp_aes_gcm_setkey(struct crypto_aead *tfm, c=
-onst u8 *key,  static int ccp_aes_gcm_setauthsize(struct crypto_aead *tfm,
- 				   unsigned int authsize)
- {
-+	switch (authsize) {
-+	case 16:
-+	case 15:
-+	case 14:
-+	case 13:
-+	case 12:
-+	case 8:
-+	case 4:
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
- 	return 0;
- }
-=20
-@@ -104,6 +117,7 @@ static int ccp_aes_gcm_crypt(struct aead_request *req, =
-bool encrypt)
- 	memset(&rctx->cmd, 0, sizeof(rctx->cmd));
- 	INIT_LIST_HEAD(&rctx->cmd.entry);
- 	rctx->cmd.engine =3D CCP_ENGINE_AES;
-+	rctx->cmd.u.aes.authsize =3D crypto_aead_authsize(tfm);
- 	rctx->cmd.u.aes.type =3D ctx->u.aes.type;
- 	rctx->cmd.u.aes.mode =3D ctx->u.aes.mode;
- 	rctx->cmd.u.aes.action =3D encrypt;
-diff --git a/drivers/crypto/ccp/ccp-ops.c b/drivers/crypto/ccp/ccp-ops.c in=
-dex 59f9849c3662..ef723e2722a8 100644
---- a/drivers/crypto/ccp/ccp-ops.c
-+++ b/drivers/crypto/ccp/ccp-ops.c
-@@ -622,6 +622,7 @@ static int ccp_run_aes_gcm_cmd(struct ccp_cmd_queue *cm=
-d_q,
-=20
- 	unsigned long long *final;
- 	unsigned int dm_offset;
-+	unsigned int authsize;
- 	unsigned int jobid;
- 	unsigned int ilen;
- 	bool in_place =3D true; /* Default value */ @@ -643,6 +644,21 @@ static i=
-nt ccp_run_aes_gcm_cmd(struct ccp_cmd_queue *cmd_q,
- 	if (!aes->key) /* Gotta have a key SGL */
- 		return -EINVAL;
-=20
-+	/* Zero defaults to 16 bytes, the maximum size */
-+	authsize =3D aes->authsize ? aes->authsize : AES_BLOCK_SIZE;
-+	switch (authsize) {
-+	case 16:
-+	case 15:
-+	case 14:
-+	case 13:
-+	case 12:
-+	case 8:
-+	case 4:
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
- 	/* First, decompose the source buffer into AAD & PT,
- 	 * and the destination buffer into AAD, CT & tag, or
- 	 * the input into CT & tag.
-@@ -657,7 +673,7 @@ static int ccp_run_aes_gcm_cmd(struct ccp_cmd_queue *cm=
-d_q,
- 		p_tag =3D scatterwalk_ffwd(sg_tag, p_outp, ilen);
- 	} else {
- 		/* Input length for decryption includes tag */
--		ilen =3D aes->src_len - AES_BLOCK_SIZE;
-+		ilen =3D aes->src_len - authsize;
- 		p_tag =3D scatterwalk_ffwd(sg_tag, p_inp, ilen);
- 	}
-=20
-@@ -839,19 +855,19 @@ static int ccp_run_aes_gcm_cmd(struct ccp_cmd_queue *=
-cmd_q,
-=20
- 	if (aes->action =3D=3D CCP_AES_ACTION_ENCRYPT) {
- 		/* Put the ciphered tag after the ciphertext. */
--		ccp_get_dm_area(&final_wa, 0, p_tag, 0, AES_BLOCK_SIZE);
-+		ccp_get_dm_area(&final_wa, 0, p_tag, 0, authsize);
- 	} else {
- 		/* Does this ciphered tag match the input? */
--		ret =3D ccp_init_dm_workarea(&tag, cmd_q, AES_BLOCK_SIZE,
-+		ret =3D ccp_init_dm_workarea(&tag, cmd_q, authsize,
- 					   DMA_BIDIRECTIONAL);
- 		if (ret)
- 			goto e_tag;
--		ret =3D ccp_set_dm_area(&tag, 0, p_tag, 0, AES_BLOCK_SIZE);
-+		ret =3D ccp_set_dm_area(&tag, 0, p_tag, 0, authsize);
- 		if (ret)
- 			goto e_tag;
-=20
- 		ret =3D crypto_memneq(tag.address, final_wa.address,
--				    AES_BLOCK_SIZE) ? -EBADMSG : 0;
-+				    authsize) ? -EBADMSG : 0;
- 		ccp_dm_free(&tag);
- 	}
-=20
-diff --git a/include/linux/ccp.h b/include/linux/ccp.h index 7e9c991c95e0..=
-43ed9e77cf81 100644
---- a/include/linux/ccp.h
-+++ b/include/linux/ccp.h
-@@ -173,6 +173,8 @@ struct ccp_aes_engine {
- 	enum ccp_aes_mode mode;
- 	enum ccp_aes_action action;
-=20
-+	u32 authsize;
-+
- 	struct scatterlist *key;
- 	u32 key_len;		/* In bytes */
-=20
 
