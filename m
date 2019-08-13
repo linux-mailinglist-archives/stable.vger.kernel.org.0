@@ -2,131 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F21B8B737
-	for <lists+stable@lfdr.de>; Tue, 13 Aug 2019 13:37:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BB078B79B
+	for <lists+stable@lfdr.de>; Tue, 13 Aug 2019 13:53:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727910AbfHMLhj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 07:37:39 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:47542 "EHLO
+        id S1725981AbfHMLxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 07:53:25 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:47686 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726600AbfHMLhj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Aug 2019 07:37:39 -0400
-Received: from [192.168.4.242] (helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
+        by vger.kernel.org with ESMTP id S1726705AbfHMLxZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Aug 2019 07:53:25 -0400
+Received: from ben by shadbolt.decadent.org.uk with local (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hxV7M-0007C4-Or; Tue, 13 Aug 2019 12:37:32 +0100
-Received: from ben by deadeye with local (Exim 4.92)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1hxV7M-0002gA-GJ; Tue, 13 Aug 2019 12:37:32 +0100
-Message-ID: <8861ca0e9c4a171390b231941cd958189ca6ef33.camel@decadent.org.uk>
-Subject: Re: [PATCH 3.16 043/157] ext4: brelse all indirect buffer 
- inext4_ind_remove_space()
+        id 1hxVMb-00087f-U5; Tue, 13 Aug 2019 12:53:22 +0100
+Date:   Tue, 13 Aug 2019 12:53:17 +0100
 From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Jari Ruusu <jariruusu@users.sourceforge.net>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        Hulk Robot <hulkci@huawei.com>, Jan Kara <jack@suse.cz>,
-        "zhangyi (F)" <yi.zhang@huawei.com>, Theodore Ts'o <tytso@mit.edu>
-Date:   Tue, 13 Aug 2019 12:37:27 +0100
-In-Reply-To: <5D523729.B7BF986@users.sourceforge.net>
-References: <lsq.1565469607.761898531@decadent.org.uk>
-         <5D523729.B7BF986@users.sourceforge.net>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-x6352Adav+lzE9GJZMu/"
-User-Agent: Evolution 3.30.5-1.1 
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org,
+        Denis Andzakovic <denis.andzakovic@pulsesecurity.co.nz>,
+        Salvatore Bonaccorso <carnil@debian.org>,
+        Eric Dumazet <edumazet@google.com>
+Message-ID: <20190813115317.6cgml2mckd3c6u7z@decadent.org.uk>
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 192.168.4.242
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="42fw5m7r3t6y5am7"
+Content-Disposition: inline
+User-Agent: NeoMutt/20170113 (1.7.2)
+X-SA-Exim-Connect-IP: <locally generated>
 X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on
+        shadbolt.decadent.org.uk
+X-Spam-Level: 
+X-Spam-Status: No, score=-0.0 required=5.0 tests=NO_RELAYS autolearn=disabled
+        version=3.4.2
+Subject: [PATCH 3.16-4.14] tcp: Clear sk_send_head after purging the write
+ queue
+X-SA-Exim-Version: 4.2.1 (built Tue, 02 Aug 2016 21:08:31 +0000)
+X-SA-Exim-Scanned: Yes (on shadbolt.decadent.org.uk)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---=-x6352Adav+lzE9GJZMu/
-Content-Type: text/plain; charset="UTF-8"
+--42fw5m7r3t6y5am7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, 2019-08-13 at 07:06 +0300, Jari Ruusu wrote:
-> Ben Hutchings wrote:
-> > From: "zhangyi (F)" <yi.zhang@huawei.com>
-> >=20
-> > commit 674a2b27234d1b7afcb0a9162e81b2e53aeef217 upstream.
->=20
-> [snip]
->=20
-> > --- a/fs/ext4/indirect.c
-> > +++ b/fs/ext4/indirect.c
-> > @@ -1481,10 +1481,14 @@ end_range:
-> >                                            partial->p + 1,
-> >                                            partial2->p,
-> >                                            (chain+n-1) - partial);
-> > -                       BUFFER_TRACE(partial->bh, "call brelse");
-> > -                       brelse(partial->bh);
-> > -                       BUFFER_TRACE(partial2->bh, "call brelse");
-> > -                       brelse(partial2->bh);
-> > +                       while (partial > chain) {
-> > +                               BUFFER_TRACE(partial->bh, "call brelse"=
-);
-> > +                               brelse(partial->bh);
-> > +                       }
-> > +                       while (partial2 > chain2) {
-> > +                               BUFFER_TRACE(partial2->bh, "call brelse=
-");
-> > +                               brelse(partial2->bh);
-> > +                       }
-> >                         return 0;
-> >                 }
-> >=20
->=20
-> Above patch is really messed up. Alone that patch is livelocking
-> and file system corrupting. Look at those new while loops. Once the
-> while condition is true once, it is ALWAYS true, so it livelocks.
+Denis Andzakovic discovered a potential use-after-free in older kernel
+versions, using syzkaller.  tcp_write_queue_purge() frees all skbs in
+the TCP write queue and can leave sk->sk_send_head pointing to freed
+memory.  tcp_disconnect() clears that pointer after calling
+tcp_write_queue_purge(), but tcp_connect() does not.  It is
+(surprisingly) possible to add to the write queue between
+disconnection and reconnection, so this needs to be done in both
+places.
 
-Thank you very much for this information.
+This bug was introduced by backports of commit 7f582b248d0a ("tcp:
+purge write queue in tcp_connect_init()") and does not exist upstream
+because of earlier changes in commit 75c119afe14f ("tcp: implement
+rb-tree based retransmit queue").  The latter is a major change that's
+not suitable for stable.
 
-> It absolutely needs follow-up patch from <yi.zhang@huawei.com>
-> "ext4: cleanup bh release code in ext4_ind_remove_space()"
-> upstream commit 5e86bdda41534e17621d5a071b294943cae4376e.
->=20
-> For more info about how to trigger that bug, see this earlier email
->=20
-> https://marc.info/?l=3Dlinux-kernel&m=3D155419973129522&w=3D2
->=20
-> For 3.16 kernels you may need to set CONFIG_EXT4_USE_FOR_EXT23=3Dy
-> so that ext4 code handles ext3 file systems.
+Reported-by: Denis Andzakovic <denis.andzakovic@pulsesecurity.co.nz>
+Bisected-by: Salvatore Bonaccorso <carnil@debian.org>
+Fixes: 7f582b248d0a ("tcp: purge write queue in tcp_connect_init()")
+Cc: <stable@vger.kernel.org> # before 4.15
+Cc: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+---
+ include/net/tcp.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-As I want to release the update right now, I'll defer both of these.
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+index fed2a78fb8cb..f9b985d4d779 100644
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -1517,6 +1517,8 @@ struct tcp_fastopen_context {
+ 	struct rcu_head		rcu;
+ };
+=20
++static inline void tcp_init_send_head(struct sock *sk);
++
+ /* write queue abstraction */
+ static inline void tcp_write_queue_purge(struct sock *sk)
+ {
+@@ -1524,6 +1526,7 @@ static inline void tcp_write_queue_purge(struct sock =
+*sk)
+=20
+ 	while ((skb =3D __skb_dequeue(&sk->sk_write_queue)) !=3D NULL)
+ 		sk_wmem_free_skb(sk, skb);
++	tcp_init_send_head(sk);
+ 	sk_mem_reclaim(sk);
+ 	tcp_clear_all_retrans_hints(tcp_sk(sk));
+ 	inet_csk(sk)->icsk_backoff =3D 0;
 
-Ben.
-
---=20
-Ben Hutchings
-When in doubt, use brute force. - Ken Thompson
-
-
-
---=-x6352Adav+lzE9GJZMu/
+--42fw5m7r3t6y5am7
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl1SoPcACgkQ57/I7JWG
-EQlMJg//W6aEnzB7UJEVpTqTkKayKeMrMjoKMV1KE+pzvoggh1QVopvFR1MoHk1T
-41wwKsnQhqOchtMnay3jvW3X++2lcjREYa8ckFDz2bZxOKEHwnDyx/A+TAVmZFf5
-vvn2PiV9NskLAPousCPMb/IFki6n9rM3nmYmyVwk8KmQCccX/drr6xItV9attkGI
-UNF/nKoEmCqQ9XrEb3t34H4aytbHQO9MAGVQy7PHxD+XlfSpU61NTQDjOisvef/U
-GxU6yVIGjhcaB/NT5x3tINMQok1G/NWmPiNkP3uAqdKQRQISpPh2SZ1lDRDI3XH1
-/gdBjPtKfB6KTMA6OfRPnkZrrUUyvcOVsmjiJrUt941h0S7xMbXh9rMkxv28k6fc
-0kHB8r9iwgbHH3MhWPKJ0YZeAaolSiFIAywAo/YZPnbQYDZWACtwcN+v78wVaUSw
-21wFH4eksHqF4mwn57Fzip3IS6G2mMSZ2Yfz5RMg7Knr2lgm2xYZ+Ky+J5RkkFvh
-8sVZp1OT5qtuVwnx6jVGgjATSP352ZD1ygVvMUpAePS6CpWIvwm0Xndx3JBIfXZm
-DJ27DezImMDTpTZKFEcG9x3P4Ch3CUxvI1b/oqzqEQjncHRxbIIUhjPvGAkWUgci
-xiADS7j+d+DwR3iGU07l3P5vS22oeYqY0T6IyzXpZbsL/iuF2/g=
-=j5b8
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl1SpKgACgkQ57/I7JWG
+EQlkCxAAoAsu41RAA0G9oxBErJf56zmO8OH+QYL22+0EZ5vK/pCHfooxI8I7QqO1
+MVZoLYxpS3awczrdANmYks1XNsJXRa3F7qm+5hl8p9jvqZqNijdSge7gc8A2rhiV
+TznR/1i47cBvetk1NFmZCbc9l+YIxMjZh9P7uZ5Juubi5e2QmInGXWsa2DPK7drc
+5Rcxw7BkiKPNUVDGSrv4Rd1j+9KOKGts5pqf112bKOLUXUGSYdY0wPngTgfaSrwd
+sin22CwOhnPbADgVJPMwDDHRYMYwQhCy29Z3EgNbMidLZCNbbbuP96PxRwK9VTXN
+KJ0y3rFsLlJ4rE6CSw9zbzrQWht6czEJvKtNK0I60T8O5zGKZWdl1H8odGrMiqUG
+5YKCnNTJeEMve1bWSHwmNKARhEsf5k7Td5BouNjaNCmsnFNJcA9rmh+ZaI3oF/Vx
+oQsfiFcgrjNy7RinyifAGT5weoFl8VjfWIl1SEJXsDKzhJ1JhhwAoqZD2U712Pgm
+2pV4uhNEnNJqpQEII25/wauf6LqBQWWMjuUwIA94l4kHt6IDVngKLwH0fEuIab99
+W6sV4sO5u/3DjBsZUNpGdbYhxQM1/g4OnKDsR5m0kW7y3PGYqkj5klcl3+bMp3Zc
+5Wes+m6fCVMLjlAw53MO0HWYLlFXLmk2AXTT2/VRQsP8hsiC1tY=
+=F7mz
 -----END PGP SIGNATURE-----
 
---=-x6352Adav+lzE9GJZMu/--
+--42fw5m7r3t6y5am7--
