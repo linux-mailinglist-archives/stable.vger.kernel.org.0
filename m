@@ -2,130 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92B818C0FC
-	for <lists+stable@lfdr.de>; Tue, 13 Aug 2019 20:47:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0FDE8C1FA
+	for <lists+stable@lfdr.de>; Tue, 13 Aug 2019 22:14:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726137AbfHMSrI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 14:47:08 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:50885 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725923AbfHMSrH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Aug 2019 14:47:07 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 5C2BB343;
-        Tue, 13 Aug 2019 14:47:06 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 13 Aug 2019 14:47:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=pq7pNX
-        djThYOT/BPlonBwTSECBfj6lnAe65hVWMA+fk=; b=14cg5DB4o55QHejCcAqz4I
-        fGi5+POQc4SpeedUSi8pYNde3g48rq/L9UtVrpMwajYTaleUnaUCbzO0G3Oa9iAC
-        iFqCvz3Dxcn7dzZDu7tXVOy6t9UMpkBLMnHet5/SGsC6L1L/ouUmMaKv2h5FjhPt
-        +Jdg9kZnQFDXGtu+785vHDB4gFVoEdCUfe4CKtWxJiq/8WVnc0a8b2ujhNS4W8G0
-        Ek6Olz7opjK3GdjHyQFN4uxlKqJfC3tnchEZFaZUYZGcxQVqFuFpxQ+k1yu4Eyk9
-        yjXxLmCZZrD6rzMBQiZ0OZB4BzHGJK4TM/zER6WM6uY0Zc7srtyt6OSUBdSkHgzg
-        ==
-X-ME-Sender: <xms:qAVTXUECaU56iGBCXLpil84C2_yBB-kjJyGi-o7KvhH_V6HxjYUOqw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddviedguddvgecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:qAVTXWvt6FDEaj6dj2bO13_t0Y_l_kMcjHxGR85brw5Ad7-N-EjW1Q>
-    <xmx:qAVTXXS3QXAiEQEXa5S1n9rW1V84Q5uG8VRxuZbXTA2IeQTzkEMP-Q>
-    <xmx:qAVTXZGCmsh9U8Z54985Vw-tJFK1DLQnya7mDIF2HYvJHVq6Y6c-BQ>
-    <xmx:qQVTXeZOm_DQECUMAVbbQ9RgSryIElOkKe1oPRQdqDuWDePWaah-Ow>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 63E9E80063;
-        Tue, 13 Aug 2019 14:47:04 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] can: rcar_canfd: fix possible IRQ storm on high load" failed to apply to 4.9-stable tree
-To:     nikita.yoush@cogentembedded.com, mkl@pengutronix.de,
-        stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 13 Aug 2019 20:47:02 +0200
-Message-ID: <156572202224474@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+        id S1726708AbfHMUOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 16:14:41 -0400
+Received: from gofer.mess.org ([88.97.38.141]:36683 "EHLO gofer.mess.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726594AbfHMUOl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 16:14:41 -0400
+Received: by gofer.mess.org (Postfix, from userid 1000)
+        id DE37B603E8; Tue, 13 Aug 2019 21:14:39 +0100 (BST)
+From:   Sean Young <sean@mess.org>
+To:     linux-media@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH] media: tm6000: double free if usb disconnect while streaming
+Date:   Tue, 13 Aug 2019 21:14:39 +0100
+Message-Id: <20190813201439.22480-1-sean@mess.org>
+X-Mailer: git-send-email 2.11.0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The usb_bulk_urb will kfree'd on disconnect, so ensure the pointer is set
+to NULL after each free.
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+stop stream
+urb killing
+urb buffer free
+tm6000: got start feed request tm6000_start_feed
+tm6000: got start stream request tm6000_start_stream
+tm6000: pipe reset
+tm6000: got start feed request tm6000_start_feed
+tm6000: got start feed request tm6000_start_feed
+tm6000: got start feed request tm6000_start_feed
+tm6000: got start feed request tm6000_start_feed
+tm6000: IR URB failure: status: -71, length 0
+xhci_hcd 0000:00:14.0: ERROR unknown event type 37
+xhci_hcd 0000:00:14.0: ERROR unknown event type 37
+tm6000:  error tm6000_urb_received
+usb 1-2: USB disconnect, device number 5
+tm6000: disconnecting tm6000 #0
+==================================================================
+BUG: KASAN: use-after-free in dvb_fini+0x75/0x140 [tm6000_dvb]
+Read of size 8 at addr ffff888241044060 by task kworker/2:0/22
 
-thanks,
+CPU: 2 PID: 22 Comm: kworker/2:0 Tainted: G        W         5.3.0-rc4+ #1
+Hardware name: LENOVO 20KHCTO1WW/20KHCTO1WW, BIOS N23ET65W (1.40 ) 07/02/2019
+Workqueue: usb_hub_wq hub_event
+Call Trace:
+ dump_stack+0x9a/0xf0
+ print_address_description.cold+0xae/0x34f
+ __kasan_report.cold+0x75/0x93
+ ? tm6000_fillbuf+0x390/0x3c0 [tm6000_alsa]
+ ? dvb_fini+0x75/0x140 [tm6000_dvb]
+ kasan_report+0xe/0x12
+ dvb_fini+0x75/0x140 [tm6000_dvb]
+ tm6000_close_extension+0x51/0x80 [tm6000]
+ tm6000_usb_disconnect.cold+0xd4/0x105 [tm6000]
+ usb_unbind_interface+0xe4/0x390
+ device_release_driver_internal+0x121/0x250
+ bus_remove_device+0x197/0x260
+ device_del+0x268/0x550
+ ? __device_links_no_driver+0xd0/0xd0
+ ? usb_remove_ep_devs+0x30/0x3b
+ usb_disable_device+0x122/0x400
+ usb_disconnect+0x153/0x430
+ hub_event+0x800/0x1e40
+ ? trace_hardirqs_on_thunk+0x1a/0x20
+ ? hub_port_debounce+0x1f0/0x1f0
+ ? retint_kernel+0x10/0x10
+ ? lock_is_held_type+0xf1/0x130
+ ? hub_port_debounce+0x1f0/0x1f0
+ ? process_one_work+0x4ae/0xa00
+ process_one_work+0x4ba/0xa00
+ ? pwq_dec_nr_in_flight+0x160/0x160
+ ? do_raw_spin_lock+0x10a/0x1d0
+ worker_thread+0x7a/0x5c0
+ ? process_one_work+0xa00/0xa00
+ kthread+0x1d5/0x200
+ ? kthread_create_worker_on_cpu+0xd0/0xd0
+ ret_from_fork+0x3a/0x50
 
-greg k-h
+Allocated by task 2682:
+ save_stack+0x1b/0x80
+ __kasan_kmalloc.constprop.0+0xc2/0xd0
+ usb_alloc_urb+0x28/0x60
+ tm6000_start_feed+0x10a/0x300 [tm6000_dvb]
+ dmx_ts_feed_start_filtering+0x86/0x120 [dvb_core]
+ dvb_dmxdev_start_feed+0x121/0x180 [dvb_core]
+ dvb_dmxdev_filter_start+0xcb/0x540 [dvb_core]
+ dvb_demux_do_ioctl+0x7ed/0x890 [dvb_core]
+ dvb_usercopy+0x97/0x1f0 [dvb_core]
+ dvb_demux_ioctl+0x11/0x20 [dvb_core]
+ do_vfs_ioctl+0x5d8/0x9d0
+ ksys_ioctl+0x5e/0x90
+ __x64_sys_ioctl+0x3d/0x50
+ do_syscall_64+0x74/0xe0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
------------------- original commit in Linus's tree ------------------
+Freed by task 22:
+ save_stack+0x1b/0x80
+ __kasan_slab_free+0x12c/0x170
+ kfree+0xfd/0x3a0
+ xhci_giveback_urb_in_irq+0xfe/0x230
+ xhci_td_cleanup+0x276/0x340
+ xhci_irq+0x1129/0x3720
+ __handle_irq_event_percpu+0x6e/0x420
+ handle_irq_event_percpu+0x6f/0x100
+ handle_irq_event+0x55/0x84
+ handle_edge_irq+0x108/0x3b0
+ handle_irq+0x2e/0x40
+ do_IRQ+0x83/0x1a0
 
-From d4b890aec4bea7334ca2ca56fd3b12fb48a00cd1 Mon Sep 17 00:00:00 2001
-From: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
-Date: Wed, 26 Jun 2019 16:08:48 +0300
-Subject: [PATCH] can: rcar_canfd: fix possible IRQ storm on high load
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Young <sean@mess.org>
+---
+ drivers/media/usb/tm6000/tm6000-dvb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-We have observed rcar_canfd driver entering IRQ storm under high load,
-with following scenario:
-- rcar_canfd_global_interrupt() in entered due to Rx available,
-- napi_schedule_prep() is called, and sets NAPIF_STATE_SCHED in state
-- Rx fifo interrupts are masked,
-- rcar_canfd_global_interrupt() is entered again, this time due to
-  error interrupt (e.g. due to overflow),
-- since scheduled napi poller has not yet executed, condition for calling
-  napi_schedule_prep() from rcar_canfd_global_interrupt() remains true,
-  thus napi_schedule_prep() gets called and sets NAPIF_STATE_MISSED flag
-  in state,
-- later, napi poller function rcar_canfd_rx_poll() gets executed, and
-  calls napi_complete_done(),
-- due to NAPIF_STATE_MISSED flag in state, this call does not clear
-  NAPIF_STATE_SCHED flag from state,
-- on return from napi_complete_done(), rcar_canfd_rx_poll() unmasks Rx
-  interrutps,
-- Rx interrupt happens, rcar_canfd_global_interrupt() gets called
-  and calls napi_schedule_prep(),
-- since NAPIF_STATE_SCHED is set in state at this time, this call
-  returns false,
-- due to that false return, rcar_canfd_global_interrupt() returns
-  without masking Rx interrupt
-- and this results into IRQ storm: unmasked Rx interrupt happens again
-  and again is misprocessed in the same way.
-
-This patch fixes that scenario by unmasking Rx interrupts only when
-napi_complete_done() returns true, which means it has cleared
-NAPIF_STATE_SCHED in state.
-
-Fixes: dd3bd23eb438 ("can: rcar_canfd: Add Renesas R-Car CAN FD driver")
-Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-
-diff --git a/drivers/net/can/rcar/rcar_canfd.c b/drivers/net/can/rcar/rcar_canfd.c
-index 05410008aa6b..de34a4b82d4a 100644
---- a/drivers/net/can/rcar/rcar_canfd.c
-+++ b/drivers/net/can/rcar/rcar_canfd.c
-@@ -1508,10 +1508,11 @@ static int rcar_canfd_rx_poll(struct napi_struct *napi, int quota)
- 
- 	/* All packets processed */
- 	if (num_pkts < quota) {
--		napi_complete_done(napi, num_pkts);
--		/* Enable Rx FIFO interrupts */
--		rcar_canfd_set_bit(priv->base, RCANFD_RFCC(ridx),
--				   RCANFD_RFCC_RFIE);
-+		if (napi_complete_done(napi, num_pkts)) {
-+			/* Enable Rx FIFO interrupts */
-+			rcar_canfd_set_bit(priv->base, RCANFD_RFCC(ridx),
-+					   RCANFD_RFCC_RFIE);
-+		}
+diff --git a/drivers/media/usb/tm6000/tm6000-dvb.c b/drivers/media/usb/tm6000/tm6000-dvb.c
+index e4d2dcd5cc0f..19c90fa9e443 100644
+--- a/drivers/media/usb/tm6000/tm6000-dvb.c
++++ b/drivers/media/usb/tm6000/tm6000-dvb.c
+@@ -97,6 +97,7 @@ static void tm6000_urb_received(struct urb *urb)
+ 			printk(KERN_ERR "tm6000:  error %s\n", __func__);
+ 			kfree(urb->transfer_buffer);
+ 			usb_free_urb(urb);
++			dev->dvb->bulk_urb = NULL;
+ 		}
  	}
- 	return num_pkts;
  }
+@@ -127,6 +128,7 @@ static int tm6000_start_stream(struct tm6000_core *dev)
+ 	dvb->bulk_urb->transfer_buffer = kzalloc(size, GFP_KERNEL);
+ 	if (!dvb->bulk_urb->transfer_buffer) {
+ 		usb_free_urb(dvb->bulk_urb);
++		dvb->bulk_urb = NULL;
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -153,6 +155,7 @@ static int tm6000_start_stream(struct tm6000_core *dev)
+ 
+ 		kfree(dvb->bulk_urb->transfer_buffer);
+ 		usb_free_urb(dvb->bulk_urb);
++		dvb->bulk_urb = NULL;
+ 		return ret;
+ 	}
+ 
+-- 
+2.21.0
 
