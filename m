@@ -2,192 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED6948C37E
-	for <lists+stable@lfdr.de>; Tue, 13 Aug 2019 23:19:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AB048C3D8
+	for <lists+stable@lfdr.de>; Tue, 13 Aug 2019 23:39:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726066AbfHMVTm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 17:19:42 -0400
-Received: from mail-vk1-f202.google.com ([209.85.221.202]:46653 "EHLO
-        mail-vk1-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725903AbfHMVTm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Aug 2019 17:19:42 -0400
-Received: by mail-vk1-f202.google.com with SMTP id j63so46068410vkc.13
-        for <stable@vger.kernel.org>; Tue, 13 Aug 2019 14:19:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=9ER49LkAApjAQ4CherwlnIMF0QHNLtrlUhDOwjnAQF4=;
-        b=mA2bsJDIFA50wpeXtmasu3xbrZRfayHFzjPbpzQeVObMANrD3wsvvfgtmDi8hFDLqQ
-         pDbcspSZyEIoCQ5gPpJsExfoq7NKl40/h0FvshvhZpPQyFXZJcUKD8UgBk8GtTt9DqsW
-         hKOA0ZZ387zvJm1Qd5T3EcCg6H7gaexYmg3kyr+VWmv1vHif5k9Ha/UNiSLaWEF0If3Q
-         Qx7ojbuDOGlRKVVOxZaUGCXSFxpFp5V9Biltc810bV5KaUQLomIuOUhDl0y6E89RhFko
-         RAJBRPHI/h0V2RrcVfZYzHhHi1cJvpm7PEDMrzecFS6S2DIIrQshIX9lEvDTxVJ/shJH
-         YhZQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=9ER49LkAApjAQ4CherwlnIMF0QHNLtrlUhDOwjnAQF4=;
-        b=JHuEbYPmhNbBW5Hwx7GEX7pmcSf0J0OPh37gYTzzk6nC/S2T5Muun1/6boPEf0tAyV
-         0IiJeyoGAFjD2JavXtM7eOyxQfIh/ulOmNByFdW3Du8NAA1Qe5lqMc9dDPPxWENSda9j
-         daQLyF5XPkNShM5ix5pPgLgpV/uyZtX5iwa9vmtX172w3jpe9VwI6Ak5xSD/4SmhxFuC
-         vqTJmaN94d0jNqdlOK4g26NfMYpwUz/Pnet6RBazfWL6Ww3Bryv5ZSDEZjCfRuzi1/Oa
-         doSPnUVqYtitcgSzib84549Sa0nIQc3ABM0jAFbcPz/0lPBSxwMnUBnV9SDuqi75mOxl
-         ymLw==
-X-Gm-Message-State: APjAAAXZS0qC0U2nsTDWoXFd1CXlvKjO7boHcotxOf9WKB0XcId/0pOg
-        ctrFzATQqf3C5ZTYWbKJsMidL+MtWOFhCnFfw6s=
-X-Google-Smtp-Source: APXvYqxYV43UWQcQhtPv2cyHZ1lpIF5yjC2CFCs01mn0xNb/TFXk3CQiXujFWpv9ekLzR/y26sAsJ1j8Gn1Lt+aQF3s=
-X-Received: by 2002:a1f:9915:: with SMTP id b21mr10493141vke.69.1565731180599;
- Tue, 13 Aug 2019 14:19:40 -0700 (PDT)
-Date:   Tue, 13 Aug 2019 14:19:30 -0700
-In-Reply-To: <1565721608151140@kroah.com>
-Message-Id: <20190813211930.42094-1-ndesaulniers@google.com>
-Mime-Version: 1.0
-References: <1565721608151140@kroah.com>
-X-Mailer: git-send-email 2.23.0.rc1.153.gdeed80330f-goog
-Subject: [4.19 PATCH] x86/purgatory: Do not use __builtin_memcpy and __builtin_memset
-From:   Nick Desaulniers <ndesaulniers@google.com>
-To:     gregkh@linuxfoundation.org
-Cc:     adelva@google.com, manojgupta@google.com, tglx@linutronix.de,
-        vaibhavrustagi@google.com, stable@vger.kernel.org,
-        Nick Desaulniers <ndesaulniers@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        id S1726712AbfHMVj1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 17:39:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59574 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726066AbfHMVj1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 17:39:27 -0400
+Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAEF9206C2;
+        Tue, 13 Aug 2019 21:39:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1565732366;
+        bh=SLjfcwbdwmabtb3IRJfhPQib4w4zMhzFzDEtnvCK6a4=;
+        h=Date:From:To:Subject:From;
+        b=LyNiDg6RK77fPkWx0nV81oV13DvHFPzRRb1z06Ggz4xm/bamp5J+qyw06FtMMFPDr
+         YM2q4BZp1v/4J6p5PE7YNL8VXeGWYHoHF+wby7iqluUleRPYt9IPTGNk7eJWEQhEvT
+         4ZNB4wH/3zCbFwjJha8ZH7MEFTnfdBSpXT51UGI8=
+Date:   Tue, 13 Aug 2019 14:39:25 -0700
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, vbabka@suse.cz, stable@vger.kernel.org,
+        pavel.tatashin@microsoft.com, osalvador@suse.de,
+        n-horiguchi@ah.jp.nec.com, m.mizuma@jp.fujitsu.com,
+        mgorman@techsingularity.net, rientjes@google.com
+Subject:  +
+ =?us-ascii?Q?mm-page=5Falloc-move=5Ffreepages-should-not-examine-struct-p?=
+ =?us-ascii?Q?age-of-reserved-memory.patch?= added to -mm tree
+Message-ID: <20190813213925.68XY7%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.10
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 4ce97317f41d38584fb93578e922fcd19e535f5b upstream.
 
-Implementing memcpy and memset in terms of __builtin_memcpy and
-__builtin_memset is problematic.
+The patch titled
+     Subject: mm, page_alloc: move_freepages should not examine struct page of reserved memory
+has been added to the -mm tree.  Its filename is
+     mm-page_alloc-move_freepages-should-not-examine-struct-page-of-reserved-memory.patch
 
-GCC at -O2 will replace calls to the builtins with calls to memcpy and
-memset (but will generate an inline implementation at -Os).  Clang will
-replace the builtins with these calls regardless of optimization level.
-$ llvm-objdump -dr arch/x86/purgatory/string.o | tail
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-page_alloc-move_freepages-should-not-examine-struct-page-of-reserved-memory.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-page_alloc-move_freepages-should-not-examine-struct-page-of-reserved-memory.patch
 
-0000000000000339 memcpy:
-     339: 48 b8 00 00 00 00 00 00 00 00 movabsq $0, %rax
-                000000000000033b:  R_X86_64_64  memcpy
-     343: ff e0                         jmpq    *%rax
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-0000000000000345 memset:
-     345: 48 b8 00 00 00 00 00 00 00 00 movabsq $0, %rax
-                0000000000000347:  R_X86_64_64  memset
-     34f: ff e0
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-Such code results in infinite recursion at runtime. This is observed
-when doing kexec.
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-Instead, reuse an implementation from arch/x86/boot/compressed/string.c.
-This requires to implement a stub function for warn(). Also, Clang may
-lower memcmp's that compare against 0 to bcmp's, so add a small definition,
-too. See also: commit 5f074f3e192f ("lib/string.c: implement a basic bcmp")
+------------------------------------------------------
+From: David Rientjes <rientjes@google.com>
+Subject: mm, page_alloc: move_freepages should not examine struct page of reserved memory
 
-Fixes: 8fc5b4d4121c ("purgatory: core purgatory functionality")
-Reported-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
-Debugged-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
-Debugged-by: Manoj Gupta <manojgupta@google.com>
-Suggested-by: Alistair Delva <adelva@google.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
-Cc: stable@vger.kernel.org
-Link: https://bugs.chromium.org/p/chromium/issues/detail?id=984056
-Link: https://lkml.kernel.org/r/20190807221539.94583-1-ndesaulniers@google.com
+After commit 907ec5fca3dc ("mm: zero remaining unavailable struct pages"),
+struct page of reserved memory is zeroed.  This causes page->flags to be 0
+and fixes issues related to reading /proc/kpageflags, for example, of
+reserved memory.
+
+The VM_BUG_ON() in move_freepages_block(), however, assumes that
+page_zone() is meaningful even for reserved memory.  That assumption is no
+longer true after the aforementioned commit.
+
+There's no reason why move_freepages_block() should be testing the
+legitimacy of page_zone() for reserved memory; its scope is limited only
+to pages on the zone's freelist.
+
+Note that pfn_valid() can be true for reserved memory: there is a backing
+struct page.  The check for page_to_nid(page) is also buggy but reserved
+memory normally only appears on node 0 so the zeroing doesn't affect this.
+
+Move the debug checks to after verifying PageBuddy is true.  This isolates
+the scope of the checks to only be for buddy pages which are on the zone's
+freelist which move_freepages_block() is operating on.  In this case, an
+incorrect node or zone is a bug worthy of being warned about (and the
+examination of struct page is acceptable bcause this memory is not
+reserved).
+
+Why does move_freepages_block() gets called on reserved memory?  It's
+simply math after finding a valid free page from the per-zone free area to
+use as fallback.  We find the beginning and end of the pageblock of the
+valid page and that can bring us into memory that was reserved per the
+e820.  pfn_valid() is still true (it's backed by a struct page), but since
+it's zero'd we shouldn't make any inferences here about comparing its node
+or zone.  The current node check just happens to succeed most of the time
+by luck because reserved memory typically appears on node 0.
+
+The fix here is to validate that we actually have buddy pages before
+testing if there's any type of zone or node strangeness going on.
+
+Link: http://lkml.kernel.org/r/alpine.DEB.2.21.1908122036560.10779@chino.kir.corp.google.com
+Fixes: 907ec5fca3dc ("mm: zero remaining unavailable struct pages")
+Signed-off-by: David Rientjes <rientjes@google.com>
+Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-This failed to cherry-pick back cleanly due to the SPDX license
-identifier not existing in arch/x86/purgatory/string.c in 4.19. `git rm`
-it anyway.
 
+ mm/page_alloc.c |   19 ++++---------------
+ 1 file changed, 4 insertions(+), 15 deletions(-)
 
- arch/x86/boot/string.c         |  8 ++++++++
- arch/x86/purgatory/Makefile    |  3 +++
- arch/x86/purgatory/purgatory.c |  6 ++++++
- arch/x86/purgatory/string.c    | 25 -------------------------
- 4 files changed, 17 insertions(+), 25 deletions(-)
- delete mode 100644 arch/x86/purgatory/string.c
+--- a/mm/page_alloc.c~mm-page_alloc-move_freepages-should-not-examine-struct-page-of-reserved-memory
++++ a/mm/page_alloc.c
+@@ -2238,27 +2238,12 @@ static int move_freepages(struct zone *z
+ 	unsigned int order;
+ 	int pages_moved = 0;
+ 
+-#ifndef CONFIG_HOLES_IN_ZONE
+-	/*
+-	 * page_zone is not safe to call in this context when
+-	 * CONFIG_HOLES_IN_ZONE is set. This bug check is probably redundant
+-	 * anyway as we check zone boundaries in move_freepages_block().
+-	 * Remove at a later date when no bug reports exist related to
+-	 * grouping pages by mobility
+-	 */
+-	VM_BUG_ON(pfn_valid(page_to_pfn(start_page)) &&
+-	          pfn_valid(page_to_pfn(end_page)) &&
+-	          page_zone(start_page) != page_zone(end_page));
+-#endif
+ 	for (page = start_page; page <= end_page;) {
+ 		if (!pfn_valid_within(page_to_pfn(page))) {
+ 			page++;
+ 			continue;
+ 		}
+ 
+-		/* Make sure we are not inadvertently changing nodes */
+-		VM_BUG_ON_PAGE(page_to_nid(page) != zone_to_nid(zone), page);
+-
+ 		if (!PageBuddy(page)) {
+ 			/*
+ 			 * We assume that pages that could be isolated for
+@@ -2273,6 +2258,10 @@ static int move_freepages(struct zone *z
+ 			continue;
+ 		}
+ 
++		/* Make sure we are not inadvertently changing nodes */
++		VM_BUG_ON_PAGE(page_to_nid(page) != zone_to_nid(zone), page);
++		VM_BUG_ON_PAGE(page_zone(page) != zone, page);
++
+ 		order = page_order(page);
+ 		move_to_free_area(page, &zone->free_area[order], migratetype);
+ 		page += 1 << order;
+_
 
-diff --git a/arch/x86/boot/string.c b/arch/x86/boot/string.c
-index c4428a176973..2622c0742c92 100644
---- a/arch/x86/boot/string.c
-+++ b/arch/x86/boot/string.c
-@@ -34,6 +34,14 @@ int memcmp(const void *s1, const void *s2, size_t len)
- 	return diff;
- }
- 
-+/*
-+ * Clang may lower `memcmp == 0` to `bcmp == 0`.
-+ */
-+int bcmp(const void *s1, const void *s2, size_t len)
-+{
-+	return memcmp(s1, s2, len);
-+}
-+
- int strcmp(const char *str1, const char *str2)
- {
- 	const unsigned char *s1 = (const unsigned char *)str1;
-diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
-index 3cf302b26332..91ef244026d2 100644
---- a/arch/x86/purgatory/Makefile
-+++ b/arch/x86/purgatory/Makefile
-@@ -6,6 +6,9 @@ purgatory-y := purgatory.o stack.o setup-x86_$(BITS).o sha256.o entry64.o string
- targets += $(purgatory-y)
- PURGATORY_OBJS = $(addprefix $(obj)/,$(purgatory-y))
- 
-+$(obj)/string.o: $(srctree)/arch/x86/boot/compressed/string.c FORCE
-+	$(call if_changed_rule,cc_o_c)
-+
- $(obj)/sha256.o: $(srctree)/lib/sha256.c FORCE
- 	$(call if_changed_rule,cc_o_c)
- 
-diff --git a/arch/x86/purgatory/purgatory.c b/arch/x86/purgatory/purgatory.c
-index 025c34ac0d84..7971f7a8af59 100644
---- a/arch/x86/purgatory/purgatory.c
-+++ b/arch/x86/purgatory/purgatory.c
-@@ -70,3 +70,9 @@ void purgatory(void)
- 	}
- 	copy_backup_region();
- }
-+
-+/*
-+ * Defined in order to reuse memcpy() and memset() from
-+ * arch/x86/boot/compressed/string.c
-+ */
-+void warn(const char *msg) {}
-diff --git a/arch/x86/purgatory/string.c b/arch/x86/purgatory/string.c
-deleted file mode 100644
-index 795ca4f2cb3c..000000000000
---- a/arch/x86/purgatory/string.c
-+++ /dev/null
-@@ -1,25 +0,0 @@
--/*
-- * Simple string functions.
-- *
-- * Copyright (C) 2014 Red Hat Inc.
-- *
-- * Author:
-- *       Vivek Goyal <vgoyal@redhat.com>
-- *
-- * This source code is licensed under the GNU General Public License,
-- * Version 2.  See the file COPYING for more details.
-- */
--
--#include <linux/types.h>
--
--#include "../boot/string.c"
--
--void *memcpy(void *dst, const void *src, size_t len)
--{
--	return __builtin_memcpy(dst, src, len);
--}
--
--void *memset(void *dst, int c, size_t len)
--{
--	return __builtin_memset(dst, c, len);
--}
--- 
-2.23.0.rc1.153.gdeed80330f-goog
+Patches currently in -mm which might be from rientjes@google.com are
+
+mm-page_alloc-move_freepages-should-not-examine-struct-page-of-reserved-memory.patch
 
