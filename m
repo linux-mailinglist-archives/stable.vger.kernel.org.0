@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E266F8C3E9
-	for <lists+stable@lfdr.de>; Tue, 13 Aug 2019 23:46:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 911B28C3EC
+	for <lists+stable@lfdr.de>; Tue, 13 Aug 2019 23:47:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726550AbfHMVq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 17:46:56 -0400
-Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:56020 "EHLO
-        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725903AbfHMVqz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Aug 2019 17:46:55 -0400
-Received: from pps.filterd (m0044012.ppops.net [127.0.0.1])
-        by mx0a-00082601.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7DLilAp026091;
-        Tue, 13 Aug 2019 14:46:50 -0700
+        id S1726712AbfHMVrp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 17:47:45 -0400
+Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:41142 "EHLO
+        mx0b-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726565AbfHMVrp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Aug 2019 17:47:45 -0400
+Received: from pps.filterd (m0109331.ppops.net [127.0.0.1])
+        by mx0a-00082601.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7DLleWq006164;
+        Tue, 13 Aug 2019 14:47:40 -0700
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
  : date : message-id : references : in-reply-to : content-type : content-id
  : content-transfer-encoding : mime-version; s=facebook;
- bh=A1qkOJNoz7cDcs5D5ISvypaHekdRCaquHQOEHbzqI9w=;
- b=njo1wa8+mL6xuWAqEgD2mv+be0KXoOwT1q7ryXcHA6yfXNe4BL2d7dHNQ+eHWq2XyQW3
- 1f1ki9ftkFdNURI8/d0f8BmYFuMRlQnqNy8PU0qFVrrbazg5qj9PZnC7fPayrUcGhl6q
- E9Ti9pJcSbHQ8KFFxy70Jtnjik7hmqZksS4= 
+ bh=x3UWO+LBB6O0hTYfEASivfqkFHYJbO2Lt4ssFr3OqOE=;
+ b=RGA0D3VWGY1FwfS8IO7LeMuTboCJJDhyOWNDa7YZa7xXbLoAxEnjoUFUOaxVbyRRgc70
+ C7J6zbTOGHRP6MN6pZaid0OrX7CSe54eX5qFEEyVHjnkAm3CkemoOrPBgXnjNc+QuXoU
+ 5Cc2oHAec3y7+dUU9bwmnX5Jx7nxkm5p8Aw= 
 Received: from maileast.thefacebook.com ([163.114.130.16])
-        by mx0a-00082601.pphosted.com with ESMTP id 2uc4uhg610-1
+        by mx0a-00082601.pphosted.com with ESMTP id 2uc0t6s9py-2
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-        Tue, 13 Aug 2019 14:46:50 -0700
-Received: from ash-exhub104.TheFacebook.com (2620:10d:c0a8:82::d) by
- ash-exhub204.TheFacebook.com (2620:10d:c0a8:83::4) with Microsoft SMTP Server
+        Tue, 13 Aug 2019 14:47:40 -0700
+Received: from ash-exhub103.TheFacebook.com (2620:10d:c0a8:82::c) by
+ ash-exhub103.TheFacebook.com (2620:10d:c0a8:82::c) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Tue, 13 Aug 2019 14:46:48 -0700
+ 15.1.1713.5; Tue, 13 Aug 2019 14:47:37 -0700
 Received: from NAM03-CO1-obe.outbound.protection.outlook.com (100.104.31.183)
- by o365-in.thefacebook.com (100.104.35.175) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1713.5
- via Frontend Transport; Tue, 13 Aug 2019 14:46:48 -0700
+ by o365-in.thefacebook.com (100.104.35.174) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id 15.1.1713.5
+ via Frontend Transport; Tue, 13 Aug 2019 14:47:37 -0700
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Cvq83mT2GtS/FcCEcA89g74OT3hNaOt1dNtBxs5eldlMPM8kZoksXltFrFTrWga5H6wQZvyJGQUZZUaudVoLM6aCSWc2Z4lZVPoiV6Dw0Ee1tAVhnNVvilsHMvMxUpoO9+4FQrtrmScYsc3Zh2c1ef5+igsD1S2kX0Ix6HIkiu2337jbRHndpYABg5Poc+91LvVMV9KmyORcpqa0LYu6DKU6YCRKRuVC91HgQOxTW8npu6muTXBfeO6dbcAU+B0GneSZ+rzgPeLW2NY5TSt9+diXoKtlA2fr9sb69SBx+zPgzyJHVF5qTxFh+Oou6+pgb4DOjtNiffoKQ/V3FhXBGA==
+ b=PrBkv2ya+oozEGdKaorBXP0qfynmUyhGOQRmrR7bMZOVoVjwo6hkliE81MoCH0wT/7yoNM2/6aEnk1PeNjyYLhyYlvXyKBkE//ONrq7Y+uYzNz1RcnC5t1dtZCJjQAeytFENr/o/H7gAk+vkXT3CEF7SplF05VXhqxY5uxL8kir0ea+Zz65P7HQDGVyDX7d/JhDzLHCHRvM6qZVo944RqzLTuYrktEqn2pOcAy+YHvbyRqHv8DA380nSuT0ZXzKWWogAYsR8AGSm126lky32rqjI0qvhjypjlSSxsdwFz1A1qoCgI4asP5zcVcsyXRZXYGCy699XTIXamWvRX7odGg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=A1qkOJNoz7cDcs5D5ISvypaHekdRCaquHQOEHbzqI9w=;
- b=Sl7B77WnBYT45Z5ekSBhvWcXHgXaPROTayKEhd+na0rBOoTLEj5ZoJxkeLxbzFUSF6VtNGxCMCRE1QARyzSmQmRcYpjHLt7/qBQZGdj5NC7OZTHhcN2ovH4iJugOnM5S0fpVs08DJdUBMXjmMW2vsaMJqqvfDt/54U18Xly8O3T6rF/yxkEv0v1Vq5ejhLnLhDrOlQbd9285IZjTMDFR3qa9wFkjG3WnxtPYp0dBov+KP+e68qqQ8/K1lPMNqNnv8dqzmnBjzuOnnVKEFEylj5jMK1smI/tvDh3dW/RoyaoYYVu31BkZxM4iJdwhuvCSkxpDyfSkkUfalKKhyfXtXQ==
+ bh=x3UWO+LBB6O0hTYfEASivfqkFHYJbO2Lt4ssFr3OqOE=;
+ b=UjrLMy9jOD79sk7LBK6DKy1JxFbItJhuNd1hzZjENJXDmXgqDzIjrKkC8Jt+UgsYZMWjCZJ8BcK9TXLgOoZQINQICwb0SrCYouXJiBfVN+dV4ujaRT6tHE+CvHCPV3rS/tY5yk9VbCPrv09WeCBTmbesnUx2uUB8dOSN6/gbWTlFOn/FultSwcHCT6QXL6f569VozGUPtQPWno/sdkv1UdtRQ3Lb6KSwFPnzeaa98xkzRiAlqkuwrZdmrJO/vNRbT2prOjfrWnUNzCmVPqoi+JseK8BzkJm1iNsqzhNn+dvyPa+uniTpunyv74KJ5Oo0RafC95epsTWdHdimNB7hGQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=fb.com; dmarc=pass action=none header.from=fb.com; dkim=pass
  header.d=fb.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.onmicrosoft.com;
  s=selector2-fb-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=A1qkOJNoz7cDcs5D5ISvypaHekdRCaquHQOEHbzqI9w=;
- b=YaYBJnO4uJBQwNHaQvLthO4UUnBAMBGaTQgLPZQ5kR2EIz3MGNK3h8r85aiwLs9/SpXzHHdgzxZB8kSuA+4tAdbAtuPNDsWSmyw91pmbQxp1TA0RuImjXyeF2YvqwZXTDrpgsYRAnEJxCLWs/KRCFdjRdgj5fdwGTbQI5t5RqlQ=
+ bh=x3UWO+LBB6O0hTYfEASivfqkFHYJbO2Lt4ssFr3OqOE=;
+ b=PcJGkN2/uh6nAXyYDNyHJank00xUQM3b7nliIYgQKyehByzD6pn+ztkFkTc2w9tIx02h5uH/ZrP4UrPl6ZnHP0N5bFlbr2I3GQAn6xo0IaNkg7TBvkLdGFgjAQkDZ8Ew4xsKreW8NBRP7mcumAxfAP28rP0cuMKGAVjy/Y7zRC8=
 Received: from DM6PR15MB2635.namprd15.prod.outlook.com (20.179.161.152) by
- DM6PR15MB3113.namprd15.prod.outlook.com (20.179.17.74) with Microsoft SMTP
+ DM6PR15MB2620.namprd15.prod.outlook.com (20.179.161.93) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2157.18; Tue, 13 Aug 2019 21:46:47 +0000
+ 15.20.2157.20; Tue, 13 Aug 2019 21:47:35 +0000
 Received: from DM6PR15MB2635.namprd15.prod.outlook.com
  ([fe80::d1fc:b5c5:59a1:bd7e]) by DM6PR15MB2635.namprd15.prod.outlook.com
  ([fe80::d1fc:b5c5:59a1:bd7e%3]) with mapi id 15.20.2157.022; Tue, 13 Aug 2019
- 21:46:47 +0000
+ 21:47:35 +0000
 From:   Roman Gushchin <guro@fb.com>
 To:     Andrew Morton <akpm@linux-foundation.org>
 CC:     "linux-mm@kvack.org" <linux-mm@kvack.org>,
@@ -64,93 +64,75 @@ CC:     "linux-mm@kvack.org" <linux-mm@kvack.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         Kernel Team <Kernel-team@fb.com>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH 1/2] mm: memcontrol: flush percpu vmstats before releasing
+Subject: Re: [PATCH] mm: memcontrol: flush percpu vmevents before releasing
  memcg
-Thread-Topic: [PATCH 1/2] mm: memcontrol: flush percpu vmstats before
- releasing memcg
-Thread-Index: AQHVUV1hR8jmqP/+sEWQCJ0sb/bX4Kb5mTIAgAAFRIA=
-Date:   Tue, 13 Aug 2019 21:46:47 +0000
-Message-ID: <20190813214643.GA20632@tower.DHCP.thefacebook.com>
-References: <20190812222911.2364802-1-guro@fb.com>
- <20190812222911.2364802-2-guro@fb.com>
- <20190813142752.35807b6070db795674f86feb@linux-foundation.org>
-In-Reply-To: <20190813142752.35807b6070db795674f86feb@linux-foundation.org>
+Thread-Topic: [PATCH] mm: memcontrol: flush percpu vmevents before releasing
+ memcg
+Thread-Index: AQHVUWcJo041kAovIUqPQ99aFT9BKqb5mhOAgAAEiYA=
+Date:   Tue, 13 Aug 2019 21:47:35 +0000
+Message-ID: <20190813214731.GB20632@tower.DHCP.thefacebook.com>
+References: <20190812233754.2570543-1-guro@fb.com>
+ <20190813143117.885bef5929813445ef39fa61@linux-foundation.org>
+In-Reply-To: <20190813143117.885bef5929813445ef39fa61@linux-foundation.org>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-x-clientproxiedby: MWHPR0201CA0015.namprd02.prod.outlook.com
- (2603:10b6:301:74::28) To DM6PR15MB2635.namprd15.prod.outlook.com
- (2603:10b6:5:1a6::24)
+x-clientproxiedby: MW2PR16CA0016.namprd16.prod.outlook.com (2603:10b6:907::29)
+ To DM6PR15MB2635.namprd15.prod.outlook.com (2603:10b6:5:1a6::24)
 x-ms-exchange-messagesentrepresentingtype: 1
 x-originating-ip: [2620:10d:c090:200::1f63]
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 8ef3ed42-ad7c-4b9e-c4d0-08d72037bd65
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(2017052603328)(7193020);SRVR:DM6PR15MB3113;
-x-ms-traffictypediagnostic: DM6PR15MB3113:
+x-ms-office365-filtering-correlation-id: ad6b0a52-885e-4828-c597-08d72037da26
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(2017052603328)(7193020);SRVR:DM6PR15MB2620;
+x-ms-traffictypediagnostic: DM6PR15MB2620:
 x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <DM6PR15MB31139A21B7ABD6ACEF94A3C5BED20@DM6PR15MB3113.namprd15.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:9508;
+x-microsoft-antispam-prvs: <DM6PR15MB26207C1E587E7E1A820A28D6BED20@DM6PR15MB2620.namprd15.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:8882;
 x-forefront-prvs: 01283822F8
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(366004)(136003)(376002)(346002)(396003)(39860400002)(199004)(189003)(52314003)(25786009)(14454004)(6436002)(76176011)(229853002)(66476007)(54906003)(66446008)(33656002)(102836004)(66556008)(52116002)(6486002)(66946007)(316002)(6506007)(386003)(186003)(6512007)(9686003)(446003)(11346002)(5660300002)(476003)(46003)(6916009)(1076003)(64756008)(86362001)(478600001)(486006)(7736002)(2906002)(6116002)(305945005)(6246003)(8676002)(81156014)(81166006)(4326008)(99286004)(256004)(8936002)(71190400001)(71200400001)(53936002);DIR:OUT;SFP:1102;SCL:1;SRVR:DM6PR15MB3113;H:DM6PR15MB2635.namprd15.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(396003)(376002)(39860400002)(346002)(366004)(136003)(189003)(52314003)(199004)(6436002)(6916009)(478600001)(6486002)(66476007)(229853002)(52116002)(186003)(102836004)(6506007)(8936002)(4326008)(386003)(66446008)(2906002)(64756008)(66946007)(7736002)(6246003)(14454004)(446003)(46003)(476003)(486006)(11346002)(6116002)(66556008)(76176011)(9686003)(8676002)(54906003)(71190400001)(5660300002)(316002)(33656002)(1076003)(25786009)(256004)(4744005)(305945005)(99286004)(71200400001)(86362001)(81156014)(81166006)(6512007)(53936002);DIR:OUT;SFP:1102;SCL:1;SRVR:DM6PR15MB2620;H:DM6PR15MB2635.namprd15.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
 received-spf: None (protection.outlook.com: fb.com does not designate
  permitted sender hosts)
 x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: pwbVfuBOtcH/OZvPSXkkkUCSaRx6cfmp5OVpHRLYM8QnAawzkfv/2ZHf1ekG2aKgr8A5PX+q2SNB9QtDyVl2y6oP+R9i8TBYH/vINZfXbi5z1k80oB5zTdxWkdtI6xMOVSA+9gE772eZT3ag5QoysXHYzZggay0iMGHqsjkVKBluR9S68xNkHN7jMUT/IBjmx2BYY8Jqs6LO/iF8uon0uROcDQ8EuhIgqybsTtfAyoqMinmaHMT4NJDNa9lX4H+ijYKFT2ELvqHroaR9AlH5Ch9CZ6YBB3iOfBmu08iut5V/oNKkZxAo+1iwkpTk5JQ/1QvpN6PUXYpeUnITjPEWcOmYhiPvY+d+6tzjYZ8RQ46EkmDxdRLI1xal+/OKgtbPf0Q/wrvQjqGFXUA9hoeyPWijuOIC8RthNO7x4xZRjP0=
+x-microsoft-antispam-message-info: AoKrMjp1mi18SrBkvNmzL7zbopmDWI9xJtOt90nmWFs9NmIQ0rdUQud8h5QqXauKjEMXXV5Sp8axw1vaGVBiy5WSCJwkpYtlhM61h6JPQJGip6tbivSsE4sBR6pOwOgDX3PjAT33vCkgXP8l10RriQkTmxp9Lqt2beWUClXKG60hMC5wsBbaGWmSEbFsrOqlcFDtIe/hRoV75LTrmTCAT+fephzesvDccZv8UimngqCz1LbfEuyLTKwd2b06fB+95f7FMRKBd1D13wNofJSsBNH7MDd1Uzj6xywsgNeoek486Y9eO/4xDxI3Ew4DbP2KHRSghznMeR/pJyeXgi/qVwkCA+z3AAYAvYatGMsCckUMm/NlZpi9ANc0Nq9bNePb8bn7Hgqy73vcRd7SZZjG0b3ED0k0IbZNBqMzoPCcDoA=
 Content-Type: text/plain; charset="us-ascii"
-Content-ID: <7D0DDF28E818024486ACB710C386B46B@namprd15.prod.outlook.com>
+Content-ID: <FF10EAA14CB20F40918937449AAD0EE5@namprd15.prod.outlook.com>
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8ef3ed42-ad7c-4b9e-c4d0-08d72037bd65
-X-MS-Exchange-CrossTenant-originalarrivaltime: 13 Aug 2019 21:46:47.1496
+X-MS-Exchange-CrossTenant-Network-Message-Id: ad6b0a52-885e-4828-c597-08d72037da26
+X-MS-Exchange-CrossTenant-originalarrivaltime: 13 Aug 2019 21:47:35.3267
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 8ae927fe-1255-47a7-a2af-5f3a069daaa2
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: nDCf2U76pO3YZaQsQ00neIHtbBSc2KXsX/rHPhQ34o2x+VIRQGM4AhaNv5YsRxI+
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR15MB3113
+X-MS-Exchange-CrossTenant-userprincipalname: HHxUzls8Ee3DmxjbT7OI7b59LBttVmVMskQC5x/uxHT3+l+38eNTuFjzjWSeCDyp
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR15MB2620
 X-OriginatorOrg: fb.com
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-08-13_06:,,
  signatures=0
 X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 priorityscore=1501
  malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=854 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1906280000 definitions=main-1908130203
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=588 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1906280000 definitions=main-1908130204
 X-FB-Internal: deliver
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 13, 2019 at 02:27:52PM -0700, Andrew Morton wrote:
-> On Mon, 12 Aug 2019 15:29:10 -0700 Roman Gushchin <guro@fb.com> wrote:
+On Tue, Aug 13, 2019 at 02:31:17PM -0700, Andrew Morton wrote:
+> On Mon, 12 Aug 2019 16:37:54 -0700 Roman Gushchin <guro@fb.com> wrote:
 >=20
-> > Percpu caching of local vmstats with the conditional propagation
-> > by the cgroup tree leads to an accumulation of errors on non-leaf
-> > levels.
+> > Similar to vmstats, percpu caching of local vmevents leads to an
+> > accumulation of errors on non-leaf levels. This happens because
+> > some leftovers may remain in percpu caches, so that they are
+> > never propagated up by the cgroup tree and just disappear into
+> > nonexistence with on releasing of the memory cgroup.
 > >=20
-> > Let's imagine two nested memory cgroups A and A/B. Say, a process
-> > belonging to A/B allocates 100 pagecache pages on the CPU 0.
-> > The percpu cache will spill 3 times, so that 32*3=3D96 pages will be
-> > accounted to A/B and A atomic vmstat counters, 4 pages will remain
-> > in the percpu cache.
-> >=20
-> > Imagine A/B is nearby memory.max, so that every following allocation
-> > triggers a direct reclaim on the local CPU. Say, each such attempt
-> > will free 16 pages on a new cpu. That means every percpu cache will
-> > have -16 pages, except the first one, which will have 4 - 16 =3D -12.
-> > A/B and A atomic counters will not be touched at all.
-> >=20
-> > Now a user removes A/B. All percpu caches are freed and corresponding
-> > vmstat numbers are forgotten. A has 96 pages more than expected.
-> >=20
-> > As memory cgroups are created and destroyed, errors do accumulate.
-> > Even 1-2 pages differences can accumulate into large numbers.
-> >=20
-> > To fix this issue let's accumulate and propagate percpu vmstat
-> > values before releasing the memory cgroup. At this point these
-> > numbers are stable and cannot be changed.
+> > To fix this issue let's accumulate and propagate percpu vmevents
+> > values before releasing the memory cgroup similar to what we're
+> > doing with vmstats.
 > >=20
 > > Since on cpu hotplug we do flush percpu vmstats anyway, we can
 > > iterate only over online cpus.
@@ -158,11 +140,7 @@ On Tue, Aug 13, 2019 at 02:27:52PM -0700, Andrew Morton wrote:
 > > Fixes: 42a300353577 ("mm: memcontrol: fix recursive statistics correctn=
 ess & scalabilty")
 >=20
-> Is this not serious enough for a cc:stable?
+> No cc:stable?
+>=20
 
-I hope the "Fixes" tag will work, but yeah, my bad, cc:stable is definitely
-a good idea here.
-
-Added stable@ to cc.
-
-Thanks!
+Here too, cc:stable is definitely missing. Adding now. Thanks!
