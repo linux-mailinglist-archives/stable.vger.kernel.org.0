@@ -2,145 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 911B28C3EC
-	for <lists+stable@lfdr.de>; Tue, 13 Aug 2019 23:47:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 673F58C454
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 00:37:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726712AbfHMVrp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 17:47:45 -0400
-Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:41142 "EHLO
-        mx0b-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726565AbfHMVrp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Aug 2019 17:47:45 -0400
-Received: from pps.filterd (m0109331.ppops.net [127.0.0.1])
-        by mx0a-00082601.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7DLleWq006164;
-        Tue, 13 Aug 2019 14:47:40 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
- : date : message-id : references : in-reply-to : content-type : content-id
- : content-transfer-encoding : mime-version; s=facebook;
- bh=x3UWO+LBB6O0hTYfEASivfqkFHYJbO2Lt4ssFr3OqOE=;
- b=RGA0D3VWGY1FwfS8IO7LeMuTboCJJDhyOWNDa7YZa7xXbLoAxEnjoUFUOaxVbyRRgc70
- C7J6zbTOGHRP6MN6pZaid0OrX7CSe54eX5qFEEyVHjnkAm3CkemoOrPBgXnjNc+QuXoU
- 5Cc2oHAec3y7+dUU9bwmnX5Jx7nxkm5p8Aw= 
-Received: from maileast.thefacebook.com ([163.114.130.16])
-        by mx0a-00082601.pphosted.com with ESMTP id 2uc0t6s9py-2
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-        Tue, 13 Aug 2019 14:47:40 -0700
-Received: from ash-exhub103.TheFacebook.com (2620:10d:c0a8:82::c) by
- ash-exhub103.TheFacebook.com (2620:10d:c0a8:82::c) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Tue, 13 Aug 2019 14:47:37 -0700
-Received: from NAM03-CO1-obe.outbound.protection.outlook.com (100.104.31.183)
- by o365-in.thefacebook.com (100.104.35.174) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id 15.1.1713.5
- via Frontend Transport; Tue, 13 Aug 2019 14:47:37 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=PrBkv2ya+oozEGdKaorBXP0qfynmUyhGOQRmrR7bMZOVoVjwo6hkliE81MoCH0wT/7yoNM2/6aEnk1PeNjyYLhyYlvXyKBkE//ONrq7Y+uYzNz1RcnC5t1dtZCJjQAeytFENr/o/H7gAk+vkXT3CEF7SplF05VXhqxY5uxL8kir0ea+Zz65P7HQDGVyDX7d/JhDzLHCHRvM6qZVo944RqzLTuYrktEqn2pOcAy+YHvbyRqHv8DA380nSuT0ZXzKWWogAYsR8AGSm126lky32rqjI0qvhjypjlSSxsdwFz1A1qoCgI4asP5zcVcsyXRZXYGCy699XTIXamWvRX7odGg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=x3UWO+LBB6O0hTYfEASivfqkFHYJbO2Lt4ssFr3OqOE=;
- b=UjrLMy9jOD79sk7LBK6DKy1JxFbItJhuNd1hzZjENJXDmXgqDzIjrKkC8Jt+UgsYZMWjCZJ8BcK9TXLgOoZQINQICwb0SrCYouXJiBfVN+dV4ujaRT6tHE+CvHCPV3rS/tY5yk9VbCPrv09WeCBTmbesnUx2uUB8dOSN6/gbWTlFOn/FultSwcHCT6QXL6f569VozGUPtQPWno/sdkv1UdtRQ3Lb6KSwFPnzeaa98xkzRiAlqkuwrZdmrJO/vNRbT2prOjfrWnUNzCmVPqoi+JseK8BzkJm1iNsqzhNn+dvyPa+uniTpunyv74KJ5Oo0RafC95epsTWdHdimNB7hGQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=fb.com; dmarc=pass action=none header.from=fb.com; dkim=pass
- header.d=fb.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.onmicrosoft.com;
- s=selector2-fb-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=x3UWO+LBB6O0hTYfEASivfqkFHYJbO2Lt4ssFr3OqOE=;
- b=PcJGkN2/uh6nAXyYDNyHJank00xUQM3b7nliIYgQKyehByzD6pn+ztkFkTc2w9tIx02h5uH/ZrP4UrPl6ZnHP0N5bFlbr2I3GQAn6xo0IaNkg7TBvkLdGFgjAQkDZ8Ew4xsKreW8NBRP7mcumAxfAP28rP0cuMKGAVjy/Y7zRC8=
-Received: from DM6PR15MB2635.namprd15.prod.outlook.com (20.179.161.152) by
- DM6PR15MB2620.namprd15.prod.outlook.com (20.179.161.93) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2157.20; Tue, 13 Aug 2019 21:47:35 +0000
-Received: from DM6PR15MB2635.namprd15.prod.outlook.com
- ([fe80::d1fc:b5c5:59a1:bd7e]) by DM6PR15MB2635.namprd15.prod.outlook.com
- ([fe80::d1fc:b5c5:59a1:bd7e%3]) with mapi id 15.20.2157.022; Tue, 13 Aug 2019
- 21:47:35 +0000
-From:   Roman Gushchin <guro@fb.com>
-To:     Andrew Morton <akpm@linux-foundation.org>
-CC:     "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Kernel Team <Kernel-team@fb.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] mm: memcontrol: flush percpu vmevents before releasing
- memcg
-Thread-Topic: [PATCH] mm: memcontrol: flush percpu vmevents before releasing
- memcg
-Thread-Index: AQHVUWcJo041kAovIUqPQ99aFT9BKqb5mhOAgAAEiYA=
-Date:   Tue, 13 Aug 2019 21:47:35 +0000
-Message-ID: <20190813214731.GB20632@tower.DHCP.thefacebook.com>
-References: <20190812233754.2570543-1-guro@fb.com>
- <20190813143117.885bef5929813445ef39fa61@linux-foundation.org>
-In-Reply-To: <20190813143117.885bef5929813445ef39fa61@linux-foundation.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: MW2PR16CA0016.namprd16.prod.outlook.com (2603:10b6:907::29)
- To DM6PR15MB2635.namprd15.prod.outlook.com (2603:10b6:5:1a6::24)
-x-ms-exchange-messagesentrepresentingtype: 1
-x-originating-ip: [2620:10d:c090:200::1f63]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: ad6b0a52-885e-4828-c597-08d72037da26
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(2017052603328)(7193020);SRVR:DM6PR15MB2620;
-x-ms-traffictypediagnostic: DM6PR15MB2620:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <DM6PR15MB26207C1E587E7E1A820A28D6BED20@DM6PR15MB2620.namprd15.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:8882;
-x-forefront-prvs: 01283822F8
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(396003)(376002)(39860400002)(346002)(366004)(136003)(189003)(52314003)(199004)(6436002)(6916009)(478600001)(6486002)(66476007)(229853002)(52116002)(186003)(102836004)(6506007)(8936002)(4326008)(386003)(66446008)(2906002)(64756008)(66946007)(7736002)(6246003)(14454004)(446003)(46003)(476003)(486006)(11346002)(6116002)(66556008)(76176011)(9686003)(8676002)(54906003)(71190400001)(5660300002)(316002)(33656002)(1076003)(25786009)(256004)(4744005)(305945005)(99286004)(71200400001)(86362001)(81156014)(81166006)(6512007)(53936002);DIR:OUT;SFP:1102;SCL:1;SRVR:DM6PR15MB2620;H:DM6PR15MB2635.namprd15.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: fb.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: AoKrMjp1mi18SrBkvNmzL7zbopmDWI9xJtOt90nmWFs9NmIQ0rdUQud8h5QqXauKjEMXXV5Sp8axw1vaGVBiy5WSCJwkpYtlhM61h6JPQJGip6tbivSsE4sBR6pOwOgDX3PjAT33vCkgXP8l10RriQkTmxp9Lqt2beWUClXKG60hMC5wsBbaGWmSEbFsrOqlcFDtIe/hRoV75LTrmTCAT+fephzesvDccZv8UimngqCz1LbfEuyLTKwd2b06fB+95f7FMRKBd1D13wNofJSsBNH7MDd1Uzj6xywsgNeoek486Y9eO/4xDxI3Ew4DbP2KHRSghznMeR/pJyeXgi/qVwkCA+z3AAYAvYatGMsCckUMm/NlZpi9ANc0Nq9bNePb8bn7Hgqy73vcRd7SZZjG0b3ED0k0IbZNBqMzoPCcDoA=
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <FF10EAA14CB20F40918937449AAD0EE5@namprd15.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+        id S1727233AbfHMWhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 18:37:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48418 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726698AbfHMWhJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 18:37:09 -0400
+Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01846206C2;
+        Tue, 13 Aug 2019 22:37:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1565735828;
+        bh=3m+/XqMFLxTBWd4x+K6MLlr5+5clpcPyS/CjI1IL6u0=;
+        h=Date:From:To:Subject:From;
+        b=FzF0+RLBaqDP+gBvroiuliKsRMUJHo6khWkIE6a8EqQhIDtBHzE/bCy09/nf+kHIC
+         /3k9IimUhR6R3qKFlF/MO44qKWgMcFQR0RWzWUPFl4tHP9e6fui3+7X1Ih648ZXys7
+         DNm2JPENb29Y1v10MmxD3CxsGfckb14pmTCEcWYI=
+Date:   Tue, 13 Aug 2019 15:37:07 -0700
+From:   akpm@linux-foundation.org
+To:     willy@infradead.org, vbabka@suse.cz, stable@vger.kernel.org,
+        schwidefsky@de.ibm.com, rdunlap@infradead.org, penberg@kernel.org,
+        mike.kravetz@oracle.com, mhocko@suse.com,
+        mgorman@techsingularity.net, logang@deltatee.com,
+        kirill.shutemov@linux.intel.com, jiangshanlai@gmail.com,
+        jhubbard@nvidia.com, jglisse@redhat.com, jgg@mellanox.com,
+        jack@suse.cz, ira.weiny@intel.com, hch@lst.de,
+        dave.hansen@linux.intel.com, dan.j.williams@intel.com,
+        cl@linux.com, aryabinin@virtuozzo.com, aarcange@redhat.com,
+        rcampbell@nvidia.com, akpm@linux-foundation.org,
+        mm-commits@vger.kernel.org, torvalds@linux-foundation.org
+Subject:  [patch 02/18] mm/hmm: fix ZONE_DEVICE anon page mapping
+ reuse
+Message-ID: <20190813223707.t2S5z%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.10
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-Network-Message-Id: ad6b0a52-885e-4828-c597-08d72037da26
-X-MS-Exchange-CrossTenant-originalarrivaltime: 13 Aug 2019 21:47:35.3267
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 8ae927fe-1255-47a7-a2af-5f3a069daaa2
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: HHxUzls8Ee3DmxjbT7OI7b59LBttVmVMskQC5x/uxHT3+l+38eNTuFjzjWSeCDyp
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR15MB2620
-X-OriginatorOrg: fb.com
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-08-13_06:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 priorityscore=1501
- malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=588 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1906280000 definitions=main-1908130204
-X-FB-Internal: deliver
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 13, 2019 at 02:31:17PM -0700, Andrew Morton wrote:
-> On Mon, 12 Aug 2019 16:37:54 -0700 Roman Gushchin <guro@fb.com> wrote:
->=20
-> > Similar to vmstats, percpu caching of local vmevents leads to an
-> > accumulation of errors on non-leaf levels. This happens because
-> > some leftovers may remain in percpu caches, so that they are
-> > never propagated up by the cgroup tree and just disappear into
-> > nonexistence with on releasing of the memory cgroup.
-> >=20
-> > To fix this issue let's accumulate and propagate percpu vmevents
-> > values before releasing the memory cgroup similar to what we're
-> > doing with vmstats.
-> >=20
-> > Since on cpu hotplug we do flush percpu vmstats anyway, we can
-> > iterate only over online cpus.
-> >=20
-> > Fixes: 42a300353577 ("mm: memcontrol: fix recursive statistics correctn=
-ess & scalabilty")
->=20
-> No cc:stable?
->=20
+From: Ralph Campbell <rcampbell@nvidia.com>
+Subject: mm/hmm: fix ZONE_DEVICE anon page mapping reuse
 
-Here too, cc:stable is definitely missing. Adding now. Thanks!
+When a ZONE_DEVICE private page is freed, the page->mapping field can be
+set.  If this page is reused as an anonymous page, the previous value can
+prevent the page from being inserted into the CPU's anon rmap table.  For
+example, when migrating a pte_none() page to device memory:
+
+  migrate_vma(ops, vma, start, end, src, dst, private)
+    migrate_vma_collect()
+      src[] =3D MIGRATE_PFN_MIGRATE
+    migrate_vma_prepare()
+      /* no page to lock or isolate so OK */
+    migrate_vma_unmap()
+      /* no page to unmap so OK */
+    ops->alloc_and_copy()
+      /* driver allocates ZONE_DEVICE page for dst[] */
+    migrate_vma_pages()
+      migrate_vma_insert_page()
+        page_add_new_anon_rmap()
+          __page_set_anon_rmap()
+            /* This check sees the page's stale mapping field */
+            if (PageAnon(page))
+              return
+            /* page->mapping is not updated */
+
+The result is that the migration appears to succeed but a subsequent CPU
+fault will be unable to migrate the page back to system memory or worse.
+
+Clear the page->mapping field when freeing the ZONE_DEVICE page so stale
+pointer data doesn't affect future page use.
+
+Link: http://lkml.kernel.org/r/20190719192955.30462-3-rcampbell@nvidia.com
+Fixes: b7a523109fb5c9d2d6dd ("mm: don't clear ->mapping in hmm_devmem_free")
+Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Logan Gunthorpe <logang@deltatee.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Jan Kara <jack@suse.cz>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: "J=C3=A9r=C3=B4me Glisse" <jglisse@redhat.com>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Lai Jiangshan <jiangshanlai@gmail.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/memremap.c |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+--- a/mm/memremap.c~mm-hmm-fix-zone_device-anon-page-mapping-reuse
++++ a/mm/memremap.c
+@@ -403,6 +403,30 @@ void __put_devmap_managed_page(struct pa
+=20
+ 		mem_cgroup_uncharge(page);
+=20
++		/*
++		 * When a device_private page is freed, the page->mapping field
++		 * may still contain a (stale) mapping value. For example, the
++		 * lower bits of page->mapping may still identify the page as
++		 * an anonymous page. Ultimately, this entire field is just
++		 * stale and wrong, and it will cause errors if not cleared.
++		 * One example is:
++		 *
++		 *  migrate_vma_pages()
++		 *    migrate_vma_insert_page()
++		 *      page_add_new_anon_rmap()
++		 *        __page_set_anon_rmap()
++		 *          ...checks page->mapping, via PageAnon(page) call,
++		 *            and incorrectly concludes that the page is an
++		 *            anonymous page. Therefore, it incorrectly,
++		 *            silently fails to set up the new anon rmap.
++		 *
++		 * For other types of ZONE_DEVICE pages, migration is either
++		 * handled differently or not done at all, so there is no need
++		 * to clear page->mapping.
++		 */
++		if (is_device_private_page(page))
++			page->mapping =3D NULL;
++
+ 		page->pgmap->ops->page_free(page);
+ 	} else if (!count)
+ 		__put_page(page);
+_
