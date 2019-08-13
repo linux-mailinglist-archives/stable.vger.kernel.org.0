@@ -2,58 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EC238C0AD
-	for <lists+stable@lfdr.de>; Tue, 13 Aug 2019 20:36:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AAFD8C0C3
+	for <lists+stable@lfdr.de>; Tue, 13 Aug 2019 20:38:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726365AbfHMSgq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 14:36:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35444 "EHLO mail.kernel.org"
+        id S1726458AbfHMSh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 14:37:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725923AbfHMSgq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 14:36:46 -0400
+        id S1726195AbfHMSh6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 14:37:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDAB820665;
-        Tue, 13 Aug 2019 18:36:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3CB22064A;
+        Tue, 13 Aug 2019 18:37:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565721405;
-        bh=5dAs59udVWVmSxeGs4RyVGtbQHZxy6EDnItvs6BkeKI=;
+        s=default; t=1565721478;
+        bh=O6RKQJ/j6cRpcnAVTNHmol+XRXnvK/WIJ5ApLiBdhes=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ktAMofz2S1VxEEisTpYIz0zNxtCRwBDsA20vw8yuok6dP/2gNsz/irtBWkmfYAvpW
-         CHeBuzl/C2nUDC+D0qqmr3XV6V7j4+VkPBp2JAbFhEfhU3wLlKNnM4Au9XKpd/DGil
-         sNZfZF3KB02r0QKdoJRfMamJdpLvycLk4SOvbDmY=
-Date:   Tue, 13 Aug 2019 20:36:42 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Joerg Roedel <joro@8bytes.org>
-Cc:     stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        linux-kernel@vger.kernel.org, Joerg Roedel <jroedel@suse.de>
-Subject: Re: [PATCH 0/3 5.2-stable] Sync mappings in vmalloc/ioremap areas
-Message-ID: <20190813183642.GC6582@kroah.com>
-References: <20190813152814.5354-1-joro@8bytes.org>
+        b=lTBZlZSsGCNJBJUkb2isnHVaAbBp10OnDoqk4uBpWJmJiKLNWLX1ombgiOB8wNdMb
+         NstjyPikTjPb85Xd2IEVP+J5I/4LGez7y4Q7HlGe1UeahHF8DkbAvUwluxJ3/1Rtt/
+         sljN82Nm4TXysFKCK5Bt7BJWvLfhqB/m34geUKFs=
+Date:   Tue, 13 Aug 2019 20:37:55 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc:     stable@vger.kernel.org, mathieu.poirier@linaro.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH] coresight: Fix DEBUG_LOCKS_WARN_ON for uninitialized
+ attribute
+Message-ID: <20190813183755.GD6582@kroah.com>
+References: <20190812135328.30952-1-suzuki.poulose@arm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190813152814.5354-1-joro@8bytes.org>
+In-Reply-To: <20190812135328.30952-1-suzuki.poulose@arm.com>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 13, 2019 at 05:28:11PM +0200, Joerg Roedel wrote:
-> From: Joerg Roedel <jroedel@suse.de>
+On Mon, Aug 12, 2019 at 02:53:28PM +0100, Suzuki K Poulose wrote:
+> commit 5511c0c309db4c526a6e9f8b2b8a1483771574bc upstream
 > 
-> Backport commits from upstream to fix a data corruption
-> issue that gets exposed when using PTI on x86-32.
+> While running the linux-next with CONFIG_DEBUG_LOCKS_ALLOC enabled,
+> I get the following splat.
 > 
-> Please consider them for inclusion into stable-5.2.
 
-Thanks for these.  Based on the Fixes: tags on the commits, I've taken
-them all the way back to 4.4.y.
+Thanks for the backport, now queued up.
 
 greg k-h
