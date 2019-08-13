@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 383168C0E3
+	by mail.lfdr.de (Postfix) with ESMTP id A1D5A8C0E4
 	for <lists+stable@lfdr.de>; Tue, 13 Aug 2019 20:40:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726427AbfHMSkl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 14:40:41 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:40215 "EHLO
+        id S1727679AbfHMSkm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 14:40:42 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:41213 "EHLO
         wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726094AbfHMSkl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Aug 2019 14:40:41 -0400
+        by vger.kernel.org with ESMTP id S1726094AbfHMSkm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Aug 2019 14:40:42 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id BF841390;
-        Tue, 13 Aug 2019 14:40:39 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id 652CA3A5;
+        Tue, 13 Aug 2019 14:40:41 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 13 Aug 2019 14:40:40 -0400
+  by compute6.internal (MEProxy); Tue, 13 Aug 2019 14:40:41 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=xKs7Cw
-        QeocuBHxYF+/JY+YVCSroPc8e5GctiHpXh/AI=; b=ua68c5cCk/2nOUg2Ngd9+8
-        lqB5hg77QvXz/n41TtFHrMtDZW0zstU0SAidL1xSIWbvP2SxrtaA2Jwkgid3ggbR
-        MxX0dLJf8Hn5u3lDHv3nvqatbg0IPd29zqdziqJaMLNo/fjx/jrO6JFtHzr6lOLS
-        EMAkrHvRv1xLvkp0AHd4/alhI4XarloI4uanaTuIDx7Vb9KwlHpSQ0TMU9rup/j/
-        Llof1Qk1cz7S/8vYXR9RibkdB0ZeAoXyD9kD4RzUsV4J57gEpDX/nHEnNjVHedW8
-        5G+zzhTA7YPnpAcBl3A1WlX0rLfMKhvMxl5MAdqz8u/4phGexMdzAgYdaPTDXQCA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=B2TXvn
+        zq+inWLGVZJEhVQSkhNRB56bWGcUqFl20lu28=; b=tymliggCopJFjKT2DAquDH
+        jWfuNokKUxtpxaU6FDX7MBYPcyNN32/ecljsKBDZ9uECqhZuf8gO37k9dViuA2CH
+        YuadJsPF+sEAR0/7CoAtl6R5ZNCgkPn5wDg+k0/zWu26jisaBa2rfNC1M7dezQeT
+        89rUKLACUNUsVs303WaY9J6Ao2snXu8fNEoKqX4p9VzTi3ERu503Mf+5szRflZZq
+        pGYbNH0TQgfoolSdcAUzgAaJIB3wRArkGyIlk99qZFXfKr2PviWpV9JDu/yhMPY7
+        FLPyZtka643hwTxUlbf2+eew6khtcWtsHoYyHzAEOCmWV/6eQIktKRrgG2pAkf0Q
         ==
-X-ME-Sender: <xms:JwRTXY6H0R1Yo5a7Q8MgkCOiawRmb7AvwrU1k98By0ts627Y09fm5Q>
+X-ME-Sender: <xms:KARTXfMp1aVOBV78qTK22Q4g8GNZ-jwR-xs6ABXJzILx2dGe7x8Tzw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddviedguddvfecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
@@ -35,20 +35,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddviedguddvfecutefuodetgg
     rhhgqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekle
     druddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
     necuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:JwRTXenEyFUaVqw_r4zWFjJxmn2JIrKB1oh-KAkQr3QSxqyoR9Pjlg>
-    <xmx:JwRTXURJIUgMDdwICm4yDbnbQsqgZtA_cmOLjmMlLhk4DvE_fAcW2A>
-    <xmx:JwRTXaC9KV7hMaKSY23oFUU_aKxaTtEq3eN5mqN1nF2Lfp-9_CBOlA>
-    <xmx:JwRTXadfcQEHpkJq62iP2BmSvoavhSwba_yU2rIodE1l3wDb1n38pw>
+X-ME-Proxy: <xmx:KARTXU04SvOexJXH2Qq5Y98JdMgvfenJnHID5FUY3nsMnUhQW7ha9A>
+    <xmx:KARTXWHnWVXDVGYp9eaGwF8FmZULlPKcyLPaFC1Y40cv1S0XWkpJGg>
+    <xmx:KARTXR64fvZ8dP5eKZZQpJHr1vuPEhqAg27_C_RPoe-a1AtmLmmnEQ>
+    <xmx:KARTXWeeuYDr6SFgkrnPNAY7HJsF1v8f2BLXRCxuhf-7v8vUDHSmug>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A68EF380079;
-        Tue, 13 Aug 2019 14:40:38 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] x86/purgatory: Use CFLAGS_REMOVE rather than reset" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 683A238008A;
+        Tue, 13 Aug 2019 14:40:40 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] x86/purgatory: Use CFLAGS_REMOVE rather than reset" failed to apply to 4.9-stable tree
 To:     ndesaulniers@google.com, peterz@infradead.org, tglx@linutronix.de,
         vaibhavrustagi@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 13 Aug 2019 20:40:29 +0200
-Message-ID: <1565721629172250@kroah.com>
+Message-ID: <15657216291284@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
