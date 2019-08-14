@@ -2,86 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BB2E8C75F
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:24:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20B6E8C756
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:24:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729402AbfHNCXM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:23:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48750 "EHLO mail.kernel.org"
+        id S1729409AbfHNCR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:17:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729393AbfHNCRZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:17:25 -0400
+        id S1729403AbfHNCR1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:17:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55DB220843;
-        Wed, 14 Aug 2019 02:17:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B68D20842;
+        Wed, 14 Aug 2019 02:17:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565749045;
-        bh=oMOOYF2muYVufUpefqwfVGjatThEUEuRCM/yLta1KHU=;
+        s=default; t=1565749046;
+        bh=sNjcijFzaiXPZDlUW/SriUVtBEx8J/jXHdLIfW3jKQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EdvhAIIwfNQ0o7CCsl7wFOLVl6iZyJLFzEMboDziIHsZqgzSaF3s/iR8f5q7cysIi
-         nI3+0SrdJa/owY9LXWaLCIPvJ7biJcY4rxj0TckJRsPJVIxWIj69KMPU1V9XEHolmg
-         Z7T9Uv3zp7lUlYxilctwEIb2y+MFd+hSMEs/kZUk=
+        b=ch3dxpQuUOqjaLi+TuFf9/9SB0IVHirnr56S6ioMAWLGEnc+cdlW6ETcUMxko36HU
+         98VbsH7ijhOdp5Gp0ceoteK/d0w9VTbpgpKizvT/efYCrpvy2sHv534RZCL5ebaN9D
+         nhwZpqe4ia3VzYWABofn+Pi4zdFNVNy8Ykae9cYU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>, Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-ide@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 59/68] libata: add SG safety checks in SFF pio transfers
-Date:   Tue, 13 Aug 2019 22:15:37 -0400
-Message-Id: <20190814021548.16001-59-sashal@kernel.org>
+Cc:     =?UTF-8?q?Valdis=20Kl=C4=93tnieks?= <valdis.kletnieks@vt.edu>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 60/68] x86/lib/cpu: Address missing prototypes warning
+Date:   Tue, 13 Aug 2019 22:15:38 -0400
+Message-Id: <20190814021548.16001-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021548.16001-1-sashal@kernel.org>
 References: <20190814021548.16001-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Valdis Klētnieks <valdis.kletnieks@vt.edu>
 
-[ Upstream commit 752ead44491e8c91e14d7079625c5916b30921c5 ]
+[ Upstream commit 04f5bda84b0712d6f172556a7e8dca9ded5e73b9 ]
 
-Abort processing of a command if we run out of mapped data in the
-SG list. This should never happen, but a previous bug caused it to
-be possible. Play it safe and attempt to abort nicely if we don't
-have more SG segments left.
+When building with W=1, warnings about missing prototypes are emitted:
 
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+  CC      arch/x86/lib/cpu.o
+arch/x86/lib/cpu.c:5:14: warning: no previous prototype for 'x86_family' [-Wmissing-prototypes]
+    5 | unsigned int x86_family(unsigned int sig)
+      |              ^~~~~~~~~~
+arch/x86/lib/cpu.c:18:14: warning: no previous prototype for 'x86_model' [-Wmissing-prototypes]
+   18 | unsigned int x86_model(unsigned int sig)
+      |              ^~~~~~~~~
+arch/x86/lib/cpu.c:33:14: warning: no previous prototype for 'x86_stepping' [-Wmissing-prototypes]
+   33 | unsigned int x86_stepping(unsigned int sig)
+      |              ^~~~~~~~~~~~
+
+Add the proper include file so the prototypes are there.
+
+Signed-off-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/42513.1565234837@turing-police
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-sff.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/x86/lib/cpu.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/ata/libata-sff.c b/drivers/ata/libata-sff.c
-index c5ea0fc635e54..873cc09060551 100644
---- a/drivers/ata/libata-sff.c
-+++ b/drivers/ata/libata-sff.c
-@@ -674,6 +674,10 @@ static void ata_pio_sector(struct ata_queued_cmd *qc)
- 	unsigned int offset;
- 	unsigned char *buf;
+diff --git a/arch/x86/lib/cpu.c b/arch/x86/lib/cpu.c
+index 2dd1fe13a37b3..19f707992db22 100644
+--- a/arch/x86/lib/cpu.c
++++ b/arch/x86/lib/cpu.c
+@@ -1,5 +1,6 @@
+ #include <linux/types.h>
+ #include <linux/export.h>
++#include <asm/cpu.h>
  
-+	if (!qc->cursg) {
-+		qc->curbytes = qc->nbytes;
-+		return;
-+	}
- 	if (qc->curbytes == qc->nbytes - qc->sect_size)
- 		ap->hsm_task_state = HSM_ST_LAST;
- 
-@@ -699,6 +703,8 @@ static void ata_pio_sector(struct ata_queued_cmd *qc)
- 
- 	if (qc->cursg_ofs == qc->cursg->length) {
- 		qc->cursg = sg_next(qc->cursg);
-+		if (!qc->cursg)
-+			ap->hsm_task_state = HSM_ST_LAST;
- 		qc->cursg_ofs = 0;
- 	}
- }
+ unsigned int x86_family(unsigned int sig)
+ {
 -- 
 2.20.1
 
