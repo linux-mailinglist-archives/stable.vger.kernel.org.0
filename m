@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0780D8C7DD
+	by mail.lfdr.de (Postfix) with ESMTP id E63228C7DF
 	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:28:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728487AbfHNC0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:26:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54324 "EHLO mail.kernel.org"
+        id S1730244AbfHNC0S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:26:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727883AbfHNC0O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:26:14 -0400
+        id S1729471AbfHNC0R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:26:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA6772084F;
-        Wed, 14 Aug 2019 02:26:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DEA120679;
+        Wed, 14 Aug 2019 02:26:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565749574;
-        bh=ClpRLn0jlfzAj9FWbX/zUrPshENJQ1x4gtWDjYhn/TI=;
+        s=default; t=1565749576;
+        bh=3XWtZEdk/jCI6CjF04iO/UxmbvT/Ken4lpg30kwtLSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tn/psprRz9nA+SN0U3H+FwLAkJXLICaCfsZwj2c1hzU17xpai4DQ5wYC/LXjcdcOe
-         AHGMdVzpxJVet+dA5PmC9WPArDVFNBShyvcpGGQM+eZ6XC4kUgwHYZ6UjFHM2Ogz5Z
-         TP1lfSIpcaNpjlOu5/3kK4ynhcMWhmvfWJVvnoDc=
+        b=hHTZpVnjLE97x9NbqV5RqujDPkiHT5Ip0GLh7tn9fgi97qsljVF6LnzVSaVC7R5RG
+         XKgIbi9V5MuEJWNmJnZqMS5Ll30hY1fAQa1kv0E3KcFckGmcONQRVNKSn3bySDGntB
+         zo4Cu+D6x/d1mCKw3GldkCuQP/OxyP0ovcG46hk0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiri Olsa <jolsa@kernel.org>, Michael Petlan <mpetlan@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 13/28] perf bench numa: Fix cpu0 binding
-Date:   Tue, 13 Aug 2019 22:25:35 -0400
-Message-Id: <20190814022550.17463-13-sashal@kernel.org>
+Cc:     Oliver Neukum <oneukum@suse.com>,
+        syzbot+c7df50363aaff50aa363@syzkaller.appspotmail.com,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 14/28] Input: kbtab - sanity check for endpoint type
+Date:   Tue, 13 Aug 2019 22:25:36 -0400
+Message-Id: <20190814022550.17463-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814022550.17463-1-sashal@kernel.org>
 References: <20190814022550.17463-1-sashal@kernel.org>
@@ -48,57 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 6bbfe4e602691b90ac866712bd4c43c51e546a60 ]
+[ Upstream commit c88090dfc84254fa149174eb3e6a8458de1912c4 ]
 
-Michael reported an issue with perf bench numa failing with binding to
-cpu0 with '-0' option.
+The driver should check whether the endpoint it uses has the correct
+type.
 
-  # perf bench numa mem -p 3 -t 1 -P 512 -s 100 -zZcm0 --thp 1 -M 1 -ddd
-  # Running 'numa/mem' benchmark:
-
-   # Running main, "perf bench numa numa-mem -p 3 -t 1 -P 512 -s 100 -zZcm0 --thp 1 -M 1 -ddd"
-  binding to node 0, mask: 0000000000000001 => -1
-  perf: bench/numa.c:356: bind_to_memnode: Assertion `!(ret)' failed.
-  Aborted (core dumped)
-
-This happens when the cpu0 is not part of node0, which is the benchmark
-assumption and we can see that's not the case for some powerpc servers.
-
-Using correct node for cpu0 binding.
-
-Reported-by: Michael Petlan <mpetlan@redhat.com>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
-Link: http://lkml.kernel.org/r/20190801142642.28004-1-jolsa@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Reported-by: syzbot+c7df50363aaff50aa363@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/bench/numa.c | 6 ++++--
+ drivers/input/tablet/kbtab.c | 6 ++++--
  1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/bench/numa.c b/tools/perf/bench/numa.c
-index df41deed0320e..3bfba81d19118 100644
---- a/tools/perf/bench/numa.c
-+++ b/tools/perf/bench/numa.c
-@@ -370,8 +370,10 @@ static u8 *alloc_data(ssize_t bytes0, int map_flags,
+diff --git a/drivers/input/tablet/kbtab.c b/drivers/input/tablet/kbtab.c
+index 2812f9236b7d0..0ccc120a0f145 100644
+--- a/drivers/input/tablet/kbtab.c
++++ b/drivers/input/tablet/kbtab.c
+@@ -125,6 +125,10 @@ static int kbtab_probe(struct usb_interface *intf, const struct usb_device_id *i
+ 	if (intf->cur_altsetting->desc.bNumEndpoints < 1)
+ 		return -ENODEV;
  
- 	/* Allocate and initialize all memory on CPU#0: */
- 	if (init_cpu0) {
--		orig_mask = bind_to_node(0);
--		bind_to_memnode(0);
-+		int node = numa_node_of_cpu(0);
++	endpoint = &intf->cur_altsetting->endpoint[0].desc;
++	if (!usb_endpoint_is_int_in(endpoint))
++		return -ENODEV;
 +
-+		orig_mask = bind_to_node(node);
-+		bind_to_memnode(node);
- 	}
+ 	kbtab = kzalloc(sizeof(struct kbtab), GFP_KERNEL);
+ 	input_dev = input_allocate_device();
+ 	if (!kbtab || !input_dev)
+@@ -164,8 +168,6 @@ static int kbtab_probe(struct usb_interface *intf, const struct usb_device_id *i
+ 	input_set_abs_params(input_dev, ABS_Y, 0, 0x1750, 4, 0);
+ 	input_set_abs_params(input_dev, ABS_PRESSURE, 0, 0xff, 0, 0);
  
- 	bytes = bytes0 + HPSIZE;
+-	endpoint = &intf->cur_altsetting->endpoint[0].desc;
+-
+ 	usb_fill_int_urb(kbtab->irq, dev,
+ 			 usb_rcvintpipe(dev, endpoint->bEndpointAddress),
+ 			 kbtab->data, 8,
 -- 
 2.20.1
 
