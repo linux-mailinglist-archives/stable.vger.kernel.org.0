@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24B458D994
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:11:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0C1A8D9B1
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:11:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729957AbfHNRJt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:09:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60358 "EHLO mail.kernel.org"
+        id S1728169AbfHNRLG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:11:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730391AbfHNRJs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:09:48 -0400
+        id S1729970AbfHNRLF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:11:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2DA982084D;
-        Wed, 14 Aug 2019 17:09:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 074BD2084D;
+        Wed, 14 Aug 2019 17:11:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802587;
-        bh=Bdw0sl1aWne9A7zIwsKJUivc8ei5zDfDpTfnzUxJBYs=;
+        s=default; t=1565802664;
+        bh=XnL2R5SVJTzyTbeEXy6Ul6DQCr+YZAlH2A8KvE7+Ehc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hzcobyzkANO3Kk4zLs8ygxP4qY/1mWorEWzLUu8voTxdFdi7SWLwSSzXlqmVevUFo
-         8u9WQgp5U1d43RLSZruJr4QyZXaaiJrk6S7VBYa3ARGDLqWXeG7xrCnk8yKhzQ9NBt
-         3jZfWuP4ZY//h3dumNJhg6m7jjiGnjUXfMkHg6o4=
+        b=LsSmwlrQQDF3i4RrPSzE6XZQ90CsTS8VWn32CzGajw/M6QMRkW+qDSC6cFTPDbkEC
+         E/KF/AJUXTcOtLDj2WkZ0sSetz+rNiN+loJ4gKwnaoj/HOAhX7yT2l1wuHQPPZCx3u
+         KvdAgYScBsDl6NsGINON8hRJlfL/kHfgdTHBBc3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 10/91] sound: fix a memory leak bug
-Date:   Wed, 14 Aug 2019 19:00:33 +0200
-Message-Id: <20190814165750.046750688@linuxfoundation.org>
+        stable@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 34/91] vfio-ccw: Set pa_nr to 0 if memory allocation fails for pa_iova_pfn
+Date:   Wed, 14 Aug 2019 19:00:57 +0200
+Message-Id: <20190814165751.146670444@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
 References: <20190814165748.991235624@linuxfoundation.org>
@@ -43,39 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wenwen@cs.uga.edu>
+[ Upstream commit c1ab69268d124ebdbb3864580808188ccd3ea355 ]
 
-commit c7cd7c748a3250ca33509f9235efab9c803aca09 upstream.
+So we don't call try to call vfio_unpin_pages() incorrectly.
 
-In sound_insert_unit(), the controlling structure 's' is allocated through
-kmalloc(). Then it is added to the sound driver list by invoking
-__sound_insert_unit(). Later on, if __register_chrdev() fails, 's' is
-removed from the list through __sound_remove_unit(). If 'index' is not less
-than 0, -EBUSY is returned to indicate the error. However, 's' is not
-deallocated on this execution path, leading to a memory leak bug.
-
-To fix the above issue, free 's' before -EBUSY is returned.
-
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 0a19e61e6d4c ("vfio: ccw: introduce channel program interfaces")
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <33a89467ad6369196ae6edf820cbcb1e2d8d050c.1562854091.git.alifm@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/sound_core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/s390/cio/vfio_ccw_cp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/sound_core.c
-+++ b/sound/sound_core.c
-@@ -280,7 +280,8 @@ retry:
- 				goto retry;
- 			}
- 			spin_unlock(&sound_loader_lock);
--			return -EBUSY;
-+			r = -EBUSY;
-+			goto fail;
- 		}
- 	}
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 70a006ba4d050..4fe06ff7b2c8b 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -89,8 +89,10 @@ static int pfn_array_alloc_pin(struct pfn_array *pa, struct device *mdev,
+ 				  sizeof(*pa->pa_iova_pfn) +
+ 				  sizeof(*pa->pa_pfn),
+ 				  GFP_KERNEL);
+-	if (unlikely(!pa->pa_iova_pfn))
++	if (unlikely(!pa->pa_iova_pfn)) {
++		pa->pa_nr = 0;
+ 		return -ENOMEM;
++	}
+ 	pa->pa_pfn = pa->pa_iova_pfn + pa->pa_nr;
  
+ 	pa->pa_iova_pfn[0] = pa->pa_iova >> PAGE_SHIFT;
+-- 
+2.20.1
+
 
 
