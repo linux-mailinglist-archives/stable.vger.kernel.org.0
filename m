@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3AF28C94A
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:38:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEBFE8C940
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:38:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727727AbfHNCiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:38:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44624 "EHLO mail.kernel.org"
+        id S1727920AbfHNCMe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:12:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727049AbfHNCMc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:12:32 -0400
+        id S1727901AbfHNCMd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:12:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E040120842;
-        Wed, 14 Aug 2019 02:12:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5CB42133F;
+        Wed, 14 Aug 2019 02:12:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748751;
-        bh=NlHU82DlmLqWkVkS9Vy2WOY0Hhh5fRJvgAZNlvSeoc0=;
+        s=default; t=1565748752;
+        bh=G/bm9sqvpxQSi87WzIc0dDnkfdLJB3LAYin9F0lnpWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GVcpub19K1s54t7S22C5DakVQ1Dwn5jGanko+7x7EEsTNwRT6OsDjrtTe90+MxT3D
-         y6aIDskb+oprYrkodBNVYEJR0rNjSOXo9Y7uJ6G1+GGYOnrbujCHywIUfhDTTqBQFj
-         NK7VII8JJvY10duFUL7iDQlGHtrQsMd0e5ryrWz4=
+        b=w2npYDljvVIKSnVDBJ9psrUtHSAUJa6w+Dn5mmtBLo/YQX+SOS3vMySaGWrWZuK4K
+         WHtcv0FYZIkzqXtnXtP22Rg7k8SyVqFWMa8jESmDg3WZ191fkWxtiVJ85UbJuT7OaV
+         0b3CbSBpKis3MJYELJTv31g5FBqM6CXsmKuZJKO4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Ujfalusi <peter.ujfalusi@ti.com>,
+Cc:     Cheng-Yi Chiang <cychiang@chromium.org>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 046/123] ASoC: ti: davinci-mcasp: Fix clk PDIR handling for i2s master mode
-Date:   Tue, 13 Aug 2019 22:09:30 -0400
-Message-Id: <20190814021047.14828-46-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.2 047/123] ASoC: rockchip: Fix mono capture
+Date:   Tue, 13 Aug 2019 22:09:31 -0400
+Message-Id: <20190814021047.14828-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -43,51 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+From: Cheng-Yi Chiang <cychiang@chromium.org>
 
-[ Upstream commit 34a2a80ff30b5d2330abfa8980c7f0cc15a8158a ]
+[ Upstream commit 789e162a6255325325bd321ab0cd51dc7e285054 ]
 
-When running McASP as master capture alone will not record any audio unless
-a parallel playback stream is running. As soon as the playback stops the
-captured data is going to be silent again.
+This reverts commit db51707b9c9aeedd310ebce60f15d5bb006567e0.
+Revert "ASoC: rockchip: i2s: Support mono capture"
 
-In McASP master mode we need to set the PDIR for the clock pins and fix
-the mcasp_set_axr_pdir() to skip the bits in the PDIR registers above
-AMUTE.
+Previous discussion in
 
-This went unnoticed as most of the boards uses McASP as slave and neither
-of these issues are visible (audible) in those setups.
+https://patchwork.kernel.org/patch/10147153/
 
-Fixes: ca3d9433349e ("ASoC: davinci-mcasp: Update PDIR (pin direction) register handling")
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Link: https://lore.kernel.org/r/20190725083423.7321-1-peter.ujfalusi@ti.com
+explains the issue of the patch.
+While device is configured as 1-ch, hardware is still
+generating a 2-ch stream.
+When user space reads the data and assumes it is a 1-ch stream,
+the rate will be slower by 2x.
+
+Revert the change so 1-ch is not supported.
+User space can selectively take one channel data out of two channel
+if 1-ch is preferred.
+Currently, both channels record identical data.
+
+Signed-off-by: Cheng-Yi Chiang <cychiang@chromium.org>
+Link: https://lore.kernel.org/r/20190726044202.26866-1-cychiang@chromium.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/ti/davinci-mcasp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/rockchip/rockchip_i2s.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/ti/davinci-mcasp.c b/sound/soc/ti/davinci-mcasp.c
-index 5e8e31743a28d..dc01bbca0ff69 100644
---- a/sound/soc/ti/davinci-mcasp.c
-+++ b/sound/soc/ti/davinci-mcasp.c
-@@ -194,7 +194,7 @@ static inline void mcasp_set_axr_pdir(struct davinci_mcasp *mcasp, bool enable)
- {
- 	u32 bit;
- 
--	for_each_set_bit(bit, &mcasp->pdir, PIN_BIT_AFSR) {
-+	for_each_set_bit(bit, &mcasp->pdir, PIN_BIT_AMUTE) {
- 		if (enable)
- 			mcasp_set_bits(mcasp, DAVINCI_MCASP_PDIR_REG, BIT(bit));
- 		else
-@@ -222,6 +222,7 @@ static void mcasp_start_rx(struct davinci_mcasp *mcasp)
- 	if (mcasp_is_synchronous(mcasp)) {
- 		mcasp_set_ctl_reg(mcasp, DAVINCI_MCASP_GBLCTLX_REG, TXHCLKRST);
- 		mcasp_set_ctl_reg(mcasp, DAVINCI_MCASP_GBLCTLX_REG, TXCLKRST);
-+		mcasp_set_clk_pdir(mcasp, true);
+diff --git a/sound/soc/rockchip/rockchip_i2s.c b/sound/soc/rockchip/rockchip_i2s.c
+index 0a34d0eb8dba9..88ebaf6e1880a 100644
+--- a/sound/soc/rockchip/rockchip_i2s.c
++++ b/sound/soc/rockchip/rockchip_i2s.c
+@@ -326,7 +326,6 @@ static int rockchip_i2s_hw_params(struct snd_pcm_substream *substream,
+ 		val |= I2S_CHN_4;
+ 		break;
+ 	case 2:
+-	case 1:
+ 		val |= I2S_CHN_2;
+ 		break;
+ 	default:
+@@ -459,7 +458,7 @@ static struct snd_soc_dai_driver rockchip_i2s_dai = {
+ 	},
+ 	.capture = {
+ 		.stream_name = "Capture",
+-		.channels_min = 1,
++		.channels_min = 2,
+ 		.channels_max = 2,
+ 		.rates = SNDRV_PCM_RATE_8000_192000,
+ 		.formats = (SNDRV_PCM_FMTBIT_S8 |
+@@ -659,7 +658,7 @@ static int rockchip_i2s_probe(struct platform_device *pdev)
  	}
  
- 	/* Activate serializer(s) */
+ 	if (!of_property_read_u32(node, "rockchip,capture-channels", &val)) {
+-		if (val >= 1 && val <= 8)
++		if (val >= 2 && val <= 8)
+ 			soc_dai->capture.channels_max = val;
+ 	}
+ 
 -- 
 2.20.1
 
