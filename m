@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 160828D8E5
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:04:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3E128D8C1
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:02:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728907AbfHNRD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:03:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52056 "EHLO mail.kernel.org"
+        id S1728463AbfHNRCT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:02:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728388AbfHNRDZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:03:25 -0400
+        id S1726804AbfHNRCT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:02:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48443208C2;
-        Wed, 14 Aug 2019 17:03:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55B35208C2;
+        Wed, 14 Aug 2019 17:02:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802204;
-        bh=x/LifXbRaRMMPAN97PIRvbWVdBgnzv6yKLAzTwPLyh8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=0DZYCBTQrPpMfEpppfPmgSOSp9LJDfsCWbiku7TiBVjfe977iJSrqs6QPDyGt6nye
-         R0wcOZppZJwROzyWrDTj70YnVAtTIj07fQgFa6ThLTZMK9KnTlxpk6U924G3jjT4rz
-         uw3YW58Hf2PEIjlioa+OSBS3DbDmCOCNSaBCjZ8s=
+        s=default; t=1565802137;
+        bh=FGSeR5kbJNlTHpLl6tarV6WMLNjn7j4dFasyTUHsYrY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=QEf5jTJ9mzz+TnFKd+J+oHHQZ8n0PzNk79KeRpgeoXrwHnme1s5eEtjrLpayHGiKD
+         dKLRke49mdFIXu5RsGTSR945tSzBDBwHOscko2BPbX66/TYHHXiDMuQG5FXavGoyRU
+         zJcuKbzecu6x89PI/hjuU1OfYfxeBt1a3rXhdUpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 5.2 000/144] 5.2.9-stable review
-Date:   Wed, 14 Aug 2019 18:59:16 +0200
-Message-Id: <20190814165759.466811854@linuxfoundation.org>
+        stable@vger.kernel.org, Matthias Andree <matthias.andree@gmx.de>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.2 001/144] Revert "PCI: Add missing link delays required by the PCIe spec"
+Date:   Wed, 14 Aug 2019 18:59:17 +0200
+Message-Id: <20190814165759.530366801@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-MIME-Version: 1.0
+In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
+References: <20190814165759.466811854@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.2.9-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.2.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.2.9-rc1
-X-KernelTest-Deadline: 2019-08-16T16:58+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -51,623 +48,204 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.2.9 release.
-There are 144 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
-
-Responses should be made by Fri 16 Aug 2019 04:55:34 PM UTC.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.9-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.2.9-rc1
-
-Luca Coelho <luciano.coelho@intel.com>
-    iwlwifi: mvm: fix version check for GEO_TX_POWER_LIMIT support
-
-Luca Coelho <luciano.coelho@intel.com>
-    iwlwifi: mvm: don't send GEO_TX_POWER_LIMIT on version < 41
-
-Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-    iwlwifi: mvm: fix a use-after-free bug in iwl_mvm_tx_tso_segment
-
-Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-    iwlwifi: mvm: fix an out-of-bound access
-
-Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-    iwlwifi: don't unmap as page memory that was mapped as single
-
-Brian Norris <briannorris@chromium.org>
-    mwifiex: fix 802.11n/WPA detection
-
-Marc Zyngier <maz@kernel.org>
-    KVM: arm/arm64: Sync ICH_VMCR_EL2 back when about to block
-
-Wanpeng Li <wanpengli@tencent.com>
-    KVM: Fix leak vCPU's VMCS value into other pCPU
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    NFSv4: Fix an Oops in nfs4_do_setattr
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    NFSv4: Check the return value of update_open_stateid()
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    NFSv4: Fix delegation state recovery
-
-Steve French <stfrench@microsoft.com>
-    smb3: send CAP_DFS capability during session setup
-
-Pavel Shilovsky <pshilov@microsoft.com>
-    SMB3: Fix deadlock in validate negotiate hits reconnect
-
-Vivek Goyal <vgoyal@redhat.com>
-    dax: dax_layout_busy_page() should not unmap cow pages
-
-Brian Norris <briannorris@chromium.org>
-    mac80211: don't WARN on short WMM parameters from AP
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: hda - Workaround for crackled sound on AMD controller (1022:1457)
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: hda - Don't override global PCM hw info flag
-
-Wenwen Wang <wenwen@cs.uga.edu>
-    ALSA: hiface: fix multiple memory leak bugs
-
-Wenwen Wang <wenwen@cs.uga.edu>
-    ALSA: firewire: fix a memory leak bug
-
-Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
-    drm/i915: Fix wrong escape clock divisor init for GLK
-
-Iker Perez del Palomar Sustatxa <iker.perez@codethink.co.uk>
-    hwmon: (lm75) Fixup tmp75b clr_mask
-
-Guenter Roeck <linux@roeck-us.net>
-    hwmon: (nct7802) Fix wrong detection of in4 presence
-
-Tomas Bortoli <tomasbortoli@gmail.com>
-    can: peak_usb: pcan_usb_fd: Fix info-leaks to USB devices
-
-Tomas Bortoli <tomasbortoli@gmail.com>
-    can: peak_usb: pcan_usb_pro: Fix info-leaks to USB devices
-
-Vitaly Kuznetsov <vkuznets@redhat.com>
-    KVM/nSVM: properly map nested VMCB
-
-Wenwen Wang <wenwen@cs.uga.edu>
-    ALSA: usb-audio: fix a memory leak bug
-
-Roderick Colenbrander <roderick@gaikai.com>
-    HID: sony: Fix race condition between rumble and device remove.
-
-Masahiro Yamada <yamada.masahiro@socionext.com>
-    gen_compile_commands: lower the entry count threshold
-
-Halil Pasic <pasic@linux.ibm.com>
-    s390/dma: provide proper ARCH_ZONE_DMA_BITS value
-
-Leonard Crestez <leonard.crestez@nxp.com>
-    perf/core: Fix creating kernel counters for PMUs that override event->cpu
-
-Zhenzhong Duan <zhenzhong.duan@oracle.com>
-    perf/x86: Apply more accurate check on hypervisor platform
-
-Yunying Sun <yunying.sun@intel.com>
-    perf/x86/intel: Fix invalid Bit 13 for Icelake MSR_OFFCORE_RSP_x register
-
-Kan Liang <kan.liang@linux.intel.com>
-    perf/x86/intel: Fix SLOTS PEBS event constraint
-
-Peter Zijlstra <peterz@infradead.org>
-    tty/ldsem, locking/rwsem: Add missing ACQUIRE to read_failed sleep loop
-
-Wenwen Wang <wenwen@cs.uga.edu>
-    test_firmware: fix a memory leak bug
-
-Hannes Reinecke <hare@suse.de>
-    scsi: scsi_dh_alua: always use a 2 second delay before retrying RTPG
-
-Tyrel Datwyler <tyreld@linux.vnet.ibm.com>
-    scsi: ibmvfc: fix WARN_ON during event pool release
-
-Junxiao Bi <junxiao.bi@oracle.com>
-    scsi: megaraid_sas: fix panic on loading firmware crashdump
-
-Arnd Bergmann <arnd@arndb.de>
-    ARM: dts: bcm: bcm47094: add missing #cells for mdio-bus-mux
-
-Arnd Bergmann <arnd@arndb.de>
-    ARM: davinci: fix sleep.S build error on ARMv4
-
-Logan Gunthorpe <logang@deltatee.com>
-    nvme: fix memory leak caused by incorrect subsystem free
-
-Misha Nasledov <misha@nasledov.com>
-    nvme: ignore subnqn for ADATA SX6000LNP
-
-Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-    ACPI/IORT: Fix off-by-one check in iort_dev_find_its_id()
-
-Arnd Bergmann <arnd@arndb.de>
-    drbd: dynamically allocate shash descriptor
-
-Arnaldo Carvalho de Melo <acme@redhat.com>
-    perf probe: Avoid calling freeing routine multiple times for same pointer
-
-Alexey Budankov <alexey.budankov@linux.intel.com>
-    perf session: Fix loading of compressed data split across adjacent records
-
-Jiri Olsa <jolsa@redhat.com>
-    perf stat: Fix segfault for event group in repeat mode
-
-Jiri Olsa <jolsa@kernel.org>
-    perf tools: Fix proper buffer size for feature processing
-
-Andi Kleen <ak@linux.intel.com>
-    perf script: Fix off by one in brstackinsn IPC computation
-
-Charles Keepax <ckeepax@opensource.cirrus.com>
-    ALSA: compress: Be more restrictive about when a drain is allowed
-
-Charles Keepax <ckeepax@opensource.cirrus.com>
-    ALSA: compress: Don't allow paritial drain operations on capture streams
-
-Charles Keepax <ckeepax@opensource.cirrus.com>
-    ALSA: compress: Prevent bypasses of set_params
-
-Charles Keepax <ckeepax@opensource.cirrus.com>
-    ALSA: compress: Fix regression on compressed capture streams
-
-Julian Wiedmann <jwi@linux.ibm.com>
-    s390/qdio: add sanity checks to the fast-requeue path
-
-Wen Yang <wen.yang99@zte.com.cn>
-    cpufreq/pasemi: fix use-after-free in pas_cpufreq_cpu_init()
-
-Lucas Stach <l.stach@pengutronix.de>
-    arm64: dts: imx8mq: fix SAI compatible
-
-Anson Huang <Anson.Huang@nxp.com>
-    arm64: dts: imx8mm: Correct SAI3 RXC/TXFS pin's mux option #1
-
-Qian Cai <cai@lca.pw>
-    drm: silence variable 'conn' set but not used
-
-Shubhashree Dhar <dhar@codeaurora.org>
-    drm/msm/dpu: Correct dpu encoder spinlock initialization
-
-Dmitry Safonov <dima@arista.com>
-    iommu/vt-d: Check if domain->pgd was allocated
-
-James Morse <james.morse@arm.com>
-    arm64: entry: SP Alignment Fault doesn't write to FAR_EL1
-
-Marc Zyngier <marc.zyngier@arm.com>
-    arm64: Force SSBS on context switch
-
-Vaibhav Jain <vaibhav@linux.ibm.com>
-    powerpc/papr_scm: Force a scm-unbind if initial scm-bind fails
-
-Sébastien Szymanski <sebastien.szymanski@armadeus.com>
-    ARM: dts: imx6ul: fix clock frequency property name of I2C buses
-
-Björn Gerhart <gerhart@posteo.de>
-    hwmon: (nct6775) Fix register address and added missed tolerance for nct6106
-
-Lei YU <mine260309@gmail.com>
-    hwmon: (occ) Fix division by zero issue
-
-Navid Emamdoost <navid.emamdoost@gmail.com>
-    allocate_flower_entry: should check for null deref
-
-Brian Norris <briannorris@chromium.org>
-    mac80211: don't warn about CW params when not using them
-
-Lorenzo Bianconi <lorenzo@kernel.org>
-    mac80211: fix possible memory leak in ieee80211_assign_beacon
-
-John Crispin <john@phrozen.org>
-    nl80211: fix NL80211_HE_MAX_CAPABILITY_LEN
-
-Thomas Tai <thomas.tai@oracle.com>
-    iscsi_ibft: make ISCSI_IBFT dependson ACPI instead of ISCSI_IBFT_FIND
-
-Tai Man <taiman.wong@amd.com>
-    drm/amd/display: Increase size of audios array
-
-Alvin Lee <alvin.lee2@amd.com>
-    drm/amd/display: Only enable audio if speaker allocation exists
-
-Julian Parkin <julian.parkin@amd.com>
-    drm/amd/display: Fix dc_create failure handling and 666 color depths
-
-Derek Lai <Derek.Lai@amd.com>
-    drm/amd/display: allocate 4 ddc engines for RV2
-
-Eric Yang <Eric.Yang2@amd.com>
-    drm/amd/display: put back front end initialization sequence
-
-Tai Man <taiman.wong@amd.com>
-    drm/amd/display: use encoder's engine id to find matched free audio device
-
-Zi Yu Liao <ziyu.liao@amd.com>
-    drm/amd/display: fix DMCU hang when going into Modern Standby
-
-SivapiriyanKumarasamy <sivapiriyan.kumarasamy@amd.com>
-    drm/amd/display: Wait for backlight programming completion in set backlight level
-
-Murton Liu <murton.liu@amd.com>
-    drm/amd/display: Clock does not lower in Updateplanes
-
-Harmanprit Tatla <harmanprit.tatla@amd.com>
-    drm/amd/display: No audio endpoint for Dell MST display
-
-Phil Sutter <phil@nwl.cc>
-    netfilter: nf_tables: Support auto-loading for inet nat
-
-Josef Bacik <josef@toxicpanda.com>
-    rq-qos: use a mb for got_token
-
-Josef Bacik <josef@toxicpanda.com>
-    rq-qos: set ourself TASK_UNINTERRUPTIBLE after we schedule
-
-Josef Bacik <josef@toxicpanda.com>
-    rq-qos: don't reset has_sleepers on spurious wakeups
-
-Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-    scripts/sphinx-pre-install: fix latexmk dependencies
-
-Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-    scripts/sphinx-pre-install: don't use LaTeX with CentOS 7
-
-Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-    scripts/sphinx-pre-install: fix script for RHEL/CentOS
-
-Laura Garcia Liebana <nevola@gmail.com>
-    netfilter: nft_hash: fix symhash with modulus one
-
-Florian Westphal <fw@strlen.de>
-    netfilter: conntrack: always store window size un-scaled
-
-Christian Hesse <mail@eworm.de>
-    netfilter: nf_tables: fix module autoload for redir
-
-Miaohe Lin <linmiaohe@huawei.com>
-    netfilter: Fix rpfilter dropping vrf packets by mistake
-
-Farhan Ali <alifm@linux.ibm.com>
-    vfio-ccw: Don't call cp_free if we are processing a channel program
-
-Farhan Ali <alifm@linux.ibm.com>
-    vfio-ccw: Set pa_nr to 0 if memory allocation fails for pa_iova_pfn
-
-Florian Westphal <fw@strlen.de>
-    netfilter: nfnetlink: avoid deadlock due to synchronous request_module
-
-Andrea Arcangeli <aarcange@redhat.com>
-    powerpc: fix off by one in max_zone_pfn initialization for ZONE_DMA
-
-Stephane Grosjean <s.grosjean@peak-system.com>
-    can: peak_usb: fix potential double kfree_skb()
-
-Wen Yang <wen.yang99@zte.com.cn>
-    can: flexcan: fix an use-after-free in flexcan_setup_stop_mode()
-
-Joakim Zhang <qiangqing.zhang@nxp.com>
-    can: flexcan: fix stop mode acknowledgment
-
-Nikita Yushchenko <nikita.yoush@cogentembedded.com>
-    can: rcar_canfd: fix possible IRQ storm on high load
-
-Guenter Roeck <linux@roeck-us.net>
-    usb: typec: tcpm: Ignore unsupported/unknown alternate mode requests
-
-Guenter Roeck <linux@roeck-us.net>
-    usb: typec: tcpm: Add NULL check before dereferencing config
-
-Li Jun <jun.li@nxp.com>
-    usb: typec: tcpm: remove tcpm dir if no children
-
-Li Jun <jun.li@nxp.com>
-    usb: typec: tcpm: free log buf memory when remove debug file
-
-Heikki Krogerus <heikki.krogerus@linux.intel.com>
-    usb: typec: ucsi: ccg: Fix uninitilized symbol error
-
-Suzuki K Poulose <suzuki.poulose@arm.com>
-    usb: yurex: Fix use-after-free in yurex_delete
-
-Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-    usb: host: xhci-rcar: Fix timeout in xhci_suspend()
-
-Andreas Gruenbacher <agruenba@redhat.com>
-    gfs2: gfs2_walk_metadata fix
-
-Ming Lei <ming.lei@redhat.com>
-    genirq/affinity: Create affinity mask for single vector
-
-Nick Desaulniers <ndesaulniers@google.com>
-    x86/purgatory: Use CFLAGS_REMOVE rather than reset KBUILD_CFLAGS
-
-Nick Desaulniers <ndesaulniers@google.com>
-    x86/purgatory: Do not use __builtin_memcpy and __builtin_memset
-
-Thomas Richter <tmricht@linux.ibm.com>
-    perf record: Fix module size on s390
-
-Adrian Hunter <adrian.hunter@intel.com>
-    perf db-export: Fix thread__exec_comm()
-
-Thomas Richter <tmricht@linux.ibm.com>
-    perf annotate: Fix s390 gap between kernel end and module start
-
-Suzuki K Poulose <suzuki.poulose@arm.com>
-    coresight: Fix DEBUG_LOCKS_WARN_ON for uninitialized attribute
-
-Joerg Roedel <jroedel@suse.de>
-    mm/vmalloc: Sync unmappings in __purge_vmap_area_lazy()
-
-Joerg Roedel <jroedel@suse.de>
-    x86/mm: Sync also unmappings in vmalloc_sync_all()
-
-Joerg Roedel <jroedel@suse.de>
-    x86/mm: Check for pfn instead of page in vmalloc_sync_one()
-
-Dmitry Torokhov <dmitry.torokhov@gmail.com>
-    Input: synaptics - enable RMI mode for HP Spectre X360
-
-Kai-Heng Feng <kai.heng.feng@canonical.com>
-    Input: elantech - enable SMBus on new (2018+) systems
-
-Oliver Neukum <oneukum@suse.com>
-    Input: usbtouchscreen - initialize PM mutex before using it
-
-Jan Kara <jack@suse.cz>
-    bdev: Fixup error handling in blkdev_get()
-
-Mikulas Patocka <mpatocka@redhat.com>
-    loop: set PF_MEMALLOC_NOIO for the worker thread
-
-Kevin Hao <haokexin@gmail.com>
-    mmc: cavium: Add the missing dma unmap when the dma has finished.
-
-Kevin Hao <haokexin@gmail.com>
-    mmc: cavium: Set the correct dma max segment size for mmc_host
-
-Wenwen Wang <wenwen@cs.uga.edu>
-    sound: fix a memory leak bug
-
-Oliver Neukum <oneukum@suse.com>
-    usb: iowarrior: fix deadlock on disconnect
-
-Oliver Neukum <oneukum@suse.com>
-    Revert "USB: rio500: simplify locking"
-
-Gavin Li <git@thegavinli.com>
-    usb: usbfs: fix double-free of usb memory upon submiturb error
-
-Brian Norris <briannorris@chromium.org>
-    driver core: platform: return -ENXIO for missing GpioInt
-
-Gary R Hook <gary.hook@amd.com>
-    crypto: ccp - Ignore tag length when decrypting GCM ciphertext
-
-Gary R Hook <gary.hook@amd.com>
-    crypto: ccp - Add support for valid authsize values less than 16
-
-Gary R Hook <gary.hook@amd.com>
-    crypto: ccp - Fix oops by properly managing allocated structures
-
-Phil Reid <preid@electromag.com.au>
-    Staging: fbtft: Fix reset assertion when using gpio descriptor
-
-Phil Reid <preid@electromag.com.au>
-    Staging: fbtft: Fix probing of gpio descriptor
-
-Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-    staging: android: ion: Bail out upon SIGKILL when allocating memory.
-
-Adham Abozaeid <adham.abozaeid@microchip.com>
-    staging: wilc1000: flush the workqueue before deinit the host
-
-Ivan Bornyakov <brnkv.i1@gmail.com>
-    staging: gasket: apex: fix copy-paste typo
-
-Joe Perches <joe@perches.com>
-    iio: adc: max9611: Fix misuse of GENMASK macro
-
-Arnd Bergmann <arnd@arndb.de>
-    iio: adc: gyroadc: fix uninitialized return code
-
-Jean-Baptiste Maneyrol <JManeyrol@invensense.com>
-    iio: imu: mpu6050: add missing available scan masks
-
-Gwendal Grignou <gwendal@chromium.org>
-    iio: cros_ec_accel_legacy: Fix incorrect channel setting
-
-Maarten ter Huurne <maarten@treewalker.org>
-    IIO: Ingenic JZ47xx: Set clock divider on probe
-
-Mika Westerberg <mika.westerberg@linux.intel.com>
-    Revert "PCI: Add missing link delays required by the PCIe spec"
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |   4 +-
- arch/arm/boot/dts/bcm47094-linksys-panamera.dts    |   3 +
- arch/arm/boot/dts/imx6ul-14x14-evk.dtsi            |   2 +-
- arch/arm/boot/dts/imx6ul-geam.dts                  |   2 +-
- arch/arm/boot/dts/imx6ul-isiot.dtsi                |   2 +-
- arch/arm/boot/dts/imx6ul-pico-hobbit.dts           |   2 +-
- arch/arm/boot/dts/imx6ul-pico-pi.dts               |   4 +-
- arch/arm/mach-davinci/sleep.S                      |   1 +
- arch/arm64/boot/dts/freescale/imx8mm-pinfunc.h     |   4 +-
- arch/arm64/boot/dts/freescale/imx8mq.dtsi          |   3 +-
- arch/arm64/include/asm/processor.h                 |  14 +-
- arch/arm64/kernel/entry.S                          |  22 +--
- arch/arm64/kernel/process.c                        |  29 +++-
- arch/powerpc/kvm/powerpc.c                         |   5 +
- arch/powerpc/mm/mem.c                              |   2 +-
- arch/powerpc/platforms/pseries/papr_scm.c          |  15 +-
- arch/s390/include/asm/page.h                       |   2 +
- arch/x86/boot/string.c                             |   8 +
- arch/x86/events/intel/core.c                       |   7 +-
- arch/x86/events/intel/ds.c                         |   2 +-
- arch/x86/include/asm/kvm_host.h                    |   1 +
- arch/x86/kvm/svm.c                                 |  10 +-
- arch/x86/kvm/vmx/vmx.c                             |   6 +
- arch/x86/kvm/x86.c                                 |  16 ++
- arch/x86/mm/fault.c                                |  15 +-
- arch/x86/purgatory/Makefile                        |  36 ++++-
- arch/x86/purgatory/purgatory.c                     |   6 +
- arch/x86/purgatory/string.c                        |  23 ---
- block/blk-rq-qos.c                                 |   6 +-
- drivers/acpi/arm64/iort.c                          |   4 +-
- drivers/base/platform.c                            |   9 +-
- drivers/block/drbd/drbd_receiver.c                 |  14 +-
- drivers/block/loop.c                               |   2 +-
- drivers/cpufreq/pasemi-cpufreq.c                   |  23 ++-
- drivers/crypto/ccp/ccp-crypto-aes-galois.c         |  14 ++
- drivers/crypto/ccp/ccp-ops.c                       |  33 +++--
- drivers/firmware/Kconfig                           |   5 +-
- drivers/firmware/iscsi_ibft.c                      |   4 +
- drivers/gpu/drm/amd/display/dc/core/dc.c           |   6 +-
- drivers/gpu/drm/amd/display/dc/core/dc_link.c      |   9 +-
- drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c   |   9 +-
- drivers/gpu/drm/amd/display/dc/core/dc_resource.c  |  11 +-
- drivers/gpu/drm/amd/display/dc/dce/dce_abm.c       |   4 +
- .../drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c  |  21 +--
- .../gpu/drm/amd/display/dc/dcn10/dcn10_resource.c  |   2 +-
- drivers/gpu/drm/amd/display/dc/inc/core_types.h    |   2 +-
- drivers/gpu/drm/amd/display/dc/inc/hw/hw_shared.h  |   1 +
- drivers/gpu/drm/drm_framebuffer.c                  |   2 +-
- drivers/gpu/drm/i915/vlv_dsi_pll.c                 |   4 +-
- drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c        |   3 +-
- drivers/hid/hid-sony.c                             |  15 +-
- drivers/hwmon/lm75.c                               |   2 +-
- drivers/hwmon/nct6775.c                            |   3 +-
- drivers/hwmon/nct7802.c                            |   6 +-
- drivers/hwmon/occ/common.c                         |   6 +-
- drivers/hwtracing/coresight/coresight-etm-perf.c   |   1 +
- drivers/iio/accel/cros_ec_accel_legacy.c           |   1 -
- drivers/iio/adc/ingenic-adc.c                      |  54 +++++++
- drivers/iio/adc/max9611.c                          |   2 +-
- drivers/iio/adc/rcar-gyroadc.c                     |   4 +-
- drivers/iio/imu/inv_mpu6050/inv_mpu_core.c         |  43 ++++++
- drivers/input/mouse/elantech.c                     |  54 ++++---
- drivers/input/mouse/synaptics.c                    |   1 +
- drivers/input/touchscreen/usbtouchscreen.c         |   2 +
- drivers/iommu/intel-iommu.c                        |   8 +-
- drivers/mmc/host/cavium.c                          |   4 +-
- drivers/net/can/flexcan.c                          |  39 ++++-
- drivers/net/can/rcar/rcar_canfd.c                  |   9 +-
- drivers/net/can/usb/peak_usb/pcan_usb_core.c       |   8 +-
- drivers/net/can/usb/peak_usb/pcan_usb_fd.c         |   2 +-
- drivers/net/can/usb/peak_usb/pcan_usb_pro.c        |   2 +-
- .../net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c   |   3 +-
- drivers/net/wireless/intel/iwlwifi/mvm/fw.c        |  29 +++-
- drivers/net/wireless/intel/iwlwifi/mvm/tx.c        |   3 +-
- drivers/net/wireless/intel/iwlwifi/pcie/tx.c       |   2 +
- drivers/net/wireless/marvell/mwifiex/main.h        |   1 +
- drivers/net/wireless/marvell/mwifiex/scan.c        |   3 +-
- drivers/nvme/host/core.c                           |  12 +-
- drivers/nvme/host/pci.c                            |   2 +
- drivers/pci/pci.c                                  |  29 ++--
- drivers/pci/pci.h                                  |   1 -
- drivers/pci/pcie/portdrv_core.c                    |  66 ---------
- drivers/s390/cio/qdio_main.c                       |  12 +-
- drivers/s390/cio/vfio_ccw_cp.c                     |   4 +-
- drivers/s390/cio/vfio_ccw_drv.c                    |   2 +-
- drivers/scsi/device_handler/scsi_dh_alua.c         |   7 +-
- drivers/scsi/ibmvscsi/ibmvfc.c                     |   2 +-
- drivers/scsi/megaraid/megaraid_sas_base.c          |   3 +
- drivers/staging/android/ion/ion_page_pool.c        |   3 +
- drivers/staging/fbtft/fbtft-core.c                 |  43 +++---
- drivers/staging/gasket/apex_driver.c               |   2 +-
- drivers/staging/wilc1000/wilc_wfi_cfgoperations.c  |   1 +
- drivers/tty/tty_ldsem.c                            |   5 +-
- drivers/usb/core/devio.c                           |   2 -
- drivers/usb/host/xhci-rcar.c                       |   9 +-
- drivers/usb/misc/iowarrior.c                       |   7 +-
- drivers/usb/misc/rio500.c                          |  43 ++++--
- drivers/usb/misc/yurex.c                           |   2 +-
- drivers/usb/typec/tcpm/tcpm.c                      |  58 +++++---
- drivers/usb/typec/ucsi/ucsi_ccg.c                  |   2 +-
- fs/block_dev.c                                     |   5 +-
- fs/cifs/smb2pdu.c                                  |   7 +-
- fs/dax.c                                           |   2 +-
- fs/gfs2/bmap.c                                     | 164 +++++++++++++--------
- fs/nfs/delegation.c                                |   2 +-
- fs/nfs/delegation.h                                |   2 +-
- fs/nfs/nfs4proc.c                                  |  39 ++---
- include/kvm/arm_vgic.h                             |   1 +
- include/linux/ccp.h                                |   2 +
- include/linux/kvm_host.h                           |   1 +
- include/sound/compress_driver.h                    |   5 +-
- include/uapi/linux/nl80211.h                       |   2 +-
- kernel/events/core.c                               |   2 +-
- kernel/irq/affinity.c                              |   6 +-
- lib/test_firmware.c                                |   5 +-
- mm/vmalloc.c                                       |   9 ++
- net/ipv4/netfilter/ipt_rpfilter.c                  |   1 +
- net/ipv6/netfilter/ip6t_rpfilter.c                 |   8 +-
- net/mac80211/cfg.c                                 |   8 +-
- net/mac80211/driver-ops.c                          |  13 +-
- net/mac80211/mlme.c                                |  10 ++
- net/netfilter/nf_conntrack_proto_tcp.c             |   8 +-
- net/netfilter/nfnetlink.c                          |   2 +-
- net/netfilter/nft_chain_nat.c                      |   3 +
- net/netfilter/nft_hash.c                           |   2 +-
- net/netfilter/nft_redir.c                          |   2 +-
- scripts/gen_compile_commands.py                    |   4 +-
- scripts/sphinx-pre-install                         |  74 +++++++---
- sound/core/compress_offload.c                      |  60 ++++++--
- sound/firewire/packets-buffer.c                    |   2 +-
- sound/pci/hda/hda_controller.c                     |  13 +-
- sound/pci/hda/hda_controller.h                     |   2 +-
- sound/pci/hda/hda_intel.c                          |  63 +++++++-
- sound/sound_core.c                                 |   3 +-
- sound/usb/hiface/pcm.c                             |  11 +-
- sound/usb/stream.c                                 |   1 +
- tools/perf/arch/s390/util/machine.c                |  31 +++-
- tools/perf/builtin-probe.c                         |  10 ++
- tools/perf/builtin-script.c                        |   2 +-
- tools/perf/builtin-stat.c                          |   9 +-
- tools/perf/util/evsel.c                            |   2 +
- tools/perf/util/header.c                           |   2 +-
- tools/perf/util/machine.c                          |   3 +-
- tools/perf/util/machine.h                          |   2 +-
- tools/perf/util/session.c                          |  22 ++-
- tools/perf/util/session.h                          |   1 +
- tools/perf/util/symbol.c                           |   7 +-
- tools/perf/util/symbol.h                           |   1 +
- tools/perf/util/thread.c                           |  12 +-
- tools/perf/util/zstd.c                             |   4 +-
- virt/kvm/arm/arm.c                                 |  11 ++
- virt/kvm/arm/vgic/vgic-v2.c                        |   9 +-
- virt/kvm/arm/vgic/vgic-v3.c                        |   7 +-
- virt/kvm/arm/vgic/vgic.c                           |  11 ++
- virt/kvm/arm/vgic/vgic.h                           |   2 +
- virt/kvm/kvm_main.c                                |  25 +++-
- 156 files changed, 1223 insertions(+), 552 deletions(-)
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+
+commit 0617bdede5114a0002298b12cd0ca2b0cfd0395d upstream.
+
+Commit c2bf1fc212f7 ("PCI: Add missing link delays required by the PCIe
+spec") turned out causing issues with some systems either by making them
+unresponsive or slowing down runtime and system wide resume of PCIe
+devices. While root cause for the unresponsiveness is still under
+investigation given the amount of issues reported better to revert it
+for now.
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204413
+Link: https://lore.kernel.org/linux-pci/SL2P216MB01878BBCD75F21D882AEEA2880C60@SL2P216MB0187.KORP216.PROD.OUTLOOK.COM/
+Link: https://lore.kernel.org/linux-pci/2857501d-c167-547d-c57d-d5d24ea1f1dc@molgen.mpg.de/
+Reported-by: Matthias Andree <matthias.andree@gmx.de>
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Reported-by: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/pci/pci.c               |   29 ++++++-----------
+ drivers/pci/pci.h               |    1 
+ drivers/pci/pcie/portdrv_core.c |   66 ----------------------------------------
+ 3 files changed, 10 insertions(+), 86 deletions(-)
+
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -1004,10 +1004,15 @@ static void __pci_start_power_transition
+ 	if (state == PCI_D0) {
+ 		pci_platform_power_transition(dev, PCI_D0);
+ 		/*
+-		 * Mandatory power management transition delays are
+-		 * handled in the PCIe portdrv resume hooks.
++		 * Mandatory power management transition delays, see
++		 * PCI Express Base Specification Revision 2.0 Section
++		 * 6.6.1: Conventional Reset.  Do not delay for
++		 * devices powered on/off by corresponding bridge,
++		 * because have already delayed for the bridge.
+ 		 */
+ 		if (dev->runtime_d3cold) {
++			if (dev->d3cold_delay && !dev->imm_ready)
++				msleep(dev->d3cold_delay);
+ 			/*
+ 			 * When powering on a bridge from D3cold, the
+ 			 * whole hierarchy may be powered on into
+@@ -4570,16 +4575,14 @@ static int pci_pm_reset(struct pci_dev *
+ 
+ 	return pci_dev_wait(dev, "PM D3->D0", PCIE_RESET_READY_POLL_MS);
+ }
+-
+ /**
+- * pcie_wait_for_link_delay - Wait until link is active or inactive
++ * pcie_wait_for_link - Wait until link is active or inactive
+  * @pdev: Bridge device
+  * @active: waiting for active or inactive?
+- * @delay: Delay to wait after link has become active (in ms)
+  *
+  * Use this to wait till link becomes active or inactive.
+  */
+-bool pcie_wait_for_link_delay(struct pci_dev *pdev, bool active, int delay)
++bool pcie_wait_for_link(struct pci_dev *pdev, bool active)
+ {
+ 	int timeout = 1000;
+ 	bool ret;
+@@ -4616,25 +4619,13 @@ bool pcie_wait_for_link_delay(struct pci
+ 		timeout -= 10;
+ 	}
+ 	if (active && ret)
+-		msleep(delay);
++		msleep(100);
+ 	else if (ret != active)
+ 		pci_info(pdev, "Data Link Layer Link Active not %s in 1000 msec\n",
+ 			active ? "set" : "cleared");
+ 	return ret == active;
+ }
+ 
+-/**
+- * pcie_wait_for_link - Wait until link is active or inactive
+- * @pdev: Bridge device
+- * @active: waiting for active or inactive?
+- *
+- * Use this to wait till link becomes active or inactive.
+- */
+-bool pcie_wait_for_link(struct pci_dev *pdev, bool active)
+-{
+-	return pcie_wait_for_link_delay(pdev, active, 100);
+-}
+-
+ void pci_reset_secondary_bus(struct pci_dev *dev)
+ {
+ 	u16 ctrl;
+--- a/drivers/pci/pci.h
++++ b/drivers/pci/pci.h
+@@ -493,7 +493,6 @@ static inline int pci_dev_specific_disab
+ void pcie_do_recovery(struct pci_dev *dev, enum pci_channel_state state,
+ 		      u32 service);
+ 
+-bool pcie_wait_for_link_delay(struct pci_dev *pdev, bool active, int delay);
+ bool pcie_wait_for_link(struct pci_dev *pdev, bool active);
+ #ifdef CONFIG_PCIEASPM
+ void pcie_aspm_init_link_state(struct pci_dev *pdev);
+--- a/drivers/pci/pcie/portdrv_core.c
++++ b/drivers/pci/pcie/portdrv_core.c
+@@ -9,7 +9,6 @@
+ #include <linux/module.h>
+ #include <linux/pci.h>
+ #include <linux/kernel.h>
+-#include <linux/delay.h>
+ #include <linux/errno.h>
+ #include <linux/pm.h>
+ #include <linux/pm_runtime.h>
+@@ -379,67 +378,6 @@ static int pm_iter(struct device *dev, v
+ 	return 0;
+ }
+ 
+-static int get_downstream_delay(struct pci_bus *bus)
+-{
+-	struct pci_dev *pdev;
+-	int min_delay = 100;
+-	int max_delay = 0;
+-
+-	list_for_each_entry(pdev, &bus->devices, bus_list) {
+-		if (!pdev->imm_ready)
+-			min_delay = 0;
+-		else if (pdev->d3cold_delay < min_delay)
+-			min_delay = pdev->d3cold_delay;
+-		if (pdev->d3cold_delay > max_delay)
+-			max_delay = pdev->d3cold_delay;
+-	}
+-
+-	return max(min_delay, max_delay);
+-}
+-
+-/*
+- * wait_for_downstream_link - Wait for downstream link to establish
+- * @pdev: PCIe port whose downstream link is waited
+- *
+- * Handle delays according to PCIe 4.0 section 6.6.1 before configuration
+- * access to the downstream component is permitted.
+- *
+- * This blocks PCI core resume of the hierarchy below this port until the
+- * link is trained. Should be called before resuming port services to
+- * prevent pciehp from starting to tear-down the hierarchy too soon.
+- */
+-static void wait_for_downstream_link(struct pci_dev *pdev)
+-{
+-	int delay;
+-
+-	if (pci_pcie_type(pdev) != PCI_EXP_TYPE_ROOT_PORT &&
+-	    pci_pcie_type(pdev) != PCI_EXP_TYPE_DOWNSTREAM)
+-		return;
+-
+-	if (pci_dev_is_disconnected(pdev))
+-		return;
+-
+-	if (!pdev->subordinate || list_empty(&pdev->subordinate->devices) ||
+-	    !pdev->bridge_d3)
+-		return;
+-
+-	delay = get_downstream_delay(pdev->subordinate);
+-	if (!delay)
+-		return;
+-
+-	dev_dbg(&pdev->dev, "waiting downstream link for %d ms\n", delay);
+-
+-	/*
+-	 * If downstream port does not support speeds greater than 5 GT/s
+-	 * need to wait 100ms. For higher speeds (gen3) we need to wait
+-	 * first for the data link layer to become active.
+-	 */
+-	if (pcie_get_speed_cap(pdev) <= PCIE_SPEED_5_0GT)
+-		msleep(delay);
+-	else
+-		pcie_wait_for_link_delay(pdev, true, delay);
+-}
+-
+ /**
+  * pcie_port_device_suspend - suspend port services associated with a PCIe port
+  * @dev: PCI Express port to handle
+@@ -453,8 +391,6 @@ int pcie_port_device_suspend(struct devi
+ int pcie_port_device_resume_noirq(struct device *dev)
+ {
+ 	size_t off = offsetof(struct pcie_port_service_driver, resume_noirq);
+-
+-	wait_for_downstream_link(to_pci_dev(dev));
+ 	return device_for_each_child(dev, &off, pm_iter);
+ }
+ 
+@@ -485,8 +421,6 @@ int pcie_port_device_runtime_suspend(str
+ int pcie_port_device_runtime_resume(struct device *dev)
+ {
+ 	size_t off = offsetof(struct pcie_port_service_driver, runtime_resume);
+-
+-	wait_for_downstream_link(to_pci_dev(dev));
+ 	return device_for_each_child(dev, &off, pm_iter);
+ }
+ #endif /* PM */
 
 
