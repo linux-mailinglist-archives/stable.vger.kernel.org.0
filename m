@@ -2,69 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 131158D8B4
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:01:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F9138D993
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:11:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728262AbfHNRBl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:01:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50518 "EHLO mail.kernel.org"
+        id S1729681AbfHNRJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:09:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727558AbfHNRBl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:01:41 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        id S1730388AbfHNRJp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:09:45 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF1482063F;
-        Wed, 14 Aug 2019 17:01:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D5C52084D;
+        Wed, 14 Aug 2019 17:09:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802100;
-        bh=09K/1Dw1tjS6MrrDVxXd+WEzYlZUI0APKRHJGoKZTJQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FeRROo2lY3lXa33tTFVuw3SjvEpuzAF9LaJKz36A54nLYnSEI3UPSFj0R0edz4VG9
-         +Vqk37CKIKYbXDoYUy1iGLhJGdXr7G+KKklrklGvKZF2JgXxi+LjPCx7v+UbWBQCKO
-         kXdNQjKonej55Me+btk2NcAhUjNLbtpHnAIHgA/k=
-Date:   Wed, 14 Aug 2019 13:01:38 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Jakub Jankowski <shasta@toxcorp.com>
-Cc:     Reindl Harald <h.reindl@thelounge.net>,
-        Thomas Jarosch <thomas.jarosch@intra2net.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Florian Westphal <fw@strlen.de>,
-        Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.19 04/42] netfilter: conntrack: always store
- window size un-scaled
-Message-ID: <20190814170138.GA31807@sasha-vm>
-References: <20190802132302.13537-1-sashal@kernel.org>
- <20190802132302.13537-4-sashal@kernel.org>
- <20190808090209.wb63n6ibii4ivvba@intra2net.com>
- <41ce587d-dfaa-fe6b-66a8-58ba1a3a2872@thelounge.net>
- <alpine.LNX.2.21.1908141316420.1803@kich.toxcorp.com>
+        s=default; t=1565802585;
+        bh=UA/Qg49npwevYF1Z6UcRLmqGtITlBDjcFMc7R9mYah0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=wOsdVI1vw2KZeL5235jZMQY9vhSd2l1xd29oOTdfcL4QWAr/z0vipVeEX17U8YirY
+         mnkaBroDDr+e9jiUbPz2zJvEsbPUtcffgRwp0st/4KcmsGJrbqel6yHcii1O8tSsrg
+         Qg+JOPALcn4xMBSKqgoHfHORHeHFeUCiQe1nOaZQ=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        syzbot+a64a382964bf6c71a9c0@syzkaller.appspotmail.com,
+        Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.19 09/91] usb: iowarrior: fix deadlock on disconnect
+Date:   Wed, 14 Aug 2019 19:00:32 +0200
+Message-Id: <20190814165749.924852896@linuxfoundation.org>
+X-Mailer: git-send-email 2.22.0
+In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
+References: <20190814165748.991235624@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.21.1908141316420.1803@kich.toxcorp.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 14, 2019 at 01:17:30PM +0200, Jakub Jankowski wrote:
->On 2019-08-14, Reindl Harald wrote:
->
->>that's still not in 5.2.8
->
->It will make its way into next 5.2.x release, as it is now in the 
->pending queue: https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/queue-5.2
+From: Oliver Neukum <oneukum@suse.com>
 
-In general, AUTOSEL stuff soak for much longer before they make it to
-the queue.
+commit c468a8aa790e0dfe0a7f8a39db282d39c2c00b46 upstream.
 
-If there's an urgent need for a fix to go in, please make it explicit.
+We have to drop the mutex before we close() upon disconnect()
+as close() needs the lock. This is safe to do by dropping the
+mutex as intfdata is already set to NULL, so open() will fail.
 
---
-Thanks,
-Sasha
+Fixes: 03f36e885fc26 ("USB: open disconnect race in iowarrior")
+Reported-by: syzbot+a64a382964bf6c71a9c0@syzkaller.appspotmail.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20190808092728.23417-1-oneukum@suse.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/usb/misc/iowarrior.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+--- a/drivers/usb/misc/iowarrior.c
++++ b/drivers/usb/misc/iowarrior.c
+@@ -866,19 +866,20 @@ static void iowarrior_disconnect(struct
+ 	dev = usb_get_intfdata(interface);
+ 	mutex_lock(&iowarrior_open_disc_lock);
+ 	usb_set_intfdata(interface, NULL);
++	/* prevent device read, write and ioctl */
++	dev->present = 0;
+ 
+ 	minor = dev->minor;
++	mutex_unlock(&iowarrior_open_disc_lock);
++	/* give back our minor - this will call close() locks need to be dropped at this point*/
+ 
+-	/* give back our minor */
+ 	usb_deregister_dev(interface, &iowarrior_class);
+ 
+ 	mutex_lock(&dev->mutex);
+ 
+ 	/* prevent device read, write and ioctl */
+-	dev->present = 0;
+ 
+ 	mutex_unlock(&dev->mutex);
+-	mutex_unlock(&iowarrior_open_disc_lock);
+ 
+ 	if (dev->opened) {
+ 		/* There is a process that holds a filedescriptor to the device ,
+
+
