@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DBA7E8D9EF
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:13:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84CEB8D9B5
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:11:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730724AbfHNRNm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:13:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37992 "EHLO mail.kernel.org"
+        id S1730347AbfHNRLP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:11:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728433AbfHNRNl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:13:41 -0400
+        id S1730550AbfHNRLP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:11:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3349920665;
-        Wed, 14 Aug 2019 17:13:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5088D2084D;
+        Wed, 14 Aug 2019 17:11:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802820;
-        bh=3cjpLCQ8fn6p6DHotHg4R+SHQOC6BSFZW4EWspyAYNw=;
+        s=default; t=1565802674;
+        bh=grA0DKPcDc7MYAVJDW8d4ROjaO1sQWfzI1vw9zB0CNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pRTXCm1f9RO/vXt1N1AB1ae9b9pV8cfUxB+SYKUW3MwHp2VZtdSD/LsKc132ZzqKx
-         DreZajpwymN+3KGOKKLLQM2AEdjzcQmODvxR2hUjlnxCOgkpU42ZNuSpWAAZseSdrY
-         QDeD9XfLhZ9VEgDIJq27Ouzsy3E/HzYBCRPvw2co=
+        b=EqeAK8YWNSG1tA//PLaSdUe1UfvwssCquHEwvagPSc4glWyOAi/WczPTtsNZmumM7
+         ydWCjxUM4PBL+pr4k7Xf8IZvEPcTYHAuHSLf/GLbSpYa70FteLT7dxDIbLuj1hxas3
+         ydhUZB5LW6DEa1PS2CxXz/boJ6Oq44nXK0Q6pzkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Vinod Koul <vkoul@kernel.org>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 38/69] ALSA: compress: Dont allow paritial drain operations on capture streams
-Date:   Wed, 14 Aug 2019 19:01:36 +0200
-Message-Id: <20190814165748.056978822@linuxfoundation.org>
+        stable@vger.kernel.org, Tomas Bortoli <tomasbortoli@gmail.com>,
+        syzbot+513e4d0985298538bf9b@syzkaller.appspotmail.com,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.19 74/91] can: peak_usb: pcan_usb_fd: Fix info-leaks to USB devices
+Date:   Wed, 14 Aug 2019 19:01:37 +0200
+Message-Id: <20190814165752.911676897@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165744.822314328@linuxfoundation.org>
-References: <20190814165744.822314328@linuxfoundation.org>
+In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
+References: <20190814165748.991235624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a70ab8a8645083f3700814e757f2940a88b7ef88 ]
+From: Tomas Bortoli <tomasbortoli@gmail.com>
 
-Partial drain and next track are intended for gapless playback and
-don't really have an obvious interpretation for a capture stream, so
-makes sense to not allow those operations on capture streams.
+commit 30a8beeb3042f49d0537b7050fd21b490166a3d9 upstream.
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Acked-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Uninitialized Kernel memory can leak to USB devices.
+
+Fix by using kzalloc() instead of kmalloc() on the affected buffers.
+
+Signed-off-by: Tomas Bortoli <tomasbortoli@gmail.com>
+Reported-by: syzbot+513e4d0985298538bf9b@syzkaller.appspotmail.com
+Fixes: 0a25e1f4f185 ("can: peak_usb: add support for PEAK new CANFD USB adapters")
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/core/compress_offload.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/can/usb/peak_usb/pcan_usb_fd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/core/compress_offload.c b/sound/core/compress_offload.c
-index 1538fbc7562b8..b4f1536b17cb5 100644
---- a/sound/core/compress_offload.c
-+++ b/sound/core/compress_offload.c
-@@ -835,6 +835,10 @@ static int snd_compr_next_track(struct snd_compr_stream *stream)
- 	if (stream->runtime->state != SNDRV_PCM_STATE_RUNNING)
- 		return -EPERM;
+--- a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
++++ b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
+@@ -849,7 +849,7 @@ static int pcan_usb_fd_init(struct peak_
+ 			goto err_out;
  
-+	/* next track doesn't have any meaning for capture streams */
-+	if (stream->direction == SND_COMPRESS_CAPTURE)
-+		return -EPERM;
-+
- 	/* you can signal next track if this is intended to be a gapless stream
- 	 * and current track metadata is set
- 	 */
-@@ -862,6 +866,10 @@ static int snd_compr_partial_drain(struct snd_compr_stream *stream)
- 		break;
- 	}
- 
-+	/* partial drain doesn't have any meaning for capture streams */
-+	if (stream->direction == SND_COMPRESS_CAPTURE)
-+		return -EPERM;
-+
- 	/* stream can be drained only when next track has been signalled */
- 	if (stream->next_track == false)
- 		return -EPERM;
--- 
-2.20.1
-
+ 		/* allocate command buffer once for all for the interface */
+-		pdev->cmd_buffer_addr = kmalloc(PCAN_UFD_CMD_BUFFER_SIZE,
++		pdev->cmd_buffer_addr = kzalloc(PCAN_UFD_CMD_BUFFER_SIZE,
+ 						GFP_KERNEL);
+ 		if (!pdev->cmd_buffer_addr)
+ 			goto err_out_1;
 
 
