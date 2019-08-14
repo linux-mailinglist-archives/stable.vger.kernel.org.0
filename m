@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E3D538DABF
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:20:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E7518DB5A
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:24:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730225AbfHNRUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:20:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33834 "EHLO mail.kernel.org"
+        id S1728939AbfHNRYa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:24:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730513AbfHNRKt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:10:49 -0400
+        id S1729660AbfHNRG3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:06:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 959382084D;
-        Wed, 14 Aug 2019 17:10:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F61D20578;
+        Wed, 14 Aug 2019 17:06:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802649;
-        bh=H8FDFP5X2a7P0bd89NP2CiZd3e6i1VPxp7ZnyfTSNKg=;
+        s=default; t=1565802388;
+        bh=SLPAbl0S5v24ijhMwrhQHjsg1nWy5Nyv/VKXHzf2oS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zyzLzKsDd1rBqAq/LZi/9s5jc6MMJYK82JXR5+VQjvHj33Imwx9ZeSwmts01nTaWR
-         9BSddmqoCioqy5td8VYnt44UxPYWlXfAwWaz9cla8vPSWQl6KhTuuKfzCd7YGyimpw
-         Z9conbC4/uVzMQ0WvGeVNIuePu63R6Wj8I3TQqpA=
+        b=DIio4mLUeQAIeeh2Bm5XPZBcNmg1261zqhg3cKFZstjosCnqXj+Pf4Frbnrqrviko
+         +CgOvhtzpzfX7+bCPbbW32/P0hWjJeuK0M/F05ZlbW+psDCWHDjhkPxNFLOa+HtVFC
+         SGo4sKst9pwyAXx9rHQaBshnQDLHX4Du9p8NGq7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Olof Johansson <olof@lixom.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 38/91] scripts/sphinx-pre-install: fix script for RHEL/CentOS
-Date:   Wed, 14 Aug 2019 19:01:01 +0200
-Message-Id: <20190814165751.278778611@linuxfoundation.org>
+Subject: [PATCH 5.2 106/144] ARM: dts: bcm: bcm47094: add missing #cells for mdio-bus-mux
+Date:   Wed, 14 Aug 2019 19:01:02 +0200
+Message-Id: <20190814165804.337814534@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
-References: <20190814165748.991235624@linuxfoundation.org>
+In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
+References: <20190814165759.466811854@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,32 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b308467c916aa7acc5069802ab76a9f657434701 ]
+[ Upstream commit 3a9d2569e45cb02769cda26fee4a02126867c934 ]
 
-There's a missing parenthesis at the script, with causes it to
-fail to detect non-Fedora releases (e. g. RHEL/CentOS).
+The mdio-bus-mux has no #address-cells/#size-cells property,
+which causes a few dtc warnings:
 
-Tested with Centos 7.6.1810.
+arch/arm/boot/dts/bcm47094-linksys-panamera.dts:129.4-18: Warning (reg_format): /mdio-bus-mux/mdio@200:reg: property has invalid length (4 bytes) (#address-cells == 2, #size-cells == 1)
+arch/arm/boot/dts/bcm47094-linksys-panamera.dtb: Warning (pci_device_bus_num): Failed prerequisite 'reg_format'
+arch/arm/boot/dts/bcm47094-linksys-panamera.dtb: Warning (i2c_bus_reg): Failed prerequisite 'reg_format'
+arch/arm/boot/dts/bcm47094-linksys-panamera.dtb: Warning (spi_bus_reg): Failed prerequisite 'reg_format'
+arch/arm/boot/dts/bcm47094-linksys-panamera.dts:128.22-132.5: Warning (avoid_default_addr_size): /mdio-bus-mux/mdio@200: Relying on default #address-cells value
+arch/arm/boot/dts/bcm47094-linksys-panamera.dts:128.22-132.5: Warning (avoid_default_addr_size): /mdio-bus-mux/mdio@200: Relying on default #size-cells value
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Add the normal cell numbers.
+
+Link: https://lore.kernel.org/r/20190722145618.1155492-1-arnd@arndb.de
+Fixes: 2bebdfcdcd0f ("ARM: dts: BCM5301X: Add support for Linksys EA9500")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Olof Johansson <olof@lixom.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/sphinx-pre-install | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/bcm47094-linksys-panamera.dts | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/scripts/sphinx-pre-install b/scripts/sphinx-pre-install
-index 067459760a7b0..3524dbc313163 100755
---- a/scripts/sphinx-pre-install
-+++ b/scripts/sphinx-pre-install
-@@ -301,7 +301,7 @@ sub give_redhat_hints()
- 	#
- 	# Checks valid for RHEL/CentOS version 7.x.
- 	#
--	if (! $system_release =~ /Fedora/) {
-+	if (!($system_release =~ /Fedora/)) {
- 		$map{"virtualenv"} = "python-virtualenv";
- 	}
+diff --git a/arch/arm/boot/dts/bcm47094-linksys-panamera.dts b/arch/arm/boot/dts/bcm47094-linksys-panamera.dts
+index 5fd47eec4407e..1679959a3654d 100644
+--- a/arch/arm/boot/dts/bcm47094-linksys-panamera.dts
++++ b/arch/arm/boot/dts/bcm47094-linksys-panamera.dts
+@@ -126,6 +126,9 @@
+ 	};
  
+ 	mdio-bus-mux {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
+ 		/* BIT(9) = 1 => external mdio */
+ 		mdio_ext: mdio@200 {
+ 			reg = <0x200>;
 -- 
 2.20.1
 
