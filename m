@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C25F8C90F
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:36:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 527108C917
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:36:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727567AbfHNCNV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:13:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45262 "EHLO mail.kernel.org"
+        id S1728800AbfHNCgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:36:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727416AbfHNCNQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:13:16 -0400
+        id S1728177AbfHNCNR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:13:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA2E820842;
-        Wed, 14 Aug 2019 02:13:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 026F720844;
+        Wed, 14 Aug 2019 02:13:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748795;
-        bh=m3n4qYP2wjJnIbaUjpskt2z+wMq7OZCU1tih6v4NOTo=;
+        s=default; t=1565748796;
+        bh=cWp6Su97TehheftA739ylcE2BBj4vaIspegho4YJaqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1dOyfsXYFMO1vKiRjR2CODojNBskPNzoldA+ASHEAiDYkkY9tCz/Yhsup+AEB/dAF
-         6dElg6q5iiZ1DVsCQWwplt51pYHq5JJJkaZxQcG9yXfnN29LE/Zsltcn/wa5tvQgcA
-         BlymuF+75Z3TWePpD0hLb+4reeg6E4rpzKil9PaY=
+        b=i7ye2+szkfE6smUbZn95u02KV4/QLCua0yIN3ivj/ILewL9S2dRaJD3cQ94ucuQSv
+         QgEtVDEUI42vuN064ODsLE9wAwiMr/hS74mCBzUxJIV64zuh+HnNc73/t3SbuGYkUr
+         WfkfknVppdZTvAwU1+4uffiTrYBs6tDaA5ZYn4q8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gregory Greenman <gregory.greenman@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 066/123] iwlwifi: mvm: send LQ command always ASYNC
-Date:   Tue, 13 Aug 2019 22:09:50 -0400
-Message-Id: <20190814021047.14828-66-sashal@kernel.org>
+Cc:     Muchun Song <smuchun@gmail.com>,
+        Mukesh Ojha <mojha@codeaurora.org>,
+        Prateek Sood <prsood@codeaurora.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 067/123] driver core: Fix use-after-free and double free on glue directory
+Date:   Tue, 13 Aug 2019 22:09:51 -0400
+Message-Id: <20190814021047.14828-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -45,176 +45,174 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gregory Greenman <gregory.greenman@intel.com>
+From: Muchun Song <smuchun@gmail.com>
 
-[ Upstream commit cd4d6b0bcd51580efda9ae54ab7b2d630b4147dc ]
+[ Upstream commit ac43432cb1f5c2950408534987e57c2071e24d8f ]
 
-The only place where the command was sent as SYNC is during
-init and this is not really critical. This change is required
-for replacing RS mutex with a spinlock (in the subsequent patch),
-since SYNC comamnd requres sleeping and thus the flow cannot
-be done when holding a spinlock.
+There is a race condition between removing glue directory and adding a new
+device under the glue dir. It can be reproduced in following test:
 
-Signed-off-by: Gregory Greenman <gregory.greenman@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+CPU1:                                         CPU2:
+
+device_add()
+  get_device_parent()
+    class_dir_create_and_add()
+      kobject_add_internal()
+        create_dir()    // create glue_dir
+
+                                              device_add()
+                                                get_device_parent()
+                                                  kobject_get() // get glue_dir
+
+device_del()
+  cleanup_glue_dir()
+    kobject_del(glue_dir)
+
+                                                kobject_add()
+                                                  kobject_add_internal()
+                                                    create_dir() // in glue_dir
+                                                      sysfs_create_dir_ns()
+                                                        kernfs_create_dir_ns(sd)
+
+      sysfs_remove_dir() // glue_dir->sd=NULL
+      sysfs_put()        // free glue_dir->sd
+
+                                                          // sd is freed
+                                                          kernfs_new_node(sd)
+                                                            kernfs_get(glue_dir)
+                                                            kernfs_add_one()
+                                                            kernfs_put()
+
+Before CPU1 remove last child device under glue dir, if CPU2 add a new
+device under glue dir, the glue_dir kobject reference count will be
+increase to 2 via kobject_get() in get_device_parent(). And CPU2 has
+been called kernfs_create_dir_ns(), but not call kernfs_new_node().
+Meanwhile, CPU1 call sysfs_remove_dir() and sysfs_put(). This result in
+glue_dir->sd is freed and it's reference count will be 0. Then CPU2 call
+kernfs_get(glue_dir) will trigger a warning in kernfs_get() and increase
+it's reference count to 1. Because glue_dir->sd is freed by CPU1, the next
+call kernfs_add_one() by CPU2 will fail(This is also use-after-free)
+and call kernfs_put() to decrease reference count. Because the reference
+count is decremented to 0, it will also call kmem_cache_free() to free
+the glue_dir->sd again. This will result in double free.
+
+In order to avoid this happening, we also should make sure that kernfs_node
+for glue_dir is released in CPU1 only when refcount for glue_dir kobj is
+1 to fix this race.
+
+The following calltrace is captured in kernel 4.14 with the following patch
+applied:
+
+commit 726e41097920 ("drivers: core: Remove glue dirs from sysfs earlier")
+
+--------------------------------------------------------------------------
+[    3.633703] WARNING: CPU: 4 PID: 513 at .../fs/kernfs/dir.c:494
+                Here is WARN_ON(!atomic_read(&kn->count) in kernfs_get().
+....
+[    3.633986] Call trace:
+[    3.633991]  kernfs_create_dir_ns+0xa8/0xb0
+[    3.633994]  sysfs_create_dir_ns+0x54/0xe8
+[    3.634001]  kobject_add_internal+0x22c/0x3f0
+[    3.634005]  kobject_add+0xe4/0x118
+[    3.634011]  device_add+0x200/0x870
+[    3.634017]  _request_firmware+0x958/0xc38
+[    3.634020]  request_firmware_into_buf+0x4c/0x70
+....
+[    3.634064] kernel BUG at .../mm/slub.c:294!
+                Here is BUG_ON(object == fp) in set_freepointer().
+....
+[    3.634346] Call trace:
+[    3.634351]  kmem_cache_free+0x504/0x6b8
+[    3.634355]  kernfs_put+0x14c/0x1d8
+[    3.634359]  kernfs_create_dir_ns+0x88/0xb0
+[    3.634362]  sysfs_create_dir_ns+0x54/0xe8
+[    3.634366]  kobject_add_internal+0x22c/0x3f0
+[    3.634370]  kobject_add+0xe4/0x118
+[    3.634374]  device_add+0x200/0x870
+[    3.634378]  _request_firmware+0x958/0xc38
+[    3.634381]  request_firmware_into_buf+0x4c/0x70
+--------------------------------------------------------------------------
+
+Fixes: 726e41097920 ("drivers: core: Remove glue dirs from sysfs earlier")
+Signed-off-by: Muchun Song <smuchun@gmail.com>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Signed-off-by: Prateek Sood <prsood@codeaurora.org>
+Link: https://lore.kernel.org/r/20190727032122.24639-1-smuchun@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/mvm.h  |  2 +-
- drivers/net/wireless/intel/iwlwifi/mvm/rs.c   | 23 ++++++++++---------
- drivers/net/wireless/intel/iwlwifi/mvm/sta.c  |  2 +-
- .../net/wireless/intel/iwlwifi/mvm/utils.c    |  4 ++--
- 4 files changed, 16 insertions(+), 15 deletions(-)
+ drivers/base/core.c | 53 ++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 52 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-index 88af1f0ba3f0f..31c8636b2a3f8 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-@@ -1806,7 +1806,7 @@ iwl_mvm_vif_dbgfs_clean(struct iwl_mvm *mvm, struct ieee80211_vif *vif)
- #endif /* CONFIG_IWLWIFI_DEBUGFS */
- 
- /* rate scaling */
--int iwl_mvm_send_lq_cmd(struct iwl_mvm *mvm, struct iwl_lq_cmd *lq, bool sync);
-+int iwl_mvm_send_lq_cmd(struct iwl_mvm *mvm, struct iwl_lq_cmd *lq);
- void iwl_mvm_update_frame_stats(struct iwl_mvm *mvm, u32 rate, bool agg);
- int rs_pretty_print_rate(char *buf, int bufsz, const u32 rate);
- void rs_update_last_rssi(struct iwl_mvm *mvm,
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rs.c b/drivers/net/wireless/intel/iwlwifi/mvm/rs.c
-index 836541caa3167..01b032f18bc8b 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/rs.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/rs.c
-@@ -1326,7 +1326,7 @@ void iwl_mvm_rs_tx_status(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
- 			IWL_DEBUG_RATE(mvm,
- 				       "Too many rates mismatch. Send sync LQ. rs_state %d\n",
- 				       lq_sta->rs_state);
--			iwl_mvm_send_lq_cmd(mvm, &lq_sta->lq, false);
-+			iwl_mvm_send_lq_cmd(mvm, &lq_sta->lq);
- 		}
- 		/* Regardless, ignore this status info for outdated rate */
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index eaf3aa0cb8031..2dc0123cbba12 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -1820,12 +1820,63 @@ static inline struct kobject *get_glue_dir(struct device *dev)
+  */
+ static void cleanup_glue_dir(struct device *dev, struct kobject *glue_dir)
+ {
++	unsigned int ref;
++
+ 	/* see if we live in a "glue" directory */
+ 	if (!live_in_glue_dir(glue_dir, dev))
  		return;
-@@ -1388,7 +1388,8 @@ void iwl_mvm_rs_tx_status(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
- 		if (info->status.ampdu_ack_len == 0)
- 			info->status.ampdu_len = 1;
  
--		rs_collect_tlc_data(mvm, mvmsta, tid, curr_tbl, tx_resp_rate.index,
-+		rs_collect_tlc_data(mvm, mvmsta, tid, curr_tbl,
-+				    tx_resp_rate.index,
- 				    info->status.ampdu_len,
- 				    info->status.ampdu_ack_len);
- 
-@@ -1823,7 +1824,7 @@ static void rs_update_rate_tbl(struct iwl_mvm *mvm,
- 			       struct iwl_scale_tbl_info *tbl)
- {
- 	rs_fill_lq_cmd(mvm, sta, lq_sta, &tbl->rate);
--	iwl_mvm_send_lq_cmd(mvm, &lq_sta->lq, false);
-+	iwl_mvm_send_lq_cmd(mvm, &lq_sta->lq);
- }
- 
- static bool rs_tweak_rate_tbl(struct iwl_mvm *mvm,
-@@ -2925,7 +2926,7 @@ void rs_update_last_rssi(struct iwl_mvm *mvm,
- static void rs_initialize_lq(struct iwl_mvm *mvm,
- 			     struct ieee80211_sta *sta,
- 			     struct iwl_lq_sta *lq_sta,
--			     enum nl80211_band band, bool update)
-+			     enum nl80211_band band)
- {
- 	struct iwl_scale_tbl_info *tbl;
- 	struct rs_rate *rate;
-@@ -2955,7 +2956,7 @@ static void rs_initialize_lq(struct iwl_mvm *mvm,
- 	rs_set_expected_tpt_table(lq_sta, tbl);
- 	rs_fill_lq_cmd(mvm, sta, lq_sta, rate);
- 	/* TODO restore station should remember the lq cmd */
--	iwl_mvm_send_lq_cmd(mvm, &lq_sta->lq, !update);
-+	iwl_mvm_send_lq_cmd(mvm, &lq_sta->lq);
- }
- 
- static void rs_drv_get_rate(void *mvm_r, struct ieee80211_sta *sta,
-@@ -3208,7 +3209,7 @@ void iwl_mvm_update_frame_stats(struct iwl_mvm *mvm, u32 rate, bool agg)
-  * Called after adding a new station to initialize rate scaling
-  */
- static void rs_drv_rate_init(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
--			     enum nl80211_band band, bool update)
-+			     enum nl80211_band band)
- {
- 	int i, j;
- 	struct ieee80211_hw *hw = mvm->hw;
-@@ -3288,7 +3289,7 @@ static void rs_drv_rate_init(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
- #ifdef CONFIG_IWLWIFI_DEBUGFS
- 	iwl_mvm_reset_frame_stats(mvm);
- #endif
--	rs_initialize_lq(mvm, sta, lq_sta, band, update);
-+	rs_initialize_lq(mvm, sta, lq_sta, band);
- }
- 
- static void rs_drv_rate_update(void *mvm_r,
-@@ -3602,7 +3603,7 @@ static void rs_set_lq_ss_params(struct iwl_mvm *mvm,
- 
- 		bfersta_ss_params &= ~LQ_SS_BFER_ALLOWED;
- 		bfersta_lq_cmd->ss_params = cpu_to_le32(bfersta_ss_params);
--		iwl_mvm_send_lq_cmd(mvm, bfersta_lq_cmd, false);
-+		iwl_mvm_send_lq_cmd(mvm, bfersta_lq_cmd);
- 
- 		ss_params |= LQ_SS_BFER_ALLOWED;
- 		IWL_DEBUG_RATE(mvm,
-@@ -3768,7 +3769,7 @@ static void rs_program_fix_rate(struct iwl_mvm *mvm,
- 
- 	if (lq_sta->pers.dbg_fixed_rate) {
- 		rs_fill_lq_cmd(mvm, NULL, lq_sta, NULL);
--		iwl_mvm_send_lq_cmd(lq_sta->pers.drv, &lq_sta->lq, false);
-+		iwl_mvm_send_lq_cmd(lq_sta->pers.drv, &lq_sta->lq);
- 	}
- }
- 
-@@ -4171,7 +4172,7 @@ void iwl_mvm_rs_rate_init(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
- 		struct iwl_mvm_sta *mvmsta = iwl_mvm_sta_from_mac80211(sta);
- 
- 		mutex_lock(&mvmsta->lq_sta.rs_drv.mutex);
--		rs_drv_rate_init(mvm, sta, band, update);
-+		rs_drv_rate_init(mvm, sta, band);
- 		mutex_unlock(&mvmsta->lq_sta.rs_drv.mutex);
- 	}
- }
-@@ -4203,7 +4204,7 @@ static int rs_drv_tx_protection(struct iwl_mvm *mvm, struct iwl_mvm_sta *mvmsta,
- 			lq->flags &= ~LQ_FLAG_USE_RTS_MSK;
- 	}
- 
--	return iwl_mvm_send_lq_cmd(mvm, lq, false);
-+	return iwl_mvm_send_lq_cmd(mvm, lq);
- }
- 
- /**
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-index ac9bc65c4d156..22715cdb83171 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-@@ -2978,7 +2978,7 @@ int iwl_mvm_sta_tx_agg_oper(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
- 	IWL_DEBUG_HT(mvm, "Tx aggregation enabled on ra = %pM tid = %d\n",
- 		     sta->addr, tid);
- 
--	return iwl_mvm_send_lq_cmd(mvm, &mvmsta->lq_sta.rs_drv.lq, false);
-+	return iwl_mvm_send_lq_cmd(mvm, &mvmsta->lq_sta.rs_drv.lq);
- }
- 
- static void iwl_mvm_unreserve_agg_queue(struct iwl_mvm *mvm,
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/utils.c b/drivers/net/wireless/intel/iwlwifi/mvm/utils.c
-index cc56ab88fb439..a71277de2e0eb 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/utils.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/utils.c
-@@ -641,12 +641,12 @@ int iwl_mvm_reconfig_scd(struct iwl_mvm *mvm, int queue, int fifo, int sta_id,
-  * this case to clear the state indicating that station creation is in
-  * progress.
-  */
--int iwl_mvm_send_lq_cmd(struct iwl_mvm *mvm, struct iwl_lq_cmd *lq, bool sync)
-+int iwl_mvm_send_lq_cmd(struct iwl_mvm *mvm, struct iwl_lq_cmd *lq)
- {
- 	struct iwl_host_cmd cmd = {
- 		.id = LQ_CMD,
- 		.len = { sizeof(struct iwl_lq_cmd), },
--		.flags = sync ? 0 : CMD_ASYNC,
-+		.flags = CMD_ASYNC,
- 		.data = { lq, },
- 	};
- 
+ 	mutex_lock(&gdp_mutex);
+-	if (!kobject_has_children(glue_dir))
++	/**
++	 * There is a race condition between removing glue directory
++	 * and adding a new device under the glue directory.
++	 *
++	 * CPU1:                                         CPU2:
++	 *
++	 * device_add()
++	 *   get_device_parent()
++	 *     class_dir_create_and_add()
++	 *       kobject_add_internal()
++	 *         create_dir()    // create glue_dir
++	 *
++	 *                                               device_add()
++	 *                                                 get_device_parent()
++	 *                                                   kobject_get() // get glue_dir
++	 *
++	 * device_del()
++	 *   cleanup_glue_dir()
++	 *     kobject_del(glue_dir)
++	 *
++	 *                                               kobject_add()
++	 *                                                 kobject_add_internal()
++	 *                                                   create_dir() // in glue_dir
++	 *                                                     sysfs_create_dir_ns()
++	 *                                                       kernfs_create_dir_ns(sd)
++	 *
++	 *       sysfs_remove_dir() // glue_dir->sd=NULL
++	 *       sysfs_put()        // free glue_dir->sd
++	 *
++	 *                                                         // sd is freed
++	 *                                                         kernfs_new_node(sd)
++	 *                                                           kernfs_get(glue_dir)
++	 *                                                           kernfs_add_one()
++	 *                                                           kernfs_put()
++	 *
++	 * Before CPU1 remove last child device under glue dir, if CPU2 add
++	 * a new device under glue dir, the glue_dir kobject reference count
++	 * will be increase to 2 in kobject_get(k). And CPU2 has been called
++	 * kernfs_create_dir_ns(). Meanwhile, CPU1 call sysfs_remove_dir()
++	 * and sysfs_put(). This result in glue_dir->sd is freed.
++	 *
++	 * Then the CPU2 will see a stale "empty" but still potentially used
++	 * glue dir around in kernfs_new_node().
++	 *
++	 * In order to avoid this happening, we also should make sure that
++	 * kernfs_node for glue_dir is released in CPU1 only when refcount
++	 * for glue_dir kobj is 1.
++	 */
++	ref = kref_read(&glue_dir->kref);
++	if (!kobject_has_children(glue_dir) && !--ref)
+ 		kobject_del(glue_dir);
+ 	kobject_put(glue_dir);
+ 	mutex_unlock(&gdp_mutex);
 -- 
 2.20.1
 
