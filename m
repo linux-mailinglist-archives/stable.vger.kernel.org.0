@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F1988DB5F
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:25:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A91CC8DAF2
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:21:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729594AbfHNRGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:06:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55222 "EHLO mail.kernel.org"
+        id S1730352AbfHNRJg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:09:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729137AbfHNRGJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:06:09 -0400
+        id S1730346AbfHNRJf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:09:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDAB021721;
-        Wed, 14 Aug 2019 17:06:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A8C52184B;
+        Wed, 14 Aug 2019 17:09:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802368;
-        bh=/2Wd/frythSl97MX/OTUSLUYw7DWSem4ThyOhhXUykA=;
+        s=default; t=1565802574;
+        bh=YlXoIY1IQSrfXbN+Vgyq2nQzH2ojU50DFZ1Vung4uQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UrW6tIg0Kw0GFEGSuV8PwqGHkYx0rDD1xB1VTCdwq2WnsXz10QLSMUbwKncPsl7Fr
-         T2peTPgM/DiWSFJduknzbkWIrsZO3DPDpuhoR7I7f3t/FJqGmesL2sGco+0oRp+9Oa
-         /6dNFYIfxRdN0Zy/xID1678+Krl6bMUxhDrlStpM=
+        b=YR5BW4yl2YXa3ngSlWByMbtFUwwQtuEx7GmeQieoyXODzmQWNHa1cXulSLRyt7mvs
+         sgNbfDIE9p/f/kxks+JRZqMyDh6ehD33l5fIv7QNiD4WH7PbBd76Fjt1YuLAY3r62D
+         5s7ljjb9Z/hca0rWBNIs6fPCo9q3f0OrPgDxC1yQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Thomas Jarosch <thomas.jarosch@intra2net.com>,
+        Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 099/144] perf session: Fix loading of compressed data split across adjacent records
-Date:   Wed, 14 Aug 2019 19:00:55 +0200
-Message-Id: <20190814165804.025278784@linuxfoundation.org>
+Subject: [PATCH 4.19 33/91] netfilter: nfnetlink: avoid deadlock due to synchronous request_module
+Date:   Wed, 14 Aug 2019 19:00:56 +0200
+Message-Id: <20190814165751.105852602@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
-References: <20190814165759.466811854@linuxfoundation.org>
+In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
+References: <20190814165748.991235624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,131 +47,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 872c8ee8f0f47222f7b10da96eea84d0486540a3 ]
+[ Upstream commit 1b0890cd60829bd51455dc5ad689ed58c4408227 ]
 
-Fix decompression failure found during the loading of compressed trace
-collected on larger scale systems (>48 cores).
+Thomas and Juliana report a deadlock when running:
 
-The error happened due to lack of decompression space for a mmaped
-buffer data chunk split across adjacent PERF_RECORD_COMPRESSED records.
+(rmmod nf_conntrack_netlink/xfrm_user)
 
-  $ perf report -i bt.16384.data --stats
-  failed to decompress (B): 63869 -> 0 : Destination buffer is too small
-  user stack dump failure
-  Can't parse sample, err = -14
-  0x2637e436 [0x4080]: failed to process type: 9
-  Error:
-  failed to process sample
+  conntrack -e NEW -E &
+  modprobe -v xfrm_user
 
-  $ perf test 71
-  71: Zstd perf.data compression/decompression              : Ok
+They provided following analysis:
 
-Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lkml.kernel.org/r/4d839e1b-9c48-89c4-9702-a12217420611@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+conntrack -e NEW -E
+    netlink_bind()
+        netlink_lock_table() -> increases "nl_table_users"
+            nfnetlink_bind()
+            # does not unlock the table as it's locked by netlink_bind()
+                __request_module()
+                    call_usermodehelper_exec()
+
+This triggers "modprobe nf_conntrack_netlink" from kernel, netlink_bind()
+won't return until modprobe process is done.
+
+"modprobe xfrm_user":
+    xfrm_user_init()
+        register_pernet_subsys()
+            -> grab pernet_ops_rwsem
+                ..
+                netlink_table_grab()
+                    calls schedule() as "nl_table_users" is non-zero
+
+so modprobe is blocked because netlink_bind() increased
+nl_table_users while also holding pernet_ops_rwsem.
+
+"modprobe nf_conntrack_netlink" runs and inits nf_conntrack_netlink:
+    ctnetlink_init()
+        register_pernet_subsys()
+            -> blocks on "pernet_ops_rwsem" thanks to xfrm_user module
+
+both modprobe processes wait on one another -- neither can make
+progress.
+
+Switch netlink_bind() to "nowait" modprobe -- this releases the netlink
+table lock, which then allows both modprobe instances to complete.
+
+Reported-by: Thomas Jarosch <thomas.jarosch@intra2net.com>
+Reported-by: Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/session.c | 22 ++++++++++++++--------
- tools/perf/util/session.h |  1 +
- tools/perf/util/zstd.c    |  4 ++--
- 3 files changed, 17 insertions(+), 10 deletions(-)
+ net/netfilter/nfnetlink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
-index 2e61dd6a3574e..d789840960444 100644
---- a/tools/perf/util/session.c
-+++ b/tools/perf/util/session.c
-@@ -36,10 +36,16 @@ static int perf_session__process_compressed_event(struct perf_session *session,
- 	void *src;
- 	size_t decomp_size, src_size;
- 	u64 decomp_last_rem = 0;
--	size_t decomp_len = session->header.env.comp_mmap_len;
-+	size_t mmap_len, decomp_len = session->header.env.comp_mmap_len;
- 	struct decomp *decomp, *decomp_last = session->decomp_last;
- 
--	decomp = mmap(NULL, sizeof(struct decomp) + decomp_len, PROT_READ|PROT_WRITE,
-+	if (decomp_last) {
-+		decomp_last_rem = decomp_last->size - decomp_last->head;
-+		decomp_len += decomp_last_rem;
-+	}
-+
-+	mmap_len = sizeof(struct decomp) + decomp_len;
-+	decomp = mmap(NULL, mmap_len, PROT_READ|PROT_WRITE,
- 		      MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
- 	if (decomp == MAP_FAILED) {
- 		pr_err("Couldn't allocate memory for decompression\n");
-@@ -47,10 +53,10 @@ static int perf_session__process_compressed_event(struct perf_session *session,
- 	}
- 
- 	decomp->file_pos = file_offset;
-+	decomp->mmap_len = mmap_len;
- 	decomp->head = 0;
- 
--	if (decomp_last) {
--		decomp_last_rem = decomp_last->size - decomp_last->head;
-+	if (decomp_last_rem) {
- 		memcpy(decomp->data, &(decomp_last->data[decomp_last->head]), decomp_last_rem);
- 		decomp->size = decomp_last_rem;
- 	}
-@@ -61,7 +67,7 @@ static int perf_session__process_compressed_event(struct perf_session *session,
- 	decomp_size = zstd_decompress_stream(&(session->zstd_data), src, src_size,
- 				&(decomp->data[decomp_last_rem]), decomp_len - decomp_last_rem);
- 	if (!decomp_size) {
--		munmap(decomp, sizeof(struct decomp) + decomp_len);
-+		munmap(decomp, mmap_len);
- 		pr_err("Couldn't decompress data\n");
- 		return -1;
- 	}
-@@ -255,15 +261,15 @@ static void perf_session__delete_threads(struct perf_session *session)
- static void perf_session__release_decomp_events(struct perf_session *session)
- {
- 	struct decomp *next, *decomp;
--	size_t decomp_len;
-+	size_t mmap_len;
- 	next = session->decomp;
--	decomp_len = session->header.env.comp_mmap_len;
- 	do {
- 		decomp = next;
- 		if (decomp == NULL)
- 			break;
- 		next = decomp->next;
--		munmap(decomp, decomp_len + sizeof(struct decomp));
-+		mmap_len = decomp->mmap_len;
-+		munmap(decomp, mmap_len);
- 	} while (1);
+diff --git a/net/netfilter/nfnetlink.c b/net/netfilter/nfnetlink.c
+index 916913454624f..7f2c1915763f8 100644
+--- a/net/netfilter/nfnetlink.c
++++ b/net/netfilter/nfnetlink.c
+@@ -575,7 +575,7 @@ static int nfnetlink_bind(struct net *net, int group)
+ 	ss = nfnetlink_get_subsys(type << 8);
+ 	rcu_read_unlock();
+ 	if (!ss)
+-		request_module("nfnetlink-subsys-%d", type);
++		request_module_nowait("nfnetlink-subsys-%d", type);
+ 	return 0;
  }
- 
-diff --git a/tools/perf/util/session.h b/tools/perf/util/session.h
-index dd8920b745bce..863dbad878496 100644
---- a/tools/perf/util/session.h
-+++ b/tools/perf/util/session.h
-@@ -46,6 +46,7 @@ struct perf_session {
- struct decomp {
- 	struct decomp *next;
- 	u64 file_pos;
-+	size_t mmap_len;
- 	u64 head;
- 	size_t size;
- 	char data[];
-diff --git a/tools/perf/util/zstd.c b/tools/perf/util/zstd.c
-index 23bdb98845760..d2202392ffdbb 100644
---- a/tools/perf/util/zstd.c
-+++ b/tools/perf/util/zstd.c
-@@ -99,8 +99,8 @@ size_t zstd_decompress_stream(struct zstd_data *data, void *src, size_t src_size
- 	while (input.pos < input.size) {
- 		ret = ZSTD_decompressStream(data->dstream, &output, &input);
- 		if (ZSTD_isError(ret)) {
--			pr_err("failed to decompress (B): %ld -> %ld : %s\n",
--			       src_size, output.size, ZSTD_getErrorName(ret));
-+			pr_err("failed to decompress (B): %ld -> %ld, dst_size %ld : %s\n",
-+			       src_size, output.size, dst_size, ZSTD_getErrorName(ret));
- 			break;
- 		}
- 		output.dst  = dst + output.pos;
+ #endif
 -- 
 2.20.1
 
