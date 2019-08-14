@@ -2,53 +2,269 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60D8E8D802
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 18:23:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F1A38D805
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 18:24:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728327AbfHNQX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 12:23:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37714 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727222AbfHNQXZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 12:23:25 -0400
-Received: from kernel.org (unknown [104.132.0.74])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF27020665;
-        Wed, 14 Aug 2019 16:23:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565799804;
-        bh=drGNaWF+vbPLIhKZdjKaaAPYvonVJd9CaHrHmd7Db8U=;
-        h=In-Reply-To:References:Subject:From:Cc:To:Date:From;
-        b=BfLdpAsRgcAHE6/V4EuMthY7eNveF0c0kyuZ7nri6Ps958ns7xt1B7NC3NHgv/d2W
-         +Aanff4PLlE3dD67YkQYWgcDx+TmHu7G3EhhX/Mw7EADl0qa3uEGtoK0pvk2BqHV6U
-         oqMzQV5FThqB2TLjsJN7LlAk8/IJjFVs0UEZ80+w=
-Content-Type: text/plain; charset="utf-8"
+        id S1726126AbfHNQY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 12:24:58 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:48785 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726121AbfHNQY6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Aug 2019 12:24:58 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 6952C2203C;
+        Wed, 14 Aug 2019 12:24:57 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Wed, 14 Aug 2019 12:24:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=3In7IP
+        6OcVEw3JU4mSnOBgbpiqmSnhorVFsZGRsrrig=; b=ETcsJk/JEoEDC1v67fTCkF
+        gMw/9JDY3RgazI1RWJI1UQvzd7eFLVZaHLcjzKuvSQiXxecnQ+/KjuNHAOoYoZe4
+        lF3yivzuubK2TzQCkeAI7Bvx80p5hPJyv9RKjnvAz3EVVfO5+aC+/I2pnbnKszpQ
+        FA4tEXkdFImfjMWE/6sLw6ttbXpHVEyQ5kjtzetOBsd87ThtpduQlu2hiznNibzh
+        01Ir2mffLykTq/heHY3b+Y50+hCbXFqm4tcfbb0JWuBMDaHiEsHojJA/EmpIJxFT
+        z83j4SgoD7b9blVUiMCJnGH9/5ers5Ht5tYzR5iJ9cn3Gq+woL97EcRhkbC7sr1g
+        ==
+X-ME-Sender: <xms:2DVUXSgtkLZxm5zzoysYPNIr3XY1CZQ0zXIDNHZ6tfRt1I3bBc8daA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddvledgfeekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepvd
+X-ME-Proxy: <xmx:2DVUXUhGnFbRizOEMmyD7kTBvTKabBB1mHXshIB-4PlLUSPFEjWc4A>
+    <xmx:2DVUXSsrJzeTeOQEXADn4SKdbMMPeYiRRtEv_cWKy4SzDqN6bRH9hA>
+    <xmx:2DVUXdQVcwfVu5pTcPJy2KR2Nu8-_mi3ATAo_5OUns4hNHGZ_i9sGQ>
+    <xmx:2TVUXapcdp2xI3ncQ52R_w3yyXVM3fu4A4yQwmSmgdECr_rBAgmIdw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id CDB6C380084;
+        Wed, 14 Aug 2019 12:24:55 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: Fix leak vCPU's VMCS value into other pCPU" failed to apply to 4.4-stable tree
+To:     wanpengli@tencent.com, Marc.Zyngier@arm.com,
+        borntraeger@de.ibm.com, pbonzini@redhat.com, rkrcmar@redhat.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 14 Aug 2019 18:24:54 +0200
+Message-ID: <156579989493184@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20190814153014.12962-1-dinguyen@kernel.org>
-References: <20190814153014.12962-1-dinguyen@kernel.org>
-Subject: Re: [PATCH] clk: socfpga: stratix10: fix rate caclulationg for cnt_clks
-From:   Stephen Boyd <sboyd@kernel.org>
-Cc:     dinguyen@kernel.org, linux-kernel@vger.kernel.org,
-        mturquette@baylibre.com, stable@vger.kernel.org
-To:     Dinh Nguyen <dinguyen@kernel.org>, linux-clk@vger.kernel.org
-User-Agent: alot/0.8.1
-Date:   Wed, 14 Aug 2019 09:23:23 -0700
-Message-Id: <20190814162324.BF27020665@mail.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Dinh Nguyen (2019-08-14 08:30:14)
-> Checking bypass_reg is incorrect for calculating the cnt_clk rates.
-> Instead we should be checking that there is a proper hardware register
-> that holds the clock divider.
->=20
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-> ---
 
-Applied to clk-fixes
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 17e433b54393a6269acbcb792da97791fe1592d8 Mon Sep 17 00:00:00 2001
+From: Wanpeng Li <wanpengli@tencent.com>
+Date: Mon, 5 Aug 2019 10:03:19 +0800
+Subject: [PATCH] KVM: Fix leak vCPU's VMCS value into other pCPU
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+After commit d73eb57b80b (KVM: Boost vCPUs that are delivering interrupts), a
+five years old bug is exposed. Running ebizzy benchmark in three 80 vCPUs VMs
+on one 80 pCPUs Skylake server, a lot of rcu_sched stall warning splatting
+in the VMs after stress testing:
+
+ INFO: rcu_sched detected stalls on CPUs/tasks: { 4 41 57 62 77} (detected by 15, t=60004 jiffies, g=899, c=898, q=15073)
+ Call Trace:
+   flush_tlb_mm_range+0x68/0x140
+   tlb_flush_mmu.part.75+0x37/0xe0
+   tlb_finish_mmu+0x55/0x60
+   zap_page_range+0x142/0x190
+   SyS_madvise+0x3cd/0x9c0
+   system_call_fastpath+0x1c/0x21
+
+swait_active() sustains to be true before finish_swait() is called in
+kvm_vcpu_block(), voluntarily preempted vCPUs are taken into account
+by kvm_vcpu_on_spin() loop greatly increases the probability condition
+kvm_arch_vcpu_runnable(vcpu) is checked and can be true, when APICv
+is enabled the yield-candidate vCPU's VMCS RVI field leaks(by
+vmx_sync_pir_to_irr()) into spinning-on-a-taken-lock vCPU's current
+VMCS.
+
+This patch fixes it by checking conservatively a subset of events.
+
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Radim Krčmář <rkrcmar@redhat.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Marc Zyngier <Marc.Zyngier@arm.com>
+Cc: stable@vger.kernel.org
+Fixes: 98f4a1467 (KVM: add kvm_arch_vcpu_runnable() test to kvm_vcpu_on_spin() loop)
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+
+diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
+index 0dba7eb24f92..3e34d5fa6708 100644
+--- a/arch/powerpc/kvm/powerpc.c
++++ b/arch/powerpc/kvm/powerpc.c
+@@ -50,6 +50,11 @@ int kvm_arch_vcpu_runnable(struct kvm_vcpu *v)
+ 	return !!(v->arch.pending_exceptions) || kvm_request_pending(v);
+ }
+ 
++bool kvm_arch_dy_runnable(struct kvm_vcpu *vcpu)
++{
++	return kvm_arch_vcpu_runnable(vcpu);
++}
++
+ bool kvm_arch_vcpu_in_kernel(struct kvm_vcpu *vcpu)
+ {
+ 	return false;
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index e74f0711eaaf..fc046ca89d32 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1175,6 +1175,7 @@ struct kvm_x86_ops {
+ 	int (*update_pi_irte)(struct kvm *kvm, unsigned int host_irq,
+ 			      uint32_t guest_irq, bool set);
+ 	void (*apicv_post_state_restore)(struct kvm_vcpu *vcpu);
++	bool (*dy_apicv_has_pending_interrupt)(struct kvm_vcpu *vcpu);
+ 
+ 	int (*set_hv_timer)(struct kvm_vcpu *vcpu, u64 guest_deadline_tsc,
+ 			    bool *expired);
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index 7eafc6907861..d685491fce4d 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -5190,6 +5190,11 @@ static void svm_deliver_avic_intr(struct kvm_vcpu *vcpu, int vec)
+ 		kvm_vcpu_wake_up(vcpu);
+ }
+ 
++static bool svm_dy_apicv_has_pending_interrupt(struct kvm_vcpu *vcpu)
++{
++	return false;
++}
++
+ static void svm_ir_list_del(struct vcpu_svm *svm, struct amd_iommu_pi_data *pi)
+ {
+ 	unsigned long flags;
+@@ -7314,6 +7319,7 @@ static struct kvm_x86_ops svm_x86_ops __ro_after_init = {
+ 
+ 	.pmu_ops = &amd_pmu_ops,
+ 	.deliver_posted_interrupt = svm_deliver_avic_intr,
++	.dy_apicv_has_pending_interrupt = svm_dy_apicv_has_pending_interrupt,
+ 	.update_pi_irte = svm_update_pi_irte,
+ 	.setup_mce = svm_setup_mce,
+ 
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index 074385c86c09..42ed3faa6af8 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -6117,6 +6117,11 @@ static int vmx_sync_pir_to_irr(struct kvm_vcpu *vcpu)
+ 	return max_irr;
+ }
+ 
++static bool vmx_dy_apicv_has_pending_interrupt(struct kvm_vcpu *vcpu)
++{
++	return pi_test_on(vcpu_to_pi_desc(vcpu));
++}
++
+ static void vmx_load_eoi_exitmap(struct kvm_vcpu *vcpu, u64 *eoi_exit_bitmap)
+ {
+ 	if (!kvm_vcpu_apicv_active(vcpu))
+@@ -7726,6 +7731,7 @@ static struct kvm_x86_ops vmx_x86_ops __ro_after_init = {
+ 	.guest_apic_has_interrupt = vmx_guest_apic_has_interrupt,
+ 	.sync_pir_to_irr = vmx_sync_pir_to_irr,
+ 	.deliver_posted_interrupt = vmx_deliver_posted_interrupt,
++	.dy_apicv_has_pending_interrupt = vmx_dy_apicv_has_pending_interrupt,
+ 
+ 	.set_tss_addr = vmx_set_tss_addr,
+ 	.set_identity_map_addr = vmx_set_identity_map_addr,
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index c6d951cbd76c..93b0bd45ac73 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -9698,6 +9698,22 @@ int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu)
+ 	return kvm_vcpu_running(vcpu) || kvm_vcpu_has_events(vcpu);
+ }
+ 
++bool kvm_arch_dy_runnable(struct kvm_vcpu *vcpu)
++{
++	if (READ_ONCE(vcpu->arch.pv.pv_unhalted))
++		return true;
++
++	if (kvm_test_request(KVM_REQ_NMI, vcpu) ||
++		kvm_test_request(KVM_REQ_SMI, vcpu) ||
++		 kvm_test_request(KVM_REQ_EVENT, vcpu))
++		return true;
++
++	if (vcpu->arch.apicv_active && kvm_x86_ops->dy_apicv_has_pending_interrupt(vcpu))
++		return true;
++
++	return false;
++}
++
+ bool kvm_arch_vcpu_in_kernel(struct kvm_vcpu *vcpu)
+ {
+ 	return vcpu->arch.preempted_in_kernel;
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 5c5b5867024c..9e4c2bb90297 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -872,6 +872,7 @@ int kvm_arch_check_processor_compat(void);
+ int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu);
+ bool kvm_arch_vcpu_in_kernel(struct kvm_vcpu *vcpu);
+ int kvm_arch_vcpu_should_kick(struct kvm_vcpu *vcpu);
++bool kvm_arch_dy_runnable(struct kvm_vcpu *vcpu);
+ 
+ #ifndef __KVM_HAVE_ARCH_VM_ALLOC
+ /*
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index ed061d8a457c..1f05aeb9da27 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2477,6 +2477,29 @@ static bool kvm_vcpu_eligible_for_directed_yield(struct kvm_vcpu *vcpu)
+ #endif
+ }
+ 
++/*
++ * Unlike kvm_arch_vcpu_runnable, this function is called outside
++ * a vcpu_load/vcpu_put pair.  However, for most architectures
++ * kvm_arch_vcpu_runnable does not require vcpu_load.
++ */
++bool __weak kvm_arch_dy_runnable(struct kvm_vcpu *vcpu)
++{
++	return kvm_arch_vcpu_runnable(vcpu);
++}
++
++static bool vcpu_dy_runnable(struct kvm_vcpu *vcpu)
++{
++	if (kvm_arch_dy_runnable(vcpu))
++		return true;
++
++#ifdef CONFIG_KVM_ASYNC_PF
++	if (!list_empty_careful(&vcpu->async_pf.done))
++		return true;
++#endif
++
++	return false;
++}
++
+ void kvm_vcpu_on_spin(struct kvm_vcpu *me, bool yield_to_kernel_mode)
+ {
+ 	struct kvm *kvm = me->kvm;
+@@ -2506,7 +2529,7 @@ void kvm_vcpu_on_spin(struct kvm_vcpu *me, bool yield_to_kernel_mode)
+ 				continue;
+ 			if (vcpu == me)
+ 				continue;
+-			if (swait_active(&vcpu->wq) && !kvm_arch_vcpu_runnable(vcpu))
++			if (swait_active(&vcpu->wq) && !vcpu_dy_runnable(vcpu))
+ 				continue;
+ 			if (READ_ONCE(vcpu->preempted) && yield_to_kernel_mode &&
+ 				!kvm_arch_vcpu_in_kernel(vcpu))
 
