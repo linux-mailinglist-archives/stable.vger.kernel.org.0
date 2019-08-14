@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B7EA8DA37
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:16:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 053BC8DA34
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:16:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731105AbfHNROg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:14:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39074 "EHLO mail.kernel.org"
+        id S1731117AbfHNROk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:14:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729485AbfHNROe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:14:34 -0400
+        id S1730520AbfHNROk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:14:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E1662133F;
-        Wed, 14 Aug 2019 17:14:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B2BE2084D;
+        Wed, 14 Aug 2019 17:14:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802874;
-        bh=JDqGp7ficmkhH3OHfXmiMvWvv77TF/w7o7o0AB9EMSQ=;
+        s=default; t=1565802879;
+        bh=DOxNJoygQl/sn/2FO12FqUQxl5U5sdqG4oOVZJAjo00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bLQ4R8AznmozEMUHu6rQIT1BxVnU7mI3GbD6M04H+EfBgNUsHF4W41oU/mMAopZwY
-         /Uk3Re2mhFIGuENnoqj9gx2ZYW5b5CXZz/KfBQC0fhqJeHcOZqRIEfDu6tnQ9TLHrd
-         hgpInMSfP4J4gQgcglcs0mnSfADELm31jHJ4GXww=
+        b=VMCnzwvrzuSIn1Tf+WxMFJWQMzQJrRnarYOtsHQkVFZ3iqFyO7aC9Nd5l3wYK4pVw
+         Vo3vnUeIeOQnS4r+E4y/3Q7WyNAHw2mfeV0X9/cJxmO2qkC6JmpAYLXvkbaWzlSFRA
+         NZW7cd7V/MbP97UP+FOsvM8wtbOaO7k20J6O+duE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
         Ronnie Sahlberg <lsahlber@redhat.com>
-Subject: [PATCH 4.14 60/69] SMB3: Fix deadlock in validate negotiate hits reconnect
-Date:   Wed, 14 Aug 2019 19:01:58 +0200
-Message-Id: <20190814165749.957581495@linuxfoundation.org>
+Subject: [PATCH 4.14 61/69] smb3: send CAP_DFS capability during session setup
+Date:   Wed, 14 Aug 2019 19:01:59 +0200
+Message-Id: <20190814165750.069022327@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190814165744.822314328@linuxfoundation.org>
 References: <20190814165744.822314328@linuxfoundation.org>
@@ -44,38 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Shilovsky <pshilov@microsoft.com>
+From: Steve French <stfrench@microsoft.com>
 
-commit e99c63e4d86d3a94818693147b469fa70de6f945 upstream.
+commit 8d33096a460d5b9bd13300f01615df5bb454db10 upstream.
 
-Currently we skip SMB2_TREE_CONNECT command when checking during
-reconnect because Tree Connect happens when establishing
-an SMB session. For SMB 3.0 protocol version the code also calls
-validate negotiate which results in SMB2_IOCL command being sent
-over the wire. This may deadlock on trying to acquire a mutex when
-checking for reconnect. Fix this by skipping SMB2_IOCL command
-when doing the reconnect check.
+We had a report of a server which did not do a DFS referral
+because the session setup Capabilities field was set to 0
+(unlike negotiate protocol where we set CAP_DFS).  Better to
+send it session setup in the capabilities as well (this also
+more closely matches Windows client behavior).
 
-Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
 Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
 CC: Stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/smb2pdu.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/smb2pdu.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
 --- a/fs/cifs/smb2pdu.c
 +++ b/fs/cifs/smb2pdu.c
-@@ -166,7 +166,7 @@ smb2_reconnect(__le16 smb2_command, stru
- 	if (tcon == NULL)
- 		return 0;
+@@ -834,7 +834,12 @@ SMB2_sess_alloc_buffer(struct SMB2_sess_
+ 	else
+ 		req->SecurityMode = 0;
  
--	if (smb2_command == SMB2_TREE_CONNECT)
-+	if (smb2_command == SMB2_TREE_CONNECT || smb2_command == SMB2_IOCTL)
- 		return 0;
++#ifdef CONFIG_CIFS_DFS_UPCALL
++	req->Capabilities = cpu_to_le32(SMB2_GLOBAL_CAP_DFS);
++#else
+ 	req->Capabilities = 0;
++#endif /* DFS_UPCALL */
++
+ 	req->Channel = 0; /* MBZ */
  
- 	if (tcon->tidStatus == CifsExiting) {
+ 	sess_data->iov[0].iov_base = (char *)req;
 
 
