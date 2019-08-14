@@ -2,132 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 947088DFFC
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 23:36:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 923D18E00D
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 23:43:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726490AbfHNVgW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 17:36:22 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:37737 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727273AbfHNVgT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Aug 2019 17:36:19 -0400
-Received: by mail-wm1-f68.google.com with SMTP id z23so1211wmf.2
-        for <stable@vger.kernel.org>; Wed, 14 Aug 2019 14:36:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
-         :references:subject:to:from:cc;
-        bh=XWwAylDLr1ewfARUebkjg//6gCYbw06NtLYokdWmek0=;
-        b=KSGPqM76DveV79q1yTio02HLMvbtGr9oo/BtXzHUK+aso46xCrKV67SmkjxzbisiE9
-         sGu/lbFIU/QlmxGAX3YpnZUyJx3C6+r+FUyqbetev+q4OyOjAaZ1WH6FoM2m+AWHVefL
-         4rCOl0MWVzfgjFl2dgtxQufU8602yfwGcKUyTLmKHS/UcxA7+oCeRhMf9/qw6Y0ZW8kU
-         Qn4Gc6GxNFBb7u4tA5HQvOfi3Xsla5kqVM7Rvcm/8I/etSeYynlsM9o5O/NflrNE2+L+
-         seloSevQeozaOfD4j1Aci8tOsCC5uleWTCsbqH9HWtKLilVWxAYERgF6e3MuCnZswHlE
-         0UyQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
-        bh=XWwAylDLr1ewfARUebkjg//6gCYbw06NtLYokdWmek0=;
-        b=eOB3nTBWkVj9BKoJVTvMzy3BAnRw8r9WJVBUiUseLTIZS0/+WcR79HJpskN9QZILt9
-         34wZ1U9H/bP+g7SVbbg01IsMpyGUSkXGhXZJQDs5OU0PA08BWDXRe+Z6YsQr+bOaLq49
-         dBiWzmwPMCEwJsmHrUF2LP9E2KR7ShVQPHdzDBKOFuXjLHqosMd8526OL1Fui5XDmaGu
-         e5ZNsx9PfqnNZtpyJO05ST5HnmFhaM6nCFdfOjBcsVkyVKy3BNFYMiE8dD0JNSYnKxtr
-         wxoYwCUOtgmelnx66CYL1HI2SMcp58/0RfEpDS3Oyq7MWr/Z4s+kr7FQgi1jQlxd3rdW
-         9xfw==
-X-Gm-Message-State: APjAAAX7OzpjM0cpKQy1A1znaLNh4VjgkOP0O06NQ7FtbJEEd9W4JPpv
-        0usKTFUixkR0BHFsnytWDkxBGQ==
-X-Google-Smtp-Source: APXvYqwP4DtXoYWeVm/3r36krjGhXKkjcp6Hm5I7BClJcBTppUcOxX5xSkXAWroLNI/EGGvh/iXoqg==
-X-Received: by 2002:a1c:740b:: with SMTP id p11mr6576wmc.6.1565818576956;
-        Wed, 14 Aug 2019 14:36:16 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id f70sm806504wme.22.2019.08.14.14.36.15
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 14 Aug 2019 14:36:16 -0700 (PDT)
-Message-ID: <5d547ed0.1c69fb81.14f04.42bf@mx.google.com>
-Date:   Wed, 14 Aug 2019 14:36:16 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1728897AbfHNVnd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 17:43:33 -0400
+Received: from mail.andi.de1.cc ([85.214.55.253]:56696 "EHLO mail.andi.de1.cc"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728855AbfHNVnc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 17:43:32 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=kemnade.info; s=20180802; h=Content-Transfer-Encoding:MIME-Version:
+        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=rzfhwFa3vGxoAkostceCbIdcn+mpEwU4ARYQbmvuyIk=; b=m4VSz6yPLD1INnQVjkWpFn2qps
+        fSyfckhDJhYEai8gy0FwfRSrR9yWrYNcrGnAwnR8TRKT/qAM8CIHuDlTxchGrAP2FWHng2nOcMn+U
+        nb2r+79X4T14vNdmx9UzMj0mcOEd6/26DwjRdFYzetfHZlduSC546ugr2LBmLQbnMTlQ=;
+Received: from p5dcc3d63.dip0.t-ipconnect.de ([93.204.61.99] helo=aktux)
+        by mail.andi.de1.cc with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <andreas@kemnade.info>)
+        id 1hy13F-0002T6-0Y; Wed, 14 Aug 2019 23:43:25 +0200
+Received: from andi by aktux with local (Exim 4.92)
+        (envelope-from <andreas@kemnade.info>)
+        id 1hy13E-0006HI-Mq; Wed, 14 Aug 2019 23:43:24 +0200
+From:   Andreas Kemnade <andreas@kemnade.info>
+To:     tony@atomide.com, lgirdwood@gmail.com, broonie@kernel.org,
+        linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pm@vger.kernel.org, sboyd@kernel.org, nm@ti.com,
+        vireshk@kernel.org
+Cc:     Andreas Kemnade <andreas@kemnade.info>, stable@vger.kernel.org
+Subject: [PATCH v2] regulator: twl: voltage lists for vdd1/2 on twl4030
+Date:   Wed, 14 Aug 2019 23:43:19 +0200
+Message-Id: <20190814214319.24087-1-andreas@kemnade.info>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.66-92-gf777613d3df0
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.19.y
-In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
-References: <20190814165748.991235624@linuxfoundation.org>
-Subject: Re: [PATCH 4.19 00/91] 4.19.67-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: -1.0 (-)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 138 boots: 0 failed, 126 passed with 12 offlin=
-e (v4.19.66-92-gf777613d3df0)
+_opp_supported_by_regulators() wrongly ignored errors from
+regulator_is_supported_voltage(), so it considered errors as
+success. Since
+commit 498209445124 ("regulator: core: simplify return value on suported_voltage")
+regulator_is_supported_voltage() returns a real boolean, so
+errors make _opp_supported_by_regulators() return false.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.66-92-gf777613d3df0/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.66-92-gf777613d3df0/
+That reveals a problem with the declaration of the VDD1/2
+regulators on twl4030.
+The VDD1/VDD2 regulators on twl4030 are neither defined with
+voltage lists nor with the continuous flag set, so
+regulator_is_supported_voltage() returns false and an error
+before above mentioned commit (which was considered success)
+The result is that after the above mentioned commit cpufreq
+does not work properly e.g. dm3730.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.66-92-gf777613d3df0
-Git Commit: f777613d3df0e7226d30d0e0ba97e9419e3064f2
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 76 unique boards, 26 SoC families, 17 builds out of 206
+[    2.490997] core: _opp_supported_by_regulators: OPP minuV: 1012500 maxuV: 1012500, not supported by regulator
+[    2.501617] cpu cpu0: _opp_add: OPP not supported by regulators (300000000)
+[    2.509246] core: _opp_supported_by_regulators: OPP minuV: 1200000 maxuV: 1200000, not supported by regulator
+[    2.519775] cpu cpu0: _opp_add: OPP not supported by regulators (600000000)
+[    2.527313] core: _opp_supported_by_regulators: OPP minuV: 1325000 maxuV: 1325000, not supported by regulator
+[    2.537750] cpu cpu0: _opp_add: OPP not supported by regulators (800000000)
 
-Boot Regressions Detected:
+The patch fixes declaration of VDD1/2 regulators by
+adding proper voltage lists.
 
-arm:
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: new failure (last pass: v4.19.66)
-          qcom-apq8064-ifc6410:
-              lab-baylibre-seattle: new failure (last pass: v4.19.66)
-
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-            meson-gxbb-odroidc2: 1 offline lab
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            imx6dl-wandboard_solo: 1 offline lab
-            imx6q-wandboard: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    imx_v6_v7_defconfig:
-        gcc-8
-            imx6dl-wandboard_solo: 1 offline lab
-            imx6q-wandboard: 1 offline lab
-
+Fixes: 498209445124 ("regulator: core: simplify return value on suported_voltage")
+Cc: stable@vger.kernel.org
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
 ---
-For more info write to <info@kernelci.org>
+resent because it was rejected by mailing lists, due to technical
+issues, sorry for the noise.
+changes in v2:
+  using a proper voltage list instead of misusing the continuous flag
+  subject was regulator: twl: mark vdd1/2 as continuous on twl4030
+
+ drivers/regulator/twl-regulator.c | 23 ++++++++++++++++++++---
+ 1 file changed, 20 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/regulator/twl-regulator.c b/drivers/regulator/twl-regulator.c
+index 6fa15b2d6fb3..866b4dd01da9 100644
+--- a/drivers/regulator/twl-regulator.c
++++ b/drivers/regulator/twl-regulator.c
+@@ -359,6 +359,17 @@ static const u16 VINTANA2_VSEL_table[] = {
+ 	2500, 2750,
+ };
+ 
++/* 600mV to 1450mV in 12.5 mV steps */
++static const struct regulator_linear_range VDD1_ranges[] = {
++	REGULATOR_LINEAR_RANGE(600000, 0, 68, 12500)
++};
++
++/* 600mV to 1450mV in 12.5 mV steps, everything above = 1500mV */
++static const struct regulator_linear_range VDD2_ranges[] = {
++	REGULATOR_LINEAR_RANGE(600000, 0, 68, 12500),
++	REGULATOR_LINEAR_RANGE(1500000, 69, 69, 12500)
++};
++
+ static int twl4030ldo_list_voltage(struct regulator_dev *rdev, unsigned index)
+ {
+ 	struct twlreg_info	*info = rdev_get_drvdata(rdev);
+@@ -427,6 +438,8 @@ static int twl4030smps_get_voltage(struct regulator_dev *rdev)
+ }
+ 
+ static const struct regulator_ops twl4030smps_ops = {
++	.list_voltage   = regulator_list_voltage_linear_range,
++
+ 	.set_voltage	= twl4030smps_set_voltage,
+ 	.get_voltage	= twl4030smps_get_voltage,
+ };
+@@ -466,7 +479,8 @@ static const struct twlreg_info TWL4030_INFO_##label = { \
+ 		}, \
+ 	}
+ 
+-#define TWL4030_ADJUSTABLE_SMPS(label, offset, num, turnon_delay, remap_conf) \
++#define TWL4030_ADJUSTABLE_SMPS(label, offset, num, turnon_delay, remap_conf, \
++		n_volt) \
+ static const struct twlreg_info TWL4030_INFO_##label = { \
+ 	.base = offset, \
+ 	.id = num, \
+@@ -479,6 +493,9 @@ static const struct twlreg_info TWL4030_INFO_##label = { \
+ 		.owner = THIS_MODULE, \
+ 		.enable_time = turnon_delay, \
+ 		.of_map_mode = twl4030reg_map_mode, \
++		.n_voltages = n_volt, \
++		.n_linear_ranges = ARRAY_SIZE(label ## _ranges), \
++		.linear_ranges = label ## _ranges, \
+ 		}, \
+ 	}
+ 
+@@ -518,8 +535,8 @@ TWL4030_ADJUSTABLE_LDO(VSIM, 0x37, 9, 100, 0x00);
+ TWL4030_ADJUSTABLE_LDO(VDAC, 0x3b, 10, 100, 0x08);
+ TWL4030_ADJUSTABLE_LDO(VINTANA2, 0x43, 12, 100, 0x08);
+ TWL4030_ADJUSTABLE_LDO(VIO, 0x4b, 14, 1000, 0x08);
+-TWL4030_ADJUSTABLE_SMPS(VDD1, 0x55, 15, 1000, 0x08);
+-TWL4030_ADJUSTABLE_SMPS(VDD2, 0x63, 16, 1000, 0x08);
++TWL4030_ADJUSTABLE_SMPS(VDD1, 0x55, 15, 1000, 0x08, 68);
++TWL4030_ADJUSTABLE_SMPS(VDD2, 0x63, 16, 1000, 0x08, 69);
+ /* VUSBCP is managed *only* by the USB subchip */
+ TWL4030_FIXED_LDO(VINTANA1, 0x3f, 1500, 11, 100, 0x08);
+ TWL4030_FIXED_LDO(VINTDIG, 0x47, 1500, 13, 100, 0x08);
+-- 
+2.20.1
+
