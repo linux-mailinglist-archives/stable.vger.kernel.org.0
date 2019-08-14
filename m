@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 407B68C945
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:38:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C31088C93C
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:37:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728002AbfHNChs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:37:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44730 "EHLO mail.kernel.org"
+        id S1727993AbfHNCMn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:12:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727960AbfHNCMj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:12:39 -0400
+        id S1727983AbfHNCMm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:12:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59D8D20989;
-        Wed, 14 Aug 2019 02:12:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BECF208C2;
+        Wed, 14 Aug 2019 02:12:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748758;
-        bh=cuKDBwCGKqEUiFeh4j0gSk0yqRyXZg9czcbOrk+owtE=;
+        s=default; t=1565748761;
+        bh=nTNEIx10Vjh03n0qsD4zI8XKLpPpJTX9LKmOJDGNKXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OzQP6vnW+TrkUPkfttptylqo5GJ+ixs4UmrRJ/YEib7GhUwRMOr7siIREdUSJfEat
-         HycP2LaVDCcrGmWDIjMhfuSS72nj2RA6Np+PvjZSpFO2uH0auBBjgbRi5tBbQcLaZS
-         gu/yggre0hDTWEKY83cd2KT8Aa8hhBU7l7qH05s0=
+        b=QvnsTDVYAsQQdesJ68BLAXMMR1KEFfw+ezqTU/Mw7OEJLZH7X46v7oga/qpgnD3iB
+         7l4LDa0BcoLiThmA9GEpnfk0CTjh+ifvvxlrd70EmIZOv95oLIySfBJHHIYRGoZDiG
+         vK+nSKTVea9BiNh2s2LEFn+52bpk5Szy8Jl9XfXA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Segal <bpsegal20@gmail.com>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 052/123] habanalabs: fix F/W download in BE architecture
-Date:   Tue, 13 Aug 2019 22:09:36 -0400
-Message-Id: <20190814021047.14828-52-sashal@kernel.org>
+Cc:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 054/123] net: stmmac: manage errors returned by of_get_mac_address()
+Date:   Tue, 13 Aug 2019 22:09:38 -0400
+Message-Id: <20190814021047.14828-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -43,66 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Segal <bpsegal20@gmail.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit 75035fe22b808a520e1d712ebe913684ba406e01 ]
+[ Upstream commit 195b2919ccd7ffcaf6b6bbcb39444a53ab8308c7 ]
 
-writeX macros might perform byte-swapping in BE architectures. As our F/W
-is in LE format, we need to make sure no byte-swapping will occur.
+Commit d01f449c008a ("of_net: add NVMEM support to of_get_mac_address")
+added support for reading the MAC address from an nvmem-cell. This
+required changing the logic to return an error pointer upon failure.
 
-There is a standard kernel function (called memcpy_toio) for copying data
-to I/O area which is used in a lot of drivers to download F/W to PCIe
-adapters. That function also makes sure the data is copied "as-is",
-without byte-swapping.
+If stmmac is loaded before the nvmem provider driver then
+of_get_mac_address() return an error pointer with -EPROBE_DEFER.
 
-This patch use that function to copy the F/W to the GOYA ASIC instead of
-writeX macros.
+Propagate this error so the stmmac driver will be probed again after the
+nvmem provider driver is loaded.
+Default to a random generated MAC address in case of any other error,
+instead of using the error pointer as MAC address.
 
-Signed-off-by: Ben Segal <bpsegal20@gmail.com>
-Reviewed-by: Oded Gabbay <oded.gabbay@gmail.com>
-Signed-off-by: Oded Gabbay <oded.gabbay@gmail.com>
+Fixes: d01f449c008a ("of_net: add NVMEM support to of_get_mac_address")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/firmware_if.c | 19 ++-----------------
- 1 file changed, 2 insertions(+), 17 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/misc/habanalabs/firmware_if.c b/drivers/misc/habanalabs/firmware_if.c
-index eda5d7fcb79f2..fe9e57a81b6fd 100644
---- a/drivers/misc/habanalabs/firmware_if.c
-+++ b/drivers/misc/habanalabs/firmware_if.c
-@@ -24,7 +24,7 @@ int hl_fw_push_fw_to_device(struct hl_device *hdev, const char *fw_name,
- {
- 	const struct firmware *fw;
- 	const u64 *fw_data;
--	size_t fw_size, i;
-+	size_t fw_size;
- 	int rc;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+index 0f0f4b31eb7ec..9b5218a8c15bc 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+@@ -385,6 +385,13 @@ stmmac_probe_config_dt(struct platform_device *pdev, const char **mac)
+ 		return ERR_PTR(-ENOMEM);
  
- 	rc = request_firmware(&fw, fw_name, hdev->dev);
-@@ -45,22 +45,7 @@ int hl_fw_push_fw_to_device(struct hl_device *hdev, const char *fw_name,
+ 	*mac = of_get_mac_address(np);
++	if (IS_ERR(*mac)) {
++		if (PTR_ERR(*mac) == -EPROBE_DEFER)
++			return ERR_CAST(*mac);
++
++		*mac = NULL;
++	}
++
+ 	plat->interface = of_get_phy_mode(np);
  
- 	fw_data = (const u64 *) fw->data;
- 
--	if ((fw->size % 8) != 0)
--		fw_size -= 8;
--
--	for (i = 0 ; i < fw_size ; i += 8, fw_data++, dst += 8) {
--		if (!(i & (0x80000 - 1))) {
--			dev_dbg(hdev->dev,
--				"copied so far %zu out of %zu for %s firmware",
--				i, fw_size, fw_name);
--			usleep_range(20, 100);
--		}
--
--		writeq(*fw_data, dst);
--	}
--
--	if ((fw->size % 8) != 0)
--		writel(*(const u32 *) fw_data, dst);
-+	memcpy_toio(dst, fw_data, fw_size);
- 
- out:
- 	release_firmware(fw);
+ 	/* Get max speed of operation from device tree */
 -- 
 2.20.1
 
