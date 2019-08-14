@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E7518DB5A
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:24:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FFA78DABC
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:20:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728939AbfHNRYa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:24:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55638 "EHLO mail.kernel.org"
+        id S1730531AbfHNRKx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:10:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729660AbfHNRG3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:06:29 -0400
+        id S1730524AbfHNRKw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:10:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F61D20578;
-        Wed, 14 Aug 2019 17:06:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24EA9214DA;
+        Wed, 14 Aug 2019 17:10:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802388;
-        bh=SLPAbl0S5v24ijhMwrhQHjsg1nWy5Nyv/VKXHzf2oS0=;
+        s=default; t=1565802651;
+        bh=3hcUrXBwLYEFvDHHf+GYMkiPTXNi7elwJUIL1TIduhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DIio4mLUeQAIeeh2Bm5XPZBcNmg1261zqhg3cKFZstjosCnqXj+Pf4Frbnrqrviko
-         +CgOvhtzpzfX7+bCPbbW32/P0hWjJeuK0M/F05ZlbW+psDCWHDjhkPxNFLOa+HtVFC
-         SGo4sKst9pwyAXx9rHQaBshnQDLHX4Du9p8NGq7U=
+        b=WtBFL4CRS1usCjgm8z7q1BGbkZ2Hcn5GyX2Pi5fKVtkXTrJ7wt2rNkmIMwvOvTzLq
+         /hJfx1yF9jjI+vjJQiparFdQI5T78Nt1tIRNAXLE376bVuVuuKuJbE9qmedlwqx5/L
+         nq+2fGalIxNb285hTb1YfMIrhInmmBaTsZGmdkvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Olof Johansson <olof@lixom.net>,
+        stable@vger.kernel.org,
+        SivapiriyanKumarasamy <sivapiriyan.kumarasamy@amd.com>,
+        Anthony Koo <Anthony.Koo@amd.com>, Leo Li <sunpeng.li@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 106/144] ARM: dts: bcm: bcm47094: add missing #cells for mdio-bus-mux
+Subject: [PATCH 4.19 39/91] drm/amd/display: Wait for backlight programming completion in set backlight level
 Date:   Wed, 14 Aug 2019 19:01:02 +0200
-Message-Id: <20190814165804.337814534@linuxfoundation.org>
+Message-Id: <20190814165751.313309758@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
-References: <20190814165759.466811854@linuxfoundation.org>
+In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
+References: <20190814165748.991235624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3a9d2569e45cb02769cda26fee4a02126867c934 ]
+[ Upstream commit c7990daebe71d11a9e360b5c3b0ecd1846a3a4bb ]
 
-The mdio-bus-mux has no #address-cells/#size-cells property,
-which causes a few dtc warnings:
+[WHY]
+Currently we don't wait for blacklight programming completion in DMCU
+when setting backlight level. Some sequences such as PSR static screen
+event trigger reprogramming requires it to be complete.
 
-arch/arm/boot/dts/bcm47094-linksys-panamera.dts:129.4-18: Warning (reg_format): /mdio-bus-mux/mdio@200:reg: property has invalid length (4 bytes) (#address-cells == 2, #size-cells == 1)
-arch/arm/boot/dts/bcm47094-linksys-panamera.dtb: Warning (pci_device_bus_num): Failed prerequisite 'reg_format'
-arch/arm/boot/dts/bcm47094-linksys-panamera.dtb: Warning (i2c_bus_reg): Failed prerequisite 'reg_format'
-arch/arm/boot/dts/bcm47094-linksys-panamera.dtb: Warning (spi_bus_reg): Failed prerequisite 'reg_format'
-arch/arm/boot/dts/bcm47094-linksys-panamera.dts:128.22-132.5: Warning (avoid_default_addr_size): /mdio-bus-mux/mdio@200: Relying on default #address-cells value
-arch/arm/boot/dts/bcm47094-linksys-panamera.dts:128.22-132.5: Warning (avoid_default_addr_size): /mdio-bus-mux/mdio@200: Relying on default #size-cells value
+[How]
+Add generic wait for dmcu command completion in set backlight level.
 
-Add the normal cell numbers.
-
-Link: https://lore.kernel.org/r/20190722145618.1155492-1-arnd@arndb.de
-Fixes: 2bebdfcdcd0f ("ARM: dts: BCM5301X: Add support for Linksys EA9500")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Olof Johansson <olof@lixom.net>
+Signed-off-by: SivapiriyanKumarasamy <sivapiriyan.kumarasamy@amd.com>
+Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
+Acked-by: Leo Li <sunpeng.li@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm47094-linksys-panamera.dts | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dce/dce_abm.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm/boot/dts/bcm47094-linksys-panamera.dts b/arch/arm/boot/dts/bcm47094-linksys-panamera.dts
-index 5fd47eec4407e..1679959a3654d 100644
---- a/arch/arm/boot/dts/bcm47094-linksys-panamera.dts
-+++ b/arch/arm/boot/dts/bcm47094-linksys-panamera.dts
-@@ -126,6 +126,9 @@
- 	};
+diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_abm.c b/drivers/gpu/drm/amd/display/dc/dce/dce_abm.c
+index 070ab56a8aca7..da8b198538e5f 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce/dce_abm.c
++++ b/drivers/gpu/drm/amd/display/dc/dce/dce_abm.c
+@@ -242,6 +242,10 @@ static void dmcu_set_backlight_level(
+ 	s2 |= (level << ATOM_S2_CURRENT_BL_LEVEL_SHIFT);
  
- 	mdio-bus-mux {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
+ 	REG_WRITE(BIOS_SCRATCH_2, s2);
 +
- 		/* BIT(9) = 1 => external mdio */
- 		mdio_ext: mdio@200 {
- 			reg = <0x200>;
++	/* waitDMCUReadyForCmd */
++	REG_WAIT(MASTER_COMM_CNTL_REG, MASTER_COMM_INTERRUPT,
++			0, 1, 80000);
+ }
+ 
+ static void dce_abm_init(struct abm *abm)
 -- 
 2.20.1
 
