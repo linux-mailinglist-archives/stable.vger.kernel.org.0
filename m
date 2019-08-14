@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 611328D92D
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:06:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F05E68D92F
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:06:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729614AbfHNRGO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:06:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55320 "EHLO mail.kernel.org"
+        id S1728718AbfHNRGU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:06:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729137AbfHNRGN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:06:13 -0400
+        id S1729632AbfHNRGT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:06:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0E0D2173E;
-        Wed, 14 Aug 2019 17:06:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1CD821743;
+        Wed, 14 Aug 2019 17:06:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802373;
-        bh=ZbcM41UZ5tJ59SBJKZ1nr0uuY0yD7jpy7OVAsJ3VS20=;
+        s=default; t=1565802378;
+        bh=bGyE73HnI4jBkU09mVeTINyrP01fTmlVirec7dN7Lok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qET4AeM5pTwFT7G3SE1uK3LB52Bh4dZByWVYb8W03ZH+m/zY7Thz+hKQq5Pd1S98T
-         febBDy7swdMXuZgeWtA1HAshhS98qBhUxOw0XhaMiYuebNQyTq480C4IiXHR62TVop
-         UwN65asV9ROofrG5MgyVYT74MHySGy2Pm1epyZ90=
+        b=uJ7wT6PKCSiyx/52B+cr5rVjY9dvglmAqLLyKHRPfxngqNn8Ha3uayfFZqeMqJ87J
+         f4lCPvYMdErdfmwoEena4+3M2l3vj4asu7L2R1HTtDbt3/qrz5whTEfV0KliD/LnTi
+         ToNIO/R9aMCRqrqYnz9IltiI3jhl7kCMBnvee63c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Roland Kammerer <roland.kammerer@linbit.com>,
-        Arnd Bergmann <arnd@arndb.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 101/144] drbd: dynamically allocate shash descriptor
-Date:   Wed, 14 Aug 2019 19:00:57 +0200
-Message-Id: <20190814165804.111912540@linuxfoundation.org>
+        stable@vger.kernel.org, Misha Nasledov <misha@nasledov.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 103/144] nvme: ignore subnqn for ADATA SX6000LNP
+Date:   Wed, 14 Aug 2019 19:00:59 +0200
+Message-Id: <20190814165804.205571639@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
 References: <20190814165759.466811854@linuxfoundation.org>
@@ -45,67 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 77ce56e2bfaa64127ae5e23ef136c0168b818777 ]
+[ Upstream commit 08b903b5fd0c49e5f224a9bf085b6329ec3c55c0 ]
 
-Building with clang and KASAN, we get a warning about an overly large
-stack frame on 32-bit architectures:
+The ADATA SX6000LNP NVMe SSDs have the same subnqn and, due to this, a
+system with more than one of these SSDs will only have one usable.
 
-drivers/block/drbd/drbd_receiver.c:921:31: error: stack frame size of 1280 bytes in function 'conn_connect'
-      [-Werror,-Wframe-larger-than=]
+[ 0.942706] nvme nvme1: ignoring ctrl due to duplicate subnqn (nqn.2018-05.com.example:nvme:nvm-subsystem-OUI00E04C).
+[ 0.943017] nvme nvme1: Removing after probe failure status: -22
 
-We already allocate other data dynamically in this function, so
-just do the same for the shash descriptor, which makes up most of
-this memory.
+02:00.0 Non-Volatile memory controller [0108]: Realtek Semiconductor Co., Ltd. Device [10ec:5762] (rev 01)
+71:00.0 Non-Volatile memory controller [0108]: Realtek Semiconductor Co., Ltd. Device [10ec:5762] (rev 01)
 
-Link: https://lore.kernel.org/lkml/20190617132440.2721536-1-arnd@arndb.de/
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Roland Kammerer <roland.kammerer@linbit.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+There are no firmware updates available from the vendor, unfortunately.
+Applying the NVME_QUIRK_IGNORE_DEV_SUBNQN quirk for these SSDs resolves
+the issue, and they all work after this patch:
+
+/dev/nvme0n1     2J1120050420         ADATA SX6000LNP [...]
+/dev/nvme1n1     2J1120050540         ADATA SX6000LNP [...]
+
+Signed-off-by: Misha Nasledov <misha@nasledov.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/drbd/drbd_receiver.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/nvme/host/pci.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/block/drbd/drbd_receiver.c b/drivers/block/drbd/drbd_receiver.c
-index 90ebfcae0ce6e..2b3103c308573 100644
---- a/drivers/block/drbd/drbd_receiver.c
-+++ b/drivers/block/drbd/drbd_receiver.c
-@@ -5417,7 +5417,7 @@ static int drbd_do_auth(struct drbd_connection *connection)
- 	unsigned int key_len;
- 	char secret[SHARED_SECRET_MAX]; /* 64 byte */
- 	unsigned int resp_size;
--	SHASH_DESC_ON_STACK(desc, connection->cram_hmac_tfm);
-+	struct shash_desc *desc;
- 	struct packet_info pi;
- 	struct net_conf *nc;
- 	int err, rv;
-@@ -5430,6 +5430,13 @@ static int drbd_do_auth(struct drbd_connection *connection)
- 	memcpy(secret, nc->shared_secret, key_len);
- 	rcu_read_unlock();
- 
-+	desc = kmalloc(sizeof(struct shash_desc) +
-+		       crypto_shash_descsize(connection->cram_hmac_tfm),
-+		       GFP_KERNEL);
-+	if (!desc) {
-+		rv = -1;
-+		goto fail;
-+	}
- 	desc->tfm = connection->cram_hmac_tfm;
- 
- 	rv = crypto_shash_setkey(connection->cram_hmac_tfm, (u8 *)secret, key_len);
-@@ -5571,7 +5578,10 @@ static int drbd_do_auth(struct drbd_connection *connection)
- 	kfree(peers_ch);
- 	kfree(response);
- 	kfree(right_response);
--	shash_desc_zero(desc);
-+	if (desc) {
-+		shash_desc_zero(desc);
-+		kfree(desc);
-+	}
- 
- 	return rv;
- }
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 7fbcd72c438f6..f9959eaaa185e 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -2959,6 +2959,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 		.driver_data = NVME_QUIRK_LIGHTNVM, },
+ 	{ PCI_DEVICE(0x1d1d, 0x2601),	/* CNEX Granby */
+ 		.driver_data = NVME_QUIRK_LIGHTNVM, },
++	{ PCI_DEVICE(0x10ec, 0x5762),   /* ADATA SX6000LNP */
++		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN, },
+ 	{ PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_EXPRESS, 0xffffff) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2001) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2003) },
 -- 
 2.20.1
 
