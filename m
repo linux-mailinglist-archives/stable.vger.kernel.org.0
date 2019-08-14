@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65C908C67C
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:16:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E91DA8C690
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:17:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728868AbfHNCP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:15:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47510 "EHLO mail.kernel.org"
+        id S1729057AbfHNCQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:16:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726007AbfHNCP7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:15:59 -0400
+        id S1729049AbfHNCQ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:16:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 543BE20842;
-        Wed, 14 Aug 2019 02:15:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 384A620989;
+        Wed, 14 Aug 2019 02:16:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748958;
-        bh=+G6YI7uCiWl5NzsZjlF0cb+BjDlIwDypveGYVOUdif8=;
+        s=default; t=1565748986;
+        bh=Q+KeSCEVnE0uuMG+wvVOs1NAOo5a0t8ng17sc45oy7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EhrYYbphQhZXS/KiENKi+GFMBJzNRfap4P5AyRmxs78FJBM90BU4fo+nNv+AHMnn6
-         4WbfH2L/wfohtUKgv3j8siUGLLoJnGaKGutr5N1hb7IcoleFv+uiw78ED6oZkGfVGr
-         TiZl9mmXjl4eqSab4biQ0B95rBovLyKHzxZYubio=
+        b=Abf3qRd7S8wPZEcmSDkYErfzLtUH3nfNCKYeuqoXPGPMGTApup0buFNuMkRy/gD8D
+         iwcu5S6fM1VRDJD1Qimae/mM4tFCW8qh+MtcYbZN2g45WmoRoNKwVIMdqp0W/lLujn
+         w2JLas9uIGcP6LYThO6CMYNGnmCiY0qq5t0vN0JU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vladimir Kondratiev <vladimir.kondratiev@linux.intel.com>,
-        Paul Burton <paul.burton@mips.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 05/68] mips: fix cacheinfo
-Date:   Tue, 13 Aug 2019 22:14:43 -0400
-Message-Id: <20190814021548.16001-5-sashal@kernel.org>
+Cc:     Bob Ham <bob.ham@puri.sm>, Angus Ainslie <angus@akkea.ca>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 21/68] net: usb: qmi_wwan: Add the BroadMobi BM818 card
+Date:   Tue, 13 Aug 2019 22:14:59 -0400
+Message-Id: <20190814021548.16001-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021548.16001-1-sashal@kernel.org>
 References: <20190814021548.16001-1-sashal@kernel.org>
@@ -45,47 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Kondratiev <vladimir.kondratiev@linux.intel.com>
+From: Bob Ham <bob.ham@puri.sm>
 
-[ Upstream commit b8bea8a5e5d942e62203416ab41edecaed4fda02 ]
+[ Upstream commit 9a07406b00cdc6ec689dc142540739575c717f3c ]
 
-Because CONFIG_OF defined for MIPS, cacheinfo attempts to fill information
-from DT, ignoring data filled by architecture routine. This leads to error
-reported
+The BroadMobi BM818 M.2 card uses the QMI protocol
 
- cacheinfo: Unable to detect cache hierarchy for CPU 0
-
-Way to fix this provided in
-commit fac51482577d ("drivers: base: cacheinfo: fix x86 with
- CONFIG_OF enabled")
-
-Utilize same mechanism to report that cacheinfo set by architecture
-specific function
-
-Signed-off-by: Vladimir Kondratiev <vladimir.kondratiev@linux.intel.com>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Bob Ham <bob.ham@puri.sm>
+Signed-off-by: Angus Ainslie (Purism) <angus@akkea.ca>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/cacheinfo.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/usb/qmi_wwan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/mips/kernel/cacheinfo.c b/arch/mips/kernel/cacheinfo.c
-index 97d5239ca47ba..428ef21892039 100644
---- a/arch/mips/kernel/cacheinfo.c
-+++ b/arch/mips/kernel/cacheinfo.c
-@@ -80,6 +80,8 @@ static int __populate_cache_leaves(unsigned int cpu)
- 	if (c->tcache.waysize)
- 		populate_cache(tcache, this_leaf, 3, CACHE_TYPE_UNIFIED);
- 
-+	this_cpu_ci->cpu_map_populated = true;
-+
- 	return 0;
- }
- 
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index 128c8a327d8ee..51017c6bb3bcb 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1231,6 +1231,7 @@ static const struct usb_device_id products[] = {
+ 	{QMI_FIXED_INTF(0x2001, 0x7e35, 4)},	/* D-Link DWM-222 */
+ 	{QMI_FIXED_INTF(0x2020, 0x2031, 4)},	/* Olicard 600 */
+ 	{QMI_FIXED_INTF(0x2020, 0x2033, 4)},	/* BroadMobi BM806U */
++	{QMI_FIXED_INTF(0x2020, 0x2060, 4)},	/* BroadMobi BM818 */
+ 	{QMI_FIXED_INTF(0x0f3d, 0x68a2, 8)},    /* Sierra Wireless MC7700 */
+ 	{QMI_FIXED_INTF(0x114f, 0x68a2, 8)},    /* Sierra Wireless MC7750 */
+ 	{QMI_FIXED_INTF(0x1199, 0x68a2, 8)},	/* Sierra Wireless MC7710 in QMI mode */
 -- 
 2.20.1
 
