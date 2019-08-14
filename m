@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C54268D9A4
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:11:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 929FE8D9DC
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:13:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730209AbfHNRKe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:10:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33400 "EHLO mail.kernel.org"
+        id S1730453AbfHNRNB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:13:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730220AbfHNRKe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:10:34 -0400
+        id S1730473AbfHNRNA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:13:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 432BA208C2;
-        Wed, 14 Aug 2019 17:10:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 068D02084D;
+        Wed, 14 Aug 2019 17:12:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802633;
-        bh=EHaAD9qiC6h7RKmfVt1UQ+1y1ZhRwFEYxLMl9PI7pG4=;
+        s=default; t=1565802779;
+        bh=ZOosVN0Ic6Q88AcFPeEupioIcmxpjRiFLM8kbGNB5nU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MDwqL2k93OuXskLgEX0IoEF9o6RfLJ6umPeOXedHoshgaIzy0zCauDzgPSwfIWu52
-         4jlh5Mc9pZgAXcAKsHuWDI3lqye5DNYQSQRbRyG138TSKKcMNK765zhdUjBVL67HY3
-         HPxrD6AmKExALq7wG/ZTi7S9udIbdU+6tyNJaqsU=
+        b=Vp1bTkLGdd8DXcVgpXQxSF9fMG29wD1I+ZDTqWrmjPOe7B59mKw5a89i8mp8V42wU
+         oOiLV7jDOvtV/FHzHtnm0B5whBmTWnt1P5/KCN/qU74IhF87ktklxNa97m/KBuJLo5
+         eyTw+qqIf6oo/fjXFdNNN7MQL/kTBdHNU95i/EUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 57/91] perf probe: Avoid calling freeing routine multiple times for same pointer
-Date:   Wed, 14 Aug 2019 19:01:20 +0200
-Message-Id: <20190814165752.016176295@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.14 23/69] can: rcar_canfd: fix possible IRQ storm on high load
+Date:   Wed, 14 Aug 2019 19:01:21 +0200
+Message-Id: <20190814165747.089684743@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
-References: <20190814165748.991235624@linuxfoundation.org>
+In-Reply-To: <20190814165744.822314328@linuxfoundation.org>
+References: <20190814165744.822314328@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,49 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d95daf5accf4a72005daa13fbb1d1bd8709f2861 ]
+From: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
 
-When perf_add_probe_events() we call cleanup_perf_probe_events() for the
-pev pointer it receives, then, as part of handling this failure the main
-'perf probe' goes on and calls cleanup_params() and that will again call
-cleanup_perf_probe_events()for the same pointer, so just set nevents to
-zero when handling the failure of perf_add_probe_events() to avoid the
-double free.
+commit d4b890aec4bea7334ca2ca56fd3b12fb48a00cd1 upstream.
 
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: https://lkml.kernel.org/n/tip-x8qgma4g813z96dvtw9w219q@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+We have observed rcar_canfd driver entering IRQ storm under high load,
+with following scenario:
+- rcar_canfd_global_interrupt() in entered due to Rx available,
+- napi_schedule_prep() is called, and sets NAPIF_STATE_SCHED in state
+- Rx fifo interrupts are masked,
+- rcar_canfd_global_interrupt() is entered again, this time due to
+  error interrupt (e.g. due to overflow),
+- since scheduled napi poller has not yet executed, condition for calling
+  napi_schedule_prep() from rcar_canfd_global_interrupt() remains true,
+  thus napi_schedule_prep() gets called and sets NAPIF_STATE_MISSED flag
+  in state,
+- later, napi poller function rcar_canfd_rx_poll() gets executed, and
+  calls napi_complete_done(),
+- due to NAPIF_STATE_MISSED flag in state, this call does not clear
+  NAPIF_STATE_SCHED flag from state,
+- on return from napi_complete_done(), rcar_canfd_rx_poll() unmasks Rx
+  interrutps,
+- Rx interrupt happens, rcar_canfd_global_interrupt() gets called
+  and calls napi_schedule_prep(),
+- since NAPIF_STATE_SCHED is set in state at this time, this call
+  returns false,
+- due to that false return, rcar_canfd_global_interrupt() returns
+  without masking Rx interrupt
+- and this results into IRQ storm: unmasked Rx interrupt happens again
+  and again is misprocessed in the same way.
+
+This patch fixes that scenario by unmasking Rx interrupts only when
+napi_complete_done() returns true, which means it has cleared
+NAPIF_STATE_SCHED in state.
+
+Fixes: dd3bd23eb438 ("can: rcar_canfd: Add Renesas R-Car CAN FD driver")
+Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- tools/perf/builtin-probe.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/net/can/rcar/rcar_canfd.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/builtin-probe.c b/tools/perf/builtin-probe.c
-index 99de91698de1e..0bdb34fee9d81 100644
---- a/tools/perf/builtin-probe.c
-+++ b/tools/perf/builtin-probe.c
-@@ -711,6 +711,16 @@ __cmd_probe(int argc, const char **argv)
+--- a/drivers/net/can/rcar/rcar_canfd.c
++++ b/drivers/net/can/rcar/rcar_canfd.c
+@@ -1512,10 +1512,11 @@ static int rcar_canfd_rx_poll(struct nap
  
- 		ret = perf_add_probe_events(params.events, params.nevents);
- 		if (ret < 0) {
-+
-+			/*
-+			 * When perf_add_probe_events() fails it calls
-+			 * cleanup_perf_probe_events(pevs, npevs), i.e.
-+			 * cleanup_perf_probe_events(params.events, params.nevents), which
-+			 * will call clear_perf_probe_event(), so set nevents to zero
-+			 * to avoid cleanup_params() to call clear_perf_probe_event() again
-+			 * on the same pevs.
-+			 */
-+			params.nevents = 0;
- 			pr_err_with_code("  Error: Failed to add events.", ret);
- 			return ret;
- 		}
--- 
-2.20.1
-
+ 	/* All packets processed */
+ 	if (num_pkts < quota) {
+-		napi_complete_done(napi, num_pkts);
+-		/* Enable Rx FIFO interrupts */
+-		rcar_canfd_set_bit(priv->base, RCANFD_RFCC(ridx),
+-				   RCANFD_RFCC_RFIE);
++		if (napi_complete_done(napi, num_pkts)) {
++			/* Enable Rx FIFO interrupts */
++			rcar_canfd_set_bit(priv->base, RCANFD_RFCC(ridx),
++					   RCANFD_RFCC_RFIE);
++		}
+ 	}
+ 	return num_pkts;
+ }
 
 
