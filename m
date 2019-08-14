@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83E7B8D99D
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:11:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2083D8DA70
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:18:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730441AbfHNRKL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:10:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60906 "EHLO mail.kernel.org"
+        id S1730024AbfHNRM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:12:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730412AbfHNRKJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:10:09 -0400
+        id S1728301AbfHNRMz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:12:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C36F02084D;
-        Wed, 14 Aug 2019 17:10:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F75C2084D;
+        Wed, 14 Aug 2019 17:12:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802608;
-        bh=YTT9ir1z4aRqxuZTg3VF2ZnFXYtMqZeM7zj+UdEUnPg=;
+        s=default; t=1565802774;
+        bh=y50jU0cwHwXvJ7bsYdQqIY6LNBKyuJLSFPD4g/XcqS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uebZFrPjWlLvSnYObaXM+wE0EF4WYnBZHjJJG6uxWHkLoKs1jMq2NUxSOB/PRy6Bl
-         vaoQn/cGKCs0LXYNNSctnpIdfpiljzGVkkqXZJpkFWFzqJg88c4iOqRy2J8YJGoVAW
-         +dl+vcPp5FjW2RASGKc8BtnaKLc/xJDqThcVtkPc=
+        b=UIDSU8+kTF5af7E7v5Tm9xcij5aG/c5QwwXXeyXobvaJb2kBcfHyVomEAQcsc+SVl
+         PSMuDLNtGG+hHzAhUdBShORRzxWEclDNN9/AJ8mc6AD9Nv/849ufONhSFiPccdCPdR
+         RR09jECCvpqOk2CyqcyApp4AyJSMNFuPkWVITk4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bjoern Gerhart <gerhart@posteo.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 48/91] hwmon: (nct6775) Fix register address and added missed tolerance for nct6106
+        stable@vger.kernel.org, Gary R Hook <gary.hook@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.14 13/69] crypto: ccp - Add support for valid authsize values less than 16
 Date:   Wed, 14 Aug 2019 19:01:11 +0200
-Message-Id: <20190814165751.615902169@linuxfoundation.org>
+Message-Id: <20190814165746.407502903@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
-References: <20190814165748.991235624@linuxfoundation.org>
+In-Reply-To: <20190814165744.822314328@linuxfoundation.org>
+References: <20190814165744.822314328@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +43,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f3d43e2e45fd9d44ba52d20debd12cd4ee9c89bf ]
+From: Gary R Hook <gary.hook@amd.com>
 
-Fixed address of third NCT6106_REG_WEIGHT_DUTY_STEP, and
-added missed NCT6106_REG_TOLERANCE_H.
+commit 9f00baf74e4b6f79a3a3dfab44fb7bb2e797b551 upstream.
 
-Fixes: 6c009501ff200 ("hwmon: (nct6775) Add support for NCT6102D/6106D")
-Signed-off-by: Bjoern Gerhart <gerhart@posteo.de>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+AES GCM encryption allows for authsize values of 4, 8, and 12-16 bytes.
+Validate the requested authsize, and retain it to save in the request
+context.
+
+Fixes: 36cf515b9bbe2 ("crypto: ccp - Enable support for AES GCM on v5 CCPs")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Gary R Hook <gary.hook@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/hwmon/nct6775.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/crypto/ccp/ccp-crypto-aes-galois.c |   14 ++++++++++++++
+ drivers/crypto/ccp/ccp-ops.c               |   26 +++++++++++++++++++++-----
+ include/linux/ccp.h                        |    2 ++
+ 3 files changed, 37 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hwmon/nct6775.c b/drivers/hwmon/nct6775.c
-index 78603b78cf410..eba692cddbdee 100644
---- a/drivers/hwmon/nct6775.c
-+++ b/drivers/hwmon/nct6775.c
-@@ -818,7 +818,7 @@ static const u16 NCT6106_REG_TARGET[] = { 0x111, 0x121, 0x131 };
- static const u16 NCT6106_REG_WEIGHT_TEMP_SEL[] = { 0x168, 0x178, 0x188 };
- static const u16 NCT6106_REG_WEIGHT_TEMP_STEP[] = { 0x169, 0x179, 0x189 };
- static const u16 NCT6106_REG_WEIGHT_TEMP_STEP_TOL[] = { 0x16a, 0x17a, 0x18a };
--static const u16 NCT6106_REG_WEIGHT_DUTY_STEP[] = { 0x16b, 0x17b, 0x17c };
-+static const u16 NCT6106_REG_WEIGHT_DUTY_STEP[] = { 0x16b, 0x17b, 0x18b };
- static const u16 NCT6106_REG_WEIGHT_TEMP_BASE[] = { 0x16c, 0x17c, 0x18c };
- static const u16 NCT6106_REG_WEIGHT_DUTY_BASE[] = { 0x16d, 0x17d, 0x18d };
+--- a/drivers/crypto/ccp/ccp-crypto-aes-galois.c
++++ b/drivers/crypto/ccp/ccp-crypto-aes-galois.c
+@@ -63,6 +63,19 @@ static int ccp_aes_gcm_setkey(struct cry
+ static int ccp_aes_gcm_setauthsize(struct crypto_aead *tfm,
+ 				   unsigned int authsize)
+ {
++	switch (authsize) {
++	case 16:
++	case 15:
++	case 14:
++	case 13:
++	case 12:
++	case 8:
++	case 4:
++		break;
++	default:
++		return -EINVAL;
++	}
++
+ 	return 0;
+ }
  
-@@ -3673,6 +3673,7 @@ static int nct6775_probe(struct platform_device *pdev)
- 		data->REG_FAN_TIME[0] = NCT6106_REG_FAN_STOP_TIME;
- 		data->REG_FAN_TIME[1] = NCT6106_REG_FAN_STEP_UP_TIME;
- 		data->REG_FAN_TIME[2] = NCT6106_REG_FAN_STEP_DOWN_TIME;
-+		data->REG_TOLERANCE_H = NCT6106_REG_TOLERANCE_H;
- 		data->REG_PWM[0] = NCT6106_REG_PWM;
- 		data->REG_PWM[1] = NCT6106_REG_FAN_START_OUTPUT;
- 		data->REG_PWM[2] = NCT6106_REG_FAN_STOP_OUTPUT;
--- 
-2.20.1
-
+@@ -109,6 +122,7 @@ static int ccp_aes_gcm_crypt(struct aead
+ 	memset(&rctx->cmd, 0, sizeof(rctx->cmd));
+ 	INIT_LIST_HEAD(&rctx->cmd.entry);
+ 	rctx->cmd.engine = CCP_ENGINE_AES;
++	rctx->cmd.u.aes.authsize = crypto_aead_authsize(tfm);
+ 	rctx->cmd.u.aes.type = ctx->u.aes.type;
+ 	rctx->cmd.u.aes.mode = ctx->u.aes.mode;
+ 	rctx->cmd.u.aes.action = encrypt;
+--- a/drivers/crypto/ccp/ccp-ops.c
++++ b/drivers/crypto/ccp/ccp-ops.c
+@@ -625,6 +625,7 @@ static int ccp_run_aes_gcm_cmd(struct cc
+ 
+ 	unsigned long long *final;
+ 	unsigned int dm_offset;
++	unsigned int authsize;
+ 	unsigned int jobid;
+ 	unsigned int ilen;
+ 	bool in_place = true; /* Default value */
+@@ -646,6 +647,21 @@ static int ccp_run_aes_gcm_cmd(struct cc
+ 	if (!aes->key) /* Gotta have a key SGL */
+ 		return -EINVAL;
+ 
++	/* Zero defaults to 16 bytes, the maximum size */
++	authsize = aes->authsize ? aes->authsize : AES_BLOCK_SIZE;
++	switch (authsize) {
++	case 16:
++	case 15:
++	case 14:
++	case 13:
++	case 12:
++	case 8:
++	case 4:
++		break;
++	default:
++		return -EINVAL;
++	}
++
+ 	/* First, decompose the source buffer into AAD & PT,
+ 	 * and the destination buffer into AAD, CT & tag, or
+ 	 * the input into CT & tag.
+@@ -660,7 +676,7 @@ static int ccp_run_aes_gcm_cmd(struct cc
+ 		p_tag = scatterwalk_ffwd(sg_tag, p_outp, ilen);
+ 	} else {
+ 		/* Input length for decryption includes tag */
+-		ilen = aes->src_len - AES_BLOCK_SIZE;
++		ilen = aes->src_len - authsize;
+ 		p_tag = scatterwalk_ffwd(sg_tag, p_inp, ilen);
+ 	}
+ 
+@@ -841,19 +857,19 @@ static int ccp_run_aes_gcm_cmd(struct cc
+ 
+ 	if (aes->action == CCP_AES_ACTION_ENCRYPT) {
+ 		/* Put the ciphered tag after the ciphertext. */
+-		ccp_get_dm_area(&final_wa, 0, p_tag, 0, AES_BLOCK_SIZE);
++		ccp_get_dm_area(&final_wa, 0, p_tag, 0, authsize);
+ 	} else {
+ 		/* Does this ciphered tag match the input? */
+-		ret = ccp_init_dm_workarea(&tag, cmd_q, AES_BLOCK_SIZE,
++		ret = ccp_init_dm_workarea(&tag, cmd_q, authsize,
+ 					   DMA_BIDIRECTIONAL);
+ 		if (ret)
+ 			goto e_tag;
+-		ret = ccp_set_dm_area(&tag, 0, p_tag, 0, AES_BLOCK_SIZE);
++		ret = ccp_set_dm_area(&tag, 0, p_tag, 0, authsize);
+ 		if (ret)
+ 			goto e_tag;
+ 
+ 		ret = crypto_memneq(tag.address, final_wa.address,
+-				    AES_BLOCK_SIZE) ? -EBADMSG : 0;
++				    authsize) ? -EBADMSG : 0;
+ 		ccp_dm_free(&tag);
+ 	}
+ 
+--- a/include/linux/ccp.h
++++ b/include/linux/ccp.h
+@@ -173,6 +173,8 @@ struct ccp_aes_engine {
+ 	enum ccp_aes_mode mode;
+ 	enum ccp_aes_action action;
+ 
++	u32 authsize;
++
+ 	struct scatterlist *key;
+ 	u32 key_len;		/* In bytes */
+ 
 
 
