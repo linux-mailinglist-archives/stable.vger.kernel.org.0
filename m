@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A36888C735
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:22:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CA0A8C713
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:22:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727608AbfHNCWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:22:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49768 "EHLO mail.kernel.org"
+        id S1729574AbfHNCS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:18:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728697AbfHNCSv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:18:51 -0400
+        id S1729203AbfHNCSz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:18:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7096A2084D;
-        Wed, 14 Aug 2019 02:18:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D36D2208C2;
+        Wed, 14 Aug 2019 02:18:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565749130;
-        bh=p0XxJE8N7o7zXXXAIMl9GnwO25oAM1lDCY+x/eI0iIQ=;
+        s=default; t=1565749134;
+        bh=aUmuyXizQ44Abvi+odyQFQ3Oafz0RoxRwT5JgYbFclk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A1Ll8n7dVYc5bFUIJ7hAzwkR03+BQ6oqNo9vfz3AXQkGcVBdp4iyewVJ6ZqFV7rqH
-         80HcYeJ9MHMCuX7t3ktuk7ifI2gXM+ERnP9B3j77mRZW/h3zQTYuIeUKxCpWMKRq8V
-         lfyrShoQ13bRiT5HYyJiKUH1GsMvWW7Hen7ygY6s=
+        b=lnmx+6beTdRb/gl/er+rG7rgHwCy/7Yv/1o+kKQ6ywovxwuun+7ZzCEvGiRnohjKm
+         4HQNJYrF2med0+iXdAjh+JMipy6Ek6VAI4XwGMzCrESZsfTtNQWpcBxgbNdELgp2E/
+         7P2FHmtS6EwEL+XOTaA+56jVIWlXOAsv94sLAotM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 10/44] st21nfca_connectivity_event_received: null check the allocation
-Date:   Tue, 13 Aug 2019 22:17:59 -0400
-Message-Id: <20190814021834.16662-10-sashal@kernel.org>
+Cc:     Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 12/44] ASoC: ti: davinci-mcasp: Correct slot_width posed constraint
+Date:   Tue, 13 Aug 2019 22:18:01 -0400
+Message-Id: <20190814021834.16662-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021834.16662-1-sashal@kernel.org>
 References: <20190814021834.16662-1-sashal@kernel.org>
@@ -43,32 +43,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-[ Upstream commit 9891d06836e67324c9e9c4675ed90fc8b8110034 ]
+[ Upstream commit 1e112c35e3c96db7c8ca6ddaa96574f00c06e7db ]
 
-devm_kzalloc may fail and return null. So the null check is needed.
+The slot_width is a property for the bus while the constraint for
+SNDRV_PCM_HW_PARAM_SAMPLE_BITS is for the in memory format.
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Applying slot_width constraint to sample_bits works most of the time, but
+it will blacklist valid formats in some cases.
+
+With slot_width 24 we can support S24_3LE and S24_LE formats as they both
+look the same on the bus, but a a 24 constraint on sample_bits would not
+allow S24_LE as it is stored in 32bits in memory.
+
+Implement a simple hw_rule function to allow all formats which require less
+or equal number of bits on the bus as slot_width (if configured).
+
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20190726064244.3762-2-peter.ujfalusi@ti.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/st21nfca/se.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/davinci/davinci-mcasp.c | 43 ++++++++++++++++++++++++-------
+ 1 file changed, 34 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/nfc/st21nfca/se.c b/drivers/nfc/st21nfca/se.c
-index 3a98563d4a121..eac608a457f03 100644
---- a/drivers/nfc/st21nfca/se.c
-+++ b/drivers/nfc/st21nfca/se.c
-@@ -326,6 +326,8 @@ int st21nfca_connectivity_event_received(struct nfc_hci_dev *hdev, u8 host,
+diff --git a/sound/soc/davinci/davinci-mcasp.c b/sound/soc/davinci/davinci-mcasp.c
+index 9aa741d272798..0480ec4c80354 100644
+--- a/sound/soc/davinci/davinci-mcasp.c
++++ b/sound/soc/davinci/davinci-mcasp.c
+@@ -1158,6 +1158,28 @@ static int davinci_mcasp_trigger(struct snd_pcm_substream *substream,
+ 	return ret;
+ }
  
- 		transaction = (struct nfc_evt_transaction *)devm_kzalloc(dev,
- 						   skb->len - 2, GFP_KERNEL);
-+		if (!transaction)
-+			return -ENOMEM;
++static int davinci_mcasp_hw_rule_slot_width(struct snd_pcm_hw_params *params,
++					    struct snd_pcm_hw_rule *rule)
++{
++	struct davinci_mcasp_ruledata *rd = rule->private;
++	struct snd_mask *fmt = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
++	struct snd_mask nfmt;
++	int i, slot_width;
++
++	snd_mask_none(&nfmt);
++	slot_width = rd->mcasp->slot_width;
++
++	for (i = 0; i <= SNDRV_PCM_FORMAT_LAST; i++) {
++		if (snd_mask_test(fmt, i)) {
++			if (snd_pcm_format_width(i) <= slot_width) {
++				snd_mask_set(&nfmt, i);
++			}
++		}
++	}
++
++	return snd_mask_refine(fmt, &nfmt);
++}
++
+ static const unsigned int davinci_mcasp_dai_rates[] = {
+ 	8000, 11025, 16000, 22050, 32000, 44100, 48000, 64000,
+ 	88200, 96000, 176400, 192000,
+@@ -1251,7 +1273,7 @@ static int davinci_mcasp_startup(struct snd_pcm_substream *substream,
+ 	struct davinci_mcasp_ruledata *ruledata =
+ 					&mcasp->ruledata[substream->stream];
+ 	u32 max_channels = 0;
+-	int i, dir;
++	int i, dir, ret;
+ 	int tdm_slots = mcasp->tdm_slots;
  
- 		transaction->aid_len = skb->data[1];
- 		memcpy(transaction->aid, &skb->data[2],
+ 	/* Do not allow more then one stream per direction */
+@@ -1280,6 +1302,7 @@ static int davinci_mcasp_startup(struct snd_pcm_substream *substream,
+ 			max_channels++;
+ 	}
+ 	ruledata->serializers = max_channels;
++	ruledata->mcasp = mcasp;
+ 	max_channels *= tdm_slots;
+ 	/*
+ 	 * If the already active stream has less channels than the calculated
+@@ -1305,20 +1328,22 @@ static int davinci_mcasp_startup(struct snd_pcm_substream *substream,
+ 				   0, SNDRV_PCM_HW_PARAM_CHANNELS,
+ 				   &mcasp->chconstr[substream->stream]);
+ 
+-	if (mcasp->slot_width)
+-		snd_pcm_hw_constraint_minmax(substream->runtime,
+-					     SNDRV_PCM_HW_PARAM_SAMPLE_BITS,
+-					     8, mcasp->slot_width);
++	if (mcasp->slot_width) {
++		/* Only allow formats require <= slot_width bits on the bus */
++		ret = snd_pcm_hw_rule_add(substream->runtime, 0,
++					  SNDRV_PCM_HW_PARAM_FORMAT,
++					  davinci_mcasp_hw_rule_slot_width,
++					  ruledata,
++					  SNDRV_PCM_HW_PARAM_FORMAT, -1);
++		if (ret)
++			return ret;
++	}
+ 
+ 	/*
+ 	 * If we rely on implicit BCLK divider setting we should
+ 	 * set constraints based on what we can provide.
+ 	 */
+ 	if (mcasp->bclk_master && mcasp->bclk_div == 0 && mcasp->sysclk_freq) {
+-		int ret;
+-
+-		ruledata->mcasp = mcasp;
+-
+ 		ret = snd_pcm_hw_rule_add(substream->runtime, 0,
+ 					  SNDRV_PCM_HW_PARAM_RATE,
+ 					  davinci_mcasp_hw_rule_rate,
 -- 
 2.20.1
 
