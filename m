@@ -2,38 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 649FD8DA91
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:19:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D973B8DA3D
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:16:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730203AbfHNRL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:11:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35536 "EHLO mail.kernel.org"
+        id S1731067AbfHNROW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:14:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730239AbfHNRL7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:11:59 -0400
+        id S1731064AbfHNROW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:14:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6F3E2063F;
-        Wed, 14 Aug 2019 17:11:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A46B8208C2;
+        Wed, 14 Aug 2019 17:14:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802718;
-        bh=5KpzJcO9s1No6VYp64ZStfAjB04V+ezPbwatG7aZ2rs=;
+        s=default; t=1565802861;
+        bh=6x8AFhRj1EO0tbyspskxethUmHszG//jXzxC6/aIAZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FcTP8y2wsFsB1hDoi7V59ldphcEA7mViYe8RulWywuHTJTgdBYgyFmWHzlYJWw0nW
-         LBb8R23AzJC3ViK5WtcAR3wnuSJEs/7LtZQl+2O0fWwKc5GPAZ2vlMKXvtHJQcrQba
-         VzidnahqCSpnoWJWaJ4pWE5d/d7UY99ZNFUS/8YA=
+        b=MzidlgLApAojs+ubixfblFgL23Brmyr7xMf7thT3YW6aKrDVe5XhBd0SsyiA00Wlu
+         Dx99wFOc/6xMvCKaUNSJyw4m/9WVeLrGfW5FkHNA0ZzVl8ze0wE+II3hoUCuf+n8QK
+         t6209uqeKpdVVIWOh6CTSMNbT5EmufkmQyrx/ZhA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 90/91] iwlwifi: mvm: dont send GEO_TX_POWER_LIMIT on version < 41
+        stable@vger.kernel.org,
+        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
+        Vandita Kulkarni <vandita.kulkarni@intel.com>,
+        Deepak M <m.deepak@intel.com>,
+        Madhav Chauhan <madhav.chauhan@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        intel-gfx@lists.freedesktop.org
+Subject: [PATCH 4.14 55/69] drm/i915: Fix wrong escape clock divisor init for GLK
 Date:   Wed, 14 Aug 2019 19:01:53 +0200
-Message-Id: <20190814165754.073170009@linuxfoundation.org>
+Message-Id: <20190814165749.231806301@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
-References: <20190814165748.991235624@linuxfoundation.org>
+In-Reply-To: <20190814165744.822314328@linuxfoundation.org>
+References: <20190814165744.822314328@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,73 +51,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Coelho <luciano.coelho@intel.com>
+From: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
 
-commit 39bd984c203e86f3109b49c2a2e20677c4d3ab65 upstream.
+commit 73a0ff0b30af79bf0303d557eb82f1d1945bb6ee upstream.
 
-Firmware versions before 41 don't support the GEO_TX_POWER_LIMIT
-command, and sending it to the firmware will cause a firmware crash.
-We allow this via debugfs, so we need to return an error value in case
-it's not supported.
+According to Bspec clock divisor registers in GeminiLake
+should be initialized by shifting 1(<<) to amount of correspondent
+divisor. While i915 was writing all this time that value as is.
 
-This had already been fixed during init, when we send the command if
-the ACPI WGDS table is present.  Fix it also for the other,
-userspace-triggered case.
+Surprisingly that it by accident worked, until we met some issues
+with Microtech Etab.
 
+v2: Added Fixes tag and cc
+v3: Added stable to cc as well.
+
+Signed-off-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+Reviewed-by: Vandita Kulkarni <vandita.kulkarni@intel.com>
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=108826
+Fixes: bcc657004841 ("drm/i915/glk: Program txesc clock divider for GLK")
+Cc: Deepak M <m.deepak@intel.com>
+Cc: Madhav Chauhan <madhav.chauhan@intel.com>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: intel-gfx@lists.freedesktop.org
 Cc: stable@vger.kernel.org
-Fixes: 7fe90e0e3d60 ("iwlwifi: mvm: refactor geo init")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190712081938.14185-1-stanislav.lisovskiy@intel.com
+(cherry picked from commit ce52ad5dd52cfaf3398058384e0ff94134bbd89c)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/fw.c |   22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/i915/intel_dsi_pll.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-@@ -836,6 +836,17 @@ int iwl_mvm_sar_select_profile(struct iw
- 	return iwl_mvm_send_cmd_pdu(mvm, REDUCE_TX_POWER_CMD, 0, len, &cmd);
+--- a/drivers/gpu/drm/i915/intel_dsi_pll.c
++++ b/drivers/gpu/drm/i915/intel_dsi_pll.c
+@@ -422,8 +422,8 @@ static void glk_dsi_program_esc_clock(st
+ 	else
+ 		txesc2_div = 10;
+ 
+-	I915_WRITE(MIPIO_TXESC_CLK_DIV1, txesc1_div & GLK_TX_ESC_CLK_DIV1_MASK);
+-	I915_WRITE(MIPIO_TXESC_CLK_DIV2, txesc2_div & GLK_TX_ESC_CLK_DIV2_MASK);
++	I915_WRITE(MIPIO_TXESC_CLK_DIV1, (1 << (txesc1_div - 1)) & GLK_TX_ESC_CLK_DIV1_MASK);
++	I915_WRITE(MIPIO_TXESC_CLK_DIV2, (1 << (txesc2_div - 1)) & GLK_TX_ESC_CLK_DIV2_MASK);
  }
  
-+static bool iwl_mvm_sar_geo_support(struct iwl_mvm *mvm)
-+{
-+	/*
-+	 * The GEO_TX_POWER_LIMIT command is not supported on earlier
-+	 * firmware versions.  Unfortunately, we don't have a TLV API
-+	 * flag to rely on, so rely on the major version which is in
-+	 * the first byte of ucode_ver.
-+	 */
-+	return IWL_UCODE_SERIAL(mvm->fw->ucode_ver) >= 41;
-+}
-+
- int iwl_mvm_get_sar_geo_profile(struct iwl_mvm *mvm)
- {
- 	struct iwl_geo_tx_power_profiles_resp *resp;
-@@ -851,6 +862,9 @@ int iwl_mvm_get_sar_geo_profile(struct i
- 		.data = { &geo_cmd },
- 	};
- 
-+	if (!iwl_mvm_sar_geo_support(mvm))
-+		return -EOPNOTSUPP;
-+
- 	ret = iwl_mvm_send_cmd(mvm, &cmd);
- 	if (ret) {
- 		IWL_ERR(mvm, "Failed to get geographic profile info %d\n", ret);
-@@ -876,13 +890,7 @@ static int iwl_mvm_sar_geo_init(struct i
- 	int ret, i, j;
- 	u16 cmd_wide_id =  WIDE_ID(PHY_OPS_GROUP, GEO_TX_POWER_LIMIT);
- 
--	/*
--	 * This command is not supported on earlier firmware versions.
--	 * Unfortunately, we don't have a TLV API flag to rely on, so
--	 * rely on the major version which is in the first byte of
--	 * ucode_ver.
--	 */
--	if (IWL_UCODE_SERIAL(mvm->fw->ucode_ver) < 41)
-+	if (!iwl_mvm_sar_geo_support(mvm))
- 		return 0;
- 
- 	ret = iwl_mvm_sar_get_wgds_table(mvm);
+ /* Program BXT Mipi clocks and dividers */
 
 
