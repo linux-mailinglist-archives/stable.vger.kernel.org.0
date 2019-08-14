@@ -2,36 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 249088D96B
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:09:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D94728D94D
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:07:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729570AbfHNRIO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:08:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58128 "EHLO mail.kernel.org"
+        id S1728780AbfHNRHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:07:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729045AbfHNRIN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:08:13 -0400
+        id S1729826AbfHNRHP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:07:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF3D7216F4;
-        Wed, 14 Aug 2019 17:08:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E23D221743;
+        Wed, 14 Aug 2019 17:07:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802493;
-        bh=X2uMXTHGNhPxf1CI+iyWVQOr8M90YXHMvOG9H+Ly1Uo=;
+        s=default; t=1565802434;
+        bh=HcpxKF/MCkxq4bpGnQg8NKwrDNeMif3vMtDdIL/Asro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NUCrV0EwJtzmuxic9PT2cxj8bxqUuQlcgGNJygqYGHRsWWtFzRKGp7WozmK1WOkAc
-         T3TFMsPdr9oUigHpCvFM6cGa1tEZwgNWrTdvdO1l7nOb0dS+OFUeriI1YZ3/U9dUNf
-         NtesYL06BCQngObU1YZcJKEp9Vx0VeLR3CIWZ3sA=
+        b=KT4qcTtKBKIZUVDErmTIG0iUXgtYNOs3UslhUTDe39FAooz2oztrK0j1Njahvu/Vq
+         uy0xuvT+wdBZCAodnghcYxI0Czb8g+RuJtIWxR57z5Nzonkwk9KrPc5b9xBpaDaD6o
+         PApNkS4aSqSSb1CwtBGI8bN+T+2fF0nfUQl99+0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomas Bortoli <tomasbortoli@gmail.com>,
-        syzbot+d6a5a1a3657b596ef132@syzkaller.appspotmail.com,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.2 121/144] can: peak_usb: pcan_usb_pro: Fix info-leaks to USB devices
-Date:   Wed, 14 Aug 2019 19:01:17 +0200
-Message-Id: <20190814165804.990792548@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
+        Vandita Kulkarni <vandita.kulkarni@intel.com>,
+        Deepak M <m.deepak@intel.com>,
+        Madhav Chauhan <madhav.chauhan@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        intel-gfx@lists.freedesktop.org
+Subject: [PATCH 5.2 125/144] drm/i915: Fix wrong escape clock divisor init for GLK
+Date:   Wed, 14 Aug 2019 19:01:21 +0200
+Message-Id: <20190814165805.156518457@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
 References: <20190814165759.466811854@linuxfoundation.org>
@@ -44,35 +51,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Bortoli <tomasbortoli@gmail.com>
+From: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
 
-commit ead16e53c2f0ed946d82d4037c630e2f60f4ab69 upstream.
+commit 73a0ff0b30af79bf0303d557eb82f1d1945bb6ee upstream.
 
-Uninitialized Kernel memory can leak to USB devices.
+According to Bspec clock divisor registers in GeminiLake
+should be initialized by shifting 1(<<) to amount of correspondent
+divisor. While i915 was writing all this time that value as is.
 
-Fix by using kzalloc() instead of kmalloc() on the affected buffers.
+Surprisingly that it by accident worked, until we met some issues
+with Microtech Etab.
 
-Signed-off-by: Tomas Bortoli <tomasbortoli@gmail.com>
-Reported-by: syzbot+d6a5a1a3657b596ef132@syzkaller.appspotmail.com
-Fixes: f14e22435a27 ("net: can: peak_usb: Do not do dma on the stack")
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+v2: Added Fixes tag and cc
+v3: Added stable to cc as well.
+
+Signed-off-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+Reviewed-by: Vandita Kulkarni <vandita.kulkarni@intel.com>
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=108826
+Fixes: bcc657004841 ("drm/i915/glk: Program txesc clock divider for GLK")
+Cc: Deepak M <m.deepak@intel.com>
+Cc: Madhav Chauhan <madhav.chauhan@intel.com>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190712081938.14185-1-stanislav.lisovskiy@intel.com
+(cherry picked from commit ce52ad5dd52cfaf3398058384e0ff94134bbd89c)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/can/usb/peak_usb/pcan_usb_pro.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/i915/vlv_dsi_pll.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/can/usb/peak_usb/pcan_usb_pro.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb_pro.c
-@@ -494,7 +494,7 @@ static int pcan_usb_pro_drv_loaded(struc
- 	u8 *buffer;
- 	int err;
+--- a/drivers/gpu/drm/i915/vlv_dsi_pll.c
++++ b/drivers/gpu/drm/i915/vlv_dsi_pll.c
+@@ -394,8 +394,8 @@ static void glk_dsi_program_esc_clock(st
+ 	else
+ 		txesc2_div = 10;
  
--	buffer = kmalloc(PCAN_USBPRO_FCT_DRVLD_REQ_LEN, GFP_KERNEL);
-+	buffer = kzalloc(PCAN_USBPRO_FCT_DRVLD_REQ_LEN, GFP_KERNEL);
- 	if (!buffer)
- 		return -ENOMEM;
+-	I915_WRITE(MIPIO_TXESC_CLK_DIV1, txesc1_div & GLK_TX_ESC_CLK_DIV1_MASK);
+-	I915_WRITE(MIPIO_TXESC_CLK_DIV2, txesc2_div & GLK_TX_ESC_CLK_DIV2_MASK);
++	I915_WRITE(MIPIO_TXESC_CLK_DIV1, (1 << (txesc1_div - 1)) & GLK_TX_ESC_CLK_DIV1_MASK);
++	I915_WRITE(MIPIO_TXESC_CLK_DIV2, (1 << (txesc2_div - 1)) & GLK_TX_ESC_CLK_DIV2_MASK);
+ }
  
+ /* Program BXT Mipi clocks and dividers */
 
 
