@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87BBD8DB3D
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:23:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66FE98DB3F
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:23:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729146AbfHNRHn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:07:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57268 "EHLO mail.kernel.org"
+        id S1728566AbfHNRXV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:23:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729181AbfHNRHk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:07:40 -0400
+        id S1729188AbfHNRHs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:07:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89DA9214DA;
-        Wed, 14 Aug 2019 17:07:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AF3D216F4;
+        Wed, 14 Aug 2019 17:07:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802460;
-        bh=yRsQvy2b9thCmIB4Ypt2LkjtSyzaXf3LEeQdcUkFSXA=;
+        s=default; t=1565802467;
+        bh=YvY3XohQ702pDZA2onUY+AT/a7qFGXpoIFIXXKLbfX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FhwzuwMNi0qi2/bdDGz1bL7xcRDaj4+sIPe86Tnl787dsADd+ziiPSVEoTLwH+cup
-         ZxA9hWDWpYTS86Xv0pTDHF/XA3KFC/1IF5SScEbdsEdENLhrZUVoFck0+CdIwSTSYW
-         LP0wQJuf2UoyKwO4s6pI2tHFu5oJHbGIfarQxjXA=
+        b=hIB+E5873aYXLTvzZefPzV8A4k6JD/UNN3vO0U2D14AAdxCw2EHgWSE3S0p5PMSmf
+         4pTz6yRrdaAAxOhV/Sm/WpiIl4Pv301+WZ4iDse2guo0J86651aIfZGVF9g0Z8jLqW
+         eWazhNic5bdvzZWcfwKAw+4/lIbkpNVB/f9adXoc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.2 134/144] NFSv4: Fix delegation state recovery
-Date:   Wed, 14 Aug 2019 19:01:30 +0200
-Message-Id: <20190814165805.544934158@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Marc Zyngier <Marc.Zyngier@arm.com>,
+        Wanpeng Li <wanpengli@tencent.com>
+Subject: [PATCH 5.2 137/144] KVM: Fix leak vCPUs VMCS value into other pCPU
+Date:   Wed, 14 Aug 2019 19:01:33 +0200
+Message-Id: <20190814165805.681510636@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
 References: <20190814165759.466811854@linuxfoundation.org>
@@ -43,113 +46,197 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-commit 5eb8d18ca0e001c6055da2b7f30d8f6dca23a44f upstream.
+commit 17e433b54393a6269acbcb792da97791fe1592d8 upstream.
 
-Once we clear the NFS_DELEGATED_STATE flag, we're telling
-nfs_delegation_claim_opens() that we're done recovering all open state
-for that stateid, so we really need to ensure that we test for all
-open modes that are currently cached and recover them before exiting
-nfs4_open_delegation_recall().
+After commit d73eb57b80b (KVM: Boost vCPUs that are delivering interrupts), a
+five years old bug is exposed. Running ebizzy benchmark in three 80 vCPUs VMs
+on one 80 pCPUs Skylake server, a lot of rcu_sched stall warning splatting
+in the VMs after stress testing:
 
-Fixes: 24311f884189d ("NFSv4: Recovery of recalled read delegations...")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Cc: stable@vger.kernel.org # v4.3+
+ INFO: rcu_sched detected stalls on CPUs/tasks: { 4 41 57 62 77} (detected by 15, t=60004 jiffies, g=899, c=898, q=15073)
+ Call Trace:
+   flush_tlb_mm_range+0x68/0x140
+   tlb_flush_mmu.part.75+0x37/0xe0
+   tlb_finish_mmu+0x55/0x60
+   zap_page_range+0x142/0x190
+   SyS_madvise+0x3cd/0x9c0
+   system_call_fastpath+0x1c/0x21
+
+swait_active() sustains to be true before finish_swait() is called in
+kvm_vcpu_block(), voluntarily preempted vCPUs are taken into account
+by kvm_vcpu_on_spin() loop greatly increases the probability condition
+kvm_arch_vcpu_runnable(vcpu) is checked and can be true, when APICv
+is enabled the yield-candidate vCPU's VMCS RVI field leaks(by
+vmx_sync_pir_to_irr()) into spinning-on-a-taken-lock vCPU's current
+VMCS.
+
+This patch fixes it by checking conservatively a subset of events.
+
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Radim Krčmář <rkrcmar@redhat.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Marc Zyngier <Marc.Zyngier@arm.com>
+Cc: stable@vger.kernel.org
+Fixes: 98f4a1467 (KVM: add kvm_arch_vcpu_runnable() test to kvm_vcpu_on_spin() loop)
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/delegation.c |    2 +-
- fs/nfs/delegation.h |    2 +-
- fs/nfs/nfs4proc.c   |   25 ++++++++++++-------------
- 3 files changed, 14 insertions(+), 15 deletions(-)
+ arch/powerpc/kvm/powerpc.c      |    5 +++++
+ arch/x86/include/asm/kvm_host.h |    1 +
+ arch/x86/kvm/svm.c              |    6 ++++++
+ arch/x86/kvm/vmx/vmx.c          |    6 ++++++
+ arch/x86/kvm/x86.c              |   16 ++++++++++++++++
+ include/linux/kvm_host.h        |    1 +
+ virt/kvm/kvm_main.c             |   25 ++++++++++++++++++++++++-
+ 7 files changed, 59 insertions(+), 1 deletion(-)
 
---- a/fs/nfs/delegation.c
-+++ b/fs/nfs/delegation.c
-@@ -153,7 +153,7 @@ again:
- 		/* Block nfs4_proc_unlck */
- 		mutex_lock(&sp->so_delegreturn_mutex);
- 		seq = raw_seqcount_begin(&sp->so_reclaim_seqcount);
--		err = nfs4_open_delegation_recall(ctx, state, stateid, type);
-+		err = nfs4_open_delegation_recall(ctx, state, stateid);
- 		if (!err)
- 			err = nfs_delegation_claim_locks(state, stateid);
- 		if (!err && read_seqcount_retry(&sp->so_reclaim_seqcount, seq))
---- a/fs/nfs/delegation.h
-+++ b/fs/nfs/delegation.h
-@@ -63,7 +63,7 @@ void nfs_reap_expired_delegations(struct
- 
- /* NFSv4 delegation-related procedures */
- int nfs4_proc_delegreturn(struct inode *inode, const struct cred *cred, const nfs4_stateid *stateid, int issync);
--int nfs4_open_delegation_recall(struct nfs_open_context *ctx, struct nfs4_state *state, const nfs4_stateid *stateid, fmode_t type);
-+int nfs4_open_delegation_recall(struct nfs_open_context *ctx, struct nfs4_state *state, const nfs4_stateid *stateid);
- int nfs4_lock_delegation_recall(struct file_lock *fl, struct nfs4_state *state, const nfs4_stateid *stateid);
- bool nfs4_copy_delegation_stateid(struct inode *inode, fmode_t flags, nfs4_stateid *dst, const struct cred **cred);
- bool nfs4_refresh_delegation_stateid(nfs4_stateid *dst, struct inode *inode);
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -2148,12 +2148,10 @@ static int nfs4_handle_delegation_recall
- 		case -NFS4ERR_BAD_HIGH_SLOT:
- 		case -NFS4ERR_CONN_NOT_BOUND_TO_SESSION:
- 		case -NFS4ERR_DEADSESSION:
--			set_bit(NFS_DELEGATED_STATE, &state->flags);
- 			nfs4_schedule_session_recovery(server->nfs_client->cl_session, err);
- 			return -EAGAIN;
- 		case -NFS4ERR_STALE_CLIENTID:
- 		case -NFS4ERR_STALE_STATEID:
--			set_bit(NFS_DELEGATED_STATE, &state->flags);
- 			/* Don't recall a delegation if it was lost */
- 			nfs4_schedule_lease_recovery(server->nfs_client);
- 			return -EAGAIN;
-@@ -2174,7 +2172,6 @@ static int nfs4_handle_delegation_recall
- 			return -EAGAIN;
- 		case -NFS4ERR_DELAY:
- 		case -NFS4ERR_GRACE:
--			set_bit(NFS_DELEGATED_STATE, &state->flags);
- 			ssleep(1);
- 			return -EAGAIN;
- 		case -ENOMEM:
-@@ -2190,8 +2187,7 @@ static int nfs4_handle_delegation_recall
+--- a/arch/powerpc/kvm/powerpc.c
++++ b/arch/powerpc/kvm/powerpc.c
+@@ -50,6 +50,11 @@ int kvm_arch_vcpu_runnable(struct kvm_vc
+ 	return !!(v->arch.pending_exceptions) || kvm_request_pending(v);
  }
  
- int nfs4_open_delegation_recall(struct nfs_open_context *ctx,
--		struct nfs4_state *state, const nfs4_stateid *stateid,
--		fmode_t type)
-+		struct nfs4_state *state, const nfs4_stateid *stateid)
++bool kvm_arch_dy_runnable(struct kvm_vcpu *vcpu)
++{
++	return kvm_arch_vcpu_runnable(vcpu);
++}
++
+ bool kvm_arch_vcpu_in_kernel(struct kvm_vcpu *vcpu)
  {
- 	struct nfs_server *server = NFS_SERVER(state->inode);
- 	struct nfs4_opendata *opendata;
-@@ -2202,20 +2198,23 @@ int nfs4_open_delegation_recall(struct n
- 	if (IS_ERR(opendata))
- 		return PTR_ERR(opendata);
- 	nfs4_stateid_copy(&opendata->o_arg.u.delegation, stateid);
--	nfs_state_clear_delegation(state);
--	switch (type & (FMODE_READ|FMODE_WRITE)) {
--	case FMODE_READ|FMODE_WRITE:
--	case FMODE_WRITE:
-+	if (!test_bit(NFS_O_RDWR_STATE, &state->flags)) {
- 		err = nfs4_open_recover_helper(opendata, FMODE_READ|FMODE_WRITE);
- 		if (err)
--			break;
-+			goto out;
-+	}
-+	if (!test_bit(NFS_O_WRONLY_STATE, &state->flags)) {
- 		err = nfs4_open_recover_helper(opendata, FMODE_WRITE);
- 		if (err)
--			break;
--		/* Fall through */
--	case FMODE_READ:
-+			goto out;
-+	}
-+	if (!test_bit(NFS_O_RDONLY_STATE, &state->flags)) {
- 		err = nfs4_open_recover_helper(opendata, FMODE_READ);
-+		if (err)
-+			goto out;
- 	}
-+	nfs_state_clear_delegation(state);
-+out:
- 	nfs4_opendata_put(opendata);
- 	return nfs4_handle_delegation_recall_error(server, state, stateid, NULL, err);
+ 	return false;
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1169,6 +1169,7 @@ struct kvm_x86_ops {
+ 	int (*update_pi_irte)(struct kvm *kvm, unsigned int host_irq,
+ 			      uint32_t guest_irq, bool set);
+ 	void (*apicv_post_state_restore)(struct kvm_vcpu *vcpu);
++	bool (*dy_apicv_has_pending_interrupt)(struct kvm_vcpu *vcpu);
+ 
+ 	int (*set_hv_timer)(struct kvm_vcpu *vcpu, u64 guest_deadline_tsc,
+ 			    bool *expired);
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -5167,6 +5167,11 @@ static void svm_deliver_avic_intr(struct
+ 		kvm_vcpu_wake_up(vcpu);
  }
+ 
++static bool svm_dy_apicv_has_pending_interrupt(struct kvm_vcpu *vcpu)
++{
++	return false;
++}
++
+ static void svm_ir_list_del(struct vcpu_svm *svm, struct amd_iommu_pi_data *pi)
+ {
+ 	unsigned long flags;
+@@ -7264,6 +7269,7 @@ static struct kvm_x86_ops svm_x86_ops __
+ 
+ 	.pmu_ops = &amd_pmu_ops,
+ 	.deliver_posted_interrupt = svm_deliver_avic_intr,
++	.dy_apicv_has_pending_interrupt = svm_dy_apicv_has_pending_interrupt,
+ 	.update_pi_irte = svm_update_pi_irte,
+ 	.setup_mce = svm_setup_mce,
+ 
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -6096,6 +6096,11 @@ static int vmx_sync_pir_to_irr(struct kv
+ 	return max_irr;
+ }
+ 
++static bool vmx_dy_apicv_has_pending_interrupt(struct kvm_vcpu *vcpu)
++{
++	return pi_test_on(vcpu_to_pi_desc(vcpu));
++}
++
+ static void vmx_load_eoi_exitmap(struct kvm_vcpu *vcpu, u64 *eoi_exit_bitmap)
+ {
+ 	if (!kvm_vcpu_apicv_active(vcpu))
+@@ -7662,6 +7667,7 @@ static struct kvm_x86_ops vmx_x86_ops __
+ 	.guest_apic_has_interrupt = vmx_guest_apic_has_interrupt,
+ 	.sync_pir_to_irr = vmx_sync_pir_to_irr,
+ 	.deliver_posted_interrupt = vmx_deliver_posted_interrupt,
++	.dy_apicv_has_pending_interrupt = vmx_dy_apicv_has_pending_interrupt,
+ 
+ 	.set_tss_addr = vmx_set_tss_addr,
+ 	.set_identity_map_addr = vmx_set_identity_map_addr,
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -9641,6 +9641,22 @@ int kvm_arch_vcpu_runnable(struct kvm_vc
+ 	return kvm_vcpu_running(vcpu) || kvm_vcpu_has_events(vcpu);
+ }
+ 
++bool kvm_arch_dy_runnable(struct kvm_vcpu *vcpu)
++{
++	if (READ_ONCE(vcpu->arch.pv.pv_unhalted))
++		return true;
++
++	if (kvm_test_request(KVM_REQ_NMI, vcpu) ||
++		kvm_test_request(KVM_REQ_SMI, vcpu) ||
++		 kvm_test_request(KVM_REQ_EVENT, vcpu))
++		return true;
++
++	if (vcpu->arch.apicv_active && kvm_x86_ops->dy_apicv_has_pending_interrupt(vcpu))
++		return true;
++
++	return false;
++}
++
+ bool kvm_arch_vcpu_in_kernel(struct kvm_vcpu *vcpu)
+ {
+ 	return vcpu->arch.preempted_in_kernel;
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -871,6 +871,7 @@ void kvm_arch_check_processor_compat(voi
+ int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu);
+ bool kvm_arch_vcpu_in_kernel(struct kvm_vcpu *vcpu);
+ int kvm_arch_vcpu_should_kick(struct kvm_vcpu *vcpu);
++bool kvm_arch_dy_runnable(struct kvm_vcpu *vcpu);
+ 
+ #ifndef __KVM_HAVE_ARCH_VM_ALLOC
+ /*
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2475,6 +2475,29 @@ static bool kvm_vcpu_eligible_for_direct
+ #endif
+ }
+ 
++/*
++ * Unlike kvm_arch_vcpu_runnable, this function is called outside
++ * a vcpu_load/vcpu_put pair.  However, for most architectures
++ * kvm_arch_vcpu_runnable does not require vcpu_load.
++ */
++bool __weak kvm_arch_dy_runnable(struct kvm_vcpu *vcpu)
++{
++	return kvm_arch_vcpu_runnable(vcpu);
++}
++
++static bool vcpu_dy_runnable(struct kvm_vcpu *vcpu)
++{
++	if (kvm_arch_dy_runnable(vcpu))
++		return true;
++
++#ifdef CONFIG_KVM_ASYNC_PF
++	if (!list_empty_careful(&vcpu->async_pf.done))
++		return true;
++#endif
++
++	return false;
++}
++
+ void kvm_vcpu_on_spin(struct kvm_vcpu *me, bool yield_to_kernel_mode)
+ {
+ 	struct kvm *kvm = me->kvm;
+@@ -2504,7 +2527,7 @@ void kvm_vcpu_on_spin(struct kvm_vcpu *m
+ 				continue;
+ 			if (vcpu == me)
+ 				continue;
+-			if (swait_active(&vcpu->wq) && !kvm_arch_vcpu_runnable(vcpu))
++			if (swait_active(&vcpu->wq) && !vcpu_dy_runnable(vcpu))
+ 				continue;
+ 			if (yield_to_kernel_mode && !kvm_arch_vcpu_in_kernel(vcpu))
+ 				continue;
 
 
