@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC1318C944
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:38:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 407B68C945
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:38:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727965AbfHNCMj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:12:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44786 "EHLO mail.kernel.org"
+        id S1728002AbfHNChs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:37:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727954AbfHNCMj (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727960AbfHNCMj (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 13 Aug 2019 22:12:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5379220842;
-        Wed, 14 Aug 2019 02:12:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59D8D20989;
+        Wed, 14 Aug 2019 02:12:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1565748758;
-        bh=NScOqo+/Xnzi6GbYOIe5OX0ISrm1MWRJGyj0x9zIYUo=;
+        bh=cuKDBwCGKqEUiFeh4j0gSk0yqRyXZg9czcbOrk+owtE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HimVR5MHpCCOzF9syvVPi025pw8mUOlblVFjOyD8pAXQ3em17aTW0lzRRdcylbGXq
-         ZqPW0rVP36bjWFByQPUfRweyNlzYjA+2JTBmWM7Coc8/PGDqKmOhU9A0RZElyb5mmT
-         ShIiX3chAF5tfPkxJkEmrC50BQPg0FnCpY13SJlM=
+        b=OzQP6vnW+TrkUPkfttptylqo5GJ+ixs4UmrRJ/YEib7GhUwRMOr7siIREdUSJfEat
+         HycP2LaVDCcrGmWDIjMhfuSS72nj2RA6Np+PvjZSpFO2uH0auBBjgbRi5tBbQcLaZS
+         gu/yggre0hDTWEKY83cd2KT8Aa8hhBU7l7qH05s0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 051/123] isdn: mISDN: hfcsusb: Fix possible null-pointer dereferences in start_isoc_chain()
-Date:   Tue, 13 Aug 2019 22:09:35 -0400
-Message-Id: <20190814021047.14828-51-sashal@kernel.org>
+Cc:     Ben Segal <bpsegal20@gmail.com>,
+        Oded Gabbay <oded.gabbay@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 052/123] habanalabs: fix F/W download in BE architecture
+Date:   Tue, 13 Aug 2019 22:09:36 -0400
+Message-Id: <20190814021047.14828-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -43,48 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Ben Segal <bpsegal20@gmail.com>
 
-[ Upstream commit a0d57a552b836206ad7705a1060e6e1ce5a38203 ]
+[ Upstream commit 75035fe22b808a520e1d712ebe913684ba406e01 ]
 
-In start_isoc_chain(), usb_alloc_urb() on line 1392 may fail
-and return NULL. At this time, fifo->iso[i].urb is assigned to NULL.
+writeX macros might perform byte-swapping in BE architectures. As our F/W
+is in LE format, we need to make sure no byte-swapping will occur.
 
-Then, fifo->iso[i].urb is used at some places, such as:
-LINE 1405:    fill_isoc_urb(fifo->iso[i].urb, ...)
-                  urb->number_of_packets = num_packets;
-                  urb->transfer_flags = URB_ISO_ASAP;
-                  urb->actual_length = 0;
-                  urb->interval = interval;
-LINE 1416:    fifo->iso[i].urb->...
-LINE 1419:    fifo->iso[i].urb->...
+There is a standard kernel function (called memcpy_toio) for copying data
+to I/O area which is used in a lot of drivers to download F/W to PCIe
+adapters. That function also makes sure the data is copied "as-is",
+without byte-swapping.
 
-Thus, possible null-pointer dereferences may occur.
+This patch use that function to copy the F/W to the GOYA ASIC instead of
+writeX macros.
 
-To fix these bugs, "continue" is added to avoid using fifo->iso[i].urb
-when it is NULL.
-
-These bugs are found by a static analysis tool STCheck written by us.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ben Segal <bpsegal20@gmail.com>
+Reviewed-by: Oded Gabbay <oded.gabbay@gmail.com>
+Signed-off-by: Oded Gabbay <oded.gabbay@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/hardware/mISDN/hfcsusb.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/misc/habanalabs/firmware_if.c | 19 ++-----------------
+ 1 file changed, 2 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/isdn/hardware/mISDN/hfcsusb.c b/drivers/isdn/hardware/mISDN/hfcsusb.c
-index 0e224232f7464..8fb7c5dea07fc 100644
---- a/drivers/isdn/hardware/mISDN/hfcsusb.c
-+++ b/drivers/isdn/hardware/mISDN/hfcsusb.c
-@@ -1394,6 +1394,7 @@ start_isoc_chain(struct usb_fifo *fifo, int num_packets_per_urb,
- 				printk(KERN_DEBUG
- 				       "%s: %s: alloc urb for fifo %i failed",
- 				       hw->name, __func__, fifo->fifonum);
-+				continue;
- 			}
- 			fifo->iso[i].owner_fifo = (struct usb_fifo *) fifo;
- 			fifo->iso[i].indx = i;
+diff --git a/drivers/misc/habanalabs/firmware_if.c b/drivers/misc/habanalabs/firmware_if.c
+index eda5d7fcb79f2..fe9e57a81b6fd 100644
+--- a/drivers/misc/habanalabs/firmware_if.c
++++ b/drivers/misc/habanalabs/firmware_if.c
+@@ -24,7 +24,7 @@ int hl_fw_push_fw_to_device(struct hl_device *hdev, const char *fw_name,
+ {
+ 	const struct firmware *fw;
+ 	const u64 *fw_data;
+-	size_t fw_size, i;
++	size_t fw_size;
+ 	int rc;
+ 
+ 	rc = request_firmware(&fw, fw_name, hdev->dev);
+@@ -45,22 +45,7 @@ int hl_fw_push_fw_to_device(struct hl_device *hdev, const char *fw_name,
+ 
+ 	fw_data = (const u64 *) fw->data;
+ 
+-	if ((fw->size % 8) != 0)
+-		fw_size -= 8;
+-
+-	for (i = 0 ; i < fw_size ; i += 8, fw_data++, dst += 8) {
+-		if (!(i & (0x80000 - 1))) {
+-			dev_dbg(hdev->dev,
+-				"copied so far %zu out of %zu for %s firmware",
+-				i, fw_size, fw_name);
+-			usleep_range(20, 100);
+-		}
+-
+-		writeq(*fw_data, dst);
+-	}
+-
+-	if ((fw->size % 8) != 0)
+-		writel(*(const u32 *) fw_data, dst);
++	memcpy_toio(dst, fw_data, fw_size);
+ 
+ out:
+ 	release_firmware(fw);
 -- 
 2.20.1
 
