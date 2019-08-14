@@ -2,102 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5F808D6E0
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 17:09:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 730158D739
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 17:30:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726126AbfHNPJp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 11:09:45 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:45127 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726047AbfHNPJo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Aug 2019 11:09:44 -0400
-Received: by mail-pf1-f195.google.com with SMTP id w26so8476892pfq.12
-        for <stable@vger.kernel.org>; Wed, 14 Aug 2019 08:09:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=IUmHYWSvqGvDlE5fCA2dGLGnHLe5dTz4b/3dg3VtZ5o=;
-        b=CVzXSJd1tggLsODZFvUEpYWvDdQERKXQhWO5hgcBgc5h4Fl8+2zsuVNRnnIWI74yfO
-         rjrHzoDGfRwBJKSrsNNLDEpNtQcwMMXx0Gfbj2qpCj7WzqB8UpeIGua20iaZa4nJDsgt
-         Wg5/F1sawIMO5MR7wcEcZcw8Bn1BYpPrSdcsYqDyHF7yD83ph+Q2doR0+w6hLZXBLHlo
-         2r1b6/WCGyDYdgbt8vs3oFOk8U8XIE1+VPONSdfm5R4aWaoIE69mvMS6XDurxHHB+Gxa
-         vfvNU9NYAKsT87PGiEYebUDR+9y12hEyEAk67ag869GJVtMXasP/kMr1c2IlusJOHyv5
-         bhSg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=IUmHYWSvqGvDlE5fCA2dGLGnHLe5dTz4b/3dg3VtZ5o=;
-        b=sdiJbqPnniYwBdZTOSuKEwgOmrH9eKTkRDz88VLCCeG2Ise7SEAl3S5GSVfIvPONBs
-         1T6qVVq6wB85JDNGb0MqtgXm6feGlZznqp4OrIC8edi/eMWkEzSeMAv6pGYk58JX17IF
-         ft6/smze0ODelE/+WlpoqxnNCSH28uv1TQ/X3TDyN3u10sXDMP55eqKgRA46VTMld3tq
-         WWzHAydd5kyhT/Y8v0ynvs6V7Ecyurr6jQwvqhmSCOgQ5UkcLqqt2Mt3+jIkuV8zYGoT
-         7dAgsi5gzsdauLaHD3f+UKmNB10YjHN7/VfZdOIHIxqm9EYhG63ayv22afEDhphwpQhW
-         OYtQ==
-X-Gm-Message-State: APjAAAWzaNd5f7Dt4hSwLVt+p3PR/ZaZuwdMCc8y/oFjsNRs6PNcuclu
-        a8avqO/MWHqTV6DbUxqp7UxIygCcW8Y4Ng==
-X-Google-Smtp-Source: APXvYqyk/Y+CHicjriVyQvQr4+Q4Zoe3wvrsm+JIGSK4xb9QsII/6kHbx42A/CDWBUSTkiNQuCxdng==
-X-Received: by 2002:a65:430b:: with SMTP id j11mr38903929pgq.383.1565795384329;
-        Wed, 14 Aug 2019 08:09:44 -0700 (PDT)
-Received: from rmonther.bne.com ([149.167.105.241])
-        by smtp.googlemail.com with ESMTPSA id 67sm246499pjo.29.2019.08.14.08.09.41
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 14 Aug 2019 08:09:43 -0700 (PDT)
-From:   Monthero Ronald <rhmcruiser@gmail.com>
-To:     viro@zeniv.linux.org.uk
-Cc:     stable@vger.kernel.org, Monthero Ronald <rhmcruiser@gmail.com>
-Subject: [PATCH] fs: buffer: Check to avoid NULL pointer dereference of returned buffer_head for a private page
-Date:   Thu, 15 Aug 2019 01:09:11 +1000
-Message-Id: <1565795351-10543-1-git-send-email-rhmcruiser@gmail.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1727691AbfHNPaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 11:30:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50204 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726551AbfHNPaZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 11:30:25 -0400
+Received: from localhost.localdomain (cpe-70-114-128-244.austin.res.rr.com [70.114.128.244])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01F702084F;
+        Wed, 14 Aug 2019 15:30:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1565796624;
+        bh=CX48mP1/qs/V0WIfEuGbZqpNO4Jo433GaILdRZ/JeEM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=PGQUpwQFn9e0omqFaTUYm7VbpW+lXW0bU9M+B2FR7aU67oDqxmiEmiBjnW9MulJx/
+         T/qx3MWZHfn9hU+trpxwu/BTwz32PdAXz9bgi9ZQTHzoU/zlJ6Sohx0ZZfOhnK/Leq
+         wdI/Ln1KlneQc+SVrWr0dvUwdu0+FV6Oi5R8bxfA=
+From:   Dinh Nguyen <dinguyen@kernel.org>
+To:     linux-clk@vger.kernel.org
+Cc:     dinguyen@kernel.org, linux-kernel@vger.kernel.org,
+        sboyd@kernel.org, mturquette@baylibre.com, stable@vger.kernel.org
+Subject: [PATCH] clk: socfpga: stratix10: fix rate caclulationg for cnt_clks
+Date:   Wed, 14 Aug 2019 10:30:14 -0500
+Message-Id: <20190814153014.12962-1-dinguyen@kernel.org>
+X-Mailer: git-send-email 2.20.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch checks for this condition of NULL pointer for the buffer_head returned from page_buffers()
-and also a check placed within the list traversal loop for next buffer_head structs.
+Checking bypass_reg is incorrect for calculating the cnt_clk rates.
+Instead we should be checking that there is a proper hardware register
+that holds the clock divider.
 
-crash scenario:
-The buffer_head returned from page_buffers() is not checked in block_invalidatepage_range function.
-The struct buffer_head* pointer returned by page_buffers(page) was 0x0, although this page had its
-private flag PG_private bit set and was expected to have buffer_head structs attached.The NULL pointer
-buffer_head was dereferenced in block_invalidatepage_range function at bh->b_size, where bh returned by
-page_buffers(page) was 0x0.
-
-The stack frames were  truncate_inode_page() => do_invalidatepage_range() => xfs_vm_invalidatepage() =>
-          [exception RIP: block_invalidatepage_range+132]
-
-The inode for truncate in this case was valid and had  proper inode.i_state = 0x20 - FREEING and had
-a valid mapped address space to xfs. And the struct page in context of block_invalidatepage_range()
-had its page flag PG_private set but the page.private was 0x0. So page_buffers(page) returned 0x0
-and hence the crash.
-This patch performs NULL pointer check for returned buffer_head. Applies to 3.16 and later kernels.
-
-Signed-off-by: Monthero Ronald <rhmcruiser@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 ---
- fs/buffer.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/clk/socfpga/clk-periph-s10.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/buffer.c b/fs/buffer.c
-index eba6e4f..fa80cf4 100644
---- a/fs/buffer.c
-+++ b/fs/buffer.c
-@@ -1541,6 +1541,7 @@ void block_invalidatepage(struct page *page, unsigned int offset,
- 	BUG_ON(stop > PAGE_CACHE_SIZE || stop < length);
+diff --git a/drivers/clk/socfpga/clk-periph-s10.c b/drivers/clk/socfpga/clk-periph-s10.c
+index 5c50e723ecae..1a191eeeebba 100644
+--- a/drivers/clk/socfpga/clk-periph-s10.c
++++ b/drivers/clk/socfpga/clk-periph-s10.c
+@@ -38,7 +38,7 @@ static unsigned long clk_peri_cnt_clk_recalc_rate(struct clk_hw *hwclk,
+ 	if (socfpgaclk->fixed_div) {
+ 		div = socfpgaclk->fixed_div;
+ 	} else {
+-		if (!socfpgaclk->bypass_reg)
++		if (socfpgaclk->hw.reg)
+ 			div = ((readl(socfpgaclk->hw.reg) & 0x7ff) + 1);
+ 	}
  
- 	head = page_buffers(page);
-+	BUG_ON(!head);
- 	bh = head;
- 	do {
- 		unsigned int next_off = curr_off + bh->b_size;
-@@ -1559,6 +1560,7 @@ void block_invalidatepage(struct page *page, unsigned int offset,
- 			discard_buffer(bh);
- 		curr_off = next_off;
- 		bh = next;
-+		BUG_ON(!bh);
- 	} while (bh != head);
- 
- 	/*
 -- 
-1.8.3.1
+2.20.0
 
