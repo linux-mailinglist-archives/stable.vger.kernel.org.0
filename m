@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 055488DBA4
+	by mail.lfdr.de (Postfix) with ESMTP id 6E5418DBA5
 	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:27:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729132AbfHNREK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:04:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52902 "EHLO mail.kernel.org"
+        id S1729147AbfHNREM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:04:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729112AbfHNREG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:04:06 -0400
+        id S1729143AbfHNREL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:04:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BD092084D;
-        Wed, 14 Aug 2019 17:04:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CF54216F4;
+        Wed, 14 Aug 2019 17:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802245;
-        bh=mkd3jcm/2eaT88z+vZH8zv8REeNY7nMjafvMO45SvGA=;
+        s=default; t=1565802250;
+        bh=QnpU/cJ7wfvq+7aR39NA6ASy2a/L9h+8OJ0opHC3RZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ckNYV4ZfF/gD2/Fc3MAtcmgPbljkBN83ekYoKqYCV48biEuEw+U4kU44fxdOrQvFN
-         wwqVZTfNi8xnTcrlYWEAKdKQKuihuS9kmeYOlSs8x4shD7EO1LKrl0ygA8uotOAyKM
-         ZkjQzuQIG/pi6KidOlgPWYVodg8rmnZJPXj3sNtg=
+        b=auPOgxJVseBHLnZDp3QvE7XGKNbOfyMSnayALrXfU4ovPGj5LOg8900G2zZi7dIGO
+         3fX28RGy+LQ4FzB0aS632MGamud3VPXkxfZDjlr06erJq9WUovmoakKYpcIf98jngj
+         f7aQK0ULl0WktSb2QCv+DTfqFrS+7/SLFYmtFLA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thomas Jarosch <thomas.jarosch@intra2net.com>,
-        Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 050/144] netfilter: nfnetlink: avoid deadlock due to synchronous request_module
-Date:   Wed, 14 Aug 2019 19:00:06 +0200
-Message-Id: <20190814165801.921500244@linuxfoundation.org>
+Subject: [PATCH 5.2 052/144] vfio-ccw: Dont call cp_free if we are processing a channel program
+Date:   Wed, 14 Aug 2019 19:00:08 +0200
+Message-Id: <20190814165802.002115371@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
 References: <20190814165759.466811854@linuxfoundation.org>
@@ -47,72 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1b0890cd60829bd51455dc5ad689ed58c4408227 ]
+[ Upstream commit f4c9939433bd396d0b08e803b2b880a9d02682b9 ]
 
-Thomas and Juliana report a deadlock when running:
+There is a small window where it's possible that we could be working
+on an interrupt (queued in the workqueue) and setting up a channel
+program (i.e allocating memory, pinning pages, translating address).
+This can lead to allocating and freeing the channel program at the
+same time and can cause memory corruption.
 
-(rmmod nf_conntrack_netlink/xfrm_user)
+Let's not call cp_free if we are currently processing a channel program.
+The only way we know for sure that we don't have a thread setting
+up a channel program is when the state is set to VFIO_CCW_STATE_CP_PENDING.
 
-  conntrack -e NEW -E &
-  modprobe -v xfrm_user
-
-They provided following analysis:
-
-conntrack -e NEW -E
-    netlink_bind()
-        netlink_lock_table() -> increases "nl_table_users"
-            nfnetlink_bind()
-            # does not unlock the table as it's locked by netlink_bind()
-                __request_module()
-                    call_usermodehelper_exec()
-
-This triggers "modprobe nf_conntrack_netlink" from kernel, netlink_bind()
-won't return until modprobe process is done.
-
-"modprobe xfrm_user":
-    xfrm_user_init()
-        register_pernet_subsys()
-            -> grab pernet_ops_rwsem
-                ..
-                netlink_table_grab()
-                    calls schedule() as "nl_table_users" is non-zero
-
-so modprobe is blocked because netlink_bind() increased
-nl_table_users while also holding pernet_ops_rwsem.
-
-"modprobe nf_conntrack_netlink" runs and inits nf_conntrack_netlink:
-    ctnetlink_init()
-        register_pernet_subsys()
-            -> blocks on "pernet_ops_rwsem" thanks to xfrm_user module
-
-both modprobe processes wait on one another -- neither can make
-progress.
-
-Switch netlink_bind() to "nowait" modprobe -- this releases the netlink
-table lock, which then allows both modprobe instances to complete.
-
-Reported-by: Thomas Jarosch <thomas.jarosch@intra2net.com>
-Reported-by: Juliana Rodrigueiro <juliana.rodrigueiro@intra2net.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: d5afd5d135c8 ("vfio-ccw: add handling for async channel instructions")
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <62e87bf67b38dc8d5760586e7c96d400db854ebe.1562854091.git.alifm@linux.ibm.com>
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nfnetlink.c | 2 +-
+ drivers/s390/cio/vfio_ccw_drv.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nfnetlink.c b/net/netfilter/nfnetlink.c
-index 92077d4591090..4abbb452cf6c6 100644
---- a/net/netfilter/nfnetlink.c
-+++ b/net/netfilter/nfnetlink.c
-@@ -578,7 +578,7 @@ static int nfnetlink_bind(struct net *net, int group)
- 	ss = nfnetlink_get_subsys(type << 8);
- 	rcu_read_unlock();
- 	if (!ss)
--		request_module("nfnetlink-subsys-%d", type);
-+		request_module_nowait("nfnetlink-subsys-%d", type);
- 	return 0;
- }
- #endif
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 9125f7f4e64c9..8a8fbde7e1867 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -88,7 +88,7 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+ 		     (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT));
+ 	if (scsw_is_solicited(&irb->scsw)) {
+ 		cp_update_scsw(&private->cp, &irb->scsw);
+-		if (is_final)
++		if (is_final && private->state == VFIO_CCW_STATE_CP_PENDING)
+ 			cp_free(&private->cp);
+ 	}
+ 	mutex_lock(&private->io_mutex);
 -- 
 2.20.1
 
