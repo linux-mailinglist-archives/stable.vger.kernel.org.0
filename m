@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 870618D7E1
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 18:19:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75B3E8D7E6
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 18:19:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726522AbfHNQTb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 12:19:31 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:57149 "EHLO
+        id S1728284AbfHNQTn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 12:19:43 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:40273 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726126AbfHNQTb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Aug 2019 12:19:31 -0400
+        by vger.kernel.org with ESMTP id S1727558AbfHNQTm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Aug 2019 12:19:42 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 3256B22139;
-        Wed, 14 Aug 2019 12:19:30 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id B902422108;
+        Wed, 14 Aug 2019 12:19:41 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Wed, 14 Aug 2019 12:19:30 -0400
+  by compute6.internal (MEProxy); Wed, 14 Aug 2019 12:19:41 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=0AzDWm
-        Zs0nOjPaSPCax27mwo5QCtrujUsNz8x+M45Po=; b=BuifpCUBPQuhR920YJHBoQ
-        0PijCiwlmvqc2m+OTqKPic0f/sDxr4KKI70xPotY4ybILEkr9GXmoQsb1ZfwMod8
-        TD/Dk0X9Syxqt8D29itO0u9dlKL5U2RANZjJbIvKclt3TzGfik6fPBaMhds0RO6h
-        3dAGOob6tis8W84WDvPzUTIzNU7yVAXzx6XQ97tbqX7ecflf6UReA26E23XCzkT9
-        UTWCEcIiXlR1gME1h9tXVycjqOp4y8P0+oD6Ytgid79oEhz+Pf7qTlFt3PxRWFH1
-        Hto3jdeXq1K+1R0PET/pEBurk1qb2aJtbgkA+Yb6INIKbau5RTG3C/rvV2Ho/jtg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=6C2yID
+        oLPhIbIHALZjD7D6xmpeBb/NrIYXbEXsG35Vo=; b=Qksw6Pb/zO/4v+Gk2PwekU
+        9wYuraiwLQGvLuMvLQ8JtBWhT5/2WUu3Yp1QyxjgATRFgb3+iUzfZE32ogRE0Z0w
+        Lu5rbHEsj5I+bHDvm2n2dMBgtWvFVf+wSVEFI+Fk8jx2sQck6wE5NWclyY572fMn
+        aexFIiabcYv7TDzO2QtS28UtsbPWYiqyZUIeXAhfg0hAbgVzgYxJ1Hb6471EsZnG
+        Ix9tuT2a3zNxdQbOnUMo2CvYXOJZEt6c8Yjux8skM+RPwq7woNvd7qAxDkYW3QWM
+        eyTnimgh5fv6fTvlZoFYW64CQHOvvqWMo384eRsWT5oc81pWWGPDXggyHxqzjxEg
         ==
-X-ME-Sender: <xms:kTRUXcwoLpIFai28HyiJg_v4j77FSOzFP4_GUwRMAvoy2gDZRITHNw>
+X-ME-Sender: <xms:nTRUXb-uD6wtJpIxTt9QmX_qT-56rki_8XwXFFH9D1mWMdmfFPu1Ag>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddvledgfeeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
     epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:kTRUXUicg9tzKSlHPTlZ1D7gTD_LiAaWKKdXsm9gb94vjAvf3Lyfuw>
-    <xmx:kTRUXZUnffkZysMhBkbrDystnxdoX49N4NldkG7MiwJl_nAbvvaTEQ>
-    <xmx:kTRUXe3BNG68QCiBRvQNAwicdjT-d-X04vLw2zl9U6YhqMvP3yoQ0w>
-    <xmx:kjRUXR8Ua_5y2PICTMKfACooKbOt1gbDJaXebCG8NuF1voiXKiPviA>
+X-ME-Proxy: <xmx:nTRUXZOdotbqwBVNEq4m8uoq9i5WkKj4DLOOYhwuIL99xy5CLeoRrg>
+    <xmx:nTRUXWoC-VzwMTtixOuHKG5szXsjwKb4HYlvDu-WKBkSBetS8880xQ>
+    <xmx:nTRUXe71qIAQLf0CvHWNxAP5lUgeiIMhXriLjl-YEUbDtjAVOc1ZBg>
+    <xmx:nTRUXRq2_fovsGDcLdVEzutffTX-sTOX_gi0ztzg0Xj0oumds0jVWA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6C0BB380074;
-        Wed, 14 Aug 2019 12:19:29 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] NFSv4: Fix delegation state recovery" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 10881380088;
+        Wed, 14 Aug 2019 12:19:40 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] NFSv4: Fix delegation state recovery" failed to apply to 4.4-stable tree
 To:     trond.myklebust@hammerspace.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 14 Aug 2019 18:19:27 +0200
-Message-ID: <1565799567132177@kroah.com>
+Date:   Wed, 14 Aug 2019 18:19:28 +0200
+Message-ID: <156579956878170@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
