@@ -2,73 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 418808D8AE
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:01:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E598B8D96F
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:09:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727814AbfHNRBM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:01:12 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:39952 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727558AbfHNRBL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Aug 2019 13:01:11 -0400
-Received: by mail-pl1-f195.google.com with SMTP id a93so50897790pla.7
-        for <stable@vger.kernel.org>; Wed, 14 Aug 2019 10:01:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=5oGQis/F/3P2NPlpUuR9C1B40kLmzuezbByNK7rhDpk=;
-        b=WZF49giSB39rmMI0uePY6XUC47A4q8RW9V1ECnQCZe2vOl2f+R3+2Hho/yZaRhzVIi
-         xJlSRGJ4vCcjZ3Nb829sFj2912KTiNMl/ZPwcQZRVcSCY1FmTcLB6S4TWN4ly6wswoij
-         W5GLWAswgVcKqX6cr85DzXwzj0IjigpHSNv10=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=5oGQis/F/3P2NPlpUuR9C1B40kLmzuezbByNK7rhDpk=;
-        b=sjzVGCHbjPM/a/ysSkM/1j47EQQvK6a6LoRKgGDMc6HuTHVyeGGuGEF3fUPjwSfoLB
-         7DmfG+6+JjYB055YUHS6VJqpdgH82pV46KBvSebR7SMzwWCuia8ls0xLRI9TGY4h8mm/
-         GnopBwZgrNoCu0F/lowrALmOSfb/AHMj1VLBLQe4DDJJVEjOHz/aAwwg6S+AzX/0Hm56
-         kCgH0+HGuwvNAekiNV8eHR2l15BZJWNNo4PNBXMVEZYq7Cz2m6La6dKDOvacsZjutVKr
-         NsE8Nks+7+7IsrBin1OnttKmQz7+V3qXVTfzrtfPnttkFxjUo3CKzkRCKO1mpqIGXBqj
-         FT3A==
-X-Gm-Message-State: APjAAAUqi0p+gY67PYUEg2GFJ1+PY9dmMVuw2uawkzyKbQ/VPwSVJTaN
-        vBqRN17RUxiUBWCS+PvZZo/WVA==
-X-Google-Smtp-Source: APXvYqy2ny/g4ymE3eOANxmOw+DqanvTWBl6Ht++LBRHPPvhj7LSoRrb8zefZDlGa9a1Uw4NzN6HBg==
-X-Received: by 2002:a17:902:6b81:: with SMTP id p1mr357318plk.91.1565802071109;
-        Wed, 14 Aug 2019 10:01:11 -0700 (PDT)
-Received: from google.com ([2620:15c:202:1:534:b7c0:a63c:460c])
-        by smtp.gmail.com with ESMTPSA id y22sm368864pfo.39.2019.08.14.10.01.09
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Wed, 14 Aug 2019 10:01:10 -0700 (PDT)
-Date:   Wed, 14 Aug 2019 10:01:08 -0700
-From:   Brian Norris <briannorris@chromium.org>
-To:     gregkh@linuxfoundation.org
-Cc:     kvalo@codeaurora.org, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] mwifiex: fix 802.11n/WPA detection"
- failed to apply to 4.4-stable tree
-Message-ID: <20190814170107.GA117122@google.com>
-References: <1565800055929@kroah.com>
+        id S1729622AbfHNRIW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:08:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58346 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730128AbfHNRIV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:08:21 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CAE22133F;
+        Wed, 14 Aug 2019 17:08:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1565802500;
+        bh=8d+DXjxnTBnpLKRX5659bJcWsiMINxWaioAMrxT+YZY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Pgg80KAxm8uc9x2/uWB20X38pCdmD2IYiTPLF7KUlIYKDKKbNDs0gatlB6M4cVGfM
+         +OJgmo7979wjFLw8rDHk9ROlr720nF2SZheRULjQOjwPMgJncj2S+5b570m3pTzwOJ
+         qAjzexj4NCzgllQ5cJRwB5fZloSjEvi2YsFHuLxA=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@oracle.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Borislav Petkov <bp@alien8.de>, Jiri Olsa <jolsa@redhat.com>,
+        Juergen Gross <jgross@suse.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 114/144] perf/x86: Apply more accurate check on hypervisor platform
+Date:   Wed, 14 Aug 2019 19:01:10 +0200
+Message-Id: <20190814165804.682059835@linuxfoundation.org>
+X-Mailer: git-send-email 2.22.0
+In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
+References: <20190814165759.466811854@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1565800055929@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-n Wed, Aug 14, 2019 at 06:27:35PM +0200, Greg Kroah-Hartman wrote:
-> The patch below does not apply to the 4.4-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+[ Upstream commit 5ea3f6fb37b79da33ac9211df336fd2b9f47c39f ]
 
-The conflicts were small, so I fixed and sent here:
+check_msr is used to fix a bug report in guest where KVM doesn't support
+LBR MSR and cause #GP.
 
-https://lore.kernel.org/stable/20190814165914.143238-1-briannorris@chromium.org/T/#u
+The msr check is bypassed on real HW to workaround a false failure,
+see commit d0e1a507bdc7 ("perf/x86/intel: Disable check_msr for real HW")
 
-It'd be a shame to leave this broken on 4.4.y.
+When running a guest with CONFIG_HYPERVISOR_GUEST not set or "nopv"
+enabled, current check isn't enough and #GP could trigger.
 
-Brian
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@oracle.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/1564022366-18293-1-git-send-email-zhenzhong.duan@oracle.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/x86/events/intel/core.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index e9042e3f3052c..6179be624f357 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -20,7 +20,6 @@
+ #include <asm/intel-family.h>
+ #include <asm/apic.h>
+ #include <asm/cpu_device_id.h>
+-#include <asm/hypervisor.h>
+ 
+ #include "../perf_event.h"
+ 
+@@ -4057,7 +4056,7 @@ static bool check_msr(unsigned long msr, u64 mask)
+ 	 * Disable the check for real HW, so we don't
+ 	 * mess with potentionaly enabled registers:
+ 	 */
+-	if (hypervisor_is_type(X86_HYPER_NATIVE))
++	if (!boot_cpu_has(X86_FEATURE_HYPERVISOR))
+ 		return true;
+ 
+ 	/*
+-- 
+2.20.1
+
+
+
