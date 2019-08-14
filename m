@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 026398DB0A
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:22:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8831B8DB81
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:26:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729086AbfHNRWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:22:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58772 "EHLO mail.kernel.org"
+        id S1729445AbfHNRZs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:25:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728881AbfHNRIj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:08:39 -0400
+        id S1729416AbfHNRFW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:05:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB52A2084D;
-        Wed, 14 Aug 2019 17:08:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2FCB2084D;
+        Wed, 14 Aug 2019 17:05:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802518;
-        bh=2MvbF2KA/k5gdGgKZKc+M0Ji1frJAESrzQYUIAwuwh8=;
+        s=default; t=1565802322;
+        bh=jHUzRvX08OP472lu/v3sf61M1yuGyiy6QeG3rZC/FUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rG4mJnxlb1JnfyAJ8oKbwIw/zyg00kTTXq4tBjyioZA2sS8beGq+sZzBpGhCoh+dg
-         zkOIez1b21gSgfborY0ePXXqClJBGnekubfK0BKdpNBaBvClosZ07PbKSNmEp22G17
-         Surcz1Wus+N6X20XieRU1n2KaIvKsXP6SkK/L438=
+        b=DcS8mfuskJ6PScAzSz8t3sXds87RJWTa/ooL2Q+f64q6uWUNInYeFdZhKAR8yF+JF
+         fhjcVdPo79UQ+wJKzCYStwoMU+G1MEMqd/OEJ3YyJsOTzHKO2I5NfaHQzHjZGcBLCC
+         itCtQfL7zmcXN8Q/JkDL4MhKP0LlYDzQSqtdg0I8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.19 13/91] loop: set PF_MEMALLOC_NOIO for the worker thread
+        stable@vger.kernel.org, Bjoern Gerhart <gerhart@posteo.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 080/144] hwmon: (nct6775) Fix register address and added missed tolerance for nct6106
 Date:   Wed, 14 Aug 2019 19:00:36 +0200
-Message-Id: <20190814165750.330102492@linuxfoundation.org>
+Message-Id: <20190814165803.212456156@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
-References: <20190814165748.991235624@linuxfoundation.org>
+In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
+References: <20190814165759.466811854@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,82 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+[ Upstream commit f3d43e2e45fd9d44ba52d20debd12cd4ee9c89bf ]
 
-commit d0a255e795ab976481565f6ac178314b34fbf891 upstream.
+Fixed address of third NCT6106_REG_WEIGHT_DUTY_STEP, and
+added missed NCT6106_REG_TOLERANCE_H.
 
-A deadlock with this stacktrace was observed.
-
-The loop thread does a GFP_KERNEL allocation, it calls into dm-bufio
-shrinker and the shrinker depends on I/O completion in the dm-bufio
-subsystem.
-
-In order to fix the deadlock (and other similar ones), we set the flag
-PF_MEMALLOC_NOIO at loop thread entry.
-
-PID: 474    TASK: ffff8813e11f4600  CPU: 10  COMMAND: "kswapd0"
-   #0 [ffff8813dedfb938] __schedule at ffffffff8173f405
-   #1 [ffff8813dedfb990] schedule at ffffffff8173fa27
-   #2 [ffff8813dedfb9b0] schedule_timeout at ffffffff81742fec
-   #3 [ffff8813dedfba60] io_schedule_timeout at ffffffff8173f186
-   #4 [ffff8813dedfbaa0] bit_wait_io at ffffffff8174034f
-   #5 [ffff8813dedfbac0] __wait_on_bit at ffffffff8173fec8
-   #6 [ffff8813dedfbb10] out_of_line_wait_on_bit at ffffffff8173ff81
-   #7 [ffff8813dedfbb90] __make_buffer_clean at ffffffffa038736f [dm_bufio]
-   #8 [ffff8813dedfbbb0] __try_evict_buffer at ffffffffa0387bb8 [dm_bufio]
-   #9 [ffff8813dedfbbd0] dm_bufio_shrink_scan at ffffffffa0387cc3 [dm_bufio]
-  #10 [ffff8813dedfbc40] shrink_slab at ffffffff811a87ce
-  #11 [ffff8813dedfbd30] shrink_zone at ffffffff811ad778
-  #12 [ffff8813dedfbdc0] kswapd at ffffffff811ae92f
-  #13 [ffff8813dedfbec0] kthread at ffffffff810a8428
-  #14 [ffff8813dedfbf50] ret_from_fork at ffffffff81745242
-
-  PID: 14127  TASK: ffff881455749c00  CPU: 11  COMMAND: "loop1"
-   #0 [ffff88272f5af228] __schedule at ffffffff8173f405
-   #1 [ffff88272f5af280] schedule at ffffffff8173fa27
-   #2 [ffff88272f5af2a0] schedule_preempt_disabled at ffffffff8173fd5e
-   #3 [ffff88272f5af2b0] __mutex_lock_slowpath at ffffffff81741fb5
-   #4 [ffff88272f5af330] mutex_lock at ffffffff81742133
-   #5 [ffff88272f5af350] dm_bufio_shrink_count at ffffffffa03865f9 [dm_bufio]
-   #6 [ffff88272f5af380] shrink_slab at ffffffff811a86bd
-   #7 [ffff88272f5af470] shrink_zone at ffffffff811ad778
-   #8 [ffff88272f5af500] do_try_to_free_pages at ffffffff811adb34
-   #9 [ffff88272f5af590] try_to_free_pages at ffffffff811adef8
-  #10 [ffff88272f5af610] __alloc_pages_nodemask at ffffffff811a09c3
-  #11 [ffff88272f5af710] alloc_pages_current at ffffffff811e8b71
-  #12 [ffff88272f5af760] new_slab at ffffffff811f4523
-  #13 [ffff88272f5af7b0] __slab_alloc at ffffffff8173a1b5
-  #14 [ffff88272f5af880] kmem_cache_alloc at ffffffff811f484b
-  #15 [ffff88272f5af8d0] do_blockdev_direct_IO at ffffffff812535b3
-  #16 [ffff88272f5afb00] __blockdev_direct_IO at ffffffff81255dc3
-  #17 [ffff88272f5afb30] xfs_vm_direct_IO at ffffffffa01fe3fc [xfs]
-  #18 [ffff88272f5afb90] generic_file_read_iter at ffffffff81198994
-  #19 [ffff88272f5afc50] __dta_xfs_file_read_iter_2398 at ffffffffa020c970 [xfs]
-  #20 [ffff88272f5afcc0] lo_rw_aio at ffffffffa0377042 [loop]
-  #21 [ffff88272f5afd70] loop_queue_work at ffffffffa0377c3b [loop]
-  #22 [ffff88272f5afe60] kthread_worker_fn at ffffffff810a8a0c
-  #23 [ffff88272f5afec0] kthread at ffffffff810a8428
-  #24 [ffff88272f5aff50] ret_from_fork at ffffffff81745242
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 6c009501ff200 ("hwmon: (nct6775) Add support for NCT6102D/6106D")
+Signed-off-by: Bjoern Gerhart <gerhart@posteo.de>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/loop.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/nct6775.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -886,7 +886,7 @@ static void loop_unprepare_queue(struct
+diff --git a/drivers/hwmon/nct6775.c b/drivers/hwmon/nct6775.c
+index e7dff5febe161..d42bc0883a32b 100644
+--- a/drivers/hwmon/nct6775.c
++++ b/drivers/hwmon/nct6775.c
+@@ -852,7 +852,7 @@ static const u16 NCT6106_REG_TARGET[] = { 0x111, 0x121, 0x131 };
+ static const u16 NCT6106_REG_WEIGHT_TEMP_SEL[] = { 0x168, 0x178, 0x188 };
+ static const u16 NCT6106_REG_WEIGHT_TEMP_STEP[] = { 0x169, 0x179, 0x189 };
+ static const u16 NCT6106_REG_WEIGHT_TEMP_STEP_TOL[] = { 0x16a, 0x17a, 0x18a };
+-static const u16 NCT6106_REG_WEIGHT_DUTY_STEP[] = { 0x16b, 0x17b, 0x17c };
++static const u16 NCT6106_REG_WEIGHT_DUTY_STEP[] = { 0x16b, 0x17b, 0x18b };
+ static const u16 NCT6106_REG_WEIGHT_TEMP_BASE[] = { 0x16c, 0x17c, 0x18c };
+ static const u16 NCT6106_REG_WEIGHT_DUTY_BASE[] = { 0x16d, 0x17d, 0x18d };
  
- static int loop_kthread_worker_fn(void *worker_ptr)
- {
--	current->flags |= PF_LESS_THROTTLE;
-+	current->flags |= PF_LESS_THROTTLE | PF_MEMALLOC_NOIO;
- 	return kthread_worker_fn(worker_ptr);
- }
- 
+@@ -3764,6 +3764,7 @@ static int nct6775_probe(struct platform_device *pdev)
+ 		data->REG_FAN_TIME[0] = NCT6106_REG_FAN_STOP_TIME;
+ 		data->REG_FAN_TIME[1] = NCT6106_REG_FAN_STEP_UP_TIME;
+ 		data->REG_FAN_TIME[2] = NCT6106_REG_FAN_STEP_DOWN_TIME;
++		data->REG_TOLERANCE_H = NCT6106_REG_TOLERANCE_H;
+ 		data->REG_PWM[0] = NCT6106_REG_PWM;
+ 		data->REG_PWM[1] = NCT6106_REG_FAN_START_OUTPUT;
+ 		data->REG_PWM[2] = NCT6106_REG_FAN_STOP_OUTPUT;
+-- 
+2.20.1
+
 
 
