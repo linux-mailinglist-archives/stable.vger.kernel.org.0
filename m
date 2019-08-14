@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 411548C673
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:16:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67B618C648
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:14:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728053AbfHNCPc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:15:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46274 "EHLO mail.kernel.org"
+        id S1728718AbfHNCOY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:14:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728697AbfHNCOU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:14:20 -0400
+        id S1728710AbfHNCOX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:14:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B320820842;
-        Wed, 14 Aug 2019 02:14:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14BC02084D;
+        Wed, 14 Aug 2019 02:14:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748859;
-        bh=a72eEVjili8R0wTI5puqmGThY4U1MPw6IwZ7TiQItF8=;
+        s=default; t=1565748862;
+        bh=HrXJUbP0HVYGNmZQhdlWqxKzlQYYd7gezp4NX3WmKAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ET0e+UMMZRb+Uh2GOhC511CxVZlr3/UAakG3ds3G0MTVPuU0W+PWW30GQ9a4Pz6wg
-         TqaZJ8gGyrGrg5rq13Ss1EOPcnBKyUMV+CUmTkEzg387uTP2hdyTDS4T7W2CQvjTRE
-         ya8j9yUNTsyJd/ekHUtMa27vg7RAHLtwxSRxi3O4=
+        b=DN/GZdq7X2eulIQf1ugPzsb1Hw9fw00ke8KR2Hy4gLDYNyJsd6OtSBHYbgdfbOObV
+         b04N+0mNr7nM8YTg4ri7yNTMGUEX7lsOl1YsG3CaQ4EgMjgt7L7x2Sy5ammUQ3UIsW
+         72autAOltIBGGGUXA33pH7wbpYQkCNAQ766zlUh0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiangfeng Xiao <xiaojiangfeng@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 108/123] net: hisilicon: Fix dma_map_single failed on arm64
-Date:   Tue, 13 Aug 2019 22:10:32 -0400
-Message-Id: <20190814021047.14828-108-sashal@kernel.org>
+Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Matthias Andree <matthias.andree@gmx.de>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 109/123] Revert "PCI: Add missing link delays required by the PCIe spec"
+Date:   Tue, 13 Aug 2019 22:10:33 -0400
+Message-Id: <20190814021047.14828-109-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -43,107 +46,210 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-[ Upstream commit 96a50c0d907ac8f5c3d6b051031a19eb8a2b53e3 ]
+[ Upstream commit 0617bdede5114a0002298b12cd0ca2b0cfd0395d ]
 
-On the arm64 platform, executing "ifconfig eth0 up" will fail,
-returning "ifconfig: SIOCSIFFLAGS: Input/output error."
+Commit c2bf1fc212f7 ("PCI: Add missing link delays required by the PCIe
+spec") turned out causing issues with some systems either by making them
+unresponsive or slowing down runtime and system wide resume of PCIe
+devices. While root cause for the unresponsiveness is still under
+investigation given the amount of issues reported better to revert it
+for now.
 
-ndev->dev is not initialized, dma_map_single->get_dma_ops->
-dummy_dma_ops->__dummy_map_page will return DMA_ERROR_CODE
-directly, so when we use dma_map_single, the first parameter
-is to use the device of platform_device.
-
-Signed-off-by: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204413
+Link: https://lore.kernel.org/linux-pci/SL2P216MB01878BBCD75F21D882AEEA2880C60@SL2P216MB0187.KORP216.PROD.OUTLOOK.COM/
+Link: https://lore.kernel.org/linux-pci/2857501d-c167-547d-c57d-d5d24ea1f1dc@molgen.mpg.de/
+Reported-by: Matthias Andree <matthias.andree@gmx.de>
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Reported-by: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hip04_eth.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+ drivers/pci/pci.c               | 29 +++++----------
+ drivers/pci/pci.h               |  1 -
+ drivers/pci/pcie/portdrv_core.c | 66 ---------------------------------
+ 3 files changed, 10 insertions(+), 86 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hip04_eth.c b/drivers/net/ethernet/hisilicon/hip04_eth.c
-index ee6da8d66cd31..51cf6b0db904b 100644
---- a/drivers/net/ethernet/hisilicon/hip04_eth.c
-+++ b/drivers/net/ethernet/hisilicon/hip04_eth.c
-@@ -153,6 +153,7 @@ struct hip04_priv {
- 	unsigned int reg_inten;
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index 720da09d4d738..088fcdc8d2b4d 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -1004,10 +1004,15 @@ static void __pci_start_power_transition(struct pci_dev *dev, pci_power_t state)
+ 	if (state == PCI_D0) {
+ 		pci_platform_power_transition(dev, PCI_D0);
+ 		/*
+-		 * Mandatory power management transition delays are
+-		 * handled in the PCIe portdrv resume hooks.
++		 * Mandatory power management transition delays, see
++		 * PCI Express Base Specification Revision 2.0 Section
++		 * 6.6.1: Conventional Reset.  Do not delay for
++		 * devices powered on/off by corresponding bridge,
++		 * because have already delayed for the bridge.
+ 		 */
+ 		if (dev->runtime_d3cold) {
++			if (dev->d3cold_delay && !dev->imm_ready)
++				msleep(dev->d3cold_delay);
+ 			/*
+ 			 * When powering on a bridge from D3cold, the
+ 			 * whole hierarchy may be powered on into
+@@ -4570,16 +4575,14 @@ static int pci_pm_reset(struct pci_dev *dev, int probe)
  
- 	struct napi_struct napi;
-+	struct device *dev;
- 	struct net_device *ndev;
- 
- 	struct tx_desc *tx_desc;
-@@ -383,7 +384,7 @@ static int hip04_tx_reclaim(struct net_device *ndev, bool force)
- 		}
- 
- 		if (priv->tx_phys[tx_tail]) {
--			dma_unmap_single(&ndev->dev, priv->tx_phys[tx_tail],
-+			dma_unmap_single(priv->dev, priv->tx_phys[tx_tail],
- 					 priv->tx_skb[tx_tail]->len,
- 					 DMA_TO_DEVICE);
- 			priv->tx_phys[tx_tail] = 0;
-@@ -434,8 +435,8 @@ hip04_mac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
- 		return NETDEV_TX_BUSY;
+ 	return pci_dev_wait(dev, "PM D3->D0", PCIE_RESET_READY_POLL_MS);
+ }
+-
+ /**
+- * pcie_wait_for_link_delay - Wait until link is active or inactive
++ * pcie_wait_for_link - Wait until link is active or inactive
+  * @pdev: Bridge device
+  * @active: waiting for active or inactive?
+- * @delay: Delay to wait after link has become active (in ms)
+  *
+  * Use this to wait till link becomes active or inactive.
+  */
+-bool pcie_wait_for_link_delay(struct pci_dev *pdev, bool active, int delay)
++bool pcie_wait_for_link(struct pci_dev *pdev, bool active)
+ {
+ 	int timeout = 1000;
+ 	bool ret;
+@@ -4616,25 +4619,13 @@ bool pcie_wait_for_link_delay(struct pci_dev *pdev, bool active, int delay)
+ 		timeout -= 10;
  	}
+ 	if (active && ret)
+-		msleep(delay);
++		msleep(100);
+ 	else if (ret != active)
+ 		pci_info(pdev, "Data Link Layer Link Active not %s in 1000 msec\n",
+ 			active ? "set" : "cleared");
+ 	return ret == active;
+ }
  
--	phys = dma_map_single(&ndev->dev, skb->data, skb->len, DMA_TO_DEVICE);
--	if (dma_mapping_error(&ndev->dev, phys)) {
-+	phys = dma_map_single(priv->dev, skb->data, skb->len, DMA_TO_DEVICE);
-+	if (dma_mapping_error(priv->dev, phys)) {
- 		dev_kfree_skb(skb);
- 		return NETDEV_TX_OK;
- 	}
-@@ -505,7 +506,7 @@ static int hip04_rx_poll(struct napi_struct *napi, int budget)
- 			goto refill;
- 		}
+-/**
+- * pcie_wait_for_link - Wait until link is active or inactive
+- * @pdev: Bridge device
+- * @active: waiting for active or inactive?
+- *
+- * Use this to wait till link becomes active or inactive.
+- */
+-bool pcie_wait_for_link(struct pci_dev *pdev, bool active)
+-{
+-	return pcie_wait_for_link_delay(pdev, active, 100);
+-}
+-
+ void pci_reset_secondary_bus(struct pci_dev *dev)
+ {
+ 	u16 ctrl;
+diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
+index 59802b3def4bc..9cb99380c61e3 100644
+--- a/drivers/pci/pci.h
++++ b/drivers/pci/pci.h
+@@ -493,7 +493,6 @@ static inline int pci_dev_specific_disable_acs_redir(struct pci_dev *dev)
+ void pcie_do_recovery(struct pci_dev *dev, enum pci_channel_state state,
+ 		      u32 service);
  
--		dma_unmap_single(&ndev->dev, priv->rx_phys[priv->rx_head],
-+		dma_unmap_single(priv->dev, priv->rx_phys[priv->rx_head],
- 				 RX_BUF_SIZE, DMA_FROM_DEVICE);
- 		priv->rx_phys[priv->rx_head] = 0;
+-bool pcie_wait_for_link_delay(struct pci_dev *pdev, bool active, int delay);
+ bool pcie_wait_for_link(struct pci_dev *pdev, bool active);
+ #ifdef CONFIG_PCIEASPM
+ void pcie_aspm_init_link_state(struct pci_dev *pdev);
+diff --git a/drivers/pci/pcie/portdrv_core.c b/drivers/pci/pcie/portdrv_core.c
+index 308c3e0c4a340..1b330129089fe 100644
+--- a/drivers/pci/pcie/portdrv_core.c
++++ b/drivers/pci/pcie/portdrv_core.c
+@@ -9,7 +9,6 @@
+ #include <linux/module.h>
+ #include <linux/pci.h>
+ #include <linux/kernel.h>
+-#include <linux/delay.h>
+ #include <linux/errno.h>
+ #include <linux/pm.h>
+ #include <linux/pm_runtime.h>
+@@ -379,67 +378,6 @@ static int pm_iter(struct device *dev, void *data)
+ 	return 0;
+ }
  
-@@ -534,9 +535,9 @@ static int hip04_rx_poll(struct napi_struct *napi, int budget)
- 		buf = netdev_alloc_frag(priv->rx_buf_size);
- 		if (!buf)
- 			goto done;
--		phys = dma_map_single(&ndev->dev, buf,
-+		phys = dma_map_single(priv->dev, buf,
- 				      RX_BUF_SIZE, DMA_FROM_DEVICE);
--		if (dma_mapping_error(&ndev->dev, phys))
-+		if (dma_mapping_error(priv->dev, phys))
- 			goto done;
- 		priv->rx_buf[priv->rx_head] = buf;
- 		priv->rx_phys[priv->rx_head] = phys;
-@@ -639,9 +640,9 @@ static int hip04_mac_open(struct net_device *ndev)
- 	for (i = 0; i < RX_DESC_NUM; i++) {
- 		dma_addr_t phys;
+-static int get_downstream_delay(struct pci_bus *bus)
+-{
+-	struct pci_dev *pdev;
+-	int min_delay = 100;
+-	int max_delay = 0;
+-
+-	list_for_each_entry(pdev, &bus->devices, bus_list) {
+-		if (!pdev->imm_ready)
+-			min_delay = 0;
+-		else if (pdev->d3cold_delay < min_delay)
+-			min_delay = pdev->d3cold_delay;
+-		if (pdev->d3cold_delay > max_delay)
+-			max_delay = pdev->d3cold_delay;
+-	}
+-
+-	return max(min_delay, max_delay);
+-}
+-
+-/*
+- * wait_for_downstream_link - Wait for downstream link to establish
+- * @pdev: PCIe port whose downstream link is waited
+- *
+- * Handle delays according to PCIe 4.0 section 6.6.1 before configuration
+- * access to the downstream component is permitted.
+- *
+- * This blocks PCI core resume of the hierarchy below this port until the
+- * link is trained. Should be called before resuming port services to
+- * prevent pciehp from starting to tear-down the hierarchy too soon.
+- */
+-static void wait_for_downstream_link(struct pci_dev *pdev)
+-{
+-	int delay;
+-
+-	if (pci_pcie_type(pdev) != PCI_EXP_TYPE_ROOT_PORT &&
+-	    pci_pcie_type(pdev) != PCI_EXP_TYPE_DOWNSTREAM)
+-		return;
+-
+-	if (pci_dev_is_disconnected(pdev))
+-		return;
+-
+-	if (!pdev->subordinate || list_empty(&pdev->subordinate->devices) ||
+-	    !pdev->bridge_d3)
+-		return;
+-
+-	delay = get_downstream_delay(pdev->subordinate);
+-	if (!delay)
+-		return;
+-
+-	dev_dbg(&pdev->dev, "waiting downstream link for %d ms\n", delay);
+-
+-	/*
+-	 * If downstream port does not support speeds greater than 5 GT/s
+-	 * need to wait 100ms. For higher speeds (gen3) we need to wait
+-	 * first for the data link layer to become active.
+-	 */
+-	if (pcie_get_speed_cap(pdev) <= PCIE_SPEED_5_0GT)
+-		msleep(delay);
+-	else
+-		pcie_wait_for_link_delay(pdev, true, delay);
+-}
+-
+ /**
+  * pcie_port_device_suspend - suspend port services associated with a PCIe port
+  * @dev: PCI Express port to handle
+@@ -453,8 +391,6 @@ int pcie_port_device_suspend(struct device *dev)
+ int pcie_port_device_resume_noirq(struct device *dev)
+ {
+ 	size_t off = offsetof(struct pcie_port_service_driver, resume_noirq);
+-
+-	wait_for_downstream_link(to_pci_dev(dev));
+ 	return device_for_each_child(dev, &off, pm_iter);
+ }
  
--		phys = dma_map_single(&ndev->dev, priv->rx_buf[i],
-+		phys = dma_map_single(priv->dev, priv->rx_buf[i],
- 				      RX_BUF_SIZE, DMA_FROM_DEVICE);
--		if (dma_mapping_error(&ndev->dev, phys))
-+		if (dma_mapping_error(priv->dev, phys))
- 			return -EIO;
- 
- 		priv->rx_phys[i] = phys;
-@@ -675,7 +676,7 @@ static int hip04_mac_stop(struct net_device *ndev)
- 
- 	for (i = 0; i < RX_DESC_NUM; i++) {
- 		if (priv->rx_phys[i]) {
--			dma_unmap_single(&ndev->dev, priv->rx_phys[i],
-+			dma_unmap_single(priv->dev, priv->rx_phys[i],
- 					 RX_BUF_SIZE, DMA_FROM_DEVICE);
- 			priv->rx_phys[i] = 0;
- 		}
-@@ -819,6 +820,7 @@ static int hip04_mac_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	priv = netdev_priv(ndev);
-+	priv->dev = d;
- 	priv->ndev = ndev;
- 	platform_set_drvdata(pdev, ndev);
- 	SET_NETDEV_DEV(ndev, &pdev->dev);
+@@ -485,8 +421,6 @@ int pcie_port_device_runtime_suspend(struct device *dev)
+ int pcie_port_device_runtime_resume(struct device *dev)
+ {
+ 	size_t off = offsetof(struct pcie_port_service_driver, runtime_resume);
+-
+-	wait_for_downstream_link(to_pci_dev(dev));
+ 	return device_for_each_child(dev, &off, pm_iter);
+ }
+ #endif /* PM */
 -- 
 2.20.1
 
