@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C95578DA57
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:17:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B736D8D9CC
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:12:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730058AbfHNRRH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:17:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37870 "EHLO mail.kernel.org"
+        id S1728579AbfHNRMR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:12:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729449AbfHNRNg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:13:36 -0400
+        id S1730698AbfHNRMR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:12:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 162DF2133F;
-        Wed, 14 Aug 2019 17:13:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95FCD216F4;
+        Wed, 14 Aug 2019 17:12:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802815;
-        bh=r9w7miScZdmWFyZcTYDiMP1IwH1WZO9gDwXNl10KY8w=;
+        s=default; t=1565802736;
+        bh=SKkNANZr+ygJCo5isJhEgLS5Oabwbiqh+RoOuJkiSlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gu3F3T59Xvo5/poc5a/VB5B5mpL+4/K6nK2X9NcDoHuT4hAIFRyBlIAMs13TqqIVy
-         /ObwPqbs0BXXONDjuX8+xVifyqU0gVO7+3vWqkyj/5BykumHVa4fL3/HbsJBB+e+B8
-         //VH6U3Zu/tloLUdniHGeqsH375rJ6ySGh0q0Dic=
+        b=o3KbLzhXXD39EX7oHGgFyDE3xoqlr+BWDX8QhnmkJdRFmv8Lp2HNq5hS4Qmc6d8PX
+         aPqmkkqRurWbe7YvZDv5Xk4k9uG1A4z2byNdrm8EJclF4LLUVeGEk7uZbBZsCWxqVU
+         b/GijwFhAjMLKatdzmJajKrW6cSixFUgQN/DB4JI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Vinod Koul <vkoul@kernel.org>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 36/69] ALSA: compress: Fix regression on compressed capture streams
+        Vaibhav Rustagi <vaibhavrustagi@google.com>,
+        Alistair Delva <adelva@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Manoj Gupta <manojgupta@google.com>
+Subject: [PATCH 4.19 71/91] x86/purgatory: Do not use __builtin_memcpy and __builtin_memset
 Date:   Wed, 14 Aug 2019 19:01:34 +0200
-Message-Id: <20190814165747.897532300@linuxfoundation.org>
+Message-Id: <20190814165752.710198889@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165744.822314328@linuxfoundation.org>
-References: <20190814165744.822314328@linuxfoundation.org>
+In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
+References: <20190814165748.991235624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,82 +47,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4475f8c4ab7b248991a60d9c02808dbb813d6be8 ]
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-A previous fix to the stop handling on compressed capture streams causes
-some knock on issues. The previous fix updated snd_compr_drain_notify to
-set the state back to PREPARED for capture streams. This causes some
-issues however as the handling for snd_compr_poll differs between the
-two states and some user-space applications were relying on the poll
-failing after the stream had been stopped.
+commit 4ce97317f41d38584fb93578e922fcd19e535f5b upstream.
 
-To correct this regression whilst still fixing the original problem the
-patch was addressing, update the capture handling to skip the PREPARED
-state rather than skipping the SETUP state as it has done until now.
+Implementing memcpy and memset in terms of __builtin_memcpy and
+__builtin_memset is problematic.
 
-Fixes: 4f2ab5e1d13d ("ALSA: compress: Fix stop handling on compressed capture streams")
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Acked-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+GCC at -O2 will replace calls to the builtins with calls to memcpy and
+memset (but will generate an inline implementation at -Os).  Clang will
+replace the builtins with these calls regardless of optimization level.
+$ llvm-objdump -dr arch/x86/purgatory/string.o | tail
+
+0000000000000339 memcpy:
+     339: 48 b8 00 00 00 00 00 00 00 00 movabsq $0, %rax
+                000000000000033b:  R_X86_64_64  memcpy
+     343: ff e0                         jmpq    *%rax
+
+0000000000000345 memset:
+     345: 48 b8 00 00 00 00 00 00 00 00 movabsq $0, %rax
+                0000000000000347:  R_X86_64_64  memset
+     34f: ff e0
+
+Such code results in infinite recursion at runtime. This is observed
+when doing kexec.
+
+Instead, reuse an implementation from arch/x86/boot/compressed/string.c.
+This requires to implement a stub function for warn(). Also, Clang may
+lower memcmp's that compare against 0 to bcmp's, so add a small definition,
+too. See also: commit 5f074f3e192f ("lib/string.c: implement a basic bcmp")
+
+Fixes: 8fc5b4d4121c ("purgatory: core purgatory functionality")
+Reported-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
+Debugged-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
+Debugged-by: Manoj Gupta <manojgupta@google.com>
+Suggested-by: Alistair Delva <adelva@google.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
+Cc: stable@vger.kernel.org
+Link: https://bugs.chromium.org/p/chromium/issues/detail?id=984056
+Link: https://lkml.kernel.org/r/20190807221539.94583-1-ndesaulniers@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/sound/compress_driver.h |  5 +----
- sound/core/compress_offload.c   | 16 +++++++++++-----
- 2 files changed, 12 insertions(+), 9 deletions(-)
+ arch/x86/boot/string.c         |    8 ++++++++
+ arch/x86/purgatory/Makefile    |    3 +++
+ arch/x86/purgatory/purgatory.c |    6 ++++++
+ arch/x86/purgatory/string.c    |   25 -------------------------
+ 4 files changed, 17 insertions(+), 25 deletions(-)
 
-diff --git a/include/sound/compress_driver.h b/include/sound/compress_driver.h
-index 392bac18398ba..33a07c3badf01 100644
---- a/include/sound/compress_driver.h
-+++ b/include/sound/compress_driver.h
-@@ -186,10 +186,7 @@ static inline void snd_compr_drain_notify(struct snd_compr_stream *stream)
- 	if (snd_BUG_ON(!stream))
- 		return;
- 
--	if (stream->direction == SND_COMPRESS_PLAYBACK)
--		stream->runtime->state = SNDRV_PCM_STATE_SETUP;
--	else
--		stream->runtime->state = SNDRV_PCM_STATE_PREPARED;
-+	stream->runtime->state = SNDRV_PCM_STATE_SETUP;
- 
- 	wake_up(&stream->runtime->sleep);
+--- a/arch/x86/boot/string.c
++++ b/arch/x86/boot/string.c
+@@ -34,6 +34,14 @@ int memcmp(const void *s1, const void *s
+ 	return diff;
  }
-diff --git a/sound/core/compress_offload.c b/sound/core/compress_offload.c
-index 555df64d46ffc..cf1317546b0ff 100644
---- a/sound/core/compress_offload.c
-+++ b/sound/core/compress_offload.c
-@@ -575,10 +575,7 @@ snd_compr_set_params(struct snd_compr_stream *stream, unsigned long arg)
- 		stream->metadata_set = false;
- 		stream->next_track = false;
  
--		if (stream->direction == SND_COMPRESS_PLAYBACK)
--			stream->runtime->state = SNDRV_PCM_STATE_SETUP;
--		else
--			stream->runtime->state = SNDRV_PCM_STATE_PREPARED;
-+		stream->runtime->state = SNDRV_PCM_STATE_SETUP;
- 	} else {
- 		return -EPERM;
- 	}
-@@ -694,8 +691,17 @@ static int snd_compr_start(struct snd_compr_stream *stream)
- {
- 	int retval;
- 
--	if (stream->runtime->state != SNDRV_PCM_STATE_PREPARED)
-+	switch (stream->runtime->state) {
-+	case SNDRV_PCM_STATE_SETUP:
-+		if (stream->direction != SND_COMPRESS_CAPTURE)
-+			return -EPERM;
-+		break;
-+	case SNDRV_PCM_STATE_PREPARED:
-+		break;
-+	default:
- 		return -EPERM;
-+	}
++/*
++ * Clang may lower `memcmp == 0` to `bcmp == 0`.
++ */
++int bcmp(const void *s1, const void *s2, size_t len)
++{
++	return memcmp(s1, s2, len);
++}
 +
- 	retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_START);
- 	if (!retval)
- 		stream->runtime->state = SNDRV_PCM_STATE_RUNNING;
--- 
-2.20.1
-
+ int strcmp(const char *str1, const char *str2)
+ {
+ 	const unsigned char *s1 = (const unsigned char *)str1;
+--- a/arch/x86/purgatory/Makefile
++++ b/arch/x86/purgatory/Makefile
+@@ -6,6 +6,9 @@ purgatory-y := purgatory.o stack.o setup
+ targets += $(purgatory-y)
+ PURGATORY_OBJS = $(addprefix $(obj)/,$(purgatory-y))
+ 
++$(obj)/string.o: $(srctree)/arch/x86/boot/compressed/string.c FORCE
++	$(call if_changed_rule,cc_o_c)
++
+ $(obj)/sha256.o: $(srctree)/lib/sha256.c FORCE
+ 	$(call if_changed_rule,cc_o_c)
+ 
+--- a/arch/x86/purgatory/purgatory.c
++++ b/arch/x86/purgatory/purgatory.c
+@@ -70,3 +70,9 @@ void purgatory(void)
+ 	}
+ 	copy_backup_region();
+ }
++
++/*
++ * Defined in order to reuse memcpy() and memset() from
++ * arch/x86/boot/compressed/string.c
++ */
++void warn(const char *msg) {}
+--- a/arch/x86/purgatory/string.c
++++ /dev/null
+@@ -1,25 +0,0 @@
+-/*
+- * Simple string functions.
+- *
+- * Copyright (C) 2014 Red Hat Inc.
+- *
+- * Author:
+- *       Vivek Goyal <vgoyal@redhat.com>
+- *
+- * This source code is licensed under the GNU General Public License,
+- * Version 2.  See the file COPYING for more details.
+- */
+-
+-#include <linux/types.h>
+-
+-#include "../boot/string.c"
+-
+-void *memcpy(void *dst, const void *src, size_t len)
+-{
+-	return __builtin_memcpy(dst, src, len);
+-}
+-
+-void *memset(void *dst, int c, size_t len)
+-{
+-	return __builtin_memset(dst, c, len);
+-}
 
 
