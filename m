@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 178488C8E0
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:35:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2DEF8C8D5
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:35:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728951AbfHNCee (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:34:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45882 "EHLO mail.kernel.org"
+        id S1728466AbfHNCNv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:13:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728442AbfHNCNu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:13:50 -0400
+        id S1728456AbfHNCNv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:13:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B80A2084D;
-        Wed, 14 Aug 2019 02:13:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90AF020842;
+        Wed, 14 Aug 2019 02:13:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748829;
-        bh=BFAM/OpfzNz2arFnoqYAr08U99/SP+2B+z5l1hDy4Ls=;
+        s=default; t=1565748830;
+        bh=6IW0LbZ1Rpn2/X1ULoBXggIeNd4mXiLEGia1aydwyCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bUR0XuYji11OLpCEVniNYOjrlWy7oeN/WLJ2HMyeEYILbBTHmwupj8G3Ba1Xpgut1
-         extjacMGcVzuCscFrR6bxnxEA7Ew3wQBuEuo3PF5WbILR+Oa4RQvS9qsScyo9TXEIN
-         58UedVjLhc5RJi4ngztR7BuRnHtfgFeXC0aqx58s=
+        b=VLDiz1MhmbU1B/a29E0qHrinSTihADS5sYQGYpJ5tdsGg8MWxNNSJn5QtjvIHOEmk
+         nRG+1IOe52wcprQk/E/p0iVYYTGZiuWPWvjQAXWXjJrCmHbbfv/mOMHFgIr7QZZxvK
+         GNgiTcEsUiwpb77IZd0rqHTxK1SWY/BhxdXX/adY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Douglas Anderson <dianders@chromium.org>,
-        Sean Paul <seanpaul@chromium.org>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.2 089/123] drm/rockchip: Suspend DP late
-Date:   Tue, 13 Aug 2019 22:10:13 -0400
-Message-Id: <20190814021047.14828-89-sashal@kernel.org>
+Cc:     Pavel Shilovsky <pshilov@microsoft.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 090/123] SMB3: Fix potential memory leak when processing compound chain
+Date:   Tue, 13 Aug 2019 22:10:14 -0400
+Message-Id: <20190814021047.14828-90-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -44,44 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Pavel Shilovsky <pshilov@microsoft.com>
 
-[ Upstream commit f7ccbed656f78212593ca965d9a8f34bf24e0aab ]
+[ Upstream commit 3edeb4a4146dc3b54d6fa71b7ee0585cb52ebfdf ]
 
-In commit fe64ba5c6323 ("drm/rockchip: Resume DP early") we moved
-resume to be early but left suspend at its normal time.  This seems
-like it could be OK, but casues problems if a suspend gets interrupted
-partway through.  The OS only balances matching suspend/resume levels.
-...so if suspend was called then resume will be called.  If suspend
-late was called then resume early will be called.  ...but if suspend
-was called resume early might not get called.  This leads to an
-unbalance in the clock enables / disables.
+When a reconnect happens in the middle of processing a compound chain
+the code leaks a buffer from the memory pool. Fix this by properly
+checking for a return code and freeing buffers in case of error.
 
-Lets take the simple fix and just move suspend to be late to match.
-This makes the PM core take proper care in keeping things balanced.
+Also maintain a buf variable to be equal to either smallbuf or bigbuf
+depending on a response buffer size while parsing a chain and when
+returning to the caller.
 
-Fixes: fe64ba5c6323 ("drm/rockchip: Resume DP early")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190802184616.44822-1-dianders@chromium.org
+Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/analogix_dp-rockchip.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/smb2ops.c | 29 +++++++++++++++++------------
+ 1 file changed, 17 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c b/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
-index 95e5c517a15f7..9aae3d8e99ef4 100644
---- a/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
-+++ b/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
-@@ -432,7 +432,7 @@ static int rockchip_dp_resume(struct device *dev)
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index 2ec37dc589a7b..ae10d6e297c3a 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -4015,7 +4015,6 @@ receive_encrypted_standard(struct TCP_Server_Info *server,
+ {
+ 	int ret, length;
+ 	char *buf = server->smallbuf;
+-	char *tmpbuf;
+ 	struct smb2_sync_hdr *shdr;
+ 	unsigned int pdu_length = server->pdu_size;
+ 	unsigned int buf_size;
+@@ -4045,18 +4044,15 @@ receive_encrypted_standard(struct TCP_Server_Info *server,
+ 		return length;
  
- static const struct dev_pm_ops rockchip_dp_pm_ops = {
- #ifdef CONFIG_PM_SLEEP
--	.suspend = rockchip_dp_suspend,
-+	.suspend_late = rockchip_dp_suspend,
- 	.resume_early = rockchip_dp_resume,
- #endif
- };
+ 	next_is_large = server->large_buf;
+- one_more:
++one_more:
+ 	shdr = (struct smb2_sync_hdr *)buf;
+ 	if (shdr->NextCommand) {
+-		if (next_is_large) {
+-			tmpbuf = server->bigbuf;
++		if (next_is_large)
+ 			next_buffer = (char *)cifs_buf_get();
+-		} else {
+-			tmpbuf = server->smallbuf;
++		else
+ 			next_buffer = (char *)cifs_small_buf_get();
+-		}
+ 		memcpy(next_buffer,
+-		       tmpbuf + le32_to_cpu(shdr->NextCommand),
++		       buf + le32_to_cpu(shdr->NextCommand),
+ 		       pdu_length - le32_to_cpu(shdr->NextCommand));
+ 	}
+ 
+@@ -4085,12 +4081,21 @@ receive_encrypted_standard(struct TCP_Server_Info *server,
+ 		pdu_length -= le32_to_cpu(shdr->NextCommand);
+ 		server->large_buf = next_is_large;
+ 		if (next_is_large)
+-			server->bigbuf = next_buffer;
++			server->bigbuf = buf = next_buffer;
+ 		else
+-			server->smallbuf = next_buffer;
+-
+-		buf += le32_to_cpu(shdr->NextCommand);
++			server->smallbuf = buf = next_buffer;
+ 		goto one_more;
++	} else if (ret != 0) {
++		/*
++		 * ret != 0 here means that we didn't get to handle_mid() thus
++		 * server->smallbuf and server->bigbuf are still valid. We need
++		 * to free next_buffer because it is not going to be used
++		 * anywhere.
++		 */
++		if (next_is_large)
++			free_rsp_buf(CIFS_LARGE_BUFFER, next_buffer);
++		else
++			free_rsp_buf(CIFS_SMALL_BUFFER, next_buffer);
+ 	}
+ 
+ 	return ret;
 -- 
 2.20.1
 
