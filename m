@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BD778C867
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:31:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0B4B8C865
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:31:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729184AbfHNCQp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:16:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48172 "EHLO mail.kernel.org"
+        id S1727819AbfHNCbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:31:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729174AbfHNCQo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:16:44 -0400
+        id S1729181AbfHNCQp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:16:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8533E208C2;
-        Wed, 14 Aug 2019 02:16:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7C6920842;
+        Wed, 14 Aug 2019 02:16:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565749003;
-        bh=OPSiXxS4swt0ozoxU8qLxZd2FnOGMLU53bDmra08Nqc=;
+        s=default; t=1565749004;
+        bh=8QlLlOPPKYXBzWifklRuYBuEBoYqYEf50R0LJK4Qt9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yIM0o/SVM009u8vLeJrsFxxPFM8Gstn39hxqlltnefyEYMECtozST/HTyBDlmKw2v
-         3b8i2UTR2nAixFJsMEV1pvn8pGLceVe8TkDMW2sEzhKcth4zcqrxS7hnxRUS02YXJ1
-         Zd9RSICi6yQ59D0pFwibalFNbKtb7PJsxPsfaFk0=
+        b=H7/2en3nDLeLO4aV8WxWPyU8amFneg+IwURX0qbg9vhLncMgenC1fTfn/RF4YbiNZ
+         2R5S2Ho1W2eEjqlp0+rt9fS/eTvpeM7+ufSHXy4xLnnuZDshniO1DkH9WOJX2e5IYj
+         TTpVG1g77o227liPdDnMAsbgrAqUya4/Z7FqwlAY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        Jeffrey Altman <jaltman@auristor.com>,
-        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 30/68] rxrpc: Fix the lack of notification when sendmsg() fails on a DATA packet
-Date:   Tue, 13 Aug 2019 22:15:08 -0400
-Message-Id: <20190814021548.16001-30-sashal@kernel.org>
+Cc:     Muchun Song <smuchun@gmail.com>,
+        Mukesh Ojha <mojha@codeaurora.org>,
+        Prateek Sood <prsood@codeaurora.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 31/68] driver core: Fix use-after-free and double free on glue directory
+Date:   Tue, 13 Aug 2019 22:15:09 -0400
+Message-Id: <20190814021548.16001-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021548.16001-1-sashal@kernel.org>
 References: <20190814021548.16001-1-sashal@kernel.org>
@@ -45,46 +45,174 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Muchun Song <smuchun@gmail.com>
 
-[ Upstream commit c69565ee6681e151e2bb80502930a16e04b553d1 ]
+[ Upstream commit ac43432cb1f5c2950408534987e57c2071e24d8f ]
 
-Fix the fact that a notification isn't sent to the recvmsg side to indicate
-a call failed when sendmsg() fails to transmit a DATA packet with the error
-ENETUNREACH, EHOSTUNREACH or ECONNREFUSED.
+There is a race condition between removing glue directory and adding a new
+device under the glue dir. It can be reproduced in following test:
 
-Without this notification, the afs client just sits there waiting for the
-call to complete in some manner (which it's not now going to do), which
-also pins the rxrpc call in place.
+CPU1:                                         CPU2:
 
-This can be seen if the client has a scope-level IPv6 address, but not a
-global-level IPv6 address, and we try and transmit an operation to a
-server's IPv6 address.
+device_add()
+  get_device_parent()
+    class_dir_create_and_add()
+      kobject_add_internal()
+        create_dir()    // create glue_dir
 
-Looking in /proc/net/rxrpc/calls shows completed calls just sat there with
-an abort code of RX_USER_ABORT and an error code of -ENETUNREACH.
+                                              device_add()
+                                                get_device_parent()
+                                                  kobject_get() // get glue_dir
 
-Fixes: c54e43d752c7 ("rxrpc: Fix missing start of call timeout")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-Reviewed-by: Jeffrey Altman <jaltman@auristor.com>
+device_del()
+  cleanup_glue_dir()
+    kobject_del(glue_dir)
+
+                                                kobject_add()
+                                                  kobject_add_internal()
+                                                    create_dir() // in glue_dir
+                                                      sysfs_create_dir_ns()
+                                                        kernfs_create_dir_ns(sd)
+
+      sysfs_remove_dir() // glue_dir->sd=NULL
+      sysfs_put()        // free glue_dir->sd
+
+                                                          // sd is freed
+                                                          kernfs_new_node(sd)
+                                                            kernfs_get(glue_dir)
+                                                            kernfs_add_one()
+                                                            kernfs_put()
+
+Before CPU1 remove last child device under glue dir, if CPU2 add a new
+device under glue dir, the glue_dir kobject reference count will be
+increase to 2 via kobject_get() in get_device_parent(). And CPU2 has
+been called kernfs_create_dir_ns(), but not call kernfs_new_node().
+Meanwhile, CPU1 call sysfs_remove_dir() and sysfs_put(). This result in
+glue_dir->sd is freed and it's reference count will be 0. Then CPU2 call
+kernfs_get(glue_dir) will trigger a warning in kernfs_get() and increase
+it's reference count to 1. Because glue_dir->sd is freed by CPU1, the next
+call kernfs_add_one() by CPU2 will fail(This is also use-after-free)
+and call kernfs_put() to decrease reference count. Because the reference
+count is decremented to 0, it will also call kmem_cache_free() to free
+the glue_dir->sd again. This will result in double free.
+
+In order to avoid this happening, we also should make sure that kernfs_node
+for glue_dir is released in CPU1 only when refcount for glue_dir kobj is
+1 to fix this race.
+
+The following calltrace is captured in kernel 4.14 with the following patch
+applied:
+
+commit 726e41097920 ("drivers: core: Remove glue dirs from sysfs earlier")
+
+--------------------------------------------------------------------------
+[    3.633703] WARNING: CPU: 4 PID: 513 at .../fs/kernfs/dir.c:494
+                Here is WARN_ON(!atomic_read(&kn->count) in kernfs_get().
+....
+[    3.633986] Call trace:
+[    3.633991]  kernfs_create_dir_ns+0xa8/0xb0
+[    3.633994]  sysfs_create_dir_ns+0x54/0xe8
+[    3.634001]  kobject_add_internal+0x22c/0x3f0
+[    3.634005]  kobject_add+0xe4/0x118
+[    3.634011]  device_add+0x200/0x870
+[    3.634017]  _request_firmware+0x958/0xc38
+[    3.634020]  request_firmware_into_buf+0x4c/0x70
+....
+[    3.634064] kernel BUG at .../mm/slub.c:294!
+                Here is BUG_ON(object == fp) in set_freepointer().
+....
+[    3.634346] Call trace:
+[    3.634351]  kmem_cache_free+0x504/0x6b8
+[    3.634355]  kernfs_put+0x14c/0x1d8
+[    3.634359]  kernfs_create_dir_ns+0x88/0xb0
+[    3.634362]  sysfs_create_dir_ns+0x54/0xe8
+[    3.634366]  kobject_add_internal+0x22c/0x3f0
+[    3.634370]  kobject_add+0xe4/0x118
+[    3.634374]  device_add+0x200/0x870
+[    3.634378]  _request_firmware+0x958/0xc38
+[    3.634381]  request_firmware_into_buf+0x4c/0x70
+--------------------------------------------------------------------------
+
+Fixes: 726e41097920 ("drivers: core: Remove glue dirs from sysfs earlier")
+Signed-off-by: Muchun Song <smuchun@gmail.com>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Signed-off-by: Prateek Sood <prsood@codeaurora.org>
+Link: https://lore.kernel.org/r/20190727032122.24639-1-smuchun@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/sendmsg.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/base/core.c | 53 ++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 52 insertions(+), 1 deletion(-)
 
-diff --git a/net/rxrpc/sendmsg.c b/net/rxrpc/sendmsg.c
-index be01f9c5d963d..5d6ab4f6fd7ab 100644
---- a/net/rxrpc/sendmsg.c
-+++ b/net/rxrpc/sendmsg.c
-@@ -230,6 +230,7 @@ static void rxrpc_queue_packet(struct rxrpc_sock *rx, struct rxrpc_call *call,
- 			rxrpc_set_call_completion(call,
- 						  RXRPC_CALL_LOCAL_ERROR,
- 						  0, ret);
-+			rxrpc_notify_socket(call);
- 			goto out;
- 		}
- 		_debug("need instant resend %d", ret);
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index e1a8d5c06f65e..fcda6313e7def 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -1648,12 +1648,63 @@ static inline struct kobject *get_glue_dir(struct device *dev)
+  */
+ static void cleanup_glue_dir(struct device *dev, struct kobject *glue_dir)
+ {
++	unsigned int ref;
++
+ 	/* see if we live in a "glue" directory */
+ 	if (!live_in_glue_dir(glue_dir, dev))
+ 		return;
+ 
+ 	mutex_lock(&gdp_mutex);
+-	if (!kobject_has_children(glue_dir))
++	/**
++	 * There is a race condition between removing glue directory
++	 * and adding a new device under the glue directory.
++	 *
++	 * CPU1:                                         CPU2:
++	 *
++	 * device_add()
++	 *   get_device_parent()
++	 *     class_dir_create_and_add()
++	 *       kobject_add_internal()
++	 *         create_dir()    // create glue_dir
++	 *
++	 *                                               device_add()
++	 *                                                 get_device_parent()
++	 *                                                   kobject_get() // get glue_dir
++	 *
++	 * device_del()
++	 *   cleanup_glue_dir()
++	 *     kobject_del(glue_dir)
++	 *
++	 *                                               kobject_add()
++	 *                                                 kobject_add_internal()
++	 *                                                   create_dir() // in glue_dir
++	 *                                                     sysfs_create_dir_ns()
++	 *                                                       kernfs_create_dir_ns(sd)
++	 *
++	 *       sysfs_remove_dir() // glue_dir->sd=NULL
++	 *       sysfs_put()        // free glue_dir->sd
++	 *
++	 *                                                         // sd is freed
++	 *                                                         kernfs_new_node(sd)
++	 *                                                           kernfs_get(glue_dir)
++	 *                                                           kernfs_add_one()
++	 *                                                           kernfs_put()
++	 *
++	 * Before CPU1 remove last child device under glue dir, if CPU2 add
++	 * a new device under glue dir, the glue_dir kobject reference count
++	 * will be increase to 2 in kobject_get(k). And CPU2 has been called
++	 * kernfs_create_dir_ns(). Meanwhile, CPU1 call sysfs_remove_dir()
++	 * and sysfs_put(). This result in glue_dir->sd is freed.
++	 *
++	 * Then the CPU2 will see a stale "empty" but still potentially used
++	 * glue dir around in kernfs_new_node().
++	 *
++	 * In order to avoid this happening, we also should make sure that
++	 * kernfs_node for glue_dir is released in CPU1 only when refcount
++	 * for glue_dir kobj is 1.
++	 */
++	ref = kref_read(&glue_dir->kref);
++	if (!kobject_has_children(glue_dir) && !--ref)
+ 		kobject_del(glue_dir);
+ 	kobject_put(glue_dir);
+ 	mutex_unlock(&gdp_mutex);
 -- 
 2.20.1
 
