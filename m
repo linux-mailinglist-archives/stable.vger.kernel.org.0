@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 230408C70B
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:21:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 193238C6E0
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:20:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727814AbfHNCTV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:19:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50234 "EHLO mail.kernel.org"
+        id S1729705AbfHNCTX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:19:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726383AbfHNCTU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:19:20 -0400
+        id S1728601AbfHNCTW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:19:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0EAEB20843;
-        Wed, 14 Aug 2019 02:19:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 279902173B;
+        Wed, 14 Aug 2019 02:19:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565749159;
-        bh=MLP40Xee1XZVetBmWFSJCKBW+PStioixF9jdljQ31A4=;
+        s=default; t=1565749160;
+        bh=IOPdm9k3VPoaPXeXZ9z/V6zcLHMRjbCmVT1iw1qRiZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2B915QLaBp6vRqn/9ZiCSHg59YIf59ft4lKRDvUHBOF7uO//eXJqdgCNsXqsKB0en
-         dloz+4QCqwDHl7sIOnsiSdV1oEiJLhXkvkRm9Vn/JFdw+YdWHuVjANR/oAu7ztA9H7
-         X0h60PGIDd/c1NwzH7KdoiaxTMgvSweEABofQedM=
+        b=ma5xwHlN6o93B2tKNuOIw7sF23SWKkpob32bCLyn+SOSz3w+2nsK30mnIHEjej3r9
+         57rM1wiHUbc5jDeetMFuW5g7/02AtCvvT/gOv5fTmXKXBoNRaRxur0EZYdAlRfmJTm
+         X363edb+yffdapB3Wm//kR0KvU+iCbZdkSswC43I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oliver Neukum <oneukum@suse.com>,
-        syzbot+965152643a75a56737be@syzkaller.appspotmail.com,
+Cc:     Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 27/44] HID: holtek: test for sanity of intfdata
-Date:   Tue, 13 Aug 2019 22:18:16 -0400
-Message-Id: <20190814021834.16662-27-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 28/44] HID: input: fix a4tech horizontal wheel custom usage
+Date:   Tue, 13 Aug 2019 22:18:17 -0400
+Message-Id: <20190814021834.16662-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021834.16662-1-sashal@kernel.org>
 References: <20190814021834.16662-1-sashal@kernel.org>
@@ -44,44 +43,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 
-[ Upstream commit 01ec0a5f19c8c82960a07f6c7410fc9e01d7fb51 ]
+[ Upstream commit 1c703b53e5bfb5c2205c30f0fb157ce271fd42fb ]
 
-The ioctl handler uses the intfdata of a second interface,
-which may not be present in a broken or malicious device, hence
-the intfdata needs to be checked for NULL.
+Some a4tech mice use the 'GenericDesktop.00b8' usage to inform whether
+the previous wheel report was horizontal or vertical. Before
+c01908a14bf73 ("HID: input: add mapping for "Toggle Display" key") this
+usage was being mapped to 'Relative.Misc'. After the patch it's simply
+ignored (usage->type == 0 & usage->code == 0). Which ultimately makes
+hid-a4tech ignore the WHEEL/HWHEEL selection event, as it has no
+usage->type.
 
-[jkosina@suse.cz: fix newly added spurious space]
-Reported-by: syzbot+965152643a75a56737be@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
+We shouldn't rely on a mapping for that usage as it's nonstandard and
+doesn't really map to an input event. So we bypass the mapping and make
+sure the custom event handling properly handles both reports.
+
+Fixes: c01908a14bf73 ("HID: input: add mapping for "Toggle Display" key")
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-holtek-kbd.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/hid/hid-a4tech.c | 30 +++++++++++++++++++++++++++---
+ 1 file changed, 27 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-holtek-kbd.c b/drivers/hid/hid-holtek-kbd.c
-index 6e1a4a4fc0c10..ab9da597106fa 100644
---- a/drivers/hid/hid-holtek-kbd.c
-+++ b/drivers/hid/hid-holtek-kbd.c
-@@ -126,9 +126,14 @@ static int holtek_kbd_input_event(struct input_dev *dev, unsigned int type,
+diff --git a/drivers/hid/hid-a4tech.c b/drivers/hid/hid-a4tech.c
+index 9428ea7cdf8a0..c52bd163abb3e 100644
+--- a/drivers/hid/hid-a4tech.c
++++ b/drivers/hid/hid-a4tech.c
+@@ -26,12 +26,36 @@
+ #define A4_2WHEEL_MOUSE_HACK_7	0x01
+ #define A4_2WHEEL_MOUSE_HACK_B8	0x02
  
- 	/* Locate the boot interface, to receive the LED change events */
- 	struct usb_interface *boot_interface = usb_ifnum_to_if(usb_dev, 0);
-+	struct hid_device *boot_hid;
-+	struct hid_input *boot_hid_input;
- 
--	struct hid_device *boot_hid = usb_get_intfdata(boot_interface);
--	struct hid_input *boot_hid_input = list_first_entry(&boot_hid->inputs,
-+	if (unlikely(boot_interface == NULL))
-+		return -ENODEV;
++#define A4_WHEEL_ORIENTATION	(HID_UP_GENDESK | 0x000000b8)
 +
-+	boot_hid = usb_get_intfdata(boot_interface);
-+	boot_hid_input = list_first_entry(&boot_hid->inputs,
- 		struct hid_input, list);
+ struct a4tech_sc {
+ 	unsigned long quirks;
+ 	unsigned int hw_wheel;
+ 	__s32 delayed_value;
+ };
  
- 	return boot_hid_input->input->event(boot_hid_input->input, type, code,
++static int a4_input_mapping(struct hid_device *hdev, struct hid_input *hi,
++			    struct hid_field *field, struct hid_usage *usage,
++			    unsigned long **bit, int *max)
++{
++	struct a4tech_sc *a4 = hid_get_drvdata(hdev);
++
++	if (a4->quirks & A4_2WHEEL_MOUSE_HACK_B8 &&
++	    usage->hid == A4_WHEEL_ORIENTATION) {
++		/*
++		 * We do not want to have this usage mapped to anything as it's
++		 * nonstandard and doesn't really behave like an HID report.
++		 * It's only selecting the orientation (vertical/horizontal) of
++		 * the previous mouse wheel report. The input_events will be
++		 * generated once both reports are recorded in a4_event().
++		 */
++		return -1;
++	}
++
++	return 0;
++
++}
++
+ static int a4_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+@@ -53,8 +77,7 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
+ 	struct a4tech_sc *a4 = hid_get_drvdata(hdev);
+ 	struct input_dev *input;
+ 
+-	if (!(hdev->claimed & HID_CLAIMED_INPUT) || !field->hidinput ||
+-			!usage->type)
++	if (!(hdev->claimed & HID_CLAIMED_INPUT) || !field->hidinput)
+ 		return 0;
+ 
+ 	input = field->hidinput->input;
+@@ -65,7 +88,7 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
+ 			return 1;
+ 		}
+ 
+-		if (usage->hid == 0x000100b8) {
++		if (usage->hid == A4_WHEEL_ORIENTATION) {
+ 			input_event(input, EV_REL, value ? REL_HWHEEL :
+ 					REL_WHEEL, a4->delayed_value);
+ 			return 1;
+@@ -129,6 +152,7 @@ MODULE_DEVICE_TABLE(hid, a4_devices);
+ static struct hid_driver a4_driver = {
+ 	.name = "a4tech",
+ 	.id_table = a4_devices,
++	.input_mapping = a4_input_mapping,
+ 	.input_mapped = a4_input_mapped,
+ 	.event = a4_event,
+ 	.probe = a4_probe,
 -- 
 2.20.1
 
