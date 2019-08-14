@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A5CB8CD00
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 09:36:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87F7A8CD02
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 09:36:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726383AbfHNHgM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 03:36:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58104 "EHLO mail.kernel.org"
+        id S1727297AbfHNHgf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 03:36:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727641AbfHNHgM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 03:36:12 -0400
+        id S1726575AbfHNHgf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 03:36:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0D382084D;
-        Wed, 14 Aug 2019 07:36:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FEAD2084F;
+        Wed, 14 Aug 2019 07:36:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565768170;
-        bh=g7MnDQo7NrTooPqDFnX9PC+UoP5yPthTOb4dDh9L2ig=;
+        s=default; t=1565768194;
+        bh=4gUdvc1R/SkhKt0c/k8X3fUa4eb+pWbIovDugLNh6nY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=EymXfAMBfxPgkFKKayc0E63SNvDth+890gLccp2zAdtd6ZN3uAf/zxBkdVIN3uDKc
-         AZ9HDWssWwQPJyEdtDVEerG7bPZoPBT16t2awNZzoiON0Y4bgRTaygvK/vOdXgP9dG
-         IgbgqcvnCI+tirhrjv0bxPVcXbvOg699tfXnLxq4=
-Date:   Wed, 14 Aug 2019 09:36:08 +0200
+        b=f4PP8BUV3X5pFs77WWaCtlwIyScAzh+EhlEvbuyuN4OMcH89f9b/pawwXdKuKQAOL
+         4fO6+FovVnj5gDuvQmibpY6HVdz7a8qPFUc8V3rzxTTvxEG7Hs/ognaXfvdJMqE3xG
+         RXC6A0wejzL1oNl/8URj/WJue9tRQf9iTxF0PIpM=
+Date:   Wed, 14 Aug 2019 09:36:32 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Muchun Song <smuchun@gmail.com>,
         Mukesh Ojha <mojha@codeaurora.org>,
         Prateek Sood <prsood@codeaurora.org>
-Subject: Re: [PATCH AUTOSEL 5.2 067/123] driver core: Fix use-after-free and
+Subject: Re: [PATCH AUTOSEL 4.19 31/68] driver core: Fix use-after-free and
  double free on glue directory
-Message-ID: <20190814073608.GA23414@kroah.com>
-References: <20190814021047.14828-1-sashal@kernel.org>
- <20190814021047.14828-67-sashal@kernel.org>
+Message-ID: <20190814073632.GB23414@kroah.com>
+References: <20190814021548.16001-1-sashal@kernel.org>
+ <20190814021548.16001-31-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190814021047.14828-67-sashal@kernel.org>
+In-Reply-To: <20190814021548.16001-31-sashal@kernel.org>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 13, 2019 at 10:09:51PM -0400, Sasha Levin wrote:
+On Tue, Aug 13, 2019 at 10:15:09PM -0400, Sasha Levin wrote:
 > From: Muchun Song <smuchun@gmail.com>
 > 
 > [ Upstream commit ac43432cb1f5c2950408534987e57c2071e24d8f ]
@@ -146,10 +146,10 @@ On Tue, Aug 13, 2019 at 10:09:51PM -0400, Sasha Levin wrote:
 >  1 file changed, 52 insertions(+), 1 deletion(-)
 > 
 > diff --git a/drivers/base/core.c b/drivers/base/core.c
-> index eaf3aa0cb8031..2dc0123cbba12 100644
+> index e1a8d5c06f65e..fcda6313e7def 100644
 > --- a/drivers/base/core.c
 > +++ b/drivers/base/core.c
-> @@ -1820,12 +1820,63 @@ static inline struct kobject *get_glue_dir(struct device *dev)
+> @@ -1648,12 +1648,63 @@ static inline struct kobject *get_glue_dir(struct device *dev)
 >   */
 >  static void cleanup_glue_dir(struct device *dev, struct kobject *glue_dir)
 >  {
@@ -215,11 +215,7 @@ On Tue, Aug 13, 2019 at 10:09:51PM -0400, Sasha Levin wrote:
 >  	kobject_put(glue_dir);
 >  	mutex_unlock(&gdp_mutex);
 
-This one needs a bit more time to "soak" in the -rc releases before I
-want to apply it to the stable release.  So if you could drop it from
-all of your autosel queues, that would be great.
-
-I'll queue it up in a few weeks if all goes well with it.
+Same here, please drop for now.
 
 thanks,
 
