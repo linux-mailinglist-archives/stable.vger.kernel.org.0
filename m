@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA5108C8F7
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:35:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9005B8C8FB
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:35:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727702AbfHNCNe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:13:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45584 "EHLO mail.kernel.org"
+        id S1727724AbfHNCNi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:13:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728327AbfHNCNd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:13:33 -0400
+        id S1728353AbfHNCNh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:13:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B63020844;
-        Wed, 14 Aug 2019 02:13:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FECB20874;
+        Wed, 14 Aug 2019 02:13:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748812;
-        bh=kmMFtceavFSAC0WIdK8pZzNQNRGs6T/4Isu+nUIr9lE=;
+        s=default; t=1565748816;
+        bh=g+lK8Z/Z/UZ8/bn39BG/TWJYQxoXxoVxHm6GkJ/2ilM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qz/1deJDCdhYswZ+Onwxcwvspwg9NLJya5Pt2yizPsZs+BuKqgTZ1o/Jy+LckGcPR
-         0o/edo8D2cpF8US13dnvfDgn6LgzT51mrVvv4S182WfDZ2KF5nAR5TmFb7vfQonwSf
-         fHeaZYEAUyw2pbrgljCJTNzSkrv8MFYFmU8VqvRc=
+        b=pKTbpGsNmsl2OuF3+OZdvNoltGXrTKgdgn3thJggd4F1dZsmicny/7fBnlJnrsz3T
+         3sXQfOPHJHVqgk/avCmURJ3mZTHI+iCVtNrhWMLe7CNawef+34uXwC6fc44vyWgz/4
+         AGRborCkBRAScsnd/lukOUAJFRRqQswXinPl8bpg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wang Xiayang <xywang.sjtu@sjtu.edu.cn>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 076/123] can: peak_usb: force the string buffer NULL-terminated
-Date:   Tue, 13 Aug 2019 22:10:00 -0400
-Message-Id: <20190814021047.14828-76-sashal@kernel.org>
+Cc:     Vijendar Mukunda <Vijendar.Mukunda@amd.com>,
+        Vijendar Mukunda <vijendar.mukunda@amd.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 077/123] ASoC: amd: acp3x: use dma_ops of parent device for acp3x dma driver
+Date:   Tue, 13 Aug 2019 22:10:01 -0400
+Message-Id: <20190814021047.14828-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -44,37 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Xiayang <xywang.sjtu@sjtu.edu.cn>
+From: Vijendar Mukunda <Vijendar.Mukunda@amd.com>
 
-[ Upstream commit e787f19373b8a5fa24087800ed78314fd17b984a ]
+[ Upstream commit 88639051017fb61a414b636dd0fc490da2b62b64 ]
 
-strncpy() does not ensure NULL-termination when the input string size
-equals to the destination buffer size IFNAMSIZ. The output string is
-passed to dev_info() which relies on the NULL-termination.
+AMD platform device acp3x_rv_i2s created by parent PCI device
+driver. Pass struct device of the parent to
+snd_pcm_lib_preallocate_pages() so dma_alloc_coherent() can use
+correct dma_ops. Otherwise, it will use default dma_ops which
+is nommu_dma_ops on x86_64 even when IOMMU is enabled and
+set to non passthrough mode.
 
-Use strlcpy() instead.
-
-This issue is identified by a Coccinelle script.
-
-Signed-off-by: Wang Xiayang <xywang.sjtu@sjtu.edu.cn>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Vijendar Mukunda <vijendar.mukunda@amd.com>
+Link: https://lore.kernel.org/r/1564753899-17124-1-git-send-email-Vijendar.Mukunda@amd.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/peak_usb/pcan_usb_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/amd/raven/acp3x-pcm-dma.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_core.c b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-index 458154c9b4829..4c2cda5ecf3f8 100644
---- a/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-@@ -855,7 +855,7 @@ static void peak_usb_disconnect(struct usb_interface *intf)
+diff --git a/sound/soc/amd/raven/acp3x-pcm-dma.c b/sound/soc/amd/raven/acp3x-pcm-dma.c
+index 9775bda2a4ca3..d8aa6ab3f68bc 100644
+--- a/sound/soc/amd/raven/acp3x-pcm-dma.c
++++ b/sound/soc/amd/raven/acp3x-pcm-dma.c
+@@ -367,9 +367,11 @@ static snd_pcm_uframes_t acp3x_dma_pointer(struct snd_pcm_substream *substream)
  
- 		dev_prev_siblings = dev->prev_siblings;
- 		dev->state &= ~PCAN_USB_STATE_CONNECTED;
--		strncpy(name, netdev->name, IFNAMSIZ);
-+		strlcpy(name, netdev->name, IFNAMSIZ);
- 
- 		unregister_netdev(netdev);
+ static int acp3x_dma_new(struct snd_soc_pcm_runtime *rtd)
+ {
++	struct snd_soc_component *component = snd_soc_rtdcom_lookup(rtd,
++								    DRV_NAME);
++	struct device *parent = component->dev->parent;
+ 	snd_pcm_lib_preallocate_pages_for_all(rtd->pcm, SNDRV_DMA_TYPE_DEV,
+-					      rtd->pcm->card->dev,
+-					      MIN_BUFFER, MAX_BUFFER);
++					      parent, MIN_BUFFER, MAX_BUFFER);
+ 	return 0;
+ }
  
 -- 
 2.20.1
