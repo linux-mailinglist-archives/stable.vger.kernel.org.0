@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B5268D975
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:09:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0229B8D977
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:09:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728188AbfHNRIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:08:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58714 "EHLO mail.kernel.org"
+        id S1729626AbfHNRIn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:08:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730169AbfHNRIg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:08:36 -0400
+        id S1728649AbfHNRIl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:08:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66AA421721;
-        Wed, 14 Aug 2019 17:08:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 772B22084D;
+        Wed, 14 Aug 2019 17:08:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802515;
-        bh=bvXAwH0S25j0YdHglPqNUbLqwyWi3BxhSqRlgEfvOZA=;
+        s=default; t=1565802521;
+        bh=hCgr0/7hadj/Z1Ak1ssKJSqfrRjV0yt0Iiv3obLQrfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZiAgBE5rc2ghBj0ze14/PN8Ps6RxtMtnCmjmwJyHcOj0gxkf6dyp++eiFd1IG4Usq
-         eeX1aul2RntWD7P9Zdztx9pkbOvn7ks29c3hfBBgL2INqbVsuFNaq5KZDkBAZ0w98N
-         9Cx9BGzDKCNdyvI2O/HALnPIbSWHqbGzpi2mbp6k=
+        b=nyE9xSufYmW53wxmKRCu0+KElmWUbTDUFEzO1AokacUkDg7gsJZHNmyHPfy39iiP8
+         uPoqVaT+9qJUcN7AjUbXEZUVE+vC2mfIWqBXKIChTzPvbcl7mA2g+cVCfiLS7Tt+TF
+         eOrCfsZs6Kqq4xMG9M6rJ5T6rP+aS03XrQUXU+Fk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.19 12/91] mmc: cavium: Add the missing dma unmap when the dma has finished.
-Date:   Wed, 14 Aug 2019 19:00:35 +0200
-Message-Id: <20190814165750.240619755@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+199ea16c7f26418b4365@syzkaller.appspotmail.com,
+        Oliver Neukum <oneukum@suse.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.19 14/91] Input: usbtouchscreen - initialize PM mutex before using it
+Date:   Wed, 14 Aug 2019 19:00:37 +0200
+Message-Id: <20190814165750.373364516@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
 References: <20190814165748.991235624@linuxfoundation.org>
@@ -43,71 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Hao <haokexin@gmail.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit b803974a86039913d5280add083d730b2b9ed8ec upstream.
+commit b55d996f057bf2e7ba9422a80b5e17e99860cb0b upstream.
 
-This fixes the below calltrace when the CONFIG_DMA_API_DEBUG is enabled.
-  DMA-API: thunderx_mmc 0000:01:01.4: cpu touching an active dma mapped cacheline [cln=0x000000002fdf9800]
-  WARNING: CPU: 21 PID: 1 at kernel/dma/debug.c:596 debug_dma_assert_idle+0x1f8/0x270
-  Modules linked in:
-  CPU: 21 PID: 1 Comm: init Not tainted 5.3.0-rc1-next-20190725-yocto-standard+ #64
-  Hardware name: Marvell OcteonTX CN96XX board (DT)
-  pstate: 80400009 (Nzcv daif +PAN -UAO)
-  pc : debug_dma_assert_idle+0x1f8/0x270
-  lr : debug_dma_assert_idle+0x1f8/0x270
-  sp : ffff0000113cfc10
-  x29: ffff0000113cfc10 x28: 0000ffff8c880000
-  x27: ffff800bc72a0000 x26: ffff000010ff8000
-  x25: ffff000010ff8940 x24: ffff000010ff8968
-  x23: 0000000000000000 x22: ffff000010e83700
-  x21: ffff000010ea2000 x20: ffff000010e835c8
-  x19: ffff800bc2c73300 x18: ffffffffffffffff
-  x17: 0000000000000000 x16: 0000000000000000
-  x15: ffff000010e835c8 x14: 6d20616d64206576
-  x13: 69746361206e6120 x12: 676e696863756f74
-  x11: 20757063203a342e x10: 31303a31303a3030
-  x9 : 303020636d6d5f78 x8 : 3230303030303030
-  x7 : 00000000000002fd x6 : ffff000010fd57d0
-  x5 : 0000000000000000 x4 : ffff0000106c5210
-  x3 : 00000000ffffffff x2 : 0000800bee9c0000
-  x1 : 57d5843f4aa62800 x0 : 0000000000000000
-  Call trace:
-   debug_dma_assert_idle+0x1f8/0x270
-   wp_page_copy+0xb0/0x688
-   do_wp_page+0xa8/0x5b8
-   __handle_mm_fault+0x600/0xd00
-   handle_mm_fault+0x118/0x1e8
-   do_page_fault+0x200/0x500
-   do_mem_abort+0x50/0xb0
-   el0_da+0x20/0x24
-  ---[ end trace a005534bd23e109f ]---
-  DMA-API: Mapped at:
-   debug_dma_map_sg+0x94/0x350
-   cvm_mmc_request+0x3c4/0x988
-   __mmc_start_request+0x9c/0x1f8
-   mmc_start_request+0x7c/0xb0
-   mmc_blk_mq_issue_rq+0x5c4/0x7b8
+Mutexes shall be initialized before they are used.
 
-Signed-off-by: Kevin Hao <haokexin@gmail.com>
-Fixes: ba3869ff32e4 ("mmc: cavium: Add core MMC driver for Cavium SOCs")
+Fixes: 12e510dbc57b2 ("Input: usbtouchscreen - fix deadlock in autosuspend")
+Reported-by: syzbot+199ea16c7f26418b4365@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/cavium.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/touchscreen/usbtouchscreen.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/mmc/host/cavium.c
-+++ b/drivers/mmc/host/cavium.c
-@@ -374,6 +374,7 @@ static int finish_dma_single(struct cvm_
- {
- 	data->bytes_xfered = data->blocks * data->blksz;
- 	data->error = 0;
-+	dma_unmap_sg(host->dev, data->sg, data->sg_len, get_dma_dir(data));
- 	return 1;
- }
+--- a/drivers/input/touchscreen/usbtouchscreen.c
++++ b/drivers/input/touchscreen/usbtouchscreen.c
+@@ -1672,6 +1672,8 @@ static int usbtouch_probe(struct usb_int
+ 	if (!usbtouch || !input_dev)
+ 		goto out_free;
  
++	mutex_init(&usbtouch->pm_mutex);
++
+ 	type = &usbtouch_dev_info[id->driver_info];
+ 	usbtouch->type = type;
+ 	if (!type->process_pkt)
 
 
