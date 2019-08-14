@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60EFF8C75B
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:24:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 848A98C759
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:24:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729002AbfHNCXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:23:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48788 "EHLO mail.kernel.org"
+        id S1727807AbfHNCW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:22:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729412AbfHNCRa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:17:30 -0400
+        id S1727626AbfHNCRb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:17:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6730F20843;
-        Wed, 14 Aug 2019 02:17:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2750208C2;
+        Wed, 14 Aug 2019 02:17:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565749049;
-        bh=NSafegQqM6bZHr8DIYO0zVk1Y9lQxdXuReFFnkivw10=;
+        s=default; t=1565749050;
+        bh=FU7JrSjpDn+j5PtmdPsUX2jCP/x8aep9fWo+JQAylnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H5O2f+EU+ncEOfmjWcQk4UtAgQgqlXIsiroFTpCiMsxXq4PeHJQLSug235Qa7Pn8m
-         8MhjCLTOHGOB/6qvEY40V/AVRZ5T1DytWMw/KcvEoBhNhQMPC38X+X6Ms8l0nM2qPc
-         gLGytBrw4BZWKK3GD8G9Om6qYqLqHIzLHESygjUc=
+        b=eA/vMENHRIm9JIuTN0o2S7tXK0t6edL6VH5eZQ96ILEjhB9fUhT2iUWtmrnA/K9Rr
+         ryrGu34vWACC3sH5W+NmThN2eD2w9mvvC3ClHklmhyV9r948ASVnIZkvGu+sX9UZny
+         FEQr48RVoNyPhxK9Hc4vJnGtmLY3xSjyumqN4Bbo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paolo Valente <paolo.valente@linaro.org>,
-        Hsin-Yi Wang <hsinyi@google.com>,
-        Nicolas Boichat <drinkcat@chromium.org>,
-        Doug Anderson <dianders@chromium.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 62/68] block, bfq: handle NULL return value by bfq_init_rq()
-Date:   Tue, 13 Aug 2019 22:15:40 -0400
-Message-Id: <20190814021548.16001-62-sashal@kernel.org>
+Cc:     He Zhe <zhe.he@windriver.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 63/68] perf ftrace: Fix failure to set cpumask when only one cpu is present
+Date:   Tue, 13 Aug 2019 22:15:41 -0400
+Message-Id: <20190814021548.16001-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021548.16001-1-sashal@kernel.org>
 References: <20190814021548.16001-1-sashal@kernel.org>
@@ -47,76 +50,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Valente <paolo.valente@linaro.org>
+From: He Zhe <zhe.he@windriver.com>
 
-[ Upstream commit fd03177c33b287c6541f4048f1d67b7b45a1abc9 ]
+[ Upstream commit cf30ae726c011e0372fd4c2d588466c8b50a8907 ]
 
-As reported in [1], the call bfq_init_rq(rq) may return NULL in case
-of OOM (in particular, if rq->elv.icq is NULL because memory
-allocation failed in failed in ioc_create_icq()).
+The buffer containing the string used to set cpumask is overwritten at
+the end of the string later in cpu_map__snprint_mask due to not enough
+memory space, when there is only one cpu.
 
-This commit handles this circumstance.
+And thus causes the following failure:
 
-[1] https://lkml.org/lkml/2019/7/22/824
+  $ perf ftrace ls
+  failed to reset ftrace
+  $
 
-Cc: Hsin-Yi Wang <hsinyi@google.com>
-Cc: Nicolas Boichat <drinkcat@chromium.org>
-Cc: Doug Anderson <dianders@chromium.org>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Reported-by: Hsin-Yi Wang <hsinyi@google.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+This patch fixes the calculation of the cpumask string size.
+
+Signed-off-by: He Zhe <zhe.he@windriver.com>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Fixes: dc23103278c5 ("perf ftrace: Add support for -a and -C option")
+Link: http://lkml.kernel.org/r/1564734592-15624-1-git-send-email-zhe.he@windriver.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ tools/perf/builtin-ftrace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index becd793a258c8..d8d2ac294b0c0 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -1886,9 +1886,14 @@ static void bfq_request_merged(struct request_queue *q, struct request *req,
- 	    blk_rq_pos(container_of(rb_prev(&req->rb_node),
- 				    struct request, rb_node))) {
- 		struct bfq_queue *bfqq = bfq_init_rq(req);
--		struct bfq_data *bfqd = bfqq->bfqd;
-+		struct bfq_data *bfqd;
- 		struct request *prev, *next_rq;
+diff --git a/tools/perf/builtin-ftrace.c b/tools/perf/builtin-ftrace.c
+index f42f228e88992..137955197ba8d 100644
+--- a/tools/perf/builtin-ftrace.c
++++ b/tools/perf/builtin-ftrace.c
+@@ -174,7 +174,7 @@ static int set_tracing_cpumask(struct cpu_map *cpumap)
+ 	int last_cpu;
  
-+		if (!bfqq)
-+			return;
-+
-+		bfqd = bfqq->bfqd;
-+
- 		/* Reposition request in its sort_list */
- 		elv_rb_del(&bfqq->sort_list, req);
- 		elv_rb_add(&bfqq->sort_list, req);
-@@ -1930,6 +1935,9 @@ static void bfq_requests_merged(struct request_queue *q, struct request *rq,
- 	struct bfq_queue *bfqq = bfq_init_rq(rq),
- 		*next_bfqq = bfq_init_rq(next);
+ 	last_cpu = cpu_map__cpu(cpumap, cpumap->nr - 1);
+-	mask_size = (last_cpu + 3) / 4 + 1;
++	mask_size = last_cpu / 4 + 2; /* one more byte for EOS */
+ 	mask_size += last_cpu / 32; /* ',' is needed for every 32th cpus */
  
-+	if (!bfqq)
-+		return;
-+
- 	/*
- 	 * If next and rq belong to the same bfq_queue and next is older
- 	 * than rq, then reposition rq in the fifo (by substituting next
-@@ -4590,12 +4598,12 @@ static void bfq_insert_request(struct blk_mq_hw_ctx *hctx, struct request *rq,
- 
- 	spin_lock_irq(&bfqd->lock);
- 	bfqq = bfq_init_rq(rq);
--	if (at_head || blk_rq_is_passthrough(rq)) {
-+	if (!bfqq || at_head || blk_rq_is_passthrough(rq)) {
- 		if (at_head)
- 			list_add(&rq->queuelist, &bfqd->dispatch);
- 		else
- 			list_add_tail(&rq->queuelist, &bfqd->dispatch);
--	} else { /* bfqq is assumed to be non null here */
-+	} else {
- 		idle_timer_disabled = __bfq_insert_request(bfqd, rq);
- 		/*
- 		 * Update bfqq, because, if a queue merge has occurred
+ 	cpumask = malloc(mask_size);
 -- 
 2.20.1
 
