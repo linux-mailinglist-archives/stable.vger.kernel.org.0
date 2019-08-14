@@ -2,151 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 923D18E00D
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 23:43:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 074498E0E2
+	for <lists+stable@lfdr.de>; Thu, 15 Aug 2019 00:37:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728897AbfHNVnd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 17:43:33 -0400
-Received: from mail.andi.de1.cc ([85.214.55.253]:56696 "EHLO mail.andi.de1.cc"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728855AbfHNVnc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 17:43:32 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=kemnade.info; s=20180802; h=Content-Transfer-Encoding:MIME-Version:
-        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=rzfhwFa3vGxoAkostceCbIdcn+mpEwU4ARYQbmvuyIk=; b=m4VSz6yPLD1INnQVjkWpFn2qps
-        fSyfckhDJhYEai8gy0FwfRSrR9yWrYNcrGnAwnR8TRKT/qAM8CIHuDlTxchGrAP2FWHng2nOcMn+U
-        nb2r+79X4T14vNdmx9UzMj0mcOEd6/26DwjRdFYzetfHZlduSC546ugr2LBmLQbnMTlQ=;
-Received: from p5dcc3d63.dip0.t-ipconnect.de ([93.204.61.99] helo=aktux)
-        by mail.andi.de1.cc with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <andreas@kemnade.info>)
-        id 1hy13F-0002T6-0Y; Wed, 14 Aug 2019 23:43:25 +0200
-Received: from andi by aktux with local (Exim 4.92)
-        (envelope-from <andreas@kemnade.info>)
-        id 1hy13E-0006HI-Mq; Wed, 14 Aug 2019 23:43:24 +0200
-From:   Andreas Kemnade <andreas@kemnade.info>
-To:     tony@atomide.com, lgirdwood@gmail.com, broonie@kernel.org,
-        linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pm@vger.kernel.org, sboyd@kernel.org, nm@ti.com,
-        vireshk@kernel.org
-Cc:     Andreas Kemnade <andreas@kemnade.info>, stable@vger.kernel.org
-Subject: [PATCH v2] regulator: twl: voltage lists for vdd1/2 on twl4030
-Date:   Wed, 14 Aug 2019 23:43:19 +0200
-Message-Id: <20190814214319.24087-1-andreas@kemnade.info>
-X-Mailer: git-send-email 2.20.1
+        id S1728389AbfHNWhg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 18:37:36 -0400
+Received: from mail-wr1-f44.google.com ([209.85.221.44]:33407 "EHLO
+        mail-wr1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725895AbfHNWhg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Aug 2019 18:37:36 -0400
+Received: by mail-wr1-f44.google.com with SMTP id u16so607816wrr.0
+        for <stable@vger.kernel.org>; Wed, 14 Aug 2019 15:37:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=oj0hiMpymPXol1ueA+RVPbGRQRBHE7nRWC8Jc3SIHJQ=;
+        b=toxvYY3nkGilhyMWFgIO1Zm48dJint/eiry5GmInwyHQ/xyx1JyXhiJ8MFoc60RIho
+         O4egkANzbq+wbEr1vRV2FP97s3LE+amW7BZ724a2oWGHqHs1i10KfkMnuthh3iKhh6cF
+         d4VAoTB2L0Hg7PlxKvcdzXamBkOybhDbNVcCOtfE2lp6mI+nwzn4Ucm8Q5V7llXE7Jb7
+         Y+unbYAy2pxdvo9S4T6BZyEpzKZQ43JSPGFlYABJSJAdq1N+Dx/fWE11udom5U5Tq7EX
+         2fL4XZfHeuCvSMkXAD9EMaBV6TjCox/IOHdWv7S5CP1w/gN6JuZazMwKMpDI8ywoYebM
+         WZig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=oj0hiMpymPXol1ueA+RVPbGRQRBHE7nRWC8Jc3SIHJQ=;
+        b=iCX9erdMLqyN8TtngXP+yMHulNISOTrmL80yfABo+3L9wyb6nKVHJ4ezrS5iI+zAhP
+         eLFn593tu6B4Tby0uxt0ELha4wxva2CjIDHp7M1UIVdTiOxJ2YblnzxgclEaGCBsR/JK
+         u4k21qyBErfgiq7CCnbRINl7Ahb4Jtw3La/IYubdUc8n8nFi7mY7tgXxWUBlu/8ZZpXw
+         zl35t1gJvdIquELHvgGFEc4cPtn4Y0piy4qQNYLneoO3faiLVVQa+LqkRYu8c2JNlN8v
+         15sd54w0uhEat3HWfEF0zaRFnfPnpdlCDpOW4DiySdG0ppRHIARRRN41MUgtfJ3xWJ2S
+         bNlg==
+X-Gm-Message-State: APjAAAUKoMPib8FRltsw7gkOqxWA3yvEOEw/68BSz5WSDLUoE7RanOZ1
+        BIuoZVC8Zuj3WmNZ7f+HqewXmZsyJoBAEA==
+X-Google-Smtp-Source: APXvYqy8bOf1FpSBnHwFlNPwyZfZbRIWnDC1mqmhg2GbzrTwnukfVE3/37uk8rxbVQuDNqlihWUlsQ==
+X-Received: by 2002:a5d:698f:: with SMTP id g15mr1936968wru.310.1565822253792;
+        Wed, 14 Aug 2019 15:37:33 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id j16sm948471wrp.62.2019.08.14.15.37.33
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 14 Aug 2019 15:37:33 -0700 (PDT)
+Message-ID: <5d548d2d.1c69fb81.4676c.4fa7@mx.google.com>
+Date:   Wed, 14 Aug 2019 15:37:33 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: -1.0 (-)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.138-70-g736c2f07319a
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable-rc/linux-4.14.y boot: 132 boots: 2 failed,
+ 117 passed with 12 offline, 1 untried/unknown (v4.14.138-70-g736c2f07319a)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-_opp_supported_by_regulators() wrongly ignored errors from
-regulator_is_supported_voltage(), so it considered errors as
-success. Since
-commit 498209445124 ("regulator: core: simplify return value on suported_voltage")
-regulator_is_supported_voltage() returns a real boolean, so
-errors make _opp_supported_by_regulators() return false.
+stable-rc/linux-4.14.y boot: 132 boots: 2 failed, 117 passed with 12 offlin=
+e, 1 untried/unknown (v4.14.138-70-g736c2f07319a)
 
-That reveals a problem with the declaration of the VDD1/2
-regulators on twl4030.
-The VDD1/VDD2 regulators on twl4030 are neither defined with
-voltage lists nor with the continuous flag set, so
-regulator_is_supported_voltage() returns false and an error
-before above mentioned commit (which was considered success)
-The result is that after the above mentioned commit cpufreq
-does not work properly e.g. dm3730.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.138-70-g736c2f07319a/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.138-70-g736c2f07319a/
 
-[    2.490997] core: _opp_supported_by_regulators: OPP minuV: 1012500 maxuV: 1012500, not supported by regulator
-[    2.501617] cpu cpu0: _opp_add: OPP not supported by regulators (300000000)
-[    2.509246] core: _opp_supported_by_regulators: OPP minuV: 1200000 maxuV: 1200000, not supported by regulator
-[    2.519775] cpu cpu0: _opp_add: OPP not supported by regulators (600000000)
-[    2.527313] core: _opp_supported_by_regulators: OPP minuV: 1325000 maxuV: 1325000, not supported by regulator
-[    2.537750] cpu cpu0: _opp_add: OPP not supported by regulators (800000000)
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.138-70-g736c2f07319a
+Git Commit: 736c2f07319a323c55007bcf8fca70481e9c7175
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 69 unique boards, 25 SoC families, 16 builds out of 201
 
-The patch fixes declaration of VDD1/2 regulators by
-adding proper voltage lists.
+Boot Regressions Detected:
 
-Fixes: 498209445124 ("regulator: core: simplify return value on suported_voltage")
-Cc: stable@vger.kernel.org
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: new failure (last pass: v4.14.138)
+          qcom-apq8064-ifc6410:
+              lab-baylibre-seattle: new failure (last pass: v4.14.138)
+
+Boot Failures Detected:
+
+arc:
+    hsdk_defconfig:
+        gcc-8:
+            hsdk: 1 failed lab
+
+arm64:
+    defconfig:
+        gcc-8:
+            rk3399-firefly: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+            meson-gxbb-odroidc2: 1 offline lab
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    imx_v6_v7_defconfig:
+        gcc-8
+            imx6dl-wandboard_solo: 1 offline lab
+            imx6q-wandboard: 1 offline lab
+
 ---
-resent because it was rejected by mailing lists, due to technical
-issues, sorry for the noise.
-changes in v2:
-  using a proper voltage list instead of misusing the continuous flag
-  subject was regulator: twl: mark vdd1/2 as continuous on twl4030
-
- drivers/regulator/twl-regulator.c | 23 ++++++++++++++++++++---
- 1 file changed, 20 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/regulator/twl-regulator.c b/drivers/regulator/twl-regulator.c
-index 6fa15b2d6fb3..866b4dd01da9 100644
---- a/drivers/regulator/twl-regulator.c
-+++ b/drivers/regulator/twl-regulator.c
-@@ -359,6 +359,17 @@ static const u16 VINTANA2_VSEL_table[] = {
- 	2500, 2750,
- };
- 
-+/* 600mV to 1450mV in 12.5 mV steps */
-+static const struct regulator_linear_range VDD1_ranges[] = {
-+	REGULATOR_LINEAR_RANGE(600000, 0, 68, 12500)
-+};
-+
-+/* 600mV to 1450mV in 12.5 mV steps, everything above = 1500mV */
-+static const struct regulator_linear_range VDD2_ranges[] = {
-+	REGULATOR_LINEAR_RANGE(600000, 0, 68, 12500),
-+	REGULATOR_LINEAR_RANGE(1500000, 69, 69, 12500)
-+};
-+
- static int twl4030ldo_list_voltage(struct regulator_dev *rdev, unsigned index)
- {
- 	struct twlreg_info	*info = rdev_get_drvdata(rdev);
-@@ -427,6 +438,8 @@ static int twl4030smps_get_voltage(struct regulator_dev *rdev)
- }
- 
- static const struct regulator_ops twl4030smps_ops = {
-+	.list_voltage   = regulator_list_voltage_linear_range,
-+
- 	.set_voltage	= twl4030smps_set_voltage,
- 	.get_voltage	= twl4030smps_get_voltage,
- };
-@@ -466,7 +479,8 @@ static const struct twlreg_info TWL4030_INFO_##label = { \
- 		}, \
- 	}
- 
--#define TWL4030_ADJUSTABLE_SMPS(label, offset, num, turnon_delay, remap_conf) \
-+#define TWL4030_ADJUSTABLE_SMPS(label, offset, num, turnon_delay, remap_conf, \
-+		n_volt) \
- static const struct twlreg_info TWL4030_INFO_##label = { \
- 	.base = offset, \
- 	.id = num, \
-@@ -479,6 +493,9 @@ static const struct twlreg_info TWL4030_INFO_##label = { \
- 		.owner = THIS_MODULE, \
- 		.enable_time = turnon_delay, \
- 		.of_map_mode = twl4030reg_map_mode, \
-+		.n_voltages = n_volt, \
-+		.n_linear_ranges = ARRAY_SIZE(label ## _ranges), \
-+		.linear_ranges = label ## _ranges, \
- 		}, \
- 	}
- 
-@@ -518,8 +535,8 @@ TWL4030_ADJUSTABLE_LDO(VSIM, 0x37, 9, 100, 0x00);
- TWL4030_ADJUSTABLE_LDO(VDAC, 0x3b, 10, 100, 0x08);
- TWL4030_ADJUSTABLE_LDO(VINTANA2, 0x43, 12, 100, 0x08);
- TWL4030_ADJUSTABLE_LDO(VIO, 0x4b, 14, 1000, 0x08);
--TWL4030_ADJUSTABLE_SMPS(VDD1, 0x55, 15, 1000, 0x08);
--TWL4030_ADJUSTABLE_SMPS(VDD2, 0x63, 16, 1000, 0x08);
-+TWL4030_ADJUSTABLE_SMPS(VDD1, 0x55, 15, 1000, 0x08, 68);
-+TWL4030_ADJUSTABLE_SMPS(VDD2, 0x63, 16, 1000, 0x08, 69);
- /* VUSBCP is managed *only* by the USB subchip */
- TWL4030_FIXED_LDO(VINTANA1, 0x3f, 1500, 11, 100, 0x08);
- TWL4030_FIXED_LDO(VINTDIG, 0x47, 1500, 13, 100, 0x08);
--- 
-2.20.1
-
+For more info write to <info@kernelci.org>
