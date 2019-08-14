@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6C858D9FE
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:14:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 649FD8DA91
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:19:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730159AbfHNROU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:14:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38770 "EHLO mail.kernel.org"
+        id S1730203AbfHNRL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:11:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731038AbfHNROT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:14:19 -0400
+        id S1730239AbfHNRL7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:11:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BF782084D;
-        Wed, 14 Aug 2019 17:14:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6F3E2063F;
+        Wed, 14 Aug 2019 17:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802858;
-        bh=Z9vCoxmg1F0JBLGhQ5ys9J4j4m/T7XhF6spaclXJU8A=;
+        s=default; t=1565802718;
+        bh=5KpzJcO9s1No6VYp64ZStfAjB04V+ezPbwatG7aZ2rs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yYN+FVTVurgHJBfVWv5FzvCTl7ZBHyof50KerFC6HCDHT9h9KbKpdvTf0P/6HTxOD
-         L2iJfMSeJwhutItHn5C0KYeKbAu4u+2zqV6zS26VOdul8rYD+xNDcxyaTKN3C7VQ8a
-         wWpr8c6EU0dtwy8ButUuOh2RVaJqPlvZCf1YFHSg=
+        b=FcTP8y2wsFsB1hDoi7V59ldphcEA7mViYe8RulWywuHTJTgdBYgyFmWHzlYJWw0nW
+         LBb8R23AzJC3ViK5WtcAR3wnuSJEs/7LtZQl+2O0fWwKc5GPAZ2vlMKXvtHJQcrQba
+         VzidnahqCSpnoWJWaJ4pWE5d/d7UY99ZNFUS/8YA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gilles Buloz <Gilles.Buloz@kontron.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.14 54/69] hwmon: (nct7802) Fix wrong detection of in4 presence
-Date:   Wed, 14 Aug 2019 19:01:52 +0200
-Message-Id: <20190814165749.135205881@linuxfoundation.org>
+        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 90/91] iwlwifi: mvm: dont send GEO_TX_POWER_LIMIT on version < 41
+Date:   Wed, 14 Aug 2019 19:01:53 +0200
+Message-Id: <20190814165754.073170009@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165744.822314328@linuxfoundation.org>
-References: <20190814165744.822314328@linuxfoundation.org>
+In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
+References: <20190814165748.991235624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Luca Coelho <luciano.coelho@intel.com>
 
-commit 38ada2f406a9b81fb1249c5c9227fa657e7d5671 upstream.
+commit 39bd984c203e86f3109b49c2a2e20677c4d3ab65 upstream.
 
-The code to detect if in4 is present is wrong; if in4 is not present,
-the in4_input sysfs attribute is still present.
+Firmware versions before 41 don't support the GEO_TX_POWER_LIMIT
+command, and sending it to the firmware will cause a firmware crash.
+We allow this via debugfs, so we need to return an error value in case
+it's not supported.
 
-In detail:
+This had already been fixed during init, when we send the command if
+the ACPI WGDS table is present.  Fix it also for the other,
+userspace-triggered case.
 
-- Ihen RTD3_MD=11 (VSEN3 present), everything is as expected (no bug).
-- If we have RTD3_MD!=11 (no VSEN3), we unexpectedly have a in4_input
-  file under /sys and the "sensors" command displays in4_input.
-  But as expected, we have no in4_min, in4_max, in4_alarm, in4_beep.
-
-Fix is_visible function to detect and report in4_input visibility
-as expected.
-
-Reported-by: Gilles Buloz <Gilles.Buloz@kontron.com>
-Cc: Gilles Buloz <Gilles.Buloz@kontron.com>
 Cc: stable@vger.kernel.org
-Fixes: 3434f37835804 ("hwmon: Driver for Nuvoton NCT7802Y")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 7fe90e0e3d60 ("iwlwifi: mvm: refactor geo init")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwmon/nct7802.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/fw.c |   22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
---- a/drivers/hwmon/nct7802.c
-+++ b/drivers/hwmon/nct7802.c
-@@ -768,7 +768,7 @@ static struct attribute *nct7802_in_attr
- 	&sensor_dev_attr_in3_alarm.dev_attr.attr,
- 	&sensor_dev_attr_in3_beep.dev_attr.attr,
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+@@ -836,6 +836,17 @@ int iwl_mvm_sar_select_profile(struct iw
+ 	return iwl_mvm_send_cmd_pdu(mvm, REDUCE_TX_POWER_CMD, 0, len, &cmd);
+ }
  
--	&sensor_dev_attr_in4_input.dev_attr.attr,	/* 17 */
-+	&sensor_dev_attr_in4_input.dev_attr.attr,	/* 16 */
- 	&sensor_dev_attr_in4_min.dev_attr.attr,
- 	&sensor_dev_attr_in4_max.dev_attr.attr,
- 	&sensor_dev_attr_in4_alarm.dev_attr.attr,
-@@ -794,9 +794,9 @@ static umode_t nct7802_in_is_visible(str
++static bool iwl_mvm_sar_geo_support(struct iwl_mvm *mvm)
++{
++	/*
++	 * The GEO_TX_POWER_LIMIT command is not supported on earlier
++	 * firmware versions.  Unfortunately, we don't have a TLV API
++	 * flag to rely on, so rely on the major version which is in
++	 * the first byte of ucode_ver.
++	 */
++	return IWL_UCODE_SERIAL(mvm->fw->ucode_ver) >= 41;
++}
++
+ int iwl_mvm_get_sar_geo_profile(struct iwl_mvm *mvm)
+ {
+ 	struct iwl_geo_tx_power_profiles_resp *resp;
+@@ -851,6 +862,9 @@ int iwl_mvm_get_sar_geo_profile(struct i
+ 		.data = { &geo_cmd },
+ 	};
  
- 	if (index >= 6 && index < 11 && (reg & 0x03) != 0x03)	/* VSEN1 */
- 		return 0;
--	if (index >= 11 && index < 17 && (reg & 0x0c) != 0x0c)	/* VSEN2 */
-+	if (index >= 11 && index < 16 && (reg & 0x0c) != 0x0c)	/* VSEN2 */
- 		return 0;
--	if (index >= 17 && (reg & 0x30) != 0x30)		/* VSEN3 */
-+	if (index >= 16 && (reg & 0x30) != 0x30)		/* VSEN3 */
++	if (!iwl_mvm_sar_geo_support(mvm))
++		return -EOPNOTSUPP;
++
+ 	ret = iwl_mvm_send_cmd(mvm, &cmd);
+ 	if (ret) {
+ 		IWL_ERR(mvm, "Failed to get geographic profile info %d\n", ret);
+@@ -876,13 +890,7 @@ static int iwl_mvm_sar_geo_init(struct i
+ 	int ret, i, j;
+ 	u16 cmd_wide_id =  WIDE_ID(PHY_OPS_GROUP, GEO_TX_POWER_LIMIT);
+ 
+-	/*
+-	 * This command is not supported on earlier firmware versions.
+-	 * Unfortunately, we don't have a TLV API flag to rely on, so
+-	 * rely on the major version which is in the first byte of
+-	 * ucode_ver.
+-	 */
+-	if (IWL_UCODE_SERIAL(mvm->fw->ucode_ver) < 41)
++	if (!iwl_mvm_sar_geo_support(mvm))
  		return 0;
  
- 	return attr->mode;
+ 	ret = iwl_mvm_sar_get_wgds_table(mvm);
 
 
