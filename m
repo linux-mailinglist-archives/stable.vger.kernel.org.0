@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E95A8C8E3
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:35:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63DEC8C8D2
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:34:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728764AbfHNCek (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:34:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45802 "EHLO mail.kernel.org"
+        id S1728455AbfHNCNu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:13:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728429AbfHNCNq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:13:46 -0400
+        id S1728430AbfHNCNs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:13:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57F7620844;
-        Wed, 14 Aug 2019 02:13:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BE0E20843;
+        Wed, 14 Aug 2019 02:13:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748826;
-        bh=i7Ocf+qJG+fOjTgyN2RQDqKvto61n137YBK6Yznys0s=;
+        s=default; t=1565748827;
+        bh=X+Ec1Epi8YKzHbbrViQD/m0/f4StJkTKOw6RGCVSHYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=obXYKNfOneJxmHSn7rgvcWF7ldS9XKFQHp42V0w2JbMi18bgb6Q7qZtYh/wDSJZoj
-         dpuyDy1a0m1F/tNDP0RTofWHVlL8+6ey+gVigtBHK8AHmCaIhw0qCbXrbjPAMgGiZR
-         /QONzF9vs1zEdVXwjrhmOL1IUmfpF5fZOP6Lv3A8=
+        b=HccSGUEDp01Xnr0iuZeN/fmJ9AAiqvCo8N3ScCELPhf+EoBGqs+221qYAdoY+cMJl
+         7FTwJHcVQ4Ri3UJ1NgXj5rE3iZ8FhyIHgKgfEwR+V/RIgI6wqN/BjgLro/z7MQ9SAr
+         371jwFqrq6EvYgDm9d7fi4MFkE318xPaeSsxxcsU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Istv=C3=A1n=20V=C3=A1radi?= <ivaradi@varadiistvan.hu>,
+Cc:     Oliver Neukum <oneukum@suse.com>,
+        syzbot+965152643a75a56737be@syzkaller.appspotmail.com,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 086/123] HID: quirks: Set the INCREMENT_USAGE_ON_DUPLICATE quirk on Saitek X52
-Date:   Tue, 13 Aug 2019 22:10:10 -0400
-Message-Id: <20190814021047.14828-86-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 087/123] HID: holtek: test for sanity of intfdata
+Date:   Tue, 13 Aug 2019 22:10:11 -0400
+Message-Id: <20190814021047.14828-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,50 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: István Váradi <ivaradi@varadiistvan.hu>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 7bc74853fd61432ec59f812a40425bf6d8c986a4 ]
+[ Upstream commit 01ec0a5f19c8c82960a07f6c7410fc9e01d7fb51 ]
 
-The Saitek X52 joystick has a pair of axes that are originally
-(by the Windows driver) used as mouse pointer controls. The corresponding
-usage->hid values are 0x50024 and 0x50026. Thus they are handled
-as unknown axes and both get mapped to ABS_MISC. The quirk makes
-the second axis to be mapped to ABS_MISC1 and thus made available
-separately.
+The ioctl handler uses the intfdata of a second interface,
+which may not be present in a broken or malicious device, hence
+the intfdata needs to be checked for NULL.
 
-[jkosina@suse.cz: squashed two patches into one]
-Signed-off-by: István Váradi <ivaradi@varadiistvan.hu>
+[jkosina@suse.cz: fix newly added spurious space]
+Reported-by: syzbot+965152643a75a56737be@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/hid/hid-holtek-kbd.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 34a812025b948..76aa474e92c15 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -990,6 +990,7 @@
- #define USB_DEVICE_ID_SAITEK_RAT7	0x0cd7
- #define USB_DEVICE_ID_SAITEK_RAT9	0x0cfa
- #define USB_DEVICE_ID_SAITEK_MMO7	0x0cd0
-+#define USB_DEVICE_ID_SAITEK_X52	0x075c
+diff --git a/drivers/hid/hid-holtek-kbd.c b/drivers/hid/hid-holtek-kbd.c
+index b3d502421b79d..0a38e8e9bc783 100644
+--- a/drivers/hid/hid-holtek-kbd.c
++++ b/drivers/hid/hid-holtek-kbd.c
+@@ -123,9 +123,14 @@ static int holtek_kbd_input_event(struct input_dev *dev, unsigned int type,
  
- #define USB_VENDOR_ID_SAMSUNG		0x0419
- #define USB_DEVICE_ID_SAMSUNG_IR_REMOTE	0x0001
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 5b669f7d653fa..4fe2c3ab76f9c 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -141,6 +141,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_RETROUSB, USB_DEVICE_ID_RETROUSB_SNES_RETROPAD), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_RETROUSB, USB_DEVICE_ID_RETROUSB_SNES_RETROPORT), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD), HID_QUIRK_BADPAD },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD2), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SENNHEISER, USB_DEVICE_ID_SENNHEISER_BTD500USB), HID_QUIRK_NOGET },
+ 	/* Locate the boot interface, to receive the LED change events */
+ 	struct usb_interface *boot_interface = usb_ifnum_to_if(usb_dev, 0);
++	struct hid_device *boot_hid;
++	struct hid_input *boot_hid_input;
+ 
+-	struct hid_device *boot_hid = usb_get_intfdata(boot_interface);
+-	struct hid_input *boot_hid_input = list_first_entry(&boot_hid->inputs,
++	if (unlikely(boot_interface == NULL))
++		return -ENODEV;
++
++	boot_hid = usb_get_intfdata(boot_interface);
++	boot_hid_input = list_first_entry(&boot_hid->inputs,
+ 		struct hid_input, list);
+ 
+ 	return boot_hid_input->input->event(boot_hid_input->input, type, code,
 -- 
 2.20.1
 
