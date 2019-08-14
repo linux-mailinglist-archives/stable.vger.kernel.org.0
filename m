@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9563E8D97F
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:09:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0672B8D98D
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:09:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728557AbfHNRJC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:09:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59276 "EHLO mail.kernel.org"
+        id S1729817AbfHNRJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:09:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730257AbfHNRJB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:09:01 -0400
+        id S1729625AbfHNRJi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:09:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2A72208C2;
-        Wed, 14 Aug 2019 17:09:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE0872084D;
+        Wed, 14 Aug 2019 17:09:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802541;
-        bh=YEuwsiOPbmEY4UEHEL+C4JDBIzmOVxcNTaAVUFAyJ+w=;
+        s=default; t=1565802577;
+        bh=afR9oa3kSoCxC4l8fCQGot8I+cJKctKLobT1GUTuKio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GISj+ZyX8rBeh4zgvNQcFbzP5fd9sID46mXQUoInKyqgVkBcSMyRrUlyeKH+zTwEA
-         Bd21PmQTn5aS/s7WtaenzxuzWghMrZz6EvwJwe+k69yp2FoM2MuSaEkKB/oqlqvpsl
-         VIvCYobw6I7CFWCcr9i51MAPfsm4QL8GWN/X0qPM=
+        b=ujrPudUvWw9Umgi2R3cFZdLrurTBHD8hXj1nEKgD5wZfuF9JW2JC1X5vrhNTUly6p
+         yN6oCAHJE4cKFJRkpa3F3q5aNDQoXnAxxu6it3H2qWgWaU6ko7ShE3B3u7Fd5FI++1
+         QEqFQnN8wz2XACfSjFMTokGypjIHGSGFNR9eLtLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        syzbot <syzbot+8ab2d0f39fb79fe6ca40@syzkaller.appspotmail.com>,
-        Laura Abbott <labbott@redhat.com>,
-        Sumit Semwal <sumit.semwal@linaro.org>
-Subject: [PATCH 4.19 04/91] staging: android: ion: Bail out upon SIGKILL when allocating memory.
-Date:   Wed, 14 Aug 2019 19:00:27 +0200
-Message-Id: <20190814165749.236426007@linuxfoundation.org>
+        stable@vger.kernel.org, Gary R Hook <gary.hook@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.19 06/91] crypto: ccp - Add support for valid authsize values less than 16
+Date:   Wed, 14 Aug 2019 19:00:29 +0200
+Message-Id: <20190814165749.355665426@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
 References: <20190814165748.991235624@linuxfoundation.org>
@@ -46,44 +43,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Gary R Hook <gary.hook@amd.com>
 
-commit 8f9e86ee795971eabbf372e6d804d6b8578287a7 upstream.
+commit 9f00baf74e4b6f79a3a3dfab44fb7bb2e797b551 upstream.
 
-syzbot found that a thread can stall for minutes inside
-ion_system_heap_allocate() after that thread was killed by SIGKILL [1].
-Let's check for SIGKILL before doing memory allocation.
+AES GCM encryption allows for authsize values of 4, 8, and 12-16 bytes.
+Validate the requested authsize, and retain it to save in the request
+context.
 
-[1] https://syzkaller.appspot.com/bug?id=a0e3436829698d5824231251fad9d8e998f94f5e
-
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: stable <stable@vger.kernel.org>
-Reported-by: syzbot <syzbot+8ab2d0f39fb79fe6ca40@syzkaller.appspotmail.com>
-Acked-by: Laura Abbott <labbott@redhat.com>
-Acked-by: Sumit Semwal <sumit.semwal@linaro.org>
-Link: https://lore.kernel.org/r/d088f188-5f32-d8fc-b9a0-0b404f7501cc@I-love.SAKURA.ne.jp
+Fixes: 36cf515b9bbe2 ("crypto: ccp - Enable support for AES GCM on v5 CCPs")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Gary R Hook <gary.hook@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/android/ion/ion_page_pool.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/crypto/ccp/ccp-crypto-aes-galois.c |   14 ++++++++++++++
+ drivers/crypto/ccp/ccp-ops.c               |   26 +++++++++++++++++++++-----
+ include/linux/ccp.h                        |    2 ++
+ 3 files changed, 37 insertions(+), 5 deletions(-)
 
---- a/drivers/staging/android/ion/ion_page_pool.c
-+++ b/drivers/staging/android/ion/ion_page_pool.c
-@@ -8,11 +8,14 @@
- #include <linux/list.h>
- #include <linux/slab.h>
- #include <linux/swap.h>
-+#include <linux/sched/signal.h>
- 
- #include "ion.h"
- 
- static inline struct page *ion_page_pool_alloc_pages(struct ion_page_pool *pool)
+--- a/drivers/crypto/ccp/ccp-crypto-aes-galois.c
++++ b/drivers/crypto/ccp/ccp-crypto-aes-galois.c
+@@ -61,6 +61,19 @@ static int ccp_aes_gcm_setkey(struct cry
+ static int ccp_aes_gcm_setauthsize(struct crypto_aead *tfm,
+ 				   unsigned int authsize)
  {
-+	if (fatal_signal_pending(current))
-+		return NULL;
- 	return alloc_pages(pool->gfp_mask, pool->order);
++	switch (authsize) {
++	case 16:
++	case 15:
++	case 14:
++	case 13:
++	case 12:
++	case 8:
++	case 4:
++		break;
++	default:
++		return -EINVAL;
++	}
++
+ 	return 0;
  }
+ 
+@@ -107,6 +120,7 @@ static int ccp_aes_gcm_crypt(struct aead
+ 	memset(&rctx->cmd, 0, sizeof(rctx->cmd));
+ 	INIT_LIST_HEAD(&rctx->cmd.entry);
+ 	rctx->cmd.engine = CCP_ENGINE_AES;
++	rctx->cmd.u.aes.authsize = crypto_aead_authsize(tfm);
+ 	rctx->cmd.u.aes.type = ctx->u.aes.type;
+ 	rctx->cmd.u.aes.mode = ctx->u.aes.mode;
+ 	rctx->cmd.u.aes.action = encrypt;
+--- a/drivers/crypto/ccp/ccp-ops.c
++++ b/drivers/crypto/ccp/ccp-ops.c
+@@ -625,6 +625,7 @@ static int ccp_run_aes_gcm_cmd(struct cc
+ 
+ 	unsigned long long *final;
+ 	unsigned int dm_offset;
++	unsigned int authsize;
+ 	unsigned int jobid;
+ 	unsigned int ilen;
+ 	bool in_place = true; /* Default value */
+@@ -646,6 +647,21 @@ static int ccp_run_aes_gcm_cmd(struct cc
+ 	if (!aes->key) /* Gotta have a key SGL */
+ 		return -EINVAL;
+ 
++	/* Zero defaults to 16 bytes, the maximum size */
++	authsize = aes->authsize ? aes->authsize : AES_BLOCK_SIZE;
++	switch (authsize) {
++	case 16:
++	case 15:
++	case 14:
++	case 13:
++	case 12:
++	case 8:
++	case 4:
++		break;
++	default:
++		return -EINVAL;
++	}
++
+ 	/* First, decompose the source buffer into AAD & PT,
+ 	 * and the destination buffer into AAD, CT & tag, or
+ 	 * the input into CT & tag.
+@@ -660,7 +676,7 @@ static int ccp_run_aes_gcm_cmd(struct cc
+ 		p_tag = scatterwalk_ffwd(sg_tag, p_outp, ilen);
+ 	} else {
+ 		/* Input length for decryption includes tag */
+-		ilen = aes->src_len - AES_BLOCK_SIZE;
++		ilen = aes->src_len - authsize;
+ 		p_tag = scatterwalk_ffwd(sg_tag, p_inp, ilen);
+ 	}
+ 
+@@ -842,19 +858,19 @@ static int ccp_run_aes_gcm_cmd(struct cc
+ 
+ 	if (aes->action == CCP_AES_ACTION_ENCRYPT) {
+ 		/* Put the ciphered tag after the ciphertext. */
+-		ccp_get_dm_area(&final_wa, 0, p_tag, 0, AES_BLOCK_SIZE);
++		ccp_get_dm_area(&final_wa, 0, p_tag, 0, authsize);
+ 	} else {
+ 		/* Does this ciphered tag match the input? */
+-		ret = ccp_init_dm_workarea(&tag, cmd_q, AES_BLOCK_SIZE,
++		ret = ccp_init_dm_workarea(&tag, cmd_q, authsize,
+ 					   DMA_BIDIRECTIONAL);
+ 		if (ret)
+ 			goto e_tag;
+-		ret = ccp_set_dm_area(&tag, 0, p_tag, 0, AES_BLOCK_SIZE);
++		ret = ccp_set_dm_area(&tag, 0, p_tag, 0, authsize);
+ 		if (ret)
+ 			goto e_tag;
+ 
+ 		ret = crypto_memneq(tag.address, final_wa.address,
+-				    AES_BLOCK_SIZE) ? -EBADMSG : 0;
++				    authsize) ? -EBADMSG : 0;
+ 		ccp_dm_free(&tag);
+ 	}
+ 
+--- a/include/linux/ccp.h
++++ b/include/linux/ccp.h
+@@ -173,6 +173,8 @@ struct ccp_aes_engine {
+ 	enum ccp_aes_mode mode;
+ 	enum ccp_aes_action action;
+ 
++	u32 authsize;
++
+ 	struct scatterlist *key;
+ 	u32 key_len;		/* In bytes */
  
 
 
