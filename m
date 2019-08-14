@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D667C8D8FE
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:04:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFDBB8D900
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:04:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728467AbfHNRE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:04:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53234 "EHLO mail.kernel.org"
+        id S1729197AbfHNREb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:04:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729197AbfHNREY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:04:24 -0400
+        id S1729215AbfHNREa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:04:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B9DA208C2;
-        Wed, 14 Aug 2019 17:04:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73BBD2084D;
+        Wed, 14 Aug 2019 17:04:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802263;
-        bh=je5xq4zRCIeE2n8G33+eaBXt/pglEqgThvkjzUOJXGQ=;
+        s=default; t=1565802269;
+        bh=uxRHKqm3l87w3jcDPFoFAyfY8jEP22imeRNuXpLfmAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V68CDgkNIAWTgJ4l5OiNIagXkxxvtIKXfzUBNAeecwbOsNhfyGc2LUAEjCqe+mSoh
-         qzDLpZgHrjjPFhJ/Yk08qn2/239tW0fQKKetgd+hq9EF9qGNYHgIvmXj/gRFQJ93A1
-         UwtdWRRwb+79eeDIAFqkef5JQUCgHhDuIqt2rgW0=
+        b=XgyQh4kSZHzgGPjlow8OE3v4kmI9AL1ah+iIl9szq5ujNREAC507o+f9Lt5I0SvD+
+         IQlOH+G56FukKuujEOHD+E90YTUs+PxPKQGcT126gE9wkI7N64p2ZvPezVVieCqWZL
+         Si69p0jBxN21FMJYni7PWecdyb0AS9fVJZvR7UN0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.2 032/144] perf db-export: Fix thread__exec_comm()
-Date:   Wed, 14 Aug 2019 18:59:48 +0200
-Message-Id: <20190814165801.176237946@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vaibhav Rustagi <vaibhavrustagi@google.com>,
+        Alistair Delva <adelva@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Manoj Gupta <manojgupta@google.com>
+Subject: [PATCH 5.2 034/144] x86/purgatory: Do not use __builtin_memcpy and __builtin_memset
+Date:   Wed, 14 Aug 2019 18:59:50 +0200
+Message-Id: <20190814165801.255920942@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
 References: <20190814165759.466811854@linuxfoundation.org>
@@ -44,136 +47,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit 3de7ae0b2a1d86dbb23d0cb135150534fdb2e836 upstream.
+commit 4ce97317f41d38584fb93578e922fcd19e535f5b upstream.
 
-Threads synthesized from /proc have comms with a start time of zero, and
-not marked as "exec". Currently, there can be 2 such comms. The first is
-created by processing a synthesized fork event and is set to the
-parent's comm string, and the second by processing a synthesized comm
-event set to the thread's current comm string.
+Implementing memcpy and memset in terms of __builtin_memcpy and
+__builtin_memset is problematic.
 
-In the absence of an "exec" comm, thread__exec_comm() picks the last
-(oldest) comm, which, in the case above, is the parent's comm string.
-For a main thread, that is very probably wrong. Use the second-to-last
-in that case.
+GCC at -O2 will replace calls to the builtins with calls to memcpy and
+memset (but will generate an inline implementation at -Os).  Clang will
+replace the builtins with these calls regardless of optimization level.
+$ llvm-objdump -dr arch/x86/purgatory/string.o | tail
 
-This affects only db-export because it is the only user of
-thread__exec_comm().
+0000000000000339 memcpy:
+     339: 48 b8 00 00 00 00 00 00 00 00 movabsq $0, %rax
+                000000000000033b:  R_X86_64_64  memcpy
+     343: ff e0                         jmpq    *%rax
 
-Example:
+0000000000000345 memset:
+     345: 48 b8 00 00 00 00 00 00 00 00 movabsq $0, %rax
+                0000000000000347:  R_X86_64_64  memset
+     34f: ff e0
 
-  $ sudo perf record -a -o pt-a-sleep-1 -e intel_pt//u -- sleep 1
-  $ sudo chown ahunter pt-a-sleep-1
+Such code results in infinite recursion at runtime. This is observed
+when doing kexec.
 
-Before:
+Instead, reuse an implementation from arch/x86/boot/compressed/string.c.
+This requires to implement a stub function for warn(). Also, Clang may
+lower memcmp's that compare against 0 to bcmp's, so add a small definition,
+too. See also: commit 5f074f3e192f ("lib/string.c: implement a basic bcmp")
 
-  $ perf script -i pt-a-sleep-1 --itrace=bep -s tools/perf/scripts/python/export-to-sqlite.py pt-a-sleep-1.db branches calls
-  $ sqlite3 -header -column pt-a-sleep-1.db 'select * from comm_threads_view'
-  comm_id     command     thread_id   pid         tid
-  ----------  ----------  ----------  ----------  ----------
-  1           swapper     1           0           0
-  2           rcu_sched   2           10          10
-  3           kthreadd    3           78          78
-  5           sudo        4           15180       15180
-  5           sudo        5           15180       15182
-  7           kworker/4:  6           10335       10335
-  8           kthreadd    7           55          55
-  10          systemd     8           865         865
-  10          systemd     9           865         875
-  13          perf        10          15181       15181
-  15          sleep       10          15181       15181
-  16          kworker/3:  11          14179       14179
-  17          kthreadd    12          29376       29376
-  19          systemd     13          746         746
-  21          systemd     14          401         401
-  23          systemd     15          879         879
-  23          systemd     16          879         945
-  25          kthreadd    17          556         556
-  27          kworker/u1  18          14136       14136
-  28          kworker/u1  19          15021       15021
-  29          kthreadd    20          509         509
-  31          systemd     21          836         836
-  31          systemd     22          836         967
-  33          systemd     23          1148        1148
-  33          systemd     24          1148        1163
-  35          kworker/2:  25          17988       17988
-  36          kworker/0:  26          13478       13478
-
-After:
-
-  $ perf script -i pt-a-sleep-1 --itrace=bep -s tools/perf/scripts/python/export-to-sqlite.py pt-a-sleep-1b.db branches calls
-  $ sqlite3 -header -column pt-a-sleep-1b.db 'select * from comm_threads_view'
-  comm_id     command     thread_id   pid         tid
-  ----------  ----------  ----------  ----------  ----------
-  1           swapper     1           0           0
-  2           rcu_sched   2           10          10
-  3           kswapd0     3           78          78
-  4           perf        4           15180       15180
-  4           perf        5           15180       15182
-  6           kworker/4:  6           10335       10335
-  7           kcompactd0  7           55          55
-  8           accounts-d  8           865         865
-  8           accounts-d  9           865         875
-  10          perf        10          15181       15181
-  12          sleep       10          15181       15181
-  13          kworker/3:  11          14179       14179
-  14          kworker/1:  12          29376       29376
-  15          haveged     13          746         746
-  16          systemd-jo  14          401         401
-  17          NetworkMan  15          879         879
-  17          NetworkMan  16          879         945
-  19          irq/131-iw  17          556         556
-  20          kworker/u1  18          14136       14136
-  21          kworker/u1  19          15021       15021
-  22          kworker/u1  20          509         509
-  23          thermald    21          836         836
-  23          thermald    22          836         967
-  25          unity-sett  23          1148        1148
-  25          unity-sett  24          1148        1163
-  27          kworker/2:  25          17988       17988
-  28          kworker/0:  26          13478       13478
-
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
+Fixes: 8fc5b4d4121c ("purgatory: core purgatory functionality")
+Reported-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
+Debugged-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
+Debugged-by: Manoj Gupta <manojgupta@google.com>
+Suggested-by: Alistair Delva <adelva@google.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
 Cc: stable@vger.kernel.org
-Fixes: 65de51f93ebf ("perf tools: Identify which comms are from exec")
-Link: http://lkml.kernel.org/r/20190808064823.14846-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Link: https://bugs.chromium.org/p/chromium/issues/detail?id=984056
+Link: https://lkml.kernel.org/r/20190807221539.94583-1-ndesaulniers@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/thread.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ arch/x86/boot/string.c         |    8 ++++++++
+ arch/x86/purgatory/Makefile    |    3 +++
+ arch/x86/purgatory/purgatory.c |    6 ++++++
+ arch/x86/purgatory/string.c    |   23 -----------------------
+ 4 files changed, 17 insertions(+), 23 deletions(-)
 
---- a/tools/perf/util/thread.c
-+++ b/tools/perf/util/thread.c
-@@ -197,14 +197,24 @@ struct comm *thread__comm(const struct t
- 
- struct comm *thread__exec_comm(const struct thread *thread)
- {
--	struct comm *comm, *last = NULL;
-+	struct comm *comm, *last = NULL, *second_last = NULL;
- 
- 	list_for_each_entry(comm, &thread->comm_list, list) {
- 		if (comm->exec)
- 			return comm;
-+		second_last = last;
- 		last = comm;
- 	}
- 
-+	/*
-+	 * 'last' with no start time might be the parent's comm of a synthesized
-+	 * thread (created by processing a synthesized fork event). For a main
-+	 * thread, that is very probably wrong. Prefer a later comm to avoid
-+	 * that case.
-+	 */
-+	if (second_last && !last->start && thread->pid_ == thread->tid)
-+		return second_last;
-+
- 	return last;
+--- a/arch/x86/boot/string.c
++++ b/arch/x86/boot/string.c
+@@ -37,6 +37,14 @@ int memcmp(const void *s1, const void *s
+ 	return diff;
  }
  
++/*
++ * Clang may lower `memcmp == 0` to `bcmp == 0`.
++ */
++int bcmp(const void *s1, const void *s2, size_t len)
++{
++	return memcmp(s1, s2, len);
++}
++
+ int strcmp(const char *str1, const char *str2)
+ {
+ 	const unsigned char *s1 = (const unsigned char *)str1;
+--- a/arch/x86/purgatory/Makefile
++++ b/arch/x86/purgatory/Makefile
+@@ -6,6 +6,9 @@ purgatory-y := purgatory.o stack.o setup
+ targets += $(purgatory-y)
+ PURGATORY_OBJS = $(addprefix $(obj)/,$(purgatory-y))
+ 
++$(obj)/string.o: $(srctree)/arch/x86/boot/compressed/string.c FORCE
++	$(call if_changed_rule,cc_o_c)
++
+ $(obj)/sha256.o: $(srctree)/lib/sha256.c FORCE
+ 	$(call if_changed_rule,cc_o_c)
+ 
+--- a/arch/x86/purgatory/purgatory.c
++++ b/arch/x86/purgatory/purgatory.c
+@@ -68,3 +68,9 @@ void purgatory(void)
+ 	}
+ 	copy_backup_region();
+ }
++
++/*
++ * Defined in order to reuse memcpy() and memset() from
++ * arch/x86/boot/compressed/string.c
++ */
++void warn(const char *msg) {}
+--- a/arch/x86/purgatory/string.c
++++ /dev/null
+@@ -1,23 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-only
+-/*
+- * Simple string functions.
+- *
+- * Copyright (C) 2014 Red Hat Inc.
+- *
+- * Author:
+- *       Vivek Goyal <vgoyal@redhat.com>
+- */
+-
+-#include <linux/types.h>
+-
+-#include "../boot/string.c"
+-
+-void *memcpy(void *dst, const void *src, size_t len)
+-{
+-	return __builtin_memcpy(dst, src, len);
+-}
+-
+-void *memset(void *dst, int c, size_t len)
+-{
+-	return __builtin_memset(dst, c, len);
+-}
 
 
