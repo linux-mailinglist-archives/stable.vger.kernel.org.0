@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E63228C7DF
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:28:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A9A08C7E2
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:28:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730244AbfHNC0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:26:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54370 "EHLO mail.kernel.org"
+        id S1730159AbfHNC0T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:26:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729471AbfHNC0R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:26:17 -0400
+        id S1727883AbfHNC0S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:26:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8DEA120679;
-        Wed, 14 Aug 2019 02:26:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA0A92085A;
+        Wed, 14 Aug 2019 02:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565749576;
-        bh=3XWtZEdk/jCI6CjF04iO/UxmbvT/Ken4lpg30kwtLSc=;
+        s=default; t=1565749577;
+        bh=3RTNKnA6iNjlbIT7hlmN20YbywiNdoHCKNpCNXyCDe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hHTZpVnjLE97x9NbqV5RqujDPkiHT5Ip0GLh7tn9fgi97qsljVF6LnzVSaVC7R5RG
-         XKgIbi9V5MuEJWNmJnZqMS5Ll30hY1fAQa1kv0E3KcFckGmcONQRVNKSn3bySDGntB
-         zo4Cu+D6x/d1mCKw3GldkCuQP/OxyP0ovcG46hk0=
+        b=EDRl0d8TRlxQb3cfsiwfQiK0IoAINV7x/QkvZ/zJYxxXMlKyTiCn6AIlWp/6rSoj1
+         ESEeePX2wk0FP8VfqeUFZsQptkdgJNF5UES1aMIjjjCLvMQGOeufdiLhrYv4cg4qRh
+         iEILSh8AUyUw3sG2fn2fG2DO5MkZrycI4CCwSauQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oliver Neukum <oneukum@suse.com>,
-        syzbot+c7df50363aaff50aa363@syzkaller.appspotmail.com,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 14/28] Input: kbtab - sanity check for endpoint type
-Date:   Tue, 13 Aug 2019 22:25:36 -0400
-Message-Id: <20190814022550.17463-14-sashal@kernel.org>
+Cc:     Denis Kirjanov <kda@linux-powerpc.org>,
+        syzbot+3499a83b2d062ae409d4@syzkaller.appspotmail.com,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 15/28] net: usb: pegasus: fix improper read if get_registers() fail
+Date:   Tue, 13 Aug 2019 22:25:37 -0400
+Message-Id: <20190814022550.17463-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814022550.17463-1-sashal@kernel.org>
 References: <20190814022550.17463-1-sashal@kernel.org>
@@ -44,45 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Denis Kirjanov <kda@linux-powerpc.org>
 
-[ Upstream commit c88090dfc84254fa149174eb3e6a8458de1912c4 ]
+[ Upstream commit 224c04973db1125fcebefffd86115f99f50f8277 ]
 
-The driver should check whether the endpoint it uses has the correct
-type.
+get_registers() may fail with -ENOMEM and in this
+case we can read a garbage from the status variable tmp.
 
-Reported-by: syzbot+c7df50363aaff50aa363@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reported-by: syzbot+3499a83b2d062ae409d4@syzkaller.appspotmail.com
+Signed-off-by: Denis Kirjanov <kda@linux-powerpc.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/tablet/kbtab.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/usb/pegasus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/tablet/kbtab.c b/drivers/input/tablet/kbtab.c
-index 2812f9236b7d0..0ccc120a0f145 100644
---- a/drivers/input/tablet/kbtab.c
-+++ b/drivers/input/tablet/kbtab.c
-@@ -125,6 +125,10 @@ static int kbtab_probe(struct usb_interface *intf, const struct usb_device_id *i
- 	if (intf->cur_altsetting->desc.bNumEndpoints < 1)
- 		return -ENODEV;
+diff --git a/drivers/net/usb/pegasus.c b/drivers/net/usb/pegasus.c
+index 17fac0121e563..4f505eb4f422c 100644
+--- a/drivers/net/usb/pegasus.c
++++ b/drivers/net/usb/pegasus.c
+@@ -285,7 +285,7 @@ static void mdio_write(struct net_device *dev, int phy_id, int loc, int val)
+ static int read_eprom_word(pegasus_t *pegasus, __u8 index, __u16 *retdata)
+ {
+ 	int i;
+-	__u8 tmp;
++	__u8 tmp = 0;
+ 	__le16 retdatai;
+ 	int ret;
  
-+	endpoint = &intf->cur_altsetting->endpoint[0].desc;
-+	if (!usb_endpoint_is_int_in(endpoint))
-+		return -ENODEV;
-+
- 	kbtab = kzalloc(sizeof(struct kbtab), GFP_KERNEL);
- 	input_dev = input_allocate_device();
- 	if (!kbtab || !input_dev)
-@@ -164,8 +168,6 @@ static int kbtab_probe(struct usb_interface *intf, const struct usb_device_id *i
- 	input_set_abs_params(input_dev, ABS_Y, 0, 0x1750, 4, 0);
- 	input_set_abs_params(input_dev, ABS_PRESSURE, 0, 0xff, 0, 0);
- 
--	endpoint = &intf->cur_altsetting->endpoint[0].desc;
--
- 	usb_fill_int_urb(kbtab->irq, dev,
- 			 usb_rcvintpipe(dev, endpoint->bEndpointAddress),
- 			 kbtab->data, 8,
 -- 
 2.20.1
 
