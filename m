@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD4788C833
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:30:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1B018C837
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:30:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726373AbfHNCXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:23:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48740 "EHLO mail.kernel.org"
+        id S1729787AbfHNCXX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:23:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729384AbfHNCRY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:17:24 -0400
+        id S1729549AbfHNCXW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:23:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F93B2085A;
-        Wed, 14 Aug 2019 02:17:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50D6020679;
+        Wed, 14 Aug 2019 02:23:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565749044;
-        bh=rCua/pLOOHJl0VYn10QbalqPgvgVWTDCJN4WKv8VjDo=;
+        s=default; t=1565749402;
+        bh=5rLlWUJ+nSWbLbJ/vJkace/NVU+oEELFK99umC/pAFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=br2j1rCX69xuhFOP31WXeRNXlABeEz31Yl2K29U90Me9XvRZsuNEJJetHFWkw9Hnx
-         KGWbdZXTxgOaKwSruX/rURjrYX8X2+8wZ8PpDVpLIvf3GVwTcW5yYfAw5m2ipYTqQt
-         Wj3TxKTVwW/5hAr7vC7MqKJs5ytHP3Sdnfgkylc4=
+        b=Unj0i8TYla8OhCgo/fGsIeDFBgEQTQ+Rhr8OVujNZ1SJJCWXnXhUw1JEmskKn0Agz
+         oRUFDQAaBSRtj97OB9jDrKQybWo+NCH3WFKK0ON/RNDc8JQdFjSKvC8Ur9svEG5LD1
+         eAvhKniMQPQCV8ruOaMwp5f8a85jS7RWKLGXIMik=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>, Krishna Ram Prakash R <krp@gtux.in>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-ide@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 58/68] libata: have ata_scsi_rw_xlat() fail invalid passthrough requests
-Date:   Tue, 13 Aug 2019 22:15:36 -0400
-Message-Id: <20190814021548.16001-58-sashal@kernel.org>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 44/44] selftests: kvm: Adding config fragments
+Date:   Tue, 13 Aug 2019 22:18:33 -0400
+Message-Id: <20190814021834.16662-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190814021548.16001-1-sashal@kernel.org>
-References: <20190814021548.16001-1-sashal@kernel.org>
+In-Reply-To: <20190814021834.16662-1-sashal@kernel.org>
+References: <20190814021834.16662-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,82 +44,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Naresh Kamboju <naresh.kamboju () linaro ! org>
 
-[ Upstream commit 2d7271501720038381d45fb3dcbe4831228fc8cc ]
+[ Upstream commit c096397c78f766db972f923433031f2dec01cae0 ]
 
-For passthrough requests, libata-scsi takes what the user passes in
-as gospel. This can be problematic if the user fills in the CDB
-incorrectly. One example of that is in request sizes. For read/write
-commands, the CDB contains fields describing the transfer length of
-the request. These should match with the SG_IO header fields, but
-libata-scsi currently does no validation of that.
+selftests kvm test cases need pre-required kernel configs for the test
+to get pass.
 
-Check that the number of blocks in the CDB for passthrough requests
-matches what was mapped into the request. If the CDB asks for more
-data then the validated SG_IO header fields, error it.
-
-Reported-by: Krishna Ram Prakash R <krp@gtux.in>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-scsi.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ tools/testing/selftests/kvm/config | 3 +++
+ 1 file changed, 3 insertions(+)
+ create mode 100644 tools/testing/selftests/kvm/config
 
-diff --git a/drivers/ata/libata-scsi.c b/drivers/ata/libata-scsi.c
-index 1984fc78c750b..3a64fa4aaf7e3 100644
---- a/drivers/ata/libata-scsi.c
-+++ b/drivers/ata/libata-scsi.c
-@@ -1803,6 +1803,21 @@ static unsigned int ata_scsi_verify_xlat(struct ata_queued_cmd *qc)
- 	return 1;
- }
- 
-+static bool ata_check_nblocks(struct scsi_cmnd *scmd, u32 n_blocks)
-+{
-+	struct request *rq = scmd->request;
-+	u32 req_blocks;
-+
-+	if (!blk_rq_is_passthrough(rq))
-+		return true;
-+
-+	req_blocks = blk_rq_bytes(rq) / scmd->device->sector_size;
-+	if (n_blocks > req_blocks)
-+		return false;
-+
-+	return true;
-+}
-+
- /**
-  *	ata_scsi_rw_xlat - Translate SCSI r/w command into an ATA one
-  *	@qc: Storage for translated ATA taskfile
-@@ -1847,6 +1862,8 @@ static unsigned int ata_scsi_rw_xlat(struct ata_queued_cmd *qc)
- 		scsi_10_lba_len(cdb, &block, &n_block);
- 		if (cdb[1] & (1 << 3))
- 			tf_flags |= ATA_TFLAG_FUA;
-+		if (!ata_check_nblocks(scmd, n_block))
-+			goto invalid_fld;
- 		break;
- 	case READ_6:
- 	case WRITE_6:
-@@ -1861,6 +1878,8 @@ static unsigned int ata_scsi_rw_xlat(struct ata_queued_cmd *qc)
- 		 */
- 		if (!n_block)
- 			n_block = 256;
-+		if (!ata_check_nblocks(scmd, n_block))
-+			goto invalid_fld;
- 		break;
- 	case READ_16:
- 	case WRITE_16:
-@@ -1871,6 +1890,8 @@ static unsigned int ata_scsi_rw_xlat(struct ata_queued_cmd *qc)
- 		scsi_16_lba_len(cdb, &block, &n_block);
- 		if (cdb[1] & (1 << 3))
- 			tf_flags |= ATA_TFLAG_FUA;
-+		if (!ata_check_nblocks(scmd, n_block))
-+			goto invalid_fld;
- 		break;
- 	default:
- 		DPRINTK("no-byte command\n");
+diff --git a/tools/testing/selftests/kvm/config b/tools/testing/selftests/kvm/config
+new file mode 100644
+index 0000000000000..63ed533f73d6e
+--- /dev/null
++++ b/tools/testing/selftests/kvm/config
+@@ -0,0 +1,3 @@
++CONFIG_KVM=y
++CONFIG_KVM_INTEL=y
++CONFIG_KVM_AMD=y
 -- 
 2.20.1
 
