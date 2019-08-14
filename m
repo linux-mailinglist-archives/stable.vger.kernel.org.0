@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 737F18C8AD
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:33:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2A328C8BD
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:33:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726727AbfHNCOM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:14:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46162 "EHLO mail.kernel.org"
+        id S1728676AbfHNCdh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:33:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728653AbfHNCOM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727354AbfHNCOM (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 13 Aug 2019 22:14:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE0B520874;
-        Wed, 14 Aug 2019 02:14:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0D48208C2;
+        Wed, 14 Aug 2019 02:14:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748851;
-        bh=B+IPkXxshQqbOeMagZZ5V+KJPiLO1RLJXzGs+eQk/Vw=;
+        s=default; t=1565748852;
+        bh=Fg9qBlNYXCEIfp3RG9RBM6a9WLIy4JmQQ2janLyud6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wigm5IDd3iC5fFpiHmWDpkOOivHE4ADdy64WflXQdAMcOvSG4oLzwpU6w5zGSrTVI
-         Ht9nyT8SQ/SJnonZmFnY9CA6Wt3N6Reu8nUOkPT/yTi/CCEFlfuLC+DhR7HLo73aLL
-         rqRkpGsE1iOFmFmuMAuhj/2MD/kmDhdP2X1rhQzM=
+        b=ZAUzxsary2LwTzeK+6zPCIbyrGQCjcRuDbAl6d14LSX92ycvZsm5hFAtrshafFT/t
+         /L4D+rIxboaTJrgRBWFSNP6XDOEd5DkaEjxiQRezr7o1es3DW2cVoGxOvEVq3yuPU8
+         R0u9g9sOGyUvSaIVGX73D90fFfyCa/xIzLyLzYYY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+Cc:     Jose Abreu <Jose.Abreu@synopsys.com>,
+        Jose Abreu <joabreu@synopsys.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 102/123] net: cxgb3_main: Fix a resource leak in a error path in 'init_one()'
-Date:   Tue, 13 Aug 2019 22:10:26 -0400
-Message-Id: <20190814021047.14828-102-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 103/123] net: stmmac: Fix issues when number of Queues >= 4
+Date:   Tue, 13 Aug 2019 22:10:27 -0400
+Message-Id: <20190814021047.14828-103-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -43,44 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Jose Abreu <Jose.Abreu@synopsys.com>
 
-[ Upstream commit debea2cd3193ac868289e8893c3a719c265b0612 ]
+[ Upstream commit e8df7e8c233a18d2704e37ecff47583b494789d3 ]
 
-A call to 'kfree_skb()' is missing in the error handling path of
-'init_one()'.
-This is already present in 'remove_one()' but is missing here.
+When queues >= 4 we use different registers but we were not subtracting
+the offset of 4. Fix this.
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Found out by Coverity.
+
+Signed-off-by: Jose Abreu <joabreu@synopsys.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c   | 4 ++++
+ drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c | 4 ++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c b/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c
-index 1e82b9efe4471..58f89f6a040fe 100644
---- a/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c
-+++ b/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c
-@@ -3269,7 +3269,7 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	if (!adapter->regs) {
- 		dev_err(&pdev->dev, "cannot map device registers\n");
- 		err = -ENOMEM;
--		goto out_free_adapter;
-+		goto out_free_adapter_nofail;
- 	}
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+index e3850938cf2f3..d7bf0ad954b8c 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+@@ -85,6 +85,8 @@ static void dwmac4_rx_queue_priority(struct mac_device_info *hw,
+ 	u32 value;
  
- 	adapter->pdev = pdev;
-@@ -3397,6 +3397,9 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		if (adapter->port[i])
- 			free_netdev(adapter->port[i]);
+ 	base_register = (queue < 4) ? GMAC_RXQ_CTRL2 : GMAC_RXQ_CTRL3;
++	if (queue >= 4)
++		queue -= 4;
  
-+out_free_adapter_nofail:
-+	kfree_skb(adapter->nofail_skb);
-+
- out_free_adapter:
- 	kfree(adapter);
+ 	value = readl(ioaddr + base_register);
  
+@@ -102,6 +104,8 @@ static void dwmac4_tx_queue_priority(struct mac_device_info *hw,
+ 	u32 value;
+ 
+ 	base_register = (queue < 4) ? GMAC_TXQ_PRTY_MAP0 : GMAC_TXQ_PRTY_MAP1;
++	if (queue >= 4)
++		queue -= 4;
+ 
+ 	value = readl(ioaddr + base_register);
+ 
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
+index 64b8cb88ea45d..d4bd99770f5d1 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
+@@ -106,6 +106,8 @@ static void dwxgmac2_rx_queue_prio(struct mac_device_info *hw, u32 prio,
+ 	u32 value, reg;
+ 
+ 	reg = (queue < 4) ? XGMAC_RXQ_CTRL2 : XGMAC_RXQ_CTRL3;
++	if (queue >= 4)
++		queue -= 4;
+ 
+ 	value = readl(ioaddr + reg);
+ 	value &= ~XGMAC_PSRQ(queue);
+@@ -169,6 +171,8 @@ static void dwxgmac2_map_mtl_to_dma(struct mac_device_info *hw, u32 queue,
+ 	u32 value, reg;
+ 
+ 	reg = (queue < 4) ? XGMAC_MTL_RXQ_DMA_MAP0 : XGMAC_MTL_RXQ_DMA_MAP1;
++	if (queue >= 4)
++		queue -= 4;
+ 
+ 	value = readl(ioaddr + reg);
+ 	value &= ~XGMAC_QxMDMACH(queue);
 -- 
 2.20.1
 
