@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF3AA8DBC5
+	by mail.lfdr.de (Postfix) with ESMTP id 55BC08DBC4
 	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:28:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728788AbfHNRC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:02:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51418 "EHLO mail.kernel.org"
+        id S1728390AbfHNRC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:02:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728753AbfHNRCy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:02:54 -0400
+        id S1728762AbfHNRC5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:02:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED59F208C2;
-        Wed, 14 Aug 2019 17:02:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89D9C208C2;
+        Wed, 14 Aug 2019 17:02:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802173;
-        bh=+CXq6oZbI60+8LECdsaJ4zvtYQhisedmjNoIKEe5MS4=;
+        s=default; t=1565802176;
+        bh=v1ncVUEw5omDh/lN+fYExxW5ZP8v8Cu9WRF1leWKklk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EliFGyo6yAZbdFV8gvTWb5WrDjHh2Me4DHRLmVmp3vHXEIniT+mSkFmECp9YPBoug
-         oYfNdjL6qsHo51jKwPhLEXHZJ/dKGLuo8trt3S0+shtqroHQBbX9zLRe2AYYVIkLfp
-         R9mX9T6Zo5WlyRuXZEblekFXJonZr1bXjRsQ+jCk=
+        b=H+eM4aJivF595pb/jSRzIJi2p7cE64nNHsiH/lR3Dagwbrm1zW0OqA2KaBm0jVc/I
+         9Kg1y13kAK1db9njgnmJcn4bwJU8AGMOwpH//tz6/nC26M6p/OtGr15M7xTN7Jzdg4
+         tGSkLTUxG7vyg+mKK3AMqQmByuIEo/7EwwKw+UcQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.2 022/144] loop: set PF_MEMALLOC_NOIO for the worker thread
-Date:   Wed, 14 Aug 2019 18:59:38 +0200
-Message-Id: <20190814165800.780401930@linuxfoundation.org>
+Subject: [PATCH 5.2 023/144] bdev: Fixup error handling in blkdev_get()
+Date:   Wed, 14 Aug 2019 18:59:39 +0200
+Message-Id: <20190814165800.813745526@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
 References: <20190814165759.466811854@linuxfoundation.org>
@@ -43,82 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Jan Kara <jack@suse.cz>
 
-commit d0a255e795ab976481565f6ac178314b34fbf891 upstream.
+commit e91455bad5cff40a8c232f2204a5104127e3fec2 upstream.
 
-A deadlock with this stacktrace was observed.
+Commit 89e524c04fa9 ("loop: Fix mount(2) failure due to race with
+LOOP_SET_FD") converted blkdev_get() to use the new helpers for
+finishing claiming of a block device. However the conversion botched the
+error handling in blkdev_get() and thus the bdev has been marked as held
+even in case __blkdev_get() returned error. This led to occasional
+warnings with block/001 test from blktests like:
 
-The loop thread does a GFP_KERNEL allocation, it calls into dm-bufio
-shrinker and the shrinker depends on I/O completion in the dm-bufio
-subsystem.
+kernel: WARNING: CPU: 5 PID: 907 at fs/block_dev.c:1899 __blkdev_put+0x396/0x3a0
 
-In order to fix the deadlock (and other similar ones), we set the flag
-PF_MEMALLOC_NOIO at loop thread entry.
+Correct the error handling.
 
-PID: 474    TASK: ffff8813e11f4600  CPU: 10  COMMAND: "kswapd0"
-   #0 [ffff8813dedfb938] __schedule at ffffffff8173f405
-   #1 [ffff8813dedfb990] schedule at ffffffff8173fa27
-   #2 [ffff8813dedfb9b0] schedule_timeout at ffffffff81742fec
-   #3 [ffff8813dedfba60] io_schedule_timeout at ffffffff8173f186
-   #4 [ffff8813dedfbaa0] bit_wait_io at ffffffff8174034f
-   #5 [ffff8813dedfbac0] __wait_on_bit at ffffffff8173fec8
-   #6 [ffff8813dedfbb10] out_of_line_wait_on_bit at ffffffff8173ff81
-   #7 [ffff8813dedfbb90] __make_buffer_clean at ffffffffa038736f [dm_bufio]
-   #8 [ffff8813dedfbbb0] __try_evict_buffer at ffffffffa0387bb8 [dm_bufio]
-   #9 [ffff8813dedfbbd0] dm_bufio_shrink_scan at ffffffffa0387cc3 [dm_bufio]
-  #10 [ffff8813dedfbc40] shrink_slab at ffffffff811a87ce
-  #11 [ffff8813dedfbd30] shrink_zone at ffffffff811ad778
-  #12 [ffff8813dedfbdc0] kswapd at ffffffff811ae92f
-  #13 [ffff8813dedfbec0] kthread at ffffffff810a8428
-  #14 [ffff8813dedfbf50] ret_from_fork at ffffffff81745242
-
-  PID: 14127  TASK: ffff881455749c00  CPU: 11  COMMAND: "loop1"
-   #0 [ffff88272f5af228] __schedule at ffffffff8173f405
-   #1 [ffff88272f5af280] schedule at ffffffff8173fa27
-   #2 [ffff88272f5af2a0] schedule_preempt_disabled at ffffffff8173fd5e
-   #3 [ffff88272f5af2b0] __mutex_lock_slowpath at ffffffff81741fb5
-   #4 [ffff88272f5af330] mutex_lock at ffffffff81742133
-   #5 [ffff88272f5af350] dm_bufio_shrink_count at ffffffffa03865f9 [dm_bufio]
-   #6 [ffff88272f5af380] shrink_slab at ffffffff811a86bd
-   #7 [ffff88272f5af470] shrink_zone at ffffffff811ad778
-   #8 [ffff88272f5af500] do_try_to_free_pages at ffffffff811adb34
-   #9 [ffff88272f5af590] try_to_free_pages at ffffffff811adef8
-  #10 [ffff88272f5af610] __alloc_pages_nodemask at ffffffff811a09c3
-  #11 [ffff88272f5af710] alloc_pages_current at ffffffff811e8b71
-  #12 [ffff88272f5af760] new_slab at ffffffff811f4523
-  #13 [ffff88272f5af7b0] __slab_alloc at ffffffff8173a1b5
-  #14 [ffff88272f5af880] kmem_cache_alloc at ffffffff811f484b
-  #15 [ffff88272f5af8d0] do_blockdev_direct_IO at ffffffff812535b3
-  #16 [ffff88272f5afb00] __blockdev_direct_IO at ffffffff81255dc3
-  #17 [ffff88272f5afb30] xfs_vm_direct_IO at ffffffffa01fe3fc [xfs]
-  #18 [ffff88272f5afb90] generic_file_read_iter at ffffffff81198994
-  #19 [ffff88272f5afc50] __dta_xfs_file_read_iter_2398 at ffffffffa020c970 [xfs]
-  #20 [ffff88272f5afcc0] lo_rw_aio at ffffffffa0377042 [loop]
-  #21 [ffff88272f5afd70] loop_queue_work at ffffffffa0377c3b [loop]
-  #22 [ffff88272f5afe60] kthread_worker_fn at ffffffff810a8a0c
-  #23 [ffff88272f5afec0] kthread at ffffffff810a8428
-  #24 [ffff88272f5aff50] ret_from_fork at ffffffff81745242
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
+CC: stable@vger.kernel.org
+Fixes: 89e524c04fa9 ("loop: Fix mount(2) failure due to race with LOOP_SET_FD")
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/loop.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/block_dev.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -893,7 +893,7 @@ static void loop_unprepare_queue(struct
+--- a/fs/block_dev.c
++++ b/fs/block_dev.c
+@@ -1723,7 +1723,10 @@ int blkdev_get(struct block_device *bdev
  
- static int loop_kthread_worker_fn(void *worker_ptr)
- {
--	current->flags |= PF_LESS_THROTTLE;
-+	current->flags |= PF_LESS_THROTTLE | PF_MEMALLOC_NOIO;
- 	return kthread_worker_fn(worker_ptr);
- }
- 
+ 		/* finish claiming */
+ 		mutex_lock(&bdev->bd_mutex);
+-		bd_finish_claiming(bdev, whole, holder);
++		if (!res)
++			bd_finish_claiming(bdev, whole, holder);
++		else
++			bd_abort_claiming(bdev, whole, holder);
+ 		/*
+ 		 * Block event polling for write claims if requested.  Any
+ 		 * write holder makes the write_holder state stick until
 
 
