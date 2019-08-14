@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34EAC8DBAB
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:27:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C09CB8DBAA
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:27:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728397AbfHNREA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:04:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52736 "EHLO mail.kernel.org"
+        id S1729099AbfHNREB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:04:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729089AbfHNRD7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:03:59 -0400
+        id S1729092AbfHNREB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:04:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9638621721;
-        Wed, 14 Aug 2019 17:03:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D8772084D;
+        Wed, 14 Aug 2019 17:03:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802238;
-        bh=z+Yin1l0uC3EEV8udrsuSZXDzBL1PiKwdzmYceVqWxk=;
+        s=default; t=1565802240;
+        bh=JF5p7eFdyL2uDlvITnkiJ4pO6uUc14BJq2mRocluJ2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lkQ1Ny3dNjFRL5yKJsA+Z4dgLf0CfItJZv5iFoXUdLDLjOguTjPJcHtRXDz6zAmXR
-         tqfZWdHcE5FJJt0NHq010F5FToqUFZQdcWTeiM0wWUH4CEMeSYPOggrT+mglgDAeNu
-         CcFLL3vexFq3kJMw6YADd6ga7+dOqVOkFWtKSJqc=
+        b=bKxc6PqY7wXzW/LKoEnRsfdWnT6YJIXl2MtmbBh/utNjhuctvSBS57nUSDS5CJP0s
+         f45+ZZAnVp1a4k8sTXNjJBl+It3hSnWwwIvKrgtK8HShoPpSJkONOMs42FSR/8+8Ow
+         7j737waoRJ8ED/X9cWkVLeodwMxjbm7ucpGDkQnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        stable@vger.kernel.org,
+        Stephane Grosjean <s.grosjean@peak-system.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.2 047/144] can: flexcan: fix an use-after-free in flexcan_setup_stop_mode()
-Date:   Wed, 14 Aug 2019 19:00:03 +0200
-Message-Id: <20190814165801.795811337@linuxfoundation.org>
+Subject: [PATCH 5.2 048/144] can: peak_usb: fix potential double kfree_skb()
+Date:   Wed, 14 Aug 2019 19:00:04 +0200
+Message-Id: <20190814165801.836883958@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
 References: <20190814165759.466811854@linuxfoundation.org>
@@ -43,48 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wen.yang99@zte.com.cn>
+From: Stephane Grosjean <s.grosjean@peak-system.com>
 
-commit e9f2a856e102fa27715b94bcc2240f686536d29b upstream.
+commit fee6a8923ae0d318a7f7950c6c6c28a96cea099b upstream.
 
-The gpr_np variable is still being used in dev_dbg() after the
-of_node_put() call, which may result in use-after-free.
+When closing the CAN device while tx skbs are inflight, echo skb could
+be released twice. By calling close_candev() before unlinking all
+pending tx urbs, then the internal echo_skb[] array is fully and
+correctly cleared before the USB write callback and, therefore,
+can_get_echo_skb() are called, for each aborted URB.
 
-Fixes: de3578c198c6 ("can: flexcan: add self wakeup support")
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Cc: linux-stable <stable@vger.kernel.org> # >= v5.0
+Fixes: bb4785551f64 ("can: usb: PEAK-System Technik USB adapters driver core")
+Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
+Cc: linux-stable <stable@vger.kernel.org>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/can/flexcan.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/can/usb/peak_usb/pcan_usb_core.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/can/flexcan.c
-+++ b/drivers/net/can/flexcan.c
-@@ -1455,10 +1455,10 @@ static int flexcan_setup_stop_mode(struc
+--- a/drivers/net/can/usb/peak_usb/pcan_usb_core.c
++++ b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
+@@ -568,16 +568,16 @@ static int peak_usb_ndo_stop(struct net_
+ 	dev->state &= ~PCAN_USB_STATE_STARTED;
+ 	netif_stop_queue(netdev);
  
- 	priv = netdev_priv(dev);
- 	priv->stm.gpr = syscon_node_to_regmap(gpr_np);
--	of_node_put(gpr_np);
- 	if (IS_ERR(priv->stm.gpr)) {
- 		dev_dbg(&pdev->dev, "could not find gpr regmap\n");
--		return PTR_ERR(priv->stm.gpr);
-+		ret = PTR_ERR(priv->stm.gpr);
-+		goto out_put_node;
- 	}
++	close_candev(netdev);
++
++	dev->can.state = CAN_STATE_STOPPED;
++
+ 	/* unlink all pending urbs and free used memory */
+ 	peak_usb_unlink_all_urbs(dev);
  
- 	priv->stm.req_gpr = out_val[1];
-@@ -1473,7 +1473,9 @@ static int flexcan_setup_stop_mode(struc
+ 	if (dev->adapter->dev_stop)
+ 		dev->adapter->dev_stop(dev);
  
- 	device_set_wakeup_capable(&pdev->dev, true);
- 
--	return 0;
-+out_put_node:
-+	of_node_put(gpr_np);
-+	return ret;
- }
- 
- static const struct of_device_id flexcan_of_match[] = {
+-	close_candev(netdev);
+-
+-	dev->can.state = CAN_STATE_STOPPED;
+-
+ 	/* can set bus off now */
+ 	if (dev->adapter->dev_set_bus) {
+ 		int err = dev->adapter->dev_set_bus(dev, 0);
 
 
