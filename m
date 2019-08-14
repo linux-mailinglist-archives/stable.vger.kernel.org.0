@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 009048C993
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:40:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D5098C990
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:39:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726980AbfHNCjy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:39:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43442 "EHLO mail.kernel.org"
+        id S1728335AbfHNCjp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:39:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727297AbfHNCLO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:11:14 -0400
+        id S1727228AbfHNCLR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:11:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCBA920842;
-        Wed, 14 Aug 2019 02:11:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA93520844;
+        Wed, 14 Aug 2019 02:11:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748674;
-        bh=1xgrUvmGxX/jYsyf1aBvQ4XPUPe/5oORHXydsIYsGis=;
+        s=default; t=1565748676;
+        bh=hTsSvV4d5LbSjyK/Y6RguugAz95F6OasRmMZczi0FoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IMy0nijk3XxU7lEambcq1TpNPGFm+5NC3SfgcM+MFSnFkXDsZEXyiKnsXL/tc5JkS
-         4fA/8rH6fZb1C+dznCGTDQDeWVD3FHezXInUtkF7hwXEavA1ZYWXHRwd8wNOAbxDMB
-         5eysdHtWgpZgmMcmldbaLt9yrtTOwfYDTrcOb3BU=
+        b=H65YzqBs5wHs3r3J1pjCA5XmBWjCZQRwVLD4bbUg4xAu9oWjWjrdliBQwSmAnGXhg
+         Rwsf3fE1OjbwFO8+58U7RSwFcpPYzCtrrTn6DJv6EdVacBLh6piBpEXd9ynQLF6xpt
+         FSir5xAjF5UwKR0os5o9nMJXSYajiau4QXlW1qUM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wen Yang <wen.yang99@zte.com.cn>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Sangbeom Kim <sbkim73@samsung.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
+Cc:     Hans de Goede <hdegoede@redhat.com>, russianneuromancer@ya.ru,
         Mark Brown <broonie@kernel.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>, alsa-devel@alsa-project.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 014/123] ASoC: samsung: odroid: fix a double-free issue for cpu_dai
-Date:   Tue, 13 Aug 2019 22:08:58 -0400
-Message-Id: <20190814021047.14828-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 015/123] ASoC: Intel: bytcht_es8316: Add quirk for Irbis NB41 netbook
+Date:   Tue, 13 Aug 2019 22:08:59 -0400
+Message-Id: <20190814021047.14828-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -49,66 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wen.yang99@zte.com.cn>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 2abee12c0ab1924a69993d2c063a39a952e7d836 ]
+[ Upstream commit aa2ba991c4206d5b778dcaa7b4997396e79f8e90 ]
 
-The cpu_dai variable is still being used after the of_node_put() call,
-which may result in double-free:
+The Irbis NB41 netbook has its internal mic on IN2, inverted jack-detect
+and stereo speakers, add a quirk for this.
 
-        of_node_put(cpu_dai);            ---> released here
-
-        ret = devm_snd_soc_register_card(dev, card);
-        if (ret < 0) {
-...
-                goto err_put_clk_i2s;    --> jump to err_put_clk_i2s
-...
-
-err_put_clk_i2s:
-        clk_put(priv->clk_i2s_bus);
-err_put_sclk:
-        clk_put(priv->sclk_i2s);
-err_put_cpu_dai:
-        of_node_put(cpu_dai);            --> double-free here
-
-Fixes: d832d2b246c5 ("ASoC: samsung: odroid: Fix of_node refcount unbalance")
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Sangbeom Kim <sbkim73@samsung.com>
-Cc: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Cc: Liam Girdwood <lgirdwood@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Jaroslav Kysela <perex@perex.cz>
-Cc: Takashi Iwai <tiwai@suse.com>
-Cc: alsa-devel@alsa-project.org
-Cc: linux-kernel@vger.kernel.org
-Link: https://lore.kernel.org/r/1562989575-33785-3-git-send-email-wen.yang99@zte.com.cn
+Cc: russianneuromancer@ya.ru
+Reported-and-tested-by: russianneuromancer@ya.ru
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20190712112708.25327-1-hdegoede@redhat.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/samsung/odroid.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/intel/boards/bytcht_es8316.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/sound/soc/samsung/odroid.c b/sound/soc/samsung/odroid.c
-index 95c35e3ff3303..d606e48fe551a 100644
---- a/sound/soc/samsung/odroid.c
-+++ b/sound/soc/samsung/odroid.c
-@@ -299,7 +299,6 @@ static int odroid_audio_probe(struct platform_device *pdev)
- 		ret = PTR_ERR(priv->clk_i2s_bus);
- 		goto err_put_sclk;
- 	}
--	of_node_put(cpu_dai);
+diff --git a/sound/soc/intel/boards/bytcht_es8316.c b/sound/soc/intel/boards/bytcht_es8316.c
+index 2fe1ce8791235..c360ebc3ccc7f 100644
+--- a/sound/soc/intel/boards/bytcht_es8316.c
++++ b/sound/soc/intel/boards/bytcht_es8316.c
+@@ -436,6 +436,14 @@ static const struct acpi_gpio_mapping byt_cht_es8316_gpios[] = {
  
- 	ret = devm_snd_soc_register_card(dev, card);
- 	if (ret < 0) {
-@@ -307,6 +306,7 @@ static int odroid_audio_probe(struct platform_device *pdev)
- 		goto err_put_clk_i2s;
- 	}
- 
-+	of_node_put(cpu_dai);
- 	of_node_put(codec);
- 	return 0;
- 
+ /* Please keep this list alphabetically sorted */
+ static const struct dmi_system_id byt_cht_es8316_quirk_table[] = {
++	{	/* Irbis NB41 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "IRBIS"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "NB41"),
++		},
++		.driver_data = (void *)(BYT_CHT_ES8316_INTMIC_IN2_MAP
++					| BYT_CHT_ES8316_JD_INVERTED),
++	},
+ 	{	/* Teclast X98 Plus II */
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "TECLAST"),
 -- 
 2.20.1
 
