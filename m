@@ -2,45 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF1508DA51
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:17:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAC2B8D9B7
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:11:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730954AbfHNRNt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:13:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38088 "EHLO mail.kernel.org"
+        id S1728343AbfHNRLT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:11:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729421AbfHNRNq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:13:46 -0400
+        id S1730570AbfHNRLS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:11:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 151852063F;
-        Wed, 14 Aug 2019 17:13:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE899208C2;
+        Wed, 14 Aug 2019 17:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802825;
-        bh=Yy44GzBlOhNX+cRH3VDEQOL4SygaJSzEKGBGdEzPOQc=;
+        s=default; t=1565802677;
+        bh=Z9vCoxmg1F0JBLGhQ5ys9J4j4m/T7XhF6spaclXJU8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cz/oqRzxZNtxykNQyIC0ob4ZhGUymXbQgG5slpVqmA6SIOqMw8Jd5KJumb6Jekdw6
-         x9xi7NmLLbZflBY/QODua39qyDrTvTPKZfIU+bkAHnejxbtQ2UTaFL6XZaomHxjpaL
-         EzX/9GBh5vmO0RPqz+JxGwZ6g3Otj/7IXU7M8BqI=
+        b=MNNsqKm1oZTFjANQmgFo33FLOoUExrkLi1YwWkh3uEPWJgTCqA4b3M1T3O7wk9Z1Z
+         h5fyfj2/O2wMzEld4sriFz2qEjlST3U5fNjG9GxqdYq8w74kS2DVmZkmBxaCXuj3pC
+         lBv5wxrABDDLiqPiuIDcF1KbHNeJeTnt1uZN5sFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        David Carrillo-Cisneros <davidcc@google.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 40/69] perf tools: Fix proper buffer size for feature processing
+        stable@vger.kernel.org, Gilles Buloz <Gilles.Buloz@kontron.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.19 75/91] hwmon: (nct7802) Fix wrong detection of in4 presence
 Date:   Wed, 14 Aug 2019 19:01:38 +0200
-Message-Id: <20190814165748.156633204@linuxfoundation.org>
+Message-Id: <20190814165752.972237085@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165744.822314328@linuxfoundation.org>
-References: <20190814165744.822314328@linuxfoundation.org>
+In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
+References: <20190814165748.991235624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,50 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 79b2fe5e756163897175a8f57d66b26cd9befd59 ]
+From: Guenter Roeck <linux@roeck-us.net>
 
-After Song Liu's segfault fix for pipe mode, Arnaldo reported following
-error:
+commit 38ada2f406a9b81fb1249c5c9227fa657e7d5671 upstream.
 
-  # perf record -o - | perf script
-  0x514 [0x1ac]: failed to process type: 80
+The code to detect if in4 is present is wrong; if in4 is not present,
+the in4_input sysfs attribute is still present.
 
-It's caused by wrong buffer size setup in feature processing, which
-makes cpu topology feature fail, because it's using buffer size to
-recognize its header version.
+In detail:
 
-Reported-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: David Carrillo-Cisneros <davidcc@google.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Fixes: e9def1b2e74e ("perf tools: Add feature header record to pipe-mode")
-Link: http://lkml.kernel.org/r/20190715140426.32509-1-jolsa@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+- Ihen RTD3_MD=11 (VSEN3 present), everything is as expected (no bug).
+- If we have RTD3_MD!=11 (no VSEN3), we unexpectedly have a in4_input
+  file under /sys and the "sensors" command displays in4_input.
+  But as expected, we have no in4_min, in4_max, in4_alarm, in4_beep.
+
+Fix is_visible function to detect and report in4_input visibility
+as expected.
+
+Reported-by: Gilles Buloz <Gilles.Buloz@kontron.com>
+Cc: Gilles Buloz <Gilles.Buloz@kontron.com>
+Cc: stable@vger.kernel.org
+Fixes: 3434f37835804 ("hwmon: Driver for Nuvoton NCT7802Y")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- tools/perf/util/header.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/nct7802.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
-index 26437143c9406..c892a28e7b048 100644
---- a/tools/perf/util/header.c
-+++ b/tools/perf/util/header.c
-@@ -3081,7 +3081,7 @@ int perf_event__process_feature(struct perf_tool *tool,
+--- a/drivers/hwmon/nct7802.c
++++ b/drivers/hwmon/nct7802.c
+@@ -768,7 +768,7 @@ static struct attribute *nct7802_in_attr
+ 	&sensor_dev_attr_in3_alarm.dev_attr.attr,
+ 	&sensor_dev_attr_in3_beep.dev_attr.attr,
+ 
+-	&sensor_dev_attr_in4_input.dev_attr.attr,	/* 17 */
++	&sensor_dev_attr_in4_input.dev_attr.attr,	/* 16 */
+ 	&sensor_dev_attr_in4_min.dev_attr.attr,
+ 	&sensor_dev_attr_in4_max.dev_attr.attr,
+ 	&sensor_dev_attr_in4_alarm.dev_attr.attr,
+@@ -794,9 +794,9 @@ static umode_t nct7802_in_is_visible(str
+ 
+ 	if (index >= 6 && index < 11 && (reg & 0x03) != 0x03)	/* VSEN1 */
+ 		return 0;
+-	if (index >= 11 && index < 17 && (reg & 0x0c) != 0x0c)	/* VSEN2 */
++	if (index >= 11 && index < 16 && (reg & 0x0c) != 0x0c)	/* VSEN2 */
+ 		return 0;
+-	if (index >= 17 && (reg & 0x30) != 0x30)		/* VSEN3 */
++	if (index >= 16 && (reg & 0x30) != 0x30)		/* VSEN3 */
  		return 0;
  
- 	ff.buf  = (void *)fe->data;
--	ff.size = event->header.size - sizeof(event->header);
-+	ff.size = event->header.size - sizeof(*fe);
- 	ff.ph = &session->header;
- 
- 	if (feat_ops[feat].process(&ff, NULL))
--- 
-2.20.1
-
+ 	return attr->mode;
 
 
