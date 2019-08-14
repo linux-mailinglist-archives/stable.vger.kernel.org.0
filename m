@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9D248C900
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36B448C8F6
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:35:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728557AbfHNCfe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:35:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45492 "EHLO mail.kernel.org"
+        id S1728310AbfHNCNc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:13:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728287AbfHNCN3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:13:29 -0400
+        id S1728300AbfHNCNb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:13:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A83A214DA;
-        Wed, 14 Aug 2019 02:13:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BEF6B20842;
+        Wed, 14 Aug 2019 02:13:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748808;
-        bh=nvv5wvA6z8M5WfbSUdq7v2bAub2mac3SXvLLZWtTXLo=;
+        s=default; t=1565748810;
+        bh=6zB7ZAfRx6kO6WdFF2X4dn1BVug42pXpOBkfk/jE5/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FXlTmsTx0K3idWdnktRwCiumh+lfI2hlOdDsFXXD4WxMVgOfc8bIu9JVJ2ZZxcKJ+
-         UXxaK8mS1fr4TX9m2dC4l5lflrurMvO7KiJWGkOYJsC7xDaqzV1feCjyWb5lO9ubhS
-         z+16uN+SqtYe9Z5a/QwwuPs2mIt+eTxa+wMxSzZU=
+        b=TLKZL8PQ9wqQJR31tu7Zc5EF2OiiHF4ZXBj1m5WvsXdP5oFhWqqmTfCj2NQz272Er
+         4hK8bYgZnnmPiHS27VpEF+3c+r26eEEgn87ErXK7W6pxoJOoUJi1uTEZqfHpViX+0D
+         cWlM9RZlX74dxjf3xwZ4nR+qpQDtPuGaHCCzsVX4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 074/123] spi: pxa2xx: Add support for Intel Tiger Lake
-Date:   Tue, 13 Aug 2019 22:09:58 -0400
-Message-Id: <20190814021047.14828-74-sashal@kernel.org>
+Cc:     Wang Xiayang <xywang.sjtu@sjtu.edu.cn>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>, linux-can@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 075/123] can: sja1000: force the string buffer NULL-terminated
+Date:   Tue, 13 Aug 2019 22:09:59 -0400
+Message-Id: <20190814021047.14828-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -43,40 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+From: Wang Xiayang <xywang.sjtu@sjtu.edu.cn>
 
-[ Upstream commit a4127952859a869cf3fc5a49547dbe2ffa2eac89 ]
+[ Upstream commit cd28aa2e056cd1ea79fc5f24eed0ce868c6cab5c ]
 
-Intel Tiger Lake -LP LPSS SPI controller is otherwise similar than
-Cannon Lake but has more controllers and up to two chip selects per
-controller.
+strncpy() does not ensure NULL-termination when the input string size
+equals to the destination buffer size IFNAMSIZ. The output string
+'name' is passed to dev_info which relies on NULL-termination.
 
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Link: https://lore.kernel.org/r/20190801134901.12635-1-jarkko.nikula@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Use strlcpy() instead.
+
+This issue is identified by a Coccinelle script.
+
+Signed-off-by: Wang Xiayang <xywang.sjtu@sjtu.edu.cn>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-pxa2xx.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/can/sja1000/peak_pcmcia.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
-index c1af8887d9186..1f32c9e3ca65c 100644
---- a/drivers/spi/spi-pxa2xx.c
-+++ b/drivers/spi/spi-pxa2xx.c
-@@ -1453,6 +1453,14 @@ static const struct pci_device_id pxa2xx_spi_pci_compound_match[] = {
- 	{ PCI_VDEVICE(INTEL, 0x02aa), LPSS_CNL_SSP },
- 	{ PCI_VDEVICE(INTEL, 0x02ab), LPSS_CNL_SSP },
- 	{ PCI_VDEVICE(INTEL, 0x02fb), LPSS_CNL_SSP },
-+	/* TGL-LP */
-+	{ PCI_VDEVICE(INTEL, 0xa0aa), LPSS_CNL_SSP },
-+	{ PCI_VDEVICE(INTEL, 0xa0ab), LPSS_CNL_SSP },
-+	{ PCI_VDEVICE(INTEL, 0xa0de), LPSS_CNL_SSP },
-+	{ PCI_VDEVICE(INTEL, 0xa0df), LPSS_CNL_SSP },
-+	{ PCI_VDEVICE(INTEL, 0xa0fb), LPSS_CNL_SSP },
-+	{ PCI_VDEVICE(INTEL, 0xa0fd), LPSS_CNL_SSP },
-+	{ PCI_VDEVICE(INTEL, 0xa0fe), LPSS_CNL_SSP },
- 	{ },
- };
+diff --git a/drivers/net/can/sja1000/peak_pcmcia.c b/drivers/net/can/sja1000/peak_pcmcia.c
+index 185c7f7d38a4a..5e0d5e8101c86 100644
+--- a/drivers/net/can/sja1000/peak_pcmcia.c
++++ b/drivers/net/can/sja1000/peak_pcmcia.c
+@@ -479,7 +479,7 @@ static void pcan_free_channels(struct pcan_pccard *card)
+ 		if (!netdev)
+ 			continue;
+ 
+-		strncpy(name, netdev->name, IFNAMSIZ);
++		strlcpy(name, netdev->name, IFNAMSIZ);
+ 
+ 		unregister_sja1000dev(netdev);
  
 -- 
 2.20.1
