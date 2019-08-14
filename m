@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD0BA8D8F7
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:04:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2712F8D8F8
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:04:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729115AbfHNREE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:04:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52826 "EHLO mail.kernel.org"
+        id S1729129AbfHNREJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:04:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729112AbfHNRED (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:04:03 -0400
+        id S1729127AbfHNREJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:04:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AEDC721744;
-        Wed, 14 Aug 2019 17:04:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAB2F208C2;
+        Wed, 14 Aug 2019 17:04:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802243;
-        bh=TEkliHrCqmBMsOtkH+iKXQ2HGKVEK/CT4G9DrCRz0t8=;
+        s=default; t=1565802248;
+        bh=dcNlIq3Uf0l0lx13G3Fyg5C2xZf/pldIfA1pAiWLhjo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uvB2lUfewvo7jdNlIS2lQTIi8Og6nFbrTSpJnGWuZnXYVJUHJKy9mrLcMDu6Q018Z
-         AckZ1ZubqzQZQ04+/4UAXkTj7FloaiU9cg0+snz+XicNhy+8YNHmT+J78yXIWvrdR7
-         462etl6Wr3GLwTqzCHXb9iJ/o5Nv26P8flXwyygI=
+        b=laj6tMLrxxoX6/VMhNT+f3OowbXoXsGg0fBgMwkqrnceIhkeM2PEDa2BrCgJaR06w
+         FqWfEZ3rrU4RkcSaXe6SkOwHG0N+UaUf9ZeprtzBvzNEb54s06It3maQUDlz9vxG8H
+         NRuUpcpFDMT/jm6JdCZWS1AF1zeYMxRewjNEZYvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zorro Lang <zlang@redhat.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 049/144] powerpc: fix off by one in max_zone_pfn initialization for ZONE_DMA
-Date:   Wed, 14 Aug 2019 19:00:05 +0200
-Message-Id: <20190814165801.880757406@linuxfoundation.org>
+Subject: [PATCH 5.2 051/144] vfio-ccw: Set pa_nr to 0 if memory allocation fails for pa_iova_pfn
+Date:   Wed, 14 Aug 2019 19:00:07 +0200
+Message-Id: <20190814165801.962212682@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
 References: <20190814165759.466811854@linuxfoundation.org>
@@ -46,45 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 03800e0526ee25ed7c843ca1e57b69ac2a5af642 ]
+[ Upstream commit c1ab69268d124ebdbb3864580808188ccd3ea355 ]
 
-25078dc1f74be16b858e914f52cc8f4d03c2271a first introduced an off by
-one error in the ZONE_DMA initialization of PPC_BOOK3E_64=y and since
-9739ab7eda459f0669ec9807e0d9be5020bab88c the off by one applies to
-PPC32=y too. This simply corrects the off by one and should resolve
-crashes like below:
+So we don't call try to call vfio_unpin_pages() incorrectly.
 
-[   65.179101] page 0x7fff outside node 0 zone DMA [ 0x0 - 0x7fff ]
-
-Unfortunately in various MM places "max" means a non inclusive end of
-range. free_area_init_nodes max_zone_pfn parameter is one case and
-MAX_ORDER is another one (unrelated) that comes by memory.
-
-Reported-by: Zorro Lang <zlang@redhat.com>
-Fixes: 25078dc1f74b ("powerpc: use mm zones more sensibly")
-Fixes: 9739ab7eda45 ("powerpc: enable a 30-bit ZONE_DMA for 32-bit pmac")
-Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190625141727.2883-1-aarcange@redhat.com
+Fixes: 0a19e61e6d4c ("vfio: ccw: introduce channel program interfaces")
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <33a89467ad6369196ae6edf820cbcb1e2d8d050c.1562854091.git.alifm@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/mem.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/cio/vfio_ccw_cp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-index 2540d3b2588c3..2eda1ec36f552 100644
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -249,7 +249,7 @@ void __init paging_init(void)
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 0e79799e9a719..79eb40bdaf9f4 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -89,8 +89,10 @@ static int pfn_array_alloc_pin(struct pfn_array *pa, struct device *mdev,
+ 				  sizeof(*pa->pa_iova_pfn) +
+ 				  sizeof(*pa->pa_pfn),
+ 				  GFP_KERNEL);
+-	if (unlikely(!pa->pa_iova_pfn))
++	if (unlikely(!pa->pa_iova_pfn)) {
++		pa->pa_nr = 0;
+ 		return -ENOMEM;
++	}
+ 	pa->pa_pfn = pa->pa_iova_pfn + pa->pa_nr;
  
- #ifdef CONFIG_ZONE_DMA
- 	max_zone_pfns[ZONE_DMA]	= min(max_low_pfn,
--			((1UL << ARCH_ZONE_DMA_BITS) - 1) >> PAGE_SHIFT);
-+				      1UL << (ARCH_ZONE_DMA_BITS - PAGE_SHIFT));
- #endif
- 	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
- #ifdef CONFIG_HIGHMEM
+ 	pa->pa_iova_pfn[0] = pa->pa_iova >> PAGE_SHIFT;
 -- 
 2.20.1
 
