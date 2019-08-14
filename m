@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C1B88D9BA
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:11:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66C0B8DA17
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:16:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725828AbfHNRLb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:11:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34788 "EHLO mail.kernel.org"
+        id S1731168AbfHNRPH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:15:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730593AbfHNRL2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:11:28 -0400
+        id S1730829AbfHNRPG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:15:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE23E2084D;
-        Wed, 14 Aug 2019 17:11:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C43B2084D;
+        Wed, 14 Aug 2019 17:15:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802687;
-        bh=GxpXIsPHFbuaZBKjNQf/MJm4SWd/jFG6S2Ae0i4PNOU=;
+        s=default; t=1565802905;
+        bh=hooKEbjL6lz/cDvdyt0WkVmwmV+joOzrgmmqPwvwX7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rN0zuKbxBWUwJgh66453mWexq8EQM02tcqCbkFPcG0h5+sV5l2KSOpEMcMGiLsH94
-         2odNlO8LgRXu9Q9776ZDQ7e9q/rbFM08eFylW4n8piVGlrZZdLPMGgfbumiH8q32w6
-         K2A+/Wd8b+tiwAvOyxZK7jpoi8mnzEscGrzC2Ds0=
+        b=2oLln+2lXZinD7oAEHvMTZosAZkpQX4BgegjZWaBWbtRle8Qq70mJDE93LCxh3lLT
+         fxpCsOLIYJk3VTVdVDzyfbWRN9NL8m6VE8MSB/iiFai++xkKqNSWWBlj91epugouN3
+         fjjgNvl3hjReXlDpHK1+BWRJR2f7hzs+1K6WlxC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 79/91] ALSA: hda - Dont override global PCM hw info flag
-Date:   Wed, 14 Aug 2019 19:01:42 +0200
-Message-Id: <20190814165753.197799791@linuxfoundation.org>
+        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
+        Sumit Saxena <sumit.saxena@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 45/69] scsi: megaraid_sas: fix panic on loading firmware crashdump
+Date:   Wed, 14 Aug 2019 19:01:43 +0200
+Message-Id: <20190814165748.520722978@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
-References: <20190814165748.991235624@linuxfoundation.org>
+In-Reply-To: <20190814165744.822314328@linuxfoundation.org>
+References: <20190814165744.822314328@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+[ Upstream commit 3b5f307ef3cb5022bfe3c8ca5b8f2114d5bf6c29 ]
 
-commit c1c6c877b0c79fd7e05c931435aa42211eaeebaf upstream.
+While loading fw crashdump in function fw_crash_buffer_show(), left bytes
+in one dma chunk was not checked, if copying size over it, overflow access
+will cause kernel panic.
 
-The commit bfcba288b97f ("ALSA - hda: Add support for link audio time
-reporting") introduced the conditional PCM hw info setup, but it
-overwrites the global azx_pcm_hw object.  This will cause a problem if
-any other HD-audio controller, as it'll inherit the same bit flag
-although another controller doesn't support that feature.
-
-Fix the bug by setting the PCM hw info flag locally.
-
-Fixes: bfcba288b97f ("ALSA - hda: Add support for link audio time reporting")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
+Acked-by: Sumit Saxena <sumit.saxena@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_controller.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/scsi/megaraid/megaraid_sas_base.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/sound/pci/hda/hda_controller.c
-+++ b/sound/pci/hda/hda_controller.c
-@@ -609,11 +609,9 @@ static int azx_pcm_open(struct snd_pcm_s
+diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
+index 73acd3e9ded75..8595d83229b77 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -2976,6 +2976,7 @@ megasas_fw_crash_buffer_show(struct device *cdev,
+ 	u32 size;
+ 	unsigned long buff_addr;
+ 	unsigned long dmachunk = CRASH_DMA_BUF_SIZE;
++	unsigned long chunk_left_bytes;
+ 	unsigned long src_addr;
+ 	unsigned long flags;
+ 	u32 buff_offset;
+@@ -3001,6 +3002,8 @@ megasas_fw_crash_buffer_show(struct device *cdev,
  	}
- 	runtime->private_data = azx_dev;
  
--	if (chip->gts_present)
--		azx_pcm_hw.info = azx_pcm_hw.info |
--			SNDRV_PCM_INFO_HAS_LINK_SYNCHRONIZED_ATIME;
--
- 	runtime->hw = azx_pcm_hw;
-+	if (chip->gts_present)
-+		runtime->hw.info |= SNDRV_PCM_INFO_HAS_LINK_SYNCHRONIZED_ATIME;
- 	runtime->hw.channels_min = hinfo->channels_min;
- 	runtime->hw.channels_max = hinfo->channels_max;
- 	runtime->hw.formats = hinfo->formats;
+ 	size = (instance->fw_crash_buffer_size * dmachunk) - buff_offset;
++	chunk_left_bytes = dmachunk - (buff_offset % dmachunk);
++	size = (size > chunk_left_bytes) ? chunk_left_bytes : size;
+ 	size = (size >= PAGE_SIZE) ? (PAGE_SIZE - 1) : size;
+ 
+ 	src_addr = (unsigned long)instance->crash_buf[buff_offset / dmachunk] +
+-- 
+2.20.1
+
 
 
