@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90E888DB97
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:26:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84C478DB76
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:25:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728349AbfHNR0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:26:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53506 "EHLO mail.kernel.org"
+        id S1728976AbfHNRFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:05:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729275AbfHNREj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:04:39 -0400
+        id S1728921AbfHNRFi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:05:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8ABBA2084D;
-        Wed, 14 Aug 2019 17:04:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E04E216F4;
+        Wed, 14 Aug 2019 17:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802279;
-        bh=+bHoaEyut0jt8XpJIrpUFxCbGOTtiDFobi2WIvPHMWk=;
+        s=default; t=1565802337;
+        bh=bF+qExikVFvyiuN7P/QK2vGkwAhCy5AbjsaJnvm9Gk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rfQWcmsIqysVZLCjNe/TXNZTnI4azphL8ZpW/sV1bzCS1/kf88wlaiQ0dqj9LOmcN
-         LtGLczMwgKnyU4Pm259ZvcHvTj5KJTNhjB8Jh1m7IWs1Q2HV65c2UIOgXGn3cyzFxR
-         fsGYQuFEFHr9s2zc+A8iA8TEV+9NrogvH7Pd4b9E=
+        b=PPT3jh7xPRo8/NwdAqZ/qAFg1gcwQgifXB18nulU9/QEbc2lgSTLUIFWU3Ncdmov/
+         X4oy5RE36Dh11p9Z6Ij1qQIR9XPxNPf/SzlPikSiQOOI0pA+DBmvJaIYsBlPJOTtyM
+         QxnhVsBUq16hkJ6On9D2UDfrCY/PbG61cYsypqBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laura Garcia Liebana <nevola@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 056/144] netfilter: nft_hash: fix symhash with modulus one
-Date:   Wed, 14 Aug 2019 19:00:12 +0200
-Message-Id: <20190814165802.173677704@linuxfoundation.org>
+Subject: [PATCH 5.2 059/144] scripts/sphinx-pre-install: fix latexmk dependencies
+Date:   Wed, 14 Aug 2019 19:00:15 +0200
+Message-Id: <20190814165802.299214378@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
 References: <20190814165759.466811854@linuxfoundation.org>
@@ -44,37 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 28b1d6ef53e3303b90ca8924bb78f31fa527cafb ]
+[ Upstream commit 353290a9eb5362a80bc8e52fcd7eb77a30f48afc ]
 
-The rule below doesn't work as the kernel raises -ERANGE.
+The name of the package with carries latexmk is different
+on two distros:
 
-nft add rule netdev nftlb lb01 ip daddr set \
-	symhash mod 1 map { 0 : 192.168.0.10 } fwd to "eth0"
+- On OpenSUSE, latexmk is packaged as "texlive-latexmk-bin"
+- On Mageia, latexmk is packaged at "texlive-collection-basic"
 
-This patch allows to use the symhash modulus with one
-element, in the same way that the other types of hashes and
-algorithms that uses the modulus parameter.
-
-Signed-off-by: Laura Garcia Liebana <nevola@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_hash.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/sphinx-pre-install | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/netfilter/nft_hash.c b/net/netfilter/nft_hash.c
-index fe93e731dc7fb..b836d550b9199 100644
---- a/net/netfilter/nft_hash.c
-+++ b/net/netfilter/nft_hash.c
-@@ -129,7 +129,7 @@ static int nft_symhash_init(const struct nft_ctx *ctx,
- 	priv->dreg = nft_parse_register(tb[NFTA_HASH_DREG]);
+diff --git a/scripts/sphinx-pre-install b/scripts/sphinx-pre-install
+index 4cc2b3ee5209f..1f9f0a334c24f 100755
+--- a/scripts/sphinx-pre-install
++++ b/scripts/sphinx-pre-install
+@@ -447,6 +447,8 @@ sub give_opensuse_hints()
+ 		"texlive-zapfding",
+ 	);
  
- 	priv->modulus = ntohl(nla_get_be32(tb[NFTA_HASH_MODULUS]));
--	if (priv->modulus <= 1)
-+	if (priv->modulus < 1)
- 		return -ERANGE;
++	$map{"latexmk"} = "texlive-latexmk-bin";
++
+ 	check_rpm_missing(\@suse_tex_pkgs, 2) if ($pdf);
+ 	check_missing_tex(2) if ($pdf);
+ 	check_missing(\%map);
+@@ -472,6 +474,8 @@ sub give_mageia_hints()
+ 		"texlive-fontsextra",
+ 	);
  
- 	if (priv->offset + priv->modulus - 1 < priv->offset)
++	$map{"latexmk"} = "texlive-collection-basic";
++
+ 	check_rpm_missing(\@tex_pkgs, 2) if ($pdf);
+ 	check_missing(\%map);
+ 
 -- 
 2.20.1
 
