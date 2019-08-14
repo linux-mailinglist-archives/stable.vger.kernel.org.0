@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98C208C844
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:31:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 707AD8C996
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:40:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729611AbfHNC3d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:29:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52564 "EHLO mail.kernel.org"
+        id S1726855AbfHNCKw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:10:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729856AbfHNCXb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:23:31 -0400
+        id S1726383AbfHNCKw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:10:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA40B216F4;
-        Wed, 14 Aug 2019 02:23:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF3052084D;
+        Wed, 14 Aug 2019 02:10:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565749410;
-        bh=VwqIu6Zs5et+zIwo6WWfsCX9KCS+VO+NChuttBxxm/o=;
+        s=default; t=1565748651;
+        bh=x2byiKTwlxzg6k5db6cf1XwNeXRnTfzALjIqoBBeesU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F7pIwrkxZ2I4Y+9j6FVXNDWujAXAZZvhAVW2bCmYk5DtefD5xug0I+ff3cfZFW6p9
-         RAetzlFDq0loEcHH5JG3fOcnG04wNIlSwaqCZ+PiKXRjSQ8CSvjJFVwR+ytcoJ2lSu
-         V05DbjcFz4Exiq+hOfV/fX6d3D5iM+kifoZWR1yA=
+        b=tuuZ0smIBkBPNoVcVPs4Yet01BSAFsxROdiDq0/XHrkX4t2oloacGeLaY03jBkNJw
+         b6E94xjeRYLTpzyciX2dY9+Eba6+hn2JTrHGTcw2n9awisBQmZBXXgtB/wATuvGAxQ
+         X4/H5JmOmLVneHUFptOl+Iugr7kpRRxnASzP+zpc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Falcon <tlfalcon@linux.ibm.com>,
-        Jarod Wilson <jarod@redhat.com>,
-        Jay Vosburgh <j.vosburgh@gmail.com>,
-        Veaceslav Falico <vfalico@gmail.com>,
-        Andy Gospodarek <andy@greyhouse.net>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 05/33] bonding: Force slave speed check after link state recovery for 802.3ad
-Date:   Tue, 13 Aug 2019 22:22:55 -0400
-Message-Id: <20190814022323.17111-5-sashal@kernel.org>
+Cc:     Wen Yang <wen.yang99@zte.com.cn>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 002/123] ASoC: simple-card: fix an use-after-free in simple_dai_link_of_dpcm()
+Date:   Tue, 13 Aug 2019 22:08:46 -0400
+Message-Id: <20190814021047.14828-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190814022323.17111-1-sashal@kernel.org>
-References: <20190814022323.17111-1-sashal@kernel.org>
+In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
+References: <20190814021047.14828-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -47,72 +44,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Falcon <tlfalcon@linux.ibm.com>
+From: Wen Yang <wen.yang99@zte.com.cn>
 
-[ Upstream commit 12185dfe44360f814ac4ead9d22ad2af7511b2e9 ]
+[ Upstream commit 724808ad556c15e9473418d082f8aae81dd267f6 ]
 
-The following scenario was encountered during testing of logical
-partition mobility on pseries partitions with bonded ibmvnic
-adapters in LACP mode.
+The node variable is still being used after the of_node_put() call,
+which may result in use-after-free.
 
-1. Driver receives a signal that the device has been
-   swapped, and it needs to reset to initialize the new
-   device.
-
-2. Driver reports loss of carrier and begins initialization.
-
-3. Bonding driver receives NETDEV_CHANGE notifier and checks
-   the slave's current speed and duplex settings. Because these
-   are unknown at the time, the bond sets its link state to
-   BOND_LINK_FAIL and handles the speed update, clearing
-   AD_PORT_LACP_ENABLE.
-
-4. Driver finishes recovery and reports that the carrier is on.
-
-5. Bond receives a new notification and checks the speed again.
-   The speeds are valid but miimon has not altered the link
-   state yet.  AD_PORT_LACP_ENABLE remains off.
-
-Because the slave's link state is still BOND_LINK_FAIL,
-no further port checks are made when it recovers. Though
-the slave devices are operational and have valid speed
-and duplex settings, the bond will not send LACPDU's. The
-simplest fix I can see is to force another speed check
-in bond_miimon_commit. This way the bond will update
-AD_PORT_LACP_ENABLE if needed when transitioning from
-BOND_LINK_FAIL to BOND_LINK_UP.
-
-CC: Jarod Wilson <jarod@redhat.com>
-CC: Jay Vosburgh <j.vosburgh@gmail.com>
-CC: Veaceslav Falico <vfalico@gmail.com>
-CC: Andy Gospodarek <andy@greyhouse.net>
-Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: cfc652a73331 ("ASoC: simple-card: tidyup prefix for snd_soc_codec_conf")
+Link: https://lore.kernel.org/r/1562743509-30496-2-git-send-email-wen.yang99@zte.com.cn
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ sound/soc/generic/simple-card.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index 5b116ec756b4e..0c96dabeb7f86 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -2129,6 +2129,15 @@ static void bond_miimon_commit(struct bonding *bond)
- 	bond_for_each_slave(bond, slave, iter) {
- 		switch (slave->new_link) {
- 		case BOND_LINK_NOCHANGE:
-+			/* For 802.3ad mode, check current slave speed and
-+			 * duplex again in case its port was disabled after
-+			 * invalid speed/duplex reporting but recovered before
-+			 * link monitoring could make a decision on the actual
-+			 * link status
-+			 */
-+			if (BOND_MODE(bond) == BOND_MODE_8023AD &&
-+			    slave->link == BOND_LINK_UP)
-+				bond_3ad_adapter_speed_duplex_changed(slave);
- 			continue;
+diff --git a/sound/soc/generic/simple-card.c b/sound/soc/generic/simple-card.c
+index 9b568f578bcd2..544064fdc780c 100644
+--- a/sound/soc/generic/simple-card.c
++++ b/sound/soc/generic/simple-card.c
+@@ -138,8 +138,6 @@ static int simple_dai_link_of_dpcm(struct asoc_simple_priv *priv,
  
- 		case BOND_LINK_UP:
+ 	li->link++;
+ 
+-	of_node_put(node);
+-
+ 	/* For single DAI link & old style of DT node */
+ 	if (is_top)
+ 		prefix = PREFIX;
+@@ -161,17 +159,17 @@ static int simple_dai_link_of_dpcm(struct asoc_simple_priv *priv,
+ 
+ 		ret = asoc_simple_parse_cpu(np, dai_link, &is_single_links);
+ 		if (ret)
+-			return ret;
++			goto out_put_node;
+ 
+ 		ret = asoc_simple_parse_clk_cpu(dev, np, dai_link, dai);
+ 		if (ret < 0)
+-			return ret;
++			goto out_put_node;
+ 
+ 		ret = asoc_simple_set_dailink_name(dev, dai_link,
+ 						   "fe.%s",
+ 						   dai_link->cpu_dai_name);
+ 		if (ret < 0)
+-			return ret;
++			goto out_put_node;
+ 
+ 		asoc_simple_canonicalize_cpu(dai_link, is_single_links);
+ 	} else {
+@@ -194,17 +192,17 @@ static int simple_dai_link_of_dpcm(struct asoc_simple_priv *priv,
+ 
+ 		ret = asoc_simple_parse_codec(np, dai_link);
+ 		if (ret < 0)
+-			return ret;
++			goto out_put_node;
+ 
+ 		ret = asoc_simple_parse_clk_codec(dev, np, dai_link, dai);
+ 		if (ret < 0)
+-			return ret;
++			goto out_put_node;
+ 
+ 		ret = asoc_simple_set_dailink_name(dev, dai_link,
+ 						   "be.%s",
+ 						   codecs->dai_name);
+ 		if (ret < 0)
+-			return ret;
++			goto out_put_node;
+ 
+ 		/* check "prefix" from top node */
+ 		snd_soc_of_parse_node_prefix(top, cconf, codecs->of_node,
+@@ -222,19 +220,21 @@ static int simple_dai_link_of_dpcm(struct asoc_simple_priv *priv,
+ 
+ 	ret = asoc_simple_parse_tdm(np, dai);
+ 	if (ret)
+-		return ret;
++		goto out_put_node;
+ 
+ 	ret = asoc_simple_parse_daifmt(dev, node, codec,
+ 				       prefix, &dai_link->dai_fmt);
+ 	if (ret < 0)
+-		return ret;
++		goto out_put_node;
+ 
+ 	dai_link->dpcm_playback		= 1;
+ 	dai_link->dpcm_capture		= 1;
+ 	dai_link->ops			= &simple_ops;
+ 	dai_link->init			= asoc_simple_dai_init;
+ 
+-	return 0;
++out_put_node:
++	of_node_put(node);
++	return ret;
+ }
+ 
+ static int simple_dai_link_of(struct asoc_simple_priv *priv,
 -- 
 2.20.1
 
