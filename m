@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EADC38C7CB
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:27:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 584128C7C1
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:26:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729237AbfHNC0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:26:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54624 "EHLO mail.kernel.org"
+        id S1730358AbfHNC0o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:26:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730369AbfHNC0e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:26:34 -0400
+        id S1730385AbfHNC0o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:26:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B323A2173B;
-        Wed, 14 Aug 2019 02:26:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B5E220679;
+        Wed, 14 Aug 2019 02:26:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565749594;
-        bh=jX8fTWyNSK6du04D93U9Tv5IXcgdx3qFvD1n2Jb5vpM=;
+        s=default; t=1565749603;
+        bh=5rLlWUJ+nSWbLbJ/vJkace/NVU+oEELFK99umC/pAFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tq03IogP8/RzDcWaj7DH3veTFMLpSCCIVIe+m+4+uuBUmsovJSC0wUm1wrF1lIX/6
-         GzL1iChg0/SfPtC0Cv7fwVND5g0lStXqig1UDqr7WmKx5LGbGsgBZgkUb7Sczxn6R8
-         l3h6P3wD76RyULV7l6WkHl0S2KwOopnZsD/yB6uk=
+        b=cUbHpTpmh6mVjI0E9EFPj1+v3HzBJAFT8mDBRShocN2IpyDJpkJWS/MfXFGOov+pa
+         CFZ9VdxiFApxL7bT0p6HOXPUWwOEju9cSFS6f9jX4jJhYRIsD8V2zhFpeJLm0wxaKn
+         8mcArY6HLazuNDNrpdAIJFwpotzUwsHq7lIBmigM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>, Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-ide@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 27/28] libata: add SG safety checks in SFF pio transfers
-Date:   Tue, 13 Aug 2019 22:25:49 -0400
-Message-Id: <20190814022550.17463-27-sashal@kernel.org>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 28/28] selftests: kvm: Adding config fragments
+Date:   Tue, 13 Aug 2019 22:25:50 -0400
+Message-Id: <20190814022550.17463-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814022550.17463-1-sashal@kernel.org>
 References: <20190814022550.17463-1-sashal@kernel.org>
@@ -42,46 +44,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Naresh Kamboju <naresh.kamboju () linaro ! org>
 
-[ Upstream commit 752ead44491e8c91e14d7079625c5916b30921c5 ]
+[ Upstream commit c096397c78f766db972f923433031f2dec01cae0 ]
 
-Abort processing of a command if we run out of mapped data in the
-SG list. This should never happen, but a previous bug caused it to
-be possible. Play it safe and attempt to abort nicely if we don't
-have more SG segments left.
+selftests kvm test cases need pre-required kernel configs for the test
+to get pass.
 
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-sff.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ tools/testing/selftests/kvm/config | 3 +++
+ 1 file changed, 3 insertions(+)
+ create mode 100644 tools/testing/selftests/kvm/config
 
-diff --git a/drivers/ata/libata-sff.c b/drivers/ata/libata-sff.c
-index 18de4c4570682..1d8901fc0bfa9 100644
---- a/drivers/ata/libata-sff.c
-+++ b/drivers/ata/libata-sff.c
-@@ -703,6 +703,10 @@ static void ata_pio_sector(struct ata_queued_cmd *qc)
- 	unsigned int offset;
- 	unsigned char *buf;
- 
-+	if (!qc->cursg) {
-+		qc->curbytes = qc->nbytes;
-+		return;
-+	}
- 	if (qc->curbytes == qc->nbytes - qc->sect_size)
- 		ap->hsm_task_state = HSM_ST_LAST;
- 
-@@ -742,6 +746,8 @@ static void ata_pio_sector(struct ata_queued_cmd *qc)
- 
- 	if (qc->cursg_ofs == qc->cursg->length) {
- 		qc->cursg = sg_next(qc->cursg);
-+		if (!qc->cursg)
-+			ap->hsm_task_state = HSM_ST_LAST;
- 		qc->cursg_ofs = 0;
- 	}
- }
+diff --git a/tools/testing/selftests/kvm/config b/tools/testing/selftests/kvm/config
+new file mode 100644
+index 0000000000000..63ed533f73d6e
+--- /dev/null
++++ b/tools/testing/selftests/kvm/config
+@@ -0,0 +1,3 @@
++CONFIG_KVM=y
++CONFIG_KVM_INTEL=y
++CONFIG_KVM_AMD=y
 -- 
 2.20.1
 
