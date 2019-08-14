@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D6D68DB64
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:25:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 352028DB03
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:22:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728892AbfHNRYj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:24:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55520 "EHLO mail.kernel.org"
+        id S1729553AbfHNRWK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:22:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729632AbfHNRGY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:06:24 -0400
+        id S1730216AbfHNRJA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:09:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 096D02173E;
-        Wed, 14 Aug 2019 17:06:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E28C2084D;
+        Wed, 14 Aug 2019 17:08:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802383;
-        bh=VbIlRLilcZWNuGLQqEc87Kig/mLATMw2y+2OF9XSvXk=;
+        s=default; t=1565802538;
+        bh=FjH7MbOHzJA3Qgz8B/MkhCNJMbeI4oucK1ktnCJFHRE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xg7AIKodBO8KuSZZiqpXITZuJlaFMiWl4ZGOgup0VT20Gj6Mwl3Ix3d35ztqAgPdA
-         JCNCzMJtE6INEvkN4O1vRhclY+aEk0RM5kT2mLj0y39DG9yhBjM92bEQ2MjYMhBymn
-         egjUWios56/c6E5rZIs7nOcxfumiyNpka8G7nwEw=
+        b=gi25H/qZpqiDPYdL/Eg1H4Vke5aa99gtBhTrmkr9Dyz+Xs6XbXTb0j4/abjbZjUfC
+         vx6NUw/sLoeO9w17XGiXU+kwnvrfl0KLj0f0At60IBSFs48xDNzY3+F8OrEIyffnaU
+         TX8em3TSjb9UKVpfGEOU/eEH/GAJs7xaSr4ZdQX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Sean Paul <seanpaul@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 087/144] drm: silence variable conn set but not used
-Date:   Wed, 14 Aug 2019 19:00:43 +0200
-Message-Id: <20190814165803.518461885@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.19 21/91] perf db-export: Fix thread__exec_comm()
+Date:   Wed, 14 Aug 2019 19:00:44 +0200
+Message-Id: <20190814165750.618189689@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
-References: <20190814165759.466811854@linuxfoundation.org>
+In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
+References: <20190814165748.991235624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +44,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit bbb6fc43f131f77fcb7ae8081f6d7c51396a2120 ]
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-The "struct drm_connector" iteration cursor from
-"for_each_new_connector_in_state" is never used in atomic_remove_fb()
-which generates a compilation warning,
+commit 3de7ae0b2a1d86dbb23d0cb135150534fdb2e836 upstream.
 
-drivers/gpu/drm/drm_framebuffer.c: In function 'atomic_remove_fb':
-drivers/gpu/drm/drm_framebuffer.c:838:24: warning: variable 'conn' set
-but not used [-Wunused-but-set-variable]
+Threads synthesized from /proc have comms with a start time of zero, and
+not marked as "exec". Currently, there can be 2 such comms. The first is
+created by processing a synthesized fork event and is set to the
+parent's comm string, and the second by processing a synthesized comm
+event set to the thread's current comm string.
 
-Silence it by marking "conn" __maybe_unused.
+In the absence of an "exec" comm, thread__exec_comm() picks the last
+(oldest) comm, which, in the case above, is the parent's comm string.
+For a main thread, that is very probably wrong. Use the second-to-last
+in that case.
 
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/1563822886-13570-1-git-send-email-cai@lca.pw
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This affects only db-export because it is the only user of
+thread__exec_comm().
+
+Example:
+
+  $ sudo perf record -a -o pt-a-sleep-1 -e intel_pt//u -- sleep 1
+  $ sudo chown ahunter pt-a-sleep-1
+
+Before:
+
+  $ perf script -i pt-a-sleep-1 --itrace=bep -s tools/perf/scripts/python/export-to-sqlite.py pt-a-sleep-1.db branches calls
+  $ sqlite3 -header -column pt-a-sleep-1.db 'select * from comm_threads_view'
+  comm_id     command     thread_id   pid         tid
+  ----------  ----------  ----------  ----------  ----------
+  1           swapper     1           0           0
+  2           rcu_sched   2           10          10
+  3           kthreadd    3           78          78
+  5           sudo        4           15180       15180
+  5           sudo        5           15180       15182
+  7           kworker/4:  6           10335       10335
+  8           kthreadd    7           55          55
+  10          systemd     8           865         865
+  10          systemd     9           865         875
+  13          perf        10          15181       15181
+  15          sleep       10          15181       15181
+  16          kworker/3:  11          14179       14179
+  17          kthreadd    12          29376       29376
+  19          systemd     13          746         746
+  21          systemd     14          401         401
+  23          systemd     15          879         879
+  23          systemd     16          879         945
+  25          kthreadd    17          556         556
+  27          kworker/u1  18          14136       14136
+  28          kworker/u1  19          15021       15021
+  29          kthreadd    20          509         509
+  31          systemd     21          836         836
+  31          systemd     22          836         967
+  33          systemd     23          1148        1148
+  33          systemd     24          1148        1163
+  35          kworker/2:  25          17988       17988
+  36          kworker/0:  26          13478       13478
+
+After:
+
+  $ perf script -i pt-a-sleep-1 --itrace=bep -s tools/perf/scripts/python/export-to-sqlite.py pt-a-sleep-1b.db branches calls
+  $ sqlite3 -header -column pt-a-sleep-1b.db 'select * from comm_threads_view'
+  comm_id     command     thread_id   pid         tid
+  ----------  ----------  ----------  ----------  ----------
+  1           swapper     1           0           0
+  2           rcu_sched   2           10          10
+  3           kswapd0     3           78          78
+  4           perf        4           15180       15180
+  4           perf        5           15180       15182
+  6           kworker/4:  6           10335       10335
+  7           kcompactd0  7           55          55
+  8           accounts-d  8           865         865
+  8           accounts-d  9           865         875
+  10          perf        10          15181       15181
+  12          sleep       10          15181       15181
+  13          kworker/3:  11          14179       14179
+  14          kworker/1:  12          29376       29376
+  15          haveged     13          746         746
+  16          systemd-jo  14          401         401
+  17          NetworkMan  15          879         879
+  17          NetworkMan  16          879         945
+  19          irq/131-iw  17          556         556
+  20          kworker/u1  18          14136       14136
+  21          kworker/u1  19          15021       15021
+  22          kworker/u1  20          509         509
+  23          thermald    21          836         836
+  23          thermald    22          836         967
+  25          unity-sett  23          1148        1148
+  25          unity-sett  24          1148        1163
+  27          kworker/2:  25          17988       17988
+  28          kworker/0:  26          13478       13478
+
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 65de51f93ebf ("perf tools: Identify which comms are from exec")
+Link: http://lkml.kernel.org/r/20190808064823.14846-1-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/drm_framebuffer.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/thread.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_framebuffer.c b/drivers/gpu/drm/drm_framebuffer.c
-index d8d75e25f6fb8..45f6f11a88a74 100644
---- a/drivers/gpu/drm/drm_framebuffer.c
-+++ b/drivers/gpu/drm/drm_framebuffer.c
-@@ -830,7 +830,7 @@ static int atomic_remove_fb(struct drm_framebuffer *fb)
- 	struct drm_device *dev = fb->dev;
- 	struct drm_atomic_state *state;
- 	struct drm_plane *plane;
--	struct drm_connector *conn;
-+	struct drm_connector *conn __maybe_unused;
- 	struct drm_connector_state *conn_state;
- 	int i, ret;
- 	unsigned plane_mask;
--- 
-2.20.1
-
+--- a/tools/perf/util/thread.c
++++ b/tools/perf/util/thread.c
+@@ -192,14 +192,24 @@ struct comm *thread__comm(const struct t
+ 
+ struct comm *thread__exec_comm(const struct thread *thread)
+ {
+-	struct comm *comm, *last = NULL;
++	struct comm *comm, *last = NULL, *second_last = NULL;
+ 
+ 	list_for_each_entry(comm, &thread->comm_list, list) {
+ 		if (comm->exec)
+ 			return comm;
++		second_last = last;
+ 		last = comm;
+ 	}
+ 
++	/*
++	 * 'last' with no start time might be the parent's comm of a synthesized
++	 * thread (created by processing a synthesized fork event). For a main
++	 * thread, that is very probably wrong. Prefer a later comm to avoid
++	 * that case.
++	 */
++	if (second_last && !last->start && thread->pid_ == thread->tid)
++		return second_last;
++
+ 	return last;
+ }
+ 
 
 
