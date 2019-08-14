@@ -2,136 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF0788D218
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 13:26:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2348B8D36C
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 14:47:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726525AbfHNL0T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 07:26:19 -0400
-Received: from smark.slackware.pl ([88.198.48.135]:55578 "EHLO
-        smark.slackware.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725800AbfHNL0S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Aug 2019 07:26:18 -0400
-X-Greylist: delayed 525 seconds by postgrey-1.27 at vger.kernel.org; Wed, 14 Aug 2019 07:26:17 EDT
-Received: from kich.toxcorp.com (kich.slackware.pl [193.218.152.244])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: shasta@toxcorp.com)
-        by smark.slackware.pl (Postfix) with ESMTPSA id 473EB20630;
-        Wed, 14 Aug 2019 13:17:31 +0200 (CEST)
-Date:   Wed, 14 Aug 2019 13:17:30 +0200 (CEST)
-From:   Jakub Jankowski <shasta@toxcorp.com>
-To:     Reindl Harald <h.reindl@thelounge.net>
-cc:     Thomas Jarosch <thomas.jarosch@intra2net.com>,
-        Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.19 04/42] netfilter: conntrack: always store
- window size un-scaled
-In-Reply-To: <41ce587d-dfaa-fe6b-66a8-58ba1a3a2872@thelounge.net>
-Message-ID: <alpine.LNX.2.21.1908141316420.1803@kich.toxcorp.com>
-References: <20190802132302.13537-1-sashal@kernel.org> <20190802132302.13537-4-sashal@kernel.org> <20190808090209.wb63n6ibii4ivvba@intra2net.com> <41ce587d-dfaa-fe6b-66a8-58ba1a3a2872@thelounge.net>
-User-Agent: Alpine 2.21 (LNX 202 2017-01-01)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+        id S1726575AbfHNMrk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 08:47:40 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:39392 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726263AbfHNMrk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Aug 2019 08:47:40 -0400
+Received: by mail-wr1-f65.google.com with SMTP id t16so20854818wra.6
+        for <stable@vger.kernel.org>; Wed, 14 Aug 2019 05:47:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id;
+        bh=0abMaL98A4yUgQniTDsZFrJ+rBCdo3jDZiprUFAzj5k=;
+        b=eZ6/X3hS013bo2KMZWgpcatL6nNrYUQC/qq8g9aYhpqtkJgCeeOQAmvHGixELujfai
+         2WU9EAz5K72yf+5NW8p3WK/fdFmFJwcW4J9/NArk3JNh66drAfc3zICEEPyZj8RjIWAz
+         UF1c0nD2v9Ye8KbVFboyajpB9il+mkL4uusvwo0aj8BqoiVCvI3Bhbt1RgjU5ASvdH98
+         IrqtGWJJGF+YzfapUGyKtgs3HkWrqf9giwZdMGxr4FacQZzWtPF1NUz9OpUt5g8Y5Q/0
+         cHgTdvEtLVv9Dr55U0OXTeDlHBCKUEOdWC7T6tawz9XZAIfawKa5/XdfzJtk7PK6gxBt
+         kgnw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
+        bh=0abMaL98A4yUgQniTDsZFrJ+rBCdo3jDZiprUFAzj5k=;
+        b=T1AYC3dCNrP4AJJevIYJYQaM8jO0BuXJY76x9GmBt/PzZhdpxMFDSIcDABmnp6Z0/6
+         GlEkRxdLK8pDLiHtiMgEs7WKdPSvcsU4Ajbh8comGBvV+OpiDwvuM5bIon+YC8MOq+Mn
+         ZQ/WDroUd7H202zkppWAH/5RGsrWQ5zUF2Emiu+XZVY5QXiBJ6TVUCv4cfSccxjZghbC
+         CaHN8ioku9GbJG+R7vwZMqDvU18fSXd3XSkicuN+pBY3efQFaDqdn1ytt4KUhSC3ZGoI
+         hsaT6ZJrbXb6TQBGsFoJGGhwxCQ4DeLwK2HTsslxpPpPyMqFak2z9+QhCj1Q3L9+r7cv
+         ZQLw==
+X-Gm-Message-State: APjAAAXTurbD5Dz6IFtqZL02Gibc5eq9If6QCGEvBPCAkdv265pFGum6
+        32TZy+WcTM7K/1lMh2g2nR8zhdzU
+X-Google-Smtp-Source: APXvYqwsuym7u6JMWF4TrRDRxNjLsTnO6xb+cPftprTBDsY51hoJC/tPhjGPk9xnMKEOGKcD2eCetg==
+X-Received: by 2002:a5d:6307:: with SMTP id i7mr40581654wru.144.1565786857931;
+        Wed, 14 Aug 2019 05:47:37 -0700 (PDT)
+Received: from 640k.localdomain.com ([93.56.166.5])
+        by smtp.gmail.com with ESMTPSA id c12sm9170416wrx.46.2019.08.14.05.47.36
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 14 Aug 2019 05:47:36 -0700 (PDT)
+From:   Paolo Bonzini <pbonzini@redhat.com>
+To:     stable@vger.kernel.org
+Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>
+Subject: [PATCH] KVM/nSVM: properly map nested VMCB
+Date:   Wed, 14 Aug 2019 14:47:35 +0200
+Message-Id: <1565786855-15387-1-git-send-email-pbonzini@redhat.com>
+X-Mailer: git-send-email 1.8.3.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2019-08-14, Reindl Harald wrote:
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-> that's still not in 5.2.8
+[ upstream commit 8f38302c0be2d2daf3b40f7d2142ec77e35d209e ]
 
-It will make its way into next 5.2.x release, as it is now in the pending 
-queue: 
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/queue-5.2
+Commit 8c5fbf1a7231 ("KVM/nSVM: Use the new mapping API for mapping guest
+memory") broke nested SVM completely: kvm_vcpu_map()'s second parameter is
+GFN so vmcb_gpa needs to be converted with gpa_to_gfn(), not the other way
+around.
 
-Regards,
-  Jakub.
+Fixes: 8c5fbf1a7231 ("KVM/nSVM: Use the new mapping API for mapping guest memory")
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+---
+ arch/x86/kvm/svm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-
->
-> without the exception and "nf_conntrack_tcp_timeout_max_retrans = 60" a
-> vnc-over-ssh session having the VNC view in the background freezes
-> within 60 secods
->
-> -----------------------------------------------------------------------------------------------
-> IPV4 TABLE MANGLE (STATEFUL PRE-NAT/FILTER)
-> -----------------------------------------------------------------------------------------------
-> Chain PREROUTING (policy ACCEPT 100 packets, 9437 bytes)
-> num   pkts bytes target     prot opt in     out     source
-> destination
-> 1     6526 3892K ACCEPT     all  --  *      *       0.0.0.0/0
-> 0.0.0.0/0            ctstate RELATED,ESTABLISHED
-> 2      125  6264 ACCEPT     all  --  lo     *       0.0.0.0/0
-> 0.0.0.0/0
-> 3       64  4952 ACCEPT     all  --  vmnet8 *       0.0.0.0/0
-> 0.0.0.0/0
-> 4        1    40 DROP       all  --  *      *       0.0.0.0/0
-> 0.0.0.0/0            ctstate INVALID
->
-> -------- Weitergeleitete Nachricht --------
-> Betreff: [PATCH AUTOSEL 5.2 07/76] netfilter: conntrack: always store
-> window size un-scaled
->
-> Am 08.08.19 um 11:02 schrieb Thomas Jarosch:
->> Hello together,
->>
->> You wrote on Fri, Aug 02, 2019 at 09:22:24AM -0400:
->>> From: Florian Westphal <fw@strlen.de>
->>>
->>> [ Upstream commit 959b69ef57db00cb33e9c4777400ae7183ebddd3 ]
->>>
->>> Jakub Jankowski reported following oddity:
->>>
->>> After 3 way handshake completes, timeout of new connection is set to
->>> max_retrans (300s) instead of established (5 days).
->>>
->>> shortened excerpt from pcap provided:
->>> 25.070622 IP (flags [DF], proto TCP (6), length 52)
->>> 10.8.5.4.1025 > 10.8.1.2.80: Flags [S], seq 11, win 64240, [wscale 8]
->>> 26.070462 IP (flags [DF], proto TCP (6), length 48)
->>> 10.8.1.2.80 > 10.8.5.4.1025: Flags [S.], seq 82, ack 12, win 65535, [wscale 3]
->>> 27.070449 IP (flags [DF], proto TCP (6), length 40)
->>> 10.8.5.4.1025 > 10.8.1.2.80: Flags [.], ack 83, win 512, length 0
->>>
->>> Turns out the last_win is of u16 type, but we store the scaled value:
->>> 512 << 8 (== 0x20000) becomes 0 window.
->>>
->>> The Fixes tag is not correct, as the bug has existed forever, but
->>> without that change all that this causes might cause is to mistake a
->>> window update (to-nonzero-from-zero) for a retransmit.
->>>
->>> Fixes: fbcd253d2448b8 ("netfilter: conntrack: lower timeout to RETRANS seconds if window is 0")
->>> Reported-by: Jakub Jankowski <shasta@toxcorp.com>
->>> Tested-by: Jakub Jankowski <shasta@toxcorp.com>
->>> Signed-off-by: Florian Westphal <fw@strlen.de>
->>> Acked-by: Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
->>> Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
->>> Signed-off-by: Sasha Levin <sashal@kernel.org>
->>
->> Also:
->> Tested-by: Thomas Jarosch <thomas.jarosch@intra2net.com>
->>
->> ;)
->>
->> We've hit the issue with the wrong conntrack timeout at two different sites,
->> long-lived connections to a SAP server over IPSec VPN were constantly dropping.
->>
->> For us this was a regression after updating from kernel 3.14 to 4.19.
->> Yesterday I've applied the patch to kernel 4.19.57 and the problem is fixed.
->>
->> The issue was extra hard to debug as we could just boot the new kernel
->> for twenty minutes in the evening on these productive systems.
->>
->> The stable kernel patch from last Friday came right on time. I was just
->> about the replay the TCP connection with tcpreplay, so this saved
->> me from another week of debugging. Thanks everyone!
->
-
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index 735b8c01895e..5beca1030c9a 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -3293,7 +3293,7 @@ static int nested_svm_vmexit(struct vcpu_svm *svm)
+ 				       vmcb->control.exit_int_info_err,
+ 				       KVM_ISA_SVM);
+ 
+-	rc = kvm_vcpu_map(&svm->vcpu, gfn_to_gpa(svm->nested.vmcb), &map);
++	rc = kvm_vcpu_map(&svm->vcpu, gpa_to_gfn(svm->nested.vmcb), &map);
+ 	if (rc) {
+ 		if (rc == -EINVAL)
+ 			kvm_inject_gp(&svm->vcpu, 0);
+@@ -3583,7 +3583,7 @@ static bool nested_svm_vmrun(struct vcpu_svm *svm)
+ 
+ 	vmcb_gpa = svm->vmcb->save.rax;
+ 
+-	rc = kvm_vcpu_map(&svm->vcpu, gfn_to_gpa(vmcb_gpa), &map);
++	rc = kvm_vcpu_map(&svm->vcpu, gpa_to_gfn(vmcb_gpa), &map);
+ 	if (rc) {
+ 		if (rc == -EINVAL)
+ 			kvm_inject_gp(&svm->vcpu, 0);
 -- 
-Jakub Jankowski|shasta@toxcorp.com|https://toxcorp.com/
+1.8.3.1
+
