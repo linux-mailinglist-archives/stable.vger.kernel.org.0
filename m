@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFCBB8DB02
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:22:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D51B8DB46
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:24:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728886AbfHNRV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:21:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59474 "EHLO mail.kernel.org"
+        id S1728550AbfHNRX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:23:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730273AbfHNRJM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:09:12 -0400
+        id S1729770AbfHNRHC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:07:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51D38214DA;
-        Wed, 14 Aug 2019 17:09:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37CFE216F4;
+        Wed, 14 Aug 2019 17:07:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802551;
-        bh=bbV/8pJFh2CJ+OTFXl4xsgxVcDcaQJ5Cl2Q4N6T3Ltc=;
+        s=default; t=1565802421;
+        bh=/7FQWTuEgflCb1wse58HEE79sQhIfIBlTkQEguacW3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GfU0gLg5JFo/T/f92oNNxQvdHDrKzfkALivijUfLq9jMOkucx6+jf/Wa84Aeoxfff
-         KQb1ZhFOkTYg/kz3BrrOYxlMso7QY2nME9vm7devqr+DYEnKlQWo+VPLb9e5eLp2K7
-         pmddBtG8JR/ky4pIDxX50wTS/YeAIeybbx6Fc7BM=
+        b=KgQBePD1RzUYhgdUsmJXl/7irg48/M8q13Y/+YgJUv6r+pEv27n8HwuXxRNYnILjc
+         G+8fU4Vc4YHFvBAHZ9Ie7iDkiyuo+H/P4guJmw6vwiXaX4t/dkSZ/9TTuhtj7VNkVP
+         zuc3JyUUCZAqPmNRkqsfc+KET8zuvKP3f2ALVBig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH 4.19 25/91] usb: host: xhci-rcar: Fix timeout in xhci_suspend()
-Date:   Wed, 14 Aug 2019 19:00:48 +0200
-Message-Id: <20190814165750.766614263@linuxfoundation.org>
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Vinod Koul <vkoul@kernel.org>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 093/144] ALSA: compress: Prevent bypasses of set_params
+Date:   Wed, 14 Aug 2019 19:00:49 +0200
+Message-Id: <20190814165803.765934139@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
-References: <20190814165748.991235624@linuxfoundation.org>
+In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
+References: <20190814165759.466811854@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +45,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+[ Upstream commit 26c3f1542f5064310ad26794c09321780d00c57d ]
 
-commit 783bda5e41acc71f98336e1a402c180f9748e5dc upstream.
+Currently, whilst in SNDRV_PCM_STATE_OPEN it is possible to call
+snd_compr_stop, snd_compr_drain and snd_compr_partial_drain, which
+allow a transition to SNDRV_PCM_STATE_SETUP. The stream should
+only be able to move to the setup state once it has received a
+SNDRV_COMPRESS_SET_PARAMS ioctl. Fix this issue by not allowing
+those ioctls whilst in the open state.
 
-When a USB device is connected to the host controller and
-the system enters suspend, the following error happens
-in xhci_suspend():
-
-	xhci-hcd ee000000.usb: WARN: xHC CMD_RUN timeout
-
-Since the firmware/internal CPU control the USBSTS.STS_HALT
-and the process speed is down when the roothub port enters U3,
-long delay for the handshake of STS_HALT is neeed in xhci_suspend().
-So, this patch adds to set the XHCI_SLOW_SUSPEND.
-
-Fixes: 435cc1138ec9 ("usb: host: xhci-plat: set resume_quirk() for R-Car controllers")
-Cc: <stable@vger.kernel.org> # v4.12+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/1564734815-17964-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Acked-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-rcar.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ sound/core/compress_offload.c | 30 ++++++++++++++++++++++++------
+ 1 file changed, 24 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/host/xhci-rcar.c
-+++ b/drivers/usb/host/xhci-rcar.c
-@@ -238,10 +238,15 @@ int xhci_rcar_init_quirk(struct usb_hcd
- 	 * pointers. So, this driver clears the AC64 bit of xhci->hcc_params
- 	 * to call dma_set_coherent_mask(dev, DMA_BIT_MASK(32)) in
- 	 * xhci_gen_setup().
-+	 *
-+	 * And, since the firmware/internal CPU control the USBSTS.STS_HALT
-+	 * and the process speed is down when the roothub port enters U3,
-+	 * long delay for the handshake of STS_HALT is neeed in xhci_suspend().
- 	 */
- 	if (xhci_rcar_is_gen2(hcd->self.controller) ||
--			xhci_rcar_is_gen3(hcd->self.controller))
--		xhci->quirks |= XHCI_NO_64BIT_SUPPORT;
-+			xhci_rcar_is_gen3(hcd->self.controller)) {
-+		xhci->quirks |= XHCI_NO_64BIT_SUPPORT | XHCI_SLOW_SUSPEND;
+diff --git a/sound/core/compress_offload.c b/sound/core/compress_offload.c
+index d79aee6b9edd2..40dae723c59db 100644
+--- a/sound/core/compress_offload.c
++++ b/sound/core/compress_offload.c
+@@ -711,9 +711,15 @@ static int snd_compr_stop(struct snd_compr_stream *stream)
+ {
+ 	int retval;
+ 
+-	if (stream->runtime->state == SNDRV_PCM_STATE_PREPARED ||
+-			stream->runtime->state == SNDRV_PCM_STATE_SETUP)
++	switch (stream->runtime->state) {
++	case SNDRV_PCM_STATE_OPEN:
++	case SNDRV_PCM_STATE_SETUP:
++	case SNDRV_PCM_STATE_PREPARED:
+ 		return -EPERM;
++	default:
++		break;
++	}
++
+ 	retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_STOP);
+ 	if (!retval) {
+ 		snd_compr_drain_notify(stream);
+@@ -801,9 +807,14 @@ static int snd_compr_drain(struct snd_compr_stream *stream)
+ {
+ 	int retval;
+ 
+-	if (stream->runtime->state == SNDRV_PCM_STATE_PREPARED ||
+-			stream->runtime->state == SNDRV_PCM_STATE_SETUP)
++	switch (stream->runtime->state) {
++	case SNDRV_PCM_STATE_OPEN:
++	case SNDRV_PCM_STATE_SETUP:
++	case SNDRV_PCM_STATE_PREPARED:
+ 		return -EPERM;
++	default:
++		break;
 +	}
  
- 	if (!xhci_rcar_wait_for_pll_active(hcd))
- 		return -ETIMEDOUT;
+ 	retval = stream->ops->trigger(stream, SND_COMPR_TRIGGER_DRAIN);
+ 	if (retval) {
+@@ -840,9 +851,16 @@ static int snd_compr_next_track(struct snd_compr_stream *stream)
+ static int snd_compr_partial_drain(struct snd_compr_stream *stream)
+ {
+ 	int retval;
+-	if (stream->runtime->state == SNDRV_PCM_STATE_PREPARED ||
+-			stream->runtime->state == SNDRV_PCM_STATE_SETUP)
++
++	switch (stream->runtime->state) {
++	case SNDRV_PCM_STATE_OPEN:
++	case SNDRV_PCM_STATE_SETUP:
++	case SNDRV_PCM_STATE_PREPARED:
+ 		return -EPERM;
++	default:
++		break;
++	}
++
+ 	/* stream can be drained only when next track has been signalled */
+ 	if (stream->next_track == false)
+ 		return -EPERM;
+-- 
+2.20.1
+
 
 
