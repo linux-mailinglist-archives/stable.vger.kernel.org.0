@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 929FE8D9DC
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:13:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4072D8D9A5
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:11:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730453AbfHNRNB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:13:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37134 "EHLO mail.kernel.org"
+        id S1730493AbfHNRKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:10:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730473AbfHNRNA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:13:00 -0400
+        id S1730491AbfHNRKh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:10:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 068D02084D;
-        Wed, 14 Aug 2019 17:12:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4666208C2;
+        Wed, 14 Aug 2019 17:10:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802779;
-        bh=ZOosVN0Ic6Q88AcFPeEupioIcmxpjRiFLM8kbGNB5nU=;
+        s=default; t=1565802636;
+        bh=YDQJh1s0RTBt+Tifbh5eZKJpS1SCtra7aq/KoofWG3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vp1bTkLGdd8DXcVgpXQxSF9fMG29wD1I+ZDTqWrmjPOe7B59mKw5a89i8mp8V42wU
-         oOiLV7jDOvtV/FHzHtnm0B5whBmTWnt1P5/KCN/qU74IhF87ktklxNa97m/KBuJLo5
-         eyTw+qqIf6oo/fjXFdNNN7MQL/kTBdHNU95i/EUg=
+        b=fvVR2qUThr5flizOH+P7vO81JBY+XhgaDbWeBuiIBALDmVPLIRobVNjHxEdpWAIzK
+         RJcT3vp2T7TTnlBITtbtvr/kqH6QRrRokCpOAJ9nmhlWbn8kXWtR+KUjVpn+uIzWND
+         QsRFf9+Kyc867iiNQcrjQuXSFwniz7Xl7/kAeH9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.14 23/69] can: rcar_canfd: fix possible IRQ storm on high load
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Roland Kammerer <roland.kammerer@linbit.com>,
+        Arnd Bergmann <arnd@arndb.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 58/91] drbd: dynamically allocate shash descriptor
 Date:   Wed, 14 Aug 2019 19:01:21 +0200
-Message-Id: <20190814165747.089684743@linuxfoundation.org>
+Message-Id: <20190814165752.062292870@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165744.822314328@linuxfoundation.org>
-References: <20190814165744.822314328@linuxfoundation.org>
+In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
+References: <20190814165748.991235624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+[ Upstream commit 77ce56e2bfaa64127ae5e23ef136c0168b818777 ]
 
-commit d4b890aec4bea7334ca2ca56fd3b12fb48a00cd1 upstream.
+Building with clang and KASAN, we get a warning about an overly large
+stack frame on 32-bit architectures:
 
-We have observed rcar_canfd driver entering IRQ storm under high load,
-with following scenario:
-- rcar_canfd_global_interrupt() in entered due to Rx available,
-- napi_schedule_prep() is called, and sets NAPIF_STATE_SCHED in state
-- Rx fifo interrupts are masked,
-- rcar_canfd_global_interrupt() is entered again, this time due to
-  error interrupt (e.g. due to overflow),
-- since scheduled napi poller has not yet executed, condition for calling
-  napi_schedule_prep() from rcar_canfd_global_interrupt() remains true,
-  thus napi_schedule_prep() gets called and sets NAPIF_STATE_MISSED flag
-  in state,
-- later, napi poller function rcar_canfd_rx_poll() gets executed, and
-  calls napi_complete_done(),
-- due to NAPIF_STATE_MISSED flag in state, this call does not clear
-  NAPIF_STATE_SCHED flag from state,
-- on return from napi_complete_done(), rcar_canfd_rx_poll() unmasks Rx
-  interrutps,
-- Rx interrupt happens, rcar_canfd_global_interrupt() gets called
-  and calls napi_schedule_prep(),
-- since NAPIF_STATE_SCHED is set in state at this time, this call
-  returns false,
-- due to that false return, rcar_canfd_global_interrupt() returns
-  without masking Rx interrupt
-- and this results into IRQ storm: unmasked Rx interrupt happens again
-  and again is misprocessed in the same way.
+drivers/block/drbd/drbd_receiver.c:921:31: error: stack frame size of 1280 bytes in function 'conn_connect'
+      [-Werror,-Wframe-larger-than=]
 
-This patch fixes that scenario by unmasking Rx interrupts only when
-napi_complete_done() returns true, which means it has cleared
-NAPIF_STATE_SCHED in state.
+We already allocate other data dynamically in this function, so
+just do the same for the shash descriptor, which makes up most of
+this memory.
 
-Fixes: dd3bd23eb438 ("can: rcar_canfd: Add Renesas R-Car CAN FD driver")
-Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/lkml/20190617132440.2721536-1-arnd@arndb.de/
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Roland Kammerer <roland.kammerer@linbit.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/rcar/rcar_canfd.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/block/drbd/drbd_receiver.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/drivers/net/can/rcar/rcar_canfd.c
-+++ b/drivers/net/can/rcar/rcar_canfd.c
-@@ -1512,10 +1512,11 @@ static int rcar_canfd_rx_poll(struct nap
+diff --git a/drivers/block/drbd/drbd_receiver.c b/drivers/block/drbd/drbd_receiver.c
+index cb919b9640660..3cdadf75c82da 100644
+--- a/drivers/block/drbd/drbd_receiver.c
++++ b/drivers/block/drbd/drbd_receiver.c
+@@ -5240,7 +5240,7 @@ static int drbd_do_auth(struct drbd_connection *connection)
+ 	unsigned int key_len;
+ 	char secret[SHARED_SECRET_MAX]; /* 64 byte */
+ 	unsigned int resp_size;
+-	SHASH_DESC_ON_STACK(desc, connection->cram_hmac_tfm);
++	struct shash_desc *desc;
+ 	struct packet_info pi;
+ 	struct net_conf *nc;
+ 	int err, rv;
+@@ -5253,6 +5253,13 @@ static int drbd_do_auth(struct drbd_connection *connection)
+ 	memcpy(secret, nc->shared_secret, key_len);
+ 	rcu_read_unlock();
  
- 	/* All packets processed */
- 	if (num_pkts < quota) {
--		napi_complete_done(napi, num_pkts);
--		/* Enable Rx FIFO interrupts */
--		rcar_canfd_set_bit(priv->base, RCANFD_RFCC(ridx),
--				   RCANFD_RFCC_RFIE);
-+		if (napi_complete_done(napi, num_pkts)) {
-+			/* Enable Rx FIFO interrupts */
-+			rcar_canfd_set_bit(priv->base, RCANFD_RFCC(ridx),
-+					   RCANFD_RFCC_RFIE);
-+		}
- 	}
- 	return num_pkts;
++	desc = kmalloc(sizeof(struct shash_desc) +
++		       crypto_shash_descsize(connection->cram_hmac_tfm),
++		       GFP_KERNEL);
++	if (!desc) {
++		rv = -1;
++		goto fail;
++	}
+ 	desc->tfm = connection->cram_hmac_tfm;
+ 	desc->flags = 0;
+ 
+@@ -5395,7 +5402,10 @@ static int drbd_do_auth(struct drbd_connection *connection)
+ 	kfree(peers_ch);
+ 	kfree(response);
+ 	kfree(right_response);
+-	shash_desc_zero(desc);
++	if (desc) {
++		shash_desc_zero(desc);
++		kfree(desc);
++	}
+ 
+ 	return rv;
  }
+-- 
+2.20.1
+
 
 
