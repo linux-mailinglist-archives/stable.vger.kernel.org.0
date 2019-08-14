@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 508868DA56
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:17:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2498D8DA95
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:19:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730428AbfHNRNg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:13:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37812 "EHLO mail.kernel.org"
+        id S1729022AbfHNRSv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:18:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730888AbfHNRNd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:13:33 -0400
+        id S1730690AbfHNRMO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:12:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BA0F2084D;
-        Wed, 14 Aug 2019 17:13:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0B7A2133F;
+        Wed, 14 Aug 2019 17:12:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802813;
-        bh=kR9+YXvfV2CdPfmskRIsMT9PpxhGNnm4bOzX5JEVLOI=;
+        s=default; t=1565802733;
+        bh=L+qeEKzA9GLPmmim2nacHjtP7EpGVaAj+yDAOQ+yr4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P4vTL27UvV2wMe8O+21m41zwDNqHesGqsV5BPS+/+zWPlkzQBWfJFLe4dN/fts8jo
-         xhjiFPjDnEVYa0/UNvtwJOA9X0bGUsuXeRuEQeUO+uRzP6IRy6Cq2y6tLgxsXZ0dkh
-         ervS2fcCO010ChryC4fKK0LztJ80MpruVaFn/JF8=
+        b=qzC/FULYhK5s6sjcMHT4A01kILnHzXOeTIDyDVRnby0puYp8dgO9tWYzHBvbz/VZ9
+         YiwruT9CcGIjgWTdKsodH/0CdWsXpne1rkQS50dOpkxmzUzMlTmTg92eQ3cvvz2taE
+         ckcBlVVOcHx7lIl7UqJRzFAWb990ndL9bbHpRRiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
-        Jens Remus <jremus@linux.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 35/69] s390/qdio: add sanity checks to the fast-requeue path
+        stable@vger.kernel.org,
+        Roderick Colenbrander <roderick.colenbrander@sony.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.19 70/91] HID: sony: Fix race condition between rumble and device remove.
 Date:   Wed, 14 Aug 2019 19:01:33 +0200
-Message-Id: <20190814165747.868696497@linuxfoundation.org>
+Message-Id: <20190814165752.654373877@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165744.822314328@linuxfoundation.org>
-References: <20190814165744.822314328@linuxfoundation.org>
+In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
+References: <20190814165748.991235624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a6ec414a4dd529eeac5c3ea51c661daba3397108 ]
+From: Roderick Colenbrander <roderick@gaikai.com>
 
-If the device driver were to send out a full queue's worth of SBALs,
-current code would end up discovering the last of those SBALs as PRIMED
-and erroneously skip the SIGA-w. This immediately stalls the queue.
+commit e0f6974a54d3f7f1b5fdf5a593bd43ce9206ec04 upstream.
 
-Add a check to not attempt fast-requeue in this case. While at it also
-make sure that the state of the previous SBAL was successfully extracted
-before inspecting it.
+Valve reported a kernel crash on Ubuntu 18.04 when disconnecting a DS4
+gamepad while rumble is enabled. This issue is reproducible with a
+frequency of 1 in 3 times in the game Borderlands 2 when using an
+automatic weapon, which triggers many rumble operations.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+We found the issue to be a race condition between sony_remove and the
+final device destruction by the HID / input system. The problem was
+that sony_remove didn't clean some of its work_item state in
+"struct sony_sc". After sony_remove work, the corresponding evdev
+node was around for sufficient time for applications to still queue
+rumble work after "sony_remove".
+
+On pre-4.19 kernels the race condition caused a kernel crash due to a
+NULL-pointer dereference as "sc->output_report_dmabuf" got freed during
+sony_remove. On newer kernels this crash doesn't happen due the buffer
+now being allocated using devm_kzalloc. However we can still queue work,
+while the driver is an undefined state.
+
+This patch fixes the described problem, by guarding the work_item
+"state_worker" with an initialized variable, which we are setting back
+to 0 on cleanup.
+
+Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+CC: stable@vger.kernel.org
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/s390/cio/qdio_main.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/hid/hid-sony.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
-index ab8dd81fbc2b1..1a40c73961b83 100644
---- a/drivers/s390/cio/qdio_main.c
-+++ b/drivers/s390/cio/qdio_main.c
-@@ -1577,13 +1577,13 @@ static int handle_outbound(struct qdio_q *q, unsigned int callflags,
- 		rc = qdio_kick_outbound_q(q, phys_aob);
- 	} else if (need_siga_sync(q)) {
- 		rc = qdio_siga_sync_q(q);
-+	} else if (count < QDIO_MAX_BUFFERS_PER_Q &&
-+		   get_buf_state(q, prev_buf(bufnr), &state, 0) > 0 &&
-+		   state == SLSB_CU_OUTPUT_PRIMED) {
-+		/* The previous buffer is not processed yet, tack on. */
-+		qperf_inc(q, fast_requeue);
- 	} else {
--		/* try to fast requeue buffers */
--		get_buf_state(q, prev_buf(bufnr), &state, 0);
--		if (state != SLSB_CU_OUTPUT_PRIMED)
--			rc = qdio_kick_outbound_q(q, 0);
--		else
--			qperf_inc(q, fast_requeue);
-+		rc = qdio_kick_outbound_q(q, 0);
- 	}
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -587,10 +587,14 @@ static void sony_set_leds(struct sony_sc
+ static inline void sony_schedule_work(struct sony_sc *sc,
+ 				      enum sony_worker which)
+ {
++	unsigned long flags;
++
+ 	switch (which) {
+ 	case SONY_WORKER_STATE:
+-		if (!sc->defer_initialization)
++		spin_lock_irqsave(&sc->lock, flags);
++		if (!sc->defer_initialization && sc->state_worker_initialized)
+ 			schedule_work(&sc->state_worker);
++		spin_unlock_irqrestore(&sc->lock, flags);
+ 		break;
+ 	case SONY_WORKER_HOTPLUG:
+ 		if (sc->hotplug_worker_initialized)
+@@ -2553,13 +2557,18 @@ static inline void sony_init_output_repo
  
- 	/* in case of SIGA errors we must process the error immediately */
--- 
-2.20.1
-
+ static inline void sony_cancel_work_sync(struct sony_sc *sc)
+ {
++	unsigned long flags;
++
+ 	if (sc->hotplug_worker_initialized)
+ 		cancel_work_sync(&sc->hotplug_worker);
+-	if (sc->state_worker_initialized)
++	if (sc->state_worker_initialized) {
++		spin_lock_irqsave(&sc->lock, flags);
++		sc->state_worker_initialized = 0;
++		spin_unlock_irqrestore(&sc->lock, flags);
+ 		cancel_work_sync(&sc->state_worker);
++	}
+ }
+ 
+-
+ static int sony_input_configured(struct hid_device *hdev,
+ 					struct hid_input *hidinput)
+ {
 
 
