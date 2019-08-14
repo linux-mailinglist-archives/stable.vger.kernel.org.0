@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D61CC8D922
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:06:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D9608D97C
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:09:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729548AbfHNRF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:05:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54924 "EHLO mail.kernel.org"
+        id S1730238AbfHNRIz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:08:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729527AbfHNRF4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:05:56 -0400
+        id S1730216AbfHNRIy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:08:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64D7D214DA;
-        Wed, 14 Aug 2019 17:05:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 618E721721;
+        Wed, 14 Aug 2019 17:08:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802355;
-        bh=iOVV75qfNB+FO1DfAKwsWE0RLJR3ayMmQo+knBbA83Q=;
+        s=default; t=1565802533;
+        bh=fllYO8klzVBu/v/RKi/Wr7MUFDeaUMeXiVuI1JnUge0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WuaRVRxA5Q39yC3gwB0HyaJbO6Nlj7FPercxuLtAAVs3MwsD5UEfY84SCM4jvKpRo
-         beFtaNwxwrdj7IFUVQT9487TlpTN6X6dRpy/vlI4PIGeecKR/uazAZWXbZT4PcsXyR
-         aQQKQGMcF0mC8Dyf/jIbQggzBYIoOmzIFFIDRddc=
+        b=ZRyMb+QhZ5l1qOOUu7dDHKs5kMKbGikggXm0DItWTI0BtogkEVHvF6E87/PSSZ8IG
+         lUeY25iDTDQ6sFZ39umXU4Ilz4nYCxh0/0Uug5/9KXSKSxqnuhawsghCvKx5mq8LbM
+         ttrj/MUvv76/I6rd0ybEF+AGqHpD3KftYX1wa2HY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shubhashree Dhar <dhar@codeaurora.org>,
-        Sean Paul <seanpaul@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 086/144] drm/msm/dpu: Correct dpu encoder spinlock initialization
+        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>
+Subject: [PATCH 4.19 19/91] mm/vmalloc: Sync unmappings in __purge_vmap_area_lazy()
 Date:   Wed, 14 Aug 2019 19:00:42 +0200
-Message-Id: <20190814165803.474520635@linuxfoundation.org>
+Message-Id: <20190814165750.551462071@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
-References: <20190814165759.466811854@linuxfoundation.org>
+In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
+References: <20190814165748.991235624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2e7b801eadbf327bf61041c943e5c44a5de4b0e5 ]
+From: Joerg Roedel <jroedel@suse.de>
 
-dpu encoder spinlock should be initialized during dpu encoder
-init instead of dpu encoder setup which is part of modeset init.
+commit 3f8fd02b1bf1d7ba964485a56f2f4b53ae88c167 upstream.
 
-Signed-off-by: Shubhashree Dhar <dhar@codeaurora.org>
-[seanpaul resolved conflict in old init removal and revised the commit message]
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/1561357632-15361-1-git-send-email-dhar@codeaurora.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+On x86-32 with PTI enabled, parts of the kernel page-tables are not shared
+between processes. This can cause mappings in the vmalloc/ioremap area to
+persist in some page-tables after the region is unmapped and released.
+
+When the region is re-used the processes with the old mappings do not fault
+in the new mappings but still access the old ones.
+
+This causes undefined behavior, in reality often data corruption, kernel
+oopses and panics and even spontaneous reboots.
+
+Fix this problem by activly syncing unmaps in the vmalloc/ioremap area to
+all page-tables in the system before the regions can be re-used.
+
+Fixes: 5d72b4fba40ef ('x86, mm: support huge I/O mapping capability I/F')
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
+Link: https://lkml.kernel.org/r/20190719184652.11391-4-joro@8bytes.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ mm/vmalloc.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
-index 0ea1501966594..c62f7abcf509c 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
-@@ -2226,8 +2226,6 @@ int dpu_encoder_setup(struct drm_device *dev, struct drm_encoder *enc,
- 	if (ret)
- 		goto fail;
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -1752,6 +1752,12 @@ void *__vmalloc_node_range(unsigned long
+ 		return NULL;
  
--	spin_lock_init(&dpu_enc->enc_spinlock);
--
- 	atomic_set(&dpu_enc->frame_done_timeout_ms, 0);
- 	timer_setup(&dpu_enc->frame_done_timer,
- 			dpu_encoder_frame_done_timeout, 0);
-@@ -2281,6 +2279,7 @@ struct drm_encoder *dpu_encoder_init(struct drm_device *dev,
- 
- 	drm_encoder_helper_add(&dpu_enc->base, &dpu_encoder_helper_funcs);
- 
-+	spin_lock_init(&dpu_enc->enc_spinlock);
- 	dpu_enc->enabled = false;
- 
- 	return &dpu_enc->base;
--- 
-2.20.1
-
+ 	/*
++	 * First make sure the mappings are removed from all page-tables
++	 * before they are freed.
++	 */
++	vmalloc_sync_all();
++
++	/*
+ 	 * In this function, newly allocated vm_struct has VM_UNINITIALIZED
+ 	 * flag. It means that vm_struct is not fully initialized.
+ 	 * Now, it is fully initialized, so remove this flag here.
+@@ -2296,6 +2302,9 @@ EXPORT_SYMBOL(remap_vmalloc_range);
+ /*
+  * Implement a stub for vmalloc_sync_all() if the architecture chose not to
+  * have one.
++ *
++ * The purpose of this function is to make sure the vmalloc area
++ * mappings are identical in all page-tables in the system.
+  */
+ void __weak vmalloc_sync_all(void)
+ {
 
 
