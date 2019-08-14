@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 723FF8C7F6
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:29:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF6478C7F5
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:29:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729761AbfHNCXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729913AbfHNCXm (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 13 Aug 2019 22:23:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52656 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729655AbfHNCXl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:23:41 -0400
+        id S1729904AbfHNCXm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:23:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A09F20842;
-        Wed, 14 Aug 2019 02:23:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B7392084F;
+        Wed, 14 Aug 2019 02:23:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565749419;
-        bh=t+KpvqvmWX/9ZKUkE5ePIa9Wj7FZUkQnp95THFfLgQE=;
+        s=default; t=1565749421;
+        bh=SQ9l5mnNRcN636V0IPLjwe8BB4ri/ZSdtxwPHxqey10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SlGI9z2PukvlOD31neb2AgJl1V979swcjIfL9M6nunMT4gFdRSHhc40By+aWCLWns
-         aGi3c4tVg/F03L20uhIW5k8AZJ5F2YuuqMjlIpgRwSyPgQ4+Ig4CwREexWnJ+vQbbm
-         BrZG6QmWXa982QP1vSOk9OSeNs23Cn4eQgwD6ZSQ=
+        b=fIEsckv/lWzuQ8btvikQJSi3+JVEx0AdfyR6iUa+I1O1qPEuThhZLvWY5YofDetKx
+         BzZl+KdD0XeRvwkH9bsWY20vRb9KXqh6/LUq4t7CTE9QZDRgzIR4HNec+6eAAiHsLu
+         yofro9zB8kSYn9AwYEGSjOAYt2RKuqtSVdfItnFQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 10/33] ASoC: ti: davinci-mcasp: Correct slot_width posed constraint
-Date:   Tue, 13 Aug 2019 22:23:00 -0400
-Message-Id: <20190814022323.17111-10-sashal@kernel.org>
+Cc:     Bob Ham <bob.ham@puri.sm>, Angus Ainslie <angus@akkea.ca>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 11/33] net: usb: qmi_wwan: Add the BroadMobi BM818 card
+Date:   Tue, 13 Aug 2019 22:23:01 -0400
+Message-Id: <20190814022323.17111-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814022323.17111-1-sashal@kernel.org>
 References: <20190814022323.17111-1-sashal@kernel.org>
@@ -43,112 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+From: Bob Ham <bob.ham@puri.sm>
 
-[ Upstream commit 1e112c35e3c96db7c8ca6ddaa96574f00c06e7db ]
+[ Upstream commit 9a07406b00cdc6ec689dc142540739575c717f3c ]
 
-The slot_width is a property for the bus while the constraint for
-SNDRV_PCM_HW_PARAM_SAMPLE_BITS is for the in memory format.
+The BroadMobi BM818 M.2 card uses the QMI protocol
 
-Applying slot_width constraint to sample_bits works most of the time, but
-it will blacklist valid formats in some cases.
-
-With slot_width 24 we can support S24_3LE and S24_LE formats as they both
-look the same on the bus, but a a 24 constraint on sample_bits would not
-allow S24_LE as it is stored in 32bits in memory.
-
-Implement a simple hw_rule function to allow all formats which require less
-or equal number of bits on the bus as slot_width (if configured).
-
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Link: https://lore.kernel.org/r/20190726064244.3762-2-peter.ujfalusi@ti.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Bob Ham <bob.ham@puri.sm>
+Signed-off-by: Angus Ainslie (Purism) <angus@akkea.ca>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/davinci/davinci-mcasp.c | 43 ++++++++++++++++++++++++-------
- 1 file changed, 34 insertions(+), 9 deletions(-)
+ drivers/net/usb/qmi_wwan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/davinci/davinci-mcasp.c b/sound/soc/davinci/davinci-mcasp.c
-index 5a0b17ebfc025..624c209c94981 100644
---- a/sound/soc/davinci/davinci-mcasp.c
-+++ b/sound/soc/davinci/davinci-mcasp.c
-@@ -1158,6 +1158,28 @@ static int davinci_mcasp_trigger(struct snd_pcm_substream *substream,
- 	return ret;
- }
- 
-+static int davinci_mcasp_hw_rule_slot_width(struct snd_pcm_hw_params *params,
-+					    struct snd_pcm_hw_rule *rule)
-+{
-+	struct davinci_mcasp_ruledata *rd = rule->private;
-+	struct snd_mask *fmt = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
-+	struct snd_mask nfmt;
-+	int i, slot_width;
-+
-+	snd_mask_none(&nfmt);
-+	slot_width = rd->mcasp->slot_width;
-+
-+	for (i = 0; i <= SNDRV_PCM_FORMAT_LAST; i++) {
-+		if (snd_mask_test(fmt, i)) {
-+			if (snd_pcm_format_width(i) <= slot_width) {
-+				snd_mask_set(&nfmt, i);
-+			}
-+		}
-+	}
-+
-+	return snd_mask_refine(fmt, &nfmt);
-+}
-+
- static const unsigned int davinci_mcasp_dai_rates[] = {
- 	8000, 11025, 16000, 22050, 32000, 44100, 48000, 64000,
- 	88200, 96000, 176400, 192000,
-@@ -1251,7 +1273,7 @@ static int davinci_mcasp_startup(struct snd_pcm_substream *substream,
- 	struct davinci_mcasp_ruledata *ruledata =
- 					&mcasp->ruledata[substream->stream];
- 	u32 max_channels = 0;
--	int i, dir;
-+	int i, dir, ret;
- 	int tdm_slots = mcasp->tdm_slots;
- 
- 	/* Do not allow more then one stream per direction */
-@@ -1280,6 +1302,7 @@ static int davinci_mcasp_startup(struct snd_pcm_substream *substream,
- 			max_channels++;
- 	}
- 	ruledata->serializers = max_channels;
-+	ruledata->mcasp = mcasp;
- 	max_channels *= tdm_slots;
- 	/*
- 	 * If the already active stream has less channels than the calculated
-@@ -1305,20 +1328,22 @@ static int davinci_mcasp_startup(struct snd_pcm_substream *substream,
- 				   0, SNDRV_PCM_HW_PARAM_CHANNELS,
- 				   &mcasp->chconstr[substream->stream]);
- 
--	if (mcasp->slot_width)
--		snd_pcm_hw_constraint_minmax(substream->runtime,
--					     SNDRV_PCM_HW_PARAM_SAMPLE_BITS,
--					     8, mcasp->slot_width);
-+	if (mcasp->slot_width) {
-+		/* Only allow formats require <= slot_width bits on the bus */
-+		ret = snd_pcm_hw_rule_add(substream->runtime, 0,
-+					  SNDRV_PCM_HW_PARAM_FORMAT,
-+					  davinci_mcasp_hw_rule_slot_width,
-+					  ruledata,
-+					  SNDRV_PCM_HW_PARAM_FORMAT, -1);
-+		if (ret)
-+			return ret;
-+	}
- 
- 	/*
- 	 * If we rely on implicit BCLK divider setting we should
- 	 * set constraints based on what we can provide.
- 	 */
- 	if (mcasp->bclk_master && mcasp->bclk_div == 0 && mcasp->sysclk_freq) {
--		int ret;
--
--		ruledata->mcasp = mcasp;
--
- 		ret = snd_pcm_hw_rule_add(substream->runtime, 0,
- 					  SNDRV_PCM_HW_PARAM_RATE,
- 					  davinci_mcasp_hw_rule_rate,
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index d51ad140f46d2..05953e14a064e 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -892,6 +892,7 @@ static const struct usb_device_id products[] = {
+ 	{QMI_FIXED_INTF(0x2001, 0x7e35, 4)},	/* D-Link DWM-222 */
+ 	{QMI_FIXED_INTF(0x2020, 0x2031, 4)},	/* Olicard 600 */
+ 	{QMI_FIXED_INTF(0x2020, 0x2033, 4)},	/* BroadMobi BM806U */
++	{QMI_FIXED_INTF(0x2020, 0x2060, 4)},	/* BroadMobi BM818 */
+ 	{QMI_FIXED_INTF(0x0f3d, 0x68a2, 8)},    /* Sierra Wireless MC7700 */
+ 	{QMI_FIXED_INTF(0x114f, 0x68a2, 8)},    /* Sierra Wireless MC7750 */
+ 	{QMI_FIXED_INTF(0x1199, 0x68a2, 8)},	/* Sierra Wireless MC7710 in QMI mode */
 -- 
 2.20.1
 
