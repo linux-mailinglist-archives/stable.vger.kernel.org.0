@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 527108C917
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:36:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDBBE8C916
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:36:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728800AbfHNCgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:36:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45296 "EHLO mail.kernel.org"
+        id S1727628AbfHNCgI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:36:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728177AbfHNCNR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:13:17 -0400
+        id S1728230AbfHNCNT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:13:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 026F720844;
-        Wed, 14 Aug 2019 02:13:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20A2A208C2;
+        Wed, 14 Aug 2019 02:13:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748796;
-        bh=cWp6Su97TehheftA739ylcE2BBj4vaIspegho4YJaqU=;
+        s=default; t=1565748797;
+        bh=x3MKwYkqOuixu1DlbFFVMJcToYiacJ4OpivV0h20SVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i7ye2+szkfE6smUbZn95u02KV4/QLCua0yIN3ivj/ILewL9S2dRaJD3cQ94ucuQSv
-         QgEtVDEUI42vuN064ODsLE9wAwiMr/hS74mCBzUxJIV64zuh+HnNc73/t3SbuGYkUr
-         WfkfknVppdZTvAwU1+4uffiTrYBs6tDaA5ZYn4q8=
+        b=JUfdIel41xBZmL1l/RERwpo6DKZ8bDukTNw8RvnZZ0qkfjm7g8WequFb5kPYiub+v
+         mIPYLZ9mdpWkItP7N/Wjr+VXEKg0nWRSksjQ2lceJmtwL9gU0LtavoQ1KeILj/q/gn
+         dL72u8avgy46EwoKvzIcdXlT4hmCQTFZ2A7hYjt8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Muchun Song <smuchun@gmail.com>,
-        Mukesh Ojha <mojha@codeaurora.org>,
-        Prateek Sood <prsood@codeaurora.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 067/123] driver core: Fix use-after-free and double free on glue directory
-Date:   Tue, 13 Aug 2019 22:09:51 -0400
-Message-Id: <20190814021047.14828-67-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Claudiu Manoil <claudiu.manoil@nxp.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 068/123] enetc: Fix build error without PHYLIB
+Date:   Tue, 13 Aug 2019 22:09:52 -0400
+Message-Id: <20190814021047.14828-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -45,174 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <smuchun@gmail.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit ac43432cb1f5c2950408534987e57c2071e24d8f ]
+[ Upstream commit 5f4e4203add2b860d2345312509a160f8292063b ]
 
-There is a race condition between removing glue directory and adding a new
-device under the glue dir. It can be reproduced in following test:
+If PHYLIB is not set, build enetc will fails:
 
-CPU1:                                         CPU2:
+drivers/net/ethernet/freescale/enetc/enetc.o: In function `enetc_open':
+enetc.c: undefined reference to `phy_disconnect'
+enetc.c: undefined reference to `phy_start'
+drivers/net/ethernet/freescale/enetc/enetc.o: In function `enetc_close':
+enetc.c: undefined reference to `phy_stop'
+enetc.c: undefined reference to `phy_disconnect'
+drivers/net/ethernet/freescale/enetc/enetc_ethtool.o: undefined reference to `phy_ethtool_get_link_ksettings'
+drivers/net/ethernet/freescale/enetc/enetc_ethtool.o: undefined reference to `phy_ethtool_set_link_ksettings'
+drivers/net/ethernet/freescale/enetc/enetc_mdio.o: In function `enetc_mdio_probe':
+enetc_mdio.c: undefined reference to `mdiobus_alloc_size'
+enetc_mdio.c: undefined reference to `mdiobus_free'
 
-device_add()
-  get_device_parent()
-    class_dir_create_and_add()
-      kobject_add_internal()
-        create_dir()    // create glue_dir
-
-                                              device_add()
-                                                get_device_parent()
-                                                  kobject_get() // get glue_dir
-
-device_del()
-  cleanup_glue_dir()
-    kobject_del(glue_dir)
-
-                                                kobject_add()
-                                                  kobject_add_internal()
-                                                    create_dir() // in glue_dir
-                                                      sysfs_create_dir_ns()
-                                                        kernfs_create_dir_ns(sd)
-
-      sysfs_remove_dir() // glue_dir->sd=NULL
-      sysfs_put()        // free glue_dir->sd
-
-                                                          // sd is freed
-                                                          kernfs_new_node(sd)
-                                                            kernfs_get(glue_dir)
-                                                            kernfs_add_one()
-                                                            kernfs_put()
-
-Before CPU1 remove last child device under glue dir, if CPU2 add a new
-device under glue dir, the glue_dir kobject reference count will be
-increase to 2 via kobject_get() in get_device_parent(). And CPU2 has
-been called kernfs_create_dir_ns(), but not call kernfs_new_node().
-Meanwhile, CPU1 call sysfs_remove_dir() and sysfs_put(). This result in
-glue_dir->sd is freed and it's reference count will be 0. Then CPU2 call
-kernfs_get(glue_dir) will trigger a warning in kernfs_get() and increase
-it's reference count to 1. Because glue_dir->sd is freed by CPU1, the next
-call kernfs_add_one() by CPU2 will fail(This is also use-after-free)
-and call kernfs_put() to decrease reference count. Because the reference
-count is decremented to 0, it will also call kmem_cache_free() to free
-the glue_dir->sd again. This will result in double free.
-
-In order to avoid this happening, we also should make sure that kernfs_node
-for glue_dir is released in CPU1 only when refcount for glue_dir kobj is
-1 to fix this race.
-
-The following calltrace is captured in kernel 4.14 with the following patch
-applied:
-
-commit 726e41097920 ("drivers: core: Remove glue dirs from sysfs earlier")
-
---------------------------------------------------------------------------
-[    3.633703] WARNING: CPU: 4 PID: 513 at .../fs/kernfs/dir.c:494
-                Here is WARN_ON(!atomic_read(&kn->count) in kernfs_get().
-....
-[    3.633986] Call trace:
-[    3.633991]  kernfs_create_dir_ns+0xa8/0xb0
-[    3.633994]  sysfs_create_dir_ns+0x54/0xe8
-[    3.634001]  kobject_add_internal+0x22c/0x3f0
-[    3.634005]  kobject_add+0xe4/0x118
-[    3.634011]  device_add+0x200/0x870
-[    3.634017]  _request_firmware+0x958/0xc38
-[    3.634020]  request_firmware_into_buf+0x4c/0x70
-....
-[    3.634064] kernel BUG at .../mm/slub.c:294!
-                Here is BUG_ON(object == fp) in set_freepointer().
-....
-[    3.634346] Call trace:
-[    3.634351]  kmem_cache_free+0x504/0x6b8
-[    3.634355]  kernfs_put+0x14c/0x1d8
-[    3.634359]  kernfs_create_dir_ns+0x88/0xb0
-[    3.634362]  sysfs_create_dir_ns+0x54/0xe8
-[    3.634366]  kobject_add_internal+0x22c/0x3f0
-[    3.634370]  kobject_add+0xe4/0x118
-[    3.634374]  device_add+0x200/0x870
-[    3.634378]  _request_firmware+0x958/0xc38
-[    3.634381]  request_firmware_into_buf+0x4c/0x70
---------------------------------------------------------------------------
-
-Fixes: 726e41097920 ("drivers: core: Remove glue dirs from sysfs earlier")
-Signed-off-by: Muchun Song <smuchun@gmail.com>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
-Signed-off-by: Prateek Sood <prsood@codeaurora.org>
-Link: https://lore.kernel.org/r/20190727032122.24639-1-smuchun@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: d4fd0404c1c9 ("enetc: Introduce basic PF and VF ENETC ethernet drivers")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Claudiu Manoil <claudiu.manoil@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/core.c | 53 ++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 52 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/enetc/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index eaf3aa0cb8031..2dc0123cbba12 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -1820,12 +1820,63 @@ static inline struct kobject *get_glue_dir(struct device *dev)
-  */
- static void cleanup_glue_dir(struct device *dev, struct kobject *glue_dir)
- {
-+	unsigned int ref;
-+
- 	/* see if we live in a "glue" directory */
- 	if (!live_in_glue_dir(glue_dir, dev))
- 		return;
- 
- 	mutex_lock(&gdp_mutex);
--	if (!kobject_has_children(glue_dir))
-+	/**
-+	 * There is a race condition between removing glue directory
-+	 * and adding a new device under the glue directory.
-+	 *
-+	 * CPU1:                                         CPU2:
-+	 *
-+	 * device_add()
-+	 *   get_device_parent()
-+	 *     class_dir_create_and_add()
-+	 *       kobject_add_internal()
-+	 *         create_dir()    // create glue_dir
-+	 *
-+	 *                                               device_add()
-+	 *                                                 get_device_parent()
-+	 *                                                   kobject_get() // get glue_dir
-+	 *
-+	 * device_del()
-+	 *   cleanup_glue_dir()
-+	 *     kobject_del(glue_dir)
-+	 *
-+	 *                                               kobject_add()
-+	 *                                                 kobject_add_internal()
-+	 *                                                   create_dir() // in glue_dir
-+	 *                                                     sysfs_create_dir_ns()
-+	 *                                                       kernfs_create_dir_ns(sd)
-+	 *
-+	 *       sysfs_remove_dir() // glue_dir->sd=NULL
-+	 *       sysfs_put()        // free glue_dir->sd
-+	 *
-+	 *                                                         // sd is freed
-+	 *                                                         kernfs_new_node(sd)
-+	 *                                                           kernfs_get(glue_dir)
-+	 *                                                           kernfs_add_one()
-+	 *                                                           kernfs_put()
-+	 *
-+	 * Before CPU1 remove last child device under glue dir, if CPU2 add
-+	 * a new device under glue dir, the glue_dir kobject reference count
-+	 * will be increase to 2 in kobject_get(k). And CPU2 has been called
-+	 * kernfs_create_dir_ns(). Meanwhile, CPU1 call sysfs_remove_dir()
-+	 * and sysfs_put(). This result in glue_dir->sd is freed.
-+	 *
-+	 * Then the CPU2 will see a stale "empty" but still potentially used
-+	 * glue dir around in kernfs_new_node().
-+	 *
-+	 * In order to avoid this happening, we also should make sure that
-+	 * kernfs_node for glue_dir is released in CPU1 only when refcount
-+	 * for glue_dir kobj is 1.
-+	 */
-+	ref = kref_read(&glue_dir->kref);
-+	if (!kobject_has_children(glue_dir) && !--ref)
- 		kobject_del(glue_dir);
- 	kobject_put(glue_dir);
- 	mutex_unlock(&gdp_mutex);
+diff --git a/drivers/net/ethernet/freescale/enetc/Kconfig b/drivers/net/ethernet/freescale/enetc/Kconfig
+index 8429f5c1d8106..8ac109e73a7bb 100644
+--- a/drivers/net/ethernet/freescale/enetc/Kconfig
++++ b/drivers/net/ethernet/freescale/enetc/Kconfig
+@@ -2,6 +2,7 @@
+ config FSL_ENETC
+ 	tristate "ENETC PF driver"
+ 	depends on PCI && PCI_MSI && (ARCH_LAYERSCAPE || COMPILE_TEST)
++	select PHYLIB
+ 	help
+ 	  This driver supports NXP ENETC gigabit ethernet controller PCIe
+ 	  physical function (PF) devices, managing ENETC Ports at a privileged
 -- 
 2.20.1
 
