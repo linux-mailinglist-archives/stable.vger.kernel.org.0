@@ -2,89 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A67028D93F
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:06:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 418808D8AE
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:01:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729730AbfHNRGp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:06:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55960 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729136AbfHNRGo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:06:44 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E4C621721;
-        Wed, 14 Aug 2019 17:06:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802404;
-        bh=kMnTO3RgwWOH+yLy+5j3sBYEHdgm1LH/sb0y+RPW8pQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wE1wnwahl6IxlR+BQDvfVyd5W0wmt11FpnMDy3gIAyFnrrad0zj7g6pzKlz4Jdxmh
-         KYtdQn7fBntZ3w7QuhmhzF3H71BZTDQcrd12Ms2DiEs3oh2i856XE9++TW0Ktu7p3Q
-         9ZpVl9+znQH6ywcprni6DfQSwv71AA0yA/FWlZbg=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 112/144] perf/x86/intel: Fix SLOTS PEBS event constraint
-Date:   Wed, 14 Aug 2019 19:01:08 +0200
-Message-Id: <20190814165804.595706787@linuxfoundation.org>
-X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
-References: <20190814165759.466811854@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1727814AbfHNRBM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:01:12 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:39952 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727558AbfHNRBL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Aug 2019 13:01:11 -0400
+Received: by mail-pl1-f195.google.com with SMTP id a93so50897790pla.7
+        for <stable@vger.kernel.org>; Wed, 14 Aug 2019 10:01:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=5oGQis/F/3P2NPlpUuR9C1B40kLmzuezbByNK7rhDpk=;
+        b=WZF49giSB39rmMI0uePY6XUC47A4q8RW9V1ECnQCZe2vOl2f+R3+2Hho/yZaRhzVIi
+         xJlSRGJ4vCcjZ3Nb829sFj2912KTiNMl/ZPwcQZRVcSCY1FmTcLB6S4TWN4ly6wswoij
+         W5GLWAswgVcKqX6cr85DzXwzj0IjigpHSNv10=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=5oGQis/F/3P2NPlpUuR9C1B40kLmzuezbByNK7rhDpk=;
+        b=sjzVGCHbjPM/a/ysSkM/1j47EQQvK6a6LoRKgGDMc6HuTHVyeGGuGEF3fUPjwSfoLB
+         7DmfG+6+JjYB055YUHS6VJqpdgH82pV46KBvSebR7SMzwWCuia8ls0xLRI9TGY4h8mm/
+         GnopBwZgrNoCu0F/lowrALmOSfb/AHMj1VLBLQe4DDJJVEjOHz/aAwwg6S+AzX/0Hm56
+         kCgH0+HGuwvNAekiNV8eHR2l15BZJWNNo4PNBXMVEZYq7Cz2m6La6dKDOvacsZjutVKr
+         NsE8Nks+7+7IsrBin1OnttKmQz7+V3qXVTfzrtfPnttkFxjUo3CKzkRCKO1mpqIGXBqj
+         FT3A==
+X-Gm-Message-State: APjAAAUqi0p+gY67PYUEg2GFJ1+PY9dmMVuw2uawkzyKbQ/VPwSVJTaN
+        vBqRN17RUxiUBWCS+PvZZo/WVA==
+X-Google-Smtp-Source: APXvYqy2ny/g4ymE3eOANxmOw+DqanvTWBl6Ht++LBRHPPvhj7LSoRrb8zefZDlGa9a1Uw4NzN6HBg==
+X-Received: by 2002:a17:902:6b81:: with SMTP id p1mr357318plk.91.1565802071109;
+        Wed, 14 Aug 2019 10:01:11 -0700 (PDT)
+Received: from google.com ([2620:15c:202:1:534:b7c0:a63c:460c])
+        by smtp.gmail.com with ESMTPSA id y22sm368864pfo.39.2019.08.14.10.01.09
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Wed, 14 Aug 2019 10:01:10 -0700 (PDT)
+Date:   Wed, 14 Aug 2019 10:01:08 -0700
+From:   Brian Norris <briannorris@chromium.org>
+To:     gregkh@linuxfoundation.org
+Cc:     kvalo@codeaurora.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] mwifiex: fix 802.11n/WPA detection"
+ failed to apply to 4.4-stable tree
+Message-ID: <20190814170107.GA117122@google.com>
+References: <1565800055929@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1565800055929@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3d0c3953601d250175c7684ec0d9df612061dae5 ]
+n Wed, Aug 14, 2019 at 06:27:35PM +0200, Greg Kroah-Hartman wrote:
+> The patch below does not apply to the 4.4-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-Sampling SLOTS event and ref-cycles event in a group on Icelake gives
-EINVAL.
+The conflicts were small, so I fixed and sent here:
 
-SLOTS event is the event stands for the fixed counter 3, not fixed
-counter 2. Wrong mask was set to SLOTS event in
-intel_icl_pebs_event_constraints[].
+https://lore.kernel.org/stable/20190814165914.143238-1-briannorris@chromium.org/T/#u
 
-Reported-by: Andi Kleen <ak@linux.intel.com>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: 6017608936c1 ("perf/x86/intel: Add Icelake support")
-Link: https://lkml.kernel.org/r/20190723200429.8180-1-kan.liang@linux.intel.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/x86/events/intel/ds.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+It'd be a shame to leave this broken on 4.4.y.
 
-diff --git a/arch/x86/events/intel/ds.c b/arch/x86/events/intel/ds.c
-index 505c73dc6a730..6601b8759c92f 100644
---- a/arch/x86/events/intel/ds.c
-+++ b/arch/x86/events/intel/ds.c
-@@ -851,7 +851,7 @@ struct event_constraint intel_skl_pebs_event_constraints[] = {
- 
- struct event_constraint intel_icl_pebs_event_constraints[] = {
- 	INTEL_FLAGS_UEVENT_CONSTRAINT(0x1c0, 0x100000000ULL),	/* INST_RETIRED.PREC_DIST */
--	INTEL_FLAGS_UEVENT_CONSTRAINT(0x0400, 0x400000000ULL),	/* SLOTS */
-+	INTEL_FLAGS_UEVENT_CONSTRAINT(0x0400, 0x800000000ULL),	/* SLOTS */
- 
- 	INTEL_PLD_CONSTRAINT(0x1cd, 0xff),			/* MEM_TRANS_RETIRED.LOAD_LATENCY */
- 	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_LD(0x1d0, 0xf),	/* MEM_INST_RETIRED.LOAD */
--- 
-2.20.1
-
-
-
+Brian
