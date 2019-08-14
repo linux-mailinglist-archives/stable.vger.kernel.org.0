@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ED508DB06
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:22:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A81D8DAFB
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:22:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730190AbfHNRIo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:08:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58892 "EHLO mail.kernel.org"
+        id S1729385AbfHNRIr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:08:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729696AbfHNRIo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:08:44 -0400
+        id S1730206AbfHNRIq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:08:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20951208C2;
-        Wed, 14 Aug 2019 17:08:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B88CF2084D;
+        Wed, 14 Aug 2019 17:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802523;
-        bh=gsOo6Nmmrf4fHlsUHWk/5Gr78ehI+V0PVi3XhQBTb7w=;
+        s=default; t=1565802526;
+        bh=S8IPL5fdFrB1YEC+xEAXvBeryNQRoErBMjsR/WoHJrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JOkUrV2hVCeQNTNQaM3syE9kDJlDyvzTfuh8u4xqWKj6rzLFh0VIwlyY7e2zT20DI
-         3Go4a4DxnazdVvkly/FNRvhJrPJn/nLkcSt9E7p6jVZ7seRKnn1E85I1WPmyfF8xoh
-         pzzjnU/SvGgkEnk+Qgxxzh7lUSduP26C/g87CNbk=
+        b=LzWGvUGgcH4bArDDEaj0k1XAZDVqdnxrc6Hoju83GH2NbmthsybPBKLRDdVJG6c8e
+         bF2cFdNK9CZa8zub8WjraLQ+npeSSPR+LvuGEv3zXG5hJaKR39tGOPRVycfh/pNRqt
+         asxkN1YTWvu0TyTriM+kfpVtG6KRPsaOseTPYS9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        stable@vger.kernel.org, Nate Graham <pointedstick@zoho.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.19 15/91] Input: elantech - enable SMBus on new (2018+) systems
-Date:   Wed, 14 Aug 2019 19:00:38 +0200
-Message-Id: <20190814165750.408653075@linuxfoundation.org>
+Subject: [PATCH 4.19 16/91] Input: synaptics - enable RMI mode for HP Spectre X360
+Date:   Wed, 14 Aug 2019 19:00:39 +0200
+Message-Id: <20190814165750.441808408@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
 References: <20190814165748.991235624@linuxfoundation.org>
@@ -45,107 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-commit 883a2a80f79ca5c0c105605fafabd1f3df99b34c upstream.
+commit 25f8c834e2a6871920cc1ca113f02fb301d007c3 upstream.
 
-There are some new HP laptops with Elantech touchpad that don't support
-multitouch.
+The 2016 kabylake HP Spectre X360 (model number 13-w013dx) works much better
+with psmouse.synaptics_intertouch=1 kernel parameter, so let's enable RMI4
+mode automatically.
 
-Currently we use ETP_NEW_IC_SMBUS_HOST_NOTIFY() to check if SMBus is supported,
-but in addition to firmware version, the bus type also informs us whether the IC
-can support SMBus. To avoid breaking old ICs, we will only enable SMbus support
-based the bus type on systems manufactured after 2018.
-
-Lastly, let's consolidate all checks into elantech_use_host_notify() and use it
-to determine whether to use PS/2 or SMBus.
-
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204115
+Reported-by: Nate Graham <pointedstick@zoho.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/mouse/elantech.c |   54 ++++++++++++++++++-----------------------
- 1 file changed, 25 insertions(+), 29 deletions(-)
+ drivers/input/mouse/synaptics.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -1810,6 +1810,30 @@ static int elantech_create_smbus(struct
- 				  leave_breadcrumbs);
- }
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -185,6 +185,7 @@ static const char * const smbus_pnp_ids[
+ 	"LEN2055", /* E580 */
+ 	"SYN3052", /* HP EliteBook 840 G4 */
+ 	"SYN3221", /* HP 15-ay000 */
++	"SYN323d", /* HP Spectre X360 13-w013dx */
+ 	NULL
+ };
  
-+static bool elantech_use_host_notify(struct psmouse *psmouse,
-+				     struct elantech_device_info *info)
-+{
-+	if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
-+		return true;
-+
-+	switch (info->bus) {
-+	case ETP_BUS_PS2_ONLY:
-+		/* expected case */
-+		break;
-+	case ETP_BUS_SMB_HST_NTFY_ONLY:
-+	case ETP_BUS_PS2_SMB_HST_NTFY:
-+		/* SMbus implementation is stable since 2018 */
-+		if (dmi_get_bios_year() >= 2018)
-+			return true;
-+	default:
-+		psmouse_dbg(psmouse,
-+			    "Ignoring SMBus bus provider %d\n", info->bus);
-+		break;
-+	}
-+
-+	return false;
-+}
-+
- /**
-  * elantech_setup_smbus - called once the PS/2 devices are enumerated
-  * and decides to instantiate a SMBus InterTouch device.
-@@ -1829,7 +1853,7 @@ static int elantech_setup_smbus(struct p
- 		 * i2c_blacklist_pnp_ids.
- 		 * Old ICs are up to the user to decide.
- 		 */
--		if (!ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version) ||
-+		if (!elantech_use_host_notify(psmouse, info) ||
- 		    psmouse_matches_pnp_id(psmouse, i2c_blacklist_pnp_ids))
- 			return -ENXIO;
- 	}
-@@ -1849,34 +1873,6 @@ static int elantech_setup_smbus(struct p
- 	return 0;
- }
- 
--static bool elantech_use_host_notify(struct psmouse *psmouse,
--				     struct elantech_device_info *info)
--{
--	if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
--		return true;
--
--	switch (info->bus) {
--	case ETP_BUS_PS2_ONLY:
--		/* expected case */
--		break;
--	case ETP_BUS_SMB_ALERT_ONLY:
--		/* fall-through  */
--	case ETP_BUS_PS2_SMB_ALERT:
--		psmouse_dbg(psmouse, "Ignoring SMBus provider through alert protocol.\n");
--		break;
--	case ETP_BUS_SMB_HST_NTFY_ONLY:
--		/* fall-through  */
--	case ETP_BUS_PS2_SMB_HST_NTFY:
--		return true;
--	default:
--		psmouse_dbg(psmouse,
--			    "Ignoring SMBus bus provider %d.\n",
--			    info->bus);
--	}
--
--	return false;
--}
--
- int elantech_init_smbus(struct psmouse *psmouse)
- {
- 	struct elantech_device_info info;
 
 
