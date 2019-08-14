@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ED4F8C5F6
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:11:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C5B78C5FC
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:12:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727626AbfHNCLm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:11:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43906 "EHLO mail.kernel.org"
+        id S1727716AbfHNCLw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:11:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727611AbfHNCLk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:11:40 -0400
+        id S1727703AbfHNCLv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:11:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29EDA2084F;
-        Wed, 14 Aug 2019 02:11:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CC6A21744;
+        Wed, 14 Aug 2019 02:11:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748700;
-        bh=4qtCsYDP8EcYw/4S8oVyDACI3iiwfVy6SHThIaMn1IU=;
+        s=default; t=1565748710;
+        bh=YarHGKtBIijyaqXlWcY8Btnh31GnzALr+t2++I5/OJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nyOm1O4VQo9nQ2SE1FGfjP0uDYH3PvmsTuM8SR9g8QWgLVIy1FM9Z8mDUiFMHEWGB
-         FD99Kx54KyAd+SqRjL/JJGbqaGfFbEKGdumncCcnRGckEjmcmF3AvTj6jkR/hQvRWB
-         NXLX5CuuO0RzAl9HvS8ya0ipbV91/n5ufToDp5Ac=
+        b=LMftjXHlxL/Yp6N7ugK/rh/OvgyaD/6CDfc3ct1xnLr3fkwpS28k49c2Ab4EPyyFS
+         aE6+VYEFOUAdQdxwIUKMSjmDyeX2MrYuBD9jL8CcupftDyY2EyVt1KD7yMkWYeUko7
+         JeMM9uSQOIghEPYJsy31Rr4c9qHjLTauq6z4hkGI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ilya Leoshkevich <iii@linux.ibm.com>, Andrey Ignatov <rdna@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+Cc:     Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
         bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 028/123] selftests/bpf: fix sendmsg6_prog on s390
-Date:   Tue, 13 Aug 2019 22:09:12 -0400
-Message-Id: <20190814021047.14828-28-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 034/123] bpf: fix access to skb_shared_info->gso_segs
+Date:   Tue, 13 Aug 2019 22:09:18 -0400
+Message-Id: <20190814021047.14828-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -45,40 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit c8eee4135a456bc031d67cadc454e76880d1afd8 ]
+[ Upstream commit 06a22d897d82f12776d44dbf0850f5895469cb2a ]
 
-"sendmsg6: rewrite IP & port (C)" fails on s390, because the code in
-sendmsg_v6_prog() assumes that (ctx->user_ip6[0] & 0xFFFF) refers to
-leading IPv6 address digits, which is not the case on big-endian
-machines.
+It is possible we reach bpf_convert_ctx_access() with
+si->dst_reg == si->src_reg
 
-Since checking bitwise operations doesn't seem to be the point of the
-test, replace two short comparisons with a single int comparison.
+Therefore, we need to load BPF_REG_AX before eventually
+mangling si->src_reg.
 
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Acked-by: Andrey Ignatov <rdna@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+syzbot generated this x86 code :
+   3:   55                      push   %rbp
+   4:   48 89 e5                mov    %rsp,%rbp
+   7:   48 81 ec 00 00 00 00    sub    $0x0,%rsp // Might be avoided ?
+   e:   53                      push   %rbx
+   f:   41 55                   push   %r13
+  11:   41 56                   push   %r14
+  13:   41 57                   push   %r15
+  15:   6a 00                   pushq  $0x0
+  17:   31 c0                   xor    %eax,%eax
+  19:   48 8b bf c0 00 00 00    mov    0xc0(%rdi),%rdi
+  20:   44 8b 97 bc 00 00 00    mov    0xbc(%rdi),%r10d
+  27:   4c 01 d7                add    %r10,%rdi
+  2a:   48 0f b7 7f 06          movzwq 0x6(%rdi),%rdi // Crash
+  2f:   5b                      pop    %rbx
+  30:   41 5f                   pop    %r15
+  32:   41 5e                   pop    %r14
+  34:   41 5d                   pop    %r13
+  36:   5b                      pop    %rbx
+  37:   c9                      leaveq
+  38:   c3                      retq
+
+Fixes: d9ff286a0f59 ("bpf: allow BPF programs access skb_shared_info->gso_segs field")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/progs/sendmsg6_prog.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/core/filter.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/progs/sendmsg6_prog.c b/tools/testing/selftests/bpf/progs/sendmsg6_prog.c
-index 5aeaa284fc474..a680628204108 100644
---- a/tools/testing/selftests/bpf/progs/sendmsg6_prog.c
-+++ b/tools/testing/selftests/bpf/progs/sendmsg6_prog.c
-@@ -41,8 +41,7 @@ int sendmsg_v6_prog(struct bpf_sock_addr *ctx)
- 	}
- 
- 	/* Rewrite destination. */
--	if ((ctx->user_ip6[0] & 0xFFFF) == bpf_htons(0xFACE) &&
--	     ctx->user_ip6[0] >> 16 == bpf_htons(0xB00C)) {
-+	if (ctx->user_ip6[0] == bpf_htonl(0xFACEB00C)) {
- 		ctx->user_ip6[0] = bpf_htonl(DST_REWRITE_IP6_0);
- 		ctx->user_ip6[1] = bpf_htonl(DST_REWRITE_IP6_1);
- 		ctx->user_ip6[2] = bpf_htonl(DST_REWRITE_IP6_2);
+diff --git a/net/core/filter.c b/net/core/filter.c
+index f681fb772940c..534c310bb0893 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -7325,12 +7325,12 @@ static u32 bpf_convert_ctx_access(enum bpf_access_type type,
+ 	case offsetof(struct __sk_buff, gso_segs):
+ 		/* si->dst_reg = skb_shinfo(SKB); */
+ #ifdef NET_SKBUFF_DATA_USES_OFFSET
+-		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, head),
+-				      si->dst_reg, si->src_reg,
+-				      offsetof(struct sk_buff, head));
+ 		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, end),
+ 				      BPF_REG_AX, si->src_reg,
+ 				      offsetof(struct sk_buff, end));
++		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, head),
++				      si->dst_reg, si->src_reg,
++				      offsetof(struct sk_buff, head));
+ 		*insn++ = BPF_ALU64_REG(BPF_ADD, si->dst_reg, BPF_REG_AX);
+ #else
+ 		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, end),
 -- 
 2.20.1
 
