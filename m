@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 156EF8C69E
+	by mail.lfdr.de (Postfix) with ESMTP id 83C7F8C69F
 	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:17:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729291AbfHNCRE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:17:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48386 "EHLO mail.kernel.org"
+        id S1729301AbfHNCRG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:17:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729275AbfHNCRE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:17:04 -0400
+        id S1729295AbfHNCRG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:17:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 395A6216F4;
-        Wed, 14 Aug 2019 02:17:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 789122085A;
+        Wed, 14 Aug 2019 02:17:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565749023;
-        bh=T+bCEsE5VY9kB7z/mO4FDutJmkT99Aa9hwOeiWd+EkQ=;
+        s=default; t=1565749025;
+        bh=MLP40Xee1XZVetBmWFSJCKBW+PStioixF9jdljQ31A4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NM1cfL4bGGdRySlDCZYi0uV7Y0nNkKLVet81q9OMxjZJTX/ss4YI2hGqDDYAHCjcS
-         KA7g3wn7C49SBzYI2brIDtFqtg7qJ7bNcJfvnZu51NyI3IwNbz1lGX2iQksZcSdmVb
-         aazDttQTAKOwn/mtcZ8KfrU92GzDn44Ear5i3tlQ=
+        b=V+O5sCE4S+a8TMzUE5AC3sE6GWXChHLbGgpIIHdv6nDDBL+ytRrXtcatUPPfnr2oI
+         NXSe+4B5K88cQfIEjNHVf8PBkecG6XPxQf6iA7GXj/YLH2z7desKAtkAcTilBrfhfA
+         3KYIflwjeyZZDH8xdVw+mbnjgQGqwaCemAmomv7M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Steve Dickson <steved@redhat.com>,
-        David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 41/68] NFS: Fix regression whereby fscache errors are appearing on 'nofsc' mounts
-Date:   Tue, 13 Aug 2019 22:15:19 -0400
-Message-Id: <20190814021548.16001-41-sashal@kernel.org>
+Cc:     Oliver Neukum <oneukum@suse.com>,
+        syzbot+965152643a75a56737be@syzkaller.appspotmail.com,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 43/68] HID: holtek: test for sanity of intfdata
+Date:   Tue, 13 Aug 2019 22:15:21 -0400
+Message-Id: <20190814021548.16001-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021548.16001-1-sashal@kernel.org>
 References: <20190814021548.16001-1-sashal@kernel.org>
@@ -44,85 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit dea1bb35c5f35e0577cfc61f79261d80b8715221 ]
+[ Upstream commit 01ec0a5f19c8c82960a07f6c7410fc9e01d7fb51 ]
 
-People are reporing seeing fscache errors being reported concerning
-duplicate cookies even in cases where they are not setting up fscache
-at all. The rule needs to be that if fscache is not enabled, then it
-should have no side effects at all.
+The ioctl handler uses the intfdata of a second interface,
+which may not be present in a broken or malicious device, hence
+the intfdata needs to be checked for NULL.
 
-To ensure this is the case, we disable fscache completely on all superblocks
-for which the 'fsc' mount option was not set. In order to avoid issues
-with '-oremount', we also disable the ability to turn fscache on via
-remount.
-
-Fixes: f1fe29b4a02d ("NFS: Use i_writecount to control whether...")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=200145
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Cc: Steve Dickson <steved@redhat.com>
-Cc: David Howells <dhowells@redhat.com>
+[jkosina@suse.cz: fix newly added spurious space]
+Reported-by: syzbot+965152643a75a56737be@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/fscache.c | 7 ++++++-
- fs/nfs/fscache.h | 2 +-
- fs/nfs/super.c   | 1 +
- 3 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/hid/hid-holtek-kbd.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
-index 4dc887813c71d..a7bc4e0494f92 100644
---- a/fs/nfs/fscache.c
-+++ b/fs/nfs/fscache.c
-@@ -118,6 +118,10 @@ void nfs_fscache_get_super_cookie(struct super_block *sb, const char *uniq, int
- 	struct rb_node **p, *parent;
- 	int diff;
+diff --git a/drivers/hid/hid-holtek-kbd.c b/drivers/hid/hid-holtek-kbd.c
+index 6e1a4a4fc0c10..ab9da597106fa 100644
+--- a/drivers/hid/hid-holtek-kbd.c
++++ b/drivers/hid/hid-holtek-kbd.c
+@@ -126,9 +126,14 @@ static int holtek_kbd_input_event(struct input_dev *dev, unsigned int type,
  
-+	nfss->fscache_key = NULL;
-+	nfss->fscache = NULL;
-+	if (!(nfss->options & NFS_OPTION_FSCACHE))
-+		return;
- 	if (!uniq) {
- 		uniq = "";
- 		ulen = 1;
-@@ -230,10 +234,11 @@ void nfs_fscache_release_super_cookie(struct super_block *sb)
- void nfs_fscache_init_inode(struct inode *inode)
- {
- 	struct nfs_fscache_inode_auxdata auxdata;
-+	struct nfs_server *nfss = NFS_SERVER(inode);
- 	struct nfs_inode *nfsi = NFS_I(inode);
+ 	/* Locate the boot interface, to receive the LED change events */
+ 	struct usb_interface *boot_interface = usb_ifnum_to_if(usb_dev, 0);
++	struct hid_device *boot_hid;
++	struct hid_input *boot_hid_input;
  
- 	nfsi->fscache = NULL;
--	if (!S_ISREG(inode->i_mode))
-+	if (!(nfss->fscache && S_ISREG(inode->i_mode)))
- 		return;
+-	struct hid_device *boot_hid = usb_get_intfdata(boot_interface);
+-	struct hid_input *boot_hid_input = list_first_entry(&boot_hid->inputs,
++	if (unlikely(boot_interface == NULL))
++		return -ENODEV;
++
++	boot_hid = usb_get_intfdata(boot_interface);
++	boot_hid_input = list_first_entry(&boot_hid->inputs,
+ 		struct hid_input, list);
  
- 	memset(&auxdata, 0, sizeof(auxdata));
-diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
-index 161ba2edb9d04..6363ea9568581 100644
---- a/fs/nfs/fscache.h
-+++ b/fs/nfs/fscache.h
-@@ -186,7 +186,7 @@ static inline void nfs_fscache_wait_on_invalidate(struct inode *inode)
-  */
- static inline const char *nfs_server_fscache_state(struct nfs_server *server)
- {
--	if (server->fscache && (server->options & NFS_OPTION_FSCACHE))
-+	if (server->fscache)
- 		return "yes";
- 	return "no ";
- }
-diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-index 6df9b85caf205..d90efdea9fbd6 100644
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -2239,6 +2239,7 @@ nfs_compare_remount_data(struct nfs_server *nfss,
- 	    data->acdirmin != nfss->acdirmin / HZ ||
- 	    data->acdirmax != nfss->acdirmax / HZ ||
- 	    data->timeo != (10U * nfss->client->cl_timeout->to_initval / HZ) ||
-+	    (data->options & NFS_OPTION_FSCACHE) != (nfss->options & NFS_OPTION_FSCACHE) ||
- 	    data->nfs_server.port != nfss->port ||
- 	    data->nfs_server.addrlen != nfss->nfs_client->cl_addrlen ||
- 	    !rpc_cmp_addr((struct sockaddr *)&data->nfs_server.address,
+ 	return boot_hid_input->input->event(boot_hid_input->input, type, code,
 -- 
 2.20.1
 
