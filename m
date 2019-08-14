@@ -2,27 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DBF288CC02
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 08:39:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9786F8CC03
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 08:39:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727269AbfHNGjH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 02:39:07 -0400
-Received: from mx2.suse.de ([195.135.220.15]:60868 "EHLO mx1.suse.de"
+        id S1727215AbfHNGjV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 02:39:21 -0400
+Received: from mx2.suse.de ([195.135.220.15]:60900 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727215AbfHNGjG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 02:39:06 -0400
+        id S1727197AbfHNGjV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 02:39:21 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id C4CE1AE37;
-        Wed, 14 Aug 2019 06:39:05 +0000 (UTC)
-Date:   Wed, 14 Aug 2019 08:39:05 +0200
-Message-ID: <s5hy2zwb69i.wl-tiwai@suse.de>
+        by mx1.suse.de (Postfix) with ESMTP id 9BBE3AF5A;
+        Wed, 14 Aug 2019 06:39:19 +0000 (UTC)
+Date:   Wed, 14 Aug 2019 08:39:19 +0200
+Message-ID: <s5hwofgb694.wl-tiwai@suse.de>
 From:   Takashi Iwai <tiwai@suse.de>
 To:     Hui Wang <hui.wang@canonical.com>
 Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] ALSA: hda - Let all conexant codec enter D3 when rebooting
-In-Reply-To: <20190814040908.9758-1-hui.wang@canonical.com>
+Subject: Re: [PATCH 2/2] ALSA: hda - Add a generic reboot_notify
+In-Reply-To: <20190814040908.9758-2-hui.wang@canonical.com>
 References: <20190814040908.9758-1-hui.wang@canonical.com>
+        <20190814040908.9758-2-hui.wang@canonical.com>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
  (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -33,19 +34,14 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 14 Aug 2019 06:09:07 +0200,
+On Wed, 14 Aug 2019 06:09:08 +0200,
 Hui Wang wrote:
 > 
-> We have 3 new lenovo laptops which have conexant codec 0x14f11f86,
-> these 3 laptops also have the noise issue when rebooting, after
-> letting the codec enter D3 before rebooting or poweroff, the noise
-> disappers.
-> 
-> Instead of adding a new ID again in the reboot_notify(), let us make
-> this function apply to all conexant codec. In theory make codec enter
-> D3 before rebooting or poweroff is harmless, and I tested this change
-> on a couple of other Lenovo laptops which have different conexant
-> codecs, there is no side effect so far.
+> Make codec enter D3 before rebooting or poweroff can fix the noise
+> issue on some laptops. And in theory it is harmless for all codecs
+> to enter D3 before rebooting or poweroff, let us add a generic
+> reboot_notify, then realtek and conexant drivers can call this
+> function.
 > 
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Hui Wang <hui.wang@canonical.com>
