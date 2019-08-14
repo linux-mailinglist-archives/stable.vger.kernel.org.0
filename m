@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60BE78C807
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:29:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CD458C804
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:29:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729648AbfHNC0A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729943AbfHNC0A (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 13 Aug 2019 22:26:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54130 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729822AbfHNCZ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729841AbfHNCZ7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 13 Aug 2019 22:25:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF6CC20874;
-        Wed, 14 Aug 2019 02:25:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB1B7208C2;
+        Wed, 14 Aug 2019 02:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565749558;
-        bh=udv1lL1kma3t9zZhkeiGxc80kuT7XqqSw/Pw50Vkm3I=;
+        s=default; t=1565749559;
+        bh=BfmG4lrGqdqkzoDHYHNnDYZJryGrxYsFnNNr8ZPGoRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PHfyPvom7RkN21r+JvNkJ4a7QZvW2hcrUccvQb8FRahBBDHZlpin+5rKPWDZBnMgP
-         USGZoQjJJzQGHqUfR5ZzHD0MqMyBZ92aY2xoatOOYkgJW/2yVBnc7ku2ynO5jpAKaX
-         ifmjaOdH5vGGCw75sqX528p/Pt3U7F729gxz9e90=
+        b=snYBcWS/pwFeYWwYOH6693cZs51j1VVn3N+t7VmsD1o/hbmWpYH6R0a1CSIdbQcOB
+         9QaxohtBRemx+sNh3ES8GDupNXWKkAEnk/hctdYMTvpA+QNnS36BcXj7aY53tTXlA6
+         u8+dMGd+BPMPeEQKejtTg4yzsUNpOuVHPQqfZ1l8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Willem de Bruijn <willemb@google.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 05/28] can: dev: call netif_carrier_off() in register_candev()
-Date:   Tue, 13 Aug 2019 22:25:27 -0400
-Message-Id: <20190814022550.17463-5-sashal@kernel.org>
+Cc:     Ricard Wanderlof <ricard.wanderlof@axis.com>,
+        Ricard Wanderlof <ricardw@axis.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 06/28] ASoC: Fail card instantiation if DAI format setup fails
+Date:   Tue, 13 Aug 2019 22:25:28 -0400
+Message-Id: <20190814022550.17463-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814022550.17463-1-sashal@kernel.org>
 References: <20190814022550.17463-1-sashal@kernel.org>
@@ -45,38 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+From: Ricard Wanderlof <ricard.wanderlof@axis.com>
 
-[ Upstream commit c63845609c4700488e5eacd6ab4d06d5d420e5ef ]
+[ Upstream commit 40aa5383e393d72f6aa3943a4e7b1aae25a1e43b ]
 
-CONFIG_CAN_LEDS is deprecated. When trying to use the generic netdev
-trigger as suggested, there's a small inconsistency with the link
-property: The LED is on initially, stays on when the device is brought
-up, and then turns off (as expected) when the device is brought down.
+If the DAI format setup fails, there is no valid communication format
+between CPU and CODEC, so fail card instantiation, rather than continue
+with a card that will most likely not function properly.
 
-Make sure the LED always reflects the state of the CAN device.
-
-Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Ricard Wanderlof <ricardw@axis.com>
+Link: https://lore.kernel.org/r/alpine.DEB.2.20.1907241132350.6338@lnxricardw1.se.axis.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/dev.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/soc-core.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
-index 8b7c6425b681d..9dd968ee792e0 100644
---- a/drivers/net/can/dev.c
-+++ b/drivers/net/can/dev.c
-@@ -1065,6 +1065,8 @@ static struct rtnl_link_ops can_link_ops __read_mostly = {
- int register_candev(struct net_device *dev)
- {
- 	dev->rtnl_link_ops = &can_link_ops;
-+	netif_carrier_off(dev);
-+
- 	return register_netdev(dev);
- }
- EXPORT_SYMBOL_GPL(register_candev);
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index b927f9c81d922..8d10a24d38e06 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -1357,8 +1357,11 @@ static int soc_probe_link_dais(struct snd_soc_card *card, int num, int order)
+ 		}
+ 	}
+ 
+-	if (dai_link->dai_fmt)
+-		snd_soc_runtime_set_dai_fmt(rtd, dai_link->dai_fmt);
++	if (dai_link->dai_fmt) {
++		ret = snd_soc_runtime_set_dai_fmt(rtd, dai_link->dai_fmt);
++		if (ret)
++			return ret;
++	}
+ 
+ 	ret = soc_post_component_init(rtd, dai_link->name);
+ 	if (ret)
 -- 
 2.20.1
 
