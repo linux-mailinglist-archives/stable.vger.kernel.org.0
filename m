@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E1968C905
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:36:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9D248C900
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728922AbfHNCfk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:35:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45468 "EHLO mail.kernel.org"
+        id S1728557AbfHNCfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:35:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727659AbfHNCN2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:13:28 -0400
+        id S1728287AbfHNCN3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:13:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 507B320874;
-        Wed, 14 Aug 2019 02:13:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A83A214DA;
+        Wed, 14 Aug 2019 02:13:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748807;
-        bh=vvz3aWMk50EHAH8sSwBbk24YETRqG1RoH/Mhp7Jmt+o=;
+        s=default; t=1565748808;
+        bh=nvv5wvA6z8M5WfbSUdq7v2bAub2mac3SXvLLZWtTXLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YecRtSKzJLEv6t24usBuLgu0ixRsgiWCKp+uYUMK5PeC0rqDHwjYy4T2reDOyRHBx
-         0veu6lEuea6/z2i48MHy+TTx0BaDjjFnhsr6LISqgKNO3iWkEyzYiC4+D+o5o8u/BH
-         N7j0tR8bv0gsUJMVMRH/cYjqi0ZB+wfo/FozY+aE=
+        b=FXlTmsTx0K3idWdnktRwCiumh+lfI2hlOdDsFXXD4WxMVgOfc8bIu9JVJ2ZZxcKJ+
+         UXxaK8mS1fr4TX9m2dC4l5lflrurMvO7KiJWGkOYJsC7xDaqzV1feCjyWb5lO9ubhS
+         z+16uN+SqtYe9Z5a/QwwuPs2mIt+eTxa+wMxSzZU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Denis Kirjanov <kda@linux-powerpc.org>,
-        syzbot+3499a83b2d062ae409d4@syzkaller.appspotmail.com,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 073/123] net: usb: pegasus: fix improper read if get_registers() fail
-Date:   Tue, 13 Aug 2019 22:09:57 -0400
-Message-Id: <20190814021047.14828-73-sashal@kernel.org>
+Cc:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 074/123] spi: pxa2xx: Add support for Intel Tiger Lake
+Date:   Tue, 13 Aug 2019 22:09:58 -0400
+Message-Id: <20190814021047.14828-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -45,33 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Kirjanov <kda@linux-powerpc.org>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-[ Upstream commit 224c04973db1125fcebefffd86115f99f50f8277 ]
+[ Upstream commit a4127952859a869cf3fc5a49547dbe2ffa2eac89 ]
 
-get_registers() may fail with -ENOMEM and in this
-case we can read a garbage from the status variable tmp.
+Intel Tiger Lake -LP LPSS SPI controller is otherwise similar than
+Cannon Lake but has more controllers and up to two chip selects per
+controller.
 
-Reported-by: syzbot+3499a83b2d062ae409d4@syzkaller.appspotmail.com
-Signed-off-by: Denis Kirjanov <kda@linux-powerpc.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Link: https://lore.kernel.org/r/20190801134901.12635-1-jarkko.nikula@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/pegasus.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-pxa2xx.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/usb/pegasus.c b/drivers/net/usb/pegasus.c
-index 6d25dea5ad4b2..f7d117d80cfbb 100644
---- a/drivers/net/usb/pegasus.c
-+++ b/drivers/net/usb/pegasus.c
-@@ -282,7 +282,7 @@ static void mdio_write(struct net_device *dev, int phy_id, int loc, int val)
- static int read_eprom_word(pegasus_t *pegasus, __u8 index, __u16 *retdata)
- {
- 	int i;
--	__u8 tmp;
-+	__u8 tmp = 0;
- 	__le16 retdatai;
- 	int ret;
+diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
+index c1af8887d9186..1f32c9e3ca65c 100644
+--- a/drivers/spi/spi-pxa2xx.c
++++ b/drivers/spi/spi-pxa2xx.c
+@@ -1453,6 +1453,14 @@ static const struct pci_device_id pxa2xx_spi_pci_compound_match[] = {
+ 	{ PCI_VDEVICE(INTEL, 0x02aa), LPSS_CNL_SSP },
+ 	{ PCI_VDEVICE(INTEL, 0x02ab), LPSS_CNL_SSP },
+ 	{ PCI_VDEVICE(INTEL, 0x02fb), LPSS_CNL_SSP },
++	/* TGL-LP */
++	{ PCI_VDEVICE(INTEL, 0xa0aa), LPSS_CNL_SSP },
++	{ PCI_VDEVICE(INTEL, 0xa0ab), LPSS_CNL_SSP },
++	{ PCI_VDEVICE(INTEL, 0xa0de), LPSS_CNL_SSP },
++	{ PCI_VDEVICE(INTEL, 0xa0df), LPSS_CNL_SSP },
++	{ PCI_VDEVICE(INTEL, 0xa0fb), LPSS_CNL_SSP },
++	{ PCI_VDEVICE(INTEL, 0xa0fd), LPSS_CNL_SSP },
++	{ PCI_VDEVICE(INTEL, 0xa0fe), LPSS_CNL_SSP },
+ 	{ },
+ };
  
 -- 
 2.20.1
