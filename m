@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFDBB8D900
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:04:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2117E8D902
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:05:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729197AbfHNREb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:04:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53326 "EHLO mail.kernel.org"
+        id S1729267AbfHNREi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:04:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729215AbfHNREa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:04:30 -0400
+        id S1729253AbfHNREe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:04:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73BBD2084D;
-        Wed, 14 Aug 2019 17:04:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 765B1214DA;
+        Wed, 14 Aug 2019 17:04:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802269;
-        bh=uxRHKqm3l87w3jcDPFoFAyfY8jEP22imeRNuXpLfmAc=;
+        s=default; t=1565802273;
+        bh=LPfPacdqzNLUM0fy/JrApmF/4SQTkvNzeA5k+KvbKKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XgyQh4kSZHzgGPjlow8OE3v4kmI9AL1ah+iIl9szq5ujNREAC507o+f9Lt5I0SvD+
-         IQlOH+G56FukKuujEOHD+E90YTUs+PxPKQGcT126gE9wkI7N64p2ZvPezVVieCqWZL
-         Si69p0jBxN21FMJYni7PWecdyb0AS9fVJZvR7UN0=
+        b=KpvMPPlvGZoxiMDaPCZoJQinVJvrWYDuIUyVDTzxzL3LntyikZbEq1kHYIWqmxcEp
+         u6xcMJKQTXGI6ssq6EXubBYpJSrg13u7pSVz50wZzCnQw3KCP4p+mKYPalaQWyHIR+
+         OJDAj4mILNLfKWjaxsOfK32/g+TSu8VRYtUaagqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vaibhav Rustagi <vaibhavrustagi@google.com>,
-        Alistair Delva <adelva@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Manoj Gupta <manojgupta@google.com>
-Subject: [PATCH 5.2 034/144] x86/purgatory: Do not use __builtin_memcpy and __builtin_memset
-Date:   Wed, 14 Aug 2019 18:59:50 +0200
-Message-Id: <20190814165801.255920942@linuxfoundation.org>
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.2 036/144] genirq/affinity: Create affinity mask for single vector
+Date:   Wed, 14 Aug 2019 18:59:52 +0200
+Message-Id: <20190814165801.335390862@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
 References: <20190814165759.466811854@linuxfoundation.org>
@@ -47,122 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit 4ce97317f41d38584fb93578e922fcd19e535f5b upstream.
+commit 491beed3b102b6e6c0e7734200661242226e3933 upstream.
 
-Implementing memcpy and memset in terms of __builtin_memcpy and
-__builtin_memset is problematic.
+Since commit c66d4bd110a1f8 ("genirq/affinity: Add new callback for
+(re)calculating interrupt sets"), irq_create_affinity_masks() returns
+NULL in case of single vector. This change has caused regression on some
+drivers, such as lpfc.
 
-GCC at -O2 will replace calls to the builtins with calls to memcpy and
-memset (but will generate an inline implementation at -Os).  Clang will
-replace the builtins with these calls regardless of optimization level.
-$ llvm-objdump -dr arch/x86/purgatory/string.o | tail
+The problem is that single vector requests can happen in some generic cases:
 
-0000000000000339 memcpy:
-     339: 48 b8 00 00 00 00 00 00 00 00 movabsq $0, %rax
-                000000000000033b:  R_X86_64_64  memcpy
-     343: ff e0                         jmpq    *%rax
+  1) kdump kernel
 
-0000000000000345 memset:
-     345: 48 b8 00 00 00 00 00 00 00 00 movabsq $0, %rax
-                0000000000000347:  R_X86_64_64  memset
-     34f: ff e0
+  2) irq vectors resource is close to exhaustion.
 
-Such code results in infinite recursion at runtime. This is observed
-when doing kexec.
+If in that situation the affinity mask for a single vector is not created,
+every caller has to handle the special case.
 
-Instead, reuse an implementation from arch/x86/boot/compressed/string.c.
-This requires to implement a stub function for warn(). Also, Clang may
-lower memcmp's that compare against 0 to bcmp's, so add a small definition,
-too. See also: commit 5f074f3e192f ("lib/string.c: implement a basic bcmp")
+There is no reason why the mask cannot be created, so remove the check for
+a single vector and create the mask.
 
-Fixes: 8fc5b4d4121c ("purgatory: core purgatory functionality")
-Reported-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
-Debugged-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
-Debugged-by: Manoj Gupta <manojgupta@google.com>
-Suggested-by: Alistair Delva <adelva@google.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Fixes: c66d4bd110a1f8 ("genirq/affinity: Add new callback for (re)calculating interrupt sets")
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
 Cc: stable@vger.kernel.org
-Link: https://bugs.chromium.org/p/chromium/issues/detail?id=984056
-Link: https://lkml.kernel.org/r/20190807221539.94583-1-ndesaulniers@google.com
+Link: https://lkml.kernel.org/r/20190805011906.5020-1-ming.lei@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/boot/string.c         |    8 ++++++++
- arch/x86/purgatory/Makefile    |    3 +++
- arch/x86/purgatory/purgatory.c |    6 ++++++
- arch/x86/purgatory/string.c    |   23 -----------------------
- 4 files changed, 17 insertions(+), 23 deletions(-)
+ kernel/irq/affinity.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/arch/x86/boot/string.c
-+++ b/arch/x86/boot/string.c
-@@ -37,6 +37,14 @@ int memcmp(const void *s1, const void *s
- 	return diff;
- }
- 
-+/*
-+ * Clang may lower `memcmp == 0` to `bcmp == 0`.
-+ */
-+int bcmp(const void *s1, const void *s2, size_t len)
-+{
-+	return memcmp(s1, s2, len);
-+}
-+
- int strcmp(const char *str1, const char *str2)
- {
- 	const unsigned char *s1 = (const unsigned char *)str1;
---- a/arch/x86/purgatory/Makefile
-+++ b/arch/x86/purgatory/Makefile
-@@ -6,6 +6,9 @@ purgatory-y := purgatory.o stack.o setup
- targets += $(purgatory-y)
- PURGATORY_OBJS = $(addprefix $(obj)/,$(purgatory-y))
- 
-+$(obj)/string.o: $(srctree)/arch/x86/boot/compressed/string.c FORCE
-+	$(call if_changed_rule,cc_o_c)
-+
- $(obj)/sha256.o: $(srctree)/lib/sha256.c FORCE
- 	$(call if_changed_rule,cc_o_c)
- 
---- a/arch/x86/purgatory/purgatory.c
-+++ b/arch/x86/purgatory/purgatory.c
-@@ -68,3 +68,9 @@ void purgatory(void)
- 	}
- 	copy_backup_region();
- }
-+
-+/*
-+ * Defined in order to reuse memcpy() and memset() from
-+ * arch/x86/boot/compressed/string.c
-+ */
-+void warn(const char *msg) {}
---- a/arch/x86/purgatory/string.c
-+++ /dev/null
-@@ -1,23 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-only
--/*
-- * Simple string functions.
-- *
-- * Copyright (C) 2014 Red Hat Inc.
-- *
-- * Author:
-- *       Vivek Goyal <vgoyal@redhat.com>
-- */
--
--#include <linux/types.h>
--
--#include "../boot/string.c"
--
--void *memcpy(void *dst, const void *src, size_t len)
--{
--	return __builtin_memcpy(dst, src, len);
--}
--
--void *memset(void *dst, int c, size_t len)
--{
--	return __builtin_memset(dst, c, len);
--}
+--- a/kernel/irq/affinity.c
++++ b/kernel/irq/affinity.c
+@@ -253,11 +253,9 @@ irq_create_affinity_masks(unsigned int n
+ 	 * Determine the number of vectors which need interrupt affinities
+ 	 * assigned. If the pre/post request exhausts the available vectors
+ 	 * then nothing to do here except for invoking the calc_sets()
+-	 * callback so the device driver can adjust to the situation. If there
+-	 * is only a single vector, then managing the queue is pointless as
+-	 * well.
++	 * callback so the device driver can adjust to the situation.
+ 	 */
+-	if (nvecs > 1 && nvecs > affd->pre_vectors + affd->post_vectors)
++	if (nvecs > affd->pre_vectors + affd->post_vectors)
+ 		affvecs = nvecs - affd->pre_vectors - affd->post_vectors;
+ 	else
+ 		affvecs = 0;
 
 
