@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CD458C804
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:29:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B493B8C80A
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:29:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729943AbfHNC0A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:26:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54146 "EHLO mail.kernel.org"
+        id S1730127AbfHNC0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:26:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729841AbfHNCZ7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:25:59 -0400
+        id S1730097AbfHNC0C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:26:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB1B7208C2;
-        Wed, 14 Aug 2019 02:25:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 246D820842;
+        Wed, 14 Aug 2019 02:26:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565749559;
-        bh=BfmG4lrGqdqkzoDHYHNnDYZJryGrxYsFnNNr8ZPGoRU=;
+        s=default; t=1565749561;
+        bh=odyyBf1dcWt2aZKz2xOzM8oQC9QXlBKynRcu4KRY/u8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=snYBcWS/pwFeYWwYOH6693cZs51j1VVn3N+t7VmsD1o/hbmWpYH6R0a1CSIdbQcOB
-         9QaxohtBRemx+sNh3ES8GDupNXWKkAEnk/hctdYMTvpA+QNnS36BcXj7aY53tTXlA6
-         u8+dMGd+BPMPeEQKejtTg4yzsUNpOuVHPQqfZ1l8=
+        b=iz7DKMWurab3WFx8KJDGpxnaiBHO7kesSahD31ioH/h0ThZR3QSjqCc8ddZBFvKcl
+         3b2+RFKfe4AEnoqX6wXeOmKt+12kvkV+GdQTPkdFK/h/mf2Bwmfgr5i22zBWcZ+swp
+         ji1S6hL1ydMr9nz3kZP5mzX8mh/tK3QQw5Olpnfs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ricard Wanderlof <ricard.wanderlof@axis.com>,
-        Ricard Wanderlof <ricardw@axis.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 06/28] ASoC: Fail card instantiation if DAI format setup fails
-Date:   Tue, 13 Aug 2019 22:25:28 -0400
-Message-Id: <20190814022550.17463-6-sashal@kernel.org>
+Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 07/28] st21nfca_connectivity_event_received: null check the allocation
+Date:   Tue, 13 Aug 2019 22:25:29 -0400
+Message-Id: <20190814022550.17463-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814022550.17463-1-sashal@kernel.org>
 References: <20190814022550.17463-1-sashal@kernel.org>
@@ -44,40 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricard Wanderlof <ricard.wanderlof@axis.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 40aa5383e393d72f6aa3943a4e7b1aae25a1e43b ]
+[ Upstream commit 9891d06836e67324c9e9c4675ed90fc8b8110034 ]
 
-If the DAI format setup fails, there is no valid communication format
-between CPU and CODEC, so fail card instantiation, rather than continue
-with a card that will most likely not function properly.
+devm_kzalloc may fail and return null. So the null check is needed.
 
-Signed-off-by: Ricard Wanderlof <ricardw@axis.com>
-Link: https://lore.kernel.org/r/alpine.DEB.2.20.1907241132350.6338@lnxricardw1.se.axis.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-core.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/nfc/st21nfca/se.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index b927f9c81d922..8d10a24d38e06 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -1357,8 +1357,11 @@ static int soc_probe_link_dais(struct snd_soc_card *card, int num, int order)
- 		}
- 	}
+diff --git a/drivers/nfc/st21nfca/se.c b/drivers/nfc/st21nfca/se.c
+index c79d99b24c961..f1b96b5255e08 100644
+--- a/drivers/nfc/st21nfca/se.c
++++ b/drivers/nfc/st21nfca/se.c
+@@ -327,6 +327,8 @@ int st21nfca_connectivity_event_received(struct nfc_hci_dev *hdev, u8 host,
  
--	if (dai_link->dai_fmt)
--		snd_soc_runtime_set_dai_fmt(rtd, dai_link->dai_fmt);
-+	if (dai_link->dai_fmt) {
-+		ret = snd_soc_runtime_set_dai_fmt(rtd, dai_link->dai_fmt);
-+		if (ret)
-+			return ret;
-+	}
+ 		transaction = (struct nfc_evt_transaction *)devm_kzalloc(dev,
+ 						   skb->len - 2, GFP_KERNEL);
++		if (!transaction)
++			return -ENOMEM;
  
- 	ret = soc_post_component_init(rtd, dai_link->name);
- 	if (ret)
+ 		transaction->aid_len = skb->data[1];
+ 		memcpy(transaction->aid, &skb->data[2],
 -- 
 2.20.1
 
