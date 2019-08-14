@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FFFA8C614
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:12:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E8AA8C618
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:12:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727937AbfHNCMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:12:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44700 "EHLO mail.kernel.org"
+        id S1727987AbfHNCMm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:12:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727910AbfHNCMe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:12:34 -0400
+        id S1727979AbfHNCMl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:12:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D85D0216F4;
-        Wed, 14 Aug 2019 02:12:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A9EE20842;
+        Wed, 14 Aug 2019 02:12:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748753;
-        bh=qIvFu4dS1gerDv/hz0IBOs0engmXnXmF/k6htcL/Gac=;
+        s=default; t=1565748760;
+        bh=rL229EiVdHJ9uYzZvBHPwLKzwBdqrgjYJeNuBTGV+qM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OD3FtkWjCTv7BGmVE7yKjQ7ngH6zu4slTceckbrlx5LNbNuXOD6Mbr+TbjEhrrPAf
-         HEFPatcVubJgYtWMTYcvCoPwzFyKxDdZkaP66EjjrUo3aPLLgPsFIEBVD9azv498bH
-         OqEQWdNw/HaAsgmvwScJAjI1DEKP7uI66nnaXaho=
+        b=Koda1McQTgvN4XPgkgczWZXqKlzx1fddw9Z6rvnnw3wJmdIu/v9gJdj1Rzg73QxE+
+         H7GmJ0iKdcKYJknIfo+Qq4pyf39LL7YyhJa6ZiZTNsZY6bzGYUdos7KukRlbPY+SJ8
+         rw7vgH284iYN+1aibSS71ruwTnnZIdGpb0xLaEvI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 048/123] ASoC: ti: davinci-mcasp: Correct slot_width posed constraint
-Date:   Tue, 13 Aug 2019 22:09:32 -0400
-Message-Id: <20190814021047.14828-48-sashal@kernel.org>
+Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 053/123] mac80211_hwsim: Fix possible null-pointer dereferences in hwsim_dump_radio_nl()
+Date:   Tue, 13 Aug 2019 22:09:37 -0400
+Message-Id: <20190814021047.14828-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -43,112 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 1e112c35e3c96db7c8ca6ddaa96574f00c06e7db ]
+[ Upstream commit b55f3b841099e641bdb2701d361a4c304e2dbd6f ]
 
-The slot_width is a property for the bus while the constraint for
-SNDRV_PCM_HW_PARAM_SAMPLE_BITS is for the in memory format.
+In hwsim_dump_radio_nl(), when genlmsg_put() on line 3617 fails, hdr is
+assigned to NULL. Then hdr is used on lines 3622 and 3623:
+    genl_dump_check_consistent(cb, hdr);
+    genlmsg_end(skb, hdr);
 
-Applying slot_width constraint to sample_bits works most of the time, but
-it will blacklist valid formats in some cases.
+Thus, possible null-pointer dereferences may occur.
 
-With slot_width 24 we can support S24_3LE and S24_LE formats as they both
-look the same on the bus, but a a 24 constraint on sample_bits would not
-allow S24_LE as it is stored in 32bits in memory.
+To fix these bugs, hdr is used here when it is not NULL.
 
-Implement a simple hw_rule function to allow all formats which require less
-or equal number of bits on the bus as slot_width (if configured).
+This bug is found by a static analysis tool STCheck written by us.
 
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Link: https://lore.kernel.org/r/20190726064244.3762-2-peter.ujfalusi@ti.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Link: https://lore.kernel.org/r/20190729082332.28895-1-baijiaju1990@gmail.com
+[put braces on all branches]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/ti/davinci-mcasp.c | 43 ++++++++++++++++++++++++++++--------
- 1 file changed, 34 insertions(+), 9 deletions(-)
+ drivers/net/wireless/mac80211_hwsim.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/ti/davinci-mcasp.c b/sound/soc/ti/davinci-mcasp.c
-index dc01bbca0ff69..56009d1472084 100644
---- a/sound/soc/ti/davinci-mcasp.c
-+++ b/sound/soc/ti/davinci-mcasp.c
-@@ -1254,6 +1254,28 @@ static int davinci_mcasp_trigger(struct snd_pcm_substream *substream,
- 	return ret;
- }
- 
-+static int davinci_mcasp_hw_rule_slot_width(struct snd_pcm_hw_params *params,
-+					    struct snd_pcm_hw_rule *rule)
-+{
-+	struct davinci_mcasp_ruledata *rd = rule->private;
-+	struct snd_mask *fmt = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
-+	struct snd_mask nfmt;
-+	int i, slot_width;
-+
-+	snd_mask_none(&nfmt);
-+	slot_width = rd->mcasp->slot_width;
-+
-+	for (i = 0; i <= SNDRV_PCM_FORMAT_LAST; i++) {
-+		if (snd_mask_test(fmt, i)) {
-+			if (snd_pcm_format_width(i) <= slot_width) {
-+				snd_mask_set(&nfmt, i);
-+			}
+diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
+index 1c699a9fa8661..faec05ab42754 100644
+--- a/drivers/net/wireless/mac80211_hwsim.c
++++ b/drivers/net/wireless/mac80211_hwsim.c
+@@ -3615,10 +3615,12 @@ static int hwsim_dump_radio_nl(struct sk_buff *skb,
+ 		hdr = genlmsg_put(skb, NETLINK_CB(cb->skb).portid,
+ 				  cb->nlh->nlmsg_seq, &hwsim_genl_family,
+ 				  NLM_F_MULTI, HWSIM_CMD_GET_RADIO);
+-		if (!hdr)
++		if (hdr) {
++			genl_dump_check_consistent(cb, hdr);
++			genlmsg_end(skb, hdr);
++		} else {
+ 			res = -EMSGSIZE;
+-		genl_dump_check_consistent(cb, hdr);
+-		genlmsg_end(skb, hdr);
 +		}
-+	}
-+
-+	return snd_mask_refine(fmt, &nfmt);
-+}
-+
- static const unsigned int davinci_mcasp_dai_rates[] = {
- 	8000, 11025, 16000, 22050, 32000, 44100, 48000, 64000,
- 	88200, 96000, 176400, 192000,
-@@ -1361,7 +1383,7 @@ static int davinci_mcasp_startup(struct snd_pcm_substream *substream,
- 	struct davinci_mcasp_ruledata *ruledata =
- 					&mcasp->ruledata[substream->stream];
- 	u32 max_channels = 0;
--	int i, dir;
-+	int i, dir, ret;
- 	int tdm_slots = mcasp->tdm_slots;
- 
- 	/* Do not allow more then one stream per direction */
-@@ -1390,6 +1412,7 @@ static int davinci_mcasp_startup(struct snd_pcm_substream *substream,
- 			max_channels++;
  	}
- 	ruledata->serializers = max_channels;
-+	ruledata->mcasp = mcasp;
- 	max_channels *= tdm_slots;
- 	/*
- 	 * If the already active stream has less channels than the calculated
-@@ -1415,20 +1438,22 @@ static int davinci_mcasp_startup(struct snd_pcm_substream *substream,
- 				   0, SNDRV_PCM_HW_PARAM_CHANNELS,
- 				   &mcasp->chconstr[substream->stream]);
  
--	if (mcasp->slot_width)
--		snd_pcm_hw_constraint_minmax(substream->runtime,
--					     SNDRV_PCM_HW_PARAM_SAMPLE_BITS,
--					     8, mcasp->slot_width);
-+	if (mcasp->slot_width) {
-+		/* Only allow formats require <= slot_width bits on the bus */
-+		ret = snd_pcm_hw_rule_add(substream->runtime, 0,
-+					  SNDRV_PCM_HW_PARAM_FORMAT,
-+					  davinci_mcasp_hw_rule_slot_width,
-+					  ruledata,
-+					  SNDRV_PCM_HW_PARAM_FORMAT, -1);
-+		if (ret)
-+			return ret;
-+	}
- 
- 	/*
- 	 * If we rely on implicit BCLK divider setting we should
- 	 * set constraints based on what we can provide.
- 	 */
- 	if (mcasp->bclk_master && mcasp->bclk_div == 0 && mcasp->sysclk_freq) {
--		int ret;
--
--		ruledata->mcasp = mcasp;
--
- 		ret = snd_pcm_hw_rule_add(substream->runtime, 0,
- 					  SNDRV_PCM_HW_PARAM_RATE,
- 					  davinci_mcasp_hw_rule_rate,
+ done:
 -- 
 2.20.1
 
