@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CFC918C895
+	by mail.lfdr.de (Postfix) with ESMTP id 578548C894
 	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:32:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727824AbfHNCQM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728966AbfHNCQM (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 13 Aug 2019 22:16:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47734 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728946AbfHNCQL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728955AbfHNCQL (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 13 Aug 2019 22:16:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A4BA2085A;
-        Wed, 14 Aug 2019 02:16:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89A7E2133F;
+        Wed, 14 Aug 2019 02:16:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748970;
-        bh=ME8uYdcbeBKsE0Xjdsl7NR7jCQx95cYJx8uo04L6Xko=;
+        s=default; t=1565748971;
+        bh=QByntpCTKCXY11dSE5ZXEeDqtNWp0L6eYuNcYYUszME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t2xqkumMe4vZkg1ymKD5tm6HvWmtc8Z6wRWf9U2SzHjR8yP51ScNsZSrPKlAjPLcs
-         wx0XTw1K8pOF/jBpr8soI1xAowjgArT7MxTvDfV+M51QgdSVIKSB3l9c+ZmWdO8WU2
-         kNBONykCQxTiU90koaxzqg+sctV/miZo1zvAoR8g=
+        b=zcZ98fGlfdFjmlzpnIvpAK+qK5BDK1Cg/KGIW+suQrGXG9xF7A6v9KPC502y4Smtv
+         Rhi20tXBBqnrLIbzKggIdajVIePdrVEbq/pG+saPYHtVCi7J2zzJFl3K4PT1nxROvC
+         ivURh+wfz6gYfOaVXASgJ4DaCwEDAjXsUoBJ/5ms=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ido Schimmel <idosch@mellanox.com>,
-        Stephen Suryaputra <ssuryaextr@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 12/68] selftests: forwarding: gre_multipath: Fix flower filters
-Date:   Tue, 13 Aug 2019 22:14:50 -0400
-Message-Id: <20190814021548.16001-12-sashal@kernel.org>
+Cc:     Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Willem de Bruijn <willemb@google.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>, linux-can@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 13/68] can: dev: call netif_carrier_off() in register_candev()
+Date:   Tue, 13 Aug 2019 22:14:51 -0400
+Message-Id: <20190814021548.16001-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021548.16001-1-sashal@kernel.org>
 References: <20190814021548.16001-1-sashal@kernel.org>
@@ -45,91 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@mellanox.com>
+From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
 
-[ Upstream commit 1be79d89b7ae96e004911bd228ce8c2b5cc6415f ]
+[ Upstream commit c63845609c4700488e5eacd6ab4d06d5d420e5ef ]
 
-The TC filters used in the test do not work with veth devices because the
-outer Ethertype is 802.1Q and not IPv4. The test passes with mlxsw
-netdevs since the hardware always looks at "The first Ethertype that
-does not point to either: VLAN, CNTAG or configurable Ethertype".
+CONFIG_CAN_LEDS is deprecated. When trying to use the generic netdev
+trigger as suggested, there's a small inconsistency with the link
+property: The LED is on initially, stays on when the device is brought
+up, and then turns off (as expected) when the device is brought down.
 
-Fix this by matching on the VLAN ID instead, but on the ingress side.
-The reason why this is not performed at egress is explained in the
-commit cited below.
+Make sure the LED always reflects the state of the CAN device.
 
-Fixes: 541ad323db3a ("selftests: forwarding: gre_multipath: Update next-hop statistics match criteria")
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Reported-by: Stephen Suryaputra <ssuryaextr@gmail.com>
-Tested-by: Stephen Suryaputra <ssuryaextr@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/net/forwarding/gre_multipath.sh | 24 +++++++++----------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ drivers/net/can/dev.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/testing/selftests/net/forwarding/gre_multipath.sh b/tools/testing/selftests/net/forwarding/gre_multipath.sh
-index 37d7297e1cf8a..a8d8e8b3dc819 100755
---- a/tools/testing/selftests/net/forwarding/gre_multipath.sh
-+++ b/tools/testing/selftests/net/forwarding/gre_multipath.sh
-@@ -93,18 +93,10 @@ sw1_create()
- 	ip route add vrf v$ol1 192.0.2.16/28 \
- 	   nexthop dev g1a \
- 	   nexthop dev g1b
--
--	tc qdisc add dev $ul1 clsact
--	tc filter add dev $ul1 egress pref 111 prot ipv4 \
--	   flower dst_ip 192.0.2.66 action pass
--	tc filter add dev $ul1 egress pref 222 prot ipv4 \
--	   flower dst_ip 192.0.2.82 action pass
- }
+diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
+index c05e4d50d43d7..bd127ce3aba24 100644
+--- a/drivers/net/can/dev.c
++++ b/drivers/net/can/dev.c
+@@ -1260,6 +1260,8 @@ int register_candev(struct net_device *dev)
+ 		return -EINVAL;
  
- sw1_destroy()
- {
--	tc qdisc del dev $ul1 clsact
--
- 	ip route del vrf v$ol1 192.0.2.16/28
- 
- 	ip route del vrf v$ol1 192.0.2.82/32 via 192.0.2.146
-@@ -139,10 +131,18 @@ sw2_create()
- 	ip route add vrf v$ol2 192.0.2.0/28 \
- 	   nexthop dev g2a \
- 	   nexthop dev g2b
+ 	dev->rtnl_link_ops = &can_link_ops;
++	netif_carrier_off(dev);
 +
-+	tc qdisc add dev $ul2 clsact
-+	tc filter add dev $ul2 ingress pref 111 prot 802.1Q \
-+	   flower vlan_id 111 action pass
-+	tc filter add dev $ul2 ingress pref 222 prot 802.1Q \
-+	   flower vlan_id 222 action pass
+ 	return register_netdev(dev);
  }
- 
- sw2_destroy()
- {
-+	tc qdisc del dev $ul2 clsact
-+
- 	ip route del vrf v$ol2 192.0.2.0/28
- 
- 	ip route del vrf v$ol2 192.0.2.81/32 via 192.0.2.145
-@@ -215,15 +215,15 @@ multipath4_test()
- 	   nexthop dev g1a weight $weight1 \
- 	   nexthop dev g1b weight $weight2
- 
--	local t0_111=$(tc_rule_stats_get $ul1 111 egress)
--	local t0_222=$(tc_rule_stats_get $ul1 222 egress)
-+	local t0_111=$(tc_rule_stats_get $ul2 111 ingress)
-+	local t0_222=$(tc_rule_stats_get $ul2 222 ingress)
- 
- 	ip vrf exec v$h1 \
- 	   $MZ $h1 -q -p 64 -A 192.0.2.1 -B 192.0.2.18 \
- 	       -d 1msec -t udp "sp=1024,dp=0-32768"
- 
--	local t1_111=$(tc_rule_stats_get $ul1 111 egress)
--	local t1_222=$(tc_rule_stats_get $ul1 222 egress)
-+	local t1_111=$(tc_rule_stats_get $ul2 111 ingress)
-+	local t1_222=$(tc_rule_stats_get $ul2 222 ingress)
- 
- 	local d111=$((t1_111 - t0_111))
- 	local d222=$((t1_222 - t0_222))
+ EXPORT_SYMBOL_GPL(register_candev);
 -- 
 2.20.1
 
