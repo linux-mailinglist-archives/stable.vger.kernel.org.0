@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 67B618C648
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:14:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D520C8C66D
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:15:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728718AbfHNCOY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:14:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46312 "EHLO mail.kernel.org"
+        id S1727039AbfHNCP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:15:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728710AbfHNCOX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:14:23 -0400
+        id S1728714AbfHNCOY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:14:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14BC02084D;
-        Wed, 14 Aug 2019 02:14:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 62C5E20842;
+        Wed, 14 Aug 2019 02:14:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748862;
-        bh=HrXJUbP0HVYGNmZQhdlWqxKzlQYYd7gezp4NX3WmKAI=;
+        s=default; t=1565748863;
+        bh=Y0flpr7SM2SrV0eMr6RjFTOsrFxL7Qqx4oksAdmTAA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DN/GZdq7X2eulIQf1ugPzsb1Hw9fw00ke8KR2Hy4gLDYNyJsd6OtSBHYbgdfbOObV
-         b04N+0mNr7nM8YTg4ri7yNTMGUEX7lsOl1YsG3CaQ4EgMjgt7L7x2Sy5ammUQ3UIsW
-         72autAOltIBGGGUXA33pH7wbpYQkCNAQ766zlUh0=
+        b=uUgOywhyPbLC476bUDL2W5KkCi50DKw2X1ROZWXXCJASvS7oTe53EXPx7lG7QaIS2
+         p2Ylcv1PGXmkResFNwi+q2YEvatOcTAY4BjFp/NzTjU24KOt0RIU5XRjDOhLp/XFxq
+         rxBXCw/cK+nZlbXPE9gFBfDkSLoKdJ9Q6bBgys08=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Matthias Andree <matthias.andree@gmx.de>,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
-        Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 109/123] Revert "PCI: Add missing link delays required by the PCIe spec"
-Date:   Tue, 13 Aug 2019 22:10:33 -0400
-Message-Id: <20190814021047.14828-109-sashal@kernel.org>
+Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 110/123] NFSv4: Ensure state recovery handles ETIMEDOUT correctly
+Date:   Tue, 13 Aug 2019 22:10:34 -0400
+Message-Id: <20190814021047.14828-110-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -46,210 +42,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 0617bdede5114a0002298b12cd0ca2b0cfd0395d ]
+[ Upstream commit 67e7b52d44e3d539dfbfcd866c3d3d69da23a909 ]
 
-Commit c2bf1fc212f7 ("PCI: Add missing link delays required by the PCIe
-spec") turned out causing issues with some systems either by making them
-unresponsive or slowing down runtime and system wide resume of PCIe
-devices. While root cause for the unresponsiveness is still under
-investigation given the amount of issues reported better to revert it
-for now.
+Ensure that the state recovery code handles ETIMEDOUT correctly,
+and also that we set RPC_TASK_TIMEOUT when recovering open state.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204413
-Link: https://lore.kernel.org/linux-pci/SL2P216MB01878BBCD75F21D882AEEA2880C60@SL2P216MB0187.KORP216.PROD.OUTLOOK.COM/
-Link: https://lore.kernel.org/linux-pci/2857501d-c167-547d-c57d-d5d24ea1f1dc@molgen.mpg.de/
-Reported-by: Matthias Andree <matthias.andree@gmx.de>
-Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Reported-by: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c               | 29 +++++----------
- drivers/pci/pci.h               |  1 -
- drivers/pci/pcie/portdrv_core.c | 66 ---------------------------------
- 3 files changed, 10 insertions(+), 86 deletions(-)
+ fs/nfs/nfs4proc.c  | 2 ++
+ fs/nfs/nfs4state.c | 7 +++++--
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 720da09d4d738..088fcdc8d2b4d 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -1004,10 +1004,15 @@ static void __pci_start_power_transition(struct pci_dev *dev, pci_power_t state)
- 	if (state == PCI_D0) {
- 		pci_platform_power_transition(dev, PCI_D0);
- 		/*
--		 * Mandatory power management transition delays are
--		 * handled in the PCIe portdrv resume hooks.
-+		 * Mandatory power management transition delays, see
-+		 * PCI Express Base Specification Revision 2.0 Section
-+		 * 6.6.1: Conventional Reset.  Do not delay for
-+		 * devices powered on/off by corresponding bridge,
-+		 * because have already delayed for the bridge.
- 		 */
- 		if (dev->runtime_d3cold) {
-+			if (dev->d3cold_delay && !dev->imm_ready)
-+				msleep(dev->d3cold_delay);
- 			/*
- 			 * When powering on a bridge from D3cold, the
- 			 * whole hierarchy may be powered on into
-@@ -4570,16 +4575,14 @@ static int pci_pm_reset(struct pci_dev *dev, int probe)
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index b3fd75c8629a4..c738b0b65178e 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -2146,6 +2146,7 @@ static int nfs4_handle_delegation_recall_error(struct nfs_server *server, struct
+ 		case -ENOENT:
+ 		case -EAGAIN:
+ 		case -ESTALE:
++		case -ETIMEDOUT:
+ 			break;
+ 		case -NFS4ERR_BADSESSION:
+ 		case -NFS4ERR_BADSLOT:
+@@ -2467,6 +2468,7 @@ static int nfs4_run_open_task(struct nfs4_opendata *data,
+ 	if (!ctx) {
+ 		nfs4_init_sequence(&o_arg->seq_args, &o_res->seq_res, 1, 1);
+ 		data->is_recover = true;
++		task_setup_data.flags |= RPC_TASK_TIMEOUT;
+ 	} else {
+ 		nfs4_init_sequence(&o_arg->seq_args, &o_res->seq_res, 1, 0);
+ 		pnfs_lgopen_prepare(data, ctx);
+diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
+index 261de26d897f7..0e69cd846afb5 100644
+--- a/fs/nfs/nfs4state.c
++++ b/fs/nfs/nfs4state.c
+@@ -1528,6 +1528,7 @@ static int nfs4_reclaim_locks(struct nfs4_state *state, const struct nfs4_state_
+ 		switch (status) {
+ 		case 0:
+ 			break;
++		case -ETIMEDOUT:
+ 		case -ESTALE:
+ 		case -NFS4ERR_ADMIN_REVOKED:
+ 		case -NFS4ERR_STALE_STATEID:
+@@ -1681,11 +1682,13 @@ static int nfs4_reclaim_open_state(struct nfs4_state_owner *sp, const struct nfs
+ 		case -NFS4ERR_EXPIRED:
+ 		case -NFS4ERR_NO_GRACE:
+ 			nfs4_state_mark_reclaim_nograce(sp->so_server->nfs_client, state);
++			/* Fall through */
+ 		case -NFS4ERR_STALE_CLIENTID:
+ 		case -NFS4ERR_BADSESSION:
+ 		case -NFS4ERR_BADSLOT:
+ 		case -NFS4ERR_BAD_HIGH_SLOT:
+ 		case -NFS4ERR_CONN_NOT_BOUND_TO_SESSION:
++		case -ETIMEDOUT:
+ 			goto out_err;
+ 		}
+ 		nfs4_put_open_state(state);
+@@ -1970,7 +1973,6 @@ static int nfs4_handle_reclaim_lease_error(struct nfs_client *clp, int status)
+ 		return -EPERM;
+ 	case -EACCES:
+ 	case -NFS4ERR_DELAY:
+-	case -ETIMEDOUT:
+ 	case -EAGAIN:
+ 		ssleep(1);
+ 		break;
+@@ -2599,7 +2601,7 @@ static void nfs4_state_manager(struct nfs_client *clp)
+ 		}
  
- 	return pci_dev_wait(dev, "PM D3->D0", PCIE_RESET_READY_POLL_MS);
- }
--
- /**
-- * pcie_wait_for_link_delay - Wait until link is active or inactive
-+ * pcie_wait_for_link - Wait until link is active or inactive
-  * @pdev: Bridge device
-  * @active: waiting for active or inactive?
-- * @delay: Delay to wait after link has become active (in ms)
-  *
-  * Use this to wait till link becomes active or inactive.
-  */
--bool pcie_wait_for_link_delay(struct pci_dev *pdev, bool active, int delay)
-+bool pcie_wait_for_link(struct pci_dev *pdev, bool active)
- {
- 	int timeout = 1000;
- 	bool ret;
-@@ -4616,25 +4619,13 @@ bool pcie_wait_for_link_delay(struct pci_dev *pdev, bool active, int delay)
- 		timeout -= 10;
- 	}
- 	if (active && ret)
--		msleep(delay);
-+		msleep(100);
- 	else if (ret != active)
- 		pci_info(pdev, "Data Link Layer Link Active not %s in 1000 msec\n",
- 			active ? "set" : "cleared");
- 	return ret == active;
- }
+ 		/* Now recover expired state... */
+-		if (test_and_clear_bit(NFS4CLNT_RECLAIM_NOGRACE, &clp->cl_state)) {
++		if (test_bit(NFS4CLNT_RECLAIM_NOGRACE, &clp->cl_state)) {
+ 			section = "reclaim nograce";
+ 			status = nfs4_do_reclaim(clp,
+ 				clp->cl_mvops->nograce_recovery_ops);
+@@ -2607,6 +2609,7 @@ static void nfs4_state_manager(struct nfs_client *clp)
+ 				continue;
+ 			if (status < 0)
+ 				goto out_error;
++			clear_bit(NFS4CLNT_RECLAIM_NOGRACE, &clp->cl_state);
+ 		}
  
--/**
-- * pcie_wait_for_link - Wait until link is active or inactive
-- * @pdev: Bridge device
-- * @active: waiting for active or inactive?
-- *
-- * Use this to wait till link becomes active or inactive.
-- */
--bool pcie_wait_for_link(struct pci_dev *pdev, bool active)
--{
--	return pcie_wait_for_link_delay(pdev, active, 100);
--}
--
- void pci_reset_secondary_bus(struct pci_dev *dev)
- {
- 	u16 ctrl;
-diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-index 59802b3def4bc..9cb99380c61e3 100644
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -493,7 +493,6 @@ static inline int pci_dev_specific_disable_acs_redir(struct pci_dev *dev)
- void pcie_do_recovery(struct pci_dev *dev, enum pci_channel_state state,
- 		      u32 service);
- 
--bool pcie_wait_for_link_delay(struct pci_dev *pdev, bool active, int delay);
- bool pcie_wait_for_link(struct pci_dev *pdev, bool active);
- #ifdef CONFIG_PCIEASPM
- void pcie_aspm_init_link_state(struct pci_dev *pdev);
-diff --git a/drivers/pci/pcie/portdrv_core.c b/drivers/pci/pcie/portdrv_core.c
-index 308c3e0c4a340..1b330129089fe 100644
---- a/drivers/pci/pcie/portdrv_core.c
-+++ b/drivers/pci/pcie/portdrv_core.c
-@@ -9,7 +9,6 @@
- #include <linux/module.h>
- #include <linux/pci.h>
- #include <linux/kernel.h>
--#include <linux/delay.h>
- #include <linux/errno.h>
- #include <linux/pm.h>
- #include <linux/pm_runtime.h>
-@@ -379,67 +378,6 @@ static int pm_iter(struct device *dev, void *data)
- 	return 0;
- }
- 
--static int get_downstream_delay(struct pci_bus *bus)
--{
--	struct pci_dev *pdev;
--	int min_delay = 100;
--	int max_delay = 0;
--
--	list_for_each_entry(pdev, &bus->devices, bus_list) {
--		if (!pdev->imm_ready)
--			min_delay = 0;
--		else if (pdev->d3cold_delay < min_delay)
--			min_delay = pdev->d3cold_delay;
--		if (pdev->d3cold_delay > max_delay)
--			max_delay = pdev->d3cold_delay;
--	}
--
--	return max(min_delay, max_delay);
--}
--
--/*
-- * wait_for_downstream_link - Wait for downstream link to establish
-- * @pdev: PCIe port whose downstream link is waited
-- *
-- * Handle delays according to PCIe 4.0 section 6.6.1 before configuration
-- * access to the downstream component is permitted.
-- *
-- * This blocks PCI core resume of the hierarchy below this port until the
-- * link is trained. Should be called before resuming port services to
-- * prevent pciehp from starting to tear-down the hierarchy too soon.
-- */
--static void wait_for_downstream_link(struct pci_dev *pdev)
--{
--	int delay;
--
--	if (pci_pcie_type(pdev) != PCI_EXP_TYPE_ROOT_PORT &&
--	    pci_pcie_type(pdev) != PCI_EXP_TYPE_DOWNSTREAM)
--		return;
--
--	if (pci_dev_is_disconnected(pdev))
--		return;
--
--	if (!pdev->subordinate || list_empty(&pdev->subordinate->devices) ||
--	    !pdev->bridge_d3)
--		return;
--
--	delay = get_downstream_delay(pdev->subordinate);
--	if (!delay)
--		return;
--
--	dev_dbg(&pdev->dev, "waiting downstream link for %d ms\n", delay);
--
--	/*
--	 * If downstream port does not support speeds greater than 5 GT/s
--	 * need to wait 100ms. For higher speeds (gen3) we need to wait
--	 * first for the data link layer to become active.
--	 */
--	if (pcie_get_speed_cap(pdev) <= PCIE_SPEED_5_0GT)
--		msleep(delay);
--	else
--		pcie_wait_for_link_delay(pdev, true, delay);
--}
--
- /**
-  * pcie_port_device_suspend - suspend port services associated with a PCIe port
-  * @dev: PCI Express port to handle
-@@ -453,8 +391,6 @@ int pcie_port_device_suspend(struct device *dev)
- int pcie_port_device_resume_noirq(struct device *dev)
- {
- 	size_t off = offsetof(struct pcie_port_service_driver, resume_noirq);
--
--	wait_for_downstream_link(to_pci_dev(dev));
- 	return device_for_each_child(dev, &off, pm_iter);
- }
- 
-@@ -485,8 +421,6 @@ int pcie_port_device_runtime_suspend(struct device *dev)
- int pcie_port_device_runtime_resume(struct device *dev)
- {
- 	size_t off = offsetof(struct pcie_port_service_driver, runtime_resume);
--
--	wait_for_downstream_link(to_pci_dev(dev));
- 	return device_for_each_child(dev, &off, pm_iter);
- }
- #endif /* PM */
+ 		nfs4_end_drain_session(clp);
 -- 
 2.20.1
 
