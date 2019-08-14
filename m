@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C88638DB56
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:24:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 464818DAE4
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:21:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729295AbfHNRYU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:24:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55876 "EHLO mail.kernel.org"
+        id S1730417AbfHNRJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:09:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729701AbfHNRGj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:06:39 -0400
+        id S1730412AbfHNRJ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:09:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67A4D2084D;
-        Wed, 14 Aug 2019 17:06:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79E5B2084D;
+        Wed, 14 Aug 2019 17:09:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802398;
-        bh=o1HknKAktox50Lr8eByWnXdw3nOw0WtDlgNr12VKcBo=;
+        s=default; t=1565802598;
+        bh=HbEKa7Zri52UCkOvnsCGr3IcPyOq0d/HtyKJPhXp/Z4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XDeGtsTnxRbSJuAHgBfYodnSKJ4e30j1aobUhQU9iySx/mS6VxDZWQEYYJ7MbBeMN
-         wWkB+RqKmGa2Q+e/9rfKAnSs/lFiNqs4VgHwUfRZoA1k5lg1KJ+OicJhocJnTOK+mg
-         crUnw0G5NVq3/riIqlQVaOXlqC2/Xp75okKdJkgA=
+        b=jzipTGXvRM4r/RfLmxC19cbwnv10bWJzb/4TiD/wWnkP0rDAB8eSA/KsmAMGP7iMY
+         Yy7Hut40Atsff8+0QxrAfELU3v417EVVb21dAshEHKQCha4xe+JIsuR+Dw0mtJopm2
+         /ywBxg3CtoB3J0LucHI61AO0iJEMP6c08lqSGDeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
+        stable@vger.kernel.org, Thomas Tai <thomas.tai@oracle.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 110/144] test_firmware: fix a memory leak bug
-Date:   Wed, 14 Aug 2019 19:01:06 +0200
-Message-Id: <20190814165804.513117773@linuxfoundation.org>
+Subject: [PATCH 4.19 44/91] iscsi_ibft: make ISCSI_IBFT dependson ACPI instead of ISCSI_IBFT_FIND
+Date:   Wed, 14 Aug 2019 19:01:07 +0200
+Message-Id: <20190814165751.476809309@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
-References: <20190814165759.466811854@linuxfoundation.org>
+In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
+References: <20190814165748.991235624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,44 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d4fddac5a51c378c5d3e68658816c37132611e1f ]
+[ Upstream commit 94bccc34071094c165c79b515d21b63c78f7e968 ]
 
-In test_firmware_init(), the buffer pointed to by the global pointer
-'test_fw_config' is allocated through kzalloc(). Then, the buffer is
-initialized in __test_firmware_config_init(). In the case that the
-initialization fails, the following execution in test_firmware_init() needs
-to be terminated with an error code returned to indicate this failure.
-However, the allocated buffer is not freed on this execution path, leading
-to a memory leak bug.
+iscsi_ibft can use ACPI to find the iBFT entry during bootup,
+currently, ISCSI_IBFT depends on ISCSI_IBFT_FIND which is
+a X86 legacy way to find the iBFT by searching through the
+low memory. This patch changes the dependency so that other
+arch like ARM64 can use ISCSI_IBFT as long as the arch supports
+ACPI.
 
-To fix the above issue, free the allocated buffer before returning from
-test_firmware_init().
+ibft_init() needs to use the global variable ibft_addr declared
+in iscsi_ibft_find.c. A #ifndef CONFIG_ISCSI_IBFT_FIND is needed
+to declare the variable if CONFIG_ISCSI_IBFT_FIND is not selected.
+Moving ibft_addr into the iscsi_ibft.c does not work because if
+ISCSI_IBFT is selected as a module, the arch/x86/kernel/setup.c won't
+be able to find the variable at compile time.
 
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Link: https://lore.kernel.org/r/1563084696-6865-1-git-send-email-wang6495@umn.edu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Thomas Tai <thomas.tai@oracle.com>
+Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_firmware.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/firmware/Kconfig      | 5 +++--
+ drivers/firmware/iscsi_ibft.c | 4 ++++
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/lib/test_firmware.c b/lib/test_firmware.c
-index 83ea6c4e623cf..6ca97a63b3d6b 100644
---- a/lib/test_firmware.c
-+++ b/lib/test_firmware.c
-@@ -886,8 +886,11 @@ static int __init test_firmware_init(void)
- 		return -ENOMEM;
+diff --git a/drivers/firmware/Kconfig b/drivers/firmware/Kconfig
+index 6e83880046d78..ed212c8b41083 100644
+--- a/drivers/firmware/Kconfig
++++ b/drivers/firmware/Kconfig
+@@ -198,7 +198,7 @@ config DMI_SCAN_MACHINE_NON_EFI_FALLBACK
  
- 	rc = __test_firmware_config_init();
--	if (rc)
-+	if (rc) {
-+		kfree(test_fw_config);
-+		pr_err("could not init firmware test config: %d\n", rc);
- 		return rc;
-+	}
+ config ISCSI_IBFT_FIND
+ 	bool "iSCSI Boot Firmware Table Attributes"
+-	depends on X86 && ACPI
++	depends on X86 && ISCSI_IBFT
+ 	default n
+ 	help
+ 	  This option enables the kernel to find the region of memory
+@@ -209,7 +209,8 @@ config ISCSI_IBFT_FIND
+ config ISCSI_IBFT
+ 	tristate "iSCSI Boot Firmware Table Attributes module"
+ 	select ISCSI_BOOT_SYSFS
+-	depends on ISCSI_IBFT_FIND && SCSI && SCSI_LOWLEVEL
++	select ISCSI_IBFT_FIND if X86
++	depends on ACPI && SCSI && SCSI_LOWLEVEL
+ 	default	n
+ 	help
+ 	  This option enables support for detection and exposing of iSCSI
+diff --git a/drivers/firmware/iscsi_ibft.c b/drivers/firmware/iscsi_ibft.c
+index c51462f5aa1e4..966aef334c420 100644
+--- a/drivers/firmware/iscsi_ibft.c
++++ b/drivers/firmware/iscsi_ibft.c
+@@ -93,6 +93,10 @@ MODULE_DESCRIPTION("sysfs interface to BIOS iBFT information");
+ MODULE_LICENSE("GPL");
+ MODULE_VERSION(IBFT_ISCSI_VERSION);
  
- 	rc = misc_register(&test_fw_misc_device);
- 	if (rc) {
++#ifndef CONFIG_ISCSI_IBFT_FIND
++struct acpi_table_ibft *ibft_addr;
++#endif
++
+ struct ibft_hdr {
+ 	u8 id;
+ 	u8 version;
 -- 
 2.20.1
 
