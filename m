@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F6008D8CE
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:03:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 703D28D8D3
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:03:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728654AbfHNRCh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:02:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51078 "EHLO mail.kernel.org"
+        id S1728737AbfHNRCu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:02:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728674AbfHNRCg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:02:36 -0400
+        id S1728753AbfHNRCt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:02:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EE97214DA;
-        Wed, 14 Aug 2019 17:02:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BC3921721;
+        Wed, 14 Aug 2019 17:02:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802155;
-        bh=Tt2EqeaocrgyBp4xquR/jMgpydrdFvFboGMgsd9PDgM=;
+        s=default; t=1565802168;
+        bh=zhxAZGvoqo0f1xdBBUnCSimhFegjwoKQYTfVfwVAH1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w0Lt7H/1vL9vPipNyWw933GAqnsgb2PZxN8vBN5nf36SB0KJ+TjajArKO4GBSlk9t
-         +0evR3Np0HIv2+h2elxjrYmeuPaArtnG8DydSHY2DbFyM2p2XOZZsxgF1hjKU6XnFB
-         4wPojqtq1URapxWCFENCPprQ6gjhzsrNZT4JTp5Y=
+        b=d31Ip0htVsd7cchDYqIAcmQlf+A60+Q9eAVZ4KwMrLZd7/tt9HA7U2u3q2wzKkUkq
+         hvmKAIBteZhngMaA/vk/PfPeKutNAAxj370K5SdEHknE1JQ7NIBMv6PRQr1P6Q2zHH
+         fL7iveKH96woK6A/D/3jdh2eCCsyA1FgN9GueJy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gavin Li <git@thegavinli.com>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 5.2 016/144] usb: usbfs: fix double-free of usb memory upon submiturb error
-Date:   Wed, 14 Aug 2019 18:59:32 +0200
-Message-Id: <20190814165800.583805711@linuxfoundation.org>
+        stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.2 020/144] mmc: cavium: Set the correct dma max segment size for mmc_host
+Date:   Wed, 14 Aug 2019 18:59:36 +0200
+Message-Id: <20190814165800.711906685@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
 References: <20190814165759.466811854@linuxfoundation.org>
@@ -43,34 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gavin Li <git@thegavinli.com>
+From: Kevin Hao <haokexin@gmail.com>
 
-commit c43f28dfdc4654e738aa6d3fd08a105b2bee758d upstream.
+commit fa25eba6993b3750f417baabba169afaba076178 upstream.
 
-Upon an error within proc_do_submiturb(), dec_usb_memory_use_count()
-gets called once by the error handling tail and again by free_async().
-Remove the first call.
+We have set the mmc_host.max_seg_size to 8M, but the dma max segment
+size of PCI device is set to 64K by default in function pci_device_add().
+The mmc_host.max_seg_size is used to set the max segment size of
+the blk queue. Then this mismatch will trigger a calltrace like below
+when a bigger than 64K segment request arrives at mmc dev. So we should
+consider the limitation of the cvm_mmc_host when setting the
+mmc_host.max_seg_size.
+  DMA-API: thunderx_mmc 0000:01:01.4: mapping sg segment longer than device claims to support [len=131072] [max=65536]
+  WARNING: CPU: 6 PID: 238 at kernel/dma/debug.c:1221 debug_dma_map_sg+0x2b8/0x350
+  Modules linked in:
+  CPU: 6 PID: 238 Comm: kworker/6:1H Not tainted 5.3.0-rc1-next-20190724-yocto-standard+ #62
+  Hardware name: Marvell OcteonTX CN96XX board (DT)
+  Workqueue: kblockd blk_mq_run_work_fn
+  pstate: 80c00009 (Nzcv daif +PAN +UAO)
+  pc : debug_dma_map_sg+0x2b8/0x350
+  lr : debug_dma_map_sg+0x2b8/0x350
+  sp : ffff00001770f9e0
+  x29: ffff00001770f9e0 x28: ffffffff00000000
+  x27: 00000000ffffffff x26: ffff800bc2c73180
+  x25: ffff000010e83700 x24: 0000000000000002
+  x23: 0000000000000001 x22: 0000000000000001
+  x21: 0000000000000000 x20: ffff800bc48ba0b0
+  x19: ffff800bc97e8c00 x18: ffffffffffffffff
+  x17: 0000000000000000 x16: 0000000000000000
+  x15: ffff000010e835c8 x14: 6874207265676e6f
+  x13: 6c20746e656d6765 x12: 7320677320676e69
+  x11: 7070616d203a342e x10: 31303a31303a3030
+  x9 : 303020636d6d5f78 x8 : 35363d78616d5b20
+  x7 : 00000000000002fd x6 : ffff000010fd57dc
+  x5 : 0000000000000000 x4 : ffff0000106c61f0
+  x3 : 00000000ffffffff x2 : 0000800bee060000
+  x1 : 7010678df3041a00 x0 : 0000000000000000
+  Call trace:
+   debug_dma_map_sg+0x2b8/0x350
+   cvm_mmc_request+0x3c4/0x988
+   __mmc_start_request+0x9c/0x1f8
+   mmc_start_request+0x7c/0xb0
+   mmc_blk_mq_issue_rq+0x5c4/0x7b8
+   mmc_mq_queue_rq+0x11c/0x278
+   blk_mq_dispatch_rq_list+0xb0/0x568
+   blk_mq_do_dispatch_sched+0x6c/0x108
+   blk_mq_sched_dispatch_requests+0x110/0x1b8
+   __blk_mq_run_hw_queue+0xb0/0x118
+   blk_mq_run_work_fn+0x28/0x38
+   process_one_work+0x210/0x490
+   worker_thread+0x48/0x458
+   kthread+0x130/0x138
+   ret_from_fork+0x10/0x1c
 
-Signed-off-by: Gavin Li <git@thegavinli.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190804235044.22327-1-gavinli@thegavinli.com
+Signed-off-by: Kevin Hao <haokexin@gmail.com>
+Fixes: ba3869ff32e4 ("mmc: cavium: Add core MMC driver for Cavium SOCs")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/devio.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/mmc/host/cavium.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/core/devio.c
-+++ b/drivers/usb/core/devio.c
-@@ -1788,8 +1788,6 @@ static int proc_do_submiturb(struct usb_
- 	return 0;
+--- a/drivers/mmc/host/cavium.c
++++ b/drivers/mmc/host/cavium.c
+@@ -1046,7 +1046,8 @@ int cvm_mmc_of_slot_probe(struct device
+ 		mmc->max_segs = 1;
  
-  error:
--	if (as && as->usbm)
--		dec_usb_memory_use_count(as->usbm, &as->usbm->urb_use_count);
- 	kfree(isopkt);
- 	kfree(dr);
- 	if (as)
+ 	/* DMA size field can address up to 8 MB */
+-	mmc->max_seg_size = 8 * 1024 * 1024;
++	mmc->max_seg_size = min_t(unsigned int, 8 * 1024 * 1024,
++				  dma_get_max_seg_size(host->dev));
+ 	mmc->max_req_size = mmc->max_seg_size;
+ 	/* External DMA is in 512 byte blocks */
+ 	mmc->max_blk_size = 512;
 
 
