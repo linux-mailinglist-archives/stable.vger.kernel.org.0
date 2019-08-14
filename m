@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 117B68C6AA
+	by mail.lfdr.de (Postfix) with ESMTP id 7FFE98C6AB
 	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:17:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729343AbfHNCRR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:17:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48622 "EHLO mail.kernel.org"
+        id S1729351AbfHNCRU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:17:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729341AbfHNCRR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:17:17 -0400
+        id S1727984AbfHNCRT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:17:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB5612085A;
-        Wed, 14 Aug 2019 02:17:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0203020989;
+        Wed, 14 Aug 2019 02:17:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565749036;
-        bh=cahBHJMN/DZ2pUDTlZrQ3ncmugz7b4xqgrTJTUURAEU=;
+        s=default; t=1565749038;
+        bh=W6zjYvuOPX26fpE1Mz/RixhVto6IOI2UoMOnVg4fDU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ov04BA8LD9lat9MEyIE+1W+1s+ioMYnTbrTAIkT2lg3/DmyYSo5+e4cwNTjr589sj
-         DfKV00MnP3+nsnec3QI5Gsf9vCrpkdUAPtpDAlUVYLtCvt01kHcOOuWjTSDM+Jcj2N
-         SOtQs+V8cu9M/GsGHkSWz92hxcggfHIJ4BfppYUc=
+        b=Sn7eEAI700d6/tSJz7ind0aqnZiqOphU44KeNLOY4ijs38a3pkNbwQq08Ri37VJ1T
+         ZTa1NYO9s5a6ZGaBgG2J71r3uWcV+98nmotY42BsNZmM3VzNxyinPiyZ7PTH3Z3aAW
+         ELuyUASirSvd4lYX8ahsbImAs5jlxhu/zZ+UzrqI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oliver Neukum <oneukum@suse.com>,
-        syzbot+5efc10c005014d061a74@syzkaller.appspotmail.com,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 51/68] Input: iforce - add sanity checks
-Date:   Tue, 13 Aug 2019 22:15:29 -0400
-Message-Id: <20190814021548.16001-51-sashal@kernel.org>
+Cc:     Jose Abreu <Jose.Abreu@synopsys.com>,
+        Jose Abreu <joabreu@synopsys.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 53/68] net: stmmac: Fix issues when number of Queues >= 4
+Date:   Tue, 13 Aug 2019 22:15:31 -0400
+Message-Id: <20190814021548.16001-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021548.16001-1-sashal@kernel.org>
 References: <20190814021548.16001-1-sashal@kernel.org>
@@ -44,38 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Jose Abreu <Jose.Abreu@synopsys.com>
 
-[ Upstream commit 849f5ae3a513c550cad741c68dd3d7eb2bcc2a2c ]
+[ Upstream commit e8df7e8c233a18d2704e37ecff47583b494789d3 ]
 
-The endpoint type should also be checked before a device
-is accepted.
+When queues >= 4 we use different registers but we were not subtracting
+the offset of 4. Fix this.
 
-Reported-by: syzbot+5efc10c005014d061a74@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Found out by Coverity.
+
+Signed-off-by: Jose Abreu <joabreu@synopsys.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/joystick/iforce/iforce-usb.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c   | 4 ++++
+ drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c | 4 ++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/drivers/input/joystick/iforce/iforce-usb.c b/drivers/input/joystick/iforce/iforce-usb.c
-index 78073259c9a1a..c431df7401b44 100644
---- a/drivers/input/joystick/iforce/iforce-usb.c
-+++ b/drivers/input/joystick/iforce/iforce-usb.c
-@@ -141,7 +141,12 @@ static int iforce_usb_probe(struct usb_interface *intf,
- 		return -ENODEV;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+index d0e6e1503581f..48cf5e2b24417 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+@@ -88,6 +88,8 @@ static void dwmac4_rx_queue_priority(struct mac_device_info *hw,
+ 	u32 value;
  
- 	epirq = &interface->endpoint[0].desc;
-+	if (!usb_endpoint_is_int_in(epirq))
-+		return -ENODEV;
-+
- 	epout = &interface->endpoint[1].desc;
-+	if (!usb_endpoint_is_int_out(epout))
-+		return -ENODEV;
+ 	base_register = (queue < 4) ? GMAC_RXQ_CTRL2 : GMAC_RXQ_CTRL3;
++	if (queue >= 4)
++		queue -= 4;
  
- 	if (!(iforce = kzalloc(sizeof(struct iforce) + 32, GFP_KERNEL)))
- 		goto fail;
+ 	value = readl(ioaddr + base_register);
+ 
+@@ -105,6 +107,8 @@ static void dwmac4_tx_queue_priority(struct mac_device_info *hw,
+ 	u32 value;
+ 
+ 	base_register = (queue < 4) ? GMAC_TXQ_PRTY_MAP0 : GMAC_TXQ_PRTY_MAP1;
++	if (queue >= 4)
++		queue -= 4;
+ 
+ 	value = readl(ioaddr + base_register);
+ 
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
+index d182f82f7b586..870302a7177e2 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
+@@ -106,6 +106,8 @@ static void dwxgmac2_rx_queue_prio(struct mac_device_info *hw, u32 prio,
+ 	u32 value, reg;
+ 
+ 	reg = (queue < 4) ? XGMAC_RXQ_CTRL2 : XGMAC_RXQ_CTRL3;
++	if (queue >= 4)
++		queue -= 4;
+ 
+ 	value = readl(ioaddr + reg);
+ 	value &= ~XGMAC_PSRQ(queue);
+@@ -169,6 +171,8 @@ static void dwxgmac2_map_mtl_to_dma(struct mac_device_info *hw, u32 queue,
+ 	u32 value, reg;
+ 
+ 	reg = (queue < 4) ? XGMAC_MTL_RXQ_DMA_MAP0 : XGMAC_MTL_RXQ_DMA_MAP1;
++	if (queue >= 4)
++		queue -= 4;
+ 
+ 	value = readl(ioaddr + reg);
+ 	value &= ~XGMAC_QxMDMACH(queue);
 -- 
 2.20.1
 
