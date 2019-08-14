@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E8AA8C618
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:12:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52C2E8C621
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:13:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727987AbfHNCMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:12:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44808 "EHLO mail.kernel.org"
+        id S1728139AbfHNCNG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:13:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727979AbfHNCMl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:12:41 -0400
+        id S1728058AbfHNCNF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:13:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A9EE20842;
-        Wed, 14 Aug 2019 02:12:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4F02214C6;
+        Wed, 14 Aug 2019 02:13:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748760;
-        bh=rL229EiVdHJ9uYzZvBHPwLKzwBdqrgjYJeNuBTGV+qM=;
+        s=default; t=1565748784;
+        bh=lqGwCjPgydFZ6txMoyYeKha62yorusUGtlBCYkLLjKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Koda1McQTgvN4XPgkgczWZXqKlzx1fddw9Z6rvnnw3wJmdIu/v9gJdj1Rzg73QxE+
-         H7GmJ0iKdcKYJknIfo+Qq4pyf39LL7YyhJa6ZiZTNsZY6bzGYUdos7KukRlbPY+SJ8
-         rw7vgH284iYN+1aibSS71ruwTnnZIdGpb0xLaEvI=
+        b=GuwB7Sj0OKJ0GrQj8R0/5NfYOObgWbo/YebAqBmFpKKC/OuBMmry87dsPNPbd/0B6
+         iXjmJveDp5kKANY9pGvgB51zeJUGMXO1Xin3RaIaMn9EMJaZZNSnLzVLWqfzHYw7Yj
+         PDz0EZnldfFt1D07RyjvZI6ivVDl8SAK6bSbp1kU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
+Cc:     Shahar S Matityahu <shahar.s.matityahu@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>,
         linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 053/123] mac80211_hwsim: Fix possible null-pointer dereferences in hwsim_dump_radio_nl()
-Date:   Tue, 13 Aug 2019 22:09:37 -0400
-Message-Id: <20190814021047.14828-53-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 063/123] iwlwifi: dbg_ini: move iwl_dbg_tlv_load_bin out of debug override ifdef
+Date:   Tue, 13 Aug 2019 22:09:47 -0400
+Message-Id: <20190814021047.14828-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -44,50 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Shahar S Matityahu <shahar.s.matityahu@intel.com>
 
-[ Upstream commit b55f3b841099e641bdb2701d361a4c304e2dbd6f ]
+[ Upstream commit 072b30642f90b01d139131ec7bf763778a3a3f41 ]
 
-In hwsim_dump_radio_nl(), when genlmsg_put() on line 3617 fails, hdr is
-assigned to NULL. Then hdr is used on lines 3622 and 3623:
-    genl_dump_check_consistent(cb, hdr);
-    genlmsg_end(skb, hdr);
+ini debug mode should work even if debug override is not defined.
 
-Thus, possible null-pointer dereferences may occur.
-
-To fix these bugs, hdr is used here when it is not NULL.
-
-This bug is found by a static analysis tool STCheck written by us.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Link: https://lore.kernel.org/r/20190729082332.28895-1-baijiaju1990@gmail.com
-[put braces on all branches]
+Signed-off-by: Shahar S Matityahu <shahar.s.matityahu@intel.com>
+Fixes: 68f6f492c4fa ("iwlwifi: trans: support loading ini TLVs from external file")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/iwl-drv.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
-index 1c699a9fa8661..faec05ab42754 100644
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -3615,10 +3615,12 @@ static int hwsim_dump_radio_nl(struct sk_buff *skb,
- 		hdr = genlmsg_put(skb, NETLINK_CB(cb->skb).portid,
- 				  cb->nlh->nlmsg_seq, &hwsim_genl_family,
- 				  NLM_F_MULTI, HWSIM_CMD_GET_RADIO);
--		if (!hdr)
-+		if (hdr) {
-+			genl_dump_check_consistent(cb, hdr);
-+			genlmsg_end(skb, hdr);
-+		} else {
- 			res = -EMSGSIZE;
--		genl_dump_check_consistent(cb, hdr);
--		genlmsg_end(skb, hdr);
-+		}
- 	}
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
+index fba242284507b..efd4bf04d0162 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
+@@ -1627,6 +1627,8 @@ struct iwl_drv *iwl_drv_start(struct iwl_trans *trans)
+ 	init_completion(&drv->request_firmware_complete);
+ 	INIT_LIST_HEAD(&drv->list);
  
- done:
++	iwl_load_fw_dbg_tlv(drv->trans->dev, drv->trans);
++
+ #ifdef CONFIG_IWLWIFI_DEBUGFS
+ 	/* Create the device debugfs entries. */
+ 	drv->dbgfs_drv = debugfs_create_dir(dev_name(trans->dev),
 -- 
 2.20.1
 
