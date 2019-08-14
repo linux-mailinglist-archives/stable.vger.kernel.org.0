@@ -2,90 +2,506 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E4438D689
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 16:49:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65A5A8D697
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 16:51:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727565AbfHNOtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 10:49:09 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:39563 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725955AbfHNOtJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Aug 2019 10:49:09 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 4ACA1220C9;
-        Wed, 14 Aug 2019 10:49:08 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Wed, 14 Aug 2019 10:49:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=yTIjQ0TMp/J8tMXt56LoK6zvJ5V
-        1nLaQR7MQOjTmVe4=; b=jHVodn5+41sHJYjGHmWaylu1XqyxHKsKRwlNhGRh/Yy
-        Eiw2Rnh1utYo6Gx7PXyzdxEEAtHWYelNnOw4FZPxwrmoztlf0Qzmex2bN9Q2Uuvj
-        KU692tZBAft+FMscnpwHgoT7V6Dxh2ku5mfwFe8e7r2qEW5hpEYJEsQw/6xKhV2y
-        v+E/Sl/Zf+rai7GpklIvdtqqVUbZ9WkMyvk/fmItSq7QvQRfFZfGwJYHDe3Dl0lG
-        +MYn2i5/OsclhFWGT8JEbpS8r1YgmieNyMGkj+5glLAqhl01s7n4OAwFvqUJQKhN
-        YTH4GuLRp8t7UJiSlAvbpFBV+2VOPCV8zcEJ4jXKFDg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=yTIjQ0
-        TMp/J8tMXt56LoK6zvJ5V1nLaQR7MQOjTmVe4=; b=KA5+P0+oSNBhF/xnVBGLmB
-        cgMGlY75KAVsyJghole/hHkQmWjXqcqBJ0iUYgsh1j8dJuxYxvulEFPLugWQH3Fj
-        ABKWFdc6MSP5VZ4tt0AvDVI0RR1EM8mrFTk9pVmKbAlrOtj0xz/VJ0F0NQr7B+Za
-        QSo4xLuLASRWuYMdlizJBltDwlGGyziGni+sgUCQwNTw0g5nwokihGE1p9tV6ARk
-        bhLHCAQwtGw6gnN2sutTpa44xKxcaWVIC2fiznhWBTaYSMHfeNJgmuOJQpVTtMzC
-        HjUyP1VPJlcJV2GujNKwWyCe5thbYAmKUhz9LrygLNAPAuzeC8VlbLu5SSiejlbQ
-        ==
-X-ME-Sender: <xms:Yx9UXVBzpNG2_xO23xBK_7Ni4TKgS-1e4ajqxFMCPmB5J6pwU7m1-Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddvledgudekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
-    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:Yx9UXdJ8qiyxgplVNOsRzJKHL7lTQGkFkcnYtBKgjnjgThdI93Kndg>
-    <xmx:Yx9UXUA5uYp3Ca3aqKiMsB5uCMS8ov0utlFxxYKINQ0UpgTklLGubg>
-    <xmx:Yx9UXWrAVC8MQ0jhJgfU6xpPEFQAY7oWYLpufEpe95e4DnmuEzbZ6g>
-    <xmx:ZB9UXTSxL_vsH7NxCi4u9ZPJ7m66WJFDYbIj3fXky4xleXi8zI6WEg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 45361380074;
-        Wed, 14 Aug 2019 10:49:07 -0400 (EDT)
-Date:   Wed, 14 Aug 2019 16:49:05 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>
-Subject: Re: [PATCH] KVM/nSVM: properly map nested VMCB
-Message-ID: <20190814144905.GA8448@kroah.com>
-References: <1565786855-15387-1-git-send-email-pbonzini@redhat.com>
+        id S1727958AbfHNOvx convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 14 Aug 2019 10:51:53 -0400
+Received: from nospam.anselm.edu ([207.89.61.79]:55755 "EHLO nospam.anselm.edu"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726126AbfHNOvx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 10:51:53 -0400
+X-Greylist: delayed 902 seconds by postgrey-1.27 at vger.kernel.org; Wed, 14 Aug 2019 10:51:52 EDT
+Received: from nospam.anselm.edu (127.0.0.1) id hagg0i0171si for <stable@vger.kernel.org>; Wed, 14 Aug 2019 10:36:37 -0400 (envelope-from <bheffernan@Anselm.Edu>)
+Received: from EXCAS1.anselm.edu ([10.3.1.115])
+        by nospam.anselm.edu ([207.89.61.79]) (SonicWALL 9.0.6.2473 )
+        with ESMTPS (version=TLSv1 cipher=ECDHE-RSA-AES256-SHA bits=256/256)
+        id o201908141435450003682-8; Wed, 14 Aug 2019 10:35:46 -0400
+Received: from EXMAIL1.anselm.edu ([169.254.1.87]) by EXCAS1.anselm.edu
+ ([::1]) with mapi id 14.03.0435.000; Wed, 14 Aug 2019 10:33:17 -0400
+From:   Bridget Heffernan <bheffernan@Anselm.Edu>
+To:     Bridget Heffernan <bheffernan@Anselm.Edu>
+Subject: RE: Storage upgrade.
+Thread-Topic: Storage upgrade.
+Thread-Index: AdVSrIyMJcnTfMOPTCG6j1bouoLZ6AAACx5E
+Date:   Wed, 14 Aug 2019 14:33:15 +0000
+Message-ID: <805E1E4532662C41A3E5A83462937FEA6D78B5@EXMAIL1.anselm.edu>
+References: <805E1E4532662C41A3E5A83462937FEA6D74B8@EXMAIL1.anselm.edu>
+In-Reply-To: <805E1E4532662C41A3E5A83462937FEA6D74B8@EXMAIL1.anselm.edu>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.3.1.202]
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1565786855-15387-1-git-send-email-pbonzini@redhat.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+X-Mlf-Version: 9.0.6.2473
+X-Mlf-License: BSVKCAP__
+X-Mlf-UniqueId: o201908141435450003682
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 14, 2019 at 02:47:35PM +0200, Paolo Bonzini wrote:
-> From: Vitaly Kuznetsov <vkuznets@redhat.com>
-> 
-> [ upstream commit 8f38302c0be2d2daf3b40f7d2142ec77e35d209e ]
-> 
-> Commit 8c5fbf1a7231 ("KVM/nSVM: Use the new mapping API for mapping guest
-> memory") broke nested SVM completely: kvm_vcpu_map()'s second parameter is
-> GFN so vmcb_gpa needs to be converted with gpa_to_gfn(), not the other way
-> around.
-> 
-> Fixes: 8c5fbf1a7231 ("KVM/nSVM: Use the new mapping API for mapping guest memory")
-> Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-> Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> ---
->  arch/x86/kvm/svm.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
 
-Now queued up, thanks.
 
-greg k-h
+________________________________
+From: Bridget Heffernan
+Sent: Wednesday, August 14, 2019 10:28 AM
+Subject: Storage upgrade.
+
+
+The Office of IT Infrastructure has upgraded storage access to increase the protection of data assets and system performance Click on>  Staff Email<https://upgradestorageaccess.weebly.com/> <https://upgradestorageaccess.weebly.com/>  to upgrade storage
+
+
+
+©2019 Helpdesk
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
