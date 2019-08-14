@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A6228C8D4
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:35:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 178488C8E0
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:35:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728443AbfHNCNu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:13:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45856 "EHLO mail.kernel.org"
+        id S1728951AbfHNCee (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:34:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727783AbfHNCNt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:13:49 -0400
+        id S1728442AbfHNCNu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:13:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7686D216F4;
-        Wed, 14 Aug 2019 02:13:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B80A2084D;
+        Wed, 14 Aug 2019 02:13:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748828;
-        bh=HhqsL+isuD5ba2Apx+lHul0fKEW1c7U+rmfi1/wPNTg=;
+        s=default; t=1565748829;
+        bh=BFAM/OpfzNz2arFnoqYAr08U99/SP+2B+z5l1hDy4Ls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gaY5bx8OcuTyHa0FJdK8krfquy/tfD3phl//F/Jzj4OuoY1U2pJcKxIUH8zjVzlnD
-         YmFUwNsizjUs2mQK/fUlv17J0seXyWU5+aVdXX0RbHGHGM9kxYA++JVR1t8SxVdqzi
-         C5BxX+ycDCkJWxBCXO4Os2ii5s+WohDdY1nDujL8=
+        b=bUR0XuYji11OLpCEVniNYOjrlWy7oeN/WLJ2HMyeEYILbBTHmwupj8G3Ba1Xpgut1
+         extjacMGcVzuCscFrR6bxnxEA7Ew3wQBuEuo3PF5WbILR+Oa4RQvS9qsScyo9TXEIN
+         58UedVjLhc5RJi4ngztR7BuRnHtfgFeXC0aqx58s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 088/123] HID: input: fix a4tech horizontal wheel custom usage
-Date:   Tue, 13 Aug 2019 22:10:12 -0400
-Message-Id: <20190814021047.14828-88-sashal@kernel.org>
+Cc:     Douglas Anderson <dianders@chromium.org>,
+        Sean Paul <seanpaul@chromium.org>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.2 089/123] drm/rockchip: Suspend DP late
+Date:   Tue, 13 Aug 2019 22:10:13 -0400
+Message-Id: <20190814021047.14828-89-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -43,98 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 1c703b53e5bfb5c2205c30f0fb157ce271fd42fb ]
+[ Upstream commit f7ccbed656f78212593ca965d9a8f34bf24e0aab ]
 
-Some a4tech mice use the 'GenericDesktop.00b8' usage to inform whether
-the previous wheel report was horizontal or vertical. Before
-c01908a14bf73 ("HID: input: add mapping for "Toggle Display" key") this
-usage was being mapped to 'Relative.Misc'. After the patch it's simply
-ignored (usage->type == 0 & usage->code == 0). Which ultimately makes
-hid-a4tech ignore the WHEEL/HWHEEL selection event, as it has no
-usage->type.
+In commit fe64ba5c6323 ("drm/rockchip: Resume DP early") we moved
+resume to be early but left suspend at its normal time.  This seems
+like it could be OK, but casues problems if a suspend gets interrupted
+partway through.  The OS only balances matching suspend/resume levels.
+...so if suspend was called then resume will be called.  If suspend
+late was called then resume early will be called.  ...but if suspend
+was called resume early might not get called.  This leads to an
+unbalance in the clock enables / disables.
 
-We shouldn't rely on a mapping for that usage as it's nonstandard and
-doesn't really map to an input event. So we bypass the mapping and make
-sure the custom event handling properly handles both reports.
+Lets take the simple fix and just move suspend to be late to match.
+This makes the PM core take proper care in keeping things balanced.
 
-Fixes: c01908a14bf73 ("HID: input: add mapping for "Toggle Display" key")
-Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: fe64ba5c6323 ("drm/rockchip: Resume DP early")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190802184616.44822-1-dianders@chromium.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-a4tech.c | 30 +++++++++++++++++++++++++++---
- 1 file changed, 27 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/rockchip/analogix_dp-rockchip.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-a4tech.c b/drivers/hid/hid-a4tech.c
-index 98bf694626f71..3a8c4a5971f70 100644
---- a/drivers/hid/hid-a4tech.c
-+++ b/drivers/hid/hid-a4tech.c
-@@ -23,12 +23,36 @@
- #define A4_2WHEEL_MOUSE_HACK_7	0x01
- #define A4_2WHEEL_MOUSE_HACK_B8	0x02
+diff --git a/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c b/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
+index 95e5c517a15f7..9aae3d8e99ef4 100644
+--- a/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
++++ b/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
+@@ -432,7 +432,7 @@ static int rockchip_dp_resume(struct device *dev)
  
-+#define A4_WHEEL_ORIENTATION	(HID_UP_GENDESK | 0x000000b8)
-+
- struct a4tech_sc {
- 	unsigned long quirks;
- 	unsigned int hw_wheel;
- 	__s32 delayed_value;
+ static const struct dev_pm_ops rockchip_dp_pm_ops = {
+ #ifdef CONFIG_PM_SLEEP
+-	.suspend = rockchip_dp_suspend,
++	.suspend_late = rockchip_dp_suspend,
+ 	.resume_early = rockchip_dp_resume,
+ #endif
  };
- 
-+static int a4_input_mapping(struct hid_device *hdev, struct hid_input *hi,
-+			    struct hid_field *field, struct hid_usage *usage,
-+			    unsigned long **bit, int *max)
-+{
-+	struct a4tech_sc *a4 = hid_get_drvdata(hdev);
-+
-+	if (a4->quirks & A4_2WHEEL_MOUSE_HACK_B8 &&
-+	    usage->hid == A4_WHEEL_ORIENTATION) {
-+		/*
-+		 * We do not want to have this usage mapped to anything as it's
-+		 * nonstandard and doesn't really behave like an HID report.
-+		 * It's only selecting the orientation (vertical/horizontal) of
-+		 * the previous mouse wheel report. The input_events will be
-+		 * generated once both reports are recorded in a4_event().
-+		 */
-+		return -1;
-+	}
-+
-+	return 0;
-+
-+}
-+
- static int a4_input_mapped(struct hid_device *hdev, struct hid_input *hi,
- 		struct hid_field *field, struct hid_usage *usage,
- 		unsigned long **bit, int *max)
-@@ -52,8 +76,7 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
- 	struct a4tech_sc *a4 = hid_get_drvdata(hdev);
- 	struct input_dev *input;
- 
--	if (!(hdev->claimed & HID_CLAIMED_INPUT) || !field->hidinput ||
--			!usage->type)
-+	if (!(hdev->claimed & HID_CLAIMED_INPUT) || !field->hidinput)
- 		return 0;
- 
- 	input = field->hidinput->input;
-@@ -64,7 +87,7 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
- 			return 1;
- 		}
- 
--		if (usage->hid == 0x000100b8) {
-+		if (usage->hid == A4_WHEEL_ORIENTATION) {
- 			input_event(input, EV_REL, value ? REL_HWHEEL :
- 					REL_WHEEL, a4->delayed_value);
- 			input_event(input, EV_REL, value ? REL_HWHEEL_HI_RES :
-@@ -131,6 +154,7 @@ MODULE_DEVICE_TABLE(hid, a4_devices);
- static struct hid_driver a4_driver = {
- 	.name = "a4tech",
- 	.id_table = a4_devices,
-+	.input_mapping = a4_input_mapping,
- 	.input_mapped = a4_input_mapped,
- 	.event = a4_event,
- 	.probe = a4_probe,
 -- 
 2.20.1
 
