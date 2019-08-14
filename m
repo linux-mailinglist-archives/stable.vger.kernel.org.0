@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C5B78C5FC
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:12:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41F298C607
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:12:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727716AbfHNCLw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:11:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44082 "EHLO mail.kernel.org"
+        id S1726889AbfHNCMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:12:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727703AbfHNCLv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:11:51 -0400
+        id S1727807AbfHNCMH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:12:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CC6A21744;
-        Wed, 14 Aug 2019 02:11:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD2872084F;
+        Wed, 14 Aug 2019 02:12:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748710;
-        bh=YarHGKtBIijyaqXlWcY8Btnh31GnzALr+t2++I5/OJ4=;
+        s=default; t=1565748726;
+        bh=yIk9PQxdyju4Bzm9qNkxx1EFIuAWgj5Im7e/vA8jlwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LMftjXHlxL/Yp6N7ugK/rh/OvgyaD/6CDfc3ct1xnLr3fkwpS28k49c2Ab4EPyyFS
-         aE6+VYEFOUAdQdxwIUKMSjmDyeX2MrYuBD9jL8CcupftDyY2EyVt1KD7yMkWYeUko7
-         JeMM9uSQOIghEPYJsy31Rr4c9qHjLTauq6z4hkGI=
+        b=zc1rz5a4WtJAcmjOfGUC0DAPVB9TKCbfY6UZhaYg911UyRe9tiQuxHD70pHNbGebm
+         F1tHtXLzD2Qm5xNGbU7ng56Q6ibDPmLTwNNm1J6rt7JTGUidhzbitHjC2AxNFG9kY9
+         IRciuCdmhPU4PWAwRKlKUgsWQB9dqCLZJNfvES9s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 034/123] bpf: fix access to skb_shared_info->gso_segs
-Date:   Tue, 13 Aug 2019 22:09:18 -0400
-Message-Id: <20190814021047.14828-34-sashal@kernel.org>
+Cc:     Ricard Wanderlof <ricard.wanderlof@axis.com>,
+        Ricard Wanderlof <ricardw@axis.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 040/123] ASoC: Fail card instantiation if DAI format setup fails
+Date:   Tue, 13 Aug 2019 22:09:24 -0400
+Message-Id: <20190814021047.14828-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -45,67 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Ricard Wanderlof <ricard.wanderlof@axis.com>
 
-[ Upstream commit 06a22d897d82f12776d44dbf0850f5895469cb2a ]
+[ Upstream commit 40aa5383e393d72f6aa3943a4e7b1aae25a1e43b ]
 
-It is possible we reach bpf_convert_ctx_access() with
-si->dst_reg == si->src_reg
+If the DAI format setup fails, there is no valid communication format
+between CPU and CODEC, so fail card instantiation, rather than continue
+with a card that will most likely not function properly.
 
-Therefore, we need to load BPF_REG_AX before eventually
-mangling si->src_reg.
-
-syzbot generated this x86 code :
-   3:   55                      push   %rbp
-   4:   48 89 e5                mov    %rsp,%rbp
-   7:   48 81 ec 00 00 00 00    sub    $0x0,%rsp // Might be avoided ?
-   e:   53                      push   %rbx
-   f:   41 55                   push   %r13
-  11:   41 56                   push   %r14
-  13:   41 57                   push   %r15
-  15:   6a 00                   pushq  $0x0
-  17:   31 c0                   xor    %eax,%eax
-  19:   48 8b bf c0 00 00 00    mov    0xc0(%rdi),%rdi
-  20:   44 8b 97 bc 00 00 00    mov    0xbc(%rdi),%r10d
-  27:   4c 01 d7                add    %r10,%rdi
-  2a:   48 0f b7 7f 06          movzwq 0x6(%rdi),%rdi // Crash
-  2f:   5b                      pop    %rbx
-  30:   41 5f                   pop    %r15
-  32:   41 5e                   pop    %r14
-  34:   41 5d                   pop    %r13
-  36:   5b                      pop    %rbx
-  37:   c9                      leaveq
-  38:   c3                      retq
-
-Fixes: d9ff286a0f59 ("bpf: allow BPF programs access skb_shared_info->gso_segs field")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Ricard Wanderlof <ricardw@axis.com>
+Link: https://lore.kernel.org/r/alpine.DEB.2.20.1907241132350.6338@lnxricardw1.se.axis.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/filter.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/soc/soc-core.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/filter.c b/net/core/filter.c
-index f681fb772940c..534c310bb0893 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -7325,12 +7325,12 @@ static u32 bpf_convert_ctx_access(enum bpf_access_type type,
- 	case offsetof(struct __sk_buff, gso_segs):
- 		/* si->dst_reg = skb_shinfo(SKB); */
- #ifdef NET_SKBUFF_DATA_USES_OFFSET
--		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, head),
--				      si->dst_reg, si->src_reg,
--				      offsetof(struct sk_buff, head));
- 		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, end),
- 				      BPF_REG_AX, si->src_reg,
- 				      offsetof(struct sk_buff, end));
-+		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, head),
-+				      si->dst_reg, si->src_reg,
-+				      offsetof(struct sk_buff, head));
- 		*insn++ = BPF_ALU64_REG(BPF_ADD, si->dst_reg, BPF_REG_AX);
- #else
- 		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, end),
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index 6aeba0d66ec50..dd0f43a1c5e14 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -1605,8 +1605,11 @@ static int soc_probe_link_dais(struct snd_soc_card *card,
+ 		}
+ 	}
+ 
+-	if (dai_link->dai_fmt)
+-		snd_soc_runtime_set_dai_fmt(rtd, dai_link->dai_fmt);
++	if (dai_link->dai_fmt) {
++		ret = snd_soc_runtime_set_dai_fmt(rtd, dai_link->dai_fmt);
++		if (ret)
++			return ret;
++	}
+ 
+ 	ret = soc_post_component_init(rtd, dai_link->name);
+ 	if (ret)
 -- 
 2.20.1
 
