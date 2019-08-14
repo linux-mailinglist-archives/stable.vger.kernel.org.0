@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD6BD8D988
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:09:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97E7F8D929
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:06:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728366AbfHNRJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:09:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59804 "EHLO mail.kernel.org"
+        id S1728745AbfHNRGH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:06:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730323AbfHNRJZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:09:25 -0400
+        id S1729579AbfHNRGG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:06:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE8EC2173B;
-        Wed, 14 Aug 2019 17:09:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3369821743;
+        Wed, 14 Aug 2019 17:06:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802564;
-        bh=MB5RAsCkVL6iHJ/DICHCjuXpAOCin975sP3aOfY5WfE=;
+        s=default; t=1565802365;
+        bh=d4I6Ceu/1O8p7f12GClQkLGcpFKIXGp9haa/aTigk8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qehXpEt6VRS+/HUCwh93AzvNfHigQbOmamW5i8qWSdG4rQMFoWsgGuw7z3/1yta1Z
-         +DvzePy9fLsrBYN/S7ks4UI2PDkb/2kizARKJH9fnnzhcabvpxrlgxBS7rmCcGdRkX
-         h+xJfFpNVjs3M5gH5jaUg/3RwZ7IJXvb7GtDY6Mg=
+        b=GgNRkj3CQ5s2SCWbPXvN3//I8BEbeIlZBwHl1ggH9PRDeYVu00D/MNES/Vlg+b/Yh
+         e0V+Jj2X/YPg3tekIIZBvqU8AjybU722JMT9VscmWG6WYAc4lbQ1DbtEHsuHvPJufP
+         iQvLSdSFUbetGHjIu3DqSVsCFFkX3xZp3sU13Q20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Gilbert <dgilbert@interlog.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.19 30/91] usb: typec: tcpm: Ignore unsupported/unknown alternate mode requests
-Date:   Wed, 14 Aug 2019 19:00:53 +0200
-Message-Id: <20190814165750.977125262@linuxfoundation.org>
+        stable@vger.kernel.org, Numfor Mbiziwo-Tiapo <nums@google.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ian Rogers <irogers@google.com>, Mark Drayton <mbd@fb.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Song Liu <songliubraving@fb.com>,
+        Stephane Eranian <eranian@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 098/144] perf stat: Fix segfault for event group in repeat mode
+Date:   Wed, 14 Aug 2019 19:00:54 +0200
+Message-Id: <20190814165803.983934923@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
-References: <20190814165748.991235624@linuxfoundation.org>
+In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
+References: <20190814165759.466811854@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,121 +51,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+[ Upstream commit 08ef3af1579d0446db1c1bd08e2c42565addf10f ]
 
-commit 88d02c9ba2e83fc22d37ccb1f11c62ea6fc9ae50 upstream.
+Numfor Mbiziwo-Tiapo reported segfault on stat of event group in repeat
+mode:
 
-TCPM may receive PD messages associated with unknown or unsupported
-alternate modes. If that happens, calls to typec_match_altmode()
-will return NULL. The tcpm code does not currently take this into
-account. This results in crashes.
+  # perf stat -e '{cycles,instructions}' -r 10 ls
 
-Unable to handle kernel NULL pointer dereference at virtual address 000001f0
-pgd = 41dad9a1
-[000001f0] *pgd=00000000
-Internal error: Oops: 5 [#1] THUMB2
-Modules linked in: tcpci tcpm
-CPU: 0 PID: 2338 Comm: kworker/u2:0 Not tainted 5.1.18-sama5-armv7-r2 #6
-Hardware name: Atmel SAMA5
-Workqueue: 2-0050 tcpm_pd_rx_handler [tcpm]
-PC is at typec_altmode_attention+0x0/0x14
-LR is at tcpm_pd_rx_handler+0xa3b/0xda0 [tcpm]
-...
-[<c03fbee8>] (typec_altmode_attention) from [<bf8030fb>]
-				(tcpm_pd_rx_handler+0xa3b/0xda0 [tcpm])
-[<bf8030fb>] (tcpm_pd_rx_handler [tcpm]) from [<c012082b>]
-				(process_one_work+0x123/0x2a8)
-[<c012082b>] (process_one_work) from [<c0120a6d>]
-				(worker_thread+0xbd/0x3b0)
-[<c0120a6d>] (worker_thread) from [<c012431f>] (kthread+0xcf/0xf4)
-[<c012431f>] (kthread) from [<c01010f9>] (ret_from_fork+0x11/0x38)
+It's caused by memory corruption due to not cleaned evsel's id array and
+index, which needs to be rebuilt in every stat iteration. Currently the
+ids index grows, while the array (which is also not freed) has the same
+size.
 
-Ignore PD messages if the associated alternate mode is not supported.
+Fixing this by releasing id array and zeroing ids index in
+perf_evsel__close function.
 
-Fixes: e9576fe8e605c ("usb: typec: tcpm: Support for Alternate Modes")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: Douglas Gilbert <dgilbert@interlog.com>
-Cc: Douglas Gilbert <dgilbert@interlog.com>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Tested-by: Douglas Gilbert <dgilbert@interlog.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/1564761822-13984-1-git-send-email-linux@roeck-us.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We also need to keep the evsel_list alive for stat record (which is
+disabled in repeat mode).
 
+Reported-by: Numfor Mbiziwo-Tiapo <nums@google.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Mark Drayton <mbd@fb.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lkml.kernel.org/r/20190715142121.GC6032@krava
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/tcpm.c |   36 +++++++++++++++++++++++-------------
- 1 file changed, 23 insertions(+), 13 deletions(-)
+ tools/perf/builtin-stat.c | 9 ++++++++-
+ tools/perf/util/evsel.c   | 2 ++
+ 2 files changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/typec/tcpm.c
-+++ b/drivers/usb/typec/tcpm.c
-@@ -1108,7 +1108,8 @@ static int tcpm_pd_svdm(struct tcpm_port
- 			break;
- 		case CMD_ATTENTION:
- 			/* Attention command does not have response */
--			typec_altmode_attention(adev, p[1]);
-+			if (adev)
-+				typec_altmode_attention(adev, p[1]);
- 			return 0;
- 		default:
- 			break;
-@@ -1160,20 +1161,26 @@ static int tcpm_pd_svdm(struct tcpm_port
- 			}
- 			break;
- 		case CMD_ENTER_MODE:
--			typec_altmode_update_active(pdev, true);
-+			if (adev && pdev) {
-+				typec_altmode_update_active(pdev, true);
+diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
+index e28002d905738..c6c550dbb9479 100644
+--- a/tools/perf/builtin-stat.c
++++ b/tools/perf/builtin-stat.c
+@@ -607,7 +607,13 @@ static int __run_perf_stat(int argc, const char **argv, int run_idx)
+ 	 * group leaders.
+ 	 */
+ 	read_counters(&(struct timespec) { .tv_nsec = t1-t0 });
+-	perf_evlist__close(evsel_list);
++
++	/*
++	 * We need to keep evsel_list alive, because it's processed
++	 * later the evsel_list will be closed after.
++	 */
++	if (!STAT_RECORD)
++		perf_evlist__close(evsel_list);
  
--			if (typec_altmode_vdm(adev, p[0], &p[1], cnt)) {
--				response[0] = VDO(adev->svid, 1, CMD_EXIT_MODE);
--				response[0] |= VDO_OPOS(adev->mode);
--				return 1;
-+				if (typec_altmode_vdm(adev, p[0], &p[1], cnt)) {
-+					response[0] = VDO(adev->svid, 1,
-+							  CMD_EXIT_MODE);
-+					response[0] |= VDO_OPOS(adev->mode);
-+					return 1;
-+				}
- 			}
- 			return 0;
- 		case CMD_EXIT_MODE:
--			typec_altmode_update_active(pdev, false);
-+			if (adev && pdev) {
-+				typec_altmode_update_active(pdev, false);
+ 	return WEXITSTATUS(status);
+ }
+@@ -1922,6 +1928,7 @@ int cmd_stat(int argc, const char **argv)
+ 			perf_session__write_header(perf_stat.session, evsel_list, fd, true);
+ 		}
  
--			/* Back to USB Operation */
--			WARN_ON(typec_altmode_notify(adev, TYPEC_STATE_USB,
--						     NULL));
-+				/* Back to USB Operation */
-+				WARN_ON(typec_altmode_notify(adev,
-+							     TYPEC_STATE_USB,
-+							     NULL));
-+			}
- 			break;
- 		default:
- 			break;
-@@ -1183,8 +1190,10 @@ static int tcpm_pd_svdm(struct tcpm_port
- 		switch (cmd) {
- 		case CMD_ENTER_MODE:
- 			/* Back to USB Operation */
--			WARN_ON(typec_altmode_notify(adev, TYPEC_STATE_USB,
--						     NULL));
-+			if (adev)
-+				WARN_ON(typec_altmode_notify(adev,
-+							     TYPEC_STATE_USB,
-+							     NULL));
- 			break;
- 		default:
- 			break;
-@@ -1195,7 +1204,8 @@ static int tcpm_pd_svdm(struct tcpm_port
++		perf_evlist__close(evsel_list);
+ 		perf_session__delete(perf_stat.session);
  	}
  
- 	/* Informing the alternate mode drivers about everything */
--	typec_altmode_vdm(adev, p[0], &p[1], cnt);
-+	if (adev)
-+		typec_altmode_vdm(adev, p[0], &p[1], cnt);
- 
- 	return rlen;
+diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
+index 2c46f9aa416c6..b854541604df5 100644
+--- a/tools/perf/util/evsel.c
++++ b/tools/perf/util/evsel.c
+@@ -1282,6 +1282,7 @@ static void perf_evsel__free_id(struct perf_evsel *evsel)
+ 	xyarray__delete(evsel->sample_id);
+ 	evsel->sample_id = NULL;
+ 	zfree(&evsel->id);
++	evsel->ids = 0;
  }
+ 
+ static void perf_evsel__free_config_terms(struct perf_evsel *evsel)
+@@ -2074,6 +2075,7 @@ void perf_evsel__close(struct perf_evsel *evsel)
+ 
+ 	perf_evsel__close_fd(evsel);
+ 	perf_evsel__free_fd(evsel);
++	perf_evsel__free_id(evsel);
+ }
+ 
+ int perf_evsel__open_per_cpu(struct perf_evsel *evsel,
+-- 
+2.20.1
+
 
 
