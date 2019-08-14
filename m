@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 703D28D8D3
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:03:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 800A08D8FB
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:04:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728737AbfHNRCu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:02:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51310 "EHLO mail.kernel.org"
+        id S1728543AbfHNREU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:04:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728753AbfHNRCt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:02:49 -0400
+        id S1729185AbfHNRET (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:04:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BC3921721;
-        Wed, 14 Aug 2019 17:02:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26617214DA;
+        Wed, 14 Aug 2019 17:04:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802168;
-        bh=zhxAZGvoqo0f1xdBBUnCSimhFegjwoKQYTfVfwVAH1A=;
+        s=default; t=1565802258;
+        bh=c5ECV7W2sMFmoAZauGAu8MuqRcIeMfiqCEJhGLY03KA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d31Ip0htVsd7cchDYqIAcmQlf+A60+Q9eAVZ4KwMrLZd7/tt9HA7U2u3q2wzKkUkq
-         hvmKAIBteZhngMaA/vk/PfPeKutNAAxj370K5SdEHknE1JQ7NIBMv6PRQr1P6Q2zHH
-         fL7iveKH96woK6A/D/3jdh2eCCsyA1FgN9GueJy4=
+        b=IKa2wE9n+s27xjlfBzSN4CfN99Il53E4Fa+WvzvcUkf1m+JKJU464bGRiC2s6Tmmx
+         JqBN9g/KDIZ5Tb5zbUEbQpSao6o/PjJPVaE9lXU69/5cEFlP3eimIIUDzUV5w3715I
+         oErkBt8TVAYd+R1QuJx2Gj3ZNo5hvnVKIby427RY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.2 020/144] mmc: cavium: Set the correct dma max segment size for mmc_host
-Date:   Wed, 14 Aug 2019 18:59:36 +0200
-Message-Id: <20190814165800.711906685@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>
+Subject: [PATCH 5.2 030/144] coresight: Fix DEBUG_LOCKS_WARN_ON for uninitialized attribute
+Date:   Wed, 14 Aug 2019 18:59:46 +0200
+Message-Id: <20190814165801.098115389@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
 References: <20190814165759.466811854@linuxfoundation.org>
@@ -43,80 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Hao <haokexin@gmail.com>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-commit fa25eba6993b3750f417baabba169afaba076178 upstream.
+commit 5511c0c309db4c526a6e9f8b2b8a1483771574bc upstream.
 
-We have set the mmc_host.max_seg_size to 8M, but the dma max segment
-size of PCI device is set to 64K by default in function pci_device_add().
-The mmc_host.max_seg_size is used to set the max segment size of
-the blk queue. Then this mismatch will trigger a calltrace like below
-when a bigger than 64K segment request arrives at mmc dev. So we should
-consider the limitation of the cvm_mmc_host when setting the
-mmc_host.max_seg_size.
-  DMA-API: thunderx_mmc 0000:01:01.4: mapping sg segment longer than device claims to support [len=131072] [max=65536]
-  WARNING: CPU: 6 PID: 238 at kernel/dma/debug.c:1221 debug_dma_map_sg+0x2b8/0x350
-  Modules linked in:
-  CPU: 6 PID: 238 Comm: kworker/6:1H Not tainted 5.3.0-rc1-next-20190724-yocto-standard+ #62
-  Hardware name: Marvell OcteonTX CN96XX board (DT)
-  Workqueue: kblockd blk_mq_run_work_fn
-  pstate: 80c00009 (Nzcv daif +PAN +UAO)
-  pc : debug_dma_map_sg+0x2b8/0x350
-  lr : debug_dma_map_sg+0x2b8/0x350
-  sp : ffff00001770f9e0
-  x29: ffff00001770f9e0 x28: ffffffff00000000
-  x27: 00000000ffffffff x26: ffff800bc2c73180
-  x25: ffff000010e83700 x24: 0000000000000002
-  x23: 0000000000000001 x22: 0000000000000001
-  x21: 0000000000000000 x20: ffff800bc48ba0b0
-  x19: ffff800bc97e8c00 x18: ffffffffffffffff
-  x17: 0000000000000000 x16: 0000000000000000
-  x15: ffff000010e835c8 x14: 6874207265676e6f
-  x13: 6c20746e656d6765 x12: 7320677320676e69
-  x11: 7070616d203a342e x10: 31303a31303a3030
-  x9 : 303020636d6d5f78 x8 : 35363d78616d5b20
-  x7 : 00000000000002fd x6 : ffff000010fd57dc
-  x5 : 0000000000000000 x4 : ffff0000106c61f0
-  x3 : 00000000ffffffff x2 : 0000800bee060000
-  x1 : 7010678df3041a00 x0 : 0000000000000000
-  Call trace:
-   debug_dma_map_sg+0x2b8/0x350
-   cvm_mmc_request+0x3c4/0x988
-   __mmc_start_request+0x9c/0x1f8
-   mmc_start_request+0x7c/0xb0
-   mmc_blk_mq_issue_rq+0x5c4/0x7b8
-   mmc_mq_queue_rq+0x11c/0x278
-   blk_mq_dispatch_rq_list+0xb0/0x568
-   blk_mq_do_dispatch_sched+0x6c/0x108
-   blk_mq_sched_dispatch_requests+0x110/0x1b8
-   __blk_mq_run_hw_queue+0xb0/0x118
-   blk_mq_run_work_fn+0x28/0x38
-   process_one_work+0x210/0x490
-   worker_thread+0x48/0x458
-   kthread+0x130/0x138
-   ret_from_fork+0x10/0x1c
+While running the linux-next with CONFIG_DEBUG_LOCKS_ALLOC enabled,
+I get the following splat.
 
-Signed-off-by: Kevin Hao <haokexin@gmail.com>
-Fixes: ba3869ff32e4 ("mmc: cavium: Add core MMC driver for Cavium SOCs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+ BUG: key ffffcb5636929298 has not been registered!
+ ------------[ cut here ]------------
+ DEBUG_LOCKS_WARN_ON(1)
+ WARNING: CPU: 1 PID: 53 at kernel/locking/lockdep.c:3669 lockdep_init_map+0x164/0x1f0
+ CPU: 1 PID: 53 Comm: kworker/1:1 Tainted: G        W         5.2.0-next-20190712-00015-g00ad4634222e-dirty #603
+ Workqueue: events amba_deferred_retry_func
+ pstate: 60c00005 (nZCv daif +PAN +UAO)
+ pc : lockdep_init_map+0x164/0x1f0
+ lr : lockdep_init_map+0x164/0x1f0
+
+ [ trimmed ]
+
+ Call trace:
+  lockdep_init_map+0x164/0x1f0
+  __kernfs_create_file+0x9c/0x158
+  sysfs_add_file_mode_ns+0xa8/0x1d0
+  sysfs_add_file_to_group+0x88/0xd8
+  etm_perf_add_symlink_sink+0xcc/0x138
+  coresight_register+0x110/0x280
+  tmc_probe+0x160/0x420
+
+ [ trimmed ]
+
+ ---[ end trace ab4cc669615ba1b0 ]---
+
+Fix this by initialising the dynamically allocated attribute properly.
+
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Fixes: bb8e370bdc14 ("coresight: perf: Add "sinks" group to PMU directory")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+[Fixed a typograhic error in the changelog]
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20190801172323.18359-2-mathieu.poirier@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- drivers/mmc/host/cavium.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/host/cavium.c
-+++ b/drivers/mmc/host/cavium.c
-@@ -1046,7 +1046,8 @@ int cvm_mmc_of_slot_probe(struct device
- 		mmc->max_segs = 1;
+---
+ drivers/hwtracing/coresight/coresight-etm-perf.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/hwtracing/coresight/coresight-etm-perf.c
++++ b/drivers/hwtracing/coresight/coresight-etm-perf.c
+@@ -544,6 +544,7 @@ int etm_perf_add_symlink_sink(struct cor
+ 	/* See function coresight_get_sink_by_id() to know where this is used */
+ 	hash = hashlen_hash(hashlen_string(NULL, name));
  
- 	/* DMA size field can address up to 8 MB */
--	mmc->max_seg_size = 8 * 1024 * 1024;
-+	mmc->max_seg_size = min_t(unsigned int, 8 * 1024 * 1024,
-+				  dma_get_max_seg_size(host->dev));
- 	mmc->max_req_size = mmc->max_seg_size;
- 	/* External DMA is in 512 byte blocks */
- 	mmc->max_blk_size = 512;
++	sysfs_attr_init(&ea->attr.attr);
+ 	ea->attr.attr.name = devm_kstrdup(pdev, name, GFP_KERNEL);
+ 	if (!ea->attr.attr.name)
+ 		return -ENOMEM;
 
 
