@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 67D8B8C8EE
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:35:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96EA18C8EA
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:35:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729015AbfHNCfD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:35:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45700 "EHLO mail.kernel.org"
+        id S1728575AbfHNCez (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:34:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728381AbfHNCNl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:13:41 -0400
+        id S1728393AbfHNCNn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:13:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 455D320844;
-        Wed, 14 Aug 2019 02:13:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35D8C20874;
+        Wed, 14 Aug 2019 02:13:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748820;
-        bh=IWXx57Z3+ilWL0grl7SoS/dfxG4s6BcA1pj0NScVWL8=;
+        s=default; t=1565748821;
+        bh=HhuOvXsRRQdUoKPWkyqwEaCj+LcSW+xjFEAQmCwzBfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cMD+aYnOZzrBmD3L/pU0J4Z7NdpFuaRXrJmh4mxMgsBGMIFKNsuWgwJ0VSsrvk/x3
-         yqSGaOlUE9P72WHcx9DyACNddcMNNlyi1FhmyPJPUBPrHgUmKWMHBoZfkycTBdTCuh
-         m3UyTllXv836ztfh8TchiWvlZtniyBTLtF2yQYU0=
+        b=F24UVST1a7aaI7AdVYYp0HxJAxAP7hIqPD7fRqua0vXz9Y/qkSHaxNCBtNDduTugy
+         3KYHC6dNbIyMGtQK5A+yfUUtKrDqUPb/es+XnChNdaa1WZw2CeD8a30giM6sLJRQ2w
+         8+N1b1VFb41MHPIA0Exonz7SoRwk2qqBzER41E98=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 081/123] NFSv4: When recovering state fails with EAGAIN, retry the same recovery
-Date:   Tue, 13 Aug 2019 22:10:05 -0400
-Message-Id: <20190814021047.14828-81-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 082/123] NFSv4.1: Fix open stateid recovery
+Date:   Tue, 13 Aug 2019 22:10:06 -0400
+Message-Id: <20190814021047.14828-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -44,57 +44,170 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit c34fae003c79570b6c930b425fea3f0b7b1e7056 ]
+[ Upstream commit 27a30cf64a5cbe2105e4ff9613246b32d584766a ]
 
-If the server returns with EAGAIN when we're trying to recover from
-a server reboot, we currently delay for 1 second, but then mark the
-stateid as needing recovery after the grace period has expired.
+The logic for checking in nfs41_check_open_stateid() whether the state
+is supported by a delegation is inverted. In addition, it makes more
+sense to perform that check before we check for expired locks.
 
-Instead, we should just retry the same recovery process immediately
-after the 1 second delay. Break out of the loop after 10 retries.
-
-Fixes: 35a61606a612 ("NFS: Reduce indentation of the switch statement...")
+Fixes: 8a64c4ef106d1 ("NFSv4.1: Even if the stateid is OK,...")
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4state.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/nfs/nfs4proc.c | 65 +++++++++++++++++++++++++++--------------------
+ 1 file changed, 38 insertions(+), 27 deletions(-)
 
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index e2e3c4f04d3e0..556ec916846f0 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -1606,6 +1606,7 @@ static int __nfs4_reclaim_open_state(struct nfs4_state_owner *sp, struct nfs4_st
- static int nfs4_reclaim_open_state(struct nfs4_state_owner *sp, const struct nfs4_state_recovery_ops *ops)
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 11a5aa46e64c3..b3fd75c8629a4 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -1654,6 +1654,14 @@ static void nfs_state_set_open_stateid(struct nfs4_state *state,
+ 	write_sequnlock(&state->seqlock);
+ }
+ 
++static void nfs_state_clear_open_state_flags(struct nfs4_state *state)
++{
++	clear_bit(NFS_O_RDWR_STATE, &state->flags);
++	clear_bit(NFS_O_WRONLY_STATE, &state->flags);
++	clear_bit(NFS_O_RDONLY_STATE, &state->flags);
++	clear_bit(NFS_OPEN_STATE, &state->flags);
++}
++
+ static void nfs_state_set_delegation(struct nfs4_state *state,
+ 		const nfs4_stateid *deleg_stateid,
+ 		fmode_t fmode)
+@@ -2045,13 +2053,7 @@ static int nfs4_open_recover(struct nfs4_opendata *opendata, struct nfs4_state *
  {
- 	struct nfs4_state *state;
-+	unsigned int loop = 0;
- 	int status = 0;
+ 	int ret;
  
- 	/* Note: we rely on the sp->so_states list being ordered 
-@@ -1632,8 +1633,10 @@ static int nfs4_reclaim_open_state(struct nfs4_state_owner *sp, const struct nfs
+-	/* Don't trigger recovery in nfs_test_and_clear_all_open_stateid */
+-	clear_bit(NFS_O_RDWR_STATE, &state->flags);
+-	clear_bit(NFS_O_WRONLY_STATE, &state->flags);
+-	clear_bit(NFS_O_RDONLY_STATE, &state->flags);
+ 	/* memory barrier prior to reading state->n_* */
+-	clear_bit(NFS_DELEGATED_STATE, &state->flags);
+-	clear_bit(NFS_OPEN_STATE, &state->flags);
+ 	smp_rmb();
+ 	ret = nfs4_open_recover_helper(opendata, FMODE_READ|FMODE_WRITE);
+ 	if (ret != 0)
+@@ -2127,6 +2129,8 @@ static int nfs4_open_reclaim(struct nfs4_state_owner *sp, struct nfs4_state *sta
+ 	ctx = nfs4_state_find_open_context(state);
+ 	if (IS_ERR(ctx))
+ 		return -EAGAIN;
++	clear_bit(NFS_DELEGATED_STATE, &state->flags);
++	nfs_state_clear_open_state_flags(state);
+ 	ret = nfs4_do_open_reclaim(ctx, state);
+ 	put_nfs_open_context(ctx);
+ 	return ret;
+@@ -2669,6 +2673,7 @@ static int nfs40_open_expired(struct nfs4_state_owner *sp, struct nfs4_state *st
+ {
+ 	/* NFSv4.0 doesn't allow for delegation recovery on open expire */
+ 	nfs40_clear_delegation_stateid(state);
++	nfs_state_clear_open_state_flags(state);
+ 	return nfs4_open_expired(sp, state);
+ }
  
- 		switch (status) {
- 		default:
--			if (status >= 0)
-+			if (status >= 0) {
-+				loop = 0;
- 				break;
-+			}
- 			printk(KERN_ERR "NFS: %s: unhandled error %d\n", __func__, status);
- 			/* Fall through */
- 		case -ENOENT:
-@@ -1647,6 +1650,10 @@ static int nfs4_reclaim_open_state(struct nfs4_state_owner *sp, const struct nfs
- 			break;
- 		case -EAGAIN:
- 			ssleep(1);
-+			if (loop++ < 10) {
-+				set_bit(ops->state_flag_bit, &state->flags);
-+				break;
-+			}
- 			/* Fall through */
- 		case -NFS4ERR_ADMIN_REVOKED:
- 		case -NFS4ERR_STALE_STATEID:
+@@ -2711,13 +2716,13 @@ static int nfs41_test_and_free_expired_stateid(struct nfs_server *server,
+ 	return -NFS4ERR_EXPIRED;
+ }
+ 
+-static void nfs41_check_delegation_stateid(struct nfs4_state *state)
++static int nfs41_check_delegation_stateid(struct nfs4_state *state)
+ {
+ 	struct nfs_server *server = NFS_SERVER(state->inode);
+ 	nfs4_stateid stateid;
+ 	struct nfs_delegation *delegation;
+ 	const struct cred *cred = NULL;
+-	int status;
++	int status, ret = NFS_OK;
+ 
+ 	/* Get the delegation credential for use by test/free_stateid */
+ 	rcu_read_lock();
+@@ -2725,20 +2730,15 @@ static void nfs41_check_delegation_stateid(struct nfs4_state *state)
+ 	if (delegation == NULL) {
+ 		rcu_read_unlock();
+ 		nfs_state_clear_delegation(state);
+-		return;
++		return NFS_OK;
+ 	}
+ 
+ 	nfs4_stateid_copy(&stateid, &delegation->stateid);
+-	if (test_bit(NFS_DELEGATION_REVOKED, &delegation->flags)) {
+-		rcu_read_unlock();
+-		nfs_state_clear_delegation(state);
+-		return;
+-	}
+ 
+ 	if (!test_and_clear_bit(NFS_DELEGATION_TEST_EXPIRED,
+ 				&delegation->flags)) {
+ 		rcu_read_unlock();
+-		return;
++		return NFS_OK;
+ 	}
+ 
+ 	if (delegation->cred)
+@@ -2748,8 +2748,24 @@ static void nfs41_check_delegation_stateid(struct nfs4_state *state)
+ 	trace_nfs4_test_delegation_stateid(state, NULL, status);
+ 	if (status == -NFS4ERR_EXPIRED || status == -NFS4ERR_BAD_STATEID)
+ 		nfs_finish_clear_delegation_stateid(state, &stateid);
++	else
++		ret = status;
+ 
+ 	put_cred(cred);
++	return ret;
++}
++
++static void nfs41_delegation_recover_stateid(struct nfs4_state *state)
++{
++	nfs4_stateid tmp;
++
++	if (test_bit(NFS_DELEGATED_STATE, &state->flags) &&
++	    nfs4_copy_delegation_stateid(state->inode, state->state,
++				&tmp, NULL) &&
++	    nfs4_stateid_match_other(&state->stateid, &tmp))
++		nfs_state_set_delegation(state, &tmp, state->state);
++	else
++		nfs_state_clear_delegation(state);
+ }
+ 
+ /**
+@@ -2819,21 +2835,12 @@ static int nfs41_check_open_stateid(struct nfs4_state *state)
+ 	const struct cred *cred = state->owner->so_cred;
+ 	int status;
+ 
+-	if (test_bit(NFS_OPEN_STATE, &state->flags) == 0) {
+-		if (test_bit(NFS_DELEGATED_STATE, &state->flags) == 0)  {
+-			if (nfs4_have_delegation(state->inode, state->state))
+-				return NFS_OK;
+-			return -NFS4ERR_OPENMODE;
+-		}
++	if (test_bit(NFS_OPEN_STATE, &state->flags) == 0)
+ 		return -NFS4ERR_BAD_STATEID;
+-	}
+ 	status = nfs41_test_and_free_expired_stateid(server, stateid, cred);
+ 	trace_nfs4_test_open_stateid(state, NULL, status);
+ 	if (status == -NFS4ERR_EXPIRED || status == -NFS4ERR_BAD_STATEID) {
+-		clear_bit(NFS_O_RDONLY_STATE, &state->flags);
+-		clear_bit(NFS_O_WRONLY_STATE, &state->flags);
+-		clear_bit(NFS_O_RDWR_STATE, &state->flags);
+-		clear_bit(NFS_OPEN_STATE, &state->flags);
++		nfs_state_clear_open_state_flags(state);
+ 		stateid->type = NFS4_INVALID_STATEID_TYPE;
+ 		return status;
+ 	}
+@@ -2846,7 +2853,11 @@ static int nfs41_open_expired(struct nfs4_state_owner *sp, struct nfs4_state *st
+ {
+ 	int status;
+ 
+-	nfs41_check_delegation_stateid(state);
++	status = nfs41_check_delegation_stateid(state);
++	if (status != NFS_OK)
++		return status;
++	nfs41_delegation_recover_stateid(state);
++
+ 	status = nfs41_check_expired_locks(state);
+ 	if (status != NFS_OK)
+ 		return status;
 -- 
 2.20.1
 
