@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCCED8C77E
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:24:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D9578C77B
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:24:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729258AbfHNCYm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:24:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53122 "EHLO mail.kernel.org"
+        id S1729534AbfHNCY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:24:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730124AbfHNCYO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:24:14 -0400
+        id S1730139AbfHNCYQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:24:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C9F52084F;
-        Wed, 14 Aug 2019 02:24:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58EEB216F4;
+        Wed, 14 Aug 2019 02:24:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565749453;
-        bh=Zmf44+e0XE3x1uN8fCLZdo1CLwtdhJXzOTYsVc0cUwE=;
+        s=default; t=1565749456;
+        bh=sml/q+TWg4pt2Fx4C/8hXbbtwxpBWZ1jBQwrz6SBUFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O+6OkqUeVYdMvQyK5cvossnTrQBJLZZEFW6wxR7ks7YRFl6g0kjZI+CEYPYlxiWks
-         vjY/E2J6/0pxiEFlKUgzi7V4vsHVj4kTkM+yPyjCpg0xDI0J4N/R47IOVLb7jIMYH1
-         7T5IWgC5n9BxqKWdeRXfKHmp2MOcDUl9gY34i8Dk=
+        b=Xa1WSjIGln2iaXkhWBqT9Yfu+Rq7znpPksHiMNxpguseO0jf90LXsHZwb5FmyTYqE
+         bgA8kmQYhxL4b4YVqDni/Y4kcQVn6MGirDepYcgRYjIFmh7LqGw2J6cv8T6+peRVqS
+         PyIc3pVeKu0HC4NUv+euJ/wXyLo07wajuxI5sKFk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Deepak Rawat <drawat@vmware.com>,
-        Thomas Hellstrom <thellstrom@vmware.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.9 31/33] drm/vmwgfx: fix memory leak when too many retries have occurred
-Date:   Tue, 13 Aug 2019 22:23:21 -0400
-Message-Id: <20190814022323.17111-31-sashal@kernel.org>
+Cc:     Jin Yao <yao.jin@linux.intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>, Jin Yao <yao.jin@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 32/33] perf pmu-events: Fix missing "cpu_clk_unhalted.core" event
+Date:   Tue, 13 Aug 2019 22:23:22 -0400
+Message-Id: <20190814022323.17111-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814022323.17111-1-sashal@kernel.org>
 References: <20190814022323.17111-1-sashal@kernel.org>
@@ -45,41 +48,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Jin Yao <yao.jin@linux.intel.com>
 
-[ Upstream commit 6b7c3b86f0b63134b2ab56508921a0853ffa687a ]
+[ Upstream commit 8e6e5bea2e34c61291d00cb3f47560341aa84bc3 ]
 
-Currently when too many retries have occurred there is a memory
-leak on the allocation for reply on the error return path. Fix
-this by kfree'ing reply before returning.
+The events defined in pmu-events JSON are parsed and added into perf
+tool. For fixed counters, we handle the encodings between JSON and perf
+by using a static array fixed[].
 
-Addresses-Coverity: ("Resource leak")
-Fixes: a9cd9c044aa9 ("drm/vmwgfx: Add a check to handle host message failure")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Deepak Rawat <drawat@vmware.com>
-Signed-off-by: Deepak Rawat <drawat@vmware.com>
-Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+But the fixed[] has missed an important event "cpu_clk_unhalted.core".
+
+For example, on the Tremont platform,
+
+  [root@localhost ~]# perf stat -e cpu_clk_unhalted.core -a
+  event syntax error: 'cpu_clk_unhalted.core'
+                       \___ parser error
+
+With this patch, the event cpu_clk_unhalted.core can be parsed.
+
+  [root@localhost perf]# ./perf stat -e cpu_clk_unhalted.core -a -vvv
+  ------------------------------------------------------------
+  perf_event_attr:
+    type                             4
+    size                             112
+    config                           0x3c
+    sample_type                      IDENTIFIER
+    read_format                      TOTAL_TIME_ENABLED|TOTAL_TIME_RUNNING
+    disabled                         1
+    inherit                          1
+    exclude_guest                    1
+  ------------------------------------------------------------
+...
+
+Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jin Yao <yao.jin@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lkml.kernel.org/r/20190729072755.2166-1-yao.jin@linux.intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_msg.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/perf/pmu-events/jevents.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-index e57a0bad7a626..77df50dd6d30d 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-@@ -300,8 +300,10 @@ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
- 		break;
- 	}
- 
--	if (retries == RETRIES)
-+	if (retries == RETRIES) {
-+		kfree(reply);
- 		return -EINVAL;
-+	}
- 
- 	*msg_len = reply_len;
- 	*msg     = reply;
+diff --git a/tools/perf/pmu-events/jevents.c b/tools/perf/pmu-events/jevents.c
+index 41611d7f9873c..016d12af68773 100644
+--- a/tools/perf/pmu-events/jevents.c
++++ b/tools/perf/pmu-events/jevents.c
+@@ -315,6 +315,7 @@ static struct fixed {
+ 	{ "inst_retired.any_p", "event=0xc0" },
+ 	{ "cpu_clk_unhalted.ref", "event=0x0,umask=0x03" },
+ 	{ "cpu_clk_unhalted.thread", "event=0x3c" },
++	{ "cpu_clk_unhalted.core", "event=0x3c" },
+ 	{ "cpu_clk_unhalted.thread_any", "event=0x3c,any=1" },
+ 	{ NULL, NULL},
+ };
 -- 
 2.20.1
 
