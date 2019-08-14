@@ -2,74 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3B128D017
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 11:52:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74F2B8D08A
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 12:19:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726047AbfHNJw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 05:52:56 -0400
-Received: from sauhun.de ([88.99.104.3]:47030 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725955AbfHNJwz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 05:52:55 -0400
-Received: from localhost (p54B33326.dip0.t-ipconnect.de [84.179.51.38])
-        by pokefinder.org (Postfix) with ESMTPSA id E99402C311C;
-        Wed, 14 Aug 2019 11:52:53 +0200 (CEST)
-Date:   Wed, 14 Aug 2019 11:52:53 +0200
-From:   Wolfram Sang <wsa@the-dreams.de>
-To:     Fabio Estevam <festevam@gmail.com>
-Cc:     linux@rempel-privat.de, linux-imx@nxp.com, linux@armlinux.org.uk,
-        linux-i2c@vger.kernel.org, kernel@pengutronix.de,
-        cphealy@gmail.com, andrew.smirnov@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH v3] Revert "i2c: imx: improve the error handling in
- i2c_imx_dma_request()"
-Message-ID: <20190814095253.GC1511@ninjato>
-References: <20190808210136.10294-1-festevam@gmail.com>
+        id S1726126AbfHNKTN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 06:19:13 -0400
+Received: from mail.thelounge.net ([91.118.73.15]:25791 "EHLO
+        mail.thelounge.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725800AbfHNKTN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Aug 2019 06:19:13 -0400
+Received: from srv-rhsoft.rhsoft.net  (Authenticated sender: h.reindl@thelounge.net) by mail.thelounge.net (THELOUNGE MTA) with ESMTPSA id 467ltL60M1zXMk;
+        Wed, 14 Aug 2019 12:19:06 +0200 (CEST)
+Subject: Re: [PATCH AUTOSEL 4.19 04/42] netfilter: conntrack: always store
+ window size un-scaled
+To:     Thomas Jarosch <thomas.jarosch@intra2net.com>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Florian Westphal <fw@strlen.de>,
+        Jakub Jankowski <shasta@toxcorp.com>,
+        Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+References: <20190802132302.13537-1-sashal@kernel.org>
+ <20190802132302.13537-4-sashal@kernel.org>
+ <20190808090209.wb63n6ibii4ivvba@intra2net.com>
+From:   Reindl Harald <h.reindl@thelounge.net>
+Openpgp: id=9D2B46CDBC140A36753AE4D733174D5A5892B7B8;
+ url=https://arrakis-tls.thelounge.net/gpg/h.reindl_thelounge.net.pub.txt
+Organization: the lounge interactive design
+Message-ID: <41ce587d-dfaa-fe6b-66a8-58ba1a3a2872@thelounge.net>
+Date:   Wed, 14 Aug 2019 12:19:06 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="KDt/GgjP6HVcx58l"
-Content-Disposition: inline
-In-Reply-To: <20190808210136.10294-1-festevam@gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20190808090209.wb63n6ibii4ivvba@intra2net.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: de-CH
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+that's still not in 5.2.8
 
---KDt/GgjP6HVcx58l
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+without the exception and "nf_conntrack_tcp_timeout_max_retrans = 60" a
+vnc-over-ssh session having the VNC view in the background freezes
+within 60 secods
 
-On Thu, Aug 08, 2019 at 06:01:36PM -0300, Fabio Estevam wrote:
-> Since commit e1ab9a468e3b ("i2c: imx: improve the error handling in
-> i2c_imx_dma_request()") when booting with the DMA driver as module (such
-> as CONFIG_FSL_EDMA=3Dm) the following endless clk warnings are seen:
->=20
+-----------------------------------------------------------------------------------------------
+IPV4 TABLE MANGLE (STATEFUL PRE-NAT/FILTER)
+-----------------------------------------------------------------------------------------------
+Chain PREROUTING (policy ACCEPT 100 packets, 9437 bytes)
+num   pkts bytes target     prot opt in     out     source
+ destination
+1     6526 3892K ACCEPT     all  --  *      *       0.0.0.0/0
+ 0.0.0.0/0            ctstate RELATED,ESTABLISHED
+2      125  6264 ACCEPT     all  --  lo     *       0.0.0.0/0
+ 0.0.0.0/0
+3       64  4952 ACCEPT     all  --  vmnet8 *       0.0.0.0/0
+ 0.0.0.0/0
+4        1    40 DROP       all  --  *      *       0.0.0.0/0
+ 0.0.0.0/0            ctstate INVALID
 
-A bit surprised nobody acked or tested this patch, still:
+-------- Weitergeleitete Nachricht --------
+Betreff: [PATCH AUTOSEL 5.2 07/76] netfilter: conntrack: always store
+window size un-scaled
 
-Applied to for-current, thanks!
-
-
---KDt/GgjP6HVcx58l
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1T2fUACgkQFA3kzBSg
-KbZnvBAAmEk80qUX88ybzLbMMbcb6Dye0laI5GuoIQwEDmKBiwvwlBHfR58oD/mp
-Umf7UojOEfg2HRHrfURZ/DDBfxdLN8k2uPITqV7vwEaOsG8X63VUq9Q5xtCqwlfo
-fcpsgsDQb5mlXu/ZUSjJebTo0IB9oupHeEIgy1wbunyU7T7gFQZWVRiCJZJTkbRV
-NdA0y/QpUVz6PnsD/c5O9Wmh6I0qhfDk2gMe81Du5ehKYoy7WAFK3RsgUb+AfXQR
-N69twC00dhwpup6UYatQ+lmKzIbfplZrsXZJEawV3sJMea2IDh5W5g/l5DgiZpPz
-mrANfat/cNOkaK5uWxGGCIlsmAXq0EyiyCIzlInwMdA399+or3nC0pTw7MH82UCa
-yZU18kvz8P8ceZ+hSpnYnWD8OftyXrmQlrBkqvhf5xHnDTgKjex+jgfnVMe8PmSl
-wErzq5C8Z1XP7wL+5MCnVGzbxepCY9Rjxs+n5a9qyzOGJIPR8YosLPGXFqUBLPMF
-rEagRDcFw4F96hpDHT1RBp2++G0WcS1V81DkCtxZYUOFibfyTooCVNRP5thYo6oC
-GLBvs1RJDPOggPNirkSkSiUlPaKyoJ25xeqAIy6gjrend5aJl8DQc8QibLvMFXK6
-TVGmwq1lVPVI56/0q/l6Z/dOmd34X9C0RNPg6LrfM6dK8cvUcWo=
-=OuCg
------END PGP SIGNATURE-----
-
---KDt/GgjP6HVcx58l--
+Am 08.08.19 um 11:02 schrieb Thomas Jarosch:
+> Hello together,
+> 
+> You wrote on Fri, Aug 02, 2019 at 09:22:24AM -0400:
+>> From: Florian Westphal <fw@strlen.de>
+>>
+>> [ Upstream commit 959b69ef57db00cb33e9c4777400ae7183ebddd3 ]
+>>
+>> Jakub Jankowski reported following oddity:
+>>
+>> After 3 way handshake completes, timeout of new connection is set to
+>> max_retrans (300s) instead of established (5 days).
+>>
+>> shortened excerpt from pcap provided:
+>> 25.070622 IP (flags [DF], proto TCP (6), length 52)
+>> 10.8.5.4.1025 > 10.8.1.2.80: Flags [S], seq 11, win 64240, [wscale 8]
+>> 26.070462 IP (flags [DF], proto TCP (6), length 48)
+>> 10.8.1.2.80 > 10.8.5.4.1025: Flags [S.], seq 82, ack 12, win 65535, [wscale 3]
+>> 27.070449 IP (flags [DF], proto TCP (6), length 40)
+>> 10.8.5.4.1025 > 10.8.1.2.80: Flags [.], ack 83, win 512, length 0
+>>
+>> Turns out the last_win is of u16 type, but we store the scaled value:
+>> 512 << 8 (== 0x20000) becomes 0 window.
+>>
+>> The Fixes tag is not correct, as the bug has existed forever, but
+>> without that change all that this causes might cause is to mistake a
+>> window update (to-nonzero-from-zero) for a retransmit.
+>>
+>> Fixes: fbcd253d2448b8 ("netfilter: conntrack: lower timeout to RETRANS seconds if window is 0")
+>> Reported-by: Jakub Jankowski <shasta@toxcorp.com>
+>> Tested-by: Jakub Jankowski <shasta@toxcorp.com>
+>> Signed-off-by: Florian Westphal <fw@strlen.de>
+>> Acked-by: Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
+>> Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> 
+> Also:
+> Tested-by: Thomas Jarosch <thomas.jarosch@intra2net.com>
+> 
+> ;)
+> 
+> We've hit the issue with the wrong conntrack timeout at two different sites,
+> long-lived connections to a SAP server over IPSec VPN were constantly dropping.
+> 
+> For us this was a regression after updating from kernel 3.14 to 4.19.
+> Yesterday I've applied the patch to kernel 4.19.57 and the problem is fixed.
+> 
+> The issue was extra hard to debug as we could just boot the new kernel
+> for twenty minutes in the evening on these productive systems.
+> 
+> The stable kernel patch from last Friday came right on time. I was just
+> about the replay the TCP connection with tcpreplay, so this saved
+> me from another week of debugging. Thanks everyone!
