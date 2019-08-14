@@ -2,90 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D58888CE51
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 10:24:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 967678CED7
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 10:54:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727590AbfHNIYF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 04:24:05 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:38848 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727606AbfHNIYB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Aug 2019 04:24:01 -0400
-Received: by mail-pf1-f195.google.com with SMTP id o70so7806800pfg.5
-        for <stable@vger.kernel.org>; Wed, 14 Aug 2019 01:24:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sifive.com; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=LKUTmfxWju3JH0UYdXaX0ZmxM1v34X/CQR0cjWXAdV0=;
-        b=aprA4MX8fFP42+7Kfj2VmM2auYXDJcnW8YzO6vnSgXZD4MuPEx8PnT719qHFqIr/8n
-         QmbZ0QuY/hdaPVLq5Qw9zGc+lgBmz54nZxOVLVk/a6ciHKcZKGRIPSumxAOoQa+lFXMg
-         Z4uMvEByYuk/s/C8PNQittEjIb+K5+DyAfQ6cEBZ/zDoQd5MGztJ4aOzq10agMJA7UiN
-         FDqQTgG0lMxnF4XDCJNHNKvx7sAok8gbO5bys2VzvMgT+AmDci9oOg+AHhe05JKeg2zn
-         0209fn6vu9pR/FoCbx1lMxKN4l+zwrkJSq8FNq7tY10dmn+tm2v/q4XkIMFQCz5Jcn91
-         Xm5w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=LKUTmfxWju3JH0UYdXaX0ZmxM1v34X/CQR0cjWXAdV0=;
-        b=fq4oxB9GoxufSqO2eVuiNjBVtltqgovs6ppfl+NbNCI6l3sZdqRl1jiIla8ohJZ/Wz
-         YelUBAkG09vMcj4Zo/43/R+k13nLNpov+rXWRlGSJ0/HHPc4nS8fhSx+xzMPKrlktkiF
-         N+WOejnOyNrBJSHJI/Eu/nKI/Fo4enaavrkW/cnPFt6I5YoeQvC6++H3Eo3FQoDGQ0YX
-         qfj/SGUpeGjEtHziy1cmvYthBFILm/tSkPlTd/XYFYAf6ZWX8uV9NYCNHnEs5A43BdPv
-         K2HZmcU/P+xTZhHYWZw+/eC0lrsNsGl7GOvjE8sWle4mfsNot9e6PTfbSGGO6jR5dHQg
-         6rbw==
-X-Gm-Message-State: APjAAAUL/gK1DASRA9r8siAr1+QVYtIhJeGj6Ev2T1WXF1KsOOI0t2y+
-        WztrYgHaFqN6kGxfMtgeqbI87zxNhxE=
-X-Google-Smtp-Source: APXvYqyF7XbbwdZczu0+BTGt6EYKJY4ia695LRy4XRq7P8Im2pJg5qZNWSLmNfYr09pro/ZO5lhd3A==
-X-Received: by 2002:a17:90a:ad86:: with SMTP id s6mr4822761pjq.42.1565771040942;
-        Wed, 14 Aug 2019 01:24:00 -0700 (PDT)
-Received: from localhost.localdomain (220-132-236-182.HINET-IP.hinet.net. [220.132.236.182])
-        by smtp.gmail.com with ESMTPSA id f205sm12359152pfa.161.2019.08.14.01.23.59
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Wed, 14 Aug 2019 01:24:00 -0700 (PDT)
-From:   Vincent Chen <vincent.chen@sifive.com>
-To:     Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@sifive.com>
-Cc:     linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Vincent Chen <vincent.chen@sifive.com>,
-        linux-stable <stable@vger.kernel.org>
-Subject: [PATCH v2 2/2] riscv: Make __fstate_clean() work correctly.
-Date:   Wed, 14 Aug 2019 16:23:53 +0800
-Message-Id: <1565771033-1831-3-git-send-email-vincent.chen@sifive.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1565771033-1831-1-git-send-email-vincent.chen@sifive.com>
-References: <1565771033-1831-1-git-send-email-vincent.chen@sifive.com>
+        id S1725954AbfHNIyh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 04:54:37 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:49652 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725888AbfHNIyh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 04:54:37 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 099EB2A09C6;
+        Wed, 14 Aug 2019 08:54:37 +0000 (UTC)
+Received: from localhost (unknown [10.40.205.151])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5CF5D82201;
+        Wed, 14 Aug 2019 08:54:36 +0000 (UTC)
+Date:   Wed, 14 Aug 2019 10:54:35 +0200
+From:   Stanislaw Gruszka <sgruszka@redhat.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-wireless@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.3] mt76: mt76x0e: disable 5GHz band for MT7630E
+Message-ID: <20190814085434.GB29199@redhat.com>
+References: <1565703416-10669-1-git-send-email-sgruszka@redhat.com>
+ <20190813175526.CCBC220840@mail.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190813175526.CCBC220840@mail.kernel.org>
+User-Agent: Mutt/1.11.3 (2019-02-01)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.38]); Wed, 14 Aug 2019 08:54:37 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Make the __fstate_clean() function correctly set the
-state of sstatus.FS in pt_regs to SR_FS_CLEAN.
+On Tue, Aug 13, 2019 at 05:55:26PM +0000, Sasha Levin wrote:
+> Hi,
+> 
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a -stable tag.
+> The stable tag indicates that it's relevant for the following trees: all
+> 
+> The bot has tested the following trees: v5.2.8, v4.19.66, v4.14.138, v4.9.189, v4.4.189.
+> 
+> v5.2.8: Build OK!
+> v4.19.66: Failed to apply! Possible dependencies:
+>     86c71d3deefa ("mt76: move eeprom utility routines in mt76x02_eeprom.h")
+>     d6500cf3700f ("mt76x0: add quirk to disable 2.4GHz band for Archer T1U")
+>     eef40d209ad0 ("mt76: move common eeprom definitions in mt76x02-lib module")
+<snip>
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+> 
+> How should we proceed with this patch?
 
-Fixes: 7db91e5 ("RISC-V: Task implementation")
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
-Reviewed-by: Anup Patel <anup@brainfault.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+mt76x0e support was added in 4.20 , so it's fine just to apply this
+commit in 5.2 .
 
----
- arch/riscv/include/asm/switch_to.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/riscv/include/asm/switch_to.h b/arch/riscv/include/asm/switch_to.h
-index 0575b8a..0aa5b94 100644
---- a/arch/riscv/include/asm/switch_to.h
-+++ b/arch/riscv/include/asm/switch_to.h
-@@ -16,7 +16,7 @@ extern void __fstate_restore(struct task_struct *restore_from);
- 
- static inline void __fstate_clean(struct pt_regs *regs)
- {
--	regs->sstatus |= (regs->sstatus & ~(SR_FS)) | SR_FS_CLEAN;
-+	regs->sstatus = (regs->sstatus & ~SR_FS) | SR_FS_CLEAN;
- }
- 
- static inline void fstate_off(struct task_struct *task,
--- 
-2.7.4
-
+Stanislaw 
