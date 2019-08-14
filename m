@@ -2,54 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 607D78D7F0
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 18:21:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B79858D7F1
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 18:21:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728092AbfHNQVp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 12:21:45 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:55745 "EHLO
+        id S1726865AbfHNQV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 12:21:59 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:53509 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727110AbfHNQVo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Aug 2019 12:21:44 -0400
+        by vger.kernel.org with ESMTP id S1726265AbfHNQV7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Aug 2019 12:21:59 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 17AAE21C4D;
-        Wed, 14 Aug 2019 12:21:44 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 14 Aug 2019 12:21:44 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 2F13F21C1C;
+        Wed, 14 Aug 2019 12:21:58 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Wed, 14 Aug 2019 12:21:58 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=eG7P8S
-        KD7q6C5c7Ses8PXJD7uDU+wSTfm9WbvDmyM14=; b=xI+pQFHmB5CGDd5ae/aw5Y
-        OwuHBiLgTr1GjYdAtKt+eeHYAXJHQy8thseEtf5IdSxWZWPXaiNqP7RRhb+2ScmM
-        F8AMLjApu90c3hh75leaXupguqvkGCaDO3jyF6q0GAqsi4VVleWQRt3Vptdah/no
-        IwTh8vg7c8MbKdEJjqVHvDAzEXkFbFZMSvRvKupsuaLIDJIqlgh6t8vSe/vEGIw/
-        NTP/7cnFb1zPyr249ecVj0cDbirWN4H/Zz4HsIPIuCpUM4qz/y79sOXqPz5srHah
-        4zVQkGjtnqzxwCbN/P+xyKWlScjSmqNXA4npxCFVzKO+9mtDIzDSMkr7A2P60Jjw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=KASTbj
+        Ze6TYr9e+bOOIB3ffKkKVyLtxqtl3trE5b5y4=; b=jGMq0MYJp3pR4s7HC5N1q6
+        zZncKmo5QTsbokszoDjJ4w0f6cOTuM1uZ0NlLvDumpVAxamvfV/q6uLe51kZdw7M
+        IdfeTVdLTu5crnuQJOKYovQlVURgcl25k981vQ4vwpEtB2KVZPpIAG3mGr9/9toH
+        /mpbUTkybKTxA2eVY6E2MmwbNEOq4+aVbAd95jQTryyhYPjZcjdT0cDVkn4AJO3V
+        S5sVfPGRGzHhuhFWX6l/dLPSsuF/d3zppmaPI922nRTyGbHSRj7BUkvOD05XhcIb
+        Ucb/xBSfYeBd5gs5mu0R03iPtwFPalH7bC2a6nfPGO4/OGYobrBLdro6U8KCJSAQ
         ==
-X-ME-Sender: <xms:FzVUXYcqnJ02zCvDaqLC8quryvMmWiQNqtWec1ewbIMf0EXq7lr91w>
+X-ME-Sender: <xms:JTVUXeK0WHuen3CGJ63YrdemVzdzHJs4v-y9RrTzAkcw11tJSpruZg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddvledgfeekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehvghhitgdrihhnnecukfhppeekfedrkeeirdekledruddtje
-    enucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecuvehl
-    uhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:FzVUXbuB7nEJ9zWlnDfI42ubFrmiacG-_5_Y0k4F9E_8k1wPmaQ5jg>
-    <xmx:FzVUXSLNl0K2ci41Hsg53PdO70JY7wpD9VjPpVUyV27GiLyVvhL9Jg>
-    <xmx:FzVUXf_1n5na59yV7y3sDnxqvP_sMMIXw-6SC1CGaruiiWrOvi3iGA>
-    <xmx:GDVUXVkUYB7-s_CHM7idLKd1bOHv37XdHXEuMYTOk6qTAowAKN1S-Q>
+    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:JjVUXaYFxZSGezTyPfvKGdIdcqbXuctjsO0VVq8WOADakXF3kiw-2w>
+    <xmx:JjVUXZt4qUXp5VhjD-iKAJ0UErcbQyYnCCM1WlMrRvO-qXmEpfhV7g>
+    <xmx:JjVUXXulZpPK5IKJh4KpZu8QZa5rRWzaxmcqm1Tkbzp6wWYQKBEL_A>
+    <xmx:JjVUXRMVSvBcJtPi-8-BW31Bzk2a_Zl_TrzTi2ctd4FF1Wx5VH7sGQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 72F8180063;
-        Wed, 14 Aug 2019 12:21:43 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: arm/arm64: Sync ICH_VMCR_EL2 back when about to block" failed to apply to 4.19-stable tree
-To:     maz@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8FC4D380083;
+        Wed, 14 Aug 2019 12:21:57 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] arm64: KVM: regmap: Fix unexpected switch fall-through" failed to apply to 5.2-stable tree
+To:     anders.roxell@linaro.org, maz@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 14 Aug 2019 18:21:33 +0200
-Message-ID: <15657996932372@kroah.com>
+Date:   Wed, 14 Aug 2019 18:21:56 +0200
+Message-ID: <156579971670144@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -57,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.2-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,173 +67,86 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 5eeaf10eec394b28fad2c58f1f5c3a5da0e87d1c Mon Sep 17 00:00:00 2001
-From: Marc Zyngier <maz@kernel.org>
-Date: Fri, 2 Aug 2019 10:28:32 +0100
-Subject: [PATCH] KVM: arm/arm64: Sync ICH_VMCR_EL2 back when about to block
+From 3d584a3c85d6fe2cf878f220d4ad7145e7f89218 Mon Sep 17 00:00:00 2001
+From: Anders Roxell <anders.roxell@linaro.org>
+Date: Fri, 26 Jul 2019 13:27:05 +0200
+Subject: [PATCH] arm64: KVM: regmap: Fix unexpected switch fall-through
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Since commit commit 328e56647944 ("KVM: arm/arm64: vgic: Defer
-touching GICH_VMCR to vcpu_load/put"), we leave ICH_VMCR_EL2 (or
-its GICv2 equivalent) loaded as long as we can, only syncing it
-back when we're scheduled out.
+When fall-through warnings was enabled by default, commit d93512ef0f0e
+("Makefile: Globally enable fall-through warning"), the following
+warnings was starting to show up:
 
-There is a small snag with that though: kvm_vgic_vcpu_pending_irq(),
-which is indirectly called from kvm_vcpu_check_block(), needs to
-evaluate the guest's view of ICC_PMR_EL1. At the point were we
-call kvm_vcpu_check_block(), the vcpu is still loaded, and whatever
-changes to PMR is not visible in memory until we do a vcpu_put().
+In file included from ../arch/arm64/include/asm/kvm_emulate.h:19,
+                 from ../arch/arm64/kvm/regmap.c:13:
+../arch/arm64/kvm/regmap.c: In function ‘vcpu_write_spsr32’:
+../arch/arm64/include/asm/kvm_hyp.h:31:3: warning: this statement may fall
+ through [-Wimplicit-fallthrough=]
+   asm volatile(ALTERNATIVE(__msr_s(r##nvh, "%x0"), \
+   ^~~
+../arch/arm64/include/asm/kvm_hyp.h:46:31: note: in expansion of macro ‘write_sysreg_elx’
+ #define write_sysreg_el1(v,r) write_sysreg_elx(v, r, _EL1, _EL12)
+                               ^~~~~~~~~~~~~~~~
+../arch/arm64/kvm/regmap.c:180:3: note: in expansion of macro ‘write_sysreg_el1’
+   write_sysreg_el1(v, SYS_SPSR);
+   ^~~~~~~~~~~~~~~~
+../arch/arm64/kvm/regmap.c:181:2: note: here
+  case KVM_SPSR_ABT:
+  ^~~~
+In file included from ../arch/arm64/include/asm/cputype.h:132,
+                 from ../arch/arm64/include/asm/cache.h:8,
+                 from ../include/linux/cache.h:6,
+                 from ../include/linux/printk.h:9,
+                 from ../include/linux/kernel.h:15,
+                 from ../include/asm-generic/bug.h:18,
+                 from ../arch/arm64/include/asm/bug.h:26,
+                 from ../include/linux/bug.h:5,
+                 from ../include/linux/mmdebug.h:5,
+                 from ../include/linux/mm.h:9,
+                 from ../arch/arm64/kvm/regmap.c:11:
+../arch/arm64/include/asm/sysreg.h:837:2: warning: this statement may fall
+ through [-Wimplicit-fallthrough=]
+  asm volatile("msr " __stringify(r) ", %x0"  \
+  ^~~
+../arch/arm64/kvm/regmap.c:182:3: note: in expansion of macro ‘write_sysreg’
+   write_sysreg(v, spsr_abt);
+   ^~~~~~~~~~~~
+../arch/arm64/kvm/regmap.c:183:2: note: here
+  case KVM_SPSR_UND:
+  ^~~~
 
-Things go really south if the guest does the following:
+Rework to add a 'break;' in the swich-case since it didn't have that,
+leading to an interresting set of bugs.
 
-	mov x0, #0	// or any small value masking interrupts
-	msr ICC_PMR_EL1, x0
-
-	[vcpu preempted, then rescheduled, VMCR sampled]
-
-	mov x0, #ff	// allow all interrupts
-	msr ICC_PMR_EL1, x0
-	wfi		// traps to EL2, so samping of VMCR
-
-	[interrupt arrives just after WFI]
-
-Here, the hypervisor's view of PMR is zero, while the guest has enabled
-its interrupts. kvm_vgic_vcpu_pending_irq() will then say that no
-interrupts are pending (despite an interrupt being received) and we'll
-block for no reason. If the guest doesn't have a periodic interrupt
-firing once it has blocked, it will stay there forever.
-
-To avoid this unfortuante situation, let's resync VMCR from
-kvm_arch_vcpu_blocking(), ensuring that a following kvm_vcpu_check_block()
-will observe the latest value of PMR.
-
-This has been found by booting an arm64 Linux guest with the pseudo NMI
-feature, and thus using interrupt priorities to mask interrupts instead
-of the usual PSTATE masking.
-
-Cc: stable@vger.kernel.org # 4.12
-Fixes: 328e56647944 ("KVM: arm/arm64: vgic: Defer touching GICH_VMCR to vcpu_load/put")
+Cc: stable@vger.kernel.org # v4.17+
+Fixes: a892819560c4 ("KVM: arm64: Prepare to handle deferred save/restore of 32-bit registers")
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+[maz: reworked commit message, fixed stable range]
 Signed-off-by: Marc Zyngier <maz@kernel.org>
 
-diff --git a/include/kvm/arm_vgic.h b/include/kvm/arm_vgic.h
-index 46bbc949c20a..7a30524a80ee 100644
---- a/include/kvm/arm_vgic.h
-+++ b/include/kvm/arm_vgic.h
-@@ -350,6 +350,7 @@ int kvm_vgic_vcpu_pending_irq(struct kvm_vcpu *vcpu);
- 
- void kvm_vgic_load(struct kvm_vcpu *vcpu);
- void kvm_vgic_put(struct kvm_vcpu *vcpu);
-+void kvm_vgic_vmcr_sync(struct kvm_vcpu *vcpu);
- 
- #define irqchip_in_kernel(k)	(!!((k)->arch.vgic.in_kernel))
- #define vgic_initialized(k)	((k)->arch.vgic.initialized)
-diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
-index c704fa696184..482b20256fa8 100644
---- a/virt/kvm/arm/arm.c
-+++ b/virt/kvm/arm/arm.c
-@@ -323,6 +323,17 @@ int kvm_cpu_has_pending_timer(struct kvm_vcpu *vcpu)
- 
- void kvm_arch_vcpu_blocking(struct kvm_vcpu *vcpu)
- {
-+	/*
-+	 * If we're about to block (most likely because we've just hit a
-+	 * WFI), we need to sync back the state of the GIC CPU interface
-+	 * so that we have the lastest PMR and group enables. This ensures
-+	 * that kvm_arch_vcpu_runnable has up-to-date data to decide
-+	 * whether we have pending interrupts.
-+	 */
-+	preempt_disable();
-+	kvm_vgic_vmcr_sync(vcpu);
-+	preempt_enable();
-+
- 	kvm_vgic_v4_enable_doorbell(vcpu);
+diff --git a/arch/arm64/kvm/regmap.c b/arch/arm64/kvm/regmap.c
+index 0d60e4f0af66..a900181e3867 100644
+--- a/arch/arm64/kvm/regmap.c
++++ b/arch/arm64/kvm/regmap.c
+@@ -178,13 +178,18 @@ void vcpu_write_spsr32(struct kvm_vcpu *vcpu, unsigned long v)
+ 	switch (spsr_idx) {
+ 	case KVM_SPSR_SVC:
+ 		write_sysreg_el1(v, SYS_SPSR);
++		break;
+ 	case KVM_SPSR_ABT:
+ 		write_sysreg(v, spsr_abt);
++		break;
+ 	case KVM_SPSR_UND:
+ 		write_sysreg(v, spsr_und);
++		break;
+ 	case KVM_SPSR_IRQ:
+ 		write_sysreg(v, spsr_irq);
++		break;
+ 	case KVM_SPSR_FIQ:
+ 		write_sysreg(v, spsr_fiq);
++		break;
+ 	}
  }
- 
-diff --git a/virt/kvm/arm/vgic/vgic-v2.c b/virt/kvm/arm/vgic/vgic-v2.c
-index 6dd5ad706c92..96aab77d0471 100644
---- a/virt/kvm/arm/vgic/vgic-v2.c
-+++ b/virt/kvm/arm/vgic/vgic-v2.c
-@@ -484,10 +484,17 @@ void vgic_v2_load(struct kvm_vcpu *vcpu)
- 		       kvm_vgic_global_state.vctrl_base + GICH_APR);
- }
- 
--void vgic_v2_put(struct kvm_vcpu *vcpu)
-+void vgic_v2_vmcr_sync(struct kvm_vcpu *vcpu)
- {
- 	struct vgic_v2_cpu_if *cpu_if = &vcpu->arch.vgic_cpu.vgic_v2;
- 
- 	cpu_if->vgic_vmcr = readl_relaxed(kvm_vgic_global_state.vctrl_base + GICH_VMCR);
-+}
-+
-+void vgic_v2_put(struct kvm_vcpu *vcpu)
-+{
-+	struct vgic_v2_cpu_if *cpu_if = &vcpu->arch.vgic_cpu.vgic_v2;
-+
-+	vgic_v2_vmcr_sync(vcpu);
- 	cpu_if->vgic_apr = readl_relaxed(kvm_vgic_global_state.vctrl_base + GICH_APR);
- }
-diff --git a/virt/kvm/arm/vgic/vgic-v3.c b/virt/kvm/arm/vgic/vgic-v3.c
-index c2c9ce009f63..0c653a1e5215 100644
---- a/virt/kvm/arm/vgic/vgic-v3.c
-+++ b/virt/kvm/arm/vgic/vgic-v3.c
-@@ -662,12 +662,17 @@ void vgic_v3_load(struct kvm_vcpu *vcpu)
- 		__vgic_v3_activate_traps(vcpu);
- }
- 
--void vgic_v3_put(struct kvm_vcpu *vcpu)
-+void vgic_v3_vmcr_sync(struct kvm_vcpu *vcpu)
- {
- 	struct vgic_v3_cpu_if *cpu_if = &vcpu->arch.vgic_cpu.vgic_v3;
- 
- 	if (likely(cpu_if->vgic_sre))
- 		cpu_if->vgic_vmcr = kvm_call_hyp_ret(__vgic_v3_read_vmcr);
-+}
-+
-+void vgic_v3_put(struct kvm_vcpu *vcpu)
-+{
-+	vgic_v3_vmcr_sync(vcpu);
- 
- 	kvm_call_hyp(__vgic_v3_save_aprs, vcpu);
- 
-diff --git a/virt/kvm/arm/vgic/vgic.c b/virt/kvm/arm/vgic/vgic.c
-index 04786c8ec77e..13d4b38a94ec 100644
---- a/virt/kvm/arm/vgic/vgic.c
-+++ b/virt/kvm/arm/vgic/vgic.c
-@@ -919,6 +919,17 @@ void kvm_vgic_put(struct kvm_vcpu *vcpu)
- 		vgic_v3_put(vcpu);
- }
- 
-+void kvm_vgic_vmcr_sync(struct kvm_vcpu *vcpu)
-+{
-+	if (unlikely(!irqchip_in_kernel(vcpu->kvm)))
-+		return;
-+
-+	if (kvm_vgic_global_state.type == VGIC_V2)
-+		vgic_v2_vmcr_sync(vcpu);
-+	else
-+		vgic_v3_vmcr_sync(vcpu);
-+}
-+
- int kvm_vgic_vcpu_pending_irq(struct kvm_vcpu *vcpu)
- {
- 	struct vgic_cpu *vgic_cpu = &vcpu->arch.vgic_cpu;
-diff --git a/virt/kvm/arm/vgic/vgic.h b/virt/kvm/arm/vgic/vgic.h
-index 57205beaa981..11adbdac1d56 100644
---- a/virt/kvm/arm/vgic/vgic.h
-+++ b/virt/kvm/arm/vgic/vgic.h
-@@ -193,6 +193,7 @@ int vgic_register_dist_iodev(struct kvm *kvm, gpa_t dist_base_address,
- void vgic_v2_init_lrs(void);
- void vgic_v2_load(struct kvm_vcpu *vcpu);
- void vgic_v2_put(struct kvm_vcpu *vcpu);
-+void vgic_v2_vmcr_sync(struct kvm_vcpu *vcpu);
- 
- void vgic_v2_save_state(struct kvm_vcpu *vcpu);
- void vgic_v2_restore_state(struct kvm_vcpu *vcpu);
-@@ -223,6 +224,7 @@ bool vgic_v3_check_base(struct kvm *kvm);
- 
- void vgic_v3_load(struct kvm_vcpu *vcpu);
- void vgic_v3_put(struct kvm_vcpu *vcpu);
-+void vgic_v3_vmcr_sync(struct kvm_vcpu *vcpu);
- 
- bool vgic_has_its(struct kvm *kvm);
- int kvm_vgic_register_its_device(void);
 
