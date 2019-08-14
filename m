@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B677F8D953
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:07:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 142DB8D95C
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:09:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729924AbfHNRHg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:07:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57150 "EHLO mail.kernel.org"
+        id S1729941AbfHNRHo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:07:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729921AbfHNRHf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:07:35 -0400
+        id S1728866AbfHNRHn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:07:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 671EC2084D;
-        Wed, 14 Aug 2019 17:07:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 198172173E;
+        Wed, 14 Aug 2019 17:07:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802454;
-        bh=8QzhLk11rKRS5pXk/KgrvZ/Uoumn2RD4aDet7Rx990E=;
+        s=default; t=1565802462;
+        bh=sGq5WL4OrlVm5sETWr0NMRgMXh1mIXO4iTxq/TmCj5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I1fVFpBGsB3eOgucjCI5EWG1nqS88N1+JqYzi4wSRTjjMrVCXtj9DYhZizthlht2z
-         EoWC1W1VEvYj3zEPR/dJmlFkfLyp63K4nBrHgD5QmRlP1GL1apW18tb4vASjBJ4wAe
-         9o4yvepdykv5I76b9NFOnzUfJYnHokfoBSwkjA8U=
+        b=vyVfW1YWP57GHIM8lCbCM4GBNSJFTY9GypWRF1hVps/ilJziJctfdxeceVsM4ExLk
+         zb+jXXWfxZm+J9zSQjWAX863RWBROhsIX8K6QXXyAoAtVV7tFBsyrgShy5wsoVG4GF
+         giIMjZxcz5WE3R0oaaUGLmdJPHz3Pw0EIl5aZ67A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>
-Subject: [PATCH 5.2 133/144] smb3: send CAP_DFS capability during session setup
-Date:   Wed, 14 Aug 2019 19:01:29 +0200
-Message-Id: <20190814165805.506257564@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.2 135/144] NFSv4: Check the return value of update_open_stateid()
+Date:   Wed, 14 Aug 2019 19:01:31 +0200
+Message-Id: <20190814165805.589869846@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
 References: <20190814165759.466811854@linuxfoundation.org>
@@ -44,40 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 8d33096a460d5b9bd13300f01615df5bb454db10 upstream.
+commit e3c8dc761ead061da2220ee8f8132f729ac3ddfe upstream.
 
-We had a report of a server which did not do a DFS referral
-because the session setup Capabilities field was set to 0
-(unlike negotiate protocol where we set CAP_DFS).  Better to
-send it session setup in the capabilities as well (this also
-more closely matches Windows client behavior).
+Ensure that we always check the return value of update_open_stateid()
+so that we can retry if the update of local state failed. This fixes
+infinite looping on state recovery.
 
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-CC: Stable <stable@vger.kernel.org>
+Fixes: e23008ec81ef3 ("NFSv4 reduce attribute requests for open reclaim")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Cc: stable@vger.kernel.org # v3.7+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/smb2pdu.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ fs/nfs/nfs4proc.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -1173,7 +1173,12 @@ SMB2_sess_alloc_buffer(struct SMB2_sess_
- 	else
- 		req->SecurityMode = 0;
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -1878,8 +1878,9 @@ _nfs4_opendata_reclaim_to_nfs4_state(str
+ 	if (data->o_res.delegation_type != 0)
+ 		nfs4_opendata_check_deleg(data, state);
+ update:
+-	update_open_stateid(state, &data->o_res.stateid, NULL,
+-			    data->o_arg.fmode);
++	if (!update_open_stateid(state, &data->o_res.stateid,
++				NULL, data->o_arg.fmode))
++		return ERR_PTR(-EAGAIN);
+ 	refcount_inc(&state->count);
  
-+#ifdef CONFIG_CIFS_DFS_UPCALL
-+	req->Capabilities = cpu_to_le32(SMB2_GLOBAL_CAP_DFS);
-+#else
- 	req->Capabilities = 0;
-+#endif /* DFS_UPCALL */
-+
- 	req->Channel = 0; /* MBZ */
+ 	return state;
+@@ -1944,8 +1945,11 @@ _nfs4_opendata_to_nfs4_state(struct nfs4
  
- 	sess_data->iov[0].iov_base = (char *)req;
+ 	if (data->o_res.delegation_type != 0)
+ 		nfs4_opendata_check_deleg(data, state);
+-	update_open_stateid(state, &data->o_res.stateid, NULL,
+-			data->o_arg.fmode);
++	if (!update_open_stateid(state, &data->o_res.stateid,
++				NULL, data->o_arg.fmode)) {
++		nfs4_put_open_state(state);
++		state = ERR_PTR(-EAGAIN);
++	}
+ out:
+ 	nfs_release_seqid(data->o_arg.seqid);
+ 	return state;
 
 
