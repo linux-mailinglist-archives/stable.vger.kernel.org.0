@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E14F8C950
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:38:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 569D38C952
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:38:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727856AbfHNCM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:12:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44534 "EHLO mail.kernel.org"
+        id S1728220AbfHNCiX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:38:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727049AbfHNCMZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:12:25 -0400
+        id S1727850AbfHNCM1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:12:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B143E208C2;
-        Wed, 14 Aug 2019 02:12:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31E212085A;
+        Wed, 14 Aug 2019 02:12:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748744;
-        bh=yzdK0cpATKfDgE266QK3LkS15A5pMnjiRaPV3/oLKK0=;
+        s=default; t=1565748746;
+        bh=tLtnGx3AizxDdq/bW1EN2WBQhLkn9gFqy/eAI25LfRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HIs12VncSQZzDwaziPUuf8ieOi2wuBWDLiq6XiNX8+AM+c4IAQi9vhD5IuQmokLC7
-         pjPcKcvXfZgGCubr2yWiGIveKGITN4CJI7vj50JELfypyJQannTHRtaaoJxcoWAmau
-         5evEpKglcvt91d/AnMr6IbeMYG2+qDxvzX6mWyiY=
+        b=do0wv6dvdtv1ktg62gValkzJJtFdxGNfxw7Og1bVFRcNRAiEFWcyuIG1yUMNIurqm
+         ZLqJdGTCV0DWgUeu/EnM/6lBppBrFCzATPSg3QHxPwnELNWaNLFjSnDB8aXfo3oPTe
+         KGvG1UDRwdnvChBdAsW6YbASI1ML/4kPWEvHyaJA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrii Nakryiko <andriin@fb.com>,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
-        Song Liu <songliubraving@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 042/123] libbpf: silence GCC8 warning about string truncation
-Date:   Tue, 13 Aug 2019 22:09:26 -0400
-Message-Id: <20190814021047.14828-42-sashal@kernel.org>
+Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 043/123] st21nfca_connectivity_event_received: null check the allocation
+Date:   Tue, 13 Aug 2019 22:09:27 -0400
+Message-Id: <20190814021047.14828-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -46,56 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andriin@fb.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit cb8ffde5694ae5fffb456eae932aac442aa3a207 ]
+[ Upstream commit 9891d06836e67324c9e9c4675ed90fc8b8110034 ]
 
-Despite a proper NULL-termination after strncpy(..., ..., IFNAMSIZ - 1),
-GCC8 still complains about *expected* string truncation:
+devm_kzalloc may fail and return null. So the null check is needed.
 
-  xsk.c:330:2: error: 'strncpy' output may be truncated copying 15 bytes
-  from a string of length 15 [-Werror=stringop-truncation]
-    strncpy(ifr.ifr_name, xsk->ifname, IFNAMSIZ - 1);
-
-This patch gets rid of the issue altogether by using memcpy instead.
-There is no performance regression, as strncpy will still copy and fill
-all of the bytes anyway.
-
-v1->v2:
-- rebase against bpf tree.
-
-Cc: Magnus Karlsson <magnus.karlsson@intel.com>
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Acked-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/xsk.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/nfc/st21nfca/se.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/lib/bpf/xsk.c b/tools/lib/bpf/xsk.c
-index 8e03b65830da0..fa948c5445ecf 100644
---- a/tools/lib/bpf/xsk.c
-+++ b/tools/lib/bpf/xsk.c
-@@ -336,7 +336,7 @@ static int xsk_get_max_queues(struct xsk_socket *xsk)
- 		return -errno;
+diff --git a/drivers/nfc/st21nfca/se.c b/drivers/nfc/st21nfca/se.c
+index 06fc542fd1987..6586378cacb05 100644
+--- a/drivers/nfc/st21nfca/se.c
++++ b/drivers/nfc/st21nfca/se.c
+@@ -317,6 +317,8 @@ int st21nfca_connectivity_event_received(struct nfc_hci_dev *hdev, u8 host,
  
- 	ifr.ifr_data = (void *)&channels;
--	strncpy(ifr.ifr_name, xsk->ifname, IFNAMSIZ - 1);
-+	memcpy(ifr.ifr_name, xsk->ifname, IFNAMSIZ - 1);
- 	ifr.ifr_name[IFNAMSIZ - 1] = '\0';
- 	err = ioctl(fd, SIOCETHTOOL, &ifr);
- 	if (err && errno != EOPNOTSUPP) {
-@@ -561,7 +561,7 @@ int xsk_socket__create(struct xsk_socket **xsk_ptr, const char *ifname,
- 		err = -errno;
- 		goto out_socket;
- 	}
--	strncpy(xsk->ifname, ifname, IFNAMSIZ - 1);
-+	memcpy(xsk->ifname, ifname, IFNAMSIZ - 1);
- 	xsk->ifname[IFNAMSIZ - 1] = '\0';
+ 		transaction = (struct nfc_evt_transaction *)devm_kzalloc(dev,
+ 						   skb->len - 2, GFP_KERNEL);
++		if (!transaction)
++			return -ENOMEM;
  
- 	err = xsk_set_xdp_socket_config(&xsk->config, usr_config);
+ 		transaction->aid_len = skb->data[1];
+ 		memcpy(transaction->aid, &skb->data[2],
 -- 
 2.20.1
 
