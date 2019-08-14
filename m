@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1026C8DABD
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:20:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38AEF8DB4C
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:24:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728556AbfHNRUN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:20:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33946 "EHLO mail.kernel.org"
+        id S1729670AbfHNRGg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:06:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730538AbfHNRKy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:10:54 -0400
+        id S1729687AbfHNRGe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:06:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B52BC2084D;
-        Wed, 14 Aug 2019 17:10:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29BFD2084D;
+        Wed, 14 Aug 2019 17:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802654;
-        bh=Lqu+Gb6MJgsXC8tH+vHrPCLUN56KFzybm5bfgYB8sV0=;
+        s=default; t=1565802393;
+        bh=C2vs5veVVQl4m5EUzEISRy7dfJk4KURDdHDXOBFQgVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YZynM/+IqnAo28LohK3c2pnk0okH/zoGBfILl/Ktyu2M1JbcJVoiD8RQOkJmAKzFi
-         8vLHL8iwQ0AS71FbWSAEoVy5LFTBEb7qNLlfS6v18YE9CW9R6viz0lolvhXb/qwDiU
-         3w427o3S23jgftWSBMa6UreBSyhKuR7CnKdjXTLs=
+        b=NkxKvv5odm7c3lskFut388W8AeGdVcd2EHHZJ7k520fC48j6dJT8bYDIjvMKcDY0d
+         n1Ob8uDcPzgbHZ+O1Mu3WKBTn6RTfbFlWajKjlYAoiwXSa3HGplHX1xdbZd8cCFssN
+         10/8CoXSMgVP3/3iTjjFnjQpAQZ61uPqRwCPwCeo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tai Man <taiman.wong@amd.com>,
-        Charlene Liu <Charlene.Liu@amd.com>,
-        Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Abdul Haleem <abdhalee@linux.vnet.ibm.com>,
+        Tyrel Datwyler <tyreld@linux.vnet.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 40/91] drm/amd/display: use encoders engine id to find matched free audio device
-Date:   Wed, 14 Aug 2019 19:01:03 +0200
-Message-Id: <20190814165751.345796527@linuxfoundation.org>
+Subject: [PATCH 5.2 108/144] scsi: ibmvfc: fix WARN_ON during event pool release
+Date:   Wed, 14 Aug 2019 19:01:04 +0200
+Message-Id: <20190814165804.426458084@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
-References: <20190814165748.991235624@linuxfoundation.org>
+In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
+References: <20190814165759.466811854@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,54 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 74eda776d7a4e69ec7aa1ce30a87636f14220fbb ]
+[ Upstream commit 5578257ca0e21056821e6481bd534ba267b84e58 ]
 
-[Why]
-On some platforms, the encoder id 3 is not populated. So the encoders
-are not stored in right order as index (id: 0, 1, 2, 4, 5) at pool. This
-would cause encoders id 4 & id 5 to fail when finding corresponding
-audio device, defaulting to the first available audio device. As result,
-we cannot stream audio into two DP ports with encoders id 4 & id 5.
+While removing an ibmvfc client adapter a WARN_ON like the following
+WARN_ON is seen in the kernel log:
 
-[How]
-It need to create enough audio device objects (0 - 5) to perform matching.
-Then use encoder engine id to find matched audio device.
+WARNING: CPU: 6 PID: 5421 at ./include/linux/dma-mapping.h:541
+ibmvfc_free_event_pool+0x12c/0x1f0 [ibmvfc]
+CPU: 6 PID: 5421 Comm: rmmod Tainted: G            E     4.17.0-rc1-next-20180419-autotest #1
+NIP:  d00000000290328c LR: d00000000290325c CTR: c00000000036ee20
+REGS: c000000288d1b7e0 TRAP: 0700   Tainted: G            E      (4.17.0-rc1-next-20180419-autotest)
+MSR:  800000010282b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE,TM[E]>  CR: 44008828  XER: 20000000
+CFAR: c00000000036e408 SOFTE: 1
+GPR00: d00000000290325c c000000288d1ba60 d000000002917900 c000000289d75448
+GPR04: 0000000000000071 c0000000ff870000 0000000018040000 0000000000000001
+GPR08: 0000000000000000 c00000000156e838 0000000000000001 d00000000290c640
+GPR12: c00000000036ee20 c00000001ec4dc00 0000000000000000 0000000000000000
+GPR16: 0000000000000000 0000000000000000 00000100276901e0 0000000010020598
+GPR20: 0000000010020550 0000000010020538 0000000010020578 00000000100205b0
+GPR24: 0000000000000000 0000000000000000 0000000010020590 5deadbeef0000100
+GPR28: 5deadbeef0000200 d000000002910b00 0000000000000071 c0000002822f87d8
+NIP [d00000000290328c] ibmvfc_free_event_pool+0x12c/0x1f0 [ibmvfc]
+LR [d00000000290325c] ibmvfc_free_event_pool+0xfc/0x1f0 [ibmvfc]
+Call Trace:
+[c000000288d1ba60] [d00000000290325c] ibmvfc_free_event_pool+0xfc/0x1f0 [ibmvfc] (unreliable)
+[c000000288d1baf0] [d000000002909390] ibmvfc_abort_task_set+0x7b0/0x8b0 [ibmvfc]
+[c000000288d1bb70] [c0000000000d8c68] vio_bus_remove+0x68/0x100
+[c000000288d1bbb0] [c0000000007da7c4] device_release_driver_internal+0x1f4/0x2d0
+[c000000288d1bc00] [c0000000007da95c] driver_detach+0x7c/0x100
+[c000000288d1bc40] [c0000000007d8af4] bus_remove_driver+0x84/0x140
+[c000000288d1bcb0] [c0000000007db6ac] driver_unregister+0x4c/0xa0
+[c000000288d1bd20] [c0000000000d6e7c] vio_unregister_driver+0x2c/0x50
+[c000000288d1bd50] [d00000000290ba0c] cleanup_module+0x24/0x15e0 [ibmvfc]
+[c000000288d1bd70] [c0000000001dadb0] sys_delete_module+0x220/0x2d0
+[c000000288d1be30] [c00000000000b284] system_call+0x58/0x6c
+Instruction dump:
+e8410018 e87f0068 809f0078 e8bf0080 e8df0088 2fa30000 419e008c e9230200
+2fa90000 419e0080 894d098a 794a07e0 <0b0a0000> e9290008 2fa90000 419e0028
 
-Signed-off-by: Tai Man <taiman.wong@amd.com>
-Reviewed-by: Charlene Liu <Charlene.Liu@amd.com>
-Acked-by: Leo Li <sunpeng.li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+This is tripped as a result of irqs being disabled during the call to
+dma_free_coherent() by ibmvfc_free_event_pool(). At this point in the code path
+we have quiesced the adapter and its overly paranoid anyways to be holding the
+host lock.
+
+Reported-by: Abdul Haleem <abdhalee@linux.vnet.ibm.com>
+Signed-off-by: Tyrel Datwyler <tyreld@linux.vnet.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_resource.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/scsi/ibmvscsi/ibmvfc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-index e0a96abb3c46c..06d5988dff723 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-@@ -222,7 +222,7 @@ bool resource_construct(
- 		 * PORT_CONNECTIVITY == 1 (as instructed by HW team).
- 		 */
- 		update_num_audio(&straps, &num_audio, &pool->audio_support);
--		for (i = 0; i < pool->pipe_count && i < num_audio; i++) {
-+		for (i = 0; i < caps->num_audio; i++) {
- 			struct audio *aud = create_funcs->create_audio(ctx, i);
+diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
+index acd16e0d52cfe..8cdbac076a1b6 100644
+--- a/drivers/scsi/ibmvscsi/ibmvfc.c
++++ b/drivers/scsi/ibmvscsi/ibmvfc.c
+@@ -4864,8 +4864,8 @@ static int ibmvfc_remove(struct vio_dev *vdev)
  
- 			if (aud == NULL) {
-@@ -1713,6 +1713,12 @@ static struct audio *find_first_free_audio(
- 			return pool->audios[i];
- 		}
- 	}
-+
-+    /* use engine id to find free audio */
-+	if ((id < pool->audio_count) && (res_ctx->is_audio_acquired[id] == false)) {
-+		return pool->audios[id];
-+	}
-+
- 	/*not found the matching one, first come first serve*/
- 	for (i = 0; i < pool->audio_count; i++) {
- 		if (res_ctx->is_audio_acquired[i] == false) {
+ 	spin_lock_irqsave(vhost->host->host_lock, flags);
+ 	ibmvfc_purge_requests(vhost, DID_ERROR);
+-	ibmvfc_free_event_pool(vhost);
+ 	spin_unlock_irqrestore(vhost->host->host_lock, flags);
++	ibmvfc_free_event_pool(vhost);
+ 
+ 	ibmvfc_free_mem(vhost);
+ 	spin_lock(&ibmvfc_driver_lock);
 -- 
 2.20.1
 
