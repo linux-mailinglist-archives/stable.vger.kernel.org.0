@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 353008C6CB
+	by mail.lfdr.de (Postfix) with ESMTP id AED5B8C6CC
 	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:19:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729578AbfHNCS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:18:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49812 "EHLO mail.kernel.org"
+        id S1729581AbfHNCS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:18:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729560AbfHNCSw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:18:52 -0400
+        id S1728109AbfHNCS5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:18:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CAA8F2085A;
-        Wed, 14 Aug 2019 02:18:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2FCD21743;
+        Wed, 14 Aug 2019 02:18:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565749132;
-        bh=A959iDBz6axkDGYmFedeS7BeuaZ4FIDNHH7HQ1vGz1s=;
+        s=default; t=1565749136;
+        bh=fx1HQP4lAJ/xj+qN5Lmk8RgK8zesAcChtUPk8DxQxe8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QlsIgM3fCuAr5WFmUGkn+SsSK8cuq9O+tymRJfWnZRffTvvlHyMpB2rXKcI4zPx58
-         KmwxGvGfNJFEhn/lIMZ98dH8+hvPFDk721MYaSue4uzNqzBaQmhyI4t4fd/cWJ4EI1
-         CXNQBhSrzkWNKv0e0azP4W2Z0pmXA87lo5fsbayU=
+        b=kscFzsvL7prD8bbvn9H6gwOavFCG11KApP/h+9ABrRzzzIXUYt0T9rIAMGYYGtjtb
+         Hw/miTvKJrTPyvLxAWWM2qDStkpoiRPiObpusJpGjuIaqnpybu9xFgeq24fp4bf729
+         uweQ5WPD85rD3VGxk5hIJAZFm6hU1HUuPL1ZCjqc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
+Cc:     Michal Kalderon <michal.kalderon@marvell.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 11/44] st_nci_hci_connectivity_event_received: null check the allocation
-Date:   Tue, 13 Aug 2019 22:18:00 -0400
-Message-Id: <20190814021834.16662-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 14/44] qed: RDMA - Fix the hw_ver returned in device attributes
+Date:   Tue, 13 Aug 2019 22:18:03 -0400
+Message-Id: <20190814021834.16662-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021834.16662-1-sashal@kernel.org>
 References: <20190814021834.16662-1-sashal@kernel.org>
@@ -43,32 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Michal Kalderon <michal.kalderon@marvell.com>
 
-[ Upstream commit 3008e06fdf0973770370f97d5f1fba3701d8281d ]
+[ Upstream commit 81af04b432fdfabcdbd2c06be2ee647e3ca41a22 ]
 
-devm_kzalloc may fail and return NULL. So the null check is needed.
+The hw_ver field was initialized to zero. Return the chip revision.
+This is relevant for rdma driver.
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/st-nci/se.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/qlogic/qed/qed_rdma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nfc/st-nci/se.c b/drivers/nfc/st-nci/se.c
-index 56f2112e0cd84..85df2e0093109 100644
---- a/drivers/nfc/st-nci/se.c
-+++ b/drivers/nfc/st-nci/se.c
-@@ -344,6 +344,8 @@ static int st_nci_hci_connectivity_event_received(struct nci_dev *ndev,
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_rdma.c b/drivers/net/ethernet/qlogic/qed/qed_rdma.c
+index 1e13dea66989e..c9258aabca2d4 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_rdma.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_rdma.c
+@@ -398,7 +398,7 @@ static void qed_rdma_init_devinfo(struct qed_hwfn *p_hwfn,
+ 	/* Vendor specific information */
+ 	dev->vendor_id = cdev->vendor_id;
+ 	dev->vendor_part_id = cdev->device_id;
+-	dev->hw_ver = 0;
++	dev->hw_ver = cdev->chip_rev;
+ 	dev->fw_ver = (FW_MAJOR_VERSION << 24) | (FW_MINOR_VERSION << 16) |
+ 		      (FW_REVISION_VERSION << 8) | (FW_ENGINEERING_VERSION);
  
- 		transaction = (struct nfc_evt_transaction *)devm_kzalloc(dev,
- 					    skb->len - 2, GFP_KERNEL);
-+		if (!transaction)
-+			return -ENOMEM;
- 
- 		transaction->aid_len = skb->data[1];
- 		memcpy(transaction->aid, &skb->data[2], transaction->aid_len);
 -- 
 2.20.1
 
