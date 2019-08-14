@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E55358C888
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:32:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DF028C885
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:32:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729024AbfHNCQW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:16:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47868 "EHLO mail.kernel.org"
+        id S1728173AbfHNCcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:32:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729020AbfHNCQW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:16:22 -0400
+        id S1729022AbfHNCQX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:16:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8E9D2085A;
-        Wed, 14 Aug 2019 02:16:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E295D20874;
+        Wed, 14 Aug 2019 02:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748981;
-        bh=3pR9tdI3PUn2xwphxQu6fBzLnYl6h0dWcli9kTSxdSI=;
+        s=default; t=1565748982;
+        bh=ch4sW9kFKIQNeLNsVYgUacK+Hl+BFLM+LXX19iKx7e8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lghyhlJJOxM3703MN/4VyqmvPNJBt1jXiw0M0e1SM0xI8ck2ipPtZZhxu+H8YHUoi
-         NuoVJKI9IV3H2kYY5VbaUqd70ovzDhoEQDcbRewoVOwOqTbPKq7wRKKuWAaJ6GNh8o
-         xuD4xh16u1iIks49RAYqvDlyw58P3gfuIZrlQMP0=
+        b=hUjggKwhoZZkNBUtyf6G+TrYDfRkDxAOmZlKPUBR1gm2s+iX8uB2plXv5iAnyDY8Z
+         Tw+Hgr6QHZpFEafHMLUJgzRqMOhXQ1L3NK04U3ix3nAHd9lZ/r4DX68lKcmp4SYBrC
+         IgQ3L0eZelhdKXXBhi8W1wLi0WavU8qSyIYcZ3SA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 18/68] st_nci_hci_connectivity_event_received: null check the allocation
-Date:   Tue, 13 Aug 2019 22:14:56 -0400
-Message-Id: <20190814021548.16001-18-sashal@kernel.org>
+Cc:     Cheng-Yi Chiang <cychiang@chromium.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 19/68] ASoC: rockchip: Fix mono capture
+Date:   Tue, 13 Aug 2019 22:14:57 -0400
+Message-Id: <20190814021548.16001-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021548.16001-1-sashal@kernel.org>
 References: <20190814021548.16001-1-sashal@kernel.org>
@@ -43,32 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Cheng-Yi Chiang <cychiang@chromium.org>
 
-[ Upstream commit 3008e06fdf0973770370f97d5f1fba3701d8281d ]
+[ Upstream commit 789e162a6255325325bd321ab0cd51dc7e285054 ]
 
-devm_kzalloc may fail and return NULL. So the null check is needed.
+This reverts commit db51707b9c9aeedd310ebce60f15d5bb006567e0.
+Revert "ASoC: rockchip: i2s: Support mono capture"
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Previous discussion in
+
+https://patchwork.kernel.org/patch/10147153/
+
+explains the issue of the patch.
+While device is configured as 1-ch, hardware is still
+generating a 2-ch stream.
+When user space reads the data and assumes it is a 1-ch stream,
+the rate will be slower by 2x.
+
+Revert the change so 1-ch is not supported.
+User space can selectively take one channel data out of two channel
+if 1-ch is preferred.
+Currently, both channels record identical data.
+
+Signed-off-by: Cheng-Yi Chiang <cychiang@chromium.org>
+Link: https://lore.kernel.org/r/20190726044202.26866-1-cychiang@chromium.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/st-nci/se.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/rockchip/rockchip_i2s.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/nfc/st-nci/se.c b/drivers/nfc/st-nci/se.c
-index f55d082ace715..5d6e7e931bc6c 100644
---- a/drivers/nfc/st-nci/se.c
-+++ b/drivers/nfc/st-nci/se.c
-@@ -344,6 +344,8 @@ static int st_nci_hci_connectivity_event_received(struct nci_dev *ndev,
+diff --git a/sound/soc/rockchip/rockchip_i2s.c b/sound/soc/rockchip/rockchip_i2s.c
+index 60d43d53a8f5e..11399f81c92f9 100644
+--- a/sound/soc/rockchip/rockchip_i2s.c
++++ b/sound/soc/rockchip/rockchip_i2s.c
+@@ -329,7 +329,6 @@ static int rockchip_i2s_hw_params(struct snd_pcm_substream *substream,
+ 		val |= I2S_CHN_4;
+ 		break;
+ 	case 2:
+-	case 1:
+ 		val |= I2S_CHN_2;
+ 		break;
+ 	default:
+@@ -462,7 +461,7 @@ static struct snd_soc_dai_driver rockchip_i2s_dai = {
+ 	},
+ 	.capture = {
+ 		.stream_name = "Capture",
+-		.channels_min = 1,
++		.channels_min = 2,
+ 		.channels_max = 2,
+ 		.rates = SNDRV_PCM_RATE_8000_192000,
+ 		.formats = (SNDRV_PCM_FMTBIT_S8 |
+@@ -662,7 +661,7 @@ static int rockchip_i2s_probe(struct platform_device *pdev)
+ 	}
  
- 		transaction = (struct nfc_evt_transaction *)devm_kzalloc(dev,
- 					    skb->len - 2, GFP_KERNEL);
-+		if (!transaction)
-+			return -ENOMEM;
+ 	if (!of_property_read_u32(node, "rockchip,capture-channels", &val)) {
+-		if (val >= 1 && val <= 8)
++		if (val >= 2 && val <= 8)
+ 			soc_dai->capture.channels_max = val;
+ 	}
  
- 		transaction->aid_len = skb->data[1];
- 		memcpy(transaction->aid, &skb->data[2], transaction->aid_len);
 -- 
 2.20.1
 
