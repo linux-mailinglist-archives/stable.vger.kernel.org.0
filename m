@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9005B8C8FB
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:35:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5DE98C8EF
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 04:35:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727724AbfHNCNi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Aug 2019 22:13:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45628 "EHLO mail.kernel.org"
+        id S1728368AbfHNCNk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Aug 2019 22:13:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728353AbfHNCNh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:13:37 -0400
+        id S1727729AbfHNCNj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Aug 2019 22:13:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FECB20874;
-        Wed, 14 Aug 2019 02:13:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40F1021743;
+        Wed, 14 Aug 2019 02:13:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565748816;
-        bh=g+lK8Z/Z/UZ8/bn39BG/TWJYQxoXxoVxHm6GkJ/2ilM=;
+        s=default; t=1565748817;
+        bh=g43v1qWwCctTqaytwmXqEvCGCh3tRqeegcByztUxogY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pKTbpGsNmsl2OuF3+OZdvNoltGXrTKgdgn3thJggd4F1dZsmicny/7fBnlJnrsz3T
-         3sXQfOPHJHVqgk/avCmURJ3mZTHI+iCVtNrhWMLe7CNawef+34uXwC6fc44vyWgz/4
-         AGRborCkBRAScsnd/lukOUAJFRRqQswXinPl8bpg=
+        b=ZY1ggm3CgU1PpCBHsiR6w1Q4I+i1J9rtvjOEZ2ArBcEXYKHfF7BGxj1JEURvQio+U
+         1Df8R2HDrAg2/zprhP1nfe3GCxKHeC1HaK0THNNHyWnvE6o2s4/3NsH3yN4qms+uHa
+         nBuqIAdyAVWKMB4fbpnwWW3G9PPmhbzpX0P8h6UI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vijendar Mukunda <Vijendar.Mukunda@amd.com>,
-        Vijendar Mukunda <vijendar.mukunda@amd.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 077/123] ASoC: amd: acp3x: use dma_ops of parent device for acp3x dma driver
-Date:   Tue, 13 Aug 2019 22:10:01 -0400
-Message-Id: <20190814021047.14828-77-sashal@kernel.org>
+Cc:     Wang Xiayang <xywang.sjtu@sjtu.edu.cn>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 078/123] net/ethernet/qlogic/qed: force the string buffer NULL-terminated
+Date:   Tue, 13 Aug 2019 22:10:02 -0400
+Message-Id: <20190814021047.14828-78-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
@@ -44,43 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vijendar Mukunda <Vijendar.Mukunda@amd.com>
+From: Wang Xiayang <xywang.sjtu@sjtu.edu.cn>
 
-[ Upstream commit 88639051017fb61a414b636dd0fc490da2b62b64 ]
+[ Upstream commit 3690c8c9a8edff0db077a38783112d8fe12a7dd2 ]
 
-AMD platform device acp3x_rv_i2s created by parent PCI device
-driver. Pass struct device of the parent to
-snd_pcm_lib_preallocate_pages() so dma_alloc_coherent() can use
-correct dma_ops. Otherwise, it will use default dma_ops which
-is nommu_dma_ops on x86_64 even when IOMMU is enabled and
-set to non passthrough mode.
+strncpy() does not ensure NULL-termination when the input string
+size equals to the destination buffer size 30.
+The output string is passed to qed_int_deassertion_aeu_bit()
+which calls DP_INFO() and relies NULL-termination.
 
-Signed-off-by: Vijendar Mukunda <vijendar.mukunda@amd.com>
-Link: https://lore.kernel.org/r/1564753899-17124-1-git-send-email-Vijendar.Mukunda@amd.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Use strlcpy instead. The other conditional branch above strncpy()
+needs no fix as snprintf() ensures NULL-termination.
+
+This issue is identified by a Coccinelle script.
+
+Signed-off-by: Wang Xiayang <xywang.sjtu@sjtu.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/amd/raven/acp3x-pcm-dma.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed_int.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/amd/raven/acp3x-pcm-dma.c b/sound/soc/amd/raven/acp3x-pcm-dma.c
-index 9775bda2a4ca3..d8aa6ab3f68bc 100644
---- a/sound/soc/amd/raven/acp3x-pcm-dma.c
-+++ b/sound/soc/amd/raven/acp3x-pcm-dma.c
-@@ -367,9 +367,11 @@ static snd_pcm_uframes_t acp3x_dma_pointer(struct snd_pcm_substream *substream)
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_int.c b/drivers/net/ethernet/qlogic/qed/qed_int.c
+index fdfedbc8e4311..70a771cd87889 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_int.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_int.c
+@@ -1093,7 +1093,7 @@ static int qed_int_deassertion(struct qed_hwfn  *p_hwfn,
+ 						snprintf(bit_name, 30,
+ 							 p_aeu->bit_name, num);
+ 					else
+-						strncpy(bit_name,
++						strlcpy(bit_name,
+ 							p_aeu->bit_name, 30);
  
- static int acp3x_dma_new(struct snd_soc_pcm_runtime *rtd)
- {
-+	struct snd_soc_component *component = snd_soc_rtdcom_lookup(rtd,
-+								    DRV_NAME);
-+	struct device *parent = component->dev->parent;
- 	snd_pcm_lib_preallocate_pages_for_all(rtd->pcm, SNDRV_DMA_TYPE_DEV,
--					      rtd->pcm->card->dev,
--					      MIN_BUFFER, MAX_BUFFER);
-+					      parent, MIN_BUFFER, MAX_BUFFER);
- 	return 0;
- }
- 
+ 					/* We now need to pass bitmask in its
 -- 
 2.20.1
 
