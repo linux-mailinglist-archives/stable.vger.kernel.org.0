@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C229C8D8DD
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:03:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 964218D8E2
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:04:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728253AbfHNRDP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:03:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51846 "EHLO mail.kernel.org"
+        id S1728911AbfHNRDU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:03:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728887AbfHNRDP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:03:15 -0400
+        id S1728907AbfHNRDU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:03:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFF33208C2;
-        Wed, 14 Aug 2019 17:03:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 201B02084D;
+        Wed, 14 Aug 2019 17:03:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802194;
-        bh=1b7SXnIPCeVJ3KMEmJcT9QOjgwPNiedohUizNujFktA=;
+        s=default; t=1565802199;
+        bh=5XY1jhNN1PSrUuRz6k03esqUoUOnMp2iMjXslguADsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PWyEzsixTIqJN1T94WtNSqqC/v1Pb0eYIW0QKhV1kVUi+b6ySIJkqJVxmJoZWEUfF
-         DdPp+3LPmo+qV8Xp0EsTtotj/j2bRq4zGsVEbLnpy+6xQdUzJ+l3ZLloSvIKLKIbRc
-         hQwv609Ht5/5o/WwQCxyKln4r+WOPeLKHUbX9waY=
+        b=yDSgu6FvHKuL+8FO3nnLJoQZ6CFBN//1N+ABcxHUKc+xtpGQ4n8/Itx74ClyVDmuR
+         EKn1ORcVsiK+gXLhOL9AigazwgiTnGEzjaB3oLLbVQjdaaWLWj2zJ9Zcc5bAwXRd5H
+         xIEWLVo8icjnZR4+gJOWY2Wc1BXYh05rP9+eoBp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.2 006/144] iio: adc: max9611: Fix misuse of GENMASK macro
-Date:   Wed, 14 Aug 2019 18:59:22 +0200
-Message-Id: <20190814165759.750328790@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Adham Abozaeid <adham.abozaeid@microchip.com>
+Subject: [PATCH 5.2 008/144] staging: wilc1000: flush the workqueue before deinit the host
+Date:   Wed, 14 Aug 2019 18:59:24 +0200
+Message-Id: <20190814165759.834376274@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
 References: <20190814165759.466811854@linuxfoundation.org>
@@ -44,32 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Perches <joe@perches.com>
+From: Adham Abozaeid <adham.abozaeid@microchip.com>
 
-commit ae8cc91a7d85e018c0c267f580820b2bb558cd48 upstream.
+commit fb2b055b7e6e44efda737c7c92f46c0868bb04e5 upstream.
 
-Arguments are supposed to be ordered high then low.
+Before deinitializing the host interface, the workqueue should be flushed
+to handle any pending deferred work
 
-Signed-off-by: Joe Perches <joe@perches.com>
-Fixes: 69780a3bbc0b ("iio: adc: Add Maxim max9611 ADC driver")
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Adham Abozaeid <adham.abozaeid@microchip.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20190722213837.21952-1-adham.abozaeid@microchip.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/adc/max9611.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/wilc1000/wilc_wfi_cfgoperations.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iio/adc/max9611.c
-+++ b/drivers/iio/adc/max9611.c
-@@ -83,7 +83,7 @@
- #define MAX9611_TEMP_MAX_POS		0x7f80
- #define MAX9611_TEMP_MAX_NEG		0xff80
- #define MAX9611_TEMP_MIN_NEG		0xd980
--#define MAX9611_TEMP_MASK		GENMASK(7, 15)
-+#define MAX9611_TEMP_MASK		GENMASK(15, 7)
- #define MAX9611_TEMP_SHIFT		0x07
- #define MAX9611_TEMP_RAW(_r)		((_r) >> MAX9611_TEMP_SHIFT)
- #define MAX9611_TEMP_SCALE_NUM		1000000
+--- a/drivers/staging/wilc1000/wilc_wfi_cfgoperations.c
++++ b/drivers/staging/wilc1000/wilc_wfi_cfgoperations.c
+@@ -1789,6 +1789,7 @@ void wilc_deinit_host_int(struct net_dev
+ 
+ 	priv->p2p_listen_state = false;
+ 
++	flush_workqueue(vif->wilc->hif_workqueue);
+ 	mutex_destroy(&priv->scan_req_lock);
+ 	ret = wilc_deinit(vif);
+ 
 
 
