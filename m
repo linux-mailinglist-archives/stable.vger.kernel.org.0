@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81D6C8DAA7
-	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:19:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 206E08DA24
+	for <lists+stable@lfdr.de>; Wed, 14 Aug 2019 19:16:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730150AbfHNRLg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Aug 2019 13:11:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34920 "EHLO mail.kernel.org"
+        id S1728301AbfHNRPf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Aug 2019 13:15:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730600AbfHNRLd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Aug 2019 13:11:33 -0400
+        id S1731179AbfHNRPI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Aug 2019 13:15:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F4932063F;
-        Wed, 14 Aug 2019 17:11:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9278D2063F;
+        Wed, 14 Aug 2019 17:15:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565802692;
-        bh=bdObPI1OJMypCJtsoRUD1393dX3YGyQowE571RDecP4=;
+        s=default; t=1565802908;
+        bh=+c1bQtgSvvbVzC97PQpwXiYwGEcVTYMTcvVyHUkkiT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GWc/UfOq6Ast7w4gtKSgdkaUedHuzkh+wEu8J/oFvX1ELDWhkhybYqhRAmiHnvZVv
-         BzlBrWqwRMjOYejQnnSI2Gud4Y7NHPLlMbQ2MU1Pf/s8jS/Pdn+H25LuY0gW4yz8El
-         HVlobmsLogjaWTdF/2m8Ok18C7xE3KeYWrVoGvds=
+        b=jH9ASQUvz0ZKs5VAI6spmLqiIqqZqd8blrLLgBZt/MrWE5OcEvI6rGTtVvdW9nWXv
+         KP6jin/9Kx05TRmDhfaSKyrjmmgjX7/Bz+lyk+AqeIS/MO8d395qeu6o3ujy6Z6mrM
+         KkugRGnBsibFdkjd6n+NBnGR7vUdQYfs9wmpJovM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 81/91] mac80211: dont WARN on short WMM parameters from AP
+        stable@vger.kernel.org, Abdul Haleem <abdhalee@linux.vnet.ibm.com>,
+        Tyrel Datwyler <tyreld@linux.vnet.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 46/69] scsi: ibmvfc: fix WARN_ON during event pool release
 Date:   Wed, 14 Aug 2019 19:01:44 +0200
-Message-Id: <20190814165753.421691369@linuxfoundation.org>
+Message-Id: <20190814165748.572922019@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
-References: <20190814165748.991235624@linuxfoundation.org>
+In-Reply-To: <20190814165744.822314328@linuxfoundation.org>
+References: <20190814165744.822314328@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+[ Upstream commit 5578257ca0e21056821e6481bd534ba267b84e58 ]
 
-commit 05aaa5c97dce4c10a9e7eae2f1569a684e0c5ced upstream.
+While removing an ibmvfc client adapter a WARN_ON like the following
+WARN_ON is seen in the kernel log:
 
-In a very similar spirit to commit c470bdc1aaf3 ("mac80211: don't WARN
-on bad WMM parameters from buggy APs"), an AP may not transmit a
-fully-formed WMM IE. For example, it may miss or repeat an Access
-Category. The above loop won't catch that and will instead leave one of
-the four ACs zeroed out. This triggers the following warning in
-drv_conf_tx()
+WARNING: CPU: 6 PID: 5421 at ./include/linux/dma-mapping.h:541
+ibmvfc_free_event_pool+0x12c/0x1f0 [ibmvfc]
+CPU: 6 PID: 5421 Comm: rmmod Tainted: G            E     4.17.0-rc1-next-20180419-autotest #1
+NIP:  d00000000290328c LR: d00000000290325c CTR: c00000000036ee20
+REGS: c000000288d1b7e0 TRAP: 0700   Tainted: G            E      (4.17.0-rc1-next-20180419-autotest)
+MSR:  800000010282b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE,TM[E]>  CR: 44008828  XER: 20000000
+CFAR: c00000000036e408 SOFTE: 1
+GPR00: d00000000290325c c000000288d1ba60 d000000002917900 c000000289d75448
+GPR04: 0000000000000071 c0000000ff870000 0000000018040000 0000000000000001
+GPR08: 0000000000000000 c00000000156e838 0000000000000001 d00000000290c640
+GPR12: c00000000036ee20 c00000001ec4dc00 0000000000000000 0000000000000000
+GPR16: 0000000000000000 0000000000000000 00000100276901e0 0000000010020598
+GPR20: 0000000010020550 0000000010020538 0000000010020578 00000000100205b0
+GPR24: 0000000000000000 0000000000000000 0000000010020590 5deadbeef0000100
+GPR28: 5deadbeef0000200 d000000002910b00 0000000000000071 c0000002822f87d8
+NIP [d00000000290328c] ibmvfc_free_event_pool+0x12c/0x1f0 [ibmvfc]
+LR [d00000000290325c] ibmvfc_free_event_pool+0xfc/0x1f0 [ibmvfc]
+Call Trace:
+[c000000288d1ba60] [d00000000290325c] ibmvfc_free_event_pool+0xfc/0x1f0 [ibmvfc] (unreliable)
+[c000000288d1baf0] [d000000002909390] ibmvfc_abort_task_set+0x7b0/0x8b0 [ibmvfc]
+[c000000288d1bb70] [c0000000000d8c68] vio_bus_remove+0x68/0x100
+[c000000288d1bbb0] [c0000000007da7c4] device_release_driver_internal+0x1f4/0x2d0
+[c000000288d1bc00] [c0000000007da95c] driver_detach+0x7c/0x100
+[c000000288d1bc40] [c0000000007d8af4] bus_remove_driver+0x84/0x140
+[c000000288d1bcb0] [c0000000007db6ac] driver_unregister+0x4c/0xa0
+[c000000288d1bd20] [c0000000000d6e7c] vio_unregister_driver+0x2c/0x50
+[c000000288d1bd50] [d00000000290ba0c] cleanup_module+0x24/0x15e0 [ibmvfc]
+[c000000288d1bd70] [c0000000001dadb0] sys_delete_module+0x220/0x2d0
+[c000000288d1be30] [c00000000000b284] system_call+0x58/0x6c
+Instruction dump:
+e8410018 e87f0068 809f0078 e8bf0080 e8df0088 2fa30000 419e008c e9230200
+2fa90000 419e0080 894d098a 794a07e0 <0b0a0000> e9290008 2fa90000 419e0028
 
-  wlan0: invalid CW_min/CW_max: 0/0
+This is tripped as a result of irqs being disabled during the call to
+dma_free_coherent() by ibmvfc_free_event_pool(). At this point in the code path
+we have quiesced the adapter and its overly paranoid anyways to be holding the
+host lock.
 
-and it may leave one of the hardware queues unconfigured. If we detect
-such a case, let's just print a warning and fall back to the defaults.
-
-Tested with a hacked version of hostapd, intentionally corrupting the
-IEs in hostapd_eid_wmm().
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Link: https://lore.kernel.org/r/20190726224758.210953-1-briannorris@chromium.org
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Abdul Haleem <abdhalee@linux.vnet.ibm.com>
+Signed-off-by: Tyrel Datwyler <tyreld@linux.vnet.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mlme.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/scsi/ibmvscsi/ibmvfc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -1967,6 +1967,16 @@ ieee80211_sta_wmm_params(struct ieee8021
- 		ieee80211_regulatory_limit_wmm_params(sdata, &params[ac], ac);
- 	}
+diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
+index a06b24a61622c..34612add3829f 100644
+--- a/drivers/scsi/ibmvscsi/ibmvfc.c
++++ b/drivers/scsi/ibmvscsi/ibmvfc.c
+@@ -4876,8 +4876,8 @@ static int ibmvfc_remove(struct vio_dev *vdev)
  
-+	/* WMM specification requires all 4 ACIs. */
-+	for (ac = 0; ac < IEEE80211_NUM_ACS; ac++) {
-+		if (params[ac].cw_min == 0) {
-+			sdata_info(sdata,
-+				   "AP has invalid WMM params (missing AC %d), using defaults\n",
-+				   ac);
-+			return false;
-+		}
-+	}
-+
- 	for (ac = 0; ac < IEEE80211_NUM_ACS; ac++) {
- 		mlme_dbg(sdata,
- 			 "WMM AC=%d acm=%d aifs=%d cWmin=%d cWmax=%d txop=%d uapsd=%d, downgraded=%d\n",
+ 	spin_lock_irqsave(vhost->host->host_lock, flags);
+ 	ibmvfc_purge_requests(vhost, DID_ERROR);
+-	ibmvfc_free_event_pool(vhost);
+ 	spin_unlock_irqrestore(vhost->host->host_lock, flags);
++	ibmvfc_free_event_pool(vhost);
+ 
+ 	ibmvfc_free_mem(vhost);
+ 	spin_lock(&ibmvfc_driver_lock);
+-- 
+2.20.1
+
 
 
