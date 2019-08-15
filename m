@@ -2,91 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6986C8F6FD
-	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 00:30:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BF908F73E
+	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 00:52:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731679AbfHOWau (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Aug 2019 18:30:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35016 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730790AbfHOWau (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Aug 2019 18:30:50 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1730936AbfHOWwY convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 15 Aug 2019 18:52:24 -0400
+Received: from us3-ob2-7.mailhostbox.com ([74.119.239.6]:49106 "EHLO
+        us3-ob2-7.mailhostbox.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730491AbfHOWwY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Aug 2019 18:52:24 -0400
+X-Greylist: delayed 4201 seconds by postgrey-1.27 at vger.kernel.org; Thu, 15 Aug 2019 18:52:24 EDT
+Received: from 172.16.214.51 (unknown [172.16.214.51])
+        (using TLSv1 with cipher AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3204C206C1;
-        Thu, 15 Aug 2019 22:30:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565908249;
-        bh=e4qKT69csc18sKdf1FerVD+VbkOl0YLnYJnrWeeVt7U=;
-        h=Subject:To:From:Date:From;
-        b=fKHMDBUyOl0oK39lZp4IV5fRhZNEiBQAO1lWdkt1LhvzEcQx/yaHdD2wkVLZDvHdR
-         M3rd2dQ9QgoCNtN0u/bmzqH/RUHoScMmSdMgcoDmXnxejaOWJ1ovvlob8K0bn/R5Pz
-         GOkeFyXNQoBANdTU/GwWmSqq08dC+umbCu6Yd9ZM=
-Subject: patch "tty/serial: atmel: reschedule TX after RX was started" added to tty-next
-To:     razvan.stefanescu@microchip.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 16 Aug 2019 00:30:39 +0200
-Message-ID: <15659082397949@kroah.com>
+        (Authenticated sender: aleshatony100@live-mails.com)
+        by us3.outbound.mailhostbox.com (Postfix) with ESMTPSA id 58403703BED;
+        Thu, 15 Aug 2019 19:14:15 +0000 (GMT)
+Date:   Fri, 16 Aug 2019 00:44:15 +0530 (IST)
+From:   Alesha Anthony <aleshatony100@live-mails.com>
+Message-ID: <2127319708.1784.1565896455296@webmail.mymailme.me>
+Subject: Hello!
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3
+Importance: Medium
+X-Mailer: Open-Xchange Mailer v7.8.3-Rev22
+X-Originating-Client: open-xchange-appsuite
+X-CMAE-Score: 0
+X-CMAE-Analysis: v=2.2 cv=b9/C2pOx c=1 sm=1 tr=0
+        a=q81Wa3Eb8KrLM7fJk7apig==:117 a=9cW_t1CCXrUA:10 a=IkcTkHD0fZMA:10
+        a=1oJP67jkp3AA:10 a=ZZnuYtJkoWoA:10 a=HF4ltbSvtSdVrudt8_QA:9
+        a=QEXdDO2ut3YA:10
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This is a note to let you know that I've just added the patch titled
 
-    tty/serial: atmel: reschedule TX after RX was started
-
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-next branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
-
-
-From 1bc102260d278de0af89c58536f4bbabd2ef28be Mon Sep 17 00:00:00 2001
-From: Razvan Stefanescu <razvan.stefanescu@microchip.com>
-Date: Tue, 13 Aug 2019 10:40:25 +0300
-Subject: tty/serial: atmel: reschedule TX after RX was started
-
-When half-duplex RS485 communication is used, after RX is started, TX
-tasklet still needs to be  scheduled tasklet. This avoids console freezing
-when more data is to be transmitted, if the serial communication is not
-closed.
-
-Fixes: 69646d7a3689 ("tty/serial: atmel: RS485 HD w/DMA: enable RX after TX is stopped")
-Signed-off-by: Razvan Stefanescu <razvan.stefanescu@microchip.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190813074025.16218-1-razvan.stefanescu@microchip.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/serial/atmel_serial.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/drivers/tty/serial/atmel_serial.c b/drivers/tty/serial/atmel_serial.c
-index 19a85d6fe3d2..9a54c9e6d36e 100644
---- a/drivers/tty/serial/atmel_serial.c
-+++ b/drivers/tty/serial/atmel_serial.c
-@@ -1400,7 +1400,6 @@ atmel_handle_transmit(struct uart_port *port, unsigned int pending)
- 
- 			atmel_port->hd_start_rx = false;
- 			atmel_start_rx(port);
--			return;
- 		}
- 
- 		atmel_tasklet_schedule(atmel_port, &atmel_port->tasklet_tx);
--- 
-2.22.1
-
-
+Mit navn er Alesha. Jeg flyttede fra Sudan til Dakar, Senegal.
+Jeg fandt din e-mail og besluttede at tilføje og tale med dig, og jeg er muligvis interesseret i at lære dig at kende. Måske kunne vi blive gode venner. Jeg besluttede at tale med dig, fordi jeg har brug for dit venskab, og også har jeg noget meget vigtigt at diskutere med dig. Jeg vil give dig flere detaljer og sende dig mine fotos.
+----------------------------------------------------------------------
+My name is Alesha. I moved from Sudan to Dakar, Senegal.
+I found your Email and decided to add and talk to you, and I am possibly interested in getting to know you. Perhaps we could become good friends. I decided to talk to you because I need your friendship and also, I have something very important to discuss with you. I will give you more detail sand send you my photos
