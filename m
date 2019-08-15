@@ -2,94 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49B758E530
-	for <lists+stable@lfdr.de>; Thu, 15 Aug 2019 09:07:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC04A8E56F
+	for <lists+stable@lfdr.de>; Thu, 15 Aug 2019 09:19:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730398AbfHOHHm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Aug 2019 03:07:42 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:52158 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730186AbfHOHHm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Aug 2019 03:07:42 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id 114F880BC7; Thu, 15 Aug 2019 09:07:26 +0200 (CEST)
-Date:   Thu, 15 Aug 2019 09:07:39 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Jorge Ramirez <jorge.ramirez-ortiz@linaro.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 024/113] tty: serial: msm_serial: avoid system
- lockup condition
-Message-ID: <20190815070739.GA3906@amd>
-References: <20190729190655.455345569@linuxfoundation.org>
- <20190729190701.631193260@linuxfoundation.org>
- <20190731190533.GA4630@amd>
- <ca8ee0ab-dac5-28db-cac2-20e188473da6@linaro.org>
+        id S1730186AbfHOHT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Aug 2019 03:19:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50856 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726366AbfHOHT1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Aug 2019 03:19:27 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FA4A206C2;
+        Thu, 15 Aug 2019 07:19:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1565853567;
+        bh=XpNhBaFQIlRTjjCr4gEBKzLH1BRqF5qmc6+Pq+FncRc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=bKhZ99Y8TeTfB/qRkAkFYFS6mDXbxkFPsVSTek8pXXZKnzY9G0NJxtayqrkKi6mpe
+         vP+gPPgmnFP5EGC4qTVAJLQbdqesGz8IiINb+CrELocIX77/+R7h8mThgX0QbhfARd
+         FHlk6pYAiX1zOeB7lbRfMh0nKV6JMs1kU5+yTacU=
+Date:   Thu, 15 Aug 2019 09:19:24 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Alastair D'Silva <alastair@au1.ibm.com>
+Cc:     alastair@d-silva.org, mpe@ellerman.id.au, stable@vger.kernel.org,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Allison Randal <allison@lohutok.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] powerpc: Allow flush_(inval_)dcache_range to work across
+ ranges >4GB
+Message-ID: <20190815071924.GA26670@kroah.com>
+References: <20190815045543.16325-1-alastair@au1.ibm.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ca8ee0ab-dac5-28db-cac2-20e188473da6@linaro.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+In-Reply-To: <20190815045543.16325-1-alastair@au1.ibm.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Aug 15, 2019 at 02:55:42PM +1000, Alastair D'Silva wrote:
+> From: Alastair D'Silva <alastair@d-silva.org>
+> 
+> Heads Up: This patch cannot be submitted to Linus's tree, as the affected
+> assembler functions have already been converted to C.
+> 
+> When calling flush_(inval_)dcache_range with a size >4GB, we were masking
+> off the upper 32 bits, so we would incorrectly flush a range smaller
+> than intended.
+> 
+> This patch replaces the 32 bit shifts with 64 bit ones, so that
+> the full size is accounted for.
+> 
+> Signed-off-by: Alastair D'Silva <alastair@d-silva.org>
+> ---
+>  arch/powerpc/kernel/misc_64.S | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
---nFreZHaLTZJo0R7j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+<formletter>
 
-Hi!
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-> >> [ Upstream commit ba3684f99f1b25d2a30b6956d02d339d7acb9799 ]
-
-> > Should it use something like 5000*udelay(100), instead, as that has
-> > chance to result in closer-to-500msec wait?
->=20
-> the half a second timeout didnt mean to be accurate but a worst case
-> scenario...I am not sure accuracy matters.
-
-Well, I'd be afraid that it would wait 5 seconds, not half a
-second. udelay(1) may be very inaccurate.
-
-> >>  	while (!(msm_read(port, UART_SR) & UART_SR_TX_EMPTY)) {
-> >>  		if (msm_read(port, UART_ISR) & UART_ISR_TX_READY)
-> >>  			break;
-> >>  		udelay(1);
-> >> +		if (!timeout--)
-> >> +			break;
-> >>  	}
-> >>  	msm_write(port, UART_CR_CMD_RESET_TX_READY, UART_CR);
-> >>  }
-> >=20
-> > Plus, should it do some kind of dev_err() to let users know that
-> > something went very wrong with their serial?
->=20
-> I did consider this but then I thought that 1/2 second without
-> interrupts on the core should not go unnoticed. But I might be wrong.
-
-Well, maybe it will be noticed, but user will have no idea what caused
-it.
-
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---nFreZHaLTZJo0R7j
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl1VBLsACgkQMOfwapXb+vJ/JACeLdowu6zpV4u3EcD06Nal+ndM
-VtUAn1YYozTjmj0qVSW+pNe3KSrsOK3X
-=Nl4A
------END PGP SIGNATURE-----
-
---nFreZHaLTZJo0R7j--
+</formletter>
