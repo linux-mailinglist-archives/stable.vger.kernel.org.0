@@ -2,117 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B07A8E5B3
-	for <lists+stable@lfdr.de>; Thu, 15 Aug 2019 09:46:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D65618E655
+	for <lists+stable@lfdr.de>; Thu, 15 Aug 2019 10:30:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728128AbfHOHqO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Aug 2019 03:46:14 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:54116 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726865AbfHOHqO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Aug 2019 03:46:14 -0400
-Received: by mail-wm1-f67.google.com with SMTP id 10so519239wmp.3;
-        Thu, 15 Aug 2019 00:46:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id;
-        bh=rkW7J4us2wcg8bjWK7lkRGJB3dDndu6H2q1x50ew6oQ=;
-        b=mEH6ZuhEu6yFarO3VDilQMa9XyC1+A49PnkX4edc04GEU6SJc3soZ5GZuZOYJX/uga
-         II44mKnolNeiXF87zZbL4vGOskKrlz0q4PEJhLd6BS+WQM6abl2BI8PSeE5fWyO9jlXw
-         g/9WBLjFHYqekAOpoi6jAaG/HeTWoWaR01qBEZzqd3fYVBlaOveHuVblKB6n/vqnx3Yx
-         Lme/3C4QwErFBZqA1Cs2SYxYNl7WjJsPvK+kfMZcFbq+ae3aUuABineWLqyPDXgaANgP
-         IsHED5ocFcuvRDFGiKI0hJLQajgXkuxQ5NfEIKnnjqNGCn+s9UvWA0yV8qHiXFR8YW5I
-         AN5Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
-        bh=rkW7J4us2wcg8bjWK7lkRGJB3dDndu6H2q1x50ew6oQ=;
-        b=AKIqLNqQw7czvsu2nFJCcIqgyjFKPZxu/75qQM5Oy8v4MCV4DZb+WdYzrNKULu66Ys
-         AFCOneVT3P7a9pFvvpcXCFfVdIL9gu6MFAHo5mNwxRMgzy32tFqt7xyDCxDoeaDYFgYv
-         P6xp5Iv4MdnkjaUQU1dtQjmTN9AWGsEzis2pCT7SSUFlISw9b/dZoXSlmnxFiOLxf5kZ
-         3JiEUl2A+JHSi/awOoAm+OubHrMG6itymL96ChbMgO0EMqL0d0iD+UDlkVVFPHyzMplX
-         OJekgfhu7IWlnJsZukLmsN2Sm2lvWCmEPD5AwpMMtrgGjO+itbsGZvGIUSIL1q+CYTi9
-         u1mw==
-X-Gm-Message-State: APjAAAVuvpfFn6h/nEIMGqdPYN+poObir683IJB8UoNW75BuUdsDLDo5
-        Fyg2lVqGZiQ8xM0QntW2UOueHTRr
-X-Google-Smtp-Source: APXvYqxymmS0GKrgkdyJOCRe8wdDwDozO5XtrGBowc+cVXMQQKh1aP+fDBlhuy3PyTrxrIB//ES6fg==
-X-Received: by 2002:a1c:cb0b:: with SMTP id b11mr1398279wmg.95.1565855171497;
-        Thu, 15 Aug 2019 00:46:11 -0700 (PDT)
-Received: from 640k.localdomain.com ([93.56.166.5])
-        by smtp.gmail.com with ESMTPSA id 91sm6084837wrp.3.2019.08.15.00.46.10
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 15 Aug 2019 00:46:11 -0700 (PDT)
-From:   Paolo Bonzini <pbonzini@redhat.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>
-Subject: [PATCH] Revert "KVM: x86/mmu: Zap only the relevant pages when removing a memslot"
-Date:   Thu, 15 Aug 2019 09:46:09 +0200
-Message-Id: <1565855169-29491-1-git-send-email-pbonzini@redhat.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1730629AbfHOIaX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Aug 2019 04:30:23 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:35896 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730534AbfHOIaX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Aug 2019 04:30:23 -0400
+Received: from [114.252.209.139] (helo=localhost.localdomain)
+        by youngberry.canonical.com with esmtpsa (TLS1.0:DHE_RSA_AES_256_CBC_SHA1:32)
+        (Exim 4.76)
+        (envelope-from <hui.wang@canonical.com>)
+        id 1hyB9H-0005Ya-A0; Thu, 15 Aug 2019 08:30:19 +0000
+From:   Hui Wang <hui.wang@canonical.com>
+To:     alsa-devel@alsa-project.org, tiwai@suse.de
+Cc:     stable@vger.kernel.org
+Subject: [PATCH 1/2] ALSA: hda - Add a new match function for only undef configurations
+Date:   Thu, 15 Aug 2019 16:30:00 +0800
+Message-Id: <20190815083001.3793-1-hui.wang@canonical.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 4e103134b862314dc2f2f18f2fb0ab972adc3f5f.
-Alex Williamson reported regressions with device assignment with
-this patch.  Even though the bug is probably elsewhere and still
-latent, this is needed to fix the regression.
+With the existing pintbl, we already have many entries in it. it is
+better to figure out a new match to reduce the size of the pintbl.
 
-Fixes: 4e103134b862 ("KVM: x86/mmu: Zap only the relevant pages when removing a memslot", 2019-02-05)
-Reported-by: Alex Willamson <alex.williamson@redhat.com>
-Cc: stable@vger.kernel.org
-Cc: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+For example, there are over 10 entries in the pintbl for:
+0x10ec0255, 0x1028, "Dell", ALC255_FIXUP_DELL1_MIC_NO_PRESENCE
+
+If we define a new tbl like below, and with the new adding match
+function, we can remove those over 10 entries:
+SND_HDA_PIN_QUIRK(0x10ec0255, 0x1028, "Dell", ALC255_FIXUP_DELL1_MIC_NO_PRESENCE,
+	{0x19, 0x40000000},
+	{0x1a, 0x40000000},),
+
+Here we put 0x19 and 0x1a in the tbl just because these two pins are
+undefined on Dell laptops with the codec alc255, and these two pins
+will be overwritten by ALC255_FIXUP_DELL1_MIC_NO_PRESENCE.
+
+In summary: the new match will check vendor id and codec id first,
+then check the pin_cfg defined in the tbl, only all pin_cfgs in the
+tbl are undef and the corresponding pin_cfgs on the laptop are undef
+too, this match returns true.
+
+This new match function has lower priority than existing match
+functions, so the existing tbls still work as before after applying this
+patch.
+
+My plan is to change the existing tbl to undef tbl for MIC_NO_PRESENCE
+fixups gradually.
+
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
 ---
- arch/x86/kvm/mmu.c | 33 +--------------------------------
- 1 file changed, 1 insertion(+), 32 deletions(-)
+ sound/pci/hda/hda_auto_parser.c | 32 +++++++++++++++++++++++++++++++-
+ 1 file changed, 31 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
-index 8190a195623a..d14656c5407b 100644
---- a/arch/x86/kvm/mmu.c
-+++ b/arch/x86/kvm/mmu.c
-@@ -5656,38 +5656,7 @@ static void kvm_mmu_invalidate_zap_pages_in_memslot(struct kvm *kvm,
- 			struct kvm_memory_slot *slot,
- 			struct kvm_page_track_notifier_node *node)
- {
--	struct kvm_mmu_page *sp;
--	LIST_HEAD(invalid_list);
--	unsigned long i;
--	bool flush;
--	gfn_t gfn;
--
--	spin_lock(&kvm->mmu_lock);
--
--	if (list_empty(&kvm->arch.active_mmu_pages))
--		goto out_unlock;
--
--	flush = slot_handle_all_level(kvm, slot, kvm_zap_rmapp, false);
--
--	for (i = 0; i < slot->npages; i++) {
--		gfn = slot->base_gfn + i;
--
--		for_each_valid_sp(kvm, sp, gfn) {
--			if (sp->gfn != gfn)
--				continue;
--
--			kvm_mmu_prepare_zap_page(kvm, sp, &invalid_list);
--		}
--		if (need_resched() || spin_needbreak(&kvm->mmu_lock)) {
--			kvm_mmu_remote_flush_or_zap(kvm, &invalid_list, flush);
--			flush = false;
--			cond_resched_lock(&kvm->mmu_lock);
--		}
--	}
--	kvm_mmu_remote_flush_or_zap(kvm, &invalid_list, flush);
--
--out_unlock:
--	spin_unlock(&kvm->mmu_lock);
-+	kvm_mmu_invalidate_zap_all_pages(kvm);
+diff --git a/sound/pci/hda/hda_auto_parser.c b/sound/pci/hda/hda_auto_parser.c
+index 92390d457567..cfada7401b86 100644
+--- a/sound/pci/hda/hda_auto_parser.c
++++ b/sound/pci/hda/hda_auto_parser.c
+@@ -915,6 +915,36 @@ static bool pin_config_match(struct hda_codec *codec,
+ 	return true;
  }
  
- void kvm_mmu_init_vm(struct kvm *kvm)
++/* match the pintbl which only contains specific pins with undef configuration */
++static bool pin_config_match_undef(struct hda_codec *codec,
++				   const struct hda_pintbl *pins)
++{
++	bool match = false;
++
++	for (; pins->nid; pins++) {
++		const struct hda_pincfg *pin;
++		int i;
++
++		if ((pins->val & 0xf0000000) != 0x40000000)
++			return false;
++
++		match = false;
++		snd_array_for_each(&codec->init_pins, i, pin) {
++			if (pin->nid != pins->nid)
++				continue;
++			if ((pin->cfg & 0xf0000000) != 0x40000000)
++				return false;
++			match = true;
++			break;
++		}
++
++		if (match == false)
++			return false;
++	}
++
++	return match;
++}
++
+ /**
+  * snd_hda_pick_pin_fixup - Pick up a fixup matching with the pin quirk list
+  * @codec: the HDA codec
+@@ -935,7 +965,7 @@ void snd_hda_pick_pin_fixup(struct hda_codec *codec,
+ 			continue;
+ 		if (codec->core.vendor_id != pq->codec)
+ 			continue;
+-		if (pin_config_match(codec, pq->pins)) {
++		if (pin_config_match(codec, pq->pins) || pin_config_match_undef(codec, pq->pins)) {
+ 			codec->fixup_id = pq->value;
+ #ifdef CONFIG_SND_DEBUG_VERBOSE
+ 			codec->fixup_name = pq->name;
 -- 
-1.8.3.1
+2.17.1
 
