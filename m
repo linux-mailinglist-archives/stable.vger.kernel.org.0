@@ -2,144 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B7F58EC9F
-	for <lists+stable@lfdr.de>; Thu, 15 Aug 2019 15:21:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DD948ECD4
+	for <lists+stable@lfdr.de>; Thu, 15 Aug 2019 15:29:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732184AbfHONVU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Aug 2019 09:21:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53522 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731822AbfHONVU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Aug 2019 09:21:20 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89AFD2083B;
-        Thu, 15 Aug 2019 13:21:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565875279;
-        bh=IKvd9ep/LvdPvoBiD0svn7cm7EBinWy+0SE78eVwSrc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BdX8hQ1L5YTUu5ywY3yao9h+h3vmKUbMZugoJ5H3U7QyAjB8nicDFFF+GTLDGkAKN
-         DZAWYKKRZGzkdOiGV+lPWhPb36+jlDiiOSWHqpwuVWKgLXqNaUX7xqCBS9FCgtUby9
-         iL2lfV7znw0Ig1yr1qTIxVZovDrhvbMDab0kmEOI=
-Date:   Thu, 15 Aug 2019 15:21:16 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ming Lei <ming.lei@redhat.com>
-Cc:     Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
-        stable@vger.kernel.org, Mark Ray <mark.ray@hpe.com>
-Subject: Re: [PATCH] blk-mq: avoid sysfs buffer overflow by too many CPU cores
-Message-ID: <20190815132116.GB21644@kroah.com>
-References: <20190815121518.16675-1-ming.lei@redhat.com>
- <20190815122419.GA31891@kroah.com>
- <20190815122909.GA28032@ming.t460p>
- <20190815123535.GA29217@kroah.com>
- <20190815124321.GB28032@ming.t460p>
+        id S1730211AbfHON3n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Aug 2019 09:29:43 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:38941 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729918AbfHON3n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Aug 2019 09:29:43 -0400
+Received: by mail-pl1-f195.google.com with SMTP id z3so1084021pln.6;
+        Thu, 15 Aug 2019 06:29:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=n6xoY9oGmqvarrfQtZv0gq7sMsQniSFkWh+TJOqFkAU=;
+        b=Hqgm8+Kb04MyxWrGXkRWRw3wyEXUqcz1eTXDhGZy5b19rFbuR6hV6z4Z/txlIOQQ57
+         QQUE6W1fN1YuxhUt08BPUvg7/HgnLTDWbvLJJw3BCfvdSlXvBtdqMvfEBdi+vtM2oJjJ
+         YgYfy26B1zH50OBb96UnUZ2J80qjeNeo21q3C5nNjpf2IuY+aILTTwryCJqJdZ54YGCG
+         DvrZLhNYhvFUQIXnIJfHrjckuLZUswJnrIZE+0pgl3b8VoROq4ZrzRSuUHrdY+Zs3qE3
+         4kSTuunQfO0TaZIt5LM0h79bxHnE9gPZ2iQZYbhofaTe+L7MRrlWZm7oG0m3kO+DSrQ5
+         vjVQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=n6xoY9oGmqvarrfQtZv0gq7sMsQniSFkWh+TJOqFkAU=;
+        b=rYcDyNx+m1KuAApeiLF0Kjoq0Gz8vh78TFrFWhNvPB4cKPhxyL5FWRIKLD3PFa9wGQ
+         tzAtur5cMsTGZInPXy/G7ZcW12weeNpRgC9bzuzC8n99uiaD4LMHMO9NUTHpsys2/Fav
+         5bqmRDNTn00l2dJ89pF+7t1def17EFEe+h7XMMAvpZnoj9lxzcWkNqd1ACoN0NyTJDPO
+         THA+yntN4PuwOe85X1Jco6D81AHuxFcuVP5xaQTLwBLdiecBji5zchhkJlXQHtU3xh4S
+         8fqGtPMwy24ISnfENx4LjkuuPxm9EYRFFDoEp5VkryCigO/ChaIkG0cUl/6CKCgveOOX
+         tYpQ==
+X-Gm-Message-State: APjAAAVXoM+CZjE/h1vA87TBFgn7sRgA8zIrBkZFWyFBYYqtYkEjJ24H
+        9tCR1BDwlCAiQvndC5WSQCahq7RK
+X-Google-Smtp-Source: APXvYqzIplY35y3Se1HTUS2ybmIQXvy4mBtj7vxUm4R/7bqjBVL+BH1PAizW72ovulmcP0ehhaL6Dg==
+X-Received: by 2002:a17:902:8a87:: with SMTP id p7mr4346149plo.124.1565875782488;
+        Thu, 15 Aug 2019 06:29:42 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id r23sm3164020pfg.10.2019.08.15.06.29.39
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 15 Aug 2019 06:29:40 -0700 (PDT)
+Subject: Re: [PATCH 4.19 00/91] 4.19.67-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+References: <20190814165748.991235624@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <aa683926-3df0-6f60-841a-7ea5a5e3566d@roeck-us.net>
+Date:   Thu, 15 Aug 2019 06:29:38 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190815124321.GB28032@ming.t460p>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 15, 2019 at 08:43:22PM +0800, Ming Lei wrote:
-> On Thu, Aug 15, 2019 at 02:35:35PM +0200, Greg KH wrote:
-> > On Thu, Aug 15, 2019 at 08:29:10PM +0800, Ming Lei wrote:
-> > > On Thu, Aug 15, 2019 at 02:24:19PM +0200, Greg KH wrote:
-> > > > On Thu, Aug 15, 2019 at 08:15:18PM +0800, Ming Lei wrote:
-> > > > > It is reported that sysfs buffer overflow can be triggered in case
-> > > > > of too many CPU cores(>841 on 4K PAGE_SIZE) when showing CPUs in
-> > > > > one hctx.
-> > > > > 
-> > > > > So use snprintf for avoiding the potential buffer overflow.
-> > > > > 
-> > > > > Cc: stable@vger.kernel.org
-> > > > > Cc: Mark Ray <mark.ray@hpe.com>
-> > > > > Fixes: 676141e48af7("blk-mq: don't dump CPU -> hw queue map on driver load")
-> > > > > Signed-off-by: Ming Lei <ming.lei@redhat.com>
-> > > > > ---
-> > > > >  block/blk-mq-sysfs.c | 30 ++++++++++++++++++------------
-> > > > >  1 file changed, 18 insertions(+), 12 deletions(-)
-> > > > > 
-> > > > > diff --git a/block/blk-mq-sysfs.c b/block/blk-mq-sysfs.c
-> > > > > index d6e1a9bd7131..e75f41a98415 100644
-> > > > > --- a/block/blk-mq-sysfs.c
-> > > > > +++ b/block/blk-mq-sysfs.c
-> > > > > @@ -164,22 +164,28 @@ static ssize_t blk_mq_hw_sysfs_nr_reserved_tags_show(struct blk_mq_hw_ctx *hctx,
-> > > > >  	return sprintf(page, "%u\n", hctx->tags->nr_reserved_tags);
-> > > > >  }
-> > > > >  
-> > > > > +/* avoid overflow by too many CPU cores */
-> > > > >  static ssize_t blk_mq_hw_sysfs_cpus_show(struct blk_mq_hw_ctx *hctx, char *page)
-> > > > >  {
-> > > > > -	unsigned int i, first = 1;
-> > > > > -	ssize_t ret = 0;
-> > > > > -
-> > > > > -	for_each_cpu(i, hctx->cpumask) {
-> > > > > -		if (first)
-> > > > > -			ret += sprintf(ret + page, "%u", i);
-> > > > > -		else
-> > > > > -			ret += sprintf(ret + page, ", %u", i);
-> > > > > -
-> > > > > -		first = 0;
-> > > > > +	unsigned int cpu = cpumask_first(hctx->cpumask);
-> > > > > +	ssize_t len = snprintf(page, PAGE_SIZE - 1, "%u", cpu);
-> > > > > +	int last_len = len;
-> > > > > +
-> > > > > +	while ((cpu = cpumask_next(cpu, hctx->cpumask)) < nr_cpu_ids) {
-> > > > > +		int cur_len = snprintf(page + len, PAGE_SIZE - 1 - len,
-> > > > > +				       ", %u", cpu);
-> > > > > +		if (cur_len >= PAGE_SIZE - 1 - len) {
-> > > > > +			len -= last_len;
-> > > > > +			len += snprintf(page + len, PAGE_SIZE - 1 - len,
-> > > > > +					"...");
-> > > > > +			break;
-> > > > > +		}
-> > > > > +		len += cur_len;
-> > > > > +		last_len = cur_len;
-> > > > >  	}
-> > > > >  
-> > > > > -	ret += sprintf(ret + page, "\n");
-> > > > > -	return ret;
-> > > > > +	len += snprintf(page + len, PAGE_SIZE - 1 - len, "\n");
-> > > > > +	return len;
-> > > > >  }
-> > > > >
-> > > > 
-> > > > What????
-> > > > 
-> > > > sysfs is "one value per file".  You should NEVER have to care about the
-> > > > size of the sysfs buffer.  If you do, you are doing something wrong.
-> > > > 
-> > > > What excatly are you trying to show in this sysfs file?  I can't seem to
-> > > > find the Documenatation/ABI/ entry for it, am I just missing it because
-> > > > I don't know the filename for it?
-> > > 
-> > > It is /sys/block/$DEV/mq/$N/cpu_list, all CPUs in this hctx($N) will be
-> > > shown via sysfs buffer. The buffer size is one PAGE, how can it hold when
-> > > there are too many CPUs(close to 1K)?
-> > 
-> > Looks like I only see 1 cpu listed on my machines in those files, what
-> > am I doing wrong?
+On 8/14/19 10:00 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.67 release.
+> There are 91 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> It depends on machine. The issue is reported on one machine with 896 CPU
-> cores, when 4K buffer can only hold 841 cores.
+> Responses should be made by Fri 16 Aug 2019 04:55:34 PM UTC.
+> Anything received after that time might be too late.
 > 
-> > 
-> > Also, I don't see cpu_list in any of the documentation files, so I have
-> > no idea what you are trying to have this file show.
-> > 
-> > And again, "one value per file" is the sysfs rule.  "all cpus in the
-> > system" is not "one value" :)
-> 
-> I agree, and this file shouldn't be there, given each CPU will have one
-> kobject dir under the hctx dir.
-> 
-> We may kill the 'cpu_list' attribute, is there anyone who objects?
 
-Given that it was never documented, perhaps no one actually uses it :)
-
-greg k-h
+Building x86_64:tools/perf ... failed
+--------------
+Error log:
+Warning: arch/x86/include/asm/cpufeatures.h differs from kernel
+Warning: arch/x86/include/uapi/asm/kvm.h differs from kernel
+   PERF_VERSION = 4.9.189.ge000f87
+util/machine.c: In function ‘machine__create_module’:
+util/machine.c:1088:43: error: ‘size’ undeclared (first use in this function); did you mean ‘die’?
+   if (arch__fix_module_text_start(&start, &size, name) < 0)
+                                            ^~~~
+                                            die
+util/machine.c:1088:43: note: each undeclared identifier is reported only once for each function it appears in
