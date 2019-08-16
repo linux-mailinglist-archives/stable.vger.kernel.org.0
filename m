@@ -2,89 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8052E8FB2F
-	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 08:39:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F7878FB73
+	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 08:53:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725971AbfHPGjY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Aug 2019 02:39:24 -0400
-Received: from mail-io1-f68.google.com ([209.85.166.68]:45113 "EHLO
-        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725897AbfHPGjY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 02:39:24 -0400
-Received: by mail-io1-f68.google.com with SMTP id t3so4195777ioj.12;
-        Thu, 15 Aug 2019 23:39:24 -0700 (PDT)
+        id S1726810AbfHPGxU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Aug 2019 02:53:20 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:35930 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725945AbfHPGxU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 02:53:20 -0400
+Received: by mail-lf1-f67.google.com with SMTP id j17so3371700lfp.3;
+        Thu, 15 Aug 2019 23:53:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=LfX+pe6KX9sYIxHfVZ6eX9dKoc6kQLPyaT3gRQ+L47U=;
-        b=jSnaQIfpsRUA+Z+KFynREb/Cpq0rdaFJFDYEsEC1rY6i2vD3EOHjha55I+6MCS7uU7
-         hBXUQ+944NZoj8HpvAbgTEFVxyGl9K9G9FV3e8Y4GMV1kGa77fxmG4BEhXobdYhd9kZp
-         6dN9ea4NQd65GaCWmVazGH6SDjeuw39dtbbv84CNdKnhUwDdeo3fgDJUAL45jA2g2FPE
-         69aDNYjrbaIxWOkkdq60aijcs+apNgZwL2Dwwf9Tq191KwXq7tC4qLf+JjW+Zsi3jnoI
-         1AC0w9nVP0E+lhSKmQgaQ5fHMrLGwLpPWFp+nVYNVXPi+BymxMiAmvPgzlO7QjMN3u6A
-         sXOA==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=zT4JOIGsXpFVUAhQEf+itDDg4yp68LDeV7+PEewSdfA=;
+        b=rJMxQY+SL6oPvQ+KYJMb++iMR5yzHM0RKoiQocqO0oO2WktqZDKdL5K6A42X2bjUIh
+         tU466qTbraR1n/EM1zDa34cIkNEU1hx9ioFjjg84jFbqoOeVyFl7yJS6S15IyN4xXFLe
+         5PHqQXk01NKI+q8RcrtBUX6ViRvT+7ILXkqG5swa7qOHW7rW99B0sVfCsSAQ9WApJI8X
+         alHf9BFgxeCjVXdI+LSs1+NE8onS/lX3NDxh5FB2AakS2BcNVTUWTNnsWJEPDfYPUrVM
+         oaZF5sTushiml5Ib5fm2YOQo+q8x6bnYxqjcLgyRN67VyRBUmRfzhXY2IrRi2p0gDCfx
+         6czg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=LfX+pe6KX9sYIxHfVZ6eX9dKoc6kQLPyaT3gRQ+L47U=;
-        b=g9K4G6oLoRiMX90ed2KUB4aInfaRIF/7ckl1GIwkJGjuTqHeA5y15WHSO6YTewFCR+
-         4F6VxF5RDUk7MaUMnObXabgeQFiypQ2uQxYBxMta7xgPtomVG7FXiPdDyCw3Jy7f1s36
-         QMlF/ygXt8S2IlgQEU5hbJKgAH4xYSbui6Ssr8n+1SXOPMnStAJyopmgvsIlsEjUv/gB
-         ocpW345mheoybXKxPvZAjzsLgcQYXKrhvgwwDEZkIZljn8BgBRiVX7mFSBCZvINLxLXU
-         EJnfQQ8JI5VCjQ0cfZZNj+gJ7NUVv05j11QaO3XzOcGk2J4I4F/SVjY0P/pXV/B+L2uW
-         BNrw==
-X-Gm-Message-State: APjAAAWNFPQ46SUwpvzAf+L5Mg235bqk1Dv/6k1QFf8Tk3G15IpnDejS
-        qlevZxQCQNzCgjPsUsyAktA=
-X-Google-Smtp-Source: APXvYqy8z+gWc8ebHkrdRits59r/NS4DoKa1CvuB7a9BBWBSWXp2RXbkPLYiZ21w8ojYdAZqEkxGDw==
-X-Received: by 2002:a5e:8e08:: with SMTP id a8mr9260494ion.94.1565937563961;
-        Thu, 15 Aug 2019 23:39:23 -0700 (PDT)
-Received: from JATN (c-73-243-191-173.hsd1.co.comcast.net. [73.243.191.173])
-        by smtp.gmail.com with ESMTPSA id p12sm6724015ioh.72.2019.08.15.23.39.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Aug 2019 23:39:23 -0700 (PDT)
-Date:   Fri, 16 Aug 2019 00:39:21 -0600
-From:   Kelsey Skunberg <skunberg.kelsey@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.2 000/144] 5.2.9-stable review
-Message-ID: <20190816063921.GC3058@JATN>
-References: <20190814165759.466811854@linuxfoundation.org>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=zT4JOIGsXpFVUAhQEf+itDDg4yp68LDeV7+PEewSdfA=;
+        b=ZI4Uj3rrrg4OnER0ROJMtsgSgUV+A18lI/VXQ1up8lF0FNYNscyLNKs4nQPyOMufI2
+         IO9I41zRjzpc9T2BU4QnvBkC5Xoj/SFAsMGMoQ7EOtyHcHcHwtNWUImxrkdlBDshEFsK
+         Xzwurx7Z0AOrUeHwUsxwy0u879/UZeN9g7Q9vJdyYDFkhpaNNZR+nLn1FCKBP5u2yrCp
+         RW9jp7w//4USndAfsEYGiPpBEXEPvaFUE3i1BJrhxBwFMuuICs08fzfI1sRSqOreL99+
+         LDYMoIwUf5+7FeE2ry6YO1rkkVAt07t1KMqFKtCCwSld7eC5pO/XM8yrdJf9ciJi9v/K
+         kw3Q==
+X-Gm-Message-State: APjAAAX/BjooymjJnsqBRBl62RhauLGeJtT67DGmPUOItInJH3N2ILqx
+        8cFGQz19JlkLzlQ+UTthcKyNACyXpRwUGu5WUGGrpg==
+X-Google-Smtp-Source: APXvYqz/Y6LD/RPYfGCUfQ1tX77wFIf2tKOskpUPv3WkAX9brFBOdvL4MJwTrOpyzk8wfbjp8HO4jsMeKDGIuh70njA=
+X-Received: by 2002:a19:5503:: with SMTP id n3mr4329911lfe.168.1565938398289;
+ Thu, 15 Aug 2019 23:53:18 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20190814165748.991235624@linuxfoundation.org>
+In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
+From:   Jinpu Wang <jinpuwang@gmail.com>
+Date:   Fri, 16 Aug 2019 08:53:07 +0200
+Message-ID: <CAD9gYJLZpBfS3tt8EYNTd9CkfN=dsi3e54gWOABOpib_3kqvJw@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/91] 4.19.67-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>, shuah@kernel.org,
+        patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        "v3.14+, only the raid10 part" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 14, 2019 at 06:59:16PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.2.9 release.
-> There are 144 patches in this series, all will be posted as a response
+Greg Kroah-Hartman <gregkh@linuxfoundation.org> =E4=BA=8E2019=E5=B9=B48=E6=
+=9C=8814=E6=97=A5=E5=91=A8=E4=B8=89 =E4=B8=8B=E5=8D=887:10=E5=86=99=E9=81=
+=93=EF=BC=9A
+>
+> This is the start of the stable review cycle for the 4.19.67 release.
+> There are 91 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
-> 
+>
 > Responses should be made by Fri 16 Aug 2019 04:55:34 PM UTC.
 > Anything received after that time might be too late.
-> 
+>
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.9-rc1.gz
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.67-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
 > and the diffstat can be found below.
-> 
+>
 > thanks,
-> 
+>
 > greg k-h
+>
 
-Compiled and booted with no dmesg regressions on my system.
+Merged and tested on my x86_64 machines, no regression, all works fine.
 
-Cheers,
-Kelsey 
- 
+Regards,
+Jack Wang
