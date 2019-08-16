@@ -2,79 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04D69907D3
-	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 20:41:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1BD990803
+	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 21:01:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727490AbfHPSlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Aug 2019 14:41:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55632 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727067AbfHPSlQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Aug 2019 14:41:16 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0E6C2086C;
-        Fri, 16 Aug 2019 18:41:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565980875;
-        bh=+TegksvBcnQ60mAfmy6Gg68hjAz2Cq0jKayHgvBT+2E=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=s4/Kd/hxpfGRIoo72h2wb/TrifDoogpZLrUMUy52s6sPJLS0kBew8zkbbdmBIsotn
-         qnydOdShzhIKTIB0yhu2AQsMAhBhH2vPc0byEO0ZEv49qWafhdD/yI8nhpl/DJqdul
-         gLC4q2TCsC2yS+/7LBUFZe/rMQvxYJSF/np9upDA=
-Date:   Fri, 16 Aug 2019 20:41:13 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     stable@vger.kernel.org, Trilok Soni <tsoni@codeaurora.org>
-Subject: Re: [PATCH -stable v4.14] mm/usercopy: use memory range to be
- accessed for wraparound check
-Message-ID: <20190816184113.GA26008@kroah.com>
-References: <201908161123.93DFEB96@keescook>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <201908161123.93DFEB96@keescook>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+        id S1727466AbfHPTBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Aug 2019 15:01:03 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:40207 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727067AbfHPTBC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 15:01:02 -0400
+Received: by mail-pf1-f195.google.com with SMTP id w16so3564381pfn.7;
+        Fri, 16 Aug 2019 12:01:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=ITQoihrqDF1S08U7GMyYDnl7GPbMNGI14Dk5cFsRq68=;
+        b=eXAIKwG5SMxJqKuvyODp+0u8MLoSXqouFCunlZzl4d4MHTMqC5eXRPlTleRrc1s/KV
+         cTM3rlAOaCl/D5G1DKG/nvkGDwQ4xmgLe3Tl/4NVmBSSqzochTH5NeNfdR78bLBKKpbp
+         YwF+IYYmh+NhWWmc+TD7EzcKOwBje15UIK9BMYzZ3Pc+Ef6Ii2DGdDphVmAq95qrulLn
+         DBmk/+6RTWFhsK9HzaFVicRdmuwJ/IBqTY+HR48yYeNou+1uoLFvg8BZPEPhlLFBmjuq
+         LWNpdbpI88wAgTG6cgZ2e5JiFpBORVgnRoGuQGUS7FrQ62X4dlutUM8LxYUkeT0yn3qy
+         aJzQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=ITQoihrqDF1S08U7GMyYDnl7GPbMNGI14Dk5cFsRq68=;
+        b=O0iEmTW9Cg7jXhuXliP+35qgaEODPofiwN5WinAZm50648vs4dH36zdCViEwzCa47M
+         cCH4brAQvQWpLAaL+lWAAfmbbi+enVIJTYzkmqAEFiEehu5mEMJxp4yGn5l90amg/nWa
+         FrgfIa1OFAyc6uPBYL1CgTX2HoFsziCY5LATjTuCO/DfA8LfLgIAN/tyMeB8jGRx72PS
+         YdO/4o53rqdUS3UIngZAEMzFG16zQ+owmU9AA407Eek9SUk70d2xK4sNI1Ij8+dQvuLW
+         Aua2XXL87Y7aO69LQNuUGSYF8DFAyP2iTyfvNCg1IS+orZwqw9ozlmwATPOj10OY970n
+         XxeA==
+X-Gm-Message-State: APjAAAWbABICOswoVlUfJv8iM66g5ZLzxs6w0IsLVJGi8P7t1BtZdH7Y
+        7vW2xH/YpDuNRkOJuHlDYXrJk0Az
+X-Google-Smtp-Source: APXvYqwNJ/AgoLJQSxTWNBDU7xQALURvsduKVHz5vIsas2CpTwmbiGQCmbf+pvAitgd1i8gT/UsPMQ==
+X-Received: by 2002:a65:5a44:: with SMTP id z4mr9088279pgs.41.1565982061461;
+        Fri, 16 Aug 2019 12:01:01 -0700 (PDT)
+Received: from west.Home ([97.115.133.135])
+        by smtp.googlemail.com with ESMTPSA id b126sm6334071pfa.177.2019.08.16.12.01.00
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Fri, 16 Aug 2019 12:01:00 -0700 (PDT)
+From:   Aaron Armstrong Skomra <skomra@gmail.com>
+X-Google-Original-From: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+To:     linux-input@vger.kernel.org, jikos@kernel.org,
+        benjamin.tissoires@redhat.com, ping.cheng@wacom.com,
+        jason.gerecke@wacom.com
+Cc:     Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
+        "# v4 . 3+" <stable@vger.kernel.org>
+Subject: [PATCH] HID: wacom: correct misreported EKR ring values
+Date:   Fri, 16 Aug 2019 12:00:54 -0700
+Message-Id: <1565982054-29236-1-git-send-email-aaron.skomra@wacom.com>
+X-Mailer: git-send-email 2.7.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 16, 2019 at 11:24:08AM -0700, Kees Cook wrote:
-> From: Prasad Sodagudi <psodagud@codeaurora.org>
-> 
-> commit 951531691c4bcaa59f56a316e018bc2ff1ddf855 upstream.
-> 
-> Currently, when checking to see if accessing n bytes starting at address
-> "ptr" will cause a wraparound in the memory addresses, the check in
-> check_bogus_address() adds an extra byte, which is incorrect, as the
-> range of addresses that will be accessed is [ptr, ptr + (n - 1)].
-> 
-> This can lead to incorrectly detecting a wraparound in the memory
-> address, when trying to read 4 KB from memory that is mapped to the the
-> last possible page in the virtual address space, when in fact, accessing
-> that range of memory would not cause a wraparound to occur.
-> 
-> Use the memory range that will actually be accessed when considering if
-> accessing a certain amount of bytes will cause the memory address to
-> wrap around.
-> 
-> Link: http://lkml.kernel.org/r/1564509253-23287-1-git-send-email-isaacm@codeaurora.org
-> Fixes: f5509cc18daa ("mm: Hardened usercopy")
-> Signed-off-by: Prasad Sodagudi <psodagud@codeaurora.org>
-> Signed-off-by: Isaac J. Manjarres <isaacm@codeaurora.org>
-> Co-developed-by: Prasad Sodagudi <psodagud@codeaurora.org>
-> Reviewed-by: William Kucharski <william.kucharski@oracle.com>
-> Acked-by: Kees Cook <keescook@chromium.org>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Trilok Soni <tsoni@codeaurora.org>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> [kees: backport to v4.14]
-> Signed-off-by: Kees Cook <keescook@chromium.org>
+The EKR ring claims a range of 0 to 71 but actually reports
+values 1 to 72. The ring is used in relative mode so this
+change should not affect users.
 
-This and the 4.9 patch now queued up, thanks for the backports.
+Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Fixes: 72b236d60218f ("HID: wacom: Add support for Express Key Remote.")
+Cc: <stable@vger.kernel.org> # v4.3+
+Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
+---
+ drivers/hid/wacom_wac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-greg k-h
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index abc17f2c8ef0..e314a7564236 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1098,7 +1098,7 @@ static int wacom_remote_irq(struct wacom_wac *wacom_wac, size_t len)
+ 	input_report_key(input, BTN_BASE2, (data[11] & 0x02));
+ 
+ 	if (data[12] & 0x80)
+-		input_report_abs(input, ABS_WHEEL, (data[12] & 0x7f));
++		input_report_abs(input, ABS_WHEEL, (data[12] & 0x7f) - 1);
+ 	else
+ 		input_report_abs(input, ABS_WHEEL, 0);
+ 
+-- 
+2.17.1
+
