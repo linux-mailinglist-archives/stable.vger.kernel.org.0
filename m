@@ -2,54 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 477BB8FFAD
-	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 12:04:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9260A8FFAE
+	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 12:04:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727020AbfHPKEd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Aug 2019 06:04:33 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:38003 "EHLO
+        id S1727007AbfHPKEy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Aug 2019 06:04:54 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:47253 "EHLO
         out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726994AbfHPKEd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 06:04:33 -0400
+        by vger.kernel.org with ESMTP id S1726989AbfHPKEy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 06:04:54 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id D2E7F22189;
-        Fri, 16 Aug 2019 06:04:31 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Fri, 16 Aug 2019 06:04:31 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 5F82F221D2;
+        Fri, 16 Aug 2019 06:04:53 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Fri, 16 Aug 2019 06:04:53 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ushwWg
-        ozdAns72auNtNGmdnG49IhzKkj04frVjmTm1s=; b=I3J8DL5IG0Pc5baPfSgC0b
-        bQeAc/vKpG2gKO6NxQKVrpSn1WVlzPadUYbB1IFumuiLqdNhkt13W5K+jFp55J+W
-        UHkoisK9QGdnXDf9hQ50vADN9ACtfts9aIPDUSVM1C6MUFnFqJpsfLh6OPa3IRfx
-        Bjwj9GCzQBEtZIjZn/Xp/ZGShypRv0fuO2fdAY7o1v7c/2N4tcXi4RnLEV21LWTc
-        eyqbyq2Qg24lUyEys2Nl9TXX3taR2uhWYCAHPUtMtHmgv2bwPoMLR8DYriiGmGc2
-        nPFalDwnTMQ0KpGJ/LWZkYPA5lvCI9H2W0+drnNz7eSXLwcY9ECSMk0jZCql4jow
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=6Q56Q7
+        V6e6UjxLTjAoRwaSHSd+cjM5Yb8BVPecXiW1U=; b=SzmiDt1R4Vr5eAQ/CEcu7O
+        8ANJmtsjGn23r0luTaUpsfvX4aisJ4e4Y6MxVzj03YZACa2KhYe02rgM8lBfhuiO
+        FmYxf1tfK9wqkZ/o+6nuJ2mX3NLmzQN4KBnHrmQZHSthvRaG3wdSoqilJHTa386E
+        q9GD/o8XO36cmiMxsRZ1uywnYcoId+bXYef/avKSy7Ii9XFSEu13+VLbtUYyoEDj
+        or5f3Po63HH350x7lj+fuCRNVhNN/+RcOn0LKxkYX1pvRZd50eTXz6KeFul4ji/u
+        A9fcy5GCYIqmCFswQBaSgnklrx7oiNZBPHJGUh7JzZDjSlHfZfsoN25xpZwiE4bQ
         ==
-X-ME-Sender: <xms:r39WXX4t269D-nwIo87F8l869AbBQdseytQirrWlABIs6Weea-4ibg>
+X-ME-Sender: <xms:xX9WXSsBM2rjdVHLy8pYcISqD-pDleoJFBtjSsXYgxHXrnOFfznZKw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudeffedgvdduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucgfrhhlucfvnfffucdluddtmdenucfjughrpefuvf
-    fhfffkgggtgfesthekredttddtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihf
-    ohhunhgurghtihhonhdrohhrgheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenuc
-    fkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgv
-    gheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeef
-X-ME-Proxy: <xmx:r39WXRKIfqDYdzc6v-TuitUcQlfADn3Zk0U052f0He23AzZ657NHOA>
-    <xmx:r39WXZcIY9LO9S5CEfgxst1FQgwR-OGd6BGYR3CeoyRKNFZWo3o4pQ>
-    <xmx:r39WXcdbFXpI_Vh65Wz7Bh58qppM9V-DjE5OQSXwUzxILA8KnoQaeg>
-    <xmx:r39WXaqq7WQpraZKK74gmdqFGvDAnEVnMSSn0H1nwim-8P0N4Eg82A>
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpeeh
+X-ME-Proxy: <xmx:xX9WXQ8E2aP0DgFtpIedu6jWPj_nhdhkWLOXqY0wgugauSMmTA0pXg>
+    <xmx:xX9WXSBhk6_N39MEtZ7kKdDPskGj02Zv-6g6-ZOgQxESIZsFTS6OJw>
+    <xmx:xX9WXUxlAOPhaeAsIkgBQ-0BXpSjvKWOoIJ5JiWqQ33al-Lw02sbzw>
+    <xmx:xX9WXeYAJ1IvKVjDd1naACu91o_dgBnuO0X8SIS0QrUsppF8XGbjAA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4C34680064;
-        Fri, 16 Aug 2019 06:04:31 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm/memcontrol.c: fix use after free in mem_cgroup_iter()" failed to apply to 4.4-stable tree
-To:     miles.chen@mediatek.com, akpm@linux-foundation.org, cai@lca.pw,
-        hannes@cmpxchg.org, mhocko@suse.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, vdavydov.dev@gmail.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id AE00B380083;
+        Fri, 16 Aug 2019 06:04:52 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mm/usercopy: use memory range to be accessed for wraparound" failed to apply to 4.14-stable tree
+To:     isaacm@codeaurora.org, akpm@linux-foundation.org,
+        gregkh@linuxfoundation.org, keescook@chromium.org,
+        psodagud@codeaurora.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, tsoni@codeaurora.org,
+        william.kucharski@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 16 Aug 2019 12:04:30 +0200
-Message-ID: <1565949870255118@kroah.com>
+Date:   Fri, 16 Aug 2019 12:04:51 +0200
+Message-ID: <156594989124927@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,222 +72,50 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 54a83d6bcbf8f4700013766b974bf9190d40b689 Mon Sep 17 00:00:00 2001
-From: Miles Chen <miles.chen@mediatek.com>
-Date: Tue, 13 Aug 2019 15:37:28 -0700
-Subject: [PATCH] mm/memcontrol.c: fix use after free in mem_cgroup_iter()
+From 951531691c4bcaa59f56a316e018bc2ff1ddf855 Mon Sep 17 00:00:00 2001
+From: "Isaac J. Manjarres" <isaacm@codeaurora.org>
+Date: Tue, 13 Aug 2019 15:37:37 -0700
+Subject: [PATCH] mm/usercopy: use memory range to be accessed for wraparound
+ check
 
-This patch is sent to report an use after free in mem_cgroup_iter()
-after merging commit be2657752e9e ("mm: memcg: fix use after free in
-mem_cgroup_iter()").
+Currently, when checking to see if accessing n bytes starting at address
+"ptr" will cause a wraparound in the memory addresses, the check in
+check_bogus_address() adds an extra byte, which is incorrect, as the
+range of addresses that will be accessed is [ptr, ptr + (n - 1)].
 
-I work with android kernel tree (4.9 & 4.14), and commit be2657752e9e
-("mm: memcg: fix use after free in mem_cgroup_iter()") has been merged
-to the trees.  However, I can still observe use after free issues
-addressed in the commit be2657752e9e.  (on low-end devices, a few times
-this month)
+This can lead to incorrectly detecting a wraparound in the memory
+address, when trying to read 4 KB from memory that is mapped to the the
+last possible page in the virtual address space, when in fact, accessing
+that range of memory would not cause a wraparound to occur.
 
-backtrace:
-        css_tryget <- crash here
-        mem_cgroup_iter
-        shrink_node
-        shrink_zones
-        do_try_to_free_pages
-        try_to_free_pages
-        __perform_reclaim
-        __alloc_pages_direct_reclaim
-        __alloc_pages_slowpath
-        __alloc_pages_nodemask
+Use the memory range that will actually be accessed when considering if
+accessing a certain amount of bytes will cause the memory address to
+wrap around.
 
-To debug, I poisoned mem_cgroup before freeing it:
-
-  static void __mem_cgroup_free(struct mem_cgroup *memcg)
-        for_each_node(node)
-        free_mem_cgroup_per_node_info(memcg, node);
-        free_percpu(memcg->stat);
-  +     /* poison memcg before freeing it */
-  +     memset(memcg, 0x78, sizeof(struct mem_cgroup));
-        kfree(memcg);
-  }
-
-The coredump shows the position=0xdbbc2a00 is freed.
-
-  (gdb) p/x ((struct mem_cgroup_per_node *)0xe5009e00)->iter[8]
-  $13 = {position = 0xdbbc2a00, generation = 0x2efd}
-
-  0xdbbc2a00:     0xdbbc2e00      0x00000000      0xdbbc2800      0x00000100
-  0xdbbc2a10:     0x00000200      0x78787878      0x00026218      0x00000000
-  0xdbbc2a20:     0xdcad6000      0x00000001      0x78787800      0x00000000
-  0xdbbc2a30:     0x78780000      0x00000000      0x0068fb84      0x78787878
-  0xdbbc2a40:     0x78787878      0x78787878      0x78787878      0xe3fa5cc0
-  0xdbbc2a50:     0x78787878      0x78787878      0x00000000      0x00000000
-  0xdbbc2a60:     0x00000000      0x00000000      0x00000000      0x00000000
-  0xdbbc2a70:     0x00000000      0x00000000      0x00000000      0x00000000
-  0xdbbc2a80:     0x00000000      0x00000000      0x00000000      0x00000000
-  0xdbbc2a90:     0x00000001      0x00000000      0x00000000      0x00100000
-  0xdbbc2aa0:     0x00000001      0xdbbc2ac8      0x00000000      0x00000000
-  0xdbbc2ab0:     0x00000000      0x00000000      0x00000000      0x00000000
-  0xdbbc2ac0:     0x00000000      0x00000000      0xe5b02618      0x00001000
-  0xdbbc2ad0:     0x00000000      0x78787878      0x78787878      0x78787878
-  0xdbbc2ae0:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2af0:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b00:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b10:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b20:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b30:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b40:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b50:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b60:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b70:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b80:     0x78787878      0x78787878      0x00000000      0x78787878
-  0xdbbc2b90:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2ba0:     0x78787878      0x78787878      0x78787878      0x78787878
-
-In the reclaim path, try_to_free_pages() does not setup
-sc.target_mem_cgroup and sc is passed to do_try_to_free_pages(), ...,
-shrink_node().
-
-In mem_cgroup_iter(), root is set to root_mem_cgroup because
-sc->target_mem_cgroup is NULL.  It is possible to assign a memcg to
-root_mem_cgroup.nodeinfo.iter in mem_cgroup_iter().
-
-        try_to_free_pages
-        	struct scan_control sc = {...}, target_mem_cgroup is 0x0;
-        do_try_to_free_pages
-        shrink_zones
-        shrink_node
-        	 mem_cgroup *root = sc->target_mem_cgroup;
-        	 memcg = mem_cgroup_iter(root, NULL, &reclaim);
-        mem_cgroup_iter()
-        	if (!root)
-        		root = root_mem_cgroup;
-        	...
-
-        	css = css_next_descendant_pre(css, &root->css);
-        	memcg = mem_cgroup_from_css(css);
-        	cmpxchg(&iter->position, pos, memcg);
-
-My device uses memcg non-hierarchical mode.  When we release a memcg:
-invalidate_reclaim_iterators() reaches only dead_memcg and its parents.
-If non-hierarchical mode is used, invalidate_reclaim_iterators() never
-reaches root_mem_cgroup.
-
-  static void invalidate_reclaim_iterators(struct mem_cgroup *dead_memcg)
-  {
-        struct mem_cgroup *memcg = dead_memcg;
-
-        for (; memcg; memcg = parent_mem_cgroup(memcg)
-        ...
-  }
-
-So the use after free scenario looks like:
-
-  CPU1						CPU2
-
-  try_to_free_pages
-  do_try_to_free_pages
-  shrink_zones
-  shrink_node
-  mem_cgroup_iter()
-      if (!root)
-      	root = root_mem_cgroup;
-      ...
-      css = css_next_descendant_pre(css, &root->css);
-      memcg = mem_cgroup_from_css(css);
-      cmpxchg(&iter->position, pos, memcg);
-
-        				invalidate_reclaim_iterators(memcg);
-        				...
-        				__mem_cgroup_free()
-        					kfree(memcg);
-
-  try_to_free_pages
-  do_try_to_free_pages
-  shrink_zones
-  shrink_node
-  mem_cgroup_iter()
-      if (!root)
-      	root = root_mem_cgroup;
-      ...
-      mz = mem_cgroup_nodeinfo(root, reclaim->pgdat->node_id);
-      iter = &mz->iter[reclaim->priority];
-      pos = READ_ONCE(iter->position);
-      css_tryget(&pos->css) <- use after free
-
-To avoid this, we should also invalidate root_mem_cgroup.nodeinfo.iter
-in invalidate_reclaim_iterators().
-
-[cai@lca.pw: fix -Wparentheses compilation warning]
-  Link: http://lkml.kernel.org/r/1564580753-17531-1-git-send-email-cai@lca.pw
-Link: http://lkml.kernel.org/r/20190730015729.4406-1-miles.chen@mediatek.com
-Fixes: 5ac8fb31ad2e ("mm: memcontrol: convert reclaim iterator to simple css refcounting")
-Signed-off-by: Miles Chen <miles.chen@mediatek.com>
-Signed-off-by: Qian Cai <cai@lca.pw>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Link: http://lkml.kernel.org/r/1564509253-23287-1-git-send-email-isaacm@codeaurora.org
+Fixes: f5509cc18daa ("mm: Hardened usercopy")
+Signed-off-by: Prasad Sodagudi <psodagud@codeaurora.org>
+Signed-off-by: Isaac J. Manjarres <isaacm@codeaurora.org>
+Co-developed-by: Prasad Sodagudi <psodagud@codeaurora.org>
+Reviewed-by: William Kucharski <william.kucharski@oracle.com>
+Acked-by: Kees Cook <keescook@chromium.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Trilok Soni <tsoni@codeaurora.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-index cdbb7a84cb6e..2e405e058eda 100644
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -1130,26 +1130,45 @@ void mem_cgroup_iter_break(struct mem_cgroup *root,
- 		css_put(&prev->css);
- }
- 
--static void invalidate_reclaim_iterators(struct mem_cgroup *dead_memcg)
-+static void __invalidate_reclaim_iterators(struct mem_cgroup *from,
-+					struct mem_cgroup *dead_memcg)
+diff --git a/mm/usercopy.c b/mm/usercopy.c
+index 2a09796edef8..98e924864554 100644
+--- a/mm/usercopy.c
++++ b/mm/usercopy.c
+@@ -147,7 +147,7 @@ static inline void check_bogus_address(const unsigned long ptr, unsigned long n,
+ 				       bool to_user)
  {
--	struct mem_cgroup *memcg = dead_memcg;
- 	struct mem_cgroup_reclaim_iter *iter;
- 	struct mem_cgroup_per_node *mz;
- 	int nid;
- 	int i;
+ 	/* Reject if object wraps past end of memory. */
+-	if (ptr + n < ptr)
++	if (ptr + (n - 1) < ptr)
+ 		usercopy_abort("wrapped address", NULL, to_user, 0, ptr + n);
  
--	for (; memcg; memcg = parent_mem_cgroup(memcg)) {
--		for_each_node(nid) {
--			mz = mem_cgroup_nodeinfo(memcg, nid);
--			for (i = 0; i <= DEF_PRIORITY; i++) {
--				iter = &mz->iter[i];
--				cmpxchg(&iter->position,
--					dead_memcg, NULL);
--			}
-+	for_each_node(nid) {
-+		mz = mem_cgroup_nodeinfo(from, nid);
-+		for (i = 0; i <= DEF_PRIORITY; i++) {
-+			iter = &mz->iter[i];
-+			cmpxchg(&iter->position,
-+				dead_memcg, NULL);
- 		}
- 	}
- }
- 
-+static void invalidate_reclaim_iterators(struct mem_cgroup *dead_memcg)
-+{
-+	struct mem_cgroup *memcg = dead_memcg;
-+	struct mem_cgroup *last;
-+
-+	do {
-+		__invalidate_reclaim_iterators(memcg, dead_memcg);
-+		last = memcg;
-+	} while ((memcg = parent_mem_cgroup(memcg)));
-+
-+	/*
-+	 * When cgruop1 non-hierarchy mode is used,
-+	 * parent_mem_cgroup() does not walk all the way up to the
-+	 * cgroup root (root_mem_cgroup). So we have to handle
-+	 * dead_memcg from cgroup root separately.
-+	 */
-+	if (last != root_mem_cgroup)
-+		__invalidate_reclaim_iterators(root_mem_cgroup,
-+						dead_memcg);
-+}
-+
- /**
-  * mem_cgroup_scan_tasks - iterate over tasks of a memory cgroup hierarchy
-  * @memcg: hierarchy root
+ 	/* Reject if NULL or ZERO-allocation. */
 
