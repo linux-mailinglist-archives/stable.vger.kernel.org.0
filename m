@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AAD78FF9F
-	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 12:02:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3B4F8FFA2
+	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 12:02:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727034AbfHPKCT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Aug 2019 06:02:19 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:54589 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727009AbfHPKCT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 06:02:19 -0400
+        id S1727021AbfHPKC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Aug 2019 06:02:59 -0400
+Received: from new2-smtp.messagingengine.com ([66.111.4.224]:38955 "EHLO
+        new2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727009AbfHPKC6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 06:02:58 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 084F5221D2;
-        Fri, 16 Aug 2019 06:02:17 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Fri, 16 Aug 2019 06:02:18 -0400
+        by mailnew.nyi.internal (Postfix) with ESMTP id 92E08176B;
+        Fri, 16 Aug 2019 06:02:57 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Fri, 16 Aug 2019 06:02:57 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=FCH1h+
-        gcPL0C10dd7pzPE/x53GVeROst/pU+DHRVax0=; b=ptmNMqY6OdsK2yX1HE4Og6
-        hHNvxM6obJRVAJVk0XFSn/fBRtrYvl/OE68CVqAOGnFSkjFqjhfAw3QUTy0GFk12
-        CmyIt4XbcfiTBhD1jCm0ijbyXb5Ff2doTBScZM62pbiGOAwA3hFyQsLqmMv2ULVT
-        dYIXgvkFL4LQGz8HEA00NkoQahZPS/m6CcIl4GLnqQdRk1Q1UnZxwi2GuwArYt4C
-        QEVPql3wgT+wS6lxA1ETd0P5tOrFtXEgl1mHw2LoJYFN/n1qV18mHcNDKpoSEd33
-        i/K4EzTfC8jsCGEZ+7IGNMISXxijRtC748FkTdJN/ajbdC4Tlv/JuCzBBIVXGQjQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=KfA1fV
+        VELloV9WDvDHJpoYBwcXyUG7woDLfz8sPcR0w=; b=ilKncMDQIlVwZ5etcjiSGq
+        KZu5MBYEUKMy39HlH/eW4/+hk6zx6zb07HzU2xUwDk8e+HCPhzNyshLLsSBr66t1
+        +olBMVz41/4FwwSenc0zhaza829inkinvMbGnqOvvJBvGt7VSaDOeVwGzqJBbE0l
+        f8dHMNobeGUf2c4Vay/7GP9QHCOkVtfUSaX3J/aURc3pZ4hI3nv7lQAb1wPlUsS1
+        7+K9WaWo0DZY7pZFPkew4+hrmhseT2mSaaVHbngFPdfbE11hzb8u7usUsCH53PEm
+        1Hca0Vr9kt0UX0HXd1SYppYbFs3pWPqzicgAO2uSHlxpyI50ktJz3TCrTSSrfURw
         ==
-X-ME-Sender: <xms:KX9WXT2jmofOWKhuOTheDR5SOilCSDamRvBOq-rtYurNl__l_2TMVA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudeffedgvddtucetufdoteggodetrfdotf
+X-ME-Sender: <xms:T39WXSbWTN9iP-jAUBtgF_6TFM6IbTqz3S_UvBY09ZJsN1arxLZ2Ww>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudeffedgvdduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedv
-X-ME-Proxy: <xmx:KX9WXZhGjr-qZf34u2vVfKuVmurdZTwbuz0ovOleJPqW-j0Kv5bfXA>
-    <xmx:KX9WXRSnnnuUxChi0UwpdeQx0g4ypOrkY2ZNTRSkOk8_-jYPkoznYg>
-    <xmx:KX9WXSif43NlOuctjBeUVHC77IJbvpMvmMnz_cDgcodG6pIFcCrltQ>
-    <xmx:KX9WXVbWgIZIImQgtFB-OvodIPuhcAd4tX8kIQ9OrwLFf1WQk6FxMA>
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:UH9WXWG5HKoiKmXFiukjQ4RQ_Qzbj5M7hN-47E8HmyDoGGtcsILfBg>
+    <xmx:UH9WXRfmBKN_vgQDbDChKJm-_HNF1KsedNdSH6J_TExa9F4rWesNRA>
+    <xmx:UH9WXVIrVfHlbYA_gBgcg0eIomKzQqeu9Cntk4SIy0ZrZSg38F4Zlw>
+    <xmx:UX9WXYnYCAozoQ043CjfYrk2-pFKagPqDFATH3og_qtStSyY88j0rg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 86B05380088;
-        Fri, 16 Aug 2019 06:02:17 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm: mempolicy: handle vma with unmovable pages mapped" failed to apply to 4.9-stable tree
-To:     yang.shi@linux.alibaba.com, akpm@linux-foundation.org,
-        mgorman@techsingularity.net, mhocko@suse.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        vbabka@suse.cz
+        by mail.messagingengine.com (Postfix) with ESMTPA id 90F8580062;
+        Fri, 16 Aug 2019 06:02:55 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mm/z3fold.c: fix z3fold_destroy_pool() ordering" failed to apply to 4.19-stable tree
+To:     henryburns@google.com, akpm@linux-foundation.org,
+        dhowells@redhat.com, henrywolfeburns@gmail.com, jwadams@google.com,
+        shakeelb@google.com, stable@vger.kernel.org, tglx@linutronix.de,
+        torvalds@linux-foundation.org, viro@zeniv.linux.org.uk,
+        vitaly.vul@sony.com, vitalywool@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 16 Aug 2019 12:02:16 +0200
-Message-ID: <156594973629247@kroah.com>
+Date:   Fri, 16 Aug 2019 12:02:54 +0200
+Message-ID: <1565949774144187@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,194 +72,64 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a53190a4aaa36494f4d7209fd1fcc6f2ee08e0e0 Mon Sep 17 00:00:00 2001
-From: Yang Shi <yang.shi@linux.alibaba.com>
-Date: Tue, 13 Aug 2019 15:37:18 -0700
-Subject: [PATCH] mm: mempolicy: handle vma with unmovable pages mapped
- correctly in mbind
+From 6051d3bd3b91e96c59e62b8be2dba1cc2b19ee40 Mon Sep 17 00:00:00 2001
+From: Henry Burns <henryburns@google.com>
+Date: Tue, 13 Aug 2019 15:37:21 -0700
+Subject: [PATCH] mm/z3fold.c: fix z3fold_destroy_pool() ordering
 
-When running syzkaller internally, we ran into the below bug on 4.9.x
-kernel:
+The constraint from the zpool use of z3fold_destroy_pool() is there are
+no outstanding handles to memory (so no active allocations), but it is
+possible for there to be outstanding work on either of the two wqs in
+the pool.
 
-  kernel BUG at mm/huge_memory.c:2124!
-  invalid opcode: 0000 [#1] SMP KASAN
-  CPU: 0 PID: 1518 Comm: syz-executor107 Not tainted 4.9.168+ #2
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.5.1 01/01/2011
-  task: ffff880067b34900 task.stack: ffff880068998000
-  RIP: split_huge_page_to_list+0x8fb/0x1030 mm/huge_memory.c:2124
-  Call Trace:
-    split_huge_page include/linux/huge_mm.h:100 [inline]
-    queue_pages_pte_range+0x7e1/0x1480 mm/mempolicy.c:538
-    walk_pmd_range mm/pagewalk.c:50 [inline]
-    walk_pud_range mm/pagewalk.c:90 [inline]
-    walk_pgd_range mm/pagewalk.c:116 [inline]
-    __walk_page_range+0x44a/0xdb0 mm/pagewalk.c:208
-    walk_page_range+0x154/0x370 mm/pagewalk.c:285
-    queue_pages_range+0x115/0x150 mm/mempolicy.c:694
-    do_mbind mm/mempolicy.c:1241 [inline]
-    SYSC_mbind+0x3c3/0x1030 mm/mempolicy.c:1370
-    SyS_mbind+0x46/0x60 mm/mempolicy.c:1352
-    do_syscall_64+0x1d2/0x600 arch/x86/entry/common.c:282
-    entry_SYSCALL_64_after_swapgs+0x5d/0xdb
-  Code: c7 80 1c 02 00 e8 26 0a 76 01 <0f> 0b 48 c7 c7 40 46 45 84 e8 4c
-  RIP  [<ffffffff81895d6b>] split_huge_page_to_list+0x8fb/0x1030 mm/huge_memory.c:2124
-   RSP <ffff88006899f980>
+If there is work queued on pool->compact_workqueue when it is called,
+z3fold_destroy_pool() will do:
 
-with the below test:
+   z3fold_destroy_pool()
+     destroy_workqueue(pool->release_wq)
+     destroy_workqueue(pool->compact_wq)
+       drain_workqueue(pool->compact_wq)
+         do_compact_page(zhdr)
+           kref_put(&zhdr->refcount)
+             __release_z3fold_page(zhdr, ...)
+               queue_work_on(pool->release_wq, &pool->work) *BOOM*
 
-  uint64_t r[1] = {0xffffffffffffffff};
+So compact_wq needs to be destroyed before release_wq.
 
-  int main(void)
-  {
-        syscall(__NR_mmap, 0x20000000, 0x1000000, 3, 0x32, -1, 0);
-                                intptr_t res = 0;
-        res = syscall(__NR_socket, 0x11, 3, 0x300);
-        if (res != -1)
-                r[0] = res;
-        *(uint32_t*)0x20000040 = 0x10000;
-        *(uint32_t*)0x20000044 = 1;
-        *(uint32_t*)0x20000048 = 0xc520;
-        *(uint32_t*)0x2000004c = 1;
-        syscall(__NR_setsockopt, r[0], 0x107, 0xd, 0x20000040, 0x10);
-        syscall(__NR_mmap, 0x20fed000, 0x10000, 0, 0x8811, r[0], 0);
-        *(uint64_t*)0x20000340 = 2;
-        syscall(__NR_mbind, 0x20ff9000, 0x4000, 0x4002, 0x20000340, 0x45d4, 3);
-        return 0;
-  }
-
-Actually the test does:
-
-  mmap(0x20000000, 16777216, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x20000000
-  socket(AF_PACKET, SOCK_RAW, 768)        = 3
-  setsockopt(3, SOL_PACKET, PACKET_TX_RING, {block_size=65536, block_nr=1, frame_size=50464, frame_nr=1}, 16) = 0
-  mmap(0x20fed000, 65536, PROT_NONE, MAP_SHARED|MAP_FIXED|MAP_POPULATE|MAP_DENYWRITE, 3, 0) = 0x20fed000
-  mbind(..., MPOL_MF_STRICT|MPOL_MF_MOVE) = 0
-
-The setsockopt() would allocate compound pages (16 pages in this test)
-for packet tx ring, then the mmap() would call packet_mmap() to map the
-pages into the user address space specified by the mmap() call.
-
-When calling mbind(), it would scan the vma to queue the pages for
-migration to the new node.  It would split any huge page since 4.9
-doesn't support THP migration, however, the packet tx ring compound
-pages are not THP and even not movable.  So, the above bug is triggered.
-
-However, the later kernel is not hit by this issue due to commit
-d44d363f6578 ("mm: don't assume anonymous pages have SwapBacked flag"),
-which just removes the PageSwapBacked check for a different reason.
-
-But, there is a deeper issue.  According to the semantic of mbind(), it
-should return -EIO if MPOL_MF_MOVE or MPOL_MF_MOVE_ALL was specified and
-MPOL_MF_STRICT was also specified, but the kernel was unable to move all
-existing pages in the range.  The tx ring of the packet socket is
-definitely not movable, however, mbind() returns success for this case.
-
-Although the most socket file associates with non-movable pages, but XDP
-may have movable pages from gup.  So, it sounds not fine to just check
-the underlying file type of vma in vma_migratable().
-
-Change migrate_page_add() to check if the page is movable or not, if it
-is unmovable, just return -EIO.  But do not abort pte walk immediately,
-since there may be pages off LRU temporarily.  We should migrate other
-pages if MPOL_MF_MOVE* is specified.  Set has_unmovable flag if some
-paged could not be not moved, then return -EIO for mbind() eventually.
-
-With this change the above test would return -EIO as expected.
-
-[yang.shi@linux.alibaba.com: fix review comments from Vlastimil]
-  Link: http://lkml.kernel.org/r/1563556862-54056-3-git-send-email-yang.shi@linux.alibaba.com
-Link: http://lkml.kernel.org/r/1561162809-59140-3-git-send-email-yang.shi@linux.alibaba.com
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
+Link: http://lkml.kernel.org/r/20190726224810.79660-1-henryburns@google.com
+Fixes: 5d03a6613957 ("mm/z3fold.c: use kref to prevent page free/compact race")
+Signed-off-by: Henry Burns <henryburns@google.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Jonathan Adams <jwadams@google.com>
+Cc: Vitaly Vul <vitaly.vul@sony.com>
+Cc: Vitaly Wool <vitalywool@gmail.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Al Viro <viro@zeniv.linux.org.uk
+Cc: Henry Burns <henrywolfeburns@gmail.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-index 932c26845e3e..547cd403ed02 100644
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -403,7 +403,7 @@ static const struct mempolicy_operations mpol_ops[MPOL_MAX] = {
- 	},
- };
- 
--static void migrate_page_add(struct page *page, struct list_head *pagelist,
-+static int migrate_page_add(struct page *page, struct list_head *pagelist,
- 				unsigned long flags);
- 
- struct queue_pages {
-@@ -463,12 +463,11 @@ static int queue_pages_pmd(pmd_t *pmd, spinlock_t *ptl, unsigned long addr,
- 	flags = qp->flags;
- 	/* go to thp migration */
- 	if (flags & (MPOL_MF_MOVE | MPOL_MF_MOVE_ALL)) {
--		if (!vma_migratable(walk->vma)) {
-+		if (!vma_migratable(walk->vma) ||
-+		    migrate_page_add(page, qp->pagelist, flags)) {
- 			ret = 1;
- 			goto unlock;
- 		}
--
--		migrate_page_add(page, qp->pagelist, flags);
- 	} else
- 		ret = -EIO;
- unlock:
-@@ -532,7 +531,14 @@ static int queue_pages_pte_range(pmd_t *pmd, unsigned long addr,
- 				has_unmovable = true;
- 				break;
- 			}
--			migrate_page_add(page, qp->pagelist, flags);
-+
-+			/*
-+			 * Do not abort immediately since there may be
-+			 * temporary off LRU pages in the range.  Still
-+			 * need migrate other LRU pages.
-+			 */
-+			if (migrate_page_add(page, qp->pagelist, flags))
-+				has_unmovable = true;
- 		} else
- 			break;
- 	}
-@@ -961,7 +967,7 @@ static long do_get_mempolicy(int *policy, nodemask_t *nmask,
- /*
-  * page migration, thp tail pages can be passed.
-  */
--static void migrate_page_add(struct page *page, struct list_head *pagelist,
-+static int migrate_page_add(struct page *page, struct list_head *pagelist,
- 				unsigned long flags)
+diff --git a/mm/z3fold.c b/mm/z3fold.c
+index 1a029a7432ee..43de92f52961 100644
+--- a/mm/z3fold.c
++++ b/mm/z3fold.c
+@@ -818,8 +818,15 @@ static void z3fold_destroy_pool(struct z3fold_pool *pool)
  {
- 	struct page *head = compound_head(page);
-@@ -974,8 +980,19 @@ static void migrate_page_add(struct page *page, struct list_head *pagelist,
- 			mod_node_page_state(page_pgdat(head),
- 				NR_ISOLATED_ANON + page_is_file_cache(head),
- 				hpage_nr_pages(head));
-+		} else if (flags & MPOL_MF_STRICT) {
-+			/*
-+			 * Non-movable page may reach here.  And, there may be
-+			 * temporary off LRU pages or non-LRU movable pages.
-+			 * Treat them as unmovable pages since they can't be
-+			 * isolated, so they can't be moved at the moment.  It
-+			 * should return -EIO for this case too.
-+			 */
-+			return -EIO;
- 		}
- 	}
+ 	kmem_cache_destroy(pool->c_handle);
+ 	z3fold_unregister_migration(pool);
+-	destroy_workqueue(pool->release_wq);
 +
-+	return 0;
++	/*
++	 * We need to destroy pool->compact_wq before pool->release_wq,
++	 * as any pending work on pool->compact_wq will call
++	 * queue_work(pool->release_wq, &pool->work).
++	 */
++
+ 	destroy_workqueue(pool->compact_wq);
++	destroy_workqueue(pool->release_wq);
+ 	kfree(pool);
  }
  
- /* page allocation callback for NUMA node migration */
-@@ -1178,9 +1195,10 @@ static struct page *new_page(struct page *page, unsigned long start)
- }
- #else
- 
--static void migrate_page_add(struct page *page, struct list_head *pagelist,
-+static int migrate_page_add(struct page *page, struct list_head *pagelist,
- 				unsigned long flags)
- {
-+	return -EIO;
- }
- 
- int do_migrate_pages(struct mm_struct *mm, const nodemask_t *from,
 
