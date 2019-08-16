@@ -2,144 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD12090840
-	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 21:38:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9186890A0F
+	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 23:11:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727585AbfHPTiH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Aug 2019 15:38:07 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:46185 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727572AbfHPTiH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 15:38:07 -0400
-Received: by mail-wr1-f68.google.com with SMTP id z1so2548061wru.13
-        for <stable@vger.kernel.org>; Fri, 16 Aug 2019 12:38:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=lw26MzifeBS+EqPVJYGj/JQJtKX2FPAaIxw5E4kFPYU=;
-        b=lBiGrr8zm6gJHJR1I/RtOKMqht2l7FWXzstFLgk3rLhx5W2oJXHooBXaOINmb6XQF0
-         gNQf5hgJ3T6BFsT9uVcJLk7rZKGpoicLkhjExCR2RMZtefOXYeV/R2gZbTkxxHAHmFh+
-         OaKfljx+lgwsB98XcRNbK72vWVra9PQIX4h9xOqCfe3LvZHKMRnKXF4tRN+Y3bSkh08O
-         cHcMqTJftvpmKfxRcOEAxww9mmuJS5nWPLQInEBqhFJRhZ5KYNuCKUN1GZ1K1CSJ2D8S
-         fsowYFp07/nCIcUvNdmJ/47nscrJlVn2cgXtdN8xdryojReXwhfwwDDVNypQ4kvEyrt+
-         lzdA==
+        id S1727784AbfHPVLo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Aug 2019 17:11:44 -0400
+Received: from mail-oi1-f193.google.com ([209.85.167.193]:33835 "EHLO
+        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727748AbfHPVLo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 17:11:44 -0400
+Received: by mail-oi1-f193.google.com with SMTP id l12so5813460oil.1;
+        Fri, 16 Aug 2019 14:11:43 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=lw26MzifeBS+EqPVJYGj/JQJtKX2FPAaIxw5E4kFPYU=;
-        b=bOVcf6ioYO7KsP02FV++EnfruWEyax/bQOLyQpY50SkuGdewre3PrBScB7B1CLwg4d
-         AlE/DBUkUvE5eDfMNRWj6O4pkfomq4vRTXngARkeRQX/WBmHyqgHti2QFEb+85yrdt3n
-         K84FtmA16QcKSXzyGz2P5JS4BydlFpRMj5+Y9RP7wr+ClYgVy+Vk7IRO/6Sjx/HIe0SP
-         doRPtnhJ4+WUxJSHM9ZmSl/GQn8gFKkdhos5+0k7l9azQFTvwbwpmHbxEKGEcf0zxOqe
-         FhgHHyunZzF7j4hFZh5wQcpo3ur+BXQBeVMArCV3SlVWk4zEU09qfkJRZrxURwNxHUJB
-         Uu+A==
-X-Gm-Message-State: APjAAAVQEamm0+V/U+Dp/dHgzwW+oW8wm/9pBaQgFMS1WQazTd+8BBGY
-        iab6g4y8l+CmNWLalg6mHdl9eQoigpw=
-X-Google-Smtp-Source: APXvYqzknVuyclflz0d2J73dgJIvTVrD/Oh2a0sPv4kuThxBO4S5tkZ1RM5ctEkUgvb6LHwoaXCSxw==
-X-Received: by 2002:adf:ecc3:: with SMTP id s3mr12942888wro.302.1565984285066;
-        Fri, 16 Aug 2019 12:38:05 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id e4sm10659959wrh.39.2019.08.16.12.38.04
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 16 Aug 2019 12:38:04 -0700 (PDT)
-Message-ID: <5d57061c.1c69fb81.bea40.51c3@mx.google.com>
-Date:   Fri, 16 Aug 2019 12:38:04 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=0gC4sb2j3RWTm9xjuIK9kqivJqH0u782yHSmQQjFy/g=;
+        b=ZcN4oCeWfbQ8IuIbiJvX+uHyg1YUAnJlV3kFmXAKGTavk+exyLe7ff2VjFiXkDTygM
+         ifb682dWQdfQ1icKhTm6rP2nA8+yruA3hhwkUI1r9EeANqdGB32E8Tl46oSQ+BgdG6lh
+         FN0MhfYbVuM/65A+FVlc2KZclUUt9M2r/XsMFGouGqBpyO1m2bstqJsvz5VuWOh9qt+i
+         HnhcBiB9nQGEQ8qFWOIoSfFxfsLrMGS2Z4+bjkz3NIFTpjnSzbPM8TVgXs4fYEhcBMrs
+         sZKepC884dLnmUSSbvGTLcxU33HfYcbVNJOuvgS5ojY2wJrJqQqaJzJAl/IC8K9kXo+w
+         Pd2g==
+X-Gm-Message-State: APjAAAV/6MYS2rOa4vYc0l337p3Sha7zEzSK+ZcSoa9mJYbeT2/7XP2X
+        5ozNB/uLMnKzxPgDbaYKmA==
+X-Google-Smtp-Source: APXvYqxVNGZP55OO2DAvkxQON330c/WkMGGQCA7UZMyjdZKYVNzMAVMjLidQg+yRLMzc0LHLCzRN0Q==
+X-Received: by 2002:aca:5106:: with SMTP id f6mr6355037oib.69.1565989903418;
+        Fri, 16 Aug 2019 14:11:43 -0700 (PDT)
+Received: from localhost (ip-173-126-47-137.ftwttx.spcsdns.net. [173.126.47.137])
+        by smtp.gmail.com with ESMTPSA id z26sm1648410oih.16.2019.08.16.14.11.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 16 Aug 2019 14:11:42 -0700 (PDT)
+Date:   Fri, 16 Aug 2019 16:11:41 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc:     Kalle Valo <kvalo@codeaurora.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Mark Rutland <mark.rutland@arm.com>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        ath10k@lists.infradead.org, stable@vger.kernel.org
+Subject: Re: [PATCH] ath10k: Fix HOST capability QMI incompatibility
+Message-ID: <20190816211141.GA4468@bogus>
+References: <20190725063108.15790-1-bjorn.andersson@linaro.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.189-35-ge6790d05646d
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y boot: 99 boots: 3 failed,
- 88 passed with 7 offline, 1 conflict (v4.4.189-35-ge6790d05646d)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190725063108.15790-1-bjorn.andersson@linaro.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 99 boots: 3 failed, 88 passed with 7 offline, 1=
- conflict (v4.4.189-35-ge6790d05646d)
+On Wed, Jul 24, 2019 at 11:31:08PM -0700, Bjorn Andersson wrote:
+> The introduction of 768ec4c012ac ("ath10k: update HOST capability QMI
+> message") served the purpose of supporting the new and extended HOST
+> capability QMI message.
+> 
+> But while the new message adds a slew of optional members it changes the
+> data type of the "daemon_support" member, which means that older
+> versions of the firmware will fail to decode the incoming request
+> message.
+> 
+> There is no way to detect this breakage from Linux and there's no way to
+> recover from sending the wrong message (i.e. we can't just try one
+> format and then fallback to the other), so a quirk is introduced in
+> DeviceTree to indicate to the driver that the firmware requires the 8bit
+> version of this message.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 768ec4c012ac ("ath10k: update HOST capability qmi message")
+> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> ---
+>  .../bindings/net/wireless/qcom,ath10k.txt     |  6 +++++
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.189-35-ge6790d05646d/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.189-35-ge6790d05646d/
+Acked-by: Rob Herring <robh@kernel.org>
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.189-35-ge6790d05646d
-Git Commit: e6790d05646d3c874dba68c3010faca10a21a1d0
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 45 unique boards, 20 SoC families, 14 builds out of 190
-
-Boot Regressions Detected:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9 - first fail: v4.4.189-32-g35ba3146be27)
-          qcom-apq8064-ifc6410:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9 - first fail: v4.4.189-32-g35ba3146be27)
-
-Boot Failures Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            qcom-qdf2400: 1 failed lab
-
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            stih410-b2120: 1 failed lab
-
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-x86_64:
-    x86_64_defconfig:
-        qemu:
-            lab-baylibre: FAIL (gcc-8)
-            lab-drue: PASS (gcc-8)
-            lab-linaro-lkft: FAIL (gcc-8)
-            lab-mhart: PASS (gcc-8)
-            lab-collabora: PASS (gcc-8)
-
----
-For more info write to <info@kernelci.org>
+>  drivers/net/wireless/ath/ath10k/qmi.c         | 13 ++++++++---
+>  .../net/wireless/ath/ath10k/qmi_wlfw_v01.c    | 22 +++++++++++++++++++
+>  .../net/wireless/ath/ath10k/qmi_wlfw_v01.h    |  1 +
+>  drivers/net/wireless/ath/ath10k/snoc.c        | 11 ++++++++++
+>  drivers/net/wireless/ath/ath10k/snoc.h        |  1 +
+>  6 files changed, 51 insertions(+), 3 deletions(-)
