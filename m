@@ -2,69 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81954904C1
-	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 17:37:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95557904CA
+	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 17:38:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727371AbfHPPhF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Aug 2019 11:37:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47300 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727359AbfHPPhF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Aug 2019 11:37:05 -0400
+        id S1727356AbfHPPiy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Aug 2019 11:38:54 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:57549 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727345AbfHPPix (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 11:38:53 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 7058722006;
+        Fri, 16 Aug 2019 11:38:52 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Fri, 16 Aug 2019 11:38:52 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=gEqZlf
+        JBRkqMXTmS2SoXUu8NOPFAYnCeSYUCG/YFfhs=; b=nFYatEjGQmVYRnHl1ydcGq
+        LfBQh3vZ2H/P1d/AP+2kPwhvtHIC/2fljzBnj+a8EnNkEQQxpr4Bu7MdpujjbZ/h
+        VL/a0/3uyISlfl+KaQQwimpXXUKHBKBj9yTwlWU6HERAkdeH17UgtvLyHoq2LGk7
+        kMoM+sKF3pmNrbzUqLrrlp10zs29KM+hyJRO2BaSy1AND/tehK31EWNDePsWGbMu
+        DRP4eZzWcpsQzPOr5Mvee1X+JPWfzJGrjs4bZubHdfte+ktYyOjtpDuJPTjFG1C8
+        rckNkUrpSLc2GOscXtzU/fGc2NQajRkCoX7ZBOatWDgHYMKyZZrO1+ancDF12yDQ
+        ==
+X-ME-Sender: <xms:DM5WXZAZTnRxX3lv7kr8hXsQEYwFfkju6y4jaGuHJChc9OWC_NKxyQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudeffedgkeekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:DM5WXbw3HcIK2l6ckflPB3y0sOFSYIcjvtQM6qS8BABKd_VTMP7QMg>
+    <xmx:DM5WXfmPfhFu8DaxBms1TU1SePrYqbonXbUeSCLv2oVhny0DxNYoWA>
+    <xmx:DM5WXYEMyN63N4TwOw3hKnQDDVrnE9idWCY1UJ8reKv-7BI5ibL3aw>
+    <xmx:DM5WXaC1r0KekRh29Me7APbbzhA3ZUYjJLAZ8u5N-WPEK23JX8zsBQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDB9C206C2;
-        Fri, 16 Aug 2019 15:37:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565969824;
-        bh=kYsRNvUcZJi1BMnvwFxacHUuoFSvOeDQvMDXJMijmUA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ZcUYg6sBtx+RSBNq6z2/xnM6DizTYqHhw94k5ER8dbuNRzL7jdsWdHQocNMo12qRE
-         EAGUOLAryWtKdvj/k5XIkBHsZfwOHqrLUIl3iEWth/PTgdjozhhWOfoyO54J/rOZpG
-         +HFO/R10U527DDPnNyTfG2oJCRASACeHXfQCbuuM=
-Date:   Fri, 16 Aug 2019 17:37:02 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Miles Chen <miles.chen@mediatek.com>
-Cc:     akpm@linux-foundation.org, cai@lca.pw, hannes@cmpxchg.org,
-        mhocko@suse.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, vdavydov.dev@gmail.com
-Subject: Re: FAILED: patch "[PATCH] mm/memcontrol.c: fix use after free in
- mem_cgroup_iter()" failed to apply to 4.14-stable tree
-Message-ID: <20190816153702.GA9558@kroah.com>
-References: <156594986715496@kroah.com>
- <1565953640.26404.4.camel@mtkswgap22>
+        by mail.messagingengine.com (Postfix) with ESMTPA id A1F748005B;
+        Fri, 16 Aug 2019 11:38:51 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] IB/mlx5: Fix use-after-free error while accessing ev_file" failed to apply to 5.2-stable tree
+To:     yishaih@mellanox.com, dledford@redhat.com, jgg@mellanox.com,
+        leonro@mellanox.com, stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 16 Aug 2019 17:38:49 +0200
+Message-ID: <156596992912336@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1565953640.26404.4.camel@mtkswgap22>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 16, 2019 at 07:07:20PM +0800, Miles Chen wrote:
-> On Fri, 2019-08-16 at 12:04 +0200, gregkh@linuxfoundation.org wrote:
-> > The patch below does not apply to the 4.14-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> Hi Greg,
-> 
-> Below this the backport for 4.14
 
-This backport, and the other 2, are all line-wrapped and the patch is
-corrupted and can not be applied :(
-
-Can you fix up and resend?  I can take an attachment if that is what is
-needed here.
+The patch below does not apply to the 5.2-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From e9eec6a55c95fb918036bfe29c26a535dca1ad49 Mon Sep 17 00:00:00 2001
+From: Yishai Hadas <yishaih@mellanox.com>
+Date: Thu, 8 Aug 2019 11:15:38 +0300
+Subject: [PATCH] IB/mlx5: Fix use-after-free error while accessing ev_file
+ pointer
+
+Call to uverbs_close_fd() releases file pointer to 'ev_file' and
+mlx5_ib_dev is going to be inaccessible. Cache pointer prior cleaning
+resources to solve the KASAN warning below.
+
+BUG: KASAN: use-after-free in devx_async_event_close+0x391/0x480 [mlx5_ib]
+Read of size 8 at addr ffff888301e3cec0 by task devx_direct_tes/4631
+CPU: 1 PID: 4631 Comm: devx_direct_tes Tainted: G OE 5.3.0-rc1-for-upstream-dbg-2019-07-26_01-19-56-93 #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu2 04/01/2014
+Call Trace:
+dump_stack+0x9a/0xeb
+print_address_description+0x1e2/0x400
+? devx_async_event_close+0x391/0x480 [mlx5_ib]
+__kasan_report+0x15c/0x1df
+? devx_async_event_close+0x391/0x480 [mlx5_ib]
+kasan_report+0xe/0x20
+devx_async_event_close+0x391/0x480 [mlx5_ib]
+__fput+0x26a/0x7b0
+task_work_run+0x10d/0x180
+exit_to_usermode_loop+0x137/0x160
+do_syscall_64+0x3c7/0x490
+entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x7f5df907d664
+Code: 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f
+80 00 00 00 00 8b 05 6a cd 20 00 48 63 ff 85 c0 75 13 b8
+03 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 44 f3 c3 66 90
+48 83 ec 18 48 89 7c 24 08 e8
+RSP: 002b:00007ffd353cb958 EFLAGS: 00000246 ORIG_RAX: 0000000000000003
+RAX: 0000000000000000 RBX: 000056017a88c348 RCX: 00007f5df907d664
+RDX: 00007f5df969d400 RSI: 00007f5de8f1ec90 RDI: 0000000000000006
+RBP: 00007f5df9681dc0 R08: 00007f5de8736410 R09: 000056017a9d2dd0
+R10: 000000000000000b R11: 0000000000000246 R12: 00007f5de899d7d0
+R13: 00007f5df96c4248 R14: 00007f5de8f1ecb0 R15: 000056017ae41308
+
+Allocated by task 4631:
+save_stack+0x19/0x80
+kasan_kmalloc.constprop.3+0xa0/0xd0
+alloc_uobj+0x71/0x230 [ib_uverbs]
+alloc_begin_fd_uobject+0x2e/0xc0 [ib_uverbs]
+rdma_alloc_begin_uobject+0x96/0x140 [ib_uverbs]
+ib_uverbs_run_method+0xdf0/0x1940 [ib_uverbs]
+ib_uverbs_cmd_verbs+0x57e/0xdb0 [ib_uverbs]
+ib_uverbs_ioctl+0x177/0x260 [ib_uverbs]
+do_vfs_ioctl+0x18f/0x1010
+ksys_ioctl+0x70/0x80
+__x64_sys_ioctl+0x6f/0xb0
+do_syscall_64+0x95/0x490
+entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Freed by task 4631:
+save_stack+0x19/0x80
+__kasan_slab_free+0x11d/0x160
+slab_free_freelist_hook+0x67/0x1a0
+kfree+0xb9/0x2a0
+uverbs_close_fd+0x118/0x1c0 [ib_uverbs]
+devx_async_event_close+0x28a/0x480 [mlx5_ib]
+__fput+0x26a/0x7b0
+task_work_run+0x10d/0x180
+exit_to_usermode_loop+0x137/0x160
+do_syscall_64+0x3c7/0x490
+entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+The buggy address belongs to the object at ffff888301e3cda8
+which belongs to the cache kmalloc-512 of size 512
+The buggy address is located 280 bytes inside of 512-byte region
+[ffff888301e3cda8, ffff888301e3cfa8)
+The buggy address belongs to the page:
+page:ffffea000c078e00 refcount:1 mapcount:0
+mapping:ffff888352811300 index:0x0 compound_mapcount: 0
+flags: 0x2fffff80010200(slab|head)
+raw: 002fffff80010200 ffffea000d152608 ffffea000c077808 ffff888352811300
+raw: 0000000000000000 0000000000250025 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+Memory state around the buggy address:
+ffff888301e3cd80: fc fc fc fc fc fb fb fb fb fb fb fb fb fb fb fb
+ffff888301e3ce00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ffff888301e3ce80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ffff888301e3cf00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ffff888301e3cf80: fb fb fb fb fb fc fc fc fc fc fc fc fc fc fc fc
+Disabling lock debugging due to kernel taint
+
+Cc: <stable@vger.kernel.org> # 5.2
+Fixes: 759738537142 ("IB/mlx5: Enable subscription for device events over DEVX")
+Signed-off-by: Yishai Hadas <yishaih@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Link: https://lore.kernel.org/r/20190808081538.28772-1-leon@kernel.org
+Signed-off-by: Doug Ledford <dledford@redhat.com>
+
+diff --git a/drivers/infiniband/hw/mlx5/devx.c b/drivers/infiniband/hw/mlx5/devx.c
+index 2d1b3d9609d9..af5bbb35c058 100644
+--- a/drivers/infiniband/hw/mlx5/devx.c
++++ b/drivers/infiniband/hw/mlx5/devx.c
+@@ -2644,12 +2644,13 @@ static int devx_async_event_close(struct inode *inode, struct file *filp)
+ 	struct devx_async_event_file *ev_file = filp->private_data;
+ 	struct devx_event_subscription *event_sub, *event_sub_tmp;
+ 	struct devx_async_event_data *entry, *tmp;
++	struct mlx5_ib_dev *dev = ev_file->dev;
+ 
+-	mutex_lock(&ev_file->dev->devx_event_table.event_xa_lock);
++	mutex_lock(&dev->devx_event_table.event_xa_lock);
+ 	/* delete the subscriptions which are related to this FD */
+ 	list_for_each_entry_safe(event_sub, event_sub_tmp,
+ 				 &ev_file->subscribed_events_list, file_list) {
+-		devx_cleanup_subscription(ev_file->dev, event_sub);
++		devx_cleanup_subscription(dev, event_sub);
+ 		if (event_sub->eventfd)
+ 			eventfd_ctx_put(event_sub->eventfd);
+ 
+@@ -2658,7 +2659,7 @@ static int devx_async_event_close(struct inode *inode, struct file *filp)
+ 		kfree_rcu(event_sub, rcu);
+ 	}
+ 
+-	mutex_unlock(&ev_file->dev->devx_event_table.event_xa_lock);
++	mutex_unlock(&dev->devx_event_table.event_xa_lock);
+ 
+ 	/* free the pending events allocation */
+ 	if (!ev_file->omit_data) {
+@@ -2670,7 +2671,7 @@ static int devx_async_event_close(struct inode *inode, struct file *filp)
+ 	}
+ 
+ 	uverbs_close_fd(filp);
+-	put_device(&ev_file->dev->ib_dev.dev);
++	put_device(&dev->ib_dev.dev);
+ 	return 0;
+ }
+ 
+
