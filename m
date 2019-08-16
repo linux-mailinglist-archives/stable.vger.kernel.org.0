@@ -2,25 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8057690B43
-	for <lists+stable@lfdr.de>; Sat, 17 Aug 2019 01:01:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0BB990B44
+	for <lists+stable@lfdr.de>; Sat, 17 Aug 2019 01:01:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727832AbfHPXBb convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 16 Aug 2019 19:01:31 -0400
-Received: from imap1.codethink.co.uk ([176.9.8.82]:51365 "EHLO
+        id S1727736AbfHPXBj convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 16 Aug 2019 19:01:39 -0400
+Received: from imap1.codethink.co.uk ([176.9.8.82]:51371 "EHLO
         imap1.codethink.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727796AbfHPXBb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 19:01:31 -0400
+        with ESMTP id S1727791AbfHPXBj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 19:01:39 -0400
 Received: from shadbolt.e.decadent.org.uk ([88.96.1.126] helo=xylophone.i.decadent.org.uk)
         by imap1.codethink.co.uk with esmtpsa (Exim 4.84_2 #1 (Debian))
-        id 1hylDs-0004lX-MC; Sat, 17 Aug 2019 00:01:28 +0100
-Date:   Sat, 17 Aug 2019 00:01:27 +0100
+        id 1hylDz-0004lm-Vm; Sat, 17 Aug 2019 00:01:36 +0100
+Date:   Sat, 17 Aug 2019 00:01:34 +0100
 From:   Ben Hutchings <ben.hutchings@codethink.co.uk>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 Cc:     stable <stable@vger.kernel.org>
-Subject: [PATCH 4.9 12/13] inet: switch IP ID generator to siphash
-Message-ID: <20190816230127.GP9843@xylophone.i.decadent.org.uk>
+Subject: [PATCH 4.9 13/13] netfilter: ctnetlink: don't use conntrack/expect
+ object addresses as id
+Message-ID: <20190816230134.GQ9843@xylophone.i.decadent.org.uk>
 References: <20190816220431.GA9843@xylophone.i.decadent.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -33,165 +34,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit df453700e8d81b1bdafdf684365ee2b9431fb702 upstream.
+commit 3c79107631db1f7fd32cf3f7368e4672004a3010 upstream.
 
-According to Amit Klein and Benny Pinkas, IP ID generation is too weak
-and might be used by attackers.
+else, we leak the addresses to userspace via ctnetlink events
+and dumps.
 
-Even with recent net_hash_mix() fix (netns: provide pure entropy for net_hash_mix())
-having 64bit key and Jenkins hash is risky.
+Compute an ID on demand based on the immutable parts of nf_conn struct.
 
-It is time to switch to siphash and its 128bit keys.
+Another advantage compared to using an address is that there is no
+immediate re-use of the same ID in case the conntrack entry is freed and
+reallocated again immediately.
 
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Amit Klein <aksecurity@gmail.com>
-Reported-by: Benny Pinkas <benny@pinkas.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[bwh: Backported to 4.9: adjust context]
+Fixes: 3583240249ef ("[NETFILTER]: nf_conntrack_expect: kill unique ID")
+Fixes: 7f85f914721f ("[NETFILTER]: nf_conntrack: kill unique ID")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 ---
- include/linux/siphash.h  |  5 +++++
- include/net/netns/ipv4.h |  2 ++
- net/ipv4/route.c         | 12 +++++++-----
- net/ipv6/output_core.c   | 30 ++++++++++++++++--------------
- 4 files changed, 30 insertions(+), 19 deletions(-)
+ include/net/netfilter/nf_conntrack.h |  2 ++
+ net/netfilter/nf_conntrack_core.c    | 35 ++++++++++++++++++++++++++++
+ net/netfilter/nf_conntrack_netlink.c | 34 +++++++++++++++++++++++----
+ 3 files changed, 66 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/siphash.h b/include/linux/siphash.h
-index fa7a6b9cedbf..bf21591a9e5e 100644
---- a/include/linux/siphash.h
-+++ b/include/linux/siphash.h
-@@ -21,6 +21,11 @@ typedef struct {
- 	u64 key[2];
- } siphash_key_t;
+diff --git a/include/net/netfilter/nf_conntrack.h b/include/net/netfilter/nf_conntrack.h
+index 9ae819e27940..b57a9f37c297 100644
+--- a/include/net/netfilter/nf_conntrack.h
++++ b/include/net/netfilter/nf_conntrack.h
+@@ -336,6 +336,8 @@ struct nf_conn *nf_ct_tmpl_alloc(struct net *net,
+ 				 gfp_t flags);
+ void nf_ct_tmpl_free(struct nf_conn *tmpl);
  
-+static inline bool siphash_key_is_zero(const siphash_key_t *key)
-+{
-+	return !(key->key[0] | key->key[1]);
-+}
++u32 nf_ct_get_id(const struct nf_conn *ct);
 +
- u64 __siphash_aligned(const void *data, size_t len, const siphash_key_t *key);
- #ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
- u64 __siphash_unaligned(const void *data, size_t len, const siphash_key_t *key);
-diff --git a/include/net/netns/ipv4.h b/include/net/netns/ipv4.h
-index bf619a67ec03..af1c5e7c7e94 100644
---- a/include/net/netns/ipv4.h
-+++ b/include/net/netns/ipv4.h
-@@ -8,6 +8,7 @@
- #include <linux/uidgid.h>
- #include <net/inet_frag.h>
- #include <linux/rcupdate.h>
+ #define NF_CT_STAT_INC(net, count)	  __this_cpu_inc((net)->ct.stat->count)
+ #define NF_CT_STAT_INC_ATOMIC(net, count) this_cpu_inc((net)->ct.stat->count)
+ #define NF_CT_STAT_ADD_ATOMIC(net, count, v) this_cpu_add((net)->ct.stat->count, (v))
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index df1d5618b008..c3d3b10947b4 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -25,6 +25,7 @@
+ #include <linux/slab.h>
+ #include <linux/random.h>
+ #include <linux/jhash.h>
++#include <linux/siphash.h>
+ #include <linux/err.h>
+ #include <linux/percpu.h>
+ #include <linux/moduleparam.h>
+@@ -301,6 +302,40 @@ nf_ct_invert_tuple(struct nf_conntrack_tuple *inverse,
+ }
+ EXPORT_SYMBOL_GPL(nf_ct_invert_tuple);
+ 
++/* Generate a almost-unique pseudo-id for a given conntrack.
++ *
++ * intentionally doesn't re-use any of the seeds used for hash
++ * table location, we assume id gets exposed to userspace.
++ *
++ * Following nf_conn items do not change throughout lifetime
++ * of the nf_conn after it has been committed to main hash table:
++ *
++ * 1. nf_conn address
++ * 2. nf_conn->ext address
++ * 3. nf_conn->master address (normally NULL)
++ * 4. tuple
++ * 5. the associated net namespace
++ */
++u32 nf_ct_get_id(const struct nf_conn *ct)
++{
++	static __read_mostly siphash_key_t ct_id_seed;
++	unsigned long a, b, c, d;
++
++	net_get_random_once(&ct_id_seed, sizeof(ct_id_seed));
++
++	a = (unsigned long)ct;
++	b = (unsigned long)ct->master ^ net_hash_mix(nf_ct_net(ct));
++	c = (unsigned long)ct->ext;
++	d = (unsigned long)siphash(&ct->tuplehash, sizeof(ct->tuplehash),
++				   &ct_id_seed);
++#ifdef CONFIG_64BIT
++	return siphash_4u64((u64)a, (u64)b, (u64)c, (u64)d, &ct_id_seed);
++#else
++	return siphash_4u32((u32)a, (u32)b, (u32)c, (u32)d, &ct_id_seed);
++#endif
++}
++EXPORT_SYMBOL_GPL(nf_ct_get_id);
++
+ static void
+ clean_from_lists(struct nf_conn *ct)
+ {
+diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
+index 9e30fd0ab227..deea281ab169 100644
+--- a/net/netfilter/nf_conntrack_netlink.c
++++ b/net/netfilter/nf_conntrack_netlink.c
+@@ -29,6 +29,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/interrupt.h>
+ #include <linux/slab.h>
 +#include <linux/siphash.h>
  
- struct tcpm_hash_bucket;
- struct ctl_table_header;
-@@ -137,5 +138,6 @@ struct netns_ipv4 {
- 	int sysctl_fib_multipath_use_neigh;
- #endif
- 	atomic_t	rt_genid;
-+	siphash_key_t	ip_id_key;
- };
- #endif
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index 02c49857b5a7..d558dc076577 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -496,15 +496,17 @@ EXPORT_SYMBOL(ip_idents_reserve);
- 
- void __ip_select_ident(struct net *net, struct iphdr *iph, int segs)
- {
--	static u32 ip_idents_hashrnd __read_mostly;
- 	u32 hash, id;
- 
--	net_get_random_once(&ip_idents_hashrnd, sizeof(ip_idents_hashrnd));
-+	/* Note the following code is not safe, but this is okay. */
-+	if (unlikely(siphash_key_is_zero(&net->ipv4.ip_id_key)))
-+		get_random_bytes(&net->ipv4.ip_id_key,
-+				 sizeof(net->ipv4.ip_id_key));
- 
--	hash = jhash_3words((__force u32)iph->daddr,
-+	hash = siphash_3u32((__force u32)iph->daddr,
- 			    (__force u32)iph->saddr,
--			    iph->protocol ^ net_hash_mix(net),
--			    ip_idents_hashrnd);
-+			    iph->protocol,
-+			    &net->ipv4.ip_id_key);
- 	id = ip_idents_reserve(hash, segs);
- 	iph->id = htons(id);
- }
-diff --git a/net/ipv6/output_core.c b/net/ipv6/output_core.c
-index a338bbc33cf3..6a6d01cb1ace 100644
---- a/net/ipv6/output_core.c
-+++ b/net/ipv6/output_core.c
-@@ -10,15 +10,25 @@
- #include <net/secure_seq.h>
  #include <linux/netfilter.h>
+ #include <net/netlink.h>
+@@ -441,7 +442,9 @@ static int ctnetlink_dump_ct_seq_adj(struct sk_buff *skb,
  
--static u32 __ipv6_select_ident(struct net *net, u32 hashrnd,
-+static u32 __ipv6_select_ident(struct net *net,
- 			       const struct in6_addr *dst,
- 			       const struct in6_addr *src)
+ static int ctnetlink_dump_id(struct sk_buff *skb, const struct nf_conn *ct)
  {
-+	const struct {
-+		struct in6_addr dst;
-+		struct in6_addr src;
-+	} __aligned(SIPHASH_ALIGNMENT) combined = {
-+		.dst = *dst,
-+		.src = *src,
-+	};
- 	u32 hash, id;
- 
--	hash = __ipv6_addr_jhash(dst, hashrnd);
--	hash = __ipv6_addr_jhash(src, hash);
--	hash ^= net_hash_mix(net);
-+	/* Note the following code is not safe, but this is okay. */
-+	if (unlikely(siphash_key_is_zero(&net->ipv4.ip_id_key)))
-+		get_random_bytes(&net->ipv4.ip_id_key,
-+				 sizeof(net->ipv4.ip_id_key));
+-	if (nla_put_be32(skb, CTA_ID, htonl((unsigned long)ct)))
++	__be32 id = (__force __be32)nf_ct_get_id(ct);
 +
-+	hash = siphash(&combined, sizeof(combined), &net->ipv4.ip_id_key);
++	if (nla_put_be32(skb, CTA_ID, id))
+ 		goto nla_put_failure;
+ 	return 0;
  
- 	/* Treat id of 0 as unset and if we get 0 back from ip_idents_reserve,
- 	 * set the hight order instead thus minimizing possible future
-@@ -41,7 +51,6 @@ static u32 __ipv6_select_ident(struct net *net, u32 hashrnd,
-  */
- void ipv6_proxy_select_ident(struct net *net, struct sk_buff *skb)
- {
--	static u32 ip6_proxy_idents_hashrnd __read_mostly;
- 	struct in6_addr buf[2];
- 	struct in6_addr *addrs;
- 	u32 id;
-@@ -53,11 +62,7 @@ void ipv6_proxy_select_ident(struct net *net, struct sk_buff *skb)
- 	if (!addrs)
- 		return;
+@@ -1166,8 +1169,9 @@ static int ctnetlink_del_conntrack(struct net *net, struct sock *ctnl,
+ 	ct = nf_ct_tuplehash_to_ctrack(h);
  
--	net_get_random_once(&ip6_proxy_idents_hashrnd,
--			    sizeof(ip6_proxy_idents_hashrnd));
--
--	id = __ipv6_select_ident(net, ip6_proxy_idents_hashrnd,
--				 &addrs[1], &addrs[0]);
-+	id = __ipv6_select_ident(net, &addrs[1], &addrs[0]);
- 	skb_shinfo(skb)->ip6_frag_id = htonl(id);
- }
- EXPORT_SYMBOL_GPL(ipv6_proxy_select_ident);
-@@ -66,12 +71,9 @@ __be32 ipv6_select_ident(struct net *net,
- 			 const struct in6_addr *daddr,
- 			 const struct in6_addr *saddr)
- {
--	static u32 ip6_idents_hashrnd __read_mostly;
- 	u32 id;
+ 	if (cda[CTA_ID]) {
+-		u_int32_t id = ntohl(nla_get_be32(cda[CTA_ID]));
+-		if (id != (u32)(unsigned long)ct) {
++		__be32 id = nla_get_be32(cda[CTA_ID]);
++
++		if (id != (__force __be32)nf_ct_get_id(ct)) {
+ 			nf_ct_put(ct);
+ 			return -ENOENT;
+ 		}
+@@ -2472,6 +2476,25 @@ static int ctnetlink_exp_dump_mask(struct sk_buff *skb,
  
--	net_get_random_once(&ip6_idents_hashrnd, sizeof(ip6_idents_hashrnd));
--
--	id = __ipv6_select_ident(net, ip6_idents_hashrnd, daddr, saddr);
-+	id = __ipv6_select_ident(net, daddr, saddr);
- 	return htonl(id);
- }
- EXPORT_SYMBOL(ipv6_select_ident);
+ static const union nf_inet_addr any_addr;
+ 
++static __be32 nf_expect_get_id(const struct nf_conntrack_expect *exp)
++{
++	static __read_mostly siphash_key_t exp_id_seed;
++	unsigned long a, b, c, d;
++
++	net_get_random_once(&exp_id_seed, sizeof(exp_id_seed));
++
++	a = (unsigned long)exp;
++	b = (unsigned long)exp->helper;
++	c = (unsigned long)exp->master;
++	d = (unsigned long)siphash(&exp->tuple, sizeof(exp->tuple), &exp_id_seed);
++
++#ifdef CONFIG_64BIT
++	return (__force __be32)siphash_4u64((u64)a, (u64)b, (u64)c, (u64)d, &exp_id_seed);
++#else
++	return (__force __be32)siphash_4u32((u32)a, (u32)b, (u32)c, (u32)d, &exp_id_seed);
++#endif
++}
++
+ static int
+ ctnetlink_exp_dump_expect(struct sk_buff *skb,
+ 			  const struct nf_conntrack_expect *exp)
+@@ -2519,7 +2542,7 @@ ctnetlink_exp_dump_expect(struct sk_buff *skb,
+ 	}
+ #endif
+ 	if (nla_put_be32(skb, CTA_EXPECT_TIMEOUT, htonl(timeout)) ||
+-	    nla_put_be32(skb, CTA_EXPECT_ID, htonl((unsigned long)exp)) ||
++	    nla_put_be32(skb, CTA_EXPECT_ID, nf_expect_get_id(exp)) ||
+ 	    nla_put_be32(skb, CTA_EXPECT_FLAGS, htonl(exp->flags)) ||
+ 	    nla_put_be32(skb, CTA_EXPECT_CLASS, htonl(exp->class)))
+ 		goto nla_put_failure;
+@@ -2818,7 +2841,8 @@ static int ctnetlink_get_expect(struct net *net, struct sock *ctnl,
+ 
+ 	if (cda[CTA_EXPECT_ID]) {
+ 		__be32 id = nla_get_be32(cda[CTA_EXPECT_ID]);
+-		if (ntohl(id) != (u32)(unsigned long)exp) {
++
++		if (id != nf_expect_get_id(exp)) {
+ 			nf_ct_expect_put(exp);
+ 			return -ENOENT;
+ 		}
 -- 
 Ben Hutchings, Software Developer                         Codethink Ltd
 https://www.codethink.co.uk/                 Dale House, 35 Dale Street
                                      Manchester, M1 2HF, United Kingdom
-
 
