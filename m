@@ -2,71 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABB1B8FB2C
-	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 08:38:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8052E8FB2F
+	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 08:39:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726761AbfHPGij (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Aug 2019 02:38:39 -0400
-Received: from mail-io1-f66.google.com ([209.85.166.66]:46740 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725945AbfHPGij (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 02:38:39 -0400
-Received: by mail-io1-f66.google.com with SMTP id x4so4177524iog.13;
-        Thu, 15 Aug 2019 23:38:39 -0700 (PDT)
+        id S1725971AbfHPGjY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Aug 2019 02:39:24 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:45113 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725897AbfHPGjY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 02:39:24 -0400
+Received: by mail-io1-f68.google.com with SMTP id t3so4195777ioj.12;
+        Thu, 15 Aug 2019 23:39:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=t8+aRfpHFKZoqqgIR6qH7+QBwdZXqxMwXd9QBUEx0dw=;
-        b=Waeog4Caec2pxH2qlmLYguXz87TIkpm8iKDcIMycfnfcqmhOQtwrULlf2m+GAJN7fT
-         XgIhuCa+rdgyK3Vn2ZyJQ1+BioH1PF1wtdU2CJgGsjLYVXsNE1p+fKCeIyXE1t9EZX6j
-         x+9BW8XevsM/xV+tWnu1I5WUFz3GvVgKifQeu+kr26HN2bSfRSyvE6sb9MBBlr0wpkos
-         RNym8Hw616y+/p2b9W7PP8SutnkZnyc2AXQDN6wgJc5ZHQ3DAOK/YgiKKoZI61/QO0hT
-         lX3+2imyu7JNV6HpSTyFp2T6CfP1YPN0U6zUUJMkLpl7LczM54Tft/sKS2xaB9oCHGUH
-         2f8A==
+        bh=LfX+pe6KX9sYIxHfVZ6eX9dKoc6kQLPyaT3gRQ+L47U=;
+        b=jSnaQIfpsRUA+Z+KFynREb/Cpq0rdaFJFDYEsEC1rY6i2vD3EOHjha55I+6MCS7uU7
+         hBXUQ+944NZoj8HpvAbgTEFVxyGl9K9G9FV3e8Y4GMV1kGa77fxmG4BEhXobdYhd9kZp
+         6dN9ea4NQd65GaCWmVazGH6SDjeuw39dtbbv84CNdKnhUwDdeo3fgDJUAL45jA2g2FPE
+         69aDNYjrbaIxWOkkdq60aijcs+apNgZwL2Dwwf9Tq191KwXq7tC4qLf+JjW+Zsi3jnoI
+         1AC0w9nVP0E+lhSKmQgaQ5fHMrLGwLpPWFp+nVYNVXPi+BymxMiAmvPgzlO7QjMN3u6A
+         sXOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=t8+aRfpHFKZoqqgIR6qH7+QBwdZXqxMwXd9QBUEx0dw=;
-        b=XzVXKT0KXkjkXucVn67slLgkhhYjSAhDA8RC1A21TOGkNPao0VsDUAWoqPvLa0KJ/0
-         y/0gnWuymh7DK0euP8Ppkq9WTyfL7KR18HIerNbcATqgISEuiXciV8cjY389ZjChprE1
-         zrSJp8lZOpIt42ZINI7eMiRy/yJJlOdRoBgrH24jzg+R3bXv6/wgw3hCIX0D67eoOAFt
-         nM3hKe8hGnChVWNndCQr8MnBmSm8/6IbcbjL3PpLDtC7DyDXMvf30J1lmUq/WS67N1gf
-         YOi0SXbm5WUf3ZOtm77NIXuH3os5dEV8MbsducfciR6Cn67SUIvrGG7V3DYbW1nSMbj3
-         0lhQ==
-X-Gm-Message-State: APjAAAUCt3MeewzwaeuO/SIsnMmyCq+fS1x4GT/ppNVc114wA4BfZShY
-        nSQ767vX6SuT9O8ZOPMm5dM=
-X-Google-Smtp-Source: APXvYqwZEghYw3vym/QHGnEyeR5zmvBkxOIg4jvilHMIWzLAAvhESDVPkeWvAaGO4ZpEc6y0zrATig==
-X-Received: by 2002:a02:487:: with SMTP id 129mr9014596jab.113.1565937518834;
-        Thu, 15 Aug 2019 23:38:38 -0700 (PDT)
+        bh=LfX+pe6KX9sYIxHfVZ6eX9dKoc6kQLPyaT3gRQ+L47U=;
+        b=g9K4G6oLoRiMX90ed2KUB4aInfaRIF/7ckl1GIwkJGjuTqHeA5y15WHSO6YTewFCR+
+         4F6VxF5RDUk7MaUMnObXabgeQFiypQ2uQxYBxMta7xgPtomVG7FXiPdDyCw3Jy7f1s36
+         QMlF/ygXt8S2IlgQEU5hbJKgAH4xYSbui6Ssr8n+1SXOPMnStAJyopmgvsIlsEjUv/gB
+         ocpW345mheoybXKxPvZAjzsLgcQYXKrhvgwwDEZkIZljn8BgBRiVX7mFSBCZvINLxLXU
+         EJnfQQ8JI5VCjQ0cfZZNj+gJ7NUVv05j11QaO3XzOcGk2J4I4F/SVjY0P/pXV/B+L2uW
+         BNrw==
+X-Gm-Message-State: APjAAAWNFPQ46SUwpvzAf+L5Mg235bqk1Dv/6k1QFf8Tk3G15IpnDejS
+        qlevZxQCQNzCgjPsUsyAktA=
+X-Google-Smtp-Source: APXvYqy8z+gWc8ebHkrdRits59r/NS4DoKa1CvuB7a9BBWBSWXp2RXbkPLYiZ21w8ojYdAZqEkxGDw==
+X-Received: by 2002:a5e:8e08:: with SMTP id a8mr9260494ion.94.1565937563961;
+        Thu, 15 Aug 2019 23:39:23 -0700 (PDT)
 Received: from JATN (c-73-243-191-173.hsd1.co.comcast.net. [73.243.191.173])
-        by smtp.gmail.com with ESMTPSA id o6sm3263458ioh.22.2019.08.15.23.38.37
+        by smtp.gmail.com with ESMTPSA id p12sm6724015ioh.72.2019.08.15.23.39.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Aug 2019 23:38:38 -0700 (PDT)
-Date:   Fri, 16 Aug 2019 00:38:36 -0600
+        Thu, 15 Aug 2019 23:39:23 -0700 (PDT)
+Date:   Fri, 16 Aug 2019 00:39:21 -0600
 From:   Kelsey Skunberg <skunberg.kelsey@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
         akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
         patches@kernelci.org, ben.hutchings@codethink.co.uk,
         lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 00/91] 4.19.67-stable review
-Message-ID: <20190816063836.GB3058@JATN>
-References: <20190814165748.991235624@linuxfoundation.org>
+Subject: Re: [PATCH 5.2 000/144] 5.2.9-stable review
+Message-ID: <20190816063921.GC3058@JATN>
+References: <20190814165759.466811854@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
+In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 14, 2019 at 07:00:23PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.67 release.
-> There are 91 patches in this series, all will be posted as a response
+On Wed, Aug 14, 2019 at 06:59:16PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.2.9 release.
+> There are 144 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -74,9 +74,9 @@ On Wed, Aug 14, 2019 at 07:00:23PM +0200, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.67-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.9-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
 > and the diffstat can be found below.
 > 
 > thanks,
