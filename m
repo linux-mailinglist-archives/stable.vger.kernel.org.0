@@ -2,104 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1976A8F971
-	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 05:30:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F10BD8F975
+	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 05:31:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726506AbfHPDaP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Aug 2019 23:30:15 -0400
-Received: from szxga06-in.huawei.com ([45.249.212.32]:46698 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726465AbfHPDaP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Aug 2019 23:30:15 -0400
-Received: from DGGEMS409-HUB.china.huawei.com (unknown [172.30.72.59])
-        by Forcepoint Email with ESMTP id A2D90E5A7ACA03E00971;
-        Fri, 16 Aug 2019 11:30:09 +0800 (CST)
-Received: from [127.0.0.1] (10.57.101.250) by DGGEMS409-HUB.china.huawei.com
- (10.3.19.209) with Microsoft SMTP Server id 14.3.439.0; Fri, 16 Aug 2019
- 11:29:59 +0800
-From:   Wei Xu <xuwei5@hisilicon.com>
-Subject: [GIT PULL] Hisilicon fixes for v5.3
-To:     <soc@kernel.org>, "arm@kernel.org" <arm@kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        Olof Johansson <olof@lixom.net>,
-        "Arnd Bergmann" <arnd@arndb.de>
-CC:     "xuwei (O)" <xuwei5@huawei.com>, Linuxarm <linuxarm@huawei.com>,
-        "John Garry" <john.garry@huawei.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        <linux-pci@vger.kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-        Zhangyi ac <zhangyi.ac@huawei.com>,
-        "Liguozhu (Kenneth)" <liguozhu@hisilicon.com>,
-        <jinying@hisilicon.com>, huangdaode <huangdaode@hisilicon.com>,
-        Tangkunshan <tangkunshan@huawei.com>,
-        Jonathan Cameron <jonathan.cameron@huawei.com>,
-        Shameerali Kolothum Thodi 
-        <shameerali.kolothum.thodi@huawei.com>,
-        Salil Mehta <salil.mehta@huawei.com>,
-        Shiju Jose <shiju.jose@huawei.com>, <stable@vger.kernel.org>,
-        <sashal@kernel.org>
-Message-ID: <5D562335.7000902@hisilicon.com>
-Date:   Fri, 16 Aug 2019 11:29:57 +0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101
- Thunderbird/38.2.0
+        id S1726596AbfHPDbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Aug 2019 23:31:34 -0400
+Received: from mail-wr1-f43.google.com ([209.85.221.43]:43795 "EHLO
+        mail-wr1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726534AbfHPDbe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Aug 2019 23:31:34 -0400
+Received: by mail-wr1-f43.google.com with SMTP id y8so171771wrn.10
+        for <stable@vger.kernel.org>; Thu, 15 Aug 2019 20:31:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=oZj3R6k6yNnrV3Ggmid/SWcBR8D89o/kFZ0MB+Dto8Y=;
+        b=lsN7gKGOuMlIPexi+aeU8O2+pPtZTLPhStpHj24HsFeYWM2wGoqYIGosX/58wim4qv
+         KoczDy/sL4Igtz0dsXR4MiLpI8wFgM6k76zk27f+LkPXoYGwqjoyhbCryfoyQa/XsSc2
+         G21jfxL0ExL2svAs6MygXPu9Ecx/FlVj9wP87Ojgp5neTbiErV6TQbxj+xOlTPt+W5gM
+         vUY8rkQM9VRAg+isdenAWy4EcVr+LYoKbqRKkWMq40NEYdNf+ACo8o9PimghHjcp17rc
+         PlyKzuRIJU3GK9wL7361dxhugphv58wpgjOQU9hpYlXeCnIXOjBV4q1H0yX5w6YD81Nx
+         ZrSQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=oZj3R6k6yNnrV3Ggmid/SWcBR8D89o/kFZ0MB+Dto8Y=;
+        b=HDwRd8mEgCFGOyKwqinO624AVqpJFmHdydY0yLXe6h5gWaDvBtJvpY8QwYNXlJDz7U
+         PW0AkL/SYX5ZzBM9FE0g7pcrzFDzIvTM3DXnw7dYDmVsQRD8JOl9jKvYy2v19EMs96Wh
+         K2lthNQboelG/5es62N5yUsxrjIXI51bYdEhQiiM4/A/lMAYSRgC9NP7koLgeaiFhkAF
+         PIc/5AZrStIhsyRqHKmYGO6Wychl6BGeFU27hqXtekkMkVStxEyLaHmlxEM/lIbiYNim
+         mDzBG3fnwrojNYXsViLGdkLbUzzZLKbDkWO2hFtgfnD7x2kZfbZfLVLAUOjiRJgGHtTL
+         uxGA==
+X-Gm-Message-State: APjAAAWTCaSJKYi9km1rQxW9+bkbBwi5q1cdyxV4Ut+19xUqoTHYrj2z
+        mVp5giFE84x9ZcTBPKHEbmANS6JQKZ8=
+X-Google-Smtp-Source: APXvYqyV+t3DxQG+sofcxSjp5Gw2HPvmDZwLw2S7V+sNgvv6zs5HEb9PayEkm43StdFw0UOX9Xjp4A==
+X-Received: by 2002:adf:ec8e:: with SMTP id z14mr8336399wrn.269.1565926291927;
+        Thu, 15 Aug 2019 20:31:31 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id r190sm4498034wmf.0.2019.08.15.20.31.30
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 15 Aug 2019 20:31:30 -0700 (PDT)
+Message-ID: <5d562392.1c69fb81.4c562.6da7@mx.google.com>
+Date:   Thu, 15 Aug 2019 20:31:30 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.57.101.250]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.189-42-g9a2a343109e5
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y boot: 90 boots: 0 failed,
+ 82 passed with 8 offline (v4.9.189-42-g9a2a343109e5)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi ARM-SoC team,
+stable-rc/linux-4.9.y boot: 90 boots: 0 failed, 82 passed with 8 offline (v=
+4.9.189-42-g9a2a343109e5)
 
-Please consider to pull the following fixes.
-Thanks!
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.189-42-g9a2a343109e5/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.189-42-g9a2a343109e5/
 
-Best Regards,
-Wei
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.189-42-g9a2a343109e5
+Git Commit: 9a2a343109e5f5850c69bbaf3a8f0171e6508698
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 47 unique boards, 22 SoC families, 15 builds out of 197
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+            meson-gxbb-odroidc2: 1 offline lab
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
 
 ---
-
-The following changes since commit 5f9e832c137075045d15cd6899ab0505cfb2ca4b:
-
-   Linus 5.3-rc1 (2019-07-21 14:05:38 -0700)
-
-are available in the Git repository at:
-
-   git://github.com/hisilicon/linux-hisi.git tags/hisi-fixes-for-5.3
-
-for you to fetch changes up to 10e62b47973b0b0ceda076255bcb147b83e20517:
-
-   bus: hisi_lpc: Add .remove method to avoid driver unbind crash 
-(2019-08-13 14:54:34 +0800)
-
-----------------------------------------------------------------
-Hisilicon fixes for v5.3-rc
-
-- Fixed RCU usage in logical PIO
-- Added a function to unregister a logical PIO range in logical PIO
-   to support the fixes in the hisi-lpc driver
-- Fixed and optimized hisi-lpc driver to avoid potential use-after-free
-   and driver unbind crash
-
-----------------------------------------------------------------
-John Garry (5):
-       lib: logic_pio: Fix RCU usage
-       lib: logic_pio: Avoid possible overlap for unregistering regions
-       lib: logic_pio: Add logic_pio_unregister_range()
-       bus: hisi_lpc: Unregister logical PIO range to avoid potential 
-use-after-free
-       bus: hisi_lpc: Add .remove method to avoid driver unbind crash
-
-  drivers/bus/hisi_lpc.c    | 47 ++++++++++++++++++++++++++----
-  include/linux/logic_pio.h |  1 +
-  lib/logic_pio.c           | 73 
-+++++++++++++++++++++++++++++++++++------------
-  3 files changed, 96 insertions(+), 25 deletions(-)
-
-
-
+For more info write to <info@kernelci.org>
