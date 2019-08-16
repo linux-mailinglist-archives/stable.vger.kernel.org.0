@@ -2,62 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF821905FD
-	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 18:40:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A95899067D
+	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 19:11:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726097AbfHPQkh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Aug 2019 12:40:37 -0400
-Received: from foss.arm.com ([217.140.110.172]:58938 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725956AbfHPQkh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Aug 2019 12:40:37 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9B15528;
-        Fri, 16 Aug 2019 09:40:36 -0700 (PDT)
-Received: from arrakis.emea.arm.com (arrakis.cambridge.arm.com [10.1.196.78])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CC39A3F694;
-        Fri, 16 Aug 2019 09:40:35 -0700 (PDT)
-Date:   Fri, 16 Aug 2019 17:40:33 +0100
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Will Deacon <will@kernel.org>
-Cc:     linux-arm-kernel@lists.infradead.org,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        James Morse <james.morse@arm.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] arm64: ftrace: Ensure module ftrace trampoline is
- coherent with I-side
-Message-ID: <20190816164033.GA36069@arrakis.emea.arm.com>
-References: <20190816135743.13683-1-will@kernel.org>
+        id S1726884AbfHPRLY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Aug 2019 13:11:24 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:36405 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726690AbfHPRLY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 13:11:24 -0400
+Received: by mail-wr1-f65.google.com with SMTP id r3so2224803wrt.3
+        for <stable@vger.kernel.org>; Fri, 16 Aug 2019 10:11:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=NI4YJ+GmUms9a2VvlpLISi8cv8GgECbZ5fsJbUfwM40=;
+        b=w7qJDIaSNigLgaJv/w/O5aY9gQwq2ri+oZKvGnOqU02Z1Sw/4z7+uz1+rkYe+qaaDH
+         Aq4hFjBOHWX8+kghcenGwimBNXd1JjmRJLtULohbwxjhF/VJFxi+kT3/unKwna0Ropxt
+         Evzs6kvBJP+zHZbmCj2kwYq0KyWk32P8ZkRU0T8WoF9tsHL8g1rnLOaaCSTx3QxrWUOZ
+         TlGBKZLGiErCvwfnTROyajOfuAFJ+g0XsW063Z0n43sgIQUvrJGGGZnyB/2SEtXbMMGW
+         f4Nrk//2J851LqtRp6hp0VGHePENYmYOifgVszWXXCQRoTElhe6/gtBAnWT2HAZG++jt
+         aosA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=NI4YJ+GmUms9a2VvlpLISi8cv8GgECbZ5fsJbUfwM40=;
+        b=H2wPQ8ty7LVOW5FQhaJZk2CQ74R7NuINNf6R3LdstUJZufIB5mWdhbgvrv+buJUq86
+         f9DMygJHDukcFOlIiAyTwfgwZntyjWTVpcV9KqFq3fe5nc94/fwQ2V1B0OsVPkwYy3PN
+         5MwMhKVLpXLQ8503iEQRQLqsW2SffxTFcZySHP6Y+4JIrjGjSZaUriqVXyUlZPcgbT5O
+         xHNwoabEvOYpkcjao7mSKe8FOgkHJtnWCAU7sHmcclYpuEH48sS1u9B+IlofW5D1U5ZB
+         frm74e6nHR0EA+qmCeMY0wH78QP2ab8A5qxO/Nv3kG9zXS5LfathSzLGgztEgee3Yy8N
+         69Tg==
+X-Gm-Message-State: APjAAAU74dby+gZJxWb33aaI3F5CSF/7GgEvyfdiWUFT+8dH9kr/ewNs
+        WzPQ/nlSOp2KRuiNhT+JvaX83MV8uUU=
+X-Google-Smtp-Source: APXvYqxIgLey2pGLUWpjmKQn9/y+Qb03mx0PfYCamL4m7woTX4emRQf2z+M3UBeMDs4PafRuCLxyAg==
+X-Received: by 2002:adf:e8d2:: with SMTP id k18mr12523703wrn.229.1565975481824;
+        Fri, 16 Aug 2019 10:11:21 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id g2sm9995959wru.27.2019.08.16.10.11.20
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 16 Aug 2019 10:11:21 -0700 (PDT)
+Message-ID: <5d56e3b9.1c69fb81.45066.2c4a@mx.google.com>
+Date:   Fri, 16 Aug 2019 10:11:21 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190816135743.13683-1-will@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.66-100-g3a10b2060ca3
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y boot: 132 boots: 1 failed,
+ 123 passed with 8 offline (v4.19.66-100-g3a10b2060ca3)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 16, 2019 at 02:57:43PM +0100, Will Deacon wrote:
-> The initial support for dynamic ftrace trampolines in modules made use
-> of an indirect branch which loaded its target from the beginning of
-> a special section (e71a4e1bebaf7 ("arm64: ftrace: add support for far
-> branches to dynamic ftrace")). Since no instructions were being patched,
-> no cache maintenance was needed. However, later in be0f272bfc83 ("arm64:
-> ftrace: emit ftrace-mod.o contents through code") this code was reworked
-> to output the trampoline instructions directly into the PLT entry but,
-> unfortunately, the necessary cache maintenance was overlooked.
-> 
-> Add a call to __flush_icache_range() after writing the new trampoline
-> instructions but before patching in the branch to the trampoline.
-> 
-> Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: James Morse <james.morse@arm.com>
-> Cc: <stable@vger.kernel.org>
-> Fixes: be0f272bfc83 ("arm64: ftrace: emit ftrace-mod.o contents through code")
-> Signed-off-by: Will Deacon <will@kernel.org>
+stable-rc/linux-4.19.y boot: 132 boots: 1 failed, 123 passed with 8 offline=
+ (v4.19.66-100-g3a10b2060ca3)
 
-Queued for 5.3. Thanks.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.66-100-g3a10b2060ca3/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.66-100-g3a10b2060ca3/
 
--- 
-Catalin
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.66-100-g3a10b2060ca3
+Git Commit: 3a10b2060ca30843d9251b80a2e1ca71e68035bd
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 74 unique boards, 27 SoC families, 17 builds out of 206
+
+Boot Regressions Detected:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.19.6=
+6 - first fail: v4.19.66-92-gf777613d3df0)
+          qcom-apq8064-ifc6410:
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.19.6=
+6 - first fail: v4.19.66-92-gf777613d3df0)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-gxbb-nanopi-k2:
+              lab-baylibre: failing since 1 day (last pass: v4.19.66-92-gf7=
+77613d3df0 - first fail: v4.19.66-92-gabb1bb8b9ba6)
+
+Boot Failure Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxbb-nanopi-k2: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+            meson-gxbb-odroidc2: 1 offline lab
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
