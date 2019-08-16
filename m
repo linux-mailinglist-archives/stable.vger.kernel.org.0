@@ -2,220 +2,289 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4618790ACF
-	for <lists+stable@lfdr.de>; Sat, 17 Aug 2019 00:19:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EED990B36
+	for <lists+stable@lfdr.de>; Sat, 17 Aug 2019 00:59:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727744AbfHPWTx convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 16 Aug 2019 18:19:53 -0400
-Received: from out02.mta.xmission.com ([166.70.13.232]:38037 "EHLO
-        out02.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727669AbfHPWTx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 18:19:53 -0400
-Received: from in01.mta.xmission.com ([166.70.13.51])
-        by out02.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.87)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1hykZb-0002PX-8t; Fri, 16 Aug 2019 16:19:51 -0600
-Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=x220.xmission.com)
-        by in01.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.87)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1hykZZ-00038z-Al; Fri, 16 Aug 2019 16:19:50 -0600
-From:   ebiederm@xmission.com (Eric W. Biederman)
-To:     Philipp Reisner <philipp.reisner@linbit.com>
-Cc:     David Laight <David.Laight@aculab.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        'Christoph =?utf-8?Q?B=C3=B6hmwalder'?= 
-        <christoph.boehmwalder@linbit.com>,
-        "linux-kernel\@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable\@vger.kernel.org" <stable@vger.kernel.org>,
-        Steve French <smfrench@gmail.com>,
-        ronnie sahlberg <ronniesahlberg@gmail.com>,
-        Jeff Layton <jlayton@primarydata.com>,
-        linux-cifs <linux-cifs@vger.kernel.org>
-References: <20190729083248.30362-1-christoph.boehmwalder@linbit.com>
-        <1761552.9xIroHqhk7@fat-tyre>
-        <1fcbb94c5f264c17af3394807438ad50@AcuMS.aculab.com>
-        <2789113.VEJ2NpTmzX@fat-tyre>
-Date:   Fri, 16 Aug 2019 17:19:38 -0500
-In-Reply-To: <2789113.VEJ2NpTmzX@fat-tyre> (Philipp Reisner's message of "Mon,
-        12 Aug 2019 15:28:40 +0200")
-Message-ID: <87k1bclpmt.fsf_-_@xmission.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/25.1 (gnu/linux)
+        id S1727820AbfHPW71 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 16 Aug 2019 18:59:27 -0400
+Received: from imap1.codethink.co.uk ([176.9.8.82]:51250 "EHLO
+        imap1.codethink.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727676AbfHPW70 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 18:59:26 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126] helo=xylophone.i.decadent.org.uk)
+        by imap1.codethink.co.uk with esmtpsa (Exim 4.84_2 #1 (Debian))
+        id 1hylBp-0004eV-NU; Fri, 16 Aug 2019 23:59:21 +0100
+Date:   Fri, 16 Aug 2019 23:59:20 +0100
+From:   Ben Hutchings <ben.hutchings@codethink.co.uk>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     stable <stable@vger.kernel.org>
+Subject: [PATCH 4.9 01/13] bpf: get rid of pure_initcall dependency to enable
+ jits
+Message-ID: <20190816225920.GE9843@xylophone.i.decadent.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: 8BIT
-X-XM-SPF: eid=1hykZZ-00038z-Al;;;mid=<87k1bclpmt.fsf_-_@xmission.com>;;;hst=in01.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX196TKA3cUomzbCr9t0QsX4GbLXuZJrQJjg=
-X-SA-Exim-Connect-IP: 68.227.160.95
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on sa06.xmission.com
-X-Spam-Level: *
-X-Spam-Status: No, score=1.0 required=8.0 tests=ALL_TRUSTED,BAYES_50,
-        DCC_CHECK_NEGATIVE,XMSubLong,XM_Body_Dirty_Words autolearn=disabled
-        version=3.4.2
-X-Spam-Report: * -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5000]
-        *  0.7 XMSubLong Long Subject
-        * -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
-        *      [sa06 1397; Body=1 Fuz1=1 Fuz2=1]
-        *  0.5 XM_Body_Dirty_Words Contains a dirty word
-X-Spam-DCC: XMission; sa06 1397; Body=1 Fuz1=1 Fuz2=1 
-X-Spam-Combo: *;Philipp Reisner <philipp.reisner@linbit.com>
-X-Spam-Relay-Country: 
-X-Spam-Timing: total 1433 ms - load_scoreonly_sql: 0.06 (0.0%),
-        signal_user_changed: 3.7 (0.3%), b_tie_ro: 2.6 (0.2%), parse: 1.29
-        (0.1%), extract_message_metadata: 20 (1.4%), get_uri_detail_list: 3.5
-        (0.2%), tests_pri_-1000: 15 (1.1%), tests_pri_-950: 1.33 (0.1%),
-        tests_pri_-900: 1.15 (0.1%), tests_pri_-90: 36 (2.5%), check_bayes: 34
-        (2.4%), b_tokenize: 13 (0.9%), b_tok_get_all: 12 (0.8%), b_comp_prob:
-        3.5 (0.2%), b_tok_touch_all: 4.1 (0.3%), b_finish: 0.63 (0.0%),
-        tests_pri_0: 734 (51.2%), check_dkim_signature: 0.83 (0.1%),
-        check_dkim_adsp: 3.7 (0.3%), poll_dns_idle: 549 (38.3%), tests_pri_10:
-        2.9 (0.2%), tests_pri_500: 613 (42.8%), rewrite_mail: 0.00 (0.0%)
-Subject: [PATCH] signal: Allow cifs and drbd to receive their terminating signals
-X-Spam-Flag: No
-X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-My recent to change to only use force_sig for a synchronous events
-wound up breaking signal reception cifs and drbd.  I had overlooked
-the fact that by default kthreads start out with all signals set to
-SIG_IGN.  So a change I thought was safe turned out to have made it
-impossible for those kernel thread to catch their signals.
+commit fa9dd599b4dae841924b022768354cfde9affecb upstream.
 
-Reverting the work on force_sig is a bad idea because what the code
-was doing was very much a misuse of force_sig.  As the way force_sig
-ultimately allowed the signal to happen was to change the signal
-handler to SIG_DFL.  Which after the first signal will allow userspace
-to send signals to these kernel threads.  At least for
-wake_ack_receiver in drbd that does not appear actively wrong.
+Having a pure_initcall() callback just to permanently enable BPF
+JITs under CONFIG_BPF_JIT_ALWAYS_ON is unnecessary and could leave
+a small race window in future where JIT is still disabled on boot.
+Since we know about the setting at compilation time anyway, just
+initialize it properly there. Also consolidate all the individual
+bpf_jit_enable variables into a single one and move them under one
+location. Moreover, don't allow for setting unspecified garbage
+values on them.
 
-So correct this problem by adding allow_kernel_signal that will allow
-signals whose siginfo reports they were sent by the kernel through,
-but will not allow userspace generated signals, and update cifs and
-drbd to call allow_kernel_signal in an appropriate place so that their
-thread can receive this signal.
-
-Fixing things this way ensures that userspace won't be able to send
-signals and cause problems, that it is clear which signals the
-threads are expecting to receive, and it guarantees that nothing
-else in the system will be affected.
-
-This change was partly inspired by similar cifs and drbd patches that
-added allow_signal.
-
-Reported-by: ronnie sahlberg <ronniesahlberg@gmail.com>
-Reported-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
-Cc: Steve French <smfrench@gmail.com>
-Cc: Philipp Reisner <philipp.reisner@linbit.com>
-Cc: David Laight <David.Laight@ACULAB.COM>
-Fixes: 247bc9470b1e ("cifs: fix rmmod regression in cifs.ko caused by force_sig changes")
-Fixes: 72abe3bcf091 ("signal/cifs: Fix cifs_put_tcp_session to call send_sig instead of force_sig")
-Fixes: fee109901f39 ("signal/drbd: Use send_sig not force_sig")
-Fixes: 3cf5d076fb4d ("signal: Remove task parameter from force_sig")
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+[bwh: Backported to 4.9 as dependency of commit 2e4a30983b0f
+ "bpf: restrict access to core bpf sysctls":
+ - Drop change in arch/mips/net/ebpf_jit.c
+ - Drop change to bpf_jit_kallsyms
+ - Adjust filenames, context]
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 ---
- drivers/block/drbd/drbd_main.c |  2 ++
- fs/cifs/connect.c              |  2 +-
- include/linux/signal.h         | 15 ++++++++++++++-
- kernel/signal.c                |  5 +++++
- 4 files changed, 22 insertions(+), 2 deletions(-)
+ arch/arm/net/bpf_jit_32.c         |  2 --
+ arch/arm64/net/bpf_jit_comp.c     |  2 --
+ arch/mips/net/bpf_jit.c           |  2 --
+ arch/powerpc/net/bpf_jit_comp.c   |  2 --
+ arch/powerpc/net/bpf_jit_comp64.c |  2 --
+ arch/s390/net/bpf_jit_comp.c      |  2 --
+ arch/sparc/net/bpf_jit_comp.c     |  2 --
+ arch/x86/net/bpf_jit_comp.c       |  2 --
+ kernel/bpf/core.c                 | 15 +++++++++++----
+ net/core/sysctl_net_core.c        | 14 +++++++++-----
+ net/socket.c                      |  9 ---------
+ 11 files changed, 20 insertions(+), 34 deletions(-)
 
-Folks my apolgies for this mess and for taking so long to suggest an
-improvement.  I needed a good nights sleep to think about this and
-with a new baby at home that has been a challenge to get.
-
-Unless someone has an objection or sees a problem with this patch I will
-send this to Linus in the next couple of days.
-
-I think adding allow_kernel_signal is better because it makes it clear
-that userspace does not mess with these signals.  I would love it if we
-could avoid signals all together but that appears tricky in the
-presence of kernel threads making blocking network requests.
-
-diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
-index 9bd4ddd12b25..5b248763a672 100644
---- a/drivers/block/drbd/drbd_main.c
-+++ b/drivers/block/drbd/drbd_main.c
-@@ -322,6 +322,8 @@ static int drbd_thread_setup(void *arg)
- 		 thi->name[0],
- 		 resource->name);
+diff --git a/arch/arm/net/bpf_jit_32.c b/arch/arm/net/bpf_jit_32.c
+index 93d0b6d0b63e..7fd448b23b94 100644
+--- a/arch/arm/net/bpf_jit_32.c
++++ b/arch/arm/net/bpf_jit_32.c
+@@ -72,8 +72,6 @@ struct jit_ctx {
+ #endif
+ };
  
-+	allow_kernel_signal(DRBD_SIGKILL);
-+	allow_kernel_signal(SIGXCPU);
- restart:
- 	retval = thi->function(thi);
- 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index a15a6e738eb5..1795e80cbdf7 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -1113,7 +1113,7 @@ cifs_demultiplex_thread(void *p)
- 		mempool_resize(cifs_req_poolp, length + cifs_min_rcv);
- 
- 	set_freezable();
--	allow_signal(SIGKILL);
-+	allow_kernel_signal(SIGKILL);
- 	while (server->tcpStatus != CifsExiting) {
- 		if (try_to_freeze())
- 			continue;
-diff --git a/include/linux/signal.h b/include/linux/signal.h
-index b5d99482d3fe..703fa20c06f5 100644
---- a/include/linux/signal.h
-+++ b/include/linux/signal.h
-@@ -282,6 +282,9 @@ extern void signal_setup_done(int failed, struct ksignal *ksig, int stepping);
- extern void exit_signals(struct task_struct *tsk);
- extern void kernel_sigaction(int, __sighandler_t);
- 
-+#define SIG_KTHREAD ((__force __sighandler_t)2)
-+#define SIG_KTHREAD_KERNEL ((__force __sighandler_t)3)
-+
- static inline void allow_signal(int sig)
+-int bpf_jit_enable __read_mostly;
+-
+ static inline int call_neg_helper(struct sk_buff *skb, int offset, void *ret,
+ 		      unsigned int size)
  {
- 	/*
-@@ -289,7 +292,17 @@ static inline void allow_signal(int sig)
- 	 * know it'll be handled, so that they don't get converted to
- 	 * SIGKILL or just silently dropped.
- 	 */
--	kernel_sigaction(sig, (__force __sighandler_t)2);
-+	kernel_sigaction(sig, SIG_KTHREAD);
-+}
+diff --git a/arch/arm64/net/bpf_jit_comp.c b/arch/arm64/net/bpf_jit_comp.c
+index b47a26f4290c..939c607b1376 100644
+--- a/arch/arm64/net/bpf_jit_comp.c
++++ b/arch/arm64/net/bpf_jit_comp.c
+@@ -30,8 +30,6 @@
+ 
+ #include "bpf_jit.h"
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ #define TMP_REG_1 (MAX_BPF_JIT_REG + 0)
+ #define TMP_REG_2 (MAX_BPF_JIT_REG + 1)
+ #define TCALL_CNT (MAX_BPF_JIT_REG + 2)
+diff --git a/arch/mips/net/bpf_jit.c b/arch/mips/net/bpf_jit.c
+index 248603739198..bb9f779326d0 100644
+--- a/arch/mips/net/bpf_jit.c
++++ b/arch/mips/net/bpf_jit.c
+@@ -1194,8 +1194,6 @@ static int build_body(struct jit_ctx *ctx)
+ 	return 0;
+ }
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ void bpf_jit_compile(struct bpf_prog *fp)
+ {
+ 	struct jit_ctx ctx;
+diff --git a/arch/powerpc/net/bpf_jit_comp.c b/arch/powerpc/net/bpf_jit_comp.c
+index 9c58194c7ea5..158f43008314 100644
+--- a/arch/powerpc/net/bpf_jit_comp.c
++++ b/arch/powerpc/net/bpf_jit_comp.c
+@@ -18,8 +18,6 @@
+ 
+ #include "bpf_jit32.h"
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ static inline void bpf_flush_icache(void *start, void *end)
+ {
+ 	smp_wmb();
+diff --git a/arch/powerpc/net/bpf_jit_comp64.c b/arch/powerpc/net/bpf_jit_comp64.c
+index 9f0810cfe5f3..888ee95340da 100644
+--- a/arch/powerpc/net/bpf_jit_comp64.c
++++ b/arch/powerpc/net/bpf_jit_comp64.c
+@@ -21,8 +21,6 @@
+ 
+ #include "bpf_jit64.h"
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ static void bpf_jit_fill_ill_insns(void *area, unsigned int size)
+ {
+ 	int *p = area;
+diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
+index 8bd25aebf488..896344b6e036 100644
+--- a/arch/s390/net/bpf_jit_comp.c
++++ b/arch/s390/net/bpf_jit_comp.c
+@@ -28,8 +28,6 @@
+ #include <asm/nospec-branch.h>
+ #include "bpf_jit.h"
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ struct bpf_jit {
+ 	u32 seen;		/* Flags to remember seen eBPF instructions */
+ 	u32 seen_reg[16];	/* Array to remember which registers are used */
+diff --git a/arch/sparc/net/bpf_jit_comp.c b/arch/sparc/net/bpf_jit_comp.c
+index a6d9204a6a0b..98a4da3012e3 100644
+--- a/arch/sparc/net/bpf_jit_comp.c
++++ b/arch/sparc/net/bpf_jit_comp.c
+@@ -10,8 +10,6 @@
+ 
+ #include "bpf_jit.h"
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ static inline bool is_simm13(unsigned int value)
+ {
+ 	return value + 0x1000 < 0x2000;
+diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
+index cd9764520851..d9dabd0c31fc 100644
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -15,8 +15,6 @@
+ #include <asm/nospec-branch.h>
+ #include <linux/bpf.h>
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ /*
+  * assembly code in arch/x86/net/bpf_jit.S
+  */
+diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
+index 879ca844ba1d..da03ab4ec578 100644
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -208,6 +208,10 @@ struct bpf_prog *bpf_patch_insn_single(struct bpf_prog *prog, u32 off,
+ }
+ 
+ #ifdef CONFIG_BPF_JIT
++/* All BPF JIT sysctl knobs here. */
++int bpf_jit_enable   __read_mostly = IS_BUILTIN(CONFIG_BPF_JIT_ALWAYS_ON);
++int bpf_jit_harden   __read_mostly;
 +
-+static inline void allow_kernel_signal(int sig)
-+{
-+	/*
-+	 * Kernel threads handle their own signals. Let the signal code
-+	 * kwown signals sent by the kernel will be handled, so that they
-+	 * don't get silently dropped.
+ struct bpf_binary_header *
+ bpf_jit_binary_alloc(unsigned int proglen, u8 **image_ptr,
+ 		     unsigned int alignment,
+@@ -244,8 +248,6 @@ void bpf_jit_binary_free(struct bpf_binary_header *hdr)
+ 	module_memfree(hdr);
+ }
+ 
+-int bpf_jit_harden __read_mostly;
+-
+ static int bpf_jit_blind_insn(const struct bpf_insn *from,
+ 			      const struct bpf_insn *aux,
+ 			      struct bpf_insn *to_buff)
+@@ -925,8 +927,13 @@ static unsigned int __bpf_prog_run(void *ctx, const struct bpf_insn *insn)
+ STACK_FRAME_NON_STANDARD(__bpf_prog_run); /* jump table */
+ 
+ #else
+-static unsigned int __bpf_prog_ret0(void *ctx, const struct bpf_insn *insn)
++static unsigned int __bpf_prog_ret0_warn(void *ctx,
++					 const struct bpf_insn *insn)
+ {
++	/* If this handler ever gets executed, then BPF_JIT_ALWAYS_ON
++	 * is not working properly, so warn about it!
 +	 */
-+	kernel_sigaction(sig, SIG_KTHREAD_KERNEL);
++	WARN_ON_ONCE(1);
+ 	return 0;
  }
+ #endif
+@@ -981,7 +988,7 @@ struct bpf_prog *bpf_prog_select_runtime(struct bpf_prog *fp, int *err)
+ #ifndef CONFIG_BPF_JIT_ALWAYS_ON
+ 	fp->bpf_func = (void *) __bpf_prog_run;
+ #else
+-	fp->bpf_func = (void *) __bpf_prog_ret0;
++	fp->bpf_func = (void *) __bpf_prog_ret0_warn;
+ #endif
  
- static inline void disallow_signal(int sig)
-diff --git a/kernel/signal.c b/kernel/signal.c
-index e667be6907d7..534fec266a33 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -90,6 +90,11 @@ static bool sig_task_ignored(struct task_struct *t, int sig, bool force)
- 	    handler == SIG_DFL && !(force && sig_kernel_only(sig)))
- 		return true;
+ 	/* eBPF JITs can rewrite the program in case constant
+diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
+index 546ba76b35a5..7b7d26a4f8c8 100644
+--- a/net/core/sysctl_net_core.c
++++ b/net/core/sysctl_net_core.c
+@@ -24,6 +24,7 @@
  
-+	/* Only allow kernel generated signals to this kthread */
-+	if (unlikely((t->flags & PF_KTHREAD) &&
-+		     (handler == SIG_KTHREAD_KERNEL) && !force))
-+		return true;
-+
- 	return sig_handler_ignored(handler, sig);
- }
+ static int zero = 0;
+ static int one = 1;
++static int two __maybe_unused = 2;
+ static int min_sndbuf = SOCK_MIN_SNDBUF;
+ static int min_rcvbuf = SOCK_MIN_RCVBUF;
+ static int max_skb_frags = MAX_SKB_FRAGS;
+@@ -292,13 +293,14 @@ static struct ctl_table net_core_table[] = {
+ 		.data		= &bpf_jit_enable,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0644,
+-#ifndef CONFIG_BPF_JIT_ALWAYS_ON
+-		.proc_handler	= proc_dointvec
+-#else
+ 		.proc_handler	= proc_dointvec_minmax,
++# ifdef CONFIG_BPF_JIT_ALWAYS_ON
+ 		.extra1		= &one,
+ 		.extra2		= &one,
+-#endif
++# else
++		.extra1		= &zero,
++		.extra2		= &two,
++# endif
+ 	},
+ # ifdef CONFIG_HAVE_EBPF_JIT
+ 	{
+@@ -306,7 +308,9 @@ static struct ctl_table net_core_table[] = {
+ 		.data		= &bpf_jit_harden,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0600,
+-		.proc_handler	= proc_dointvec,
++		.proc_handler	= proc_dointvec_minmax,
++		.extra1		= &zero,
++		.extra2		= &two,
+ 	},
+ # endif
+ #endif
+diff --git a/net/socket.c b/net/socket.c
+index d9e2989c10c4..bf99bc1fab2c 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -2550,15 +2550,6 @@ static int __init sock_init(void)
  
+ core_initcall(sock_init);	/* early initcall */
+ 
+-static int __init jit_init(void)
+-{
+-#ifdef CONFIG_BPF_JIT_ALWAYS_ON
+-	bpf_jit_enable = 1;
+-#endif
+-	return 0;
+-}
+-pure_initcall(jit_init);
+-
+ #ifdef CONFIG_PROC_FS
+ void socket_seq_show(struct seq_file *seq)
+ {
 -- 
-2.21.0.dirty
+Ben Hutchings, Software Developer                         Codethink Ltd
+https://www.codethink.co.uk/                 Dale House, 35 Dale Street
+                                     Manchester, M1 2HF, United Kingdom
 
-Eric
+
