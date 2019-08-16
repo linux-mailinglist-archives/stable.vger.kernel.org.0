@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8E5690B39
-	for <lists+stable@lfdr.de>; Sat, 17 Aug 2019 01:00:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85B9390B3A
+	for <lists+stable@lfdr.de>; Sat, 17 Aug 2019 01:00:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727777AbfHPXAN convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 16 Aug 2019 19:00:13 -0400
-Received: from imap1.codethink.co.uk ([176.9.8.82]:51276 "EHLO
+        id S1727738AbfHPXAZ convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 16 Aug 2019 19:00:25 -0400
+Received: from imap1.codethink.co.uk ([176.9.8.82]:51285 "EHLO
         imap1.codethink.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727676AbfHPXAN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 19:00:13 -0400
+        with ESMTP id S1727676AbfHPXAZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 19:00:25 -0400
 Received: from shadbolt.e.decadent.org.uk ([88.96.1.126] helo=xylophone.i.decadent.org.uk)
         by imap1.codethink.co.uk with esmtpsa (Exim 4.84_2 #1 (Debian))
-        id 1hylCc-0004hy-7L; Sat, 17 Aug 2019 00:00:10 +0100
-Date:   Sat, 17 Aug 2019 00:00:08 +0100
+        id 1hylCn-0004ir-CP; Sat, 17 Aug 2019 00:00:21 +0100
+Date:   Sat, 17 Aug 2019 00:00:19 +0100
 From:   Ben Hutchings <ben.hutchings@codethink.co.uk>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 Cc:     stable <stable@vger.kernel.org>
-Subject: [PATCH 4.9 03/13] bpf: add bpf_jit_limit knob to restrict unpriv
- allocations
-Message-ID: <20190816230008.GG9843@xylophone.i.decadent.org.uk>
+Subject: [PATCH 4.9 04/13] vhost-net: set packet weight of tx polling to 2 *
+ vq size
+Message-ID: <20190816230019.GH9843@xylophone.i.decadent.org.uk>
 References: <20190816220431.GA9843@xylophone.i.decadent.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8BIT
 In-Reply-To: <20190816220431.GA9843@xylophone.i.decadent.org.uk>
@@ -34,201 +34,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: haibinzhang(张海斌) <haibinzhang@tencent.com>
 
-commit ede95a63b5e84ddeea6b0c473b36ab8bfd8c6ce3 upstream.
+commit a2ac99905f1ea8b15997a6ec39af69aa28a3653b upstream.
 
-Rick reported that the BPF JIT could potentially fill the entire module
-space with BPF programs from unprivileged users which would prevent later
-attempts to load normal kernel modules or privileged BPF programs, for
-example. If JIT was enabled but unsuccessful to generate the image, then
-before commit 290af86629b2 ("bpf: introduce BPF_JIT_ALWAYS_ON config")
-we would always fall back to the BPF interpreter. Nowadays in the case
-where the CONFIG_BPF_JIT_ALWAYS_ON could be set, then the load will abort
-with a failure since the BPF interpreter was compiled out.
+handle_tx will delay rx for tens or even hundreds of milliseconds when tx busy
+polling udp packets with small length(e.g. 1byte udp payload), because setting
+VHOST_NET_WEIGHT takes into account only sent-bytes but no single packet length.
 
-Add a global limit and enforce it for unprivileged users such that in case
-of BPF interpreter compiled out we fail once the limit has been reached
-or we fall back to BPF interpreter earlier w/o using module mem if latter
-was compiled in. In a next step, fair share among unprivileged users can
-be resolved in particular for the case where we would fail hard once limit
-is reached.
+Ping-Latencies shown below were tested between two Virtual Machines using
+netperf (UDP_STREAM, len=1), and then another machine pinged the client:
 
-Fixes: 290af86629b2 ("bpf: introduce BPF_JIT_ALWAYS_ON config")
-Fixes: 0a14842f5a3c ("net: filter: Just In Time compiler for x86-64")
-Co-Developed-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-Cc: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-[bwh: Backported to 4.9: adjust context]
+vq size=256
+Packet-Weight   Ping-Latencies(millisecond)
+                   min      avg       max
+Origin           3.319   18.489    57.303
+64               1.643    2.021     2.552
+128              1.825    2.600     3.224
+256              1.997    2.710     4.295
+512              1.860    3.171     4.631
+1024             2.002    4.173     9.056
+2048             2.257    5.650     9.688
+4096             2.093    8.508    15.943
+
+vq size=512
+Packet-Weight   Ping-Latencies(millisecond)
+                   min      avg       max
+Origin           6.537   29.177    66.245
+64               2.798    3.614     4.403
+128              2.861    3.820     4.775
+256              3.008    4.018     4.807
+512              3.254    4.523     5.824
+1024             3.079    5.335     7.747
+2048             3.944    8.201    12.762
+4096             4.158   11.057    19.985
+
+Seems pretty consistent, a small dip at 2 VQ sizes.
+Ring size is a hint from device about a burst size it can tolerate. Based on
+benchmarks, set the weight to 2 * vq size.
+
+To evaluate this change, another tests were done using netperf(RR, TX) between
+two machines with Intel(R) Xeon(R) Gold 6133 CPU @ 2.50GHz, and vq size was
+tweaked through qemu. Results shown below does not show obvious changes.
+
+vq size=256 TCP_RR                vq size=512 TCP_RR
+size/sessions/+thu%/+normalize%   size/sessions/+thu%/+normalize%
+   1/       1/  -7%/        -2%      1/       1/   0%/        -2%
+   1/       4/  +1%/         0%      1/       4/  +1%/         0%
+   1/       8/  +1%/        -2%      1/       8/   0%/        +1%
+  64/       1/  -6%/         0%     64/       1/  +7%/        +3%
+  64/       4/   0%/        +2%     64/       4/  -1%/        +1%
+  64/       8/   0%/         0%     64/       8/  -1%/        -2%
+ 256/       1/  -3%/        -4%    256/       1/  -4%/        -2%
+ 256/       4/  +3%/        +4%    256/       4/  +1%/        +2%
+ 256/       8/  +2%/         0%    256/       8/  +1%/        -1%
+
+vq size=256 UDP_RR                vq size=512 UDP_RR
+size/sessions/+thu%/+normalize%   size/sessions/+thu%/+normalize%
+   1/       1/  -5%/        +1%      1/       1/  -3%/        -2%
+   1/       4/  +4%/        +1%      1/       4/  -2%/        +2%
+   1/       8/  -1%/        -1%      1/       8/  -1%/         0%
+  64/       1/  -2%/        -3%     64/       1/  +1%/        +1%
+  64/       4/  -5%/        -1%     64/       4/  +2%/         0%
+  64/       8/   0%/        -1%     64/       8/  -2%/        +1%
+ 256/       1/  +7%/        +1%    256/       1/  -7%/         0%
+ 256/       4/  +1%/        +1%    256/       4/  -3%/        -4%
+ 256/       8/  +2%/        +2%    256/       8/  +1%/        +1%
+
+vq size=256 TCP_STREAM            vq size=512 TCP_STREAM
+size/sessions/+thu%/+normalize%   size/sessions/+thu%/+normalize%
+  64/       1/   0%/        -3%     64/       1/   0%/         0%
+  64/       4/  +3%/        -1%     64/       4/  -2%/        +4%
+  64/       8/  +9%/        -4%     64/       8/  -1%/        +2%
+ 256/       1/  +1%/        -4%    256/       1/  +1%/        +1%
+ 256/       4/  -1%/        -1%    256/       4/  -3%/         0%
+ 256/       8/  +7%/        +5%    256/       8/  -3%/         0%
+ 512/       1/  +1%/         0%    512/       1/  -1%/        -1%
+ 512/       4/  +1%/        -1%    512/       4/   0%/         0%
+ 512/       8/  +7%/        -5%    512/       8/  +6%/        -1%
+1024/       1/   0%/        -1%   1024/       1/   0%/        +1%
+1024/       4/  +3%/         0%   1024/       4/  +1%/         0%
+1024/       8/  +8%/        +5%   1024/       8/  -1%/         0%
+2048/       1/  +2%/        +2%   2048/       1/  -1%/         0%
+2048/       4/  +1%/         0%   2048/       4/   0%/        -1%
+2048/       8/  -2%/         0%   2048/       8/   5%/        -1%
+4096/       1/  -2%/         0%   4096/       1/  -2%/         0%
+4096/       4/  +2%/         0%   4096/       4/   0%/         0%
+4096/       8/  +9%/        -2%   4096/       8/  -5%/        -1%
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Haibin Zhang <haibinzhang@tencent.com>
+Signed-off-by: Yunfang Tai <yunfangtai@tencent.com>
+Signed-off-by: Lidong Chen <lidongchen@tencent.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 ---
- Documentation/sysctl/net.txt |  8 ++++++
- include/linux/filter.h       |  1 +
- kernel/bpf/core.c            | 49 +++++++++++++++++++++++++++++++++---
- net/core/sysctl_net_core.c   | 10 ++++++--
- 4 files changed, 63 insertions(+), 5 deletions(-)
+ drivers/vhost/net.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/sysctl/net.txt b/Documentation/sysctl/net.txt
-index f0480f7ea740..4d5e3b0cab3f 100644
---- a/Documentation/sysctl/net.txt
-+++ b/Documentation/sysctl/net.txt
-@@ -54,6 +54,14 @@ Values :
- 	1 - enable JIT hardening for unprivileged users only
- 	2 - enable JIT hardening for all users
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 75e1089dfb01..64431c0d2a53 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -39,6 +39,10 @@ MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
+  * Using this limit prevents one virtqueue from starving others. */
+ #define VHOST_NET_WEIGHT 0x80000
  
-+bpf_jit_limit
-+-------------
++/* Max number of packets transferred before requeueing the job.
++ * Using this limit prevents one virtqueue from starving rx. */
++#define VHOST_NET_PKT_WEIGHT(vq) ((vq)->num * 2)
 +
-+This enforces a global limit for memory allocations to the BPF JIT
-+compiler in order to reject unprivileged JIT requests once it has
-+been surpassed. bpf_jit_limit contains the value of the global limit
-+in bytes.
-+
- dev_weight
- --------------
+ /* MAX number of TX used buffers for outstanding zerocopy */
+ #define VHOST_MAX_PEND 128
+ #define VHOST_GOODCOPY_LEN 256
+@@ -372,6 +376,7 @@ static void handle_tx(struct vhost_net *net)
+ 	struct socket *sock;
+ 	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
+ 	bool zcopy, zcopy_used;
++	int sent_pkts = 0;
  
-diff --git a/include/linux/filter.h b/include/linux/filter.h
-index 1f09c521adfe..689bba102007 100644
---- a/include/linux/filter.h
-+++ b/include/linux/filter.h
-@@ -599,6 +599,7 @@ void bpf_warn_invalid_xdp_action(u32 act);
- #ifdef CONFIG_BPF_JIT
- extern int bpf_jit_enable;
- extern int bpf_jit_harden;
-+extern int bpf_jit_limit;
- 
- typedef void (*bpf_jit_fill_hole_t)(void *area, unsigned int size);
- 
-diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
-index da03ab4ec578..09df9bbfb48e 100644
---- a/kernel/bpf/core.c
-+++ b/kernel/bpf/core.c
-@@ -208,9 +208,43 @@ struct bpf_prog *bpf_patch_insn_single(struct bpf_prog *prog, u32 off,
- }
- 
- #ifdef CONFIG_BPF_JIT
-+# define BPF_JIT_LIMIT_DEFAULT	(PAGE_SIZE * 40000)
-+
- /* All BPF JIT sysctl knobs here. */
- int bpf_jit_enable   __read_mostly = IS_BUILTIN(CONFIG_BPF_JIT_ALWAYS_ON);
- int bpf_jit_harden   __read_mostly;
-+int bpf_jit_limit    __read_mostly = BPF_JIT_LIMIT_DEFAULT;
-+
-+static atomic_long_t bpf_jit_current;
-+
-+#if defined(MODULES_VADDR)
-+static int __init bpf_jit_charge_init(void)
-+{
-+	/* Only used as heuristic here to derive limit. */
-+	bpf_jit_limit = min_t(u64, round_up((MODULES_END - MODULES_VADDR) >> 2,
-+					    PAGE_SIZE), INT_MAX);
-+	return 0;
-+}
-+pure_initcall(bpf_jit_charge_init);
-+#endif
-+
-+static int bpf_jit_charge_modmem(u32 pages)
-+{
-+	if (atomic_long_add_return(pages, &bpf_jit_current) >
-+	    (bpf_jit_limit >> PAGE_SHIFT)) {
-+		if (!capable(CAP_SYS_ADMIN)) {
-+			atomic_long_sub(pages, &bpf_jit_current);
-+			return -EPERM;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static void bpf_jit_uncharge_modmem(u32 pages)
-+{
-+	atomic_long_sub(pages, &bpf_jit_current);
-+}
- 
- struct bpf_binary_header *
- bpf_jit_binary_alloc(unsigned int proglen, u8 **image_ptr,
-@@ -218,21 +252,27 @@ bpf_jit_binary_alloc(unsigned int proglen, u8 **image_ptr,
- 		     bpf_jit_fill_hole_t bpf_fill_ill_insns)
- {
- 	struct bpf_binary_header *hdr;
--	unsigned int size, hole, start;
-+	u32 size, hole, start, pages;
- 
- 	/* Most of BPF filters are really small, but if some of them
- 	 * fill a page, allow at least 128 extra bytes to insert a
- 	 * random section of illegal instructions.
- 	 */
- 	size = round_up(proglen + sizeof(*hdr) + 128, PAGE_SIZE);
-+	pages = size / PAGE_SIZE;
-+
-+	if (bpf_jit_charge_modmem(pages))
-+		return NULL;
- 	hdr = module_alloc(size);
--	if (hdr == NULL)
-+	if (!hdr) {
-+		bpf_jit_uncharge_modmem(pages);
- 		return NULL;
-+	}
- 
- 	/* Fill space with illegal/arch-dep instructions. */
- 	bpf_fill_ill_insns(hdr, size);
- 
--	hdr->pages = size / PAGE_SIZE;
-+	hdr->pages = pages;
- 	hole = min_t(unsigned int, size - (proglen + sizeof(*hdr)),
- 		     PAGE_SIZE - sizeof(*hdr));
- 	start = (get_random_int() % hole) & ~(alignment - 1);
-@@ -245,7 +285,10 @@ bpf_jit_binary_alloc(unsigned int proglen, u8 **image_ptr,
- 
- void bpf_jit_binary_free(struct bpf_binary_header *hdr)
- {
-+	u32 pages = hdr->pages;
-+
- 	module_memfree(hdr);
-+	bpf_jit_uncharge_modmem(pages);
- }
- 
- static int bpf_jit_blind_insn(const struct bpf_insn *from,
-diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
-index dd59880db48f..58d76ca45937 100644
---- a/net/core/sysctl_net_core.c
-+++ b/net/core/sysctl_net_core.c
-@@ -253,7 +253,6 @@ static int proc_dointvec_minmax_bpf_enable(struct ctl_table *table, int write,
- 	return ret;
- }
- 
--# ifdef CONFIG_HAVE_EBPF_JIT
- static int
- proc_dointvec_minmax_bpf_restricted(struct ctl_table *table, int write,
- 				    void __user *buffer, size_t *lenp,
-@@ -264,7 +263,6 @@ proc_dointvec_minmax_bpf_restricted(struct ctl_table *table, int write,
- 
- 	return proc_dointvec_minmax(table, write, buffer, lenp, ppos);
- }
--# endif
- #endif
- 
- static struct ctl_table net_core_table[] = {
-@@ -348,6 +346,14 @@ static struct ctl_table net_core_table[] = {
- 		.extra2		= &two,
- 	},
- # endif
-+	{
-+		.procname	= "bpf_jit_limit",
-+		.data		= &bpf_jit_limit,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0600,
-+		.proc_handler	= proc_dointvec_minmax_bpf_restricted,
-+		.extra1		= &one,
-+	},
- #endif
- 	{
- 		.procname	= "netdev_tstamp_prequeue",
+ 	mutex_lock(&vq->mutex);
+ 	sock = vq->private_data;
+@@ -474,7 +479,8 @@ static void handle_tx(struct vhost_net *net)
+ 			vhost_zerocopy_signal_used(net, vq);
+ 		total_len += len;
+ 		vhost_net_tx_packet(net);
+-		if (unlikely(total_len >= VHOST_NET_WEIGHT)) {
++		if (unlikely(total_len >= VHOST_NET_WEIGHT) ||
++		    unlikely(++sent_pkts >= VHOST_NET_PKT_WEIGHT(vq))) {
+ 			vhost_poll_queue(&vq->poll);
+ 			break;
+ 		}
 -- 
 Ben Hutchings, Software Developer                         Codethink Ltd
 https://www.codethink.co.uk/                 Dale House, 35 Dale Street
