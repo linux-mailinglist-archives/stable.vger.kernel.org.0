@@ -2,86 +2,336 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9186890A0F
-	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 23:11:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1238690AB0
+	for <lists+stable@lfdr.de>; Sat, 17 Aug 2019 00:04:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727784AbfHPVLo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Aug 2019 17:11:44 -0400
-Received: from mail-oi1-f193.google.com ([209.85.167.193]:33835 "EHLO
-        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727748AbfHPVLo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 17:11:44 -0400
-Received: by mail-oi1-f193.google.com with SMTP id l12so5813460oil.1;
-        Fri, 16 Aug 2019 14:11:43 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=0gC4sb2j3RWTm9xjuIK9kqivJqH0u782yHSmQQjFy/g=;
-        b=ZcN4oCeWfbQ8IuIbiJvX+uHyg1YUAnJlV3kFmXAKGTavk+exyLe7ff2VjFiXkDTygM
-         ifb682dWQdfQ1icKhTm6rP2nA8+yruA3hhwkUI1r9EeANqdGB32E8Tl46oSQ+BgdG6lh
-         FN0MhfYbVuM/65A+FVlc2KZclUUt9M2r/XsMFGouGqBpyO1m2bstqJsvz5VuWOh9qt+i
-         HnhcBiB9nQGEQ8qFWOIoSfFxfsLrMGS2Z4+bjkz3NIFTpjnSzbPM8TVgXs4fYEhcBMrs
-         sZKepC884dLnmUSSbvGTLcxU33HfYcbVNJOuvgS5ojY2wJrJqQqaJzJAl/IC8K9kXo+w
-         Pd2g==
-X-Gm-Message-State: APjAAAV/6MYS2rOa4vYc0l337p3Sha7zEzSK+ZcSoa9mJYbeT2/7XP2X
-        5ozNB/uLMnKzxPgDbaYKmA==
-X-Google-Smtp-Source: APXvYqxVNGZP55OO2DAvkxQON330c/WkMGGQCA7UZMyjdZKYVNzMAVMjLidQg+yRLMzc0LHLCzRN0Q==
-X-Received: by 2002:aca:5106:: with SMTP id f6mr6355037oib.69.1565989903418;
-        Fri, 16 Aug 2019 14:11:43 -0700 (PDT)
-Received: from localhost (ip-173-126-47-137.ftwttx.spcsdns.net. [173.126.47.137])
-        by smtp.gmail.com with ESMTPSA id z26sm1648410oih.16.2019.08.16.14.11.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Aug 2019 14:11:42 -0700 (PDT)
-Date:   Fri, 16 Aug 2019 16:11:41 -0500
-From:   Rob Herring <robh@kernel.org>
-To:     Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc:     Kalle Valo <kvalo@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Mark Rutland <mark.rutland@arm.com>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        ath10k@lists.infradead.org, stable@vger.kernel.org
-Subject: Re: [PATCH] ath10k: Fix HOST capability QMI incompatibility
-Message-ID: <20190816211141.GA4468@bogus>
-References: <20190725063108.15790-1-bjorn.andersson@linaro.org>
+        id S1727755AbfHPWEm convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 16 Aug 2019 18:04:42 -0400
+Received: from imap1.codethink.co.uk ([176.9.8.82]:50850 "EHLO
+        imap1.codethink.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727729AbfHPWEm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 18:04:42 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126] helo=xylophone.i.decadent.org.uk)
+        by imap1.codethink.co.uk with esmtpsa (Exim 4.84_2 #1 (Debian))
+        id 1hykKr-0003sU-BY; Fri, 16 Aug 2019 23:04:37 +0100
+Date:   Fri, 16 Aug 2019 23:04:32 +0100
+From:   Ben Hutchings <ben.hutchings@codethink.co.uk>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     stable <stable@vger.kernel.org>
+Subject: [PATCH 4.14 1/4] bpf: get rid of pure_initcall dependency to enable
+ jits
+Message-ID: <20190816220431.GA9843@xylophone.i.decadent.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190725063108.15790-1-bjorn.andersson@linaro.org>
+Content-Transfer-Encoding: 8BIT
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 24, 2019 at 11:31:08PM -0700, Bjorn Andersson wrote:
-> The introduction of 768ec4c012ac ("ath10k: update HOST capability QMI
-> message") served the purpose of supporting the new and extended HOST
-> capability QMI message.
-> 
-> But while the new message adds a slew of optional members it changes the
-> data type of the "daemon_support" member, which means that older
-> versions of the firmware will fail to decode the incoming request
-> message.
-> 
-> There is no way to detect this breakage from Linux and there's no way to
-> recover from sending the wrong message (i.e. we can't just try one
-> format and then fallback to the other), so a quirk is introduced in
-> DeviceTree to indicate to the driver that the firmware requires the 8bit
-> version of this message.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 768ec4c012ac ("ath10k: update HOST capability qmi message")
-> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-> ---
->  .../bindings/net/wireless/qcom,ath10k.txt     |  6 +++++
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-Acked-by: Rob Herring <robh@kernel.org>
+commit fa9dd599b4dae841924b022768354cfde9affecb upstream.
 
->  drivers/net/wireless/ath/ath10k/qmi.c         | 13 ++++++++---
->  .../net/wireless/ath/ath10k/qmi_wlfw_v01.c    | 22 +++++++++++++++++++
->  .../net/wireless/ath/ath10k/qmi_wlfw_v01.h    |  1 +
->  drivers/net/wireless/ath/ath10k/snoc.c        | 11 ++++++++++
->  drivers/net/wireless/ath/ath10k/snoc.h        |  1 +
->  6 files changed, 51 insertions(+), 3 deletions(-)
+Having a pure_initcall() callback just to permanently enable BPF
+JITs under CONFIG_BPF_JIT_ALWAYS_ON is unnecessary and could leave
+a small race window in future where JIT is still disabled on boot.
+Since we know about the setting at compilation time anyway, just
+initialize it properly there. Also consolidate all the individual
+bpf_jit_enable variables into a single one and move them under one
+location. Moreover, don't allow for setting unspecified garbage
+values on them.
+
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+[bwh: Backported to 4.14 as dependency of commit 2e4a30983b0f
+ "bpf: restrict access to core bpf sysctls":
+ - Adjust context]
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+---
+ arch/arm/net/bpf_jit_32.c         |  2 --
+ arch/arm64/net/bpf_jit_comp.c     |  2 --
+ arch/mips/net/bpf_jit.c           |  2 --
+ arch/mips/net/ebpf_jit.c          |  2 --
+ arch/powerpc/net/bpf_jit_comp.c   |  2 --
+ arch/powerpc/net/bpf_jit_comp64.c |  2 --
+ arch/s390/net/bpf_jit_comp.c      |  2 --
+ arch/sparc/net/bpf_jit_comp_32.c  |  2 --
+ arch/sparc/net/bpf_jit_comp_64.c  |  2 --
+ arch/x86/net/bpf_jit_comp.c       |  2 --
+ kernel/bpf/core.c                 | 19 ++++++++++++-------
+ net/core/sysctl_net_core.c        | 18 ++++++++++++------
+ net/socket.c                      |  9 ---------
+ 13 files changed, 24 insertions(+), 42 deletions(-)
+
+diff --git a/arch/arm/net/bpf_jit_32.c b/arch/arm/net/bpf_jit_32.c
+index dafeb5f81353..b18fb70c5dcf 100644
+--- a/arch/arm/net/bpf_jit_32.c
++++ b/arch/arm/net/bpf_jit_32.c
+@@ -25,8 +25,6 @@
+ 
+ #include "bpf_jit_32.h"
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ /*
+  * eBPF prog stack layout:
+  *
+diff --git a/arch/arm64/net/bpf_jit_comp.c b/arch/arm64/net/bpf_jit_comp.c
+index b742171bfef7..1bbb457c293f 100644
+--- a/arch/arm64/net/bpf_jit_comp.c
++++ b/arch/arm64/net/bpf_jit_comp.c
+@@ -31,8 +31,6 @@
+ 
+ #include "bpf_jit.h"
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ #define TMP_REG_1 (MAX_BPF_JIT_REG + 0)
+ #define TMP_REG_2 (MAX_BPF_JIT_REG + 1)
+ #define TCALL_CNT (MAX_BPF_JIT_REG + 2)
+diff --git a/arch/mips/net/bpf_jit.c b/arch/mips/net/bpf_jit.c
+index 44b925005dd3..4d8cb9bb8365 100644
+--- a/arch/mips/net/bpf_jit.c
++++ b/arch/mips/net/bpf_jit.c
+@@ -1207,8 +1207,6 @@ static int build_body(struct jit_ctx *ctx)
+ 	return 0;
+ }
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ void bpf_jit_compile(struct bpf_prog *fp)
+ {
+ 	struct jit_ctx ctx;
+diff --git a/arch/mips/net/ebpf_jit.c b/arch/mips/net/ebpf_jit.c
+index 8004bfcfb033..42faa95ce664 100644
+--- a/arch/mips/net/ebpf_jit.c
++++ b/arch/mips/net/ebpf_jit.c
+@@ -177,8 +177,6 @@ static u32 b_imm(unsigned int tgt, struct jit_ctx *ctx)
+ 		(ctx->idx * 4) - 4;
+ }
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ enum which_ebpf_reg {
+ 	src_reg,
+ 	src_reg_no_fp,
+diff --git a/arch/powerpc/net/bpf_jit_comp.c b/arch/powerpc/net/bpf_jit_comp.c
+index f760494ecd66..a9636d8cba15 100644
+--- a/arch/powerpc/net/bpf_jit_comp.c
++++ b/arch/powerpc/net/bpf_jit_comp.c
+@@ -18,8 +18,6 @@
+ 
+ #include "bpf_jit32.h"
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ static inline void bpf_flush_icache(void *start, void *end)
+ {
+ 	smp_wmb();
+diff --git a/arch/powerpc/net/bpf_jit_comp64.c b/arch/powerpc/net/bpf_jit_comp64.c
+index 70e8216a39f0..28434040cfb6 100644
+--- a/arch/powerpc/net/bpf_jit_comp64.c
++++ b/arch/powerpc/net/bpf_jit_comp64.c
+@@ -21,8 +21,6 @@
+ 
+ #include "bpf_jit64.h"
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ static void bpf_jit_fill_ill_insns(void *area, unsigned int size)
+ {
+ 	memset32(area, BREAKPOINT_INSTRUCTION, size/4);
+diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
+index 6b1474fa99ab..bc9431aace05 100644
+--- a/arch/s390/net/bpf_jit_comp.c
++++ b/arch/s390/net/bpf_jit_comp.c
+@@ -30,8 +30,6 @@
+ #include <asm/set_memory.h>
+ #include "bpf_jit.h"
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ struct bpf_jit {
+ 	u32 seen;		/* Flags to remember seen eBPF instructions */
+ 	u32 seen_reg[16];	/* Array to remember which registers are used */
+diff --git a/arch/sparc/net/bpf_jit_comp_32.c b/arch/sparc/net/bpf_jit_comp_32.c
+index 09e318eb34ee..3bd8ca95e521 100644
+--- a/arch/sparc/net/bpf_jit_comp_32.c
++++ b/arch/sparc/net/bpf_jit_comp_32.c
+@@ -11,8 +11,6 @@
+ 
+ #include "bpf_jit_32.h"
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ static inline bool is_simm13(unsigned int value)
+ {
+ 	return value + 0x1000 < 0x2000;
+diff --git a/arch/sparc/net/bpf_jit_comp_64.c b/arch/sparc/net/bpf_jit_comp_64.c
+index ff5f9cb3039a..adfb4581bd80 100644
+--- a/arch/sparc/net/bpf_jit_comp_64.c
++++ b/arch/sparc/net/bpf_jit_comp_64.c
+@@ -12,8 +12,6 @@
+ 
+ #include "bpf_jit_64.h"
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ static inline bool is_simm13(unsigned int value)
+ {
+ 	return value + 0x1000 < 0x2000;
+diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
+index a9deb2b0397d..cdb386fa7101 100644
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -16,8 +16,6 @@
+ #include <asm/nospec-branch.h>
+ #include <linux/bpf.h>
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ /*
+  * assembly code in arch/x86/net/bpf_jit.S
+  */
+diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
+index e46106c6ac39..661fb837b168 100644
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -290,6 +290,11 @@ struct bpf_prog *bpf_patch_insn_single(struct bpf_prog *prog, u32 off,
+ }
+ 
+ #ifdef CONFIG_BPF_JIT
++/* All BPF JIT sysctl knobs here. */
++int bpf_jit_enable   __read_mostly = IS_BUILTIN(CONFIG_BPF_JIT_ALWAYS_ON);
++int bpf_jit_harden   __read_mostly;
++int bpf_jit_kallsyms __read_mostly;
++
+ static __always_inline void
+ bpf_get_prog_addr_region(const struct bpf_prog *prog,
+ 			 unsigned long *symbol_start,
+@@ -358,8 +363,6 @@ static DEFINE_SPINLOCK(bpf_lock);
+ static LIST_HEAD(bpf_kallsyms);
+ static struct latch_tree_root bpf_tree __cacheline_aligned;
+ 
+-int bpf_jit_kallsyms __read_mostly;
+-
+ static void bpf_prog_ksym_node_add(struct bpf_prog_aux *aux)
+ {
+ 	WARN_ON_ONCE(!list_empty(&aux->ksym_lnode));
+@@ -540,8 +543,6 @@ void __weak bpf_jit_free(struct bpf_prog *fp)
+ 	bpf_prog_unlock_free(fp);
+ }
+ 
+-int bpf_jit_harden __read_mostly;
+-
+ static int bpf_jit_blind_insn(const struct bpf_insn *from,
+ 			      const struct bpf_insn *aux,
+ 			      struct bpf_insn *to_buff)
+@@ -1327,9 +1328,13 @@ EVAL4(PROG_NAME_LIST, 416, 448, 480, 512)
+ };
+ 
+ #else
+-static unsigned int __bpf_prog_ret0(const void *ctx,
+-				    const struct bpf_insn *insn)
++static unsigned int __bpf_prog_ret0_warn(const void *ctx,
++					 const struct bpf_insn *insn)
+ {
++	/* If this handler ever gets executed, then BPF_JIT_ALWAYS_ON
++	 * is not working properly, so warn about it!
++	 */
++	WARN_ON_ONCE(1);
+ 	return 0;
+ }
+ #endif
+@@ -1386,7 +1391,7 @@ struct bpf_prog *bpf_prog_select_runtime(struct bpf_prog *fp, int *err)
+ 
+ 	fp->bpf_func = interpreters[(round_up(stack_depth, 32) / 32) - 1];
+ #else
+-	fp->bpf_func = __bpf_prog_ret0;
++	fp->bpf_func = __bpf_prog_ret0_warn;
+ #endif
+ 
+ 	/* eBPF JITs can rewrite the program in case constant
+diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
+index a47ad6cd41c0..6d39b4c01fc6 100644
+--- a/net/core/sysctl_net_core.c
++++ b/net/core/sysctl_net_core.c
+@@ -25,6 +25,7 @@
+ 
+ static int zero = 0;
+ static int one = 1;
++static int two __maybe_unused = 2;
+ static int min_sndbuf = SOCK_MIN_SNDBUF;
+ static int min_rcvbuf = SOCK_MIN_RCVBUF;
+ static int max_skb_frags = MAX_SKB_FRAGS;
+@@ -325,13 +326,14 @@ static struct ctl_table net_core_table[] = {
+ 		.data		= &bpf_jit_enable,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0644,
+-#ifndef CONFIG_BPF_JIT_ALWAYS_ON
+-		.proc_handler	= proc_dointvec
+-#else
+ 		.proc_handler	= proc_dointvec_minmax,
++# ifdef CONFIG_BPF_JIT_ALWAYS_ON
+ 		.extra1		= &one,
+ 		.extra2		= &one,
+-#endif
++# else
++		.extra1		= &zero,
++		.extra2		= &two,
++# endif
+ 	},
+ # ifdef CONFIG_HAVE_EBPF_JIT
+ 	{
+@@ -339,14 +341,18 @@ static struct ctl_table net_core_table[] = {
+ 		.data		= &bpf_jit_harden,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0600,
+-		.proc_handler	= proc_dointvec,
++		.proc_handler	= proc_dointvec_minmax,
++		.extra1		= &zero,
++		.extra2		= &two,
+ 	},
+ 	{
+ 		.procname	= "bpf_jit_kallsyms",
+ 		.data		= &bpf_jit_kallsyms,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0600,
+-		.proc_handler	= proc_dointvec,
++		.proc_handler	= proc_dointvec_minmax,
++		.extra1		= &zero,
++		.extra2		= &one,
+ 	},
+ # endif
+ #endif
+diff --git a/net/socket.c b/net/socket.c
+index 6d8f0c248c7e..aab65277314d 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -2656,15 +2656,6 @@ static int __init sock_init(void)
+ 
+ core_initcall(sock_init);	/* early initcall */
+ 
+-static int __init jit_init(void)
+-{
+-#ifdef CONFIG_BPF_JIT_ALWAYS_ON
+-	bpf_jit_enable = 1;
+-#endif
+-	return 0;
+-}
+-pure_initcall(jit_init);
+-
+ #ifdef CONFIG_PROC_FS
+ void socket_seq_show(struct seq_file *seq)
+ {
+-- 
+Ben Hutchings, Software Developer                         Codethink Ltd
+https://www.codethink.co.uk/                 Dale House, 35 Dale Street
+                                     Manchester, M1 2HF, United Kingdom
+
+
