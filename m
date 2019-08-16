@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FD3B9007D
-	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 13:07:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C87E7900DE
+	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 13:40:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727007AbfHPLHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Aug 2019 07:07:34 -0400
-Received: from mailgw01.mediatek.com ([210.61.82.183]:54949 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726981AbfHPLHd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 07:07:33 -0400
-X-UUID: cf5bdfeeef0740ae9f88681e3a043878-20190816
-X-UUID: cf5bdfeeef0740ae9f88681e3a043878-20190816
-Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw01.mediatek.com
+        id S1727104AbfHPLkE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Aug 2019 07:40:04 -0400
+Received: from mailgw02.mediatek.com ([210.61.82.184]:26870 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727092AbfHPLkE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 07:40:04 -0400
+X-UUID: b709888c418d4f8bb821e76797451b26-20190816
+X-UUID: b709888c418d4f8bb821e76797451b26-20190816
+Received: from mtkcas07.mediatek.inc [(172.21.101.84)] by mailgw02.mediatek.com
         (envelope-from <miles.chen@mediatek.com>)
         (Cellopoint E-mail Firewall v4.1.10 Build 0707 with TLS)
-        with ESMTP id 580370851; Fri, 16 Aug 2019 19:07:24 +0800
-Received: from mtkcas07.mediatek.inc (172.21.101.84) by
- mtkmbs01n2.mediatek.inc (172.21.101.79) with Microsoft SMTP Server (TLS) id
- 15.0.1395.4; Fri, 16 Aug 2019 19:07:23 +0800
-Received: from [172.21.77.33] (172.21.77.33) by mtkcas07.mediatek.inc
+        with ESMTP id 2083291519; Fri, 16 Aug 2019 19:39:54 +0800
+Received: from MTKCAS06.mediatek.inc (172.21.101.30) by mtkexhb02.mediatek.inc
+ (172.21.101.103) with Microsoft SMTP Server (TLS) id 15.0.1395.4; Fri, 16 Aug
+ 2019 19:39:56 +0800
+Received: from [172.21.77.33] (172.21.77.33) by MTKCAS06.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
- Transport; Fri, 16 Aug 2019 19:07:23 +0800
-Message-ID: <1565953640.26404.4.camel@mtkswgap22>
+ Transport; Fri, 16 Aug 2019 19:39:57 +0800
+Message-ID: <1565955594.26404.6.camel@mtkswgap22>
 Subject: Re: FAILED: patch "[PATCH] mm/memcontrol.c: fix use after free in
- mem_cgroup_iter()" failed to apply to 4.14-stable tree
+ mem_cgroup_iter()" failed to apply to 4.4-stable tree
 From:   Miles Chen <miles.chen@mediatek.com>
 To:     <gregkh@linuxfoundation.org>
 CC:     <akpm@linux-foundation.org>, <cai@lca.pw>, <hannes@cmpxchg.org>,
         <mhocko@suse.com>, <stable@vger.kernel.org>,
         <torvalds@linux-foundation.org>, <vdavydov.dev@gmail.com>
-Date:   Fri, 16 Aug 2019 19:07:20 +0800
-In-Reply-To: <156594986715496@kroah.com>
-References: <156594986715496@kroah.com>
+Date:   Fri, 16 Aug 2019 19:39:54 +0800
+In-Reply-To: <1565949870255118@kroah.com>
+References: <1565949870255118@kroah.com>
 Content-Type: text/plain; charset="UTF-8"
 X-Mailer: Evolution 3.2.3-0ubuntu6 
 Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-X-TM-SNTS-SMTP: 52C8F5553285462FCBFC2C7CA59913A6BA0F09EA9376AC84F5481648BDF941902000:8
 X-MTK:  N
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -46,7 +45,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 On Fri, 2019-08-16 at 12:04 +0200, gregkh@linuxfoundation.org wrote:
-> The patch below does not apply to the 4.14-stable tree.
+> The patch below does not apply to the 4.4-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
@@ -57,19 +56,18 @@ On Fri, 2019-08-16 at 12:04 +0200, gregkh@linuxfoundation.org wrote:
 > 
 Hi Greg,
 
-Below this the backport for 4.14
+Below is the backport for 4.4
 
 cheers,
 Miles
 
-From e4d7e8ef4d279216930bd7f651e97db64c928b23 Mon Sep 17 00:00:00 2001
+From 492948a33742705cd4d53f229d2bb512ace5301b Mon Sep 17 00:00:00 2001
 From: Miles Chen <miles.chen@mediatek.com>
-Date: Fri, 16 Aug 2019 18:31:58 +0800
+Date: Fri, 16 Aug 2019 19:32:03 +0800
 Subject: [PATCH] BACKPORT: mm/memcontrol.c: fix use after free in
  mem_cgroup_iter()
 
 original commit id: 54a83d6bcbf8f4700013766b974bf9190d40b689
-(this is 
 
 This patch is sent to report an use after free in mem_cgroup_iter()
 after
@@ -257,14 +255,14 @@ Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
 ---
- mm/memcontrol.c | 39 +++++++++++++++++++++++++++++----------
- 1 file changed, 29 insertions(+), 10 deletions(-)
+ mm/memcontrol.c | 41 ++++++++++++++++++++++++++++++-----------
+ 1 file changed, 30 insertions(+), 11 deletions(-)
 
 diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-index 661f046ad318..6bbe556b2155 100644
+index fc10620967c7..c23adc7233af 100644
 --- a/mm/memcontrol.c
 +++ b/mm/memcontrol.c
-@@ -871,26 +871,45 @@ void mem_cgroup_iter_break(struct mem_cgroup
+@@ -1001,28 +1001,47 @@ void mem_cgroup_iter_break(struct mem_cgroup
 *root,
  		css_put(&prev->css);
  }
@@ -275,24 +273,27 @@ index 661f046ad318..6bbe556b2155 100644
  {
 -	struct mem_cgroup *memcg = dead_memcg;
  	struct mem_cgroup_reclaim_iter *iter;
- 	struct mem_cgroup_per_node *mz;
- 	int nid;
+ 	struct mem_cgroup_per_zone *mz;
+ 	int nid, zid;
  	int i;
  
 -	while ((memcg = parent_mem_cgroup(memcg))) {
 -		for_each_node(nid) {
--			mz = mem_cgroup_nodeinfo(memcg, nid);
--			for (i = 0; i <= DEF_PRIORITY; i++) {
--				iter = &mz->iter[i];
--				cmpxchg(&iter->position,
--					dead_memcg, NULL);
--			}
+-			for (zid = 0; zid < MAX_NR_ZONES; zid++) {
+-				mz = &memcg->nodeinfo[nid]->zoneinfo[zid];
+-				for (i = 0; i <= DEF_PRIORITY; i++) {
+-					iter = &mz->iter[i];
+-					cmpxchg(&iter->position,
+-						dead_memcg, NULL);
+-				}
 +	for_each_node(nid) {
-+		mz = mem_cgroup_nodeinfo(from, nid);
-+		for (i = 0; i <= DEF_PRIORITY; i++) {
-+			iter = &mz->iter[i];
-+			cmpxchg(&iter->position,
-+				dead_memcg, NULL);
++		for (zid = 0; zid < MAX_NR_ZONES; zid++) {
++			mz = &from->nodeinfo[nid]->zoneinfo[zid];
++			for (i = 0; i <= DEF_PRIORITY; i++) {
++				iter = &mz->iter[i];
++				cmpxchg(&iter->position,
++					dead_memcg, NULL);
+ 			}
  		}
  	}
  }
