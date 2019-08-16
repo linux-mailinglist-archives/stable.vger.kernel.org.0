@@ -2,66 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E8908FBB8
-	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 09:09:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ACE48FBD7
+	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 09:12:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726852AbfHPHJv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Aug 2019 03:09:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36424 "EHLO mail.kernel.org"
+        id S1727122AbfHPHMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Aug 2019 03:12:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726425AbfHPHJv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Aug 2019 03:09:51 -0400
+        id S1726425AbfHPHMg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Aug 2019 03:12:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A17D62077C;
-        Fri, 16 Aug 2019 07:09:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DACC52133F;
+        Fri, 16 Aug 2019 07:12:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565939391;
-        bh=Om/sSpg0RakxstiH26UedftlQSd8XlHEajLqjBLn0hc=;
+        s=default; t=1565939556;
+        bh=hm54zHKSCIASDf9hCE6eR27gl//Kfc0OjNQywYmSlpc=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=NhVlSvTCAq/dBXi4tMdsqmZAFsaSYfK8S5EZ0NXM7nbL3l7JwbtPf2W1BQI2dRe6y
-         eKZUlLdmnDvOmrA463eRL9Fcbov5nlTFaCPgI+M3UikHXLh367wKGJn3dfykg2mKDH
-         yMKef50iFpjke7tZkODhRMI1BX5fyzlIK6nDp+IM=
-Date:   Fri, 16 Aug 2019 09:09:48 +0200
+        b=2lRvFbonDZVYz4dPOieZMjgflWbc0txk/HSOXP81HhMZTsHxdV3cJvEJQ/4zRjvdC
+         v+jjzhjRzdCXoQk9JYwiW4uA14q5zVP23O2Mo7S5MfeYGoi0icmPGrfK3sN/R2ZxSU
+         nEj+2x1j1MHrjm1uRdcWmQA7s4hlRSAI3o7PdeIk=
+Date:   Fri, 16 Aug 2019 09:12:34 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
 To:     Ming Lei <ming.lei@redhat.com>
-Cc:     Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
-        stable@vger.kernel.org, Mark Ray <mark.ray@hpe.com>
-Subject: Re: [PATCH V2] blk-mq: avoid sysfs buffer overflow by too many CPU
- cores
-Message-ID: <20190816070948.GD1368@kroah.com>
-References: <20190816025417.28964-1-ming.lei@redhat.com>
+Cc:     "Ray, Mark C (Global Solutions Engineering (GSE))" <mark.ray@hpe.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] blk-mq: avoid sysfs buffer overflow by too many CPU cores
+Message-ID: <20190816071234.GE1368@kroah.com>
+References: <20190815121518.16675-1-ming.lei@redhat.com>
+ <20190815122419.GA31891@kroah.com>
+ <20190815122909.GA28032@ming.t460p>
+ <20190815123535.GA29217@kroah.com>
+ <20190815124321.GB28032@ming.t460p>
+ <AT5PR8401MB05784C37BAF2939B776103FC99AC0@AT5PR8401MB0578.NAMPRD84.PROD.OUTLOOK.COM>
+ <20190816024934.GA27844@ming.t460p>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190816025417.28964-1-ming.lei@redhat.com>
+In-Reply-To: <20190816024934.GA27844@ming.t460p>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 16, 2019 at 10:54:17AM +0800, Ming Lei wrote:
-> It is reported that sysfs buffer overflow can be triggered in case
-> of too many CPU cores(>841 on 4K PAGE_SIZE) when showing CPUs in
-> blk_mq_hw_sysfs_cpus_show().
+On Fri, Aug 16, 2019 at 10:49:35AM +0800, Ming Lei wrote:
+> On Thu, Aug 15, 2019 at 11:10:35PM +0000, Ray, Mark C (Global Solutions Engineering (GSE)) wrote:
+> > Hi Ming,
+> > 
+> > In the customer case, the cpu_list file was not needed.   It was just part of a SAP Hana script to collect all the block device data (similar to sosreport).    So they were just dumping everything, and it picks up the mq-related files.  
+> > 
+> > I know with IRQs, we have bitmaps/mask, and can represent the list such as "0-27", without listing every CPU.   I'm sure there's lots of options to address this, and getting rid of the cpu_list is one of them.
 > 
-> So use cpumap_print_to_pagebuf() to print the info and fix the potential
-> buffer overflow issue.
-> 
-> Cc: stable@vger.kernel.org
-> Cc: Mark Ray <mark.ray@hpe.com>
-> Cc: Greg KH <gregkh@linuxfoundation.org>
-> Fixes: 676141e48af7("blk-mq: don't dump CPU -> hw queue map on driver load")
-> Signed-off-by: Ming Lei <ming.lei@redhat.com>
-> ---
->  block/blk-mq-sysfs.c | 15 +--------------
->  1 file changed, 1 insertion(+), 14 deletions(-)
+> Indeed, same with several attributes under /sys/devices/system/cpu/,
+> actually we can use cpumap_print_to_pagebuf() to print the CPUs.
 
-No list of what changed from v1 under here?
-
-Anyway, no, just delete the attribute please.
+And that is changing the format of the file, which means it is obvious
+no one is using it, so just please delete the thing.
 
 thanks,
 
