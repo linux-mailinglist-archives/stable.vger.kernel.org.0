@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F0B68FCDF
-	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 09:59:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12CC38FCE1
+	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 09:59:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726682AbfHPH7B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Aug 2019 03:59:01 -0400
-Received: from mail.heine.tech ([195.201.24.99]:37344 "EHLO mail.heine.tech"
+        id S1726684AbfHPH7C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Aug 2019 03:59:02 -0400
+Received: from mail.heine.tech ([195.201.24.99]:37346 "EHLO mail.heine.tech"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726637AbfHPH7B (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726678AbfHPH7B (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 16 Aug 2019 03:59:01 -0400
-X-Greylist: delayed 1272 seconds by postgrey-1.27 at vger.kernel.org; Fri, 16 Aug 2019 03:59:00 EDT
 Received: from localhost (localhost [127.0.0.1]) (Authenticated sender: michael@nosthoff.rocks)
-        by mail.heine.tech (Postcow) with ESMTPSA id 624EA1814A1;
-        Fri, 16 Aug 2019 09:37:47 +0200 (CEST)
+        by mail.heine.tech (Postcow) with ESMTPSA id 9B0541814A5;
+        Fri, 16 Aug 2019 09:58:59 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=heine.so; s=dkim;
-        t=1565941067;
+        t=1565942339;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding;
-        bh=LoEZ6U0CLaUCuEgq+DdJEavhnFNLMhxnereXFUUd7+w=;
-        b=ADHJBtUvJpCVa2gkdsCEqh2PXmwgnxP6s3ZS48eyGUo0fVHKJOD+X3RwtgwVUKmrQQMfeS
-        svonZ+ZteWHG3bDBeAWLbLaWxRibglt/JTQlFVV/RefWPkezSVYf7wXUkdLj3R4+AlmdAN
-        zfuwIHZ0iF8/SawqEmc9oHO/kT/ikIg=
+        bh=GkQ4o+vnZ8bfYSlgoMHLP37yPkIuBnAX45qO7WjdZqU=;
+        b=aFZ4wiSZUPYEU/2ifm6MIxYKR1BCt+ckvNQfFnxemkkajVf+YfTr3e7Y/wu86QnxjHPuNj
+        AVLEsDYz5PBwJnuwTDm0dTPqVvdmKMaVkZJlvEhlI1vlrk74TzsTd32i4jxOot23ugP+CC
+        IMPzeiXPFYsw4HpCV8AkjGpq0mJPaGE=
 From:   Michael Nosthoff <committed@heine.so>
 To:     linux-pm@vger.kernel.org
 Cc:     Michael Nosthoff <committed@heine.so>,
         Brian Norris <briannorris@chromium.org>, stable@vger.kernel.org
-Subject: [PATCH v2] power: supply: sbs-battery: use correct flags field
-Date:   Fri, 16 Aug 2019 09:37:42 +0200
-Message-Id: <20190816073742.26866-1-committed@heine.so>
+Subject: [PATCH] power: supply: sbs-battery: only return health when battery present
+Date:   Fri, 16 Aug 2019 09:58:42 +0200
+Message-Id: <20190816075842.27333-1-committed@heine.so>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -38,39 +37,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-the type flag is stored in the chip->flags field not in the
-client->flags field. This currently leads to never using the ti
-specific health function as client->flags doesn't use that bit.
-So it's always falling back to the general one.
+when the battery is set to sbs-mode and  no gpio detection is enabled
+"health" is always returning a value even when the battery is not present.
+All other fields return "not present".
+This leads to a scenario where the driver is constantly switching between
+"present" and "not present" state. This generates a lot of constant
+traffic on the i2c.
+
+This commit changes the response of "health" to an error when the battery
+is not responding leading to a consistent "not present" state.
 
 Fixes: 76b16f4cdfb8 ("power: supply: sbs-battery: don't assume
 MANUFACTURER_DATA formats")
 
 Signed-off-by: Michael Nosthoff <committed@heine.so>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
+Cc: Brian Norris <briannorris@chromium.org>
 Cc: <stable@vger.kernel.org>
 ---
-Changes since v1:
-* Changed comment according to Brian's suggestions
-* Added Fixes tag
-* Added reviewed and cc stable
-
- drivers/power/supply/sbs-battery.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/power/supply/sbs-battery.c | 25 ++++++++++++++++---------
+ 1 file changed, 16 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/power/supply/sbs-battery.c b/drivers/power/supply/sbs-battery.c
-index 048d205d7074..2e86cc1e0e35 100644
+index 2e86cc1e0e35..f8d74e9f7931 100644
 --- a/drivers/power/supply/sbs-battery.c
 +++ b/drivers/power/supply/sbs-battery.c
-@@ -620,7 +620,7 @@ static int sbs_get_property(struct power_supply *psy,
- 	switch (psp) {
- 	case POWER_SUPPLY_PROP_PRESENT:
- 	case POWER_SUPPLY_PROP_HEALTH:
--		if (client->flags & SBS_FLAGS_TI_BQ20Z75)
-+		if (chip->flags & SBS_FLAGS_TI_BQ20Z75)
- 			ret = sbs_get_ti_battery_presence_and_health(client,
- 								     psp, val);
+@@ -314,17 +314,22 @@ static int sbs_get_battery_presence_and_health(
+ {
+ 	int ret;
+ 
+-	if (psp == POWER_SUPPLY_PROP_PRESENT) {
+-		/* Dummy command; if it succeeds, battery is present. */
+-		ret = sbs_read_word_data(client, sbs_data[REG_STATUS].addr);
+-		if (ret < 0)
+-			val->intval = 0; /* battery disconnected */
+-		else
+-			val->intval = 1; /* battery present */
+-	} else { /* POWER_SUPPLY_PROP_HEALTH */
++	/* Dummy command; if it succeeds, battery is present. */
++	ret = sbs_read_word_data(client, sbs_data[REG_STATUS].addr);
++
++	if (ret < 0) { /* battery not present*/
++		if (psp == POWER_SUPPLY_PROP_PRESENT) {
++			val->intval = 0;
++			return 0;
++		}
++		return ret;
++	}
++
++	if (psp == POWER_SUPPLY_PROP_PRESENT)
++		val->intval = 1; /* battery present */
++	else /* POWER_SUPPLY_PROP_HEALTH */
+ 		/* SBS spec doesn't have a general health command. */
+ 		val->intval = POWER_SUPPLY_HEALTH_UNKNOWN;
+-	}
+ 
+ 	return 0;
+ }
+@@ -626,6 +631,8 @@ static int sbs_get_property(struct power_supply *psy,
  		else
+ 			ret = sbs_get_battery_presence_and_health(client, psp,
+ 								  val);
++
++		/* this can only be true if no gpio is used */
+ 		if (psp == POWER_SUPPLY_PROP_PRESENT)
+ 			return 0;
+ 		break;
 -- 
 2.20.1
 
