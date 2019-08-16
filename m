@@ -2,88 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E1BD990803
-	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 21:01:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD12090840
+	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 21:38:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727466AbfHPTBD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Aug 2019 15:01:03 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:40207 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727067AbfHPTBC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 15:01:02 -0400
-Received: by mail-pf1-f195.google.com with SMTP id w16so3564381pfn.7;
-        Fri, 16 Aug 2019 12:01:02 -0700 (PDT)
+        id S1727585AbfHPTiH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Aug 2019 15:38:07 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:46185 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727572AbfHPTiH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 15:38:07 -0400
+Received: by mail-wr1-f68.google.com with SMTP id z1so2548061wru.13
+        for <stable@vger.kernel.org>; Fri, 16 Aug 2019 12:38:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=ITQoihrqDF1S08U7GMyYDnl7GPbMNGI14Dk5cFsRq68=;
-        b=eXAIKwG5SMxJqKuvyODp+0u8MLoSXqouFCunlZzl4d4MHTMqC5eXRPlTleRrc1s/KV
-         cTM3rlAOaCl/D5G1DKG/nvkGDwQ4xmgLe3Tl/4NVmBSSqzochTH5NeNfdR78bLBKKpbp
-         YwF+IYYmh+NhWWmc+TD7EzcKOwBje15UIK9BMYzZ3Pc+Ef6Ii2DGdDphVmAq95qrulLn
-         DBmk/+6RTWFhsK9HzaFVicRdmuwJ/IBqTY+HR48yYeNou+1uoLFvg8BZPEPhlLFBmjuq
-         LWNpdbpI88wAgTG6cgZ2e5JiFpBORVgnRoGuQGUS7FrQ62X4dlutUM8LxYUkeT0yn3qy
-         aJzQ==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=lw26MzifeBS+EqPVJYGj/JQJtKX2FPAaIxw5E4kFPYU=;
+        b=lBiGrr8zm6gJHJR1I/RtOKMqht2l7FWXzstFLgk3rLhx5W2oJXHooBXaOINmb6XQF0
+         gNQf5hgJ3T6BFsT9uVcJLk7rZKGpoicLkhjExCR2RMZtefOXYeV/R2gZbTkxxHAHmFh+
+         OaKfljx+lgwsB98XcRNbK72vWVra9PQIX4h9xOqCfe3LvZHKMRnKXF4tRN+Y3bSkh08O
+         cHcMqTJftvpmKfxRcOEAxww9mmuJS5nWPLQInEBqhFJRhZ5KYNuCKUN1GZ1K1CSJ2D8S
+         fsowYFp07/nCIcUvNdmJ/47nscrJlVn2cgXtdN8xdryojReXwhfwwDDVNypQ4kvEyrt+
+         lzdA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=ITQoihrqDF1S08U7GMyYDnl7GPbMNGI14Dk5cFsRq68=;
-        b=O0iEmTW9Cg7jXhuXliP+35qgaEODPofiwN5WinAZm50648vs4dH36zdCViEwzCa47M
-         cCH4brAQvQWpLAaL+lWAAfmbbi+enVIJTYzkmqAEFiEehu5mEMJxp4yGn5l90amg/nWa
-         FrgfIa1OFAyc6uPBYL1CgTX2HoFsziCY5LATjTuCO/DfA8LfLgIAN/tyMeB8jGRx72PS
-         YdO/4o53rqdUS3UIngZAEMzFG16zQ+owmU9AA407Eek9SUk70d2xK4sNI1Ij8+dQvuLW
-         Aua2XXL87Y7aO69LQNuUGSYF8DFAyP2iTyfvNCg1IS+orZwqw9ozlmwATPOj10OY970n
-         XxeA==
-X-Gm-Message-State: APjAAAWbABICOswoVlUfJv8iM66g5ZLzxs6w0IsLVJGi8P7t1BtZdH7Y
-        7vW2xH/YpDuNRkOJuHlDYXrJk0Az
-X-Google-Smtp-Source: APXvYqwNJ/AgoLJQSxTWNBDU7xQALURvsduKVHz5vIsas2CpTwmbiGQCmbf+pvAitgd1i8gT/UsPMQ==
-X-Received: by 2002:a65:5a44:: with SMTP id z4mr9088279pgs.41.1565982061461;
-        Fri, 16 Aug 2019 12:01:01 -0700 (PDT)
-Received: from west.Home ([97.115.133.135])
-        by smtp.googlemail.com with ESMTPSA id b126sm6334071pfa.177.2019.08.16.12.01.00
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Fri, 16 Aug 2019 12:01:00 -0700 (PDT)
-From:   Aaron Armstrong Skomra <skomra@gmail.com>
-X-Google-Original-From: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
-To:     linux-input@vger.kernel.org, jikos@kernel.org,
-        benjamin.tissoires@redhat.com, ping.cheng@wacom.com,
-        jason.gerecke@wacom.com
-Cc:     Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
-        "# v4 . 3+" <stable@vger.kernel.org>
-Subject: [PATCH] HID: wacom: correct misreported EKR ring values
-Date:   Fri, 16 Aug 2019 12:00:54 -0700
-Message-Id: <1565982054-29236-1-git-send-email-aaron.skomra@wacom.com>
-X-Mailer: git-send-email 2.7.4
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=lw26MzifeBS+EqPVJYGj/JQJtKX2FPAaIxw5E4kFPYU=;
+        b=bOVcf6ioYO7KsP02FV++EnfruWEyax/bQOLyQpY50SkuGdewre3PrBScB7B1CLwg4d
+         AlE/DBUkUvE5eDfMNRWj6O4pkfomq4vRTXngARkeRQX/WBmHyqgHti2QFEb+85yrdt3n
+         K84FtmA16QcKSXzyGz2P5JS4BydlFpRMj5+Y9RP7wr+ClYgVy+Vk7IRO/6Sjx/HIe0SP
+         doRPtnhJ4+WUxJSHM9ZmSl/GQn8gFKkdhos5+0k7l9azQFTvwbwpmHbxEKGEcf0zxOqe
+         FhgHHyunZzF7j4hFZh5wQcpo3ur+BXQBeVMArCV3SlVWk4zEU09qfkJRZrxURwNxHUJB
+         Uu+A==
+X-Gm-Message-State: APjAAAVQEamm0+V/U+Dp/dHgzwW+oW8wm/9pBaQgFMS1WQazTd+8BBGY
+        iab6g4y8l+CmNWLalg6mHdl9eQoigpw=
+X-Google-Smtp-Source: APXvYqzknVuyclflz0d2J73dgJIvTVrD/Oh2a0sPv4kuThxBO4S5tkZ1RM5ctEkUgvb6LHwoaXCSxw==
+X-Received: by 2002:adf:ecc3:: with SMTP id s3mr12942888wro.302.1565984285066;
+        Fri, 16 Aug 2019 12:38:05 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id e4sm10659959wrh.39.2019.08.16.12.38.04
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 16 Aug 2019 12:38:04 -0700 (PDT)
+Message-ID: <5d57061c.1c69fb81.bea40.51c3@mx.google.com>
+Date:   Fri, 16 Aug 2019 12:38:04 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.189-35-ge6790d05646d
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y boot: 99 boots: 3 failed,
+ 88 passed with 7 offline, 1 conflict (v4.4.189-35-ge6790d05646d)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The EKR ring claims a range of 0 to 71 but actually reports
-values 1 to 72. The ring is used in relative mode so this
-change should not affect users.
+stable-rc/linux-4.4.y boot: 99 boots: 3 failed, 88 passed with 7 offline, 1=
+ conflict (v4.4.189-35-ge6790d05646d)
 
-Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
-Fixes: 72b236d60218f ("HID: wacom: Add support for Express Key Remote.")
-Cc: <stable@vger.kernel.org> # v4.3+
-Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
-Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.189-35-ge6790d05646d/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.189-35-ge6790d05646d/
+
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.189-35-ge6790d05646d
+Git Commit: e6790d05646d3c874dba68c3010faca10a21a1d0
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 45 unique boards, 20 SoC families, 14 builds out of 190
+
+Boot Regressions Detected:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
+9 - first fail: v4.4.189-32-g35ba3146be27)
+          qcom-apq8064-ifc6410:
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
+9 - first fail: v4.4.189-32-g35ba3146be27)
+
+Boot Failures Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            qcom-qdf2400: 1 failed lab
+
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            stih410-b2120: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+x86_64:
+    x86_64_defconfig:
+        qemu:
+            lab-baylibre: FAIL (gcc-8)
+            lab-drue: PASS (gcc-8)
+            lab-linaro-lkft: FAIL (gcc-8)
+            lab-mhart: PASS (gcc-8)
+            lab-collabora: PASS (gcc-8)
+
 ---
- drivers/hid/wacom_wac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index abc17f2c8ef0..e314a7564236 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -1098,7 +1098,7 @@ static int wacom_remote_irq(struct wacom_wac *wacom_wac, size_t len)
- 	input_report_key(input, BTN_BASE2, (data[11] & 0x02));
- 
- 	if (data[12] & 0x80)
--		input_report_abs(input, ABS_WHEEL, (data[12] & 0x7f));
-+		input_report_abs(input, ABS_WHEEL, (data[12] & 0x7f) - 1);
- 	else
- 		input_report_abs(input, ABS_WHEEL, 0);
- 
--- 
-2.17.1
-
+For more info write to <info@kernelci.org>
