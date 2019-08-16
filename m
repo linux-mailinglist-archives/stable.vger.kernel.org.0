@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E25C090078
-	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 13:06:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FD3B9007D
+	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 13:07:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727018AbfHPLGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Aug 2019 07:06:35 -0400
-Received: from mailgw01.mediatek.com ([210.61.82.183]:61533 "EHLO
+        id S1727007AbfHPLHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Aug 2019 07:07:34 -0400
+Received: from mailgw01.mediatek.com ([210.61.82.183]:54949 "EHLO
         mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726981AbfHPLGe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 07:06:34 -0400
-X-UUID: cd793b558f0942f691fd8eb225d0e317-20190816
-X-UUID: cd793b558f0942f691fd8eb225d0e317-20190816
-Received: from mtkmrs01.mediatek.inc [(172.21.131.159)] by mailgw01.mediatek.com
+        with ESMTP id S1726981AbfHPLHd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Aug 2019 07:07:33 -0400
+X-UUID: cf5bdfeeef0740ae9f88681e3a043878-20190816
+X-UUID: cf5bdfeeef0740ae9f88681e3a043878-20190816
+Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw01.mediatek.com
         (envelope-from <miles.chen@mediatek.com>)
         (Cellopoint E-mail Firewall v4.1.10 Build 0707 with TLS)
-        with ESMTP id 52482549; Fri, 16 Aug 2019 19:06:25 +0800
+        with ESMTP id 580370851; Fri, 16 Aug 2019 19:07:24 +0800
 Received: from mtkcas07.mediatek.inc (172.21.101.84) by
  mtkmbs01n2.mediatek.inc (172.21.101.79) with Microsoft SMTP Server (TLS) id
- 15.0.1395.4; Fri, 16 Aug 2019 19:06:29 +0800
+ 15.0.1395.4; Fri, 16 Aug 2019 19:07:23 +0800
 Received: from [172.21.77.33] (172.21.77.33) by mtkcas07.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
- Transport; Fri, 16 Aug 2019 19:06:29 +0800
-Message-ID: <1565953586.26404.3.camel@mtkswgap22>
+ Transport; Fri, 16 Aug 2019 19:07:23 +0800
+Message-ID: <1565953640.26404.4.camel@mtkswgap22>
 Subject: Re: FAILED: patch "[PATCH] mm/memcontrol.c: fix use after free in
- mem_cgroup_iter()" failed to apply to 4.9-stable tree
+ mem_cgroup_iter()" failed to apply to 4.14-stable tree
 From:   Miles Chen <miles.chen@mediatek.com>
 To:     <gregkh@linuxfoundation.org>
 CC:     <akpm@linux-foundation.org>, <cai@lca.pw>, <hannes@cmpxchg.org>,
         <mhocko@suse.com>, <stable@vger.kernel.org>,
         <torvalds@linux-foundation.org>, <vdavydov.dev@gmail.com>
-Date:   Fri, 16 Aug 2019 19:06:26 +0800
-In-Reply-To: <156594986424362@kroah.com>
-References: <156594986424362@kroah.com>
+Date:   Fri, 16 Aug 2019 19:07:20 +0800
+In-Reply-To: <156594986715496@kroah.com>
+References: <156594986715496@kroah.com>
 Content-Type: text/plain; charset="UTF-8"
 X-Mailer: Evolution 3.2.3-0ubuntu6 
 Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-X-TM-SNTS-SMTP: AA29D158DC8AE9E3A25CD8DA13CF6DF96282DB20484D8A7870887E8394AC4B942000:8
+X-TM-SNTS-SMTP: 52C8F5553285462FCBFC2C7CA59913A6BA0F09EA9376AC84F5481648BDF941902000:8
 X-MTK:  N
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -46,7 +46,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 On Fri, 2019-08-16 at 12:04 +0200, gregkh@linuxfoundation.org wrote:
-> The patch below does not apply to the 4.9-stable tree.
+> The patch below does not apply to the 4.14-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
@@ -55,10 +55,9 @@ On Fri, 2019-08-16 at 12:04 +0200, gregkh@linuxfoundation.org wrote:
 > 
 > greg k-h
 > 
-
 Hi Greg,
 
-Below this the backport for 4.9
+Below this the backport for 4.14
 
 cheers,
 Miles
