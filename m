@@ -2,82 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 245958F941
-	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 04:54:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1976A8F971
+	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 05:30:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726566AbfHPCy2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Aug 2019 22:54:28 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:40022 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726556AbfHPCy2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Aug 2019 22:54:28 -0400
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 01B603082DDD;
-        Fri, 16 Aug 2019 02:54:28 +0000 (UTC)
-Received: from localhost (ovpn-8-25.pek2.redhat.com [10.72.8.25])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 121031719E;
-        Fri, 16 Aug 2019 02:54:24 +0000 (UTC)
-From:   Ming Lei <ming.lei@redhat.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     linux-block@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        stable@vger.kernel.org, Mark Ray <mark.ray@hpe.com>,
-        Greg KH <gregkh@linuxfoundation.org>
-Subject: [PATCH V2] blk-mq: avoid sysfs buffer overflow by too many CPU cores
-Date:   Fri, 16 Aug 2019 10:54:17 +0800
-Message-Id: <20190816025417.28964-1-ming.lei@redhat.com>
+        id S1726506AbfHPDaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Aug 2019 23:30:15 -0400
+Received: from szxga06-in.huawei.com ([45.249.212.32]:46698 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726465AbfHPDaP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Aug 2019 23:30:15 -0400
+Received: from DGGEMS409-HUB.china.huawei.com (unknown [172.30.72.59])
+        by Forcepoint Email with ESMTP id A2D90E5A7ACA03E00971;
+        Fri, 16 Aug 2019 11:30:09 +0800 (CST)
+Received: from [127.0.0.1] (10.57.101.250) by DGGEMS409-HUB.china.huawei.com
+ (10.3.19.209) with Microsoft SMTP Server id 14.3.439.0; Fri, 16 Aug 2019
+ 11:29:59 +0800
+From:   Wei Xu <xuwei5@hisilicon.com>
+Subject: [GIT PULL] Hisilicon fixes for v5.3
+To:     <soc@kernel.org>, "arm@kernel.org" <arm@kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        Olof Johansson <olof@lixom.net>,
+        "Arnd Bergmann" <arnd@arndb.de>
+CC:     "xuwei (O)" <xuwei5@huawei.com>, Linuxarm <linuxarm@huawei.com>,
+        "John Garry" <john.garry@huawei.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        <linux-pci@vger.kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+        Zhangyi ac <zhangyi.ac@huawei.com>,
+        "Liguozhu (Kenneth)" <liguozhu@hisilicon.com>,
+        <jinying@hisilicon.com>, huangdaode <huangdaode@hisilicon.com>,
+        Tangkunshan <tangkunshan@huawei.com>,
+        Jonathan Cameron <jonathan.cameron@huawei.com>,
+        Shameerali Kolothum Thodi 
+        <shameerali.kolothum.thodi@huawei.com>,
+        Salil Mehta <salil.mehta@huawei.com>,
+        Shiju Jose <shiju.jose@huawei.com>, <stable@vger.kernel.org>,
+        <sashal@kernel.org>
+Message-ID: <5D562335.7000902@hisilicon.com>
+Date:   Fri, 16 Aug 2019 11:29:57 +0800
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101
+ Thunderbird/38.2.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.46]); Fri, 16 Aug 2019 02:54:28 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.57.101.250]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It is reported that sysfs buffer overflow can be triggered in case
-of too many CPU cores(>841 on 4K PAGE_SIZE) when showing CPUs in
-blk_mq_hw_sysfs_cpus_show().
+Hi ARM-SoC team,
 
-So use cpumap_print_to_pagebuf() to print the info and fix the potential
-buffer overflow issue.
+Please consider to pull the following fixes.
+Thanks!
 
-Cc: stable@vger.kernel.org
-Cc: Mark Ray <mark.ray@hpe.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Fixes: 676141e48af7("blk-mq: don't dump CPU -> hw queue map on driver load")
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Best Regards,
+Wei
+
 ---
- block/blk-mq-sysfs.c | 15 +--------------
- 1 file changed, 1 insertion(+), 14 deletions(-)
 
-diff --git a/block/blk-mq-sysfs.c b/block/blk-mq-sysfs.c
-index d6e1a9bd7131..4d0d32377ba3 100644
---- a/block/blk-mq-sysfs.c
-+++ b/block/blk-mq-sysfs.c
-@@ -166,20 +166,7 @@ static ssize_t blk_mq_hw_sysfs_nr_reserved_tags_show(struct blk_mq_hw_ctx *hctx,
- 
- static ssize_t blk_mq_hw_sysfs_cpus_show(struct blk_mq_hw_ctx *hctx, char *page)
- {
--	unsigned int i, first = 1;
--	ssize_t ret = 0;
--
--	for_each_cpu(i, hctx->cpumask) {
--		if (first)
--			ret += sprintf(ret + page, "%u", i);
--		else
--			ret += sprintf(ret + page, ", %u", i);
--
--		first = 0;
--	}
--
--	ret += sprintf(ret + page, "\n");
--	return ret;
-+	return cpumap_print_to_pagebuf(true, page, hctx->cpumask);
- }
- 
- static struct blk_mq_hw_ctx_sysfs_entry blk_mq_hw_sysfs_nr_tags = {
--- 
-2.20.1
+The following changes since commit 5f9e832c137075045d15cd6899ab0505cfb2ca4b:
+
+   Linus 5.3-rc1 (2019-07-21 14:05:38 -0700)
+
+are available in the Git repository at:
+
+   git://github.com/hisilicon/linux-hisi.git tags/hisi-fixes-for-5.3
+
+for you to fetch changes up to 10e62b47973b0b0ceda076255bcb147b83e20517:
+
+   bus: hisi_lpc: Add .remove method to avoid driver unbind crash 
+(2019-08-13 14:54:34 +0800)
+
+----------------------------------------------------------------
+Hisilicon fixes for v5.3-rc
+
+- Fixed RCU usage in logical PIO
+- Added a function to unregister a logical PIO range in logical PIO
+   to support the fixes in the hisi-lpc driver
+- Fixed and optimized hisi-lpc driver to avoid potential use-after-free
+   and driver unbind crash
+
+----------------------------------------------------------------
+John Garry (5):
+       lib: logic_pio: Fix RCU usage
+       lib: logic_pio: Avoid possible overlap for unregistering regions
+       lib: logic_pio: Add logic_pio_unregister_range()
+       bus: hisi_lpc: Unregister logical PIO range to avoid potential 
+use-after-free
+       bus: hisi_lpc: Add .remove method to avoid driver unbind crash
+
+  drivers/bus/hisi_lpc.c    | 47 ++++++++++++++++++++++++++----
+  include/linux/logic_pio.h |  1 +
+  lib/logic_pio.c           | 73 
++++++++++++++++++++++++++++++++++++------------
+  3 files changed, 96 insertions(+), 25 deletions(-)
+
+
 
