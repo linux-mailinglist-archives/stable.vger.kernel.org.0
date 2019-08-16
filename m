@@ -2,139 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 229D38F8AF
-	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 03:59:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D0188F8B8
+	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 04:07:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726295AbfHPB72 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Aug 2019 21:59:28 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:36824 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726183AbfHPB72 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Aug 2019 21:59:28 -0400
-Received: by mail-wr1-f65.google.com with SMTP id r3so60974wrt.3
-        for <stable@vger.kernel.org>; Thu, 15 Aug 2019 18:59:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=b0OErWDbpXMERdfpz1wX5MgFRYV59zBOn8QavVcr+Xc=;
-        b=yiYrMso+f8iDSKbwNpmEr8shDVfmxc7jBA7YMPSUwIoWuUulUjhQncpZsyeH0Dtagd
-         eqwwuYJHpbIRZ9x78w5seTorZ8Aurtf9ihjepyrqQ1j7Qxe29EgLc7XayRvUO/obrc5o
-         n2835twefUnUawur3m7MpUyjKVhLROzlkjKtkRBpN5Zgnn8bVFWbRy7JjLbrAwS7zNKx
-         /fu0mRZ/TaGwRp2HF7QpLF3ipnzVVJY2VBAQq7c+8qJg6hsTUxc6TEjdYGgvxsM1cnQO
-         0mPvxbq9/AskXLaosjkL/7kVzZZrfaYl77EZjtNKG/32MKXMxkEWabM1XhBuzzOMSurt
-         vKlA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=b0OErWDbpXMERdfpz1wX5MgFRYV59zBOn8QavVcr+Xc=;
-        b=RTvkMgK98ShMe1tcakfHQ2jTQjz/YfMtzoeEQKri0lExmpyYA1DzEEE140fmkpmCqx
-         hKPl4tTw5j0RVL6Pgm48HRYcEBF89yYvJRdbHMm59RCcF+i+vzWlPkYrxSWwGYBjL4Zp
-         80noXZDtRC/nhCSptlhxGtIaYxR2tC28MmHDHV2NzdeOSub7dD/Y9cTVHRQMq6ly4qXL
-         aKuTKOmwfPLTVWR5HcI5+6gWqwUInBgKbb4HB3XHwbZ6BvVFcts+XE0Bng2TcpKgEdfq
-         teKRun/eFO/WCRCCWKQZ4vTFcmX19RCNqtE7CeqEngHxnH5i54AxTNTjiPIbJLr/KIDm
-         tDXg==
-X-Gm-Message-State: APjAAAUTPxYtiV0X2swWbvEEZ20sgfMJaouQW7fR1tZnMdKDktVvyvDF
-        a68bgju3QjJ1tZDTAXX6pd0gsFX6oTSklQ==
-X-Google-Smtp-Source: APXvYqwqmRN7V5gah1VuBYD66ZPnCkHvoAh21ZZ6DJNRevBi17nWjIgrNcPobZ7xx36Vy+opeGrZ4g==
-X-Received: by 2002:adf:ea51:: with SMTP id j17mr8452135wrn.184.1565920765715;
-        Thu, 15 Aug 2019 18:59:25 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id g11sm3805179wrq.92.2019.08.15.18.59.25
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 15 Aug 2019 18:59:25 -0700 (PDT)
-Message-ID: <5d560dfd.1c69fb81.b41db.31fb@mx.google.com>
-Date:   Thu, 15 Aug 2019 18:59:25 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726434AbfHPCHk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Aug 2019 22:07:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45508 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726329AbfHPCHk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Aug 2019 22:07:40 -0400
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 569CE2086C;
+        Fri, 16 Aug 2019 02:07:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1565921260;
+        bh=0CunVjwFZIGdiH0/DHG/4c62x4vzVIASF2L5jgmCe5s=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=eM6nAy8tH+i4CHSpX7curmo7X9vyiBoVIQZcBhJXWUDBIyUgEMep5KUhnSINaOjl6
+         DQS79dohMnBZFih49EO4QTcugNjJs/foFZCplyfZQXogBOCvz0W/dNDWZXwhKwNHy/
+         +FctvQEv3Jg3KGSOO+WXCGAvDtE1B7BWq8rSJV1s=
+Subject: Re: [PATCH 5.2 000/144] 5.2.9-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, shuah <shuah@kernel.org>
+References: <20190814165759.466811854@linuxfoundation.org>
+From:   shuah <shuah@kernel.org>
+Message-ID: <da9f4b39-432e-ca33-7603-f02780842e51@kernel.org>
+Date:   Thu, 15 Aug 2019 20:07:38 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.66-92-gabb1bb8b9ba6
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y boot: 133 boots: 1 failed,
- 123 passed with 8 offline, 1 untried/unknown (v4.19.66-92-gabb1bb8b9ba6)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20190814165759.466811854@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 133 boots: 1 failed, 123 passed with 8 offline=
-, 1 untried/unknown (v4.19.66-92-gabb1bb8b9ba6)
+On 8/14/19 10:59 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.2.9 release.
+> There are 144 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri 16 Aug 2019 04:55:34 PM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.9-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.66-92-gabb1bb8b9ba6/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.66-92-gabb1bb8b9ba6/
+Compiled and booted on my test system. No dmesg regressions.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.66-92-gabb1bb8b9ba6
-Git Commit: abb1bb8b9ba6c66716095994039bed6c81200787
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 75 unique boards, 27 SoC families, 17 builds out of 206
-
-Boot Regressions Detected:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.19.6=
-6 - first fail: v4.19.66-92-gf777613d3df0)
-          qcom-apq8064-ifc6410:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.19.6=
-6 - first fail: v4.19.66-92-gf777613d3df0)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          meson-gxbb-nanopi-k2:
-              lab-baylibre: new failure (last pass: v4.19.66-92-gf777613d3d=
-f0)
-          meson-gxl-s805x-p241:
-              lab-baylibre: new failure (last pass: v4.19.66-92-gf777613d3d=
-f0)
-
-Boot Failure Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxbb-nanopi-k2: 1 failed lab
-
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-            meson-gxbb-odroidc2: 1 offline lab
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+thanks,
+-- Shuah
