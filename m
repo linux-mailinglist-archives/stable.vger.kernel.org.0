@@ -2,71 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F05A8F8B9
-	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 04:09:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 499B98F900
+	for <lists+stable@lfdr.de>; Fri, 16 Aug 2019 04:35:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726384AbfHPCJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Aug 2019 22:09:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46666 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726354AbfHPCJH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Aug 2019 22:09:07 -0400
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 075352086C;
-        Fri, 16 Aug 2019 02:09:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1565921346;
-        bh=BCLuIeoxbVoc+Q2IQDL+1MUUNnK0uKgkj7Hb0EpKc5Q=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=P9kUwVgO2QaOhkW85YI+LYmN7WyfqOXB215T45IXSvBKHUrW1ReTPXwhQcsLPzvzY
-         jbyLvojfSZ+8iU6B+NP9jv1jFmIeA7Q8N0zbPew36NoSdLVPXBceYdiTt8QfN+wfH0
-         LtGt3jZs5n81Ufkxr14B+fQQ84vV1x7pGGhKm3+Y=
-Subject: Re: [PATCH 4.19 00/91] 4.19.67-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, shuah <shuah@kernel.org>
-References: <20190814165748.991235624@linuxfoundation.org>
-From:   shuah <shuah@kernel.org>
-Message-ID: <6fba5974-4194-539d-ce09-01783b20cac6@kernel.org>
-Date:   Thu, 15 Aug 2019 20:09:05 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1726364AbfHPCfY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Aug 2019 22:35:24 -0400
+Received: from szxga05-in.huawei.com ([45.249.212.191]:4717 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726252AbfHPCfY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Aug 2019 22:35:24 -0400
+Received: from DGGEMS404-HUB.china.huawei.com (unknown [172.30.72.59])
+        by Forcepoint Email with ESMTP id C0A6014AB6A60EF9B3FD;
+        Fri, 16 Aug 2019 10:35:20 +0800 (CST)
+Received: from [127.0.0.1] (10.57.101.250) by DGGEMS404-HUB.china.huawei.com
+ (10.3.19.204) with Microsoft SMTP Server id 14.3.439.0; Fri, 16 Aug 2019
+ 10:35:12 +0800
+Subject: Re: [PATCH v4 0/5] Fixes for HiSilicon LPC driver and logical PIO
+ code
+To:     John Garry <john.garry@huawei.com>, <xuwei5@huawei.com>
+References: <1564493396-92195-1-git-send-email-john.garry@huawei.com>
+CC:     <bhelgaas@google.com>, <linuxarm@huawei.com>,
+        <linux-kernel@vger.kernel.org>, <arnd@arndb.de>, <olof@lixom.net>,
+        <stable@vger.kernel.org>
+From:   Wei Xu <xuwei5@hisilicon.com>
+Message-ID: <5D561660.1080003@hisilicon.com>
+Date:   Fri, 16 Aug 2019 10:35:12 +0800
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101
+ Thunderbird/38.2.0
 MIME-Version: 1.0
-In-Reply-To: <20190814165748.991235624@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+In-Reply-To: <1564493396-92195-1-git-send-email-john.garry@huawei.com>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.57.101.250]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/14/19 11:00 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.67 release.
-> There are 91 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri 16 Aug 2019 04:55:34 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.67-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+Hi John,
 
-Compiled and booted on my test system. No dmesg regressions.
+On 2019/7/30 21:29, John Garry wrote:
+> As reported in [1], the hisi-lpc driver has certain issues in handling
+> logical PIO regions, specifically unregistering regions.
+>
+> This series add a method to unregister a logical PIO region, and fixes up
+> the driver to use them.
+>
+> RCU usage in logical PIO code looks to always have been broken, so that
+> is fixed also. This is not a major fix as the list which RCU protects
+> would be rarely modified.
+>
+> At this point, there are still separate ongoing discussions about how to
+> stop the logical PIO and PCI host bridge code leaking ranges, as in [2],
+> which I haven't had a chance to look at recently.
+>
+> Hopefully this series can go through the arm soc tree and the maintainers
+> have no issue with that. I'm talking specifically about the logical PIO
+> code, which went through PCI tree on only previous upstreaming.
+>
+>
+> [1] https://lore.kernel.org/lkml/1560770148-57960-1-git-send-email-john.garry@huawei.com/
+> [2] https://lore.kernel.org/lkml/4b24fd36-e716-7c5e-31cc-13da727802e7@huawei.com/
 
-thanks,
--- Shuah
+Thanks!
+Series applied to the hisilicon fixes tree.
+
+Best Regards,
+Wei
+
+> Changes since v3:
+> https://lore.kernel.org/lkml/1561566418-22714-1-git-send-email-john.garry@huawei.com/
+> - drop optimisation patch (lib: logic_pio: Enforce LOGIC_PIO_INDIRECT
+>    region ops are set at registration)
+>    Not a fix
+> - rebase to v5.3-rc2
+> - cc stable
+>
+> Change since v2:
+> - Add hisi_lpc_acpi_remove() stub to fix build for !CONFIG_ACPI
+>
+> Changes since v1:
+> - Add more reasoning in RCU fix patch
+> - Create separate patch to change LOGIC_PIO_CPU_MMIO registration to
+>    accomodate unregistration
+>
+> John Garry (5):
+>    lib: logic_pio: Fix RCU usage
+>    lib: logic_pio: Avoid possible overlap for unregistering regions
+>    lib: logic_pio: Add logic_pio_unregister_range()
+>    bus: hisi_lpc: Unregister logical PIO range to avoid potential
+>      use-after-free
+>    bus: hisi_lpc: Add .remove method to avoid driver unbind crash
+>
+>   drivers/bus/hisi_lpc.c    | 47 +++++++++++++++++++++----
+>   include/linux/logic_pio.h |  1 +
+>   lib/logic_pio.c           | 73 +++++++++++++++++++++++++++++----------
+>   3 files changed, 96 insertions(+), 25 deletions(-)
+>
+
+
