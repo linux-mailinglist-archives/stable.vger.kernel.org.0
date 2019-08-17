@@ -2,71 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA6BF910AA
-	for <lists+stable@lfdr.de>; Sat, 17 Aug 2019 16:02:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEE03910D7
+	for <lists+stable@lfdr.de>; Sat, 17 Aug 2019 16:40:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725945AbfHQOCY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Aug 2019 10:02:24 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:34671 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725929AbfHQOCY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Aug 2019 10:02:24 -0400
-Received: by mail-pf1-f195.google.com with SMTP id b24so4627936pfp.1
-        for <stable@vger.kernel.org>; Sat, 17 Aug 2019 07:02:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:to:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=h62esfeZoiDH1acW8FoKGWIC9qIxTT8ub8hSb7xJJg4=;
-        b=swaqu9+Oe37xfmRYi0zPAW4msIs4kGatDbdMdoURAVMPGXxf3jCoPBlv99lQLpSOWn
-         RYsTAoz14pq8WXp/ZGVAIJkmrto9rgS85k7Tsj48o1eBDJNVzqeQomrrSt5mSWFBjIFM
-         fRJzZq3nOEwtB3fHq0uPWHegkU8X4E5FxXp+eIY802+BFhPk9N6lSBnUDRMR+X0IGXfZ
-         V1dUVKHyAW3NAxoqbFz98VpQ2xX1gEJXvkEzGSkairlCNWYuZFNCZmBB1EF1Jp1/GyBY
-         ZTVpt+PcxRgiukwhZ7uRFnshxhxgnRddy2elo8PH1Mw/OE1kQBR04juOLRvPqIN9mkNL
-         U5FQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:to:from:subject:message-id:date
-         :user-agent:mime-version:content-language:content-transfer-encoding;
-        bh=h62esfeZoiDH1acW8FoKGWIC9qIxTT8ub8hSb7xJJg4=;
-        b=QEc2JgcAbVYqjt55gNWo7kLesxudjq45oSji4SjAPIsYeTjyZdqnHRn7GWFEfALizZ
-         Xha51Bjq1HSZSA4d7ikADWTJTOsJCOHA0WxiSnvgkiUCkmtriqzy9EaldBBR0EM9buMY
-         8PpQmHkR9wX/hsOt/cMDsUc3+xrSElA7TKaEvM/0LDp1U5JpO7sbu99QktjSazYDCjjh
-         sbwgBJbQunZqd96JW0KWJITePlTfLfM+xbpgU8IkPWIgeSwdqJch28RCeVDcKaKA6PKU
-         7IAgze0jHjngJp4UZoBoxuZssas6rTYlL7G4oc+rb6q1TQtUhnWrImmi0A+Gxa8bYLqu
-         7a6A==
-X-Gm-Message-State: APjAAAXOVfqrZHXtEgDdsH2OxDimaEbhdFl5n3+AcbBFXt7US253uqZK
-        hfPlIs1U6168+qoG6O+031I=
-X-Google-Smtp-Source: APXvYqx/bYinnUpA5gtdado+Mju0/kyMWUvNs/In2RXA95g6aga+0GNiaeAymOXlgHzxpEGzZfLNTg==
-X-Received: by 2002:a63:10a:: with SMTP id 10mr12160366pgb.281.1566050543682;
-        Sat, 17 Aug 2019 07:02:23 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id g11sm10132873pfh.121.2019.08.17.07.02.22
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 17 Aug 2019 07:02:22 -0700 (PDT)
-To:     stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Subject: Please apply commits f0f1b8cac4d8 and 7fafcfdf6377 to v4.4.y
-Message-ID: <9bac68d5-834c-ec63-a196-1b7ec33d6fdc@roeck-us.net>
-Date:   Sat, 17 Aug 2019 07:02:21 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1726023AbfHQOkN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Aug 2019 10:40:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59918 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725966AbfHQOkN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 17 Aug 2019 10:40:13 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A400421783;
+        Sat, 17 Aug 2019 14:40:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1566052812;
+        bh=4YilNUyanbDMBFPBRqv1JHg8VkDrXZjKNssBnISZrAk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=U2+ujwlhyqeb0RMXY3B/A4lZyykQmo2DhXT/9weMrUtpLhw05dKDaKjmOLoH8GWo/
+         I6neouJirdkF9kRhk+S4jUmqfF9qiCYJxqHXNXZpmU/iIj4PUGGjl9bAB3Bw1r+G8w
+         KtgUAZlCmAzZlkS1kdmo8Mik06hVD3Lkd7c4+QNo=
+Date:   Sat, 17 Aug 2019 16:40:01 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     stable <stable@vger.kernel.org>
+Subject: Re: Please apply commits f0f1b8cac4d8 and 7fafcfdf6377 to v4.4.y
+Message-ID: <20190817144001.GA11753@kroah.com>
+References: <9bac68d5-834c-ec63-a196-1b7ec33d6fdc@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9bac68d5-834c-ec63-a196-1b7ec33d6fdc@roeck-us.net>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 7fafcfdf6377 ("USB: gadget: f_midi: fixing a possible double-free in f_midi")
-fixes CVE-2018-20961. Commit f0f1b8cac4d8 ("usb: gadget: f_midi: fail if set_alt fails
-to allocate requests") avoids a context conflict when applying 7fafcfdf6377,
-and fixes another minor problem.
+On Sat, Aug 17, 2019 at 07:02:21AM -0700, Guenter Roeck wrote:
+> Commit 7fafcfdf6377 ("USB: gadget: f_midi: fixing a possible double-free in f_midi")
+> fixes CVE-2018-20961. Commit f0f1b8cac4d8 ("usb: gadget: f_midi: fail if set_alt fails
+> to allocate requests") avoids a context conflict when applying 7fafcfdf6377,
+> and fixes another minor problem.
+> 
+> Commit 7fafcfdf6377 is present in v4.9.y and v4.14.y.
 
-Commit 7fafcfdf6377 is present in v4.9.y and v4.14.y.
+Both now queued up, thanks!
 
-Thanks,
-Guenter
+greg k-h
