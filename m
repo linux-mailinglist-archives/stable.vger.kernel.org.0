@@ -2,194 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EBD590E13
-	for <lists+stable@lfdr.de>; Sat, 17 Aug 2019 09:44:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0210D90F89
+	for <lists+stable@lfdr.de>; Sat, 17 Aug 2019 10:41:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725945AbfHQHom (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Aug 2019 03:44:42 -0400
-Received: from pegase1.c-s.fr ([93.17.236.30]:63190 "EHLO pegase1.c-s.fr"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725911AbfHQHom (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 17 Aug 2019 03:44:42 -0400
-Received: from localhost (mailhub1-int [192.168.12.234])
-        by localhost (Postfix) with ESMTP id 469XJl29Mjz9tyPF;
-        Sat, 17 Aug 2019 09:44:39 +0200 (CEST)
-Authentication-Results: localhost; dkim=pass
-        reason="1024-bit key; insecure key"
-        header.d=c-s.fr header.i=@c-s.fr header.b=lqRMJL8p; dkim-adsp=pass;
-        dkim-atps=neutral
-X-Virus-Scanned: Debian amavisd-new at c-s.fr
-Received: from pegase1.c-s.fr ([192.168.12.234])
-        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
-        with ESMTP id dhoYL34YTQ9e; Sat, 17 Aug 2019 09:44:39 +0200 (CEST)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase1.c-s.fr (Postfix) with ESMTP id 469XJl0kJ0z9tyP6;
-        Sat, 17 Aug 2019 09:44:39 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=c-s.fr; s=mail;
-        t=1566027879; bh=2OB73IPwA1xyGUU/Zm+DsLXHeBY22vrfmhjVU3McqWU=;
-        h=From:Subject:To:Cc:Date:From;
-        b=lqRMJL8p+XRZKMrCrlL434gYKZ/3O8YnAxg0vZ71PqhYy3hY9CRn42EeE8MlOZqZW
-         CRClxTIJ8ReKVExfpLiVmd3NBsA3fYr/Whbzeo8sRw/DvLSA4n6r0XI0PYOg+Wckse
-         t2YLnHrFHto1Qd0NteOYNeMgll20kbdOhjdmXMUw=
-Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 302F08B793;
-        Sat, 17 Aug 2019 09:44:40 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id v7IDuIMBzNPg; Sat, 17 Aug 2019 09:44:40 +0200 (CEST)
-Received: from localhost.localdomain (unknown [192.168.232.53])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id D5ADE8B790;
-        Sat, 17 Aug 2019 09:44:39 +0200 (CEST)
-Received: by localhost.localdomain (Postfix, from userid 0)
-        id 84C6C1056A3; Sat, 17 Aug 2019 07:44:39 +0000 (UTC)
-From:   Christophe Leroy <christophe.leroy@c-s.fr>
-Subject: [PATCH] btrfs: fix allocation of bitmap pages.
-To:     erhard_f@mailbox.org, Chris Mason <clm@fb.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-btrfs@vger.kernel.org, linux-mm@kvack.org,
+        id S1725911AbfHQIk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Aug 2019 04:40:57 -0400
+Received: from mail-ed1-f66.google.com ([209.85.208.66]:43220 "EHLO
+        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725945AbfHQIk5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Aug 2019 04:40:57 -0400
+Received: by mail-ed1-f66.google.com with SMTP id h13so7048603edq.10
+        for <stable@vger.kernel.org>; Sat, 17 Aug 2019 01:40:56 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=qRs++cUPWqE7h71iD/NyfIih5j7NXZt7bjbEdWqVzho=;
+        b=Hec0dV1XgpXlg6oiwSYKhqQweW9Ukjj1CPRjp1dnsKxTnjt004k00ay7Ia3P7LoWrm
+         OPqCRhwlmxmljIpObztdMpGGgJPE9Ytq24R9XapX/TnqZvegzqPiO/XAdQLYqOm5sG3x
+         tZfvmQDl5rjtF8EbhbTD0yiIZG3PfJwdEhkfhIeDics9UAbg0JqZar6b/TfUjG6taGVQ
+         0yRtYXs5nbc0XY100GBb7bu4qkr3UQ/tc8CvwVsbDCaVAatOS4KkmpkbOYeb0Gut7gw2
+         PoEsEJxEC/dnONYBgAxpO8oHVWrqevW1Pm0EmjwRaYXlbTky/oe1tZyEC6U1FxPp4p+r
+         RNvw==
+X-Gm-Message-State: APjAAAVYNl77moi7iyBhB0R7wFMilNSTciJBrQBw1d05KYbplLTp8TAl
+        RNgDUsXI6Qgiipid2IKNrib8sxVtTTo=
+X-Google-Smtp-Source: APXvYqyVeGWshlkAN3hcVFd4OniDjXvWk5lT+Wx1OL/j+MklrUymZoMYlJwTuyfs+e6TUmXM+MwbzQ==
+X-Received: by 2002:a50:90c4:: with SMTP id d4mr15291715eda.107.1566031255204;
+        Sat, 17 Aug 2019 01:40:55 -0700 (PDT)
+Received: from shalem.localdomain (84-106-84-65.cable.dynamic.v4.ziggo.nl. [84.106.84.65])
+        by smtp.gmail.com with ESMTPSA id e24sm1136686ejb.53.2019.08.17.01.40.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 17 Aug 2019 01:40:54 -0700 (PDT)
+Subject: Re: [PATCH] efifb: BGRT: Improve efifb_bgrt_sanity_check
+To:     Peter Jones <pjones@redhat.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Cc:     dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org,
         stable@vger.kernel.org
-Message-Id: <20190817074439.84C6C1056A3@localhost.localdomain>
-Date:   Sat, 17 Aug 2019 07:44:39 +0000 (UTC)
+References: <20190721131918.10115-1-hdegoede@redhat.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <a94c96de-16a5-7b52-a964-f8974e867a65@redhat.com>
+Date:   Sat, 17 Aug 2019 10:40:53 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
+MIME-Version: 1.0
+In-Reply-To: <20190721131918.10115-1-hdegoede@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Various notifications of type "BUG kmalloc-4096 () : Redzone
-overwritten" have been observed recently in various parts of
-the kernel. After some time, it has been made a relation with
-the use of BTRFS filesystem.
+Hi,
 
-[   22.809700] BUG kmalloc-4096 (Tainted: G        W        ): Redzone overwritten
-[   22.809971] -----------------------------------------------------------------------------
+On 21-07-19 15:19, Hans de Goede wrote:
+> For various reasons, at least with x86 EFI firmwares, the xoffset and
+> yoffset in the BGRT info are not always reliable.
+> 
+> Extensive testing has shown that when the info is correct, the
+> BGRT image is always exactly centered horizontally (the yoffset variable
+> is more variable and not always predictable).
+> 
+> This commit simplifies / improves the bgrt_sanity_check to simply
+> check that the BGRT image is exactly centered horizontally and skips
+> (re)drawing it when it is not.
+> 
+> This fixes the BGRT image sometimes being drawn in the wrong place.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 88fe4ceb2447 ("efifb: BGRT: Do not copy the boot graphics for non native resolutions")
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-[   22.810286] INFO: 0xbe1a5921-0xfbfc06cd. First byte 0x0 instead of 0xcc
-[   22.810866] INFO: Allocated in __load_free_space_cache+0x588/0x780 [btrfs] age=22 cpu=0 pid=224
-[   22.811193] 	__slab_alloc.constprop.26+0x44/0x70
-[   22.811345] 	kmem_cache_alloc_trace+0xf0/0x2ec
-[   22.811588] 	__load_free_space_cache+0x588/0x780 [btrfs]
-[   22.811848] 	load_free_space_cache+0xf4/0x1b0 [btrfs]
-[   22.812090] 	cache_block_group+0x1d0/0x3d0 [btrfs]
-[   22.812321] 	find_free_extent+0x680/0x12a4 [btrfs]
-[   22.812549] 	btrfs_reserve_extent+0xec/0x220 [btrfs]
-[   22.812785] 	btrfs_alloc_tree_block+0x178/0x5f4 [btrfs]
-[   22.813032] 	__btrfs_cow_block+0x150/0x5d4 [btrfs]
-[   22.813262] 	btrfs_cow_block+0x194/0x298 [btrfs]
-[   22.813484] 	commit_cowonly_roots+0x44/0x294 [btrfs]
-[   22.813718] 	btrfs_commit_transaction+0x63c/0xc0c [btrfs]
-[   22.813973] 	close_ctree+0xf8/0x2a4 [btrfs]
-[   22.814107] 	generic_shutdown_super+0x80/0x110
-[   22.814250] 	kill_anon_super+0x18/0x30
-[   22.814437] 	btrfs_kill_super+0x18/0x90 [btrfs]
-[   22.814590] INFO: Freed in proc_cgroup_show+0xc0/0x248 age=41 cpu=0 pid=83
-[   22.814841] 	proc_cgroup_show+0xc0/0x248
-[   22.814967] 	proc_single_show+0x54/0x98
-[   22.815086] 	seq_read+0x278/0x45c
-[   22.815190] 	__vfs_read+0x28/0x17c
-[   22.815289] 	vfs_read+0xa8/0x14c
-[   22.815381] 	ksys_read+0x50/0x94
-[   22.815475] 	ret_from_syscall+0x0/0x38
+ping? I do not see this one in -next yet, what is the status of this
+patch?
 
-Commit 69d2480456d1 ("btrfs: use copy_page for copying pages instead
-of memcpy") changed the way bitmap blocks are copied. But allthough
-bitmaps have the size of a page, they were allocated with kzalloc().
+Regards,
 
-Most of the time, kzalloc() allocates aligned blocks of memory, so
-copy_page() can be used. But when some debug options like SLAB_DEBUG
-are activated, kzalloc() may return unaligned pointer.
+Hans
 
-On powerpc, memcpy(), copy_page() and other copying functions use
-'dcbz' instruction which provides an entire zeroed cacheline to avoid
-memory read when the intention is to overwrite a full line. Functions
-like memcpy() are writen to care about partial cachelines at the start
-and end of the destination, but copy_page() assumes it gets pages. As
-pages are naturally cache aligned, copy_page() doesn't care about
-partial lines. This means that when copy_page() is called with a
-misaligned pointer, a few leading bytes are zeroed.
 
-To fix it, allocate bitmaps with get_zeroed_page() instead of kzalloc()
 
-Reported-by: Erhard F. <erhard_f@mailbox.org>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=204371
-Fixes: 69d2480456d1 ("btrfs: use copy_page for copying pages instead of memcpy")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Tested-by: Erhard F. <erhard_f@mailbox.org>
----
- fs/btrfs/free-space-cache.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/fs/btrfs/free-space-cache.c b/fs/btrfs/free-space-cache.c
-index 062be9dde4c6..3229a058e025 100644
---- a/fs/btrfs/free-space-cache.c
-+++ b/fs/btrfs/free-space-cache.c
-@@ -764,7 +764,7 @@ static int __load_free_space_cache(struct btrfs_root *root, struct inode *inode,
- 		} else {
- 			ASSERT(num_bitmaps);
- 			num_bitmaps--;
--			e->bitmap = kzalloc(PAGE_SIZE, GFP_NOFS);
-+			e->bitmap = (void *)get_zeroed_page(GFP_NOFS);
- 			if (!e->bitmap) {
- 				kmem_cache_free(
- 					btrfs_free_space_cachep, e);
-@@ -1881,7 +1881,7 @@ static void free_bitmap(struct btrfs_free_space_ctl *ctl,
- 			struct btrfs_free_space *bitmap_info)
- {
- 	unlink_free_space(ctl, bitmap_info);
--	kfree(bitmap_info->bitmap);
-+	free_page((unsigned long)bitmap_info->bitmap);
- 	kmem_cache_free(btrfs_free_space_cachep, bitmap_info);
- 	ctl->total_bitmaps--;
- 	ctl->op->recalc_thresholds(ctl);
-@@ -2135,7 +2135,7 @@ static int insert_into_bitmap(struct btrfs_free_space_ctl *ctl,
- 		}
- 
- 		/* allocate the bitmap */
--		info->bitmap = kzalloc(PAGE_SIZE, GFP_NOFS);
-+		info->bitmap = (void *)get_zeroed_page(GFP_NOFS);
- 		spin_lock(&ctl->tree_lock);
- 		if (!info->bitmap) {
- 			ret = -ENOMEM;
-@@ -2146,7 +2146,7 @@ static int insert_into_bitmap(struct btrfs_free_space_ctl *ctl,
- 
- out:
- 	if (info) {
--		kfree(info->bitmap);
-+		free_page((unsigned long)info->bitmap);
- 		kmem_cache_free(btrfs_free_space_cachep, info);
- 	}
- 
-@@ -2802,7 +2802,7 @@ u64 btrfs_alloc_from_cluster(struct btrfs_block_group_cache *block_group,
- 	if (entry->bytes == 0) {
- 		ctl->free_extents--;
- 		if (entry->bitmap) {
--			kfree(entry->bitmap);
-+			free_page((unsigned long)entry->bitmap);
- 			ctl->total_bitmaps--;
- 			ctl->op->recalc_thresholds(ctl);
- 		}
-@@ -3606,7 +3606,7 @@ int test_add_free_space_entry(struct btrfs_block_group_cache *cache,
- 	}
- 
- 	if (!map) {
--		map = kzalloc(PAGE_SIZE, GFP_NOFS);
-+		map = (void *)get_zeroed_page(GFP_NOFS);
- 		if (!map) {
- 			kmem_cache_free(btrfs_free_space_cachep, info);
- 			return -ENOMEM;
-@@ -3635,7 +3635,7 @@ int test_add_free_space_entry(struct btrfs_block_group_cache *cache,
- 
- 	if (info)
- 		kmem_cache_free(btrfs_free_space_cachep, info);
--	kfree(map);
-+	free_page((unsigned long)map);
- 	return 0;
- }
- 
--- 
-2.17.1
-
+> ---
+>   drivers/video/fbdev/efifb.c | 27 ++++++---------------------
+>   1 file changed, 6 insertions(+), 21 deletions(-)
+> 
+> diff --git a/drivers/video/fbdev/efifb.c b/drivers/video/fbdev/efifb.c
+> index dfa8dd47d19d..5b3cef9bf794 100644
+> --- a/drivers/video/fbdev/efifb.c
+> +++ b/drivers/video/fbdev/efifb.c
+> @@ -122,28 +122,13 @@ static void efifb_copy_bmp(u8 *src, u32 *dst, int width, struct screen_info *si)
+>    */
+>   static bool efifb_bgrt_sanity_check(struct screen_info *si, u32 bmp_width)
+>   {
+> -	static const int default_resolutions[][2] = {
+> -		{  800,  600 },
+> -		{ 1024,  768 },
+> -		{ 1280, 1024 },
+> -	};
+> -	u32 i, right_margin;
+> -
+> -	for (i = 0; i < ARRAY_SIZE(default_resolutions); i++) {
+> -		if (default_resolutions[i][0] == si->lfb_width &&
+> -		    default_resolutions[i][1] == si->lfb_height)
+> -			break;
+> -	}
+> -	/* If not a default resolution used for textmode, this should be fine */
+> -	if (i >= ARRAY_SIZE(default_resolutions))
+> -		return true;
+> -
+> -	/* If the right margin is 5 times smaller then the left one, reject */
+> -	right_margin = si->lfb_width - (bgrt_tab.image_offset_x + bmp_width);
+> -	if (right_margin < (bgrt_tab.image_offset_x / 5))
+> -		return false;
+> +	/*
+> +	 * All x86 firmwares horizontally center the image (the yoffset
+> +	 * calculations differ between boards, but xoffset is predictable).
+> +	 */
+> +	u32 expected_xoffset = (si->lfb_width - bmp_width) / 2;
+>   
+> -	return true;
+> +	return bgrt_tab.image_offset_x == expected_xoffset;
+>   }
+>   #else
+>   static bool efifb_bgrt_sanity_check(struct screen_info *si, u32 bmp_width)
+> 
