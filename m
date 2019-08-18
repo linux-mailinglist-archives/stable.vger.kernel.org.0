@@ -2,91 +2,213 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04946915D8
-	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 11:18:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C45C1915E6
+	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 11:29:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726217AbfHRJSU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Aug 2019 05:18:20 -0400
-Received: from sonic309-20.consmr.mail.gq1.yahoo.com ([98.137.65.146]:39637
-        "EHLO sonic309-20.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726208AbfHRJST (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Aug 2019 05:18:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048; t=1566119898; bh=ERxTzlBvLk6FX5GqUEorQfkZn2FwLudSxLDtMKxml+s=; h=Date:From:To:Subject:References:In-Reply-To:From:Subject; b=coTqkoO/yCyy9yWxe+DxUKZD5zwgAl7L92al52gq6IIHXWnJaNcj4TVIg3W1yv1FesGIwEl1+N0l1PgJ2o1MVJtuI7zkmTuGhXKltJUZUZ21hUSeAviaXd+5fodKh9CXifeBbnuNj4eq3rQ71dLmI8bUr0DGXu84NDz5QoNl6RFfF7wtz3i3+Sq2me6ppz1Y/gq7FupwZcDO+8Nm5PAvZUG3trnW/ELfB0XzZh9jrmlGIPj/f47GRWw3bjlMiE66xFCArzwVwrvq6CiUQvubLffFOy98accE1tMJ9PPnmpj68wJzf2XFtUL+5ItrrUDv61vSAsh8iOVCoCfCZ2Lq7w==
-X-YMail-OSG: HJbkXHkVM1n5tAjXNktMZJ3fs7vBaOTlHBMbHs.mZKECYuXNw8JDUbsO7PusE17
- IH3jI_sxBfoA5Eey1dB2WdONWCBdLPkkpmgkFMLFg5b3YHbfLikA7badFys0_.V13zqDxtDvgtrY
- K1rlDEL_LmMZYbu0ScsBSKTUTlKg4c4YnY9EqnuX_WuV7VUQ4hQ.NDJKgd7g8UO2vA6H7AfPE9FX
- ulpAIOuwN16QcbSZ2UGW6Q_muwzrIWedRybApgRSYD.HLv4M_QKPgLjTq0ET8uKdVss5jHpniZbx
- H315BgZf.3XGxzoPPfdc3ZsQuOShDRJJOOVQktI.xlqmquWPNThiLMZrPPKerFPdAQz2o8FhpI41
- jN5IVClMU1Ob1La5fGyOZoAz4R1G.pPAThbVPGHG2TbBUjoBKfnrXD3MiJxXhobcLmZssmJFNBKg
- H33uZ.lDuMXaGBpTmCXFzje9bxZcJxRYDrktUl7nvIPlB5mc9dY.tX8utGg2Xmng6HwPUPDGsLSe
- MmumcXyfG8C8gP5LzNzLqdEkuIfy4gliYYxYjFQB4Tr7h9Mh0iI4Y6G2bjhTNy.CPOoWrAG46Fbj
- 247sA5KTEengTxQ0yWwLupmkbwD6x6kjeJDjXtdi_r8SccGpiiHkGVMPxqpkqq12NhfvTwIBjidB
- wVKBYnTEWpoGZRt0SH_QPZHeDPseenA0fJaz1W97eKlcH6eGm5t9cYq6vw7i87sIzyWSW9282ahG
- 5rR6uCXnyroVmHr8QjLOz.YHpjMFZ_Zjw1vfvGi_46wk5bDVp0Pf9E._sWzdfRPrd75KDV1AWT43
- EuBL_q1tsrPd8RrFoWeSD8vH4CanhYJ4.RQndf5g0U9VRtTIf67A3FQDH.qhzBgu_PDvrg7j9vgr
- EEqlC8j505mSBaIbtNjy1FutPZEDz3Rvv9FMpS5rVzwJNN3.Ga8SFa6JSoPgV.XcyRh9n3Qs3fgN
- KlmalCHY85juf9j9E27GN_ZkoefvHsvMuIX8oDqL8a2o6jmFjCws6sREQUuNMv6xQ.wdCja7OTDg
- 3YFNJ7I0kAnGm21_FdOZ0L1PcmP4nIq7go12zE.0V83UYJ8682PrH8NkvkGeWcbR14ZkyquMeI2R
- 5bjLoIzQ.OOMsh4Ku6W71b827Zs6pxwZ2bFNZNA2Eio0ARPO.7aDPo2hM0SZ_EuvVvMdb4K7dxRy
- Ccu8DmM2hF.3jy_PAslSCaXVh0yghMeevwz46O4b20DwSnvnAWPW_fst50YXH5T9bu8qiMxbY.Eh
- Owj5lqgehkI4HZJEg_prVmQSg8gMrnkxdrg--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.gq1.yahoo.com with HTTP; Sun, 18 Aug 2019 09:18:18 +0000
-Received: by smtp431.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 63c4f9f74aa8986cedeff92dfba4d06b;
-          Sun, 18 Aug 2019 09:18:14 +0000 (UTC)
-Date:   Sun, 18 Aug 2019 17:18:05 +0800
-From:   Gao Xiang <hsiangkao@aol.com>
-To:     Richard Weinberger <richard@nod.at>,
-        devel <devel@driverdev.osuosl.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Miao Xie <miaoxie@huawei.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        linux-erofs <linux-erofs@lists.ozlabs.org>
-Subject: Re: [PATCH v3 RESEND] staging: erofs: fix an error handling in
- erofs_readdir()y
-Message-ID: <20190818091804.GA18675@hsiangkao-HP-ZHAN-66-Pro-G1>
-References: <20190818030109.GA8225@hsiangkao-HP-ZHAN-66-Pro-G1>
- <20190818032111.9862-1-hsiangkao@aol.com>
- <35138595.69023.1566117213033.JavaMail.zimbra@nod.at>
- <20190818091037.GB17909@hsiangkao-HP-ZHAN-66-Pro-G1>
+        id S1726400AbfHRJ3y convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sun, 18 Aug 2019 05:29:54 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:34474 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725786AbfHRJ3y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Aug 2019 05:29:54 -0400
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 0C88D8980ED
+        for <stable@vger.kernel.org>; Sun, 18 Aug 2019 09:29:54 +0000 (UTC)
+Received: from [172.54.61.75] (cpt-1031.paas.prod.upshift.rdu2.redhat.com [10.0.19.58])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 902D0600C6;
+        Sun, 18 Aug 2019 09:29:51 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190818091037.GB17909@hsiangkao-HP-ZHAN-66-Pro-G1>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.2
+Message-ID: <cki.9278178582.ALIGSHRNQY@redhat.com>
+X-Gitlab-Pipeline-ID: 108137
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/108137
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.67]); Sun, 18 Aug 2019 09:29:54 +0000 (UTC)
+Date:   Sun, 18 Aug 2019 05:29:54 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Aug 18, 2019 at 05:10:38PM +0800, Gao Xiang via Linux-erofs wrote:
-> Hi Richard,
-> 
-> On Sun, Aug 18, 2019 at 10:33:33AM +0200, Richard Weinberger wrote:
-> > ----- Urspr?ngliche Mail -----
-> > > changelog from v2:
-> > > - transform EIO to EFSCORRUPTED as suggested by Matthew;
-> > 
-> > erofs does not define EFSCORRUPTED, so the build fails.
-> > At least on Linus' tree as of today.
-> 
-> Thanks for your reply :)
-> 
-> I write all patches based on staging tree and do more cleanups further
-> than Linus' tree, EFSCORRUPTED was already introduced by Pavel days before...
 
-Sorry, I mean "introduced which was suggested by Paval"...
+Hello,
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git/commit/?h=staging-testing&id=a6b9b1d5eae61a68085030e50d56265dec5baa94
-> 
-> which can be fetched from
-> git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git -b staging-next
-> 
-> Thanks,
-> Gao Xiang
-> 
-> > 
-> > Thanks,
-> > //richard
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
+
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: aad39e30fb9e - Linux 5.2.9
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://artifacts.cki-project.org/pipelines/108137
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: aad39e30fb9e - Linux 5.2.9
+
+
+We grabbed the dcd73f5722d4 commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  keys-trusted-allow-module-init-if-tpm-is-inactive-or-deactivated.patch
+  sh-kernel-hw_breakpoint-fix-missing-break-in-switch-statement.patch
+  seq_file-fix-problem-when-seeking-mid-record.patch
+  mm-hmm-fix-bad-subpage-pointer-in-try_to_unmap_one.patch
+  mm-mempolicy-make-the-behavior-consistent-when-mpol_mf_move-and-mpol_mf_strict-were-specified.patch
+  mm-mempolicy-handle-vma-with-unmovable-pages-mapped-correctly-in-mbind.patch
+  mm-z3fold.c-fix-z3fold_destroy_pool-ordering.patch
+  mm-z3fold.c-fix-z3fold_destroy_pool-race-condition.patch
+  mm-memcontrol.c-fix-use-after-free-in-mem_cgroup_iter.patch
+  mm-usercopy-use-memory-range-to-be-accessed-for-wraparound-check.patch
+  mm-vmscan-do-not-special-case-slab-reclaim-when-watermarks-are-boosted.patch
+  cpufreq-schedutil-don-t-skip-freq-update-when-limits-change.patch
+  drm-amdgpu-fix-gfx9-soft-recovery.patch
+  drm-nouveau-only-recalculate-pbn-vcpi-on-mode-connector-changes.patch
+  xtensa-add-missing-isync-to-the-cpu_reset-tlb-code.patch
+  arm64-ftrace-ensure-module-ftrace-trampoline-is-coherent-with-i-side.patch
+  alsa-hda-realtek-add-quirk-for-hp-envy-x360.patch
+  alsa-usb-audio-fix-a-stack-buffer-overflow-bug-in-check_input_term.patch
+  alsa-usb-audio-fix-an-oob-bug-in-parse_audio_mixer_unit.patch
+  alsa-hda-apply-workaround-for-another-amd-chip-1022-1487.patch
+  alsa-hda-fix-a-memory-leak-bug.patch
+  alsa-hda-add-a-generic-reboot_notify.patch
+  alsa-hda-let-all-conexant-codec-enter-d3-when-rebooting.patch
+  hid-holtek-test-for-sanity-of-intfdata.patch
+  hid-hiddev-avoid-opening-a-disconnected-device.patch
+  hid-hiddev-do-cleanup-in-failure-of-opening-a-device.patch
+  input-kbtab-sanity-check-for-endpoint-type.patch
+  input-iforce-add-sanity-checks.patch
+  net-usb-pegasus-fix-improper-read-if-get_registers-fail.patch
+  bpf-fix-access-to-skb_shared_info-gso_segs.patch
+  netfilter-ebtables-also-count-base-chain-policies.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+
+    ⚡ Internal infrastructure issues prevented one or more tests (marked
+    with ⚡⚡⚡) from running on this architecture.
+    This is not the fault of the kernel that was tested.
+
+
+  ppc64le:
+      Host 1:
+         ✅ Boot test [0]
+         ✅ Podman system integration test (as root) [1]
+         ✅ Podman system integration test (as user) [1]
+         ✅ LTP lite [2]
+         ✅ Loopdev Sanity [3]
+         ✅ jvm test suite [4]
+         ✅ AMTU (Abstract Machine Test Utility) [5]
+         ✅ LTP: openposix test suite [6]
+         ✅ Networking socket: fuzz [7]
+         ✅ audit: audit testsuite test [8]
+         ✅ httpd: mod_ssl smoke sanity [9]
+         ✅ iotop: sanity [10]
+         ✅ tuned: tune-processes-through-perf [11]
+         ✅ Usex - version 1.9-29 [12]
+
+      Host 2:
+         ✅ Boot test [0]
+         ✅ xfstests: xfs [13]
+         ✅ selinux-policy: serge-testsuite [14]
+
+
+  x86_64:
+      Host 1:
+         ✅ Boot test [0]
+         ✅ xfstests: xfs [13]
+         ✅ selinux-policy: serge-testsuite [14]
+
+      Host 2:
+         ✅ Boot test [0]
+         ✅ Podman system integration test (as root) [1]
+         ✅ Podman system integration test (as user) [1]
+         ✅ LTP lite [2]
+         ✅ Loopdev Sanity [3]
+         ✅ jvm test suite [4]
+         ✅ AMTU (Abstract Machine Test Utility) [5]
+         ✅ LTP: openposix test suite [6]
+         ✅ Networking socket: fuzz [7]
+         ✅ audit: audit testsuite test [8]
+         ✅ httpd: mod_ssl smoke sanity [9]
+         ✅ iotop: sanity [10]
+         ✅ tuned: tune-processes-through-perf [11]
+         ✅ pciutils: sanity smoke test [15]
+         ✅ Usex - version 1.9-29 [12]
+         ✅ stress: stress-ng [16]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/container/podman
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/jvm
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
+    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
+    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
