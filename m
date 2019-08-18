@@ -2,55 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29A9C91923
-	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 21:06:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99E329192A
+	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 21:09:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726005AbfHRTEa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Aug 2019 15:04:30 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:49969 "EHLO
+        id S1726097AbfHRTJL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Aug 2019 15:09:11 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:33123 "EHLO
         out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726115AbfHRTEa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Aug 2019 15:04:30 -0400
+        by vger.kernel.org with ESMTP id S1726089AbfHRTJK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Aug 2019 15:09:10 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id DDE9D21BBE;
-        Sun, 18 Aug 2019 15:04:28 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 8AACA21AF1;
+        Sun, 18 Aug 2019 15:09:09 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 18 Aug 2019 15:04:28 -0400
+  by compute6.internal (MEProxy); Sun, 18 Aug 2019 15:09:09 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=eYP0G/
-        99lliX7Bqd4JAqdTGypB0GxKzArcSGBFn6nPY=; b=Mpeh6y2yws9iroidXQ2vVu
-        M/LTvb3Dk7jTphc0nKTl32NDPIEZ1BnEJv5DMoJVNuBXphJdBVIncyDjnxg3AVAR
-        QvZcBkFqKreuanWgw67MqIblOydUukF8BawmlnWNTHzNGeuHtMRinKDemKDPutn0
-        G6awbhaWNKd7qDr5eZ8JANVz9jJCz3EqDBgIYkcsO7DPptJNwyiXwmRuxpLYhxZi
-        ZJR5y2VZ4/a+PYLI70vgBiCh1ZXnfB02H69Y3H43kxvrI/7j8IsZcl5KkkwD2x5I
-        FDkZEC0S1fqSXZIZzBV2g/sd1ySbMqPpmAse2xLRUB+y9l9aMOSl7gr92eBC+m+w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=YMelrP
+        EhYgwhMOW6MwFIuISewB6/wtxCoBTVR+Seou8=; b=FtLutwFIrHOC9tWwTSrSGZ
+        ySTdGsRAhfMOONH3PVzW81VXDKy0NLYD066X5lhMyuqFEb5SLyCI/uXqz5z411Da
+        FgPEZifEaBBzyetrUYlwVJRwUUyCyJHTwKPuDBIs//0glRuldEZUlT9XljJWlybG
+        ZLJ4C8CPZyJELJH3/i9DdFvT2yY4nYVBEyFANNXBHz0IpIcKG5euKG90OexN5SpJ
+        l/oF+XvzAQ7WrBH9JZeVR5nEl/GXxcOu8ei9XJl4+qV5t5P9sS5A1S74uvb/EaWN
+        JHRhiC78mod4jmaISYo4EC2by/i7TfJToVhGvOgUI727IaRrsXX6GAY0Nmqh4ZzQ
         ==
-X-ME-Sender: <xms:O6FZXR4alURwTbx8K9wyEC9F1tb-y4RVbDFDqRGXra-B6cDIkZ44jQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudefjedgudefvdcutefuodetggdotefrod
+X-ME-Sender: <xms:VaJZXQ9kZiVIU6E2kLUkgISlsT35Fvly0Lyu0xSbBGp2F_Hvkdn7pw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudefjedgudeffecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekle
     druddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
     necuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:O6FZXR0xnFDmDVY616u4Un-OPgKHHbwfnJN2FpJiFF_7qOkSOKsQCw>
-    <xmx:O6FZXQpMJXBgPwHhUSFECaVXBqrHTodkfZMTNK5oZIEJ8hj9ZB1wqQ>
-    <xmx:O6FZXY8AZKSdh4mPnVkHecuDKofJhwE10GdOFr-9g_L_9WagGIggQw>
-    <xmx:PKFZXZZ5x3JSR9dKteqlscBVHSlw_DDDPdoU8PHc2FMPSFA2Uo7w6g>
+X-ME-Proxy: <xmx:VaJZXSjZsVaz9iQS8No2gnARp6uQRvV24f_moVtzvNI8irNaxkowWw>
+    <xmx:VaJZXSnuFKDl9Bbh9cTZml9fg6O6e6b-09Toc_x2jtEbKDH39snpcg>
+    <xmx:VaJZXd239ioDH7bx9U3rH78Ek8dLaBe5a7A0_u6HNeZaGauT6NKb3w>
+    <xmx:VaJZXaTWmWD9B9TO0sNdz32ZXOI54JYa0GkfC25EgoXyjizUWMpvTw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 58422380083;
-        Sun, 18 Aug 2019 15:04:27 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] usb: chipidea: imx: fix EPROBE_DEFER support during driver" failed to apply to 5.0-stable tree
-To:     git@andred.net, Peter.Chen@nxp.com, festevam@gmail.com,
-        gregkh@linuxfoundation.org, kernel@pengutronix.de,
-        linux-imx@nxp.com, s.hauer@pengutronix.de, shawnguo@kernel.org,
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0BE14380079;
+        Sun, 18 Aug 2019 15:09:08 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] usb: setup authorized_default attributes using usb_bus_notify" failed to apply to 4.19-stable tree
+To:     tweek@google.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 18 Aug 2019 21:04:25 +0200
-Message-ID: <156615506591113@kroah.com>
+Date:   Sun, 18 Aug 2019 21:09:07 +0200
+Message-ID: <1566155347198143@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -60,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.0-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,141 +69,353 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 141822aa3f79efc8a2ec3ed464f2fd2c93ccd803 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Andr=C3=A9=20Draszik?= <git@andred.net>
-Date: Sat, 10 Aug 2019 16:07:58 +0100
-Subject: [PATCH] usb: chipidea: imx: fix EPROBE_DEFER support during driver
- probe
+From 27709ae4e2fe6cf7da2ae45e718e190c5433342b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>
+Date: Tue, 6 Aug 2019 13:00:50 +0200
+Subject: [PATCH] usb: setup authorized_default attributes using usb_bus_notify
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-If driver probe needs to be deferred, e.g. because ci_hdrc_add_device()
-isn't ready yet, this driver currently misbehaves badly:
-    a) success is still reported to the driver core (meaning a 2nd
-       probe attempt will never be done), leaving the driver in
-       a dysfunctional state and the hardware unusable
+Currently, the authorized_default and interface_authorized_default
+attributes for HCD are set up after the uevent has been sent to userland.
+This creates a race condition where userland may fail to access this
+file when processing the event. Move the appending of these attributes
+earlier relying on the usb_bus_notify dispatcher.
 
-    b) driver remove / shutdown OOPSes:
-    [  206.786916] Unable to handle kernel paging request at virtual address fffffdff
-    [  206.794148] pgd = 880b9f82
-    [  206.796890] [fffffdff] *pgd=abf5e861, *pte=00000000, *ppte=00000000
-    [  206.803179] Internal error: Oops: 37 [#1] PREEMPT SMP ARM
-    [  206.808581] Modules linked in: wl18xx evbug
-    [  206.813308] CPU: 1 PID: 1 Comm: systemd-shutdow Not tainted 4.19.35+gf345c93b4195 #1
-    [  206.821053] Hardware name: Freescale i.MX7 Dual (Device Tree)
-    [  206.826813] PC is at ci_hdrc_remove_device+0x4/0x20
-    [  206.831699] LR is at ci_hdrc_imx_remove+0x20/0xe8
-    [  206.836407] pc : [<805cd4b0>]    lr : [<805d62cc>]    psr: 20000013
-    [  206.842678] sp : a806be40  ip : 00000001  fp : 80adbd3c
-    [  206.847906] r10: 80b1b794  r9 : 80d5dfe0  r8 : a8192c44
-    [  206.853136] r7 : 80db93a0  r6 : a8192c10  r5 : a8192c00  r4 : a93a4a00
-    [  206.859668] r3 : 00000000  r2 : a8192ce4  r1 : ffffffff  r0 : fffffdfb
-    [  206.866201] Flags: nzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-    [  206.873341] Control: 10c5387d  Table: a9e0c06a  DAC: 00000051
-    [  206.879092] Process systemd-shutdow (pid: 1, stack limit = 0xb271353c)
-    [  206.885624] Stack: (0xa806be40 to 0xa806c000)
-    [  206.889992] be40: a93a4a00 805d62cc a8192c1c a8170e10 a8192c10 8049a490 80d04d08 00000000
-    [  206.898179] be60: 00000000 80d0da2c fee1dead 00000000 a806a000 00000058 00000000 80148b08
-    [  206.906366] be80: 01234567 80148d8c a9858600 00000000 00000000 00000000 00000000 80d04d08
-    [  206.914553] bea0: 00000000 00000000 a82741e0 a9858600 00000024 00000002 a9858608 00000005
-    [  206.922740] bec0: 0000001e 8022c058 00000000 00000000 a806bf14 a9858600 00000000 a806befc
-    [  206.930927] bee0: a806bf78 00000000 7ee12c30 8022c18c a806bef8 a806befc 00000000 00000001
-    [  206.939115] bf00: 00000000 00000024 a806bf14 00000005 7ee13b34 7ee12c68 00000004 7ee13f20
-    [  206.947302] bf20: 00000010 7ee12c7c 00000005 7ee12d04 0000000a 76e7dc00 00000001 80d0f140
-    [  206.955490] bf40: ab637880 a974de40 60000013 80d0f140 ab6378a0 80d04d08 a8080470 a9858600
-    [  206.963677] bf60: a9858600 00000000 00000000 8022c24c 00000000 80144310 00000000 00000000
-    [  206.971864] bf80: 80101204 80d04d08 00000000 80d04d08 00000000 00000000 00000003 00000058
-    [  206.980051] bfa0: 80101204 80101000 00000000 00000000 fee1dead 28121969 01234567 00000000
-    [  206.988237] bfc0: 00000000 00000000 00000003 00000058 00000000 00000000 00000000 00000000
-    [  206.996425] bfe0: 0049ffb0 7ee13d58 0048a84b 76f245a6 60000030 fee1dead 00000000 00000000
-    [  207.004622] [<805cd4b0>] (ci_hdrc_remove_device) from [<805d62cc>] (ci_hdrc_imx_remove+0x20/0xe8)
-    [  207.013509] [<805d62cc>] (ci_hdrc_imx_remove) from [<8049a490>] (device_shutdown+0x16c/0x218)
-    [  207.022050] [<8049a490>] (device_shutdown) from [<80148b08>] (kernel_restart+0xc/0x50)
-    [  207.029980] [<80148b08>] (kernel_restart) from [<80148d8c>] (sys_reboot+0xf4/0x1f0)
-    [  207.037648] [<80148d8c>] (sys_reboot) from [<80101000>] (ret_fast_syscall+0x0/0x54)
-    [  207.045308] Exception stack(0xa806bfa8 to 0xa806bff0)
-    [  207.050368] bfa0:                   00000000 00000000 fee1dead 28121969 01234567 00000000
-    [  207.058554] bfc0: 00000000 00000000 00000003 00000058 00000000 00000000 00000000 00000000
-    [  207.066737] bfe0: 0049ffb0 7ee13d58 0048a84b 76f245a6
-    [  207.071799] Code: ebffffa8 e3a00000 e8bd8010 e92d4010 (e5904004)
-    [  207.078021] ---[ end trace be47424e3fd46e9f ]---
-    [  207.082647] Kernel panic - not syncing: Fatal exception
-    [  207.087894] ---[ end Kernel panic - not syncing: Fatal exception ]---
-
-    c) the error path in combination with driver removal causes
-       imbalanced calls to the clk_*() and pm_()* APIs
-
-a) happens because the original intended return value is
-   overwritten (with 0) by the return code of
-   regulator_disable() in ci_hdrc_imx_probe()'s error path
-b) happens because ci_pdev is -EPROBE_DEFER, which causes
-   ci_hdrc_remove_device() to OOPS
-
-Fix a) by being more careful in ci_hdrc_imx_probe()'s error
-path and not overwriting the real error code
-
-Fix b) by calling the respective cleanup functions during
-remove only when needed (when ci_pdev != NULL, i.e. when
-everything was initialised correctly). This also has the
-side effect of not causing imbalanced clk_*() and pm_*()
-API calls as part of the error code path.
-
-Fixes: 7c8e8909417e ("usb: chipidea: imx: add HSIC support")
-Signed-off-by: André Draszik <git@andred.net>
+Signed-off-by: Thiébaud Weksteen <tweek@google.com>
 Cc: stable <stable@vger.kernel.org>
-CC: Peter Chen <Peter.Chen@nxp.com>
-CC: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC: Shawn Guo <shawnguo@kernel.org>
-CC: Sascha Hauer <s.hauer@pengutronix.de>
-CC: Pengutronix Kernel Team <kernel@pengutronix.de>
-CC: Fabio Estevam <festevam@gmail.com>
-CC: NXP Linux Team <linux-imx@nxp.com>
-CC: linux-usb@vger.kernel.org
-CC: linux-arm-kernel@lists.infradead.org
-CC: linux-kernel@vger.kernel.org
-Link: https://lore.kernel.org/r/20190810150758.17694-1-git@andred.net
+Link: https://lore.kernel.org/r/20190806110050.38918-1-tweek@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/chipidea/ci_hdrc_imx.c b/drivers/usb/chipidea/ci_hdrc_imx.c
-index b5abfe89190c..df8812c30640 100644
---- a/drivers/usb/chipidea/ci_hdrc_imx.c
-+++ b/drivers/usb/chipidea/ci_hdrc_imx.c
-@@ -454,9 +454,11 @@ static int ci_hdrc_imx_probe(struct platform_device *pdev)
- 	imx_disable_unprepare_clks(dev);
- disable_hsic_regulator:
- 	if (data->hsic_pad_regulator)
--		ret = regulator_disable(data->hsic_pad_regulator);
-+		/* don't overwrite original ret (cf. EPROBE_DEFER) */
-+		regulator_disable(data->hsic_pad_regulator);
- 	if (pdata.flags & CI_HDRC_PMQOS)
- 		pm_qos_remove_request(&data->pm_qos_req);
-+	data->ci_pdev = NULL;
- 	return ret;
+diff --git a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
+index 9320787ac2e6..2ccbc2f83570 100644
+--- a/drivers/usb/core/hcd.c
++++ b/drivers/usb/core/hcd.c
+@@ -103,11 +103,6 @@ static DEFINE_SPINLOCK(hcd_urb_unlink_lock);
+ /* wait queue for synchronous unlinks */
+ DECLARE_WAIT_QUEUE_HEAD(usb_kill_urb_queue);
+ 
+-static inline int is_root_hub(struct usb_device *udev)
+-{
+-	return (udev->parent == NULL);
+-}
+-
+ /*-------------------------------------------------------------------------*/
+ 
+ /*
+@@ -880,101 +875,6 @@ static int usb_rh_urb_dequeue(struct usb_hcd *hcd, struct urb *urb, int status)
  }
  
-@@ -469,14 +471,17 @@ static int ci_hdrc_imx_remove(struct platform_device *pdev)
- 		pm_runtime_disable(&pdev->dev);
- 		pm_runtime_put_noidle(&pdev->dev);
- 	}
--	ci_hdrc_remove_device(data->ci_pdev);
-+	if (data->ci_pdev)
-+		ci_hdrc_remove_device(data->ci_pdev);
- 	if (data->override_phy_control)
- 		usb_phy_shutdown(data->phy);
--	imx_disable_unprepare_clks(&pdev->dev);
--	if (data->plat_data->flags & CI_HDRC_PMQOS)
--		pm_qos_remove_request(&data->pm_qos_req);
--	if (data->hsic_pad_regulator)
--		regulator_disable(data->hsic_pad_regulator);
-+	if (data->ci_pdev) {
-+		imx_disable_unprepare_clks(&pdev->dev);
-+		if (data->plat_data->flags & CI_HDRC_PMQOS)
-+			pm_qos_remove_request(&data->pm_qos_req);
-+		if (data->hsic_pad_regulator)
-+			regulator_disable(data->hsic_pad_regulator);
+ 
+-
+-/*
+- * Show & store the current value of authorized_default
+- */
+-static ssize_t authorized_default_show(struct device *dev,
+-				       struct device_attribute *attr, char *buf)
+-{
+-	struct usb_device *rh_usb_dev = to_usb_device(dev);
+-	struct usb_bus *usb_bus = rh_usb_dev->bus;
+-	struct usb_hcd *hcd;
+-
+-	hcd = bus_to_hcd(usb_bus);
+-	return snprintf(buf, PAGE_SIZE, "%u\n", hcd->dev_policy);
+-}
+-
+-static ssize_t authorized_default_store(struct device *dev,
+-					struct device_attribute *attr,
+-					const char *buf, size_t size)
+-{
+-	ssize_t result;
+-	unsigned val;
+-	struct usb_device *rh_usb_dev = to_usb_device(dev);
+-	struct usb_bus *usb_bus = rh_usb_dev->bus;
+-	struct usb_hcd *hcd;
+-
+-	hcd = bus_to_hcd(usb_bus);
+-	result = sscanf(buf, "%u\n", &val);
+-	if (result == 1) {
+-		hcd->dev_policy = val <= USB_DEVICE_AUTHORIZE_INTERNAL ?
+-			val : USB_DEVICE_AUTHORIZE_ALL;
+-		result = size;
+-	} else {
+-		result = -EINVAL;
+-	}
+-	return result;
+-}
+-static DEVICE_ATTR_RW(authorized_default);
+-
+-/*
+- * interface_authorized_default_show - show default authorization status
+- * for USB interfaces
+- *
+- * note: interface_authorized_default is the default value
+- *       for initializing the authorized attribute of interfaces
+- */
+-static ssize_t interface_authorized_default_show(struct device *dev,
+-		struct device_attribute *attr, char *buf)
+-{
+-	struct usb_device *usb_dev = to_usb_device(dev);
+-	struct usb_hcd *hcd = bus_to_hcd(usb_dev->bus);
+-
+-	return sprintf(buf, "%u\n", !!HCD_INTF_AUTHORIZED(hcd));
+-}
+-
+-/*
+- * interface_authorized_default_store - store default authorization status
+- * for USB interfaces
+- *
+- * note: interface_authorized_default is the default value
+- *       for initializing the authorized attribute of interfaces
+- */
+-static ssize_t interface_authorized_default_store(struct device *dev,
+-		struct device_attribute *attr, const char *buf, size_t count)
+-{
+-	struct usb_device *usb_dev = to_usb_device(dev);
+-	struct usb_hcd *hcd = bus_to_hcd(usb_dev->bus);
+-	int rc = count;
+-	bool val;
+-
+-	if (strtobool(buf, &val) != 0)
+-		return -EINVAL;
+-
+-	if (val)
+-		set_bit(HCD_FLAG_INTF_AUTHORIZED, &hcd->flags);
+-	else
+-		clear_bit(HCD_FLAG_INTF_AUTHORIZED, &hcd->flags);
+-
+-	return rc;
+-}
+-static DEVICE_ATTR_RW(interface_authorized_default);
+-
+-/* Group all the USB bus attributes */
+-static struct attribute *usb_bus_attrs[] = {
+-		&dev_attr_authorized_default.attr,
+-		&dev_attr_interface_authorized_default.attr,
+-		NULL,
+-};
+-
+-static const struct attribute_group usb_bus_attr_group = {
+-	.name = NULL,	/* we want them in the same directory */
+-	.attrs = usb_bus_attrs,
+-};
+-
+-
+-
+ /*-------------------------------------------------------------------------*/
+ 
+ /**
+@@ -2894,32 +2794,11 @@ int usb_add_hcd(struct usb_hcd *hcd,
+ 	if (retval != 0)
+ 		goto err_register_root_hub;
+ 
+-	retval = sysfs_create_group(&rhdev->dev.kobj, &usb_bus_attr_group);
+-	if (retval < 0) {
+-		printk(KERN_ERR "Cannot register USB bus sysfs attributes: %d\n",
+-		       retval);
+-		goto error_create_attr_group;
+-	}
+ 	if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
+ 		usb_hcd_poll_rh_status(hcd);
+ 
+ 	return retval;
+ 
+-error_create_attr_group:
+-	clear_bit(HCD_FLAG_RH_RUNNING, &hcd->flags);
+-	if (HC_IS_RUNNING(hcd->state))
+-		hcd->state = HC_STATE_QUIESCING;
+-	spin_lock_irq(&hcd_root_hub_lock);
+-	hcd->rh_registered = 0;
+-	spin_unlock_irq(&hcd_root_hub_lock);
+-
+-#ifdef CONFIG_PM
+-	cancel_work_sync(&hcd->wakeup_work);
+-#endif
+-	cancel_work_sync(&hcd->died_work);
+-	mutex_lock(&usb_bus_idr_lock);
+-	usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
+-	mutex_unlock(&usb_bus_idr_lock);
+ err_register_root_hub:
+ 	hcd->rh_pollable = 0;
+ 	clear_bit(HCD_FLAG_POLL_RH, &hcd->flags);
+@@ -2963,8 +2842,6 @@ void usb_remove_hcd(struct usb_hcd *hcd)
+ 	dev_info(hcd->self.controller, "remove, state %x\n", hcd->state);
+ 
+ 	usb_get_dev(rhdev);
+-	sysfs_remove_group(&rhdev->dev.kobj, &usb_bus_attr_group);
+-
+ 	clear_bit(HCD_FLAG_RH_RUNNING, &hcd->flags);
+ 	if (HC_IS_RUNNING (hcd->state))
+ 		hcd->state = HC_STATE_QUIESCING;
+diff --git a/drivers/usb/core/sysfs.c b/drivers/usb/core/sysfs.c
+index 7e88fdfe3cf5..f19694e69f5c 100644
+--- a/drivers/usb/core/sysfs.c
++++ b/drivers/usb/core/sysfs.c
+@@ -15,6 +15,7 @@
+ #include <linux/kernel.h>
+ #include <linux/string.h>
+ #include <linux/usb.h>
++#include <linux/usb/hcd.h>
+ #include <linux/usb/quirks.h>
+ #include <linux/of.h>
+ #include "usb.h"
+@@ -922,6 +923,116 @@ static struct bin_attribute dev_bin_attr_descriptors = {
+ 	.size = 18 + 65535,	/* dev descr + max-size raw descriptor */
+ };
+ 
++/*
++ * Show & store the current value of authorized_default
++ */
++static ssize_t authorized_default_show(struct device *dev,
++				       struct device_attribute *attr, char *buf)
++{
++	struct usb_device *rh_usb_dev = to_usb_device(dev);
++	struct usb_bus *usb_bus = rh_usb_dev->bus;
++	struct usb_hcd *hcd;
++
++	hcd = bus_to_hcd(usb_bus);
++	return snprintf(buf, PAGE_SIZE, "%u\n", hcd->dev_policy);
++}
++
++static ssize_t authorized_default_store(struct device *dev,
++					struct device_attribute *attr,
++					const char *buf, size_t size)
++{
++	ssize_t result;
++	unsigned int val;
++	struct usb_device *rh_usb_dev = to_usb_device(dev);
++	struct usb_bus *usb_bus = rh_usb_dev->bus;
++	struct usb_hcd *hcd;
++
++	hcd = bus_to_hcd(usb_bus);
++	result = sscanf(buf, "%u\n", &val);
++	if (result == 1) {
++		hcd->dev_policy = val <= USB_DEVICE_AUTHORIZE_INTERNAL ?
++			val : USB_DEVICE_AUTHORIZE_ALL;
++		result = size;
++	} else {
++		result = -EINVAL;
 +	}
++	return result;
++}
++static DEVICE_ATTR_RW(authorized_default);
++
++/*
++ * interface_authorized_default_show - show default authorization status
++ * for USB interfaces
++ *
++ * note: interface_authorized_default is the default value
++ *       for initializing the authorized attribute of interfaces
++ */
++static ssize_t interface_authorized_default_show(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	struct usb_device *usb_dev = to_usb_device(dev);
++	struct usb_hcd *hcd = bus_to_hcd(usb_dev->bus);
++
++	return sprintf(buf, "%u\n", !!HCD_INTF_AUTHORIZED(hcd));
++}
++
++/*
++ * interface_authorized_default_store - store default authorization status
++ * for USB interfaces
++ *
++ * note: interface_authorized_default is the default value
++ *       for initializing the authorized attribute of interfaces
++ */
++static ssize_t interface_authorized_default_store(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct usb_device *usb_dev = to_usb_device(dev);
++	struct usb_hcd *hcd = bus_to_hcd(usb_dev->bus);
++	int rc = count;
++	bool val;
++
++	if (strtobool(buf, &val) != 0)
++		return -EINVAL;
++
++	if (val)
++		set_bit(HCD_FLAG_INTF_AUTHORIZED, &hcd->flags);
++	else
++		clear_bit(HCD_FLAG_INTF_AUTHORIZED, &hcd->flags);
++
++	return rc;
++}
++static DEVICE_ATTR_RW(interface_authorized_default);
++
++/* Group all the USB bus attributes */
++static struct attribute *usb_bus_attrs[] = {
++		&dev_attr_authorized_default.attr,
++		&dev_attr_interface_authorized_default.attr,
++		NULL,
++};
++
++static const struct attribute_group usb_bus_attr_group = {
++	.name = NULL,	/* we want them in the same directory */
++	.attrs = usb_bus_attrs,
++};
++
++
++static int add_default_authorized_attributes(struct device *dev)
++{
++	int rc = 0;
++
++	if (is_usb_device(dev))
++		rc = sysfs_create_group(&dev->kobj, &usb_bus_attr_group);
++
++	return rc;
++}
++
++static void remove_default_authorized_attributes(struct device *dev)
++{
++	if (is_usb_device(dev)) {
++		sysfs_remove_group(&dev->kobj, &usb_bus_attr_group);
++	}
++}
++
+ int usb_create_sysfs_dev_files(struct usb_device *udev)
+ {
+ 	struct device *dev = &udev->dev;
+@@ -938,7 +1049,14 @@ int usb_create_sysfs_dev_files(struct usb_device *udev)
+ 	retval = add_power_attributes(dev);
+ 	if (retval)
+ 		goto error;
++
++	if (is_root_hub(udev)) {
++		retval = add_default_authorized_attributes(dev);
++		if (retval)
++			goto error;
++	}
+ 	return retval;
++
+ error:
+ 	usb_remove_sysfs_dev_files(udev);
+ 	return retval;
+@@ -948,6 +1066,9 @@ void usb_remove_sysfs_dev_files(struct usb_device *udev)
+ {
+ 	struct device *dev = &udev->dev;
  
- 	return 0;
++	if (is_root_hub(udev))
++		remove_default_authorized_attributes(dev);
++
+ 	remove_power_attributes(dev);
+ 	remove_persist_attributes(dev);
+ 	device_remove_bin_file(dev, &dev_bin_attr_descriptors);
+diff --git a/drivers/usb/core/usb.h b/drivers/usb/core/usb.h
+index bd8d01f85a13..0c9fde5ad052 100644
+--- a/drivers/usb/core/usb.h
++++ b/drivers/usb/core/usb.h
+@@ -153,6 +153,11 @@ static inline int is_usb_port(const struct device *dev)
+ 	return dev->type == &usb_port_device_type;
  }
+ 
++static inline int is_root_hub(struct usb_device *udev)
++{
++	return (udev->parent == NULL);
++}
++
+ /* Do the same for device drivers and interface drivers. */
+ 
+ static inline int is_usb_device_driver(struct device_driver *drv)
 
