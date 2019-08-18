@@ -2,80 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8C4291798
-	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 17:59:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DDE2917E1
+	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 18:41:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726089AbfHRP7o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Aug 2019 11:59:44 -0400
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:35587 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725786AbfHRP7o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Aug 2019 11:59:44 -0400
-Received: by mail-ed1-f68.google.com with SMTP id w20so9116485edd.2
-        for <stable@vger.kernel.org>; Sun, 18 Aug 2019 08:59:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition:user-agent;
-        bh=YtQgJT4A494ui6fKTGfhBmRclNb93UrWDKY2hAFB+k0=;
-        b=Y6gYv1U3OAAC3iCSlTkDucEcgde+5dSj+cWQU4xVBz20xWr1xp6L9DXeJ9mUQCkHJh
-         MpAJVdafaECCC8ZhPuEBUd8titt9NTAIvw2QOkAeNJS7TcwABnE3pDOHpqUC/VIrEaZu
-         FDhOMgCljVp/rcNzUYv6QAlvgr4ciMynWuzYErb2+dqZ8H3xB5gqjzmqT8BKlvly76pA
-         WcqAvfYnsyKICgrQanWJutLxWDdfpjpwMZ4jL7tcjzsyq57N7YdoX5r9b69dwWd5x30p
-         m3XEyM1PUyvydahmvmwweBsXuxaBgdqO4BuKGikfvA0HDD/nE75PPnrvuHLmslLvFZxS
-         BY5g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :mime-version:content-disposition:user-agent;
-        bh=YtQgJT4A494ui6fKTGfhBmRclNb93UrWDKY2hAFB+k0=;
-        b=ZDKhP6fjhkmKrmqoR41ecGDXVUacgvgfyz2p3Vwjh9BylD9Cb5TrE9Z85bt2eEW4gp
-         CC4yveRukD2MiasUW7Q+VNpFFKmt84fguzeZsnaVmKVadgnkKXpq0W8Z4cUpRqkmwqiI
-         mPxm3t4qeXwUlVC5ScYN6Nk8TR6OT6wA9SG7MSkJB6Ev9RPNACd7BjtiKUo4ZZZnRQxT
-         Oxy4HIWjIeap/0a1zJ2zMJWAk4VMp2eNLN2WBjK+yqSXvBIq/89igWNfrYvPPdx0LzpO
-         BtUQ0MZC+CwPlvichHkcTknrNcCwKi+XDzoLothK80mR7lESPXXZD3ctTC1P7WyjSgvV
-         j10w==
-X-Gm-Message-State: APjAAAUk6aAf4Xc8WnaB1RjtHepS6VpRoal95BqviJGB4s2DXaOFCpMi
-        KP89ANkO2bOgUeCrVgywNSg=
-X-Google-Smtp-Source: APXvYqw48WKeGICutTb+RMvs5fZM9ahepU3aXgbUsKlm8lRZy6FUoJj2ptG627uA0qJuXRZrmP8ORg==
-X-Received: by 2002:a17:906:c669:: with SMTP id ew9mr17858117ejb.217.1566143982421;
-        Sun, 18 Aug 2019 08:59:42 -0700 (PDT)
-Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
-        by smtp.gmail.com with ESMTPSA id m23sm797415ejj.61.2019.08.18.08.59.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 18 Aug 2019 08:59:41 -0700 (PDT)
-Date:   Sun, 18 Aug 2019 17:59:41 +0200
-From:   Salvatore Bonaccorso <carnil@debian.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Mike Snitzer <snitzer@redhat.com>
-Cc:     stable@vger.kernel.org, Alasdair Kergon <agk@redhat.com>,
-        dm-devel@redhat.com, Chris Hofstaedtler <zeha@debian.org>
-Subject: Backport request for bcb44433bba5 ("dm: disable DISCARD if the
- underlying storage no longer supports it")
-Message-ID: <20190818155941.GA26766@eldamar.local>
+        id S1726115AbfHRQlp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Aug 2019 12:41:45 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:32932 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726097AbfHRQlp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Aug 2019 12:41:45 -0400
+Received: from [192.168.4.242] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1hzOFR-0000CQ-Ro; Sun, 18 Aug 2019 17:41:41 +0100
+Received: from ben by deadeye with local (Exim 4.92.1)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1hzOFR-0002kI-Lm; Sun, 18 Aug 2019 17:41:41 +0100
+Message-ID: <a1775491e3dffb60afce950a28807f4049e3bf1c.camel@decadent.org.uk>
+Subject: Re: [PATCH 3.16 0/4] 3.16.73-rc1 review
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        Denis Kirjanov <kda@linux-powerpc.org>
+Date:   Sun, 18 Aug 2019 17:41:36 +0100
+In-Reply-To: <9bfbe161-70c5-d969-98e9-b94c911f09f6@roeck-us.net>
+References: <lsq.1566038111.397675943@decadent.org.uk>
+         <9bfbe161-70c5-d969-98e9-b94c911f09f6@roeck-us.net>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-Pe+nzvh1XPbDO30MCAPv"
+User-Agent: Evolution 3.30.5-1.1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-SA-Exim-Connect-IP: 192.168.4.242
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
 
-In Debian bug https://bugs.debian.org/934331 ran into issues which
-match the upstream commit bcb44433bba5 ("dm: disable DISCARD if the
-underlying storage no longer supports it").
+--=-Pe+nzvh1XPbDO30MCAPv
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-This commit was CC'ed to stable, but only got applied in v5.0.8 (and
-later on backported by Ben Hutchings to v3.16.72).
+On Sat, 2019-08-17 at 04:19 -0700, Guenter Roeck wrote:
+> On 8/17/19 3:35 AM, Ben Hutchings wrote:
+> > This is the start of the stable review cycle for the 3.16.73 release.
+> > There are 4 patches in this series, which will be posted as responses
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >=20
+> > Responses should be made by Mon Aug 19 20:00:00 UTC 2019.
+> > Anything received after that time might be too late.
+> >=20
+> Build results:
+> 	total: 136 pass: 136 fail: 0
+> Qemu test results:
+> 	total: 229 pass: 229 fail: 0
 
-Mike, I have not checked how easily that would be for older stable
-versions, but can the backport be considered for versions down to 4.9?
-Apparently Ben did succeed with some changes needed. To 4.19 it should
-apply with a small conflict in drivers/md/dm-core.h AFAICS.
+Thanks for testing,
 
-Regards,
-Salvatore
+Ben.
+
+--=20
+Ben Hutchings
+Larkinson's Law: All laws are basically false.
+
+
+
+--=-Pe+nzvh1XPbDO30MCAPv
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl1Zf8AACgkQ57/I7JWG
+EQk7oQ/8Cw6dS3M1/L+js5wdoVaeHlQBzji3Xoo2RiorjXrIGvJRCeEEDvFyB5VU
+di6F8uxbUPmXRPl4y9yFKi+Es/lcc+k8kHnkNtDpOcqn9s4hlCi3PLxjnz1TrrSK
+VfPZMRxpGEB2dT3psBqQuZOMypMu4UNDWeP5SwUpRWT/ZRL1X5HEdUnC192ZBNPA
+V/8OwXwtmwZ346jWKziONBOVCywJu5VvlHNX4E0pWDynz0r3R2Om5s+F/HhdkjHz
+Ne5SsAMPEx+QlUKX5A8zVOcin1IiHdFmvFHCr17vrj5yAYgOyzeZ5M4cw/nBykZ8
+RSE0PNPKTmcUszu7gD6SnPzFS8behcAMtBJXIwvLDh0pb8yNeNMBIsWXxuTobsHH
+6mGEDluSIK8y8lD+OaQBO9AzRlY79NENZh5n9Q6+dBBp62tMcxY4zp8zNFeLSfJz
+mAayVNMENaLrjxEdkB8IpbmBFUSaONlu/THVelHD3cd+CLYJGbQBlW1aQ/BFOc0J
+XmCSoxc8qVw6TI9R+Z8oQ62pzwTdWMBZNERjIYc2lR8humH/xdCR/pWbfpLhS0wU
+9XAyhDwsKbwL88ZPKoeGVt5UH3TJh/YI+P7EcwpKf72eUUbSzpWuQXim0icgHwgW
+PK5jP1jKu4SUvx0KcCuXYSvn0WZ4fsJyIDDA4dCBDjBCjMRzcuQ=
+=QPGF
+-----END PGP SIGNATURE-----
+
+--=-Pe+nzvh1XPbDO30MCAPv--
