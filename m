@@ -2,111 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 562B59190C
-	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 20:49:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A07291917
+	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 20:59:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726115AbfHRStE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Aug 2019 14:49:04 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:37521 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726005AbfHRStE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Aug 2019 14:49:04 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 7805421B36;
-        Sun, 18 Aug 2019 14:49:03 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 18 Aug 2019 14:49:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=8
-        AF28BINYGwkofGMv7RKfCm+g+0CssOgKU/p8dG2bCA=; b=oozoWQBooccpahywm
-        AABdlu4OlF68n6uSMmQMKO2itErj4PiWoANDKp7aVzGd2PiRpUquS2eOf8xvwWnz
-        iPCNsg2WC2CtHnI5dVAnlyaCBx9GeW4EsYLFubjkSI49Dj2KdTdcMzUBLN/y3kIE
-        KreHf5kk6wy9UEpI0UEFWL0nlpF5lGYU1j0EFVkV21OdysBJrPqDoWLcLEZ/oT2T
-        Oak6AZOJgmXRnluaRzLmQ4x/WIqnwNnzlH8eGMlSPyh3o2uEVTCyMDfS4mlRqT0i
-        Tnrwy6immYQCq58nesqpqMlpBt/j+hO4IZz7veFMmQsM+Cs2xDDYLiNhStB7yep9
-        pU3wA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=8AF28BINYGwkofGMv7RKfCm+g+0CssOgKU/p8dG2b
-        CA=; b=A2avYhIzbfm4M9tyEEMbegUNb69akMvshHQD/mzc8BNhnr1W2X9urxax4
-        fCA+o1gLiDbqy3t8ZOO9JN3vBi6FRnAfPO9IMCRa8TjAtHr4XGg6Fv826bT8NOzj
-        uRPRJqKvckJoLZaI1DX7GTxpeJg8I2+3HRlE5IkVjJ4rg0cKzjObhuWoAJ6baJ9U
-        zftkV6uXHKW/9mf319oNicdvWWejOl2EqE5xQaDeNlJYRf2EE9Od/EcsmmoQypjA
-        JLhMFdgfI0g+lIBUo383hfKCuv+QeD9rVe3aNoKJA74nApjqJe3O7Jwf+R8ckCuo
-        Jc2JU8k+SrxRqIXQVpLE3HnlwXc9A==
-X-ME-Sender: <xms:np1ZXRjz1IX30pu9DoeZDLqVHYTmymtS5Jb2Bqu9W8ohdOdG7HnPug>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudefjedguddvlecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggugfgjfgesthekredttderjeenucfhrhhomhepifhr
-    vghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpegtkhhiqd
-    hprhhojhgvtghtrdhorhhgpdhkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeel
-    rddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-    enucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:np1ZXWeE3Wur_E171zwjBXoJdTz6lKJJIHShKb95AWGMCq-Id9qxEg>
-    <xmx:np1ZXQ1aHbTtUsPFWWz-WXVVSkF4yjSr-knBfgm85dUWKbTztVe4Ww>
-    <xmx:np1ZXSrV9K-lNjNdb8zjfChVrCmKLswJgIp-GSgQvCOgALUTI30yvA>
-    <xmx:n51ZXdB7KaYIVy7Kbwi-1DpTPQiP2qW_PjSoQdiiRSh_JBJqI5IAAw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 67E818005A;
-        Sun, 18 Aug 2019 14:49:02 -0400 (EDT)
-Date:   Sun, 18 Aug 2019 20:49:00 +0200
-From:   Greg KH <greg@kroah.com>
-To:     CKI Project <cki-project@redhat.com>
-Cc:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
- 5.2.10-rc1-61d06c6.cki (stable)
-Message-ID: <20190818184900.GE2791@kroah.com>
-References: <cki.8FD44CAC8D.KLM2TF66J1@redhat.com>
+        id S1726115AbfHRS7R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Aug 2019 14:59:17 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:53828 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726247AbfHRS7O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Aug 2019 14:59:14 -0400
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com [209.85.221.72])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id D0775C05683F
+        for <stable@vger.kernel.org>; Sun, 18 Aug 2019 18:59:13 +0000 (UTC)
+Received: by mail-wr1-f72.google.com with SMTP id o5so4041587wrg.15
+        for <stable@vger.kernel.org>; Sun, 18 Aug 2019 11:59:13 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=rLnw+O344r+V6G+bSidLmsGPxTIhpm+W7MqHjsCtkcU=;
+        b=W3Fhm6X94APEOeewH4BqMuWI5pW1KdYyIGtQqcpHa/Gj9kLvMWCKtGYRL4wPdezRcN
+         Xl3+B5HvbgA+1hEeaxeoUkQnPu/2mbykZVAG5eLIZVT6iArrA3ktZVHMV/3uKgdoeOR3
+         mLr6DMJANVd8580GedEF8yfVtM8/YNNPwoldUe/caVlFhuN9LsL93oOsubuz8y+mZJZ8
+         NsWChwApOUEd3hxgxDpqIe1x90UC6Cel3y5zhAU/A+tUAQcPpi6TXSsQ9YtmFgQt0W5E
+         i6ANwApR4vMd9ayyJ0Cho9LHHWcGGrYsvStJvCrpw/8fkjVb/BcGPCwizZJdhWgk+iRc
+         PiPA==
+X-Gm-Message-State: APjAAAXgCcFIsO+UYQY5ICcG6PZ+/yrMBimEGYkaqhXvHg/Jjo33e0/u
+        z4udB+9PADgHFd93gDu3ihLB55xv9RvtaIccG2TwelT7uaVueP7Xcm3NtMyFxXHBWbor2/8LBBB
+        oddU9unq0g0VpnOis
+X-Received: by 2002:adf:9d8b:: with SMTP id p11mr21383313wre.226.1566154752036;
+        Sun, 18 Aug 2019 11:59:12 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqwCda0oiQniE8VTTJFhm/VcFLZnJgyLuV1Uw2JLit2LXkvDt7KgGz4+bry6gm1vc/dhnCQ+Hw==
+X-Received: by 2002:adf:9d8b:: with SMTP id p11mr21383299wre.226.1566154751896;
+        Sun, 18 Aug 2019 11:59:11 -0700 (PDT)
+Received: from shalem.localdomain (84-106-84-65.cable.dynamic.v4.ziggo.nl. [84.106.84.65])
+        by smtp.gmail.com with ESMTPSA id s2sm10777294wrp.32.2019.08.18.11.59.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 18 Aug 2019 11:59:10 -0700 (PDT)
+Subject: Re: [PATCH] Skip deferred request irqs for devices known to fail
+To:     Ian W MORRISON <ianwmorrison@gmail.com>
+Cc:     benjamin.tissoires@redhat.com, mika.westerberg@linux.intel.com,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
+        linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20190322110515.21499-1-ianwmorrison@gmail.com>
+ <b5a7b895-e08d-f432-8606-4d8c776d4a8a@redhat.com>
+ <CAFXWsS9UYYz0HaYPgLAUZ0OaUE9gb25bT0+PSuexY9Nn05rY8Q@mail.gmail.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <c144cbd0-1773-14cd-62c9-6f41eab5894a@redhat.com>
+Date:   Sun, 18 Aug 2019 20:59:09 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <cki.8FD44CAC8D.KLM2TF66J1@redhat.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <CAFXWsS9UYYz0HaYPgLAUZ0OaUE9gb25bT0+PSuexY9Nn05rY8Q@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Aug 18, 2019 at 02:31:22PM -0400, CKI Project wrote:
-> 
-> Hello,
-> 
-> We ran automated tests on a recent commit from this kernel tree:
-> 
->        Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
->             Commit: 61d06c60569f - Linux 5.2.10-rc1
-> 
-> The results of these automated tests are provided below.
-> 
->     Overall result: FAILED (see details below)
->              Merge: OK
->            Compile: OK
->              Tests: FAILED
-> 
-> All kernel binaries, config files, and logs are available for download here:
-> 
->   https://artifacts.cki-project.org/pipelines/108998
-> 
-> 
-> 
-> One or more kernel tests failed:
-> 
->   aarch64:
->     ❌ Boot test
->     ❌ Boot test
-> 
->   ppc64le:
->     ❌ Boot test
->     ❌ Boot test
-> 
->   x86_64:
->     ❌ Boot test
->     ❌ Boot test
-> 
+Hi Ian, et. al.,
 
-Are these all real?
+On 23-03-19 04:39, Ian W MORRISON wrote:
+> Hi Hans,
+> 
+>> IMHO we need to root-cause this problem a bit more before applying this
+>> kludge.
+>>
+>> Can you provide an ACPI dump of one of the affected machines ?
+>>
+> 
+> Attached is an ACPI dump.
+
+First of all sorry for taking way too long to get back to you on this.
+
+So I've taken a look at all the _AEI code in the DSDT, a whole bunch of
+it seems copy and pasted from various tablets, but nothing really
+stands out as being a likely cause of this.
+
+As such I guess we may need to go with the blacklist patch you suggested
+which sucks, but having these devices not boot sucks even harder.
+
+I guess this problem did not magically fix it self in the mean time
+(with newer kernels) ?
+
+Can you resubmit your patch with Andy's review remarks addressed?
+
+In case you've lost Andy's reply I will reproduce the review remarks
+below.
+
+Regards,
+
+Hans
+
+p.s.
+
+Andy's review remarks as promised:
+
+ >  #include <linux/interrupt.h>
+ >  #include <linux/mutex.h>
+ >  #include <linux/pinctrl/pinctrl.h>
+ > +#include <linux/dmi.h>
+
+This should be in order.
+
+ >  /* Run deferred acpi_gpiochip_request_irqs() */
+ > +/* but exclude devices known to fail */
+
+/*
+  * This should be done in the similar style
+  * as for multi-line comments. Like this one.
+  */
+
+ > +	dmi_id = dmi_first_match(skip_deferred_request_irqs_table);
+ > +
+
+Redundant blank line.
+
+ > +	if (! dmi_id) {
+
+No space here, however, better to write positive conditional.
+
