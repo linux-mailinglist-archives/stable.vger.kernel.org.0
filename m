@@ -2,128 +2,288 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8213A91750
-	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 16:20:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEE4091753
+	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 16:27:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726097AbfHROUM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Aug 2019 10:20:12 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:53615 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725786AbfHROUM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Aug 2019 10:20:12 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 98C1021BF9;
-        Sun, 18 Aug 2019 10:20:11 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 18 Aug 2019 10:20:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=Z
-        TIn6stjSrxzk3Nxai/fYfOkx6KtvVGx5bMZKNx5dVU=; b=pRQsIGbmjz1PyODIl
-        TGdGKLTSjIH4YWprKXcel8tuiGaDwabHG37NDNIslnctV2g8tDY0BdJ8Q87JGV+U
-        ar1vwAE3lOf8k/d3RVOl3cxsSowgZWWF5DEjQSZ7R8MOGNs0xmU9cgSo+Dh/w6kr
-        4M+Ntyk/NIepAcHitaRuGGIZykPBdCHQMglyh6KmCA8Or8esevE8JzASxanPWIt/
-        3IpqZbWBP/MuMD/fFMXfdwSl1UGL/YIJQxHmZJDfrmR9Bek2Vla5Abo0zhCassRl
-        a47NdgEhc3IbZo/V/sHmDoBnP97kT8p2CMfd/9qSM5I0e/wKltt1Lz0RYTNIwA13
-        oHSFg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=ZTIn6stjSrxzk3Nxai/fYfOkx6KtvVGx5bMZKNx5d
-        VU=; b=UtwyetPU0ps9uYZJRcIs0mhQh5Z+Xhl3pWEvbuq/EwhthC/DQXXXvUTg6
-        OqwY5V6izB29Tldot38ceQCd56Noib4PcG6mYh1f6qU12h71S+GNMgvYo+kNMROO
-        BrjA0EvQg0yK/TLOxlEn6oVt4+Ib+kUIrdxB6oIuXdbvlrQPHALZR5lyxyMurBYs
-        tUqeRC/JpnTOy0D1YueuEAlXO0uHW2sKV2GlpBOLA2pfPKlvlGDKY8fJHj80tnzg
-        0OXWT7lJu8MkiZom8QoNfT5L1AjUOBokCO+hExcLdKiXoaBUqA+OiyJ/iM9XpcUK
-        wARL/DuXGaGhVRGOq91O/IZ4NPLQQ==
-X-ME-Sender: <xms:m15ZXft6MGEaurkhNR-hc4OH3lIDcmRwcPWD_cZ9O6fpCDQE5cnKjw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudefjedgjeefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtugfgjggfsehtkeertddtreejnecuhfhrohhmpefirhgv
-    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucffohhmrghinheptghkihdqph
-    hrohhjvggtthdrohhrghdpkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledr
-    uddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmne
-    cuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:m15ZXSU3SiQ94gb_DDLo-Adk5dHMSXXLhCT5Mu17JiMaHeVdflo5Vg>
-    <xmx:m15ZXX7qnv4bh2UougCAcCd6pFtnhcsIkDY5Rg_F9GXYhIVgbofwrQ>
-    <xmx:m15ZXeZ0UOpPi2tz1xYF8fxW40FQdm-yjFwS6cCK5kNdCap8GCBzzQ>
-    <xmx:m15ZXY91zdqueJma2bGa7sVvQcWAcEcPDu8xJoaMqk_ox4f5K5yurQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E45C980061;
-        Sun, 18 Aug 2019 10:20:10 -0400 (EDT)
-Date:   Sun, 18 Aug 2019 16:20:09 +0200
-From:   Greg KH <greg@kroah.com>
-To:     CKI Project <cki-project@redhat.com>
-Cc:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Stable queue: queue-5.2
-Message-ID: <20190818142009.GA13411@kroah.com>
-References: <cki.A5CB2BDFB2.E5K8JQ6VC2@redhat.com>
+        id S1726523AbfHRO1Y convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sun, 18 Aug 2019 10:27:24 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:33110 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726097AbfHRO1Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Aug 2019 10:27:24 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 18612189DACC
+        for <stable@vger.kernel.org>; Sun, 18 Aug 2019 14:27:24 +0000 (UTC)
+Received: from [172.54.61.75] (cpt-1031.paas.prod.upshift.rdu2.redhat.com [10.0.19.58])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id AF050B2E10;
+        Sun, 18 Aug 2019 14:27:21 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <cki.A5CB2BDFB2.E5K8JQ6VC2@redhat.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2M?= FAIL: Stable queue: queue-5.2
+Message-ID: <cki.63E670325B.BC3Y8LFEEL@redhat.com>
+X-Gitlab-Pipeline-ID: 108662
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/108662
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.63]); Sun, 18 Aug 2019 14:27:24 +0000 (UTC)
+Date:   Sun, 18 Aug 2019 10:27:24 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Aug 18, 2019 at 10:05:27AM -0400, CKI Project wrote:
-> 
-> Hello,
-> 
-> We ran automated tests on a patchset that was proposed for merging into this
-> kernel tree. The patches were applied to:
-> 
->        Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
->             Commit: aad39e30fb9e - Linux 5.2.9
-> 
-> The results of these automated tests are provided below.
-> 
->     Overall result: FAILED (see details below)
->              Merge: OK
->            Compile: OK
->              Tests: FAILED
-> 
-> All kernel binaries, config files, and logs are available for download here:
-> 
->   https://artifacts.cki-project.org/pipelines/108690
-> 
-> 
-> 
-> One or more kernel tests failed:
-> 
->   aarch64:
->     ❌ Boot test
->     ❌ Boot test
-> 
->   ppc64le:
->     ❌ Boot test
->     ❌ Boot test
-> 
->   x86_64:
->     ❌ Boot test
->     ❌ Boot test
-> 
-> We hope that these logs can help you find the problem quickly. For the full
-> detail on our testing procedures, please scroll to the bottom of this message.
-> 
-> Please reply to this email if you have any questions about the tests that we
-> ran or if you have any suggestions on how to make future tests more effective.
-> 
->         ,-.   ,-.
->        ( C ) ( K )  Continuous
->         `-',-.`-'   Kernel
->           ( I )     Integration
->            `-'
-> ______________________________________________________________________________
 
-So everything is now failing?  Any hints at to what caused this all of a
-sudden?
+Hello,
 
-thanks,
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-greg k-h
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: aad39e30fb9e - Linux 5.2.9
+
+The results of these automated tests are provided below.
+
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: OK
+             Tests: FAILED
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://artifacts.cki-project.org/pipelines/108662
+
+
+
+One or more kernel tests failed:
+
+  aarch64:
+    ❌ Boot test
+
+  ppc64le:
+    ❌ Boot test
+    ❌ Boot test
+
+  x86_64:
+    ❌ Boot test
+    ❌ Boot test
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this message.
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: aad39e30fb9e - Linux 5.2.9
+
+
+We grabbed the 5680205d56e7 commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  keys-trusted-allow-module-init-if-tpm-is-inactive-or-deactivated.patch
+  sh-kernel-hw_breakpoint-fix-missing-break-in-switch-statement.patch
+  seq_file-fix-problem-when-seeking-mid-record.patch
+  mm-hmm-fix-bad-subpage-pointer-in-try_to_unmap_one.patch
+  mm-mempolicy-make-the-behavior-consistent-when-mpol_mf_move-and-mpol_mf_strict-were-specified.patch
+  mm-mempolicy-handle-vma-with-unmovable-pages-mapped-correctly-in-mbind.patch
+  mm-z3fold.c-fix-z3fold_destroy_pool-ordering.patch
+  mm-z3fold.c-fix-z3fold_destroy_pool-race-condition.patch
+  mm-memcontrol.c-fix-use-after-free-in-mem_cgroup_iter.patch
+  mm-usercopy-use-memory-range-to-be-accessed-for-wraparound-check.patch
+  mm-vmscan-do-not-special-case-slab-reclaim-when-watermarks-are-boosted.patch
+  cpufreq-schedutil-don-t-skip-freq-update-when-limits-change.patch
+  drm-amdgpu-fix-gfx9-soft-recovery.patch
+  drm-nouveau-only-recalculate-pbn-vcpi-on-mode-connector-changes.patch
+  xtensa-add-missing-isync-to-the-cpu_reset-tlb-code.patch
+  arm64-ftrace-ensure-module-ftrace-trampoline-is-coherent-with-i-side.patch
+  alsa-hda-realtek-add-quirk-for-hp-envy-x360.patch
+  alsa-usb-audio-fix-a-stack-buffer-overflow-bug-in-check_input_term.patch
+  alsa-usb-audio-fix-an-oob-bug-in-parse_audio_mixer_unit.patch
+  alsa-hda-apply-workaround-for-another-amd-chip-1022-1487.patch
+  alsa-hda-fix-a-memory-leak-bug.patch
+  alsa-hda-add-a-generic-reboot_notify.patch
+  alsa-hda-let-all-conexant-codec-enter-d3-when-rebooting.patch
+  hid-holtek-test-for-sanity-of-intfdata.patch
+  hid-hiddev-avoid-opening-a-disconnected-device.patch
+  hid-hiddev-do-cleanup-in-failure-of-opening-a-device.patch
+  input-kbtab-sanity-check-for-endpoint-type.patch
+  input-iforce-add-sanity-checks.patch
+  net-usb-pegasus-fix-improper-read-if-get_registers-fail.patch
+  bpf-fix-access-to-skb_shared_info-gso_segs.patch
+  netfilter-ebtables-also-count-base-chain-policies.patch
+  rdma-hns-fix-sg-offset-non-zero-issue.patch
+  ib-mlx5-replace-kfree-with-kvfree.patch
+  clk-at91-generated-truncate-divisor-to-generated_max.patch
+  clk-sprd-select-regmap_mmio-to-avoid-compile-errors.patch
+  clk-renesas-cpg-mssr-fix-reset-control-race-conditio.patch
+  dma-mapping-check-pfn-validity-in-dma_common_-mmap-g.patch
+  platform-x86-pcengines-apuv2-fix-softdep-statement.patch
+  platform-x86-intel_pmc_core-add-icl-nnpi-support-to-.patch
+  mm-hmm-always-return-ebusy-for-invalid-ranges-in-hmm.patch
+  xen-pciback-remove-set-but-not-used-variable-old_sta.patch
+  irqchip-gic-v3-its-free-unused-vpt_page-when-alloc-v.patch
+  irqchip-irq-imx-gpcv2-forward-irq-type-to-parent.patch
+  f2fs-fix-to-read-source-block-before-invalidating-it.patch
+  tools-perf-beauty-fix-usbdevfs_ioctl-table-generator.patch
+  perf-header-fix-divide-by-zero-error-if-f_header.att.patch
+  perf-header-fix-use-of-unitialized-value-warning.patch
+  rdma-qedr-fix-the-hca_type-and-hca_rev-returned-in-d.patch
+  alsa-pcm-fix-lost-wakeup-event-scenarios-in-snd_pcm_.patch
+  libata-zpodd-fix-small-read-overflow-in-zpodd_get_me.patch
+  powerpc-nvdimm-pick-nearby-online-node-if-the-device.patch
+  drm-bridge-lvds-encoder-fix-build-error-while-config.patch
+  drm-bridge-tc358764-fix-build-error.patch
+  btrfs-fix-deadlock-between-fiemap-and-transaction-co.patch
+  scsi-hpsa-correct-scsi-command-status-issue-after-re.patch
+  scsi-qla2xxx-fix-possible-fcport-null-pointer-derefe.patch
+  exit-make-setting-exit_state-consistent.patch
+  tracing-fix-header-include-guards-in-trace-event-hea.patch
+  drm-amdkfd-fix-byte-align-on-vegam.patch
+  drm-amd-powerplay-fix-null-pointer-dereference-aroun.patch
+  drm-amdgpu-fix-error-handling-in-amdgpu_cs_process_f.patch
+  drm-amdgpu-fix-a-potential-information-leaking-bug.patch
+  ata-libahci-do-not-complain-in-case-of-deferred-prob.patch
+  kbuild-modpost-handle-kbuild_extra_symbols-only-for-.patch
+  kbuild-check-for-unknown-options-with-cc-option-usag.patch
+  arm64-efi-fix-variable-si-set-but-not-used.patch
+  riscv-fix-perf-record-without-libelf-support.patch
+  arm64-lower-priority-mask-for-gic_prio_irqon.patch
+  arm64-unwind-prohibit-probing-on-return_address.patch
+  arm64-mm-fix-variable-pud-set-but-not-used.patch
+  arm64-mm-fix-variable-tag-set-but-not-used.patch
+  ib-core-add-mitigation-for-spectre-v1.patch
+  ib-mlx5-fix-mr-registration-flow-to-use-umr-properly.patch
+  rdma-restrack-track-driver-qp-types-in-resource-trac.patch
+  ib-mad-fix-use-after-free-in-ib-mad-completion-handl.patch
+  rdma-mlx5-release-locks-during-notifier-unregister.patch
+  drm-msm-fix-add_gpu_components.patch
+  rdma-hns-fix-error-return-code-in-hns_roce_v1_rsv_lp.patch
+  drm-exynos-fix-missing-decrement-of-retry-counter.patch
+  arm64-kprobes-recover-pstate.d-in-single-step-except.patch
+  arm64-make-debug-exception-handlers-visible-from-rcu.patch
+  revert-kmemleak-allow-to-coexist-with-fault-injectio.patch
+  ocfs2-remove-set-but-not-used-variable-last_hash.patch
+  page-flags-prioritize-kasan-bits-over-last-cpuid.patch
+  asm-generic-fix-wtype-limits-compiler-warnings.patch
+  tpm-tpm_ibm_vtpm-fix-unallocated-banks.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+      Host 1:
+         ❌ Boot test [0]
+         ⚡⚡⚡ xfstests: xfs [1]
+         ⚡⚡⚡ selinux-policy: serge-testsuite [2]
+
+
+  ppc64le:
+      Host 1:
+         ❌ Boot test [0]
+         ⚡⚡⚡ xfstests: xfs [1]
+         ⚡⚡⚡ selinux-policy: serge-testsuite [2]
+
+      Host 2:
+         ❌ Boot test [0]
+         ⚡⚡⚡ Podman system integration test (as root) [3]
+         ⚡⚡⚡ Podman system integration test (as user) [3]
+         ⚡⚡⚡ LTP lite [4]
+         ⚡⚡⚡ Loopdev Sanity [5]
+         ⚡⚡⚡ jvm test suite [6]
+         ⚡⚡⚡ AMTU (Abstract Machine Test Utility) [7]
+         ⚡⚡⚡ LTP: openposix test suite [8]
+         ⚡⚡⚡ Networking socket: fuzz [9]
+         ⚡⚡⚡ audit: audit testsuite test [10]
+         ⚡⚡⚡ httpd: mod_ssl smoke sanity [11]
+         ⚡⚡⚡ iotop: sanity [12]
+         ⚡⚡⚡ tuned: tune-processes-through-perf [13]
+         ⚡⚡⚡ Usex - version 1.9-29 [14]
+
+
+  x86_64:
+      Host 1:
+         ❌ Boot test [0]
+         ⚡⚡⚡ Podman system integration test (as root) [3]
+         ⚡⚡⚡ Podman system integration test (as user) [3]
+         ⚡⚡⚡ LTP lite [4]
+         ⚡⚡⚡ Loopdev Sanity [5]
+         ⚡⚡⚡ jvm test suite [6]
+         ⚡⚡⚡ AMTU (Abstract Machine Test Utility) [7]
+         ⚡⚡⚡ LTP: openposix test suite [8]
+         ⚡⚡⚡ Networking socket: fuzz [9]
+         ⚡⚡⚡ audit: audit testsuite test [10]
+         ⚡⚡⚡ httpd: mod_ssl smoke sanity [11]
+         ⚡⚡⚡ iotop: sanity [12]
+         ⚡⚡⚡ tuned: tune-processes-through-perf [13]
+         ⚡⚡⚡ pciutils: sanity smoke test [15]
+         ⚡⚡⚡ Usex - version 1.9-29 [14]
+         ⚡⚡⚡ storage: SCSI VPD [16]
+         ⚡⚡⚡ stress: stress-ng [17]
+
+      Host 2:
+         ❌ Boot test [0]
+         ⚡⚡⚡ xfstests: xfs [1]
+         ⚡⚡⚡ selinux-policy: serge-testsuite [2]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/container/podman
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/jvm
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
+    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
+    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
