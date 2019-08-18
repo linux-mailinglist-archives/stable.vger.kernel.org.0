@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B3AF9198B
-	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 22:30:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC74A9198E
+	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 22:37:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726925AbfHRUaf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Aug 2019 16:30:35 -0400
-Received: from mail-wr1-f46.google.com ([209.85.221.46]:44857 "EHLO
-        mail-wr1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726270AbfHRUae (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Aug 2019 16:30:34 -0400
-Received: by mail-wr1-f46.google.com with SMTP id p17so6550262wrf.11
-        for <stable@vger.kernel.org>; Sun, 18 Aug 2019 13:30:28 -0700 (PDT)
+        id S1726247AbfHRUha (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Aug 2019 16:37:30 -0400
+Received: from mail-wm1-f51.google.com ([209.85.128.51]:56039 "EHLO
+        mail-wm1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726097AbfHRUh3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Aug 2019 16:37:29 -0400
+Received: by mail-wm1-f51.google.com with SMTP id f72so1242130wmf.5
+        for <stable@vger.kernel.org>; Sun, 18 Aug 2019 13:37:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=dn9jkTaLsCdMiISSRkVbLDFVsgMfy9/F04//yCoocrU=;
-        b=xWbqf0JfGi0NMemG8cHdmiuGn9HV9xsm6rdH/l6JJFk+WkH9pUHrQMN7vL48Enq82q
-         ErP07/zHNsdFbhED4YgtVjLcSxF2uQiY1hJ+yLOhSx2WBTdG5fclNQMduG8DaPYQVmxs
-         PC3e3X5uJJWB8XeVEtEtkB3qHLNRQHKL0ttYEtWPfXnAqk1HbmWO9Dq8VaMwyfq4U9/T
-         jc76sKvz2y6A0ZHoA85+bwCumCY6j4rvzaSZWjTcZloFbojqwqkhK1VCYyUUiOoquKuk
-         omOrZHYoM5eahq3J01qW0hEr6VXLwb7f0xUa7H/CnTNbjLfkJKjSb3QmoDTrL5S6CGI3
-         Fx3A==
+        bh=kj+JkuS8Zr9UDVSkhE/L4bwJ1UlXRyX2fY27Pf7Hq/g=;
+        b=TOcKi2gaxf0nMlJ4X/FWinnAcOy5ohFsrPn9wHL9HHsWCJL7m8w/r08RKRj1nwZBbv
+         IBmHaGGMIb6DYSV2XX16yxxOc242kR6peCF6gc3G+IM8skpU+bncIjTQc1nYwg7b0jya
+         4exkFT9H4Me9Aptwfu1+etg5Qzb63MwwFNR2PtYDFv1bU8DhvPpqpYzwtXA3mU/1YZY2
+         0i2aeCTu4gisVpGN4YTWllbNuRRV9Lla8Xg67uPaxLQy9ZoQXyw6zG8sran1b1xD1PXH
+         5nBfDEAZkm2BJgB5zrIwewy8kD5j5gA14ToQS1yuw6kWxXJuJx/E7DAHYszGDQuiR7aW
+         EMFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=dn9jkTaLsCdMiISSRkVbLDFVsgMfy9/F04//yCoocrU=;
-        b=ZCEEk51AQiaFYqf7td/iy5veA6Y5R8LFPrvsajM2Nx8wziW+1lu8nH0Hwq3IiMURqX
-         ZidzGIA18kHXXFlyrU2EMfjWE17hS8sO3Eb6+5jdDmq0rN8IPGFoFkuALsEILv1T3vGP
-         uNxRH6UIoKYx0oARY5G4cl/5Z3xB1W8d+b6yDaUlP1SwqJfHBKGis4bZXYOUlINOwb+f
-         4f1vQsZKNtP7PproOhHnBpS+OGM3DNPOnm3ZdHAPU24LSs8/AwCR6i1E41kUj7v2hMz5
-         GOp2LcGbZ4lU1pQnV05h5cM84Ky1aKT1THeMJmj1k/FEiLuLvZIdNtjY1QRXMO/vvPnT
-         o/8w==
-X-Gm-Message-State: APjAAAXUrnxDXijC2Od7ESlkpo2Qmx9Uy9gwC8u0c7geO2iQ0jwDhbC5
-        p5R7UGvyCdkgl+YOfeD1iw93xpNGR6s=
-X-Google-Smtp-Source: APXvYqwN8jxv/ZvzuIRKJSIqsnLY9Gjb2U6IaSsaT9QEZ9OQJM3RwlFWjozUxV8OaPZCvYQ/rkTX6Q==
-X-Received: by 2002:a5d:4211:: with SMTP id n17mr20984719wrq.137.1566160227037;
-        Sun, 18 Aug 2019 13:30:27 -0700 (PDT)
+        bh=kj+JkuS8Zr9UDVSkhE/L4bwJ1UlXRyX2fY27Pf7Hq/g=;
+        b=ntu1x+2kG8wtPyNU8uea1fA5iQuz3mKM1OUMjm8WBi+CM8Ui/ZwVRlj8sCvrFOgBud
+         Lwxhl+mRdmoazSyO4yFe14hIFGsor6MNWb9FcAB18Go8nHEln8P2ezLAp0Nvhxd2JrT5
+         UWv0u9xZhl48jRVsH+61ofmmO8ZaU9NZUo7GgskS5GC8PWo32O7NeRcfjdniKp4FBjir
+         cvc/C+sEe1uERHJXQMzcjhdtQcY9nHWvrLivPmM6tZxe+fHPz6m68CE/JQcdevDyP7zw
+         2G5LC5QSsnYv9b0Om2w8jpQrq60knIXLiADbOQm/MswoHQGn3dRqin9buINNlx/veHY3
+         uV3w==
+X-Gm-Message-State: APjAAAUP5rk7i+3dbegvsyOBWOnVSiARxYWPqo47QePyRxpx3Db1MrvG
+        c5tP07ja9KiEppl7IRcP1x6Ex6RYUGM=
+X-Google-Smtp-Source: APXvYqzzcesqv15D+nYgMM5+4NJq1yxFm6IRQTJexDQTpvC9flQ2z2NGrbQJSlRXBVE8+TRER/o27w==
+X-Received: by 2002:a1c:be19:: with SMTP id o25mr16321182wmf.54.1566160645481;
+        Sun, 18 Aug 2019 13:37:25 -0700 (PDT)
 Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id m188sm16670065wmm.32.2019.08.18.13.30.25
+        by smtp.gmail.com with ESMTPSA id n14sm39671021wra.75.2019.08.18.13.37.24
         for <stable@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 18 Aug 2019 13:30:25 -0700 (PDT)
-Message-ID: <5d59b561.1c69fb81.fa733.1628@mx.google.com>
-Date:   Sun, 18 Aug 2019 13:30:25 -0700 (PDT)
+        Sun, 18 Aug 2019 13:37:25 -0700 (PDT)
+Message-ID: <5d59b705.1c69fb81.a452d.e66b@mx.google.com>
+Date:   Sun, 18 Aug 2019 13:37:25 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.189-66-g5d14c171a0a0
+X-Kernelci-Kernel: v4.9.189-84-gfe210ed24b65
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: build
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y build: 190 builds: 12 failed, 178 passed,
- 7 errors, 20 warnings (v4.4.189-66-g5d14c171a0a0)
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y boot: 103 boots: 87 failed,
+ 0 passed with 16 offline (v4.9.189-84-gfe210ed24b65)
 To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
@@ -63,1146 +63,487 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y build: 190 builds: 12 failed, 178 passed, 7 errors, 2=
-0 warnings (v4.4.189-66-g5d14c171a0a0)
+stable-rc/linux-4.9.y boot: 103 boots: 87 failed, 0 passed with 16 offline =
+(v4.9.189-84-gfe210ed24b65)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.189-66-g5d14c171a0a0/
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.189-84-gfe210ed24b65/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.189-84-gfe210ed24b65/
 
 Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.189-66-g5d14c171a0a0
-Git Commit: 5d14c171a0a070385f004b7f264a65006a63cca1
+Branch: linux-4.9.y
+Git Describe: v4.9.189-84-gfe210ed24b65
+Git Commit: fe210ed24b655ecf3cbc0a9a59d4a27bca605d73
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Built: 6 unique architectures
+Tested: 50 unique boards, 22 SoC families, 15 builds out of 197
 
-Build Failures Detected:
+Boot Regressions Detected:
 
-arc:
-    axs103_defconfig: (gcc-8) FAIL
-    axs103_smp_defconfig: (gcc-8) FAIL
-    nsim_hs_defconfig: (gcc-8) FAIL
-    nsim_hs_smp_defconfig: (gcc-8) FAIL
-    nsimosci_hs_defconfig: (gcc-8) FAIL
-    nsimosci_hs_smp_defconfig: (gcc-8) FAIL
+arm:
 
-mips:
-    bigsur_defconfig: (gcc-8) FAIL
-    decstation_defconfig: (gcc-8) FAIL
-    jmr3927_defconfig: (gcc-8) FAIL
-    nlm_xlr_defconfig: (gcc-8) FAIL
-    sb1250_swarm_defconfig: (gcc-8) FAIL
-    sead3micro_defconfig: (gcc-8) FAIL
+    bcm2835_defconfig:
+        gcc-8:
+          bcm2835-rpi-b:
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.18=
+9-44-g755768e31f44 - first fail: v4.9.189-69-g711554dc8b12)
 
-Errors and Warnings Detected:
+    davinci_all_defconfig:
+        gcc-8:
+          da850-evm:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          da850-lcdk:
+              lab-baylibre: new failure (last pass: v4.9.189-69-g711554dc8b=
+12)
+          dm365evm,legacy:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
 
-arc:
-    allnoconfig (gcc-8): 3 warnings
-    tinyconfig (gcc-8): 4 warnings
+    exynos_defconfig:
+        gcc-8:
+          exynos4412-odroidx2:
+              lab-collabora: new failure (last pass: v4.9.189-44-g755768e31=
+f44)
+          exynos5250-arndale:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          exynos5250-snow:
+              lab-collabora: new failure (last pass: v4.9.189-69-g711554dc8=
+b12)
+          exynos5420-arndale-octa:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          exynos5422-odroidxu3:
+              lab-baylibre: new failure (last pass: v4.9.189-69-g711554dc8b=
+12)
+              lab-collabora: new failure (last pass: v4.9.189-69-g711554dc8=
+b12)
+          exynos5800-peach-pi:
+              lab-collabora: new failure (last pass: v4.9.189-69-g711554dc8=
+b12)
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+
+    imx_v6_v7_defconfig:
+        gcc-8:
+          imx6dl-riotboard:
+              lab-pengutronix: new failure (last pass: v4.9.189-69-g711554d=
+c8b12)
+          imx6dl-wandboard_dual:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          imx6dl-wandboard_solo:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          imx6q-wandboard:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          imx7s-warp:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          vf610-colibri-eval-v3:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+
+    multi_v7_defconfig:
+        gcc-8:
+          alpine-db:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          armada-xp-openblocks-ax3-4:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          at91-sama5d4_xplained:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          bcm4708-smartrg-sr400ac:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          bcm72521-bcm97252sffe:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          bcm7445-bcm97445c:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          exynos4412-odroidx2:
+              lab-collabora: new failure (last pass: v4.9.189-69-g711554dc8=
+b12)
+          exynos5250-arndale:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          exynos5250-snow:
+              lab-collabora: new failure (last pass: v4.9.189-69-g711554dc8=
+b12)
+          exynos5420-arndale-octa:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          exynos5422-odroidxu3:
+              lab-baylibre: new failure (last pass: v4.9.189-69-g711554dc8b=
+12)
+              lab-collabora: new failure (last pass: v4.9.189-69-g711554dc8=
+b12)
+          exynos5800-peach-pi:
+              lab-collabora: failing since 1 day (last pass: v4.9.189-44-g7=
+55768e31f44 - first fail: v4.9.189-69-g711554dc8b12)
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          imx6dl-riotboard:
+              lab-pengutronix: new failure (last pass: v4.9.189-69-g711554d=
+c8b12)
+          imx6dl-wandboard_dual:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          imx6dl-wandboard_solo:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          imx6q-sabrelite:
+              lab-collabora: new failure (last pass: v4.9.189-69-g711554dc8=
+b12)
+          imx6q-wandboard:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          imx7s-warp:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          meson8b-odroidc1:
+              lab-baylibre: new failure (last pass: v4.9.189-69-g711554dc8b=
+12)
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          omap3-beagle:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          omap4-panda:
+              lab-baylibre: new failure (last pass: v4.9.189-69-g711554dc8b=
+12)
+              lab-collabora: new failure (last pass: v4.9.189-69-g711554dc8=
+b12)
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          qcom-apq8064-ifc6410:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          qemu:
+              lab-baylibre: new failure (last pass: v4.9.189-69-g711554dc8b=
+12)
+              lab-linaro-lkft: new failure (last pass: v4.9.189-69-g711554d=
+c8b12)
+              lab-mhart: new failure (last pass: v4.9.189-69-g711554dc8b12)
+              lab-drue: new failure (last pass: v4.9.189-69-g711554dc8b12)
+              lab-collabora: new failure (last pass: v4.9.189-69-g711554dc8=
+b12)
+          rk3288-veyron-jaq:
+              lab-collabora: new failure (last pass: v4.9.189-69-g711554dc8=
+b12)
+          socfpga_cyclone5_de0_sockit:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          stih410-b2120:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          sun4i-a10-cubieboard:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          sun5i-a13-olinuxino-micro:
+              lab-baylibre: new failure (last pass: v4.9.189-44-g755768e31f=
+44)
+          sun5i-r8-chip:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          sun7i-a20-bananapi:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          sun7i-a20-cubietruck:
+              lab-baylibre: new failure (last pass: v4.9.189-69-g711554dc8b=
+12)
+          tegra124-jetson-tk1:
+              lab-mhart: new failure (last pass: v4.9.189-69-g711554dc8b12)
+              lab-collabora: new failure (last pass: v4.9.189-69-g711554dc8=
+b12)
+          tegra20-iris-512:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          tegra30-beaver:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          vf610-colibri-eval-v3:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          zynq-zc702:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+
+    mvebu_v7_defconfig:
+        gcc-8:
+          armada-xp-openblocks-ax3-4:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+
+    omap2plus_defconfig:
+        gcc-8:
+          omap3-beagle:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          omap4-panda:
+              lab-baylibre: new failure (last pass: v4.9.189-69-g711554dc8b=
+12)
+              lab-collabora: new failure (last pass: v4.9.189-69-g711554dc8=
+b12)
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.18=
+9-44-g755768e31f44 - first fail: v4.9.189-69-g711554dc8b12)
+
+    socfpga_defconfig:
+        gcc-8:
+          socfpga_cyclone5_de0_sockit:
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.18=
+9-44-g755768e31f44 - first fail: v4.9.189-69-g711554dc8b12)
+
+    sunxi_defconfig:
+        gcc-8:
+          sun4i-a10-cubieboard:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          sun5i-a13-olinuxino-micro:
+              lab-baylibre: new failure (last pass: v4.9.189-69-g711554dc8b=
+12)
+          sun5i-r8-chip:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          sun7i-a20-bananapi:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          sun7i-a20-cubietruck:
+              lab-baylibre: failing since 1 day (last pass: v4.9.189-44-g75=
+5768e31f44 - first fail: v4.9.189-69-g711554dc8b12)
+
+    tegra_defconfig:
+        gcc-8:
+          tegra124-jetson-tk1:
+              lab-mhart: new failure (last pass: v4.9.189-69-g711554dc8b12)
+              lab-collabora: new failure (last pass: v4.9.189-69-g711554dc8=
+b12)
+          tegra20-iris-512:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
+          tegra30-beaver:
+              lab-baylibre-seattle: new failure (last pass: v4.9.189-69-g71=
+1554dc8b12)
 
 arm64:
 
-arm:
-    clps711x_defconfig (gcc-8): 1 warning
-    davinci_all_defconfig (gcc-8): 1 warning
-    lpc32xx_defconfig (gcc-8): 1 warning
-    mxs_defconfig (gcc-8): 1 warning
+    defconfig:
+        gcc-8:
+          apq8016-sbc:
+              lab-mhart: new failure (last pass: v4.9.189-69-g711554dc8b12)
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.18=
+9-44-g755768e31f44 - first fail: v4.9.189-69-g711554dc8b12)
+          juno-r2:
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.18=
+9-44-g755768e31f44 - first fail: v4.9.189-69-g711554dc8b12)
+          meson-gxbb-odroidc2:
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.18=
+9-44-g755768e31f44 - first fail: v4.9.189-69-g711554dc8b12)
+          meson-gxbb-p200:
+              lab-baylibre: new failure (last pass: v4.9.189-69-g711554dc8b=
+12)
+          qcom-qdf2400:
+              lab-linaro-lkft: new failure (last pass: v4.9.189-69-g711554d=
+c8b12)
+          qemu:
+              lab-baylibre: new failure (last pass: v4.9.189-69-g711554dc8b=
+12)
+              lab-linaro-lkft: new failure (last pass: v4.9.189-69-g711554d=
+c8b12)
+              lab-mhart: new failure (last pass: v4.9.189-69-g711554dc8b12)
+              lab-drue: new failure (last pass: v4.9.189-69-g711554dc8b12)
+              lab-collabora: new failure (last pass: v4.9.189-69-g711554dc8=
+b12)
+          synquacer-acpi:
+              lab-mhart: new failure (last pass: v4.9.189-69-g711554dc8b12)
 
 i386:
 
-mips:
-    bigsur_defconfig (gcc-8): 1 error, 4 warnings
-    decstation_defconfig (gcc-8): 1 error
-    jmr3927_defconfig (gcc-8): 1 error
-    nlm_xlr_defconfig (gcc-8): 1 error, 1 warning
-    sb1250_swarm_defconfig (gcc-8): 1 error, 4 warnings
-    sead3micro_defconfig (gcc-8): 2 errors
+    i386_defconfig:
+        gcc-8:
+          x86-celeron:
+              lab-mhart: new failure (last pass: v4.9.189-69-g711554dc8b12)
+          x86-pentium4:
+              lab-mhart: new failure (last pass: v4.9.189-69-g711554dc8b12)
 
 x86_64:
 
-Errors summary:
-
-    1    cc1: error: '-march=3Dr3900' requires '-mfp32'
-    1    cc1: error: '-march=3Dr3000' requires '-mfp32'
-    1    arch/mips/kernel/genex.S:271: Error: branch to a symbol in another=
- ISA mode
-    1    arch/mips/kernel/genex.S:152: Error: branch to a symbol in another=
- ISA mode
-    1    arch/mips/include/asm/netlogic/xlr/fmn.h:304:22: error: bitwise co=
-mparison always evaluates to false [-Werror=3Dtautological-compare]
-    1    (.text+0x19558): undefined reference to `iommu_is_span_boundary'
-    1    (.text+0x19248): undefined reference to `iommu_is_span_boundary'
-
-Warnings summary:
-
-    8    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOT=
-LB_XEN && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (C=
-AVIUM_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NL=
-M_XLR_BOARD)
-    7    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct d=
-ependencies (FUTEX)
-    1    cc1: all warnings being treated as errors
-    1    arch/arm/mach-mxs/mach-mxs.c:285:26: warning: duplicate 'const' de=
-claration specifier [-Wduplicate-decl-specifier]
-    1    arch/arm/mach-lpc32xx/phy3250.c:215:36: warning: duplicate 'const'=
- declaration specifier [-Wduplicate-decl-specifier]
-    1    arch/arm/mach-davinci/da8xx-dt.c:23:34: warning: duplicate 'const'=
- declaration specifier [-Wduplicate-decl-specifier]
-    1    arch/arm/mach-clps711x/board-autcpu12.c:163:26: warning: duplicate=
- 'const' declaration specifier [-Wduplicate-decl-specifier]
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-acs5k_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section mi=
-smatches
-
-Warnings:
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-axs103_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bcm_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 4 warnings, 0 secti=
-on mismatches
-
-Errors:
-    (.text+0x19558): undefined reference to `iommu_is_span_boundary'
-
-Warnings:
-    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
-N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
-_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
-_BOARD)
-    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
-N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
-_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
-_BOARD)
-    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
-N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
-_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
-_BOARD)
-    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
-N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
-_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
-_BOARD)
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    arch/arm/mach-clps711x/board-autcpu12.c:163:26: warning: duplicate 'con=
-st' declaration specifier [-Wduplicate-decl-specifier]
-
----------------------------------------------------------------------------=
------
-cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    arch/arm/mach-davinci/da8xx-dt.c:23:34: warning: duplicate 'const' decl=
-aration specifier [-Wduplicate-decl-specifier]
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 s=
-ection mismatches
-
-Errors:
-    cc1: error: '-march=3Dr3000' requires '-mfp32'
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
-ion mismatches
-
-Errors:
-    cc1: error: '-march=3Dr3900' requires '-mfp32'
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    arch/arm/mach-lpc32xx/phy3250.c:215:36: warning: duplicate 'const' decl=
-aration specifier [-Wduplicate-decl-specifier]
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ls1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    arch/arm/mach-mxs/mach-mxs.c:285:26: warning: duplicate 'const' declara=
-tion specifier [-Wduplicate-decl-specifier]
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    arch/mips/include/asm/netlogic/xlr/fmn.h:304:22: error: bitwise compari=
-son always evaluates to false [-Werror=3Dtautological-compare]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-nsim_hs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-nuc910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-realview-smp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 4 warnings, 0=
- section mismatches
-
-Errors:
-    (.text+0x19248): undefined reference to `iommu_is_span_boundary'
-
-Warnings:
-    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
-N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
-_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
-_BOARD)
-    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
-N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
-_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
-_BOARD)
-    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
-N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
-_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
-_BOARD)
-    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
-N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
-_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
-_BOARD)
-
----------------------------------------------------------------------------=
------
-sead3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sead3micro_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 =
-section mismatches
-
-Errors:
-    arch/mips/kernel/genex.S:152: Error: branch to a symbol in another ISA =
-mode
-    arch/mips/kernel/genex.S:271: Error: branch to a symbol in another ISA =
-mode
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section mis=
-matches
-
-Warnings:
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-
----------------------------------------------------------------------------=
------
-trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-xilfpga_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+    x86_64_defconfig:
+        gcc-8:
+          minnowboard-turbot-E3826:
+              lab-collabora: new failure (last pass: v4.9.189-69-g711554dc8=
+b12)
+          qemu:
+              lab-baylibre: new failure (last pass: v4.9.189-69-g711554dc8b=
+12)
+              lab-linaro-lkft: new failure (last pass: v4.9.189-69-g711554d=
+c8b12)
+              lab-mhart: new failure (last pass: v4.9.189-69-g711554dc8b12)
+              lab-drue: new failure (last pass: v4.9.189-69-g711554dc8b12)
+              lab-collabora: new failure (last pass: v4.9.189-69-g711554dc8=
+b12)
+
+Boot Failures Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            apq8016-sbc: 1 failed lab
+            meson-gxbb-p200: 1 failed lab
+            qcom-qdf2400: 1 failed lab
+            qemu: 5 failed labs
+            synquacer-acpi: 1 failed lab
+
+i386:
+    i386_defconfig:
+        gcc-8:
+            x86-celeron: 1 failed lab
+            x86-pentium4: 1 failed lab
+
+x86_64:
+    x86_64_defconfig:
+        gcc-8:
+            minnowboard-turbot-E3826: 1 failed lab
+            qemu: 5 failed labs
+
+arm:
+    mvebu_v7_defconfig:
+        gcc-8:
+            armada-xp-openblocks-ax3-4: 1 failed lab
+
+    sunxi_defconfig:
+        gcc-8:
+            sun4i-a10-cubieboard: 1 failed lab
+            sun5i-a13-olinuxino-micro: 1 failed lab
+            sun7i-a20-bananapi: 1 failed lab
+            sun7i-a20-cubietruck: 1 failed lab
+
+    imx_v6_v7_defconfig:
+        gcc-8:
+            imx6dl-riotboard: 1 failed lab
+            imx6dl-wandboard_dual: 1 failed lab
+            imx6dl-wandboard_solo: 1 failed lab
+            imx6q-wandboard: 1 failed lab
+            imx7s-warp: 1 failed lab
+            vf610-colibri-eval-v3: 1 failed lab
+
+    omap2plus_defconfig:
+        gcc-8:
+            omap3-beagle: 1 failed lab
+            omap4-panda: 3 failed labs
+
+    multi_v7_defconfig:
+        gcc-8:
+            armada-xp-openblocks-ax3-4: 1 failed lab
+            bcm4708-smartrg-sr400ac: 1 failed lab
+            bcm72521-bcm97252sffe: 1 failed lab
+            bcm7445-bcm97445c: 1 failed lab
+            exynos4412-odroidx2: 1 failed lab
+            exynos5250-arndale: 1 failed lab
+            exynos5250-snow: 1 failed lab
+            exynos5420-arndale-octa: 1 failed lab
+            exynos5422-odroidxu3: 2 failed labs
+            exynos5800-peach-pi: 1 failed lab
+            imx6dl-riotboard: 1 failed lab
+            imx6dl-wandboard_dual: 1 failed lab
+            imx6dl-wandboard_solo: 1 failed lab
+            imx6q-sabrelite: 1 failed lab
+            imx6q-wandboard: 1 failed lab
+            imx7s-warp: 1 failed lab
+            meson8b-odroidc1: 2 failed labs
+            omap3-beagle: 1 failed lab
+            omap4-panda: 3 failed labs
+            qemu: 5 failed labs
+            rk3288-veyron-jaq: 1 failed lab
+            stih410-b2120: 1 failed lab
+            sun4i-a10-cubieboard: 1 failed lab
+            sun5i-a13-olinuxino-micro: 1 failed lab
+            sun7i-a20-bananapi: 1 failed lab
+            sun7i-a20-cubietruck: 1 failed lab
+            tegra124-jetson-tk1: 2 failed labs
+            tegra20-iris-512: 1 failed lab
+            tegra30-beaver: 1 failed lab
+            vf610-colibri-eval-v3: 1 failed lab
+            zynq-zc702: 1 failed lab
+
+    davinci_all_defconfig:
+        gcc-8:
+            da850-evm: 1 failed lab
+            da850-lcdk: 1 failed lab
+            dm365evm,legacy: 1 failed lab
+
+    tegra_defconfig:
+        gcc-8:
+            tegra124-jetson-tk1: 2 failed labs
+            tegra20-iris-512: 1 failed lab
+            tegra30-beaver: 1 failed lab
+
+    exynos_defconfig:
+        gcc-8:
+            exynos4412-odroidx2: 1 failed lab
+            exynos5250-arndale: 1 failed lab
+            exynos5250-snow: 1 failed lab
+            exynos5420-arndale-octa: 1 failed lab
+            exynos5422-odroidxu3: 2 failed labs
+            exynos5800-peach-pi: 2 failed labs
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+            juno-r2: 1 offline lab
+            meson-gxbb-odroidc2: 1 offline lab
+
+arm:
+
+    sama5_defconfig:
+        gcc-8
+            at91-sama5d4_xplained: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+    bcm2835_defconfig:
+        gcc-8
+            bcm2835-rpi-b: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            alpine-db: 1 offline lab
+            at91-sama5d4_xplained: 1 offline lab
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            socfpga_cyclone5_de0_sockit: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+
+    socfpga_defconfig:
+        gcc-8
+            socfpga_cyclone5_de0_sockit: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
 
 ---
 For more info write to <info@kernelci.org>
