@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9E729192B
-	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 21:09:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF5369192C
+	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 21:09:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726261AbfHRTJS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Aug 2019 15:09:18 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:38891 "EHLO
+        id S1726926AbfHRTJV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Aug 2019 15:09:21 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:57873 "EHLO
         out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726089AbfHRTJS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Aug 2019 15:09:18 -0400
+        by vger.kernel.org with ESMTP id S1726089AbfHRTJU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Aug 2019 15:09:20 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 8524A21ACF;
-        Sun, 18 Aug 2019 15:09:17 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 18 Aug 2019 15:09:17 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 676A620B25;
+        Sun, 18 Aug 2019 15:09:19 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sun, 18 Aug 2019 15:09:19 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=gEo4Sx
-        k7KUpWKd8vjm5R/TFIF4hn70xp/nAJh2G3Qx0=; b=Ngf3SIy5DYAeIiZviq0RkM
-        13e7fagBRb3bsAyMTjucgBtpgnSylCy/YeV7SFtlSGyrH0VxPOo8HfGwQKR9TRWp
-        8kLBtgrDX8u4/0kKrXSOTfrxz6pyB6Gd4oLkNf+BreSB68J5JnTaEisQJi6jzl5R
-        CyHsZ8GmhumZZdcjXq7IoW4izb9ehFDuezM0nXSvBdW4EuMSGdUXZYPuMsMhyegA
-        4SYWhxfXyZsK/ymL0RuvUicWZaAbYWxxAZzgyz+kiE35RLz5E9J/KlMkmZTtXhyt
-        3ZFaZPyJJXWEYbUVVJa2+fUhmAZjc0F+JB/60UZm6FYGhF+odxC5+F5Qt54ZhHcg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=GEQyd/
+        u0YpgLnGq0CMmMa3VGvd4tlPHQAiSRjWQqOcw=; b=qr0Bv35q7czfjAEPTo4lui
+        mYQSap879tu5Tg/BjLfMkWp+x3U933d7dsRaI4upr4+oAVQPEOlBcXTZ/UUmXa/n
+        2H+Dhpf1a2j6P+u07VIyNcmxpoa3KnI+XN94aTsP/CwTF4nHwe8NFfihhiGWgXZE
+        myCqShshkBF99Pjmd9uucIp3AS/cNw4dOzXyREmR2wc/9kl5wPVK+cHXuozjUhgl
+        20UwLlvhSew8bQpFPBjR9u+9nS1bqFI+b29XoYAPuHoNasjMvowLd0kdx0RSpm02
+        dQ3G/Z8rptHisM5y94TbP4k7idTLtX8Cyk7DS/ugMsdd9mVZG2bNEofqpyYsowPg
         ==
-X-ME-Sender: <xms:XaJZXWv7vHjm20Z02V9sxaO8CtYZuRJx_to7jjXZB4FaCNDiZLFxtw>
+X-ME-Sender: <xms:X6JZXTaiwE_UbPzSLZbABqFjM3xI1mFlOsIK6jBEn2nVCCPoEOEsHQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudefjedgudeffecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
@@ -35,20 +35,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudefjedgudeffecutefuodetgg
     rhhgqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekle
     druddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
     necuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:XaJZXZ-2Z-Iad4OpdrhiEITU3UnU4Qs5uEBAS3cSiT9qMlO_7hGSXw>
-    <xmx:XaJZXdTa7W6LH0i9EFWnNRJyl64E6ISBavSJpgMvOKkNyg5WXdkpkA>
-    <xmx:XaJZXbU3zGN8l_UPWGXzGDx1WY8v8lWdcbHmDYIlPdJWY6fBbZPPEQ>
-    <xmx:XaJZXWqsRfK6VFUDcXIm5ZK8cfWP5e5o17eakbhr6xR38XnB0ottjg>
+X-ME-Proxy: <xmx:X6JZXYYMjD22nZ0m4DxdYTa3Z2qe0jpwVpk6-S43cOnF8urUt-F1og>
+    <xmx:X6JZXQwiKlvMYZ9Dgkabzx4WaOqLshsaT_N9aJA4z_ELg5zaf-kSVQ>
+    <xmx:X6JZXcdXCTm3AVry3U1VKaZ079tDqWTe0gadhciF5oR2UCPK--A7rg>
+    <xmx:X6JZXUbnLEiOfy1puwEZIaraCxem5sxycEO3s8QPlRdTDRxYMssueA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0C1B1380085;
-        Sun, 18 Aug 2019 15:09:16 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] usb: setup authorized_default attributes using usb_bus_notify" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id DDBA780059;
+        Sun, 18 Aug 2019 15:09:18 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] usb: setup authorized_default attributes using usb_bus_notify" failed to apply to 4.4-stable tree
 To:     tweek@google.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 18 Aug 2019 21:09:07 +0200
-Message-ID: <156615534773135@kroah.com>
+Date:   Sun, 18 Aug 2019 21:09:08 +0200
+Message-ID: <1566155348230187@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
