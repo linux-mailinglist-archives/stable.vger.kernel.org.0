@@ -2,288 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEE4091753
-	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 16:27:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA3529176E
+	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 17:03:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726523AbfHRO1Y convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 18 Aug 2019 10:27:24 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:33110 "EHLO mx1.redhat.com"
+        id S1726548AbfHRPD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Aug 2019 11:03:27 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:36710 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726097AbfHRO1Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Aug 2019 10:27:24 -0400
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        id S1726115AbfHRPD0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Aug 2019 11:03:26 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 18612189DACC
-        for <stable@vger.kernel.org>; Sun, 18 Aug 2019 14:27:24 +0000 (UTC)
-Received: from [172.54.61.75] (cpt-1031.paas.prod.upshift.rdu2.redhat.com [10.0.19.58])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id AF050B2E10;
-        Sun, 18 Aug 2019 14:27:21 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        by mx1.redhat.com (Postfix) with ESMTPS id B2463301A893;
+        Sun, 18 Aug 2019 15:03:26 +0000 (UTC)
+Received: from shalem.localdomain.com (ovpn-116-70.ams2.redhat.com [10.36.116.70])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 52103871C8;
+        Sun, 18 Aug 2019 15:03:25 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Brian Johnson <brijohn@gmail.com>,
+        Hans Verkuil <hverkuil@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-media@vger.kernel.org,
+        stable@vger.kernel.org, Rui Salvaterra <rsalvaterra@gmail.com>
+Subject: [PATCH] [media] sn9c20x: Add MSI MS-1039 laptop to flip_dmi_table
+Date:   Sun, 18 Aug 2019 17:03:23 +0200
+Message-Id: <20190818150323.292507-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2M?= FAIL: Stable queue: queue-5.2
-Message-ID: <cki.63E670325B.BC3Y8LFEEL@redhat.com>
-X-Gitlab-Pipeline-ID: 108662
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/108662
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.63]); Sun, 18 Aug 2019 14:27:24 +0000 (UTC)
-Date:   Sun, 18 Aug 2019 10:27:24 -0400
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.45]); Sun, 18 Aug 2019 15:03:26 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Like a bunch of other MSI laptops the MS-1039 uses a 0c45:627b
+SN9C201 + OV7660 webcam which is mounted upside down.
 
-Hello,
+Add it to the sn9c20x flip_dmi_table to deal with this.
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+Cc: stable@vger.kernel.org
+Reported-by: Rui Salvaterra <rsalvaterra@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/media/usb/gspca/sn9c20x.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: aad39e30fb9e - Linux 5.2.9
+diff --git a/drivers/media/usb/gspca/sn9c20x.c b/drivers/media/usb/gspca/sn9c20x.c
+index b43f89fee6c1..700575757c86 100644
+--- a/drivers/media/usb/gspca/sn9c20x.c
++++ b/drivers/media/usb/gspca/sn9c20x.c
+@@ -123,6 +123,13 @@ static const struct dmi_system_id flip_dmi_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "0341")
+ 		}
+ 	},
++	{
++		.ident = "MSI MS-1039",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "MICRO-STAR INT'L CO.,LTD."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "MS-1039"),
++		}
++	},
+ 	{
+ 		.ident = "MSI MS-1632",
+ 		.matches = {
+-- 
+2.23.0.rc2
 
-The results of these automated tests are provided below.
-
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: OK
-             Tests: FAILED
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/108662
-
-
-
-One or more kernel tests failed:
-
-  aarch64:
-    ❌ Boot test
-
-  ppc64le:
-    ❌ Boot test
-    ❌ Boot test
-
-  x86_64:
-    ❌ Boot test
-    ❌ Boot test
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this message.
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: aad39e30fb9e - Linux 5.2.9
-
-
-We grabbed the 5680205d56e7 commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  keys-trusted-allow-module-init-if-tpm-is-inactive-or-deactivated.patch
-  sh-kernel-hw_breakpoint-fix-missing-break-in-switch-statement.patch
-  seq_file-fix-problem-when-seeking-mid-record.patch
-  mm-hmm-fix-bad-subpage-pointer-in-try_to_unmap_one.patch
-  mm-mempolicy-make-the-behavior-consistent-when-mpol_mf_move-and-mpol_mf_strict-were-specified.patch
-  mm-mempolicy-handle-vma-with-unmovable-pages-mapped-correctly-in-mbind.patch
-  mm-z3fold.c-fix-z3fold_destroy_pool-ordering.patch
-  mm-z3fold.c-fix-z3fold_destroy_pool-race-condition.patch
-  mm-memcontrol.c-fix-use-after-free-in-mem_cgroup_iter.patch
-  mm-usercopy-use-memory-range-to-be-accessed-for-wraparound-check.patch
-  mm-vmscan-do-not-special-case-slab-reclaim-when-watermarks-are-boosted.patch
-  cpufreq-schedutil-don-t-skip-freq-update-when-limits-change.patch
-  drm-amdgpu-fix-gfx9-soft-recovery.patch
-  drm-nouveau-only-recalculate-pbn-vcpi-on-mode-connector-changes.patch
-  xtensa-add-missing-isync-to-the-cpu_reset-tlb-code.patch
-  arm64-ftrace-ensure-module-ftrace-trampoline-is-coherent-with-i-side.patch
-  alsa-hda-realtek-add-quirk-for-hp-envy-x360.patch
-  alsa-usb-audio-fix-a-stack-buffer-overflow-bug-in-check_input_term.patch
-  alsa-usb-audio-fix-an-oob-bug-in-parse_audio_mixer_unit.patch
-  alsa-hda-apply-workaround-for-another-amd-chip-1022-1487.patch
-  alsa-hda-fix-a-memory-leak-bug.patch
-  alsa-hda-add-a-generic-reboot_notify.patch
-  alsa-hda-let-all-conexant-codec-enter-d3-when-rebooting.patch
-  hid-holtek-test-for-sanity-of-intfdata.patch
-  hid-hiddev-avoid-opening-a-disconnected-device.patch
-  hid-hiddev-do-cleanup-in-failure-of-opening-a-device.patch
-  input-kbtab-sanity-check-for-endpoint-type.patch
-  input-iforce-add-sanity-checks.patch
-  net-usb-pegasus-fix-improper-read-if-get_registers-fail.patch
-  bpf-fix-access-to-skb_shared_info-gso_segs.patch
-  netfilter-ebtables-also-count-base-chain-policies.patch
-  rdma-hns-fix-sg-offset-non-zero-issue.patch
-  ib-mlx5-replace-kfree-with-kvfree.patch
-  clk-at91-generated-truncate-divisor-to-generated_max.patch
-  clk-sprd-select-regmap_mmio-to-avoid-compile-errors.patch
-  clk-renesas-cpg-mssr-fix-reset-control-race-conditio.patch
-  dma-mapping-check-pfn-validity-in-dma_common_-mmap-g.patch
-  platform-x86-pcengines-apuv2-fix-softdep-statement.patch
-  platform-x86-intel_pmc_core-add-icl-nnpi-support-to-.patch
-  mm-hmm-always-return-ebusy-for-invalid-ranges-in-hmm.patch
-  xen-pciback-remove-set-but-not-used-variable-old_sta.patch
-  irqchip-gic-v3-its-free-unused-vpt_page-when-alloc-v.patch
-  irqchip-irq-imx-gpcv2-forward-irq-type-to-parent.patch
-  f2fs-fix-to-read-source-block-before-invalidating-it.patch
-  tools-perf-beauty-fix-usbdevfs_ioctl-table-generator.patch
-  perf-header-fix-divide-by-zero-error-if-f_header.att.patch
-  perf-header-fix-use-of-unitialized-value-warning.patch
-  rdma-qedr-fix-the-hca_type-and-hca_rev-returned-in-d.patch
-  alsa-pcm-fix-lost-wakeup-event-scenarios-in-snd_pcm_.patch
-  libata-zpodd-fix-small-read-overflow-in-zpodd_get_me.patch
-  powerpc-nvdimm-pick-nearby-online-node-if-the-device.patch
-  drm-bridge-lvds-encoder-fix-build-error-while-config.patch
-  drm-bridge-tc358764-fix-build-error.patch
-  btrfs-fix-deadlock-between-fiemap-and-transaction-co.patch
-  scsi-hpsa-correct-scsi-command-status-issue-after-re.patch
-  scsi-qla2xxx-fix-possible-fcport-null-pointer-derefe.patch
-  exit-make-setting-exit_state-consistent.patch
-  tracing-fix-header-include-guards-in-trace-event-hea.patch
-  drm-amdkfd-fix-byte-align-on-vegam.patch
-  drm-amd-powerplay-fix-null-pointer-dereference-aroun.patch
-  drm-amdgpu-fix-error-handling-in-amdgpu_cs_process_f.patch
-  drm-amdgpu-fix-a-potential-information-leaking-bug.patch
-  ata-libahci-do-not-complain-in-case-of-deferred-prob.patch
-  kbuild-modpost-handle-kbuild_extra_symbols-only-for-.patch
-  kbuild-check-for-unknown-options-with-cc-option-usag.patch
-  arm64-efi-fix-variable-si-set-but-not-used.patch
-  riscv-fix-perf-record-without-libelf-support.patch
-  arm64-lower-priority-mask-for-gic_prio_irqon.patch
-  arm64-unwind-prohibit-probing-on-return_address.patch
-  arm64-mm-fix-variable-pud-set-but-not-used.patch
-  arm64-mm-fix-variable-tag-set-but-not-used.patch
-  ib-core-add-mitigation-for-spectre-v1.patch
-  ib-mlx5-fix-mr-registration-flow-to-use-umr-properly.patch
-  rdma-restrack-track-driver-qp-types-in-resource-trac.patch
-  ib-mad-fix-use-after-free-in-ib-mad-completion-handl.patch
-  rdma-mlx5-release-locks-during-notifier-unregister.patch
-  drm-msm-fix-add_gpu_components.patch
-  rdma-hns-fix-error-return-code-in-hns_roce_v1_rsv_lp.patch
-  drm-exynos-fix-missing-decrement-of-retry-counter.patch
-  arm64-kprobes-recover-pstate.d-in-single-step-except.patch
-  arm64-make-debug-exception-handlers-visible-from-rcu.patch
-  revert-kmemleak-allow-to-coexist-with-fault-injectio.patch
-  ocfs2-remove-set-but-not-used-variable-last_hash.patch
-  page-flags-prioritize-kasan-bits-over-last-cpuid.patch
-  asm-generic-fix-wtype-limits-compiler-warnings.patch
-  tpm-tpm_ibm_vtpm-fix-unallocated-banks.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-      Host 1:
-         ❌ Boot test [0]
-         ⚡⚡⚡ xfstests: xfs [1]
-         ⚡⚡⚡ selinux-policy: serge-testsuite [2]
-
-
-  ppc64le:
-      Host 1:
-         ❌ Boot test [0]
-         ⚡⚡⚡ xfstests: xfs [1]
-         ⚡⚡⚡ selinux-policy: serge-testsuite [2]
-
-      Host 2:
-         ❌ Boot test [0]
-         ⚡⚡⚡ Podman system integration test (as root) [3]
-         ⚡⚡⚡ Podman system integration test (as user) [3]
-         ⚡⚡⚡ LTP lite [4]
-         ⚡⚡⚡ Loopdev Sanity [5]
-         ⚡⚡⚡ jvm test suite [6]
-         ⚡⚡⚡ AMTU (Abstract Machine Test Utility) [7]
-         ⚡⚡⚡ LTP: openposix test suite [8]
-         ⚡⚡⚡ Networking socket: fuzz [9]
-         ⚡⚡⚡ audit: audit testsuite test [10]
-         ⚡⚡⚡ httpd: mod_ssl smoke sanity [11]
-         ⚡⚡⚡ iotop: sanity [12]
-         ⚡⚡⚡ tuned: tune-processes-through-perf [13]
-         ⚡⚡⚡ Usex - version 1.9-29 [14]
-
-
-  x86_64:
-      Host 1:
-         ❌ Boot test [0]
-         ⚡⚡⚡ Podman system integration test (as root) [3]
-         ⚡⚡⚡ Podman system integration test (as user) [3]
-         ⚡⚡⚡ LTP lite [4]
-         ⚡⚡⚡ Loopdev Sanity [5]
-         ⚡⚡⚡ jvm test suite [6]
-         ⚡⚡⚡ AMTU (Abstract Machine Test Utility) [7]
-         ⚡⚡⚡ LTP: openposix test suite [8]
-         ⚡⚡⚡ Networking socket: fuzz [9]
-         ⚡⚡⚡ audit: audit testsuite test [10]
-         ⚡⚡⚡ httpd: mod_ssl smoke sanity [11]
-         ⚡⚡⚡ iotop: sanity [12]
-         ⚡⚡⚡ tuned: tune-processes-through-perf [13]
-         ⚡⚡⚡ pciutils: sanity smoke test [15]
-         ⚡⚡⚡ Usex - version 1.9-29 [14]
-         ⚡⚡⚡ storage: SCSI VPD [16]
-         ⚡⚡⚡ stress: stress-ng [17]
-
-      Host 2:
-         ❌ Boot test [0]
-         ⚡⚡⚡ xfstests: xfs [1]
-         ⚡⚡⚡ selinux-policy: serge-testsuite [2]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/container/podman
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/jvm
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
-    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
