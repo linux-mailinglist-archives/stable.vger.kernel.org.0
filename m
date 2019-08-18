@@ -2,104 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CFF79140B
-	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 03:48:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8E0D91406
+	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 03:48:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726560AbfHRBsv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Aug 2019 21:48:51 -0400
-Received: from sonic316-55.consmr.mail.gq1.yahoo.com ([98.137.69.31]:40271
-        "EHLO sonic316-55.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726256AbfHRBsu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Aug 2019 21:48:50 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048; t=1566092929; bh=3z4YsL7cITdwo3WfgBzjdtBKxHfbzIYd54Y/QXXxpig=; h=From:To:Cc:Subject:Date:From:Subject; b=igjsmRk2B/VVMaIiwk6KZFJ2xs+vdkB0aTsEmbInOb3+X4jBeC3xc5GWN/bnYJeQ/3ugotsaMLuXLDNSVDW+RsZ2xQgJhXn6BlInOyZOt3zFUjpqF13OO8hBUngPCNJIpvCMsy1r2HWwsVzmI8NHrpH4pejQnUC05EffWbZXO9hACzDgoo8w1fbNBnZH9fDdTzQWkuwZ4ReO7PW7Fi3+/h5nAyV4psVt7lo+U2iOu5q7gwisfaumKBdTDLmceTpzftAWFAsCAWrGdADs0Bhw6+XIQ98o8Z0A1mPnET1PHgsm/WO6DvsANrRlZGVcqSgDITJDxZayIovb2713IBng4g==
-X-YMail-OSG: nH1tLc8VM1kDn9rx2c7sy4Ia4G0fR8nB1KDqylp4FskuR13tFJNVAPwp840OXp5
- EhdNzOzVsNmE7oedZI.bicNh6Y.BUanFjxjAkKiRMaee40cc_0EVqmjKoLOjackBCV8S0iz6ujsp
- RADzb3Hz7mDmBa3S3zCS7UcLlpImM.xDT4ovcBwWoHZ71b.fQWIQY0GPpGeUZQYE3Z4h8gcmsJXL
- wAxWZRyExv_LAqhUEi0Ktc8sXAwljeXkuu2KRvHdAymTDslbi_17hUs6APnlTr2Jr4InQEZ8aUXw
- YRdNha51u84WLXU_ljA20gbSaaqAZyHH5h1MHSJB61IIgsvKc.iyyDOdXj9NFVcBHffBsaWRsJrs
- 1CnB.dH6ODkf2UNOjProgFs3PV.LtqTWZleiPe63zUc0FRpOolRYxmBCutnURgUYF66a43eFadr0
- Cic3D5wt3QuPJOJjMzWSDirBuACdYLIrM4CI0fyw8W6AJ4M7A_Mn_H.IoZRz33SwCPnPofPuZcjE
- JiQgGviKoqQRed3bwcT47oWp5iFdDhS07V192MYe1yQ6fAmDyhzgUSD1vewYdpJ7fN.N_4JaMRp6
- P1nfunMU4NBxqwYJzW9WxZzdOWHHGwKLqjWDS1TylVvr1dSDMz.y8IkO2BLW0dZ7Lg3e.QousgcU
- .84G1QxI4kiPY31wANpRIP1rPB_vBk84ecr08dmO_QRHVjLAxmvFAEWSl2ZvaWoJRzUolq4yrnTc
- Do1WMUIVjlGP53sg9J6a5elF_uKzkbZ10qkYxpZjtioSqj5q7MhOOJNvl9E9w0sAZIEOscAv4LZY
- MVQVkCeYTNfj1KZGNpnX5RmlfEoFlR9c7Jrbx6pXc2JJ7RErzQl2xsksY0K2tYk4BVQAi91H58kB
- rqWHIU7t.HGxJ_N.pEl0WioD4aL8DBXT.FbVCgwshCkp6pq4x8ImtDz1dbjfK_YyzmSq7SIceAID
- rZV..yrIopk0c4z9QIcARAA.ZGj22.MtATeg9iPC_2yZrqKjxjFe_AmWpFgelDKBXi17BIS81zQw
- PeZKoDaI9SN4GuyvVJ1Ekr9jNxBI26HwJd8MhuWLcVMqTixd.dIgLodiZL3qJVFz0K10HOyK_ZEd
- 1ohHBW4Vp9giHb3d5q1MZz.vXv_.nB9pUtSEwjGH9F_wVZqArmt2TRjo28N6hvCHtfKhl98bQioN
- JdIpEhf4lkn3XK.LbY0C.083i3brSpG3uyhB13CP6rEgBw0NUkyu5eoKmvy7VSMnWKrJvMc2liSv
- czKCr_7IpTwBhZUpzVapYwwMr00Y06wwZqzc-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.gq1.yahoo.com with HTTP; Sun, 18 Aug 2019 01:48:49 +0000
-Received: by smtp411.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID be81c6d863eaec55ce60d29fea3fc0a8;
-          Sun, 18 Aug 2019 01:48:44 +0000 (UTC)
-From:   Gao Xiang <hsiangkao@aol.com>
-To:     Chao Yu <yuchao0@huawei.com>, Richard Weinberger <richard@nod.at>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        devel@driverdev.osuosl.org, linux-fsdevel@vger.kernel.org
-Cc:     LKML <linux-kernel@vger.kernel.org>, linux-erofs@lists.ozlabs.org,
-        Chao Yu <chao@kernel.org>, Miao Xie <miaoxie@huawei.com>,
-        Fang Wei <fangwei1@huawei.com>,
-        Gao Xiang <gaoxiang25@huawei.com>, stable@vger.kernel.org
-Subject: [PATCH] staging: erofs: fix an error handling in erofs_readdir()
-Date:   Sun, 18 Aug 2019 09:48:35 +0800
-Message-Id: <20190818014835.5874-1-hsiangkao@aol.com>
-X-Mailer: git-send-email 2.17.1
+        id S1726247AbfHRBsn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Aug 2019 21:48:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54622 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726229AbfHRBsn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 17 Aug 2019 21:48:43 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C2972086C;
+        Sun, 18 Aug 2019 01:48:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1566092922;
+        bh=D7mXtRYDPrQWVbF8zkOvJMvyD0EWZF8MNTf2Z52kA+Y=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=quLKlFFUfoX/ViB18dReTywxQd61z6KUElmS3Mzi0o3mi4Wwfm1zcAZ1roS3slxiL
+         a+lGk9HFNSa5wlIZYu1s6MQH3GVvEYlNxRIEjzmGEcq6pgD/AMQusDur6o9lVhpqQS
+         /VGYENu3Lfrxu6ppO9MTT0bgq40uzP99LNtN9ifY=
+Date:   Sat, 17 Aug 2019 21:48:41 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Paul Wise <pabs3@bonedaddy.net>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Jakub Wilk <jwilk@jwilk.net>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.2 57/59] coredump: split pipe command
+ whitespace before expanding template
+Message-ID: <20190818014841.GF1318@sasha-vm>
+References: <20190806213319.19203-1-sashal@kernel.org>
+ <20190806213319.19203-57-sashal@kernel.org>
+ <c835c71b722c3df3d11e7b7f8fd65bbd7da0d482.camel@bonedaddy.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <c835c71b722c3df3d11e7b7f8fd65bbd7da0d482.camel@bonedaddy.net>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <gaoxiang25@huawei.com>
+On Wed, Aug 07, 2019 at 09:41:46AM +0800, Paul Wise wrote:
+>On Tue, 2019-08-06 at 17:33 -0400, Sasha Levin wrote:
+>
+>> From: Paul Wise <pabs3@bonedaddy.net>
+>>
+>> [ Upstream commit 315c69261dd3fa12dbc830d4fa00d1fad98d3b03 ]
+>
+>The patch changes the behaviour of the interface between the Linux
+>kernel and userspace core dump handlers. The previous behaviour was
+>unlikely to be depended on by any core dump handler but it is still a
+>behaviour change, so I think it would be best to keep it out of the
+>stable branches and would prefer to have folks encounter the change as
+>Linux distros etc roll out 5.3 and later into their dev releases.
+>
+>We discussed this on #kernelnewbies a while ago and gregkh agreed that
+>it should stew a while longer before reaching any stable releases.
+>
+>In addition if it gets backported to stable releases, my patch for
+>core(5) from man-pages will have to get more complicated :)
 
-Richard observed a forever loop of erofs_read_raw_page() [1]
-which can be generated by forcely setting ->u.i_blkaddr
-to 0xdeadbeef (as my understanding block layer can
-handle access beyond end of device correctly).
+I'll just drop it and let Greg deal with it then :)
 
-After digging into that, it seems the problem is highly
-related with directories and then I found the root cause
-is an improper error handling in erofs_readdir().
-
-Let's fix it now.
-
-[1] https://lore.kernel.org/r/1746679415.68815.1566076790942.JavaMail.zimbra@nod.at/
-
-Reported-by: Richard Weinberger <richard@nod.at>
-Fixes: 3aa8ec716e52 ("staging: erofs: add directory operations")
-Cc: <stable@vger.kernel.org> # 4.19+
-Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
----
-
-Which is based on the following patch as well
-https://lore.kernel.org/r/20190816071142.8633-1-gaoxiang25@huawei.com/
-
-and
-https://lore.kernel.org/r/20190817082313.21040-1-hsiangkao@aol.com/
-can still be properly applied after this patch.
-
- drivers/staging/erofs/dir.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/staging/erofs/dir.c b/drivers/staging/erofs/dir.c
-index 5f38382637e6..f2d7539589e4 100644
---- a/drivers/staging/erofs/dir.c
-+++ b/drivers/staging/erofs/dir.c
-@@ -82,8 +82,12 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
- 		unsigned int nameoff, maxsize;
- 
- 		dentry_page = read_mapping_page(mapping, i, NULL);
--		if (IS_ERR(dentry_page))
--			continue;
-+		if (IS_ERR(dentry_page)) {
-+			errln("fail to readdir of logical block %u of nid %llu",
-+			      i, EROFS_V(dir)->nid);
-+			err = PTR_ERR(dentry_page);
-+			break;
-+		}
- 
- 		de = (struct erofs_dirent *)kmap(dentry_page);
- 
--- 
-2.17.1
-
+--
+Thanks,
+Sasha
