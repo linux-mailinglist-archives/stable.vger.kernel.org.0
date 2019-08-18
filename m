@@ -2,75 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2B0F91689
-	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 14:30:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86C6A91694
+	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 14:33:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726115AbfHRMaA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Aug 2019 08:30:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51828 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726005AbfHRM37 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Aug 2019 08:29:59 -0400
-Received: from [192.168.0.101] (unknown [180.111.132.43])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1DAD2087E;
-        Sun, 18 Aug 2019 12:29:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566131399;
-        bh=v0gcBuO1hviSpiMM1PO7wDaoD+BZFcnxIpQG+kcLKoY=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=VrUFUjMEpts/vzRuYKhEerx/4UgqX16CgFBSOI+pF0TAT4R+fK2iiGA/fHqmQo+/5
-         XNM2D7/hafRuysbTTZZkilM0jk5GCEaZRlvd+PX3qVDaeyqsoGTh+TfLzlp4s6VNAj
-         s64ifh0Qt7uUx9GupQ/Ds3FLVaxYip545xWbZN8w=
-Subject: Re: [PATCH v3 RESEND] staging: erofs: fix an error handling in
- erofs_readdir()
-To:     Gao Xiang <hsiangkao@aol.com>, Chao Yu <yuchao0@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
-        Matthew Wilcox <willy@infradead.org>,
+        id S1726208AbfHRMdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Aug 2019 08:33:25 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:54184 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726073AbfHRMdY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Aug 2019 08:33:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=xzB0N5KXoocholH/YOkGDtfICAB0yGZ8RmgdPY4pQBk=; b=D8+f2WvkG3p4WYc9upT4VTsHh
+        f5SeQ1l6W8TPkD72cRq3W/6BHXnBllsfy1ZRsOACKqpIfcdUUAeByjXNJlgPSq9O6kKyUS/vDaaB4
+        TMH0oiTgiT4gbsjz/lmiTBkQV/X1Ifiq/f5X6PXYemIACo1rf3KK5yxYaJhdlgAXXPwEktdLrNdly
+        3vYZcGes35B0aRNrWAwQ16HHXF/hiODC26eK1gpfhSbGTlhsZcluX2QuzZAsAYbte77evggr1Piz0
+        UKbu6+itGXx4A24C1YJJc27Hgbnu4ZqXCrZ0eNPmmHhmA+VZctKuXUPyxYACWV2lHw2uck+Y+2NYi
+        qkVoejm9Q==;
+Received: from willy by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat Linux))
+        id 1hzKN0-0004ZF-AZ; Sun, 18 Aug 2019 12:33:14 +0000
+Date:   Sun, 18 Aug 2019 05:33:14 -0700
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Gao Xiang <hsiangkao@aol.com>
+Cc:     Chao Yu <yuchao0@huawei.com>, Richard Weinberger <richard@nod.at>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        devel@driverdev.osuosl.org, linux-fsdevel@vger.kernel.org
-Cc:     LKML <linux-kernel@vger.kernel.org>, linux-erofs@lists.ozlabs.org,
+        devel@driverdev.osuosl.org, linux-fsdevel@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-erofs@lists.ozlabs.org, Chao Yu <chao@kernel.org>,
         Miao Xie <miaoxie@huawei.com>, Fang Wei <fangwei1@huawei.com>,
         Gao Xiang <gaoxiang25@huawei.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v3 RESEND] staging: erofs: fix an error handling in
+ erofs_readdir()
+Message-ID: <20190818123314.GA29733@bombadil.infradead.org>
 References: <20190818030109.GA8225@hsiangkao-HP-ZHAN-66-Pro-G1>
  <20190818032111.9862-1-hsiangkao@aol.com>
-From:   Chao Yu <chao@kernel.org>
-Message-ID: <dcd15b52-7e96-7928-42c6-0dcdd9bdf382@kernel.org>
-Date:   Sun, 18 Aug 2019 20:29:53 +0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.9.1
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20190818032111.9862-1-hsiangkao@aol.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2019-8-18 11:21, Gao Xiang wrote:
-> From: Gao Xiang <gaoxiang25@huawei.com>
-> 
-> Richard observed a forever loop of erofs_read_raw_page() [1]
-> which can be generated by forcely setting ->u.i_blkaddr
-> to 0xdeadbeef (as my understanding block layer can
-> handle access beyond end of device correctly).
-> 
-> After digging into that, it seems the problem is highly
-> related with directories and then I found the root cause
-> is an improper error handling in erofs_readdir().
-> 
-> Let's fix it now.
-> 
-> [1] https://lore.kernel.org/r/1163995781.68824.1566084358245.JavaMail.zimbra@nod.at/
-> 
-> Reported-by: Richard Weinberger <richard@nod.at>
-> Fixes: 3aa8ec716e52 ("staging: erofs: add directory operations")
-> Cc: <stable@vger.kernel.org> # 4.19+
-> Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+On Sun, Aug 18, 2019 at 11:21:11AM +0800, Gao Xiang wrote:
+> +		if (dentry_page == ERR_PTR(-ENOMEM)) {
+> +			errln("no memory to readdir of logical block %u of nid %llu",
+> +			      i, EROFS_V(dir)->nid);
 
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
+I don't think you need the error message.  If we get a memory allocation
+failure, there's already going to be a lot of spew in the logs from the
+mm system.  And if we do fail to allocate memory, we don't need to know
+the logical block number or the nid -- it has nothiing to do with those;
+the system simply ran out of memory.
 
-Thanks,
+> +			err = -ENOMEM;
+> +			break;
+> +		} else if (IS_ERR(dentry_page)) {
+> +			errln("fail to readdir of logical block %u of nid %llu",
+> +			      i, EROFS_V(dir)->nid);
+> +			err = -EFSCORRUPTED;
+> +			break;
+> +		}
+>  
+>  		de = (struct erofs_dirent *)kmap(dentry_page);
+>  
+> -- 
+> 2.17.1
+> 
