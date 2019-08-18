@@ -2,412 +2,225 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC57191992
-	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 22:43:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A3DB91993
+	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 22:44:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726115AbfHRUn5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Aug 2019 16:43:57 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:37818 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726042AbfHRUn5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Aug 2019 16:43:57 -0400
-Received: by mail-wr1-f68.google.com with SMTP id z11so6584707wrt.4
-        for <stable@vger.kernel.org>; Sun, 18 Aug 2019 13:43:54 -0700 (PDT)
+        id S1726247AbfHRUol (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Aug 2019 16:44:41 -0400
+Received: from mail-ed1-f68.google.com ([209.85.208.68]:37536 "EHLO
+        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726042AbfHRUol (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Aug 2019 16:44:41 -0400
+Received: by mail-ed1-f68.google.com with SMTP id f22so9545358edt.4
+        for <stable@vger.kernel.org>; Sun, 18 Aug 2019 13:44:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=eAP7UUqYHZuVDXFzeQ32duPdyaTeT0F2LHgdn6Bvms0=;
-        b=VK0uDRl34e559cARFYpOyJMWvEU5HB25s9G44FFc5OuWSmiTn8gPlDJdIEE1ANzpGb
-         iVuSa/hIbe9dVLs4OehwBBwYRrxVAcW2EriM0Q7w1RquQXnYPezyLs9rux9mmOserDJv
-         LmKSSsNQB+RtCwZ926eDtGtOKG23tnk/ulgtowTJfvQSJ+D3hkwHhX1QhaBmmF/6JQBM
-         p0Xmv8S83n6WiDWBcf3zDe59KLjGSKVrcS+NAWVwcpqci9gWTcqSxIgvBYW3u2b/JKQb
-         weeAO1/7fUOqk6Ll9AB1iq3tFMFrTQPPdpn/GQRFSNmMotw3pNEPQULBoWOGB0MioU9J
-         770A==
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=VCXL+lYvIbh8hZl+hUzgk+iPnS2VL7R4px9EDMflcGE=;
+        b=E2zKH6pPbBU1sXzLrdJE8kSSqQWgylb3J/0ahiIEyFFq5AgVMQ5nibiB6fd2EQkPDm
+         R7hGCR+31Ins2mc/0kb6ZAMjbAZXpoL76Tba9MgcHHUIylW3nwhXaqvYVa5h+myfNXjN
+         brq6MylO7ECrgwIDZ6QC6plMmBsdblJsMLK+s31mcICicsLa4fBEswlV5RpdESFACiUI
+         /0s6vsgec6cek8r4sszsxvFaPwrui+ESv9Unv/SHnx/ngH/13kB/a8grubMkuh8zqSmB
+         P5N4tGAtX8NP3mVENdA0qaClKeaOLU/NSDDruBHHHtnIBmjNhP7COP3xajPurl+LIU0x
+         k4jQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=eAP7UUqYHZuVDXFzeQ32duPdyaTeT0F2LHgdn6Bvms0=;
-        b=RqEuN6ltQo96j4HQ69U9RBcDAe0lEOKWc+63EUeJ1HtCl/tnlxp2MUxumO9n6pUCum
-         I/kgfyXhF/2JLFgBkl/eksNUjAu8zKKDPu2ntMGPg06MqiYGRWE9WqlmPfMwhvGM0elu
-         MCBP/DdoIBJf1AaYKWXD0wevm5ZrwsAVXREKPB2zzI8YmgVNyLXCD+wxCyTB9juB9hOH
-         0nU/UbJWgN6fdfYejmc8dA5JEbvXV/LRKvlbcJEIQJg/UmUoyzPEsZkFlKP3Bqo4CQvq
-         DI0tocC+WmLQFtsAq6LMxWoVBSGDHp/QhQ3Zijpezh+Do8i9bISBJtKe1vJDFjiBXr2A
-         TiTg==
-X-Gm-Message-State: APjAAAVO15t2Vf6Jq+iVe8cu6hCQbiA5sS0/CT7ODpsEM73TzSrh7GUg
-        2bJZURufWUpeq9ofd0ntRGimjd3hn9g=
-X-Google-Smtp-Source: APXvYqxPT22IbXM5pjuBuxG/hi7KA6a+BG8MaW9HqKLPypN6MFsGGkaxjOTC7wS1w8PnpMf34Xe0dw==
-X-Received: by 2002:a05:6000:128d:: with SMTP id f13mr23510395wrx.241.1566161033811;
-        Sun, 18 Aug 2019 13:43:53 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id t8sm34097772wra.73.2019.08.18.13.43.53
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 18 Aug 2019 13:43:53 -0700 (PDT)
-Message-ID: <5d59b889.1c69fb81.5bc75.4610@mx.google.com>
-Date:   Sun, 18 Aug 2019 13:43:53 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=VCXL+lYvIbh8hZl+hUzgk+iPnS2VL7R4px9EDMflcGE=;
+        b=laOEdVST5XLXz3VkXc9oB+UPM780F//EKC5SKLD2xFjsXdvKn4CWz73eWA6/wVXL/q
+         vot6miuZS0RNrYWDbNJGwwFwD9epwMjiV5A/2jQsQ5LI8ofk/qOvJNzE5A786K19TtIr
+         /EmBINfD2HbMXAJik/lRsTKHAZxVZkfu5B1mWDS+t6B0kxJ28Giaa26FGATmLRpigMGU
+         7ynlMiVDZFWCDlILABtV2qi9UIP558MQqKgbh3oMkaxIyoMGxjAulM4iihGDypBxQEpW
+         eUyPXTweqvSENieVYJsm4SrCc9E4eGz+D2uuzjR7ZrbypraarS0SfboTPDtltzs16jUm
+         YR/g==
+X-Gm-Message-State: APjAAAVNPzPVpG/Ih0Ve4klQk4fPi5+3Y8dOB1umrrZuzaWKJmY5z+Ls
+        mJHFqD8hCdGUAMwi8or4YQ6R15OR0RA=
+X-Google-Smtp-Source: APXvYqwRYx4aLeQfao88urJZzn0G9x06mJjJrBDsQZ4cebRqxjPNEo7Z6tY/KoSnrJivEcyEE1h3tA==
+X-Received: by 2002:a05:6402:168f:: with SMTP id a15mr21804963edv.5.1566161078955;
+        Sun, 18 Aug 2019 13:44:38 -0700 (PDT)
+Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
+        by smtp.gmail.com with ESMTPSA id w19sm2360877edt.41.2019.08.18.13.44.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 18 Aug 2019 13:44:37 -0700 (PDT)
+Date:   Sun, 18 Aug 2019 22:44:36 +0200
+From:   Salvatore Bonaccorso <carnil@debian.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Sasha Levin <sashal@kernel.org>, Mike Snitzer <snitzer@redhat.com>,
+        stable@vger.kernel.org, Alasdair Kergon <agk@redhat.com>,
+        dm-devel@redhat.com, Chris Hofstaedtler <zeha@debian.org>,
+        David Jeffery <djeffery@redhat.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: Re: Backport request for bcb44433bba5 ("dm: disable DISCARD if the
+ underlying storage no longer supports it")
+Message-ID: <20190818204436.GA27437@eldamar.local>
+References: <20190818155941.GA26766@eldamar.local>
+ <20190818183305.GA1181@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.2.8-237-g61d06c60569f
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-5.2.y
-Subject: stable-rc/linux-5.2.y boot: 73 boots: 72 failed,
- 0 passed with 1 untried/unknown (v5.2.8-237-g61d06c60569f)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190818183305.GA1181@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.2.y boot: 73 boots: 72 failed, 0 passed with 1 untried/un=
-known (v5.2.8-237-g61d06c60569f)
+hi Greg,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.2.y/kernel/v5.2.8-237-g61d06c60569f/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.2.y=
-/kernel/v5.2.8-237-g61d06c60569f/
+On Sun, Aug 18, 2019 at 08:33:05PM +0200, Greg Kroah-Hartman wrote:
+> On Sun, Aug 18, 2019 at 05:59:41PM +0200, Salvatore Bonaccorso wrote:
+> > Hi
+> > 
+> > In Debian bug https://bugs.debian.org/934331 ran into issues which
+> > match the upstream commit bcb44433bba5 ("dm: disable DISCARD if the
+> > underlying storage no longer supports it").
+> > 
+> > This commit was CC'ed to stable, but only got applied in v5.0.8 (and
+> > later on backported by Ben Hutchings to v3.16.72).
+> > 
+> > Mike, I have not checked how easily that would be for older stable
+> > versions, but can the backport be considered for versions down to 4.9?
+> > Apparently Ben did succeed with some changes needed. To 4.19 it should
+> > apply with a small conflict in drivers/md/dm-core.h AFAICS.
+> 
+> If someone sends the backports to the list, I will be glad to queue them
+> up.
 
-Tree: stable-rc
-Branch: linux-5.2.y
-Git Describe: v5.2.8-237-g61d06c60569f
-Git Commit: 61d06c60569fc8034ceb181649fca58350b83012
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 39 unique boards, 17 SoC families, 13 builds out of 209
+Here is the one for 4.19 on top of 4.19.67. It's my first contribution
+on this regard. Given the change to be applied was only about the
+context change in drivers/md/dm-core.h I'm unsure if the Signed-off-by
+is the right addition to do as well.
 
-Boot Regressions Detected:
+Regards,
+Salvatore
 
-arc:
+From 614c17258f0d952e1b979276c8a553893d3cd826 Mon Sep 17 00:00:00 2001
+From: Mike Snitzer <snitzer@redhat.com>
+Date: Wed, 3 Apr 2019 12:23:11 -0400
+Subject: [PATCH] dm: disable DISCARD if the underlying storage no longer
+ supports it
 
-    hsdk_defconfig:
-        gcc-8:
-          hsdk:
-              lab-baylibre: new failure (last pass: v5.2.8-177-gfd570399d29=
-b)
+commit bcb44433bba5eaff293888ef22ffa07f1f0347d6 upstream.
 
-arm:
+Storage devices which report supporting discard commands like
+WRITE_SAME_16 with unmap, but reject discard commands sent to the
+storage device.  This is a clear storage firmware bug but it doesn't
+change the fact that should a program cause discards to be sent to a
+multipath device layered on this buggy storage, all paths can end up
+failed at the same time from the discards, causing possible I/O loss.
 
-    bcm2835_defconfig:
-        gcc-8:
-          bcm2837-rpi-3-b:
-              lab-baylibre: new failure (last pass: v5.2.8-157-g9e53d01dff5=
-8)
+The first discard to a path will fail with Illegal Request, Invalid
+field in cdb, e.g.:
+ kernel: sd 8:0:8:19: [sdfn] tag#0 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_SENSE
+ kernel: sd 8:0:8:19: [sdfn] tag#0 Sense Key : Illegal Request [current]
+ kernel: sd 8:0:8:19: [sdfn] tag#0 Add. Sense: Invalid field in cdb
+ kernel: sd 8:0:8:19: [sdfn] tag#0 CDB: Write same(16) 93 08 00 00 00 00 00 a0 08 00 00 00 80 00 00 00
+ kernel: blk_update_request: critical target error, dev sdfn, sector 10487808
 
-    davinci_all_defconfig:
-        gcc-8:
-          da850-lcdk:
-              lab-baylibre: new failure (last pass: v5.2.8-157-g9e53d01dff5=
-8)
+The SCSI layer converts this to the BLK_STS_TARGET error number, the sd
+device disables its support for discard on this path, and because of the
+BLK_STS_TARGET error multipath fails the discard without failing any
+path or retrying down a different path.  But subsequent discards can
+cause path failures.  Any discards sent to the path which already failed
+a discard ends up failing with EIO from blk_cloned_rq_check_limits with
+an "over max size limit" error since the discard limit was set to 0 by
+the sd driver for the path.  As the error is EIO, this now fails the
+path and multipath tries to send the discard down the next path.  This
+cycle continues as discards are sent until all paths fail.
 
-    exynos_defconfig:
-        gcc-8:
-          exynos4412-odroidx2:
-              lab-collabora: new failure (last pass: v5.2.8-157-g9e53d01dff=
-58)
-          exynos5250-snow:
-              lab-collabora: new failure (last pass: v5.2.8-157-g9e53d01dff=
-58)
-          exynos5422-odroidxu3:
-              lab-baylibre: new failure (last pass: v5.2.8-157-g9e53d01dff5=
-8)
-              lab-collabora: new failure (last pass: v5.2.8-157-g9e53d01dff=
-58)
-          exynos5800-peach-pi:
-              lab-collabora: new failure (last pass: v5.2.8-157-g9e53d01dff=
-58)
+Fix this by training DM core to disable DISCARD if the underlying
+storage already did so.
 
-    imx_v6_v7_defconfig:
-        gcc-8:
-          imx6dl-riotboard:
-              lab-pengutronix: new failure (last pass: v5.2.8-157-g9e53d01d=
-ff58)
+Also, fix branching in dm_done() and clone_endio() to reflect the
+mutually exclussive nature of the IO operations in question.
 
-    multi_v7_defconfig:
-        gcc-8:
-          am57xx-beagle-x15:
-              lab-drue: new failure (last pass: v5.2.8-157-g9e53d01dff58)
-          exynos4412-odroidx2:
-              lab-collabora: new failure (last pass: v5.2.8-157-g9e53d01dff=
-58)
-          exynos5250-snow:
-              lab-collabora: new failure (last pass: v5.2.8-157-g9e53d01dff=
-58)
-          exynos5422-odroidxu3:
-              lab-baylibre: new failure (last pass: v5.2.8-157-g9e53d01dff5=
-8)
-              lab-collabora: new failure (last pass: v5.2.8-157-g9e53d01dff=
-58)
-          exynos5800-peach-pi:
-              lab-collabora: new failure (last pass: v5.2.8-157-g9e53d01dff=
-58)
-          imx6dl-riotboard:
-              lab-pengutronix: new failure (last pass: v5.2.8-157-g9e53d01d=
-ff58)
-          imx6q-sabrelite:
-              lab-collabora: new failure (last pass: v5.2.8-157-g9e53d01dff=
-58)
-          meson8b-odroidc1:
-              lab-baylibre: new failure (last pass: v5.2.8-157-g9e53d01dff5=
-8)
-          omap4-panda:
-              lab-baylibre: new failure (last pass: v5.2.8-157-g9e53d01dff5=
-8)
-              lab-collabora: new failure (last pass: v5.2.8-157-g9e53d01dff=
-58)
-          qemu:
-              lab-baylibre: new failure (last pass: v5.2.8-157-g9e53d01dff5=
-8)
-              lab-mhart: new failure (last pass: v5.2.8-157-g9e53d01dff58)
-              lab-drue: new failure (last pass: v5.2.8-157-g9e53d01dff58)
-              lab-collabora: new failure (last pass: v5.2.8-157-g9e53d01dff=
-58)
-          rk3288-veyron-jaq:
-              lab-collabora: new failure (last pass: v5.2.8-157-g9e53d01dff=
-58)
-          sun5i-a13-olinuxino-micro:
-              lab-baylibre: new failure (last pass: v5.2.8-157-g9e53d01dff5=
-8)
-          sun7i-a20-cubietruck:
-              lab-baylibre: new failure (last pass: v5.2.8-157-g9e53d01dff5=
-8)
-          sun8i-h2-plus-libretech-all-h3-cc:
-              lab-baylibre: new failure (last pass: v5.2.8-157-g9e53d01dff5=
-8)
-          sun8i-h2-plus-orangepi-zero:
-              lab-baylibre: new failure (last pass: v5.2.8-157-g9e53d01dff5=
-8)
-          sun8i-h3-libretech-all-h3-cc:
-              lab-baylibre: new failure (last pass: v5.2.8-157-g9e53d01dff5=
-8)
-          tegra124-jetson-tk1:
-              lab-mhart: new failure (last pass: v5.2.8-157-g9e53d01dff58)
-              lab-collabora: new failure (last pass: v5.2.8-157-g9e53d01dff=
-58)
-
-    omap2plus_defconfig:
-        gcc-8:
-          am57xx-beagle-x15:
-              lab-drue: new failure (last pass: v5.2.8-157-g9e53d01dff58)
-          omap4-panda:
-              lab-baylibre: new failure (last pass: v5.2.8-157-g9e53d01dff5=
-8)
-              lab-collabora: new failure (last pass: v5.2.8-157-g9e53d01dff=
-58)
-
-    oxnas_v6_defconfig:
-        gcc-8:
-          ox820-cloudengines-pogoplug-series-3:
-              lab-baylibre: new failure (last pass: v5.2.8-157-g9e53d01dff5=
-8)
-
-    sunxi_defconfig:
-        gcc-8:
-          sun5i-a13-olinuxino-micro:
-              lab-baylibre: new failure (last pass: v5.2.8-157-g9e53d01dff5=
-8)
-          sun7i-a20-cubietruck:
-              lab-baylibre: new failure (last pass: v5.2.8-157-g9e53d01dff5=
-8)
-          sun8i-h2-plus-libretech-all-h3-cc:
-              lab-baylibre: new failure (last pass: v5.2.8-157-g9e53d01dff5=
-8)
-          sun8i-h2-plus-orangepi-r1:
-              lab-baylibre: new failure (last pass: v5.2.8-157-g9e53d01dff5=
-8)
-          sun8i-h2-plus-orangepi-zero:
-              lab-baylibre: new failure (last pass: v5.2.8-157-g9e53d01dff5=
-8)
-          sun8i-h3-libretech-all-h3-cc:
-              lab-baylibre: new failure (last pass: v5.2.8-157-g9e53d01dff5=
-8)
-
-    tegra_defconfig:
-        gcc-8:
-          tegra124-jetson-tk1:
-              lab-mhart: new failure (last pass: v5.2.8-157-g9e53d01dff58)
-              lab-collabora: new failure (last pass: v5.2.8-157-g9e53d01dff=
-58)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          apq8016-sbc:
-              lab-mhart: new failure (last pass: v5.2.8-177-gfd570399d29b)
-          bcm2837-rpi-3-b:
-              lab-baylibre: new failure (last pass: v5.2.8-177-gfd570399d29=
-b)
-              lab-mhart: new failure (last pass: v5.2.8-177-gfd570399d29b)
-          meson-g12a-sei510:
-              lab-baylibre: new failure (last pass: v5.2.8-177-gfd570399d29=
-b)
-          meson-g12a-x96-max:
-              lab-baylibre: new failure (last pass: v5.2.8-177-gfd570399d29=
-b)
-          meson-gxbb-p200:
-              lab-baylibre: new failure (last pass: v5.2.8-177-gfd570399d29=
-b)
-          meson-gxl-s905x-khadas-vim:
-              lab-baylibre: new failure (last pass: v5.2.8-177-gfd570399d29=
-b)
-          meson-gxl-s905x-libretech-cc:
-              lab-baylibre: new failure (last pass: v5.2.8-177-gfd570399d29=
-b)
-          meson-gxm-khadas-vim2:
-              lab-baylibre: new failure (last pass: v5.2.8-177-gfd570399d29=
-b)
-          qemu:
-              lab-baylibre: new failure (last pass: v5.2.8-177-gfd570399d29=
-b)
-              lab-mhart: new failure (last pass: v5.2.8-177-gfd570399d29b)
-              lab-drue: new failure (last pass: v5.2.8-177-gfd570399d29b)
-              lab-collabora: new failure (last pass: v5.2.8-177-gfd570399d2=
-9b)
-          r8a7796-m3ulcb:
-              lab-baylibre: new failure (last pass: v5.2.8-177-gfd570399d29=
-b)
-              lab-collabora: new failure (last pass: v5.2.8-177-gfd570399d2=
-9b)
-          rk3399-gru-kevin:
-              lab-collabora: failing since 1 day (last pass: v5.2.8-157-g9e=
-53d01dff58 - first fail: v5.2.8-177-gfd570399d29b)
-          sun50i-h5-libretech-all-h3-cc:
-              lab-baylibre: new failure (last pass: v5.2.8-177-gfd570399d29=
-b)
-          sun50i-h6-pine-h64:
-              lab-baylibre: new failure (last pass: v5.2.8-177-gfd570399d29=
-b)
-          synquacer-acpi:
-              lab-mhart: new failure (last pass: v5.2.8-177-gfd570399d29b)
-
-i386:
-
-    i386_defconfig:
-        gcc-8:
-          x86-celeron:
-              lab-mhart: new failure (last pass: v5.2.8-177-gfd570399d29b)
-          x86-pentium4:
-              lab-mhart: new failure (last pass: v5.2.8-177-gfd570399d29b)
-
-x86_64:
-
-    x86_64_defconfig:
-        gcc-8:
-          minnowboard-turbot-E3826:
-              lab-collabora: new failure (last pass: v5.2.8-177-gfd570399d2=
-9b)
-          qemu:
-              lab-baylibre: new failure (last pass: v5.2.8-177-gfd570399d29=
-b)
-              lab-mhart: new failure (last pass: v5.2.8-177-gfd570399d29b)
-              lab-drue: new failure (last pass: v5.2.8-177-gfd570399d29b)
-              lab-collabora: new failure (last pass: v5.2.8-177-gfd570399d2=
-9b)
-
-Boot Failures Detected:
-
-arc:
-    hsdk_defconfig:
-        gcc-8:
-            hsdk: 1 failed lab
-
-arm64:
-    defconfig:
-        gcc-8:
-            apq8016-sbc: 1 failed lab
-            bcm2837-rpi-3-b: 2 failed labs
-            meson-g12a-sei510: 1 failed lab
-            meson-g12a-x96-max: 1 failed lab
-            meson-gxbb-nanopi-k2: 1 failed lab
-            meson-gxbb-p200: 1 failed lab
-            meson-gxl-s905x-khadas-vim: 1 failed lab
-            meson-gxl-s905x-libretech-cc: 1 failed lab
-            meson-gxm-khadas-vim2: 1 failed lab
-            qemu: 4 failed labs
-            r8a7796-m3ulcb: 2 failed labs
-            rk3399-gru-kevin: 1 failed lab
-            rk3399-puma-haikou: 1 failed lab
-            sun50i-h5-libretech-all-h3-cc: 1 failed lab
-            sun50i-h6-pine-h64: 1 failed lab
-            synquacer-acpi: 1 failed lab
-
-i386:
-    i386_defconfig:
-        gcc-8:
-            x86-celeron: 1 failed lab
-            x86-pentium4: 1 failed lab
-
-x86_64:
-    x86_64_defconfig:
-        gcc-8:
-            minnowboard-turbot-E3826: 1 failed lab
-            qemu: 4 failed labs
-
-arm:
-    oxnas_v6_defconfig:
-        gcc-8:
-            ox820-cloudengines-pogoplug-series-3: 1 failed lab
-
-    sunxi_defconfig:
-        gcc-8:
-            sun5i-a13-olinuxino-micro: 1 failed lab
-            sun7i-a20-cubietruck: 1 failed lab
-            sun8i-h2-plus-libretech-all-h3-cc: 1 failed lab
-            sun8i-h2-plus-orangepi-r1: 1 failed lab
-            sun8i-h2-plus-orangepi-zero: 1 failed lab
-            sun8i-h3-libretech-all-h3-cc: 1 failed lab
-
-    imx_v6_v7_defconfig:
-        gcc-8:
-            imx6dl-riotboard: 1 failed lab
-
-    bcm2835_defconfig:
-        gcc-8:
-            bcm2837-rpi-3-b: 1 failed lab
-
-    omap2plus_defconfig:
-        gcc-8:
-            am57xx-beagle-x15: 1 failed lab
-            omap4-panda: 2 failed labs
-
-    multi_v7_defconfig:
-        gcc-8:
-            am57xx-beagle-x15: 1 failed lab
-            exynos4412-odroidx2: 1 failed lab
-            exynos5250-snow: 1 failed lab
-            exynos5422-odroidxu3: 2 failed labs
-            exynos5800-peach-pi: 1 failed lab
-            imx6dl-riotboard: 1 failed lab
-            imx6q-sabrelite: 1 failed lab
-            meson8b-odroidc1: 1 failed lab
-            omap4-panda: 2 failed labs
-            qemu: 4 failed labs
-            rk3288-veyron-jaq: 1 failed lab
-            sun5i-a13-olinuxino-micro: 1 failed lab
-            sun7i-a20-cubietruck: 1 failed lab
-            sun8i-h2-plus-libretech-all-h3-cc: 1 failed lab
-            sun8i-h2-plus-orangepi-zero: 1 failed lab
-            sun8i-h3-libretech-all-h3-cc: 1 failed lab
-            tegra124-jetson-tk1: 2 failed labs
-
-    davinci_all_defconfig:
-        gcc-8:
-            da850-lcdk: 1 failed lab
-
-    tegra_defconfig:
-        gcc-8:
-            tegra124-jetson-tk1: 2 failed labs
-
-    exynos_defconfig:
-        gcc-8:
-            exynos4412-odroidx2: 1 failed lab
-            exynos5250-snow: 1 failed lab
-            exynos5422-odroidxu3: 2 failed labs
-            exynos5800-peach-pi: 1 failed lab
-
+Cc: stable@vger.kernel.org
+Reported-by: David Jeffery <djeffery@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+[Salvatore Bonaccorso: backported to 4.19: Adjust for context changes in
+drivers/md/dm-core.h]
+Signed-off-by: Salvatore Bonaccorso <carnil@debian.org>
 ---
-For more info write to <info@kernelci.org>
+ drivers/md/dm-core.h |  1 +
+ drivers/md/dm-rq.c   | 11 +++++++----
+ drivers/md/dm.c      | 20 ++++++++++++++++----
+ 3 files changed, 24 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/md/dm-core.h b/drivers/md/dm-core.h
+index 7d480c930eaf..7e426e4d1352 100644
+--- a/drivers/md/dm-core.h
++++ b/drivers/md/dm-core.h
+@@ -130,6 +130,7 @@ struct mapped_device {
+ };
+ 
+ int md_in_flight(struct mapped_device *md);
++void disable_discard(struct mapped_device *md);
+ void disable_write_same(struct mapped_device *md);
+ void disable_write_zeroes(struct mapped_device *md);
+ 
+diff --git a/drivers/md/dm-rq.c b/drivers/md/dm-rq.c
+index 6e547b8dd298..264b84e274aa 100644
+--- a/drivers/md/dm-rq.c
++++ b/drivers/md/dm-rq.c
+@@ -295,11 +295,14 @@ static void dm_done(struct request *clone, blk_status_t error, bool mapped)
+ 	}
+ 
+ 	if (unlikely(error == BLK_STS_TARGET)) {
+-		if (req_op(clone) == REQ_OP_WRITE_SAME &&
+-		    !clone->q->limits.max_write_same_sectors)
++		if (req_op(clone) == REQ_OP_DISCARD &&
++		    !clone->q->limits.max_discard_sectors)
++			disable_discard(tio->md);
++		else if (req_op(clone) == REQ_OP_WRITE_SAME &&
++			 !clone->q->limits.max_write_same_sectors)
+ 			disable_write_same(tio->md);
+-		if (req_op(clone) == REQ_OP_WRITE_ZEROES &&
+-		    !clone->q->limits.max_write_zeroes_sectors)
++		else if (req_op(clone) == REQ_OP_WRITE_ZEROES &&
++			 !clone->q->limits.max_write_zeroes_sectors)
+ 			disable_write_zeroes(tio->md);
+ 	}
+ 
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index 42768fe92b41..c9860e3b04dd 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -910,6 +910,15 @@ static void dec_pending(struct dm_io *io, blk_status_t error)
+ 	}
+ }
+ 
++void disable_discard(struct mapped_device *md)
++{
++	struct queue_limits *limits = dm_get_queue_limits(md);
++
++	/* device doesn't really support DISCARD, disable it */
++	limits->max_discard_sectors = 0;
++	blk_queue_flag_clear(QUEUE_FLAG_DISCARD, md->queue);
++}
++
+ void disable_write_same(struct mapped_device *md)
+ {
+ 	struct queue_limits *limits = dm_get_queue_limits(md);
+@@ -935,11 +944,14 @@ static void clone_endio(struct bio *bio)
+ 	dm_endio_fn endio = tio->ti->type->end_io;
+ 
+ 	if (unlikely(error == BLK_STS_TARGET) && md->type != DM_TYPE_NVME_BIO_BASED) {
+-		if (bio_op(bio) == REQ_OP_WRITE_SAME &&
+-		    !bio->bi_disk->queue->limits.max_write_same_sectors)
++		if (bio_op(bio) == REQ_OP_DISCARD &&
++		    !bio->bi_disk->queue->limits.max_discard_sectors)
++			disable_discard(md);
++		else if (bio_op(bio) == REQ_OP_WRITE_SAME &&
++			 !bio->bi_disk->queue->limits.max_write_same_sectors)
+ 			disable_write_same(md);
+-		if (bio_op(bio) == REQ_OP_WRITE_ZEROES &&
+-		    !bio->bi_disk->queue->limits.max_write_zeroes_sectors)
++		else if (bio_op(bio) == REQ_OP_WRITE_ZEROES &&
++			 !bio->bi_disk->queue->limits.max_write_zeroes_sectors)
+ 			disable_write_zeroes(md);
+ 	}
+ 
+-- 
+2.23.0.rc1
