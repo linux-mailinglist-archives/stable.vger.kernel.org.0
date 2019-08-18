@@ -2,202 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B272691629
-	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 12:38:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC2779162A
+	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 12:40:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726115AbfHRKi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Aug 2019 06:38:56 -0400
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:45434 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726005AbfHRKi4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Aug 2019 06:38:56 -0400
-Received: by mail-wr1-f67.google.com with SMTP id q12so5700730wrj.12
-        for <stable@vger.kernel.org>; Sun, 18 Aug 2019 03:38:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=YK6HhRwlsPE9/poVX/wqKFdtISUObpWQAIqZsxObYFU=;
-        b=cE4GRQ9EsRCxtJuiiq8zLhpNviWoVgIiyM4burz5jEVx4yYidiYuurUiqz1eVW3HnE
-         nsjBtCbuwaM/Nrqv/Xw4tgooWyLLQmNgGUFhbldL8B5AjGzKq71F013iaAqtcKShBoEV
-         Ynb5l8A8TagTPNFn8WkJRtblVBNS575BqtttWJz20ySTMXYJSDzT5418QmdJlFfG2H1/
-         EF9wy+JzEvBRT3eAGSmdvgf4ttj27aTe/xSEyYBGg0NRJX18Fg1/+V6Hj0lZrwtRyQ5A
-         nAMhzY0e3LKr8yC6NxXGosFIKaqBdLUR2/oDKUXAxaHKzudJEAprOIir4Fd/TuUvvr9i
-         LXMw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=YK6HhRwlsPE9/poVX/wqKFdtISUObpWQAIqZsxObYFU=;
-        b=XknjoGEoeF6qhVy88gs6ttBi2pxULb3EdqsYruSePlrLce77/vrTzvOKKH+RUFnqke
-         xL1+Vi9/ce+/fuY+8wYVVJFcDv9QcIf98JAYgwzE/EKm/flkLQQ+L9Bt1/d6TsS9KreO
-         riqVFxqyWZtTdUcUP/HkaE+QE91uXn8em4woV9otGTmIbE5EVZboA/NQ9ZGJ2lIWyxMX
-         r8OtvcRLqIi/E0KTA6rlINTB14Y1MTcdfcGuZ55LcaLKRZ083LpQCyxHbWrFdnXKy9ka
-         yXS32XUR/MgsjncV5cUq7bEdqLieb5j4o2RrmYwVQlguaa7xL5ShzRf0qnCfD3PrpjZY
-         RFZw==
-X-Gm-Message-State: APjAAAV8epTOLeslG29Po1btdAOIGZ6wQTgwY22TS9GMpvcVJWH3tEIE
-        kY+x6l3IFDm/EmlyeOu9gEzqFZdjEso=
-X-Google-Smtp-Source: APXvYqzk0aH7ImYmLr/0m2N6r3uURfApNv5kr3VE12GPvhGi7d1ADLb3VaOVupttFgTXYH1Mifg3PQ==
-X-Received: by 2002:a5d:4f91:: with SMTP id d17mr20491286wru.74.1566124734263;
-        Sun, 18 Aug 2019 03:38:54 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id t198sm18426495wmt.39.2019.08.18.03.38.52
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 18 Aug 2019 03:38:53 -0700 (PDT)
-Message-ID: <5d592abd.1c69fb81.3f2fe.a87d@mx.google.com>
-Date:   Sun, 18 Aug 2019 03:38:53 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726256AbfHRKkA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Aug 2019 06:40:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37374 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726089AbfHRKkA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Aug 2019 06:40:00 -0400
+Received: from [192.168.0.101] (unknown [180.111.132.43])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB5402173B;
+        Sun, 18 Aug 2019 10:39:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1566124798;
+        bh=NZToQaeJzz8Ty+Y0B57dsWw46aBahEhnOAkutIVO54Y=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=CsD7cjaN8Kycm4SVNR7vGn1g2VrzQcmT40WDMLnYfOS6oeI6RVJVrJd+vn4F/oW5e
+         Lonw4lm85ZI/xRvSs4p4tNebnaWPfW2rGYI6V5fcdfC8IXMnZiyPxB4kiCybncg2rf
+         NoXjpYAKkJLM7wzG/WfrfT3xQ8H9xja220BFAKmE=
+Subject: Re: [PATCH v2] staging: erofs: fix an error handling in
+ erofs_readdir()
+To:     Matthew Wilcox <willy@infradead.org>, Gao Xiang <hsiangkao@aol.com>
+Cc:     Chao Yu <yuchao0@huawei.com>, Richard Weinberger <richard@nod.at>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        devel@driverdev.osuosl.org, linux-fsdevel@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-erofs@lists.ozlabs.org, Miao Xie <miaoxie@huawei.com>,
+        Fang Wei <fangwei1@huawei.com>,
+        Gao Xiang <gaoxiang25@huawei.com>, stable@vger.kernel.org
+References: <20190818014835.5874-1-hsiangkao@aol.com>
+ <20190818015631.6982-1-hsiangkao@aol.com>
+ <20190818022055.GA14592@bombadil.infradead.org>
+ <20190818023240.GA7739@hsiangkao-HP-ZHAN-66-Pro-G1>
+ <20190818025339.GB14592@bombadil.infradead.org>
+From:   Chao Yu <chao@kernel.org>
+Message-ID: <c624d057-cd42-515c-cff8-cf68340401e0@kernel.org>
+Date:   Sun, 18 Aug 2019 18:39:52 +0800
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.189-69-g711554dc8b12
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y boot: 103 boots: 2 failed,
- 84 passed with 15 offline, 1 untried/unknown,
- 1 conflict (v4.9.189-69-g711554dc8b12)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20190818025339.GB14592@bombadil.infradead.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 103 boots: 2 failed, 84 passed with 15 offline,=
- 1 untried/unknown, 1 conflict (v4.9.189-69-g711554dc8b12)
+On 2019-8-18 10:53, Matthew Wilcox wrote:
+> On Sun, Aug 18, 2019 at 10:32:45AM +0800, Gao Xiang wrote:
+>> On Sat, Aug 17, 2019 at 07:20:55PM -0700, Matthew Wilcox wrote:
+>>> On Sun, Aug 18, 2019 at 09:56:31AM +0800, Gao Xiang wrote:
+>>>> @@ -82,8 +82,12 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
+>>>>  		unsigned int nameoff, maxsize;
+>>>>  
+>>>>  		dentry_page = read_mapping_page(mapping, i, NULL);
+>>>> -		if (IS_ERR(dentry_page))
+>>>> -			continue;
+>>>> +		if (IS_ERR(dentry_page)) {
+>>>> +			errln("fail to readdir of logical block %u of nid %llu",
+>>>> +			      i, EROFS_V(dir)->nid);
+>>>> +			err = PTR_ERR(dentry_page);
+>>>> +			break;
+>>>
+>>> I don't think you want to use the errno that came back from
+>>> read_mapping_page() (which is, I think, always going to be -EIO).
+>>> Rather you want -EFSCORRUPTED, at least if I understand the recent
+>>> patches to ext2/ext4/f2fs/xfs/...
+>>
+>> Thanks for your reply and noticing this. :)
+>>
+>> Yes, as I talked with you about read_mapping_page() in a xfs related
+>> topic earlier, I think I fully understand what returns here.
+>>
+>> I actually had some concern about that before sending out this patch.
+>> You know the status is
+>>    PG_uptodate is not set and PG_error is set here.
+>>
+>> But we cannot know it is actually a disk read error or due to
+>> corrupted images (due to lack of page flags or some status, and
+>> I think it could be a waste of page structure space for such
+>> corrupted image or disk error)...
+>>
+>> And some people also like propagate errors from insiders...
+>> (and they could argue about err = -EFSCORRUPTED as well..)
+>>
+>> I'd like hear your suggestion about this after my words above?
+>> still return -EFSCORRUPTED?
+> 
+> I don't think it matters whether it's due to a disk error or a corrupted
+> image.  We can't read the directory entry, so we should probably return
+> -EFSCORRUPTED.  Thinking about it some more, read_mapping_page() can
+> also return -ENOMEM, so it should probably look something like this:
+> 
+> 		err = 0;
+> 		if (dentry_page == ERR_PTR(-ENOMEM))
+> 			err = -ENOMEM;
+> 		else if (IS_ERR(dentry_page)) {
+> 			errln("fail to readdir of logical block %u of nid %llu",
+> 			      i, EROFS_V(dir)->nid);
+> 			err = -EFSCORRUPTED;
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.189-69-g711554dc8b12/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.189-69-g711554dc8b12/
+Well, if there is real IO error happen under filesystem, we should return -EIO
+instead of EFSCORRUPTED?
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.189-69-g711554dc8b12
-Git Commit: 711554dc8b12a12296caa81eeffa307dc369f68f
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 52 unique boards, 22 SoC families, 15 builds out of 197
+The right fix may be that doing sanity check on on-disk blkaddr, and return
+-EFSCORRUPTED if the blkaddr is invalid and propagate the error to its caller
+erofs_readdir(), IIUC below error info.
 
-Boot Regressions Detected:
+> [36297.354090] attempt to access beyond end of device
+> [36297.354098] loop17: rw=0, want=29887428984, limit=1953128
+> [36297.354107] attempt to access beyond end of device
+> [36297.354109] loop17: rw=0, want=29887428480, limit=1953128
+> [36301.827234] attempt to access beyond end of device
+> [36301.827243] loop17: rw=0, want=29887428480, limit=1953128
 
-arm:
+Thanks,
 
-    bcm2835_defconfig:
-        gcc-8:
-          bcm2835-rpi-b:
-              lab-baylibre-seattle: new failure (last pass: v4.9.189-44-g75=
-5768e31f44)
-
-    multi_v7_defconfig:
-        gcc-8:
-          exynos5800-peach-pi:
-              lab-collabora: new failure (last pass: v4.9.189-44-g755768e31=
-f44)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre-seattle: new failure (last pass: v4.9.189-44-g75=
-5768e31f44)
-
-    socfpga_defconfig:
-        gcc-8:
-          socfpga_cyclone5_de0_sockit:
-              lab-baylibre-seattle: new failure (last pass: v4.9.189-44-g75=
-5768e31f44)
-
-    sunxi_defconfig:
-        gcc-8:
-          sun7i-a20-cubietruck:
-              lab-baylibre: new failure (last pass: v4.9.189-44-g755768e31f=
-44)
-
-    tegra_defconfig:
-        gcc-8:
-          tegra124-nyan-big:
-              lab-collabora: new failure (last pass: v4.9.189-44-g755768e31=
-f44)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          apq8016-sbc:
-              lab-baylibre-seattle: new failure (last pass: v4.9.189-44-g75=
-5768e31f44)
-          juno-r2:
-              lab-baylibre-seattle: new failure (last pass: v4.9.189-44-g75=
-5768e31f44)
-          meson-gxbb-odroidc2:
-              lab-baylibre-seattle: new failure (last pass: v4.9.189-44-g75=
-5768e31f44)
-
-Boot Failures Detected:
-
-arm:
-    tegra_defconfig:
-        gcc-8:
-            tegra124-nyan-big: 1 failed lab
-
-    sunxi_defconfig:
-        gcc-8:
-            sun7i-a20-cubietruck: 1 failed lab
-
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-            juno-r2: 1 offline lab
-            meson-gxbb-odroidc2: 1 offline lab
-
-arm:
-
-    sama5_defconfig:
-        gcc-8
-            at91-sama5d4_xplained: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            alpine-db: 1 offline lab
-            at91-sama5d4_xplained: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    socfpga_defconfig:
-        gcc-8
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-x86_64:
-    x86_64_defconfig:
-        qemu:
-            lab-baylibre: PASS (gcc-8)
-            lab-mhart: PASS (gcc-8)
-            lab-linaro-lkft: FAIL (gcc-8)
-            lab-drue: PASS (gcc-8)
-            lab-collabora: PASS (gcc-8)
-
----
-For more info write to <info@kernelci.org>
+> 		}
+> 
+> 		if (err)
+> 			break;
+> 
