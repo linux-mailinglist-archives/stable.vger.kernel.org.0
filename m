@@ -2,170 +2,324 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 380E6916C8
-	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 15:25:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F5C89173B
+	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 16:05:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726115AbfHRNZX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Aug 2019 09:25:23 -0400
-Received: from sonic308-17.consmr.mail.ir2.yahoo.com ([77.238.178.145]:39807
-        "EHLO sonic308-17.consmr.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726089AbfHRNZX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Aug 2019 09:25:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048; t=1566134720; bh=J5OwcfzuoKmPwwNV5kjnNoJZXy9tFxt/Nkggpag2DlE=; h=Date:From:To:Cc:Subject:References:In-Reply-To:From:Subject; b=RPAfhOnMQOqsuP04WBkKMmTmOwo2IrPHNcNRfP4yT3ZBJrbZQLjtb5IRVMxe7PkZ/AU6Mr8FXL+12Xul8dkx88xo5PuhajlVycj4wVAOAdsGHCfVekycEE7EenqHrJ31kFWRpDwEgUKoeyYu97Nuc2cBQJOcjDfddXYS1UF/sBxoi7JrmuaFTm6x/oOeQsdngukEMgkA3wxp+/gAgTh4okdej4TgBosfLFdpXYoDsBMtO1nXvSK5UkLYZD/hx9jw67ERGkJvysT0xgUm9Xf7gUosLrrnreLzjZ3/9JmcwL3ZahBYaHPNeLNUG8s8QVDHCbI08wu5OP8WsoH+82aPYg==
-X-YMail-OSG: rySOCGEVM1kKFbE28jMNYVWHuCRZtiGYiizlje5jWJHu1dTwExbD.W.2fL9daG8
- IPw6AtJCT9626396HlpSFWG1S0B3iHjwBWXG0fnXzBdxRBVNBrGFziyXnLozdEfG.VGLcm_2oZm4
- 9EU8EEbQWRp.e9I_a1O3leTz.uQNBBr9UTsmdEZOXeiMnM2raR873pmDhYjo6bVJTZP5O6FRyD8T
- fXboKzUy4FdRLBOpj91sm_2hmuWCQQk9X8u1qKJXwXka.HvIAC2_gdRfheBxDrcSowMjhiPEU9tu
- AKRcNxXK93j6yX6aUn8srXiHcjk_jQZLkP3phZ8mqGztMAt10iQPdmVAODEauQaAu955nHN0APJv
- golkFqa3NUbrJew70LqR6YYlpjh4.cWcQMZ16UbcKXQICBocvllisG7WFy8tURJjJtQ.C_ZQmEab
- 6eJJ8Yoe_WTX5BX2lGGghqIZESxP_Ygn4BgOCMAlaaPR30ezKbpp2T6pK0pLxzy_xRd6w_6PBpUq
- yhj4l2bI3xmZZ5VIcs83HtLr7Ubna5y_mDMH8.ymYM9Nsk8dwjjPzywfYiYBshBiXurn82qB0w0X
- xX2NLD.34IHBGxqEK4Q24Kev8yeEIjF2mDizgE8Yn2ALCZS4i5jUC8Q2bm1DPloAg6ssIe3Sufh_
- 1LB4IsP_HlYh5vkVDKmWNG_MxB3fZPueIsMTRIj43znUzwrRrf.tdvdvbOz1k7hoBVBKgeGelSi.
- vydUON8U006dsQOknM2INymlYLZAtciDRXWMWFAbwYA7AoIabrEt60.zDmE2.kburnH2qFrBXGOd
- 0cWZY0vlfPxL2wNyGC39ehA.tRHq1yx3Ui3o9ljGVAHDG6j21uko0tn4nbJLU7OdFXJxkKOEWDH0
- K59QwybuSVEcyAE1JyIjyeDrFCd3ajPSVi9IirahdtoZ5kqhiJ0kcqUGDCH.AmqLiPzPTXk5vG5u
- y_sYB4xR00EOts3otk70a9nL9NfZXzew0ISNWLK8S9U0jRxaDqH5deyC8NhCJ9cavDn66BuKSm0F
- U5kEG2CpxEgBfFJLldCs2TWMSftCissJScOLF7jvGxefwGpZTHfTMrpzIto9ZoFzzw7SQrW8kZV6
- WDvx0PFHwY7G58A8KsMCwNWd9xYGNmwmUCrMMbUNl4MVKCwJ69cK06y_4Q00EBRXOepENs5l0ZlN
- 3dv0hsoMzi9dTwpBMdizuTd5QLv5jKGVZgKl9vzGUFVf7kuApl29.GEcg1G385AiYiIAmC8rSjQ3
- 4Zik7hU6MSjGTX12wiB9Wv57qoz8Yg6pHlqEB
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.ir2.yahoo.com with HTTP; Sun, 18 Aug 2019 13:25:20 +0000
-Received: by smtp412.mail.ir2.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID f2d2ae84838ecf7bc6a5d59b227cc76f;
-          Sun, 18 Aug 2019 13:25:16 +0000 (UTC)
-Date:   Sun, 18 Aug 2019 21:25:04 +0800
-From:   Gao Xiang <hsiangkao@aol.com>
-To:     kbuild test robot <lkp@intel.com>
-Cc:     kbuild-all@01.org, devel@driverdev.osuosl.org,
-        linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Fang Wei <fangwei1@huawei.com>, Miao Xie <miaoxie@huawei.com>
-Subject: Re: [PATCH] staging: erofs: fix an error handling in erofs_readdir()
-Message-ID: <20190818132503.GA26232@hsiangkao-HP-ZHAN-66-Pro-G1>
-References: <20190818031855.9723-1-hsiangkao@aol.com>
- <201908182116.RRufKUpl%lkp@intel.com>
+        id S1727037AbfHROF1 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sun, 18 Aug 2019 10:05:27 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:56556 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726759AbfHROF1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Aug 2019 10:05:27 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 1A36C8980E2
+        for <stable@vger.kernel.org>; Sun, 18 Aug 2019 14:05:27 +0000 (UTC)
+Received: from [172.54.61.75] (cpt-1031.paas.prod.upshift.rdu2.redhat.com [10.0.19.58])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 97C6D871CB;
+        Sun, 18 Aug 2019 14:05:16 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <201908182116.RRufKUpl%lkp@intel.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2M?= FAIL: Stable queue: queue-5.2
+Message-ID: <cki.A5CB2BDFB2.E5K8JQ6VC2@redhat.com>
+X-Gitlab-Pipeline-ID: 108690
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/108690
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.67]); Sun, 18 Aug 2019 14:05:27 +0000 (UTC)
+Date:   Sun, 18 Aug 2019 10:05:27 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Aug 18, 2019 at 09:17:52PM +0800, kbuild test robot wrote:
-> Hi Gao,
-> 
-> I love your patch! Yet something to improve:
-> 
-> [auto build test ERROR on linus/master]
-> [cannot apply to v5.3-rc4 next-20190816]
-> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
 
-... those patches should be applied to staging tree
-since linux-next has not been updated yet...
+Hello,
 
-Thanks,
-Gao Xiang
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-> 
-> url:    https://github.com/0day-ci/linux/commits/Gao-Xiang/staging-erofs-fix-an-error-handling-in-erofs_readdir/20190818-191344
-> config: arm64-allyesconfig (attached as .config)
-> compiler: aarch64-linux-gcc (GCC) 7.4.0
-> reproduce:
->         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
->         chmod +x ~/bin/make.cross
->         # save the attached .config to linux build tree
->         GCC_VERSION=7.4.0 make.cross ARCH=arm64 
-> 
-> If you fix the issue, kindly add following tag
-> Reported-by: kbuild test robot <lkp@intel.com>
-> 
-> All errors (new ones prefixed by >>):
-> 
->    drivers/staging/erofs/dir.c: In function 'erofs_readdir':
-> >> drivers/staging/erofs/dir.c:110:11: error: 'EFSCORRUPTED' undeclared (first use in this function); did you mean 'FS_NRSUPER'?
->        err = -EFSCORRUPTED;
->               ^~~~~~~~~~~~
->               FS_NRSUPER
->    drivers/staging/erofs/dir.c:110:11: note: each undeclared identifier is reported only once for each function it appears in
-> 
-> vim +110 drivers/staging/erofs/dir.c
-> 
->     85	
->     86	static int erofs_readdir(struct file *f, struct dir_context *ctx)
->     87	{
->     88		struct inode *dir = file_inode(f);
->     89		struct address_space *mapping = dir->i_mapping;
->     90		const size_t dirsize = i_size_read(dir);
->     91		unsigned int i = ctx->pos / EROFS_BLKSIZ;
->     92		unsigned int ofs = ctx->pos % EROFS_BLKSIZ;
->     93		int err = 0;
->     94		bool initial = true;
->     95	
->     96		while (ctx->pos < dirsize) {
->     97			struct page *dentry_page;
->     98			struct erofs_dirent *de;
->     99			unsigned int nameoff, maxsize;
->    100	
->    101			dentry_page = read_mapping_page(mapping, i, NULL);
->    102			if (dentry_page == ERR_PTR(-ENOMEM)) {
->    103				errln("no memory to readdir of logical block %u of nid %llu",
->    104				      i, EROFS_V(dir)->nid);
->    105				err = -ENOMEM;
->    106				break;
->    107			} else if (IS_ERR(dentry_page)) {
->    108				errln("fail to readdir of logical block %u of nid %llu",
->    109				      i, EROFS_V(dir)->nid);
->  > 110				err = -EFSCORRUPTED;
->    111				break;
->    112			}
->    113	
->    114			de = (struct erofs_dirent *)kmap(dentry_page);
->    115	
->    116			nameoff = le16_to_cpu(de->nameoff);
->    117	
->    118			if (unlikely(nameoff < sizeof(struct erofs_dirent) ||
->    119				     nameoff >= PAGE_SIZE)) {
->    120				errln("%s, invalid de[0].nameoff %u",
->    121				      __func__, nameoff);
->    122	
->    123				err = -EIO;
->    124				goto skip_this;
->    125			}
->    126	
->    127			maxsize = min_t(unsigned int,
->    128					dirsize - ctx->pos + ofs, PAGE_SIZE);
->    129	
->    130			/* search dirents at the arbitrary position */
->    131			if (unlikely(initial)) {
->    132				initial = false;
->    133	
->    134				ofs = roundup(ofs, sizeof(struct erofs_dirent));
->    135				if (unlikely(ofs >= nameoff))
->    136					goto skip_this;
->    137			}
->    138	
->    139			err = erofs_fill_dentries(ctx, de, &ofs, nameoff, maxsize);
->    140	skip_this:
->    141			kunmap(dentry_page);
->    142	
->    143			put_page(dentry_page);
->    144	
->    145			ctx->pos = blknr_to_addr(i) + ofs;
->    146	
->    147			if (unlikely(err))
->    148				break;
->    149			++i;
->    150			ofs = 0;
->    151		}
->    152		return err < 0 ? err : 0;
->    153	}
->    154	
-> 
-> ---
-> 0-DAY kernel test infrastructure                Open Source Technology Center
-> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: aad39e30fb9e - Linux 5.2.9
+
+The results of these automated tests are provided below.
+
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: OK
+             Tests: FAILED
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://artifacts.cki-project.org/pipelines/108690
 
 
+
+One or more kernel tests failed:
+
+  aarch64:
+    ❌ Boot test
+    ❌ Boot test
+
+  ppc64le:
+    ❌ Boot test
+    ❌ Boot test
+
+  x86_64:
+    ❌ Boot test
+    ❌ Boot test
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this message.
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: aad39e30fb9e - Linux 5.2.9
+
+
+We grabbed the 4307fc7f179f commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  keys-trusted-allow-module-init-if-tpm-is-inactive-or-deactivated.patch
+  sh-kernel-hw_breakpoint-fix-missing-break-in-switch-statement.patch
+  seq_file-fix-problem-when-seeking-mid-record.patch
+  mm-hmm-fix-bad-subpage-pointer-in-try_to_unmap_one.patch
+  mm-mempolicy-make-the-behavior-consistent-when-mpol_mf_move-and-mpol_mf_strict-were-specified.patch
+  mm-mempolicy-handle-vma-with-unmovable-pages-mapped-correctly-in-mbind.patch
+  mm-z3fold.c-fix-z3fold_destroy_pool-ordering.patch
+  mm-z3fold.c-fix-z3fold_destroy_pool-race-condition.patch
+  mm-memcontrol.c-fix-use-after-free-in-mem_cgroup_iter.patch
+  mm-usercopy-use-memory-range-to-be-accessed-for-wraparound-check.patch
+  mm-vmscan-do-not-special-case-slab-reclaim-when-watermarks-are-boosted.patch
+  cpufreq-schedutil-don-t-skip-freq-update-when-limits-change.patch
+  drm-amdgpu-fix-gfx9-soft-recovery.patch
+  drm-nouveau-only-recalculate-pbn-vcpi-on-mode-connector-changes.patch
+  xtensa-add-missing-isync-to-the-cpu_reset-tlb-code.patch
+  arm64-ftrace-ensure-module-ftrace-trampoline-is-coherent-with-i-side.patch
+  alsa-hda-realtek-add-quirk-for-hp-envy-x360.patch
+  alsa-usb-audio-fix-a-stack-buffer-overflow-bug-in-check_input_term.patch
+  alsa-usb-audio-fix-an-oob-bug-in-parse_audio_mixer_unit.patch
+  alsa-hda-apply-workaround-for-another-amd-chip-1022-1487.patch
+  alsa-hda-fix-a-memory-leak-bug.patch
+  alsa-hda-add-a-generic-reboot_notify.patch
+  alsa-hda-let-all-conexant-codec-enter-d3-when-rebooting.patch
+  hid-holtek-test-for-sanity-of-intfdata.patch
+  hid-hiddev-avoid-opening-a-disconnected-device.patch
+  hid-hiddev-do-cleanup-in-failure-of-opening-a-device.patch
+  input-kbtab-sanity-check-for-endpoint-type.patch
+  input-iforce-add-sanity-checks.patch
+  net-usb-pegasus-fix-improper-read-if-get_registers-fail.patch
+  bpf-fix-access-to-skb_shared_info-gso_segs.patch
+  netfilter-ebtables-also-count-base-chain-policies.patch
+  riscv-correct-the-initialized-flow-of-fp-register.patch
+  riscv-make-__fstate_clean-work-correctly.patch
+  revert-i2c-imx-improve-the-error-handling-in-i2c_imx_dma_request.patch
+  blk-mq-move-cancel-of-requeue_work-to-the-front-of-blk_exit_queue.patch
+  io_uring-fix-manual-setup-of-iov_iter-for-fixed-buffers.patch
+  rdma-hns-fix-sg-offset-non-zero-issue.patch
+  ib-mlx5-replace-kfree-with-kvfree.patch
+  clk-at91-generated-truncate-divisor-to-generated_max.patch
+  clk-sprd-select-regmap_mmio-to-avoid-compile-errors.patch
+  clk-renesas-cpg-mssr-fix-reset-control-race-conditio.patch
+  dma-mapping-check-pfn-validity-in-dma_common_-mmap-g.patch
+  platform-x86-pcengines-apuv2-fix-softdep-statement.patch
+  platform-x86-intel_pmc_core-add-icl-nnpi-support-to-.patch
+  mm-hmm-always-return-ebusy-for-invalid-ranges-in-hmm.patch
+  xen-pciback-remove-set-but-not-used-variable-old_sta.patch
+  irqchip-gic-v3-its-free-unused-vpt_page-when-alloc-v.patch
+  irqchip-irq-imx-gpcv2-forward-irq-type-to-parent.patch
+  f2fs-fix-to-read-source-block-before-invalidating-it.patch
+  tools-perf-beauty-fix-usbdevfs_ioctl-table-generator.patch
+  perf-header-fix-divide-by-zero-error-if-f_header.att.patch
+  perf-header-fix-use-of-unitialized-value-warning.patch
+  rdma-qedr-fix-the-hca_type-and-hca_rev-returned-in-d.patch
+  alsa-pcm-fix-lost-wakeup-event-scenarios-in-snd_pcm_.patch
+  libata-zpodd-fix-small-read-overflow-in-zpodd_get_me.patch
+  powerpc-nvdimm-pick-nearby-online-node-if-the-device.patch
+  drm-bridge-lvds-encoder-fix-build-error-while-config.patch
+  drm-bridge-tc358764-fix-build-error.patch
+  btrfs-fix-deadlock-between-fiemap-and-transaction-co.patch
+  scsi-hpsa-correct-scsi-command-status-issue-after-re.patch
+  scsi-qla2xxx-fix-possible-fcport-null-pointer-derefe.patch
+  exit-make-setting-exit_state-consistent.patch
+  tracing-fix-header-include-guards-in-trace-event-hea.patch
+  drm-amdkfd-fix-byte-align-on-vegam.patch
+  drm-amd-powerplay-fix-null-pointer-dereference-aroun.patch
+  drm-amdgpu-fix-error-handling-in-amdgpu_cs_process_f.patch
+  drm-amdgpu-fix-a-potential-information-leaking-bug.patch
+  ata-libahci-do-not-complain-in-case-of-deferred-prob.patch
+  kbuild-modpost-handle-kbuild_extra_symbols-only-for-.patch
+  kbuild-check-for-unknown-options-with-cc-option-usag.patch
+  arm64-efi-fix-variable-si-set-but-not-used.patch
+  riscv-fix-perf-record-without-libelf-support.patch
+  arm64-lower-priority-mask-for-gic_prio_irqon.patch
+  arm64-unwind-prohibit-probing-on-return_address.patch
+  arm64-mm-fix-variable-pud-set-but-not-used.patch
+  arm64-mm-fix-variable-tag-set-but-not-used.patch
+  ib-core-add-mitigation-for-spectre-v1.patch
+  ib-mlx5-fix-mr-registration-flow-to-use-umr-properly.patch
+  rdma-restrack-track-driver-qp-types-in-resource-trac.patch
+  ib-mad-fix-use-after-free-in-ib-mad-completion-handl.patch
+  rdma-mlx5-release-locks-during-notifier-unregister.patch
+  drm-msm-fix-add_gpu_components.patch
+  rdma-hns-fix-error-return-code-in-hns_roce_v1_rsv_lp.patch
+  drm-exynos-fix-missing-decrement-of-retry-counter.patch
+  arm64-kprobes-recover-pstate.d-in-single-step-except.patch
+  arm64-make-debug-exception-handlers-visible-from-rcu.patch
+  revert-kmemleak-allow-to-coexist-with-fault-injectio.patch
+  ocfs2-remove-set-but-not-used-variable-last_hash.patch
+  page-flags-prioritize-kasan-bits-over-last-cpuid.patch
+  asm-generic-fix-wtype-limits-compiler-warnings.patch
+  tpm-tpm_ibm_vtpm-fix-unallocated-banks.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+      Host 1:
+         ❌ Boot test [0]
+         ⚡⚡⚡ xfstests: xfs [1]
+         ⚡⚡⚡ selinux-policy: serge-testsuite [2]
+         ⚡⚡⚡ lvm thinp sanity [3]
+         ⚡⚡⚡ storage: software RAID testing [4]
+         🚧 ⚡⚡⚡ Storage blktests [5]
+
+      Host 2:
+         ❌ Boot test [0]
+         ⚡⚡⚡ Podman system integration test (as root) [6]
+         ⚡⚡⚡ Podman system integration test (as user) [6]
+         ⚡⚡⚡ LTP lite [7]
+         ⚡⚡⚡ Loopdev Sanity [8]
+         ⚡⚡⚡ jvm test suite [9]
+         ⚡⚡⚡ AMTU (Abstract Machine Test Utility) [10]
+         ⚡⚡⚡ LTP: openposix test suite [11]
+         ⚡⚡⚡ Networking socket: fuzz [12]
+         ⚡⚡⚡ audit: audit testsuite test [13]
+         ⚡⚡⚡ httpd: mod_ssl smoke sanity [14]
+         ⚡⚡⚡ iotop: sanity [15]
+         ⚡⚡⚡ tuned: tune-processes-through-perf [16]
+         ⚡⚡⚡ Usex - version 1.9-29 [17]
+         ⚡⚡⚡ storage: SCSI VPD [18]
+         ⚡⚡⚡ stress: stress-ng [19]
+
+
+  ppc64le:
+      Host 1:
+         ❌ Boot test [0]
+         ⚡⚡⚡ Podman system integration test (as root) [6]
+         ⚡⚡⚡ Podman system integration test (as user) [6]
+         ⚡⚡⚡ LTP lite [7]
+         ⚡⚡⚡ Loopdev Sanity [8]
+         ⚡⚡⚡ jvm test suite [9]
+         ⚡⚡⚡ AMTU (Abstract Machine Test Utility) [10]
+         ⚡⚡⚡ LTP: openposix test suite [11]
+         ⚡⚡⚡ Networking socket: fuzz [12]
+         ⚡⚡⚡ audit: audit testsuite test [13]
+         ⚡⚡⚡ httpd: mod_ssl smoke sanity [14]
+         ⚡⚡⚡ iotop: sanity [15]
+         ⚡⚡⚡ tuned: tune-processes-through-perf [16]
+         ⚡⚡⚡ Usex - version 1.9-29 [17]
+
+      Host 2:
+         ❌ Boot test [0]
+         ⚡⚡⚡ xfstests: xfs [1]
+         ⚡⚡⚡ selinux-policy: serge-testsuite [2]
+         ⚡⚡⚡ lvm thinp sanity [3]
+         ⚡⚡⚡ storage: software RAID testing [4]
+         🚧 ⚡⚡⚡ Storage blktests [5]
+
+
+  x86_64:
+      Host 1:
+         ❌ Boot test [0]
+         ⚡⚡⚡ xfstests: xfs [1]
+         ⚡⚡⚡ selinux-policy: serge-testsuite [2]
+         ⚡⚡⚡ lvm thinp sanity [3]
+         ⚡⚡⚡ storage: software RAID testing [4]
+         🚧 ⚡⚡⚡ Storage blktests [5]
+
+      Host 2:
+         ❌ Boot test [0]
+         ⚡⚡⚡ Podman system integration test (as root) [6]
+         ⚡⚡⚡ Podman system integration test (as user) [6]
+         ⚡⚡⚡ LTP lite [7]
+         ⚡⚡⚡ Loopdev Sanity [8]
+         ⚡⚡⚡ jvm test suite [9]
+         ⚡⚡⚡ AMTU (Abstract Machine Test Utility) [10]
+         ⚡⚡⚡ LTP: openposix test suite [11]
+         ⚡⚡⚡ Networking socket: fuzz [12]
+         ⚡⚡⚡ audit: audit testsuite test [13]
+         ⚡⚡⚡ httpd: mod_ssl smoke sanity [14]
+         ⚡⚡⚡ iotop: sanity [15]
+         ⚡⚡⚡ tuned: tune-processes-through-perf [16]
+         ⚡⚡⚡ pciutils: sanity smoke test [20]
+         ⚡⚡⚡ Usex - version 1.9-29 [17]
+         ⚡⚡⚡ storage: SCSI VPD [18]
+         ⚡⚡⚡ stress: stress-ng [19]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/container/podman
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/jvm
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
+    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
