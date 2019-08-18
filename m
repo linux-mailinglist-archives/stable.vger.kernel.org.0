@@ -2,95 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B87B591403
-	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 03:47:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CFF79140B
+	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 03:48:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726464AbfHRBr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Aug 2019 21:47:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54318 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726463AbfHRBr4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 17 Aug 2019 21:47:56 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A3972086C;
-        Sun, 18 Aug 2019 01:47:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566092875;
-        bh=ChAVdJpNLOryLOHbb3Di/mHnhmC5olD86fEm37XBG2Y=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KXwHHxunnE2XJaI4MsPpbWNswT0MoXe46Aegh6eQyTKR0cZU2bGR75KCt8qeIAZRy
-         Krba46V3X39/Kj00cUWW2yQpkuN5zu46CLZ9INRyWf7z3k+OlUXaFn8QEKkZS9Jdo1
-         EqEWYzBeSxHdXaQYrX9Z8dGe1cUvnWhJg5pM+++8=
-Date:   Sat, 17 Aug 2019 21:47:54 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     David Laight <David.Laight@ACULAB.COM>
-Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Colin Ian King <colin.king@canonical.com>,
-        Inki Dae <inki.dae@samsung.com>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
-Subject: Re: [PATCH AUTOSEL 5.2 51/59] drm/exynos: fix missing decrement of
- retry counter
-Message-ID: <20190818014754.GE1318@sasha-vm>
-References: <20190806213319.19203-1-sashal@kernel.org>
- <20190806213319.19203-51-sashal@kernel.org>
- <2ecde45912fc44b88df2ff5129b8ab67@AcuMS.aculab.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <2ecde45912fc44b88df2ff5129b8ab67@AcuMS.aculab.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1726560AbfHRBsv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Aug 2019 21:48:51 -0400
+Received: from sonic316-55.consmr.mail.gq1.yahoo.com ([98.137.69.31]:40271
+        "EHLO sonic316-55.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726256AbfHRBsu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Aug 2019 21:48:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048; t=1566092929; bh=3z4YsL7cITdwo3WfgBzjdtBKxHfbzIYd54Y/QXXxpig=; h=From:To:Cc:Subject:Date:From:Subject; b=igjsmRk2B/VVMaIiwk6KZFJ2xs+vdkB0aTsEmbInOb3+X4jBeC3xc5GWN/bnYJeQ/3ugotsaMLuXLDNSVDW+RsZ2xQgJhXn6BlInOyZOt3zFUjpqF13OO8hBUngPCNJIpvCMsy1r2HWwsVzmI8NHrpH4pejQnUC05EffWbZXO9hACzDgoo8w1fbNBnZH9fDdTzQWkuwZ4ReO7PW7Fi3+/h5nAyV4psVt7lo+U2iOu5q7gwisfaumKBdTDLmceTpzftAWFAsCAWrGdADs0Bhw6+XIQ98o8Z0A1mPnET1PHgsm/WO6DvsANrRlZGVcqSgDITJDxZayIovb2713IBng4g==
+X-YMail-OSG: nH1tLc8VM1kDn9rx2c7sy4Ia4G0fR8nB1KDqylp4FskuR13tFJNVAPwp840OXp5
+ EhdNzOzVsNmE7oedZI.bicNh6Y.BUanFjxjAkKiRMaee40cc_0EVqmjKoLOjackBCV8S0iz6ujsp
+ RADzb3Hz7mDmBa3S3zCS7UcLlpImM.xDT4ovcBwWoHZ71b.fQWIQY0GPpGeUZQYE3Z4h8gcmsJXL
+ wAxWZRyExv_LAqhUEi0Ktc8sXAwljeXkuu2KRvHdAymTDslbi_17hUs6APnlTr2Jr4InQEZ8aUXw
+ YRdNha51u84WLXU_ljA20gbSaaqAZyHH5h1MHSJB61IIgsvKc.iyyDOdXj9NFVcBHffBsaWRsJrs
+ 1CnB.dH6ODkf2UNOjProgFs3PV.LtqTWZleiPe63zUc0FRpOolRYxmBCutnURgUYF66a43eFadr0
+ Cic3D5wt3QuPJOJjMzWSDirBuACdYLIrM4CI0fyw8W6AJ4M7A_Mn_H.IoZRz33SwCPnPofPuZcjE
+ JiQgGviKoqQRed3bwcT47oWp5iFdDhS07V192MYe1yQ6fAmDyhzgUSD1vewYdpJ7fN.N_4JaMRp6
+ P1nfunMU4NBxqwYJzW9WxZzdOWHHGwKLqjWDS1TylVvr1dSDMz.y8IkO2BLW0dZ7Lg3e.QousgcU
+ .84G1QxI4kiPY31wANpRIP1rPB_vBk84ecr08dmO_QRHVjLAxmvFAEWSl2ZvaWoJRzUolq4yrnTc
+ Do1WMUIVjlGP53sg9J6a5elF_uKzkbZ10qkYxpZjtioSqj5q7MhOOJNvl9E9w0sAZIEOscAv4LZY
+ MVQVkCeYTNfj1KZGNpnX5RmlfEoFlR9c7Jrbx6pXc2JJ7RErzQl2xsksY0K2tYk4BVQAi91H58kB
+ rqWHIU7t.HGxJ_N.pEl0WioD4aL8DBXT.FbVCgwshCkp6pq4x8ImtDz1dbjfK_YyzmSq7SIceAID
+ rZV..yrIopk0c4z9QIcARAA.ZGj22.MtATeg9iPC_2yZrqKjxjFe_AmWpFgelDKBXi17BIS81zQw
+ PeZKoDaI9SN4GuyvVJ1Ekr9jNxBI26HwJd8MhuWLcVMqTixd.dIgLodiZL3qJVFz0K10HOyK_ZEd
+ 1ohHBW4Vp9giHb3d5q1MZz.vXv_.nB9pUtSEwjGH9F_wVZqArmt2TRjo28N6hvCHtfKhl98bQioN
+ JdIpEhf4lkn3XK.LbY0C.083i3brSpG3uyhB13CP6rEgBw0NUkyu5eoKmvy7VSMnWKrJvMc2liSv
+ czKCr_7IpTwBhZUpzVapYwwMr00Y06wwZqzc-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.gq1.yahoo.com with HTTP; Sun, 18 Aug 2019 01:48:49 +0000
+Received: by smtp411.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID be81c6d863eaec55ce60d29fea3fc0a8;
+          Sun, 18 Aug 2019 01:48:44 +0000 (UTC)
+From:   Gao Xiang <hsiangkao@aol.com>
+To:     Chao Yu <yuchao0@huawei.com>, Richard Weinberger <richard@nod.at>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        devel@driverdev.osuosl.org, linux-fsdevel@vger.kernel.org
+Cc:     LKML <linux-kernel@vger.kernel.org>, linux-erofs@lists.ozlabs.org,
+        Chao Yu <chao@kernel.org>, Miao Xie <miaoxie@huawei.com>,
+        Fang Wei <fangwei1@huawei.com>,
+        Gao Xiang <gaoxiang25@huawei.com>, stable@vger.kernel.org
+Subject: [PATCH] staging: erofs: fix an error handling in erofs_readdir()
+Date:   Sun, 18 Aug 2019 09:48:35 +0800
+Message-Id: <20190818014835.5874-1-hsiangkao@aol.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 07, 2019 at 08:49:52AM +0000, David Laight wrote:
->From: Sasha Levin
->> Sent: 06 August 2019 22:33
->>
->> From: Colin Ian King <colin.king@canonical.com>
->>
->> [ Upstream commit 1bbbab097a05276e312dd2462791d32b21ceb1ee ]
->>
->> Currently the retry counter is not being decremented, leading to a
->> potential infinite spin if the scalar_reads don't change state.
->>
->> Addresses-Coverity: ("Infinite loop")
->> Fixes: 280e54c9f614 ("drm/exynos: scaler: Reset hardware before starting the operation")
->> Signed-off-by: Colin Ian King <colin.king@canonical.com>
->> Signed-off-by: Inki Dae <inki.dae@samsung.com>
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->> ---
->>  drivers/gpu/drm/exynos/exynos_drm_scaler.c | 4 ++--
->>  1 file changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/gpu/drm/exynos/exynos_drm_scaler.c b/drivers/gpu/drm/exynos/exynos_drm_scaler.c
->> index ec9c1b7d31033..8989f8af716b7 100644
->> --- a/drivers/gpu/drm/exynos/exynos_drm_scaler.c
->> +++ b/drivers/gpu/drm/exynos/exynos_drm_scaler.c
->> @@ -94,12 +94,12 @@ static inline int scaler_reset(struct scaler_context *scaler)
->>  	scaler_write(SCALER_CFG_SOFT_RESET, SCALER_CFG);
->>  	do {
->>  		cpu_relax();
->> -	} while (retry > 1 &&
->> +	} while (--retry > 1 &&
->>  		 scaler_read(SCALER_CFG) & SCALER_CFG_SOFT_RESET);
->>  	do {
->>  		cpu_relax();
->>  		scaler_write(1, SCALER_INT_EN);
->> -	} while (retry > 0 && scaler_read(SCALER_INT_EN) != 1);
->> +	} while (--retry > 0 && scaler_read(SCALER_INT_EN) != 1);
->>
->>  	return retry ? 0 : -EIO;
->
->If the first loop hits the retry limit the second loop won't be right
->and the final return value will be 0.
+From: Gao Xiang <gaoxiang25@huawei.com>
 
-This looks like an upstream problem as well, no?
+Richard observed a forever loop of erofs_read_raw_page() [1]
+which can be generated by forcely setting ->u.i_blkaddr
+to 0xdeadbeef (as my understanding block layer can
+handle access beyond end of device correctly).
 
---
-Thanks,
-Sasha
+After digging into that, it seems the problem is highly
+related with directories and then I found the root cause
+is an improper error handling in erofs_readdir().
+
+Let's fix it now.
+
+[1] https://lore.kernel.org/r/1746679415.68815.1566076790942.JavaMail.zimbra@nod.at/
+
+Reported-by: Richard Weinberger <richard@nod.at>
+Fixes: 3aa8ec716e52 ("staging: erofs: add directory operations")
+Cc: <stable@vger.kernel.org> # 4.19+
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+---
+
+Which is based on the following patch as well
+https://lore.kernel.org/r/20190816071142.8633-1-gaoxiang25@huawei.com/
+
+and
+https://lore.kernel.org/r/20190817082313.21040-1-hsiangkao@aol.com/
+can still be properly applied after this patch.
+
+ drivers/staging/erofs/dir.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/staging/erofs/dir.c b/drivers/staging/erofs/dir.c
+index 5f38382637e6..f2d7539589e4 100644
+--- a/drivers/staging/erofs/dir.c
++++ b/drivers/staging/erofs/dir.c
+@@ -82,8 +82,12 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
+ 		unsigned int nameoff, maxsize;
+ 
+ 		dentry_page = read_mapping_page(mapping, i, NULL);
+-		if (IS_ERR(dentry_page))
+-			continue;
++		if (IS_ERR(dentry_page)) {
++			errln("fail to readdir of logical block %u of nid %llu",
++			      i, EROFS_V(dir)->nid);
++			err = PTR_ERR(dentry_page);
++			break;
++		}
+ 
+ 		de = (struct erofs_dirent *)kmap(dentry_page);
+ 
+-- 
+2.17.1
+
