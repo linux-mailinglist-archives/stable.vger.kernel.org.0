@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 173BB91515
-	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 08:36:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A6D891516
+	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 08:36:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726097AbfHRGgq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Aug 2019 02:36:46 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:45843 "EHLO
+        id S1726247AbfHRGgy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Aug 2019 02:36:54 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:42251 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726079AbfHRGgq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Aug 2019 02:36:46 -0400
+        by vger.kernel.org with ESMTP id S1726115AbfHRGgy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Aug 2019 02:36:54 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id DB01521C57;
-        Sun, 18 Aug 2019 02:36:44 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 18 Aug 2019 02:36:44 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 815D421C4E;
+        Sun, 18 Aug 2019 02:36:53 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sun, 18 Aug 2019 02:36:53 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=WNsY5b
-        uaJEwxDTlxsSxxBcl6Wsjb1rm/hfkofLhMI1k=; b=wqb6I1l3hVfqJGd+rf1Fel
-        thydJGlalr7cHhJFr29IlQkWt2rNjeqdtvi5EuDctnCDkNGH4RSywHkfMrceTCVa
-        jp2NgDpmckMi4SQ8MzoJaxbF8yT9bQdgCH0ILKsRtncbOz1IZXAw1eDpTKEEm/nq
-        HR3t7RspmspWG5H+If23wS9a7cWqZI5vG3Dn3hbvQWmmpwB5fPohYZiPTrDGPdZp
-        3B3c76uiy2kLwPhZxuz1uu81UIqC1ClVQKgLKNDFfb1a//F8xLEIysyT+yhAh5aC
-        b4mACRKxL/unt1RUvuuyatxVxPkEX8DzntvzsHi8yy7WgM1a120HQm1K2pfPtVrg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=AL0zJE
+        C3rBuku70cMO5sXECxw0WTiSTUZZjvkKaRmWg=; b=BBOVSQJgbbvs3lkpT3ZP/3
+        659LaB5iFFrQ3wpIDuPI4WamfDOjODOUwHELrj7Ncu3GZ8Emjc68wYsUqHMEzsho
+        JCWZjfXO63t2ZmHJc6hRFFBfBWMbXH6kQpK5VmBGomNW4uuQCnG7mYpHUAojvppG
+        QBOa2qZU8MPGBAG8Nelcp7JrQs3yg16cGTcgLrrnpRDvrOgtbBCFElKjS2XzZYfp
+        DtKC7rcxhinwC81uFjEi7cWYZSPJ6V1IabxoVLBqmliQ3wcF0OrYiaj4/EAr4VEn
+        rV+noxRbvaiy7yYqBUelt6R+SHHFuNvqBgL3Z4pekqSjX9A+1bTjOwmtb6DTC6pA
         ==
-X-ME-Sender: <xms:_PFYXb85ICy_yfgGQHB_jNbU9ITWRQeSk0-GlvNS6gcD7PggUPpXrw>
+X-ME-Sender: <xms:BfJYXXxKeoR5zx88GimJHY7n_QUM6l83KfZ_4JqPCjbbMR-BCiZh5g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudefiedguddutdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:_PFYXarGO3lTXCFoY8iZfcRsmLw-H0xmlNu0FdJy-VSfWCvSfovpNg>
-    <xmx:_PFYXdMdqvsjvwNBpeLp-3Z_va0zv6ptYy6ival2jvo8KU6txi8j4w>
-    <xmx:_PFYXUrIbpbe0JRI0C9PTE2rt6e-NdYHKe-gQmu_NcQc46sMBlECkw>
-    <xmx:_PFYXe4Eh-_CekDpZsIc6uxw_JGQ8V5DYU5GMDmlJPXRt489y8GDLQ>
+    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedv
+X-ME-Proxy: <xmx:BfJYXSM9TokogaLaSUp39CJTGAjWykRjQcbDQX7szFqzCChkH5NHPA>
+    <xmx:BfJYXZjOSdTSjhMWI3Zv3aj6Ejb5sC65-CdiVixdy2td39OReYYA1g>
+    <xmx:BfJYXQUrI5RBQnwEuAQMZJjlPS2unMk925z13JCypF8T9GZcBrCEVg>
+    <xmx:BfJYXSKfTezbV4cdhhLYL23a0tHGgW_Fd65A5gzQK8ksAMnnBNqGBg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EBAC2380074;
-        Sun, 18 Aug 2019 02:36:43 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] blk-mq: move cancel of requeue_work to the front of" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 067888005C;
+        Sun, 18 Aug 2019 02:36:52 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] blk-mq: move cancel of requeue_work to the front of" failed to apply to 4.19-stable tree
 To:     zhengbin13@huawei.com, axboe@kernel.dk, ming.lei@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 18 Aug 2019 08:36:42 +0200
-Message-ID: <156611020218117@kroah.com>
+Message-ID: <15661102029372@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
