@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46368917F3
-	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 18:55:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0267A917F4
+	for <lists+stable@lfdr.de>; Sun, 18 Aug 2019 18:58:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726097AbfHRQzh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Aug 2019 12:55:37 -0400
-Received: from foss.arm.com ([217.140.110.172]:46546 "EHLO foss.arm.com"
+        id S1726903AbfHRQ5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Aug 2019 12:57:23 -0400
+Received: from foss.arm.com ([217.140.110.172]:46556 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726115AbfHRQzg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Aug 2019 12:55:36 -0400
+        id S1726608AbfHRQ5X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Aug 2019 12:57:23 -0400
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E86EE337;
-        Sun, 18 Aug 2019 09:55:35 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 5F122337;
+        Sun, 18 Aug 2019 09:57:22 -0700 (PDT)
 Received: from why.lan (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 5E6933F706;
-        Sun, 18 Aug 2019 09:55:35 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id C42D23F706;
+        Sun, 18 Aug 2019 09:57:21 -0700 (PDT)
 From:   Marc Zyngier <maz@kernel.org>
 To:     stable@vger.kernel.org
 Cc:     Anders Roxell <anders.roxell@linaro.org>
-Subject: [5.2-stable][PATCH] arm64: KVM: regmap: Fix unexpected switch fall-through
-Date:   Sun, 18 Aug 2019 17:55:29 +0100
-Message-Id: <20190818165529.835-1-maz@kernel.org>
+Subject: [4.19-stable][PATCH] arm64: KVM: regmap: Fix unexpected switch fall-through
+Date:   Sun, 18 Aug 2019 17:57:08 +0100
+Message-Id: <20190818165708.1169-1-maz@kernel.org>
 X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -91,10 +91,10 @@ Signed-off-by: Marc Zyngier <maz@kernel.org>
  1 file changed, 5 insertions(+)
 
 diff --git a/arch/arm64/kvm/regmap.c b/arch/arm64/kvm/regmap.c
-index d66613e6ad08..8a38ccf8dc02 100644
+index 7a5173ea2276..4c2e96ef306e 100644
 --- a/arch/arm64/kvm/regmap.c
 +++ b/arch/arm64/kvm/regmap.c
-@@ -178,13 +178,18 @@ void vcpu_write_spsr32(struct kvm_vcpu *vcpu, unsigned long v)
+@@ -189,13 +189,18 @@ void vcpu_write_spsr32(struct kvm_vcpu *vcpu, unsigned long v)
  	switch (spsr_idx) {
  	case KVM_SPSR_SVC:
  		write_sysreg_el1(v, spsr);
