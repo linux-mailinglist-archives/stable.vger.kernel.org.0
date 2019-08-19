@@ -2,66 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 819B294B2A
-	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 19:02:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 828B194B42
+	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 19:07:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727356AbfHSRCr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Aug 2019 13:02:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53036 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726879AbfHSRCr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Aug 2019 13:02:47 -0400
-Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41B8A22CE9;
-        Mon, 19 Aug 2019 17:02:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566234167;
-        bh=S/EEkvOO0/hEPp16GlMcgRgGiMdnmBoldj92hrerFQM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RHZvBJhxTp/nMPx7U4ibmsnFlOhvVWDc/HUcwkpAH7PGStmmgR3P2OAPWnSuRf1Ei
-         8HHIg4z2paez1BkDew7zQLgf10PQlD4gCqp1xVAY3yjMaRNZ773X2p6Pes6YUoHIB7
-         6O00qmhsiJPdxeHJ/jjsTv6C7oKbkx4ivw8B5izk=
-Date:   Mon, 19 Aug 2019 13:02:46 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Aaron Armstrong Skomra <skomra@gmail.com>
-Cc:     linux-input@vger.kernel.org, jikos@kernel.org,
-        benjamin.tissoires@redhat.com, ping.cheng@wacom.com,
-        jason.gerecke@wacom.com,
-        Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
-        "# v4 . 3+" <stable@vger.kernel.org>
-Subject: Re: [PATCH] HID: wacom: correct misreported EKR ring values
-Message-ID: <20190819170246.GA30205@sasha-vm>
-References: <1566232914-9919-1-git-send-email-aaron.skomra@wacom.com>
+        id S1726987AbfHSRGo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Aug 2019 13:06:44 -0400
+Received: from mail-yb1-f195.google.com ([209.85.219.195]:37379 "EHLO
+        mail-yb1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727937AbfHSRGn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Aug 2019 13:06:43 -0400
+Received: by mail-yb1-f195.google.com with SMTP id t5so669850ybt.4;
+        Mon, 19 Aug 2019 10:06:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=csGSFDEdSWqw3dz2PgL0VnXwJ2fZOjcWs1UiwIbpOh8=;
+        b=BExNnfSwIIIYOd2fPFOYG/vCFL2tOZqPG9oCAekHhn6/qBPnYcBCfFYgHijbOFgSIV
+         3DGpD6Gy4Yxe5tJ0y7ZDtPSbwdLfyXB8xV8HKV3QZokspTWK+H60PPr6tNBa71zjvjEq
+         rDkPhzkM4GFacH7LMMWGfYsPXnbNLm8sYSaEGxEVpju8hAy7aMBTE3SSceq9PIT7WuWh
+         sTzuvvnJCkLo1WwK+2CpqagEBM4t3E1OIt3MnqcTZn83/B1PR4Re9UMl/PdTgYf/ZlH4
+         UzWl4h+JNq8bi9ol4GaYY7DF3EHEeft6IC54G7JgHD9K3vmdEpTW1LySlpoqUoXgI+qN
+         Gn9A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=csGSFDEdSWqw3dz2PgL0VnXwJ2fZOjcWs1UiwIbpOh8=;
+        b=sHU7cJs4W01jLZ0Vqdu7E06NeiO0018UAP+x1maSxwZPnYo8v+j1bHsVnBueq63jyF
+         gJpnW+v/hlFq4tdWPvkET6pmFWM8NzP0TbeUbY05BPP3ZLwKh3S7MmGMc7JvkmayQbBA
+         rPj8oDYQrTU0q1ierW1KEeC2o9b2zU7qjdjuH0JRccE+vL+LAK258JlYgPneI1hXyKTF
+         MuTolEkTkZJ8qRhKcRktGN0trtVzJfqvv2/KqTdbSGc2wnLAUpMZMF1vOpb0yInaQg1W
+         w7CUjHlc3awr1pYo1JaA6jnno3/vVq1X/2r+deSDT1fTk59O0wmRLzoaWd4LoSArnnxS
+         Zr8w==
+X-Gm-Message-State: APjAAAXXGecFJDHpXfeFkbu1HaljbJvRLiI7e1cS1PbO4RmaBp1FRATm
+        D9+htx5EjTHSfczWdcKSgaRWeC/YFD+KLlPJMRQ=
+X-Google-Smtp-Source: APXvYqwQA66V3JZQ8sRo/iPqtTGs+feQWRX34c7uh9WJv+pUv2pSCy/Tkk/vsf3jr7t3twT4WPViCaVg1rYVma41ndA=
+X-Received: by 2002:a25:ed0e:: with SMTP id k14mr17889604ybh.286.1566234402617;
+ Mon, 19 Aug 2019 10:06:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <1566232914-9919-1-git-send-email-aaron.skomra@wacom.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20190806213749.20689-1-sashal@kernel.org> <35579e00d27344b853cafea0b29b13c5aaf9e1fc.camel@codethink.co.uk>
+In-Reply-To: <35579e00d27344b853cafea0b29b13c5aaf9e1fc.camel@codethink.co.uk>
+From:   Max Filippov <jcmvbkbc@gmail.com>
+Date:   Mon, 19 Aug 2019 10:06:32 -0700
+Message-ID: <CAMo8Bf+g68JemdWzc2DQ43JCdO125EzpT9r42WWA48OYAcksag@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 4.4 01/14] xtensa: fix build for cores with coprocessors
+To:     Ben Hutchings <ben.hutchings@codethink.co.uk>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        "open list:TENSILICA XTENSA PORT (xtensa)" 
+        <linux-xtensa@linux-xtensa.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 19, 2019 at 09:41:54AM -0700, Aaron Armstrong Skomra wrote:
->The EKR ring claims a range of 0 to 71 but actually reports
->values 1 to 72. The ring is used in relative mode so this
->change should not affect users.
+On Mon, Aug 19, 2019 at 9:53 AM Ben Hutchings
+<ben.hutchings@codethink.co.uk> wrote:
 >
->Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
->Fixes: 72b236d60218f ("HID: wacom: Add support for Express Key Remote.")
->Cc: <stable@vger.kernel.org> # v4.3+
->Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
->Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
->---
->Patch specifically targeted to v4.9.189
+> On Tue, 2019-08-06 at 17:37 -0400, Sasha Levin wrote:
+> > From: Max Filippov <jcmvbkbc@gmail.com>
+> >
+> > [ Upstream commit e3cacb73e626d885b8cf24103fed0ae26518e3c4 ]
+> >
+> > Assembly entry/return abstraction change didn't add asmmacro.h include
+> > statement to coprocessor.S, resulting in references to undefined macros
+> > abi_entry and abi_ret on cores that define XTENSA_HAVE_COPROCESSORS.
+> > Fix that by including asm/asmmacro.h from the coprocessor.S.
+> [...]
+>
+> This seems to be fixing commit d6d5f19e21d9 "xtensa: abstract 'entry'
+> and 'retw' in assembly code" so it wouldn't be needed for any stable
+> branches.
 
-Is this not a problem upstream as well? Why not?
+That's correct.
 
-If it is, this patch will need to go upstream first, and then it'll get
-to stable branches from there.
-
---
-Thanks,
-Sasha
+-- 
+Thanks.
+-- Max
