@@ -2,78 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4880A94D72
-	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 21:03:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86BE594DB6
+	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 21:18:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728021AbfHSTDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Aug 2019 15:03:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33802 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727769AbfHSTDu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Aug 2019 15:03:50 -0400
-Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5B32214DA;
-        Mon, 19 Aug 2019 19:03:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566241429;
-        bh=jSr9TTwNt7h927ghAvkmu9t9Gk5BAIbgJN+uo5miIQo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ZS13jkzwjmuASZFE38Zk5gFS5nQLRWFhqFad4UH1FUf27QeAiZ9qxDMtcJtymJa2U
-         EYHx4MySb3Mg0dh9nUvw2pcnC8BgFAvmfFIPUNIM/lhUn8kwrQYu11NsgPXHZJ1vEq
-         ga95TRTNAPBAr3vDajZWRoYxJVS3AaIhN6OhLza4=
-Date:   Mon, 19 Aug 2019 15:03:49 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Aaron Armstrong Skomra <skomra@gmail.com>
-Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        Jiri Kosina <jikos@kernel.org>, benjamin.tissoires@redhat.com,
-        "Cheng, Ping" <ping.cheng@wacom.com>,
-        Jason Gerecke <jason.gerecke@wacom.com>,
-        Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
-        "# v4 . 3+" <stable@vger.kernel.org>
-Subject: Re: [PATCH] HID: wacom: correct misreported EKR ring values
-Message-ID: <20190819190349.GE30205@sasha-vm>
-References: <1566232914-9919-1-git-send-email-aaron.skomra@wacom.com>
- <20190819170246.GA30205@sasha-vm>
- <CAEoswT3mvABD7T_0WkwrAOe1PHO62jZ63tUb2UBQLm_Tqu-guw@mail.gmail.com>
+        id S1728385AbfHSTSB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Aug 2019 15:18:01 -0400
+Received: from mail-io1-f67.google.com ([209.85.166.67]:34710 "EHLO
+        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728376AbfHSTSB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Aug 2019 15:18:01 -0400
+Received: by mail-io1-f67.google.com with SMTP id s21so6800202ioa.1
+        for <stable@vger.kernel.org>; Mon, 19 Aug 2019 12:18:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=BvLmV10O5VwE1miD0dw1lN81aSty+MWgDqJNYGREG04=;
+        b=Q47B9lA7MldtpRBFFZWEKYXhvxVy9OE0gdEKjfVDbHCgSywUYXnxsZrV7zUbYNpWSp
+         ll9ZOTYDlQXM78n38GSCwH8ZmvPu0I6WGxjrMsr1kcFW9sDjLpTlw1IinsOLvvFIcmDn
+         /5SvyDEw8C+eVSbZDrJzfybs8IQUjSI389qZsCyLVOztbOJWgx0itcGfWk1gzwhgfN7X
+         KTG1ArBA5NhG93z7b4D98XTaNo7YmRAyeQhL50I29P1cIE+c11d5FKGm1o3SHvGR2qp9
+         rRNcN90w0v+KQ1mqljdLBvxxSSsR0kCLfn0hBLse5kEgM3+KmO186no/u4PcCE8UU+4O
+         8hJQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=BvLmV10O5VwE1miD0dw1lN81aSty+MWgDqJNYGREG04=;
+        b=QUBuzok6qYfwxDDQGnvWX2ubiilb7PhTz27wP0VUrMJwhTG7h3hwa5gkDQfeBG/kz0
+         CgT8gRBlv4gfWglu29aJMqdIrz6gFPBCVlzhHNuExcKoQG+ltHC5zKsOau/bhUd90skY
+         SRAKg3xH0toymGA40d4IH/4byKUwolwe+RddS4/kK08rs5AkFGrmQDFSgC33LobPaaeE
+         Lp7eF+Ye6dqJn5lu8aOYj15KfYbk4aeF3mBmO8/+oqMrCajvPPU6nAE6Bdcch6oqdWY0
+         V8YwgB1C27Tky6R2yc24MqCiPsKD452GBUNp9oNOq9fY4ucHF5OBAdG4qOjQTcHs66uw
+         AiDg==
+X-Gm-Message-State: APjAAAVL2n45c7T7YzguWK0WoxatII3gZ0STt3X24EeHuXQkAOPXiV3m
+        j/z6XYW5b9e3DImnUYrK5YgNEPJruUkndHgwr04=
+X-Google-Smtp-Source: APXvYqzYaMYu6nWDfGQAC2wfLnBdsG7g/b71SYPezKFHrLIkRQ9iUianwqryyJIQdrKIJ6T5K+7smRezYE7INVoXLPA=
+X-Received: by 2002:a5d:951a:: with SMTP id d26mr27394181iom.31.1566242280636;
+ Mon, 19 Aug 2019 12:18:00 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <CAEoswT3mvABD7T_0WkwrAOe1PHO62jZ63tUb2UBQLm_Tqu-guw@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Received: by 2002:ac0:a087:0:0:0:0:0 with HTTP; Mon, 19 Aug 2019 12:17:59
+ -0700 (PDT)
+Reply-To: sgt.hester33@gmail.com
+From:   Ann Hester <0813103kalu@gmail.com>
+Date:   Mon, 19 Aug 2019 19:17:59 +0000
+Message-ID: <CAMtpwBHXQ557a9QF_bxXS9Kuuprab-0KGSvq+tuJ6hHHuWZj+Q@mail.gmail.com>
+Subject: Greetings
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 19, 2019 at 10:13:31AM -0700, Aaron Armstrong Skomra wrote:
->On Mon, Aug 19, 2019 at 10:02 AM Sasha Levin <sashal@kernel.org> wrote:
->
->> On Mon, Aug 19, 2019 at 09:41:54AM -0700, Aaron Armstrong Skomra wrote:
->> >The EKR ring claims a range of 0 to 71 but actually reports
->> >values 1 to 72. The ring is used in relative mode so this
->> >change should not affect users.
->> >
->> >Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
->> >Fixes: 72b236d60218f ("HID: wacom: Add support for Express Key Remote.")
->> >Cc: <stable@vger.kernel.org> # v4.3+
->> >Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
->> >Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
->> >---
->> >Patch specifically targeted to v4.9.189
->>
->> Is this not a problem upstream as well? Why not?
->>
->> If it is, this patch will need to go upstream first, and then it'll get
->> to stable branches from there.
->>
->> Hi Sasha,
->I neglected my "--in-reply-to" in git send-email, I will resend. My
->apologies.
-
-Ah, I see what happened. Looks good now, thanks!
-
---
-Thanks,
-Sasha
+How are you? my name is Ann Leigh, please reply me back.
