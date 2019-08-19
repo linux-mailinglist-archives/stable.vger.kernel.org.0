@@ -2,148 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CA2B91BC7
-	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 06:18:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0E2E91CE0
+	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 08:12:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726227AbfHSESo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Aug 2019 00:18:44 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:50913 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726132AbfHSESo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Aug 2019 00:18:44 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 4480921CFD;
-        Mon, 19 Aug 2019 00:18:43 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 19 Aug 2019 00:18:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=3
-        NxNxboZi1dfIdQqxAbOEbn4zJzRNwd0Snbrqn0TNzs=; b=d6i3nvlynz6QGt9mJ
-        nT9/QChVjg0GG02zdFNDtYz1lp+RtSPT8lFFnitNpM6XYRiRMHm6/AS5n2N/kqIs
-        CUhOPDpxJF0QzDVOSV81JSoL0jdzORJ11xiqvkQN9d9jJY+gYA7vpkQ6GRFZyvSC
-        t9fwfdeKOlgt4Nh1xQu1H7u4AaqUqkZWZ2NbG76hGoTZAJFi3kbPAPGDi8IRUvHQ
-        3AVxKbdB5dfynimB49hVqe036BUljtBFhXiYy+rzuTjpmtn1mYENSL3iK2RhepqB
-        ENDC33SDCCYENdN0cuGwRCsZJYt7wAQqJcrv1cmD8d591Yupdxu7joBvwUXDz/xZ
-        Og4Bw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=3NxNxboZi1dfIdQqxAbOEbn4zJzRNwd0Snbrqn0TN
-        zs=; b=sqv43yPvwlV9c0gNGTySfzgQ6h3CDunCKsMhbOHy6lXlfse12HNPKUWwN
-        PD0FHFwSQmAdAw6t4JWVXwdusKO0WsLzxcJ0pa3uaTm2o0ZjxXxemY09fYANLIbQ
-        Pb4txYWY+2sYOpntBFfM9gLt2A8gm08/H673F3OvHcQXfXo55LSmcUgkJU288VLh
-        TJjWdBt3Y02kdfwxC5t5ARB+PST64HX88xdRSEl9joSm2Te/KajAyp7MNjm/I+vE
-        hfhoApFm1FhzyOxSHhECfedLRGzxwEOoOlj5Pnf5UfKUIoN6oJBmTTqaNY273baQ
-        cVOs+/Q1ycPZcvtwGPKbCgZwvk2/Q==
-X-ME-Sender: <xms:IiNaXcMSYvCkVPdwHUI6NBbh_rGA7rsW35zlfPMb2glW8ZlAOUNaFQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudefkedgkeduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtugfgjggfsehtkeertddtreejnecuhfhrohhmpefirhgv
-    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucffohhmrghinheptghkihdqph
-    hrohhjvggtthdrohhrghdpkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledr
-    uddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmne
-    cuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:IiNaXefBc39yfTrBTKrptKhk0GVmh06AzP4Bg6egT-aLLG3UQ4hsww>
-    <xmx:IiNaXZtDFN0fTxF6GFOkWSP7QElD6FOQU5nLJsPqXnyPcI1XiY6v0w>
-    <xmx:IiNaXfnHV0jj01wQiLmwcu-1fmE6aGR1pEPHZojrJUfWQTzx8kGGvA>
-    <xmx:IyNaXbYxduP9H1CuhWE6IenSxWyzW2GaY3pHcajYJzWHilCHSFdfuQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5B58E80060;
-        Mon, 19 Aug 2019 00:18:42 -0400 (EDT)
-Date:   Mon, 19 Aug 2019 06:18:40 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Holger =?iso-8859-1?Q?Hoffst=E4tte?= 
-        <holger@applied-asynchrony.com>
-Cc:     CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>
-Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
- 5.2.10-rc1-61d06c6.cki (stable)
-Message-ID: <20190819041840.GB24625@kroah.com>
-References: <cki.8FD44CAC8D.KLM2TF66J1@redhat.com>
- <20190818184900.GE2791@kroah.com>
- <843a068f-9a67-f3a0-cef6-a51f29616705@applied-asynchrony.com>
- <38430602-3b5e-5217-aeae-13fcd82a9c1f@applied-asynchrony.com>
+        id S1726295AbfHSGMk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Aug 2019 02:12:40 -0400
+Received: from mx2.suse.de ([195.135.220.15]:40914 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725946AbfHSGMk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Aug 2019 02:12:40 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 78139AFDF;
+        Mon, 19 Aug 2019 06:12:38 +0000 (UTC)
+Subject: Re: [PATCH V2] blk-mq: avoid sysfs buffer overflow by too many CPU
+ cores
+To:     Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>
+Cc:     linux-block@vger.kernel.org, stable@vger.kernel.org,
+        Mark Ray <mark.ray@hpe.com>,
+        Greg KH <gregkh@linuxfoundation.org>
+References: <20190816025417.28964-1-ming.lei@redhat.com>
+From:   Hannes Reinecke <hare@suse.de>
+Openpgp: preference=signencrypt
+Autocrypt: addr=hare@suse.de; prefer-encrypt=mutual; keydata=
+ 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
+ azzYF4VRJsdl+d0MCaSy8mUh
+Message-ID: <4dad5855-c69c-3035-b8d2-ee7eaafbb79f@suse.de>
+Date:   Mon, 19 Aug 2019 08:12:37 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
+In-Reply-To: <20190816025417.28964-1-ming.lei@redhat.com>
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <38430602-3b5e-5217-aeae-13fcd82a9c1f@applied-asynchrony.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Aug 18, 2019 at 11:57:05PM +0200, Holger Hoffstätte wrote:
-> On 8/18/19 10:38 PM, Holger Hoffstätte wrote:
-> > On 8/18/19 8:49 PM, Greg KH wrote:
-> > > On Sun, Aug 18, 2019 at 02:31:22PM -0400, CKI Project wrote:
-> > > > 
-> > > > Hello,
-> > > > 
-> > > > We ran automated tests on a recent commit from this kernel tree:
-> > > > 
-> > > >         Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> > > >              Commit: 61d06c60569f - Linux 5.2.10-rc1
-> > > > 
-> > > > The results of these automated tests are provided below.
-> > > > 
-> > > >      Overall result: FAILED (see details below)
-> > > >               Merge: OK
-> > > >             Compile: OK
-> > > >               Tests: FAILED
-> > > > 
-> > > > All kernel binaries, config files, and logs are available for download here:
-> > > > 
-> > > >    https://artifacts.cki-project.org/pipelines/108998
-> > > > 
-> > > > 
-> > > > 
-> > > > One or more kernel tests failed:
-> > > > 
-> > > >    aarch64:
-> > > >      ❌ Boot test
-> > > >      ❌ Boot test
-> > > > 
-> > > >    ppc64le:
-> > > >      ❌ Boot test
-> > > >      ❌ Boot test
-> > > > 
-> > > >    x86_64:
-> > > >      ❌ Boot test
-> > > >      ❌ Boot test
-> > > > 
-> > > 
-> > > Are these all real?
-> > > 
-> > 
-> > Hi Greg,
-> > 
-> > the current 5.2-queue also fails to boot for me when applied to 5.2.9,
-> > so this is not a false positive. I had a handful of the queued patches in my
-> > own tree and know which ones work in 5.2.9, but the new ones for -mm look
-> > like they could cause problems. I'll try a few things..
+On 8/16/19 4:54 AM, Ming Lei wrote:
+> It is reported that sysfs buffer overflow can be triggered in case
+> of too many CPU cores(>841 on 4K PAGE_SIZE) when showing CPUs in
+> blk_mq_hw_sysfs_cpus_show().
 > 
-> The culprit is "exit-make-setting-exit_state-consistent.patch", which was
-> successfully added everywhere. This explains why KCI is consistently sad
-> everywhere, too. :)
+> So use cpumap_print_to_pagebuf() to print the info and fix the potential
+> buffer overflow issue.
 > 
-> Removing that patch from the queue results in a working kernel (with the
-> version updated by me):
+> Cc: stable@vger.kernel.org
+> Cc: Mark Ray <mark.ray@hpe.com>
+> Cc: Greg KH <gregkh@linuxfoundation.org>
+> Fixes: 676141e48af7("blk-mq: don't dump CPU -> hw queue map on driver load")
+> Signed-off-by: Ming Lei <ming.lei@redhat.com>
+> ---
+>  block/blk-mq-sysfs.c | 15 +--------------
+>  1 file changed, 1 insertion(+), 14 deletions(-)
 > 
-> $cat /proc/version
-> Linux version 5.2.10 (root@ragnarok) (gcc version 9.2.0 (Gentoo 9.2.0 p1)) #1 SMP Sun Aug 18 23:50:50 CEST 2019
+> diff --git a/block/blk-mq-sysfs.c b/block/blk-mq-sysfs.c
+> index d6e1a9bd7131..4d0d32377ba3 100644
+> --- a/block/blk-mq-sysfs.c
+> +++ b/block/blk-mq-sysfs.c
+> @@ -166,20 +166,7 @@ static ssize_t blk_mq_hw_sysfs_nr_reserved_tags_show(struct blk_mq_hw_ctx *hctx,
+>  
+>  static ssize_t blk_mq_hw_sysfs_cpus_show(struct blk_mq_hw_ctx *hctx, char *page)
+>  {
+> -	unsigned int i, first = 1;
+> -	ssize_t ret = 0;
+> -
+> -	for_each_cpu(i, hctx->cpumask) {
+> -		if (first)
+> -			ret += sprintf(ret + page, "%u", i);
+> -		else
+> -			ret += sprintf(ret + page, ", %u", i);
+> -
+> -		first = 0;
+> -	}
+> -
+> -	ret += sprintf(ret + page, "\n");
+> -	return ret;
+> +	return cpumap_print_to_pagebuf(true, page, hctx->cpumask);
+>  }
+>  
+>  static struct blk_mq_hw_ctx_sysfs_entry blk_mq_hw_sysfs_nr_tags = {
+> 
+Reviewed-by: Hannes Reinecke <hare@suse.com>
 
-Thanks for this, looks like kernelci and Linaro's testing are all
-failing as well, so this isn't isolated.
+And maybe you should send a update to the kABI documentation to keep
+Greg KH happy :-)
 
-Sasha, the above commit relies on commit b191d6491be6 ("pidfd: fix a
-poll race when setting exit_state") which is in 5.3-rc, so I'll drop it
-from everywhere now...
+Cheers,
 
-thanks,
-
-greg k-h
+Hannes
+-- 
+Dr. Hannes Reinecke		   Teamlead Storage & Networking
+hare@suse.de			               +49 911 74053 688
+SUSE LINUX GmbH, Maxfeldstr. 5, 90409 Nürnberg
+GF: Felix Imendörffer, Mary Higgins, Sri Rasiah
+HRB 21284 (AG Nürnberg)
