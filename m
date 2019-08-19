@@ -2,159 +2,198 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 585D294F0F
-	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 22:32:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DED8A94FC6
+	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 23:21:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728177AbfHSUck (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Aug 2019 16:32:40 -0400
-Received: from pegase1.c-s.fr ([93.17.236.30]:31045 "EHLO pegase1.c-s.fr"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727769AbfHSUcj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Aug 2019 16:32:39 -0400
-Received: from localhost (mailhub1-int [192.168.12.234])
-        by localhost (Postfix) with ESMTP id 46C5Fw5y57z9v0v5;
-        Mon, 19 Aug 2019 22:32:36 +0200 (CEST)
-Authentication-Results: localhost; dkim=pass
-        reason="1024-bit key; insecure key"
-        header.d=c-s.fr header.i=@c-s.fr header.b=Uvrjz53e; dkim-adsp=pass;
-        dkim-atps=neutral
-X-Virus-Scanned: Debian amavisd-new at c-s.fr
-Received: from pegase1.c-s.fr ([192.168.12.234])
-        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
-        with ESMTP id N3v1S5YbD57A; Mon, 19 Aug 2019 22:32:36 +0200 (CEST)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase1.c-s.fr (Postfix) with ESMTP id 46C5Fw4SSCz9v0v4;
-        Mon, 19 Aug 2019 22:32:36 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=c-s.fr; s=mail;
-        t=1566246756; bh=rMillmnFKS/ErlSfF4NLef5YT9zHq8E0WU7az2Rr9oI=;
-        h=Subject:To:References:From:Date:In-Reply-To:From;
-        b=Uvrjz53e6RbinKdej1jE3Cv2cdUooVoG4y2445VqjaYohvTV2KTqRVDPt1GAV9IbD
-         KujZJsFGL9SsVlCLJM4fDQj0zOwPkOve7RiqKOnDgmvDLlQk986C/ak8/EkE+3YkpE
-         E2K+iJgLEC0zTX+bllXHtbUf31L7RnMy9qfeIhmo=
-Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 4B2898B7BF;
-        Mon, 19 Aug 2019 22:32:37 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id wIUA9py7n74G; Mon, 19 Aug 2019 22:32:37 +0200 (CEST)
-Received: from [192.168.4.90] (unknown [192.168.4.90])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 669CB8B7B9;
-        Mon, 19 Aug 2019 22:32:36 +0200 (CEST)
-Subject: Re: [PATCH] btrfs: fix allocation of bitmap pages.
-To:     dsterba@suse.cz, erhard_f@mailbox.org, Chris Mason <clm@fb.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-btrfs@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org
-References: <20190817074439.84C6C1056A3@localhost.localdomain>
- <20190819174600.GN24086@twin.jikos.cz>
-From:   Christophe Leroy <christophe.leroy@c-s.fr>
-Message-ID: <86e4d577-36f4-683d-9227-0e9b8f18d929@c-s.fr>
-Date:   Mon, 19 Aug 2019 22:32:36 +0200
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1728484AbfHSVUr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Aug 2019 17:20:47 -0400
+Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:17154 "EHLO
+        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728402AbfHSVUr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Aug 2019 17:20:47 -0400
+Received: from pps.filterd (m0044012.ppops.net [127.0.0.1])
+        by mx0a-00082601.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7JLK40N010019;
+        Mon, 19 Aug 2019 14:20:41 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
+ : date : message-id : references : in-reply-to : content-type : content-id
+ : content-transfer-encoding : mime-version; s=facebook;
+ bh=QWfM2Olb7uQqW8UJKVeRaHYQpHU/Kt1yx/pLSeeFZ/w=;
+ b=joRnM+dJMqiv2BvZMYgNfuAeihOS73PBBw0mPhujx50/8ciOstASG2dvDlH40UnYdy+u
+ DCDuObtxC7BqgkRR87uuNVoS30807J+PMxhWb5FF+j8dViCXPmXCvnkKzBUxVYMXiICH
+ LLltWFVY1TsJ1nRF3xbRXYi+boaqfks9y6k= 
+Received: from mail.thefacebook.com (mailout.thefacebook.com [199.201.64.23])
+        by mx0a-00082601.pphosted.com with ESMTP id 2ufxh31h89-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Mon, 19 Aug 2019 14:20:41 -0700
+Received: from prn-hub02.TheFacebook.com (2620:10d:c081:35::126) by
+ prn-hub02.TheFacebook.com (2620:10d:c081:35::126) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.1.1713.5; Mon, 19 Aug 2019 14:20:40 -0700
+Received: from NAM05-DM3-obe.outbound.protection.outlook.com (192.168.54.28)
+ by o365-in.thefacebook.com (192.168.16.26) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.1.1713.5
+ via Frontend Transport; Mon, 19 Aug 2019 14:20:40 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=IHFTxkv9N2auaBxbeLJBr0dF27sR7DIp72gRx1HwhYABS2ElOf+ZPGW3g6eiFV+ZZ9ZReW8IMLrInxBYTcXxHVSz7aVKIZXrB04yl4MOoV6fuOMNKXgyfzPNQYsrJ8WqRopiS2XAWs2nONxFg89LQ1Imeh3Yfwc/H+xkUr2aVMjKc/Ca+gtq3o3c3MBvp2zoafe66r0CMo0AZJeW1fFyCbDlvaVsecorVQ90cTIBGB4SPLV+MORN9zRbK+cQYm2acYyTTL7zq9LTO13k+zHzkU9VkSvE+0bTgkLAAuYl3f0xkvA11n41LOT4yfoXzryq6d5NMN0P9fBH2/Q7tfvacQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=QWfM2Olb7uQqW8UJKVeRaHYQpHU/Kt1yx/pLSeeFZ/w=;
+ b=Xw5m7MAci7I/5UDz3+uqjtlY0bM4ajDnaNqy48RCWdqV8UqH661Agttm6M65/J8oyBYaD7U8qI2lxFxzwo/7i9/ppm/XKUE2KIRb0eUmsf6xS5K7gY+mTPxYK3vwSPNWnXQ5DzhfV6i0jqPldv08hYtK8EsYNLj9MDt+jVUPSgf4xJL/mhrGC4YUQqHbQ/5VjQDRNj9yPNp2/DHjcKOUJFOC2q0yF44+rVKJrNeULQwe1H54R7EtvgBZ2iYpFedUTEQoSAtNHdV6ptJyZhd16JVv9bq6P1xPMu7V4Vmoj5bRpid012Eicl+hg46l19YxeVtsQs6MpDpSXWg0FjTNMw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=fb.com; dmarc=pass action=none header.from=fb.com; dkim=pass
+ header.d=fb.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.onmicrosoft.com;
+ s=selector2-fb-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=QWfM2Olb7uQqW8UJKVeRaHYQpHU/Kt1yx/pLSeeFZ/w=;
+ b=Eh1SJOxhe1u0RhvkEUPCEYCaBnjsfv+OPMw83SdBPAOsmCnXhy6VTwlgavzkyfoAx4TFxVImnM4rPuG7fhr3Fcu6ayMVK6x9eiBIk3Ti8rIe0NyFrMiG9B16ZyN8n22x5rBQLNwAzaFoBpqD4iMjj8WuxqaYkGoXMnFihG+IBgQ=
+Received: from DM6PR15MB2635.namprd15.prod.outlook.com (20.179.161.152) by
+ DM6PR15MB2394.namprd15.prod.outlook.com (20.176.66.12) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2178.16; Mon, 19 Aug 2019 21:20:38 +0000
+Received: from DM6PR15MB2635.namprd15.prod.outlook.com
+ ([fe80::d1fc:b5c5:59a1:bd7e]) by DM6PR15MB2635.namprd15.prod.outlook.com
+ ([fe80::d1fc:b5c5:59a1:bd7e%3]) with mapi id 15.20.2178.018; Mon, 19 Aug 2019
+ 21:20:38 +0000
+From:   Roman Gushchin <guro@fb.com>
+To:     Yafang Shao <laoar.shao@gmail.com>
+CC:     Andrew Morton <akpm@linux-foundation.org>,
+        Linux MM <linux-mm@kvack.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Kernel Team <Kernel-team@fb.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] Partially revert "mm/memcontrol.c: keep local VM counters
+ in sync with the hierarchical ones"
+Thread-Topic: [PATCH] Partially revert "mm/memcontrol.c: keep local VM
+ counters in sync with the hierarchical ones"
+Thread-Index: AQHVVJVnJCTepTfXpE2m8ikuyJkTSKb+sAiAgAEGvYCAAFhFgIAC76oA
+Date:   Mon, 19 Aug 2019 21:20:38 +0000
+Message-ID: <20190819212034.GB24956@tower.dhcp.thefacebook.com>
+References: <20190817004726.2530670-1-guro@fb.com>
+ <CALOAHbBsMNLN6jZn83zx6EWM_092s87zvDQ7p-MZpY+HStk-1Q@mail.gmail.com>
+ <20190817191419.GA11125@castle>
+ <CALOAHbA-Z-1QDSgQ6H6QhPaPwAGyqfpd3Gbq-KLnoO=ZZxWnrw@mail.gmail.com>
+In-Reply-To: <CALOAHbA-Z-1QDSgQ6H6QhPaPwAGyqfpd3Gbq-KLnoO=ZZxWnrw@mail.gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: MWHPR0201CA0084.namprd02.prod.outlook.com
+ (2603:10b6:301:75::25) To DM6PR15MB2635.namprd15.prod.outlook.com
+ (2603:10b6:5:1a6::24)
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [2620:10d:c090:200::2:4a49]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 7312defa-0880-4dd7-d8cf-08d724eb14f4
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(5600148)(711020)(4605104)(1401327)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(2017052603328)(7193020);SRVR:DM6PR15MB2394;
+x-ms-traffictypediagnostic: DM6PR15MB2394:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <DM6PR15MB2394377EB26C4375DDC48865BEA80@DM6PR15MB2394.namprd15.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:9508;
+x-forefront-prvs: 0134AD334F
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(39860400002)(346002)(396003)(376002)(366004)(136003)(199004)(189003)(6246003)(25786009)(14454004)(478600001)(66446008)(66476007)(66556008)(53936002)(102836004)(4326008)(6916009)(229853002)(6486002)(5660300002)(6506007)(1076003)(66946007)(64756008)(6116002)(386003)(53546011)(14444005)(256004)(7736002)(305945005)(33656002)(476003)(486006)(71190400001)(71200400001)(316002)(99286004)(86362001)(186003)(81156014)(81166006)(8676002)(8936002)(52116002)(54906003)(9686003)(6512007)(446003)(2906002)(76176011)(6436002)(11346002)(46003);DIR:OUT;SFP:1102;SCL:1;SRVR:DM6PR15MB2394;H:DM6PR15MB2635.namprd15.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: fb.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: QF3x/W1OP8EFyvHS4vbslBEJ9YHGAb7BhOBabLWkjLgU3q7me/S1+6U35flvq8LB8pydX0fR99NyUTbiNunYlK7DRagrqL6OLfYTofpdECdnotEI84Vi409ysFtoN8A0HCdPIZd7wNHCdyZpdrifPdOeCgkyulyXnRVE+h9eyNqTCOBIpB2xSvfvjy0PZ3ctQO3X2FFUvFo5PasG5O1HYf7g8U2A8iiopKIkhIcSJlxZi9DOI/tZjyk+KpJm4LuMkl42Apxa9+xo9RZ0LUpfZ6tdCfjR1TPW0T0b+MuTFIfOgeHD4Rr+d0/8nqRQ7kkZfZdJGhdVFImbxK2TGbJKTgCcfnG2dn1VfWYZdIcVvyatlu4b6Hat2P/EKrCELqjgCrjxw+7ydaR/2H4ZGsU5KembHLYDXNvJVqEHh4eXnic=
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <AAF21E35EDBA8F48ACD70AD8B24500DB@namprd15.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-In-Reply-To: <20190819174600.GN24086@twin.jikos.cz>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: fr
-Content-Transfer-Encoding: 8bit
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7312defa-0880-4dd7-d8cf-08d724eb14f4
+X-MS-Exchange-CrossTenant-originalarrivaltime: 19 Aug 2019 21:20:38.5768
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 8ae927fe-1255-47a7-a2af-5f3a069daaa2
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: Jrg03qRK3p7jCog0hUHMoSg44FKvXI1h8QCIltk7bB+JhlknjuYfOKWARfhRHOLo
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR15MB2394
+X-OriginatorOrg: fb.com
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-08-19_04:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1906280000 definitions=main-1908190213
+X-FB-Internal: deliver
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, Aug 18, 2019 at 08:30:15AM +0800, Yafang Shao wrote:
+> On Sun, Aug 18, 2019 at 3:14 AM Roman Gushchin <guro@fb.com> wrote:
+> >
+> > On Sat, Aug 17, 2019 at 11:33:57AM +0800, Yafang Shao wrote:
+> > > On Sat, Aug 17, 2019 at 8:47 AM Roman Gushchin <guro@fb.com> wrote:
+> > > >
+> > > > Commit 766a4c19d880 ("mm/memcontrol.c: keep local VM counters in sy=
+nc
+> > > > with the hierarchical ones") effectively decreased the precision of
+> > > > per-memcg vmstats_local and per-memcg-per-node lruvec percpu counte=
+rs.
+> > > >
+> > > > That's good for displaying in memory.stat, but brings a serious reg=
+ression
+> > > > into the reclaim process.
+> > > >
+> > > > One issue I've discovered and debugged is the following:
+> > > > lruvec_lru_size() can return 0 instead of the actual number of page=
+s
+> > > > in the lru list, preventing the kernel to reclaim last remaining
+> > > > pages. Result is yet another dying memory cgroups flooding.
+> > > > The opposite is also happening: scanning an empty lru list
+> > > > is the waste of cpu time.
+> > > >
+> > > > Also, inactive_list_is_low() can return incorrect values, preventin=
+g
+> > > > the active lru from being scanned and freed. It can fail both becau=
+se
+> > > > the size of active and inactive lists are inaccurate, and because
+> > > > the number of workingset refaults isn't precise. In other words,
+> > > > the result is pretty random.
+> > > >
+> > > > I'm not sure, if using the approximate number of slab pages in
+> > > > count_shadow_number() is acceptable, but issues described above
+> > > > are enough to partially revert the patch.
+> > > >
+> > > > Let's keep per-memcg vmstat_local batched (they are only used for
+> > > > displaying stats to the userspace), but keep lruvec stats precise.
+> > > > This change fixes the dead memcg flooding on my setup.
+> > > >
+> > >
+> > > That will make some misunderstanding if the local counters are not in
+> > > sync with the hierarchical ones
+> > > (someone may doubt whether there're something leaked.).
+> >
+> > Sure, but the actual leakage is a much more serious issue.
+> >
+> > > If we have to do it like this, I think we should better document this=
+ behavior.
+> >
+> > Lru size calculations can be done using per-zone counters, which is
+> > actually cheaper, because the number of zones is usually smaller than
+> > the number of cpus. I'll send a corresponding patch on Monday.
+> >
+>=20
+> Looks like a good idea.
+>=20
+> > Maybe other use cases can also be converted?
+>=20
+> We'd better keep the behavior the same across counters. I think you
+> can have a try.
 
+As I said, consistency of counters is important, but not nearly as importan=
+t
+as the real behavior of the system. Especially because we talk about
+per-node memcg statistics, which I believe is mostly used for debugging.
 
-Le 19/08/2019 à 19:46, David Sterba a écrit :
-> On Sat, Aug 17, 2019 at 07:44:39AM +0000, Christophe Leroy wrote:
->> Various notifications of type "BUG kmalloc-4096 () : Redzone
->> overwritten" have been observed recently in various parts of
->> the kernel. After some time, it has been made a relation with
->> the use of BTRFS filesystem.
->>
->> [   22.809700] BUG kmalloc-4096 (Tainted: G        W        ): Redzone overwritten
->> [   22.809971] -----------------------------------------------------------------------------
->>
->> [   22.810286] INFO: 0xbe1a5921-0xfbfc06cd. First byte 0x0 instead of 0xcc
->> [   22.810866] INFO: Allocated in __load_free_space_cache+0x588/0x780 [btrfs] age=22 cpu=0 pid=224
->> [   22.811193] 	__slab_alloc.constprop.26+0x44/0x70
->> [   22.811345] 	kmem_cache_alloc_trace+0xf0/0x2ec
->> [   22.811588] 	__load_free_space_cache+0x588/0x780 [btrfs]
->> [   22.811848] 	load_free_space_cache+0xf4/0x1b0 [btrfs]
->> [   22.812090] 	cache_block_group+0x1d0/0x3d0 [btrfs]
->> [   22.812321] 	find_free_extent+0x680/0x12a4 [btrfs]
->> [   22.812549] 	btrfs_reserve_extent+0xec/0x220 [btrfs]
->> [   22.812785] 	btrfs_alloc_tree_block+0x178/0x5f4 [btrfs]
->> [   22.813032] 	__btrfs_cow_block+0x150/0x5d4 [btrfs]
->> [   22.813262] 	btrfs_cow_block+0x194/0x298 [btrfs]
->> [   22.813484] 	commit_cowonly_roots+0x44/0x294 [btrfs]
->> [   22.813718] 	btrfs_commit_transaction+0x63c/0xc0c [btrfs]
->> [   22.813973] 	close_ctree+0xf8/0x2a4 [btrfs]
->> [   22.814107] 	generic_shutdown_super+0x80/0x110
->> [   22.814250] 	kill_anon_super+0x18/0x30
->> [   22.814437] 	btrfs_kill_super+0x18/0x90 [btrfs]
->> [   22.814590] INFO: Freed in proc_cgroup_show+0xc0/0x248 age=41 cpu=0 pid=83
->> [   22.814841] 	proc_cgroup_show+0xc0/0x248
->> [   22.814967] 	proc_single_show+0x54/0x98
->> [   22.815086] 	seq_read+0x278/0x45c
->> [   22.815190] 	__vfs_read+0x28/0x17c
->> [   22.815289] 	vfs_read+0xa8/0x14c
->> [   22.815381] 	ksys_read+0x50/0x94
->> [   22.815475] 	ret_from_syscall+0x0/0x38
->>
->> Commit 69d2480456d1 ("btrfs: use copy_page for copying pages instead
->> of memcpy") changed the way bitmap blocks are copied. But allthough
->> bitmaps have the size of a page, they were allocated with kzalloc().
->>
->> Most of the time, kzalloc() allocates aligned blocks of memory, so
->> copy_page() can be used. But when some debug options like SLAB_DEBUG
->> are activated, kzalloc() may return unaligned pointer.
->>
->> On powerpc, memcpy(), copy_page() and other copying functions use
->> 'dcbz' instruction which provides an entire zeroed cacheline to avoid
->> memory read when the intention is to overwrite a full line. Functions
->> like memcpy() are writen to care about partial cachelines at the start
->> and end of the destination, but copy_page() assumes it gets pages.
-> 
-> This assumption is not documented nor any pitfalls mentioned in
-> include/asm-generic/page.h that provides the generic implementation. I
-> as an API user cannot check each arch implementation for additional
-> constraints or I would expect that it deals with the boundary cases the
-> same way as arch-specific memcpy implementations.
+So for now I think the right thing to do is to revert the change to fix
+the memory reclaim process. And then we can discuss how to get counters
+right.
 
-For me, copy_page() is there to ... copy pages. Not to copy any piece of 
-RAM having the size of a page.
-
-But it happened to others. See commit 
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=d72e9a7a93e4f8e9e52491921d99e0c8aa89eb4e
-
-> 
-> Another thing that is lost is the slub debugging support for all
-> architectures, because get_zeroed_pages lacking the red zones and sanity
-> checks.
-> 
-> I find working with raw pages in this code a bit inconsistent with the
-> rest of btrfs code, but that's rather minor compared to the above.
-
-What about using kmem_cache instead ? I see kmem_cache is already widely 
-used in BTRFS, so using it also for block of memory of size PAGE_SIZE 
-should be ok ?
-
-AFAICS, kmem_cache has the red zones and sanity checks.
-
-> 
-> Summing it up, I think that the proper fix should go to copy_page
-> implementation on architectures that require it or make it clear what
-> are the copy_page constraints.
-> 
-
-I guess anybody using copy_page() to copy something else than a page is 
-on his/her own.
-
-But following that (bad) experience, I propose a patch to at least 
-detect it early, see https://patchwork.ozlabs.org/patch/1148033/
-
-Christophe
+Thanks!
