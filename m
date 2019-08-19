@@ -2,82 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 828B194B42
-	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 19:07:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF89794B52
+	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 19:09:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726987AbfHSRGo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Aug 2019 13:06:44 -0400
-Received: from mail-yb1-f195.google.com ([209.85.219.195]:37379 "EHLO
-        mail-yb1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727937AbfHSRGn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Aug 2019 13:06:43 -0400
-Received: by mail-yb1-f195.google.com with SMTP id t5so669850ybt.4;
-        Mon, 19 Aug 2019 10:06:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=csGSFDEdSWqw3dz2PgL0VnXwJ2fZOjcWs1UiwIbpOh8=;
-        b=BExNnfSwIIIYOd2fPFOYG/vCFL2tOZqPG9oCAekHhn6/qBPnYcBCfFYgHijbOFgSIV
-         3DGpD6Gy4Yxe5tJ0y7ZDtPSbwdLfyXB8xV8HKV3QZokspTWK+H60PPr6tNBa71zjvjEq
-         rDkPhzkM4GFacH7LMMWGfYsPXnbNLm8sYSaEGxEVpju8hAy7aMBTE3SSceq9PIT7WuWh
-         sTzuvvnJCkLo1WwK+2CpqagEBM4t3E1OIt3MnqcTZn83/B1PR4Re9UMl/PdTgYf/ZlH4
-         UzWl4h+JNq8bi9ol4GaYY7DF3EHEeft6IC54G7JgHD9K3vmdEpTW1LySlpoqUoXgI+qN
-         Gn9A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=csGSFDEdSWqw3dz2PgL0VnXwJ2fZOjcWs1UiwIbpOh8=;
-        b=sHU7cJs4W01jLZ0Vqdu7E06NeiO0018UAP+x1maSxwZPnYo8v+j1bHsVnBueq63jyF
-         gJpnW+v/hlFq4tdWPvkET6pmFWM8NzP0TbeUbY05BPP3ZLwKh3S7MmGMc7JvkmayQbBA
-         rPj8oDYQrTU0q1ierW1KEeC2o9b2zU7qjdjuH0JRccE+vL+LAK258JlYgPneI1hXyKTF
-         MuTolEkTkZJ8qRhKcRktGN0trtVzJfqvv2/KqTdbSGc2wnLAUpMZMF1vOpb0yInaQg1W
-         w7CUjHlc3awr1pYo1JaA6jnno3/vVq1X/2r+deSDT1fTk59O0wmRLzoaWd4LoSArnnxS
-         Zr8w==
-X-Gm-Message-State: APjAAAXXGecFJDHpXfeFkbu1HaljbJvRLiI7e1cS1PbO4RmaBp1FRATm
-        D9+htx5EjTHSfczWdcKSgaRWeC/YFD+KLlPJMRQ=
-X-Google-Smtp-Source: APXvYqwQA66V3JZQ8sRo/iPqtTGs+feQWRX34c7uh9WJv+pUv2pSCy/Tkk/vsf3jr7t3twT4WPViCaVg1rYVma41ndA=
-X-Received: by 2002:a25:ed0e:: with SMTP id k14mr17889604ybh.286.1566234402617;
- Mon, 19 Aug 2019 10:06:42 -0700 (PDT)
+        id S1727997AbfHSRJS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Aug 2019 13:09:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56506 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727991AbfHSRJS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Aug 2019 13:09:18 -0400
+Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3FA22087E;
+        Mon, 19 Aug 2019 17:09:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1566234557;
+        bh=ZZAmm+0S+XXrGxFqHat3r+HNDl11o2B+//QD2hq0w7U=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=0gkgK/CTc0eV25wfgDy7EcZuyN/glrWQj5E6rs88SpPxoqr6nzjrMhqwCmDMMV5HE
+         KjUSQDUMjZOiBR5eflokd6T3FhQNkhtuyTdH3EfT4JB/ae4d4PpcjYOrc7e+357q/t
+         szmkKqGz/FtDbrK0ibi9kVaS5t5pxeOkk/HbZm1g=
+Date:   Mon, 19 Aug 2019 13:09:17 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Jack Wang <jack.wang.usish@gmail.com>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: perf build failures in {v4.4,v4.9,v4.14}.y.queue
+Message-ID: <20190819170917.GB30205@sasha-vm>
+References: <7eb8b107-1fa8-9619-9608-e064c45a2c8d@roeck-us.net>
+ <CA+res+Q=TMpJLTHMgWLH+DMyUp0ozFVCmtSSENukRYLGu=nroA@mail.gmail.com>
 MIME-Version: 1.0
-References: <20190806213749.20689-1-sashal@kernel.org> <35579e00d27344b853cafea0b29b13c5aaf9e1fc.camel@codethink.co.uk>
-In-Reply-To: <35579e00d27344b853cafea0b29b13c5aaf9e1fc.camel@codethink.co.uk>
-From:   Max Filippov <jcmvbkbc@gmail.com>
-Date:   Mon, 19 Aug 2019 10:06:32 -0700
-Message-ID: <CAMo8Bf+g68JemdWzc2DQ43JCdO125EzpT9r42WWA48OYAcksag@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 4.4 01/14] xtensa: fix build for cores with coprocessors
-To:     Ben Hutchings <ben.hutchings@codethink.co.uk>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        "open list:TENSILICA XTENSA PORT (xtensa)" 
-        <linux-xtensa@linux-xtensa.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+res+Q=TMpJLTHMgWLH+DMyUp0ozFVCmtSSENukRYLGu=nroA@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 19, 2019 at 9:53 AM Ben Hutchings
-<ben.hutchings@codethink.co.uk> wrote:
->
-> On Tue, 2019-08-06 at 17:37 -0400, Sasha Levin wrote:
-> > From: Max Filippov <jcmvbkbc@gmail.com>
-> >
-> > [ Upstream commit e3cacb73e626d885b8cf24103fed0ae26518e3c4 ]
-> >
-> > Assembly entry/return abstraction change didn't add asmmacro.h include
-> > statement to coprocessor.S, resulting in references to undefined macros
-> > abi_entry and abi_ret on cores that define XTENSA_HAVE_COPROCESSORS.
-> > Fix that by including asm/asmmacro.h from the coprocessor.S.
-> [...]
->
-> This seems to be fixing commit d6d5f19e21d9 "xtensa: abstract 'entry'
-> and 'retw' in assembly code" so it wouldn't be needed for any stable
-> branches.
+On Mon, Aug 19, 2019 at 03:49:38PM +0200, Jack Wang wrote:
+>Guenter Roeck <linux@roeck-us.net> 于2019年8月19日周一 下午3:36写道：
+>>
+>> util/header.c: In function ‘perf_session__read_header’:
+>> util/header.c:2860:10: error: ‘data’ undeclared
+>>
+>> Culprit is "perf header: Fix divide by zero error if f_header.attr_size==0".
+>>
+>> Fix might be to replace "data->file.path" with "file->path" in the affected
+>> branches.
+>>
+>> Guenter
+>I had same error on 4.14.140-rc1, and yes, replace data->file.path
+>with file->path works.
 
-That's correct.
+I've fixed it up, thank you!
 
--- 
-Thanks.
--- Max
+--
+Thanks,
+Sasha
