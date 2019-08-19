@@ -2,56 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86BE594DB6
-	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 21:18:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2948E94EE4
+	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 22:24:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728385AbfHSTSB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Aug 2019 15:18:01 -0400
-Received: from mail-io1-f67.google.com ([209.85.166.67]:34710 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728376AbfHSTSB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Aug 2019 15:18:01 -0400
-Received: by mail-io1-f67.google.com with SMTP id s21so6800202ioa.1
-        for <stable@vger.kernel.org>; Mon, 19 Aug 2019 12:18:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=BvLmV10O5VwE1miD0dw1lN81aSty+MWgDqJNYGREG04=;
-        b=Q47B9lA7MldtpRBFFZWEKYXhvxVy9OE0gdEKjfVDbHCgSywUYXnxsZrV7zUbYNpWSp
-         ll9ZOTYDlQXM78n38GSCwH8ZmvPu0I6WGxjrMsr1kcFW9sDjLpTlw1IinsOLvvFIcmDn
-         /5SvyDEw8C+eVSbZDrJzfybs8IQUjSI389qZsCyLVOztbOJWgx0itcGfWk1gzwhgfN7X
-         KTG1ArBA5NhG93z7b4D98XTaNo7YmRAyeQhL50I29P1cIE+c11d5FKGm1o3SHvGR2qp9
-         rRNcN90w0v+KQ1mqljdLBvxxSSsR0kCLfn0hBLse5kEgM3+KmO186no/u4PcCE8UU+4O
-         8hJQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=BvLmV10O5VwE1miD0dw1lN81aSty+MWgDqJNYGREG04=;
-        b=QUBuzok6qYfwxDDQGnvWX2ubiilb7PhTz27wP0VUrMJwhTG7h3hwa5gkDQfeBG/kz0
-         CgT8gRBlv4gfWglu29aJMqdIrz6gFPBCVlzhHNuExcKoQG+ltHC5zKsOau/bhUd90skY
-         SRAKg3xH0toymGA40d4IH/4byKUwolwe+RddS4/kK08rs5AkFGrmQDFSgC33LobPaaeE
-         Lp7eF+Ye6dqJn5lu8aOYj15KfYbk4aeF3mBmO8/+oqMrCajvPPU6nAE6Bdcch6oqdWY0
-         V8YwgB1C27Tky6R2yc24MqCiPsKD452GBUNp9oNOq9fY4ucHF5OBAdG4qOjQTcHs66uw
-         AiDg==
-X-Gm-Message-State: APjAAAVL2n45c7T7YzguWK0WoxatII3gZ0STt3X24EeHuXQkAOPXiV3m
-        j/z6XYW5b9e3DImnUYrK5YgNEPJruUkndHgwr04=
-X-Google-Smtp-Source: APXvYqzYaMYu6nWDfGQAC2wfLnBdsG7g/b71SYPezKFHrLIkRQ9iUianwqryyJIQdrKIJ6T5K+7smRezYE7INVoXLPA=
-X-Received: by 2002:a5d:951a:: with SMTP id d26mr27394181iom.31.1566242280636;
- Mon, 19 Aug 2019 12:18:00 -0700 (PDT)
+        id S1728517AbfHSUYC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Aug 2019 16:24:02 -0400
+Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:37248 "EHLO
+        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728508AbfHSUX4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Aug 2019 16:23:56 -0400
+Received: from pps.filterd (m0148461.ppops.net [127.0.0.1])
+        by mx0a-00082601.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7JKNq8b024536
+        for <stable@vger.kernel.org>; Mon, 19 Aug 2019 13:23:55 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-type; s=facebook; bh=avRSMxYHWI2nN6k5SuD3FwUt2pWdBC75ub4aAGj+xPU=;
+ b=ZIjvcGI9ALY3ecLqF/IAy1qeg6VFEZGQ9SeNWQTaJJ5Rhfe/+JaSdHHqy3PcGQ83RDnt
+ rXyi/huUj7hpvtGM5OptEeNwleoTZZdYRsLXcY/YbemcAAsFJd4+GqxlswibBNi+6jEJ
+ ECND7ggLO/w/O5t7qxkRxNhKVNqbn1a5BlA= 
+Received: from maileast.thefacebook.com ([163.114.130.16])
+        by mx0a-00082601.pphosted.com with ESMTP id 2ufxcp17c5-4
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
+        for <stable@vger.kernel.org>; Mon, 19 Aug 2019 13:23:54 -0700
+Received: from mx-out.facebook.com (2620:10d:c0a8:1b::d) by
+ mail.thefacebook.com (2620:10d:c0a8:82::d) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Mon, 19 Aug 2019 13:23:47 -0700
+Received: by devvm2643.prn2.facebook.com (Postfix, from userid 111017)
+        id 477DE168A8ACF; Mon, 19 Aug 2019 13:23:47 -0700 (PDT)
+Smtp-Origin-Hostprefix: devvm
+From:   Roman Gushchin <guro@fb.com>
+Smtp-Origin-Hostname: devvm2643.prn2.facebook.com
+To:     Andrew Morton <akpm@linux-foundation.org>, <linux-mm@kvack.org>
+CC:     Michal Hocko <mhocko@kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        <linux-kernel@vger.kernel.org>, <kernel-team@fb.com>,
+        Roman Gushchin <guro@fb.com>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        <stable@vger.kernel.org>
+Smtp-Origin-Cluster: prn2c23
+Subject: [PATCH v2 1/3] mm: memcontrol: flush percpu vmstats before releasing memcg
+Date:   Mon, 19 Aug 2019 13:23:36 -0700
+Message-ID: <20190819202338.363363-2-guro@fb.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20190819202338.363363-1-guro@fb.com>
+References: <20190819202338.363363-1-guro@fb.com>
+X-FB-Internal: Safe
 MIME-Version: 1.0
-Received: by 2002:ac0:a087:0:0:0:0:0 with HTTP; Mon, 19 Aug 2019 12:17:59
- -0700 (PDT)
-Reply-To: sgt.hester33@gmail.com
-From:   Ann Hester <0813103kalu@gmail.com>
-Date:   Mon, 19 Aug 2019 19:17:59 +0000
-Message-ID: <CAMtpwBHXQ557a9QF_bxXS9Kuuprab-0KGSvq+tuJ6hHHuWZj+Q@mail.gmail.com>
-Subject: Greetings
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-08-19_04:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 priorityscore=1501
+ malwarescore=0 suspectscore=2 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=998 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1906280000 definitions=main-1908190207
+X-FB-Internal: deliver
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-How are you? my name is Ann Leigh, please reply me back.
+Percpu caching of local vmstats with the conditional propagation by the
+cgroup tree leads to an accumulation of errors on non-leaf levels.
+
+Let's imagine two nested memory cgroups A and A/B.  Say, a process
+belonging to A/B allocates 100 pagecache pages on the CPU 0.  The percpu
+cache will spill 3 times, so that 32*3=96 pages will be accounted to A/B
+and A atomic vmstat counters, 4 pages will remain in the percpu cache.
+
+Imagine A/B is nearby memory.max, so that every following allocation
+triggers a direct reclaim on the local CPU.  Say, each such attempt will
+free 16 pages on a new cpu.  That means every percpu cache will have -16
+pages, except the first one, which will have 4 - 16 = -12.  A/B and A
+atomic counters will not be touched at all.
+
+Now a user removes A/B.  All percpu caches are freed and corresponding
+vmstat numbers are forgotten.  A has 96 pages more than expected.
+
+As memory cgroups are created and destroyed, errors do accumulate.  Even
+1-2 pages differences can accumulate into large numbers.
+
+To fix this issue let's accumulate and propagate percpu vmstat values
+before releasing the memory cgroup.  At this point these numbers are
+stable and cannot be changed.
+
+Since on cpu hotplug we do flush percpu vmstats anyway, we can iterate
+only over online cpus.
+
+Fixes: 42a300353577 ("mm: memcontrol: fix recursive statistics correctness & scalabilty")
+Signed-off-by: Roman Gushchin <guro@fb.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: <stable@vger.kernel.org>
+---
+ mm/memcontrol.c | 40 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
+
+diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+index 3e821f34399f..818165d8de3f 100644
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -3383,6 +3383,41 @@ static u64 mem_cgroup_read_u64(struct cgroup_subsys_state *css,
+ 	}
+ }
+ 
++static void memcg_flush_percpu_vmstats(struct mem_cgroup *memcg)
++{
++	unsigned long stat[MEMCG_NR_STAT];
++	struct mem_cgroup *mi;
++	int node, cpu, i;
++
++	for (i = 0; i < MEMCG_NR_STAT; i++)
++		stat[i] = 0;
++
++	for_each_online_cpu(cpu)
++		for (i = 0; i < MEMCG_NR_STAT; i++)
++			stat[i] += raw_cpu_read(memcg->vmstats_percpu->stat[i]);
++
++	for (mi = memcg; mi; mi = parent_mem_cgroup(mi))
++		for (i = 0; i < MEMCG_NR_STAT; i++)
++			atomic_long_add(stat[i], &mi->vmstats[i]);
++
++	for_each_node(node) {
++		struct mem_cgroup_per_node *pn = memcg->nodeinfo[node];
++		struct mem_cgroup_per_node *pi;
++
++		for (i = 0; i < NR_VM_NODE_STAT_ITEMS; i++)
++			stat[i] = 0;
++
++		for_each_online_cpu(cpu)
++			for (i = 0; i < NR_VM_NODE_STAT_ITEMS; i++)
++				stat[i] += raw_cpu_read(
++					pn->lruvec_stat_cpu->count[i]);
++
++		for (pi = pn; pi; pi = parent_nodeinfo(pi, node))
++			for (i = 0; i < NR_VM_NODE_STAT_ITEMS; i++)
++				atomic_long_add(stat[i], &pi->lruvec_stat[i]);
++	}
++}
++
+ #ifdef CONFIG_MEMCG_KMEM
+ static int memcg_online_kmem(struct mem_cgroup *memcg)
+ {
+@@ -4805,6 +4840,11 @@ static void __mem_cgroup_free(struct mem_cgroup *memcg)
+ {
+ 	int node;
+ 
++	/*
++	 * Flush percpu vmstats to guarantee the value correctness
++	 * on parent's and all ancestor levels.
++	 */
++	memcg_flush_percpu_vmstats(memcg);
+ 	for_each_node(node)
+ 		free_mem_cgroup_per_node_info(memcg, node);
+ 	free_percpu(memcg->vmstats_percpu);
+-- 
+2.21.0
+
