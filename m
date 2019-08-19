@@ -2,111 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CDAE6921CC
-	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 13:02:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60B7092249
+	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 13:27:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726610AbfHSLBl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Aug 2019 07:01:41 -0400
-Received: from mblankhorst.nl ([141.105.120.124]:59136 "EHLO mblankhorst.nl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726550AbfHSLBl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Aug 2019 07:01:41 -0400
-X-Greylist: delayed 565 seconds by postgrey-1.27 at vger.kernel.org; Mon, 19 Aug 2019 07:01:41 EDT
-From:   Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-To:     intel-gfx-trybot@lists.freedesktop.org
-Cc:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        stable@vger.kernel.org, Manasi Navare <manasi.d.navare@intel.com>
-Subject: [PATCH 01/21] drm/i915/dp: Fix dsc bpp calculations.
-Date:   Mon, 19 Aug 2019 12:51:53 +0200
-Message-Id: <20190819105213.22476-1-maarten.lankhorst@linux.intel.com>
-X-Mailer: git-send-email 2.20.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1727434AbfHSL07 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Aug 2019 07:26:59 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:39659 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727308AbfHSL07 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Aug 2019 07:26:59 -0400
+Received: by mail-pg1-f193.google.com with SMTP id u17so1053607pgi.6;
+        Mon, 19 Aug 2019 04:26:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=vRVye6B8XFgwGVUEF0GcA194DZPYgp0SHGUoR6zegFI=;
+        b=eoOeXs46jigQlSjUrPijc/oAUBkYCMh5h7wy7K5rCwFMCI6NX5c67Ftrq7DQTgNEYA
+         rhi6pWmJ5wOab8uC9xZ60knm73pwug1ubUJMCgbe7BdN4k1fXliPgHEnzR4mUFSkWLJD
+         NOmdvihYR1oLgfDoHKMYrzC3xG6cacVYOabtrv8imr9G2I0nK57rf0i3nh2WEr2/wTOn
+         sF5SSNdCz1QC0wihKUP46q7IailDx74HUxS6VDxAJp9SmWLSChgz73DEkX153UQyAeIa
+         fwRkZwhx/JOA4l0QMpZ4n7p018JBE6g9pJmPelQXbDKwAD/2U0eObhWrL7T1LNy9k1Vh
+         Mb4g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=vRVye6B8XFgwGVUEF0GcA194DZPYgp0SHGUoR6zegFI=;
+        b=PHhZKsenuZ8VDfaRm4iwVLt+8Qn5qJF8ULrcYeSczlstt0ChQ+eQRh7nezoNZG1abm
+         Ty+8WaiUWmWkwWzCkHNe9QKlaaeka68N0Q+JVKBKfpuw88+1z3EvsZ8n3LM8gm7gYU1f
+         6nyuZv8CDwC4j8I3ASjvhMs3Q91KlQiIMFLSJCbI04pISYL6BkTEAQKZ6drGGetN9OE3
+         iqlUKeQjP/NL+WNZmjBlgcG7gxtQt+fsEaQucMZFz+nX/J03vrToXLHxaktF5TAd7i3s
+         JiJPm8+Tj2OkrgDIPKTs+a2p4/wgGVQnl1bleHCy9HVo01iX8znW5H0rFiZC7dF7wXif
+         9IoQ==
+X-Gm-Message-State: APjAAAV/noRaT2NJnyl9cfnPhJSqa7OtZQ59831L910ommbrKK6naZOm
+        yDPEll/sk1aXhOFJKap82cI=
+X-Google-Smtp-Source: APXvYqx0jyZSkUJc+ccc4cDOsChOkIyUbxMIWJOpwE3D6Rdphhg/hGR2Jsau1+7LWRECYdHdPsbsbA==
+X-Received: by 2002:a63:194f:: with SMTP id 15mr19939402pgz.382.1566214018788;
+        Mon, 19 Aug 2019 04:26:58 -0700 (PDT)
+Received: from localhost.localdomain ([58.173.144.54])
+        by smtp.googlemail.com with ESMTPSA id br18sm13826091pjb.20.2019.08.19.04.26.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 19 Aug 2019 04:26:58 -0700 (PDT)
+From:   Ian W MORRISON <ianwmorrison@gmail.com>
+To:     benjamin.tissoires@redhat.com, hdegoede@redhat.com,
+        mika.westerberg@linux.intel.com, andriy.shevchenko@linux.intel.com,
+        linus.walleij@linaro.org, bgolaszewski@baylibre.com
+Cc:     linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Ian W MORRISON <ianwmorrison@gmail.com>
+Subject: [PATCH v2] Skip deferred request irqs for devices known to fail
+Date:   Mon, 19 Aug 2019 21:26:37 +1000
+Message-Id: <20190819112637.29943-1-ianwmorrison@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There was a integer wraparound when mode_clock became too high,
-and we didn't correct for the FEC overhead factor when dividing,
-also the calculations would break at HBR3.
+Patch ca876c7483b6 "gpiolib-acpi: make sure we trigger edge events at
+least once on boot" causes the MINIX family of mini PCs to fail to boot
+resulting in a "black screen". 
 
-As a result our calculated bpp was way too high, and the link width
-bpp limitation never came into effect.
+This patch excludes MINIX devices from executing this trigger in order
+to successfully boot.
 
-Print out the resulting bpp calcululations as a sanity check, just
-in case we ever have to debug it later on again.
-
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Fixes: d9218c8f6cf4 ("drm/i915/dp: Add helpers for Compressed BPP and Slice Count for DSC")
-Cc: <stable@vger.kernel.org> # v5.0+
-Cc: Manasi Navare <manasi.d.navare@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Ian W MORRISON <ianwmorrison@gmail.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/gpu/drm/i915/display/intel_dp.c | 16 +++++++++-------
- drivers/gpu/drm/i915/display/intel_dp.h |  4 ++--
- 2 files changed, 11 insertions(+), 9 deletions(-)
+ drivers/gpio/gpiolib-acpi.c | 33 +++++++++++++++++++++++++++------
+ 1 file changed, 27 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
-index 5c45a3bb102d..2e9cbc15e41f 100644
---- a/drivers/gpu/drm/i915/display/intel_dp.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp.c
-@@ -4323,10 +4323,10 @@ intel_dp_get_sink_irq_esi(struct intel_dp *intel_dp, u8 *sink_irq_vector)
- 		DP_DPRX_ESI_LEN;
+diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
+index fdee8afa5339..f6c3dcdc91c9 100644
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -13,6 +13,7 @@
+ #include <linux/gpio/machine.h>
+ #include <linux/export.h>
+ #include <linux/acpi.h>
++#include <linux/dmi.h>
+ #include <linux/interrupt.h>
+ #include <linux/mutex.h>
+ #include <linux/pinctrl/pinctrl.h>
+@@ -20,6 +21,17 @@
+ #include "gpiolib.h"
+ #include "gpiolib-acpi.h"
+ 
++static const struct dmi_system_id skip_deferred_request_irqs_table[] = {
++	{
++		.ident = "MINIX Z83-4",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "MINIX"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Z83-4"),
++		},
++	},
++	{}
++};
++
+ /**
+  * struct acpi_gpio_event - ACPI GPIO event handler data
+  *
+@@ -1273,19 +1285,28 @@ bool acpi_can_fallback_to_crs(struct acpi_device *adev, const char *con_id)
+ 	return con_id == NULL;
  }
  
--u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
--				int mode_clock, int mode_hdisplay)
-+u16 intel_dp_dsc_get_output_bpp(u32 link_clock, u8 lane_count,
-+				u32 mode_clock, u32 mode_hdisplay)
+-/* Run deferred acpi_gpiochip_request_irqs() */
++/*
++ * Run deferred acpi_gpiochip_request_irqs()
++ * but exclude devices known to fail
++*/
+ static int acpi_gpio_handle_deferred_request_irqs(void)
  {
--	u16 bits_per_pixel, max_bpp_small_joiner_ram;
-+	u32 bits_per_pixel, max_bpp_small_joiner_ram;
- 	int i;
+ 	struct acpi_gpio_chip *acpi_gpio, *tmp;
++	const struct dmi_system_id *dmi_id;
  
- 	/*
-@@ -4335,13 +4335,14 @@ u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
- 	 * FECOverhead = 2.4%, for SST -> TimeSlotsPerMTP is 1,
- 	 * for MST -> TimeSlotsPerMTP has to be calculated
- 	 */
--	bits_per_pixel = (link_clock * lane_count * 8 *
--			  DP_DSC_FEC_OVERHEAD_FACTOR) /
--		mode_clock;
-+	bits_per_pixel = div_u64((u64)link_clock * lane_count * 8 *
-+				 DP_DSC_FEC_OVERHEAD_FACTOR, 1000ULL * mode_clock);
-+	DRM_DEBUG_KMS("Max link bpp: %u\n", bits_per_pixel);
+-	mutex_lock(&acpi_gpio_deferred_req_irqs_lock);
+-	list_for_each_entry_safe(acpi_gpio, tmp,
++	dmi_id = dmi_first_match(skip_deferred_request_irqs_table);
++	if (dmi_id)
++		return 0;
++	else {
++		mutex_lock(&acpi_gpio_deferred_req_irqs_lock);
++		list_for_each_entry_safe(acpi_gpio, tmp,
+ 				 &acpi_gpio_deferred_req_irqs_list,
+ 				 deferred_req_irqs_list_entry)
+-		acpi_gpiochip_request_irqs(acpi_gpio);
++			acpi_gpiochip_request_irqs(acpi_gpio);
  
- 	/* Small Joiner Check: output bpp <= joiner RAM (bits) / Horiz. width */
- 	max_bpp_small_joiner_ram = DP_DSC_MAX_SMALL_JOINER_RAM_BUFFER /
- 		mode_hdisplay;
-+	DRM_DEBUG_KMS("Max small joiner bpp: %u\n", max_bpp_small_joiner_ram);
+-	acpi_gpio_deferred_req_irqs_done = true;
+-	mutex_unlock(&acpi_gpio_deferred_req_irqs_lock);
++		acpi_gpio_deferred_req_irqs_done = true;
++		mutex_unlock(&acpi_gpio_deferred_req_irqs_lock);
++	}
  
- 	/*
- 	 * Greatest allowed DSC BPP = MIN (output BPP from avaialble Link BW
-@@ -4351,7 +4352,8 @@ u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
- 
- 	/* Error out if the max bpp is less than smallest allowed valid bpp */
- 	if (bits_per_pixel < valid_dsc_bpp[0]) {
--		DRM_DEBUG_KMS("Unsupported BPP %d\n", bits_per_pixel);
-+		DRM_DEBUG_KMS("Unsupported BPP %u, min %u\n",
-+			      bits_per_pixel, valid_dsc_bpp[0]);
- 		return 0;
- 	}
- 
-diff --git a/drivers/gpu/drm/i915/display/intel_dp.h b/drivers/gpu/drm/i915/display/intel_dp.h
-index 657bbb1f5ed0..007d1981a33b 100644
---- a/drivers/gpu/drm/i915/display/intel_dp.h
-+++ b/drivers/gpu/drm/i915/display/intel_dp.h
-@@ -102,8 +102,8 @@ bool intel_dp_source_supports_hbr2(struct intel_dp *intel_dp);
- bool intel_dp_source_supports_hbr3(struct intel_dp *intel_dp);
- bool
- intel_dp_get_link_status(struct intel_dp *intel_dp, u8 *link_status);
--u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
--				int mode_clock, int mode_hdisplay);
-+u16 intel_dp_dsc_get_output_bpp(u32 link_clock, u8 lane_count,
-+				u32 mode_clock, u32 mode_hdisplay);
- u8 intel_dp_dsc_get_slice_count(struct intel_dp *intel_dp, int mode_clock,
- 				int mode_hdisplay);
- 
+ 	return 0;
+ }
 -- 
-2.20.1
+2.17.1
 
