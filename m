@@ -2,92 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA4459227C
-	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 13:35:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBA3D922C3
+	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 13:52:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727308AbfHSLfc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Aug 2019 07:35:32 -0400
-Received: from mail-qt1-f181.google.com ([209.85.160.181]:37092 "EHLO
-        mail-qt1-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726717AbfHSLfc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Aug 2019 07:35:32 -0400
-Received: by mail-qt1-f181.google.com with SMTP id y26so1459996qto.4;
-        Mon, 19 Aug 2019 04:35:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=9W3L9b/U8JxoJLmXpqGAvG2NyOslHh74rCFw2ZZqrms=;
-        b=THpp9RtykhrmnyEqz8oSrYolEwqgDI9/XL0adg9POJt7tGXU9246wpnmw7vCkUvPav
-         kS4mnnmdaTrw35mUm9wOJ1nKstbrb3Q0YG0QdrL/HxV+K2DNCO20hYMpmzLifNU6vKTQ
-         tJVywhptluxsPUC0PDPyGma5ZG7t8G64jaDny7KzQmTf6Mh66dhNyaei9kvji80xeYxY
-         lcBZ9/bX91N3SPkyIly3FzvXeDlGaHP5umzquoFTMmbMVtuA03NLWrVjlliSr1vGq0dy
-         x7f5qmIK1B+YaBUO92/FESzcaYzI9jUq0JDuctsG3mu3shpvxdS5m+zwZpomLaxq1UuE
-         IE8Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=9W3L9b/U8JxoJLmXpqGAvG2NyOslHh74rCFw2ZZqrms=;
-        b=fCmGB7axJ1+PsTjUy/LnoxrfjyUwLwVG0jxiREpjp637sNYdxybTgrBpxmUg3cmn/R
-         TkQaIIFAI9Y/tIdNlTbCxl46xWb8D5pWSpd1ZNFKE+uGzs7bMZWb/LnA183lm5j1T+m7
-         ZJRqCggAmIA+EsQPp3R98Pdmf1XB3B525w7yExlJ8W0MsvyFd3RjeXUUcvQbdDGaLmFi
-         O/AF10uSCMsp0WMWHzkdaaDZ9inAW57IcvY4WFNPd/Rh/kBynsDbOgMgjoQGPVZGBP2u
-         8x1mkSayF1Wm3Kv6z1vxNyBiwk6WWOll4/pDA92Cb0kqQeNNtDdRIP1SIfCQZYEVykyk
-         JMdw==
-X-Gm-Message-State: APjAAAX7cZNs9Nq4N+dfZaOE3gAoPx33O+z+1Lr9uxVoFGR/NKD5P9mK
-        wCEe1CvngOixOBCa02acQpoS7ia+0knFtdxrWnrFiw==
-X-Google-Smtp-Source: APXvYqxnY8W9Loqh/HMLJtf6n/kIiaQfdwrFj+wvuSo+pp1w4O2FgUkPqabr1fE02ssYr1lmlFF3Hv1scmZmjs1xTdI=
-X-Received: by 2002:ac8:4a8f:: with SMTP id l15mr20875401qtq.29.1566214530804;
- Mon, 19 Aug 2019 04:35:30 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190322110515.21499-1-ianwmorrison@gmail.com>
- <b5a7b895-e08d-f432-8606-4d8c776d4a8a@redhat.com> <CAFXWsS9UYYz0HaYPgLAUZ0OaUE9gb25bT0+PSuexY9Nn05rY8Q@mail.gmail.com>
- <c144cbd0-1773-14cd-62c9-6f41eab5894a@redhat.com>
-In-Reply-To: <c144cbd0-1773-14cd-62c9-6f41eab5894a@redhat.com>
-From:   Ian W MORRISON <ianwmorrison@gmail.com>
-Date:   Mon, 19 Aug 2019 21:35:19 +1000
-Message-ID: <CAFXWsS83PqmqNOO22bktuAw+H7-X8RvNOgUnV--bWpTMkD7OPA@mail.gmail.com>
-Subject: Re: [PATCH] Skip deferred request irqs for devices known to fail
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     benjamin.tissoires@redhat.com, mika.westerberg@linux.intel.com,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        id S1727094AbfHSLwX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Aug 2019 07:52:23 -0400
+Received: from mga01.intel.com ([192.55.52.88]:53745 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726594AbfHSLwX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Aug 2019 07:52:23 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 19 Aug 2019 04:52:22 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,403,1559545200"; 
+   d="scan'208";a="177859322"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.145])
+  by fmsmga008.fm.intel.com with ESMTP; 19 Aug 2019 04:52:20 -0700
+Received: from andy by smile with local (Exim 4.92.1)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1hzgCw-00055k-CD; Mon, 19 Aug 2019 14:52:18 +0300
+Date:   Mon, 19 Aug 2019 14:52:18 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Ian W MORRISON <ianwmorrison@gmail.com>
+Cc:     benjamin.tissoires@redhat.com, hdegoede@redhat.com,
+        mika.westerberg@linux.intel.com, linus.walleij@linaro.org,
         bgolaszewski@baylibre.com, linux-gpio@vger.kernel.org,
         linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH v2] Skip deferred request irqs for devices known to fail
+Message-ID: <20190819115218.GY30120@smile.fi.intel.com>
+References: <20190819112637.29943-1-ianwmorrison@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190819112637.29943-1-ianwmorrison@gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Hans and everyone,
+On Mon, Aug 19, 2019 at 09:26:37PM +1000, Ian W MORRISON wrote:
+> Patch ca876c7483b6 "gpiolib-acpi: make sure we trigger edge events at
+> least once on boot" causes the MINIX family of mini PCs to fail to boot
+> resulting in a "black screen".
+> 
+> This patch excludes MINIX devices from executing this trigger in order
+> to successfully boot.
 
-On Mon, 19 Aug 2019 at 04:59, Hans de Goede <hdegoede@redhat.com> wrote:
->
-> Hi Ian, et. al.,
->
-> As such I guess we may need to go with the blacklist patch you suggested
-> which sucks, but having these devices not boot sucks even harder.
->
-> I guess this problem did not magically fix it self in the mean time
-> (with newer kernels) ?
->
+Thanks for an update.
 
-Unfortunately it didn't 'self-fix' with later kernels.
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Ian W MORRISON <ianwmorrison@gmail.com>
+> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 
-> Can you resubmit your patch with Andy's review remarks addressed?
->
-> In case you've lost Andy's reply I will reproduce the review remarks
-> below.
->
-> Regards,
->
-> Hans
->
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Resubmitted as requested.
+Hmm... Did I really give the tag?
+Too many stuff is going on, anyway, please consider more comments below.
 
-Many thanks and best regards,
-Ian
+First of all, the subject should start from "gpiolib: acpi: " prefix.
+
+Then, Fixes tag seems to be missed.
+
+> +/*
+> + * Run deferred acpi_gpiochip_request_irqs()
+> + * but exclude devices known to fail
+
+Missed period.
+
+> +*/
+
+Missed leading space (the column of stars).
+
+>  static int acpi_gpio_handle_deferred_request_irqs(void)
+>  {
+>  	struct acpi_gpio_chip *acpi_gpio, *tmp;
+> +	const struct dmi_system_id *dmi_id;
+>  
+> -	mutex_lock(&acpi_gpio_deferred_req_irqs_lock);
+> -	list_for_each_entry_safe(acpi_gpio, tmp,
+> +	dmi_id = dmi_first_match(skip_deferred_request_irqs_table);
+> +	if (dmi_id)
+> +		return 0;
+
+The idea of positive check is exactly for...
+
+> +	else {
+
+...getting rid of this redundant 'else' followed by unneeded level of indentation.
+
+> +		mutex_lock(&acpi_gpio_deferred_req_irqs_lock);
+> +		list_for_each_entry_safe(acpi_gpio, tmp,
+>  				 &acpi_gpio_deferred_req_irqs_list,
+>  				 deferred_req_irqs_list_entry)
+> -		acpi_gpiochip_request_irqs(acpi_gpio);
+> +			acpi_gpiochip_request_irqs(acpi_gpio);
+>  
+> -	acpi_gpio_deferred_req_irqs_done = true;
+> -	mutex_unlock(&acpi_gpio_deferred_req_irqs_lock);
+> +		acpi_gpio_deferred_req_irqs_done = true;
+> +		mutex_unlock(&acpi_gpio_deferred_req_irqs_lock);
+> +	}
+>  
+>  	return 0;
+>  }
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+
