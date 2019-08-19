@@ -2,125 +2,201 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4D7495056
-	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 23:59:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E0709506C
+	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 00:03:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728363AbfHSV6k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Aug 2019 17:58:40 -0400
-Received: from mail-eopbgr720131.outbound.protection.outlook.com ([40.107.72.131]:18592
-        "EHLO NAM05-CO1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728305AbfHSV6j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Aug 2019 17:58:39 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=bGu7SdMCcxUkmlDolZooE5MHM3eeEbpgAKO7eZ3HPSWlRZlCOZfqynucJbJW89N2O1XkWa6KfnVELR2QIllbjTKU8lRX7TXCO4qWS1MwiiTMXGikVMxlb+pJj+KkPy8thC5rKMnYy/htUBphppnxzWNlZVr7yUF4ugi+lrSNqdCf37c4NkAKcPrCC5Bw+/i8HwBdxmXiURVF0cOZIXEsfbxiGR+g4lu7RXfIJsxCcHpasyF1JAIGSOugUwgJtnfPyEot6EPZO6s5ztSUXNp23iC6xlAKQNqUEJ1NzmodyOOh/RyYsw1kqxQ/fthSvGc7jeomhqrCOMDHcMA+mhoh1w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=oFjP54vZWuSvei+Siz7dvFxIgo4b7q5FUgI8Mim7NjI=;
- b=DZJlVyuwramzTNdMfMtthN31QTZA+fMWek8S2pWd7w98RxMFYc2BB5P6dueJK4Obton70jPIJkHi90AS3UQdc1ITsDBctFw+02yQsBGyd+ZfWiQK0pMlEGVL/aHdapjCeDngtVLBldL27JIDPDrYDSNMl0EgzNlLmsP8FGgIpVuENnpqvxC0vJ8wxnTfuMlVnos+Mwk2U99VOBAH3bBvsD5aKsVNl6tiRvp6luuJsarHF3ZXDQ0ACgznHq7Rwq1UUDAR6SB3c/FfOw9kDzyFg8FplZnGdLioBHYn4tBu2S+JmZjUz4d6V94AeideUXJg+JNuY03co429ddgcZTyE3A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microsoft.com; dmarc=pass action=none
- header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=oFjP54vZWuSvei+Siz7dvFxIgo4b7q5FUgI8Mim7NjI=;
- b=XlqNKtjy5P8yrhFqp1rU7Gbdftf1S3ZFoXhvkL8a5a+Oi3O0JMcD5WhlVXiLq18tS+GuaxdTSunGbzTNLTEdaRpjiMYS8UnfuXG1MckqifEYOSK41Xg1s+oNRmyG6zsm2O3ogZkB7XgquSTkJX8laVAwb0jhUqvoCFGW6xho+SU=
-Received: from DM5PR21MB0137.namprd21.prod.outlook.com (10.173.173.12) by
- DM5PR21MB0796.namprd21.prod.outlook.com (10.175.112.16) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2220.1; Mon, 19 Aug 2019 21:58:35 +0000
-Received: from DM5PR21MB0137.namprd21.prod.outlook.com
- ([fe80::8985:a319:f21:530e]) by DM5PR21MB0137.namprd21.prod.outlook.com
- ([fe80::c437:6219:efcc:fb8a%8]) with mapi id 15.20.2220.000; Mon, 19 Aug 2019
- 21:58:35 +0000
-From:   Michael Kelley <mikelley@microsoft.com>
-To:     Sasha Levin <sashal@kernel.org>,
-        tip-bot for Michael Kelley <tipbot@zytor.com>,
-        "linux-tip-commits@vger.kernel.org" 
-        <linux-tip-commits@vger.kernel.org>
-CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [tip:irq/urgent] genirq: Properly pair kobject_del() with
- kobject_add()
-Thread-Topic: [tip:irq/urgent] genirq: Properly pair kobject_del() with
- kobject_add()
-Thread-Index: AQHVVpaWAFz9unahCkyCihJdmLkBdacC/MKAgAAHgUA=
-Date:   Mon, 19 Aug 2019 21:58:34 +0000
-Message-ID: <DM5PR21MB013781495B041A4FA6C8DCEAD7A80@DM5PR21MB0137.namprd21.prod.outlook.com>
-References: <tip-e1ee29624746fbf667f80e8ae3815a76e4d1bd5b@git.kernel.org>
- <20190819212758.6D03D22CEC@mail.kernel.org>
-In-Reply-To: <20190819212758.6D03D22CEC@mail.kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=True;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Owner=mikelley@ntdev.microsoft.com;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2019-08-19T21:58:32.8572884Z;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=General;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Application=Microsoft Azure
- Information Protection;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=8a4d0f22-e011-4226-9d10-0c0346f8ba2f;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Extended_MSFT_Method=Automatic
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=mikelley@microsoft.com; 
-x-originating-ip: [2001:4898:80e8:1:edc7:4690:8678:e56f]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 2c836a8a-3965-484c-23a5-08d724f061f3
-x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(5600158)(711020)(4605104)(1401327)(4618075)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(2017052603328)(7193020);SRVR:DM5PR21MB0796;
-x-ms-traffictypediagnostic: DM5PR21MB0796:
-x-microsoft-antispam-prvs: <DM5PR21MB0796FC8BE938BE63DDD75949D7A80@DM5PR21MB0796.namprd21.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:2150;
-x-forefront-prvs: 0134AD334F
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(346002)(366004)(136003)(396003)(376002)(39860400002)(199004)(189003)(8936002)(2501003)(7736002)(8676002)(305945005)(81166006)(102836004)(81156014)(186003)(6506007)(74316002)(46003)(22452003)(316002)(64756008)(66556008)(10290500003)(486006)(446003)(11346002)(476003)(71190400001)(71200400001)(6246003)(25786009)(4326008)(53936002)(478600001)(6436002)(76176011)(229853002)(86362001)(7696005)(5660300002)(8990500004)(52536014)(14454004)(55016002)(66476007)(66446008)(76116006)(9686003)(256004)(54906003)(110136005)(6116002)(2906002)(33656002)(66946007)(99286004)(10090500001);DIR:OUT;SFP:1102;SCL:1;SRVR:DM5PR21MB0796;H:DM5PR21MB0137.namprd21.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: microsoft.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: Vc/y588XxxXkw4RB3qDpHKYxI2Lno/EsXK3U4tY7EAzRKl4D+o0uahANp2N2lorzFN9kl0yiiKr6EEbQCxt2YhEbLPb+P0FVc2o9rWdSE9nccYlroRTLOYNh7cwmj/AKhOE6fRARkCc0XQUY7i2C6TS9I/A/DYmhi858qavkH7XEZyn6dmh/r6rKZk+EGKpnugibzT7c63ShSmVUP2rQcsB7v23fO1cCe1s381JYNVS7X8zNHfnR8ENT+mbvuqK/XPyk0/iuE0DHZuJoQvdBq3Re5VVyFHO8uIcnKHkSc85H+uOaq9larUGpiszOHyi09uFuBnC/Lm+5cRQ8CafbmopeyX4YpK6W1TAEpGAZvNj99AJe07zg4dx55BKmYRwU2H/r+BOApQX/Ew5Q+BkQhYCRL+PSStoqtQxZic6DhZo=
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S1728465AbfHSWDO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Aug 2019 18:03:14 -0400
+Received: from out03.mta.xmission.com ([166.70.13.233]:33778 "EHLO
+        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728014AbfHSWDO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Aug 2019 18:03:14 -0400
+Received: from in02.mta.xmission.com ([166.70.13.52])
+        by out03.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1hzpk7-0006yY-Jm; Mon, 19 Aug 2019 16:03:11 -0600
+Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=x220.xmission.com)
+        by in02.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1hzpk6-0006Nx-E2; Mon, 19 Aug 2019 16:03:11 -0600
+From:   ebiederm@xmission.com (Eric W. Biederman)
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Philipp Reisner <philipp.reisner@linbit.com>,
+        David Laight <David.Laight@aculab.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        "linux-kernel\@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable\@vger.kernel.org" <stable@vger.kernel.org>,
+        Steve French <smfrench@gmail.com>,
+        ronnie sahlberg <ronniesahlberg@gmail.com>,
+        Jeff Layton <jlayton@primarydata.com>,
+        linux-cifs <linux-cifs@vger.kernel.org>,
+        Christoph =?utf-8?Q?B=C3=B6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>, Oleg Nesterov <oleg@redhat.com>
+References: <20190729083248.30362-1-christoph.boehmwalder@linbit.com>
+        <1761552.9xIroHqhk7@fat-tyre>
+        <1fcbb94c5f264c17af3394807438ad50@AcuMS.aculab.com>
+        <2789113.VEJ2NpTmzX@fat-tyre> <87k1bclpmt.fsf_-_@xmission.com>
+        <20190819083759.73ee5zct4yxbyyfd@gintonic.linbit>
+Date:   Mon, 19 Aug 2019 17:03:01 -0500
+In-Reply-To: <20190819083759.73ee5zct4yxbyyfd@gintonic.linbit> ("Christoph
+        \=\?utf-8\?Q\?B\=C3\=B6hmwalder\=22's\?\= message of "Mon, 19 Aug 2019 10:37:59
+ +0200")
+Message-ID: <87ftlwke3u.fsf_-_@xmission.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/25.1 (gnu/linux)
 MIME-Version: 1.0
-X-OriginatorOrg: microsoft.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2c836a8a-3965-484c-23a5-08d724f061f3
-X-MS-Exchange-CrossTenant-originalarrivaltime: 19 Aug 2019 21:58:34.8890
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 27rnR9zGKVGIGMDTGZ8IyIirqaRKFhsNuzOpiQDQhaUil0PDpmWCSj2T6bZ9mTsKjnMLfNH+PMtBDYleLbdOVl5p7QoEk9bFdJkvwfxKFfo=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR21MB0796
+Content-Type: text/plain
+X-XM-SPF: eid=1hzpk6-0006Nx-E2;;;mid=<87ftlwke3u.fsf_-_@xmission.com>;;;hst=in02.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX1+/eA/ihhCUw4yPzviJdoRZb4ArWVEvcl4=
+X-SA-Exim-Connect-IP: 68.227.160.95
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on sa06.xmission.com
+X-Spam-Level: ****
+X-Spam-Status: No, score=4.2 required=8.0 tests=ALL_TRUSTED,BAYES_50,
+        DCC_CHECK_NEGATIVE,XMSexyCombo_01,XMSubLong,XMSubMetaSxObfu_03,
+        XMSubMetaSx_00,XM_Body_Dirty_Words autolearn=disabled version=3.4.2
+X-Spam-Report: * -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        *  0.7 XMSubLong Long Subject
+        * -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
+        *      [sa06 1397; Body=1 Fuz1=1 Fuz2=1]
+        *  1.0 XMSubMetaSx_00 1+ Sexy Words
+        *  0.5 XM_Body_Dirty_Words Contains a dirty word
+        *  1.2 XMSubMetaSxObfu_03 Obfuscated Sexy Noun-People
+        *  1.0 XMSexyCombo_01 Sexy words in both body/subject
+X-Spam-DCC: XMission; sa06 1397; Body=1 Fuz1=1 Fuz2=1 
+X-Spam-Combo: ****;Linus Torvalds <torvalds@linux-foundation.org>
+X-Spam-Relay-Country: 
+X-Spam-Timing: total 836 ms - load_scoreonly_sql: 0.12 (0.0%),
+        signal_user_changed: 3.2 (0.4%), b_tie_ro: 2.1 (0.3%), parse: 1.91
+        (0.2%), extract_message_metadata: 7 (0.8%), get_uri_detail_list: 3.2
+        (0.4%), tests_pri_-1000: 6 (0.8%), tests_pri_-950: 2.0 (0.2%),
+        tests_pri_-900: 1.61 (0.2%), tests_pri_-90: 39 (4.7%), check_bayes: 37
+        (4.4%), b_tokenize: 17 (2.0%), b_tok_get_all: 9 (1.1%), b_comp_prob:
+        4.3 (0.5%), b_tok_touch_all: 3.4 (0.4%), b_finish: 0.77 (0.1%),
+        tests_pri_0: 747 (89.4%), check_dkim_signature: 1.12 (0.1%),
+        check_dkim_adsp: 2.9 (0.3%), poll_dns_idle: 0.42 (0.1%), tests_pri_10:
+        3.5 (0.4%), tests_pri_500: 10 (1.2%), rewrite_mail: 0.00 (0.0%)
+Subject: [GIT PULL] signal: Allow cifs and drbd to receive their terminating signals
+X-Spam-Flag: No
+X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
+X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogU2FzaGEgTGV2aW4gPHNhc2hhbEBrZXJuZWwub3JnPiAgU2VudDogTW9uZGF5LCBBdWd1
-c3QgMTksIDIwMTkgMjoyOCBQTQ0KPiANCj4gVGhpcyBjb21taXQgaGFzIGJlZW4gcHJvY2Vzc2Vk
-IGJlY2F1c2UgaXQgY29udGFpbnMgYSAiRml4ZXM6IiB0YWcsDQo+IGZpeGluZyBjb21taXQ6IGVj
-YjNmMzk0YzVkYiBnZW5pcnE6IEV4cG9zZSBpbnRlcnJ1cHQgaW5mb3JtYXRpb24gdGhyb3VnaCBz
-eXNmcy4NCj4gDQo+IFRoZSBib3QgaGFzIHRlc3RlZCB0aGUgZm9sbG93aW5nIHRyZWVzOiB2NS4y
-LjksIHY0LjE5LjY3LCB2NC4xNC4xMzksIHY0LjkuMTg5Lg0KPiANCj4gdjUuMi45OiBCdWlsZCBm
-YWlsZWQhIEVycm9yczoNCj4gICAgIGtlcm5lbC9pcnEvaXJxZGVzYy5jOjQ0Njo2OiBlcnJvcjog
-4oCYaXJxX2tvYmpfYmFzZeKAmSB1bmRlY2xhcmVkIChmaXJzdCB1c2UgaW4gdGhpcyBmdW5jdGlv
-bik7DQo+IGRpZCB5b3UgbWVhbiDigJhpcnFfa29ial90eXBl4oCZPw0KPiANCj4gdjQuMTkuNjc6
-IEJ1aWxkIGZhaWxlZCEgRXJyb3JzOg0KPiAgICAga2VybmVsL2lycS9pcnFkZXNjLmM6NDQ1OjY6
-IGVycm9yOiDigJhpcnFfa29ial9iYXNl4oCZIHVuZGVjbGFyZWQgKGZpcnN0IHVzZSBpbiB0aGlz
-IGZ1bmN0aW9uKTsNCj4gZGlkIHlvdSBtZWFuIOKAmGlycV9rb2JqX3R5cGXigJk/DQo+IA0KPiB2
-NC4xNC4xMzk6IEJ1aWxkIGZhaWxlZCEgRXJyb3JzOg0KPiAgICAga2VybmVsL2lycS9pcnFkZXNj
-LmM6NDI4OjY6IGVycm9yOiDigJhpcnFfa29ial9iYXNl4oCZIHVuZGVjbGFyZWQgKGZpcnN0IHVz
-ZSBpbiB0aGlzIGZ1bmN0aW9uKTsNCj4gZGlkIHlvdSBtZWFuIOKAmGlycV9rb2JqX3R5cGXigJk/
-DQo+IA0KPiB2NC45LjE4OTogQnVpbGQgZmFpbGVkISBFcnJvcnM6DQo+ICAgICBrZXJuZWwvaXJx
-L2lycWRlc2MuYzo0MTQ6NjogZXJyb3I6IOKAmGlycV9rb2JqX2Jhc2XigJkgdW5kZWNsYXJlZCAo
-Zmlyc3QgdXNlIGluIHRoaXMgZnVuY3Rpb24pOw0KPiBkaWQgeW91IG1lYW4g4oCYaXJxX2tvYmpf
-dHlwZeKAmT8NCj4gDQo+IA0KPiBOT1RFOiBUaGUgcGF0Y2ggd2lsbCBub3QgYmUgcXVldWVkIHRv
-IHN0YWJsZSB0cmVlcyB1bnRpbCBpdCBpcyB1cHN0cmVhbS4NCj4gDQo+IEhvdyBzaG91bGQgd2Ug
-cHJvY2VlZCB3aXRoIHRoaXMgcGF0Y2g/DQoNCkNvbXBpbGUgZXJyb3Igb2NjdXJzIHdoZW4gQ09O
-RklHX1NZU0ZTIGlzIG5vdCBzZWxlY3RlZC4gIEl0J3MgcHJvYmFibHkgY2xlYW5lc3QgdG8NCnJl
-dmVydCB0aGUgY3VycmVudCBwYXRjaC4gICBJJ2xsIHNlbmQgb3V0IGEgbmV3IHZlcnNpb24gdGhh
-dCBmaXhlcyB0aGUgcHJvYmxlbS4NCg0KTWljaGFlbA0K
+
+Linus,
+
+Please pull the siginfo-linus branch from the git tree:
+
+   git://git.kernel.org/pub/scm/linux/kernel/git/ebiederm/user-namespace.git siginfo-linus
+
+   HEAD: 33da8e7c814f77310250bb54a9db36a44c5de784 signal: Allow cifs and drbd to receive their terminating signals
+
+I overlooked the fact that kernel threads are created with all signals
+set to SIG_IGN, and accidentally caused a regression in cifs and drbd
+when replacing force_sig with send_sig.
+
+This pull request is my fix for that regression.  I add a new function
+allow_kernel_signal which allows kernel threads to receive signals sent
+from the kernel, but continues to ignore all signals sent from
+userspace.  This ensures the user space interface for cifs and drbd
+remain the same.
+
+These kernel threads depend on blocking networking calls which block
+until something is received or a signal is pending.  Making receiving
+of signals somewhat necessary for these kernel threads.  Perhaps someday
+we can cleanup those interfaces and remove allow_kernel_signal.  If not
+allow_kernel_signal is pretty trivial and clearly documents what is
+going on so I don't think we will mind carrying it.
+
+Eric W. Biederman (1):
+      signal: Allow cifs and drbd to receive their terminating signals
+
+ drivers/block/drbd/drbd_main.c |  2 ++
+ fs/cifs/connect.c              |  2 +-
+ include/linux/signal.h         | 15 ++++++++++++++-
+ kernel/signal.c                |  5 +++++
+ 4 files changed, 22 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
+index 9bd4ddd12b25..5b248763a672 100644
+--- a/drivers/block/drbd/drbd_main.c
++++ b/drivers/block/drbd/drbd_main.c
+@@ -322,6 +322,8 @@ static int drbd_thread_setup(void *arg)
+ 		 thi->name[0],
+ 		 resource->name);
+ 
++	allow_kernel_signal(DRBD_SIGKILL);
++	allow_kernel_signal(SIGXCPU);
+ restart:
+ 	retval = thi->function(thi);
+ 
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index a15a6e738eb5..1795e80cbdf7 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -1113,7 +1113,7 @@ cifs_demultiplex_thread(void *p)
+ 		mempool_resize(cifs_req_poolp, length + cifs_min_rcv);
+ 
+ 	set_freezable();
+-	allow_signal(SIGKILL);
++	allow_kernel_signal(SIGKILL);
+ 	while (server->tcpStatus != CifsExiting) {
+ 		if (try_to_freeze())
+ 			continue;
+diff --git a/include/linux/signal.h b/include/linux/signal.h
+index b5d99482d3fe..1a5f88316b08 100644
+--- a/include/linux/signal.h
++++ b/include/linux/signal.h
+@@ -282,6 +282,9 @@ extern void signal_setup_done(int failed, struct ksignal *ksig, int stepping);
+ extern void exit_signals(struct task_struct *tsk);
+ extern void kernel_sigaction(int, __sighandler_t);
+ 
++#define SIG_KTHREAD ((__force __sighandler_t)2)
++#define SIG_KTHREAD_KERNEL ((__force __sighandler_t)3)
++
+ static inline void allow_signal(int sig)
+ {
+ 	/*
+@@ -289,7 +292,17 @@ static inline void allow_signal(int sig)
+ 	 * know it'll be handled, so that they don't get converted to
+ 	 * SIGKILL or just silently dropped.
+ 	 */
+-	kernel_sigaction(sig, (__force __sighandler_t)2);
++	kernel_sigaction(sig, SIG_KTHREAD);
++}
++
++static inline void allow_kernel_signal(int sig)
++{
++	/*
++	 * Kernel threads handle their own signals. Let the signal code
++	 * know signals sent by the kernel will be handled, so that they
++	 * don't get silently dropped.
++	 */
++	kernel_sigaction(sig, SIG_KTHREAD_KERNEL);
+ }
+ 
+ static inline void disallow_signal(int sig)
+diff --git a/kernel/signal.c b/kernel/signal.c
+index e667be6907d7..534fec266a33 100644
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -90,6 +90,11 @@ static bool sig_task_ignored(struct task_struct *t, int sig, bool force)
+ 	    handler == SIG_DFL && !(force && sig_kernel_only(sig)))
+ 		return true;
+ 
++	/* Only allow kernel generated signals to this kthread */
++	if (unlikely((t->flags & PF_KTHREAD) &&
++		     (handler == SIG_KTHREAD_KERNEL) && !force))
++		return true;
++
+ 	return sig_handler_ignored(handler, sig);
+ }
+ 
+-- 
+
