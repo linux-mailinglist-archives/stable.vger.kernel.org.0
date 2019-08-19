@@ -2,514 +2,278 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7378691A61
-	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 02:00:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2EE691A85
+	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 02:46:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726103AbfHSAAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Aug 2019 20:00:20 -0400
-Received: from mail-wm1-f46.google.com ([209.85.128.46]:38478 "EHLO
-        mail-wm1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726047AbfHSAAU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Aug 2019 20:00:20 -0400
-Received: by mail-wm1-f46.google.com with SMTP id m125so65165wmm.3
-        for <stable@vger.kernel.org>; Sun, 18 Aug 2019 17:00:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=4DD7UJy3miG1jcO9CquqlWCoYwX7R1VKOh/rbKtE0LY=;
-        b=B7sfzARWew/i72AMHd7HBqC0+pIy7/dDu9xeLeca2RsBu0yVa40vQz4Msui/7hA+J2
-         jqRgrM7/jqUTZxItegKD5oLaiveHfRqryX26FO+Hb8cocpyeozNuZnnHs4CFw3A9n1Sy
-         PXgXcu32a2MQrzk/elqUpAIrgzOZqNyTWbdIX+Kxmg+4uoPN8Dpdftzj/sItsN+H3Clr
-         E7R6Qcq+QYK8c7hNg2CIOdazZJ5MkFgYyQyjMtlm163241wgkVI2oPjxsAaxkdB1nNx5
-         dbmS5c1KsnkbXv9Fe8CI/NgenNCVP8WecS3SH62wPqyjzCqeO9R8POcpwAvNPATOD1fa
-         jxqA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=4DD7UJy3miG1jcO9CquqlWCoYwX7R1VKOh/rbKtE0LY=;
-        b=Z8JCYxwBewS3SR4La6AoaoJbS4TQD/M6ZigpLUIPE90QG6osr7gyxWdv8Z+U8f0i6y
-         DnJFrvGQQ/gWnYjUeJY0CNEbITVmY2IGjitkN6IWnUGFB15gzDza9OpQ6kCYHtNNqV0H
-         Xzg1jMcwfKhd2k1dkxespx1XDpg1O7j4hZtNDotBOcx650RrIEXBjAYFdT0NTyyI3mZS
-         Ajm+80isNZ3Gj7YdETGR1PfghuRRZNNqqJEl+aK0oq4zCd6Alsm8ju4OcNPT7MgrBg9j
-         d5oXky+rKz5mZWTwIwL2OQEHyNXadihSEc06YcMJzHTnRmDpLSnSzXDFsd1/uj4XJEG7
-         rl/g==
-X-Gm-Message-State: APjAAAUbXvlUXQp6qaZI1gb6SavU5jUPwrcAgz3vE9lVIREivCAMSfnq
-        o31Lu9e2bY9iRyiFRUX3AWqn6T35low=
-X-Google-Smtp-Source: APXvYqwt52Gs1sb+TrPkqO2jsmRPrcop0N9rikE7rRC85/rON0oAj0pd1jHTqMck3DB9T9VcFhImqg==
-X-Received: by 2002:a7b:c415:: with SMTP id k21mr16748358wmi.135.1566172815424;
-        Sun, 18 Aug 2019 17:00:15 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id e11sm36017830wrc.4.2019.08.18.17.00.14
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 18 Aug 2019 17:00:15 -0700 (PDT)
-Message-ID: <5d59e68f.1c69fb81.b4ebc.fa3b@mx.google.com>
-Date:   Sun, 18 Aug 2019 17:00:15 -0700 (PDT)
+        id S1726115AbfHSAqf convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sun, 18 Aug 2019 20:46:35 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:47246 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726103AbfHSAqf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Aug 2019 20:46:35 -0400
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id C10813083362
+        for <stable@vger.kernel.org>; Mon, 19 Aug 2019 00:46:34 +0000 (UTC)
+Received: from [172.54.61.75] (cpt-1031.paas.prod.upshift.rdu2.redhat.com [10.0.19.58])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id F1A701B47A;
+        Mon, 19 Aug 2019 00:46:31 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.189-66-g5d14c171a0a0
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y boot: 95 boots: 81 failed,
- 0 passed with 14 offline (v4.4.189-66-g5d14c171a0a0)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel 5.2.10-rc1-fe1d8ef.cki
+ (stable)
+Message-ID: <cki.113EFFE415.8ZTOJZMP54@redhat.com>
+X-Gitlab-Pipeline-ID: 109337
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/109337
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.44]); Mon, 19 Aug 2019 00:46:34 +0000 (UTC)
+Date:   Sun, 18 Aug 2019 20:46:35 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 95 boots: 81 failed, 0 passed with 14 offline (=
-v4.4.189-66-g5d14c171a0a0)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.189-66-g5d14c171a0a0/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.189-66-g5d14c171a0a0/
+Hello,
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.189-66-g5d14c171a0a0
-Git Commit: 5d14c171a0a070385f004b7f264a65006a63cca1
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 44 unique boards, 20 SoC families, 14 builds out of 190
+We ran automated tests on a recent commit from this kernel tree:
 
-Boot Regressions Detected:
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+            Commit: fe1d8effa7ac - Linux 5.2.10-rc1
 
-arm:
+The results of these automated tests are provided below.
 
-    bcm2835_defconfig:
-        gcc-8:
-          bcm2835-rpi-b:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-35-ge6790d05646d - first fail: v4.4.189-45-g244e47df71ff)
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: OK
+             Tests: FAILED
 
-    davinci_all_defconfig:
-        gcc-8:
-          da850-evm:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          dm365evm,legacy:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
+All kernel binaries, config files, and logs are available for download here:
 
-    exynos_defconfig:
-        gcc-8:
-          exynos4412-odroidx2:
-              lab-collabora: failing since 1 day (last pass: v4.4.189-45-g2=
-44e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          exynos5250-arndale:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          exynos5250-snow:
-              lab-collabora: failing since 1 day (last pass: v4.4.189-45-g2=
-44e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          exynos5420-arndale-octa:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          exynos5422-odroidxu3:
-              lab-baylibre: failing since 1 day (last pass: v4.4.189-45-g24=
-4e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-              lab-collabora: failing since 1 day (last pass: v4.4.189-45-g2=
-44e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          exynos5800-peach-pi:
-              lab-collabora: failing since 1 day (last pass: v4.4.189-45-g2=
-44e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
+  https://artifacts.cki-project.org/pipelines/109337
 
-    imx_v6_v7_defconfig:
-        gcc-8:
-          imx6dl-riotboard:
-              lab-pengutronix: failing since 1 day (last pass: v4.4.189-45-=
-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          imx6dl-wandboard_dual:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          imx6dl-wandboard_solo:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          imx6q-wandboard:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          vf610-colibri-eval-v3:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
 
-    multi_v7_defconfig:
-        gcc-8:
-          alpine-db:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          armada-xp-openblocks-ax3-4:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          at91-sama5d4_xplained:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          bcm4708-smartrg-sr400ac:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          bcm72521-bcm97252sffe:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          bcm7445-bcm97445c:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          exynos4412-odroidx2:
-              lab-collabora: failing since 1 day (last pass: v4.4.189-45-g2=
-44e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          exynos5250-arndale:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          exynos5250-snow:
-              lab-collabora: failing since 1 day (last pass: v4.4.189-45-g2=
-44e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          exynos5420-arndale-octa:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          exynos5422-odroidxu3:
-              lab-baylibre: failing since 1 day (last pass: v4.4.189-45-g24=
-4e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          exynos5800-peach-pi:
-              lab-collabora: failing since 1 day (last pass: v4.4.189-45-g2=
-44e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          imx6dl-riotboard:
-              lab-pengutronix: failing since 1 day (last pass: v4.4.189-35-=
-ge6790d05646d - first fail: v4.4.189-45-g244e47df71ff)
-          imx6dl-wandboard_dual:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          imx6dl-wandboard_solo:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          imx6q-sabrelite:
-              lab-collabora: failing since 1 day (last pass: v4.4.189-45-g2=
-44e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          imx6q-wandboard:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          meson8b-odroidc1:
-              lab-baylibre: failing since 1 day (last pass: v4.4.189-45-g24=
-4e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          omap3-beagle:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          omap4-panda:
-              lab-baylibre: failing since 1 day (last pass: v4.4.189-45-g24=
-4e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-              lab-collabora: failing since 1 day (last pass: v4.4.189-45-g2=
-44e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          qcom-apq8064-ifc6410:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          qemu:
-              lab-baylibre: failing since 1 day (last pass: v4.4.189-45-g24=
-4e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-              lab-mhart: failing since 1 day (last pass: v4.4.189-45-g244e4=
-7df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-              lab-drue: failing since 1 day (last pass: v4.4.189-45-g244e47=
-df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-              lab-collabora: failing since 1 day (last pass: v4.4.189-45-g2=
-44e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          rk3288-veyron-jaq:
-              lab-collabora: failing since 1 day (last pass: v4.4.189-45-g2=
-44e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          socfpga_cyclone5_de0_sockit:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          stih410-b2120:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          sun4i-a10-cubieboard:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          sun5i-a13-olinuxino-micro:
-              lab-baylibre: failing since 1 day (last pass: v4.4.189-45-g24=
-4e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          sun5i-r8-chip:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          sun7i-a20-bananapi:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          sun7i-a20-cubietruck:
-              lab-baylibre: failing since 1 day (last pass: v4.4.189-45-g24=
-4e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          tegra124-jetson-tk1:
-              lab-mhart: failing since 1 day (last pass: v4.4.189-45-g244e4=
-7df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-              lab-collabora: failing since 1 day (last pass: v4.4.189-45-g2=
-44e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          tegra20-iris-512:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          tegra30-beaver:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          vf610-colibri-eval-v3:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          zynq-zc702:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
 
-    mvebu_v7_defconfig:
-        gcc-8:
-          armada-xp-openblocks-ax3-4:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
+One or more kernel tests failed:
 
-    omap2plus_defconfig:
-        gcc-8:
-          omap3-beagle:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          omap4-panda:
-              lab-baylibre: failing since 1 day (last pass: v4.4.189-45-g24=
-4e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-              lab-collabora: failing since 1 day (last pass: v4.4.189-45-g2=
-44e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
+  aarch64:
+    ❌ Boot test
+    ❌ Boot test
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 4 days (last pass: v4.4.1=
-89 - first fail: v4.4.189-32-g35ba3146be27)
-          qcom-apq8064-ifc6410:
-              lab-baylibre-seattle: failing since 4 days (last pass: v4.4.1=
-89 - first fail: v4.4.189-32-g35ba3146be27)
+  ppc64le:
+    ❌ Boot test
+    ❌ Boot test
 
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-35-ge6790d05646d - first fail: v4.4.189-45-g244e47df71ff)
+  x86_64:
+    ❌ Boot test
+    ❌ Boot test
 
-    sunxi_defconfig:
-        gcc-8:
-          sun4i-a10-cubieboard:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          sun5i-a13-olinuxino-micro:
-              lab-baylibre: failing since 1 day (last pass: v4.4.189-45-g24=
-4e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          sun5i-r8-chip:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          sun7i-a20-bananapi:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          sun7i-a20-cubietruck:
-              lab-baylibre: failing since 1 day (last pass: v4.4.189-45-g24=
-4e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this message.
 
-    tegra_defconfig:
-        gcc-8:
-          tegra124-jetson-tk1:
-              lab-mhart: failing since 1 day (last pass: v4.4.189-45-g244e4=
-7df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-              lab-collabora: failing since 1 day (last pass: v4.4.189-45-g2=
-44e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          tegra20-iris-512:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          tegra30-beaver:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.18=
-9-45-g244e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
-arm64:
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
-    defconfig:
-        gcc-8:
-          apq8016-sbc:
-              lab-mhart: failing since 1 day (last pass: v4.4.189-45-g244e4=
-7df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          qemu:
-              lab-baylibre: failing since 1 day (last pass: v4.4.189-45-g24=
-4e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-              lab-mhart: failing since 1 day (last pass: v4.4.189-45-g244e4=
-7df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-              lab-drue: failing since 1 day (last pass: v4.4.189-45-g244e47=
-df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-              lab-collabora: failing since 1 day (last pass: v4.4.189-45-g2=
-44e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
+Compile testing
+---------------
 
-i386:
+We compiled the kernel for 3 architectures:
 
-    i386_defconfig:
-        gcc-8:
-          x86-celeron:
-              lab-mhart: failing since 1 day (last pass: v4.4.189-45-g244e4=
-7df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-          x86-pentium4:
-              lab-mhart: failing since 1 day (last pass: v4.4.189-45-g244e4=
-7df71ff - first fail: v4.4.189-57-g18b9910fe35a)
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
 
-x86_64:
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
 
-    x86_64_defconfig:
-        gcc-8:
-          qemu:
-              lab-baylibre: failing since 1 day (last pass: v4.4.189-45-g24=
-4e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-              lab-mhart: failing since 1 day (last pass: v4.4.189-45-g244e4=
-7df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-              lab-drue: failing since 1 day (last pass: v4.4.189-45-g244e47=
-df71ff - first fail: v4.4.189-57-g18b9910fe35a)
-              lab-collabora: failing since 1 day (last pass: v4.4.189-45-g2=
-44e47df71ff - first fail: v4.4.189-57-g18b9910fe35a)
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
 
-Boot Failures Detected:
 
-arm64:
-    defconfig:
-        gcc-8:
-            apq8016-sbc: 1 failed lab
-            qcom-qdf2400: 1 failed lab
-            qemu: 5 failed labs
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
 
-i386:
-    i386_defconfig:
-        gcc-8:
-            x86-celeron: 1 failed lab
-            x86-pentium4: 1 failed lab
+  aarch64:
+      Host 1:
+         ❌ Boot test [0]
+         ⚡⚡⚡ xfstests: ext4 [1]
+         ⚡⚡⚡ xfstests: xfs [1]
+         ⚡⚡⚡ selinux-policy: serge-testsuite [2]
+         ⚡⚡⚡ lvm thinp sanity [3]
+         ⚡⚡⚡ storage: software RAID testing [4]
+         🚧 ⚡⚡⚡ Storage blktests [5]
 
-x86_64:
-    x86_64_defconfig:
-        gcc-8:
-            minnowboard-turbot-E3826: 1 failed lab
-            qemu: 5 failed labs
+      Host 2:
+         ❌ Boot test [0]
+         ⚡⚡⚡ Podman system integration test (as root) [6]
+         ⚡⚡⚡ Podman system integration test (as user) [6]
+         ⚡⚡⚡ LTP lite [7]
+         ⚡⚡⚡ Loopdev Sanity [8]
+         ⚡⚡⚡ jvm test suite [9]
+         ⚡⚡⚡ Memory function: memfd_create [10]
+         ⚡⚡⚡ AMTU (Abstract Machine Test Utility) [11]
+         ⚡⚡⚡ LTP: openposix test suite [12]
+         ⚡⚡⚡ Ethernet drivers sanity [13]
+         ⚡⚡⚡ Networking socket: fuzz [14]
+         ⚡⚡⚡ Networking sctp-auth: sockopts test [15]
+         ⚡⚡⚡ Networking: igmp conformance test [16]
+         ⚡⚡⚡ Networking TCP: keepalive test [17]
+         ⚡⚡⚡ Networking UDP: socket [18]
+         ⚡⚡⚡ Networking tunnel: gre basic [19]
+         ⚡⚡⚡ Networking tunnel: vxlan basic [20]
+         ⚡⚡⚡ audit: audit testsuite test [21]
+         ⚡⚡⚡ httpd: mod_ssl smoke sanity [22]
+         ⚡⚡⚡ iotop: sanity [23]
+         ⚡⚡⚡ tuned: tune-processes-through-perf [24]
+         ⚡⚡⚡ Usex - version 1.9-29 [25]
+         ⚡⚡⚡ storage: SCSI VPD [26]
+         ⚡⚡⚡ stress: stress-ng [27]
+         🚧 ⚡⚡⚡ Networking route: pmtu [28]
+         🚧 ⚡⚡⚡ Networking route_func: local [29]
+         🚧 ⚡⚡⚡ Networking route_func: forward [29]
+         🚧 ⚡⚡⚡ Networking tunnel: geneve basic test [30]
+         🚧 ⚡⚡⚡ Networking ipsec: basic netns transport [31]
+         🚧 ⚡⚡⚡ Networking ipsec: basic netns tunnel [31]
+         🚧 ⚡⚡⚡ trace: ftrace/tracer [32]
 
-arm:
-    mvebu_v7_defconfig:
-        gcc-8:
-            armada-xp-openblocks-ax3-4: 1 failed lab
 
-    sunxi_defconfig:
-        gcc-8:
-            sun4i-a10-cubieboard: 1 failed lab
-            sun5i-a13-olinuxino-micro: 1 failed lab
-            sun7i-a20-cubietruck: 1 failed lab
+  ppc64le:
+      Host 1:
+         ❌ Boot test [0]
+         ⚡⚡⚡ Podman system integration test (as root) [6]
+         ⚡⚡⚡ Podman system integration test (as user) [6]
+         ⚡⚡⚡ LTP lite [7]
+         ⚡⚡⚡ Loopdev Sanity [8]
+         ⚡⚡⚡ jvm test suite [9]
+         ⚡⚡⚡ Memory function: memfd_create [10]
+         ⚡⚡⚡ AMTU (Abstract Machine Test Utility) [11]
+         ⚡⚡⚡ LTP: openposix test suite [12]
+         ⚡⚡⚡ Ethernet drivers sanity [13]
+         ⚡⚡⚡ Networking socket: fuzz [14]
+         ⚡⚡⚡ Networking sctp-auth: sockopts test [15]
+         ⚡⚡⚡ Networking TCP: keepalive test [17]
+         ⚡⚡⚡ Networking UDP: socket [18]
+         ⚡⚡⚡ Networking tunnel: gre basic [19]
+         ⚡⚡⚡ Networking tunnel: vxlan basic [20]
+         ⚡⚡⚡ audit: audit testsuite test [21]
+         ⚡⚡⚡ httpd: mod_ssl smoke sanity [22]
+         ⚡⚡⚡ iotop: sanity [23]
+         ⚡⚡⚡ tuned: tune-processes-through-perf [24]
+         ⚡⚡⚡ Usex - version 1.9-29 [25]
+         🚧 ⚡⚡⚡ Networking route: pmtu [28]
+         🚧 ⚡⚡⚡ Networking route_func: local [29]
+         🚧 ⚡⚡⚡ Networking route_func: forward [29]
+         🚧 ⚡⚡⚡ Networking tunnel: geneve basic test [30]
+         🚧 ⚡⚡⚡ Networking ipsec: basic netns tunnel [31]
+         🚧 ⚡⚡⚡ trace: ftrace/tracer [32]
 
-    imx_v6_v7_defconfig:
-        gcc-8:
-            imx6dl-riotboard: 1 failed lab
-            imx6dl-wandboard_dual: 1 failed lab
-            imx6dl-wandboard_solo: 1 failed lab
-            imx6q-wandboard: 1 failed lab
-            vf610-colibri-eval-v3: 1 failed lab
+      Host 2:
+         ❌ Boot test [0]
+         ⚡⚡⚡ xfstests: ext4 [1]
+         ⚡⚡⚡ xfstests: xfs [1]
+         ⚡⚡⚡ selinux-policy: serge-testsuite [2]
+         ⚡⚡⚡ lvm thinp sanity [3]
+         ⚡⚡⚡ storage: software RAID testing [4]
+         🚧 ⚡⚡⚡ Storage blktests [5]
 
-    omap2plus_defconfig:
-        gcc-8:
-            omap3-beagle: 1 failed lab
-            omap4-panda: 3 failed labs
 
-    multi_v7_defconfig:
-        gcc-8:
-            armada-xp-openblocks-ax3-4: 1 failed lab
-            bcm4708-smartrg-sr400ac: 1 failed lab
-            bcm72521-bcm97252sffe: 1 failed lab
-            bcm7445-bcm97445c: 1 failed lab
-            exynos4412-odroidx2: 1 failed lab
-            exynos5250-arndale: 1 failed lab
-            exynos5250-snow: 1 failed lab
-            exynos5420-arndale-octa: 1 failed lab
-            exynos5422-odroidxu3: 2 failed labs
-            exynos5800-peach-pi: 2 failed labs
-            imx6dl-riotboard: 1 failed lab
-            imx6dl-wandboard_dual: 1 failed lab
-            imx6dl-wandboard_solo: 1 failed lab
-            imx6q-sabrelite: 1 failed lab
-            imx6q-wandboard: 1 failed lab
-            meson8b-odroidc1: 2 failed labs
-            omap3-beagle: 1 failed lab
-            omap4-panda: 3 failed labs
-            qemu: 5 failed labs
-            rk3288-veyron-jaq: 1 failed lab
-            stih410-b2120: 1 failed lab
-            sun4i-a10-cubieboard: 1 failed lab
-            sun5i-a13-olinuxino-micro: 1 failed lab
-            sun7i-a20-cubietruck: 1 failed lab
-            tegra124-jetson-tk1: 2 failed labs
-            tegra20-iris-512: 1 failed lab
-            tegra30-beaver: 1 failed lab
-            vf610-colibri-eval-v3: 1 failed lab
-            zynq-zc702: 1 failed lab
+  x86_64:
+      Host 1:
+         ❌ Boot test [0]
+         ⚡⚡⚡ Podman system integration test (as root) [6]
+         ⚡⚡⚡ Podman system integration test (as user) [6]
+         ⚡⚡⚡ LTP lite [7]
+         ⚡⚡⚡ Loopdev Sanity [8]
+         ⚡⚡⚡ jvm test suite [9]
+         ⚡⚡⚡ Memory function: memfd_create [10]
+         ⚡⚡⚡ AMTU (Abstract Machine Test Utility) [11]
+         ⚡⚡⚡ LTP: openposix test suite [12]
+         ⚡⚡⚡ Ethernet drivers sanity [13]
+         ⚡⚡⚡ Networking socket: fuzz [14]
+         ⚡⚡⚡ Networking sctp-auth: sockopts test [15]
+         ⚡⚡⚡ Networking: igmp conformance test [16]
+         ⚡⚡⚡ Networking TCP: keepalive test [17]
+         ⚡⚡⚡ Networking UDP: socket [18]
+         ⚡⚡⚡ Networking tunnel: gre basic [19]
+         ⚡⚡⚡ Networking tunnel: vxlan basic [20]
+         ⚡⚡⚡ audit: audit testsuite test [21]
+         ⚡⚡⚡ httpd: mod_ssl smoke sanity [22]
+         ⚡⚡⚡ iotop: sanity [23]
+         ⚡⚡⚡ tuned: tune-processes-through-perf [24]
+         ⚡⚡⚡ pciutils: sanity smoke test [33]
+         ⚡⚡⚡ Usex - version 1.9-29 [25]
+         ⚡⚡⚡ storage: SCSI VPD [26]
+         ⚡⚡⚡ stress: stress-ng [27]
+         🚧 ⚡⚡⚡ Networking route: pmtu [28]
+         🚧 ⚡⚡⚡ Networking route_func: local [29]
+         🚧 ⚡⚡⚡ Networking route_func: forward [29]
+         🚧 ⚡⚡⚡ Networking tunnel: geneve basic test [30]
+         🚧 ⚡⚡⚡ Networking ipsec: basic netns transport [31]
+         🚧 ⚡⚡⚡ Networking ipsec: basic netns tunnel [31]
+         🚧 ⚡⚡⚡ trace: ftrace/tracer [32]
 
-    davinci_all_defconfig:
-        gcc-8:
-            da850-evm: 1 failed lab
-            dm365evm,legacy: 1 failed lab
+      Host 2:
+         ❌ Boot test [0]
+         ⚡⚡⚡ xfstests: ext4 [1]
+         ⚡⚡⚡ xfstests: xfs [1]
+         ⚡⚡⚡ selinux-policy: serge-testsuite [2]
+         ⚡⚡⚡ lvm thinp sanity [3]
+         ⚡⚡⚡ storage: software RAID testing [4]
+         🚧 ⚡⚡⚡ Storage blktests [5]
 
-    tegra_defconfig:
-        gcc-8:
-            tegra124-jetson-tk1: 2 failed labs
-            tegra20-iris-512: 1 failed lab
-            tegra30-beaver: 1 failed lab
 
-    exynos_defconfig:
-        gcc-8:
-            exynos4412-odroidx2: 1 failed lab
-            exynos5250-arndale: 1 failed lab
-            exynos5250-snow: 1 failed lab
-            exynos5420-arndale-octa: 1 failed lab
-            exynos5422-odroidxu3: 2 failed labs
-            exynos5800-peach-pi: 2 failed labs
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/container/podman
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/jvm
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/memory/function/memfd_create
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
+    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
+    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
+    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/igmp/conformance
+    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/tcp/tcp_keepalive
+    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/udp/udp_socket
+    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/gre/basic
+    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/vxlan/basic
+    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [22]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [23]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [24]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [25]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [26]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
+    [27]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [28]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
+    [29]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/route_func
+    [30]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/geneve/basic
+    [31]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/ipsec/ipsec_basic/ipsec_basic_netns
+    [32]: https://github.com/CKI-project/tests-beaker/archive/master.zip#trace/ftrace/tracer
+    [33]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
 
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-
-arm:
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-    sama5_defconfig:
-        gcc-8
-            at91-sama5d4_xplained: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            alpine-db: 1 offline lab
-            at91-sama5d4_xplained: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
