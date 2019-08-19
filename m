@@ -2,93 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 243AA91BBE
-	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 06:14:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CA2B91BC7
+	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 06:18:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725846AbfHSEOs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Aug 2019 00:14:48 -0400
-Received: from m12-17.163.com ([220.181.12.17]:48714 "EHLO m12-17.163.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725308AbfHSEOs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Aug 2019 00:14:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-        s=s110527; h=Date:From:Subject:Message-ID:MIME-Version; bh=x0nxG
-        PuZl6OzRvhI9JteYOTIS9V5/De0DOoCRwbKaa0=; b=diS2vgq1plYI9D/2d5FjR
-        jHQknkIjEfCb3tBQF62KjBe3nVG5AMpilVTllP5NLmZsa5OxOglJBUSsp3h3kqUu
-        w6MP/qJRK+f9wmaK5E4i5c84ZjGyjs341lAaX4LAC+UY5TL9Kf13r3seh0ETg0r4
-        98mfjQiCtJ5NswDaIo6Xyo=
-Received: from sise (unknown [202.112.113.212])
-        by smtp13 (Coremail) with SMTP id EcCowADHzAkvIlpdvAaPIg--.63341S2;
-        Mon, 19 Aug 2019 12:14:40 +0800 (CST)
-Date:   Mon, 19 Aug 2019 12:14:39 +0800
-From:   PanBian <bianpan2016@163.com>
-To:     Ming Lei <ming.lei@redhat.com>
-Cc:     Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH V2] block/bio-integrity: fix mismatched alloc free
-Message-ID: <20190819041439.GA23459@sise>
-Reply-To: PanBian <bianpan2016@163.com>
-References: <1566176353-20157-1-git-send-email-bianpan2016@163.com>
- <20190819035613.GC3086@ming.t460p>
+        id S1726227AbfHSESo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Aug 2019 00:18:44 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:50913 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726132AbfHSESo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Aug 2019 00:18:44 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 4480921CFD;
+        Mon, 19 Aug 2019 00:18:43 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 19 Aug 2019 00:18:43 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=3
+        NxNxboZi1dfIdQqxAbOEbn4zJzRNwd0Snbrqn0TNzs=; b=d6i3nvlynz6QGt9mJ
+        nT9/QChVjg0GG02zdFNDtYz1lp+RtSPT8lFFnitNpM6XYRiRMHm6/AS5n2N/kqIs
+        CUhOPDpxJF0QzDVOSV81JSoL0jdzORJ11xiqvkQN9d9jJY+gYA7vpkQ6GRFZyvSC
+        t9fwfdeKOlgt4Nh1xQu1H7u4AaqUqkZWZ2NbG76hGoTZAJFi3kbPAPGDi8IRUvHQ
+        3AVxKbdB5dfynimB49hVqe036BUljtBFhXiYy+rzuTjpmtn1mYENSL3iK2RhepqB
+        ENDC33SDCCYENdN0cuGwRCsZJYt7wAQqJcrv1cmD8d591Yupdxu7joBvwUXDz/xZ
+        Og4Bw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; bh=3NxNxboZi1dfIdQqxAbOEbn4zJzRNwd0Snbrqn0TN
+        zs=; b=sqv43yPvwlV9c0gNGTySfzgQ6h3CDunCKsMhbOHy6lXlfse12HNPKUWwN
+        PD0FHFwSQmAdAw6t4JWVXwdusKO0WsLzxcJ0pa3uaTm2o0ZjxXxemY09fYANLIbQ
+        Pb4txYWY+2sYOpntBFfM9gLt2A8gm08/H673F3OvHcQXfXo55LSmcUgkJU288VLh
+        TJjWdBt3Y02kdfwxC5t5ARB+PST64HX88xdRSEl9joSm2Te/KajAyp7MNjm/I+vE
+        hfhoApFm1FhzyOxSHhECfedLRGzxwEOoOlj5Pnf5UfKUIoN6oJBmTTqaNY273baQ
+        cVOs+/Q1ycPZcvtwGPKbCgZwvk2/Q==
+X-ME-Sender: <xms:IiNaXcMSYvCkVPdwHUI6NBbh_rGA7rsW35zlfPMb2glW8ZlAOUNaFQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudefkedgkeduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtugfgjggfsehtkeertddtreejnecuhfhrohhmpefirhgv
+    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucffohhmrghinheptghkihdqph
+    hrohhjvggtthdrohhrghdpkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledr
+    uddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmne
+    cuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:IiNaXefBc39yfTrBTKrptKhk0GVmh06AzP4Bg6egT-aLLG3UQ4hsww>
+    <xmx:IiNaXZtDFN0fTxF6GFOkWSP7QElD6FOQU5nLJsPqXnyPcI1XiY6v0w>
+    <xmx:IiNaXfnHV0jj01wQiLmwcu-1fmE6aGR1pEPHZojrJUfWQTzx8kGGvA>
+    <xmx:IyNaXbYxduP9H1CuhWE6IenSxWyzW2GaY3pHcajYJzWHilCHSFdfuQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5B58E80060;
+        Mon, 19 Aug 2019 00:18:42 -0400 (EDT)
+Date:   Mon, 19 Aug 2019 06:18:40 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Holger =?iso-8859-1?Q?Hoffst=E4tte?= 
+        <holger@applied-asynchrony.com>
+Cc:     CKI Project <cki-project@redhat.com>,
+        Linux Stable maillist <stable@vger.kernel.org>
+Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
+ 5.2.10-rc1-61d06c6.cki (stable)
+Message-ID: <20190819041840.GB24625@kroah.com>
+References: <cki.8FD44CAC8D.KLM2TF66J1@redhat.com>
+ <20190818184900.GE2791@kroah.com>
+ <843a068f-9a67-f3a0-cef6-a51f29616705@applied-asynchrony.com>
+ <38430602-3b5e-5217-aeae-13fcd82a9c1f@applied-asynchrony.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20190819035613.GC3086@ming.t460p>
-User-Agent: Mutt/1.5.24 (2015-08-30)
-X-CM-TRANSID: EcCowADHzAkvIlpdvAaPIg--.63341S2
-X-Coremail-Antispam: 1Uf129KBjvJXoW7ZFykCFWfGr4rAF1fAFyfCrg_yoW8Gr4Dpw
-        4kKayYkF4jgFyIkF4DA3W3ZF10g34xurWUWr13A34Fy347C3WSgr1q9ryFgry09rWYkrWI
-        yFWYgryqk3s8A3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jVc_fUUUUU=
-X-Originating-IP: [202.112.113.212]
-X-CM-SenderInfo: held01tdqsiiqw6rljoofrz/1tbiQBAWclSIcBkc9QAAso
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <38430602-3b5e-5217-aeae-13fcd82a9c1f@applied-asynchrony.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 19, 2019 at 11:56:14AM +0800, Ming Lei wrote:
-> On Mon, Aug 19, 2019 at 08:59:13AM +0800, Pan Bian wrote:
-> > The function kmalloc rather than mempool_alloc is called to allocate
-> > memory when the memory pool is unavailable. However, mempool_alloc is
-> > used to release the memory chunck in both cases when error occurs. This
-> > patch fixes the bug.
+On Sun, Aug 18, 2019 at 11:57:05PM +0200, Holger Hoffstätte wrote:
+> On 8/18/19 10:38 PM, Holger Hoffstätte wrote:
+> > On 8/18/19 8:49 PM, Greg KH wrote:
+> > > On Sun, Aug 18, 2019 at 02:31:22PM -0400, CKI Project wrote:
+> > > > 
+> > > > Hello,
+> > > > 
+> > > > We ran automated tests on a recent commit from this kernel tree:
+> > > > 
+> > > >         Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+> > > >              Commit: 61d06c60569f - Linux 5.2.10-rc1
+> > > > 
+> > > > The results of these automated tests are provided below.
+> > > > 
+> > > >      Overall result: FAILED (see details below)
+> > > >               Merge: OK
+> > > >             Compile: OK
+> > > >               Tests: FAILED
+> > > > 
+> > > > All kernel binaries, config files, and logs are available for download here:
+> > > > 
+> > > >    https://artifacts.cki-project.org/pipelines/108998
+> > > > 
+> > > > 
+> > > > 
+> > > > One or more kernel tests failed:
+> > > > 
+> > > >    aarch64:
+> > > >      ❌ Boot test
+> > > >      ❌ Boot test
+> > > > 
+> > > >    ppc64le:
+> > > >      ❌ Boot test
+> > > >      ❌ Boot test
+> > > > 
+> > > >    x86_64:
+> > > >      ❌ Boot test
+> > > >      ❌ Boot test
+> > > > 
+> > > 
+> > > Are these all real?
+> > > 
 > > 
-> > Fixes: 9f060e2231c ("block: Convert integrity to bvec_alloc_bs()")
-> > Signed-off-by: Pan Bian <bianpan2016@163.com>
-> > Cc: stable@vger.kernel.org
-> > ---
-> > V2: add Fixes and CC tags
-> > ---
-> >  block/bio-integrity.c | 5 ++++-
-> >  1 file changed, 4 insertions(+), 1 deletion(-)
+> > Hi Greg,
 > > 
-> > diff --git a/block/bio-integrity.c b/block/bio-integrity.c
-> > index fb95dbb..011dfc8 100644
-> > --- a/block/bio-integrity.c
-> > +++ b/block/bio-integrity.c
-> > @@ -75,7 +75,10 @@ struct bio_integrity_payload *bio_integrity_alloc(struct bio *bio,
-> >  
-> >  	return bip;
-> >  err:
-> > -	mempool_free(bip, &bs->bio_integrity_pool);
-> > +	if (!bs || !mempool_initialized(&bs->bio_integrity_pool))
-> > +		kfree(bip);
-> > +	else
-> > +		mempool_free(bip, &bs->bio_integrity_pool);
-> >  	return ERR_PTR(-ENOMEM);
-> >  }
-> >  EXPORT_SYMBOL(bio_integrity_alloc);
+> > the current 5.2-queue also fails to boot for me when applied to 5.2.9,
+> > so this is not a false positive. I had a handful of the queued patches in my
+> > own tree and know which ones work in 5.2.9, but the new ones for -mm look
+> > like they could cause problems. I'll try a few things..
 > 
-> 'err' is still reached in case that 'bs' is valid, so fix nothing.
-
-You are right! It's my fault.
-
-Thanks,
-Pan
-
+> The culprit is "exit-make-setting-exit_state-consistent.patch", which was
+> successfully added everywhere. This explains why KCI is consistently sad
+> everywhere, too. :)
 > 
+> Removing that patch from the queue results in a working kernel (with the
+> version updated by me):
 > 
-> Thanks,
-> Ming
+> $cat /proc/version
+> Linux version 5.2.10 (root@ragnarok) (gcc version 9.2.0 (Gentoo 9.2.0 p1)) #1 SMP Sun Aug 18 23:50:50 CEST 2019
 
+Thanks for this, looks like kernelci and Linaro's testing are all
+failing as well, so this isn't isolated.
+
+Sasha, the above commit relies on commit b191d6491be6 ("pidfd: fix a
+poll race when setting exit_state") which is in 5.3-rc, so I'll drop it
+from everywhere now...
+
+thanks,
+
+greg k-h
