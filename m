@@ -2,62 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38635927C0
-	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 16:58:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E10039489E
+	for <lists+stable@lfdr.de>; Mon, 19 Aug 2019 17:38:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726295AbfHSO6J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Aug 2019 10:58:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46924 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725536AbfHSO6J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Aug 2019 10:58:09 -0400
-Received: from [192.168.0.101] (unknown [180.111.132.43])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F9E12082A;
-        Mon, 19 Aug 2019 14:58:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566226688;
-        bh=30KXwFIbBf11OqNG82++ljRpNTjhb/YlByVeH2DvVjY=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=e5cgjRL4TTBuhsXHXIIXE72dDJYCh1Conr5rBZPraLrYdJ7VKbKaG9gghWkaTL60a
-         p6UYq+npZCh4Ng4iSSFyOWV6aMHyJALe8FKZDTo7/2+fB12WMZ67Flyv/4TnIaI7/r
-         y7fXeIvuwEB7dkT9G9Ma+/UMVs/NQHKmX9QR+PAA=
-Subject: Re: [PATCH 6/6] staging: erofs: avoid endless loop of invalid
- lookback distance 0
-To:     Gao Xiang <gaoxiang25@huawei.com>, Chao Yu <yuchao0@huawei.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        devel@driverdev.osuosl.org, linux-fsdevel@vger.kernel.org
-Cc:     LKML <linux-kernel@vger.kernel.org>, linux-erofs@lists.ozlabs.org,
-        Miao Xie <miaoxie@huawei.com>, weidu.du@huawei.com,
-        Fang Wei <fangwei1@huawei.com>, stable@vger.kernel.org
-References: <20190819080218.GA42231@138>
- <20190819103426.87579-1-gaoxiang25@huawei.com>
- <20190819103426.87579-7-gaoxiang25@huawei.com>
-From:   Chao Yu <chao@kernel.org>
-Message-ID: <a8454de9-dbee-c69c-5763-1648df730211@kernel.org>
-Date:   Mon, 19 Aug 2019 22:58:04 +0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.9.1
+        id S1727094AbfHSPi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Aug 2019 11:38:28 -0400
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:48461 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725536AbfHSPi2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Aug 2019 11:38:28 -0400
+Received: from heimdall.vpn.pengutronix.de ([2001:67c:670:205:1d::14] helo=blackshift.org)
+        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1hzjjj-0007p0-FR; Mon, 19 Aug 2019 17:38:23 +0200
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     linux-can@vger.kernel.org
+Cc:     t.schluessler@krause.de, shc_work@mail.ru,
+        Sean Nyekjaer <sean@geanix.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        linux-stable <stable@vger.kernel.org>
+Subject: [PATCH 6/9] can: mcp251x: mcp251x_hw_reset(): allow more time after a reset
+Date:   Mon, 19 Aug 2019 17:38:15 +0200
+Message-Id: <20190819153818.29293-7-mkl@pengutronix.de>
+X-Mailer: git-send-email 2.23.0.rc1
+In-Reply-To: <20190819153818.29293-1-mkl@pengutronix.de>
+References: <20190819153818.29293-1-mkl@pengutronix.de>
 MIME-Version: 1.0
-In-Reply-To: <20190819103426.87579-7-gaoxiang25@huawei.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:205:1d::14
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2019-8-19 18:34, Gao Xiang wrote:
-> As reported by erofs-utils fuzzer, Lookback distance should
-> be a positive number, so it should be actually looked back
-> rather than spinning.
-> 
-> Fixes: 02827e1796b3 ("staging: erofs: add erofs_map_blocks_iter")
-> Cc: <stable@vger.kernel.org> # 4.19+
-> Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+Some boards take longer than 5ms to power up after a reset, so allow
+some retries attempts before giving up.
 
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Fixes: ff06d611a31c ("can: mcp251x: Improve mcp251x_hw_reset()")
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+---
+ drivers/net/can/spi/mcp251x.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-Thanks,
+diff --git a/drivers/net/can/spi/mcp251x.c b/drivers/net/can/spi/mcp251x.c
+index 44b57187a6f3..db69c04bac2d 100644
+--- a/drivers/net/can/spi/mcp251x.c
++++ b/drivers/net/can/spi/mcp251x.c
+@@ -606,7 +606,7 @@ static int mcp251x_setup(struct net_device *net, struct spi_device *spi)
+ static int mcp251x_hw_reset(struct spi_device *spi)
+ {
+ 	struct mcp251x_priv *priv = spi_get_drvdata(spi);
+-	u8 reg;
++	unsigned long timeout;
+ 	int ret;
+ 
+ 	/* Wait for oscillator startup timer after power up */
+@@ -620,10 +620,19 @@ static int mcp251x_hw_reset(struct spi_device *spi)
+ 	/* Wait for oscillator startup timer after reset */
+ 	mdelay(MCP251X_OST_DELAY_MS);
+ 
+-	reg = mcp251x_read_reg(spi, CANSTAT);
+-	if ((reg & CANCTRL_REQOP_MASK) != CANCTRL_REQOP_CONF)
+-		return -ENODEV;
+-
++	/* Wait for reset to finish */
++	timeout = jiffies + HZ;
++	while ((mcp251x_read_reg(spi, CANSTAT) & CANCTRL_REQOP_MASK) !=
++	       CANCTRL_REQOP_CONF) {
++		usleep_range(MCP251X_OST_DELAY_MS * 1000,
++			     MCP251X_OST_DELAY_MS * 1000 * 2);
++
++		if (time_after(jiffies, timeout)) {
++			dev_err(&spi->dev,
++				"MCP251x didn't enter in conf mode after reset\n");
++			return -EBUSY;
++		}
++	}
+ 	return 0;
+ }
+ 
+-- 
+2.23.0.rc1
+
