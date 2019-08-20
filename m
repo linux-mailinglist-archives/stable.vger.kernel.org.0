@@ -2,139 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8704A9706A
-	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 05:35:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B4D29707E
+	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 05:48:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727269AbfHUDfw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Aug 2019 23:35:52 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:46408 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726838AbfHUDfv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Aug 2019 23:35:51 -0400
-Received: by mail-wr1-f65.google.com with SMTP id z1so530378wru.13
-        for <stable@vger.kernel.org>; Tue, 20 Aug 2019 20:35:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Tpm0x2hPwVG4TByEPptdlpwGapXEk8P/PzUPWQ47YLM=;
-        b=va/H6Dd94VLkPD/jOWeKcnqTp5qICOYjeC3/hKJSY6UAGecFi4XbUqLeqfxOCmeyht
-         uXCc+h2ZuQDNYbEBDsFULDKnOt2ncS3USK4jl1R+d5BSBsrDw5ueF4Kfllp3y+F5qJQp
-         ujeJlccKirt/oIXdM4jJL9YjR6XWC5HpANaUzGHqXMHBMvWV6xedU/x/+q7wxol6tWOE
-         hAWgdhYlFWsgdaWhC+BP9UwL78nCvy+cmTnixDMh5HiOva0cBfveGOYmcFB70nCpa9yf
-         AQVVzKT25yotNVm6AAmXmBAGCkSs882fjy3mq7RU+UCilGNtpyd5c9AcLESU0jNVVdyp
-         FRUA==
+        id S1726673AbfHUDsB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Aug 2019 23:48:01 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:34667 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726601AbfHUDsA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Aug 2019 23:48:00 -0400
+Received: by mail-pg1-f194.google.com with SMTP id n9so517244pgc.1;
+        Tue, 20 Aug 2019 20:48:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Tpm0x2hPwVG4TByEPptdlpwGapXEk8P/PzUPWQ47YLM=;
-        b=rHhL2hx6paKKaZH3JGDVlaSZ0XFKeYyWQrJ3+BKzk5G3kuiFT09hm/IIYsKCNXLVAa
-         RszHcdDEiKqrahRpdXBpQSac/xdbP2ShrPuEUVsQZSLl/fKWOLVQDO+Ll5YQ4ILPJIZ4
-         pcqhPhUWZ82asLDk4ekn0KEI96hudkD1YcbR1iMIUPMDyI4+uH+aq+T8yXOy+fG4Ze6P
-         NLniP1GBXKot6mcToEjVvekNmHvp2NuGWwGWARsPj8XIRlpxo2c2j0UWeQ/uh9/6olJL
-         Q1s6rwAZJei42/ORDL+R+FW5rI+zFbQBYrjnXa+9Gfa8co4Q/sDlaJowcmaIQA83Ngqy
-         bKYg==
-X-Gm-Message-State: APjAAAU48XxEAQqwzZnlzRWQAHQ9s0FeM/dl4W2cdbDOCjc/zC+8P0wI
-        dRHMUQSVnbQYOmVgF9MtN3ZppFboWMm6Rg==
-X-Google-Smtp-Source: APXvYqye11Rqvh0uQDTZO4ZJnlo5zCDkXV5WqGYY5H73WvWJMEyd2C+F9BUQRYrOHWucGxhTD0tubw==
-X-Received: by 2002:adf:de02:: with SMTP id b2mr37993691wrm.204.1566358549890;
-        Tue, 20 Aug 2019 20:35:49 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id g7sm2949820wme.17.2019.08.20.20.35.48
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Aug 2019 20:35:48 -0700 (PDT)
-Message-ID: <5d5cbc14.1c69fb81.6e8e3.ce85@mx.google.com>
-Date:   Tue, 20 Aug 2019 20:35:48 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.139-61-gbd132fe9de83
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y boot: 129 boots: 2 failed,
- 118 passed with 9 offline (v4.14.139-61-gbd132fe9de83)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=SrFWC17xwJEJa4p6/Sn5RGFtwj8GJ2HsGVtuMd6BeF0=;
+        b=H6nCqaybrrOeV9XvO7rt6Q3es1Zko3lz2dO9Ruy9O7q2eDWqZEQ9y6fLuUzqca/i9g
+         xjDTfyN4Sm4uhsz3UADSDm4eziMTV+WCv1gwp0+jSK6B5txqOO1UIsj3twmuWbqE+Y1S
+         L9LvJevNIjvPyrgwySEtz32/NaFx6YNtzXa5s41IMngBawzItd8LwuMa9+QlnGHEG4p4
+         NQoEcUZubz3+xrlbO71oIV37aO5yAXqHSpz6p9MvI+/2SzBdSn8foR0Frs34A0+bXxKH
+         PRiMxxKVJOCTFuOppQdsTBaU6aGKpFh1JODVeEWIsa8tqLVkvkC3MmNZAjMOcD9SNnaW
+         8yZg==
+X-Gm-Message-State: APjAAAVjQqFAD9IL1MG0WBgwfNJF1Rze0Uer2b52wD3C1HRD5ZP8lwQm
+        FhPt2v2RLYxegm9xmKQNriTf0xIJL8t5sg==
+X-Google-Smtp-Source: APXvYqxnVHzSylWdbGFrfTRQIBfuFgjU/wa/Q5L6gf8yTQNp7Kq6vOaWdHQINUtasyA8c/pHoVwnAw==
+X-Received: by 2002:a17:90a:33ed:: with SMTP id n100mr3307855pjb.19.1566359279798;
+        Tue, 20 Aug 2019 20:47:59 -0700 (PDT)
+Received: from sc2-haas01-esx0118.eng.vmware.com ([66.170.99.1])
+        by smtp.gmail.com with ESMTPSA id j12sm20315167pff.4.2019.08.20.20.47.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Aug 2019 20:47:59 -0700 (PDT)
+From:   Nadav Amit <namit@vmware.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arnd Bergmann <arnd@arndb.de>
+Cc:     linux-kernel@vger.kernel.org,
+        Francois Rigault <rigault.francois@gmail.com>,
+        Nadav Amit <namit@vmware.com>,
+        Jorgen Hansen <jhansen@vmware.com>,
+        Adit Ranadive <aditr@vmware.com>,
+        Alexios Zavras <alexios.zavras@intel.com>,
+        Vishnu DASA <vdasa@vmware.com>, stable@vger.kernel.org
+Subject: [PATCH] VMCI: Release resource if the work is already queued
+Date:   Tue, 20 Aug 2019 13:26:38 -0700
+Message-Id: <20190820202638.49003-1-namit@vmware.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 129 boots: 2 failed, 118 passed with 9 offline=
- (v4.14.139-61-gbd132fe9de83)
+Francois reported that VMware balloon gets stuck after a balloon reset,
+when the VMCI doorbell is removed. A similar error can occur when the
+balloon driver is removed with the following splat:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.139-61-gbd132fe9de83/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.139-61-gbd132fe9de83/
+[ 1088.622000] INFO: task modprobe:3565 blocked for more than 120 seconds.
+[ 1088.622035]       Tainted: G        W         5.2.0 #4
+[ 1088.622087] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[ 1088.622205] modprobe        D    0  3565   1450 0x00000000
+[ 1088.622210] Call Trace:
+[ 1088.622246]  __schedule+0x2a8/0x690
+[ 1088.622248]  schedule+0x2d/0x90
+[ 1088.622250]  schedule_timeout+0x1d3/0x2f0
+[ 1088.622252]  wait_for_completion+0xba/0x140
+[ 1088.622320]  ? wake_up_q+0x80/0x80
+[ 1088.622370]  vmci_resource_remove+0xb9/0xc0 [vmw_vmci]
+[ 1088.622373]  vmci_doorbell_destroy+0x9e/0xd0 [vmw_vmci]
+[ 1088.622379]  vmballoon_vmci_cleanup+0x6e/0xf0 [vmw_balloon]
+[ 1088.622381]  vmballoon_exit+0x18/0xcc8 [vmw_balloon]
+[ 1088.622394]  __x64_sys_delete_module+0x146/0x280
+[ 1088.622408]  do_syscall_64+0x5a/0x130
+[ 1088.622410]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[ 1088.622415] RIP: 0033:0x7f54f62791b7
+[ 1088.622421] Code: Bad RIP value.
+[ 1088.622421] RSP: 002b:00007fff2a949008 EFLAGS: 00000206 ORIG_RAX: 00000000000000b0
+[ 1088.622426] RAX: ffffffffffffffda RBX: 000055dff8b55d00 RCX: 00007f54f62791b7
+[ 1088.622426] RDX: 0000000000000000 RSI: 0000000000000800 RDI: 000055dff8b55d68
+[ 1088.622427] RBP: 000055dff8b55d00 R08: 00007fff2a947fb1 R09: 0000000000000000
+[ 1088.622427] R10: 00007f54f62f5cc0 R11: 0000000000000206 R12: 000055dff8b55d68
+[ 1088.622428] R13: 0000000000000001 R14: 000055dff8b55d68 R15: 00007fff2a94a3f0
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.139-61-gbd132fe9de83
-Git Commit: bd132fe9de8318eef453cded850f3d7599e8918c
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 68 unique boards, 25 SoC families, 16 builds out of 201
+The cause for the bug is that when the "delayed" doorbell is invoked, it
+takes a reference on the doorbell entry and schedules work that is
+supposed to run the appropriate code and drop the doorbell entry
+reference. The code ignores the fact that if the work is already queued,
+it will not be scheduled to run one more time. As a result one of the
+references would not be dropped. When the code waits for the reference
+to get to zero, during balloon reset or module removal, it gets stuck.
 
-Boot Regressions Detected:
+Fix it. Drop the reference if schedule_work() indicates that the work is
+already queued.
 
-arm:
+Note that this bug got more apparent (or apparent at all) due to
+commit ce664331b248 ("vmw_balloon: VMCI_DOORBELL_SET does not check status").
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 6 days (last pass: v4.14.=
-138 - first fail: v4.14.138-70-g736c2f07319a)
-          qcom-apq8064-ifc6410:
-              lab-baylibre-seattle: failing since 6 days (last pass: v4.14.=
-138 - first fail: v4.14.138-70-g736c2f07319a)
-
-Boot Failures Detected:
-
-arc:
-    hsdk_defconfig:
-        gcc-8:
-            hsdk: 1 failed lab
-
-arm64:
-    defconfig:
-        gcc-8:
-            rk3399-firefly: 1 failed lab
-
-Offline Platforms:
-
-mips:
-
-    pistachio_defconfig:
-        gcc-8
-            pistachio_marduk: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-            meson-gxbb-odroidc2: 1 offline lab
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
+Fixes: 83e2ec765be03 ("VMCI: doorbell implementation.")
+Reported-by: Francois Rigault <rigault.francois@gmail.com>
+Cc: Jorgen Hansen <jhansen@vmware.com>
+Cc: Adit Ranadive <aditr@vmware.com>
+Cc: Alexios Zavras <alexios.zavras@intel.com>
+Cc: Vishnu DASA <vdasa@vmware.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Nadav Amit <namit@vmware.com>
 ---
-For more info write to <info@kernelci.org>
+ drivers/misc/vmw_vmci/vmci_doorbell.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/misc/vmw_vmci/vmci_doorbell.c b/drivers/misc/vmw_vmci/vmci_doorbell.c
+index bad89b6e0802..345addd9306d 100644
+--- a/drivers/misc/vmw_vmci/vmci_doorbell.c
++++ b/drivers/misc/vmw_vmci/vmci_doorbell.c
+@@ -310,7 +310,8 @@ int vmci_dbell_host_context_notify(u32 src_cid, struct vmci_handle handle)
+ 
+ 	entry = container_of(resource, struct dbell_entry, resource);
+ 	if (entry->run_delayed) {
+-		schedule_work(&entry->work);
++		if (!schedule_work(&entry->work))
++			vmci_resource_put(resource);
+ 	} else {
+ 		entry->notify_cb(entry->client_data);
+ 		vmci_resource_put(resource);
+@@ -361,7 +362,8 @@ static void dbell_fire_entries(u32 notify_idx)
+ 		    atomic_read(&dbell->active) == 1) {
+ 			if (dbell->run_delayed) {
+ 				vmci_resource_get(&dbell->resource);
+-				schedule_work(&dbell->work);
++				if (!schedule_work(&dbell->work))
++					vmci_resource_put(&dbell->resource);
+ 			} else {
+ 				dbell->notify_cb(dbell->client_data);
+ 			}
+-- 
+2.19.1
+
