@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6FF196161
-	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:47:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D0E596164
+	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:47:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730308AbfHTNlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Aug 2019 09:41:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35996 "EHLO mail.kernel.org"
+        id S1729927AbfHTNrA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Aug 2019 09:47:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730237AbfHTNlD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Aug 2019 09:41:03 -0400
+        id S1730297AbfHTNlE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Aug 2019 09:41:04 -0400
 Received: from sasha-vm.mshome.net (unknown [12.236.144.82])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5697E22DD6;
-        Tue, 20 Aug 2019 13:41:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DD702339E;
+        Tue, 20 Aug 2019 13:41:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566308462;
-        bh=d9lIxdX9yqd054+qA9ZkWFnVkkDQMDKjxGSQ9L5h+bw=;
+        s=default; t=1566308463;
+        bh=xDZTjVoZvCxRb8ybEkwNFnJ33mOFuIrB+A1ci7N1Izg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hNVwdgCf6lsS4ljgSeUjRJo82CH3eWfa4ZnqVaVupiBSTgQaFV5i6P868zU5qx4KL
-         eMkDY+8oWBrCxzSRTzgf+dR+6f8aV9JOkpU7MXNzC8mFk6y12bTbEePRirj1Xblqvn
-         HQJr3euHfrW2EchHpeI53dSF+wbnsNAfinATpiF4=
+        b=Su9UAqdjURdyJ739zQeWYkm3uiEWc4rmvcOhRPRjRy4+d0Xur+3RaMSbF07vg9Vmx
+         XBMEeujy9OksFBYjDpnJ9yZJo7O72dYEDmersSDV1vEYO3Sg+iY3zRJ4TT+5Lo0iLX
+         QeUTPZu5YQkz3MDiBdpEM6peGcDh/nSbXkXZEMhQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robin Murphy <robin.murphy@arm.com>,
-        Nicolin Chen <nicoleotsuka@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>,
+Cc:     Lucas Stach <l.stach@pengutronix.de>,
+        Atish Patra <atish.patra@wdc.com>,
+        Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>,
         iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.2 26/44] iommu/dma: Handle SG length overflow better
-Date:   Tue, 20 Aug 2019 09:40:10 -0400
-Message-Id: <20190820134028.10829-26-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 27/44] dma-direct: don't truncate dma_required_mask to bus addressing capabilities
+Date:   Tue, 20 Aug 2019 09:40:11 -0400
+Message-Id: <20190820134028.10829-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190820134028.10829-1-sashal@kernel.org>
 References: <20190820134028.10829-1-sashal@kernel.org>
@@ -45,45 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit ab2cbeb0ed301a9f0460078e91b09f39958212ef ]
+[ Upstream commit d8ad55538abe443919e20e0bb996561bca9cad84 ]
 
-Since scatterlist dimensions are all unsigned ints, in the relatively
-rare cases where a device's max_segment_size is set to UINT_MAX, then
-the "cur_len + s_length <= max_len" check in __finalise_sg() will always
-return true. As a result, the corner case of such a device mapping an
-excessively large scatterlist which is mergeable to or beyond a total
-length of 4GB can lead to overflow and a bogus truncated dma_length in
-the resulting segment.
+The dma required_mask needs to reflect the actual addressing capabilities
+needed to handle the whole system RAM. When truncated down to the bus
+addressing capabilities dma_addressing_limited() will incorrectly signal
+no limitations for devices which are restricted by the bus_dma_mask.
 
-As we already assume that any single segment must be no longer than
-max_len to begin with, this can easily be addressed by reshuffling the
-comparison.
-
-Fixes: 809eac54cdd6 ("iommu/dma: Implement scatterlist segment merging")
-Reported-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Tested-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: b4ebe6063204 (dma-direct: implement complete bus_dma_mask handling)
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Tested-by: Atish Patra <atish.patra@wdc.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/dma-iommu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/dma/direct.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-index 379318266468c..8c02d2283d647 100644
---- a/drivers/iommu/dma-iommu.c
-+++ b/drivers/iommu/dma-iommu.c
-@@ -710,7 +710,7 @@ static int __finalise_sg(struct device *dev, struct scatterlist *sg, int nents,
- 		 * - and wouldn't make the resulting output segment too long
- 		 */
- 		if (cur_len && !s_iova_off && (dma_addr & seg_mask) &&
--		    (cur_len + s_length <= max_len)) {
-+		    (max_len - cur_len >= s_length)) {
- 			/* ...then concatenate it with the previous one */
- 			cur_len += s_length;
- 		} else {
+diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
+index 2c2772e9702ab..9912be7a970de 100644
+--- a/kernel/dma/direct.c
++++ b/kernel/dma/direct.c
+@@ -55,9 +55,6 @@ u64 dma_direct_get_required_mask(struct device *dev)
+ {
+ 	u64 max_dma = phys_to_dma_direct(dev, (max_pfn - 1) << PAGE_SHIFT);
+ 
+-	if (dev->bus_dma_mask && dev->bus_dma_mask < max_dma)
+-		max_dma = dev->bus_dma_mask;
+-
+ 	return (1ULL << (fls64(max_dma) - 1)) * 2 - 1;
+ }
+ 
 -- 
 2.20.1
 
