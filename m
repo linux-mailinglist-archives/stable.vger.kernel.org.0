@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60CD09613B
-	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:47:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EC689614E
+	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:47:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730579AbfHTNmT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Aug 2019 09:42:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37596 "EHLO mail.kernel.org"
+        id S1730071AbfHTNqP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Aug 2019 09:46:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729956AbfHTNmT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Aug 2019 09:42:19 -0400
+        id S1730576AbfHTNmU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Aug 2019 09:42:20 -0400
 Received: from sasha-vm.mshome.net (unknown [12.236.144.82])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03C5422DD6;
-        Tue, 20 Aug 2019 13:42:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA1F82332B;
+        Tue, 20 Aug 2019 13:42:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566308538;
-        bh=QSnNxxMoohRzifLH0u+uYpnq0gUgkQHKqDHmE1Cvx4c=;
+        s=default; t=1566308539;
+        bh=U1wmmqt8IFCCBee96fUQLklIQ9/Yo6GEXftgBp6Hmrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gw6Y8jL731kSFpJycv4r3FgG6kdBAiv4N8nhSOqkE0JkT/kGSDlMLlN79+DwFTRrG
-         AyUR0u4iR8FBDit7C0GJy3oIdJmTSPtrxMWfJAbX5AXu4oAadEEbC6+S+apG+auK2q
-         zmXMXB6lV1iniqbw2dbw9dGHKryR2nWVcMYgNzbk=
+        b=VDbCA0OHHzSjVMSCVxjueD0FjeJ1oRRwRhEl6v6DUOQg+ZJVBajG06xh3H3vZJ1+7
+         Io0UCQmJHm4Hu97vduBJxQng1RaWjKy0RguzfPPeQuYcg6xyHRZroX41vX1lj4uagh
+         ekKaLy0acvmwaWcLl9OM+vXmgff7GYBNzhBK/MGo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
-        David Howells <dhowells@redhat.com>,
+Cc:     David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 05/27] fs: afs: Fix a possible null-pointer dereference in afs_put_read()
-Date:   Tue, 20 Aug 2019 09:41:51 -0400
-Message-Id: <20190820134213.11279-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 06/27] afs: Only update d_fsdata if different in afs_d_revalidate()
+Date:   Tue, 20 Aug 2019 09:41:52 -0400
+Message-Id: <20190820134213.11279-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190820134213.11279-1-sashal@kernel.org>
 References: <20190820134213.11279-1-sashal@kernel.org>
@@ -43,55 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit a6eed4ab5dd4bfb696c1a3f49742b8d1846a66a0 ]
+[ Upstream commit 5dc84855b0fc7e1db182b55c5564fd539d6eff92 ]
 
-In afs_read_dir(), there is an if statement on line 255 to check whether
-req->pages is NULL:
-	if (!req->pages)
-		goto error;
+In the in-kernel afs filesystem, d_fsdata is set with the data version of
+the parent directory.  afs_d_revalidate() will update this to the current
+directory version, but it shouldn't do this if it the value it read from
+d_fsdata is the same as no lock is held and cmpxchg() is not used.
 
-If req->pages is NULL, afs_put_read() on line 337 is executed.
-In afs_put_read(), req->pages[i] is used on line 195.
-Thus, a possible null-pointer dereference may occur in this case.
+Fix the code to only change the value if it is different from the current
+directory version.
 
-To fix this possible bug, an if statement is added in afs_put_read() to
-check req->pages.
-
-This bug is found by a static analysis tool STCheck written by us.
-
-Fixes: f3ddee8dc4e2 ("afs: Fix directory handling")
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Fixes: 260a980317da ("[AFS]: Add "directory write" support.")
 Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/file.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ fs/afs/dir.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/afs/file.c b/fs/afs/file.c
-index 7d4f26198573d..843d3b970b845 100644
---- a/fs/afs/file.c
-+++ b/fs/afs/file.c
-@@ -193,11 +193,13 @@ void afs_put_read(struct afs_read *req)
- 	int i;
+diff --git a/fs/afs/dir.c b/fs/afs/dir.c
+index 855bf2b79fed4..54e7f6f1405e2 100644
+--- a/fs/afs/dir.c
++++ b/fs/afs/dir.c
+@@ -937,7 +937,7 @@ static int afs_d_revalidate(struct dentry *dentry, unsigned int flags)
+ 	dir_version = (long)dir->status.data_version;
+ 	de_version = (long)dentry->d_fsdata;
+ 	if (de_version == dir_version)
+-		goto out_valid;
++		goto out_valid_noupdate;
  
- 	if (refcount_dec_and_test(&req->usage)) {
--		for (i = 0; i < req->nr_pages; i++)
--			if (req->pages[i])
--				put_page(req->pages[i]);
--		if (req->pages != req->array)
--			kfree(req->pages);
-+		if (req->pages) {
-+			for (i = 0; i < req->nr_pages; i++)
-+				if (req->pages[i])
-+					put_page(req->pages[i]);
-+			if (req->pages != req->array)
-+				kfree(req->pages);
-+		}
- 		kfree(req);
- 	}
- }
+ 	dir_version = (long)dir->invalid_before;
+ 	if (de_version - dir_version >= 0)
+@@ -1001,6 +1001,7 @@ static int afs_d_revalidate(struct dentry *dentry, unsigned int flags)
+ 
+ out_valid:
+ 	dentry->d_fsdata = (void *)dir_version;
++out_valid_noupdate:
+ 	dput(parent);
+ 	key_put(key);
+ 	_leave(" = 1 [valid]");
 -- 
 2.20.1
 
