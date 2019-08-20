@@ -2,57 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1E0A96001
-	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:27:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D006F96009
+	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:29:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729833AbfHTN1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Aug 2019 09:27:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60108 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729810AbfHTN1r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Aug 2019 09:27:47 -0400
-Received: from localhost (unknown [12.236.144.82])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B500D22CF7;
-        Tue, 20 Aug 2019 13:27:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566307666;
-        bh=xo7viiAjxl9pUMWWu5Uib110Gy9MmAS8YARuBQWCQb8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=kpBmHpiZtm5zV4e1/OqnRC66Skcxg+fRzH1BMrRiSjVtOEgnA6pOr9Czg7NzV6TlR
-         rV+jfv9QXhCsuSjuXzH8GMkQs3XWS8j2vdOfgU01Ry2HgFRujkdmeRe1t45d6+2DvA
-         bsgLHrQD2elV0/6C0qDdMem4ez28tUGqSrnuWBI8=
-Date:   Tue, 20 Aug 2019 09:27:45 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Ben Hutchings <ben@decadent.org.uk>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Denis Andzakovic <denis.andzakovic@pulsesecurity.co.nz>,
-        Salvatore Bonaccorso <carnil@debian.org>,
-        Eric Dumazet <edumazet@google.com>
-Subject: Re: [PATCH 3.16-4.14] tcp: Clear sk_send_head after purging the
- write queue
-Message-ID: <20190820132745.GK30205@sasha-vm>
-References: <20190813115317.6cgml2mckd3c6u7z@decadent.org.uk>
- <41a61a2f87691d2bc839f26cdfe6f5ff2f51e472.camel@decadent.org.uk>
+        id S1729853AbfHTN3p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Aug 2019 09:29:45 -0400
+Received: from mail-lf1-f50.google.com ([209.85.167.50]:46955 "EHLO
+        mail-lf1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728993AbfHTN3p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Aug 2019 09:29:45 -0400
+Received: by mail-lf1-f50.google.com with SMTP id n19so4114938lfe.13
+        for <stable@vger.kernel.org>; Tue, 20 Aug 2019 06:29:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=dVXKi/QNF7gMSFjciMcC9NUdROHEwetABxZI+JRP03M=;
+        b=nI2H3FkId20+GX/q5DwbGLXo3iOOD8zVcsNXmlXoGesf2C/YUyolVfRvwdejO1XVwR
+         jMgqQLW9arxHo3WB/592Ww9lKSQxU/q9fr9dIFes12rp0HQpjEzhVxm2SNDyE9Qcslb2
+         6RNr3Pmh4W6hTJee4tO7LPoOIRyJzJBOYk/lm3waue6KpFTpXUPd1Tlmec+XkJU9BNRg
+         D9XrG6sPJZUmADrazToban/ufK9C9L19P0CZdzMnb7FdRFERTI8HchJ7dk8UvnnKfzUE
+         A3pa6zGuknLBx7Y8MxXZkzyO+Tok/5QJdv3IIbkzDsHxLPiv64BmN+bcsYU6JA9fTpvy
+         FvVA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=dVXKi/QNF7gMSFjciMcC9NUdROHEwetABxZI+JRP03M=;
+        b=WeI21iAhghZiHlXBs3InF8ieNnwbJ7vjPveWnOsyywy27gZIPqBffK0/Q4kAwSVdCQ
+         MujKXMwxH/blG7S08LfxC8n3zj/gF/4UUT4b88F65vUgsUjmCYgnq960hDoMrjmDjhSJ
+         BjDslPlppnRuFqdATAi0SgYMiIEMWaE+w/oa2DvUfJcdqRidwm0kBzANy4V1VX0Z8s0h
+         k8panCugB4vSUYt4Cyj5l9COERfdr8FMGX7c/4SK1gGFeqrxrmuILGlk0hyEf+McMCgc
+         B5bQJbZxMXNaMaxoWtwFItOZ28S3wpieN+EJx6AvgRoKBJlnDfsaxkr2EZxT3Mv7kBcU
+         PMDw==
+X-Gm-Message-State: APjAAAVLLhTS8OPEW3NJgIiZoiqvjeN6s2m3oe4gxJDqILACtIrB3AyX
+        rdDSA/t3/IDpDak+yhlFpy/lrApca4dhHhP/ugmcgg==
+X-Google-Smtp-Source: APXvYqzPNoszy8/IvopqB6mWuhT7vEXy4WTXD3Ky7CuOdRmUDT8LkJqP8liTp2XaoyUmM70YhgxSZfDl6D5O3O5aGr0=
+X-Received: by 2002:ac2:4c07:: with SMTP id t7mr13951316lfq.152.1566307783313;
+ Tue, 20 Aug 2019 06:29:43 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <41a61a2f87691d2bc839f26cdfe6f5ff2f51e472.camel@decadent.org.uk>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <CAK8P3a0gX2dM=VDjs2Ezh1EYM-buXCZ+79bdG2E+HCjO21StcA@mail.gmail.com>
+ <a1f81a90-26e5-364b-743a-25a3525a9e99@xilinx.com>
+In-Reply-To: <a1f81a90-26e5-364b-743a-25a3525a9e99@xilinx.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Tue, 20 Aug 2019 15:29:31 +0200
+Message-ID: <CACRpkdY2zJNGMkf5+F1Zu2CrtG3-059uwsQopm0rS=aZUxjJzw@mail.gmail.com>
+Subject: Re: stable backports, from contents found in xilinx-4.9
+To:     Michal Simek <michal.simek@xilinx.com>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        "stable-4.9" <stable@vger.kernel.org>,
+        gregkh <gregkh@linuxfoundation.org>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        =?UTF-8?Q?S=C3=B6ren_Brinkmann?= <soren.brinkmann@xilinx.com>,
+        Vinod Koul <vinod.koul@intel.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Viresh Kumar <viresh.kumar@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 20, 2019 at 03:11:37AM +0100, Ben Hutchings wrote:
->Sorry, this is the same issue that was already fixed by "tcp: reset
->sk_send_head in tcp_write_queue_purge".  You can drop my version from
->the queue for 4.4 and 4.9 and revert it for 4.14.
+On Fri, Aug 16, 2019 at 8:54 AM Michal Simek <michal.simek@xilinx.com> wrote:
 
-I've fixed it up, thanks Ben.
+> What's the purpose of this work? Make v4.9 better?
 
---
-Thanks,
-Sasha
+Yes. The purpose is to pick all stuff you have backported and see if it should
+actually be in -stable so that stable is stable for everyone. It's kind of
+crowdfunding stable development.
+
+Yours,
+Linus Walleij
