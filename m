@@ -2,209 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 733D495817
-	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 09:17:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1F59958E4
+	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 09:51:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728898AbfHTHR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Aug 2019 03:17:28 -0400
-Received: from szxga02-in.huawei.com ([45.249.212.188]:3971 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726049AbfHTHR2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Aug 2019 03:17:28 -0400
-Received: from DGGEMM405-HUB.china.huawei.com (unknown [172.30.72.54])
-        by Forcepoint Email with ESMTP id 5C1EF788C0609428E3B8;
-        Tue, 20 Aug 2019 15:17:23 +0800 (CST)
-Received: from dggeme762-chm.china.huawei.com (10.3.19.108) by
- DGGEMM405-HUB.china.huawei.com (10.3.20.213) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Tue, 20 Aug 2019 15:17:22 +0800
-Received: from architecture4 (10.140.130.215) by
- dggeme762-chm.china.huawei.com (10.3.19.108) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.1591.10; Tue, 20 Aug 2019 15:17:22 +0800
-Date:   Tue, 20 Aug 2019 15:16:45 +0800
-From:   Gao Xiang <gaoxiang25@huawei.com>
-To:     "Li, Philip" <philip.li@intel.com>
-CC:     Gao Xiang <hsiangkao@aol.com>, lkp <lkp@intel.com>,
-        "kbuild-all@01.org" <kbuild-all@01.org>,
-        "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-erofs@lists.ozlabs.org" <linux-erofs@lists.ozlabs.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Fang Wei <fangwei1@huawei.com>, Miao Xie <miaoxie@huawei.com>
-Subject: Re: [PATCH] staging: erofs: fix an error handling in erofs_readdir()
-Message-ID: <20190820071645.GH159846@architecture4>
-References: <20190818031855.9723-1-hsiangkao@aol.com>
- <201908182116.RRufKUpl%lkp@intel.com>
- <20190818132503.GA26232@hsiangkao-HP-ZHAN-66-Pro-G1>
- <20190820065038.GG4479@intel.com>
- <20190820065010.GG159846@architecture4>
- <831EE4E5E37DCC428EB295A351E66249520C70FE@shsmsx102.ccr.corp.intel.com>
+        id S1729210AbfHTHvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Aug 2019 03:51:36 -0400
+Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:29630 "EHLO
+        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728595AbfHTHvf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Aug 2019 03:51:35 -0400
+Received: from pps.filterd (m0044010.ppops.net [127.0.0.1])
+        by mx0a-00082601.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7K7njSI029594
+        for <stable@vger.kernel.org>; Tue, 20 Aug 2019 00:51:35 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-type; s=facebook;
+ bh=NdN+ZDMV6cVKAsWdTWSaLrD9VOB5N6fSXCo/EOCkxFQ=;
+ b=YeDYM8WAG3No/5UtcvOxnM31qeYGu3zCPpWpcFoxyjehF3LmYVMqebhG8fBuWF3t+N24
+ wV3pAeo8mct0Zp1R2KTVymmuZ7jTyBwj+LGthGU8KOap4QrVAIMgVKJbW9A5xDpjOTWh
+ vQNnPEuJqRM+pdqksRK/jcwIK0PREaU9Pv4= 
+Received: from mail.thefacebook.com (mailout.thefacebook.com [199.201.64.23])
+        by mx0a-00082601.pphosted.com with ESMTP id 2ug9stgk52-5
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Tue, 20 Aug 2019 00:51:34 -0700
+Received: from mx-out.facebook.com (2620:10d:c081:10::13) by
+ mail.thefacebook.com (2620:10d:c081:35::127) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA) id 15.1.1713.5;
+ Tue, 20 Aug 2019 00:51:33 -0700
+Received: by devbig006.ftw2.facebook.com (Postfix, from userid 4523)
+        id 0559462E2CCB; Tue, 20 Aug 2019 00:51:31 -0700 (PDT)
+Smtp-Origin-Hostprefix: devbig
+From:   Song Liu <songliubraving@fb.com>
+Smtp-Origin-Hostname: devbig006.ftw2.facebook.com
+To:     <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+CC:     <kernel-team@fb.com>, Song Liu <songliubraving@fb.com>,
+        <stable@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Smtp-Origin-Cluster: ftw2c04
+Subject: [PATCH] x86/mm/pti: in pti_clone_pgtable() don't increase addr by PUD_SIZE
+Date:   Tue, 20 Aug 2019 00:51:28 -0700
+Message-ID: <20190820075128.2912224-1-songliubraving@fb.com>
+X-Mailer: git-send-email 2.17.1
+X-FB-Internal: Safe
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <831EE4E5E37DCC428EB295A351E66249520C70FE@shsmsx102.ccr.corp.intel.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Originating-IP: [10.140.130.215]
-X-ClientProxiedBy: dggeme703-chm.china.huawei.com (10.1.199.99) To
- dggeme762-chm.china.huawei.com (10.3.19.108)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-08-20_02:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=571 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1906280000 definitions=main-1908200084
+X-FB-Internal: deliver
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 20, 2019 at 06:58:00AM +0000, Li, Philip wrote:
-> > Subject: Re: [PATCH] staging: erofs: fix an error handling in erofs_readdir()
-> > 
-> > Hi Philip,
-> > 
-> > On Tue, Aug 20, 2019 at 02:50:38PM +0800, Philip Li wrote:
-> > > On Sun, Aug 18, 2019 at 09:25:04PM +0800, Gao Xiang wrote:
-> > > > On Sun, Aug 18, 2019 at 09:17:52PM +0800, kbuild test robot wrote:
-> > > > > Hi Gao,
-> > > > >
-> > > > > I love your patch! Yet something to improve:
-> > > > >
-> > > > > [auto build test ERROR on linus/master]
-> > > > > [cannot apply to v5.3-rc4 next-20190816]
-> > > > > [if your patch is applied to the wrong git tree, please drop us a note to help
-> > improve the system]
-> > > >
-> > > > ... those patches should be applied to staging tree
-> > > > since linux-next has not been updated yet...
-> > > thanks for the feedback, we will consider this to our todo list.
-> > 
-> > Yes, many confusing reports anyway...
-> > (Just my personal suggestion, maybe we can add some hints on the patch email
-> > to indicate which tree can be applied successfully for ci in the future...)
-> thanks, this is good idea. On the other side, we support to add --base option to git format-patch
-> to automatically suggest the base, refer to https://stackoverflow.com/a/37406982 for detail.
+pti_clone_pgtable() increases addr by PUD_SIZE for pud_none(*pud) case.
+This is not accurate because addr may not be PUD_SIZE aligned.
 
-Thanks for your information :) It seems a new patch format,
-I will take a try later.
+In our x86_64 kernel, pti_clone_pgtable() fails to clone 7 PMDs because
+of this issuse, including PMD for the irq entry table. For a memcache
+like workload, this introduces about 4.5x more iTLB-load and about 2.5x
+more iTLB-load-misses on a Skylake CPU.
 
-Thanks,
-Gao Xiang
+This patch fixes this issue by adding PMD_SIZE to addr for pud_none()
+case.
 
-> Meanwhile, we will enhance the internal logic to find suitable base if possible.
-> 
-> > 
-> > Thanks,
-> > Gao Xiang
-> > 
-> > >
-> > > >
-> > > > Thanks,
-> > > > Gao Xiang
-> > > >
-> > > > >
-> > > > > url:    https://github.com/0day-ci/linux/commits/Gao-Xiang/staging-erofs-fix-
-> > an-error-handling-in-erofs_readdir/20190818-191344
-> > > > > config: arm64-allyesconfig (attached as .config)
-> > > > > compiler: aarch64-linux-gcc (GCC) 7.4.0
-> > > > > reproduce:
-> > > > >         wget https://raw.githubusercontent.com/intel/lkp-
-> > tests/master/sbin/make.cross -O ~/bin/make.cross
-> > > > >         chmod +x ~/bin/make.cross
-> > > > >         # save the attached .config to linux build tree
-> > > > >         GCC_VERSION=7.4.0 make.cross ARCH=arm64
-> > > > >
-> > > > > If you fix the issue, kindly add following tag
-> > > > > Reported-by: kbuild test robot <lkp@intel.com>
-> > > > >
-> > > > > All errors (new ones prefixed by >>):
-> > > > >
-> > > > >    drivers/staging/erofs/dir.c: In function 'erofs_readdir':
-> > > > > >> drivers/staging/erofs/dir.c:110:11: error: 'EFSCORRUPTED' undeclared
-> > (first use in this function); did you mean 'FS_NRSUPER'?
-> > > > >        err = -EFSCORRUPTED;
-> > > > >               ^~~~~~~~~~~~
-> > > > >               FS_NRSUPER
-> > > > >    drivers/staging/erofs/dir.c:110:11: note: each undeclared identifier is
-> > reported only once for each function it appears in
-> > > > >
-> > > > > vim +110 drivers/staging/erofs/dir.c
-> > > > >
-> > > > >     85
-> > > > >     86	static int erofs_readdir(struct file *f, struct dir_context *ctx)
-> > > > >     87	{
-> > > > >     88		struct inode *dir = file_inode(f);
-> > > > >     89		struct address_space *mapping = dir->i_mapping;
-> > > > >     90		const size_t dirsize = i_size_read(dir);
-> > > > >     91		unsigned int i = ctx->pos / EROFS_BLKSIZ;
-> > > > >     92		unsigned int ofs = ctx->pos % EROFS_BLKSIZ;
-> > > > >     93		int err = 0;
-> > > > >     94		bool initial = true;
-> > > > >     95
-> > > > >     96		while (ctx->pos < dirsize) {
-> > > > >     97			struct page *dentry_page;
-> > > > >     98			struct erofs_dirent *de;
-> > > > >     99			unsigned int nameoff, maxsize;
-> > > > >    100
-> > > > >    101			dentry_page = read_mapping_page(mapping, i,
-> > NULL);
-> > > > >    102			if (dentry_page == ERR_PTR(-ENOMEM)) {
-> > > > >    103				errln("no memory to readdir of logical
-> > block %u of nid %llu",
-> > > > >    104				      i, EROFS_V(dir)->nid);
-> > > > >    105				err = -ENOMEM;
-> > > > >    106				break;
-> > > > >    107			} else if (IS_ERR(dentry_page)) {
-> > > > >    108				errln("fail to readdir of logical block %u of
-> > nid %llu",
-> > > > >    109				      i, EROFS_V(dir)->nid);
-> > > > >  > 110				err = -EFSCORRUPTED;
-> > > > >    111				break;
-> > > > >    112			}
-> > > > >    113
-> > > > >    114			de = (struct erofs_dirent *)kmap(dentry_page);
-> > > > >    115
-> > > > >    116			nameoff = le16_to_cpu(de->nameoff);
-> > > > >    117
-> > > > >    118			if (unlikely(nameoff < sizeof(struct erofs_dirent) ||
-> > > > >    119				     nameoff >= PAGE_SIZE)) {
-> > > > >    120				errln("%s, invalid de[0].nameoff %u",
-> > > > >    121				      __func__, nameoff);
-> > > > >    122
-> > > > >    123				err = -EIO;
-> > > > >    124				goto skip_this;
-> > > > >    125			}
-> > > > >    126
-> > > > >    127			maxsize = min_t(unsigned int,
-> > > > >    128					dirsize - ctx->pos + ofs,
-> > PAGE_SIZE);
-> > > > >    129
-> > > > >    130			/* search dirents at the arbitrary position */
-> > > > >    131			if (unlikely(initial)) {
-> > > > >    132				initial = false;
-> > > > >    133
-> > > > >    134				ofs = roundup(ofs, sizeof(struct
-> > erofs_dirent));
-> > > > >    135				if (unlikely(ofs >= nameoff))
-> > > > >    136					goto skip_this;
-> > > > >    137			}
-> > > > >    138
-> > > > >    139			err = erofs_fill_dentries(ctx, de, &ofs, nameoff,
-> > maxsize);
-> > > > >    140	skip_this:
-> > > > >    141			kunmap(dentry_page);
-> > > > >    142
-> > > > >    143			put_page(dentry_page);
-> > > > >    144
-> > > > >    145			ctx->pos = blknr_to_addr(i) + ofs;
-> > > > >    146
-> > > > >    147			if (unlikely(err))
-> > > > >    148				break;
-> > > > >    149			++i;
-> > > > >    150			ofs = 0;
-> > > > >    151		}
-> > > > >    152		return err < 0 ? err : 0;
-> > > > >    153	}
-> > > > >    154
-> > > > >
-> > > > > ---
-> > > > > 0-DAY kernel test infrastructure                Open Source Technology Center
-> > > > > https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
-> > > >
-> > > >
+Cc: stable@vger.kernel.org # v4.19+
+Fixes: 16a3fe634f6a ("x86/mm/pti: Clone kernel-image on PTE level for 32 bit")
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Cc: Joerg Roedel <jroedel@suse.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+---
+ arch/x86/mm/pti.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/x86/mm/pti.c b/arch/x86/mm/pti.c
+index b196524759ec..5a67c3015f59 100644
+--- a/arch/x86/mm/pti.c
++++ b/arch/x86/mm/pti.c
+@@ -330,7 +330,7 @@ pti_clone_pgtable(unsigned long start, unsigned long end,
+ 
+ 		pud = pud_offset(p4d, addr);
+ 		if (pud_none(*pud)) {
+-			addr += PUD_SIZE;
++			addr += PMD_SIZE;
+ 			continue;
+ 		}
+ 
+-- 
+2.17.1
+
