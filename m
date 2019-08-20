@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D409960E3
+	by mail.lfdr.de (Postfix) with ESMTP id EBA3D960E5
 	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:44:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730805AbfHTNnT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Aug 2019 09:43:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39046 "EHLO mail.kernel.org"
+        id S1730841AbfHTNnU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Aug 2019 09:43:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730820AbfHTNnS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Aug 2019 09:43:18 -0400
+        id S1730834AbfHTNnT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Aug 2019 09:43:19 -0400
 Received: from sasha-vm.mshome.net (unknown [12.236.144.82])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88F982332A;
-        Tue, 20 Aug 2019 13:43:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8931F22DBF;
+        Tue, 20 Aug 2019 13:43:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566308598;
-        bh=VFt+3yrRV/54bT3zwv9JShdoQYuWiOlyC5hzlGGNJcQ=;
+        s=default; t=1566308599;
+        bh=LIqwM8GDeZiGIPO2cjwKY2oED4FElN8ZgYwSVCamk4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gDzH5UxV4i0Z6RysAQdFTshjoJnGWsa4WoENk4gVZDXQdizxIFtgVWW0ZQPNqUFDm
-         Ahb4BLKghrHAAX73buRfGG/ju3891mZuznVq15G6Fuho5OB+K2WtOk1/o0j2tqw05s
-         b+6wg5eIaewOtR2FJlyWYKmSvIuFAVZb9wVsMiNY=
+        b=rMiuukad/7jD6/+ZZUZZVTaVYkBdTQpoMI4bcd7kVXnllOaVUQeTCGn92NlHC4vlA
+         rKfq8VuxVEeb6ENL/351E4FqKWYEUFLzltUEJ+jGYBGbPTNFAWhLVEf1871e5dYFv2
+         ZZFqG+1I453xTuue9zCMK6lcWgDJn6kZRqPjxX40=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robin Murphy <robin.murphy@arm.com>,
-        Nicolin Chen <nicoleotsuka@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.9 2/7] iommu/dma: Handle SG length overflow better
-Date:   Tue, 20 Aug 2019 09:43:10 -0400
-Message-Id: <20190820134315.11720-2-sashal@kernel.org>
+Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 3/7] usb: gadget: composite: Clear "suspended" on reset/disconnect
+Date:   Tue, 20 Aug 2019 09:43:11 -0400
+Message-Id: <20190820134315.11720-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190820134315.11720-1-sashal@kernel.org>
 References: <20190820134315.11720-1-sashal@kernel.org>
@@ -45,45 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-[ Upstream commit ab2cbeb0ed301a9f0460078e91b09f39958212ef ]
+[ Upstream commit 602fda17c7356bb7ae98467d93549057481d11dd ]
 
-Since scatterlist dimensions are all unsigned ints, in the relatively
-rare cases where a device's max_segment_size is set to UINT_MAX, then
-the "cur_len + s_length <= max_len" check in __finalise_sg() will always
-return true. As a result, the corner case of such a device mapping an
-excessively large scatterlist which is mergeable to or beyond a total
-length of 4GB can lead to overflow and a bogus truncated dma_length in
-the resulting segment.
+In some cases, one can get out of suspend with a reset or
+a disconnect followed by a reconnect. Previously we would
+leave a stale suspended flag set.
 
-As we already assume that any single segment must be no longer than
-max_len to begin with, this can easily be addressed by reshuffling the
-comparison.
-
-Fixes: 809eac54cdd6 ("iommu/dma: Implement scatterlist segment merging")
-Reported-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Tested-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/dma-iommu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/composite.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-index 1520e7f02c2f1..89d191b6a0e0f 100644
---- a/drivers/iommu/dma-iommu.c
-+++ b/drivers/iommu/dma-iommu.c
-@@ -493,7 +493,7 @@ static int __finalise_sg(struct device *dev, struct scatterlist *sg, int nents,
- 		 * - and wouldn't make the resulting output segment too long
- 		 */
- 		if (cur_len && !s_iova_off && (dma_addr & seg_mask) &&
--		    (cur_len + s_length <= max_len)) {
-+		    (max_len - cur_len >= s_length)) {
- 			/* ...then concatenate it with the previous one */
- 			cur_len += s_length;
- 		} else {
+diff --git a/drivers/usb/gadget/composite.c b/drivers/usb/gadget/composite.c
+index 2c022a08f1638..9fa168af847b5 100644
+--- a/drivers/usb/gadget/composite.c
++++ b/drivers/usb/gadget/composite.c
+@@ -2000,6 +2000,7 @@ void composite_disconnect(struct usb_gadget *gadget)
+ 	 * disconnect callbacks?
+ 	 */
+ 	spin_lock_irqsave(&cdev->lock, flags);
++	cdev->suspended = 0;
+ 	if (cdev->config)
+ 		reset_config(cdev);
+ 	if (cdev->driver->disconnect)
 -- 
 2.20.1
 
