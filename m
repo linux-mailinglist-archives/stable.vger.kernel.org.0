@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B0E89618C
-	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:48:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EC2496061
+	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:41:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730096AbfHTNkd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730099AbfHTNkd (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 20 Aug 2019 09:40:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35194 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729858AbfHTNkc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728248AbfHTNkc (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 20 Aug 2019 09:40:32 -0400
 Received: from sasha-vm.mshome.net (unknown [12.236.144.82])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE48422DD3;
-        Tue, 20 Aug 2019 13:40:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5D5D22DBF;
+        Tue, 20 Aug 2019 13:40:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566308431;
-        bh=Ojf029T/GINdDfJhgOlTarSq5bSruD2ny86RKaBuS60=;
+        s=default; t=1566308432;
+        bh=LzCW5ZLU9vvodqH8UFDmSBv/SKHCUYOMIc5f1xBiPuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O3iIHskuxQbrSitGI1/KHpzh3mjV8DnhVIEQfkzYRXueovHtC7jODnvhGdC6/v/Kv
-         vudAMxVTmcZeTpUZd1Q3NE3wpAjgrIZ7kfjkDIlsE0u/EB9+nUnzeIrnY/25DmpBWb
-         rSzM9uyOnRpO24KKnc0xqd6SWZ+rvxx+o+f/Ij24=
+        b=2nnGqge3zek/gblNJFz+M+layM8SZqaWyqB5OZT5v/gT7P0HDpq0SN3PZfUnp3lux
+         FKMw1upQL2hJZiR7KgHApz+UkLicagOYztMv/YZRYnh0iL6qKMZ+zTknMc44a74+ng
+         XNuYz3zn3EKxdqpHkEbzlKddcnUhv7QZzCuGaebQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anthony Iliopoulos <ailiopoulos@suse.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Johannes Thumshirn <jthumshirn@suse.de>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.2 02/44] nvme-multipath: revalidate nvme_ns_head gendisk in nvme_validate_ns
-Date:   Tue, 20 Aug 2019 09:39:46 -0400
-Message-Id: <20190820134028.10829-2-sashal@kernel.org>
+Cc:     David Howells <dhowells@redhat.com>,
+        Jeffrey Altman <jaltman@auristor.com>,
+        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.2 03/44] afs: Fix the CB.ProbeUuid service handler to reply correctly
+Date:   Tue, 20 Aug 2019 09:39:47 -0400
+Message-Id: <20190820134028.10829-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190820134028.10829-1-sashal@kernel.org>
 References: <20190820134028.10829-1-sashal@kernel.org>
@@ -45,44 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Iliopoulos <ailiopoulos@suse.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit fab7772bfbcfe8fb8e3e352a6a8fcaf044cded17 ]
+[ Upstream commit 2067b2b3f4846402a040286135f98f46f8919939 ]
 
-When CONFIG_NVME_MULTIPATH is set, only the hidden gendisk associated
-with the per-controller ns is run through revalidate_disk when a
-rescan is triggered, while the visible blockdev never gets its size
-(bdev->bd_inode->i_size) updated to reflect any capacity changes that
-may have occurred.
+Fix the service handler function for the CB.ProbeUuid RPC call so that it
+replies in the correct manner - that is an empty reply for success and an
+abort of 1 for failure.
 
-This prevents online resizing of nvme block devices and in extension of
-any filesystems atop that will are unable to expand while mounted, as
-userspace relies on the blockdev size for obtaining the disk capacity
-(via BLKGETSIZE/64 ioctls).
+Putting 0 or 1 in an integer in the body of the reply should result in the
+fileserver throwing an RX_PROTOCOL_ERROR abort and discarding its record of
+the client; older servers, however, don't necessarily check that all the
+data got consumed, and so might incorrectly think that they got a positive
+response and associate the client with the wrong host record.
 
-Fix this by explicitly revalidating the actual namespace gendisk in
-addition to the per-controller gendisk, when multipath is enabled.
+If the client is incorrectly associated, this will result in callbacks
+intended for a different client being delivered to this one and then, when
+the other client connects and responds positively, all of the callback
+promises meant for the client that issued the improper response will be
+lost and it won't receive any further change notifications.
 
-Signed-off-by: Anthony Iliopoulos <ailiopoulos@suse.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 9396d496d745 ("afs: support the CB.ProbeUuid RPC op")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Jeffrey Altman <jaltman@auristor.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/afs/cmservice.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 5deb4deb38209..ab1a2b1ec3637 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1668,6 +1668,7 @@ static void __nvme_revalidate_disk(struct gendisk *disk, struct nvme_id_ns *id)
- 	if (ns->head->disk) {
- 		nvme_update_disk_info(ns->head->disk, ns, id);
- 		blk_queue_stack_limits(ns->head->disk->queue, ns->queue);
-+		revalidate_disk(ns->head->disk);
- 	}
- #endif
+diff --git a/fs/afs/cmservice.c b/fs/afs/cmservice.c
+index 3451be03667f0..00033a481ba05 100644
+--- a/fs/afs/cmservice.c
++++ b/fs/afs/cmservice.c
+@@ -502,18 +502,14 @@ static void SRXAFSCB_ProbeUuid(struct work_struct *work)
+ 	struct afs_call *call = container_of(work, struct afs_call, work);
+ 	struct afs_uuid *r = call->request;
+ 
+-	struct {
+-		__be32	match;
+-	} reply;
+-
+ 	_enter("");
+ 
+ 	if (memcmp(r, &call->net->uuid, sizeof(call->net->uuid)) == 0)
+-		reply.match = htonl(0);
++		afs_send_empty_reply(call);
+ 	else
+-		reply.match = htonl(1);
++		rxrpc_kernel_abort_call(call->net->socket, call->rxcall,
++					1, 1, "K-1");
+ 
+-	afs_send_simple_reply(call, &reply, sizeof(reply));
+ 	afs_put_call(call);
+ 	_leave("");
  }
 -- 
 2.20.1
