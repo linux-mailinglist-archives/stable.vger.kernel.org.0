@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 033FA96123
-	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:45:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F21CD960A8
+	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:42:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730688AbfHTNmj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730692AbfHTNmj (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 20 Aug 2019 09:42:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38046 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730682AbfHTNmi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Aug 2019 09:42:38 -0400
+        id S1730686AbfHTNmj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Aug 2019 09:42:39 -0400
 Received: from sasha-vm.mshome.net (unknown [12.236.144.82])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3E7223400;
-        Tue, 20 Aug 2019 13:42:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9ECF22DBF;
+        Tue, 20 Aug 2019 13:42:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566308557;
-        bh=QB1kNfJQy5UTLHL2UMlrZiHGKTiQT1cuyJ+74TG9hmQ=;
+        s=default; t=1566308558;
+        bh=V581wTsLKMtFtMR2oTBYW0l+2Swk69Zfs3/wGLPhHn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lmTN6LeURHsGBSTrx/a8JZGpzTTT+tAIsxhEdDoCziqr9a0NZQuhI4o1yqtNoi9AK
-         rVgJ07+j+ihD1ohCxsiV987dMmk7NZBkjTBA4HiuSXXQbIKMOMM+6SjdK2YRdZoG5c
-         hv7aZE0B0QAO01uCMjIxsWybfu4flCGA/bPfFXhM=
+        b=wPYmgq4H86f4ELuSVX379qd4Ar4UbF02x6L/gG4mI4CQ3EVZbYUgPoFgbEjiJDLYJ
+         umeBnCLWdrIsNHXnNtFSE7kfieCk3cOYsG7VxT7uR/RTEZdpmuC7MAiAQ3n1gc6/Wx
+         vYcSn5gkJBJXzIfv5X7cnhdAduAnktb3eXm1eYcI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 19/27] usb: gadget: mass_storage: Fix races between fsg_disable and fsg_set_alt
-Date:   Tue, 20 Aug 2019 09:42:05 -0400
-Message-Id: <20190820134213.11279-19-sashal@kernel.org>
+Cc:     Wenwen Wang <wenwen@cs.uga.edu>,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 20/27] xen/blkback: fix memory leaks
+Date:   Tue, 20 Aug 2019 09:42:06 -0400
+Message-Id: <20190820134213.11279-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190820134213.11279-1-sashal@kernel.org>
 References: <20190820134213.11279-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,167 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-[ Upstream commit 4a56a478a525d6427be90753451c40e1327caa1a ]
+[ Upstream commit ae78ca3cf3d9e9f914bfcd0bc5c389ff18b9c2e0 ]
 
-If fsg_disable() and fsg_set_alt() are called too closely to each
-other (for example due to a quick reset/reconnect), what can happen
-is that fsg_set_alt sets common->new_fsg from an interrupt while
-handle_exception is trying to process the config change caused by
-fsg_disable():
+In read_per_ring_refs(), after 'req' and related memory regions are
+allocated, xen_blkif_map() is invoked to map the shared frame, irq, and
+etc. However, if this mapping process fails, no cleanup is performed,
+leading to memory leaks. To fix this issue, invoke the cleanup before
+returning the error.
 
-	fsg_disable()
-	...
-	handle_exception()
-		sets state back to FSG_STATE_NORMAL
-		hasn't yet called do_set_interface()
-		or is inside it.
-
- ---> interrupt
-	fsg_set_alt
-		sets common->new_fsg
-		queues a new FSG_STATE_CONFIG_CHANGE
- <---
-
-Now, the first handle_exception can "see" the updated
-new_fsg, treats it as if it was a fsg_set_alt() response,
-call usb_composite_setup_continue() etc...
-
-But then, the thread sees the second FSG_STATE_CONFIG_CHANGE,
-and goes back down the same path, wipes and reattaches a now
-active fsg, and .. calls usb_composite_setup_continue() which
-at this point is wrong.
-
-Not only we get a backtrace, but I suspect the second set_interface
-wrecks some state causing the host to get upset in my case.
-
-This fixes it by replacing "new_fsg" by a "state argument" (same
-principle) which is set in the same lock section as the state
-update, and retrieved similarly.
-
-That way, there is never any discrepancy between the dequeued
-state and the observed value of it. We keep the ability to have
-the latest reconfig operation take precedence, but we guarantee
-that once "dequeued" the argument (new_fsg) will not be clobbered
-by any new event.
-
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Acked-by: Roger Pau Monné <roger.pau@citrix.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_mass_storage.c | 28 +++++++++++++-------
- 1 file changed, 18 insertions(+), 10 deletions(-)
+ drivers/block/xen-blkback/xenbus.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/f_mass_storage.c b/drivers/usb/gadget/function/f_mass_storage.c
-index 1074cb82ec172..0b7b4d09785b6 100644
---- a/drivers/usb/gadget/function/f_mass_storage.c
-+++ b/drivers/usb/gadget/function/f_mass_storage.c
-@@ -261,7 +261,7 @@ struct fsg_common;
- struct fsg_common {
- 	struct usb_gadget	*gadget;
- 	struct usb_composite_dev *cdev;
--	struct fsg_dev		*fsg, *new_fsg;
-+	struct fsg_dev		*fsg;
- 	wait_queue_head_t	io_wait;
- 	wait_queue_head_t	fsg_wait;
- 
-@@ -290,6 +290,7 @@ struct fsg_common {
- 	unsigned int		bulk_out_maxpacket;
- 	enum fsg_state		state;		/* For exception handling */
- 	unsigned int		exception_req_tag;
-+	void			*exception_arg;
- 
- 	enum data_direction	data_dir;
- 	u32			data_size;
-@@ -391,7 +392,8 @@ static int fsg_set_halt(struct fsg_dev *fsg, struct usb_ep *ep)
- 
- /* These routines may be called in process context or in_irq */
- 
--static void raise_exception(struct fsg_common *common, enum fsg_state new_state)
-+static void __raise_exception(struct fsg_common *common, enum fsg_state new_state,
-+			      void *arg)
- {
- 	unsigned long		flags;
- 
-@@ -404,6 +406,7 @@ static void raise_exception(struct fsg_common *common, enum fsg_state new_state)
- 	if (common->state <= new_state) {
- 		common->exception_req_tag = common->ep0_req_tag;
- 		common->state = new_state;
-+		common->exception_arg = arg;
- 		if (common->thread_task)
- 			send_sig_info(SIGUSR1, SEND_SIG_FORCED,
- 				      common->thread_task);
-@@ -411,6 +414,10 @@ static void raise_exception(struct fsg_common *common, enum fsg_state new_state)
- 	spin_unlock_irqrestore(&common->lock, flags);
- }
- 
-+static void raise_exception(struct fsg_common *common, enum fsg_state new_state)
-+{
-+	__raise_exception(common, new_state, NULL);
-+}
- 
- /*-------------------------------------------------------------------------*/
- 
-@@ -2285,16 +2292,16 @@ static int do_set_interface(struct fsg_common *common, struct fsg_dev *new_fsg)
- static int fsg_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
- {
- 	struct fsg_dev *fsg = fsg_from_func(f);
--	fsg->common->new_fsg = fsg;
--	raise_exception(fsg->common, FSG_STATE_CONFIG_CHANGE);
-+
-+	__raise_exception(fsg->common, FSG_STATE_CONFIG_CHANGE, fsg);
- 	return USB_GADGET_DELAYED_STATUS;
- }
- 
- static void fsg_disable(struct usb_function *f)
- {
- 	struct fsg_dev *fsg = fsg_from_func(f);
--	fsg->common->new_fsg = NULL;
--	raise_exception(fsg->common, FSG_STATE_CONFIG_CHANGE);
-+
-+	__raise_exception(fsg->common, FSG_STATE_CONFIG_CHANGE, NULL);
- }
- 
- 
-@@ -2307,6 +2314,7 @@ static void handle_exception(struct fsg_common *common)
- 	enum fsg_state		old_state;
- 	struct fsg_lun		*curlun;
- 	unsigned int		exception_req_tag;
-+	struct fsg_dev		*new_fsg;
- 
- 	/*
- 	 * Clear the existing signals.  Anything but SIGUSR1 is converted
-@@ -2360,6 +2368,7 @@ static void handle_exception(struct fsg_common *common)
- 	common->next_buffhd_to_fill = &common->buffhds[0];
- 	common->next_buffhd_to_drain = &common->buffhds[0];
- 	exception_req_tag = common->exception_req_tag;
-+	new_fsg = common->exception_arg;
- 	old_state = common->state;
- 	common->state = FSG_STATE_NORMAL;
- 
-@@ -2413,8 +2422,8 @@ static void handle_exception(struct fsg_common *common)
- 		break;
- 
- 	case FSG_STATE_CONFIG_CHANGE:
--		do_set_interface(common, common->new_fsg);
--		if (common->new_fsg)
-+		do_set_interface(common, new_fsg);
-+		if (new_fsg)
- 			usb_composite_setup_continue(common->cdev);
- 		break;
- 
-@@ -2989,8 +2998,7 @@ static void fsg_unbind(struct usb_configuration *c, struct usb_function *f)
- 
- 	DBG(fsg, "unbind\n");
- 	if (fsg->common->fsg == fsg) {
--		fsg->common->new_fsg = NULL;
--		raise_exception(fsg->common, FSG_STATE_CONFIG_CHANGE);
-+		__raise_exception(fsg->common, FSG_STATE_CONFIG_CHANGE, NULL);
- 		/* FIXME: make interruptible or killable somehow? */
- 		wait_event(common->fsg_wait, common->fsg != fsg);
+diff --git a/drivers/block/xen-blkback/xenbus.c b/drivers/block/xen-blkback/xenbus.c
+index a4bc74e72c394..55869b362fdfb 100644
+--- a/drivers/block/xen-blkback/xenbus.c
++++ b/drivers/block/xen-blkback/xenbus.c
+@@ -974,6 +974,7 @@ static int read_per_ring_refs(struct xen_blkif_ring *ring, const char *dir)
  	}
+ 	blkif->nr_ring_pages = nr_grefs;
+ 
++	err = -ENOMEM;
+ 	for (i = 0; i < nr_grefs * XEN_BLKIF_REQS_PER_PAGE; i++) {
+ 		req = kzalloc(sizeof(*req), GFP_KERNEL);
+ 		if (!req)
+@@ -996,7 +997,7 @@ static int read_per_ring_refs(struct xen_blkif_ring *ring, const char *dir)
+ 	err = xen_blkif_map(ring, ring_ref, nr_grefs, evtchn);
+ 	if (err) {
+ 		xenbus_dev_fatal(dev, err, "mapping ring-ref port %u", evtchn);
+-		return err;
++		goto fail;
+ 	}
+ 
+ 	return 0;
+@@ -1016,8 +1017,7 @@ static int read_per_ring_refs(struct xen_blkif_ring *ring, const char *dir)
+ 		}
+ 		kfree(req);
+ 	}
+-	return -ENOMEM;
+-
++	return err;
+ }
+ 
+ static int connect_ring(struct backend_info *be)
 -- 
 2.20.1
 
