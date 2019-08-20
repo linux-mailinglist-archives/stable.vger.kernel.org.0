@@ -2,104 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A78D966EB
-	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 18:57:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F252D967EB
+	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 19:45:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730523AbfHTQ5z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Aug 2019 12:57:55 -0400
-Received: from mga01.intel.com ([192.55.52.88]:9881 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730370AbfHTQ5z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Aug 2019 12:57:55 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 20 Aug 2019 09:57:55 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,408,1559545200"; 
-   d="scan'208";a="172505189"
-Received: from fmsmsx106.amr.corp.intel.com ([10.18.124.204])
-  by orsmga008.jf.intel.com with ESMTP; 20 Aug 2019 09:57:54 -0700
-Received: from fmsmsx102.amr.corp.intel.com (10.18.124.200) by
- FMSMSX106.amr.corp.intel.com (10.18.124.204) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Tue, 20 Aug 2019 09:57:54 -0700
-Received: from fmsmsx117.amr.corp.intel.com ([169.254.3.69]) by
- FMSMSX102.amr.corp.intel.com ([169.254.10.170]) with mapi id 14.03.0439.000;
- Tue, 20 Aug 2019 09:57:54 -0700
-From:   "Souza, Jose" <jose.souza@intel.com>
-To:     "ville.syrjala@linux.intel.com" <ville.syrjala@linux.intel.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>
-CC:     "sunpeng.li@amd.com" <sunpeng.li@amd.com>,
-        "daniel.vetter@ffwll.ch" <daniel.vetter@ffwll.ch>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [Intel-gfx] [PATCH] drm/i915: Do not create a new max_bpc prop
- for MST connectors
-Thread-Topic: [Intel-gfx] [PATCH] drm/i915: Do not create a new max_bpc prop
- for MST connectors
-Thread-Index: AQHVV3K3j0cND3DePkq6golnvpKG3qcEt0OA
-Date:   Tue, 20 Aug 2019 16:57:53 +0000
-Message-ID: <2660918703ee30cb1517bcb8dcc7078b55f253d1.camel@intel.com>
-References: <20190820161657.9658-1-ville.syrjala@linux.intel.com>
-In-Reply-To: <20190820161657.9658-1-ville.syrjala@linux.intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.24.9.135]
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <258EAABC23785F4DBAE4DFC724264095@intel.com>
-Content-Transfer-Encoding: base64
+        id S1729409AbfHTRp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Aug 2019 13:45:26 -0400
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:38895 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727006AbfHTRpZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Aug 2019 13:45:25 -0400
+Received: by mail-pf1-f196.google.com with SMTP id o70so3817728pfg.5
+        for <stable@vger.kernel.org>; Tue, 20 Aug 2019 10:45:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=android.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=1mI/fsnxr7SJRcgo+NbhPuqvEtthADzWDuenEYEuutw=;
+        b=WYO56BcRaUfZzl1gOuDdMFCvIgKrBAM14lmqr6BUMqMPpMsNtPVYwjuPwb+2Cdc3vc
+         lIdsyCEWC5QfSDVo8KFK+qUx/hOgdgm2aBIXcru6VOops555F1ZEolkzSS/iVCPRaUm1
+         otmI2omSG0IUJxQI7pIlV04OIbKPqUYyaReWQ1obwyutYxSjTHVYPwIaHhgX57kQZxo7
+         aBV/a1hvrQWC8d54OaMKs1NL+ZurhX8CqUDzb5yux6tUGQokxPb1vkqLxuWfvdCkCP0x
+         JHW5E6PQK0fNc/9etfFq/U12O7j+ueDIq+tmPYEt0sirVCgFSzaiqd9w2bcp3nB3Owq9
+         N2lQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=1mI/fsnxr7SJRcgo+NbhPuqvEtthADzWDuenEYEuutw=;
+        b=DWRFAfNTjgYzHlbNtxewW56bRMulrfr8pCla03Q3OVE1rl/zeQZ/hyGOp22ZmhJN43
+         v83imstc2L3/OGbwj0Ej7MgNDvBJIoXQR6a/yoXhRX5xgCCH+Kwz87vlJnY+wTqrv5AC
+         Ch3fWpeOwvCF+8uDTQdNSditLq1sgo3qQRgovNwo91f/fRz6SCMFUyzKaKLwNUAuCpuN
+         OrBRUgdmFAQPABdz9HnsreLS6QDWD2HxppL3s9/pwfObB+CAOBDbJiA58vCNVbOEeP59
+         vE/x2kq40EWIZZM21zDiANK7uFmoT6dzCEA9z7uzF1UrrivVzT4saa1UqpuyPCRP2QTi
+         JJuw==
+X-Gm-Message-State: APjAAAVIXqv/4Pw7V2b01MMul7Q8oDvoNp+InT5ZP7NhfgW0UZ082Mah
+        Mv+iDm65qM2OMkEMcWHZqZaTkQ==
+X-Google-Smtp-Source: APXvYqy7oTAAl5zE65n3kn58l9U02ciVMZiLy4QXiS3K+51wT2cNIbXx1DyGZYRHcSlxaWgucITIoA==
+X-Received: by 2002:a63:f304:: with SMTP id l4mr18303453pgh.66.1566323124945;
+        Tue, 20 Aug 2019 10:45:24 -0700 (PDT)
+Received: from nebulus.mtv.corp.google.com ([2620:15c:211:200:5404:91ba:59dc:9400])
+        by smtp.gmail.com with ESMTPSA id y188sm23403339pfb.115.2019.08.20.10.45.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Aug 2019 10:45:24 -0700 (PDT)
+From:   Mark Salyzyn <salyzyn@android.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     kernel-team@android.com, "Yavuz, Tuba" <tuba@ece.ufl.edu>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        stable <stable@vger.kernel.org>, Felipe Balbi <balbi@ti.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org
+Subject: USB: gadget: f_midi: fixing a possible double-free in f_midi
+Date:   Tue, 20 Aug 2019 10:45:13 -0700
+Message-Id: <20190820174516.255420-1-salyzyn@android.com>
+X-Mailer: git-send-email 2.23.0.rc1.153.gdeed80330f-goog
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gVHVlLCAyMDE5LTA4LTIwIGF0IDE5OjE2ICswMzAwLCBWaWxsZSBTeXJqYWxhIHdyb3RlOg0K
-PiBGcm9tOiBWaWxsZSBTeXJqw6Rsw6QgPHZpbGxlLnN5cmphbGFAbGludXguaW50ZWwuY29tPg0K
-PiANCj4gV2UncmUgbm90IGFsbG93ZWQgdG8gY3JlYXRlIG5ldyBwcm9wZXJ0aWVzIGFmdGVyIGRl
-dmljZSByZWdpc3RyYXRpb24NCj4gc28gZm9yIE1TVCBjb25uZWN0b3JzIHdlIG5lZWQgdG8gZWl0
-aGVyIGNyZWF0ZSB0aGUgbWF4X2JwYyBwcm9wZXJ0eQ0KPiBlYXJsaWVyLCBvciB3ZSByZXVzZSBv
-bmUgd2UgYWxyZWFkeSBoYXZlLiBMZXQncyBkbyB0aGUgbGF0dGVyDQo+IGFwcG9yYWNoDQo+IHNp
-bmNlIHRoZSBjb3JyZXNwb25kaW5nIFNTVCBjb25uZWN0b3IgYWxyZWFkeSBoYXMgdGhlIHByb3Ag
-YW5kIGl0cw0KPiBtaW4vbWF4IGFyZSBjb3JyZWN0IGFsc28gZm9yIHRoZSBNU1QgY29ubmVjdG9y
-Lg0KPiANCj4gVGhlIHByb2JsZW0gd2FzIGhpZ2hsaWdodGVkIGJ5IGNvbW1pdCA0ZjUzNjhiNTU0
-MWEgKCJkcm0va21zOg0KPiBDYXRjaCBtb2RlX29iamVjdCBsaWZldGltZSBlcnJvcnMiKSB3aGlj
-aCByZXN1bHRzIGluIHRoZSBmb2xsb3dpbmcNCj4gc3BldzoNCj4gWyAxMzMwLjg3ODk0MV0gV0FS
-TklORzogQ1BVOiAyIFBJRDogMTU1NCBhdA0KPiBkcml2ZXJzL2dwdS9kcm0vZHJtX21vZGVfb2Jq
-ZWN0LmM6NDUgX19kcm1fbW9kZV9vYmplY3RfYWRkKzB4YTAvMHhiMA0KPiBbZHJtXQ0KPiAuLi4N
-Cj4gWyAxMzMwLjg3OTAwOF0gQ2FsbCBUcmFjZToNCj4gWyAxMzMwLjg3OTAyM10gIGRybV9wcm9w
-ZXJ0eV9jcmVhdGUrMHhiYS8weDE4MCBbZHJtXQ0KPiBbIDEzMzAuODc5MDM2XSAgZHJtX3Byb3Bl
-cnR5X2NyZWF0ZV9yYW5nZSsweDE1LzB4MzAgW2RybV0NCj4gWyAxMzMwLjg3OTA0OF0gIGRybV9j
-b25uZWN0b3JfYXR0YWNoX21heF9icGNfcHJvcGVydHkrMHg2Mi8weDgwIFtkcm1dDQo+IFsgMTMz
-MC44NzkwODZdICBpbnRlbF9kcF9hZGRfbXN0X2Nvbm5lY3RvcisweDExZi8weDE0MCBbaTkxNV0N
-Cj4gWyAxMzMwLjg3OTA5NF0gIGRybV9kcF9hZGRfcG9ydC5pc3JhLjIwKzB4MjBiLzB4NDQwIFtk
-cm1fa21zX2hlbHBlcl0NCj4gLi4uDQo+IA0KPiBDYzogc3RhYmxlQHZnZXIua2VybmVsLm9yZw0K
-PiBDYzogTHl1ZGUgUGF1bCA8bHl1ZGVAcmVkaGF0LmNvbT4NCj4gQ2M6IHN1bnBlbmcubGlAYW1k
-LmNvbQ0KPiBDYzogRGFuaWVsIFZldHRlciA8ZGFuaWVsLnZldHRlckBmZndsbC5jaD4NCj4gQ2M6
-IFNlYW4gUGF1bCA8c2VhbkBwb29ybHkucnVuPg0KPiBGaXhlczogNWNhMGVmOGE1NmI4ICgiZHJt
-L2k5MTU6IEFkZCBtYXhfYnBjIHByb3BlcnR5IGZvciBEUCBNU1QiKQ0KPiBTaWduZWQtb2ZmLWJ5
-OiBWaWxsZSBTeXJqw6Rsw6QgPHZpbGxlLnN5cmphbGFAbGludXguaW50ZWwuY29tPg0KPiAtLS0N
-Cj4gIGRyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3BsYXkvaW50ZWxfZHBfbXN0LmMgfCAxMCArKysr
-KysrKystDQo+ICAxIGZpbGUgY2hhbmdlZCwgOSBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0p
-DQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvZGlzcGxheS9pbnRlbF9k
-cF9tc3QuYw0KPiBiL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3BsYXkvaW50ZWxfZHBfbXN0LmMN
-Cj4gaW5kZXggODNmYWEyNDZlMzYxLi45NzQ4NTgxYzFkNjIgMTAwNjQ0DQo+IC0tLSBhL2RyaXZl
-cnMvZ3B1L2RybS9pOTE1L2Rpc3BsYXkvaW50ZWxfZHBfbXN0LmMNCj4gKysrIGIvZHJpdmVycy9n
-cHUvZHJtL2k5MTUvZGlzcGxheS9pbnRlbF9kcF9tc3QuYw0KPiBAQCAtNTM2LDcgKzUzNiwxNSBA
-QCBzdGF0aWMgc3RydWN0IGRybV9jb25uZWN0b3INCj4gKmludGVsX2RwX2FkZF9tc3RfY29ubmVj
-dG9yKHN0cnVjdCBkcm1fZHBfbXN0X3RvcG9sbw0KPiAgDQo+ICAJaW50ZWxfYXR0YWNoX2ZvcmNl
-X2F1ZGlvX3Byb3BlcnR5KGNvbm5lY3Rvcik7DQo+ICAJaW50ZWxfYXR0YWNoX2Jyb2FkY2FzdF9y
-Z2JfcHJvcGVydHkoY29ubmVjdG9yKTsNCj4gLQlkcm1fY29ubmVjdG9yX2F0dGFjaF9tYXhfYnBj
-X3Byb3BlcnR5KGNvbm5lY3RvciwgNiwgMTIpOw0KPiArDQo+ICsJLyoNCj4gKwkgKiBSZXVzZSB0
-aGUgcHJvcCBmcm9tIHRoZSBTU1QgY29ubmVjdG9yIGJlY2F1c2Ugd2UncmUNCj4gKwkgKiBub3Qg
-YWxsb3dlZCB0byBjcmVhdGUgbmV3IHByb3BzIGFmdGVyIGRldmljZSByZWdpc3RyYXRpb24uDQo+
-ICsJICovDQo+ICsJY29ubmVjdG9yLT5tYXhfYnBjX3Byb3BlcnR5ID0NCj4gKwkJaW50ZWxfZHAt
-PmF0dGFjaGVkX2Nvbm5lY3Rvci0+YmFzZS5tYXhfYnBjX3Byb3BlcnR5Ow0KPiArCWlmIChjb25u
-ZWN0b3ItPm1heF9icGNfcHJvcGVydHkpDQo+ICsJCWRybV9jb25uZWN0b3JfYXR0YWNoX21heF9i
-cGNfcHJvcGVydHkoY29ubmVjdG9yLCA2LA0KPiAxMik7DQoNCkkgd2FzIGxvb2tpbmcgdG8gdGhl
-IHNhbWUgaXNzdWUgYW5kIHRoaW5raW5nIGlmIGRvIHNvbWV0aGluZyBzaW1pbGFyIHRvDQppbnRl
-bF9hdHRhY2hfZm9yY2VfYXVkaW9fcHJvcGVydHkoKS9pbnRlbF9hdHRhY2hfYnJvYWRjYXN0X3Jn
-Yl9wcm9wZXJ0KA0KKSB3b3VsZCBiZSB0aGUgcmlnaHQgYXBwcm9hY2ggYnV0IHRoaXMgbG9va3Mg
-ZXZlbiBiZXR0ZXIuDQoNClJldmlld2VkLWJ5OiBKb3PDqSBSb2JlcnRvIGRlIFNvdXphIDxqb3Nl
-LnNvdXphQGludGVsLmNvbT4NCg0KPiAgDQo+ICAJcmV0dXJuIGNvbm5lY3RvcjsNCj4gIA0K
+From: "Yavuz, Tuba" <tuba@ece.ufl.edu>
+
+cherry pick from commit 7fafcfdf6377b18b2a726ea554d6e593ba44349f
+("USB: gadget: f_midi: fixing a possible double-free in f_midi")
+Removing 'return err;' from conflict.
+
+It looks like there is a possibility of a double-free vulnerability on an
+error path of the f_midi_set_alt function in the f_midi driver. If the
+path is feasible then free_ep_req gets called twice:
+
+         req->complete = f_midi_complete;
+         err = usb_ep_queue(midi->out_ep, req, GFP_ATOMIC);
+            => ...
+             usb_gadget_giveback_request
+               =>
+                 f_midi_complete (CALLBACK)
+                   (inside f_midi_complete, for various cases of status)
+                   free_ep_req(ep, req); // first kfree
+         if (err) {
+                 ERROR(midi, "%s: couldn't enqueue request: %d\n",
+                             midi->out_ep->name, err);
+                 free_ep_req(midi->out_ep, req); // second kfree
+                 return err;
+         }
+
+The double-free possibility was introduced with commit ad0d1a058eac
+("usb: gadget: f_midi: fix leak on failed to enqueue out requests").
+
+Found by MOXCAFE tool.
+
+Signed-off-by: Tuba Yavuz <tuba@ece.ufl.edu>
+Fixes: ad0d1a058eac ("usb: gadget: f_midi: fix leak on failed to enqueue out requests")
+Acked-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Cc: stable <stable@vger.kernel.org> # 4.4.y
+---
+ drivers/usb/gadget/function/f_midi.c | 3 ++-
+ drivers/usb/gadget/u_f.h             | 2 ++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/gadget/function/f_midi.c b/drivers/usb/gadget/function/f_midi.c
+index 5ead414586a1..e5c4a907e5d4 100644
+--- a/drivers/usb/gadget/function/f_midi.c
++++ b/drivers/usb/gadget/function/f_midi.c
+@@ -366,7 +366,8 @@ static int f_midi_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
+ 		if (err) {
+ 			ERROR(midi, "%s queue req: %d\n",
+ 				    midi->out_ep->name, err);
+-			free_ep_req(midi->out_ep, req);
++			if (req->buf != NULL)
++				free_ep_req(midi->out_ep, req);
+ 		}
+ 	}
+ 
+diff --git a/drivers/usb/gadget/u_f.h b/drivers/usb/gadget/u_f.h
+index 69a1d10df04f..3ee365fbc2e2 100644
+--- a/drivers/usb/gadget/u_f.h
++++ b/drivers/usb/gadget/u_f.h
+@@ -65,7 +65,9 @@ struct usb_request *alloc_ep_req(struct usb_ep *ep, size_t len, int default_len)
+ /* Frees a usb_request previously allocated by alloc_ep_req() */
+ static inline void free_ep_req(struct usb_ep *ep, struct usb_request *req)
+ {
++	WARN_ON(req->buf == NULL);
+ 	kfree(req->buf);
++	req->buf = NULL;
+ 	usb_ep_free_request(ep, req);
+ }
+ 
+-- 
+2.23.0.rc1.153.gdeed80330f-goog
+
