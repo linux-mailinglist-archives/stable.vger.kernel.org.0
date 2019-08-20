@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87D3E960F6
+	by mail.lfdr.de (Postfix) with ESMTP id 198A2960F5
 	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:44:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730755AbfHTNnO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Aug 2019 09:43:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38904 "EHLO mail.kernel.org"
+        id S1730817AbfHTNnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Aug 2019 09:43:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730805AbfHTNnN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Aug 2019 09:43:13 -0400
+        id S1730812AbfHTNnP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Aug 2019 09:43:15 -0400
 Received: from sasha-vm.mshome.net (unknown [12.236.144.82])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2AB522DD3;
-        Tue, 20 Aug 2019 13:43:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D97862332A;
+        Tue, 20 Aug 2019 13:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566308593;
-        bh=+WDn8oAOmEByojJPlcQ4S36KY7Q1Vx3gD+XTkN2jkiY=;
+        s=default; t=1566308594;
+        bh=pEofJJrfW84xpESYCqibp27+kAhEdaYF7y5nQChBpWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DWA2rGnkzqFtQzHcxGZA0WQZ6Oj3e2SnrFMOdDlnh4evcCxIWyDppWt5KkV+mMU7j
-         XCNcq/d+xJpSWFfyAYc1VqRShDMJkjfz7OOjZsEW2d/vLlYo7bQHPwdsW+tua7durS
-         U1EWbutujzM4sGSc7cQ3CPi57JDRzA0pI8SdBHmI=
+        b=jxQAWw+7oj6gy39mIygoiTpNAbefF+K+AxSPpnPyRfQI4VLAUS8FptuyJrv3g2xdr
+         kj0VOt2oj98632QpM5u18gC8rxh8h5Bi5GIV1dQcYjS7HRAPWav3ZcEPKw+3fbFG5C
+         36SGgo7UhqoHycv/MlOXBJ6bvgjIRQ+o8PcXwPMg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 11/12] usb: host: fotg2: restart hcd after port reset
-Date:   Tue, 20 Aug 2019 09:42:52 -0400
-Message-Id: <20190820134253.11562-11-sashal@kernel.org>
+Cc:     Adrian Vladu <avladu@cloudbasesolutions.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Alessandro Pilotti <apilotti@cloudbasesolutions.com>,
+        linux-hyperv@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 12/12] tools: hv: fix KVP and VSS daemons exit code
+Date:   Tue, 20 Aug 2019 09:42:53 -0400
+Message-Id: <20190820134253.11562-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190820134253.11562-1-sashal@kernel.org>
 References: <20190820134253.11562-1-sashal@kernel.org>
@@ -44,37 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Ulli Kroll <ulli.kroll@googlemail.com>
+From: Adrian Vladu <avladu@cloudbasesolutions.com>
 
-[ Upstream commit 777758888ffe59ef754cc39ab2f275dc277732f4 ]
+[ Upstream commit b0995156071b0ff29a5902964a9dc8cfad6f81c0 ]
 
-On the Gemini SoC the FOTG2 stalls after port reset
-so restart the HCD after each port reset.
+HyperV KVP and VSS daemons should exit with 0 when the '--help'
+or '-h' flags are used.
 
-Signed-off-by: Hans Ulli Kroll <ulli.kroll@googlemail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20190810150458.817-1-linus.walleij@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Adrian Vladu <avladu@cloudbasesolutions.com>
+
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>
+Cc: Sasha Levin <sashal@kernel.org>
+Cc: Alessandro Pilotti <apilotti@cloudbasesolutions.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/fotg210-hcd.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ tools/hv/hv_kvp_daemon.c | 2 ++
+ tools/hv/hv_vss_daemon.c | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/usb/host/fotg210-hcd.c b/drivers/usb/host/fotg210-hcd.c
-index 457cc6525abd6..aa21036828084 100644
---- a/drivers/usb/host/fotg210-hcd.c
-+++ b/drivers/usb/host/fotg210-hcd.c
-@@ -1652,6 +1652,10 @@ static int fotg210_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
- 			/* see what we found out */
- 			temp = check_reset_complete(fotg210, wIndex, status_reg,
- 					fotg210_readl(fotg210, status_reg));
-+
-+			/* restart schedule */
-+			fotg210->command |= CMD_RUN;
-+			fotg210_writel(fotg210, fotg210->command, &fotg210->regs->command);
- 		}
- 
- 		if (!(temp & (PORT_RESUME|PORT_RESET))) {
+diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
+index 62c9a503ae052..0ef215061fb50 100644
+--- a/tools/hv/hv_kvp_daemon.c
++++ b/tools/hv/hv_kvp_daemon.c
+@@ -1380,6 +1380,8 @@ int main(int argc, char *argv[])
+ 			daemonize = 0;
+ 			break;
+ 		case 'h':
++			print_usage(argv);
++			exit(0);
+ 		default:
+ 			print_usage(argv);
+ 			exit(EXIT_FAILURE);
+diff --git a/tools/hv/hv_vss_daemon.c b/tools/hv/hv_vss_daemon.c
+index 34031a297f024..514d29966ac67 100644
+--- a/tools/hv/hv_vss_daemon.c
++++ b/tools/hv/hv_vss_daemon.c
+@@ -172,6 +172,8 @@ int main(int argc, char *argv[])
+ 			daemonize = 0;
+ 			break;
+ 		case 'h':
++			print_usage(argv);
++			exit(0);
+ 		default:
+ 			print_usage(argv);
+ 			exit(EXIT_FAILURE);
 -- 
 2.20.1
 
