@@ -2,137 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C5E1951BB
-	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 01:41:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1F1095366
+	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 03:30:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728623AbfHSXk7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Aug 2019 19:40:59 -0400
-Received: from mga07.intel.com ([134.134.136.100]:48679 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728520AbfHSXk7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Aug 2019 19:40:59 -0400
-X-Amp-Result: UNSCANNABLE
-X-Amp-File-Uploaded: False
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 19 Aug 2019 16:40:58 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,406,1559545200"; 
-   d="scan'208";a="178017822"
-Received: from labuser-z97x-ud5h.jf.intel.com (HELO intel.com) ([10.54.75.49])
-  by fmsmga008.fm.intel.com with ESMTP; 19 Aug 2019 16:40:57 -0700
-Date:   Mon, 19 Aug 2019 16:42:29 -0700
-From:   Manasi Navare <manasi.d.navare@intel.com>
-To:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc:     intel-gfx-trybot@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [PATCH 01/21] drm/i915/dp: Fix dsc bpp calculations.
-Message-ID: <20190819234229.GB19383@intel.com>
-References: <20190819105213.22476-1-maarten.lankhorst@linux.intel.com>
+        id S1728741AbfHTB3v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Aug 2019 21:29:51 -0400
+Received: from mail-io1-f65.google.com ([209.85.166.65]:45323 "EHLO
+        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728734AbfHTB3v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Aug 2019 21:29:51 -0400
+Received: by mail-io1-f65.google.com with SMTP id t3so8597369ioj.12;
+        Mon, 19 Aug 2019 18:29:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=KKjD5A8NaZUrH/M43uDXv8CAljNHrPrsN4OaxgcIFWU=;
+        b=gVYZIY8BzCrk1VyB29fczZF2tKYtOEIigjrlogTwEIWHsU6+681mGRuSKV1Yaa1DNx
+         YhD+oeBQZiyRrYCmRexgUUhbubEWfdOpvKgJJTU1Si+vT/BfbUOMZZ1+sM0D5wVH0Pvf
+         TRQVXvTaXNLees07ZAko50w9Qd+1sQCFYvXI5hIcWyfDLuYYlrOq0JwiUCgLfalasdcz
+         H9jCvAyI2ZjVEoZYsi4yXrHqUkKwX6TxQQ06ulagsxGTDdljwqBD170Rbf2dR2Pr8jr4
+         pH4p6MM/NdLPN3alOV3IGTvm4PIl9GE0G2VU083yyM5LNAyJW/UBSLBgxjyoZZdLzo9b
+         wKYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=KKjD5A8NaZUrH/M43uDXv8CAljNHrPrsN4OaxgcIFWU=;
+        b=PYPLq24H6i7nobHunbjFP0OMRk7W/GCCXEIGvyRYDdaBZemd6BOP8tzaydyRadNkpn
+         1S4yHgVjtayrlY/T+iNDbtKdWN+eDQotJmMNT75Vk2F6hauONviHjl6YD7Qj5nJ+DAOT
+         dO9m2THkRwwGknQ9Q6riXVvrp6YDmTrZOX+HO4F3+AU+F7naYsp5x1iFXAfUDOuIzlFC
+         yBBvxq/6yCR6sn7K+SHHBDl6ZW/go5oz3ogPWUeq8cDAEDqKoCS7ey07I1NvxX7+QasQ
+         AO+qEeKvXN9xsqvjx0N+4lyR9MfNlNeggrOc1F9Ovss5m8fq3oL2jAEjyPaHgwrVX4uY
+         8cmg==
+X-Gm-Message-State: APjAAAXCxk/2yBJOvQM/BBR6iHeeU1qWl/WQ/oqTflVlXdguSRMngGQe
+        EmhFl6X/eucP574MmaUHCAZdnZXac/YSas37z18=
+X-Google-Smtp-Source: APXvYqwsPm5MLF4aYGeG/QAtbB9h+kk5pi4C2nkEC0lE+bqaQGppmxMlXeVXIRPxp9/vOiGE3ZAhisVxV57qTI1WnWM=
+X-Received: by 2002:a6b:e511:: with SMTP id y17mr547859ioc.228.1566264590034;
+ Mon, 19 Aug 2019 18:29:50 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190819105213.22476-1-maarten.lankhorst@linux.intel.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+References: <20190817004726.2530670-1-guro@fb.com> <CALOAHbBsMNLN6jZn83zx6EWM_092s87zvDQ7p-MZpY+HStk-1Q@mail.gmail.com>
+ <20190817191419.GA11125@castle> <CALOAHbA-Z-1QDSgQ6H6QhPaPwAGyqfpd3Gbq-KLnoO=ZZxWnrw@mail.gmail.com>
+ <20190819212034.GB24956@tower.dhcp.thefacebook.com>
+In-Reply-To: <20190819212034.GB24956@tower.dhcp.thefacebook.com>
+From:   Yafang Shao <laoar.shao@gmail.com>
+Date:   Tue, 20 Aug 2019 09:29:14 +0800
+Message-ID: <CALOAHbCwWHirJjmByeAVZdDoHpCMabq20tzMdhr_25Ddic9TYw@mail.gmail.com>
+Subject: Re: [PATCH] Partially revert "mm/memcontrol.c: keep local VM counters
+ in sync with the hierarchical ones"
+To:     Roman Gushchin <guro@fb.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Linux MM <linux-mm@kvack.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Kernel Team <Kernel-team@fb.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 19, 2019 at 12:51:53PM +0200, Maarten Lankhorst wrote:
-> There was a integer wraparound when mode_clock became too high,
+On Tue, Aug 20, 2019 at 5:20 AM Roman Gushchin <guro@fb.com> wrote:
+>
+> On Sun, Aug 18, 2019 at 08:30:15AM +0800, Yafang Shao wrote:
+> > On Sun, Aug 18, 2019 at 3:14 AM Roman Gushchin <guro@fb.com> wrote:
+> > >
+> > > On Sat, Aug 17, 2019 at 11:33:57AM +0800, Yafang Shao wrote:
+> > > > On Sat, Aug 17, 2019 at 8:47 AM Roman Gushchin <guro@fb.com> wrote:
+> > > > >
+> > > > > Commit 766a4c19d880 ("mm/memcontrol.c: keep local VM counters in sync
+> > > > > with the hierarchical ones") effectively decreased the precision of
+> > > > > per-memcg vmstats_local and per-memcg-per-node lruvec percpu counters.
+> > > > >
+> > > > > That's good for displaying in memory.stat, but brings a serious regression
+> > > > > into the reclaim process.
+> > > > >
+> > > > > One issue I've discovered and debugged is the following:
+> > > > > lruvec_lru_size() can return 0 instead of the actual number of pages
+> > > > > in the lru list, preventing the kernel to reclaim last remaining
+> > > > > pages. Result is yet another dying memory cgroups flooding.
+> > > > > The opposite is also happening: scanning an empty lru list
+> > > > > is the waste of cpu time.
+> > > > >
+> > > > > Also, inactive_list_is_low() can return incorrect values, preventing
+> > > > > the active lru from being scanned and freed. It can fail both because
+> > > > > the size of active and inactive lists are inaccurate, and because
+> > > > > the number of workingset refaults isn't precise. In other words,
+> > > > > the result is pretty random.
+> > > > >
+> > > > > I'm not sure, if using the approximate number of slab pages in
+> > > > > count_shadow_number() is acceptable, but issues described above
+> > > > > are enough to partially revert the patch.
+> > > > >
+> > > > > Let's keep per-memcg vmstat_local batched (they are only used for
+> > > > > displaying stats to the userspace), but keep lruvec stats precise.
+> > > > > This change fixes the dead memcg flooding on my setup.
+> > > > >
+> > > >
+> > > > That will make some misunderstanding if the local counters are not in
+> > > > sync with the hierarchical ones
+> > > > (someone may doubt whether there're something leaked.).
+> > >
+> > > Sure, but the actual leakage is a much more serious issue.
+> > >
+> > > > If we have to do it like this, I think we should better document this behavior.
+> > >
+> > > Lru size calculations can be done using per-zone counters, which is
+> > > actually cheaper, because the number of zones is usually smaller than
+> > > the number of cpus. I'll send a corresponding patch on Monday.
+> > >
+> >
+> > Looks like a good idea.
+> >
+> > > Maybe other use cases can also be converted?
+> >
+> > We'd better keep the behavior the same across counters. I think you
+> > can have a try.
+>
+> As I said, consistency of counters is important, but not nearly as important
+> as the real behavior of the system. Especially because we talk about
+> per-node memcg statistics, which I believe is mostly used for debugging.
+>
+> So for now I think the right thing to do is to revert the change to fix
+> the memory reclaim process. And then we can discuss how to get counters
+> right.
+>
 
-mode_clock is obtained from crtc_clock from the mode which is an int,
-are you saying we also need to change that as well in drm_display_mode struct to handle
-higher mode clocks?
+Sure.
 
-> and we didn't correct for the FEC overhead factor when dividing,
-> also the calculations would break at HBR3.
-> 
-> As a result our calculated bpp was way too high, and the link width
-> bpp limitation never came into effect.
-> 
-> Print out the resulting bpp calcululations as a sanity check, just
-> in case we ever have to debug it later on again.
-> 
-> Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> Fixes: d9218c8f6cf4 ("drm/i915/dp: Add helpers for Compressed BPP and Slice Count for DSC")
-> Cc: <stable@vger.kernel.org> # v5.0+
-> Cc: Manasi Navare <manasi.d.navare@intel.com>
-> ---
->  drivers/gpu/drm/i915/display/intel_dp.c | 16 +++++++++-------
->  drivers/gpu/drm/i915/display/intel_dp.h |  4 ++--
->  2 files changed, 11 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
-> index 5c45a3bb102d..2e9cbc15e41f 100644
-> --- a/drivers/gpu/drm/i915/display/intel_dp.c
-> +++ b/drivers/gpu/drm/i915/display/intel_dp.c
-> @@ -4323,10 +4323,10 @@ intel_dp_get_sink_irq_esi(struct intel_dp *intel_dp, u8 *sink_irq_vector)
->  		DP_DPRX_ESI_LEN;
->  }
->  
-> -u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
-> -				int mode_clock, int mode_hdisplay)
-> +u16 intel_dp_dsc_get_output_bpp(u32 link_clock, u8 lane_count,
-> +				u32 mode_clock, u32 mode_hdisplay)
->  {
-> -	u16 bits_per_pixel, max_bpp_small_joiner_ram;
-> +	u32 bits_per_pixel, max_bpp_small_joiner_ram;
-
-Why do you need the bits_per_pixel and max bpp as a u32? u16 should be good to hold
-the max value right?
-
->  	int i;
->  
->  	/*
-> @@ -4335,13 +4335,14 @@ u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
->  	 * FECOverhead = 2.4%, for SST -> TimeSlotsPerMTP is 1,
->  	 * for MST -> TimeSlotsPerMTP has to be calculated
->  	 */
-> -	bits_per_pixel = (link_clock * lane_count * 8 *
-> -			  DP_DSC_FEC_OVERHEAD_FACTOR) /
-> -		mode_clock;
-> +	bits_per_pixel = div_u64((u64)link_clock * lane_count * 8 *
-> +				 DP_DSC_FEC_OVERHEAD_FACTOR, 1000ULL * mode_clock);
-
-Thanks for this catch, I remember having the division by 1000 in the original patch series: https://patchwork.freedesktop.org/patch/241674/?series=47461&rev=2
-but may be it got lost in the reviews.
-
-Manasi
-
-> +	DRM_DEBUG_KMS("Max link bpp: %u\n", bits_per_pixel);
->  
->  	/* Small Joiner Check: output bpp <= joiner RAM (bits) / Horiz. width */
->  	max_bpp_small_joiner_ram = DP_DSC_MAX_SMALL_JOINER_RAM_BUFFER /
->  		mode_hdisplay;
-> +	DRM_DEBUG_KMS("Max small joiner bpp: %u\n", max_bpp_small_joiner_ram);
->  
->  	/*
->  	 * Greatest allowed DSC BPP = MIN (output BPP from avaialble Link BW
-> @@ -4351,7 +4352,8 @@ u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
->  
->  	/* Error out if the max bpp is less than smallest allowed valid bpp */
->  	if (bits_per_pixel < valid_dsc_bpp[0]) {
-> -		DRM_DEBUG_KMS("Unsupported BPP %d\n", bits_per_pixel);
-> +		DRM_DEBUG_KMS("Unsupported BPP %u, min %u\n",
-> +			      bits_per_pixel, valid_dsc_bpp[0]);
->  		return 0;
->  	}
->  
-> diff --git a/drivers/gpu/drm/i915/display/intel_dp.h b/drivers/gpu/drm/i915/display/intel_dp.h
-> index 657bbb1f5ed0..007d1981a33b 100644
-> --- a/drivers/gpu/drm/i915/display/intel_dp.h
-> +++ b/drivers/gpu/drm/i915/display/intel_dp.h
-> @@ -102,8 +102,8 @@ bool intel_dp_source_supports_hbr2(struct intel_dp *intel_dp);
->  bool intel_dp_source_supports_hbr3(struct intel_dp *intel_dp);
->  bool
->  intel_dp_get_link_status(struct intel_dp *intel_dp, u8 *link_status);
-> -u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
-> -				int mode_clock, int mode_hdisplay);
-> +u16 intel_dp_dsc_get_output_bpp(u32 link_clock, u8 lane_count,
-> +				u32 mode_clock, u32 mode_hdisplay);
->  u8 intel_dp_dsc_get_slice_count(struct intel_dp *intel_dp, int mode_clock,
->  				int mode_hdisplay);
->  
-> -- 
-> 2.20.1
-> 
+Thanks
+Yafang
