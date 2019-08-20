@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 393CB96159
-	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:47:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1EE49608C
+	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:41:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730373AbfHTNqq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Aug 2019 09:46:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36858 "EHLO mail.kernel.org"
+        id S1730468AbfHTNls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Aug 2019 09:41:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730453AbfHTNlp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Aug 2019 09:41:45 -0400
+        id S1730463AbfHTNls (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Aug 2019 09:41:48 -0400
 Received: from sasha-vm.mshome.net (unknown [12.236.144.82])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB73B2087E;
-        Tue, 20 Aug 2019 13:41:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65B2022DA7;
+        Tue, 20 Aug 2019 13:41:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566308504;
-        bh=iDD40kvBDaWUwYrHhhS3QcnGpCBQmHUNgN2uM+gM11M=;
+        s=default; t=1566308507;
+        bh=DDdouO8ebmkeL/1cMnnHpfKGuqbIm3aGqks+TdEDb60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EbWwRaudrgbm2Lbh0Z7UQlx4X6ked7rscRfAi88XGMYzu/u7sDCgncnkNdTWtB726
-         sta/vNhDCcsbtjUAkD3mWizbou0Cld6VWuXRyIhRfWbX5oh/0AB8AIlo2NnuDP7n7O
-         yGvoGk2bOWuYhJg85jY4nXtS3PMipzqeSY6xQtX4=
+        b=2SC6Mnq68OfuJKz8BCmYLoEC3Ok3vRmD46W3bFoBBTUum7q5MDOB8Kktf1lFOnva7
+         Jc9HW4X6vv5fthQia9RU1YbNzt6qdCuWOHLmjxhAAYAqftWVrtY1J37SRoeeNAGT0I
+         yqE+ecGivGveTtVO5jZng2OJUUl7tV3HcH2HJYtU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wenwen Wang <wenwen@cs.uga.edu>,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 35/44] xen/blkback: fix memory leaks
-Date:   Tue, 20 Aug 2019 09:40:19 -0400
-Message-Id: <20190820134028.10829-35-sashal@kernel.org>
+Cc:     Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 36/44] arm64: cpufeature: Don't treat granule sizes as strict
+Date:   Tue, 20 Aug 2019 09:40:20 -0400
+Message-Id: <20190820134028.10829-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190820134028.10829-1-sashal@kernel.org>
 References: <20190820134028.10829-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,56 +46,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wenwen@cs.uga.edu>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit ae78ca3cf3d9e9f914bfcd0bc5c389ff18b9c2e0 ]
+[ Upstream commit 5717fe5ab38f9ccb32718bcb03bea68409c9cce4 ]
 
-In read_per_ring_refs(), after 'req' and related memory regions are
-allocated, xen_blkif_map() is invoked to map the shared frame, irq, and
-etc. However, if this mapping process fails, no cleanup is performed,
-leading to memory leaks. To fix this issue, invoke the cleanup before
-returning the error.
+If a CPU doesn't support the page size for which the kernel is
+configured, then we will complain and refuse to bring it online. For
+secondary CPUs (and the boot CPU on a system booting with EFI), we will
+also print an error identifying the mismatch.
 
-Acked-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Consequently, the only time that the cpufeature code can detect a
+granule size mismatch is for a granule other than the one that is
+currently being used. Although we would rather such systems didn't
+exist, we've unfortunately lost that battle and Kevin reports that
+on his amlogic S922X (odroid-n2 board) we end up warning and taining
+with defconfig because 16k pages are not supported by all of the CPUs.
+
+In such a situation, we don't actually care about the feature mismatch,
+particularly now that KVM only exposes the sanitised view of the CPU
+registers (commit 93390c0a1b20 - "arm64: KVM: Hide unsupported AArch64
+CPU features from guests"). Treat the granule fields as non-strict and
+let Kevin run without a tainted kernel.
+
+Cc: Marc Zyngier <maz@kernel.org>
+Reported-by: Kevin Hilman <khilman@baylibre.com>
+Tested-by: Kevin Hilman <khilman@baylibre.com>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+[catalin.marinas@arm.com: changelog updated with KVM sanitised regs commit]
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/xen-blkback/xenbus.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm64/kernel/cpufeature.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/xen-blkback/xenbus.c b/drivers/block/xen-blkback/xenbus.c
-index 3ac6a5d180717..b90dbcd99c03e 100644
---- a/drivers/block/xen-blkback/xenbus.c
-+++ b/drivers/block/xen-blkback/xenbus.c
-@@ -965,6 +965,7 @@ static int read_per_ring_refs(struct xen_blkif_ring *ring, const char *dir)
- 		}
- 	}
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index ae63eedea1c12..68faf535f40a3 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -184,9 +184,17 @@ static const struct arm64_ftr_bits ftr_id_aa64zfr0[] = {
+ };
  
-+	err = -ENOMEM;
- 	for (i = 0; i < nr_grefs * XEN_BLKIF_REQS_PER_PAGE; i++) {
- 		req = kzalloc(sizeof(*req), GFP_KERNEL);
- 		if (!req)
-@@ -987,7 +988,7 @@ static int read_per_ring_refs(struct xen_blkif_ring *ring, const char *dir)
- 	err = xen_blkif_map(ring, ring_ref, nr_grefs, evtchn);
- 	if (err) {
- 		xenbus_dev_fatal(dev, err, "mapping ring-ref port %u", evtchn);
--		return err;
-+		goto fail;
- 	}
- 
- 	return 0;
-@@ -1007,8 +1008,7 @@ static int read_per_ring_refs(struct xen_blkif_ring *ring, const char *dir)
- 		}
- 		kfree(req);
- 	}
--	return -ENOMEM;
--
-+	return err;
- }
- 
- static int connect_ring(struct backend_info *be)
+ static const struct arm64_ftr_bits ftr_id_aa64mmfr0[] = {
+-	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN4_SHIFT, 4, ID_AA64MMFR0_TGRAN4_NI),
+-	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN64_SHIFT, 4, ID_AA64MMFR0_TGRAN64_NI),
+-	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN16_SHIFT, 4, ID_AA64MMFR0_TGRAN16_NI),
++	/*
++	 * We already refuse to boot CPUs that don't support our configured
++	 * page size, so we can only detect mismatches for a page size other
++	 * than the one we're currently using. Unfortunately, SoCs like this
++	 * exist in the wild so, even though we don't like it, we'll have to go
++	 * along with it and treat them as non-strict.
++	 */
++	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN4_SHIFT, 4, ID_AA64MMFR0_TGRAN4_NI),
++	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN64_SHIFT, 4, ID_AA64MMFR0_TGRAN64_NI),
++	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN16_SHIFT, 4, ID_AA64MMFR0_TGRAN16_NI),
++
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_BIGENDEL0_SHIFT, 4, 0),
+ 	/* Linux shouldn't care about secure memory */
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_SNSMEM_SHIFT, 4, 0),
 -- 
 2.20.1
 
