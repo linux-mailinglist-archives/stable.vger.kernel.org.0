@@ -2,84 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D29E996B38
-	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 23:14:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC6C296B67
+	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 23:25:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730760AbfHTVNx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Aug 2019 17:13:53 -0400
-Received: from mail-pg1-f170.google.com ([209.85.215.170]:39623 "EHLO
-        mail-pg1-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728283AbfHTVNx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Aug 2019 17:13:53 -0400
-Received: by mail-pg1-f170.google.com with SMTP id u17so20632pgi.6
-        for <stable@vger.kernel.org>; Tue, 20 Aug 2019 14:13:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=android.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=COQZdiCjrrFEcVsjX6I0ZXViUiK8K/UbiYsifMm0lpQ=;
-        b=hC0JAsdkBmeIWNFNGmEqP7K6ub18gh9k8irPi0ipsaSpo2Njrhbu2TNSS6iz9xkoUx
-         8+vfxlezmNEJ/P1DmD1AjBrRH6Nu1r6GOxw3cV/qUT5DneI5Sq7G9JdwYlZxed6+DKS2
-         ETvxGt6zDFQmPAp2B5rM8dRzOe6MJBnSX4h+BKjmk/v6rdC0mF3UCcK45nalrCpbjhiF
-         gtIn8xIcRf4hi+z7kA4MNTge1cfpoxotHHMvU3oXcegbfYkAKS+npWOIA7PjNtwbuMVe
-         qLKlU1DLGnbmD0ZSQphipIJKc4IN+qbHzaG7cWXQ7gXFW6siwxqVW6p2KJ8hVgG8TNrg
-         v5vA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=COQZdiCjrrFEcVsjX6I0ZXViUiK8K/UbiYsifMm0lpQ=;
-        b=SNAGqlvOSAqCvM5rm9hetMirJ8Sj48i67iZcPv+OCA6q7XniF3AIeCkJjvL505Vjpv
-         fslPXbn//xBOJy6OvjJi6QuFqpK1RvhjwWnbAbDLmNZiIRUuoCQ7vjrxEOivxSJLs2dG
-         UfOzEpaGDyUady3KApuhRJnuvVhYxpHCVyB2o/OQEQp0lImSoZ/6nwXV726SBo90VXub
-         ybyf0dh1ANaeKNT2yzvGknhrerqi6jHiun1fIohYEWD3BYzkOqx9KneIfW6jkDLFkCYA
-         wJyu9gI8Gj989Ja3vP2D++5QTUftsP7DdP6TJfef16ya3sxG00UlBQdeoAbc30fCrQAN
-         Uj1A==
-X-Gm-Message-State: APjAAAUblzmB3+75gMzM0RDzHqc8gSwhI9JrX6DyoAUdeNO6Rce+I7xp
-        t+uNGQKEzPoEzSU4Krw8z1qKTQ==
-X-Google-Smtp-Source: APXvYqxN2pWdjLTCMpSWcz4etD41MHjyNMwBGq8Bot7/an/+ofeqXS2Yajq0JcfiwaEbFq09SwbeWQ==
-X-Received: by 2002:aa7:9197:: with SMTP id x23mr31790435pfa.95.1566335632670;
-        Tue, 20 Aug 2019 14:13:52 -0700 (PDT)
-Received: from nebulus.mtv.corp.google.com ([2620:15c:211:200:5404:91ba:59dc:9400])
-        by smtp.googlemail.com with ESMTPSA id a6sm22890774pfa.162.2019.08.20.14.13.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 20 Aug 2019 14:13:52 -0700 (PDT)
-Subject: Re: USB: gadget: f_midi: fixing a possible double-free in f_midi
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, kernel-team@android.com,
-        "Yavuz, Tuba" <tuba@ece.ufl.edu>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
-        stable <stable@vger.kernel.org>, Felipe Balbi <balbi@ti.com>,
-        linux-usb@vger.kernel.org
-References: <20190820174516.255420-1-salyzyn@android.com>
- <20190820201515.GA20068@kroah.com>
-From:   Mark Salyzyn <salyzyn@android.com>
-Message-ID: <c96a0121-eb12-9449-44eb-0d2e09ccef92@android.com>
-Date:   Tue, 20 Aug 2019 14:13:51 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1730092AbfHTVZl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Aug 2019 17:25:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49774 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728283AbfHTVZl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Aug 2019 17:25:41 -0400
+Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BBAF5206DD;
+        Tue, 20 Aug 2019 21:25:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1566336340;
+        bh=gusMECkDMjWw3c1ux6jK6VP03aT8O7UmZ1AqrmC4KTg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=OZepsdjiVSXBZvLQdpaMi/ISX450KYs1gNAYLVarbulSAydq+rKSm5Xjjpd3KJO0n
+         NY7oSizLhAEnGT6n3X9n79Svl9V7yvrRiUJLJiQjm0KmfOdHP3EusWi6IkmYFASbvx
+         WeS7FPZ+dvjMoSi/78rqDWUBCCwuWdxjZwhV5EzY=
+Date:   Tue, 20 Aug 2019 17:25:39 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: Re: Please apply commit 0f0727d971f6 ("drm/amd/display: readd -msse2
+ to prevent Clang from emitting libcalls to undefined SW FP routines") to
+ 4.19.y
+Message-ID: <20190820212539.GA1581@sasha-vm>
+References: <CAKwvOdm0sWCF=PiNJvKWxt7CaTXSF13cZNuYPhKC=Kq8ooi1HA@mail.gmail.com>
+ <20190820210716.GA31292@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20190820201515.GA20068@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-GB
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20190820210716.GA31292@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/20/19 1:15 PM, Greg Kroah-Hartman wrote:
-> No signed-off-by from you?
+On Tue, Aug 20, 2019 at 02:07:16PM -0700, Greg KH wrote:
+>On Tue, Aug 20, 2019 at 02:00:21PM -0700, Nick Desaulniers wrote:
+>> Please apply commit 0f0727d971f6 ("drm/amd/display: readd -msse2 to
+>> prevent Clang from emitting libcalls to undefined SW FP routines") to
+>> 4.19.y.
+>>
+>> It will help with AMD based chromebooks for ChromeOS.
 >
-> Anyway, this is already in the 4.4.y queue and will be in the next
-> release.
->
-> thanks,
->
-> greg k-h
+>That commit id is not in Linus's tree, are you sure you got it correct?
 
-Ok, thanks! I will stand down.
+That's a linux-next commit.
 
--- Mark
-
+--
+Thanks,
+Sasha
