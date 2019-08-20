@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4985E960EF
-	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:44:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D409960E3
+	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:44:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730529AbfHTNoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Aug 2019 09:44:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39026 "EHLO mail.kernel.org"
+        id S1730805AbfHTNnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Aug 2019 09:43:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730826AbfHTNnS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730820AbfHTNnS (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 20 Aug 2019 09:43:18 -0400
 Received: from sasha-vm.mshome.net (unknown [12.236.144.82])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DBCE22DA7;
-        Tue, 20 Aug 2019 13:43:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88F982332A;
+        Tue, 20 Aug 2019 13:43:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566308597;
-        bh=0Am0qtdNwSQg3Bskun8I7pWCiq0uX0Ute1NE12kHESs=;
-        h=From:To:Cc:Subject:Date:From;
-        b=raDt/mLxCZACRJPbLPpOkg8bg71QTxKg2hK3N98UPJhwB56ls4f2LxZ0fW02cHJwo
-         gI8xSKR724JR0rP8VzMwN/62fGXwg8cRZQGfxbGzDt6p13lj3kYhupJsaKiTa48aUV
-         WK+R2XeV5EiU4RXpQHxUt13D3PuX8sLqpxwkaieQ=
+        s=default; t=1566308598;
+        bh=VFt+3yrRV/54bT3zwv9JShdoQYuWiOlyC5hzlGGNJcQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=gDzH5UxV4i0Z6RysAQdFTshjoJnGWsa4WoENk4gVZDXQdizxIFtgVWW0ZQPNqUFDm
+         Ahb4BLKghrHAAX73buRfGG/ju3891mZuznVq15G6Fuho5OB+K2WtOk1/o0j2tqw05s
+         b+6wg5eIaewOtR2FJlyWYKmSvIuFAVZb9wVsMiNY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org, clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.9 1/7] dmaengine: ste_dma40: fix unneeded variable warning
-Date:   Tue, 20 Aug 2019 09:43:09 -0400
-Message-Id: <20190820134315.11720-1-sashal@kernel.org>
+Cc:     Robin Murphy <robin.murphy@arm.com>,
+        Nicolin Chen <nicoleotsuka@gmail.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.9 2/7] iommu/dma: Handle SG length overflow better
+Date:   Tue, 20 Aug 2019 09:43:10 -0400
+Message-Id: <20190820134315.11720-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190820134315.11720-1-sashal@kernel.org>
+References: <20190820134315.11720-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,54 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit 5d6fb560729a5d5554e23db8d00eb57cd0021083 ]
+[ Upstream commit ab2cbeb0ed301a9f0460078e91b09f39958212ef ]
 
-clang-9 points out that there are two variables that depending on the
-configuration may only be used in an ARRAY_SIZE() expression but not
-referenced:
+Since scatterlist dimensions are all unsigned ints, in the relatively
+rare cases where a device's max_segment_size is set to UINT_MAX, then
+the "cur_len + s_length <= max_len" check in __finalise_sg() will always
+return true. As a result, the corner case of such a device mapping an
+excessively large scatterlist which is mergeable to or beyond a total
+length of 4GB can lead to overflow and a bogus truncated dma_length in
+the resulting segment.
 
-drivers/dma/ste_dma40.c:145:12: error: variable 'd40_backup_regs' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
-static u32 d40_backup_regs[] = {
-           ^
-drivers/dma/ste_dma40.c:214:12: error: variable 'd40_backup_regs_chan' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
-static u32 d40_backup_regs_chan[] = {
+As we already assume that any single segment must be no longer than
+max_len to begin with, this can easily be addressed by reshuffling the
+comparison.
 
-Mark these __maybe_unused to shut up the warning.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20190712091357.744515-1-arnd@arndb.de
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 809eac54cdd6 ("iommu/dma: Implement scatterlist segment merging")
+Reported-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Tested-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ste_dma40.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iommu/dma-iommu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dma/ste_dma40.c b/drivers/dma/ste_dma40.c
-index 8684d11b29bba..68b41daab3a8f 100644
---- a/drivers/dma/ste_dma40.c
-+++ b/drivers/dma/ste_dma40.c
-@@ -142,7 +142,7 @@ enum d40_events {
-  * when the DMA hw is powered off.
-  * TODO: Add save/restore of D40_DREG_GCC on dma40 v3 or later, if that works.
-  */
--static u32 d40_backup_regs[] = {
-+static __maybe_unused u32 d40_backup_regs[] = {
- 	D40_DREG_LCPA,
- 	D40_DREG_LCLA,
- 	D40_DREG_PRMSE,
-@@ -211,7 +211,7 @@ static u32 d40_backup_regs_v4b[] = {
- 
- #define BACKUP_REGS_SZ_V4B ARRAY_SIZE(d40_backup_regs_v4b)
- 
--static u32 d40_backup_regs_chan[] = {
-+static __maybe_unused u32 d40_backup_regs_chan[] = {
- 	D40_CHAN_REG_SSCFG,
- 	D40_CHAN_REG_SSELT,
- 	D40_CHAN_REG_SSPTR,
+diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+index 1520e7f02c2f1..89d191b6a0e0f 100644
+--- a/drivers/iommu/dma-iommu.c
++++ b/drivers/iommu/dma-iommu.c
+@@ -493,7 +493,7 @@ static int __finalise_sg(struct device *dev, struct scatterlist *sg, int nents,
+ 		 * - and wouldn't make the resulting output segment too long
+ 		 */
+ 		if (cur_len && !s_iova_off && (dma_addr & seg_mask) &&
+-		    (cur_len + s_length <= max_len)) {
++		    (max_len - cur_len >= s_length)) {
+ 			/* ...then concatenate it with the previous one */
+ 			cur_len += s_length;
+ 		} else {
 -- 
 2.20.1
 
