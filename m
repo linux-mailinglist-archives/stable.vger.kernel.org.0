@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F08D4960B0
-	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:43:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD67D960B2
+	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:43:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730305AbfHTNms (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Aug 2019 09:42:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38164 "EHLO mail.kernel.org"
+        id S1730735AbfHTNmy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Aug 2019 09:42:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730713AbfHTNmn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Aug 2019 09:42:43 -0400
+        id S1729639AbfHTNms (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Aug 2019 09:42:48 -0400
 Received: from sasha-vm.mshome.net (unknown [12.236.144.82])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC1402332A;
-        Tue, 20 Aug 2019 13:42:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5ADE32087E;
+        Tue, 20 Aug 2019 13:42:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566308562;
-        bh=yctDjU9jBK0gW33f5INa5DEZ6Ujq0YgaVx07t1uie+g=;
+        s=default; t=1566308567;
+        bh=vQSIWtLX/ZSUMHhJihrr+VUZjUJuJ72xye3zPrDepdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QoRFpvVikMB7cC48cejdoj9R0yfwbCH7enLTOvSk2bgEEa6WK7g3A51gmxDpUce2W
-         JIZtpsaFT2v/4vuxb7IHjKoLJDOKJ0+5KUNA+8UO9o8bf2oK69sXUyagFlNNRhFdRL
-         Yk22+4QMnYA65Gh2lEA11B3HDViYie4IX8R8pu8g=
+        b=yr6ceUFfk0ZOpklj2BLvvNpni8QG94038GpKUfUgcLn4i9/0laiTcvlx6mBppvYzW
+         5kQ9j6F/Vcd6dR00jBCXFRjouxgXrAEafxQ1vafwiOwrxxoxtwJtgfr/TtODN587JA
+         IYWCjZ/pp6w7edjKxmj2IuVFjVyIHxufC9M1Ar9w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Krzysztof Adamski <krzysztof.adamski@nokia.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 23/27] i2c: emev2: avoid race when unregistering slave client
-Date:   Tue, 20 Aug 2019 09:42:09 -0400
-Message-Id: <20190820134213.11279-23-sashal@kernel.org>
+Cc:     "Y.C. Chen" <yc_chen@aspeedtech.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Dave Airlie <airlied@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 24/27] drm/ast: Fixed reboot test may cause system hanged
+Date:   Tue, 20 Aug 2019 09:42:10 -0400
+Message-Id: <20190820134213.11279-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190820134213.11279-1-sashal@kernel.org>
 References: <20190820134213.11279-1-sashal@kernel.org>
@@ -44,77 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: "Y.C. Chen" <yc_chen@aspeedtech.com>
 
-[ Upstream commit d7437fc0d8291181debe032671a289b6bd93f46f ]
+[ Upstream commit 05b439711f6ff8700e8660f97a1179650778b9cb ]
 
-After we disabled interrupts, there might still be an active one
-running. Sync before clearing the pointer to the slave device.
+There is another thread still access standard VGA I/O while loading drm driver.
+Disable standard VGA I/O decode to avoid this issue.
 
-Fixes: c31d0a00021d ("i2c: emev2: add slave support")
-Reported-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Y.C. Chen <yc_chen@aspeedtech.com>
+Reviewed-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/1523410059-18415-1-git-send-email-yc_chen@aspeedtech.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-emev2.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/ast/ast_main.c | 5 ++++-
+ drivers/gpu/drm/ast/ast_mode.c | 2 +-
+ drivers/gpu/drm/ast/ast_post.c | 2 +-
+ 3 files changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-emev2.c b/drivers/i2c/busses/i2c-emev2.c
-index 35b302d983e0d..959d4912ec0d5 100644
---- a/drivers/i2c/busses/i2c-emev2.c
-+++ b/drivers/i2c/busses/i2c-emev2.c
-@@ -69,6 +69,7 @@ struct em_i2c_device {
- 	struct completion msg_done;
- 	struct clk *sclk;
- 	struct i2c_client *slave;
-+	int irq;
- };
+diff --git a/drivers/gpu/drm/ast/ast_main.c b/drivers/gpu/drm/ast/ast_main.c
+index 373700c05a00f..224fa1ef87ff9 100644
+--- a/drivers/gpu/drm/ast/ast_main.c
++++ b/drivers/gpu/drm/ast/ast_main.c
+@@ -131,8 +131,8 @@ static int ast_detect_chip(struct drm_device *dev, bool *need_post)
  
- static inline void em_clear_set_bit(struct em_i2c_device *priv, u8 clear, u8 set, u8 reg)
-@@ -339,6 +340,12 @@ static int em_i2c_unreg_slave(struct i2c_client *slave)
  
- 	writeb(0, priv->base + I2C_OFS_SVA0);
+ 	/* Enable extended register access */
+-	ast_enable_mmio(dev);
+ 	ast_open_key(ast);
++	ast_enable_mmio(dev);
  
-+	/*
-+	 * Wait for interrupt to finish. New slave irqs cannot happen because we
-+	 * cleared the slave address and, thus, only extension codes will be
-+	 * detected which do not use the slave ptr.
-+	 */
-+	synchronize_irq(priv->irq);
- 	priv->slave = NULL;
- 
- 	return 0;
-@@ -355,7 +362,7 @@ static int em_i2c_probe(struct platform_device *pdev)
+ 	/* Find out whether P2A works or whether to use device-tree */
+ 	ast_detect_config_mode(dev, &scu_rev);
+@@ -576,6 +576,9 @@ void ast_driver_unload(struct drm_device *dev)
  {
- 	struct em_i2c_device *priv;
- 	struct resource *r;
--	int irq, ret;
-+	int ret;
+ 	struct ast_private *ast = dev->dev_private;
  
- 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
- 	if (!priv)
-@@ -390,8 +397,8 @@ static int em_i2c_probe(struct platform_device *pdev)
++	/* enable standard VGA decode */
++	ast_set_index_reg(ast, AST_IO_CRTC_PORT, 0xa1, 0x04);
++
+ 	ast_release_firmware(dev);
+ 	kfree(ast->dp501_fw_addr);
+ 	ast_mode_fini(dev);
+diff --git a/drivers/gpu/drm/ast/ast_mode.c b/drivers/gpu/drm/ast/ast_mode.c
+index 8bb355d5d43d8..9d92d2d2fcfc7 100644
+--- a/drivers/gpu/drm/ast/ast_mode.c
++++ b/drivers/gpu/drm/ast/ast_mode.c
+@@ -600,7 +600,7 @@ static int ast_crtc_mode_set(struct drm_crtc *crtc,
+ 		return -EINVAL;
+ 	ast_open_key(ast);
  
- 	em_i2c_reset(&priv->adap);
+-	ast_set_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xa1, 0xff, 0x04);
++	ast_set_index_reg(ast, AST_IO_CRTC_PORT, 0xa1, 0x06);
  
--	irq = platform_get_irq(pdev, 0);
--	ret = devm_request_irq(&pdev->dev, irq, em_i2c_irq_handler, 0,
-+	priv->irq = platform_get_irq(pdev, 0);
-+	ret = devm_request_irq(&pdev->dev, priv->irq, em_i2c_irq_handler, 0,
- 				"em_i2c", priv);
- 	if (ret)
- 		goto err_clk;
-@@ -401,7 +408,8 @@ static int em_i2c_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err_clk;
+ 	ast_set_std_reg(crtc, adjusted_mode, &vbios_mode);
+ 	ast_set_crtc_reg(crtc, adjusted_mode, &vbios_mode);
+diff --git a/drivers/gpu/drm/ast/ast_post.c b/drivers/gpu/drm/ast/ast_post.c
+index f7d421359d564..c1d1ac51d1c20 100644
+--- a/drivers/gpu/drm/ast/ast_post.c
++++ b/drivers/gpu/drm/ast/ast_post.c
+@@ -46,7 +46,7 @@ void ast_enable_mmio(struct drm_device *dev)
+ {
+ 	struct ast_private *ast = dev->dev_private;
  
--	dev_info(&pdev->dev, "Added i2c controller %d, irq %d\n", priv->adap.nr, irq);
-+	dev_info(&pdev->dev, "Added i2c controller %d, irq %d\n", priv->adap.nr,
-+		 priv->irq);
+-	ast_set_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xa1, 0xff, 0x04);
++	ast_set_index_reg(ast, AST_IO_CRTC_PORT, 0xa1, 0x06);
+ }
  
- 	return 0;
  
 -- 
 2.20.1
