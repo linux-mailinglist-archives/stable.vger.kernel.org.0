@@ -2,66 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96EA495CE3
-	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 13:07:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E424495D0E
+	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 13:17:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729194AbfHTLG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Aug 2019 07:06:27 -0400
-Received: from mx2.suse.de ([195.135.220.15]:43836 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728283AbfHTLG1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Aug 2019 07:06:27 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id CD029AE9A;
-        Tue, 20 Aug 2019 11:06:25 +0000 (UTC)
-Subject: Re: [PATCH] btrfs: fix allocation of bitmap pages.
-To:     Christoph Hellwig <hch@infradead.org>, dsterba@suse.cz,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        erhard_f@mailbox.org, Chris Mason <clm@fb.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-btrfs@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org
-References: <20190817074439.84C6C1056A3@localhost.localdomain>
- <20190819174600.GN24086@twin.jikos.cz> <20190820023031.GC9594@infradead.org>
-From:   Vlastimil Babka <vbabka@suse.cz>
-Message-ID: <6f99b73c-db8f-8135-b827-0a135734d7da@suse.cz>
-Date:   Tue, 20 Aug 2019 13:06:25 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1728283AbfHTLQv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Aug 2019 07:16:51 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:51640 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728426AbfHTLQv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Aug 2019 07:16:51 -0400
+Received: from p5de0b6c5.dip0.t-ipconnect.de ([93.224.182.197] helo=nanos)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tglx@linutronix.de>)
+        id 1i0282-00032z-Rg; Tue, 20 Aug 2019 13:16:42 +0200
+Date:   Tue, 20 Aug 2019 13:16:41 +0200 (CEST)
+From:   Thomas Gleixner <tglx@linutronix.de>
+To:     Peter Zijlstra <peterz@infradead.org>
+cc:     Song Liu <songliubraving@fb.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, kernel-team@fb.com, stable@vger.kernel.org,
+        Joerg Roedel <jroedel@suse.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>
+Subject: Re: [PATCH] x86/mm/pti: in pti_clone_pgtable() don't increase addr
+ by PUD_SIZE
+In-Reply-To: <20190820100055.GI2332@hirez.programming.kicks-ass.net>
+Message-ID: <alpine.DEB.2.21.1908201315450.2223@nanos.tec.linutronix.de>
+References: <20190820075128.2912224-1-songliubraving@fb.com> <20190820100055.GI2332@hirez.programming.kicks-ass.net>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 MIME-Version: 1.0
-In-Reply-To: <20190820023031.GC9594@infradead.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/20/19 4:30 AM, Christoph Hellwig wrote:
-> On Mon, Aug 19, 2019 at 07:46:00PM +0200, David Sterba wrote:
->> Another thing that is lost is the slub debugging support for all
->> architectures, because get_zeroed_pages lacking the red zones and sanity
->> checks.
->> 
->> I find working with raw pages in this code a bit inconsistent with the
->> rest of btrfs code, but that's rather minor compared to the above.
->> 
->> Summing it up, I think that the proper fix should go to copy_page
->> implementation on architectures that require it or make it clear what
->> are the copy_page constraints.
+On Tue, 20 Aug 2019, Peter Zijlstra wrote:
+> What that code wants to do is skip to the end of the pud, a pmd_size
+> increase will not do that. And right below this, there's a second
+> instance of this exact pattern.
 > 
-> The whole point of copy_page is to copy exactly one page and it makes
-> sense to assume that is aligned.  A sane memcpy would use the same
-> underlying primitives as well after checking they fit.  So I think the
-> prime issue here is btrfs' use of copy_page instead of memcpy.  The
-> secondary issue is slub fucking up alignments for no good reason.  We
-> just got bitten by that crap again in XFS as well :(
+> Did I get the below right?
+> 
+> ---
+> diff --git a/arch/x86/mm/pti.c b/arch/x86/mm/pti.c
+> index b196524759ec..32b20b3cb227 100644
+> --- a/arch/x86/mm/pti.c
+> +++ b/arch/x86/mm/pti.c
+> @@ -330,12 +330,14 @@ pti_clone_pgtable(unsigned long start, unsigned long end,
+>  
+>  		pud = pud_offset(p4d, addr);
+>  		if (pud_none(*pud)) {
+> +			addr &= PUD_MASK;
+>  			addr += PUD_SIZE;
 
-Meh, I should finally get back to https://lwn.net/Articles/787740/ right
+			round_up(addr, PUD_SIZE);
 
+perhaps?
 
+>  			continue;
+>  		}
+>  
+>  		pmd = pmd_offset(pud, addr);
+>  		if (pmd_none(*pmd)) {
+> +			addr &= PMD_MASK;
+>  			addr += PMD_SIZE;
+>  			continue;
+>  		}
+> 
