@@ -2,36 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04F3295C1E
-	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 12:20:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 126A195CAB
+	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 12:54:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729682AbfHTKRE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Aug 2019 06:17:04 -0400
-Received: from mga02.intel.com ([134.134.136.20]:35575 "EHLO mga02.intel.com"
+        id S1728827AbfHTKyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Aug 2019 06:54:54 -0400
+Received: from foss.arm.com ([217.140.110.172]:38598 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729181AbfHTKRD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Aug 2019 06:17:03 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 20 Aug 2019 03:17:03 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,408,1559545200"; 
-   d="scan'208";a="185872324"
-Received: from black.fi.intel.com (HELO black.fi.intel.com.) ([10.237.72.28])
-  by FMSMGA003.fm.intel.com with ESMTP; 20 Aug 2019 03:17:01 -0700
-From:   Alexander Shishkin <alexander.shishkin@linux.intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Ding Xiang <dingxiang@cmss.chinamobile.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: [GIT PULL 1/4] stm class: Fix a double free of stm_source_device
-Date:   Tue, 20 Aug 2019 13:16:50 +0300
-Message-Id: <20190820101653.74738-2-alexander.shishkin@linux.intel.com>
-X-Mailer: git-send-email 2.23.0.rc1
-In-Reply-To: <20190820101653.74738-1-alexander.shishkin@linux.intel.com>
-References: <20190820101653.74738-1-alexander.shishkin@linux.intel.com>
+        id S1728545AbfHTKyy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Aug 2019 06:54:54 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2C08F344;
+        Tue, 20 Aug 2019 03:54:53 -0700 (PDT)
+Received: from e113632-lin.cambridge.arm.com (e113632-lin.cambridge.arm.com [10.1.194.37])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id E647E3F706;
+        Tue, 20 Aug 2019 03:54:51 -0700 (PDT)
+From:   Valentin Schneider <valentin.schneider@arm.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     mingo@kernel.org, peterz@infradead.org,
+        liangyan.peng@linux.alibaba.com, shanpeic@linux.alibaba.com,
+        xlpang@linux.alibaba.com, pjt@google.com, stable@vger.kernel.org
+Subject: [PATCH] sched/fair: Add missing unthrottle_cfs_rq()
+Date:   Tue, 20 Aug 2019 11:54:20 +0100
+Message-Id: <20190820105420.7547-1-valentin.schneider@arm.com>
+X-Mailer: git-send-email 2.22.0
+In-Reply-To: <0004fb54-cdee-2197-1cbf-6e2111d39ed9@arm.com>
+References: <0004fb54-cdee-2197-1cbf-6e2111d39ed9@arm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -39,34 +35,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ding Xiang <dingxiang@cmss.chinamobile.com>
+Turns out a cfs_rq->runtime_remaining can become positive in
+assign_cfs_rq_runtime(), but this codepath has no call to
+unthrottle_cfs_rq().
 
-In the error path of stm_source_register_device(), the kfree is
-unnecessary, as the put_device() before it ends up calling
-stm_source_device_release() to free stm_source_device, leading to
-a double free at the outer kfree() call. Remove it.
+This can leave us in a situation where we have a throttled cfs_rq with
+positive ->runtime_remaining, which breaks the math in
+distribute_cfs_runtime(): this function expects a negative value so that
+it may safely negate it into a positive value.
 
-Signed-off-by: Ding Xiang <dingxiang@cmss.chinamobile.com>
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Fixes: 7bd1d4093c2fa ("stm class: Introduce an abstraction for System Trace Module devices")
-Link: https://lore.kernel.org/linux-arm-kernel/1563354988-23826-1-git-send-email-dingxiang@cmss.chinamobile.com/
-Cc: stable@vger.kernel.org # v4.4+
+Add the missing unthrottle_cfs_rq(). While at it, add a WARN_ON where
+we expect negative values, and pull in a comment from the mailing list
+that didn't make it in [1].
+
+[1]: https://lkml.kernel.org/r/BANLkTi=NmCxKX6EbDQcJYDJ5kKyG2N1ssw@mail.gmail.com
+
+Cc: <stable@vger.kernel.org>
+Fixes: ec12cb7f31e2 ("sched: Accumulate per-cfs_rq cpu usage and charge against bandwidth")
+Reported-by: Liangyan <liangyan.peng@linux.alibaba.com>
+Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
 ---
- drivers/hwtracing/stm/core.c | 1 -
- 1 file changed, 1 deletion(-)
+ kernel/sched/fair.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hwtracing/stm/core.c b/drivers/hwtracing/stm/core.c
-index e55b902560de..181e7ff1ec4f 100644
---- a/drivers/hwtracing/stm/core.c
-+++ b/drivers/hwtracing/stm/core.c
-@@ -1276,7 +1276,6 @@ int stm_source_register_device(struct device *parent,
- 
- err:
- 	put_device(&src->dev);
--	kfree(src);
- 
- 	return err;
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 1054d2cf6aaa..219ff3f328e5 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4385,6 +4385,11 @@ static inline u64 cfs_rq_clock_task(struct cfs_rq *cfs_rq)
+ 	return rq_clock_task(rq_of(cfs_rq)) - cfs_rq->throttled_clock_task_time;
  }
+ 
++static inline int cfs_rq_throttled(struct cfs_rq *cfs_rq)
++{
++	return cfs_bandwidth_used() && cfs_rq->throttled;
++}
++
+ /* returns 0 on failure to allocate runtime */
+ static int assign_cfs_rq_runtime(struct cfs_rq *cfs_rq)
+ {
+@@ -4411,6 +4416,9 @@ static int assign_cfs_rq_runtime(struct cfs_rq *cfs_rq)
+ 
+ 	cfs_rq->runtime_remaining += amount;
+ 
++	if (cfs_rq->runtime_remaining > 0 && cfs_rq_throttled(cfs_rq))
++		unthrottle_cfs_rq(cfs_rq);
++
+ 	return cfs_rq->runtime_remaining > 0;
+ }
+ 
+@@ -4439,11 +4447,6 @@ void account_cfs_rq_runtime(struct cfs_rq *cfs_rq, u64 delta_exec)
+ 	__account_cfs_rq_runtime(cfs_rq, delta_exec);
+ }
+ 
+-static inline int cfs_rq_throttled(struct cfs_rq *cfs_rq)
+-{
+-	return cfs_bandwidth_used() && cfs_rq->throttled;
+-}
+-
+ /* check whether cfs_rq, or any parent, is throttled */
+ static inline int throttled_hierarchy(struct cfs_rq *cfs_rq)
+ {
+@@ -4628,6 +4631,10 @@ static u64 distribute_cfs_runtime(struct cfs_bandwidth *cfs_b, u64 remaining)
+ 		if (!cfs_rq_throttled(cfs_rq))
+ 			goto next;
+ 
++		/* By the above check, this should never be true */
++		WARN_ON(cfs_rq->runtime_remaining > 0);
++
++		/* Pick the minimum amount to return to a positive quota state */
+ 		runtime = -cfs_rq->runtime_remaining + 1;
+ 		if (runtime > remaining)
+ 			runtime = remaining;
 -- 
-2.23.0.rc1
+2.22.0
 
