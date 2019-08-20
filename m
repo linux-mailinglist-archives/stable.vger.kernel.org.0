@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC62896189
+	by mail.lfdr.de (Postfix) with ESMTP id 5723A96188
 	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:48:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730116AbfHTNkf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730123AbfHTNkf (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 20 Aug 2019 09:40:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35262 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730105AbfHTNke (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Aug 2019 09:40:34 -0400
+        id S1730117AbfHTNkf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Aug 2019 09:40:35 -0400
 Received: from sasha-vm.mshome.net (unknown [12.236.144.82])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E227233FD;
-        Tue, 20 Aug 2019 13:40:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40BC722DA7;
+        Tue, 20 Aug 2019 13:40:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566308433;
-        bh=gfBDCQS/KWN8G6USDgzQ09X68Q9ihpxrUIdhLIr5jV0=;
+        s=default; t=1566308434;
+        bh=yFL7ImAVG37bqNXnvntkZhTZPNTbT1g7r5HC8Hs6xr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H7TvKSUI3id1Xib83d+qGXmdnf4PC+nOEvjzojNeYKiBNRZ0XWaseNNFTN4tgLquu
-         DzyCRpBKoSZWgxX4oDLdmCnqxSgInXEKK/jO3jGJPcCIDfqUYvTHR2gHGHCqO7lHFL
-         W0/30P1VjQhhkpLt1H/Szwmvm4N1b0Ai3VZIGCAM=
+        b=Y45aG5zWjtJzlrSneK2kRWnAYlAvbgpK9Xnp3QUDhTiGxQvHzukhCrAeooLq9tG2f
+         VKRr+iMWVlrUTM9q7MiiNAndRi+bgk3mBeIytppPYr+8o8oXrh3z99VuOwDeOuSbz5
+         5KGNFT0LkMllFTNpTYMFom/NwSUJhjPkiGyIo4xY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
-        David Howells <dhowells@redhat.com>,
+Cc:     David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.2 05/44] fs: afs: Fix a possible null-pointer dereference in afs_put_read()
-Date:   Tue, 20 Aug 2019 09:39:49 -0400
-Message-Id: <20190820134028.10829-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 06/44] afs: Fix off-by-one in afs_rename() expected data version calculation
+Date:   Tue, 20 Aug 2019 09:39:50 -0400
+Message-Id: <20190820134028.10829-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190820134028.10829-1-sashal@kernel.org>
 References: <20190820134028.10829-1-sashal@kernel.org>
@@ -43,55 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit a6eed4ab5dd4bfb696c1a3f49742b8d1846a66a0 ]
+[ Upstream commit 37c0bbb3326674940e657118306ac52364314523 ]
 
-In afs_read_dir(), there is an if statement on line 255 to check whether
-req->pages is NULL:
-	if (!req->pages)
-		goto error;
+When afs_rename() calculates the expected data version of the target
+directory in a cross-directory rename, it doesn't increment it as it
+should, so it always thinks that the target inode is unexpectedly modified
+on the server.
 
-If req->pages is NULL, afs_put_read() on line 337 is executed.
-In afs_put_read(), req->pages[i] is used on line 195.
-Thus, a possible null-pointer dereference may occur in this case.
-
-To fix this possible bug, an if statement is added in afs_put_read() to
-check req->pages.
-
-This bug is found by a static analysis tool STCheck written by us.
-
-Fixes: f3ddee8dc4e2 ("afs: Fix directory handling")
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Fixes: a58823ac4589 ("afs: Fix application of status and callback to be under same lock")
 Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/file.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ fs/afs/dir.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/afs/file.c b/fs/afs/file.c
-index 8fd7d3b9a1b1f..87beabc7114ee 100644
---- a/fs/afs/file.c
-+++ b/fs/afs/file.c
-@@ -191,11 +191,13 @@ void afs_put_read(struct afs_read *req)
- 	int i;
- 
- 	if (refcount_dec_and_test(&req->usage)) {
--		for (i = 0; i < req->nr_pages; i++)
--			if (req->pages[i])
--				put_page(req->pages[i]);
--		if (req->pages != req->array)
--			kfree(req->pages);
-+		if (req->pages) {
-+			for (i = 0; i < req->nr_pages; i++)
-+				if (req->pages[i])
-+					put_page(req->pages[i]);
-+			if (req->pages != req->array)
-+				kfree(req->pages);
-+		}
- 		kfree(req);
- 	}
- }
+diff --git a/fs/afs/dir.c b/fs/afs/dir.c
+index da9563d62b327..9750ac70f8ffb 100644
+--- a/fs/afs/dir.c
++++ b/fs/afs/dir.c
+@@ -1807,7 +1807,7 @@ static int afs_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 				afs_end_vnode_operation(&fc);
+ 				goto error_rehash;
+ 			}
+-			new_data_version = new_dvnode->status.data_version;
++			new_data_version = new_dvnode->status.data_version + 1;
+ 		} else {
+ 			new_data_version = orig_data_version;
+ 			new_scb = &scb[0];
 -- 
 2.20.1
 
