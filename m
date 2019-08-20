@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC319960B4
-	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:43:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34B2D9610F
+	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:45:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730748AbfHTNm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Aug 2019 09:42:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38444 "EHLO mail.kernel.org"
+        id S1730703AbfHTNpB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Aug 2019 09:45:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730745AbfHTNm6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Aug 2019 09:42:58 -0400
+        id S1730750AbfHTNm7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Aug 2019 09:42:59 -0400
 Received: from sasha-vm.mshome.net (unknown [12.236.144.82])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 153D722DBF;
+        by mail.kernel.org (Postfix) with ESMTPSA id E5E26230F2;
         Tue, 20 Aug 2019 13:42:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566308577;
-        bh=8EC/IqFK7cYJWrqHFTdbNdl1R6ctwn0PAOTv1t8eTZQ=;
+        s=default; t=1566308578;
+        bh=UqPLbRUjKob2xRECZCZzqGiSacjK3QK0Y260YxC6SuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QZqVExN1SWxCHm0Arj/6mYLbLf5Pv5KcURCbfi8A07TF4xJFXcEzFjcQJH41vlyI0
-         iSOy5KfXTqHouzedFaagySEvrCKiJZIrXKIlkfz2oW8HPGgcG91qhJsVCMb31bCWLc
-         0xQs+Joy7o9T6PR3Dbz71jG2yNq3dcNdAaMT6z6c=
+        b=zTkJ4kWbrAa4WIU4AEhAnI6RPVU9OT7PrccZYQ75PV10i55X9c/VfAMB17KBrxKgQ
+         STtOpesVq/Q5h2Fa6Q7nIB/8IG4McwaJX5HOkou5Ypz2wp3qFozhif/wK23neKko0l
+         94zA+ohsXDuOKCti69v4kBhvNHdfK/hFGbC44YWE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jacopo Mondi <jacopo+renesas@jmondi.org>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 02/12] iio: adc: max9611: Fix temperature reading in probe
-Date:   Tue, 20 Aug 2019 09:42:43 -0400
-Message-Id: <20190820134253.11562-2-sashal@kernel.org>
+Cc:     zhengbin <zhengbin13@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 03/12] auxdisplay: panel: need to delete scan_timer when misc_register fails in panel_attach
+Date:   Tue, 20 Aug 2019 09:42:44 -0400
+Message-Id: <20190820134253.11562-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190820134253.11562-1-sashal@kernel.org>
 References: <20190820134253.11562-1-sashal@kernel.org>
@@ -43,40 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacopo Mondi <jacopo+renesas@jmondi.org>
+From: zhengbin <zhengbin13@huawei.com>
 
-[ Upstream commit b9ddd5091160793ee9fac10da765cf3f53d2aaf0 ]
+[ Upstream commit b33d567560c1aadf3033290d74d4fd67af47aa61 ]
 
-The max9611 driver reads the die temperature at probe time to validate
-the communication channel. Use the actual read value to perform the test
-instead of the read function return value, which was mistakenly used so
-far.
+In panel_attach, if misc_register fails, we need to delete scan_timer,
+which was setup in keypad_init->init_scan_timer.
 
-The temperature reading test was only successful because the 0 return
-value is in the range of supported temperatures.
-
-Fixes: 69780a3bbc0b ("iio: adc: Add Maxim max9611 ADC driver")
-Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: zhengbin <zhengbin13@huawei.com>
+Signed-off-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/max9611.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/auxdisplay/panel.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iio/adc/max9611.c b/drivers/iio/adc/max9611.c
-index f8f298c33b287..c61fbf5602718 100644
---- a/drivers/iio/adc/max9611.c
-+++ b/drivers/iio/adc/max9611.c
-@@ -484,7 +484,7 @@ static int max9611_init(struct max9611_dev *max9611)
- 	if (ret)
- 		return ret;
+diff --git a/drivers/auxdisplay/panel.c b/drivers/auxdisplay/panel.c
+index 6911acd896d93..e30953ceb7dfd 100644
+--- a/drivers/auxdisplay/panel.c
++++ b/drivers/auxdisplay/panel.c
+@@ -1622,6 +1622,8 @@ static void panel_attach(struct parport *port)
+ 	return;
  
--	regval = ret & MAX9611_TEMP_MASK;
-+	regval &= MAX9611_TEMP_MASK;
- 
- 	if ((regval > MAX9611_TEMP_MAX_POS &&
- 	     regval < MAX9611_TEMP_MIN_NEG) ||
+ err_lcd_unreg:
++	if (scan_timer.function)
++		del_timer_sync(&scan_timer);
+ 	if (lcd.enabled)
+ 		charlcd_unregister(lcd.charlcd);
+ err_unreg_device:
 -- 
 2.20.1
 
