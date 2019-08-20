@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 531C596084
-	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:41:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDB3C9612B
+	for <lists+stable@lfdr.de>; Tue, 20 Aug 2019 15:46:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729812AbfHTNl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Aug 2019 09:41:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36476 "EHLO mail.kernel.org"
+        id S1729852AbfHTNlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Aug 2019 09:41:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729937AbfHTNl0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Aug 2019 09:41:26 -0400
+        id S1730326AbfHTNl1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Aug 2019 09:41:27 -0400
 Received: from sasha-vm.mshome.net (unknown [12.236.144.82])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DB7E22DBF;
-        Tue, 20 Aug 2019 13:41:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A81B2332A;
+        Tue, 20 Aug 2019 13:41:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1566308485;
-        bh=DDCgT1Nmrt2ow0/uFfydiLLSCAIVjJjYDtTpJrHqk6U=;
+        bh=CW0fdWzuaHLNwLtqpCegbXwrhmZZS0mqwjt64HYGBtM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hJKxA2XE83IRwxwJqGPz5F07D5ghs43AqVKLMNRrMuCM4oJC/79vzToYsR9TqPtBk
-         RAWCq8IDpAbEQ/OFoiZ8goMXma0o2IOf4EAUJs/q4rKgbXcaaDY5vWoUTjQzl3J/rD
-         8uBGtQwADeaLfjFWZw5Xps/YA8u2Sq6gQazFUm7A=
+        b=IcAsQZY9BAnRNNBut67WUl1ltUIVw72rSiIyeVEOrdq4OgmSr8Z9iicxki3D2vB+1
+         N6KgeZS79GG3HnxzVJyILecoIFpRDJgZdfHnZTfLAUcq2c552SG+VNEkHhBOWWaRoW
+         RlZoqaPHuer0VKB/ox4kuD53wz98NhoOUHXCTE/s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ben Segal <bpsegal20@gmail.com>,
         Oded Gabbay <oded.gabbay@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 31/44] habanalabs: fix endianness handling for packets from user
-Date:   Tue, 20 Aug 2019 09:40:15 -0400
-Message-Id: <20190820134028.10829-31-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 32/44] habanalabs: fix completion queue handling when host is BE
+Date:   Tue, 20 Aug 2019 09:40:16 -0400
+Message-Id: <20190820134028.10829-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190820134028.10829-1-sashal@kernel.org>
 References: <20190820134028.10829-1-sashal@kernel.org>
@@ -45,135 +45,93 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ben Segal <bpsegal20@gmail.com>
 
-[ Upstream commit 213ad5ad016a0da975b35f54e8cd236c3b04724b ]
+[ Upstream commit 4e87334a0ef43663019dbaf3638ad10fd8c3320c ]
 
-Packets that arrive from the user and need to be parsed by the driver are
-assumed to be in LE format.
-
-This patch fix all the places where the code handles these packets and use
-the correct endianness macros to handle them, as the driver handles the
-packets in CPU format (LE or BE depending on the arch).
+This patch fix the CQ irq handler to work in hosts with BE architecture.
+It adds the correct endian-swapping macros around the relevant memory
+accesses.
 
 Signed-off-by: Ben Segal <bpsegal20@gmail.com>
 Reviewed-by: Oded Gabbay <oded.gabbay@gmail.com>
 Signed-off-by: Oded Gabbay <oded.gabbay@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/goya/goya.c           | 32 +++++++++++--------
- .../habanalabs/include/goya/goya_packets.h    | 13 ++++++++
- 2 files changed, 32 insertions(+), 13 deletions(-)
+ drivers/misc/habanalabs/irq.c | 27 +++++++++++++--------------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/misc/habanalabs/goya/goya.c b/drivers/misc/habanalabs/goya/goya.c
-index 02d116b01a1a2..0644fd7742057 100644
---- a/drivers/misc/habanalabs/goya/goya.c
-+++ b/drivers/misc/habanalabs/goya/goya.c
-@@ -3425,12 +3425,13 @@ static int goya_validate_cb(struct hl_device *hdev,
- 	while (cb_parsed_length < parser->user_cb_size) {
- 		enum packet_id pkt_id;
- 		u16 pkt_size;
--		void *user_pkt;
-+		struct goya_packet *user_pkt;
+diff --git a/drivers/misc/habanalabs/irq.c b/drivers/misc/habanalabs/irq.c
+index ea9f72ff456cf..199791b57caf2 100644
+--- a/drivers/misc/habanalabs/irq.c
++++ b/drivers/misc/habanalabs/irq.c
+@@ -80,8 +80,7 @@ irqreturn_t hl_irq_handler_cq(int irq, void *arg)
+ 	struct hl_cs_job *job;
+ 	bool shadow_index_valid;
+ 	u16 shadow_index;
+-	u32 *cq_entry;
+-	u32 *cq_base;
++	struct hl_cq_entry *cq_entry, *cq_base;
  
--		user_pkt = (void *) (uintptr_t)
-+		user_pkt = (struct goya_packet *) (uintptr_t)
- 			(parser->user_cb->kernel_address + cb_parsed_length);
+ 	if (hdev->disabled) {
+ 		dev_dbg(hdev->dev,
+@@ -90,29 +89,29 @@ irqreturn_t hl_irq_handler_cq(int irq, void *arg)
+ 		return IRQ_HANDLED;
+ 	}
  
--		pkt_id = (enum packet_id) (((*(u64 *) user_pkt) &
-+		pkt_id = (enum packet_id) (
-+				(le64_to_cpu(user_pkt->header) &
- 				PACKET_HEADER_PACKET_ID_MASK) >>
- 					PACKET_HEADER_PACKET_ID_SHIFT);
+-	cq_base = (u32 *) (uintptr_t) cq->kernel_address;
++	cq_base = (struct hl_cq_entry *) (uintptr_t) cq->kernel_address;
  
-@@ -3450,7 +3451,8 @@ static int goya_validate_cb(struct hl_device *hdev,
- 			 * need to validate here as well because patch_cb() is
- 			 * not called in MMU path while this function is called
- 			 */
--			rc = goya_validate_wreg32(hdev, parser, user_pkt);
-+			rc = goya_validate_wreg32(hdev,
-+				parser, (struct packet_wreg32 *) user_pkt);
+ 	while (1) {
+-		bool entry_ready = ((cq_base[cq->ci] & CQ_ENTRY_READY_MASK)
++		bool entry_ready = ((le32_to_cpu(cq_base[cq->ci].data) &
++					CQ_ENTRY_READY_MASK)
+ 						>> CQ_ENTRY_READY_SHIFT);
+ 
+ 		if (!entry_ready)
  			break;
  
- 		case PACKET_WREG_BULK:
-@@ -3478,10 +3480,10 @@ static int goya_validate_cb(struct hl_device *hdev,
- 		case PACKET_LIN_DMA:
- 			if (is_mmu)
- 				rc = goya_validate_dma_pkt_mmu(hdev, parser,
--						user_pkt);
-+					(struct packet_lin_dma *) user_pkt);
- 			else
- 				rc = goya_validate_dma_pkt_no_mmu(hdev, parser,
--						user_pkt);
-+					(struct packet_lin_dma *) user_pkt);
- 			break;
+-		cq_entry = (u32 *) &cq_base[cq->ci];
++		cq_entry = (struct hl_cq_entry *) &cq_base[cq->ci];
  
- 		case PACKET_MSG_LONG:
-@@ -3654,15 +3656,16 @@ static int goya_patch_cb(struct hl_device *hdev,
- 		enum packet_id pkt_id;
- 		u16 pkt_size;
- 		u32 new_pkt_size = 0;
--		void *user_pkt, *kernel_pkt;
-+		struct goya_packet *user_pkt, *kernel_pkt;
+-		/*
+-		 * Make sure we read CQ entry contents after we've
++		/* Make sure we read CQ entry contents after we've
+ 		 * checked the ownership bit.
+ 		 */
+ 		dma_rmb();
  
--		user_pkt = (void *) (uintptr_t)
-+		user_pkt = (struct goya_packet *) (uintptr_t)
- 			(parser->user_cb->kernel_address + cb_parsed_length);
--		kernel_pkt = (void *) (uintptr_t)
-+		kernel_pkt = (struct goya_packet *) (uintptr_t)
- 			(parser->patched_cb->kernel_address +
- 					cb_patched_cur_length);
+-		shadow_index_valid =
+-			((*cq_entry & CQ_ENTRY_SHADOW_INDEX_VALID_MASK)
++		shadow_index_valid = ((le32_to_cpu(cq_entry->data) &
++					CQ_ENTRY_SHADOW_INDEX_VALID_MASK)
+ 					>> CQ_ENTRY_SHADOW_INDEX_VALID_SHIFT);
  
--		pkt_id = (enum packet_id) (((*(u64 *) user_pkt) &
-+		pkt_id = (enum packet_id) (
-+				(le64_to_cpu(user_pkt->header) &
- 				PACKET_HEADER_PACKET_ID_MASK) >>
- 					PACKET_HEADER_PACKET_ID_SHIFT);
+-		shadow_index = (u16)
+-			((*cq_entry & CQ_ENTRY_SHADOW_INDEX_MASK)
++		shadow_index = (u16) ((le32_to_cpu(cq_entry->data) &
++					CQ_ENTRY_SHADOW_INDEX_MASK)
+ 					>> CQ_ENTRY_SHADOW_INDEX_SHIFT);
  
-@@ -3677,15 +3680,18 @@ static int goya_patch_cb(struct hl_device *hdev,
+ 		queue = &hdev->kernel_queues[cq->hw_queue_id];
+@@ -122,8 +121,7 @@ irqreturn_t hl_irq_handler_cq(int irq, void *arg)
+ 			queue_work(hdev->cq_wq, &job->finish_work);
+ 		}
  
- 		switch (pkt_id) {
- 		case PACKET_LIN_DMA:
--			rc = goya_patch_dma_packet(hdev, parser, user_pkt,
--						kernel_pkt, &new_pkt_size);
-+			rc = goya_patch_dma_packet(hdev, parser,
-+					(struct packet_lin_dma *) user_pkt,
-+					(struct packet_lin_dma *) kernel_pkt,
-+					&new_pkt_size);
- 			cb_patched_cur_length += new_pkt_size;
- 			break;
+-		/*
+-		 * Update ci of the context's queue. There is no
++		/* Update ci of the context's queue. There is no
+ 		 * need to protect it with spinlock because this update is
+ 		 * done only inside IRQ and there is a different IRQ per
+ 		 * queue
+@@ -131,7 +129,8 @@ irqreturn_t hl_irq_handler_cq(int irq, void *arg)
+ 		queue->ci = hl_queue_inc_ptr(queue->ci);
  
- 		case PACKET_WREG_32:
- 			memcpy(kernel_pkt, user_pkt, pkt_size);
- 			cb_patched_cur_length += pkt_size;
--			rc = goya_validate_wreg32(hdev, parser, kernel_pkt);
-+			rc = goya_validate_wreg32(hdev, parser,
-+					(struct packet_wreg32 *) kernel_pkt);
- 			break;
+ 		/* Clear CQ entry ready bit */
+-		cq_base[cq->ci] &= ~CQ_ENTRY_READY_MASK;
++		cq_entry->data = cpu_to_le32(le32_to_cpu(cq_entry->data) &
++						~CQ_ENTRY_READY_MASK);
  
- 		case PACKET_WREG_BULK:
-diff --git a/drivers/misc/habanalabs/include/goya/goya_packets.h b/drivers/misc/habanalabs/include/goya/goya_packets.h
-index a14407b975e4e..ef54bad205099 100644
---- a/drivers/misc/habanalabs/include/goya/goya_packets.h
-+++ b/drivers/misc/habanalabs/include/goya/goya_packets.h
-@@ -52,6 +52,19 @@ enum goya_dma_direction {
- #define GOYA_PKT_CTL_MB_SHIFT		31
- #define GOYA_PKT_CTL_MB_MASK		0x80000000
+ 		cq->ci = hl_cq_inc_ptr(cq->ci);
  
-+/* All packets have, at least, an 8-byte header, which contains
-+ * the packet type. The kernel driver uses the packet header for packet
-+ * validation and to perform any necessary required preparation before
-+ * sending them off to the hardware.
-+ */
-+struct goya_packet {
-+	__le64 header;
-+	/* The rest of the packet data follows. Use the corresponding
-+	 * packet_XXX struct to deference the data, based on packet type
-+	 */
-+	u8 contents[0];
-+};
-+
- struct packet_nop {
- 	__le32 reserved;
- 	__le32 ctl;
 -- 
 2.20.1
 
