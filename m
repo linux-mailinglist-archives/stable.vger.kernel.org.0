@@ -2,107 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9AE3979D5
-	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 14:46:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3084C97AE8
+	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 15:36:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728345AbfHUMq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Aug 2019 08:46:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41048 "EHLO mail.kernel.org"
+        id S1727949AbfHUNcY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Aug 2019 09:32:24 -0400
+Received: from mblankhorst.nl ([141.105.120.124]:59348 "EHLO mblankhorst.nl"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728333AbfHUMq2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 21 Aug 2019 08:46:28 -0400
-Received: from localhost (unknown [12.166.174.13])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BF40233A1;
-        Wed, 21 Aug 2019 12:46:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566391587;
-        bh=15iMlD7hX4JX6hOTDW5n6x1zl5PPZltyuYhlSkTT+rg=;
-        h=Subject:To:From:Date:From;
-        b=vzge/bIjd575gPo+DiTQuQwwWGSszJ5L30Tml6DIDDMHCkYE0gu+azriNBzSU3aQK
-         ejN6FV/yTpWriR4lhJso0uXCbpAcR7rf+XZc/jfME4HX6Pr/kFSkH20vHHlxQYIqj5
-         WG2RFe1Vu2cma+HSpJnFCLS3xbPPdB3AccDk4wNg=
-Subject: patch "staging: erofs: add two missing erofs_workgroup_put for corrupted" added to staging-next
-To:     gaoxiang25@huawei.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, yuchao0@huawei.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 21 Aug 2019 05:46:26 -0700
-Message-ID: <15663915865766@kroah.com>
+        id S1726371AbfHUNcY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 21 Aug 2019 09:32:24 -0400
+From:   Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        stable@vger.kernel.org, Manasi Navare <manasi.d.navare@intel.com>
+Subject: [PATCH 01/10] drm/i915/dp: Fix dsc bpp calculations.
+Date:   Wed, 21 Aug 2019 15:32:12 +0200
+Message-Id: <20190821133221.29456-2-maarten.lankhorst@linux.intel.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190821133221.29456-1-maarten.lankhorst@linux.intel.com>
+References: <20190821133221.29456-1-maarten.lankhorst@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+There was a integer wraparound when mode_clock became too high,
+and we didn't correct for the FEC overhead factor when dividing,
+also the calculations would break at HBR3.
 
-This is a note to let you know that I've just added the patch titled
+As a result our calculated bpp was way too high, and the link width
+bpp limitation never came into effect.
 
-    staging: erofs: add two missing erofs_workgroup_put for corrupted
+Print out the resulting bpp calcululations as a sanity check, just
+in case we ever have to debug it later on again.
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-next branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
-
-
-From 138e1a0990e80db486ab9f6c06bd5c01f9a97999 Mon Sep 17 00:00:00 2001
-From: Gao Xiang <gaoxiang25@huawei.com>
-Date: Mon, 19 Aug 2019 18:34:23 +0800
-Subject: staging: erofs: add two missing erofs_workgroup_put for corrupted
- images
-
-As reported by erofs-utils fuzzer, these error handling
-path will be entered to handle corrupted images.
-
-Lack of erofs_workgroup_puts will cause unmounting
-unsuccessfully.
-
-Fix these return values to EFSCORRUPTED as well.
-
-Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
-Cc: <stable@vger.kernel.org> # 4.19+
-Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Link: https://lore.kernel.org/r/20190819103426.87579-4-gaoxiang25@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Fixes: d9218c8f6cf4 ("drm/i915/dp: Add helpers for Compressed BPP and Slice Count for DSC")
+Cc: <stable@vger.kernel.org> # v5.0+
+Cc: Manasi Navare <manasi.d.navare@intel.com>
 ---
- drivers/staging/erofs/zdata.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/display/intel_dp.c | 16 +++++++++-------
+ drivers/gpu/drm/i915/display/intel_dp.h |  4 ++--
+ 2 files changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/staging/erofs/zdata.c b/drivers/staging/erofs/zdata.c
-index 87b0c96caf8f..23283c97fd3b 100644
---- a/drivers/staging/erofs/zdata.c
-+++ b/drivers/staging/erofs/zdata.c
-@@ -357,14 +357,16 @@ static struct z_erofs_collection *cllookup(struct z_erofs_collector *clt,
- 	cl = z_erofs_primarycollection(pcl);
- 	if (unlikely(cl->pageofs != (map->m_la & ~PAGE_MASK))) {
- 		DBG_BUGON(1);
--		return ERR_PTR(-EIO);
-+		erofs_workgroup_put(grp);
-+		return ERR_PTR(-EFSCORRUPTED);
+diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+index 921ad0a2f7ba..614a25911f07 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp.c
++++ b/drivers/gpu/drm/i915/display/intel_dp.c
+@@ -4323,10 +4323,10 @@ intel_dp_get_sink_irq_esi(struct intel_dp *intel_dp, u8 *sink_irq_vector)
+ 		DP_DPRX_ESI_LEN;
+ }
+ 
+-u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
+-				int mode_clock, int mode_hdisplay)
++u16 intel_dp_dsc_get_output_bpp(u32 link_clock, u8 lane_count,
++				u32 mode_clock, u32 mode_hdisplay)
+ {
+-	u16 bits_per_pixel, max_bpp_small_joiner_ram;
++	u32 bits_per_pixel, max_bpp_small_joiner_ram;
+ 	int i;
+ 
+ 	/*
+@@ -4335,13 +4335,14 @@ u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
+ 	 * FECOverhead = 2.4%, for SST -> TimeSlotsPerMTP is 1,
+ 	 * for MST -> TimeSlotsPerMTP has to be calculated
+ 	 */
+-	bits_per_pixel = (link_clock * lane_count * 8 *
+-			  DP_DSC_FEC_OVERHEAD_FACTOR) /
+-		mode_clock;
++	bits_per_pixel = div_u64((u64)link_clock * lane_count * 8 *
++				 DP_DSC_FEC_OVERHEAD_FACTOR, 1000ULL * mode_clock);
++	DRM_DEBUG_KMS("Max link bpp: %u\n", bits_per_pixel);
+ 
+ 	/* Small Joiner Check: output bpp <= joiner RAM (bits) / Horiz. width */
+ 	max_bpp_small_joiner_ram = DP_DSC_MAX_SMALL_JOINER_RAM_BUFFER /
+ 		mode_hdisplay;
++	DRM_DEBUG_KMS("Max small joiner bpp: %u\n", max_bpp_small_joiner_ram);
+ 
+ 	/*
+ 	 * Greatest allowed DSC BPP = MIN (output BPP from avaialble Link BW
+@@ -4351,7 +4352,8 @@ u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
+ 
+ 	/* Error out if the max bpp is less than smallest allowed valid bpp */
+ 	if (bits_per_pixel < valid_dsc_bpp[0]) {
+-		DRM_DEBUG_KMS("Unsupported BPP %d\n", bits_per_pixel);
++		DRM_DEBUG_KMS("Unsupported BPP %u, min %u\n",
++			      bits_per_pixel, valid_dsc_bpp[0]);
+ 		return 0;
  	}
  
- 	length = READ_ONCE(pcl->length);
- 	if (length & Z_EROFS_PCLUSTER_FULL_LENGTH) {
- 		if ((map->m_llen << Z_EROFS_PCLUSTER_LENGTH_BIT) > length) {
- 			DBG_BUGON(1);
--			return ERR_PTR(-EIO);
-+			erofs_workgroup_put(grp);
-+			return ERR_PTR(-EFSCORRUPTED);
- 		}
- 	} else {
- 		unsigned int llen = map->m_llen << Z_EROFS_PCLUSTER_LENGTH_BIT;
+diff --git a/drivers/gpu/drm/i915/display/intel_dp.h b/drivers/gpu/drm/i915/display/intel_dp.h
+index 657bbb1f5ed0..007d1981a33b 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp.h
++++ b/drivers/gpu/drm/i915/display/intel_dp.h
+@@ -102,8 +102,8 @@ bool intel_dp_source_supports_hbr2(struct intel_dp *intel_dp);
+ bool intel_dp_source_supports_hbr3(struct intel_dp *intel_dp);
+ bool
+ intel_dp_get_link_status(struct intel_dp *intel_dp, u8 *link_status);
+-u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
+-				int mode_clock, int mode_hdisplay);
++u16 intel_dp_dsc_get_output_bpp(u32 link_clock, u8 lane_count,
++				u32 mode_clock, u32 mode_hdisplay);
+ u8 intel_dp_dsc_get_slice_count(struct intel_dp *intel_dp, int mode_clock,
+ 				int mode_hdisplay);
+ 
 -- 
-2.23.0
-
+2.20.1
 
