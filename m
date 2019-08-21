@@ -2,135 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B4D29707E
-	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 05:48:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 738099706F
+	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 05:40:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726673AbfHUDsB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Aug 2019 23:48:01 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:34667 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726601AbfHUDsA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Aug 2019 23:48:00 -0400
-Received: by mail-pg1-f194.google.com with SMTP id n9so517244pgc.1;
-        Tue, 20 Aug 2019 20:48:00 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=SrFWC17xwJEJa4p6/Sn5RGFtwj8GJ2HsGVtuMd6BeF0=;
-        b=H6nCqaybrrOeV9XvO7rt6Q3es1Zko3lz2dO9Ruy9O7q2eDWqZEQ9y6fLuUzqca/i9g
-         xjDTfyN4Sm4uhsz3UADSDm4eziMTV+WCv1gwp0+jSK6B5txqOO1UIsj3twmuWbqE+Y1S
-         L9LvJevNIjvPyrgwySEtz32/NaFx6YNtzXa5s41IMngBawzItd8LwuMa9+QlnGHEG4p4
-         NQoEcUZubz3+xrlbO71oIV37aO5yAXqHSpz6p9MvI+/2SzBdSn8foR0Frs34A0+bXxKH
-         PRiMxxKVJOCTFuOppQdsTBaU6aGKpFh1JODVeEWIsa8tqLVkvkC3MmNZAjMOcD9SNnaW
-         8yZg==
-X-Gm-Message-State: APjAAAVjQqFAD9IL1MG0WBgwfNJF1Rze0Uer2b52wD3C1HRD5ZP8lwQm
-        FhPt2v2RLYxegm9xmKQNriTf0xIJL8t5sg==
-X-Google-Smtp-Source: APXvYqxnVHzSylWdbGFrfTRQIBfuFgjU/wa/Q5L6gf8yTQNp7Kq6vOaWdHQINUtasyA8c/pHoVwnAw==
-X-Received: by 2002:a17:90a:33ed:: with SMTP id n100mr3307855pjb.19.1566359279798;
-        Tue, 20 Aug 2019 20:47:59 -0700 (PDT)
-Received: from sc2-haas01-esx0118.eng.vmware.com ([66.170.99.1])
-        by smtp.gmail.com with ESMTPSA id j12sm20315167pff.4.2019.08.20.20.47.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Aug 2019 20:47:59 -0700 (PDT)
-From:   Nadav Amit <namit@vmware.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Arnd Bergmann <arnd@arndb.de>
-Cc:     linux-kernel@vger.kernel.org,
-        Francois Rigault <rigault.francois@gmail.com>,
-        Nadav Amit <namit@vmware.com>,
-        Jorgen Hansen <jhansen@vmware.com>,
-        Adit Ranadive <aditr@vmware.com>,
-        Alexios Zavras <alexios.zavras@intel.com>,
-        Vishnu DASA <vdasa@vmware.com>, stable@vger.kernel.org
-Subject: [PATCH] VMCI: Release resource if the work is already queued
-Date:   Tue, 20 Aug 2019 13:26:38 -0700
-Message-Id: <20190820202638.49003-1-namit@vmware.com>
-X-Mailer: git-send-email 2.17.1
+        id S1727273AbfHUDkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Aug 2019 23:40:25 -0400
+Received: from mga06.intel.com ([134.134.136.31]:8304 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727172AbfHUDkZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Aug 2019 23:40:25 -0400
+X-Amp-Result: UNSCANNABLE
+X-Amp-File-Uploaded: False
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 20 Aug 2019 20:40:25 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,410,1559545200"; 
+   d="asc'?scan'208";a="169288711"
+Received: from zhen-hp.sh.intel.com (HELO zhen-hp) ([10.239.13.116])
+  by orsmga007.jf.intel.com with ESMTP; 20 Aug 2019 20:40:23 -0700
+Date:   Wed, 21 Aug 2019 11:35:56 +0800
+From:   Zhenyu Wang <zhenyuw@linux.intel.com>
+To:     Xiong Zhang <xiong.y.zhang@intel.com>
+Cc:     intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [Intel-gfx] [PATCH 1/2] drm/i915: Don't deballoon unused ggtt
+ drm_mm_node in linux guest
+Message-ID: <20190821033556.GA11927@zhen-hp.sh.intel.com>
+Reply-To: Zhenyu Wang <zhenyuw@linux.intel.com>
+References: <1566279978-9659-1-git-send-email-xiong.y.zhang@intel.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
+Content-Disposition: inline
+In-Reply-To: <1566279978-9659-1-git-send-email-xiong.y.zhang@intel.com>
+User-Agent: Mutt/1.10.0 (2018-05-17)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Francois reported that VMware balloon gets stuck after a balloon reset,
-when the VMCI doorbell is removed. A similar error can occur when the
-balloon driver is removed with the following splat:
 
-[ 1088.622000] INFO: task modprobe:3565 blocked for more than 120 seconds.
-[ 1088.622035]       Tainted: G        W         5.2.0 #4
-[ 1088.622087] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-[ 1088.622205] modprobe        D    0  3565   1450 0x00000000
-[ 1088.622210] Call Trace:
-[ 1088.622246]  __schedule+0x2a8/0x690
-[ 1088.622248]  schedule+0x2d/0x90
-[ 1088.622250]  schedule_timeout+0x1d3/0x2f0
-[ 1088.622252]  wait_for_completion+0xba/0x140
-[ 1088.622320]  ? wake_up_q+0x80/0x80
-[ 1088.622370]  vmci_resource_remove+0xb9/0xc0 [vmw_vmci]
-[ 1088.622373]  vmci_doorbell_destroy+0x9e/0xd0 [vmw_vmci]
-[ 1088.622379]  vmballoon_vmci_cleanup+0x6e/0xf0 [vmw_balloon]
-[ 1088.622381]  vmballoon_exit+0x18/0xcc8 [vmw_balloon]
-[ 1088.622394]  __x64_sys_delete_module+0x146/0x280
-[ 1088.622408]  do_syscall_64+0x5a/0x130
-[ 1088.622410]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[ 1088.622415] RIP: 0033:0x7f54f62791b7
-[ 1088.622421] Code: Bad RIP value.
-[ 1088.622421] RSP: 002b:00007fff2a949008 EFLAGS: 00000206 ORIG_RAX: 00000000000000b0
-[ 1088.622426] RAX: ffffffffffffffda RBX: 000055dff8b55d00 RCX: 00007f54f62791b7
-[ 1088.622426] RDX: 0000000000000000 RSI: 0000000000000800 RDI: 000055dff8b55d68
-[ 1088.622427] RBP: 000055dff8b55d00 R08: 00007fff2a947fb1 R09: 0000000000000000
-[ 1088.622427] R10: 00007f54f62f5cc0 R11: 0000000000000206 R12: 000055dff8b55d68
-[ 1088.622428] R13: 0000000000000001 R14: 000055dff8b55d68 R15: 00007fff2a94a3f0
+--7JfCtLOvnd9MIVvH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The cause for the bug is that when the "delayed" doorbell is invoked, it
-takes a reference on the doorbell entry and schedules work that is
-supposed to run the appropriate code and drop the doorbell entry
-reference. The code ignores the fact that if the work is already queued,
-it will not be scheduled to run one more time. As a result one of the
-references would not be dropped. When the code waits for the reference
-to get to zero, during balloon reset or module removal, it gets stuck.
+On 2019.08.20 13:46:17 +0800, Xiong Zhang wrote:
+> The following call trace may exist in linux guest dmesg when guest i915
+> driver is unloaded.
+> [   90.776610] [drm:vgt_deballoon_space.isra.0 [i915]] deballoon space: r=
+ange [0x0 - 0x0] 0 KiB.
+> [   90.776621] BUG: unable to handle kernel NULL pointer dereference at 0=
+0000000000000c0
+> [   90.776691] IP: drm_mm_remove_node+0x4d/0x320 [drm]
+> [   90.776718] PGD 800000012c7d0067 P4D 800000012c7d0067 PUD 138e4c067 PM=
+D 0
+> [   90.777091] task: ffff9adab60f2f00 task.stack: ffffaf39c0fe0000
+> [   90.777142] RIP: 0010:drm_mm_remove_node+0x4d/0x320 [drm]
+> [   90.777573] Call Trace:
+> [   90.777653]  intel_vgt_deballoon+0x4c/0x60 [i915]
+> [   90.777729]  i915_ggtt_cleanup_hw+0x121/0x190 [i915]
+> [   90.777792]  i915_driver_unload+0x145/0x180 [i915]
+> [   90.777856]  i915_pci_remove+0x15/0x20 [i915]
+> [   90.777890]  pci_device_remove+0x3b/0xc0
+> [   90.777916]  device_release_driver_internal+0x157/0x220
+> [   90.777945]  driver_detach+0x39/0x70
+> [   90.777967]  bus_remove_driver+0x51/0xd0
+> [   90.777990]  pci_unregister_driver+0x23/0x90
+> [   90.778019]  SyS_delete_module+0x1da/0x240
+> [   90.778045]  entry_SYSCALL_64_fastpath+0x24/0x87
+> [   90.778072] RIP: 0033:0x7f34312af067
+> [   90.778092] RSP: 002b:00007ffdea3da0d8 EFLAGS: 00000206
+> [   90.778297] RIP: drm_mm_remove_node+0x4d/0x320 [drm] RSP: ffffaf39c0fe=
+3dc0
+> [   90.778344] ---[ end trace f4b1bc8305fc59dd ]---
+>=20
+> Four drm_mm_node are used to reserve guest ggtt space, but some of them
+> may be skipped and not initialised due to space constraints in
+> intel_vgt_balloon(). If drm_mm_remove_node() is called with
+> uninitialized drm_mm_node, the above call trace occurs.
+>=20
+> This patch check drm_mm_node's validity before calling
+> drm_mm_remove_node().
+>=20
+> Fixes: ff8f797557c7("drm/i915: return the correct usable aperture size un=
+der gvt environment")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Xiong Zhang <xiong.y.zhang@intel.com>
+> ---
+>  drivers/gpu/drm/i915/i915_vgpu.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>=20
+> diff --git a/drivers/gpu/drm/i915/i915_vgpu.c b/drivers/gpu/drm/i915/i915=
+_vgpu.c
+> index bf2b837..d2fd66f 100644
+> --- a/drivers/gpu/drm/i915/i915_vgpu.c
+> +++ b/drivers/gpu/drm/i915/i915_vgpu.c
+> @@ -119,6 +119,9 @@ static struct _balloon_info_ bl_info;
+>  static void vgt_deballoon_space(struct i915_ggtt *ggtt,
+>  				struct drm_mm_node *node)
+>  {
+> +	if (!node->allocated)
+> +		return;
+> +
+>  	DRM_DEBUG_DRIVER("deballoon space: range [0x%llx - 0x%llx] %llu KiB.\n",
+>  			 node->start,
+>  			 node->start + node->size,
 
-Fix it. Drop the reference if schedule_work() indicates that the work is
-already queued.
+Searching shows this is pretty old one and also with r-b from Chris,
+but be ignored that nobody picked this up..
 
-Note that this bug got more apparent (or apparent at all) due to
-commit ce664331b248 ("vmw_balloon: VMCI_DOORBELL_SET does not check status").
+I think I hit this once too and tried to fix it another way,
+but this looks simpler to me.
 
-Fixes: 83e2ec765be03 ("VMCI: doorbell implementation.")
-Reported-by: Francois Rigault <rigault.francois@gmail.com>
-Cc: Jorgen Hansen <jhansen@vmware.com>
-Cc: Adit Ranadive <aditr@vmware.com>
-Cc: Alexios Zavras <alexios.zavras@intel.com>
-Cc: Vishnu DASA <vdasa@vmware.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Nadav Amit <namit@vmware.com>
----
- drivers/misc/vmw_vmci/vmci_doorbell.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Acked-by: Zhenyu Wang <zhenyuw@linux.intel.com>
 
-diff --git a/drivers/misc/vmw_vmci/vmci_doorbell.c b/drivers/misc/vmw_vmci/vmci_doorbell.c
-index bad89b6e0802..345addd9306d 100644
---- a/drivers/misc/vmw_vmci/vmci_doorbell.c
-+++ b/drivers/misc/vmw_vmci/vmci_doorbell.c
-@@ -310,7 +310,8 @@ int vmci_dbell_host_context_notify(u32 src_cid, struct vmci_handle handle)
- 
- 	entry = container_of(resource, struct dbell_entry, resource);
- 	if (entry->run_delayed) {
--		schedule_work(&entry->work);
-+		if (!schedule_work(&entry->work))
-+			vmci_resource_put(resource);
- 	} else {
- 		entry->notify_cb(entry->client_data);
- 		vmci_resource_put(resource);
-@@ -361,7 +362,8 @@ static void dbell_fire_entries(u32 notify_idx)
- 		    atomic_read(&dbell->active) == 1) {
- 			if (dbell->run_delayed) {
- 				vmci_resource_get(&dbell->resource);
--				schedule_work(&dbell->work);
-+				if (!schedule_work(&dbell->work))
-+					vmci_resource_put(&dbell->resource);
- 			} else {
- 				dbell->notify_cb(dbell->client_data);
- 			}
--- 
-2.19.1
+--=20
+Open Source Technology Center, Intel ltd.
 
+$gpg --keyserver wwwkeys.pgp.net --recv-keys 4D781827
+
+--7JfCtLOvnd9MIVvH
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EARECAB0WIQTXuabgHDW6LPt9CICxBBozTXgYJwUCXVy8HAAKCRCxBBozTXgY
+J7xcAJ9iqr4h7QnTx9tzdFbWg4y/mhDMZgCdHJaG2eTRmA8W3tkLza74nJ3bEiM=
+=RYoi
+-----END PGP SIGNATURE-----
+
+--7JfCtLOvnd9MIVvH--
