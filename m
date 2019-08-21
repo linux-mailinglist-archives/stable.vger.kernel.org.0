@@ -2,160 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7801197479
-	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 10:15:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C70497532
+	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 10:42:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726513AbfHUINV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Aug 2019 04:13:21 -0400
-Received: from mail-wm1-f54.google.com ([209.85.128.54]:53177 "EHLO
-        mail-wm1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726217AbfHUINR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Aug 2019 04:13:17 -0400
-Received: by mail-wm1-f54.google.com with SMTP id o4so1149817wmh.2
-        for <stable@vger.kernel.org>; Wed, 21 Aug 2019 01:13:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=1LsdYuCVxtL54AIcCRnwHe0dtBkzpAiOWFn7y/BLtL4=;
-        b=KXiC44uwMtpXZLAsdoezxREXZH5MBcvRDuWNgunalXzZM7raDy4B2TXZBXGGkxaNBC
-         MJbC4WTcQZp4CltkwM8nyQWuA2TdWQgQrSDgNpW2O/94E2ErjFmQDcfZG7U3t0rvq9a7
-         iY61Svojbx4JBpL5KXAxxCRbJy+tiXazG+eSBIDhJLTk89PUMaDzHnJI9deW2iMulG01
-         4Dex7F+is2Xaq9q5sUvvjAvhd7lj//I6YszsRwJyEwCrHJMYyxRqT1WKjrQjQNL+ELS5
-         t0WBsFxxHvsvjU8gxHDuaZ3vZrtMIeeOYnUmjy4AaO3B+LQ4Gs0CpOEa73pKGnZTKpQp
-         g2JA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=1LsdYuCVxtL54AIcCRnwHe0dtBkzpAiOWFn7y/BLtL4=;
-        b=j91dBZuddaiZNqN5w74enOFXYjmBSbSCHpPhonl//8c+NQIWX5EDiBAAz03vT14Ppx
-         uC80iauQnnI8aGxwn4e/U8vk/r3fCpaNaxnXcbnqbE+Aaph7f/bjRzPJw4LnkWj3WmZF
-         LkRv0kEF+OM8myB5X8YkPYuMgy1LNCHXgqopfoIeP4sb/ybFogXgJ4G+CaM/6cdomW3E
-         gXgcF0CA7gdwoQoVgqX0tLxWcIDoiwq1VMUTN5ls2s+59UlABinSixMjA8VQNLRjCl3/
-         XkpSNRVflYsfnYFhOyn3hpm/c+kYeQ4PYtlNDmK/Dmvezdc38rGQdGx/k/QsPesCI7o4
-         XgXg==
-X-Gm-Message-State: APjAAAX7+xFUZhlUZLz3FCtjpOCQ24/mltvQ+JhF1HDuSbZy12B0RKUH
-        gbSMUbnUrByOFBHJtfhURiwgNpIW1ZkZ6Q==
-X-Google-Smtp-Source: APXvYqyZbEUNFImt2cvmbx5Q0Q3IH+m45gMq6zRZyd8rP4Q2qqoddqMiWfm/5Lq6+iAJZ7aO6X0ziw==
-X-Received: by 2002:a7b:c928:: with SMTP id h8mr4635464wml.93.1566375194574;
-        Wed, 21 Aug 2019 01:13:14 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id c201sm5850160wmd.33.2019.08.21.01.13.13
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 21 Aug 2019 01:13:14 -0700 (PDT)
-Message-ID: <5d5cfd1a.1c69fb81.107c0.8870@mx.google.com>
-Date:   Wed, 21 Aug 2019 01:13:14 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1727357AbfHUIm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Aug 2019 04:42:26 -0400
+Received: from sonic307-56.consmr.mail.ne1.yahoo.com ([66.163.190.31]:39899
+        "EHLO sonic307-56.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726828AbfHUIm0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Aug 2019 04:42:26 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1566376945; bh=tPdyM4f7Tq8kspt5syr9wxbiHLUxanV8lkCr2Pkkkas=; h=Date:From:Reply-To:Subject:From:Subject; b=pMowMsraqCCzwUTkeRfShlFyBTgxV/juCU2nI6sdoQOrn6LnKGk0jNbG8sC2RUknspSiYWP9MxGrjf7BDqCLFlbKg6VOhIBMelVV+tBxYqCZY1Q9iES9czOMXjdXrh9BushijSb7LpJw6MrtKUJF9PWc5q0CL1dCEcdDrczCzfCt2n0SBDV9dU64aE4sLTRZ3FkmK6oFnZZOEemcepntF6MHxzUIYdJHXE63n39EuaEbXTppa41fXqcyLs3t+jlBG4nRV9eG3Z9f7ukHTv/MU8n8SVQIa+5Vc9UMubDXZbCpGCS+kWt4f7Sn1o1xXPqevNhDPY5pxfhWGFPIfqf7dw==
+X-YMail-OSG: jW4EU.EVM1kxjhsMRPrhBnkOsKCHh3y7NvEl8fKOpnoMnEB3Z5vp3kr4rJUp0ka
+ giT_sc9YbztpMkqSCDFuzOECR3iISpO05iJAx1H73AdzxHacVNIwoXHoJfdfzq01mDlOU2UI1_eN
+ g8gx1X.3ElLiCiwpXYnLb9T164VMXDrIboEDEK6P0cwqOM21AqU50plzm5hirGcHG2vIUvkEKsUo
+ hrmxHk3dcTzVVjQgBeoEyb2k4P75uQB4PQH4VUyeo6HMWHcgIkbFA9qKZ60VISalgaogtBjy82r9
+ sSBq6O.Lcdj23LaueBH7mqf41ZtfFuDBlXjS1YNXzkXfQJrF7lyaVXRWonfBV0h6xTvUt4Vfixmf
+ OjG3XmUJXm8srqhbfl67i9MCRx8xPhxF85fuR_9lN6RhCbINYtizZGmSLSpqO6gnWIHOVYMaO19V
+ sVxPFQ6Z2DVEcy22ByJyRe1tNiZptbbNthi_V.TBuYvaKILqh9tU6fGCF8a9D0rXfJTb8rdDvcl.
+ K61RD9LWEigPrBTAFciL_yS_6j1DCkB19UyTUBiN4EdCPKXSERyQL617pWLYqlLIWQhV8G0hMPJv
+ o64MvNIIhO0Qt90zGEC2sVTUX2ssreuBjyoKNl4Z5UqrP5OTQ0RQ66lbWr1JxnyfVAdjQ5oJnUDq
+ X8f7DE7Yk6eKo1N9qitNWd7AOOLmtN0P5kCpu3jRq2kfnHlrGMbdnu23brxMQga1GwDXDWaF.GPs
+ p9VciIPTF4HGtRnS9Rxo6iBwd2h50AxpgqfXvvv6SK3.rMCs5TYCsK1cBsnRTS4X8wvbipWp9doI
+ 74kQXEamXe_58veYr.PTs9R72RuOm2g0IuLoQDrtZxo4CweEO0kAv54PrsaWOumByFL06Q71x2pz
+ ftHXiaREuYzgrZDaa.bKK067_gVUaHcR2GxNzwAD2vH7vj9Ijck2AYwkeabWxTmZ.9duIOhjkZLW
+ z0nq41SZvbKT7pOfbZdgqG7VGbskdXWbBoxirWLgDaDb6V.iPCF6vUpetBO_LB30qdLbuNmi8Ubi
+ aAgJ9KXrMleoRcnE6reLof7_9wOjubihUo1oX6q3vetKK1LLzoILqAvYqp_HJZqd_gqlRn7uhAXi
+ l4eU7nwehhTl87wJk78fMoZTrXUHf7PhI5G0miNLFGoSr5vcx5i8eiCn5j5JV7fInAcD7JdvZFJB
+ vtd7LDH4q0Odore9KbOoiBIvgewyKorYc.IhQSqsFRECp9fij72P9cyxD4FFZuUuU7U7MqoCfBLN
+ 0qamyoq4-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Wed, 21 Aug 2019 08:42:25 +0000
+Date:   Wed, 21 Aug 2019 08:42:24 +0000 (UTC)
+From:   Aisha Gaddafi <gaddafi661@gmail.com>
+Reply-To: gaisha983@gmail.com
+Message-ID: <1694556640.111166.1566376944499@mail.yahoo.com>
+Subject: Dear Friend,
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.189-97-g6971d2d959e5
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y boot: 106 boots: 0 failed,
- 91 passed with 15 offline (v4.9.189-97-g6971d2d959e5)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 106 boots: 0 failed, 91 passed with 15 offline =
-(v4.9.189-97-g6971d2d959e5)
+Dear Friend,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.189-97-g6971d2d959e5/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.189-97-g6971d2d959e5/
+I came across your e-mail contact prior a private search while in need of 
+your assistance. My name is Aisha  Gaddafi a single Mother and a Widow with 
+three Children. I am the only biological Daughter of late Libyan President 
+(Late Colonel Muammar Gaddafi).
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.189-97-g6971d2d959e5
-Git Commit: 6971d2d959e5319d600ba42319ef91d4a043cbde
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 52 unique boards, 21 SoC families, 15 builds out of 197
+I have investment funds worth Twenty Seven Million Five Hundred Thousand 
+United State Dollar ($27.500.000.00 ) and i need a trusted investment 
+Manager/Partner because of my current refugee status, however, I am 
+interested in you for investment project assistance in your country, may be 
+from there, we can build business relationship in the nearest future.
 
-Boot Regressions Detected:
+I am willing to negotiate investment/business profit sharing ratio with you 
+base on the future investment earning profits.
 
-arm:
+If you are willing to handle this project on my behalf kindly reply urgent 
+to enable me provide you more information about the investment funds.
 
-    bcm2835_defconfig:
-        gcc-8:
-          bcm2835-rpi-b:
-              lab-baylibre-seattle: new failure (last pass: v4.9.189-96-g4c=
-d56b7fcd6f)
+Your Urgent Reply Will Be Appreciated.
 
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre-seattle: new failure (last pass: v4.9.189-96-g4c=
-d56b7fcd6f)
-
-    socfpga_defconfig:
-        gcc-8:
-          socfpga_cyclone5_de0_sockit:
-              lab-baylibre-seattle: new failure (last pass: v4.9.189-96-g4c=
-d56b7fcd6f)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          apq8016-sbc:
-              lab-baylibre-seattle: new failure (last pass: v4.9.189-96-g4c=
-d56b7fcd6f)
-          juno-r2:
-              lab-baylibre-seattle: new failure (last pass: v4.9.189-96-g4c=
-d56b7fcd6f)
-          meson-gxbb-odroidc2:
-              lab-baylibre-seattle: new failure (last pass: v4.9.189-96-g4c=
-d56b7fcd6f)
-
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-            juno-r2: 1 offline lab
-            meson-gxbb-odroidc2: 1 offline lab
-
-arm:
-
-    sama5_defconfig:
-        gcc-8
-            at91-sama5d4_xplained: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            alpine-db: 1 offline lab
-            at91-sama5d4_xplained: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    socfpga_defconfig:
-        gcc-8
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+Best Regards
+Mrs Aisha Gaddafi
+(gaisha983@gmail.com)
