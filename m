@@ -2,109 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18C5B9844F
-	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 21:25:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31AF3984B6
+	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 21:46:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727493AbfHUTZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Aug 2019 15:25:16 -0400
-Received: from hqemgate15.nvidia.com ([216.228.121.64]:15779 "EHLO
-        hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726741AbfHUTZQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Aug 2019 15:25:16 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate15.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5d5d9a9c0000>; Wed, 21 Aug 2019 12:25:16 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Wed, 21 Aug 2019 12:25:15 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Wed, 21 Aug 2019 12:25:15 -0700
-Received: from HQMAIL110.nvidia.com (172.18.146.15) by HQMAIL101.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 21 Aug
- 2019 19:25:15 +0000
-Received: from HQMAIL105.nvidia.com (172.20.187.12) by hqmail110.nvidia.com
- (172.18.146.15) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 21 Aug
- 2019 19:25:15 +0000
-Received: from hqnvemgw02.nvidia.com (172.16.227.111) by HQMAIL105.nvidia.com
- (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Wed, 21 Aug 2019 19:25:15 +0000
-Received: from blueforge.nvidia.com (Not Verified[10.110.48.28]) by hqnvemgw02.nvidia.com with Trustwave SEG (v7,5,8,10121)
-        id <B5d5d9a9b0001>; Wed, 21 Aug 2019 12:25:15 -0700
-From:   John Hubbard <jhubbard@nvidia.com>
-To:     "H . Peter Anvin" <hpa@zytor.com>
-CC:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        <gregkh@linuxfoundation.org>, <x86@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Neil MacLeod <neil@nmacleod.com>, <stable@vger.kernel.org>
-Subject: [PATCH] x86/boot: Fix boot failure regression
-Date:   Wed, 21 Aug 2019 12:25:13 -0700
-Message-ID: <20190821192513.20126-1-jhubbard@nvidia.com>
-X-Mailer: git-send-email 2.22.1
-In-Reply-To: <CAFbqK8=RUaCnk_WkioodkdwLsDina=yW+eLvzckSbVx_3Py_-A@mail.gmail.com>
-References: <CAFbqK8=RUaCnk_WkioodkdwLsDina=yW+eLvzckSbVx_3Py_-A@mail.gmail.com>
+        id S1729973AbfHUTqc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Aug 2019 15:46:32 -0400
+Received: from mail-io1-f67.google.com ([209.85.166.67]:35458 "EHLO
+        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729693AbfHUTqc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Aug 2019 15:46:32 -0400
+Received: by mail-io1-f67.google.com with SMTP id i22so7093437ioh.2
+        for <stable@vger.kernel.org>; Wed, 21 Aug 2019 12:46:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=nmacleod-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=IrhyO1xAriI0x3SJAPuRls7zHHEanwvviwP/gURxosE=;
+        b=GfievykSxX+taJCq1ixH6D5IHrMNPeTe/QbjmzP7QeVJIH9gbDkspPIUiYXaLDSXuQ
+         D9Kw6/wSIaF991TN63nLsO1t3QOgCAKx4NXqsIg86EFphb//xiOleNSubdDU4GAMhmyF
+         b2LyCQATPIc0ixkEiFX7vyOGNhLyOExGYtO6v7/xegsISI8+FcQNJy0ikef45qa6thda
+         nXzCqa56JDBqawJx0eQJItSV39MDW+eCYp8XCsq8IQq5lXFzHab6Gh5UFWWIhGWiLJFW
+         7Cxklx2mDhT1qLB+yzrfF69DVW9QZSDIFtRaVUeM7QIOe7CAHif+58LdXjUwruhbD6ma
+         WE+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=IrhyO1xAriI0x3SJAPuRls7zHHEanwvviwP/gURxosE=;
+        b=R3kTWtKqQ0gvpDLSDU7FweL3HqKwR/CrdOZPVJeyawmFIkxMeHGWMbefcsgVrYxoHa
+         1VlN+JojS5gPjyOH8/92KBWH142MAk8K40Hf26hfobbJsI+f7OO8nHsgSFWaRilScDba
+         AWnZ1q+/InBqsaO+2zzLgWuwfOTtL+ze6DYqEjRwus+O+SszKZjuZPxxctFsEu4gYvdy
+         LQqfDmQSj/ShLmv9+zT8SVfc+JQPUNHIkI5A/y5vk3yfmuq9XadciEd5ILtt/SY0Nnp+
+         rj7V93wRMA3FchaHoq5UXu74cbPKzLWEqfyFcMgfScAZ/migdpvTUDXkeFZRNI8shyrS
+         DJNg==
+X-Gm-Message-State: APjAAAWGCywWew+dkOAZE5LRaMdKDyn++/s9B2W37Z569hkK4gacVM4+
+        4qvpJlQc/x4MbpXflhy9iGgqzgrv8N1kxzdBSwRIDw==
+X-Google-Smtp-Source: APXvYqzkEGCbF52whPiC7JcrVWKDsn/1hFSQDxZirY2/IOn/+SfmgCqpDkQzuI7oaqgfNNMAlwa32d1DuAlHQjw27QE=
+X-Received: by 2002:a5d:8908:: with SMTP id b8mr17412303ion.237.1566416791134;
+ Wed, 21 Aug 2019 12:46:31 -0700 (PDT)
 MIME-Version: 1.0
-X-NVConfidentiality: public
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1566415516; bh=ucr7rfBqqfedkyuatW9cIEFGnyPN7FoxAX83ufXFfrY=;
-        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
-         In-Reply-To:References:MIME-Version:X-NVConfidentiality:
-         Content-Transfer-Encoding:Content-Type;
-        b=jOt/EPS3F5WJZf3aR6gpICax9WLuTVMxlu/t5B7ue1oW/cG+/ErojaJ21e+q5MuR0
-         zBI11Nv7Pps35tW9m38daZq4ARL9yhu/EeYiED2ZnB2wNRXMRQZKxDmCJxsS9/5hJ+
-         R7KXJfTdjOk0fZnWHzXKuYUK59xdvxCyimnb/sHDiVyb4Kn+gjtGFznja6e49j3exO
-         mFAhN+cjVv3Z8PVmq1/RtczZ3C6jbKhQ8Q+IKKI4kx+KJHjHCjeN3OQAuBzxN/cyDO
-         3aHnA40sYh+S0ON694NqXgXgO5E4xYHNF/8B3nDoWX4+ilC2tu6XKw09k2SWJ3O6VC
-         qHCq7xDA/9hqQ==
+References: <CAFbqK8=RUaCnk_WkioodkdwLsDina=yW+eLvzckSbVx_3Py_-A@mail.gmail.com>
+ <20190821192513.20126-1-jhubbard@nvidia.com>
+In-Reply-To: <20190821192513.20126-1-jhubbard@nvidia.com>
+From:   Neil MacLeod <neil@nmacleod.com>
+Date:   Wed, 21 Aug 2019 20:46:12 +0100
+Message-ID: <CAFbqK8=BodLiMr4pdHjdqsZtk8iHUC_9oyRRALJt0xLz4y_4sQ@mail.gmail.com>
+Subject: Re: [PATCH] x86/boot: Fix boot failure regression
+To:     John Hubbard <jhubbard@nvidia.com>
+Cc:     "H . Peter Anvin" <hpa@zytor.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        gregkh@linuxfoundation.org, x86@kernel.org,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit a90118c445cc ("x86/boot: Save fields explicitly, zero out
-everything else") had two errors:
+I can confirm 5.3-rc5 is booting again from internal M2 drive on
+Skylake i5 NUC with this commit - many thanks!
 
-    * It preserved boot_params.acpi_rsdp_addr, and
-    * It failed to preserve boot_params.hdr
+Regards
+Neil
 
-Therefore, zero out acpi_rsdp_addr, and preserve hdr.
-
-Fixes: a90118c445cc ("x86/boot: Save fields explicitly, zero out everything=
- else")
-Reported-by: Neil MacLeod <neil@nmacleod.com>
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: John Hubbard <jhubbard@nvidia.com>
----
- arch/x86/include/asm/bootparam_utils.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/x86/include/asm/bootparam_utils.h b/arch/x86/include/asm/=
-bootparam_utils.h
-index f5e90a849bca..9e5f3c722c33 100644
---- a/arch/x86/include/asm/bootparam_utils.h
-+++ b/arch/x86/include/asm/bootparam_utils.h
-@@ -59,7 +59,6 @@ static void sanitize_boot_params(struct boot_params *boot=
-_params)
- 			BOOT_PARAM_PRESERVE(apm_bios_info),
- 			BOOT_PARAM_PRESERVE(tboot_addr),
- 			BOOT_PARAM_PRESERVE(ist_info),
--			BOOT_PARAM_PRESERVE(acpi_rsdp_addr),
- 			BOOT_PARAM_PRESERVE(hd0_info),
- 			BOOT_PARAM_PRESERVE(hd1_info),
- 			BOOT_PARAM_PRESERVE(sys_desc_table),
-@@ -71,6 +70,7 @@ static void sanitize_boot_params(struct boot_params *boot=
-_params)
- 			BOOT_PARAM_PRESERVE(eddbuf_entries),
- 			BOOT_PARAM_PRESERVE(edd_mbr_sig_buf_entries),
- 			BOOT_PARAM_PRESERVE(edd_mbr_sig_buffer),
-+			BOOT_PARAM_PRESERVE(hdr),
- 			BOOT_PARAM_PRESERVE(e820_table),
- 			BOOT_PARAM_PRESERVE(eddbuf),
- 		};
---=20
-2.22.1
-
+On Wed, 21 Aug 2019 at 20:25, John Hubbard <jhubbard@nvidia.com> wrote:
+>
+> commit a90118c445cc ("x86/boot: Save fields explicitly, zero out
+> everything else") had two errors:
+>
+>     * It preserved boot_params.acpi_rsdp_addr, and
+>     * It failed to preserve boot_params.hdr
+>
+> Therefore, zero out acpi_rsdp_addr, and preserve hdr.
+>
+> Fixes: a90118c445cc ("x86/boot: Save fields explicitly, zero out everything else")
+> Reported-by: Neil MacLeod <neil@nmacleod.com>
+> Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+> Cc: H. Peter Anvin <hpa@zytor.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: John Hubbard <jhubbard@nvidia.com>
+> ---
+>  arch/x86/include/asm/bootparam_utils.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/arch/x86/include/asm/bootparam_utils.h b/arch/x86/include/asm/bootparam_utils.h
+> index f5e90a849bca..9e5f3c722c33 100644
+> --- a/arch/x86/include/asm/bootparam_utils.h
+> +++ b/arch/x86/include/asm/bootparam_utils.h
+> @@ -59,7 +59,6 @@ static void sanitize_boot_params(struct boot_params *boot_params)
+>                         BOOT_PARAM_PRESERVE(apm_bios_info),
+>                         BOOT_PARAM_PRESERVE(tboot_addr),
+>                         BOOT_PARAM_PRESERVE(ist_info),
+> -                       BOOT_PARAM_PRESERVE(acpi_rsdp_addr),
+>                         BOOT_PARAM_PRESERVE(hd0_info),
+>                         BOOT_PARAM_PRESERVE(hd1_info),
+>                         BOOT_PARAM_PRESERVE(sys_desc_table),
+> @@ -71,6 +70,7 @@ static void sanitize_boot_params(struct boot_params *boot_params)
+>                         BOOT_PARAM_PRESERVE(eddbuf_entries),
+>                         BOOT_PARAM_PRESERVE(edd_mbr_sig_buf_entries),
+>                         BOOT_PARAM_PRESERVE(edd_mbr_sig_buffer),
+> +                       BOOT_PARAM_PRESERVE(hdr),
+>                         BOOT_PARAM_PRESERVE(e820_table),
+>                         BOOT_PARAM_PRESERVE(eddbuf),
+>                 };
+> --
+> 2.22.1
+>
