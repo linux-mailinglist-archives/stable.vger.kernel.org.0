@@ -2,164 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 514EC983E0
-	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 21:00:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18C5B9844F
+	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 21:25:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728716AbfHUS7p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Aug 2019 14:59:45 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:53132 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727998AbfHUS7p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Aug 2019 14:59:45 -0400
-Received: by mail-wm1-f68.google.com with SMTP id o4so3193886wmh.2
-        for <stable@vger.kernel.org>; Wed, 21 Aug 2019 11:59:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Tl2/TXQtNTaDtW4k+V57ocrASJdTn6tXhvANUGDEdBM=;
-        b=joIjPFhC0oBb2/lNcLeTSGJJHXu8wkOZ4l93jukGts6ukU/frYkoYrfIZSuiHwQ/5l
-         WTQ0+G1F7MAzkqnrcd8wVIh9lKyX+C1AzHu6mTGCBdHLeD1mWs96SOipyLITmoth82QE
-         Z3sPohip4Jdr6dyCqzmVsIDOMs4Ktk1ORSol3SqSAbjkSLmFJCpTkeaW0tjuYApWpuBQ
-         Db6zHbJ+7i+sqY4r+tO7y2PeaBb+w0ZXaDMZh+7ukyWFCA2rhHWpaJ0JSAsqGU5Z4Uyp
-         QJVng39oDdcMkpCiLfIMJQJSQIXmWXDgAmobO6YgK1qDYvDBlvq8xX45YzMmKw3zRudX
-         1cnQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Tl2/TXQtNTaDtW4k+V57ocrASJdTn6tXhvANUGDEdBM=;
-        b=EqzXMZym4PewEb1CnwZMNJRsy2usj7Y6ZZPdsHrug1WSKaK9BKfwgKUbvZjX9bpR45
-         Quz70ImrXHMwhZaKuozvPPwFUM6PVNCxAqcbXzkpsEr/Mxg49G3L9E06ckgubStFILzC
-         Tb6yha7evFcJELGeLwgqJPNjf2ueMcB9Genu6O64P2Di+/H9FQU15T72L8x5YFD36CUr
-         fVwMgkZ9czNquWBJMP18wlmHSqLSBn/FOQiTnUvnONEMQdRL5GKDvFOL4zGlMMw1Y7BL
-         krkwvOr1V7dFOM054bvdUPExrHZi2sxAGIMew7e/6j7j+uO3tm00P21c+srj1S7OZPpm
-         OBSA==
-X-Gm-Message-State: APjAAAXl+BSCv2JVVeOBl456D1P9dSceirLbMb6m+E0qaFnO0qWG9C8O
-        eOf4y5Tn31vVwVUwypIxuZY6KSt828lkRg==
-X-Google-Smtp-Source: APXvYqwZ4dSJ+vupHHjpCuIHiIyc8ydG5mnqrHA8TyygrLJZqZ4BvX4z50+nIoxmnDyixaVKt5tPDg==
-X-Received: by 2002:a05:600c:254c:: with SMTP id e12mr1676341wma.72.1566413982654;
-        Wed, 21 Aug 2019 11:59:42 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id 2sm1338909wmz.16.2019.08.21.11.59.41
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 21 Aug 2019 11:59:41 -0700 (PDT)
-Message-ID: <5d5d949d.1c69fb81.2b829.63b7@mx.google.com>
-Date:   Wed, 21 Aug 2019 11:59:41 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1727493AbfHUTZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Aug 2019 15:25:16 -0400
+Received: from hqemgate15.nvidia.com ([216.228.121.64]:15779 "EHLO
+        hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726741AbfHUTZQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Aug 2019 15:25:16 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate15.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5d5d9a9c0000>; Wed, 21 Aug 2019 12:25:16 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Wed, 21 Aug 2019 12:25:15 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Wed, 21 Aug 2019 12:25:15 -0700
+Received: from HQMAIL110.nvidia.com (172.18.146.15) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 21 Aug
+ 2019 19:25:15 +0000
+Received: from HQMAIL105.nvidia.com (172.20.187.12) by hqmail110.nvidia.com
+ (172.18.146.15) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 21 Aug
+ 2019 19:25:15 +0000
+Received: from hqnvemgw02.nvidia.com (172.16.227.111) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Wed, 21 Aug 2019 19:25:15 +0000
+Received: from blueforge.nvidia.com (Not Verified[10.110.48.28]) by hqnvemgw02.nvidia.com with Trustwave SEG (v7,5,8,10121)
+        id <B5d5d9a9b0001>; Wed, 21 Aug 2019 12:25:15 -0700
+From:   John Hubbard <jhubbard@nvidia.com>
+To:     "H . Peter Anvin" <hpa@zytor.com>
+CC:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        <gregkh@linuxfoundation.org>, <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Neil MacLeod <neil@nmacleod.com>, <stable@vger.kernel.org>
+Subject: [PATCH] x86/boot: Fix boot failure regression
+Date:   Wed, 21 Aug 2019 12:25:13 -0700
+Message-ID: <20190821192513.20126-1-jhubbard@nvidia.com>
+X-Mailer: git-send-email 2.22.1
+In-Reply-To: <CAFbqK8=RUaCnk_WkioodkdwLsDina=yW+eLvzckSbVx_3Py_-A@mail.gmail.com>
+References: <CAFbqK8=RUaCnk_WkioodkdwLsDina=yW+eLvzckSbVx_3Py_-A@mail.gmail.com>
 MIME-Version: 1.0
+X-NVConfidentiality: public
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.139-72-g6c641edcbe64
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y boot: 124 boots: 2 failed,
- 106 passed with 16 offline (v4.14.139-72-g6c641edcbe64)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1566415516; bh=ucr7rfBqqfedkyuatW9cIEFGnyPN7FoxAX83ufXFfrY=;
+        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
+         In-Reply-To:References:MIME-Version:X-NVConfidentiality:
+         Content-Transfer-Encoding:Content-Type;
+        b=jOt/EPS3F5WJZf3aR6gpICax9WLuTVMxlu/t5B7ue1oW/cG+/ErojaJ21e+q5MuR0
+         zBI11Nv7Pps35tW9m38daZq4ARL9yhu/EeYiED2ZnB2wNRXMRQZKxDmCJxsS9/5hJ+
+         R7KXJfTdjOk0fZnWHzXKuYUK59xdvxCyimnb/sHDiVyb4Kn+gjtGFznja6e49j3exO
+         mFAhN+cjVv3Z8PVmq1/RtczZ3C6jbKhQ8Q+IKKI4kx+KJHjHCjeN3OQAuBzxN/cyDO
+         3aHnA40sYh+S0ON694NqXgXgO5E4xYHNF/8B3nDoWX4+ilC2tu6XKw09k2SWJ3O6VC
+         qHCq7xDA/9hqQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 124 boots: 2 failed, 106 passed with 16 offlin=
-e (v4.14.139-72-g6c641edcbe64)
+commit a90118c445cc ("x86/boot: Save fields explicitly, zero out
+everything else") had two errors:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.139-72-g6c641edcbe64/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.139-72-g6c641edcbe64/
+    * It preserved boot_params.acpi_rsdp_addr, and
+    * It failed to preserve boot_params.hdr
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.139-72-g6c641edcbe64
-Git Commit: 6c641edcbe649a2aa866356ffd24f595edb17bea
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 67 unique boards, 25 SoC families, 16 builds out of 201
+Therefore, zero out acpi_rsdp_addr, and preserve hdr.
 
-Boot Regressions Detected:
-
-arm:
-
-    bcm2835_defconfig:
-        gcc-8:
-          bcm2835-rpi-b:
-              lab-baylibre-seattle: new failure (last pass: v4.14.139-62-g3=
-f2d1f5446a4)
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 6 days (last pass: v4.14.=
-138 - first fail: v4.14.138-70-g736c2f07319a)
-          qcom-apq8064-ifc6410:
-              lab-baylibre-seattle: failing since 6 days (last pass: v4.14.=
-138 - first fail: v4.14.138-70-g736c2f07319a)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre-seattle: new failure (last pass: v4.14.139-62-g3=
-f2d1f5446a4)
-
-Boot Failures Detected:
-
-arc:
-    hsdk_defconfig:
-        gcc-8:
-            hsdk: 1 failed lab
-
-arm64:
-    defconfig:
-        gcc-8:
-            rk3399-firefly: 1 failed lab
-
-Offline Platforms:
-
-mips:
-
-    pistachio_defconfig:
-        gcc-8
-            pistachio_marduk: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-            juno-r2: 1 offline lab
-            meson-gxbb-odroidc2: 1 offline lab
-            mt7622-rfb1: 1 offline lab
-
-arm:
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-    sama5_defconfig:
-        gcc-8
-            at91-sama5d4_xplained: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            alpine-db: 1 offline lab
-            at91-sama5d4_xplained: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
+Fixes: a90118c445cc ("x86/boot: Save fields explicitly, zero out everything=
+ else")
+Reported-by: Neil MacLeod <neil@nmacleod.com>
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: John Hubbard <jhubbard@nvidia.com>
 ---
-For more info write to <info@kernelci.org>
+ arch/x86/include/asm/bootparam_utils.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/x86/include/asm/bootparam_utils.h b/arch/x86/include/asm/=
+bootparam_utils.h
+index f5e90a849bca..9e5f3c722c33 100644
+--- a/arch/x86/include/asm/bootparam_utils.h
++++ b/arch/x86/include/asm/bootparam_utils.h
+@@ -59,7 +59,6 @@ static void sanitize_boot_params(struct boot_params *boot=
+_params)
+ 			BOOT_PARAM_PRESERVE(apm_bios_info),
+ 			BOOT_PARAM_PRESERVE(tboot_addr),
+ 			BOOT_PARAM_PRESERVE(ist_info),
+-			BOOT_PARAM_PRESERVE(acpi_rsdp_addr),
+ 			BOOT_PARAM_PRESERVE(hd0_info),
+ 			BOOT_PARAM_PRESERVE(hd1_info),
+ 			BOOT_PARAM_PRESERVE(sys_desc_table),
+@@ -71,6 +70,7 @@ static void sanitize_boot_params(struct boot_params *boot=
+_params)
+ 			BOOT_PARAM_PRESERVE(eddbuf_entries),
+ 			BOOT_PARAM_PRESERVE(edd_mbr_sig_buf_entries),
+ 			BOOT_PARAM_PRESERVE(edd_mbr_sig_buffer),
++			BOOT_PARAM_PRESERVE(hdr),
+ 			BOOT_PARAM_PRESERVE(e820_table),
+ 			BOOT_PARAM_PRESERVE(eddbuf),
+ 		};
+--=20
+2.22.1
+
