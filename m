@@ -2,105 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10614980F7
-	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 19:04:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E97C8980F5
+	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 19:04:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727984AbfHUREd convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 21 Aug 2019 13:04:33 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:63572 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726828AbfHUREd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Aug 2019 13:04:33 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from localhost (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 18217451-1500050 
-        for multiple; Wed, 21 Aug 2019 18:04:30 +0100
-Content-Type: text/plain; charset="utf-8"
+        id S1727136AbfHUREQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Aug 2019 13:04:16 -0400
+Received: from mga17.intel.com ([192.55.52.151]:58356 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726828AbfHUREQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 21 Aug 2019 13:04:16 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 21 Aug 2019 10:04:15 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,412,1559545200"; 
+   d="scan'208";a="203086539"
+Received: from labuser-z97x-ud5h.jf.intel.com (HELO intel.com) ([10.54.75.49])
+  by fmsmga004.fm.intel.com with ESMTP; 21 Aug 2019 10:04:15 -0700
+Date:   Wed, 21 Aug 2019 10:05:48 -0700
+From:   Manasi Navare <manasi.d.navare@intel.com>
+To:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [PATCH 01/10] drm/i915/dp: Fix dsc bpp calculations.
+Message-ID: <20190821170548.GA31411@intel.com>
+References: <20190821133221.29456-1-maarten.lankhorst@linux.intel.com>
+ <20190821133221.29456-2-maarten.lankhorst@linux.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-To:     Xiong Zhang <xiong.y.zhang@intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-In-Reply-To: <20190821033556.GA11927@zhen-hp.sh.intel.com>
-Cc:     intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org, stable@vger.kernel.org
-References: <1566279978-9659-1-git-send-email-xiong.y.zhang@intel.com>
- <20190821033556.GA11927@zhen-hp.sh.intel.com>
-Message-ID: <156640706795.20466.7242407780817145904@skylake-alporthouse-com>
-User-Agent: alot/0.6
-Subject: Re: [Intel-gfx] [PATCH 1/2] drm/i915: Don't deballoon unused ggtt
- drm_mm_node in linux guest
-Date:   Wed, 21 Aug 2019 18:04:27 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190821133221.29456-2-maarten.lankhorst@linux.intel.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Zhenyu Wang (2019-08-21 04:35:56)
-> On 2019.08.20 13:46:17 +0800, Xiong Zhang wrote:
-> > The following call trace may exist in linux guest dmesg when guest i915
-> > driver is unloaded.
-> > [   90.776610] [drm:vgt_deballoon_space.isra.0 [i915]] deballoon space: range [0x0 - 0x0] 0 KiB.
-> > [   90.776621] BUG: unable to handle kernel NULL pointer dereference at 00000000000000c0
-> > [   90.776691] IP: drm_mm_remove_node+0x4d/0x320 [drm]
-> > [   90.776718] PGD 800000012c7d0067 P4D 800000012c7d0067 PUD 138e4c067 PMD 0
-> > [   90.777091] task: ffff9adab60f2f00 task.stack: ffffaf39c0fe0000
-> > [   90.777142] RIP: 0010:drm_mm_remove_node+0x4d/0x320 [drm]
-> > [   90.777573] Call Trace:
-> > [   90.777653]  intel_vgt_deballoon+0x4c/0x60 [i915]
-> > [   90.777729]  i915_ggtt_cleanup_hw+0x121/0x190 [i915]
-> > [   90.777792]  i915_driver_unload+0x145/0x180 [i915]
-> > [   90.777856]  i915_pci_remove+0x15/0x20 [i915]
-> > [   90.777890]  pci_device_remove+0x3b/0xc0
-> > [   90.777916]  device_release_driver_internal+0x157/0x220
-> > [   90.777945]  driver_detach+0x39/0x70
-> > [   90.777967]  bus_remove_driver+0x51/0xd0
-> > [   90.777990]  pci_unregister_driver+0x23/0x90
-> > [   90.778019]  SyS_delete_module+0x1da/0x240
-> > [   90.778045]  entry_SYSCALL_64_fastpath+0x24/0x87
-> > [   90.778072] RIP: 0033:0x7f34312af067
-> > [   90.778092] RSP: 002b:00007ffdea3da0d8 EFLAGS: 00000206
-> > [   90.778297] RIP: drm_mm_remove_node+0x4d/0x320 [drm] RSP: ffffaf39c0fe3dc0
-> > [   90.778344] ---[ end trace f4b1bc8305fc59dd ]---
-> > 
-> > Four drm_mm_node are used to reserve guest ggtt space, but some of them
-> > may be skipped and not initialised due to space constraints in
-> > intel_vgt_balloon(). If drm_mm_remove_node() is called with
-> > uninitialized drm_mm_node, the above call trace occurs.
-> > 
-> > This patch check drm_mm_node's validity before calling
-> > drm_mm_remove_node().
-> > 
-> > Fixes: ff8f797557c7("drm/i915: return the correct usable aperture size under gvt environment")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Xiong Zhang <xiong.y.zhang@intel.com>
-> > ---
-> >  drivers/gpu/drm/i915/i915_vgpu.c | 3 +++
-> >  1 file changed, 3 insertions(+)
-> > 
-> > diff --git a/drivers/gpu/drm/i915/i915_vgpu.c b/drivers/gpu/drm/i915/i915_vgpu.c
-> > index bf2b837..d2fd66f 100644
-> > --- a/drivers/gpu/drm/i915/i915_vgpu.c
-> > +++ b/drivers/gpu/drm/i915/i915_vgpu.c
-> > @@ -119,6 +119,9 @@ static struct _balloon_info_ bl_info;
-> >  static void vgt_deballoon_space(struct i915_ggtt *ggtt,
-> >                               struct drm_mm_node *node)
-> >  {
-> > +     if (!node->allocated)
-> > +             return;
-> > +
-> >       DRM_DEBUG_DRIVER("deballoon space: range [0x%llx - 0x%llx] %llu KiB.\n",
-> >                        node->start,
-> >                        node->start + node->size,
-> 
-> Searching shows this is pretty old one and also with r-b from Chris,
-> but be ignored that nobody picked this up..
-> 
-> I think I hit this once too and tried to fix it another way,
-> but this looks simpler to me.
-> 
-> Acked-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+On Wed, Aug 21, 2019 at 03:32:12PM +0200, Maarten Lankhorst wrote:
+> There was a integer wraparound when mode_clock became too high,
+> and we didn't correct for the FEC overhead factor when dividing,
+> also the calculations would break at HBR3.
 
-Better late than never, I guess. Thanks for the patch and checking it
-over, pushed.
--Chris
+But the mode_clock is obtained from the adusted_mode->crtc_clock which is
+defined as an int in drm_mode_config struct, does that need to change also?
+
+> 
+> As a result our calculated bpp was way too high, and the link width
+> bpp limitation never came into effect.
+> 
+> Print out the resulting bpp calcululations as a sanity check, just
+> in case we ever have to debug it later on again.
+> 
+> Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> Fixes: d9218c8f6cf4 ("drm/i915/dp: Add helpers for Compressed BPP and Slice Count for DSC")
+> Cc: <stable@vger.kernel.org> # v5.0+
+> Cc: Manasi Navare <manasi.d.navare@intel.com>
+> ---
+>  drivers/gpu/drm/i915/display/intel_dp.c | 16 +++++++++-------
+>  drivers/gpu/drm/i915/display/intel_dp.h |  4 ++--
+>  2 files changed, 11 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+> index 921ad0a2f7ba..614a25911f07 100644
+> --- a/drivers/gpu/drm/i915/display/intel_dp.c
+> +++ b/drivers/gpu/drm/i915/display/intel_dp.c
+> @@ -4323,10 +4323,10 @@ intel_dp_get_sink_irq_esi(struct intel_dp *intel_dp, u8 *sink_irq_vector)
+>  		DP_DPRX_ESI_LEN;
+>  }
+>  
+> -u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
+> -				int mode_clock, int mode_hdisplay)
+> +u16 intel_dp_dsc_get_output_bpp(u32 link_clock, u8 lane_count,
+> +				u32 mode_clock, u32 mode_hdisplay)
+>  {
+> -	u16 bits_per_pixel, max_bpp_small_joiner_ram;
+> +	u32 bits_per_pixel, max_bpp_small_joiner_ram;
+
+But bits_per_pixel is a 16 bit value for DSC PPS, why does this need to be u32?
+
+>  	int i;
+>  
+>  	/*
+> @@ -4335,13 +4335,14 @@ u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
+>  	 * FECOverhead = 2.4%, for SST -> TimeSlotsPerMTP is 1,
+>  	 * for MST -> TimeSlotsPerMTP has to be calculated
+>  	 */
+> -	bits_per_pixel = (link_clock * lane_count * 8 *
+> -			  DP_DSC_FEC_OVERHEAD_FACTOR) /
+> -		mode_clock;
+> +	bits_per_pixel = div_u64((u64)link_clock * lane_count * 8 *
+> +				 DP_DSC_FEC_OVERHEAD_FACTOR, 1000ULL * mode_clock);
+
+Thanks for catching this, this had the 1000 in the denominator in my original patches :https://patchwork.freedesktop.org/series/47514/#rev3
+And  then the nex rev lost it somehow, so thanks for catching this 
+
+Manasi
+
+> +	DRM_DEBUG_KMS("Max link bpp: %u\n", bits_per_pixel);
+>  
+>  	/* Small Joiner Check: output bpp <= joiner RAM (bits) / Horiz. width */
+>  	max_bpp_small_joiner_ram = DP_DSC_MAX_SMALL_JOINER_RAM_BUFFER /
+>  		mode_hdisplay;
+> +	DRM_DEBUG_KMS("Max small joiner bpp: %u\n", max_bpp_small_joiner_ram);
+>  
+>  	/*
+>  	 * Greatest allowed DSC BPP = MIN (output BPP from avaialble Link BW
+> @@ -4351,7 +4352,8 @@ u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
+>  
+>  	/* Error out if the max bpp is less than smallest allowed valid bpp */
+>  	if (bits_per_pixel < valid_dsc_bpp[0]) {
+> -		DRM_DEBUG_KMS("Unsupported BPP %d\n", bits_per_pixel);
+> +		DRM_DEBUG_KMS("Unsupported BPP %u, min %u\n",
+> +			      bits_per_pixel, valid_dsc_bpp[0]);
+>  		return 0;
+>  	}
+>  
+> diff --git a/drivers/gpu/drm/i915/display/intel_dp.h b/drivers/gpu/drm/i915/display/intel_dp.h
+> index 657bbb1f5ed0..007d1981a33b 100644
+> --- a/drivers/gpu/drm/i915/display/intel_dp.h
+> +++ b/drivers/gpu/drm/i915/display/intel_dp.h
+> @@ -102,8 +102,8 @@ bool intel_dp_source_supports_hbr2(struct intel_dp *intel_dp);
+>  bool intel_dp_source_supports_hbr3(struct intel_dp *intel_dp);
+>  bool
+>  intel_dp_get_link_status(struct intel_dp *intel_dp, u8 *link_status);
+> -u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
+> -				int mode_clock, int mode_hdisplay);
+> +u16 intel_dp_dsc_get_output_bpp(u32 link_clock, u8 lane_count,
+> +				u32 mode_clock, u32 mode_hdisplay);
+>  u8 intel_dp_dsc_get_slice_count(struct intel_dp *intel_dp, int mode_clock,
+>  				int mode_hdisplay);
+>  
+> -- 
+> 2.20.1
+> 
