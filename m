@@ -2,164 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A65BB97980
-	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 14:33:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DAB1979D1
+	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 14:46:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728334AbfHUMdO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Aug 2019 08:33:14 -0400
-Received: from relay5-d.mail.gandi.net ([217.70.183.197]:37963 "EHLO
-        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728333AbfHUMdN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Aug 2019 08:33:13 -0400
-X-Originating-IP: 87.18.63.98
-Received: from uno.localdomain (unknown [87.18.63.98])
-        (Authenticated sender: jacopo@jmondi.org)
-        by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id 4E20C1C0008;
-        Wed, 21 Aug 2019 12:33:08 +0000 (UTC)
-Date:   Wed, 21 Aug 2019 14:34:37 +0200
-From:   Jacopo Mondi <jacopo@jmondi.org>
-To:     Geert Uytterhoeven <geert@linux-m68k.org>
-Cc:     Jonathan Cameron <jic23@kernel.org>,
-        Jacopo Mondi <jacopo+renesas@jmondi.org>,
-        Hartmut Knaack <knaack.h@gmx.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Stefan Agner <stefan@agner.ch>, linux-iio@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH] iio: adc: max9611: Fix temperature reading in probe
-Message-ID: <20190821123437.rhbukfarka7jo6gu@uno.localdomain>
-References: <20190805155515.22621-1-jacopo+renesas@jmondi.org>
- <20190805181244.663585ac@archlinux>
- <CAMuHMdVT--S48M+BHTOH5SDi7AG=asOdNWH_UyM5nygZjWLmdg@mail.gmail.com>
+        id S1726513AbfHUMq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Aug 2019 08:46:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41022 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726372AbfHUMq1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 21 Aug 2019 08:46:27 -0400
+Received: from localhost (unknown [12.166.174.13])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA17E22D6D;
+        Wed, 21 Aug 2019 12:46:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1566391586;
+        bh=WyOxTACDE3T+vd+JF3R7wjEQNPMa6UBmIWPUuqRkf+s=;
+        h=Subject:To:From:Date:From;
+        b=IQ6D/7Ssw6JUakggG6LCfE+iZwwDTRtd9mu2HeIzsaW2vLAdtybbODVOdq3/NbhNz
+         sPCyDpzoFzHtI4utOU9Pu3qBg6mWoHbI2ME1L4He6ZWlm1MOl7fFJz1GWM6dOvncCN
+         r9m3+qINTY8Az6kMJeL4Sxks49nwFsmycVEUj19Y=
+Subject: patch "staging: erofs: fix an error handling in erofs_readdir()" added to staging-next
+To:     gaoxiang25@huawei.com, gregkh@linuxfoundation.org, richard@nod.at,
+        stable@vger.kernel.org, yuchao0@huawei.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 21 Aug 2019 05:46:25 -0700
+Message-ID: <1566391585150125@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="qun6oiumlid26o25"
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdVT--S48M+BHTOH5SDi7AG=asOdNWH_UyM5nygZjWLmdg@mail.gmail.com>
-User-Agent: NeoMutt/20180716
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---qun6oiumlid26o25
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+This is a note to let you know that I've just added the patch titled
 
-Hi Geert
+    staging: erofs: fix an error handling in erofs_readdir()
 
-On Wed, Aug 21, 2019 at 01:28:16PM +0200, Geert Uytterhoeven wrote:
-> Hi Jonathan, Jacopo,
->
-> On Mon, Aug 5, 2019 at 7:15 PM Jonathan Cameron <jic23@kernel.org> wrote:
-> > On Mon,  5 Aug 2019 17:55:15 +0200
-> > Jacopo Mondi <jacopo+renesas@jmondi.org> wrote:
-> >
-> > > The max9611 driver reads the die temperature at probe time to validate
-> > > the communication channel. Use the actual read value to perform the test
-> > > instead of the read function return value, which was mistakenly used so
-> > > far.
-> > >
-> > > The temperature reading test was only successful because the 0 return
-> > > value is in the range of supported temperatures.
-> > >
-> > > Fixes: 69780a3bbc0b ("iio: adc: Add Maxim max9611 ADC driver")
-> > > Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
-> >
-> > Applied to the fixes-togreg branch of iio.git and marked for
-> > stable.  That'll be a bit fiddly given other changes around this
-> > so we may need to do backports.
->
-> This is now commit b9ddd5091160793e ("iio: adc: max9611: Fix temperature
-> reading in probe") in v5.3-rc5, and has been backported to 4.14, 4.19,
-> and 5.2.
->
-> > > --- a/drivers/iio/adc/max9611.c
-> > > +++ b/drivers/iio/adc/max9611.c
-> > > @@ -480,7 +480,7 @@ static int max9611_init(struct max9611_dev *max9611)
-> > >       if (ret)
-> > >               return ret;
-> > >
-> > > -     regval = ret & MAX9611_TEMP_MASK;
-> > > +     regval &= MAX9611_TEMP_MASK;
-> > >
-> > >       if ((regval > MAX9611_TEMP_MAX_POS &&
-> > >            regval < MAX9611_TEMP_MIN_NEG) ||
->
-> While this did fix a bug, it also introduced a regression: on Salvator-XS,
-> which has two max9611 instances, I now see intermittent failures
->
->     max9611 4-007c: Invalid value received from ADC 0x8000: aborting
->     max9611: probe of 4-007c failed with error -5
->
-> and/or
->
->     max9611 4-007f: Invalid value received from ADC 0x8000: aborting
->     max9611: probe of 4-007f failed with error -5
->
-> during boot.
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-next branch.
 
-AH! I didn't notice! I booted the board a few times only, maybe it
-didn't trigger (it was a Salvator-X H3, not an XS, but it shouldn't
-make any difference).
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
->
-> Retrying on failure fixes the issue, e.g.:
->
->     max9611_init:483: regval = 0x8000
->     max9611 4-007f: Invalid value received from ADC 0x8000: aborting
->     max9611_init:483: regval = 0x2780
->
-> According to the datasheet, 0x8000 is the Power-On Reset value.
-> Looks like it should be ignored, and retried?
+The patch will also be merged in the next major kernel release
+during the merge window.
 
-Indeed... I haven't found a characterization of the delay required to
-release registers from their POR values after power up, so I guess we
-could read the register value again with a little timeout between
-reads (whose value would be arbitrary, anyway..)
-
-I'm a bit suprised though.. The max9611 chips are powered from the
-+3.3V rail, and should have exited POR long before the driver gets
-to probe, isn't it?
-
-Thanks for reporting and sorry for having missed it in first place
+If you have any questions about this process, please let me know.
 
 
->
-> Gr{oetje,eeting}s,
->
->                         Geert
->
->
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
->
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
->                                 -- Linus Torvalds
+From acb383f1dcb4f1e79b66d4be3a0b6f519a957b0d Mon Sep 17 00:00:00 2001
+From: Gao Xiang <gaoxiang25@huawei.com>
+Date: Sun, 18 Aug 2019 20:54:57 +0800
+Subject: staging: erofs: fix an error handling in erofs_readdir()
 
---qun6oiumlid26o25
-Content-Type: application/pgp-signature; name="signature.asc"
+Richard observed a forever loop of erofs_read_raw_page() [1]
+which can be generated by forcely setting ->u.i_blkaddr
+to 0xdeadbeef (as my understanding block layer can
+handle access beyond end of device correctly).
 
------BEGIN PGP SIGNATURE-----
+After digging into that, it seems the problem is highly
+related with directories and then I found the root cause
+is an improper error handling in erofs_readdir().
 
-iQIzBAABCAAdFiEEtcQ9SICaIIqPWDjAcjQGjxahVjwFAl1dOl0ACgkQcjQGjxah
-VjyrKhAAtDuO4WzIq31UoBWpx9c9XTZKqfUlSPk/p6xNPC/ByTk5qugXirqHRNOl
-Lud+5C9JA8M2lzXSGk05qwyCETJuCfYLDueF1Tj2I/XD/1sD7cnttmZxmJA0COr+
-hjFk8PCJqqcSOXMIdd77Has/+568t1SVXmJGZv27zK5KBjc98zvVSiWEkXvnhMPV
-dVBgq6MboeZEGu1na7fyDMQXPYKO2XBZ7tfldmxhHER0UYdbCK3cQBJxFoE9WGNX
-JjeDmaY8qKKDWkI2ZR4+rvg4xtmH7B3xysWtr4TjNuX4q49LER06sinwLT/jk9M5
-7Xiei5/BPuNh5dZOVI5vKawR8ZrCZUMvwWU3qiPSJcX3hG4tr6veDyp/5zKmXPlz
-JeVMq7j217QOY7xgMvMKe4uKI8h3lD8UC5dsjSLqttSgpI0MdGAjYXfSRHcFF0lY
-IyEjvyT40KTljK0tM9K7pzTjMyPbDyAg24lE89xFqZb6Mw4ZOechnR9zYGXMOKZH
-tPHyUsOnLPPygb4BTiMv75hQzWZqi69C/qU2AdsAgsDvmyMyS3uNrVUDJcXQfJZj
-kQ+caeyLq4WsoQQ/Gh1YgBXH2Pk3sgQMp7phK6vm6GKqi25o5awCMpU1alA3rOqd
-q+cCysbULdTv0HNSHmc8gGiNa9WgsoTHvvH0ISOPQwLNv6a+6fU=
-=McQD
------END PGP SIGNATURE-----
+Let's fix it now.
 
---qun6oiumlid26o25--
+[1] https://lore.kernel.org/r/1163995781.68824.1566084358245.JavaMail.zimbra@nod.at/
+
+Reported-by: Richard Weinberger <richard@nod.at>
+Fixes: 3aa8ec716e52 ("staging: erofs: add directory operations")
+Cc: <stable@vger.kernel.org> # 4.19+
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+Link: https://lore.kernel.org/r/20190818125457.25906-1-hsiangkao@aol.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/erofs/dir.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/staging/erofs/dir.c b/drivers/staging/erofs/dir.c
+index 5f38382637e6..77ef856df9f3 100644
+--- a/drivers/staging/erofs/dir.c
++++ b/drivers/staging/erofs/dir.c
+@@ -82,8 +82,15 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
+ 		unsigned int nameoff, maxsize;
+ 
+ 		dentry_page = read_mapping_page(mapping, i, NULL);
+-		if (IS_ERR(dentry_page))
+-			continue;
++		if (dentry_page == ERR_PTR(-ENOMEM)) {
++			err = -ENOMEM;
++			break;
++		} else if (IS_ERR(dentry_page)) {
++			errln("fail to readdir of logical block %u of nid %llu",
++			      i, EROFS_V(dir)->nid);
++			err = -EFSCORRUPTED;
++			break;
++		}
+ 
+ 		de = (struct erofs_dirent *)kmap(dentry_page);
+ 
+-- 
+2.23.0
+
+
