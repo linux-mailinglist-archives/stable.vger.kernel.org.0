@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0C919793B
-	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 14:28:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 058DE9793E
+	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 14:28:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727357AbfHUMY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Aug 2019 08:24:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33118 "EHLO mail.kernel.org"
+        id S1727320AbfHUM0T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Aug 2019 08:26:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727107AbfHUMY4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 21 Aug 2019 08:24:56 -0400
+        id S1727250AbfHUM0T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 21 Aug 2019 08:26:19 -0400
 Received: from localhost (unknown [12.166.174.13])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9A7C206BA;
-        Wed, 21 Aug 2019 12:24:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84A66206BA;
+        Wed, 21 Aug 2019 12:26:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566390295;
-        bh=TQkFD5AZyqEo8eWNljZOpRok1YeKJ0zbNwyNfThQbZw=;
+        s=default; t=1566390378;
+        bh=DlgkEEY14FShlTpTlQErxvHTcraTuzIA0E6kOYSpvkI=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=0C6DzKNV2Oji6v58ojle4ebV+gUHWhLD1H1Ews7b5nc6yY61tGo3ToYSid9RYfCZE
-         RT4zX4QmM20ZH5hcKCcO2P+HMaomCoEF0JskjXPXvuoYu4hjEHSTaaFarbSnhdBEOK
-         YeygnPLuVnsPc7/OMutuPTcz8fFZsNKfCYiWkRvc=
-Date:   Wed, 21 Aug 2019 05:24:55 -0700
+        b=SZ/1O76uGyClSKVZZN82/RKjzMGnpsmxbCCz+sUVp95YP0VpkUtleApdf2fZv3KNi
+         vtjcymbSroDXSJ3/EQLP7UDWa0h/nybFY4jOAzr10fjzSpl73UzrqIb24QMBCBXfuQ
+         3Y69cHsfoOoNGxTCv4/YWblGjWBpbKVx/tnBeuXQ=
+Date:   Wed, 21 Aug 2019 05:26:17 -0700
 From:   gregkh <gregkh@linuxfoundation.org>
 To:     Arnd Bergmann <arnd@arndb.de>
 Cc:     "stable-4.19" <stable@vger.kernel.org>,
@@ -33,7 +33,7 @@ Cc:     "stable-4.19" <stable@vger.kernel.org>,
         Linus Walleij <linus.walleij@linaro.org>,
         Stefano Stabellini <sstabellini@kernel.org>
 Subject: Re: stable backports, from contents found in xilinx-4.19
-Message-ID: <20190821122455.GB19107@kroah.com>
+Message-ID: <20190821122617.GC19107@kroah.com>
 References: <CAK8P3a2Ew0oOQS781Q=FGvEywDspBhsZXaP1w+Ca=8HRhvf4cA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -54,11 +54,16 @@ On Thu, Aug 15, 2019 at 11:43:13PM +0200, Arnd Bergmann wrote:
 > tree:
 > 
 > d86c5a676e5b ("usb: dwc3: gadget: always try to prepare on started_list first")
+> 60208a267208 ("mmc: sdhci-of-arasan: Do now show error message in case
+> of deffered probe")
 
-This commit is in 4.10, why would you need to add it to 4.19?
+I queued this one up (also for 4.14)
 
-Are you sure this isn't the 4.9 list?
+> 899ecaedd155 ("net: ethernet: cadence: fix socket buffer corruption problem")
 
-confused,
+This too is in 4.10.  I'll stop here, can you redo this list and verify
+you are not applying patches multiple times?
+
+thanks,
 
 greg k-h
