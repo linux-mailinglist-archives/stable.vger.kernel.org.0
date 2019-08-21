@@ -2,81 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98F0F976F9
-	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 12:21:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C87097728
+	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 12:30:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728257AbfHUKRH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Aug 2019 06:17:07 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:55197 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727837AbfHUKRH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Aug 2019 06:17:07 -0400
-Received: from p5de0b6c5.dip0.t-ipconnect.de ([93.224.182.197] helo=nanos)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tglx@linutronix.de>)
-        id 1i0Nfp-00012g-VP; Wed, 21 Aug 2019 12:17:02 +0200
-Date:   Wed, 21 Aug 2019 12:17:00 +0200 (CEST)
-From:   Thomas Gleixner <tglx@linutronix.de>
+        id S1726648AbfHUKaS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Aug 2019 06:30:18 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:54780 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726448AbfHUKaS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Aug 2019 06:30:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=8zp6S8Iv44NclUZi/IYCMzStVxccs6F1yCeJgKpoeH8=; b=a8L4Dq/aCr8gnwdzhMMrkGdX9
+        BskOgh+y9z0CTn/F6FSad/M/j6HHWwSy+ZqDnBzj2u9kTLwcuN+giohlH1nNtFjtmDXxRrhKefmHh
+        h3qH1yWlfgZLsJgrTF1Jji/uRxBau28zxmgLoHgetvsX4/H+sMV0xcrdLMQBHff1NKbICi8qAPKGn
+        g1arbtzq1HcniDUYbJmejwx1T4KCm+SZ810uMKz+he2jHRV8m3cQ8/CGnv74ayQk2zCYXNzVVIc+s
+        GdbdE0i7qc8DbfiHZW6VtwVNAUstNyfONn1rY7sDd/CJCG6pLDgSHje1hhbG4sI0it+T37usnkOOc
+        fCNzqpNUw==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
+        id 1i0Nsb-0002wj-V1; Wed, 21 Aug 2019 10:30:14 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 23ED2306B81;
+        Wed, 21 Aug 2019 12:29:39 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id BA91920A21FC4; Wed, 21 Aug 2019 12:30:10 +0200 (CEST)
+Date:   Wed, 21 Aug 2019 12:30:10 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
 To:     Song Liu <songliubraving@fb.com>
-cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux MM <linux-mm@kvack.org>,
-        Kernel Team <Kernel-team@fb.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        kernel-team@fb.com, stable@vger.kernel.org,
         Joerg Roedel <jroedel@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>
+        Andy Lutomirski <luto@kernel.org>
 Subject: Re: [PATCH v2] x86/mm/pti: in pti_clone_pgtable(), increase addr
  properly
-In-Reply-To: <2CB1A3FD-33EF-4D8B-B74A-CF35F9722993@fb.com>
-Message-ID: <alpine.DEB.2.21.1908211210160.2223@nanos.tec.linutronix.de>
-References: <20190820202314.1083149-1-songliubraving@fb.com> <2CB1A3FD-33EF-4D8B-B74A-CF35F9722993@fb.com>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+Message-ID: <20190821103010.GJ2386@hirez.programming.kicks-ass.net>
+References: <20190820202314.1083149-1-songliubraving@fb.com>
+ <20190821101008.GX2349@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190821101008.GX2349@hirez.programming.kicks-ass.net>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 21 Aug 2019, Song Liu wrote:
-> > On Aug 20, 2019, at 1:23 PM, Song Liu <songliubraving@fb.com> wrote:
+On Wed, Aug 21, 2019 at 12:10:08PM +0200, Peter Zijlstra wrote:
+> On Tue, Aug 20, 2019 at 01:23:14PM -0700, Song Liu wrote:
+
+> > host-5.2-after # grep "x  pmd" /sys/kernel/debug/page_tables/dump_pid
+> > 0x0000000000600000-0x0000000000e00000           8M USR ro         PSE         x  pmd
+> > 0xffffffff81000000-0xffffffff81e00000          14M     ro         PSE     GLB x  pmd
 > > 
-> > Before 32-bit support, pti_clone_pmds() always adds PMD_SIZE to addr.
-> > This behavior changes after the 32-bit support:  pti_clone_pgtable()
-> > increases addr by PUD_SIZE for pud_none(*pud) case, and increases addr by
-> > PMD_SIZE for pmd_none(*pmd) case. However, this is not accurate because
-> > addr may not be PUD_SIZE/PMD_SIZE aligned.
-> > 
-> > Fix this issue by properly rounding up addr to next PUD_SIZE/PMD_SIZE
-> > in these two cases.
+> > So after this patch, the 5.2 based kernel has 7 PMDs instead of 1 PMD
+> > in 4.16 kernel.
 > 
-> After poking around more, I found the following doesn't really make 
-> sense. 
+> This basically gives rise to more questions than it provides answers.
+> You seem to have 'forgotten' to provide the equivalent mappings on the
+> two older kernels. The fact that they're not PMD is evident, but it
+> would be very good to know what is mapped, and what -- if anything --
+> lives in the holes we've (accidentally) created.
+> 
+> Can you please provide more complete mappings? Basically provide the
+> whole cpu_entry_area mapping.
 
-I'm glad you figured that out yourself. Was about to write up something to
-that effect.
+I tried on my local machine and:
 
-Still interesting questions remain:
+  cat /debug/page_tables/kernel | awk '/^---/ { p=0 } /CPU entry/ { p=1 } { if (p) print $0 }' > ~/cea-{before,after}.txt
 
-  1) How did you end up feeding an unaligned address into that which points
-     to a 0 PUD?
+resulted in _identical_ files ?!?!
 
-  2) Is this related to Facebook specific changes and unlikely to affect any
-     regular kernel? I can't come up with a way to trigger that in mainline
-
-  3) As this is a user page table and the missing mapping is related to
-     mappings required by PTI, how is the machine going in/out of user
-     space in the first place? Or did I just trip over what you called
-     nonsense?
-
-Thanks,
-
-	tglx
-
-
-
+Can you share your before and after dumps?
