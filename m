@@ -2,259 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66E4796EF8
-	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 03:40:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C720996F10
+	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 03:54:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726546AbfHUBi4 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 20 Aug 2019 21:38:56 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:60658 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726514AbfHUBi4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Aug 2019 21:38:56 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 635C510C0518
-        for <stable@vger.kernel.org>; Wed, 21 Aug 2019 01:38:55 +0000 (UTC)
-Received: from [172.54.45.2] (cpt-1019.paas.prod.upshift.rdu2.redhat.com [10.0.19.39])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 5F40418344;
-        Wed, 21 Aug 2019 01:38:52 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1726895AbfHUBtR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Aug 2019 21:49:17 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:42616 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726372AbfHUBtR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Aug 2019 21:49:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=SGtyDfOk7ztf7e1zq8UPqa3xUIMnaYAeWahTWcEr7d4=; b=MQBLmHoexH6YgdK4vldQKz4da
+        8RAZW2Yi8DxJxQAlpwgczYaEaHM1c41vT1AnkpoCnNqXbGnGTNghSk0fVikznf0kIEi0v+5N5r8g1
+        /6oblkV7iXrJ3a45Axj84aDQZSNiq8kQRjY+HUCF8V1Py56nJy0hBCl9/lpFyn+yndcDaRZqJkzVt
+        bIi8Pv29Kk3FsfaRxdzwIJpj8AfPIsMMPyFdhswi9/+xmIhUaAbFj+F5czW5zAlG2znKGKTxCbpT/
+        UF3RHjXmL4RitId7QozMvfJ4mmRlqlKtKIA6x7b3LDsgzeXJblkyLmEfssdO0Km6aGAzq3az5/zkW
+        SJ4UIFkeA==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat Linux))
+        id 1i0FkA-0003gm-R5; Wed, 21 Aug 2019 01:48:58 +0000
+Date:   Tue, 20 Aug 2019 18:48:58 -0700
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Vlastimil Babka <vbabka@suse.cz>
+Cc:     Christoph Hellwig <hch@infradead.org>, dsterba@suse.cz,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        erhard_f@mailbox.org, Chris Mason <clm@fb.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-btrfs@vger.kernel.org, linux-mm@kvack.org,
+        stable@vger.kernel.org, Dave Chinner <david@fromorbit.com>
+Subject: Re: [PATCH] btrfs: fix allocation of bitmap pages.
+Message-ID: <20190821014858.GA9158@infradead.org>
+References: <20190817074439.84C6C1056A3@localhost.localdomain>
+ <20190819174600.GN24086@twin.jikos.cz>
+ <20190820023031.GC9594@infradead.org>
+ <6f99b73c-db8f-8135-b827-0a135734d7da@suse.cz>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.2.9-aad39e3.cki
- (stable)
-Message-ID: <cki.79D48D1500.X86MF0O7UM@redhat.com>
-X-Gitlab-Pipeline-ID: 113521
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/113521
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.65]); Wed, 21 Aug 2019 01:38:55 +0000 (UTC)
-Date:   Tue, 20 Aug 2019 21:38:56 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6f99b73c-db8f-8135-b827-0a135734d7da@suse.cz>
+User-Agent: Mutt/1.11.4 (2019-03-13)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Aug 20, 2019 at 01:06:25PM +0200, Vlastimil Babka wrote:
+> > The whole point of copy_page is to copy exactly one page and it makes
+> > sense to assume that is aligned.  A sane memcpy would use the same
+> > underlying primitives as well after checking they fit.  So I think the
+> > prime issue here is btrfs' use of copy_page instead of memcpy.  The
+> > secondary issue is slub fucking up alignments for no good reason.  We
+> > just got bitten by that crap again in XFS as well :(
+> 
+> Meh, I should finally get back to https://lwn.net/Articles/787740/ right
 
-Hello,
+Yes.  For now Dave came up with an idea for a workaround that will
+be forward-compatible with that:
 
-We ran automated tests on a recent commit from this kernel tree:
-
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-            Commit: aad39e30fb9e - Linux 5.2.9
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/113521
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ xfstests: ext4 [1]
-         ✅ xfstests: xfs [1]
-         ✅ selinux-policy: serge-testsuite [2]
-         ✅ lvm thinp sanity [3]
-         ✅ storage: software RAID testing [4]
-         🚧 ✅ Storage blktests [5]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [6]
-         ✅ Podman system integration test (as user) [6]
-         ✅ LTP lite [7]
-         ✅ Loopdev Sanity [8]
-         ✅ jvm test suite [9]
-         ✅ Memory function: memfd_create [10]
-         ✅ AMTU (Abstract Machine Test Utility) [11]
-         ✅ LTP: openposix test suite [12]
-         ✅ Ethernet drivers sanity [13]
-         ✅ Networking socket: fuzz [14]
-         ✅ Networking sctp-auth: sockopts test [15]
-         ✅ Networking: igmp conformance test [16]
-         ✅ Networking TCP: keepalive test [17]
-         ✅ Networking UDP: socket [18]
-         ✅ Networking tunnel: gre basic [19]
-         ✅ Networking tunnel: vxlan basic [20]
-         ✅ audit: audit testsuite test [21]
-         ✅ httpd: mod_ssl smoke sanity [22]
-         ✅ iotop: sanity [23]
-         ✅ tuned: tune-processes-through-perf [24]
-         ✅ Usex - version 1.9-29 [25]
-         ✅ storage: SCSI VPD [26]
-         ✅ stress: stress-ng [27]
-         🚧 ✅ Networking route: pmtu [28]
-         🚧 ✅ Networking route_func: local [29]
-         🚧 ✅ Networking route_func: forward [29]
-         🚧 ✅ Networking tunnel: geneve basic test [30]
-         🚧 ✅ Networking ipsec: basic netns transport [31]
-         🚧 ✅ Networking ipsec: basic netns tunnel [31]
-         🚧 ✅ trace: ftrace/tracer [32]
-
-
-  ppc64le:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ xfstests: ext4 [1]
-         ✅ xfstests: xfs [1]
-         ✅ selinux-policy: serge-testsuite [2]
-         ✅ lvm thinp sanity [3]
-         ✅ storage: software RAID testing [4]
-         🚧 ✅ Storage blktests [5]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [6]
-         ✅ Podman system integration test (as user) [6]
-         ✅ LTP lite [7]
-         ✅ Loopdev Sanity [8]
-         ✅ jvm test suite [9]
-         ✅ Memory function: memfd_create [10]
-         ✅ AMTU (Abstract Machine Test Utility) [11]
-         ✅ LTP: openposix test suite [12]
-         ✅ Ethernet drivers sanity [13]
-         ✅ Networking socket: fuzz [14]
-         ✅ Networking sctp-auth: sockopts test [15]
-         ✅ Networking TCP: keepalive test [17]
-         ✅ Networking UDP: socket [18]
-         ✅ Networking tunnel: gre basic [19]
-         ✅ Networking tunnel: vxlan basic [20]
-         ✅ audit: audit testsuite test [21]
-         ✅ httpd: mod_ssl smoke sanity [22]
-         ✅ iotop: sanity [23]
-         ✅ tuned: tune-processes-through-perf [24]
-         ✅ Usex - version 1.9-29 [25]
-         🚧 ✅ Networking route: pmtu [28]
-         🚧 ✅ Networking route_func: local [29]
-         🚧 ✅ Networking route_func: forward [29]
-         🚧 ✅ Networking tunnel: geneve basic test [30]
-         🚧 ✅ Networking ipsec: basic netns tunnel [31]
-         🚧 ✅ trace: ftrace/tracer [32]
-
-
-  x86_64:
-      Host 1:
-         ✅ Boot test [0]
-         ✅ xfstests: ext4 [1]
-         ✅ xfstests: xfs [1]
-         ✅ selinux-policy: serge-testsuite [2]
-         ✅ lvm thinp sanity [3]
-         ✅ storage: software RAID testing [4]
-         🚧 ✅ Storage blktests [5]
-
-      Host 2:
-         ✅ Boot test [0]
-         ✅ Podman system integration test (as root) [6]
-         ✅ Podman system integration test (as user) [6]
-         ✅ LTP lite [7]
-         ✅ Loopdev Sanity [8]
-         ✅ jvm test suite [9]
-         ✅ Memory function: memfd_create [10]
-         ✅ AMTU (Abstract Machine Test Utility) [11]
-         ✅ LTP: openposix test suite [12]
-         ✅ Ethernet drivers sanity [13]
-         ✅ Networking socket: fuzz [14]
-         ✅ Networking sctp-auth: sockopts test [15]
-         ✅ Networking: igmp conformance test [16]
-         ✅ Networking TCP: keepalive test [17]
-         ✅ Networking UDP: socket [18]
-         ✅ Networking tunnel: gre basic [19]
-         ✅ Networking tunnel: vxlan basic [20]
-         ✅ audit: audit testsuite test [21]
-         ✅ httpd: mod_ssl smoke sanity [22]
-         ✅ iotop: sanity [23]
-         ✅ tuned: tune-processes-through-perf [24]
-         ✅ pciutils: sanity smoke test [33]
-         ✅ Usex - version 1.9-29 [25]
-         ✅ storage: SCSI VPD [26]
-         ✅ stress: stress-ng [27]
-         🚧 ✅ Networking route: pmtu [28]
-         🚧 ✅ Networking route_func: local [29]
-         🚧 ✅ Networking route_func: forward [29]
-         🚧 ✅ Networking tunnel: geneve basic test [30]
-         🚧 ✅ Networking ipsec: basic netns transport [31]
-         🚧 ✅ Networking ipsec: basic netns tunnel [31]
-         🚧 ✅ trace: ftrace/tracer [32]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/container/podman
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/jvm
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/memory/function/memfd_create
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
-    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/igmp/conformance
-    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/tcp/tcp_keepalive
-    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/udp/udp_socket
-    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/gre/basic
-    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/vxlan/basic
-    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [22]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [23]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [24]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [25]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [26]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [27]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-    [28]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
-    [29]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/route_func
-    [30]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/geneve/basic
-    [31]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/ipsec/ipsec_basic/ipsec_basic_netns
-    [32]: https://github.com/CKI-project/tests-beaker/archive/master.zip#trace/ftrace/tracer
-    [33]: https://github.com/CKI-project/tests-beaker/archive/master.zip#pciutils/sanity-smoke
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
+https://www.spinics.net/lists/linux-xfs/msg30521.html
