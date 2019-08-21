@@ -2,135 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C15CF96F3D
-	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 04:09:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0C8296F51
+	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 04:18:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726608AbfHUCJj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Aug 2019 22:09:39 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:36891 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726193AbfHUCJj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Aug 2019 22:09:39 -0400
-Received: by mail-wm1-f68.google.com with SMTP id d16so486140wme.2
-        for <stable@vger.kernel.org>; Tue, 20 Aug 2019 19:09:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=OkHTy/70ktmbiT4SzPFaSgXBg6qdgGV8p1GWe2Kax5A=;
-        b=DNihiYBg8OtNa94+7uT17gaIEfWRYq0ERKsjGD674jxw6WLu1t0yb28olWbrLmQIBM
-         US23CN70vD0KWgokUYCSKn20AMdqBqksq9hppa9GeoFNW2vfY0APa0E+uCfJmZzhgW4I
-         7xwNhCbSui9w7MI2mkpcGqaeUIik1WZ+E2q8nJg9BF2jHp7mGt8Nx2Zn4v/iZmHXG9m5
-         gmcE+b1jdckrkvnMfQ/KWzeUEHisJmeSx22KNV7QbmqnWtCFZ0/YAqQLIYpQc/zGUQxD
-         FJVkhiKEekie1tZnnlafTKs4EI+Jv/5HbAHXtU/t0bsqaWCnxVKvL7pt20unoxPvlMtu
-         bZVQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=OkHTy/70ktmbiT4SzPFaSgXBg6qdgGV8p1GWe2Kax5A=;
-        b=OuV1rLIrkXRb+VPVekH14c9cr0Pheg3As2V5UAYzRstjAR0AxTAuJgJe8KqJCMQ+tW
-         h4rM8ezhmAojM1rL8tvVO3Pg/Axnf4CvLYKV3dBmuOruI9KwuifC29hfwsTTawT3JQc1
-         VvJ4stqyc7Q1QuFTzIgfb+7cl/2H1DHZbHBepTt4bQn3r3+GplATtTmSCjtQVTjgR5Wl
-         U/6/nFNu6XmlDfKiCuhxU0iSeassQg2mKIBFEZwjmGA6ILG/brq8od2yW7yT1MtZz72x
-         MmHcTSuSeH+P+Pn59YiFUsb0rR8O2H6HVdhy2qG0fqEnF4YjvpQTay7Dz6wXODISclpT
-         Fpmw==
-X-Gm-Message-State: APjAAAVVHWmRiHJWYzI1HK4cMbYJ68KMwYlQc9u8tFLN+PmLn+AbNkM6
-        mXZGCWCO0+Q6Kz6h6+weapNNzvhqYl81Ww==
-X-Google-Smtp-Source: APXvYqyJcaQ2r4FlGAqrWxXFJ6E+xzqTNq24M1OuGiEhOKyzOc9mhUzESWcNNIHMhgU9Soqp3CXW8w==
-X-Received: by 2002:a7b:cc86:: with SMTP id p6mr1356996wma.106.1566353377135;
-        Tue, 20 Aug 2019 19:09:37 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id f17sm1559992wmj.27.2019.08.20.19.09.36
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Aug 2019 19:09:36 -0700 (PDT)
-Message-ID: <5d5ca7e0.1c69fb81.48c50.6d44@mx.google.com>
-Date:   Tue, 20 Aug 2019 19:09:36 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726601AbfHUCRQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Aug 2019 22:17:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53126 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726512AbfHUCRQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Aug 2019 22:17:16 -0400
+Received: from localhost (li1825-44.members.linode.com [172.104.248.44])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CD3522DA7;
+        Wed, 21 Aug 2019 02:17:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1566353835;
+        bh=SPb61anBmNNrO31lV0Ha7gQ0VGA0tHYwutH3LXcNcDE=;
+        h=Subject:To:From:Date:From;
+        b=lMckvq/JgBRbXZzdGE5fdd1NA5kpf8h+KMjsG/pdXgfD69p3N457iU1kTZzfQveyo
+         EByS9TjfgiYWSm5mvZCdZh0FMZcGkqiofBzEzaygibO74kWQNG3j/y3NRHty2rBwn2
+         YCkdEqZ7D14DOfZ1Y4cyUbfnZ5XJCy6o3mNgOm84=
+Subject: patch "staging: erofs: fix an error handling in erofs_readdir()" added to staging-testing
+To:     gaoxiang25@huawei.com, gregkh@linuxfoundation.org, richard@nod.at,
+        stable@vger.kernel.org, yuchao0@huawei.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 20 Aug 2019 19:17:02 -0700
+Message-ID: <15663538225648@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.67
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y boot: 128 boots: 0 failed,
- 119 passed with 9 offline (v4.19.67)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 128 boots: 0 failed, 119 passed with 9 offline=
- (v4.19.67)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.67/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.67/
+This is a note to let you know that I've just added the patch titled
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.67
-Git Commit: a5aa80588fcd5520ece36121c41b7d8e72245e33
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 70 unique boards, 26 SoC families, 17 builds out of 206
+    staging: erofs: fix an error handling in erofs_readdir()
 
-Boot Regressions Detected:
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-testing branch.
 
-arm:
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 6 days (last pass: v4.19.=
-66 - first fail: v4.19.66-92-gf777613d3df0)
-          qcom-apq8064-ifc6410:
-              lab-baylibre-seattle: failing since 6 days (last pass: v4.19.=
-66 - first fail: v4.19.66-92-gf777613d3df0)
+The patch will be merged to the staging-next branch sometime soon,
+after it passes testing, and the merge window is open.
 
-mips:
+If you have any questions about this process, please let me know.
 
-    pistachio_defconfig:
-        gcc-8:
-          pistachio_marduk:
-              lab-baylibre-seattle: new failure (last pass: v4.19.66-164-gd=
-0331f9a5a7e)
 
-Offline Platforms:
+From acb383f1dcb4f1e79b66d4be3a0b6f519a957b0d Mon Sep 17 00:00:00 2001
+From: Gao Xiang <gaoxiang25@huawei.com>
+Date: Sun, 18 Aug 2019 20:54:57 +0800
+Subject: staging: erofs: fix an error handling in erofs_readdir()
 
-mips:
+Richard observed a forever loop of erofs_read_raw_page() [1]
+which can be generated by forcely setting ->u.i_blkaddr
+to 0xdeadbeef (as my understanding block layer can
+handle access beyond end of device correctly).
 
-    pistachio_defconfig:
-        gcc-8
-            pistachio_marduk: 1 offline lab
+After digging into that, it seems the problem is highly
+related with directories and then I found the root cause
+is an improper error handling in erofs_readdir().
 
-arm64:
+Let's fix it now.
 
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-            meson-gxbb-odroidc2: 1 offline lab
+[1] https://lore.kernel.org/r/1163995781.68824.1566084358245.JavaMail.zimbra@nod.at/
 
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
+Reported-by: Richard Weinberger <richard@nod.at>
+Fixes: 3aa8ec716e52 ("staging: erofs: add directory operations")
+Cc: <stable@vger.kernel.org> # 4.19+
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+Link: https://lore.kernel.org/r/20190818125457.25906-1-hsiangkao@aol.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
-For more info write to <info@kernelci.org>
+ drivers/staging/erofs/dir.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/staging/erofs/dir.c b/drivers/staging/erofs/dir.c
+index 5f38382637e6..77ef856df9f3 100644
+--- a/drivers/staging/erofs/dir.c
++++ b/drivers/staging/erofs/dir.c
+@@ -82,8 +82,15 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
+ 		unsigned int nameoff, maxsize;
+ 
+ 		dentry_page = read_mapping_page(mapping, i, NULL);
+-		if (IS_ERR(dentry_page))
+-			continue;
++		if (dentry_page == ERR_PTR(-ENOMEM)) {
++			err = -ENOMEM;
++			break;
++		} else if (IS_ERR(dentry_page)) {
++			errln("fail to readdir of logical block %u of nid %llu",
++			      i, EROFS_V(dir)->nid);
++			err = -EFSCORRUPTED;
++			break;
++		}
+ 
+ 		de = (struct erofs_dirent *)kmap(dentry_page);
+ 
+-- 
+2.23.0
+
+
