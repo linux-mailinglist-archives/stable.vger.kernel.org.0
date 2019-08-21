@@ -2,134 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 738099706F
-	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 05:40:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D609F97075
+	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 05:43:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727273AbfHUDkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Aug 2019 23:40:25 -0400
-Received: from mga06.intel.com ([134.134.136.31]:8304 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727172AbfHUDkZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Aug 2019 23:40:25 -0400
-X-Amp-Result: UNSCANNABLE
-X-Amp-File-Uploaded: False
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 20 Aug 2019 20:40:25 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,410,1559545200"; 
-   d="asc'?scan'208";a="169288711"
-Received: from zhen-hp.sh.intel.com (HELO zhen-hp) ([10.239.13.116])
-  by orsmga007.jf.intel.com with ESMTP; 20 Aug 2019 20:40:23 -0700
-Date:   Wed, 21 Aug 2019 11:35:56 +0800
-From:   Zhenyu Wang <zhenyuw@linux.intel.com>
-To:     Xiong Zhang <xiong.y.zhang@intel.com>
-Cc:     intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [PATCH 1/2] drm/i915: Don't deballoon unused ggtt
- drm_mm_node in linux guest
-Message-ID: <20190821033556.GA11927@zhen-hp.sh.intel.com>
-Reply-To: Zhenyu Wang <zhenyuw@linux.intel.com>
-References: <1566279978-9659-1-git-send-email-xiong.y.zhang@intel.com>
+        id S1727269AbfHUDnA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Aug 2019 23:43:00 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:55710 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727102AbfHUDnA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Aug 2019 23:43:00 -0400
+Received: by mail-wm1-f68.google.com with SMTP id f72so589303wmf.5
+        for <stable@vger.kernel.org>; Tue, 20 Aug 2019 20:42:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Kk47wiWK5d887Sn6m1vOW5bsckewdhcjuynWo9BV+B4=;
+        b=lE34UZIIMPyDLUbPeWNDg/OK1fNHecLP5OY0TxOACVbQcdT1Z9pq+qdR0CBOyk3Uc/
+         JT8dTqtX6k3+x9UBFlm+Bmo89j2hMJb5pUrHPzGdt47186XDC/8h9FhG6IAJUTDMnWn1
+         oiUV9kMo3fCrvB67x+bmj8cBpRWK8oVB1ba6b4CpXpw/jCerdBwch41TJFro3ljroer4
+         BXs33outOx1bANJrbVhYtZJXwea7siP6XB6YX/rkIUFM4Zd1ZVxPfAukm9w5suTu9KF6
+         XEQN5/adSukFxa9IMYb6M/OFtZTBlz9jIj7pEAi+SEGC7Uc+H7ZM6/xChNPlLk0EsbgL
+         EA6g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Kk47wiWK5d887Sn6m1vOW5bsckewdhcjuynWo9BV+B4=;
+        b=O5tnkd+wkxZZUl+M7/4WurLn8Y2TMYvQ0A0+z09i41kwrYRO5prw5+kZtLDiH9F4kI
+         d4K5GHScfWIGupmaNax4DsuK9QQ1dglvwxUl3+eFvM3do2yllRspE6YLrG0Xwttuwfbr
+         7UzPG5QYDgpLmK4ZCsI3a5Hq31NJFId2+4Qke5miTaxTf5eV34WdRBsFaqwcwRQl04MG
+         aYZJueNqfX8xYhJx5XnFDzkltfJVWAVqQ8LUoaTCLx00db8UEgQQlvAi/r8Yh2RH5+nl
+         2QKMDozSzrxavgppitdlMBxMJj9QlXJByCTuDPlf3ZTafcN6VMFiSZi0LFlQSwr9whv8
+         KhMA==
+X-Gm-Message-State: APjAAAXyr40h6ZnwNhgeT0QG+GQdUCxUkA67urGTfOYiS9tkCGWY0e0z
+        HTBhTCPPsSONCd8OizzOrutRuwN/vQ/SIw==
+X-Google-Smtp-Source: APXvYqyv4q3xz6LhfcoAOy1IOe3hKMHgp2/tlL/l7CzAJmNdxZuESUyess+MOQamjr67QLEiwF+SVw==
+X-Received: by 2002:a1c:7d08:: with SMTP id y8mr3427289wmc.50.1566358977563;
+        Tue, 20 Aug 2019 20:42:57 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id l9sm1497396wmi.29.2019.08.20.20.42.56
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 20 Aug 2019 20:42:57 -0700 (PDT)
+Message-ID: <5d5cbdc1.1c69fb81.2f558.6615@mx.google.com>
+Date:   Tue, 20 Aug 2019 20:42:57 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
-Content-Disposition: inline
-In-Reply-To: <1566279978-9659-1-git-send-email-xiong.y.zhang@intel.com>
-User-Agent: Mutt/1.10.0 (2018-05-17)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.189-72-g61debbcee15e
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y boot: 55 boots: 1 failed,
+ 53 passed with 1 conflict (v4.4.189-72-g61debbcee15e)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.4.y boot: 55 boots: 1 failed, 53 passed with 1 conflict (=
+v4.4.189-72-g61debbcee15e)
 
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.189-72-g61debbcee15e/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.189-72-g61debbcee15e/
 
-On 2019.08.20 13:46:17 +0800, Xiong Zhang wrote:
-> The following call trace may exist in linux guest dmesg when guest i915
-> driver is unloaded.
-> [   90.776610] [drm:vgt_deballoon_space.isra.0 [i915]] deballoon space: r=
-ange [0x0 - 0x0] 0 KiB.
-> [   90.776621] BUG: unable to handle kernel NULL pointer dereference at 0=
-0000000000000c0
-> [   90.776691] IP: drm_mm_remove_node+0x4d/0x320 [drm]
-> [   90.776718] PGD 800000012c7d0067 P4D 800000012c7d0067 PUD 138e4c067 PM=
-D 0
-> [   90.777091] task: ffff9adab60f2f00 task.stack: ffffaf39c0fe0000
-> [   90.777142] RIP: 0010:drm_mm_remove_node+0x4d/0x320 [drm]
-> [   90.777573] Call Trace:
-> [   90.777653]  intel_vgt_deballoon+0x4c/0x60 [i915]
-> [   90.777729]  i915_ggtt_cleanup_hw+0x121/0x190 [i915]
-> [   90.777792]  i915_driver_unload+0x145/0x180 [i915]
-> [   90.777856]  i915_pci_remove+0x15/0x20 [i915]
-> [   90.777890]  pci_device_remove+0x3b/0xc0
-> [   90.777916]  device_release_driver_internal+0x157/0x220
-> [   90.777945]  driver_detach+0x39/0x70
-> [   90.777967]  bus_remove_driver+0x51/0xd0
-> [   90.777990]  pci_unregister_driver+0x23/0x90
-> [   90.778019]  SyS_delete_module+0x1da/0x240
-> [   90.778045]  entry_SYSCALL_64_fastpath+0x24/0x87
-> [   90.778072] RIP: 0033:0x7f34312af067
-> [   90.778092] RSP: 002b:00007ffdea3da0d8 EFLAGS: 00000206
-> [   90.778297] RIP: drm_mm_remove_node+0x4d/0x320 [drm] RSP: ffffaf39c0fe=
-3dc0
-> [   90.778344] ---[ end trace f4b1bc8305fc59dd ]---
->=20
-> Four drm_mm_node are used to reserve guest ggtt space, but some of them
-> may be skipped and not initialised due to space constraints in
-> intel_vgt_balloon(). If drm_mm_remove_node() is called with
-> uninitialized drm_mm_node, the above call trace occurs.
->=20
-> This patch check drm_mm_node's validity before calling
-> drm_mm_remove_node().
->=20
-> Fixes: ff8f797557c7("drm/i915: return the correct usable aperture size un=
-der gvt environment")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Xiong Zhang <xiong.y.zhang@intel.com>
-> ---
->  drivers/gpu/drm/i915/i915_vgpu.c | 3 +++
->  1 file changed, 3 insertions(+)
->=20
-> diff --git a/drivers/gpu/drm/i915/i915_vgpu.c b/drivers/gpu/drm/i915/i915=
-_vgpu.c
-> index bf2b837..d2fd66f 100644
-> --- a/drivers/gpu/drm/i915/i915_vgpu.c
-> +++ b/drivers/gpu/drm/i915/i915_vgpu.c
-> @@ -119,6 +119,9 @@ static struct _balloon_info_ bl_info;
->  static void vgt_deballoon_space(struct i915_ggtt *ggtt,
->  				struct drm_mm_node *node)
->  {
-> +	if (!node->allocated)
-> +		return;
-> +
->  	DRM_DEBUG_DRIVER("deballoon space: range [0x%llx - 0x%llx] %llu KiB.\n",
->  			 node->start,
->  			 node->start + node->size,
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.189-72-g61debbcee15e
+Git Commit: 61debbcee15eae625f35c5b4d65bf77314f2282e
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 20 unique boards, 9 SoC families, 9 builds out of 190
 
-Searching shows this is pretty old one and also with r-b from Chris,
-but be ignored that nobody picked this up..
+Boot Failure Detected:
 
-I think I hit this once too and tried to fix it another way,
-but this looks simpler to me.
+arm64:
+    defconfig:
+        gcc-8:
+            qcom-qdf2400: 1 failed lab
 
-Acked-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
 
---=20
-Open Source Technology Center, Intel ltd.
+x86_64:
+    x86_64_defconfig:
+        qemu:
+            lab-baylibre: PASS (gcc-8)
+            lab-drue: PASS (gcc-8)
+            lab-linaro-lkft: FAIL (gcc-8)
+            lab-mhart: PASS (gcc-8)
+            lab-collabora: PASS (gcc-8)
 
-$gpg --keyserver wwwkeys.pgp.net --recv-keys 4D781827
-
---7JfCtLOvnd9MIVvH
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EARECAB0WIQTXuabgHDW6LPt9CICxBBozTXgYJwUCXVy8HAAKCRCxBBozTXgY
-J7xcAJ9iqr4h7QnTx9tzdFbWg4y/mhDMZgCdHJaG2eTRmA8W3tkLza74nJ3bEiM=
-=RYoi
------END PGP SIGNATURE-----
-
---7JfCtLOvnd9MIVvH--
+---
+For more info write to <info@kernelci.org>
