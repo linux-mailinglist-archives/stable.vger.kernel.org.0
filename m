@@ -2,112 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3084C97AE8
-	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 15:36:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 594E097BEC
+	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 16:03:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727949AbfHUNcY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Aug 2019 09:32:24 -0400
-Received: from mblankhorst.nl ([141.105.120.124]:59348 "EHLO mblankhorst.nl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726371AbfHUNcY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 21 Aug 2019 09:32:24 -0400
-From:   Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        stable@vger.kernel.org, Manasi Navare <manasi.d.navare@intel.com>
-Subject: [PATCH 01/10] drm/i915/dp: Fix dsc bpp calculations.
-Date:   Wed, 21 Aug 2019 15:32:12 +0200
-Message-Id: <20190821133221.29456-2-maarten.lankhorst@linux.intel.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190821133221.29456-1-maarten.lankhorst@linux.intel.com>
-References: <20190821133221.29456-1-maarten.lankhorst@linux.intel.com>
+        id S1729177AbfHUODF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Aug 2019 10:03:05 -0400
+Received: from szxga07-in.huawei.com ([45.249.212.35]:50194 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726484AbfHUODF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 21 Aug 2019 10:03:05 -0400
+Received: from DGGEMS408-HUB.china.huawei.com (unknown [172.30.72.60])
+        by Forcepoint Email with ESMTP id 37A035C532598535888E;
+        Wed, 21 Aug 2019 22:02:46 +0800 (CST)
+Received: from architecture4.huawei.com (10.140.130.215) by smtp.huawei.com
+ (10.3.19.208) with Microsoft SMTP Server (TLS) id 14.3.439.0; Wed, 21 Aug
+ 2019 22:02:30 +0800
+From:   Gao Xiang <gaoxiang25@huawei.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Chao Yu <chao@kernel.org>, <devel@driverdev.osuosl.org>,
+        Miao Xie <miaoxie@huawei.com>,
+        LKML <linux-kernel@vger.kernel.org>, <weidu.du@huawei.com>,
+        <linux-fsdevel@vger.kernel.org>, <linux-erofs@lists.ozlabs.org>,
+        Gao Xiang <gaoxiang25@huawei.com>, <stable@vger.kernel.org>
+Subject: [PATCH v2 5/6] staging: erofs: detect potential multiref due to corrupted images
+Date:   Wed, 21 Aug 2019 22:01:52 +0800
+Message-ID: <20190821140152.229648-1-gaoxiang25@huawei.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20190821021942.GA14087@kroah.com>
+References: <20190821021942.GA14087@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.140.130.215]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There was a integer wraparound when mode_clock became too high,
-and we didn't correct for the FEC overhead factor when dividing,
-also the calculations would break at HBR3.
+As reported by erofs-utils fuzzer, currently, multiref
+(ondisk deduplication) hasn't been supported for now,
+we should forbid it properly.
 
-As a result our calculated bpp was way too high, and the link width
-bpp limitation never came into effect.
-
-Print out the resulting bpp calcululations as a sanity check, just
-in case we ever have to debug it later on again.
-
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Fixes: d9218c8f6cf4 ("drm/i915/dp: Add helpers for Compressed BPP and Slice Count for DSC")
-Cc: <stable@vger.kernel.org> # v5.0+
-Cc: Manasi Navare <manasi.d.navare@intel.com>
+Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
+Cc: <stable@vger.kernel.org> # 4.19+
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 ---
- drivers/gpu/drm/i915/display/intel_dp.c | 16 +++++++++-------
- drivers/gpu/drm/i915/display/intel_dp.h |  4 ++--
- 2 files changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
-index 921ad0a2f7ba..614a25911f07 100644
---- a/drivers/gpu/drm/i915/display/intel_dp.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp.c
-@@ -4323,10 +4323,10 @@ intel_dp_get_sink_irq_esi(struct intel_dp *intel_dp, u8 *sink_irq_vector)
- 		DP_DPRX_ESI_LEN;
- }
+changelog from v1:
+ - change err = -EFSCORRUPTED as well as Chao suggested;
+   [ the difference between adding err or not to [PATCH 5/6] is just whether
+     we error out the whole compressed cluster or partial of them (since some
+     pages could be decompressed successfully), it's an undefined behavior
+     for these corrupted compressed images... ]
+
+Hi Chao,
+ Could you kindly review it again? Thanks!
+
+Hi Greg,
+ This is [PATCH 5/6] of the original patchset, and I fix as what Chao suggested...
+ But I'm not sure whether it should be merged right now, it is up to you. :)
+
+Thanks,
+Gao Xiang
+
+
+ drivers/staging/erofs/zdata.c | 20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/staging/erofs/zdata.c b/drivers/staging/erofs/zdata.c
+index 4d6faaab04f5..60d7c20db87d 100644
+--- a/drivers/staging/erofs/zdata.c
++++ b/drivers/staging/erofs/zdata.c
+@@ -798,6 +798,7 @@ static int z_erofs_decompress_pcluster(struct super_block *sb,
+ 	for (i = 0; i < nr_pages; ++i)
+ 		pages[i] = NULL;
  
--u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
--				int mode_clock, int mode_hdisplay)
-+u16 intel_dp_dsc_get_output_bpp(u32 link_clock, u8 lane_count,
-+				u32 mode_clock, u32 mode_hdisplay)
- {
--	u16 bits_per_pixel, max_bpp_small_joiner_ram;
-+	u32 bits_per_pixel, max_bpp_small_joiner_ram;
- 	int i;
++	err = 0;
+ 	z_erofs_pagevec_ctor_init(&ctor, Z_EROFS_NR_INLINE_PAGEVECS,
+ 				  cl->pagevec, 0);
  
- 	/*
-@@ -4335,13 +4335,14 @@ u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
- 	 * FECOverhead = 2.4%, for SST -> TimeSlotsPerMTP is 1,
- 	 * for MST -> TimeSlotsPerMTP has to be calculated
- 	 */
--	bits_per_pixel = (link_clock * lane_count * 8 *
--			  DP_DSC_FEC_OVERHEAD_FACTOR) /
--		mode_clock;
-+	bits_per_pixel = div_u64((u64)link_clock * lane_count * 8 *
-+				 DP_DSC_FEC_OVERHEAD_FACTOR, 1000ULL * mode_clock);
-+	DRM_DEBUG_KMS("Max link bpp: %u\n", bits_per_pixel);
+@@ -819,8 +820,17 @@ static int z_erofs_decompress_pcluster(struct super_block *sb,
+ 			pagenr = z_erofs_onlinepage_index(page);
  
- 	/* Small Joiner Check: output bpp <= joiner RAM (bits) / Horiz. width */
- 	max_bpp_small_joiner_ram = DP_DSC_MAX_SMALL_JOINER_RAM_BUFFER /
- 		mode_hdisplay;
-+	DRM_DEBUG_KMS("Max small joiner bpp: %u\n", max_bpp_small_joiner_ram);
+ 		DBG_BUGON(pagenr >= nr_pages);
+-		DBG_BUGON(pages[pagenr]);
  
- 	/*
- 	 * Greatest allowed DSC BPP = MIN (output BPP from avaialble Link BW
-@@ -4351,7 +4352,8 @@ u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
- 
- 	/* Error out if the max bpp is less than smallest allowed valid bpp */
- 	if (bits_per_pixel < valid_dsc_bpp[0]) {
--		DRM_DEBUG_KMS("Unsupported BPP %d\n", bits_per_pixel);
-+		DRM_DEBUG_KMS("Unsupported BPP %u, min %u\n",
-+			      bits_per_pixel, valid_dsc_bpp[0]);
- 		return 0;
++		/*
++		 * currently EROFS doesn't support multiref(dedup),
++		 * so here erroring out one multiref page.
++		 */
++		if (unlikely(pages[pagenr])) {
++			DBG_BUGON(1);
++			SetPageError(pages[pagenr]);
++			z_erofs_onlinepage_endio(pages[pagenr]);
++			err = -EFSCORRUPTED;
++		}
+ 		pages[pagenr] = page;
  	}
+ 	z_erofs_pagevec_ctor_exit(&ctor, true);
+@@ -828,7 +838,6 @@ static int z_erofs_decompress_pcluster(struct super_block *sb,
+ 	overlapped = false;
+ 	compressed_pages = pcl->compressed_pages;
  
-diff --git a/drivers/gpu/drm/i915/display/intel_dp.h b/drivers/gpu/drm/i915/display/intel_dp.h
-index 657bbb1f5ed0..007d1981a33b 100644
---- a/drivers/gpu/drm/i915/display/intel_dp.h
-+++ b/drivers/gpu/drm/i915/display/intel_dp.h
-@@ -102,8 +102,8 @@ bool intel_dp_source_supports_hbr2(struct intel_dp *intel_dp);
- bool intel_dp_source_supports_hbr3(struct intel_dp *intel_dp);
- bool
- intel_dp_get_link_status(struct intel_dp *intel_dp, u8 *link_status);
--u16 intel_dp_dsc_get_output_bpp(int link_clock, u8 lane_count,
--				int mode_clock, int mode_hdisplay);
-+u16 intel_dp_dsc_get_output_bpp(u32 link_clock, u8 lane_count,
-+				u32 mode_clock, u32 mode_hdisplay);
- u8 intel_dp_dsc_get_slice_count(struct intel_dp *intel_dp, int mode_clock,
- 				int mode_hdisplay);
+-	err = 0;
+ 	for (i = 0; i < clusterpages; ++i) {
+ 		unsigned int pagenr;
  
+@@ -852,7 +861,12 @@ static int z_erofs_decompress_pcluster(struct super_block *sb,
+ 			pagenr = z_erofs_onlinepage_index(page);
+ 
+ 			DBG_BUGON(pagenr >= nr_pages);
+-			DBG_BUGON(pages[pagenr]);
++			if (unlikely(pages[pagenr])) {
++				DBG_BUGON(1);
++				SetPageError(pages[pagenr]);
++				z_erofs_onlinepage_endio(pages[pagenr]);
++				err = -EFSCORRUPTED;
++			}
+ 			pages[pagenr] = page;
+ 
+ 			overlapped = true;
 -- 
-2.20.1
+2.17.1
 
