@@ -2,84 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C87097728
-	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 12:30:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B24C7977E9
+	for <lists+stable@lfdr.de>; Wed, 21 Aug 2019 13:28:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726648AbfHUKaS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Aug 2019 06:30:18 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:54780 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726448AbfHUKaS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Aug 2019 06:30:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=8zp6S8Iv44NclUZi/IYCMzStVxccs6F1yCeJgKpoeH8=; b=a8L4Dq/aCr8gnwdzhMMrkGdX9
-        BskOgh+y9z0CTn/F6FSad/M/j6HHWwSy+ZqDnBzj2u9kTLwcuN+giohlH1nNtFjtmDXxRrhKefmHh
-        h3qH1yWlfgZLsJgrTF1Jji/uRxBau28zxmgLoHgetvsX4/H+sMV0xcrdLMQBHff1NKbICi8qAPKGn
-        g1arbtzq1HcniDUYbJmejwx1T4KCm+SZ810uMKz+he2jHRV8m3cQ8/CGnv74ayQk2zCYXNzVVIc+s
-        GdbdE0i7qc8DbfiHZW6VtwVNAUstNyfONn1rY7sDd/CJCG6pLDgSHje1hhbG4sI0it+T37usnkOOc
-        fCNzqpNUw==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
-        id 1i0Nsb-0002wj-V1; Wed, 21 Aug 2019 10:30:14 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 23ED2306B81;
-        Wed, 21 Aug 2019 12:29:39 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id BA91920A21FC4; Wed, 21 Aug 2019 12:30:10 +0200 (CEST)
-Date:   Wed, 21 Aug 2019 12:30:10 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Song Liu <songliubraving@fb.com>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        kernel-team@fb.com, stable@vger.kernel.org,
-        Joerg Roedel <jroedel@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>
-Subject: Re: [PATCH v2] x86/mm/pti: in pti_clone_pgtable(), increase addr
- properly
-Message-ID: <20190821103010.GJ2386@hirez.programming.kicks-ass.net>
-References: <20190820202314.1083149-1-songliubraving@fb.com>
- <20190821101008.GX2349@hirez.programming.kicks-ass.net>
+        id S1726715AbfHUL23 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Aug 2019 07:28:29 -0400
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:34807 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726593AbfHUL23 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Aug 2019 07:28:29 -0400
+Received: by mail-ot1-f65.google.com with SMTP id c7so1718510otp.1;
+        Wed, 21 Aug 2019 04:28:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=TuaZG7Omor+G/AkU6ujx9Ln8/VDzjqK3KDTH0UUDhuU=;
+        b=PinaZKHD4MuwCZgZ4BVknOphxjy2VBVHAwQZfD0PhJmnMkEmRfVl/TjzA0xTDT9aCH
+         6GGI2TEp9EFtbLlxMcCbQAkVlHVdEwtPztJZSSniTXbvqjbXWz8xWg5Hjpg7MHjz78ma
+         VYZ5oXNXq8vRgpnlwDpJtHClnnuOuFtYBeASegTLX3ra86Fbv9LNUrlGlPNNIlwQsee8
+         FZ+AYOi/1flfvsTqdHWmhhfsVCcTuIPFQSFMjmIRVWstrEAMIeum8dmpHkqZ11UBKnyH
+         oRUl5m+n0EeYNzkYbdEkvd2ydwYe4tA3Q9DeJv04XrdCDaCZQrniGgDAVMju9ymxEcD1
+         Ksbw==
+X-Gm-Message-State: APjAAAVbdjYAIFF6v6oVUB7XIamb/A9lhBSQ/cFnus7gAs1cHzd7lA4w
+        6z27WBxi0Kk5MqoWwXrx6Yrqu9Bapa5oh5alYlI=
+X-Google-Smtp-Source: APXvYqzVn6iwJJMy6xFU1GI7NKYrOHxrMHDdMw9ASzfZioKrVpu3RDiY5PRKEzuvDoneJw6SALvZzP5Pr3jReVY2v8w=
+X-Received: by 2002:a9d:68c5:: with SMTP id i5mr3012150oto.250.1566386908109;
+ Wed, 21 Aug 2019 04:28:28 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190821101008.GX2349@hirez.programming.kicks-ass.net>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20190805155515.22621-1-jacopo+renesas@jmondi.org> <20190805181244.663585ac@archlinux>
+In-Reply-To: <20190805181244.663585ac@archlinux>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Wed, 21 Aug 2019 13:28:16 +0200
+Message-ID: <CAMuHMdVT--S48M+BHTOH5SDi7AG=asOdNWH_UyM5nygZjWLmdg@mail.gmail.com>
+Subject: Re: [PATCH] iio: adc: max9611: Fix temperature reading in probe
+To:     Jonathan Cameron <jic23@kernel.org>,
+        Jacopo Mondi <jacopo+renesas@jmondi.org>
+Cc:     Hartmut Knaack <knaack.h@gmx.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Stefan Agner <stefan@agner.ch>, linux-iio@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 21, 2019 at 12:10:08PM +0200, Peter Zijlstra wrote:
-> On Tue, Aug 20, 2019 at 01:23:14PM -0700, Song Liu wrote:
+Hi Jonathan, Jacopo,
 
-> > host-5.2-after # grep "x  pmd" /sys/kernel/debug/page_tables/dump_pid
-> > 0x0000000000600000-0x0000000000e00000           8M USR ro         PSE         x  pmd
-> > 0xffffffff81000000-0xffffffff81e00000          14M     ro         PSE     GLB x  pmd
-> > 
-> > So after this patch, the 5.2 based kernel has 7 PMDs instead of 1 PMD
-> > in 4.16 kernel.
-> 
-> This basically gives rise to more questions than it provides answers.
-> You seem to have 'forgotten' to provide the equivalent mappings on the
-> two older kernels. The fact that they're not PMD is evident, but it
-> would be very good to know what is mapped, and what -- if anything --
-> lives in the holes we've (accidentally) created.
-> 
-> Can you please provide more complete mappings? Basically provide the
-> whole cpu_entry_area mapping.
+On Mon, Aug 5, 2019 at 7:15 PM Jonathan Cameron <jic23@kernel.org> wrote:
+> On Mon,  5 Aug 2019 17:55:15 +0200
+> Jacopo Mondi <jacopo+renesas@jmondi.org> wrote:
+>
+> > The max9611 driver reads the die temperature at probe time to validate
+> > the communication channel. Use the actual read value to perform the test
+> > instead of the read function return value, which was mistakenly used so
+> > far.
+> >
+> > The temperature reading test was only successful because the 0 return
+> > value is in the range of supported temperatures.
+> >
+> > Fixes: 69780a3bbc0b ("iio: adc: Add Maxim max9611 ADC driver")
+> > Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+>
+> Applied to the fixes-togreg branch of iio.git and marked for
+> stable.  That'll be a bit fiddly given other changes around this
+> so we may need to do backports.
 
-I tried on my local machine and:
+This is now commit b9ddd5091160793e ("iio: adc: max9611: Fix temperature
+reading in probe") in v5.3-rc5, and has been backported to 4.14, 4.19,
+and 5.2.
 
-  cat /debug/page_tables/kernel | awk '/^---/ { p=0 } /CPU entry/ { p=1 } { if (p) print $0 }' > ~/cea-{before,after}.txt
+> > --- a/drivers/iio/adc/max9611.c
+> > +++ b/drivers/iio/adc/max9611.c
+> > @@ -480,7 +480,7 @@ static int max9611_init(struct max9611_dev *max9611)
+> >       if (ret)
+> >               return ret;
+> >
+> > -     regval = ret & MAX9611_TEMP_MASK;
+> > +     regval &= MAX9611_TEMP_MASK;
+> >
+> >       if ((regval > MAX9611_TEMP_MAX_POS &&
+> >            regval < MAX9611_TEMP_MIN_NEG) ||
 
-resulted in _identical_ files ?!?!
+While this did fix a bug, it also introduced a regression: on Salvator-XS,
+which has two max9611 instances, I now see intermittent failures
 
-Can you share your before and after dumps?
+    max9611 4-007c: Invalid value received from ADC 0x8000: aborting
+    max9611: probe of 4-007c failed with error -5
+
+and/or
+
+    max9611 4-007f: Invalid value received from ADC 0x8000: aborting
+    max9611: probe of 4-007f failed with error -5
+
+during boot.
+
+Retrying on failure fixes the issue, e.g.:
+
+    max9611_init:483: regval = 0x8000
+    max9611 4-007f: Invalid value received from ADC 0x8000: aborting
+    max9611_init:483: regval = 0x2780
+
+According to the datasheet, 0x8000 is the Power-On Reset value.
+Looks like it should be ignored, and retried?
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
