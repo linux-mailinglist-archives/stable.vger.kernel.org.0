@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CAD0799B17
+	by mail.lfdr.de (Postfix) with ESMTP id 56C7999B16
 	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:21:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732895AbfHVRTn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:19:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57996 "EHLO mail.kernel.org"
+        id S1725934AbfHVRTm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:19:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390302AbfHVRIY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:08:24 -0400
+        id S1725857AbfHVRIZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:08:25 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D72892342A;
-        Thu, 22 Aug 2019 17:08:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2E6F23406;
+        Thu, 22 Aug 2019 17:08:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566493704;
-        bh=zZlgUGFxBJR874fjBzvkecagcCYRKyZGLaJO91wFAH0=;
+        s=default; t=1566493705;
+        bh=gnDqYprqryBgYwsbaoWSzJtYzfvv0NyZ3hqDyWJpqlk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a2wC8G99S/11W/tR/1ig6WzUzygS3GtlHQsmpIATPBIT7nWNu2G3QrrNCs5XSBe/A
-         VLqhQ2g4H5w8WqQlTMFlHdUWgy1cgdVL24k++gP2GbzuyAf7OvSKtSmzNVwvnJBx4u
-         gFXY/44+V1PIGUMWv0LIF0dS4vKkTLE3A0HplddI=
+        b=oXYb1aFvuwQUIselXl+Tey3g0bRbkwRyFNabQVKfdI1liKGn9rkNsQFsYNKWnEjiQ
+         chcuPtVSazpO0QJxe2R04HW58sDyCiKaASJ4hIR2LABTFU6BEaKSrSZRozxj+xjrkf
+         d9p+fdNfTAK7h/LIOQPe3BKz7zmBfQ0Yx+0ShhOQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>,
+Cc:     Hui Peng <benquike@gmail.com>,
+        Mathias Payer <mathias.payer@nebelwelt.net>,
+        Takashi Iwai <tiwai@suse.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.2 017/135] ALSA: hda/realtek - Add quirk for HP Envy x360
-Date:   Thu, 22 Aug 2019 13:06:13 -0400
-Message-Id: <20190822170811.13303-18-sashal@kernel.org>
+Subject: [PATCH 5.2 019/135] ALSA: usb-audio: Fix an OOB bug in parse_audio_mixer_unit
+Date:   Thu, 22 Aug 2019 13:06:15 -0400
+Message-Id: <20190822170811.13303-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -48,33 +50,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Hui Peng <benquike@gmail.com>
 
-commit 190d03814eb3b49d4f87ff38fef26d36f3568a60 upstream.
+commit daac07156b330b18eb5071aec4b3ddca1c377f2c upstream.
 
-HP Envy x360 (AMD Ryzen-based model) with 103c:8497 needs the same
-quirk like HP Spectre x360 for enabling the mute LED over Mic3 pin.
+The `uac_mixer_unit_descriptor` shown as below is read from the
+device side. In `parse_audio_mixer_unit`, `baSourceID` field is
+accessed from index 0 to `bNrInPins` - 1, the current implementation
+assumes that descriptor is always valid (the length  of descriptor
+is no shorter than 5 + `bNrInPins`). If a descriptor read from
+the device side is invalid, it may trigger out-of-bound memory
+access.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204373
+```
+struct uac_mixer_unit_descriptor {
+	__u8 bLength;
+	__u8 bDescriptorType;
+	__u8 bDescriptorSubtype;
+	__u8 bUnitID;
+	__u8 bNrInPins;
+	__u8 baSourceID[];
+}
+```
+
+This patch fixes the bug by add a sanity check on the length of
+the descriptor.
+
+Reported-by: Hui Peng <benquike@gmail.com>
+Reported-by: Mathias Payer <mathias.payer@nebelwelt.net>
 Cc: <stable@vger.kernel.org>
+Signed-off-by: Hui Peng <benquike@gmail.com>
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/usb/mixer.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index de224cbea7a07..8aaf1d9c55cfd 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6987,6 +6987,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x103c, 0x82bf, "HP G3 mini", ALC221_FIXUP_HP_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x82c0, "HP G3 mini premium", ALC221_FIXUP_HP_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x83b9, "HP Spectre x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
-+	SND_PCI_QUIRK(0x103c, 0x8497, "HP Envy x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
- 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
- 	SND_PCI_QUIRK(0x1043, 0x106d, "Asus K53BE", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+diff --git a/sound/usb/mixer.c b/sound/usb/mixer.c
+index 2051a64fa2904..b5927c3d5bc0b 100644
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -745,6 +745,8 @@ static int uac_mixer_unit_get_channels(struct mixer_build *state,
+ 		return -EINVAL;
+ 	if (!desc->bNrInPins)
+ 		return -EINVAL;
++	if (desc->bLength < sizeof(*desc) + desc->bNrInPins)
++		return -EINVAL;
+ 
+ 	switch (state->mixer->protocol) {
+ 	case UAC_VERSION_1:
 -- 
 2.20.1
 
