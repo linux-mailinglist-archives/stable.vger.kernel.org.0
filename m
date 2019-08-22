@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A168E99B57
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:25:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56C0899B3C
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:25:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404008AbfHVRXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:23:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41704 "EHLO mail.kernel.org"
+        id S2391673AbfHVRW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:22:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391595AbfHVRWu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:22:50 -0400
+        id S2391660AbfHVRWz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:22:55 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BC7323405;
-        Thu, 22 Aug 2019 17:22:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC66B21743;
+        Thu, 22 Aug 2019 17:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494570;
-        bh=RNTqVnUJANqfbI3agjnjkPcebkEguYLF7qVyzEhbHDw=;
+        s=default; t=1566494573;
+        bh=rKxAOf5Hdq8+ipxjfzKWw6YjIfD2PngFsw+PKWG2Lmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B31HYN3Y5C2y7YNRRH2eZhWyMhDYxleyfU+XNGgpcDmVj8M/yY5O6jw2pD0Wj3Im0
-         xCfky2OOZRj6kOaaWcgmdq4uHhHVQ0Fih5W3ix2kDghd2CtsY74ZtxM9WuG9eRR+Ca
-         L9csV+wcgVU957sEhA80/+/B1BNeL9y+zgadegqc=
+        b=SZ79RHnRoATvxLTjaZl+8tUy54VP4ArJqG0hdncw3XeHJuqScuIHiCLgAzVkS/zhd
+         CmOjSBwb6Hyx3sJh8MxGSc7O1b96G/dzXwp3JmL3f+41cSiKUd4uRridsoUQ+XB3mT
+         +ELvXcAx3IEmKN1aNfPyvVIPt38XUDHCRbibrQPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Hiroyuki Yamamoto <hyamamo@allied-telesis.co.jp>,
-        Yoshiaki Okamoto <yokamoto@allied-telesis.co.jp>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 60/78] USB: serial: option: Add support for ZTE MF871A
-Date:   Thu, 22 Aug 2019 10:19:04 -0700
-Message-Id: <20190822171833.773526204@linuxfoundation.org>
+        stable@vger.kernel.org, Martin Sebor <msebor@gcc.gnu.org>,
+        Jessica Yu <jeyu@kernel.org>,
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 64/78] include/linux/module.h: copy __init/__exit attrs to init/cleanup_module
+Date:   Thu, 22 Aug 2019 10:19:08 -0700
+Message-Id: <20190822171833.885876865@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
 References: <20190822171832.012773482@linuxfoundation.org>
@@ -45,49 +45,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshiaki Okamoto <yokamoto@allied-telesis.co.jp>
+[ Upstream commit a6e60d84989fa0e91db7f236eda40453b0e44afa ]
 
-commit 7e7ae38bf928c5cfa6dd6e9a2cf8b42c84a27c92 upstream.
+The upcoming GCC 9 release extends the -Wmissing-attributes warnings
+(enabled by -Wall) to C and aliases: it warns when particular function
+attributes are missing in the aliases but not in their target.
 
-This patch adds support for MF871A USB modem (aka Speed USB STICK U03)
-to option driver. This modem is manufactured by ZTE corporation, and
-sold by KDDI.
+In particular, it triggers for all the init/cleanup_module
+aliases in the kernel (defined by the module_init/exit macros),
+ending up being very noisy.
 
-Interface layout:
-0: AT
-1: MODEM
+These aliases point to the __init/__exit functions of a module,
+which are defined as __cold (among other attributes). However,
+the aliases themselves do not have the __cold attribute.
 
-usb-devices output:
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  9 Spd=480 MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=19d2 ProdID=1481 Rev=52.87
-S:  Manufacturer=ZTE,Incorporated
-S:  Product=ZTE Technologies MSM
-S:  SerialNumber=1234567890ABCDEF
-C:  #Ifs= 2 Cfg#= 1 Atr=80 MxPwr=500mA
-I:  If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+Since the compiler behaves differently when compiling a __cold
+function as well as when compiling paths leading to calls
+to __cold functions, the warning is trying to point out
+the possibly-forgotten attribute in the alias.
 
-Co-developed-by: Hiroyuki Yamamoto <hyamamo@allied-telesis.co.jp>
-Signed-off-by: Hiroyuki Yamamoto <hyamamo@allied-telesis.co.jp>
-Signed-off-by: Yoshiaki Okamoto <yokamoto@allied-telesis.co.jp>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In order to keep the warning enabled, we decided to silence
+this case. Ideally, we would mark the aliases directly
+as __init/__exit. However, there are currently around 132 modules
+in the kernel which are missing __init/__exit in their init/cleanup
+functions (either because they are missing, or for other reasons,
+e.g. the functions being called from somewhere else); and
+a section mismatch is a hard error.
 
+A conservative alternative was to mark the aliases as __cold only.
+However, since we would like to eventually enforce __init/__exit
+to be always marked,  we chose to use the new __copy function
+attribute (introduced by GCC 9 as well to deal with this).
+With it, we copy the attributes used by the target functions
+into the aliases. This way, functions that were not marked
+as __init/__exit won't have their aliases marked either,
+and therefore there won't be a section mismatch.
+
+Note that the warning would go away marking either the extern
+declaration, the definition, or both. However, we only mark
+the definition of the alias, since we do not want callers
+(which only see the declaration) to be compiled as if the function
+was __cold (and therefore the paths leading to those calls
+would be assumed to be unlikely).
+
+Link: https://lore.kernel.org/lkml/20190123173707.GA16603@gmail.com/
+Link: https://lore.kernel.org/lkml/20190206175627.GA20399@gmail.com/
+Suggested-by: Martin Sebor <msebor@gcc.gnu.org>
+Acked-by: Jessica Yu <jeyu@kernel.org>
+Signed-off-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/linux/module.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1544,6 +1544,7 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1428, 0xff, 0xff, 0xff),  /* Telewell TW-LTE 4G v2 */
- 	  .driver_info = RSVD(2) },
- 	{ USB_DEVICE_INTERFACE_CLASS(ZTE_VENDOR_ID, 0x1476, 0xff) },	/* GosunCn ZTE WeLink ME3630 (ECM/NCM mode) */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1481, 0xff, 0x00, 0x00) }, /* ZTE MF871A */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1533, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1534, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1535, 0xff, 0xff, 0xff) },
+diff --git a/include/linux/module.h b/include/linux/module.h
+index dfe5c2e25ba1e..d237d0574179e 100644
+--- a/include/linux/module.h
++++ b/include/linux/module.h
+@@ -127,13 +127,13 @@ extern void cleanup_module(void);
+ #define module_init(initfn)					\
+ 	static inline initcall_t __maybe_unused __inittest(void)		\
+ 	{ return initfn; }					\
+-	int init_module(void) __attribute__((alias(#initfn)));
++	int init_module(void) __copy(initfn) __attribute__((alias(#initfn)));
+ 
+ /* This is only required if you want to be unloadable. */
+ #define module_exit(exitfn)					\
+ 	static inline exitcall_t __maybe_unused __exittest(void)		\
+ 	{ return exitfn; }					\
+-	void cleanup_module(void) __attribute__((alias(#exitfn)));
++	void cleanup_module(void) __copy(exitfn) __attribute__((alias(#exitfn)));
+ 
+ #endif
+ 
+-- 
+2.20.1
+
 
 
