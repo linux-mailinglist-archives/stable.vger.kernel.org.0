@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C15BA99C20
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:31:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 340BE99D07
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:39:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404521AbfHVRZx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:25:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50226 "EHLO mail.kernel.org"
+        id S2404154AbfHVRYR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:24:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404513AbfHVRZx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:25:53 -0400
+        id S2404143AbfHVRYR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:24:17 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C7012341E;
-        Thu, 22 Aug 2019 17:25:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B18BD23400;
+        Thu, 22 Aug 2019 17:24:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494752;
-        bh=yDeMJbzq+TOjCwQOhDH0nlJsiz1Mfw7aQRUec/IWZzk=;
+        s=default; t=1566494655;
+        bh=Ck+VrPPpa9FzruK7lFtVEWWTmxG15REiEr+0rrtY0SE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vd/LB7abIv0mrdl8mi0RPq112ehzxP2HnFIx89h+bcCHD/4GNxBbFTuL0wB0ISf+b
-         6DDvVmkFnO6Zs3fk+r2MuSdia4hlxucK8gunhKw8qah0+sv8OZLnTGByne4+3A+Di9
-         QP/v6BKmT7rPXCadRJxISmCGwHpkNxYJyiS3nqxE=
+        b=fnZyipCQFTjxQyXSh4wNzUgOy0N0IHluiP8q84070IqXI29EnpvaICVNZWwnWsZPf
+         HIrKwt4lP7OP1dXfNCzE6aF0V9KYNCARCiDAW0G5Wn/SnpT0oFmOleCydoRZYAWAwb
+         b8j9sPIR7emWvbmkLj+R4toBWqqtYquadPeYobG4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Shi <yang.shi@linux.alibaba.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Matthew Wilcox <willy@infradead.org>, Qian Cai <cai@lca.pw>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 51/85] Revert "kmemleak: allow to coexist with fault injection"
-Date:   Thu, 22 Aug 2019 10:19:24 -0700
-Message-Id: <20190822171733.477513236@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 097/103] net/packet: fix race in tpacket_snd()
+Date:   Thu, 22 Aug 2019 10:19:25 -0700
+Message-Id: <20190822171733.078235346@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
-References: <20190822171731.012687054@linuxfoundation.org>
+In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
+References: <20190822171728.445189830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,70 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit df9576def004d2cd5beedc00cb6e8901427634b9 ]
+From: Eric Dumazet <edumazet@google.com>
 
-When running ltp's oom test with kmemleak enabled, the below warning was
-triggerred since kernel detects __GFP_NOFAIL & ~__GFP_DIRECT_RECLAIM is
-passed in:
+[ Upstream commit 32d3182cd2cd29b2e7e04df7b0db350fbe11289f ]
 
-  WARNING: CPU: 105 PID: 2138 at mm/page_alloc.c:4608 __alloc_pages_nodemask+0x1c31/0x1d50
-  Modules linked in: loop dax_pmem dax_pmem_core ip_tables x_tables xfs virtio_net net_failover virtio_blk failover ata_generic virtio_pci virtio_ring virtio libata
-  CPU: 105 PID: 2138 Comm: oom01 Not tainted 5.2.0-next-20190710+ #7
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.10.2-0-g5f4c7b1-prebuilt.qemu-project.org 04/01/2014
-  RIP: 0010:__alloc_pages_nodemask+0x1c31/0x1d50
-  ...
-   kmemleak_alloc+0x4e/0xb0
-   kmem_cache_alloc+0x2a7/0x3e0
-   mempool_alloc_slab+0x2d/0x40
-   mempool_alloc+0x118/0x2b0
-   bio_alloc_bioset+0x19d/0x350
-   get_swap_bio+0x80/0x230
-   __swap_writepage+0x5ff/0xb20
+packet_sendmsg() checks tx_ring.pg_vec to decide
+if it must call tpacket_snd().
 
-The mempool_alloc_slab() clears __GFP_DIRECT_RECLAIM, however kmemleak
-has __GFP_NOFAIL set all the time due to d9570ee3bd1d4f2 ("kmemleak:
-allow to coexist with fault injection").  But, it doesn't make any sense
-to have __GFP_NOFAIL and ~__GFP_DIRECT_RECLAIM specified at the same
-time.
+Problem is that the check is lockless, meaning another thread
+can issue a concurrent setsockopt(PACKET_TX_RING ) to flip
+tx_ring.pg_vec back to NULL.
 
-According to the discussion on the mailing list, the commit should be
-reverted for short term solution.  Catalin Marinas would follow up with
-a better solution for longer term.
+Given that tpacket_snd() grabs pg_vec_lock mutex, we can
+perform the check again to solve the race.
 
-The failure rate of kmemleak metadata allocation may increase in some
-circumstances, but this should be expected side effect.
+syzbot reported :
 
-Link: http://lkml.kernel.org/r/1563299431-111710-1-git-send-email-yang.shi@linux.alibaba.com
-Fixes: d9570ee3bd1d4f2 ("kmemleak: allow to coexist with fault injection")
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Qian Cai <cai@lca.pw>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 11429 Comm: syz-executor394 Not tainted 5.3.0-rc4+ #101
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:packet_lookup_frame+0x8d/0x270 net/packet/af_packet.c:474
+Code: c1 ee 03 f7 73 0c 80 3c 0e 00 0f 85 cb 01 00 00 48 8b 0b 89 c0 4c 8d 24 c1 48 b8 00 00 00 00 00 fc ff df 4c 89 e1 48 c1 e9 03 <80> 3c 01 00 0f 85 94 01 00 00 48 8d 7b 10 4d 8b 3c 24 48 b8 00 00
+RSP: 0018:ffff88809f82f7b8 EFLAGS: 00010246
+RAX: dffffc0000000000 RBX: ffff8880a45c7030 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: 1ffff110148b8e06 RDI: ffff8880a45c703c
+RBP: ffff88809f82f7e8 R08: ffff888087aea200 R09: fffffbfff134ae50
+R10: fffffbfff134ae4f R11: ffffffff89a5727f R12: 0000000000000000
+R13: 0000000000000001 R14: ffff8880a45c6ac0 R15: 0000000000000000
+FS:  00007fa04716f700(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fa04716edb8 CR3: 0000000091eb4000 CR4: 00000000001406e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ packet_current_frame net/packet/af_packet.c:487 [inline]
+ tpacket_snd net/packet/af_packet.c:2667 [inline]
+ packet_sendmsg+0x590/0x6250 net/packet/af_packet.c:2975
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg+0xd7/0x130 net/socket.c:657
+ ___sys_sendmsg+0x3e2/0x920 net/socket.c:2311
+ __sys_sendmmsg+0x1bf/0x4d0 net/socket.c:2413
+ __do_sys_sendmmsg net/socket.c:2442 [inline]
+ __se_sys_sendmmsg net/socket.c:2439 [inline]
+ __x64_sys_sendmmsg+0x9d/0x100 net/socket.c:2439
+ do_syscall_64+0xfd/0x6a0 arch/x86/entry/common.c:296
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Fixes: 69e3c75f4d54 ("net: TX_RING and packet mmap")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/kmemleak.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/packet/af_packet.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/mm/kmemleak.c b/mm/kmemleak.c
-index 6c94b6865ac22..5eeabece0c178 100644
---- a/mm/kmemleak.c
-+++ b/mm/kmemleak.c
-@@ -126,7 +126,7 @@
- /* GFP bitmask for kmemleak internal allocations */
- #define gfp_kmemleak_mask(gfp)	(((gfp) & (GFP_KERNEL | GFP_ATOMIC)) | \
- 				 __GFP_NORETRY | __GFP_NOMEMALLOC | \
--				 __GFP_NOWARN | __GFP_NOFAIL)
-+				 __GFP_NOWARN)
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -2651,6 +2651,13 @@ static int tpacket_snd(struct packet_soc
  
- /* scanning area inside a memory block */
- struct kmemleak_scan_area {
--- 
-2.20.1
-
+ 	mutex_lock(&po->pg_vec_lock);
+ 
++	/* packet_sendmsg() check on tx_ring.pg_vec was lockless,
++	 * we need to confirm it under protection of pg_vec_lock.
++	 */
++	if (unlikely(!po->tx_ring.pg_vec)) {
++		err = -EBUSY;
++		goto out;
++	}
+ 	if (likely(saddr == NULL)) {
+ 		dev	= packet_cached_dev_get(po);
+ 		proto	= po->num;
 
 
