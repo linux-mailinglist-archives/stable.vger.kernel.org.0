@@ -2,86 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72B2399E63
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 20:02:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C05A999E75
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 20:11:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732341AbfHVSCD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 14:02:03 -0400
-Received: from paleale.coelho.fi ([176.9.41.70]:38128 "EHLO
-        farmhouse.coelho.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1731752AbfHVSCD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Aug 2019 14:02:03 -0400
-Received: from [91.156.6.193] (helo=redipa.ger.corp.intel.com)
-        by farmhouse.coelho.fi with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.92)
-        (envelope-from <luca@coelho.fi>)
-        id 1i0rPO-0003SF-2N
-        for stable@vger.kernel.org; Thu, 22 Aug 2019 21:02:02 +0300
-From:   Luca Coelho <luca@coelho.fi>
-To:     stable@vger.kernel.org
-Date:   Thu, 22 Aug 2019 21:01:57 +0300
-Message-Id: <20190822180157.22587-1-luca@coelho.fi>
-X-Mailer: git-send-email 2.23.0.rc1
+        id S1731093AbfHVSLF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 14:11:05 -0400
+Received: from mail-io1-f66.google.com ([209.85.166.66]:44300 "EHLO
+        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730918AbfHVSLF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Aug 2019 14:11:05 -0400
+Received: by mail-io1-f66.google.com with SMTP id j4so5477303iog.11
+        for <stable@vger.kernel.org>; Thu, 22 Aug 2019 11:11:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=yfsAWN45k0D6UTh8TPY2rdwW+IPRhMd+KDE+9wDY50I=;
+        b=pdtQEg7MECYgUEKrW9Oo99DBIIpl7Y1sBSvETQ5uWp1f6SUbrcH8qf3eOObbiZEXyC
+         viElD2CPs8VIvgb1KiaLhkzn2Ydmz6Vc4zkXbEL/LasQTFwhXvTiT7cy5aIBYBqJJqhc
+         jQWbm2aPoT1gxLdeqcpGF+bzDlVvOStqWjk5JAEGn1eO4uvQ30xi1Phq/UZhGZ0oX0tA
+         gm4IFUN0FDgUkYUqUoEngbZpR26MVPG3ZuVkkcVA+uxunTGDlXAcUDg94fsIs+zxQ8eJ
+         fX1XXDf8CUkp5UB5pwa4JIgZCQUE2rHsXhnPqUaYcZ5wGTd01TP+BguFjKsFUf/0Ugnx
+         cvew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=yfsAWN45k0D6UTh8TPY2rdwW+IPRhMd+KDE+9wDY50I=;
+        b=d25MgVfHu27WJjrTvVBuBZJ9/jrKy6UO2mB60+KMbtMhe5Lcu8CO9I0Cw5iq9kuWvP
+         ZIb3rxzDU8tm9MWohiiKlM72Df9CvxSclSP4c3iiyoT1jp8IcnARMVm1c+NE15qRvkop
+         tvd+yHHK/ul575Fw1P67IvvoXTtsIlnxleKA4oTGnjO+6ZhjYFXAD3YfWTr5RRjj3P/Z
+         Nm8cSECAMeqiqzKL3eEpgV4t39VA53qTHjA5ojWHmxTArLvkAboMMfBS7f7hR+htgnOV
+         e0jn0/uI8gpRaIKO/6inziCEaUjBGH73BDB8ewAdJD+H8nULDY2I+HhW1ZVUYy47hbYp
+         f2Bw==
+X-Gm-Message-State: APjAAAUz9GNGyLjhqwGZJ6x2N1B83vAq6/cfzpiMD/4o58oX9X2NuduQ
+        ibCgFamwYVCC8Hrc+D6mxeex5HCR88S2iKiKb5w=
+X-Google-Smtp-Source: APXvYqyyrAERVAio0Yv0HtjWncGFsE7vhlzth+Y/Vv7iWfpegrd+Q2vgNMFBTSv2NahaAidpNjJrB7E5QBXotz488Dk=
+X-Received: by 2002:a5d:81cc:: with SMTP id t12mr1242092iol.157.1566497464749;
+ Thu, 22 Aug 2019 11:11:04 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on farmhouse.coelho.fi
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=5.0 tests=ALL_TRUSTED,BAYES_00,
-        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.2
-Subject: [PATCH 5.1] iwlwifi: mvm: disable TX-AMSDU on older NICs
+Reply-To: denizkargad@gmail.com
+Received: by 2002:a4f:f4d1:0:0:0:0:0 with HTTP; Thu, 22 Aug 2019 11:11:03
+ -0700 (PDT)
+From:   Deniz KARGA <denizkagad@gmail.com>
+Date:   Thu, 22 Aug 2019 11:11:03 -0700
+X-Google-Sender-Auth: Wh0o84G18DxdAAuq-zpmpPqsVXc
+Message-ID: <CAEhAppEdpXa7Jmg+DSt58NcXD2-EE9oh8BfA7rqXrAMtF5KTKw@mail.gmail.com>
+Subject: hello
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+Hi,
 
-commit cfb21b11b891b08b79be07be57c40a85bb926668 upstream.
+I sent you an email earlier and been expecting to hear from you
+regarding the deposit made at my bank here in Turkey by late Engr M.M.
+Please try and get back to me.
 
-On older NICs, we occasionally see issues with A-MSDU support,
-where the commands in the FIFO get confused and then we see an
-assert EDC because the next command in the FIFO isn't TX.
-
-We've tried to isolate this issue and understand where it comes
-from, but haven't found any errors in building the A-MSDU in
-software.
-
-At least for now, disable A-MSDU support on older hardware so
-that users can use it again without fearing the assert.
-
-This fixes https://bugzilla.kernel.org/show_bug.cgi?id=203315.
-
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
----
- drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-index 5caadaef707d..a74079b3e4bb 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-@@ -473,7 +473,19 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
- 	ieee80211_hw_set(hw, SUPPORTS_VHT_EXT_NSS_BW);
- 	ieee80211_hw_set(hw, BUFF_MMPDU_TXQ);
- 	ieee80211_hw_set(hw, STA_MMPDU_TXQ);
--	ieee80211_hw_set(hw, TX_AMSDU);
-+	/*
-+	 * On older devices, enabling TX A-MSDU occasionally leads to
-+	 * something getting messed up, the command read from the FIFO
-+	 * gets out of sync and isn't a TX command, so that we have an
-+	 * assert EDC.
-+	 *
-+	 * It's not clear where the bug is, but since we didn't used to
-+	 * support A-MSDU until moving the mac80211 iTXQs, just leave it
-+	 * for older devices. We also don't see this issue on any newer
-+	 * devices.
-+	 */
-+	if (mvm->cfg->device_family >= IWL_DEVICE_FAMILY_9000)
-+		ieee80211_hw_set(hw, TX_AMSDU);
- 	ieee80211_hw_set(hw, TX_FRAG_LIST);
- 
- 	if (iwl_mvm_has_tlc_offload(mvm)) {
--- 
-2.23.0.rc1
-
+Yours
+Deniz
