@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB31F99B98
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:26:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B816999B9A
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:26:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404552AbfHVRZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:25:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50290 "EHLO mail.kernel.org"
+        id S2404595AbfHVR0E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:26:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404548AbfHVRZ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:25:57 -0400
+        id S2404582AbfHVR0D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:26:03 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 206782064A;
-        Thu, 22 Aug 2019 17:25:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C2122064A;
+        Thu, 22 Aug 2019 17:26:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494757;
-        bh=UwMjA6/92uxn97FblUBFzyvPxR0wqAPJJgs1ZdS+/RI=;
+        s=default; t=1566494762;
+        bh=WnhuJW6nC1WT6N6IbmLrIhYxRTp9DB5RtGXOZ97LhuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U0jtuTBtpzwFWrIn5fI3Ew0tuSmekkF6i958vAZ1Jj2hol/mBpuU/l0EpROATTTs8
-         H9soPQIhkZzoCbOfx6Q1bAJXVyf3S0epOjSo8/bWZfftDlhyp3PnTCTFS4HRuwfQRC
-         QNJCD0lkZHfM0e0DkXznGL9MdEkDXEz48F08LgKE=
+        b=yvrRNSn1dTaLsjz17onJrAXsGXr5Msmg+HqxQIDgJPf2ksaSxdnxvFPljFG8wIZ4N
+         hFN5j9mKPUZNsO2feuawt947Age8jEDAIun930K2gv/QO4FMKOJmhBZJIcJORAuNw1
+         JYa1Ek6TgXTQZ2vIKuW5kFR6FzC3YZUSk3JA6MsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacopo Mondi <jacopo+renesas@jmondi.org>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.19 58/85] iio: adc: max9611: Fix temperature reading in probe
-Date:   Thu, 22 Aug 2019 10:19:31 -0700
-Message-Id: <20190822171733.738901968@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Hiroyuki Yamamoto <hyamamo@allied-telesis.co.jp>,
+        Yoshiaki Okamoto <yokamoto@allied-telesis.co.jp>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 64/85] USB: serial: option: Add support for ZTE MF871A
+Date:   Thu, 22 Aug 2019 10:19:37 -0700
+Message-Id: <20190822171733.998793276@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
 References: <20190822171731.012687054@linuxfoundation.org>
@@ -44,38 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacopo Mondi <jacopo+renesas@jmondi.org>
+From: Yoshiaki Okamoto <yokamoto@allied-telesis.co.jp>
 
-commit b9ddd5091160793ee9fac10da765cf3f53d2aaf0 upstream.
+commit 7e7ae38bf928c5cfa6dd6e9a2cf8b42c84a27c92 upstream.
 
-The max9611 driver reads the die temperature at probe time to validate
-the communication channel. Use the actual read value to perform the test
-instead of the read function return value, which was mistakenly used so
-far.
+This patch adds support for MF871A USB modem (aka Speed USB STICK U03)
+to option driver. This modem is manufactured by ZTE corporation, and
+sold by KDDI.
 
-The temperature reading test was only successful because the 0 return
-value is in the range of supported temperatures.
+Interface layout:
+0: AT
+1: MODEM
 
-Fixes: 69780a3bbc0b ("iio: adc: Add Maxim max9611 ADC driver")
-Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+usb-devices output:
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  9 Spd=480 MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=19d2 ProdID=1481 Rev=52.87
+S:  Manufacturer=ZTE,Incorporated
+S:  Product=ZTE Technologies MSM
+S:  SerialNumber=1234567890ABCDEF
+C:  #Ifs= 2 Cfg#= 1 Atr=80 MxPwr=500mA
+I:  If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+
+Co-developed-by: Hiroyuki Yamamoto <hyamamo@allied-telesis.co.jp>
+Signed-off-by: Hiroyuki Yamamoto <hyamamo@allied-telesis.co.jp>
+Signed-off-by: Yoshiaki Okamoto <yokamoto@allied-telesis.co.jp>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/adc/max9611.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iio/adc/max9611.c
-+++ b/drivers/iio/adc/max9611.c
-@@ -483,7 +483,7 @@ static int max9611_init(struct max9611_d
- 	if (ret)
- 		return ret;
- 
--	regval = ret & MAX9611_TEMP_MASK;
-+	regval &= MAX9611_TEMP_MASK;
- 
- 	if ((regval > MAX9611_TEMP_MAX_POS &&
- 	     regval < MAX9611_TEMP_MIN_NEG) ||
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1549,6 +1549,7 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1428, 0xff, 0xff, 0xff),  /* Telewell TW-LTE 4G v2 */
+ 	  .driver_info = RSVD(2) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(ZTE_VENDOR_ID, 0x1476, 0xff) },	/* GosunCn ZTE WeLink ME3630 (ECM/NCM mode) */
++	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1481, 0xff, 0x00, 0x00) }, /* ZTE MF871A */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1533, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1534, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1535, 0xff, 0xff, 0xff) },
 
 
