@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5A9399D69
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:42:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1034999D40
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:41:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391672AbfHVRXq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:23:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41576 "EHLO mail.kernel.org"
+        id S2404041AbfHVRlB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:41:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391556AbfHVRWt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:22:49 -0400
+        id S2404021AbfHVRYB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:24:01 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8AC74233FE;
-        Thu, 22 Aug 2019 17:22:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D33E82341B;
+        Thu, 22 Aug 2019 17:24:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494568;
-        bh=6KUXWNDA8/+Pde2MDNRP2/6V1yRx83M8Ry5DX+w5b6U=;
+        s=default; t=1566494641;
+        bh=oxdxb3+q5l4YKRxmcQH3c+7PvrvDkfftZOxp4GEsiiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t8T9IeOEzdB5bcmc3C1nto/O6YpadIn40vq5p+7G1WD+hvjx+lkyveEj86TTuyUc8
-         KUexa4nen13A5BORvuI0PQJ55NI0vWMaOiaJPCatfIiPOInhk9ghXooZGIx5SIgSzE
-         dMCoNmAKsnpqXtQDG4nh38lDxE7kI4Ttq5xTx+iw=
+        b=TUe/cUce9IGnMUYaZllcculWoinQa9k8pCwpwXNTB7hBwmzWcO57of/YW/ebFyPQ0
+         J/sHDkGgtFuG4+SckzEIsDoaTjGN6BIUVaizmW+0+nVwPcDobV96DrMSP7ITp9eg1v
+         qb/LoJEmMkCW3VPXhzrUzdfvj9rtzbP84MQZ8UJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        syzbot+1b2449b7b5dc240d107a@syzkaller.appspotmail.com
-Subject: [PATCH 4.4 58/78] usb: cdc-acm: make sure a refcount is taken early enough
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 074/103] ata: libahci: do not complain in case of deferred probe
 Date:   Thu, 22 Aug 2019 10:19:02 -0700
-Message-Id: <20190822171833.717553055@linuxfoundation.org>
+Message-Id: <20190822171731.917320933@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
-References: <20190822171832.012773482@linuxfoundation.org>
+In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
+References: <20190822171728.445189830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,64 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+[ Upstream commit 090bb803708198e5ab6b0046398c7ed9f4d12d6b ]
 
-commit c52873e5a1ef72f845526d9f6a50704433f9c625 upstream.
+Retrieving PHYs can defer the probe, do not spawn an error when
+-EPROBE_DEFER is returned, it is normal behavior.
 
-destroy() will decrement the refcount on the interface, so that
-it needs to be taken so early that it never undercounts.
-
-Fixes: 7fb57a019f94e ("USB: cdc-acm: Fix potential deadlock (lockdep warning)")
-Cc: stable <stable@vger.kernel.org>
-Reported-and-tested-by: syzbot+1b2449b7b5dc240d107a@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/20190808142119.7998-1-oneukum@suse.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: b1a9edbda040 ("ata: libahci: allow to use multiple PHYs")
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/cdc-acm.c |   18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ drivers/ata/libahci_platform.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1319,13 +1319,6 @@ made_compressed_probe:
- 	if (acm == NULL)
- 		goto alloc_fail;
+diff --git a/drivers/ata/libahci_platform.c b/drivers/ata/libahci_platform.c
+index cd2eab6aa92ea..65371e1befe8a 100644
+--- a/drivers/ata/libahci_platform.c
++++ b/drivers/ata/libahci_platform.c
+@@ -300,6 +300,9 @@ static int ahci_platform_get_phy(struct ahci_host_priv *hpriv, u32 port,
+ 		hpriv->phys[port] = NULL;
+ 		rc = 0;
+ 		break;
++	case -EPROBE_DEFER:
++		/* Do not complain yet */
++		break;
  
--	minor = acm_alloc_minor(acm);
--	if (minor < 0) {
--		dev_err(&intf->dev, "no more free acm devices\n");
--		kfree(acm);
--		return -ENODEV;
--	}
--
- 	ctrlsize = usb_endpoint_maxp(epctrl);
- 	readsize = usb_endpoint_maxp(epread) *
- 				(quirks == SINGLE_RX_URB ? 1 : 2);
-@@ -1333,6 +1326,16 @@ made_compressed_probe:
- 	acm->writesize = usb_endpoint_maxp(epwrite) * 20;
- 	acm->control = control_interface;
- 	acm->data = data_interface;
-+
-+	usb_get_intf(acm->control); /* undone in destruct() */
-+
-+	minor = acm_alloc_minor(acm);
-+	if (minor < 0) {
-+		dev_err(&intf->dev, "no more free acm devices\n");
-+		kfree(acm);
-+		return -ENODEV;
-+	}
-+
- 	acm->minor = minor;
- 	acm->dev = usb_dev;
- 	acm->ctrl_caps = ac_management_function;
-@@ -1474,7 +1477,6 @@ skip_countries:
- 	usb_driver_claim_interface(&acm_driver, data_interface, acm);
- 	usb_set_intfdata(data_interface, acm);
- 
--	usb_get_intf(control_interface);
- 	tty_dev = tty_port_register_device(&acm->port, acm_tty_driver, minor,
- 			&control_interface->dev);
- 	if (IS_ERR(tty_dev)) {
+ 	default:
+ 		dev_err(dev,
+-- 
+2.20.1
+
 
 
