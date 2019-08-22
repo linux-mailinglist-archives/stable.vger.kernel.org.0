@@ -2,43 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DFD0499A54
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:13:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E095A99A52
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:13:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390702AbfHVRMK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:12:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59430 "EHLO mail.kernel.org"
+        id S1731652AbfHVRMG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:12:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390688AbfHVRJK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:09:10 -0400
+        id S2390683AbfHVRJL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:09:11 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4902023406;
-        Thu, 22 Aug 2019 17:09:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 398D62341E;
+        Thu, 22 Aug 2019 17:09:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566493749;
-        bh=+IwE1oT+vmcEXCETz+J54K2pOa7K0ACqbqKZbQcAVmc=;
+        s=default; t=1566493750;
+        bh=UwTvHN27qojHooAta9PKxcgJh+aOGXDdpinPZRNGDlY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oq4Kr3g4j23QdQ+6pAGUGa63LOZMTwtD9uQZJJIeIG9SSbX8oogTwUn+VMUfuWGvZ
-         kYwlXqxJlrISW9A1rgqy+fEyK8uiZKMEwaTv/n1DDo95dKJ1uK7e2p+IinKmWjqKrb
-         fDtLOnLKShfkXnAS12X7J5lKx0JWDkOrg5sk0wtM=
+        b=rkFxZyG4aKWnU7znjrCWXOI9z5y6JZJTH4O/CeTGQROS/UaLAqXPdMYFksDQ8kAeg
+         QT0mUPBKq0kydjQKSUGrK/chsXTF9ZEVNDmfHzNVrIknY7Yc8T1DXjFnaUDcPMm5Xp
+         5GLNJbVzdhgIZKOwYBOAtC8+QV4Cjiwd8lYUz0LM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Lindgren <tony@atomide.com>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Lars Melin <larsm17@gmail.com>,
-        Marcel Partap <mpartap@gmx.net>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        Michael Scott <hashcode0f@gmail.com>,
-        NeKit <nekit1000@gmail.com>, Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sre@kernel.org>,
-        Johan Hovold <johan@kernel.org>,
+Cc:     =?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.2 102/135] USB: serial: option: Add Motorola modem UARTs
-Date:   Thu, 22 Aug 2019 13:07:38 -0400
-Message-Id: <20190822170811.13303-103-sashal@kernel.org>
+Subject: [PATCH 5.2 103/135] usb: setup authorized_default attributes using usb_bus_notify
+Date:   Thu, 22 Aug 2019 13:07:39 -0400
+Message-Id: <20190822170811.13303-104-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -58,174 +49,356 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Thiébaud Weksteen <tweek@google.com>
 
-commit 6caf0be40a707689e8ff8824fdb96ef77685b1ba upstream.
+commit 27709ae4e2fe6cf7da2ae45e718e190c5433342b upstream.
 
-On Motorola Mapphone devices such as Droid 4 there are five USB ports
-that do not use the same layout as Gobi 1K/2K/etc devices listed in
-qcserial.c. So we should use qcaux.c or option.c as noted by
-Dan Williams <dan.j.williams@intel.com>.
+Currently, the authorized_default and interface_authorized_default
+attributes for HCD are set up after the uevent has been sent to userland.
+This creates a race condition where userland may fail to access this
+file when processing the event. Move the appending of these attributes
+earlier relying on the usb_bus_notify dispatcher.
 
-As the Motorola USB serial ports have an interrupt endpoint as shown
-with lsusb -v, we should use option.c instead of qcaux.c as pointed out
-by Johan Hovold <johan@kernel.org>.
-
-The ff/ff/ff interfaces seem to always be UARTs on Motorola devices.
-For the other interfaces, class 0x0a (CDC Data) should not in general
-be added as they are typically part of a multi-interface function as
-noted earlier by Bjørn Mork <bjorn@mork.no>.
-
-However, looking at the Motorola mapphone kernel code, the mdm6600 0x0a
-class is only used for flashing the modem firmware, and there are no
-other interfaces. So I've added that too with more details below as it
-works just fine.
-
-The ttyUSB ports on Droid 4 are:
-
-ttyUSB0 DIAG, CQDM-capable
-ttyUSB1 MUX or NMEA, no response
-ttyUSB2 MUX or NMEA, no response
-ttyUSB3 TCMD
-ttyUSB4 AT-capable
-
-The ttyUSB0 is detected as QCDM capable by ModemManager. I think
-it's only used for debugging with ModemManager --debug for sending
-custom AT commands though. ModemManager already can manage data
-connection using the USB QMI ports that are already handled by the
-qmi_wwan.c driver.
-
-To enable the MUX or NMEA ports, it seems that something needs to be
-done additionally to enable them, maybe via the DIAG or TCMD port.
-It might be just a NVRAM setting somewhere, but I have no idea what
-NVRAM settings may need changing for that.
-
-The TCMD port seems to be a Motorola custom protocol for testing
-the modem and to configure it's NVRAM and seems to work just fine
-based on a quick test with a minimal tcmdrw tool I wrote.
-
-The voice modem AT-capable port seems to provide only partial
-support, and no PM support compared to the TS 27.010 based UART
-wired directly to the modem.
-
-The UARTs added with this change are the same product IDs as the
-Motorola Mapphone Android Linux kernel mdm6600_id_table. I don't
-have any mdm9600 based devices, so I have only tested these on
-mdm6600 based droid 4.
-
-Then for the class 0x0a (CDC Data) mode, the Motorola Mapphone Android
-Linux kernel driver moto_flashqsc.c just seems to change the
-port->bulk_out_size to 8K from the default. And is only used for
-flashing the modem firmware it seems.
-
-I've verified that flashing the modem with signed firmware works just
-fine with the option driver after manually toggling the GPIO pins, so
-I've added droid 4 modem flashing mode to the option driver. I've not
-added the other devices listed in moto_flashqsc.c in case they really
-need different port->bulk_out_size. Those can be added as they get
-tested to work for flashing the modem.
-
-After this patch the output of /sys/kernel/debug/usb/devices has
-the following for normal 22b8:2a70 mode including the related qmi_wwan
-interfaces:
-
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=22b8 ProdID=2a70 Rev= 0.00
-S:  Manufacturer=Motorola, Incorporated
-S:  Product=Flash MZ600
-C:* #Ifs= 9 Cfg#= 1 Atr=e0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=83(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=84(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fb Prot=ff Driver=qmi_wwan
-E:  Ad=87(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
-E:  Ad=88(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=06(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 6 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fb Prot=ff Driver=qmi_wwan
-E:  Ad=89(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
-E:  Ad=8a(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=07(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 7 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fb Prot=ff Driver=qmi_wwan
-E:  Ad=8b(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
-E:  Ad=8c(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=08(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 8 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fb Prot=ff Driver=qmi_wwan
-E:  Ad=8d(I) Atr=03(Int.) MxPS=  64 Ivl=5ms
-E:  Ad=8e(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=09(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-
-In 22b8:900e "qc_dload" mode the device shows up as:
-
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=22b8 ProdID=900e Rev= 0.00
-S:  Manufacturer=Motorola, Incorporated
-S:  Product=Flash MZ600
-C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-
-And in 22b8:4281 "ram_downloader" mode the device shows up as:
-
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=22b8 ProdID=4281 Rev= 0.00
-S:  Manufacturer=Motorola, Incorporated
-S:  Product=Flash MZ600
-C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=fc Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-
-Cc: Bjørn Mork <bjorn@mork.no>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Lars Melin <larsm17@gmail.com>
-Cc: Marcel Partap <mpartap@gmx.net>
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Michael Scott <hashcode0f@gmail.com>
-Cc: NeKit <nekit1000@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sre@kernel.org>
-Tested-by: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Thiébaud Weksteen <tweek@google.com>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20190806110050.38918-1-tweek@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/core/hcd.c   | 123 ---------------------------------------
+ drivers/usb/core/sysfs.c | 121 ++++++++++++++++++++++++++++++++++++++
+ drivers/usb/core/usb.h   |   5 ++
+ 3 files changed, 126 insertions(+), 123 deletions(-)
 
-diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
-index 699cab453fbf6..38e920ac7f820 100644
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -968,6 +968,11 @@ static const struct usb_device_id option_ids[] = {
- 	{ USB_VENDOR_AND_INTERFACE_INFO(HUAWEI_VENDOR_ID, 0xff, 0x06, 0x7B) },
- 	{ USB_VENDOR_AND_INTERFACE_INFO(HUAWEI_VENDOR_ID, 0xff, 0x06, 0x7C) },
+diff --git a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
+index 94d22551fc1bf..82e41179fb2db 100644
+--- a/drivers/usb/core/hcd.c
++++ b/drivers/usb/core/hcd.c
+@@ -101,11 +101,6 @@ static DEFINE_SPINLOCK(hcd_urb_unlink_lock);
+ /* wait queue for synchronous unlinks */
+ DECLARE_WAIT_QUEUE_HEAD(usb_kill_urb_queue);
  
-+	/* Motorola devices */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x22b8, 0x2a70, 0xff, 0xff, 0xff) },	/* mdm6600 */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x22b8, 0x2e0a, 0xff, 0xff, 0xff) },	/* mdm9600 */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x22b8, 0x4281, 0x0a, 0x00, 0xfc) },	/* mdm ram dl */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x22b8, 0x900e, 0xff, 0xff, 0xff) },	/* mdm qc dl */
+-static inline int is_root_hub(struct usb_device *udev)
+-{
+-	return (udev->parent == NULL);
+-}
+-
+ /*-------------------------------------------------------------------------*/
  
- 	{ USB_DEVICE(NOVATELWIRELESS_VENDOR_ID, NOVATELWIRELESS_PRODUCT_V640) },
- 	{ USB_DEVICE(NOVATELWIRELESS_VENDOR_ID, NOVATELWIRELESS_PRODUCT_V620) },
+ /*
+@@ -878,101 +873,6 @@ static int usb_rh_urb_dequeue(struct usb_hcd *hcd, struct urb *urb, int status)
+ }
+ 
+ 
+-
+-/*
+- * Show & store the current value of authorized_default
+- */
+-static ssize_t authorized_default_show(struct device *dev,
+-				       struct device_attribute *attr, char *buf)
+-{
+-	struct usb_device *rh_usb_dev = to_usb_device(dev);
+-	struct usb_bus *usb_bus = rh_usb_dev->bus;
+-	struct usb_hcd *hcd;
+-
+-	hcd = bus_to_hcd(usb_bus);
+-	return snprintf(buf, PAGE_SIZE, "%u\n", hcd->dev_policy);
+-}
+-
+-static ssize_t authorized_default_store(struct device *dev,
+-					struct device_attribute *attr,
+-					const char *buf, size_t size)
+-{
+-	ssize_t result;
+-	unsigned val;
+-	struct usb_device *rh_usb_dev = to_usb_device(dev);
+-	struct usb_bus *usb_bus = rh_usb_dev->bus;
+-	struct usb_hcd *hcd;
+-
+-	hcd = bus_to_hcd(usb_bus);
+-	result = sscanf(buf, "%u\n", &val);
+-	if (result == 1) {
+-		hcd->dev_policy = val <= USB_DEVICE_AUTHORIZE_INTERNAL ?
+-			val : USB_DEVICE_AUTHORIZE_ALL;
+-		result = size;
+-	} else {
+-		result = -EINVAL;
+-	}
+-	return result;
+-}
+-static DEVICE_ATTR_RW(authorized_default);
+-
+-/*
+- * interface_authorized_default_show - show default authorization status
+- * for USB interfaces
+- *
+- * note: interface_authorized_default is the default value
+- *       for initializing the authorized attribute of interfaces
+- */
+-static ssize_t interface_authorized_default_show(struct device *dev,
+-		struct device_attribute *attr, char *buf)
+-{
+-	struct usb_device *usb_dev = to_usb_device(dev);
+-	struct usb_hcd *hcd = bus_to_hcd(usb_dev->bus);
+-
+-	return sprintf(buf, "%u\n", !!HCD_INTF_AUTHORIZED(hcd));
+-}
+-
+-/*
+- * interface_authorized_default_store - store default authorization status
+- * for USB interfaces
+- *
+- * note: interface_authorized_default is the default value
+- *       for initializing the authorized attribute of interfaces
+- */
+-static ssize_t interface_authorized_default_store(struct device *dev,
+-		struct device_attribute *attr, const char *buf, size_t count)
+-{
+-	struct usb_device *usb_dev = to_usb_device(dev);
+-	struct usb_hcd *hcd = bus_to_hcd(usb_dev->bus);
+-	int rc = count;
+-	bool val;
+-
+-	if (strtobool(buf, &val) != 0)
+-		return -EINVAL;
+-
+-	if (val)
+-		set_bit(HCD_FLAG_INTF_AUTHORIZED, &hcd->flags);
+-	else
+-		clear_bit(HCD_FLAG_INTF_AUTHORIZED, &hcd->flags);
+-
+-	return rc;
+-}
+-static DEVICE_ATTR_RW(interface_authorized_default);
+-
+-/* Group all the USB bus attributes */
+-static struct attribute *usb_bus_attrs[] = {
+-		&dev_attr_authorized_default.attr,
+-		&dev_attr_interface_authorized_default.attr,
+-		NULL,
+-};
+-
+-static const struct attribute_group usb_bus_attr_group = {
+-	.name = NULL,	/* we want them in the same directory */
+-	.attrs = usb_bus_attrs,
+-};
+-
+-
+-
+ /*-------------------------------------------------------------------------*/
+ 
+ /**
+@@ -2895,32 +2795,11 @@ int usb_add_hcd(struct usb_hcd *hcd,
+ 	if (retval != 0)
+ 		goto err_register_root_hub;
+ 
+-	retval = sysfs_create_group(&rhdev->dev.kobj, &usb_bus_attr_group);
+-	if (retval < 0) {
+-		printk(KERN_ERR "Cannot register USB bus sysfs attributes: %d\n",
+-		       retval);
+-		goto error_create_attr_group;
+-	}
+ 	if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
+ 		usb_hcd_poll_rh_status(hcd);
+ 
+ 	return retval;
+ 
+-error_create_attr_group:
+-	clear_bit(HCD_FLAG_RH_RUNNING, &hcd->flags);
+-	if (HC_IS_RUNNING(hcd->state))
+-		hcd->state = HC_STATE_QUIESCING;
+-	spin_lock_irq(&hcd_root_hub_lock);
+-	hcd->rh_registered = 0;
+-	spin_unlock_irq(&hcd_root_hub_lock);
+-
+-#ifdef CONFIG_PM
+-	cancel_work_sync(&hcd->wakeup_work);
+-#endif
+-	cancel_work_sync(&hcd->died_work);
+-	mutex_lock(&usb_bus_idr_lock);
+-	usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
+-	mutex_unlock(&usb_bus_idr_lock);
+ err_register_root_hub:
+ 	hcd->rh_pollable = 0;
+ 	clear_bit(HCD_FLAG_POLL_RH, &hcd->flags);
+@@ -2964,8 +2843,6 @@ void usb_remove_hcd(struct usb_hcd *hcd)
+ 	dev_info(hcd->self.controller, "remove, state %x\n", hcd->state);
+ 
+ 	usb_get_dev(rhdev);
+-	sysfs_remove_group(&rhdev->dev.kobj, &usb_bus_attr_group);
+-
+ 	clear_bit(HCD_FLAG_RH_RUNNING, &hcd->flags);
+ 	if (HC_IS_RUNNING (hcd->state))
+ 		hcd->state = HC_STATE_QUIESCING;
+diff --git a/drivers/usb/core/sysfs.c b/drivers/usb/core/sysfs.c
+index 7e88fdfe3cf5c..f19694e69f5c3 100644
+--- a/drivers/usb/core/sysfs.c
++++ b/drivers/usb/core/sysfs.c
+@@ -15,6 +15,7 @@
+ #include <linux/kernel.h>
+ #include <linux/string.h>
+ #include <linux/usb.h>
++#include <linux/usb/hcd.h>
+ #include <linux/usb/quirks.h>
+ #include <linux/of.h>
+ #include "usb.h"
+@@ -922,6 +923,116 @@ static struct bin_attribute dev_bin_attr_descriptors = {
+ 	.size = 18 + 65535,	/* dev descr + max-size raw descriptor */
+ };
+ 
++/*
++ * Show & store the current value of authorized_default
++ */
++static ssize_t authorized_default_show(struct device *dev,
++				       struct device_attribute *attr, char *buf)
++{
++	struct usb_device *rh_usb_dev = to_usb_device(dev);
++	struct usb_bus *usb_bus = rh_usb_dev->bus;
++	struct usb_hcd *hcd;
++
++	hcd = bus_to_hcd(usb_bus);
++	return snprintf(buf, PAGE_SIZE, "%u\n", hcd->dev_policy);
++}
++
++static ssize_t authorized_default_store(struct device *dev,
++					struct device_attribute *attr,
++					const char *buf, size_t size)
++{
++	ssize_t result;
++	unsigned int val;
++	struct usb_device *rh_usb_dev = to_usb_device(dev);
++	struct usb_bus *usb_bus = rh_usb_dev->bus;
++	struct usb_hcd *hcd;
++
++	hcd = bus_to_hcd(usb_bus);
++	result = sscanf(buf, "%u\n", &val);
++	if (result == 1) {
++		hcd->dev_policy = val <= USB_DEVICE_AUTHORIZE_INTERNAL ?
++			val : USB_DEVICE_AUTHORIZE_ALL;
++		result = size;
++	} else {
++		result = -EINVAL;
++	}
++	return result;
++}
++static DEVICE_ATTR_RW(authorized_default);
++
++/*
++ * interface_authorized_default_show - show default authorization status
++ * for USB interfaces
++ *
++ * note: interface_authorized_default is the default value
++ *       for initializing the authorized attribute of interfaces
++ */
++static ssize_t interface_authorized_default_show(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	struct usb_device *usb_dev = to_usb_device(dev);
++	struct usb_hcd *hcd = bus_to_hcd(usb_dev->bus);
++
++	return sprintf(buf, "%u\n", !!HCD_INTF_AUTHORIZED(hcd));
++}
++
++/*
++ * interface_authorized_default_store - store default authorization status
++ * for USB interfaces
++ *
++ * note: interface_authorized_default is the default value
++ *       for initializing the authorized attribute of interfaces
++ */
++static ssize_t interface_authorized_default_store(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct usb_device *usb_dev = to_usb_device(dev);
++	struct usb_hcd *hcd = bus_to_hcd(usb_dev->bus);
++	int rc = count;
++	bool val;
++
++	if (strtobool(buf, &val) != 0)
++		return -EINVAL;
++
++	if (val)
++		set_bit(HCD_FLAG_INTF_AUTHORIZED, &hcd->flags);
++	else
++		clear_bit(HCD_FLAG_INTF_AUTHORIZED, &hcd->flags);
++
++	return rc;
++}
++static DEVICE_ATTR_RW(interface_authorized_default);
++
++/* Group all the USB bus attributes */
++static struct attribute *usb_bus_attrs[] = {
++		&dev_attr_authorized_default.attr,
++		&dev_attr_interface_authorized_default.attr,
++		NULL,
++};
++
++static const struct attribute_group usb_bus_attr_group = {
++	.name = NULL,	/* we want them in the same directory */
++	.attrs = usb_bus_attrs,
++};
++
++
++static int add_default_authorized_attributes(struct device *dev)
++{
++	int rc = 0;
++
++	if (is_usb_device(dev))
++		rc = sysfs_create_group(&dev->kobj, &usb_bus_attr_group);
++
++	return rc;
++}
++
++static void remove_default_authorized_attributes(struct device *dev)
++{
++	if (is_usb_device(dev)) {
++		sysfs_remove_group(&dev->kobj, &usb_bus_attr_group);
++	}
++}
++
+ int usb_create_sysfs_dev_files(struct usb_device *udev)
+ {
+ 	struct device *dev = &udev->dev;
+@@ -938,7 +1049,14 @@ int usb_create_sysfs_dev_files(struct usb_device *udev)
+ 	retval = add_power_attributes(dev);
+ 	if (retval)
+ 		goto error;
++
++	if (is_root_hub(udev)) {
++		retval = add_default_authorized_attributes(dev);
++		if (retval)
++			goto error;
++	}
+ 	return retval;
++
+ error:
+ 	usb_remove_sysfs_dev_files(udev);
+ 	return retval;
+@@ -948,6 +1066,9 @@ void usb_remove_sysfs_dev_files(struct usb_device *udev)
+ {
+ 	struct device *dev = &udev->dev;
+ 
++	if (is_root_hub(udev))
++		remove_default_authorized_attributes(dev);
++
+ 	remove_power_attributes(dev);
+ 	remove_persist_attributes(dev);
+ 	device_remove_bin_file(dev, &dev_bin_attr_descriptors);
+diff --git a/drivers/usb/core/usb.h b/drivers/usb/core/usb.h
+index d95a5358f73df..d5ac492f441b1 100644
+--- a/drivers/usb/core/usb.h
++++ b/drivers/usb/core/usb.h
+@@ -153,6 +153,11 @@ static inline int is_usb_port(const struct device *dev)
+ 	return dev->type == &usb_port_device_type;
+ }
+ 
++static inline int is_root_hub(struct usb_device *udev)
++{
++	return (udev->parent == NULL);
++}
++
+ /* Do the same for device drivers and interface drivers. */
+ 
+ static inline int is_usb_device_driver(struct device_driver *drv)
 -- 
 2.20.1
 
