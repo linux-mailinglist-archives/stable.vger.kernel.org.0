@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 340BE99D07
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:39:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14BE399C23
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:32:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404154AbfHVRYR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:24:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45544 "EHLO mail.kernel.org"
+        id S2390256AbfHVRbh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:31:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404143AbfHVRYR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:24:17 -0400
+        id S2404511AbfHVRZx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:25:53 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B18BD23400;
-        Thu, 22 Aug 2019 17:24:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCBFB23405;
+        Thu, 22 Aug 2019 17:25:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494655;
-        bh=Ck+VrPPpa9FzruK7lFtVEWWTmxG15REiEr+0rrtY0SE=;
+        s=default; t=1566494753;
+        bh=eVVfnND6+8w4CpkKtZC2eBq5M8dM5nUmyL4NnSPSKpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fnZyipCQFTjxQyXSh4wNzUgOy0N0IHluiP8q84070IqXI29EnpvaICVNZWwnWsZPf
-         HIrKwt4lP7OP1dXfNCzE6aF0V9KYNCARCiDAW0G5Wn/SnpT0oFmOleCydoRZYAWAwb
-         b8j9sPIR7emWvbmkLj+R4toBWqqtYquadPeYobG4=
+        b=f4jZBrcB+pzlsu7Yrdc5jDwDgpOFuXjsC8iunTem9JHv907uVuFBsWs/gMLRUxtjS
+         3d4s3K7osI5b7zq0KCMmbeUYZRouodumvp91jtkx5NwOerBAOnGBeKDbxIwBOqOZhS
+         FaE1Fwe9ZmXp6n0M1dhqYg9Kh2UQy890sST9wYpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 097/103] net/packet: fix race in tpacket_snd()
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 52/85] ocfs2: remove set but not used variable last_hash
 Date:   Thu, 22 Aug 2019 10:19:25 -0700
-Message-Id: <20190822171733.078235346@linuxfoundation.org>
+Message-Id: <20190822171733.513920094@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
-References: <20190822171728.445189830@linuxfoundation.org>
+In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
+References: <20190822171731.012687054@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,78 +51,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+[ Upstream commit 7bc36e3ce91471b6377c8eadc0a2f220a2280083 ]
 
-[ Upstream commit 32d3182cd2cd29b2e7e04df7b0db350fbe11289f ]
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-packet_sendmsg() checks tx_ring.pg_vec to decide
-if it must call tpacket_snd().
+  fs/ocfs2/xattr.c: In function ocfs2_xattr_bucket_find:
+  fs/ocfs2/xattr.c:3828:6: warning: variable last_hash set but not used [-Wunused-but-set-variable]
 
-Problem is that the check is lockless, meaning another thread
-can issue a concurrent setsockopt(PACKET_TX_RING ) to flip
-tx_ring.pg_vec back to NULL.
+It's never used and can be removed.
 
-Given that tpacket_snd() grabs pg_vec_lock mutex, we can
-perform the check again to solve the race.
-
-syzbot reported :
-
-kasan: CONFIG_KASAN_INLINE enabled
-kasan: GPF could be caused by NULL-ptr deref or user memory access
-general protection fault: 0000 [#1] PREEMPT SMP KASAN
-CPU: 1 PID: 11429 Comm: syz-executor394 Not tainted 5.3.0-rc4+ #101
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:packet_lookup_frame+0x8d/0x270 net/packet/af_packet.c:474
-Code: c1 ee 03 f7 73 0c 80 3c 0e 00 0f 85 cb 01 00 00 48 8b 0b 89 c0 4c 8d 24 c1 48 b8 00 00 00 00 00 fc ff df 4c 89 e1 48 c1 e9 03 <80> 3c 01 00 0f 85 94 01 00 00 48 8d 7b 10 4d 8b 3c 24 48 b8 00 00
-RSP: 0018:ffff88809f82f7b8 EFLAGS: 00010246
-RAX: dffffc0000000000 RBX: ffff8880a45c7030 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: 1ffff110148b8e06 RDI: ffff8880a45c703c
-RBP: ffff88809f82f7e8 R08: ffff888087aea200 R09: fffffbfff134ae50
-R10: fffffbfff134ae4f R11: ffffffff89a5727f R12: 0000000000000000
-R13: 0000000000000001 R14: ffff8880a45c6ac0 R15: 0000000000000000
-FS:  00007fa04716f700(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fa04716edb8 CR3: 0000000091eb4000 CR4: 00000000001406e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- packet_current_frame net/packet/af_packet.c:487 [inline]
- tpacket_snd net/packet/af_packet.c:2667 [inline]
- packet_sendmsg+0x590/0x6250 net/packet/af_packet.c:2975
- sock_sendmsg_nosec net/socket.c:637 [inline]
- sock_sendmsg+0xd7/0x130 net/socket.c:657
- ___sys_sendmsg+0x3e2/0x920 net/socket.c:2311
- __sys_sendmmsg+0x1bf/0x4d0 net/socket.c:2413
- __do_sys_sendmmsg net/socket.c:2442 [inline]
- __se_sys_sendmmsg net/socket.c:2439 [inline]
- __x64_sys_sendmmsg+0x9d/0x100 net/socket.c:2439
- do_syscall_64+0xfd/0x6a0 arch/x86/entry/common.c:296
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Fixes: 69e3c75f4d54 ("net: TX_RING and packet mmap")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: http://lkml.kernel.org/r/20190716132110.34836-1-yuehaibing@huawei.com
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/packet/af_packet.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/ocfs2/xattr.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -2651,6 +2651,13 @@ static int tpacket_snd(struct packet_soc
+diff --git a/fs/ocfs2/xattr.c b/fs/ocfs2/xattr.c
+index 3a24ce3deb013..c146e12a8601f 100644
+--- a/fs/ocfs2/xattr.c
++++ b/fs/ocfs2/xattr.c
+@@ -3833,7 +3833,6 @@ static int ocfs2_xattr_bucket_find(struct inode *inode,
+ 	u16 blk_per_bucket = ocfs2_blocks_per_xattr_bucket(inode->i_sb);
+ 	int low_bucket = 0, bucket, high_bucket;
+ 	struct ocfs2_xattr_bucket *search;
+-	u32 last_hash;
+ 	u64 blkno, lower_blkno = 0;
  
- 	mutex_lock(&po->pg_vec_lock);
+ 	search = ocfs2_xattr_bucket_new(inode);
+@@ -3877,8 +3876,6 @@ static int ocfs2_xattr_bucket_find(struct inode *inode,
+ 		if (xh->xh_count)
+ 			xe = &xh->xh_entries[le16_to_cpu(xh->xh_count) - 1];
  
-+	/* packet_sendmsg() check on tx_ring.pg_vec was lockless,
-+	 * we need to confirm it under protection of pg_vec_lock.
-+	 */
-+	if (unlikely(!po->tx_ring.pg_vec)) {
-+		err = -EBUSY;
-+		goto out;
-+	}
- 	if (likely(saddr == NULL)) {
- 		dev	= packet_cached_dev_get(po);
- 		proto	= po->num;
+-		last_hash = le32_to_cpu(xe->xe_name_hash);
+-
+ 		/* record lower_blkno which may be the insert place. */
+ 		lower_blkno = blkno;
+ 
+-- 
+2.20.1
+
 
 
