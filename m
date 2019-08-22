@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B98399D6A
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:42:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C333F99D52
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:41:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391709AbfHVRXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:23:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41476 "EHLO mail.kernel.org"
+        id S2390603AbfHVRlb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:41:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391343AbfHVRWp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:22:45 -0400
+        id S2391762AbfHVRX6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:23:58 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDFD721743;
-        Thu, 22 Aug 2019 17:22:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E7A621743;
+        Thu, 22 Aug 2019 17:23:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494565;
-        bh=nJyMM1t0uV8gdvWpzjioIKjwPDWu2tgojeBNJygO+HQ=;
+        s=default; t=1566494637;
+        bh=lP9m1NorUH5z/y3KWy07mtIG+q/fbsq/E5dtd35zv0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bp9e3d6ph/Onk2SfhsDVskDEYFytEDh5fJ17IRwdbPtjfN+VB67ZtD6LpKFUswRaE
-         w4+qveA7FS1ehjyPnPm434Qc49nDMXOKnH6iyKfPDEOqPeagUDC0vIIthO9LU9UZUP
-         5Q5fCEAVf40RozNwATYXA5TA3X6Xk/nWuu1gO7iw=
+        b=sLkzJyb05u55xwBhUtGh+JLqGH/XQpCQ0HV+cs4dO48ASv5CoJLNTSTletxwdvfQ/
+         OD9yi2clKuoMSTcByJT1PWqPOV7DYcABjjuiH55+E2QrQVALEk0/yvyA6J7ajPlvQ5
+         BmuabPb6IZWJzJhDi9hauZyDbyD1AoLlRbj/btuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Vince Weaver <vincent.weaver@maine.edu>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 53/78] ocfs2: remove set but not used variable last_hash
-Date:   Thu, 22 Aug 2019 10:18:57 -0700
-Message-Id: <20190822171833.576608679@linuxfoundation.org>
+Subject: [PATCH 4.9 070/103] perf header: Fix divide by zero error if f_header.attr_size==0
+Date:   Thu, 22 Aug 2019 10:18:58 -0700
+Message-Id: <20190822171731.710829593@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
-References: <20190822171832.012773482@linuxfoundation.org>
+In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
+References: <20190822171728.445189830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,51 +48,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7bc36e3ce91471b6377c8eadc0a2f220a2280083 ]
+[ Upstream commit 7622236ceb167aa3857395f9bdaf871442aa467e ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+So I have been having lots of trouble with hand-crafted perf.data files
+causing segfaults and the like, so I have started fuzzing the perf tool.
 
-  fs/ocfs2/xattr.c: In function ocfs2_xattr_bucket_find:
-  fs/ocfs2/xattr.c:3828:6: warning: variable last_hash set but not used [-Wunused-but-set-variable]
+First issue found:
 
-It's never used and can be removed.
+If f_header.attr_size is 0 in the perf.data file, then perf will crash
+with a divide-by-zero error.
 
-Link: http://lkml.kernel.org/r/20190716132110.34836-1-yuehaibing@huawei.com
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Committer note:
+
+Added a pr_err() to tell the user why the command failed.
+
+Signed-off-by: Vince Weaver <vincent.weaver@maine.edu>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lkml.kernel.org/r/alpine.DEB.2.21.1907231100440.14532@macbook-air
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/xattr.c | 3 ---
- 1 file changed, 3 deletions(-)
+ tools/perf/util/header.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/fs/ocfs2/xattr.c b/fs/ocfs2/xattr.c
-index 4f0788232f2f9..06faa608e5622 100644
---- a/fs/ocfs2/xattr.c
-+++ b/fs/ocfs2/xattr.c
-@@ -3808,7 +3808,6 @@ static int ocfs2_xattr_bucket_find(struct inode *inode,
- 	u16 blk_per_bucket = ocfs2_blocks_per_xattr_bucket(inode->i_sb);
- 	int low_bucket = 0, bucket, high_bucket;
- 	struct ocfs2_xattr_bucket *search;
--	u32 last_hash;
- 	u64 blkno, lower_blkno = 0;
+diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
+index 283148104ffbe..693dcd4ea6a38 100644
+--- a/tools/perf/util/header.c
++++ b/tools/perf/util/header.c
+@@ -2854,6 +2854,13 @@ int perf_session__read_header(struct perf_session *session)
+ 			   file->path);
+ 	}
  
- 	search = ocfs2_xattr_bucket_new(inode);
-@@ -3852,8 +3851,6 @@ static int ocfs2_xattr_bucket_find(struct inode *inode,
- 		if (xh->xh_count)
- 			xe = &xh->xh_entries[le16_to_cpu(xh->xh_count) - 1];
- 
--		last_hash = le32_to_cpu(xe->xe_name_hash);
--
- 		/* record lower_blkno which may be the insert place. */
- 		lower_blkno = blkno;
++	if (f_header.attr_size == 0) {
++		pr_err("ERROR: The %s file's attr size field is 0 which is unexpected.\n"
++		       "Was the 'perf record' command properly terminated?\n",
++		       file->path);
++		return -EINVAL;
++	}
++
+ 	nr_attrs = f_header.attrs.size / f_header.attr_size;
+ 	lseek(fd, f_header.attrs.offset, SEEK_SET);
  
 -- 
 2.20.1
