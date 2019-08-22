@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9A8A99CDD
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:38:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47D7B99CDA
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:37:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392662AbfHVRhe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:37:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46354 "EHLO mail.kernel.org"
+        id S2404259AbfHVRYh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:24:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404244AbfHVRYe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:24:34 -0400
+        id S2404135AbfHVRYg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:24:36 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 663032342B;
-        Thu, 22 Aug 2019 17:24:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21D8C2341C;
+        Thu, 22 Aug 2019 17:24:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494674;
-        bh=8YuwYjJzQhn4cLB3olIy40BOVZ1hEpJxinnUGLJp2HQ=;
+        s=default; t=1566494675;
+        bh=Hx/oTr1LiKPxSvknHAXUYWhatBWqSa8VofgNXmS2oX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YtgAgx8P8rcHngB8+xT9W9TTq+Me22bvecuNZE6ZNKadXl9KWNbJpcK1pvFsGN6sx
-         Ih2dGyWA6s2kragiLpjWP7NvlafnZy4pmd+wJ//Y7xGVeBFupM01NciF4IGk/3rwZS
-         XUQn2lu6IGKU4civ6ISRm072o112cv9Ns8rIpLek=
+        b=VuZDDF84xSO4Ef5ZaWa+Mfs9KwrYqn0mZwGerh95P5n22YaEhZ/Np8B1yMYFJCYO6
+         Xj5CnTmb6GlmL5PdyaFC6ZnOCKlIzBZ/CeaKInCRwV/qEomnh5yXv4psAKWdfk66xI
+         25+44ge+dN6Df/K1k/jmDH1oFWw9X1qPP0eNRLn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+5efc10c005014d061a74@syzkaller.appspotmail.com,
-        Oliver Neukum <oneukum@suse.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.14 18/71] Input: iforce - add sanity checks
-Date:   Thu, 22 Aug 2019 10:18:53 -0700
-Message-Id: <20190822171728.315771656@linuxfoundation.org>
+        syzbot+3499a83b2d062ae409d4@syzkaller.appspotmail.com,
+        Denis Kirjanov <kda@linux-powerpc.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 19/71] net: usb: pegasus: fix improper read if get_registers() fail
+Date:   Thu, 22 Aug 2019 10:18:54 -0700
+Message-Id: <20190822171728.426732549@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
 References: <20190822171726.131957995@linuxfoundation.org>
@@ -45,36 +45,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Denis Kirjanov <kda@linux-powerpc.org>
 
-commit 849f5ae3a513c550cad741c68dd3d7eb2bcc2a2c upstream.
+commit 224c04973db1125fcebefffd86115f99f50f8277 upstream.
 
-The endpoint type should also be checked before a device
-is accepted.
+get_registers() may fail with -ENOMEM and in this
+case we can read a garbage from the status variable tmp.
 
-Reported-by: syzbot+5efc10c005014d061a74@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reported-by: syzbot+3499a83b2d062ae409d4@syzkaller.appspotmail.com
+Signed-off-by: Denis Kirjanov <kda@linux-powerpc.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/joystick/iforce/iforce-usb.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/usb/pegasus.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/input/joystick/iforce/iforce-usb.c
-+++ b/drivers/input/joystick/iforce/iforce-usb.c
-@@ -145,7 +145,12 @@ static int iforce_usb_probe(struct usb_i
- 		return -ENODEV;
+--- a/drivers/net/usb/pegasus.c
++++ b/drivers/net/usb/pegasus.c
+@@ -285,7 +285,7 @@ static void mdio_write(struct net_device
+ static int read_eprom_word(pegasus_t *pegasus, __u8 index, __u16 *retdata)
+ {
+ 	int i;
+-	__u8 tmp;
++	__u8 tmp = 0;
+ 	__le16 retdatai;
+ 	int ret;
  
- 	epirq = &interface->endpoint[0].desc;
-+	if (!usb_endpoint_is_int_in(epirq))
-+		return -ENODEV;
-+
- 	epout = &interface->endpoint[1].desc;
-+	if (!usb_endpoint_is_int_out(epout))
-+		return -ENODEV;
- 
- 	if (!(iforce = kzalloc(sizeof(struct iforce) + 32, GFP_KERNEL)))
- 		goto fail;
 
 
