@@ -2,132 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5588599313
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 14:17:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F69299395
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 14:31:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730857AbfHVMPG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 08:15:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45144 "EHLO mail.kernel.org"
+        id S1732949AbfHVMaz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 08:30:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729716AbfHVMPG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 08:15:06 -0400
+        id S1726645AbfHVMaz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 08:30:55 -0400
 Received: from localhost (unknown [12.166.174.5])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21FF321848;
-        Thu, 22 Aug 2019 12:15:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50FB8206BB;
+        Thu, 22 Aug 2019 12:30:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566476105;
-        bh=janQySLwzPTIPq9O63pGYZUUmY2YkrALxMlbYHP+nfI=;
-        h=Subject:To:From:Date:From;
-        b=ZSFqWARb+Pk0Us6RnWKhAqXBFX3gPmfW9yvFl8I6kpWyR+dwvYaIhBtMC11YI43yL
-         4RXWUq4bMlEM0+GaDgSGLt0t1w33qMnM5KnAZlqB7KVFrycYXDHO9lB6NVUcAewd2w
-         suKEzPyMOIX+NDLb2NoX22uYOx+A3uFpsPJYnExs=
-Subject: patch "staging: erofs: detect potential multiref due to corrupted images" added to staging-next
-To:     gaoxiang25@huawei.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, yuchao0@huawei.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 22 Aug 2019 05:15:04 -0700
-Message-ID: <156647610471213@kroah.com>
+        s=default; t=1566477054;
+        bh=nnLd0ca321zcCp1UOcKyv0fRgu4H2HqkuFST/nYvp0I=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=JSLemMNcBM/FceM+Q02WJF8r7HVkdw9hmqciBJlavQfSOF0YbbNPPO+0UPOvT3Nxm
+         UkwuBAaGyYD5Ul+sVqN3Ir1g0eQRR5n5gW8Ydod106dl183i4w1UR+q+Cm+/YQ+B5K
+         i8+EyqwRusAf48a9DKJrIMnSJvkQCYGXdZKHpwIY=
+Date:   Thu, 22 Aug 2019 05:30:53 -0700
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     Neil MacLeod <neil@nmacleod.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        "H . Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>, x86@kernel.org,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
+Subject: Re: [PATCH] x86/boot: Fix boot failure regression
+Message-ID: <20190822123053.GC12941@kroah.com>
+References: <CAFbqK8=RUaCnk_WkioodkdwLsDina=yW+eLvzckSbVx_3Py_-A@mail.gmail.com>
+ <20190821192513.20126-1-jhubbard@nvidia.com>
+ <CAFbqK8=BodLiMr4pdHjdqsZtk8iHUC_9oyRRALJt0xLz4y_4sQ@mail.gmail.com>
+ <alpine.DEB.2.21.1908212323290.1983@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alpine.DEB.2.21.1908212323290.1983@nanos.tec.linutronix.de>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Aug 21, 2019 at 11:24:28PM +0200, Thomas Gleixner wrote:
+> On Wed, 21 Aug 2019, Neil MacLeod wrote:
+> 
+> > I can confirm 5.3-rc5 is booting again from internal M2 drive on
+> > Skylake i5 NUC with this commit - many thanks!
+> 
+> I've queued that in x86/urgent and it's en route for rc6 and stable.
 
-This is a note to let you know that I've just added the patch titled
+I've dropped the original patch from the stable trees now to wait for
+this fix to hit Linus's tree.
 
-    staging: erofs: detect potential multiref due to corrupted images
+Also the original doesn't seem to have fixed the build warning I'm
+seeing on my Fedora test build systems, which is odd, I need to dig into
+that...
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-next branch.
+thanks,
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
-
-
-From e12a0ce2fa69798194f3a8628baf6edfbd5c548f Mon Sep 17 00:00:00 2001
-From: Gao Xiang <gaoxiang25@huawei.com>
-Date: Wed, 21 Aug 2019 22:01:52 +0800
-Subject: staging: erofs: detect potential multiref due to corrupted images
-
-As reported by erofs-utils fuzzer, currently, multiref
-(ondisk deduplication) hasn't been supported for now,
-we should forbid it properly.
-
-Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
-Cc: <stable@vger.kernel.org> # 4.19+
-Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Link: https://lore.kernel.org/r/20190821140152.229648-1-gaoxiang25@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/staging/erofs/zdata.c | 20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/staging/erofs/zdata.c b/drivers/staging/erofs/zdata.c
-index 4d6faaab04f5..60d7c20db87d 100644
---- a/drivers/staging/erofs/zdata.c
-+++ b/drivers/staging/erofs/zdata.c
-@@ -798,6 +798,7 @@ static int z_erofs_decompress_pcluster(struct super_block *sb,
- 	for (i = 0; i < nr_pages; ++i)
- 		pages[i] = NULL;
- 
-+	err = 0;
- 	z_erofs_pagevec_ctor_init(&ctor, Z_EROFS_NR_INLINE_PAGEVECS,
- 				  cl->pagevec, 0);
- 
-@@ -819,8 +820,17 @@ static int z_erofs_decompress_pcluster(struct super_block *sb,
- 			pagenr = z_erofs_onlinepage_index(page);
- 
- 		DBG_BUGON(pagenr >= nr_pages);
--		DBG_BUGON(pages[pagenr]);
- 
-+		/*
-+		 * currently EROFS doesn't support multiref(dedup),
-+		 * so here erroring out one multiref page.
-+		 */
-+		if (unlikely(pages[pagenr])) {
-+			DBG_BUGON(1);
-+			SetPageError(pages[pagenr]);
-+			z_erofs_onlinepage_endio(pages[pagenr]);
-+			err = -EFSCORRUPTED;
-+		}
- 		pages[pagenr] = page;
- 	}
- 	z_erofs_pagevec_ctor_exit(&ctor, true);
-@@ -828,7 +838,6 @@ static int z_erofs_decompress_pcluster(struct super_block *sb,
- 	overlapped = false;
- 	compressed_pages = pcl->compressed_pages;
- 
--	err = 0;
- 	for (i = 0; i < clusterpages; ++i) {
- 		unsigned int pagenr;
- 
-@@ -852,7 +861,12 @@ static int z_erofs_decompress_pcluster(struct super_block *sb,
- 			pagenr = z_erofs_onlinepage_index(page);
- 
- 			DBG_BUGON(pagenr >= nr_pages);
--			DBG_BUGON(pages[pagenr]);
-+			if (unlikely(pages[pagenr])) {
-+				DBG_BUGON(1);
-+				SetPageError(pages[pagenr]);
-+				z_erofs_onlinepage_endio(pages[pagenr]);
-+				err = -EFSCORRUPTED;
-+			}
- 			pages[pagenr] = page;
- 
- 			overlapped = true;
--- 
-2.23.0
-
-
+greg k-h
