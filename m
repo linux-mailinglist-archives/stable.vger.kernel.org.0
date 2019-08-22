@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48D1599D7F
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:43:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4F4099DCB
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:45:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405443AbfHVRm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:42:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44100 "EHLO mail.kernel.org"
+        id S2392682AbfHVRp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:45:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403996AbfHVRXn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:23:43 -0400
+        id S2403815AbfHVRXF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:23:05 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BD2023427;
-        Thu, 22 Aug 2019 17:23:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2D4523402;
+        Thu, 22 Aug 2019 17:23:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494622;
-        bh=gYalicMEIuy46kAjTuIZB5boLoqYysoGmjEG9YvgiJU=;
+        s=default; t=1566494585;
+        bh=y4jwb1VuMdS3qnAdFl+ftbO8IEMctSBYgQpeO/4K594=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dDSx5+PgeifCDvDoaKcQ0wc/pYwpB11i9AgkwnFZSinPjNtB3IihKWzg0VWZEbC8n
-         EotmrXR+Ne0ZJgObi8tu+GkR0g6B1Opi47CeYZeVKV16VGbT1KhhZBVd5Fek6hgQpc
-         Z7J7XNIEGxhN5py7tGsGyH37rsERKivauJpYzd84=
+        b=BVCaytZqDPH4kcyW6ItTTeQmSzBYrtB8Fvls4r2Q0gOqX+FNwj8TOxXleTayBCoN1
+         6ojckcOS+ouCBAIh+EFMyBsXMl/UotYoJVDm+9oxs7Id5h2ctTxAEPGazffRmfFQ5v
+         tf8eaU+fQ21U0YMkrM9vMhruslX/srCygHneCTpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.9 052/103] vhost_net: fix possible infinite loop
+        stable@vger.kernel.org, Miles Chen <miles.chen@mediatek.com>,
+        Qian Cai <cai@lca.pw>, Michal Hocko <mhocko@suse.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 36/78] mm/memcontrol.c: fix use after free in mem_cgroup_iter()
 Date:   Thu, 22 Aug 2019 10:18:40 -0700
-Message-Id: <20190822171730.905236089@linuxfoundation.org>
+Message-Id: <20190822171833.088975095@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
-References: <20190822171728.445189830@linuxfoundation.org>
+In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
+References: <20190822171832.012773482@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,116 +47,229 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <jasowang@redhat.com>
+From: Miles Chen <miles.chen@mediatek.com>
 
-commit e2412c07f8f3040593dfb88207865a3cd58680c0 upstream.
+commit 54a83d6bcbf8f4700013766b974bf9190d40b689 upstream.
 
-When the rx buffer is too small for a packet, we will discard the vq
-descriptor and retry it for the next packet:
+This patch is sent to report an use after free in mem_cgroup_iter()
+after merging commit be2657752e9e ("mm: memcg: fix use after free in
+mem_cgroup_iter()").
 
-while ((sock_len = vhost_net_rx_peek_head_len(net, sock->sk,
-					      &busyloop_intr))) {
-...
-	/* On overrun, truncate and discard */
-	if (unlikely(headcount > UIO_MAXIOV)) {
-		iov_iter_init(&msg.msg_iter, READ, vq->iov, 1, 1);
-		err = sock->ops->recvmsg(sock, &msg,
-					 1, MSG_DONTWAIT | MSG_TRUNC);
-		pr_debug("Discarded rx packet: len %zd\n", sock_len);
-		continue;
-	}
-...
-}
+I work with android kernel tree (4.9 & 4.14), and commit be2657752e9e
+("mm: memcg: fix use after free in mem_cgroup_iter()") has been merged
+to the trees.  However, I can still observe use after free issues
+addressed in the commit be2657752e9e.  (on low-end devices, a few times
+this month)
 
-This makes it possible to trigger a infinite while..continue loop
-through the co-opreation of two VMs like:
+backtrace:
+        css_tryget <- crash here
+        mem_cgroup_iter
+        shrink_node
+        shrink_zones
+        do_try_to_free_pages
+        try_to_free_pages
+        __perform_reclaim
+        __alloc_pages_direct_reclaim
+        __alloc_pages_slowpath
+        __alloc_pages_nodemask
 
-1) Malicious VM1 allocate 1 byte rx buffer and try to slow down the
-   vhost process as much as possible e.g using indirect descriptors or
-   other.
-2) Malicious VM2 generate packets to VM1 as fast as possible
+To debug, I poisoned mem_cgroup before freeing it:
 
-Fixing this by checking against weight at the end of RX and TX
-loop. This also eliminate other similar cases when:
+  static void __mem_cgroup_free(struct mem_cgroup *memcg)
+        for_each_node(node)
+        free_mem_cgroup_per_node_info(memcg, node);
+        free_percpu(memcg->stat);
+  +     /* poison memcg before freeing it */
+  +     memset(memcg, 0x78, sizeof(struct mem_cgroup));
+        kfree(memcg);
+  }
 
-- userspace is consuming the packets in the meanwhile
-- theoretical TOCTOU attack if guest moving avail index back and forth
-  to hit the continue after vhost find guest just add new buffers
+The coredump shows the position=0xdbbc2a00 is freed.
 
-This addresses CVE-2019-3900.
+  (gdb) p/x ((struct mem_cgroup_per_node *)0xe5009e00)->iter[8]
+  $13 = {position = 0xdbbc2a00, generation = 0x2efd}
 
-Fixes: d8316f3991d20 ("vhost: fix total length when packets are too short")
-Fixes: 3a4d5c94e9593 ("vhost_net: a kernel-level virtio server")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-[bwh: Backported to 4.9:
- - Both Tx modes are handled in one loop in handle_tx()
- - Adjust context]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+  0xdbbc2a00:     0xdbbc2e00      0x00000000      0xdbbc2800      0x00000100
+  0xdbbc2a10:     0x00000200      0x78787878      0x00026218      0x00000000
+  0xdbbc2a20:     0xdcad6000      0x00000001      0x78787800      0x00000000
+  0xdbbc2a30:     0x78780000      0x00000000      0x0068fb84      0x78787878
+  0xdbbc2a40:     0x78787878      0x78787878      0x78787878      0xe3fa5cc0
+  0xdbbc2a50:     0x78787878      0x78787878      0x00000000      0x00000000
+  0xdbbc2a60:     0x00000000      0x00000000      0x00000000      0x00000000
+  0xdbbc2a70:     0x00000000      0x00000000      0x00000000      0x00000000
+  0xdbbc2a80:     0x00000000      0x00000000      0x00000000      0x00000000
+  0xdbbc2a90:     0x00000001      0x00000000      0x00000000      0x00100000
+  0xdbbc2aa0:     0x00000001      0xdbbc2ac8      0x00000000      0x00000000
+  0xdbbc2ab0:     0x00000000      0x00000000      0x00000000      0x00000000
+  0xdbbc2ac0:     0x00000000      0x00000000      0xe5b02618      0x00001000
+  0xdbbc2ad0:     0x00000000      0x78787878      0x78787878      0x78787878
+  0xdbbc2ae0:     0x78787878      0x78787878      0x78787878      0x78787878
+  0xdbbc2af0:     0x78787878      0x78787878      0x78787878      0x78787878
+  0xdbbc2b00:     0x78787878      0x78787878      0x78787878      0x78787878
+  0xdbbc2b10:     0x78787878      0x78787878      0x78787878      0x78787878
+  0xdbbc2b20:     0x78787878      0x78787878      0x78787878      0x78787878
+  0xdbbc2b30:     0x78787878      0x78787878      0x78787878      0x78787878
+  0xdbbc2b40:     0x78787878      0x78787878      0x78787878      0x78787878
+  0xdbbc2b50:     0x78787878      0x78787878      0x78787878      0x78787878
+  0xdbbc2b60:     0x78787878      0x78787878      0x78787878      0x78787878
+  0xdbbc2b70:     0x78787878      0x78787878      0x78787878      0x78787878
+  0xdbbc2b80:     0x78787878      0x78787878      0x00000000      0x78787878
+  0xdbbc2b90:     0x78787878      0x78787878      0x78787878      0x78787878
+  0xdbbc2ba0:     0x78787878      0x78787878      0x78787878      0x78787878
+
+In the reclaim path, try_to_free_pages() does not setup
+sc.target_mem_cgroup and sc is passed to do_try_to_free_pages(), ...,
+shrink_node().
+
+In mem_cgroup_iter(), root is set to root_mem_cgroup because
+sc->target_mem_cgroup is NULL.  It is possible to assign a memcg to
+root_mem_cgroup.nodeinfo.iter in mem_cgroup_iter().
+
+        try_to_free_pages
+        	struct scan_control sc = {...}, target_mem_cgroup is 0x0;
+        do_try_to_free_pages
+        shrink_zones
+        shrink_node
+        	 mem_cgroup *root = sc->target_mem_cgroup;
+        	 memcg = mem_cgroup_iter(root, NULL, &reclaim);
+        mem_cgroup_iter()
+        	if (!root)
+        		root = root_mem_cgroup;
+        	...
+
+        	css = css_next_descendant_pre(css, &root->css);
+        	memcg = mem_cgroup_from_css(css);
+        	cmpxchg(&iter->position, pos, memcg);
+
+My device uses memcg non-hierarchical mode.  When we release a memcg:
+invalidate_reclaim_iterators() reaches only dead_memcg and its parents.
+If non-hierarchical mode is used, invalidate_reclaim_iterators() never
+reaches root_mem_cgroup.
+
+  static void invalidate_reclaim_iterators(struct mem_cgroup *dead_memcg)
+  {
+        struct mem_cgroup *memcg = dead_memcg;
+
+        for (; memcg; memcg = parent_mem_cgroup(memcg)
+        ...
+  }
+
+So the use after free scenario looks like:
+
+  CPU1						CPU2
+
+  try_to_free_pages
+  do_try_to_free_pages
+  shrink_zones
+  shrink_node
+  mem_cgroup_iter()
+      if (!root)
+      	root = root_mem_cgroup;
+      ...
+      css = css_next_descendant_pre(css, &root->css);
+      memcg = mem_cgroup_from_css(css);
+      cmpxchg(&iter->position, pos, memcg);
+
+        				invalidate_reclaim_iterators(memcg);
+        				...
+        				__mem_cgroup_free()
+        					kfree(memcg);
+
+  try_to_free_pages
+  do_try_to_free_pages
+  shrink_zones
+  shrink_node
+  mem_cgroup_iter()
+      if (!root)
+      	root = root_mem_cgroup;
+      ...
+      mz = mem_cgroup_nodeinfo(root, reclaim->pgdat->node_id);
+      iter = &mz->iter[reclaim->priority];
+      pos = READ_ONCE(iter->position);
+      css_tryget(&pos->css) <- use after free
+
+To avoid this, we should also invalidate root_mem_cgroup.nodeinfo.iter
+in invalidate_reclaim_iterators().
+
+[cai@lca.pw: fix -Wparentheses compilation warning]
+  Link: http://lkml.kernel.org/r/1564580753-17531-1-git-send-email-cai@lca.pw
+Link: http://lkml.kernel.org/r/20190730015729.4406-1-miles.chen@mediatek.com
+Fixes: 5ac8fb31ad2e ("mm: memcontrol: convert reclaim iterator to simple css refcounting")
+Signed-off-by: Miles Chen <miles.chen@mediatek.com>
+Signed-off-by: Qian Cai <cai@lca.pw>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/vhost/net.c |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
 
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -393,7 +393,7 @@ static void handle_tx(struct vhost_net *
- 	hdr_size = nvq->vhost_hlen;
- 	zcopy = nvq->ubufs;
- 
--	for (;;) {
-+	do {
- 		/* Release DMAs done buffers first */
- 		if (zcopy)
- 			vhost_zerocopy_signal_used(net, vq);
-@@ -481,10 +481,7 @@ static void handle_tx(struct vhost_net *
- 			vhost_zerocopy_signal_used(net, vq);
- 		total_len += len;
- 		vhost_net_tx_packet(net);
--		if (unlikely(vhost_exceeds_weight(vq, ++sent_pkts,
--						  total_len)))
--			break;
--	}
-+	} while (likely(!vhost_exceeds_weight(vq, ++sent_pkts, total_len)));
- out:
- 	mutex_unlock(&vq->mutex);
+
+---
+ mm/memcontrol.c |   41 ++++++++++++++++++++++++++++++-----------
+ 1 file changed, 30 insertions(+), 11 deletions(-)
+
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -988,28 +988,47 @@ void mem_cgroup_iter_break(struct mem_cg
+ 		css_put(&prev->css);
  }
-@@ -682,7 +679,10 @@ static void handle_rx(struct vhost_net *
- 		vq->log : NULL;
- 	mergeable = vhost_has_feature(vq, VIRTIO_NET_F_MRG_RXBUF);
  
--	while ((sock_len = vhost_net_rx_peek_head_len(net, sock->sk))) {
-+	do {
-+		sock_len = vhost_net_rx_peek_head_len(net, sock->sk);
-+		if (!sock_len)
-+			break;
- 		sock_len += sock_hlen;
- 		vhost_len = sock_len + vhost_hlen;
- 		headcount = get_rx_bufs(vq, vq->heads, vhost_len,
-@@ -761,10 +761,10 @@ static void handle_rx(struct vhost_net *
- 			vhost_log_write(vq, vq_log, log, vhost_len,
- 					vq->iov, in);
- 		total_len += vhost_len;
--		if (unlikely(vhost_exceeds_weight(vq, ++recv_pkts, total_len)))
--			goto out;
--	}
--	vhost_net_enable_vq(net, vq);
-+	} while (likely(!vhost_exceeds_weight(vq, ++recv_pkts, total_len)));
-+
-+	if (!sock_len)
-+		vhost_net_enable_vq(net, vq);
- out:
- 	mutex_unlock(&vq->mutex);
- }
-@@ -834,7 +834,7 @@ static int vhost_net_open(struct inode *
- 		n->vqs[i].sock_hlen = 0;
+-static void invalidate_reclaim_iterators(struct mem_cgroup *dead_memcg)
++static void __invalidate_reclaim_iterators(struct mem_cgroup *from,
++					struct mem_cgroup *dead_memcg)
+ {
+-	struct mem_cgroup *memcg = dead_memcg;
+ 	struct mem_cgroup_reclaim_iter *iter;
+ 	struct mem_cgroup_per_zone *mz;
+ 	int nid, zid;
+ 	int i;
+ 
+-	for (; memcg; memcg = parent_mem_cgroup(memcg)) {
+-		for_each_node(nid) {
+-			for (zid = 0; zid < MAX_NR_ZONES; zid++) {
+-				mz = &memcg->nodeinfo[nid]->zoneinfo[zid];
+-				for (i = 0; i <= DEF_PRIORITY; i++) {
+-					iter = &mz->iter[i];
+-					cmpxchg(&iter->position,
+-						dead_memcg, NULL);
+-				}
++	for_each_node(nid) {
++		for (zid = 0; zid < MAX_NR_ZONES; zid++) {
++			mz = &from->nodeinfo[nid]->zoneinfo[zid];
++			for (i = 0; i <= DEF_PRIORITY; i++) {
++				iter = &mz->iter[i];
++				cmpxchg(&iter->position,
++					dead_memcg, NULL);
+ 			}
+ 		}
  	}
- 	vhost_dev_init(dev, vqs, VHOST_NET_VQ_MAX,
--		       VHOST_NET_WEIGHT, VHOST_NET_PKT_WEIGHT);
-+		       VHOST_NET_PKT_WEIGHT, VHOST_NET_WEIGHT);
+ }
  
- 	vhost_poll_init(n->poll + VHOST_NET_VQ_TX, handle_tx_net, POLLOUT, dev);
- 	vhost_poll_init(n->poll + VHOST_NET_VQ_RX, handle_rx_net, POLLIN, dev);
++static void invalidate_reclaim_iterators(struct mem_cgroup *dead_memcg)
++{
++	struct mem_cgroup *memcg = dead_memcg;
++	struct mem_cgroup *last;
++
++	do {
++		__invalidate_reclaim_iterators(memcg, dead_memcg);
++		last = memcg;
++	} while ((memcg = parent_mem_cgroup(memcg)));
++
++	/*
++	 * When cgruop1 non-hierarchy mode is used,
++	 * parent_mem_cgroup() does not walk all the way up to the
++	 * cgroup root (root_mem_cgroup). So we have to handle
++	 * dead_memcg from cgroup root separately.
++	 */
++	if (last != root_mem_cgroup)
++		__invalidate_reclaim_iterators(root_mem_cgroup,
++						dead_memcg);
++}
++
+ /*
+  * Iteration constructs for visiting all cgroups (under a tree).  If
+  * loops are exited prematurely (break), mem_cgroup_iter_break() must
 
 
