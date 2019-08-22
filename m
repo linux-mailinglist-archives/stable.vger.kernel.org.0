@@ -2,39 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B0D699D3F
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:41:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8648799E31
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:49:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404324AbfHVRlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:41:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44842 "EHLO mail.kernel.org"
+        id S1731378AbfHVRsl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:48:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404016AbfHVRYA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:24:00 -0400
+        id S2389950AbfHVRWY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:22:24 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 206BA23406;
-        Thu, 22 Aug 2019 17:24:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9D44233FC;
+        Thu, 22 Aug 2019 17:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494640;
-        bh=npn5csC58/Gqehne4ZrpsB2rfX7ftSA4a3/ETkSOceI=;
+        s=default; t=1566494542;
+        bh=qo9Zen2R4r484S61D4d6Us+9FdV8fr2IZi4Twuqx+FM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ePabi0ru1vQmcxmY1gpiBQ1qJHNiNjXNdhKmGy5rpvhaHB/90utEjme0+OYWeSwV5
-         E+q5Dt7nckov2W/Z47aQUay3p3Z/pLkhSF7JhxVr5UfiepXC6lt9o02sxVvkvXEKDF
-         H2J91tn9nTaZK1TjkUUk3XPi4Kfg9fju3pb/7COU=
+        b=HUiizBiMTtoDnPaT1vHqttMWYLH3R2ojDq0G+1shLtNofwyG8y6CV7xuskFKWaYsf
+         SGD0POWKAMY9IA3DuPNd3paNu+KJKh9WhZpiLHJbPEHJQ6+s9CwJc6rUMagr7KtyIl
+         QArvw0+1cpso0PKp6dI1JHabCAOp51/v4sd8m+js=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>
-Subject: [PATCH 4.9 038/103] smb3: send CAP_DFS capability during session setup
-Date:   Thu, 22 Aug 2019 10:18:26 -0700
-Message-Id: <20190822171730.352987289@linuxfoundation.org>
+        stable@vger.kernel.org, Leonard Crestez <leonard.crestez@nxp.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Frank Li <Frank.li@nxp.com>, Jiri Olsa <jolsa@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 23/78] perf/core: Fix creating kernel counters for PMUs that override event->cpu
+Date:   Thu, 22 Aug 2019 10:18:27 -0700
+Message-Id: <20190822171832.715033577@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
-References: <20190822171728.445189830@linuxfoundation.org>
+In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
+References: <20190822171832.012773482@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +52,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+[ Upstream commit 4ce54af8b33d3e21ca935fc1b89b58cbba956051 ]
 
-commit 8d33096a460d5b9bd13300f01615df5bb454db10 upstream.
+Some hardware PMU drivers will override perf_event.cpu inside their
+event_init callback. This causes a lockdep splat when initialized through
+the kernel API:
 
-We had a report of a server which did not do a DFS referral
-because the session setup Capabilities field was set to 0
-(unlike negotiate protocol where we set CAP_DFS).  Better to
-send it session setup in the capabilities as well (this also
-more closely matches Windows client behavior).
+ WARNING: CPU: 0 PID: 250 at kernel/events/core.c:2917 ctx_sched_out+0x78/0x208
+ pc : ctx_sched_out+0x78/0x208
+ Call trace:
+  ctx_sched_out+0x78/0x208
+  __perf_install_in_context+0x160/0x248
+  remote_function+0x58/0x68
+  generic_exec_single+0x100/0x180
+  smp_call_function_single+0x174/0x1b8
+  perf_install_in_context+0x178/0x188
+  perf_event_create_kernel_counter+0x118/0x160
 
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-CC: Stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by calling perf_install_in_context with event->cpu, just like
+perf_event_open
 
+Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Frank Li <Frank.li@nxp.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Will Deacon <will@kernel.org>
+Link: https://lkml.kernel.org/r/c4ebe0503623066896d7046def4d6b1e06e0eb2e.1563972056.git.leonard.crestez@nxp.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2pdu.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ kernel/events/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -660,7 +660,12 @@ SMB2_sess_alloc_buffer(struct SMB2_sess_
- 	else
- 		req->SecurityMode = 0;
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 41fe80e3380f5..a7014f854e67b 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -8757,7 +8757,7 @@ perf_event_create_kernel_counter(struct perf_event_attr *attr, int cpu,
+ 		goto err_free;
+ 	}
  
-+#ifdef CONFIG_CIFS_DFS_UPCALL
-+	req->Capabilities = cpu_to_le32(SMB2_GLOBAL_CAP_DFS);
-+#else
- 	req->Capabilities = 0;
-+#endif /* DFS_UPCALL */
-+
- 	req->Channel = 0; /* MBZ */
+-	perf_install_in_context(ctx, event, cpu);
++	perf_install_in_context(ctx, event, event->cpu);
+ 	perf_unpin_context(ctx);
+ 	mutex_unlock(&ctx->mutex);
  
- 	sess_data->iov[0].iov_base = (char *)req;
+-- 
+2.20.1
+
 
 
