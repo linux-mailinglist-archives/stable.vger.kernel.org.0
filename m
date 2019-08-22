@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83ECC99C82
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:35:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 803E399C07
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:31:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404357AbfHVRZP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:25:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48278 "EHLO mail.kernel.org"
+        id S2391237AbfHVRaf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:30:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404347AbfHVRZM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:25:12 -0400
+        id S2404615AbfHVR0I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:26:08 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 646742064A;
-        Thu, 22 Aug 2019 17:25:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26C8123429;
+        Thu, 22 Aug 2019 17:26:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494711;
-        bh=Z+6IQqQgpTKw/nHyv+lddek3G1zKMCMCfyPHgGYOXGI=;
+        s=default; t=1566494767;
+        bh=fWkTaLmnBl7IcJbp8y4mJqpFp40ijLFvTMt4xn0IRPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=svdFGuiNpBj7BtTv5xuv7ZIS/l0qk/yDxWAXt3ocSmaCrVHtNrowzBEhfpqZnHS3c
-         XTZIFNbrkYDje8zrJu2Bz22917jlcDlCaUKPC3YyXFK6D8nlKfW9nGd8ByvJUzk7iy
-         uYOfSkogV3+qcjJ2qWbGNKLsF5K4eR5X2yRnZHpA=
+        b=0XLOf2k9O4ZNx05gbUeuXd/QWTIdTbTQlRlYXXreaQDvR7a5DUmQ2grK5JnU6ws+1
+         jtx6v4VDGlo5js3HvvvKTY3zXhSaFQnSXU4FIyCUB1SozNeonIl6eEz4qsmDkMZgvW
+         uz+ohpl7KqvTQaF0EqL6fU+mNdcONrMTETLn2qnc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
-        Tariq Toukan <tariqt@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 4.14 67/71] net/mlx5e: Use flow keys dissector to parse packets for ARFS
-Date:   Thu, 22 Aug 2019 10:19:42 -0700
-Message-Id: <20190822171730.629258436@linuxfoundation.org>
+        stable@vger.kernel.org, Dirk Morris <dmorris@metaloft.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.19 70/85] netfilter: conntrack: Use consistent ct id hash calculation
+Date:   Thu, 22 Aug 2019 10:19:43 -0700
+Message-Id: <20190822171734.212525148@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
-References: <20190822171726.131957995@linuxfoundation.org>
+In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
+References: <20190822171731.012687054@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,194 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@mellanox.com>
+From: Dirk Morris <dmorris@metaloft.com>
 
-[ Upstream commit 405b93eb764367a670e729da18e54dc42db32620 ]
+commit 656c8e9cc1badbc18eefe6ba01d33ebbcae61b9a upstream.
 
-The current ARFS code relies on certain fields to be set in the SKB
-(e.g. transport_header) and extracts IP addresses and ports by custom
-code that parses the packet. The necessary SKB fields, however, are not
-always set at that point, which leads to an out-of-bounds access. Use
-skb_flow_dissect_flow_keys() to get the necessary information reliably,
-fix the out-of-bounds access and reuse the code.
+Change ct id hash calculation to only use invariants.
 
-Fixes: 18c908e477dc ("net/mlx5e: Add accelerated RFS support")
-Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
-Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Currently the ct id hash calculation is based on some fields that can
+change in the lifetime on a conntrack entry in some corner cases. The
+current hash uses the whole tuple which contains an hlist pointer which
+will change when the conntrack is placed on the dying list resulting in
+a ct id change.
+
+This patch also removes the reply-side tuple and extension pointer from
+the hash calculation so that the ct id will will not change from
+initialization until confirmation.
+
+Fixes: 3c79107631db1f7 ("netfilter: ctnetlink: don't use conntrack/expect object addresses as id")
+Signed-off-by: Dirk Morris <dmorris@metaloft.com>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlx5/core/en_arfs.c |   97 +++++++---------------
- 1 file changed, 34 insertions(+), 63 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_arfs.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_arfs.c
-@@ -439,12 +439,6 @@ arfs_hash_bucket(struct arfs_table *arfs
- 	return &arfs_t->rules_hash[bucket_idx];
- }
- 
--static u8 arfs_get_ip_proto(const struct sk_buff *skb)
--{
--	return (skb->protocol == htons(ETH_P_IP)) ?
--		ip_hdr(skb)->protocol : ipv6_hdr(skb)->nexthdr;
--}
--
- static struct arfs_table *arfs_get_table(struct mlx5e_arfs_tables *arfs,
- 					 u8 ip_proto, __be16 etype)
+---
+ net/netfilter/nf_conntrack_core.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -431,13 +431,12 @@ EXPORT_SYMBOL_GPL(nf_ct_invert_tuple);
+  * table location, we assume id gets exposed to userspace.
+  *
+  * Following nf_conn items do not change throughout lifetime
+- * of the nf_conn after it has been committed to main hash table:
++ * of the nf_conn:
+  *
+  * 1. nf_conn address
+- * 2. nf_conn->ext address
+- * 3. nf_conn->master address (normally NULL)
+- * 4. tuple
+- * 5. the associated net namespace
++ * 2. nf_conn->master address (normally NULL)
++ * 3. the associated net namespace
++ * 4. the original direction tuple
+  */
+ u32 nf_ct_get_id(const struct nf_conn *ct)
  {
-@@ -601,31 +595,9 @@ out:
- 	arfs_may_expire_flow(priv);
- }
+@@ -447,9 +446,10 @@ u32 nf_ct_get_id(const struct nf_conn *c
+ 	net_get_random_once(&ct_id_seed, sizeof(ct_id_seed));
  
--/* return L4 destination port from ip4/6 packets */
--static __be16 arfs_get_dst_port(const struct sk_buff *skb)
--{
--	char *transport_header;
--
--	transport_header = skb_transport_header(skb);
--	if (arfs_get_ip_proto(skb) == IPPROTO_TCP)
--		return ((struct tcphdr *)transport_header)->dest;
--	return ((struct udphdr *)transport_header)->dest;
--}
--
--/* return L4 source port from ip4/6 packets */
--static __be16 arfs_get_src_port(const struct sk_buff *skb)
--{
--	char *transport_header;
--
--	transport_header = skb_transport_header(skb);
--	if (arfs_get_ip_proto(skb) == IPPROTO_TCP)
--		return ((struct tcphdr *)transport_header)->source;
--	return ((struct udphdr *)transport_header)->source;
--}
--
- static struct arfs_rule *arfs_alloc_rule(struct mlx5e_priv *priv,
- 					 struct arfs_table *arfs_t,
--					 const struct sk_buff *skb,
-+					 const struct flow_keys *fk,
- 					 u16 rxq, u32 flow_id)
- {
- 	struct arfs_rule *rule;
-@@ -640,19 +612,19 @@ static struct arfs_rule *arfs_alloc_rule
- 	INIT_WORK(&rule->arfs_work, arfs_handle_work);
- 
- 	tuple = &rule->tuple;
--	tuple->etype = skb->protocol;
-+	tuple->etype = fk->basic.n_proto;
-+	tuple->ip_proto = fk->basic.ip_proto;
- 	if (tuple->etype == htons(ETH_P_IP)) {
--		tuple->src_ipv4 = ip_hdr(skb)->saddr;
--		tuple->dst_ipv4 = ip_hdr(skb)->daddr;
-+		tuple->src_ipv4 = fk->addrs.v4addrs.src;
-+		tuple->dst_ipv4 = fk->addrs.v4addrs.dst;
- 	} else {
--		memcpy(&tuple->src_ipv6, &ipv6_hdr(skb)->saddr,
-+		memcpy(&tuple->src_ipv6, &fk->addrs.v6addrs.src,
- 		       sizeof(struct in6_addr));
--		memcpy(&tuple->dst_ipv6, &ipv6_hdr(skb)->daddr,
-+		memcpy(&tuple->dst_ipv6, &fk->addrs.v6addrs.dst,
- 		       sizeof(struct in6_addr));
- 	}
--	tuple->ip_proto = arfs_get_ip_proto(skb);
--	tuple->src_port = arfs_get_src_port(skb);
--	tuple->dst_port = arfs_get_dst_port(skb);
-+	tuple->src_port = fk->ports.src;
-+	tuple->dst_port = fk->ports.dst;
- 
- 	rule->flow_id = flow_id;
- 	rule->filter_id = priv->fs.arfs.last_filter_id++ % RPS_NO_FILTER;
-@@ -663,37 +635,33 @@ static struct arfs_rule *arfs_alloc_rule
- 	return rule;
- }
- 
--static bool arfs_cmp_ips(struct arfs_tuple *tuple,
--			 const struct sk_buff *skb)
-+static bool arfs_cmp(const struct arfs_tuple *tuple, const struct flow_keys *fk)
- {
--	if (tuple->etype == htons(ETH_P_IP) &&
--	    tuple->src_ipv4 == ip_hdr(skb)->saddr &&
--	    tuple->dst_ipv4 == ip_hdr(skb)->daddr)
--		return true;
--	if (tuple->etype == htons(ETH_P_IPV6) &&
--	    (!memcmp(&tuple->src_ipv6, &ipv6_hdr(skb)->saddr,
--		     sizeof(struct in6_addr))) &&
--	    (!memcmp(&tuple->dst_ipv6, &ipv6_hdr(skb)->daddr,
--		     sizeof(struct in6_addr))))
--		return true;
-+	if (tuple->src_port != fk->ports.src || tuple->dst_port != fk->ports.dst)
-+		return false;
-+	if (tuple->etype != fk->basic.n_proto)
-+		return false;
-+	if (tuple->etype == htons(ETH_P_IP))
-+		return tuple->src_ipv4 == fk->addrs.v4addrs.src &&
-+		       tuple->dst_ipv4 == fk->addrs.v4addrs.dst;
-+	if (tuple->etype == htons(ETH_P_IPV6))
-+		return !memcmp(&tuple->src_ipv6, &fk->addrs.v6addrs.src,
-+			       sizeof(struct in6_addr)) &&
-+		       !memcmp(&tuple->dst_ipv6, &fk->addrs.v6addrs.dst,
-+			       sizeof(struct in6_addr));
- 	return false;
- }
- 
- static struct arfs_rule *arfs_find_rule(struct arfs_table *arfs_t,
--					const struct sk_buff *skb)
-+					const struct flow_keys *fk)
- {
- 	struct arfs_rule *arfs_rule;
- 	struct hlist_head *head;
--	__be16 src_port = arfs_get_src_port(skb);
--	__be16 dst_port = arfs_get_dst_port(skb);
- 
--	head = arfs_hash_bucket(arfs_t, src_port, dst_port);
-+	head = arfs_hash_bucket(arfs_t, fk->ports.src, fk->ports.dst);
- 	hlist_for_each_entry(arfs_rule, head, hlist) {
--		if (arfs_rule->tuple.src_port == src_port &&
--		    arfs_rule->tuple.dst_port == dst_port &&
--		    arfs_cmp_ips(&arfs_rule->tuple, skb)) {
-+		if (arfs_cmp(&arfs_rule->tuple, fk))
- 			return arfs_rule;
--		}
- 	}
- 
- 	return NULL;
-@@ -706,20 +674,24 @@ int mlx5e_rx_flow_steer(struct net_devic
- 	struct mlx5e_arfs_tables *arfs = &priv->fs.arfs;
- 	struct arfs_table *arfs_t;
- 	struct arfs_rule *arfs_rule;
-+	struct flow_keys fk;
-+
-+	if (!skb_flow_dissect_flow_keys(skb, &fk, 0))
-+		return -EPROTONOSUPPORT;
- 
--	if (skb->protocol != htons(ETH_P_IP) &&
--	    skb->protocol != htons(ETH_P_IPV6))
-+	if (fk.basic.n_proto != htons(ETH_P_IP) &&
-+	    fk.basic.n_proto != htons(ETH_P_IPV6))
- 		return -EPROTONOSUPPORT;
- 
- 	if (skb->encapsulation)
- 		return -EPROTONOSUPPORT;
- 
--	arfs_t = arfs_get_table(arfs, arfs_get_ip_proto(skb), skb->protocol);
-+	arfs_t = arfs_get_table(arfs, fk.basic.ip_proto, fk.basic.n_proto);
- 	if (!arfs_t)
- 		return -EPROTONOSUPPORT;
- 
- 	spin_lock_bh(&arfs->arfs_lock);
--	arfs_rule = arfs_find_rule(arfs_t, skb);
-+	arfs_rule = arfs_find_rule(arfs_t, &fk);
- 	if (arfs_rule) {
- 		if (arfs_rule->rxq == rxq_index) {
- 			spin_unlock_bh(&arfs->arfs_lock);
-@@ -727,8 +699,7 @@ int mlx5e_rx_flow_steer(struct net_devic
- 		}
- 		arfs_rule->rxq = rxq_index;
- 	} else {
--		arfs_rule = arfs_alloc_rule(priv, arfs_t, skb,
--					    rxq_index, flow_id);
-+		arfs_rule = arfs_alloc_rule(priv, arfs_t, &fk, rxq_index, flow_id);
- 		if (!arfs_rule) {
- 			spin_unlock_bh(&arfs->arfs_lock);
- 			return -ENOMEM;
+ 	a = (unsigned long)ct;
+-	b = (unsigned long)ct->master ^ net_hash_mix(nf_ct_net(ct));
+-	c = (unsigned long)ct->ext;
+-	d = (unsigned long)siphash(&ct->tuplehash, sizeof(ct->tuplehash),
++	b = (unsigned long)ct->master;
++	c = (unsigned long)nf_ct_net(ct);
++	d = (unsigned long)siphash(&ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple,
++				   sizeof(ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple),
+ 				   &ct_id_seed);
+ #ifdef CONFIG_64BIT
+ 	return siphash_4u64((u64)a, (u64)b, (u64)c, (u64)d, &ct_id_seed);
 
 
