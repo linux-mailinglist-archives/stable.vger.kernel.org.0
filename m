@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9898499AFB
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:18:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DFB299AF4
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:17:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731560AbfHVRRv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:17:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58028 "EHLO mail.kernel.org"
+        id S1731636AbfHVRRf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:17:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390308AbfHVRIZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:08:25 -0400
+        id S2390313AbfHVRI0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:08:26 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 614872341D;
-        Thu, 22 Aug 2019 17:08:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63C5923428;
+        Thu, 22 Aug 2019 17:08:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566493704;
-        bh=xXQt8UGofUcuwu2F6gVS6aa86ztULV+z4Wq+Gjv1c0U=;
+        s=default; t=1566493705;
+        bh=JwKonAnhnJDtmOh5rSqNqF2FnVom8Tv1hj/NUGm+wPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YTFmOhqKy6jCmTOAgjPPKHbmA7mhNUMzQQuLz93raEeoDXVL5qAPAL6TfMdc2RtZZ
-         704vshF38/qvispwpkT/EjQVGXrG0QleuM4kZVcMy2U0IB1Rhx8pK+llZU0TR/P5k2
-         ihPHbpYbs5jnVaA923to5ZMB+5XvJ8XVaqn8yUSE=
+        b=Ega1B5HGZtgkqBhcmFw9MgvXKAU3cU8kC6F6ey5FItD/HL7CS52Ctf0LBgnPDjLZV
+         qHe5I2QQAe0eT1C6JVeg1mbKtgV5GCL9JZj+oA1beJwe5drGxC136wVsHrFMXoTNbB
+         AUolDAbX+ojWjpbvGNyXK2tiIkse7zFRGtQ0xNFg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hui Peng <benquike@gmail.com>,
-        Mathias Payer <mathias.payer@nebelwelt.net>,
-        Takashi Iwai <tiwai@suse.de>,
+Cc:     Takashi Iwai <tiwai@suse.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.2 018/135] ALSA: usb-audio: Fix a stack buffer overflow bug in check_input_term
-Date:   Thu, 22 Aug 2019 13:06:14 -0400
-Message-Id: <20190822170811.13303-19-sashal@kernel.org>
+Subject: [PATCH 5.2 020/135] ALSA: hda - Apply workaround for another AMD chip 1022:1487
+Date:   Thu, 22 Aug 2019 13:06:16 -0400
+Message-Id: <20190822170811.13303-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -50,133 +48,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Peng <benquike@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 19bce474c45be69a284ecee660aa12d8f1e88f18 upstream.
+commit de768ce45466f3009809719eb7b1f6f5277d9373 upstream.
 
-`check_input_term` recursively calls itself with input from
-device side (e.g., uac_input_terminal_descriptor.bCSourceID)
-as argument (id). In `check_input_term`, if `check_input_term`
-is called with the same `id` argument as the caller, it triggers
-endless recursive call, resulting kernel space stack overflow.
+MSI MPG X570 board is with another AMD HD-audio controller (PCI ID
+1022:1487) and it requires the same workaround applied for X370, etc
+(PCI ID 1022:1457).
 
-This patch fixes the bug by adding a bitmap to `struct mixer_build`
-to keep track of the checked ids and stop the execution if some id
-has been checked (similar to how parse_audio_unit handles unitid
-argument).
-
-Reported-by: Hui Peng <benquike@gmail.com>
-Reported-by: Mathias Payer <mathias.payer@nebelwelt.net>
-Signed-off-by: Hui Peng <benquike@gmail.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=195303
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/mixer.c | 35 +++++++++++++++++++++++++++--------
- 1 file changed, 27 insertions(+), 8 deletions(-)
+ sound/pci/hda/hda_intel.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/usb/mixer.c b/sound/usb/mixer.c
-index 7498b5191b68e..2051a64fa2904 100644
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -68,6 +68,7 @@ struct mixer_build {
- 	unsigned char *buffer;
- 	unsigned int buflen;
- 	DECLARE_BITMAP(unitbitmap, MAX_ID_ELEMS);
-+	DECLARE_BITMAP(termbitmap, MAX_ID_ELEMS);
- 	struct usb_audio_term oterm;
- 	const struct usbmix_name_map *map;
- 	const struct usbmix_selector_map *selector_map;
-@@ -773,16 +774,25 @@ static int uac_mixer_unit_get_channels(struct mixer_build *state,
-  * parse the source unit recursively until it reaches to a terminal
-  * or a branched unit.
-  */
--static int check_input_term(struct mixer_build *state, int id,
-+static int __check_input_term(struct mixer_build *state, int id,
- 			    struct usb_audio_term *term)
- {
- 	int protocol = state->mixer->protocol;
- 	int err;
- 	void *p1;
-+	unsigned char *hdr;
- 
- 	memset(term, 0, sizeof(*term));
--	while ((p1 = find_audio_control_unit(state, id)) != NULL) {
--		unsigned char *hdr = p1;
-+	for (;;) {
-+		/* a loop in the terminal chain? */
-+		if (test_and_set_bit(id, state->termbitmap))
-+			return -EINVAL;
-+
-+		p1 = find_audio_control_unit(state, id);
-+		if (!p1)
-+			break;
-+
-+		hdr = p1;
- 		term->id = id;
- 
- 		if (protocol == UAC_VERSION_1 || protocol == UAC_VERSION_2) {
-@@ -800,7 +810,7 @@ static int check_input_term(struct mixer_build *state, int id,
- 
- 					/* call recursively to verify that the
- 					 * referenced clock entity is valid */
--					err = check_input_term(state, d->bCSourceID, term);
-+					err = __check_input_term(state, d->bCSourceID, term);
- 					if (err < 0)
- 						return err;
- 
-@@ -834,7 +844,7 @@ static int check_input_term(struct mixer_build *state, int id,
- 			case UAC2_CLOCK_SELECTOR: {
- 				struct uac_selector_unit_descriptor *d = p1;
- 				/* call recursively to retrieve the channel info */
--				err = check_input_term(state, d->baSourceID[0], term);
-+				err = __check_input_term(state, d->baSourceID[0], term);
- 				if (err < 0)
- 					return err;
- 				term->type = UAC3_SELECTOR_UNIT << 16; /* virtual type */
-@@ -897,7 +907,7 @@ static int check_input_term(struct mixer_build *state, int id,
- 
- 				/* call recursively to verify that the
- 				 * referenced clock entity is valid */
--				err = check_input_term(state, d->bCSourceID, term);
-+				err = __check_input_term(state, d->bCSourceID, term);
- 				if (err < 0)
- 					return err;
- 
-@@ -948,7 +958,7 @@ static int check_input_term(struct mixer_build *state, int id,
- 			case UAC3_CLOCK_SELECTOR: {
- 				struct uac_selector_unit_descriptor *d = p1;
- 				/* call recursively to retrieve the channel info */
--				err = check_input_term(state, d->baSourceID[0], term);
-+				err = __check_input_term(state, d->baSourceID[0], term);
- 				if (err < 0)
- 					return err;
- 				term->type = UAC3_SELECTOR_UNIT << 16; /* virtual type */
-@@ -964,7 +974,7 @@ static int check_input_term(struct mixer_build *state, int id,
- 					return -EINVAL;
- 
- 				/* call recursively to retrieve the channel info */
--				err = check_input_term(state, d->baSourceID[0], term);
-+				err = __check_input_term(state, d->baSourceID[0], term);
- 				if (err < 0)
- 					return err;
- 
-@@ -982,6 +992,15 @@ static int check_input_term(struct mixer_build *state, int id,
- 	return -ENODEV;
- }
- 
-+
-+static int check_input_term(struct mixer_build *state, int id,
-+			    struct usb_audio_term *term)
-+{
-+	memset(term, 0, sizeof(*term));
-+	memset(state->termbitmap, 0, sizeof(state->termbitmap));
-+	return __check_input_term(state, id, term);
-+}
-+
- /*
-  * Feature Unit
-  */
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index fb8f452a1c78a..5732c31c41670 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2505,6 +2505,9 @@ static const struct pci_device_id azx_ids[] = {
+ 	/* AMD, X370 & co */
+ 	{ PCI_DEVICE(0x1022, 0x1457),
+ 	  .driver_data = AZX_DRIVER_GENERIC | AZX_DCAPS_PRESET_AMD_SB },
++	/* AMD, X570 & co */
++	{ PCI_DEVICE(0x1022, 0x1487),
++	  .driver_data = AZX_DRIVER_GENERIC | AZX_DCAPS_PRESET_AMD_SB },
+ 	/* AMD Stoney */
+ 	{ PCI_DEVICE(0x1022, 0x157a),
+ 	  .driver_data = AZX_DRIVER_GENERIC | AZX_DCAPS_PRESET_ATI_SB |
 -- 
 2.20.1
 
