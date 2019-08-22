@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8267D99C70
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:34:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62E8499BDF
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:31:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404394AbfHVRZW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:25:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48536 "EHLO mail.kernel.org"
+        id S2404619AbfHVR0H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:26:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404384AbfHVRZV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:25:21 -0400
+        id S2404606AbfHVR0H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:26:07 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64B9D23400;
-        Thu, 22 Aug 2019 17:25:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A1CE2341C;
+        Thu, 22 Aug 2019 17:26:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494720;
-        bh=MuTRzXQVssnmsgs7TU8p4pJGF5vKfdve0MkBk76vhb4=;
+        s=default; t=1566494766;
+        bh=wKXD6gj0JrSo8P6g8TBDInk14gTgVAubp7XlhD41KnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hvdg+UFUza5JAWoIF4t2E7W9SEO1CYi3BPQjiDRDdX+qrodNFOIooVFOw8Y/V3kVs
-         agG9qlhHz4hl3DKb6XE4k/kYuu8Wn7emsD7ZMoThOsgq7K/pX7ZMl/V2h6EK4q1mDl
-         sx3LfjvEPbywvc5DdjCCAXwYjk2CKvdL4JClVz1k=
+        b=RdEx9xa8Vw5PT5wZJgCkL0ygf0HDNKLnMtIMNZorpUFk7GUqpu+3XqM8H30XA/maZ
+         2xEf4KaaBm+DDuHFgtBXIPmfIg/SgNM8wF6hxedX2fC5hNQBYF+/ZJi8Ly6I2yE2jJ
+         WgY0uRtYMAjH8Q17OZM2M/k3XDABKgw4vo4kgHfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Qian Cai <cai@lca.pw>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 40/71] ocfs2: remove set but not used variable last_hash
-Date:   Thu, 22 Aug 2019 10:19:15 -0700
-Message-Id: <20190822171729.630623272@linuxfoundation.org>
+Subject: [PATCH 4.19 43/85] arm64/efi: fix variable si set but not used
+Date:   Thu, 22 Aug 2019 10:19:16 -0700
+Message-Id: <20190822171733.156230259@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
-References: <20190822171726.131957995@linuxfoundation.org>
+In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
+References: <20190822171731.012687054@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,52 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7bc36e3ce91471b6377c8eadc0a2f220a2280083 ]
+[ Upstream commit f1d4836201543e88ebe70237e67938168d5fab19 ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+GCC throws out this warning on arm64.
 
-  fs/ocfs2/xattr.c: In function ocfs2_xattr_bucket_find:
-  fs/ocfs2/xattr.c:3828:6: warning: variable last_hash set but not used [-Wunused-but-set-variable]
+drivers/firmware/efi/libstub/arm-stub.c: In function 'efi_entry':
+drivers/firmware/efi/libstub/arm-stub.c:132:22: warning: variable 'si'
+set but not used [-Wunused-but-set-variable]
 
-It's never used and can be removed.
+Fix it by making free_screen_info() a static inline function.
 
-Link: http://lkml.kernel.org/r/20190716132110.34836-1-yuehaibing@huawei.com
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/xattr.c | 3 ---
- 1 file changed, 3 deletions(-)
+ arch/arm64/include/asm/efi.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ocfs2/xattr.c b/fs/ocfs2/xattr.c
-index fb0a4eec310ce..77740ef5a8e85 100644
---- a/fs/ocfs2/xattr.c
-+++ b/fs/ocfs2/xattr.c
-@@ -3832,7 +3832,6 @@ static int ocfs2_xattr_bucket_find(struct inode *inode,
- 	u16 blk_per_bucket = ocfs2_blocks_per_xattr_bucket(inode->i_sb);
- 	int low_bucket = 0, bucket, high_bucket;
- 	struct ocfs2_xattr_bucket *search;
--	u32 last_hash;
- 	u64 blkno, lower_blkno = 0;
+diff --git a/arch/arm64/include/asm/efi.h b/arch/arm64/include/asm/efi.h
+index 7ed320895d1f4..f52a2968a3b69 100644
+--- a/arch/arm64/include/asm/efi.h
++++ b/arch/arm64/include/asm/efi.h
+@@ -94,7 +94,11 @@ static inline unsigned long efi_get_max_initrd_addr(unsigned long dram_base,
+ 	((protocol##_t *)instance)->f(instance, ##__VA_ARGS__)
  
- 	search = ocfs2_xattr_bucket_new(inode);
-@@ -3876,8 +3875,6 @@ static int ocfs2_xattr_bucket_find(struct inode *inode,
- 		if (xh->xh_count)
- 			xe = &xh->xh_entries[le16_to_cpu(xh->xh_count) - 1];
+ #define alloc_screen_info(x...)		&screen_info
+-#define free_screen_info(x...)
++
++static inline void free_screen_info(efi_system_table_t *sys_table_arg,
++				    struct screen_info *si)
++{
++}
  
--		last_hash = le32_to_cpu(xe->xe_name_hash);
--
- 		/* record lower_blkno which may be the insert place. */
- 		lower_blkno = blkno;
- 
+ /* redeclare as 'hidden' so the compiler will generate relative references */
+ extern struct screen_info screen_info __attribute__((__visibility__("hidden")));
 -- 
 2.20.1
 
