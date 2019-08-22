@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3901199B83
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:25:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E610A99B73
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:25:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404389AbfHVRZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:25:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48446 "EHLO mail.kernel.org"
+        id S2391795AbfHVRY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:24:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404376AbfHVRZU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:25:20 -0400
+        id S1731556AbfHVRY7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:24:59 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC64F2064A;
-        Thu, 22 Aug 2019 17:25:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B60382341C;
+        Thu, 22 Aug 2019 17:24:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494719;
-        bh=sihiTipHc8/WKfVhvkAVkcyT3aK0UieUNF3eUbU5xMc=;
+        s=default; t=1566494698;
+        bh=Q4i4je0b+xN++DwkKR4jmJG7VQLrh8a2Gpmm8Fx2NY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=miEsIWqVoUi+zmG7J2ZDcXJgQE47voPLiLAsHUlq2pj3Pf4MqduXicF5GPxESOeGa
-         DdTU7InFy3GiYZ+ujvFZo62gp5rbSZd0dSBF+mwGNvHhQ+81ixxqCN9zPjZFenVvIo
-         nhhPUeeBPX2wBtHlBrsmMyyxfDPUTUbyBs3qeB2Y=
+        b=AOqMSv2qSKrjcciV/3jdXadTI4fC6Twx5pxiFyvB9Z4haEg5bYM4NbpKidSHqkY29
+         JnRPVc/VSo52PUxISYs/3SH4jCqZWupXNphED9VzdGTp9Ft01ayotp4RFNl24m8Xm+
+         2fnEKK2O68rR8Ui2YW/g/Z7lgOumufZvcu+/aqAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+45a53506b65321c1fe91@syzkaller.appspotmail.com,
-        Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 4.14 49/71] USB: CDC: fix sanity checks in CDC union parser
-Date:   Thu, 22 Aug 2019 10:19:24 -0700
-Message-Id: <20190822171729.971517249@linuxfoundation.org>
+        Hiroyuki Yamamoto <hyamamo@allied-telesis.co.jp>,
+        Yoshiaki Okamoto <yokamoto@allied-telesis.co.jp>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 51/71] USB: serial: option: Add support for ZTE MF871A
+Date:   Thu, 22 Aug 2019 10:19:26 -0700
+Message-Id: <20190822171730.038267294@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
 References: <20190822171726.131957995@linuxfoundation.org>
@@ -44,42 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Yoshiaki Okamoto <yokamoto@allied-telesis.co.jp>
 
-commit 54364278fb3cabdea51d6398b07c87415065b3fc upstream.
+commit 7e7ae38bf928c5cfa6dd6e9a2cf8b42c84a27c92 upstream.
 
-A few checks checked for the size of the pointer to a structure
-instead of the structure itself. Copy & paste issue presumably.
+This patch adds support for MF871A USB modem (aka Speed USB STICK U03)
+to option driver. This modem is manufactured by ZTE corporation, and
+sold by KDDI.
 
-Fixes: e4c6fb7794982 ("usbnet: move the CDC parser into USB core")
+Interface layout:
+0: AT
+1: MODEM
+
+usb-devices output:
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  9 Spd=480 MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=19d2 ProdID=1481 Rev=52.87
+S:  Manufacturer=ZTE,Incorporated
+S:  Product=ZTE Technologies MSM
+S:  SerialNumber=1234567890ABCDEF
+C:  #Ifs= 2 Cfg#= 1 Atr=80 MxPwr=500mA
+I:  If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+
+Co-developed-by: Hiroyuki Yamamoto <hyamamo@allied-telesis.co.jp>
+Signed-off-by: Hiroyuki Yamamoto <hyamamo@allied-telesis.co.jp>
+Signed-off-by: Yoshiaki Okamoto <yokamoto@allied-telesis.co.jp>
 Cc: stable <stable@vger.kernel.org>
-Reported-by: syzbot+45a53506b65321c1fe91@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/20190813093541.18889-1-oneukum@suse.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/message.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/serial/option.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/core/message.c
-+++ b/drivers/usb/core/message.c
-@@ -2143,14 +2143,14 @@ int cdc_parse_cdc_header(struct usb_cdc_
- 				(struct usb_cdc_dmm_desc *)buffer;
- 			break;
- 		case USB_CDC_MDLM_TYPE:
--			if (elength < sizeof(struct usb_cdc_mdlm_desc *))
-+			if (elength < sizeof(struct usb_cdc_mdlm_desc))
- 				goto next_desc;
- 			if (desc)
- 				return -EINVAL;
- 			desc = (struct usb_cdc_mdlm_desc *)buffer;
- 			break;
- 		case USB_CDC_MDLM_DETAIL_TYPE:
--			if (elength < sizeof(struct usb_cdc_mdlm_detail_desc *))
-+			if (elength < sizeof(struct usb_cdc_mdlm_detail_desc))
- 				goto next_desc;
- 			if (detail)
- 				return -EINVAL;
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1552,6 +1552,7 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1428, 0xff, 0xff, 0xff),  /* Telewell TW-LTE 4G v2 */
+ 	  .driver_info = RSVD(2) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(ZTE_VENDOR_ID, 0x1476, 0xff) },	/* GosunCn ZTE WeLink ME3630 (ECM/NCM mode) */
++	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1481, 0xff, 0x00, 0x00) }, /* ZTE MF871A */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1533, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1534, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1535, 0xff, 0xff, 0xff) },
 
 
