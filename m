@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 673D399B65
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:25:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D3A399B76
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:25:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391506AbfHVRYV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:24:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45712 "EHLO mail.kernel.org"
+        id S2391809AbfHVRZC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:25:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404167AbfHVRYU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:24:20 -0400
+        id S2391802AbfHVRZB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:25:01 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78DDC2341A;
-        Thu, 22 Aug 2019 17:24:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE12E2341C;
+        Thu, 22 Aug 2019 17:25:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494659;
-        bh=Alprxcc+QmZyxQfHhL5lUNZK1dBM0xD3R+2hCoaI0eg=;
+        s=default; t=1566494701;
+        bh=hN55fN/KCNq+BK9c9A+6QcUBouxNTEpA5IX0XoYLa4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SBk1myXB7W9H1c5bLIxXn0wE2Kk0L7dn1U+hKrO024WwjpC74+ZVlr2TIDY6Lm4yS
-         pC/QktZMSNHELZl+KcOwWaOeYb/WBAYvrOPYhBd1/ba8XnoXIYHdNMRa2vy/A77qLu
-         g3SgcE8lp6d+a6N71qlGFHYtw2oq+6HDCAt7vs1A=
+        b=vpBUuWLpCwQ710QA5a+6+iz783KGR53jRVI6o5TFKj+Xk8WxmXD69PXPkZDCaxK+M
+         XyP6HWahHe8R+51cgdjBWabviJ9VNsYSXTc3VQT3XEz/vd2BmQ1ZlozSfZ1SP8gduG
+         CXvucGAnhFUXUopFgI7MrmA9CHTa8X59Bz+n1Yyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
-        Tariq Toukan <tariqt@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 4.9 101/103] net/mlx5e: Use flow keys dissector to parse packets for ARFS
+        stable@vger.kernel.org, Sandipan Das <sandipan@linux.ibm.com>,
+        Michael Roth <mdroth@linux.vnet.ibm.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 54/71] bpf: fix bpf_jit_limit knob for PAGE_SIZE >= 64K
 Date:   Thu, 22 Aug 2019 10:19:29 -0700
-Message-Id: <20190822171733.230660092@linuxfoundation.org>
+Message-Id: <20190822171730.149607933@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
-References: <20190822171728.445189830@linuxfoundation.org>
+In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
+References: <20190822171726.131957995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,194 +46,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@mellanox.com>
+[ Upstream commit fdadd04931c2d7cd294dc5b2b342863f94be53a3 ]
 
-[ Upstream commit 405b93eb764367a670e729da18e54dc42db32620 ]
+Michael and Sandipan report:
 
-The current ARFS code relies on certain fields to be set in the SKB
-(e.g. transport_header) and extracts IP addresses and ports by custom
-code that parses the packet. The necessary SKB fields, however, are not
-always set at that point, which leads to an out-of-bounds access. Use
-skb_flow_dissect_flow_keys() to get the necessary information reliably,
-fix the out-of-bounds access and reuse the code.
+  Commit ede95a63b5 introduced a bpf_jit_limit tuneable to limit BPF
+  JIT allocations. At compile time it defaults to PAGE_SIZE * 40000,
+  and is adjusted again at init time if MODULES_VADDR is defined.
 
-Fixes: 18c908e477dc ("net/mlx5e: Add accelerated RFS support")
-Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
-Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  For ppc64 kernels, MODULES_VADDR isn't defined, so we're stuck with
+  the compile-time default at boot-time, which is 0x9c400000 when
+  using 64K page size. This overflows the signed 32-bit bpf_jit_limit
+  value:
+
+  root@ubuntu:/tmp# cat /proc/sys/net/core/bpf_jit_limit
+  -1673527296
+
+  and can cause various unexpected failures throughout the network
+  stack. In one case `strace dhclient eth0` reported:
+
+  setsockopt(5, SOL_SOCKET, SO_ATTACH_FILTER, {len=11, filter=0x105dd27f8},
+             16) = -1 ENOTSUPP (Unknown error 524)
+
+  and similar failures can be seen with tools like tcpdump. This doesn't
+  always reproduce however, and I'm not sure why. The more consistent
+  failure I've seen is an Ubuntu 18.04 KVM guest booted on a POWER9
+  host would time out on systemd/netplan configuring a virtio-net NIC
+  with no noticeable errors in the logs.
+
+Given this and also given that in near future some architectures like
+arm64 will have a custom area for BPF JIT image allocations we should
+get rid of the BPF_JIT_LIMIT_DEFAULT fallback / default entirely. For
+4.21, we have an overridable bpf_jit_alloc_exec(), bpf_jit_free_exec()
+so therefore add another overridable bpf_jit_alloc_exec_limit() helper
+function which returns the possible size of the memory area for deriving
+the default heuristic in bpf_jit_charge_init().
+
+Like bpf_jit_alloc_exec() and bpf_jit_free_exec(), the new
+bpf_jit_alloc_exec_limit() assumes that module_alloc() is the default
+JIT memory provider, and therefore in case archs implement their custom
+module_alloc() we use MODULES_{END,_VADDR} for limits and otherwise for
+vmalloc_exec() cases like on ppc64 we use VMALLOC_{END,_START}.
+
+Additionally, for archs supporting large page sizes, we should change
+the sysctl to be handled as long to not run into sysctl restrictions
+in future.
+
+Fixes: ede95a63b5e8 ("bpf: add bpf_jit_limit knob to restrict unpriv allocations")
+Reported-by: Sandipan Das <sandipan@linux.ibm.com>
+Reported-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Tested-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_arfs.c |   97 +++++++---------------
- 1 file changed, 34 insertions(+), 63 deletions(-)
+ include/linux/filter.h     |  2 +-
+ kernel/bpf/core.c          | 21 +++++++++++++++------
+ net/core/sysctl_net_core.c | 20 +++++++++++++++++---
+ 3 files changed, 33 insertions(+), 10 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_arfs.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_arfs.c
-@@ -441,12 +441,6 @@ arfs_hash_bucket(struct arfs_table *arfs
- 	return &arfs_t->rules_hash[bucket_idx];
+diff --git a/include/linux/filter.h b/include/linux/filter.h
+index b0b00cdff4333..5ca676d646529 100644
+--- a/include/linux/filter.h
++++ b/include/linux/filter.h
+@@ -729,7 +729,7 @@ struct sock *do_sk_redirect_map(struct sk_buff *skb);
+ extern int bpf_jit_enable;
+ extern int bpf_jit_harden;
+ extern int bpf_jit_kallsyms;
+-extern int bpf_jit_limit;
++extern long bpf_jit_limit;
+ 
+ typedef void (*bpf_jit_fill_hole_t)(void *area, unsigned int size);
+ 
+diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
+index 2c40159038ef8..e7211b0fa27cf 100644
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -290,13 +290,11 @@ struct bpf_prog *bpf_patch_insn_single(struct bpf_prog *prog, u32 off,
  }
  
--static u8 arfs_get_ip_proto(const struct sk_buff *skb)
--{
--	return (skb->protocol == htons(ETH_P_IP)) ?
--		ip_hdr(skb)->protocol : ipv6_hdr(skb)->nexthdr;
--}
+ #ifdef CONFIG_BPF_JIT
+-# define BPF_JIT_LIMIT_DEFAULT	(PAGE_SIZE * 40000)
 -
- static struct arfs_table *arfs_get_table(struct mlx5e_arfs_tables *arfs,
- 					 u8 ip_proto, __be16 etype)
- {
-@@ -605,31 +599,9 @@ out:
- 	arfs_may_expire_flow(priv);
- }
+ /* All BPF JIT sysctl knobs here. */
+ int bpf_jit_enable   __read_mostly = IS_BUILTIN(CONFIG_BPF_JIT_ALWAYS_ON);
+ int bpf_jit_harden   __read_mostly;
+ int bpf_jit_kallsyms __read_mostly;
+-int bpf_jit_limit    __read_mostly = BPF_JIT_LIMIT_DEFAULT;
++long bpf_jit_limit   __read_mostly;
  
--/* return L4 destination port from ip4/6 packets */
--static __be16 arfs_get_dst_port(const struct sk_buff *skb)
--{
--	char *transport_header;
--
--	transport_header = skb_transport_header(skb);
--	if (arfs_get_ip_proto(skb) == IPPROTO_TCP)
--		return ((struct tcphdr *)transport_header)->dest;
--	return ((struct udphdr *)transport_header)->dest;
--}
--
--/* return L4 source port from ip4/6 packets */
--static __be16 arfs_get_src_port(const struct sk_buff *skb)
--{
--	char *transport_header;
--
--	transport_header = skb_transport_header(skb);
--	if (arfs_get_ip_proto(skb) == IPPROTO_TCP)
--		return ((struct tcphdr *)transport_header)->source;
--	return ((struct udphdr *)transport_header)->source;
--}
--
- static struct arfs_rule *arfs_alloc_rule(struct mlx5e_priv *priv,
- 					 struct arfs_table *arfs_t,
--					 const struct sk_buff *skb,
-+					 const struct flow_keys *fk,
- 					 u16 rxq, u32 flow_id)
- {
- 	struct arfs_rule *rule;
-@@ -644,19 +616,19 @@ static struct arfs_rule *arfs_alloc_rule
- 	INIT_WORK(&rule->arfs_work, arfs_handle_work);
+ static __always_inline void
+ bpf_get_prog_addr_region(const struct bpf_prog *prog,
+@@ -494,16 +492,27 @@ int bpf_get_kallsym(unsigned int symnum, unsigned long *value, char *type,
  
- 	tuple = &rule->tuple;
--	tuple->etype = skb->protocol;
-+	tuple->etype = fk->basic.n_proto;
-+	tuple->ip_proto = fk->basic.ip_proto;
- 	if (tuple->etype == htons(ETH_P_IP)) {
--		tuple->src_ipv4 = ip_hdr(skb)->saddr;
--		tuple->dst_ipv4 = ip_hdr(skb)->daddr;
-+		tuple->src_ipv4 = fk->addrs.v4addrs.src;
-+		tuple->dst_ipv4 = fk->addrs.v4addrs.dst;
- 	} else {
--		memcpy(&tuple->src_ipv6, &ipv6_hdr(skb)->saddr,
-+		memcpy(&tuple->src_ipv6, &fk->addrs.v6addrs.src,
- 		       sizeof(struct in6_addr));
--		memcpy(&tuple->dst_ipv6, &ipv6_hdr(skb)->daddr,
-+		memcpy(&tuple->dst_ipv6, &fk->addrs.v6addrs.dst,
- 		       sizeof(struct in6_addr));
- 	}
--	tuple->ip_proto = arfs_get_ip_proto(skb);
--	tuple->src_port = arfs_get_src_port(skb);
--	tuple->dst_port = arfs_get_dst_port(skb);
-+	tuple->src_port = fk->ports.src;
-+	tuple->dst_port = fk->ports.dst;
+ static atomic_long_t bpf_jit_current;
  
- 	rule->flow_id = flow_id;
- 	rule->filter_id = priv->fs.arfs.last_filter_id++ % RPS_NO_FILTER;
-@@ -667,37 +639,33 @@ static struct arfs_rule *arfs_alloc_rule
- 	return rule;
- }
- 
--static bool arfs_cmp_ips(struct arfs_tuple *tuple,
--			 const struct sk_buff *skb)
-+static bool arfs_cmp(const struct arfs_tuple *tuple, const struct flow_keys *fk)
- {
--	if (tuple->etype == htons(ETH_P_IP) &&
--	    tuple->src_ipv4 == ip_hdr(skb)->saddr &&
--	    tuple->dst_ipv4 == ip_hdr(skb)->daddr)
--		return true;
--	if (tuple->etype == htons(ETH_P_IPV6) &&
--	    (!memcmp(&tuple->src_ipv6, &ipv6_hdr(skb)->saddr,
--		     sizeof(struct in6_addr))) &&
--	    (!memcmp(&tuple->dst_ipv6, &ipv6_hdr(skb)->daddr,
--		     sizeof(struct in6_addr))))
--		return true;
-+	if (tuple->src_port != fk->ports.src || tuple->dst_port != fk->ports.dst)
-+		return false;
-+	if (tuple->etype != fk->basic.n_proto)
-+		return false;
-+	if (tuple->etype == htons(ETH_P_IP))
-+		return tuple->src_ipv4 == fk->addrs.v4addrs.src &&
-+		       tuple->dst_ipv4 == fk->addrs.v4addrs.dst;
-+	if (tuple->etype == htons(ETH_P_IPV6))
-+		return !memcmp(&tuple->src_ipv6, &fk->addrs.v6addrs.src,
-+			       sizeof(struct in6_addr)) &&
-+		       !memcmp(&tuple->dst_ipv6, &fk->addrs.v6addrs.dst,
-+			       sizeof(struct in6_addr));
- 	return false;
- }
- 
- static struct arfs_rule *arfs_find_rule(struct arfs_table *arfs_t,
--					const struct sk_buff *skb)
-+					const struct flow_keys *fk)
- {
- 	struct arfs_rule *arfs_rule;
- 	struct hlist_head *head;
--	__be16 src_port = arfs_get_src_port(skb);
--	__be16 dst_port = arfs_get_dst_port(skb);
- 
--	head = arfs_hash_bucket(arfs_t, src_port, dst_port);
-+	head = arfs_hash_bucket(arfs_t, fk->ports.src, fk->ports.dst);
- 	hlist_for_each_entry(arfs_rule, head, hlist) {
--		if (arfs_rule->tuple.src_port == src_port &&
--		    arfs_rule->tuple.dst_port == dst_port &&
--		    arfs_cmp_ips(&arfs_rule->tuple, skb)) {
-+		if (arfs_cmp(&arfs_rule->tuple, fk))
- 			return arfs_rule;
--		}
- 	}
- 
- 	return NULL;
-@@ -710,20 +678,24 @@ int mlx5e_rx_flow_steer(struct net_devic
- 	struct mlx5e_arfs_tables *arfs = &priv->fs.arfs;
- 	struct arfs_table *arfs_t;
- 	struct arfs_rule *arfs_rule;
-+	struct flow_keys fk;
++/* Can be overridden by an arch's JIT compiler if it has a custom,
++ * dedicated BPF backend memory area, or if neither of the two
++ * below apply.
++ */
++u64 __weak bpf_jit_alloc_exec_limit(void)
++{
+ #if defined(MODULES_VADDR)
++	return MODULES_END - MODULES_VADDR;
++#else
++	return VMALLOC_END - VMALLOC_START;
++#endif
++}
 +
-+	if (!skb_flow_dissect_flow_keys(skb, &fk, 0))
-+		return -EPROTONOSUPPORT;
+ static int __init bpf_jit_charge_init(void)
+ {
+ 	/* Only used as heuristic here to derive limit. */
+-	bpf_jit_limit = min_t(u64, round_up((MODULES_END - MODULES_VADDR) >> 2,
+-					    PAGE_SIZE), INT_MAX);
++	bpf_jit_limit = min_t(u64, round_up(bpf_jit_alloc_exec_limit() >> 2,
++					    PAGE_SIZE), LONG_MAX);
+ 	return 0;
+ }
+ pure_initcall(bpf_jit_charge_init);
+-#endif
  
--	if (skb->protocol != htons(ETH_P_IP) &&
--	    skb->protocol != htons(ETH_P_IPV6))
-+	if (fk.basic.n_proto != htons(ETH_P_IP) &&
-+	    fk.basic.n_proto != htons(ETH_P_IPV6))
- 		return -EPROTONOSUPPORT;
+ static int bpf_jit_charge_modmem(u32 pages)
+ {
+diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
+index b10d839aeee79..144cd1acd7e3e 100644
+--- a/net/core/sysctl_net_core.c
++++ b/net/core/sysctl_net_core.c
+@@ -29,6 +29,8 @@ static int two __maybe_unused = 2;
+ static int min_sndbuf = SOCK_MIN_SNDBUF;
+ static int min_rcvbuf = SOCK_MIN_RCVBUF;
+ static int max_skb_frags = MAX_SKB_FRAGS;
++static long long_one __maybe_unused = 1;
++static long long_max __maybe_unused = LONG_MAX;
  
- 	if (skb->encapsulation)
- 		return -EPROTONOSUPPORT;
+ static int net_msg_warn;	/* Unused, but still a sysctl */
  
--	arfs_t = arfs_get_table(arfs, arfs_get_ip_proto(skb), skb->protocol);
-+	arfs_t = arfs_get_table(arfs, fk.basic.ip_proto, fk.basic.n_proto);
- 	if (!arfs_t)
- 		return -EPROTONOSUPPORT;
+@@ -282,6 +284,17 @@ proc_dointvec_minmax_bpf_restricted(struct ctl_table *table, int write,
  
- 	spin_lock_bh(&arfs->arfs_lock);
--	arfs_rule = arfs_find_rule(arfs_t, skb);
-+	arfs_rule = arfs_find_rule(arfs_t, &fk);
- 	if (arfs_rule) {
- 		if (arfs_rule->rxq == rxq_index) {
- 			spin_unlock_bh(&arfs->arfs_lock);
-@@ -731,8 +703,7 @@ int mlx5e_rx_flow_steer(struct net_devic
- 		}
- 		arfs_rule->rxq = rxq_index;
- 	} else {
--		arfs_rule = arfs_alloc_rule(priv, arfs_t, skb,
--					    rxq_index, flow_id);
-+		arfs_rule = arfs_alloc_rule(priv, arfs_t, &fk, rxq_index, flow_id);
- 		if (!arfs_rule) {
- 			spin_unlock_bh(&arfs->arfs_lock);
- 			return -ENOMEM;
+ 	return proc_dointvec_minmax(table, write, buffer, lenp, ppos);
+ }
++
++static int
++proc_dolongvec_minmax_bpf_restricted(struct ctl_table *table, int write,
++				     void __user *buffer, size_t *lenp,
++				     loff_t *ppos)
++{
++	if (!capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
++	return proc_doulongvec_minmax(table, write, buffer, lenp, ppos);
++}
+ #endif
+ 
+ static struct ctl_table net_core_table[] = {
+@@ -391,10 +404,11 @@ static struct ctl_table net_core_table[] = {
+ 	{
+ 		.procname	= "bpf_jit_limit",
+ 		.data		= &bpf_jit_limit,
+-		.maxlen		= sizeof(int),
++		.maxlen		= sizeof(long),
+ 		.mode		= 0600,
+-		.proc_handler	= proc_dointvec_minmax_bpf_restricted,
+-		.extra1		= &one,
++		.proc_handler	= proc_dolongvec_minmax_bpf_restricted,
++		.extra1		= &long_one,
++		.extra2		= &long_max,
+ 	},
+ #endif
+ 	{
+-- 
+2.20.1
+
 
 
