@@ -2,84 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5C3898E31
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 10:46:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FE4798EB0
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 11:05:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730825AbfHVIpt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 04:45:49 -0400
-Received: from mail-oi1-f196.google.com ([209.85.167.196]:44996 "EHLO
-        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732645AbfHVIpt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Aug 2019 04:45:49 -0400
-Received: by mail-oi1-f196.google.com with SMTP id k22so3754922oiw.11;
-        Thu, 22 Aug 2019 01:45:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=jKYbXTHbKeqXk3/QcHdHCYFEiJQonidXlyf2wekjZ1Y=;
-        b=KY+TnIpJ85/PwZlFH5EpnjTSxIOrJRg3El0QaSWEe2otvIauhgT8Ul/kUoIFnnCyxJ
-         U2GJirzcNM2gd2UcRxr8CDtzvlJVOb2AtrAemuhw0mtXxjPHc88pAH7+7CgmTdffLw69
-         fMnEdwCoucjrcyWYlHm3b087GAS2XrkswRlNJiLL1eOYzOvjg9NvNp0qbwQdFJaHcqPM
-         qb896TZykD7/rYK9pMZ+Zf8K9PU27oPGpN3FWunN9NS/t6Xezfjf+0LgxpVkpi+O4NPf
-         g9r3FcrjlwzZ6yJxMS6wMpq6Q1jmWVDStdtfgqknzKbICMfVdv31hLE/zn/kTBwnVsrl
-         m8XA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=jKYbXTHbKeqXk3/QcHdHCYFEiJQonidXlyf2wekjZ1Y=;
-        b=SmE+cmEXxmqqB2p6WY1SoOgPu/L7tRC9b7nPNnrkshSV2VewrGhiJKjWz6lkeqzvEz
-         b4QgwsN5cCbDzCcpTgO4yzpXor3S07d69CyXMOT/BeivZLqPWD6ZFaCZd68Hq6JpvqSG
-         jXCL3/vX5A6CvD9qfp6Zce71udAIoUiDYAlqzstsE2XWTgJpRgwCHJe+P+6dEu9JS5Ar
-         uqBDcFibVRmxjVO1gNhfryWlZ/tX6ZoWJ24Gpira3TcfJ7SZxM4MF1sV5DeX+tYRi+7O
-         crZAp+SLkT+jpYluTvLbyp1vUU6+dclSygP/dmDM7ky5TpQoDSLXhlsgP6hKRDcjOBBf
-         olOQ==
-X-Gm-Message-State: APjAAAWIoWb4MXCTjPQOxiMv3G7VD/BVS0U5vpagGq0HKxAWYCu6DWu0
-        kASecZ8LhlkGU5+bVchC5L1fSwwb9ESeOiq5lbA=
-X-Google-Smtp-Source: APXvYqx7Gjiy2pRCqFz9b3Lso7nAlWJR6iJsSUDq3doRIwBwEMp5ZqG87vC7mzO2+9jwDdu6qgM7mks8hkDzDihecpo=
-X-Received: by 2002:a05:6808:4d0:: with SMTP id a16mr2822988oie.47.1566463548301;
- Thu, 22 Aug 2019 01:45:48 -0700 (PDT)
+        id S1732136AbfHVJFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 05:05:14 -0400
+Received: from mga05.intel.com ([192.55.52.43]:6194 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732115AbfHVJFO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 05:05:14 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 22 Aug 2019 02:05:13 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,416,1559545200"; 
+   d="scan'208";a="190504668"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.145])
+  by orsmga002.jf.intel.com with ESMTP; 22 Aug 2019 02:05:11 -0700
+Received: from andy by smile with local (Exim 4.92.1)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1i0j1p-0006Vi-8G; Thu, 22 Aug 2019 12:05:09 +0300
+Date:   Thu, 22 Aug 2019 12:05:09 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc:     linux-acpi@vger.kernel.org,
+        "Rafael J . Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>,
+        Curtis Malainey <cujomalainey@chromium.org>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] ACPI / LPSS: Save/restore LPSS private registers also on
+ Lynxpoint
+Message-ID: <20190822090509.GK30120@smile.fi.intel.com>
+References: <20190822083200.18150-1-jarkko.nikula@linux.intel.com>
 MIME-Version: 1.0
-References: <1564970604-10044-1-git-send-email-wanpengli@tencent.com>
- <9acbc733-442f-0f65-9b56-ff800a3fa0f5@redhat.com> <CANRm+CwH54S555nw-Zik-3NFDH9yqe+SOZrGc3mPoAU_qGxP-A@mail.gmail.com>
- <e7b84893-42bf-e80e-61c9-ef5d1b200064@redhat.com> <CANRm+CzJf9Or_45frTe9ivFx9QDfx6Nou7uLT6tm1NmcPKDn8A@mail.gmail.com>
- <728bf051-02eb-8fe8-042f-9893f23b4a68@redhat.com>
-In-Reply-To: <728bf051-02eb-8fe8-042f-9893f23b4a68@redhat.com>
-From:   Wanpeng Li <kernellwp@gmail.com>
-Date:   Thu, 22 Aug 2019 16:45:13 +0800
-Message-ID: <CANRm+CwaMDhiCvHX7eL4fL6bcPYd76yYPVL2uuiuKTVW6ZZP4w@mail.gmail.com>
-Subject: Re: [PATCH v4 1/6] KVM: Fix leak vCPU's VMCS value into other pCPU
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, kvm <kvm@vger.kernel.org>,
-        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Marc Zyngier <Marc.Zyngier@arm.com>,
-        "# v3 . 10+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190822083200.18150-1-jarkko.nikula@linux.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 22 Aug 2019 at 16:35, Paolo Bonzini <pbonzini@redhat.com> wrote:
->
-> On 22/08/19 02:46, Wanpeng Li wrote:
-> > On Tue, 6 Aug 2019 at 14:20, Paolo Bonzini <pbonzini@redhat.com> wrote:
-> >>
-> >> On 06/08/19 02:35, Wanpeng Li wrote:
-> >>> Thank you, Paolo! Btw, how about other 5 patches?
-> >>
-> >> Queued everything else too.
-> >
-> > How about patch 4/6~5/6, they are not in kvm/queue. :)
->
-> I queued 4.
->
-> For patch 5, I don't really see the benefit since the hypercall
-> arguments are already traced.
+On Thu, Aug 22, 2019 at 11:32:00AM +0300, Jarkko Nikula wrote:
+> My assumption in the commit b53548f9d9e4 ("spi: pxa2xx: Remove LPSS private
+> register restoring during resume") that Intel Lynxpoint and compatible
+> based chipsets may not need LPSS private registers saving and restoring
+> over suspend/resume cycle turned out to be false on Intel Broadwell.
+> 
+> Curtis Malainey sent a patch bringing above change back and reported the
+> LPSS SPI Chip Select control was lost over suspend/resume cycle on
+> Broadwell machine.
+> 
+> Instead of reverting above commit lets add LPSS private register
+> saving/restoring also for all LPSS SPI, I2C and UART controllers on
+> Lynxpoint and compatible chipset to make sure context is not lost in
+> case nothing else preserves it like firmware or if LPSS is always on.
+> 
 
-Agreed, thank you.
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Regards,
-Wanpeng Li
+> Fixes: b53548f9d9e4 ("spi: pxa2xx: Remove LPSS private register restoring during resume")
+> Reported-by: Curtis Malainey <cujomalainey@chromium.org>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> ---
+>  drivers/acpi/acpi_lpss.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/acpi/acpi_lpss.c b/drivers/acpi/acpi_lpss.c
+> index d696f165a50e..60bbc5090abe 100644
+> --- a/drivers/acpi/acpi_lpss.c
+> +++ b/drivers/acpi/acpi_lpss.c
+> @@ -219,12 +219,13 @@ static void bsw_pwm_setup(struct lpss_private_data *pdata)
+>  }
+>  
+>  static const struct lpss_device_desc lpt_dev_desc = {
+> -	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_CLK_DIVIDER | LPSS_LTR,
+> +	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_CLK_DIVIDER | LPSS_LTR
+> +			| LPSS_SAVE_CTX,
+>  	.prv_offset = 0x800,
+>  };
+>  
+>  static const struct lpss_device_desc lpt_i2c_dev_desc = {
+> -	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_LTR,
+> +	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_LTR | LPSS_SAVE_CTX,
+>  	.prv_offset = 0x800,
+>  };
+>  
+> @@ -236,7 +237,8 @@ static struct property_entry uart_properties[] = {
+>  };
+>  
+>  static const struct lpss_device_desc lpt_uart_dev_desc = {
+> -	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_CLK_DIVIDER | LPSS_LTR,
+> +	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_CLK_DIVIDER | LPSS_LTR
+> +			| LPSS_SAVE_CTX,
+>  	.clk_con_id = "baudclk",
+>  	.prv_offset = 0x800,
+>  	.setup = lpss_uart_setup,
+> -- 
+> 2.23.0.rc1
+> 
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+
