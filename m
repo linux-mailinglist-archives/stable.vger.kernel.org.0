@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C6C499C5B
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:33:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0940C99CAD
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:36:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392351AbfHVRdl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:33:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48860 "EHLO mail.kernel.org"
+        id S2391131AbfHVRgL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:36:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404412AbfHVRZZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:25:25 -0400
+        id S2387840AbfHVRY4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:24:56 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2844A2064A;
-        Thu, 22 Aug 2019 17:25:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B3DF2341B;
+        Thu, 22 Aug 2019 17:24:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494724;
-        bh=DTcBYyr8NGbTdWPT9hVXwPCximMsjizRF2mTgYqENgQ=;
+        s=default; t=1566494695;
+        bh=l1Veyl/6ndYeQWcC5Y3ELTibSQReR/t8QEJFI+yoMco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SDRg1dApxXnWUDGRimNL1HpOk1B0Xqx3wyWHIF8XIE3aV3ek+AjTzZne6pvTFCKLm
-         CUgppKyB5KG3vN45cF8WDUl+ykAsZfqcbo7ygJh5SPPWYp2ldF8h8+vCcKLvjySz3r
-         dP27fXslFwS2hCj1n3OyibK+i41+5W/YmFohqSuE=
+        b=mkIm/WckC1RzqJlpF8HgqYmz+fqgNnn1ekdfNrOs4dJxnRYPL/3+KEN08A1hTQAsg
+         yzz79Ze4l5sr07TaW0rAhInUMXINGCzqMJVeeI0sakAf6g3JLEUX4YiONmO8PSNIEy
+         t4XsoPjUWqnUJ5eKpjY036vWjj+Sh0jfm8HEAuNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Peng <benquike@gmail.com>,
-        Mathias Payer <mathias.payer@nebelwelt.net>,
+        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 13/85] ALSA: usb-audio: Fix an OOB bug in parse_audio_mixer_unit
+Subject: [PATCH 4.14 11/71] ALSA: hda - Fix a memory leak bug
 Date:   Thu, 22 Aug 2019 10:18:46 -0700
-Message-Id: <20190822171731.662885183@linuxfoundation.org>
+Message-Id: <20190822171727.459974672@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
-References: <20190822171731.012687054@linuxfoundation.org>
+In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
+References: <20190822171726.131957995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Peng <benquike@gmail.com>
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-commit daac07156b330b18eb5071aec4b3ddca1c377f2c upstream.
+commit cfef67f016e4c00a2f423256fc678a6967a9fc09 upstream.
 
-The `uac_mixer_unit_descriptor` shown as below is read from the
-device side. In `parse_audio_mixer_unit`, `baSourceID` field is
-accessed from index 0 to `bNrInPins` - 1, the current implementation
-assumes that descriptor is always valid (the length  of descriptor
-is no shorter than 5 + `bNrInPins`). If a descriptor read from
-the device side is invalid, it may trigger out-of-bound memory
-access.
+In snd_hda_parse_generic_codec(), 'spec' is allocated through kzalloc().
+Then, the pin widgets in 'codec' are parsed. However, if the parsing
+process fails, 'spec' is not deallocated, leading to a memory leak.
 
-```
-struct uac_mixer_unit_descriptor {
-	__u8 bLength;
-	__u8 bDescriptorType;
-	__u8 bDescriptorSubtype;
-	__u8 bUnitID;
-	__u8 bNrInPins;
-	__u8 baSourceID[];
-}
-```
+To fix the above issue, free 'spec' before returning the error.
 
-This patch fixes the bug by add a sanity check on the length of
-the descriptor.
-
-Reported-by: Hui Peng <benquike@gmail.com>
-Reported-by: Mathias Payer <mathias.payer@nebelwelt.net>
+Fixes: 352f7f914ebb ("ALSA: hda - Merge Realtek parser code to generic parser")
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Peng <benquike@gmail.com>
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/mixer.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/pci/hda/hda_generic.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -760,6 +760,8 @@ static int uac_mixer_unit_get_channels(s
- 		return -EINVAL;
- 	if (!desc->bNrInPins)
- 		return -EINVAL;
-+	if (desc->bLength < sizeof(*desc) + desc->bNrInPins)
-+		return -EINVAL;
+--- a/sound/pci/hda/hda_generic.c
++++ b/sound/pci/hda/hda_generic.c
+@@ -5945,7 +5945,7 @@ static int snd_hda_parse_generic_codec(s
  
- 	switch (state->mixer->protocol) {
- 	case UAC_VERSION_1:
+ 	err = snd_hda_parse_pin_defcfg(codec, &spec->autocfg, NULL, 0);
+ 	if (err < 0)
+-		return err;
++		goto error;
+ 
+ 	err = snd_hda_gen_parse_auto_config(codec, &spec->autocfg);
+ 	if (err < 0)
 
 
