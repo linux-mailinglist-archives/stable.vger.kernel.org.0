@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B42799A4F
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:13:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68B8599A35
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:11:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389048AbfHVRLy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:11:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59506 "EHLO mail.kernel.org"
+        id S2389135AbfHVRL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:11:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730641AbfHVRJO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:09:14 -0400
+        id S2390700AbfHVRJP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:09:15 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CEF5623404;
-        Thu, 22 Aug 2019 17:09:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 572D42341E;
+        Thu, 22 Aug 2019 17:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1566493754;
-        bh=oWRieHLty+Rj5FWIVKIVjH/MKr+0xARdLxI9ID2S5yc=;
+        bh=mmOI3UQiGw9Sq09GgmSULel99EFNPGDXPy1epgZjWfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XTM+73UOl/MexJOUpssWSdUxxG1einAMRXSoUTgiiOwHt2NtdQHMj8U0R86SYNZE6
-         OeSuxD+BlBhSQmQAtt+mkk9PRHlbHwdplJtiylKH4pUe8c3upmqNCT2gNq77OfaeTs
-         G0XlXz3RcDsbyVxfMvNVKI7EggYmpObp40bHMJGM=
+        b=S7JpAhAtr7gVQAZ9zK3aftPR0Hgwhplf1lN0MvwOoQQHF5KH0TR8rW30ytOKBhKWl
+         zfNSHrz9VjrI4w1QNn6gqgpVUgd+EuE6mKyYR2x/b/azcgH2yD4KARoNJERgssLxHL
+         tDYfvmsDN2vfjhNLgZwvFFpsKqY8nEJ5w3zPWieM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wenwen Wang <wenwen@cs.uga.edu>,
-        Tariq Toukan <tariqt@mellanox.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
+Cc:     Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.2 110/135] net/mlx4_en: fix a memory leak bug
-Date:   Thu, 22 Aug 2019 13:07:46 -0400
-Message-Id: <20190822170811.13303-111-sashal@kernel.org>
+Subject: [PATCH 5.2 111/135] net/packet: fix race in tpacket_snd()
+Date:   Thu, 22 Aug 2019 13:07:47 -0400
+Message-Id: <20190822170811.13303-112-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -50,48 +50,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wenwen@cs.uga.edu>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 48ec7014c56e5eb2fbf6f479896143622d834f3b ]
+[ Upstream commit 32d3182cd2cd29b2e7e04df7b0db350fbe11289f ]
 
-In mlx4_en_config_rss_steer(), 'rss_map->indir_qp' is allocated through
-kzalloc(). After that, mlx4_qp_alloc() is invoked to configure RSS
-indirection. However, if mlx4_qp_alloc() fails, the allocated
-'rss_map->indir_qp' is not deallocated, leading to a memory leak bug.
+packet_sendmsg() checks tx_ring.pg_vec to decide
+if it must call tpacket_snd().
 
-To fix the above issue, add the 'qp_alloc_err' label to free
-'rss_map->indir_qp'.
+Problem is that the check is lockless, meaning another thread
+can issue a concurrent setsockopt(PACKET_TX_RING ) to flip
+tx_ring.pg_vec back to NULL.
 
-Fixes: 4931c6ef04b4 ("net/mlx4_en: Optimized single ring steering")
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Given that tpacket_snd() grabs pg_vec_lock mutex, we can
+perform the check again to solve the race.
+
+syzbot reported :
+
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 11429 Comm: syz-executor394 Not tainted 5.3.0-rc4+ #101
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:packet_lookup_frame+0x8d/0x270 net/packet/af_packet.c:474
+Code: c1 ee 03 f7 73 0c 80 3c 0e 00 0f 85 cb 01 00 00 48 8b 0b 89 c0 4c 8d 24 c1 48 b8 00 00 00 00 00 fc ff df 4c 89 e1 48 c1 e9 03 <80> 3c 01 00 0f 85 94 01 00 00 48 8d 7b 10 4d 8b 3c 24 48 b8 00 00
+RSP: 0018:ffff88809f82f7b8 EFLAGS: 00010246
+RAX: dffffc0000000000 RBX: ffff8880a45c7030 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: 1ffff110148b8e06 RDI: ffff8880a45c703c
+RBP: ffff88809f82f7e8 R08: ffff888087aea200 R09: fffffbfff134ae50
+R10: fffffbfff134ae4f R11: ffffffff89a5727f R12: 0000000000000000
+R13: 0000000000000001 R14: ffff8880a45c6ac0 R15: 0000000000000000
+FS:  00007fa04716f700(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fa04716edb8 CR3: 0000000091eb4000 CR4: 00000000001406e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ packet_current_frame net/packet/af_packet.c:487 [inline]
+ tpacket_snd net/packet/af_packet.c:2667 [inline]
+ packet_sendmsg+0x590/0x6250 net/packet/af_packet.c:2975
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg+0xd7/0x130 net/socket.c:657
+ ___sys_sendmsg+0x3e2/0x920 net/socket.c:2311
+ __sys_sendmmsg+0x1bf/0x4d0 net/socket.c:2413
+ __do_sys_sendmmsg net/socket.c:2442 [inline]
+ __se_sys_sendmmsg net/socket.c:2439 [inline]
+ __x64_sys_sendmmsg+0x9d/0x100 net/socket.c:2439
+ do_syscall_64+0xfd/0x6a0 arch/x86/entry/common.c:296
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Fixes: 69e3c75f4d54 ("net: TX_RING and packet mmap")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_rx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/packet/af_packet.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx4/en_rx.c b/drivers/net/ethernet/mellanox/mlx4/en_rx.c
-index 6c01314e87b09..db3552f2d0877 100644
---- a/drivers/net/ethernet/mellanox/mlx4/en_rx.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_rx.c
-@@ -1187,7 +1187,7 @@ int mlx4_en_config_rss_steer(struct mlx4_en_priv *priv)
- 	err = mlx4_qp_alloc(mdev->dev, priv->base_qpn, rss_map->indir_qp);
- 	if (err) {
- 		en_err(priv, "Failed to allocate RSS indirection QP\n");
--		goto rss_err;
-+		goto qp_alloc_err;
- 	}
+diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+index 5f78df0805732..bad144dfabc56 100644
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -2607,6 +2607,13 @@ static int tpacket_snd(struct packet_sock *po, struct msghdr *msg)
  
- 	rss_map->indir_qp->event = mlx4_en_sqp_event;
-@@ -1241,6 +1241,7 @@ int mlx4_en_config_rss_steer(struct mlx4_en_priv *priv)
- 		       MLX4_QP_STATE_RST, NULL, 0, 0, rss_map->indir_qp);
- 	mlx4_qp_remove(mdev->dev, rss_map->indir_qp);
- 	mlx4_qp_free(mdev->dev, rss_map->indir_qp);
-+qp_alloc_err:
- 	kfree(rss_map->indir_qp);
- 	rss_map->indir_qp = NULL;
- rss_err:
+ 	mutex_lock(&po->pg_vec_lock);
+ 
++	/* packet_sendmsg() check on tx_ring.pg_vec was lockless,
++	 * we need to confirm it under protection of pg_vec_lock.
++	 */
++	if (unlikely(!po->tx_ring.pg_vec)) {
++		err = -EBUSY;
++		goto out;
++	}
+ 	if (likely(saddr == NULL)) {
+ 		dev	= packet_cached_dev_get(po);
+ 		proto	= po->num;
 -- 
 2.20.1
 
