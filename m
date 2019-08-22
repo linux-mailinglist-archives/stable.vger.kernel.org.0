@@ -2,62 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 563F799B02
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:18:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68F4B99B09
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:18:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390249AbfHVRIR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:08:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57618 "EHLO mail.kernel.org"
+        id S1731947AbfHVRSN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:18:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390237AbfHVRIR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390248AbfHVRIR (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 22 Aug 2019 13:08:17 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1AF023400;
-        Thu, 22 Aug 2019 17:08:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D6F523406;
+        Thu, 22 Aug 2019 17:08:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1566493696;
-        bh=qilmrSz0Yqh8giWWt9Gr7R/6ySvCEXEHCsxy9Pi5a+M=;
+        bh=b1/t26O85rjHlSJA0HsLZnMWEKkCzAJI54U9eFTqj7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ECeQwqszIuyu/n8fDFHaWKiT5KlJxMKdc/EM0cO5h+DsimuYahDwuyYiEcdIrfRIg
-         ujg45itQmEcFicst8izsjgKQfImc2O0zbBv5VxxzAk9Xv+xI6FnvTZHwJvmf5PnJVu
-         lcz9lwxEaPYv5x7qarVO7fRpvPgG/eIrX5C4kJTk=
+        b=Ziv8TYzTlZrWrwqAinPCSoNoqQXQFpsKNBC+1N33i8pMI+4v28QKHf5eiu4cITC5b
+         vJChPWgplw9T18vpeW6VaRwLC5Vi/G8aKERRtl8/ZhBs5Yc75SxZgk1/kCfO8kbFZd
+         O2bUWOEXrjvfUYp3MUonXEjpootIFHiAO+q3Ieaw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ralph Campbell <rcampbell@nvidia.com>,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Christoph Lameter <cl@linux.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Ira Weiny <ira.weiny@intel.com>, Jan Kara <jack@suse.cz>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Michal Hocko <mhocko@suse.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
+Cc:     Yang Shi <yang.shi@linux.alibaba.com>,
         Vlastimil Babka <vbabka@suse.cz>,
+        Michal Hocko <mhocko@suse.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.2 004/135] mm/hmm: fix bad subpage pointer in try_to_unmap_one
-Date:   Thu, 22 Aug 2019 13:06:00 -0400
-Message-Id: <20190822170811.13303-5-sashal@kernel.org>
+Subject: [PATCH 5.2 005/135] mm: mempolicy: make the behavior consistent when MPOL_MF_MOVE* and MPOL_MF_STRICT were specified
+Date:   Thu, 22 Aug 2019 13:06:01 -0400
+Message-Id: <20190822170811.13303-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.10-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-5.2.y
@@ -72,80 +53,221 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ralph Campbell <rcampbell@nvidia.com>
+From: Yang Shi <yang.shi@linux.alibaba.com>
 
-commit 1de13ee59225dfc98d483f8cce7d83f97c0b31de upstream.
+commit d883544515aae54842c21730b880172e7894fde9 upstream.
 
-When migrating an anonymous private page to a ZONE_DEVICE private page,
-the source page->mapping and page->index fields are copied to the
-destination ZONE_DEVICE struct page and the page_mapcount() is
-increased.  This is so rmap_walk() can be used to unmap and migrate the
-page back to system memory.
+When both MPOL_MF_MOVE* and MPOL_MF_STRICT was specified, mbind() should
+try best to migrate misplaced pages, if some of the pages could not be
+migrated, then return -EIO.
 
-However, try_to_unmap_one() computes the subpage pointer from a swap pte
-which computes an invalid page pointer and a kernel panic results such
-as:
+There are three different sub-cases:
+ 1. vma is not migratable
+ 2. vma is migratable, but there are unmovable pages
+ 3. vma is migratable, pages are movable, but migrate_pages() fails
 
-  BUG: unable to handle page fault for address: ffffea1fffffffc8
+If #1 happens, kernel would just abort immediately, then return -EIO,
+after a7f40cfe3b7a ("mm: mempolicy: make mbind() return -EIO when
+MPOL_MF_STRICT is specified").
 
-Currently, only single pages can be migrated to device private memory so
-no subpage computation is needed and it can be set to "page".
+If #3 happens, kernel would set policy and migrate pages with
+best-effort, but won't rollback the migrated pages and reset the policy
+back.
 
-[rcampbell@nvidia.com: add comment]
-  Link: http://lkml.kernel.org/r/20190724232700.23327-4-rcampbell@nvidia.com
-Link: http://lkml.kernel.org/r/20190719192955.30462-4-rcampbell@nvidia.com
-Fixes: a5430dda8a3a1c ("mm/migrate: support un-addressable ZONE_DEVICE page in migration")
-Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
-Cc: "Jérôme Glisse" <jglisse@redhat.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Lai Jiangshan <jiangshanlai@gmail.com>
-Cc: Logan Gunthorpe <logang@deltatee.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Mel Gorman <mgorman@techsingularity.net>
+Before that commit, they behaves in the same way.  It'd better to keep
+their behavior consistent.  But, rolling back the migrated pages and
+resetting the policy back sounds not feasible, so just make #1 behave as
+same as #3.
+
+Userspace will know that not everything was successfully migrated (via
+-EIO), and can take whatever steps it deems necessary - attempt
+rollback, determine which exact page(s) are violating the policy, etc.
+
+Make queue_pages_range() return 1 to indicate there are unmovable pages
+or vma is not migratable.
+
+The #2 is not handled correctly in the current kernel, the following
+patch will fix it.
+
+[yang.shi@linux.alibaba.com: fix review comments from Vlastimil]
+  Link: http://lkml.kernel.org/r/1563556862-54056-2-git-send-email-yang.shi@linux.alibaba.com
+Link: http://lkml.kernel.org/r/1561162809-59140-2-git-send-email-yang.shi@linux.alibaba.com
+Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
 Cc: Michal Hocko <mhocko@suse.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Mel Gorman <mgorman@techsingularity.net>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/rmap.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ mm/mempolicy.c | 68 +++++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 48 insertions(+), 20 deletions(-)
 
-diff --git a/mm/rmap.c b/mm/rmap.c
-index e5dfe2ae6b0d5..003377e242323 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -1475,7 +1475,15 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
- 			/*
- 			 * No need to invalidate here it will synchronize on
- 			 * against the special swap migration pte.
-+			 *
-+			 * The assignment to subpage above was computed from a
-+			 * swap PTE which results in an invalid pointer.
-+			 * Since only PAGE_SIZE pages can currently be
-+			 * migrated, just set it to page. This will need to be
-+			 * changed when hugepage migrations to device private
-+			 * memory are supported.
- 			 */
-+			subpage = page;
- 			goto discard;
+diff --git a/mm/mempolicy.c b/mm/mempolicy.c
+index fdcb735363198..a1a8f5630245d 100644
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -429,11 +429,14 @@ static inline bool queue_pages_required(struct page *page,
+ }
+ 
+ /*
+- * queue_pages_pmd() has three possible return values:
+- * 1 - pages are placed on the right node or queued successfully.
+- * 0 - THP was split.
+- * -EIO - is migration entry or MPOL_MF_STRICT was specified and an existing
+- *        page was already on a node that does not follow the policy.
++ * queue_pages_pmd() has four possible return values:
++ * 0 - pages are placed on the right node or queued successfully.
++ * 1 - there is unmovable page, and MPOL_MF_MOVE* & MPOL_MF_STRICT were
++ *     specified.
++ * 2 - THP was split.
++ * -EIO - is migration entry or only MPOL_MF_STRICT was specified and an
++ *        existing page was already on a node that does not follow the
++ *        policy.
+  */
+ static int queue_pages_pmd(pmd_t *pmd, spinlock_t *ptl, unsigned long addr,
+ 				unsigned long end, struct mm_walk *walk)
+@@ -451,19 +454,17 @@ static int queue_pages_pmd(pmd_t *pmd, spinlock_t *ptl, unsigned long addr,
+ 	if (is_huge_zero_page(page)) {
+ 		spin_unlock(ptl);
+ 		__split_huge_pmd(walk->vma, pmd, addr, false, NULL);
++		ret = 2;
+ 		goto out;
+ 	}
+-	if (!queue_pages_required(page, qp)) {
+-		ret = 1;
++	if (!queue_pages_required(page, qp))
+ 		goto unlock;
+-	}
+ 
+-	ret = 1;
+ 	flags = qp->flags;
+ 	/* go to thp migration */
+ 	if (flags & (MPOL_MF_MOVE | MPOL_MF_MOVE_ALL)) {
+ 		if (!vma_migratable(walk->vma)) {
+-			ret = -EIO;
++			ret = 1;
+ 			goto unlock;
  		}
  
+@@ -479,6 +480,13 @@ static int queue_pages_pmd(pmd_t *pmd, spinlock_t *ptl, unsigned long addr,
+ /*
+  * Scan through pages checking if pages follow certain conditions,
+  * and move them to the pagelist if they do.
++ *
++ * queue_pages_pte_range() has three possible return values:
++ * 0 - pages are placed on the right node or queued successfully.
++ * 1 - there is unmovable page, and MPOL_MF_MOVE* & MPOL_MF_STRICT were
++ *     specified.
++ * -EIO - only MPOL_MF_STRICT was specified and an existing page was already
++ *        on a node that does not follow the policy.
+  */
+ static int queue_pages_pte_range(pmd_t *pmd, unsigned long addr,
+ 			unsigned long end, struct mm_walk *walk)
+@@ -488,17 +496,17 @@ static int queue_pages_pte_range(pmd_t *pmd, unsigned long addr,
+ 	struct queue_pages *qp = walk->private;
+ 	unsigned long flags = qp->flags;
+ 	int ret;
++	bool has_unmovable = false;
+ 	pte_t *pte;
+ 	spinlock_t *ptl;
+ 
+ 	ptl = pmd_trans_huge_lock(pmd, vma);
+ 	if (ptl) {
+ 		ret = queue_pages_pmd(pmd, ptl, addr, end, walk);
+-		if (ret > 0)
+-			return 0;
+-		else if (ret < 0)
++		if (ret != 2)
+ 			return ret;
+ 	}
++	/* THP was split, fall through to pte walk */
+ 
+ 	if (pmd_trans_unstable(pmd))
+ 		return 0;
+@@ -519,14 +527,21 @@ static int queue_pages_pte_range(pmd_t *pmd, unsigned long addr,
+ 		if (!queue_pages_required(page, qp))
+ 			continue;
+ 		if (flags & (MPOL_MF_MOVE | MPOL_MF_MOVE_ALL)) {
+-			if (!vma_migratable(vma))
++			/* MPOL_MF_STRICT must be specified if we get here */
++			if (!vma_migratable(vma)) {
++				has_unmovable = true;
+ 				break;
++			}
+ 			migrate_page_add(page, qp->pagelist, flags);
+ 		} else
+ 			break;
+ 	}
+ 	pte_unmap_unlock(pte - 1, ptl);
+ 	cond_resched();
++
++	if (has_unmovable)
++		return 1;
++
+ 	return addr != end ? -EIO : 0;
+ }
+ 
+@@ -639,7 +654,13 @@ static int queue_pages_test_walk(unsigned long start, unsigned long end,
+  *
+  * If pages found in a given range are on a set of nodes (determined by
+  * @nodes and @flags,) it's isolated and queued to the pagelist which is
+- * passed via @private.)
++ * passed via @private.
++ *
++ * queue_pages_range() has three possible return values:
++ * 1 - there is unmovable page, but MPOL_MF_MOVE* & MPOL_MF_STRICT were
++ *     specified.
++ * 0 - queue pages successfully or no misplaced page.
++ * -EIO - there is misplaced page and only MPOL_MF_STRICT was specified.
+  */
+ static int
+ queue_pages_range(struct mm_struct *mm, unsigned long start, unsigned long end,
+@@ -1182,6 +1203,7 @@ static long do_mbind(unsigned long start, unsigned long len,
+ 	struct mempolicy *new;
+ 	unsigned long end;
+ 	int err;
++	int ret;
+ 	LIST_HEAD(pagelist);
+ 
+ 	if (flags & ~(unsigned long)MPOL_MF_VALID)
+@@ -1243,10 +1265,15 @@ static long do_mbind(unsigned long start, unsigned long len,
+ 	if (err)
+ 		goto mpol_out;
+ 
+-	err = queue_pages_range(mm, start, end, nmask,
++	ret = queue_pages_range(mm, start, end, nmask,
+ 			  flags | MPOL_MF_INVERT, &pagelist);
+-	if (!err)
+-		err = mbind_range(mm, start, end, new);
++
++	if (ret < 0) {
++		err = -EIO;
++		goto up_out;
++	}
++
++	err = mbind_range(mm, start, end, new);
+ 
+ 	if (!err) {
+ 		int nr_failed = 0;
+@@ -1259,13 +1286,14 @@ static long do_mbind(unsigned long start, unsigned long len,
+ 				putback_movable_pages(&pagelist);
+ 		}
+ 
+-		if (nr_failed && (flags & MPOL_MF_STRICT))
++		if ((ret > 0) || (nr_failed && (flags & MPOL_MF_STRICT)))
+ 			err = -EIO;
+ 	} else
+ 		putback_movable_pages(&pagelist);
+ 
++up_out:
+ 	up_write(&mm->mmap_sem);
+- mpol_out:
++mpol_out:
+ 	mpol_put(new);
+ 	return err;
+ }
 -- 
 2.20.1
 
