@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A732D99D60
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:42:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFE6B99E32
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:49:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391315AbfHVRmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:42:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44544 "EHLO mail.kernel.org"
+        id S1731649AbfHVRsp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:48:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391726AbfHVRXx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:23:53 -0400
+        id S2390047AbfHVRWX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:22:23 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 048E821743;
-        Thu, 22 Aug 2019 17:23:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23B3E233FE;
+        Thu, 22 Aug 2019 17:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494632;
-        bh=WRLxgu5pjGZz8vXoOs3/zQIOrHQH6Ij/EdXN46H2njE=;
+        s=default; t=1566494542;
+        bh=5uuql1tVFziqA9qQ6xOQe96Cm2H7wKqbV3eqJLptOhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1cFhF/4CRYYQw7HqEBSJpeDcOJuqVEWfxCpmc+G0ty4XW69V5ZzfXd8RTGz4EEH1V
-         uc6cjj1+kU1lJoqqm9PSIfycsmL5UbWpzXu2vFZN6ePtRtDoyxaS5mlxtfiTFYrf5t
-         jsTNQcv3tC8IQgcZvuVH9jwMfSxUzTFOZdQsdGO0=
+        b=1W1uxlfn30oCYKU5cmO8vFt3Qk4lR4XHokMHysbqsE7iqZ+Eg624KcEdqnApWgBXM
+         cqMr5WOqmhCKSdt1cjj/i19SERGTv/i6fI70bXNnFOQbpdI+e5Om/muhDIn3J/eZM2
+         8XfUw8ngOJRh+3c+ewOTxS9fvEIM5iQ+KALeogNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>
-Subject: [PATCH 4.9 037/103] SMB3: Fix deadlock in validate negotiate hits reconnect
-Date:   Thu, 22 Aug 2019 10:18:25 -0700
-Message-Id: <20190822171730.314854913@linuxfoundation.org>
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Hurley <peter@hurleysoftware.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 22/78] tty/ldsem, locking/rwsem: Add missing ACQUIRE to read_failed sleep loop
+Date:   Thu, 22 Aug 2019 10:18:26 -0700
+Message-Id: <20190822171832.686181635@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
-References: <20190822171728.445189830@linuxfoundation.org>
+In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
+References: <20190822171832.012773482@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +47,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Shilovsky <pshilov@microsoft.com>
+[ Upstream commit 952041a8639a7a3a73a2b6573cb8aa8518bc39f8 ]
 
-commit e99c63e4d86d3a94818693147b469fa70de6f945 upstream.
+While reviewing rwsem down_slowpath, Will noticed ldsem had a copy of
+a bug we just found for rwsem.
 
-Currently we skip SMB2_TREE_CONNECT command when checking during
-reconnect because Tree Connect happens when establishing
-an SMB session. For SMB 3.0 protocol version the code also calls
-validate negotiate which results in SMB2_IOCL command being sent
-over the wire. This may deadlock on trying to acquire a mutex when
-checking for reconnect. Fix this by skipping SMB2_IOCL command
-when doing the reconnect check.
+  X = 0;
 
-Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-CC: Stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  CPU0			CPU1
 
+  rwsem_down_read()
+    for (;;) {
+      set_current_state(TASK_UNINTERRUPTIBLE);
+
+                        X = 1;
+                        rwsem_up_write();
+                          rwsem_mark_wake()
+                            atomic_long_add(adjustment, &sem->count);
+                            smp_store_release(&waiter->task, NULL);
+
+      if (!waiter.task)
+        break;
+
+      ...
+    }
+
+  r = X;
+
+Allows 'r == 0'.
+
+Reported-by: Will Deacon <will@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Will Deacon <will@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Hurley <peter@hurleysoftware.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Fixes: 4898e640caf0 ("tty: Add timed, writer-prioritized rw semaphore")
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2pdu.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/tty_ldsem.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -168,7 +168,7 @@ smb2_reconnect(__le16 smb2_command, stru
- 	if (tcon == NULL)
- 		return 0;
+diff --git a/drivers/tty/tty_ldsem.c b/drivers/tty/tty_ldsem.c
+index 34234c2338511..656c2ade6a434 100644
+--- a/drivers/tty/tty_ldsem.c
++++ b/drivers/tty/tty_ldsem.c
+@@ -137,8 +137,7 @@ static void __ldsem_wake_readers(struct ld_semaphore *sem)
  
--	if (smb2_command == SMB2_TREE_CONNECT)
-+	if (smb2_command == SMB2_TREE_CONNECT || smb2_command == SMB2_IOCTL)
- 		return 0;
+ 	list_for_each_entry_safe(waiter, next, &sem->read_wait, list) {
+ 		tsk = waiter->task;
+-		smp_mb();
+-		waiter->task = NULL;
++		smp_store_release(&waiter->task, NULL);
+ 		wake_up_process(tsk);
+ 		put_task_struct(tsk);
+ 	}
+@@ -234,7 +233,7 @@ down_read_failed(struct ld_semaphore *sem, long count, long timeout)
+ 	for (;;) {
+ 		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
  
- 	if (tcon->tidStatus == CifsExiting) {
+-		if (!waiter.task)
++		if (!smp_load_acquire(&waiter.task))
+ 			break;
+ 		if (!timeout)
+ 			break;
+-- 
+2.20.1
+
 
 
