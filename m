@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 647E999B28
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:24:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E7E099B4C
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:25:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389700AbfHVRWO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:22:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39952 "EHLO mail.kernel.org"
+        id S2391490AbfHVRXb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:23:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731739AbfHVRWN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:22:13 -0400
+        id S2391485AbfHVRXa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:23:30 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B295233FC;
-        Thu, 22 Aug 2019 17:22:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9EDDF23402;
+        Thu, 22 Aug 2019 17:23:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494532;
-        bh=AVicXjXBDTNkmD+DCSqjsRvB8JpLgtzFJapW1rLcoxI=;
+        s=default; t=1566494609;
+        bh=Z9vCoxmg1F0JBLGhQ5ys9J4j4m/T7XhF6spaclXJU8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KN3Ye7DTtkGLOPzTrnP65diCBHbs7omE4KxL8PvbyN4u5MjEUL0RBZvfFtzdqU3U8
-         bIAbni7MuOMrAA/4cJpKT3QTw2JDX4t9tYYmTjPSpCuekSuPFmU5OjK63OZX3m+n+m
-         zzw9poTEGwidegV6tu2co3Ak21J2myj0Evta562k=
+        b=CeHdrHBsBH9Gx6FzjYaYGXnO5DuZzzMtj6xrCWgqJynEv614wbL1QTP13g2GohoMT
+         WC/WYPbnr2Tc+esSorkPmoYi3EUy3Gw47sQnXzOlyKFe5kOLSk/VhR3eXlNM/MjhaU
+         egzoDxmaDiCXlLz268nEX9+2d5arf7tLuyCH3nF0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Tai <thomas.tai@oracle.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 10/78] iscsi_ibft: make ISCSI_IBFT dependson ACPI instead of ISCSI_IBFT_FIND
-Date:   Thu, 22 Aug 2019 10:18:14 -0700
-Message-Id: <20190822171832.342016584@linuxfoundation.org>
+        stable@vger.kernel.org, Gilles Buloz <Gilles.Buloz@kontron.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.9 033/103] hwmon: (nct7802) Fix wrong detection of in4 presence
+Date:   Thu, 22 Aug 2019 10:18:21 -0700
+Message-Id: <20190822171730.166122184@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171832.012773482@linuxfoundation.org>
-References: <20190822171832.012773482@linuxfoundation.org>
+In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
+References: <20190822171728.445189830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 94bccc34071094c165c79b515d21b63c78f7e968 ]
+From: Guenter Roeck <linux@roeck-us.net>
 
-iscsi_ibft can use ACPI to find the iBFT entry during bootup,
-currently, ISCSI_IBFT depends on ISCSI_IBFT_FIND which is
-a X86 legacy way to find the iBFT by searching through the
-low memory. This patch changes the dependency so that other
-arch like ARM64 can use ISCSI_IBFT as long as the arch supports
-ACPI.
+commit 38ada2f406a9b81fb1249c5c9227fa657e7d5671 upstream.
 
-ibft_init() needs to use the global variable ibft_addr declared
-in iscsi_ibft_find.c. A #ifndef CONFIG_ISCSI_IBFT_FIND is needed
-to declare the variable if CONFIG_ISCSI_IBFT_FIND is not selected.
-Moving ibft_addr into the iscsi_ibft.c does not work because if
-ISCSI_IBFT is selected as a module, the arch/x86/kernel/setup.c won't
-be able to find the variable at compile time.
+The code to detect if in4 is present is wrong; if in4 is not present,
+the in4_input sysfs attribute is still present.
 
-Signed-off-by: Thomas Tai <thomas.tai@oracle.com>
-Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In detail:
+
+- Ihen RTD3_MD=11 (VSEN3 present), everything is as expected (no bug).
+- If we have RTD3_MD!=11 (no VSEN3), we unexpectedly have a in4_input
+  file under /sys and the "sensors" command displays in4_input.
+  But as expected, we have no in4_min, in4_max, in4_alarm, in4_beep.
+
+Fix is_visible function to detect and report in4_input visibility
+as expected.
+
+Reported-by: Gilles Buloz <Gilles.Buloz@kontron.com>
+Cc: Gilles Buloz <Gilles.Buloz@kontron.com>
+Cc: stable@vger.kernel.org
+Fixes: 3434f37835804 ("hwmon: Driver for Nuvoton NCT7802Y")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/firmware/Kconfig      | 5 +++--
- drivers/firmware/iscsi_ibft.c | 4 ++++
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ drivers/hwmon/nct7802.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/firmware/Kconfig b/drivers/firmware/Kconfig
-index cf478fe6b335b..b0d42234fba0e 100644
---- a/drivers/firmware/Kconfig
-+++ b/drivers/firmware/Kconfig
-@@ -135,7 +135,7 @@ config DMI_SCAN_MACHINE_NON_EFI_FALLBACK
+--- a/drivers/hwmon/nct7802.c
++++ b/drivers/hwmon/nct7802.c
+@@ -768,7 +768,7 @@ static struct attribute *nct7802_in_attr
+ 	&sensor_dev_attr_in3_alarm.dev_attr.attr,
+ 	&sensor_dev_attr_in3_beep.dev_attr.attr,
  
- config ISCSI_IBFT_FIND
- 	bool "iSCSI Boot Firmware Table Attributes"
--	depends on X86 && ACPI
-+	depends on X86 && ISCSI_IBFT
- 	default n
- 	help
- 	  This option enables the kernel to find the region of memory
-@@ -146,7 +146,8 @@ config ISCSI_IBFT_FIND
- config ISCSI_IBFT
- 	tristate "iSCSI Boot Firmware Table Attributes module"
- 	select ISCSI_BOOT_SYSFS
--	depends on ISCSI_IBFT_FIND && SCSI && SCSI_LOWLEVEL
-+	select ISCSI_IBFT_FIND if X86
-+	depends on ACPI && SCSI && SCSI_LOWLEVEL
- 	default	n
- 	help
- 	  This option enables support for detection and exposing of iSCSI
-diff --git a/drivers/firmware/iscsi_ibft.c b/drivers/firmware/iscsi_ibft.c
-index 437c8ef90643b..30d67fbe00c73 100644
---- a/drivers/firmware/iscsi_ibft.c
-+++ b/drivers/firmware/iscsi_ibft.c
-@@ -93,6 +93,10 @@ MODULE_DESCRIPTION("sysfs interface to BIOS iBFT information");
- MODULE_LICENSE("GPL");
- MODULE_VERSION(IBFT_ISCSI_VERSION);
+-	&sensor_dev_attr_in4_input.dev_attr.attr,	/* 17 */
++	&sensor_dev_attr_in4_input.dev_attr.attr,	/* 16 */
+ 	&sensor_dev_attr_in4_min.dev_attr.attr,
+ 	&sensor_dev_attr_in4_max.dev_attr.attr,
+ 	&sensor_dev_attr_in4_alarm.dev_attr.attr,
+@@ -794,9 +794,9 @@ static umode_t nct7802_in_is_visible(str
  
-+#ifndef CONFIG_ISCSI_IBFT_FIND
-+struct acpi_table_ibft *ibft_addr;
-+#endif
-+
- struct ibft_hdr {
- 	u8 id;
- 	u8 version;
--- 
-2.20.1
-
+ 	if (index >= 6 && index < 11 && (reg & 0x03) != 0x03)	/* VSEN1 */
+ 		return 0;
+-	if (index >= 11 && index < 17 && (reg & 0x0c) != 0x0c)	/* VSEN2 */
++	if (index >= 11 && index < 16 && (reg & 0x0c) != 0x0c)	/* VSEN2 */
+ 		return 0;
+-	if (index >= 17 && (reg & 0x30) != 0x30)		/* VSEN3 */
++	if (index >= 16 && (reg & 0x30) != 0x30)		/* VSEN3 */
+ 		return 0;
+ 
+ 	return attr->mode;
 
 
