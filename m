@@ -2,138 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 642F398C84
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 09:43:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9D8A98DBB
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 10:32:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731632AbfHVHnx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 03:43:53 -0400
-Received: from mail.heine.tech ([195.201.24.99]:38346 "EHLO mail.heine.tech"
+        id S1730242AbfHVIcF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 04:32:05 -0400
+Received: from mga07.intel.com ([134.134.136.100]:64504 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731487AbfHVHnx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 03:43:53 -0400
-Received: from localhost (localhost [127.0.0.1]) (Authenticated sender: michael@nosthoff.rocks)
-        by mail.heine.tech (Postcow) with ESMTPSA id A125C181B72;
-        Thu, 22 Aug 2019 09:43:48 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=heine.so; s=dkim;
-        t=1566459828;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=LBF24kxs2y5CPdaTB3ix8su3zSYdd7TmiR9uR2m89lU=;
-        b=nWHBaNObjJCf1C5QBo10CKMwIy6dLozT15lmiQuI58lUUfc/WJNJqFyjEUPMNfDxOEEhVE
-        VpN0MO3sfPRE7+ypaTBp1ysrMoMZ1TxufLzZvANSRPuq+JO25fiGAL4DM4Ou/wFI4xNdXV
-        Y7w8iu853U8h5h1Kv0wkwuIpIIyL3lM=
-Message-ID: <5D5E47B1.70604@heine.so>
-Date:   Thu, 22 Aug 2019 09:43:45 +0200
-From:   Michael Nosthoff <committed@heine.so>
-User-Agent: Postbox 5.0.25 (Macintosh/20180328)
+        id S1727484AbfHVIcF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 04:32:05 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 22 Aug 2019 01:32:04 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,416,1559545200"; 
+   d="scan'208";a="186485892"
+Received: from mylly.fi.intel.com (HELO mylly.fi.intel.com.) ([10.237.72.169])
+  by FMSMGA003.fm.intel.com with ESMTP; 22 Aug 2019 01:32:02 -0700
+From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
+To:     linux-acpi@vger.kernel.org
+Cc:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>,
+        Curtis Malainey <cujomalainey@chromium.org>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] ACPI / LPSS: Save/restore LPSS private registers also on Lynxpoint
+Date:   Thu, 22 Aug 2019 11:32:00 +0300
+Message-Id: <20190822083200.18150-1-jarkko.nikula@linux.intel.com>
+X-Mailer: git-send-email 2.23.0.rc1
 MIME-Version: 1.0
-To:     Brian Norris <briannorris@chromium.org>
-CC:     linux-pm@vger.kernel.org, stable@vger.kernel.org, sre@kernel.org
-Subject: Re: [PATCH] power: supply: sbs-battery: only return health when battery
- present
-References: <20190816075842.27333-1-committed@heine.so> <20190822014655.GA165945@google.com>
-In-Reply-To: <20190822014655.GA165945@google.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+My assumption in the commit b53548f9d9e4 ("spi: pxa2xx: Remove LPSS private
+register restoring during resume") that Intel Lynxpoint and compatible
+based chipsets may not need LPSS private registers saving and restoring
+over suspend/resume cycle turned out to be false on Intel Broadwell.
 
-Brian Norris wrote:
-> On Fri, Aug 16, 2019 at 09:58:42AM +0200, Michael Nosthoff wrote:
->> when the battery is set to sbs-mode and  no gpio detection is enabled
->> "health" is always returning a value even when the battery is not present.
->> All other fields return "not present".
->> This leads to a scenario where the driver is constantly switching between
->> "present" and "not present" state. This generates a lot of constant
->> traffic on the i2c.
->
-> That depends on how often you're checking the "health" attribute,
-> doesn't it? But anyway, the bug is real.
-At least on my Hardware I had constant traffic from the moment the 
-device was probed.
-I have no userland process accessing the device.
-I'm guessing that it has something todo with the call to 
-'power_supply_changed'.
-This done at the end of 'sbs_get_property' if the presence state changed and
-no gpio is used. I suspect it triggers a readout of all the properties 
-and leads to this
-endless loop?
->> This commit changes the response of "health" to an error when the battery
->> is not responding leading to a consistent "not present" state.
->
-> Ack, and thanks for the fix.
->
->> Fixes: 76b16f4cdfb8 ("power: supply: sbs-battery: don't assume
->> MANUFACTURER_DATA formats")
->>
->> Signed-off-by: Michael Nosthoff<committed@heine.so>
->> Cc: Brian Norris<briannorris@chromium.org>
->> Cc:<stable@vger.kernel.org>
->
-> Reviewed-by: Brian Norris<briannorris@chromium.org>
-> Tested-by: Brian Norris<briannorris@chromium.org>
-thanks for review!
->
->> ---
->>   drivers/power/supply/sbs-battery.c | 25 ++++++++++++++++---------
->>   1 file changed, 16 insertions(+), 9 deletions(-)
->>
->> diff --git a/drivers/power/supply/sbs-battery.c b/drivers/power/supply/sbs-battery.c
->> index 2e86cc1e0e35..f8d74e9f7931 100644
->> --- a/drivers/power/supply/sbs-battery.c
->> +++ b/drivers/power/supply/sbs-battery.c
->> @@ -314,17 +314,22 @@ static int sbs_get_battery_presence_and_health(
->>   {
->>   	int ret;
->>
->> -	if (psp == POWER_SUPPLY_PROP_PRESENT) {
->> -		/* Dummy command; if it succeeds, battery is present. */
->> -		ret = sbs_read_word_data(client, sbs_data[REG_STATUS].addr);
->> -		if (ret<  0)
->> -			val->intval = 0; /* battery disconnected */
->> -		else
->> -			val->intval = 1; /* battery present */
->> -	} else { /* POWER_SUPPLY_PROP_HEALTH */
->> +	/* Dummy command; if it succeeds, battery is present. */
->> +	ret = sbs_read_word_data(client, sbs_data[REG_STATUS].addr);
->> +
->> +	if (ret<  0) { /* battery not present*/
->> +		if (psp == POWER_SUPPLY_PROP_PRESENT) {
->> +			val->intval = 0;
->> +			return 0;
->
-> Technically, you don't need the 'return 0' (and if we care about
-> symmetry: the TI version doesn't), since the caller knows that "not
-> present" will yield errors. I'm not sure which version makes more sense.
->
->> +		}
->> +		return ret;
->> +	}
->> +
->> +	if (psp == POWER_SUPPLY_PROP_PRESENT)
->> +		val->intval = 1; /* battery present */
->> +	else /* POWER_SUPPLY_PROP_HEALTH */
->>   		/* SBS spec doesn't have a general health command. */
->>   		val->intval = POWER_SUPPLY_HEALTH_UNKNOWN;
->> -	}
->>
->>   	return 0;
->>   }
->> @@ -626,6 +631,8 @@ static int sbs_get_property(struct power_supply *psy,
->>   		else
->>   			ret = sbs_get_battery_presence_and_health(client, psp,
->>   								  val);
->> +
->> +		/* this can only be true if no gpio is used */
->>   		if (psp == POWER_SUPPLY_PROP_PRESENT)
->>   			return 0;
->>   		break;
->> -- 
->> 2.20.1
->>
+Curtis Malainey sent a patch bringing above change back and reported the
+LPSS SPI Chip Select control was lost over suspend/resume cycle on
+Broadwell machine.
+
+Instead of reverting above commit lets add LPSS private register
+saving/restoring also for all LPSS SPI, I2C and UART controllers on
+Lynxpoint and compatible chipset to make sure context is not lost in
+case nothing else preserves it like firmware or if LPSS is always on.
+
+Fixes: b53548f9d9e4 ("spi: pxa2xx: Remove LPSS private register restoring during resume")
+Reported-by: Curtis Malainey <cujomalainey@chromium.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+---
+ drivers/acpi/acpi_lpss.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/acpi/acpi_lpss.c b/drivers/acpi/acpi_lpss.c
+index d696f165a50e..60bbc5090abe 100644
+--- a/drivers/acpi/acpi_lpss.c
++++ b/drivers/acpi/acpi_lpss.c
+@@ -219,12 +219,13 @@ static void bsw_pwm_setup(struct lpss_private_data *pdata)
+ }
+ 
+ static const struct lpss_device_desc lpt_dev_desc = {
+-	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_CLK_DIVIDER | LPSS_LTR,
++	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_CLK_DIVIDER | LPSS_LTR
++			| LPSS_SAVE_CTX,
+ 	.prv_offset = 0x800,
+ };
+ 
+ static const struct lpss_device_desc lpt_i2c_dev_desc = {
+-	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_LTR,
++	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_LTR | LPSS_SAVE_CTX,
+ 	.prv_offset = 0x800,
+ };
+ 
+@@ -236,7 +237,8 @@ static struct property_entry uart_properties[] = {
+ };
+ 
+ static const struct lpss_device_desc lpt_uart_dev_desc = {
+-	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_CLK_DIVIDER | LPSS_LTR,
++	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_CLK_DIVIDER | LPSS_LTR
++			| LPSS_SAVE_CTX,
+ 	.clk_con_id = "baudclk",
+ 	.prv_offset = 0x800,
+ 	.setup = lpss_uart_setup,
+-- 
+2.23.0.rc1
 
