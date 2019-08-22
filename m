@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6783899AE3
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:17:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB72299AE2
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:17:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391248AbfHVRQx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:16:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58190 "EHLO mail.kernel.org"
+        id S2390375AbfHVRQw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:16:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390367AbfHVRIc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390371AbfHVRIc (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 22 Aug 2019 13:08:32 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E668723405;
-        Thu, 22 Aug 2019 17:08:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F4A723407;
+        Thu, 22 Aug 2019 17:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1566493711;
-        bh=Pi5oWISMQ3clPukYbzRDrIssXpOIiF0xTx9td2Nxsno=;
+        bh=/RMruXm/kbYs/pmyESdYEDkg//1Rj8h9JYIuw284yYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b2swMwEt7laZSW6sYMxAgbtS9As+rzJVCVE64+F0AMJluIlEXp/wT3E8HuMomzfu6
-         XGlHsBvjUxb8WVHrZDY+8HA/pt44M2QFjURd6blxX7NAiKNtmRNmUFo/ObwEGunwrb
-         McicPEoyZELVL9PB+aXlom7Bot/rGw+ViC0BMxhE=
+        b=N43vpsxwxcj/JGCG87QJMbzo+iL19bCaIRQTW1mllCI8C6g1YyoIwqciY/R8F7Rvm
+         WFtceASzBsuLBoPheSjN1T/yqkRqSRfxtaBF+Pz+r3Q5iLi096VwaWdtIXYbjNQW4B
+         TILMQPv3gLdGc1flBYFZVOXTy6y/vkU8TcCbrWBA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Florian Westphal <fw@strlen.de>,
-        syzbot+276ddebab3382bbf72db@syzkaller.appspotmail.com,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+Cc:     Vincent Chen <vincent.chen@sifive.com>,
+        Anup Patel <anup@brainfault.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.2 031/135] netfilter: ebtables: also count base chain policies
-Date:   Thu, 22 Aug 2019 13:06:27 -0400
-Message-Id: <20190822170811.13303-32-sashal@kernel.org>
+Subject: [PATCH 5.2 032/135] riscv: Correct the initialized flow of FP register
+Date:   Thu, 22 Aug 2019 13:06:28 -0400
+Message-Id: <20190822170811.13303-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -50,81 +51,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Vincent Chen <vincent.chen@sifive.com>
 
-commit 3b48300d5cc7c7bed63fddb006c4046549ed4aec upstream.
+commit 8ac71d7e46b94a4fc8ffc6f1c88004cdf24459e8 upstream.
 
-ebtables doesn't include the base chain policies in the rule count,
-so we need to add them manually when we call into the x_tables core
-to allocate space for the comapt offset table.
+  The following two reasons cause FP registers are sometimes not
+initialized before starting the user program.
+1. Currently, the FP context is initialized in flush_thread() function
+   and we expect these initial values to be restored to FP register when
+   doing FP context switch. However, the FP context switch only occurs in
+   switch_to function. Hence, if this process does not be scheduled out
+   and scheduled in before entering the user space, the FP registers
+   have no chance to initialize.
+2. In flush_thread(), the state of reg->sstatus.FS inherits from the
+   parent. Hence, the state of reg->sstatus.FS may be dirty. If this
+   process is scheduled out during flush_thread() and initializing the
+   FP register, the fstate_save() in switch_to will corrupt the FP context
+   which has been initialized until flush_thread().
 
-This lead syzbot to trigger:
-WARNING: CPU: 1 PID: 9012 at net/netfilter/x_tables.c:649
-xt_compat_add_offset.cold+0x11/0x36 net/netfilter/x_tables.c:649
+  To solve the 1st case, the initialization of the FP register will be
+completed in start_thread(). It makes sure all FP registers are initialized
+before starting the user program. For the 2nd case, the state of
+reg->sstatus.FS in start_thread will be set to SR_FS_OFF to prevent this
+process from corrupting FP context in doing context save. The FP state is
+set to SR_FS_INITIAL in start_trhead().
 
-Reported-by: syzbot+276ddebab3382bbf72db@syzkaller.appspotmail.com
-Fixes: 2035f3ff8eaa ("netfilter: ebtables: compat: un-break 32bit setsockopt when no rules are present")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
+Reviewed-by: Anup Patel <anup@brainfault.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Fixes: 7db91e57a0acd ("RISC-V: Task implementation")
+Cc: stable@vger.kernel.org
+[paul.walmsley@sifive.com: fixed brace alignment issue reported by
+ checkpatch]
+Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/netfilter/ebtables.c | 28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+ arch/riscv/include/asm/switch_to.h |  6 ++++++
+ arch/riscv/kernel/process.c        | 11 +++++++++--
+ 2 files changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
-index 963dfdc148272..1fa9ac483173d 100644
---- a/net/bridge/netfilter/ebtables.c
-+++ b/net/bridge/netfilter/ebtables.c
-@@ -1770,20 +1770,28 @@ static int compat_calc_entry(const struct ebt_entry *e,
- 	return 0;
+diff --git a/arch/riscv/include/asm/switch_to.h b/arch/riscv/include/asm/switch_to.h
+index 853b65ef656da..949d9cd91dec4 100644
+--- a/arch/riscv/include/asm/switch_to.h
++++ b/arch/riscv/include/asm/switch_to.h
+@@ -19,6 +19,12 @@ static inline void __fstate_clean(struct pt_regs *regs)
+ 	regs->sstatus |= (regs->sstatus & ~(SR_FS)) | SR_FS_CLEAN;
  }
  
-+static int ebt_compat_init_offsets(unsigned int number)
++static inline void fstate_off(struct task_struct *task,
++			      struct pt_regs *regs)
 +{
-+	if (number > INT_MAX)
-+		return -EINVAL;
-+
-+	/* also count the base chain policies */
-+	number += NF_BR_NUMHOOKS;
-+
-+	return xt_compat_init_offsets(NFPROTO_BRIDGE, number);
++	regs->sstatus = (regs->sstatus & ~SR_FS) | SR_FS_OFF;
 +}
- 
- static int compat_table_info(const struct ebt_table_info *info,
- 			     struct compat_ebt_replace *newinfo)
++
+ static inline void fstate_save(struct task_struct *task,
+ 			       struct pt_regs *regs)
  {
- 	unsigned int size = info->entries_size;
- 	const void *entries = info->entries;
-+	int ret;
- 
- 	newinfo->entries_size = size;
--	if (info->nentries) {
--		int ret = xt_compat_init_offsets(NFPROTO_BRIDGE,
--						 info->nentries);
--		if (ret)
--			return ret;
--	}
-+	ret = ebt_compat_init_offsets(info->nentries);
-+	if (ret)
-+		return ret;
- 
- 	return EBT_ENTRY_ITERATE(entries, size, compat_calc_entry, info,
- 							entries, newinfo);
-@@ -2234,11 +2242,9 @@ static int compat_do_replace(struct net *net, void __user *user,
- 
- 	xt_compat_lock(NFPROTO_BRIDGE);
- 
--	if (tmp.nentries) {
--		ret = xt_compat_init_offsets(NFPROTO_BRIDGE, tmp.nentries);
--		if (ret < 0)
--			goto out_unlock;
--	}
-+	ret = ebt_compat_init_offsets(tmp.nentries);
-+	if (ret < 0)
-+		goto out_unlock;
- 
- 	ret = compat_copy_entries(entries_tmp, tmp.entries_size, &state);
- 	if (ret < 0)
+diff --git a/arch/riscv/kernel/process.c b/arch/riscv/kernel/process.c
+index f23794bd1e90c..fb3a082362eb8 100644
+--- a/arch/riscv/kernel/process.c
++++ b/arch/riscv/kernel/process.c
+@@ -64,8 +64,14 @@ void start_thread(struct pt_regs *regs, unsigned long pc,
+ 	unsigned long sp)
+ {
+ 	regs->sstatus = SR_SPIE;
+-	if (has_fpu)
++	if (has_fpu) {
+ 		regs->sstatus |= SR_FS_INITIAL;
++		/*
++		 * Restore the initial value to the FP register
++		 * before starting the user program.
++		 */
++		fstate_restore(current, regs);
++	}
+ 	regs->sepc = pc;
+ 	regs->sp = sp;
+ 	set_fs(USER_DS);
+@@ -75,10 +81,11 @@ void flush_thread(void)
+ {
+ #ifdef CONFIG_FPU
+ 	/*
+-	 * Reset FPU context
++	 * Reset FPU state and context
+ 	 *	frm: round to nearest, ties to even (IEEE default)
+ 	 *	fflags: accrued exceptions cleared
+ 	 */
++	fstate_off(current, task_pt_regs(current));
+ 	memset(&current->thread.fstate, 0, sizeof(current->thread.fstate));
+ #endif
+ }
 -- 
 2.20.1
 
