@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED79A99BDE
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:31:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83ECC99C82
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:35:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404608AbfHVR0G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:26:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50902 "EHLO mail.kernel.org"
+        id S2404357AbfHVRZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:25:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404601AbfHVR0G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:26:06 -0400
+        id S2404347AbfHVRZM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:25:12 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED09B2064A;
-        Thu, 22 Aug 2019 17:26:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 646742064A;
+        Thu, 22 Aug 2019 17:25:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494765;
-        bh=2NbwNo3m3NzWCKEbeiublQr9YuP/TvQuuTKe1d/ku7o=;
+        s=default; t=1566494711;
+        bh=Z+6IQqQgpTKw/nHyv+lddek3G1zKMCMCfyPHgGYOXGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W9aJpZytQaqbWHrZ9QumKTTYS7y+8r4KYTd3w0jngYRobNlcc1L3LKt8Ea29RnjCg
-         SJY0uwwflE1we/sWtm7Lgk5QeJHrr1/qhX9zBnleXOrFOXKWUXip6/RJhMd4XwN8xK
-         BQ5hPqBvzDwjAKyM5gG/gLaroQbo/OfAXqRzuaXk=
+        b=svdFGuiNpBj7BtTv5xuv7ZIS/l0qk/yDxWAXt3ocSmaCrVHtNrowzBEhfpqZnHS3c
+         XTZIFNbrkYDje8zrJu2Bz22917jlcDlCaUKPC3YyXFK6D8nlKfW9nGd8ByvJUzk7iy
+         uYOfSkogV3+qcjJ2qWbGNKLsF5K4eR5X2yRnZHpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Jeffery <djeffery@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Salvatore Bonaccorso <carnil@debian.org>
-Subject: [PATCH 4.19 68/85] dm: disable DISCARD if the underlying storage no longer supports it
-Date:   Thu, 22 Aug 2019 10:19:41 -0700
-Message-Id: <20190822171734.134038101@linuxfoundation.org>
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
+        Tariq Toukan <tariqt@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 4.14 67/71] net/mlx5e: Use flow keys dissector to parse packets for ARFS
+Date:   Thu, 22 Aug 2019 10:19:42 -0700
+Message-Id: <20190822171730.629258436@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
-References: <20190822171731.012687054@linuxfoundation.org>
+In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
+References: <20190822171726.131957995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,123 +44,194 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@redhat.com>
+From: Maxim Mikityanskiy <maximmi@mellanox.com>
 
-commit bcb44433bba5eaff293888ef22ffa07f1f0347d6 upstream.
+[ Upstream commit 405b93eb764367a670e729da18e54dc42db32620 ]
 
-Storage devices which report supporting discard commands like
-WRITE_SAME_16 with unmap, but reject discard commands sent to the
-storage device.  This is a clear storage firmware bug but it doesn't
-change the fact that should a program cause discards to be sent to a
-multipath device layered on this buggy storage, all paths can end up
-failed at the same time from the discards, causing possible I/O loss.
+The current ARFS code relies on certain fields to be set in the SKB
+(e.g. transport_header) and extracts IP addresses and ports by custom
+code that parses the packet. The necessary SKB fields, however, are not
+always set at that point, which leads to an out-of-bounds access. Use
+skb_flow_dissect_flow_keys() to get the necessary information reliably,
+fix the out-of-bounds access and reuse the code.
 
-The first discard to a path will fail with Illegal Request, Invalid
-field in cdb, e.g.:
- kernel: sd 8:0:8:19: [sdfn] tag#0 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_SENSE
- kernel: sd 8:0:8:19: [sdfn] tag#0 Sense Key : Illegal Request [current]
- kernel: sd 8:0:8:19: [sdfn] tag#0 Add. Sense: Invalid field in cdb
- kernel: sd 8:0:8:19: [sdfn] tag#0 CDB: Write same(16) 93 08 00 00 00 00 00 a0 08 00 00 00 80 00 00 00
- kernel: blk_update_request: critical target error, dev sdfn, sector 10487808
-
-The SCSI layer converts this to the BLK_STS_TARGET error number, the sd
-device disables its support for discard on this path, and because of the
-BLK_STS_TARGET error multipath fails the discard without failing any
-path or retrying down a different path.  But subsequent discards can
-cause path failures.  Any discards sent to the path which already failed
-a discard ends up failing with EIO from blk_cloned_rq_check_limits with
-an "over max size limit" error since the discard limit was set to 0 by
-the sd driver for the path.  As the error is EIO, this now fails the
-path and multipath tries to send the discard down the next path.  This
-cycle continues as discards are sent until all paths fail.
-
-Fix this by training DM core to disable DISCARD if the underlying
-storage already did so.
-
-Also, fix branching in dm_done() and clone_endio() to reflect the
-mutually exclussive nature of the IO operations in question.
-
-Cc: stable@vger.kernel.org
-Reported-by: David Jeffery <djeffery@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-[Salvatore Bonaccorso: backported to 4.19: Adjust for context changes in
-drivers/md/dm-core.h]
-Signed-off-by: Salvatore Bonaccorso <carnil@debian.org>
+Fixes: 18c908e477dc ("net/mlx5e: Add accelerated RFS support")
+Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
+Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/md/dm-core.h |    1 +
- drivers/md/dm-rq.c   |   11 +++++++----
- drivers/md/dm.c      |   20 ++++++++++++++++----
- 3 files changed, 24 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_arfs.c |   97 +++++++---------------
+ 1 file changed, 34 insertions(+), 63 deletions(-)
 
---- a/drivers/md/dm-core.h
-+++ b/drivers/md/dm-core.h
-@@ -130,6 +130,7 @@ struct mapped_device {
- };
- 
- int md_in_flight(struct mapped_device *md);
-+void disable_discard(struct mapped_device *md);
- void disable_write_same(struct mapped_device *md);
- void disable_write_zeroes(struct mapped_device *md);
- 
---- a/drivers/md/dm-rq.c
-+++ b/drivers/md/dm-rq.c
-@@ -295,11 +295,14 @@ static void dm_done(struct request *clon
- 	}
- 
- 	if (unlikely(error == BLK_STS_TARGET)) {
--		if (req_op(clone) == REQ_OP_WRITE_SAME &&
--		    !clone->q->limits.max_write_same_sectors)
-+		if (req_op(clone) == REQ_OP_DISCARD &&
-+		    !clone->q->limits.max_discard_sectors)
-+			disable_discard(tio->md);
-+		else if (req_op(clone) == REQ_OP_WRITE_SAME &&
-+			 !clone->q->limits.max_write_same_sectors)
- 			disable_write_same(tio->md);
--		if (req_op(clone) == REQ_OP_WRITE_ZEROES &&
--		    !clone->q->limits.max_write_zeroes_sectors)
-+		else if (req_op(clone) == REQ_OP_WRITE_ZEROES &&
-+			 !clone->q->limits.max_write_zeroes_sectors)
- 			disable_write_zeroes(tio->md);
- 	}
- 
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -910,6 +910,15 @@ static void dec_pending(struct dm_io *io
- 	}
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_arfs.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_arfs.c
+@@ -439,12 +439,6 @@ arfs_hash_bucket(struct arfs_table *arfs
+ 	return &arfs_t->rules_hash[bucket_idx];
  }
  
-+void disable_discard(struct mapped_device *md)
-+{
-+	struct queue_limits *limits = dm_get_queue_limits(md);
-+
-+	/* device doesn't really support DISCARD, disable it */
-+	limits->max_discard_sectors = 0;
-+	blk_queue_flag_clear(QUEUE_FLAG_DISCARD, md->queue);
-+}
-+
- void disable_write_same(struct mapped_device *md)
+-static u8 arfs_get_ip_proto(const struct sk_buff *skb)
+-{
+-	return (skb->protocol == htons(ETH_P_IP)) ?
+-		ip_hdr(skb)->protocol : ipv6_hdr(skb)->nexthdr;
+-}
+-
+ static struct arfs_table *arfs_get_table(struct mlx5e_arfs_tables *arfs,
+ 					 u8 ip_proto, __be16 etype)
  {
- 	struct queue_limits *limits = dm_get_queue_limits(md);
-@@ -935,11 +944,14 @@ static void clone_endio(struct bio *bio)
- 	dm_endio_fn endio = tio->ti->type->end_io;
+@@ -601,31 +595,9 @@ out:
+ 	arfs_may_expire_flow(priv);
+ }
  
- 	if (unlikely(error == BLK_STS_TARGET) && md->type != DM_TYPE_NVME_BIO_BASED) {
--		if (bio_op(bio) == REQ_OP_WRITE_SAME &&
--		    !bio->bi_disk->queue->limits.max_write_same_sectors)
-+		if (bio_op(bio) == REQ_OP_DISCARD &&
-+		    !bio->bi_disk->queue->limits.max_discard_sectors)
-+			disable_discard(md);
-+		else if (bio_op(bio) == REQ_OP_WRITE_SAME &&
-+			 !bio->bi_disk->queue->limits.max_write_same_sectors)
- 			disable_write_same(md);
--		if (bio_op(bio) == REQ_OP_WRITE_ZEROES &&
--		    !bio->bi_disk->queue->limits.max_write_zeroes_sectors)
-+		else if (bio_op(bio) == REQ_OP_WRITE_ZEROES &&
-+			 !bio->bi_disk->queue->limits.max_write_zeroes_sectors)
- 			disable_write_zeroes(md);
+-/* return L4 destination port from ip4/6 packets */
+-static __be16 arfs_get_dst_port(const struct sk_buff *skb)
+-{
+-	char *transport_header;
+-
+-	transport_header = skb_transport_header(skb);
+-	if (arfs_get_ip_proto(skb) == IPPROTO_TCP)
+-		return ((struct tcphdr *)transport_header)->dest;
+-	return ((struct udphdr *)transport_header)->dest;
+-}
+-
+-/* return L4 source port from ip4/6 packets */
+-static __be16 arfs_get_src_port(const struct sk_buff *skb)
+-{
+-	char *transport_header;
+-
+-	transport_header = skb_transport_header(skb);
+-	if (arfs_get_ip_proto(skb) == IPPROTO_TCP)
+-		return ((struct tcphdr *)transport_header)->source;
+-	return ((struct udphdr *)transport_header)->source;
+-}
+-
+ static struct arfs_rule *arfs_alloc_rule(struct mlx5e_priv *priv,
+ 					 struct arfs_table *arfs_t,
+-					 const struct sk_buff *skb,
++					 const struct flow_keys *fk,
+ 					 u16 rxq, u32 flow_id)
+ {
+ 	struct arfs_rule *rule;
+@@ -640,19 +612,19 @@ static struct arfs_rule *arfs_alloc_rule
+ 	INIT_WORK(&rule->arfs_work, arfs_handle_work);
+ 
+ 	tuple = &rule->tuple;
+-	tuple->etype = skb->protocol;
++	tuple->etype = fk->basic.n_proto;
++	tuple->ip_proto = fk->basic.ip_proto;
+ 	if (tuple->etype == htons(ETH_P_IP)) {
+-		tuple->src_ipv4 = ip_hdr(skb)->saddr;
+-		tuple->dst_ipv4 = ip_hdr(skb)->daddr;
++		tuple->src_ipv4 = fk->addrs.v4addrs.src;
++		tuple->dst_ipv4 = fk->addrs.v4addrs.dst;
+ 	} else {
+-		memcpy(&tuple->src_ipv6, &ipv6_hdr(skb)->saddr,
++		memcpy(&tuple->src_ipv6, &fk->addrs.v6addrs.src,
+ 		       sizeof(struct in6_addr));
+-		memcpy(&tuple->dst_ipv6, &ipv6_hdr(skb)->daddr,
++		memcpy(&tuple->dst_ipv6, &fk->addrs.v6addrs.dst,
+ 		       sizeof(struct in6_addr));
+ 	}
+-	tuple->ip_proto = arfs_get_ip_proto(skb);
+-	tuple->src_port = arfs_get_src_port(skb);
+-	tuple->dst_port = arfs_get_dst_port(skb);
++	tuple->src_port = fk->ports.src;
++	tuple->dst_port = fk->ports.dst;
+ 
+ 	rule->flow_id = flow_id;
+ 	rule->filter_id = priv->fs.arfs.last_filter_id++ % RPS_NO_FILTER;
+@@ -663,37 +635,33 @@ static struct arfs_rule *arfs_alloc_rule
+ 	return rule;
+ }
+ 
+-static bool arfs_cmp_ips(struct arfs_tuple *tuple,
+-			 const struct sk_buff *skb)
++static bool arfs_cmp(const struct arfs_tuple *tuple, const struct flow_keys *fk)
+ {
+-	if (tuple->etype == htons(ETH_P_IP) &&
+-	    tuple->src_ipv4 == ip_hdr(skb)->saddr &&
+-	    tuple->dst_ipv4 == ip_hdr(skb)->daddr)
+-		return true;
+-	if (tuple->etype == htons(ETH_P_IPV6) &&
+-	    (!memcmp(&tuple->src_ipv6, &ipv6_hdr(skb)->saddr,
+-		     sizeof(struct in6_addr))) &&
+-	    (!memcmp(&tuple->dst_ipv6, &ipv6_hdr(skb)->daddr,
+-		     sizeof(struct in6_addr))))
+-		return true;
++	if (tuple->src_port != fk->ports.src || tuple->dst_port != fk->ports.dst)
++		return false;
++	if (tuple->etype != fk->basic.n_proto)
++		return false;
++	if (tuple->etype == htons(ETH_P_IP))
++		return tuple->src_ipv4 == fk->addrs.v4addrs.src &&
++		       tuple->dst_ipv4 == fk->addrs.v4addrs.dst;
++	if (tuple->etype == htons(ETH_P_IPV6))
++		return !memcmp(&tuple->src_ipv6, &fk->addrs.v6addrs.src,
++			       sizeof(struct in6_addr)) &&
++		       !memcmp(&tuple->dst_ipv6, &fk->addrs.v6addrs.dst,
++			       sizeof(struct in6_addr));
+ 	return false;
+ }
+ 
+ static struct arfs_rule *arfs_find_rule(struct arfs_table *arfs_t,
+-					const struct sk_buff *skb)
++					const struct flow_keys *fk)
+ {
+ 	struct arfs_rule *arfs_rule;
+ 	struct hlist_head *head;
+-	__be16 src_port = arfs_get_src_port(skb);
+-	__be16 dst_port = arfs_get_dst_port(skb);
+ 
+-	head = arfs_hash_bucket(arfs_t, src_port, dst_port);
++	head = arfs_hash_bucket(arfs_t, fk->ports.src, fk->ports.dst);
+ 	hlist_for_each_entry(arfs_rule, head, hlist) {
+-		if (arfs_rule->tuple.src_port == src_port &&
+-		    arfs_rule->tuple.dst_port == dst_port &&
+-		    arfs_cmp_ips(&arfs_rule->tuple, skb)) {
++		if (arfs_cmp(&arfs_rule->tuple, fk))
+ 			return arfs_rule;
+-		}
  	}
  
+ 	return NULL;
+@@ -706,20 +674,24 @@ int mlx5e_rx_flow_steer(struct net_devic
+ 	struct mlx5e_arfs_tables *arfs = &priv->fs.arfs;
+ 	struct arfs_table *arfs_t;
+ 	struct arfs_rule *arfs_rule;
++	struct flow_keys fk;
++
++	if (!skb_flow_dissect_flow_keys(skb, &fk, 0))
++		return -EPROTONOSUPPORT;
+ 
+-	if (skb->protocol != htons(ETH_P_IP) &&
+-	    skb->protocol != htons(ETH_P_IPV6))
++	if (fk.basic.n_proto != htons(ETH_P_IP) &&
++	    fk.basic.n_proto != htons(ETH_P_IPV6))
+ 		return -EPROTONOSUPPORT;
+ 
+ 	if (skb->encapsulation)
+ 		return -EPROTONOSUPPORT;
+ 
+-	arfs_t = arfs_get_table(arfs, arfs_get_ip_proto(skb), skb->protocol);
++	arfs_t = arfs_get_table(arfs, fk.basic.ip_proto, fk.basic.n_proto);
+ 	if (!arfs_t)
+ 		return -EPROTONOSUPPORT;
+ 
+ 	spin_lock_bh(&arfs->arfs_lock);
+-	arfs_rule = arfs_find_rule(arfs_t, skb);
++	arfs_rule = arfs_find_rule(arfs_t, &fk);
+ 	if (arfs_rule) {
+ 		if (arfs_rule->rxq == rxq_index) {
+ 			spin_unlock_bh(&arfs->arfs_lock);
+@@ -727,8 +699,7 @@ int mlx5e_rx_flow_steer(struct net_devic
+ 		}
+ 		arfs_rule->rxq = rxq_index;
+ 	} else {
+-		arfs_rule = arfs_alloc_rule(priv, arfs_t, skb,
+-					    rxq_index, flow_id);
++		arfs_rule = arfs_alloc_rule(priv, arfs_t, &fk, rxq_index, flow_id);
+ 		if (!arfs_rule) {
+ 			spin_unlock_bh(&arfs->arfs_lock);
+ 			return -ENOMEM;
 
 
