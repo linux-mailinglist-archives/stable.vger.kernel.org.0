@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0D9499AD7
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:17:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC8BB99AD2
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:17:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731863AbfHVRQW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:16:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58302 "EHLO mail.kernel.org"
+        id S2388773AbfHVRQH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:16:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390395AbfHVRIg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:08:36 -0400
+        id S2390399AbfHVRIh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:08:37 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FEEA23406;
+        by mail.kernel.org (Postfix) with ESMTPSA id E10C923407;
         Thu, 22 Aug 2019 17:08:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566493715;
-        bh=mTa9ObJI1tPmKslY7UHxoXGKBG5f58d3ovgEkn6DzO4=;
+        s=default; t=1566493716;
+        bh=8zooDDLk4SMfizKNkmpLcqjt64Lv2VSIABX6QBeAj3M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j+U36wluoQ0m40PCeVyxu+6T4G++u6m+UOE3eboSf54R9drgGHR3BzNf+I4Nkj2pp
-         x3JEedrI8Ad6/LAyVy4dxraxK92mT+yTq6heVHXf8tZDldNwbNSPQAZJtM8dRm+s5h
-         nSdUC/ypuieYUJ4kcYXlzbwHRlfZOWT+Lu8jO2+8=
+        b=woe8abyCqlbH94lceEW8pl5b87zHl9iVmhXYC46noJzVUdpmAjdXNY1rWkox3FEKg
+         kX1qFgvNmUC1jGbfgmbNzw1NZaHePZ16VVPYky39Z+42W/6y9H07SwFlRiOGvZSR48
+         m4ynAv9vjirmJGLNFNrMYabRrSz046EUGFwyoMS0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chunyan Zhang <chunyan.zhang@unisoc.com>,
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Yao Lihua <Lihua.Yao@desay-svautomotive.com>,
+        Linh Phung <linh.phung.jy@renesas.com>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 040/135] clk: sprd: Select REGMAP_MMIO to avoid compile errors
-Date:   Thu, 22 Aug 2019 13:06:36 -0400
-Message-Id: <20190822170811.13303-41-sashal@kernel.org>
+Subject: [PATCH 5.2 041/135] clk: renesas: cpg-mssr: Fix reset control race condition
+Date:   Thu, 22 Aug 2019 13:06:37 -0400
+Message-Id: <20190822170811.13303-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -49,31 +51,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunyan Zhang <chunyan.zhang@unisoc.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit c9a67cbb5189e966c70451562b2ca4c3876ab546 ]
+[ Upstream commit e1f1ae8002e4b06addc52443fcd975bbf554ae92 ]
 
-Make REGMAP_MMIO selected to avoid undefined reference to regmap symbols.
+The module reset code in the Renesas CPG/MSSR driver uses
+read-modify-write (RMW) operations to write to a Software Reset Register
+(SRCRn), and simple writes to write to a Software Reset Clearing
+Register (SRSTCLRn), as was mandated by the R-Car Gen2 and Gen3 Hardware
+User's Manuals.
 
-Fixes: d41f59fd92f2 ("clk: sprd: Add common infrastructure")
-Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
+However, this may cause a race condition when two devices are reset in
+parallel: if the reset for device A completes in the middle of the RMW
+operation for device B, device A may be reset again, causing subtle
+failures (e.g. i2c timeouts):
+
+	thread A			thread B
+	--------			--------
+
+	val = SRCRn
+	val |= bit A
+	SRCRn = val
+
+	delay
+
+					val = SRCRn (bit A is set)
+
+	SRSTCLRn = bit A
+	(bit A in SRCRn is cleared)
+
+					val |= bit B
+					SRCRn = val (bit A and B are set)
+
+This can be reproduced on e.g. Salvator-XS using:
+
+    $ while true; do i2cdump -f -y 4 0x6A b > /dev/null; done &
+    $ while true; do i2cdump -f -y 2 0x10 b > /dev/null; done &
+
+    i2c-rcar e6510000.i2c: error -110 : 40000002
+    i2c-rcar e66d8000.i2c: error -110 : 40000002
+
+According to the R-Car Gen3 Hardware Manual Errata for Rev.
+0.80 of Feb 28, 2018, reflected in Rev. 1.00 of the R-Car Gen3 Hardware
+User's Manual, writes to SRCRn do not require read-modify-write cycles.
+
+Note that the R-Car Gen2 Hardware User's Manual has not been updated
+yet, and still says a read-modify-write sequence is required.  According
+to the hardware team, the reset hardware block is the same on both R-Car
+Gen2 and Gen3, though.
+
+Hence fix the issue by replacing the read-modify-write operations on
+SRCRn by simple writes.
+
+Reported-by: Yao Lihua <Lihua.Yao@desay-svautomotive.com>
+Fixes: 6197aa65c4905532 ("clk: renesas: cpg-mssr: Add support for reset control")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: Linh Phung <linh.phung.jy@renesas.com>
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/sprd/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/clk/renesas/renesas-cpg-mssr.c | 16 ++--------------
+ 1 file changed, 2 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/clk/sprd/Kconfig b/drivers/clk/sprd/Kconfig
-index 91d3d721c801e..3c219af251001 100644
---- a/drivers/clk/sprd/Kconfig
-+++ b/drivers/clk/sprd/Kconfig
-@@ -3,6 +3,7 @@ config SPRD_COMMON_CLK
- 	tristate "Clock support for Spreadtrum SoCs"
- 	depends on ARCH_SPRD || COMPILE_TEST
- 	default ARCH_SPRD
-+	select REGMAP_MMIO
+diff --git a/drivers/clk/renesas/renesas-cpg-mssr.c b/drivers/clk/renesas/renesas-cpg-mssr.c
+index 0201809bbd377..9dfa28d6fd9f9 100644
+--- a/drivers/clk/renesas/renesas-cpg-mssr.c
++++ b/drivers/clk/renesas/renesas-cpg-mssr.c
+@@ -576,17 +576,11 @@ static int cpg_mssr_reset(struct reset_controller_dev *rcdev,
+ 	unsigned int reg = id / 32;
+ 	unsigned int bit = id % 32;
+ 	u32 bitmask = BIT(bit);
+-	unsigned long flags;
+-	u32 value;
  
- if SPRD_COMMON_CLK
+ 	dev_dbg(priv->dev, "reset %u%02u\n", reg, bit);
+ 
+ 	/* Reset module */
+-	spin_lock_irqsave(&priv->rmw_lock, flags);
+-	value = readl(priv->base + SRCR(reg));
+-	value |= bitmask;
+-	writel(value, priv->base + SRCR(reg));
+-	spin_unlock_irqrestore(&priv->rmw_lock, flags);
++	writel(bitmask, priv->base + SRCR(reg));
+ 
+ 	/* Wait for at least one cycle of the RCLK clock (@ ca. 32 kHz) */
+ 	udelay(35);
+@@ -603,16 +597,10 @@ static int cpg_mssr_assert(struct reset_controller_dev *rcdev, unsigned long id)
+ 	unsigned int reg = id / 32;
+ 	unsigned int bit = id % 32;
+ 	u32 bitmask = BIT(bit);
+-	unsigned long flags;
+-	u32 value;
+ 
+ 	dev_dbg(priv->dev, "assert %u%02u\n", reg, bit);
+ 
+-	spin_lock_irqsave(&priv->rmw_lock, flags);
+-	value = readl(priv->base + SRCR(reg));
+-	value |= bitmask;
+-	writel(value, priv->base + SRCR(reg));
+-	spin_unlock_irqrestore(&priv->rmw_lock, flags);
++	writel(bitmask, priv->base + SRCR(reg));
+ 	return 0;
+ }
  
 -- 
 2.20.1
