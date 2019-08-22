@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE1ED99AE6
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:17:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53FC7999EC
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:11:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732936AbfHVRRD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:17:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58160 "EHLO mail.kernel.org"
+        id S2390376AbfHVRIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:08:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390361AbfHVRIb (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390363AbfHVRIb (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 22 Aug 2019 13:08:31 -0400
 Received: from sasha-vm.mshome.net (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF112233FC;
-        Thu, 22 Aug 2019 17:08:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7474E2341D;
+        Thu, 22 Aug 2019 17:08:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1566493710;
-        bh=QK85sgzqt77uYmmnnf7QigCZMyphAJAAnG+jNPOGMkc=;
+        bh=QbEZQBkyRzh5gb4inivLOKwAYp/yyLAyxOPGsojb4jc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tLGwZooTSQlgq0/7idiw3RmLNppNVuORuRjyD692JACW9lrUs5A0KpltkZ3iM2Q3b
-         hnVsCyC8DvQGM5rP0v15hktCTc0F+IFPXo4zmW0SYvTw34AMNyEBaTc3h/au7DPPgR
-         oZbYhoY7F5QrO3zN/NUAINEkwOezi742zpf06GUU=
+        b=G1AXiv8wrraoMVBaL5m7m6s3rWZc7TC1C+CzEpAuuUutFJ9KlQISs0pvJvSANBkaB
+         oyEViYyh5/2mcrhUufOM5aGqoTZpMvlX7gYrYptxlBQlm1LdPURjVlfjpxWNf6Wobc
+         I0xjX/OiEAO15AsYnu/r8/gVPRZR5BofkiOlTor0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Denis Kirjanov <kda@linux-powerpc.org>,
-        syzbot+3499a83b2d062ae409d4@syzkaller.appspotmail.com,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.2 029/135] net: usb: pegasus: fix improper read if get_registers() fail
-Date:   Thu, 22 Aug 2019 13:06:25 -0400
-Message-Id: <20190822170811.13303-30-sashal@kernel.org>
+Subject: [PATCH 5.2 030/135] bpf: fix access to skb_shared_info->gso_segs
+Date:   Thu, 22 Aug 2019 13:06:26 -0400
+Message-Id: <20190822170811.13303-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190822170811.13303-1-sashal@kernel.org>
 References: <20190822170811.13303-1-sashal@kernel.org>
@@ -50,34 +50,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Kirjanov <kda@linux-powerpc.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 224c04973db1125fcebefffd86115f99f50f8277 upstream.
+commit 06a22d897d82f12776d44dbf0850f5895469cb2a upstream.
 
-get_registers() may fail with -ENOMEM and in this
-case we can read a garbage from the status variable tmp.
+It is possible we reach bpf_convert_ctx_access() with
+si->dst_reg == si->src_reg
 
-Reported-by: syzbot+3499a83b2d062ae409d4@syzkaller.appspotmail.com
-Signed-off-by: Denis Kirjanov <kda@linux-powerpc.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Therefore, we need to load BPF_REG_AX before eventually
+mangling si->src_reg.
+
+syzbot generated this x86 code :
+   3:   55                      push   %rbp
+   4:   48 89 e5                mov    %rsp,%rbp
+   7:   48 81 ec 00 00 00 00    sub    $0x0,%rsp // Might be avoided ?
+   e:   53                      push   %rbx
+   f:   41 55                   push   %r13
+  11:   41 56                   push   %r14
+  13:   41 57                   push   %r15
+  15:   6a 00                   pushq  $0x0
+  17:   31 c0                   xor    %eax,%eax
+  19:   48 8b bf c0 00 00 00    mov    0xc0(%rdi),%rdi
+  20:   44 8b 97 bc 00 00 00    mov    0xbc(%rdi),%r10d
+  27:   4c 01 d7                add    %r10,%rdi
+  2a:   48 0f b7 7f 06          movzwq 0x6(%rdi),%rdi // Crash
+  2f:   5b                      pop    %rbx
+  30:   41 5f                   pop    %r15
+  32:   41 5e                   pop    %r14
+  34:   41 5d                   pop    %r13
+  36:   5b                      pop    %rbx
+  37:   c9                      leaveq
+  38:   c3                      retq
+
+Fixes: d9ff286a0f59 ("bpf: allow BPF programs access skb_shared_info->gso_segs field")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/pegasus.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/filter.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/usb/pegasus.c b/drivers/net/usb/pegasus.c
-index 6d25dea5ad4b2..f7d117d80cfbb 100644
---- a/drivers/net/usb/pegasus.c
-+++ b/drivers/net/usb/pegasus.c
-@@ -282,7 +282,7 @@ static void mdio_write(struct net_device *dev, int phy_id, int loc, int val)
- static int read_eprom_word(pegasus_t *pegasus, __u8 index, __u16 *retdata)
- {
- 	int i;
--	__u8 tmp;
-+	__u8 tmp = 0;
- 	__le16 retdatai;
- 	int ret;
- 
+diff --git a/net/core/filter.c b/net/core/filter.c
+index f681fb772940c..534c310bb0893 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -7325,12 +7325,12 @@ static u32 bpf_convert_ctx_access(enum bpf_access_type type,
+ 	case offsetof(struct __sk_buff, gso_segs):
+ 		/* si->dst_reg = skb_shinfo(SKB); */
+ #ifdef NET_SKBUFF_DATA_USES_OFFSET
+-		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, head),
+-				      si->dst_reg, si->src_reg,
+-				      offsetof(struct sk_buff, head));
+ 		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, end),
+ 				      BPF_REG_AX, si->src_reg,
+ 				      offsetof(struct sk_buff, end));
++		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, head),
++				      si->dst_reg, si->src_reg,
++				      offsetof(struct sk_buff, head));
+ 		*insn++ = BPF_ALU64_REG(BPF_ADD, si->dst_reg, BPF_REG_AX);
+ #else
+ 		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, end),
 -- 
 2.20.1
 
