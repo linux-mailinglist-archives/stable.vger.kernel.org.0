@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C75799C33
-	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:32:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6374F99CD4
+	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:37:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392283AbfHVRb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:31:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49862 "EHLO mail.kernel.org"
+        id S2392186AbfHVRhM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:37:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404497AbfHVRZs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Aug 2019 13:25:48 -0400
+        id S2404273AbfHVRYj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Aug 2019 13:24:39 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1AB10206DD;
-        Thu, 22 Aug 2019 17:25:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 332092341E;
+        Thu, 22 Aug 2019 17:24:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1566494747;
-        bh=x4GW7c2JlwLxPGm5e4bIPxoPtdr/wRUzPZBqG+t2Xhc=;
+        s=default; t=1566494678;
+        bh=wy5KoSJmIv5PrAHz5Ep3SD8p4yqJdHmOkyvC/C4rbK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NXa0lUmo79f5DaV2Dlr3AKYzvKLpUGRWzd4XFfLvqtWFnOw4ZWuqVf0dJPwovwv8X
-         9oxHE2IMpJoBP7OZcoAxDr3Srtg0/YEjoSg0mNZLDjyg/nhzxrfPU0Hzc+lOSH6Sba
-         eCLiHI0lIwYyFxTGKVWZ7an1zVgfOy6vHzJBFtkc=
+        b=zlzT0A+bdXsuzIAnlrvx6xDC8dHL96EkqAeEvxR+5mD5shSLZx+CXet9FrQFK32jl
+         x6kGhSkY2EFfbxK+fYeiDF8ovPXp7xHZozoczVsViw9LTl8viU9HFpPrO1e2dwp391
+         ndGSX0foAmpc+rBJ85Zuc5LeUUBMwVZtk/yPS1ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miles Chen <miles.chen@mediatek.com>,
-        Qian Cai <cai@lca.pw>, Michal Hocko <mhocko@suse.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 06/85] mm/memcontrol.c: fix use after free in mem_cgroup_iter()
-Date:   Thu, 22 Aug 2019 10:18:39 -0700
-Message-Id: <20190822171731.298944742@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: [PATCH 4.14 05/71] bpf: get rid of pure_initcall dependency to enable jits
+Date:   Thu, 22 Aug 2019 10:18:40 -0700
+Message-Id: <20190822171726.700480610@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190822171731.012687054@linuxfoundation.org>
-References: <20190822171731.012687054@linuxfoundation.org>
+In-Reply-To: <20190822171726.131957995@linuxfoundation.org>
+References: <20190822171726.131957995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,225 +44,277 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miles Chen <miles.chen@mediatek.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit 54a83d6bcbf8f4700013766b974bf9190d40b689 upstream.
+commit fa9dd599b4dae841924b022768354cfde9affecb upstream.
 
-This patch is sent to report an use after free in mem_cgroup_iter()
-after merging commit be2657752e9e ("mm: memcg: fix use after free in
-mem_cgroup_iter()").
+Having a pure_initcall() callback just to permanently enable BPF
+JITs under CONFIG_BPF_JIT_ALWAYS_ON is unnecessary and could leave
+a small race window in future where JIT is still disabled on boot.
+Since we know about the setting at compilation time anyway, just
+initialize it properly there. Also consolidate all the individual
+bpf_jit_enable variables into a single one and move them under one
+location. Moreover, don't allow for setting unspecified garbage
+values on them.
 
-I work with android kernel tree (4.9 & 4.14), and commit be2657752e9e
-("mm: memcg: fix use after free in mem_cgroup_iter()") has been merged
-to the trees.  However, I can still observe use after free issues
-addressed in the commit be2657752e9e.  (on low-end devices, a few times
-this month)
-
-backtrace:
-        css_tryget <- crash here
-        mem_cgroup_iter
-        shrink_node
-        shrink_zones
-        do_try_to_free_pages
-        try_to_free_pages
-        __perform_reclaim
-        __alloc_pages_direct_reclaim
-        __alloc_pages_slowpath
-        __alloc_pages_nodemask
-
-To debug, I poisoned mem_cgroup before freeing it:
-
-  static void __mem_cgroup_free(struct mem_cgroup *memcg)
-        for_each_node(node)
-        free_mem_cgroup_per_node_info(memcg, node);
-        free_percpu(memcg->stat);
-  +     /* poison memcg before freeing it */
-  +     memset(memcg, 0x78, sizeof(struct mem_cgroup));
-        kfree(memcg);
-  }
-
-The coredump shows the position=0xdbbc2a00 is freed.
-
-  (gdb) p/x ((struct mem_cgroup_per_node *)0xe5009e00)->iter[8]
-  $13 = {position = 0xdbbc2a00, generation = 0x2efd}
-
-  0xdbbc2a00:     0xdbbc2e00      0x00000000      0xdbbc2800      0x00000100
-  0xdbbc2a10:     0x00000200      0x78787878      0x00026218      0x00000000
-  0xdbbc2a20:     0xdcad6000      0x00000001      0x78787800      0x00000000
-  0xdbbc2a30:     0x78780000      0x00000000      0x0068fb84      0x78787878
-  0xdbbc2a40:     0x78787878      0x78787878      0x78787878      0xe3fa5cc0
-  0xdbbc2a50:     0x78787878      0x78787878      0x00000000      0x00000000
-  0xdbbc2a60:     0x00000000      0x00000000      0x00000000      0x00000000
-  0xdbbc2a70:     0x00000000      0x00000000      0x00000000      0x00000000
-  0xdbbc2a80:     0x00000000      0x00000000      0x00000000      0x00000000
-  0xdbbc2a90:     0x00000001      0x00000000      0x00000000      0x00100000
-  0xdbbc2aa0:     0x00000001      0xdbbc2ac8      0x00000000      0x00000000
-  0xdbbc2ab0:     0x00000000      0x00000000      0x00000000      0x00000000
-  0xdbbc2ac0:     0x00000000      0x00000000      0xe5b02618      0x00001000
-  0xdbbc2ad0:     0x00000000      0x78787878      0x78787878      0x78787878
-  0xdbbc2ae0:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2af0:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b00:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b10:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b20:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b30:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b40:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b50:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b60:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b70:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2b80:     0x78787878      0x78787878      0x00000000      0x78787878
-  0xdbbc2b90:     0x78787878      0x78787878      0x78787878      0x78787878
-  0xdbbc2ba0:     0x78787878      0x78787878      0x78787878      0x78787878
-
-In the reclaim path, try_to_free_pages() does not setup
-sc.target_mem_cgroup and sc is passed to do_try_to_free_pages(), ...,
-shrink_node().
-
-In mem_cgroup_iter(), root is set to root_mem_cgroup because
-sc->target_mem_cgroup is NULL.  It is possible to assign a memcg to
-root_mem_cgroup.nodeinfo.iter in mem_cgroup_iter().
-
-        try_to_free_pages
-        	struct scan_control sc = {...}, target_mem_cgroup is 0x0;
-        do_try_to_free_pages
-        shrink_zones
-        shrink_node
-        	 mem_cgroup *root = sc->target_mem_cgroup;
-        	 memcg = mem_cgroup_iter(root, NULL, &reclaim);
-        mem_cgroup_iter()
-        	if (!root)
-        		root = root_mem_cgroup;
-        	...
-
-        	css = css_next_descendant_pre(css, &root->css);
-        	memcg = mem_cgroup_from_css(css);
-        	cmpxchg(&iter->position, pos, memcg);
-
-My device uses memcg non-hierarchical mode.  When we release a memcg:
-invalidate_reclaim_iterators() reaches only dead_memcg and its parents.
-If non-hierarchical mode is used, invalidate_reclaim_iterators() never
-reaches root_mem_cgroup.
-
-  static void invalidate_reclaim_iterators(struct mem_cgroup *dead_memcg)
-  {
-        struct mem_cgroup *memcg = dead_memcg;
-
-        for (; memcg; memcg = parent_mem_cgroup(memcg)
-        ...
-  }
-
-So the use after free scenario looks like:
-
-  CPU1						CPU2
-
-  try_to_free_pages
-  do_try_to_free_pages
-  shrink_zones
-  shrink_node
-  mem_cgroup_iter()
-      if (!root)
-      	root = root_mem_cgroup;
-      ...
-      css = css_next_descendant_pre(css, &root->css);
-      memcg = mem_cgroup_from_css(css);
-      cmpxchg(&iter->position, pos, memcg);
-
-        				invalidate_reclaim_iterators(memcg);
-        				...
-        				__mem_cgroup_free()
-        					kfree(memcg);
-
-  try_to_free_pages
-  do_try_to_free_pages
-  shrink_zones
-  shrink_node
-  mem_cgroup_iter()
-      if (!root)
-      	root = root_mem_cgroup;
-      ...
-      mz = mem_cgroup_nodeinfo(root, reclaim->pgdat->node_id);
-      iter = &mz->iter[reclaim->priority];
-      pos = READ_ONCE(iter->position);
-      css_tryget(&pos->css) <- use after free
-
-To avoid this, we should also invalidate root_mem_cgroup.nodeinfo.iter
-in invalidate_reclaim_iterators().
-
-[cai@lca.pw: fix -Wparentheses compilation warning]
-  Link: http://lkml.kernel.org/r/1564580753-17531-1-git-send-email-cai@lca.pw
-Link: http://lkml.kernel.org/r/20190730015729.4406-1-miles.chen@mediatek.com
-Fixes: 5ac8fb31ad2e ("mm: memcontrol: convert reclaim iterator to simple css refcounting")
-Signed-off-by: Miles Chen <miles.chen@mediatek.com>
-Signed-off-by: Qian Cai <cai@lca.pw>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+[bwh: Backported to 4.14 as dependency of commit 2e4a30983b0f
+ "bpf: restrict access to core bpf sysctls":
+ - Adjust context]
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- mm/memcontrol.c |   39 +++++++++++++++++++++++++++++----------
- 1 file changed, 29 insertions(+), 10 deletions(-)
+ arch/arm/net/bpf_jit_32.c         |    2 --
+ arch/arm64/net/bpf_jit_comp.c     |    2 --
+ arch/mips/net/bpf_jit.c           |    2 --
+ arch/mips/net/ebpf_jit.c          |    2 --
+ arch/powerpc/net/bpf_jit_comp.c   |    2 --
+ arch/powerpc/net/bpf_jit_comp64.c |    2 --
+ arch/s390/net/bpf_jit_comp.c      |    2 --
+ arch/sparc/net/bpf_jit_comp_32.c  |    2 --
+ arch/sparc/net/bpf_jit_comp_64.c  |    2 --
+ arch/x86/net/bpf_jit_comp.c       |    2 --
+ kernel/bpf/core.c                 |   19 ++++++++++++-------
+ net/core/sysctl_net_core.c        |   18 ++++++++++++------
+ net/socket.c                      |    9 ---------
+ 13 files changed, 24 insertions(+), 42 deletions(-)
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -1037,26 +1037,45 @@ void mem_cgroup_iter_break(struct mem_cg
- 		css_put(&prev->css);
+--- a/arch/arm/net/bpf_jit_32.c
++++ b/arch/arm/net/bpf_jit_32.c
+@@ -25,8 +25,6 @@
+ 
+ #include "bpf_jit_32.h"
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ /*
+  * eBPF prog stack layout:
+  *
+--- a/arch/arm64/net/bpf_jit_comp.c
++++ b/arch/arm64/net/bpf_jit_comp.c
+@@ -31,8 +31,6 @@
+ 
+ #include "bpf_jit.h"
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ #define TMP_REG_1 (MAX_BPF_JIT_REG + 0)
+ #define TMP_REG_2 (MAX_BPF_JIT_REG + 1)
+ #define TCALL_CNT (MAX_BPF_JIT_REG + 2)
+--- a/arch/mips/net/bpf_jit.c
++++ b/arch/mips/net/bpf_jit.c
+@@ -1207,8 +1207,6 @@ jmp_cmp:
+ 	return 0;
  }
  
--static void invalidate_reclaim_iterators(struct mem_cgroup *dead_memcg)
-+static void __invalidate_reclaim_iterators(struct mem_cgroup *from,
-+					struct mem_cgroup *dead_memcg)
+-int bpf_jit_enable __read_mostly;
+-
+ void bpf_jit_compile(struct bpf_prog *fp)
  {
--	struct mem_cgroup *memcg = dead_memcg;
- 	struct mem_cgroup_reclaim_iter *iter;
- 	struct mem_cgroup_per_node *mz;
- 	int nid;
- 	int i;
- 
--	for (; memcg; memcg = parent_mem_cgroup(memcg)) {
--		for_each_node(nid) {
--			mz = mem_cgroup_nodeinfo(memcg, nid);
--			for (i = 0; i <= DEF_PRIORITY; i++) {
--				iter = &mz->iter[i];
--				cmpxchg(&iter->position,
--					dead_memcg, NULL);
--			}
-+	for_each_node(nid) {
-+		mz = mem_cgroup_nodeinfo(from, nid);
-+		for (i = 0; i <= DEF_PRIORITY; i++) {
-+			iter = &mz->iter[i];
-+			cmpxchg(&iter->position,
-+				dead_memcg, NULL);
- 		}
- 	}
+ 	struct jit_ctx ctx;
+--- a/arch/mips/net/ebpf_jit.c
++++ b/arch/mips/net/ebpf_jit.c
+@@ -177,8 +177,6 @@ static u32 b_imm(unsigned int tgt, struc
+ 		(ctx->idx * 4) - 4;
  }
  
-+static void invalidate_reclaim_iterators(struct mem_cgroup *dead_memcg)
-+{
-+	struct mem_cgroup *memcg = dead_memcg;
-+	struct mem_cgroup *last;
+-int bpf_jit_enable __read_mostly;
+-
+ enum which_ebpf_reg {
+ 	src_reg,
+ 	src_reg_no_fp,
+--- a/arch/powerpc/net/bpf_jit_comp.c
++++ b/arch/powerpc/net/bpf_jit_comp.c
+@@ -18,8 +18,6 @@
+ 
+ #include "bpf_jit32.h"
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ static inline void bpf_flush_icache(void *start, void *end)
+ {
+ 	smp_wmb();
+--- a/arch/powerpc/net/bpf_jit_comp64.c
++++ b/arch/powerpc/net/bpf_jit_comp64.c
+@@ -21,8 +21,6 @@
+ 
+ #include "bpf_jit64.h"
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ static void bpf_jit_fill_ill_insns(void *area, unsigned int size)
+ {
+ 	memset32(area, BREAKPOINT_INSTRUCTION, size/4);
+--- a/arch/s390/net/bpf_jit_comp.c
++++ b/arch/s390/net/bpf_jit_comp.c
+@@ -30,8 +30,6 @@
+ #include <asm/set_memory.h>
+ #include "bpf_jit.h"
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ struct bpf_jit {
+ 	u32 seen;		/* Flags to remember seen eBPF instructions */
+ 	u32 seen_reg[16];	/* Array to remember which registers are used */
+--- a/arch/sparc/net/bpf_jit_comp_32.c
++++ b/arch/sparc/net/bpf_jit_comp_32.c
+@@ -11,8 +11,6 @@
+ 
+ #include "bpf_jit_32.h"
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ static inline bool is_simm13(unsigned int value)
+ {
+ 	return value + 0x1000 < 0x2000;
+--- a/arch/sparc/net/bpf_jit_comp_64.c
++++ b/arch/sparc/net/bpf_jit_comp_64.c
+@@ -12,8 +12,6 @@
+ 
+ #include "bpf_jit_64.h"
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ static inline bool is_simm13(unsigned int value)
+ {
+ 	return value + 0x1000 < 0x2000;
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -16,8 +16,6 @@
+ #include <asm/nospec-branch.h>
+ #include <linux/bpf.h>
+ 
+-int bpf_jit_enable __read_mostly;
+-
+ /*
+  * assembly code in arch/x86/net/bpf_jit.S
+  */
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -290,6 +290,11 @@ struct bpf_prog *bpf_patch_insn_single(s
+ }
+ 
+ #ifdef CONFIG_BPF_JIT
++/* All BPF JIT sysctl knobs here. */
++int bpf_jit_enable   __read_mostly = IS_BUILTIN(CONFIG_BPF_JIT_ALWAYS_ON);
++int bpf_jit_harden   __read_mostly;
++int bpf_jit_kallsyms __read_mostly;
 +
-+	do {
-+		__invalidate_reclaim_iterators(memcg, dead_memcg);
-+		last = memcg;
-+	} while ((memcg = parent_mem_cgroup(memcg)));
-+
-+	/*
-+	 * When cgruop1 non-hierarchy mode is used,
-+	 * parent_mem_cgroup() does not walk all the way up to the
-+	 * cgroup root (root_mem_cgroup). So we have to handle
-+	 * dead_memcg from cgroup root separately.
+ static __always_inline void
+ bpf_get_prog_addr_region(const struct bpf_prog *prog,
+ 			 unsigned long *symbol_start,
+@@ -358,8 +363,6 @@ static DEFINE_SPINLOCK(bpf_lock);
+ static LIST_HEAD(bpf_kallsyms);
+ static struct latch_tree_root bpf_tree __cacheline_aligned;
+ 
+-int bpf_jit_kallsyms __read_mostly;
+-
+ static void bpf_prog_ksym_node_add(struct bpf_prog_aux *aux)
+ {
+ 	WARN_ON_ONCE(!list_empty(&aux->ksym_lnode));
+@@ -540,8 +543,6 @@ void __weak bpf_jit_free(struct bpf_prog
+ 	bpf_prog_unlock_free(fp);
+ }
+ 
+-int bpf_jit_harden __read_mostly;
+-
+ static int bpf_jit_blind_insn(const struct bpf_insn *from,
+ 			      const struct bpf_insn *aux,
+ 			      struct bpf_insn *to_buff)
+@@ -1327,9 +1328,13 @@ EVAL4(PROG_NAME_LIST, 416, 448, 480, 512
+ };
+ 
+ #else
+-static unsigned int __bpf_prog_ret0(const void *ctx,
+-				    const struct bpf_insn *insn)
++static unsigned int __bpf_prog_ret0_warn(const void *ctx,
++					 const struct bpf_insn *insn)
+ {
++	/* If this handler ever gets executed, then BPF_JIT_ALWAYS_ON
++	 * is not working properly, so warn about it!
 +	 */
-+	if (last != root_mem_cgroup)
-+		__invalidate_reclaim_iterators(root_mem_cgroup,
-+						dead_memcg);
-+}
-+
- /**
-  * mem_cgroup_scan_tasks - iterate over tasks of a memory cgroup hierarchy
-  * @memcg: hierarchy root
++	WARN_ON_ONCE(1);
+ 	return 0;
+ }
+ #endif
+@@ -1386,7 +1391,7 @@ struct bpf_prog *bpf_prog_select_runtime
+ 
+ 	fp->bpf_func = interpreters[(round_up(stack_depth, 32) / 32) - 1];
+ #else
+-	fp->bpf_func = __bpf_prog_ret0;
++	fp->bpf_func = __bpf_prog_ret0_warn;
+ #endif
+ 
+ 	/* eBPF JITs can rewrite the program in case constant
+--- a/net/core/sysctl_net_core.c
++++ b/net/core/sysctl_net_core.c
+@@ -25,6 +25,7 @@
+ 
+ static int zero = 0;
+ static int one = 1;
++static int two __maybe_unused = 2;
+ static int min_sndbuf = SOCK_MIN_SNDBUF;
+ static int min_rcvbuf = SOCK_MIN_RCVBUF;
+ static int max_skb_frags = MAX_SKB_FRAGS;
+@@ -325,13 +326,14 @@ static struct ctl_table net_core_table[]
+ 		.data		= &bpf_jit_enable,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0644,
+-#ifndef CONFIG_BPF_JIT_ALWAYS_ON
+-		.proc_handler	= proc_dointvec
+-#else
+ 		.proc_handler	= proc_dointvec_minmax,
++# ifdef CONFIG_BPF_JIT_ALWAYS_ON
+ 		.extra1		= &one,
+ 		.extra2		= &one,
+-#endif
++# else
++		.extra1		= &zero,
++		.extra2		= &two,
++# endif
+ 	},
+ # ifdef CONFIG_HAVE_EBPF_JIT
+ 	{
+@@ -339,14 +341,18 @@ static struct ctl_table net_core_table[]
+ 		.data		= &bpf_jit_harden,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0600,
+-		.proc_handler	= proc_dointvec,
++		.proc_handler	= proc_dointvec_minmax,
++		.extra1		= &zero,
++		.extra2		= &two,
+ 	},
+ 	{
+ 		.procname	= "bpf_jit_kallsyms",
+ 		.data		= &bpf_jit_kallsyms,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0600,
+-		.proc_handler	= proc_dointvec,
++		.proc_handler	= proc_dointvec_minmax,
++		.extra1		= &zero,
++		.extra2		= &one,
+ 	},
+ # endif
+ #endif
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -2656,15 +2656,6 @@ out_fs:
+ 
+ core_initcall(sock_init);	/* early initcall */
+ 
+-static int __init jit_init(void)
+-{
+-#ifdef CONFIG_BPF_JIT_ALWAYS_ON
+-	bpf_jit_enable = 1;
+-#endif
+-	return 0;
+-}
+-pure_initcall(jit_init);
+-
+ #ifdef CONFIG_PROC_FS
+ void socket_seq_show(struct seq_file *seq)
+ {
 
 
