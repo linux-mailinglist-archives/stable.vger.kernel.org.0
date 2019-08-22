@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57FBF99D43
+	by mail.lfdr.de (Postfix) with ESMTP id C134899D44
 	for <lists+stable@lfdr.de>; Thu, 22 Aug 2019 19:41:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391782AbfHVRX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Aug 2019 13:23:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44804 "EHLO mail.kernel.org"
+        id S2405118AbfHVRlN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Aug 2019 13:41:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391767AbfHVRX7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2391775AbfHVRX7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 22 Aug 2019 13:23:59 -0400
 Received: from localhost (wsip-184-188-36-2.sd.sd.cox.net [184.188.36.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5E802341D;
-        Thu, 22 Aug 2019 17:23:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3BE023400;
+        Thu, 22 Aug 2019 17:23:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1566494638;
-        bh=nMFYjPTxcPdrrFI4O258toqIKPFroB9lSfcn3O8O7Ck=;
+        bh=xOV+gfsvhKxuTMaRavsJgT56mMrub52ODkJUQy0F564=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NlU6iJfhTXQa7AcNopQZ7IDsxdRjyVyaKGcWFzl3sMCdzliNyQkbnlupFiE+V5ykP
-         kuef+6jt0la5ai5mD0mO1MRp34nOltj8E4KZ6P3DH7x35VnsUDlXMCkkkr2I0rfc6g
-         2At94ISnU33vLeLExx3wYlHEv7q/deC+TRvR+L/U=
+        b=bz6LeGy/LIi/w7Ejw+5xFIIqu7ZHuPbiJLAcm4kbJJhkYD3mxZeiqQKnnyFGHBbxA
+         m0B6KN7TvWkr5soTUi2xJPktAnn2fk0BZMJD7uH5WUsPIbLcaCOM09S9f49VEaKpwy
+         2irGwtRBZtst8ruW7EF04n8AlbVnupHSkcLVR8g8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Numfor Mbiziwo-Tiapo <nums@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Drayton <mbd@fb.com>, Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 071/103] perf header: Fix use of unitialized value warning
-Date:   Thu, 22 Aug 2019 10:18:59 -0700
-Message-Id: <20190822171731.763340998@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jeffrin Jose T <jeffrin@rajagiritech.edu.in>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 072/103] libata: zpodd: Fix small read overflow in zpodd_get_mech_type()
+Date:   Thu, 22 Aug 2019 10:19:00 -0700
+Message-Id: <20190822171731.819218616@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190822171728.445189830@linuxfoundation.org>
 References: <20190822171728.445189830@linuxfoundation.org>
@@ -50,66 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 20f9781f491360e7459c589705a2e4b1f136bee9 ]
+[ Upstream commit 71d6c505b4d9e6f76586350450e785e3d452b346 ]
 
-When building our local version of perf with MSAN (Memory Sanitizer) and
-running the perf record command, MSAN throws a use of uninitialized
-value warning in "tools/perf/util/util.c:333:6".
+Jeffrin reported a KASAN issue:
 
-This warning stems from the "buf" variable being passed into "write".
-It originated as the variable "ev" with the type union perf_event*
-defined in the "perf_event__synthesize_attr" function in
-"tools/perf/util/header.c".
+  BUG: KASAN: global-out-of-bounds in ata_exec_internal_sg+0x50f/0xc70
+  Read of size 16 at addr ffffffff91f41f80 by task scsi_eh_1/149
+  ...
+  The buggy address belongs to the variable:
+    cdb.48319+0x0/0x40
 
-In the "perf_event__synthesize_attr" function they allocate space with a malloc
-call using ev, then go on to only assign some of the member variables before
-passing "ev" on as a parameter to the "process" function therefore "ev"
-contains uninitialized memory. Changing the malloc call to zalloc to initialize
-all the members of "ev" which gets rid of the warning.
+Much like commit 18c9a99bce2a ("libata: zpodd: small read overflow in
+eject_tray()"), this fixes a cdb[] buffer length, this time in
+zpodd_get_mech_type():
 
-To reproduce this warning, build perf by running:
-make -C tools/perf CLANG=1 CC=clang EXTRA_CFLAGS="-fsanitize=memory\
- -fsanitize-memory-track-origins"
+We read from the cdb[] buffer in ata_exec_internal_sg(). It has to be
+ATAPI_CDB_LEN (16) bytes long, but this buffer is only 12 bytes.
 
-(Additionally, llvm might have to be installed and clang might have to
-be specified as the compiler - export CC=/usr/bin/clang)
-
-then running:
-tools/perf/perf record -o - ls / | tools/perf/perf --no-pager annotate\
- -i - --stdio
-
-Please see the cover letter for why false positive warnings may be
-generated.
-
-Signed-off-by: Numfor Mbiziwo-Tiapo <nums@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Drayton <mbd@fb.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Link: http://lkml.kernel.org/r/20190724234500.253358-2-nums@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Reported-by: Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
+Fixes: afe759511808c ("libata: identify and init ZPODD devices")
+Link: https://lore.kernel.org/lkml/201907181423.E808958@keescook/
+Tested-by: Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/header.c | 2 +-
+ drivers/ata/libata-zpodd.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
-index 693dcd4ea6a38..61e3c482935ad 100644
---- a/tools/perf/util/header.c
-+++ b/tools/perf/util/header.c
-@@ -2943,7 +2943,7 @@ int perf_event__synthesize_attr(struct perf_tool *tool,
- 	size += sizeof(struct perf_event_header);
- 	size += ids * sizeof(u64);
- 
--	ev = malloc(size);
-+	ev = zalloc(size);
- 
- 	if (ev == NULL)
- 		return -ENOMEM;
+diff --git a/drivers/ata/libata-zpodd.c b/drivers/ata/libata-zpodd.c
+index 7017a81d53cf2..083856272e92a 100644
+--- a/drivers/ata/libata-zpodd.c
++++ b/drivers/ata/libata-zpodd.c
+@@ -55,7 +55,7 @@ static enum odd_mech_type zpodd_get_mech_type(struct ata_device *dev)
+ 	unsigned int ret;
+ 	struct rm_feature_desc *desc;
+ 	struct ata_taskfile tf;
+-	static const char cdb[] = {  GPCMD_GET_CONFIGURATION,
++	static const char cdb[ATAPI_CDB_LEN] = {  GPCMD_GET_CONFIGURATION,
+ 			2,      /* only 1 feature descriptor requested */
+ 			0, 3,   /* 3, removable medium feature */
+ 			0, 0, 0,/* reserved */
 -- 
 2.20.1
 
